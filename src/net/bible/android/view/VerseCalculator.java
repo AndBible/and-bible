@@ -53,7 +53,9 @@ public class VerseCalculator {
 
 	private void calculateNumVerses() {
 		try {
+			Log.d(TAG, "Calculate number of verses");
 			numVerses = CurrentPassage.getInstance().getNumberOfVersesDisplayed();
+			Log.d(TAG, "Calculated number of verses:"+numVerses);
 		} catch (Exception e) {
 			Log.e(TAG, e.getMessage());
 		}

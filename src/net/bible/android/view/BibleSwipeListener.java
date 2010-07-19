@@ -2,6 +2,7 @@ package net.bible.android.view;
 
 import net.bible.android.CurrentPassage;
 import android.content.Context;
+import android.util.Log;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
@@ -14,6 +15,8 @@ public class BibleSwipeListener extends SimpleOnGestureListener {
 	
 	private int minScaledVelocity;
 	private Context context;
+	
+	private static final String TAG = "BibleSwipeListener";
 	
 	public BibleSwipeListener(Context context) {
 		super();
@@ -48,4 +51,14 @@ public class BibleSwipeListener extends SimpleOnGestureListener {
 		}
 		return false;
 	}
+
+	@Override
+	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+			float distanceY) {
+		Log.d(TAG, "On swipeListener scroll");
+		// TODO Auto-generated method stub
+		return super.onScroll(e1, e2, distanceX, distanceY);
+	}
+	
+	
 }

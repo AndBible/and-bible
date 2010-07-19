@@ -44,19 +44,6 @@ public class BibleGestureNavigation extends WebView {
 		verseCalculator = new VerseCalculator();
 	}
 	
-	@Override
-	public void scrollTo(int x, int y) {
-		super.scrollTo(x, y);
-		updateVerseCalculator();
-	}
-
-	@Override
-	protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-		Log.d(TAG, "scrollchanged:"+l+" "+t);
-		super.onScrollChanged(l, t, oldl, oldt);
-		updateVerseCalculator();
-	}
-
 	private long lastHandledTrackballEventTime = 0;
 
 	/** handle right/left trackpad movement by going next/prev page
@@ -98,7 +85,10 @@ public class BibleGestureNavigation extends WebView {
 				}
 			}
 			if (!isHandled) {
-				isHandled = super.onTrackballEvent(event); 
+				isHandled = super.onTrackballEvent(event);
+				
+				// trackballs that don't change page probably scroll page so update current verse 
+				updateVerseCalculator();
 			}
 		} catch (Exception e) {
 			Log.e(TAG, "Error changing page", e);
@@ -106,21 +96,16 @@ public class BibleGestureNavigation extends WebView {
 		return isHandled;
 	}
 
-	/** if there is a scroll event then update the current verse
-	 */
 	@Override
-	public void scrollBy(int x, int y) {
-		Log.d(TAG, "scrollby:"+x+" "+y);
-
-		// TODO Auto-generated method stub
-		super.scrollBy(x, y);
+	protected void onScrollChanged(int l, int t, int oldl, int oldt) {
+		Log.d(TAG, "scrollchanged:"+l+" "+t);
+		super.onScrollChanged(l, t, oldl, oldt);
 		updateVerseCalculator();
 	}
 
 
 	private void updateVerseCalculator() {
-		int verticalscrollRange = getCachedVerticalScrollRange();
-		int y = getScrollY();
+		int verticalscrollRange = computeVerticalScrollRange();
 
 		Log.d(TAG, "updating verse calculator:"+verticalscrollRange+" height:"+getHeight());
 		if (verticalscrollRange>0 && verseCalculator!=null) {
@@ -130,14 +115,7 @@ public class BibleGestureNavigation extends WebView {
 			verseCalculator.setMaxScrollRange(maxScrollRange);
 		}
 
+		int y = getScrollY();
 		verseCalculator.newPosition(y);
-	}
-	
-	private int cachedVerticalScrollRange;
-	private int getCachedVerticalScrollRange() {
-		if (cachedVerticalScrollRange==0) {
-			cachedVerticalScrollRange = computeVerticalScrollRange(); 
-		}
-		return cachedVerticalScrollRange; 
 	}
 }

@@ -116,6 +116,7 @@ public class CurrentPassage extends Observable {
 	}
 	
 	private void notifyObserversOfChange() {
+		Log.d(TAG, "Notify current passage observers of change chapter:"+currentChapter);
 		this.setChanged();
 		this.notifyObservers();
 	}

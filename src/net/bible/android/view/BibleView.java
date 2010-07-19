@@ -93,9 +93,16 @@ public class BibleView extends BibleGestureNavigation {
         protected void onPostExecute(String htmlFromDoInBackground) {
             Log.d(TAG, "Loading "+htmlFromDoInBackground);
             showText(htmlFromDoInBackground);
+            
+            onPostNewPageDisplay();
         }
     }
 	private void showText(String text) {
         loadData(text, "text/html", "UTF-8");
     }
+
+	/** called after a new page has been diaplayed
+	 */
+	protected void onPostNewPageDisplay() {
+	}
 }
