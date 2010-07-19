@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="net.bible.android.activity"
+      android:versionName="0.0.4" android:versionCode="004">
+    <application android:icon="@drawable/bible" android:label="@string/app_name">
+        <activity android:name=".MainBibleActivity"
+                  android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".ChooseDocument"
+                  android:label="@string/chooseBookButton">
+        </activity>
+        <activity android:name=".ChoosePassageBook"
+                  android:label="@string/choosePassageBookName">
+        </activity>
+        <activity android:name=".ChoosePassageChapter"
+                  android:label="@string/choosePassageChapterName">
+        </activity>
+        <activity android:name=".Search"
+                  android:label="@string/search">
+        </activity>
+        <activity android:name=".FolderPicker"
+                  android:label="@string/use_folder">
+        </activity>
+</application>
+<uses-sdk android:minSdkVersion="4"/>
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+</manifest> 
