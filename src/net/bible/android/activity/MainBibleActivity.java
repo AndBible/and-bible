@@ -20,6 +20,10 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 
+/** The main activity screen showing Bible text
+ * 
+ * @author denha1m
+ */
 public class MainBibleActivity extends Activity {
 
 	private Hourglass hourglass = new Hourglass();
