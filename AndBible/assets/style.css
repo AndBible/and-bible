@@ -1,0 +1,26 @@
+/* colours:  http://www.w3schools.com/css/css_colornames.asp 
+*/
+
+body {
+	font-family: serif;
+	line-height: 1.6em;
+}
+
+h1 {
+	color: navy;
+	text-align: center;
+	font-size: 1.2em;
+	margin-top: 1px;
+	margin-bottom: 2px;
+}
+
+.verse {
+	color: Gray;
+	vertical-align: top;
+	font-size: 0.7em;
+}
+.note {
+	color: Gray;
+	vertical-align: top;
+	font-size: 0.7em;
+}
