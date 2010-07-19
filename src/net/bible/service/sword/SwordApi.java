@@ -85,17 +85,7 @@ public class SwordApi {
 	public Book getDocumentByInitials(String initials) {
 		log.debug("Getting book:"+initials);
 
-		for (Book document : allDocuments) {
-			if (document.getInitials().equalsIgnoreCase(initials)) {
-				return document;
-			}
-		}
-
-		log.debug("Document "+initials+" not found");
-		if (allDocuments.size()>0) {
-			return allDocuments.get(0);
-		}
-		return null;
+		return Books.installed().getBook(initials);
 	}
 
 	/** top level method to fetch html from the raw document data
@@ -132,16 +122,18 @@ public class SwordApi {
 		log.debug("Using fast method to fetch document data");
 		InputStream is = new OSISInputStream(book, key);
 
-		OsisToHtmlSaxHandler html = new OsisToHtmlSaxHandler();
+		OsisToHtmlSaxHandler osisToHtml = new OsisToHtmlSaxHandler();
 		BookMetaData bmd = book.getBookMetaData();
-		html.setLeftToRight(bmd.isLeftToRight());
+		osisToHtml.setLeftToRight(bmd.isLeftToRight());
 	
 		SAXParserFactory spf = SAXParserFactory.newInstance();
 		spf.setValidating(false);
 		SAXParser parser = spf.newSAXParser();
-		parser.parse(is, html);
+		parser.parse(is, osisToHtml);
 		
-        return html.toString();
+		log.debug("notes:"+osisToHtml.getNotes());
+		
+        return osisToHtml.toString();
 	}
 
 	private String readHtmlTextStandardJSwordMethod(Book book, Key key, int maxKeyCount) throws NoSuchKeyException, BookException, IOException, SAXException, URISyntaxException

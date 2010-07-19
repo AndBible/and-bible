@@ -13,23 +13,47 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
+/**
+ * Convert OSIS tags into html tags
+ * 
+ *  Example OSIS tags from KJV Ps 119 v1 showing title, w, note
+<title canonical="true" subType="x-preverse" type="section">
+	<foreign n="?">ALEPH.</foreign>
+</title>
+<w lemma="strong:H0835">Blessed</w> <transChange type="added">are</transChange> <w lemma="strong:H08549">the undefiled</w>
+...  <w lemma="strong:H01980" morph="strongMorph:TH8802">who walk</w> 
+... <w lemma="strong:H03068">of the <seg><divineName>Lord</divineName></seg></w>.
+<note type="study">undefiled: or, perfect, or, sincere</note>
 
+Example of notes cross references from ESV 
+In the <note n="a" osisID="Gen.1.1!crossReference.a" osisRef="Gen.1.1" type="crossReference"><reference osisRef="Job.38.4-Job.38.7">Job 38:4-7</reference>; <reference osisRef="Ps.33.6">Ps. 33:6</reference>; <reference osisRef="Ps.136.5">136:5</reference>; <reference osisRef="Isa.42.5">Isa. 42:5</reference>; <reference osisRef="Isa.45.18">45:18</reference>; <reference osisRef="John.1.1-John.1.3">John 1:1-3</reference>; <reference osisRef="Acts.14.15">Acts 14:15</reference>; <reference osisRef="Acts.17.24">17:24</reference>; <reference osisRef="Col.1.16-Col.1.17">Col. 1:16, 17</reference>; <reference osisRef="Heb.1.10">Heb. 1:10</reference>; <reference osisRef="Heb.11.3">11:3</reference>; <reference osisRef="Rev.4.11">Rev. 4:11</reference></note>beginning
+ * @author denha1m
+ *
+ */
 public class OsisToHtmlSaxHandler extends DefaultHandler {
     
     // properties
+    private boolean isLeftToRight = true;
     private boolean isHeadings = true;
     private boolean isVerseNumbers = true;
+    
+    // internal logic
     private boolean isDelayVerse = false;
     private String currentVerse;
+    private int noteCount = 0;
 
-    private boolean isLeftToRight = true;
-    
     // debugging
     private boolean isDebugMode = false;
 
     private boolean isWriteContent = true;
+    private boolean isWriteNote = false;
     
     private Writer writer;
+    
+    //todo temporarily use a string but later switch to Map<int,String> of verse->note
+    private StringBuffer notes = new StringBuffer();
+
+    private static final String NBSP = "&#160;";
     
     private static final Logger log = new Logger("OsisToHtmlSaxHandler");
     
@@ -52,7 +76,7 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
 
     public void startDocument () throws SAXException
     {
-        write("<html dir='"+getDirection()+"'><head><meta charset='utf-8'/></head><body>");
+        write("<html dir='"+getDirection()+"'><head><link href='file:///android_asset/style.css' rel='stylesheet' type='text/css'/><meta charset='utf-8'/></head><body>");
     }
 
     /*
@@ -81,13 +105,18 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
       
       if (name.equals("title") && this.isHeadings) {
     	  isDelayVerse = true;
-          write("<h3>");
+          write("<h1>");
       } else if (name.equals("verse")) {
           if (isVerseNumbers) {
         	  currentVerse = osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID));
           }
       } else if (name.equals("note")) {
+    	  String noteRef = getNextNoteRef();
+    	  write("<span class='note'>"+noteRef+"</span> ");
+    	  notes.append(noteRef+":");
+    	  
           isWriteContent = false;
+          isWriteNote = true;
       } else if (name.equals("lb") || name.equals("p")) {
           write("<p />");
       }
@@ -123,11 +152,13 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
       debug(name, null, false);
       
       if (name.equals("title") && this.isHeadings) {
-          write("</h3>");
+          write("</h1>");
           isDelayVerse = false;
       } else if (name.equals("verse")) {
       } else if (name.equals("note")) {
           isWriteContent = true;
+          isWriteNote = false;
+    	  notes.append("\n");
       } else if (name.equals("l")) {
     	  write("<br />");
       }
@@ -145,11 +176,14 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
             String s = new String(buf, offset, len);
             write(s);
         }
+        if (isWriteNote) {
+        	notes.append(buf, offset, len); 
+        }
     }
 
 	private void writeVerse() throws SAXException {
     	if (!isDelayVerse && currentVerse!=null) {
-    		write("<small><span color='red'>"+currentVerse+"</span></small> ");
+    		write("<span class='verse'>"+currentVerse+"</span>"+NBSP);
     		currentVerse = null;
     	}
     }
@@ -182,6 +216,17 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
     public String getDirection() {
         return isLeftToRight ? "ltr" : "rtl";
     }
+    
+    /** keep going from a-z
+     * 
+     * @return a single char to use as a note ref
+     */
+    private String getNextNoteRef() {
+    	int inta = (int)'a';
+    	char nextNoteChar = (char)(inta+(noteCount++ % 26));
+    	
+    	return String.valueOf(nextNoteChar);
+    }
 
     private void debug(String name, Attributes attrs, boolean isStartTag) throws SAXException {
 	    if (isDebugMode) {
@@ -207,6 +252,9 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
     }
 	public void setDebugMode(boolean isDebugMode) {
 		this.isDebugMode = isDebugMode;
+	}
+	public String getNotes() {
+		return notes.toString();
 	}
 }
 
