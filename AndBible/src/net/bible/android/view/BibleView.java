@@ -27,14 +27,17 @@ public class BibleView extends BibleGestureNavigation {
 	
 	public BibleView(Context context) {
 		super(context);
+		Log.d(TAG, "bible view noattribsorstyle");
 		initialise();		
 	}
 	public BibleView(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		Log.d(TAG, "bible view nostyle");
 		initialise();		
 	}
 	public BibleView(Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
+		Log.d(TAG, "bible view style="+defStyle);
 		initialise();		
 	}
 	
@@ -98,7 +101,7 @@ public class BibleView extends BibleGestureNavigation {
         }
     }
 	private void showText(String text) {
-        loadData(text, "text/html", "UTF-8");
+        loadDataWithBaseURL("http://baseUrl", text, "text/html", "UTF-8", "http://historyUrl");
     }
 
 	/** called after a new page has been diaplayed
