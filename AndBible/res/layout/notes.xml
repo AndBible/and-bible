@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+	<TextView android:id="@+id/title" 
+		android:layout_height="wrap_content" 
+		android:layout_width="fill_parent" 
+		android:layout_alignParentTop="true"
+		android:textSize="16sp"/>
+	<ListView android:id="@+id/notesList" 
+		android:layout_height="fill_parent" 
+		android:layout_width="fill_parent"
+		android:layout_below="@+id/title" 
+		android:layout_alignParentBottom="true"/>
+<!-- <Button android:id="@+id/nextButton"
+ 		android:text="@string/search"
+		android:layout_width="wrap_content" 
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/searchText"
+		android:layout_alignParentRight="true"
+		android:onClick="onSearch"
+		/>
+ -->
+</RelativeLayout>
