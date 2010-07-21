@@ -5,6 +5,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import net.bible.android.CurrentPassage;
+import net.bible.android.util.DataPipe;
 import net.bible.android.util.Hourglass;
 import net.bible.android.view.BibleContentManager;
 import net.bible.android.view.BibleSwipeListener;
@@ -65,25 +66,28 @@ public class MainBibleActivity extends Activity {
         
     	// Activities
     	{
-	    	Class<? extends Activity> handlerClass = null;
+    		Intent handlerIntent = null;
 	        // Handle item selection
 	        switch (item.getItemId()) {
 	        case R.id.chooseBookButton:
-	        	handlerClass = ChooseDocument.class;
+	        	handlerIntent = new Intent(this, ChooseDocument.class);
 	        	break;
 	        case R.id.selectPassageButton:
-	        	handlerClass = ChoosePassageBook.class;
+	        	handlerIntent = new Intent(this, ChoosePassageBook.class);
 	        	break;
 	        case R.id.searchButton:
-	        	handlerClass = Search.class;
+	        	handlerIntent = new Intent(this, Search.class);
 	        	break;
 	        case R.id.settingsButton:
-	        	handlerClass = SettingsActivity.class;
+	        	handlerIntent = new Intent(this, SettingsActivity.class);
+	        	break;
+	        case R.id.notesButton:
+	        	handlerIntent = new Intent(this, NotesActivity.class);
+	        	DataPipe.getInstance().pushNotes(bibleContentManager.getNotesList());
 	        	break;
 	        }
 	
-	        if (handlerClass!=null) {
-	        	Intent handlerIntent = new Intent(this, handlerClass);
+	        if (handlerIntent!=null) {
 	        	startActivityForResult(handlerIntent, 1);
 	        	isHandled = true;
 	        } 
@@ -185,31 +189,31 @@ public class MainBibleActivity extends Activity {
             case Hourglass.HOURGLASS_KEY:
                 hourglass.show(this);
                 return hourglass.getHourglass();
-            case DIALOG_NOTES:
-            	final List<Note> notesList = bibleContentManager.getNotesList(CurrentPassage.getInstance().getCurrentVerse());
-                SimpleAdapter adapter = new SimpleAdapter(this, notesList, 
-                        R.layout.two_line_list_item_copy, 
-                        new String[] {Note.SUMMARY, Note.DETAIL}, 
-                        new int[] {android.R.id.text1, android.R.id.text2});
-            	
-           	
-                return new AlertDialog.Builder(MainBibleActivity.this)
-                .setTitle(R.string.notes)
-                .setCancelable(true)
-                .setAdapter(adapter, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int selected) {
-                    	Note selectedNote = notesList.get(selected);
-                    	if (selectedNote.isNavigable()) {
-                    		selectedNote.navigateTo();
-                    	}
-                    }
-                })
-                .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int selected) {
-                    	// do nothing but allow return to current page
-                    }
-                })
-                .create();
+//            case DIALOG_NOTES:
+//            	final List<Note> notesList = bibleContentManager.getNotesList(CurrentPassage.getInstance().getCurrentVerse());
+//                SimpleAdapter adapter = new SimpleAdapter(this, notesList, 
+//                        R.layout.two_line_list_item_copy, 
+//                        new String[] {Note.SUMMARY, Note.DETAIL}, 
+//                        new int[] {android.R.id.text1, android.R.id.text2});
+//            	
+//           	
+//                return new AlertDialog.Builder(MainBibleActivity.this)
+//                .setTitle(R.string.notes)
+//                .setCancelable(true)
+//                .setAdapter(adapter, new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int selected) {
+//                    	Note selectedNote = notesList.get(selected);
+//                    	if (selectedNote.isNavigable()) {
+//                    		selectedNote.navigateTo();
+//                    	}
+//                    }
+//                })
+//                .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
+//                    public void onClick(DialogInterface dialog, int selected) {
+//                    	// do nothing but allow return to current page
+//                    }
+//                })
+//                .create();
         }
         return null;
     }
