@@ -128,6 +128,15 @@ public class CurrentPassage extends Observable {
 		setCurrentVerse(verse.getVerse());
 		notifyObserversOfChange();
 	}
+	public void setKey(String keyText) {
+		Log.d(TAG, "key text:"+keyText);
+		try {
+			Key key = currentDocument.getKey(keyText);
+			setKey(key);
+		} catch (NoSuchKeyException nske) {
+			Log.e(TAG, "Invalid verse reference:"+keyText);
+		}
+	}
 	
 	public Key getKey() {
 		Key key = null;

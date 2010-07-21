@@ -6,6 +6,7 @@
     <string name="choosePassageBookName">Choose Book</string>
     <string name="choosePassageChapterName">Choose Chapter</string>
     <string name="search">Find</string>
+    <string name="notes">Notes</string>
     <string name="settings">Settings</string>
     <string name="index">Index</string>
     <string name="module_dir">Dir</string>
@@ -14,4 +15,6 @@
     <string name="sdcard_error">Sorry, you have no SD card!</string>
     <string name="directory_error">Sorry, unable to access directory %s</string> 
     <string name="help_text">Welcome\nBook Navigation\nFlings:\nFling your finger left to see the next page\nFling your finger right to go back a page\nRoll the track-ball left or right to go forward or back a page.</string>
+    <string name="okay">OK</string>
+    <string name="cancel">Cancel</string>
 </resources>

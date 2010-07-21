@@ -2,7 +2,6 @@
 */
 
 body {
-	font-family: serif;
 	line-height: 1.6em;
 }
 
@@ -19,8 +18,12 @@ h1 {
 	vertical-align: top;
 	font-size: 0.7em;
 }
-.note {
-	color: Gray;
-	vertical-align: top;
+.noteRef {
+	color: Green;
+	vertical-align: bottom;
 	font-size: 0.7em;
+}
+.notes {
+	font-size: 0.9em;
+	line-height: 1.0em;
 }

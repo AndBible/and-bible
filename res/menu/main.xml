@@ -9,6 +9,9 @@
 	<item android:id="@+id/searchButton"
 		  android:title="@string/search"/>
 
+	<item android:id="@+id/notesButton"
+		  android:title="@string/notes"/>
+
 	<item android:id="@+id/settingsButton"
 		  android:title="@string/settings"/>
 </menu>

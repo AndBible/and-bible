@@ -4,15 +4,16 @@ package net.bible.service.format;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.List;
 
+import net.bible.service.format.Note.NoteType;
 import net.bible.service.sword.Logger;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 /**
  * Convert OSIS tags into html tags
@@ -41,7 +42,8 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
     
     // internal logic
     private boolean isDelayVerse = false;
-    private String currentVerse;
+    private boolean isCurrentVerseNoWritten = false;
+    private int currentVerseNo;
     private int noteCount = 0;
 
     // debugging
@@ -53,7 +55,9 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
     private Writer writer;
     
     //todo temporarily use a string but later switch to Map<int,String> of verse->note
-    private StringBuffer notes = new StringBuffer();
+    private List<Note> notesList = new ArrayList<Note>();
+    private String currentNoteRef;
+    private StringBuffer currentNote = new StringBuffer();
 
     private static final String NBSP = "&#160;";
     
@@ -76,6 +80,7 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
         return writer.toString();
     }
 
+    @Override
     public void startDocument () throws SAXException
     {
     	log.debug("Show verses:"+isShowVerseNumbers+" nores:"+isShowNotes);
@@ -85,9 +90,9 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
     /*
      *Called when the Parser Completes parsing the Current XML File.
     */
+    @Override
     public void endDocument () throws SAXException
     {
-    	write("<notes>"+notes.toString()+"</notes>");
         write("</body></html>");
     }
 
@@ -97,6 +102,7 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
      * Encountered while parsing the Current XML File. The AttributeList Parameter has
      * the list of all Attributes declared for the Current Element in the XML File.
     */
+    @Override
     public void startElement(String namespaceURI,
             String sName, // simple name
             String qName, // qualified name
@@ -112,18 +118,23 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
 			write("<h1>");
 		} else if (name.equals("verse")) {
 			if (isShowVerseNumbers) {
-				currentVerse = osisIdToVerseNum(attrs.getValue("",
-						OSISUtil.OSIS_ATTR_OSISID));
+				isCurrentVerseNoWritten = false;
+				currentVerseNo = osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID));
 			}
 		} else if (name.equals("note")) {
 			if (isShowNotes) {
 				String noteRef = getNoteRef(attrs);
-				write("<span class='note'>" + noteRef + "</span> ");
-				notes.append(noteRef + ":");
+				write("<span class='noteRef'>" + noteRef + "</span> ");
 
+				// prepare to fetch the actual note into the notes repo
+				currentNoteRef = noteRef;
 				isWriteNote = true;
 			}
 			isWriteContent = false;
+		} else if (name.equals("reference") && isWriteNote) {
+			// don't need to do anything until closing reference tag except..
+			// delete separators like ';' that sometimes occur between reference tags
+			currentNote.delete(0, currentNote.length());
 		} else if (name.equals("lb")) {
 			write("<br />");
 		} else if (name.equals("l")) {
@@ -142,25 +153,11 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
 		}
 	}
     
-    /** return verse from osos id of format book.chap.verse
-     * 
-     * @param s osis Id
-     * @return verse number
-     */
-    private String osisIdToVerseNum(String s) {
-       /* You have to use "\\.", the first backslash is interpreted as an escape by the
-        Java compiler, so you have to use two to get a String that contains one
-        backslash and a dot, which is what you want the regexp engine to see.*/
-        String[] parts = s.split("\\.");
-        if (parts.length>1) {
-            return parts[parts.length-1];
-        }
-        return "";
-    }
     /*
      * Called when the Ending of the current Element is reached. For example in the
      * above explanation, this method is called when </Title> tag is reached
     */
+    @Override
     public void endElement(String namespaceURI,
             String sName, // simple name
             String qName  // qualified name
@@ -176,11 +173,21 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
 			isDelayVerse = false;
 		} else if (name.equals("verse")) {
 		} else if (name.equals("note")) {
-			if (isShowNotes) {
+			if (isShowNotes  && currentNote.length()>0) {
 				isWriteNote = false;
-				notes.append("\n");
+				Note note = new Note(currentVerseNo, currentNoteRef, currentNote.toString(), NoteType.TYPE_GENERAL);
+				notesList.add(note);
+				// and clear the buffer
+				currentNote.delete(0, currentNote.length());
 			}
 			isWriteContent = true;
+		} else if (name.equals("reference") && isWriteNote) {
+			if (isShowNotes) {
+				Note note = new Note(currentVerseNo, currentNoteRef, currentNote.toString(), NoteType.TYPE_REFERENCE);
+				notesList.add(note);
+				// and clear the buffer
+				currentNote.delete(0, currentNote.length());
+			}
 		} else if (name.equals("l")) {
 		} else if (name.equals("q")) {
 			// end quotation, but <q /> tag is a marker and contains no content so <q /> will appear at beginning and end of speech
@@ -192,6 +199,7 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
      * are encountered then this method is called. If you don't want to do anything
      * special with these characters, then you can normally leave this method blank.
     */
+    @Override
     public void characters (char buf [], int offset, int len) throws SAXException
     {
     	writeVerse();
@@ -200,16 +208,34 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
             write(s);
         }
         if (isWriteNote) {
-        	notes.append(buf, offset, len); 
+        	currentNote.append(buf, offset, len); 
         }
     }
 
 	private void writeVerse() throws SAXException {
-    	if (!isDelayVerse && currentVerse!=null) {
-    		write("<span class='verse'>"+currentVerse+"</span>"+NBSP);
-    		currentVerse = null;
+    	if (isShowVerseNumbers && !isDelayVerse && !isCurrentVerseNoWritten) {
+    		write("<span class='verse'>"+currentVerseNo+"</span>"+NBSP);
+    		isCurrentVerseNoWritten = true;
     	}
     }
+	
+    /** return verse from osis id of format book.chap.verse
+     * 
+     * @param ososID osis Id
+     * @return verse number
+     */
+    private int osisIdToVerseNum(String ososID) {
+       /* You have to use "\\.", the first backslash is interpreted as an escape by the
+        Java compiler, so you have to use two to get a String that contains one
+        backslash and a dot, which is what you want the regexp engine to see.*/
+        String[] parts = ososID.split("\\.");
+        if (parts.length>1) {
+            String verse =  parts[parts.length-1];
+            return Integer.valueOf(verse);
+        }
+        return 0;
+    }
+
     /*
      * In the XML File if the parser encounters a Processing Instruction which is
      * declared like this  <?ProgramName:BooksLib QUERY="author, isbn, price"?> 
@@ -256,6 +282,18 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
     	return noteRef;
     }
 
+    /** check the value of the specified attribute and return true if same as checkvalue
+     * 
+     * @param attrs
+     * @param attrName
+     * @param checkValue
+     * @return
+     */
+    private boolean isAttrValue(Attributes attrs, String attrName, String checkValue) {
+    	String value = attrs.getValue(attrName);
+    	return checkValue.equals(value);
+    }
+    
     private void debug(String name, Attributes attrs, boolean isStartTag) throws SAXException {
 	    if (isDebugMode) {
 	        write("*"+name);
@@ -287,8 +325,8 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
 	public void setDebugMode(boolean isDebugMode) {
 		this.isDebugMode = isDebugMode;
 	}
-	public String getNotes() {
-		return notes.toString();
+	public List<Note> getNotesList() {
+		return notesList;
 	}
 }
 

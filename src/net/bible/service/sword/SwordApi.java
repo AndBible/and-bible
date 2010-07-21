@@ -11,7 +11,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import net.bible.android.activity.R;
+import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.OsisToHtmlSaxHandler;
 
 import org.crosswire.common.util.CWProject;
@@ -28,7 +28,6 @@ import org.crosswire.jsword.book.sword.SwordBookPath;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.Passage;
-import org.xml.sax.HandlerBase;
 import org.xml.sax.SAXException;
 
 import android.content.SharedPreferences;
@@ -106,23 +105,23 @@ public class SwordApi {
 	 * @throws URISyntaxException
 	 * @throws ParserConfigurationException
 	 */
-	public String readHtmlText(Book book, Key key, int maxKeyCount) throws NoSuchKeyException, BookException, IOException, SAXException, URISyntaxException, ParserConfigurationException
+	public FormattedDocument readHtmlText(Book book, Key key, int maxKeyCount) throws NoSuchKeyException, BookException, IOException, SAXException, URISyntaxException, ParserConfigurationException
 	{
-		String html = "";
+		FormattedDocument retVal = new FormattedDocument();
 		if (!book.contains(key)) {
-			html = "";
+			retVal.setHtmlPassage("Not found in document");
 		} else {
 			if ("OSIS".equals(book.getBookMetaData().getProperty("SourceType")) &&
 				"zText".equals(book.getBookMetaData().getProperty("ModDrv"))) {
-				html = readHtmlTextOptimizedZTextOsis(book, key, maxKeyCount);
+				retVal = readHtmlTextOptimizedZTextOsis(book, key, maxKeyCount);
 			} else {
-				html = readHtmlTextStandardJSwordMethod(book, key, maxKeyCount);
+				retVal = readHtmlTextStandardJSwordMethod(book, key, maxKeyCount);
 			}
 		}
-		return html;
+		return retVal;
 	}
 
-	private String readHtmlTextOptimizedZTextOsis(Book book, Key key, int maxKeyCount) throws NoSuchKeyException, BookException, IOException, SAXException, URISyntaxException, ParserConfigurationException
+	private FormattedDocument readHtmlTextOptimizedZTextOsis(Book book, Key key, int maxKeyCount) throws NoSuchKeyException, BookException, IOException, SAXException, URISyntaxException, ParserConfigurationException
 	{
 		log.debug("Using fast method to fetch document data");
 		InputStream is = new OSISInputStream(book, key);
@@ -134,27 +133,32 @@ public class SwordApi {
 		SAXParser parser = spf.newSAXParser();
 		parser.parse(is, osisToHtml);
 		
-		log.debug("notes:"+osisToHtml.getNotes());
+		FormattedDocument retVal = new FormattedDocument();
+		retVal.setHtmlPassage(osisToHtml.toString());
+		retVal.setNotesList(osisToHtml.getNotesList());
 		
-        return osisToHtml.toString();
+        return retVal;
 	}
 
-	private String readHtmlTextStandardJSwordMethod(Book book, Key key, int maxKeyCount) throws NoSuchKeyException, BookException, IOException, SAXException, URISyntaxException
+	private FormattedDocument readHtmlTextStandardJSwordMethod(Book book, Key key, int maxKeyCount) throws NoSuchKeyException, BookException, IOException, SAXException, URISyntaxException
 	{
 		log.debug("Using standard JSword to fetch document data");
+		FormattedDocument retVal = new FormattedDocument();
+
 		BookData data = new BookData(book, key);		
 		SAXEventProvider osissep = data.getSAXEventProvider();
 		if (osissep == null) {
 			Log.e(TAG, "No osis SEP returned");
-			return "Error fetching osis"; //$NON-NLS-1$
-		}
-
-		OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book);
-
-		osissep.provideSAXEvents(osisToHtml);
-
-		String htmlText = osisToHtml.toString();
-        return htmlText;
+			retVal.setHtmlPassage("Error fetching osis SEP"); //$NON-NLS-1$
+		} else {
+			OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book);
+	
+			osissep.provideSAXEvents(osisToHtml);
+	
+			retVal.setHtmlPassage(osisToHtml.toString());
+			retVal.setNotesList(osisToHtml.getNotesList());
+		}		
+        return retVal;
 	}
 
 	private OsisToHtmlSaxHandler getSaxHandler(Book book) {
