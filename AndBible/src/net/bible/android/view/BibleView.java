@@ -11,6 +11,7 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -72,12 +73,15 @@ public class BibleView extends BibleGestureNavigation {
 	    		// if bible show whole chapter
 	    		Key verse = currentPassage[0].getKey();
 	
+	    		SharedPreferences preferences = getContext().getSharedPreferences("net.bible.android.activity_preferences", 0);
 	    		// wait until after current verse has been fetched because the following may change the current verse 
 //    			scrollTo(0, 0);
 	    		
 	            Log.d(TAG, "Loading "+verse);
 	    		//setText("Loading "+verse.toString());
-	            text = SwordApi.getInstance().readHtmlText(bible, verse, 200);
+	            SwordApi swordApi = SwordApi.getInstance();
+	            swordApi.setPreferences(preferences);
+	            text = swordApi.readHtmlText(bible, verse, 200);
 	
 	            if (StringUtils.isEmpty(text)) {
 	            	text = NO_CONTENT;

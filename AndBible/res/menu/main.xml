@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 	<item 	android:id="@+id/chooseBookButton" 
-			android:title="@string/chooseBookButton"
-			android:onClick="onClickChooseBook" />
+			android:title="@string/chooseBookButton"/>
 
 	<item android:id="@+id/selectPassageButton" 
-		  android:title="@string/selectPassageButton"
-		  android:onClick="onClickSelectPassage" />
+		  android:title="@string/selectPassageButton"/>
 
 	<item android:id="@+id/searchButton"
-		  android:title="@string/search" 
-		  android:onClick="onClickSearch" />
+		  android:title="@string/search"/>
 
+	<item android:id="@+id/settingsButton"
+		  android:title="@string/settings"/>
 </menu>
