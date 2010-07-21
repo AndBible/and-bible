@@ -115,14 +115,8 @@ public class BibleContentManager {
         bibleWebView.loadDataWithBaseURL("http://baseUrl", text, "text/html", "UTF-8", "http://historyUrl");
     }
 
-	public List<Note> getNotesList(int verseNo) {
-		List<Note> verseNotes = new ArrayList<Note>();
-		for (Note note : notesList) {
-			if (note.getVerseNo() == verseNo) {
-				verseNotes.add(note);
-			}
-		}
-		return verseNotes;
+	public List<Note> getNotesList() {
+		return notesList;
 	}
 	
 }
