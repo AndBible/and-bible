@@ -1,14 +1,19 @@
 package net.bible.android.activity;
 
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
 import net.bible.android.CurrentPassage;
 import net.bible.android.util.Hourglass;
+import net.bible.android.view.BibleContentManager;
 import net.bible.android.view.BibleSwipeListener;
+import net.bible.service.format.Note;
 import net.bible.service.sword.SwordApi;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -18,7 +23,8 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.View;
+import android.webkit.WebView;
+import android.widget.SimpleAdapter;
 
 /** The main activity screen showing Bible text
  * 
@@ -26,7 +32,11 @@ import android.view.View;
  */
 public class MainBibleActivity extends Activity {
 
+	private BibleContentManager bibleContentManager;
+	
 	private Hourglass hourglass = new Hourglass();
+	
+	private static final int DIALOG_NOTES = 1;
 	
 	private static final String TAG = "MainBibleActivity";
 
@@ -51,29 +61,47 @@ public class MainBibleActivity extends Activity {
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    	Class<? extends Activity> handlerClass = null;
-        // Handle item selection
-        switch (item.getItemId()) {
-        case R.id.chooseBookButton:
-        	handlerClass = ChooseDocument.class;
-        	break;
-        case R.id.selectPassageButton:
-        	handlerClass = ChoosePassageBook.class;
-        	break;
-        case R.id.searchButton:
-        	handlerClass = Search.class;
-        	break;
-        case R.id.settingsButton:
-        	handlerClass = SettingsActivity.class;
-        	break;
-        }
-
         boolean isHandled = false;
-        if (handlerClass!=null) {
-        	Intent handlerIntent = new Intent(this, handlerClass);
-        	startActivityForResult(handlerIntent, 1);
-        	isHandled = true;
-        } else {
+        
+    	// Activities
+    	{
+	    	Class<? extends Activity> handlerClass = null;
+	        // Handle item selection
+	        switch (item.getItemId()) {
+	        case R.id.chooseBookButton:
+	        	handlerClass = ChooseDocument.class;
+	        	break;
+	        case R.id.selectPassageButton:
+	        	handlerClass = ChoosePassageBook.class;
+	        	break;
+	        case R.id.searchButton:
+	        	handlerClass = Search.class;
+	        	break;
+	        case R.id.settingsButton:
+	        	handlerClass = SettingsActivity.class;
+	        	break;
+	        }
+	
+	        if (handlerClass!=null) {
+	        	Intent handlerIntent = new Intent(this, handlerClass);
+	        	startActivityForResult(handlerIntent, 1);
+	        	isHandled = true;
+	        } 
+    	}
+
+    	//Dialogs
+    	{
+    		if (!isHandled) {
+                switch (item.getItemId()) {
+                case R.id.notesButton:
+                	showDialog(DIALOG_NOTES);
+                	isHandled = true;
+                	break;
+                }
+    		}
+    	}
+
+    	if (!isHandled) {
             isHandled = super.onOptionsItemSelected(item);
         }
         
@@ -94,6 +122,9 @@ public class MainBibleActivity extends Activity {
     }
 
     private void initialiseView() {
+    	WebView bibleWebView = (WebView)findViewById(R.id.main_text);
+    	bibleContentManager = new BibleContentManager(bibleWebView, this);
+    	
     	//todo call CurrentPassage.update???
     	CurrentPassage.getInstance().addObserver(new Observer() {
 
@@ -154,6 +185,31 @@ public class MainBibleActivity extends Activity {
             case Hourglass.HOURGLASS_KEY:
                 hourglass.show(this);
                 return hourglass.getHourglass();
+            case DIALOG_NOTES:
+            	final List<Note> notesList = bibleContentManager.getNotesList(CurrentPassage.getInstance().getCurrentVerse());
+                SimpleAdapter adapter = new SimpleAdapter(this, notesList, 
+                        R.layout.two_line_list_item_copy, 
+                        new String[] {Note.SUMMARY, Note.DETAIL}, 
+                        new int[] {android.R.id.text1, android.R.id.text2});
+            	
+           	
+                return new AlertDialog.Builder(MainBibleActivity.this)
+                .setTitle(R.string.notes)
+                .setCancelable(true)
+                .setAdapter(adapter, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int selected) {
+                    	Note selectedNote = notesList.get(selected);
+                    	if (selectedNote.isNavigable()) {
+                    		selectedNote.navigateTo();
+                    	}
+                    }
+                })
+                .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int selected) {
+                    	// do nothing but allow return to current page
+                    }
+                })
+                .create();
         }
         return null;
     }
