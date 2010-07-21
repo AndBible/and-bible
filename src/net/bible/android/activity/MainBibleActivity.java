@@ -63,6 +63,9 @@ public class MainBibleActivity extends Activity {
         case R.id.searchButton:
         	handlerClass = Search.class;
         	break;
+        case R.id.settingsButton:
+        	handlerClass = SettingsActivity.class;
+        	break;
         }
 
         boolean isHandled = false;

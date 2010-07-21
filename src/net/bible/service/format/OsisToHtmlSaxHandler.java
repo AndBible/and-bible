@@ -7,6 +7,7 @@ import java.io.Writer;
 
 import net.bible.service.sword.Logger;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -34,8 +35,9 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
     
     // properties
     private boolean isLeftToRight = true;
-    private boolean isHeadings = true;
-    private boolean isVerseNumbers = true;
+    private boolean isShowHeadings = true;
+    private boolean isShowVerseNumbers = true;
+    private boolean isShowNotes = false;
     
     // internal logic
     private boolean isDelayVerse = false;
@@ -76,6 +78,7 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
 
     public void startDocument () throws SAXException
     {
+    	log.debug("Show verses:"+isShowVerseNumbers+" nores:"+isShowNotes);
         write("<html dir='"+getDirection()+"'><head><link href='file:///android_asset/style.css' rel='stylesheet' type='text/css'/><meta charset='utf-8'/></head><body>");
     }
 
@@ -84,6 +87,7 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
     */
     public void endDocument () throws SAXException
     {
+    	write("<notes>"+notes.toString()+"</notes>");
         write("</body></html>");
     }
 
@@ -99,28 +103,44 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
             Attributes attrs)
     throws SAXException
     {
-      String name = getName(sName, qName); // element name
+		String name = getName(sName, qName); // element name
 
-      debug(name, attrs, true);
-      
-      if (name.equals("title") && this.isHeadings) {
-    	  isDelayVerse = true;
-          write("<h1>");
-      } else if (name.equals("verse")) {
-          if (isVerseNumbers) {
-        	  currentVerse = osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID));
-          }
-      } else if (name.equals("note")) {
-    	  String noteRef = getNextNoteRef();
-    	  write("<span class='note'>"+noteRef+"</span> ");
-    	  notes.append(noteRef+":");
-    	  
-          isWriteContent = false;
-          isWriteNote = true;
-      } else if (name.equals("lb") || name.equals("p")) {
-          write("<p />");
-      }
-    } 
+		debug(name, attrs, true);
+
+		if (name.equals("title") && this.isShowHeadings) {
+			isDelayVerse = true;
+			write("<h1>");
+		} else if (name.equals("verse")) {
+			if (isShowVerseNumbers) {
+				currentVerse = osisIdToVerseNum(attrs.getValue("",
+						OSISUtil.OSIS_ATTR_OSISID));
+			}
+		} else if (name.equals("note")) {
+			if (isShowNotes) {
+				String noteRef = getNoteRef(attrs);
+				write("<span class='note'>" + noteRef + "</span> ");
+				notes.append(noteRef + ":");
+
+				isWriteNote = true;
+			}
+			isWriteContent = false;
+		} else if (name.equals("lb")) {
+			write("<br />");
+		} else if (name.equals("l")) {
+			// Refer to Gen 3:14 in ESV for example use of type=x-indent
+			String type = attrs.getValue("type");
+			if (StringUtils.isNotEmpty(type) && type.contains("indent")) {
+				write(NBSP+NBSP);
+			} else {
+				write("<br />");
+			}
+		} else if (name.equals("p")) {
+			write("<p />");
+		} else if (name.equals("q")) {
+			// quotation, this could be beginning or end of quotation because it is an empty tag
+			write("&quot;");
+		}
+	}
     
     /** return verse from osos id of format book.chap.verse
      * 
@@ -147,22 +167,25 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
             )
     throws SAXException
     {
-      String name = getName(sName, qName);
-      
-      debug(name, null, false);
-      
-      if (name.equals("title") && this.isHeadings) {
-          write("</h1>");
-          isDelayVerse = false;
-      } else if (name.equals("verse")) {
-      } else if (name.equals("note")) {
-          isWriteContent = true;
-          isWriteNote = false;
-    	  notes.append("\n");
-      } else if (name.equals("l")) {
-    	  write("<br />");
-      }
-    } 
+		String name = getName(sName, qName);
+
+		debug(name, null, false);
+
+		if (name.equals("title") && this.isShowHeadings) {
+			write("</h1>");
+			isDelayVerse = false;
+		} else if (name.equals("verse")) {
+		} else if (name.equals("note")) {
+			if (isShowNotes) {
+				isWriteNote = false;
+				notes.append("\n");
+			}
+			isWriteContent = true;
+		} else if (name.equals("l")) {
+		} else if (name.equals("q")) {
+			// end quotation, but <q /> tag is a marker and contains no content so <q /> will appear at beginning and end of speech
+		}
+	}
     
     /*
      * While Parsing the XML file, if extra characters like space or enter Character
@@ -217,15 +240,20 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
         return isLeftToRight ? "ltr" : "rtl";
     }
     
-    /** keep going from a-z
+    /** either use the 'n' attribute for the note ref or just get the next character in a list a-z
      * 
      * @return a single char to use as a note ref
      */
-    private String getNextNoteRef() {
-    	int inta = (int)'a';
-    	char nextNoteChar = (char)(inta+(noteCount++ % 26));
-    	
-    	return String.valueOf(nextNoteChar);
+    private String getNoteRef(Attributes attrs) {
+    	// if the ref is specified as an attribute then use that
+    	String noteRef = attrs.getValue("n");
+    	if (StringUtils.isEmpty(noteRef)) {
+    		// else just get the next char
+	    	int inta = (int)'a';
+	    	char nextNoteChar = (char)(inta+(noteCount++ % 26));
+	    	noteRef = String.valueOf(nextNoteChar);
+    	}
+    	return noteRef;
     }
 
     private void debug(String name, Attributes attrs, boolean isStartTag) throws SAXException {
@@ -247,9 +275,15 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
     public void setLeftToRight(boolean isLeftToRight) {
         this.isLeftToRight = isLeftToRight;
     }
-    public void setVerseNumbers(boolean isVerseNumbers) {
-        this.isVerseNumbers = isVerseNumbers;
-    }
+	public void setShowHeadings(boolean isShowHeadings) {
+		this.isShowHeadings = isShowHeadings;
+	}
+	public void setShowVerseNumbers(boolean isShowVerseNumbers) {
+		this.isShowVerseNumbers = isShowVerseNumbers;
+	}
+	public void setShowNotes(boolean isShowNotes) {
+		this.isShowNotes = isShowNotes;
+	}
 	public void setDebugMode(boolean isDebugMode) {
 		this.isDebugMode = isDebugMode;
 	}

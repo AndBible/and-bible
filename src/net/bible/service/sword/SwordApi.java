@@ -11,6 +11,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import net.bible.android.activity.R;
 import net.bible.service.format.OsisToHtmlSaxHandler;
 
 import org.crosswire.common.util.CWProject;
@@ -27,8 +28,10 @@ import org.crosswire.jsword.book.sword.SwordBookPath;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.Passage;
+import org.xml.sax.HandlerBase;
 import org.xml.sax.SAXException;
 
+import android.content.SharedPreferences;
 import android.os.Environment;
 import android.util.Log;
 
@@ -37,6 +40,8 @@ public class SwordApi {
 	private static SwordApi singleton;
 	private String xslFilePath;
 	private List<Book> allDocuments;
+	
+	private SharedPreferences preferences;
 	
 	private static boolean isAndroid = true;
     private static final Logger log = new Logger(SwordApi.class.getName()); 
@@ -122,9 +127,7 @@ public class SwordApi {
 		log.debug("Using fast method to fetch document data");
 		InputStream is = new OSISInputStream(book, key);
 
-		OsisToHtmlSaxHandler osisToHtml = new OsisToHtmlSaxHandler();
-		BookMetaData bmd = book.getBookMetaData();
-		osisToHtml.setLeftToRight(bmd.isLeftToRight());
+		OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book);
 	
 		SAXParserFactory spf = SAXParserFactory.newInstance();
 		spf.setValidating(false);
@@ -146,17 +149,26 @@ public class SwordApi {
 			return "Error fetching osis"; //$NON-NLS-1$
 		}
 
-		OsisToHtmlSaxHandler html = new OsisToHtmlSaxHandler();
-		BookMetaData bmd = book.getBookMetaData();
-		html.setLeftToRight(bmd.isLeftToRight());
+		OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book);
 
-		osissep.provideSAXEvents(html);
+		osissep.provideSAXEvents(osisToHtml);
 
-		String htmlText = html.toString();
+		String htmlText = osisToHtml.toString();
         return htmlText;
 	}
+
+	private OsisToHtmlSaxHandler getSaxHandler(Book book) {
+		OsisToHtmlSaxHandler osisToHtml = new OsisToHtmlSaxHandler();
+		BookMetaData bmd = book.getBookMetaData();
+		osisToHtml.setLeftToRight(bmd.isLeftToRight());
+		
+		osisToHtml.setShowVerseNumbers(preferences.getBoolean("show_verseno_pref", true));
+		osisToHtml.setShowNotes(preferences.getBoolean("show_notes_pref", true));
+
+		return osisToHtml;
+	}
 	
-// the folowing won't work on anything les than Android 2.2 because it requires xml.transform thro TransformingSAXEventProvider 
+// the folowing won't work on anything less than Android 2.2 because it requires xml.transform thro TransformingSAXEventProvider 
 //	/**
 //	 * Obtain styled text (in this case HTML) for a book reference.
 //	 * 
@@ -364,5 +376,10 @@ public class SwordApi {
 
 	public static void setAndroid(boolean isAndroid) {
 		SwordApi.isAndroid = isAndroid;
+	}
+
+	public void setPreferences(SharedPreferences preferences) {
+		this.preferences = preferences;
+		Log.d(TAG, "Contains versenopref:"+preferences.contains("show_verseno_pref")+" notes pref:"+preferences.contains("show_notes_pref"));
 	}
 }

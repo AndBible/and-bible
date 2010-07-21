@@ -22,6 +22,9 @@
         <activity android:name=".Search"
                   android:label="@string/search">
         </activity>
+        <activity android:name=".SettingsActivity"
+                  android:label="@string/settings">
+        </activity>
         <activity android:name=".FolderPicker"
                   android:label="@string/use_folder">
         </activity>
