@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- copy of two_line_list_item.xml but with the text color set to avoid grey/white on white
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     android:layout_width="fill_parent"
+     android:layout_height="wrap_content"
+     android:orientation="vertical">
+ 
+     <TextView android:id="@android:id/text1"
+         android:textSize="16sp"
+         android:textStyle="bold"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:textColor="?android:attr/textColorPrimaryInverseDisableOnly"/>
+ 
+     <TextView android:id="@android:id/text2"
+         android:textSize="16sp"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:textColor="?android:attr/textColorPrimaryInverseDisableOnly"/>
+ 
+</LinearLayout>
