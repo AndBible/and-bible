@@ -12,6 +12,7 @@ import net.bible.service.sword.Logger;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
+import org.crosswire.jsword.versification.OSISNames;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -58,6 +59,7 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
     private List<Note> notesList = new ArrayList<Note>();
     private String currentNoteRef;
     private StringBuffer currentNote = new StringBuffer();
+    private String currentRefOsisRef;
 
     private static final String NBSP = "&#160;";
     
@@ -135,6 +137,8 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
 			// don't need to do anything until closing reference tag except..
 			// delete separators like ';' that sometimes occur between reference tags
 			currentNote.delete(0, currentNote.length());
+			// store the osisRef attribute for use with the note
+			this.currentRefOsisRef = attrs.getValue("osisRef");
 		} else if (name.equals("lb")) {
 			write("<br />");
 		} else if (name.equals("l")) {
@@ -173,17 +177,20 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
 			isDelayVerse = false;
 		} else if (name.equals("verse")) {
 		} else if (name.equals("note")) {
-			if (isShowNotes  && currentNote.length()>0) {
+			String noteText = currentNote.toString();
+			if (isShowNotes  && noteText.length()>0) {
 				isWriteNote = false;
-				Note note = new Note(currentVerseNo, currentNoteRef, currentNote.toString(), NoteType.TYPE_GENERAL);
-				notesList.add(note);
+				if (!StringUtils.containsOnly(noteText, "[];().,")) {
+					Note note = new Note(currentVerseNo, currentNoteRef, noteText, NoteType.TYPE_GENERAL, null);
+					notesList.add(note);
+				}
 				// and clear the buffer
 				currentNote.delete(0, currentNote.length());
 			}
 			isWriteContent = true;
 		} else if (name.equals("reference") && isWriteNote) {
 			if (isShowNotes) {
-				Note note = new Note(currentVerseNo, currentNoteRef, currentNote.toString(), NoteType.TYPE_REFERENCE);
+				Note note = new Note(currentVerseNo, currentNoteRef, currentNote.toString(), NoteType.TYPE_REFERENCE, currentRefOsisRef);
 				notesList.add(note);
 				// and clear the buffer
 				currentNote.delete(0, currentNote.length());

@@ -2,6 +2,8 @@ package net.bible.service.format;
 
 import java.util.HashMap;
 
+import org.apache.commons.lang.StringUtils;
+
 import net.bible.android.CurrentPassage;
 import net.bible.service.sword.SwordApi;
 import android.os.Parcel;
@@ -15,6 +17,7 @@ public class Note extends HashMap<String, String> implements Parcelable {
 	
 	private int verseNo;
 	private String noteRef;
+	private String osisRef;
 	private String noteText;
 	private NoteType noteType;
 
@@ -23,12 +26,13 @@ public class Note extends HashMap<String, String> implements Parcelable {
 	
 	private static final String TAG = "Note";
 	
-	public Note(int verseNo, String noteRef, String noteText, NoteType noteType) {
+	public Note(int verseNo, String noteRef, String noteText, NoteType noteType, String osisRef) {
 		super();
 		this.verseNo = verseNo;
 		this.noteRef = noteRef;
 		this.noteText = noteText;
 		this.noteType = noteType;
+		this.osisRef = osisRef;
 	}
 	
 	@Override
@@ -55,8 +59,17 @@ public class Note extends HashMap<String, String> implements Parcelable {
 		return noteType.equals(NoteType.TYPE_REFERENCE);
 	}
 	
+	/** Jump to the verse in the ref 
+	 * if the osisRef is available then use that becsue sometimes the noteText itself misses out the book o fthe bible
+	 */
 	public void navigateTo() {
-		CurrentPassage.getInstance().setKey(noteText);
+		String ref = "";
+		if (StringUtils.isNotEmpty(osisRef)) {
+			ref = osisRef;
+		} else {
+			ref = noteText;
+		}
+		CurrentPassage.getInstance().setKey(ref);
 	}
 
 	@Override
