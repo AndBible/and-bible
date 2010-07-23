@@ -43,10 +43,11 @@ public class Note extends HashMap<String, String> implements Parcelable {
     			retval = "Ref "+getNoteRef()+": "+getNoteText();
     		} else if (key.equals(DETAIL)) {
     			if (noteType.equals(NoteType.TYPE_REFERENCE)) {
-    				retval = SwordApi.getInstance().getPlainText(CurrentPassage.getInstance().getCurrentDocument(), getNoteText(), 1);
+    				String verse = StringUtils.isNotEmpty(osisRef) ? osisRef : noteText; 
+    				retval = SwordApi.getInstance().getPlainText(CurrentPassage.getInstance().getCurrentDocument(), verse, 1);
     			}
     		} else {
-    			retval = "Error";//SwordApi.getInstance().getPlainText(CurrentPassage.getInstance().getCurrentDocument(), verse.getName(), 1);
+    			retval = "Error";
     		}
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting search result", e);

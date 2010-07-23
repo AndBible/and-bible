@@ -119,9 +119,9 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
 			isDelayVerse = true;
 			write("<h1>");
 		} else if (name.equals("verse")) {
+			currentVerseNo = osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID));
 			if (isShowVerseNumbers) {
 				isCurrentVerseNoWritten = false;
-				currentVerseNo = osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID));
 			}
 		} else if (name.equals("note")) {
 			String noteRef = getNoteRef(attrs);
