@@ -15,6 +15,13 @@
     <string name="sdcard_error">Sorry, you have no SD card!</string>
     <string name="directory_error">Sorry, unable to access directory %s</string> 
     <string name="help_text">Welcome\nBook Navigation\nFlings:\nFling your finger left to see the next page\nFling your finger right to go back a page\nRoll the track-ball left or right to go forward or back a page.</string>
+
+	<!-- Notes screen -->
+    <string name="no_chapter_notes">No notes exist in this chapter</string>
+    <string name="no_verse_notes">No notes exist in this verse</string>
+    <string name="previous">Previous</string>
+    <string name="next">Next</string>
+
     <string name="okay">OK</string>
     <string name="cancel">Cancel</string>
 </resources>
