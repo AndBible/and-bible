@@ -121,7 +121,7 @@ public class SwordApi {
 		return retVal;
 	}
 
-	private FormattedDocument readHtmlTextOptimizedZTextOsis(Book book, Key key, int maxKeyCount) throws NoSuchKeyException, BookException, IOException, SAXException, URISyntaxException, ParserConfigurationException
+	private synchronized FormattedDocument readHtmlTextOptimizedZTextOsis(Book book, Key key, int maxKeyCount) throws NoSuchKeyException, BookException, IOException, SAXException, URISyntaxException, ParserConfigurationException
 	{
 		log.debug("Using fast method to fetch document data");
 		InputStream is = new OSISInputStream(book, key);
@@ -166,9 +166,11 @@ public class SwordApi {
 		BookMetaData bmd = book.getBookMetaData();
 		osisToHtml.setLeftToRight(bmd.isLeftToRight());
 		
-		osisToHtml.setShowVerseNumbers(preferences.getBoolean("show_verseno_pref", true));
-		osisToHtml.setShowNotes(preferences.getBoolean("show_notes_pref", true));
-
+		if (preferences!=null) {
+			osisToHtml.setShowVerseNumbers(preferences.getBoolean("show_verseno_pref", true));
+			osisToHtml.setShowNotes(preferences.getBoolean("show_notes_pref", true));
+		}
+		
 		return osisToHtml;
 	}
 	
