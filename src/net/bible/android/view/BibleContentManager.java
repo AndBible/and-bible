@@ -16,6 +16,7 @@ import org.crosswire.jsword.passage.Key;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.webkit.WebView;
@@ -56,15 +57,18 @@ public class BibleContentManager {
 	}
 
     public void updateText() {
+    	updateText(false);
+    }
+    
+    public void updateText(boolean forceUpdate) {
     	CurrentPassage currentPassage = CurrentPassage.getInstance();
 		Book bible = currentPassage.getCurrentDocument();
 		Key verse = currentPassage.getKey();
 
 		// scrolling right in a commentary can sometimes cause duplicate updates and I don't know why - catch them for now
-		if (!bible.equals(displayedBible) || !verse.equals(displayedVerse)) {
+		if (forceUpdate || (!bible.equals(displayedBible) || !verse.equals(displayedVerse))) {
 			new UpdateTextTask().execute(currentPassage);
 		}
-    		
     }
 
     private class UpdateTextTask extends AsyncTask<CurrentPassage, Integer, String> {
@@ -118,5 +122,4 @@ public class BibleContentManager {
 	public List<Note> getNotesList() {
 		return notesList;
 	}
-	
 }

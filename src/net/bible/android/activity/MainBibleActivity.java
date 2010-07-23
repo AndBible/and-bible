@@ -39,6 +39,8 @@ public class MainBibleActivity extends Activity {
 	
 	private static final int DIALOG_NOTES = 1;
 	
+	private static final int REFRESH_DISPLAY_ON_FINISH = 2;
+
 	private static final String TAG = "MainBibleActivity";
 
 	// detect swipe left/right
@@ -63,6 +65,7 @@ public class MainBibleActivity extends Activity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean isHandled = false;
+        int requestCode = 1;
         
     	// Activities
     	{
@@ -80,6 +83,7 @@ public class MainBibleActivity extends Activity {
 	        	break;
 	        case R.id.settingsButton:
 	        	handlerIntent = new Intent(this, SettingsActivity.class);
+	        	requestCode = REFRESH_DISPLAY_ON_FINISH;
 	        	break;
 	        case R.id.notesButton:
 	        	handlerIntent = new Intent(this, NotesActivity.class);
@@ -88,7 +92,7 @@ public class MainBibleActivity extends Activity {
 	        }
 	
 	        if (handlerIntent!=null) {
-	        	startActivityForResult(handlerIntent, 1);
+	        	startActivityForResult(handlerIntent, requestCode);
 	        	isHandled = true;
 	        } 
     	}
@@ -113,8 +117,14 @@ public class MainBibleActivity extends Activity {
     }
 
     @Override 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {     
-      super.onActivityResult(requestCode, resultCode, data);
+    public void onActivityResult(int requestCode, int resultCode, Intent data) { 
+    	Log.d(TAG, "Activity result:"+resultCode);
+    	super.onActivityResult(requestCode, resultCode, data);
+    	
+    	if (requestCode == REFRESH_DISPLAY_ON_FINISH) {
+    		Log.i(TAG, "Refresh on finish");
+    		bibleContentManager.updateText(true);
+    	}
     }
     
     private void initialiseSword() {
