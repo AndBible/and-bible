@@ -85,7 +85,7 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
     @Override
     public void startDocument () throws SAXException
     {
-    	log.debug("Show verses:"+isShowVerseNumbers+" nores:"+isShowNotes);
+    	log.debug("Show verses:"+isShowVerseNumbers+" notes:"+isShowNotes);
         write("<html dir='"+getDirection()+"'><head><link href='file:///android_asset/style.css' rel='stylesheet' type='text/css'/><meta charset='utf-8'/></head><body>");
     }
 
@@ -124,14 +124,14 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
 				currentVerseNo = osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID));
 			}
 		} else if (name.equals("note")) {
+			String noteRef = getNoteRef(attrs);
 			if (isShowNotes) {
-				String noteRef = getNoteRef(attrs);
 				write("<span class='noteRef'>" + noteRef + "</span> ");
-
-				// prepare to fetch the actual note into the notes repo
-				currentNoteRef = noteRef;
-				isWriteNote = true;
 			}
+
+			// prepare to fetch the actual note into the notes repo
+			currentNoteRef = noteRef;
+			isWriteNote = true;
 			isWriteContent = false;
 		} else if (name.equals("reference") && isWriteNote) {
 			// don't need to do anything until closing reference tag except..
@@ -178,7 +178,7 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
 		} else if (name.equals("verse")) {
 		} else if (name.equals("note")) {
 			String noteText = currentNote.toString();
-			if (isShowNotes  && noteText.length()>0) {
+			if (noteText.length()>0) {
 				isWriteNote = false;
 				if (!StringUtils.containsOnly(noteText, "[];().,")) {
 					Note note = new Note(currentVerseNo, currentNoteRef, noteText, NoteType.TYPE_GENERAL, null);
