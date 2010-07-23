@@ -18,5 +18,4 @@ public class SettingsActivity extends PreferenceActivity {
 			t.printStackTrace();
 		}
 	}
-
 }
