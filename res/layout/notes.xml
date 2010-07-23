@@ -12,15 +12,29 @@
 	<ListView android:id="@+id/notesList" 
 		android:layout_height="fill_parent" 
 		android:layout_width="fill_parent"
-		android:layout_below="@+id/title" 
-		android:layout_alignParentBottom="true"/>
-<!-- <Button android:id="@+id/nextButton"
- 		android:text="@string/search"
+		android:layout_below="@+id/title"
+		android:layout_above="@+id/nextButton"/>
+		
+	<TextView android:id="@+id/warningText"
+		android:visibility="gone" 
+		android:layout_height="wrap_content" 
+		android:layout_width="wrap_content" 
+		android:layout_below="@+id/title"/>
+		
+	<Button android:id="@+id/prevButton"
+ 		android:text="@string/previous"
 		android:layout_width="wrap_content" 
 		android:layout_height="wrap_content"
-		android:layout_below="@+id/searchText"
+		android:layout_alignParentLeft="true"
+		android:onClick="onPrevious"
+		android:layout_alignParentBottom="true"
+		android:width="80dip"/>
+	<Button android:id="@+id/nextButton"
+ 		android:text="@string/next"
+		android:layout_width="wrap_content" 
+		android:layout_height="wrap_content"
 		android:layout_alignParentRight="true"
-		android:onClick="onSearch"
-		/>
- -->
+		android:onClick="onNext"
+		android:layout_alignParentBottom="true"
+		android:width="80dip"/>
 </RelativeLayout>

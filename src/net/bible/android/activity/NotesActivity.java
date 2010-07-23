@@ -1,25 +1,22 @@
 package net.bible.android.activity;
 
  import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import net.bible.android.CurrentPassage;
 import net.bible.android.util.DataPipe;
 import net.bible.service.format.Note;
-import net.bible.service.sword.SwordApi;
 
-import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.passage.Key;
+import org.apache.commons.lang.StringUtils;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.opengl.Visibility;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
@@ -30,6 +27,7 @@ public class NotesActivity extends Activity {
 	private ListView mNotesListView;
 	
 	private TextView mTitle;
+	private TextView mWarning;
 	
     static final protected String LIST_ITEM_LINE1 = "line1";
     static final protected String LIST_ITEM_LINE2 = "line2";
@@ -47,6 +45,7 @@ public class NotesActivity extends Activity {
         setContentView(R.layout.notes);
     
         mTitle =  (TextView)findViewById(R.id.title);
+        mWarning =  (TextView)findViewById(R.id.warningText);
         mNotesListView =  (ListView)findViewById(R.id.notesList);
         
         mVerseNo = CurrentPassage.getInstance().getCurrentVerse();
@@ -57,8 +56,11 @@ public class NotesActivity extends Activity {
     }
 
     private void initialiseView() {
+    	mVerseNotesList = new ArrayList<Note>();
+    	
     	showCurrentVerse();
     	populateVerseNotesList();
+    	prepareWarningMsg();
     	
         mNotesListAdapter = new SimpleAdapter(this, mVerseNotesList, 
                     android.R.layout.two_line_list_item, 
@@ -75,16 +77,55 @@ public class NotesActivity extends Activity {
     	});
     }
 
-    private void verseChanged() {
+    public void onPrevious(View v) {
+    	if (mVerseNo>1) {
+    		mVerseNo--;
+    		onVerseChanged();
+    	}
+    }
+    public void onNext(View v) {
+    	if (mVerseNo<CurrentPassage.getInstance().getNumberOfVersesDisplayed()) {
+    		mVerseNo++;
+    		onVerseChanged();
+    	}
+    }
+
+    private void onVerseChanged() {
+    	showCurrentVerse();
     	populateVerseNotesList();
     	mNotesListAdapter.notifyDataSetChanged();
+    	prepareWarningMsg();
     }
     
     private void populateVerseNotesList() {
-    	mVerseNotesList = getNotesList(mVerseNo);
+    	mVerseNotesList.clear();
+    	
+		for (Note note : mChapterNotesList) {
+			if (note.getVerseNo() == mVerseNo) {
+				mVerseNotesList.add(note);
+			}
+		}
     }
     
-	private List<Note> getNotesList(int verseNo) {
+    private void prepareWarningMsg() {
+    	String warning = "";
+    	if (mChapterNotesList.size()==0) {
+    		warning = getString(R.string.no_chapter_notes);
+    	} else if (mVerseNotesList.size()==0) {
+    		warning = getString(R.string.no_verse_notes);
+    	}
+    	
+		mWarning.setText(warning);
+    	if (StringUtils.isNotEmpty(warning)) {
+    		mWarning.setVisibility(View.VISIBLE);
+    		mNotesListView.setVisibility(View.GONE);
+    	} else {
+    		mWarning.setVisibility(View.GONE);
+    		mNotesListView.setVisibility(View.VISIBLE);
+    	}
+    }
+
+    private List<Note> getNotesList(int verseNo) {
 		List<Note> verseNotes = new ArrayList<Note>();
 		for (Note note : mChapterNotesList) {
 			if (note.getVerseNo() == verseNo) {
