@@ -189,13 +189,11 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
 			}
 			isWriteContent = true;
 		} else if (name.equals("reference") && isWriteNote) {
-			if (isShowNotes) {
-				Note note = new Note(currentVerseNo, currentNoteRef, currentNote.toString(), NoteType.TYPE_REFERENCE, currentRefOsisRef);
-				notesList.add(note);
-				// and clear the buffer
-				currentNote.delete(0, currentNote.length());
-				currentRefOsisRef = null;
-			}
+			Note note = new Note(currentVerseNo, currentNoteRef, currentNote.toString(), NoteType.TYPE_REFERENCE, currentRefOsisRef);
+			notesList.add(note);
+			// and clear the buffer
+			currentNote.delete(0, currentNote.length());
+			currentRefOsisRef = null;
 		} else if (name.equals("l")) {
 		} else if (name.equals("q")) {
 			// end quotation, but <q /> tag is a marker and contains no content so <q /> will appear at beginning and end of speech
