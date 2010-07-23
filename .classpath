@@ -3,8 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/common"/>
-	<classpathentry combineaccessrules="false" exported="true" kind="src" path="/jsword"/>
+	<classpathentry exported="true" kind="lib" path="jar/jsword-all-tweaked.jar"/>
 	<classpathentry kind="lib" path="jar/jdom111Fixed.jar" sourcepath="/common/jar/jdom-1.0/jdom-1.0.zip">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:/E:/Eclipse/JSword/common/jar/jdom-1.0/jdom-1.0.zip!/jdom-1.0/build/apidocs"/>
