@@ -194,6 +194,7 @@ public class OsisToHtmlSaxHandler extends DefaultHandler {
 				notesList.add(note);
 				// and clear the buffer
 				currentNote.delete(0, currentNote.length());
+				currentRefOsisRef = null;
 			}
 		} else if (name.equals("l")) {
 		} else if (name.equals("q")) {
