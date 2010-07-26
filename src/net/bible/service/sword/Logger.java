@@ -14,6 +14,16 @@ public class Logger {
 	public void debug(String s) {
 		System.out.println(name+":"+s);
 	}
+	public void info(String s) {
+		System.out.println(name+":"+s);
+	}
+	public void warn(String s) {
+		System.out.println(name+":"+s);
+	}
+	public void warn(String s, Exception e) {
+		System.out.println(name+":"+s);
+		e.printStackTrace();
+	}
 	public void error(String s) {
 		System.out.println(name+":"+s);
 	}
