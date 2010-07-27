@@ -1,17 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 	<item 	android:id="@+id/chooseBookButton" 
-			android:title="@string/chooseBookButton"/>
+			android:title="@string/chooseBookButton"
+			android:icon="@android:drawable/ic_menu_save"/>
 
 	<item android:id="@+id/selectPassageButton" 
-		  android:title="@string/selectPassageButton"/>
+		  android:title="@string/selectPassageButton"
+		  android:icon="@android:drawable/ic_menu_today"/>
 
 	<item android:id="@+id/searchButton"
-		  android:title="@string/search"/>
+		  android:title="@string/search"
+		  android:icon="@android:drawable/ic_menu_search"/>
 
 	<item android:id="@+id/notesButton"
-		  android:title="@string/notes"/>
+		  android:title="@string/notes"
+		  android:icon="@android:drawable/ic_menu_add"/>
+		  
 
 	<item android:id="@+id/settingsButton"
-		  android:title="@string/settings"/>
+		  android:title="@string/settings"
+		  android:icon="@android:drawable/ic_menu_preferences"/>
 </menu>
