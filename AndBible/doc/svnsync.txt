@@ -1,0 +1,24 @@
+svnsync init --username mjdenham@gmail.com https://MYNEWREPO.googlecode.com/svn https://MYOLDREPO.googlecode.com/svn
+  Copied properties for revision 0.
+svnsync sync --username mjdenham@gmail.com https://MYNEWREPO.googlecode.com/svn
+  Committed revision 1.
+  
+http://code.google.com/p/support/wiki/SubversionFAQ  
+How do I import an existing Subversion repository?
+To upload the history of an existing Subversion repository, use the svnsync tool that ships with Subversion 1.4 or later. Run svnsync help to read more about this tool.
+
+Note that your Google Code repository must be reset to revision 0 for this to work. Your project's Source tab will display instructions on how to reset the repository yourself. (Note: you must be a project owner to reset your own repository, and also to push code up with svnsync.)
+
+Here's a sample transcript that demonstrates how you can push history from an existing repository (located at file:///my/repos) to your repository on Google Code:
+
+  $ svnsync init --username YOURUSERNAME https://YOURPROJECT.googlecode.com/svn file:///path/to/localrepos
+  Copied properties for revision 0.
+  $ svnsync sync --username YOURUSERNAME https://YOURPROJECT.googlecode.com/svn
+  Committed revision 1.
+  Copied properties for revision 1.
+  Committed revision 2.
+  Copied properties for revision 2.
+  [...]
+When prompted for your password, use your googlecode.com password, which can be found on the settings tab of your profile page.
+
+Running svnsync on a large repository will take a significant amount of time. If you are disconnected during the process, you may see the error message "svnsync: Couldn't get lock on destination repos after 10 attempts". If this happens, you can remove the lock yourself; see the "Locks" section of svnsync.txt.
