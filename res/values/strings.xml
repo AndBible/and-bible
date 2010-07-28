@@ -6,6 +6,7 @@
     <string name="choosePassageBookName">Choose Book</string>
     <string name="choosePassageChapterName">Choose Chapter</string>
     <string name="search">Find</string>
+    <string name="search_index">Create Search Index</string>
     <string name="notes">Notes</string>
     <string name="settings">Settings</string>
     <string name="index">Index</string>

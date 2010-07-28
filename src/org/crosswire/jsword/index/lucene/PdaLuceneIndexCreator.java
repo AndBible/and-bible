@@ -17,7 +17,7 @@
  * Copyright: 2005
  *     The copyright to this program is held by it's authors.
  *
- * ID: $Id:PdaLuceneIndex.java 984 2006-01-23 14:18:33 -0500 (Mon, 23 Jan 2006) dmsmith $
+ * ID: $Id:PdaLuceneIndexCreator.java 984 2006-01-23 14:18:33 -0500 (Mon, 23 Jan 2006) dmsmith $
  */
 package org.crosswire.jsword.index.lucene;
 
@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.bible.service.sword.Logger;
+import net.bible.service.sword.SwordApi;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.SimpleAnalyzer;
@@ -75,7 +76,7 @@ import org.crosswire.jsword.passage.VerseFactory;
  *      The copyright to this program is held by it's authors.
  * @author Joe Walker [joe at eireneh dot com]
  */
-public class PdaLuceneIndex extends AbstractIndex implements Activatable {
+public class PdaLuceneIndexCreator {
     /*
      * The following fields are named the same as Sword in the hopes of sharing
      * indexes.
@@ -110,24 +111,12 @@ public class PdaLuceneIndex extends AbstractIndex implements Activatable {
      */
     public static final String FIELD_NOTE = "note"; //$NON-NLS-1$
 
-    private static final String TAG = "PdaLuceneIndex";
+    /** we are on a device with limited ram so don't use too much */
+    private static final int MAX_RAM_BUFFER_SIZE_MB = 3;
+    
+    private static final String TAG = "PdaLuceneIndexCreator";
     
     private static final Logger logger = new Logger(TAG);
-    /**
-     * Read an existing index and use it.
-     * 
-     * @throws BookException
-     *             If we fail to read the index files
-     */
-    public PdaLuceneIndex(Book book, URI storage) throws BookException {
-        this.book = book;
-
-        try {
-            this.path = NetUtil.getAsFile(storage).getCanonicalPath();
-        } catch (IOException ex) {
-            throw new BookException(UserMsg.LUCENE_INIT, ex);
-        }
-    }
 
     /**
      * Generate an index to use, telling the job about progress as you go.
@@ -135,11 +124,9 @@ public class PdaLuceneIndex extends AbstractIndex implements Activatable {
      * @throws BookException
      *             If we fail to read the index files
      */
-    public PdaLuceneIndex(Book book, URI storage, boolean create) throws BookException {
+    public PdaLuceneIndexCreator(Book book, URI storage, boolean create) throws BookException {
         assert create;
-    	System.out.println("*** 11");
-    	System.out.println("Target dir:"+storage.getPath());
-
+    	logger.info("Index target dir:"+storage.getPath());
 
         this.book = book;
         File finalPath = null;
@@ -149,28 +136,21 @@ public class PdaLuceneIndex extends AbstractIndex implements Activatable {
         } catch (IOException ex) {
             throw new BookException(UserMsg.LUCENE_INIT, ex);
         }
-    	System.out.println("*** 12");
 
         // Indexing the book is a good way to police data errors.
         DataPolice.setBook(book.getBookMetaData());
 
-    	System.out.println("*** 13");
         Progress job = JobManager.createJob(UserMsg.INDEX_START.toString(book.getInitials()), Thread.currentThread(), false);
-    	System.out.println("*** 14");
 
         IndexStatus finalStatus = IndexStatus.UNDONE;
-    	System.out.println("*** 15");
 
-        Analyzer analyzer = new SimpleAnalyzer(); //LuceneAnalyzer(book);
+        Analyzer analyzer = new LuceneAnalyzer(book); //SimpleAnalyzer();
 
-    	System.out.println("*** 16");
         List errors = new ArrayList();
         File tempPath = new File(path + '.' + IndexStatus.CREATING.toString());
 
         try {
             synchronized (CREATING) {
-
-            	System.out.println("*** 17");
 
                 book.setIndexStatus(IndexStatus.CREATING);
 
@@ -179,21 +159,18 @@ public class PdaLuceneIndex extends AbstractIndex implements Activatable {
                 // IndexWriter writer = new
                 // IndexWriter(tempPath.getCanonicalPath(), analyzer, true);
 
-               	System.out.println("*** 18");
                // Create the index in core.
                 Directory destination = FSDirectory.open(new File(tempPath.getCanonicalPath()));
-               	System.out.println("*** 19");
                 IndexWriter writer = new IndexWriter(destination, analyzer, true, IndexWriter.MaxFieldLength.UNLIMITED);
-               	System.out.println("*** 20");
-                writer.setRAMBufferSizeMB(2);
+                writer.setRAMBufferSizeMB(MAX_RAM_BUFFER_SIZE_MB);
                 logger.debug("Beginning indexing "+book.getName());
                 try {
-	                Key keyList = PassageKeyFactory.instance().getGlobalKeyList();
+	                Key keyList = PassageKeyFactory.instance().getKey("Genesis"); //getGlobalKeyList();
 	                generateSearchIndexImpl(job, errors, writer, keyList, 0);
                 } catch (Exception e) {
                 	e.printStackTrace();
                 }
-                logger.debug("Finished indexing "+book.getName());
+                logger.info("Finished indexing "+book.getName()+" starting optimisation");
 
                 job.setSectionName(UserMsg.OPTIMIZING.toString());
                 job.setWork(95);
@@ -205,7 +182,7 @@ public class PdaLuceneIndex extends AbstractIndex implements Activatable {
 
                 job.setCancelable(false);
                 if (!job.isFinished()) {
-                	System.out.println("Renaming "+tempPath+" to "+finalPath);
+                	logger.debug("Renaming "+tempPath+" to "+finalPath);
                     if (!tempPath.renameTo(finalPath)) {
                         throw new BookException(UserMsg.INSTALL_FAIL);
                     }
@@ -224,7 +201,6 @@ public class PdaLuceneIndex extends AbstractIndex implements Activatable {
                     }
                     Reporter.informUser(this, UserMsg.BAD_VERSE, buf);
                 }
-
             }
         } catch (IOException ex) {
             job.cancel();
@@ -235,169 +211,7 @@ public class PdaLuceneIndex extends AbstractIndex implements Activatable {
         }
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.crosswire.jsword.index.search.Index#findWord(java.lang.String)
-     */
-    public Key find(String search) throws BookException {
-        checkActive();
 
-        SearchModifier modifier = getSearchModifier();
-        Key results = null;
-
-        if (search != null) {
-            try {
-                Analyzer analyzer = new LuceneAnalyzer(book);
-
-                QueryParser parser = new QueryParser(Version.LUCENE_29, PdaLuceneIndex.FIELD_BODY, analyzer);
-                parser.setAllowLeadingWildcard(true);
-                Query query = parser.parse(search);
-                logger.debug("ParsedQuery-" + query.toString()); //$NON-NLS-1$
-
-                // For ranking we use a PassageTally
-                if (modifier != null && modifier.isRanked()) {
-                    PassageTally tally = new PassageTally();
-                    tally.raiseEventSuppresion();
-                    tally.raiseNormalizeProtection();
-                    results = tally;
-
-                    TopScoreDocCollector collector = TopScoreDocCollector.create(modifier.getMaxResults(), false);
-                    searcher.search(query, collector);
-                    tally.setTotal(collector.getTotalHits());
-                    ScoreDoc[] hits = collector.topDocs().scoreDocs;
-                    for (int i = 0; i < hits.length; i++) {
-                        int docId = hits[i].doc;
-                        Document doc = searcher.doc(docId);
-                        Key key = VerseFactory.fromString(doc.get(PdaLuceneIndex.FIELD_KEY));
-                        // PassageTally understands a score of 0 as the verse
-                        // not participating
-                        int score = (int) (hits[i].score * 100 + 1);
-                        tally.add(key, score);
-                    }
-                    tally.lowerNormalizeProtection();
-                    tally.lowerEventSuppresionAndTest();
-                } else {
-                    results = book.createEmptyKeyList();
-                    // If we have an abstract passage,
-                    // make sure it does not try to fire change events.
-                    AbstractPassage passage = null;
-                    if (results instanceof AbstractPassage) {
-                        passage = (AbstractPassage) results;
-                        passage.raiseEventSuppresion();
-                        passage.raiseNormalizeProtection();
-                    }
-                    searcher.search(query, new VerseCollector(searcher, results));
-                    if (passage != null) {
-                        passage.lowerNormalizeProtection();
-                        passage.lowerEventSuppresionAndTest();
-                    }
-                }
-            } catch (IOException e) {
-                // The VerseCollector may throw IOExceptions that merely wrap a
-                // NoSuchVerseException
-                Throwable cause = e.getCause();
-                if (cause instanceof NoSuchVerseException) {
-                    throw new BookException(UserMsg.SEARCH_FAILED, cause);
-                }
-
-                throw new BookException(UserMsg.SEARCH_FAILED, e);
-            } catch (NoSuchVerseException e) {
-                throw new BookException(UserMsg.SEARCH_FAILED, e);
-            } catch (ParseException e) {
-                throw new BookException(UserMsg.SEARCH_FAILED, e);
-            } finally {
-                Activator.deactivate(this);
-            }
-        }
-
-        if (results == null) {
-            if (modifier != null && modifier.isRanked()) {
-                results = new PassageTally();
-            } else {
-                results = book.createEmptyKeyList();
-            }
-        }
-        return results;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.crosswire.jsword.index.search.Index#getKey(java.lang.String)
-     */
-    public Key getKey(String name) throws NoSuchKeyException {
-        return book.getKey(name);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.crosswire.common.activate.Activatable#activate(org.crosswire.common
-     * .activate.Lock)
-     */
-    public final void activate(Lock lock) {
-        try {
-            directory = FSDirectory.open(new File(path));
-            searcher = new IndexSearcher(directory, true);
-        } catch (IOException ex) {
-            logger.warn("second load failure", ex); //$NON-NLS-1$
-        }
-
-        active = true;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.crosswire.common.activate.Activatable#deactivate(org.crosswire.common
-     * .activate.Lock)
-     */
-    public final void deactivate(Lock lock) {
-        try {
-            searcher.close();
-            directory.close();
-        } catch (IOException ex) {
-            Reporter.informUser(this, ex);
-        } finally {
-            searcher = null;
-            directory = null;
-        }
-
-        active = false;
-    }
-
-    /**
-     * Helper method so we can quickly activate ourselves on access
-     */
-    protected final void checkActive() {
-        if (!active) {
-            Activator.activate(this);
-        }
-    }
-
-//    private void generateSearchIndexInSections(Progress job, List errors, IndexWriter writer, Key key, int count) {
-//		int numKeys = allKeys.getCardinality();
-//		Log.d(TAG, "Total keys:"+numKeys);
-//		int tenthCount = numKeys/10;
-//		
-//		Directory[] tempIndexFiles = new Directory[10]; 
-//		              
-//		for (int tenth=0; tenth<2; tenth++ ) {
-//			int startKey = tenth*tenthCount;
-//			int endKey = (tenth+1)*tenthCount;
-//			
-//			Key currentKeys = book.createEmptyKeyList();
-//			for (int i=startKey; i<endKey; i++ ) {
-//				Key key = allKeys.get(i);
-//				Log.d(TAG, "Adding key:"+key.getName());
-//				currentKeys.addAll(key);
-//			}
-//	
-//
-//    }
     /**
      * Dig down into a Key indexing as we go.
      */
@@ -409,7 +223,7 @@ public class PdaLuceneIndex extends AbstractIndex implements Activatable {
         String rootName = ""; //$NON-NLS-1$
         BookData data = null;
         Key subkey = null;
-        String osis = null;
+        String canonicalText = null;
 
         // Set up for reuse.
         Document doc = new Document();
@@ -428,16 +242,13 @@ public class PdaLuceneIndex extends AbstractIndex implements Activatable {
                 // Set up DataPolice for this key.
                 DataPolice.setKey(subkey);
 
-                data = new BookData(book, subkey);
-                osis = null;
-//
-//                try {
-//                    osis = data.getOsisFragment();
-                	osis = book.getRawText(subkey);
-//                } catch (BookException e) {
-//                    errors.add(subkey);
-//                    continue;
-//                }
+                try {
+                	canonicalText = SwordApi.getInstance().getCanonicalText(book, subkey, 1);
+                } catch (NoSuchKeyException e) {
+                	logger.warn("No such key:"+subkey.getName());
+                    errors.add(subkey);
+                    continue;
+                }
 
                 // Remove all fields from the document
                 doc.getFields().clear();
@@ -447,23 +258,25 @@ public class PdaLuceneIndex extends AbstractIndex implements Activatable {
                 keyField.setValue(subkey.getOsisRef());
                 doc.add(keyField);
 
-                addField(doc, bodyField, osis);
+                addField(doc, bodyField, canonicalText);
 
                 // Add the document if we added more than just the key.
                 if (doc.getFields().size() > 1) {
                     writer.addDocument(doc);
                 }
 
-                // report progress
-                rootName = subkey.getRootName();
-                if (!rootName.equals(oldRootName)) {
-                    oldRootName = rootName;
-                    job.setSectionName(rootName);
-                }
-
                 subCount++;
+
+                // report progress but not all the time for efficiency
+                if (subCount%50 ==0) {
+	                rootName = subkey.getRootName();
+	                if (!rootName.equals(oldRootName)) {
+	                    oldRootName = rootName;
+	                    job.setSectionName(rootName);
+	                }
+                }
+                
                 percent = 95 * subCount / size;
-                //System.out.print(".");
 
                 job.setWork(percent);
 

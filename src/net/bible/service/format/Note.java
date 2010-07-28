@@ -2,16 +2,15 @@ package net.bible.service.format;
 
 import java.util.HashMap;
 
-import org.apache.commons.lang.StringUtils;
-
 import net.bible.android.CurrentPassage;
 import net.bible.service.sword.SwordApi;
-import android.os.Parcel;
-import android.os.Parcelable;
+
+import org.apache.commons.lang.StringUtils;
+
 import android.util.Log;
 
 
-public class Note extends HashMap<String, String> implements Parcelable {
+public class Note extends HashMap<String, String> {
 
 	public enum NoteType {TYPE_GENERAL, TYPE_REFERENCE};
 	
@@ -86,16 +85,5 @@ public class Note extends HashMap<String, String> implements Parcelable {
 	}
 	public String getNoteText() {
 		return noteText;
-	}
-
-	@Override
-	public int describeContents() {
-		return 0;
-	}
-
-	@Override
-	public void writeToParcel(Parcel dest, int flags) {
-		// TODO Auto-generated method stub
-		
 	}
 }

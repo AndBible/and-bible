@@ -12,6 +12,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import net.bible.service.format.FormattedDocument;
+import net.bible.service.format.OsisToCanonicalTextSaxHandler;
 import net.bible.service.format.OsisToHtmlSaxHandler;
 
 import org.crosswire.common.util.CWProject;
@@ -25,6 +26,8 @@ import org.crosswire.jsword.book.BookMetaData;
 import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.OSISUtil;
 import org.crosswire.jsword.book.sword.SwordBookPath;
+import org.crosswire.jsword.index.IndexStatus;
+import org.crosswire.jsword.index.lucene.PdaLuceneIndexManager;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.Passage;
@@ -39,7 +42,10 @@ public class SwordApi {
 	private static SwordApi singleton;
 	private String xslFilePath;
 	private List<Book> allDocuments;
-	
+
+	// just keep one of these because it is called in the tight document indexing loop and isn't very complex
+	OsisToCanonicalTextSaxHandler osisToCanonicalTextSaxHandler = new OsisToCanonicalTextSaxHandler();
+
 	private SharedPreferences preferences;
 	
 	private static boolean isAndroid = true;
@@ -90,6 +96,23 @@ public class SwordApi {
 		log.debug("Getting book:"+initials);
 
 		return Books.installed().getBook(initials);
+	}
+	
+	/** this custom index creation has been optimised for slow, low memory devices
+	 * If an index is in progress then nothing will happen
+	 * 
+	 * @param book
+	 * @throws BookException
+	 */
+	public void ensureIndexCreation(Book book) throws BookException {
+    	log.debug("ensureIndexCreation");
+
+    	// ensure this isn't just the user re-clicking the Index button
+		if (!book.getIndexStatus().equals(IndexStatus.CREATING) && !book.getIndexStatus().equals(IndexStatus.SCHEDULED)) {
+
+			PdaLuceneIndexManager lim = new PdaLuceneIndexManager();
+	        lim.scheduleIndexCreation(book);
+		}
 	}
 
 	/** top level method to fetch html from the raw document data
@@ -161,103 +184,6 @@ public class SwordApi {
         return retVal;
 	}
 
-	private OsisToHtmlSaxHandler getSaxHandler(Book book) {
-		OsisToHtmlSaxHandler osisToHtml = new OsisToHtmlSaxHandler();
-		BookMetaData bmd = book.getBookMetaData();
-		osisToHtml.setLeftToRight(bmd.isLeftToRight());
-		
-		if (preferences!=null) {
-			osisToHtml.setShowVerseNumbers(preferences.getBoolean("show_verseno_pref", true));
-			osisToHtml.setShowNotes(preferences.getBoolean("show_notes_pref", true));
-		}
-		
-		return osisToHtml;
-	}
-	
-// the folowing won't work on anything less than Android 2.2 because it requires xml.transform thro TransformingSAXEventProvider 
-//	/**
-//	 * Obtain styled text (in this case HTML) for a book reference.
-//	 * 
-//	 * @param bookInitials
-//	 *            the book to use
-//	 * @param reference
-//	 *            a reference, appropriate for the book, of one or more entries
-//	 * @return the styled text
-//	 * @see Book
-//	 * @see SAXEventProvider
-//	 */
-//	public String readHtmlText(Book book, Key reference, int maxKeyCount)
-//			throws NoSuchKeyException, BookException, TransformerException,
-//			IOException, SAXException, URISyntaxException {
-//		SAXEventProvider osissep = getOSIS(book, reference.toString(), maxKeyCount);
-//		if (osissep == null) {
-//			Log.e(TAG, "No osis SEP returned");
-//			return ""; //$NON-NLS-1$
-//		}
-//
-//		// AssetManager assetManager = getAssets();
-//		// assetManager.list("mart.xsl");
-//
-//		URI uri = new URI("file://"+xslFilePath);
-//		Converter styler = new TransformingSAXEventProviderConverter(uri);
-//
-//		TransformingSAXEventProvider htmlsep = (TransformingSAXEventProvider) styler
-//				.convert(osissep);
-//
-//		// You can also pass parameters to the XSLT. What you pass depends upon
-//		// what the XSLT can use.
-//		BookMetaData bmd = book.getBookMetaData();
-//		boolean direction = bmd.isLeftToRight();
-//		htmlsep.setParameter("direction", direction ? "ltr" : "rtl"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-//
-//		// Finally you can get the styled text.
-//		return XMLUtil.writeToString(htmlsep);
-//	}
-
-//	public String readHtmlText2(Book book, String reference, int maxKeyCount) throws NoSuchKeyException, BookException, IOException, SAXException, URISyntaxException, ParserConfigurationException
-//	{
-//        Key key = book.getKey(reference);
-//
-//        ZVerseBackendLite rdr = new ZVerseBackendLite((SwordBookMetaData)book.getBookMetaData());
-//        String osisText = rdr.getTextDoc(key);
-//		
-//		Log.d(TAG, osisText);
-//		InputSource is = new InputSource(new StringReader(osisText));
-//	
-//		OsisToHtmlSaxHandler html = new OsisToHtmlSaxHandler();
-//		BookMetaData bmd = book.getBookMetaData();
-//		html.setLeftToRight(bmd.isLeftToRight());
-//	
-//		SAXParserFactory spf = SAXParserFactory.newInstance();
-//		spf.setValidating(false);
-//		SAXParser parser = spf.newSAXParser();
-//		parser.parse(is, html);
-//		
-//        return html.toString();
-//	}
-//
-//	public String readHtmlText3(Book book, String reference, int maxKeyCount) throws NoSuchKeyException, BookException, IOException, SAXException, URISyntaxException, ParserConfigurationException
-//	{
-//        Key key = book.getKey(reference);
-//
-//        ZVerseBackendLite rdr = new ZVerseBackendLite((SwordBookMetaData)book.getBookMetaData());
-//        String osisText = rdr.getTextDoc(key);
-//		
-//		Log.d(TAG, osisText);
-//		InputSource is = new InputSource(new StringReader(osisText));
-//	
-//		OsisToHtmlSaxHandler html = new OsisToHtmlSaxHandler();
-//		BookMetaData bmd = book.getBookMetaData();
-//		html.setLeftToRight(bmd.isLeftToRight());
-//	
-//		SAXParserFactory spf = SAXParserFactory.newInstance();
-//		spf.setValidating(false);
-//		SAXParser parser = spf.newSAXParser();
-//		parser.parse(is, html);
-//		
-//        return html.toString();
-//	}
-
 	/**
 	 * Obtain a SAX event provider for the OSIS document representation of one
 	 * or more book entries.
@@ -289,30 +215,45 @@ public class SwordApi {
 		BookData data = new BookData(book, key);
 		return data.getSAXEventProvider();
 	}
-//
-//	public Document getOSISDom(Book book, String reference, int maxKeyCount)
-//			throws BookException, NoSuchKeyException {
-//		Key key = null;
-//		if (BookCategory.BIBLE.equals(book.getBookCategory())) {
-//			key = book.getKey(reference);
-//			((Passage) key).trimVerses(maxKeyCount);
-//		} else {
-//			key = book.createEmptyKeyList();
-//
-//			Iterator iter = book.getKey(reference).iterator();
-//			int count = 0;
-//			while (iter.hasNext()) {
-//				if (++count >= maxKeyCount) {
-//					break;
-//				}
-//				key.addAll((Key) iter.next());
-//			}
-//		}
-//
-//		BookData data = new BookData(book, key);
-//		return data.getDOM();
-//	}
 
+    /**
+     * Get just the canonical text of one or more book entries without any
+     * markup.
+     * 
+     * @param bookInitials
+     *            the book to use
+     * @param reference
+     *            a reference, appropriate for the book, of one or more entries
+     */
+    public String getCanonicalText(Book book, Key key, int maxKeyCount) throws NoSuchKeyException, BookException {
+		InputStream is = new OSISInputStream(book, key);
+
+		OsisToCanonicalTextSaxHandler osisToCanonical = getCanonicalTextSaxHandler(book);
+
+		try {
+			getSAXParser().parse(is, osisToCanonical);
+		} catch (Exception e) {
+			log.error("SAX parser error", e);
+//todo sort MsgBase			throw new BookException("SAX parser error", e);
+		}
+		
+		return osisToCanonical.toString();
+    }
+
+    private SAXParser saxParser;
+    private SAXParser getSAXParser() {
+    	try {
+	    	if (saxParser==null) {
+	    		SAXParserFactory spf = SAXParserFactory.newInstance();
+	    		spf.setValidating(false);
+	   			saxParser = spf.newSAXParser();
+	    	}
+		} catch (Exception e) {
+			log.error("SAX parser error", e);
+//todo sort MsgBase			throw new BookException("SAX parser error", e);
+		}
+		return saxParser;
+    }
     /**
      * Get just the canonical text of one or more book entries without any
      * markup.
@@ -358,6 +299,24 @@ public class SwordApi {
 			return null;
 		}
 
+	}
+
+	private OsisToHtmlSaxHandler getSaxHandler(Book book) {
+		OsisToHtmlSaxHandler osisToHtml = new OsisToHtmlSaxHandler();
+		BookMetaData bmd = book.getBookMetaData();
+		osisToHtml.setLeftToRight(bmd.isLeftToRight());
+		
+		if (preferences!=null) {
+			osisToHtml.setShowVerseNumbers(preferences.getBoolean("show_verseno_pref", true));
+			osisToHtml.setShowNotes(preferences.getBoolean("show_notes_pref", true));
+		}
+		
+		return osisToHtml;
+	}
+	
+	private OsisToCanonicalTextSaxHandler getCanonicalTextSaxHandler(Book book) {
+		
+		return osisToCanonicalTextSaxHandler;
 	}
 
 	private String getPaths() {

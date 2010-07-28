@@ -1,6 +1,5 @@
 package net.bible.android.activity;
 
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -9,12 +8,13 @@ import net.bible.android.util.DataPipe;
 import net.bible.android.util.Hourglass;
 import net.bible.android.view.BibleContentManager;
 import net.bible.android.view.BibleSwipeListener;
-import net.bible.service.format.Note;
 import net.bible.service.sword.SwordApi;
+
+import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.index.IndexStatus;
+
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -25,7 +25,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.webkit.WebView;
-import android.widget.SimpleAdapter;
 
 /** The main activity screen showing Bible text
  * 
@@ -79,7 +78,7 @@ public class MainBibleActivity extends Activity {
 	        	handlerIntent = new Intent(this, ChoosePassageBook.class);
 	        	break;
 	        case R.id.searchButton:
-	        	handlerIntent = new Intent(this, Search.class);
+	        	handlerIntent = getSearchIntent();
 	        	break;
 	        case R.id.settingsButton:
 	        	handlerIntent = new Intent(this, SettingsActivity.class);
@@ -99,14 +98,14 @@ public class MainBibleActivity extends Activity {
 
     	//Dialogs
     	{
-    		if (!isHandled) {
-                switch (item.getItemId()) {
-                case R.id.notesButton:
-                	showDialog(DIALOG_NOTES);
-                	isHandled = true;
-                	break;
-                }
-    		}
+//    		if (!isHandled) {
+//                switch (item.getItemId()) {
+//                case R.id.notesButton:
+//                	showDialog(DIALOG_NOTES);
+//                	isHandled = true;
+//                	break;
+//                }
+//    		}
     	}
 
     	if (!isHandled) {
@@ -124,6 +123,19 @@ public class MainBibleActivity extends Activity {
     	if (requestCode == REFRESH_DISPLAY_ON_FINISH) {
     		Log.i(TAG, "Refresh on finish");
     		bibleContentManager.updateText(true);
+    	}
+    }
+
+    private Intent getSearchIntent() {
+    	Book book = CurrentPassage.getInstance().getCurrentDocument();
+    	IndexStatus indexStatus = book.getIndexStatus();
+    	Log.d(TAG, "Index status:"+indexStatus);
+    	if (indexStatus.equals(IndexStatus.DONE)) {
+    		Log.d(TAG, "Index status is DONE");
+    	    return new Intent(this, Search.class);
+    	} else {
+    		Log.d(TAG, "Index status is NOT DONE");
+    	    return new Intent(this, SearchIndex.class);
     	}
     }
     
