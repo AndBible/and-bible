@@ -22,6 +22,9 @@
         <activity android:name=".Search"
                   android:label="@string/search">
         </activity>
+        <activity android:name=".SearchIndex"
+                  android:label="@string/search_index">
+        </activity>
         <activity android:name=".NotesActivity"
                   android:label="@string/notes">
         </activity>

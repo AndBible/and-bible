@@ -1,22 +1,13 @@
 package net.bible.android.activity;
 
- import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
+ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import net.bible.android.CurrentPassage;
 import net.bible.service.sword.SwordApi;
 
-import org.crosswire.common.progress.JobManager;
-import org.crosswire.common.progress.WorkEvent;
-import org.crosswire.common.progress.WorkListener;
-import org.crosswire.common.util.CWProject;
-import org.crosswire.common.util.NetUtil;
 import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.book.BookMetaData;
-import org.crosswire.jsword.index.lucene.PdaLuceneIndexManager;
 import org.crosswire.jsword.passage.Key;
 
 import android.app.Activity;
@@ -26,7 +17,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -68,9 +58,6 @@ public class Search extends Activity {
                     new String[] {LIST_ITEM_LINE1, LIST_ITEM_LINE2}, 
                     new int[] {android.R.id.text1, android.R.id.text2});
         	
-        	new ArrayAdapter<ResultItem>(this, android.R.layout.simple_list_item_1,
-                    mResultList);
-
         mSearchResults.setAdapter(mResultAdapter);
         
     	mSearchResults.setOnItemClickListener(new OnItemClickListener() {
@@ -79,61 +66,6 @@ public class Search extends Activity {
     	    	verseSelected(mResultList.get(position));
     	    }
     	});
-    }
-
-    // Indexing is too slow and fails aftr 1 hour - the experimental method below does not improve things enough to make indexing succeed 
-    public void onIndex(View v) {
-    	Log.i(TAG, "CLICKED");
-    	showMsg("Starting index");
-    	try {
-	        Book book = CurrentPassage.getInstance().getCurrentDocument();
-
-	        PdaLuceneIndexManager lim = new PdaLuceneIndexManager();
-	        lim.scheduleIndexCreation(book);
-//			URI indexStorage = getIndexStorageArea(book);
-//			
-//			PdaLuceneIndex fastLuceneIndex = new PdaLuceneIndex(book, indexStorage, true);
-	    	Log.i(TAG, "Finished indexing");
-			
-    	} catch (Exception e) {
-    		Log.e(TAG, "error indexing:"+e.getMessage());
-    		e.printStackTrace();
-    	}
-
-//        new PdaLuceneIndexManager().scheduleIndexCreation(bible);
-		JobManager.addWorkListener(new WorkListener() {
-
-			@Override
-			public void workProgressed(WorkEvent ev) {
-				int total = ev.getJob().getTotalWork();
-				int done = ev.getJob().getWork();
-				String section = ev.getJob().getSectionName();
-				String msg = "Done "+done+" of "+ total+" on "+section;
-				final String status = msg;
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						showMsg(status);
-					}
-				});
-			}
-
-			@Override
-			public void workStateChanged(WorkEvent ev) {
-				int total = ev.getJob().getTotalWork();
-				int done = ev.getJob().getWork();
-				String section = ev.getJob().getSectionName();
-				String msg = "state bDone "+done+" of "+ total+" on "+section;
-				final String status = msg;
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						showMsg(status);
-					}
-				});
-			}
-			
-		});
     }
     
     public void onSearch(View v) {
@@ -159,11 +91,7 @@ public class Search extends Activity {
     	mResultAdapter.notifyDataSetChanged();
     }
     
-    public void onFinish(View v) {
-    	Log.i(TAG, "CLICKED");
-    	doFinish();    
-    }
-    public void doFinish() {
+    private void doFinish() {
     	Intent resultIntent = new Intent();
     	setResult(Activity.RESULT_OK, resultIntent);
     	finish();    

@@ -41,49 +41,10 @@ import org.crosswire.jsword.index.IndexManager;
 import org.crosswire.jsword.index.IndexStatus;
 
 /**
- * An implementation of IndexManager for Lucene indexes.
+ * Creates Lucene indexes. An implementation for small footprint devices. 
  * 
- * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's authors.
- * @author Joe Walker [joe at eireneh dot com]
  */
-public class PdaLuceneIndexManager implements IndexManager {
-    /*
-     * (non-Javadoc)
-     * 
-     * @see org.crosswire.jsword.index.search.AbstractIndex#isIndexed()
-     */
-    public boolean isIndexed(Book book) {
-        try {
-            URI storage = getStorageArea(book);
-            return NetUtil.isDirectory(storage);
-        } catch (IOException ex) {
-            log.error("Failed to find lucene index storage area.", ex); //$NON-NLS-1$
-            return false;
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.crosswire.jsword.index.search.IndexManager#getIndex(org.crosswire
-     * .jsword.book.Book)
-     */
-    public Index getIndex(Book book) throws BookException {
-        try {
-            Index reply = (Index) INDEXES.get(book);
-            if (reply == null) {
-                URI storage = getStorageArea(book);
-                reply = new PdaLuceneIndex(book, storage);
-                INDEXES.put(book, reply);
-            }
-
-            return reply;
-        } catch (IOException ex) {
-            throw new BookException(UserMsg.LUCENE_INIT, ex);
-        }
-    }
+public class PdaLuceneIndexManager  {
 
     /*
      * (non-Javadoc)
@@ -93,91 +54,45 @@ public class PdaLuceneIndexManager implements IndexManager {
      * .crosswire.common.progress.Job)
      */
     public void scheduleIndexCreation(final Book book) {
+    	log.debug("1");
         book.setIndexStatus(IndexStatus.SCHEDULED);
 
+    	log.debug("2");
         Thread work = new Thread(new Runnable() {
             public void run() {
-            	System.out.println("*** running");
                 IndexStatus finalStatus = IndexStatus.UNDONE;
-            	System.out.println("*** 1");
 
+            	log.debug("3");
                 try {
                     URI storage = getStorageArea(book);
-                	System.out.println("*** 2");
-                    Index index = new PdaLuceneIndex(book, storage, true);
-                	System.out.println("*** 3");
+                	log.debug("4");
+
+                    PdaLuceneIndexCreator index = new PdaLuceneIndexCreator(book, storage, true);
                     // We were successful if the directory exists.
                     if (NetUtil.getAsFile(storage).exists()) {
-                    	System.out.println("*** 4");
                         finalStatus = IndexStatus.DONE;
-                        INDEXES.put(book, index);
+                        book.deactivate(null);
+                        book.activate(null);
+//                        INDEXES.put(book, index);
                     }
-                	System.out.println("*** 5");
                 } catch (IOException e) {
-                	System.out.println("*** error"+e.getMessage());
+                	System.out.println("error"+e.getMessage());
                 	e.printStackTrace();
                     Reporter.informUser(PdaLuceneIndexManager.this, e);
                 } catch (BookException e) {
-                	System.out.println("*** error"+e.getMessage());
+                	System.out.println("error"+e.getMessage());
                 	e.printStackTrace();
                     Reporter.informUser(PdaLuceneIndexManager.this, e);
                 } catch (Throwable t) {
-                	System.out.println("*** error"+t.getMessage());
+                	System.out.println("error"+t.getMessage());
                 	t.printStackTrace();
                 } finally {
-                	System.out.println("*** finished");
+                	System.out.println("finished");
                     book.setIndexStatus(finalStatus);
                 }
             }
         });
         work.start();
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.crosswire.jsword.index.search.IndexManager#installDownloadedIndex
-     * (org.crosswire.jsword.book.Book, java.net.URI)
-     */
-    public void installDownloadedIndex(Book book, URI tempDest) throws BookException {
-        try {
-            URI storage = getStorageArea(book);
-            File zip = NetUtil.getAsFile(tempDest);
-            IOUtil.unpackZip(zip, NetUtil.getAsFile(storage));
-        } catch (IOException ex) {
-            throw new BookException(UserMsg.INSTALL_FAIL, ex);
-        }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * org.crosswire.jsword.index.search.IndexManager#deleteIndex(org.crosswire
-     * .jsword.book.Book)
-     */
-    public void deleteIndex(Book book) throws BookException {
-        // Lucene can build in the directory that currently exists,
-        // overwriting what is there. So we rename the directory,
-        // mark the operation as success and then try to delete the
-        // directory.
-        File tempPath = null;
-        try {
-            // TODO(joe): This needs some checks that it isn't being used
-            File storage = NetUtil.getAsFile(getStorageArea(book));
-            String finalCanonicalPath = storage.getCanonicalPath();
-            tempPath = new File(finalCanonicalPath + '.' + IndexStatus.CREATING.toString());
-            FileUtil.delete(tempPath);
-            if (!storage.renameTo(tempPath)) {
-                throw new BookException(UserMsg.DELETE_FAILED);
-            }
-            book.setIndexStatus(IndexStatus.UNDONE);
-        } catch (IOException ex) {
-            throw new BookException(UserMsg.DELETE_FAILED, ex);
-        }
-
-        FileUtil.delete(tempPath);
     }
 
     /**
@@ -202,11 +117,6 @@ public class PdaLuceneIndexManager implements IndexManager {
 
         return NetUtil.lengthenURI(driver, bookName);
     }
-
-    /**
-     * The created indexes
-     */
-    protected static final Map INDEXES = new HashMap();
 
     /**
      * The lucene search index directory

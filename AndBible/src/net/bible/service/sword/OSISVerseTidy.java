@@ -15,8 +15,9 @@ public class OSISVerseTidy {
 
 	private Book book;
 	
-    private static final String VERSE_TAG_START = "<"+OSISUtil.OSIS_ELEMENT_VERSE+" "+OSISUtil.OSIS_ATTR_OSISID+"='";
-    private static final String VERSE_TAG_END = "'/>";
+    private static final String VERSE_OPENING_TAG_START = "<"+OSISUtil.OSIS_ELEMENT_VERSE+" "+OSISUtil.OSIS_ATTR_OSISID+"='";
+    private static final String VERSE_OPENING_TAG_END = "'>";
+    private static final String VERSE_CLOSING_TAG = "</"+OSISUtil.OSIS_ELEMENT_VERSE+">";
     
     private static final Logger log = new Logger(OSISVerseTidy.class.getName()); 
 
@@ -93,8 +94,8 @@ public class OSISVerseTidy {
         return verseText;
 	}
 	
-    /** Ensure each verse has the appropriate OSIS verse tag.  Jsword wraps each verse but 
-     * I think a single opening verse tag is sufficient and possibly less likely to cause embedding problems.
+    /** Ensure each verse has the appropriate OSIS verse tag.
+     * 
      * @param verse
      * @param plain
      * @return
@@ -103,7 +104,7 @@ public class OSISVerseTidy {
     	String ret = plain;
     	if (!plain.contains("<"+OSISUtil.OSIS_ELEMENT_VERSE)) {
     		StringBuffer buff = new StringBuffer();
-    		buff.append(VERSE_TAG_START).append(verse.getOsisID()).append(VERSE_TAG_END).append(plain);
+    		buff.append(VERSE_OPENING_TAG_START).append(verse.getOsisID()).append(VERSE_OPENING_TAG_END).append(plain).append(VERSE_CLOSING_TAG);
     		ret = buff.toString();
     	}
     	return ret;
