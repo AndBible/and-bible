@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+	<TextView android:id="@+id/statusText" 
+		android:layout_height="wrap_content" 
+		android:layout_width="fill_parent" />
+  	<Button android:id="@+id/index"
+ 		android:text="@string/index"
+		android:layout_width="wrap_content" 
+		android:layout_height="wrap_content"
+		android:gravity="right"
+		android:onClick="onIndex"/>
+	<ProgressBar android:id="@+id/progressBar" 
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="300dip"
+        android:layout_height="wrap_content"
+        android:max="100"
+        android:progress="0"/>
+</LinearLayout>
