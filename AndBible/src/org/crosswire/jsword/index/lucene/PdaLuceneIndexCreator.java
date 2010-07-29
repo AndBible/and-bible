@@ -36,19 +36,9 @@ import org.apache.lucene.analysis.SimpleAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Searcher;
-import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
-import org.crosswire.common.activate.Activatable;
-import org.crosswire.common.activate.Activator;
-import org.crosswire.common.activate.Lock;
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.progress.Progress;
 import org.crosswire.common.util.NetUtil;
@@ -57,17 +47,10 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookData;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.DataPolice;
-import org.crosswire.jsword.index.AbstractIndex;
 import org.crosswire.jsword.index.IndexStatus;
-import org.crosswire.jsword.index.lucene.analysis.LuceneAnalyzer;
-import org.crosswire.jsword.index.search.SearchModifier;
-import org.crosswire.jsword.passage.AbstractPassage;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
-import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.PassageKeyFactory;
-import org.crosswire.jsword.passage.PassageTally;
-import org.crosswire.jsword.passage.VerseFactory;
 
 /**
  * Implement the SearchEngine using Lucene as the search engine.
@@ -112,7 +95,7 @@ public class PdaLuceneIndexCreator {
     public static final String FIELD_NOTE = "note"; //$NON-NLS-1$
 
     /** we are on a device with limited ram so don't use too much */
-    private static final int MAX_RAM_BUFFER_SIZE_MB = 3;
+    private static final int MAX_RAM_BUFFER_SIZE_MB = 4;
     
     private static final String TAG = "PdaLuceneIndexCreator";
     
@@ -144,7 +127,7 @@ public class PdaLuceneIndexCreator {
 
         IndexStatus finalStatus = IndexStatus.UNDONE;
 
-        Analyzer analyzer = new LuceneAnalyzer(book); //SimpleAnalyzer();
+        Analyzer analyzer = new SimpleAnalyzer();//LuceneAnalyzer(book);
 
         List errors = new ArrayList();
         File tempPath = new File(path + '.' + IndexStatus.CREATING.toString());
@@ -154,18 +137,13 @@ public class PdaLuceneIndexCreator {
 
                 book.setIndexStatus(IndexStatus.CREATING);
 
-                // An index is created by opening an IndexWriter with the create
-                // argument set to true.
-                // IndexWriter writer = new
-                // IndexWriter(tempPath.getCanonicalPath(), analyzer, true);
-
                // Create the index in core.
                 Directory destination = FSDirectory.open(new File(tempPath.getCanonicalPath()));
                 IndexWriter writer = new IndexWriter(destination, analyzer, true, IndexWriter.MaxFieldLength.UNLIMITED);
                 writer.setRAMBufferSizeMB(MAX_RAM_BUFFER_SIZE_MB);
                 logger.debug("Beginning indexing "+book.getName());
                 try {
-	                Key keyList = PassageKeyFactory.instance().getGlobalKeyList();
+	                Key keyList = PassageKeyFactory.instance().getGlobalKeyList(); //getKey("Genesis");
 	                generateSearchIndexImpl(job, errors, writer, keyList, 0);
                 } catch (Exception e) {
                 	e.printStackTrace();
