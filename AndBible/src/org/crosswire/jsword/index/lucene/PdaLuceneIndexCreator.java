@@ -165,7 +165,7 @@ public class PdaLuceneIndexCreator {
                 writer.setRAMBufferSizeMB(MAX_RAM_BUFFER_SIZE_MB);
                 logger.debug("Beginning indexing "+book.getName());
                 try {
-	                Key keyList = PassageKeyFactory.instance().getKey("Genesis"); //getGlobalKeyList();
+	                Key keyList = PassageKeyFactory.instance().getGlobalKeyList();
 	                generateSearchIndexImpl(job, errors, writer, keyList, 0);
                 } catch (Exception e) {
                 	e.printStackTrace();

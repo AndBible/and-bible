@@ -8,18 +8,6 @@
 		android:layout_height="wrap_content" 
 		android:layout_width="fill_parent" 
 		android:layout_alignParentTop="true"/>
-	<TextView android:id="@+id/statusText" 
-		android:layout_height="wrap_content" 
-		android:layout_width="wrap_content" 
-		android:layout_below="@+id/searchText"
-		android:layout_toLeftOf="@+id/index"/>
-  	<Button android:id="@+id/index"
- 		android:text="@string/index"
-		android:layout_width="wrap_content" 
-		android:layout_height="wrap_content"
-		android:layout_below="@+id/searchText"
-		android:layout_toLeftOf="@+id/submit"
-		android:onClick="onIndex"/>
  	<Button android:id="@+id/submit"
  		android:text="@string/search"
 		android:layout_width="wrap_content" 
@@ -27,10 +15,25 @@
 		android:layout_below="@+id/searchText"
 		android:layout_alignParentRight="true"
 		android:onClick="onSearch"/>
-	<ListView android:id="@+id/searchResults" 
-		android:layout_height="wrap_content" 
-		android:layout_width="fill_parent"
-		android:layout_below="@+id/submit" 
-		android:layout_alignParentBottom="true"/>
+	
+	<RadioGroup android:id="@+id/wordsGroup" 
+		android:layout_below="@+id/submit"
+		android:layout_width="wrap_content" 
+		android:layout_height="wrap_content">	
+		<RadioButton android:id="@+id/allWords" 
+			android:layout_width="wrap_content" 
+			android:text="@string/search_all_words" 
+			android:layout_height="wrap_content"/>
+		<RadioButton android:id="@+id/anyWord" 
+			android:layout_below="@+id/allWords" 
+			android:layout_width="wrap_content" 
+			android:text="@string/search_any_word" 
+			android:layout_height="wrap_content"/>
+		<RadioButton android:id="@+id/phrase" 
+			android:layout_below="@+id/anyWord" 
+			android:layout_width="wrap_content" 
+			android:text="@string/search_phrase" 
+			android:layout_height="wrap_content"/>
+	</RadioGroup>
 
 </RelativeLayout>

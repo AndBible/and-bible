@@ -17,6 +17,10 @@
     <string name="directory_error">Sorry, unable to access directory %s</string> 
     <string name="help_text">Welcome\nBook Navigation\nFlings:\nFling your finger left to see the next page\nFling your finger right to go back a page\nRoll the track-ball left or right to go forward or back a page.</string>
 
+    <string name="search_all_words">All words</string>
+    <string name="search_any_word">Any word</string>
+    <string name="search_phrase">Phrase</string>
+
 	<!-- Notes screen -->
     <string name="no_chapter_notes">No notes exist in this chapter</string>
     <string name="no_verse_notes">No notes exist in this verse</string>
