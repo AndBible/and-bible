@@ -17,10 +17,12 @@
     <string name="directory_error">Sorry, unable to access directory %s</string> 
     <string name="help_text">Welcome\nBook Navigation\nFlings:\nFling your finger left to see the next page\nFling your finger right to go back a page\nRoll the track-ball left or right to go forward or back a page.</string>
 
+	<string name="search_words_group_prompt">Find verses</string>
     <string name="search_all_words">All words</string>
     <string name="search_any_word">Any word</string>
     <string name="search_phrase">Phrase</string>
 
+    <string name="search_bible_section_group_prompt">Search Where</string>
     <string name="search_all_bible">Whole bible</string>
     <string name="search_new_testament">New Testament</string>
     <string name="search_old_testament">Old Testament</string>
