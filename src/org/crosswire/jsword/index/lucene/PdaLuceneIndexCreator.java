@@ -32,7 +32,6 @@ import net.bible.service.sword.Logger;
 import net.bible.service.sword.SwordApi;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.SimpleAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
@@ -48,6 +47,7 @@ import org.crosswire.jsword.book.BookData;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.DataPolice;
 import org.crosswire.jsword.index.IndexStatus;
+import org.crosswire.jsword.index.lucene.analysis.LuceneAnalyzer;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.PassageKeyFactory;
@@ -126,8 +126,8 @@ public class PdaLuceneIndexCreator {
         Progress job = JobManager.createJob(UserMsg.INDEX_START.toString(book.getInitials()), Thread.currentThread(), false);
 
         IndexStatus finalStatus = IndexStatus.UNDONE;
-
-        Analyzer analyzer = new SimpleAnalyzer();//LuceneAnalyzer(book);
+        //todo *** Need to test both analyzers - does the LuceneAnalyzer work, teh SimpleAnalyzer did??? 
+        Analyzer analyzer = new LuceneAnalyzer(book); //SimpleAnalyzer();
 
         List errors = new ArrayList();
         File tempPath = new File(path + '.' + IndexStatus.CREATING.toString());
