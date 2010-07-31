@@ -8,6 +8,7 @@ import net.bible.android.CurrentPassage;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.passage.Key;
 
 import android.app.Activity;
@@ -17,10 +18,10 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class SearchResults extends Activity {
 	private static final String TAG = "SearchResults";
@@ -70,25 +71,30 @@ public class SearchResults extends Activity {
     public void prepareResults() {
     	Log.d(TAG, "Preparing search results");
     	
-    	String searchText = getIntent().getExtras().getString(Search.SEARCH_TEXT);
-    	
-        Book bible = CurrentPassage.getInstance().getCurrentDocument();
-    	SwordApi swordApi = SwordApi.getInstance();
-    	Key result = swordApi.search(bible, searchText);
-    	if (result!=null) {
-    		int resNum = result.getCardinality();
-        	Log.d(TAG, "Number of results:"+resNum);
-        	String msg = resNum+" matches found";
-    		if (resNum>MAX_SEARCH_RESULTS) {
-    			msg = "Too many matches.  Showing first "+MAX_SEARCH_RESULTS;
-    		}
-    		showMsg(msg);
-    		mResultList = new ArrayList<ResultItem>();
-    		for (int i=0; i<Math.min(resNum, MAX_SEARCH_RESULTS); i++) {
-    			mResultList.add(new ResultItem(result.get(i)));
-    		}
+    	try {
+	    	String searchText = getIntent().getExtras().getString(Search.SEARCH_TEXT);
+	    	
+	        Book bible = CurrentPassage.getInstance().getCurrentDocument();
+	    	SwordApi swordApi = SwordApi.getInstance();
+	    	Key result = swordApi.search(bible, searchText);
+	    	if (result!=null) {
+	    		int resNum = result.getCardinality();
+	        	Log.d(TAG, "Number of results:"+resNum);
+	        	String msg = resNum+" matches found";
+	    		if (resNum>MAX_SEARCH_RESULTS) {
+	    			msg = "Too many matches.  Showing first "+MAX_SEARCH_RESULTS;
+	    		}
+	    		showMsg(msg);
+	    		mResultList = new ArrayList<ResultItem>();
+	    		for (int i=0; i<Math.min(resNum, MAX_SEARCH_RESULTS); i++) {
+	    			mResultList.add(new ResultItem(result.get(i)));
+	    		}
+	    	}
+	    	//mResultAdapter.notifyDataSetChanged();
+    	} catch (BookException e) {
+    		Log.e(TAG, "Error processing search query", e);
+    		Toast.makeText(this, R.string.error_executing_search, Toast.LENGTH_SHORT).show();
     	}
-    	//mResultAdapter.notifyDataSetChanged();
     }
     
     private void doFinish() {

@@ -16,10 +16,15 @@
 		android:layout_alignParentRight="true"
 		android:onClick="onSearch"/>
 	
+	
 	<RadioGroup android:id="@+id/wordsGroup" 
 		android:layout_below="@+id/submit"
 		android:layout_width="wrap_content" 
 		android:layout_height="wrap_content">	
+		<TextView android:id="@+id/submit"
+			android:text="Find verses"
+			android:layout_height="wrap_content" 
+			android:layout_width="wrap_content"/>
 		<RadioButton android:id="@+id/allWords" 
 			android:layout_width="wrap_content" 
 			android:text="@string/search_all_words" 
@@ -33,6 +38,32 @@
 			android:layout_below="@+id/anyWord" 
 			android:layout_width="wrap_content" 
 			android:text="@string/search_phrase" 
+			android:layout_height="wrap_content"/>
+	</RadioGroup>
+
+	<RadioGroup android:id="@+id/bibleSectionGroup" 
+		android:layout_below="@+id/wordsGroup"
+		android:layout_width="wrap_content" 
+		android:layout_height="wrap_content">	
+		<TextView android:id="@+id/sectionGroupPrompt"
+			android:text="Search Where"
+			android:layout_height="wrap_content" 
+			android:layout_width="wrap_content"/>
+		<RadioButton android:id="@+id/searchAllBible" 
+			android:layout_width="wrap_content" 
+			android:text="@string/search_all_bible" 
+			android:layout_height="wrap_content"/>
+		<RadioButton android:id="@+id/searchOldTestament" 
+			android:layout_width="wrap_content" 
+			android:text="@string/search_old_testament" 
+			android:layout_height="wrap_content"/>
+		<RadioButton android:id="@+id/searchNewTestament" 
+			android:layout_width="wrap_content" 
+			android:text="@string/search_new_testament" 
+			android:layout_height="wrap_content"/>
+		<RadioButton android:id="@+id/searchCurrentBook" 
+			android:layout_width="wrap_content" 
+			android:text="@string/search_current_book" 
 			android:layout_height="wrap_content"/>
 	</RadioGroup>
 
