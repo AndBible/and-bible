@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 
@@ -40,6 +41,9 @@ public class Search extends Activity {
         
         mSearchTextInput =  (EditText)findViewById(R.id.searchText);
         
+        // set text for current bible book on appropriate radio button
+        RadioButton currentBookRadioButton = (RadioButton)findViewById(R.id.searchCurrentBook);
+        currentBookRadioButton.setText(currentBibleBook.getLongName());
         RadioGroup wordsRadioGroup = (RadioGroup)findViewById(R.id.wordsGroup);
         wordsRadioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
