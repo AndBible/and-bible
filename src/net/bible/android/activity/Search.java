@@ -1,6 +1,9 @@
 package net.bible.android.activity;
 
- import org.crosswire.jsword.index.search.SearchType;
+ import net.bible.android.CurrentPassage;
+
+import org.crosswire.jsword.index.search.SearchType;
+import org.crosswire.jsword.versification.BookName;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -20,6 +23,11 @@ public class Search extends Activity {
 	private EditText mSearchTextInput;
 	
 	private int wordsRadioSelection = R.id.allWords;
+	private int sectionRadioSelection = R.id.searchAllBible;
+	
+	private static final String SEARCH_NEW_TESTAMENT = "+[Mat-Rev]";
+	private static final String SEARCH_OLD_TESTAMENT = "+[Gen-Mal]";
+	private BookName currentBibleBook; 
 	
     /** Called when the activity is first created. */
     @Override
@@ -28,6 +36,8 @@ public class Search extends Activity {
         Log.i(TAG, "Displaying Search view");
         setContentView(R.layout.search);
     
+        currentBibleBook = CurrentPassage.getInstance().getCurrentBibleBook();
+        
         mSearchTextInput =  (EditText)findViewById(R.id.searchText);
         
         RadioGroup wordsRadioGroup = (RadioGroup)findViewById(R.id.wordsGroup);
@@ -35,6 +45,14 @@ public class Search extends Activity {
 			@Override
 			public void onCheckedChanged(RadioGroup group, int checkedId) {
 				wordsRadioSelection = checkedId;
+			}
+		});        
+
+        RadioGroup sectionRadioGroup = (RadioGroup)findViewById(R.id.bibleSectionGroup);
+        sectionRadioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(RadioGroup group, int checkedId) {
+				sectionRadioSelection = checkedId;
 			}
 		});        
         
@@ -45,6 +63,7 @@ public class Search extends Activity {
     	Log.i(TAG, "CLICKED");
     	String searchText = mSearchTextInput.getText().toString();
     	searchText = decorateSearchString(searchText);
+    	Log.d(TAG, "Search text:"+searchText);
     	
     	Intent intent = new Intent(this, SearchResults.class);
     	intent.putExtra(SEARCH_TEXT, searchText);
@@ -52,20 +71,41 @@ public class Search extends Activity {
     }
     
     private String decorateSearchString(String searchString) {
+    	String decorated = searchString;
     	switch (wordsRadioSelection) {
     	case R.id.allWords:
-            return SearchType.ALL_WORDS.decorate(searchString);
+            decorated = SearchType.ALL_WORDS.decorate(searchString);
+            break;
     	case R.id.anyWord:
-            return SearchType.ANY_WORDS.decorate(searchString);
+            decorated = SearchType.ANY_WORDS.decorate(searchString);
+            break;
     	case R.id.phrase:
-            return SearchType.PHRASE.decorate(searchString);
+            decorated = SearchType.PHRASE.decorate(searchString);
+            break;
         default:
         	Log.e(TAG, "Unexpected radio selection");
-            return "ERROR";
+            decorated = "ERROR";
     	}
 
-//        SearchType.PHRASE.decorate(searchString);
-//        search.append(SearchType.RANGE.decorate(restrict));
+    	switch (sectionRadioSelection) {
+    	case R.id.searchAllBible:
+    		// noop
+            break;
+    	case R.id.searchOldTestament:
+            decorated = SEARCH_OLD_TESTAMENT+" "+decorated;
+            break;
+    	case R.id.searchNewTestament:
+            decorated = SEARCH_NEW_TESTAMENT+" "+decorated;
+            break;
+    	case R.id.searchCurrentBook:
+            decorated = "+["+currentBibleBook.getShortName()+"] "+decorated;
+            break;
+        default:
+        	Log.e(TAG, "Unexpected radio selection");
+            decorated = "ERROR";
+    	}
+    	
+    	return decorated;
     }
 
     @Override 

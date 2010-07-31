@@ -273,31 +273,26 @@ public class SwordApi {
         return OSISUtil.getCanonicalText(data.getOsisFragment());
     }
 
-	public Key search(Book bible, String searchText) {
-		try {
-			// This does a standard operator search. See the search
-			// documentation
-			// for more examples of how to search
-			Key key = bible.find(searchText); //$NON-NLS-1$
+	public Key search(Book bible, String searchText) throws BookException {
+		// This does a standard operator search. See the search
+		// documentation
+		// for more examples of how to search
+		Key key = bible.find(searchText); //$NON-NLS-1$
 
-			Log.i(TAG,	"The following verses contain " + searchText + ": " + key.getName()); //$NON-NLS-1$
-			//
-			// // You can also trim the result to a more manageable quantity.
-			// // The test here is not necessary since we are working with a
-			// bible. It
-			// // is necessary if we don't know what it
-			// // is.
-			// if (key instanceof Passage) {
-			// Passage remaining = ((Passage) key).trimVerses(5);
-			//            System.out.println("The first 5 verses containing both moses and aaron: " + key.getName()); //$NON-NLS-1$
-			//            System.out.println("The rest of the verses are: " + remaining.getName()); //$NON-NLS-1$
-			// }
+		Log.i(TAG,	"The following verses contain " + searchText + ": " + key.getName()); //$NON-NLS-1$
+		//
+		// // You can also trim the result to a more manageable quantity.
+		// // The test here is not necessary since we are working with a
+		// bible. It
+		// // is necessary if we don't know what it
+		// // is.
+		// if (key instanceof Passage) {
+		// Passage remaining = ((Passage) key).trimVerses(5);
+		//            System.out.println("The first 5 verses containing both moses and aaron: " + key.getName()); //$NON-NLS-1$
+		//            System.out.println("The rest of the verses are: " + remaining.getName()); //$NON-NLS-1$
+		// }
 
-			return key;
-		} catch (Exception e) {
-			Log.e(TAG, "search error", e);
-			return null;
-		}
+		return key;
 
 	}
 
