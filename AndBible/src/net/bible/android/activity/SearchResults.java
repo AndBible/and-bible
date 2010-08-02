@@ -10,31 +10,36 @@ import net.bible.service.sword.SwordApi;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.versification.BibleInfo;
 
 import android.app.Activity;
+import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class SearchResults extends Activity {
+/** do the search and show the search results
+ * 
+ * @author denha1m
+ */
+public class SearchResults extends ListActivity {
 	private static final String TAG = "SearchResults";
 	private static final int MAX_SEARCH_RESULTS = 100;
-	
-	private ListView mSearchResults;
 	
 	private TextView mStatusTextView;
 	
     static final protected String LIST_ITEM_LINE1 = "line1";
     static final protected String LIST_ITEM_LINE2 = "line2";	
     private List<ResultItem> mResultList;
-	private SimpleAdapter mResultAdapter; 
 	
     /** Called when the activity is first created. */
     @Override
@@ -44,31 +49,29 @@ public class SearchResults extends Activity {
         setContentView(R.layout.search_results);
     
         mStatusTextView =  (TextView)findViewById(R.id.statusText);
-        mSearchResults =  (ListView)findViewById(R.id.searchResults);
-        
+
         prepareResults();
         
-        initialiseView();
+        setListAdapter(createAdapter());
+        
         Log.d(TAG, "Finished displaying Search view");
     }
 
-    private void initialiseView() {
-    	mResultAdapter = new SimpleAdapter(this, mResultList, 
-                    android.R.layout.two_line_list_item, 
-                    new String[] {LIST_ITEM_LINE1, LIST_ITEM_LINE2}, 
-                    new int[] {android.R.id.text1, android.R.id.text2});
-        	
-        mSearchResults.setAdapter(mResultAdapter);
-        
-    	mSearchResults.setOnItemClickListener(new OnItemClickListener() {
-    	    @Override
-    	    public void onItemClick(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-    	    	verseSelected(mResultList.get(position));
-    	    }
-    	});
+    /**
+     * Creates and returns a list adapter for the current list activity
+     * @return
+     */
+    protected ListAdapter createAdapter()
+    {
+    	ListAdapter listAdapter = new SimpleAdapter(this, mResultList, 
+                android.R.layout.two_line_list_item, 
+                new String[] {LIST_ITEM_LINE1, LIST_ITEM_LINE2}, 
+                new int[] {android.R.id.text1, android.R.id.text2});
+    	
+    	return listAdapter;
     }
     
-    public void prepareResults() {
+    private void prepareResults() {
     	Log.d(TAG, "Preparing search results");
     	
     	try {
@@ -106,6 +109,11 @@ public class SearchResults extends Activity {
     private void showMsg(String msg) {
     	mStatusTextView.setText(msg);
     }
+
+    @Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+    	verseSelected(mResultList.get(position));
+	}
     
     private void verseSelected(ResultItem resultItem) {
     	Log.i(TAG, "chose:"+resultItem);
