@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" 
+			android:key="bible_display_pref">
+	<CheckBoxPreference android:key="show_verseno_pref" 
+				android:summary="Show verse numbers" 
+				android:title="Verse numbers"/>
+	<CheckBoxPreference android:key="show_notes_pref" 
+				android:summary="Show notes" 
+				android:title="Notes"/>
+</PreferenceScreen>
