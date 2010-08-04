@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">And Bible</string>
-    <string name="chooseBookButton">Document</string>
-    <string name="selectPassageButton">Passage</string>
-    <string name="choosePassageBookName">Choose Book</string>
-    <string name="choosePassageChapterName">Choose Chapter</string>
+    
+    <!-- main menu -->
+    <string name="chooseBook">Document</string>
+    <string name="selectPassage">Passage</string>
     <string name="search">Find</string>
-    <string name="search_index">Create Search Index</string>
     <string name="notes">Notes</string>
     <string name="settings">Settings</string>
+    
+    <string name="choosePassageBookName">Choose Book</string>
+    <string name="choosePassageChapterName">Choose Chapter</string>
+    <string name="search_index">Create Search Index</string>
     <string name="index">Index</string>
     <string name="module_dir">Dir</string>
     <string name="use_folder">Use this folder</string>
