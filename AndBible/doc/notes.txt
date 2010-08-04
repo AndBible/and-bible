@@ -59,7 +59,8 @@ android create avd -n dft7c64m -t 2 -c 64M -p C:\Datafiles\j2me\avd\dft7c64m
 android create avd -n dft8c64m -t 3 -c 64M -p C:\Datafiles\j2me\avd\dft8c64m
 
 // copy files to avd
-adb push C:\Datafiles\eclipse-workspace-sword\AndBible\data\jsword /mnt/sdcard/sword
+adb push C:\Datafiles\eclipse-workspace-sword\AndBible\data\jsword /sdcard/jsword
+adb push C:\Datafiles\data\jsword /sdcard/jsword
 
 // bug in jdom SAXHandler
 http://www.junlu.com/list/25/443103.html
