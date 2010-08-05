@@ -16,8 +16,11 @@
 		  android:title="@string/notes"
 		  android:icon="@android:drawable/ic_menu_add"/>
 		  
-
 	<item android:id="@+id/settingsButton"
 		  android:title="@string/settings"
 		  android:icon="@android:drawable/ic_menu_preferences"/>
+
+	<item android:id="@+id/downloadButton"
+		  android:title="@string/download"
+		  android:icon="@drawable/ic_menu_goto"/>
 </menu>

@@ -2,7 +2,6 @@ package net.bible.android.activity;
 
 import java.util.List;
 
-import net.bible.android.CurrentPassage;
 import net.bible.android.util.ActivityBase;
 import net.bible.service.sword.SwordApi;
 
@@ -17,8 +16,9 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
-public class ChooseDocument extends ActivityBase {
+public class Download extends ActivityBase {
 	private static final String TAG = "ChooseDocument";
 	
 	private ListView bookList;
@@ -31,20 +31,24 @@ public class ChooseDocument extends ActivityBase {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.document_chooser);
+        setContentView(R.layout.download);
+
         initialiseView();
     }
 
     private void initialiseView() {
     	bookList = (ListView)findViewById(R.id.bookList);
-    	bibles = SwordApi.getInstance().getDocuments();
+
+    	bibles = SwordApi.getInstance().getDownloadableDocuments();
+    	Log.i(TAG, "number of documents available:"+bibles.size());
+
     	populateBooks();
     	
     	{
 	    	bookList.setOnItemClickListener(new OnItemClickListener() {
 	    	    @Override
 	    	    public void onItemClick(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-	    	    	bookSelected(position);
+	    	    	documentSelected(bibles.get(position));
 	    	    	onSave(null);
 	    	    }
 	    	});
@@ -61,12 +65,14 @@ public class ChooseDocument extends ActivityBase {
     	}
     }
     
-    private void bookSelected(int position) {
-    	Log.d(TAG, "Book selected:"+position);
+    private void documentSelected(Book document) {
+    	Log.d(TAG, "Document selected:"+document.getInitials());
     	try {
-    		CurrentPassage.getInstance().setCurrentDocument( bibles.get(position) );
+    		SwordApi.getInstance().downloadDocument(document);
+        	Log.d(TAG, "Download requested");
     	} catch (Exception e) {
-    		Log.e(TAG, "error on select of bible book", e);
+    		Log.e(TAG, "Error on attempt to download", e);
+    		Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show();
     	}
     }
     

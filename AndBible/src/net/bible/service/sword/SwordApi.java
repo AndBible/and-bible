@@ -25,7 +25,9 @@ import org.crosswire.jsword.book.BookFilters;
 import org.crosswire.jsword.book.BookMetaData;
 import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.OSISUtil;
+import org.crosswire.jsword.book.install.InstallException;
 import org.crosswire.jsword.book.sword.SwordBookPath;
+import org.crosswire.jsword.bridge.BookInstaller;
 import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.index.lucene.PdaLuceneIndexManager;
 import org.crosswire.jsword.passage.Key;
@@ -41,11 +43,12 @@ public class SwordApi {
 	private static final String TAG = "SwordApi";
 	private static SwordApi singleton;
 	private String xslFilePath;
-	private List<Book> allDocuments;
 
 	// just keep one of these because it is called in the tight document indexing loop and isn't very complex
 	OsisToCanonicalTextSaxHandler osisToCanonicalTextSaxHandler = new OsisToCanonicalTextSaxHandler();
 
+	private static final String CROSSWIRE_REPOSITORY = "CrossWire";
+	
 	private SharedPreferences preferences;
 	
 	private static boolean isAndroid = true;
@@ -75,13 +78,6 @@ public class SwordApi {
 	
 				SwordBookPath.setAugmentPath(new File[] {
 						new File(sdcard, "jsword")});
-				
-				log.debug("Getting books");
-				allDocuments = Books.installed().getBooks(BookFilters.getAll());
-				log.debug("Got books, Num="+allDocuments.size());
-				
-//				xslFilePath = sdcard+"/jsword/bible.xsl";
-//				Log.i(TAG, "Bible xsl:"+xslFilePath);
 			}
 		} catch (Exception e) {
 			log.error("Error initialising", e);
@@ -89,6 +85,9 @@ public class SwordApi {
 	}
 
 	public List<Book> getDocuments() {
+		log.debug("Getting books");
+		List<Book> allDocuments = Books.installed().getBooks(BookFilters.getAll());
+		log.debug("Got books, Num="+allDocuments.size());
 		return allDocuments;
 	}
 
@@ -98,6 +97,20 @@ public class SwordApi {
 		return Books.installed().getBook(initials);
 	}
 	
+	public List<Book> getDownloadableDocuments() {
+		log.debug("Getting downloadable documents");
+
+		BookFilters.setCommentariesWithBibles(true);
+    	List<Book> documents = new BookInstaller().getRepositoryBooks(CROSSWIRE_REPOSITORY, BookFilters.getBibles());
+    	Log.i(TAG, "number of documents available:"+documents.size());
+
+		return documents;
+	}
+	
+	public void downloadDocument(Book document) throws InstallException, BookException {
+		new BookInstaller().installBook(CROSSWIRE_REPOSITORY, document);
+	}
+
 	/** this custom index creation has been optimised for slow, low memory devices
 	 * If an index is in progress then nothing will happen
 	 * 
