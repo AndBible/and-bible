@@ -4,6 +4,7 @@ import java.util.Observable;
 import java.util.Observer;
 
 import net.bible.android.CurrentPassage;
+import net.bible.android.util.ActivityBase;
 import net.bible.android.util.DataPipe;
 import net.bible.android.util.Hourglass;
 import net.bible.android.view.BibleContentManager;
@@ -13,7 +14,6 @@ import net.bible.service.sword.SwordApi;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.index.IndexStatus;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -30,7 +30,7 @@ import android.webkit.WebView;
  * 
  * @author denha1m
  */
-public class MainBibleActivity extends Activity {
+public class MainBibleActivity extends ActivityBase {
 
 	private BibleContentManager bibleContentManager;
 	
@@ -82,11 +82,17 @@ public class MainBibleActivity extends Activity {
 	        	break;
 	        case R.id.settingsButton:
 	        	handlerIntent = new Intent(this, SettingsActivity.class);
+	        	// force the bible view to be refreshed after returning from settings screen because notes, verses, etc. may be switched on or off
 	        	requestCode = REFRESH_DISPLAY_ON_FINISH;
 	        	break;
 	        case R.id.notesButton:
 	        	handlerIntent = new Intent(this, NotesActivity.class);
+	        	// pump the notes into the viewer (there must be an easier way other than Parcelable)
+	        	//todo refactor so the notes are loaded by the Notes viewer using a separate SAX parser 
 	        	DataPipe.getInstance().pushNotes(bibleContentManager.getNotesList());
+	        	break;
+	        case R.id.downloadButton:
+	        	handlerIntent = new Intent(this, Download.class);
 	        	break;
 	        }
 	

@@ -34,10 +34,11 @@
         <activity android:name=".SettingsActivity"
                   android:label="@string/settings">
         </activity>
-        <activity android:name=".FolderPicker"
-                  android:label="@string/use_folder">
+        <activity android:name=".Download"
+                  android:label="@string/download">
         </activity>
 </application>
 <uses-sdk android:minSdkVersion="4"/>
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.INTERNET"/>
 </manifest> 

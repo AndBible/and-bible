@@ -38,6 +38,10 @@
     <string name="previous">Previous</string>
     <string name="next">Next</string>
 
+	<!-- Module download -->
+    <string name="download">Download Bibles</string>
+    <string name="error_downloading">An error occurred downloading.  Please check your internet connection.</string>
+
     <string name="okay">OK</string>
     <string name="cancel">Cancel</string>
 </resources>
