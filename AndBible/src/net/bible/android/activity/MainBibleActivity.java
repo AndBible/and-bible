@@ -34,10 +34,6 @@ public class MainBibleActivity extends ActivityBase {
 
 	private BibleContentManager bibleContentManager;
 	
-	private Hourglass hourglass = new Hourglass();
-	
-	private static final int DIALOG_NOTES = 1;
-	
 	private static final int REFRESH_DISPLAY_ON_FINISH = 2;
 
 	private static final String TAG = "MainBibleActivity";
@@ -206,44 +202,6 @@ public class MainBibleActivity extends ActivityBase {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
         return true;
-    }
-
-    /** for some reason Android insists Dialogs are created in the onCreateDialog method
-     * 
-     */
-    @Override
-    protected Dialog onCreateDialog(int id) {
-        switch (id) {
-            case Hourglass.HOURGLASS_KEY:
-                hourglass.show(this);
-                return hourglass.getHourglass();
-//            case DIALOG_NOTES:
-//            	final List<Note> notesList = bibleContentManager.getNotesList(CurrentPassage.getInstance().getCurrentVerse());
-//                SimpleAdapter adapter = new SimpleAdapter(this, notesList, 
-//                        R.layout.two_line_list_item_copy, 
-//                        new String[] {Note.SUMMARY, Note.DETAIL}, 
-//                        new int[] {android.R.id.text1, android.R.id.text2});
-//            	
-//           	
-//                return new AlertDialog.Builder(MainBibleActivity.this)
-//                .setTitle(R.string.notes)
-//                .setCancelable(true)
-//                .setAdapter(adapter, new DialogInterface.OnClickListener() {
-//                    public void onClick(DialogInterface dialog, int selected) {
-//                    	Note selectedNote = notesList.get(selected);
-//                    	if (selectedNote.isNavigable()) {
-//                    		selectedNote.navigateTo();
-//                    	}
-//                    }
-//                })
-//                .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-//                    public void onClick(DialogInterface dialog, int selected) {
-//                    	// do nothing but allow return to current page
-//                    }
-//                })
-//                .create();
-        }
-        return null;
     }
 
     // handle swipe left and right

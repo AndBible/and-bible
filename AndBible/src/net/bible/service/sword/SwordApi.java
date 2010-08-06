@@ -21,6 +21,7 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookData;
 import org.crosswire.jsword.book.BookException;
+import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
 import org.crosswire.jsword.book.BookMetaData;
 import org.crosswire.jsword.book.Books;
@@ -97,11 +98,10 @@ public class SwordApi {
 		return Books.installed().getBook(initials);
 	}
 	
-	public List<Book> getDownloadableDocuments() {
+	public List<Book> getDownloadableDocuments(BookFilter filter) {
 		log.debug("Getting downloadable documents");
-
-		BookFilters.setCommentariesWithBibles(true);
-    	List<Book> documents = new BookInstaller().getRepositoryBooks(CROSSWIRE_REPOSITORY, BookFilters.getBibles());
+		
+    	List<Book> documents = new BookInstaller().getRepositoryBooks(CROSSWIRE_REPOSITORY, filter);
     	Log.i(TAG, "number of documents available:"+documents.size());
 
 		return documents;
