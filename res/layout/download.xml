@@ -4,6 +4,19 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
+    <LinearLayout android:orientation="horizontal" 
+    	android:layout_width="fill_parent" 
+    	android:layout_height="wrap_content">
+    	<Spinner android:id="@+id/languageSpinner"
+    		android:layout_width="fill_parent"
+	    	android:layout_height="wrap_content"
+	    	android:layout_weight="50"/>
+    	<Spinner android:id="@+id/documentTypeSpinner"
+    		android:entries="@array/documentTypes"
+    		android:layout_width="fill_parent"
+	    	android:layout_height="wrap_content"
+	    	android:layout_weight="50"/>
+    </LinearLayout>
 	<ListView android:id="@+id/bookList" 
 		android:layout_width="fill_parent" 
 		android:layout_height="fill_parent"

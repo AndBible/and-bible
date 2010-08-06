@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string-array name="documentTypes">
+		<item>Bible</item>
+		<item>Commentary</item>
+	</string-array>
+</resources>
