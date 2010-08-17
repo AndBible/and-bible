@@ -203,7 +203,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 	private void writeVerse() throws SAXException {
     	if (isShowVerseNumbers && !isDelayVerse && !isCurrentVerseNoWritten) {
-    		write("<span class='verse'>"+currentVerseNo+"</span>"+NBSP);
+    		// the id is used to 'jump to' the verse using javascript
+    		write("<span class='verse' id='"+currentVerseNo+"'>"+currentVerseNo+"</span>"+NBSP);
     		isCurrentVerseNoWritten = true;
     	}
     }

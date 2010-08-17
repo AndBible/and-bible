@@ -6,15 +6,14 @@ import java.util.Observer;
 import net.bible.android.CurrentPassage;
 import net.bible.android.util.ActivityBase;
 import net.bible.android.util.DataPipe;
-import net.bible.android.util.Hourglass;
 import net.bible.android.view.BibleContentManager;
 import net.bible.android.view.BibleSwipeListener;
+import net.bible.android.view.BibleView;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.index.IndexStatus;
 
-import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -24,7 +23,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.webkit.WebView;
 
 /** The main activity screen showing Bible text
  * 
@@ -52,6 +50,15 @@ public class MainBibleActivity extends ActivityBase {
         initialiseSword();
         restoreState();
         initialiseView();
+        
+        if (SwordApi.getInstance().getDocuments().size()==0) {
+        	gotoDownloadActivity();
+        }
+    }
+
+    private void gotoDownloadActivity() {
+    	Intent handlerIntent = new Intent(this, Download.class);
+    	startActivityForResult(handlerIntent, 1);
     }
     
     /** 
@@ -150,7 +157,7 @@ public class MainBibleActivity extends ActivityBase {
     }
 
     private void initialiseView() {
-    	WebView bibleWebView = (WebView)findViewById(R.id.main_text);
+    	BibleView bibleWebView = (BibleView)findViewById(R.id.main_text);
     	bibleContentManager = new BibleContentManager(bibleWebView, this);
     	
     	//todo call CurrentPassage.update???
