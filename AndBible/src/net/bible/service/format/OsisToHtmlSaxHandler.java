@@ -103,9 +103,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			if (attrs!=null) {
 				currentVerseNo = osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID));
 			}
-			if (isShowVerseNumbers) {
-				isCurrentVerseNoWritten = false;
-			}
+			isCurrentVerseNoWritten = false;
 		} else if (name.equals("note")) {
 			String noteRef = getNoteRef(attrs);
 			if (isShowNotes) {
@@ -202,9 +200,13 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     }
 
 	private void writeVerse() throws SAXException {
-    	if (isShowVerseNumbers && !isDelayVerse && !isCurrentVerseNoWritten) {
-    		// the id is used to 'jump to' the verse using javascript
-    		write("<span class='verse' id='"+currentVerseNo+"'>"+currentVerseNo+"</span>"+NBSP);
+    	if (!isDelayVerse && !isCurrentVerseNoWritten) {
+    		// the id is used to 'jump to' the verse using javascript so always need the verse tag with an id
+    		if (isShowVerseNumbers) {
+    			write("<span class='verse' id='"+currentVerseNo+"'>"+currentVerseNo+"</span>"+NBSP);
+    		} else {
+    			write("<span class='verse' id='"+currentVerseNo+"'></span>");
+    		}
     		isCurrentVerseNoWritten = true;
     	}
     }
