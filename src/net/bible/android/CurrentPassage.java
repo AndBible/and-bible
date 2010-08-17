@@ -52,7 +52,15 @@ public class CurrentPassage extends Observable {
 
 	@Override
 	public String toString() {
-		return currentDocument.getInitials()+" "+getCurrentBibleBook().getLongName()+" "+currentChapter+":"+getCurrentVerse();
+		StringBuffer desc = new StringBuffer();
+		desc.append(currentDocument.getInitials())
+			.append(" ")
+			.append(getCurrentBibleBook().getLongName())
+			.append(" ")
+			.append(currentChapter);
+		desc.append(":").append(getCurrentVerse());
+		
+		return desc.toString();
 	}
 
 	public void next() {
@@ -84,6 +92,7 @@ public class CurrentPassage extends Observable {
 					currentChapter = 1;
 				}
 			}
+			currentVerse.verse = 1;
 		} catch (NoSuchVerseException nve) {
 			Log.e(TAG, "No such verse moving to next chapter", nve);
 		}
@@ -110,6 +119,7 @@ public class CurrentPassage extends Observable {
 					currentChapter = BibleInfo.chaptersInBook(currentBibleBookNo);
 				}
 			}
+			currentVerse.verse = 1;
 		} catch (NoSuchVerseException nve) {
 			Log.e(TAG, "No such verse moving to prev chapter", nve);
 		}
@@ -193,6 +203,7 @@ public class CurrentPassage extends Observable {
 	
 	public void setCurrentChapter(int currentChapter) {
 		this.currentChapter = currentChapter;
+		setCurrentVerse(1);
 		notifyObserversOfChange();
 	}
 	public boolean isSingleChapterBook() throws NoSuchKeyException{
@@ -273,6 +284,7 @@ public class CurrentPassage extends Observable {
 		private int verse = 1;
 		
 		private void setVerse(int verse) {
+			Log.d(TAG, "setVerse:"+verse);
 			this.verse = verse;
 			this.setChanged();
 			this.notifyObservers();

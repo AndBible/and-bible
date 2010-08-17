@@ -16,10 +16,8 @@ import org.crosswire.jsword.passage.Key;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.webkit.WebView;
 
 public class BibleContentManager {
 	
@@ -28,14 +26,14 @@ public class BibleContentManager {
 	private Key displayedVerse;
 	private List<Note> notesList;
 
-	private WebView bibleWebView;
+	private BibleView bibleWebView;
 	private Context context;
 	
 	private static final String TAG = "BibleView";
 	
 	private String NO_CONTENT = "No content for selected verse";
 	
-	public BibleContentManager(WebView bibleWebView, Context context) {
+	public BibleContentManager(BibleView bibleWebView, Context context) {
 		this.context = context;
 		this.bibleWebView = bibleWebView;
 		
@@ -72,27 +70,30 @@ public class BibleContentManager {
     }
 
     private class UpdateTextTask extends AsyncTask<CurrentPassage, Integer, String> {
+    	int verseNo;
     	
 		@Override
-        protected String doInBackground(CurrentPassage... currentPassage) {
+        protected String doInBackground(CurrentPassage... currentPassageArgs) {
         	String text = "Error";
         	try {
-	    		Book bible = currentPassage[0].getCurrentDocument();
+        		CurrentPassage currentPassage = currentPassageArgs[0]; 
+	    		Book bible = currentPassage.getCurrentDocument();
 	    		// if bible show whole chapter
-	    		Key verse = currentPassage[0].getKey();
+	    		Key verses = currentPassage.getKey();
+	    		verseNo = currentPassage.getCurrentVerse();
 	
 	    		SharedPreferences preferences = context.getSharedPreferences("net.bible.android.activity_preferences", 0);
 	    		// wait until after current verse has been fetched because the following may change the current verse 
 //    			scrollTo(0, 0);
 	    		
-	            Log.d(TAG, "Loading "+verse);
+	            Log.d(TAG, "Loading "+verses);
 	    		//setText("Loading "+verse.toString());
 	            SwordApi swordApi = SwordApi.getInstance();
 	            swordApi.setPreferences(preferences);
 	            
 	            notesList = new ArrayList<Note>();
 	            
-	            FormattedDocument formattedDocument = swordApi.readHtmlText(bible, verse, 200);
+	            FormattedDocument formattedDocument = swordApi.readHtmlText(bible, verses, 200);
 	            text = formattedDocument.getHtmlPassage();
 	            notesList = formattedDocument.getNotesList();
 	            
@@ -101,7 +102,7 @@ public class BibleContentManager {
 	            }
 	
 	            displayedBible = bible;
-	            displayedVerse = verse;
+	            displayedVerse = verses;
 		            
         	} catch (Exception e) {
         		Log.e(TAG, "Error getting bible text", e);
@@ -112,11 +113,11 @@ public class BibleContentManager {
 
         protected void onPostExecute(String htmlFromDoInBackground) {
             Log.d(TAG, "Loading "+htmlFromDoInBackground);
-            showText(htmlFromDoInBackground);
+            showText(htmlFromDoInBackground, verseNo);
         }
     }
-	private void showText(String text) {
-        bibleWebView.loadDataWithBaseURL("http://baseUrl", text, "text/html", "UTF-8", "http://historyUrl");
+	private void showText(String text, int verseNo) {
+        bibleWebView.show(text, verseNo);
     }
 
 	public List<Note> getNotesList() {

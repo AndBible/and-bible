@@ -6,6 +6,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 /** The WebView component that shows teh main bible and commentary text
  * 
@@ -15,7 +16,12 @@ import android.webkit.WebView;
 public class BibleView extends WebView {
 	
 	private VerseCalculator verseCalculator;
+
+	private int mJumpToVerse = 0;
 	
+	private long lastHandledTrackballEventTime = 0;
+
+
 	private static final String TAG = "BibleView";
 	
 	/**
@@ -46,10 +52,40 @@ public class BibleView extends WebView {
 	
 	private void initialise() {
 		verseCalculator = new VerseCalculator();
+		
+		// need javascript to enable jump to anchors/verses
+		getSettings().setJavaScriptEnabled(true);
+		
+		/* WebViewClient must be set BEFORE calling loadUrl! */  
+		setWebViewClient(new WebViewClient() {  
+		    @Override  
+		    public void onPageFinished(WebView view, String url)  
+		    {
+		    	if (mJumpToVerse != -1) { 
+		    		Log.d(TAG, "Jumping to verse "+mJumpToVerse);
+		    		if (mJumpToVerse==1) {
+		    			// use scroll to becasue difficult to place a tag exactly at the top
+		    			view.scrollTo(0,0);
+		    		} else {
+		    			view.loadUrl("javascript:location.href='#"+mJumpToVerse+"'");
+		    		}
+		    	    // must zero mJumpToVerse because setting location causes another onPageFinished
+		    	    mJumpToVerse = -1; 
+		    	 } 
+		    }  
+		});  
 	}
 	
-	private long lastHandledTrackballEventTime = 0;
-
+	/** show a page from bible commentary
+	 * 
+	 * @param html
+	 */
+	public void show(String html, int jumpToVerse) {
+		Log.d(TAG, "Show(html,"+jumpToVerse+")");
+		mJumpToVerse = jumpToVerse;
+		loadDataWithBaseURL("http://baseUrl", html, "text/html", "UTF-8", "http://historyUrl");
+	}
+	
 	/** handle right/left trackpad movement by going next/prev page
 	 */
 	@Override
