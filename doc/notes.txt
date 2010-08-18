@@ -1,3 +1,6 @@
+Add to props in run target to switch language
+-prop persist.sys.language=sv
+
 Exception thrown if there is a long chapter like Acts 15 and you navigate quickly to and from it.
 This is possibly cause because readHtmlTextOptimizedZTextOsis reads the raw text while parsing allowing for another request on ZVerseBackend to overlap.
 I have added synchronized to readHtmlTextOptimizedZTextOsis for now to see if that stops it but it would give better screen response if we killed previous requests if a new request comes in.
