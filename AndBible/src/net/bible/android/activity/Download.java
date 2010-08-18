@@ -27,7 +27,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 public class Download extends ActivityBase {
-	private static final String TAG = "ChooseDocument";
+	private static final String TAG = "Download";
 
 	private static final BookFilter[] DOCUMENT_TYPE_SPINNER_FILTERS = new BookFilter[] {BookFilters.getBibles(), BookFilters.getCommentaries()};
 	private int selectedDocumentFilterNo = 0;
@@ -61,7 +61,6 @@ public class Download extends ActivityBase {
     	    @Override
     	    public void onItemClick(AdapterView<?> parentView, View selectedItemView, int position, long id) {
     	    	documentSelected(documents.get(position));
-    	    	onSave(null);
     	    }
     	});
     	
@@ -82,38 +81,41 @@ public class Download extends ActivityBase {
 		});
     }
     
-    private void populateDocumentList() {
+    private synchronized void populateDocumentList() {
     	try {
-    	    new AsyncTask<Void, Boolean, Void>() {
-    	    	
-    	        @Override
-    	        protected void onPreExecute() {
-    	        	showDialog(Hourglass.HOURGLASS_KEY);
-    	        }
-    			@Override
-    	        protected Void doInBackground(Void... noparam) {
-    	        	documents = SwordApi.getInstance().getDownloadableDocuments(DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo]);
-    	        	documentDescriptions.clear();
-    	        	for (Book doc : documents) {
-    	        		documentDescriptions.add(doc.getName());
-    	        	}
-    	        	return null;
-    			}
-    			
-    	        @Override
-				protected void onPostExecute(Void result) {
-    	        	try {
-	    	        	if (listArrayAdapter!=null) {
-	    	        		Download.this.listArrayAdapter.notifyDataSetChanged();
+    		if (documents==null || documents.size()==0) {
+	    	    new AsyncTask<Void, Boolean, Void>() {
+	    	    	
+	    	        @Override
+	    	        protected void onPreExecute() {
+	    	        	showDialog(Hourglass.HOURGLASS_KEY);
+	    	        }
+	    			@Override
+	    	        protected Void doInBackground(Void... noparam) {
+	    	        	documents = SwordApi.getInstance().getDownloadableDocuments(DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo]);
+	    	        	Log.i(TAG, "number of documents available:"+documents.size());
+	    	        	Thread.dumpStack();
+	    	        	documentDescriptions.clear();
+	    	        	for (Book doc : documents) {
+	    	        		documentDescriptions.add(doc.getName());
 	    	        	}
-    	        	} finally {
-    	        		//todo implement this: http://stackoverflow.com/questions/891451/android-dismissdialog-does-not-dismiss-the-dialog
-        	        	dismissHourglass();
-    	        	}
-    	        }
-
-    	    }.execute(null);
-        	Log.i(TAG, "number of documents available:"+documents.size());
+	    	        	return null;
+	    			}
+	    			
+	    	        @Override
+					protected void onPostExecute(Void result) {
+	    	        	try {
+		    	        	if (listArrayAdapter!=null) {
+		    	        		Download.this.listArrayAdapter.notifyDataSetChanged();
+		    	        	}
+	    	        	} finally {
+	    	        		//todo implement this: http://stackoverflow.com/questions/891451/android-dismissdialog-does-not-dismiss-the-dialog
+	        	        	dismissHourglass();
+	    	        	}
+	    	        }
+	
+	    	    }.execute(null);
+    		}
     	} catch (Exception e) {
     		Log.e(TAG, "Error initialising view", e);
     	}
@@ -124,15 +126,27 @@ public class Download extends ActivityBase {
     	try {
     		SwordApi.getInstance().downloadDocument(document);
         	Log.d(TAG, "Download requested");
+
+        	// select chapter
+        	Intent myIntent = new Intent(this, DownloadStatus.class);
+        	startActivityForResult(myIntent, 1);
+        	
     	} catch (Exception e) {
     		Log.e(TAG, "Error on attempt to download", e);
     		Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show();
     	}
     }
     
-    public void onSave(View v) {
-    	Log.i(TAG, "CLICKED");
-    	Intent resultIntent = new Intent();
+    @Override 
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	if (resultCode==Activity.RESULT_OK) {
+    		returnToMainScreen();
+    	}
+    }
+    
+    private void returnToMainScreen() {
+    	// just pass control back to teh main screen
+    	Intent resultIntent = new Intent(this, Download.class);
     	setResult(Activity.RESULT_OK, resultIntent);
     	finish();    
     }

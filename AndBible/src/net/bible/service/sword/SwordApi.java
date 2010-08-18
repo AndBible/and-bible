@@ -1,6 +1,6 @@
 package net.bible.service.sword;
 
- import java.io.File;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
@@ -27,7 +27,10 @@ import org.crosswire.jsword.book.BookMetaData;
 import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.OSISUtil;
 import org.crosswire.jsword.book.install.InstallException;
+import org.crosswire.jsword.book.install.InstallManager;
+import org.crosswire.jsword.book.install.Installer;
 import org.crosswire.jsword.book.sword.SwordBookPath;
+import org.crosswire.jsword.book.sword.SwordConstants;
 import org.crosswire.jsword.bridge.BookInstaller;
 import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.index.lucene.PdaLuceneIndexManager;
@@ -43,7 +46,7 @@ import android.util.Log;
 public class SwordApi {
 	private static final String TAG = "SwordApi";
 	private static SwordApi singleton;
-	private String xslFilePath;
+	private static final String MAIN_DIR = "jsword";
 
 	// just keep one of these because it is called in the tight document indexing loop and isn't very complex
 	OsisToCanonicalTextSaxHandler osisToCanonicalTextSaxHandler = new OsisToCanonicalTextSaxHandler();
@@ -75,19 +78,36 @@ public class SwordApi {
 		try {
 			if (isAndroid) {
 				File sdcard = Environment.getExternalStorageDirectory();
-		        CWProject.setHome("jsword.home", sdcard.getPath()+"/jsword", "JSword"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				File modsDir = new File(sdcard, MAIN_DIR+"/"+SwordConstants.DIR_CONF);
+				if (!modsDir.exists() || !modsDir.isDirectory()) {
+					modsDir.mkdirs();
+				}
+		        CWProject.setHome("jsword.home", sdcard.getPath()+"/"+MAIN_DIR, "JSword"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	
-				SwordBookPath.setAugmentPath(new File[] {
-						new File(sdcard, "jsword")});
+				SwordBookPath.setAugmentPath(new File[] {new File(sdcard, MAIN_DIR)});
 			}
 		} catch (Exception e) {
 			log.error("Error initialising", e);
 		}
 	}
 
+	public List<Book> getBibles() {
+		log.debug("Getting bibles");
+		List<Book> documents = Books.installed().getBooks(BookFilters.getBibles());
+		log.debug("Got bibles, Num="+documents.size());
+		return documents;
+	}
+
+	/** return all supported documents - bibles and commentaries for now
+	 * 
+	 * @return
+	 */
 	public List<Book> getDocuments() {
 		log.debug("Getting books");
-		List<Book> allDocuments = Books.installed().getBooks(BookFilters.getAll());
+		// currently only bibles and commentaries are supported
+		List<Book> allDocuments = Books.installed().getBooks(BookFilters.getBibles());
+		allDocuments.addAll(Books.installed().getBooks(BookFilters.getCommentaries()));
+		
 		log.debug("Got books, Num="+allDocuments.size());
 		return allDocuments;
 	}
@@ -100,8 +120,26 @@ public class SwordApi {
 	
 	public List<Book> getDownloadableDocuments(BookFilter filter) {
 		log.debug("Getting downloadable documents");
+
+        InstallManager imanager = new InstallManager();
+
+        // If we know the name of the installer we can get it directly
+        Installer installer = imanager.getInstaller(CROSSWIRE_REPOSITORY);
+
+        // Now we can get the list of books
+        try {
+        	if (installer.getBooks().size()==0) {
+        		//todo should warn user of implications of downloading book list e.g. from persecuted country
+        		log.warn("Auto reloading book list");
+        		installer.reloadBookList();
+        	}
+        } catch (InstallException e) {
+            e.printStackTrace();
+        }
+
+        // Get a list of all the available books
+        List<Book> documents = installer.getBooks(filter); //$NON-NLS-1$
 		
-    	List<Book> documents = new BookInstaller().getRepositoryBooks(CROSSWIRE_REPOSITORY, filter);
     	Log.i(TAG, "number of documents available:"+documents.size());
 
 		return documents;

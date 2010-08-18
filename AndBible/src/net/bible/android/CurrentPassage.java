@@ -171,6 +171,12 @@ public class CurrentPassage extends Observable {
     }
 
 	public Book getCurrentDocument() {
+		if (currentDocument==null) {
+			List<Book> bibles = SwordApi.getInstance().getBibles();
+			if (bibles.size()>0) {
+				currentDocument = bibles.get(0);
+			}
+		}
 		return currentDocument;
 	}
 

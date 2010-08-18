@@ -47,11 +47,11 @@ public class MainBibleActivity extends ActivityBase {
 
         gestureDetector = new GestureDetector( new BibleSwipeListener(this) );
         
-        initialiseSword();
         restoreState();
         initialiseView();
         
-        if (SwordApi.getInstance().getDocuments().size()==0) {
+        if (SwordApi.getInstance().getBibles().size()==0) {
+        	Log.i(TAG, "Invoking download activity because no bibles exist");
         	gotoDownloadActivity();
         }
     }
@@ -148,14 +148,6 @@ public class MainBibleActivity extends ActivityBase {
     	}
     }
     
-    private void initialiseSword() {
-    	try {
-    		SwordApi.getInstance();
-    	} catch (Exception e) {
-    		Log.e(TAG, "Error initialising Sword", e);
-    	}
-    }
-
     private void initialiseView() {
     	BibleView bibleWebView = (BibleView)findViewById(R.id.main_text);
     	bibleContentManager = new BibleContentManager(bibleWebView, this);
