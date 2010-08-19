@@ -7,4 +7,7 @@
 	<CheckBoxPreference android:key="show_notes_pref" 
 				android:summary="Show notes" 
 				android:title="Notes"/>
+	<CheckBoxPreference android:key="night_mode_pref" 
+				android:summary="For easier reading in the dark" 
+				android:title="Night mode"/>
 </PreferenceScreen>

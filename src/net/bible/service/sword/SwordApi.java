@@ -47,6 +47,7 @@ public class SwordApi {
 	private static final String TAG = "SwordApi";
 	private static SwordApi singleton;
 	private static final String MAIN_DIR = "jsword";
+	private static String NIGHT_MODE_STYLESHEET = "night_mode.css";
 
 	// just keep one of these because it is called in the tight document indexing loop and isn't very complex
 	OsisToCanonicalTextSaxHandler osisToCanonicalTextSaxHandler = new OsisToCanonicalTextSaxHandler();
@@ -78,10 +79,14 @@ public class SwordApi {
 		try {
 			if (isAndroid) {
 				File sdcard = Environment.getExternalStorageDirectory();
-				File modsDir = new File(sdcard, MAIN_DIR+"/"+SwordConstants.DIR_CONF);
-				if (!modsDir.exists() || !modsDir.isDirectory()) {
-					modsDir.mkdirs();
-				}
+
+				// mods.d
+				ensureDirExists(new File(sdcard, MAIN_DIR+"/"+SwordConstants.DIR_CONF));
+				// modules
+				ensureDirExists(new File(sdcard, MAIN_DIR+"/"+SwordConstants.DIR_DATA));
+				// indexes
+				ensureDirExists(new File(sdcard, MAIN_DIR+"/"+"lucene"));
+				
 		        CWProject.setHome("jsword.home", sdcard.getPath()+"/"+MAIN_DIR, "JSword"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	
 				SwordBookPath.setAugmentPath(new File[] {new File(sdcard, MAIN_DIR)});
@@ -355,6 +360,9 @@ public class SwordApi {
 		if (preferences!=null) {
 			osisToHtml.setShowVerseNumbers(preferences.getBoolean("show_verseno_pref", true));
 			osisToHtml.setShowNotes(preferences.getBoolean("show_notes_pref", true));
+			if (preferences.getBoolean("night_mode_pref", false)) {
+				osisToHtml.setExtraStylesheet(NIGHT_MODE_STYLESHEET);
+			}
 		}
 		
 		return osisToHtml;
@@ -392,5 +400,11 @@ public class SwordApi {
 	public void setPreferences(SharedPreferences preferences) {
 		this.preferences = preferences;
 		Log.d(TAG, "Contains versenopref:"+preferences.contains("show_verseno_pref")+" notes pref:"+preferences.contains("show_notes_pref"));
+	}
+	
+	private void ensureDirExists(File dir) {
+		if (!dir.exists() || !dir.isDirectory()) {
+			dir.mkdirs();
+		}
 	}
 }
