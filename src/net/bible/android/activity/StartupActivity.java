@@ -1,15 +1,18 @@
 package net.bible.android.activity;
 
+import net.bible.android.util.ActivityBase;
+import net.bible.service.sword.SwordApi;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.GestureDetector;
-import net.bible.android.util.ActivityBase;
-import net.bible.android.view.BibleSwipeListener;
-import net.bible.service.sword.SwordApi;
 
 public class StartupActivity extends ActivityBase {
 
+	private static final int CAN_DOWNLOAD_DLG = 10;
+	
 	private static final String TAG = "StartupActivity";
 
     /** Called when the activity is first created. */
@@ -28,8 +31,7 @@ public class StartupActivity extends ActivityBase {
     }
 
     private void gotoDownloadActivity() {
-    	Intent handlerIntent = new Intent(this, Download.class);
-    	startActivityForResult(handlerIntent, 1);
+    	showDialog(CAN_DOWNLOAD_DLG);
     }
 
     private void gotoMainBibleActivity() {
@@ -37,6 +39,36 @@ public class StartupActivity extends ActivityBase {
     	startActivityForResult(handlerIntent, 2);
     }
     
+    @Override
+    protected Dialog onCreateDialog(int id) {
+    	Dialog superDlg = super.onCreateDialog(id);
+    	if (superDlg!=null) {
+    		return superDlg;
+    	}
+    	
+        switch (id) {
+            case CAN_DOWNLOAD_DLG:
+            	return new AlertDialog.Builder(StartupActivity.this)
+            		   .setMessage("Download bibles from internet?")
+            	       .setCancelable(false)
+            	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
+            	           public void onClick(DialogInterface dialog, int id) {
+        	    	           	Intent handlerIntent = new Intent(StartupActivity.this, Download.class);
+        	    	        	startActivityForResult(handlerIntent, 1);
+            	           }
+            	       })
+            	       .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            	           public void onClick(DialogInterface dialog, int id) {
+           	                  StartupActivity.this.finish();
+            	           }
+            	       }).create();
+        }
+        return null;
+    }
+
+    /** on return from download we may go to bible
+     *  on return from bible just exit
+     */
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) { 
     	Log.d(TAG, "Activity result:"+resultCode);

@@ -8,10 +8,10 @@
 			<attribute name="javadoc_location" value="jar:file:/E:/Eclipse/JSword/common/jar/jdom-1.0/jdom-1.0.zip!/jdom-1.0/build/apidocs"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry exported="true" kind="lib" path="C:/Datafiles/eclipse-workspace-sword/AndBible/jar/lucene-analyzers-2.9.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="C:/Datafiles/eclipse-workspace-sword/AndBible/jar/lucene-core-2.9.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="C:/Datafiles/eclipse-workspace-sword/AndBible/jar/lucene-smartcn-2.9.1.jar"/>
-	<classpathentry exported="true" kind="lib" path="C:/Datafiles/eclipse-workspace-sword/AndBible/jar/lucene-snowball-2.9.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="jar/lucene-analyzers-2.9.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="jar/lucene-core-2.9.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="jar/lucene-smartcn-2.9.1.jar"/>
+	<classpathentry exported="true" kind="lib" path="jar/lucene-snowball-2.9.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="jar/commons-lang-2.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="jar/commons-httpclient-3.1.jar"/>
 	<classpathentry kind="lib" path="jar/javatar-2.5.jar"/>
