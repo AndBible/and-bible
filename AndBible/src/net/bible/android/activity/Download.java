@@ -1,12 +1,16 @@
 package net.bible.android.activity;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.bible.android.util.ActivityBase;
 import net.bible.android.util.Hourglass;
 import net.bible.service.sword.SwordApi;
 
+import org.crosswire.common.util.Language;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
@@ -18,24 +22,31 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemSelectedListener;
 
 public class Download extends ActivityBase {
 	private static final String TAG = "Download";
 
+	// document type spinner
 	private static final BookFilter[] DOCUMENT_TYPE_SPINNER_FILTERS = new BookFilter[] {BookFilters.getBibles(), BookFilters.getCommentaries()};
 	private int selectedDocumentFilterNo = 0;
+
+	// language spinner
+	private List<String> languageList = new ArrayList<String>();
+	private int selectedLanguageNo = 0;
+	private ArrayAdapter<String> langArrayAdapter; 
 	
 	// the document list
 	private ListView bookList;
 	private ArrayAdapter<String> listArrayAdapter;
 	private List<Book> allDocuments;
-	private List<Book> displayedDocuments;
+	//todo just use displayedDocuments with a model giving 2 lines in list
+	private List<Book> displayedDocuments = new ArrayList<Book>();
 	private List<String> displayedDocumentDescriptions = new ArrayList<String>();
 
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1; 
@@ -69,8 +80,8 @@ public class Download extends ActivityBase {
     	documentTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 			@Override
-			public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
-		    	selectedDocumentFilterNo = arg2;
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+		    	selectedDocumentFilterNo = position;
 		    	Download.this.filterDocuments();
 			}
 
@@ -78,6 +89,26 @@ public class Download extends ActivityBase {
 			public void onNothingSelected(AdapterView<?> arg0) {
 			}
 		});
+
+    	//prepare the language spinner
+    	{
+	    	Spinner langSpinner = (Spinner)findViewById(R.id.languageSpinner);
+	    	langSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+	
+				@Override
+				public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+			    	selectedLanguageNo = position;
+			    	Download.this.filterDocuments();
+				}
+	
+				@Override
+				public void onNothingSelected(AdapterView<?> arg0) {
+				}
+			});
+	    	langArrayAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, languageList);
+	    	langArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+	    	langSpinner.setAdapter(langArrayAdapter);
+    	}
     }
     
     private void populateMasterDocumentList() {
@@ -99,6 +130,7 @@ public class Download extends ActivityBase {
 	    	        @Override
 					protected void onPostExecute(Void result) {
 	    	        	try {
+	    	        		populateLanguageList();
 	    	        		filterDocuments();
 	    	        	} finally {
 	    	        		//todo implement this: http://stackoverflow.com/questions/891451/android-dismissdialog-does-not-dismiss-the-dialog
@@ -120,10 +152,12 @@ public class Download extends ActivityBase {
     	try {
     		if (allDocuments!=null && allDocuments.size()>0) {
    	        	Log.i(TAG, "filtering documents");
+	        	displayedDocuments.clear();
 	        	displayedDocumentDescriptions.clear();
+	        	String lang = languageList.get(selectedLanguageNo);
 	        	for (Book doc : allDocuments) {
 	        		BookFilter filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo];
-	        		if (filter.test(doc)) {
+	        		if (filter.test(doc) && doc.getLanguage().getName().equals(lang)) {
 		        		displayedDocuments.add(doc);
 		        		displayedDocumentDescriptions.add(doc.getName());
 	        		}
@@ -131,6 +165,45 @@ public class Download extends ActivityBase {
 	        	if (listArrayAdapter!=null) {
 	        		Download.this.listArrayAdapter.notifyDataSetChanged();
 	        	}
+    		}
+    	} catch (Exception e) {
+    		Log.e(TAG, "Error initialising view", e);
+    		Toast.makeText(this, getString(R.string.error)+e.getMessage(), Toast.LENGTH_SHORT);
+    	}
+    }
+
+    /** a spinner has changed so refilter the doc list
+     */
+    private void populateLanguageList() {
+    	try {
+    		// temporary map to help us see if lang is already added
+    		Map<String, String> langMap = new HashMap<String,String>();
+    		
+    		if (allDocuments!=null && allDocuments.size()>0) {
+   	        	Log.i(TAG, "initialising language list");
+	        	languageList.clear();
+	        	for (Book doc : allDocuments) {
+	        		Language lang = doc.getLanguage();
+	        		if (lang!=null) {
+		        		String docLangName = lang.getName();
+		        		if (!langMap.containsKey(docLangName)) {
+			        		languageList.add(docLangName);
+			        		langMap.put(docLangName, null);
+		        		}
+	        		} else {
+	        			Log.i(TAG, "NULL language for "+doc.getName());
+	        		}
+	        	}
+	        	/// sort languages alphabetically
+	        	Collections.sort(languageList);
+	        	//todo select language native to mobile
+	        	for (int i=0; i<languageList.size(); i++) {
+	        		if (languageList.get(i).equalsIgnoreCase("English")) {
+	        			Log.d(TAG, "Found english at "+i);
+	        			selectedLanguageNo = i;
+	        		}
+	        	}
+	        	langArrayAdapter.notifyDataSetChanged();
     		}
     	} catch (Exception e) {
     		Log.e(TAG, "Error initialising view", e);

@@ -36,6 +36,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     private boolean isShowHeadings = true;
     private boolean isShowVerseNumbers = true;
     private boolean isShowNotes = false;
+    private String extraStylesheet;
     
     // internal logic
     private boolean isDelayVerse = false;
@@ -67,7 +68,11 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     public void startDocument () throws SAXException
     {
     	log.debug("Show verses:"+isShowVerseNumbers+" notes:"+isShowNotes);
-        write("<html dir='"+getDirection()+"'><head><link href='file:///android_asset/style.css' rel='stylesheet' type='text/css'/><meta charset='utf-8'/></head><body>");
+    	String extraStyleSheetTag = "";
+    	if (extraStylesheet!=null) {
+    		extraStyleSheetTag = "<link href='file:///android_asset/"+extraStylesheet+"' rel='stylesheet' type='text/css'/>";
+    	}
+        write("<html dir='"+getDirection()+"'><head><link href='file:///android_asset/style.css' rel='stylesheet' type='text/css'/>"+extraStyleSheetTag+"<meta charset='utf-8'/></head><body>");
     }
 
     /*
@@ -250,6 +255,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	}
 	public void setShowVerseNumbers(boolean isShowVerseNumbers) {
 		this.isShowVerseNumbers = isShowVerseNumbers;
+	}
+	public void setExtraStylesheet(String extraStylesheet) {
+		this.extraStylesheet = extraStylesheet;
 	}
 	public void setShowNotes(boolean isShowNotes) {
 		this.isShowNotes = isShowNotes;

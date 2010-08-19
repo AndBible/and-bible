@@ -3,6 +3,7 @@ package net.bible.android.activity;
  import net.bible.android.util.ActivityBase;
 
 import org.crosswire.common.progress.JobManager;
+import org.crosswire.common.progress.Progress;
 import org.crosswire.common.progress.WorkEvent;
 import org.crosswire.common.progress.WorkListener;
 
@@ -52,21 +53,36 @@ public class DownloadStatus extends ActivityBase {
 			@Override
 			public void workProgressed(WorkEvent ev) {
 				//int total = ev.getJob().getTotalWork();
-				final int done = ev.getJob().getWork();
-				final String section = ev.getJob().getSectionName();
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						mProgressBar.setProgress(done);
-						showMsg(section);
-					}
-				});
+				try {
+					Progress prog = ev.getJob();
+					final int done = prog.getWork();
+					final String status = prog.getJobName()+"\n"+prog.getSectionName();
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							try {
+								mProgressBar.setProgress(done);
+								showMsg(status);
+							} catch (Exception e) {
+								Log.e(TAG, "error", e);
+							}
+						}
+					});
+				} catch (Exception e) {
+					Log.e(TAG, "error", e);
+				}
 			}
 
 			@Override
 			public void workStateChanged(WorkEvent ev) {
-				// do nothing
-		        // Progress job = (Job) ev.getSource();
+				Progress prog = ev.getJob();
+				final String status = prog.getJobName()+prog.getSectionName();
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						showMsg(status);
+					}
+				});
 			}
 		};
 		JobManager.addWorkListener(workListener);
