@@ -1,0 +1,29 @@
+/* colours:  http://www.w3schools.com/css/css_colornames.asp 
+*/
+
+body {
+	line-height: 1.6em;
+}
+
+h1 {
+	color: navy;
+	text-align: left;
+	font-size: 1.2em;
+	margin-top: 0.3em;
+	margin-bottom: 0.2em;
+}
+
+.verse {
+	color: Gray;
+	vertical-align: top;
+	font-size: 0.7em;
+}
+.noteRef {
+	color: Green;
+	vertical-align: bottom;
+	font-size: 0.7em;
+}
+.notes {
+	font-size: 0.9em;
+	line-height: 1.0em;
+}
