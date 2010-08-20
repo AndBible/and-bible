@@ -4,6 +4,12 @@ import java.io.File;
 
 import android.os.Environment;
 
+/** Not used much yet but need to move the some of the more generic constants here
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class SharedConstants {
 
     /**

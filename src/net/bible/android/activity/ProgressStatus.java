@@ -19,14 +19,15 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-/**
+/**Show all Progress status
  * see BibleDesktop JobsProgressBar for example use
  * 
- * @author denha1m
- *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
-public class DownloadStatus extends ActivityBase {
-	private static final String TAG = "DownloadStatus";
+public class ProgressStatus extends ActivityBase {
+	private static final String TAG = "ProgressStatus";
 	
 	Map<Progress, ProgressUIControl> progressMap = new HashMap<Progress, ProgressUIControl>();
 	
@@ -39,7 +40,7 @@ public class DownloadStatus extends ActivityBase {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "Displaying "+TAG+" view");
-        setContentView(R.layout.download_status);
+        setContentView(R.layout.progress_status);
 
         progressControlContainer = (LinearLayout)findViewById(R.id.progressControlContainer);
         initialiseView();
@@ -92,7 +93,7 @@ public class DownloadStatus extends ActivityBase {
 
     public void onOkay(View v) {
     	Log.i(TAG, "CLICKED");
-    	Intent resultIntent = new Intent(this, DownloadStatus.class);
+    	Intent resultIntent = new Intent(this, ProgressStatus.class);
     	setResult(Activity.RESULT_OK, resultIntent);
     	finish();    
     }
@@ -114,21 +115,12 @@ public class DownloadStatus extends ActivityBase {
     	return uiControl;
     }
 
-//	<TextView android:id="@+id/statusText" 
-//		android:layout_height="wrap_content" 
-//		android:layout_width="fill_parent"
-//		android:layout_alignParentTop="true" />
-//	<ProgressBar android:id="@+id/progressBar" 
-//        style="?android:attr/progressBarStyleHorizontal"
-//        android:layout_width="300dip"
-//        android:layout_height="wrap_content"
-//        android:max="100"
-//        android:progress="0"
-//        android:layout_below="@+id/statusText"/>
+    /** contains a TextView desc and ProgressBar for a single Job
+     */
     private class ProgressUIControl {
-    	LinearLayout parent = new LinearLayout(DownloadStatus.this);
-    	TextView status = new TextView(DownloadStatus.this);
-    	ProgressBar progressBar = new ProgressBar(DownloadStatus.this, null, android.R.attr.progressBarStyleHorizontal);
+    	LinearLayout parent = new LinearLayout(ProgressStatus.this);
+    	TextView status = new TextView(ProgressStatus.this);
+    	ProgressBar progressBar = new ProgressBar(ProgressStatus.this, null, android.R.attr.progressBarStyleHorizontal);
     	
     	public ProgressUIControl() {
     		parent.setOrientation(LinearLayout.VERTICAL);

@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Application text
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
 <resources>
     <string name="app_name">and God said</string>
     
@@ -12,6 +18,7 @@
     <string name="choosePassageBookName">Choose Book</string>
     <string name="choosePassageChapterName">Choose Chapter</string>
     <string name="search_index">Create Search Index</string>
+    <string name="index_creation_required">In order to search an index must be created.  Creating an index may take a long time.</string>
     <string name="index">Index</string>
     <string name="module_dir">Dir</string>
     <string name="use_folder">Use this folder</string>
@@ -19,6 +26,7 @@
     <string name="sdcard_error">Sorry, you have no SD card!</string>
     <string name="directory_error">Sorry, unable to access directory %s</string> 
     <string name="help_text">Welcome\nBook Navigation\nFlings:\nFling your finger left to see the next page\nFling your finger right to go back a page\nRoll the track-ball left or right to go forward or back a page.</string>
+	<string name="progress_status">Progress</string>
 
 	<string name="search_words_group_prompt">Find verses</string>
     <string name="search_all_words">All words</string>
@@ -41,6 +49,7 @@
 	<!-- Module download -->
     <string name="download">Download Bibles</string>
     <string name="error_downloading">An error occurred downloading.  Please check your internet connection.</string>
+    <string name="no_internet_connection">Could not connect to the internet</string>
 
     <string name="okay">OK</string>
     <string name="cancel">Cancel</string>

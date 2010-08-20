@@ -58,6 +58,7 @@ import org.crosswire.jsword.passage.PassageKeyFactory;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's authors.
  * @author Joe Walker [joe at eireneh dot com]
+ * @author Martin Denham [mjdenham at gmail dot com]
  */
 public class PdaLuceneIndexCreator {
     /*
@@ -147,6 +148,7 @@ public class PdaLuceneIndexCreator {
 	                generateSearchIndexImpl(job, errors, writer, keyList, 0);
                 } catch (Exception e) {
                 	e.printStackTrace();
+                    throw new BookException(UserMsg.INSTALL_FAIL);                	
                 }
                 logger.info("Finished indexing "+book.getName()+" starting optimisation");
 
@@ -180,7 +182,7 @@ public class PdaLuceneIndexCreator {
                     Reporter.informUser(this, UserMsg.BAD_VERSE, buf);
                 }
             }
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             job.cancel();
             throw new BookException(UserMsg.LUCENE_INIT, ex);
         } finally {

@@ -18,8 +18,9 @@ import android.util.Log;
  * 
  * Suggestion - weight verses by length and add some for headings.
  * 
- * @author denha1m
- *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class VerseCalculator {
 

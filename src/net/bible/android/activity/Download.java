@@ -1,8 +1,13 @@
 package net.bible.android.activity;
 
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -29,6 +34,13 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+/**
+ * Choose Document (Book) to download
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class Download extends ActivityBase {
 	private static final String TAG = "Download";
 
@@ -58,6 +70,11 @@ public class Download extends ActivityBase {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.download);
 
+        if (!isInternetAvailable()) {
+        	Toast.makeText(this, R.string.no_internet_connection, Toast.LENGTH_LONG).show();
+        	returnToMainScreen();
+        }
+        
         initialiseView();
     }
 
@@ -124,6 +141,13 @@ public class Download extends ActivityBase {
 	    			@Override
 	    	        protected Void doInBackground(Void... noparam) {
 	    	        	allDocuments = SwordApi.getInstance().getDownloadableDocuments(BookFilters.getAll());
+	    	        	for (Iterator<Book> iter=allDocuments.iterator(); iter.hasNext(); ) {
+	    	        		Book doc = iter.next();
+	    	        		if (doc.getLanguage()==null) {
+	    	        			Log.d(TAG, "Ignoring "+doc.getName()+" because it has no language");
+	    	        			iter.remove();
+	    	        		}
+	    	        	}
 	    	        	Log.i(TAG, "number of documents available:"+allDocuments.size());
 	    	        	return null;
 	    			}
@@ -191,8 +215,6 @@ public class Download extends ActivityBase {
 			        		languageList.add(docLangName);
 			        		langMap.put(docLangName, null);
 		        		}
-	        		} else {
-	        			Log.i(TAG, "NULL language for "+doc.getName());
 	        		}
 	        	}
 	        	/// sort languages alphabetically
@@ -226,12 +248,31 @@ public class Download extends ActivityBase {
 
         	// monitor the download
         	//todo a simple popup ProgressDialog may be better - not sure
-        	Intent myIntent = new Intent(this, DownloadStatus.class);
+        	Intent myIntent = new Intent(this, ProgressStatus.class);
         	startActivityForResult(myIntent, 1);
         	
     	} catch (Exception e) {
     		Log.e(TAG, "Error on attempt to download", e);
     		Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show();
+    	}
+    }
+
+    private boolean isInternetAvailable() {
+    	// I found this snippet here: http://www.anddev.org/solved_checking_internet_connection-t5194.html
+//		ConnectivityManager connec = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+//
+//		return (connec.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED);
+    	try {
+	    	String testUrl = "http://www.google.com";
+	 	    URL url = new URL(testUrl);
+	 	         
+	 	    URLConnection connection;
+	 	    connection = url.openConnection();
+	 	    connection.connect();
+	 	    return true;
+    	} catch (IOException e) {
+    		Log.i(TAG, "No internet connection");
+    		return false;
     	}
     }
     

@@ -2,13 +2,25 @@ package net.bible.android.activity;
 
 import net.bible.android.util.ActivityBase;
 import net.bible.service.sword.SwordApi;
+
+import org.crosswire.common.util.Reporter;
+import org.crosswire.common.util.ReporterEvent;
+import org.crosswire.common.util.ReporterListener;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
+/** Called first to show download screen if no documents exist
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class StartupActivity extends ActivityBase {
 
 	private static final int CAN_DOWNLOAD_DLG = 10;
@@ -20,6 +32,8 @@ public class StartupActivity extends ActivityBase {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.startup_view);
+
+        installJSwordErrorReportListener();
 
         if (SwordApi.getInstance().getBibles().size()==0) {
         	Log.i(TAG, "Invoking download activity because no bibles exist");
@@ -66,6 +80,25 @@ public class StartupActivity extends ActivityBase {
         return null;
     }
 
+    /** JSword calls back to this listener in the event of some types of error
+     * 
+     */
+    private void installJSwordErrorReportListener() {
+        Reporter.addReporterListener(new ReporterListener() {
+			@Override
+			public void reportException(ReporterEvent ev) {
+				Log.e(TAG, ev.getMessage(), ev.getException());
+				Toast.makeText(getApplicationContext(), ev.getMessage(), Toast.LENGTH_LONG);
+			}
+
+			@Override
+			public void reportMessage(ReporterEvent ev) {
+				Log.w(TAG, ev.getMessage(), ev.getException());
+				Toast.makeText(getApplicationContext(), ev.getMessage(), Toast.LENGTH_SHORT);
+			}
+        });
+    }
+    
     /** on return from download we may go to bible
      *  on return from bible just exit
      */

@@ -40,9 +40,11 @@ import org.crosswire.jsword.index.Index;
 import org.crosswire.jsword.index.IndexManager;
 import org.crosswire.jsword.index.IndexStatus;
 
-/**
- * Creates Lucene indexes. An implementation for small footprint devices. 
+/** Optimise Lucene index creation
  * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class PdaLuceneIndexManager  {
 

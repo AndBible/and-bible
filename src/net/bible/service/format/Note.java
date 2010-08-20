@@ -10,6 +10,12 @@ import org.apache.commons.lang.StringUtils;
 import android.util.Log;
 
 
+/** Info on a note or cross reference
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class Note extends HashMap<String, String> {
 
 	public enum NoteType {TYPE_GENERAL, TYPE_REFERENCE};

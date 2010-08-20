@@ -29,7 +29,9 @@ import android.widget.Toast;
 
 /** do the search and show the search results
  * 
- * @author denha1m
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class SearchResults extends ListActivity {
 	private static final String TAG = "SearchResults";
