@@ -43,6 +43,12 @@ import android.content.SharedPreferences;
 import android.os.Environment;
 import android.util.Log;
 
+/** JSword facade
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class SwordApi {
 	private static final String TAG = "SwordApi";
 	private static SwordApi singleton;

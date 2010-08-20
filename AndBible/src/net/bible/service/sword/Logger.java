@@ -3,8 +3,9 @@ package net.bible.service.sword;
 /** Not sure whether to use Log or jdk logger or log4j.
  * Log requires the android classes and is used for front end classes but these classes really belong in the back end
  * 
- * @author denha1m
- *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class Logger {
 	private String name;

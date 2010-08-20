@@ -15,7 +15,9 @@ import org.crosswire.jsword.passage.Verse;
  * and pipe back as in InputStream ready to be fed to the SAXParser for html formatting.
  * This is more efficient than using JDom to create a DOM and then streaming teh DOM into a SAX parser  
  * 
- * @author denha1m
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.
+ *      The copyright to this program is held by it's author.
  */
 public class OSISInputStream extends InputStream {
 	// requested passage

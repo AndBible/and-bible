@@ -1,6 +1,6 @@
 package net.bible.android.activity;
 
- import java.util.ArrayList;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.bible.android.CurrentPassage;
@@ -21,6 +21,12 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 
+/** Show Notes and Cross references for the current verse
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class NotesActivity extends Activity {
 	private static final String TAG = "NotesActivity";
 	

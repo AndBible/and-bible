@@ -10,8 +10,9 @@ import android.webkit.WebViewClient;
 
 /** The WebView component that shows teh main bible and commentary text
  * 
- * @author denha1m
- *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class BibleView extends WebView {
 	

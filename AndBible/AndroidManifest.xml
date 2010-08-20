@@ -40,8 +40,8 @@
         <activity android:name=".Download"
                   android:label="@string/download">
         </activity>
-        <activity android:name=".DownloadStatus"
-                  android:label="@string/download">
+        <activity android:name=".ProgressStatus"
+                  android:label="@string/progress_status">
         </activity>
 </application>
 <uses-sdk android:minSdkVersion="4"/>

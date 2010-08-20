@@ -8,8 +8,10 @@ import org.crosswire.jsword.passage.Verse;
 
 /** Tidy up verses fetched from the raw input stream.  
  *  Ensure each verse has a verse tag and remove any extra tags that break the structure.
- * @author denha1m
- *
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class OSISVerseTidy {
 

@@ -1,6 +1,6 @@
 package net.bible.android.activity;
 
- import net.bible.android.CurrentPassage;
+import net.bible.android.CurrentPassage;
 
 import org.crosswire.jsword.index.search.SearchType;
 import org.crosswire.jsword.versification.BookName;
@@ -15,6 +15,12 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 
+/** Allow user to enter search criteria
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class Search extends Activity {
 	
 	public static final String SEARCH_TEXT = "SearchText";

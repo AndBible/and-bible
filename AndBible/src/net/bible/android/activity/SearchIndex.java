@@ -1,6 +1,7 @@
 package net.bible.android.activity;
 
  import net.bible.android.CurrentPassage;
+import net.bible.android.util.ActivityBase;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.common.progress.JobManager;
@@ -16,13 +17,14 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-public class SearchIndex extends Activity {
+/** Create a Lucene search index
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
+public class SearchIndex extends ActivityBase {
 	private static final String TAG = "SearchIndex";
-	
-	private TextView mStatusTextView;
-	private ProgressBar mProgressBar;
-	
-	private WorkListener workListener;
 	
     /** Called when the activity is first created. */
     @Override
@@ -31,21 +33,12 @@ public class SearchIndex extends Activity {
         Log.i(TAG, "Displaying SearchIndex view");
         setContentView(R.layout.search_index);
     
-        mStatusTextView =  (TextView)findViewById(R.id.statusText);
-        mProgressBar =  (ProgressBar)findViewById(R.id.progressBar);
-        
-        initialiseView();
         Log.d(TAG, "Finished displaying Search Index view");
-    }
-
-    private void initialiseView() {
-        
     }
 
     // Indexing is too slow and fails aftr 1 hour - the experimental method below does not improve things enough to make indexing succeed 
     public void onIndex(View v) {
     	Log.i(TAG, "CLICKED");
-    	showMsg("Starting index");
     	try {
 	        Book book = CurrentPassage.getInstance().getCurrentDocument();
 	        
@@ -53,51 +46,28 @@ public class SearchIndex extends Activity {
 	        // if index creation is already in progress then nothing will happen
 	        SwordApi.getInstance().ensureIndexCreation(book);
 			
+        	// monitor the progres
+        	//todo a simple popup ProgressDialog may be better - not sure
+        	Intent myIntent = new Intent(this, ProgressStatus.class);
+        	startActivityForResult(myIntent, 1);
+
     	} catch (Exception e) {
     		Log.e(TAG, "error indexing:"+e.getMessage());
     		e.printStackTrace();
     	}
-
-		workListener = new WorkListener() {
-
-			@Override
-			public void workProgressed(WorkEvent ev) {
-				//int total = ev.getJob().getTotalWork();
-				final int done = ev.getJob().getWork();
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						mProgressBar.setProgress(done);
-					}
-				});
-			}
-
-			@Override
-			public void workStateChanged(WorkEvent ev) {
-				String section = ev.getJob().getSectionName();
-				String msg = "Current book: "+section;
-				final String status = msg;
-				runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						showMsg(status);
-					}
-				});
-			}
-			
-		};
-		JobManager.addWorkListener(workListener);
     }
     
-    @Override
-	protected void onStop() {
-		// TODO Auto-generated method stub
-		super.onStop();
-    	JobManager.removeWorkListener(workListener);
-	}
-
-    private void showMsg(String msg) {
-    	mStatusTextView.setText(msg);
+    @Override 
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	if (resultCode==Activity.RESULT_OK) {
+    		returnToMainScreen();
+    	}
     }
     
+    private void returnToMainScreen() {
+    	// just pass control back to teh main screen
+    	Intent resultIntent = new Intent(this, SearchIndex.class);
+    	setResult(Activity.RESULT_OK, resultIntent);
+    	finish();
+    }
 }

@@ -20,6 +20,12 @@ import org.crosswire.jsword.versification.BookName;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+/** Reference to current passage shown by viewer
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class CurrentPassage extends Observable {
 	private static CurrentPassage singleton;
 	

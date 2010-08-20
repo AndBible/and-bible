@@ -7,6 +7,12 @@ import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
 
+/** Listen for side swipes to change chapter.  This listener class seems to work better that subclassing WebView.
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class BibleSwipeListener extends SimpleOnGestureListener {
 
 	// measurements in dips for density independence

@@ -3,7 +3,6 @@ package net.bible.android.activity;
 import net.bible.android.CurrentPassage;
 
 import org.crosswire.jsword.versification.BibleInfo;
-import org.crosswire.jsword.versification.BookName;
 
 import android.app.Activity;
 import android.app.ListActivity;
@@ -15,6 +14,13 @@ import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+/**
+ * Choose a bible book e.g. Psalms
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class ChoosePassageBook extends ListActivity {
 	private static final String TAG = "ChoosePassageBook";
 	
