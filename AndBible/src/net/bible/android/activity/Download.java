@@ -37,6 +37,7 @@ public class Download extends ActivityBase {
 	private int selectedDocumentFilterNo = 0;
 
 	// language spinner
+	private Spinner langSpinner;
 	private List<String> languageList = new ArrayList<String>();
 	private int selectedLanguageNo = 0;
 	private ArrayAdapter<String> langArrayAdapter; 
@@ -92,7 +93,7 @@ public class Download extends ActivityBase {
 
     	//prepare the language spinner
     	{
-	    	Spinner langSpinner = (Spinner)findViewById(R.id.languageSpinner);
+	    	langSpinner = (Spinner)findViewById(R.id.languageSpinner);
 	    	langSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 	
 				@Override
@@ -201,6 +202,7 @@ public class Download extends ActivityBase {
 	        		if (languageList.get(i).equalsIgnoreCase("English")) {
 	        			Log.d(TAG, "Found english at "+i);
 	        			selectedLanguageNo = i;
+	        			langSpinner.setSelection(i);
 	        		}
 	        	}
 	        	langArrayAdapter.notifyDataSetChanged();
