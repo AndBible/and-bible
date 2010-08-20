@@ -34,7 +34,7 @@ public class Search extends Activity {
 	
 	private static final String SEARCH_NEW_TESTAMENT = "+[Mat-Rev]";
 	private static final String SEARCH_OLD_TESTAMENT = "+[Gen-Mal]";
-	private BookName currentBibleBook; 
+//	private BookName currentBibleBook; 
 	
     /** Called when the activity is first created. */
     @Override
@@ -43,13 +43,15 @@ public class Search extends Activity {
         Log.i(TAG, "Displaying Search view");
         setContentView(R.layout.search);
     
-        currentBibleBook = CurrentPassage.getInstance().getCurrentBibleBook();
+//        currentBibleBook = CurrentPassage.getInstance().getCurrentBibleBook();
         
         mSearchTextInput =  (EditText)findViewById(R.id.searchText);
-        
+
+        // removed to make controls fit better on screen
         // set text for current bible book on appropriate radio button
-        RadioButton currentBookRadioButton = (RadioButton)findViewById(R.id.searchCurrentBook);
-        currentBookRadioButton.setText(currentBibleBook.getLongName());
+//        RadioButton currentBookRadioButton = (RadioButton)findViewById(R.id.searchCurrentBook);
+//        currentBookRadioButton.setText(currentBibleBook.getLongName());
+        
         RadioGroup wordsRadioGroup = (RadioGroup)findViewById(R.id.wordsGroup);
         wordsRadioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
@@ -107,9 +109,9 @@ public class Search extends Activity {
     	case R.id.searchNewTestament:
             decorated = SEARCH_NEW_TESTAMENT+" "+decorated;
             break;
-    	case R.id.searchCurrentBook:
-            decorated = "+["+currentBibleBook.getShortName()+"] "+decorated;
-            break;
+//    	case R.id.searchCurrentBook:
+//            decorated = "+["+currentBibleBook.getShortName()+"] "+decorated;
+//            break;
         default:
         	Log.e(TAG, "Unexpected radio selection");
             decorated = "ERROR";
