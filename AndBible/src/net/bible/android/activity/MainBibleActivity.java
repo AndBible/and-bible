@@ -173,8 +173,13 @@ public class MainBibleActivity extends ActivityBase {
     }
 
     private void onPassageChanged() {
-    	String passageDesc = CurrentPassage.getInstance().toString();
-    	setTitle(passageDesc);
+    	runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+		    	String passageDesc = CurrentPassage.getInstance().toString();
+		    	setTitle(passageDesc);
+			}
+		});
     }
   
     

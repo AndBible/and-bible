@@ -32,7 +32,9 @@ In the <note n="a" osisID="Gen.1.1!crossReference.a" osisRef="Gen.1.1" type="cro
  *      The copyright to this program is held by it's author.
  */
 public class OsisToHtmlSaxHandler extends OsisSaxHandler {
-    
+
+	private static final String getVerseOffsetJS = "";
+	
     // properties
     private boolean isLeftToRight = true;
     private boolean isShowHeadings = true;
@@ -70,11 +72,16 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     public void startDocument () throws SAXException
     {
     	log.debug("Show verses:"+isShowVerseNumbers+" notes:"+isShowNotes);
+    	String jsTag = "\n<script type='text/javascript' src='file:///android_asset/script.js'></script>\n";
+    	String styleSheetTag = "<link href='file:///android_asset/style.css' rel='stylesheet' type='text/css'/>";
     	String extraStyleSheetTag = "";
     	if (extraStylesheet!=null) {
     		extraStyleSheetTag = "<link href='file:///android_asset/"+extraStylesheet+"' rel='stylesheet' type='text/css'/>";
     	}
-        write("<html dir='"+getDirection()+"'><head><link href='file:///android_asset/style.css' rel='stylesheet' type='text/css'/>"+extraStyleSheetTag+"<meta charset='utf-8'/></head><body>");
+        write("<html dir='"+getDirection()+"'><head>"+
+        		styleSheetTag+extraStyleSheetTag+jsTag+
+        		"<meta charset='utf-8'/></head>"+
+        		"<body onscroll='jsonscroll()' onload='jsonload()'>");
     }
 
     /*

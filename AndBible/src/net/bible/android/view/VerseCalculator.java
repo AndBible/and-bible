@@ -4,10 +4,8 @@ import java.util.Observable;
 import java.util.Observer;
 
 import net.bible.android.CurrentPassage;
-
-import org.crosswire.jsword.versification.BibleInfo;
-
 import android.util.Log;
+import android.webkit.WebView;
 
 /** Automatically 'guess' current verse being read to aid quick movement to Commentary. 
  * this need some refinement:
@@ -27,19 +25,29 @@ public class VerseCalculator {
 	private int maxScrollRange = 0;
 	private int numVerses = 0;
 	
+	private WebView view;
+	
 	private static final String TAG = "VerseCalculator";
 
-	public VerseCalculator() {
+	public VerseCalculator(WebView bibleView) {
 		super();
+		
+		this.view = bibleView;
 
 		// calculate num verses now and whenever the chapter changes
 		calculateNumVerses();
-		CurrentPassage.getInstance().addObserver(new Observer() {
-			@Override
-			public void update(Observable arg0, Object arg1) {
-				calculateNumVerses();				
-			}
-		});
+	}
+	
+	public void init(int scrollHeight) {
+		int verticalscrollRange = scrollHeight;
+
+		Log.d(TAG, "updating verse calculator:"+verticalscrollRange+" height:"+view.getHeight());
+		Log.d(TAG, "setting vertical scroll range:"+verticalscrollRange);
+		// the y posn never actually reaches the bottom of the total scroll range it stops one page height up from bottom so need to adjust for that
+		int maxScrollRange = verticalscrollRange-view.getHeight();
+		setMaxScrollRange(maxScrollRange);
+
+		calculateNumVerses();
 	}
 	
 	public void newPosition(int y) {
