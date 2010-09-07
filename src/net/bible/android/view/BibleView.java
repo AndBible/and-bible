@@ -5,6 +5,8 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.webkit.JsResult;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
@@ -15,6 +17,8 @@ import android.webkit.WebViewClient;
  *      The copyright to this program is held by it's author.
  */
 public class BibleView extends WebView {
+	
+	private BibleJavascriptInterface javascriptInterface;
 	
 	private VerseCalculator verseCalculator;
 
@@ -52,16 +56,18 @@ public class BibleView extends WebView {
 	}
 	
 	private void initialise() {
-		verseCalculator = new VerseCalculator();
+		verseCalculator = new VerseCalculator(this);
+		javascriptInterface = new BibleJavascriptInterface(verseCalculator);
 		
-		// need javascript to enable jump to anchors/verses
-		getSettings().setJavaScriptEnabled(true);
+		addJavascriptInterface(javascriptInterface, "jsInterface");
 		
 		/* WebViewClient must be set BEFORE calling loadUrl! */  
 		setWebViewClient(new WebViewClient() {  
 		    @Override  
 		    public void onPageFinished(WebView view, String url)  
 		    {
+		    	super.onPageFinished(view, url);
+		    	
 		    	if (mJumpToVerse != -1) { 
 		    		Log.d(TAG, "Jumping to verse "+mJumpToVerse);
 		    		if (mJumpToVerse==1) {
@@ -73,8 +79,38 @@ public class BibleView extends WebView {
 		    	    // must zero mJumpToVerse because setting location causes another onPageFinished
 		    	    mJumpToVerse = -1; 
 		    	 } 
-		    }  
-		});  
+		    }
+
+			@Override
+			public void onLoadResource(WebView view, String url) {
+				System.out.println("**Onloadresource:"+url);
+				super.onLoadResource(view, url);
+			}
+
+			@Override
+			public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
+				// TODO Auto-generated method stub
+				super.onReceivedError(view, errorCode, description, failingUrl);
+				Log.e(TAG, description);
+			}
+		    
+			
+		});
+
+		// handle alerts
+		setWebChromeClient(new WebChromeClient() {
+		    @Override
+	        public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+	            Log.d(TAG, message);
+	            result.confirm();
+	            return true;
+	        }
+		    
+		    
+		});
+
+		// need javascript to enable jump to anchors/verses
+		getSettings().setJavaScriptEnabled(true);
 	}
 	
 	/** show a page from bible commentary
@@ -85,6 +121,14 @@ public class BibleView extends WebView {
 		Log.d(TAG, "Show(html,"+jumpToVerse+")");
 		mJumpToVerse = jumpToVerse;
 		loadDataWithBaseURL("http://baseUrl", html, "text/html", "UTF-8", "http://historyUrl");
+	}
+	
+	@Override
+	public void flingScroll(int vx, int vy) {
+		// TODO Auto-generated method stub
+		super.flingScroll(vx, vy);
+		
+		Log.d(TAG, "flingScroll vx:"+vx+" vy:"+vy);
 	}
 	
 	/** handle right/left trackpad movement by going next/prev page
@@ -127,36 +171,10 @@ public class BibleView extends WebView {
 			}
 			if (!isHandled) {
 				isHandled = super.onTrackballEvent(event);
-				
-				// trackballs that don't change page probably scroll page so update current verse 
-				updateVerseCalculator();
 			}
 		} catch (Exception e) {
 			Log.e(TAG, "Error changing page", e);
 		}
 		return isHandled;
 	}
-
-	@Override
-	protected void onScrollChanged(int l, int t, int oldl, int oldt) {
-		Log.d(TAG, "scrollchanged:"+l+" "+t);
-		super.onScrollChanged(l, t, oldl, oldt);
-		updateVerseCalculator();
-	}
-
-
-	private void updateVerseCalculator() {
-		int verticalscrollRange = computeVerticalScrollRange();
-
-		Log.d(TAG, "updating verse calculator:"+verticalscrollRange+" height:"+getHeight());
-		if (verticalscrollRange>0 && verseCalculator!=null) {
-			Log.d(TAG, "setting vertical scroll range:"+verticalscrollRange);
-			// the y posn never actually reaches the bottom of the total scroll range it stops one page height up from bottom so need to adjust for that
-			int maxScrollRange = verticalscrollRange-getHeight();
-			verseCalculator.setMaxScrollRange(maxScrollRange);
-		}
-
-		int y = getScrollY();
-		verseCalculator.newPosition(y);
-	}	
 }
