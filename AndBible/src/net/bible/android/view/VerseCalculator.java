@@ -48,7 +48,6 @@ public class VerseCalculator {
 	public void newPosition(int scrollOffset) {
 		if (!CurrentPassage.getInstance().isSingleVerse()) {
 			int currentVerse = calculateCurrentVerse(scrollOffset);
-			System.out.println("Current verse:"+currentVerse);
 			CurrentPassage.getInstance().setCurrentVerse(currentVerse);
 		}
 	}
