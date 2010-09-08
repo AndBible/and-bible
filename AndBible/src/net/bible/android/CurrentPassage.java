@@ -296,7 +296,6 @@ public class CurrentPassage extends Observable {
 		private int verse = 1;
 		
 		private void setVerse(int verse) {
-			Log.d(TAG, "setVerse:"+verse);
 			this.verse = verse;
 			this.setChanged();
 			this.notifyObservers();
