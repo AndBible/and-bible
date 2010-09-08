@@ -90,7 +90,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     @Override
     public void endDocument () throws SAXException
     {
-        write("</body></html>");
+    	// add padding at bottom to allow last verse to scroll to top of page and become current verse
+        write("<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /></body></html>");
     }
 
     /*

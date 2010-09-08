@@ -3,7 +3,7 @@ function getNum() {
 }
 
 function jsonload() {
-	window.jsInterface.onLoad(document.body.scrollHeight);
+	window.jsInterface.onLoad();
 	registerVersePositions();
 }
 
@@ -17,6 +17,7 @@ function registerVersePositions() {
 	for (i=0; i<verseTags.length; i++) {
 		verseTag = verseTags[i];
 		window.jsInterface.log("registering:"+verseTag.id);
+		// send position of each verse to java to allow calculation of current verse after each scroll
 		window.jsInterface.registerVersePosition(verseTag.id, verseTag.offsetTop);
 	}
 }
