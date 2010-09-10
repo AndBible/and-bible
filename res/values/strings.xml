@@ -6,7 +6,11 @@
       The copyright to this program is held by it's author.
 -->
 <resources>
-    <string name="app_name">and God said</string>
+    <string name="app_name">God said</string>
+
+    <string name="splash_top_text">\n\"And God said, \'Let there be light,\' and there was light.\"\nGenesis 1:3</string>
+    <string name="help_text">Help:\nPress the MENU key for actions\nFling your finger left to see the next chapter\nFling your finger right to go back a chapter\nRoll the track-ball left or right to go forward or back a chapter</string>
+    <string name="splash_bottom_text">Developed by Martin the Paranoid Android</string>
     
     <!-- main menu -->
     <string name="chooseBook">Document</string>
@@ -25,7 +29,6 @@
     <string name="no_files_error">Sorry, you have no files!</string>
     <string name="sdcard_error">Sorry, you have no SD card!</string>
     <string name="directory_error">Sorry, unable to access directory %s</string> 
-    <string name="help_text">Welcome\nBook Navigation\nFlings:\nFling your finger left to see the next page\nFling your finger right to go back a page\nRoll the track-ball left or right to go forward or back a page.</string>
 	<string name="progress_status">Progress</string>
 
 	<string name="search_words_group_prompt">Find verses</string>
