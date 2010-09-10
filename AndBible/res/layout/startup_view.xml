@@ -5,9 +5,36 @@
  @see gnu.lgpl.License for license details.<br>
       The copyright to this program is held by it's author.
 -->
-<TextView android:id="@+id/TextView01" 
-		android:text="@string/help_text" 
-		android:layout_width="fill_parent" 
-		android:layout_height="wrap_content" 
-		xmlns:android="http://schemas.android.com/apk/res/android">
-</TextView>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+	<TextView android:id="@+id/splash_title_text" 
+			android:text="@string/app_name" 
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			style="@style/SplashTitleFont"
+			android:layout_alignParentTop="true"/>
+	<TextView android:id="@+id/splash_top_text" 
+			android:text="@string/splash_top_text" 
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content"
+			android:gravity="right"
+			style="@style/SplashTopFont"
+			android:layout_below="@+id/splash_title_text"/>
+	<TextView android:id="@+id/splash_help_text"
+			android:text="@string/help_text" 
+			android:layout_width="fill_parent" 
+			android:layout_height="fill_parent"
+			android:gravity="left|center_vertical"
+			style="@style/HelpFont"
+			android:layout_centerInParent="true"/>
+	<TextView android:id="@+id/splash_bottom_text" 
+			android:text="@string/splash_bottom_text" 
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content"
+			android:gravity="right"
+			style="@style/SplashBottomFont"
+			android:layout_alignParentBottom="true"/>
+</RelativeLayout>
