@@ -21,6 +21,6 @@ public class HistoryManager {
 	}
 	
 	public List<HistoryItem> getHistory() {
-		
+		return null;
 	}
 }
