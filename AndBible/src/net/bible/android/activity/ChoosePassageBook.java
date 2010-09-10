@@ -50,8 +50,7 @@ public class ChoosePassageBook extends ListActivity {
 	        }
 	        
 	    	// Create a simple array adapter (of type string) containing the list of books
-	    	ListAdapter adapter = new ArrayAdapter(this, 
-	    			LIST_ITEM_TYPE, books);
+	    	ListAdapter adapter = new ArrayAdapter<String>(this, LIST_ITEM_TYPE, books);
 	 
 	    	return adapter;
     	} catch (Exception e) {

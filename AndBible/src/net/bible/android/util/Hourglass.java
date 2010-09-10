@@ -1,6 +1,5 @@
 package net.bible.android.util;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 

@@ -4,9 +4,6 @@ package net.bible.android.activity;
 import net.bible.android.util.ActivityBase;
 import net.bible.service.sword.SwordApi;
 
-import org.crosswire.common.progress.JobManager;
-import org.crosswire.common.progress.WorkEvent;
-import org.crosswire.common.progress.WorkListener;
 import org.crosswire.jsword.book.Book;
 
 import android.app.Activity;
@@ -14,8 +11,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 
 /** Create a Lucene search index
  * 

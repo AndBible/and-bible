@@ -123,7 +123,7 @@ public class Download extends ActivityBase {
 				public void onNothingSelected(AdapterView<?> arg0) {
 				}
 			});
-	    	langArrayAdapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, languageList);
+	    	langArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, languageList);
 	    	langArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	    	langSpinner.setAdapter(langArrayAdapter);
     	}

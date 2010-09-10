@@ -43,7 +43,6 @@ import org.crosswire.common.progress.Progress;
 import org.crosswire.common.util.NetUtil;
 import org.crosswire.common.util.Reporter;
 import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.book.BookData;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.DataPolice;
 import org.crosswire.jsword.index.IndexStatus;
@@ -130,7 +129,7 @@ public class PdaLuceneIndexCreator {
         //todo *** Need to test both analyzers - does the LuceneAnalyzer work, teh SimpleAnalyzer did??? 
         Analyzer analyzer = new LuceneAnalyzer(book); //SimpleAnalyzer();
 
-        List errors = new ArrayList();
+        List<Key> errors = new ArrayList<Key>();
         File tempPath = new File(path + '.' + IndexStatus.CREATING.toString());
 
         try {
@@ -174,7 +173,7 @@ public class PdaLuceneIndexCreator {
 
                 if (!errors.isEmpty()) {
                     StringBuffer buf = new StringBuffer();
-                    Iterator iter = errors.iterator();
+                    Iterator<Key> iter = errors.iterator();
                     while (iter.hasNext()) {
                         buf.append(iter.next());
                         buf.append('\n');
@@ -195,13 +194,12 @@ public class PdaLuceneIndexCreator {
     /**
      * Dig down into a Key indexing as we go.
      */
-    private void generateSearchIndexImpl(Progress job, List errors, IndexWriter writer, Key key, int count) throws BookException, IOException {
+    private void generateSearchIndexImpl(Progress job, List<Key> errors, IndexWriter writer, Key key, int count) throws BookException, IOException {
         logger.debug("Generating search Index");
 
         String oldRootName = ""; //$NON-NLS-1$
         int percent = 0;
         String rootName = ""; //$NON-NLS-1$
-        BookData data = null;
         Key subkey = null;
         String canonicalText = null;
 
@@ -213,9 +211,9 @@ public class PdaLuceneIndexCreator {
         int size = key.getCardinality();
         logger.debug("Number of keys:"+size);
         int subCount = count;
-        Iterator it = key.iterator();
+        Iterator<Key> it = key.iterator();
         while (it.hasNext()) {
-            subkey = (Key) it.next();
+            subkey = it.next();
             if (subkey.canHaveChildren()) {
                 generateSearchIndexImpl(job, errors, writer, subkey, subCount);
             } else {
