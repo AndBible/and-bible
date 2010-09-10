@@ -21,23 +21,16 @@
  */
 package org.crosswire.jsword.index.lucene;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.crosswire.common.util.CWProject;
-import org.crosswire.common.util.FileUtil;
-import org.crosswire.common.util.IOUtil;
 import org.crosswire.common.util.Logger;
 import org.crosswire.common.util.NetUtil;
 import org.crosswire.common.util.Reporter;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.BookMetaData;
-import org.crosswire.jsword.index.Index;
-import org.crosswire.jsword.index.IndexManager;
 import org.crosswire.jsword.index.IndexStatus;
 
 /** Optimise Lucene index creation

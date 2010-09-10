@@ -12,6 +12,8 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -33,8 +35,30 @@ public class StartupActivity extends ActivityBase {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.startup_view);
 
-        installJSwordErrorReportListener();
+        // allow call back and continuation in the ui thread after JSword has been initialised
+        final Handler uiHandler = new Handler() {
+			@Override
+			public void handleMessage(Message msg) {
+			    postBasicInitialisationControl();
+			}
+        };
 
+        // initialise JSword in another thread (takes a long time) then call main ui thread Handler to continue
+        // use another thread to allow the splash screen to be displayed and an hourglass to run
+        new Thread() {
+        	public void run() {
+        		try {
+	                installJSwordErrorReportListener();
+	                // force Sword to initialise itself
+	                SwordApi.getInstance().getBibles();
+        		} finally {
+        			uiHandler.dispatchMessage(new Message());
+        		}
+        	}
+        }.start();
+    }
+    
+    private void postBasicInitialisationControl() {
         if (SwordApi.getInstance().getBibles().size()==0) {
         	Log.i(TAG, "Invoking download activity because no bibles exist");
         	gotoDownloadActivity();
@@ -88,12 +112,14 @@ public class StartupActivity extends ActivityBase {
 			@Override
 			public void reportException(ReporterEvent ev) {
 				Log.e(TAG, ev.getMessage(), ev.getException());
+				//todo: make sure this runs on ui thread
 				Toast.makeText(getApplicationContext(), ev.getMessage(), Toast.LENGTH_LONG);
 			}
 
 			@Override
 			public void reportMessage(ReporterEvent ev) {
 				Log.w(TAG, ev.getMessage(), ev.getException());
+				//todo: make sure this runs on ui thread
 				Toast.makeText(getApplicationContext(), ev.getMessage(), Toast.LENGTH_SHORT);
 			}
         });
