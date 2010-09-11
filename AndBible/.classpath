@@ -15,7 +15,6 @@
 	<classpathentry exported="true" kind="lib" path="jar/commons-lang-2.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="jar/commons-httpclient-3.1.jar"/>
 	<classpathentry kind="lib" path="jar/javatar-2.5.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/common"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jsword"/>
+	<classpathentry exported="true" kind="lib" path="jar/jsword-all-tweaked.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
