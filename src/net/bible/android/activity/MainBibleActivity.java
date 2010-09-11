@@ -9,6 +9,7 @@ import net.bible.android.util.DataPipe;
 import net.bible.android.view.BibleContentManager;
 import net.bible.android.view.BibleSwipeListener;
 import net.bible.android.view.BibleView;
+import net.bible.service.history.HistoryManager;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
@@ -19,6 +20,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -33,6 +35,8 @@ import android.view.MotionEvent;
 public class MainBibleActivity extends ActivityBase {
 
 	private BibleContentManager bibleContentManager;
+	
+	private BibleView bibleWebView;
 	
 	private static final int REFRESH_DISPLAY_ON_FINISH = 2;
 
@@ -126,6 +130,15 @@ public class MainBibleActivity extends ActivityBase {
         return isHandled;
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if ((keyCode == KeyEvent.KEYCODE_BACK) && HistoryManager.getInstance().canGoBack()) {
+       		HistoryManager.getInstance().goBack();
+       		return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+    
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) { 
     	Log.d(TAG, "Activity result:"+resultCode);
@@ -151,8 +164,9 @@ public class MainBibleActivity extends ActivityBase {
     }
     
     private void initialiseView() {
-    	BibleView bibleWebView = (BibleView)findViewById(R.id.main_text);
+    	bibleWebView = (BibleView)findViewById(R.id.main_text);
     	bibleContentManager = new BibleContentManager(bibleWebView, this);
+    	HistoryManager.getInstance().initialise();
     	
     	//todo call CurrentPassage.update???
     	CurrentPassage.getInstance().addObserver(new Observer() {
