@@ -147,7 +147,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			}
 		} else if (name.equals("p")) {
 			write("<p />");
-		} else if (name.equals("q")) {
+		} else if (name.equals("q") && !isAttr(OSISUtil.ATTRIBUTE_Q_WHO, attrs)) {
+			// ensure 'who' attribute does not exist because esv uses q for red-letter and for quote mark
 			// quotation, this could be beginning or end of quotation because it is an empty tag
 			write("&quot;");
 		}
@@ -255,6 +256,17 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	    	noteRef = String.valueOf(nextNoteChar);
     	}
     	return noteRef;
+    }
+
+    /** see if an attribute exists and has a value
+     * 
+     * @param attributeName
+     * @param attrs
+     * @return
+     */
+    private boolean isAttr(String attributeName, Attributes attrs) {
+    	String attrValue = attrs.getValue(attributeName);
+    	return StringUtils.isNotEmpty(attrValue);
     }
 
     public void setLeftToRight(boolean isLeftToRight) {
