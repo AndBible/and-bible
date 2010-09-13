@@ -107,13 +107,13 @@ public class CurrentPassage extends Observable {
 		Verse verse = KeyUtil.getVerse(getKey());
 		verse = verse.add(1);
 		Log.d(TAG, "Next verse:"+verse.getName());
-		setKey(verse);
+		doSetKey(verse);
 	}
 	private void previousVerse() {
 		Verse verse = KeyUtil.getVerse(getKey());
 		verse = verse.add(-1);
 		Log.d(TAG, "Prev verse:"+verse.getName());
-		setKey(verse);
+		doSetKey(verse);
 	}
 	private void previousChapter() {
 		try {
@@ -137,13 +137,6 @@ public class CurrentPassage extends Observable {
 		this.notifyObservers();
 	}
 	
-	public void setKey(Key key) {
-		Verse verse = KeyUtil.getVerse(key);
-		this.currentBibleBookNo = verse.getBook();
-		this.currentChapter = verse.getChapter();
-		setCurrentVerse(verse.getVerse());
-		notifyObserversOfChange();
-	}
 	public void setKey(String keyText) {
 		Log.d(TAG, "key text:"+keyText);
 		try {
@@ -152,6 +145,20 @@ public class CurrentPassage extends Observable {
 		} catch (NoSuchKeyException nske) {
 			Log.e(TAG, "Invalid verse reference:"+keyText);
 		}
+	}
+	public void setKey(Key key) {
+		doSetKey(key);
+		notifyObserversOfChange();
+	}
+	/** set key without notification
+	 * 
+	 * @param key
+	 */
+	private void doSetKey(Key key) {
+		Verse verse = KeyUtil.getVerse(key);
+		this.currentBibleBookNo = verse.getBook();
+		this.currentChapter = verse.getChapter();
+		setCurrentVerse(verse.getVerse());
 	}
 	
 	public Key getKey() {
