@@ -32,6 +32,9 @@ public class HistoryManager {
 				verseChanged();
 			}
     	});
+		
+		// and put the current verse in History
+		verseChanged();
 	}
 	
 	public boolean canGoBack() {
@@ -41,7 +44,7 @@ public class HistoryManager {
 	// called when a verse is changed
 	public void verseChanged() {
 		Key verse = CurrentPassage.getInstance().getKey();
-		if (verse!=null && !isInHistory(verse)) {
+		if (verse!=null) {
 			Log.d(TAG, "Adding "+verse+" to history");
 			VerseHistoryItem item = new VerseHistoryItem(verse);
 			add(history, item);
@@ -105,6 +108,10 @@ public class HistoryManager {
 	 * @param item
 	 */
 	private void add(Stack<VerseHistoryItem> stack, VerseHistoryItem item) {
+		// ensure no duplicates
+		// if we don't do this then goBack() would cause the prev key to be re-added and we only ever can go back 1 place
+		stack.removeElement(item);
+		
 		stack.push(item);
 		
 		if (stack.size()>MAX_HISTORY) {
