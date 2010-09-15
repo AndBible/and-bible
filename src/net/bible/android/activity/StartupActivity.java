@@ -69,7 +69,12 @@ public class StartupActivity extends ActivityBase {
     }
 
     private void gotoDownloadActivity() {
-    	showDialog(CAN_DOWNLOAD_DLG);
+    	runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+		    	showDialog(CAN_DOWNLOAD_DLG);
+			}
+    	});
     }
 
     private void gotoMainBibleActivity() {
