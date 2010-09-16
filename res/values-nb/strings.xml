@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+    <string name="app_name">og Gud sa</string>
+    
+    <!-- main menu -->
+    <string name="chooseBook">Dokument</string>
+    <string name="selectPassage">Avsnitt</string>
+    <string name="search">Finn</string>
+    <string name="notes">Notater</string>
+    <string name="settings">Innstillinger</string>
+    
+    <string name="choosePassageBookName">Velg bok</string>
+    <string name="choosePassageChapterName">Velg kapittel</string>
+    <string name="search_index">Lag søkeregister</string>
+    <string name="index_creation_required">For å søke trengs et søkeregister. Det kan ta litt tid å bygge registeret.</string>
+    <string name="index">Register</string>
+    <string name="module_dir">Katalog</string>
+    <string name="use_folder">Bruk denne katalogen</string>
+    <string name="no_files_error">Beklager du har ingen filer!</string>
+    <string name="sdcard_error">Beklager, du mangler et sd-kort!</string>
+    <string name="directory_error">Beklager, ingen tilgang til katalogen %s</string> 
+    <string name="help_text">Velkommen\nBok navigering\nBla:\nFør fingeren til venstre for å se neste kapittel.\nFør fingeren til høyre for å gå tilbake et kapittel\nEller rull track-ballen til siden for å gå fram og tilbake.</string>
+	<string name="progress_status">Fremdrift</string>
+
+	<string name="search_words_group_prompt">Fin søkeord</string>
+    <string name="search_all_words">Alle ordene</string>
+    <string name="search_any_word">Ethvert ord</string>
+    <string name="search_phrase">Frase</string>
+
+    <string name="search_bible_section_group_prompt">Søk avgrensinger</string>
+    <string name="search_all_bible">Hele bibelen</string>
+    <string name="search_new_testament">Det nye testamentet</string>
+    <string name="search_old_testament">Det gamle testamentet</string>
+    <string name="search_current_book">Gjeldene bok</string>
+    <string name="error_executing_search">Feil med søk</string>
+
+	<!-- Preferences -->
+    <string name="prefs_show_verseno_title">Versnummer</string>
+    <string name="prefs_show_verseno_summary">Vis versnummer</string>
+    <string name="prefs_show_notes_title">Notater</string>
+    <string name="prefs_show_notes_summary">Vis notater</string>
+    <string name="prefs_night_mode_title">Nattmodus</string>
+    <string name="prefs_night_mode_summary">For enklere lesing i mørke</string>
+
+	<!-- Notes screen -->
+    <string name="no_chapter_notes">Ingen notater eksisterer til dette kapitelet.</string>
+    <string name="no_verse_notes">Ingen notat til dette verset</string>
+    <string name="previous">Tilbake</string>
+    <string name="next">Fram</string>
+
+	<!-- Module download -->
+    <string name="download">Last ned bibler</string>
+    <string name="error_downloading">En feil oppstod ved nedlasting. Sjekk din Internett forbindelse.</string>
+    <string name="no_internet_connection">Kunne ikke koble til Internett</string>
+
+    <string name="okay">OK</string>
+    <string name="cancel">Avbryt</string>
+    <string name="error">Feil </string>
+</resources>
