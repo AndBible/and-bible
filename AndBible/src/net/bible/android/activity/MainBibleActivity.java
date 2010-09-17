@@ -94,6 +94,9 @@ public class MainBibleActivity extends ActivityBase {
 	        	// force the bible view to be refreshed after returning from settings screen because notes, verses, etc. may be switched on or off
 	        	requestCode = REFRESH_DISPLAY_ON_FINISH;
 	        	break;
+	        case R.id.historyButton:
+	        	handlerIntent = new Intent(this, History.class);
+	        	break;
 	        case R.id.notesButton:
 	        	handlerIntent = new Intent(this, NotesActivity.class);
 	        	// pump the notes into the viewer (there must be an easier way other than Parcelable)
