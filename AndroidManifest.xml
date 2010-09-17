@@ -37,6 +37,9 @@
         <activity android:name=".SettingsActivity"
                   android:label="@string/settings">
         </activity>
+        <activity android:name=".History"
+                  android:label="@string/history">
+        </activity>
         <activity android:name=".Download"
                   android:label="@string/download">
         </activity>

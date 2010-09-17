@@ -6,13 +6,17 @@
       The copyright to this program is held by it's author.
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item android:id="@+id/selectPassageButton" 
+		  android:title="@string/selectPassage"
+		  android:icon="@android:drawable/ic_menu_today"/>
+
 	<item 	android:id="@+id/chooseBookButton" 
 			android:title="@string/chooseBook"
 			android:icon="@android:drawable/ic_menu_save"/>
 
-	<item android:id="@+id/selectPassageButton" 
-		  android:title="@string/selectPassage"
-		  android:icon="@android:drawable/ic_menu_today"/>
+	<item 	android:id="@+id/historyButton" 
+			android:title="@string/history"
+			android:icon="@android:drawable/ic_menu_recent_history"/>
 
 	<item android:id="@+id/searchButton"
 		  android:title="@string/search"

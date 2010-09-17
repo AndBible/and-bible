@@ -5,7 +5,7 @@ import net.bible.android.CurrentPassage;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
-public class VerseHistoryItem {
+public class VerseHistoryItem implements HistoryItem {
 	private Key verse;
 
 	public VerseHistoryItem(Key verse) {
@@ -13,8 +13,18 @@ public class VerseHistoryItem {
 		this.verse = verse;
 	}
 	
+	/* (non-Javadoc)
+	 * @see net.bible.service.history.HistoryItem#revertTo()
+	 */
+	@Override
 	public void revertTo() {
 		CurrentPassage.getInstance().setKey(verse);
+	}
+
+	
+	@Override
+	public String getDescription() {
+		return verse.getName();
 	}
 
 	public Key getVerse() {
@@ -23,7 +33,7 @@ public class VerseHistoryItem {
 
 	@Override
 	public String toString() {
-		return "VerseHistoryItem [verse=" + verse + "]";
+		return getDescription();
 	}
 
 	@Override

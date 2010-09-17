@@ -1,5 +1,6 @@
 package net.bible.service.history;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
@@ -48,7 +49,7 @@ public class HistoryManager {
 			Log.d(TAG, "Adding "+verse+" to history");
 			VerseHistoryItem item = new VerseHistoryItem(verse);
 			add(history, item);
-			forward.clear();
+//			forward.clear();
 		}
 	}
 	
@@ -59,14 +60,15 @@ public class HistoryManager {
 	
 	public void goBack() {
 		if (history.size()>1) {
-			Log.d(TAG, "1 History size:"+history.size());
+			Log.d(TAG, "History size:"+history.size());
+			Log.d(TAG, "Forward size:"+forward.size());
 
 			// pop the current displayed verse 
 			VerseHistoryItem currentItem = history.pop();
 			add(forward, currentItem);
 
 			// and go to previous item
-			VerseHistoryItem previousItem = history.peek();
+			HistoryItem previousItem = history.peek();
 			if (previousItem!=null) {
 				Log.d(TAG, "Going back to:"+previousItem);
 				previousItem.revertTo();
@@ -82,8 +84,10 @@ public class HistoryManager {
 		}
 	}
 	
-	public List<VerseHistoryItem> getHistory() {
-		return null;
+	public List<HistoryItem> getHistory() {
+		List<HistoryItem> allHistory = new ArrayList<HistoryItem>(history);
+		allHistory.addAll(forward);
+		return allHistory;
 	}
 	
 	private boolean isInHistory(Key key) {
@@ -110,11 +114,14 @@ public class HistoryManager {
 	private void add(Stack<VerseHistoryItem> stack, VerseHistoryItem item) {
 		// ensure no duplicates
 		// if we don't do this then goBack() would cause the prev key to be re-added and we only ever can go back 1 place
-		stack.removeElement(item);
+		Log.d(TAG, "Stack size:"+stack.size());
+		boolean removed = stack.removeElement(item);
+		Log.d(TAG, "Found and removed:"+removed);
 		
 		stack.push(item);
 		
 		if (stack.size()>MAX_HISTORY) {
+			Log.d(TAG, "Shrinking large stack");
 			stack.setSize(MAX_HISTORY);
 		}
 	}
