@@ -78,10 +78,12 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     	if (extraStylesheet!=null) {
     		extraStyleSheetTag = "<link href='file:///android_asset/"+extraStylesheet+"' rel='stylesheet' type='text/css'/>";
     	}
-        write("<html dir='"+getDirection()+"'><head>"+
+        write(	"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"> "+
+        		"<html xmlns='http://www.w3.org/1999/xhtml' dir='"+getDirection()+"'><head>"+
         		styleSheetTag+extraStyleSheetTag+jsTag+
-        		"<meta charset='utf-8'/></head>"+
-        		"<body onscroll='jsonscroll()' onload='jsonload()'>");
+        		"<meta charset='utf-8'/>"+
+        		"</head>"+
+        		"<body onscroll='jsonscroll()' onload='jsonload()' >");
     }
 
     /*
