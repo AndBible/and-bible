@@ -17,6 +17,7 @@ import org.crosswire.jsword.index.IndexStatus;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -45,29 +46,32 @@ public class MainBibleActivity extends ActivityBase {
 	// detect swipe left/right
 	private GestureDetector gestureDetector;
 
+	private boolean mIsInitialized = false;
+	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_bible_view);
 
-        gestureDetector = new GestureDetector( new BibleSwipeListener(this) );
-        
-        restoreState();
-        initialiseView();
-        
-        if (SwordApi.getInstance().getBibles().size()==0) {
-        	Log.i(TAG, "Invoking download activity because no bibles exist");
-        	gotoDownloadActivity();
+        if (!mIsInitialized) {
+	        gestureDetector = new GestureDetector( new BibleSwipeListener(this) );
+	        
+	        restoreState();
+	        initialiseView();
+	        
+	        mIsInitialized = true;
         }
     }
 
-    private void gotoDownloadActivity() {
-    	Intent handlerIntent = new Intent(this, Download.class);
-    	startActivityForResult(handlerIntent, 1);
-    }
-    
-    /** 
+    /** adding android:configChanges to manifest causes this method to be called on flip, etc instead of a new instance and onCreate, which would cause a new observer -> duplicated threads
+     */
+    @Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+	}
+
+	/** 
      * on Click handlers
      */
     @Override
