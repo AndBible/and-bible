@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!-- Application text
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<resources>
+    <string name="app_name">Бог сказал</string>
+
+    <string name="splash_top_text">\n\"И сказал Бог:, \да будет свет.\' И стал свет. \"\nБытие 1:3</string>
+    <string name="help_text">Помощь:\nНажмите кнопку МЕНЮ, чтобы выбрать действие\nПроведите пальцем влево по экрану, чтобы перейти к следующей главе\nПроведите пальцем вправо по экрану, чтобы вернуться к предыдущей главе\nПрокрутите трэкбол влево или вправо для перехода к следующей или предыдущей главе</string>
+    <string name="splash_bottom_text">Разработчик Martin the Paranoid Android</string>
+    
+    <!-- main menu -->
+    <string name="chooseBook">Документ</string>
+    <string name="selectPassage">Отрывок</string>
+    <string name="search">Найти</string>
+    <string name="notes">Заметки</string>
+    <string name="settings">Настройки</string>
+    
+    <string name="choosePassageBookName">Выберите книгу</string>
+    <string name="choosePassageChapterName">Выберите главу</string>
+    <string name="search_index">Создать поисковой инидекс</string>
+    <string name="index_creation_required">Для поиска должен быть создан индекс. Создание индекса может занять некоторое время.</string>
+    <string name="index">Индекс</string>
+    <string name="module_dir">Директория</string>
+    <string name="use_folder">Использовать эту папку</string>
+    <string name="no_files_error">Извините, у вас нет файлов!</string>
+    <string name="sdcard_error">Извините, у вас нет SD карты!</string>
+    <string name="directory_error">Извините, нет доступа к директории %s</string> 
+	<string name="progress_status">Прогресс</string>
+
+	<string name="search_words_group_prompt">Найти стихи</string>
+    <string name="search_all_words">Все слова</string>
+    <string name="search_any_word">Любое слово</string>
+    <string name="search_phrase">Фраза</string>
+
+    <string name="search_bible_section_group_prompt">Искать в</string>
+    <string name="search_all_bible">Вся Библия</string>
+    <string name="search_new_testament">Новый Завет</string>
+    <string name="search_old_testament">Ветхий Завет</string>
+    <string name="search_current_book">Текущая книга</string>
+    <string name="error_executing_search">Неверный запрос</string>
+
+	<!-- Preferences -->
+    <string name="prefs_show_verseno_title">Номера стихов</string>
+    <string name="prefs_show_verseno_summary">Показать номера стихов</string>
+    <string name="prefs_show_notes_title">Заметки</string>
+    <string name="prefs_show_notes_summary">Показать заметки</string>
+    <string name="prefs_night_mode_title">Ночной режим</string>
+    <string name="prefs_night_mode_summary">Для более легкого чтения в темноте</string>
+
+	<!-- Notes screen -->
+    <string name="no_chapter_notes">В этой главе нет заметок</string>
+    <string name="no_verse_notes">К этому стиху нет заметок</string>
+    <string name="previous">Предыдущая</string>
+    <string name="next">Следующая</string>
+
+	<!-- Module download -->
+    <string name="download">Скачать Библии </string>
+    <string name="error_downloading">Произошла ошибка при скачивании.  Проверьте соединение с интернетом.</string>
+    <string name="no_internet_connection">Нет соединения с интернетом</string>
+
+    <string name="okay">OK</string>
+    <string name="cancel">Отмена</string>
+    <string name="error">Ошибка </string>
+</resources>
