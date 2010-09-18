@@ -3,6 +3,7 @@
 
 body {
 	line-height: 1.6em;
+	font-size: 1.1em;
 }
 
 h1 {
@@ -27,3 +28,11 @@ h1 {
 	font-size: 0.9em;
 	line-height: 1.0em;
 }
+
+.rtl-notusedyet {
+	direction: rtl;
+  	unicode-bidi: embed;
+	display: block;
+/*	-webkit-rtl-ordering: logical; */
+}
+
