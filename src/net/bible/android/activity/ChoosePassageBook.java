@@ -16,11 +16,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ExpandableListAdapter;
 import android.widget.ExpandableListView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
 import android.widget.SimpleExpandableListAdapter;
 
 /**
@@ -38,8 +35,6 @@ public class ChoosePassageBook extends ExpandableListActivity {
 
     private ExpandableListAdapter mAdapter;
     
-	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1;
-	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -101,7 +96,6 @@ public class ChoosePassageBook extends ExpandableListActivity {
     	}
     	return null;
     }
-    
     
     @Override
 	public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
