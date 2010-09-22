@@ -31,7 +31,7 @@ public class ChoosePassageChapter extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.passage_book_chooser);
+        setContentView(R.layout.passage_chapter_chooser);
 
         ListAdapter adapter = createAdapter();
         setListAdapter(adapter);    
