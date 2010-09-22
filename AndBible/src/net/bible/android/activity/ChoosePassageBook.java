@@ -1,18 +1,27 @@
 package net.bible.android.activity;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import net.bible.android.CurrentPassage;
 
 import org.crosswire.jsword.versification.BibleInfo;
+import org.crosswire.jsword.versification.SectionNames;
 
 import android.app.Activity;
-import android.app.ListActivity;
+import android.app.ExpandableListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
+import android.widget.ExpandableListAdapter;
+import android.widget.ExpandableListView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.SimpleExpandableListAdapter;
 
 /**
  * Choose a bible book e.g. Psalms
@@ -21,10 +30,15 @@ import android.widget.ListView;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class ChoosePassageBook extends ListActivity {
+public class ChoosePassageBook extends ExpandableListActivity {
 	private static final String TAG = "ChoosePassageBook";
-	
-	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1; 
+
+	private static final String NAME = "NAME";
+	private static final String BOOK_NO = "BOOK_NO";
+
+    private ExpandableListAdapter mAdapter;
+    
+	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1;
 	
     /** Called when the activity is first created. */
     @Override
@@ -32,7 +46,7 @@ public class ChoosePassageBook extends ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.passage_book_chooser);
 
-        ListAdapter adapter = createAdapter();
+        ExpandableListAdapter adapter = createAdapter();
         setListAdapter(adapter); 
     }
     
@@ -40,30 +54,63 @@ public class ChoosePassageBook extends ListActivity {
      * Creates and returns a list adapter for the current list activity
      * @return
      */
-    protected ListAdapter createAdapter()
+    protected ExpandableListAdapter createAdapter()
     {
     	try {
-	    	// get string array of book names
-	        String[] books = new String[BibleInfo.booksInBible()];
-	        for (int i=0; i<BibleInfo.booksInBible(); i++) {
-	        	books[i] = BibleInfo.getLongBookName(i+1);
-	        }
-	        
-	    	// Create a simple array adapter (of type string) containing the list of books
-	    	ListAdapter adapter = new ArrayAdapter<String>(this, LIST_ITEM_TYPE, books);
+            List<Map<String, String>> groupData = new ArrayList<Map<String, String>>();
+            List<List<Map<String, Object>>> childData = new ArrayList<List<Map<String, Object>>>();
+
+            // prepare sections and hashmaps to contain book list for each section
+            for (int i = 0; i < SectionNames.REVELATION; i++) {
+                Map<String, String> curGroupMap = new HashMap<String, String>();
+                groupData.add(curGroupMap);
+                curGroupMap.put(NAME, BibleInfo.getSectionName(i+1));
+                
+                List<Map<String, Object>> children = new ArrayList<Map<String, Object>>();
+                childData.add(children);
+            }
+
+            // iterate over all books adding info for each book to the hashmaps created above
+            for (int i = 0; i < BibleInfo.booksInBible(); i++) {
+            	int bookNo = i+1;
+                int sectionNo = SectionNames.getSection(bookNo);
+                List<Map<String, Object>> sectionChildren = childData.get(sectionNo-1);
+
+                Map<String, Object> curBookInfoMap = new HashMap<String, Object>();
+                sectionChildren.add(curBookInfoMap);
+                curBookInfoMap.put(NAME, BibleInfo.getLongBookName(bookNo));
+                curBookInfoMap.put(BOOK_NO, new Integer(bookNo));
+            }
+            
+            // Set up our adapter
+            mAdapter = new SimpleExpandableListAdapter(
+                    this,
+                    groupData,
+                    android.R.layout.simple_expandable_list_item_1,
+                    new String[] { NAME},
+                    new int[] { android.R.id.text1 },
+                    childData,
+                    android.R.layout.simple_expandable_list_item_1,
+                    new String[] { NAME},
+                    new int[] { android.R.id.text1 }
+                    );
 	 
-	    	return adapter;
+	    	return mAdapter;
     	} catch (Exception e) {
     		Log.e(TAG, "Error populating books list", e);
     	}
     	return null;
     }
-
+    
     
     @Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-    	bookSelected(position+1);
+	public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+    	Map<String, Object> child = (Map<String, Object>)mAdapter.getChild(groupPosition, childPosition);
+    	int bookNo = (Integer)child.get(BOOK_NO);
+    	bookSelected(bookNo);
+    	return true;
 	}
+
 
     private void bookSelected(int bibleBookNo) {
     	Log.d(TAG, "Book selected:"+bibleBookNo);
