@@ -32,15 +32,25 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 
     private TextToSpeech mTts;
     
+    private boolean mIsSpeaking;
+    
     private String bookLanguageCode;
     private String textToSpeak;
     
     private Context context;
+    
+    private static final TextToSpeechController singleton = new TextToSpeechController();
+    
+    public static TextToSpeechController getInstance() {
+    	return singleton;
+    }
+    
+    private TextToSpeechController() {
+    }
 
-    public void initialise(Context context) {
+    public void speak(Context context, CurrentPassage passage) {
     	this.context = context;
     	try {
-	    	CurrentPassage passage = CurrentPassage.getInstance();
 	    	bookLanguageCode = passage.getCurrentDocument().getLanguage().getCode();
 	    	textToSpeak = SwordApi.getInstance().getCanonicalText(passage.getCurrentDocument(), passage.getKey(), passage.getNumberOfVersesDisplayed());
 	    	
@@ -60,6 +70,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
             mTts.stop();
             mTts.shutdown();
         }
+		mIsSpeaking = false;
     }
 
     // Implements TextToSpeech.OnInitListener.
@@ -77,6 +88,9 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
             } else {
                 // The TTS engine has been successfully initialized.
             	mTts.setOnUtteranceCompletedListener(this);
+            	
+            	mIsSpeaking = true;
+            	
             	// say the text
                 sayText();
             }
@@ -100,8 +114,16 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
         builder.show();
     }
 
+	public void stop() {
+		shutdown();
+	}
+
 	@Override
 	public void onUtteranceCompleted(String utteranceId) {
-		shutdown();		
+		shutdown();
+	}
+
+	public boolean isSpeaking() {
+		return mIsSpeaking;
 	}
 }

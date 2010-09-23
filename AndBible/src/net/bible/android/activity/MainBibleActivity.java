@@ -135,8 +135,13 @@ public class MainBibleActivity extends ActivityBase {
     	if (!isHandled) {
 	        switch (item.getItemId()) {
 	        case R.id.speakButton:
-	        	TextToSpeechController tts = new TextToSpeechController();
-	        	tts.initialise(this);
+	        	// speak current chapter or stop speech if already speaking
+	        	TextToSpeechController tts = TextToSpeechController.getInstance();
+	        	if (tts.isSpeaking()) {
+	        		tts.stop();
+	        	} else {
+		        	tts.speak(this, CurrentPassage.getInstance());
+	        	}
 	        	isHandled = true;
 	        	break;
 	        }
