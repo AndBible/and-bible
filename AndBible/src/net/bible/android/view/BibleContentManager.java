@@ -43,23 +43,9 @@ public class BibleContentManager {
 		this.context = context;
 		this.bibleWebView = bibleWebView;
 		
-		initialise();		
+		PassageChangeMediator.getInstance().setBibleContentManager(this);
 	}
 	
-	private void initialise() {
-		CurrentPassage.getInstance().addObserver(new Observer() {
-			@Override
-			public void update(Observable observable, Object data) {
-				updateText();
-			}
-		});
-		
-		//****
-		// force a reload to get things going
-		// whether we need to do this depends if the above listener is set up before the CurerentPassage (it currently is not)
-		updateText();
-	}
-
     public void updateText() {
     	updateText(false);
     }
@@ -69,14 +55,22 @@ public class BibleContentManager {
 		Book bible = currentPassage.getCurrentDocument();
 		Key verse = currentPassage.getKey();
 
-		// scrolling right in a commentary can sometimes cause duplicate updates and I don't know why - catch them for now
-		if (forceUpdate || (!bible.equals(displayedBible) || !verse.equals(displayedVerse))) {
-			new UpdateTextTask().execute(currentPassage);
+//		 scrolling right in a commentary can sometimes cause duplicate updates and I don't know why - catch them for now
+//		if (forceUpdate || (!bible.equals(displayedBible) || !verse.equals(displayedVerse))) {
+//			new UpdateTextTask().execute(currentPassage);
+//		}
+		if (!forceUpdate && bible.equals(displayedBible) && verse.equals(displayedVerse)) {
+			Log.w(TAG, "Duplicated screen update");
 		}
+		new UpdateTextTask().execute(currentPassage);
     }
 
     private class UpdateTextTask extends AsyncTask<CurrentPassage, Integer, String> {
     	int verseNo;
+    	@Override
+    	protected void onPreExecute() {
+    		PassageChangeMediator.getInstance().contentChangeStarted();
+    	}
     	
 		@Override
         protected String doInBackground(CurrentPassage... currentPassageArgs) {
@@ -89,8 +83,6 @@ public class BibleContentManager {
 	    		verseNo = currentPassage.getCurrentVerse();
 	
 	    		SharedPreferences preferences = context.getSharedPreferences("net.bible.android.activity_preferences", 0);
-	    		// wait until after current verse has been fetched because the following may change the current verse 
-//    			scrollTo(0, 0);
 	    		
 	            Log.d(TAG, "Loading "+verses);
 	    		//setText("Loading "+verse.toString());
@@ -120,6 +112,7 @@ public class BibleContentManager {
         protected void onPostExecute(String htmlFromDoInBackground) {
             Log.d(TAG, "Loading "+htmlFromDoInBackground);
             showText(htmlFromDoInBackground, verseNo);
+    		PassageChangeMediator.getInstance().contentChangeFinished();
         }
     }
 	private void showText(String text, int verseNo) {

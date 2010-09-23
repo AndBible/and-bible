@@ -35,7 +35,7 @@ public class HistoryManager {
     	});
 		
 		// and put the current verse in History
-		verseChanged();
+//		verseChanged();
 	}
 	
 	public boolean canGoBack() {
