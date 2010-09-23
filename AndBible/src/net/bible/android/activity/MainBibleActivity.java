@@ -1,6 +1,7 @@
 package net.bible.android.activity;
 
 import net.bible.android.CurrentPassage;
+import net.bible.android.device.TextToSpeechController;
 import net.bible.android.util.ActivityBase;
 import net.bible.android.util.DataPipe;
 import net.bible.android.view.BibleContentManager;
@@ -113,7 +114,7 @@ public class MainBibleActivity extends ActivityBase {
 	        	handlerIntent = new Intent(this, Download.class);
 	        	break;
 	        }
-	
+	        
 	        if (handlerIntent!=null) {
 	        	startActivityForResult(handlerIntent, requestCode);
 	        	isHandled = true;
@@ -130,6 +131,15 @@ public class MainBibleActivity extends ActivityBase {
 //                	break;
 //                }
 //    		}
+    	}
+    	if (!isHandled) {
+	        switch (item.getItemId()) {
+	        case R.id.speakButton:
+	        	TextToSpeechController tts = new TextToSpeechController();
+	        	tts.initialise(this);
+	        	isHandled = true;
+	        	break;
+	        }
     	}
 
     	if (!isHandled) {

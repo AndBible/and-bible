@@ -33,4 +33,8 @@
 	<item android:id="@+id/downloadButton"
 		  android:title="@string/download"
 		  android:icon="@drawable/ic_menu_goto"/>
+
+	<item android:id="@+id/speakButton"
+		  android:title="@string/speak"
+		  android:icon="@drawable/ic_menu_goto"/>
 </menu>
