@@ -19,6 +19,7 @@
     <string name="notes">Notes</string>
     <string name="settings">Settings</string>
     <string name="history">History</string>
+    <string name="speak">Speak</string>
     
     <string name="choosePassageBookName">Choose Book</string>
     <string name="choosePassageChapterName">Choose Chapter</string>
@@ -66,4 +67,6 @@
     <string name="okay">OK</string>
     <string name="cancel">Cancel</string>
     <string name="error">Error </string>
+    
+    <string name="tts_lang_not_available">Language is not available.</string>
 </resources>
