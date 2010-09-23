@@ -1,16 +1,13 @@
 package net.bible.android.activity;
 
-import java.util.Observable;
-import java.util.Observer;
-
 import net.bible.android.CurrentPassage;
 import net.bible.android.util.ActivityBase;
 import net.bible.android.util.DataPipe;
 import net.bible.android.view.BibleContentManager;
 import net.bible.android.view.BibleSwipeListener;
 import net.bible.android.view.BibleView;
+import net.bible.android.view.PassageChangeMediator;
 import net.bible.service.history.HistoryManager;
-import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.index.IndexStatus;
@@ -26,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.Window;
 
 /** The main activity screen showing Bible text
  * 
@@ -46,22 +44,26 @@ public class MainBibleActivity extends ActivityBase {
 	// detect swipe left/right
 	private GestureDetector gestureDetector;
 
-	private boolean mIsInitialized = false;
-	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.main_bible_view);
 
-        if (!mIsInitialized) {
-	        gestureDetector = new GestureDetector( new BibleSwipeListener(this) );
-	        
-	        restoreState();
-	        initialiseView();
-	        
-	        mIsInitialized = true;
-        }
+        // create related objects
+        gestureDetector = new GestureDetector( new BibleSwipeListener(this) );
+        bibleWebView = (BibleView)findViewById(R.id.main_text);
+    	bibleContentManager = new BibleContentManager(bibleWebView, this);
+
+        PassageChangeMediator.getInstance().setMainBibleActivity(this);
+        
+    	HistoryManager.getInstance().initialise();
+    	
+        restoreState();
+
+    	// initialise title etc
+    	onPassageChanged();
     }
 
     /** adding android:configChanges to manifest causes this method to be called on flip, etc instead of a new instance and onCreate, which would cause a new observer -> duplicated threads
@@ -170,30 +172,7 @@ public class MainBibleActivity extends ActivityBase {
     	}
     }
     
-    private void initialiseView() {
-    	bibleWebView = (BibleView)findViewById(R.id.main_text);
-    	bibleContentManager = new BibleContentManager(bibleWebView, this);
-    	HistoryManager.getInstance().initialise();
-    	
-    	//todo call CurrentPassage.update???
-    	CurrentPassage.getInstance().addObserver(new Observer() {
-
-			@Override
-			public void update(Observable observable, Object data) {
-				onPassageChanged();
-			}
-    	});
-    	CurrentPassage.getInstance().addVerseObserver(new Observer() {
-			@Override
-			public void update(Observable observable, Object data) {
-				onPassageChanged();
-			}
-    	});
-    	// initialise title etc
-    	onPassageChanged();
-    }
-
-    private void onPassageChanged() {
+    public void onPassageChanged() {
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
