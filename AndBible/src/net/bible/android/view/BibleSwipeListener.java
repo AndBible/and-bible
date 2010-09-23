@@ -16,7 +16,7 @@ import android.view.ViewConfiguration;
 public class BibleSwipeListener extends SimpleOnGestureListener {
 
 	// measurements in dips for density independence
-	private static final float DISTANCE_DIP = 50.0f;
+	private static final float DISTANCE_DIP = 40.0f;
 	private int scaledDistance;
 	
 	private int minScaledVelocity;
@@ -31,6 +31,8 @@ public class BibleSwipeListener extends SimpleOnGestureListener {
 		final float scale = context.getResources().getDisplayMetrics().density;
 		scaledDistance = (int) ( DISTANCE_DIP * scale + 0.5f );
     	minScaledVelocity = ViewConfiguration.get(context).getScaledMinimumFlingVelocity();
+    	// make it easier to swipe
+    	minScaledVelocity = (int)(minScaledVelocity*0.66);
 	}
 
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
