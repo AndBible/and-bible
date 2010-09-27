@@ -127,8 +127,11 @@ public class ChoosePassageChapter extends ExpandableListActivity {
     	return mAdapter;
     }
 
+    /** user has selected a chapter
+     */
     @Override
 	public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+    	// get the selected chapter from the selected list items map
     	Map<String, Object> child = (Map<String, Object>)mAdapter.getChild(groupPosition, childPosition);
     	int chapterNo = (Integer)child.get(CHAPTER_NO);
     	chapterSelected(chapterNo);
