@@ -187,12 +187,26 @@ public class MainBibleActivity extends ActivityBase {
     	}
     }
     
+    /** called just before starting work to change teh current passage
+     */
+    public void onPassageChangeStarted() {
+    	runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				setProgressBarIndeterminateVisibility(true);
+		    	setTitle("");
+			}
+		});
+    }
+    /** called after a new passage has been changed and displayed
+     */
     public void onPassageChanged() {
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 		    	String passageDesc = CurrentPassage.getInstance().toString();
 		    	setTitle(passageDesc);
+				setProgressBarIndeterminateVisibility(false);
 			}
 		});
     }

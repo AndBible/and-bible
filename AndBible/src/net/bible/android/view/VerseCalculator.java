@@ -40,6 +40,11 @@ public class VerseCalculator {
 		versePositionList = new LinkedList<Integer>();
 	}
 	
+	/** when a page is displayed js calls this function to recored the position of all verses to enable current verse calculation
+	 * 
+	 * @param verse
+	 * @param offset
+	 */
 	public void registerVersePosition(int verse, int offset) {
 		assert versePositionList.size()+1==verse : "Verse positions must be calculated in order";
 		versePositionList.add(offset);
@@ -52,6 +57,11 @@ public class VerseCalculator {
 		}
 	}
 	
+	/** compare scrollOffset to the versePositionList to find which verse is at the top of the screen
+	 * 
+	 * @param scrollOffset	distance from the top of the screen.
+	 * @return
+	 */
 	private int calculateCurrentVerse(int scrollOffset) {
 		
 		for (int verseIndex=0; verseIndex<versePositionList.size(); verseIndex++) {
