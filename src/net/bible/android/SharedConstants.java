@@ -15,19 +15,35 @@ public class SharedConstants {
     /**
      * Forms storage path
      */
-    public static final String MODULE_PATH = getModulePath();
+    public static final File MODULE_DIR = getModuleDir();
+    public static final File MANUAL_INSTALL_DIR = getManualInstallDir();
 
-    /**
-     * Identifies the location of the form used to launch form entry
-     */
-    public static final String FOLDERPATH_KEY = "FOLDER_PATH";
+	private static final String MANUAL_INSTALL_SUBDIR = "jsword";
     
     
     public static final int APPLICATION_THEME =  android.R.style.Theme_Light;
     
-    static private String getModulePath() {
+    /** a directory that will be deleted when the application is uninstalled (only on Android 2.2+)
+     * 
+     * @return
+     */
+    static private File getModuleDir() {
+    	// see here: http://developer.android.com/guide/topics/data/data-storage.html#filesExternal
+    	// On api level >=8 this is just Environment.getExternalFilesDir()
+    	//
+    	// If you're using API Level 7 or lower, use getExternalStorageDirectory(), to open a File representing the root of the external storage. 
+    	// You should then write your data in the following directory:
 		File sdcard = Environment.getExternalStorageDirectory();
-    	return sdcard+"/jsword";
+    	File externalFilesDir = new File(sdcard, "/Android/data/net.bible.android.activity/files/");
+//this throws an error - why?
+//    	File externalFilesDir = new File(sdcard, "/Android/data/"+ScriptureApplication.getApplication().getPackageName()+"/files"); 
+    	
+    	return externalFilesDir;
+    }
+    
+    static private File getManualInstallDir() {
+		File sdcard = Environment.getExternalStorageDirectory();
+    	return new File(sdcard, MANUAL_INSTALL_SUBDIR);
     }
     
 }

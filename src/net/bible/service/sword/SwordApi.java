@@ -11,6 +11,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import net.bible.android.SharedConstants;
 import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.OsisToCanonicalTextSaxHandler;
 import net.bible.service.format.OsisToHtmlSaxHandler;
@@ -52,12 +53,13 @@ import android.util.Log;
 public class SwordApi {
 	private static final String TAG = "SwordApi";
 	private static SwordApi singleton;
-	private static final String MAIN_DIR = "jsword";
 	private static String NIGHT_MODE_STYLESHEET = "night_mode.css";
 
 	// just keep one of these because it is called in the tight document indexing loop and isn't very complex
 	OsisToCanonicalTextSaxHandler osisToCanonicalTextSaxHandler = new OsisToCanonicalTextSaxHandler();
 
+	private static final String LUCENE_DIR = "lucene";
+	
 	private static final String CROSSWIRE_REPOSITORY = "CrossWire";
 	
 	private SharedPreferences preferences;
@@ -84,18 +86,25 @@ public class SwordApi {
 	private void initialise() {
 		try {
 			if (isAndroid) {
-				File sdcard = Environment.getExternalStorageDirectory();
-
-				// mods.d
-				ensureDirExists(new File(sdcard, MAIN_DIR+"/"+SwordConstants.DIR_CONF));
-				// modules
-				ensureDirExists(new File(sdcard, MAIN_DIR+"/"+SwordConstants.DIR_DATA));
-				// indexes
-				ensureDirExists(new File(sdcard, MAIN_DIR+"/"+"lucene"));
+				// ensure required module directories exist and register them with jsword
 				
-		        CWProject.setHome("jsword.home", sdcard.getPath()+"/"+MAIN_DIR, "JSword"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				File moduleDir = SharedConstants.MODULE_DIR;
+
+				// main module dir
+				ensureDirExists(moduleDir);
+				// mods.d
+				ensureDirExists(new File(moduleDir, SwordConstants.DIR_CONF));
+				// modules
+				ensureDirExists(new File(moduleDir, SwordConstants.DIR_DATA));
+				// indexes
+				ensureDirExists(new File(moduleDir, LUCENE_DIR));
+				
+				// the second value below is the one which is used in effectively all circumstances
+		        CWProject.setHome("jsword.home", moduleDir.getAbsolutePath(), SharedConstants.MANUAL_INSTALL_DIR.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	
-				SwordBookPath.setAugmentPath(new File[] {new File(sdcard, MAIN_DIR)});
+				SwordBookPath.setAugmentPath(new File[] {SharedConstants.MANUAL_INSTALL_DIR});  // add manual install dir to this list
+				
+				log.debug(("Sword paths:"+getPaths()));
 			}
 		} catch (Exception e) {
 			log.error("Error initialising", e);

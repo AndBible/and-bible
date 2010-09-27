@@ -1,5 +1,6 @@
 package net.bible.android.activity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.bible.android.CurrentPassage;
@@ -30,7 +31,7 @@ public class ChooseDocument extends ActivityBase {
 	
 	private ListView bookList;
 
-	private List<Book> bibles;
+	private List<Book> documents;
 
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1; 
 	
@@ -44,8 +45,18 @@ public class ChooseDocument extends ActivityBase {
 
     private void initialiseView() {
     	bookList = (ListView)findViewById(R.id.bookList);
-    	bibles = SwordApi.getInstance().getDocuments();
-    	populateBooks();
+    	documents = SwordApi.getInstance().getDocuments();
+    	
+    	// get long book names to show in the select list
+    	List<String> docNames = new ArrayList<String>();
+    	for (Book book : documents) {
+    		docNames.add(book.getName());
+    	}
+    	
+    	ArrayAdapter<String> listArrayAdapter = new ArrayAdapter<String>(this,
+    	        LIST_ITEM_TYPE,
+    	        docNames);
+    	bookList.setAdapter(listArrayAdapter);
     	
     	{
 	    	bookList.setOnItemClickListener(new OnItemClickListener() {
@@ -57,21 +68,11 @@ public class ChooseDocument extends ActivityBase {
 	    	});
     	}
     }
-    private void populateBooks() {
-    	try {
-	    	ArrayAdapter<Book> listArrayAdapter = new ArrayAdapter<Book>(this,
-	    	        LIST_ITEM_TYPE,
-	    	        bibles);
-	    	bookList.setAdapter(listArrayAdapter);
-    	} catch (Exception e) {
-    		Log.e(TAG, "Error initialising view", e);
-    	}
-    }
     
     private void bookSelected(int position) {
     	Log.d(TAG, "Book selected:"+position);
     	try {
-    		CurrentPassage.getInstance().setCurrentDocument( bibles.get(position) );
+    		CurrentPassage.getInstance().setCurrentDocument( documents.get(position) );
     	} catch (Exception e) {
     		Log.e(TAG, "error on select of bible book", e);
     	}

@@ -8,7 +8,22 @@ package net.bible.service.sword;
  *      The copyright to this program is held by it's author.
  */
 public class Logger {
+
 	private String name;
+	
+	static private boolean isAndroid;
+	
+	//todo have to finish implementing switchable logging here
+	static {
+		try {
+			Class.forName("android.util.Log");
+			isAndroid = true;
+		} catch (ClassNotFoundException cnfe) {
+			isAndroid = false;
+		}
+		System.out.println("isAndroid:"+isAndroid);
+	}
+	
 	public Logger(String name) {
 		this.name = name;
 	}

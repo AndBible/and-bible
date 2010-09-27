@@ -138,8 +138,10 @@ public class MainBibleActivity extends ActivityBase {
 	        	// speak current chapter or stop speech if already speaking
 	        	TextToSpeechController tts = TextToSpeechController.getInstance();
 	        	if (tts.isSpeaking()) {
+	        		Log.d(TAG, "TTS is speaking so stop it");
 	        		tts.stop();
 	        	} else {
+	        		Log.d(TAG, "Tell TTS to say current chapter");
 		        	tts.speak(this, CurrentPassage.getInstance());
 	        	}
 	        	isHandled = true;
