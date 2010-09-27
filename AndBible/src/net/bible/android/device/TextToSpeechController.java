@@ -1,5 +1,6 @@
 package net.bible.android.device;
 
+import java.util.HashMap;
 import java.util.Locale;
 
 import net.bible.android.CurrentPassage;
@@ -31,7 +32,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     private static final String TAG = "TextToSpeechController";
 
     private TextToSpeech mTts;
-    
+
     private boolean mIsSpeaking;
     
     private String bookLanguageCode;
@@ -65,6 +66,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     }
 
     public void shutdown() {
+    	Log.d(TAG, "Shutdown TTS");
         // Don't forget to shutdown!
         if (mTts != null) {
             mTts.stop();
@@ -87,7 +89,10 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
                 showError(context.getString(R.string.tts_lang_not_available));
             } else {
                 // The TTS engine has been successfully initialized.
-            	mTts.setOnUtteranceCompletedListener(this);
+            	int ok = mTts.setOnUtteranceCompletedListener(this);
+            	if (ok==TextToSpeech.ERROR) {
+            		Log.e(TAG, "Error registering onUtteranceCompletedListener");
+            	}
             	
             	mIsSpeaking = true;
             	
@@ -101,9 +106,14 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     }
 
     private void sayText() {
+    	// Always set the UtteranceId (or else OnUtteranceCompleted will not be called)
+        HashMap dummyTTSParams = new HashMap();
+        dummyTTSParams.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "theUtId");
+
+        // ask TTs to say the text
         mTts.speak(this.textToSpeak,
             TextToSpeech.QUEUE_FLUSH,  // Drop all pending entries in the playback queue.
-            null);
+            dummyTTSParams);
     }
     
     private void showError(String text) {
@@ -120,10 +130,12 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 
 	@Override
 	public void onUtteranceCompleted(String utteranceId) {
+		Log.d(TAG, "onUtteranceCompleted");
 		shutdown();
 	}
 
 	public boolean isSpeaking() {
+		Log.d(TAG, "isSpeaking:"+mIsSpeaking);
 		return mIsSpeaking;
 	}
 }
