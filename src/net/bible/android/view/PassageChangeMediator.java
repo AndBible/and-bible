@@ -6,6 +6,11 @@ import java.util.Observer;
 import net.bible.android.CurrentPassage;
 import net.bible.android.activity.MainBibleActivity;
 
+/** when a bible passage is changed there are lots o things to update and they should be done in a helpful order
+ * This helps to control screen updates after a passage change
+ * @author denha1m
+ *
+ */
 public class PassageChangeMediator {
 
 	private MainBibleActivity mMainBibleActivity;
@@ -35,10 +40,9 @@ public class PassageChangeMediator {
 	}
 	
 	public void contentChangeStarted() {
-		mMainBibleActivity.setProgressBarIndeterminateVisibility(true);
+		mMainBibleActivity.onPassageChangeStarted();
 	}
 	public void contentChangeFinished() {
-		mMainBibleActivity.setProgressBarIndeterminateVisibility(false);
 		mMainBibleActivity.onPassageChanged();
 	}
 	
@@ -53,5 +57,4 @@ public class PassageChangeMediator {
 	public void setMainBibleActivity(MainBibleActivity mainBibleActivity) {
 		this.mMainBibleActivity = mainBibleActivity;
 	}
-	
 }
