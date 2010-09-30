@@ -37,6 +37,9 @@ import android.widget.Toast;
 /**
  * Choose Document (Book) to download
  * 
+ * NotificationManager with ProgressBar example here:
+ * http://united-coders.com/nico-heid/show-progressbar-in-notification-area-like-google-does-when-downloading-from-android
+ * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
@@ -140,7 +143,7 @@ public class Download extends ActivityBase {
 	    	        }
 	    			@Override
 	    	        protected Void doInBackground(Void... noparam) {
-	    	        	allDocuments = SwordApi.getInstance().getDownloadableDocuments(BookFilters.getAll());
+	    	        	allDocuments = SwordApi.getInstance().getDownloadableDocuments();
 	    	        	for (Iterator<Book> iter=allDocuments.iterator(); iter.hasNext(); ) {
 	    	        		Book doc = iter.next();
 	    	        		if (doc.getLanguage()==null) {
