@@ -138,9 +138,12 @@ public class SwordApi {
 		return Books.installed().getBook(initials);
 	}
 	
-	public List<Book> getDownloadableDocuments(BookFilter filter) {
+	public List<Book> getDownloadableDocuments() {
 		log.debug("Getting downloadable documents");
-
+		
+		// currently we just handle bibles and commentaries
+		BookFilter filter = BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries());
+		
         InstallManager imanager = new InstallManager();
 
         // If we know the name of the installer we can get it directly
@@ -148,6 +151,7 @@ public class SwordApi {
 
         // Now we can get the list of books
         try {
+        	Log.d(TAG, "getting downloadable books");
         	if (installer.getBooks().size()==0) {
         		//todo should warn user of implications of downloading book list e.g. from persecuted country
         		log.warn("Auto reloading book list");
