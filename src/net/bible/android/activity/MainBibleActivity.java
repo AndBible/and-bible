@@ -3,6 +3,7 @@ package net.bible.android.activity;
 import net.bible.android.CurrentPassage;
 import net.bible.android.device.TextToSpeechController;
 import net.bible.android.util.ActivityBase;
+import net.bible.android.util.CommonUtil;
 import net.bible.android.util.DataPipe;
 import net.bible.android.view.BibleContentManager;
 import net.bible.android.view.BibleSwipeListener;
@@ -111,7 +112,11 @@ public class MainBibleActivity extends ActivityBase {
 	        	DataPipe.getInstance().pushNotes(bibleContentManager.getNotesList());
 	        	break;
 	        case R.id.downloadButton:
-	        	handlerIntent = new Intent(this, Download.class);
+	        	if (!CommonUtil.isInternetAvailable()) {
+	            	showDialog(INTERNET_NOT_AVAILABLE_DIALOG);
+	        	} else {
+	        		handlerIntent = new Intent(this, Download.class);
+	        	}
 	        	break;
 	        }
 	        

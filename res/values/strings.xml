@@ -61,12 +61,17 @@
 
 	<!-- Module download -->
     <string name="download">Download Bibles</string>
+    <string name="download_confirmation">Download bibles from the internet?</string>
+    <string name="download_document_confirm_prefix">"Download "</string>
     <string name="error_downloading">An error occurred downloading.  Please check your internet connection.</string>
     <string name="no_internet_connection">Could not connect to the internet</string>
-
+    <string name="wait_for_bible">Please wait for the bible to finish downloading before continuing.</string>
+	<string name="wait_for_bible_not_yet">Please wait.  A bible has not yet completed installation.</string>
     <string name="okay">OK</string>
     <string name="cancel">Cancel</string>
     <string name="error">Error </string>
+    <string name="retry">Try Again</string>
+    <string name="please_wait">Please wait.</string>
     
     <string name="tts_lang_not_available">Language is not available.</string>
 </resources>

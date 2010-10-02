@@ -12,6 +12,7 @@ import android.os.Environment;
  */
 public class SharedConstants {
 
+	public static final String PACKAGE_NAME = "net.bible.android.activity";
     /**
      * Forms storage path
      */
@@ -22,6 +23,8 @@ public class SharedConstants {
     
     
     public static final int APPLICATION_THEME =  android.R.style.Theme_Light;
+    
+    public static final String LINE_SEPARATOR = System.getProperty ( "line.separator" ); 
     
     /** a directory that will be deleted when the application is uninstalled (only on Android 2.2+)
      * 
@@ -34,7 +37,7 @@ public class SharedConstants {
     	// If you're using API Level 7 or lower, use getExternalStorageDirectory(), to open a File representing the root of the external storage. 
     	// You should then write your data in the following directory:
 		File sdcard = Environment.getExternalStorageDirectory();
-    	File externalFilesDir = new File(sdcard, "/Android/data/net.bible.android.activity/files/");
+    	File externalFilesDir = new File(sdcard, "/Android/data/"+PACKAGE_NAME+"/files/");
 //this throws an error - why?
 //    	File externalFilesDir = new File(sdcard, "/Android/data/"+ScriptureApplication.getApplication().getPackageName()+"/files"); 
     	
