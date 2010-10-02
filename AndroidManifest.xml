@@ -50,7 +50,6 @@
         <activity android:name=".ProgressStatus"
                   android:label="@string/progress_status">
         </activity>
-        android:configChanges="keyboardHidden|orientation"
 </application>
 <uses-sdk android:minSdkVersion="4"/>
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
