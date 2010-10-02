@@ -1,9 +1,5 @@
 package net.bible.android.activity;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -12,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.bible.android.util.ActivityBase;
+import net.bible.android.util.CommonUtil;
 import net.bible.android.util.Hourglass;
 import net.bible.service.sword.SwordApi;
 
@@ -21,6 +18,9 @@ import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -65,7 +65,13 @@ public class Download extends ActivityBase {
 	private List<Book> displayedDocuments = new ArrayList<Book>();
 	private List<String> displayedDocumentDescriptions = new ArrayList<String>();
 
-	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1; 
+	private boolean forceBasicFlow;
+	
+	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1;
+
+	private Book selectedDocument;
+	
+	private static final int DOWNLOAD_CONFIRMATION_DIALOG = 21;
 	
     /** Called when the activity is first created. */
     @Override
@@ -73,12 +79,9 @@ public class Download extends ActivityBase {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.download);
 
-        if (!isInternetAvailable()) {
-        	Toast.makeText(this, R.string.no_internet_connection, Toast.LENGTH_LONG).show();
-        	returnToMainScreen();
-        }
-        
-        initialiseView();
+        forceBasicFlow = SwordApi.getInstance().getBibles().size()==0;
+
+       	initialiseView();
     }
 
     private void initialiseView() {
@@ -110,6 +113,8 @@ public class Download extends ActivityBase {
 			public void onNothingSelected(AdapterView<?> arg0) {
 			}
 		});
+    	// in the basic flow we force the user to download a bible
+    	documentTypeSpinner.setEnabled(!forceBasicFlow);
 
     	//prepare the language spinner
     	{
@@ -141,6 +146,7 @@ public class Download extends ActivityBase {
 	    	        protected void onPreExecute() {
 	    	        	showDialog(Hourglass.HOURGLASS_KEY);
 	    	        }
+	    	        
 	    			@Override
 	    	        protected Void doInBackground(Void... noparam) {
 	    	        	allDocuments = SwordApi.getInstance().getDownloadableDocuments();
@@ -166,7 +172,7 @@ public class Download extends ActivityBase {
 	    	        	}
 	    	        }
 	
-	    	    }.execute(null);
+	    	    }.execute((Void[])null);
     		}
     	} catch (Exception e) {
     		Log.e(TAG, "Error initialising view", e);
@@ -245,51 +251,74 @@ public class Download extends ActivityBase {
     private void documentSelected(Book document) {
     	Log.d(TAG, "Document selected:"+document.getInitials());
     	try {
-    		// the download happens in another thread
-    		SwordApi.getInstance().downloadDocument(document);
-        	Log.d(TAG, "Download requested");
-
-        	// monitor the download
-        	//todo a simple popup ProgressDialog may be better - not sure
-        	Intent myIntent = new Intent(this, ProgressStatus.class);
-        	startActivityForResult(myIntent, 1);
-        	
+    		this.selectedDocument = document;
+    		showDialog(DOWNLOAD_CONFIRMATION_DIALOG);
     	} catch (Exception e) {
     		Log.e(TAG, "Error on attempt to download", e);
     		Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show();
     	}
     }
 
-    private boolean isInternetAvailable() {
-    	// I found this snippet here: http://www.anddev.org/solved_checking_internet_connection-t5194.html
-//		ConnectivityManager connec = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-//
-//		return (connec.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED);
-    	try {
-	    	String testUrl = "http://www.google.com";
-	 	    URL url = new URL(testUrl);
-	 	         
-	 	    URLConnection connection;
-	 	    connection = url.openConnection();
-	 	    connection.connect();
-	 	    return true;
-    	} catch (IOException e) {
-    		Log.i(TAG, "No internet connection");
-    		return false;
+    @Override
+    protected Dialog onCreateDialog(int id) {
+    	Dialog superDlg = super.onCreateDialog(id);
+    	if (superDlg!=null) {
+    		return superDlg;
     	}
+    	
+        switch (id) {
+        case DOWNLOAD_CONFIRMATION_DIALOG:
+            	return new AlertDialog.Builder(this)
+            		   .setMessage(getText(R.string.download_document_confirm_prefix)+selectedDocument.getName())
+            	       .setCancelable(false)
+            	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
+            	           public void onClick(DialogInterface dialog, int id) {
+            	        	   doDownload(selectedDocument);
+            	           }
+            	       })
+            	       .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            	           public void onClick(DialogInterface dialog, int id) {
+            	           }
+            	       }).create();
+        }
+        return null;
+    }
+
+    @Override
+	protected void onPrepareDialog(int id, Dialog dialog) {
+		super.onPrepareDialog(id, dialog);
+        switch (id) {
+        case DOWNLOAD_CONFIRMATION_DIALOG:
+        	AlertDialog alertDialog = (AlertDialog)dialog;
+        	alertDialog.setMessage(getText(R.string.download_document_confirm_prefix)+selectedDocument.getName());
+        };
+	}
+
+	private void doDownload(Book document) {
+    	try {
+			// the download happens in another thread
+			SwordApi.getInstance().downloadDocument(document);
+	    	Log.d(TAG, "Download requested");
+	    	
+	    	if (forceBasicFlow) {
+	    		Intent intent = new Intent(this, EnsureBibleDownloaded.class);
+	        	startActivity(intent);
+	    	} else {
+	    		// try to prevent too many docs being downloaded at once
+	    		returnToPreviousScreen();
+	    	}
+
+    	} catch (Exception e) {
+    		Log.e(TAG, "Error on attempt to download", e);
+    		Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show();
+    	}
+
     }
     
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
     	if (resultCode==Activity.RESULT_OK) {
-    		returnToMainScreen();
+    		returnToPreviousScreen();
     	}
-    }
-    
-    private void returnToMainScreen() {
-    	// just pass control back to teh main screen
-    	Intent resultIntent = new Intent(this, Download.class);
-    	setResult(Activity.RESULT_OK, resultIntent);
-    	finish();    
     }
 }

@@ -1,5 +1,7 @@
 package net.bible.android.util;
 
+import net.bible.android.activity.R;
+import net.bible.android.application.ScriptureApplication;
 import android.app.ProgressDialog;
 import android.content.Context;
 
@@ -24,7 +26,7 @@ public class Hourglass {
 
 	public void show(Context context) {
 		hourglass = new ProgressDialog(context);
-		hourglass.setMessage("");
+		hourglass.setMessage(ScriptureApplication.getApplication().getText(R.string.please_wait));
 		hourglass.setIndeterminate(true);
 		hourglass.setCancelable(false);
 		hourglass.show();

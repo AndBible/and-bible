@@ -1,6 +1,8 @@
 package net.bible.android.activity;
 
+import net.bible.android.device.ProgressNotificationManager;
 import net.bible.android.util.ActivityBase;
+import net.bible.android.util.CommonUtil;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.common.util.Reporter;
@@ -29,7 +31,9 @@ public class StartupActivity extends ActivityBase {
 	
 	private static final String TAG = "StartupActivity";
 
-    /** Called when the activity is first created. */
+	private static final int INTERNET_NOT_AVAILABLE_DIALOG = 20;
+
+	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,14 +48,17 @@ public class StartupActivity extends ActivityBase {
         };
 
         // initialise JSword in another thread (takes a long time) then call main ui thread Handler to continue
-        // use another thread to allow the splash screen to be displayed and an hourglass to run
+        // this allows the splash screen to be displayed and an hourglass to run
         new Thread() {
         	public void run() {
         		try {
 	                installJSwordErrorReportListener();
 	                // force Sword to initialise itself
 	                SwordApi.getInstance().getBibles();
+	                //initialise link to Android progress control display in Notification bar
+	                ProgressNotificationManager.getInstance().initialise();
         		} finally {
+        			// switch back to ui thread to continue
         			uiHandler.dispatchMessage(new Message());
         		}
         	}
@@ -61,14 +68,14 @@ public class StartupActivity extends ActivityBase {
     private void postBasicInitialisationControl() {
         if (SwordApi.getInstance().getBibles().size()==0) {
         	Log.i(TAG, "Invoking download activity because no bibles exist");
-        	gotoDownloadActivity();
+        	askIfGotoDownloadActivity();
         } else {
         	Log.i(TAG, "Going to main bible view");
         	gotoMainBibleActivity();
         }
     }
 
-    private void gotoDownloadActivity() {
+    private void askIfGotoDownloadActivity() {
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
@@ -76,8 +83,24 @@ public class StartupActivity extends ActivityBase {
 			}
     	});
     }
+    private void doGotoDownloadActivity() {
+    	if (CommonUtil.isInternetAvailable()) {
+	       	Intent handlerIntent = new Intent(StartupActivity.this, Download.class);
+	    	startActivityForResult(handlerIntent, 1);
+		} else {
+			showDialog(INTERNET_NOT_AVAILABLE_DIALOG);
+		}
+    }
 
-    private void gotoMainBibleActivity() {
+    /** caled when user presses okay on internet connection error
+     */
+    @Override
+	protected void dialogOnClick(int dialogId, int id) {
+    	Log.d(TAG, "dialogOnClick");
+    	finish();
+	}
+
+	private void gotoMainBibleActivity() {
     	Intent handlerIntent = new Intent(this, MainBibleActivity.class);
     	startActivityForResult(handlerIntent, 2);
     }
@@ -92,12 +115,11 @@ public class StartupActivity extends ActivityBase {
         switch (id) {
             case CAN_DOWNLOAD_DLG:
             	return new AlertDialog.Builder(StartupActivity.this)
-            		   .setMessage("Download bibles from internet?")
+            		   .setMessage(R.string.download_confirmation)
             	       .setCancelable(false)
             	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
             	           public void onClick(DialogInterface dialog, int id) {
-        	    	           	Intent handlerIntent = new Intent(StartupActivity.this, Download.class);
-        	    	        	startActivityForResult(handlerIntent, 1);
+            	        	   doGotoDownloadActivity();
             	           }
             	       })
             	       .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {

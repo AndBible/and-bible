@@ -47,6 +47,10 @@ public class ChoosePassageChapter extends ExpandableListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // fix for null context class loader (http://code.google.com/p/android/issues/detail?id=5697)
+        // this affected jsword dynamic classloading
+        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+
         setContentView(R.layout.passage_chapter_chooser);
 
         ExpandableListAdapter adapter = createAdapter();
