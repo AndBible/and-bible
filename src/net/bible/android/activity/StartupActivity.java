@@ -97,7 +97,9 @@ public class StartupActivity extends ActivityBase {
     @Override
 	protected void dialogOnClick(int dialogId, int id) {
     	Log.d(TAG, "dialogOnClick");
-    	finish();
+    	if (dialogId==INTERNET_NOT_AVAILABLE_DIALOG) {
+    		finish();
+    	}
 	}
 
 	private void gotoMainBibleActivity() {

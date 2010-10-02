@@ -67,6 +67,7 @@
     <string name="no_internet_connection">Could not connect to the internet</string>
     <string name="wait_for_bible">Please wait for the bible to finish downloading before continuing.</string>
 	<string name="wait_for_bible_not_yet">Please wait.  A bible has not yet completed installation.</string>
+	<string name="too_many_jobs">Too many tasks executing.  Please wait for some to finish and try again.</string>
     <string name="okay">OK</string>
     <string name="cancel">Cancel</string>
     <string name="error">Error </string>
