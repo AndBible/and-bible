@@ -1,11 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
-	<string name="app_name">And Bibeln</string>
+<!-- Application text
 
-    <!-- main menu -->
-	<string name="chooseBook">Dokument</string>
-	<string name="selectPassage">Vers</string>
-	<string name="search">Sök</string>
-	<string name="notes">Anteckningar</string>
-	<string name="settings">Inställningar</string>
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<resources>
+  <string name="app_name">Gud sade</string>
+  <string name="splash_top_text">\n\"Och Gud sade:\'Varde ljus,\'och det vart ljus.\"\nMos 1:3</string>
+  <string name="help_text">Hjälp:\nTryck på MENY för åtgärder\nFling fingret vänster för att se nästa kapitel\nFling fingret höger att gå tillbaka ett kapitel\nRulla spår-bollen åt vänster eller höger för att gå framåt eller bakåt ett kapitel</string>
+  <string name="splash_bottom_text">Version 0.0.7</string>
+  <string name="chooseBook">Dokument</string>
+  <string name="selectPassage">Passage</string>
+  <string name="search">Sök</string>
+  <string name="notes">Anteckningar</string>
+  <string name="settings">Inställningar</string>
+  <string name="history">Historia</string>
+  <string name="choosePassageBookName">Välj Boka</string>
+  <string name="choosePassageChapterName">Välj kapitel</string>
+  <string name="search_index">Skapa Sökning Register</string>
+  <string name="index_creation_required">För att söka i ett index måste skapas. Skapa ett index kan ta lång tid.</string>
+  <string name="index">Index</string>
+  <string name="module_dir">Katalog</string>
+  <string name="use_folder">Använd den här mappen</string>
+  <string name="no_files_error">Tyvärr, du har inga filer!</string>
+  <string name="sdcard_error">Tyvärr, du har inget SD-kort!</string>
+  <string name="directory_error">Tyvärr, inte komma åt katalog %s</string>
+  <string name="progress_status">Framsteg</string>
+  <string name="search_words_group_prompt">Hitta verser</string>
+  <string name="search_all_words">Alla ord</string>
+  <string name="search_any_word">Alla ord</string>
+  <string name="search_phrase">Fras</string>
+  <string name="search_bible_section_group_prompt">Sök där</string>
+  <string name="search_all_bible">Hela bibeln</string>
+  <string name="search_new_testament">Nya Testamentet</string>
+  <string name="search_old_testament">Gamla Testamentet</string>
+  <string name="search_current_book">Aktuell bok</string>
+  <string name="error_executing_search">Ogiltig sökfråga</string>
+  <string name="prefs_show_verseno_title">Versnummer</string>
+  <string name="prefs_show_verseno_summary">Visa versnummer</string>
+  <string name="prefs_show_notes_title">Anteckningar</string>
+  <string name="prefs_show_notes_summary">Visa anteckningar</string>
+  <string name="prefs_night_mode_title">Nattläge</string>
+  <string name="prefs_night_mode_summary">För att underlätta avläsning i mörker</string>
+  <string name="no_chapter_notes">Inga anteckningar finns i detta kapitel</string>
+  <string name="no_verse_notes">Inga anteckningar finns i denna vers</string>
+  <string name="previous">Föregående</string>
+  <string name="next">Nästa</string>
+  <string name="download">Hämta biblar</string>
+  <string name="error_downloading">Ett fel uppstod vid nedladdning. Kontrollera din Internet-anslutning.</string>
+  <string name="no_internet_connection">Kunde inte ansluta till Internet</string>
+  <string name="okay">OK</string>
+  <string name="cancel">Avbryt</string>
+  <string name="error">Fel</string>
 </resources>
