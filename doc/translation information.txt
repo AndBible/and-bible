@@ -1,0 +1,6 @@
+Manual translations:
+fr
+hu
+nb
+ru
+sv
