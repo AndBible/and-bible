@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Map;
 
 import net.bible.android.util.ActivityBase;
-import net.bible.android.util.CommonUtil;
 import net.bible.android.util.Hourglass;
 import net.bible.service.sword.SwordApi;
 
+import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.util.Language;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookFilter;
@@ -71,7 +71,7 @@ public class Download extends ActivityBase {
 
 	private Book selectedDocument;
 	
-	private static final int DOWNLOAD_CONFIRMATION_DIALOG = 21;
+	private static final int DOWNLOAD_CONFIRMATION_DIALOG = 33;
 	
     /** Called when the activity is first created. */
     @Override
@@ -252,7 +252,13 @@ public class Download extends ActivityBase {
     	Log.d(TAG, "Document selected:"+document.getInitials());
     	try {
     		this.selectedDocument = document;
-    		showDialog(DOWNLOAD_CONFIRMATION_DIALOG);
+
+    		if (JobManager.getJobs().size()>=2) {
+    			Log.i(TAG, "Too many jobs:"+JobManager.getJobs().size());
+    			showDialog(TOO_MANY_JOBS);
+    		} else {
+    			showDialog(DOWNLOAD_CONFIRMATION_DIALOG);
+    		}
     	} catch (Exception e) {
     		Log.e(TAG, "Error on attempt to download", e);
     		Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show();
@@ -303,9 +309,6 @@ public class Download extends ActivityBase {
 	    	if (forceBasicFlow) {
 	    		Intent intent = new Intent(this, EnsureBibleDownloaded.class);
 	        	startActivity(intent);
-	    	} else {
-	    		// try to prevent too many docs being downloaded at once
-	    		returnToPreviousScreen();
 	    	}
 
     	} catch (Exception e) {

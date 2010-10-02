@@ -21,7 +21,8 @@ public class ActivityBase extends Activity {
 	
 	private Hourglass hourglass = new Hourglass();
 
-	protected static final int INTERNET_NOT_AVAILABLE_DIALOG = 20;
+	protected static final int INTERNET_NOT_AVAILABLE_DIALOG = 120;
+	protected static final int TOO_MANY_JOBS = 121;
 	
     /** Called when the activity is first created. */
     @Override
@@ -49,6 +50,15 @@ public class ActivityBase extends Activity {
             	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
             	           public void onClick(DialogInterface dialog, int buttonId) {
             	        	   dialogOnClick(INTERNET_NOT_AVAILABLE_DIALOG, buttonId);
+            	           }
+            	       }).create();
+            case TOO_MANY_JOBS:
+            	return new AlertDialog.Builder(this)
+            		   .setMessage(getText(R.string.too_many_jobs))
+            	       .setCancelable(false)
+            	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
+            	           public void onClick(DialogInterface dialog, int buttonId) {
+            	        	   //just close the dialog
             	           }
             	       }).create();
 //            case DIALOG_NOTES:

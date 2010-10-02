@@ -40,9 +40,9 @@ public class EnsureBibleDownloaded extends Activity {
         	TextView warn = (TextView)findViewById(R.id.waitForBibleNotYet);
         	// if already warned then alternate the wait text
         	if (clickCount++%2==0) {
-        		warn.setText(R.string.please_wait);
-        	} else {
         		warn.setText(R.string.wait_for_bible_not_yet);        		
+        	} else {
+        		warn.setText(R.string.please_wait);
         	}
         	
     		warn.setVisibility(View.VISIBLE);
