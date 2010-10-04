@@ -1,6 +1,11 @@
 package net.bible.android.activity;
 
 import net.bible.service.sword.SwordApi;
+
+import org.crosswire.common.progress.JobManager;
+import org.crosswire.common.progress.WorkEvent;
+import org.crosswire.common.progress.WorkListener;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,7 +24,9 @@ public class EnsureBibleDownloaded extends Activity {
 	private static final String TAG = "EnsureBibleDownloaded";
 	
 	private int clickCount = 0;
-	
+
+	private WorkListener workListener;
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -29,12 +36,35 @@ public class EnsureBibleDownloaded extends Activity {
     
         if (SwordApi.getInstance().getBibles().size()>0) {
         	gotoMainScreen();
-        }        
+        } else {
+        	startMonitoring();
+        }
+    }
+    
+    private void startMonitoring() {
+    	if (workListener==null) {
+			workListener = new WorkListener() {
+	
+				@Override
+				public void workProgressed(WorkEvent ev) {
+					if (ev.getJob().isFinished()) {
+						onContinue(null);
+					}
+				}
+	
+				@Override
+				public void workStateChanged(WorkEvent ev) {
+					// ignore this event
+				}
+			};
+			JobManager.addWorkListener(workListener);
+    	}
     }
     
     public void onContinue(View v) {
     	Log.i(TAG, "CLICKED");
         if (SwordApi.getInstance().getBibles().size()>0) {
+        	
         	gotoMainScreen();
         } else {
         	TextView warn = (TextView)findViewById(R.id.waitForBibleNotYet);
@@ -49,11 +79,16 @@ public class EnsureBibleDownloaded extends Activity {
         }
     }
     
-
-    
     private void gotoMainScreen() {
 		Intent intent = new Intent(this, MainBibleActivity.class);
     	startActivity(intent);
     	finish();
     }
+    
+    @Override
+	protected void onStop() {
+		super.onStop();
+    	JobManager.removeWorkListener(workListener);
+	}
+
 }
