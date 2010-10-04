@@ -39,7 +39,7 @@ public class SharedConstants {
 		File sdcard = Environment.getExternalStorageDirectory();
     	File externalFilesDir = new File(sdcard, "/Android/data/"+PACKAGE_NAME+"/files/");
 //this throws an error - why?
-//    	File externalFilesDir = new File(sdcard, "/Android/data/"+ScriptureApplication.getApplication().getPackageName()+"/files"); 
+//    	File externalFilesDir = new File(sdcard, "/Android/data/"+BibleApplication.getApplication().getPackageName()+"/files"); 
     	
     	return externalFilesDir;
     }
