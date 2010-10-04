@@ -1,3 +1,5 @@
+See "<original-package android:name="net.oldname" />" if a rename is required
+
 Add to props in run target to switch language
 -prop persist.sys.language=sv
 

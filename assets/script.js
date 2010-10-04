@@ -28,17 +28,18 @@ function getVerseElements() {
 function getElementsByClass( searchClass, domNode, tagName) { 
 	if (domNode == null) domNode = document;
 	if (tagName == null) tagName = '*';
-	var el = new Array();
-	var tags = domNode.getElementsByTagName(tagName);
-	window.jsInterface.log("Num spans found:"+tags.length);
+	var matches = [];
+	
+	var tagMatches = domNode.getElementsByTagName(tagName);
+	window.jsInterface.log("Num spans found:"+tagMatches.length);
 
-	var tcl = " "+searchClass+" ";
-	for(i=0,j=0; i<tags.length; i++) { 
-		var test = " " + tags[i].className + " ";
-		if (test.indexOf(tcl) != -1) 
-			el[j++] = tags[i];
+	var searchClassPlusSpace = " "+searchClass+" ";
+	for(i=0; i<tagMatches.length; i++) { 
+		var tagClassPlusSpace = " " + tagMatches[i].className + " ";
+		if (tagClassPlusSpace.indexOf(searchClassPlusSpace) != -1) 
+			matches.push(tagMatches[i]);
 	} 
-	return el;
+	return matches;
 } 
 
 

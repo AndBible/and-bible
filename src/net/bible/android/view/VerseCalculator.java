@@ -72,7 +72,7 @@ public class VerseCalculator {
 			}
 		}
 		// maybe scrolled off botttom
-		return versePositionList.size()+1;
+		return versePositionList.size();
 	}
 
 	private void calculateNumVerses() {

@@ -6,7 +6,7 @@ import java.util.Map;
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.ProgressStatus;
 import net.bible.android.activity.R;
-import net.bible.android.application.ScriptureApplication;
+import net.bible.android.application.BibleApplication;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.progress.JobManager;
@@ -100,8 +100,8 @@ public class ProgressNotificationManager {
     	if (notification == null) {
 			Log.d(TAG, "Creating Notification for progress Hash:"+prog.hashCode());
     		// configure the intent
-            Intent intent = new Intent(ScriptureApplication.getApplication(), ProgressStatus.class);
-            final PendingIntent pendingIntent = PendingIntent.getActivity(ScriptureApplication.getApplication(), 0, intent, 0);
+            Intent intent = new Intent(BibleApplication.getApplication(), ProgressStatus.class);
+            final PendingIntent pendingIntent = PendingIntent.getActivity(BibleApplication.getApplication(), 0, intent, 0);
 
         	notification = new Notification(R.drawable.bible, "", System.currentTimeMillis());
             notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT;
@@ -121,7 +121,7 @@ public class ProgressNotificationManager {
 
     private NotificationManager getNotificationManager() {
 		// add it to the NotificationManager
-		return  (NotificationManager) ScriptureApplication.getApplication().getSystemService(ScriptureApplication.getApplication().NOTIFICATION_SERVICE);
+		return  (NotificationManager) BibleApplication.getApplication().getSystemService(BibleApplication.getApplication().NOTIFICATION_SERVICE);
 
     }
 }
