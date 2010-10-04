@@ -16,9 +16,9 @@ public class HistoryManager {
 
 	private static int MAX_HISTORY = 20;
 	private Stack<VerseHistoryItem> history = new Stack<VerseHistoryItem>();
-	private Stack<VerseHistoryItem> forward = new Stack<VerseHistoryItem>();
-	
 	private static HistoryManager singleton = new HistoryManager();
+
+	private boolean isGoingBack = false;
 	
 	private static final String TAG = "HistoryManager";
 	
@@ -33,79 +33,57 @@ public class HistoryManager {
 				verseChanged();
 			}
     	});
-		
-		// and put the current verse in History
-//		verseChanged();
 	}
 	
 	public boolean canGoBack() {
 		return history.size()>1;
 	}
 	
-	// called when a verse is changed
+	/**
+	 *  called when a verse is changed
+	 */
 	public void verseChanged() {
-		Key verse = CurrentPassage.getInstance().getKey();
-		if (verse!=null) {
-			Log.d(TAG, "Adding "+verse+" to history");
-			VerseHistoryItem item = new VerseHistoryItem(verse);
-			add(history, item);
-//			forward.clear();
+		// if we cause the change by requesting Back then ignore it
+		if (!isGoingBack) {
+			Key verse = CurrentPassage.getInstance().getKey();
+			if (verse!=null) {
+				Log.d(TAG, "Adding "+verse+" to history");
+				VerseHistoryItem item = new VerseHistoryItem(verse);
+				add(history, item);
+			}
 		}
 	}
 	
 	//not used just keep a list of verse changes for now
 	public void documentChanged() {
-		
 	}
 	
 	public void goBack() {
 		if (history.size()>1) {
-			Log.d(TAG, "History size:"+history.size());
-			Log.d(TAG, "Forward size:"+forward.size());
-
-			// pop the current displayed verse 
-			VerseHistoryItem currentItem = history.pop();
-			add(forward, currentItem);
-
-			// and go to previous item
-			HistoryItem previousItem = history.peek();
-			if (previousItem!=null) {
-				Log.d(TAG, "Going back to:"+previousItem);
-				previousItem.revertTo();
-			}
-		}
-	}
+			try {
+				Log.d(TAG, "History size:"+history.size());
+				isGoingBack = true;
 	
-	public void goForward() {
-		VerseHistoryItem item = forward.pop();
-		if (item!=null) {
-			item.revertTo();
-			add(history, item);
+				// pop the current displayed verse 
+				VerseHistoryItem currentItem = history.pop();
+	
+				// and go to previous item
+				HistoryItem previousItem = history.peek();
+				if (previousItem!=null) {
+					Log.d(TAG, "Going back to:"+previousItem);
+					previousItem.revertTo();
+				}
+			} finally {
+				isGoingBack = false;
+			}
 		}
 	}
 	
 	public List<HistoryItem> getHistory() {
 		List<HistoryItem> allHistory = new ArrayList<HistoryItem>(history);
-		allHistory.addAll(forward);
 		return allHistory;
 	}
 	
-	private boolean isInHistory(Key key) {
-		Log.d(TAG, "History len:"+history.size());
-		for (VerseHistoryItem item : history) {
-			Log.d(TAG, "comparing "+key+" with "+item);
-			if (key.equals(item.getVerse())) {
-				return true;
-			}
-		}
-		for (VerseHistoryItem item : forward) {
-			if (key.equals(item.getVerse())) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	/** add item and check size of stack
 	 * 
 	 * @param stack
