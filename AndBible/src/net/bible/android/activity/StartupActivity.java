@@ -31,8 +31,6 @@ public class StartupActivity extends ActivityBase {
 	
 	private static final String TAG = "StartupActivity";
 
-	private static final int INTERNET_NOT_AVAILABLE_DIALOG = 20;
-
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
