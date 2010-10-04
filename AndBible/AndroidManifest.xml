@@ -42,7 +42,8 @@
                   android:label="@string/history">
         </activity>
         <activity android:name=".Download"
-                  android:label="@string/download">
+                  android:label="@string/download"
+                  android:configChanges="keyboardHidden|orientation">
         </activity>
         <activity android:name=".EnsureBibleDownloaded"
                   android:label="@string/download">
