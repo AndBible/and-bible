@@ -1,10 +1,13 @@
 package net.bible.android.application;
 
+import net.bible.android.device.ProgressNotificationManager;
 import android.app.Application;
+import android.util.Log;
 
 public class BibleApplication extends Application{
 
 	private static BibleApplication singleton;
+	private static final String TAG = "BibleApplication";
 	
 	@Override
 	public void onCreate() {
@@ -18,4 +21,9 @@ public class BibleApplication extends Application{
 		return singleton;
 	}
 
+	@Override
+	public void onTerminate() {
+		Log.i(TAG, "onTerminate");
+		super.onTerminate();
+	}
 }

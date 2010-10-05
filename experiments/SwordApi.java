@@ -173,7 +173,7 @@ public class SwordApi {
 		
 		return osisToHtml;
 	}
-	
+	                        
 // the folowing won't work on anything less than Android 2.2 because it requires xml.transform thro TransformingSAXEventProvider 
 //	/**
 //	 * Obtain styled text (in this case HTML) for a book reference.

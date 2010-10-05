@@ -9,7 +9,6 @@
   <string name="app_name">하나님 말씀</string>
   <string name="splash_top_text"></string>
   <string name="help_text">도움말 :\n행동에 눌러 메뉴 키\n손가락을 날뛰는 다음 챕터를 참조하십시오 왼쪽\n손가락의 권리를 날뛰는 챕터를 다시 돌아가\n롤 트랙 - 볼을 왼쪽 또는 오른쪽으로 앞으로 이동 또는 뒤로 챕터</string>
-  <string name="splash_bottom_text">버전 0.0.7</string>
   <string name="chooseBook">문서</string>
   <string name="selectPassage">통로</string>
   <string name="search">찾기</string>

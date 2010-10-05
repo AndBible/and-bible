@@ -10,7 +10,7 @@
 
     <string name="splash_top_text">\n\"And God said, \'Let there be light,\' and there was light.\"\nGenesis 1:3</string>
     <string name="help_text">Navigation:\nPress the MENU key for actions\nFling your finger left to see the next chapter\nFling your finger right to go back a chapter\nRoll the track-ball left or right to go forward or back a chapter</string>
-    <string name="splash_bottom_text">Version 0.0.8</string>
+    <string name="splash_bottom_text">Version 0.0.9</string>
     
     <!-- main menu -->
     <string name="chooseBook">Document</string>
@@ -32,6 +32,8 @@
     <string name="sdcard_error">Sorry, you have no SD card!</string>
     <string name="directory_error">Sorry, unable to access directory %s</string> 
 	<string name="progress_status">Progress</string>
+	<string name="task_kill_warning">Be aware that Android may terminate these long running tasks if you switch to another application before they finish.</string>
+	<string name="no_tasks_running">There are no tasks currently being executed.</string>
 
 	<string name="search_words_group_prompt">Find verses</string>
     <string name="search_all_words">All words</string>
@@ -72,7 +74,7 @@
     <string name="cancel">Cancel</string>
     <string name="error">Error </string>
     <string name="retry">Try Again</string>
-    <string name="please_wait">Please wait.</string>
+    <string name="please_wait">Please wait...</string>
     
     <string name="tts_lang_not_available">Language is not available.</string>
 </resources>

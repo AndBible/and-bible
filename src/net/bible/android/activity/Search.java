@@ -1,5 +1,7 @@
 package net.bible.android.activity;
 
+import net.bible.android.util.ActivityBase;
+
 import org.crosswire.jsword.index.search.SearchType;
 
 import android.app.Activity;
@@ -17,7 +19,7 @@ import android.widget.RadioGroup.OnCheckedChangeListener;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class Search extends Activity {
+public class Search extends ActivityBase {
 	
 	public static final String SEARCH_TEXT = "SearchText";
 	

@@ -38,9 +38,10 @@ public class StartupActivity extends ActivityBase {
         setContentView(R.layout.startup_view);
 
         // allow call back and continuation in the ui thread after JSword has been initialised
-        final Handler uiHandler = new Handler() {
+        final Handler uiHandler = new Handler();
+        final Runnable uiThreadRunnable = new Runnable() {
 			@Override
-			public void handleMessage(Message msg) {
+			public void run() {
 			    postBasicInitialisationControl();
 			}
         };
@@ -57,7 +58,7 @@ public class StartupActivity extends ActivityBase {
 	                ProgressNotificationManager.getInstance().initialise();
         		} finally {
         			// switch back to ui thread to continue
-        			uiHandler.dispatchMessage(new Message());
+        			uiHandler.post(uiThreadRunnable);
         		}
         	}
         }.start();
@@ -73,13 +74,14 @@ public class StartupActivity extends ActivityBase {
         }
     }
 
-    private void askIfGotoDownloadActivity() {
-    	runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-		    	showDialog(CAN_DOWNLOAD_DLG);
-			}
-    	});
+    @Override
+	protected void onDestroy() {
+        Log.i(TAG, "*** onDestroy");
+		super.onDestroy();
+	}
+
+	private void askIfGotoDownloadActivity() {
+    	showDialog(CAN_DOWNLOAD_DLG);
     }
     private void doGotoDownloadActivity() {
     	if (CommonUtil.isInternetAvailable()) {

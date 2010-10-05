@@ -56,9 +56,9 @@ public class ProgressNotificationManager {
 				final int done = prog.getWork();
 				
 				// compose a descriptive string showing job name and current section if relevant
-				String status = prog.getJobName();
-				if (StringUtils.isEmpty(prog.getSectionName()) && !prog.getSectionName().equalsIgnoreCase(prog.getJobName())) {
-					status += SharedConstants.LINE_SEPARATOR+prog.getSectionName();
+				String status = prog.getJobName()+SharedConstants.LINE_SEPARATOR;
+				if (!StringUtils.isEmpty(prog.getSectionName()) && !prog.getSectionName().equalsIgnoreCase(prog.getJobName())) {
+					status += prog.getSectionName();
 				}
 
 				// update notification view
@@ -84,17 +84,37 @@ public class ProgressNotificationManager {
 
         Log.d(TAG, "Finished Initializing");
     }
-
+    
     private void finished(Progress prog) {
 		Log.d(TAG, "Finished");
 		getNotificationManager().cancel(prog.hashCode());
 		progressMap.remove(prog);
     }
     
-	protected void close() {
-    	JobManager.removeWorkListener(workListener);
+	public void close() {
+		Log.i(TAG,"Clearing Notifications");
+		try {
+			// clear map and all Notification objects
+		    for (Progress prog : progressMap.keySet()) {
+		    	if (prog.isCancelable()) {
+		    		Log.i(TAG,"Cancelling job");
+		    		prog.cancel();
+		    	}
+		    	finished(prog);
+		    }
+	
+		    // de-register from notifications
+		    JobManager.removeWorkListener(workListener);
+		} catch (Exception e) {
+			Log.e(TAG, "Error tidying up", e);
+		}
 	}
 
+	/** find the Progress object in our map to the associated Notifications
+	 * 
+	 * @param prog
+	 * @return
+	 */
     private Notification findOrCreateNotification(Progress prog) {
     	Notification notification = progressMap.get(prog);
     	if (notification == null) {
@@ -103,13 +123,13 @@ public class ProgressNotificationManager {
             Intent intent = new Intent(BibleApplication.getApplication(), ProgressStatus.class);
             final PendingIntent pendingIntent = PendingIntent.getActivity(BibleApplication.getApplication(), 0, intent, 0);
 
-        	notification = new Notification(R.drawable.bible, "", System.currentTimeMillis());
-            notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT;
+        	notification = new Notification(R.drawable.bible, prog.getJobName(), System.currentTimeMillis());
+            notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT | Notification.FLAG_AUTO_CANCEL;
             notification.contentView = new RemoteViews(SharedConstants.PACKAGE_NAME, R.layout.progress_notification);
             notification.contentIntent = pendingIntent;
             notification.contentView.setImageViewResource(R.id.status_icon, R.drawable.bible);
             notification.contentView.setTextViewText(R.id.status_text, "");
-            notification.contentView.setProgressBar(R.id.status_progress, 100, 0, false);
+            notification.contentView.setProgressBar(R.id.status_progress, 100, prog.getWork(), false);
 
     		progressMap.put(prog, notification);
     		

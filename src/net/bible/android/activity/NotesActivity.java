@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.bible.android.CurrentPassage;
+import net.bible.android.util.ActivityBase;
 import net.bible.android.util.DataPipe;
 import net.bible.service.format.Note;
 
@@ -15,10 +16,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
 
 /** Show Notes and Cross references for the current verse
  * 
@@ -26,7 +27,7 @@ import android.widget.AdapterView.OnItemClickListener;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class NotesActivity extends Activity {
+public class NotesActivity extends ActivityBase {
 	private static final String TAG = "NotesActivity";
 	
 	private ListView mNotesListView;

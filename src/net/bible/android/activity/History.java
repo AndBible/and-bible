@@ -1,33 +1,19 @@
 package net.bible.android.activity;
 
  import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import net.bible.android.CurrentPassage;
+import net.bible.android.util.ListActivityBase;
 import net.bible.service.history.HistoryItem;
 import net.bible.service.history.HistoryManager;
-import net.bible.service.sword.SwordApi;
-
-import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.book.BookException;
-import org.crosswire.jsword.passage.Key;
-
 import android.app.Activity;
-import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.AdapterView.OnItemClickListener;
 
 /** show a history list and allow to go to history item
  * 
@@ -35,7 +21,7 @@ import android.widget.AdapterView.OnItemClickListener;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class History extends ListActivity {
+public class History extends ListActivityBase {
 	private static final String TAG = "History";
 	private static final int MAX_SIZE = 100;
 	
