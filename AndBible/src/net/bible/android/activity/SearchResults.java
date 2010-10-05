@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import net.bible.android.CurrentPassage;
+import net.bible.android.util.ListActivityBase;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
@@ -12,7 +13,6 @@ import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.passage.Key;
 
 import android.app.Activity;
-import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,7 +29,7 @@ import android.widget.Toast;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class SearchResults extends ListActivity {
+public class SearchResults extends ListActivityBase {
 	private static final String TAG = "SearchResults";
 	private static final int MAX_SEARCH_RESULTS = 100;
 	

@@ -9,6 +9,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 /** Base class for activities
  * 
@@ -28,7 +29,7 @@ public class ActivityBase extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        Log.i(getLocalClassName(), "onCreate");
         // fix for null context class loader (http://code.google.com/p/android/issues/detail?id=5697)
         // this affected jsword dynamic classloading
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
@@ -112,4 +113,38 @@ public class ActivityBase extends Activity {
     	finish();    
     }
 
+//	@Override
+//	protected void onRestart() {
+//		// TODO Auto-generated method stub
+//		super.onRestart();
+//        Log.i(getLocalClassName(), "onRestart");
+//	}
+//
+//	@Override
+//	protected void onResume() {
+//		// TODO Auto-generated method stub
+//		super.onResume();
+//        Log.i(getLocalClassName(), "onResume");
+//	}
+//
+//	@Override
+//	protected void onStart() {
+//		// TODO Auto-generated method stub
+//		super.onStart();
+//        Log.i(getLocalClassName(), "onStart");
+//	}
+//
+//	@Override
+//	protected void onPause() {
+//		// TODO Auto-generated method stub
+//		super.onPause();
+//        Log.i(getLocalClassName(), "onPause");
+//	}
+//
+//	@Override
+//	protected void onStop() {
+//		// TODO Auto-generated method stub
+//		super.onStop();
+//        Log.i(getLocalClassName(), "onStop");
+//	}
 }

@@ -44,25 +44,12 @@ public class SearchIndex extends ActivityBase {
         	// monitor the progres
         	//todo a simple popup ProgressDialog may be better - not sure
         	Intent myIntent = new Intent(this, ProgressStatus.class);
-        	startActivityForResult(myIntent, 1);
+        	startActivity(myIntent);
+        	finish();
 
     	} catch (Exception e) {
     		Log.e(TAG, "error indexing:"+e.getMessage());
     		e.printStackTrace();
     	}
-    }
-    
-    @Override 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	if (resultCode==Activity.RESULT_OK) {
-    		returnToMainScreen();
-    	}
-    }
-    
-    private void returnToMainScreen() {
-    	// just pass control back to teh main screen
-    	Intent resultIntent = new Intent(this, SearchIndex.class);
-    	setResult(Activity.RESULT_OK, resultIntent);
-    	finish();
     }
 }

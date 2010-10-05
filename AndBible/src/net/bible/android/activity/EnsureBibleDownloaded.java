@@ -1,12 +1,12 @@
 package net.bible.android.activity;
 
+import net.bible.android.util.ProgressActivityBase;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.progress.WorkEvent;
 import org.crosswire.common.progress.WorkListener;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,7 +19,7 @@ import android.widget.TextView;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class EnsureBibleDownloaded extends Activity {
+public class EnsureBibleDownloaded extends ProgressActivityBase {
 	
 	private static final String TAG = "EnsureBibleDownloaded";
 	

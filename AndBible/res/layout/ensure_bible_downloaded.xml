@@ -15,8 +15,13 @@
 		android:layout_height="wrap_content" 
 		android:layout_width="fill_parent"
 		android:layout_margin="20dip" />
+	<LinearLayout android:id="@+id/progressControlContainer"
+    	android:orientation="vertical"
+	    android:layout_width="fill_parent"
+    	android:layout_height="wrap_content">
+    </LinearLayout>    
 	<TextView android:id="@+id/waitForBibleNotYet"
-		android:layout_height="wrap_content" 
+		android:layout_height="110dip" 
 		android:layout_width="fill_parent"
 		android:layout_margin="20dip"/>
   	<Button android:id="@+id/okayButton"
