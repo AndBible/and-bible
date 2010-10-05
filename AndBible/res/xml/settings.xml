@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Preference configuration
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" 
+			android:key="bible_display_pref">
+	<CheckBoxPreference android:key="show_verseno_pref" 
+				android:title="@string/prefs_show_verseno_title"
+				android:summary="@string/prefs_show_verseno_summary"/>
+	<CheckBoxPreference android:key="show_notes_pref" 
+				android:title="@string/prefs_show_notes_title"
+				android:summary="@string/prefs_show_notes_summary"/> 
+	<CheckBoxPreference android:key="night_mode_pref" 
+				android:title="@string/prefs_night_mode_title"
+				android:summary="@string/prefs_night_mode_summary"/> 
+</PreferenceScreen>

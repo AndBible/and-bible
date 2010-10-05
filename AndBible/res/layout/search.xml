@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Prepare criteria for a search
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+	<EditText android:id="@+id/searchText" 
+		android:layout_height="wrap_content" 
+		android:layout_width="fill_parent" 
+		android:layout_alignParentTop="true"/>
+ 	<Button android:id="@+id/submit"
+ 		android:text="@string/search"
+		android:layout_width="80dip" 
+		android:layout_height="wrap_content"
+		android:layout_below="@+id/searchText"
+		android:layout_alignParentRight="true"
+		android:onClick="onSearch"/>
+	
+	<RadioGroup android:id="@+id/bibleSectionGroup" 
+		android:layout_below="@+id/submit"
+		android:layout_width="wrap_content" 
+		android:layout_height="wrap_content">	
+		<TextView android:id="@+id/sectionGroupPrompt"
+			android:text="@string/search_bible_section_group_prompt"
+			android:layout_height="wrap_content" 
+			android:layout_width="wrap_content"/>
+		<RadioButton android:id="@+id/searchAllBible" 
+			android:text="@string/search_all_bible" 
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+			android:checked="true"/>
+		<RadioButton android:id="@+id/searchOldTestament" 
+			android:text="@string/search_old_testament" 
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"/>
+		<RadioButton android:id="@+id/searchNewTestament" 
+			android:text="@string/search_new_testament" 
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"/>
+<!-- 
+		<RadioButton android:id="@+id/searchCurrentBook" 
+			android:text="@string/search_current_book" 
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"/>
+ -->
+	</RadioGroup>
+
+	<RadioGroup android:id="@+id/wordsGroup" 
+		android:layout_below="@+id/submit"
+		android:layout_toRightOf="@id/bibleSectionGroup"
+		android:layout_width="wrap_content" 
+		android:layout_height="wrap_content"
+		android:paddingLeft="10dip">	
+		<TextView android:id="@+id/submit"
+			android:text="@string/search_words_group_prompt"
+			android:layout_height="wrap_content" 
+			android:layout_width="wrap_content"/>
+		<RadioButton android:id="@+id/allWords" 
+			android:layout_width="wrap_content" 
+			android:text="@string/search_all_words" 
+			android:layout_height="wrap_content"
+			android:checked="true"/>
+		<RadioButton android:id="@+id/anyWord" 
+			android:layout_below="@+id/allWords" 
+			android:layout_width="wrap_content" 
+			android:text="@string/search_any_word" 
+			android:layout_height="wrap_content"/>
+		<RadioButton android:id="@+id/phrase" 
+			android:layout_below="@+id/anyWord" 
+			android:layout_width="wrap_content" 
+			android:text="@string/search_phrase" 
+			android:layout_height="wrap_content"/>
+	</RadioGroup>
+
+</RelativeLayout>
