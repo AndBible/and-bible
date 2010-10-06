@@ -6,7 +6,6 @@
       The copyright to this program is held by it's author.
 -->
 <resources>
-  <string name="app_name">上帝说：</string>
   <string name="splash_top_text"></string>
   <string name="help_text">说明：\n按MENU键的行动\n弗林手指就可以看到下一章\n弗林手指权利回去一章\n滚动跟踪球向左或向右走向前或向后一章</string>
   <string name="chooseBook">文件</string>

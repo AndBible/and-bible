@@ -16,7 +16,8 @@ public class CommonUtil {
 //
 //		return (connec.getNetworkInfo(0).getState() == NetworkInfo.State.CONNECTED);
     	try {
-	    	String testUrl = "http://www.google.com";
+    		// might as well test for the url we need to access
+	    	String testUrl = "http://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/";
 	 	    URL url = new URL(testUrl);
 	 	         
 	 	    URLConnection connection;
