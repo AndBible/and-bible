@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">And Bible</string>
     <string name="chooseBookButton">Bibliák</string>
     <string name="selectPassageButton">Tartalom</string>
     <string name="choosePassageBookName">Válassz könyvet</string>

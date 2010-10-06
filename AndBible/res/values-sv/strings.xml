@@ -6,7 +6,6 @@
       The copyright to this program is held by it's author.
 -->
 <resources>
-  <string name="app_name">Gud sade</string>
   <string name="splash_top_text">\n\"Och Gud sade:\'Varde ljus,\'och det vart ljus.\"\nMos 1:3</string>
   <string name="help_text">Hjälp:\nTryck på MENY för åtgärder\nFling fingret vänster för att se nästa kapitel\nFling fingret höger att gå tillbaka ett kapitel\nRulla spår-bollen åt vänster eller höger för att gå framåt eller bakåt ett kapitel</string>
   <string name="chooseBook">Dokument</string>

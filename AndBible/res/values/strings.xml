@@ -6,7 +6,7 @@
       The copyright to this program is held by it's author.
 -->
 <resources>
-    <string name="app_name">Handy Bible</string>
+    <string name="app_name">And Bible</string>
 
     <string name="splash_top_text">\n\"And God said, \'Let there be light,\' and there was light.\"\nGenesis 1:3</string>
     <string name="help_text">Navigation:\nPress the MENU key for actions\nFling your finger left to see the next chapter\nFling your finger right to go back a chapter\nRoll the track-ball left or right to go forward or back a chapter</string>

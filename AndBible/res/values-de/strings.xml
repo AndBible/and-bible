@@ -6,7 +6,6 @@
       The copyright to this program is held by it's author.
 -->
 <resources>
-  <string name="app_name">Gott sprach:</string>
   <string name="splash_top_text">\n\"Und Gott sprach:\'Es werde Licht,\'und es ward Licht.\"\nGenesis 1:3</string>
   <string name="help_text">Hilfe:\nDrücken Sie die Menü-Taste für Aktionen\nFling Ihren Finger nach links zum nächsten Kapitel sehen\nFling Finger rechts, um wieder ein Kapitel\nRollen Sie den Trackball nach links oder rechts, vorwärts zu gehen oder ein Kapitel zurück</string>
   <string name="chooseBook">Dokument</string>

@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <resources>
-    <string name="app_name">og Gud sa</string>
-    
     <!-- main menu -->
     <string name="chooseBook">Dokument</string>
     <string name="selectPassage">Avsnitt</string>

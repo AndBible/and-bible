@@ -56,7 +56,7 @@ public class ProgressNotificationManager {
 				final int done = prog.getWork();
 				
 				// compose a descriptive string showing job name and current section if relevant
-				String status = prog.getJobName()+SharedConstants.LINE_SEPARATOR;
+				String status = StringUtils.left(prog.getJobName(),50)+SharedConstants.LINE_SEPARATOR;
 				if (!StringUtils.isEmpty(prog.getSectionName()) && !prog.getSectionName().equalsIgnoreCase(prog.getJobName())) {
 					status += prog.getSectionName();
 				}
