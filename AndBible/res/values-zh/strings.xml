@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Application text
+
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<resources>
+  <string name="splash_top_text"></string>
+  <string name="help_text">说明：\n按MENU键的行动\n弗林手指就可以看到下一章\n弗林手指权利回去一章\n滚动跟踪球向左或向右走向前或向后一章</string>
+  <string name="chooseBook">文件</string>
+  <string name="selectPassage">通过</string>
+  <string name="search">查找</string>
+  <string name="notes">注释</string>
+  <string name="settings">设置</string>
+  <string name="history">历史</string>
+  <string name="choosePassageBookName">选择图书</string>
+  <string name="choosePassageChapterName">选择章</string>
+  <string name="search_index">创建搜索索引</string>
+  <string name="index_creation_required">为了寻找一个索引必须被创建。创建索引可能需要较长的时间。</string>
+  <string name="index">指数</string>
+  <string name="module_dir">目录</string>
+  <string name="use_folder">使用这个文件夹</string>
+  <string name="no_files_error">对不起，您还没有文件！</string>
+  <string name="sdcard_error">对不起，您还没有SD卡！</string>
+  <string name="directory_error">很抱歉，无法访问目录 %s</string>
+  <string name="progress_status">进展</string>
+  <string name="search_words_group_prompt">查找诗句</string>
+  <string name="search_all_words">所有词</string>
+  <string name="search_any_word">任何单词</string>
+  <string name="search_phrase">短语</string>
+  <string name="search_bible_section_group_prompt">搜索区域</string>
+  <string name="search_all_bible">整本圣经</string>
+  <string name="search_new_testament">新约全书</string>
+  <string name="search_old_testament">旧约全书</string>
+  <string name="search_current_book">当前账面</string>
+  <string name="error_executing_search">无效的搜寻查询</string>
+  <string name="prefs_show_verseno_title">诗号码</string>
+  <string name="prefs_show_verseno_summary">数字显示诗句</string>
+  <string name="prefs_show_notes_title">注释</string>
+  <string name="prefs_show_notes_summary">展会须知</string>
+  <string name="prefs_night_mode_title">夜间模式</string>
+  <string name="prefs_night_mode_summary">为了方便在黑暗中阅读</string>
+  <string name="no_chapter_notes">没有注意到存在于本章</string>
+  <string name="no_verse_notes">有没有注意到在这节经文</string>
+  <string name="previous">上一页</string>
+  <string name="next">下一页</string>
+  <string name="download">下载圣经</string>
+  <string name="error_downloading">下载时发生错误。请检查您的互联网连接。</string>
+  <string name="no_internet_connection">无法连接到互联网</string>
+  <string name="okay">确定</string>
+  <string name="cancel">取消</string>
+  <string name="error">错误</string>
+</resources>

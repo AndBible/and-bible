@@ -1,0 +1,11 @@
+Manual translations:
+fr
+hu
+nb
+ru
+sv
+
+Automated translations:
+zh (used simplified from zh-cn - simplified Chinese)
+ko
+de

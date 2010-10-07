@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Styles used in application
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<resources>
+    <style name="BibleTextFont" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textColor">#00FF00</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:typeface">serif</item>
+        <item name="android:lineSpacingMultiplier">1.6</item>
+    </style>
+    <style name="ChoosePassageBookGridFont">
+        <item name="android:textSize">40sp</item>
+        <item name="android:height">100dp</item>
+    </style>
+    <style name="SplashTitleFont" parent="@android:style/TextAppearance.Large">
+        <item name="android:textColor">#34D1B2</item>
+        <item name="android:textSize">20sp</item>
+        <item name="android:typeface">serif</item>
+    </style>
+    <style name="SplashTopFont" parent="@android:style/TextAppearance.Large">
+        <item name="android:textColor">#5ED1BA</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:typeface">serif</item>
+    </style>
+    <style name="HelpFont" parent="@android:style/TextAppearance.Large">
+        <item name="android:textColor">#00A383</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:typeface">sans</item>
+    </style>
+    <style name="SplashBottomFont" parent="@android:style/TextAppearance.Small">
+        <item name="android:textColor">#006A55</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:typeface">sans</item>
+    </style>
+</resources>
