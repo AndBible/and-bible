@@ -139,17 +139,26 @@ public class StartupActivity extends ActivityBase {
     private void installJSwordErrorReportListener() {
         Reporter.addReporterListener(new ReporterListener() {
 			@Override
-			public void reportException(ReporterEvent ev) {
+			public void reportException(final ReporterEvent ev) {
 				Log.e(TAG, ev.getMessage(), ev.getException());
-				//todo: make sure this runs on ui thread
-				Toast.makeText(getApplicationContext(), ev.getMessage(), Toast.LENGTH_LONG);
+		    	runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						//todo: make sure this runs on ui thread
+						Toast.makeText(getApplicationContext(), ev.getMessage(), Toast.LENGTH_LONG);
+					}
+		    	});
 			}
 
 			@Override
-			public void reportMessage(ReporterEvent ev) {
+			public void reportMessage(final ReporterEvent ev) {
 				Log.w(TAG, ev.getMessage(), ev.getException());
-				//todo: make sure this runs on ui thread
-				Toast.makeText(getApplicationContext(), ev.getMessage(), Toast.LENGTH_SHORT);
+		    	runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						Toast.makeText(getApplicationContext(), ev.getMessage(), Toast.LENGTH_SHORT);
+					}
+		    	});
 			}
         });
     }
