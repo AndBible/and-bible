@@ -39,6 +39,8 @@
     <string name="search_all_words">All words</string>
     <string name="search_any_word">Any word</string>
     <string name="search_phrase">Phrase</string>
+    <string name="search_result_count">%d matches found</string>
+    <string name="search_showing_first">Too many matches.  Showing first %d</string> 
 
     <string name="search_bible_section_group_prompt">Search Where</string>
     <string name="search_all_bible">Whole bible</string>

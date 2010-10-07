@@ -14,6 +14,7 @@ import org.crosswire.jsword.passage.Key;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -81,9 +82,9 @@ public class SearchResults extends ListActivityBase {
 	    	if (result!=null) {
 	    		int resNum = result.getCardinality();
 	        	Log.d(TAG, "Number of results:"+resNum);
-	        	String msg = resNum+" matches found";
+	        	String msg = getString(R.string.search_result_count, resNum);
 	    		if (resNum>MAX_SEARCH_RESULTS) {
-	    			msg = "Too many matches.  Showing first "+MAX_SEARCH_RESULTS;
+	    			msg = getString(R.string.search_showing_first, MAX_SEARCH_RESULTS);
 	    		}
 	    		showMsg(msg);
 	    		mResultList = new ArrayList<ResultItem>();
