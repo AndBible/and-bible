@@ -1,0 +1,37 @@
+<!-- Not used
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+
+	<TextView 
+	  android:id = "@+id/folderpicker_message"
+	  android:layout_width="fill_parent"
+	  android:layout_height="wrap_content" 
+	  android:gravity="top" />
+
+	<Button 
+		android:text="@string/use_folder" 
+		android:id="@+id/Button01" 
+		android:layout_width="fill_parent" 
+		android:layout_height="wrap_content"/>
+			
+	<ListView 
+	  android:id="@android:id/list" 
+	  android:layout_width="fill_parent"
+	  android:layout_height="fill_parent" />
+    
+	<TextView 
+	  android:id="@android:id/empty"
+	  android:layout_width="fill_parent"
+	  android:layout_height="fill_parent"
+	  android:text="@string/no_files_error" 
+	  android:gravity="center" />
+
+</LinearLayout>
