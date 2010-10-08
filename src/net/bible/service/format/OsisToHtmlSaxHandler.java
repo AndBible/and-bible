@@ -222,8 +222,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     			write("<span class='verse' id='"+currentVerseNo+"'>"+currentVerseNo+"</span>"+NBSP);
     		} else {
     			// we realy want an empty span but that is illegal and causes problems such as incorrect verse calculation in Psalms 
-    			// so use something that will hopefully interfere as little as possible - a zero-width-joiner
-    			write("<span class='verse' id='"+currentVerseNo+"'/>&zwj;</span>");
+    			// so use something that will hopefully interfere as little as possible - a zero-width-space
+    			write("<span class='verse' id='"+currentVerseNo+"'/>&#x200b;</span>");
     		}
     		isCurrentVerseNoWritten = true;
     	}
