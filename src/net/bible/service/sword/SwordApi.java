@@ -12,6 +12,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import net.bible.android.SharedConstants;
+import net.bible.service.common.Utils;
 import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.OsisToCanonicalTextSaxHandler;
 import net.bible.service.format.OsisToHtmlSaxHandler;
@@ -64,7 +65,7 @@ public class SwordApi {
 	
 	private SharedPreferences preferences;
 	
-	private static boolean isAndroid = true;
+	private static boolean isAndroid = Utils.isAndroid();
     private static final Logger log = new Logger(SwordApi.class.getName()); 
 
 	public static SwordApi getInstance() {
