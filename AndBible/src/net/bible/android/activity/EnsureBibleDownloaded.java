@@ -1,9 +1,11 @@
 package net.bible.android.activity;
 
-import net.bible.android.util.ProgressActivityBase;
+import net.bible.android.activity.base.ProgressActivityBase;
+import net.bible.android.util.CommonUtil;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.common.progress.JobManager;
+import org.crosswire.common.progress.Progress;
 import org.crosswire.common.progress.WorkEvent;
 import org.crosswire.common.progress.WorkListener;
 
@@ -48,7 +50,7 @@ public class EnsureBibleDownloaded extends ProgressActivityBase {
 				@Override
 				public void workProgressed(WorkEvent ev) {
 					if (ev.getJob().isFinished()) {
-						onContinue(null);
+						downloadComplete(ev.getJob());
 					}
 				}
 	
@@ -60,7 +62,33 @@ public class EnsureBibleDownloaded extends ProgressActivityBase {
 			JobManager.addWorkListener(workListener);
     	}
     }
-    
+
+    public void downloadComplete(Progress prog) {
+    	Log.i(TAG, "CLICKED");
+        if (SwordApi.getInstance().getBibles().size()>0) {
+        	gotoMainScreen();
+        }
+
+        // can't find downloaded bible, wait a sec and try again
+        CommonUtil.pause(2);
+        if (SwordApi.getInstance().getBibles().size()>0) {
+        	gotoMainScreen();
+        } else {
+        	if (JobManager.getJobs().size()==0) {
+        		runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						// something went wrong with the download
+						showErrorMsg(getString(R.string.download_complete_no_bibles));
+					}
+        		});
+        	}
+        	
+        }
+    }
+
+    /** user pressed contimue
+     */
     public void onContinue(View v) {
     	Log.i(TAG, "CLICKED");
         if (SwordApi.getInstance().getBibles().size()>0) {

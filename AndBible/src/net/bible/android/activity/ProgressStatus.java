@@ -2,7 +2,7 @@ package net.bible.android.activity;
 
  import java.util.Set;
 
-import net.bible.android.util.ProgressActivityBase;
+import net.bible.android.activity.base.ProgressActivityBase;
 
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.progress.Progress;

@@ -7,7 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import net.bible.android.util.ActivityBase;
+import net.bible.android.activity.base.ActivityBase;
+import net.bible.android.activity.base.Dialogs;
 import net.bible.android.util.Hourglass;
 import net.bible.service.sword.SwordApi;
 
@@ -258,7 +259,7 @@ public class Download extends ActivityBase {
 	
 	    		if (JobManager.getJobs().size()>=2) {
 	    			Log.i(TAG, "Too many jobs:"+JobManager.getJobs().size());
-	    			showDialog(TOO_MANY_JOBS);
+	    			showDialog(Dialogs.TOO_MANY_JOBS);
 	    		} else {
 	    			showDialog(DOWNLOAD_CONFIRMATION_DIALOG);
 	    		}

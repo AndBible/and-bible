@@ -1,4 +1,4 @@
-package net.bible.android.util;
+package net.bible.android.activity.base;
 
 import java.util.HashMap;
 import java.util.Map;
