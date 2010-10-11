@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import net.bible.service.common.ParseException;
 import net.bible.service.sword.Logger;
 import net.bible.service.sword.SwordApi;
 
@@ -226,7 +227,11 @@ public class PdaLuceneIndexCreator {
                 	logger.warn("No such key:"+subkey.getName());
                     errors.add(subkey);
                     continue;
-                }
+	            } catch (ParseException e) {
+	            	logger.warn("Parse exception:"+subkey.getName());
+	                errors.add(subkey);
+	                continue;
+	            }
 
                 // Remove all fields from the document
                 doc.getFields().clear();

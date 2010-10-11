@@ -12,7 +12,9 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import net.bible.android.SharedConstants;
+import net.bible.service.common.ParseException;
 import net.bible.service.common.Utils;
+import net.bible.service.download.DownloadManager;
 import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.OsisToCanonicalTextSaxHandler;
 import net.bible.service.format.OsisToHtmlSaxHandler;
@@ -29,11 +31,8 @@ import org.crosswire.jsword.book.BookMetaData;
 import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.OSISUtil;
 import org.crosswire.jsword.book.install.InstallException;
-import org.crosswire.jsword.book.install.InstallManager;
-import org.crosswire.jsword.book.install.Installer;
 import org.crosswire.jsword.book.sword.SwordBookPath;
 import org.crosswire.jsword.book.sword.SwordConstants;
-import org.crosswire.jsword.bridge.BookInstaller;
 import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.index.lucene.PdaLuceneIndexManager;
 import org.crosswire.jsword.passage.Key;
@@ -42,7 +41,6 @@ import org.crosswire.jsword.passage.Passage;
 import org.xml.sax.SAXException;
 
 import android.content.SharedPreferences;
-import android.os.Environment;
 import android.util.Log;
 
 /** JSword facade
@@ -62,6 +60,8 @@ public class SwordApi {
 	private static final String LUCENE_DIR = "lucene";
 	
 	private static final String CROSSWIRE_REPOSITORY = "CrossWire";
+	
+	private DownloadManager downloadManager;
 	
 	private SharedPreferences preferences;
 	
@@ -107,6 +107,9 @@ public class SwordApi {
 				
 				log.debug(("Sword paths:"+getPaths()));
 			}
+			
+			downloadManager = new DownloadManager();
+			
 		} catch (Exception e) {
 			log.error("Error initialising", e);
 		}
@@ -139,39 +142,19 @@ public class SwordApi {
 		return Books.installed().getBook(initials);
 	}
 	
-	public List<Book> getDownloadableDocuments() {
+	public List<Book> getDownloadableDocuments() throws InstallException {
 		log.debug("Getting downloadable documents");
 		
 		// currently we just handle bibles and commentaries
 		BookFilter filter = BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries());
 		
-        InstallManager imanager = new InstallManager();
-
-        // If we know the name of the installer we can get it directly
-        Installer installer = imanager.getInstaller(CROSSWIRE_REPOSITORY);
-
-        // Now we can get the list of books
-        try {
-        	Log.d(TAG, "getting downloadable books");
-        	if (installer.getBooks().size()==0) {
-        		//todo should warn user of implications of downloading book list e.g. from persecuted country
-        		log.warn("Auto reloading book list");
-        		installer.reloadBookList();
-        	}
-        } catch (InstallException e) {
-            e.printStackTrace();
-        }
-
-        // Get a list of all the available books
-        List<Book> documents = installer.getBooks(filter); //$NON-NLS-1$
-		
-    	Log.i(TAG, "number of documents available:"+documents.size());
-
-		return documents;
+        return downloadManager.getDownloadableBooks(filter, CROSSWIRE_REPOSITORY);
 	}
-	
+
 	public void downloadDocument(Book document) throws InstallException, BookException {
-		new BookInstaller().installBook(CROSSWIRE_REPOSITORY, document);
+		downloadManager.installBook(CROSSWIRE_REPOSITORY, document);
+
+//		downloadManager.installIndex(CROSSWIRE_REPOSITORY, document);
 	}
 
 	/** this custom index creation has been optimised for slow, low memory devices
@@ -301,7 +284,7 @@ public class SwordApi {
      * @param reference
      *            a reference, appropriate for the book, of one or more entries
      */
-    public String getCanonicalText(Book book, Key key, int maxKeyCount) throws NoSuchKeyException, BookException {
+    public String getCanonicalText(Book book, Key key, int maxKeyCount) throws NoSuchKeyException, BookException, ParseException {
 		InputStream is = new OSISInputStream(book, key);
 
 		OsisToCanonicalTextSaxHandler osisToCanonical = getCanonicalTextSaxHandler(book);
@@ -310,14 +293,14 @@ public class SwordApi {
 			getSAXParser().parse(is, osisToCanonical);
 		} catch (Exception e) {
 			log.error("SAX parser error", e);
-//todo sort MsgBase			throw new BookException("SAX parser error", e);
+			throw new ParseException("SAX parser error", e);
 		}
 		
 		return osisToCanonical.toString();
     }
 
     private SAXParser saxParser;
-    private SAXParser getSAXParser() {
+    private SAXParser getSAXParser() throws ParseException {
     	try {
 	    	if (saxParser==null) {
 	    		SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -326,7 +309,7 @@ public class SwordApi {
 	    	}
 		} catch (Exception e) {
 			log.error("SAX parser error", e);
-//todo sort MsgBase			throw new BookException("SAX parser error", e);
+			throw new ParseException("SAX parser error", e);
 		}
 		return saxParser;
     }

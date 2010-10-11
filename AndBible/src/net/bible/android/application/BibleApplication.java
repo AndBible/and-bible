@@ -15,6 +15,9 @@ public class BibleApplication extends Application{
 
 		// save to a singleton to allow easy access from anywhere
 		singleton = this;
+		
+        //initialise link to Android progress control display in Notification bar
+        ProgressNotificationManager.getInstance().initialise();
 	}
 
 	public static BibleApplication getApplication() {

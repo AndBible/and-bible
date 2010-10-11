@@ -138,17 +138,17 @@ public class Download extends ActivityBase {
     }
     
     private void populateMasterDocumentList() {
-    	try {
-    		if (allDocuments==null || allDocuments.size()==0) {
-	    	    new AsyncTask<Void, Boolean, Void>() {
-	    	    	
-	    	        @Override
-	    	        protected void onPreExecute() {
-	    	        	showDialog(Hourglass.HOURGLASS_KEY);
-	    	        }
-	    	        
-	    			@Override
-	    	        protected Void doInBackground(Void... noparam) {
+		if (allDocuments==null || allDocuments.size()==0) {
+    	    new AsyncTask<Void, Boolean, Void>() {
+    	    	
+    	        @Override
+    	        protected void onPreExecute() {
+    	        	showDialog(Hourglass.HOURGLASS_KEY);
+    	        }
+    	        
+    			@Override
+    	        protected Void doInBackground(Void... noparam) {
+    				try {
 	    	        	allDocuments = SwordApi.getInstance().getDownloadableDocuments();
 	    	        	for (Iterator<Book> iter=allDocuments.iterator(); iter.hasNext(); ) {
 	    	        		Book doc = iter.next();
@@ -158,26 +158,27 @@ public class Download extends ActivityBase {
 	    	        		}
 	    	        	}
 	    	        	Log.i(TAG, "number of documents available:"+allDocuments.size());
-	    	        	return null;
-	    			}
-	    			
-	    	        @Override
-					protected void onPostExecute(Void result) {
-	    	        	try {
-	    	        		populateLanguageList();
-	    	        		filterDocuments();
-	    	        	} finally {
-	    	        		//todo implement this: http://stackoverflow.com/questions/891451/android-dismissdialog-does-not-dismiss-the-dialog
-	        	        	dismissHourglass();
-	    	        	}
-	    	        }
-	
-	    	    }.execute((Void[])null);
-    		}
-    	} catch (Exception e) {
-    		Log.e(TAG, "Error initialising view", e);
-    		Toast.makeText(this, getString(R.string.error)+e.getMessage(), Toast.LENGTH_SHORT);
-    	}
+    				} catch (Exception e) {
+    					Log.e(TAG, "Error getting documents to download", e);
+    					//todo INTERNATIONALIZE
+    					showErrorMsg("Error getting documents to download");
+    				}
+    	        	return null;
+    			}
+    			
+    	        @Override
+				protected void onPostExecute(Void result) {
+    	        	try {
+    	        		populateLanguageList();
+    	        		filterDocuments();
+    	        	} finally {
+    	        		//todo implement this: http://stackoverflow.com/questions/891451/android-dismissdialog-does-not-dismiss-the-dialog
+        	        	dismissHourglass();
+    	        	}
+    	        }
+
+    	    }.execute((Void[])null);
+		}
     }
     
     /** a spinner has changed so refilter the doc list
@@ -251,13 +252,16 @@ public class Download extends ActivityBase {
     private void documentSelected(Book document) {
     	Log.d(TAG, "Document selected:"+document.getInitials());
     	try {
-    		this.selectedDocument = document;
-
-    		if (JobManager.getJobs().size()>=2) {
-    			Log.i(TAG, "Too many jobs:"+JobManager.getJobs().size());
-    			showDialog(TOO_MANY_JOBS);
-    		} else {
-    			showDialog(DOWNLOAD_CONFIRMATION_DIALOG);
+    		//sometimes the selected doc is null if the list was not clicked properly - odd!
+    		if (document!=null) {
+	    		this.selectedDocument = document;
+	
+	    		if (JobManager.getJobs().size()>=2) {
+	    			Log.i(TAG, "Too many jobs:"+JobManager.getJobs().size());
+	    			showDialog(TOO_MANY_JOBS);
+	    		} else {
+	    			showDialog(DOWNLOAD_CONFIRMATION_DIALOG);
+	    		}
     		}
     	} catch (Exception e) {
     		Log.e(TAG, "Error on attempt to download", e);
@@ -306,10 +310,13 @@ public class Download extends ActivityBase {
 			SwordApi.getInstance().downloadDocument(document);
 	    	Log.d(TAG, "Download requested");
 	    	
+	    	Intent intent;
 	    	if (forceBasicFlow) {
-	    		Intent intent = new Intent(this, EnsureBibleDownloaded.class);
-	        	startActivity(intent);
+	    		intent = new Intent(this, EnsureBibleDownloaded.class);
+	    	} else {
+	    		intent = new Intent(this, ProgressStatus.class);
 	    	}
+        	startActivity(intent);
 
     	} catch (Exception e) {
     		Log.e(TAG, "Error on attempt to download", e);
