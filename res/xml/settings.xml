@@ -9,11 +9,14 @@
 			android:key="bible_display_pref">
 	<CheckBoxPreference android:key="show_verseno_pref" 
 				android:title="@string/prefs_show_verseno_title"
-				android:summary="@string/prefs_show_verseno_summary"/>
+				android:summary="@string/prefs_show_verseno_summary"
+				android:defaultValue="true"/>
 	<CheckBoxPreference android:key="show_notes_pref" 
 				android:title="@string/prefs_show_notes_title"
-				android:summary="@string/prefs_show_notes_summary"/> 
+				android:summary="@string/prefs_show_notes_summary"
+				android:defaultValue="true"/> 
 	<CheckBoxPreference android:key="night_mode_pref" 
 				android:title="@string/prefs_night_mode_title"
-				android:summary="@string/prefs_night_mode_summary"/> 
+				android:summary="@string/prefs_night_mode_summary"
+				android:defaultValue="false"/> 
 </PreferenceScreen>

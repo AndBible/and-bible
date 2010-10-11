@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import net.bible.android.CurrentPassage;
-import net.bible.android.util.ListActivityBase;
+import net.bible.android.activity.base.ListActivityBase;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;

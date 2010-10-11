@@ -1,8 +1,9 @@
 package net.bible.android.activity;
 
 import net.bible.android.CurrentPassage;
+import net.bible.android.activity.base.ActivityBase;
+import net.bible.android.activity.base.Dialogs;
 import net.bible.android.device.TextToSpeechController;
-import net.bible.android.util.ActivityBase;
 import net.bible.android.util.CommonUtil;
 import net.bible.android.util.DataPipe;
 import net.bible.android.view.BibleContentManager;
@@ -10,6 +11,7 @@ import net.bible.android.view.BibleSwipeListener;
 import net.bible.android.view.BibleView;
 import net.bible.android.view.PassageChangeMediator;
 import net.bible.service.history.HistoryManager;
+import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.index.IndexStatus;
@@ -18,6 +20,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
@@ -52,20 +55,45 @@ public class MainBibleActivity extends ActivityBase {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.main_bible_view);
-
-        // create related objects
-        gestureDetector = new GestureDetector( new BibleSwipeListener(this) );
-        bibleWebView = (BibleView)findViewById(R.id.main_text);
-    	bibleContentManager = new BibleContentManager(bibleWebView, this);
-
-        PassageChangeMediator.getInstance().setMainBibleActivity(this);
         
-    	HistoryManager.getInstance().initialise();
-    	
-        restoreState();
+        if (!SwordApi.getInstance().isSwordLoaded()) {
+        	showSplashScreen();
+        }
 
-    	// initialise title etc
-    	onPassageChanged();
+        // allow call back and continuation in the ui thread after JSword has been initialised
+        final Handler uiHandler = new Handler();
+        final Runnable uiThreadRunnable = new Runnable() {
+			@Override
+			public void run() {
+		        // create related objects
+		        gestureDetector = new GestureDetector( new BibleSwipeListener(MainBibleActivity.this) );
+		        bibleWebView = (BibleView)findViewById(R.id.main_text);
+		    	bibleContentManager = new BibleContentManager(bibleWebView, MainBibleActivity.this);
+
+		        PassageChangeMediator.getInstance().setMainBibleActivity(MainBibleActivity.this);
+		        
+		    	HistoryManager.getInstance().initialise();
+		    	
+		        restoreState();
+
+		    	// initialise title etc
+		    	onPassageChanged();
+			}
+        };
+
+        // initialise JSword in another thread (may take a long time) then call main ui thread Handler to continue
+        // this allows the splash screen to be displayed and an hourglass to run
+        new Thread() {
+        	public void run() {
+        		try {
+	                // force Sword to initialise itself
+	                SwordApi.getInstance().getBibles();
+        		} finally {
+        			// switch back to ui thread to continue
+        			uiHandler.post(uiThreadRunnable);
+        		}
+        	}
+        }.start();
     }
 
     /** adding android:configChanges to manifest causes this method to be called on flip, etc instead of a new instance and onCreate, which would cause a new observer -> duplicated threads
@@ -113,7 +141,7 @@ public class MainBibleActivity extends ActivityBase {
 	        	break;
 	        case R.id.downloadButton:
 	        	if (!CommonUtil.isInternetAvailable()) {
-	            	showDialog(INTERNET_NOT_AVAILABLE_DIALOG);
+	            	showDialog(Dialogs.INTERNET_NOT_AVAILABLE_DIALOG);
 	        	} else {
 	        		handlerIntent = new Intent(this, Download.class);
 	        	}
@@ -257,4 +285,8 @@ public class MainBibleActivity extends ActivityBase {
 		return super.dispatchTouchEvent(motionEvent);
 	}
 	
+	private void showSplashScreen() {
+		Intent intent = new Intent(this, SplashScreen.class);
+		startActivity(intent);
+	}
  }

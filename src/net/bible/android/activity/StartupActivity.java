@@ -1,23 +1,16 @@
 package net.bible.android.activity;
 
-import net.bible.android.device.ProgressNotificationManager;
-import net.bible.android.util.ActivityBase;
+import net.bible.android.activity.base.ActivityBase;
+import net.bible.android.activity.base.Dialogs;
 import net.bible.android.util.CommonUtil;
 import net.bible.service.sword.SwordApi;
-
-import org.crosswire.common.util.Reporter;
-import org.crosswire.common.util.ReporterEvent;
-import org.crosswire.common.util.ReporterListener;
-
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
-import android.widget.Toast;
 
 /** Called first to show download screen if no documents exist
  * 
@@ -34,6 +27,7 @@ public class StartupActivity extends ActivityBase {
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	Log.d(TAG, "onCreate really StartupActivity onCreate ****************");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.startup_view);
 
@@ -51,11 +45,8 @@ public class StartupActivity extends ActivityBase {
         new Thread() {
         	public void run() {
         		try {
-	                installJSwordErrorReportListener();
 	                // force Sword to initialise itself
 	                SwordApi.getInstance().getBibles();
-	                //initialise link to Android progress control display in Notification bar
-	                ProgressNotificationManager.getInstance().initialise();
         		} finally {
         			// switch back to ui thread to continue
         			uiHandler.post(uiThreadRunnable);
@@ -74,12 +65,6 @@ public class StartupActivity extends ActivityBase {
         }
     }
 
-    @Override
-	protected void onDestroy() {
-        Log.i(TAG, "*** onDestroy");
-		super.onDestroy();
-	}
-
 	private void askIfGotoDownloadActivity() {
     	showDialog(CAN_DOWNLOAD_DLG);
     }
@@ -88,23 +73,24 @@ public class StartupActivity extends ActivityBase {
 	       	Intent handlerIntent = new Intent(StartupActivity.this, Download.class);
 	    	startActivityForResult(handlerIntent, 1);
 		} else {
-			showDialog(INTERNET_NOT_AVAILABLE_DIALOG);
+			showDialog(Dialogs.INTERNET_NOT_AVAILABLE_DIALOG);
 		}
     }
 
     /** caled when user presses okay on internet connection error
      */
     @Override
-	protected void dialogOnClick(int dialogId, int id) {
+	public void dialogOnClick(int dialogId, int id) {
     	Log.d(TAG, "dialogOnClick");
-    	if (dialogId==INTERNET_NOT_AVAILABLE_DIALOG) {
+    	if (dialogId==Dialogs.INTERNET_NOT_AVAILABLE_DIALOG) {
     		finish();
     	}
 	}
 
 	private void gotoMainBibleActivity() {
     	Intent handlerIntent = new Intent(this, MainBibleActivity.class);
-    	startActivityForResult(handlerIntent, 2);
+    	startActivity(handlerIntent);
+    	finish();
     }
     
     @Override
@@ -133,36 +119,6 @@ public class StartupActivity extends ActivityBase {
         return null;
     }
 
-    /** JSword calls back to this listener in the event of some types of error
-     * 
-     */
-    private void installJSwordErrorReportListener() {
-        Reporter.addReporterListener(new ReporterListener() {
-			@Override
-			public void reportException(final ReporterEvent ev) {
-				Log.e(TAG, ev.getMessage(), ev.getException());
-		    	runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						//todo: make sure this runs on ui thread
-						Toast.makeText(getApplicationContext(), ev.getMessage(), Toast.LENGTH_LONG);
-					}
-		    	});
-			}
-
-			@Override
-			public void reportMessage(final ReporterEvent ev) {
-				Log.w(TAG, ev.getMessage(), ev.getException());
-		    	runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						Toast.makeText(getApplicationContext(), ev.getMessage(), Toast.LENGTH_SHORT);
-					}
-		    	});
-			}
-        });
-    }
-    
     /** on return from download we may go to bible
      *  on return from bible just exit
      */
@@ -180,10 +136,6 @@ public class StartupActivity extends ActivityBase {
         		Log.i(TAG, "No Bibles exist so exit");
     			finish();
     		}
-    	}
-    	if (requestCode == 2) {
-    		Log.i(TAG, "Returned from MainBibleActivity so exit");
-    		finish();
     	}
     }
 }

@@ -65,6 +65,8 @@ public class SwordApi {
 	
 	private SharedPreferences preferences;
 	
+	private boolean isSwordLoaded;
+	
 	private static boolean isAndroid = Utils.isAndroid();
     private static final Logger log = new Logger(SwordApi.class.getName()); 
 
@@ -119,6 +121,7 @@ public class SwordApi {
 		log.debug("Getting bibles");
 		List<Book> documents = Books.installed().getBooks(BookFilters.getBibles());
 		log.debug("Got bibles, Num="+documents.size());
+		isSwordLoaded = true;
 		return documents;
 	}
 
@@ -133,6 +136,7 @@ public class SwordApi {
 		allDocuments.addAll(Books.installed().getBooks(BookFilters.getCommentaries()));
 		
 		log.debug("Got books, Num="+allDocuments.size());
+		isSwordLoaded = true;
 		return allDocuments;
 	}
 
@@ -409,5 +413,9 @@ public class SwordApi {
 		if (!dir.exists() || !dir.isDirectory()) {
 			dir.mkdirs();
 		}
+	}
+
+	public boolean isSwordLoaded() {
+		return isSwordLoaded;
 	}
 }

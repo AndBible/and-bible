@@ -1,3 +1,5 @@
+ApiDemos.Foregroundservice has a good example of starting a service START_STICKY that could be used for downloads and indexing
+
 See "<original-package android:name="net.oldname" />" if a rename is required
 
 Add to props in run target to switch language

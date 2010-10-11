@@ -1,7 +1,7 @@
 package net.bible.android.activity;
 
  import net.bible.android.CurrentPassage;
-import net.bible.android.util.ActivityBase;
+import net.bible.android.activity.base.ActivityBase;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;

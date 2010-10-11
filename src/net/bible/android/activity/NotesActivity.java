@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.bible.android.CurrentPassage;
-import net.bible.android.util.ActivityBase;
+import net.bible.android.activity.base.ActivityBase;
 import net.bible.android.util.DataPipe;
 import net.bible.service.format.Note;
 
