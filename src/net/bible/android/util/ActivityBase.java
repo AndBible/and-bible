@@ -24,6 +24,8 @@ public class ActivityBase extends Activity {
 
 	protected static final int INTERNET_NOT_AVAILABLE_DIALOG = 120;
 	protected static final int TOO_MANY_JOBS = 121;
+	protected static final int ERROR_MSG = 122;
+	private String errorMsg;
 	
     /** Called when the activity is first created. */
     @Override
@@ -35,7 +37,19 @@ public class ActivityBase extends Activity {
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
     }
     
-    /** for some reason Android insists Dialogs are created in the onCreateDialog method
+    @Override
+	protected void onPrepareDialog(int id, Dialog dialog) {
+		// TODO Auto-generated method stub
+		super.onPrepareDialog(id, dialog);
+        switch (id) {
+        case ERROR_MSG:
+        	AlertDialog alertDialog = (AlertDialog)dialog;
+        	alertDialog.setMessage(errorMsg);
+        };
+
+	}
+
+	/** for some reason Android insists Dialogs are created in the onCreateDialog method
      * 
      */
     @Override
@@ -56,6 +70,15 @@ public class ActivityBase extends Activity {
             case TOO_MANY_JOBS:
             	return new AlertDialog.Builder(this)
             		   .setMessage(getText(R.string.too_many_jobs))
+            	       .setCancelable(false)
+            	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
+            	           public void onClick(DialogInterface dialog, int buttonId) {
+            	        	   //just close the dialog
+            	           }
+            	       }).create();
+            case ERROR_MSG:
+            	return new AlertDialog.Builder(this)
+            		   .setMessage(errorMsg)
             	       .setCancelable(false)
             	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
             	           public void onClick(DialogInterface dialog, int buttonId) {
@@ -112,39 +135,44 @@ public class ActivityBase extends Activity {
     	setResult(Activity.RESULT_OK, resultIntent);
     	finish();    
     }
+    
+    protected void showErrorMsg(String msg) {
+    	//todo need to show a dialog here
+    	showDialog(ERROR_MSG);    	
+    }
 
-//	@Override
-//	protected void onRestart() {
-//		// TODO Auto-generated method stub
-//		super.onRestart();
-//        Log.i(getLocalClassName(), "onRestart");
-//	}
-//
-//	@Override
-//	protected void onResume() {
-//		// TODO Auto-generated method stub
-//		super.onResume();
-//        Log.i(getLocalClassName(), "onResume");
-//	}
-//
-//	@Override
-//	protected void onStart() {
-//		// TODO Auto-generated method stub
-//		super.onStart();
-//        Log.i(getLocalClassName(), "onStart");
-//	}
-//
-//	@Override
-//	protected void onPause() {
-//		// TODO Auto-generated method stub
-//		super.onPause();
-//        Log.i(getLocalClassName(), "onPause");
-//	}
-//
-//	@Override
-//	protected void onStop() {
-//		// TODO Auto-generated method stub
-//		super.onStop();
-//        Log.i(getLocalClassName(), "onStop");
-//	}
+	@Override
+	protected void onRestart() {
+		// TODO Auto-generated method stub
+		super.onRestart();
+        Log.i(getLocalClassName(), "onRestart");
+	}
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+        Log.i(getLocalClassName(), "onResume");
+	}
+
+	@Override
+	protected void onStart() {
+		// TODO Auto-generated method stub
+		super.onStart();
+        Log.i(getLocalClassName(), "onStart");
+	}
+
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub
+		super.onPause();
+        Log.i(getLocalClassName(), "onPause");
+	}
+
+	@Override
+	protected void onStop() {
+		// TODO Auto-generated method stub
+		super.onStop();
+        Log.i(getLocalClassName(), "onStop");
+	}
 }

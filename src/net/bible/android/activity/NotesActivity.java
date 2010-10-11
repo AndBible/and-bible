@@ -106,11 +106,13 @@ public class NotesActivity extends ActivityBase {
     private void populateVerseNotesList() {
     	mVerseNotesList.clear();
     	
-		for (Note note : mChapterNotesList) {
-			if (note.getVerseNo() == mVerseNo) {
-				mVerseNotesList.add(note);
+    	if (mChapterNotesList!=null) {
+			for (Note note : mChapterNotesList) {
+				if (note.getVerseNo() == mVerseNo) {
+					mVerseNotesList.add(note);
+				}
 			}
-		}
+    	}
     }
     
     private void prepareWarningMsg() {
