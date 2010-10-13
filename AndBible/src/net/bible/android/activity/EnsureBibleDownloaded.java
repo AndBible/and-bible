@@ -27,8 +27,6 @@ public class EnsureBibleDownloaded extends ProgressActivityBase {
 	
 	private int clickCount = 0;
 
-	private WorkListener workListener;
-
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,52 +36,34 @@ public class EnsureBibleDownloaded extends ProgressActivityBase {
     
         if (SwordApi.getInstance().getBibles().size()>0) {
         	gotoMainScreen();
-        } else {
-        	startMonitoring();
-        }
+        } 
     }
     
-    private void startMonitoring() {
-    	if (workListener==null) {
-			workListener = new WorkListener() {
-	
-				@Override
-				public void workProgressed(WorkEvent ev) {
-					if (ev.getJob().isFinished()) {
-						downloadComplete(ev.getJob());
-					}
-				}
-	
-				@Override
-				public void workStateChanged(WorkEvent ev) {
-					// ignore this event
-				}
-			};
-			JobManager.addWorkListener(workListener);
-    	}
-    }
-
-    public void downloadComplete(Progress prog) {
-    	Log.i(TAG, "CLICKED");
-        if (SwordApi.getInstance().getBibles().size()>0) {
-        	gotoMainScreen();
-        }
-
-        // can't find downloaded bible, wait a sec and try again
-        CommonUtil.pause(2);
+    @Override
+	protected void jobFinished(Progress prog) {
+    	Log.d(TAG, "Finished download, going to main screen");
         if (SwordApi.getInstance().getBibles().size()>0) {
         	gotoMainScreen();
         } else {
-        	if (JobManager.getJobs().size()==0) {
-        		runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						// something went wrong with the download
-						showErrorMsg(getString(R.string.download_complete_no_bibles));
-					}
-        		});
-        	}
-        	
+	
+        	Log.w(TAG, "Could not immediately find downloaded bible");
+	        // can't find downloaded bible, wait a sec and try again
+	        CommonUtil.pause(2);
+	        if (SwordApi.getInstance().getBibles().size()>0) {
+	        	Log.d(TAG, "Downloaded bible found now");
+	        	gotoMainScreen();
+	        } else {
+	        	Log.e(TAG, "Downloaded bible not found");
+	        	if (JobManager.getJobs().size()==0) {
+	        		runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							// something went wrong with the download
+							showErrorMsg(getString(R.string.download_complete_no_bibles));
+						}
+	        		});
+	        	}
+	        }
         }
     }
 
@@ -113,10 +93,4 @@ public class EnsureBibleDownloaded extends ProgressActivityBase {
     	finish();
     }
     
-    @Override
-	protected void onStop() {
-		super.onStop();
-    	JobManager.removeWorkListener(workListener);
-	}
-
 }

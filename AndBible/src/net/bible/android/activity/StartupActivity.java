@@ -27,10 +27,11 @@ public class StartupActivity extends ActivityBase {
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	Log.d(TAG, "onCreate really StartupActivity onCreate ****************");
         super.onCreate(savedInstanceState);
         setContentView(R.layout.startup_view);
 
+        //TODO show splash here if not already shown because loading Sword takes a while
+        
         // allow call back and continuation in the ui thread after JSword has been initialised
         final Handler uiHandler = new Handler();
         final Runnable uiThreadRunnable = new Runnable() {
@@ -88,6 +89,7 @@ public class StartupActivity extends ActivityBase {
 	}
 
 	private void gotoMainBibleActivity() {
+		Log.i(TAG, "Going to MainBibleActivity");
     	Intent handlerIntent = new Intent(this, MainBibleActivity.class);
     	startActivity(handlerIntent);
     	finish();

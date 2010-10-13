@@ -6,6 +6,9 @@
       The copyright to this program is held by it's author.
 -->
 <resources>
+	<style name="AndBibleTheme" parent="@android:style/Theme.Light">
+	</style>
+
     <style name="BibleTextFont" parent="@android:style/TextAppearance.Medium">
         <item name="android:textColor">#00FF00</item>
         <item name="android:textSize">18sp</item>
