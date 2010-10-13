@@ -25,6 +25,7 @@
     <string name="choosePassageChapterName">Choose Chapter</string>
     <string name="search_index">Create Search Index</string>
     <string name="index_creation_required">In order to search an index must be created.  Creating an index may take a long time.</string>
+    <string name="indexing_wait_msg">When indexing has completed you will be taken to the search screen.</string>
     <string name="index">Index</string>
     <string name="module_dir">Dir</string>
     <string name="use_folder">Use this folder</string>

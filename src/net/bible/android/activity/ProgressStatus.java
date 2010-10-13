@@ -42,7 +42,7 @@ public class ProgressStatus extends ProgressActivityBase {
 
     	// prepare to show no tasks msg
     	noTasksMessageView = (TextView)findViewById(R.id.noTasksRunning);
-    	taskKillWarningView = (TextView)findViewById(R.id.taskKillWarning);
+    	taskKillWarningView = (TextView)findViewById(R.id.progressStatusMessage);
 
     	Set<Progress> jobs = JobManager.getJobs();
     	showNoTaskMsg(jobs.size()==0);
@@ -67,6 +67,13 @@ public class ProgressStatus extends ProgressActivityBase {
     		noTasksMessageView.setVisibility(View.GONE);
     		taskKillWarningView.setVisibility(View.VISIBLE);
     	}
+    }
+    
+    protected void hideOkayButton() {
+    	findViewById(R.id.ok_panel).setVisibility(View.INVISIBLE);
+    }
+    protected void setMainText(String text) {
+    	((TextView)findViewById(R.id.progressStatusMessage)).setText(text);
     }
     
     public void onOkay(View v) {

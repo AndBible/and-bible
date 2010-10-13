@@ -5,34 +5,8 @@ See "<original-package android:name="net.oldname" />" if a rename is required
 Add to props in run target to switch language
 -prop persist.sys.language=sv
 
-Exception thrown if there is a long chapter like Acts 15 and you navigate quickly to and from it.
-This is possibly cause because readHtmlTextOptimizedZTextOsis reads the raw text while parsing allowing for another request on ZVerseBackend to overlap.
-I have added synchronized to readHtmlTextOptimizedZTextOsis for now to see if that stops it but it would give better screen response if we killed previous requests if a new request comes in.
-07-23 11:29:19.590: ERROR/BibleView(243): java.lang.ArrayIndexOutOfBoundsException
-07-23 11:29:19.590: ERROR/BibleView(243):     at java.lang.System.arraycopy(Native Method)
-07-23 11:29:19.590: ERROR/BibleView(243):     at org.crosswire.jsword.book.sword.ZVerseBackend.getRawText(ZVerseBackend.java:364)
-07-23 11:29:19.590: ERROR/BibleView(243):     at org.crosswire.jsword.book.sword.SwordBook.getRawText(SwordBook.java:105)
-07-23 11:29:19.590: ERROR/BibleView(243):     at net.bible.service.sword.OSISInputStream.loadNextVerse(OSISInputStream.java:121)
-07-23 11:29:19.590: ERROR/BibleView(243):     at net.bible.service.sword.OSISInputStream.available(OSISInputStream.java:71)
-07-23 11:29:19.590: ERROR/BibleView(243):     at net.bible.service.sword.OSISInputStream.read(OSISInputStream.java:90)
-07-23 11:29:19.590: ERROR/BibleView(243):     at java.io.InputStream.read(InputStream.java:133)
-07-23 11:29:19.590: ERROR/BibleView(243):     at org.apache.harmony.xml.ExpatParser.parseFragment(ExpatParser.java:504)
-07-23 11:29:19.590: ERROR/BibleView(243):     at org.apache.harmony.xml.ExpatParser.parseDocument(ExpatParser.java:467)
-07-23 11:29:19.590: ERROR/BibleView(243):     at org.apache.harmony.xml.ExpatReader.parse(ExpatReader.java:329)
-07-23 11:29:19.590: ERROR/BibleView(243):     at org.apache.harmony.xml.ExpatReader.parse(ExpatReader.java:286)
-07-23 11:29:19.590: ERROR/BibleView(243):     at javax.xml.parsers.SAXParser.parse(SAXParser.java:361)
-07-23 11:29:19.590: ERROR/BibleView(243):     at javax.xml.parsers.SAXParser.parse(SAXParser.java:240)
-07-23 11:29:19.590: ERROR/BibleView(243):     at net.bible.service.sword.SwordApi.readHtmlTextOptimizedZTextOsis(SwordApi.java:134)
-07-23 11:29:19.590: ERROR/BibleView(243):     at net.bible.service.sword.SwordApi.readHtmlText(SwordApi.java:116)
-07-23 11:29:19.590: ERROR/BibleView(243):     at net.bible.android.view.BibleContentManager$UpdateTextTask.doInBackground(BibleContentManager.java:91)
-07-23 11:29:19.590: ERROR/BibleView(243):     at net.bible.android.view.BibleContentManager$UpdateTextTask.doInBackground(BibleContentManager.java:1)
-07-23 11:29:19.590: ERROR/BibleView(243):     at android.os.AsyncTask$2.call(AsyncTask.java:185)
-07-23 11:29:19.590: ERROR/BibleView(243):     at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:305)
-07-23 11:29:19.590: ERROR/BibleView(243):     at java.util.concurrent.FutureTask.run(FutureTask.java:137)
-07-23 11:29:19.590: ERROR/BibleView(243):     at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1068)
-07-23 11:29:19.590: ERROR/BibleView(243):     at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:561)
-07-23 11:29:19.590: ERROR/BibleView(243):     at java.lang.Thread.run(Thread.java:1096)
-
+2 nice buttons at bottom
+http://android.git.kernel.org/?p=platform/packages/apps/PackageInstaller.git;a=tree;f=res/layout;h=b993c3fe438cc2584f24503e0d605a805f4c2034;hb=HEAD
 
 Need to override onInterceptTouchEvent
 http://groups.google.com/group/android-developers/msg/d5d97cc7aae76505

@@ -91,6 +91,16 @@ public class ProgressActivityBase extends ActivityBase {
 		final ProgressUIControl progressUIControl = findOrCreateUIControl(prog);
 		progressUIControl.showMsg(status);
 		progressUIControl.showPercent(done);
+		
+		if (prog.isFinished() && !progressUIControl.isFinishNotified) {
+			Log.i(TAG, "Job finished:"+prog.getJobName());
+			progressUIControl.isFinishNotified = true;
+			jobFinished(prog);
+		}
+    }
+    
+    protected void jobFinished(Progress job) {
+    	// do nothing by default
     }
 
     /** format a descriptive string from a Progress object
@@ -126,7 +136,7 @@ public class ProgressActivityBase extends ActivityBase {
 	}
 	
     @Override
-	protected void onStop() {
+	protected void onPause() {
 		super.onStop();
     	JobManager.removeWorkListener(workListener);
 	}
@@ -138,6 +148,7 @@ public class ProgressActivityBase extends ActivityBase {
     	LinearLayout parent = new LinearLayout(ProgressActivityBase.this);
     	TextView status = new TextView(ProgressActivityBase.this);
     	ProgressBar progressBar = new ProgressBar(ProgressActivityBase.this, null, android.R.attr.progressBarStyleHorizontal);
+    	boolean isFinishNotified;
     	
     	public ProgressUIControl() {
     		parent.setOrientation(LinearLayout.VERTICAL);

@@ -14,16 +14,9 @@
 		android:layout_height="wrap_content" 
 		android:layout_width="fill_parent" 
 		android:layout_alignParentTop="true"/>
- 	<Button android:id="@+id/submit"
- 		android:text="@string/search"
-		android:layout_width="80dip" 
-		android:layout_height="wrap_content"
-		android:layout_below="@+id/searchText"
-		android:layout_alignParentRight="true"
-		android:onClick="onSearch"/>
 	
 	<RadioGroup android:id="@+id/bibleSectionGroup" 
-		android:layout_below="@+id/submit"
+		android:layout_below="@+id/searchText"
 		android:layout_width="wrap_content" 
 		android:layout_height="wrap_content">	
 		<TextView android:id="@+id/sectionGroupPrompt"
@@ -52,7 +45,7 @@
 	</RadioGroup>
 
 	<RadioGroup android:id="@+id/wordsGroup" 
-		android:layout_below="@+id/submit"
+		android:layout_below="@+id/searchText"
 		android:layout_toRightOf="@id/bibleSectionGroup"
 		android:layout_width="wrap_content" 
 		android:layout_height="wrap_content"
@@ -77,5 +70,33 @@
 			android:text="@string/search_phrase" 
 			android:layout_height="wrap_content"/>
 	</RadioGroup>
+
+	<!-- Button bar with OK button -->
+	<LinearLayout android:id="@+id/ok_panel"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentBottom="true"
+	    android:orientation="horizontal"
+	    style="@android:style/ButtonBar">
+	    <!-- Left spacer -->
+	    <View
+	        android:layout_width="0dip"
+	        android:layout_height="fill_parent"
+	        android:layout_weight="1"/>
+	
+	 	<Button android:id="@+id/submit"
+ 			android:text="@string/search"
+	        android:layout_width="0dip"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="2"
+			android:onClick="onSearch"/>
+
+	    <!-- Right spacer -->
+	    <View
+	        android:layout_width="0dip"
+	        android:layout_height="fill_parent"
+	        android:layout_weight="1"
+	    />
+	</LinearLayout>
 
 </RelativeLayout>

@@ -5,7 +5,7 @@
  @see gnu.lgpl.License for license details.<br>
       The copyright to this program is held by it's author.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
@@ -14,22 +14,45 @@
 		android:text="@string/wait_for_bible" 
 		android:layout_height="wrap_content" 
 		android:layout_width="fill_parent"
-		android:layout_margin="20dip" />
+		android:layout_margin="20dip"
+		android:textAppearance="?android:attr/textAppearanceMedium" />
 	<LinearLayout android:id="@+id/progressControlContainer"
     	android:orientation="vertical"
 	    android:layout_width="fill_parent"
-    	android:layout_height="wrap_content">
+    	android:layout_height="wrap_content"
+    	android:layout_below="@+id/waitForBible"
+    	android:layout_margin="20dip">
     </LinearLayout>    
 	<TextView android:id="@+id/waitForBibleNotYet"
 		android:layout_height="110dip" 
 		android:layout_width="fill_parent"
-		android:layout_margin="20dip"/>
-  	<Button android:id="@+id/okayButton"
- 		android:text="@string/okay"
-		android:layout_width="wrap_content" 
-		android:layout_height="wrap_content"
-		android:layout_gravity="center_horizontal"
-		android:onClick="onContinue"
-		android:width="80dip"/>
+		android:layout_margin="20dip"
+		android:layout_below="@+id/progressControlContainer"/>
 
-</LinearLayout>
+	<!-- Button bar with OK button 
+	<LinearLayout android:id="@+id/ok_panel"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentBottom="true"
+	    android:orientation="horizontal"
+	    style="@android:style/ButtonBar">
+	    <View
+	        android:layout_width="0dip"
+	        android:layout_height="fill_parent"
+	        android:layout_weight="1"/>
+	
+	  	<Button android:id="@+id/okayButton"
+	 		android:text="@string/okay"
+			android:onClick="onContinue"
+	        android:layout_width="0dip"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="2"/>
+	
+	    <View
+	        android:layout_width="0dip"
+	        android:layout_height="fill_parent"
+	        android:layout_weight="1"
+	    />
+	</LinearLayout>		
+	-->
+</RelativeLayout>
