@@ -1,15 +1,16 @@
 package net.bible.android.activity;
 
-import net.bible.android.CurrentPassage;
 import net.bible.android.activity.base.ActivityBase;
 import net.bible.android.activity.base.Dialogs;
+import net.bible.android.currentpagecontrol.BibleContentManager;
+import net.bible.android.currentpagecontrol.CurrentBiblePage;
+import net.bible.android.currentpagecontrol.CurrentPageManager;
+import net.bible.android.currentpagecontrol.PassageChangeMediator;
 import net.bible.android.device.TextToSpeechController;
 import net.bible.android.util.CommonUtil;
 import net.bible.android.util.DataPipe;
-import net.bible.android.view.BibleContentManager;
 import net.bible.android.view.BibleSwipeListener;
 import net.bible.android.view.BibleView;
-import net.bible.android.view.PassageChangeMediator;
 import net.bible.service.history.HistoryManager;
 import net.bible.service.sword.SwordApi;
 
@@ -57,6 +58,7 @@ public class MainBibleActivity extends ActivityBase {
         setContentView(R.layout.main_bible_view);
         
         if (!SwordApi.getInstance().isSwordLoaded()) {
+        	//TODO this is never entered xxxtodo
         	showSplashScreen();
         }
 
@@ -72,8 +74,6 @@ public class MainBibleActivity extends ActivityBase {
 
 		        PassageChangeMediator.getInstance().setMainBibleActivity(MainBibleActivity.this);
 		        
-		    	HistoryManager.getInstance().initialise();
-		    	
 		        restoreState();
 
 		    	// initialise title etc
@@ -101,6 +101,7 @@ public class MainBibleActivity extends ActivityBase {
     @Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
+		
 	}
 
 	/** 
@@ -175,7 +176,7 @@ public class MainBibleActivity extends ActivityBase {
 	        		tts.stop();
 	        	} else {
 	        		Log.d(TAG, "Tell TTS to say current chapter");
-		        	tts.speak(this, CurrentPassage.getInstance());
+		        	tts.speak(this, CurrentPageManager.getInstance().getCurrentPage());
 	        	}
 	        	isHandled = true;
 	        	break;
@@ -210,7 +211,8 @@ public class MainBibleActivity extends ActivityBase {
     }
 
     private Intent getSearchIntent() {
-    	Book book = CurrentPassage.getInstance().getCurrentDocument();
+    	//xxxtodo is search relevant to all doc types? - some don't have verse keys so need to check it works
+    	Book book = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
     	IndexStatus indexStatus = book.getIndexStatus();
     	Log.d(TAG, "Index status:"+indexStatus);
     	if (indexStatus.equals(IndexStatus.DONE)) {
@@ -236,10 +238,11 @@ public class MainBibleActivity extends ActivityBase {
     /** called after a new passage has been changed and displayed
      */
     public void onPassageChanged() {
+    	//xxxtodo make this driven by PassageChangeMediator and also listen to all doc types
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-		    	String passageDesc = CurrentPassage.getInstance().toString();
+		    	String passageDesc = CurrentPageManager.getInstance().getCurrentPage().getKeyDescription();
 		    	setTitle(passageDesc);
 				setProgressBarIndeterminateVisibility(false);
 			}
@@ -252,14 +255,14 @@ public class MainBibleActivity extends ActivityBase {
     	Log.i(TAG, "Saving instance state");
 		super.onPause();
     	SharedPreferences settings = getSharedPreferences(TAG, 0);
-		CurrentPassage.getInstance().saveState(settings);
+		CurrentPageManager.getInstance().saveState(settings);
 	}
 
     private void restoreState() {
     	try {
         	Log.i(TAG, "Restore instance state");
         	SharedPreferences settings = getSharedPreferences(TAG, 0);
-    		CurrentPassage.getInstance().restoreState(settings);
+    		CurrentPageManager.getInstance().restoreState(settings);
     	} catch (Exception e) {
     		Log.e(TAG, "Restore error", e);
     	}

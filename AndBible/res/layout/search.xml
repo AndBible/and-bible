@@ -13,12 +13,14 @@
 	<EditText android:id="@+id/searchText" 
 		android:layout_height="wrap_content" 
 		android:layout_width="fill_parent" 
-		android:layout_alignParentTop="true"/>
+		android:layout_alignParentTop="true"
+		android:padding="5dip"/>
 	
 	<RadioGroup android:id="@+id/bibleSectionGroup" 
 		android:layout_below="@+id/searchText"
 		android:layout_width="wrap_content" 
-		android:layout_height="wrap_content">	
+		android:layout_height="wrap_content"
+		android:padding="5dip">	
 		<TextView android:id="@+id/sectionGroupPrompt"
 			android:text="@string/search_bible_section_group_prompt"
 			android:layout_height="wrap_content" 
@@ -49,6 +51,7 @@
 		android:layout_toRightOf="@id/bibleSectionGroup"
 		android:layout_width="wrap_content" 
 		android:layout_height="wrap_content"
+		android:padding="5dip"
 		android:paddingLeft="10dip">	
 		<TextView android:id="@+id/submit"
 			android:text="@string/search_words_group_prompt"

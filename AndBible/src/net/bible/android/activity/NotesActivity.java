@@ -3,8 +3,9 @@ package net.bible.android.activity;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.bible.android.CurrentPassage;
 import net.bible.android.activity.base.ActivityBase;
+import net.bible.android.currentpagecontrol.CurrentBiblePage;
+import net.bible.android.currentpagecontrol.CurrentPageManager;
 import net.bible.android.util.DataPipe;
 import net.bible.service.format.Note;
 
@@ -54,7 +55,8 @@ public class NotesActivity extends ActivityBase {
         mWarning =  (TextView)findViewById(R.id.warningText);
         mNotesListView =  (ListView)findViewById(R.id.notesList);
         
-        mVerseNo = CurrentPassage.getInstance().getCurrentVerse();
+        //xxxtodo effective upcast!
+        mVerseNo = CurrentPageManager.getInstance().getCurrentBible().getCurrentVerse();
         mChapterNotesList = DataPipe.getInstance().popNotes();
         
         initialiseView();
@@ -90,7 +92,8 @@ public class NotesActivity extends ActivityBase {
     	}
     }
     public void onNext(View v) {
-    	if (mVerseNo<CurrentPassage.getInstance().getNumberOfVersesDisplayed()) {
+    	//xxxtodo again an effective upcast!
+    	if (mVerseNo<CurrentPageManager.getInstance().getCurrentBible().getNumberOfVersesDisplayed()) {
     		mVerseNo++;
     		onVerseChanged();
     	}

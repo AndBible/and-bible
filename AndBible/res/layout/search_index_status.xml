@@ -10,7 +10,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-   	<TextView android:id="@+id/progressMessage"
+   	<TextView android:id="@+id/progressStatusMessage"
 		android:text="@string/task_kill_warning"
 		android:textAppearance="?android:attr/textAppearanceMedium"
 		android:layout_height="wrap_content" 
@@ -23,7 +23,7 @@
 		android:layout_height="wrap_content" 
 		android:layout_width="wrap_content"
 		android:visibility="invisible"
-		android:layout_below="@id/progressMessage"
+		android:layout_below="@id/progressStatusMessage"
 		android:layout_margin="20dip"/>
 	<LinearLayout android:id="@+id/progressControlContainer"
     	android:orientation="vertical"

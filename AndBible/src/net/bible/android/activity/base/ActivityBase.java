@@ -1,7 +1,7 @@
 package net.bible.android.activity.base;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
-import net.bible.android.application.BibleApplication;
 import net.bible.android.util.Hourglass;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -17,7 +17,7 @@ import android.util.Log;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class ActivityBase extends Activity implements AndBaseActivity {
+public class ActivityBase extends Activity implements AndBibleActivity {
 	private static final String TAG = "ActivityBase";
 	
 	private Dialogs dialogs;

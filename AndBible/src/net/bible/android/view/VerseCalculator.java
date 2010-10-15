@@ -3,7 +3,8 @@ package net.bible.android.view;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.bible.android.CurrentPassage;
+import net.bible.android.currentpagecontrol.CurrentBiblePage;
+import net.bible.android.currentpagecontrol.CurrentPageManager;
 import android.util.Log;
 import android.webkit.WebView;
 
@@ -51,9 +52,10 @@ public class VerseCalculator {
 	}
 	
 	public void newPosition(int scrollOffset) {
-		if (!CurrentPassage.getInstance().isSingleVerse()) {
+		// it is onlt bibles that have dynamic vere update on scroll
+		if (CurrentPageManager.getInstance().getCurrentPage() instanceof CurrentBiblePage) {
 			int currentVerse = calculateCurrentVerse(scrollOffset);
-			CurrentPassage.getInstance().setCurrentVerse(currentVerse);
+			CurrentPageManager.getInstance().getCurrentBible().setCurrentVerse(currentVerse);
 		}
 	}
 	
@@ -67,7 +69,6 @@ public class VerseCalculator {
 		for (int verseIndex=0; verseIndex<versePositionList.size(); verseIndex++) {
 			int pos = versePositionList.get(verseIndex);
 			if (pos>scrollOffset) {
-				CurrentPassage.getInstance().setCurrentVerse(verseIndex+1);
 				return verseIndex+1;
 			}
 		}
@@ -77,9 +78,16 @@ public class VerseCalculator {
 
 	private void calculateNumVerses() {
 		try {
-			numVerses = CurrentPassage.getInstance().getNumberOfVersesDisplayed();
+			numVerses = getBiblePage().getNumberOfVersesDisplayed();
 		} catch (Exception e) {
 			Log.e(TAG, "Error calculating verses number"+e.getMessage());
 		}
+	}
+	
+	private boolean mustCalculate() {
+		return CurrentPageManager.getInstance().getCurrentPage() instanceof CurrentBiblePage;
+	}
+	private CurrentBiblePage getBiblePage() {
+		return CurrentPageManager.getInstance().getCurrentBible();
 	}
 }

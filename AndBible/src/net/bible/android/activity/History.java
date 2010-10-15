@@ -23,7 +23,6 @@ import android.widget.ListView;
  */
 public class History extends ListActivityBase {
 	private static final String TAG = "History";
-	private static final int MAX_SIZE = 100;
 	
 	private List<HistoryItem> mHistoryItemList;
 	

@@ -8,6 +8,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
+import net.bible.android.util.CommonUtil;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.progress.JobManager;
@@ -18,6 +19,7 @@ import org.crosswire.common.progress.WorkListener;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -30,6 +32,9 @@ public class ProgressActivityBase extends ActivityBase {
 	private WorkListener workListener;
 	private Queue<Progress> progressNotificationQueue = new ConcurrentLinkedQueue<Progress>();
 
+	private TextView taskKillWarningView;
+	private TextView noTasksMessageView;
+	
 	private static final String TAG = "ProgressActivityBase";
 	
 	/** Called when the activity is first created. */
@@ -43,6 +48,9 @@ public class ProgressActivityBase extends ActivityBase {
     }
 
     private void initialiseView() {
+    	// prepare to show no tasks msg
+    	noTasksMessageView = (TextView)findViewById(R.id.noTasksRunning);
+    	taskKillWarningView = (TextView)findViewById(R.id.progressStatusMessage);
 
     	Set<Progress> jobs = JobManager.getJobs();
     	for (Progress job : jobs) {
@@ -80,11 +88,25 @@ public class ProgressActivityBase extends ActivityBase {
 			}
 		};
 		JobManager.addWorkListener(workListener);
+
+		// give new jobs a chance to start then show 'No Job' msg if nothing running
+		uiHandler.postDelayed(
+			new Runnable() {
+				@Override
+				public void run() {
+					if (JobManager.getJobs().size()==0) {
+						showNoTaskMsg(true);				
+					}
+				}
+			}, 4000);
     }
 
     /** virtual method called on ui thread to update progress.  Can be overridden for subclass specific ui updates br make sure this method is called to update progres controls
      */
     protected void updateProgress(Progress prog) {
+    	// if this is called then ensure the no tasks msg is not also displayed
+    	showNoTaskMsg(false);
+    	
 		int done = prog.getWork();
 		String status = getStatusDesc(prog);
 
@@ -117,6 +139,27 @@ public class ProgressActivityBase extends ActivityBase {
 		return status;
 	}
 
+    protected void hideButtons() {
+    	findViewById(R.id.button_panel).setVisibility(View.INVISIBLE);
+    }
+    protected void setMainText(String text) {
+    	((TextView)findViewById(R.id.progressStatusMessage)).setText(text);
+    }
+    
+    private void showNoTaskMsg(boolean bShow) {
+    	Log.d(TAG, "No Tasks:"+bShow);
+		if (noTasksMessageView!=null && taskKillWarningView!=null) {
+	    	if (bShow) {
+	   			noTasksMessageView.setVisibility(View.VISIBLE);
+	        	// if the no-tasks msg is show then hide the warning relating to running tasks
+	    		taskKillWarningView.setVisibility(View.INVISIBLE);
+	    	} else {
+	    		noTasksMessageView.setVisibility(View.GONE);
+	    		taskKillWarningView.setVisibility(View.VISIBLE);
+	    	}
+		}
+    }
+    
 	/** get a UI control for the current prog from the previously created controls, or create one
 	 * 
 	 * @param prog

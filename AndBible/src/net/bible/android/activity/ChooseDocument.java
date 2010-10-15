@@ -3,11 +3,12 @@ package net.bible.android.activity;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.bible.android.CurrentPassage;
 import net.bible.android.activity.base.ActivityBase;
+import net.bible.android.currentpagecontrol.CurrentPageManager;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.BookCategory;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -62,24 +63,36 @@ public class ChooseDocument extends ActivityBase {
 	    	bookList.setOnItemClickListener(new OnItemClickListener() {
 	    	    @Override
 	    	    public void onItemClick(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-	    	    	bookSelected(position);
-	    	    	onSave(null);
+	    	    	bookSelected(documents.get(position));
 	    	    }
 	    	});
     	}
     }
     
-    private void bookSelected(int position) {
-    	Log.d(TAG, "Book selected:"+position);
+    private void bookSelected(Book selectedBook) {
+    	Log.d(TAG, "Book selected:"+selectedBook.getInitials());
     	try {
-    		CurrentPassage.getInstance().setCurrentDocument( documents.get(position) );
+    		CurrentPageManager.getInstance().setCurrentDocument( selectedBook );
+    		BookCategory bookCategory = selectedBook.getBookCategory();
+    		if (bookCategory.equals(BookCategory.DICTIONARY)) {
+    			chooseDictionaryPage();
+    		} else {
+    			returnToMainBibleView();
+    		}
     	} catch (Exception e) {
     		Log.e(TAG, "error on select of bible book", e);
     	}
     }
     
-    public void onSave(View v) {
-    	Log.i(TAG, "CLICKED");
+    private void chooseDictionaryPage() {
+    	Log.i(TAG, "going to dictionary search view");
+    	Intent intent = new Intent(this, ChooseDictionaryWord.class);
+    	startActivity(intent);
+    	finish();    
+    }
+
+    private void returnToMainBibleView() {
+    	Log.i(TAG, "rturning to main bible view");
     	Intent resultIntent = new Intent();
     	setResult(Activity.RESULT_OK, resultIntent);
     	finish();    

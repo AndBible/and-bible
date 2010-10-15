@@ -1,16 +1,19 @@
 package net.bible.service.history;
 
-import net.bible.android.CurrentPassage;
+import net.bible.android.currentpagecontrol.CurrentBiblePage;
+import net.bible.android.currentpagecontrol.CurrentPageManager;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
 public class VerseHistoryItem implements HistoryItem {
-	private Key verse;
+	private Book document;
+	private Key key;
 
-	public VerseHistoryItem(Key verse) {
+	public VerseHistoryItem(Book doc, Key verse) {
 		super();
-		this.verse = verse;
+		this.document = doc;
+		this.key = verse;
 	}
 	
 	/* (non-Javadoc)
@@ -18,17 +21,18 @@ public class VerseHistoryItem implements HistoryItem {
 	 */
 	@Override
 	public void revertTo() {
-		CurrentPassage.getInstance().setKey(verse);
+		CurrentPageManager.getInstance().setCurrentDocument(document);
+		CurrentPageManager.getInstance().getCurrentPage().setKey(key);
 	}
 
 	
 	@Override
 	public String getDescription() {
-		return verse.getName();
+		return key.getName();
 	}
 
-	public Key getVerse() {
-		return verse;
+	public Key getKey() {
+		return key;
 	}
 
 	@Override
@@ -40,7 +44,7 @@ public class VerseHistoryItem implements HistoryItem {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((verse == null) ? 0 : verse.hashCode());
+		result = prime * result + ((key == null) ? 0 : key.hashCode());
 		return result;
 	}
 
@@ -53,10 +57,10 @@ public class VerseHistoryItem implements HistoryItem {
 		if (getClass() != obj.getClass())
 			return false;
 		VerseHistoryItem other = (VerseHistoryItem) obj;
-		if (verse == null) {
-			if (other.verse != null)
+		if (key == null) {
+			if (other.key != null)
 				return false;
-		} else if (!verse.equals(other.verse))
+		} else if (!key.equals(other.key))
 			return false;
 		return true;
 	}

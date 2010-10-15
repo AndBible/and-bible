@@ -1,12 +1,11 @@
 package net.bible.android.activity;
 
- import net.bible.android.CurrentPassage;
-import net.bible.android.activity.base.ActivityBase;
+ import net.bible.android.activity.base.ActivityBase;
+import net.bible.android.currentpagecontrol.CurrentPageManager;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,7 +34,8 @@ public class SearchIndex extends ActivityBase {
     public void onIndex(View v) {
     	Log.i(TAG, "CLICKED");
     	try {
-	        Book book = CurrentPassage.getInstance().getCurrentDocument();
+    		//xxxtodo can we index any document type
+	        Book book = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
 	        
 	        // this starts a new thread to do the indexing and returns immediately
 	        // if index creation is already in progress then nothing will happen
