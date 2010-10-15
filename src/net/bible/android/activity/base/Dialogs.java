@@ -48,7 +48,7 @@ public class Dialogs {
             	       .setCancelable(false)
             	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
             	           public void onClick(DialogInterface dialog, int buttonId) {
-            	        	   ((AndBaseActivity)activity).dialogOnClick(INTERNET_NOT_AVAILABLE_DIALOG, buttonId);
+            	        	   ((AndBibleActivity)activity).dialogOnClick(INTERNET_NOT_AVAILABLE_DIALOG, buttonId);
             	           }
             	       }).create();
             case TOO_MANY_JOBS:

@@ -49,7 +49,7 @@ public class Download extends ActivityBase {
 	private static final String TAG = "Download";
 
 	// document type spinner
-	private static final BookFilter[] DOCUMENT_TYPE_SPINNER_FILTERS = new BookFilter[] {BookFilters.getBibles(), BookFilters.getCommentaries()};
+	private static final BookFilter[] DOCUMENT_TYPE_SPINNER_FILTERS = new BookFilter[] {BookFilters.getBibles(), BookFilters.getCommentaries(), BookFilters.getDictionaries()};
 	private int selectedDocumentFilterNo = 0;
 
 	// language spinner
@@ -315,7 +315,7 @@ public class Download extends ActivityBase {
 	    	if (forceBasicFlow) {
 	    		intent = new Intent(this, EnsureBibleDownloaded.class);
 	    	} else {
-	    		intent = new Intent(this, ProgressStatus.class);
+	    		intent = new Intent(this, DownloadStatus.class);
 	    	}
         	startActivity(intent);
 

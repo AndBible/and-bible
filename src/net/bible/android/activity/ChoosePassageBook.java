@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.bible.android.CurrentPassage;
+import net.bible.android.currentpagecontrol.CurrentBiblePage;
+import net.bible.android.currentpagecontrol.CurrentPageManager;
 
+import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleInfo;
 import org.crosswire.jsword.versification.SectionNames;
 
@@ -113,16 +115,14 @@ public class ChoosePassageBook extends ExpandableListActivity {
     private void bookSelected(int bibleBookNo) {
     	Log.d(TAG, "Book selected:"+bibleBookNo);
     	try {
-    		//TODO should delay saving until end of tx but just get it working for now
-    		CurrentPassage.getInstance().setCurrentBibleBookNo( bibleBookNo );
-
     		// if there is only 1 chapter then no need to select chapter
     		if (BibleInfo.chaptersInBook(bibleBookNo)==1) {
-        		CurrentPassage.getInstance().setCurrentChapter(1);
+        		CurrentPageManager.getInstance().getCurrentBible().setKey(new Verse(bibleBookNo, 1, 1));
         		returnToMainScreen();
     		} else {
     			// select chapter
 	        	Intent myIntent = new Intent(this, ChoosePassageChapter.class);
+	        	myIntent.putExtra("BOOK_NO", bibleBookNo);
 	        	startActivityForResult(myIntent, bibleBookNo);
     		}
     	} catch (Exception e) {

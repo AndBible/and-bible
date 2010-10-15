@@ -1,7 +1,7 @@
 package net.bible.android.util;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
-import net.bible.android.application.BibleApplication;
 import android.app.ProgressDialog;
 import android.content.Context;
 

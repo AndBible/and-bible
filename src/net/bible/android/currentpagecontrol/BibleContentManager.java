@@ -1,11 +1,9 @@
-package net.bible.android.view;
+package net.bible.android.currentpagecontrol;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
-import net.bible.android.CurrentPassage;
+import net.bible.android.view.BibleView;
 import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.Note;
 import net.bible.service.sword.SwordApi;
@@ -51,21 +49,21 @@ public class BibleContentManager {
     }
     
     public void updateText(boolean forceUpdate) {
-    	CurrentPassage currentPassage = CurrentPassage.getInstance();
-		Book bible = currentPassage.getCurrentDocument();
-		Key verse = currentPassage.getKey();
+    	CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
+		Book document = currentPage.getCurrentDocument();
+		Key key = currentPage.getKey();
 
 //		 scrolling right in a commentary can sometimes cause duplicate updates and I don't know why - catch them for now
 //		if (forceUpdate || (!bible.equals(displayedBible) || !verse.equals(displayedVerse))) {
 //			new UpdateTextTask().execute(currentPassage);
 //		}
-		if (!forceUpdate && bible.equals(displayedBible) && verse.equals(displayedVerse)) {
-			Log.w(TAG, "Duplicated screen update");
+		if (!forceUpdate && document.equals(displayedBible) && key.equals(displayedVerse)) {
+			Log.w(TAG, "Duplicated screen update. Doc:"+document.getInitials()+" Key:"+key);
 		}
-		new UpdateTextTask().execute(currentPassage);
+		new UpdateTextTask().execute(currentPage);
     }
 
-    private class UpdateTextTask extends AsyncTask<CurrentPassage, Integer, String> {
+    private class UpdateTextTask extends AsyncTask<CurrentPage, Integer, String> {
     	int verseNo;
     	@Override
     	protected void onPreExecute() {
@@ -73,25 +71,25 @@ public class BibleContentManager {
     	}
     	
 		@Override
-        protected String doInBackground(CurrentPassage... currentPassageArgs) {
+        protected String doInBackground(CurrentPage... currentPassageArgs) {
+            Log.d(TAG, "Loading html in background");
         	String text = "Error";
         	try {
-        		CurrentPassage currentPassage = currentPassageArgs[0]; 
-	    		Book bible = currentPassage.getCurrentDocument();
+        		CurrentPage currentPassage = currentPassageArgs[0]; 
+	    		Book document = currentPassage.getCurrentDocument();
 	    		// if bible show whole chapter
-	    		Key verses = currentPassage.getKey();
-	    		verseNo = currentPassage.getCurrentVerse();
+	    		Key key = currentPassage.getKey();
 	
 	    		SharedPreferences preferences = context.getSharedPreferences("net.bible.android.activity_preferences", 0);
 	    		
-	            Log.d(TAG, "Loading "+verses);
+	            Log.d(TAG, "Loading document:"+document.getInitials()+" key:"+key);
 	    		//setText("Loading "+verse.toString());
 	            SwordApi swordApi = SwordApi.getInstance();
 	            swordApi.setPreferences(preferences);
 	            
 	            notesList = new ArrayList<Note>();
 	            
-	            FormattedDocument formattedDocument = swordApi.readHtmlText(bible, verses, 200);
+	            FormattedDocument formattedDocument = swordApi.readHtmlText(document, key, 200);
 	            text = formattedDocument.getHtmlPassage();
 	            notesList = formattedDocument.getNotesList();
 	            
@@ -99,8 +97,8 @@ public class BibleContentManager {
 	            	text = NO_CONTENT;
 	            }
 	
-	            displayedBible = bible;
-	            displayedVerse = verses;
+	            displayedBible = document;
+	            displayedVerse = key;
 		            
         	} catch (Exception e) {
         		Log.e(TAG, "Error getting bible text", e);
@@ -110,7 +108,7 @@ public class BibleContentManager {
         }
 
         protected void onPostExecute(String htmlFromDoInBackground) {
-            Log.d(TAG, "Loading "+htmlFromDoInBackground);
+            Log.d(TAG, "Loading html:"+htmlFromDoInBackground);
             showText(htmlFromDoInBackground, verseNo);
     		PassageChangeMediator.getInstance().contentChangeFinished();
         }

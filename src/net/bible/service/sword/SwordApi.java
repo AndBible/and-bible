@@ -62,7 +62,8 @@ public class SwordApi {
 	private static final String CROSSWIRE_REPOSITORY = "CrossWire";
 	
 	private DownloadManager downloadManager;
-	
+
+	private static BookFilter SUPPORTED_DOCUMENT_TYPES = BookFilters.either(BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries()), BookFilters.getDictionaries());
 	private SharedPreferences preferences;
 	
 	private boolean isSwordLoaded;
@@ -125,6 +126,22 @@ public class SwordApi {
 		return documents;
 	}
 
+	public List<Book> getCommentaries() {
+		log.debug("Getting commentaries");
+		List<Book> documents = Books.installed().getBooks(BookFilters.getCommentaries());
+		log.debug("Got commentaries, Num="+documents.size());
+		isSwordLoaded = true;
+		return documents;
+	}
+
+	public List<Book> getDictionaries() {
+		log.debug("Getting dictionaries");
+		List<Book> documents = Books.installed().getBooks(BookFilters.getDictionaries());
+		log.debug("Got dictionaries, Num="+documents.size());
+		isSwordLoaded = true;
+		return documents;
+	}
+
 	/** return all supported documents - bibles and commentaries for now
 	 * 
 	 * @return
@@ -132,8 +149,7 @@ public class SwordApi {
 	public List<Book> getDocuments() {
 		log.debug("Getting books");
 		// currently only bibles and commentaries are supported
-		List<Book> allDocuments = Books.installed().getBooks(BookFilters.getBibles());
-		allDocuments.addAll(Books.installed().getBooks(BookFilters.getCommentaries()));
+		List<Book> allDocuments = Books.installed().getBooks(SUPPORTED_DOCUMENT_TYPES);
 		
 		log.debug("Got books, Num="+allDocuments.size());
 		isSwordLoaded = true;
@@ -149,10 +165,8 @@ public class SwordApi {
 	public List<Book> getDownloadableDocuments() throws InstallException {
 		log.debug("Getting downloadable documents");
 		
-		// currently we just handle bibles and commentaries
-		BookFilter filter = BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries());
-		
-        return downloadManager.getDownloadableBooks(filter, CROSSWIRE_REPOSITORY);
+		// currently we just handle bibles, commentaries, or dictionaries
+        return downloadManager.getDownloadableBooks(SUPPORTED_DOCUMENT_TYPES, CROSSWIRE_REPOSITORY);
 	}
 
 	public void downloadDocument(Book document) throws InstallException, BookException {
@@ -288,7 +302,7 @@ public class SwordApi {
      * @param reference
      *            a reference, appropriate for the book, of one or more entries
      */
-    public String getCanonicalText(Book book, Key key, int maxKeyCount) throws NoSuchKeyException, BookException, ParseException {
+    public String getCanonicalText(Book book, Key key) throws NoSuchKeyException, BookException, ParseException {
 		InputStream is = new OSISInputStream(book, key);
 
 		OsisToCanonicalTextSaxHandler osisToCanonical = getCanonicalTextSaxHandler(book);

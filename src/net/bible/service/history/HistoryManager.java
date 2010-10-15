@@ -2,12 +2,11 @@ package net.bible.service.history;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.Stack;
 
-import net.bible.android.CurrentPassage;
+import net.bible.android.currentpagecontrol.CurrentPageManager;
 
+import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
 import android.util.Log;
@@ -26,15 +25,6 @@ public class HistoryManager {
 		return singleton;
 	}
 	
-	public void initialise() {
-		CurrentPassage.getInstance().addObserver(new Observer() {
-			@Override
-			public void update(Observable observable, Object data) {
-				verseChanged();
-			}
-    	});
-	}
-	
 	public boolean canGoBack() {
 		return history.size()>1;
 	}
@@ -42,14 +32,19 @@ public class HistoryManager {
 	/**
 	 *  called when a verse is changed
 	 */
-	public void verseChanged() {
+	public void pageChanged() {
 		// if we cause the change by requesting Back then ignore it
 		if (!isGoingBack) {
-			Key verse = CurrentPassage.getInstance().getKey();
-			if (verse!=null) {
-				Log.d(TAG, "Adding "+verse+" to history");
-				VerseHistoryItem item = new VerseHistoryItem(verse);
-				add(history, item);
+			//xxxtodo need to save document too so that can retrack to different doc type with different sort of key
+			// but for now just track bible changes
+			if (CurrentPageManager.getInstance().isBibleShown()) {
+				Book doc = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
+				Key verse = CurrentPageManager.getInstance().getCurrentPage().getKey();
+				if (verse!=null) {
+					Log.d(TAG, "Adding "+verse+" to history");
+					VerseHistoryItem item = new VerseHistoryItem(doc, verse);
+					add(history, item);
+				}
 			}
 		}
 	}

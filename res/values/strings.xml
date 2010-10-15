@@ -33,7 +33,7 @@
     <string name="sdcard_error">Sorry, you have no SD card!</string>
     <string name="directory_error">Sorry, unable to access directory %s</string> 
 	<string name="progress_status">Progress</string>
-	<string name="task_kill_warning">Be aware that Android may terminate these long running tasks if you switch to another application before they finish.</string>
+	<string name="task_kill_warning">These long running tasks may terminate if you switch to another application before they finish.</string>
 	<string name="no_tasks_running">There are no tasks currently being executed.</string>
 
 	<string name="search_words_group_prompt">Find verses</string>
@@ -65,8 +65,8 @@
     <string name="next">Next</string>
 
 	<!-- Module download -->
-    <string name="download">Download Bibles</string>
-    <string name="download_confirmation">Download bibles from the internet?</string>
+    <string name="download">Download Documents</string>
+    <string name="download_confirmation">Download documents from the internet?</string>
     <string name="download_document_confirm_prefix">"Download "</string>
     <string name="error_downloading">An error occurred downloading.  Please check your internet connection.</string>
     <string name="no_internet_connection">Could not connect to the internet</string>
@@ -75,10 +75,15 @@
 	<string name="download_complete_no_bibles">No bible was installed.  Please press Back and try again.</string>
 	<string name="too_many_jobs">Too many tasks executing.  Please wait for some to finish and try again.</string>
 	
+	<!-- Dictionary -->
+    <string name="dictionary">Dictionary</string>
+    <string name="search_dictionary_hint">Search dictionary</string>
 	
+    <string name="error_occurred">An error has occurred</string>
     <string name="okay">OK</string>
     <string name="cancel">Cancel</string>
     <string name="error">Error </string>
+    <string name="more">More</string>
     <string name="retry">Try Again</string>
     <string name="please_wait">Please wait...</string>
     

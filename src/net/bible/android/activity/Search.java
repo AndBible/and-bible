@@ -41,7 +41,7 @@ public class Search extends ActivityBase {
         Log.i(TAG, "Displaying Search view");
         setContentView(R.layout.search);
     
-//        currentBibleBook = CurrentPassage.getInstance().getCurrentBibleBook();
+//        currentBibleBook = CurrentBiblePage.getInstance().getCurrentBibleBook();
         
         mSearchTextInput =  (EditText)findViewById(R.id.searchText);
 

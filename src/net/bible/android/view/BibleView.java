@@ -1,6 +1,7 @@
 package net.bible.android.view;
 
-import net.bible.android.CurrentPassage;
+import net.bible.android.currentpagecontrol.CurrentBiblePage;
+import net.bible.android.currentpagecontrol.CurrentPageManager;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -148,7 +149,7 @@ public class BibleView extends WebView {
 						Log.d(TAG, "<.3");
 						if (event.getEventTime()-lastHandledTrackballEventTime>1000) {
 							Log.i(TAG, "Move Back");
-							CurrentPassage.getInstance().previous();
+							CurrentPageManager.getInstance().getCurrentPage().previous();
 							lastHandledTrackballEventTime = event.getEventTime();
 						} else {
 							Log.i(TAG, "Already handled");
@@ -158,7 +159,7 @@ public class BibleView extends WebView {
 						Log.d(TAG, ">.3");
 						if (event.getEventTime()-lastHandledTrackballEventTime>1000) {
 							Log.i(TAG, "Move Forward");
-							CurrentPassage.getInstance().next();
+							CurrentPageManager.getInstance().getCurrentPage().next();
 							lastHandledTrackballEventTime = event.getEventTime();
 						} else {
 							Log.i(TAG, "Already handled");

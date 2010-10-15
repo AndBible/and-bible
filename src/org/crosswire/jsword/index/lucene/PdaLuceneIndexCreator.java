@@ -222,7 +222,7 @@ public class PdaLuceneIndexCreator {
                 DataPolice.setKey(subkey);
 
                 try {
-                	canonicalText = SwordApi.getInstance().getCanonicalText(book, subkey, 1);
+                	canonicalText = SwordApi.getInstance().getCanonicalText(book, subkey);
                 } catch (NoSuchKeyException e) {
                 	logger.warn("No such key:"+subkey.getName());
                     errors.add(subkey);

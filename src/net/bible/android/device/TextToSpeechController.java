@@ -3,8 +3,8 @@ package net.bible.android.device;
 import java.util.HashMap;
 import java.util.Locale;
 
-import net.bible.android.CurrentPassage;
 import net.bible.android.activity.R;
+import net.bible.android.currentpagecontrol.CurrentPage;
 import net.bible.service.sword.SwordApi;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -49,11 +49,11 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     private TextToSpeechController() {
     }
 
-    public void speak(Context context, CurrentPassage passage) {
+    public void speak(Context context, CurrentPage passage) {
     	this.context = context;
     	try {
 	    	bookLanguageCode = passage.getCurrentDocument().getLanguage().getCode();
-	    	textToSpeak = SwordApi.getInstance().getCanonicalText(passage.getCurrentDocument(), passage.getKey(), passage.getNumberOfVersesDisplayed());
+	    	textToSpeak = SwordApi.getInstance().getCanonicalText(passage.getCurrentDocument(), passage.getKey());
 	    	
 	        // Initialize text-to-speech. This is an asynchronous operation.
 	        // The OnInitListener (second argument) is called after initialization completes.

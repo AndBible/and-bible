@@ -11,7 +11,7 @@ import android.util.Log;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class ListActivityBase extends ListActivity implements AndBaseActivity {
+public class ListActivityBase extends ListActivity implements AndBibleActivity {
 	private static final String TAG = "ListActivityBase";
 	
 	private Dialogs dialogs;
