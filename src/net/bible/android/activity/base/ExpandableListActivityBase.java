@@ -1,10 +1,8 @@
 package net.bible.android.activity.base;
 
 import net.bible.android.util.CommonUtil;
-import android.app.Activity;
 import android.app.Dialog;
-import android.app.ListActivity;
-import android.content.Intent;
+import android.app.ExpandableListActivity;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -14,14 +12,13 @@ import android.util.Log;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class ListActivityBase extends ListActivity implements AndBibleActivity {
+public class ExpandableListActivityBase extends ExpandableListActivity implements AndBibleActivity {
 	private static final String TAG = "ListActivityBase";
 	
 	private Dialogs dialogs;
 	
-    public ListActivityBase() {
+    public ExpandableListActivityBase() {
 		super();
-
 		dialogs = new Dialogs(this);
 	}
     
@@ -67,11 +64,4 @@ public class ListActivityBase extends ListActivity implements AndBibleActivity {
 	public void showErrorMsg(String msg) {
 		dialogs.showErrorMsg(msg);		
 	}
-
-	protected void returnToPreviousScreen() {
-    	// just pass control back to the previous screen
-    	Intent resultIntent = new Intent(this, this.getClass());
-    	setResult(Activity.RESULT_OK, resultIntent);
-    	finish();    
-    }
 }

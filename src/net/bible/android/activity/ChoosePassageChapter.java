@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.bible.android.currentpagecontrol.CurrentBiblePage;
+import net.bible.android.activity.base.ExpandableListActivityBase;
 import net.bible.android.currentpagecontrol.CurrentPageManager;
 
 import org.crosswire.jsword.passage.NoSuchVerseException;
@@ -13,7 +13,6 @@ import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleInfo;
 
 import android.app.Activity;
-import android.app.ExpandableListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,7 +29,7 @@ import android.widget.SimpleExpandableListAdapter;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class ChoosePassageChapter extends ExpandableListActivity {
+public class ChoosePassageChapter extends ExpandableListActivityBase {
 	private static final String TAG = "ChoosePassageChapter";
 	
 	private int mBibleBookNo=1;
@@ -42,8 +41,6 @@ public class ChoosePassageChapter extends ExpandableListActivity {
 	private static final int MIN_CHAPTERS_TO_GROUP = 15;
 	
 	private static final String CHAPTER_PRE = "Chapter ";
-	private static final String CHAPTER_SEP = " chapters ";
-	private static final String TO = " to ";
 
 	private ExpandableListAdapter mAdapter;
 
@@ -179,13 +176,7 @@ public class ChoosePassageChapter extends ExpandableListActivity {
     
     private String getGroupName(int bibleBookNo, int groupNo) {
     	try {
-	    	StringBuffer buff = new StringBuffer();
-	    	buff.append(BibleInfo.getLongBookName(bibleBookNo)).append(CHAPTER_SEP);
-	    	buff.append(getGroupStart(groupNo))
-	    		.append(TO)
-	    		.append(getGroupEnd(mBibleBookNo, groupNo));
-	    	
-	    	return buff.toString();
+    		return getString(R.string.chapter_range, BibleInfo.getLongBookName(bibleBookNo), getGroupStart(groupNo), getGroupEnd(mBibleBookNo, groupNo));
     	} catch (NoSuchVerseException e) {
     		Log.e(TAG, "Invalid verse", e);
     		return "Error";

@@ -3,6 +3,7 @@ package net.bible.android.currentpagecontrol;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.bible.android.util.CommonUtil;
 import net.bible.android.view.BibleView;
 import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.Note;
@@ -84,7 +85,7 @@ public class BibleContentManager {
 	    			verseNo = ((CurrentBiblePage)currentPage).getCurrentVerseNo();
 	    		}
 	
-	    		SharedPreferences preferences = context.getSharedPreferences("net.bible.android.activity_preferences", 0);
+	    		SharedPreferences preferences = CommonUtil.getSharedPreferences();
 	    		
 	            Log.d(TAG, "Loading document:"+document.getInitials()+" key:"+key);
 	    		//setText("Loading "+verse.toString());
@@ -107,7 +108,10 @@ public class BibleContentManager {
         	} catch (Exception e) {
         		Log.e(TAG, "Error getting bible text", e);
         		text = "Error getting bible text: "+e.getMessage();
-        	}
+	    	} catch (OutOfMemoryError oom) {
+	    		Log.e(TAG, "Out of memory error", oom);
+	    		text = "Error: document section is too large.";
+	    	}
         	return text;
         }
 

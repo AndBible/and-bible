@@ -3,6 +3,7 @@ package net.bible.android.currentpagecontrol;
 
 import java.util.List;
 
+import net.bible.android.activity.R;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
@@ -10,6 +11,7 @@ import org.crosswire.jsword.passage.Key;
 
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.view.Menu;
 
 abstract class CurrentPageBase implements CurrentPage {
 
@@ -100,6 +102,14 @@ abstract class CurrentPageBase implements CurrentPage {
 		this.currentDocument = doc;
 	}
 
+	@Override
+	public void updateOptionsMenu(Menu menu) {
+		// these are fine for Bible and commentary
+		menu.findItem(R.id.selectPassageButton).setTitle(R.string.selectPassage);		
+		menu.findItem(R.id.searchButton).setEnabled(true);		
+		menu.findItem(R.id.notesButton).setEnabled(true);		
+	}
+	
 	@Override
 	public void restoreState(SharedPreferences inState) {
 		// TODO Auto-generated method stub

@@ -1,6 +1,5 @@
 package net.bible.android.view;
 
-import net.bible.android.currentpagecontrol.CurrentBiblePage;
 import net.bible.android.currentpagecontrol.CurrentPageManager;
 import android.content.Context;
 import android.util.AttributeSet;
@@ -69,7 +68,7 @@ public class BibleView extends WebView {
 		    {
 		    	super.onPageFinished(view, url);
 		    	
-		    	if (mJumpToVerse != -1) { 
+		    	if (mJumpToVerse > 0) { 
 		    		Log.d(TAG, "Jumping to verse "+mJumpToVerse);
 		    		if (mJumpToVerse==1) {
 		    			// use scroll to becasue difficult to place a tag exactly at the top

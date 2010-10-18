@@ -256,7 +256,7 @@ public class SwordApi {
         return retVal;
 	}
 
-	private FormattedDocument readHtmlTextStandardJSwordMethod(Book book, Key key, int maxKeyCount) throws NoSuchKeyException, BookException, IOException, SAXException, URISyntaxException
+	private synchronized FormattedDocument readHtmlTextStandardJSwordMethod(Book book, Key key, int maxKeyCount) throws NoSuchKeyException, BookException, IOException, SAXException, URISyntaxException
 	{
 		log.debug("Using standard JSword to fetch document data");
 		FormattedDocument retVal = new FormattedDocument();

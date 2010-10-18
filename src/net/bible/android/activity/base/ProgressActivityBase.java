@@ -38,6 +38,12 @@ public class ProgressActivityBase extends ActivityBase {
 	
 	private static final String TAG = "ProgressActivityBase";
 	
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		CommonUtil.applyTheme(this);
+	}
+
 	/** Called when the activity is first created. */
     @Override
     public void onPostCreate(Bundle savedInstanceState) {

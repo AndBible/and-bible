@@ -11,7 +11,6 @@ public class Dialogs {
 
 	private Activity activity;
 	
-	public static final int INTERNET_NOT_AVAILABLE_DIALOG = 120;
 	public static final int TOO_MANY_JOBS = 121;
 	public static final int ERROR_MSG = 122;
 	private String errorMsg;
@@ -42,15 +41,6 @@ public class Dialogs {
             case Hourglass.HOURGLASS_KEY:
                 hourglass.show(activity);
                 return hourglass.getHourglass();
-            case INTERNET_NOT_AVAILABLE_DIALOG:
-            	return new AlertDialog.Builder(activity)
-            		   .setMessage(activity.getText(R.string.no_internet_connection))
-            	       .setCancelable(false)
-            	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-            	           public void onClick(DialogInterface dialog, int buttonId) {
-            	        	   ((AndBibleActivity)activity).dialogOnClick(INTERNET_NOT_AVAILABLE_DIALOG, buttonId);
-            	           }
-            	       }).create();
             case TOO_MANY_JOBS:
             	return new AlertDialog.Builder(activity)
             		   .setMessage(activity.getText(R.string.too_many_jobs))
@@ -66,7 +56,7 @@ public class Dialogs {
             	       .setCancelable(false)
             	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
             	           public void onClick(DialogInterface dialog, int buttonId) {
-            	        	   //just close the dialog
+            	        	   ((AndBibleActivity)activity).dialogOnClick(ERROR_MSG, buttonId);
             	           }
             	       }).create();
         }

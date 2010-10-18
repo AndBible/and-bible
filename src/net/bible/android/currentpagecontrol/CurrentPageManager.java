@@ -41,7 +41,7 @@ public class CurrentPageManager {
 	public CurrentBiblePage getCurrentBible() {
 		return currentBiblePage;
 	}
-	public CurrentPage getCurrentDictionary() {
+	public CurrentDictionaryPage getCurrentDictionary() {
 		return currentDictionaryPage;
 	}
 	

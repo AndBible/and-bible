@@ -116,7 +116,7 @@ public class MainBibleActivity extends ActivityBase {
 	        	break;
 	        case R.id.downloadButton:
 	        	if (!CommonUtil.isInternetAvailable()) {
-	            	showDialog(Dialogs.INTERNET_NOT_AVAILABLE_DIALOG);
+	            	showErrorMsg(getString(R.string.no_internet_connection));
 	        	} else {
 	        		handlerIntent = new Intent(this, Download.class);
 	        	}
@@ -249,8 +249,18 @@ public class MainBibleActivity extends ActivityBase {
         inflater.inflate(R.menu.main, menu);
         return true;
     }
+    
+ 
+    @Override
+	public boolean onPrepareOptionsMenu(Menu menu) {
+		super.onPrepareOptionsMenu(menu);
+		
+		CurrentPageManager.getInstance().getCurrentPage().updateOptionsMenu(menu);
+		// must return for menu to be displayed
+		return true;
+	}
 
-    // handle swipe left and right
+	// handle swipe left and right
     // http://android-journey.blogspot.com/2010_01_01_archive.html
     //http://android-journey.blogspot.com/2010/01/android-gestures.html
     // above dropped in favour of simpler method below

@@ -5,6 +5,7 @@ import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 
 import android.content.SharedPreferences;
+import android.view.Menu;
 
 public interface CurrentPage {
 
@@ -29,9 +30,10 @@ public interface CurrentPage {
 	public abstract Book getCurrentDocument();
 
 	public abstract void setCurrentDocument(Book currentBible);
+	
+	public abstract void updateOptionsMenu(Menu menu);
 
 	public abstract void restoreState(SharedPreferences inState);
 
 	public abstract void saveState(SharedPreferences outState);
-
 }
