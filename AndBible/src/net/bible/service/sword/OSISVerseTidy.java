@@ -34,14 +34,14 @@ public class OSISVerseTidy {
 	
     
 	/** add verse number and do basic validation/fix of verse text
-	 * @param verse
+	 * @param key
 	 * @param verseText
 	 * @return
 	 */
-	public String tidy(Verse verse, String verseText) {
+	public String tidy(Key key, String verseText) {
 		
-		verseText = checkVerseText(verse, verseText);
-		verseText = addVerseTag(verse, verseText)+"\n";
+		verseText = checkVerseText(key, verseText);
+		verseText = addVerseTag(key, verseText)+"\n";
 		return verseText;
 		
 	}
@@ -50,10 +50,10 @@ public class OSISVerseTidy {
 	 * I suspect we need to start at the beginning of a chapter instead of verse 1 to fix this 
 	 * because NET seems to have a <div> before the first verse and </div> at the end
 	 * 
-	 * @param verse
+	 * @param key
 	 * @return
 	 */
-	private String checkVerseText(Verse verse, String verseText) {
+	private String checkVerseText(Key key, String verseText) {
         // FIXME(dms): this is a major HACK handling a problem with a badly
         // encoded module.
 		
@@ -76,9 +76,9 @@ public class OSISVerseTidy {
 //        <l type="x-secondary">nor sit in the seat of scoffers;</l>
 //       </lg>
 
-        if (book.getInitials().startsWith("WEB") ) //$NON-NLS-1$ //$NON-NLS-2$
+        if (book.getInitials().startsWith("WEB") && key instanceof Verse ) //$NON-NLS-1$ //$NON-NLS-2$
         {
-        	if (verse.getVerse()==1) {
+        	if (((Verse)key).getVerse()==1) {
         		log.debug("start of WEB chapter");
         		if (verseText.indexOf("</l>") < verseText.indexOf("<l type=\"x-primary\">")) {
             		log.debug("adding <lg><l>");

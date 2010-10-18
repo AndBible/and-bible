@@ -1,10 +1,8 @@
 package net.bible.android.currentpagecontrol;
 
-import java.util.List;
+import net.bible.android.activity.ChoosePassageBook;
 
-import net.bible.service.sword.SwordApi;
-
-import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.NoSuchKeyException;
@@ -22,28 +20,27 @@ import android.util.Log;
  */
 public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPage {
 	
-	private Book currentDocument;
 	private CurrentBibleVerse currentBibleVerse;
 
 	private static final String TAG = "CurrentBiblePage";
 	
 	
 	/* default */ CurrentCommentaryPage(CurrentBibleVerse currentVerse) {
+		// share the verse holder with the CurrentBiblePage
 		this.currentBibleVerse = currentVerse;
 	}
 
-	/* (non-Javadoc)
-	 * @see net.bible.android.currentpagecontrol.CurrentPage#toString()
-	 */
-	@Override
-	public String toString() {
-		return currentBibleVerse.getVerseSelected().toString();
-	}
-	
-	public String getKeyDescription() {
-		return currentBibleVerse.getVerseSelected().toString();
+	public BookCategory getBookCategory() {
+		return BookCategory.COMMENTARY;
 	}
 
+	public Class getKeyChooserActivity() {
+		return ChoosePassageBook.class;
+	}
+
+	public String getKeyDescription() {
+		return getCurrentDocument().getInitials()+" "+currentBibleVerse.getVerseSelected().toString();
+	}
 
 	/* (non-Javadoc)
 	 * @see net.bible.android.currentpagecontrol.CurrentPage#next()
@@ -78,8 +75,10 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 	 * @param key
 	 */
 	protected void doSetKey(Key key) {
-		Verse verse = KeyUtil.getVerse(key);
-		currentBibleVerse.setVerseSelected(verse);
+		if (key!=null) {
+			Verse verse = KeyUtil.getVerse(key);
+			currentBibleVerse.setVerseSelected(verse);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -90,29 +89,6 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 		Log.i(TAG, "getKey:"+currentBibleVerse.getVerseSelected());
 		return currentBibleVerse.getVerseSelected();
     }
-
-	/* (non-Javadoc)
-	 * @see net.bible.android.currentpagecontrol.CurrentPage#getCurrentDocument()
-	 */
-	@Override
-	public Book getCurrentDocument() {
-		if (currentDocument==null) {
-			List<Book> books = SwordApi.getInstance().getCommentaries();
-			if (books.size()>0) {
-				currentDocument = books.get(0);
-			}
-		}
-		return currentDocument;
-	}
-
-	/* (non-Javadoc)
-	 * @see net.bible.android.currentpagecontrol.CurrentPage#setCurrentDocument(org.crosswire.jsword.book.Book)
-	 */
-	@Override
-	public void setCurrentDocument(Book doc) {
-		this.currentDocument = doc;
-		pageChange();
-	}
 
 	public boolean isSingleChapterBook() throws NoSuchKeyException{
     	return BibleInfo.chaptersInBook(currentBibleVerse.getCurrentBibleBookNo())==1;
@@ -127,7 +103,7 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 		return true;
 	}
 	public int getCurrentVerse() {
-		return currentBibleVerse.getVerseSelected().getVerse();
+		return currentBibleVerse.getVerseNo();
 	}
 	public void setCurrentVerse(int verse) {
 		currentBibleVerse.setVerseNo(verse);

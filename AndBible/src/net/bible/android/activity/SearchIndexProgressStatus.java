@@ -47,16 +47,8 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 			finish();
 		} else {
 			// if jobs still running then just wait else error
-			Set jobs = JobManager.getJobs();
-			Iterator iter = jobs.iterator();
-			boolean allFinished = true;
-			while (iter.hasNext()) {
-				Progress job = (Progress)iter.next();
-				if (!job.isFinished()) {
-					allFinished = false;
-				}
-			}
-			if (allFinished) {
+			
+			if (isAllJobsFinished()) {
 				showErrorMsg(getString(R.string.error_occurred));
 			}
 		}

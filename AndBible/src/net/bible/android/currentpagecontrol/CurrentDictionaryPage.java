@@ -2,10 +2,17 @@ package net.bible.android.currentpagecontrol;
 
 import java.util.List;
 
+import net.bible.android.BibleApplication;
+import net.bible.android.activity.ChooseDictionaryWord;
+import net.bible.android.activity.ChoosePassageBook;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
+
+import android.content.Intent;
+import android.util.Log;
 
 /** Reference to current passage shown by viewer
  * 
@@ -23,11 +30,15 @@ public class CurrentDictionaryPage extends CurrentPageBase implements CurrentPag
 	
 	/* default */ CurrentDictionaryPage() {
 	}
-
-	public String getKeyDescription() {
-		return getKey().toString();
+	
+	public BookCategory getBookCategory() {
+		return BookCategory.DICTIONARY;
 	}
 
+	public Class getKeyChooserActivity() {
+		return ChooseDictionaryWord.class;
+	}
+	
 	/** set key without notification
 	 * 
 	 * @param key
@@ -56,16 +67,6 @@ public class CurrentDictionaryPage extends CurrentPageBase implements CurrentPag
 			}
 		}
 		return currentDocument;
-	}
-
-	/* (non-Javadoc)
-	 * @see net.bible.android.currentpagecontrol.CurrentPage#setCurrentDocument(org.crosswire.jsword.book.Book)
-	 */
-	@Override
-	public void setCurrentDocument(Book doc) {
-		this.currentDocument = doc;
-		// not yet because we currently always go to the index first and pick a key at which point a refresh will occur
-		// pageChange();
 	}
 
 	@Override

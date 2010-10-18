@@ -6,6 +6,10 @@ import java.util.Locale;
 import net.bible.android.activity.R;
 import net.bible.android.currentpagecontrol.CurrentPage;
 import net.bible.service.sword.SwordApi;
+
+import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.passage.Key;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
@@ -35,6 +39,8 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 
     private boolean mIsSpeaking;
     
+    private Book mDocument;
+    private Key mKey;
     private String bookLanguageCode;
     private String textToSpeak;
     
@@ -49,11 +55,14 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     private TextToSpeechController() {
     }
 
-    public void speak(Context context, CurrentPage passage) {
+    public void speak(Context context, CurrentPage page) {
     	this.context = context;
     	try {
-	    	bookLanguageCode = passage.getCurrentDocument().getLanguage().getCode();
-	    	textToSpeak = SwordApi.getInstance().getCanonicalText(passage.getCurrentDocument(), passage.getKey());
+	    	bookLanguageCode = page.getCurrentDocument().getLanguage().getCode();
+	    	mDocument = page.getCurrentDocument();
+	    	mKey = page.getKey();
+	    	Log.d(TAG, "Speaking:"+mDocument+" "+mKey);
+	    	textToSpeak = SwordApi.getInstance().getCanonicalText(mDocument, mKey);
 	    	
 	        // Initialize text-to-speech. This is an asynchronous operation.
 	        // The OnInitListener (second argument) is called after initialization completes.
@@ -61,7 +70,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 	            this  // TextToSpeech.OnInitListener
 	            );
     	} catch (Exception e) {
-    		showError("Error preparing test to display");
+    		showError("Error preparing text to display");
     	}
     }
 
@@ -82,9 +91,14 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
         if (status == TextToSpeech.SUCCESS) {
             // Set preferred language to the same language as the book.
             // Note that a language may not be available, and the result will indicate this.
-            int result = mTts.setLanguage(new Locale(this.bookLanguageCode));
+        	String bookLang = this.bookLanguageCode;
+	    	Log.d(TAG, "Book has language code:"+bookLang);
+        	Locale locale = new Locale(bookLang);
+	    	Log.d(TAG, "Speech locale:"+locale);
+            int result = mTts.setLanguage(locale);
             if (result == TextToSpeech.LANG_MISSING_DATA ||
                 result == TextToSpeech.LANG_NOT_SUPPORTED) {
+    	    	Log.e(TAG, "TTS missing or not supported ("+result+")");
                // Language data is missing or the language is not supported.
                 showError(context.getString(R.string.tts_lang_not_available));
             } else {

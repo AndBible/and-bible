@@ -56,44 +56,18 @@ public class MainBibleActivity extends ActivityBase {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setContentView(R.layout.main_bible_view);
+
+        // create related objects
+        gestureDetector = new GestureDetector( new BibleSwipeListener(MainBibleActivity.this) );
+        bibleWebView = (BibleView)findViewById(R.id.main_text);
+    	bibleContentManager = new BibleContentManager(bibleWebView, MainBibleActivity.this);
+
+        PassageChangeMediator.getInstance().setMainBibleActivity(MainBibleActivity.this);
         
-        if (!SwordApi.getInstance().isSwordLoaded()) {
-        	//TODO this is never entered xxxtodo
-        	showSplashScreen();
-        }
+        restoreState();
 
-        // allow call back and continuation in the ui thread after JSword has been initialised
-        final Handler uiHandler = new Handler();
-        final Runnable uiThreadRunnable = new Runnable() {
-			@Override
-			public void run() {
-		        // create related objects
-		        gestureDetector = new GestureDetector( new BibleSwipeListener(MainBibleActivity.this) );
-		        bibleWebView = (BibleView)findViewById(R.id.main_text);
-		    	bibleContentManager = new BibleContentManager(bibleWebView, MainBibleActivity.this);
-
-		        PassageChangeMediator.getInstance().setMainBibleActivity(MainBibleActivity.this);
-		        
-		        restoreState();
-
-		    	// initialise title etc
-		    	onPassageChanged();
-			}
-        };
-
-        // initialise JSword in another thread (may take a long time) then call main ui thread Handler to continue
-        // this allows the splash screen to be displayed and an hourglass to run
-        new Thread() {
-        	public void run() {
-        		try {
-	                // force Sword to initialise itself
-	                SwordApi.getInstance().getBibles();
-        		} finally {
-        			// switch back to ui thread to continue
-        			uiHandler.post(uiThreadRunnable);
-        		}
-        	}
-        }.start();
+    	// initialise title etc
+    	onPassageChanged();
     }
 
     /** adding android:configChanges to manifest causes this method to be called on flip, etc instead of a new instance and onCreate, which would cause a new observer -> duplicated threads
@@ -121,7 +95,7 @@ public class MainBibleActivity extends ActivityBase {
 	        	handlerIntent = new Intent(this, ChooseDocument.class);
 	        	break;
 	        case R.id.selectPassageButton:
-	        	handlerIntent = new Intent(this, ChoosePassageBook.class);
+	        	handlerIntent = new Intent(this, CurrentPageManager.getInstance().getCurrentPage().getKeyChooserActivity());
 	        	break;
 	        case R.id.searchButton:
 	        	handlerIntent = getSearchIntent();
@@ -235,10 +209,9 @@ public class MainBibleActivity extends ActivityBase {
 			}
 		});
     }
-    /** called after a new passage has been changed and displayed
+    /** called by PassageChangeMediator after a new passage has been changed and displayed
      */
     public void onPassageChanged() {
-    	//xxxtodo make this driven by PassageChangeMediator and also listen to all doc types
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {

@@ -14,7 +14,7 @@
 		android:layout_height="wrap_content" 
 		android:layout_width="fill_parent" 
 		android:layout_alignParentTop="true"
-		android:padding="5dip"/>
+		android:padding="10dip"/>
 	
 	<RadioGroup android:id="@+id/bibleSectionGroup" 
 		android:layout_below="@+id/searchText"

@@ -35,16 +35,12 @@ public class HistoryManager {
 	public void pageChanged() {
 		// if we cause the change by requesting Back then ignore it
 		if (!isGoingBack) {
-			//xxxtodo need to save document too so that can retrack to different doc type with different sort of key
-			// but for now just track bible changes
-			if (CurrentPageManager.getInstance().isBibleShown()) {
-				Book doc = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
-				Key verse = CurrentPageManager.getInstance().getCurrentPage().getKey();
-				if (verse!=null) {
-					Log.d(TAG, "Adding "+verse+" to history");
-					VerseHistoryItem item = new VerseHistoryItem(doc, verse);
-					add(history, item);
-				}
+			Book doc = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
+			Key verse = CurrentPageManager.getInstance().getCurrentPage().getKey();
+			if (verse!=null) {
+				Log.d(TAG, "Adding "+verse+" to history");
+				VerseHistoryItem item = new VerseHistoryItem(doc, verse);
+				add(history, item);
 			}
 		}
 	}

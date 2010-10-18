@@ -66,7 +66,7 @@ public class SwordApi {
 	private static BookFilter SUPPORTED_DOCUMENT_TYPES = BookFilters.either(BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries()), BookFilters.getDictionaries());
 	private SharedPreferences preferences;
 	
-	private boolean isSwordLoaded;
+	private static boolean isSwordLoaded;
 	
 	private static boolean isAndroid = Utils.isAndroid();
     private static final Logger log = new Logger(SwordApi.class.getName()); 
@@ -91,6 +91,7 @@ public class SwordApi {
 		try {
 			if (isAndroid) {
 				// ensure required module directories exist and register them with jsword
+		        Log.d(TAG, "*** 51");
 				
 				File moduleDir = SharedConstants.MODULE_DIR;
 
@@ -102,17 +103,26 @@ public class SwordApi {
 				ensureDirExists(new File(moduleDir, SwordConstants.DIR_DATA));
 				// indexes
 				ensureDirExists(new File(moduleDir, LUCENE_DIR));
-				
+		        Log.d(TAG, "*** 52");
+
 				// the second value below is the one which is used in effectively all circumstances
 		        CWProject.setHome("jsword.home", moduleDir.getAbsolutePath(), SharedConstants.MANUAL_INSTALL_DIR.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-	
+		        Log.d(TAG, "*** 53");
+
+		        // the following causes Sword to initialise itself and can take quite a few seconds
 				SwordBookPath.setAugmentPath(new File[] {SharedConstants.MANUAL_INSTALL_DIR});  // add manual install dir to this list
 				
+				// because the above line causes initialisation set the is initialised flag here
+				isSwordLoaded = true;
+				
+		        Log.d(TAG, "*** 54");
+
 				log.debug(("Sword paths:"+getPaths()));
 			}
 			
 			downloadManager = new DownloadManager();
-			
+	        Log.d(TAG, "*** 55");
+
 		} catch (Exception e) {
 			log.error("Error initialising", e);
 		}
@@ -126,10 +136,15 @@ public class SwordApi {
 		return documents;
 	}
 
-	public List<Book> getCommentaries() {
+	public List<Book> getBooks(final BookCategory bookCategory) {
 		log.debug("Getting commentaries");
-		List<Book> documents = Books.installed().getBooks(BookFilters.getCommentaries());
-		log.debug("Got commentaries, Num="+documents.size());
+		List<Book> documents = Books.installed().getBooks(new BookFilter() {
+			@Override
+	        public boolean test(Book book) {
+	            return book.getBookCategory().equals(bookCategory) && !book.isLocked();
+	        }
+		});
+		log.debug("Got books, Num="+documents.size());
 		isSwordLoaded = true;
 		return documents;
 	}
@@ -209,6 +224,7 @@ public class SwordApi {
 	{
 		FormattedDocument retVal = new FormattedDocument();
 		if (!book.contains(key)) {
+			//TODO this should include css to change to night mode if necessary
 			retVal.setHtmlPassage("Not found in document");
 		} else {
 			if ("OSIS".equals(book.getBookMetaData().getProperty("SourceType")) &&
@@ -379,7 +395,8 @@ public class SwordApi {
 		osisToHtml.setLeftToRight(bmd.isLeftToRight());
 		
 		if (preferences!=null) {
-			osisToHtml.setShowVerseNumbers(preferences.getBoolean("show_verseno_pref", true));
+			// show verse numbers if user has selected to show verse numbers AND teh book is a bible (so don't even try to show verses in a Dictionary)
+			osisToHtml.setShowVerseNumbers(preferences.getBoolean("show_verseno_pref", true) && book.getBookCategory().equals(BookCategory.BIBLE));
 			osisToHtml.setShowNotes(preferences.getBoolean("show_notes_pref", true));
 			if (preferences.getBoolean("night_mode_pref", false)) {
 				osisToHtml.setExtraStylesheet(NIGHT_MODE_STYLESHEET);
@@ -429,7 +446,11 @@ public class SwordApi {
 		}
 	}
 
-	public boolean isSwordLoaded() {
+	/** needs to be static because otherwise the constructor triggers initialisation
+	 * 
+	 * @return
+	 */
+	static public boolean isSwordLoaded() {
 		return isSwordLoaded;
 	}
 }

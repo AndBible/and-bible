@@ -26,9 +26,8 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
 
     private Stack<CONTENT_STATE> writeContentStack = new Stack<CONTENT_STATE>(); 
 	private enum CONTENT_STATE {WRITE, IGNORE};
-	
     
-    private static final Logger log = new Logger("OsisToHtmlSaxHandler");
+    private static final Logger log = new Logger("OsisToCanonicalTextSaxHandler");
     
     public OsisToCanonicalTextSaxHandler() {
         super(null);
@@ -86,6 +85,14 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
 			writeContentStack.push(CONTENT_STATE.IGNORE);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
 			writeContentStack.push(CONTENT_STATE.IGNORE);
+
+		} else if (	name.equals(OSISUtil.OSIS_ELEMENT_L) ||
+					name.equals(OSISUtil.OSIS_ELEMENT_LB) ||
+					name.equals(OSISUtil.OSIS_ELEMENT_P) ) {
+			// these occur in Psalms to separate different paragraphs.  
+			// A space is needed for TTS not to be confused by punctuation with a missing space like 'toward us,and the'
+			write(" ");
+			writeContentStack.push(writeContentStack.peek());
 		} else {
 			// unknown tags rely on parent tag to determine if content is canonical e.g. the italic tag in the middle of canonical text
 			writeContentStack.push(writeContentStack.peek());
