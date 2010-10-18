@@ -1,6 +1,10 @@
 package net.bible.android.currentpagecontrol;
 
 
+import java.util.List;
+
+import net.bible.service.sword.SwordApi;
+
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
@@ -8,6 +12,8 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 abstract class CurrentPageBase implements CurrentPage {
+
+	private Book currentDocument;
 
 	private static final String TAG = "CurrentPage";
 	
@@ -45,9 +51,7 @@ abstract class CurrentPageBase implements CurrentPage {
 	@Override
 	public void previous() {
 		// TODO Auto-generated method stub
-
 	}
-
 
 	@Override
 	public boolean isSingleKey() {
@@ -61,16 +65,39 @@ abstract class CurrentPageBase implements CurrentPage {
 		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see net.bible.android.currentpagecontrol.CurrentPage#getCurrentDocument()
+	 */
 	@Override
 	public Book getCurrentDocument() {
-		// TODO Auto-generated method stub
-		return null;
+		if (currentDocument==null) {
+			List<Book> books = SwordApi.getInstance().getBooks(getBookCategory());
+			if (books.size()>0) {
+				currentDocument = books.get(0);
+			}
+		}
+		return currentDocument;
 	}
 
-	@Override
-	public void setCurrentDocument(Book currentBible) {
-		// TODO Auto-generated method stub
 
+	/* Set new doc and if possible show new doc
+	 * @see net.bible.android.currentpagecontrol.CurrentPage#setCurrentDocument(org.crosswire.jsword.book.Book)
+	 */
+	@Override
+	public void setCurrentDocument(Book doc) {
+		if (getKey()!=null && !doc.equals(currentDocument) && !doc.contains(getKey())) {
+			setKey(null);
+		}
+		localSetCurrentDocument(doc);
+		
+		// not yet because we currently always go to the index first and pick a key at which point a refresh will occur
+		if (getKey()!=null) {
+			pageChange();
+		}
+	}
+	
+	protected void localSetCurrentDocument(Book doc) {
+		this.currentDocument = doc;
 	}
 
 	@Override

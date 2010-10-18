@@ -1,6 +1,7 @@
 package net.bible.android.activity.base;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -123,6 +124,23 @@ public class ProgressActivityBase extends ActivityBase {
     
     protected void jobFinished(Progress job) {
     	// do nothing by default
+    }
+    
+    /** helper method that returns true if alll jobs are finished
+     * 
+     * @return true if all jobs finished or no jobs
+     */
+    protected boolean isAllJobsFinished() {
+		Set jobs = JobManager.getJobs();
+		Iterator iter = jobs.iterator();
+		boolean allFinished = true;
+		while (iter.hasNext()) {
+			Progress job = (Progress)iter.next();
+			if (!job.isFinished()) {
+				return false;
+			}
+		}
+		return true;
     }
 
     /** format a descriptive string from a Progress object

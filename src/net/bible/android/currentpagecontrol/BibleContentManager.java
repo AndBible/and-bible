@@ -71,14 +71,18 @@ public class BibleContentManager {
     	}
     	
 		@Override
-        protected String doInBackground(CurrentPage... currentPassageArgs) {
+        protected String doInBackground(CurrentPage... currentPageArgs) {
             Log.d(TAG, "Loading html in background");
         	String text = "Error";
         	try {
-        		CurrentPage currentPassage = currentPassageArgs[0]; 
-	    		Book document = currentPassage.getCurrentDocument();
+        		CurrentPage currentPage = currentPageArgs[0]; 
+	    		Book document = currentPage.getCurrentDocument();
 	    		// if bible show whole chapter
-	    		Key key = currentPassage.getKey();
+	    		Key key = currentPage.getKey();
+	    		// but allow for jump to specific verse e.g. after search result
+	    		if (currentPage instanceof CurrentBiblePage) {
+	    			verseNo = ((CurrentBiblePage)currentPage).getCurrentVerseNo();
+	    		}
 	
 	    		SharedPreferences preferences = context.getSharedPreferences("net.bible.android.activity_preferences", 0);
 	    		

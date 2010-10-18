@@ -1,6 +1,7 @@
 package net.bible.android.currentpagecontrol;
 
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 
 import android.content.SharedPreferences;
@@ -8,6 +9,10 @@ import android.content.SharedPreferences;
 public interface CurrentPage {
 
 	public abstract String toString();
+
+	public abstract BookCategory getBookCategory();
+
+	public abstract Class getKeyChooserActivity();
 
 	public abstract void next();
 

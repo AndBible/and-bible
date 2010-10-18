@@ -73,6 +73,8 @@ public class Download extends ActivityBase {
 	private Book selectedDocument;
 	
 	private static final int DOWNLOAD_CONFIRMATION_DIALOG = 33;
+	public static final int DOWNLOAD_MORE_RESULT = 10;
+	public static final int DOWNLOAD_FINISH = 1;
 	
     /** Called when the activity is first created. */
     @Override
@@ -317,7 +319,7 @@ public class Download extends ActivityBase {
 	    	} else {
 	    		intent = new Intent(this, DownloadStatus.class);
 	    	}
-        	startActivity(intent);
+        	startActivityForResult(intent, 1);
 
     	} catch (Exception e) {
     		Log.e(TAG, "Error on attempt to download", e);
@@ -328,7 +330,7 @@ public class Download extends ActivityBase {
     
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	if (resultCode==Activity.RESULT_OK) {
+    	if (resultCode==DOWNLOAD_FINISH) {
     		returnToPreviousScreen();
     	}
     }

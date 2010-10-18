@@ -55,7 +55,7 @@ public class VerseCalculator {
 		// it is onlt bibles that have dynamic vere update on scroll
 		if (CurrentPageManager.getInstance().getCurrentPage() instanceof CurrentBiblePage) {
 			int currentVerse = calculateCurrentVerse(scrollOffset);
-			CurrentPageManager.getInstance().getCurrentBible().setCurrentVerse(currentVerse);
+			CurrentPageManager.getInstance().getCurrentBible().setCurrentVerseNo(currentVerse);
 		}
 	}
 	

@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.bible.android.activity.base.ActivityBase;
+import net.bible.android.currentpagecontrol.CurrentPage;
 import net.bible.android.currentpagecontrol.CurrentPageManager;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.book.BookCategory;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -72,11 +72,18 @@ public class ChooseDocument extends ActivityBase {
     private void bookSelected(Book selectedBook) {
     	Log.d(TAG, "Book selected:"+selectedBook.getInitials());
     	try {
-    		CurrentPageManager.getInstance().setCurrentDocument( selectedBook );
-    		BookCategory bookCategory = selectedBook.getBookCategory();
-    		if (bookCategory.equals(BookCategory.DICTIONARY)) {
-    			chooseDictionaryPage();
+    		CurrentPage newPage = CurrentPageManager.getInstance().setCurrentDocument( selectedBook );
+    		
+    		// page will change due to above
+    		// if there is a valid key then show the page straight away
+    		if (newPage.getKey()==null) {
+    			// no key set for this doc type so show a key chooser
+    			//TODO this code is generic and needs to be performed whenever a doc changes so think where to put it
+    	    	Intent intent = new Intent(this, newPage.getKeyChooserActivity());
+    	    	startActivity(intent);
+    	    	finish();    
     		} else {
+    			// if key is valid then the new doc will have been shown already
     			returnToMainBibleView();
     		}
     	} catch (Exception e) {
@@ -84,15 +91,8 @@ public class ChooseDocument extends ActivityBase {
     	}
     }
     
-    private void chooseDictionaryPage() {
-    	Log.i(TAG, "going to dictionary search view");
-    	Intent intent = new Intent(this, ChooseDictionaryWord.class);
-    	startActivity(intent);
-    	finish();    
-    }
-
     private void returnToMainBibleView() {
-    	Log.i(TAG, "rturning to main bible view");
+    	Log.i(TAG, "returning to main bible view");
     	Intent resultIntent = new Intent();
     	setResult(Activity.RESULT_OK, resultIntent);
     	finish();    

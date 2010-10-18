@@ -55,8 +55,7 @@ public class NotesActivity extends ActivityBase {
         mWarning =  (TextView)findViewById(R.id.warningText);
         mNotesListView =  (ListView)findViewById(R.id.notesList);
         
-        //xxxtodo effective upcast!
-        mVerseNo = CurrentPageManager.getInstance().getCurrentBible().getCurrentVerse();
+        mVerseNo = CurrentPageManager.getInstance().getCurrentBible().getCurrentVerseNo();
         mChapterNotesList = DataPipe.getInstance().popNotes();
         
         initialiseView();
@@ -92,7 +91,6 @@ public class NotesActivity extends ActivityBase {
     	}
     }
     public void onNext(View v) {
-    	//xxxtodo again an effective upcast!
     	if (mVerseNo<CurrentPageManager.getInstance().getCurrentBible().getNumberOfVersesDisplayed()) {
     		mVerseNo++;
     		onVerseChanged();
@@ -120,9 +118,9 @@ public class NotesActivity extends ActivityBase {
     
     private void prepareWarningMsg() {
     	String warning = "";
-    	if (mChapterNotesList.size()==0) {
+    	if (mChapterNotesList==null || mChapterNotesList.size()==0) {
     		warning = getString(R.string.no_chapter_notes);
-    	} else if (mVerseNotesList.size()==0) {
+    	} else if (mChapterNotesList==null || mVerseNotesList.size()==0) {
     		warning = getString(R.string.no_verse_notes);
     	}
     	
@@ -136,16 +134,6 @@ public class NotesActivity extends ActivityBase {
     	}
     }
 
-    private List<Note> getNotesList(int verseNo) {
-		List<Note> verseNotes = new ArrayList<Note>();
-		for (Note note : mChapterNotesList) {
-			if (note.getVerseNo() == verseNo) {
-				verseNotes.add(note);
-			}
-		}
-		return verseNotes;
-	}
-    
     private void showCurrentVerse() {
     	mTitle.setText("Verse "+mVerseNo);
     }

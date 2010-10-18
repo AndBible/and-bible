@@ -4,7 +4,7 @@ import org.crosswire.jsword.passage.Verse;
 
 public class CurrentBibleVerse {
 	
-	private Verse verseSelected;
+	private Verse verseSelected = new Verse(1,1,1,true);
 
 	public int getCurrentBibleBookNo() {
 		return verseSelected.getBook();
@@ -18,5 +18,8 @@ public class CurrentBibleVerse {
 	}
 	public void setVerseNo(int verseNo) {
 		verseSelected = new Verse(verseSelected.getBook(), verseSelected.getChapter(), verseNo, true);
+	}
+	public int getVerseNo() {
+		return verseSelected.getVerse();
 	}
 }

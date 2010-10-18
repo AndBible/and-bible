@@ -1,7 +1,6 @@
 package net.bible.android.currentpagecontrol;
 
-import java.util.List;
-
+import net.bible.android.activity.ChoosePassageBook;
 import net.bible.service.sword.SwordApi;
 
 import org.apache.commons.lang.StringUtils;
@@ -10,7 +9,6 @@ import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.NoSuchKeyException;
-import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BibleInfo;
@@ -26,26 +24,27 @@ import android.util.Log;
  */
 public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	
-	private Book currentDocument;
 	private CurrentBibleVerse currentBibleVerse;
 
 	private static final String TAG = "CurrentBiblePage";
 	
 	
 	/* default */ CurrentBiblePage(CurrentBibleVerse currentVerse) {
-		//TODO shouldn't need to do this here
-		List<Book> books = SwordApi.getInstance().getDocuments();
-		if (books.size()>0) {
-			currentDocument = books.get(0);
-			Log.i(TAG, "Initial book:"+currentDocument.getInitials());
-		}
+		// share the verse holder with the CurrentCommentaryPage
 		this.currentBibleVerse = currentVerse;
 	}
 
-	public String getKeyDescription() {
-		return currentDocument.getInitials()+" "+currentBibleVerse.getVerseSelected().toString();
+	public BookCategory getBookCategory() {
+		return BookCategory.BIBLE;
 	}
 
+	public Class getKeyChooserActivity() {
+		return ChoosePassageBook.class;
+	}
+	
+	public String getKeyDescription() {
+		return getCurrentDocument().getInitials()+" "+currentBibleVerse.getVerseSelected().toString();
+	}
 
 	/* (non-Javadoc)
 	 * @see net.bible.android.currentpagecontrol.CurrentPage#next()
@@ -82,7 +81,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	public void setKey(String keyText) {
 		Log.d(TAG, "key text:"+keyText);
 		try {
-			Key key = currentDocument.getKey(keyText);
+			Key key = getCurrentDocument().getKey(keyText);
 			setKey(key);
 		} catch (NoSuchKeyException nske) {
 			Log.e(TAG, "Invalid verse reference:"+keyText);
@@ -94,8 +93,11 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	 * @param key
 	 */
 	protected void doSetKey(Key key) {
-		Verse verse = KeyUtil.getVerse(key);
-		currentBibleVerse.setVerseSelected(verse);
+		Log.d(TAG, "Bible key set to:"+key);
+		if (key!=null) {
+			Verse verse = KeyUtil.getVerse(key);
+			currentBibleVerse.setVerseSelected(verse);
+		}
 	}
 
 	/* (non-Javadoc)
@@ -104,36 +106,28 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	@Override
 	public Key getKey() {
 		Verse verse = currentBibleVerse.getVerseSelected();
-        Key wholeChapterKey = new VerseRange(verse.getFirstVerseInChapter(), verse.getLastVerseInChapter());
-
-        return wholeChapterKey;
+		if (verse!=null) {
+			// display whole page of bible so return whole chapter key - not just teh single verse even if a single verse was set in verseKey
+			// if verseNo is required too then use getVerse()
+	        Key wholeChapterKey = new VerseRange(verse.getFirstVerseInChapter(), verse.getLastVerseInChapter());
+	
+	        return wholeChapterKey;
+		} else {
+			return new Verse(1,1,1, true);
+		}
     }
 
-	/* (non-Javadoc)
-	 * @see net.bible.android.currentpagecontrol.CurrentPage#getCurrentDocument()
-	 */
 	@Override
-	public Book getCurrentDocument() {
-		if (currentDocument==null) {
-			List<Book> bibles = SwordApi.getInstance().getBibles();
-			if (bibles.size()>0) {
-				currentDocument = bibles.get(0);
-			}
-		}
-		return currentDocument;
+	public boolean isSingleKey() {
+		return false;
 	}
-
-	/* (non-Javadoc)
-	 * @see net.bible.android.currentpagecontrol.CurrentPage#setCurrentDocument(org.crosswire.jsword.book.Book)
-	 */
-	@Override
-	public void setCurrentDocument(Book currentBible) {
-		this.currentDocument = currentBible;
-		pageChange();
+	
+	public int getCurrentVerseNo() {
+		return currentBibleVerse.getVerseNo();
 	}
-
-	public int getCurrentBibleBookNo() {
-		return currentBibleVerse.getVerseSelected().getBook();
+	public void setCurrentVerseNo(int verse) {
+		currentBibleVerse.setVerseNo(verse);
+		pageDetailChange();
 	}
 
 	public boolean isSingleChapterBook() throws NoSuchKeyException{
@@ -145,31 +139,20 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 		return numVerses;
 	}
 
-	@Override
-	public boolean isSingleKey() {
-		return false;
-	}
-	public int getCurrentVerse() {
-		return currentBibleVerse.getVerseSelected().getVerse();
-	}
-	public void setCurrentVerse(int verse) {
-		currentBibleVerse.setVerseNo(verse);
-		pageDetailChange();
-	}
-	
 	/** called during app close down to save state
 	 * 
 	 * @param outState
 	 */
 	@Override
 	public void saveState(SharedPreferences outState) {
-		//TODO xxxtodo save verse instead of individual numbers
-		SharedPreferences.Editor editor = outState.edit();
-		editor.putString("document", getCurrentDocument().getInitials());
-		editor.putInt("bible-book", currentBibleVerse.getCurrentBibleBookNo());
-		editor.putInt("chapter", currentBibleVerse.getVerseSelected().getChapter());
-		editor.putInt("verse", getCurrentVerse());
-		editor.commit();
+		if (getCurrentDocument()!=null && currentBibleVerse!=null && currentBibleVerse.getVerseSelected()!=null) {
+			SharedPreferences.Editor editor = outState.edit();
+			editor.putString("document", getCurrentDocument().getInitials());
+			editor.putInt("bible-book", currentBibleVerse.getCurrentBibleBookNo());
+			editor.putInt("chapter", currentBibleVerse.getVerseSelected().getChapter());
+			editor.putInt("verse", currentBibleVerse.getVerseNo());
+			editor.commit();
+		}
 	}
 	/** called during app start-up to restore previous state
 	 * 
@@ -186,7 +169,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 				if (book!=null) {
 					Log.d(TAG, "Document:"+book.getName());
 					// bypass setter to avoid automatic notifications
-					this.currentDocument = book;
+					localSetCurrentDocument(book);
 				}
 			}
 

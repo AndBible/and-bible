@@ -45,7 +45,7 @@ public class CurrentPageManager {
 		return currentDictionaryPage;
 	}
 	
-	public void setCurrentDocument(Book currentBook) {
+	public CurrentPage setCurrentDocument(Book currentBook) {
 		BookCategory bookCategory = currentBook.getBookCategory();
 		CurrentPage nextPage = null;
 		if (bookCategory.equals(BookCategory.BIBLE)) {
@@ -60,6 +60,8 @@ public class CurrentPageManager {
 			currentDisplayedPage = nextPage;
 			nextPage.setCurrentDocument(currentBook);
 		}
+		
+		return nextPage;
 	}
 
 	/** called during app close down to save state
