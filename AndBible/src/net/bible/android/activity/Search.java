@@ -2,6 +2,7 @@ package net.bible.android.activity;
 
 import net.bible.android.activity.base.ActivityBase;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.index.search.SearchType;
 
 import android.app.Activity;
@@ -72,12 +73,14 @@ public class Search extends ActivityBase {
     public void onSearch(View v) {
     	Log.i(TAG, "CLICKED");
     	String searchText = mSearchTextInput.getText().toString();
-    	searchText = decorateSearchString(searchText);
-    	Log.d(TAG, "Search text:"+searchText);
-    	
-    	Intent intent = new Intent(this, SearchResults.class);
-    	intent.putExtra(SEARCH_TEXT, searchText);
-    	startActivityForResult(intent, 1);
+    	if (!StringUtils.isEmpty(searchText)) {
+        	searchText = decorateSearchString(searchText);
+        	Log.d(TAG, "Search text:"+searchText);
+        	
+        	Intent intent = new Intent(this, SearchResults.class);
+        	intent.putExtra(SEARCH_TEXT, searchText);
+        	startActivityForResult(intent, 1);
+    	}
     }
     
     private String decorateSearchString(String searchString) {

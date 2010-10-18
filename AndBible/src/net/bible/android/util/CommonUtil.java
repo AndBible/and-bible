@@ -4,6 +4,11 @@ import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
 
+import net.bible.android.BibleApplication;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 public class CommonUtil {
@@ -28,6 +33,20 @@ public class CommonUtil {
     		Log.i(TAG, "No internet connection");
     		return false;
     	}
+    }
+    
+    public static void applyTheme(Activity activity) {
+//        SharedPreferences preferences = getSharedPreferences();
+//
+//        if (preferences.getBoolean("night_mode_pref", false)) {
+//        	activity.setTheme(android.R.style.Theme);
+//        } else {
+//        	activity.setTheme(android.R.style.Theme_Light);
+//        }
+    }
+    
+    public static SharedPreferences getSharedPreferences() {
+    	return BibleApplication.getApplication().getApplicationContext().getSharedPreferences("net.bible.android.activity_preferences", 0);
     }
     
     public static void pause(int seconds) {

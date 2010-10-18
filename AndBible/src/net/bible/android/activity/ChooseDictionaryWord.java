@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.bible.android.activity.base.ListActivityBase;
 import net.bible.android.currentpagecontrol.CurrentPageManager;
+import net.bible.android.util.Hourglass;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
@@ -13,6 +14,7 @@ import org.crosswire.jsword.passage.Key;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -53,20 +55,17 @@ public class ChooseDictionaryWord extends ListActivityBase {
         
         EditText searcheditText = (EditText)findViewById(R.id.searchText);
         searcheditText.addTextChangedListener(new TextWatcher() {
-
-			@Override
-			public void afterTextChanged(Editable searchText) {
-			}
-
-			@Override
-			public void beforeTextChanged(CharSequence arg0, int arg1,	int arg2, int arg3) {
-			}
-
 			@Override
 			public void onTextChanged(CharSequence searchText, int arg1, int arg2, int arg3) {
 				showPossibleDictionaryKeys(searchText.toString());
 			}
-        	
+
+			@Override
+			public void afterTextChanged(Editable searchText) {
+			}
+			@Override
+			public void beforeTextChanged(CharSequence arg0, int arg1,	int arg2, int arg3) {
+			}
         });
         searcheditText.requestFocus();
     }
@@ -78,24 +77,39 @@ public class ChooseDictionaryWord extends ListActivityBase {
     protected void initialise()
     {
     	Log.d(TAG, "Initialising");
-    	//already checked a dictionary exists
-    	Book dictionary = CurrentPageManager.getInstance().getCurrentDictionary().getCurrentDocument();
-    	
-    	mDictionaryGlobalList = new ArrayList<Key>();
-    	Iterator iter = dictionary.getGlobalKeyList().iterator();
-		while (iter.hasNext()) {
-			Key key = (Key)iter.next();
-			mDictionaryGlobalList.add(key);
-		}
-    	
+    	// setting up an initially empty list of matches
     	mMatchingKeyList = new ArrayList<Key>();
-    	
-        setListAdapter(new ArrayAdapter<Key>(this,
+        setListAdapter(new ArrayAdapter<Key>(ChooseDictionaryWord.this,
     	        LIST_ITEM_TYPE,
     	        mMatchingKeyList));
-    	Log.d(TAG, "Finished Initialising");
-    }
+    	
+    	final Handler uiHandler = new Handler();
+    	showDialog(Hourglass.HOURGLASS_KEY);
+    	
+    	new Thread( new Runnable() {
 
+			@Override
+			public void run() {
+				try {
+					// getting all dictionary keys is slow so do in another thread in order to show hourglass
+					
+			    	//already checked a dictionary exists
+			    	mDictionaryGlobalList = CurrentPageManager.getInstance().getCurrentDictionary().getCachedGlobalKeyList(); 
+			    	
+			    	Log.d(TAG, "Finished Initialising");
+				} finally {
+			    	// must dismiss hourglass in ui thread
+			    	uiHandler.post(new Runnable() {
+						@Override
+						public void run() {
+							dismissHourglass();
+						}
+			    	});
+				}
+			}
+    	}).start();
+    }
+    
     /** user has typed something so show keys starting with user's text
      * @param searchText
      */

@@ -27,20 +27,28 @@
 		android:layout_width="wrap_content" 
 		android:layout_below="@+id/title"/>
 		
-	<Button android:id="@+id/prevButton"
- 		android:text="@string/previous"
-		android:layout_width="wrap_content" 
-		android:layout_height="wrap_content"
-		android:layout_alignParentLeft="true"
-		android:onClick="onPrevious"
-		android:layout_alignParentBottom="true"
-		android:width="80dip"/>
-	<Button android:id="@+id/nextButton"
- 		android:text="@string/next"
-		android:layout_width="wrap_content" 
-		android:layout_height="wrap_content"
-		android:layout_alignParentRight="true"
-		android:onClick="onNext"
-		android:layout_alignParentBottom="true"
-		android:width="80dip"/>
+	<!-- Button bar with Next/Prev buttons -->
+	<LinearLayout android:id="@+id/button_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        style="@android:style/ButtonBar"
+	    android:layout_alignParentBottom="true">
+
+	  	<Button android:id="@+id/prevButton"
+	 		android:text="@string/previous"
+			android:onClick="onPrevious"
+	        android:layout_width="0dip"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"/>
+
+	  	<Button android:id="@+id/nextButton"
+	 		android:text="@string/next"
+			android:onClick="onNext"
+	        android:layout_width="0dip"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"/>
+
+	</LinearLayout>
+		
 </RelativeLayout>

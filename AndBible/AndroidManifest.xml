@@ -5,7 +5,8 @@
       android:versionName="0.0.11" android:versionCode="11">
     <application android:icon="@drawable/bible" android:label="@string/app_name" android:name="net.bible.android.BibleApplication" android:theme="@style/AndBibleTheme">
         <activity android:name=".StartupActivity"
-                  android:label="@string/app_name">
+                  android:label="@string/app_name"
+                  android:theme="@android:style/Theme.Black">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -17,6 +18,7 @@
         </activity>
         <activity android:name=".SplashScreen"
                   android:label="@string/app_name"
+                  android:theme="@android:style/Theme.Black"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
         <activity android:name=".ChooseDocument"

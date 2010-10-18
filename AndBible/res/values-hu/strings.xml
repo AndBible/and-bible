@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="chooseBookButton">Bibliák</string>
-    <string name="selectPassageButton">Tartalom</string>
+    <string name="chooseBook">Bibliák</string>
+    <string name="selectPassage">Tartalom</string>
     <string name="choosePassageBookName">Válassz könyvet</string>
     <string name="choosePassageChapterName">Válassz fejezetet</string>
     <string name="search">Keres</string>

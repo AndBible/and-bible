@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import net.bible.android.currentpagecontrol.CurrentBiblePage;
+import net.bible.android.activity.base.ExpandableListActivityBase;
 import net.bible.android.currentpagecontrol.CurrentPageManager;
 
 import org.crosswire.jsword.passage.Verse;
@@ -13,7 +13,6 @@ import org.crosswire.jsword.versification.BibleInfo;
 import org.crosswire.jsword.versification.SectionNames;
 
 import android.app.Activity;
-import android.app.ExpandableListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,7 +28,7 @@ import android.widget.SimpleExpandableListAdapter;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class ChoosePassageBook extends ExpandableListActivity {
+public class ChoosePassageBook extends ExpandableListActivityBase {
 	private static final String TAG = "ChoosePassageBook";
 
 	private static final String NAME = "NAME";

@@ -9,6 +9,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 
@@ -30,8 +31,13 @@ public class StartupActivity extends ActivityBase {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.startup_view);
 
-        //TODO show splash here if not already shown because loading Sword takes a while
-        
+        // check for SD card 
+        //TODO it would be great to check in the Application but how to show dialog from Application?
+        if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+        	showErrorMsg(getString(R.string.no_sdcard_error));
+        	return;
+        }
+    
         // allow call back and continuation in the ui thread after JSword has been initialised
         final Handler uiHandler = new Handler();
         final Runnable uiThreadRunnable = new Runnable() {
@@ -74,16 +80,16 @@ public class StartupActivity extends ActivityBase {
 	       	Intent handlerIntent = new Intent(StartupActivity.this, Download.class);
 	    	startActivityForResult(handlerIntent, 1);
 		} else {
-			showDialog(Dialogs.INTERNET_NOT_AVAILABLE_DIALOG);
+			showErrorMsg(getString(R.string.no_internet_connection));
 		}
     }
 
-    /** caled when user presses okay on internet connection error
+    /** called when user presses okay button on standard dialog message box
      */
     @Override
 	public void dialogOnClick(int dialogId, int id) {
     	Log.d(TAG, "dialogOnClick");
-    	if (dialogId==Dialogs.INTERNET_NOT_AVAILABLE_DIALOG) {
+    	if (dialogId==Dialogs.ERROR_MSG) {
     		finish();
     	}
 	}

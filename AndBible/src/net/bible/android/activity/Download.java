@@ -7,8 +7,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import net.bible.android.activity.base.ActivityBase;
 import net.bible.android.activity.base.Dialogs;
+import net.bible.android.activity.base.ListActivityBase;
 import net.bible.android.util.Hourglass;
 import net.bible.service.sword.SwordApi;
 
@@ -18,7 +18,6 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -45,7 +44,7 @@ import android.widget.Toast;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class Download extends ActivityBase {
+public class Download extends ListActivityBase {
 	private static final String TAG = "Download";
 
 	// document type spinner
@@ -59,7 +58,6 @@ public class Download extends ActivityBase {
 	private ArrayAdapter<String> langArrayAdapter; 
 	
 	// the document list
-	private ListView bookList;
 	private ArrayAdapter<String> listArrayAdapter;
 	private List<Book> allDocuments;
 	//todo just use displayedDocuments with a model giving 2 lines in list
@@ -89,18 +87,11 @@ public class Download extends ActivityBase {
 
     private void initialiseView() {
     	// prepare the document list view
-    	bookList = (ListView)findViewById(R.id.bookList);
     	populateMasterDocumentList();
     	listArrayAdapter = new ArrayAdapter<String>(this,
     	        LIST_ITEM_TYPE,
     	        displayedDocumentDescriptions);
-    	bookList.setAdapter(listArrayAdapter);
-    	bookList.setOnItemClickListener(new OnItemClickListener() {
-    	    @Override
-    	    public void onItemClick(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-    	    	documentSelected(displayedDocuments.get(position));
-    	    }
-    	});
+    	setListAdapter(listArrayAdapter);
     	
     	//prepare the documentType spinner
     	Spinner documentTypeSpinner = (Spinner)findViewById(R.id.documentTypeSpinner);
@@ -140,6 +131,11 @@ public class Download extends ActivityBase {
     	}
     }
     
+    @Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+    	documentSelected(displayedDocuments.get(position));
+	}
+
     private void populateMasterDocumentList() {
 		if (allDocuments==null || allDocuments.size()==0) {
     	    new AsyncTask<Void, Boolean, Void>() {

@@ -1,12 +1,9 @@
 package net.bible.android.activity.base;
 
 import net.bible.android.BibleApplication;
-import net.bible.android.activity.R;
-import net.bible.android.util.Hourglass;
+import net.bible.android.util.CommonUtil;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -37,6 +34,8 @@ public class ActivityBase extends Activity implements AndBibleActivity {
         // fix for null context class loader (http://code.google.com/p/android/issues/detail?id=5697)
         // this affected jsword dynamic classloading
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+		
+		CommonUtil.applyTheme(this);
     }
     
     @Override

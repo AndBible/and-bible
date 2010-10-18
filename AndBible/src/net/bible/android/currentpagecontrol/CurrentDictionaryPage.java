@@ -1,18 +1,17 @@
 package net.bible.android.currentpagecontrol;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
-import net.bible.android.BibleApplication;
 import net.bible.android.activity.ChooseDictionaryWord;
-import net.bible.android.activity.ChoosePassageBook;
-import net.bible.service.sword.SwordApi;
+import net.bible.android.activity.R;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 
-import android.content.Intent;
-import android.util.Log;
+import android.view.Menu;
 
 /** Reference to current passage shown by viewer
  * 
@@ -22,8 +21,8 @@ import android.util.Log;
  */
 public class CurrentDictionaryPage extends CurrentPageBase implements CurrentPage {
 	
-	private Book currentDocument;
 	private Key key;
+	private List<Key> mCachedGlobalKeyList;
 
 	private static final String TAG = "CurrentDictionaryPage";
 	
@@ -55,18 +54,67 @@ public class CurrentDictionaryPage extends CurrentPageBase implements CurrentPag
         return key;
     }
 
-	/* (non-Javadoc)
-	 * @see net.bible.android.currentpagecontrol.CurrentPage#getCurrentDocument()
-	 */
 	@Override
-	public Book getCurrentDocument() {
-		if (currentDocument==null) {
-			List<Book> books = SwordApi.getInstance().getDictionaries();
-			if (books.size()>0) {
-				currentDocument = books.get(0);
+	public void setCurrentDocument(Book doc) {
+		// if doc changes then clear any caches from the previous doc
+		if (doc!=null && !doc.equals(getCurrentDocument())) {
+			mCachedGlobalKeyList = null;
+		}
+		super.setCurrentDocument(doc);
+	}
+
+	/** make dictionary key lookup much faster
+	 * 
+	 * @return
+	 */
+	public List<Key> getCachedGlobalKeyList() {
+		if (getCurrentDocument()!=null && mCachedGlobalKeyList==null) {
+			// this cache is cleared in setCurrentDoc
+	    	mCachedGlobalKeyList = new ArrayList<Key>();
+	    	Iterator iter = getCurrentDocument().getGlobalKeyList().iterator();
+			while (iter.hasNext()) {
+				Key key = (Key)iter.next();
+				mCachedGlobalKeyList.add(key);
+			}
+
+		}
+		return mCachedGlobalKeyList;
+	}
+	
+	@Override
+	public void next() {
+		Key currentKey = getKey();
+		if (mCachedGlobalKeyList!=null && currentKey!=null) {
+			for (int i=0; i<mCachedGlobalKeyList.size(); i++ ) {
+				Key possKey = mCachedGlobalKeyList.get(i);
+				if (currentKey.equals(possKey) && i<mCachedGlobalKeyList.size()-2) {
+					setKey(mCachedGlobalKeyList.get(i+1));
+					pageChange();
+				}
 			}
 		}
-		return currentDocument;
+	}
+
+	@Override
+	public void previous() {
+		Key currentKey = getKey();
+		if (mCachedGlobalKeyList!=null && currentKey!=null) {
+			for (int i=0; i<mCachedGlobalKeyList.size(); i++ ) {
+				Key possKey = mCachedGlobalKeyList.get(i);
+				if (currentKey.equals(possKey) && i>0) {
+					setKey(mCachedGlobalKeyList.get(i-1));
+					pageChange();
+				}
+			}
+		}
+	}
+
+	@Override
+	public void updateOptionsMenu(Menu menu) {
+		// these are fine for Bible and commentary
+		menu.findItem(R.id.selectPassageButton).setTitle(R.string.dictionary_contents);		
+		menu.findItem(R.id.searchButton).setEnabled(false);		
+		menu.findItem(R.id.notesButton).setEnabled(false);		
 	}
 
 	@Override
