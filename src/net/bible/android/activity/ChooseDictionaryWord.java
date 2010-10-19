@@ -92,11 +92,21 @@ public class ChooseDictionaryWord extends ListActivityBase {
 			public void run() {
 				try {
 					// getting all dictionary keys is slow so do in another thread in order to show hourglass
+					//TODO need to optimise this using binary search of globalkeylist without caching
 					
 			    	//already checked a dictionary exists
 			    	mDictionaryGlobalList = CurrentPageManager.getInstance().getCurrentDictionary().getCachedGlobalKeyList(); 
 			    	
 			    	Log.d(TAG, "Finished Initialising");
+				} catch (Throwable t) {
+					Log.e(TAG, "Error creating dictionary key list");
+			    	// must dismiss hourglass in ui thread
+			    	uiHandler.post(new Runnable() {
+						@Override
+						public void run() {
+							showErrorMsg("Error preparing dictionary for use.");
+						}
+			    	});
 				} finally {
 			    	// must dismiss hourglass in ui thread
 			    	uiHandler.post(new Runnable() {
@@ -115,20 +125,25 @@ public class ChooseDictionaryWord extends ListActivityBase {
      */
     private void showPossibleDictionaryKeys(String searchText) {
 		Log.d(TAG, "Search for:"+searchText);
-		searchText = searchText.toLowerCase();
-
-		Iterator iter = mDictionaryGlobalList.iterator();
-		mMatchingKeyList.clear();
-		while (iter.hasNext()) {
-			Key key = (Key)iter.next();
-			if (key.getName().toLowerCase().startsWith(searchText)) {
-				mMatchingKeyList.add(key);
+		try {
+			searchText = searchText.toLowerCase();
+	
+			Iterator iter = mDictionaryGlobalList.iterator();
+			mMatchingKeyList.clear();
+			while (iter.hasNext()) {
+				Key key = (Key)iter.next();
+				if (key.getName().toLowerCase().startsWith(searchText)) {
+					mMatchingKeyList.add(key);
+				}
 			}
+			Log.d(TAG, "matches found:"+mMatchingKeyList.size());
+	
+	    	((ArrayAdapter)getListAdapter()).notifyDataSetChanged();
+			Log.d(TAG, "Finished searching for:"+searchText);
+		} catch (Throwable e) {
+			Log.e(TAG, "Error finding matching keys", e);
+			showErrorMsg("Error searching dictionary");
 		}
-		Log.d(TAG, "matches found:"+mMatchingKeyList.size());
-
-    	((ArrayAdapter)getListAdapter()).notifyDataSetChanged();
-		Log.d(TAG, "Finished searching for:"+searchText);
     }
     
     @Override

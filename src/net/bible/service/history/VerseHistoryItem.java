@@ -28,7 +28,7 @@ public class VerseHistoryItem implements HistoryItem {
 	
 	@Override
 	public String getDescription() {
-		return key.getName();
+		return document.getInitials()+" "+key.getName();
 	}
 
 	public Key getKey() {
