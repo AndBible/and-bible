@@ -11,6 +11,7 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 
+import android.util.Log;
 import android.view.Menu;
 
 /** Reference to current passage shown by viewer
@@ -63,20 +64,29 @@ public class CurrentDictionaryPage extends CurrentPageBase implements CurrentPag
 		super.setCurrentDocument(doc);
 	}
 
+	//TODO remove this and do binary search of globalkeylist
 	/** make dictionary key lookup much faster
 	 * 
 	 * @return
 	 */
 	public List<Key> getCachedGlobalKeyList() {
 		if (getCurrentDocument()!=null && mCachedGlobalKeyList==null) {
-			// this cache is cleared in setCurrentDoc
-	    	mCachedGlobalKeyList = new ArrayList<Key>();
-	    	Iterator iter = getCurrentDocument().getGlobalKeyList().iterator();
-			while (iter.hasNext()) {
-				Key key = (Key)iter.next();
-				mCachedGlobalKeyList.add(key);
+			try {
+				Log.d(TAG, "Start to create cached key list");
+				// this cache is cleared in setCurrentDoc
+		    	mCachedGlobalKeyList = new ArrayList<Key>();
+		    	Iterator iter = getCurrentDocument().getGlobalKeyList().iterator();
+				while (iter.hasNext()) {
+					Key key = (Key)iter.next();
+					mCachedGlobalKeyList.add(key);
+				}
+			} catch (OutOfMemoryError oom) {
+				mCachedGlobalKeyList = null;
+				System.gc();
+				Log.e(TAG, "out of memory", oom);
+				throw oom;
 			}
-
+			Log.d(TAG, "Finished creating cached key list len:"+mCachedGlobalKeyList.size());
 		}
 		return mCachedGlobalKeyList;
 	}

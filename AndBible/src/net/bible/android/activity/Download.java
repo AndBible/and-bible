@@ -155,6 +155,10 @@ public class Download extends ListActivityBase {
 	    	        			Log.d(TAG, "Ignoring "+doc.getName()+" because it has no language");
 	    	        			iter.remove();
 	    	        		}
+	    	        		if (doc.getInitials().equals("webstersdict")) {
+	    	        			Log.d(TAG, "Removing "+doc.getName()+" because it is too big and crashed dictionary code");
+	    	        			iter.remove();
+	    	        		}
 	    	        	}
 	    	        	Log.i(TAG, "number of documents available:"+allDocuments.size());
     				} catch (Exception e) {

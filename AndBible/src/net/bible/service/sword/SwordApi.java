@@ -91,8 +91,6 @@ public class SwordApi {
 		try {
 			if (isAndroid) {
 				// ensure required module directories exist and register them with jsword
-		        Log.d(TAG, "*** 51");
-				
 				File moduleDir = SharedConstants.MODULE_DIR;
 
 				// main module dir
@@ -103,11 +101,9 @@ public class SwordApi {
 				ensureDirExists(new File(moduleDir, SwordConstants.DIR_DATA));
 				// indexes
 				ensureDirExists(new File(moduleDir, LUCENE_DIR));
-		        Log.d(TAG, "*** 52");
 
 				// the second value below is the one which is used in effectively all circumstances
 		        CWProject.setHome("jsword.home", moduleDir.getAbsolutePath(), SharedConstants.MANUAL_INSTALL_DIR.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		        Log.d(TAG, "*** 53");
 
 		        // the following causes Sword to initialise itself and can take quite a few seconds
 				SwordBookPath.setAugmentPath(new File[] {SharedConstants.MANUAL_INSTALL_DIR});  // add manual install dir to this list
@@ -115,13 +111,10 @@ public class SwordApi {
 				// because the above line causes initialisation set the is initialised flag here
 				isSwordLoaded = true;
 				
-		        Log.d(TAG, "*** 54");
-
 				log.debug(("Sword paths:"+getPaths()));
 			}
 			
 			downloadManager = new DownloadManager();
-	        Log.d(TAG, "*** 55");
 
 		} catch (Exception e) {
 			log.error("Error initialising", e);
