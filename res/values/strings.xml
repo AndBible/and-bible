@@ -10,7 +10,7 @@
 
     <string name="splash_top_text">\n\"And God said, \'Let there be light,\' and there was light.\"\nGenesis 1:3</string>
     <string name="help_text">Navigation:\nPress the MENU key for actions\nFling your finger left to see the next chapter\nFling your finger right to go back a chapter\nRoll the track-ball left or right to go forward or back a chapter</string>
-    <string name="splash_bottom_text">Version 0.0.11</string>
+    <string name="splash_bottom_text">Version 0.0.12</string>
     <string name="no_sdcard_error">Please insert an SD card and start And Bible again.</string>
     <!-- main menu -->
     <string name="chooseBook">Document</string>
