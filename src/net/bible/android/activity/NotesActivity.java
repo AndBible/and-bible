@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.bible.android.activity.base.ActivityBase;
-import net.bible.android.currentpagecontrol.CurrentBiblePage;
-import net.bible.android.currentpagecontrol.CurrentPageManager;
+import net.bible.android.control.page.CurrentBiblePage;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.util.DataPipe;
 import net.bible.service.format.Note;
 

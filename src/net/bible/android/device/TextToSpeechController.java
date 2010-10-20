@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import net.bible.android.activity.R;
-import net.bible.android.currentpagecontrol.CurrentPage;
+import net.bible.android.control.page.CurrentPage;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;

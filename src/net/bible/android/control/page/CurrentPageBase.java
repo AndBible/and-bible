@@ -1,9 +1,10 @@
-package net.bible.android.currentpagecontrol;
+package net.bible.android.control.page;
 
 
 import java.util.List;
 
 import net.bible.android.activity.R;
+import net.bible.android.control.PassageChangeMediator;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
@@ -68,7 +69,7 @@ abstract class CurrentPageBase implements CurrentPage {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.bible.android.currentpagecontrol.CurrentPage#getCurrentDocument()
+	 * @see net.bible.android.control.CurrentPage#getCurrentDocument()
 	 */
 	@Override
 	public Book getCurrentDocument() {
@@ -83,7 +84,7 @@ abstract class CurrentPageBase implements CurrentPage {
 
 
 	/* Set new doc and if possible show new doc
-	 * @see net.bible.android.currentpagecontrol.CurrentPage#setCurrentDocument(org.crosswire.jsword.book.Book)
+	 * @see net.bible.android.control.CurrentPage#setCurrentDocument(org.crosswire.jsword.book.Book)
 	 */
 	@Override
 	public void setCurrentDocument(Book doc) {
