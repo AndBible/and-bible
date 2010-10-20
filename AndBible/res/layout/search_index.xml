@@ -18,7 +18,7 @@
 		android:textAppearance="?android:attr/textAppearanceMedium"/>
 
 	<!-- Button bar with OK button -->
-	<LinearLayout android:id="@+id/ok_panel"
+	<LinearLayout android:id="@+id/button_panel"
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentBottom="true"

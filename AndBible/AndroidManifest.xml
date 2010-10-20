@@ -45,6 +45,10 @@
                   android:label="@string/search_index"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
+        <activity android:name=".SearchIndexProgressStatus"
+                  android:label="@string/search_index"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
         <activity android:name=".NotesActivity"
                   android:label="@string/notes"
                   android:configChanges="keyboardHidden|orientation">

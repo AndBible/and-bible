@@ -24,7 +24,8 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+        setContentView(R.layout.search_index_status);
+
 		hideButtons();
 		setMainText(getString(R.string.indexing_wait_msg));
 		
@@ -53,5 +54,4 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 			}
 		}
 	}
-
 }

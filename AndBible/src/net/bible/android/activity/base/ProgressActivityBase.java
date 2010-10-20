@@ -44,10 +44,10 @@ public class ProgressActivityBase extends ActivityBase {
 		CommonUtil.applyTheme(this);
 	}
 
-	/** Called when the activity is first created. */
+	/** Wait until subclass has setContentView before looking for controls. */
     @Override
-    public void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
+    public void onResume() {
+        super.onResume();
         Log.i(TAG, "Displaying "+TAG+" view");
 
         progressControlContainer = (LinearLayout)findViewById(R.id.progressControlContainer);
@@ -164,7 +164,10 @@ public class ProgressActivityBase extends ActivityBase {
 	}
 
     protected void hideButtons() {
-    	findViewById(R.id.button_panel).setVisibility(View.INVISIBLE);
+    	View buttonPanel = findViewById(R.id.button_panel);
+    	if (buttonPanel!=null) {
+    		buttonPanel.setVisibility(View.INVISIBLE);
+    	}
     }
     protected void setMainText(String text) {
     	((TextView)findViewById(R.id.progressStatusMessage)).setText(text);

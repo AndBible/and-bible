@@ -274,6 +274,14 @@ public class Download extends ListActivityBase {
     }
 
     @Override
+	public void dialogOnClick(int dialogId, int buttonId) {
+    	if (dialogId==Dialogs.TOO_MANY_JOBS) {
+    		Intent intent = new Intent(this, DownloadStatus.class);
+    		startActivityForResult(intent, 1);
+    	}
+	}
+
+	@Override
     protected Dialog onCreateDialog(int id) {
     	Dialog superDlg = super.onCreateDialog(id);
     	if (superDlg!=null) {
@@ -317,6 +325,8 @@ public class Download extends ListActivityBase {
 	    	Intent intent;
 	    	if (forceBasicFlow) {
 	    		intent = new Intent(this, EnsureBibleDownloaded.class);
+	    		finish();
+	    		removeDialog(DOWNLOAD_CONFIRMATION_DIALOG);
 	    	} else {
 	    		intent = new Intent(this, DownloadStatus.class);
 	    	}

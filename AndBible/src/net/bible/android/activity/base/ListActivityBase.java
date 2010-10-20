@@ -1,5 +1,6 @@
 package net.bible.android.activity.base;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.util.CommonUtil;
 import android.app.Activity;
 import android.app.Dialog;
@@ -74,4 +75,37 @@ public class ListActivityBase extends ListActivity implements AndBibleActivity {
     	setResult(Activity.RESULT_OK, resultIntent);
     	finish();    
     }
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+        Log.i(getLocalClassName(), "onResume");
+        BibleApplication.getApplication().iAmNowCurrent(this);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+        Log.i(getLocalClassName(), "onPause");
+        BibleApplication.getApplication().iAmNoLongerCurrent(this);
+	}
+
+	@Override
+	protected void onRestart() {
+		super.onRestart();
+        Log.i(getLocalClassName(), "onRestart");
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+        Log.i(getLocalClassName(), "onStart");
+	}
+
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+        Log.i(getLocalClassName(), "onStop");
+	}
 }

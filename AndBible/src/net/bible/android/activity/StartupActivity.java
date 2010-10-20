@@ -79,6 +79,10 @@ public class StartupActivity extends ActivityBase {
     	if (CommonUtil.isInternetAvailable()) {
 	       	Intent handlerIntent = new Intent(StartupActivity.this, Download.class);
 	    	startActivityForResult(handlerIntent, 1);
+	    	
+	    	// tidy up these resources
+	    	removeDialog(CAN_DOWNLOAD_DLG);
+	    	finish();
 		} else {
 			showErrorMsg(getString(R.string.no_internet_connection));
 		}

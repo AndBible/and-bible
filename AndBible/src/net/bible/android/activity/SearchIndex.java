@@ -1,6 +1,6 @@
 package net.bible.android.activity;
 
- import net.bible.android.activity.base.ActivityBase;
+import net.bible.android.activity.base.ActivityBase;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.service.sword.SwordApi;
 
@@ -34,7 +34,6 @@ public class SearchIndex extends ActivityBase {
     public void onIndex(View v) {
     	Log.i(TAG, "CLICKED");
     	try {
-    		//xxxtodo can we index any document type
 	        Book book = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
 	        
 	        // this starts a new thread to do the indexing and returns immediately
@@ -42,8 +41,7 @@ public class SearchIndex extends ActivityBase {
 	        SwordApi.getInstance().ensureIndexCreation(book);
 			
         	// monitor the progres
-        	//todo a simple popup ProgressDialog may be better - not sure
-        	Intent myIntent = new Intent(this, ProgressStatus.class);
+        	Intent myIntent = new Intent(this, SearchIndexProgressStatus.class);
         	startActivity(myIntent);
         	finish();
 

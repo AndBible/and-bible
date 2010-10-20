@@ -82,7 +82,6 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 
 	@Override
 	protected void onResume() {
-		// TODO Auto-generated method stub
 		super.onResume();
         Log.i(getLocalClassName(), "onResume");
         BibleApplication.getApplication().iAmNowCurrent(this);
@@ -90,7 +89,6 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 
 	@Override
 	protected void onPause() {
-		// TODO Auto-generated method stub
 		super.onPause();
         Log.i(getLocalClassName(), "onPause");
         BibleApplication.getApplication().iAmNoLongerCurrent(this);
@@ -98,15 +96,12 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 
 	@Override
 	protected void onRestart() {
-		// TODO Auto-generated method stub
 		super.onRestart();
         Log.i(getLocalClassName(), "onRestart");
 	}
 
-
 	@Override
 	protected void onStart() {
-		// TODO Auto-generated method stub
 		super.onStart();
         Log.i(getLocalClassName(), "onStart");
 	}
@@ -114,7 +109,6 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 
 	@Override
 	protected void onStop() {
-		// TODO Auto-generated method stub
 		super.onStop();
         Log.i(getLocalClassName(), "onStop");
 	}
