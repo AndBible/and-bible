@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.bible.android.activity.base.ExpandableListActivityBase;
-import net.bible.android.currentpagecontrol.CurrentPageManager;
+import net.bible.android.control.page.CurrentPageManager;
 
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleInfo;

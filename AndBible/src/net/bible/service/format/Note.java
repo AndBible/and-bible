@@ -2,8 +2,8 @@ package net.bible.service.format;
 
 import java.util.HashMap;
 
-import net.bible.android.currentpagecontrol.CurrentBiblePage;
-import net.bible.android.currentpagecontrol.CurrentPageManager;
+import net.bible.android.control.page.CurrentBiblePage;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.service.sword.SwordApi;
 
 import org.apache.commons.lang.StringUtils;

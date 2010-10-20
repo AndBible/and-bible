@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.bible.android.activity.base.ActivityBase;
-import net.bible.android.currentpagecontrol.CurrentPage;
-import net.bible.android.currentpagecontrol.CurrentPageManager;
+import net.bible.android.control.page.CurrentPage;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;

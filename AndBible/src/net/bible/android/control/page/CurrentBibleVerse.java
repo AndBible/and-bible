@@ -1,4 +1,4 @@
-package net.bible.android.currentpagecontrol;
+package net.bible.android.control.page;
 
 import org.crosswire.jsword.passage.Verse;
 

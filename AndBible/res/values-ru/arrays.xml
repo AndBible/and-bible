@@ -9,5 +9,6 @@
 	<string-array name="documentTypes">
 		<item>Библия</item>
 		<item>Комментарий</item>
+		<item>Словарь</item>
 	</string-array>
 </resources>

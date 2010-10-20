@@ -1,4 +1,4 @@
-package net.bible.android.currentpagecontrol;
+package net.bible.android.control;
 
 import java.util.Observable;
 import java.util.Observer;

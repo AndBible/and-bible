@@ -1,7 +1,7 @@
 package net.bible.android.view;
 
-import net.bible.android.currentpagecontrol.CurrentBiblePage;
-import net.bible.android.currentpagecontrol.CurrentPageManager;
+import net.bible.android.control.page.CurrentBiblePage;
+import net.bible.android.control.page.CurrentPageManager;
 import android.content.Context;
 import android.util.Log;
 import android.view.GestureDetector.SimpleOnGestureListener;

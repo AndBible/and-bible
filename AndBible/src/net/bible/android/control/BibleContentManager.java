@@ -1,8 +1,11 @@
-package net.bible.android.currentpagecontrol;
+package net.bible.android.control;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import net.bible.android.control.page.CurrentBiblePage;
+import net.bible.android.control.page.CurrentPage;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.util.CommonUtil;
 import net.bible.android.view.BibleView;
 import net.bible.service.format.FormattedDocument;

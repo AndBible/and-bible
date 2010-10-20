@@ -2,10 +2,10 @@ package net.bible.android.activity;
 
 import net.bible.android.activity.base.ActivityBase;
 import net.bible.android.activity.base.Dialogs;
-import net.bible.android.currentpagecontrol.BibleContentManager;
-import net.bible.android.currentpagecontrol.CurrentBiblePage;
-import net.bible.android.currentpagecontrol.CurrentPageManager;
-import net.bible.android.currentpagecontrol.PassageChangeMediator;
+import net.bible.android.control.BibleContentManager;
+import net.bible.android.control.PassageChangeMediator;
+import net.bible.android.control.page.CurrentBiblePage;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.device.TextToSpeechController;
 import net.bible.android.util.CommonUtil;
 import net.bible.android.util.DataPipe;
@@ -75,7 +75,9 @@ public class MainBibleActivity extends ActivityBase {
     @Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-		
+
+		// force a recalculation of verse offsets
+		bibleContentManager.updateText(true);
 	}
 
 	/** 

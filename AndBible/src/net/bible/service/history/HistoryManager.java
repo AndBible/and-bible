@@ -1,10 +1,11 @@
 package net.bible.service.history;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
-import net.bible.android.currentpagecontrol.CurrentPageManager;
+import net.bible.android.control.page.CurrentPageManager;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
@@ -72,6 +73,8 @@ public class HistoryManager {
 	
 	public List<HistoryItem> getHistory() {
 		List<HistoryItem> allHistory = new ArrayList<HistoryItem>(history);
+		// reverse so most recent items are at top rather than end
+		Collections.reverse(allHistory);
 		return allHistory;
 	}
 	

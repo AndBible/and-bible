@@ -1,4 +1,4 @@
-package net.bible.android.currentpagecontrol;
+package net.bible.android.control.page;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -48,7 +48,7 @@ public class CurrentDictionaryPage extends CurrentPageBase implements CurrentPag
 	}
 
 	/* (non-Javadoc)
-	 * @see net.bible.android.currentpagecontrol.CurrentPage#getKey()
+	 * @see net.bible.android.control.CurrentPage#getKey()
 	 */
 	@Override
 	public Key getKey() {

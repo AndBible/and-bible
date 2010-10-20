@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.bible.android.activity.base.ListActivityBase;
-import net.bible.android.currentpagecontrol.CurrentPageManager;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.util.Hourglass;
 
 import org.crosswire.jsword.book.Book;

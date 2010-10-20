@@ -1,4 +1,6 @@
-package net.bible.android.currentpagecontrol;
+package net.bible.android.control.page;
+
+import net.bible.android.control.PassageChangeMediator;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;

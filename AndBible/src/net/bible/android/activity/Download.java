@@ -15,6 +15,7 @@ import net.bible.service.sword.SwordApi;
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.util.Language;
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
 
@@ -60,7 +61,7 @@ public class Download extends ListActivityBase {
 	// the document list
 	private ArrayAdapter<String> listArrayAdapter;
 	private List<Book> allDocuments;
-	//todo just use displayedDocuments with a model giving 2 lines in list
+	//TODO just use displayedDocuments with a model giving 2 lines in list
 	private List<Book> displayedDocuments = new ArrayList<Book>();
 	private List<String> displayedDocumentDescriptions = new ArrayList<String>();
 
@@ -155,7 +156,7 @@ public class Download extends ListActivityBase {
 	    	        			Log.d(TAG, "Ignoring "+doc.getName()+" because it has no language");
 	    	        			iter.remove();
 	    	        		}
-	    	        		if (doc.getInitials().equals("webstersdict")) {
+	    	        		if (doc.getInitials().equals("WebstersDict")) {
 	    	        			Log.d(TAG, "Removing "+doc.getName()+" because it is too big and crashed dictionary code");
 	    	        			iter.remove();
 	    	        		}

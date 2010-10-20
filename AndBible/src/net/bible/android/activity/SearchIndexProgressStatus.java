@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 import net.bible.android.activity.base.ProgressActivityBase;
-import net.bible.android.currentpagecontrol.CurrentPageManager;
+import net.bible.android.control.page.CurrentPageManager;
 
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.progress.Progress;

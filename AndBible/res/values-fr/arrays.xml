@@ -10,5 +10,6 @@
 	<string-array name="documentTypes">
 		<item>Bible</item>
 		<item>Commentaire</item>
+		<item>Dictionnaire</item>
 	</string-array>
 </resources>

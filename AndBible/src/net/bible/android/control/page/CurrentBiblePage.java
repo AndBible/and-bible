@@ -1,4 +1,4 @@
-package net.bible.android.currentpagecontrol;
+package net.bible.android.control.page;
 
 import net.bible.android.activity.ChoosePassageBook;
 import net.bible.service.sword.SwordApi;
@@ -47,7 +47,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.bible.android.currentpagecontrol.CurrentPage#next()
+	 * @see net.bible.android.control.CurrentPage#next()
 	 */
 	@Override
 	public void next() {
@@ -56,7 +56,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 		pageChange();
 	}
 	/* (non-Javadoc)
-	 * @see net.bible.android.currentpagecontrol.CurrentPage#previous()
+	 * @see net.bible.android.control.CurrentPage#previous()
 	 */
 	@Override
 	public void previous() {
@@ -76,7 +76,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	}
 	
 	/* (non-Javadoc)
-	 * @see net.bible.android.currentpagecontrol.CurrentPage#setKey(java.lang.String)
+	 * @see net.bible.android.control.CurrentPage#setKey(java.lang.String)
 	 */
 	public void setKey(String keyText) {
 		Log.d(TAG, "key text:"+keyText);
@@ -101,7 +101,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	}
 
 	/* (non-Javadoc)
-	 * @see net.bible.android.currentpagecontrol.CurrentPage#getKey()
+	 * @see net.bible.android.control.CurrentPage#getKey()
 	 */
 	@Override
 	public Key getKey() {
