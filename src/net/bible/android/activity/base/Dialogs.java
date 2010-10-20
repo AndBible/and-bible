@@ -47,7 +47,7 @@ public class Dialogs {
             	       .setCancelable(false)
             	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
             	           public void onClick(DialogInterface dialog, int buttonId) {
-            	        	   //just close the dialog
+            	        	   ((AndBibleActivity)activity).dialogOnClick(TOO_MANY_JOBS, buttonId);
             	           }
             	       }).create();
             case ERROR_MSG:
