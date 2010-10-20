@@ -7,7 +7,6 @@
 
 	<string name="splash_top_text">\n\"神說：「要有光」，就有了光\"\n创世记 1:3</string>
 	<string name="help_text">导航:\n使用菜单的动作按钮\n向左滑动手指看下一章\n向右滑动手指看上一章\n向左或向右按轨迹球也可以前后翻动章节</string>
-	<string name="splash_bottom_text">版本 0.0.11</string>
 	<string name="no_sdcard_error">请插入或者启用存储卡,然后再次启动本程序
 	</string>
 
