@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+      package="net.bible.android.activity"
+      android:installLocation="auto"
+      android:versionName="0.0.12" android:versionCode="12">
+    <application android:icon="@drawable/bible" android:label="@string/app_name" android:name="net.bible.android.BibleApplication" android:theme="@style/AndBibleTheme">
+        <activity android:name=".StartupActivity"
+                  android:label="@string/app_name"
+                  android:theme="@android:style/Theme.Black">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".MainBibleActivity"
+                  android:label="@string/app_name"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
+        <activity android:name=".SplashScreen"
+                  android:label="@string/app_name"
+                  android:theme="@android:style/Theme.Black"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
+        <activity android:name=".ChooseDocument"
+                  android:label="@string/chooseBook"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
+        <activity android:name=".ChoosePassageBook"
+                  android:label="@string/choosePassageBookName"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
+        <activity android:name=".ChoosePassageChapter"
+                  android:label="@string/choosePassageChapterName"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
+        <activity android:name=".Search"
+                  android:label="@string/search"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
+        <activity android:name=".SearchResults"
+                  android:label="@string/search"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
+        <activity android:name=".SearchIndex"
+                  android:label="@string/search_index"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
+        <activity android:name=".SearchIndexProgressStatus"
+                  android:label="@string/search_index"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
+        <activity android:name=".NotesActivity"
+                  android:label="@string/notes"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
+        <activity android:name=".ChooseDictionaryWord"
+                  android:label="@string/dictionary"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
+        <activity android:name=".SettingsActivity"
+                  android:label="@string/settings"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
+        <activity android:name=".History"
+                  android:label="@string/history"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
+        <activity android:name=".Download"
+                  android:label="@string/download"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
+        <activity android:name=".EnsureBibleDownloaded"
+                  android:label="@string/download">
+        </activity>
+        <activity android:name=".DownloadStatus"
+                  android:label="@string/progress_status">
+        </activity>
+        <activity android:name=".ProgressStatus"
+                  android:label="@string/progress_status">
+        </activity>
+</application>
+<uses-sdk android:minSdkVersion="4"/>
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.INTERNET"/>
+</manifest> 
