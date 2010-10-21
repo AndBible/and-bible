@@ -1,8 +1,10 @@
 package net.bible.android;
 
+import net.bible.android.activity.R;
 import net.bible.android.activity.base.AndBibleActivity;
 import net.bible.android.device.ProgressNotificationManager;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.util.Reporter;
 import org.crosswire.common.util.ReporterEvent;
 import org.crosswire.common.util.ReporterListener;
@@ -60,10 +62,11 @@ public class BibleApplication extends Application{
 	    	currentActivity.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
+					String nonEmptyMsg = StringUtils.isNotEmpty(message) ? message : getApplicationContext().getString(R.string.error_occurred);
 					if (currentActivity instanceof AndBibleActivity) {
-						((AndBibleActivity)currentActivity).showErrorMsg(message);
+						((AndBibleActivity)currentActivity).showErrorMsg(nonEmptyMsg);
 					} else {
-						Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
+						Toast.makeText(getApplicationContext(), nonEmptyMsg, Toast.LENGTH_LONG);
 					}
 				}
 	    	});

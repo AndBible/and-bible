@@ -21,32 +21,18 @@ import android.widget.ListView;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class SplashScreen extends ActivityBase {
-	private static final String TAG = "SplashScreen";
-
-	// show for 10 secs
-	private static final int DISPLAY_TIME = 10000;
-	
+public class Help extends ActivityBase {
+	private static final String TAG = "Help";
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "Displaying History view");
-        setContentView(R.layout.startup_view);
-        
-        new Thread() {
-
-			@Override
-			public void run() {
-				try {
-					Thread.sleep(DISPLAY_TIME);
-					// remove this view
-					SplashScreen.this.finish();
-				} catch (Exception e) {
-					Log.e(TAG, "Splash thread interrupted", e);
-				}
-			}
-        }.start();
+        setContentView(R.layout.help);
+    }
+    
+    public void onOkay(View v) {
+    	finish();
     }
 }

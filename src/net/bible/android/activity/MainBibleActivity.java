@@ -123,6 +123,9 @@ public class MainBibleActivity extends ActivityBase {
 	        		handlerIntent = new Intent(this, Download.class);
 	        	}
 	        	break;
+	        case R.id.helpButton:
+	        	handlerIntent = new Intent(this, Help.class);
+	        	break;
 	        }
 	        
 	        if (handlerIntent!=null) {
@@ -271,10 +274,5 @@ public class MainBibleActivity extends ActivityBase {
 	public boolean dispatchTouchEvent(MotionEvent motionEvent) {
 		this.gestureDetector.onTouchEvent(motionEvent);
 		return super.dispatchTouchEvent(motionEvent);
-	}
-	
-	private void showSplashScreen() {
-		Intent intent = new Intent(this, SplashScreen.class);
-		startActivity(intent);
 	}
  }

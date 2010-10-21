@@ -19,7 +19,7 @@
 		android:layout_height="fill_parent" 
 		android:layout_width="fill_parent"
 		android:layout_below="@+id/title"
-		android:layout_above="@+id/nextButton"/>
+		android:layout_above="@+id/button_panel"/>
 		
 	<TextView android:id="@+id/warningText"
 		android:visibility="gone" 
