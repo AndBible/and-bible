@@ -36,5 +36,9 @@
 
 	<item android:id="@+id/speakButton"
 		  android:title="@string/speak"
-		  android:icon="@drawable/ic_menu_goto"/>
+		  android:icon="@drawable/ic_menu_happy"/>
+
+	<item android:id="@+id/helpButton"
+		  android:title="@string/help"
+		  android:icon="@android:drawable/ic_menu_help"/>
 </menu>

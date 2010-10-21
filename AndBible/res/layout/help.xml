@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The first page - normally skipped over
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+	<TextView android:id="@+id/title_text" 
+			android:text="@string/help" 
+			style="@android:style/TextAppearance.Large"
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			android:layout_alignParentTop="true"
+			android:padding="5dip"/>
+	<TextView android:id="@+id/splash_help_text"
+			android:text="@string/help_text" 
+			android:layout_width="fill_parent" 
+			android:layout_height="fill_parent"
+			android:layout_below="@+id/title_text"
+			android:gravity="left"
+			style="@android:style/TextAppearance.Medium"
+			android:padding="5dip"
+			android:layout_centerInParent="true"/>
+	<TextView android:id="@+id/splash_bottom_text" 
+			android:text="@string/splash_bottom_text" 
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content"
+			android:gravity="right"
+			android:padding="5dip"
+			style="@android:style/TextAppearance.Small"
+			android:layout_above="@+id/button_panel"/>
+
+	<!-- Button bar with OK button -->
+	<LinearLayout android:id="@+id/button_panel"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentBottom="true"
+	    android:orientation="horizontal"
+	    style="@android:style/ButtonBar">
+	    <!-- Left spacer -->
+	    <View
+	        android:layout_width="0dip"
+	        android:layout_height="fill_parent"
+	        android:layout_weight="1"/>
+	
+	 	<Button android:id="@+id/okay"
+ 			android:text="@string/okay"
+	        android:layout_width="0dip"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="2"
+			android:onClick="onOkay"/>
+
+	    <!-- Right spacer -->
+	    <View
+	        android:layout_width="0dip"
+	        android:layout_height="fill_parent"
+	        android:layout_weight="1"
+	    />
+	</LinearLayout>
+</RelativeLayout>
