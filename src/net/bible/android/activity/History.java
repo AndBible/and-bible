@@ -60,7 +60,12 @@ public class History extends ListActivityBase {
     
     @Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-    	historyItemSelected(mHistoryItemList.get(position));
+    	try {
+    		historyItemSelected(mHistoryItemList.get(position));
+		} catch (Exception e) {
+			Log.e(TAG, "Selection error", e);
+			showErrorMsg(R.string.error_occurred);
+		}
 	}
     
     private void historyItemSelected(HistoryItem historyItem) {
