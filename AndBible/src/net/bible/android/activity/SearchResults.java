@@ -112,13 +112,20 @@ public class SearchResults extends ListActivityBase {
 
     @Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-    	verseSelected(mResultList.get(position));
+    	try {
+	    	verseSelected(mResultList.get(position));
+		} catch (Exception e) {
+			Log.e(TAG, "Selection error", e);
+			showErrorMsg(R.string.error_occurred);
+		}
 	}
     
     private void verseSelected(ResultItem resultItem) {
     	Log.i(TAG, "chose:"+resultItem);
-    	CurrentPageManager.getInstance().getCurrentPage().setKey(resultItem.verse);
-    	doFinish();
+    	if (resultItem!=null) {
+    		CurrentPageManager.getInstance().getCurrentPage().setKey(resultItem.verse);
+    		doFinish();
+    	}
     }
     
     static class ResultItem extends HashMap<String, String> {

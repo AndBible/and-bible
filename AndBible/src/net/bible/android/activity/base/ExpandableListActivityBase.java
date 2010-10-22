@@ -62,6 +62,11 @@ public class ExpandableListActivityBase extends ExpandableListActivity implement
     }
 
 	@Override
+	public void showErrorMsg(int msgResId) {
+		showErrorMsg(getString(msgResId));
+	}
+
+	@Override
 	public void showErrorMsg(String msg) {
 		dialogs.showErrorMsg(msg);		
 	}

@@ -46,23 +46,30 @@ public class BibleApplication extends Application{
 			@Override
 			public void reportException(final ReporterEvent ev) {
 				Log.e(TAG, ev.getMessage(), ev.getException());
-				showErrorMessage(ev.getMessage());
+				showErrorMessage(ev.getMessage(), ev.getException());
 			}
 
 			@Override
 			public void reportMessage(final ReporterEvent ev) {
 				Log.w(TAG, ev.getMessage(), ev.getException());
-				showErrorMessage(ev.getMessage());
+				showErrorMessage(ev.getMessage(), ev.getException());
 			}
         });
     }
     
-    public void showErrorMessage(final String message) {
+    public void showErrorMessage(final String message, final Throwable e) {
     	if (currentActivity!=null) {
 	    	currentActivity.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-					String nonEmptyMsg = StringUtils.isNotEmpty(message) ? message : getApplicationContext().getString(R.string.error_occurred);
+					// find a string to show the user
+					String nonEmptyMsg = getString(R.string.error_occurred);
+					if (StringUtils.isNotEmpty(message)) {
+						nonEmptyMsg = message; 
+					} else if (e!=null && StringUtils.isNotEmpty(e.getMessage())) {
+						nonEmptyMsg = e.getMessage();
+					}
+					// then show the message
 					if (currentActivity instanceof AndBibleActivity) {
 						((AndBibleActivity)currentActivity).showErrorMsg(nonEmptyMsg);
 					} else {

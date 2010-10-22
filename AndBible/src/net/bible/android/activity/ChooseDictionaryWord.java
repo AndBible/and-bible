@@ -153,9 +153,11 @@ public class ChooseDictionaryWord extends ListActivityBase {
 
     private void itemSelected(Key selectedKey) {
     	try {
-	    	Log.i(TAG, "chose:"+selectedKey);
-	    	CurrentPageManager.getInstance().getCurrentDictionary().setKey(selectedKey);
-	    	doFinish();
+    		if (selectedKey!=null) {
+		    	Log.i(TAG, "chose:"+selectedKey);
+		    	CurrentPageManager.getInstance().getCurrentDictionary().setKey(selectedKey);
+		    	doFinish();
+    		}
     	} catch (Exception e) {
     		Log.e(TAG, "Key not found", e);
     		showErrorMsg("Key not found");

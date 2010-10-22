@@ -134,7 +134,12 @@ public class Download extends ListActivityBase {
     
     @Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-    	documentSelected(displayedDocuments.get(position));
+    	try {
+    		documentSelected(displayedDocuments.get(position));
+    	} catch (Exception e) {
+    		Log.e(TAG, "document selection error", e);
+    		showErrorMsg(R.string.error_occurred);
+    	}
 	}
 
     private void populateMasterDocumentList() {
