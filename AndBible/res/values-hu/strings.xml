@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chooseBook">Bibliák</string>
+    <string name="selectPassage">Tartalom</string>
+    <string name="choosePassageBookName">Válassz könyvet</string>
+    <string name="choosePassageChapterName">Válassz fejezetet</string>
+    <string name="search">Keres</string>
+    <string name="search_index">Keresési index létrehozása</string>
+    <string name="notes">Jegyzetek</string>
+    <string name="settings">Beállítások</string>
+    <string name="index">Index</string>
+    <string name="module_dir">Mappa</string>
+    <string name="use_folder">Használd ezt a mappát</string>
+    <string name="no_files_error">Sajnos nem találtam a fájlokat!</string>
+    <string name="sdcard_error">Sajnos nem találom az SD kártyát!</string>
+    <string name="directory_error">A megadott mappa nem elérhető: %s</string> 
+    <string name="help_text">Isten hozta!\nNavigáció könyv olvasás közben\nLapozás:\nHúzd az ujjad balra az előre lapozáshoz\nHúzd az ujjad jobbra a vissza lapozáshoz\nForgasd a golyót balra/jobbra az előre/hátra lapozáshoz.</string>
+
+	<!-- Notes screen -->
+    <string name="no_chapter_notes">Ebben a fejezetben nincs jegyzet.</string>
+    <string name="no_verse_notes">Ebben a versben nincs jegyzet.</string>
+    <string name="previous">Előző</string>
+    <string name="next">Következő</string>
+    
+    <!-- settings -->
+    <string name="settings_verse_num">Vers számok</string>
+    <string name="settings_verse_num_summary">Mutassa a versszámokat</string>
+    <string name="settings_notes">Jegyzetek</string>
+    <string name="settings_notes_summary">Mutassa a jegyzeteket</string>
+
+    <string name="okay">OK</string>
+    <string name="cancel">Mégsem</string>
+</resources>
