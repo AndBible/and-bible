@@ -54,7 +54,7 @@ public class Download extends ListActivityBase {
 
 	// language spinner
 	private Spinner langSpinner;
-	private List<String> languageList = new ArrayList<String>();
+	private List<String> languageList;
 	private int selectedLanguageNo = 0;
 	private ArrayAdapter<String> langArrayAdapter; 
 	
@@ -62,8 +62,8 @@ public class Download extends ListActivityBase {
 	private ArrayAdapter<String> listArrayAdapter;
 	private List<Book> allDocuments;
 	//TODO just use displayedDocuments with a model giving 2 lines in list
-	private List<Book> displayedDocuments = new ArrayList<Book>();
-	private List<String> displayedDocumentDescriptions = new ArrayList<String>();
+	private List<Book> displayedDocuments;
+	private List<String> displayedDocumentDescriptions;
 
 	private boolean forceBasicFlow;
 	
@@ -87,6 +87,10 @@ public class Download extends ListActivityBase {
     }
 
     private void initialiseView() {
+    	languageList = new ArrayList<String>();
+    	displayedDocuments = new ArrayList<Book>();
+    	displayedDocumentDescriptions = new ArrayList<String>();
+    	
     	// prepare the document list view
     	populateMasterDocumentList();
     	listArrayAdapter = new ArrayAdapter<String>(this,
@@ -350,4 +354,17 @@ public class Download extends ListActivityBase {
     		returnToPreviousScreen();
     	}
     }
+
+//	@Override
+//	protected void onStop() {
+//		super.onStop();
+//		langSpinner = null;
+//		languageList = new ArrayList<String>();
+//		langArrayAdapter = null;		
+//		listArrayAdapter = null;
+//		allDocuments = null;
+//		displayedDocuments = null;
+//		displayedDocumentDescriptions = null;
+//		selectedDocument = null;
+//	}
 }

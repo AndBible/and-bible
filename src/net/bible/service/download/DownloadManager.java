@@ -70,6 +70,7 @@ public class DownloadManager {
 
         // Get a list of all the available books
         List<Book> documents = installer.getBooks(filter); //$NON-NLS-1$
+        installer.close();
     	Log.i(TAG, "number of documents available:"+documents.size());
 
 		return documents;
