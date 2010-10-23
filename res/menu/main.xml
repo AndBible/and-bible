@@ -26,6 +26,10 @@
 		  android:title="@string/notes"
 		  android:icon="@android:drawable/ic_menu_add"/>
 		  
+	<item android:id="@+id/helpButton"
+		  android:title="@string/help"
+		  android:icon="@android:drawable/ic_menu_help"/>
+
 	<item android:id="@+id/settingsButton"
 		  android:title="@string/settings"
 		  android:icon="@android:drawable/ic_menu_preferences"/>
@@ -38,7 +42,4 @@
 		  android:title="@string/speak"
 		  android:icon="@drawable/ic_menu_happy"/>
 
-	<item android:id="@+id/helpButton"
-		  android:title="@string/help"
-		  android:icon="@android:drawable/ic_menu_help"/>
 </menu>
