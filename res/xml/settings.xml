@@ -15,6 +15,10 @@
 				android:title="@string/prefs_show_notes_title"
 				android:summary="@string/prefs_show_notes_summary"
 				android:defaultValue="true"/> 
+	<CheckBoxPreference android:key="show_strongs_pref" 
+				android:title="@string/prefs_show_strongs_title"
+				android:summary="@string/prefs_show_strongs_summary"
+				android:defaultValue="true"/> 
 	<CheckBoxPreference android:key="night_mode_pref" 
 				android:title="@string/prefs_night_mode_title"
 				android:summary="@string/prefs_night_mode_summary"
