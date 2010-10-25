@@ -56,14 +56,9 @@ public class StrongsRef extends ActivityBase {
         
         try {
 	        //TODO multiple refs
-	        String refs = uri.split(":")[1];
-	        Log.d(TAG, "Ref:"+refs);
-	        refs = refs.replace("+", " ");
-	        String[] refList = refs.split(" ");
-	        Key key = book.createEmptyKeyList();
-	        for (String ref : refList) {
-	        	key.addAll(book.getKey(ref));
-	        }
+	        String ref = uri.split(":")[1];
+	        Log.d(TAG, "Ref:"+ref);
+	        Key key = book.getKey(ref);
 	        Log.d(TAG, "Key:"+key);
         
         	String html = SwordApi.getInstance().readHtmlText(book, key, 100).getHtmlPassage();
