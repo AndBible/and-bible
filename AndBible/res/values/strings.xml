@@ -57,6 +57,8 @@
     <string name="prefs_show_verseno_summary">Show verse numbers</string>
     <string name="prefs_show_notes_title">Notes</string>
     <string name="prefs_show_notes_summary">Show notes</string>
+    <string name="prefs_show_strongs_title">Strongs numbers</string>
+    <string name="prefs_show_strongs_summary">Show Strongs</string>
     <string name="prefs_night_mode_title">Night mode</string>
     <string name="prefs_night_mode_summary">For easier reading in the dark</string>
 
@@ -65,6 +67,8 @@
     <string name="no_verse_notes">No notes exist in this verse</string>
     <string name="previous">Previous</string>
     <string name="next">Next</string>
+
+    <string name="strongs">Strong\'s Dictionary</string>
 
 	<!-- Module download -->
     <string name="download">Download Documents</string>

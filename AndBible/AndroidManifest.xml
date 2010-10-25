@@ -48,6 +48,10 @@
                   android:label="@string/notes"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
+        <activity android:name=".StrongsRef"
+                  android:label="@string/strongs"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
         <activity android:name=".ChooseDictionaryWord"
                   android:label="@string/dictionary"
                   android:configChanges="keyboardHidden|orientation">

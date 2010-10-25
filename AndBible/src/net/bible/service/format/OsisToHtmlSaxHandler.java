@@ -5,6 +5,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.bible.service.common.Constants;
 import net.bible.service.format.Note.NoteType;
 import net.bible.service.sword.Logger;
 
@@ -48,6 +49,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
     private boolean isWriteContent = true;
     private boolean isWriteNote = false;
+    private boolean isStartedValidStrongsTag = false;
     
     //todo temporarily use a string but later switch to Map<int,String> of verse->note
     private List<Note> notesList = new ArrayList<Note>();
@@ -111,15 +113,15 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 		debug(name, attrs, true);
 
-		if (name.equals("title") && this.isShowHeadings) {
+		if (name.equals(OSISUtil.OSIS_ELEMENT_TITLE) && this.isShowHeadings) {
 			isDelayVerse = true;
 			write("<h1>");
-		} else if (name.equals("verse")) {
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
 			if (attrs!=null) {
 				currentVerseNo = osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID));
 			}
 			isCurrentVerseNoWritten = false;
-		} else if (name.equals("note")) {
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {
 			String noteRef = getNoteRef(attrs);
 			if (isShowNotes) {
 				write("<span class='noteRef'>" + noteRef + "</span> ");
@@ -129,28 +131,39 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			currentNoteRef = noteRef;
 			isWriteNote = true;
 			isWriteContent = false;
-		} else if (name.equals("reference") && isWriteNote) {
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE) && isWriteNote) {
 			// don't need to do anything until closing reference tag except..
 			// delete separators like ';' that sometimes occur between reference tags
 			currentNote.delete(0, currentNote.length());
 			// store the osisRef attribute for use with the note
-			this.currentRefOsisRef = attrs.getValue("osisRef");
-		} else if (name.equals("lb")) {
+			this.currentRefOsisRef = attrs.getValue(OSISUtil.OSIS_ATTR_REF);
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LB)) {
 			write("<br />");
-		} else if (name.equals("l")) {
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
 			// Refer to Gen 3:14 in ESV for example use of type=x-indent
-			String type = attrs.getValue("type");
+			String type = attrs.getValue(OSISUtil.OSIS_ATTR_TYPE);
 			if (StringUtils.isNotEmpty(type) && type.contains("indent")) {
 				write(NBSP+NBSP);
 			} else {
 				write("<br />");
 			}
-		} else if (name.equals("p")) {
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_P)) {
 			write("<p />");
-		} else if (name.equals("q") && !isAttr(OSISUtil.ATTRIBUTE_Q_WHO, attrs)) {
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q) && !isAttr(OSISUtil.ATTRIBUTE_Q_WHO, attrs)) {
 			// ensure 'who' attribute does not exist because esv uses q for red-letter and for quote mark
 			// quotation, this could be beginning or end of quotation because it is an empty tag
 			write("&quot;");
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_W) && isAttr(OSISUtil.ATTRIBUTE_W_LEMMA, attrs)) {
+			// Strongs reference
+			// example of strongs refs: <w lemma="strong:H0430">God</w> <w lemma="strong:H0853 strong:H01254" morph="strongMorph:TH8804">created</w>
+			String lemma = attrs.getValue(OSISUtil.ATTRIBUTE_W_LEMMA);
+			if (lemma.startsWith(OSISUtil.LEMMA_STRONGS)) {
+				
+				String strongsUrl = getStrongsUrl(lemma);
+	    		log.debug("Strongs url:"+strongsUrl);
+				write("<a href='"+strongsUrl+"'/>");
+				isStartedValidStrongsTag = true;
+			}
 		}
 	}
     
@@ -169,10 +182,10 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 		debug(name, null, false);
 
-		if (name.equals("title") && this.isShowHeadings) {
+		if (name.equals(OSISUtil.OSIS_ELEMENT_TITLE) && this.isShowHeadings) {
 			write("</h1>");
 			isDelayVerse = false;
-		} else if (name.equals("verse")) {
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
 		} else if (name.equals("note")) {
 			String noteText = currentNote.toString();
 			if (noteText.length()>0) {
@@ -185,15 +198,18 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 				currentNote.delete(0, currentNote.length());
 			}
 			isWriteContent = true;
-		} else if (name.equals("reference") && isWriteNote) {
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE) && isWriteNote) {
 			Note note = new Note(currentVerseNo, currentNoteRef, currentNote.toString(), NoteType.TYPE_REFERENCE, currentRefOsisRef);
 			notesList.add(note);
 			// and clear the buffer
 			currentNote.delete(0, currentNote.length());
 			currentRefOsisRef = null;
-		} else if (name.equals("l")) {
-		} else if (name.equals("q")) {
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {
 			// end quotation, but <q /> tag is a marker and contains no content so <q /> will appear at beginning and end of speech
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_W) && isStartedValidStrongsTag) {
+			write("</a>");
+			isStartedValidStrongsTag = false;
 		}
 	}
     
@@ -258,6 +274,53 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	    	noteRef = String.valueOf(nextNoteChar);
     	}
     	return noteRef;
+    }
+
+    /** Convert a Strongs lemma into a url
+     * E.g. lemmas "strong:H0430", "strong:H0853 strong:H01254"
+     * 
+     * @return a single char to use as a note ref
+     */
+    private String getStrongsUrl(String lemma) {
+    	// there may occasionally be more than on ref so split them into a list of single refs
+    	String[] refList = lemma.split(" ");
+    	
+    	String protocol = null;
+    	String url="";
+    	boolean isFirstRef = true;
+    	for (String ref : refList) {
+    		// ignore if string doesn't start with "strong;"
+    		if (ref.startsWith(OSISUtil.LEMMA_STRONGS)) {
+    			// reduce ref like "strong:H0430" to "H0430"
+    			ref = ref.substring(OSISUtil.LEMMA_STRONGS.length());
+    			
+    			if (isFirstRef || protocol == null) {
+	            	// select Hebrew or Greek protocol
+	    			if (ref.startsWith("H")) {
+	    				protocol = Constants.HEBREW_DEF_PROTOCOL;
+	    			} else if (ref.startsWith("G")) {
+	       				protocol = Constants.GREEK_DEF_PROTOCOL;
+	       			}
+    			}
+
+    			if (ref.length()>1) {
+    				if (!isFirstRef && url.length()>0) {
+    					// separate each ref with a plus
+    					url += "+";
+    				}
+    				ref = ref.substring(1);
+    				url += StringUtils.leftPad(ref, 5, "0");
+    			}
+    		}
+    		isFirstRef = false;
+    	}
+    	
+    	if (protocol!=null && url.length()>0) {
+    		return protocol+":"+url;
+    	} else {
+    		return "";
+    	}
+    	
     }
 
     /** see if an attribute exists and has a value

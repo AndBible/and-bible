@@ -1,7 +1,10 @@
 package net.bible.android.view;
 
+import net.bible.android.activity.StrongsRef;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.service.common.Constants;
 import android.content.Context;
+import android.content.Intent;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -80,6 +83,16 @@ public class BibleView extends WebView {
 		    	    mJumpToVerse = -1; 
 		    	 } 
 		    }
+
+			@Override
+			public boolean shouldOverrideUrlLoading(WebView view, String url) {
+				// load Strongs refs when a user clicks on a link
+				if (loadApplicationUrl(url)) {
+					return true;
+				} else {
+					return super.shouldOverrideUrlLoading(view, url);
+				}
+			}
 
 			@Override
 			public void onLoadResource(WebView view, String url) {
@@ -174,5 +187,22 @@ public class BibleView extends WebView {
 			Log.e(TAG, "Error changing page", e);
 		}
 		return isHandled;
+	}
+	
+	/** see OSISToHtmlSaxHandler.getStrongsUrl for format of uri
+	 * 
+	 * @param url
+	 * @return
+	 */
+	private boolean loadApplicationUrl(String uri) {
+		Intent intent = null;
+		if (uri.startsWith(Constants.GREEK_DEF_PROTOCOL) || 
+			uri.startsWith(Constants.HEBREW_DEF_PROTOCOL)) {
+			intent = new Intent(this.getContext(), StrongsRef.class);
+			intent.putExtra("URI", uri);
+			getContext().startActivity(intent);
+			return true;
+		}
+		return false;
 	}
 }
