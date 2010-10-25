@@ -3,6 +3,7 @@ package net.bible.service.format;
 
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import net.bible.service.common.Constants;
@@ -39,6 +40,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     private boolean isShowHeadings = true;
     private boolean isShowVerseNumbers = false;
     private boolean isShowNotes = false;
+    private boolean isShowStrongs = true;
     private String extraStylesheet;
     
     // internal logic
@@ -49,7 +51,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
     private boolean isWriteContent = true;
     private boolean isWriteNote = false;
-    private boolean isStartedValidStrongsTag = false;
+    List<String> pendingStrongsTags;
     
     //todo temporarily use a string but later switch to Map<int,String> of verse->note
     private List<Note> notesList = new ArrayList<Note>();
@@ -153,16 +155,12 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			// ensure 'who' attribute does not exist because esv uses q for red-letter and for quote mark
 			// quotation, this could be beginning or end of quotation because it is an empty tag
 			write("&quot;");
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_W) && isAttr(OSISUtil.ATTRIBUTE_W_LEMMA, attrs)) {
+		} else if (isShowStrongs && name.equals(OSISUtil.OSIS_ELEMENT_W) && isAttr(OSISUtil.ATTRIBUTE_W_LEMMA, attrs)) {
 			// Strongs reference
 			// example of strongs refs: <w lemma="strong:H0430">God</w> <w lemma="strong:H0853 strong:H01254" morph="strongMorph:TH8804">created</w>
 			String lemma = attrs.getValue(OSISUtil.ATTRIBUTE_W_LEMMA);
 			if (lemma.startsWith(OSISUtil.LEMMA_STRONGS)) {
-				
-				String strongsUrl = getStrongsUrl(lemma);
-	    		log.debug("Strongs url:"+strongsUrl);
-				write("<a href='"+strongsUrl+"'/>");
-				isStartedValidStrongsTag = true;
+				pendingStrongsTags = getStrongsTags(lemma);
 			}
 		}
 	}
@@ -207,9 +205,13 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {
 			// end quotation, but <q /> tag is a marker and contains no content so <q /> will appear at beginning and end of speech
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_W) && isStartedValidStrongsTag) {
-			write("</a>");
-			isStartedValidStrongsTag = false;
+		} else if (isShowStrongs && name.equals(OSISUtil.OSIS_ELEMENT_W)) {
+			if (pendingStrongsTags!=null) {
+				for (String strongsTag : pendingStrongsTags) {
+					write(strongsTag);
+				}
+				pendingStrongsTags = null;
+			}
 		}
 	}
     
@@ -281,46 +283,39 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
      * 
      * @return a single char to use as a note ref
      */
-    private String getStrongsUrl(String lemma) {
+    private List<String> getStrongsTags(String lemma) {
     	// there may occasionally be more than on ref so split them into a list of single refs
-    	String[] refList = lemma.split(" ");
+    	List<String> strongsTags = new ArrayList<String>();
     	
-    	String protocol = null;
-    	String url="";
-    	boolean isFirstRef = true;
+    	String[] refList = lemma.split(" ");
     	for (String ref : refList) {
     		// ignore if string doesn't start with "strong;"
-    		if (ref.startsWith(OSISUtil.LEMMA_STRONGS)) {
+    		if (ref.startsWith(OSISUtil.LEMMA_STRONGS) && ref.length()>OSISUtil.LEMMA_STRONGS.length()+2) {
     			// reduce ref like "strong:H0430" to "H0430"
     			ref = ref.substring(OSISUtil.LEMMA_STRONGS.length());
     			
-    			if (isFirstRef || protocol == null) {
-	            	// select Hebrew or Greek protocol
-	    			if (ref.startsWith("H")) {
-	    				protocol = Constants.HEBREW_DEF_PROTOCOL;
-	    			} else if (ref.startsWith("G")) {
-	       				protocol = Constants.GREEK_DEF_PROTOCOL;
-	       			}
-    			}
-
-    			if (ref.length()>1) {
-    				if (!isFirstRef && url.length()>0) {
-    					// separate each ref with a plus
-    					url += "+";
-    				}
-    				ref = ref.substring(1);
-    				url += StringUtils.leftPad(ref, 5, "0");
-    			}
+            	// select Hebrew or Greek protocol
+    	    	String protocol = null;
+    			if (ref.startsWith("H")) {
+    				protocol = Constants.HEBREW_DEF_PROTOCOL;
+    			} else if (ref.startsWith("G")) {
+       				protocol = Constants.GREEK_DEF_PROTOCOL;
+       			}
+    			
+        		if (protocol!=null) {
+            		// get ref no padded to 5 digits
+            		String refNo = ref.substring(1);
+            		String paddedRefNo = StringUtils.leftPad(ref, 5, "0");
+            		String uri = protocol+":"+paddedRefNo;
+            		String tag = "&lt;<a href='"+uri+"'>"+refNo+"</a>&gt;";
+            		strongsTags.add(tag);
+        		}
     		}
-    		isFirstRef = false;
     	}
-    	
-    	if (protocol!=null && url.length()>0) {
-    		return protocol+":"+url;
-    	} else {
-    		return "";
-    	}
-    	
+    	// for some reason the generic tags should come last and the order seems always reversed in other systems
+    	// the second tag (once reversed) seems to relate to a missing word like eth
+    	Collections.reverse(strongsTags);
+    	return strongsTags;
     }
 
     /** see if an attribute exists and has a value
@@ -348,6 +343,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	}
 	public void setShowNotes(boolean isShowNotes) {
 		this.isShowNotes = isShowNotes;
+	}
+	public void setShowStrongs(boolean isShowStrongs) {
+		this.isShowStrongs = isShowStrongs;
 	}
 	public List<Note> getNotesList() {
 		return notesList;

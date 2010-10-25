@@ -391,6 +391,7 @@ public class SwordApi {
 			// show verse numbers if user has selected to show verse numbers AND teh book is a bible (so don't even try to show verses in a Dictionary)
 			osisToHtml.setShowVerseNumbers(preferences.getBoolean("show_verseno_pref", true) && book.getBookCategory().equals(BookCategory.BIBLE));
 			osisToHtml.setShowNotes(preferences.getBoolean("show_notes_pref", true));
+			osisToHtml.setShowStrongs(preferences.getBoolean("show_strongs_pref", true));
 			if (preferences.getBoolean("night_mode_pref", false)) {
 				osisToHtml.setExtraStylesheet(NIGHT_MODE_STYLESHEET);
 			}

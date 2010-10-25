@@ -57,8 +57,8 @@
     <string name="prefs_show_verseno_summary">Show verse numbers</string>
     <string name="prefs_show_notes_title">Notes</string>
     <string name="prefs_show_notes_summary">Show notes</string>
-    <string name="prefs_show_strongs_title">Strongs numbers</string>
-    <string name="prefs_show_strongs_summary">Show Strongs</string>
+    <string name="prefs_show_strongs_title">Strong\'s numbers</string>
+    <string name="prefs_show_strongs_summary">Show Strong\'s numbers in KJV</string>
     <string name="prefs_night_mode_title">Night mode</string>
     <string name="prefs_night_mode_summary">For easier reading in the dark</string>
 
