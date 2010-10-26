@@ -175,9 +175,11 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 
 			// bypass setter to avoid automatic notifications
 			int bibleBookNo =  inState.getInt("bible-book", 1);
-			int chapter = inState.getInt("chapter", 1);
-			int verse = inState.getInt("verse", 1);
-			this.currentBibleVerse.setVerseSelected(new Verse(bibleBookNo, chapter, verse, true));
+			int chapterNo = inState.getInt("chapter", 1);
+			int verseNo = inState.getInt("verse", 1);
+			Log.d(TAG, "Restored verse:"+bibleBookNo+"."+chapterNo+"."+verseNo);
+			Verse verse = new Verse(bibleBookNo, chapterNo, verseNo, true);
+			this.currentBibleVerse.setVerseSelected(verse);
 
 			Log.d(TAG, "Current passage:"+toString());
 		} 

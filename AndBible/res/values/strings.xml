@@ -69,6 +69,7 @@
     <string name="next">Next</string>
 
     <string name="strongs">Strong\'s Dictionary</string>
+    <string name="strongs_not_installed">Please download Strong\'s Hebrew and Greek dictionaries</string>
 
 	<!-- Module download -->
     <string name="download">Download Documents</string>

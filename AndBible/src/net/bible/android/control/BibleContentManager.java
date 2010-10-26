@@ -57,10 +57,7 @@ public class BibleContentManager {
 		Book document = currentPage.getCurrentDocument();
 		Key key = currentPage.getKey();
 
-//		 scrolling right in a commentary can sometimes cause duplicate updates and I don't know why - catch them for now
-//		if (forceUpdate || (!bible.equals(displayedBible) || !verse.equals(displayedVerse))) {
-//			new UpdateTextTask().execute(currentPassage);
-//		}
+		// check for duplicate scren update requests
 		if (!forceUpdate && document.equals(displayedBible) && key.equals(displayedVerse)) {
 			Log.w(TAG, "Duplicated screen update. Doc:"+document.getInitials()+" Key:"+key);
 		}
@@ -125,7 +122,11 @@ public class BibleContentManager {
         }
     }
 	private void showText(String text, int verseNo) {
-        bibleWebView.show(text, verseNo);
+		if (bibleWebView!=null) {
+			bibleWebView.show(text, verseNo);
+		} else {
+			Log.w(TAG, "Bible web view not yet registered");
+		}
     }
 
 	public List<Note> getNotesList() {

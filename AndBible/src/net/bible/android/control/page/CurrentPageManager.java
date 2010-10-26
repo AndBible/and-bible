@@ -4,6 +4,7 @@ import net.bible.android.control.PassageChangeMediator;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
+import org.crosswire.jsword.passage.Key;
 
 import android.content.SharedPreferences;
 
@@ -48,22 +49,43 @@ public class CurrentPageManager {
 	}
 	
 	public CurrentPage setCurrentDocument(Book currentBook) {
-		BookCategory bookCategory = currentBook.getBookCategory();
-		CurrentPage nextPage = null;
-		if (bookCategory.equals(BookCategory.BIBLE)) {
-			nextPage = currentBiblePage;
-		} else if (bookCategory.equals(BookCategory.COMMENTARY)) {
-			nextPage = currentCommentaryPage;
-		} else if (bookCategory.equals(BookCategory.DICTIONARY)) {
-			nextPage = currentDictionaryPage;
-		}
-
+		CurrentPage nextPage = getBookPage(currentBook);
 		if (nextPage!=null) {
 			currentDisplayedPage = nextPage;
 			nextPage.setCurrentDocument(currentBook);
 		}
 		
 		return nextPage;
+	}
+
+	public CurrentPage setCurrentDocumentAndKey(Book currentBook, Key key) {
+		CurrentPage nextPage = getBookPage(currentBook);
+		if (nextPage!=null) {
+			try {
+				// don't update screen until key is set
+				nextPage.setInhibitChangeNotifications(true);
+				currentDisplayedPage = nextPage;
+				nextPage.setCurrentDocument(currentBook);
+			} finally {
+				nextPage.setInhibitChangeNotifications(false);
+			}
+		}
+
+		nextPage.setKey(key);
+		return nextPage;
+	}
+	
+	private CurrentPage getBookPage(Book book) {
+		BookCategory bookCategory = book.getBookCategory();
+		CurrentPage bookPage = null;
+		if (bookCategory.equals(BookCategory.BIBLE)) {
+			bookPage = currentBiblePage;
+		} else if (bookCategory.equals(BookCategory.COMMENTARY)) {
+			bookPage = currentCommentaryPage;
+		} else if (bookCategory.equals(BookCategory.DICTIONARY)) {
+			bookPage = currentDictionaryPage;
+		}
+		return bookPage;
 	}
 
 	/** called during app close down to save state

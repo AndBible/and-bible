@@ -17,20 +17,29 @@ import android.view.Menu;
 abstract class CurrentPageBase implements CurrentPage {
 
 	private Book currentDocument;
+	
+	private boolean inhibitChangeNotifications;
 
 	private static final String TAG = "CurrentPage";
+	
+	abstract protected void doSetKey(Key key);
 	
 	/** notify mediator that page has changed and a lot of things need to update themselves
 	 */
 	protected void pageChange() {
-		PassageChangeMediator.getInstance().onCurrentPageChanged();
+		if (!isInhibitChangeNotifications()) {
+			PassageChangeMediator.getInstance().onCurrentPageChanged();
+		}
 	}
 	/** notify mediator that a detail - normally just verse no - has changed and the title need to update itself
 	 */
 	protected void pageDetailChange() {
-		PassageChangeMediator.getInstance().onCurrentPageDetailChanged();
+		if (!isInhibitChangeNotifications()) {
+			PassageChangeMediator.getInstance().onCurrentPageDetailChanged();
+		}
 	}
 
+	
 	/** displayed in titlebar
 	 */
 	@Override
@@ -44,28 +53,17 @@ abstract class CurrentPageBase implements CurrentPage {
 		pageChange();
 	}
 	
-	abstract protected void doSetKey(Key key);
-	
 	@Override
 	public void next() {
-		
 	}
 
 	@Override
 	public void previous() {
-		// TODO Auto-generated method stub
 	}
 
 	@Override
 	public boolean isSingleKey() {
-		// TODO Auto-generated method stub
 		return false;
-	}
-
-	@Override
-	public Key getKey() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	/* (non-Javadoc)
@@ -111,6 +109,17 @@ abstract class CurrentPageBase implements CurrentPage {
 		menu.findItem(R.id.notesButton).setEnabled(true);		
 	}
 	
+	@Override
+	public boolean isInhibitChangeNotifications() {
+		return inhibitChangeNotifications;
+	}
+	
+	@Override
+	public void setInhibitChangeNotifications(boolean inhibitChangeNotifications) {
+		this.inhibitChangeNotifications = inhibitChangeNotifications;
+	}
+
+
 	@Override
 	public void restoreState(SharedPreferences inState) {
 		// TODO Auto-generated method stub

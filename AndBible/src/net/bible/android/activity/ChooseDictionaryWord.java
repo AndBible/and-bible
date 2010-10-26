@@ -126,20 +126,24 @@ public class ChooseDictionaryWord extends ListActivityBase {
     private void showPossibleDictionaryKeys(String searchText) {
 		Log.d(TAG, "Search for:"+searchText);
 		try {
-			searchText = searchText.toLowerCase();
-	
-			Iterator iter = mDictionaryGlobalList.iterator();
-			mMatchingKeyList.clear();
-			while (iter.hasNext()) {
-				Key key = (Key)iter.next();
-				if (key.getName().toLowerCase().startsWith(searchText)) {
-					mMatchingKeyList.add(key);
+			if (mDictionaryGlobalList!=null) {
+				searchText = searchText.toLowerCase();
+		
+				Iterator iter = mDictionaryGlobalList.iterator();
+				mMatchingKeyList.clear();
+				while (iter.hasNext()) {
+					Key key = (Key)iter.next();
+					if (key.getName().toLowerCase().startsWith(searchText)) {
+						mMatchingKeyList.add(key);
+					}
 				}
+				Log.d(TAG, "matches found:"+mMatchingKeyList.size());
+		
+		    	((ArrayAdapter)getListAdapter()).notifyDataSetChanged();
+				Log.d(TAG, "Finished searching for:"+searchText);
+			} else {
+				Log.d(TAG, "Cached global key list is null");
 			}
-			Log.d(TAG, "matches found:"+mMatchingKeyList.size());
-	
-	    	((ArrayAdapter)getListAdapter()).notifyDataSetChanged();
-			Log.d(TAG, "Finished searching for:"+searchText);
 		} catch (Throwable e) {
 			Log.e(TAG, "Error finding matching keys", e);
 			showErrorMsg("Error searching dictionary");
