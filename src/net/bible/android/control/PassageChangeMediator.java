@@ -3,6 +3,8 @@ package net.bible.android.control;
 import java.util.Observable;
 import java.util.Observer;
 
+import android.util.Log;
+
 import net.bible.android.activity.MainBibleActivity;
 import net.bible.service.history.HistoryManager;
 
@@ -16,6 +18,8 @@ public class PassageChangeMediator {
 	private MainBibleActivity mMainBibleActivity;
 	private BibleContentManager mBibleContentManager;
 	
+	private static final String TAG = "PassageChangeMediator";
+	
 	private static final PassageChangeMediator singleton = new PassageChangeMediator();
 	
 	public static final PassageChangeMediator getInstance() {
@@ -23,7 +27,11 @@ public class PassageChangeMediator {
 	}
 
 	public void onCurrentPageChanged() {
-		mBibleContentManager.updateText();
+		if (mBibleContentManager!=null) {
+			mBibleContentManager.updateText();
+		} else {
+			Log.w(TAG, "BibleContentManager not yet registered");
+		}
 		HistoryManager.getInstance().pageChanged();
 	}
 	public void onCurrentPageDetailChanged() {
@@ -31,14 +39,26 @@ public class PassageChangeMediator {
 	}
 
 	public void contentChangeStarted() {
-		mMainBibleActivity.onPassageChangeStarted();
+		if (mMainBibleActivity!=null) {
+			mMainBibleActivity.onPassageChangeStarted();
+		} else {
+			Log.w(TAG, "Bible activity not yet registered");
+		}
 	}
 	public void contentChangeFinished() {
-		mMainBibleActivity.onPassageChanged();
+		if (mMainBibleActivity!=null) {
+			mMainBibleActivity.onPassageChanged();
+		} else {
+			Log.w(TAG, "Bible activity not yet registered");
+		}
 	}
 	
 	private void doVerseChanged() {
-		mMainBibleActivity.onPassageChanged();
+		if (mMainBibleActivity!=null) {
+			mMainBibleActivity.onPassageChanged();
+		} else {
+			Log.w(TAG, "Bible activity not yet registered");
+		}
 	}
 
 	public void setBibleContentManager(BibleContentManager bibleContentManager) {

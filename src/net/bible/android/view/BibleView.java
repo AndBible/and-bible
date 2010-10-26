@@ -1,8 +1,17 @@
 package net.bible.android.view;
 
+import net.bible.android.BibleApplication;
+import net.bible.android.activity.R;
 import net.bible.android.activity.StrongsRef;
+import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.service.common.Constants;
+import net.bible.service.sword.SwordApi;
+
+import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.Defaults;
+import org.crosswire.jsword.passage.Key;
+
 import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
@@ -164,7 +173,7 @@ public class BibleView extends WebView {
 							CurrentPageManager.getInstance().getCurrentPage().previous();
 							lastHandledTrackballEventTime = event.getEventTime();
 						} else {
-							Log.i(TAG, "Already handled");
+							Log.d(TAG, "Trackball scroll too soon - ignoring");
 						}
 						isHandled = true;
 					} else if (xChangeSinceLastEvent > 0.3) {
@@ -174,7 +183,7 @@ public class BibleView extends WebView {
 							CurrentPageManager.getInstance().getCurrentPage().next();
 							lastHandledTrackballEventTime = event.getEventTime();
 						} else {
-							Log.i(TAG, "Already handled");
+							Log.d(TAG, "Trackball scroll too soon - ignoring");
 						}
 						isHandled = true;
 					}
@@ -189,20 +198,44 @@ public class BibleView extends WebView {
 		return isHandled;
 	}
 	
-	/** see OSISToHtmlSaxHandler.getStrongsUrl for format of uri
+	/** Currently the only uris handled are for Strongs refs
+	 * see OSISToHtmlSaxHandler.getStrongsUrl for format of uri
 	 * 
 	 * @param url
-	 * @return
+	 * @return true if successfully changed to Strongs ref
 	 */
 	private boolean loadApplicationUrl(String uri) {
-		Intent intent = null;
-		if (uri.startsWith(Constants.GREEK_DEF_PROTOCOL) || 
-			uri.startsWith(Constants.HEBREW_DEF_PROTOCOL)) {
-			intent = new Intent(this.getContext(), StrongsRef.class);
-			intent.putExtra("URI", uri);
-			getContext().startActivity(intent);
+		try {
+			// check for urls like gdef:01234 
+			if (!uri.contains(":")) {
+				return false;
+			}
+			String[] uriTokens = uri.split(":");
+	        String protocol = uriTokens[0];
+	        String ref = uriTokens[1];
+	
+	        // hebrew or greek
+	        Book book = null;
+	        if (Constants.GREEK_DEF_PROTOCOL.equals(protocol)) {
+	        	book = Defaults.getGreekDefinitions();
+	        } else if (Constants.HEBREW_DEF_PROTOCOL.equals(protocol)) {
+	        	book = Defaults.getHebrewDefinitions();
+	        } else {
+	        	return false;
+	        }
+		        
+	        if (book==null) {
+	        	BibleApplication.getApplication().showErrorMessage(R.string.strongs_not_installed);
+	        	return false;
+	        }
+	
+	        Key strongsNumberKey = book.getKey(ref); 
+	   		CurrentPageManager.getInstance().setCurrentDocumentAndKey(book, strongsNumberKey);
+	
 			return true;
+		} catch (Exception e) {
+			Log.e(TAG, "Error going to Strongs", e);
+			return false;
 		}
-		return false;
 	}
 }

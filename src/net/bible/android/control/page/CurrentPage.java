@@ -36,4 +36,8 @@ public interface CurrentPage {
 	public abstract void restoreState(SharedPreferences inState);
 
 	public abstract void saveState(SharedPreferences outState);
+
+	public abstract void setInhibitChangeNotifications(boolean inhibitChangeNotifications);
+
+	public abstract boolean isInhibitChangeNotifications();
 }

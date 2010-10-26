@@ -57,6 +57,11 @@ public class BibleApplication extends Application{
         });
     }
     
+    public void showErrorMessage(final int messageId) {
+    	String message = getString(messageId);
+    	showErrorMessage(message, null);
+    }
+    
     public void showErrorMessage(final String message, final Throwable e) {
     	if (currentActivity!=null) {
 	    	currentActivity.runOnUiThread(new Runnable() {
