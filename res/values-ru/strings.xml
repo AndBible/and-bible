@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- Application text
  
  @author Martin Denham [mjdenham at gmail dot com]
@@ -6,37 +6,48 @@
       The copyright to this program is held by it's author.
 -->
 <resources>
+    <string name="app_name">Библия</string>
+
     <string name="splash_top_text">\n\"И сказал Бог:, \да будет свет.\' И стал свет. \"\nБытие 1:3</string>
-    <string name="help_text">Помощь:\nНажмите кнопку МЕНЮ, чтобы выбрать действие\nПроведите пальцем влево по экрану, чтобы перейти к следующей главе\nПроведите пальцем вправо по экрану, чтобы вернуться к предыдущей главе\nПрокрутите трэкбол влево или вправо для перехода к следующей или предыдущей главе</string>
-    
+    <string name="help_text">Навигация\nПомощь:\nНажмите кнопку [МЕНЮ], чтобы выбрать действие\nПроведите пальцем влево по экрану, чтобы перейти к следующей главе\nПроведите пальцем вправо по экрану, чтобы вернуться к предыдущей главе\nПрокрутите трэкбол влево или вправо для перехода к следующей или предыдущей главе\nРечь\nНажмите [Озвучить], чтобы прослушать текущую главу\nНажмите [Озвучить], что остановить прослушивание</string>
+    <string name="no_sdcard_error">Вставьте карту памяти и запустите Библию снова.</string>
     <!-- main menu -->
     <string name="chooseBook">Документ</string>
     <string name="selectPassage">Отрывок</string>
     <string name="search">Найти</string>
     <string name="notes">Заметки</string>
     <string name="settings">Настройки</string>
+    <string name="history">История</string>
+    <string name="speak">Озвучить</string>
+    <string name="help">Помощь</string>
     
     <string name="choosePassageBookName">Выберите книгу</string>
     <string name="choosePassageChapterName">Выберите главу</string>
-    <string name="search_index">Создать поисковой инидекс</string>
+    <string name="chapter_range">%s главы %d to %d</string>
+    <string name="search_index">Создать поисковой индекс</string>
     <string name="index_creation_required">Для поиска должен быть создан индекс. Создание индекса может занять некоторое время.</string>
+    <string name="indexing_wait_msg">После создания индекса, перед вами откроется Поиск.</string>
     <string name="index">Индекс</string>
     <string name="module_dir">Директория</string>
     <string name="use_folder">Использовать эту папку</string>
     <string name="no_files_error">Извините, у вас нет файлов!</string>
-    <string name="sdcard_error">Извините, у вас нет SD карты!</string>
+    <string name="sdcard_error">Извините, у вас нет карты памяти!</string>
     <string name="directory_error">Извините, нет доступа к директории %s</string> 
 	<string name="progress_status">Прогресс</string>
+	<string name="task_kill_warning">Эта сложная операция будет прервана, если вы выйдете из приложения до ее завершения.</string>
+	<string name="no_tasks_running">В данный момент никакие операции не выполняются.</string>
 
 	<string name="search_words_group_prompt">Найти стихи</string>
     <string name="search_all_words">Все слова</string>
     <string name="search_any_word">Любое слово</string>
     <string name="search_phrase">Фраза</string>
+    <string name="search_result_count">%d совпадения найдены</string>
+    <string name="search_showing_first">Слишком много совпадений. Показываюся первые%d</string> 
 
     <string name="search_bible_section_group_prompt">Искать в</string>
     <string name="search_all_bible">Вся Библия</string>
     <string name="search_new_testament">Новый Завет</string>
-    <string name="search_old_testament">Ветхий Завет</string>
+    <string name="search_old_testament">Ветхий завет</string>
     <string name="search_current_book">Текущая книга</string>
     <string name="error_executing_search">Неверный запрос</string>
 
@@ -45,6 +56,8 @@
     <string name="prefs_show_verseno_summary">Показать номера стихов</string>
     <string name="prefs_show_notes_title">Заметки</string>
     <string name="prefs_show_notes_summary">Показать заметки</string>
+    <string name="prefs_show_strongs_title">Номера Стронга</string>
+    <string name="prefs_show_strongs_summary">Показать номера Стронга</string>
     <string name="prefs_night_mode_title">Ночной режим</string>
     <string name="prefs_night_mode_summary">Для более легкого чтения в темноте</string>
 
@@ -54,12 +67,30 @@
     <string name="previous">Предыдущая</string>
     <string name="next">Следующая</string>
 
-	<!-- Module download -->
-    <string name="download">Скачать Библии </string>
-    <string name="error_downloading">Произошла ошибка при скачивании.  Проверьте соединение с интернетом.</string>
-    <string name="no_internet_connection">Нет соединения с интернетом</string>
+    <string name="strongs">Словарь Стронга</string>
 
+	<!-- Module download -->
+    <string name="download">Скачать Библии</string>
+    <string name="download_confirmation">Скачать с Интернета?</string>
+    <string name="download_document_confirm_prefix">"Скачать"</string>
+    <string name="error_downloading">Произошла ошибка при скачивании. Пожалуйста, проверьте соединение с интернетом.</string>
+    <string name="no_internet_connection">Нет соединения с интернетом</string>
+    <string name="wait_for_bible"> Подождите завершения скачивания Библии. Вы будете автоматически переведены в главное меню.</string>
+	<string name="wait_for_bible_not_yet">Пожалуйста подождите. Библия еще не установлена.</string>
+	<string name="download_complete_no_bibles">Библия не установлена.Нажмите [Назад] и попытайтесь снова.</string>
+	<string name="too_many_jobs">Выполняется слишком много операций. Подождите немного и попытайтесь снова.</string>
+	
+	<!-- Dictionary -->
+    <string name="dictionary">Словарь</string>
+    <string name="search_dictionary_hint">Поиск в словаре</string>
+    <string name="dictionary_contents">Содержание</string> 	
+    <string name="error_occurred">Произошла ошибка</string>
     <string name="okay">OK</string>
     <string name="cancel">Отмена</string>
     <string name="error">Ошибка </string>
+    <string name="more">Еще</string>
+    <string name="retry">Попытайтесь снова</string>
+    <string name="please_wait">Пожалуйста подождите...</string>
+    
+    <string name="tts_lang_not_available">Язык не доступен.</string>
 </resources>
