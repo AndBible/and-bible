@@ -135,7 +135,8 @@ public class BibleView extends WebView {
 	 */
 	public void applyPreferenceSettings() {
 		SharedPreferences preferences = CommonUtil.getSharedPreferences();
-		int fontSize = preferences.getInt("text_size_pref", 16);
+		// see this bug (http://code.google.com/p/android/issues/detail?id=2096) for the reason we can't just use an integer-array in values.xml
+		int fontSize = Integer.valueOf(preferences.getString("text_size_pref", "16"));
 		getSettings().setDefaultFontSize(fontSize);
 	}
 	
