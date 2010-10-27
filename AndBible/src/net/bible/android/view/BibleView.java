@@ -2,18 +2,16 @@ package net.bible.android.view;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
-import net.bible.android.activity.StrongsRef;
-import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.util.CommonUtil;
 import net.bible.service.common.Constants;
-import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.Defaults;
 import org.crosswire.jsword.passage.Key;
 
 import android.content.Context;
-import android.content.Intent;
+import android.content.SharedPreferences;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -125,12 +123,20 @@ public class BibleView extends WebView {
 	            result.confirm();
 	            return true;
 	        }
-		    
-		    
 		});
 
 		// need javascript to enable jump to anchors/verses
 		getSettings().setJavaScriptEnabled(true);
+		
+		applyPreferenceSettings();
+	}
+
+	/** apply settings set by the user using Preferences
+	 */
+	public void applyPreferenceSettings() {
+		SharedPreferences preferences = CommonUtil.getSharedPreferences();
+		int fontSize = preferences.getInt("text_size_pref", 16);
+		getSettings().setDefaultFontSize(fontSize);
 	}
 	
 	/** show a page from bible commentary

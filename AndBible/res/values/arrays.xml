@@ -11,4 +11,21 @@
 		<item>Commentary</item>
 		<item>Dictionary</item>
 	</string-array>
+	
+	<!-- Allow the user to select the text size for the main bible display -->
+	<string-array name="prefs_text_size_descriptions">
+		<item>Very small</item>
+		<item>Small</item>
+		<item>Normal</item>
+		<item>Large</item>
+		<item>Very large</item>
+	</string-array>
+	<string-array name="prefs_text_size_values">
+		<item>8</item>
+		<item>12</item>
+		<item>16</item>
+		<item>24</item>
+		<item>32</item>
+	</string-array>
+	
 </resources>

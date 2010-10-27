@@ -1,10 +1,8 @@
 package net.bible.android.activity;
 
 import net.bible.android.activity.base.ActivityBase;
-import net.bible.android.activity.base.Dialogs;
 import net.bible.android.control.BibleContentManager;
 import net.bible.android.control.PassageChangeMediator;
-import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.device.TextToSpeechController;
 import net.bible.android.util.CommonUtil;
@@ -12,7 +10,6 @@ import net.bible.android.util.DataPipe;
 import net.bible.android.view.BibleSwipeListener;
 import net.bible.android.view.BibleView;
 import net.bible.service.history.HistoryManager;
-import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.index.IndexStatus;
@@ -21,7 +18,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
@@ -185,12 +181,12 @@ public class MainBibleActivity extends ActivityBase {
     	
     	if (requestCode == REFRESH_DISPLAY_ON_FINISH) {
     		Log.i(TAG, "Refresh on finish");
+    		bibleWebView.applyPreferenceSettings();
     		bibleContentManager.updateText(true);
     	}
     }
 
     private Intent getSearchIntent() {
-    	//xxxtodo is search relevant to all doc types? - some don't have verse keys so need to check it works
     	Book book = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
     	IndexStatus indexStatus = book.getIndexStatus();
     	Log.d(TAG, "Index status:"+indexStatus);
