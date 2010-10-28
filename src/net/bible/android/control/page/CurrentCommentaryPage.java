@@ -127,4 +127,11 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 	public void restoreState(SharedPreferences inState) {
 		//TODO restore this too
 	}
+
+	/** can we enable the main menu search button 
+	 */
+	@Override
+	public boolean isSearchable() {
+		return true;
+	}
 }
