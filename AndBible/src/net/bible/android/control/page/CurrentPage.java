@@ -40,4 +40,6 @@ public interface CurrentPage {
 	public abstract void setInhibitChangeNotifications(boolean inhibitChangeNotifications);
 
 	public abstract boolean isInhibitChangeNotifications();
+
+	public abstract boolean isSearchable();
 }

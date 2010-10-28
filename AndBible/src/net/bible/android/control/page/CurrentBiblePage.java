@@ -187,4 +187,11 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 		pageChange();
 		pageDetailChange();
 	}
+
+	/** can we enable the main menu search button 
+	 */
+	@Override
+	public boolean isSearchable() {
+		return true;
+	}
 }

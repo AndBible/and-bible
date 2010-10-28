@@ -39,6 +39,8 @@ public class MainBibleActivity extends ActivityBase {
 	
 	private BibleView bibleWebView;
 	
+	// request codes passed to and returned from sub-activities
+	private static final int STD_REQUEST_CODE = 1;
 	private static final int REFRESH_DISPLAY_ON_FINISH = 2;
 
 	private static final String TAG = "MainBibleActivity";
@@ -82,7 +84,7 @@ public class MainBibleActivity extends ActivityBase {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         boolean isHandled = false;
-        int requestCode = 1;
+        int requestCode = STD_REQUEST_CODE;
         
     	// Activities
     	{
@@ -165,14 +167,16 @@ public class MainBibleActivity extends ActivityBase {
         return isHandled;
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if ((keyCode == KeyEvent.KEYCODE_BACK) && HistoryManager.getInstance().canGoBack()) {
-       		HistoryManager.getInstance().goBack();
-       		return true;
-        }
-        return super.onKeyDown(keyCode, event);
-    }
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		if ((keyCode==KeyEvent.KEYCODE_BACK) && HistoryManager.getInstance().canGoBack()) {
+			HistoryManager.getInstance().goBack();
+			return true;
+		} else if ((keyCode==KeyEvent.KEYCODE_SEARCH && CurrentPageManager.getInstance().getCurrentPage().isSearchable())) {
+			startActivityForResult(getSearchIntent(), STD_REQUEST_CODE);
+		}
+		return super.onKeyDown(keyCode, event);
+	}
     
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) { 
@@ -257,7 +261,7 @@ public class MainBibleActivity extends ActivityBase {
 		super.onPrepareOptionsMenu(menu);
 		
 		CurrentPageManager.getInstance().getCurrentPage().updateOptionsMenu(menu);
-		// must return for menu to be displayed
+		// must return true for menu to be displayed
 		return true;
 	}
 

@@ -126,4 +126,11 @@ public class CurrentDictionaryPage extends CurrentPageBase implements CurrentPag
 	public boolean isSingleKey() {
 		return true;
 	}
+
+	/** can we enable the main menu search button 
+	 */
+	@Override
+	public boolean isSearchable() {
+		return false;
+	}
 }
