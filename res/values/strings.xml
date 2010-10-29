@@ -25,10 +25,14 @@
     <string name="choosePassageBookName">Choose Book</string>
     <string name="choosePassageChapterName">Choose Chapter</string>
     <string name="chapter_range">%s chapters %d to %d</string>
-    <string name="search_index">Create Search Index</string>
-    <string name="index_creation_required">In order to search an index must be created.  Creating an index may take a long time.</string>
+
+    <string name="search_index">Search Index</string>
+    <string name="index_creation_required">An index is required to search.\n\nIndexes may be downloaded or created locally.\n\nDownloading is the preferred method due to the time taken to create an index locally.  An internet connection is required to download indexes.\n</string>
     <string name="indexing_wait_msg">When indexing has completed you will be taken to the search screen.</string>
     <string name="index">Index</string>
+    <string name="index_download">Download</string>
+    <string name="index_create">Create</string>
+    
     <string name="module_dir">Dir</string>
     <string name="use_folder">Use this folder</string>
     <string name="no_files_error">Sorry, you have no files!</string>
