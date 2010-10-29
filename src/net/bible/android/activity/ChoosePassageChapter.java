@@ -147,7 +147,6 @@ public class ChoosePassageChapter extends ExpandableListActivityBase {
     private void chapterSelected(int chapter) {
 		Log.d(TAG, "Chapter selected:"+chapter);
 		try {
-			//xxxtodo think how to manage common verse between bible and commentary
 			CurrentPageManager.getInstance().getCurrentPage().setKey(new Verse(mBibleBookNo, chapter, 1));
 			onSave(null);
 
