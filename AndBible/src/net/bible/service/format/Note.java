@@ -4,6 +4,7 @@ import java.util.HashMap;
 
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.service.common.Utils;
 import net.bible.service.sword.SwordApi;
 
 import org.apache.commons.lang.StringUtils;
@@ -50,8 +51,8 @@ public class Note extends HashMap<String, String> {
     		} else if (key.equals(DETAIL)) {
     			if (noteType.equals(NoteType.TYPE_REFERENCE)) {
     				String verse = StringUtils.isNotEmpty(osisRef) ? osisRef : noteText; 
-    				//TODO xxxtodo this use of doc is odd need to tidy up this view in service code
     				retval = SwordApi.getInstance().getPlainText(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), verse, 1);
+    				retval = Utils.limitTextLength(retval);
     			}
     		} else {
     			retval = "Error";

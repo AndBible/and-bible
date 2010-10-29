@@ -7,6 +7,7 @@ import java.util.List;
 import net.bible.android.activity.base.ListActivityBase;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.service.common.Utils;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
@@ -71,15 +72,20 @@ public class SearchResults extends ListActivityBase {
     	return listAdapter;
     }
     
+    /** do the search query and prepare results in lists ready for display
+     * 
+     */
     private void prepareResults() {
     	Log.d(TAG, "Preparing search results");
     	
     	try {
+    		// get search string
 	    	String searchText = getIntent().getExtras().getString(Search.SEARCH_TEXT);
-	    	
-	        Book bible = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
+
+	    	// search the current book
+	        Book book = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
 	    	SwordApi swordApi = SwordApi.getInstance();
-	    	Key result = swordApi.search(bible, searchText);
+	    	Key result = swordApi.search(book, searchText);
 	    	if (result!=null) {
 	    		int resNum = result.getCardinality();
 	        	Log.d(TAG, "Number of results:"+resNum);
@@ -149,7 +155,9 @@ public class SearchResults extends ListActivityBase {
 	    		if (key.equals(LIST_ITEM_LINE1)) {
 	    			retval = verse.getName();
 	    		} else {
-	    			retval = SwordApi.getInstance().getPlainText(CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument(), verse.getName(), 1);
+	    			String text = SwordApi.getInstance().getPlainText(CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument(), verse.getName(), 1);
+	    			text = Utils.limitTextLength(text);
+	    			retval = text; 
 	    		}
     		} catch (Exception e) {
     			Log.e(TAG, "Error getting search result", e);
