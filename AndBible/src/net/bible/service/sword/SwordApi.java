@@ -33,6 +33,8 @@ import org.crosswire.jsword.book.OSISUtil;
 import org.crosswire.jsword.book.install.InstallException;
 import org.crosswire.jsword.book.sword.SwordBookPath;
 import org.crosswire.jsword.book.sword.SwordConstants;
+import org.crosswire.jsword.index.IndexManager;
+import org.crosswire.jsword.index.IndexManagerFactory;
 import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.index.lucene.PdaLuceneIndexManager;
 import org.crosswire.jsword.passage.Key;
@@ -183,6 +185,15 @@ public class SwordApi {
 	public void downloadIndex(Book document) throws InstallException, BookException {
 		DownloadManager downloadManager = new DownloadManager();
 		downloadManager.installIndex(CROSSWIRE_REPOSITORY, document);
+	}
+	
+	public void deleteDocument(Book document) throws BookException {
+        document.getDriver().delete(document);
+
+        IndexManager imanager = IndexManagerFactory.getIndexManager();
+        if (imanager.isIndexed(document)) {
+            imanager.deleteIndex(document);
+        }
 	}
 	
 	/** this custom index creation has been optimised for slow, low memory devices

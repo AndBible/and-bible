@@ -42,6 +42,7 @@
 	<string name="task_kill_warning">These long running tasks may terminate if you switch to another application before they finish.</string>
 	<string name="no_tasks_running">There are no tasks currently being executed.</string>
 
+	<!-- Search -->
 	<string name="search_words_group_prompt">Find verses</string>
     <string name="search_all_words">All words</string>
     <string name="search_any_word">Any word</string>
@@ -87,6 +88,10 @@
 	<string name="wait_for_bible_not_yet">Please wait.  A bible has not yet completed installation.</string>
 	<string name="download_complete_no_bibles">No bible was installed.  Please press Back and try again.</string>
 	<string name="too_many_jobs">Too many tasks executing.  Please wait for some to finish and try again.</string>
+
+	<!-- Module context menu -->
+    <string name="delete">Delete</string>
+    <string name="about">About</string>
 	
 	<!-- Dictionary -->
     <string name="dictionary">Dictionary</string>
