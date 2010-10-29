@@ -61,8 +61,6 @@ public class SwordApi {
 	
 	private static final String CROSSWIRE_REPOSITORY = "CrossWire";
 	
-	private DownloadManager downloadManager;
-
 	private static BookFilter SUPPORTED_DOCUMENT_TYPES = BookFilters.either(BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries()), BookFilters.getDictionaries());
 	private SharedPreferences preferences;
 	
@@ -114,8 +112,6 @@ public class SwordApi {
 				log.debug(("Sword paths:"+getPaths()));
 			}
 			
-			downloadManager = new DownloadManager();
-
 		} catch (Exception e) {
 			log.error("Error initialising", e);
 		}
@@ -173,16 +169,22 @@ public class SwordApi {
 	public List<Book> getDownloadableDocuments() throws InstallException {
 		log.debug("Getting downloadable documents");
 		
+		DownloadManager downloadManager = new DownloadManager();
+		
 		// currently we just handle bibles, commentaries, or dictionaries
         return downloadManager.getDownloadableBooks(SUPPORTED_DOCUMENT_TYPES, CROSSWIRE_REPOSITORY);
 	}
 
 	public void downloadDocument(Book document) throws InstallException, BookException {
+		DownloadManager downloadManager = new DownloadManager();
 		downloadManager.installBook(CROSSWIRE_REPOSITORY, document);
-
-//		downloadManager.installIndex(CROSSWIRE_REPOSITORY, document);
 	}
 
+	public void downloadIndex(Book document) throws InstallException, BookException {
+		DownloadManager downloadManager = new DownloadManager();
+		downloadManager.installIndex(CROSSWIRE_REPOSITORY, document);
+	}
+	
 	/** this custom index creation has been optimised for slow, low memory devices
 	 * If an index is in progress then nothing will happen
 	 * 
@@ -361,22 +363,10 @@ public class SwordApi {
 
 	public Key search(Book bible, String searchText) throws BookException {
 		// This does a standard operator search. See the search
-		// documentation
-		// for more examples of how to search
+		// documentation for more examples of how to search
 		Key key = bible.find(searchText); //$NON-NLS-1$
 
-		Log.i(TAG,	"The following verses contain " + searchText + ": " + key.getName()); //$NON-NLS-1$
-		//
-		// // You can also trim the result to a more manageable quantity.
-		// // The test here is not necessary since we are working with a
-		// bible. It
-		// // is necessary if we don't know what it
-		// // is.
-		// if (key instanceof Passage) {
-		// Passage remaining = ((Passage) key).trimVerses(5);
-		//            System.out.println("The first 5 verses containing both moses and aaron: " + key.getName()); //$NON-NLS-1$
-		//            System.out.println("The rest of the verses are: " + remaining.getName()); //$NON-NLS-1$
-		// }
+		Log.d(TAG,	"There are "+key.getCardinality()+" verses containing " + searchText); //$NON-NLS-1$
 
 		return key;
 

@@ -2,6 +2,8 @@ package net.bible.service.download;
 
 import java.io.IOException;
 
+import net.bible.android.control.page.CurrentPageManager;
+
 import org.crosswire.common.util.Reporter;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.install.Installer;
@@ -22,7 +24,7 @@ public class IndexDownloadThread {
      * .book.Book)
      */
     public void downloadIndex(final Installer installer, final Book book) {
-        // // Is the book already installed? Then nothing to do.
+        // // Is the Index already installed? Then nothing to do.
         // if (Books.installed().getBook(book.getName()) != null)
         // {
         // return;
@@ -42,7 +44,7 @@ public class IndexDownloadThread {
              */
             /* @Override */
             public void run() {
-            	Log.i(TAG, "Starting index download thread");
+            	Log.i(TAG, "*** Starting index download thread");
             	
             	try {
 	                BookIndexer bookIndexer = new BookIndexer(book);
@@ -58,12 +60,16 @@ public class IndexDownloadThread {
 	                try {
 	                    Log.d(TAG, "** downloading index");
 	                	IndexDownloader.downloadIndex(book, installer);
+	                    Log.d(TAG, "** downloading index finished");
+	                    
 	                } catch (IOException e) {
+	            		Reporter.informUser(this, "IO Error creating index");
 	                    throw new RuntimeException("IO Error downloading index", e);
 	                }
 	            	Log.i(TAG, "*** Finished index download thread");
             	} catch (Exception e) {
-            		Reporter.informUser(this, "Error creating index");
+            		Log.e(TAG, "Error downloading index", e);
+            		Reporter.informUser(this, "Error downloading index");
             	}
 //                
 //

@@ -103,7 +103,7 @@ public class BibleView extends WebView {
 
 			@Override
 			public void onLoadResource(WebView view, String url) {
-				System.out.println("onLoadResource:"+url);
+				Log.d(TAG, "onLoadResource:"+url);
 				super.onLoadResource(view, url);
 			}
 

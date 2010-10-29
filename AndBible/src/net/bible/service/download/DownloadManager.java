@@ -93,7 +93,8 @@ public class DownloadManager {
         // Delete the book, if present
         // At the moment, JSword will not re-install. Later it will, if the
         // remote version is greater.
-        if (Books.installed().getBook(book.getInitials()) != null) {
+        String bookInitials = book.getInitials();
+        if (Books.installed().getBook(bookInitials) != null) {
             deleteBook(book);
         }
 
@@ -113,12 +114,10 @@ public class DownloadManager {
      */
     public void installIndex(String repositoryName, Book book) throws BookException, InstallException {
     	// An installer knows how to install indexes
+        Log.d(TAG, "installIndex");
         Installer installer = installManager.getInstaller(repositoryName);
-        Log.d(TAG, "** getting index 1");
-
-// moved to experimental section
-//    	IndexDownloadThread idt = new IndexDownloadThread();
-//    	idt.downloadIndex(installer, book);
+    	IndexDownloadThread idt = new IndexDownloadThread();
+    	idt.downloadIndex(installer, book);
     }
 
     /**
@@ -212,11 +211,6 @@ public class DownloadManager {
      * @see Books
      */
     public List getRepositoryBooks(String repositoryName, BookFilter filter) {
-        System.out.println("Install manager:"+installManager);
-        Map installers = installManager.getInstallers();
-        for (Object installer : installers.values()) {
-            System.out.println(installer);
-        }
         return installManager.getInstaller(repositoryName).getBooks(filter);
     }
 

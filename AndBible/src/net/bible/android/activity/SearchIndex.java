@@ -30,6 +30,29 @@ public class SearchIndex extends ActivityBase {
         Log.d(TAG, "Finished displaying Search Index view");
     }
 
+    /** Download the index from the sam place that Pocket Sword uses
+     *  
+     * @param v
+     */
+    public void onDownload(View v) {
+    	Log.i(TAG, "CLICKED");
+    	try {
+	        Book book = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
+	        
+	        // this starts a new thread to do the indexing and returns immediately
+	        // if index creation is already in progress then nothing will happen
+	        SwordApi.getInstance().downloadIndex(book);
+			
+        	// monitor the progres
+        	Intent myIntent = new Intent(this, SearchIndexProgressStatus.class);
+        	startActivity(myIntent);
+        	finish();
+
+    	} catch (Exception e) {
+    		Log.e(TAG, "error indexing:"+e.getMessage());
+    		e.printStackTrace();
+    	}
+    }
     // Indexing is too slow and fails aftr 1 hour - the experimental method below does not improve things enough to make indexing succeed 
     public void onIndex(View v) {
     	Log.i(TAG, "CLICKED");
