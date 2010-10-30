@@ -146,25 +146,34 @@ public class ChooseDocument extends ListActivityBase {
 	       .setCancelable(false)
 	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
 	           public void onClick(DialogInterface dialog, int buttonId) {
-	        	   
+	        	   //do nothing
 	           }
 	       }).create().show();
 	}
 
-	private void delete(Book document) {
-		try {
-			//TODO pop up a confirmation dialog
-			SwordApi.getInstance().deleteDocument(document);
-			
-			// the doc list should now change
-			loadDocumentList();
-			((ArrayAdapter)getListAdapter()).notifyDataSetChanged();
-		} catch (Exception e) {
-			//TODO internationalise
-			showErrorMsg("Error deleting document");
-		}
-		
+	private void delete(final Book document) {
+			CharSequence msg = getString(R.string.delete_doc, document.getName());
+			new AlertDialog.Builder(this)
+				.setMessage(msg).setCancelable(true)
+				.setPositiveButton(R.string.okay,
+					new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog,	int buttonId) {
+							try {
+								SwordApi.getInstance().deleteDocument(document);
+
+								// the doc list should now change
+								loadDocumentList();
+								((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
+							} catch (Exception e) {
+								showErrorMsg(R.string.error_occurred);
+							}
+						}
+					}
+				)
+				.create()
+				.show();
 	}
+
 	private void returnToMainBibleView() {
     	Log.i(TAG, "returning to main bible view");
     	Intent resultIntent = new Intent();

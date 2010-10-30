@@ -48,6 +48,7 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 	@Override
 	public void next() {
 		Log.d(TAG, "Next");
+		beforePageChange();
 		nextVerse();
 		pageChange();
 	}
@@ -57,6 +58,7 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 	@Override
 	public void previous() {
 		Log.d(TAG, "Previous");
+		beforePageChange();
 		previousVerse();
 		pageChange();
 	}

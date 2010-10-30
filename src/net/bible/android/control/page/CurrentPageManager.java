@@ -49,29 +49,36 @@ public class CurrentPageManager {
 	}
 	
 	public CurrentPage setCurrentDocument(Book currentBook) {
+		PassageChangeMediator.getInstance().onBeforeCurrentPageChanged();
+
 		CurrentPage nextPage = getBookPage(currentBook);
 		if (nextPage!=null) {
-			currentDisplayedPage = nextPage;
+			// must be in this order because History needs to grab the current doc before change
 			nextPage.setCurrentDocument(currentBook);
+			currentDisplayedPage = nextPage;
 		}
 		
+		PassageChangeMediator.getInstance().onCurrentPageChanged();
+
 		return nextPage;
 	}
 
 	public CurrentPage setCurrentDocumentAndKey(Book currentBook, Key key) {
+		PassageChangeMediator.getInstance().onBeforeCurrentPageChanged();
+
 		CurrentPage nextPage = getBookPage(currentBook);
 		if (nextPage!=null) {
 			try {
-				// don't update screen until key is set
 				nextPage.setInhibitChangeNotifications(true);
-				currentDisplayedPage = nextPage;
 				nextPage.setCurrentDocument(currentBook);
+				nextPage.setKey(key);
+				currentDisplayedPage = nextPage;
 			} finally {
 				nextPage.setInhibitChangeNotifications(false);
 			}
 		}
+		PassageChangeMediator.getInstance().onCurrentPageChanged();
 
-		nextPage.setKey(key);
 		return nextPage;
 	}
 	
@@ -109,6 +116,7 @@ public class CurrentPageManager {
 		return currentBiblePage == currentDisplayedPage;
 	}
 	public void showBible() {
+		PassageChangeMediator.getInstance().onBeforeCurrentPageChanged();
 		currentDisplayedPage = currentBiblePage;
 		PassageChangeMediator.getInstance().onCurrentPageChanged();
 	}

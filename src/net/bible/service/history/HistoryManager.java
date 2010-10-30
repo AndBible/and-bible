@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
+import net.bible.android.control.page.CurrentBiblePage;
+import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 
 import org.crosswire.jsword.book.Book;
@@ -15,7 +17,7 @@ import android.util.Log;
 public class HistoryManager {
 
 	private static int MAX_HISTORY = 20;
-	private Stack<VerseHistoryItem> history = new Stack<VerseHistoryItem>();
+	private Stack<KeyHistoryItem> history = new Stack<KeyHistoryItem>();
 	private static HistoryManager singleton = new HistoryManager();
 
 	private boolean isGoingBack = false;
@@ -27,23 +29,37 @@ public class HistoryManager {
 	}
 	
 	public boolean canGoBack() {
-		return history.size()>1;
+		return history.size()>0;
 	}
 	
 	/**
 	 *  called when a verse is changed
 	 */
-	public void pageChanged() {
+	public void beforePageChange() {
 		// if we cause the change by requesting Back then ignore it
 		if (!isGoingBack) {
-			Book doc = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
-			Key verse = CurrentPageManager.getInstance().getCurrentPage().getKey();
-			if (verse!=null) {
-				Log.d(TAG, "Adding "+verse+" to history");
-				VerseHistoryItem item = new VerseHistoryItem(doc, verse);
-				add(history, item);
-			}
+			KeyHistoryItem item = createHistoryItem();
+			add(history, item);
 		}
+	}
+	private KeyHistoryItem createHistoryItem() {
+		CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
+		Book doc = currentPage.getCurrentDocument();
+		if (currentPage.getKey()==null) {
+			return null;
+		}
+		
+		KeyHistoryItem historyItem;
+		if (currentPage instanceof CurrentBiblePage) {
+			CurrentBiblePage currentBiblePage = (CurrentBiblePage)currentPage;
+			Key key = currentBiblePage.getKey(true);
+			historyItem = new KeyHistoryItem(doc, key);
+		} else {
+			Key key = CurrentPageManager.getInstance().getCurrentPage().getKey();
+			historyItem = new KeyHistoryItem(doc, key);
+		}
+		
+		return historyItem;
 	}
 	
 	//not used just keep a list of verse changes for now
@@ -56,11 +72,9 @@ public class HistoryManager {
 				Log.d(TAG, "History size:"+history.size());
 				isGoingBack = true;
 	
-				// pop the current displayed verse 
-				VerseHistoryItem currentItem = history.pop();
+				// pop the previous item
+				KeyHistoryItem previousItem = history.pop();
 	
-				// and go to previous item
-				HistoryItem previousItem = history.peek();
 				if (previousItem!=null) {
 					Log.d(TAG, "Going back to:"+previousItem);
 					previousItem.revertTo();
@@ -83,18 +97,17 @@ public class HistoryManager {
 	 * @param stack
 	 * @param item
 	 */
-	private void add(Stack<VerseHistoryItem> stack, VerseHistoryItem item) {
-		// ensure no duplicates
-		// if we don't do this then goBack() would cause the prev key to be re-added and we only ever can go back 1 place
-		Log.d(TAG, "Stack size:"+stack.size());
-		boolean removed = stack.removeElement(item);
-		Log.d(TAG, "Found and removed:"+removed);
-		
-		stack.push(item);
-		
-		if (stack.size()>MAX_HISTORY) {
-			Log.d(TAG, "Shrinking large stack");
-			stack.setSize(MAX_HISTORY);
+	private synchronized void add(Stack<KeyHistoryItem> stack, KeyHistoryItem item) {
+		if (item!=null) {
+			Log.d(TAG, "Adding "+item.getKey()+" to history");
+			Log.d(TAG, "Stack size:"+stack.size());
+			
+			stack.push(item);
+			
+			while (stack.size()>MAX_HISTORY) {
+				Log.d(TAG, "Shrinking large stack");
+				stack.remove(0);
+			}
 		}
 	}
 }

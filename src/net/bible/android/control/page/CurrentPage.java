@@ -30,6 +30,8 @@ public interface CurrentPage {
 	public abstract Book getCurrentDocument();
 
 	public abstract void setCurrentDocument(Book currentBible);
+
+	public void setCurrentDocumentAndKey(Book doc, Key key);
 	
 	public abstract void updateOptionsMenu(Menu menu);
 

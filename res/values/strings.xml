@@ -41,6 +41,7 @@
 	<string name="progress_status">Progress</string>
 	<string name="task_kill_warning">These long running tasks may terminate if you switch to another application before they finish.</string>
 	<string name="no_tasks_running">There are no tasks currently being executed.</string>
+	<string name="delete_doc">Delete %s?</string>
 
 	<!-- Search -->
 	<string name="search_words_group_prompt">Find verses</string>
