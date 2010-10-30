@@ -1,16 +1,15 @@
 package net.bible.service.history;
 
-import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
-public class VerseHistoryItem implements HistoryItem {
+public class KeyHistoryItem implements HistoryItem {
 	private Book document;
 	private Key key;
 
-	public VerseHistoryItem(Book doc, Key verse) {
+	public KeyHistoryItem(Book doc, Key verse) {
 		super();
 		this.document = doc;
 		this.key = verse;
@@ -21,8 +20,7 @@ public class VerseHistoryItem implements HistoryItem {
 	 */
 	@Override
 	public void revertTo() {
-		CurrentPageManager.getInstance().setCurrentDocument(document);
-		CurrentPageManager.getInstance().getCurrentPage().setKey(key);
+		CurrentPageManager.getInstance().setCurrentDocumentAndKey(document, key);
 	}
 
 	
@@ -56,7 +54,7 @@ public class VerseHistoryItem implements HistoryItem {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		VerseHistoryItem other = (VerseHistoryItem) obj;
+		KeyHistoryItem other = (KeyHistoryItem) obj;
 		if (key == null) {
 			if (other.key != null)
 				return false;

@@ -26,11 +26,19 @@ abstract class CurrentPageBase implements CurrentPage {
 	
 	/** notify mediator that page has changed and a lot of things need to update themselves
 	 */
+	protected void beforePageChange() {
+		if (!isInhibitChangeNotifications()) {
+			PassageChangeMediator.getInstance().onBeforeCurrentPageChanged();
+		}
+	}
+	/** notify mediator that page has changed and a lot of things need to update themselves
+	 */
 	protected void pageChange() {
 		if (!isInhibitChangeNotifications()) {
 			PassageChangeMediator.getInstance().onCurrentPageChanged();
 		}
 	}
+
 	/** notify mediator that a detail - normally just verse no - has changed and the title need to update itself
 	 */
 	protected void pageDetailChange() {
@@ -49,6 +57,7 @@ abstract class CurrentPageBase implements CurrentPage {
 
 	@Override
 	public void setKey(Key key) {
+		beforePageChange();
 		doSetKey(key);
 		pageChange();
 	}
@@ -87,14 +96,17 @@ abstract class CurrentPageBase implements CurrentPage {
 	@Override
 	public void setCurrentDocument(Book doc) {
 		if (getKey()!=null && !doc.equals(currentDocument) && !doc.contains(getKey())) {
-			setKey(null);
+			doSetKey(null);
 		}
 		localSetCurrentDocument(doc);
-		
-		// not yet because we currently always go to the index first and pick a key at which point a refresh will occur
-		if (getKey()!=null) {
-			pageChange();
-		}
+	}
+	/* Set new doc and if possible show new doc
+	 * @see net.bible.android.control.CurrentPage#setCurrentDocument(org.crosswire.jsword.book.Book)
+	 */
+	@Override
+	public void setCurrentDocumentAndKey(Book doc, Key key) {
+		doSetKey(null);
+		localSetCurrentDocument(doc);
 	}
 	
 	protected void localSetCurrentDocument(Book doc) {

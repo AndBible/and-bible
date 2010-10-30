@@ -52,6 +52,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	@Override
 	public void next() {
 		Log.d(TAG, "Next");
+		beforePageChange();
 		nextChapter();
 		pageChange();
 	}
@@ -61,6 +62,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	@Override
 	public void previous() {
 		Log.d(TAG, "Previous");
+		beforePageChange();
 		previousChapter();
 		pageChange();
 	}
@@ -105,13 +107,22 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	 */
 	@Override
 	public Key getKey() {
+		return getKey(false);
+    }
+
+	public Key getKey(boolean verseLevel) {
 		Verse verse = currentBibleVerse.getVerseSelected();
 		if (verse!=null) {
-			// display whole page of bible so return whole chapter key - not just teh single verse even if a single verse was set in verseKey
-			// if verseNo is required too then use getVerse()
-	        Key wholeChapterKey = new VerseRange(verse.getFirstVerseInChapter(), verse.getLastVerseInChapter());
-	
-	        return wholeChapterKey;
+			Key key;
+			if (!verseLevel) {
+				// display whole page of bible so return whole chapter key - not just teh single verse even if a single verse was set in verseKey
+				// if verseNo is required too then use getVerse()
+		        Key wholeChapterKey = new VerseRange(verse.getFirstVerseInChapter(), verse.getLastVerseInChapter());
+		        key = wholeChapterKey;
+			} else {
+				key = verse;
+			}
+			return key;
 		} else {
 			return new Verse(1,1,1, true);
 		}

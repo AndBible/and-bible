@@ -207,8 +207,11 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			// end quotation, but <q /> tag is a marker and contains no content so <q /> will appear at beginning and end of speech
 		} else if (isShowStrongs && name.equals(OSISUtil.OSIS_ELEMENT_W)) {
 			if (pendingStrongsTags!=null) {
-				for (String strongsTag : pendingStrongsTags) {
-					write(strongsTag);
+				for (int i=0; i<pendingStrongsTags.size(); i++) {
+					if (i>0) {
+						write(NBSP); // separator between adjacent tags
+					}
+					write(pendingStrongsTags.get(i));
 				}
 				pendingStrongsTags = null;
 			}
@@ -303,11 +306,12 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
        			}
     			
         		if (protocol!=null) {
-            		// get ref no padded to 5 digits
-            		String refNo = ref.substring(1);
-            		String paddedRefNo = StringUtils.leftPad(ref, 5, "0");
-            		String uri = protocol+":"+paddedRefNo;
-            		String tag = "&lt;<a href='"+uri+"'>"+refNo+"</a>&gt;";
+        			// remove initial G or H
+            		String noPadRef = ref.substring(1);
+            		// pad with leading zeros to 5 characters
+            		String paddedRef = StringUtils.leftPad(noPadRef, 5, "0");
+            		String uri = protocol+":"+paddedRef;
+            		String tag = "<a href='"+uri+"' class='strongs'>"+noPadRef+"</a>";
             		strongsTags.add(tag);
         		}
     		}

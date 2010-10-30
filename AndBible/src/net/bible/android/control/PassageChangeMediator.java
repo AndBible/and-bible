@@ -26,13 +26,15 @@ public class PassageChangeMediator {
 		return singleton;
 	}
 
+	public void onBeforeCurrentPageChanged() {
+		HistoryManager.getInstance().beforePageChange();
+	}
 	public void onCurrentPageChanged() {
 		if (mBibleContentManager!=null) {
 			mBibleContentManager.updateText();
 		} else {
 			Log.w(TAG, "BibleContentManager not yet registered");
 		}
-		HistoryManager.getInstance().pageChanged();
 	}
 	public void onCurrentPageDetailChanged() {
 		doVerseChanged();

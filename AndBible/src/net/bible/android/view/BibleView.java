@@ -173,21 +173,15 @@ public class BibleView extends WebView {
 				Log.d(TAG, "XMov:"+xMovement+" xch:"+xChangeSinceLastEvent+" ych:"+yChangeSinceLastEvent);
 				if (xMovement) {
 					Log.d(TAG, "is xmov");
-					if (xChangeSinceLastEvent < -0.3) {
-						Log.d(TAG, "<.3");
+					if (Math.abs(xChangeSinceLastEvent)>0.5) {
+						Log.d(TAG, "large enough movement for page change:"+xChangeSinceLastEvent);
 						if (event.getEventTime()-lastHandledTrackballEventTime>1000) {
-							Log.i(TAG, "Move Back");
-							CurrentPageManager.getInstance().getCurrentPage().previous();
-							lastHandledTrackballEventTime = event.getEventTime();
-						} else {
-							Log.d(TAG, "Trackball scroll too soon - ignoring");
-						}
-						isHandled = true;
-					} else if (xChangeSinceLastEvent > 0.3) {
-						Log.d(TAG, ">.3");
-						if (event.getEventTime()-lastHandledTrackballEventTime>1000) {
-							Log.i(TAG, "Move Forward");
-							CurrentPageManager.getInstance().getCurrentPage().next();
+							Log.d(TAG, "Changing page");
+							if (xChangeSinceLastEvent>0) {
+								CurrentPageManager.getInstance().getCurrentPage().next();
+							} else {
+								CurrentPageManager.getInstance().getCurrentPage().previous();
+							}
 							lastHandledTrackballEventTime = event.getEventTime();
 						} else {
 							Log.d(TAG, "Trackball scroll too soon - ignoring");
@@ -213,6 +207,7 @@ public class BibleView extends WebView {
 	 */
 	private boolean loadApplicationUrl(String uri) {
 		try {
+			Log.d(TAG, "Loading: "+uri);
 			// check for urls like gdef:01234 
 			if (!uri.contains(":")) {
 				return false;
@@ -228,12 +223,15 @@ public class BibleView extends WebView {
 	        } else if (Constants.HEBREW_DEF_PROTOCOL.equals(protocol)) {
 	        	book = Defaults.getHebrewDefinitions();
 	        } else {
+	        	// not a valid Strongs Uri
 	        	return false;
 	        }
 		        
+	        // valid Strongs uri but Strongs refs not installed
 	        if (book==null) {
 	        	BibleApplication.getApplication().showErrorMessage(R.string.strongs_not_installed);
-	        	return false;
+	        	// this uri request was handled by showing an error message so return true
+	        	return true;
 	        }
 	
 	        Key strongsNumberKey = book.getKey(ref); 

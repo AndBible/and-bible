@@ -24,9 +24,11 @@ h1 {
 	vertical-align: bottom;
 	font-size: 0.7em;
 }
-.notes {
-	font-size: 0.9em;
-	line-height: 1.0em;
+.strongs {
+	color: navy;
+	font-size: 0.7em;
+	vertical-align: top;
+	text-decoration: none
 }
 
 .rtl-notusedyet {
