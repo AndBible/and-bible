@@ -67,7 +67,7 @@ public class HistoryManager {
 	}
 	
 	public void goBack() {
-		if (history.size()>1) {
+		if (history.size()>0) {
 			try {
 				Log.d(TAG, "History size:"+history.size());
 				isGoingBack = true;
