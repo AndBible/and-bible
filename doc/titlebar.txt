@@ -1,0 +1,11 @@
+// basic screen layout - mainly titlebar code
+http://android.git.kernel.org/?p=platform/frameworks/base.git;a=blob;f=core/res/res/layout/screen.xml
+
+// mail titlebar
+http://android.git.kernel.org/?p=platform/packages/apps/Email.git;a=blob;f=res/layout/list_title.xml;hb=HEAD
+
+// Button class with own height calc
+http://stackoverflow.com/questions/3941306/android-setting-button-height-in-xml-based-on-its-width
+
+//TextView onClickListener
+http://markmail.org/message/k5fixnvw7cvtudbg
