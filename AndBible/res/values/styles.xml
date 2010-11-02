@@ -15,6 +15,15 @@
         <item name="android:typeface">serif</item>
         <item name="android:lineSpacingMultiplier">1.6</item>
     </style>
+    
+    <style name="TitleBarButton" parent="@android:TextAppearance.WindowTitle">
+        <item name="android:layout_height">fill_parent</item>
+		<item name="android:shadowColor">#BB000000</item>
+		<item name="android:shadowRadius">2.75</item>
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:clickable">true</item>
+    </style>
+
     <style name="ChoosePassageBookGridFont">
         <item name="android:textSize">40sp</item>
         <item name="android:height">100dp</item>
