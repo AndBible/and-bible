@@ -44,20 +44,17 @@
 	        android:layout_toLeftOf="@+id/quickBibleChange"
 			/>
     <TextView android:id="@+id/quickBibleChange"
-	        android:layout_width="40dip"
-	        android:layout_height="19dip"
-	        android:layout_marginLeft="5dip"
+	        android:layout_width="50dip"
 	        android:layout_toLeftOf="@+id/quickCommentaryChange"
-	        android:clickable="true"
 	        android:visibility="invisible"
+			style="@style/TitleBarButton"
     />
     <TextView android:id="@+id/quickCommentaryChange"
-	        android:layout_width="40dip"
-	        android:layout_height="19dip"
-	        android:layout_marginLeft="5dip"
+	        android:layout_width="50dip"
+	        android:layout_height="fill_parent"
 	        android:layout_alignParentRight="true"
-	        android:clickable="true"
 	        android:visibility="invisible"
+			style="?android:attr/windowTitleStyle"
     />
            
 </RelativeLayout>
