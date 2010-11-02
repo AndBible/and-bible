@@ -1,6 +1,6 @@
 package net.bible.android.activity;
 
-import net.bible.android.activity.base.ActivityBase;
+import net.bible.android.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.control.BibleContentManager;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.page.CurrentPageManager;
@@ -25,7 +25,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.Window;
 
 /** The main activity screen showing Bible text
  * 
@@ -33,7 +32,7 @@ import android.view.Window;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class MainBibleActivity extends ActivityBase {
+public class MainBibleActivity extends CustomTitlebarActivityBase {
 
 	private BibleContentManager bibleContentManager;
 	
@@ -52,7 +51,9 @@ public class MainBibleActivity extends ActivityBase {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        //rolled into CustomTitleBar        
+        //requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        
         setContentView(R.layout.main_bible_view);
 
         // create related objects
@@ -209,7 +210,7 @@ public class MainBibleActivity extends ActivityBase {
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				setProgressBarIndeterminateVisibility(true);
+				setProgressBar(true);
 		    	setTitle("");
 			}
 		});
@@ -222,7 +223,8 @@ public class MainBibleActivity extends ActivityBase {
 			public void run() {
 		    	String passageDesc = CurrentPageManager.getInstance().getCurrentPage().getKeyDescription();
 		    	setTitle(passageDesc);
-				setProgressBarIndeterminateVisibility(false);
+		    	setProgressBar(false);
+		    	updateSuggestedDocuments();
 			}
 		});
     }
