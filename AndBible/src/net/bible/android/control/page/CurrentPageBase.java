@@ -52,9 +52,18 @@ abstract class CurrentPageBase implements CurrentPage {
 	 */
 	@Override
 	public String getKeyDescription() {
-		return getCurrentDocument().getInitials()+" "+getKey().getName();
+		StringBuffer desc = new StringBuffer();
+		Book book = getCurrentDocument();
+		if (book!=null) {
+			desc.append(book.getInitials());
+		}
+		Key key = getKey();
+		if (key!=null) {
+			desc.append(" ").append(key.getName());
+		}
+		return desc.toString();
 	}
-
+	
 	@Override
 	public void setKey(Key key) {
 		beforePageChange();
