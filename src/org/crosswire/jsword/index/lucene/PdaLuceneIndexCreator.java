@@ -28,8 +28,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import net.bible.android.util.CommonUtil;
 import net.bible.service.common.ParseException;
+import net.bible.service.common.Utils;
 import net.bible.service.sword.Logger;
 import net.bible.service.sword.SwordApi;
 
@@ -197,7 +197,7 @@ public class PdaLuceneIndexCreator {
             book.setIndexStatus(finalStatus);
             job.done();
             // ensure the temp path is gone - errors can leave it there and cause further problems
-            CommonUtil.deleteDirectory(tempPath);
+            Utils.deleteDirectory(tempPath);
         }
     }
 

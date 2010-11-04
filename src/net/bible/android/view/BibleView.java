@@ -3,7 +3,7 @@ package net.bible.android.view;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.util.CommonUtil;
+import net.bible.android.view.util.CommonUtil;
 import net.bible.service.common.Constants;
 
 import org.crosswire.jsword.book.Book;

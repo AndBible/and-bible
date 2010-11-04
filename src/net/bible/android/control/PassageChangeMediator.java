@@ -5,7 +5,7 @@ import java.util.Observer;
 
 import android.util.Log;
 
-import net.bible.android.activity.MainBibleActivity;
+import net.bible.android.view.activity.MainBibleActivity;
 import net.bible.service.history.HistoryManager;
 
 /** when a bible passage is changed there are lots o things to update and they should be done in a helpful order

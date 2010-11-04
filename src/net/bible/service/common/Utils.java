@@ -1,10 +1,15 @@
 package net.bible.service.common;
 
+import java.io.File;
+
+import android.util.Log;
+
 public class Utils {
 
 	private static final int DEFAULT_MAX_TEXT_LENGTH = 250;
 	private static final String ELLIPSIS = "...";
 
+	private static final String TAG = "Utils"; 
 	static private boolean isAndroid;
 	
 	//todo have to finish implementing switchable logging here
@@ -37,4 +42,28 @@ public class Utils {
 		}
 		return text;
 	}
+	
+	static public boolean deleteDirectory(File path) {
+		Log.d(TAG, "Deleting directory:"+path.getAbsolutePath());
+		if (path.exists()) {
+			if (path.isDirectory()) {
+				File[] files = path.listFiles();
+				for (int i = 0; i < files.length; i++) {
+					if (files[i].isDirectory()) {
+						deleteDirectory(files[i]);
+					} else {
+						files[i].delete();
+						Log.d(TAG, "Deleted "+files[i]);
+					}
+				}
+			}
+			boolean deleted = path.delete();
+			if (!deleted) {
+				Log.w(TAG, "Failed to delete:"+path.getAbsolutePath());
+			}
+			return deleted;
+		}
+		return false;
+	}
+
 }
