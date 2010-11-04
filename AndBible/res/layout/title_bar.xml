@@ -43,18 +43,17 @@
 			android:max="10000"
 	        android:layout_toLeftOf="@+id/quickBibleChange"
 			/>
-    <TextView android:id="@+id/quickBibleChange"
+    <Button android:id="@+id/quickBibleChange"
 	        android:layout_width="50dip"
 	        android:layout_toLeftOf="@+id/quickCommentaryChange"
 	        android:visibility="invisible"
 			style="@style/TitleBarButton"
     />
-    <TextView android:id="@+id/quickCommentaryChange"
+    <Button android:id="@+id/quickCommentaryChange"
 	        android:layout_width="50dip"
-	        android:layout_height="fill_parent"
 	        android:layout_alignParentRight="true"
 	        android:visibility="invisible"
-			style="?android:attr/windowTitleStyle"
+			style="@style/TitleBarButton"
     />
            
 </RelativeLayout>

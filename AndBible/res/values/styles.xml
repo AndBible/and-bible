@@ -9,12 +9,13 @@
 	<style name="AndBibleTheme" parent="@android:style/Theme.Light">
 	</style>
 
-    <style name="TitleBarButton" parent="@android:TextAppearance.WindowTitle">
+    <style name="TitleBarButton">
+    	<item name="android:background">@drawable/btn_tiny</item>
         <item name="android:layout_height">fill_parent</item>
-		<item name="android:shadowColor">#BB000000</item>
-		<item name="android:shadowRadius">2.75</item>
-        <item name="android:layout_marginLeft">5dp</item>
-        <item name="android:clickable">true</item>
+		<item name="android:layout_alignParentTop">true</item>
+		<item name="android:layout_centerInParent">true</item>
+		<item name="android:textSize">11sp</item>
+		<item name="android:textColor">#FFFFFF</item>
     </style>
 
     <style name="ChoosePassageBookGridFont">
