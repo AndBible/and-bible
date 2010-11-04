@@ -82,6 +82,7 @@
 	<!-- Module download -->
     <string name="download">Download Documents</string>
     <string name="download_confirmation">Download documents from the internet?</string>
+    <string name="download_source_message">Documents are downloaded from crosswire.org</string>
     <string name="download_document_confirm_prefix">"Download "</string>
     <string name="error_downloading">An error occurred downloading.  Please check your internet connection.</string>
     <string name="no_internet_connection">Could not connect to the internet</string>

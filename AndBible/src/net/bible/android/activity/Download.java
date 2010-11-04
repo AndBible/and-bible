@@ -15,7 +15,6 @@ import net.bible.service.sword.SwordApi;
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.util.Language;
 import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
 
@@ -28,12 +27,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.widget.AdapterView.OnItemSelectedListener;
 
 /**
  * Choose Document (Book) to download
@@ -84,6 +82,8 @@ public class Download extends ListActivityBase {
         forceBasicFlow = SwordApi.getInstance().getBibles().size()==0;
 
        	initialiseView();
+       	
+       	Toast.makeText(this, R.string.download_source_message, Toast.LENGTH_SHORT);
     }
 
     private void initialiseView() {
