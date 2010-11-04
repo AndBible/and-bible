@@ -1,8 +1,8 @@
 package net.bible.android;
 
 import net.bible.android.activity.R;
-import net.bible.android.activity.base.AndBibleActivity;
 import net.bible.android.device.ProgressNotificationManager;
+import net.bible.android.view.activity.base.AndBibleActivity;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.util.Reporter;

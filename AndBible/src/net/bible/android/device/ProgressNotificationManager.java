@@ -5,8 +5,8 @@ import java.util.Map;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
-import net.bible.android.activity.ProgressStatus;
 import net.bible.android.activity.R;
+import net.bible.android.view.activity.ProgressStatus;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.progress.JobManager;
