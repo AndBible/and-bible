@@ -44,13 +44,13 @@
 	        android:layout_toLeftOf="@+id/quickBibleChange"
 			/>
     <Button android:id="@+id/quickBibleChange"
-	        android:layout_width="50dip"
+	        android:layout_width="60dip"
 	        android:layout_toLeftOf="@+id/quickCommentaryChange"
 	        android:visibility="invisible"
 			style="@style/TitleBarButton"
     />
     <Button android:id="@+id/quickCommentaryChange"
-	        android:layout_width="50dip"
+	        android:layout_width="60dip"
 	        android:layout_alignParentRight="true"
 	        android:visibility="invisible"
 			style="@style/TitleBarButton"
