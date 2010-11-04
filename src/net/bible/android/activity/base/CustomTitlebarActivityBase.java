@@ -8,6 +8,7 @@ import org.crosswire.jsword.book.Book;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -15,9 +16,9 @@ public class CustomTitlebarActivityBase extends ActivityBase {
 
 	private TextView mTitle;
 	private ProgressBar mProgressBarIndeterminate;
-	private TextView mQuickBibleChangeLink;
+	private Button mQuickBibleChangeLink;
 	private Book mSuggestedBible;
-	private TextView mQuickCommentaryChangeLink;
+	private Button mQuickCommentaryChangeLink;
 	private Book mSuggestedCommentary;
 	
 	//*** custom title bar code
@@ -31,14 +32,14 @@ public class CustomTitlebarActivityBase extends ActivityBase {
         mTitle = (TextView)findViewById(R.id.title);
         mProgressBarIndeterminate = (ProgressBar)findViewById(R.id.progressCircular);
 
-        mQuickBibleChangeLink = (TextView)findViewById(R.id.quickBibleChange);
+        mQuickBibleChangeLink = (Button)findViewById(R.id.quickBibleChange);
         mQuickBibleChangeLink.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
             	CurrentPageManager.getInstance().setCurrentDocument(mSuggestedBible);
             }
         });
         
-        mQuickCommentaryChangeLink = (TextView)findViewById(R.id.quickCommentaryChange);
+        mQuickCommentaryChangeLink = (Button)findViewById(R.id.quickCommentaryChange);
         mQuickCommentaryChangeLink.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
             	CurrentPageManager.getInstance().setCurrentDocument(mSuggestedCommentary);
