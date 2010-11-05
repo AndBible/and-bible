@@ -12,10 +12,11 @@
     <style name="TitleBarButton">
     	<item name="android:background">@drawable/btn_tiny</item>
         <item name="android:layout_height">fill_parent</item>
-		<item name="android:layout_alignParentTop">true</item>
 		<item name="android:layout_centerInParent">true</item>
-		<item name="android:textSize">11sp</item>
+		<item name="android:textSize">12sp</item>
 		<item name="android:textColor">#FFFFFF</item>
+		<item name="android:padding">0dip</item>
+		
     </style>
 
     <style name="ChoosePassageBookGridFont">
