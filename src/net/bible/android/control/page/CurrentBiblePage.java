@@ -9,6 +9,7 @@ import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.NoSuchKeyException;
+import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BibleInfo;
@@ -74,7 +75,21 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	
 	private void previousChapter() {
 		Verse currVer = this.currentBibleVerse.getVerseSelected();
-		currentBibleVerse.setVerseSelected(new Verse(currVer.getBook(), currVer.getChapter()-1, 1, true));
+		int book = currVer.getBook();
+		int chapter = currVer.getChapter();
+		try {
+			if (chapter>1) {
+				chapter--;
+			} else {
+				if (book>1) {
+					book--;
+					chapter = BibleInfo.chaptersInBook(book);
+				}
+			}
+			currentBibleVerse.setVerseSelected(new Verse(book, chapter, 1, true));
+		} catch (NoSuchVerseException nve) {
+			Log.e(TAG, "No such verse moving to prev chapter", nve);
+		}
 	}
 	
 	/* (non-Javadoc)
