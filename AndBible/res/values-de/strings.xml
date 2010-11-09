@@ -82,7 +82,7 @@
     <!-- Module download -->
     <string name="download">Module herunterladen</string>
     <string name="download_confirmation">Wollen Sie diese Module aus dem Internet herunterladen?</string>
-    <string name="download_source_message">Module aus crosswire.org heruntergeladen</string>
+    <string name="download_source_message">Module werden von crosswire.org heruntergeladen</string>
     <string name="download_document_confirm_prefix">"Download "</string>
     <string name="error_downloading">Während dem Herunterladen ist ein Fehler aufgetreten. Bitte überprüfen Sie ihre Internetverbindung.</string>
     <string name="no_internet_connection">Keine Verbindung ins Internet</string>
