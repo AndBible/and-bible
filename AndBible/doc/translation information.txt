@@ -1,4 +1,5 @@
 Manual translations:
+de - Martin 9/11/2010
 fr
 hu - Gabor 8/11/2010
 nb
@@ -7,4 +8,4 @@ sv
 zh (used simplified from zh-cn - simplified Chinese)
 
 Automated translations:
-de
+
