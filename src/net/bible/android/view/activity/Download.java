@@ -87,7 +87,7 @@ public class Download extends ListActivityBase {
 
        	initialiseView();
        	
-       	Toast.makeText(this, R.string.download_source_message, Toast.LENGTH_SHORT);
+       	Toast.makeText(this, R.string.download_source_message, Toast.LENGTH_LONG).show();
     }
 
     private void initialiseView() {
