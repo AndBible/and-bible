@@ -25,7 +25,10 @@ public class CommonUtil {
 	 	    URL url = new URL(testUrl);
 	 	         
 	 	    URLConnection connection;
+	 	    Log.d(TAG, "Opening test connection");
 	 	    connection = url.openConnection();
+	 	    connection.setConnectTimeout(3000);
+	 	    Log.d(TAG, "Connecting to test internet connection");
 	 	    connection.connect();
 	 	    return true;
     	} catch (IOException e) {

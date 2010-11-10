@@ -119,13 +119,15 @@ public class PdaLuceneIndexCreator {
             finalPath = NetUtil.getAsFile(storage);
             this.path = finalPath.getCanonicalPath();
         } catch (IOException ex) {
-            throw new BookException(UserMsg.LUCENE_INIT, ex);
+            // TRANSLATOR: Error condition: Could not initialize a search index. Lucene is the name of the search technology being used.
+            throw new BookException(UserMsg.gettext("Failed to initialize Lucene search engine."), ex);
         }
 
         // Indexing the book is a good way to police data errors.
         DataPolice.setBook(book.getBookMetaData());
 
-        Progress job = JobManager.createJob(UserMsg.INDEX_START.toString(book.getInitials()), Thread.currentThread(), false);
+        // TRANSLATOR: Progress label indicating the start of indexing. {0} is a placeholder for the book's short name.
+        Progress job = JobManager.createJob(UserMsg.gettext("Creating index. Processing {0}", book.getInitials()), Thread.currentThread(), false);
 
         IndexStatus finalStatus = IndexStatus.UNDONE;
         // Need to test both analyzers - does the LuceneAnalyzer work, the SimpleAnalyzer did??? 
@@ -151,11 +153,13 @@ public class PdaLuceneIndexCreator {
 		                generateSearchIndexImpl(job, errors, writer, keyList, 0);
 	                } catch (Exception e) {
 	                	e.printStackTrace();
-	                    throw new BookException(UserMsg.INSTALL_FAIL);                	
+                        // TRANSLATOR: The search index could not be moved to it's final location.
+                        throw new BookException(UserMsg.gettext("Installation failed."));
 	                }
 	                logger.info("Finished indexing "+book.getName()+" starting optimisation");
 	
-	                job.setSectionName(UserMsg.OPTIMIZING.toString());
+	                // TRANSLATOR: Progress label for optimizing a search index. This may take a bit of time, so we have a label for it.
+	                job.setSectionName(UserMsg.gettext("Optimizing"));
 	                job.setWork(95);
 	
 	                // Consolidate the index into the minimum number of files.
@@ -172,7 +176,8 @@ public class PdaLuceneIndexCreator {
                 if (!job.isFinished()) {
                 	logger.debug("Renaming "+tempPath+" to "+finalPath);
                     if (!tempPath.renameTo(finalPath)) {
-                        throw new BookException(UserMsg.INSTALL_FAIL);
+                        // TRANSLATOR: The search index could not be moved to it's final location.
+                        throw new BookException(UserMsg.gettext("Installation failed."));
                     }
                 }
 
@@ -187,12 +192,15 @@ public class PdaLuceneIndexCreator {
                         buf.append(iter.next());
                         buf.append('\n');
                     }
-                    Reporter.informUser(this, UserMsg.BAD_VERSE, buf);
+                    // TRANSLATOR: It is likely that one or more verses could not be indexed due to errors in those verses.
+                    // This message gives a listing of them to the user.
+                    Reporter.informUser(this, UserMsg.gettext("The following verses have errors and could not be indexed\n{0}", buf));
                 }
             }
         } catch (Exception ex) {
             job.cancel();
-            throw new BookException(UserMsg.LUCENE_INIT, ex);
+            // TRANSLATOR: Common error condition: Some error happened while creating a search index.
+            throw new BookException(UserMsg.gettext("Failed to initialize Lucene search engine."), ex);
         } finally {
             book.setIndexStatus(finalStatus);
             job.done();
