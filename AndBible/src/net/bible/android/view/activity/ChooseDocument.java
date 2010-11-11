@@ -9,6 +9,7 @@ import net.bible.android.activity.R.id;
 import net.bible.android.activity.R.layout;
 import net.bible.android.activity.R.menu;
 import net.bible.android.activity.R.string;
+import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.AndBibleActivity;
@@ -96,7 +97,9 @@ public class ChooseDocument extends ListActivityBase {
 		
 		Book document = documents.get( ((AdapterContextMenuInfo)menuInfo).position);
 		MenuItem deleteItem = menu.findItem(R.id.delete);
-		deleteItem.setEnabled(document != null && document.getDriver().isDeletable(document));
+		
+		boolean canDelete = ControlFactory.getInstance().getDocumentControl().canDelete(document);
+		deleteItem.setEnabled(canDelete);
 	}
 
 	@Override
