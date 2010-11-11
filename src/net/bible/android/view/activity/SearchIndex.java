@@ -4,6 +4,7 @@ import net.bible.android.activity.R;
 import net.bible.android.activity.R.layout;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ActivityBase;
+import net.bible.android.view.util.CommonUtil;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
@@ -39,17 +40,20 @@ public class SearchIndex extends ActivityBase {
     public void onDownload(View v) {
     	Log.i(TAG, "CLICKED");
     	try {
-	        Book book = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
-	        
-	        // this starts a new thread to do the indexing and returns immediately
-	        // if index creation is already in progress then nothing will happen
-	        SwordApi.getInstance().downloadIndex(book);
-			
-        	// monitor the progres
-        	Intent myIntent = new Intent(this, SearchIndexProgressStatus.class);
-        	startActivity(myIntent);
-        	finish();
-
+        	if (!CommonUtil.isInternetAvailable()) {
+            	showErrorMsg(getString(R.string.no_internet_connection));
+        	} else {
+		        Book book = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
+		        
+		        // this starts a new thread to do the indexing and returns immediately
+		        // if index creation is already in progress then nothing will happen
+		        SwordApi.getInstance().downloadIndex(book);
+				
+	        	// monitor the progres
+	        	Intent myIntent = new Intent(this, SearchIndexProgressStatus.class);
+	        	startActivity(myIntent);
+	        	finish();
+        	}
     	} catch (Exception e) {
     		Log.e(TAG, "error indexing:"+e.getMessage());
     		e.printStackTrace();
