@@ -1,8 +1,6 @@
 package net.bible.android.view.activity;
 
 import net.bible.android.activity.R;
-import net.bible.android.activity.R.id;
-import net.bible.android.activity.R.layout;
 import net.bible.android.view.activity.base.ActivityBase;
 
 import org.apache.commons.lang.StringUtils;
@@ -12,9 +10,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.View.OnKeyListener;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 
 /** Allow user to enter search criteria
@@ -48,7 +49,18 @@ public class Search extends ActivityBase {
 //        currentBibleBook = CurrentBiblePage.getInstance().getCurrentBibleBook();
         
         mSearchTextInput =  (EditText)findViewById(R.id.searchText);
-
+        mSearchTextInput.setOnKeyListener(new OnKeyListener() {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                // If the event is a key-down event on the "enter" button
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                    (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                  // Perform action on key press
+                  onSearch(null);
+                  return true;
+                }
+                return false;
+            }
+        });
         // removed to make controls fit better on screen
         // set text for current bible book on appropriate radio button
 //        RadioButton currentBookRadioButton = (RadioButton)findViewById(R.id.searchCurrentBook);

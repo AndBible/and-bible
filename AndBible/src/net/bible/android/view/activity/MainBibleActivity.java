@@ -175,11 +175,18 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if ((keyCode==KeyEvent.KEYCODE_BACK) && HistoryManager.getInstance().canGoBack()) {
+		if ((keyCode == KeyEvent.KEYCODE_BACK) && HistoryManager.getInstance().canGoBack()) {
 			HistoryManager.getInstance().goBack();
 			return true;
-		} else if ((keyCode==KeyEvent.KEYCODE_SEARCH && CurrentPageManager.getInstance().getCurrentPage().isSearchable())) {
+		} else if ((keyCode == KeyEvent.KEYCODE_SEARCH && CurrentPageManager.getInstance().getCurrentPage().isSearchable())) {
 			startActivityForResult(getSearchIntent(), STD_REQUEST_CODE);
+			return true;
+		} else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
+			CurrentPageManager.getInstance().getCurrentPage().next();
+			return true;
+		} else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+			CurrentPageManager.getInstance().getCurrentPage().previous();
+			return true;
 		}
 		return super.onKeyDown(keyCode, event);
 	}

@@ -21,7 +21,6 @@
  */
 package net.bible.service.common;
 
-import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -31,7 +30,6 @@ import java.util.ResourceBundle;
 import net.bible.service.sword.Logger;
 
 import org.crosswire.common.icu.NumberShaper;
-import org.crosswire.common.util.CWClassLoader;
 import org.crosswire.common.util.MsgBase;
 
 /**

@@ -173,7 +173,7 @@ public class BibleView extends WebView {
 				Log.d(TAG, "XMov:"+xMovement+" xch:"+xChangeSinceLastEvent+" ych:"+yChangeSinceLastEvent);
 				if (xMovement) {
 					Log.d(TAG, "is xmov");
-					if (Math.abs(xChangeSinceLastEvent)>0.5) {
+					if (Math.abs(xChangeSinceLastEvent)>0.4) {
 						Log.d(TAG, "large enough movement for page change:"+xChangeSinceLastEvent);
 						if (event.getEventTime()-lastHandledTrackballEventTime>1000) {
 							Log.d(TAG, "Changing page");

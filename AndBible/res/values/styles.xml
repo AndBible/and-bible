@@ -7,6 +7,7 @@
 -->
 <resources>
 	<style name="AndBibleTheme" parent="@android:style/Theme.Light">
+		<item name="android:windowTitleSize">30dp</item>
 	</style>
 
     <style name="TitleBarButton">
@@ -16,7 +17,7 @@
 		<item name="android:textSize">12sp</item>
 		<item name="android:textColor">#FFFFFF</item>
 		<item name="android:padding">0dip</item>
-		
+		<item name="android:layout_marginBottom">2dip</item>
     </style>
 
     <style name="ChoosePassageBookGridFont">
