@@ -2,6 +2,7 @@ package net.bible.android.control.page;
 
 import java.util.List;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.service.sword.SwordApi;
 
@@ -9,7 +10,10 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
+import android.text.ClipboardManager;
+import android.util.Log;
 
 public class CurrentPageManager {
 	// use the same verse in the commentary and bible to keep them in sync
@@ -21,6 +25,8 @@ public class CurrentPageManager {
 	private CurrentPage currentDisplayedPage;
 	
 	private static CurrentPageManager singleton;
+	
+	private static final String TAG = "CurrentPageManager";
 	
 	static public CurrentPageManager getInstance() {
 		if (singleton==null) {
@@ -49,6 +55,19 @@ public class CurrentPageManager {
 	}
 	public CurrentDictionaryPage getCurrentDictionary() {
 		return currentDictionaryPage;
+	}
+	
+	public void copyToClipboard() {
+		try {
+			Book book = getCurrentPage().getCurrentDocument();
+			Key key = getCurrentPage().getSingleKey();
+			
+			String text = SwordApi.getInstance().getCanonicalText(book, key);
+			ClipboardManager clipboard = (ClipboardManager)BibleApplication.getApplication().getSystemService(Activity.CLIPBOARD_SERVICE);
+			clipboard.setText(text);
+		} catch (Exception e) {
+			Log.e(TAG, "Error pasting to clipboard", e);
+		}
 	}
 	
 	public CurrentPage setCurrentDocument(Book currentBook) {

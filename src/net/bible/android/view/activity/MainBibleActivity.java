@@ -1,19 +1,16 @@
 package net.bible.android.view.activity;
 
 import net.bible.android.activity.R;
-import net.bible.android.activity.R.id;
-import net.bible.android.activity.R.layout;
-import net.bible.android.activity.R.menu;
-import net.bible.android.activity.R.string;
 import net.bible.android.control.BibleContentManager;
+import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.device.TextToSpeechController;
 import net.bible.android.view.BibleSwipeListener;
 import net.bible.android.view.BibleView;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
-import net.bible.android.view.util.CommonUtil;
 import net.bible.android.view.util.DataPipe;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.history.HistoryManager;
 
 import org.crosswire.jsword.book.Book;
@@ -24,12 +21,15 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 
 /** The main activity screen showing Bible text
  * 
@@ -72,6 +72,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 
     	// initialise title etc
     	onPassageChanged();
+
+    	registerForContextMenu(bibleWebView);
     }
 
     /** adding android:configChanges to manifest causes this method to be called on flip, etc instead of a new instance and onCreate, which would cause a new observer -> duplicated threads
@@ -121,7 +123,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	        	DataPipe.getInstance().pushNotes(bibleContentManager.getNotesList());
 	        	break;
 	        case R.id.downloadButton:
-	        	if (!CommonUtil.isInternetAvailable()) {
+	        	if (!CommonUtils.isInternetAvailable()) {
 	            	showErrorMsg(getString(R.string.no_internet_connection));
 	        	} else {
 	        		handlerIntent = new Intent(this, Download.class);
@@ -277,6 +279,31 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		CurrentPageManager.getInstance().getCurrentPage().updateOptionsMenu(menu);
 		// must return true for menu to be displayed
 		return true;
+	}
+
+    public void openContextMenu() {
+    	openContextMenu(bibleWebView);
+    }
+    @Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+    	Log.d(TAG, "*** oncreatecontextmenu ");
+		super.onCreateContextMenu(menu, v, menuInfo);
+
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.document_viewer_context_menu, menu);
+	}
+
+    @Override
+	public boolean onContextItemSelected(MenuItem item) {
+		super.onContextItemSelected(item);
+		
+		switch (item.getItemId()) {
+		case (R.id.copy):
+			ControlFactory.getInstance().getCurrentPageControl().copyToClipboard();
+			return true;
+		}
+
+		return false; 
 	}
 
 	// handle swipe left and right

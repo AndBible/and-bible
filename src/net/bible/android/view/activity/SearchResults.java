@@ -11,7 +11,7 @@ import net.bible.android.activity.R.string;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ListActivityBase;
-import net.bible.service.common.Utils;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
@@ -160,7 +160,7 @@ public class SearchResults extends ListActivityBase {
 	    			retval = verse.getName();
 	    		} else {
 	    			String text = SwordApi.getInstance().getPlainText(CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument(), verse.getName(), 1);
-	    			text = Utils.limitTextLength(text);
+	    			text = CommonUtils.limitTextLength(text);
 	    			retval = text; 
 	    		}
     		} catch (Exception e) {

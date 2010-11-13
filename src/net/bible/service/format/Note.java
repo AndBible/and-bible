@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.service.common.Utils;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordApi;
 
 import org.apache.commons.lang.StringUtils;
@@ -52,7 +52,7 @@ public class Note extends HashMap<String, String> {
     			if (noteType.equals(NoteType.TYPE_REFERENCE)) {
     				String verse = StringUtils.isNotEmpty(osisRef) ? osisRef : noteText; 
     				retval = SwordApi.getInstance().getPlainText(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), verse, 1);
-    				retval = Utils.limitTextLength(retval);
+    				retval = CommonUtils.limitTextLength(retval);
     			}
     		} else {
     			retval = "Error";

@@ -65,6 +65,12 @@ abstract class CurrentPageBase implements CurrentPage {
 	}
 	
 	@Override
+	public Key getSingleKey() {
+		// by default do not handle single key requirement - it is really just for bibles
+		return getKey();
+	}
+
+	@Override
 	public void setKey(Key key) {
 		beforePageChange();
 		doSetKey(key);

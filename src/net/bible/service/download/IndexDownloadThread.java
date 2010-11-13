@@ -44,7 +44,7 @@ public class IndexDownloadThread {
              */
             /* @Override */
             public void run() {
-            	Log.i(TAG, "*** Starting index download thread");
+            	Log.i(TAG, "Starting index download thread - book:"+book.getInitials());
             	
             	try {
 	                BookIndexer bookIndexer = new BookIndexer(book);
@@ -58,15 +58,13 @@ public class IndexDownloadThread {
 	                }
 	
 	                try {
-	                    Log.d(TAG, "** downloading index");
 	                	IndexDownloader.downloadIndex(book, installer);
-	                    Log.d(TAG, "** downloading index finished");
 	                    
 	                } catch (IOException e) {
 	            		Reporter.informUser(this, "IO Error creating index");
 	                    throw new RuntimeException("IO Error downloading index", e);
 	                }
-	            	Log.i(TAG, "*** Finished index download thread");
+	            	Log.i(TAG, "Finished index download thread");
             	} catch (Exception e) {
             		Log.e(TAG, "Error downloading index", e);
             		Reporter.informUser(this, "Error downloading index");

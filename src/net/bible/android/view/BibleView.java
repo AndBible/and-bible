@@ -3,7 +3,7 @@ package net.bible.android.view;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.view.util.CommonUtil;
+import net.bible.android.view.util.UiUtils;
 import net.bible.service.common.Constants;
 
 import org.crosswire.jsword.book.Book;
@@ -134,7 +134,7 @@ public class BibleView extends WebView {
 	/** apply settings set by the user using Preferences
 	 */
 	public void applyPreferenceSettings() {
-		SharedPreferences preferences = CommonUtil.getSharedPreferences();
+		SharedPreferences preferences = UiUtils.getSharedPreferences();
 		// see this bug (http://code.google.com/p/android/issues/detail?id=2096) for the reason we can't just use an integer-array in values.xml
 		int fontSize = Integer.valueOf(preferences.getString("text_size_pref", "16"));
 		getSettings().setDefaultFontSize(fontSize);

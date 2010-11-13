@@ -1,12 +1,13 @@
 package net.bible.android.view;
 
-import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.view.activity.MainBibleActivity;
+import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
-import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
+import android.view.GestureDetector.SimpleOnGestureListener;
 
 /** Listen for side swipes to change chapter.  This listener class seems to work better that subclassing WebView.
  * 
@@ -21,19 +22,26 @@ public class BibleSwipeListener extends SimpleOnGestureListener {
 	private int scaledDistance;
 	
 	private int minScaledVelocity;
-	private Context context;
+	private MainBibleActivity mainBibleActivity;
 	
 	private static final String TAG = "BibleSwipeListener";
 	
-	public BibleSwipeListener(Context context) {
+	public BibleSwipeListener(MainBibleActivity mainBibleActivity) {
 		super();
-		this.context = context;
+		this.mainBibleActivity = mainBibleActivity;
 		// convert dip measurements to pixels
-		final float scale = context.getResources().getDisplayMetrics().density;
+		final float scale = mainBibleActivity.getResources().getDisplayMetrics().density;
 		scaledDistance = (int) ( DISTANCE_DIP * scale + 0.5f );
-    	minScaledVelocity = ViewConfiguration.get(context).getScaledMinimumFlingVelocity();
+    	minScaledVelocity = ViewConfiguration.get(mainBibleActivity).getScaledMinimumFlingVelocity();
     	// make it easier to swipe
     	minScaledVelocity = (int)(minScaledVelocity*0.66);
+	}
+
+	@Override
+	public void onLongPress(MotionEvent e) {
+		super.onLongPress(e);
+		Log.d(TAG, "*** onLongPress");
+		mainBibleActivity.openContextMenu();
 	}
 
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {

@@ -23,7 +23,13 @@ public interface CurrentPage {
 
 	public abstract boolean isSingleKey();
 
+	/** get current key
+	 */
 	public abstract Key getKey();
+	
+	/** get key for 1 verse instead of whole chapter if bible
+	 */
+	public abstract Key getSingleKey();
 	
 	public abstract String getKeyDescription();
 
