@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
-import net.bible.android.view.util.CommonUtil;
+import net.bible.android.view.util.UiUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.progress.JobManager;
@@ -41,7 +41,7 @@ public class ProgressActivityBase extends ActivityBase {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		CommonUtil.applyTheme(this);
+		UiUtils.applyTheme(this);
 	}
 
 	/** Wait until subclass has setContentView before looking for controls. */
@@ -207,7 +207,7 @@ public class ProgressActivityBase extends ActivityBase {
 	
     @Override
 	protected void onPause() {
-		super.onStop();
+		super.onPause();
     	JobManager.removeWorkListener(workListener);
 	}
 

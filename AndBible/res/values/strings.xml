@@ -9,7 +9,8 @@
     <string name="app_name">And Bible</string>
 
     <string name="splash_top_text">\n\"And God said, \'Let there be light,\' and there was light.\"\nGenesis 1:3</string>
-    <string name="help_text">Navigation\nPress the MENU key for actions\nFling your finger left/right to see the next/previous chapter\nRoll the track-ball left/right to go forward/back a chapter\nSpeech\nPress Speak to read out the current chapter\nPress Speak again to stop reading</string>
+    <string name="help_text">Press the MENU key for actions\nFling your finger left/right to see the next/previous chapter\nRoll the track-ball left/right to go forward/back a chapter\nSpeech\nPress Speak to read out the current chapter</string>
+    <string name="help_text_long">Navigation\nFling your finger left/right to see the next/previous chapter\nRoll the track-ball left/right to go forward/back a chapter\nSpeech\n\nPress the MENU key for actions\nPress Speak to read out the current chapter\nPress Speak again to stop reading\nLong press on the bible view to copy the current text to the Clipboard\nLong press on a document in the document selector to delete it or view information.</string>
     <string name="splash_bottom_text">Version 0.0.13</string>
     <string name="no_sdcard_error">Please insert an SD card and start And Bible again.</string>
     <!-- main menu -->
@@ -31,11 +32,9 @@
     <string name="indexing_wait_msg">When indexing has completed you will be taken to the search screen.</string>
     <string name="index">Index</string>
     <string name="index_download">Download</string>
+    <string name="index_not_available_for_download">This index is not available for download</string>
     <string name="index_create">Create</string>
     
-    <string name="module_dir">Dir</string>
-    <string name="use_folder">Use this folder</string>
-    <string name="no_files_error">Sorry, you have no files!</string>
     <string name="sdcard_error">Sorry, you have no SD card!</string>
     <string name="directory_error">Sorry, unable to access directory %s</string> 
 	<string name="progress_status">Progress</string>
@@ -50,7 +49,6 @@
     <string name="search_phrase">Phrase</string>
     <string name="search_result_count">%d matches found</string>
     <string name="search_showing_first">Too many matches.  Showing first %d</string> 
-
     <string name="search_bible_section_group_prompt">Search Where</string>
     <string name="search_all_bible">Whole bible</string>
     <string name="search_new_testament">New Testament</string>
@@ -76,13 +74,14 @@
     <string name="previous">Previous</string>
     <string name="next">Next</string>
 
+	<!--  Strongs -->
     <string name="strongs">Strong\'s Dictionary</string>
     <string name="strongs_not_installed">Please download Strong\'s Hebrew and Greek dictionaries</string>
 
 	<!-- Module download -->
     <string name="download">Download Documents</string>
     <string name="download_confirmation">Download documents from the internet?</string>
-    <string name="download_source_message">Documents are downloaded from www.crosswire.org</string>
+    <string name="download_source_message">Documents are downloaded from\nhttp://www.crosswire.org</string>
     <string name="download_document_confirm_prefix">"Download "</string>
     <string name="error_downloading">An error occurred downloading.  Please check your internet connection.</string>
     <string name="no_internet_connection">Could not connect to the internet</string>
@@ -91,9 +90,10 @@
 	<string name="download_complete_no_bibles">No bible was installed.  Please press Back and try again.</string>
 	<string name="too_many_jobs">Too many tasks executing.  Please wait for some to finish and try again.</string>
 
-	<!-- Module context menu -->
+	<!-- Context menus -->
     <string name="delete">Delete</string>
     <string name="about">About</string>
+    <string name="copy">Copy current verse</string>
 	
 	<!-- Dictionary -->
     <string name="dictionary">Dictionary</string>

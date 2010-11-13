@@ -1,15 +1,18 @@
 package net.bible.service.common;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import android.util.Log;
 
-public class Utils {
+public class CommonUtils {
 
 	private static final int DEFAULT_MAX_TEXT_LENGTH = 250;
 	private static final String ELLIPSIS = "...";
 
-	private static final String TAG = "Utils"; 
+	private static final String TAG = "CommonUtils"; 
 	static private boolean isAndroid;
 	
 	//todo have to finish implementing switchable logging here
@@ -43,6 +46,35 @@ public class Utils {
 		return text;
 	}
 	
+    public static boolean isInternetAvailable() {
+    	String testUrl = "http://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/";
+    	return CommonUtils.isHttpUrlAvailable(testUrl);
+    }
+
+    public static boolean isHttpUrlAvailable(String urlString) {
+ 	    HttpURLConnection connection = null;
+    	try {
+    		// might as well test for the url we need to access
+	 	    URL url = new URL(urlString);
+	 	         
+	 	    Log.d(TAG, "Opening test connection");
+	 	    connection = (HttpURLConnection)url.openConnection();
+	 	    connection.setConnectTimeout(3000);
+	 	    Log.d(TAG, "Connecting to test internet connection");
+	 	    connection.connect();
+	 	    boolean success = (connection.getResponseCode() == HttpURLConnection.HTTP_OK);
+	 	    Log.d(TAG, "Url test result for:"+urlString+" is "+success);
+	 	    return success;
+    	} catch (IOException e) {
+    		Log.i(TAG, "No internet connection");
+    		return false;
+    	} finally {
+    		if (connection!=null) {
+    			connection.disconnect();
+    		}
+    	}
+    }
+
 	static public boolean deleteDirectory(File path) {
 		Log.d(TAG, "Deleting directory:"+path.getAbsolutePath());
 		if (path.exists()) {
@@ -66,4 +98,11 @@ public class Utils {
 		return false;
 	}
 
+    public static void pause(int seconds) {
+    	try {
+    		Thread.sleep(seconds*1000);
+    	} catch (Exception e) {
+    		Log.e(TAG, "error sleeping", e);
+    	}
+    }
 }

@@ -49,15 +49,8 @@ public class HistoryManager {
 			return null;
 		}
 		
-		KeyHistoryItem historyItem;
-		if (currentPage instanceof CurrentBiblePage) {
-			CurrentBiblePage currentBiblePage = (CurrentBiblePage)currentPage;
-			Key key = currentBiblePage.getKey(true);
-			historyItem = new KeyHistoryItem(doc, key);
-		} else {
-			Key key = CurrentPageManager.getInstance().getCurrentPage().getKey();
-			historyItem = new KeyHistoryItem(doc, key);
-		}
+		Key key = currentPage.getSingleKey();
+		KeyHistoryItem historyItem = new KeyHistoryItem(doc, key);
 		
 		return historyItem;
 	}

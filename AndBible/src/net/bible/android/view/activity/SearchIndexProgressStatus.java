@@ -1,17 +1,10 @@
 package net.bible.android.view.activity;
 
-import java.util.Iterator;
-import java.util.Set;
-
 import net.bible.android.activity.R;
-import net.bible.android.activity.R.layout;
-import net.bible.android.activity.R.string;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ProgressActivityBase;
-import net.bible.android.view.util.CommonUtil;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.common.CommonUtils;
 
-import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.progress.Progress;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.index.IndexStatus;
@@ -48,7 +41,7 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 		// give the document up to 12 secs to reload - the Progress declares itself finished before the index status has been changed
 		int attempts = 0;
 		while (!documentBeingIndexed.getIndexStatus().equals(IndexStatus.DONE) && attempts++<6) {
-			CommonUtil.pause(2);
+			CommonUtils.pause(2);
 		}
 		
 		// if index is fine then goto search

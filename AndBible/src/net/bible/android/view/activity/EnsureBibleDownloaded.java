@@ -1,17 +1,12 @@
 package net.bible.android.view.activity;
 
 import net.bible.android.activity.R;
-import net.bible.android.activity.R.id;
-import net.bible.android.activity.R.layout;
-import net.bible.android.activity.R.string;
 import net.bible.android.view.activity.base.ProgressActivityBase;
-import net.bible.android.view.util.CommonUtil;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.progress.Progress;
-import org.crosswire.common.progress.WorkEvent;
-import org.crosswire.common.progress.WorkListener;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -52,7 +47,7 @@ public class EnsureBibleDownloaded extends ProgressActivityBase {
 	
         	Log.w(TAG, "Could not immediately find downloaded bible");
 	        // can't find downloaded bible, wait a sec and try again
-	        CommonUtil.pause(2);
+	        CommonUtils.pause(2);
 	        if (SwordApi.getInstance().getBibles().size()>0) {
 	        	Log.d(TAG, "Downloaded bible found now");
 	        	gotoMainScreen();

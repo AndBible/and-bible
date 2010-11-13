@@ -13,7 +13,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import net.bible.android.SharedConstants;
 import net.bible.service.common.ParseException;
-import net.bible.service.common.Utils;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.download.DownloadManager;
 import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.OsisToCanonicalTextSaxHandler;
@@ -68,7 +68,7 @@ public class SwordApi {
 	
 	private static boolean isSwordLoaded;
 	
-	private static boolean isAndroid = Utils.isAndroid();
+	private static boolean isAndroid = CommonUtils.isAndroid();
     private static final Logger log = new Logger(SwordApi.class.getName()); 
 
 	public static SwordApi getInstance() {
@@ -182,6 +182,14 @@ public class SwordApi {
 		downloadManager.installBook(CROSSWIRE_REPOSITORY, document);
 	}
 
+	public boolean isIndexDownloadAvailable(Book document) throws InstallException, BookException {
+		// not sure how to integrate reuse this in JSword index download
+        String version = (String)document.getBookMetaData().getProperty("Version");
+        String versionSuffix = version!=null ? "-"+version : "";
+
+		String url = "http://www.crosswire.org/and-bible/indices/v1/"+document.getInitials()+versionSuffix+".zip";
+		return CommonUtils.isHttpUrlAvailable(url);
+	}
 	public void downloadIndex(Book document) throws InstallException, BookException {
 		DownloadManager downloadManager = new DownloadManager();
 		downloadManager.installIndex(CROSSWIRE_REPOSITORY, document);

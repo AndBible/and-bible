@@ -118,18 +118,26 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	}
 
 	/* (non-Javadoc)
+	 * @see net.bible.android.control.CurrentPage#getSingleKey()
+	 */
+	@Override
+	public Key getSingleKey() {
+		return doGetKey(true);
+    }
+	
+	/* (non-Javadoc)
 	 * @see net.bible.android.control.CurrentPage#getKey()
 	 */
 	@Override
 	public Key getKey() {
-		return getKey(false);
+		return doGetKey(false);
     }
 
-	public Key getKey(boolean verseLevel) {
+	private Key doGetKey(boolean requireSingleKey) {
 		Verse verse = currentBibleVerse.getVerseSelected();
 		if (verse!=null) {
 			Key key;
-			if (!verseLevel) {
+			if (!requireSingleKey) {
 				// display whole page of bible so return whole chapter key - not just teh single verse even if a single verse was set in verseKey
 				// if verseNo is required too then use getVerse()
 		        Key wholeChapterKey = new VerseRange(verse.getFirstVerseInChapter(), verse.getLastVerseInChapter());

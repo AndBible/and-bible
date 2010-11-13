@@ -58,6 +58,7 @@ public class BibleApplication extends Application{
     }
     
     public void showErrorMessage(final int messageId) {
+    	Log.d(TAG, "Show msg id:"+messageId);
     	String message = getString(messageId);
     	showErrorMessage(message, null);
     }

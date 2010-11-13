@@ -1,11 +1,9 @@
 package net.bible.android.view.activity;
 
 import net.bible.android.activity.R;
-import net.bible.android.activity.R.layout;
-import net.bible.android.activity.R.string;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
-import net.bible.android.view.util.CommonUtil;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordApi;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -79,7 +77,7 @@ public class StartupActivity extends ActivityBase {
     	showDialog(CAN_DOWNLOAD_DLG);
     }
     private void doGotoDownloadActivity() {
-    	if (CommonUtil.isInternetAvailable()) {
+    	if (CommonUtils.isInternetAvailable()) {
 	       	Intent handlerIntent = new Intent(StartupActivity.this, Download.class);
 	    	startActivityForResult(handlerIntent, 1);
 	    	

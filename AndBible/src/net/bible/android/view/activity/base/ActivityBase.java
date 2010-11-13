@@ -1,7 +1,7 @@
 package net.bible.android.view.activity.base;
 
 import net.bible.android.BibleApplication;
-import net.bible.android.view.util.CommonUtil;
+import net.bible.android.view.util.UiUtils;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
@@ -35,7 +35,7 @@ public class ActivityBase extends Activity implements AndBibleActivity {
         // this affected jsword dynamic classloading
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 		
-		CommonUtil.applyTheme(this);
+		UiUtils.applyTheme(this);
     }
     
     @Override
