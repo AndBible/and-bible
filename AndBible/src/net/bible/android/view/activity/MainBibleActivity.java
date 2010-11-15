@@ -246,6 +246,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     
     @Override
 	protected void onPause() {
+    	//TODO do this at the application level because these prefs are not activity specific
     	Log.i(TAG, "Saving instance state");
 		super.onPause();
     	SharedPreferences settings = getSharedPreferences(TAG, 0);
