@@ -9,6 +9,7 @@ import net.bible.android.device.TextToSpeechController;
 import net.bible.android.view.BibleSwipeListener;
 import net.bible.android.view.BibleView;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
+import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.util.DataPipe;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.history.HistoryManager;
@@ -51,6 +52,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 
 	// detect swipe left/right
 	private GestureDetector gestureDetector;
+	private long lastHandledDpadEventTime = 0;
 
     /** Called when the activity is first created. */
     @Override
@@ -124,7 +126,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	        	break;
 	        case R.id.downloadButton:
 	        	if (!CommonUtils.isInternetAvailable()) {
-	            	showErrorMsg(getString(R.string.no_internet_connection));
+	            	Dialogs.getInstance().showErrorMsg(R.string.no_internet_connection);
 	        	} else {
 	        		handlerIntent = new Intent(this, Download.class);
 	        	}
@@ -183,12 +185,16 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		} else if ((keyCode == KeyEvent.KEYCODE_SEARCH && CurrentPageManager.getInstance().getCurrentPage().isSearchable())) {
 			startActivityForResult(getSearchIntent(), STD_REQUEST_CODE);
 			return true;
-		} else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
-			CurrentPageManager.getInstance().getCurrentPage().next();
-			return true;
-		} else if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-			CurrentPageManager.getInstance().getCurrentPage().previous();
-			return true;
+		} else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+			if (event.getEventTime()-lastHandledDpadEventTime>1000) {
+				if (keyCode==KeyEvent.KEYCODE_DPAD_RIGHT) {
+					CurrentPageManager.getInstance().getCurrentPage().next();
+				} else {
+					CurrentPageManager.getInstance().getCurrentPage().previous();
+				}
+				lastHandledDpadEventTime = event.getEventTime();
+				return true;
+			}
 		}
 		return super.onKeyDown(keyCode, event);
 	}
