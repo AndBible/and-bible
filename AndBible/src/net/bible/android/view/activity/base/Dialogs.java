@@ -1,66 +1,75 @@
 package net.bible.android.view.activity.base;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.view.util.Hourglass;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.util.Log;
+import android.widget.Toast;
 
 public class Dialogs {
 
-	private Activity activity;
-	
 	public static final int TOO_MANY_JOBS = 121;
-	public static final int ERROR_MSG = 122;
 	private String errorMsg;
 
 	private Hourglass hourglass = new Hourglass();
+	
+	private static final String TAG = "Dialogs";
 
-	public Dialogs(Activity activity) {
+	private static final Dialogs singleton = new Dialogs();
+	
+	public static Dialogs getInstance() {
+		return singleton;
+	}
+	
+	private Dialogs() {
 		super();
-		this.activity = activity;
 	}
 
+    public void showErrorMsg(int msgId) {
+    	showErrorMsg(BibleApplication.getApplication().getString(msgId));
+    }
     public void showErrorMsg(String msg) {
-    	errorMsg = msg;
-    	activity.showDialog(ERROR_MSG);    	
+    	showErrorMsg(msg, new Callback() {
+			@Override
+			public void okay() {
+				// by default do nothing when user clicks okay
+			}
+		});
     }
 
-	protected void onPrepareDialog(int id, Dialog dialog) {
-		// TODO Auto-generated method stub
-        switch (id) {
-        case ERROR_MSG:
-        	AlertDialog alertDialog = (AlertDialog)dialog;
-        	alertDialog.setMessage(errorMsg);
-        };
-	}
+    public void showErrorMsg(int msgId, final Callback okayCallback) {
+    	showErrorMsg(BibleApplication.getApplication().getString(msgId), okayCallback);
+    }
 
-    public Dialog onCreateDialog(int id) {
-        switch (id) {
-            case Hourglass.HOURGLASS_KEY:
-                hourglass.show(activity);
-                return hourglass.getHourglass();
-            case TOO_MANY_JOBS:
-            	return new AlertDialog.Builder(activity)
-            		   .setMessage(activity.getText(R.string.too_many_jobs))
-            	       .setCancelable(false)
-            	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-            	           public void onClick(DialogInterface dialog, int buttonId) {
-            	        	   ((AndBibleActivity)activity).dialogOnClick(TOO_MANY_JOBS, buttonId);
-            	           }
-            	       }).create();
-            case ERROR_MSG:
-            	return new AlertDialog.Builder(activity)
-            		   .setMessage(errorMsg)
-            	       .setCancelable(false)
-            	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-            	           public void onClick(DialogInterface dialog, int buttonId) {
-            	        	   ((AndBibleActivity)activity).dialogOnClick(ERROR_MSG, buttonId);
-            	           }
-            	       }).create();
-        }
-        return null;
+    public void showErrorMsg(final String msg, final Callback okayCallback) {
+    	Log.d(TAG, "*** showErrorMesage message:"+msg);
+		final Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
+		if (activity!=null) {
+			activity.runOnUiThread(new Runnable() {
+
+				@Override
+				public void run() {
+			    	new AlertDialog.Builder(activity)
+					   .setMessage(msg)
+				       .setCancelable(false)
+				       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
+				           public void onClick(DialogInterface dialog, int buttonId) {
+				        	   okayCallback.okay();
+				           }
+				       }).show();
+				}
+			});
+		} else {
+			Toast.makeText(BibleApplication.getApplication().getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+		}
+    }
+
+    public void showHourglass() {
+        hourglass.show();
     }
 
     public void dismissHourglass() {

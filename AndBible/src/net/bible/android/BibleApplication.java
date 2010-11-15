@@ -3,6 +3,8 @@ package net.bible.android;
 import net.bible.android.activity.R;
 import net.bible.android.device.ProgressNotificationManager;
 import net.bible.android.view.activity.base.AndBibleActivity;
+import net.bible.android.view.activity.base.CurrentActivityHolder;
+import net.bible.android.view.activity.base.Dialogs;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.util.Reporter;
@@ -45,45 +47,29 @@ public class BibleApplication extends Application{
         Reporter.addReporterListener(new ReporterListener() {
 			@Override
 			public void reportException(final ReporterEvent ev) {
-				Log.e(TAG, ev.getMessage(), ev.getException());
-				showErrorMessage(ev.getMessage(), ev.getException());
+				showMsg(ev);
 			}
 
 			@Override
 			public void reportMessage(final ReporterEvent ev) {
-				Log.w(TAG, ev.getMessage(), ev.getException());
-				showErrorMessage(ev.getMessage(), ev.getException());
+				showMsg(ev);
+			}
+			
+			private void showMsg(ReporterEvent ev) {
+				String msg = null;
+				if (ev==null) {
+					msg = getString(R.string.error_occurred);
+				} else if (!StringUtils.isEmpty(ev.getMessage())) {
+					msg = ev.getMessage();
+				} else if (ev.getException()!=null && StringUtils.isEmpty(ev.getException().getMessage())) {
+					msg = ev.getException().getMessage();
+				} else {
+					msg = getString(R.string.error_occurred);
+				}
+				
+				Dialogs.getInstance().showErrorMsg(msg);
 			}
         });
-    }
-    
-    public void showErrorMessage(final int messageId) {
-    	Log.d(TAG, "Show msg id:"+messageId);
-    	String message = getString(messageId);
-    	showErrorMessage(message, null);
-    }
-    
-    public void showErrorMessage(final String message, final Throwable e) {
-    	if (currentActivity!=null) {
-	    	currentActivity.runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					// find a string to show the user
-					String nonEmptyMsg = getString(R.string.error_occurred);
-					if (StringUtils.isNotEmpty(message)) {
-						nonEmptyMsg = message; 
-					} else if (e!=null && StringUtils.isNotEmpty(e.getMessage())) {
-						nonEmptyMsg = e.getMessage();
-					}
-					// then show the message
-					if (currentActivity instanceof AndBibleActivity) {
-						((AndBibleActivity)currentActivity).showErrorMsg(nonEmptyMsg);
-					} else {
-						Toast.makeText(getApplicationContext(), nonEmptyMsg, Toast.LENGTH_LONG);
-					}
-				}
-	    	});
-    	}
     }
     
 	@Override
@@ -92,13 +78,4 @@ public class BibleApplication extends Application{
 		super.onTerminate();
 	}
 	
-	public void iAmNowCurrent(Activity activity) {
-		currentActivity = activity;
-	}
-	public void iAmNoLongerCurrent(Activity activity) {
-		// if the next activity has not already overwritten my registration 
-		if (currentActivity!=null && currentActivity.equals(activity)) {
-			currentActivity = null;
-		}
-	}
 }

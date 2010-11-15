@@ -55,7 +55,7 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 			
 			if (isAllJobsFinished()) {
 				Log.e(TAG, "Index finished but document's index is invalid");
-				showErrorMsg(getString(R.string.error_occurred));
+				showErrorMsg(R.string.error_occurred);
 			}
 		}
 	}

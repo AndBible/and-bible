@@ -1,9 +1,7 @@
 package net.bible.android.view.activity.base;
 
-import net.bible.android.BibleApplication;
 import net.bible.android.view.util.UiUtils;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,12 +15,8 @@ import android.util.Log;
 public class ActivityBase extends Activity implements AndBibleActivity {
 	private static final String TAG = "ActivityBase";
 	
-	private Dialogs dialogs;
-	
     public ActivityBase() {
 		super();
-		
-		dialogs = new Dialogs(this);
 	}
 
 	/** Called when the activity is first created. */
@@ -31,6 +25,9 @@ public class ActivityBase extends Activity implements AndBibleActivity {
         super.onCreate(savedInstanceState);
         Log.i(getLocalClassName(), "onCreate");
         
+        // Register current activity in onCreate and onResume
+        CurrentActivityHolder.getInstance().setCurrentActivity(this);
+
         // fix for null context class loader (http://code.google.com/p/android/issues/detail?id=5697)
         // this affected jsword dynamic classloading
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
@@ -38,31 +35,17 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 		UiUtils.applyTheme(this);
     }
     
-    @Override
-	protected void onPrepareDialog(int id, Dialog dialog) {
-		// TODO Auto-generated method stub
-		super.onPrepareDialog(id, dialog);
-
-		dialogs.onPrepareDialog(id, dialog);
+	public void showErrorMsg(int msgResId) {
+		Dialogs.getInstance().showErrorMsg(msgResId);
 	}
 
-	/** for some reason Android insists Dialogs are created in the onCreateDialog method
-     * 
-     */
-    @Override
-    protected Dialog onCreateDialog(int id) {
-    	return dialogs.onCreateDialog(id);
+    protected void showHourglass() {
+    	Dialogs.getInstance().showHourglass();
     }
-    
     protected void dismissHourglass() {
-    	dialogs.dismissHourglass();
+    	Dialogs.getInstance().dismissHourglass();
     }
 
-    /** to retry e.g. if internet conn down override this method
-     */
-    public void dialogOnClick(int dialogId, int buttonId) {
-    }
-    
     protected void returnErrorToPreviousScreen() {
     	// just pass control back to the previous screen
     	Intent resultIntent = new Intent(this, this.getClass());
@@ -77,27 +60,17 @@ public class ActivityBase extends Activity implements AndBibleActivity {
     }
     
 	@Override
-	public void showErrorMsg(int msgResId) {
-		showErrorMsg(getString(msgResId));
-	}
-
-	@Override
-    public void showErrorMsg(String msg) {
-    	dialogs.showErrorMsg(msg);
-    }
-
-	@Override
 	protected void onResume() {
 		super.onResume();
         Log.i(getLocalClassName(), "onResume");
-        BibleApplication.getApplication().iAmNowCurrent(this);
+        CurrentActivityHolder.getInstance().setCurrentActivity(this);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
         Log.i(getLocalClassName(), "onPause");
-        BibleApplication.getApplication().iAmNoLongerCurrent(this);
+        CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this);
 	}
 
 	@Override

@@ -8,6 +8,7 @@ import net.bible.android.activity.R;
 import net.bible.android.activity.R.id;
 import net.bible.android.activity.R.layout;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.android.view.util.Hourglass;
 
@@ -87,7 +88,7 @@ public class ChooseDictionaryWord extends ListActivityBase {
     	        mMatchingKeyList));
     	
     	final Handler uiHandler = new Handler();
-    	showDialog(Hourglass.HOURGLASS_KEY);
+    	Dialogs.getInstance().showHourglass();
     	
     	new Thread( new Runnable() {
 

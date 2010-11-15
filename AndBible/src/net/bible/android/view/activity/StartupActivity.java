@@ -2,6 +2,7 @@ package net.bible.android.view.activity;
 
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.ActivityBase;
+import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordApi;
@@ -35,7 +36,7 @@ public class StartupActivity extends ActivityBase {
         // check for SD card 
         //TODO it would be great to check in the Application but how to show dialog from Application?
         if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-        	showErrorMsg(getString(R.string.no_sdcard_error));
+        	showErrorMsg(R.string.no_sdcard_error);
         	return;
         }
     
@@ -85,19 +86,14 @@ public class StartupActivity extends ActivityBase {
 	    	removeDialog(CAN_DOWNLOAD_DLG);
 	    	finish();
 		} else {
-			showErrorMsg(getString(R.string.no_internet_connection));
+			Dialogs.getInstance().showErrorMsg(getString(R.string.no_internet_connection), new Callback() {
+				@Override
+				public void okay() {
+		    		finish();
+				}
+			});
 		}
     }
-
-    /** called when user presses okay button on standard dialog message box
-     */
-    @Override
-	public void dialogOnClick(int dialogId, int id) {
-    	Log.d(TAG, "dialogOnClick");
-    	if (dialogId==Dialogs.ERROR_MSG) {
-    		finish();
-    	}
-	}
 
 	private void gotoMainBibleActivity() {
 		Log.i(TAG, "Going to MainBibleActivity");

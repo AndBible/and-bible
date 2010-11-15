@@ -1,6 +1,7 @@
 package net.bible.android.view.activity;
 
 import net.bible.android.activity.R;
+import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ProgressActivityBase;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordApi;
@@ -58,7 +59,7 @@ public class EnsureBibleDownloaded extends ProgressActivityBase {
 						@Override
 						public void run() {
 							// something went wrong with the download
-							showErrorMsg(getString(R.string.download_complete_no_bibles));
+							Dialogs.getInstance().showErrorMsg(R.string.download_complete_no_bibles);
 						}
 	        		});
 	        	}
