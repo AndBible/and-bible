@@ -40,7 +40,7 @@ public class SearchIndex extends ActivityBase {
     	Log.i(TAG, "CLICKED");
     	try {
         	if (!CommonUtils.isInternetAvailable()) {
-            	showErrorMsg(getString(R.string.no_internet_connection));
+            	showErrorMsg(R.string.no_internet_connection);
         	} else {
 		        Book book = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
 		        

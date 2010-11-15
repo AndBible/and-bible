@@ -8,12 +8,9 @@ import java.util.List;
 import java.util.Map;
 
 import net.bible.android.activity.R;
-import net.bible.android.activity.R.id;
-import net.bible.android.activity.R.layout;
-import net.bible.android.activity.R.string;
+import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
-import net.bible.android.view.util.Hourglass;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.common.progress.JobManager;
@@ -156,7 +153,7 @@ public class Download extends ListActivityBase {
     	    	
     	        @Override
     	        protected void onPreExecute() {
-    	        	showDialog(Hourglass.HOURGLASS_KEY);
+    	        	showHourglass();
     	        }
     	        
     			@Override
@@ -275,7 +272,12 @@ public class Download extends ListActivityBase {
 	
 	    		if (JobManager.getJobs().size()>=2) {
 	    			Log.i(TAG, "Too many jobs:"+JobManager.getJobs().size());
-	    			showDialog(Dialogs.TOO_MANY_JOBS);
+	    			Dialogs.getInstance().showErrorMsg(R.string.too_many_jobs, new Callback() {
+						@Override
+						public void okay() {
+							showDownloadStatus();
+						}
+					});
 	    		} else {
 	    			showDialog(DOWNLOAD_CONFIRMATION_DIALOG);
 	    		}
@@ -286,12 +288,9 @@ public class Download extends ListActivityBase {
     	}
     }
 
-    @Override
-	public void dialogOnClick(int dialogId, int buttonId) {
-    	if (dialogId==Dialogs.TOO_MANY_JOBS) {
-    		Intent intent = new Intent(this, DownloadStatus.class);
-    		startActivityForResult(intent, 1);
-    	}
+	public void showDownloadStatus() {
+		Intent intent = new Intent(this, DownloadStatus.class);
+		startActivityForResult(intent, 1);
 	}
 
 	@Override

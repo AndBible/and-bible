@@ -6,6 +6,7 @@ import net.bible.android.activity.R;
 import net.bible.android.activity.R.id;
 import net.bible.android.activity.R.layout;
 import net.bible.android.view.activity.base.ActivityBase;
+import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.Constants;
 import net.bible.service.sword.SwordApi;
 
@@ -46,13 +47,13 @@ public class StrongsRef extends ActivityBase {
         } else if (uri.startsWith(Constants.HEBREW_DEF_PROTOCOL)) {
         	book = Defaults.getHebrewDefinitions();
         } else {
-        	showErrorMsg("Error");
+        	showErrorMsg(R.string.error_occurred);
         	finish();
         	return;
         }
         
         if (book==null) {
-        	showErrorMsg("Install Strong's Hebrew and Greek Bible Dictionaries");
+        	showErrorMsg(R.string.strongs_not_installed);
         	finish();
         	return;
         }
@@ -68,7 +69,7 @@ public class StrongsRef extends ActivityBase {
         	webView.loadDataWithBaseURL("http://baseUrl", html, "text/html", "UTF-8", "http://historyUrl");
         	
         } catch (Exception e) {
-        	showErrorMsg(e.getMessage());
+        	Dialogs.getInstance().showErrorMsg(e.getMessage());
         	
         }
     }
