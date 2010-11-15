@@ -3,6 +3,7 @@ package net.bible.android.view.util;
 import net.bible.android.BibleApplication;
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 
 public class UiUtils {
 
@@ -20,6 +21,7 @@ public class UiUtils {
     }
     
     public static SharedPreferences getSharedPreferences() {
+    	//TODO use     	PreferenceManager.getDefaultSharedPreferences(BibleApplication.getApplication().getApplicationContext());
     	return BibleApplication.getApplication().getApplicationContext().getSharedPreferences("net.bible.android.activity_preferences", 0);
     }
   
