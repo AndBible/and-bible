@@ -62,7 +62,7 @@ public class CurrentPageManager {
 			Book book = getCurrentPage().getCurrentDocument();
 			Key key = getCurrentPage().getSingleKey();
 			
-			String text = SwordApi.getInstance().getCanonicalText(book, key);
+			String text = key.getName()+"\n"+SwordApi.getInstance().getCanonicalText(book, key);
 			ClipboardManager clipboard = (ClipboardManager)BibleApplication.getApplication().getSystemService(Activity.CLIPBOARD_SERVICE);
 			clipboard.setText(text);
 		} catch (Exception e) {
