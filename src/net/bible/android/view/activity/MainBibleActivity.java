@@ -183,7 +183,10 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 			HistoryManager.getInstance().goBack();
 			return true;
 		} else if ((keyCode == KeyEvent.KEYCODE_SEARCH && CurrentPageManager.getInstance().getCurrentPage().isSearchable())) {
-			startActivityForResult(getSearchIntent(), STD_REQUEST_CODE);
+			Intent intent = getSearchIntent();
+			if (intent!=null) {
+				startActivityForResult(intent, STD_REQUEST_CODE);
+			}
 			return true;
 		} else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
 			if (event.getEventTime()-lastHandledDpadEventTime>1000) {
@@ -213,6 +216,13 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 
     private Intent getSearchIntent() {
     	Book book = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
+
+    	// Chinese search is not currently supported
+    	if (book.getLanguage().equals("zh")) {
+    		showErrorMsg(R.string.search_chinese_na);
+    		return null;
+    	}
+    	
     	IndexStatus indexStatus = book.getIndexStatus();
     	Log.d(TAG, "Index status:"+indexStatus);
     	if (indexStatus.equals(IndexStatus.DONE)) {

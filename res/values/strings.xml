@@ -28,6 +28,7 @@
     <string name="chapter_range">%s chapters %d to %d</string>
 
     <string name="search_index">Search Index</string>
+    <string name="search_chinese_na">Searching Chinese documents is planned for a future release.</string>
     <string name="index_creation_required">An index is required to search.\n\nIndexes may be downloaded or created locally.\n\nDownloading is the preferred method due to the time taken to create an index locally.  An internet connection is required to download indexes.\n</string>
     <string name="indexing_wait_msg">When indexing has completed you will be taken to the search screen.</string>
     <string name="index">Index</string>
@@ -61,8 +62,8 @@
     <string name="prefs_show_verseno_summary">Show verse numbers</string>
     <string name="prefs_show_notes_title">Notes</string>
     <string name="prefs_show_notes_summary">Show notes</string>
-    <string name="prefs_show_strongs_title">Strong\'s numbers</string>
-    <string name="prefs_show_strongs_summary">Show Strong\'s numbers in KJV</string>
+    <string name="prefs_show_strongs_title">Show Strong\'s numbers</string>
+    <string name="prefs_show_strongs_summary">Links to Greek &amp; Hebrew definitions</string>
     <string name="prefs_night_mode_title">Night mode</string>
     <string name="prefs_night_mode_summary">For easier reading in the dark</string>
     <string name="prefs_text_size_title">Text size</string>
