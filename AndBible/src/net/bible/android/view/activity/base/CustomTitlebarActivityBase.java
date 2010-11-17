@@ -1,6 +1,7 @@
 package net.bible.android.view.activity.base;
 
 import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
 
 import org.crosswire.jsword.book.Book;
@@ -52,7 +53,7 @@ public class CustomTitlebarActivityBase extends ActivityBase {
     /** update the quick links in the title bar
      */
     public void updateSuggestedDocuments() {
-        mSuggestedBible = CurrentPageManager.getInstance().getSuggestedBible();
+        mSuggestedBible = ControlFactory.getInstance().getDocumentControl().getSuggestedBible();
         if (mSuggestedBible!=null) {
         	mQuickBibleChangeLink.setText(mSuggestedBible.getInitials());
         	mQuickBibleChangeLink.setVisibility(View.VISIBLE);
@@ -60,7 +61,7 @@ public class CustomTitlebarActivityBase extends ActivityBase {
         	mQuickBibleChangeLink.setVisibility(View.INVISIBLE);
         }
     	
-        mSuggestedCommentary = CurrentPageManager.getInstance().getSuggestedCommentary();
+        mSuggestedCommentary = ControlFactory.getInstance().getDocumentControl().getSuggestedCommentary();
         if (mSuggestedCommentary!=null) {
         	mQuickCommentaryChangeLink.setText(mSuggestedCommentary.getInitials());
         	mQuickCommentaryChangeLink.setVisibility(View.VISIBLE);
