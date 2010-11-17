@@ -60,6 +60,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     private String currentRefOsisRef;
 
     private static final String NBSP = "&#160;";
+    private static final String SPACE = " ";
     
     private static final Logger log = new Logger("OsisToHtmlSaxHandler");
     
@@ -208,11 +209,10 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		} else if (isShowStrongs && name.equals(OSISUtil.OSIS_ELEMENT_W)) {
 			if (pendingStrongsTags!=null) {
 				for (int i=0; i<pendingStrongsTags.size(); i++) {
-					if (i>0) {
-						write(NBSP); // separator between adjacent tags
-					}
+					write(SPACE); // separator between adjacent tags and words
 					write(pendingStrongsTags.get(i));
 				}
+				write(SPACE); // separator between adjacent tags and words
 				pendingStrongsTags = null;
 			}
 		}
@@ -262,7 +262,10 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     }
 
     public String getDirection() {
-        return isLeftToRight ? "ltr" : "rtl";
+    	//TODO wait until rtl is properly supported
+    	log.warn("RTL SUPPORT CURRENTLY TURNED OFF DUE TO POOR SUPPORT IN ANDROID");
+    	return "ltr";
+        //return isLeftToRight ? "ltr" : "rtl";
     }
     
     /** either use the 'n' attribute for the note ref or just get the next character in a list a-z

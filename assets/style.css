@@ -25,9 +25,9 @@ h1 {
 	font-size: 0.7em;
 }
 .strongs {
-	color: Silver;
+	color: #669999;
 	font-size: 0.7em;
-	vertical-align: top;
+	vertical-align: sub;
 	text-decoration: none
 }
 
