@@ -19,10 +19,13 @@ public class UiUtils {
 //        	activity.setTheme(android.R.style.Theme_Light);
 //        }
     }
-    
+
+    /** get preferences used by User Prefs screen
+     * 
+     * @return
+     */
     public static SharedPreferences getSharedPreferences() {
-    	//TODO use     	PreferenceManager.getDefaultSharedPreferences(BibleApplication.getApplication().getApplicationContext());
-    	return BibleApplication.getApplication().getApplicationContext().getSharedPreferences("net.bible.android.activity_preferences", 0);
+    	return PreferenceManager.getDefaultSharedPreferences(BibleApplication.getApplication().getApplicationContext());
     }
   
 }
