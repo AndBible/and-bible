@@ -6,6 +6,7 @@ import net.bible.android.control.page.CurrentPageManager;
 
 import org.crosswire.jsword.book.Book;
 
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.View.OnClickListener;
@@ -22,37 +23,39 @@ public class CustomTitlebarActivityBase extends ActivityBase {
 	private Button mQuickCommentaryChangeLink;
 	private Book mSuggestedCommentary;
 	
-	//*** custom title bar code
+	private static final String TAG = "CustomTitlebarActivityBase";
+	
+	/** custom title bar code to add the FEATURE_CUSTOM_TITLE just before setContentView
+	 * and set the new titlebar layout just after
+	 */
     @Override
 	public void setContentView(int layoutResID) {
         requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
-        
 		super.setContentView(layoutResID);
-		
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title_bar);
+
         mTitle = (TextView)findViewById(R.id.title);
         mProgressBarIndeterminate = (ProgressBar)findViewById(R.id.progressCircular);
-
         mQuickBibleChangeLink = (Button)findViewById(R.id.quickBibleChange);
+        mQuickCommentaryChangeLink = (Button)findViewById(R.id.quickCommentaryChange);
+
         mQuickBibleChangeLink.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
             	CurrentPageManager.getInstance().setCurrentDocument(mSuggestedBible);
             }
         });
         
-        mQuickCommentaryChangeLink = (Button)findViewById(R.id.quickCommentaryChange);
         mQuickCommentaryChangeLink.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
             	CurrentPageManager.getInstance().setCurrentDocument(mSuggestedCommentary);
             }
         });
-        
-        updateSuggestedDocuments();
-	}
+    }
 
     /** update the quick links in the title bar
      */
     public void updateSuggestedDocuments() {
+    	
         mSuggestedBible = ControlFactory.getInstance().getDocumentControl().getSuggestedBible();
         if (mSuggestedBible!=null) {
         	mQuickBibleChangeLink.setText(mSuggestedBible.getInitials());
