@@ -95,6 +95,7 @@
     <string name="delete">Delete</string>
     <string name="about">About</string>
     <string name="copy">Copy current verse</string>
+    <string name="send_sms">Send verse via SMS</string>
 	
 	<!-- Dictionary -->
     <string name="dictionary">Dictionary</string>
