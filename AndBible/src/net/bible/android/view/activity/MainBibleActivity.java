@@ -313,6 +313,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		case (R.id.copy):
 			ControlFactory.getInstance().getCurrentPageControl().copyToClipboard();
 			return true;
+		case (R.id.sendSms):
+			ControlFactory.getInstance().getCurrentPageControl().sendVerseInSms();
+			return true;
 		}
 
 		return false; 
