@@ -1,21 +1,22 @@
 package net.bible.android.view;
 
-import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.util.UiUtils;
 import net.bible.service.common.Constants;
+import net.bible.service.history.HistoryManager;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.Defaults;
 import org.crosswire.jsword.passage.Key;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.view.MotionEvent;
+import android.view.KeyEvent;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -35,6 +36,9 @@ public class BibleView extends WebView {
 
 	private int mJumpToVerse = 0;
 	
+	// prevent too may scroll events causing multi-page changes
+	private long lastHandledDpadEventTime = 0;
+
 	private static final String TAG = "BibleView";
 	
 	/**
@@ -148,55 +152,16 @@ public class BibleView extends WebView {
 		loadDataWithBaseURL("http://baseUrl", html, "text/html", "UTF-8", "http://historyUrl");
 	}
 	
-//	@Override
-//	public void flingScroll(int vx, int vy) {
-//		// TODO Auto-generated method stub
-//		super.flingScroll(vx, vy);
-//		
-//		Log.d(TAG, "flingScroll vx:"+vx+" vy:"+vy);
-//	}
-//	
-//	/** handle right/left trackpad movement by going next/prev page
-//	 */
-//	@Override
-//	public boolean onTrackballEvent(MotionEvent event) {
-//		Log.d(TAG, "onTrackBallEvent:"+event+" down:"+event.getDownTime()+" time:"+event.getEventTime());
-//		boolean isHandled = false;
-//		try {
-//			if (event.getAction() == MotionEvent.ACTION_MOVE) {
-//				// The relative movement of the trackball since the last event can be retrieve with MotionEvent.getX() and MotionEvent.getY(). These are normalized so that a movement of 1 corresponds to the user pressing one DPAD key (so they will often be fractional values, representing the more fine-grained movement information available from a trackball).
-//				float xChangeSinceLastEvent = event.getX();
-//				float yChangeSinceLastEvent = event.getY();
-//				boolean xMovement = Math.abs(xChangeSinceLastEvent) > Math.abs(yChangeSinceLastEvent);
-//				Log.d(TAG, "XMov:"+xMovement+" xch:"+xChangeSinceLastEvent+" ych:"+yChangeSinceLastEvent);
-//				if (xMovement) {
-//					Log.d(TAG, "is xmov");
-//					if (Math.abs(xChangeSinceLastEvent)>0.4) {
-//						Log.d(TAG, "large enough movement for page change:"+xChangeSinceLastEvent);
-//						if (event.getEventTime()-lastHandledTrackballEventTime>1000) {
-//							Log.d(TAG, "Changing page");
-//							if (xChangeSinceLastEvent>0) {
-//								CurrentPageManager.getInstance().getCurrentPage().next();
-//							} else {
-//								CurrentPageManager.getInstance().getCurrentPage().previous();
-//							}
-//							lastHandledTrackballEventTime = event.getEventTime();
-//						} else {
-//							Log.d(TAG, "Trackball scroll too soon - ignoring");
-//						}
-//						isHandled = true;
-//					}
-//				}
-//			}
-//			if (!isHandled) {
-//				isHandled = super.onTrackballEvent(event);
-//			}
-//		} catch (Exception e) {
-//			Log.e(TAG, "Error changing page", e);
-//		}
-//		return isHandled;
-//	}
-	
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		Log.d(TAG, "Keycode:"+keyCode);
+		// common key handling i.e. KEYCODE_DPAD_RIGHT & KEYCODE_DPAD_LEFT
+		if (BibleKeyHandler.getInstance().onKeyDown(keyCode, event)) {
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+    
 	/** Currently the only uris handled are for Strongs refs
 	 * see OSISToHtmlSaxHandler.getStrongsUrl for format of uri
 	 * 

@@ -9,9 +9,9 @@
     <string name="app_name">And Bible</string>
 
     <string name="splash_top_text">\n\"And God said, \'Let there be light,\' and there was light.\"\nGenesis 1:3</string>
-    <string name="help_text">Press the MENU key for actions\nFling your finger left/right to see the next/previous chapter\nRoll the track-ball left/right to go forward/back a chapter\nSpeech\nPress Speak to read out the current chapter</string>
-    <string name="help_text_long">Navigation\nFling your finger left/right to see the next/previous chapter\nRoll the track-ball left/right to go forward/back a chapter\nPress the MENU key for actions\n\nSpeech\nPress Speak to read out the current chapter\nPress Speak again to stop reading\n\nLong press on the bible view to copy the current text to the Clipboard\nLong press on a document in the document selector to delete it or view information.</string>
-    <string name="splash_bottom_text">Version 0.0.13</string>
+    <string name="help_text">Press the MENU key for actions\n\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger\n\nPress Speak to read out the current chapter</string>
+    <string name="help_text_long">Navigation\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger\n\nPress the MENU key for actions\n\nSpeech\nPress Speak to read out the current chapter\nPress Speak again to stop reading\n\nLong press on the bible view to copy the current text to the Clipboard\nLong press on a document in the document selector to delete it or view information.</string>
+    <string name="splash_bottom_text">Version 0.0.14</string>
     <string name="no_sdcard_error">Please insert an SD card and start And Bible again.</string>
     <!-- main menu -->
     <string name="chooseBook">Document</string>
@@ -29,7 +29,7 @@
 
     <string name="search_index">Search Index</string>
     <string name="search_chinese_na">Searching Chinese documents is planned for a future release.</string>
-    <string name="index_creation_required">An index is required to search.\n\nIndexes may be downloaded or created locally.\n\nDownloading is the preferred method due to the time taken to create an index locally.  An internet connection is required to download indexes.\n</string>
+    <string name="index_creation_required">An index is required to search.\n\nIndexes may be downloaded from the internet or created locally.\n\nDownloading is much quicker and downloaded indexes have more search features.\n\nAn internet connection is required to download indexes.\n</string>
     <string name="indexing_wait_msg">When indexing has completed you will be taken to the search screen.</string>
     <string name="index">Index</string>
     <string name="index_download">Download</string>

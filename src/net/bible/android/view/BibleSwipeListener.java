@@ -37,10 +37,12 @@ public class BibleSwipeListener extends SimpleOnGestureListener {
     	minScaledVelocity = (int)(minScaledVelocity*0.66);
 	}
 
+	/** WebView does not handle long presses automatically via onCreateContextMenu so do it here
+	 */
 	@Override
 	public void onLongPress(MotionEvent e) {
 		super.onLongPress(e);
-		Log.d(TAG, "*** onLongPress");
+		Log.d(TAG, "onLongPress");
 		mainBibleActivity.openContextMenu();
 	}
 

@@ -6,6 +6,7 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.device.TextToSpeechController;
+import net.bible.android.view.BibleKeyHandler;
 import net.bible.android.view.BibleSwipeListener;
 import net.bible.android.view.BibleView;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
@@ -52,8 +53,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 
 	// detect swipe left/right
 	private GestureDetector gestureDetector;
-	private long lastHandledDpadEventTime = 0;
-
+	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -179,7 +179,12 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if ((keyCode == KeyEvent.KEYCODE_BACK) && HistoryManager.getInstance().canGoBack()) {
+		Log.d(TAG, "Keycode:"+keyCode);
+		// common key handling i.e. KEYCODE_DPAD_RIGHT & KEYCODE_DPAD_LEFT
+		if (BibleKeyHandler.getInstance().onKeyDown(keyCode, event)) {
+			return true;
+		} else if ((keyCode == KeyEvent.KEYCODE_BACK) && HistoryManager.getInstance().canGoBack()) {
+			Log.d(TAG, "Back");
 			HistoryManager.getInstance().goBack();
 			return true;
 		} else if ((keyCode == KeyEvent.KEYCODE_SEARCH && CurrentPageManager.getInstance().getCurrentPage().isSearchable())) {
@@ -188,16 +193,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 				startActivityForResult(intent, STD_REQUEST_CODE);
 			}
 			return true;
-		} else if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-			if (event.getEventTime()-lastHandledDpadEventTime>1000) {
-				if (keyCode==KeyEvent.KEYCODE_DPAD_RIGHT) {
-					CurrentPageManager.getInstance().getCurrentPage().next();
-				} else {
-					CurrentPageManager.getInstance().getCurrentPage().previous();
-				}
-				lastHandledDpadEventTime = event.getEventTime();
-				return true;
-			}
 		}
 		return super.onKeyDown(keyCode, event);
 	}
@@ -303,7 +298,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     }
     @Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-    	Log.d(TAG, "*** oncreatecontextmenu ");
+    	Log.d(TAG, "oncreatecontextmenu ");
 		super.onCreateContextMenu(menu, v, menuInfo);
 
 		MenuInflater inflater = getMenuInflater();
