@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Application text
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+ @translator Dominique Corbex [domcox at users.sourceforge.net]
+-->
+<resources>
+
+    <string name="splash_top_text">\n\"Dieu dit : « Qu\'il y ait de la lumière! », et il y eut de la lumière.\" Genèse 1.3</string>
+    <string name="help_text">Navigation:\nPresser la touche MENU pour valider\nGlisser votre doigt à gauche pour voir le chapitre suivant\nGlisser votre doigt à droite pour retourner au chapitre précédent\nTourner le track-ball à gauche ou à droite pour aller en avant ou en arrière d\'un chapitre</string>
+    
+    <!-- main menu -->
+    <string name="chooseBook">Document</string>
+    <string name="selectPassage">Passage</string>
+    <string name="search">Chercher</string>
+    <string name="notes">Notes</string>
+    <string name="settings">Paramètres</string>
+    <string name="history">Historique</string>
+    <string name="speak">Parler</string>
+
+    <string name="choosePassageBookName">Sélectionner un livre</string>
+    <string name="choosePassageChapterName">Sélectionner un chapitre</string>
+    <string name="search_index">Créer un index de recherche</string>
+    <string name="index_creation_required">Pour lancer des requêtes, un index doit être créé.  Créer un index peut prendre du temps.</string>
+    <string name="index">Index</string>
+    <string name="module_dir">Rép</string>
+    <string name="use_folder">Utiliser ce répertoire</string>
+    <string name="no_files_error">Désolé, pas de fichiers!</string>
+    <string name="sdcard_error">Désolé, pas de SD card!</string>
+    <string name="directory_error">Désolé, impossible d\'accéder au répertoire %s</string> 
+	<string name="progress_status">Progression</string>
+
+	<string name="search_words_group_prompt">Recherche de versets</string>
+    <string name="search_all_words">Tous les mots</string>
+    <string name="search_any_word">N\'importe quel mot</string>
+    <string name="search_phrase">Phrase</string>
+
+    <string name="search_bible_section_group_prompt">Étendue de la recherche</string>
+    <string name="search_all_bible">Bible en entier</string>
+    <string name="search_new_testament">Nouveau testament</string>
+    <string name="search_old_testament">Ancient testament</string>
+    <string name="search_current_book">Livre courrant</string>
+    <string name="error_executing_search">Requête invalide</string>
+
+	<!-- Preferences -->
+    <string name="prefs_show_verseno_title">Numéros de versets</string>
+    <string name="prefs_show_verseno_summary">Afficher les numéros de versets</string>
+    <string name="prefs_show_notes_title">Notes</string>
+    <string name="prefs_show_notes_summary">Afficher les notes</string>
+    <string name="prefs_night_mode_title">Mode nuit</string>
+    <string name="prefs_night_mode_summary">Pour une lecture plus facile dans le noir</string>
+
+	<!-- Notes screen -->
+    <string name="no_chapter_notes">Aucune note dans ce chapitre</string>
+    <string name="no_verse_notes">Aucune note dans ce verset</string>
+    <string name="previous">Précédent</string>
+    <string name="next">Suivant</string>
+
+	<!-- Module download -->
+    <string name="download">Téléchargement de Bibles</string>
+    <string name="error_downloading">Une erreur est apparue pendant le téléchargement. Vérifiez votre connexion internet.</string>
+    <string name="no_internet_connection">Pas de connexion à internet</string>
+
+    <string name="okay">OK</string>
+    <string name="cancel">Annuler</string>
+    <string name="error">Erreur </string>
+    
+    <string name="tts_lang_not_available">Langue non disponible.</string>
+</resources>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generate a Lucene search index for a document
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+	<TextView android:id="@+id/indexCreationRequired"
+		android:text="@string/index_creation_required" 
+		android:layout_height="wrap_content" 
+		android:layout_width="fill_parent"
+		style="@style/InfoText"/>
+
+	<!-- Button bar with OK button -->
+	<LinearLayout android:id="@+id/button_panel"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        style="@android:style/ButtonBar"
+	    android:layout_alignParentBottom="true">
+
+	  	<Button android:id="@+id/createButton"
+	 		android:text="@string/index_create"
+	        android:layout_width="0dip"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"
+			android:onClick="onIndex"/>
+
+	  	<Button android:id="@+id/downloadButton"
+	 		android:text="@string/index_download"
+			android:onClick="onDownload"
+	        android:layout_width="0dip"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"/>
+
+	</LinearLayout>
+</RelativeLayout>
