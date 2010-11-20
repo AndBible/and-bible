@@ -121,7 +121,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	        case R.id.notesButton:
 	        	handlerIntent = new Intent(this, NotesActivity.class);
 	        	// pump the notes into the viewer (there must be an easier way other than Parcelable)
-	        	//todo refactor so the notes are loaded by the Notes viewer using a separate SAX parser 
+	        	//TODO refactor so the notes are loaded by the Notes viewer using a separate SAX parser 
 	        	DataPipe.getInstance().pushNotes(bibleContentManager.getNotesList());
 	        	break;
 	        case R.id.downloadButton:
