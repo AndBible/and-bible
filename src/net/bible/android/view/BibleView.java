@@ -155,10 +155,16 @@ public class BibleView extends WebView {
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		Log.d(TAG, "Keycode:"+keyCode);
-		// common key handling i.e. KEYCODE_DPAD_RIGHT & KEYCODE_DPAD_LEFT
+		//TODO allow DPAD_LEFT to always change page and navigation between links using dpad
+		// placing BibleKeyHandler second means that DPAD left is unable to move to prev page if strongs refs are shown
+		// vice-versa (webview second) means right & left can not be used to navigate between Strongs links
+
+		// common key handling i.e. KEYCODE_DPAD_RIGHT & KEYCODE_DPAD_LEFT to change chapter
 		if (BibleKeyHandler.getInstance().onKeyDown(keyCode, event)) {
 			return true;
 		}
+		
+		// allow movement from link to link in current page
 		return super.onKeyDown(keyCode, event);
 	}
     
