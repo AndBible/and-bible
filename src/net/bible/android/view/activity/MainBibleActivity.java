@@ -116,12 +116,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	        case R.id.historyButton:
 	        	handlerIntent = new Intent(this, History.class);
 	        	break;
-	        case R.id.notesButton:
-	        	handlerIntent = new Intent(this, NotesActivity.class);
-	        	// pump the notes into the viewer (there must be an easier way other than Parcelable)
-	        	//TODO refactor so the notes are loaded by the Notes viewer using a separate SAX parser 
-	        	DataPipe.getInstance().pushNotes(bibleContentManager.getNotesList());
-	        	break;
 	        case R.id.downloadButton:
 	        	if (!CommonUtils.isInternetAvailable()) {
 	            	Dialogs.getInstance().showErrorMsg(R.string.no_internet_connection);
@@ -301,6 +295,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.document_viewer_context_menu, menu);
+
+		// allow current page type to add, delete or disable menu items
+		CurrentPageManager.getInstance().getCurrentPage().updateContextMenu(menu);
 	}
 
     @Override
@@ -308,6 +305,13 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		super.onContextItemSelected(item);
 		
 		switch (item.getItemId()) {
+        case R.id.notes:
+        	Intent handlerIntent = new Intent(this, NotesActivity.class);
+        	// pump the notes into the viewer (there must be an easier way other than Parcelable)
+        	//TODO refactor so the notes are loaded by the Notes viewer using a separate SAX parser 
+        	DataPipe.getInstance().pushNotes(bibleContentManager.getNotesList());
+        	startActivity(handlerIntent);
+        	return true;
 		case (R.id.copy):
 			ControlFactory.getInstance().getCurrentPageControl().copyToClipboard();
 			return true;

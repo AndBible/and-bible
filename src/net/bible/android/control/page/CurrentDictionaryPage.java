@@ -119,7 +119,6 @@ public class CurrentDictionaryPage extends CurrentPageBase implements CurrentPag
 		// these are fine for Bible and commentary
 		menu.findItem(R.id.selectPassageButton).setTitle(R.string.dictionary_contents);		
 		menu.findItem(R.id.searchButton).setEnabled(false);		
-		menu.findItem(R.id.notesButton).setEnabled(false);		
 	}
 
 	@Override
