@@ -6,6 +6,7 @@ import net.bible.android.control.page.CurrentPageManager;
 
 import org.crosswire.jsword.book.Book;
 
+import android.content.res.Configuration;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -52,7 +53,17 @@ public class CustomTitlebarActivityBase extends ActivityBase {
         });
     }
 
-    /** update the quick links in the title bar
+    @Override
+	public void onConfigurationChanged(Configuration newConfig) {
+		super.onConfigurationChanged(newConfig);
+		
+		// the title bar has different widths depending on the orientation
+		int titleBarTitleWidthPixels = getResources().getDimensionPixelSize(R.dimen.title_bar_title_width);
+		Log.d(TAG, "Title bar width:"+titleBarTitleWidthPixels);
+		mTitle.setWidth(titleBarTitleWidthPixels);
+	}
+
+	/** update the quick links in the title bar
      */
     public void updateSuggestedDocuments() {
     	

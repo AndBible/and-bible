@@ -58,8 +58,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //rolled into CustomTitleBar        
-        //requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         
         setContentView(R.layout.main_bible_view);
 

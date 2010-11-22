@@ -10,6 +10,15 @@
 		<item name="android:windowTitleSize">30dp</item>
 	</style>
 
+    <style name="TitleBarTitle" parent="@android:style/WindowTitle">
+    	<item name="android:maxWidth">@dimen/title_bar_title_width</item>
+		<item name="android:layout_width">wrap_content</item>
+		<item name="android:layout_height">fill_parent</item>
+		<item name="android:scrollHorizontally">true</item>
+		<item name="android:gravity">center_vertical</item>
+		<item name="android:layout_alignParentLeft">true</item>
+    </style>
+
     <style name="TitleBarButton">
     	<item name="android:background">@drawable/btn_tiny</item>
         <item name="android:layout_height">fill_parent</item>
