@@ -38,8 +38,16 @@ public class Hourglass {
 	
 	public void dismiss() {
 		if (hourglass!=null) {
-			hourglass.dismiss();
-			hourglass = null;
+			final Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
+			if (activity!=null) {
+				activity.runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						hourglass.dismiss();
+						hourglass = null;
+					}
+				});
+			}
 		}
 	}
 

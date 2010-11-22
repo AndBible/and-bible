@@ -133,7 +133,12 @@ abstract class CurrentPageBase implements CurrentPage {
 		// these are fine for Bible and commentary
 		menu.findItem(R.id.selectPassageButton).setTitle(R.string.selectPassage);		
 		menu.findItem(R.id.searchButton).setEnabled(true);		
-		menu.findItem(R.id.notesButton).setEnabled(true);		
+	}
+	
+	@Override
+	public void updateContextMenu(Menu menu) {
+		// by default disable notes but bible will enable
+		menu.findItem(R.id.notes).setVisible(false);		
 	}
 	
 	@Override

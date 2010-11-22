@@ -1,5 +1,6 @@
 package net.bible.android.control.page;
 
+import net.bible.android.activity.R;
 import net.bible.android.view.activity.ChoosePassageBook;
 import net.bible.service.sword.SwordApi;
 
@@ -16,6 +17,7 @@ import org.crosswire.jsword.versification.BibleInfo;
 
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.view.Menu;
 
 /** Reference to current passage shown by viewer
  * 
@@ -228,4 +230,11 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	public boolean isSearchable() {
 		return true;
 	}
+
+	@Override
+	public void updateContextMenu(Menu menu) {
+		// by default disable notes but bible will enable
+		menu.findItem(R.id.notes).setVisible(true);		
+	}
+
 }

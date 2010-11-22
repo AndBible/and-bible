@@ -40,6 +40,7 @@ public interface CurrentPage {
 	public void setCurrentDocumentAndKey(Book doc, Key key);
 	
 	public abstract void updateOptionsMenu(Menu menu);
+	public abstract void updateContextMenu(Menu menu);
 
 	public abstract void restoreState(SharedPreferences inState);
 
