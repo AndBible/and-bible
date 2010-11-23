@@ -1,3 +1,6 @@
+example of embedded hourglass
+http://apps-for-android.googlecode.com/svn-history/r77/trunk/RingsExtended/src/com/example/android/rings_extended/MusicPicker.java
+
 ApiDemos.Foregroundservice has a good example of starting a service START_STICKY that could be used for downloads and indexing
 
 See "<original-package android:name="net.oldname" />" if a rename is required
