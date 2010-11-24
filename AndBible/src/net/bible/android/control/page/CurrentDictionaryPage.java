@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.bible.android.activity.R;
-import net.bible.android.view.activity.ChooseDictionaryWord;
+import net.bible.android.view.activity.navigation.ChooseDictionaryWord;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;

@@ -4,6 +4,8 @@ import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.Dialogs;
+import net.bible.android.view.activity.download.Download;
+import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordApi;
 import android.app.AlertDialog;

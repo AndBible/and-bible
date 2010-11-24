@@ -1,8 +1,9 @@
-package net.bible.android.view.activity;
+package net.bible.android.view.activity.download;
 
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ProgressActivityBase;
+import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordApi;
 

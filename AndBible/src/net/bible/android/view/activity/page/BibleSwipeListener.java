@@ -1,7 +1,6 @@
-package net.bible.android.view;
+package net.bible.android.view.activity.page;
 
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.view.activity.MainBibleActivity;
 import android.app.Activity;
 import android.content.Context;
 import android.util.Log;

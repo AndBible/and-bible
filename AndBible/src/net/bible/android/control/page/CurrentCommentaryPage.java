@@ -1,6 +1,6 @@
 package net.bible.android.control.page;
 
-import net.bible.android.view.activity.ChoosePassageBook;
+import net.bible.android.view.activity.navigation.ChoosePassageBook;
 
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;

@@ -6,7 +6,7 @@ import java.util.List;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.view.BibleView;
+import net.bible.android.view.activity.page.BibleView;
 import net.bible.android.view.util.UiUtils;
 import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.Note;

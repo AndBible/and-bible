@@ -1,4 +1,4 @@
-package net.bible.android.view;
+package net.bible.android.view.activity.page;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPageManager;

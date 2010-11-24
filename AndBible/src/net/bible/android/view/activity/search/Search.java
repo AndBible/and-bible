@@ -1,7 +1,8 @@
-package net.bible.android.view.activity;
+package net.bible.android.view.activity.search;
 
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.ActivityBase;
+import net.bible.android.view.activity.page.MainBibleActivity;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.index.search.SearchType;

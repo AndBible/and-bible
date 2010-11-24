@@ -1,4 +1,4 @@
-package net.bible.android.view.activity;
+package net.bible.android.view.activity.search;
 
  import java.util.ArrayList;
 import java.util.HashMap;
