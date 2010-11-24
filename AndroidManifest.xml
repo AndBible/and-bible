@@ -13,35 +13,35 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="net.bible.android.view.activity.MainBibleActivity"
+        <activity android:name="net.bible.android.view.activity.page.MainBibleActivity"
                   android:label="@string/app_name"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:name="net.bible.android.view.activity.ChooseDocument"
+        <activity android:name="net.bible.android.view.activity.navigation.ChooseDocument"
                   android:label="@string/chooseBook"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:name="net.bible.android.view.activity.ChoosePassageBook"
+        <activity android:name="net.bible.android.view.activity.navigation.ChoosePassageBook"
                   android:label="@string/choosePassageBookName"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:name="net.bible.android.view.activity.ChoosePassageChapter"
+        <activity android:name="net.bible.android.view.activity.navigation.ChoosePassageChapter"
                   android:label="@string/choosePassageChapterName"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:name="net.bible.android.view.activity.Search"
+        <activity android:name="net.bible.android.view.activity.search.Search"
                   android:label="@string/search"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:name="net.bible.android.view.activity.SearchResults"
+        <activity android:name="net.bible.android.view.activity.search.SearchResults"
                   android:label="@string/search"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:name="net.bible.android.view.activity.SearchIndex"
+        <activity android:name="net.bible.android.view.activity.search.SearchIndex"
                   android:label="@string/search_index"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:name="net.bible.android.view.activity.SearchIndexProgressStatus"
+        <activity android:name="net.bible.android.view.activity.search.SearchIndexProgressStatus"
                   android:label="@string/search_index"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
@@ -53,7 +53,7 @@
                   android:label="@string/strongs"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:name="net.bible.android.view.activity.ChooseDictionaryWord"
+        <activity android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"
                   android:label="@string/dictionary"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
@@ -61,21 +61,21 @@
                   android:label="@string/settings"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:name="net.bible.android.view.activity.History"
+        <activity android:name="net.bible.android.view.activity.navigation.History"
                   android:label="@string/history"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:name="net.bible.android.view.activity.Download"
+        <activity android:name="net.bible.android.view.activity.download.Download"
                   android:label="@string/download"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:name="net.bible.android.view.activity.EnsureBibleDownloaded"
+        <activity android:name="net.bible.android.view.activity.download.EnsureBibleDownloaded"
                   android:label="@string/download">
         </activity>
-        <activity android:name="net.bible.android.view.activity.DownloadStatus"
+        <activity android:name="net.bible.android.view.activity.download.DownloadStatus"
                   android:label="@string/progress_status">
         </activity>
-        <activity android:name="net.bible.android.view.activity.ProgressStatus"
+        <activity android:name="net.bible.android.view.activity.download.ProgressStatus"
                   android:label="@string/progress_status">
         </activity>
         <activity android:name="net.bible.android.view.activity.Help"

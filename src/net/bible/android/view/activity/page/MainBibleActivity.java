@@ -1,4 +1,4 @@
-package net.bible.android.view.activity;
+package net.bible.android.view.activity.page;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.BibleContentManager;
@@ -6,11 +6,16 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.device.TextToSpeechController;
-import net.bible.android.view.BibleKeyHandler;
-import net.bible.android.view.BibleSwipeListener;
-import net.bible.android.view.BibleView;
+import net.bible.android.view.activity.Help;
+import net.bible.android.view.activity.NotesActivity;
+import net.bible.android.view.activity.SettingsActivity;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
+import net.bible.android.view.activity.download.Download;
+import net.bible.android.view.activity.navigation.ChooseDocument;
+import net.bible.android.view.activity.navigation.History;
+import net.bible.android.view.activity.search.Search;
+import net.bible.android.view.activity.search.SearchIndex;
 import net.bible.android.view.util.DataPipe;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.history.HistoryManager;
@@ -245,7 +250,18 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 			}
 		});
     }
-  
+
+    /** called by PassageChangeMediator after a new passage has been changed and displayed
+     */
+    public void onVerseChanged() {
+    	runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+		    	String passageDesc = CurrentPageManager.getInstance().getCurrentPage().getKeyDescription();
+		    	setTitle(passageDesc);
+			}
+		});
+    }
     
     @Override
 	protected void onPause() {

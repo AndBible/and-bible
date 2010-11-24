@@ -1,4 +1,4 @@
-package net.bible.android.view.activity;
+package net.bible.android.view.activity.download;
 
  import java.util.Set;
 

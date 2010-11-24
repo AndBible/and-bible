@@ -1,4 +1,4 @@
-package net.bible.android.view.activity;
+package net.bible.android.view.activity.navigation;
 
 import java.util.ArrayList;
 import java.util.List;

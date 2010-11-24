@@ -1,4 +1,4 @@
-package net.bible.android.view.activity;
+package net.bible.android.view.activity.navigation;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +9,7 @@ import net.bible.android.activity.R;
 import net.bible.android.activity.R.layout;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ExpandableListActivityBase;
+import net.bible.android.view.activity.page.MainBibleActivity;
 
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleInfo;

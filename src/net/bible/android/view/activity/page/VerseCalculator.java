@@ -1,4 +1,4 @@
-package net.bible.android.view;
+package net.bible.android.view.activity.page;
 
 import java.util.LinkedList;
 import java.util.List;

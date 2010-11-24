@@ -1,7 +1,7 @@
 package net.bible.android.control.page;
 
 import net.bible.android.activity.R;
-import net.bible.android.view.activity.ChoosePassageBook;
+import net.bible.android.view.activity.navigation.ChoosePassageBook;
 import net.bible.service.sword.SwordApi;
 
 import org.apache.commons.lang.StringUtils;
