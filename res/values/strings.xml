@@ -11,7 +11,7 @@
     <string name="splash_top_text">\n\"And God said, \'Let there be light,\' and there was light.\"\nGenesis 1:3</string>
     <string name="help_text">Press the MENU key for actions\n\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger\n\nPress Speak to read out the current chapter</string>
     <string name="help_text_long">Navigation\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger\n\nPress the MENU key for actions\n\nSpeech\nPress Speak to read out the current chapter\nPress Speak again to stop reading\n\nLong press on the bible view to copy the current text to the Clipboard\nLong press on a document in the document selector to delete it or view information.</string>
-    <string name="splash_bottom_text">Version 0.0.15</string>
+    <string name="version_text">Version %s</string>
     <string name="no_sdcard_error">Please insert an SD card and start And Bible again.</string>
     <!-- main menu -->
     <string name="chooseBook">Document</string>

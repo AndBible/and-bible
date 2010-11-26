@@ -31,8 +31,7 @@
 				android:layout_centerInParent="true"/>
 	</ScrollView> 
 			
-	<TextView android:id="@+id/splash_bottom_text" 
-			android:text="@string/splash_bottom_text" 
+	<TextView android:id="@+id/versionText" 
 			android:layout_width="fill_parent" 
 			android:layout_height="wrap_content"
 			android:gravity="right"
