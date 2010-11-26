@@ -5,6 +5,11 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import net.bible.android.BibleApplication;
+
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.util.Log;
 
 public class CommonUtils {
@@ -30,6 +35,36 @@ public class CommonUtils {
 		return isAndroid;
 	}
 
+	public static String getApplicationVersionName() {
+		String versionName = null;
+		try
+        {
+            PackageManager manager = BibleApplication.getApplication().getPackageManager();
+            PackageInfo info = manager.getPackageInfo(BibleApplication.getApplication().getPackageName(), 0);
+            versionName = info.versionName;
+        }
+        catch ( final NameNotFoundException e )
+        {
+            Log.e(TAG, "Error getting package name.", e);
+            versionName = "Error";
+        }
+        return versionName;
+	}
+	public static int getApplicationVersionNumber() {
+		int versionNumber;
+		try
+        {
+            PackageManager manager = BibleApplication.getApplication().getPackageManager();
+            PackageInfo info = manager.getPackageInfo(BibleApplication.getApplication().getPackageName(), 0);
+            versionNumber = info.versionCode;
+        }
+        catch ( final NameNotFoundException e )
+        {
+            Log.e(TAG, "Error getting package name.", e);
+            versionNumber = -1;
+        }
+        return versionNumber;
+	}
 	/** shorten text for display in lists etc.
 	 * 
 	 * @param text

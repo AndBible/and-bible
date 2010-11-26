@@ -1,5 +1,6 @@
 package net.bible.android.view.activity;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.base.Callback;
@@ -12,10 +13,12 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
+import android.widget.TextView;
 
 /** Called first to show download screen if no documents exist
  * 
@@ -34,7 +37,11 @@ public class StartupActivity extends ActivityBase {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.startup_view);
-
+        
+        TextView versionTextView = (TextView)findViewById(R.id.versionText);
+        String versionMsg = BibleApplication.getApplication().getString(R.string.version_text, CommonUtils.getApplicationVersionName());
+        versionTextView.setText(versionMsg);
+        
         // check for SD card 
         //TODO it would be great to check in the Application but how to show dialog from Application?
         if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
