@@ -101,42 +101,52 @@ public class Search extends ActivityBase {
     
     private String decorateSearchString(String searchString) {
     	String decorated = searchString;
-    	switch (wordsRadioSelection) {
-    	case R.id.allWords:
-            decorated = SearchType.ALL_WORDS.decorate(searchString);
-            break;
-    	case R.id.anyWord:
-            decorated = SearchType.ANY_WORDS.decorate(searchString);
-            break;
-    	case R.id.phrase:
-            decorated = SearchType.PHRASE.decorate(searchString);
-            break;
-        default:
-        	Log.e(TAG, "Unexpected radio selection");
-            decorated = "ERROR";
-    	}
 
-    	switch (sectionRadioSelection) {
-    	case R.id.searchAllBible:
-    		// noop
-            break;
-    	case R.id.searchOldTestament:
-            decorated = SEARCH_OLD_TESTAMENT+" "+decorated;
-            break;
-    	case R.id.searchNewTestament:
-            decorated = SEARCH_NEW_TESTAMENT+" "+decorated;
-            break;
-//    	case R.id.searchCurrentBook:
-//            decorated = "+["+currentBibleBook.getShortName()+"] "+decorated;
-//            break;
-        default:
-        	Log.e(TAG, "Unexpected radio selection");
-            decorated = "ERROR";
-    	}
+    	// add search type (all/any/phrase) to search string
+    	decorated = getSearchType().decorate(searchString);
+
+    	// add bible section limitation to search text
+    	decorated = getBibleSection()+" "+decorated;
     	
     	return decorated;
     }
 
+    /** get all, any, phrase query limitation
+     */
+    private SearchType getSearchType() {
+    	switch (wordsRadioSelection) {
+    	case R.id.allWords:
+            return SearchType.ALL_WORDS;
+    	case R.id.anyWord:
+            return SearchType.ANY_WORDS;
+    	case R.id.phrase:
+            return SearchType.PHRASE;
+        default:
+        	Log.e(TAG, "Unexpected radio selection");
+            return SearchType.ANY_WORDS;
+    	}
+    }
+
+    /** get OT, NT, or all query limitation
+     * 
+     * @return
+     */
+    private String getBibleSection() {
+    	switch (sectionRadioSelection) {
+    	case R.id.searchAllBible:
+    		return "";
+    	case R.id.searchOldTestament:
+            return SEARCH_OLD_TESTAMENT;
+    	case R.id.searchNewTestament:
+            return SEARCH_NEW_TESTAMENT;
+//    	case R.id.searchCurrentBook:
+//            return "+["+currentBibleBook.getShortName()+"];
+        default:
+        	Log.e(TAG, "Unexpected radio selection");
+            return "";
+    	}
+    }
+    
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
     	if (resultCode==Activity.RESULT_OK) {
