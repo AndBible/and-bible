@@ -28,7 +28,6 @@ public class BibleKeyHandler {
 	/** handle DPAD keys
 	 */
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		Log.d(TAG, "Keycode:"+keyCode);
 		if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
 			Log.d(TAG, "D-Pad");
 			// prevent too may scroll events causing multi-page changes

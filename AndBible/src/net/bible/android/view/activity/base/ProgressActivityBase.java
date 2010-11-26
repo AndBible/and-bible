@@ -174,7 +174,6 @@ public class ProgressActivityBase extends ActivityBase {
     }
     
     private void showNoTaskMsg(boolean bShow) {
-    	Log.d(TAG, "No Tasks:"+bShow);
 		if (noTasksMessageView!=null && taskKillWarningView!=null) {
 	    	if (bShow) {
 	   			noTasksMessageView.setVisibility(View.VISIBLE);
