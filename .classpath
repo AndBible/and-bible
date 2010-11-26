@@ -3,13 +3,13 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry kind="lib" path="jar/jdom111Fixed.jar" sourcepath="/common/jar/jdom-1.0/jdom-1.0.zip"/>
+	<classpathentry exported="true" kind="lib" path="jar/jdom111Fixed.jar" sourcepath="/common/jar/jdom-1.0/jdom-1.0.zip"/>
 	<classpathentry exported="true" kind="lib" path="jar/lucene-analyzers-2.9.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="jar/lucene-core-2.9.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="jar/lucene-snowball-2.9.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="jar/commons-lang-2.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="jar/commons-httpclient-3.1.jar"/>
-	<classpathentry kind="lib" path="jar/javatar-2.5.jar"/>
+	<classpathentry exported="true" kind="lib" path="jar/javatar-2.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="jar/jsword-all-tweaked.jar" sourcepath="jar/jsword-all-tweaked-src.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
