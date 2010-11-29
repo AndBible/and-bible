@@ -2,9 +2,9 @@ package net.bible.android;
 
 import net.bible.android.activity.R;
 import net.bible.android.device.ProgressNotificationManager;
-import net.bible.android.view.activity.base.AndBibleActivity;
-import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
+import net.bible.android.view.util.UiUtils;
+import net.bible.service.common.CommonUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.util.Reporter;
@@ -13,11 +13,13 @@ import org.crosswire.common.util.ReporterListener;
 
 import android.app.Activity;
 import android.app.Application;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.util.Log;
-import android.widget.Toast;
 
 public class BibleApplication extends Application{
 
+	private static final String TEXT_SIZE_PREF = "text_size_pref";
 	private static BibleApplication singleton;
 	private static final String TAG = "BibleApplication";
 	
@@ -31,15 +33,38 @@ public class BibleApplication extends Application{
 		singleton = this;
 	
 		installJSwordErrorReportListener();
+
+		// some changes may be required for different versions
+		upgradePersistentData();
 		
         //initialise link to Android progress control display in Notification bar
-        ProgressNotificationManager.getInstance().initialise();
+       ProgressNotificationManager.getInstance().initialise();
 	}
 
 	public static BibleApplication getApplication() {
 		return singleton;
 	}
 
+	private void upgradePersistentData() {
+		SharedPreferences prefs = UiUtils.getSharedPreferences();
+		if (prefs.getInt("version", -1) < CommonUtils.getApplicationVersionNumber()) {
+			Log.d(TAG, "*** Upgrading preference");
+			Editor editor = prefs.edit();
+			String textSize = "16";
+			if (prefs.contains(TEXT_SIZE_PREF)) {
+				Log.d(TAG, "*** text size pref exists");
+				textSize = prefs.getString(TEXT_SIZE_PREF, "16");
+				editor.remove(TEXT_SIZE_PREF);
+			}
+			int textSizeInt = Integer.parseInt(textSize);
+			editor.putInt(TEXT_SIZE_PREF, textSizeInt);
+			
+			editor.putInt("version", CommonUtils.getApplicationVersionNumber());
+			editor.commit();
+			Log.d(TAG, "*** Finished Upgrading preference");
+		}
+	}
+	
     /** JSword calls back to this listener in the event of some types of error
      * 
      */
