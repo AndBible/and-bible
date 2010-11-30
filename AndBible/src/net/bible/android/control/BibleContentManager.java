@@ -7,7 +7,7 @@ import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.page.BibleView;
-import net.bible.android.view.util.UiUtils;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.Note;
 import net.bible.service.sword.SwordApi;
@@ -85,7 +85,7 @@ public class BibleContentManager {
 	    			verseNo = ((CurrentBiblePage)currentPage).getCurrentVerseNo();
 	    		}
 	
-	    		SharedPreferences preferences = UiUtils.getSharedPreferences();
+	    		SharedPreferences preferences = CommonUtils.getSharedPreferences();
 	    		
 	            Log.d(TAG, "Loading document:"+document.getInitials()+" key:"+key);
 	    		//setText("Loading "+verse.toString());
