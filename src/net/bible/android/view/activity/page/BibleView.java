@@ -5,14 +5,12 @@ import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Constants;
-import net.bible.service.history.HistoryManager;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.Defaults;
 import org.crosswire.jsword.passage.Key;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.AttributeSet;
 import android.util.Log;

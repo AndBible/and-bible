@@ -16,6 +16,8 @@ public class SeekBarPreference extends DialogPreference implements
 
     private SeekBar mSeekBar;
 
+    private TextView mDialogMessageView;
+
     private TextView mValueText;
 
     private String mSuffix;
@@ -38,16 +40,16 @@ public class SeekBarPreference extends DialogPreference implements
     @Override
     protected void onBindDialogView(View v) {
         super.onBindDialogView(v);
-        TextView dialogMessage = (TextView) v.findViewById(R.id.dialogMessage);
-        dialogMessage.setText(getDialogMessage());
-        
+        mDialogMessageView = (TextView) v.findViewById(R.id.dialogMessage);
+        mDialogMessageView.setText(getDialogMessage());
+
         mValueText = (TextView) v.findViewById(R.id.actualValue);
-        
+
         mSeekBar = (SeekBar) v.findViewById(R.id.myBar);
         mSeekBar.setOnSeekBarChangeListener(this);
         mSeekBar.setMax(mMax);
         mSeekBar.setProgress(mValue);
-        
+
         String t = String.valueOf(mValue + mMin);
         mValueText.setText(mSuffix == null ? t : t.concat(mSuffix));
     }
@@ -77,6 +79,7 @@ public class SeekBarPreference extends DialogPreference implements
     }
 
     public void setValue(int value) {
+    	Log.d(TAG, "*** setValue:"+value);
         if (value > mMax) {
             value = mMax;
         } else if (value < 0) {
@@ -99,9 +102,19 @@ public class SeekBarPreference extends DialogPreference implements
         }
     }
 
-    public void onProgressChanged(SeekBar seek, int value, boolean fromTouch) {
-        String t = String.valueOf(value + mMin);
+    /** update text displays reflecting new value
+     *  called as a result of changing progresBar
+     * @param value
+     */
+    protected void updateScreenValue(int value) {
+        String t = String.valueOf(value);
         mValueText.setText(mSuffix == null ? t : t.concat(mSuffix));
+    }
+
+    public void onProgressChanged(SeekBar seek, int value, boolean fromTouch) {
+    	int newValue = value + mMin;
+       
+        updateScreenValue(newValue);
     }
 
     public void onStartTrackingTouch(SeekBar seek) {
@@ -110,4 +123,7 @@ public class SeekBarPreference extends DialogPreference implements
     public void onStopTrackingTouch(SeekBar seek) {
     }
 
+	public TextView getDialogMessageView() {
+		return mDialogMessageView;
+	}
 }
