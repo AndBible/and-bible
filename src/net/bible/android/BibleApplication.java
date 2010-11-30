@@ -3,7 +3,6 @@ package net.bible.android;
 import net.bible.android.activity.R;
 import net.bible.android.device.ProgressNotificationManager;
 import net.bible.android.view.activity.base.Dialogs;
-import net.bible.android.view.util.UiUtils;
 import net.bible.service.common.CommonUtils;
 
 import org.apache.commons.lang.StringUtils;
@@ -46,7 +45,7 @@ public class BibleApplication extends Application{
 	}
 
 	private void upgradePersistentData() {
-		SharedPreferences prefs = UiUtils.getSharedPreferences();
+		SharedPreferences prefs = CommonUtils.getSharedPreferences();
 		if (prefs.getInt("version", -1) < CommonUtils.getApplicationVersionNumber()) {
 			Log.d(TAG, "*** Upgrading preference");
 			Editor editor = prefs.edit();
@@ -54,6 +53,7 @@ public class BibleApplication extends Application{
 			if (prefs.contains(TEXT_SIZE_PREF)) {
 				Log.d(TAG, "*** text size pref exists");
 				textSize = prefs.getString(TEXT_SIZE_PREF, "16");
+				Log.d(TAG, "*** existing value:"+textSize);
 				editor.remove(TEXT_SIZE_PREF);
 			}
 			int textSizeInt = Integer.parseInt(textSize);

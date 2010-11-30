@@ -7,9 +7,11 @@ import java.net.URL;
 
 import net.bible.android.BibleApplication;
 
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class CommonUtils {
@@ -140,4 +142,12 @@ public class CommonUtils {
     		Log.e(TAG, "error sleeping", e);
     	}
     }
+
+	/** get preferences used by User Prefs screen
+	 * 
+	 * @return
+	 */
+	public static SharedPreferences getSharedPreferences() {
+		return PreferenceManager.getDefaultSharedPreferences(BibleApplication.getApplication().getApplicationContext());
+	}
 }

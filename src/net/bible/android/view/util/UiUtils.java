@@ -1,9 +1,6 @@
 package net.bible.android.view.util;
 
-import net.bible.android.BibleApplication;
 import android.app.Activity;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 public class UiUtils {
 
@@ -18,14 +15,6 @@ public class UiUtils {
 //        } else {
 //        	activity.setTheme(android.R.style.Theme_Light);
 //        }
-    }
-
-    /** get preferences used by User Prefs screen
-     * 
-     * @return
-     */
-    public static SharedPreferences getSharedPreferences() {
-    	return PreferenceManager.getDefaultSharedPreferences(BibleApplication.getApplication().getApplicationContext());
     }
   
 }
