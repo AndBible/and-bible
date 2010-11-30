@@ -40,6 +40,7 @@ public class SeekBarPreference extends DialogPreference implements
     @Override
     protected void onBindDialogView(View v) {
         super.onBindDialogView(v);
+    	Log.d(TAG, "*** onBindDialog min:"+mMin+" mValue:"+mValue);
         mDialogMessageView = (TextView) v.findViewById(R.id.dialogMessage);
         mDialogMessageView.setText(getDialogMessage());
 
@@ -48,9 +49,9 @@ public class SeekBarPreference extends DialogPreference implements
         mSeekBar = (SeekBar) v.findViewById(R.id.myBar);
         mSeekBar.setOnSeekBarChangeListener(this);
         mSeekBar.setMax(mMax);
-        mSeekBar.setProgress(mValue);
+        mSeekBar.setProgress(mValue-mMin);
 
-        String t = String.valueOf(mValue + mMin);
+        String t = String.valueOf(mValue);
         mValueText.setText(mSuffix == null ? t : t.concat(mSuffix));
     }
 
@@ -71,7 +72,7 @@ public class SeekBarPreference extends DialogPreference implements
         super.onDialogClosed(positiveResult);
 
         if (positiveResult) {
-            int value = mSeekBar.getProgress();
+            int value = mSeekBar.getProgress()+mMin;
             if (callChangeListener(value)) {
                 setValue(value);
             }
@@ -97,6 +98,7 @@ public class SeekBarPreference extends DialogPreference implements
     }
 
     public void setMin(int min) {
+    	Log.d(TAG, "*** set min:"+min);
         if (min < mMax) {
             mMin = min;
         }
@@ -107,11 +109,13 @@ public class SeekBarPreference extends DialogPreference implements
      * @param value
      */
     protected void updateScreenValue(int value) {
+    	Log.d(TAG, "** updateScreenVal val:"+value);
         String t = String.valueOf(value);
         mValueText.setText(mSuffix == null ? t : t.concat(mSuffix));
     }
 
     public void onProgressChanged(SeekBar seek, int value, boolean fromTouch) {
+    	Log.d(TAG, "** onProgChanged val:"+value);
     	int newValue = value + mMin;
        
         updateScreenValue(newValue);
