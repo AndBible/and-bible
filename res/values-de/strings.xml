@@ -10,7 +10,6 @@
 
     <string name="splash_top_text">\n\"Und Gott sprach: \'"Es werde Licht!",\' Und es ward Licht.\"\nGenesis 1:3</string>
     <string name="help_text">Navigation\nDrücken Sie die Menü-Taste für Optionen.\nStreichen Sie mit dem Finger nach rechts bzw. links um zum nächsten bzw. vorherigen Kapitel zu navigieren.\nOder rollen Sie den Trackball nach rechts bzw. links.\nSprachausgabe\nDrücken Sie Optionen/Vorlesen, um sich den Text vorlesen zu lassen.\nDrücken Sie Optionen/Vorlesen ein zweites Mal, um das Vorlesen zu beenden.</string>
-    <string name="splash_bottom_text">Version 0.0.13</string>
     <string name="no_sdcard_error">Bitte fügen Sie eine SD-Karte ein und starten Sie dann And Bible neu.</string>
     <!-- main menu -->
     <string name="chooseBook">Dokument</string>
@@ -33,9 +32,6 @@
     <string name="index_download">Herunterladen</string>
     <string name="index_create">Erstellen</string>
     
-    <string name="module_dir">Ordner</string>
-    <string name="use_folder">Diesen Ordner verwenden</string>
-    <string name="no_files_error">Keine Dateien vorhanden</string>
     <string name="sdcard_error">Keine SD-Karte vorhanden</string>
     <string name="directory_error">Ordner %s nicht zugänglich</string> 
 	<string name="progress_status">Fortschritt</string>
