@@ -31,9 +31,6 @@
     <string name="index_download">Letölt</string>
     <string name="index_create">Készít</string> 
     
-    <string name="module_dir">Mappa</string>
-    <string name="use_folder">Használd ezt a mappát</string>
-    <string name="no_files_error">Sajnos nem találtam a fájlokat!</string>
     <string name="sdcard_error">Sajnos nem találom az SD kártyát!</string>
     <string name="directory_error">A megadott mappa nem elérhető: %s</string> 
 	<string name="progress_status">Folyamatjelző</string>

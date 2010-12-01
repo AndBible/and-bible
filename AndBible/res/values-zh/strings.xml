@@ -26,9 +26,6 @@
 	<string name="index_creation_required">为了使用查询功能 需要创建查询索引. 这需要一小段时间</string>
 	<string name="indexing_wait_msg">当索引创建完成时,程序会回到查询页面.</string>
 	<string name="index">索引</string>
-	<string name="module_dir">模块目录</string>
-	<string name="use_folder">使用这个目录</string>
-	<string name="no_files_error">出错了! 没有发现文件</string>
 	<string name="sdcard_error">出错了! 您的存储卡未安装或者被禁用了.</string>
 	<string name="directory_error">出错了! 无法访问目录 %s</string>
 	<string name="progress_status">请等待</string>
@@ -93,8 +90,4 @@
 	<string name="please_wait">请等待...</string>
 
 	<string name="tts_lang_not_available">朗读功能不支持汉语</string>
-	<string name="settings_notes"/>
-	<string name="settings_notes_summary"/>
-	<string name="settings_verse_num_summary"/>
-	<string name="settings_verse_num"/>
 </resources>

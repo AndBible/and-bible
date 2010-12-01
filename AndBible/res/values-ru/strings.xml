@@ -28,9 +28,6 @@
     <string name="index_creation_required">Для поиска должен быть создан индекс. Создание индекса может занять некоторое время.</string>
     <string name="indexing_wait_msg">После создания индекса, перед вами откроется Поиск.</string>
     <string name="index">Индекс</string>
-    <string name="module_dir">Директория</string>
-    <string name="use_folder">Использовать эту папку</string>
-    <string name="no_files_error">Извините, у вас нет файлов!</string>
     <string name="sdcard_error">Извините, у вас нет карты памяти!</string>
     <string name="directory_error">Извините, нет доступа к директории %s</string> 
 	<string name="progress_status">Прогресс</string>
