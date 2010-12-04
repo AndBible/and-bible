@@ -57,7 +57,7 @@ public class SearchIndex extends ActivityBase {
     	Log.i(TAG, "CLICKED");
     	try {
     		// start background thread to create index
-        	boolean bOk = ControlFactory.getInstance().getSearchControl().downloadIndex();
+        	boolean bOk = ControlFactory.getInstance().getSearchControl().createIndex();
 
         	if (bOk) {
 	        	// monitor the progress

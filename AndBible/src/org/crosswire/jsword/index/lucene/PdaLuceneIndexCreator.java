@@ -45,6 +45,7 @@ import org.crosswire.common.progress.Progress;
 import org.crosswire.common.util.NetUtil;
 import org.crosswire.common.util.Reporter;
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.DataPolice;
 import org.crosswire.jsword.index.IndexStatus;
@@ -69,32 +70,32 @@ public class PdaLuceneIndexCreator {
     /**
      * The Lucene field for the osisID
      */
-    public static final String FIELD_KEY = "key"; //$NON-NLS-1$
+    public static final String FIELD_KEY = "key";
 
     /**
      * The Lucene field for the text contents
      */
-    public static final String FIELD_BODY = "content"; //$NON-NLS-1$
+    public static final String FIELD_BODY = "content";
 
     /**
      * The Lucene field for the strong numbers
      */
-    public static final String FIELD_STRONG = "strong"; //$NON-NLS-1$
+    public static final String FIELD_STRONG = "strong";
 
     /**
      * The Lucene field for headings
      */
-    public static final String FIELD_HEADING = "heading"; //$NON-NLS-1$
+    public static final String FIELD_HEADING = "heading";
 
     /**
      * The Lucene field for cross references
      */
-    public static final String FIELD_XREF = "xref"; //$NON-NLS-1$
+    public static final String FIELD_XREF = "xref";
 
     /**
      * The Lucene field for the notes
      */
-    public static final String FIELD_NOTE = "note"; //$NON-NLS-1$
+    public static final String FIELD_NOTE = "note";
 
     /** we are on a device with limited ram so don't use too much */
     private static final int MAX_RAM_BUFFER_SIZE_MB = 1;
@@ -127,11 +128,12 @@ public class PdaLuceneIndexCreator {
         DataPolice.setBook(book.getBookMetaData());
 
         // TRANSLATOR: Progress label indicating the start of indexing. {0} is a placeholder for the book's short name.
-        Progress job = JobManager.createJob(UserMsg.gettext("Creating index. Processing {0}", book.getInitials()), Thread.currentThread(), false);
+        Progress job = JobManager.createJob("CreateIndex", Thread.currentThread());
+        job.beginJob(UserMsg.gettext("Creating index. Processing {0}", book.getInitials()));
 
         IndexStatus finalStatus = IndexStatus.UNDONE;
-        // Need to test both analyzers - does the LuceneAnalyzer work, the SimpleAnalyzer did??? 
-        Analyzer analyzer = new LuceneAnalyzer(book); //SimpleAnalyzer();
+
+        Analyzer analyzer = new LuceneAnalyzer(book);
 
         List<Key> errors = new ArrayList<Key>();
         File tempPath = new File(path + '.' + IndexStatus.CREATING.toString());
@@ -149,7 +151,13 @@ public class PdaLuceneIndexCreator {
 	                writer.setRAMBufferSizeMB(MAX_RAM_BUFFER_SIZE_MB);
 	                logger.debug("Beginning indexing "+book.getName());
 	                try {
-		                Key keyList = PassageKeyFactory.instance().getGlobalKeyList(); //getKey("Genesis");
+	                	Key keyList = null;
+	                	if (book.getBookCategory().equals(BookCategory.BIBLE)) {
+	                		// this method is so much faster than getGlobalKeyList but not accurate e.g. some bibles are only NT
+	                		keyList = PassageKeyFactory.instance().getGlobalKeyList();
+	                	} else {
+	                		keyList = book.getGlobalKeyList();
+	                	}
 		                generateSearchIndexImpl(job, errors, writer, keyList, 0);
 	                } catch (Exception e) {
 	                	e.printStackTrace();

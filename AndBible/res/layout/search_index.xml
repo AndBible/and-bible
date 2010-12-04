@@ -24,19 +24,19 @@
         style="@android:style/ButtonBar"
 	    android:layout_alignParentBottom="true">
 
-	  	<Button android:id="@+id/createButton"
-	 		android:text="@string/index_create"
-	        android:layout_width="0dip"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="1"
-			android:onClick="onIndex"/>
-
 	  	<Button android:id="@+id/downloadButton"
 	 		android:text="@string/index_download"
 			android:onClick="onDownload"
 	        android:layout_width="0dip"
 	        android:layout_height="wrap_content"
 	        android:layout_weight="1"/>
+
+	  	<Button android:id="@+id/createButton"
+	 		android:text="@string/index_create"
+	        android:layout_width="0dip"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"
+			android:onClick="onIndex"/>
 
 	</LinearLayout>
 </RelativeLayout>

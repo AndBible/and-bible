@@ -35,6 +35,8 @@ public class ProgressNotificationManager {
 	
 	private WorkListener workListener;
 
+	private NotificationManager androidNotificationManager = getNotificationManager();
+	
 	private static final ProgressNotificationManager singleton = new ProgressNotificationManager();
 	
 	// only one instance initialised at startup to monitor for JSword Progress events and map them to Android Notifications
@@ -54,23 +56,27 @@ public class ProgressNotificationManager {
 			public void workProgressed(WorkEvent ev) {
 				final Progress prog = ev.getJob();
 				final int done = prog.getWork();
-				
-				// compose a descriptive string showing job name and current section if relevant
-				String status = StringUtils.left(prog.getJobName(),50)+SharedConstants.LINE_SEPARATOR;
-				if (!StringUtils.isEmpty(prog.getSectionName()) && !prog.getSectionName().equalsIgnoreCase(prog.getJobName())) {
-					status += prog.getSectionName();
-				}
 
-				// update notification view
-				final Notification notification = findOrCreateNotification(prog);
-				notification.contentView.setProgressBar(R.id.status_progress, 100, done, false);
-				notification.contentView.setTextViewText(R.id.status_text, status);
+				// updating notifications is really slow so we only update the notification manager every 5%
+				if (prog.isFinished() || done%5==0) {
+					// compose a descriptive string showing job name and current section if relevant
+					String status = StringUtils.left(prog.getJobName(),50)+SharedConstants.LINE_SEPARATOR;
+					if (!StringUtils.isEmpty(prog.getSectionName()) && !prog.getSectionName().equalsIgnoreCase(prog.getJobName())) {
+						status += prog.getSectionName();
+					}
+	
+					// update notification view
+					final Notification notification = findOrCreateNotification(prog);
+					notification.contentView.setProgressBar(R.id.status_progress, 100, done, false);
+					notification.contentView.setTextViewText(R.id.status_text, status);
 
-				// inform the progress bar of updates in progress
-                getNotificationManager().notify(prog.hashCode(), notification);
-                
-				if (prog.isFinished()) {
-					finished(prog);
+					// this next line is REALLY slow and is the reason we only update the notification manager every 5%
+					// inform the progress bar of updates in progress
+					androidNotificationManager.notify(prog.hashCode(), notification);
+	                
+					if (prog.isFinished()) {
+						finished(prog);
+					}
 				}
 			}
 
@@ -87,7 +93,7 @@ public class ProgressNotificationManager {
     
     private void finished(Progress prog) {
 		Log.d(TAG, "Finished");
-		getNotificationManager().cancel(prog.hashCode());
+		androidNotificationManager.cancel(prog.hashCode());
 		progressMap.remove(prog);
     }
     
@@ -133,7 +139,7 @@ public class ProgressNotificationManager {
 
     		progressMap.put(prog, notification);
     		
-            getNotificationManager().notify(prog.hashCode(), notification);    	
+            androidNotificationManager.notify(prog.hashCode(), notification);    	
     	}
     	
     	return notification;
