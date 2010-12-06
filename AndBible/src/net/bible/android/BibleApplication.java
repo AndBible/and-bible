@@ -30,7 +30,12 @@ public class BibleApplication extends Application{
 
 		// save to a singleton to allow easy access from anywhere
 		singleton = this;
-	
+
+		Log.i(TAG, "OS:"+System.getProperty("os.name")+" ver "+System.getProperty("os.version"));
+		Log.i(TAG, "Java:"+System.getProperty("java.vendor")+" ver "+System.getProperty("java.version"));
+		Log.i(TAG, "Java home:"+System.getProperty("java.home"));
+		Log.i(TAG, "User dir:"+System.getProperty("user.dir")+" Timezone:"+System.getProperty("user.timezone"));
+		
 		installJSwordErrorReportListener();
 
 		// some changes may be required for different versions
