@@ -2,10 +2,13 @@ package net.bible.android.control.bookmark;
 
 import java.util.List;
 
+import net.bible.android.BibleApplication;
 import net.bible.service.db.bookmark.BookmarkDBAdapter;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
+import net.bible.service.db.bookmark.BookmarkDatabaseHelper.BookmarkColumn;
 import android.content.ContentValues;
+import android.database.Cursor;
 
 public class BookmarkControl implements Bookmark {
 
@@ -21,14 +24,19 @@ public class BookmarkControl implements Bookmark {
 	public BookmarkDto addBookmark(BookmarkDto bookmark) {
 		// Create a new row of values to insert.
 		ContentValues newValues = new ContentValues();
+		newValues.put(BookmarkColumn.KEY, bookmark.getKey().getName());
 
-		// Assign values for each row.
-		newValues.put(BookmarkDBAdapter.BOOKMARK_KEY, bookmark.getKey()
-				.getName());
-		newValues.put(BookmarkDBAdapter.BOOKMARK_BOOK, bookmark.getBook()
-				.getInitials());
-
-		return null;
+		BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		db.open();
+		BookmarkDto newBookmark = null;
+		try {
+			long newId = db.insertBookmark(newValues);
+			
+			newBookmark = db.getBookmarkDto(newId);
+		} finally {
+			db.close();
+		}
+		return newBookmark;
 	}
 
 	/** delete this bookmark (and any links to labels) */
