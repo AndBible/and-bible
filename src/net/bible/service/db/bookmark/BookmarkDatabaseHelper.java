@@ -1,7 +1,6 @@
 package net.bible.service.db.bookmark;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -16,7 +15,10 @@ public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
 
 	public interface Table {
 		public static final String BOOKMARK = "bookmark";
+		
+		// many-to-many cross-reference/join table between bookmark and label
 		public static final String BOOKMARK_LABEL = "bookmark_label";
+		
 		public static final String LABEL = "label";
 	}
 
@@ -36,8 +38,6 @@ public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
 	public interface BookmarkColumn {
 		public static final String _ID = Table.BOOKMARK + "." + BaseColumns._ID;
 		public static final String KEY = "key";
-		public static final String BOOK = "book";
-
 	}
 
 	public interface BookmarkLabelColumn {
@@ -47,8 +47,7 @@ public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
 	
 	public interface LabelColumn {
 		public static final String _ID = Table.LABEL + "." + BaseColumns._ID;
-		public static final String KEY = "key";
-		public static final String BOOK = "book";
+		public static final String NAME = "name";
 
 	}
 
@@ -70,9 +69,6 @@ public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
      */
     BookmarkDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        if (false) Log.i(TAG, "Creating OpenHelper");
-        Resources resources = context.getResources();
-
         mContext = context;
     }
 	
@@ -90,24 +86,28 @@ public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE " + Table.BOOKMARK + " (" +
                 BookmarkColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 BookmarkColumn.KEY + " TEXT NOT NULL" +
-                BookmarkColumn.BOOK + " TEXT NOT NULL" +
         ");");
 
-        db.execSQL("CREATE TABLE " + Table.LABEL + " (" +
-                LabelColumn.KEY + " TEXT NOT NULL" +
-                LabelColumn.BOOK + " TEXT NOT NULL" +
+        // Intersection table
+        db.execSQL("CREATE TABLE " + Table.BOOKMARK_LABEL + " (" +
+                BookmarkLabelColumn.BOOKMARK_ID + " INTEGER NOT NULL," +
+                BookmarkLabelColumn.LABEL_ID + " INTEGER NOT NULL" +
         ");");
-		
+
         db.execSQL("CREATE TABLE " + Table.LABEL + " (" +
                 LabelColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                BookmarkColumn.KEY + " TEXT NOT NULL" +
-                BookmarkColumn.BOOK + " TEXT NOT NULL" +
+                LabelColumn.NAME + " TEXT NOT NULL" +
         ");");
-
-	     // Trigger to remove a calendar's events when we delete the calendar
-        db.execSQL("CREATE TRIGGER bookmark_cleanup DELETE ON Bookmark " +
+		
+        // SQLite version in android 1.6 is 3.5.9 which doesn't support foreign keys so use a trigger
+	    // Trigger to remove join table rows when either side of the join is deleted
+        db.execSQL("CREATE TRIGGER bookmark_cleanup DELETE ON "+Table.BOOKMARK+" " +
                 "BEGIN " +
-                "DELETE FROM "+Table.BOOKMARK_LABEL+" WHERE bookmark_id = old._id;" +
+                "DELETE FROM "+Table.BOOKMARK_LABEL+" WHERE "+BookmarkLabelColumn.BOOKMARK_ID+" = old._id;" +
+                "END");
+        db.execSQL("CREATE TRIGGER label_cleanup DELETE ON "+Table.LABEL+" " +
+                "BEGIN " +
+                "DELETE FROM "+Table.BOOKMARK_LABEL+" WHERE "+BookmarkLabelColumn.LABEL_ID+" = old._id;" +
                 "END");
 	}
 	
