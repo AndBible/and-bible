@@ -20,10 +20,4 @@ public class BookmarkDto {
 	public void setKey(Key key) {
 		this.key = key;
 	}
-	public Book getBook() {
-		return book;
-	}
-	public void setBook(Book book) {
-		this.book = book;
-	}
 }

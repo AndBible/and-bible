@@ -36,17 +36,17 @@ public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
 	}
 
 	public interface BookmarkColumn {
-		public static final String _ID = Table.BOOKMARK + "." + BaseColumns._ID;
+		public static final String _ID = BaseColumns._ID;
 		public static final String KEY = "key";
 	}
 
 	public interface BookmarkLabelColumn {
-		public static final String BOOKMARK_ID = Table.BOOKMARK + "." + BaseColumns._ID;
-		public static final String LABEL_ID = Table.LABEL + "." + BaseColumns._ID;
+		public static final String BOOKMARK_ID = "bookmark_id";
+		public static final String LABEL_ID = "label_id";
 	}
 	
 	public interface LabelColumn {
-		public static final String _ID = Table.LABEL + "." + BaseColumns._ID;
+		public static final String _ID = BaseColumns._ID;
 		public static final String NAME = "name";
 
 	}
@@ -124,7 +124,6 @@ public class BookmarkDatabaseHelper extends SQLiteOpenHelper {
 //				upgradeToVersion2(db);
 //				oldVersion += 1;
 //			}
-
 		} catch (SQLiteException e) {
 			Log.e(TAG, "onUpgrade: SQLiteException, recreating db. " + e);
 //todo			dropTables(db);

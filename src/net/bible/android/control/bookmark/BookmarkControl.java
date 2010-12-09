@@ -4,11 +4,10 @@ import java.util.List;
 
 import net.bible.android.BibleApplication;
 import net.bible.service.db.bookmark.BookmarkDBAdapter;
+import net.bible.service.db.bookmark.BookmarkDatabaseHelper.BookmarkColumn;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
-import net.bible.service.db.bookmark.BookmarkDatabaseHelper.BookmarkColumn;
 import android.content.ContentValues;
-import android.database.Cursor;
 
 public class BookmarkControl implements Bookmark {
 
