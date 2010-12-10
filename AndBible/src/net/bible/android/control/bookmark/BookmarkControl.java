@@ -15,8 +15,16 @@ public class BookmarkControl implements Bookmark {
 
 	/** get all bookmarks */
 	public List<BookmarkDto> getAllBookmarks() {
+		BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		db.open();
+		List<BookmarkDto> bookmarkList = null;
+		try {
+			bookmarkList = db.getAllBookmarks();
+		} finally {
+			db.close();
+		}
 
-		return null;
+		return bookmarkList;
 	}
 
 	/** create a new bookmark */
@@ -29,9 +37,7 @@ public class BookmarkControl implements Bookmark {
 		db.open();
 		BookmarkDto newBookmark = null;
 		try {
-			long newId = db.insertBookmark(newValues);
-			
-			newBookmark = db.getBookmarkDto(newId);
+			newBookmark = db.insertBookmark(newValues);
 		} finally {
 			db.close();
 		}
@@ -40,8 +46,13 @@ public class BookmarkControl implements Bookmark {
 
 	/** delete this bookmark (and any links to labels) */
 	public boolean deleteBookmark(BookmarkDto bookmark) {
-
-		return false;
+		boolean bOk = false;
+		if (bookmark!=null && bookmark.getId()!=null) {
+			BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
+			db.open();
+			bOk = db.removeBookmark(bookmark);
+		}		
+		return bOk;
 	}
 
 	// Label related methods

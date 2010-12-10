@@ -1,5 +1,8 @@
 package net.bible.service.db.bookmark;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.bible.service.db.bookmark.BookmarkDatabaseHelper.BookmarkColumn;
 import net.bible.service.db.bookmark.BookmarkDatabaseHelper.Table;
 
@@ -43,22 +46,47 @@ public class BookmarkDBAdapter {
 		db.close();
 	}
 
-	public long insertBookmark(ContentValues newValues) {
-		long id = db.insert(Table.BOOKMARK, null, newValues);
-		return id;
+	public BookmarkDto insertBookmark(ContentValues newValues) {
+		long newId = db.insert(Table.BOOKMARK, null, newValues);
+		BookmarkDto newBookmark = getBookmark(newId);
+		return newBookmark;
 	}
 
-	public boolean removeBookmark(long id) {
-		return db.delete(Table.BOOKMARK, BookmarkColumn._ID + "=" + id, null) > 0;
+	public boolean removeBookmark(BookmarkDto bookmark) {
+		return db.delete(Table.BOOKMARK, BookmarkColumn._ID + "=" + bookmark.getId(), null) > 0;
 	}
 
-	public Cursor getAllBookmarks() {
-		return db.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, null, null, null, null, null);
+	public List<BookmarkDto> getAllBookmarks() {
+		List<BookmarkDto> allBookmarks = new ArrayList<BookmarkDto>();
+		Cursor c = db.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, null, null, null, null, null);
+		try {
+			if (c.moveToFirst()) {
+		        while (!c.isAfterLast()) {
+		    		BookmarkDto bookmark = getBookmarkDto(c);
+		    		allBookmarks.add(bookmark);
+		       	    c.moveToNext();
+		        }
+			}
+		} finally {
+	        c.close();
+		}
+        
+        return allBookmarks;
 	}
 
-	public Cursor getBookmark(long id) {
+	public BookmarkDto getBookmark(long id) {
+		BookmarkDto bookmark = null;
+		
 		Cursor c = db.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn._ID+"=?", new String[] {String.valueOf(id)}, null, null, null);
-		return c;
+		try {
+			if (c.moveToFirst()) {
+				bookmark = getBookmarkDto(c);
+			}
+		} finally {
+			c.close();
+		}
+		
+		return bookmark;
 	}
 	
 	// public BookmarkDto getEntry(long _rowIndex) {
@@ -73,32 +101,39 @@ public class BookmarkDBAdapter {
 	// return true;
 	// }
 	
-	public BookmarkDto getBookmarkDto(long id) {
-		BookmarkDto dto = null;
+	/** return Dto from current cursor position or null
+	 * @param c
+	 * @return
+	 * @throws NoSuchKeyException
+	 */
+	private BookmarkDto getBookmarkDto(Cursor c) {
+		BookmarkDto dto = new BookmarkDto();
 		try {
-			Cursor c = getBookmark(id);
-			dto = new BookmarkDto();
+			System.out.println("Num cols in cursor ="+c.getColumnCount());
+			for (int i=0; i<c.getColumnCount(); i++) {
+				System.out.println(i+" "+c.getColumnName(i));
+			}
+			Long id = c.getLong(BookmarkQuery.ID);
 			dto.setId(id);
-			if (c.moveToFirst()) {
-				String key = c.getString(BookmarkQuery.KEY);
-				if (!TextUtils.isEmpty(key)) {
-					dto.setKey(PassageKeyFactory.instance().getKey(key));
-				}
+			
+			String key = c.getString(BookmarkQuery.KEY);
+			if (!TextUtils.isEmpty(key)) {
+				dto.setKey(PassageKeyFactory.instance().getKey(key));
 			}
 		} catch (NoSuchKeyException nke) {
 			Log.e(TAG, "Key error", nke);
 		}
-
+		
 		return dto;
 	}
 
 	
 	private interface BookmarkQuery {
-        String TABLE = Table.BOOKMARK;
+        final String TABLE = Table.BOOKMARK;
 
-		String[] COLUMNS = new String[] {BookmarkColumn._ID, BookmarkColumn.KEY};
+		final String[] COLUMNS = new String[] {BookmarkColumn._ID, BookmarkColumn.KEY};
 
-        int ID = 0;
-        int KEY = 1;
+        final int ID = 0;
+        final int KEY = 1;
     }
 }
