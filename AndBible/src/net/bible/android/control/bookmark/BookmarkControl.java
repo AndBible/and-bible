@@ -5,15 +5,35 @@ import java.util.List;
 import java.util.Set;
 
 import net.bible.android.BibleApplication;
+import net.bible.android.activity.R;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.service.db.bookmark.BookmarkDBAdapter;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
+
+import org.crosswire.jsword.passage.Key;
+
 import android.util.Log;
+import android.widget.Toast;
 
 public class BookmarkControl implements Bookmark {
 
 	private static final String TAG = "BookmarkControl";
 	
+	@Override
+	public boolean bookmarkCurrentVerse() {
+		if (CurrentPageManager.getInstance().isBibleShown()) {
+			Key currentVerse = CurrentPageManager.getInstance().getCurrentBible().getSingleKey();
+			BookmarkDto bookmarkDto = new BookmarkDto();
+			bookmarkDto.setKey(currentVerse);
+			
+			Toast.makeText(BibleApplication.getApplication().getApplicationContext(), R.string.bookmark_added, Toast.LENGTH_SHORT).show();
+			
+			return addBookmark(bookmarkDto)!=null;
+		}
+		return false;
+	}
+
 	// pure bookmark methods
 
 	/** get all bookmarks */
