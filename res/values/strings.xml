@@ -97,6 +97,7 @@
 	<!-- Verse context menu -->
     <string name="notes">Footnotes and cross-references</string>
     <string name="bookmark">Add Bookmark</string>
+    <string name="bookmark_added">Bookmark added</string>
     <string name="copy">Copy current verse</string>
     <string name="send_sms">Send verse via SMS</string>
 	

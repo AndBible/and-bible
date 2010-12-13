@@ -1,5 +1,7 @@
 package net.bible.android.control;
 
+import net.bible.android.control.bookmark.Bookmark;
+import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.search.SearchControl;
@@ -15,6 +17,7 @@ public class ControlFactory {
 	private CurrentPageManager currentPageManager = CurrentPageManager.getInstance();
 	private DocumentControl documentControl = new DocumentControl();
 	private SearchControl searchControl = new SearchControl();
+	private Bookmark bookmarkControl = new BookmarkControl();
 	
 	private static ControlFactory singleton = new ControlFactory();
 	
@@ -32,5 +35,12 @@ public class ControlFactory {
 
 	public CurrentPageManager getCurrentPageControl() {
 		return currentPageManager;		
+	}
+
+	/**
+	 * @return the bookmarkControl
+	 */
+	public Bookmark getBookmarkControl() {
+		return bookmarkControl;
 	}
 }

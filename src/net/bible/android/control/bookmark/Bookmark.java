@@ -7,6 +7,9 @@ import net.bible.service.db.bookmark.LabelDto;
 
 public interface Bookmark {
 
+	//** busines method */
+	boolean bookmarkCurrentVerse();
+	
 	// pure bookmark methods
 	
 	/** get all bookmarks */
