@@ -328,6 +328,13 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
         	DataPipe.getInstance().pushNotes(bibleContentManager.getNotesList());
         	startActivity(handlerIntent);
         	return true;
+        case R.id.bookmark:
+//        	Intent handlerIntent = new Intent(this, NotesActivity.class);
+//        	// pump the notes into the viewer (there must be an easier way other than Parcelable)
+//        	//TODO refactor so the notes are loaded by the Notes viewer using a separate SAX parser 
+//        	DataPipe.getInstance().pushNotes(bibleContentManager.getNotesList());
+//        	startActivity(handlerIntent);
+//        	return true;
 		case (R.id.copy):
 			ControlFactory.getInstance().getCurrentPageControl().copyToClipboard();
 			return true;

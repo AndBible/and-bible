@@ -90,10 +90,13 @@
 	<string name="download_complete_no_bibles">No bible was installed.  Please press Back and try again.</string>
 	<string name="too_many_jobs">Too many tasks executing.  Please wait for some to finish and try again.</string>
 
-	<!-- Context menus -->
+	<!-- Document context menu -->
     <string name="delete">Delete</string>
     <string name="about">About</string>
-    <string name="notes">Notes and cross-references</string>
+    
+	<!-- Verse context menu -->
+    <string name="notes">Footnotes and cross-references</string>
+    <string name="bookmark">Add Bookmark</string>
     <string name="copy">Copy current verse</string>
     <string name="send_sms">Send verse via SMS</string>
 	
@@ -109,6 +112,6 @@
     <string name="more">More</string>
     <string name="retry">Try Again</string>
     <string name="please_wait">Please wait...</string>
-    
+
     <string name="tts_lang_not_available">Language is not available.</string>
 </resources>
