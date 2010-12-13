@@ -19,9 +19,18 @@ public interface Bookmark {
 	boolean deleteBookmark(BookmarkDto bookmark);
 
 	// Label related methods
+	/** get all labels */
+	List<LabelDto> getAllLabels();
+
+	/** create a new label */
+	LabelDto addLabel(LabelDto label);
+
+	/** delete this label (and any links to bookmarks) */
+	boolean deleteLabel(LabelDto label);
+
 	/** get bookmarks with the given label */
 	List<BookmarkDto> getBookmarksWithLabel(LabelDto label);
 	
 	/** label the bookmark with these and only these labels */
-	List<BookmarkDto> setBookmarkLabels(BookmarkDto bookmark, List<LabelDto> labels);
+	void setBookmarkLabels(BookmarkDto bookmark, List<LabelDto> labels);
 }
