@@ -14,7 +14,6 @@ import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
 import net.bible.service.sword.SwordApi;
 
-import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.passage.Key;
 
 import android.util.Log;
