@@ -7,9 +7,14 @@ import net.bible.service.db.bookmark.LabelDto;
 
 public interface Bookmark {
 
-	//** busines method */
+	//** business method */
 	boolean bookmarkCurrentVerse();
 	
+	String getBookmarkVerseText(BookmarkDto bookmark);
+	
+	/** get all labels */
+	List<LabelDto> getAllLabels();
+
 	// pure bookmark methods
 	
 	/** get all bookmarks */
@@ -22,8 +27,6 @@ public interface Bookmark {
 	boolean deleteBookmark(BookmarkDto bookmark);
 
 	// Label related methods
-	/** get all labels */
-	List<LabelDto> getAllLabels();
 
 	/** create a new label */
 	LabelDto addLabel(LabelDto label);

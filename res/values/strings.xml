@@ -96,10 +96,13 @@
     
 	<!-- Verse context menu -->
     <string name="notes">Footnotes and cross-references</string>
-    <string name="bookmark">Add Bookmark</string>
-    <string name="bookmark_added">Bookmark added</string>
     <string name="copy">Copy current verse</string>
     <string name="send_sms">Send verse via SMS</string>
+
+	<!-- Bookmarks -->
+    <string name="bookmarks">Bookmarks</string>
+    <string name="add_bookmark">Add Bookmark</string>
+    <string name="bookmark_added">Bookmark added</string>
 	
 	<!-- Dictionary -->
     <string name="dictionary">Dictionary</string>
@@ -113,6 +116,7 @@
     <string name="more">More</string>
     <string name="retry">Try Again</string>
     <string name="please_wait">Please wait...</string>
+    <string name="all">All</string>
 
     <string name="tts_lang_not_available">Language is not available.</string>
 </resources>

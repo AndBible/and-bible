@@ -22,8 +22,8 @@
 		  android:title="@string/search"
 		  android:icon="@android:drawable/ic_menu_search"/>
 
-	<item android:id="@+id/speakButton"
-		  android:title="@string/speak"
+	<item android:id="@+id/bookmarksButton"
+		  android:title="@string/bookmarks"
 		  android:icon="@drawable/ic_menu_happy"/>
 
 	<item android:id="@+id/helpButton"
@@ -37,5 +37,9 @@
 	<item android:id="@+id/downloadButton"
 		  android:title="@string/download"
 		  android:icon="@drawable/ic_menu_goto"/>
+
+	<item android:id="@+id/speakButton"
+		  android:title="@string/speak"
+		  android:icon="@drawable/ic_menu_happy"/>
 
 </menu>
