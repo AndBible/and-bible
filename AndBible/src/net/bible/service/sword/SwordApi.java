@@ -12,8 +12,8 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import net.bible.android.SharedConstants;
-import net.bible.service.common.ParseException;
 import net.bible.service.common.CommonUtils;
+import net.bible.service.common.ParseException;
 import net.bible.service.download.DownloadManager;
 import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.OsisToCanonicalTextSaxHandler;
@@ -234,7 +234,7 @@ public class SwordApi {
 	 * @throws URISyntaxException
 	 * @throws ParserConfigurationException
 	 */
-	public FormattedDocument readHtmlText(Book book, Key key, int maxKeyCount) throws NoSuchKeyException, BookException, IOException, SAXException, URISyntaxException, ParserConfigurationException
+	public FormattedDocument readHtmlText(Book book, Key key, int maxKeyCount) throws ParseException
 	{
 		FormattedDocument retVal = new FormattedDocument();
 		if (!book.contains(key)) {
@@ -251,17 +251,20 @@ public class SwordApi {
 		return retVal;
 	}
 
-	private synchronized FormattedDocument readHtmlTextOptimizedZTextOsis(Book book, Key key, int maxKeyCount) throws NoSuchKeyException, BookException, IOException, SAXException, URISyntaxException, ParserConfigurationException
+	private synchronized FormattedDocument readHtmlTextOptimizedZTextOsis(Book book, Key key, int maxKeyCount) throws ParseException
 	{
 		log.debug("Using fast method to fetch document data");
 		InputStream is = new OSISInputStream(book, key);
 
 		OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book);
 	
-		SAXParserFactory spf = SAXParserFactory.newInstance();
-		spf.setValidating(false);
-		SAXParser parser = spf.newSAXParser();
-		parser.parse(is, osisToHtml);
+		SAXParser parser = getSAXParser();
+		try {
+			parser.parse(is, osisToHtml);
+		} catch (Exception e) {
+			log.error("Parsing error", e);
+			throw new ParseException("Parsing error", e);
+		}
 		
 		FormattedDocument retVal = new FormattedDocument();
 		retVal.setHtmlPassage(osisToHtml.toString());
@@ -270,25 +273,30 @@ public class SwordApi {
         return retVal;
 	}
 
-	private synchronized FormattedDocument readHtmlTextStandardJSwordMethod(Book book, Key key, int maxKeyCount) throws NoSuchKeyException, BookException, IOException, SAXException, URISyntaxException
+	private synchronized FormattedDocument readHtmlTextStandardJSwordMethod(Book book, Key key, int maxKeyCount) throws ParseException
 	{
 		log.debug("Using standard JSword to fetch document data");
 		FormattedDocument retVal = new FormattedDocument();
 
-		BookData data = new BookData(book, key);		
-		SAXEventProvider osissep = data.getSAXEventProvider();
-		if (osissep == null) {
-			Log.e(TAG, "No osis SEP returned");
-			retVal.setHtmlPassage("Error fetching osis SEP"); //$NON-NLS-1$
-		} else {
-			OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book);
-	
-			osissep.provideSAXEvents(osisToHtml);
-	
-			retVal.setHtmlPassage(osisToHtml.toString());
-			retVal.setNotesList(osisToHtml.getNotesList());
-		}		
-        return retVal;
+		try {
+			BookData data = new BookData(book, key);		
+			SAXEventProvider osissep = data.getSAXEventProvider();
+			if (osissep == null) {
+				Log.e(TAG, "No osis SEP returned");
+				retVal.setHtmlPassage("Error fetching osis SEP"); //$NON-NLS-1$
+			} else {
+				OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book);
+		
+				osissep.provideSAXEvents(osisToHtml);
+		
+				retVal.setHtmlPassage(osisToHtml.toString());
+				retVal.setNotesList(osisToHtml.getNotesList());
+			}		
+	        return retVal;
+		} catch (Exception e) {
+			log.error("Parsing error", e);
+			throw new ParseException("Parsing error", e);
+		}
 	}
 
 	/**
@@ -335,6 +343,7 @@ public class SwordApi {
     public String getCanonicalText(Book book, Key key) throws NoSuchKeyException, BookException, ParseException {
 		InputStream is = new OSISInputStream(book, key);
 
+		//TODO can we use same technique as SwordApi.getPlainText()
 		OsisToCanonicalTextSaxHandler osisToCanonical = getCanonicalTextSaxHandler(book);
 
 		try {
@@ -371,13 +380,17 @@ public class SwordApi {
      *            a reference, appropriate for the book, of one or more entries
      */
     public String getPlainText(Book book, String reference, int maxKeyCount) throws BookException, NoSuchKeyException {
-        if (book == null) {
-            return ""; //$NON-NLS-1$
-        }
-
-        Key key = book.getKey(reference);
-        BookData data = new BookData(book, key);
-        return OSISUtil.getCanonicalText(data.getOsisFragment());
+    	String plainText = "";
+    	try {
+    		if (book != null) {
+		        Key key = book.getKey(reference);
+		        BookData data = new BookData(book, key);
+		        plainText = OSISUtil.getCanonicalText(data.getOsisFragment());
+    		}
+    	} catch (Exception e) {
+    		Log.e(TAG, "Error getting plain text", e);
+    	}
+    	return plainText;
     }
 
 	public Key search(Book bible, String searchText) throws BookException {

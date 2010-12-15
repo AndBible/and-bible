@@ -11,6 +11,7 @@ import net.bible.android.view.activity.NotesActivity;
 import net.bible.android.view.activity.SettingsActivity;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
+import net.bible.android.view.activity.bookmark.Bookmarks;
 import net.bible.android.view.activity.download.Download;
 import net.bible.android.view.activity.navigation.ChooseDocument;
 import net.bible.android.view.activity.navigation.History;
@@ -120,6 +121,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	        	break;
 	        case R.id.historyButton:
 	        	handlerIntent = new Intent(this, History.class);
+	        	break;
+	        case R.id.bookmarksButton:
+	        	handlerIntent = new Intent(this, Bookmarks.class);
 	        	break;
 	        case R.id.downloadButton:
 	        	if (!CommonUtils.isInternetAvailable()) {
@@ -328,7 +332,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
         	DataPipe.getInstance().pushNotes(bibleContentManager.getNotesList());
         	startActivity(handlerIntent);
         	return true;
-        case R.id.bookmark:
+        case R.id.add_bookmark:
 			ControlFactory.getInstance().getBookmarkControl().bookmarkCurrentVerse();
 			return true;
 		case R.id.copy:

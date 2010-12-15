@@ -1,5 +1,6 @@
 package net.bible.android.control.bookmark;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -7,10 +8,13 @@ import java.util.Set;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.db.bookmark.BookmarkDBAdapter;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
+import net.bible.service.sword.SwordApi;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.passage.Key;
 
 import android.util.Log;
@@ -18,6 +22,13 @@ import android.widget.Toast;
 
 public class BookmarkControl implements Bookmark {
 
+	private static final LabelDto LABEL_ALL;
+	static {
+		LABEL_ALL = new LabelDto();
+		LABEL_ALL.setName(BibleApplication.getApplication().getString(R.string.all));
+		LABEL_ALL.setId(new Long(-999));
+	}
+	
 	private static final String TAG = "BookmarkControl";
 	
 	@Override
@@ -32,6 +43,18 @@ public class BookmarkControl implements Bookmark {
 			return addBookmark(bookmarkDto)!=null;
 		}
 		return false;
+	}
+
+	@Override
+	public String getBookmarkVerseText(BookmarkDto bookmark) {
+		String verseText = "";
+		try {
+			verseText = SwordApi.getInstance().getPlainText(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), bookmark.getKey().getOsisRef(), 1);
+			verseText = CommonUtils.limitTextLength(verseText);
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting verse text", e);
+		}
+		return verseText;
 	}
 
 	// pure bookmark methods
@@ -81,7 +104,11 @@ public class BookmarkControl implements Bookmark {
 		db.open();
 		List<BookmarkDto> bookmarkList = null;
 		try {
-			bookmarkList = db.getBookmarksWithLabel(label);
+			if (LABEL_ALL.equals(label)) {
+				bookmarkList = db.getAllBookmarks();
+			} else {
+				bookmarkList = db.getBookmarksWithLabel(label);
+			}
 		} finally {
 			db.close();
 		}
@@ -91,6 +118,9 @@ public class BookmarkControl implements Bookmark {
 
 	/** label the bookmark with these and only these labels */
 	public void setBookmarkLabels(BookmarkDto bookmark, List<LabelDto> labels) {
+		// never save LABEL_ALL 
+		labels.remove(LABEL_ALL);
+		
 		BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
 		db.open();
 		try {
@@ -133,11 +163,11 @@ public class BookmarkControl implements Bookmark {
 	/** delete this bookmark (and any links to labels) */
 	public boolean deleteLabel(LabelDto label) {
 		boolean bOk = false;
-		if (label!=null && label.getId()!=null) {
+		if (label!=null && label.getId()!=null && !LABEL_ALL.equals(label)) {
 			BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
 			db.open();
 			bOk = db.removeLabel(label);
-		}		
+		}
 		return bOk;
 	}
 
@@ -145,9 +175,11 @@ public class BookmarkControl implements Bookmark {
 	public List<LabelDto> getAllLabels() {
 		BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
 		db.open();
-		List<LabelDto> labelList = null;
+		List<LabelDto> labelList = new ArrayList<LabelDto>();
 		try {
-			labelList = db.getAllLabels();
+			labelList.add(LABEL_ALL);
+			labelList.addAll(db.getAllLabels());
+			
 		} finally {
 			db.close();
 		}

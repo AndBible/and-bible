@@ -127,7 +127,7 @@ public class BookmarkDBAdapter {
 
 	public List<LabelDto> getAllLabels() {
 		List<LabelDto> allLabels = new ArrayList<LabelDto>();
-		Cursor c = db.query(LabelQuery.TABLE, LabelQuery.COLUMNS, null, null, null, null, null);
+		Cursor c = db.query(LabelQuery.TABLE, LabelQuery.COLUMNS, null, null, null, null, LabelColumn.NAME);
 		try {
 			if (c.moveToFirst()) {
 		        while (!c.isAfterLast()) {
