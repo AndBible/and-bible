@@ -10,6 +10,7 @@ import java.util.Map;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.Bookmark;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
@@ -24,6 +25,7 @@ import org.crosswire.common.util.Language;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookFilter;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -64,7 +66,7 @@ public class Bookmarks extends ListActivityBase {
 	private ArrayAdapter<BookmarkDto> listArrayAdapter;
 	private List<BookmarkDto> bookmarkList;
 
-	private static final int LIST_ITEM_TYPE = R.layout.two_line_list_item_copy;
+	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
 
 	private BookmarkDto selectedBookmark;
 	
@@ -87,52 +89,33 @@ public class Bookmarks extends ListActivityBase {
     	listArrayAdapter = new BookmarkItemAdapter(this, LIST_ITEM_TYPE, bookmarkList);
     	setListAdapter(listArrayAdapter);
     	
-//    	//prepare the documentType spinner
-//    	Spinner documentTypeSpinner = (Spinner)findViewById(R.id.documentTypeSpinner);
-//    	documentTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-//
-//			@Override
-//			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//		    	selectedDocumentFilterNo = position;
-//		    	Bookmarks.this.filterDocuments();
-//			}
-//
-//			@Override
-//			public void onNothingSelected(AdapterView<?> arg0) {
-//			}
-//		});
-//    	// in the basic flow we force the user to download a bible
-//    	documentTypeSpinner.setEnabled(!forceBasicFlow);
-//
-//    	//prepare the language spinner
-//    	{
-//	    	langSpinner = (Spinner)findViewById(R.id.languageSpinner);
-//	    	langSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
-//	
-//				@Override
-//				public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-//			    	selectedLanguageNo = position;
-//			    	Bookmarks.this.filterDocuments();
-//				}
-//	
-//				@Override
-//				public void onNothingSelected(AdapterView<?> arg0) {
-//				}
-//			});
-//	    	langArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, languageList);
-//	    	langArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-//	    	langSpinner.setAdapter(langArrayAdapter);
-//    	}
+    	//prepare the Label spinner
+    	labelList = bookmarkControl.getAllLabels();
+    	labelArrayAdapter = new ArrayAdapter<LabelDto>(this, android.R.layout.simple_spinner_item, labelList);
+    	labelSpinner = (Spinner)findViewById(R.id.labelSpinner);
+    	labelSpinner.setAdapter(labelArrayAdapter);
+    	labelSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+		    	selectedLabelNo = position;
+		    	Bookmarks.this.filterBookmarks();
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> arg0) {
+			}
+		});
     }
-    
+
     @Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-//    	try {
-//    		documentSelected(displayedDocuments.get(position));
-//    	} catch (Exception e) {
-//    		Log.e(TAG, "document selection error", e);
-//    		showErrorMsg(R.string.error_occurred);
-//    	}
+    	try {
+    		bookmarkSelected(bookmarkList.get(position));
+    	} catch (Exception e) {
+    		Log.e(TAG, "document selection error", e);
+    		showErrorMsg(R.string.error_occurred);
+    	}
 	}
 
     private void populateMasterDocumentList() {
@@ -185,57 +168,43 @@ public class Bookmarks extends ListActivityBase {
     
     /** a spinner has changed so refilter the doc list
      */
-    private void filterDocuments() {
-//    	try {
-//    		if (allDocuments!=null && allDocuments.size()>0) {
-//   	        	Log.i(TAG, "filtering documents");
-//	        	displayedDocuments.clear();
-//	        	displayedDocumentDescriptions.clear();
-//	        	String lang = languageList.get(selectedLanguageNo);
-//	        	for (Book doc : allDocuments) {
-//	        		BookFilter filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo];
-//	        		if (filter.test(doc) && doc.getLanguage().getName().equals(lang)) {
-//		        		displayedDocuments.add(doc);
-//		        		displayedDocumentDescriptions.add(doc.getName());
-//	        		}
-//	        	}
-//	        	if (listArrayAdapter!=null) {
-//	        		Bookmarks.this.listArrayAdapter.notifyDataSetChanged();
-//	        	}
-//    		}
-//    	} catch (Exception e) {
-//    		Log.e(TAG, "Error initialising view", e);
-//    		Toast.makeText(this, getString(R.string.error)+e.getMessage(), Toast.LENGTH_SHORT);
-//    	}
+    private void filterBookmarks() {
+    	try {
+    		if (selectedLabelNo>-1 && selectedLabelNo<labelList.size()) {
+   	        	Log.i(TAG, "filtering bookmarks");
+   	        	
+   	        	
+	        	if (listArrayAdapter!=null) {
+	        		Bookmarks.this.listArrayAdapter.notifyDataSetChanged();
+	        	}
+    		}
+    	} catch (Exception e) {
+    		Log.e(TAG, "Error initialising view", e);
+    		Toast.makeText(this, getString(R.string.error)+e.getMessage(), Toast.LENGTH_SHORT);
+    	}
     }
 
     /** user selected a document so download it
      * 
      * @param document
      */
-    private void documentSelected(Book document) {
-//    	Log.d(TAG, "Document selected:"+document.getInitials());
-//    	try {
-//    		//sometimes the selected doc is null if the list was not clicked properly - odd!
-//    		if (document!=null) {
-//	    		this.selectedDocument = document;
-//	
-//	    		if (JobManager.getJobs().size()>=2) {
-//	    			Log.i(TAG, "Too many jobs:"+JobManager.getJobs().size());
-//	    			Dialogs.getInstance().showErrorMsg(R.string.too_many_jobs, new Callback() {
-//						@Override
-//						public void okay() {
-//							showDownloadStatus();
-//						}
-//					});
-//	    		} else {
-//	    			showDialog(DOWNLOAD_CONFIRMATION_DIALOG);
-//	    		}
-//    		}
-//    	} catch (Exception e) {
-//    		Log.e(TAG, "Error on attempt to download", e);
-//    		Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show();
-//    	}
+    private void bookmarkSelected(BookmarkDto bookmark) {
+    	Log.d(TAG, "Bookmark selected:"+bookmark.getKey());
+    	try {
+        	if (bookmark!=null) {
+        		CurrentPageManager.getInstance().getCurrentPage().setKey(bookmark.getKey());
+        		doFinish();
+        	}
+    	} catch (Exception e) {
+    		Log.e(TAG, "Error on attempt to download", e);
+    		Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show();
+    	}
+    }
+
+    private void doFinish() {
+    	Intent resultIntent = new Intent();
+    	setResult(Activity.RESULT_OK, resultIntent);
+    	finish();    
     }
 
 	@Override

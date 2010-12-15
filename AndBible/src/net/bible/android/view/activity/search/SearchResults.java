@@ -69,7 +69,7 @@ public class SearchResults extends ListActivityBase {
     protected ListAdapter createAdapter()
     {
     	ListAdapter listAdapter = new SimpleAdapter(this, mResultList, 
-                android.R.layout.two_line_list_item, 
+    			android.R.layout.simple_list_item_2, 
                 new String[] {LIST_ITEM_LINE1, LIST_ITEM_LINE2}, 
                 new int[] {android.R.id.text1, android.R.id.text2});
     	
@@ -115,7 +115,7 @@ public class SearchResults extends ListActivityBase {
     	setResult(Activity.RESULT_OK, resultIntent);
     	finish();    
     }
-    
+
     private void showMsg(String msg) {
     	mStatusTextView.setText(msg);
     }
