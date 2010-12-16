@@ -140,7 +140,12 @@ public class Download extends ListActivityBase {
     @Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
     	try {
-    		documentSelected(displayedDocuments.get(position));
+    		if (position>0 && position<displayedDocuments.size()) {
+        		Book selectedBook = displayedDocuments.get(position);
+        		if (selectedBook!=null) {
+        			documentSelected(selectedBook);
+        		}
+    		}
     	} catch (Exception e) {
     		Log.e(TAG, "document selection error", e);
     		showErrorMsg(R.string.error_occurred);
@@ -302,6 +307,7 @@ public class Download extends ListActivityBase {
     	
         switch (id) {
         case DOWNLOAD_CONFIRMATION_DIALOG:
+        	if (selectedDocument!=null) {
             	return new AlertDialog.Builder(this)
             		   .setMessage(getText(R.string.download_document_confirm_prefix)+selectedDocument.getName())
             	       .setCancelable(false)
@@ -314,6 +320,7 @@ public class Download extends ListActivityBase {
             	           public void onClick(DialogInterface dialog, int id) {
             	           }
             	       }).create();
+        	}
         }
         return null;
     }
