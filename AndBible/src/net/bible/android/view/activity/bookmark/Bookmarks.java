@@ -33,12 +33,17 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemSelectedListener;
 
 /**
@@ -58,13 +63,13 @@ public class Bookmarks extends ListActivityBase {
 	
 	// language spinner
 	private Spinner labelSpinner;
-	private List<LabelDto> labelList;
+	private List<LabelDto> labelList = new ArrayList<LabelDto>();
 	private int selectedLabelNo = 0;
 	private ArrayAdapter<LabelDto> labelArrayAdapter; 
 	
 	// the document list
-	private ArrayAdapter<BookmarkDto> listArrayAdapter;
-	private List<BookmarkDto> bookmarkList;
+	private ArrayAdapter<BookmarkDto> bookmarkArrayAdapter;
+	private List<BookmarkDto> bookmarkList = new ArrayList<BookmarkDto>();
 
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
 
@@ -83,14 +88,8 @@ public class Bookmarks extends ListActivityBase {
 
     private void initialiseView() {
     	
-    	bookmarkList = bookmarkControl.getAllBookmarks();
-    	
-    	// prepare the document list view
-    	listArrayAdapter = new BookmarkItemAdapter(this, LIST_ITEM_TYPE, bookmarkList);
-    	setListAdapter(listArrayAdapter);
-    	
     	//prepare the Label spinner
-    	labelList = bookmarkControl.getAllLabels();
+    	loadLabelList();
     	labelArrayAdapter = new ArrayAdapter<LabelDto>(this, android.R.layout.simple_spinner_item, labelList);
     	labelSpinner = (Spinner)findViewById(R.id.labelSpinner);
     	labelSpinner.setAdapter(labelArrayAdapter);
@@ -99,13 +98,21 @@ public class Bookmarks extends ListActivityBase {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 		    	selectedLabelNo = position;
-		    	Bookmarks.this.filterBookmarks();
+		    	Bookmarks.this.loadBookmarkList();
 			}
 
 			@Override
 			public void onNothingSelected(AdapterView<?> arg0) {
 			}
 		});
+    	
+    	loadBookmarkList();
+    	
+    	// prepare the document list view
+    	bookmarkArrayAdapter = new BookmarkItemAdapter(this, LIST_ITEM_TYPE, bookmarkList);
+    	setListAdapter(bookmarkArrayAdapter);
+    	
+    	registerForContextMenu(getListView());
     }
 
     @Override
@@ -118,65 +125,59 @@ public class Bookmarks extends ListActivityBase {
     	}
 	}
 
-    private void populateMasterDocumentList() {
-//		if (allDocuments==null || allDocuments.size()==0) {
-//    	    new AsyncTask<Void, Boolean, Void>() {
-//    	    	
-//    	        @Override
-//    	        protected void onPreExecute() {
-//    	        	showHourglass();
-//    	        }
-//    	        
-//    			@Override
-//    	        protected Void doInBackground(Void... noparam) {
-//    				try {
-//	    	        	allDocuments = SwordApi.getInstance().getDownloadableDocuments();
-//	    	        	for (Iterator<Book> iter=allDocuments.iterator(); iter.hasNext(); ) {
-//	    	        		Book doc = iter.next();
-//	    	        		if (doc.getLanguage()==null) {
-//	    	        			Log.d(TAG, "Ignoring "+doc.getName()+" because it has no language");
-//	    	        			iter.remove();
-//	    	        		}
-//	    	        		if (doc.getInitials().equals("WebstersDict")) {
-//	    	        			Log.d(TAG, "Removing "+doc.getName()+" because it is too big and crashed dictionary code");
-//	    	        			iter.remove();
-//	    	        		}
-//	    	        	}
-//	    	        	Log.i(TAG, "number of documents available:"+allDocuments.size());
-//    				} catch (Exception e) {
-//    					Log.e(TAG, "Error getting documents to download", e);
-//    					//todo INTERNATIONALIZE
-//    					showErrorMsg("Error getting documents to download");
-//    				}
-//    	        	return null;
-//    			}
-//    			
-//    	        @Override
-//				protected void onPostExecute(Void result) {
-//    	        	try {
-//    	        		populateLanguageList();
-//    	        		filterDocuments();
-//    	        	} finally {
-//    	        		//todo implement this: http://stackoverflow.com/questions/891451/android-dismissdialog-does-not-dismiss-the-dialog
-//        	        	dismissHourglass();
-//    	        	}
-//    	        }
-//
-//    	    }.execute((Void[])null);
-//		}
-    }
+    @Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.bookmark_context_menu, menu);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		super.onContextItemSelected(item);
+        AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
+		BookmarkDto bookmark = bookmarkList.get(menuInfo.position);
+		if (bookmark!=null) {
+			switch (item.getItemId()) {
+			case (R.id.assign_labels):
+				assignLabels(bookmark);
+				return true;
+			case (R.id.delete):
+				delete(bookmark);
+				return true;
+			}
+		}
+		return false; 
+	}
+
+	private void assignLabels(BookmarkDto bookmark) {
+		Intent intent = new Intent(this, BookmarkLabels.class);
+		startActivityForResult(intent, 1);
+	}
+
+	private void delete(BookmarkDto bookmark) {
+		bookmarkControl.deleteBookmark(bookmark);
+		loadBookmarkList();
+	}
     
+	private void loadLabelList() {
+    	labelList.clear();
+    	labelList.addAll(bookmarkControl.getAllLabels());
+	}
     /** a spinner has changed so refilter the doc list
      */
-    private void filterBookmarks() {
+    private void loadBookmarkList() {
     	try {
     		if (selectedLabelNo>-1 && selectedLabelNo<labelList.size()) {
    	        	Log.i(TAG, "filtering bookmarks");
+   	        	LabelDto selectedLabel = labelList.get(selectedLabelNo);
+   	        	bookmarkList.clear();
+   	        	bookmarkList.addAll( bookmarkControl.getBookmarksWithLabel(selectedLabel) );
    	        	
-   	        	
-	        	if (listArrayAdapter!=null) {
-	        		Bookmarks.this.listArrayAdapter.notifyDataSetChanged();
+	        	if (bookmarkArrayAdapter!=null) {
+	        		Bookmarks.this.bookmarkArrayAdapter.notifyDataSetChanged();
 	        	}
+	        	
     		}
     	} catch (Exception e) {
     		Log.e(TAG, "Error initialising view", e);
@@ -250,16 +251,4 @@ public class Bookmarks extends ListActivityBase {
 //    	}
     }
 
-//	@Override
-//	protected void onStop() {
-//		super.onStop();
-//		langSpinner = null;
-//		languageList = new ArrayList<String>();
-//		langArrayAdapter = null;		
-//		listArrayAdapter = null;
-//		allDocuments = null;
-//		displayedDocuments = null;
-//		displayedDocumentDescriptions = null;
-//		selectedDocument = null;
-//	}
 }
