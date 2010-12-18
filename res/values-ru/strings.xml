@@ -23,7 +23,7 @@
     
     <string name="choosePassageBookName">Выберите книгу</string>
     <string name="choosePassageChapterName">Выберите главу</string>
-    <string name="chapter_range">%s главы %d to %d</string>
+    <string name="chapter_range">%1$s главы %2$d to %3$d</string>
     <string name="search_index">Создать поисковой индекс</string>
     <string name="index_creation_required">Для поиска должен быть создан индекс. Создание индекса может занять некоторое время.</string>
     <string name="indexing_wait_msg">После создания индекса, перед вами откроется Поиск.</string>

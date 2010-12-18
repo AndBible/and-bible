@@ -23,8 +23,7 @@
 		  android:icon="@android:drawable/ic_menu_search"/>
 
 	<item android:id="@+id/bookmarksButton"
-		  android:title="@string/bookmarks"
-		  android:icon="@drawable/ic_menu_happy"/>
+		  android:title="@string/bookmarks" android:icon="@drawable/ic_menu_bookmarks"/>
 
 	<item android:id="@+id/helpButton"
 		  android:title="@string/help"

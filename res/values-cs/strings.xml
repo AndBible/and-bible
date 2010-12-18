@@ -25,7 +25,7 @@
     
     <string name="choosePassageBookName">Vybrat knihu</string>
     <string name="choosePassageChapterName">Vybrat kapitolu</string>
-    <string name="chapter_range">%s kapitoly %d z %d</string>
+    <string name="chapter_range">%1$s kapitoly %2$d z %3$d</string>
 
     <string name="search_index">Vyhledávací index</string>
     <string name="search_chinese_na">Vyhledávání v dokumentech v čínštině je naplánováno pro budoučí verze programu.</string>
