@@ -22,7 +22,7 @@
     
     <string name="choosePassageBookName">Válassz könyvet</string>
     <string name="choosePassageChapterName">Válassz fejezetet</string>
-    <string name="chapter_range">%s fejezetek %d -tól %d -ig</string>
+    <string name="chapter_range">%1$s fejezetek %2$d -tól %3$d -ig</string>
 
     <string name="search_index">Keresési index létrehozása</string>
     <string name="index_creation_required">A kereséshez index szükséges.\n\nAz indexek letölthetőek, vagy helyben is készíthető.\n\nA letöltés előnyösebb, mert a helyi generálás nagyon időigényes. A letöltéshez internet kapcsolat szükséges.\n</string>

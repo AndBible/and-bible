@@ -26,7 +26,7 @@
 
   <string name="choosePassageBookName">Sélectionner un livre</string>
   <string name="choosePassageChapterName">Sélectionner un chapitre</string>
-  <string name="chapter_range">%s chapitres %d à %d</string>
+  <string name="chapter_range">%1$s chapitres %2$d à %3$d</string>
 
   <string name="search_index">Recherche Index</string>
   <string name="search_chinese_na">Rechercher dans des documents en chinois est prévu pour une future version.</string>

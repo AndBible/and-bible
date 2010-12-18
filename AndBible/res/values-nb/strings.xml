@@ -17,7 +17,7 @@
 
     <string name="choosePassageBookName">Velg bok</string>
     <string name="choosePassageChapterName">Velg kapittel</string>
-    <string name="chapter_range">%s kapittel %d til %d</string>
+    <string name="chapter_range">%1$s kapittel %2$d til %3$d</string>
 
     <string name="search_index">Lag søkeregister</string>
     <string name="search_chinese_na">Søking i kinesise dokumenter er planlagt i en fremtidig utgave.</string>

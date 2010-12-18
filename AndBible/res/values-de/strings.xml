@@ -23,7 +23,7 @@
     
     <string name="choosePassageBookName">Buchauswahl</string>
     <string name="choosePassageChapterName">Kapitelauswahl</string>
-    <string name="chapter_range">%s Kapitel %d bis %d</string>
+    <string name="chapter_range">%1$s Kapitel %2$d bis %3$d</string>
 
     <string name="search_index">Suchindex</string>
     <string name="index_creation_required">Für die Suche wird ein Index benötigt.\n\nEin Index kann heruntergeladen oder lokal erstellt werden.\n\nHerunterladen ist die bevorzugte Methode, da das lokale Erstellen viel länger dauert. Zum Herunterladen ist eine Internetverbindung notwendig.\n</string>

@@ -7,9 +7,9 @@
 	<classpathentry exported="true" kind="lib" path="libs/commons-lang-2.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/javatar-2.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/jsword-all-tweaked.jar" sourcepath="libs-src/jsword-all-tweaked-src.jar"/>
-	<classpathentry exported="true" kind="lib" path="libs/lucene-analyzers-3.0.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="libs/lucene-core-3.0.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="libs/lucene-snowball-3.0.2.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/lucene-analyzers-3.0.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/lucene-core-3.0.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/lucene-snowball-3.0.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/httpcore-4.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/httpclient-4.1-beta1.jar"/>
 	<classpathentry kind="output" path="bin"/>

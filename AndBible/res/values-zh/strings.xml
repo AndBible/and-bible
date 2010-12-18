@@ -21,7 +21,7 @@
 
 	<string name="choosePassageBookName">选择卷</string>
 	<string name="choosePassageChapterName">选择章</string>
-	<string name="chapter_range">%s 第 %d-%d 章</string>
+	<string name="chapter_range">%1$s 第 %2$d-%3$d 章</string>
 	<string name="search_index">创建查询索引</string>
 	<string name="index_creation_required">为了使用查询功能 需要创建查询索引. 这需要一小段时间</string>
 	<string name="indexing_wait_msg">当索引创建完成时,程序会回到查询页面.</string>
