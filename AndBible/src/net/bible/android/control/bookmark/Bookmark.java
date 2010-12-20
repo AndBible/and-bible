@@ -15,6 +15,12 @@ public interface Bookmark {
 	/** get all labels */
 	List<LabelDto> getAllLabels();
 
+	/** get labels that can be assigned to a bookmark */
+	List<LabelDto> getAssignableLabels();
+
+	/** get bookmarks with the given label */
+	BookmarkDto getBookmarkById(Long id);
+
 	// pure bookmark methods
 	
 	/** get all bookmarks */
@@ -37,6 +43,9 @@ public interface Bookmark {
 	/** get bookmarks with the given label */
 	List<BookmarkDto> getBookmarksWithLabel(LabelDto label);
 	
+	/** label the bookmark with these and only these labels */
+	List<LabelDto> getBookmarkLabels(BookmarkDto bookmark);
+
 	/** label the bookmark with these and only these labels */
 	void setBookmarkLabels(BookmarkDto bookmark, List<LabelDto> labels);
 }

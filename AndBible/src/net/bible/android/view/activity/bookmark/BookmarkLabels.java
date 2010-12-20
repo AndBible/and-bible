@@ -7,6 +7,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.Bookmark;
 import net.bible.android.view.activity.base.ListActivityBase;
+import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -26,6 +27,8 @@ import android.widget.ListView;
  */
 public class BookmarkLabels extends ListActivityBase {
 
+	private BookmarkDto bookmark;
+
 	private Bookmark bookmarkControl;
 
 	private static final String TAG = "BookmarkLabels";
@@ -43,6 +46,10 @@ public class BookmarkLabels extends ListActivityBase {
         setContentView(R.layout.bookmark_labels);
 
         bookmarkControl = ControlFactory.getInstance().getBookmarkControl();
+        
+        long bookmarkId = getIntent().getLongExtra(Bookmarks.BOOKMARK_EXTRA, -1);
+        bookmark = bookmarkControl.getBookmarkById(bookmarkId);
+
         initialiseView();
     }
 
@@ -54,6 +61,18 @@ public class BookmarkLabels extends ListActivityBase {
     	        labels);
     	setListAdapter(listArrayAdapter);
     	
+    	getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+    	
+    	// pre-tick any labels currently associated with the bookmark
+    	List<LabelDto> bookmarkLabels = bookmarkControl.getBookmarkLabels(bookmark);
+    	for (int i=0; i<labels.size(); i++) {
+    		Log.d(TAG, "Is label "+i+" associated with bookmark");
+    		if (bookmarkLabels.contains(labels.get(i))) {
+        		Log.d(TAG, "Yes");
+    			getListView().setItemChecked(i, true);
+    		}
+    	}
+    	
     	registerForContextMenu(getListView());
     }
 
@@ -61,16 +80,24 @@ public class BookmarkLabels extends ListActivityBase {
      *  
      * @param v
      */
+    /**
+     * @param v
+     */
     public void onOkay(View v) {
     	Log.i(TAG, "Okay clicked");
-//    	boolean bOk = ControlFactory.getInstance().getSearchControl().downloadIndex();
-//
-//    	if (bOk) {
-//        	// monitor the progress
-//        	Intent myIntent = new Intent(this, SearchIndexProgressStatus.class);
-//        	startActivity(myIntent);
-        	finish();
-//    	}
+    	// get selected labels
+    	ListView listView = getListView();
+    	List<LabelDto> selectedLabels = new ArrayList<LabelDto>();
+    	for (int i=0; i<labels.size(); i++) {
+    		if (listView.isItemChecked(i)) {
+    			LabelDto label = labels.get(i);
+    			selectedLabels.add(label);
+    			Log.d(TAG, "Selected "+label.getName());
+    		}
+    	}
+    	//associate labels with bookmark that was passed in    	
+    	bookmarkControl.setBookmarkLabels(bookmark, selectedLabels);
+       	finish();
     }
 
     /** Finished selecting labels
@@ -115,7 +142,7 @@ public class BookmarkLabels extends ListActivityBase {
     	// get long book names to show in the select list
 		// must clear rather than create because the adapter is linked to this specific list
     	labels.clear();
-		labels.addAll(bookmarkControl.getAllLabels());
+		labels.addAll(bookmarkControl.getAssignableLabels());
 		
 		if (listArrayAdapter!=null) {
 			listArrayAdapter.notifyDataSetChanged();

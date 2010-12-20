@@ -85,6 +85,20 @@ public class BookmarkControl implements Bookmark {
 		return newBookmark;
 	}
 
+	/** get all bookmarks */
+	public BookmarkDto getBookmarkById(Long id) {
+		BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		db.open();
+		BookmarkDto bookmark = null;
+		try {
+			bookmark = db.getBookmarkDto(id);
+		} finally {
+			db.close();
+		}
+
+		return bookmark;
+	}
+
 	/** delete this bookmark (and any links to labels) */
 	public boolean deleteBookmark(BookmarkDto bookmark) {
 		boolean bOk = false;
@@ -114,6 +128,21 @@ public class BookmarkControl implements Bookmark {
 
 		return bookmarkList;
 	}
+
+	/** get bookmarks associated labels */
+	public List<LabelDto> getBookmarkLabels(BookmarkDto bookmark) {
+		List<LabelDto> labels;
+		
+		BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		db.open();
+		try {
+			labels = db.getBookmarkLabels(bookmark);
+		} finally {
+			db.close();
+		}
+		return labels;
+	}
+
 
 	/** label the bookmark with these and only these labels */
 	public void setBookmarkLabels(BookmarkDto bookmark, List<LabelDto> labels) {
@@ -172,13 +201,23 @@ public class BookmarkControl implements Bookmark {
 
 	@Override
 	public List<LabelDto> getAllLabels() {
+		List<LabelDto> labelList = new ArrayList<LabelDto>();
+		
+		// add special label that ia automatically associated with all-bookmarks
+		labelList.add(LABEL_ALL);
+		
+		labelList.addAll(getAssignableLabels());
+
+		return labelList;
+	}
+
+	@Override
+	public List<LabelDto> getAssignableLabels() {
 		BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
 		db.open();
 		List<LabelDto> labelList = new ArrayList<LabelDto>();
 		try {
-			labelList.add(LABEL_ALL);
 			labelList.addAll(db.getAllLabels());
-			
 		} finally {
 			db.close();
 		}
