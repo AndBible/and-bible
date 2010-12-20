@@ -1,36 +1,18 @@
 package net.bible.android.view.activity.bookmark;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.Bookmark;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.view.activity.base.Callback;
-import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
-import net.bible.android.view.activity.download.DownloadStatus;
-import net.bible.android.view.activity.download.EnsureBibleDownloaded;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
-import net.bible.service.sword.SwordApi;
-
-import org.crosswire.common.progress.JobManager;
-import org.crosswire.common.util.Language;
-import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.book.BookFilter;
-
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -58,6 +40,8 @@ import android.widget.AdapterView.OnItemSelectedListener;
  */
 public class Bookmarks extends ListActivityBase {
 	private static final String TAG = "Bookmarks";
+
+	static final String BOOKMARK_EXTRA = "bookmark";
 
 	private Bookmark bookmarkControl;
 	
@@ -152,6 +136,7 @@ public class Bookmarks extends ListActivityBase {
 
 	private void assignLabels(BookmarkDto bookmark) {
 		Intent intent = new Intent(this, BookmarkLabels.class);
+		intent.putExtra(BOOKMARK_EXTRA, bookmark.getId());
 		startActivityForResult(intent, 1);
 	}
 
