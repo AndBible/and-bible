@@ -109,7 +109,7 @@ public class SwordApi {
 		        // the following causes Sword to initialise itself and can take quite a few seconds
 				SwordBookPath.setAugmentPath(new File[] {SharedConstants.MANUAL_INSTALL_DIR});  // add manual install dir to this list
 				
-				WebResource.setTimeout(20000);
+				WebResource.setTimeout(8000);
 				
 				// because the above line causes initialisation set the is initialised flag here
 				isSwordLoaded = true;
