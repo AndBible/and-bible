@@ -10,24 +10,22 @@ import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
-import android.R.integer;
 import android.app.Activity;
-import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemSelectedListener;
 
 /**
  * Choose Document (Book) to download
@@ -57,8 +55,6 @@ public class Bookmarks extends ListActivityBase {
 	private List<BookmarkDto> bookmarkList = new ArrayList<BookmarkDto>();
 
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
-
-	private BookmarkDto selectedBookmark;
 	
     /** Called when the activity is first created. */
     @Override

@@ -169,8 +169,6 @@ public class BookmarkLabels extends ListActivityBase {
 		loadLabelList();
 		updateCheckedLabels();
 	}
-    
-
 
 	/** load list of docs to display
 	 * 
