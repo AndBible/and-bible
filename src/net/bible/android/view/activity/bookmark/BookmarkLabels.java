@@ -13,10 +13,15 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 
 /**
  * Choose a bible or commentary to use
@@ -54,6 +59,8 @@ public class BookmarkLabels extends ListActivityBase {
     }
 
     private void initialiseView() {
+    	getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+
     	loadLabelList();
     	
     	listArrayAdapter = new ArrayAdapter<LabelDto>(this,
@@ -61,18 +68,8 @@ public class BookmarkLabels extends ListActivityBase {
     	        labels);
     	setListAdapter(listArrayAdapter);
     	
-    	getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-    	
-    	// pre-tick any labels currently associated with the bookmark
-    	List<LabelDto> bookmarkLabels = bookmarkControl.getBookmarkLabels(bookmark);
-    	for (int i=0; i<labels.size(); i++) {
-    		Log.d(TAG, "Is label "+i+" associated with bookmark");
-    		if (bookmarkLabels.contains(labels.get(i))) {
-        		Log.d(TAG, "Yes");
-    			getListView().setItemChecked(i, true);
-    		}
-    	}
-    	
+		updateCheckedLabels();
+
     	registerForContextMenu(getListView());
     }
 
@@ -134,6 +131,36 @@ public class BookmarkLabels extends ListActivityBase {
     	alert.show();    
     }
     
+    @Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.bookmark_labels_context_menu, menu);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		super.onContextItemSelected(item);
+        AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
+		LabelDto label = labels.get(menuInfo.position);
+		if (bookmark!=null) {
+			switch (item.getItemId()) {
+			case (R.id.delete):
+				delete(label);
+				return true;
+			}
+		}
+		return false; 
+	}
+	
+	private void delete(LabelDto label) {
+		bookmarkControl.deleteLabel(label);
+		loadLabelList();
+		updateCheckedLabels();
+	}
+    
+
+
 	/** load list of docs to display
 	 * 
 	 */
@@ -143,14 +170,35 @@ public class BookmarkLabels extends ListActivityBase {
 		// must clear rather than create because the adapter is linked to this specific list
     	labels.clear();
 		labels.addAll(bookmarkControl.getAssignableLabels());
-		
-		if (listArrayAdapter!=null) {
+
+    	// ensure ui is updated
+    	if (listArrayAdapter!=null) {
 			listArrayAdapter.notifyDataSetChanged();
 		}
-		
 	}
 
-    @Override
+	/** load list of docs to display
+	 * 
+	 */
+	private void updateCheckedLabels() {
+    	
+    	// pre-tick any labels currently associated with the bookmark
+    	List<LabelDto> bookmarkLabels = bookmarkControl.getBookmarkLabels(bookmark);
+    	for (int i=0; i<labels.size(); i++) {
+    		Log.d(TAG, "Is label "+i+" associated with bookmark");
+    		if (bookmarkLabels.contains(labels.get(i))) {
+        		Log.d(TAG, "Yes");
+    			getListView().setItemChecked(i, true);
+    		}
+    	}
+
+    	// ensure ui is updated
+    	if (listArrayAdapter!=null) {
+			listArrayAdapter.notifyDataSetChanged();
+		}
+	}
+
+	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
     	labelSelected(labels.get(position));
     }
