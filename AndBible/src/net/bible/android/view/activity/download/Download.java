@@ -140,7 +140,7 @@ public class Download extends ListActivityBase {
     @Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
     	try {
-    		if (position>0 && position<displayedDocuments.size()) {
+    		if (position>=0 && position<displayedDocuments.size()) {
         		Book selectedBook = displayedDocuments.get(position);
         		if (selectedBook!=null) {
         			documentSelected(selectedBook);
