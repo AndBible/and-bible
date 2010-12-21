@@ -10,6 +10,7 @@ import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
+import android.R.integer;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Intent;
@@ -134,7 +135,26 @@ public class Bookmarks extends ListActivityBase {
 		return false; 
 	}
 
-	private void assignLabels(BookmarkDto bookmark) {
+    @Override 
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	// the bookmarkLabels activity may have added/deleted labels or changed the bookmarks with the current label
+    	LabelDto prevLabel = labelList.get(selectedLabelNo);
+    	
+    	// reload labels
+    	loadLabelList();
+    	
+    	int prevLabelPos = labelList.indexOf(prevLabel);
+    	if (prevLabelPos>=0) {
+    		selectedLabelNo = prevLabelPos;
+    	} else {
+    		// this should be 'All'
+    		selectedLabelNo = 0;
+    	}
+    	
+    	loadBookmarkList();
+    }
+
+    private void assignLabels(BookmarkDto bookmark) {
 		Intent intent = new Intent(this, BookmarkLabels.class);
 		intent.putExtra(BOOKMARK_EXTRA, bookmark.getId());
 		startActivityForResult(intent, 1);
@@ -149,7 +169,8 @@ public class Bookmarks extends ListActivityBase {
     	labelList.clear();
     	labelList.addAll(bookmarkControl.getAllLabels());
 	}
-    /** a spinner has changed so refilter the doc list
+
+	/** a spinner has changed so refilter the doc list
      */
     private void loadBookmarkList() {
     	try {
@@ -192,48 +213,4 @@ public class Bookmarks extends ListActivityBase {
     	setResult(Activity.RESULT_OK, resultIntent);
     	finish();    
     }
-
-	@Override
-    protected Dialog onCreateDialog(int id) {
-//    	Dialog superDlg = super.onCreateDialog(id);
-//    	if (superDlg!=null) {
-//    		return superDlg;
-//    	}
-//    	
-//        switch (id) {
-//        case DOWNLOAD_CONFIRMATION_DIALOG:
-//            	return new AlertDialog.Builder(this)
-//            		   .setMessage(getText(R.string.download_document_confirm_prefix)+selectedDocument.getName())
-//            	       .setCancelable(false)
-//            	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-//            	           public void onClick(DialogInterface dialog, int id) {
-//            	        	   doDownload(selectedDocument);
-//            	           }
-//            	       })
-//            	       .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-//            	           public void onClick(DialogInterface dialog, int id) {
-//            	           }
-//            	       }).create();
-//        }
-        return null;
-    }
-
-    @Override
-	protected void onPrepareDialog(int id, Dialog dialog) {
-//		super.onPrepareDialog(id, dialog);
-//        switch (id) {
-//        case DOWNLOAD_CONFIRMATION_DIALOG:
-//        	AlertDialog alertDialog = (AlertDialog)dialog;
-//        	alertDialog.setMessage(getText(R.string.download_document_confirm_prefix)+selectedDocument.getName());
-//        };
-	}
-
-    
-    @Override 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//    	if (resultCode==DOWNLOAD_FINISH) {
-//    		returnToPreviousScreen();
-//    	}
-    }
-
 }

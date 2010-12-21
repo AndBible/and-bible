@@ -77,30 +77,6 @@ public class BookmarkLabels extends ListActivityBase {
      *  
      * @param v
      */
-    /**
-     * @param v
-     */
-    public void onOkay(View v) {
-    	Log.i(TAG, "Okay clicked");
-    	// get selected labels
-    	ListView listView = getListView();
-    	List<LabelDto> selectedLabels = new ArrayList<LabelDto>();
-    	for (int i=0; i<labels.size(); i++) {
-    		if (listView.isItemChecked(i)) {
-    			LabelDto label = labels.get(i);
-    			selectedLabels.add(label);
-    			Log.d(TAG, "Selected "+label.getName());
-    		}
-    	}
-    	//associate labels with bookmark that was passed in    	
-    	bookmarkControl.setBookmarkLabels(bookmark, selectedLabels);
-       	finish();
-    }
-
-    /** Finished selecting labels
-     *  
-     * @param v
-     */
     public void onNewLabel(View v) {
     	Log.i(TAG, "New label clicked");
 
@@ -118,7 +94,14 @@ public class BookmarkLabels extends ListActivityBase {
 					LabelDto label = new LabelDto();
 					label.setName(name);
 					bookmarkControl.addLabel(label);
+					
+					List<LabelDto> selectedLabels = getCheckedLabels();
+					Log.d(TAG, "Num labels checked pre reload:"+selectedLabels.size());
+					
 					loadLabelList();
+					
+					setCheckedLabels(selectedLabels);
+					Log.d(TAG, "Num labels checked finally:"+selectedLabels.size());
 				}  
 	    	});  
     	  
@@ -153,6 +136,34 @@ public class BookmarkLabels extends ListActivityBase {
 		return false; 
 	}
 	
+    /** Finished selecting labels
+     *  
+     * @param v
+     */
+    public void onOkay(View v) {
+    	Log.i(TAG, "Okay clicked");
+    	// get the labels that are currently checked
+    	List<LabelDto> selectedLabels = getCheckedLabels();
+    	
+    	//associate labels with bookmark that was passed in    	
+    	bookmarkControl.setBookmarkLabels(bookmark, selectedLabels);
+       	finish();
+    }
+
+	private List<LabelDto> getCheckedLabels() {
+		// get selected labels
+    	ListView listView = getListView();
+    	List<LabelDto> checkedLabels = new ArrayList<LabelDto>();
+    	for (int i=0; i<labels.size(); i++) {
+    		if (listView.isItemChecked(i)) {
+    			LabelDto label = labels.get(i);
+    			checkedLabels.add(label);
+    			Log.d(TAG, "Selected "+label.getName());
+    		}
+    	}
+		return checkedLabels;
+	}
+
 	private void delete(LabelDto label) {
 		bookmarkControl.deleteLabel(label);
 		loadLabelList();
@@ -177,18 +188,28 @@ public class BookmarkLabels extends ListActivityBase {
 		}
 	}
 
-	/** load list of docs to display
-	 * 
+	/** check labels associated with the bookmark
 	 */
 	private void updateCheckedLabels() {
     	
     	// pre-tick any labels currently associated with the bookmark
     	List<LabelDto> bookmarkLabels = bookmarkControl.getBookmarkLabels(bookmark);
-    	for (int i=0; i<labels.size(); i++) {
+    	setCheckedLabels(bookmarkLabels);
+	}
+
+	/** set checked status of all labels
+	 * 
+	 * @param labelsToCheck
+	 */
+	private void setCheckedLabels(List<LabelDto> labelsToCheck) {
+		for (int i=0; i<labels.size(); i++) {
     		Log.d(TAG, "Is label "+i+" associated with bookmark");
-    		if (bookmarkLabels.contains(labels.get(i))) {
+    		if (labelsToCheck.contains(labels.get(i))) {
         		Log.d(TAG, "Yes");
     			getListView().setItemChecked(i, true);
+    		} else {
+        		Log.d(TAG, "No");
+    			getListView().setItemChecked(i, false);
     		}
     	}
 
@@ -197,93 +218,4 @@ public class BookmarkLabels extends ListActivityBase {
 			listArrayAdapter.notifyDataSetChanged();
 		}
 	}
-
-	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-    	labelSelected(labels.get(position));
-    }
-
-//    @Override
-//	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-//		super.onCreateContextMenu(menu, v, menuInfo);
-//		MenuInflater inflater = getMenuInflater();
-//		inflater.inflate(R.menu.document_context_menu, menu);
-//		
-//		Book document = documents.get( ((AdapterContextMenuInfo)menuInfo).position);
-//		MenuItem deleteItem = menu.findItem(R.id.delete);
-//		
-//		boolean canDelete = ControlFactory.getInstance().getDocumentControl().canDelete(document);
-//		deleteItem.setEnabled(canDelete);
-//	}
-//
-//	@Override
-//	public boolean onContextItemSelected(MenuItem item) {
-//		super.onContextItemSelected(item);
-//        AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
-//		Book document = documents.get(menuInfo.position);
-//		if (document!=null) {
-//			switch (item.getItemId()) {
-//			case (R.id.about):
-//				showAbout(document);
-//				return true;
-//			case (R.id.delete):
-//				delete(document);
-//				return true;
-//			}
-//		}
-//		return false; 
-//	}
-
-	private void labelSelected(LabelDto selectedLabel) {
-//    	Log.d(TAG, "Book selected:"+selectedBook.getInitials());
-//    	try {
-//    		CurrentPage newPage = CurrentPageManager.getInstance().setCurrentDocument( selectedBook );
-//    		
-//    		// page will change due to above
-//    		// if there is a valid key then show the page straight away
-//    		if (newPage.getKey()==null) {
-//    			// no key set for this doc type so show a key chooser
-//    			//TODO this code is generic and needs to be performed whenever a doc changes so think where to put it
-//    	    	Intent intent = new Intent(this, newPage.getKeyChooserActivity());
-//    	    	startActivity(intent);
-//    	    	finish();    
-//    		} else {
-//    			// if key is valid then the new doc will have been shown already
-//    			returnToMainBibleView();
-//    		}
-//    	} catch (Exception e) {
-//    		Log.e(TAG, "error on select of bible book", e);
-//    	}
-    }
-
-
-//	private void delete(final Book document) {
-//			CharSequence msg = getString(R.string.delete_doc, document.getName());
-//			new AlertDialog.Builder(this)
-//				.setMessage(msg).setCancelable(true)
-//				.setPositiveButton(R.string.okay,
-//					new DialogInterface.OnClickListener() {
-//						public void onClick(DialogInterface dialog,	int buttonId) {
-//							try {
-//								SwordApi.getInstance().deleteDocument(document);
-//
-//								// the doc list should now change
-//								loadDocumentList();
-//								((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
-//							} catch (Exception e) {
-//								showErrorMsg(R.string.error_occurred);
-//							}
-//						}
-//					}
-//				)
-//				.create()
-//				.show();
-//	}
-
-//	private void returnToMainBibleView() {
-//    	Log.i(TAG, "returning to main bible view");
-//    	Intent resultIntent = new Intent();
-//    	setResult(Activity.RESULT_OK, resultIntent);
-//    	finish();    
-//    }
 }
