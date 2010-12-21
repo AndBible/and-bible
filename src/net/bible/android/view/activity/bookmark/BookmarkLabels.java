@@ -85,7 +85,7 @@ public class BookmarkLabels extends ListActivityBase {
 
     	AlertDialog.Builder alert = new AlertDialog.Builder(this)
 										.setTitle(R.string.new_label)
-										.setMessage("Message")
+										.setMessage(R.string.new_label_prompt)
 										.setView(labelInput);
     	
     	alert.setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {  

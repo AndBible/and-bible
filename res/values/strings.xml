@@ -106,6 +106,7 @@
     <string name="bookmark_labels">Bookmark Labels</string>
     <string name="assign_labels">Assign labels</string>
     <string name="new_label">New Label</string>
+    <string name="new_label_prompt">Name</string>
 	
 	<!-- Dictionary -->
     <string name="dictionary">Dictionary</string>

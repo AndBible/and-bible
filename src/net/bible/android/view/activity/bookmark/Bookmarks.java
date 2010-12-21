@@ -72,6 +72,7 @@ public class Bookmarks extends ListActivityBase {
     	//prepare the Label spinner
     	loadLabelList();
     	labelArrayAdapter = new ArrayAdapter<LabelDto>(this, android.R.layout.simple_spinner_item, labelList);
+    	labelArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     	labelSpinner = (Spinner)findViewById(R.id.labelSpinner);
     	labelSpinner.setAdapter(labelArrayAdapter);
     	labelSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
