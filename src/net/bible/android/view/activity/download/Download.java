@@ -89,8 +89,6 @@ public class Download extends ListActivityBase {
 
        	initialiseView();
        	
-       	setDefaultLanguage();
-       	
        	Toast.makeText(this, R.string.download_source_message, Toast.LENGTH_LONG).show();
     }
 
@@ -99,8 +97,6 @@ public class Download extends ListActivityBase {
     	displayedDocuments = new ArrayList<Book>();
     	displayedDocumentDescriptions = new ArrayList<String>();
     	
-    	// prepare the document list view
-    	populateMasterDocumentList();
     	listArrayAdapter = new ArrayAdapter<String>(this,
     	        LIST_ITEM_TYPE,
     	        displayedDocumentDescriptions);
@@ -141,9 +137,10 @@ public class Download extends ListActivityBase {
 	    	langArrayAdapter = new ArrayAdapter<Language>(this, android.R.layout.simple_spinner_item, languageList);
 	    	langArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	    	langSpinner.setAdapter(langArrayAdapter);
-	    	
-	    	setDefaultLanguage();
     	}
+
+    	// prepare the document list view - done in another thread
+    	populateMasterDocumentList();
     }
     
     private void setDefaultLanguage() {
@@ -174,8 +171,6 @@ public class Download extends ListActivityBase {
 
     	selectedLanguageNo = languageList.indexOf(localLanguage);
 		langSpinner.setSelection(selectedLanguageNo);
-
-		
     }
     
     @Override
@@ -230,6 +225,9 @@ public class Download extends ListActivityBase {
 				protected void onPostExecute(Void result) {
     	        	try {
     	        		populateLanguageList();
+    	        		
+    	        		// default language depends on doc availability so must do in onPostExecute
+    	    	    	setDefaultLanguage();
     	        		filterDocuments();
     	        	} finally {
     	        		//todo implement this: http://stackoverflow.com/questions/891451/android-dismissdialog-does-not-dismiss-the-dialog
