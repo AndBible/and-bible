@@ -150,16 +150,18 @@ public class CurrentPageManager {
 	 * @param outState
 	 */
 	public void saveState(SharedPreferences outState) {
-		//xxtodo save & restore other module types
 		currentBiblePage.saveState(outState);
+		currentCommentaryPage.saveState(outState);
+		currentDictionaryPage.saveState(outState);
 	}
 	/** called during app start-up to restore previous state
 	 * 
 	 * @param inState
 	 */
 	public void restoreState(SharedPreferences inState) {
-		//xxtodo save & restore other module types
 		currentBiblePage.restoreState(inState);
+		currentCommentaryPage.restoreState(inState);
+		currentDictionaryPage.restoreState(inState);
 	}
 	
 	public boolean isCommentaryShown() {
