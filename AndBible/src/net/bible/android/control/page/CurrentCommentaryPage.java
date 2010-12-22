@@ -22,7 +22,7 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 	
 	private CurrentBibleVerse currentBibleVerse;
 
-	private static final String TAG = "CurrentBiblePage";
+	private static final String TAG = "CurrentCommentaryPage";
 	
 	
 	/* default */ CurrentCommentaryPage(CurrentBibleVerse currentVerse) {
@@ -112,24 +112,6 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 		pageDetailChange();
 	}
 	
-	/** called during app close down to save state
-	 * 
-	 * @param outState
-	 */
-	@Override
-	public void saveState(SharedPreferences outState) {
-		//TODO save this too
-		
-	}
-	/** called during app start-up to restore previous state
-	 * 
-	 * @param inState
-	 */
-	@Override
-	public void restoreState(SharedPreferences inState) {
-		//TODO restore this too
-	}
-
 	/** can we enable the main menu search button 
 	 */
 	@Override

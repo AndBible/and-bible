@@ -7,8 +7,10 @@ import net.bible.android.activity.R;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.service.sword.SwordApi;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.Verse;
 
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -154,13 +156,31 @@ abstract class CurrentPageBase implements CurrentPage {
 
 	@Override
 	public void restoreState(SharedPreferences inState) {
-		// TODO Auto-generated method stub
-
+		if (inState!=null) {
+			Log.d(TAG, "State not null");
+			String document = inState.getString(getBookCategory().getName()+"_document", null);
+			if (StringUtils.isNotEmpty(document)) {
+				Log.d(TAG, "State document:"+document);
+				Book book = SwordApi.getInstance().getDocumentByInitials(document);
+				if (book!=null) {
+					Log.d(TAG, "Document:"+book.getName());
+					// bypass setter to avoid automatic notifications
+					localSetCurrentDocument(book);
+				}
+			}
+		}
 	}
 
+	/** called during app close down to save state
+	 * 
+	 * @param outState
+	 */
 	@Override
 	public void saveState(SharedPreferences outState) {
-		// TODO Auto-generated method stub
-
+		if (currentDocument!=null) {
+			SharedPreferences.Editor editor = outState.edit();
+			editor.putString(getBookCategory().getName()+"_document", getCurrentDocument().getInitials());
+			editor.commit();
+		}
 	}
 }
