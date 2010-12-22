@@ -2,10 +2,11 @@ package net.bible.android.view.activity.download;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
+import java.util.Set;
 
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.Callback;
@@ -13,11 +14,15 @@ import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.sword.SwordApi;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.util.Language;
+import org.crosswire.common.util.Languages;
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
+import org.crosswire.jsword.book.Defaults;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -28,11 +33,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemSelectedListener;
 
 /**
  * Choose Document (Book) to download
@@ -53,9 +58,9 @@ public class Download extends ListActivityBase {
 
 	// language spinner
 	private Spinner langSpinner;
-	private List<String> languageList;
+	private List<Language> languageList;
 	private int selectedLanguageNo = 0;
-	private ArrayAdapter<String> langArrayAdapter; 
+	private ArrayAdapter<Language> langArrayAdapter; 
 	
 	// the document list
 	private ArrayAdapter<String> listArrayAdapter;
@@ -84,11 +89,13 @@ public class Download extends ListActivityBase {
 
        	initialiseView();
        	
+       	setDefaultLanguage();
+       	
        	Toast.makeText(this, R.string.download_source_message, Toast.LENGTH_LONG).show();
     }
 
     private void initialiseView() {
-    	languageList = new ArrayList<String>();
+    	languageList = new ArrayList<Language>();
     	displayedDocuments = new ArrayList<Book>();
     	displayedDocumentDescriptions = new ArrayList<String>();
     	
@@ -131,10 +138,44 @@ public class Download extends ListActivityBase {
 				public void onNothingSelected(AdapterView<?> arg0) {
 				}
 			});
-	    	langArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, languageList);
+	    	langArrayAdapter = new ArrayAdapter<Language>(this, android.R.layout.simple_spinner_item, languageList);
 	    	langArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	    	langSpinner.setAdapter(langArrayAdapter);
+	    	
+	    	setDefaultLanguage();
     	}
+    }
+    
+    private void setDefaultLanguage() {
+    	// get the current language code
+    	String langCode = Locale.getDefault().getLanguage();
+    	if (!Languages.isValidLanguage(langCode)) {
+    		langCode = Locale.ENGLISH.getLanguage();
+    	}
+
+    	// create the JSword Language for current lang
+    	Language localLanguage = new Language(langCode); 
+    	Log.d(TAG, "Local language is:"+localLanguage);
+
+    	// check a bible exists in current lang otherwise use english
+    	boolean foundBibleInLocalLanguage = false;
+    	for (Book book : allDocuments) {
+    		if (book.getBookCategory().equals(BookCategory.BIBLE) && localLanguage.equals(book.getLanguage())) {
+    			foundBibleInLocalLanguage = true;
+    			break;
+    		}
+    	}
+    	
+    	// if no bibles exist in current lang then fall back to default language (English) so the user will not see an initially empty list
+    	if (!foundBibleInLocalLanguage) {
+        	Log.d(TAG, "No bibles found in local language so falling back to default lang");
+    		localLanguage = new Language(Languages.DEFAULT_LANG_CODE);
+    	}
+
+    	selectedLanguageNo = languageList.indexOf(localLanguage);
+		langSpinner.setSelection(selectedLanguageNo);
+
+		
     }
     
     @Override
@@ -208,10 +249,10 @@ public class Download extends ListActivityBase {
    	        	Log.i(TAG, "filtering documents");
 	        	displayedDocuments.clear();
 	        	displayedDocumentDescriptions.clear();
-	        	String lang = languageList.get(selectedLanguageNo);
+	        	Language lang = languageList.get(selectedLanguageNo);
 	        	for (Book doc : allDocuments) {
 	        		BookFilter filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo];
-	        		if (filter.test(doc) && doc.getLanguage().getName().equals(lang)) {
+	        		if (filter.test(doc) && doc.getLanguage().equals(lang)) {
 		        		displayedDocuments.add(doc);
 		        		displayedDocumentDescriptions.add(doc.getName());
 	        		}
@@ -230,32 +271,21 @@ public class Download extends ListActivityBase {
      */
     private void populateLanguageList() {
     	try {
-    		// temporary map to help us see if lang is already added
-    		Map<String, String> langMap = new HashMap<String,String>();
-    		
+    		// temporary Set to remove duplicate Languages
+    		Set<Language> langSet = new HashSet<Language>();
+
     		if (allDocuments!=null && allDocuments.size()>0) {
    	        	Log.i(TAG, "initialising language list");
-	        	languageList.clear();
 	        	for (Book doc : allDocuments) {
-	        		Language lang = doc.getLanguage();
-	        		if (lang!=null) {
-		        		String docLangName = lang.getName();
-		        		if (!langMap.containsKey(docLangName)) {
-			        		languageList.add(docLangName);
-			        		langMap.put(docLangName, null);
-		        		}
-	        		}
+	        		langSet.add(doc.getLanguage());
 	        	}
-	        	/// sort languages alphabetically
+	        	
+	        	languageList.clear();
+	        	languageList.addAll(langSet);
+
+	        	// sort languages alphabetically
 	        	Collections.sort(languageList);
-	        	//todo select language native to mobile
-	        	for (int i=0; i<languageList.size(); i++) {
-	        		if (languageList.get(i).equalsIgnoreCase("English")) {
-	        			Log.d(TAG, "Found english at "+i);
-	        			selectedLanguageNo = i;
-	        			langSpinner.setSelection(i);
-	        		}
-	        	}
+
 	        	langArrayAdapter.notifyDataSetChanged();
     		}
     	} catch (Exception e) {
