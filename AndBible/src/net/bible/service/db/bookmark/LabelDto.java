@@ -1,7 +1,7 @@
 package net.bible.service.db.bookmark;
 
 
-public class LabelDto {
+public class LabelDto implements Comparable<LabelDto> {
 	private Long id;
 	private String name;
 
@@ -58,5 +58,11 @@ public class LabelDto {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	@Override
+	public int compareTo(LabelDto another) {
+		assert another!=null;
+		return name.compareToIgnoreCase(another.name);
 	}
 }

@@ -1,9 +1,8 @@
 package net.bible.service.db.bookmark;
 
-import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
-public class BookmarkDto {
+public class BookmarkDto implements Comparable<BookmarkDto> {
 	private Long id;
 	private Key key;
 
@@ -53,5 +52,11 @@ public class BookmarkDto {
 		} else if (!key.equals(other.key))
 			return false;
 		return true;
+	}
+	
+	@Override
+	public int compareTo(BookmarkDto another) {
+		assert another!=null;
+		return key.compareTo(another.key);
 	}
 }
