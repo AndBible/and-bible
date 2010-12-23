@@ -14,6 +14,7 @@ import org.crosswire.jsword.passage.Verse;
 
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 
 abstract class CurrentPageBase implements CurrentPage {
@@ -140,7 +141,11 @@ abstract class CurrentPageBase implements CurrentPage {
 	@Override
 	public void updateContextMenu(Menu menu) {
 		// by default disable notes but bible will enable
-		menu.findItem(R.id.notes).setVisible(false);		
+		menu.findItem(R.id.notes).setVisible(false);	
+		
+		//set title - can only be set when cast to a ContextMenu
+		ContextMenu contextMenu = (ContextMenu)menu;
+		contextMenu.setHeaderTitle(getSingleKey().getName());
 	}
 	
 	@Override

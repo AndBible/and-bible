@@ -147,6 +147,7 @@ public class Bookmarks extends ListActivityBase {
     		// this should be 'All'
     		selectedLabelNo = 0;
     	}
+    	labelSpinner.setSelection(selectedLabelNo);
     	
     	loadBookmarkList();
     }

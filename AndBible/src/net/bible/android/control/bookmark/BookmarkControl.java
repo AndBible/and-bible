@@ -8,6 +8,7 @@ import java.util.Set;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.db.bookmark.BookmarkDBAdapter;
 import net.bible.service.db.bookmark.BookmarkDto;
@@ -32,16 +33,29 @@ public class BookmarkControl implements Bookmark {
 	
 	@Override
 	public boolean bookmarkCurrentVerse() {
+		boolean bOk = false;
 		if (CurrentPageManager.getInstance().isBibleShown()) {
 			Key currentVerse = CurrentPageManager.getInstance().getCurrentBible().getSingleKey();
-			BookmarkDto bookmarkDto = new BookmarkDto();
-			bookmarkDto.setKey(currentVerse);
 			
-			Toast.makeText(BibleApplication.getApplication().getApplicationContext(), R.string.bookmark_added, Toast.LENGTH_SHORT).show();
-			
-			return addBookmark(bookmarkDto)!=null;
+			if (getBookmarkByKey(currentVerse)!=null) {
+				// bookmark for this verse already exists
+				Toast.makeText(BibleApplication.getApplication().getApplicationContext(), R.string.bookmark_exists, Toast.LENGTH_SHORT).show();
+			} else {
+				// prepare new bookmark and add to db
+				BookmarkDto bookmarkDto = new BookmarkDto();
+				bookmarkDto.setKey(currentVerse);
+				BookmarkDto newBookmark = addBookmark(bookmarkDto);
+				
+				if (newBookmark!=null) {
+					// success
+					Toast.makeText(BibleApplication.getApplication().getApplicationContext(), R.string.bookmark_added, Toast.LENGTH_SHORT).show();
+					bOk = true;
+				} else {
+					Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+				}
+			}
 		}
-		return false;
+		return bOk;
 	}
 
 	@Override
@@ -92,6 +106,20 @@ public class BookmarkControl implements Bookmark {
 		BookmarkDto bookmark = null;
 		try {
 			bookmark = db.getBookmarkDto(id);
+		} finally {
+			db.close();
+		}
+
+		return bookmark;
+	}
+
+	/** get bookmark with this key if it exists or return null */
+	public BookmarkDto getBookmarkByKey(Key key) {
+		BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		db.open();
+		BookmarkDto bookmark = null;
+		try {
+			bookmark = db.getBookmarkByKey(key.getOsisID());
 		} finally {
 			db.close();
 		}
@@ -158,7 +186,6 @@ public class BookmarkControl implements Bookmark {
 			Set<LabelDto> deleted = new HashSet<LabelDto>(prevLabels);
 			deleted.removeAll(labels);
 			for (LabelDto label : deleted) {
-				Log.d(TAG, "*** removing deleted bookmark label "+label.getName());
 				db.removeBookmarkLabelJoin(bookmark, label);
 			}
 			
@@ -166,7 +193,6 @@ public class BookmarkControl implements Bookmark {
 			Set<LabelDto> added = new HashSet<LabelDto>(labels);
 			added.removeAll(prevLabels);
 			for (LabelDto label : added) {
-				Log.d(TAG, "*** adding bookmark label "+label.getName());
 				db.insertBookmarkLabelJoin(bookmark, label);
 			}
 
