@@ -16,6 +16,7 @@
 		android:layout_height="fill_parent"
 		android:choiceMode="singleChoice"
 		android:visibility="visible"
+		android:layout_above="@+id/button_panel"
 		/>
 	<!-- Button bar with OK button -->
 	<LinearLayout android:id="@+id/button_panel"

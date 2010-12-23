@@ -1,6 +1,7 @@
 package net.bible.android.control.bookmark;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -79,6 +80,7 @@ public class BookmarkControl implements Bookmark {
 		List<BookmarkDto> bookmarkList = null;
 		try {
 			bookmarkList = db.getAllBookmarks();
+			Collections.sort(bookmarkList);
 		} finally {
 			db.close();
 		}
@@ -150,6 +152,9 @@ public class BookmarkControl implements Bookmark {
 			} else {
 				bookmarkList = db.getBookmarksWithLabel(label);
 			}
+			assert bookmarkList!=null;
+			Collections.sort(bookmarkList);
+
 		} finally {
 			db.close();
 		}
@@ -228,11 +233,12 @@ public class BookmarkControl implements Bookmark {
 	@Override
 	public List<LabelDto> getAllLabels() {
 		List<LabelDto> labelList = new ArrayList<LabelDto>();
+
+		labelList = getAssignableLabels();
+		Collections.sort(labelList);
 		
-		// add special label that ia automatically associated with all-bookmarks
-		labelList.add(LABEL_ALL);
-		
-		labelList.addAll(getAssignableLabels());
+		// add special label that is automatically associated with all-bookmarks
+		labelList.add(0, LABEL_ALL);
 
 		return labelList;
 	}
