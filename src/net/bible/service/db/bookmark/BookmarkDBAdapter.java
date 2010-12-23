@@ -51,7 +51,7 @@ public class BookmarkDBAdapter {
 	public BookmarkDto insertBookmark(BookmarkDto bookmark) {
 		// Create a new row of values to insert.
 		ContentValues newValues = new ContentValues();
-		newValues.put(BookmarkColumn.KEY, bookmark.getKey().getName());
+		newValues.put(BookmarkColumn.KEY, bookmark.getKey().getOsisID());
 
 		long newId = db.insert(Table.BOOKMARK, null, newValues);
 		BookmarkDto newBookmark = getBookmarkDto(newId);
@@ -175,7 +175,6 @@ public class BookmarkDBAdapter {
 		newValues.put(BookmarkLabelColumn.LABEL_ID, label.getId());
 
 		long newId = db.insert(Table.BOOKMARK_LABEL, null, newValues);
-		Log.d(TAG, "*** inserted new label with id "+newId);
 	}
 
 	public BookmarkDto getBookmarkDto(long id) {
@@ -193,6 +192,21 @@ public class BookmarkDBAdapter {
 		return bookmark;
 	}
 
+	public BookmarkDto getBookmarkByKey(String key) {
+		BookmarkDto bookmark = null;
+		
+		Cursor c = db.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn.KEY+"=?", new String[] {key}, null, null, null);
+		try {
+			if (c.moveToFirst()) {
+				bookmark = getBookmarkDto(c);
+			}
+		} finally {
+			c.close();
+		}
+		
+		return bookmark;
+	}
+	
 	/** return Dto from current cursor position or null
 	 * @param c
 	 * @return
@@ -201,10 +215,6 @@ public class BookmarkDBAdapter {
 	private BookmarkDto getBookmarkDto(Cursor c) {
 		BookmarkDto dto = new BookmarkDto();
 		try {
-			System.out.println("Num cols in cursor ="+c.getColumnCount());
-			for (int i=0; i<c.getColumnCount(); i++) {
-				System.out.println(i+" "+c.getColumnName(i));
-			}
 			Long id = c.getLong(BookmarkQuery.ID);
 			dto.setId(id);
 			
@@ -242,10 +252,6 @@ public class BookmarkDBAdapter {
 	private LabelDto getLabelDto(Cursor c) {
 		LabelDto dto = new LabelDto();
 
-		System.out.println("Num cols in label cursor ="+c.getColumnCount());
-		for (int i=0; i<c.getColumnCount(); i++) {
-			System.out.println("label col: "+i+" "+c.getColumnName(i));
-		}
 		Long id = c.getLong(LabelQuery.ID);
 		dto.setId(id);
 		

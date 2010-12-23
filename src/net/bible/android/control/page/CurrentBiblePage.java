@@ -17,6 +17,7 @@ import org.crosswire.jsword.versification.BibleInfo;
 
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.Menu;
 
 /** Reference to current passage shown by viewer
@@ -233,8 +234,9 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 
 	@Override
 	public void updateContextMenu(Menu menu) {
+		super.updateContextMenu(menu);
 		// by default disable notes but bible will enable
-		menu.findItem(R.id.notes).setVisible(true);		
+		menu.findItem(R.id.notes).setVisible(true);
 	}
 
 }

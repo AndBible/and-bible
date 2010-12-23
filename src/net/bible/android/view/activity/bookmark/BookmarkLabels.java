@@ -150,24 +150,19 @@ public class BookmarkLabels extends ListActivityBase {
        	finish();
     }
 
-	private List<LabelDto> getCheckedLabels() {
-		// get selected labels
-    	ListView listView = getListView();
-    	List<LabelDto> checkedLabels = new ArrayList<LabelDto>();
-    	for (int i=0; i<labels.size(); i++) {
-    		if (listView.isItemChecked(i)) {
-    			LabelDto label = labels.get(i);
-    			checkedLabels.add(label);
-    			Log.d(TAG, "Selected "+label.getName());
-    		}
-    	}
-		return checkedLabels;
-	}
-
 	private void delete(LabelDto label) {
+		// remember which labels were checked
+		List<LabelDto> checkedLabels = getCheckedLabels();
+		checkedLabels.remove(label);
+		
+		// delete label from db
 		bookmarkControl.deleteLabel(label);
+		
+		// now refetch the list of labels
 		loadLabelList();
-		updateCheckedLabels();
+		
+		// restore check status of remaining labels
+		setCheckedLabels(checkedLabels);
 	}
 
 	/** load list of docs to display
@@ -193,6 +188,24 @@ public class BookmarkLabels extends ListActivityBase {
     	// pre-tick any labels currently associated with the bookmark
     	List<LabelDto> bookmarkLabels = bookmarkControl.getBookmarkLabels(bookmark);
     	setCheckedLabels(bookmarkLabels);
+	}
+
+	/** get checked status of all labels
+	 * 
+	 * @param labelsToCheck
+	 */
+	private List<LabelDto> getCheckedLabels() {
+		// get selected labels
+    	ListView listView = getListView();
+    	List<LabelDto> checkedLabels = new ArrayList<LabelDto>();
+    	for (int i=0; i<labels.size(); i++) {
+    		if (listView.isItemChecked(i)) {
+    			LabelDto label = labels.get(i);
+    			checkedLabels.add(label);
+    			Log.d(TAG, "Selected "+label.getName());
+    		}
+    	}
+		return checkedLabels;
 	}
 
 	/** set checked status of all labels

@@ -10,7 +10,12 @@
 
     <string name="splash_top_text">\n\"And God said, \'Let there be light,\' and there was light.\"\nGenesis 1:3</string>
     <string name="help_text">Press the MENU key for actions\n\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger\n\nPress Speak to read out the current chapter</string>
-    <string name="help_text_long">Navigation\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger\n\nPress the MENU key for actions\n\nSpeech\nPress Speak to read out the current chapter\nPress Speak again to stop reading\n\nLong press on the bible view to copy the current text to the Clipboard\nLong press on a document in the document selector to delete it or view information.</string>
+    <string name="help_text_long">Navigation\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger/
+    \n\nPress the MENU key for actions/
+    \n\nSpeech\nPress Speak to read out the current chapter\nPress Speak again to stop reading/
+    \n\nLong press on the bible view to open the context menu for actions affecting the current verse./
+    \nLong press on a document in the document selector to delete it or view information.
+    \n\nBookmarks\nBookmarks can be added via the verse context menu.  The Bookmark Manager is accessed via the main menu.  The Bookmark Manager context menu allows bookmarks to be grouped using labels.</string>
     <string name="version_text">Version %s</string>
     <string name="no_sdcard_error">Please insert an SD card and start And Bible again.</string>
     <!-- main menu -->
@@ -95,7 +100,7 @@
     <string name="about">About</string>
     
 	<!-- Verse context menu -->
-    <string name="notes">Footnotes and cross-references</string>
+    <string name="notes">Footnotes and references</string>
     <string name="copy">Copy current verse</string>
     <string name="send_sms">Send verse via SMS</string>
 
@@ -103,6 +108,7 @@
     <string name="bookmarks">Bookmarks</string>
     <string name="add_bookmark">Add bookmark</string>
     <string name="bookmark_added">Bookmark added</string>
+    <string name="bookmark_exists">Bookmark already exists</string>
     <string name="bookmark_labels">Bookmark Labels</string>
     <string name="assign_labels">Assign labels</string>
     <string name="new_label">New Label</string>
