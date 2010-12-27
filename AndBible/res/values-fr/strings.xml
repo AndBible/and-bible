@@ -11,7 +11,11 @@
 
   <string name="splash_top_text">\n\"Dieu dit : « Qu\'il y ait de la lumière! », et il y eut de la lumière.\" Genèse 1.3</string>
   <string name="help_text">Appuyer sur la touche MENU pour toute action\n\nAller au chapitre suivant ou précédent en utilisant le track-ball, le D-pad ou en balayant l\'écran avec votre doigt\n\nCliquer sur Écouter pour entendre le chapitre en cours</string>
-  <string name="help_text_long">Navigation\nAller au chapitre suivant ou précédent en utilisant le track-ball, le D-pad ou en balayant l\'écran avec votre doigt\n\nAppuyer sur la touche MENU pour toute action\nÉcoute\nCliquer sur Écouter pour entendre le chapitre en cours\nCliquer encore sur Écouter pour arrêter la lecture\n\nUn appui long sur la vue Bible copie le texte actuel dans le Presse-papiers\nUn appui long sur un document dans le sélecteur de document le supprime ou affiche les informations.</string>
+  <string name="help_text_long">Navigation\nAller au chapitre suivant ou précédent en utilisant le track-ball, le D-pad ou en balayant l\'écran avec votre doigt
+    \n\nAppuyer sur la touche MENU pour toute action
+    \n\nÉcoute\nCliquer sur Écouter pour entendre le chapitre en cours\nCliquer encore sur Écouter pour arrêter la lecture
+    \n\nUn appui long dans le sélecteur de documents pour le supprimer ou afficher les informations.
+    \n\nSignets\nLes signets peuvent être ajoutées via le menu contextuel verset. Le gestionnaire de signets est accessible via le menu principal. Le menu contextuel du gestionnaire de signets permet de grouper les signets en utilisant des étiquettes.</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Insérez une carte SD et redémarrez And Bible.</string>
     
@@ -81,23 +85,35 @@
     <string name="strongs_not_installed">Téléchargez un dictionnaire Strong\'s Hébreu et Grec</string>
 
 	<!-- Module download -->
-    <string name="download">Téléchargement de Bibles</string>
+    <string name="download">Téléchargement de documents</string>
     <string name="download_confirmation">Télécharger des documents à partir d\'Internet?</string>
     <string name="download_source_message">Les documents sont téléchargés à partir de\nhttp://www.crosswire.org</string>
-    <string name="download_document_confirm_prefix">"télécharger "</string>
+    <string name="download_document_confirm_prefix">"Télécharger "</string>
     <string name="error_downloading">Une erreur est apparue pendant le téléchargement. Vérifiez votre connexion internet.</string>
     <string name="no_internet_connection">Impossible de se connecter à internet</string>
     <string name="wait_for_bible">Veuillez attendre la fin du téléchargement. Vous serez alors redirigé vers la page principale</string>
     <string name="wait_for_bible_not_yet">Veuillez attendre. L\'installation n\'est pas terminée.</string>
-    <string name="download_complete_no_bibles">Aucun bible n\'a été installée. Appuyer sur Retour et essayez à nouveau.</string>
+    <string name="download_complete_no_bibles">Aucune bible n\'a été installée. Appuyer sur Retour et essayez à nouveau.</string>
     <string name="too_many_jobs">Trop nombreuses tâches d\'exécution en cours. Veuillez attendre la fin de quelques-unes pour essayer à nouveau.</string>
 
     <!-- Context menus -->
     <string name="delete">Supprimer</string>
     <string name="about">À propos</string>
+
+    <!-- Verse context menu -->
     <string name="notes">Notes et références croisées</string>
     <string name="copy">Copier le verset courant</string>
     <string name="send_sms">Envoyer un verset via SMS</string>
+
+    <!-- Bookmarks -->
+    <string name="bookmarks">Signets</string>
+    <string name="add_bookmark">Ajouter un signet</string>
+    <string name="bookmark_added">Signet ajouté</string>
+    <string name="bookmark_exists">Ce signet existe déjà</string>
+    <string name="bookmark_labels">Étiquettes de signets</string>
+    <string name="assign_labels">Attribuer des étiquettes</string>
+    <string name="new_label">Nouvelle étiquette</string>
+    <string name="new_label_prompt">Nom</string>
 	
     <!-- Dictionary -->
     <string name="dictionary">Dictionaire</string>
@@ -111,6 +127,7 @@
     <string name="more">Plus</string>
     <string name="retry">Recommencer</string>
     <string name="please_wait">Attendez svp...</string>
+    <string name="all">Tout</string>
 
     <string name="tts_lang_not_available">Langue non disponible.</string>
 </resources>
