@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The first page - normally skipped over
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+	<TextView android:id="@+id/title_text" 
+			android:text="@string/help" 
+			style="@android:style/TextAppearance.Large"
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			android:layout_alignParentTop="true"
+			android:padding="5dip"/>
+	<ScrollView android:layout_width="fill_parent"
+				android:layout_height="fill_parent"
+				android:layout_below="@+id/title_text">
+		<TextView android:id="@+id/splash_help_text"
+				android:text="@string/help_text_long" 
+				android:layout_width="fill_parent" 
+				android:layout_height="fill_parent"
+				android:layout_below="@+id/title_text"
+				android:gravity="left"
+				style="@android:style/TextAppearance.Medium"
+				android:padding="5dip"
+				android:layout_centerInParent="true"/>
+	</ScrollView> 
+			
+	<TextView android:id="@+id/versionText" 
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content"
+			android:gravity="right"
+			android:padding="5dip"
+			style="@android:style/TextAppearance.Small"
+		    android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

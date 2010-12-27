@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Application text
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+ @translator Martin Zibricky [matysek03 at users.sourceforge.net]
+-->
+<resources>
+    <string name="app_name">And Bible</string>
+
+    <string name="splash_top_text">\n\"I řekl Bůh: Buď světlo! I bylo světlo.\"\nGenesis 1:3</string>
+    <string name="help_text">Akce lze vyvolávat z klávesy MENU\n\nNa další nebo předchozí kapitolu lze přejít track-ballem, D-padem nebo posuvem prstu dolevo nebo doprava \n\nPro přečtení současné kapitoly stačí klepnut na Mluvení</string>
+    <string name="help_text_long">Navigace\nNa další nebo předchozí kapitolu lze přejít track-ballem, D-padem nebo posuvem prstu dolevo nebo doprava\n\nAkce lze vyvolávat z klávesy MENU\n\nŘeč\nPro přečtení současné kapitoly stačí klepnut na Mluvení\nOpětovným klepnutím na Mluvení se čtení ukončí\n\nAktuální verš se kopíruje do schránky dlouhým stiskem v náhledu Bible\nOdstranění dokumentu nebo zobrazení informací o něm lze provést dlouhým stiskem v okně pro výběr dokumentu.</string>
+    <string name="version_text">Verze %s</string>
+    <string name="no_sdcard_error">Prosím vložte SD kartu a spusťte And Bible znovu.</string>
+    <!-- main menu -->
+    <string name="chooseBook">Dokument</string>
+    <string name="selectPassage">Pasáž</string>
+    <string name="search">Hledat</string>
+    <string name="settings">Nastavení</string>
+    <string name="history">Historie</string>
+    <string name="speak">Mluvení</string>
+    <string name="help">Nápověda</string>
+    
+    <string name="choosePassageBookName">Vybrat knihu</string>
+    <string name="choosePassageChapterName">Vybrat kapitolu</string>
+    <string name="chapter_range">%1$s kapitoly %2$d z %3$d</string>
+
+    <string name="search_index">Vyhledávací index</string>
+    <string name="search_chinese_na">Vyhledávání v dokumentech v čínštině je naplánováno pro budoučí verze programu.</string>
+    <string name="index_creation_required">Pro hledání je nutný index.\n\nIndexy lze stáhnout z internetu nebo vytvořit lokálně.\n\nStáhnutí je mnohem rychlejší a stáhnuté indexy obsahují více vyhledávacích vlastností.\n\nKe stáhnutí indexů je vyžadováno internetové připojení.\n</string>
+    <string name="indexing_wait_msg">Až bude indexace dokončena tak se zobrazí obrazovka pro hledání.</string>
+    <string name="index">Index</string>
+    <string name="index_download">Stáhnout</string>
+    <string name="index_not_available_for_download">Tento index není dostupný ke stažení</string>
+    <string name="index_create">Vytvořit</string>
+    
+    <string name="sdcard_error">Promiňte, ale nemáte SD kartu!</string>
+    <string name="directory_error">Promiňte, ale nelze přistupovat ke složce %s</string> 
+	<string name="progress_status">Průběh</string>
+	<string name="task_kill_warning">Tyto dlouho běžící úlohy mohou být zrušeny pokud před jejich dokončením přepnete na jinou aplikaci.</string>
+	<string name="no_tasks_running">Nejsou spuštěny žádné úlohy.</string>
+	<string name="delete_doc">Smazat %s?</string>
+
+	<!-- Search -->
+        <string name="search_words_group_prompt">Hledat verše</string>
+    <string name="search_all_words">Všechna slova</string>
+    <string name="search_any_word">Jakékoli slovo</string>
+    <string name="search_phrase">Fráze</string>
+    <string name="search_result_count">Nalezeno %d záznamů</string>
+    <string name="search_showing_first">Příliš mnoho záznamů. Zobrazuji prvných %d</string> 
+    <string name="search_bible_section_group_prompt">Hledat kde</string>
+    <string name="search_all_bible">Celá Bible</string>
+    <string name="search_new_testament">Starý zákon</string>
+    <string name="search_old_testament">Nový zákon</string>
+    <string name="search_current_book">Současná kniha</string>
+    <string name="error_executing_search">Neplatný dotaz</string>
+
+	<!-- Preferences -->
+    <string name="prefs_show_verseno_title">Čísla u veršů</string>
+    <string name="prefs_show_verseno_summary">Zobrazit čísla u veršů</string>
+    <string name="prefs_show_notes_title">Poznámky</string>
+    <string name="prefs_show_notes_summary">Zobrazit poznámky</string>
+    <string name="prefs_show_strongs_title">Zobrazit Strongova čísla</string>
+    <string name="prefs_show_strongs_summary">Odkazy na řecké a hebrejské definice</string>
+    <string name="prefs_night_mode_title">Noční režím</string>
+    <string name="prefs_night_mode_summary">Pro jednodušší čtení ve tmě</string>
+    <string name="prefs_text_size_title">Velikost textu</string>
+    <string name="prefs_text_size_summary">Vidět více nebo vidět zřetelněji</string>
+
+	<!-- Notes screen -->
+    <string name="no_chapter_notes">Kapitola neobsahuje poznámky</string>
+    <string name="no_verse_notes">Verš neobsahuje poznámky</string>
+    <string name="previous">Předchozí</string>
+    <string name="next">Další</string>
+
+	<!--  Strongs -->
+    <string name="strongs">Strongův slovník</string>
+    <string name="strongs_not_installed">Prosím stáhněte Strongův hebrejský a řecký slovník</string>
+
+	<!-- Module download -->
+    <string name="download">Stáhnout dokumenty</string>
+    <string name="download_confirmation">Stáhnout dokumenty z internetu?</string>
+    <string name="download_source_message">Dokumenty se stahují z\nhttp://www.crosswire.org</string>
+    <string name="download_document_confirm_prefix">"Stáhnout "</string>
+    <string name="error_downloading">Vznikla chyba při stahování. Prosím prověřte internetové spojení.</string>
+    <string name="no_internet_connection">Nelze se připojit k internetu</string>
+    <string name="wait_for_bible">Prosím vyčkejte na dokončení stahování Bible. Potom bude zobrazena hlavní obrazovka.</string>
+	<string name="wait_for_bible_not_yet">Prosím vyčkejte.  Instalace Bible ještě nebyla dokončena.</string>
+	<string name="download_complete_no_bibles">Žádná Bible nebyla instalována.  Stiskněte Zpět a zkuste to znovu.</string>
+	<string name="too_many_jobs">Spuštěno příliš mnoho úloh.  Prosím vyčkejte na dokončení některé úlohy a zkuste to znovu.</string>
+
+	<!-- Context menus -->
+    <string name="delete">Smazat</string>
+    <string name="about">O dokumentu</string>
+    <string name="notes">Poznámky a křížové odkazy</string>
+    <string name="copy">Kopírovat současný verš</string>
+    <string name="send_sms">Poslat verš jako SMS</string>
+	
+	<!-- Dictionary -->
+    <string name="dictionary">Slovník</string>
+    <string name="search_dictionary_hint">Vyhledávací slovník</string>
+    <string name="dictionary_contents">Obsah</string>
+	
+    <string name="error_occurred">Vznikla chyba</string>
+    <string name="okay">OK</string>
+    <string name="cancel">Zrušit</string>
+    <string name="error">Chyba </string>
+    <string name="more">Více</string>
+    <string name="retry">Zkusit znovu</string>
+    <string name="please_wait">Prosím vyčkejte...</string>
+    
+    <string name="tts_lang_not_available">Jazyk není dostupný.</string>
+</resources>

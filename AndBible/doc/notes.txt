@@ -1,0 +1,55 @@
+example of embedded hourglass
+http://apps-for-android.googlecode.com/svn-history/r77/trunk/RingsExtended/src/com/example/android/rings_extended/MusicPicker.java
+
+ApiDemos.Foregroundservice has a good example of starting a service START_STICKY that could be used for downloads and indexing
+
+See "<original-package android:name="net.oldname" />" if a rename is required
+
+Add to props in run target to switch language
+-prop persist.sys.language=sv
+
+2 nice buttons at bottom
+http://android.git.kernel.org/?p=platform/packages/apps/PackageInstaller.git;a=tree;f=res/layout;h=b993c3fe438cc2584f24503e0d605a805f4c2034;hb=HEAD
+
+Need to override onInterceptTouchEvent
+http://groups.google.com/group/android-developers/msg/d5d97cc7aae76505
+
+ListView items
+==============
+
+The simple_list_item_1 is used to design the list items.
+If you use simple_list_item_checked , there will be a option to check the list items.
+Same like that we can use simple_list_item_multiple_choice ,simple_list_item_single_choice,etc..
+http://www.androidpeople.com/android-listview-example/
+
+        if (mRadio) {
+            getListView().setItemsCanFocus(false);
+            getListView().setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+            fileAdapter =
+                    new ArrayAdapter<File>(this, android.R.layout.simple_list_item_single_choice,
+                            mFileList);
+        } else {
+            fileAdapter =
+                    new ArrayAdapter<File>(this, android.R.layout.simple_list_item_1, mFileList);
+        }
+
+// create avd for 1.6
+android create avd -n dft16c64m -t 1 -c 64M -p C:\Datafiles\j2me\avd\dft4c64m --force
+
+// create avd for 2.1
+android create avd -n dft7c64m -t 2 -c 64M -p C:\Datafiles\j2me\avd\dft7c64m
+
+// create avd for 2.2
+android create avd -n dft8c64m -t 3 -c 64M -p C:\Datafiles\j2me\avd\dft8c64m
+
+// copy files to avd
+adb push C:\Datafiles\eclipse-workspace-sword\AndBible\data\jsword /sdcard/jsword
+adb push C:\Datafiles\data\jsword /sdcard/jsword
+
+// bug in jdom SAXHandler
+http://www.junlu.com/list/25/443103.html
+
+adb install C:\Datafiles\eclipse-workspace-sword\AndBible\bin\AndBible.apk
+adb install C:\Datafiles\j2me\Bishop.apk
+adb install AndBible-0.0.2.apk
+tags supported by TextView: http://android.git.kernel.org/?p=platform/frameworks/base.git;a=blob;f=core/java/android/text/Html.java

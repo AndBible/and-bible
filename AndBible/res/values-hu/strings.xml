@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?><!-- Application text
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+--><resources>
+    <string name="app_name">And Bible</string>
+
+    <string name="splash_top_text">\n\"És monda Isten: \'Legyen világosság:\' és lőn világosság.\"\nMózes I. 1:3</string>
+    <string name="help_text">Isten hozta!\nNavigáció könyv olvasás közben\nLapozás:\nHúzd az ujjad balra az előre lapozáshoz\nHúzd az ujjad jobbra a vissza lapozáshoz\nForgasd a golyót balra/jobbra az előre/hátra lapozáshoz.</string>
+    <!-- string name="splash_bottom_text">Verzió 0.0.13</string -->
+    <string name="no_sdcard_error">Tegyél be egy SD kártyát, és indítsd újra az alkalmazást.</string>
+    <!-- main menu -->
+    <string name="chooseBook">Bibliák</string>
+    <string name="selectPassage">Tartalom</string>
+    <string name="search">Keres</string>
+    <string name="notes">Jegyzetek</string>
+    <string name="settings">Beállítások</string>
+    <string name="history">Előzmények</string>
+    <string name="speak">Felolvasás</string>
+    <string name="help">Súgó</string>
+    
+    <string name="choosePassageBookName">Válassz könyvet</string>
+    <string name="choosePassageChapterName">Válassz fejezetet</string>
+    <string name="chapter_range">%1$s fejezetek %2$d -tól %3$d -ig</string>
+
+    <string name="search_index">Keresési index létrehozása</string>
+    <string name="index_creation_required">A kereséshez index szükséges.\n\nAz indexek letölthetőek, vagy helyben is készíthető.\n\nA letöltés előnyösebb, mert a helyi generálás nagyon időigényes. A letöltéshez internet kapcsolat szükséges.\n</string>
+    <string name="indexing_wait_msg">Ha az indexelés befejeződött, a kereső képernyő automatikusan megjelenik.</string>
+    <string name="index">Index</string>
+    <string name="index_download">Letölt</string>
+    <string name="index_create">Készít</string> 
+    
+    <string name="sdcard_error">Sajnos nem találom az SD kártyát!</string>
+    <string name="directory_error">A megadott mappa nem elérhető: %s</string> 
+	<string name="progress_status">Folyamatjelző</string>
+	<string name="task_kill_warning">Ez egy időigényes feladat, ami megszakadhat, ha más alkalmazásra vált, mielőtt befejeződne.</string>
+	<string name="no_tasks_running">Most nincsenek futó feladatok</string>
+	<string name="delete_doc">Töröljem a(z) %s?</string>
+
+	<!-- Search -->
+	<string name="search_words_group_prompt">Versek keresése</string>
+    <string name="search_all_words">Mindegyik szóra</string>
+    <string name="search_any_word">Bármelyik szóra</string>
+    <string name="search_phrase">Kifejezés</string>
+    <string name="search_result_count">%d találat.</string>
+    <string name="search_showing_first">Túl sok találat. Az első %d elem megjelenítése.</string> 
+
+    <string name="search_bible_section_group_prompt">Keresés helye</string>
+    <string name="search_all_bible">Teljes Biblia</string>
+    <string name="search_new_testament">Új testámentum</string>
+    <string name="search_old_testament">Ó testámentum</string>
+    <string name="search_current_book">Aktuális könyv</string>
+    <string name="error_executing_search">Hibás keresési feltételek.</string>
+
+	<!-- Preferences -->
+    <string name="prefs_show_verseno_title">Vers számozás</string>
+    <string name="prefs_show_verseno_summary">Versszámok megjelenítése</string>
+    <string name="prefs_show_notes_title">Jegyzetek</string>
+    <string name="prefs_show_notes_summary">Jegyzetek megjelenítése</string>
+    <string name="prefs_show_strongs_title">Strong számozás</string>
+    <string name="prefs_show_strongs_summary">Strong számok megjelenítése a KJV-ben.</string>
+    <string name="prefs_night_mode_title">Esti üzemmód</string>
+    <string name="prefs_night_mode_summary">Sötétben való könnyebb olvasáshoz</string>
+    <string name="prefs_text_size_title">Szövegméret</string>
+    <string name="prefs_text_size_summary">Betűméret megváltoztatása</string>
+
+	<!-- Notes screen -->
+    <string name="no_chapter_notes">Ebben a fejezetben nincs jegyzet.</string>
+    <string name="no_verse_notes">Ebben a versben nincs jegyzet.</string>
+    <string name="previous">Előző</string>
+    <string name="next">Következő</string>
+
+    <string name="strongs">Strong szószedet</string>
+    <string name="strongs_not_installed">Kérem, töltse le a Strong héber és görög szószedeteket!</string>
+
+	<!-- Module download -->
+    <string name="download">Dokumentumok letöltése</string>
+    <string name="download_confirmation">Letöltsem a dokumentumokat az internetről?</string>
+    <string name="download_source_message">A dokumentumok a crosswire.org-ról töltődnek le.</string>
+    <string name="download_document_confirm_prefix">"Letölt "</string>
+    <string name="error_downloading">Hiba a letöltés közben. Kérem ellenőrizze az internet kapcsolatot.</string>
+    <string name="no_internet_connection">Nem sikerült kapcsolódni az internethez.</string>
+    <string name="wait_for_bible">Kérem várjon, amíg a Biblia teljesen letöltődik.  Utána automatikusan a fő képernyő jelenik meg.</string>
+	<string name="wait_for_bible_not_yet">Kérem várjon. A Biblia telepítése még nem fejeződött be.</string>
+	<string name="download_complete_no_bibles">Nincs Biblia telepítve.  Nyomjon Vissza gombot, és próbálja újra.</string>
+	<string name="too_many_jobs">Túl sok feladat fut.  Kérem várjon, amíg valamelyik befejeződik, és próbálja újra.</string>
+
+	<!-- Module context menu -->
+    <string name="delete">Törlés</string>
+    <string name="about">Névjegy</string>
+	
+	
+	<!-- Dictionary -->
+    <string name="dictionary">Szótár</string>
+    <string name="search_dictionary_hint">Szótár keresése</string>
+    <string name="dictionary_contents">Tartalom</string>
+	
+    <string name="error_occurred">Hiba történt.</string>
+    <string name="okay">OK</string>
+    <string name="cancel">Mégsem</string>
+    <string name="error">Hiba</string>
+    <string name="more">Tovább</string>
+    <string name="retry">Újrapróbál</string>
+    <string name="please_wait">Kérem várjon...</string>
+    
+    <string name="tts_lang_not_available">Ez a nyelv nem elérhető.</string>
+</resources>
