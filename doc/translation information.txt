@@ -1,6 +1,6 @@
 Manual translations:
 de - Martin 20/11/2010
-fr - Dominique 30/9/2010
+fr - Dominique 27/12/2010
 hu - Gabor 8/11/2010
 nb - Lars 1/12/2010
 ru - Dirk 27/12/2010
