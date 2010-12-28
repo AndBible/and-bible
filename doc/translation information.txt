@@ -7,6 +7,7 @@ ru - Dirk 27/12/2010
 sv - Thomas 30/09/2010
 zh (used simplified from zh-cn - simplified Chinese)
 cs - mzibricky 14/12/2010
+pl - Marcin 28/12/2010
 
 Automated translations:
 
