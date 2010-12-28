@@ -52,21 +52,32 @@ public class BibleApplication extends Application{
 	private void upgradePersistentData() {
 		SharedPreferences prefs = CommonUtils.getSharedPreferences();
 		if (prefs.getInt("version", -1) < CommonUtils.getApplicationVersionNumber()) {
-			Log.d(TAG, "*** Upgrading preference");
 			Editor editor = prefs.edit();
-			String textSize = "16";
-			if (prefs.contains(TEXT_SIZE_PREF)) {
-				Log.d(TAG, "*** text size pref exists");
-				textSize = prefs.getString(TEXT_SIZE_PREF, "16");
-				Log.d(TAG, "*** existing value:"+textSize);
-				editor.remove(TEXT_SIZE_PREF);
-			}
-			int textSizeInt = Integer.parseInt(textSize);
-			editor.putInt(TEXT_SIZE_PREF, textSizeInt);
 			
+			// ver 16 and 17 needed text size pref to be changed to int from string
+			if (prefs.getInt("version", -1) < 16) {
+				Log.d(TAG, "Upgrading preference");
+				String textSize = "16";
+				if (prefs.contains(TEXT_SIZE_PREF)) {
+					Log.d(TAG, "text size pref exists");
+					try {
+						textSize = prefs.getString(TEXT_SIZE_PREF, "16");
+					} catch (Exception e) {
+						// maybe the conversion has already taken place e.g. in debug environment
+						textSize = Integer.toString(prefs.getInt(TEXT_SIZE_PREF, 16));
+					}
+					Log.d(TAG, "existing value:"+textSize);
+					editor.remove(TEXT_SIZE_PREF);
+				}
+				
+				int textSizeInt = Integer.parseInt(textSize);
+				editor.putInt(TEXT_SIZE_PREF, textSizeInt);
+				
+				Log.d(TAG, "Finished Upgrading preference");
+			}
 			editor.putInt("version", CommonUtils.getApplicationVersionNumber());
 			editor.commit();
-			Log.d(TAG, "*** Finished Upgrading preference");
+			Log.d(TAG, "Finished all Upgrading");
 		}
 	}
 	
