@@ -1,0 +1,22 @@
+This is the problem!  Hebrew rtl works for only if no vowels are used.
+http://code.google.com/p/android/issues/detail?id=1580#c149
+
+examples
+http://www.i18nguy.com/markup/right-to-left.html
+
+rtl javascript
+http://narthollis.net/projects/netnarthollis.git/tree/static/closure-library-read-only/closure/goog/i18n/
+
+http://stackoverflow.com/questions/2546022/css-direction-rtl-element-order-problem
+
+ref to special char (\u200F) and dejavu fonts
+http://stackoverflow.com/questions/2593503/using-hebrew-with-the-android-emulator
+
+http://stackoverflow.com/questions/1473556/using-span-to-add-a-direction-dir-rtl
+
+// code to output text from screen to a file - add to BibleContentManager.doInBackground()
+    OutputStream fos = new FileOutputStream("/sdcard/biblepage.html");
+    Writer out = new OutputStreamWriter(fos, "UTF8");
+    out.write(text);
+    out.close();
+	            
