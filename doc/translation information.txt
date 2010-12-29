@@ -11,3 +11,7 @@ pl - Marcin 28/12/2010
 
 Automated translations:
 
+Excellent article on i18n props files
+http://jdevelopment.nl/java/internationalization-jsf-utf8-encoded-properties-files/
+
+
