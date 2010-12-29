@@ -1,5 +1,14 @@
+Surrounding  : in <bdo dir='rtl> sorts the :
+Surrounding the whole body with <bdo dir='rtl> as well as each verse also helps a lot. 
+Modern Hebrew Bible has no vowels but the unusual colon char then messes it up
+
+U+05C3	:(replaced with normal colon)	d7 83	HEBREW PUNCTUATION SOF PASUQ
+http://www.utf8-chartable.de/unicode-utf8-table.pl
+
 This is the problem!  Hebrew rtl works for only if no vowels are used.
 http://code.google.com/p/android/issues/detail?id=1580#c149
+
+Use BabelPad to analyse the text
 
 examples
 http://www.i18nguy.com/markup/right-to-left.html
