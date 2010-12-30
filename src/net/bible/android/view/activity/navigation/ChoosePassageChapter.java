@@ -43,8 +43,6 @@ public class ChoosePassageChapter extends ExpandableListActivityBase {
 
 	private static final int MIN_CHAPTERS_TO_GROUP = 15;
 	
-	private static final String CHAPTER_PRE = "Chapter ";
-
 	private ExpandableListAdapter mAdapter;
 
     /** Called when the activity is first created. */
@@ -83,6 +81,8 @@ public class ChoosePassageChapter extends ExpandableListActivityBase {
         		
                 List<Map<String, String>> groupData = new ArrayList<Map<String, String>>();
                 List<List<Map<String, Object>>> childData = new ArrayList<List<Map<String, Object>>>();
+                
+                String chapterDescTemplate = getResources().getString(R.string.chapter_no); 
 
                 // prepare sections and hashmaps to contain book list for each section
                 for (int groupNo = 0; groupNo < numGroups; groupNo++) {
@@ -95,7 +95,7 @@ public class ChoosePassageChapter extends ExpandableListActivityBase {
                     for (int chapter=getGroupStart(groupNo); chapter<=getGroupEnd(mBibleBookNo, groupNo); chapter++) {
                         Map<String, Object> curChapterInfoMap = new HashMap<String, Object>();
                         children.add(curChapterInfoMap);
-                        curChapterInfoMap.put(CHAPTER_DESC, CHAPTER_PRE+chapter);
+                        curChapterInfoMap.put(CHAPTER_DESC, String.format(chapterDescTemplate, chapter));
                         curChapterInfoMap.put(CHAPTER_NO, new Integer(chapter));
                     }
                     childData.add(children);
