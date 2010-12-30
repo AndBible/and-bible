@@ -30,6 +30,7 @@
     <string name="choosePassageBookName">Choose Book</string>
     <string name="choosePassageChapterName">Choose Chapter</string>
     <string name="chapter_range">%1$s chapters %2$d to %3$d</string>
+    <string name="chapter_no">Chapter %d</string>
 
     <string name="search_index">Search Index</string>
     <string name="search_chinese_na">Searching Chinese documents is planned for a future release.</string>
