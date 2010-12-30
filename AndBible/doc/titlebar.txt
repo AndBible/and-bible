@@ -1,0 +1,91 @@
+// basic screen layout - mainly titlebar code
+http://android.git.kernel.org/?p=platform/frameworks/base.git;a=blob;f=core/res/res/layout/screen.xml
+
+// mail titlebar
+http://android.git.kernel.org/?p=platform/packages/apps/Email.git;a=blob;f=res/layout/list_title.xml;hb=HEAD
+
+// Button class with own height calc
+http://stackoverflow.com/questions/3941306/android-setting-button-height-in-xml-based-on-its-width
+
+//TextView onClickListener
+http://markmail.org/message/k5fixnvw7cvtudbg
+
+<TextView android:id="@+id/clear_all_button"
+ 64             android:layout_width="wrap_content"
+ 65             android:layout_height="wrap_content"
+ 66             android:layout_gravity="center_vertical"
+ 67             android:layout_marginTop="4dp"
+ 68             android:layout_marginBottom="1dp"
+ 69             android:textSize="14sp"
+ 70             android:textColor="#ff000000"
+ 71             android:text="@string/status_bar_clear_all_button"
+ 72             style="?android:attr/buttonStyle"
+ 73             android:paddingLeft="15dp"
+ 74             android:paddingRight="15dp"
+ 75             android:background="@drawable/btn_default_small"
+ 76             />
+http://android.git.kernel.org/?p=platform/frameworks/base.git;a=blob;f=core/res/res/layout/status_bar_expanded.xml
+
+<!-- Button styles -->
+ 74         <item name="buttonStyle">@android:style/Widget.Button</item>
+ 75
+ 76         <item
+name="buttonStyleSmall">@android:style/Widget.Button.Small</item>
+ 77         <item
+name="buttonStyleInset">@android:style/Widget.Button.Inset</item>
+ 78
+ 79         <item
+name="buttonStyleToggle">@android:style/Widget.Button.Toggle</item>
+ 80
+http://android.git.kernel.org/?p=platform/frameworks/base.git;a=blob;f=core/res/res/values/themes.xml
+
+<style name="Widget.Button">
+ 225         <item
+name="android:background">@android:drawable/btn_default</item>
+ 226         <item name="android:focusable">true</item>
+ 227         <item name="android:clickable">true</item>
+ 228         <item
+name="android:textAppearance">?android:attr/textAppearanceSmallInverse</item>
+ 229         <item
+name="android:textColor">@android:color/primary_text_light</item>
+ 230         <item
+name="android:gravity">center_vertical|center_horizontal</item>
+ 231     </style>
+ 232
+ 233     <style name="Widget.Button.Small">
+ 234         <item
+name="android:background">@android:drawable/btn_default_small</item>
+ 235     </style>
+ 236
+ 237     <style name="Widget.Button.Inset">
+ 238         <item
+name="android:background">@android:drawable/button_inset</item>
+ 239     </style>
+ 240
+ 241     <style name="Widget.Button.Transparent">
+ 242         <item
+name="android:background">@android:drawable/btn_default_transparent</item>
+ 243         <item
+name="android:textAppearance">?android:attr/textAppearanceSmall</item>
+ 244         <item name="android:textColor">@android:color/white</item>
+ 245     </style>
+http://android.git.kernel.org/?p=platform/frameworks/base.git;a=blob;f=core/res/res/values/styles.xml
+
+http://android.git.kernel.org/?p=platform/frameworks/base.git;a=blob;f=core/res/res/drawable/btn_default_small.xml
+
+<Button id="@+id/tiny"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_alignParentTop="true"
+       android:layout_centerInParent="true"
+       android:text="Tiny"
+       android:textSize="8sp"
+       android:background="@drawable/my_button_background"/>
+
+nine patch drawables
+
+article on 9-patch button with the example button :
+http://www.anddev.org/resources/image/719
+http://www.anddev.org/tutorial_buttons_with_niceley_stretched_background-t4369.html
+http://android.git.kernel.org/?p=platform/frameworks/base.git;a=tree;f=core/res/res/drawable-mdpi;hb=HEAD
+http://mmmyddd.freeshell.net/wiki/android/theme.html

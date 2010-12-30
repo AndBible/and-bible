@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Application text
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<resources>
+    <string name="app_name">Библия</string>
+
+    <string name="splash_top_text">\n\"И сказал Бог: \'Да будет свет.\' И стал свет. \"\nБытие 1:3</string>
+    <string name="help_text">Для того, чтобы просмотреть меню, настройки, опции программы и выбрать дальнейшее действие, нажмите кнопку [MENU]\n\nДля того, чтобы перейти к следующей или предыдущей главе прокрутите трэкбол или проведите пальцем по экрану вправо или влево\n\nДля того, чтобы прослушать главу из Библии вслух, нажмите [Прослушать вслух]</string>
+    <string name="help_text_long">Навигация\nДля того, чтобы перейти к следующей или предыдущей главе прокрутите трэкбол или проведите пальцем по экрану вправо или влево\n\n Для того, чтобы просмотреть меню, настройки, опции программы и выбрать дальнейшее действие, нажмите кнопку [MENU]\n\nВоспроизведение вслух\nДля того, чтобы прослушать главу из Библии вслух, нажмите [Прослушать вслух]\nЧтобы остановить прослушивание, нажмите [Прослушать вслух] еще раз\n\nДля того, чтобы скопировать стих в буфер обмена, сделайте длительное нажатие пальцем по стиху.\n Для того, чтобы  удалить Библию в списке с Библиями или просмотреть ее источник, сделайте длительное нажатие пальцем по Библии\n\nЗакладки\nДля того, чтобы добавить закладки, зайдите в контекстное меню стиха. Для того, чтобы просмотреть менеджер закладок, нажмите кнопку [MENU] и потом [Закладки]. Менеджер закладок позволяет сгруппировать закладки через ярлыки.</string>
+    <string name="version_text">Версия %s</string>
+    <string name="no_sdcard_error">Вставьте SD карту и откройте Библию заново.</string>
+    <!-- main menu -->
+    <string name="chooseBook">Выбрать Библию</string>
+    <string name="selectPassage">Книги Библии</string>
+    <string name="search">Найти</string>
+    <string name="settings">Настройки</string>
+    <string name="history">История</string>
+    <string name="speak">Прослушать вслух</string>
+    <string name="help">Помощь</string>
+    
+    <string name="choosePassageBookName">Выберите книгу</string>
+    <string name="choosePassageChapterName">Выберите главу</string>
+    <string name="chapter_range">%1$s главы с %2$d до %3$d</string>
+
+    <string name="search_index">Поисковой индекс</string>
+    <string name="search_chinese_na">Поиск на китайском языке планируется в будующих версиях.</string>
+    <string name="index_creation_required">Индексы можно скачать с Интернета или создать вручную.\n\nСкачать с Интернета будет быстрее и в них больше параметров поиска.\n\nДля того, чтобы скачать индексы, необходимо подключиться к Интернету.\n</string>
+    <string name="indexing_wait_msg">Когда создание индексов завершится, вы автоматически перейдете в меню поиска.</string>
+    <string name="index">Индекс</string>
+    <string name="index_download">Скачать</string>
+    <string name="index_not_available_for_download">Этот индекс не доступен для скачивания</string>
+    <string name="index_create">Создать</string>
+    
+    <string name="sdcard_error">Извините, у вас нет SD карты!</string>
+    <string name="directory_error">Извините, нет доступа к директории %s</string> 
+	<string name="progress_status">Прогресс</string>
+	<string name="task_kill_warning">Эти задания будут приостановлены, если вы перейдете к другой программе до их завершения.</string>
+	<string name="no_tasks_running">Никакие задания сейчас не выполняются.</string>
+	<string name="delete_doc">Удалить %s?</string>
+
+	<!-- Search -->
+	<string name="search_words_group_prompt">Найти стихи</string>
+    <string name="search_all_words">Все слова</string>
+    <string name="search_any_word">Любое слово</string>
+    <string name="search_phrase">Фраза</string>
+    <string name="search_result_count">%d совпадений найдено</string>
+    <string name="search_showing_first">Слишком много совпадений. Показаны первые %d</string> 
+    <string name="search_bible_section_group_prompt">Искать в</string>
+    <string name="search_all_bible">Вся Библия</string>
+    <string name="search_new_testament">Новый Завет</string>
+    <string name="search_old_testament">Ветхий Завет</string>
+    <string name="search_current_book">Текущая книга</string>
+    <string name="error_executing_search">Неверный запрос</string>
+
+	<!-- Preferences -->
+    <string name="prefs_show_verseno_title">Номера стихов</string>
+    <string name="prefs_show_verseno_summary">Показывать номера стихов</string>
+    <string name="prefs_show_notes_title">Заметки</string>
+    <string name="prefs_show_notes_summary">Показывать заметки</string>
+    <string name="prefs_show_strongs_title">Показывать числа Стронга</string>
+    <string name="prefs_show_strongs_summary">Ссылка к определениям на греческом и иврите </string>
+    <string name="prefs_night_mode_title">Ночной режим</string>
+    <string name="prefs_night_mode_summary">Для более легкого чтения в темноте</string>
+    <string name="prefs_text_size_title">Размер текста</string>
+    <string name="prefs_text_size_summary">Большие буквы</string>
+
+	<!-- Notes screen -->
+    <string name="no_chapter_notes">В этой главе нет заметок</string>
+    <string name="no_verse_notes">В этом стихе нет заметок</string>
+    <string name="previous">Назад</string>
+    <string name="next">Вперед</string>
+
+	<!--  Strongs -->
+    <string name="strongs">Словарь Стронга</string>
+    <string name="strongs_not_installed">Скачать словари Стронга на греческом и иврите</string>
+
+	<!-- Module download -->
+    <string name="download">Скачать Библию с Интернета</string>
+    <string name="download_confirmation">Скачать Библию с Интернета?</string>
+    <string name="download_source_message">Идет подключение к \nhttp://www.crosswire.org</string>
+    <string name="download_document_confirm_prefix">"Скачать "</string>
+    <string name="error_downloading">Произошла ошибка.  Проверьте подключение к Интернету.</string>
+    <string name="no_internet_connection">Нет подключения к Интернету</string>
+    <string name="wait_for_bible">Подождите, Библия еще не скачалась. Далее вы автоматически перейдете в основное меню.</string>
+	<string name="wait_for_bible_not_yet">Пожалуйста подождите. Библия еще не установилась.</string>
+	<string name="download_complete_no_bibles">Библия не установилась. Нажмите [Назад] и попытайтесь снова.</string>
+	<string name="too_many_jobs">Выполняется слишком много заданий. Подождите немного и попытайтесь снова.</string>
+
+	<!-- Document context menu -->
+    <string name="delete">Удалить Библию?</string>
+    <string name="about">Источник</string>
+    
+	<!-- Verse context menu -->
+    <string name="notes">Заметки и перекрестные ссылки</string>
+    <string name="copy">Скопировать этот стих</string>
+    <string name="send_sms">Отправить стих через SMS</string>
+
+	<!-- Bookmarks -->
+    <string name="bookmarks">Закладки</string>
+    <string name="add_bookmark">Добавить закладку</string>
+    <string name="bookmark_added">Закладка добавлена</string>
+    <string name="bookmark_exists">Закладка уже существует</string>
+    <string name="bookmark_labels">Ярлыки</string>
+    <string name="assign_labels">Прикрепить ярлык</string>
+    <string name="new_label">Новый ярлык</string>
+    <string name="new_label_prompt">Имя</string>
+	
+	<!-- Dictionary -->
+    <string name="dictionary">Словарь</string>
+    <string name="search_dictionary_hint">Найти словарь</string>
+    <string name="dictionary_contents">Содержание</string>
+	
+    <string name="error_occurred">Произошла ошибка</string>
+    <string name="okay">OK</string>
+    <string name="cancel">Отмена</string>
+    <string name="error">Ошибка </string>
+    <string name="more">Еще</string>
+    <string name="retry">Попытайтесь снова</string>
+    <string name="please_wait">Пожалуйста подождите...</string>
+    <string name="all">Все</string>
+
+    <string name="tts_lang_not_available">Язык не установлен.</string>
+</resources>
