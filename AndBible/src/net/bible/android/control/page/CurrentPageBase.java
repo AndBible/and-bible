@@ -135,7 +135,8 @@ abstract class CurrentPageBase implements CurrentPage {
 	public void updateOptionsMenu(Menu menu) {
 		// these are fine for Bible and commentary
 		menu.findItem(R.id.selectPassageButton).setTitle(R.string.selectPassage);		
-		menu.findItem(R.id.searchButton).setEnabled(true);		
+		menu.findItem(R.id.searchButton).setEnabled(true);	
+		menu.findItem(R.id.bookmarksButton).setEnabled(true);		
 	}
 	
 	@Override
@@ -143,6 +144,9 @@ abstract class CurrentPageBase implements CurrentPage {
 		// by default disable notes but bible will enable
 		menu.findItem(R.id.notes).setVisible(false);	
 		
+		// dictionary will disable
+		menu.findItem(R.id.add_bookmark).setVisible(true);
+
 		//set title - can only be set when cast to a ContextMenu
 		ContextMenu contextMenu = (ContextMenu)menu;
 		contextMenu.setHeaderTitle(getSingleKey().getName());
