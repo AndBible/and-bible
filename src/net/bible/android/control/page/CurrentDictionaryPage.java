@@ -116,10 +116,18 @@ public class CurrentDictionaryPage extends CurrentPageBase implements CurrentPag
 
 	@Override
 	public void updateOptionsMenu(Menu menu) {
-		// these are fine for Bible and commentary
 		menu.findItem(R.id.selectPassageButton).setTitle(R.string.dictionary_contents);		
 		menu.findItem(R.id.searchButton).setEnabled(false);		
+		menu.findItem(R.id.bookmarksButton).setEnabled(false);		
 	}
+	
+	@Override
+	public void updateContextMenu(Menu menu) {
+		super.updateContextMenu(menu);
+		// by default disable notes but bible will enable
+		menu.findItem(R.id.add_bookmark).setVisible(false);
+	}
+
 
 	@Override
 	public boolean isSingleKey() {

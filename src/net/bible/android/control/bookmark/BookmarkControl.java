@@ -35,7 +35,7 @@ public class BookmarkControl implements Bookmark {
 	@Override
 	public boolean bookmarkCurrentVerse() {
 		boolean bOk = false;
-		if (CurrentPageManager.getInstance().isBibleShown()) {
+		if (CurrentPageManager.getInstance().isBibleShown() || CurrentPageManager.getInstance().isCommentaryShown()) {
 			Key currentVerse = CurrentPageManager.getInstance().getCurrentBible().getSingleKey();
 			
 			if (getBookmarkByKey(currentVerse)!=null) {
