@@ -114,7 +114,6 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
 		debug(name, null, false);
 		
 		writeContentStack.pop();
-
 	}
     
     /*
