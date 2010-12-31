@@ -1,3 +1,10 @@
+Issues:
+Mentions specific Nikud issue in Hebrew - holds out hope for Honeycomb
+http://groups.google.com/group/android-contrib/browse_thread/thread/5b6b079f9ec7792a?pli=1
+
+Ongoing request for proper rtl Arabic - postponed until 
+http://code.google.com/p/android/issues/detail?id=5597
+
 Surrounding  : in <bdo dir='rtl> sorts the :
 Surrounding the whole body with <bdo dir='rtl> as well as each verse also helps a lot. 
 Modern Hebrew Bible has no vowels but the unusual colon char then messes it up

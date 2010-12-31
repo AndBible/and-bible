@@ -61,6 +61,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
     private static final String NBSP = "&#160;";
     private static final String SPACE = " ";
+    // puctuation char at the end of hebrew verses that looks like a ':'
+    private static final String HEBREW_SOF_PASUQ_CHAR = "\u05C3";
     
     private static final Logger log = new Logger("OsisToHtmlSaxHandler");
     
@@ -87,6 +89,11 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
         		"<meta charset='utf-8'/>"+
         		"</head>"+
         		"<body onscroll='jsonscroll()' onload='jsonload()' >");
+        
+        // force rtl for rtl languages - rtl support on Android is poor but forcing it seems to help occasionally
+        if (!isLeftToRight) {
+        	write("<span dir='rtl'>");
+        }
     }
 
     /*
@@ -95,6 +102,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     @Override
     public void endDocument () throws SAXException
     {
+        if (!isLeftToRight) {
+        	write("</span>");
+        }
     	// add padding at bottom to allow last verse to scroll to top of page and become current verse
         write("<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /></body></html>");
     }
@@ -229,6 +239,10 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     	writeVerse();
         if (isWriteContent) {
             String s = new String(buf, offset, len);
+        	if (!isLeftToRight) {
+        		// even without vowel points the : at the end of each verse confuses Android's bidi but specifying the char as rtl helps
+        		s = s.replace(HEBREW_SOF_PASUQ_CHAR, "<span dir='rtl'>"+HEBREW_SOF_PASUQ_CHAR+"</span> ");
+        	}
             write(s);
         }
         if (isWriteNote) {
@@ -262,10 +276,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     }
 
     public String getDirection() {
-    	//TODO wait until rtl is properly supported
-    	log.warn("RTL SUPPORT CURRENTLY TURNED OFF DUE TO POOR SUPPORT IN ANDROID");
-    	return "ltr";
-        //return isLeftToRight ? "ltr" : "rtl";
+        return isLeftToRight ? "ltr" : "rtl";
     }
     
     /** either use the 'n' attribute for the note ref or just get the next character in a list a-z
