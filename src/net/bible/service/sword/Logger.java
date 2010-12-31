@@ -1,6 +1,6 @@
 package net.bible.service.sword;
 
-import net.bible.service.common.CommonUtils;
+import net.bible.service.common.TestUtils;
 import android.util.Log;
 
 /** Not sure whether to use Log or jdk logger or log4j.
@@ -14,8 +14,7 @@ public class Logger {
 
 	private String name;
 	
-	private static final boolean isAndroid = CommonUtils.isAndroid();
-	
+	private static final boolean isAndroid = TestUtils.isAndroid();
 	
 	public Logger(String name) {
 		this.name = name;
