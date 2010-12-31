@@ -152,7 +152,6 @@ public class BibleView extends WebView {
 	
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		Log.d(TAG, "Keycode:"+keyCode);
 		//TODO allow DPAD_LEFT to always change page and navigation between links using dpad
 		// placing BibleKeyHandler second means that DPAD left is unable to move to prev page if strongs refs are shown
 		// vice-versa (webview second) means right & left can not be used to navigate between Strongs links
