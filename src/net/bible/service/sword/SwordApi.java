@@ -412,6 +412,7 @@ public class SwordApi {
 		OsisToHtmlSaxHandler osisToHtml = new OsisToHtmlSaxHandler();
 		BookMetaData bmd = book.getBookMetaData();
 		osisToHtml.setLeftToRight(bmd.isLeftToRight());
+		osisToHtml.setLanguageCode(book.getLanguage().getCode());
 		
 		if (preferences!=null) {
 			// show verse numbers if user has selected to show verse numbers AND teh book is a bible (so don't even try to show verses in a Dictionary)
