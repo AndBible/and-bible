@@ -11,7 +11,12 @@
 
     <string name="splash_top_text">\n\"I řekl Bůh: Buď světlo! I bylo světlo.\"\nGenesis 1:3</string>
     <string name="help_text">Akce lze vyvolávat z klávesy MENU\n\nNa další nebo předchozí kapitolu lze přejít track-ballem, D-padem nebo posuvem prstu dolevo nebo doprava \n\nPro přečtení současné kapitoly stačí klepnut na Mluvení</string>
-    <string name="help_text_long">Navigace\nNa další nebo předchozí kapitolu lze přejít track-ballem, D-padem nebo posuvem prstu dolevo nebo doprava\n\nAkce lze vyvolávat z klávesy MENU\n\nŘeč\nPro přečtení současné kapitoly stačí klepnut na Mluvení\nOpětovným klepnutím na Mluvení se čtení ukončí\n\nAktuální verš se kopíruje do schránky dlouhým stiskem v náhledu Bible\nOdstranění dokumentu nebo zobrazení informací o něm lze provést dlouhým stiskem v okně pro výběr dokumentu.</string>
+    <string name="help_text_long">Navigace\nNa další nebo předchozí kapitolu lze přejít track-ballem, D-padem nebo posuvem prstu dolevo nebo doprava
+        \n\nAkce lze vyvolávat z klávesy MENU
+        \n\nŘeč\nPro přečtení současné kapitoly stačí klepnut na Mluvení\nOpětovným klepnutím na Mluvení se čtení ukončí
+        \n\nDlouhý stisk v náhledu Bible vyvolá kontextové menu s akcemi, ovlivňující současný verš.
+        \nOdstranění dokumentu nebo zobrazení informací o něm lze provést dlouhým stiskem v okně pro výběr dokumentu.
+        \n\nZáložky\nZáložky lze přidat z kontextového menu verše.  Správce záložek je přístupný z hlavního menu.  Kontextové menu správce záložek umožňuje záložek do skupin přiřazením popisků.</string>
     <string name="version_text">Verze %s</string>
     <string name="no_sdcard_error">Prosím vložte SD kartu a spusťte And Bible znovu.</string>
     <!-- main menu -->
@@ -26,6 +31,7 @@
     <string name="choosePassageBookName">Vybrat knihu</string>
     <string name="choosePassageChapterName">Vybrat kapitolu</string>
     <string name="chapter_range">%1$s kapitoly %2$d z %3$d</string>
+    <string name="chapter_no">Kapitola %d</string>
 
     <string name="search_index">Vyhledávací index</string>
     <string name="search_chinese_na">Vyhledávání v dokumentech v čínštině je naplánováno pro budoučí verze programu.</string>
@@ -91,12 +97,24 @@
 	<string name="download_complete_no_bibles">Žádná Bible nebyla instalována.  Stiskněte Zpět a zkuste to znovu.</string>
 	<string name="too_many_jobs">Spuštěno příliš mnoho úloh.  Prosím vyčkejte na dokončení některé úlohy a zkuste to znovu.</string>
 
-	<!-- Context menus -->
+	<!-- Document context menus -->
     <string name="delete">Smazat</string>
     <string name="about">O dokumentu</string>
-    <string name="notes">Poznámky a křížové odkazy</string>
+
+	<!-- Verse context menus -->
+    <string name="notes">Poznámky a odkazy</string>
     <string name="copy">Kopírovat současný verš</string>
     <string name="send_sms">Poslat verš jako SMS</string>
+
+	<!-- Bookmarks -->
+    <string name="bookmarks">Záložky</string>
+    <string name="add_bookmark">Přidat záložku</string>
+    <string name="bookmark_added">Záložka přidána</string>
+    <string name="bookmark_exists">Záložka už existuje</string>
+    <string name="bookmark_labels">Popisky záložky</string>
+    <string name="assign_labels">Přiřadit popisky</string>
+    <string name="new_label">Nový popisek</string>
+    <string name="new_label_prompt">Název</string>
 	
 	<!-- Dictionary -->
     <string name="dictionary">Slovník</string>
@@ -110,6 +128,7 @@
     <string name="more">Více</string>
     <string name="retry">Zkusit znovu</string>
     <string name="please_wait">Prosím vyčkejte...</string>
+    <string name="all">Vše</string>
     
     <string name="tts_lang_not_available">Jazyk není dostupný.</string>
 </resources>
