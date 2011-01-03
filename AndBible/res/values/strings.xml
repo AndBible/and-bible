@@ -91,6 +91,7 @@
     <string name="download_document_confirm_prefix">"Download "</string>
     <string name="error_downloading">An error occurred downloading.  Please check your internet connection.</string>
     <string name="no_internet_connection">Could not connect to the internet</string>
+    <string name="storage_space_warning">Insufficient local storage space.</string>
     <string name="wait_for_bible">Please wait for the bible to finish downloading.  You will then be taken to the main screen.</string>
 	<string name="wait_for_bible_not_yet">Please wait.  A bible has not yet completed installation.</string>
 	<string name="download_complete_no_bibles">No bible was installed.  Please press Back and try again.</string>

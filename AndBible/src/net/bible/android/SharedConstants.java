@@ -26,6 +26,9 @@ public class SharedConstants {
     
     public static final String LINE_SEPARATOR = System.getProperty ( "line.separator" ); 
     
+    // insist on 50 free megs before downloading 
+    public static final long REQUIRED_MEGS_FOR_DOWNLOADS = 50; 
+
     /** a directory that will be deleted when the application is uninstalled (only on Android 2.2+)
      * 
      * @return

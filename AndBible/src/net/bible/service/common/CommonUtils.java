@@ -6,11 +6,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import net.bible.android.BibleApplication;
-
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.os.Environment;
+import android.os.StatFs;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -67,6 +68,15 @@ public class CommonUtils {
         }
         return versionNumber;
 	}
+	
+	public static long getSDCardMegsFree() {
+		StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
+		long bytesAvailable = (long)stat.getBlockSize() *(long)stat.getAvailableBlocks();
+		long megAvailable = bytesAvailable / 1048576;
+		Log.d(TAG, "Megs available on SD card :"+megAvailable);
+		return megAvailable;
+	}
+	
 	/** shorten text for display in lists etc.
 	 * 
 	 * @param text

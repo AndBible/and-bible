@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.page;
 
+import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.BibleContentManager;
 import net.bible.android.control.ControlFactory;
@@ -126,7 +127,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	        	handlerIntent = new Intent(this, Bookmarks.class);
 	        	break;
 	        case R.id.downloadButton:
-	        	if (!CommonUtils.isInternetAvailable()) {
+	        	if (CommonUtils.getSDCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
+	            	Dialogs.getInstance().showErrorMsg(R.string.storage_space_warning);
+	        	} else if (!CommonUtils.isInternetAvailable()) {
 	            	Dialogs.getInstance().showErrorMsg(R.string.no_internet_connection);
 	        	} else {
 	        		handlerIntent = new Intent(this, Download.class);
