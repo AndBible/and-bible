@@ -1,6 +1,7 @@
 package net.bible.android.view.activity;
 
 import net.bible.android.BibleApplication;
+import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.base.Callback;
@@ -87,7 +88,14 @@ public class StartupActivity extends ActivityBase {
     	showDialog(CAN_DOWNLOAD_DLG);
     }
     private void doGotoDownloadActivity() {
-    	if (CommonUtils.isInternetAvailable()) {
+    	String errorMessage = "";
+    	if (!CommonUtils.isInternetAvailable()) {
+    		errorMessage = getString(R.string.no_internet_connection);
+    	} else if (CommonUtils.getSDCardMegsFree() < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
+    		errorMessage = getString(R.string.storage_space_warning);
+    	}
+    	
+    	if (errorMessage.length()==0) {
 	       	Intent handlerIntent = new Intent(StartupActivity.this, Download.class);
 	    	startActivityForResult(handlerIntent, 1);
 	    	
@@ -95,7 +103,7 @@ public class StartupActivity extends ActivityBase {
 	    	removeDialog(CAN_DOWNLOAD_DLG);
 	    	finish();
 		} else {
-			Dialogs.getInstance().showErrorMsg(getString(R.string.no_internet_connection), new Callback() {
+			Dialogs.getInstance().showErrorMsg(errorMessage, new Callback() {
 				@Override
 				public void okay() {
 		    		finish();

@@ -13,6 +13,12 @@ import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
 
 public class DocumentControl {
+	
+	/** Book is deletable according to the driver if it is in the download dir i.e. not sdcard\jsword
+	 * and according to And Bible if it is not currently selected
+	 * @param document
+	 * @return
+	 */
 	public boolean canDelete(Book document) {
 		return 	document != null && 
 				document.getDriver().isDeletable(document) &&

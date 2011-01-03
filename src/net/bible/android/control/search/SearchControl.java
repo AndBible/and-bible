@@ -3,6 +3,7 @@ package net.bible.android.control.search;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.Dialogs;
@@ -68,7 +69,9 @@ public class SearchControl {
 	public boolean downloadIndex() {
 		boolean ok = false;
     	try {
-        	if (!CommonUtils.isInternetAvailable()) {
+        	if (CommonUtils.getSDCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
+            	Dialogs.getInstance().showErrorMsg(R.string.storage_space_warning);
+        	} else if (!CommonUtils.isInternetAvailable()) {
             	Dialogs.getInstance().showErrorMsg(R.string.no_internet_connection);
             	ok = false;
         	} else {
