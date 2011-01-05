@@ -250,7 +250,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-		    	String passageDesc = CurrentPageManager.getInstance().getCurrentPage().getKeyDescription();
+		    	String passageDesc = ControlFactory.getInstance().getPageControl().getTitle();
 		    	setTitle(passageDesc);
 		    	setProgressBar(false);
 		    	updateSuggestedDocuments();
@@ -264,7 +264,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-		    	String passageDesc = CurrentPageManager.getInstance().getCurrentPage().getKeyDescription();
+		    	String passageDesc = ControlFactory.getInstance().getPageControl().getTitle();
 		    	setTitle(passageDesc);
 			}
 		});

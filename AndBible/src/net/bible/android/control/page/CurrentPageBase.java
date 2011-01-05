@@ -51,22 +51,6 @@ abstract class CurrentPageBase implements CurrentPage {
 	}
 
 	
-	/** displayed in titlebar
-	 */
-	@Override
-	public String getKeyDescription() {
-		StringBuffer desc = new StringBuffer();
-		Book book = getCurrentDocument();
-		if (book!=null) {
-			desc.append(book.getInitials());
-		}
-		Key key = getKey();
-		if (key!=null) {
-			desc.append(" ").append(key.getName());
-		}
-		return desc.toString();
-	}
-	
 	@Override
 	public Key getSingleKey() {
 		// by default do not handle single key requirement - it is really just for bibles
