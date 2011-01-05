@@ -67,8 +67,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     // puctuation char at the end of hebrew verses that looks like a ':'
     private static final String HEBREW_LANGUAGE_CODE = "he";
     private static final String HEBREW_SOF_PASUQ_CHAR = "\u05C3";
-    private static final Character[] HEBREW_VOWELS = new Character[]{'\u05B0', '\u05B1', '\u05B2', '\u05B3', '\u05B4', '\u05B5', '\u05B6', '\u05B7', '\u05B8', '\u05B9', '\u05BA', '\u05BB', '\u05BC', '\u05BD', '\u05BE', '\u05BF', '\u05C1', '\u05C2'};
-    private static final Character[] HEBREW_CANTILLATION = new Character[]{'\u0591', '\u0592', '\u0593', '\u0594', '\u0595', '\u0596', '\u0597', '\u0598', '\u0599', '\u059A', '\u059B', '\u059C', '\u059D', '\u059E', '\u05A0', '\u05A1', '\u05A2', '\u05A3', '\u05A4', '\u05A5', '\u05A6', '\u05A7', '\u05A8', '\u05A9', '\u05AA', '\u05AB', '\u05AC', '\u05AD', '\u05AE', '\u05AF'};
+    // vowels are on the first row and cantillations on the second
+    private static final char[] HEBREW_VOWELS_AND_CANTILLATIONS = new char[]{'\u05B0', '\u05B1', '\u05B2', '\u05B3', '\u05B4', '\u05B5', '\u05B6', '\u05B7', '\u05B8', '\u05B9', '\u05BA', '\u05BB', '\u05BC', '\u05BD', '\u05BE', '\u05BF', '\u05C1', '\u05C2',
+    																		'\u0591', '\u0592', '\u0593', '\u0594', '\u0595', '\u0596', '\u0597', '\u0598', '\u0599', '\u059A', '\u059B', '\u059C', '\u059D', '\u059E', '\u05A0', '\u05A1', '\u05A2', '\u05A3', '\u05A4', '\u05A5', '\u05A6', '\u05A7', '\u05A8', '\u05A9', '\u05AA', '\u05AB', '\u05AC', '\u05AD', '\u05AE', '\u05AF'};
     
     private static final Logger log = new Logger("OsisToHtmlSaxHandler");
     
@@ -262,12 +263,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	private String doHebrewCharacterAdjustments(String s) {
 		// remove Hebrew vowels because i) they confuse bidi and ii) they are not positioned correctly under/over the appropriate letter
 		// http://groups.google.com/group/android-contrib/browse_thread/thread/5b6b079f9ec7792a?pli=1
-		for (Character ch : HEBREW_VOWELS) {
-			s = StringUtils.remove(s, ch);
-		}
-		for (Character ch : HEBREW_CANTILLATION) {
-			s = StringUtils.remove(s, ch);
-		}
+		s = remove(s, HEBREW_VOWELS_AND_CANTILLATIONS);
 		
 		// even without vowel points the : at the end of each verse confuses Android's bidi but specifying the char as rtl helps
 		s = s.replace(HEBREW_SOF_PASUQ_CHAR, "<span dir='rtl'>"+HEBREW_SOF_PASUQ_CHAR+"</span> ");
@@ -359,6 +355,39 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     	Collections.reverse(strongsTags);
     	return strongsTags;
     }
+
+    /** StringUtils methods only compare with a single char and hence create lots of temporary Strings
+     * This method compares with all chars and just creates one new string for each original string.
+     * This is to minimise memory overhead & gc.
+     * 
+     * @param str
+     * @param removeChars
+     * @return
+     */
+	public static String remove(String str, char[] removeChars) {
+		if (StringUtils.isEmpty(str) || !StringUtils.containsAny(str, removeChars)) {
+			return str;
+		}
+
+		StringBuilder r = new StringBuilder( str.length());
+        // for all chars in string
+        for (int i = 0; i < str.length(); i ++) {
+            char strCur = str.charAt(i);
+            
+            // compare with all chars to be removed
+            boolean matched = false;
+            for (int j=0; j<removeChars.length && !matched; j++) {
+            	if (removeChars[j]==strCur) {
+            		matched = true;
+            	}
+            	// if current char does not match any in the list then add it to the 
+            	if (!matched) {
+            		r.append(strCur);
+            	}            	
+            }
+        }
+        return r.toString();
+	}
 
     /** see if an attribute exists and has a value
      * 

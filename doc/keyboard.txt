@@ -1,0 +1,8 @@
+btn_keyboard_key is the drawable used to show keys in their various states which includes btn_keyboard_key_normal
+
+keyboard resource
+http://android.git.kernel.org/?p=platform/frameworks/base.git;a=blob;f=core/res/res/layout/keyboard_popup_keyboard.xml
+
+LatinKeyboardView, LatinKeyboard, LatinKey is the default keyboard
+
+SoftKeyboard sample app seems useful
