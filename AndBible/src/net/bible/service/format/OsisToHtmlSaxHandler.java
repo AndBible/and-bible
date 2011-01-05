@@ -371,7 +371,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 		StringBuilder r = new StringBuilder( str.length());
         // for all chars in string
-        for (int i = 0; i < str.length(); i ++) {
+        for (int i = 0; i < str.length(); i++) {
             char strCur = str.charAt(i);
             
             // compare with all chars to be removed
@@ -380,11 +380,11 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
             	if (removeChars[j]==strCur) {
             		matched = true;
             	}
-            	// if current char does not match any in the list then add it to the 
-            	if (!matched) {
-            		r.append(strCur);
-            	}            	
             }
+        	// if current char does not match any in the list then add it to the 
+        	if (!matched) {
+        		r.append(strCur);
+        	}            	
         }
         return r.toString();
 	}
