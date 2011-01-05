@@ -46,10 +46,6 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 		return ChoosePassageBook.class;
 	}
 	
-	public String getKeyDescription() {
-		return getCurrentDocument().getInitials()+" "+currentBibleVerse.getVerseSelected().toString();
-	}
-
 	/* (non-Javadoc)
 	 * @see net.bible.android.control.CurrentPage#next()
 	 */

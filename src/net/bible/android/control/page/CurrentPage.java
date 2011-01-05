@@ -31,8 +31,6 @@ public interface CurrentPage {
 	 */
 	public abstract Key getSingleKey();
 	
-	public abstract String getKeyDescription();
-
 	public abstract Book getCurrentDocument();
 
 	public abstract void setCurrentDocument(Book currentBible);

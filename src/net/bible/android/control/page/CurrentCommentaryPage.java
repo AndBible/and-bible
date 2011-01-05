@@ -38,10 +38,6 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 		return ChoosePassageBook.class;
 	}
 
-	public String getKeyDescription() {
-		return getCurrentDocument().getInitials()+" "+currentBibleVerse.getVerseSelected().toString();
-	}
-
 	/* (non-Javadoc)
 	 * @see net.bible.android.control.CurrentPage#next()
 	 */
