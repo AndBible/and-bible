@@ -8,7 +8,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:background="@drawable/background_yellow_gradient">
 	<TextView android:id="@+id/splash_title_text" 
 			android:text="@string/app_name" 
 			android:layout_width="fill_parent" 
