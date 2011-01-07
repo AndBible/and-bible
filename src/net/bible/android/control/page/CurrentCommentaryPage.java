@@ -1,6 +1,6 @@
 package net.bible.android.control.page;
 
-import net.bible.android.view.activity.navigation.ChoosePassageBook;
+import net.bible.android.view.activity.navigation.GridChoosePassageBook;
 
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
@@ -9,7 +9,6 @@ import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleInfo;
 
-import android.content.SharedPreferences;
 import android.util.Log;
 
 /** Reference to current passage shown by viewer
@@ -35,7 +34,7 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 	}
 
 	public Class getKeyChooserActivity() {
-		return ChoosePassageBook.class;
+		return GridChoosePassageBook.class;
 	}
 
 	/* (non-Javadoc)
