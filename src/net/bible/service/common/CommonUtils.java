@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Configuration;
 import android.os.Environment;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
@@ -151,6 +152,10 @@ public class CommonUtils {
     	} catch (Exception e) {
     		Log.e(TAG, "error sleeping", e);
     	}
+    }
+    
+    public static boolean isPortrait() {
+    	return BibleApplication.getApplication().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
     }
 
 	/** get preferences used by User Prefs screen
