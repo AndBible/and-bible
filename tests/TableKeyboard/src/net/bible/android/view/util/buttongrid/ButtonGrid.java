@@ -7,9 +7,13 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
+import android.view.View.MeasureSpec;
 import android.widget.Button;
+import android.widget.PopupWindow;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -20,6 +24,7 @@ public class ButtonGrid extends TableLayout {
 	public static class ButtonInfo {
 		public int id;
 		public String name;
+		public int textColor = Color.WHITE;
 
 		// used internally 
 		private Button button;
@@ -29,16 +34,23 @@ public class ButtonGrid extends TableLayout {
 		private int right;
 	}
 
+	private ButtonInfo mCurrentPreview;
+    private TextView mPreviewText;
+    private PopupWindow mPreviewPopup;
+//    private int mPreviewTextSizeLarge;
+    private int mPreviewOffset;
+    private int mPreviewHeight;
+	
 	private OnButtonGridActionListener onButtonGridActionListener;
-	
+
 	private List<ButtonInfo> buttonInfoList;
-	
-	private static final String TAG = "ButtonGrid";
-	
 	private RowColLayout mRowColLayout;
+	
 	private ButtonInfo mPressed;
 	private Context mContext;
 	private boolean isInitialised = false;
+
+	private static final String TAG = "ButtonGrid";
 
 	public ButtonGrid(Context context) {
         this(context, null);
@@ -75,7 +87,9 @@ public class ButtonGrid extends TableLayout {
 					Button but = new Button(mContext);
 					but.setText(buttonInfo.name);
 					but.setBackgroundResource(R.drawable.buttongrid_button_background);
-					but.setTextColor(Color.WHITE);
+					but.setTextColor(buttonInfo.textColor);
+					// set pad to 0 prevents text being pushed off the bottom of buttons on small screens
+					but.setPadding(0, 0, 0, 0);
 					buttonInfo.button = but;
 					row.addView(but, cellInRowLp);
 				} else {
@@ -85,6 +99,19 @@ public class ButtonGrid extends TableLayout {
 				iCellNo++;
 			}
 		}
+
+		LayoutInflater inflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+		mPreviewText = (TextView)inflater.inflate(R.layout.buttongrid_button_preview, null);
+		mPreviewPopup = new PopupWindow(mPreviewText);
+		// mPreviewTextSizeLarge = (int) mPreviewText.getTextSize();
+		mPreviewPopup.setContentView(mPreviewText);
+		mPreviewPopup.setBackgroundDrawable(null);
+		mPreviewPopup.setTouchable(false);
+        mPreviewText.setCompoundDrawables(null, null, null, null);
+        
+        float scale = mContext.getResources().getDisplayMetrics().density;
+        mPreviewHeight = (int)(70*scale);
 	}
 
     
@@ -128,6 +155,7 @@ public class ButtonGrid extends TableLayout {
 					}
 					but.button.setPressed(true);
 					mPressed = but;
+					showPreview(but);
 				}
 			}
 			break;
@@ -156,22 +184,61 @@ public class ButtonGrid extends TableLayout {
     	if (onButtonGridActionListener!=null) {
     		onButtonGridActionListener.buttonPressed(selectedButton);
     	}
-    	int bookNo = selectedButton.id;
     	
+    	close();    	
     }
 	
 	private boolean isInside(ButtonInfo but, float x, float y) {
 		return (but.top<y && but.bottom>y &&
 			but.left<x && but.right>x);
 	}
+
+	private void showPreview(ButtonInfo buttonInfo) {
+		if (!buttonInfo.equals(mCurrentPreview)) {
+			Log.d(TAG, "Previewing "+buttonInfo.name);
+			mCurrentPreview = buttonInfo;
+			mPreviewText.setText(buttonInfo.name);
+
+            int popupHeight = mPreviewHeight;
+            mPreviewText.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+            int popupWidth = Math.max(mPreviewText.getMeasuredWidth(), buttonInfo.button.getWidth() + mPreviewText.getPaddingLeft() + mPreviewText.getPaddingRight());
+
+			
+			int popupPreviewX = buttonInfo.left - mPreviewText.getPaddingLeft();
+            int popupPreviewY = buttonInfo.top /*- popupHeight*/+ mPreviewOffset;
+			Log.d(TAG, "Y offset: "+mPreviewOffset);
+
+            if (mPreviewPopup.isShowing()) {
+    			Log.d(TAG, "Is showing "+buttonInfo.name+" "+mPreviewPopup.toString());
+                mPreviewPopup.update(popupPreviewX, popupPreviewY, popupWidth, popupHeight);
+            } else {
+    			Log.d(TAG, "Is NOT showing "+buttonInfo.name+" "+mPreviewPopup.toString());
+            	mPreviewPopup.setWidth(popupWidth);
+                mPreviewPopup.setHeight(popupHeight);
+                mPreviewPopup.showAtLocation(this, Gravity.NO_GRAVITY, popupPreviewX, popupPreviewY);
+            }
+			Log.d(TAG, "PP size "+mPreviewPopup.getWidth()+" "+mPreviewPopup.getHeight()+" "+popupPreviewX+":"+popupPreviewY);
+            mPreviewText.setVisibility(VISIBLE);
+		}
+	}
+	
+	
 	
     @Override
-    protected void onLayout(boolean changed, int l, int t, int r, int b) {
-    	super.onLayout(changed, l, t, r, b);
-
+	protected void onDetachedFromWindow() {
+    	close();
+    	
+		// TODO Auto-generated method stub
+		super.onDetachedFromWindow();
+	}
+    
+    private void close() {
+    	if (mPreviewPopup.isShowing()) {
+    		mPreviewPopup.dismiss();
+    	}
     }
-
-    /** calculate button position relative to this table because MotionEvents are relative to this table
+    
+	/** calculate button position relative to this table because MotionEvents are relative to this table
      */
     private void recordButtonPositions() {
 		for (ButtonInfo buttonInfo : buttonInfoList) {
@@ -186,6 +253,10 @@ public class ButtonGrid extends TableLayout {
 			buttonInfo.right += button.getRight()+tableRow.getLeft();
 			buttonInfo.bottom += button.getBottom()+tableRow.getTop();
 		}
+		
+		// calculate offset of 2 button heights so users can see the buttons surrounding the current button pressed
+		ButtonInfo but1 = buttonInfoList.get(0);
+		mPreviewOffset = but1.top - but1.bottom;
     }
 	/**
 	 * @param onButtonGridActionListener the onButtonGridActionListener to set
