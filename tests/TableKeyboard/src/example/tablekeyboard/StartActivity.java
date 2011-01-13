@@ -18,6 +18,17 @@ import android.util.Log;
 
 public class StartActivity extends Activity {//implements OnTouchListener {
 	
+	private static final int PENTATEUCH_COLOR = Color.rgb(0xCC, 0xCC, 0xFE);
+	private static final int HISTORY_COLOR = Color.rgb(0xFE, 0xCC, 0x9B);
+	private static final int WISDOM_COLOR = Color.rgb(0x99, 0xFF, 0x99);
+	private static final int MAJOR_PROPHETS_COLOR = Color.rgb(0xFF, 0x99, 0xFF);
+	private static final int MINOR_PROPHETS_COLOR = Color.rgb(0xFF, 0xFE, 0xCD);
+	private static final int GOSPEL_COLOR = Color.rgb(0xFF, 0x97, 0x03);
+	private static final int ACTS_COLOR = Color.rgb(0x00, 0x99, 0xFF);
+	private static final int PAULINE_COLOR = Color.rgb(0xFF, 0xFF, 0x31);
+	private static final int GENERAL_EPISTLES_COLOR = Color.rgb(0x67, 0x99, 0x66);
+	private static final int REVELATION_COLOR = Color.rgb(0xFE, 0x33, 0xFF);
+	
 	private static final String TAG = "StartActivity";
 	
     /** Called when the activity is first created. */
@@ -85,34 +96,34 @@ public class StartActivity extends Activity {//implements OnTouchListener {
     	// colour and grouping taken from http://en.wikipedia.org/wiki/Books_of_the_Bible
     	if (bookNo<6) {
     		// Pentateuch - books of Moses
-    		return Color.rgb(0xCC, 0xCC, 0xFE);
+    		return PENTATEUCH_COLOR;
     	} else if (bookNo<18) {
     		// History
-    		return Color.rgb(0xFE, 0xCC, 0x9B);
+    		return HISTORY_COLOR;
     	} else if (bookNo<23) {
     		// Wisdom
-    		return Color.rgb(0x99, 0xFF, 0x99);
+    		return WISDOM_COLOR;
     	} else if (bookNo<28) {
     		// Major prophets
-    		return Color.rgb(0xFF, 0x99, 0xFF);
+    		return MAJOR_PROPHETS_COLOR;
     	} else if (bookNo<40) {
     		// Minor prophets
-    		return Color.rgb(0xFF, 0xFE, 0xCD);
+    		return MINOR_PROPHETS_COLOR;
     	} else if (bookNo<44) {
     		// Gospels
-    		return Color.rgb(0xFF, 0x97, 0x03);
+    		return GOSPEL_COLOR;
     	} else if (bookNo<45) {
     		// Acts
-    		return Color.rgb(0x00, 0x99, 0xFF);
+    		return ACTS_COLOR;
     	} else if (bookNo<58) {
     		// Pauline epistles
-    		return Color.rgb(0xFF, 0xFF, 0x31);
+    		return PAULINE_COLOR;
     	} else if (bookNo<66) {
     		// General epistles
-    		return Color.rgb(0x67, 0x99, 0x66);
+    		return GENERAL_EPISTLES_COLOR;
     	} else {
     		// Revelation
-    		return Color.rgb(0xFE, 0x33, 0xFF);
+    		return REVELATION_COLOR;
     	}
     }
 }
