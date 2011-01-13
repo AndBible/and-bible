@@ -258,8 +258,6 @@ public class ButtonGrid extends TableLayout {
 		}
 	}
 	
-	
-	
     @Override
 	protected void onDetachedFromWindow() {
     	close();

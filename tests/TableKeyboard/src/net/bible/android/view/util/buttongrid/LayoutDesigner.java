@@ -2,6 +2,8 @@ package net.bible.android.view.util.buttongrid;
 
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo;
 import android.util.Log;
 import example.tablekeyboard.CommonUtils;
@@ -32,7 +34,8 @@ public class LayoutDesigner {
 		RowColLayout rowColLayout = new RowColLayout();
 		int numButtons = buttonInfoList.size();
 		
-		if (buttonInfoList.get(0).name.startsWith("Gen")) {
+		// is it the list of bible books
+		if (buttonInfoList.size()==66 && !StringUtils.isNumeric(buttonInfoList.get(0).name)) {
 			// bible books
 			if (isPortrait()) {
 				rowColLayout = BIBLE_BOOK_LAYOUT;
@@ -40,7 +43,7 @@ public class LayoutDesigner {
 				rowColLayout = BIBLE_BOOK_LAYOUT_LAND;
 			}
 		} else {
-			// Numbers
+			// a list of chapters or verses
 			if (numButtons<=50) {
 				if (isPortrait()) {
 					rowColLayout.cols = 5;
