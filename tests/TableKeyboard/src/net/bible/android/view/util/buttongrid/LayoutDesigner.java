@@ -8,7 +8,8 @@ import example.tablekeyboard.CommonUtils;
 
 public class LayoutDesigner {
 
-	private static int MIN_ROWS = 6;
+	private static int MIN_ROWS = 8;
+	private static int MIN_ROWS_LAND = 5;
 
 	static class RowColLayout {
 		int rows;
@@ -56,7 +57,10 @@ public class LayoutDesigner {
 				}
 			}
 			rowColLayout.rows = (int)Math.ceil(((float)numButtons)/rowColLayout.cols);
-			rowColLayout.rows = Math.max(MIN_ROWS, rowColLayout.rows);
+			
+			// if there are too few buttons/rows you just see a couple of large buttons on the screen so ensure there are enough rows to look nice 
+			int minRows = isPortrait() ? MIN_ROWS : MIN_ROWS_LAND;
+			rowColLayout.rows = Math.max(minRows, rowColLayout.rows);
 		}
 		Log.d(TAG, "Rows:"+rowColLayout.rows+" Cols:"+rowColLayout.cols);
 		return rowColLayout;		

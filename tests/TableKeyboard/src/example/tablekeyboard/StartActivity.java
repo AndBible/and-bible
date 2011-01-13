@@ -4,14 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.bible.android.view.util.buttongrid.ButtonGrid;
-import net.bible.android.view.util.buttongrid.OnButtonGridActionListener;
 import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo;
+import net.bible.android.view.util.buttongrid.OnButtonGridActionListener;
 
 import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.versification.BibleInfo;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 
 public class StartActivity extends Activity {//implements OnTouchListener {
@@ -50,11 +51,17 @@ public class StartActivity extends Activity {//implements OnTouchListener {
     			// this is used for preview
     			buttonInfo.id = i;
 	    		buttonInfo.name = BibleInfo.getShortBookName(i);
+	    		buttonInfo.textColor = getBookTextColor(i);
     		} catch (NoSuchVerseException nsve) {
     			buttonInfo.name = "ERR";
     		}
     		keys.add(buttonInfo);
     	}
     	return keys;
+    }
+    
+    private int getBookTextColor(int bookNo) {
+    	//BibleInfo.getSectionName(section)(i)
+    	return Color.WHITE;
     }
 }
