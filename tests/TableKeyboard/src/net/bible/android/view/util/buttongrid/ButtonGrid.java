@@ -57,15 +57,13 @@ public class ButtonGrid extends TableLayout {
 	private static final String TAG = "ButtonGrid";
 
 	public ButtonGrid(Context context) {
-        this(context, null);
+        this(context, null, 0);
 	}
-    public ButtonGrid(Context context, AttributeSet attrs) {
-        this(context, attrs, R.style.ButtonGrid);
-    }
 
     public ButtonGrid(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs);
         this.mContext = context;
+
         // use generic ViewGroup LayoutParams for Table because we don't know what the parent is
 		setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
 		setStretchAllColumns(true);
