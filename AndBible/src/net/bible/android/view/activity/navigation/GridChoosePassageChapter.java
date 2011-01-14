@@ -32,16 +32,20 @@ public class GridChoosePassageChapter extends ActivityBase implements OnButtonGr
 	
 	private int mBibleBookNo=1;
 
-	private static final String GROUP_DESC = "GROUP_DESC";
-	private static final String CHAPTER_DESC = "CHAPTER_DESC";
-	private static final String CHAPTER_NO = "CHAPTER_NO";
-
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         mBibleBookNo = getIntent().getIntExtra("BOOK_NO", 1);
+        
+        // show chosen book in page title to confirm user choice
+        try {
+        	setTitle(BibleInfo.getLongBookName(mBibleBookNo));
+        } catch (NoSuchVerseException nsve) {
+        	Log.e(TAG, "Error in selected book no", nsve);
+        }
+        
         ButtonGrid grid = new ButtonGrid(this);
         grid.setOnButtonGridActionListener(this);
         
