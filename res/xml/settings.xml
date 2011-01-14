@@ -28,4 +28,8 @@
 				android:summary="@string/prefs_text_size_summary"
 				android:defaultValue="16"
 				android:max="34"/> 
+	<CheckBoxPreference android:key="grid_navigation_pref" 
+				android:title="@string/prefs_grid_navigation_title"
+				android:summary="@string/prefs_grid_navigation_summary"
+				android:defaultValue="true"/> 
 </PreferenceScreen>

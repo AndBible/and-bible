@@ -19,7 +19,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.ExpandableListAdapter;
 
 /**
  * Choose a bible book e.g. Psalms
@@ -30,6 +29,7 @@ import android.widget.ExpandableListAdapter;
  */
 public class GridChoosePassageBook extends ActivityBase implements OnButtonGridActionListener {
 
+	// colour and grouping taken from http://en.wikipedia.org/wiki/Books_of_the_Bible
 	private static final int PENTATEUCH_COLOR = Color.rgb(0xCC, 0xCC, 0xFE);
 	private static final int HISTORY_COLOR = Color.rgb(0xFE, 0xCC, 0x9B);
 	private static final int WISDOM_COLOR = Color.rgb(0x99, 0xFF, 0x99);
@@ -38,7 +38,7 @@ public class GridChoosePassageBook extends ActivityBase implements OnButtonGridA
 	private static final int GOSPEL_COLOR = Color.rgb(0xFF, 0x97, 0x03);
 	private static final int ACTS_COLOR = Color.rgb(0x00, 0x99, 0xFF);
 	private static final int PAULINE_COLOR = Color.rgb(0xFF, 0xFF, 0x31);
-	private static final int GENERAL_EPISTLES_COLOR = Color.rgb(0x67, 0x99, 0x66);
+	private static final int GENERAL_EPISTLES_COLOR = Color.rgb(0x67, 0xCC, 0x66); // changed 99 to CC to make a little clearer on dark background
 	private static final int REVELATION_COLOR = Color.rgb(0xFE, 0x33, 0xFF);
 	
 	private static final String TAG = "GridChoosePassageBook";

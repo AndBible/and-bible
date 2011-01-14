@@ -1,7 +1,9 @@
 package net.bible.android.control.page;
 
 import net.bible.android.activity.R;
+import net.bible.android.view.activity.navigation.ChoosePassageBook;
 import net.bible.android.view.activity.navigation.GridChoosePassageBook;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordApi;
 
 import org.apache.commons.lang.StringUtils;
@@ -42,7 +44,13 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	}
 
 	public Class getKeyChooserActivity() {
-		return GridChoosePassageBook.class;
+		SharedPreferences preferences = CommonUtils.getSharedPreferences();
+		boolean gridNav = preferences.getBoolean("grid_navigation_pref", true);
+		if (gridNav) {
+			return GridChoosePassageBook.class;
+		} else {
+			return ChoosePassageBook.class;
+		}
 	}
 	
 	/* (non-Javadoc)
