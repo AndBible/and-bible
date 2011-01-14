@@ -25,6 +25,10 @@
                   android:label="@string/choosePassageBookName"
                   android:theme="@android:style/Theme.Black">
         </activity>
+        <activity android:name="net.bible.android.view.activity.navigation.GridChoosePassageChapter"
+                  android:label="@string/choosePassageChapterName"
+                  android:theme="@android:style/Theme.Black">
+        </activity>
         <activity android:name="net.bible.android.view.activity.navigation.ChoosePassageBook"
                   android:label="@string/choosePassageBookName"
                   android:configChanges="keyboardHidden|orientation">

@@ -2,15 +2,13 @@ package net.bible.android.view.activity.navigation;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.page.MainBibleActivity;
-import net.bible.android.view.util.keygrid.KeyGridFactory;
-import net.bible.android.view.util.keygrid.KeyGridListener;
-import net.bible.android.view.util.keygrid.KeyGridFactory.KeyGridViewHolder;
-import net.bible.android.view.util.keygrid.KeyGridView.KeyInfo;
+import net.bible.android.view.util.buttongrid.ButtonGrid;
+import net.bible.android.view.util.buttongrid.OnButtonGridActionListener;
+import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo;
 
 import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.Verse;
@@ -18,11 +16,10 @@ import org.crosswire.jsword.versification.BibleInfo;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.ExpandableListAdapter;
-import android.widget.ExpandableListView;
 
 /**
  * Choose a bible book e.g. Psalms
@@ -31,45 +28,39 @@ import android.widget.ExpandableListView;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class GridChoosePassageBook extends ActivityBase implements KeyGridListener {
+public class GridChoosePassageBook extends ActivityBase implements OnButtonGridActionListener {
+
+	private static final int PENTATEUCH_COLOR = Color.rgb(0xCC, 0xCC, 0xFE);
+	private static final int HISTORY_COLOR = Color.rgb(0xFE, 0xCC, 0x9B);
+	private static final int WISDOM_COLOR = Color.rgb(0x99, 0xFF, 0x99);
+	private static final int MAJOR_PROPHETS_COLOR = Color.rgb(0xFF, 0x99, 0xFF);
+	private static final int MINOR_PROPHETS_COLOR = Color.rgb(0xFF, 0xFE, 0xCD);
+	private static final int GOSPEL_COLOR = Color.rgb(0xFF, 0x97, 0x03);
+	private static final int ACTS_COLOR = Color.rgb(0x00, 0x99, 0xFF);
+	private static final int PAULINE_COLOR = Color.rgb(0xFF, 0xFF, 0x31);
+	private static final int GENERAL_EPISTLES_COLOR = Color.rgb(0x67, 0x99, 0x66);
+	private static final int REVELATION_COLOR = Color.rgb(0xFE, 0x33, 0xFF);
+	
 	private static final String TAG = "GridChoosePassageBook";
 
-	private static final String NAME = "NAME";
-	private static final String BOOK_NO = "BOOK_NO";
-
-    private ExpandableListAdapter mAdapter;
-    
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        ButtonGrid grid = new ButtonGrid(this);
         
-        KeyGridViewHolder keyGridViewHolder = KeyGridFactory.getInstance().createKeyGrid(this, getBibleBookKeyInfo(), this); 
+        grid.setOnButtonGridActionListener( this );
         
-        setContentView(keyGridViewHolder.topView);
+        grid.addButtons(getBibleBookButtonInfo());
         
+        setContentView(grid);
     }
     
-    private List<KeyInfo> getBibleBookKeyInfo() {
-    	List<KeyInfo> keys = new ArrayList<KeyInfo>();
-    	for (int i=1; i<=BibleInfo.booksInBible(); i++) {
-    		KeyInfo keyInfo = new KeyInfo();
-    		try {
-    			// this is used for preview
-    			keyInfo.id = i;
-	    		keyInfo.name = BibleInfo.getShortBookName(i);
-    		} catch (NoSuchVerseException nsve) {
-    			keyInfo.name = "ERR";
-    		}
-    		keys.add(keyInfo);
-    	}
-    	return keys;
-    }
-
 	@Override
-	public void keyPressed(KeyInfo keyInfo) {
-		Log.d(TAG, "***Yay:"+keyInfo.id+" "+keyInfo.name);
-    	bookSelected(keyInfo.id);
+	public void buttonPressed(ButtonInfo buttonInfo) {
+		Log.d(TAG, "Book:"+buttonInfo.id+" "+buttonInfo.name);
+    	bookSelected(buttonInfo.id);
 	}
 
     private void bookSelected(int bibleBookNo) {
@@ -81,7 +72,7 @@ public class GridChoosePassageBook extends ActivityBase implements KeyGridListen
         		returnToMainScreen();
     		} else {
     			// select chapter
-	        	Intent myIntent = new Intent(this, ChoosePassageChapter.class);
+	        	Intent myIntent = new Intent(this, GridChoosePassageChapter.class);
 	        	myIntent.putExtra("BOOK_NO", bibleBookNo);
 	        	startActivityForResult(myIntent, bibleBookNo);
     		}
@@ -102,5 +93,76 @@ public class GridChoosePassageBook extends ActivityBase implements KeyGridListen
     	Intent resultIntent = new Intent(this, MainBibleActivity.class);
     	setResult(Activity.RESULT_OK, resultIntent);
     	finish();    
+    }
+    private List<ButtonInfo> getBibleBookButtonInfo() {
+    	List<ButtonInfo> keys = new ArrayList<ButtonInfo>();
+    	for (int i=1; i<=BibleInfo.booksInBible(); i++) {
+    		ButtonInfo buttonInfo = new ButtonInfo();
+    		try {
+    			// this is used for preview
+    			buttonInfo.id = i;
+	    		buttonInfo.name = getBookName(i);
+	    		buttonInfo.textColor = getBookTextColor(i);
+    		} catch (NoSuchVerseException nsve) {
+    			buttonInfo.name = "ERR";
+    		}
+    		keys.add(buttonInfo);
+    	}
+    	return keys;
+    }
+    
+    private String getBookName(int bookNo) throws NoSuchVerseException {
+    	String bookName = BibleInfo.getShortBookName(bookNo);
+    	if (bookName.length()<6) {
+    		return bookName;
+    	}
+    	
+    	StringBuilder shortenedName = new StringBuilder(4);
+    	int i=0;
+    	while (shortenedName.length()<4 && i<bookName.length()) {
+    		char ch = bookName.charAt(i);
+    		if (ch!=' ') {
+    			shortenedName.append(ch);
+    		}
+    		i++;
+    	}
+    	
+    	return shortenedName.toString();
+    	
+    }
+    
+    private int getBookTextColor(int bookNo) {
+    	// colour and grouping taken from http://en.wikipedia.org/wiki/Books_of_the_Bible
+    	if (bookNo<6) {
+    		// Pentateuch - books of Moses
+    		return PENTATEUCH_COLOR;
+    	} else if (bookNo<18) {
+    		// History
+    		return HISTORY_COLOR;
+    	} else if (bookNo<23) {
+    		// Wisdom
+    		return WISDOM_COLOR;
+    	} else if (bookNo<28) {
+    		// Major prophets
+    		return MAJOR_PROPHETS_COLOR;
+    	} else if (bookNo<40) {
+    		// Minor prophets
+    		return MINOR_PROPHETS_COLOR;
+    	} else if (bookNo<44) {
+    		// Gospels
+    		return GOSPEL_COLOR;
+    	} else if (bookNo<45) {
+    		// Acts
+    		return ACTS_COLOR;
+    	} else if (bookNo<58) {
+    		// Pauline epistles
+    		return PAULINE_COLOR;
+    	} else if (bookNo<66) {
+    		// General epistles
+    		return GENERAL_EPISTLES_COLOR;
+    	} else {
+    		// Revelation
+    		return REVELATION_COLOR;
+    	}
     }
 }
