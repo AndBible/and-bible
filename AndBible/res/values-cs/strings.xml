@@ -34,7 +34,7 @@
     <string name="chapter_no">Kapitola %d</string>
 
     <string name="search_index">Vyhledávací index</string>
-    <string name="search_chinese_na">Vyhledávání v dokumentech v čínštině je naplánováno pro budoučí verze programu.</string>
+    <string name="search_chinese_na">Vyhledávání v dokumentech v čínštině je naplánováno pro budoucí verze programu.</string>
     <string name="index_creation_required">Pro hledání je nutný index.\n\nIndexy lze stáhnout z internetu nebo vytvořit lokálně.\n\nStáhnutí je mnohem rychlejší a stáhnuté indexy obsahují více vyhledávacích vlastností.\n\nKe stáhnutí indexů je vyžadováno internetové připojení.\n</string>
     <string name="indexing_wait_msg">Až bude indexace dokončena tak se zobrazí obrazovka pro hledání.</string>
     <string name="index">Index</string>
@@ -58,8 +58,8 @@
     <string name="search_showing_first">Příliš mnoho záznamů. Zobrazuji prvných %d</string> 
     <string name="search_bible_section_group_prompt">Hledat kde</string>
     <string name="search_all_bible">Celá Bible</string>
-    <string name="search_new_testament">Starý zákon</string>
-    <string name="search_old_testament">Nový zákon</string>
+    <string name="search_new_testament">Nový zákon</string>
+    <string name="search_old_testament">Starý zákon</string>
     <string name="search_current_book">Současná kniha</string>
     <string name="error_executing_search">Neplatný dotaz</string>
 
@@ -70,7 +70,7 @@
     <string name="prefs_show_notes_summary">Zobrazit poznámky</string>
     <string name="prefs_show_strongs_title">Zobrazit Strongova čísla</string>
     <string name="prefs_show_strongs_summary">Odkazy na řecké a hebrejské definice</string>
-    <string name="prefs_night_mode_title">Noční režím</string>
+    <string name="prefs_night_mode_title">Noční režim</string>
     <string name="prefs_night_mode_summary">Pro jednodušší čtení ve tmě</string>
     <string name="prefs_text_size_title">Velikost textu</string>
     <string name="prefs_text_size_summary">Vidět více nebo vidět zřetelněji</string>
