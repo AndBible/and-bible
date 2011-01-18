@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Application text
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<resources>
+    <string name="app_name">And Bible</string>
+
+    <string name="splash_top_text">\n\"Dievas tarė, „Teatsiranda šviesa!“ Ir atsirado šviesa.\"\nPradžios 1:3</string>
+    <string name="help_text">Veiksmams atlikti spauskite MENIU mygtuką\n\nKeiskite skyrius naudodami ratuką, D-pad arba braukdami per ekraną pirštu.\n\nSpauskite „Klausyti“, jei norite klausytis šio skyriaus</string>
+    <string name="help_text_long">Vartymas\nKeiskite skyrius naudodami ratuką, D-pad arba braukdami pirštu per ekraną.
+    \n\nVeiksmams atlikti spauskite MENIU
+    \n\nKlausymas\nNorėdami klausytis skyriaus, spauskite „Klausyti“.\nNorėdami nustoti klausytis, dar kartą spauskite „Klausyti“.
+    \n\nNorėdami atverti kontekstinį meniu pasirinktai eilutei, palaikykite paspaudę ekraną pirštu.
+    \nNorėdami gauti dokumento informaciją arba jį pašalinti, palaikykite paspaudę ant dokumento pirštu.
+    \n\nŽymės\nŽymės gali būti pridėtos per eilučių kontekstinį meniu. Žymių tvarkyklė pasiekiama per pagrindinį meniu. Žymių tvarkyklės kontekstinis meniu leidžia grupuoti žymes naudojant korteles.</string>
+    <string name="version_text">Versija %s</string>
+    <string name="no_sdcard_error">Prašome įdėti SD kortelę ir iš naujo paleisti And Bible.</string>
+    <!-- main menu -->
+    <string name="chooseBook">Dokumentas</string>
+    <string name="selectPassage">Tekstas</string>
+    <string name="search">Paieška</string>
+    <string name="settings">Nuostatos</string>
+    <string name="history">Istorija</string>
+    <string name="speak">Klausytis</string>
+    <string name="help">Pagalba</string>
+    
+    <string name="choosePassageBookName">Rinkitės knygą</string>
+    <string name="choosePassageChapterName">Rinkitės skyrių</string>
+    <string name="chapter_range">%1$s skyriai nuo %2$d iki %3$d</string>
+    <string name="chapter_no">Skyrius %d</string>
+
+    <string name="search_index">Paieškos indeksas</string>
+    <string name="search_chinese_na">Kinų dokumentų paieška planuojama kitoms programos versijoms.</string>
+    <string name="index_creation_required">Paieškai reikia indekso.\n\nIndeksai gali būti parsiųsti iš interneto arba sukurti vietoje.\n\nParsiuntimas yra žymiai greitesnis, o ir parsiųsti indeksai turi daugiau savybių, reikalingų paieškai.\n\nIndeksų parsiuntimui reikia interneto ryšio.\n</string>
+    <string name="indexing_wait_msg">Kai indeksavimas bus užbaigtas, jūs atsirasite paieškos lange.</string>
+    <string name="index">Indeksas</string>
+    <string name="index_download">Parsiųsti</string>
+    <string name="index_not_available_for_download">Šio indekso negalima parsiųsti.</string>
+    <string name="index_create">Sukurti</string>
+    
+    <string name="sdcard_error">Deja, tačiau neturite SD kortelės!</string>
+    <string name="directory_error">Deja, nepavyksta pasiekti katalogo %s</string> 
+	<string name="progress_status">Pažanga</string>
+	<string name="task_kill_warning">Šie ilgai trunkantys darbai gali sustoti, jei jiems nepabaigus persijungsite į kitą programą.</string>
+	<string name="no_tasks_running">Šiuo metu nevykdomi jokie darbai.</string>
+	<string name="delete_doc">Pašalinti %s?</string>
+
+	<!-- Search -->
+	<string name="search_words_group_prompt">Ieškoti eilučių</string>
+    <string name="search_all_words">Visi žodžiai</string>
+    <string name="search_any_word">Bet kuris žodis</string>
+    <string name="search_phrase">Frazė</string>
+    <string name="search_result_count">Surasta atitikčių: %d</string>
+    <string name="search_showing_first">Per daug atitikčių.  Rodomos pirmos %d</string> 
+    <string name="search_bible_section_group_prompt">Kur ieškoti</string>
+    <string name="search_all_bible">Visoje Biblijoje</string>
+    <string name="search_new_testament">Naujajame Testamente</string>
+    <string name="search_old_testament">Senajame Testamente</string>
+    <string name="search_current_book">Einamojoje knygoje</string>
+    <string name="error_executing_search">Neteisinga paieškos užklausa</string>
+
+	<!-- Preferences -->
+    <string name="prefs_show_verseno_title">Eilučių numeriai</string>
+    <string name="prefs_show_verseno_summary">Rodyti eilučių numerius</string>
+    <string name="prefs_show_notes_title">Pastabos</string>
+    <string name="prefs_show_notes_summary">Rodyti pastabas</string>
+    <string name="prefs_show_strongs_title">Rodyti Strong numerius</string>
+    <string name="prefs_show_strongs_summary">Nuorodos į graikų &amp; hebrajų apibrėžimus</string>
+    <string name="prefs_night_mode_title">Naktinė veiksena</string>
+    <string name="prefs_night_mode_summary">Lengvesniam skaitymui tamsoje</string>
+    <string name="prefs_text_size_title">Teksto dydis</string>
+    <string name="prefs_text_size_summary">Matyk daugiau arba aiškiau</string>
+    <string name="prefs_grid_navigation_title">Vartykite naudodami tinklelį</string>
+    <string name="prefs_grid_navigation_summary">Vartymui naudoti tinklelius arba sąrašus</string>
+
+	<!-- Notes screen -->
+    <string name="no_chapter_notes">Šiame skyriuje nėra pastabų</string>
+    <string name="no_verse_notes">Šioje eilutėje nėra pastabų</string>
+    <string name="previous">Ankstesnis</string>
+    <string name="next">Kitas</string>
+
+	<!--  Strongs -->
+    <string name="strongs">Strong žodynas</string>
+    <string name="strongs_not_installed">Prašome parsisiųsti Strong žydų ir graikų žodynus</string>
+
+	<!-- Module download -->
+    <string name="download">Parsiųsti dokumentus</string>
+    <string name="download_confirmation">Parsiųsti Bibliją iš interneto?</string>
+    <string name="download_source_message">Dokumentai parsiunčiami iš\nhttp://www.crosswire.org</string>
+    <string name="download_document_confirm_prefix">"Parsiųsti "</string>
+    <string name="error_downloading">Parsiunčiant įvyko klaida.  Patikrinkite interneto ryšį.</string>
+    <string name="no_internet_connection">Nepavyko prisijungti prie interneto</string>
+    <string name="storage_space_warning">Nepakanka vietos vietinėje saugykloje.</string>
+    <string name="wait_for_bible">Prašome palaukti, kol bus parsiųsta Biblija.  Tuomet jūs atsirasite pagrindiniame lange.</string>
+	<string name="wait_for_bible_not_yet">Prašome palaukti.  Biblijos diegimas dar nebaigtas.</string>
+	<string name="download_complete_no_bibles">Nėra įdiegtų Biblijų.  Spauskite „Atgal“ ir bandykite vėl.</string>
+	<string name="too_many_jobs">Per daug vykdomų veiksmų.  Prašome palaukti, kol kai kurie baigsis ir tuomet bandykite vėl.</string>
+
+	<!-- Document context menu -->
+    <string name="delete">Pašalinti</string>
+    <string name="about">Apie</string>
+    
+	<!-- Verse context menu -->
+    <string name="notes">Išnašos ir nuorodos</string>
+    <string name="copy">Kopijuoti einamąją eilutę</string>
+    <string name="send_sms">Pasiųsti eilutę per SMS</string>
+
+	<!-- Bookmarks -->
+    <string name="bookmarks">Žymės</string>
+    <string name="add_bookmark">Pridėti žymę</string>
+    <string name="bookmark_added">Žymė pridėta</string>
+    <string name="bookmark_exists">Žymė jau egzistuoja</string>
+    <string name="bookmark_labels">Žymės kortelės</string>
+    <string name="assign_labels">Priskirti korteles</string>
+    <string name="new_label">Nauja kortelė</string>
+    <string name="new_label_prompt">Pavadinimas</string>
+	
+	<!-- Dictionary -->
+    <string name="dictionary">Žodynas</string>
+    <string name="search_dictionary_hint">Ieškoti žodyne</string>
+    <string name="dictionary_contents">Turinys</string>
+	
+    <string name="error_occurred">Įvyko klaida</string>
+    <string name="okay">Gerai</string>
+    <string name="cancel">Atšaukti</string>
+    <string name="error">Klaida </string>
+    <string name="more">Daugiau</string>
+    <string name="retry">Bandyti vėl</string>
+    <string name="please_wait">prašome palaukti...</string>
+    <string name="all">Viskas</string>
+
+    <string name="tts_lang_not_available">Kalbos nėra.</string>
+</resources>
