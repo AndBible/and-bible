@@ -69,50 +69,6 @@ public class IndexDownloadThread {
             		Log.e(TAG, "Error downloading index", e);
             		Reporter.informUser(this, "Error downloading index");
             	}
-//                
-//
-//                yield();
-//
-//                URI tempDownload = null;
-//                try {
-//                    job.setSectionName(UserMsg.JOB_INIT.toString());
-//
-//                    tempDownload = NetUtil.getTemporaryURI("swd", ZIP_SUFFIX); //$NON-NLS-1$
-//                    log.debug("Temporary URI:"+tempDownload.toString());
-//
-//                    download(job, packageDirectory, sbmd.getInitials() + ZIP_SUFFIX, tempDownload);
-//
-//                    // Once the unzipping is started, we need to continue
-//                    job.setCancelable(false);
-//                    if (!job.isFinished()) {
-//                        File dldir = SwordBookPath.getSwordDownloadDir();
-//                        IOUtil.unpackZip(NetUtil.getAsFile(tempDownload), dldir);
-//                        job.setSectionName(UserMsg.JOB_CONFIG.toString());
-//                        sbmd.setLibrary(NetUtil.getURI(dldir));
-//                        SwordBookDriver.registerNewBook(sbmd);
-//                    }
-//
-//                } catch (IOException e) {
-//                    Reporter.informUser(this, e);
-//                    job.cancel();
-//                } catch (InstallException e) {
-//                    Reporter.informUser(this, e);
-//                    job.cancel();
-//                } catch (BookException e) {
-//                    Reporter.informUser(this, e);
-//                    job.cancel();
-//                } finally {
-//                    job.done();
-//                    // tidy up after ourselves
-//                    if (tempDownload != null) {
-//                        try {
-//                            NetUtil.delete(tempDownload);
-//                        } catch (Exception e) {
-//                            log.warn("Error deleting temp download file:"+e.getMessage());
-//                        }
-//                        
-//                    }
-//                }
             }
         };
 
