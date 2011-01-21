@@ -9,12 +9,13 @@ import java.util.Locale;
 import java.util.Set;
 
 import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
+import net.bible.android.control.download.DownloadControl;
 import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.sword.SwordApi;
 
-import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.util.Language;
 import org.crosswire.common.util.Languages;
@@ -22,7 +23,6 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
-import org.crosswire.jsword.book.Defaults;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -75,6 +75,8 @@ public class Download extends ListActivityBase {
 
 	private Book selectedDocument;
 	
+	private DownloadControl downloadControl;
+	
 	private static final int DOWNLOAD_CONFIRMATION_DIALOG = 33;
 	public static final int DOWNLOAD_MORE_RESULT = 10;
 	public static final int DOWNLOAD_FINISH = 1;
@@ -84,6 +86,8 @@ public class Download extends ListActivityBase {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.download);
+
+        downloadControl = ControlFactory.getInstance().getDownloadControl();
 
         forceBasicFlow = SwordApi.getInstance().getBibles().size()==0;
 
@@ -200,18 +204,7 @@ public class Download extends ListActivityBase {
     			@Override
     	        protected Void doInBackground(Void... noparam) {
     				try {
-	    	        	allDocuments = SwordApi.getInstance().getDownloadableDocuments();
-	    	        	for (Iterator<Book> iter=allDocuments.iterator(); iter.hasNext(); ) {
-	    	        		Book doc = iter.next();
-	    	        		if (doc.getLanguage()==null) {
-	    	        			Log.d(TAG, "Ignoring "+doc.getName()+" because it has no language");
-	    	        			iter.remove();
-	    	        		}
-	    	        		if (doc.getInitials().equals("WebstersDict")) {
-	    	        			Log.d(TAG, "Removing "+doc.getName()+" because it is too big and crashed dictionary code");
-	    	        			iter.remove();
-	    	        		}
-	    	        	}
+	    	        	allDocuments = downloadControl.getDownloadableDocuments();
 	    	        	Log.i(TAG, "number of documents available:"+allDocuments.size());
     				} catch (Exception e) {
     					Log.e(TAG, "Error getting documents to download", e);
