@@ -13,6 +13,7 @@ import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo;
 import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleInfo;
+import org.crosswire.jsword.versification.BibleNames;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -95,13 +96,15 @@ public class GridChoosePassageBook extends ActivityBase implements OnButtonGridA
     	finish();    
     }
     private List<ButtonInfo> getBibleBookButtonInfo() {
-    	List<ButtonInfo> keys = new ArrayList<ButtonInfo>();
-    	for (int i=1; i<=BibleInfo.booksInBible(); i++) {
+    	boolean isShortBookNamesAvailable = isShortBookNames();
+    	
+    	List<ButtonInfo> keys = new ArrayList<ButtonInfo>(BibleInfo.booksInBible());
+    	for (int i=BibleNames.GENESIS; i<=BibleNames.REVELATION; i++) {
     		ButtonInfo buttonInfo = new ButtonInfo();
     		try {
     			// this is used for preview
     			buttonInfo.id = i;
-	    		buttonInfo.name = getBookName(i);
+	    		buttonInfo.name = getShortBookName(i, isShortBookNamesAvailable);
 	    		buttonInfo.textColor = getBookTextColor(i);
     		} catch (NoSuchVerseException nsve) {
     			buttonInfo.name = "ERR";
@@ -110,25 +113,42 @@ public class GridChoosePassageBook extends ActivityBase implements OnButtonGridA
     	}
     	return keys;
     }
+
+	/**
+	 * @return
+	 * @throws NoSuchVerseException
+	 */
+	private boolean isShortBookNames() {
+		try {
+			return !BibleInfo.getShortBookName(BibleNames.GENESIS).equals(BibleInfo.getLongBookName(BibleNames.GENESIS));
+		} catch (NoSuchVerseException nsve) {
+			// should never get here
+			Log.e(TAG, "No such bible book no: 1", nsve);
+			return false;
+		}
+	}
     
-    private String getBookName(int bookNo) throws NoSuchVerseException {
-    	String bookName = BibleInfo.getShortBookName(bookNo);
-    	if (bookName.length()<6) {
-    		return bookName;
+    private String getShortBookName(int bookNo, boolean isShortBookNamesAvailable) throws NoSuchVerseException {
+    	// shortened names exist so use them
+    	if (isShortBookNamesAvailable) {
+    		return BibleInfo.getShortBookName(bookNo);
     	}
+
+    	// getShortName will return the long name in place of the short name
+    	String bookName = BibleInfo.getShortBookName(bookNo);
     	
+    	// so now we shorten the name programatically
     	StringBuilder shortenedName = new StringBuilder(4);
     	int i=0;
     	while (shortenedName.length()<4 && i<bookName.length()) {
     		char ch = bookName.charAt(i);
-    		if (ch!=' ') {
+    		if (ch!=' ' && ch!='.') {
     			shortenedName.append(ch);
     		}
     		i++;
     	}
     	
     	return shortenedName.toString();
-    	
     }
     
     private int getBookTextColor(int bookNo) {

@@ -1,5 +1,7 @@
 package net.bible.android;
 
+import java.util.Locale;
+
 import net.bible.android.activity.R;
 import net.bible.android.device.ProgressNotificationManager;
 import net.bible.android.view.activity.base.Dialogs;
@@ -35,6 +37,17 @@ public class BibleApplication extends Application{
 		Log.i(TAG, "Java:"+System.getProperty("java.vendor")+" ver "+System.getProperty("java.version"));
 		Log.i(TAG, "Java home:"+System.getProperty("java.home"));
 		Log.i(TAG, "User dir:"+System.getProperty("user.dir")+" Timezone:"+System.getProperty("user.timezone"));
+		Locale locale = Locale.getDefault();
+
+		Log.i(TAG, "Locale language:"+locale.getLanguage()+" Variant:"+locale.getDisplayName());
+	
+		// apparently even early Android devices in Israel had Hebrew fonts installed so I commented out the below
+		
+//		// if we try to show hebrew resources on an old phone it will not work
+//		if (!isLocaleSupported(locale)) {
+//			Log.i(TAG, "Changing to English Locale");
+//			Locale.setDefault(Locale.ENGLISH);
+//		}
 		
 		installJSwordErrorReportListener();
 
@@ -80,6 +93,22 @@ public class BibleApplication extends Application{
 			Log.d(TAG, "Finished all Upgrading");
 		}
 	}
+	
+	/** return false if old android and hebrew locale
+	 * 
+	 * @param locale
+	 * @return
+	 */
+//	private boolean isLocaleSupported(Locale locale) {
+//		String langCode = locale.getLanguage();
+//		boolean isHebrew = langCode.equalsIgnoreCase("he") || langCode.equalsIgnoreCase("iw");
+//		if (isHebrew && !CommonUtils.isHebrewFonts()) {
+//			// Locale is Hebrew but OS is old and has no Hebrew fonts
+//			return false;
+//		} else {
+//			return true;
+//		}
+//	}
 	
     /** JSword calls back to this listener in the event of some types of error
      * 
