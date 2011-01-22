@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Choose Book
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+	<EditText android:id="@+id/searchText" 
+		android:layout_height="wrap_content" 
+		android:layout_width="fill_parent" 
+		android:padding="5dip"
+		android:hint="@string/search_dictionary_hint"/>
+		
+	<ListView android:id="@android:id/list"
+		android:layout_width="fill_parent" 
+		android:layout_height="fill_parent"
+		android:choiceMode="singleChoice"/>
+
+</LinearLayout>
