@@ -22,6 +22,7 @@ import net.bible.android.view.util.DataPipe;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.history.HistoryManager;
 
+import org.crosswire.common.util.Language;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.index.IndexStatus;
 
@@ -60,6 +61,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 
 	// detect swipe left/right
 	private GestureDetector gestureDetector;
+
+	private static Language CHINESE = new Language("zh");
 	
     /** Called when the activity is first created. */
     @Override
@@ -217,7 +220,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	Book book = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
 
     	// Chinese search is not currently supported
-    	if (book.getLanguage().equals("zh")) {
+    	Log.d(TAG, "Document Lang:"+book.getLanguage());
+    	if (book.getLanguage().equals(CHINESE)) {
     		showErrorMsg(R.string.search_chinese_na);
     		return null;
     	}
