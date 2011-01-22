@@ -11,6 +11,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
@@ -70,6 +71,10 @@ public class CommonUtils {
         return versionNumber;
 	}
 	
+	public static boolean isFroyoPlus() {
+		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO;
+	}
+
 	public static long getSDCardMegsFree() {
 		StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
 		long bytesAvailable = (long)stat.getBlockSize() *(long)stat.getAvailableBlocks();

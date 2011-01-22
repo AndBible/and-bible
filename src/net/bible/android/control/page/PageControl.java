@@ -1,5 +1,7 @@
 package net.bible.android.control.page;
 
+import net.bible.service.common.CommonUtils;
+
 import org.crosswire.jsword.versification.BibleInfo;
 
 public class PageControl {
@@ -10,8 +12,9 @@ public class PageControl {
 	 */
 	public String getTitle() {
 		boolean fullBookNameSave = BibleInfo.isFullBookName();
-		// show short book name to save space
-		BibleInfo.setFullBookName(false);
+		
+		// show short book name to save space if Portrait
+		BibleInfo.setFullBookName(!CommonUtils.isPortrait());
 		
 		StringBuilder title = new StringBuilder();
 		CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
