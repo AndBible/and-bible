@@ -10,7 +10,7 @@
   <string name="app_name">And Bible</string>
 
   <string name="splash_top_text">\n\"Dieu dit : « Qu\'il y ait de la lumière! », et il y eut de la lumière.\" Genèse 1.3</string>
-  <string name="help_text">Appuyer sur la touche MENU pour toute action\n\nAller au chapitre suivant ou précédent en utilisant le track-ball, le D-pad ou en balayant l\'écran avec votre doigt\n\nCliquer sur Écouter pour entendre le chapitre en cours</string>
+  <string name="help_text">Appuyer sur la touche MENU pour toute action\n\nAller au chapitre suivant ou précédent en utilisant le track-ball, le D-pad ou en balayant l\'écran avec votre doigt</string> 
   <string name="help_text_long">Navigation\nAller au chapitre suivant ou précédent en utilisant le track-ball, le D-pad ou en balayant l\'écran avec votre doigt
     \n\nAppuyer sur la touche MENU pour toute action
     \n\nÉcoute\nCliquer sur Écouter pour entendre le chapitre en cours\nCliquer encore sur Écouter pour arrêter la lecture
@@ -31,20 +31,21 @@
   <string name="choosePassageBookName">Sélectionner un livre</string>
   <string name="choosePassageChapterName">Sélectionner un chapitre</string>
   <string name="chapter_range">%1$s chapitres %2$d à %3$d</string>
+  <string name="chapter_no">Chapitre %d</string>
 
   <string name="search_index">Recherche Index</string>
-  <string name="search_chinese_na">Rechercher dans des documents en chinois est prévu pour une future version.</string>
+  <string name="search_chinese_na">Rechercher dans des documents en chinois est prévu dans une future version.</string>
   <string name="index_creation_required">Un index de recherche est nécessaire.\n\nLes index peuvent être téléchargés à partir d\'Internet ou créés localement.\n\nLe téléchargement est beaucoup plus rapide et les index téléchargés offrent plus de fonctionnalités.\n\nUne connexion internet est requise pour télécharger les index.</string>
     <string name="indexing_wait_msg">Quand l\'indexation sera terminée, vous retrouverez l\'écran de recherche</string>
     <string name="index">Index</string>
     <string name="index_download">Télécharger</string>
-    <string name="index_not_available_for_download">Cet index n\'est pas disponible pour le téléchargement</string>
+    <string name="index_not_available_for_download">Cet index n\'est pas disponible au téléchargement</string>
     <string name="index_create">Créer</string>
 
     <string name="sdcard_error">Désolé, pas de SD card!</string>
     <string name="directory_error">Désolé, impossible d\'accéder au répertoire %s</string> 
     <string name="progress_status">Progression</string>
-    <string name="task_kill_warning">Ces tâches en cours d\'exécution peuvent être arrêtées si vous passez à une autre application avant d\'avoir fini.</string>
+    <string name="task_kill_warning">Ces tâches en cours d\'exécution risquent d\'être terminées si vous passez à une autre application avant d\'avoir fini.</string>
     <string name="no_tasks_running">Il n\'y a pas de tâches en cours d\'exécution.</string>
     <string name="delete_doc">Supprimer %s?</string>
 
@@ -73,6 +74,8 @@
     <string name="prefs_night_mode_summary">Pour une lecture plus facile dans le noir</string>
     <string name="prefs_text_size_title">Taille du texte</string>
     <string name="prefs_text_size_summary">Voir plus ou voir plus clair</string>
+    <string name="prefs_grid_navigation_title">Naviguer en utilisant les grilles</string>
+    <string name="prefs_grid_navigation_summary">Utiliser des grilles ou les listes pour naviguer</string>
 
     <!-- Notes screen -->
     <string name="no_chapter_notes">Aucune note dans ce chapitre</string>
@@ -91,12 +94,13 @@
     <string name="download_document_confirm_prefix">"Télécharger "</string>
     <string name="error_downloading">Une erreur est apparue pendant le téléchargement. Vérifiez votre connexion internet.</string>
     <string name="no_internet_connection">Impossible de se connecter à internet</string>
+    <string name="storage_space_warning">Espace de stockage local insuffisant.</string>
     <string name="wait_for_bible">Veuillez attendre la fin du téléchargement. Vous serez alors redirigé vers la page principale</string>
     <string name="wait_for_bible_not_yet">Veuillez attendre. L\'installation n\'est pas terminée.</string>
     <string name="download_complete_no_bibles">Aucune bible n\'a été installée. Appuyer sur Retour et essayez à nouveau.</string>
     <string name="too_many_jobs">Trop nombreuses tâches d\'exécution en cours. Veuillez attendre la fin de quelques-unes pour essayer à nouveau.</string>
 
-    <!-- Context menus -->
+    <!--  Document context menu -->
     <string name="delete">Supprimer</string>
     <string name="about">À propos</string>
 

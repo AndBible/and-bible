@@ -217,11 +217,13 @@ public class Download extends ListActivityBase {
     	        @Override
 				protected void onPostExecute(Void result) {
     	        	try {
-    	        		populateLanguageList();
-    	        		
-    	        		// default language depends on doc availability so must do in onPostExecute
-    	    	    	setDefaultLanguage();
-    	        		filterDocuments();
+    	        		if (allDocuments!=null) {
+	    	        		populateLanguageList();
+	    	        		
+	    	        		// default language depends on doc availability so must do in onPostExecute
+	    	    	    	setDefaultLanguage();
+	    	        		filterDocuments();
+    	        		}
     	        	} finally {
     	        		//todo implement this: http://stackoverflow.com/questions/891451/android-dismissdialog-does-not-dismiss-the-dialog
         	        	dismissHourglass();

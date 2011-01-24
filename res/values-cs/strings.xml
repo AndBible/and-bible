@@ -10,7 +10,7 @@
     <string name="app_name">And Bible</string>
 
     <string name="splash_top_text">\n\"I řekl Bůh: Buď světlo! I bylo světlo.\"\nGenesis 1:3</string>
-    <string name="help_text">Akce lze vyvolávat z klávesy MENU\n\nNa další nebo předchozí kapitolu lze přejít track-ballem, D-padem nebo posuvem prstu dolevo nebo doprava \n\nPro přečtení současné kapitoly stačí klepnut na Mluvení</string>
+    <string name="help_text">Akce lze vyvolávat z klávesy MENU\n\nNa další nebo předchozí kapitolu lze přejít track-ballem, D-padem nebo posuvem prstu doleva nebo doprava</string>
     <string name="help_text_long">Navigace\nNa další nebo předchozí kapitolu lze přejít track-ballem, D-padem nebo posuvem prstu dolevo nebo doprava
         \n\nAkce lze vyvolávat z klávesy MENU
         \n\nŘeč\nPro přečtení současné kapitoly stačí klepnut na Mluvení\nOpětovným klepnutím na Mluvení se čtení ukončí
@@ -35,7 +35,7 @@
 
     <string name="search_index">Vyhledávací index</string>
     <string name="search_chinese_na">Vyhledávání v dokumentech v čínštině je naplánováno pro budoucí verze programu.</string>
-    <string name="index_creation_required">Pro hledání je nutný index.\n\nIndexy lze stáhnout z internetu nebo vytvořit lokálně.\n\nStáhnutí je mnohem rychlejší a stáhnuté indexy obsahují více vyhledávacích vlastností.\n\nKe stáhnutí indexů je vyžadováno internetové připojení.\n</string>
+    <string name="index_creation_required">Pro hledání je nutný index.\n\nIndexy lze stáhnout z Internetu nebo vytvořit lokálně.\n\nStáhnutí je mnohem rychlejší a stáhnuté indexy obsahují více vyhledávacích vlastností.\n\nKe stáhnutí indexů je vyžadováno internetové připojení.\n</string>
     <string name="indexing_wait_msg">Až bude indexace dokončena tak se zobrazí obrazovka pro hledání.</string>
     <string name="index">Index</string>
     <string name="index_download">Stáhnout</string>
@@ -74,6 +74,8 @@
     <string name="prefs_night_mode_summary">Pro jednodušší čtení ve tmě</string>
     <string name="prefs_text_size_title">Velikost textu</string>
     <string name="prefs_text_size_summary">Vidět více nebo vidět zřetelněji</string>
+    <string name="prefs_grid_navigation_title">Navigace mřížkou</string>
+    <string name="prefs_grid_navigation_summary">Použít pro výběr pasáže mřížku (všechny knihy viditelné) nebo seznam (skupiny knih)</string>
 
 	<!-- Notes screen -->
     <string name="no_chapter_notes">Kapitola neobsahuje poznámky</string>
@@ -87,11 +89,12 @@
 
 	<!-- Module download -->
     <string name="download">Stáhnout dokumenty</string>
-    <string name="download_confirmation">Stáhnout dokumenty z internetu?</string>
+    <string name="download_confirmation">Stáhnout Bibli z Internetu?</string>
     <string name="download_source_message">Dokumenty se stahují z\nhttp://www.crosswire.org</string>
     <string name="download_document_confirm_prefix">"Stáhnout "</string>
     <string name="error_downloading">Vznikla chyba při stahování. Prosím prověřte internetové spojení.</string>
-    <string name="no_internet_connection">Nelze se připojit k internetu</string>
+    <string name="no_internet_connection">Nelze se připojit k Internetu</string>
+    <string name="storage_space_warning">Nedostatek místa k uložení dat.</string>
     <string name="wait_for_bible">Prosím vyčkejte na dokončení stahování Bible. Potom bude zobrazena hlavní obrazovka.</string>
 	<string name="wait_for_bible_not_yet">Prosím vyčkejte.  Instalace Bible ještě nebyla dokončena.</string>
 	<string name="download_complete_no_bibles">Žádná Bible nebyla instalována.  Stiskněte Zpět a zkuste to znovu.</string>
