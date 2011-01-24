@@ -25,6 +25,7 @@
     <string name="choosePassageBookName">Выберите книгу</string>
     <string name="choosePassageChapterName">Выберите главу</string>
     <string name="chapter_range">%1$s главы с %2$d до %3$d</string>
+    <string name="chapter_no">Глава %d</string>
 
     <string name="search_index">Поисковой индекс</string>
     <string name="search_chinese_na">Поиск на китайском языке планируется в будующих версиях.</string>
@@ -67,6 +68,8 @@
     <string name="prefs_night_mode_summary">Для более легкого чтения в темноте</string>
     <string name="prefs_text_size_title">Размер текста</string>
     <string name="prefs_text_size_summary">Большие буквы</string>
+    <string name="prefs_grid_navigation_title">Использовать таблицу для навигации и поиска книг Библии</string>
+    <string name="prefs_grid_navigation_summary">Использовать таблицу или список для навигации и поиска книг Библии</string>
 
 	<!-- Notes screen -->
     <string name="no_chapter_notes">В этой главе нет заметок</string>
@@ -85,6 +88,7 @@
     <string name="download_document_confirm_prefix">"Скачать "</string>
     <string name="error_downloading">Произошла ошибка.  Проверьте подключение к Интернету.</string>
     <string name="no_internet_connection">Нет подключения к Интернету</string>
+    <string name="storage_space_warning">Недостаточно места на диске.</string>
     <string name="wait_for_bible">Подождите, Библия еще не скачалась. Далее вы автоматически перейдете в основное меню.</string>
 	<string name="wait_for_bible_not_yet">Пожалуйста подождите. Библия еще не установилась.</string>
 	<string name="download_complete_no_bibles">Библия не установилась. Нажмите [Назад] и попытайтесь снова.</string>
