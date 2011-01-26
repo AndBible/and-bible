@@ -8,7 +8,7 @@
 <resources>
     <string name="app_name">And Bible</string>
 
-    <string name="splash_top_text">\n\"ויאמר אלוהים, \'יהי אור,\' ויהי אור.\"\nבראשית א\' 3</string>
+    <string name="splash_top_text">\n\"ויאמר אלוהים, \'יהי אור,\' ויהי אור.\"\nבראשית א' 3</string>
     <string name="help_text">לחץ על כפתור התפריט לאפשרויות נוספות\n\nמעבר לפרק הבא או הקודם מתבצע ע"י החלקת האצבע לרוחב המסך</string>
     <string name="help_text_long">דפדוף\nמעבר לפרק הבא או הקודם מתבצע ע"י החלקת האצבע לרוחב המסך, או ע"י גלגלת המכשיר.
     \n\nלחץ על כפתור התפריט לאפשרויות נוספות
@@ -50,7 +50,7 @@
 
 	<!-- Search -->
 	<string name="search_words_group_prompt">חיפוש פסוקים</string>
-    <string name="search_all_words">כל המילים </string>
+    <string name="search_all_words">כל המילים /string>
     <string name="search_any_word">כל מילה</string>
     <string name="search_phrase">ביטוי מדויק</string>
     <string name="search_result_count">תוצאות %d נמצאו</string>
