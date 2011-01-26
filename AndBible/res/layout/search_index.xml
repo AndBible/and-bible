@@ -29,7 +29,7 @@
 			android:onClick="onDownload"
 	        android:layout_width="0dip"
 	        android:layout_height="wrap_content"
-	        android:layout_weight="1"/>
+	        android:layout_weight="2"/>
 
 	  	<Button android:id="@+id/createButton"
 	 		android:text="@string/index_create"

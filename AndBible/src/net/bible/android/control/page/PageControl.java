@@ -4,7 +4,11 @@ import net.bible.service.common.CommonUtils;
 
 import org.crosswire.jsword.versification.BibleInfo;
 
+import android.util.Log;
+
 public class PageControl {
+	
+	private static final String TAG = "PageControl";
 	
 	/** get page title including info about current doc and key/verse
 	 * 
@@ -26,7 +30,6 @@ public class PageControl {
 				 title.append(currentPage.getSingleKey().getName());
 			}
 		}
-		
 		// restore full book name setting
 		BibleInfo.setFullBookName(fullBookNameSave);
 		

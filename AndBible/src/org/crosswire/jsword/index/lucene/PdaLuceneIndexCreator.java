@@ -29,7 +29,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.bible.service.common.CommonUtils;
+import net.bible.service.common.ParseException;
 import net.bible.service.sword.Logger;
+import net.bible.service.sword.SwordApi;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -44,16 +46,13 @@ import org.crosswire.common.util.NetUtil;
 import org.crosswire.common.util.Reporter;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
-import org.crosswire.jsword.book.BookData;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.DataPolice;
-import org.crosswire.jsword.book.FeatureType;
-import org.crosswire.jsword.book.OSISUtil;
 import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.index.lucene.analysis.LuceneAnalyzer;
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.PassageKeyFactory;
-import org.jdom.Element;
 
 /**
  * Implement the SearchEngine using Lucene as the search engine.
@@ -78,25 +77,6 @@ public class PdaLuceneIndexCreator {
      */
     public static final String FIELD_BODY = "content";
 
-    /**
-     * The Lucene field for the strong numbers
-     */
-    public static final String FIELD_STRONG = "strong";
-
-    /**
-     * The Lucene field for headings
-     */
-    public static final String FIELD_HEADING = "heading";
-
-    /**
-     * The Lucene field for cross references
-     */
-    public static final String FIELD_XREF = "xref";
-
-    /**
-     * The Lucene field for the notes
-     */
-    public static final String FIELD_NOTE = "note";
 
     /** we are on a device with limited ram so don't use too much */
     private static final int MAX_RAM_BUFFER_SIZE_MB = 1;
@@ -225,45 +205,42 @@ public class PdaLuceneIndexCreator {
      * Dig down into a Key indexing as we go.
      */
     private void generateSearchIndexImpl(Progress job, List<Key> errors, IndexWriter writer, Key key, int count) throws BookException, IOException {
-        boolean hasStrongs = book.getBookMetaData().hasFeature(FeatureType.STRONGS_NUMBERS);
-        boolean hasXRefs = book.getBookMetaData().hasFeature(FeatureType.SCRIPTURE_REFERENCES);
-        boolean hasNotes = book.getBookMetaData().hasFeature(FeatureType.FOOTNOTES);
-        boolean hasHeadings = book.getBookMetaData().hasFeature(FeatureType.HEADINGS);
+        logger.debug("Generating search Index");
 
         String oldRootName = ""; //$NON-NLS-1$
         int percent = 0;
         String rootName = ""; //$NON-NLS-1$
-        BookData data = null;
-        Element osis = null;
+        Key subkey = null;
+        String canonicalText = null;
 
         // Set up for reuse.
         Document doc = new Document();
-        Field keyField = new Field(FIELD_KEY, "", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO);
-        Field bodyField = new Field(FIELD_BODY, "", Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.NO);
-        Field strongField = new Field(FIELD_STRONG, "", Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.NO);
-        Field xrefField = new Field(FIELD_XREF, "", Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.NO);
-        Field noteField = new Field(FIELD_NOTE, "", Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.NO);
-        Field headingField = new Field(FIELD_HEADING, "", Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.NO);
+        Field keyField = new Field(FIELD_KEY, "", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO); //$NON-NLS-1$
+        Field bodyField = new Field(FIELD_BODY, "", Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.NO); //$NON-NLS-1$
 
         int size = key.getCardinality();
         logger.debug("Number of keys:"+size);
         int subCount = count;
-        for (Key subkey : key) {
+        Iterator<Key> it = key.iterator();
+        while (it.hasNext()) {
+            subkey = it.next();
             if (subkey.canHaveChildren()) {
                 generateSearchIndexImpl(job, errors, writer, subkey, subCount);
             } else {
                 // Set up DataPolice for this key.
                 DataPolice.setKey(subkey);
 
-                data = new BookData(book, subkey);
-                osis = null;
-
                 try {
-                    osis = data.getOsisFragment();
-                } catch (BookException e) {
+                	canonicalText = SwordApi.getInstance().getCanonicalText(book, subkey);
+                } catch (NoSuchKeyException e) {
+                	logger.warn("No such key:"+subkey.getName());
                     errors.add(subkey);
                     continue;
-                }
+	            } catch (ParseException e) {
+	            	logger.warn("Parse exception:"+subkey.getName());
+	                errors.add(subkey);
+	                continue;
+	            }
 
                 // Remove all fields from the document
                 doc.getFields().clear();
@@ -273,43 +250,29 @@ public class PdaLuceneIndexCreator {
                 keyField.setValue(subkey.getOsisRef());
                 doc.add(keyField);
 
-                addField(doc, bodyField, OSISUtil.getCanonicalText(osis));
-
-                if (hasStrongs) {
-                    addField(doc, strongField, OSISUtil.getStrongsNumbers(osis));
-                }
-
-                if (hasXRefs) {
-                    addField(doc, xrefField, OSISUtil.getReferences(osis));
-                }
-
-                if (hasNotes) {
-                    addField(doc, noteField, OSISUtil.getNotes(osis));
-                }
-
-                if (hasHeadings) {
-                    addField(doc, headingField, OSISUtil.getHeadings(osis));
-                }
+                addField(doc, bodyField, canonicalText);
 
                 // Add the document if we added more than just the key.
                 if (doc.getFields().size() > 1) {
                     writer.addDocument(doc);
                 }
 
-                // report progress
-                rootName = subkey.getRootName();
-                if (!rootName.equals(oldRootName)) {
-                    oldRootName = rootName;
-                    job.setSectionName(rootName);
-                }
-
                 subCount++;
-                int oldPercent = percent;
-                percent = 95 * subCount / size;
 
-                if (oldPercent != percent) {
-                    job.setWork(percent);
+                // report progress but not all the time for efficiency
+                if (subCount%50 ==0) {
+	                rootName = subkey.getRootName();
+	                if (!rootName.equals(oldRootName)) {
+	                    oldRootName = rootName;
+	                    job.setSectionName(rootName);
+	                }
+	                percent = 95 * subCount / size;
+	                job.setWork(percent);
+
+	                // and force a garbage collect every so often
+	                System.gc();
                 }
+                
 
                 // This could take a long time ...
                 Thread.yield();
