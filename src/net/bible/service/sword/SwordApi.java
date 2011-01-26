@@ -398,6 +398,12 @@ public class SwordApi {
     }
 
 	public Key search(Book bible, String searchText) throws BookException {
+// 		  example of fetching Strongs ref - only works with downloaded indexes!
+//        Book book = getDocumentByInitials("KJV");
+//        Key key1 = book.find("strong:h3068");
+//        System.out.println("*** h3068 result count:"+key1.getCardinality());
+
+		
 		// This does a standard operator search. See the search
 		// documentation for more examples of how to search
 		Key key = bible.find(searchText); //$NON-NLS-1$

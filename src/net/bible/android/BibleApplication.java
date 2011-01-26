@@ -24,8 +24,6 @@ public class BibleApplication extends Application{
 	private static BibleApplication singleton;
 	private static final String TAG = "BibleApplication";
 	
-	private Activity currentActivity;
-	
 	@Override
 	public void onCreate() {
 		super.onCreate();
