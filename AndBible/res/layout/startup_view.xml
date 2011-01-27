@@ -31,12 +31,12 @@
 	<TextView android:id="@+id/splash_help_text"
 			android:text="@string/help_text" 
 			android:layout_width="fill_parent" 
-			android:layout_height="fill_parent"
+			android:layout_height="wrap_content"
 			android:gravity="left"
 			android:layout_below="@+id/splash_top_text"
 			style="@style/HelpFont"
 			android:padding="5dip"
-			android:layout_centerInParent="true"/>
+			android:layout_centerVertical="true"/>
 	<TextView android:id="@+id/versionText" 
 			android:layout_width="fill_parent" 
 			android:layout_height="wrap_content"
