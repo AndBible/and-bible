@@ -98,9 +98,7 @@ public class StartupActivity extends ActivityBase {
     	if (errorMessage.length()==0) {
 	       	Intent handlerIntent = new Intent(StartupActivity.this, Download.class);
 	    	startActivityForResult(handlerIntent, 1);
-	    	
-	    	// tidy up these resources
-	    	removeDialog(CAN_DOWNLOAD_DLG);
+
 	    	finish();
 		} else {
 			Dialogs.getInstance().showErrorMsg(errorMessage, new Callback() {
@@ -133,12 +131,14 @@ public class StartupActivity extends ActivityBase {
             	       .setCancelable(false)
             	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
             	           public void onClick(DialogInterface dialog, int id) {
+            	        	   removeDialog(CAN_DOWNLOAD_DLG);
             	        	   doGotoDownloadActivity();
             	           }
             	       })
             	       .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             	           public void onClick(DialogInterface dialog, int id) {
-           	                  StartupActivity.this.finish();
+            	        	   removeDialog(CAN_DOWNLOAD_DLG);
+            	        	   StartupActivity.this.finish();
             	           }
             	       }).create();
         }
