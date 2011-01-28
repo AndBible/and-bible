@@ -241,7 +241,10 @@ public class SwordApi {
 	public FormattedDocument readHtmlText(Book book, Key key, int maxKeyCount) throws ParseException
 	{
 		FormattedDocument retVal = new FormattedDocument();
-		if (!book.contains(key)) {
+		if (book==null || key==null) {
+			//TODO this should include css to change to night mode if necessary
+			retVal.setHtmlPassage("");
+		} else if (!book.contains(key)) {
 			//TODO this should include css to change to night mode if necessary
 			retVal.setHtmlPassage("Not found in document");
 		} else {
