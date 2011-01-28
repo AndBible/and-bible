@@ -186,6 +186,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	@Override
 	public void saveState(SharedPreferences outState) {
 		if (getCurrentDocument()!=null && currentBibleVerse!=null && currentBibleVerse.getVerseSelected()!=null) {
+			Log.d(TAG, "Saving state");
 			SharedPreferences.Editor editor = outState.edit();
 			editor.putString("document", getCurrentDocument().getInitials());
 			editor.putInt("bible-book", currentBibleVerse.getCurrentBibleBookNo());
@@ -214,13 +215,14 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 			}
 
 			// bypass setter to avoid automatic notifications
-			int bibleBookNo =  inState.getInt("bible-book", 1);
+			int bibleBookNo =  inState.getInt("bible-book", 0);
 			int chapterNo = inState.getInt("chapter", 1);
 			int verseNo = inState.getInt("verse", 1);
-			Log.d(TAG, "Restored verse:"+bibleBookNo+"."+chapterNo+"."+verseNo);
-			Verse verse = new Verse(bibleBookNo, chapterNo, verseNo, true);
-			this.currentBibleVerse.setVerseSelected(verse);
-
+			if (bibleBookNo!=0) {
+				Log.d(TAG, "Restored verse:"+bibleBookNo+"."+chapterNo+"."+verseNo);
+				Verse verse = new Verse(bibleBookNo, chapterNo, verseNo, true);
+				this.currentBibleVerse.setVerseSelected(verse);
+			}
 			Log.d(TAG, "Current passage:"+toString());
 		} 
 		// force an update here from default chapter/verse

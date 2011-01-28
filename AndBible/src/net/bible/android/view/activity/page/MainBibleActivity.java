@@ -56,6 +56,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	// request codes passed to and returned from sub-activities
 	private static final int STD_REQUEST_CODE = 1;
 	private static final int REFRESH_DISPLAY_ON_FINISH = 2;
+	private static final int UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH = 3;
 
 	private static final String TAG = "MainBibleActivity";
 
@@ -136,6 +137,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	            	Dialogs.getInstance().showErrorMsg(R.string.no_internet_connection);
 	        	} else {
 	        		handlerIntent = new Intent(this, Download.class);
+	        		requestCode = UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH;
 	        	}
 	        	break;
 	        case R.id.helpButton:
@@ -213,6 +215,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     		Log.i(TAG, "Refresh on finish");
     		bibleWebView.applyPreferenceSettings();
     		bibleContentManager.updateText(true);
+    	} else if (requestCode == UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH) {
+    		updateSuggestedDocuments();
     	}
     }
 

@@ -107,7 +107,7 @@ abstract class CurrentPageBase implements CurrentPage {
 	 */
 	@Override
 	public void setCurrentDocumentAndKey(Book doc, Key key) {
-		doSetKey(null);
+		doSetKey(key);
 		localSetCurrentDocument(doc);
 	}
 	

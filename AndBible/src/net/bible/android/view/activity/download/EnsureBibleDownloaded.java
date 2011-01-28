@@ -1,6 +1,9 @@
 package net.bible.android.view.activity.download;
 
+import java.util.List;
+
 import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ProgressActivityBase;
 import net.bible.android.view.activity.page.MainBibleActivity;
@@ -9,6 +12,7 @@ import net.bible.service.sword.SwordApi;
 
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.progress.Progress;
+import org.crosswire.jsword.book.Book;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -73,7 +77,6 @@ public class EnsureBibleDownloaded extends ProgressActivityBase {
     public void onContinue(View v) {
     	Log.i(TAG, "CLICKED");
         if (SwordApi.getInstance().getBibles().size()>0) {
-        	
         	gotoMainScreen();
         } else {
         	TextView warn = (TextView)findViewById(R.id.waitForBibleNotYet);
@@ -89,6 +92,9 @@ public class EnsureBibleDownloaded extends ProgressActivityBase {
     }
     
     private void gotoMainScreen() {
+    	// set an appropriate default verse for the bible just downloaded
+    	ControlFactory.getInstance().getPageControl().setFirstUseDefaultVerse();
+    	
 		Intent intent = new Intent(this, MainBibleActivity.class);
     	startActivity(intent);
     	finish();
