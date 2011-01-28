@@ -1,0 +1,38 @@
+Issues:
+Mentions specific Nikud issue in Hebrew - holds out hope for Honeycomb
+http://groups.google.com/group/android-contrib/browse_thread/thread/5b6b079f9ec7792a?pli=1
+
+Ongoing request for proper rtl Arabic - postponed until 
+http://code.google.com/p/android/issues/detail?id=5597
+
+Surrounding  : in <bdo dir='rtl> sorts the :
+Surrounding the whole body with <bdo dir='rtl> as well as each verse also helps a lot. 
+Modern Hebrew Bible has no vowels but the unusual colon char then messes it up
+
+U+05C3	:(replaced with normal colon)	d7 83	HEBREW PUNCTUATION SOF PASUQ
+http://www.utf8-chartable.de/unicode-utf8-table.pl
+
+This is the problem!  Hebrew rtl works for only if no vowels are used.
+http://code.google.com/p/android/issues/detail?id=1580#c149
+
+Use BabelPad to analyse the text
+
+examples
+http://www.i18nguy.com/markup/right-to-left.html
+
+rtl javascript
+http://narthollis.net/projects/netnarthollis.git/tree/static/closure-library-read-only/closure/goog/i18n/
+
+http://stackoverflow.com/questions/2546022/css-direction-rtl-element-order-problem
+
+ref to special char (\u200F) and dejavu fonts
+http://stackoverflow.com/questions/2593503/using-hebrew-with-the-android-emulator
+
+http://stackoverflow.com/questions/1473556/using-span-to-add-a-direction-dir-rtl
+
+// code to output text from screen to a file - add to BibleContentManager.doInBackground()
+    OutputStream fos = new FileOutputStream("/sdcard/biblepage.html");
+    Writer out = new OutputStreamWriter(fos, "UTF8");
+    out.write(text);
+    out.close();
+	            
