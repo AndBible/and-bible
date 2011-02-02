@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The main menu accessed via Menu key
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<item android:id="@+id/notes"
+		  android:title="@string/notes"/>
+	<item android:id="@+id/add_bookmark"
+		  android:title="@string/add_bookmark"/>
+	<item android:id="@+id/copy" 
+		  android:title="@string/copy"/>
+	<item android:id="@+id/sendSms" 
+		  android:title="@string/send_sms"/>
+
+</menu>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Application text
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<resources>
+    <string name="app_name">And Bible</string>
+
+    <string name="splash_top_text">\n\"ויאמר אלוהים, \'יהי אור,\' ויהי אור.\"\nבראשית א' 3</string>
+    <string name="help_text">לחץ על כפתור התפריט לאפשרויות נוספות\n\nמעבר לפרק הבא או הקודם מתבצע ע"י החלקת האצבע לרוחב המסך</string>
+    <string name="help_text_long">דפדוף\nמעבר לפרק הבא או הקודם מתבצע ע"י החלקת האצבע לרוחב המסך, או ע"י גלגלת המכשיר.
+    \n\nלחץ על כפתור התפריט לאפשרויות נוספות
+    \n\הקראה\nלחץ הקראה כדי להקריא בקול רם טקסט מסומן\nלחץ שוב כדי להפסיק את ההקראה
+    \n\nלחיצה ארוכה על פסוק, תתן אפשרויות נוספות לגביו
+    \nלחיצה ארוכה על טקסט תציג אפשרות למידע או למחיקהו
+    \n\סימניות\nניתן להוסיף סימניות מתפריט ההקשר. לניהול הסימניות ניתן להגיע באמצעות התפריט.  ניתן גם להוסיף תוויות לסימניות.</string>
+    <string name="version_text">גרסה %s</string>
+    <string name="no_sdcard_error">אנא הכנס כרטיס זכרון, והפעל מחדש את התוכנה.</string>
+    <!-- main menu -->
+    <string name="chooseBook">הטקסט</string>
+    <string name="selectPassage">מעבר</string>
+    <string name="search">חיפוש</string>
+    <string name="settings">הגדרות</string>
+    <string name="history">היסטוריה</string>
+    <string name="speak">הקראה</string>
+    <string name="help">עזרה</string>
+    
+    <string name="choosePassageBookName">בחר ספר</string>
+    <string name="choosePassageChapterName">בחר פרק</string>
+    <string name="chapter_range">%1$s chapters %2$d to %3$d</string>
+    <string name="chapter_no">פרק %d</string>
+
+    <string name="search_index">אינדקס לחיפוש</string>
+    <string name="search_chinese_na">חיפוש בטקסטים סיניים יתאפשר רק בגרסאות עתידיות.</string>
+    <string name="index_creation_required">נדרש אינדקס כדי לחפש.\n\nניתן להוריד אינדקסים מהאינטרנט, או ליצור אותם במכשיר.\n\nהורדה תהיה מהירה יותר, ותכיל יותר אפשרויות.\n\nנדרש חיבור לאינטרנט כדי להוריד אינדקסים.\n</string>
+    <string name="indexing_wait_msg">כשיצירת האינדקס תסתיים, תועבר למסך החיפוש.</string>
+    <string name="index">אינדקס</string>
+    <string name="index_download">הורדה</string>
+    <string name="index_not_available_for_download">האינדקס אינו זמין להורדה</string>
+    <string name="index_create">יצירה</string>
+    
+    <string name="sdcard_error">!מצטערים, אך אין לך כרטיס זכרון</string>
+    <string name="directory_error">מצטערים, לא ניתן לגשת לתיקיה %s</string> 
+	<string name="progress_status">בתהליך</string>
+	<string name="task_kill_warning">יותר מדי משימות רצות כעת, ולכן אם תצא מהתוכנה הן עלולות להסגר לפני שיסתיימו.</string>
+	<string name="no_tasks_running">אין משימות שפועלות כעת.</string>
+	<string name="delete_doc">האם למחוק %s?</string>
+
+	<!-- Search -->
+	<string name="search_words_group_prompt">חיפוש פסוקים</string>
+    <string name="search_all_words">כל המילים /string>
+    <string name="search_any_word">כל מילה</string>
+    <string name="search_phrase">ביטוי מדויק</string>
+    <string name="search_result_count">תוצאות %d נמצאו</string>
+    <string name="search_showing_first">נמצאו יותר מדי תוצאות. מציג את %d הראשונות:</string> 
+    <string name="search_bible_section_group_prompt">תחום החיפוש</string>
+    <string name="search_all_bible">כל הכתובים</string>
+    <string name="search_new_testament">הברית החדשה בלבד</string>
+    <string name="search_old_testament">התנ"ך בלבד</string>
+    <string name="search_current_book">הספר הנוכחי</string>
+    <string name="error_executing_search">שגיאה בשאילתת החיפוש</string>
+
+	<!-- Preferences -->
+    <string name="prefs_show_verseno_title">מספרי פסוקים</string>
+    <string name="prefs_show_verseno_summary">הצג מספרי פסוקים</string>
+    <string name="prefs_show_notes_title">הערות</string>
+    <string name="prefs_show_notes_summary">הצג הערות</string>
+    <string name="prefs_show_strongs_title">הצג מספרי Strong</string>
+    <string name="prefs_show_strongs_summary">קישורים להגדרות ביוונית ועברית</string>
+    <string name="prefs_night_mode_title">מצב לילה</string>
+    <string name="prefs_night_mode_summary">לקריאה נוחה יותר בחושך</string>
+    <string name="prefs_text_size_title">גודל הטקסט</string>
+    <string name="prefs_text_size_summary">שינוי גודל האותיות</string>
+    <string name="prefs_grid_navigation_title">דפדוף בעזרת טבלה</string>
+    <string name="prefs_grid_navigation_summary">השתמש בטבלה או ברשימה כדי לדפדף</string>
+
+	<!-- Notes screen -->
+    <string name="no_chapter_notes">אין הערות לפרק זה</string>
+    <string name="no_verse_notes">אין הערות לפסוק זה</string>
+    <string name="previous">אחורה</string>
+    <string name="next">קדימה</string>
+
+	<!--  Strongs -->
+    <string name="strongs">מילון Strong</string>
+    <string name="strongs_not_installed">אנא הורד מילוני Strong לעברית ויוונית</string>
+
+	<!-- Module download -->
+    <string name="download">הורדת טקסטים</string>
+    <string name="download_confirmation">האם להוריד טקסט מהאינטרנט ?</string>
+    <string name="download_source_message">אנו מורידים את הטקסטים מ: \nhttp://www.crosswire.org</string>
+    <string name="download_document_confirm_prefix">"הורדה "</string>
+    <string name="error_downloading">אירעה שגיאה במהלך ההורדה. אנא בדוק את החיבור לאינטרנט.</string>
+    <string name="no_internet_connection">לא מצליח להתחבר לאינטרנט</string>
+    <string name="storage_space_warning">אין מספיק מקום אחסון.</string>
+    <string name="wait_for_bible">אנא המתן לסיום ההורדה.  לאחר מכן תוחזר למסך הראשי.</string>
+	<string name="wait_for_bible_not_yet">אנא המתן.  יש טקסט שהתקנתו עדיין לא הסתיימה.</string>
+	<string name="download_complete_no_bibles">אין טקסטים מותקנים. אנא לחץ על כפתור החזרה ונסה שנית.</string>
+	<string name="too_many_jobs">יותר מדי משימות פועלות יחד כרגע. אנא המתן שחלקן יסתיימו, ונסה שוב.</string>
+
+	<!-- Document context menu -->
+    <string name="delete">מחיקה</string>
+    <string name="about">אודות</string>
+    
+	<!-- Verse context menu -->
+    <string name="notes">הערות שוליים ומראי מקום</string>
+    <string name="copy">העתק פסוק זה</string>
+    <string name="send_sms">שלח את הפסוק כהודעת SMS</string>
+
+	<!-- Bookmarks -->
+    <string name="bookmarks">סימניות</string>
+    <string name="add_bookmark">הוסף סימניה</string>
+    <string name="bookmark_added">הסימניה נוספה</string>
+    <string name="bookmark_exists">הסימניה כבר קיימת</string>
+    <string name="bookmark_labels">תוויות לסימניות</string>
+    <string name="assign_labels">הוסף תוויות</string>
+    <string name="new_label">תווית חדשה</string>
+    <string name="new_label_prompt">שם</string>
+	
+	<!-- Dictionary -->
+    <string name="dictionary">מילון</string>
+    <string name="search_dictionary_hint">חיפוש במילון</string>
+    <string name="dictionary_contents">תכנים</string>
+	
+    <string name="error_occurred">אירעה שגיאה</string>
+    <string name="okay">אישור</string>
+    <string name="cancel">ביטול</string>
+    <string name="error">שגיאה </string>
+    <string name="more">עוד</string>
+    <string name="retry">נסה שנית</string>
+    <string name="please_wait">אנא המתן...</string>
+    <string name="all">הכל</string>
+
+    <string name="tts_lang_not_available">שפה זו אינה זמינה.</string>
+</resources>

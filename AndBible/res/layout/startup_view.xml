@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The first page - normally skipped over
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/background_blue_light">
+	<TextView android:id="@+id/splash_title_text" 
+			android:text="@string/app_name" 
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content"
+			android:gravity="center"
+			style="@style/SplashTitleFont"
+			android:layout_alignParentTop="true"
+			android:padding="5dip"/>
+	<TextView android:id="@+id/splash_top_text" 
+			android:text="@string/splash_top_text" 
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content"
+			android:gravity="right"
+			style="@style/SplashTopFont"
+			android:paddingLeft="5dip"
+			android:paddingRight="5dip"
+			android:paddingBottom="5dip"
+			android:layout_below="@+id/splash_title_text"/>
+	<TextView android:id="@+id/splash_help_text"
+			android:text="@string/help_text" 
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content"
+			android:gravity="left"
+			android:layout_below="@+id/splash_top_text"
+			style="@style/HelpFont"
+			android:padding="5dip"
+			android:layout_centerVertical="true"/>
+	<TextView android:id="@+id/versionText" 
+			android:layout_width="fill_parent" 
+			android:layout_height="wrap_content"
+			android:gravity="right"
+			android:padding="5dip"
+			style="@style/SplashBottomFont"
+			android:layout_alignParentBottom="true"/>
+</RelativeLayout>
