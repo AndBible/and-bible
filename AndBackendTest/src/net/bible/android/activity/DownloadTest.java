@@ -35,9 +35,22 @@ public class DownloadTest extends TestCase {
 		}
 	}
 
+	public void testDownloadKJV() {
+		try {
+			SwordApi.getInstance().downloadDocument(getBook("KJV"));
+			Thread.sleep(30000);
+			Book book = SwordApi.getInstance().getDocumentByInitials("KJV");
+			assertNotNull("KJV not downloaded:", book);
+			System.out.println("fin");
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Strongs problem");
+		}
+	}
+
 	public void testDownloadIndex() {
 		try {
-			Book book = SwordApi.getInstance().getDocumentByInitials("ESV");
+			Book book = SwordApi.getInstance().getDocumentByInitials("KJV");
 			
 			SwordApi.getInstance().downloadDocument(book);
 			Thread.sleep(30000);

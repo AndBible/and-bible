@@ -90,8 +90,12 @@ public class DictionaryTest extends TestCase {
 	}
 
 	public void testSearchStrongs() throws Exception {
-//		Book book = Defaults.getHebrewDefinitions();
-//		
+        Book book = SwordApi.getInstance().getDocumentByInitials("KJV");
+        Key key = book.find("strong:h3068");
+        System.out.println("h3068 result count:"+key.getCardinality());
+        Key key2 = book.find("strong:h4714");
+        System.out.println("h4714 result count:"+key2.getCardinality());
+		
 //		Collections.binarySearch(arg0, arg1)
 //		assertEquals(book.getInitials(), "StrongsHebrew");
 //		Key key1 = book.getKey("00853");
