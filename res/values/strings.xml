@@ -106,7 +106,7 @@
 	<!-- Verse context menu -->
     <string name="notes">Footnotes and references</string>
     <string name="copy">Copy current verse</string>
-    <string name="send_sms">Send verse via SMS</string>
+    <string name="share_verse">Share ...</string>
 
 	<!-- Bookmarks -->
     <string name="bookmarks">Bookmarks</string>

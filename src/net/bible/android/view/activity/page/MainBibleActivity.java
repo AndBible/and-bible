@@ -347,10 +347,10 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 			ControlFactory.getInstance().getBookmarkControl().bookmarkCurrentVerse();
 			return true;
 		case R.id.copy:
-			ControlFactory.getInstance().getCurrentPageControl().copyToClipboard();
+			ControlFactory.getInstance().getPageControl().copyToClipboard();
 			return true;
-		case R.id.sendSms:
-			ControlFactory.getInstance().getCurrentPageControl().sendVerseInSms();
+		case R.id.shareVerse:
+			ControlFactory.getInstance().getPageControl().shareVerse();
 			return true;
 		}
 
