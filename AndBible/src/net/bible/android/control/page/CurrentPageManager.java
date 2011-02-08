@@ -63,41 +63,6 @@ public class CurrentPageManager {
 		return currentDictionaryPage;
 	}
 	
-	/** paste the current verse to the system clipboard
-	 */
-	public void copyToClipboard() {
-		try {
-			Book book = getCurrentPage().getCurrentDocument();
-			Key key = getCurrentPage().getSingleKey();
-			
-			String text = key.getName()+"\n"+SwordApi.getInstance().getCanonicalText(book, key);
-			ClipboardManager clipboard = (ClipboardManager)BibleApplication.getApplication().getSystemService(Activity.CLIPBOARD_SERVICE);
-			clipboard.setText(text);
-		} catch (Exception e) {
-			Log.e(TAG, "Error pasting to clipboard", e);
-			Dialogs.getInstance().showErrorMsg("Error copying to clipboard");
-		}
-	}
-
-	/** send the current verse via SMS
-	 */
-	public void sendVerseInSms() {
-		try {
-			Book book = getCurrentPage().getCurrentDocument();
-			Key key = getCurrentPage().getSingleKey();
-			
-			String text = key.getName()+"\n"+SwordApi.getInstance().getCanonicalText(book, key);
-			
-			Intent sendIntent = new Intent(Intent.ACTION_VIEW);
-			sendIntent.putExtra("sms_body", text); 
-			sendIntent.setType("vnd.android-dir/mms-sms");
-			CurrentActivityHolder.getInstance().getCurrentActivity().startActivity(sendIntent);
-		} catch (Exception e) {
-			Log.e(TAG, "Error sending SMS", e);
-			Dialogs.getInstance().showErrorMsg("Error sending SMS");
-		}
-	}
-	
 	public CurrentPage setCurrentDocument(Book currentBook) {
 		PassageChangeMediator.getInstance().onBeforeCurrentPageChanged();
 

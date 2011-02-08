@@ -29,6 +29,12 @@ public class ControlFactory {
 		return singleton;
 	}
 	
+	private ControlFactory() {
+		// inject dependencies
+		pageControl.setCurrentPageManager(this.currentPageManager);
+		
+	}
+	
 	public DocumentControl getDocumentControl() {
 		return documentControl;		
 	}
