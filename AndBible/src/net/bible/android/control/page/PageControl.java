@@ -57,7 +57,10 @@ public class PageControl {
 			
 			Intent sendIntent  = new Intent(Intent.ACTION_SEND);
 			sendIntent.setType("text/plain");
+
 			sendIntent.putExtra(Intent.EXTRA_TEXT, text);
+			// subject is used when user chooses to send verse via e-mail
+			sendIntent.putExtra(Intent.EXTRA_SUBJECT, BibleApplication.getApplication().getText(R.string.share_verse_subject));
 
 			Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
 			activity.startActivity(Intent.createChooser(sendIntent, activity.getString(R.string.share_verse))); 
@@ -68,26 +71,6 @@ public class PageControl {
 		}
 	}
 	
-	/** this is no longer used
-	 */
-	public void sendVerseInSms() {
-		try {
-			Book book = mCurrentPageManager.getCurrentPage().getCurrentDocument();
-			Key key = mCurrentPageManager.getCurrentPage().getSingleKey();
-			
-			String text = key.getName()+"\n"+SwordApi.getInstance().getCanonicalText(book, key);
-			
-			Intent sendIntent = new Intent(Intent.ACTION_VIEW);
-			sendIntent.putExtra("sms_body", text); 
-			sendIntent.setType("vnd.android-dir/mms-sms");
-			CurrentActivityHolder.getInstance().getCurrentActivity().startActivity(sendIntent);
-		} catch (Exception e) {
-			Log.e(TAG, "Error sending SMS", e);
-			Dialogs.getInstance().showErrorMsg("Error sending SMS");
-		}
-	}
-	
-
 	/** This is only called after the very first bible download to attempt to ensure the first page is not 'Verse not found' 
 	 * go through a list of default verses until one is found in the first/only book installed
 	 */
