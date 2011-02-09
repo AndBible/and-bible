@@ -106,7 +106,8 @@
 	<!-- Verse context menu -->
     <string name="notes">Footnotes and references</string>
     <string name="copy">Copy current verse</string>
-    <string name="share_verse">Share ...</string>
+    <string name="share_verse">Share current verse ...</string>
+    <string name="share_verse_subject">A Bible verse has been shared with you using And Bible</string>
 
 	<!-- Bookmarks -->
     <string name="bookmarks">Bookmarks</string>
