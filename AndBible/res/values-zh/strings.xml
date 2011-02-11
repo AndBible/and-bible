@@ -38,7 +38,7 @@
 	<string name="search_all_words">所有的词</string>
 	<string name="search_any_word">任何一词</string>
 	<string name="search_phrase">完整的句子</string>
-	<string name="search_result_count">%d 未找到</string>
+	<string name="search_result_count">找到 %d 条记录</string>
 	<string name="search_showing_first">符合条件的结果很多. 仅显示前面的 %d 条</string>
 
 	<string name="search_bible_section_group_prompt">查询范围</string>
@@ -90,4 +90,33 @@
 	<string name="please_wait">请等待...</string>
 
 	<string name="tts_lang_not_available">朗读功能不支持汉语</string>
+<string name="version_text">%s</string>
+    <string name="download_source_message">从 http://www.crosswire.org\n下载</string>
+    <string name="prefs_text_size_summary">调整字体</string>
+    <string name="bookmarks">书签</string>
+    <string name="strongs">Strong字典</string>
+    <string name="bookmark_exists">书签已经存在</string>
+    <string name="bookmark_labels">书签标签</string>
+    <string name="copy">复制</string>
+    <string name="bookmark_added">书签已保存</string>
+    <string name="share_verse_subject">本节圣经已经分享</string>
+    <string name="prefs_show_strongs_summary">显示Strong的定义</string>
+    <string name="index_not_available_for_download">索引无法下载</string>
+    <string name="prefs_show_strongs_title">显示Strong序数</string>
+    <string name="storage_space_warning">SD卡存储空间不足50M</string>
+    <string name="prefs_grid_navigation_title">使用排列的按钮来导航</string>
+    <string name="about">关于</string>
+    <string name="prefs_text_size_title">字体大小</string>
+    <string name="prefs_grid_navigation_summary">导航方式</string>
+    <string name="share_verse">分享</string>
+    <string name="add_bookmark">保存书签</string>
+    <string name="delete">删除</string>
+    <string name="all">所有</string>
+    <string name="strongs_not_installed"> 请下载Strong的希伯来语和希腊语字典</string>
+    <string name="new_label_prompt">名称</string>
+    <string name="new_label">新标签</string>
+    <string name="chapter_no">第 %s 章</string>
+    <string name="delete_doc">删除 %s</string>
+    <string name="search_chinese_na">汉语查询功能将在后续版本中实现</string>
+    <string name="assign_labels">分配标签</string>
 </resources>
