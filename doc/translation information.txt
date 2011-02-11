@@ -5,7 +5,7 @@ hu - Gabor 27/12/2010
 nb - Lars 1/12/2010
 ru - Dirk 24/1/2011
 sv - Thomas 30/09/2010
-zh (used simplified from zh-cn - simplified Chinese)
+zh - Guan 10/2/2010
 cs - martin 24/1/2011
 pl - Marcin 28/12/2010
 fo - Sigurð 1/1/2011
