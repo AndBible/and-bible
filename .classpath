@@ -10,5 +10,6 @@
 	<classpathentry exported="true" kind="lib" path="libs/lucene-analyzers-3.0.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/lucene-core-3.0.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/lucene-snowball-3.0.3.jar"/>
+	<classpathentry exported="true" kind="lib" path="libs/mmseg4j-all-1.8.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
