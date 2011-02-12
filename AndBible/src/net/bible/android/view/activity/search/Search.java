@@ -1,6 +1,9 @@
 package net.bible.android.view.activity.search;
 
 import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
+import net.bible.android.control.search.SearchControl;
+import net.bible.android.control.search.SearchControl.SearchBibleSection;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.page.MainBibleActivity;
 
@@ -16,7 +19,6 @@ import android.view.View;
 import android.view.View.OnKeyListener;
 import android.widget.EditText;
 import android.widget.RadioGroup;
-import android.widget.Toast;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 
 /** Allow user to enter search criteria
@@ -36,9 +38,6 @@ public class Search extends ActivityBase {
 	private int wordsRadioSelection = R.id.allWords;
 	private int sectionRadioSelection = R.id.searchAllBible;
 	
-	private static final String SEARCH_NEW_TESTAMENT = "+[Mat-Rev]";
-	private static final String SEARCH_OLD_TESTAMENT = "+[Gen-Mal]";
-//	private BookName currentBibleBook; 
 	
     /** Called when the activity is first created. */
     @Override
@@ -47,8 +46,6 @@ public class Search extends ActivityBase {
         Log.i(TAG, "Displaying Search view");
         setContentView(R.layout.search);
     
-//        currentBibleBook = CurrentBiblePage.getInstance().getCurrentBibleBook();
-        
         mSearchTextInput =  (EditText)findViewById(R.id.searchText);
         mSearchTextInput.setOnKeyListener(new OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -62,10 +59,6 @@ public class Search extends ActivityBase {
                 return false;
             }
         });
-        // removed to make controls fit better on screen
-        // set text for current bible book on appropriate radio button
-//        RadioButton currentBookRadioButton = (RadioButton)findViewById(R.id.searchCurrentBook);
-//        currentBookRadioButton.setText(currentBibleBook.getLongName());
         
         RadioGroup wordsRadioGroup = (RadioGroup)findViewById(R.id.wordsGroup);
         wordsRadioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -100,14 +93,9 @@ public class Search extends ActivityBase {
     }
     
     private String decorateSearchString(String searchString) {
-    	String decorated = searchString;
+    	SearchControl searchControl = ControlFactory.getInstance().getSearchControl();
+    	String decorated = searchControl.decorateSearchString(searchString, getSearchType(), getBibleSection());
 
-    	// add search type (all/any/phrase) to search string
-    	decorated = getSearchType().decorate(searchString);
-
-    	// add bible section limitation to search text
-    	decorated = getBibleSection()+" "+decorated;
-    	
     	return decorated;
     }
 
@@ -131,19 +119,17 @@ public class Search extends ActivityBase {
      * 
      * @return
      */
-    private String getBibleSection() {
+    private SearchBibleSection getBibleSection() {
     	switch (sectionRadioSelection) {
     	case R.id.searchAllBible:
-    		return "";
+    		return SearchBibleSection.ALL;
     	case R.id.searchOldTestament:
-            return SEARCH_OLD_TESTAMENT;
+            return SearchBibleSection.OT;
     	case R.id.searchNewTestament:
-            return SEARCH_NEW_TESTAMENT;
-//    	case R.id.searchCurrentBook:
-//            return "+["+currentBibleBook.getShortName()+"];
+            return SearchBibleSection.NT;
         default:
         	Log.e(TAG, "Unexpected radio selection");
-            return "";
+    		return SearchBibleSection.ALL;
     	}
     }
     
