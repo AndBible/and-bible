@@ -14,5 +14,6 @@
 	<classpathentry kind="lib" path="jar/lucene-core-3.0.2.jar"/>
 	<classpathentry kind="lib" path="jar/lucene-smartcn-3.0.2.jar"/>
 	<classpathentry kind="lib" path="jar/lucene-snowball-3.0.2.jar"/>
+	<classpathentry kind="lib" path="jar/mmseg4j-all-1.8.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

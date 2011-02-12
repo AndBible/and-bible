@@ -41,8 +41,11 @@ public class MJDIndexAll {
 	
     public static void main(String[] args) {
     	MJDIndexAll indexAll = new MJDIndexAll();
-//    	indexAll.manageCreateIndexes();
-    	indexAll.indexSingleBook("ChiUns");
+//    	indexAll.setupDirs();
+//    	indexAll.showInstalledBooks();
+//    	indexAll.showRepoBooks();
+    	indexAll.manageCreateIndexes();
+//    	indexAll.indexSingleBook("ChiUns");
     }
 
     private void indexSingleBook(String initials) {
@@ -100,7 +103,8 @@ public class MJDIndexAll {
         List<Book> books = (List<Book>)bookInstaller.getRepositoryBooks(REPOSITORY, BOOK_FILTER);
         
         for (Book book : books) {
-            System.out.println(book.getName());
+        	String lang = book.getLanguage()==null? " " : book.getLanguage().getCode();
+            System.out.println(lang+" "+book.getName());
         }
     }
     
