@@ -63,8 +63,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	// detect swipe left/right
 	private GestureDetector gestureDetector;
 
-	private static Language CHINESE = new Language("zh");
-	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -223,13 +221,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     private Intent getSearchIntent() {
     	Book book = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
 
-    	// Chinese search is not currently supported
-    	Log.d(TAG, "Document Lang:"+book.getLanguage());
-    	if (book.getLanguage().equals(CHINESE)) {
-    		showErrorMsg(R.string.search_chinese_na);
-    		return null;
-    	}
-    	
     	IndexStatus indexStatus = book.getIndexStatus();
     	Log.d(TAG, "Index status:"+indexStatus);
     	if (indexStatus.equals(IndexStatus.DONE)) {

@@ -1,18 +1,22 @@
 package net.bible.android;
 
+import java.util.List;
 import java.util.Locale;
 
 import net.bible.android.activity.R;
 import net.bible.android.device.ProgressNotificationManager;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
+import net.bible.service.sword.SwordApi;
 
 import org.apache.commons.lang.StringUtils;
+import org.crosswire.common.util.Language;
 import org.crosswire.common.util.Reporter;
 import org.crosswire.common.util.ReporterEvent;
 import org.crosswire.common.util.ReporterListener;
+import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.bridge.BookIndexer;
 
-import android.app.Activity;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -39,14 +43,6 @@ public class BibleApplication extends Application{
 
 		Log.i(TAG, "Locale language:"+locale.getLanguage()+" Variant:"+locale.getDisplayName());
 	
-		// apparently even early Android devices in Israel had Hebrew fonts installed so I commented out the below
-		
-//		// if we try to show hebrew resources on an old phone it will not work
-//		if (!isLocaleSupported(locale)) {
-//			Log.i(TAG, "Changing to English Locale");
-//			Locale.setDefault(Locale.ENGLISH);
-//		}
-		
 		installJSwordErrorReportListener();
 
 		// some changes may be required for different versions
@@ -86,6 +82,29 @@ public class BibleApplication extends Application{
 				
 				Log.d(TAG, "Finished Upgrading preference");
 			}
+
+			// there was a problematic Chinese index architecture before ver 24 so delete any old indexes
+			if (prefs.getInt("version", -1) < 24) {
+				Log.d(TAG, "Deleting old Chinese indexes");
+				Language CHINESE = new Language("zh");
+
+				List<Book> books = SwordApi.getInstance().getDocuments();
+				for (Book book : books) {
+					if (CHINESE.equals(book.getLanguage())) {
+						try {
+							BookIndexer bookIndexer = new BookIndexer(book);
+			                // Delete the book, if present
+			                if (bookIndexer.isIndexed()) {
+			                    Log.d(TAG, "*** Deleting index for "+book.getInitials());
+			                    bookIndexer.deleteIndex();
+			                }
+						} catch (Exception e) {
+							Log.e(TAG, "Error deleting index", e);
+						}
+					}
+				}
+			}
+			
 			editor.putInt("version", CommonUtils.getApplicationVersionNumber());
 			editor.commit();
 			Log.d(TAG, "Finished all Upgrading");
