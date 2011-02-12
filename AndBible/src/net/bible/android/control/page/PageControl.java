@@ -98,7 +98,24 @@ public class PageControl {
 	 * 
 	 * @return
 	 */
-	public String getTitle() {
+	public String getCurrentDocumentTitle() {
+	
+		StringBuilder title = new StringBuilder();
+		CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
+		if (currentPage!=null) {
+			if (currentPage.getCurrentDocument()!=null) {
+				title.append(currentPage.getCurrentDocument()).append(" ");
+			}
+		}
+		
+		return title.toString();
+	}
+
+	/** get page title including info about current doc and key/verse
+	 * 
+	 * @return
+	 */
+	public String getCurrentPageTitle() {
 		boolean fullBookNameSave = BibleInfo.isFullBookName();
 		
 		// show short book name to save space if Portrait
@@ -107,9 +124,9 @@ public class PageControl {
 		StringBuilder title = new StringBuilder();
 		CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
 		if (currentPage!=null) {
-			if (currentPage.getCurrentDocument()!=null) {
-				title.append(currentPage.getCurrentDocument()).append(" ");
-			}
+//			if (currentPage.getCurrentDocument()!=null) {
+//				title.append(currentPage.getCurrentDocument()).append(" ");
+//			}
 			if (currentPage.getSingleKey()!=null) {
 				 title.append(currentPage.getSingleKey().getName());
 			}

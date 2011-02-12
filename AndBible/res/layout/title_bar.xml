@@ -4,9 +4,16 @@
     android:layout_width="fill_parent" 
     android:layout_height="28dip">
 
-    <TextView android:id="@+id/title"
+    <Button android:id="@+id/titleDocument"
+	        android:layout_width="wrap_content"
+			style="@style/TitleBarTitleButton"
 			android:text="@string/app_name"
-			style="@style/TitleBarTitle"
+			android:layout_alignParentLeft="true"
+    />
+    <Button android:id="@+id/titlePassage"
+	        android:layout_width="wrap_content"
+			style="@style/TitleBarTitleButton"
+	        android:layout_toRightOf="@+id/titleDocument"
     />
 	<ProgressBar android:id="@+id/progressCircular"
 			style="?android:attr/progressBarStyleSmallTitle"
@@ -16,7 +23,7 @@
 			android:layout_gravity="center_vertical"
 			android:visibility="gone"
 			android:max="10000"
-	        android:layout_toRightOf="@+id/title"
+	        android:layout_toRightOf="@+id/titlePassage"
 			/>
     <Button android:id="@+id/quickBibleChange"
 	        android:layout_width="70dip"

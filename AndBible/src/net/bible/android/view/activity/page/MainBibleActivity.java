@@ -6,6 +6,7 @@ import net.bible.android.control.BibleContentManager;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.PageControl;
 import net.bible.android.device.TextToSpeechController;
 import net.bible.android.view.activity.Help;
 import net.bible.android.view.activity.NotesActivity;
@@ -22,7 +23,6 @@ import net.bible.android.view.util.DataPipe;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.history.HistoryManager;
 
-import org.crosswire.common.util.Language;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.index.IndexStatus;
 
@@ -32,6 +32,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -39,7 +40,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 
 /** The main activity screen showing Bible text
  * 
@@ -239,7 +239,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 			@Override
 			public void run() {
 				setProgressBar(true);
-		    	setTitle("");
+		    	setPageTitleVisible(false);
 			}
 		});
     }
@@ -249,8 +249,10 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-		    	String passageDesc = ControlFactory.getInstance().getPageControl().getTitle();
-		    	setTitle(passageDesc);
+				PageControl pageControl = ControlFactory.getInstance().getPageControl();
+		    	setDocumentTitle(pageControl.getCurrentDocumentTitle());
+		    	setPageTitle(pageControl.getCurrentPageTitle());
+		    	setPageTitleVisible(true);
 		    	setProgressBar(false);
 		    	updateSuggestedDocuments();
 			}
@@ -263,8 +265,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-		    	String passageDesc = ControlFactory.getInstance().getPageControl().getTitle();
-		    	setTitle(passageDesc);
+		    	String passageDesc = ControlFactory.getInstance().getPageControl().getCurrentPageTitle();
+		    	setPageTitle(passageDesc);
 			}
 		});
     }
