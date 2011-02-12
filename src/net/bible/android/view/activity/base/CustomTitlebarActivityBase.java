@@ -3,21 +3,22 @@ package net.bible.android.view.activity.base;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.view.activity.navigation.ChooseDocument;
 
 import org.crosswire.jsword.book.Book;
 
+import android.content.Intent;
 import android.content.res.Configuration;
-import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 public class CustomTitlebarActivityBase extends ActivityBase {
 
-	private TextView mTitle;
+	private Button mDocumentTitleLink;
+	private Button mPageTitleLink;
 	private ProgressBar mProgressBarIndeterminate;
 	private Button mQuickBibleChangeLink;
 	private Book mSuggestedBible;
@@ -35,10 +36,25 @@ public class CustomTitlebarActivityBase extends ActivityBase {
 		super.setContentView(layoutResID);
         getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title_bar);
 
-        mTitle = (TextView)findViewById(R.id.title);
+        mDocumentTitleLink = (Button)findViewById(R.id.titleDocument);
+        mPageTitleLink = (Button)findViewById(R.id.titlePassage);
         mProgressBarIndeterminate = (ProgressBar)findViewById(R.id.progressCircular);
         mQuickBibleChangeLink = (Button)findViewById(R.id.quickBibleChange);
         mQuickCommentaryChangeLink = (Button)findViewById(R.id.quickCommentaryChange);
+
+        mDocumentTitleLink.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+            	Intent handlerIntent = new Intent(CustomTitlebarActivityBase.this, ChooseDocument.class);
+            	startActivityForResult(handlerIntent, 1);
+            }
+        });
+
+        mPageTitleLink.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+            	Intent handlerIntent = new Intent(CustomTitlebarActivityBase.this, CurrentPageManager.getInstance().getCurrentPage().getKeyChooserActivity());
+            	startActivityForResult(handlerIntent, 1);
+            }
+        });
 
         mQuickBibleChangeLink.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
@@ -57,10 +73,10 @@ public class CustomTitlebarActivityBase extends ActivityBase {
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		
-		// the title bar has different widths depending on the orientation
-		int titleBarTitleWidthPixels = getResources().getDimensionPixelSize(R.dimen.title_bar_title_width);
-		Log.d(TAG, "Title bar width:"+titleBarTitleWidthPixels);
-		mTitle.setWidth(titleBarTitleWidthPixels);
+//		// the title bar has different widths depending on the orientation
+//		int titleBarTitleWidthPixels = getResources().getDimensionPixelSize(R.dimen.title_bar_title_width);
+//		Log.d(TAG, "Title bar width:"+titleBarTitleWidthPixels);
+//		mPageTitle.setWidth(titleBarTitleWidthPixels);
 	}
 
 	/** update the quick links in the title bar
@@ -86,11 +102,22 @@ public class CustomTitlebarActivityBase extends ActivityBase {
 
     /** must wait until child has setContentView before setting custom title bar so intercept the method and then set the title bar
      */
-	@Override
-	public void setTitle(CharSequence title) {
-		mTitle.setText(title);
+	public void setPageTitleVisible(boolean show) {
+		mPageTitleLink.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
+	}
+
+	/** must wait until child has setContentView before setting custom title bar so intercept the method and then set the title bar
+     */
+	public void setPageTitle(CharSequence title) {
+		mPageTitleLink.setText(title);
 	}
 	
+    /** must wait until child has setContentView before setting custom title bar so intercept the method and then set the title bar
+     */
+	public void setDocumentTitle(CharSequence title) {
+		mDocumentTitleLink.setText(title);
+	}
+
 	public void setProgressBar(boolean on) {
 		mProgressBarIndeterminate.setVisibility(on ? View.VISIBLE : View.INVISIBLE);
 	}

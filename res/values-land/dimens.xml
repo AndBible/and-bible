@@ -19,6 +19,6 @@
 -->
 
 <resources>
-	<dimen name="title_bar_title_width">300dip</dimen>
+	<dimen name="title_bar_title_width">280dip</dimen>
 	<integer name="key_grid_cols">11</integer>
 </resources>
