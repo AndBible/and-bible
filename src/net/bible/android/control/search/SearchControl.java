@@ -7,24 +7,46 @@ import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.Dialogs;
-import net.bible.android.view.activity.search.Search;
 import net.bible.service.common.CommonUtils;
-import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
+import org.crosswire.jsword.index.search.SearchType;
 import org.crosswire.jsword.passage.Key;
 
 import android.util.Log;
-import android.widget.Toast;
 
 public class SearchControl {
+
+	public static enum SearchBibleSection {
+		OT,
+		NT,
+		CURRENT_BOOK,
+		ALL
+	}
+	private static final String SEARCH_OLD_TESTAMENT = "+[Gen-Mal]";
+	private static final String SEARCH_NEW_TESTAMENT = "+[Mat-Rev]";
+//	private BookName currentBibleBook; 
 
 	public static final int MAX_SEARCH_RESULTS = 100;
 
 	private static final String TAG = "SearchControl";
 	
+    public String decorateSearchString(String searchString, SearchType searchType, SearchBibleSection bibleSection) {
+    	String cleanSearchString = cleanSearchString(searchString);
+    	
+    	String decorated;
+
+    	// add search type (all/any/phrase) to search string
+    	decorated = searchType.decorate(cleanSearchString);
+
+    	// add bible section limitation to search text
+    	decorated = getBibleSectionTerm(bibleSection)+" "+decorated;
+    	
+    	return decorated;
+    }
+
     /** do the search query and prepare results in lists ready for display
      * 
      */
@@ -61,7 +83,35 @@ public class SearchControl {
 		}
 		return verseText;
 	}
-	
+
+	/** double spaces and leading or trailing space cause lucene errors
+	 * 
+	 * @param search
+	 * @return
+	 */
+	private String cleanSearchString(String search) {
+		return search.replace("  ", " ").trim();
+	}
+    /** get OT, NT, or all query limitation
+     * 
+     * @return
+     */
+    private String getBibleSectionTerm(SearchBibleSection bibleSection) {
+    	switch (bibleSection) {
+    	case ALL:
+    		return "";
+    	case OT:
+            return SEARCH_OLD_TESTAMENT;
+    	case NT:
+            return SEARCH_NEW_TESTAMENT;
+//    	case R.id.searchCurrentBook:
+//            return "+["+currentBibleBook.getShortName()+"];
+        default:
+        	Log.e(TAG, "Unexpected radio selection");
+            return "";
+    	}
+    }
+
 	/** download index 
 	 * 
 	 * @return true if managed to start download in background
