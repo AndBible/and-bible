@@ -20,10 +20,13 @@ import org.crosswire.jsword.bridge.BookIndexer;
 import android.app.Application;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Configuration;
 import android.util.Log;
 
 public class BibleApplication extends Application{
 
+	private Locale overrideLocale;
+	
 	private static final String TEXT_SIZE_PREF = "text_size_pref";
 	private static BibleApplication singleton;
 	private static final String TAG = "BibleApplication";
@@ -39,22 +42,52 @@ public class BibleApplication extends Application{
 		Log.i(TAG, "Java:"+System.getProperty("java.vendor")+" ver "+System.getProperty("java.version"));
 		Log.i(TAG, "Java home:"+System.getProperty("java.home"));
 		Log.i(TAG, "User dir:"+System.getProperty("user.dir")+" Timezone:"+System.getProperty("user.timezone"));
-		Locale locale = Locale.getDefault();
-
-		Log.i(TAG, "Locale language:"+locale.getLanguage()+" Variant:"+locale.getDisplayName());
 	
 		installJSwordErrorReportListener();
 
 		// some changes may be required for different versions
 		upgradePersistentData();
 		
-        //initialise link to Android progress control display in Notification bar
-       ProgressNotificationManager.getInstance().initialise();
+		// initialise link to Android progress control display in Notification bar
+		ProgressNotificationManager.getInstance().initialise();
+
+		allowLocaleOverride();
+		Locale locale = Locale.getDefault();
+		Log.i(TAG, "Locale language:"+locale.getLanguage()+" Variant:"+locale.getDisplayName());
+	}
+
+	/** Allow user interface locale override by changing Settings
+	 */
+	private void allowLocaleOverride() {
+		// Has the user selected a custom locale?
+		Configuration config = getBaseContext().getResources().getConfiguration();
+		String lang = CommonUtils.getLocalePref();
+		if (!"".equals(lang) && !config.locale.getLanguage().equals(lang)) {
+			overrideLocale = new Locale(lang);
+			Locale.setDefault(overrideLocale);
+			config.locale = overrideLocale;
+			getBaseContext().getResources().updateConfiguration(config,	getBaseContext().getResources().getDisplayMetrics());
+		}
 	}
 
 	public static BibleApplication getApplication() {
 		return singleton;
 	}
+
+	/**
+	 * http://stackoverflow.com/questions/2264874/android-changing-locale-within-the-app-itself
+	 */
+    @Override
+    public void onConfigurationChanged(Configuration newConfig)
+    {
+        super.onConfigurationChanged(newConfig);
+        if (overrideLocale != null)
+        {
+            newConfig.locale = overrideLocale;
+            Locale.setDefault(overrideLocale);
+            getBaseContext().getResources().updateConfiguration(newConfig, getBaseContext().getResources().getDisplayMetrics());
+        }
+    }
 
 	private void upgradePersistentData() {
 		SharedPreferences prefs = CommonUtils.getSharedPreferences();

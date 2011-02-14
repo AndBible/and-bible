@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.page;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.BibleContentManager;
@@ -40,6 +41,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Toast;
 
 /** The main activity screen showing Bible text
  * 
@@ -58,6 +60,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	private static final int REFRESH_DISPLAY_ON_FINISH = 2;
 	private static final int UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH = 3;
 
+	private String mPrevLocalePref = "";
+	
 	private static final String TAG = "MainBibleActivity";
 
 	// detect swipe left/right
@@ -120,6 +124,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	        case R.id.settingsButton:
 	        	handlerIntent = new Intent(this, SettingsActivity.class);
 	        	// force the bible view to be refreshed after returning from settings screen because notes, verses, etc. may be switched on or off
+	        	mPrevLocalePref = CommonUtils.getLocalePref();
 	        	requestCode = REFRESH_DISPLAY_ON_FINISH;
 	        	break;
 	        case R.id.historyButton:
@@ -211,6 +216,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	
     	if (requestCode == REFRESH_DISPLAY_ON_FINISH) {
     		Log.i(TAG, "Refresh on finish");
+    		if (!CommonUtils.getLocalePref().equals(mPrevLocalePref)) {
+    			Toast.makeText(getApplicationContext(), R.string.locale_change_warning, Toast.LENGTH_LONG).show();
+    		}
     		bibleWebView.applyPreferenceSettings();
     		bibleContentManager.updateText(true);
     	} else if (requestCode == UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH) {

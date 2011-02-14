@@ -75,6 +75,9 @@
     <string name="prefs_text_size_summary">See more or see more clearly</string>
     <string name="prefs_grid_navigation_title">Navigate using grids</string>
     <string name="prefs_grid_navigation_summary">Use grids or lists to navigate</string>
+    <string name="prefs_interface_locale_title">Aplication language</string>
+    <string name="prefs_interface_locale_summary">Select custom user interface language</string>
+    <string name="locale_change_warning">Application must be restarted to use new interface language</string>
 
 	<!-- Notes screen -->
     <string name="no_chapter_notes">No notes exist in this chapter</string>
