@@ -11,5 +11,17 @@
 		<item>Commentary</item>
 		<item>Dictionary</item>
 	</string-array>
+	<string-array name="prefs_interface_locale_descriptions">
+		<item>Default</item>
+		<item>German</item>
+		<item>French</item>
+		<item>Faroese</item>
+	</string-array>
+	<string-array name="prefs_interface_locale_values">
+		<item></item>
+		<item>de</item>
+		<item>fr</item>
+		<item>fo</item>
+	</string-array>
 		
 </resources>

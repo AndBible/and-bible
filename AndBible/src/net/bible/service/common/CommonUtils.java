@@ -163,6 +163,10 @@ public class CommonUtils {
     	return BibleApplication.getApplication().getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT;
     }
 
+    public static String getLocalePref() {
+    	return getSharedPreferences().getString("locale_pref", "");
+    }
+    
 	/** get preferences used by User Prefs screen
 	 * 
 	 * @return
