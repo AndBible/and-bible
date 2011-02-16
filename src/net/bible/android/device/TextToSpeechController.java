@@ -5,7 +5,6 @@ import java.util.Locale;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPage;
-import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
@@ -16,7 +15,7 @@ import android.speech.tts.TextToSpeech;
 import android.util.Log;
 
 /**
- * <p>Demonstrates text-to-speech (TTS). Please note the following steps:</p>
+ * <p>text-to-speech (TTS). Please note the following steps:</p>
  *
  * <ol>
  * <li>Construct the TextToSpeech object.</li>
@@ -37,8 +36,6 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 
     private TextToSpeech mTts;
 
-    private boolean mIsSpeaking;
-    
     private Book mDocument;
     private Key mKey;
     private String bookLanguageCode;
@@ -55,14 +52,12 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     private TextToSpeechController() {
     }
 
-    public void speak(Context context, CurrentPage page) {
+    public void speak(Context context, CurrentPage page, String textToSpeak) {
     	this.context = context;
     	try {
 	    	bookLanguageCode = page.getCurrentDocument().getLanguage().getCode();
 	    	mDocument = page.getCurrentDocument();
-	    	mKey = page.getKey();
-	    	Log.d(TAG, "Speaking:"+mDocument+" "+mKey);
-	    	textToSpeak = SwordApi.getInstance().getCanonicalText(mDocument, mKey);
+	    	this.textToSpeak = textToSpeak;
 	    	
 	        // Initialize text-to-speech. This is an asynchronous operation.
 	        // The OnInitListener (second argument) is called after initialization completes.
@@ -81,7 +76,6 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
             mTts.stop();
             mTts.shutdown();
         }
-		mIsSpeaking = false;
     }
 
     // Implements TextToSpeech.OnInitListener.
@@ -93,7 +87,13 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
             // Note that a language may not be available, and the result will indicate this.
         	String bookLang = this.bookLanguageCode;
 	    	Log.d(TAG, "Book has language code:"+bookLang);
-        	Locale locale = new Locale(bookLang);
+	    	Locale locale = null;
+	    	if (bookLang.equals(Locale.getDefault().getLanguage())) {
+	    		// for people in UK the UK accent is preferable to the US accent
+	    		locale = Locale.getDefault();
+	    	} else {
+	    		locale = new Locale(bookLang);
+	    	}
 	    	Log.d(TAG, "Speech locale:"+locale);
             int result = mTts.setLanguage(locale);
             if (result == TextToSpeech.LANG_MISSING_DATA ||
@@ -107,8 +107,6 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
             	if (ok==TextToSpeech.ERROR) {
             		Log.e(TAG, "Error registering onUtteranceCompletedListener");
             	}
-            	
-            	mIsSpeaking = true;
             	
             	// say the text
                 sayText();
@@ -149,7 +147,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 	}
 
 	public boolean isSpeaking() {
-		Log.d(TAG, "isSpeaking:"+mIsSpeaking);
-		return mIsSpeaking;
+		Log.d(TAG, "isSpeaking called");
+		return mTts.isSpeaking();
 	}
 }

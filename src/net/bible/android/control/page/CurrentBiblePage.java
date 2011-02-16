@@ -98,6 +98,12 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 		}
 	}
 	
+	public Key addPages(int num) {
+		Verse currVer = this.currentBibleVerse.getVerseSelected();
+		Verse targetChapterVerse = new Verse(currVer.getBook(), currVer.getChapter()+num, 1, true); 
+		return new VerseRange(targetChapterVerse.getFirstVerseInChapter(), targetChapterVerse.getLastVerseInChapter());
+	}
+
 	/* (non-Javadoc)
 	 * @see net.bible.android.control.CurrentPage#setKey(java.lang.String)
 	 */

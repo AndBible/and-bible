@@ -73,6 +73,12 @@ abstract class CurrentPageBase implements CurrentPage {
 	}
 
 	@Override
+	public Key addPages(int num) {
+		//TODO implement
+		return getKey();
+	}
+
+	@Override
 	public boolean isSingleKey() {
 		return false;
 	}

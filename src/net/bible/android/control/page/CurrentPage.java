@@ -18,6 +18,8 @@ public interface CurrentPage {
 	public abstract void next();
 
 	public abstract void previous();
+	
+	public abstract Key addPages(int num);
 
 	public abstract void setKey(Key key);
 
