@@ -1,6 +1,5 @@
 package net.bible.android.view.activity.page;
 
-import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.BibleContentManager;
@@ -8,7 +7,6 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
-import net.bible.android.device.TextToSpeechController;
 import net.bible.android.view.activity.Help;
 import net.bible.android.view.activity.NotesActivity;
 import net.bible.android.view.activity.SettingsActivity;
@@ -20,6 +18,7 @@ import net.bible.android.view.activity.navigation.ChooseDocument;
 import net.bible.android.view.activity.navigation.History;
 import net.bible.android.view.activity.search.Search;
 import net.bible.android.view.activity.search.SearchIndex;
+import net.bible.android.view.activity.speak.SpeakBible;
 import net.bible.android.view.util.DataPipe;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.history.HistoryManager;
@@ -27,6 +26,9 @@ import net.bible.service.history.HistoryManager;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.index.IndexStatus;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -133,6 +135,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	        case R.id.bookmarksButton:
 	        	handlerIntent = new Intent(this, Bookmarks.class);
 	        	break;
+	        case R.id.speakButton:
+	        	handlerIntent = new Intent(this, SpeakBible.class);
+	        	break;
 	        case R.id.downloadButton:
 	        	if (CommonUtils.getSDCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
 	            	Dialogs.getInstance().showErrorMsg(R.string.storage_space_warning);
@@ -164,22 +169,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 //                	break;
 //                }
 //    		}
-    	}
-    	if (!isHandled) {
-	        switch (item.getItemId()) {
-	        case R.id.speakButton:
-	        	// speak current chapter or stop speech if already speaking
-	        	TextToSpeechController tts = TextToSpeechController.getInstance();
-	        	if (tts.isSpeaking()) {
-	        		Log.d(TAG, "TTS is speaking so stop it");
-	        		tts.stop();
-	        	} else {
-	        		Log.d(TAG, "Tell TTS to say current chapter");
-		        	tts.speak(this, CurrentPageManager.getInstance().getCurrentPage());
-	        	}
-	        	isHandled = true;
-	        	break;
-	        }
     	}
 
     	if (!isHandled) {
@@ -217,7 +206,13 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	if (requestCode == REFRESH_DISPLAY_ON_FINISH) {
     		Log.i(TAG, "Refresh on finish");
     		if (!CommonUtils.getLocalePref().equals(mPrevLocalePref)) {
-    			Toast.makeText(getApplicationContext(), R.string.locale_change_warning, Toast.LENGTH_LONG).show();
+    			//TODO either prompt user to restart
+    		//	Toast.makeText(getApplicationContext(), R.string.locale_change_warning, Toast.LENGTH_LONG).show();
+    			//TODO or manually restart
+    			PendingIntent intent = PendingIntent.getActivity(this.getBaseContext(), 0, new Intent(getIntent()), getIntent().getFlags());
+    			AlarmManager mgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+    			mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, intent);
+    			System.exit(2);    		
     		}
     		bibleWebView.applyPreferenceSettings();
     		bibleContentManager.updateText(true);

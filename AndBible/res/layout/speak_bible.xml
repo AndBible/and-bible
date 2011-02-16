@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Prepare criteria for a search
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+    
+	<RadioGroup android:id="@+id/numChapters" 
+		android:layout_alignParentTop="true"
+		android:layout_width="wrap_content" 
+		android:layout_height="wrap_content"
+		android:padding="5dip">	
+		<TextView android:id="@+id/numChaptersPrompt"
+			android:text="@string/num_chapters_prompt"
+			android:layout_height="wrap_content" 
+			android:layout_width="wrap_content"/>
+		<RadioButton android:id="@+id/oneChapter" 
+			android:text="1 chapter" 
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+			android:checked="true"/>
+		<RadioButton android:id="@+id/twoChapter" 
+			android:text="2 chapters" 
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"/>
+		<RadioButton android:id="@+id/fiveChapter" 
+			android:text="5 chapters" 
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"/>
+		<RadioButton android:id="@+id/tenChapter" 
+			android:text="10 chapters" 
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"/>
+	</RadioGroup>
+
+	<LinearLayout android:id="@+id/right_panel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+	    android:layout_toRightOf="@+id/numChapters">
+		<TextView android:id="@+id/speechControlPrompt"
+			android:text="@string/speech_control_prompt"
+			android:layout_height="wrap_content" 
+			android:layout_width="wrap_content"/>
+	    <CheckBox android:id="@+id/queue"
+	    	android:text="Queue"  
+	    	android:layout_width="wrap_content" 
+	    	android:layout_height="wrap_content"/>
+	    <CheckBox android:id="@+id/repeat"
+	    	android:text="Repeat"  
+	    	android:layout_width="wrap_content" 
+	    	android:layout_height="wrap_content"/>
+	</LinearLayout>
+
+	<!-- Button bar with OK button -->
+	<LinearLayout android:id="@+id/button_panel"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        style="@android:style/ButtonBar"
+	    android:layout_alignParentBottom="true">
+
+	  	<Button android:id="@+id/speakButton"
+	 		android:text="@string/speak"
+			android:onClick="onSpeak"
+	        android:layout_width="0dip"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"/>
+
+	  	<Button android:id="@+id/stopButton"
+	 		android:text="@string/stop"
+	        android:layout_width="0dip"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"
+			android:onClick="onStop"/>
+
+	</LinearLayout>
+
+</RelativeLayout>

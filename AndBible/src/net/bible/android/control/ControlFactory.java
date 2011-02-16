@@ -7,6 +7,7 @@ import net.bible.android.control.download.DownloadControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.search.SearchControl;
+import net.bible.android.control.speak.SpeakControl;
 
 //TODO replace with ioc (maybe)
 /** allow access to control layer - would like to 
@@ -22,6 +23,7 @@ public class ControlFactory {
 	private SearchControl searchControl = new SearchControl();
 	private Bookmark bookmarkControl = new BookmarkControl();
 	private DownloadControl downloadControl = new DownloadControl();
+	private SpeakControl speakControl = new SpeakControl();
 	
 	private static ControlFactory singleton = new ControlFactory();
 	
@@ -61,5 +63,8 @@ public class ControlFactory {
 	public DownloadControl getDownloadControl() {
 		return downloadControl;
 	}
-	
+
+	public SpeakControl getSpeakControl() {
+		return speakControl;
+	}
 }

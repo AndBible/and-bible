@@ -126,6 +126,11 @@
     <string name="dictionary">Dictionary</string>
     <string name="search_dictionary_hint">Search dictionary</string>
     <string name="dictionary_contents">Contents</string>
+
+	<!-- Speech -->
+	<string name="num_chapters_prompt">Number of Chapters</string>
+	<string name="speech_control_prompt">Control</string>
+	<string name="stop">Stop</string>
 	
     <string name="error_occurred">An error has occurred</string>
     <string name="okay">OK</string>
