@@ -72,9 +72,10 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
 
 		debug(name, attrs, true);
 
+		// if encountering either a verse tag or if the current tag is marked as being canonical then turn on writing
 		if (isAttrValue(attrs, "canonical", "true")) {
 			writeContentStack.push(CONTENT_STATE.WRITE);
-		} else if (name.equals("verse")) {
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
 			if (attrs!=null) {
 				currentVerseNo = osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID));
 			}
@@ -92,6 +93,7 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
 			// these occur in Psalms to separate different paragraphs.  
 			// A space is needed for TTS not to be confused by punctuation with a missing space like 'toward us,and the'
 			write(" ");
+			//if writing then continue.  Also if ignoring then continue
 			writeContentStack.push(writeContentStack.peek());
 		} else {
 			// unknown tags rely on parent tag to determine if content is canonical e.g. the italic tag in the middle of canonical text
@@ -117,16 +119,30 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
 	}
     
     /*
-     * While Parsing the XML file, if extra characters like space or enter Character
-     * are encountered then this method is called. If you don't want to do anything
-     * special with these characters, then you can normally leave this method blank.
+     * Handle characters encountered in tags
     */
     @Override
-    public void characters (char buf [], int offset, int len) throws SAXException
+    public void characters (char buf[], int offset, int len) throws SAXException
     {
         if (CONTENT_STATE.WRITE.equals(writeContentStack.peek())) {
-            String s = new String(buf, offset, len);
+        	String s = new String(buf, offset, len);
+
+        	// NetText often uses single quote where esv uses double quote and TTS says open single quote e.g. Matt 4
+        	// so replace all single quotes with double quotes but only if they are used for quoting text as in e.g. Ps 117
+        	// it is tricky to distinguish single quotes from apostrophes and this won't work all the time
+        	if (s.contains(" \'")) {
+        		s = s.replace("\'", "\"");
+        	}
+        	
             write(s);
+        }
+    }
+    
+    private void replace(char buf[], int offset, int len, char find, char replacement) {
+        for (int i=offset; i<len; i++) {
+        	if (buf[i]=='\'') {
+        		buf[i]='\"';
+        	}
         }
     }
 }

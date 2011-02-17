@@ -206,13 +206,12 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	if (requestCode == REFRESH_DISPLAY_ON_FINISH) {
     		Log.i(TAG, "Refresh on finish");
     		if (!CommonUtils.getLocalePref().equals(mPrevLocalePref)) {
-    			//TODO either prompt user to restart
-    		//	Toast.makeText(getApplicationContext(), R.string.locale_change_warning, Toast.LENGTH_LONG).show();
-    			//TODO or manually restart
+    			// must restart to change locale
     			PendingIntent intent = PendingIntent.getActivity(this.getBaseContext(), 0, new Intent(getIntent()), getIntent().getFlags());
     			AlarmManager mgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
     			mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, intent);
-    			System.exit(2);    		
+    			System.exit(2);
+    			return;
     		}
     		bibleWebView.applyPreferenceSettings();
     		bibleContentManager.updateText(true);

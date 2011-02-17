@@ -77,7 +77,7 @@
     <string name="prefs_grid_navigation_summary">Use grids or lists to navigate</string>
     <string name="prefs_interface_locale_title">Aplication language</string>
     <string name="prefs_interface_locale_summary">Select custom user interface language</string>
-    <string name="locale_change_warning">Application must be restarted to use new interface language</string>
+    <string name="locale_change_warning">Application will be restarted to switch to the new interface language</string>
 
 	<!-- Notes screen -->
     <string name="no_chapter_notes">No notes exist in this chapter</string>
@@ -129,9 +129,16 @@
 
 	<!-- Speech -->
 	<string name="num_chapters_prompt">Number of Chapters</string>
+	<plurals name="num_chapters">
+		<item quantity="one">%d chapter</item>
+		<item quantity="other">%d chapters</item>
+	</plurals>
 	<string name="speech_control_prompt">Control</string>
 	<string name="stop">Stop</string>
+	<string name="repeating">Repeating chosen passage</string>
+    <string name="tts_lang_not_available">Language is not available.</string>
 	
+	<!-- General -->
     <string name="error_occurred">An error has occurred</string>
     <string name="okay">OK</string>
     <string name="cancel">Cancel</string>
@@ -141,5 +148,4 @@
     <string name="please_wait">Please wait...</string>
     <string name="all">All</string>
 
-    <string name="tts_lang_not_available">Language is not available.</string>
 </resources>
