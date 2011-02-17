@@ -20,21 +20,17 @@
 			android:text="@string/num_chapters_prompt"
 			android:layout_height="wrap_content" 
 			android:layout_width="wrap_content"/>
-		<RadioButton android:id="@+id/oneChapter" 
-			android:text="1 chapter" 
+		<RadioButton android:id="@+id/numChapters1" 
 			android:layout_width="wrap_content" 
 			android:layout_height="wrap_content"
 			android:checked="true"/>
-		<RadioButton android:id="@+id/twoChapter" 
-			android:text="2 chapters" 
+		<RadioButton android:id="@+id/numChapters2" 
 			android:layout_width="wrap_content" 
 			android:layout_height="wrap_content"/>
-		<RadioButton android:id="@+id/fiveChapter" 
-			android:text="5 chapters" 
+		<RadioButton android:id="@+id/numChapters3" 
 			android:layout_width="wrap_content" 
 			android:layout_height="wrap_content"/>
-		<RadioButton android:id="@+id/tenChapter" 
-			android:text="10 chapters" 
+		<RadioButton android:id="@+id/numChapters4" 
 			android:layout_width="wrap_content" 
 			android:layout_height="wrap_content"/>
 	</RadioGroup>

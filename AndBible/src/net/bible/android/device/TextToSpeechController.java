@@ -3,6 +3,7 @@ package net.bible.android.device;
 import java.util.HashMap;
 import java.util.Locale;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPage;
 
@@ -36,10 +37,12 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 
     private TextToSpeech mTts;
 
-    private Book mDocument;
-    private Key mKey;
-    private String bookLanguageCode;
+    private Locale speechLocale;
     private String textToSpeak;
+    private boolean queue;
+
+    // keep track of the current count of requests so we know when to shutdown Tts
+    private int textCount =0;
     
     private Context context;
     
@@ -50,32 +53,28 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     }
     
     private TextToSpeechController() {
+    	context = BibleApplication.getApplication().getApplicationContext();
     }
 
-    public void speak(Context context, CurrentPage page, String textToSpeak) {
-    	this.context = context;
-    	try {
-	    	bookLanguageCode = page.getCurrentDocument().getLanguage().getCode();
-	    	mDocument = page.getCurrentDocument();
-	    	this.textToSpeak = textToSpeak;
-	    	
-	        // Initialize text-to-speech. This is an asynchronous operation.
-	        // The OnInitListener (second argument) is called after initialization completes.
-	        mTts = new TextToSpeech(context,
-	            this  // TextToSpeech.OnInitListener
-	            );
-    	} catch (Exception e) {
-    		showError("Error preparing text to display");
+    public void speak(Locale speechLocale, String textToSpeak, boolean queue) {
+    	this.textToSpeak = textToSpeak;
+    	this.queue = queue;
+    	
+    	if (mTts==null) {
+    		// currently can't change Locale until speech ends
+        	this.speechLocale = speechLocale;
+	    	try {
+		        // Initialize text-to-speech. This is an asynchronous operation.
+		        // The OnInitListener (second argument) is called after initialization completes.
+		        mTts = new TextToSpeech(context,
+		            this  // TextToSpeech.OnInitListener
+		            );
+	    	} catch (Exception e) {
+	    		showError("Error preparing text to display");
+	    	}
+    	} else {
+    		sayText();
     	}
-    }
-
-    public void shutdown() {
-    	Log.d(TAG, "Shutdown TTS");
-        // Don't forget to shutdown!
-        if (mTts != null) {
-            mTts.stop();
-            mTts.shutdown();
-        }
     }
 
     // Implements TextToSpeech.OnInitListener.
@@ -83,19 +82,8 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     public void onInit(int status) {
         // status can be either TextToSpeech.SUCCESS or TextToSpeech.ERROR.
         if (status == TextToSpeech.SUCCESS) {
-            // Set preferred language to the same language as the book.
-            // Note that a language may not be available, and the result will indicate this.
-        	String bookLang = this.bookLanguageCode;
-	    	Log.d(TAG, "Book has language code:"+bookLang);
-	    	Locale locale = null;
-	    	if (bookLang.equals(Locale.getDefault().getLanguage())) {
-	    		// for people in UK the UK accent is preferable to the US accent
-	    		locale = Locale.getDefault();
-	    	} else {
-	    		locale = new Locale(bookLang);
-	    	}
-	    	Log.d(TAG, "Speech locale:"+locale);
-            int result = mTts.setLanguage(locale);
+	    	Log.d(TAG, "Speech locale:"+speechLocale);
+            int result = mTts.setLanguage(speechLocale);
             if (result == TextToSpeech.LANG_MISSING_DATA ||
                 result == TextToSpeech.LANG_NOT_SUPPORTED) {
     	    	Log.e(TAG, "TTS missing or not supported ("+result+")");
@@ -120,11 +108,13 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     private void sayText() {
     	// Always set the UtteranceId (or else OnUtteranceCompleted will not be called)
         HashMap dummyTTSParams = new HashMap();
-        dummyTTSParams.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "theUtId");
+        dummyTTSParams.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "AND-BIBLE"+System.currentTimeMillis());
 
+        this.textCount++;
+        
         // ask TTs to say the text
         mTts.speak(this.textToSpeak,
-            TextToSpeech.QUEUE_FLUSH,  // Drop all pending entries in the playback queue.
+            queue ? TextToSpeech.QUEUE_ADD : TextToSpeech.QUEUE_FLUSH,  // Drop all pending entries in the playback queue.
             dummyTTSParams);
     }
     
@@ -137,17 +127,30 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     }
 
 	public void stop() {
+		textCount = 0;
 		shutdown();
 	}
 
 	@Override
 	public void onUtteranceCompleted(String utteranceId) {
-		Log.d(TAG, "onUtteranceCompleted");
-		shutdown();
+		Log.d(TAG, "onUtteranceCompleted:"+utteranceId);
+		if (--textCount==0) {
+			shutdown();
+		}
 	}
+
+    private void shutdown() {
+    	Log.d(TAG, "Shutdown TTS");
+        // Don't forget to shutdown!
+        if (mTts != null) {
+            mTts.stop();
+            mTts.shutdown();
+            mTts = null;
+        }
+    }
 
 	public boolean isSpeaking() {
 		Log.d(TAG, "isSpeaking called");
-		return mTts.isSpeaking();
+		return mTts!=null && mTts.isSpeaking();
 	}
 }
