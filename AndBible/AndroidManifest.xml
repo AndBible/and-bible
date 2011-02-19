@@ -81,7 +81,7 @@
                   android:label="@string/history"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:name="net.bible.android.view.activity.speak.SpeakBible"
+        <activity android:name="net.bible.android.view.activity.speak.Speak"
                   android:label="@string/speak"
                   android:configChanges="keyboardHidden|orientation">
         </activity>

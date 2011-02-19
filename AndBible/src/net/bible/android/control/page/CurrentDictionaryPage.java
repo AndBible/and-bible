@@ -93,27 +93,29 @@ public class CurrentDictionaryPage extends CurrentPageBase implements CurrentPag
 	
 	@Override
 	public void next() {
-		Key currentKey = getKey();
-		Key globalList = getCurrentDocument().getGlobalKeyList();
-		int keyPos = globalList.indexOf(currentKey);
-		if (keyPos<globalList.getCardinality()-1) {
-			Key newKey = globalList.get(keyPos+1);
-			setKey(newKey);
-		}
+		setKey(getKeyPlus(1));
 	}
 
 	@Override
 	public void previous() {
+		setKey(getKeyPlus(-1));
+	}
+
+	/** add or subtract a number of pages from the current position and return Verse
+	 */
+	public Key getKeyPlus(int num) {
 		Key currentKey = getKey();
 		Key globalList = getCurrentDocument().getGlobalKeyList();
 		int keyPos = globalList.indexOf(currentKey);
-		// some dictionaries have a silly first entry that doesn't work so skip it - need to find which dictionaries have the bad first entry
-		if (keyPos>1) {
-			Key newKey = globalList.get(keyPos-1);
-			setKey(newKey);
-		}
+		// move forward or backward to new posn
+		int newKeyPos = keyPos+num;
+		// check bounds
+		newKeyPos = Math.min(newKeyPos, globalList.getCardinality()-1);
+		newKeyPos = Math.max(newKeyPos, 0);
+		// get the actual key at that posn
+		return globalList.get(newKeyPos);
 	}
-
+	
 	@Override
 	public void updateOptionsMenu(Menu menu) {
 		menu.findItem(R.id.selectPassageButton).setTitle(R.string.dictionary_contents);		

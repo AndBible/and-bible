@@ -127,13 +127,23 @@
     <string name="search_dictionary_hint">Search dictionary</string>
     <string name="dictionary_contents">Contents</string>
 
-	<!-- Speech -->
-	<string name="num_chapters_prompt">Number of Chapters</string>
+	<!-- Speak -->
+	<!-- Speak - Bible -->
 	<plurals name="num_chapters">
 		<item quantity="one">%d chapter</item>
 		<item quantity="other">%d chapters</item>
 	</plurals>
-	<string name="speech_control_prompt">Control</string>
+	<!-- Speak - Commentary -->
+	<plurals name="num_verses">
+		<item quantity="one">%d verse</item>
+		<item quantity="other">%d verses</item>
+	</plurals>
+	<!-- Speak - Dictionary and other -->
+	<plurals name="num_pages">
+		<item quantity="one">%d page</item>
+		<item quantity="other">%d pages</item>
+	</plurals>
+	<!-- Speak - Common -->
 	<string name="stop">Stop</string>
 	<string name="repeating">Repeating chosen passage</string>
     <string name="tts_lang_not_available">Language is not available.</string>

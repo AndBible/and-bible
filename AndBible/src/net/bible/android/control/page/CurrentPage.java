@@ -19,7 +19,13 @@ public interface CurrentPage {
 
 	public abstract void previous();
 	
-	public abstract Key addPages(int num);
+	/** get incremented key according to the type of page displayed - verse, chapter, ...
+	 */
+	public abstract Key getKeyPlus(int num);
+
+	/** add or subtract a number of pages from the current position and return Page
+	 */
+	public Key getPagePlus(int num);
 
 	public abstract void setKey(Key key);
 

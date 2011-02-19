@@ -75,33 +75,48 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	}
 	
 	private void nextChapter() {
-		Verse currVer = this.currentBibleVerse.getVerseSelected();
-		currentBibleVerse.setVerseSelected(new Verse(currVer.getBook(), currVer.getChapter()+1, 1, true));
+		currentBibleVerse.setVerseSelected( getKeyPlus(+1) );
 	}
 	
 	private void previousChapter() {
+		currentBibleVerse.setVerseSelected( getKeyPlus(-1) );
+	}
+
+	/** add or subtract a number of pages from the current position and return Verse
+	 */
+	public Verse getKeyPlus(int num) {
 		Verse currVer = this.currentBibleVerse.getVerseSelected();
 		int book = currVer.getBook();
 		int chapter = currVer.getChapter();
+
 		try {
-			if (chapter>1) {
-				chapter--;
+			if (num>=0) {
+				// allow verse correction to move to next book if required
+				chapter = chapter+num;
 			} else {
-				if (book>1) {
-					book--;
-					chapter = BibleInfo.chaptersInBook(book);
+				if (chapter>1) {
+					chapter--;
+				} else {
+					if (book>1) {
+						book--;
+						chapter = BibleInfo.chaptersInBook(book);
+					}
 				}
 			}
-			currentBibleVerse.setVerseSelected(new Verse(book, chapter, 1, true));
-		} catch (NoSuchVerseException nve) {
-			Log.e(TAG, "No such verse moving to prev chapter", nve);
+		
+			return new Verse(book, chapter, 1, true);
+		} catch (NoSuchVerseException nsve) {
+			Log.e(TAG, "Incorrect verse", nsve);
+			return currVer;
 		}
 	}
 	
-	public Key addPages(int num) {
-		Verse currVer = this.currentBibleVerse.getVerseSelected();
-		Verse targetChapterVerse = new Verse(currVer.getBook(), currVer.getChapter()+num, 1, true); 
-		return new VerseRange(targetChapterVerse.getFirstVerseInChapter(), targetChapterVerse.getLastVerseInChapter());
+	/** add or subtract a number of pages from the current position and return Page
+	 */
+	public Key getPagePlus(int num) {
+		Verse targetChapterVerse1 = getKeyPlus(num);
+		// convert to full chapter before returning because bible view is for a full chapter
+		return new VerseRange(targetChapterVerse1.getFirstVerseInChapter(), targetChapterVerse1.getLastVerseInChapter());
 	}
 
 	/* (non-Javadoc)

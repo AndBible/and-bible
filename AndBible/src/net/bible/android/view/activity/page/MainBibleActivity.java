@@ -18,7 +18,7 @@ import net.bible.android.view.activity.navigation.ChooseDocument;
 import net.bible.android.view.activity.navigation.History;
 import net.bible.android.view.activity.search.Search;
 import net.bible.android.view.activity.search.SearchIndex;
-import net.bible.android.view.activity.speak.SpeakBible;
+import net.bible.android.view.activity.speak.Speak;
 import net.bible.android.view.util.DataPipe;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.history.HistoryManager;
@@ -136,7 +136,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	        	handlerIntent = new Intent(this, Bookmarks.class);
 	        	break;
 	        case R.id.speakButton:
-	        	handlerIntent = new Intent(this, SpeakBible.class);
+	        	handlerIntent = new Intent(this, Speak.class);
 	        	break;
 	        case R.id.downloadButton:
 	        	if (CommonUtils.getSDCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
