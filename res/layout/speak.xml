@@ -11,39 +11,39 @@
     android:layout_height="fill_parent"
     >
     
-	<RadioGroup android:id="@+id/numChapters" 
-		android:layout_alignParentTop="true"
-		android:layout_width="wrap_content" 
-		android:layout_height="wrap_content"
-		android:padding="5dip">	
-		<TextView android:id="@+id/numChaptersPrompt"
-			android:text="@string/num_chapters_prompt"
-			android:layout_height="wrap_content" 
-			android:layout_width="wrap_content"/>
-		<RadioButton android:id="@+id/numChapters1" 
-			android:layout_width="wrap_content" 
-			android:layout_height="wrap_content"
-			android:checked="true"/>
-		<RadioButton android:id="@+id/numChapters2" 
-			android:layout_width="wrap_content" 
-			android:layout_height="wrap_content"/>
-		<RadioButton android:id="@+id/numChapters3" 
-			android:layout_width="wrap_content" 
-			android:layout_height="wrap_content"/>
-		<RadioButton android:id="@+id/numChapters4" 
-			android:layout_width="wrap_content" 
-			android:layout_height="wrap_content"/>
-	</RadioGroup>
-
-	<LinearLayout android:id="@+id/right_panel"
+    <LinearLayout android:id="@+id/leftPanel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-	    android:layout_toRightOf="@+id/numChapters">
-		<TextView android:id="@+id/speechControlPrompt"
-			android:text="@string/speech_control_prompt"
-			android:layout_height="wrap_content" 
-			android:layout_width="wrap_content"/>
+		android:padding="5dip"
+	    android:layout_alignParentTop="true">
+		<RadioGroup android:id="@+id/numChapters" 
+			android:layout_alignParentTop="true"
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+			android:padding="5dip">
+			<RadioButton android:id="@+id/numChapters1" 
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content"
+				android:checked="true"/>
+			<RadioButton android:id="@+id/numChapters2" 
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content"/>
+			<RadioButton android:id="@+id/numChapters3" 
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content"/>
+			<RadioButton android:id="@+id/numChapters4" 
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content"/>
+		</RadioGroup>
+	</LinearLayout>
+
+	<LinearLayout android:id="@+id/rightPanel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+		android:padding="5dip"
+	    android:layout_toRightOf="@+id/leftPanel">
 	    <CheckBox android:id="@+id/queue"
 	    	android:text="Queue"  
 	    	android:layout_width="wrap_content" 

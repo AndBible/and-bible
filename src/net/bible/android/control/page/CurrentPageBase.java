@@ -72,10 +72,12 @@ abstract class CurrentPageBase implements CurrentPage {
 	public void previous() {
 	}
 
-	@Override
-	public Key addPages(int num) {
-		//TODO implement
-		return getKey();
+	/** add or subtract a number of pages from the current position and return Page
+	 * default is one key per page - all except bible use this default
+	 */
+	public Key getPagePlus(int num) {
+		// verse per page so same as getKeyPlus
+		return getKeyPlus(num);
 	}
 
 	@Override

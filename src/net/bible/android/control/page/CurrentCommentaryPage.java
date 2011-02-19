@@ -68,12 +68,17 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 	}
 	
 	private void nextVerse() {
-		Verse currVer = this.currentBibleVerse.getVerseSelected();
-		currentBibleVerse.setVerseSelected(currVer.add(1));
+		currentBibleVerse.setVerseSelected(getKeyPlus(1));
 	}
 	private void previousVerse() {
+		currentBibleVerse.setVerseSelected(getKeyPlus(-1));
+	}
+	
+	/** add or subtract a number of pages from the current position and return Verse
+	 */
+	public Verse getKeyPlus(int num) {
 		Verse currVer = this.currentBibleVerse.getVerseSelected();
-		currentBibleVerse.setVerseSelected(currVer.add(-1));
+		return currVer.add(num);
 	}
 	
 	/** set key without notification
