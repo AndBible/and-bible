@@ -11,30 +11,73 @@ import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.KeyUtil;
+import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.versification.BibleInfo;
 
 import android.util.Log;
 
 public class SpeakControl {
-	
+
+	private static final int NUM_LEFT_IDX = 3;
+	private static final NumPagesToSpeakDefinition[] BIBLE_PAGES_TO_SPEAK_DEFNS = new NumPagesToSpeakDefinition[] {
+			new NumPagesToSpeakDefinition(1, R.plurals.num_chapters, true, R.id.numChapters1),
+			new NumPagesToSpeakDefinition(2, R.plurals.num_chapters, true, R.id.numChapters2),
+			new NumPagesToSpeakDefinition(3, R.plurals.num_chapters, true, R.id.numChapters3),
+			new NumPagesToSpeakDefinition(10, R.string.rest_of_book, false, R.id.numChapters4)
+	};
+
+	private static final NumPagesToSpeakDefinition[] COMMENTARY_PAGES_TO_SPEAK_DEFNS = new NumPagesToSpeakDefinition[] {
+			new NumPagesToSpeakDefinition(1, R.plurals.num_verses, true, R.id.numChapters1),
+			new NumPagesToSpeakDefinition(2, R.plurals.num_verses, true, R.id.numChapters2),
+			new NumPagesToSpeakDefinition(3, R.plurals.num_verses, true, R.id.numChapters3),
+			new NumPagesToSpeakDefinition(10, R.string.rest_of_chapter, false, R.id.numChapters4)
+	};
+
+	private static final NumPagesToSpeakDefinition[] DEFAULT_PAGES_TO_SPEAK_DEFNS = new NumPagesToSpeakDefinition[] {
+			new NumPagesToSpeakDefinition(1, R.plurals.num_pages, true, R.id.numChapters1),
+			new NumPagesToSpeakDefinition(2, R.plurals.num_pages, true, R.id.numChapters2),
+			new NumPagesToSpeakDefinition(3, R.plurals.num_pages, true, R.id.numChapters3),
+			new NumPagesToSpeakDefinition(10, R.plurals.num_pages, true, R.id.numChapters4)
+	};
+
 	private static final String TAG = "SpeakControl";
 
 	/** return a list of prompt ids for the speak screen associated with the current document type
 	 */
-	public int[] getPromptIds() {
-		int[] promptIds = new int[1];
-		BookCategory bookCategory = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument().getBookCategory();
+	public NumPagesToSpeakDefinition[] getNumPagesToSpeakDefinitions() {
+		NumPagesToSpeakDefinition[] definitions = null;
+		
+		CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
+		BookCategory bookCategory = currentPage.getCurrentDocument().getBookCategory();
 		if (BookCategory.BIBLE.equals(bookCategory)) {
-			promptIds[0] = R.plurals.num_chapters;
+			Verse verse = KeyUtil.getVerse(currentPage.getSingleKey());
+			int chaptersLeft = 0;
+			try {
+				chaptersLeft = BibleInfo.chaptersInBook(verse.getBook())-verse.getChapter()+1;
+			} catch (Exception e) {
+				Log.e(TAG, "Error in book no", e);
+			}
+			definitions = BIBLE_PAGES_TO_SPEAK_DEFNS;
+			definitions[NUM_LEFT_IDX].setNumPages(chaptersLeft);
 		} else if (BookCategory.COMMENTARY.equals(bookCategory)) {
-			promptIds[0] = R.plurals.num_verses;
+			Verse verse = KeyUtil.getVerse(currentPage.getSingleKey());
+			int versesLeft = 0;
+			try {
+				versesLeft = BibleInfo.versesInChapter(verse.getBook(), verse.getChapter())-verse.getVerse()+1;
+			} catch (Exception e) {
+				Log.e(TAG, "Error in book no", e);
+			}
+			definitions = COMMENTARY_PAGES_TO_SPEAK_DEFNS;
+			definitions[NUM_LEFT_IDX].setNumPages(versesLeft);
 		} else {
-			promptIds[0] = R.plurals.num_pages;
+			definitions = DEFAULT_PAGES_TO_SPEAK_DEFNS;
 		}
-		return promptIds;
+		return definitions;
 	}
 	
-	public void speak(int chapters, boolean queue, boolean repeat) {
-		Log.d(TAG, "Chapters:"+chapters);
+	public void speak(NumPagesToSpeakDefinition numPagesDefn, boolean queue, boolean repeat) {
+		Log.d(TAG, "Chapters:"+numPagesDefn.getNumPages());
 		CurrentPage page = CurrentPageManager.getInstance().getCurrentPage();
 		
 		//calculate locale to use for speech
@@ -54,7 +97,7 @@ public class SpeakControl {
     	// first concatenate the number of required chapters
 		StringBuffer textToSpeak = new StringBuffer();
 		try {
-			for (int i=0; i<chapters; i++) {
+			for (int i=0; i<numPagesDefn.getNumPages(); i++) {
 				Key current = page.getPagePlus(i);
 				textToSpeak.append( SwordApi.getInstance().getCanonicalText(page.getCurrentDocument(), current));
 			}

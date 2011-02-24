@@ -2,6 +2,7 @@ package net.bible.android.view.activity.speak;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.speak.NumPagesToSpeakDefinition;
 import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.page.MainBibleActivity;
@@ -13,7 +14,6 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
-import android.widget.TextView;
 
 /** Allow user to enter search criteria
  * 
@@ -23,9 +23,8 @@ import android.widget.TextView;
  */
 public class Speak extends ActivityBase {
 	
-    private static final int[] CHECK_BOX_IDS = new int[] {R.id.numChapters1, R.id.numChapters2, R.id.numChapters3, R.id.numChapters4}; 
-    private static final int[] NUM_CHAPTERS = new int[] {1, 2, 3, 10};
-
+    private NumPagesToSpeakDefinition[] numPagesToSpeakDefinitions;
+    
     private CheckBox mQueueCheckBox;
     private CheckBox mRepeatCheckBox;
     
@@ -43,14 +42,13 @@ public class Speak extends ActivityBase {
         speakControl = ControlFactory.getInstance().getSpeakControl();
         
         // set title of chapter/verse/page selection
-        int[] promptIds = speakControl.getPromptIds();
+        numPagesToSpeakDefinitions = speakControl.getNumPagesToSpeakDefinitions();
         
         // set a suitable prompt for the different numbers of chapters
-        for (int i=0; i<CHECK_BOX_IDS.length; i++) {
-        	RadioButton numChaptersCheckBox = (RadioButton)findViewById(CHECK_BOX_IDS[i]);
-        	String label = getResources().getQuantityString(promptIds[0], NUM_CHAPTERS[i], NUM_CHAPTERS[i]);
+        for (NumPagesToSpeakDefinition defn : numPagesToSpeakDefinitions) {
+        	RadioButton numChaptersCheckBox = (RadioButton)findViewById(defn.getRadioButtonId());
 
-        	numChaptersCheckBox.setText(label);
+        	numChaptersCheckBox.setText(defn.getPrompt());
         }
         
         // set defaults for Queue and Repeat
@@ -64,7 +62,7 @@ public class Speak extends ActivityBase {
 
     public void onSpeak(View v) {
     	Log.i(TAG, "CLICKED");
-    	speakControl.speak(getNumChapters(), isQueue(), isRepeat());
+    	speakControl.speak(getSelectedNumPagesToSpeak(), isQueue(), isRepeat());
     	
     	returnToMainScreen();
     }
@@ -75,17 +73,17 @@ public class Speak extends ActivityBase {
 		returnToMainScreen();
     }
 
-    private int getNumChapters() {
+    private NumPagesToSpeakDefinition getSelectedNumPagesToSpeak() {
         RadioGroup chaptersRadioGroup = (RadioGroup)findViewById(R.id.numChapters);
         int selectedId = chaptersRadioGroup.getCheckedRadioButtonId();
         
-        for (int i=0; i<CHECK_BOX_IDS.length; i++) {
-        	if (selectedId == CHECK_BOX_IDS[i]) {
-        		return NUM_CHAPTERS[i];
+        for (NumPagesToSpeakDefinition defn : numPagesToSpeakDefinitions) {
+        	if (selectedId == defn.getRadioButtonId()) {
+        		return defn;
         	}
         }
         // error - should not get here
-   		return 1;
+   		return numPagesToSpeakDefinitions[0];
     }
 
     private boolean isQueue() {

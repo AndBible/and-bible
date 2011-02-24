@@ -133,11 +133,13 @@
 		<item quantity="one">%d chapter</item>
 		<item quantity="other">%d chapters</item>
 	</plurals>
+    <string name="rest_of_book">Rest of book</string>
 	<!-- Speak - Commentary -->
 	<plurals name="num_verses">
 		<item quantity="one">%d verse</item>
 		<item quantity="other">%d verses</item>
 	</plurals>
+    <string name="rest_of_chapter">Rest of chapter</string>
 	<!-- Speak - Dictionary and other -->
 	<plurals name="num_pages">
 		<item quantity="one">%d page</item>
