@@ -2,8 +2,8 @@ package net.bible.android.view.activity.download;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -14,6 +14,7 @@ import net.bible.android.control.download.DownloadControl;
 import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.common.progress.JobManager;
@@ -50,6 +51,7 @@ import android.widget.Toast;
  *      The copyright to this program is held by it's author.
  */
 public class Download extends ListActivityBase {
+
 	private static final String TAG = "Download";
 
 	// document type spinner
@@ -76,6 +78,10 @@ public class Download extends ListActivityBase {
 	private Book selectedDocument;
 	
 	private DownloadControl downloadControl;
+
+	private static final String REPO_REFRESH_DATE = "repoRefreshDate";
+	private static final long REPO_LIST_STALE_AFTER_DAYS = 30;
+	private static final long MILLISECS_IN_DAY = 1000*60*60*24;
 	
 	private static final int DOWNLOAD_CONFIRMATION_DIALOG = 33;
 	public static final int DOWNLOAD_MORE_RESULT = 10;
@@ -90,12 +96,50 @@ public class Download extends ListActivityBase {
         downloadControl = ControlFactory.getInstance().getDownloadControl();
 
         forceBasicFlow = SwordApi.getInstance().getBibles().size()==0;
-
+        
        	initialiseView();
        	
-       	Toast.makeText(this, R.string.download_source_message, Toast.LENGTH_LONG).show();
+       	if (!forceBasicFlow && isRepoBookListOld()) {
+       		// this will also trigger populateMasterDocumentList
+       		promptRefreshBookList();
+       	} else {
+        	// prepare the document list view - done in another thread
+        	populateMasterDocumentList(false);
+       	}
     }
 
+    /** if repo list not refreshed in last 30 days then it is old
+     * 
+     * @return
+     */
+    private boolean isRepoBookListOld() {
+    	long repoRefreshDate = CommonUtils.getSharedPreferences().getLong(REPO_REFRESH_DATE, 0);
+    	Date today = new Date();
+    	return (today.getTime()-repoRefreshDate)/MILLISECS_IN_DAY > REPO_LIST_STALE_AFTER_DAYS;
+    }
+    
+    private void promptRefreshBookList() {
+    	new AlertDialog.Builder(this)
+			.setMessage(getText(R.string.refresh_book_list))
+			.setCancelable(false)
+			.setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					// prepare the document list view - done in another thread
+					populateMasterDocumentList(true);
+				 	Date today = new Date();
+					CommonUtils.getSharedPreferences().edit().putLong(REPO_REFRESH_DATE, today.getTime()).commit();
+				}
+			})
+			.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int id) {
+					// prepare the document list view - done in another thread
+					populateMasterDocumentList(false);
+				 	Date today = new Date();
+				 	CommonUtils.getSharedPreferences().edit().putLong(REPO_REFRESH_DATE, today.getTime()).commit();
+				 }
+			}).create().show();
+	 }
+	 
     private void initialiseView() {
     	languageList = new ArrayList<Language>();
     	displayedDocuments = new ArrayList<Book>();
@@ -142,9 +186,6 @@ public class Download extends ListActivityBase {
 	    	langArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	    	langSpinner.setAdapter(langArrayAdapter);
     	}
-
-    	// prepare the document list view - done in another thread
-    	populateMasterDocumentList();
     }
     
     private void setDefaultLanguage() {
@@ -192,19 +233,20 @@ public class Download extends ListActivityBase {
     	}
 	}
 
-    private void populateMasterDocumentList() {
+    private void populateMasterDocumentList(final boolean refresh) {
 		if (allDocuments==null || allDocuments.size()==0) {
     	    new AsyncTask<Void, Boolean, Void>() {
     	    	
     	        @Override
     	        protected void onPreExecute() {
     	        	showHourglass();
+    	        	Toast.makeText(Download.this, R.string.download_source_message, Toast.LENGTH_LONG).show();
     	        }
     	        
     			@Override
     	        protected Void doInBackground(Void... noparam) {
     				try {
-	    	        	allDocuments = downloadControl.getDownloadableDocuments();
+	    	        	allDocuments = downloadControl.getDownloadableDocuments(refresh);
 	    	        	Log.i(TAG, "number of documents available:"+allDocuments.size());
     				} catch (Exception e) {
     					Log.e(TAG, "Error getting documents to download", e);
