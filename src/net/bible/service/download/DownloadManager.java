@@ -55,16 +55,16 @@ public class DownloadManager {
 	 * @param filter
 	 * @return
 	 */
-	public List<Book> getDownloadableBooks(BookFilter filter, String repo) throws InstallException {
+	public List<Book> getDownloadableBooks(BookFilter filter, String repo, boolean refresh) throws InstallException {
 
         // If we know the name of the installer we can get it directly
         Installer installer = installManager.getInstaller(repo);
 
         // Now we can get the list of books
     	Log.d(TAG, "getting downloadable books");
-    	if (installer.getBooks().size()==0) {
+    	if (installer.getBooks().size()==0 || refresh) {
     		//todo should warn user of implications of downloading book list e.g. from persecuted country
-    		Log.w(TAG, "Auto reloading book list");
+    		Log.w(TAG, "Reloading book list");
     		installer.reloadBookList();
     	}
 

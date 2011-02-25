@@ -94,6 +94,7 @@
     <string name="download_confirmation">Download a bible from the internet?</string>
     <string name="download_source_message">Documents are downloaded from\nhttp://www.crosswire.org</string>
     <string name="download_document_confirm_prefix">"Download "</string>
+    <string name="refresh_book_list">Refresh list of available books?</string>
     <string name="error_downloading">An error occurred downloading.  Please check your internet connection.</string>
     <string name="no_internet_connection">Could not connect to the internet</string>
     <string name="storage_space_warning">Insufficient local storage space.</string>
@@ -154,6 +155,7 @@
     <string name="error_occurred">An error has occurred</string>
     <string name="okay">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="no">No</string>
     <string name="error">Error </string>
     <string name="more">More</string>
     <string name="retry">Try Again</string>

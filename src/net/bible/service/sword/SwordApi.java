@@ -172,13 +172,13 @@ public class SwordApi {
 		return Books.installed().getBook(initials);
 	}
 	
-	public List<Book> getDownloadableDocuments() throws InstallException {
+	public List<Book> getDownloadableDocuments(boolean refresh) throws InstallException {
 		log.debug("Getting downloadable documents");
 		
 		DownloadManager downloadManager = new DownloadManager();
 		
 		// currently we just handle bibles, commentaries, or dictionaries
-        return downloadManager.getDownloadableBooks(SUPPORTED_DOCUMENT_TYPES, CROSSWIRE_REPOSITORY);
+        return downloadManager.getDownloadableBooks(SUPPORTED_DOCUMENT_TYPES, CROSSWIRE_REPOSITORY, refresh);
 	}
 
 	public void downloadDocument(Book document) throws InstallException, BookException {

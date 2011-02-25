@@ -18,10 +18,10 @@ public class DownloadControl {
 	 * 
 	 * @return
 	 */
-	public List<Book> getDownloadableDocuments() {
+	public List<Book> getDownloadableDocuments(boolean refresh) {
 		List<Book> availableDocs = null;
 		try {
-			availableDocs = SwordApi.getInstance().getDownloadableDocuments();
+			availableDocs = SwordApi.getInstance().getDownloadableDocuments(refresh);
 			List<Book> downloadedDocs = SwordApi.getInstance().getDocuments();
 			availableDocs.removeAll(downloadedDocs);
 			
