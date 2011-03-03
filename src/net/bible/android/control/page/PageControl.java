@@ -118,8 +118,10 @@ public class PageControl {
 	public String getCurrentPageTitle() {
 		boolean fullBookNameSave = BibleInfo.isFullBookName();
 		
+		boolean isPortrait = CommonUtils.isPortrait();
+		
 		// show short book name to save space if Portrait
-		BibleInfo.setFullBookName(!CommonUtils.isPortrait());
+		BibleInfo.setFullBookName(!isPortrait);
 		
 		StringBuilder title = new StringBuilder();
 		CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
@@ -134,7 +136,15 @@ public class PageControl {
 		// restore full book name setting
 		BibleInfo.setFullBookName(fullBookNameSave);
 		
-		return title.toString();
+		int maxLength = isPortrait ? 7 : 26;
+		String retVal = null;
+		if (title.length()>maxLength) {
+			retVal = title.substring(0, maxLength);
+		} else {
+			retVal = title.toString();
+		}
+		
+		return retVal;
 	}
 	
 	public void setCurrentPageManager(CurrentPageManager currentPageManager) {
