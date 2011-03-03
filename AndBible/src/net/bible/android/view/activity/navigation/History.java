@@ -4,8 +4,6 @@ package net.bible.android.view.activity.navigation;
 import java.util.List;
 
 import net.bible.android.activity.R;
-import net.bible.android.activity.R.layout;
-import net.bible.android.activity.R.string;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.history.HistoryItem;
 import net.bible.service.history.HistoryManager;

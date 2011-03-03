@@ -128,6 +128,11 @@
     <string name="search_dictionary_hint">Search dictionary</string>
     <string name="dictionary_contents">Contents</string>
 
+	<!-- General Book -->
+    <string name="general_book">Book</string>
+    <string name="general_book_contents">Contents</string>
+
+
 	<!-- Speak -->
 	<!-- Speak - Bible -->
 	<plurals name="num_chapters">

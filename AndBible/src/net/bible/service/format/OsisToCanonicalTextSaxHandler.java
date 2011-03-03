@@ -114,7 +114,13 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
     {
 		String name = getName(sName, qName);
 		debug(name, null, false);
+		if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
+			// A space is needed to separate one verse from the next, otherwise the 2 verses butt up against each other
+			// which looks bad and confuses TTS
+			write(" ");
+		}
 		
+		// now this tag has ended pop the write/ignore state for the parent tag
 		writeContentStack.pop();
 	}
     

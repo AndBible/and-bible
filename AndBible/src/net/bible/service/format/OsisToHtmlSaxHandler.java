@@ -202,6 +202,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			write("</h1>");
 			isDelayVerse = false;
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
+			// A space is needed to separate one verse from the next, otherwise the 2 verses butt up against each other
+			// which looks bad and confuses TTS
+			write(" ");
 		} else if (name.equals("note")) {
 			String noteText = currentNote.toString();
 			if (noteText.length()>0) {
