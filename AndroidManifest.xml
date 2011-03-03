@@ -73,6 +73,10 @@
                   android:label="@string/dictionary"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
+        <activity android:name="net.bible.android.view.activity.navigation.ChooseGeneralBookKey"
+                  android:label="@string/general_book"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
         <activity android:name="net.bible.android.view.activity.SettingsActivity"
                   android:label="@string/settings"
                   android:configChanges="keyboardHidden|orientation">

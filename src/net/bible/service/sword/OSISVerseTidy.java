@@ -41,7 +41,7 @@ public class OSISVerseTidy {
 	public String tidy(Key key, String verseText) {
 		
 		verseText = checkVerseText(key, verseText);
-		verseText = addVerseTag(key, verseText)+"\n";
+		verseText = addVerseTag(key, verseText);
 		return verseText;
 		
 	}

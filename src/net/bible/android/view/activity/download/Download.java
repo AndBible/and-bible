@@ -55,7 +55,10 @@ public class Download extends ListActivityBase {
 	private static final String TAG = "Download";
 
 	// document type spinner
-	private static final BookFilter[] DOCUMENT_TYPE_SPINNER_FILTERS = new BookFilter[] {BookFilters.getBibles(), BookFilters.getCommentaries(), BookFilters.getDictionaries()};
+	private static final BookFilter[] DOCUMENT_TYPE_SPINNER_FILTERS = new BookFilter[] {BookFilters.getBibles(), 
+																						BookFilters.getCommentaries(), 
+																						BookFilters.getDictionaries(), 
+																						BookFilters.getGeneralBooks()};
 	private int selectedDocumentFilterNo = 0;
 
 	// language spinner

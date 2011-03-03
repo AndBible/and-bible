@@ -11,7 +11,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
+import net.bible.android.activity.R;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.ParseException;
 import net.bible.service.download.DownloadManager;
@@ -41,6 +43,7 @@ import org.crosswire.jsword.index.lucene.PdaLuceneIndexManager;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.Passage;
+import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
 import android.content.SharedPreferences;
@@ -64,7 +67,7 @@ public class SwordApi {
 	
 	private static final String CROSSWIRE_REPOSITORY = "CrossWire";
 	
-	private static BookFilter SUPPORTED_DOCUMENT_TYPES = BookFilters.either(BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries()), BookFilters.getDictionaries());
+	private static BookFilter SUPPORTED_DOCUMENT_TYPES = new AcceptableBookTypeFilter();
 	private SharedPreferences preferences;
 	
 	private static boolean isSwordLoaded;
@@ -348,19 +351,19 @@ public class SwordApi {
      *            a reference, appropriate for the book, of one or more entries
      */
     public String getCanonicalText(Book book, Key key) throws NoSuchKeyException, BookException, ParseException {
-		InputStream is = new OSISInputStream(book, key);
-
-		//TODO can we use same technique as SwordApi.getPlainText()
-		OsisToCanonicalTextSaxHandler osisToCanonical = getCanonicalTextSaxHandler(book);
-
-		try {
-			getSAXParser().parse(is, osisToCanonical);
-		} catch (Exception e) {
-			log.error("SAX parser error", e);
-			throw new ParseException("SAX parser error", e);
-		}
+    	try {
+			BookData data = new BookData(book, key);
+			SAXEventProvider osissep = data.getSAXEventProvider();
 		
-		return osisToCanonical.toString();
+			ContentHandler osisHandler = new OsisToCanonicalTextSaxHandler();
+		
+			osissep.provideSAXEvents(osisHandler);
+		
+			return osisHandler.toString();
+    	} catch (Exception e) {
+    		Log.e(TAG, "Error getting text from book" , e);
+    		return BibleApplication.getApplication().getString(R.string.error_occurred);
+    	}
     }
 
     private SAXParser saxParser;

@@ -1,22 +1,12 @@
 package net.bible.android.control.page;
 
-import java.util.List;
-
-import net.bible.android.BibleApplication;
 import net.bible.android.control.PassageChangeMediator;
-import net.bible.android.view.activity.base.CurrentActivityHolder;
-import net.bible.android.view.activity.base.Dialogs;
-import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.text.ClipboardManager;
-import android.util.Log;
 
 public class CurrentPageManager {
 	// use the same verse in the commentary and bible to keep them in sync
@@ -24,6 +14,7 @@ public class CurrentPageManager {
 	private CurrentBiblePage currentBiblePage;
 	private CurrentCommentaryPage currentCommentaryPage;
 	private CurrentDictionaryPage currentDictionaryPage;
+	private CurrentGeneralBookPage currentGeneralBookPage;
 	
 	private CurrentPage currentDisplayedPage;
 	
@@ -41,6 +32,7 @@ public class CurrentPageManager {
 					instance.currentCommentaryPage = new CurrentCommentaryPage(instance.currentBibleVerse);
 					
 					instance.currentDictionaryPage = new CurrentDictionaryPage();
+					instance.currentGeneralBookPage = new CurrentGeneralBookPage();
 					
 					instance.currentDisplayedPage = instance.currentBiblePage;
 					singleton = instance;
@@ -61,6 +53,9 @@ public class CurrentPageManager {
 	}
 	public CurrentDictionaryPage getCurrentDictionary() {
 		return currentDictionaryPage;
+	}
+	public CurrentGeneralBookPage getCurrentGeneralBook() {
+		return currentGeneralBookPage;
 	}
 	
 	public CurrentPage setCurrentDocument(Book currentBook) {
@@ -106,6 +101,8 @@ public class CurrentPageManager {
 			bookPage = currentCommentaryPage;
 		} else if (bookCategory.equals(BookCategory.DICTIONARY)) {
 			bookPage = currentDictionaryPage;
+		} else if (bookCategory.equals(BookCategory.GENERAL_BOOK)) {
+			bookPage = currentGeneralBookPage;
 		}
 		return bookPage;
 	}
