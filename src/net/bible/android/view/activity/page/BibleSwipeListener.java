@@ -69,14 +69,4 @@ public class BibleSwipeListener extends SimpleOnGestureListener {
 		}
 		return false;
 	}
-
-	@Override
-	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
-			float distanceY) {
-		Log.d(TAG, "On swipeListener scroll");
-		// TODO Auto-generated method stub
-		return super.onScroll(e1, e2, distanceX, distanceY);
-	}
-	
-	
 }

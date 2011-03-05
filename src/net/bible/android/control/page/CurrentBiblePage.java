@@ -35,6 +35,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	
 	
 	/* default */ CurrentBiblePage(CurrentBibleVerse currentVerse) {
+		super(true);
 		// share the verse holder with the CurrentCommentaryPage
 		this.currentBibleVerse = currentVerse;
 	}

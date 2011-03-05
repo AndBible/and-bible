@@ -2,11 +2,6 @@ package net.bible.android.view.activity.navigation;
 
 import java.util.List;
 
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.bookmark.Bookmark;
-import net.bible.android.control.search.SearchControl;
-import net.bible.service.db.bookmark.BookmarkDto;
-
 import org.crosswire.jsword.passage.Key;
 
 import android.content.Context;
@@ -14,22 +9,20 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.TwoLineListItem;
+import android.widget.TextView;
 
 /**
- * nice example here: http://shri.blog.kraya.co.uk/2010/04/19/android-multi-line-select-list/
+ * Retain similar style to TwoLineListView but for single TextView on each line
  * @author denha1m
  *
  */
 public class GeneralBookKeyItemAdapter extends ArrayAdapter<Key> {
 
 	private int resource;
-	private SearchControl searchControl;
 
 	public GeneralBookKeyItemAdapter(Context _context, int _resource, List<Key> _items) {
 		super(_context, _resource, _items);
 		resource = _resource;
-		searchControl = ControlFactory.getInstance().getSearchControl();
 	}
 
 	@Override
@@ -38,24 +31,18 @@ public class GeneralBookKeyItemAdapter extends ArrayAdapter<Key> {
 		Key item = getItem(position);
 
 		// Pick up the TwoLineListItem defined in the xml file
-		TwoLineListItem view;
+		TextView view;
 		if (convertView == null) {
 			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			view = (TwoLineListItem) inflater.inflate(resource, parent, false);
+			view = (TextView) inflater.inflate(resource, parent, false);
 		} else {
-			view = (TwoLineListItem) convertView;
+			view = (TextView) convertView;
 		}
 
 		// Set value for the first text field
-		if (view.getText1() != null) {
+		if (view != null) {
 			String key = item.getName();
-			view.getText1().setText(key);
-		}
-
-		// set value for the second text field
-		if (view.getText2() != null) {
-//			String verseText = searchControl.getSearchResultVerseText(item);
-			view.getText2().setText("deleteme");
+			view.setText(key);
 		}
 
 		return view;

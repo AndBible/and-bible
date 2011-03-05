@@ -10,7 +10,6 @@ import net.bible.service.sword.SwordApi;
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
-import org.crosswire.jsword.passage.Verse;
 
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -24,9 +23,19 @@ abstract class CurrentPageBase implements CurrentPage {
 	private boolean inhibitChangeNotifications;
 
 	private static final String TAG = "CurrentPage";
+
+	// all bibles and commentaries share the same key
+	private boolean shareKeyBetweenDocs = false;
 	
 	abstract protected void doSetKey(Key key);
 	
+	
+	protected CurrentPageBase(boolean shareKeyBetweenDocs) {
+		super();
+		this.shareKeyBetweenDocs = shareKeyBetweenDocs;
+	}
+
+
 	/** notify mediator that page has changed and a lot of things need to update themselves
 	 */
 	protected void beforePageChange() {
@@ -105,11 +114,12 @@ abstract class CurrentPageBase implements CurrentPage {
 	 */
 	@Override
 	public void setCurrentDocument(Book doc) {
-		if (getKey()!=null && !doc.equals(currentDocument) && !doc.contains(getKey())) {
+		if (!doc.equals(currentDocument) && !shareKeyBetweenDocs && getKey()!=null && !doc.contains(getKey())) {
 			doSetKey(null);
 		}
 		localSetCurrentDocument(doc);
 	}
+	
 	/* Set new doc and if possible show new doc
 	 * @see net.bible.android.control.CurrentPage#setCurrentDocument(org.crosswire.jsword.book.Book)
 	 */
@@ -183,5 +193,10 @@ abstract class CurrentPageBase implements CurrentPage {
 			editor.putString(getBookCategory().getName()+"_document", getCurrentDocument().getInitials());
 			editor.commit();
 		}
+	}
+
+
+	public boolean isShareKeyBetweenDocs() {
+		return shareKeyBetweenDocs;
 	}
 }

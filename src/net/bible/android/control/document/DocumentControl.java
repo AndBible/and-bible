@@ -3,6 +3,7 @@ package net.bible.android.control.document;
 import java.util.List;
 
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.service.sword.SwordApi;
 
@@ -13,6 +14,13 @@ import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
 
 public class DocumentControl {
+	
+	// user wants to change to a different document/module
+	public void changeDocument(Book newDocument) {
+		
+		CurrentPage newPage = CurrentPageManager.getInstance().setCurrentDocument( newDocument );
+		
+	}
 	
 	/** Book is deletable according to the driver if it is in the download dir i.e. not sdcard\jsword
 	 * and according to And Bible if it is not currently selected

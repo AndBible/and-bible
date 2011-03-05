@@ -1,6 +1,6 @@
 package net.bible.android.view.activity.navigation;
 
- import java.util.ArrayList;
+import java.util.ArrayList;
 import java.util.List;
 
 import net.bible.android.activity.R;
@@ -36,7 +36,7 @@ public class ChooseGeneralBookKey extends ListActivityBase {
 	private List<Key> mGeneralBookKeyList;
     private ArrayAdapter<Key> mKeyArrayAdapter;
 
-	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
+	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1;
 
     /** Called when the activity is first created. */
     @Override
@@ -60,7 +60,7 @@ public class ChooseGeneralBookKey extends ListActivityBase {
     protected void prepareList(String keyName)
     {
     	Log.d(TAG, "Getting children of "+keyName);
-    	mGeneralBookKeyList = new ArrayList();
+    	mGeneralBookKeyList = new ArrayList<Key>();
     	try {
 	    	CurrentGeneralBookPage currentGeneralBookPage = ControlFactory.getInstance().getCurrentPageControl().getCurrentGeneralBook();
 	    	Book book = currentGeneralBookPage.getCurrentDocument();
