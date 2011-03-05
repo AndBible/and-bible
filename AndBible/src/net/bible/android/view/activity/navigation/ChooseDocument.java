@@ -123,20 +123,10 @@ public class ChooseDocument extends ListActivityBase {
 	private void bookSelected(Book selectedBook) {
     	Log.d(TAG, "Book selected:"+selectedBook.getInitials());
     	try {
-    		CurrentPage newPage = CurrentPageManager.getInstance().setCurrentDocument( selectedBook );
-    		
-    		// page will change due to above
-    		// if there is a valid key then show the page straight away
-    		if (newPage.getKey()==null) {
-    			// no key set for this doc type so show a key chooser
-    			//TODO this code is generic and needs to be performed whenever a doc changes so think where to put it
-    	    	Intent intent = new Intent(this, newPage.getKeyChooserActivity());
-    	    	startActivity(intent);
-    	    	finish();    
-    		} else {
-    			// if key is valid then the new doc will have been shown already
-    			returnToMainBibleView();
-    		}
+    		ControlFactory.getInstance().getDocumentControl().changeDocument(selectedBook);
+
+    		// if key is valid then the new doc will have been shown already
+			finishedSelection();
     	} catch (Exception e) {
     		Log.e(TAG, "error on select of bible book", e);
     	}
@@ -182,8 +172,8 @@ public class ChooseDocument extends ListActivityBase {
 				.show();
 	}
 
-	private void returnToMainBibleView() {
-    	Log.i(TAG, "returning to main bible view");
+	private void finishedSelection() {
+    	Log.i(TAG, "finished selection");
     	Intent resultIntent = new Intent();
     	setResult(Activity.RESULT_OK, resultIntent);
     	finish();    

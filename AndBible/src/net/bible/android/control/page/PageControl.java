@@ -126,9 +126,6 @@ public class PageControl {
 		StringBuilder title = new StringBuilder();
 		CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
 		if (currentPage!=null) {
-//			if (currentPage.getCurrentDocument()!=null) {
-//				title.append(currentPage.getCurrentDocument()).append(" ");
-//			}
 			if (currentPage.getSingleKey()!=null) {
 				 title.append(currentPage.getSingleKey().getName());
 			}
@@ -136,7 +133,7 @@ public class PageControl {
 		// restore full book name setting
 		BibleInfo.setFullBookName(fullBookNameSave);
 		
-		int maxLength = isPortrait ? 7 : 26;
+		int maxLength = isPortrait ? 11 : 26;
 		String retVal = null;
 		if (title.length()>maxLength) {
 			retVal = title.substring(0, maxLength);

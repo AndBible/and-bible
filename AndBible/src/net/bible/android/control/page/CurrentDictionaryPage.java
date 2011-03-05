@@ -29,6 +29,7 @@ public class CurrentDictionaryPage extends CurrentPageBase implements CurrentPag
 	
 	
 	/* default */ CurrentDictionaryPage() {
+		super(false);
 	}
 	
 	public BookCategory getBookCategory() {

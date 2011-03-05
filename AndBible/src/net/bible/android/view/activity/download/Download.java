@@ -102,11 +102,17 @@ public class Download extends ListActivityBase {
         
        	initialiseView();
        	
-       	if (!forceBasicFlow && isRepoBookListOld()) {
+       	// if first time
+       	if (forceBasicFlow) {
+        	// prepare the document list view - done in another thread
+        	populateMasterDocumentList(false);
+        	updateLastRepoRefreshDate();
+       	} else if (isRepoBookListOld()) {
+       		// normal user downloading but with old doc list
        		// this will also trigger populateMasterDocumentList
        		promptRefreshBookList();
        	} else {
-        	// prepare the document list view - done in another thread
+       		// normal user downloading with recent doc list
         	populateMasterDocumentList(false);
        	}
     }
@@ -129,16 +135,14 @@ public class Download extends ListActivityBase {
 				public void onClick(DialogInterface dialog, int id) {
 					// prepare the document list view - done in another thread
 					populateMasterDocumentList(true);
-				 	Date today = new Date();
-					CommonUtils.getSharedPreferences().edit().putLong(REPO_REFRESH_DATE, today.getTime()).commit();
+				 	updateLastRepoRefreshDate();
 				}
 			})
 			.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 					// prepare the document list view - done in another thread
 					populateMasterDocumentList(false);
-				 	Date today = new Date();
-				 	CommonUtils.getSharedPreferences().edit().putLong(REPO_REFRESH_DATE, today.getTime()).commit();
+					updateLastRepoRefreshDate();
 				 }
 			}).create().show();
 	 }
@@ -189,6 +193,11 @@ public class Download extends ListActivityBase {
 	    	langArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	    	langSpinner.setAdapter(langArrayAdapter);
     	}
+    }
+
+    private void updateLastRepoRefreshDate() {
+	 	Date today = new Date();
+		CommonUtils.getSharedPreferences().edit().putLong(REPO_REFRESH_DATE, today.getTime()).commit();
     }
     
     private void setDefaultLanguage() {

@@ -30,6 +30,9 @@ public interface CurrentPage {
 	public abstract void setKey(Key key);
 
 	public abstract boolean isSingleKey();
+	
+	// bible and commentary share a key (verse)
+	public boolean isShareKeyBetweenDocs();
 
 	/** get current key
 	 */

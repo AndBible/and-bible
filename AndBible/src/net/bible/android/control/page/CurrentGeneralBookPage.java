@@ -22,6 +22,7 @@ public class CurrentGeneralBookPage extends CurrentPageBase implements CurrentPa
 	
 	
 	/* default */ CurrentGeneralBookPage() {
+		super(false);
 	}
 	
 	public BookCategory getBookCategory() {

@@ -1,11 +1,15 @@
 package net.bible.android.control.page;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.control.PassageChangeMediator;
+import net.bible.android.view.activity.base.CurrentActivityHolder;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 
 public class CurrentPageManager {
@@ -68,7 +72,16 @@ public class CurrentPageManager {
 			currentDisplayedPage = nextPage;
 		}
 		
-		PassageChangeMediator.getInstance().onCurrentPageChanged();
+		// page will change due to above
+		// if there is a valid share key then show the page straight away
+		if (nextPage.isShareKeyBetweenDocs()) {
+			PassageChangeMediator.getInstance().onCurrentPageChanged();
+		} else {
+			Context context = CurrentActivityHolder.getInstance().getCurrentActivity();
+			// pop up a key selection screen
+	    	Intent intent = new Intent(context, nextPage.getKeyChooserActivity());
+	    	context.startActivity(intent);
+		}
 
 		return nextPage;
 	}
@@ -87,6 +100,7 @@ public class CurrentPageManager {
 				nextPage.setInhibitChangeNotifications(false);
 			}
 		}
+		// valid key has been set so do not need to show a key chooser therefore just update main view
 		PassageChangeMediator.getInstance().onCurrentPageChanged();
 
 		return nextPage;
