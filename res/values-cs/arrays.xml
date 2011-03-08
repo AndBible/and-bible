@@ -11,5 +11,6 @@
 		<item>Bible</item>
 		<item>Komentář</item>
 		<item>Slovník</item>
+		<item>Book</item> <!-- needs translation -->
 	</string-array>
 </resources>

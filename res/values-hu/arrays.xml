@@ -10,6 +10,7 @@
 		<item>Biblia</item>
 		<item>Kommentár</item>
 		<item>Szótár</item>
+		<item>Book</item> <!-- needs translation -->
 	</string-array>
 	
 	<!-- Allow the user to select the text size for the main bible display -->

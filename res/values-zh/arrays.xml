@@ -10,6 +10,7 @@
 		<item>圣经</item>
 		<item>注释</item>
 		<item>字典</item>
+		<item>Book</item> <!-- needs translation -->
 	</string-array>
 		
 </resources>

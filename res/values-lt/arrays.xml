@@ -10,6 +10,7 @@
 		<item>Biblija</item>
 		<item>Komentarai</item>
 		<item>Žodynas</item>
+		<item>Book</item> <!-- needs translation -->
 	</string-array>
 		
 </resources>
