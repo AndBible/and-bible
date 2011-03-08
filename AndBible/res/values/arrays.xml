@@ -16,18 +16,36 @@
 	<string-array name="prefs_interface_locale_descriptions">
 		<item>Default</item>
 		<item>Chinese</item>
+		<item>Czech</item>
+		<item>English</item>
 		<item>German</item>
-		<item>French</item>
 		<item>Faroese</item>
+		<item>French</item>
+		<item>Hebrew</item>
+		<item>Hungarian</item>
+		<item>Latvian</item>
+		<item>Norwegian</item>
+		<item>Polish</item>
+		<item>Portuguese</item>
 		<item>Russian</item>
+		<item>Swedish</item>
 	</string-array>
 	<string-array name="prefs_interface_locale_values">
 		<item></item>
 		<item>zh</item>
+		<item>cs</item>
+		<item>en</item>
 		<item>de</item>
-		<item>fr</item>
 		<item>fo</item>
+		<item>fr</item>
+		<item>he</item>
+		<item>hu</item>
+		<item>lt</item>
+		<item>nb</item>
+		<item>pl</item>
+		<item>pt</item>
 		<item>ru</item>
+		<item>sv</item>
 	</string-array>
 		
 </resources>

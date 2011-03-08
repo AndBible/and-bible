@@ -10,6 +10,7 @@
 		<item>Raamattu</item>
 		<item>Kommentaari</item>
 		<item>Sanakirja</item>
+		<item>Book</item> <!-- needs translation -->
 	</string-array>
 		
 </resources>

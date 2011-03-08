@@ -12,6 +12,7 @@
 		<item>Bíblia</item>
 		<item>Comentário</item>
 		<item>Dicionário</item>
+		<item>Book</item> <!-- needs translation -->
 	</string-array>
 		
 </resources>

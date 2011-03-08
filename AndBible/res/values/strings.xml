@@ -12,7 +12,7 @@
     <string name="help_text">Press the MENU key for actions\n\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger</string>
     <string name="help_text_long">Navigation\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger
     \n\nPress the MENU key for actions
-    \n\nSpeech\nPress Speak to read out the current chapter\nPress Speak again to stop reading
+    \n\nSpeech\nPress Speak to access a dialog to start or stop reading
     \n\nLong press on the bible view to open the context menu for actions affecting the current verse.
     \nLong press on a document in the document selector to delete it or view information.
     \n\nBookmarks\nBookmarks can be added via the verse context menu.  The Bookmark Manager is accessed via the main menu.  The Bookmark Manager context menu allows bookmarks to be grouped using labels.</string>

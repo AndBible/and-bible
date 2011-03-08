@@ -10,5 +10,6 @@
 		<item>Biblia</item>
 		<item>Komentarz</item>
 		<item>Słownik</item>
+		<item>Book</item> <!-- needs translation -->
 	</string-array>
 </resources>
