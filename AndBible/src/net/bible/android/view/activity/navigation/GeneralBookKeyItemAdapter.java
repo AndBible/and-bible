@@ -2,6 +2,8 @@ package net.bible.android.view.activity.navigation;
 
 import java.util.List;
 
+import org.apache.commons.lang.ABStringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.crosswire.jsword.passage.Key;
 
 import android.content.Context;
@@ -42,6 +44,10 @@ public class GeneralBookKeyItemAdapter extends ArrayAdapter<Key> {
 		// Set value for the first text field
 		if (view != null) {
 			String key = item.getName();
+			// make all uppercase in Calvin's Institutes look nicer
+			if (ABStringUtils.isAllUpperCaseWherePossible(key)) {
+				key = WordUtils.capitalizeFully(key);
+			}
 			view.setText(key);
 		}
 

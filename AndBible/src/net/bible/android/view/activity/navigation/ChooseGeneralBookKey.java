@@ -94,6 +94,7 @@ public class ChooseGeneralBookKey extends ListActivityBase {
     
     private void itemSelected(Key key) {
     	Log.d(TAG, "Key selected:"+key);
+    	Log.d(TAG, "Key selected:"+key.getName());
     	try {
     		// if there is only 1 chapter then no need to select chapter
     		if (key.getChildCount()==0) {

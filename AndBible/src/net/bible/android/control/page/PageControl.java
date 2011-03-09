@@ -10,6 +10,8 @@ import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordApi;
 
+import org.apache.commons.lang.ABStringUtils;
+import org.apache.commons.lang.WordUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchVerseException;
@@ -94,11 +96,12 @@ public class PageControl {
 			Log.e(TAG, "Verse error");
 		}
 	}
-	/** get page title including info about current doc and key/verse
+	/** get page title including info about current doc
 	 * 
 	 * @return
 	 */
 	public String getCurrentDocumentTitle() {
+		boolean isPortrait = CommonUtils.isPortrait();
 	
 		StringBuilder title = new StringBuilder();
 		CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
@@ -108,10 +111,13 @@ public class PageControl {
 			}
 		}
 		
-		return title.toString();
+		int maxLength = isPortrait ? 4 : 12;
+		String retVal = shorten(title.toString(), maxLength);
+
+		return retVal;
 	}
 
-	/** get page title including info about current doc and key/verse
+	/** get page title including info about key/verse
 	 * 
 	 * @return
 	 */
@@ -134,13 +140,22 @@ public class PageControl {
 		BibleInfo.setFullBookName(fullBookNameSave);
 		
 		int maxLength = isPortrait ? 11 : 26;
+		String retVal = shorten(title.toString(), maxLength);
+		// favour correct capitalisation because it looks better and is narrower so more fits in
+		if (ABStringUtils.isAllUpperCaseWherePossible(retVal)) {
+			// Books like INSTITUTES need corrected capitalisation
+			retVal = WordUtils.capitalizeFully(retVal);
+		}		
+		return retVal;
+	}
+
+	private String shorten(String title, int maxLength) {
 		String retVal = null;
 		if (title.length()>maxLength) {
 			retVal = title.substring(0, maxLength);
 		} else {
-			retVal = title.toString();
+			retVal = title;
 		}
-		
 		return retVal;
 	}
 	
