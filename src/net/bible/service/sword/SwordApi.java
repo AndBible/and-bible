@@ -72,7 +72,9 @@ public class SwordApi {
 	
 	private static boolean isSwordLoaded;
 	
-	private static boolean isAndroid = CommonUtils.isAndroid();
+	// set to false for testing
+	public static boolean isAndroid = true; //CommonUtils.isAndroid();
+	
     private static final Logger log = new Logger(SwordApi.class.getName()); 
 
 	public static SwordApi getInstance() {

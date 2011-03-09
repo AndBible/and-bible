@@ -6,6 +6,7 @@ import net.bible.android.view.activity.navigation.ChooseGeneralBookKey;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 
+import android.util.Log;
 import android.view.Menu;
 
 /** Reference to current passage shown by viewer
@@ -38,6 +39,7 @@ public class CurrentGeneralBookPage extends CurrentPageBase implements CurrentPa
 	 * @param key
 	 */
 	protected void doSetKey(Key key) {
+		Log.d(TAG, "General book key:"+key.getName());
 		this.key = key;
 	}
 
