@@ -40,8 +40,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     private boolean isLeftToRight = true;
     private boolean isShowHeadings = true;
     private boolean isShowVerseNumbers = false;
+    private boolean isVersePerline = false;
     private boolean isShowNotes = false;
-    private boolean isShowStrongs = true;
+    private boolean isShowStrongs = false;
     private String extraStylesheet;
     
     // internal logic
@@ -141,6 +142,10 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 				currentVerseNo = osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID));
 			}
 			isCurrentVerseNoWritten = false;
+			
+			if (this.isVersePerline) {
+				write("<div>");
+			}
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {
 			String noteRef = getNoteRef(attrs);
 			if (isShowNotes) {
@@ -202,9 +207,12 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			write("</h1>");
 			isDelayVerse = false;
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
-			// A space is needed to separate one verse from the next, otherwise the 2 verses butt up against each other
-			// which looks bad and confuses TTS
-			write(" ");
+			if (this.isVersePerline) {
+				write("</div>");
+			} else {
+				// A space is needed to separate one verse from the next, otherwise the 2 verses butt up against each other which looks bad
+				write(" ");
+			}
 		} else if (name.equals("note")) {
 			String noteText = currentNote.toString();
 			if (noteText.length()>0) {
@@ -414,6 +422,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	}
 	public void setShowVerseNumbers(boolean isShowVerseNumbers) {
 		this.isShowVerseNumbers = isShowVerseNumbers;
+	}
+	public void setVersePerline(boolean isVersePerline) {
+		this.isVersePerline = isVersePerline;
 	}
 	public void setExtraStylesheet(String extraStylesheet) {
 		this.extraStylesheet = extraStylesheet;

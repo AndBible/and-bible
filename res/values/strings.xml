@@ -65,6 +65,8 @@
 	<!-- Preferences -->
     <string name="prefs_show_verseno_title">Verse numbers</string>
     <string name="prefs_show_verseno_summary">Show verse numbers</string>
+    <string name="prefs_verse_per_line_title">One verse per line</string>
+    <string name="prefs_verse_per_line_summary">Show each verse on a different line</string>
     <string name="prefs_show_notes_title">Notes</string>
     <string name="prefs_show_notes_summary">Show notes</string>
     <string name="prefs_show_strongs_title">Show Strong\'s numbers</string>
@@ -166,5 +168,7 @@
     <string name="retry">Try Again</string>
     <string name="please_wait">Please wait...</string>
     <string name="all">All</string>
+    
+    
 
 </resources>
