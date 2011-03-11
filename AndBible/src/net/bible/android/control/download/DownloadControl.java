@@ -1,8 +1,10 @@
 package net.bible.android.control.download;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import net.bible.service.sword.SwordApi;
 
@@ -22,17 +24,31 @@ public class DownloadControl {
 		List<Book> availableDocs = null;
 		try {
 			availableDocs = SwordApi.getInstance().getDownloadableDocuments(refresh);
-			List<Book> downloadedDocs = SwordApi.getInstance().getDocuments();
-			availableDocs.removeAll(downloadedDocs);
+			
+			// create a Map of installed doc names so we can remove them from the list of downloadable books
+			// need to compare using lower case because Xiphos repo books are lower case
+			List<Book> installedDocs = SwordApi.getInstance().getDocuments();
+			Map<String, Object> installedDocNames = new HashMap<String, Object>();
+			for (Book book : installedDocs) {
+				installedDocNames.put(book.getName().toLowerCase(), null);
+			}
 			
         	for (Iterator<Book> iter=availableDocs.iterator(); iter.hasNext(); ) {
         		Book doc = iter.next();
         		if (doc.getLanguage()==null) {
         			Log.d(TAG, "Ignoring "+doc.getName()+" because it has no language");
         			iter.remove();
-        		}
-        		if (doc.getInitials().equals("WebstersDict")) {
-        			Log.d(TAG, "Removing "+doc.getName()+" because it is too big and crashed dictionary code");
+        		} else if (installedDocNames.containsKey(doc.getName().toLowerCase())) {
+        			Log.d(TAG, "Ignoring "+doc.getName()+" because already installed");
+        			iter.remove();
+        		} else if (doc.isQuestionable()) {
+        			Log.d(TAG, "Ignoring "+doc.getName()+" because it is questionable");
+        			iter.remove();
+        		} else if (doc.getInitials().equalsIgnoreCase("passion")) {
+        			Log.d(TAG, "Removing "+doc.getName());
+        			iter.remove();
+        		} else if (doc.getInitials().equals("WebstersDict")) {
+        			Log.d(TAG, "Removing "+doc.getName()+" because it is too big and crashes dictionary code");
         			iter.remove();
         		}
         	}

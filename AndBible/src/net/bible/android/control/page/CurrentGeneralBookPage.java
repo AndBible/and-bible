@@ -39,7 +39,6 @@ public class CurrentGeneralBookPage extends CurrentPageBase implements CurrentPa
 	 * @param key
 	 */
 	protected void doSetKey(Key key) {
-		Log.d(TAG, "General book key:"+key.getName());
 		this.key = key;
 	}
 
@@ -68,11 +67,13 @@ public class CurrentGeneralBookPage extends CurrentPageBase implements CurrentPa
 		Key currentKey = getKey();
 		Key globalList = getCurrentDocument().getGlobalKeyList();
 		int keyPos = globalList.indexOf(currentKey);
+		Log.d(TAG, "current key pos:"+keyPos);
 		// move forward or backward to new posn
 		int newKeyPos = keyPos+num;
 		// check bounds
 		newKeyPos = Math.min(newKeyPos, globalList.getCardinality()-1);
 		newKeyPos = Math.max(newKeyPos, 0);
+		Log.d(TAG, "new key pos:"+newKeyPos);
 		// get the actual key at that posn
 		return globalList.get(newKeyPos);
 	}
