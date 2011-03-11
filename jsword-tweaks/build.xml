@@ -1,4 +1,4 @@
-<project name="buildJswordTweakedJar" default="copyTweaksToJsword" basedir=".">
+<project name="buildJswordTweakedJar" default="copyJarsToAndBible" basedir=".">
 	
 	<property name="jsword.src" location="../jsword/src/main/java"/>
 	<property name="jsword.resources" location="../jsword/src/main/resources"/>

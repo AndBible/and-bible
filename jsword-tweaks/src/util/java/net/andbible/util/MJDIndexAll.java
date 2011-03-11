@@ -26,7 +26,8 @@ import org.crosswire.jsword.index.IndexManagerFactory;
 
 public class MJDIndexAll {
 
-	private static final String REPOSITORY = "CrossWire";
+//	private static final String REPOSITORY = "CrossWire";
+	private static final String REPOSITORY = "Xiphos";
 //	private static final BookFilter BOOK_FILTER = BookFilters.getBibles();
 	private static final BookFilter BOOK_FILTER = BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries());
 
@@ -44,10 +45,45 @@ public class MJDIndexAll {
 //    	indexAll.setupDirs();
 //    	indexAll.showInstalledBooks();
 //    	indexAll.showRepoBooks();
-    	indexAll.manageCreateIndexes();
+    	indexAll.installSingleBook("Gill");
+//    	indexAll.installRepoBooks();
+//    	indexAll.checkAllBooksInstalled();
+//    	indexAll.manageCreateIndexes();
 //    	indexAll.indexSingleBook("ChiUns");
     }
 
+    private void installSingleBook(String initials) {
+    	BookInstaller bookInstaller = new BookInstaller();
+        List<Book> books = (List<Book>)bookInstaller.getRepositoryBooks(REPOSITORY, BOOK_FILTER);
+        
+        for (Book book : books) {
+        	if (initials.equalsIgnoreCase(book.getInitials())) {
+            	String lang = book.getLanguage()==null? " " : book.getLanguage().getCode();
+                System.out.println("Found in repo:"+lang+" "+book.getName());
+
+                try {
+                	if (Books.installed().getBook(book.getInitials()) != null) {
+                        System.out.println("Already installed:"+book.getInitials()+":"+book.getName());
+                	} else {
+                        System.out.println("Downloading and installing:"+book.getInitials()+":"+book.getName());
+                    	bookInstaller.installBook(REPOSITORY, book);
+                    	waitToFinish();
+                	}
+
+                	Book installedBook = bookInstaller.getInstalledBook(book.getInitials());
+                	if (installedBook==null) {
+                		System.out.println("Not installed:"+book.getInitials()+" Name:"+book.getName());
+                	}
+ 
+                } catch (Exception e) {
+                	System.out.println("Error installing:"+book.getInitials());
+                	e.printStackTrace();
+                }
+        	}
+        }
+
+        
+    }
     private void indexSingleBook(String initials) {
     	Book book = BookInstaller.getInstalledBook(initials);
     	indexBook(book);
