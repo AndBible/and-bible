@@ -99,7 +99,9 @@ public class SpeakControl {
 		try {
 			for (int i=0; i<numPagesDefn.getNumPages(); i++) {
 				Key current = page.getPagePlus(i);
-				textToSpeak.append( SwordApi.getInstance().getCanonicalText(page.getCurrentDocument(), current));
+				if (current!=null) {
+					textToSpeak.append( SwordApi.getInstance().getCanonicalText(page.getCurrentDocument(), current));
+				}
 			}
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting chapters to speak", e);
