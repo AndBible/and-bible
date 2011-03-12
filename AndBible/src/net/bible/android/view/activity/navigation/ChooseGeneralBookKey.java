@@ -10,8 +10,6 @@ import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.android.view.activity.page.MainBibleActivity;
 
-import org.apache.commons.lang.StringUtils;
-import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
 import android.content.Intent;
@@ -28,7 +26,7 @@ import android.widget.ListView;
  *      The copyright to this program is held by it's author.
  */
 public class ChooseGeneralBookKey extends ListActivityBase {
-	private static final String SELECTED_GENERAL_BOOK_KEY = "KEY";
+
 	private static final int FINISHED = 99;
 
 	private static final String TAG = "ChooseGeneralBookKey";
@@ -45,7 +43,7 @@ public class ChooseGeneralBookKey extends ListActivityBase {
         Log.i(TAG, "Displaying General Book Key chooser");
         setContentView(R.layout.choose_general_book_key);
     
-        prepareList(getIntent().getStringExtra(SELECTED_GENERAL_BOOK_KEY));
+        prepareList();
 
         mKeyArrayAdapter = new GeneralBookKeyItemAdapter(this, LIST_ITEM_TYPE, mGeneralBookKeyList);
         setListAdapter(mKeyArrayAdapter);
@@ -57,29 +55,20 @@ public class ChooseGeneralBookKey extends ListActivityBase {
      * Creates and returns a list adapter for the current list activity
      * @return
      */
-    protected void prepareList(String keyName)
+    protected void prepareList()
     {
-    	Log.d(TAG, "Getting children of "+keyName);
+    	Log.d(TAG, "Getting book keys");
     	mGeneralBookKeyList = new ArrayList<Key>();
     	try {
 	    	CurrentGeneralBookPage currentGeneralBookPage = ControlFactory.getInstance().getCurrentPageControl().getCurrentGeneralBook();
-	    	Book book = currentGeneralBookPage.getCurrentDocument();
+	    	List<Key> keyList = currentGeneralBookPage.getCachedGlobalKeyList();
 	    	
-	    	Key key = null;
-	    	if (StringUtils.isNotEmpty(keyName)) {
-	    		key = book.getKey(keyName);
-	    	} else {
-	    		key = book.getGlobalKeyList();
-	    	}
-	    	
-	    	for (int i=0; i<key.getChildCount(); i++) {
-	        	mGeneralBookKeyList.add(key.get(i));
+	    	for (Key key : keyList) {
+	        	mGeneralBookKeyList.add(key);
 	    	}
     	} catch (Exception e) {
     		Log.e(TAG, "Error getting key");
     	}
-    	
-//        KeyType currentCategory = book.getBookMetaData().getKeyType();
     }
     
     @Override
@@ -96,16 +85,8 @@ public class ChooseGeneralBookKey extends ListActivityBase {
     	Log.d(TAG, "Key selected:"+key);
     	Log.d(TAG, "Key selected:"+key.getName());
     	try {
-    		// if there is only 1 chapter then no need to select chapter
-    		if (key.getChildCount()==0) {
-        		CurrentPageManager.getInstance().getCurrentGeneralBook().setKey(key);
-        		returnToMainScreen();
-    		} else {
-    			// select chapter
-	        	Intent myIntent = new Intent(this, ChooseGeneralBookKey.class);
-	        	myIntent.putExtra(SELECTED_GENERAL_BOOK_KEY, key.getName());
-	        	startActivityForResult(myIntent, 1);
-    		}
+    		CurrentPageManager.getInstance().getCurrentGeneralBook().setKey(key);
+    		returnToMainScreen();
     	} catch (Exception e) {
     		Log.e(TAG, "error on select of gen book key", e);
     	}
@@ -122,12 +103,10 @@ public class ChooseGeneralBookKey extends ListActivityBase {
     	}
     }
 
-
     private void returnToMainScreen() {
     	// just pass control back to the main screen
     	Intent resultIntent = new Intent(this, MainBibleActivity.class);
     	setResult(FINISHED, resultIntent);
     	finish();    
     }
-
 }

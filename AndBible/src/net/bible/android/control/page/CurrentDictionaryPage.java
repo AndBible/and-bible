@@ -20,10 +20,9 @@ import android.view.Menu;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class CurrentDictionaryPage extends CurrentPageBase implements CurrentPage {
+public class CurrentDictionaryPage extends CachedKeyPage implements CurrentPage {
 	
 	private Key key;
-	private List<Key> mCachedGlobalKeyList;
 
 	private static final String TAG = "CurrentDictionaryPage";
 	
@@ -57,42 +56,6 @@ public class CurrentDictionaryPage extends CurrentPageBase implements CurrentPag
     }
 
 	@Override
-	public void setCurrentDocument(Book doc) {
-		// if doc changes then clear any caches from the previous doc
-		if (doc!=null && !doc.equals(getCurrentDocument())) {
-			mCachedGlobalKeyList = null;
-		}
-		super.setCurrentDocument(doc);
-	}
-
-	//TODO remove this and do binary search of globalkeylist
-	/** make dictionary key lookup much faster
-	 * 
-	 * @return
-	 */
-	public List<Key> getCachedGlobalKeyList() {
-		if (getCurrentDocument()!=null && mCachedGlobalKeyList==null) {
-			try {
-				Log.d(TAG, "Start to create cached key list");
-				// this cache is cleared in setCurrentDoc
-		    	mCachedGlobalKeyList = new ArrayList<Key>();
-		    	Iterator iter = getCurrentDocument().getGlobalKeyList().iterator();
-				while (iter.hasNext()) {
-					Key key = (Key)iter.next();
-					mCachedGlobalKeyList.add(key);
-				}
-			} catch (OutOfMemoryError oom) {
-				mCachedGlobalKeyList = null;
-				System.gc();
-				Log.e(TAG, "out of memory", oom);
-				throw oom;
-			}
-			Log.d(TAG, "Finished creating cached key list len:"+mCachedGlobalKeyList.size());
-		}
-		return mCachedGlobalKeyList;
-	}
-	
-	@Override
 	public void next() {
 		setKey(getKeyPlus(1));
 	}
@@ -102,21 +65,6 @@ public class CurrentDictionaryPage extends CurrentPageBase implements CurrentPag
 		setKey(getKeyPlus(-1));
 	}
 
-	/** add or subtract a number of pages from the current position and return Verse
-	 */
-	public Key getKeyPlus(int num) {
-		Key currentKey = getKey();
-		Key globalList = getCurrentDocument().getGlobalKeyList();
-		int keyPos = globalList.indexOf(currentKey);
-		// move forward or backward to new posn
-		int newKeyPos = keyPos+num;
-		// check bounds
-		newKeyPos = Math.min(newKeyPos, globalList.getCardinality()-1);
-		newKeyPos = Math.max(newKeyPos, 0);
-		// get the actual key at that posn
-		return globalList.get(newKeyPos);
-	}
-	
 	@Override
 	public void updateOptionsMenu(Menu menu) {
 		menu.findItem(R.id.selectPassageButton).setTitle(R.string.dictionary_contents);		

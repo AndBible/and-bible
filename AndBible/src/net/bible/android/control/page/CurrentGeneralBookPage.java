@@ -1,13 +1,13 @@
 package net.bible.android.control.page;
 
+import java.util.List;
+
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.navigation.ChooseGeneralBookKey;
 
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
-import org.crosswire.jsword.passage.TreeKey;
 
-import android.util.Log;
 import android.view.Menu;
 
 /** Reference to current passage shown by viewer
@@ -16,9 +16,10 @@ import android.view.Menu;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class CurrentGeneralBookPage extends CurrentPageBase implements CurrentPage {
+public class CurrentGeneralBookPage extends CachedKeyPage implements CurrentPage {
 	
 	private Key key;
+	private List<Key> mCachedGlobalKeyList;
 
 	private static final String TAG = "CurrentGeneralBookPage";
 	
@@ -31,6 +32,7 @@ public class CurrentGeneralBookPage extends CurrentPageBase implements CurrentPa
 		return BookCategory.GENERAL_BOOK;
 	}
 
+	@Override
 	public Class getKeyChooserActivity() {
 		return ChooseGeneralBookKey.class;
 	}
@@ -51,7 +53,6 @@ public class CurrentGeneralBookPage extends CurrentPageBase implements CurrentPa
 		return key;
     }
 
-
 	@Override
 	public void next() {
 		Key next = getKeyPlus(1);
@@ -68,73 +69,6 @@ public class CurrentGeneralBookPage extends CurrentPageBase implements CurrentPa
 		}
 	}
 
-	/** add or subtract a number of pages from the current position and return new key or null if run off end
-	 */
-	public Key getKeyPlus(int num) {
-		Key key = getKey();
-		// GenBooks normally have TreeKeys - if it isn't then prevent a crash by bailing out now
-		if (!(key instanceof TreeKey)) {
-			return key;
-		}
-
-		TreeKey treeKey = (TreeKey)key;
-		for (int i=0; i<Math.abs(num); i++) {
-			if (num>0) {
-				treeKey = getNextSibling(treeKey);
-			} else {
-				treeKey = getPrevSibling(treeKey);
-			}
-		}
-		return treeKey;
-	}
-
-	/** move forward one place in a KeyTree
-	 * 
-	 * @param treeKey
-	 * @return
-	 */
-	private TreeKey getNextSibling(TreeKey treeKey) {
-		TreeKey sibling = null;
-		Key parent = treeKey.getParent();
-		if (parent!=null) {
-			int indexOfKey = parent.indexOf(treeKey);
-			if (indexOfKey < parent.getChildCount()-1) {
-				sibling = (TreeKey)parent.get(indexOfKey+1);
-			} else if (parent instanceof TreeKey) {
-				sibling = getNextSibling((TreeKey)parent);
-			}
-
-			if (sibling!=null) {
-				// ensure we always end at a leaf node
-				while (sibling.getChildCount()>0) {
-					sibling = (TreeKey)sibling.get(0);
-				}
-			}
-		}
-		return sibling;
-	}
-
-	private TreeKey getPrevSibling(TreeKey treeKey) {
-		TreeKey sibling = null;
-		Key parent = treeKey.getParent();
-		if (parent!=null) {
-			int indexOfKey = parent.indexOf(treeKey);
-			if (indexOfKey > 0) {
-				sibling = (TreeKey)parent.get(indexOfKey-1);
-			} else if (parent instanceof TreeKey) {
-				sibling = getPrevSibling((TreeKey)parent);
-			}
-
-			if (sibling!=null) {
-				// ensure we always end at a leaf node
-				while (sibling.getChildCount()>0) {
-					sibling = (TreeKey)sibling.get(sibling.getChildCount()-1);
-				}
-			}
-		}
-		return sibling;
-	}
-	
 	@Override
 	public void updateOptionsMenu(Menu menu) {
 		menu.findItem(R.id.selectPassageButton).setTitle(R.string.general_book_contents);		
