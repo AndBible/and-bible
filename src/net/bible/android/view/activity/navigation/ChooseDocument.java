@@ -1,39 +1,26 @@
 package net.bible.android.view.activity.navigation;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import net.bible.android.activity.R;
-import net.bible.android.activity.R.id;
-import net.bible.android.activity.R.layout;
-import net.bible.android.activity.R.menu;
-import net.bible.android.activity.R.string;
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.page.CurrentPage;
-import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.view.activity.base.AndBibleActivity;
-import net.bible.android.view.activity.base.ListActivityBase;
+import net.bible.android.view.activity.base.DocumentSelectionBase;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 /**
@@ -43,51 +30,26 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class ChooseDocument extends ListActivityBase {
+public class ChooseDocument extends DocumentSelectionBase {
 	private static final String TAG = "ChooseDocument";
-	
-	private List<Book> documents;
-	private List<String> documentNames = new ArrayList<String>();
-	
-	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1; 
 	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.document_chooser);
-        initialiseView();
-    }
+        
+    	populateMasterDocumentList(false);
 
-    private void initialiseView() {
-    	loadDocumentList();
-    	
-    	ArrayAdapter<String> listArrayAdapter = new ArrayAdapter<String>(this,
-    	        LIST_ITEM_TYPE,
-    	        documentNames);
-    	setListAdapter(listArrayAdapter);
-    	
     	registerForContextMenu(getListView());
     }
 
 	/** load list of docs to display
 	 * 
 	 */
-	private void loadDocumentList() {
-		documents = SwordApi.getInstance().getDocuments();
-    	
-    	// get long book names to show in the select list
-		// must clear rather than create because the adapter is linked to this specific list
-    	documentNames.clear();
-    	for (Book book : documents) {
-    		documentNames.add(book.getName());
-    	}
-	}
-
     @Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-    	bookSelected(documents.get(position));
-    }
+    protected List<Book> getDocumentsFromSource(boolean refresh) {
+		return SwordApi.getInstance().getDocuments();
+	}
 
     @Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
@@ -95,7 +57,7 @@ public class ChooseDocument extends ListActivityBase {
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.document_context_menu, menu);
 		
-		Book document = documents.get( ((AdapterContextMenuInfo)menuInfo).position);
+		Book document = getDisplayedDocuments().get( ((AdapterContextMenuInfo)menuInfo).position);
 		MenuItem deleteItem = menu.findItem(R.id.delete);
 		
 		boolean canDelete = ControlFactory.getInstance().getDocumentControl().canDelete(document);
@@ -106,7 +68,7 @@ public class ChooseDocument extends ListActivityBase {
 	public boolean onContextItemSelected(MenuItem item) {
 		super.onContextItemSelected(item);
         AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
-		Book document = documents.get(menuInfo.position);
+		Book document = getDisplayedDocuments().get(menuInfo.position);
 		if (document!=null) {
 			switch (item.getItemId()) {
 			case (R.id.about):
@@ -120,7 +82,8 @@ public class ChooseDocument extends ListActivityBase {
 		return false; 
 	}
 
-	private void bookSelected(Book selectedBook) {
+    @Override
+    protected void handleDocumentSelection(Book selectedBook) {
     	Log.d(TAG, "Book selected:"+selectedBook.getInitials());
     	try {
     		ControlFactory.getInstance().getDocumentControl().changeDocument(selectedBook);
@@ -160,8 +123,7 @@ public class ChooseDocument extends ListActivityBase {
 								SwordApi.getInstance().deleteDocument(document);
 
 								// the doc list should now change
-								loadDocumentList();
-								((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
+								reload();
 							} catch (Exception e) {
 								showErrorMsg(R.string.error_occurred);
 							}
