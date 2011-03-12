@@ -44,6 +44,9 @@ public class DownloadControl {
         		} else if (doc.isQuestionable()) {
         			Log.d(TAG, "Ignoring "+doc.getName()+" because it is questionable");
         			iter.remove();
+        		} else if (doc.getInitials().equalsIgnoreCase("westminster")) {
+        			Log.d(TAG, "Removing "+doc.getName()+" because some sections are too large for a mobile phone e.g. Q91-150");
+        			iter.remove();
         		} else if (doc.getInitials().equalsIgnoreCase("passion")) {
         			Log.d(TAG, "Removing "+doc.getName());
         			iter.remove();
