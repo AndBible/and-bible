@@ -17,10 +17,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 
 /**
@@ -38,9 +38,8 @@ public class ChooseDocument extends DocumentSelectionBase {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        setDeletePossible(true);
     	populateMasterDocumentList(false);
-
-    	registerForContextMenu(getListView());
     }
 
 	/** load list of docs to display
@@ -48,38 +47,8 @@ public class ChooseDocument extends DocumentSelectionBase {
 	 */
     @Override
     protected List<Book> getDocumentsFromSource(boolean refresh) {
+		Log.d(TAG, "get document list from source");
 		return SwordApi.getInstance().getDocuments();
-	}
-
-    @Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.document_context_menu, menu);
-		
-		Book document = getDisplayedDocuments().get( ((AdapterContextMenuInfo)menuInfo).position);
-		MenuItem deleteItem = menu.findItem(R.id.delete);
-		
-		boolean canDelete = ControlFactory.getInstance().getDocumentControl().canDelete(document);
-		deleteItem.setEnabled(canDelete);
-	}
-
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		super.onContextItemSelected(item);
-        AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
-		Book document = getDisplayedDocuments().get(menuInfo.position);
-		if (document!=null) {
-			switch (item.getItemId()) {
-			case (R.id.about):
-				showAbout(document);
-				return true;
-			case (R.id.delete):
-				delete(document);
-				return true;
-			}
-		}
-		return false; 
 	}
 
     @Override
@@ -95,45 +64,30 @@ public class ChooseDocument extends DocumentSelectionBase {
     	}
     }
 
-	private void showAbout(Book document) {
-		
-		//get about text
-		Map props = document.getBookMetaData().getProperties();
-		String about = (String)props.get("About");
-		about = about.replace("\\par", "\n");
+    @Override
+	protected void handleDelete(final Book document) {
+		CharSequence msg = getString(R.string.delete_doc, document.getName());
+		new AlertDialog.Builder(this)
+			.setMessage(msg).setCancelable(true)
+			.setPositiveButton(R.string.okay,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog,	int buttonId) {
+						try {
+							Log.d(TAG, "Deleting:"+document);
+							SwordApi.getInstance().deleteDocument(document);
 
-    	new AlertDialog.Builder(this)
-		   .setMessage(about)
-	       .setCancelable(false)
-	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-	           public void onClick(DialogInterface dialog, int buttonId) {
-	        	   //do nothing
-	           }
-	       }).create().show();
-	}
-
-	private void delete(final Book document) {
-			CharSequence msg = getString(R.string.delete_doc, document.getName());
-			new AlertDialog.Builder(this)
-				.setMessage(msg).setCancelable(true)
-				.setPositiveButton(R.string.okay,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog,	int buttonId) {
-							try {
-								SwordApi.getInstance().deleteDocument(document);
-
-								// the doc list should now change
-								reload();
-							} catch (Exception e) {
-								showErrorMsg(R.string.error_occurred);
-							}
+							// the doc list should now change
+							reloadDocuments();
+						} catch (Exception e) {
+							showErrorMsg(R.string.error_occurred);
 						}
 					}
-				)
-				.create()
-				.show();
+				}
+			)
+			.create()
+			.show();
 	}
-
+	
 	private void finishedSelection() {
     	Log.i(TAG, "finished selection");
     	Intent resultIntent = new Intent();

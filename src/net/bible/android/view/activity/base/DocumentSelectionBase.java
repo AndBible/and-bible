@@ -5,9 +5,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
 
 import org.crosswire.common.util.Language;
 import org.crosswire.common.util.Languages;
@@ -16,15 +18,22 @@ import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemSelectedListener;
 
 /**
@@ -60,12 +69,11 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 	private List<Book> displayedDocuments;
 	private List<String> displayedDocumentDescriptions;
 
-	private Book selectedDocument;
+	private boolean isDeletePossible;
 	
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1;
 
 	private static final String TAG = "DocumentSelectionBase";
-
 
 	/** ask subclass for documents to be displayed
 	 */
@@ -81,6 +89,8 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
         setContentView(R.layout.document_selection);
 
        	initialiseView();
+       	
+    	registerForContextMenu(getListView());
     }
 
     private void initialiseView() {
@@ -172,7 +182,8 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     		if (position>=0 && position<displayedDocuments.size()) {
         		Book selectedBook = displayedDocuments.get(position);
         		if (selectedBook!=null) {
-        			documentSelected(selectedBook);
+        			Log.d(TAG, "Selected "+selectedBook.getInitials());
+        			handleDocumentSelection(selectedBook);
         		}
     		}
     	} catch (Exception e) {
@@ -181,7 +192,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     	}
 	}
 
-    protected void reload() {
+    protected void reloadDocuments() {
 		populateMasterDocumentList(false);
 	}
     
@@ -190,46 +201,46 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     }
     
     protected void populateMasterDocumentList(final boolean refresh) {
-		if (allDocuments==null || allDocuments.size()==0) {
-    	    new AsyncTask<Void, Boolean, Void>() {
-    	    	
-    	        @Override
-    	        protected void onPreExecute() {
-    	        	showHourglass();
-    	        	showPreLoadMessage();
-    	        }
-    	        
-    			@Override
-    	        protected Void doInBackground(Void... noparam) {
-    				try {
-	    	        	allDocuments = getDocumentsFromSource(refresh);
-	    	        	Log.i(TAG, "number of documents:"+allDocuments.size());
-    				} catch (Exception e) {
-    					Log.e(TAG, "Error getting documents", e);
-    					//todo INTERNATIONALIZE
-    					showErrorMsg("Error getting documents");
-    				}
-    	        	return null;
-    			}
-    			
-    	        @Override
-				protected void onPostExecute(Void result) {
-    	        	try {
-    	        		if (allDocuments!=null) {
-	    	        		populateLanguageList();
-	    	        		
-	    	        		// default language depends on doc availability so must do in onPostExecute
-	    	    	    	setDefaultLanguage();
-	    	        		filterDocuments();
-    	        		}
-    	        	} finally {
-    	        		//todo implement this: http://stackoverflow.com/questions/891451/android-dismissdialog-does-not-dismiss-the-dialog
-        	        	dismissHourglass();
-    	        	}
-    	        }
+		Log.d(TAG, "populate Master Document List");
 
-    	    }.execute((Void[])null);
-		}
+	    new AsyncTask<Void, Boolean, Void>() {
+	    	
+	        @Override
+	        protected void onPreExecute() {
+	        	showHourglass();
+	        	showPreLoadMessage();
+	        }
+	        
+			@Override
+	        protected Void doInBackground(Void... noparam) {
+				try {
+    	        	allDocuments = getDocumentsFromSource(refresh);
+    	        	Log.i(TAG, "number of documents:"+allDocuments.size());
+				} catch (Exception e) {
+					Log.e(TAG, "Error getting documents", e);
+					//todo INTERNATIONALIZE
+					showErrorMsg("Error getting documents");
+				}
+	        	return null;
+			}
+			
+	        @Override
+			protected void onPostExecute(Void result) {
+	        	try {
+	        		if (allDocuments!=null) {
+    	        		populateLanguageList();
+    	        		
+    	        		// default language depends on doc availability so must do in onPostExecute
+    	    	    	setDefaultLanguage();
+    	        		filterDocuments();
+	        		}
+	        	} finally {
+	        		//todo implement this: http://stackoverflow.com/questions/891451/android-dismissdialog-does-not-dismiss-the-dialog
+    	        	dismissHourglass();
+	        	}
+	        }
+
+	    }.execute((Void[])null);
     }
     
     
@@ -239,7 +250,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     private void filterDocuments() {
     	try {
     		if (allDocuments!=null && allDocuments.size()>0) {
-   	        	Log.i(TAG, "filtering documents");
+   	        	Log.d(TAG, "filtering documents");
 	        	displayedDocuments.clear();
 	        	displayedDocumentDescriptions.clear();
 	        	Language lang = languageList.get(selectedLanguageNo);
@@ -268,7 +279,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     		Set<Language> langSet = new HashSet<Language>();
 
     		if (allDocuments!=null && allDocuments.size()>0) {
-   	        	Log.i(TAG, "initialising language list");
+   	        	Log.d(TAG, "initialising language list");
 	        	for (Book doc : allDocuments) {
 	        		langSet.add(doc.getLanguage());
 	        	}
@@ -287,21 +298,71 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     	}
     }
 
-    /** user selected a document so call subclass to handle the selection
-     * 
-     * @param document
-     */
-    private void documentSelected(Book document) {
-    	Log.d(TAG, "Document selected:"+document.getInitials());
-		//sometimes the selected doc is null if the list was not clicked properly - odd!
-		if (document!=null) {
-    		this.selectedDocument = document;
-    		
-    		handleDocumentSelection(selectedDocument);
-
+    @Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.document_context_menu, menu);
+		
+		Book document = getDisplayedDocuments().get( ((AdapterContextMenuInfo)menuInfo).position);
+		Log.d(TAG, "Context selected "+document.getInitials());
+		
+		// delete document
+		MenuItem deleteItem = menu.findItem(R.id.delete);
+		deleteItem.setVisible(isDeletePossible);
+		if (isDeletePossible) {
+			boolean canDeleteCurrentDocument = ControlFactory.getInstance().getDocumentControl().canDelete(document);
+			deleteItem.setEnabled(canDeleteCurrentDocument);
 		}
+	}
+
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		super.onContextItemSelected(item);
+        AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
+		Book document = getDisplayedDocuments().get(menuInfo.position);
+		Log.d(TAG, "Selected "+document.getInitials());
+		if (document!=null) {
+			switch (item.getItemId()) {
+			case (R.id.about):
+				showAbout(document);
+				return true;
+			case (R.id.delete):
+				handleDelete(document);
+				return true;
+			}
+		}
+		return false; 
+	}
+
+	protected void handleDelete(final Book document) {
+		// default is that delete is disabled, override to handle delete if enabled
     }
-    
+
+	/** about display is generic so handle it here
+	 */
+	protected void showAbout(Book document) {
+		
+		//get about text
+		Map<String,Object> props = document.getBookMetaData().getProperties();
+		String about = (String)props.get("About");
+		about = about.replace("\\par", "\n");
+
+    	new AlertDialog.Builder(this)
+		   .setMessage(about)
+	       .setCancelable(false)
+	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
+	           public void onClick(DialogInterface dialog, int buttonId) {
+	        	   //do nothing
+	           }
+	       }).create().show();
+	}
+
+	public void setDeletePossible(boolean isDeletePossible) {
+		this.isDeletePossible = isDeletePossible;
+	}
+
 	public Spinner getDocumentTypeSpinner() {
 		return documentTypeSpinner;
 	}
@@ -312,9 +373,5 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 
 	public List<Book> getDisplayedDocuments() {
 		return displayedDocuments;
-	}
-
-	public Book getSelectedDocument() {
-		return selectedDocument;
 	}
 }

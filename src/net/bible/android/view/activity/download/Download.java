@@ -16,7 +16,6 @@ import org.crosswire.common.progress.JobManager;
 import org.crosswire.jsword.book.Book;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -45,7 +44,6 @@ public class Download extends DocumentSelectionBase {
 	private static final long REPO_LIST_STALE_AFTER_DAYS = 30;
 	private static final long MILLISECS_IN_DAY = 1000*60*60*24;
 	
-	private static final int DOWNLOAD_CONFIRMATION_DIALOG = 33;
 	public static final int DOWNLOAD_MORE_RESULT = 10;
 	public static final int DOWNLOAD_FINISH = 1;
 	
@@ -130,15 +128,9 @@ public class Download extends DocumentSelectionBase {
     	Log.d(TAG, "Document selected:"+document.getInitials());
     	try {
     		if (JobManager.getJobs().size()>=2) {
-    			Log.i(TAG, "Too many jobs:"+JobManager.getJobs().size());
-    			Dialogs.getInstance().showErrorMsg(R.string.too_many_jobs, new Callback() {
-					@Override
-					public void okay() {
-						showDownloadStatus();
-					}
-				});
+    			showTooManyJobsDialog();
     		} else {
-    			showDialog(DOWNLOAD_CONFIRMATION_DIALOG);
+    			manageDownload(document);
     		}
     	} catch (Exception e) {
     		Log.e(TAG, "Error on attempt to download", e);
@@ -146,48 +138,37 @@ public class Download extends DocumentSelectionBase {
     	}
     }
 
+	private void showTooManyJobsDialog() {
+		Log.i(TAG, "Too many jobs:"+JobManager.getJobs().size());
+		Dialogs.getInstance().showErrorMsg(R.string.too_many_jobs, new Callback() {
+			@Override
+			public void okay() {
+				showDownloadStatus();
+			}
+		});
+	}
+
 	public void showDownloadStatus() {
 		Intent intent = new Intent(this, DownloadStatus.class);
 		startActivityForResult(intent, 1);
 	}
 
-	@Override
-    protected Dialog onCreateDialog(int id) {
-    	Dialog superDlg = super.onCreateDialog(id);
-    	if (superDlg!=null) {
-    		return superDlg;
+    protected void manageDownload(final Book documentToDownload) {
+    	if (documentToDownload!=null) {
+        	new AlertDialog.Builder(this)
+    		   .setMessage(getText(R.string.download_document_confirm_prefix)+documentToDownload.getName())
+    	       .setCancelable(false)
+    	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
+    	           public void onClick(DialogInterface dialog, int id) {
+    	        	   doDownload(documentToDownload);
+    	           }
+    	       })
+    	       .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+    	           public void onClick(DialogInterface dialog, int id) {
+    	           }
+    	       }).create().show();
     	}
-    	
-        switch (id) {
-        case DOWNLOAD_CONFIRMATION_DIALOG:
-        	final Book selectedDocument = getSelectedDocument();
-        	if (selectedDocument!=null) {
-            	return new AlertDialog.Builder(this)
-            		   .setMessage(getText(R.string.download_document_confirm_prefix)+selectedDocument.getName())
-            	       .setCancelable(false)
-            	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-            	           public void onClick(DialogInterface dialog, int id) {
-            	        	   doDownload(selectedDocument);
-            	           }
-            	       })
-            	       .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            	           public void onClick(DialogInterface dialog, int id) {
-            	           }
-            	       }).create();
-        	}
-        }
-        return null;
     }
-
-    @Override
-	protected void onPrepareDialog(int id, Dialog dialog) {
-		super.onPrepareDialog(id, dialog);
-        switch (id) {
-        case DOWNLOAD_CONFIRMATION_DIALOG:
-        	AlertDialog alertDialog = (AlertDialog)dialog;
-        	alertDialog.setMessage(getText(R.string.download_document_confirm_prefix)+getSelectedDocument().getName());
-        };
-	}
 
 	private void doDownload(Book document) {
     	try {
@@ -198,8 +179,8 @@ public class Download extends DocumentSelectionBase {
 	    	Intent intent;
 	    	if (forceBasicFlow) {
 	    		intent = new Intent(this, EnsureBibleDownloaded.class);
+	    		// finish this so when EnsureDalogDownload finishes we go straight back to StartupActivity which will start MainBibleActivity
 	    		finish();
-	    		removeDialog(DOWNLOAD_CONFIRMATION_DIALOG);
 	    	} else {
 	    		intent = new Intent(this, DownloadStatus.class);
 	    	}
@@ -214,8 +195,11 @@ public class Download extends DocumentSelectionBase {
     
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	Log.d(TAG, "onActivityResult:"+resultCode);
     	if (resultCode==DOWNLOAD_FINISH) {
     		returnToPreviousScreen();
+    	} else {
+    		//result code == DOWNLOAD_MORE_RESULT redisplay this download screen
     	}
     }
 

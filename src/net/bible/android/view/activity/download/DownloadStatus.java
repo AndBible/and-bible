@@ -76,7 +76,7 @@ public class DownloadStatus extends ProgressActivityBase {
     }
     
     public void onMore(View v) {
-    	Log.i(TAG, "CLICKED");
+    	Log.i(TAG, "CLICKED onMore");
     	Intent resultIntent = new Intent(this, DownloadStatus.class);
     	setResult(Download.DOWNLOAD_MORE_RESULT, resultIntent);
     	finish();    
