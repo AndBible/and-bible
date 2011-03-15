@@ -48,6 +48,13 @@ public class ChooseGeneralBookKey extends ListActivityBase {
         mKeyArrayAdapter = new GeneralBookKeyItemAdapter(this, LIST_ITEM_TYPE, mGeneralBookKeyList);
         setListAdapter(mKeyArrayAdapter);
         
+        // if an item was selected previously then try to scroll to it
+        Key currentKey = getCurrentGeneralBookPage().getKey();
+        if (currentKey!=null && mGeneralBookKeyList.contains(currentKey)) {
+        	setSelection(mGeneralBookKeyList.indexOf(currentKey));
+        }
+        
+        
         Log.d(TAG, "Finished displaying Search view");
     }
 
@@ -60,8 +67,7 @@ public class ChooseGeneralBookKey extends ListActivityBase {
     	Log.d(TAG, "Getting book keys");
     	mGeneralBookKeyList = new ArrayList<Key>();
     	try {
-	    	CurrentGeneralBookPage currentGeneralBookPage = ControlFactory.getInstance().getCurrentPageControl().getCurrentGeneralBook();
-	    	List<Key> keyList = currentGeneralBookPage.getCachedGlobalKeyList();
+	    	List<Key> keyList = getCurrentGeneralBookPage().getCachedGlobalKeyList();
 	    	
 	    	for (Key key : keyList) {
 	        	mGeneralBookKeyList.add(key);
@@ -92,6 +98,9 @@ public class ChooseGeneralBookKey extends ListActivityBase {
     	}
     }
 
+    private CurrentGeneralBookPage getCurrentGeneralBookPage() {
+    	return ControlFactory.getInstance().getCurrentPageControl().getCurrentGeneralBook();
+    }
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) { 
     	Log.d(TAG, "Activity result:"+resultCode);
