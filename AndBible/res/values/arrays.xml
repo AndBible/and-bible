@@ -30,6 +30,8 @@
 		<item>Russian</item>
 		<item>Swedish</item>
 	</string-array>
+	
+	<!--  DO NOT TRANSLATE the following language codes -->
 	<string-array name="prefs_interface_locale_values">
 		<item></item>
 		<item>zh</item>

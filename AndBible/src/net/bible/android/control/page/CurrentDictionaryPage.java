@@ -1,17 +1,12 @@
 package net.bible.android.control.page;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord;
 
-import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 
-import android.util.Log;
+import android.app.Activity;
 import android.view.Menu;
 
 /** Reference to current passage shown by viewer
@@ -26,7 +21,6 @@ public class CurrentDictionaryPage extends CachedKeyPage implements CurrentPage 
 
 	private static final String TAG = "CurrentDictionaryPage";
 	
-	
 	/* default */ CurrentDictionaryPage() {
 		super(false);
 	}
@@ -35,7 +29,7 @@ public class CurrentDictionaryPage extends CachedKeyPage implements CurrentPage 
 		return BookCategory.DICTIONARY;
 	}
 
-	public Class getKeyChooserActivity() {
+	public Class<? extends Activity> getKeyChooserActivity() {
 		return ChooseDictionaryWord.class;
 	}
 	

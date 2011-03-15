@@ -1,9 +1,7 @@
 package net.bible.android.control.page;
 
 import net.bible.android.activity.R;
-import net.bible.android.view.activity.navigation.ChoosePassageBook;
 import net.bible.android.view.activity.navigation.GridChoosePassageBook;
-import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordApi;
 
 import org.apache.commons.lang.StringUtils;
@@ -17,6 +15,7 @@ import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BibleInfo;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.Menu;
@@ -44,14 +43,8 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 		return BookCategory.BIBLE;
 	}
 
-	public Class getKeyChooserActivity() {
-		SharedPreferences preferences = CommonUtils.getSharedPreferences();
-		boolean gridNav = preferences.getBoolean("grid_navigation_pref", true);
-		if (gridNav) {
-			return GridChoosePassageBook.class;
-		} else {
-			return ChoosePassageBook.class;
-		}
+	public Class<? extends Activity> getKeyChooserActivity() {
+		return GridChoosePassageBook.class;
 	}
 	
 	/* (non-Javadoc)

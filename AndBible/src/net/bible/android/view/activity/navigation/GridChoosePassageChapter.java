@@ -87,7 +87,7 @@ public class GridChoosePassageChapter extends ActivityBase implements OnButtonGr
 
     public void onSave(View v) {
     	Log.i(TAG, "CLICKED");
-    	Intent resultIntent = new Intent(this, ChoosePassageBook.class);
+    	Intent resultIntent = new Intent(this, GridChoosePassageBook.class);
     	setResult(Activity.RESULT_OK, resultIntent);
     	finish();    
     }

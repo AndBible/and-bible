@@ -1,6 +1,5 @@
 package net.bible.android.control.page;
 
-import net.bible.android.BibleApplication;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 
