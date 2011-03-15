@@ -4,6 +4,7 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 
+import android.app.Activity;
 import android.content.SharedPreferences;
 import android.view.Menu;
 
@@ -13,7 +14,7 @@ public interface CurrentPage {
 
 	public abstract BookCategory getBookCategory();
 
-	public abstract Class getKeyChooserActivity();
+	public abstract Class<? extends Activity> getKeyChooserActivity();
 
 	public abstract void next();
 

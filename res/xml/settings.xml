@@ -38,9 +38,5 @@
 				android:entries="@array/prefs_interface_locale_descriptions"
 				android:entryValues="@array/prefs_interface_locale_values"
 				android:defaultValue=""/>
-	<CheckBoxPreference android:key="grid_navigation_pref" 
-				android:title="@string/prefs_grid_navigation_title"
-				android:summary="@string/prefs_grid_navigation_summary"
-				android:defaultValue="true"/>
 	 
 </PreferenceScreen>

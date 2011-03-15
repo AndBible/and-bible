@@ -29,14 +29,6 @@
                   android:label="@string/choosePassageChapterName"
                   android:theme="@android:style/Theme.Black">
         </activity>
-        <activity android:name="net.bible.android.view.activity.navigation.ChoosePassageBook"
-                  android:label="@string/choosePassageBookName"
-                  android:configChanges="keyboardHidden|orientation">
-        </activity>
-        <activity android:name="net.bible.android.view.activity.navigation.ChoosePassageChapter"
-                  android:label="@string/choosePassageChapterName"
-                  android:configChanges="keyboardHidden|orientation">
-        </activity>
         <activity android:name="net.bible.android.view.activity.search.Search"
                   android:label="@string/search"
                   android:configChanges="keyboardHidden|orientation">

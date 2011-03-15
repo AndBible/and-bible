@@ -8,6 +8,7 @@ import net.bible.android.view.activity.navigation.ChooseGeneralBookKey;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 
+import android.app.Activity;
 import android.view.Menu;
 
 /** Reference to current passage shown by viewer
@@ -19,7 +20,6 @@ import android.view.Menu;
 public class CurrentGeneralBookPage extends CachedKeyPage implements CurrentPage {
 	
 	private Key key;
-	private List<Key> mCachedGlobalKeyList;
 
 	private static final String TAG = "CurrentGeneralBookPage";
 	
@@ -33,7 +33,7 @@ public class CurrentGeneralBookPage extends CachedKeyPage implements CurrentPage
 	}
 
 	@Override
-	public Class getKeyChooserActivity() {
+	public Class<? extends Activity> getKeyChooserActivity() {
 		return ChooseGeneralBookKey.class;
 	}
 	

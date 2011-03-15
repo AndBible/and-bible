@@ -75,8 +75,6 @@
     <string name="prefs_night_mode_summary">For easier reading in the dark</string>
     <string name="prefs_text_size_title">Text size</string>
     <string name="prefs_text_size_summary">See more or see more clearly</string>
-    <string name="prefs_grid_navigation_title">Navigate using grids</string>
-    <string name="prefs_grid_navigation_summary">Use grids or lists to navigate</string>
     <string name="prefs_interface_locale_title">Aplication language</string>
     <string name="prefs_interface_locale_summary">Select custom user interface language</string>
     <string name="locale_change_warning">Application will be restarted to switch to the new interface language</string>
