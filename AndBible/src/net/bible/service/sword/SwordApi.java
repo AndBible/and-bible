@@ -23,6 +23,7 @@ import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.OsisToCanonicalTextSaxHandler;
 import net.bible.service.format.OsisToHtmlSaxHandler;
 
+import org.apache.lucene.document.Document;
 import org.crosswire.common.util.CWProject;
 import org.crosswire.common.util.WebResource;
 import org.crosswire.common.xml.SAXEventProvider;
@@ -322,7 +323,7 @@ public class SwordApi {
 	 * @throws URISyntaxException
 	 * @throws ParserConfigurationException
 	 */
-	public FormattedDocument readHtmlText(Book book, Key key, int maxKeyCount) throws ParseException
+	public synchronized FormattedDocument readHtmlText(Book book, Key key, int maxKeyCount) throws ParseException
 	{
 		FormattedDocument retVal = new FormattedDocument();
 		if (book==null || key==null) {
@@ -330,6 +331,7 @@ public class SwordApi {
 			retVal.setHtmlPassage("");
 		} else if (!book.contains(key)) {
 			//TODO this should include css to change to night mode if necessary
+			Log.w(TAG, "KEY:"+key+" not found in doc:"+book);
 			retVal.setHtmlPassage("Not found in document");
 		} else {
 			if ("OSIS".equals(book.getBookMetaData().getProperty("SourceType")) &&
@@ -342,7 +344,7 @@ public class SwordApi {
 		return retVal;
 	}
 
-	private synchronized FormattedDocument readHtmlTextOptimizedZTextOsis(Book book, Key key, int maxKeyCount) throws ParseException
+	private FormattedDocument readHtmlTextOptimizedZTextOsis(Book book, Key key, int maxKeyCount) throws ParseException
 	{
 		log.debug("Using fast method to fetch document data");
 		InputStream is = new OSISInputStream(book, key);
@@ -364,7 +366,7 @@ public class SwordApi {
         return retVal;
 	}
 
-	private synchronized FormattedDocument readHtmlTextStandardJSwordMethod(Book book, Key key, int maxKeyCount) throws ParseException
+	private FormattedDocument readHtmlTextStandardJSwordMethod(Book book, Key key, int maxKeyCount) throws ParseException
 	{
 		log.debug("Using standard JSword to fetch document data");
 		FormattedDocument retVal = new FormattedDocument();

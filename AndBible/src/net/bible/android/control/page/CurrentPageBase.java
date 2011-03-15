@@ -174,9 +174,19 @@ abstract class CurrentPageBase implements CurrentPage {
 				Log.d(TAG, "State document:"+document);
 				Book book = SwordApi.getInstance().getDocumentByInitials(document);
 				if (book!=null) {
-					Log.d(TAG, "Document:"+book.getName());
+					Log.d(TAG, "Restored document:"+book.getName());
 					// bypass setter to avoid automatic notifications
 					localSetCurrentDocument(book);
+					
+					try {
+						String keyName = inState.getString(getBookCategory().getName()+"_key", null);
+						if (StringUtils.isNotEmpty(keyName)) {
+							setKey(book.getKey(keyName));
+							Log.d(TAG, "Restored key:"+keyName);
+						}
+					} catch (Exception e) {
+						Log.e(TAG, "Error restoring key for document category:"+getBookCategory().getName());
+					}
 				}
 			}
 		}
@@ -190,7 +200,11 @@ abstract class CurrentPageBase implements CurrentPage {
 	public void saveState(SharedPreferences outState) {
 		if (currentDocument!=null) {
 			SharedPreferences.Editor editor = outState.edit();
+			Log.d(TAG, "Saving state for "+getBookCategory().getName());
 			editor.putString(getBookCategory().getName()+"_document", getCurrentDocument().getInitials());
+			if (this.getKey()!=null) {
+				editor.putString(getBookCategory().getName()+"_key", getKey().getName());
+			}
 			editor.commit();
 		}
 	}

@@ -23,21 +23,21 @@ public class SpeakControl {
 	private static final NumPagesToSpeakDefinition[] BIBLE_PAGES_TO_SPEAK_DEFNS = new NumPagesToSpeakDefinition[] {
 			new NumPagesToSpeakDefinition(1, R.plurals.num_chapters, true, R.id.numChapters1),
 			new NumPagesToSpeakDefinition(2, R.plurals.num_chapters, true, R.id.numChapters2),
-			new NumPagesToSpeakDefinition(3, R.plurals.num_chapters, true, R.id.numChapters3),
+			new NumPagesToSpeakDefinition(5, R.plurals.num_chapters, true, R.id.numChapters3),
 			new NumPagesToSpeakDefinition(10, R.string.rest_of_book, false, R.id.numChapters4)
 	};
 
 	private static final NumPagesToSpeakDefinition[] COMMENTARY_PAGES_TO_SPEAK_DEFNS = new NumPagesToSpeakDefinition[] {
 			new NumPagesToSpeakDefinition(1, R.plurals.num_verses, true, R.id.numChapters1),
 			new NumPagesToSpeakDefinition(2, R.plurals.num_verses, true, R.id.numChapters2),
-			new NumPagesToSpeakDefinition(3, R.plurals.num_verses, true, R.id.numChapters3),
+			new NumPagesToSpeakDefinition(5, R.plurals.num_verses, true, R.id.numChapters3),
 			new NumPagesToSpeakDefinition(10, R.string.rest_of_chapter, false, R.id.numChapters4)
 	};
 
 	private static final NumPagesToSpeakDefinition[] DEFAULT_PAGES_TO_SPEAK_DEFNS = new NumPagesToSpeakDefinition[] {
 			new NumPagesToSpeakDefinition(1, R.plurals.num_pages, true, R.id.numChapters1),
 			new NumPagesToSpeakDefinition(2, R.plurals.num_pages, true, R.id.numChapters2),
-			new NumPagesToSpeakDefinition(3, R.plurals.num_pages, true, R.id.numChapters3),
+			new NumPagesToSpeakDefinition(5, R.plurals.num_pages, true, R.id.numChapters3),
 			new NumPagesToSpeakDefinition(10, R.plurals.num_pages, true, R.id.numChapters4)
 	};
 
@@ -94,8 +94,11 @@ public class SpeakControl {
     	}
 
 		// build a string containing the text to be spoken
-    	// first concatenate the number of required chapters
 		StringBuffer textToSpeak = new StringBuffer();
+		
+		textToSpeak.append(getIntro(page, numPagesDefn.getNumPages()));
+		
+    	// first concatenate the number of required chapters
 		try {
 			for (int i=0; i<numPagesDefn.getNumPages(); i++) {
 				Key current = page.getPagePlus(i);
@@ -109,18 +112,26 @@ public class SpeakControl {
 		
 		// if repeat was checked then concatenate with itself
 		if (repeat) {
-			String repeating = BibleApplication.getApplication().getString(R.string.repeating);
 			// grab the text now before repeating is appended otherwise 'repeating..' is also appended at the end
 			String baseText = textToSpeak.toString();
 			textToSpeak.append("\n")
-						.append(repeating)
-						.append(".\n").append(baseText);
+					   .append(baseText);
 		}
 
 		// speak current chapter or stop speech if already speaking
     	TextToSpeechController tts = TextToSpeechController.getInstance();
 		Log.d(TAG, "Tell TTS to say current chapter");
     	tts.speak(speechLocale, textToSpeak.toString(), queue);
+	}
+	
+	private String getIntro(CurrentPage page, int numPages) {
+		StringBuilder text = new StringBuilder();
+		text.append(page.getKey());
+		if (numPages>1) {
+			text.append(" to ").append(page.getPagePlus(numPages-1));
+		}
+		text.append(".\n");
+		return text.toString();
 	}
 	
 	public void stop() {
