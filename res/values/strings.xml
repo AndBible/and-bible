@@ -93,7 +93,7 @@
 	<!-- Module download -->
     <string name="download">Download Documents</string>
     <string name="download_confirmation">Download a bible from the internet?</string>
-    <string name="download_source_message">Documents are downloaded from\nhttp://www.crosswire.org\nhttp:\\xiphos.org</string>
+    <string name="download_source_message">Documents are downloaded from\nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
     <string name="download_document_confirm_prefix">"Download "</string>
     <string name="refresh_book_list">Refresh list of available books?</string>
     <string name="error_downloading">An error occurred downloading.  Please check your internet connection.</string>
