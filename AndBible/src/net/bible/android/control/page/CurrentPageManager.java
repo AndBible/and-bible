@@ -3,6 +3,7 @@ package net.bible.android.control.page;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
@@ -10,6 +11,7 @@ import org.crosswire.jsword.passage.Key;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 public class CurrentPageManager {
 	// use the same verse in the commentary and bible to keep them in sync
@@ -64,7 +66,7 @@ public class CurrentPageManager {
 	public CurrentPage setCurrentDocument(Book currentBook) {
 		PassageChangeMediator.getInstance().onBeforeCurrentPageChanged();
 
-		CurrentPage nextPage = getBookPage(currentBook);
+		CurrentPage nextPage = getBookPage(currentBook.getBookCategory());
 		if (nextPage!=null) {
 			// must be in this order because History needs to grab the current doc before change
 			nextPage.setCurrentDocument(currentBook);
@@ -88,7 +90,7 @@ public class CurrentPageManager {
 	public CurrentPage setCurrentDocumentAndKey(Book currentBook, Key key) {
 		PassageChangeMediator.getInstance().onBeforeCurrentPageChanged();
 
-		CurrentPage nextPage = getBookPage(currentBook);
+		CurrentPage nextPage = getBookPage(currentBook.getBookCategory());
 		if (nextPage!=null) {
 			try {
 				nextPage.setInhibitChangeNotifications(true);
@@ -105,8 +107,7 @@ public class CurrentPageManager {
 		return nextPage;
 	}
 	
-	private CurrentPage getBookPage(Book book) {
-		BookCategory bookCategory = book.getBookCategory();
+	private CurrentPage getBookPage(BookCategory bookCategory) {
 		CurrentPage bookPage = null;
 		if (bookCategory.equals(BookCategory.BIBLE)) {
 			bookPage = currentBiblePage;
@@ -125,18 +126,36 @@ public class CurrentPageManager {
 	 * @param outState
 	 */
 	public void saveState(SharedPreferences outState) {
+		Log.i(TAG, "**** save state");
 		currentBiblePage.saveState(outState);
 		currentCommentaryPage.saveState(outState);
 		currentDictionaryPage.saveState(outState);
+		currentGeneralBookPage.saveState(outState);
+		
+		SharedPreferences.Editor editor = outState.edit();
+		editor.putString("currentPageCategory", currentDisplayedPage.getBookCategory().getName());
+		editor.commit();
 	}
 	/** called during app start-up to restore previous state
 	 * 
 	 * @param inState
 	 */
 	public void restoreState(SharedPreferences inState) {
+		Log.i(TAG, "**** restore state");
 		currentBiblePage.restoreState(inState);
 		currentCommentaryPage.restoreState(inState);
 		currentDictionaryPage.restoreState(inState);
+		currentGeneralBookPage.restoreState(inState);
+		
+		String restoredPageCategoryName = inState.getString("currentPageCategory", null);
+		if (StringUtils.isNotEmpty(restoredPageCategoryName)) {
+			BookCategory restoredBookCategory = BookCategory.fromString(restoredPageCategoryName);
+			currentDisplayedPage = getBookPage(restoredBookCategory);
+		}
+
+		// force an update here from default chapter/verse
+		PassageChangeMediator.getInstance().onCurrentPageChanged();
+		PassageChangeMediator.getInstance().onCurrentPageDetailChanged();
 	}
 	
 	public boolean isCommentaryShown() {

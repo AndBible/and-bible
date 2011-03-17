@@ -3,7 +3,6 @@ package net.bible.android.control.document;
 import java.util.List;
 
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.service.sword.SwordApi;
 
@@ -15,11 +14,12 @@ import org.crosswire.jsword.passage.Verse;
 
 public class DocumentControl {
 	
-	// user wants to change to a different document/module
+	/** user wants to change to a different document/module
+	 * 
+	 * @param newDocument
+	 */
 	public void changeDocument(Book newDocument) {
-		
-		CurrentPage newPage = CurrentPageManager.getInstance().setCurrentDocument( newDocument );
-		
+		CurrentPageManager.getInstance().setCurrentDocument( newDocument );
 	}
 	
 	/** Book is deletable according to the driver if it is in the download dir i.e. not sdcard\jsword
@@ -30,7 +30,10 @@ public class DocumentControl {
 	public boolean canDelete(Book document) {
 		return 	document != null && 
 				document.getDriver().isDeletable(document) &&
-				!document.equals(CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument());
+				!document.equals(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument()) &&
+				!document.equals(CurrentPageManager.getInstance().getCurrentCommentary().getCurrentDocument()) &&
+				!document.equals(CurrentPageManager.getInstance().getCurrentDictionary().getCurrentDocument()) &&
+				!document.equals(CurrentPageManager.getInstance().getCurrentGeneralBook().getCurrentDocument());
 	}
 	
 	/** Suggest an alternative bible to view or return null
