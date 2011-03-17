@@ -35,7 +35,6 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -43,7 +42,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
+import android.view.ContextMenu.ContextMenuInfo;
 
 /** The main activity screen showing Bible text
  * 
@@ -97,8 +96,12 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 
-		// force a recalculation of verse offsets
-		bibleContentManager.updateText(true);
+		// essentially if the current page is Bible then we need to recalculate verse offsets
+		// if not then don't redisplay because it would force the page to the top which would be annoying if you are half way down a gen book page
+		if (!ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().isSingleKey()) {
+			// force a recalculation of verse offsets
+			bibleContentManager.updateText(true);
+		}
 	}
 
 	/** 
