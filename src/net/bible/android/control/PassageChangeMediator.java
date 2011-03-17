@@ -1,12 +1,8 @@
 package net.bible.android.control;
 
-import java.util.Observable;
-import java.util.Observer;
-
-import android.util.Log;
-
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.service.history.HistoryManager;
+import android.util.Log;
 
 /** when a bible passage is changed there are lots o things to update and they should be done in a helpful order
  * This helps to control screen updates after a passage change

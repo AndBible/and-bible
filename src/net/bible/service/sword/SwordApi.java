@@ -23,7 +23,6 @@ import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.OsisToCanonicalTextSaxHandler;
 import net.bible.service.format.OsisToHtmlSaxHandler;
 
-import org.apache.lucene.document.Document;
 import org.crosswire.common.util.CWProject;
 import org.crosswire.common.util.WebResource;
 import org.crosswire.common.xml.SAXEventProvider;

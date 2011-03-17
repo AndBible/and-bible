@@ -240,9 +240,6 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 			}
 			Log.d(TAG, "Current passage:"+toString());
 		} 
-		// force an update here from default chapter/verse
-		pageChange();
-		pageDetailChange();
 	}
 
 	/** can we enable the main menu search button 

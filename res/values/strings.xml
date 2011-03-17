@@ -12,9 +12,10 @@
     <string name="help_text">Press the MENU key for actions\n\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger</string>
     <string name="help_text_long">Navigation\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger
     \n\nPress the MENU key for actions
-    \n\nSpeech\nPress Speak to access a dialog to start or stop reading
+    \n\nTo download more documents press Menu/More/Download Documents
     \n\nLong press on the bible view to open the context menu for actions affecting the current verse.
     \nLong press on a document in the document selector to delete it or view information.
+    \n\nSpeech\nPress Speak to access a dialog to start or stop reading
     \n\nBookmarks\nBookmarks can be added via the verse context menu.  The Bookmark Manager is accessed via the main menu.  The Bookmark Manager context menu allows bookmarks to be grouped using labels.</string>
     <string name="version_text">Version %s</string>
     <string name="no_sdcard_error">Please insert an SD card and start And Bible again.</string>
@@ -92,7 +93,7 @@
 	<!-- Module download -->
     <string name="download">Download Documents</string>
     <string name="download_confirmation">Download a bible from the internet?</string>
-    <string name="download_source_message">Documents are downloaded from\nhttp://www.crosswire.org</string>
+    <string name="download_source_message">Documents are downloaded from\nhttp://www.crosswire.org\nhttp:\\xiphos.org</string>
     <string name="download_document_confirm_prefix">"Download "</string>
     <string name="refresh_book_list">Refresh list of available books?</string>
     <string name="error_downloading">An error occurred downloading.  Please check your internet connection.</string>
@@ -139,13 +140,13 @@
 		<item quantity="one">%d chapter</item>
 		<item quantity="other">%d chapters</item>
 	</plurals>
-    <string name="rest_of_book">Rest of book</string>
+    <string name="rest_of_book">To end of book</string>
 	<!-- Speak - Commentary -->
 	<plurals name="num_verses">
 		<item quantity="one">%d verse</item>
 		<item quantity="other">%d verses</item>
 	</plurals>
-    <string name="rest_of_chapter">Rest of chapter</string>
+    <string name="rest_of_chapter">To end of chapter</string>
 	<!-- Speak - Dictionary and other -->
 	<plurals name="num_pages">
 		<item quantity="one">%d page</item>
@@ -153,7 +154,6 @@
 	</plurals>
 	<!-- Speak - Common -->
 	<string name="stop">Stop</string>
-	<string name="repeating">Repeating chosen passage</string>
     <string name="tts_lang_not_available">Language is not available.</string>
 	
 	<!-- General -->

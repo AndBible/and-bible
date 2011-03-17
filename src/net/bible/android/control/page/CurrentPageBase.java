@@ -181,7 +181,7 @@ abstract class CurrentPageBase implements CurrentPage {
 					try {
 						String keyName = inState.getString(getBookCategory().getName()+"_key", null);
 						if (StringUtils.isNotEmpty(keyName)) {
-							setKey(book.getKey(keyName));
+							doSetKey(book.getKey(keyName));
 							Log.d(TAG, "Restored key:"+keyName);
 						}
 					} catch (Exception e) {

@@ -60,13 +60,13 @@ abstract public class CachedKeyPage extends CurrentPageBase  {
 	 */
 	public Key getKeyPlus(int num) {
 		Key currentKey = getKey();
-		int keyPos = mCachedGlobalKeyList.indexOf(currentKey);
+		int keyPos = getCachedGlobalKeyList().indexOf(currentKey);
 		// move forward or backward to new posn
 		int newKeyPos = keyPos+num;
 		// check bounds
-		newKeyPos = Math.min(newKeyPos, mCachedGlobalKeyList.size()-1);
+		newKeyPos = Math.min(newKeyPos, getCachedGlobalKeyList().size()-1);
 		newKeyPos = Math.max(newKeyPos, 0);
 		// get the actual key at that posn
-		return mCachedGlobalKeyList.get(newKeyPos);
+		return getCachedGlobalKeyList().get(newKeyPos);
 	}
 }
