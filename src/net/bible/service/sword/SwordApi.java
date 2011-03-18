@@ -119,13 +119,8 @@ public class SwordApi {
 				// the second value below is the one which is used in effectively all circumstances
 		        CWProject.setHome("jsword.home", moduleDir.getAbsolutePath(), SharedConstants.MANUAL_INSTALL_DIR.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
-		        File manualInstallDir = SharedConstants.MANUAL_INSTALL_DIR;
-		        if (manualInstallDir.exists()) {
-			        // the following causes Sword to initialise itself and can take quite a few seconds
-		        	SwordBookPath.setAugmentPath(new File[] {manualInstallDir});  // add manual install dir to this list
-		        } else {
-		        	SwordBookPath.setAugmentPath(new File[] {});  // no extra install dirs
-		        }
+		        // the following causes Sword to initialise itself and can take quite a few seconds
+				SwordBookPath.setAugmentPath(new File[] {SharedConstants.MANUAL_INSTALL_DIR});  // add manual install dir to this list
 				
 				// 10 sec is too low, 15 may do but put it at 20 secs
 				WebResource.setTimeout(20000);
