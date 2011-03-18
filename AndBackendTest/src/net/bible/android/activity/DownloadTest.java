@@ -21,9 +21,33 @@ public class DownloadTest extends TestCase {
 	}
 
 	public void testGetRepositoryBooks() {
-    	List<Book> bibles = new BookInstaller().getRepositoryBooks("CrossWire", BookFilters.getOnlyBibles());
+    	List<Book> bibles = new BookInstaller().getRepositoryBooks("Xiphos", BookFilters.getAll());
     	assertTrue("Could not get bible list", bibles.size()>0);
 		System.out.println("Count:"+bibles.size());
+		for (Book book : bibles) {
+			System.out.println(book.getLanguage()+" init:"+book.getInitials()+" "+book.getBookMetaData().getProperty("SourceType")+book.getBookMetaData().getProperty("ModDrv")+" "+book.getDriverName()+" "+book.getBookMetaData().getKeyType()+" "+book.getName());
+		}
+	}
+
+	public void testGetXiphosGill() {
+		try {
+	    	List<Book> bibles = new BookInstaller().getRepositoryBooks("Xiphos", BookFilters.getCommentaries());
+	    	assertTrue("Could not get bible list", bibles.size()>0);
+			System.out.println("Count:"+bibles.size());
+			Book gill=null;
+			for (Book book : bibles) {
+				System.out.println(book.getLanguage()+" init:"+book.getInitials()+" "+book.getBookMetaData().getProperty("SourceType")+book.getBookMetaData().getProperty("ModDrv")+" "+book.getDriverName()+" "+book.getBookMetaData().getKeyType()+" "+book.getName());
+				if (book.getInitials().equalsIgnoreCase("Gill")) {
+					gill = book;
+				}
+			}
+			
+			SwordApi.getInstance().downloadDocument(gill);
+			Thread.sleep(300000);
+			System.out.println("fin");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void testGetRepositoryDictionaries() {
@@ -66,6 +90,17 @@ public class DownloadTest extends TestCase {
 		System.out.println("finished");
 	}
 
+	public void testDownloadJosephus() throws Exception {
+		try {
+			Book sgBook = getBook("Josephus");
+			SwordApi.getInstance().downloadDocument(sgBook);
+			Thread.sleep(30000);
+			System.out.println("fin");
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Strongs problem");
+		}
+	}
 
 	public void testGetGreekDictionary() {
 		try {

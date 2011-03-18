@@ -5,7 +5,10 @@ import java.util.Map;
 import junit.framework.TestCase;
 import net.bible.service.format.FormattedDocument;
 
+import org.apache.commons.lang.StringUtils;
+import org.crosswire.common.xml.SAXEventProvider;
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.BookData;
 import org.crosswire.jsword.book.sword.SwordBookDriver;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.PassageKeyFactory;
@@ -17,6 +20,7 @@ public class SwordApiTest extends TestCase {
 
 	protected void setUp() throws Exception {
 		super.setUp();
+		SwordApi.isAndroid = false;
 		SwordApi.setAndroid(false);
 		swordApi = SwordApi.getInstance();
 		
@@ -88,8 +92,55 @@ public class SwordApiTest extends TestCase {
 		assertTrue("key text missing", html.contains("searched and inquired carefully,"));
 		assertTrue("key text missing", html.contains("inquiring what person or time"));
 		System.out.println(html);
-
+	}
 	
+	public void testReadWSCKeys() throws Exception {
+		Book book = getBook("Westminster");
+		Key keyList = book.getGlobalKeyList();
+		
+		System.out.println("Global key list");
+		for (Key key : keyList) {
+			String rawText = book.getRawText(key);
+			System.out.println(key.getName() + " has "+rawText.length()+" chars content");
+		}
+		
+		String badKey = "Q91-150";
+		Key key = book.getKey(badKey);
+		BookData data = new BookData(book, key);		
+		SAXEventProvider osissep = data.getSAXEventProvider();
+
+	}
+
+	public void testReadPilgrimKeys() throws Exception {
+		Book book = getBook("Pilgrim");
+		Key globalKeyList = book.getGlobalKeyList();
+		
+		System.out.println("Global key list");
+		for (Key key : globalKeyList) {
+			if (StringUtils.isNotEmpty(key.getName())) {
+				String rawText = book.getRawText(key);
+				System.out.println(key.getName() + " has "+rawText.length()+" chars content");
+				if (rawText.length()<30) {
+					System.out.println(rawText);
+				}
+			}
+		}
+    	assertEquals("Incorrect number of keys in master list", 29, globalKeyList.getCardinality());
+		
+		System.out.println("\nChildren");
+    	for (int i=0; i<globalKeyList.getChildCount(); i++) {
+    		System.out.println(globalKeyList.get(i));
+    	}
+    	assertEquals("Incorrect number of top level keys", 6, globalKeyList.getChildCount());
+	}
+
+	public void testReadHodgeMissingKey() throws Exception {
+		Book book = getBook("HodgeSysTheo");
+		Key volume1Key = book.getKey("Volume I");
+		assertNotNull("Vol 1 not found", volume1Key);
+		if (!book.contains(volume1Key)) {
+			System.out.println("Book does not contain a valid key");
+		}
 	}
 
 	public void testReadWordsOfChrist() throws Exception {
@@ -114,6 +165,47 @@ public class SwordApiTest extends TestCase {
 			Key key2 = PassageKeyFactory.instance().getKey("Gen 49");
 			String html2 = getHtml(web, key2, 100);
 			System.out.println(html2);
+		}
+	}
+
+	public void testReadPilgrimsProgress1() throws Exception {
+		Book book = getBook("Pilgrim");
+		{
+			Key key = book.getKey("THE FIRST STAGE");
+			BookData data = new BookData(book, key);		
+			SAXEventProvider osissep = data.getSAXEventProvider();
+
+			String html = getHtml(book, key, 100);
+			System.out.println(html);
+		}
+	}
+
+	public void testReadPilgrimsProgress2() throws Exception {
+		try {
+			Book book = getBook("Pilgrim");
+			Key key = book.getKey("THE FIRST STAGE");
+			key.getOsisID();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public void testFindInJosephus() throws Exception {
+		try {
+			Book book = getBook("Josephus");
+			assertNotNull("Josephus not available", book);
+			
+			// find a key and print out it's name - this works
+			final String SECTION_2 = "Section 2";
+			Key key = book.getKey(SECTION_2);
+			assertEquals(SECTION_2, key.getName());
+			
+			// but we can't get it's index - this returns -1
+			int keyPos = book.getGlobalKeyList().indexOf(key);
+			assertFalse("Could not get index of a valid key", -1==keyPos);
+
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -157,8 +249,8 @@ public class SwordApiTest extends TestCase {
 		return null;
 	}
 	private Book getBook(String initials) {
+		System.out.println("Looking for "+initials);
 		for (Book book : books) {
-			System.out.println(book.getName());
 			if (book.getInitials().equals(initials)) {
 				System.out.println("*** Found:"+book.getName());
 				return book;

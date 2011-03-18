@@ -9,13 +9,20 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import junit.framework.TestCase;
+import net.bible.service.common.ParseException;
+import net.bible.service.format.OsisToCanonicalTextSaxHandler;
+import net.bible.service.format.OsisToHtmlSaxHandler;
 import net.bible.service.sword.OSISInputStream;
 
+import org.crosswire.common.xml.SAXEventProvider;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
+import org.crosswire.jsword.book.BookData;
 import org.crosswire.jsword.book.Defaults;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.PassageKeyFactory;
+import org.xml.sax.ContentHandler;
+
 
 /**
  * @author denha1m
@@ -37,13 +44,11 @@ public class OSISInputStreamTest extends TestCase {
 		for (Book book : books) {
 			if (book.getInitials().startsWith("NET")) {
 				this.netBook = book;
-				System.out.print("Found:"+book.getName());
 			}
 			if (book.getInitials().startsWith("WEB")) {
 				this.webBook = book;
-				System.out.print("Found:"+book.getName());
 			}
-			System.out.println(book.getOsisID());
+//			System.out.println(book.getOsisID());
 		}
 	}
 
@@ -65,7 +70,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 	public void testReadKJV() throws Exception {
 		Book kjv = getBook("KJV");
 
-		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Gen 1:1"));
+		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Col 1:1"));
 		String chapter = convertStreamToString(osisInputStream);
 //		int numOpeningDivs = count(chapter, "<div>");
 //		int numClosingDivs = count(chapter, "</div>");
@@ -163,6 +168,108 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		assertEquals("wrong number of divs", numOpeningDivs, numClosingDivs);
 	}
 	
+	public void testReadRST() throws Exception {
+		Book rst = getBook("RST");
+		BookData data = new BookData(rst, rst.getKey("Col 1"));
+		SAXEventProvider osissep = data.getSAXEventProvider();
+
+		// canonical
+		try {
+
+			if (osissep != null) {
+//				OsisToHtmlSaxHandler osisToHtml = new OsisToHtmlSaxHandler();
+				ContentHandler osisToHtml = new OsisToCanonicalTextSaxHandler();
+
+				osissep.provideSAXEvents(osisToHtml);
+		
+				String chapter = osisToHtml.toString();
+				System.out.println(chapter);
+			}		
+		} catch (Exception e) {
+			fail("Parsing error");
+			throw new ParseException("Parsing error", e);
+		}
+
+		//html
+		try {
+
+			if (osissep != null) {
+				ContentHandler osisHandler = new OsisToHtmlSaxHandler();
+
+				osissep.provideSAXEvents(osisHandler);
+		
+				String chapter = osisHandler.toString();
+				System.out.println(chapter);
+			}		
+		} catch (Exception e) {
+			fail("Parsing error");
+			throw new ParseException("Parsing error", e);
+		}
+
+//		
+//		OSISInputStream osisInputStream = new OSISInputStream(rst, rst.getKey("Col 1:1"));
+//		String chapter = convertStreamToString(osisInputStream);
+//		int numOpeningDivs = count(chapter, "<div>");
+//		int numClosingDivs = count(chapter, "</div>");
+//		System.out.println(chapter);
+	}
+
+	public void testReadESVAndBibeMethod() throws Exception {
+		Book book = getBook("ESV");
+		OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Phil 1:3"));
+		String chapter = convertStreamToString(osisInputStream);
+		int numOpeningDivs = count(chapter, "<div>");
+		int numClosingDivs = count(chapter, "</div>");
+		System.out.println("START"+chapter+"END");
+		assertEquals("wrong number of divs", numOpeningDivs, numClosingDivs);
+	}
+
+	public void testReadESVJSwordMethod() throws Exception {
+		Book esv = getBook("ESV");
+		BookData data = new BookData(esv, esv.getKey("Phil 1:3"));
+		SAXEventProvider osissep = data.getSAXEventProvider();
+
+		// canonical
+		try {
+
+			if (osissep != null) {
+//				OsisToHtmlSaxHandler osisToHtml = new OsisToHtmlSaxHandler();
+				ContentHandler osisToHtml = new OsisToCanonicalTextSaxHandler();
+
+				osissep.provideSAXEvents(osisToHtml);
+		
+				String chapter = osisToHtml.toString();
+				System.out.println("START"+chapter+"END");
+			}		
+		} catch (Exception e) {
+			fail("Parsing error");
+			throw new ParseException("Parsing error", e);
+		}
+
+		//html
+		try {
+
+			if (osissep != null) {
+				ContentHandler osisHandler = new OsisToHtmlSaxHandler();
+
+				osissep.provideSAXEvents(osisHandler);
+		
+				String chapter = osisHandler.toString();
+				System.out.println(chapter);
+			}		
+		} catch (Exception e) {
+			fail("Parsing error");
+			throw new ParseException("Parsing error", e);
+		}
+
+//		
+//		OSISInputStream osisInputStream = new OSISInputStream(rst, rst.getKey("Col 1:1"));
+//		String chapter = convertStreamToString(osisInputStream);
+//		int numOpeningDivs = count(chapter, "<div>");
+//		int numClosingDivs = count(chapter, "</div>");
+//		System.out.println(chapter);
+	}
+
 	public void testReadCommentaries() throws Exception {
 		for (Book book: books) {
 			System.out.println("?Book:"+book);
@@ -210,7 +317,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 	private Book getBook(String initials) {
 		for (Book book : books) {
 			if (book.getInitials().equals(initials)) {
-				System.out.print("Found:"+book.getName());
+				System.out.println("Found:"+book.getName());
 				return book;
 			}
 		}
