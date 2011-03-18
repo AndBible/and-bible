@@ -95,12 +95,12 @@ public class BibleApplication extends Application{
 
 	private void upgradePersistentData() {
 		SharedPreferences prefs = CommonUtils.getSharedPreferences();
-		if (prefs.getInt("version", -1) < CommonUtils.getApplicationVersionNumber()) {
+		int prevInstalledVersion = prefs.getInt("version", -1);
+		if (prevInstalledVersion < CommonUtils.getApplicationVersionNumber() && prevInstalledVersion>-1) {
 			Editor editor = prefs.edit();
 			
-			int prevInstalledVersion = prefs.getInt("version", -1);
 			// ver 16 and 17 needed text size pref to be changed to int from string
-			if (prevInstalledVersion < 16 && prevInstalledVersion > 0) {
+			if (prevInstalledVersion < 16) {
 				Log.d(TAG, "Upgrading preference");
 				String textSize = "16";
 				if (prefs.contains(TEXT_SIZE_PREF)) {
@@ -122,7 +122,7 @@ public class BibleApplication extends Application{
 			}
 
 			// there was a problematic Chinese index architecture before ver 24 so delete any old indexes
-			if (prevInstalledVersion < 24 && prevInstalledVersion > 0) {
+			if (prevInstalledVersion < 24) {
 				Log.d(TAG, "Deleting old Chinese indexes");
 				Language CHINESE = new Language("zh");
 
