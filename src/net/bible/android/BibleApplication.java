@@ -43,6 +43,10 @@ public class BibleApplication extends Application{
 		Log.i(TAG, "Java home:"+System.getProperty("java.home"));
 		Log.i(TAG, "User dir:"+System.getProperty("user.dir")+" Timezone:"+System.getProperty("user.timezone"));
 	
+        // fix for null context class loader (http://code.google.com/p/android/issues/detail?id=5697)
+        // this affected jsword dynamic classloading
+        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+        
 		installJSwordErrorReportListener();
 
 		// some changes may be required for different versions
@@ -94,8 +98,9 @@ public class BibleApplication extends Application{
 		if (prefs.getInt("version", -1) < CommonUtils.getApplicationVersionNumber()) {
 			Editor editor = prefs.edit();
 			
+			int prevInstalledVersion = prefs.getInt("version", -1);
 			// ver 16 and 17 needed text size pref to be changed to int from string
-			if (prefs.getInt("version", -1) < 16) {
+			if (prevInstalledVersion < 16 && prevInstalledVersion > 0) {
 				Log.d(TAG, "Upgrading preference");
 				String textSize = "16";
 				if (prefs.contains(TEXT_SIZE_PREF)) {
@@ -117,7 +122,7 @@ public class BibleApplication extends Application{
 			}
 
 			// there was a problematic Chinese index architecture before ver 24 so delete any old indexes
-			if (prefs.getInt("version", -1) < 24) {
+			if (prevInstalledVersion < 24 && prevInstalledVersion > 0) {
 				Log.d(TAG, "Deleting old Chinese indexes");
 				Language CHINESE = new Language("zh");
 
@@ -128,7 +133,7 @@ public class BibleApplication extends Application{
 							BookIndexer bookIndexer = new BookIndexer(book);
 			                // Delete the book, if present
 			                if (bookIndexer.isIndexed()) {
-			                    Log.d(TAG, "*** Deleting index for "+book.getInitials());
+			                    Log.d(TAG, "Deleting index for "+book.getInitials());
 			                    bookIndexer.deleteIndex();
 			                }
 						} catch (Exception e) {
