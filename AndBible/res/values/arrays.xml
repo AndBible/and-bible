@@ -13,6 +13,7 @@
 		<item>Book</item>
 	</string-array>
 	
+	<!-- These languages must be in the same order as the language codes below -->
 	<string-array name="prefs_interface_locale_descriptions">
 		<item>Default</item>
 		<item>Chinese</item>
