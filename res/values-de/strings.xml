@@ -137,20 +137,20 @@
 	<!-- Speak -->
 	<!-- Speak - Bible -->
 	<plurals name="num_chapters">
-		<item quantity="one">%d chapter</item>
-		<item quantity="other">%d chapters</item>
+		<item quantity="one">%d Kapitel</item>
+		<item quantity="other">%d Kapitel</item>
 	</plurals>
-	<string name="rest_of_book">To end of book</string>
+	<string name="rest_of_book">Bis zum Buchende</string>
 	<!-- Speak - Commentary -->
 	<plurals name="num_verses">
-		<item quantity="one">%d verse</item>
-		<item quantity="other">%d verses</item>
+		<item quantity="one">%d Vers</item>
+		<item quantity="other">%d Verse</item>
 	</plurals>
 	<string name="rest_of_chapter">Bis zum Kapitelende</string>
 	<!-- Speak - Dictionary and other -->
 	<plurals name="num_pages">
-		<item quantity="one">%d page</item>
-		<item quantity="other">%d pages</item>
+		<item quantity="one">%d Seite</item>
+		<item quantity="other">%d Seiten</item>
 	</plurals>
 	<!-- Speak - Common -->
 	<string name="stop">Stop</string>
