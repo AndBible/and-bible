@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Prepare criteria for a search
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+    
+    <LinearLayout android:id="@+id/leftPanel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+		android:padding="5dip"
+	    android:layout_alignParentTop="true">
+		<RadioGroup android:id="@+id/numChapters" 
+			android:layout_alignParentTop="true"
+			android:layout_width="wrap_content" 
+			android:layout_height="wrap_content"
+			android:padding="5dip">
+			<RadioButton android:id="@+id/numChapters1" 
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content"
+				android:checked="true"/>
+			<RadioButton android:id="@+id/numChapters2" 
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content"/>
+			<RadioButton android:id="@+id/numChapters3" 
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content"/>
+			<RadioButton android:id="@+id/numChapters4" 
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content"/>
+		</RadioGroup>
+	</LinearLayout>
+
+	<LinearLayout android:id="@+id/rightPanel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+		android:padding="5dip"
+	    android:layout_toRightOf="@+id/leftPanel">
+	    <CheckBox android:id="@+id/queue"
+	    	android:text="Queue"  
+	    	android:layout_width="wrap_content" 
+	    	android:layout_height="wrap_content"/>
+	    <CheckBox android:id="@+id/repeat"
+	    	android:text="Repeat"  
+	    	android:layout_width="wrap_content" 
+	    	android:layout_height="wrap_content"/>
+	</LinearLayout>
+
+	<!-- Button bar with OK button -->
+	<LinearLayout android:id="@+id/button_panel"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        style="@android:style/ButtonBar"
+	    android:layout_alignParentBottom="true">
+
+	  	<Button android:id="@+id/speakButton"
+	 		android:text="@string/speak"
+			android:onClick="onSpeak"
+	        android:layout_width="0dip"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"/>
+
+	  	<Button android:id="@+id/stopButton"
+	 		android:text="@string/stop"
+	        android:layout_width="0dip"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"
+			android:onClick="onStop"/>
+
+	</LinearLayout>
+
+</RelativeLayout>

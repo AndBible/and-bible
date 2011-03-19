@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Lists of application values shown in some ui lists
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<resources>
+	<string-array name="documentTypes">
+		<item>Bible</item>
+		<item>Commentary</item>
+		<item>Dictionary</item>
+		<item>Book</item>
+	</string-array>
+	
+	<!-- These languages must be in the same order as the language codes below -->
+	<string-array name="prefs_interface_locale_descriptions">
+		<item>Default</item>
+		<item>Chinese</item>
+		<item>Czech</item>
+		<item>English</item>
+		<item>German</item>
+		<item>Faroese</item>
+		<item>French</item>
+		<item>Hebrew</item>
+		<item>Hungarian</item>
+		<item>Latvian</item>
+		<item>Norwegian</item>
+		<item>Polish</item>
+		<item>Portuguese</item>
+		<item>Russian</item>
+		<item>Swedish</item>
+	</string-array>
+	
+	<!--  DO NOT TRANSLATE the following language codes -->
+	<string-array name="prefs_interface_locale_values">
+		<item></item>
+		<item>zh</item>
+		<item>cs</item>
+		<item>en</item>
+		<item>de</item>
+		<item>fo</item>
+		<item>fr</item>
+		<item>he</item>
+		<item>hu</item>
+		<item>lt</item>
+		<item>nb</item>
+		<item>pl</item>
+		<item>pt</item>
+		<item>ru</item>
+		<item>sv</item>
+	</string-array>
+		
+</resources>

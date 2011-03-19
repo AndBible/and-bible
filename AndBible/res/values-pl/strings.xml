@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Application text
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<resources>
+    <string name="app_name">And Bible</string>
+
+    <string name="splash_top_text">\n\"I rzekł Bóg: \'Niech stanie się światłość.\' I stała się światłość.\"\nRodzaju 1:3</string>
+    <string name="help_text">Naciśnij przycisk MENU aby przejść do menu głównego\n\nAby przejść do następnego lub poprzedniego rozdziału użyj trackball\'a \nlub przesuń palcem po ekranie odpowiednio w prawo lub lewo.
+    \n\nAby odsłuchać dany fragment użyj opcji Odsłuchaj\n Aby wyłączyć odsłuchiwanie wybierz opcję Odsłuchaj po raz drugi.</string>
+    <string name="help_text_long">Nawigacja\nNaciśnij przycisk MENU aby przejść do menu głównego.\nAby przejść do następnego lub poprzedniego rozdziału użyj trackball\'a \nlub przesuń palcem po ekranie odpowiednio w prawo lub lewo.
+    \n\nOdsłuchiwanie\nAby odsłuchać dany fragment użyj opcji Odsłuchaj\nAby wyłączyć odsłuchiwanie wybierz opcję Odsłuchaj po raz drugi.\nTa opcja nie jest dostępna dla wszystkich wersji językowych.
+    \n\nDłuższe przyciśnięcie wersetu spowoduje wyświetlenie menu kontekstowego dla wersetów.\nDłuższe przyciśnięcie danego dokumentu spowoduje wyświetlenie menu kontekstowego dla dokumentów.
+    \n\nUlubione\nWersety można dodawać do ulubionych używając menu kontekstowego dla wersetów. Zarządzanie Ulubionymi odbywa się z menu głównego.  Wersety dodane do ulubionych można grupować używając etykiet.
+    \nDłuższe przyciśniecie danego wersetu w sekcji Ulubione spowoduje wyświetlenie menu kontekstowego.</string>
+    <string name="version_text">Wersja %s</string>
+    <string name="no_sdcard_error">Proszę włożyć kartę SD i ponownie uruchomić And Bible.</string>
+    <!-- main menu -->
+    <string name="chooseBook">Dokument</string>
+    <string name="selectPassage">Fragment</string>
+    <string name="search">Znajdź</string>
+    <string name="settings">Ustawienia</string>
+    <string name="history">Historia</string>
+    <string name="speak">Odsłuchaj</string>
+    <string name="help">Pomoc</string>
+    
+    <string name="choosePassageBookName">Wybierz księgę</string>
+    <string name="choosePassageChapterName">Wybierz rozdział</string>
+    <string name="chapter_range">%1$s rozdział %2$d do %3$d</string>
+
+    <string name="search_index">Indeks wyszukiwania</string>
+    <string name="search_chinese_na">Opcje wyszukiwania dla języka Chińskiego będą dostępne w kolejnej wersji.</string>
+    <string name="index_creation_required">Aby przeprowadzić wyszukiwanie wymagane jest stworzenie indeksu.\n\nIndeks może zostać pobrany z Internetu lub stworzony lokalnie.\n\nZaleca się pobranie indeksu z sieci.\n\nAby pobrać indeks wymagane jest połaczenie z Internetem.</string>
+    <string name="indexing_wait_msg">When indexing has completed you will be taken to the search screen.</string>
+    <string name="index">Indeks</string>
+    <string name="index_download">Pobierz</string>
+    <string name="index_not_available_for_download">Ten indeks nie jest dostępny.</string>
+    <string name="index_create">Utwórz</string>
+    
+    <string name="sdcard_error">Karta SD niedostępna!</string>
+    <string name="directory_error">Nie można otworzyć folderu %s</string> 
+	<string name="progress_status">Postęp</string>
+	<string name="task_kill_warning">To zadanie może zostać przerwane jeśli przed jego zakończeniem przejdziesz do innej aplikaji.</string>
+	<string name="no_tasks_running">Obecnie żadne zadanie nie jest wykonywane.</string>
+	<string name="delete_doc">Czy chcesz usuąć %s?</string>
+
+	<!-- Search -->
+	<string name="search_words_group_prompt">Znajdź werset</string>
+    <string name="search_all_words">Znajdź wszystkie</string>
+    <string name="search_any_word">Znajdź dowolne</string>
+    <string name="search_phrase">Fraza</string>
+    <string name="search_result_count">%d znalezionych</string>
+    <string name="search_showing_first">Zbyt dużo wyników.  Zobacz pierwsze %d</string> 
+    <string name="search_bible_section_group_prompt">Szukaj w</string>
+    <string name="search_all_bible">Cała Bibilia</string>
+    <string name="search_new_testament">Nowy Testament</string>
+    <string name="search_old_testament">Stary Testament</string>
+    <string name="search_current_book">Aktualnie używana księga</string>
+    <string name="error_executing_search">Niepoprawne zapytanie</string>
+
+	<!-- Preferences -->
+    <string name="prefs_show_verseno_title">Numer wersetu</string>
+    <string name="prefs_show_verseno_summary">Pokaż numer wersetu</string>
+    <string name="prefs_show_notes_title">Przypisy</string>
+    <string name="prefs_show_notes_summary">Pokaż przypisy</string>
+    <string name="prefs_show_strongs_title">Pokaż numeracje Stronga</string>
+    <string name="prefs_show_strongs_summary">Pokaż numeracje Strona dla KJV</string>
+    <string name="prefs_night_mode_title">Tryb nocny</string>
+    <string name="prefs_night_mode_summary">Ułatwia czytanie po ciemku</string>
+    <string name="prefs_text_size_title">Rozmiar czcinki</string>
+    <string name="prefs_text_size_summary">Powiększ/pomniejsz rozmiar czcionki</string>
+
+	<!-- Notes screen -->
+    <string name="no_chapter_notes">Brak przypisów dla tego rozdziału</string>
+    <string name="no_verse_notes">Brak przypisów dla tego wersetu</string>
+    <string name="previous">Poprzedni</string>
+    <string name="next">Następny</string>
+
+	<!--  Strongs -->
+    <string name="strongs">Słownik Strong</string>
+    <string name="strongs_not_installed">Pobierz Hebrajski i Grecki słownik Strong</string>
+
+	<!-- Module download -->
+    <string name="download">Pobierz moduł</string>
+    <string name="download_confirmation">Pobierz moduł z Internetu?</string>
+    <string name="download_source_message">Moduł zostanie pobrany z\nhttp://www.crosswire.org</string>
+    <string name="download_document_confirm_prefix">"Pobieranie "</string>
+    <string name="error_downloading">Wystąpił błąd podczas pobierania.  Sprawdź połączenie z Internetem.</string>
+    <string name="no_internet_connection">Połączenie z Internetem jest niedostępne</string>
+    <string name="wait_for_bible">Pobieranie trwa, proszę czekać.  Po ukończeniu zostanie wyświetlone główne okno programu.</string>
+	<string name="wait_for_bible_not_yet">Proszę czekać, trwa instalacja modułu.</string>
+	<string name="download_complete_no_bibles">Moduł nie został zainstalowany.  Ponów próbę.</string>
+	<string name="too_many_jobs">Zbyt dużo zadań wykonywanych jednocześnie.  Proszę czekać na ich ukończenie.</string>
+
+	<!-- Document context menu -->
+    <string name="delete">Usuń</string>
+    <string name="about">Informacje</string>
+    
+	<!-- Verse context menu -->
+    <string name="notes">Przypisy i odnośniki</string>
+    <string name="copy">Skopiuj werset</string>
+    <string name="send_sms">Wyślij werset jako SMS</string>
+
+	<!-- Bookmarks -->
+    <string name="bookmarks">Ulubione</string>
+    <string name="add_bookmark">Dodaj do ulubionych</string>
+    <string name="bookmark_added">Dodano do ulubionych</string>
+    <string name="bookmark_exists">Pozycja już istnieje w ulubionych</string>
+    <string name="bookmark_labels">Etykiety</string>
+    <string name="assign_labels">Przypisz etykietę</string>
+    <string name="new_label">Nowa etykieta</string>
+    <string name="new_label_prompt">Nazwa</string>
+	
+	<!-- Dictionary -->
+    <string name="dictionary">Słownik</string>
+    <string name="search_dictionary_hint">Znajdź w słowniku</string>
+    <string name="dictionary_contents">Zawartość</string>
+	
+    <string name="error_occurred">Występił błąd</string>
+    <string name="okay">OK</string>
+    <string name="cancel">Odrzuć</string>
+    <string name="error">Błąd </string>
+    <string name="more">Więcej</string>
+    <string name="retry">Ponów próbę</string>
+    <string name="please_wait">Proszę czekać...</string>
+    <string name="all">Wszystkie</string>
+
+    <string name="tts_lang_not_available">Język niedostępny.</string>
+</resources>

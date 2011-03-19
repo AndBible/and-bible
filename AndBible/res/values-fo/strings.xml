@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Application text
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<resources>
+    <string name="app_name">And Bible - Bíblian - Android stýriskipan</string>
+
+    <string name="splash_top_text">\n\"Gud segði: "Verði ljós!" Og ljós varð.\"\n1 Mósebók 1:3</string>
+    <string name="help_text">Trýst á VALMYND knøttin fyri at velja\n\nFar til næsta ella undanfarna kapittul við at brúka \'track-ball\', \'D-pad\' ella draga ein fingur eftir skerminum\n\nTrýst á \'Upplestur\' fyri at fáa listið kapittulin</string>
+    <string name="help_text_long">Navigatión\nFar til næsta ella undanfarna kapittul við at brúka \'track-ball\', \'D-pad\' ella draga ein fingur eftir skerminum
+    \n\nTrýst á VALMYND knøttin fyri at velja
+    \n\nSpeech\nTrýst á \'Upplestur\' fyri at fáa listið kapittulin\nTrýstið aftur á \'Upplestur\' fyri at støðga upplestrinum
+    \n\nTrýst longi á skjalaskránna fyri at fáa valmøguleikar viðvíkjandi versinum.
+    \nTrýst longi á eitt skjal í fíluskránni fyri at strika tað ella síggja innihaldið.
+    \n\nBookmarks\nBókamerkir kunnu verða løgd afturat við versinnihaldsvalmyndini.  Atgongd er til umsitingina av bókamerkjum gjøgnum høvuðsvalmyndina.  Bókamerkjavalmyndin gevur møguleika at flokka bókamerki við at nýta merkir.</string>
+    <string name="version_text">Versión %s</string>
+    <string name="no_sdcard_error">Gerið so væl og innsetið eitt SD-kort og starta And Bible umaftur.</string>
+    <!-- main menu -->
+    <string name="chooseBook">Skjal</string>
+    <string name="selectPassage">Brot</string>
+    <string name="search">Finn</string>
+    <string name="settings">Uppseting</string>
+    <string name="history">Søga</string>
+    <string name="speak">Upplestur</string>
+    <string name="help">Hjálp</string>
+    
+    <string name="choosePassageBookName">Vel bók</string>
+    <string name="choosePassageChapterName">Vel kapittul</string>
+    <string name="chapter_range">%1$s kapittul %2$d til %3$d</string>
+    <string name="chapter_no">Kapittul %d</string>
+
+    <string name="search_index">Leitiindeks</string>
+   
+    <string name="index_creation_required">Eitt indeks er neyðugt fyri at kunna leita.\n\nIndeks kunnu takast niður frá internetinum ella gjørt lokalt.\n\nAt taka niður er skjótasri og tey indeksini hava fleiri hentleikar.\n\nNeyðugt er við netsambandi fyri at taka niður indeksir.\n</string>
+    <string name="indexing_wait_msg">Tá indeksering er liðug verður tú førur til leitimyndina.</string>
+    <string name="index">Indeks</string>
+    <string name="index_download">Tak niður</string>
+    <string name="index_not_available_for_download">Hetta indeksi er ikki tøk at taka niður</string>
+    <string name="index_create">Skapa</string>
+    
+    <string name="sdcard_error">Tíverri, tú hevur ikki nakað SD-kort!</string>
+    <string name="directory_error">Tíverri, tað er ikki møguligt at koma inn á fíluskránna %s</string> 
+	<string name="progress_status">Í gongd</string>
+	<string name="task_kill_warning">Uppgávur sum taka tíð kunnu verða støðgar, um tú skiftir til annað smáforrit áðrenn tað er liðugt.</string>
+	<string name="no_tasks_running">Í løtuni verða ongar uppgávur útførdar.</string>
+	<string name="delete_doc">Strika %s?</string>
+
+	<!-- Search -->
+	<string name="search_words_group_prompt">Finn vers</string>
+    <string name="search_all_words">Øll orð</string>
+    <string name="search_any_word">Eitthvørt orð</string>
+    <string name="search_phrase">Setningur</string>
+    <string name="search_result_count">%d svar funnin</string>
+    <string name="search_showing_first">Óv nógv svar funnin.  Vísa fyrstu %d</string> 
+    <string name="search_bible_section_group_prompt">Leita hvar</string>
+    <string name="search_all_bible">Allari Bíbliuni</string>
+    <string name="search_new_testament">Nýggja Testamentið</string>
+    <string name="search_old_testament">Gamla Testamentið</string>
+    <string name="search_current_book">Verandi bók</string>
+    <string name="error_executing_search">Ógildugt leitiorð</string>
+
+	<!-- Preferences -->
+    <string name="prefs_show_verseno_title">Vers nummar</string>
+    <string name="prefs_show_verseno_summary">Vís vers nummør</string>
+    <string name="prefs_show_notes_title">Notur</string>
+    <string name="prefs_show_notes_summary">Vís notur</string>
+    <string name="prefs_show_strongs_title">Vís Strong\'s nummør</string>
+    <string name="prefs_show_strongs_summary">Leinkja til griskar &amp; hebraiskar allýsingar</string>
+    <string name="prefs_night_mode_title">Kvøldarstøða</string>
+    <string name="prefs_night_mode_summary">Fyri lættari at kunna lesa í myrkri</string>
+    <string name="prefs_text_size_title">Tekststødd</string>
+    <string name="prefs_text_size_summary">Síggj meiri ella síggj klárari</string>
+
+	<!-- Notes screen -->
+    <string name="no_chapter_notes">Ongar notur eru til henda kapittulin</string>
+    <string name="no_verse_notes">Ongar notur eru til hetta versið</string>
+    <string name="previous">Undanfarna</string>
+    <string name="next">Næsta</string>
+
+	<!--  Strongs -->
+    <string name="strongs">Strong\'s Dictinonary (orðabók)</string>
+    <string name="strongs_not_installed">Tak niður Strong\'s hebraisku og grisku orðabøkur</string>
+
+	<!-- Module download -->
+    <string name="download">Tak niður skjøl</string>
+    <string name="download_confirmation">Tak niður skjøl frá internetinum?</string>
+    <string name="download_source_message">Skjøl kunnu takast niður frá\nhttp://www.crosswire.org</string>
+    <string name="download_document_confirm_prefix">"Tak niður"</string>
+    <string name="error_downloading">Ein feilur er íkomin meðan tikið var niður.  Kanna tygara netsamband.</string>
+    <string name="no_internet_connection">Fekk ikki samband við netið</string>
+    <string name="wait_for_bible">Bíða til liðugt er at taka niður.  Síðani verður tú førdur aftur til høvuðsvalmyndina.</string>
+	<string name="wait_for_bible_not_yet">Bíðja við.  Tað er ikki liðugt enn at leggja inn.</string>
+	<string name="download_complete_no_bibles">Ongin Bíblia bleiv løgd inn.  Vel aftur og royn síðani umaftur.</string>
+	<string name="too_many_jobs">Óv nógvar uppgávur í gongd.  Bíða meðan onkra gerast lidnar og roynd aftur.</string>
+
+	<!-- Document context menu -->
+    <string name="delete">Strika</string>
+    <string name="about">Um</string>
+    
+	<!-- Verse context menu -->
+    <string name="notes">Fótnotur og tilvísingar</string>
+    <string name="copy">Kopierað hetta versið</string>
+    <string name="send_sms">Send verið við SMS-boðum</string>
+
+	<!-- Bookmarks -->
+    <string name="bookmarks">Bókamerki</string>
+    <string name="add_bookmark">Set bókamerki</string>
+    <string name="bookmark_added">Bókamerkið innsett</string>
+    <string name="bookmark_exists">Bókamerkið er longu sett</string>
+    <string name="bookmark_labels">Bókamerkja lepi</string>
+    <string name="assign_labels">Ásett lepa</string>
+    <string name="new_label">Nýggjur lepiN</string>
+    <string name="new_label_prompt">Navn</string>
+	
+	<!-- Dictionary -->
+    <string name="dictionary">Orðabók</string>
+    <string name="search_dictionary_hint">Leita í orðabók</string>
+    <string name="dictionary_contents">Innihald</string>
+	
+    <string name="error_occurred">Ein feilur er íkomin</string>
+    <string name="okay">OK</string>
+    <string name="cancel">Avbrót</string>
+    <string name="error">Feilur </string>
+    <string name="more">Meira</string>
+    <string name="retry">Royn umaftur</string>
+    <string name="please_wait">Bíða við...</string>
+    <string name="all">Alt</string>
+
+    <string name="tts_lang_not_available">Málið er ikki tøkt.</string>
+</resources>
