@@ -1,0 +1,5 @@
+
+Installer.1=sword-http,CrossWire,www.crosswire.org,/ftpmirror/pub/sword/packages/rawzip,/ftpmirror/pub/sword/raw,,,
+Installer.2=sword-http,Bible.org,ftp.bible.org,/sword/packages/rawzip,/sword/raw,,,
+Installer.3=sword-http,Crosswire Beta,www.crosswire.org,/ftpmirror/pub/sword/betapackages/rawzip,/ftpmirror/pub/sword/betaraw,,,
+Installer.4=sword-http,Xiphos,ftp.xiphos.org,/sword/zip,/sword,,,
