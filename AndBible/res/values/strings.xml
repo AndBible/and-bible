@@ -44,13 +44,13 @@
     
     <string name="sdcard_error">Sorry, you have no SD card!</string>
     <string name="directory_error">Sorry, unable to access directory %s</string> 
-	<string name="progress_status">Progress</string>
-	<string name="task_kill_warning">These long running tasks may terminate if you switch to another application before they finish.</string>
-	<string name="no_tasks_running">There are no tasks currently being executed.</string>
-	<string name="delete_doc">Delete %s?</string>
+    <string name="progress_status">Progress</string>
+    <string name="task_kill_warning">These long running tasks may terminate if you switch to another application before they finish.</string>
+    <string name="no_tasks_running">There are no tasks currently being executed.</string>
+    <string name="delete_doc">Delete %s?</string>
 
-	<!-- Search -->
-	<string name="search_words_group_prompt">Find verses</string>
+    <!-- Search -->
+    <string name="search_words_group_prompt">Find verses</string>
     <string name="search_all_words">All words</string>
     <string name="search_any_word">Any word</string>
     <string name="search_phrase">Phrase</string>
@@ -63,7 +63,7 @@
     <string name="search_current_book">Current book</string>
     <string name="error_executing_search">Invalid search query</string>
 
-	<!-- Preferences -->
+    <!-- Preferences -->
     <string name="prefs_show_verseno_title">Verse numbers</string>
     <string name="prefs_show_verseno_summary">Show verse numbers</string>
     <string name="prefs_verse_per_line_title">One verse per line</string>
@@ -80,17 +80,17 @@
     <string name="prefs_interface_locale_summary">Select custom user interface language</string>
     <string name="locale_change_warning">Application will be restarted to switch to the new interface language</string>
 
-	<!-- Notes screen -->
+    <!-- Notes screen -->
     <string name="no_chapter_notes">No notes exist in this chapter</string>
     <string name="no_verse_notes">No notes exist in this verse</string>
     <string name="previous">Previous</string>
     <string name="next">Next</string>
 
-	<!--  Strongs -->
+    <!--  Strongs -->
     <string name="strongs">Strong\'s Dictionary</string>
     <string name="strongs_not_installed">Please download Strong\'s Hebrew and Greek dictionaries</string>
 
-	<!-- Module download -->
+    <!-- Module download -->
     <string name="download">Download Documents</string>
     <string name="download_confirmation">Download a bible from the internet?</string>
     <string name="download_source_message">Documents are downloaded from\nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
@@ -100,21 +100,21 @@
     <string name="no_internet_connection">Could not connect to the internet</string>
     <string name="storage_space_warning">Insufficient local storage space.</string>
     <string name="wait_for_bible">Please wait for the bible to finish downloading.  You will then be taken to the main screen.</string>
-	<string name="wait_for_bible_not_yet">Please wait.  A bible has not yet completed installation.</string>
-	<string name="download_complete_no_bibles">No bible was installed.  Please press Back and try again.</string>
-	<string name="too_many_jobs">Too many tasks executing.  Please wait for some to finish and try again.</string>
+    <string name="wait_for_bible_not_yet">Please wait.  A bible has not yet completed installation.</string>
+    <string name="download_complete_no_bibles">No bible was installed.  Please press Back and try again.</string>
+    <string name="too_many_jobs">Too many tasks executing.  Please wait for some to finish and try again.</string>
 
-	<!-- Document context menu -->
+    <!-- Document context menu -->
     <string name="delete">Delete</string>
     <string name="about">About</string>
     
-	<!-- Verse context menu -->
+    <!-- Verse context menu -->
     <string name="notes">Footnotes and references</string>
     <string name="copy">Copy current verse</string>
     <string name="share_verse">Share current verse ...</string>
     <string name="share_verse_subject">A Bible verse has been shared with you using And Bible</string>
 
-	<!-- Bookmarks -->
+    <!-- Bookmarks -->
     <string name="bookmarks">Bookmarks</string>
     <string name="add_bookmark">Add bookmark</string>
     <string name="bookmark_added">Bookmark added</string>
@@ -123,40 +123,40 @@
     <string name="assign_labels">Assign labels</string>
     <string name="new_label">New Label</string>
     <string name="new_label_prompt">Name</string>
-	
-	<!-- Dictionary -->
+    
+    <!-- Dictionary -->
     <string name="dictionary">Dictionary</string>
     <string name="search_dictionary_hint">Search dictionary</string>
     <string name="dictionary_contents">Contents</string>
 
-	<!-- General Book -->
+    <!-- General Book -->
     <string name="general_book">Book</string>
     <string name="general_book_contents">Contents</string>
 
 
-	<!-- Speak -->
-	<!-- Speak - Bible -->
-	<plurals name="num_chapters">
-		<item quantity="one">%d chapter</item>
-		<item quantity="other">%d chapters</item>
-	</plurals>
+    <!-- Speak -->
+    <!-- Speak - Bible -->
+    <plurals name="num_chapters">
+        <item quantity="one">%d chapter</item>
+        <item quantity="other">%d chapters</item>
+    </plurals>
     <string name="rest_of_book">To end of book</string>
-	<!-- Speak - Commentary -->
-	<plurals name="num_verses">
-		<item quantity="one">%d verse</item>
-		<item quantity="other">%d verses</item>
-	</plurals>
+    <!-- Speak - Commentary -->
+    <plurals name="num_verses">
+        <item quantity="one">%d verse</item>
+        <item quantity="other">%d verses</item>
+    </plurals>
     <string name="rest_of_chapter">To end of chapter</string>
-	<!-- Speak - Dictionary and other -->
-	<plurals name="num_pages">
-		<item quantity="one">%d page</item>
-		<item quantity="other">%d pages</item>
-	</plurals>
-	<!-- Speak - Common -->
-	<string name="stop">Stop</string>
+    <!-- Speak - Dictionary and other -->
+    <plurals name="num_pages">
+        <item quantity="one">%d page</item>
+        <item quantity="other">%d pages</item>
+    </plurals>
+    <!-- Speak - Common -->
+    <string name="stop">Stop</string>
     <string name="tts_lang_not_available">Language is not available.</string>
-	
-	<!-- General -->
+    
+    <!-- General -->
     <string name="error_occurred">An error has occurred</string>
     <string name="okay">OK</string>
     <string name="cancel">Cancel</string>
@@ -166,7 +166,4 @@
     <string name="retry">Try Again</string>
     <string name="please_wait">Please wait...</string>
     <string name="all">All</string>
-    
-    
-
 </resources>
