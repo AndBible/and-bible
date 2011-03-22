@@ -71,7 +71,7 @@
 	<string name="prefs_show_notes_title">Anmerkungen</string>
 	<string name="prefs_show_notes_summary">Zeige Anmerkungen</string>
 	<string name="prefs_show_strongs_title">Strong\'s Nummern anzeigen</string>
-	<string name="prefs_show_strongs_summary">Links to Greek and Hebrew definitions</string>
+	<string name="prefs_show_strongs_summary">Verweise zu Strong\'s Wörterbuch</string>
 	<string name="prefs_night_mode_title">Nachtmodus</string>
 	<string name="prefs_night_mode_summary">Für leichteres Lesen im Dunkeln</string>
 	<string name="prefs_text_size_title">Zeichengröße</string>
