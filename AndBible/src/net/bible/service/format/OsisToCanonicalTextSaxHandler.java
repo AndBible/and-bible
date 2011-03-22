@@ -139,6 +139,10 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
         	if (s.contains(" \'")) {
         		s = s.replace("\'", "\"");
         	}
+        	// Finney Gospel Sermons contains to many '--'s which are pronounced as hyphen hyphen
+        	if (s.contains(" --")) {
+        		s = s.replace(" --", ";");
+        	}
         	
             write(s);
         }

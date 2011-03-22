@@ -1,17 +1,17 @@
 Manual translations:
-de - Martin 20/11/2010
-fr - Dominique 24/1/2011
+de - Martin 20/03/2011
+fr - Dominique 21/3/2011
 hu - Gabor 27/12/2010
 nb - Lars 1/12/2010
 ru - Dirk 24/1/2011
 sv - Thomas 30/09/2010
-zh - Guan 10/2/2010
+zh - Guan 10/2/2011
 cs - martin 24/1/2011
 pl - Marcin 28/12/2010
 fo - Sigurð 1/1/2011
 fi - Jori 9/1/2011
 iw/he - Michael 22/1/11
-lt - Lithuanian- Linas 24/1/2011
+lt - Lithuanian- Linas 21/3/2011
 pt - Portuguese - Filipe 26/1/2011 
 
 Excellent article on i18n props files

@@ -66,6 +66,8 @@
     <!-- Preferences -->
     <string name="prefs_show_verseno_title">Numéros de versets</string>
     <string name="prefs_show_verseno_summary">Afficher les numéros de versets</string>
+    <string name="prefs_verse_per_line_title">Un verset par ligne</string>
+    <string name="prefs_verse_per_line_summary"></string>
     <string name="prefs_show_notes_title">Notes</string>
     <string name="prefs_show_notes_summary">Afficher les notes</string>
     <string name="prefs_show_strongs_title">Afficher les nombres de Strong\'s</string>
@@ -74,12 +76,13 @@
     <string name="prefs_night_mode_summary">Pour une lecture plus facile dans le noir</string>
     <string name="prefs_text_size_title">Taille du texte</string>
     <string name="prefs_text_size_summary">Voir plus ou voir plus clair</string>
-    <string name="prefs_grid_navigation_title">Naviguer en utilisant les grilles</string>
-    <string name="prefs_grid_navigation_summary">Utiliser des grilles ou les listes pour naviguer</string>
+    <string name="prefs_interface_locale_title">Langue de l\'application</string>
+    <string name="prefs_interface_locale_summary">Choisir une langue personnalisée dans l\'interface utilisateur</string>
+    <string name="locale_change_warning">L\'application sera redémarrée pour prendre en compte la nouvelle langue d\'interface</string>
 
     <!-- Notes screen -->
-    <string name="no_chapter_notes">Aucune note dans ce chapitre</string>
-    <string name="no_verse_notes">Aucune note dans ce verset</string>
+    <string name="no_chapter_notes">Pas de notes dans ce chapitre</string>
+    <string name="no_verse_notes">Pas de note dans ce verset</string>
     <string name="previous">Précédent</string>
     <string name="next">Suivant</string>
 
@@ -90,8 +93,9 @@
 	<!-- Module download -->
     <string name="download">Téléchargement de documents</string>
     <string name="download_confirmation">Télécharger des documents à partir d\'Internet?</string>
-    <string name="download_source_message">Les documents sont téléchargés à partir de\nhttp://www.crosswire.org</string>
+    <string name="download_source_message">Les documents sont téléchargés à partir de\nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
     <string name="download_document_confirm_prefix">"Télécharger "</string>
+    <string name="refresh_book_list">Rafraîchir la liste des livres disponibles?</string>
     <string name="error_downloading">Une erreur est apparue pendant le téléchargement. Vérifiez votre connexion internet.</string>
     <string name="no_internet_connection">Impossible de se connecter à internet</string>
     <string name="storage_space_warning">Espace de stockage local insuffisant.</string>
@@ -107,7 +111,8 @@
     <!-- Verse context menu -->
     <string name="notes">Notes et références croisées</string>
     <string name="copy">Copier le verset courant</string>
-    <string name="send_sms">Envoyer un verset via SMS</string>
+    <string name="share_verse">Partager le verset en cours ...</string>
+    <string name="share_verse_subject">Un verset de Bible a été partagé avec vous en utilisant And Bible</string>
 
     <!-- Bookmarks -->
     <string name="bookmarks">Signets</string>
@@ -124,14 +129,41 @@
     <string name="search_dictionary_hint">Recherche dans le dictionaire</string>
     <string name="dictionary_contents">Contenu</string>
 
+    <!-- General Book -->
+    <string name="general_book">Livre</string>
+    <string name="general_book_contents">Table des matières</string>
+
+
+    <!-- Speak -->
+    <!-- Speak - Bible -->
+    <plurals name="num_chapters">
+        <item quantity="one">%d chapitre</item>
+        <item quantity="other">%d chapitres</item>
+    </plurals>
+    <string name="rest_of_book">À la fin du livre</string>
+    <!-- Speak - Commentary -->
+    <plurals name="num_verses">
+        <item quantity="one">%d verset</item>
+        <item quantity="other">%d versets</item>
+    </plurals>
+    <string name="rest_of_chapter">À la fin du chapitre</string>
+    <!-- Speak - Dictionary and other -->
+    <plurals name="num_pages">
+        <item quantity="one">%d page</item>
+        <item quantity="other">%d pages</item>
+    </plurals>
+    <!-- Speak - Common -->
+    <string name="stop">Arrêt</string>
+    <string name="tts_lang_not_available">La langue n\'est pas disponible.</string>
+    
+    <!-- General -->
     <string name="error_occurred">Une erreur s\'est produite</string>
     <string name="okay">OK</string>
     <string name="cancel">Annuler</string>
+    <string name="no">Non</string>
     <string name="error">Erreur </string>
     <string name="more">Plus</string>
     <string name="retry">Recommencer</string>
     <string name="please_wait">Attendez svp...</string>
     <string name="all">Tout</string>
-
-    <string name="tts_lang_not_available">Langue non disponible.</string>
 </resources>
