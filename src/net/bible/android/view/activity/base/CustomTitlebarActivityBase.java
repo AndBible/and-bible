@@ -73,6 +73,9 @@ public class CustomTitlebarActivityBase extends ActivityBase {
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		
+		// page title varies in length depending on orientation so need to redisplay it on rotation
+		setPageTitle(ControlFactory.getInstance().getPageControl().getCurrentPageTitle());
+		
 //		// the title bar has different widths depending on the orientation
 //		int titleBarTitleWidthPixels = getResources().getDimensionPixelSize(R.dimen.title_bar_title_width);
 //		Log.d(TAG, "Title bar width:"+titleBarTitleWidthPixels);
