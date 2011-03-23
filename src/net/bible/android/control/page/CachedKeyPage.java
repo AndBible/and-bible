@@ -60,7 +60,7 @@ abstract public class CachedKeyPage extends CurrentPageBase  {
 	 */
 	public Key getKeyPlus(int num) {
 		Key currentKey = getKey();
-		int keyPos = getCachedGlobalKeyList().indexOf(currentKey);
+		int keyPos = findIndexOf(currentKey);
 		// move forward or backward to new posn
 		int newKeyPos = keyPos+num;
 		// check bounds
@@ -68,5 +68,11 @@ abstract public class CachedKeyPage extends CurrentPageBase  {
 		newKeyPos = Math.max(newKeyPos, 0);
 		// get the actual key at that posn
 		return getCachedGlobalKeyList().get(newKeyPos);
+	}
+	
+	/** find index of key in cached key list but cater for TreeKeys too
+	 */
+	protected int findIndexOf(Key key) {
+		return TreeKeyHelper.findIndexOf(key, getCachedGlobalKeyList());
 	}
 }
