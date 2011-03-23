@@ -7,6 +7,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentGeneralBookPage;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.TreeKeyHelper;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.android.view.activity.page.MainBibleActivity;
 
@@ -51,9 +52,8 @@ public class ChooseGeneralBookKey extends ListActivityBase {
         // if an item was selected previously then try to scroll to it
         Key currentKey = getCurrentGeneralBookPage().getKey();
         if (currentKey!=null && mGeneralBookKeyList.contains(currentKey)) {
-        	setSelection(mGeneralBookKeyList.indexOf(currentKey));
+        	setSelection(TreeKeyHelper.findIndexOf(currentKey, mGeneralBookKeyList));
         }
-        
         
         Log.d(TAG, "Finished displaying Search view");
     }
