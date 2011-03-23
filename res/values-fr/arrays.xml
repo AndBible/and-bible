@@ -11,6 +11,45 @@
 		<item>Bible</item>
 		<item>Commentaire</item>
 		<item>Dictionnaire</item>
-		<item>Book</item> <!-- needs translation -->
+		<item>Livre</item>
 	</string-array>
+
+	<!-- These languages must be in the same order as the language codes below -->
+	<string-array name="prefs_interface_locale_descriptions">
+		<item>Défaut</item>
+		<item>中文</item>
+		<item>Česky</item>
+		<item>English</item>
+		<item>Faroese</item>
+		<item>Français</item>
+		<item>Deutsch</item>
+		<item>עִבְרִית</item>
+		<item>Magyar</item>
+		<item>Lituanienne</item>
+		<item>Norsk (bokmål)</item>
+		<item>Polski</item>
+		<item>Português</item>
+		<item>Русский</item>
+		<item>Svenska</item>
+	</string-array>
+	
+	<!--  DO NOT TRANSLATE the following language codes -->
+	<string-array name="prefs_interface_locale_values">
+		<item></item>
+		<item>zh</item>
+		<item>cs</item>
+		<item>en</item>
+		<item>fo</item>
+		<item>fr</item>
+		<item>de</item>
+		<item>he</item>
+		<item>hu</item>
+		<item>lt</item>
+		<item>nb</item>
+		<item>pl</item>
+		<item>pt</item>
+		<item>ru</item>
+		<item>sv</item>
+	</string-array>
+		
 </resources>
