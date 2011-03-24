@@ -202,12 +202,12 @@ public class SwordApi {
 			// see here for info ftp://ftp.xiphos.org/mods.d/
 			//Commentaries - Gill
 			// give these Xiphos modules a lower case module name in these dummy files for installation, the actual conf contains mixed case names
-			String gillConf = "[gill]\nDataPath=./modules/comments/zcom/gill/\nModDrv=zCom\nSourceType=ThML\nBlockType=BOOK\nCompressType=ZIP\nLang=en\nDescription=John Gill's Expositor";
+			String gillConf = "[gill]\nDataPath=./modules/comments/zcom/gill/\nModDrv=zCom\nSourceType=ThML\nBlockType=BOOK\nCompressType=ZIP\nLang=en\nDescription=John Gill's Expositor\nAbout=";
 	        Book extraBook = createRepoBookInfo("Gill", gillConf, XIPHOS_REPOSITORY);
 	        allBooks.add(extraBook);
 
 			//Gen books - Augustine, BaxterPastor, FinneySysTheo, HodgeSysTheo, LifeTimes, SacredMeditations, Shaw, TrainTwelve
-			String augustineConf = "[augustine]\nDataPath=./modules/genbook/rawgenbook/augustine/augustine\nModDrv=RawGenBook\nLang=en\nEncoding=UTF-8\nSourceType=ThML\nDescription=St. Augustine: Works\n";
+			String augustineConf = "[augustine]\nDataPath=./modules/genbook/rawgenbook/augustine/augustine\nModDrv=RawGenBook\nLang=en\nEncoding=UTF-8\nSourceType=ThML\nDescription=St. Augustine: Works\nAbout=";
 	        extraBook = createRepoBookInfo("Augustine", augustineConf, XIPHOS_REPOSITORY);
 	        allBooks.add(extraBook);
 
@@ -216,15 +216,15 @@ public class SwordApi {
 //	        extraBook = createRepoBookInfo("BaxterPastor", baxterConf, XIPHOS_REPOSITORY);
 //	        allBooks.add(extraBook);
 	
-	        String finneyConf = "[finneysystheo]\nDataPath=./modules/genbook/rawgenbook/finneysystheo/finneysystheo\nModDrv=RawGenBook\nLang=en\nEncoding=UTF-8\nSourceType=ThML\nDescription=Finney's Systematic Theology\n";
+	        String finneyConf = "[finneysystheo]\nDataPath=./modules/genbook/rawgenbook/finneysystheo/finneysystheo\nModDrv=RawGenBook\nLang=en\nEncoding=UTF-8\nSourceType=ThML\nDescription=Finney's Systematic Theology\nAbout=";
 	        extraBook = createRepoBookInfo("FinneySysTheo", finneyConf, XIPHOS_REPOSITORY);
 	        allBooks.add(extraBook);
 	        
-	        String hodgeConf = "[hodgesystheo]\nDataPath=./modules/genbook/rawgenbook/hodgesystheo/systheo\nModDrv=RawGenBook\nSourceType=ThML\nGlobalOptionFilter=ThMLFootnotes\nEncoding=UTF-8\nLang=en\nDescription=Hodge's Systematic Theology - Volumes I/II/III/IV\n";
+	        String hodgeConf = "[hodgesystheo]\nDataPath=./modules/genbook/rawgenbook/hodgesystheo/systheo\nModDrv=RawGenBook\nSourceType=ThML\nGlobalOptionFilter=ThMLFootnotes\nEncoding=UTF-8\nLang=en\nDescription=Hodge's Systematic Theology - Volumes I/II/III/IV\nAbout=";
 	        extraBook = createRepoBookInfo("HodgeSysTheo", hodgeConf, XIPHOS_REPOSITORY);
 	        allBooks.add(extraBook);
 
-	        String lifeTimesConf = "[lifetimes]\nDataPath=./modules/genbook/rawgenbook/lifetimes/lifetimes\nEncoding=UTF-8\nModDrv=RawGenBook\nSourceType=ThML\nLang=en\nDescription=Edersheim, The Life and Times of Jesus the Messiah";
+	        String lifeTimesConf = "[lifetimes]\nDataPath=./modules/genbook/rawgenbook/lifetimes/lifetimes\nEncoding=UTF-8\nModDrv=RawGenBook\nSourceType=ThML\nLang=en\nDescription=The Life and Times of Jesus the Messiah\nAbout=";
 	        extraBook = createRepoBookInfo("LifeTimes", lifeTimesConf, XIPHOS_REPOSITORY);
 	        allBooks.add(extraBook);
 
@@ -238,7 +238,7 @@ public class SwordApi {
 //	        extraBook = createRepoBookInfo("Shaw", shaw, XIPHOS_REPOSITORY);
 //	        allBooks.add(extraBook);
 
-	        String trainTwelveConf = "[traintwelve]\nDataPath=./modules/genbook/rawgenbook/traintwelve/traintwelve\nModDrv=RawGenBook\nLang=en\nEncoding=UTF-8\nSourceType=ThML\nDescription=The Training of the Twelve\n";
+	        String trainTwelveConf = "[traintwelve]\nDataPath=./modules/genbook/rawgenbook/traintwelve/traintwelve\nModDrv=RawGenBook\nLang=en\nEncoding=UTF-8\nSourceType=ThML\nDescription=The Training of the Twelve\nAbout=";
 	        extraBook = createRepoBookInfo("TrainTwelve", trainTwelveConf, XIPHOS_REPOSITORY);
 	        allBooks.add(extraBook);
 	        
