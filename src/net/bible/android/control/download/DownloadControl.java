@@ -28,30 +28,32 @@ public class DownloadControl {
 			// create a Map of installed doc names so we can remove them from the list of downloadable books
 			// need to compare using lower case because Xiphos repo books are lower case
 			List<Book> installedDocs = SwordApi.getInstance().getDocuments();
-			Map<String, Object> installedDocNames = new HashMap<String, Object>();
+			Map<String, Object> installedDocInitials = new HashMap<String, Object>();
 			for (Book book : installedDocs) {
-				installedDocNames.put(book.getName().toLowerCase(), null);
+    			Log.d(TAG, "Install list "+book.getInitials()+"/"+book.getInitials().toLowerCase());
+				installedDocInitials.put(book.getInitials().toLowerCase(), null);
 			}
 			
+			// there are a number of books we need to filter out of the download list for various reasons
         	for (Iterator<Book> iter=availableDocs.iterator(); iter.hasNext(); ) {
         		Book doc = iter.next();
         		if (doc.getLanguage()==null) {
-        			Log.d(TAG, "Ignoring "+doc.getName()+" because it has no language");
+        			Log.d(TAG, "Ignoring "+doc.getInitials()+" because it has no language");
         			iter.remove();
-        		} else if (installedDocNames.containsKey(doc.getName().toLowerCase())) {
-        			Log.d(TAG, "Ignoring "+doc.getName()+" because already installed");
+        		} else if (installedDocInitials.containsKey(doc.getInitials().toLowerCase())) {
+        			Log.d(TAG, "Ignoring "+doc.getInitials()+" because already installed");
         			iter.remove();
         		} else if (doc.isQuestionable()) {
-        			Log.d(TAG, "Ignoring "+doc.getName()+" because it is questionable");
+        			Log.d(TAG, "Ignoring "+doc.getInitials()+" because it is questionable");
         			iter.remove();
         		} else if (doc.getInitials().equalsIgnoreCase("westminster")) {
-        			Log.d(TAG, "Removing "+doc.getName()+" because some sections are too large for a mobile phone e.g. Q91-150");
+        			Log.d(TAG, "Ignoring "+doc.getInitials()+" because some sections are too large for a mobile phone e.g. Q91-150");
         			iter.remove();
         		} else if (doc.getInitials().equalsIgnoreCase("passion")) {
-        			Log.d(TAG, "Removing "+doc.getName());
+        			Log.d(TAG, "Ignoring "+doc.getInitials());
         			iter.remove();
         		} else if (doc.getInitials().equals("WebstersDict")) {
-        			Log.d(TAG, "Removing "+doc.getName()+" because it is too big and crashes dictionary code");
+        			Log.d(TAG, "Ignoring "+doc.getInitials()+" because it is too big and crashes dictionary code");
         			iter.remove();
         		}
         	}

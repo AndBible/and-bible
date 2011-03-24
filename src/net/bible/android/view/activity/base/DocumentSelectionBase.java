@@ -347,7 +347,13 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 		//get about text
 		Map<String,Object> props = document.getBookMetaData().getProperties();
 		String about = (String)props.get("About");
-		about = about.replace("\\par", "\n");
+		if (about!=null) {
+			// either process the odd formatting chars in about 
+			about = about.replace("\\par", "\n");
+		} else {
+			// or default to name if there is no About
+			about = document.getName();
+		}
 
     	new AlertDialog.Builder(this)
 		   .setMessage(about)
