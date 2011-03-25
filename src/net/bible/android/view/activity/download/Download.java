@@ -68,6 +68,7 @@ public class Download extends DocumentSelectionBase {
        		// normal user downloading but with old doc list
        		// this will also trigger populateMasterDocumentList
        		promptRefreshBookList();
+		 	updateLastRepoRefreshDate();
        	} else {
        		// normal user downloading with recent doc list
         	populateMasterDocumentList(false);
@@ -92,14 +93,12 @@ public class Download extends DocumentSelectionBase {
 				public void onClick(DialogInterface dialog, int id) {
 					// prepare the document list view - done in another thread
 					populateMasterDocumentList(true);
-				 	updateLastRepoRefreshDate();
 				}
 			})
 			.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog, int id) {
 					// prepare the document list view - done in another thread
 					populateMasterDocumentList(false);
-					updateLastRepoRefreshDate();
 				 }
 			}).create().show();
 	 }

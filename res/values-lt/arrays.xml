@@ -6,11 +6,49 @@
       The copyright to this program is held by it's author.
 -->
 <resources>
-	<string-array name="documentTypes">
-		<item>Biblija</item>
-		<item>Komentarai</item>
-		<item>Žodynas</item>
-		<item>Knyga</item>
-	</string-array>
-		
+        <string-array name="documentTypes">
+                <item>Biblija</item>
+                <item>Komentarai</item>
+                <item>Žodynas</item>
+                <item>Knyga</item>
+        </string-array>
+        
+        <!-- These languages must be in the same order as the language codes below -->
+        <string-array name="prefs_interface_locale_descriptions">
+                <item>&#302;prastin&#279;</item>
+                <item>Kin&#371;</item>
+                <item>Ček&#371;</item>
+                <item>Angl&#371;</item>
+                <item>Farer&#371;</item>
+                <item>Pranc&#363;z&#371;</item>
+                <item>Vokieči&#371;</item>
+                <item>Hebraj&#371;</item>
+                <item>Vengr&#371;</item>
+                <item>Lietuvi&#371;</item>
+                <item>Norveg&#371;</item>
+                <item>Lenk&#371;</item>
+                <item>Portugal&#371;</item>
+                <item>Rus&#371;</item>
+                <item>Šved&#371;</item>
+        </string-array>
+        
+        <!--  DO NOT TRANSLATE the following language codes -->
+        <string-array name="prefs_interface_locale_values">
+                <item></item>
+                <item>zh</item>
+                <item>cs</item>
+                <item>en</item>
+                <item>fo</item>
+                <item>fr</item>
+                <item>de</item>
+                <item>he</item>
+                <item>hu</item>
+                <item>lt</item>
+                <item>nb</item>
+                <item>pl</item>
+                <item>pt</item>
+                <item>ru</item>
+                <item>sv</item>
+        </string-array>
+                
 </resources>

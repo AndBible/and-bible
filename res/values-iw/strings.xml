@@ -8,6 +8,23 @@
 <resources>
     <string name="app_name">And Bible</string>
 
+	<!-- v 3.0 addons: -->
+	<string name="prefs_verse_per_line_title">כל פסוק בשורה נפרדת</string>
+	<string name="prefs_verse_per_line_summary">כל פסוק יוצג בשורה נפרדת</string>
+	<string name="prefs_interface_locale_title">שפת התוכנה</string>
+	<string name="prefs_interface_locale_summary">בחירת שפה עבור התוכנה</string>
+	<string name="locale_change_warning">התוכנה תופעל מחדש כדי לשנות את השפה</string>
+	<string name="refresh_book_list">האם לטעון מחדש את רשימת הספרים?</string>
+	<string name="share_verse">שתף פסוק זה ...</string>
+	<string name="share_verse_subject">הפסוק הזה נשלח אליך באמצעות And Bible</string>
+	<string name="general_book">ספר</string>
+	<string name="general_book_contents">תכנים</string>
+	<string name="rest_of_book">לסוף הספר</string>
+	<string name="rest_of_chapter">לסוף הפרק</string>
+	<string name="stop">עצור</string>
+	<string name="no">לא</string>
+
+
     <string name="splash_top_text">\n\"ויאמר אלוהים, \'יהי אור,\' ויהי אור.\"\nבראשית א\' 3</string>
     <string name="help_text">לחץ על כפתור התפריט לאפשרויות נוספות\n\nמעבר לפרק הבא או הקודם מתבצע ע"י החלקת האצבע לרוחב המסך</string>
     <string name="help_text_long">דפדוף\nמעבר לפרק הבא או הקודם מתבצע ע"י החלקת האצבע לרוחב המסך, או ע"י גלגלת המכשיר.
