@@ -10,6 +10,45 @@
 		<item>Библия</item>
 		<item>Комментарий</item>
 		<item>Словарь</item>
-		<item>Book</item> <!-- needs translation -->
+		<item>Книга</item>
 	</string-array>
+	
+	<!-- These languages must be in the same order as the language codes below -->
+	<string-array name="prefs_interface_locale_descriptions">
+		<item>По умолчанию</item>
+		<item>Китайский</item>
+		<item>Чешский</item>
+		<item>Английский</item>
+		<item>Фарерский</item>
+		<item>Французский</item>
+		<item>Немецкий</item>
+		<item>Иврит</item>
+		<item>Венгерский</item>
+		<item>Литовский</item>
+		<item>Норвежский</item>
+		<item>Польский</item>
+		<item>Португальский</item>
+		<item>Русский</item>
+		<item>Шведский</item>
+	</string-array>
+	
+	<!--  DO NOT TRANSLATE the following language codes -->
+	<string-array name="prefs_interface_locale_values">
+		<item></item>
+		<item>zh</item>
+		<item>cs</item>
+		<item>en</item>
+		<item>fo</item>
+		<item>fr</item>
+		<item>de</item>
+		<item>he</item>
+		<item>hu</item>
+		<item>lt</item>
+		<item>nb</item>
+		<item>pl</item>
+		<item>pt</item>
+		<item>ru</item>
+		<item>sv</item>
+	</string-array>
+		
 </resources>

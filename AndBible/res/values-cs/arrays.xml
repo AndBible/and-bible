@@ -11,6 +11,44 @@
 		<item>Bible</item>
 		<item>Komentář</item>
 		<item>Slovník</item>
-		<item>Book</item> <!-- needs translation -->
+		<item>Book</item>
+	</string-array>
+	
+	<!-- These languages must be in the same order as the language codes below -->
+	<string-array name="prefs_interface_locale_descriptions">
+		<item>Výchozí</item>
+		<item>Anglicky</item>
+		<item>Česky</item>
+		<item>Čínsky</item>
+		<item>Faroese</item>
+		<item>Francousky</item>
+		<item>Hebrejsky</item>
+		<item>Litevsky</item>
+		<item>Maďarsky</item>
+		<item>Německy</item>
+		<item>Norsky</item>
+		<item>Polsky</item>
+		<item>Portugalsky</item>
+		<item>Rusky</item>
+		<item>Švédsky</item>
+	</string-array>
+	
+	<!--  DO NOT TRANSLATE the following language codes -->
+	<string-array name="prefs_interface_locale_values">
+		<item></item>
+		<item>en</item>
+		<item>cs</item>
+		<item>zh</item>
+		<item>fo</item>
+		<item>fr</item>
+		<item>he</item>
+		<item>lt</item>
+		<item>hu</item>
+		<item>de</item>
+		<item>nb</item>
+		<item>pl</item>
+		<item>pt</item>
+		<item>ru</item>
+		<item>sv</item>
 	</string-array>
 </resources>

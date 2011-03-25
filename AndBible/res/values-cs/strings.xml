@@ -13,9 +13,10 @@
     <string name="help_text">Akce lze vyvolávat z klávesy MENU\n\nNa další nebo předchozí kapitolu lze přejít track-ballem, D-padem nebo posuvem prstu doleva nebo doprava</string>
     <string name="help_text_long">Navigace\nNa další nebo předchozí kapitolu lze přejít track-ballem, D-padem nebo posuvem prstu dolevo nebo doprava
         \n\nAkce lze vyvolávat z klávesy MENU
-        \n\nŘeč\nPro přečtení současné kapitoly stačí klepnut na Mluvení\nOpětovným klepnutím na Mluvení se čtení ukončí
+        \n\nVíce dokumentů je možno stáhnou stisknutím Menu/Více/Stáhnout dokumenty
         \n\nDlouhý stisk v náhledu Bible vyvolá kontextové menu s akcemi, ovlivňující současný verš.
         \nOdstranění dokumentu nebo zobrazení informací o něm lze provést dlouhým stiskem v okně pro výběr dokumentu.
+        \n\nMluvení\nStisknutím Mluvení se přistupuje k dialogu pro zapnutí nebo vypnutí čtení
         \n\nZáložky\nZáložky lze přidat z kontextového menu verše.  Správce záložek je přístupný z hlavního menu.  Kontextové menu správce záložek umožňuje záložek do skupin přiřazením popisků.</string>
     <string name="version_text">Verze %s</string>
     <string name="no_sdcard_error">Prosím vložte SD kartu a spusťte And Bible znovu.</string>
@@ -66,6 +67,8 @@
 	<!-- Preferences -->
     <string name="prefs_show_verseno_title">Čísla u veršů</string>
     <string name="prefs_show_verseno_summary">Zobrazit čísla u veršů</string>
+    <string name="prefs_verse_per_line_title">Jeden verš na řádku</string>
+    <string name="prefs_verse_per_line_summary">Zobrazit každý verš na jiném řádku</string>
     <string name="prefs_show_notes_title">Poznámky</string>
     <string name="prefs_show_notes_summary">Zobrazit poznámky</string>
     <string name="prefs_show_strongs_title">Zobrazit Strongova čísla</string>
@@ -74,8 +77,9 @@
     <string name="prefs_night_mode_summary">Pro jednodušší čtení ve tmě</string>
     <string name="prefs_text_size_title">Velikost textu</string>
     <string name="prefs_text_size_summary">Vidět více nebo vidět zřetelněji</string>
-    <string name="prefs_grid_navigation_title">Navigace mřížkou</string>
-    <string name="prefs_grid_navigation_summary">Použít pro výběr pasáže mřížku (všechny knihy viditelné) nebo seznam (skupiny knih)</string>
+	<string name="prefs_interface_locale_title">Jazyk aplikace</string>
+    <string name="prefs_interface_locale_summary">Vybrat jiný jazyk uživatelského rozhraní</string>
+    <string name="locale_change_warning">Aplikace bude restartována, aby došlo ke změně jazyka</string>
 
 	<!-- Notes screen -->
     <string name="no_chapter_notes">Kapitola neobsahuje poznámky</string>
@@ -90,8 +94,9 @@
 	<!-- Module download -->
     <string name="download">Stáhnout dokumenty</string>
     <string name="download_confirmation">Stáhnout Bibli z Internetu?</string>
-    <string name="download_source_message">Dokumenty se stahují z\nhttp://www.crosswire.org</string>
+    <string name="download_source_message">Dokumenty se stahují z\nhttp://www.crosswire.org\na http://xiphos.org</string>
     <string name="download_document_confirm_prefix">"Stáhnout "</string>
+    <string name="refresh_book_list">Obnovit seznam dostupných knih?</string>
     <string name="error_downloading">Vznikla chyba při stahování. Prosím prověřte internetové spojení.</string>
     <string name="no_internet_connection">Nelze se připojit k Internetu</string>
     <string name="storage_space_warning">Nedostatek místa k uložení dat.</string>
@@ -106,8 +111,9 @@
 
 	<!-- Verse context menus -->
     <string name="notes">Poznámky a odkazy</string>
-    <string name="copy">Kopírovat současný verš</string>
-    <string name="send_sms">Poslat verš jako SMS</string>
+    <string name="copy">Kopírovat stávající verš</string>
+    <string name="share_verse">Sdílet stávající verš ...</string>
+    <string name="share_verse_subject">Biblický verš zaslán z aplikace And Bible</string>
 
 	<!-- Bookmarks -->
     <string name="bookmarks">Záložky</string>
@@ -123,15 +129,36 @@
     <string name="dictionary">Slovník</string>
     <string name="search_dictionary_hint">Vyhledávací slovník</string>
     <string name="dictionary_contents">Obsah</string>
-	
+
+    <!-- Speak -->
+    <!-- Speak - Bible -->
+    <plurals name="num_chapters">
+        <item quantity="one">%d kapitola</item>
+        <item quantity="other">%d kapitol</item>
+    </plurals>
+    <string name="rest_of_book">Ke konci knihy</string>
+    <!-- Speak - Commentary -->
+    <plurals name="num_verses">
+        <item quantity="one">%d verš</item>
+        <item quantity="other">%d veršů</item>
+    </plurals>
+    <string name="rest_of_chapter">Ke konci kapitoly</string>
+    <!-- Speak - Dictionary and other -->
+    <plurals name="num_pages">
+        <item quantity="one">%d strana</item>
+        <item quantity="other">%d stránek</item>
+    </plurals>
+    <!-- Speak - Common -->
+    <string name="stop">Zastavit</string>
+    <string name="tts_lang_not_available">Jazyk není dostupný.</string>
+
     <string name="error_occurred">Vznikla chyba</string>
     <string name="okay">OK</string>
     <string name="cancel">Zrušit</string>
+    <string name="no">Ne</string>
     <string name="error">Chyba </string>
     <string name="more">Více</string>
     <string name="retry">Zkusit znovu</string>
     <string name="please_wait">Prosím vyčkejte...</string>
     <string name="all">Vše</string>
-    
-    <string name="tts_lang_not_available">Jazyk není dostupný.</string>
 </resources>
