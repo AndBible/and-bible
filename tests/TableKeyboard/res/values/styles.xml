@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<style name="ButtonGrid">
+        <item name="android:background">#000000</item>
+        <item name="android:keyBackground">@drawable/buttongrid_button_background</item>
+        <item name="android:keyTextSize">22sp</item>
+        <item name="android:keyTextColor">#FFFFFFFF</item>
+        <item name="android:keyPreviewLayout">@layout/buttongrid_button_preview</item>
+        <item name="android:keyPreviewOffset">-12dip</item>
+        <item name="android:keyPreviewHeight">80dip</item>
+        <item name="android:labelTextSize">14sp</item>
+        <item name="android:verticalCorrection">-10dip</item>
+        <item name="android:shadowColor">#BB000000</item>
+        <item name="android:shadowRadius">2.75</item>
+	</style>
+</resources>
