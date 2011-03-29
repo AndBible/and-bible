@@ -149,5 +149,5 @@
   <string name="retry">Recommencer</string>
   <string name="please_wait">Attendez svp...</string>
   <string name="all">Tout</string>
-  <string name="prefs_verse_per_line_summary">Afficher chaque verset sur une ligne</string>
+  <string name="prefs_verse_per_line_summary">Afficher un verset par ligne</string>
 </resources>
