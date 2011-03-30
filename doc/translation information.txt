@@ -7,7 +7,7 @@ ru - Dirk 25/3/2011
 sv - Thomas 30/09/2010
 zh - Guan 10/2/2011
 cs - Martin 25/3/2011
-pl - Marcin 28/12/2010
+pl - Marcin 28/12/2010 Greg 30/3
 fo - Sigurð 1/1/2011
 fi - Jori 9/1/2011
 iw/he - Michael 25/3/11

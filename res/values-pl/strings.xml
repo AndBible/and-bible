@@ -32,9 +32,9 @@
     <string name="chapter_range">%1$s rozdział %2$d do %3$d</string>
 
     <string name="search_index">Indeks wyszukiwania</string>
-    <string name="search_chinese_na">Opcje wyszukiwania dla języka Chińskiego będą dostępne w kolejnej wersji.</string>
+    <string name="search_chinese_na">Opcje wyszukiwania dla języka chińskiego będą dostępne w kolejnej wersji.</string>
     <string name="index_creation_required">Aby przeprowadzić wyszukiwanie wymagane jest stworzenie indeksu.\n\nIndeks może zostać pobrany z Internetu lub stworzony lokalnie.\n\nZaleca się pobranie indeksu z sieci.\n\nAby pobrać indeks wymagane jest połaczenie z Internetem.</string>
-    <string name="indexing_wait_msg">When indexing has completed you will be taken to the search screen.</string>
+    <string name="indexing_wait_msg">Gdy indeksowanie zostanie zakończone zostaniesz przeniesiony do ekranu wyszukiwania.</string>
     <string name="index">Indeks</string>
     <string name="index_download">Pobierz</string>
     <string name="index_not_available_for_download">Ten indeks nie jest dostępny.</string>
@@ -43,9 +43,9 @@
     <string name="sdcard_error">Karta SD niedostępna!</string>
     <string name="directory_error">Nie można otworzyć folderu %s</string> 
 	<string name="progress_status">Postęp</string>
-	<string name="task_kill_warning">To zadanie może zostać przerwane jeśli przed jego zakończeniem przejdziesz do innej aplikaji.</string>
+	<string name="task_kill_warning">To zadanie może zostać przerwane jeśli przed jego zakończeniem przejdziesz do innej aplikacji.</string>
 	<string name="no_tasks_running">Obecnie żadne zadanie nie jest wykonywane.</string>
-	<string name="delete_doc">Czy chcesz usuąć %s?</string>
+	<string name="delete_doc">Czy chcesz usunąć %s?</string>
 
 	<!-- Search -->
 	<string name="search_words_group_prompt">Znajdź werset</string>
@@ -53,7 +53,7 @@
     <string name="search_any_word">Znajdź dowolne</string>
     <string name="search_phrase">Fraza</string>
     <string name="search_result_count">%d znalezionych</string>
-    <string name="search_showing_first">Zbyt dużo wyników.  Zobacz pierwsze %d</string> 
+    <string name="search_showing_first">Zbyt dużo wyników. Zobacz pierwsze %d</string> 
     <string name="search_bible_section_group_prompt">Szukaj w</string>
     <string name="search_all_bible">Cała Bibilia</string>
     <string name="search_new_testament">Nowy Testament</string>
@@ -67,10 +67,10 @@
     <string name="prefs_show_notes_title">Przypisy</string>
     <string name="prefs_show_notes_summary">Pokaż przypisy</string>
     <string name="prefs_show_strongs_title">Pokaż numeracje Stronga</string>
-    <string name="prefs_show_strongs_summary">Pokaż numeracje Strona dla KJV</string>
+    <string name="prefs_show_strongs_summary">Pokaż numeracje Stronga dla KJV</string>
     <string name="prefs_night_mode_title">Tryb nocny</string>
     <string name="prefs_night_mode_summary">Ułatwia czytanie po ciemku</string>
-    <string name="prefs_text_size_title">Rozmiar czcinki</string>
+    <string name="prefs_text_size_title">Rozmiar czcionki</string>
     <string name="prefs_text_size_summary">Powiększ/pomniejsz rozmiar czcionki</string>
 
 	<!-- Notes screen -->
@@ -81,19 +81,19 @@
 
 	<!--  Strongs -->
     <string name="strongs">Słownik Strong</string>
-    <string name="strongs_not_installed">Pobierz Hebrajski i Grecki słownik Strong</string>
+    <string name="strongs_not_installed">Pobierz hebrajski i grecki słownik Strong</string>
 
 	<!-- Module download -->
     <string name="download">Pobierz moduł</string>
     <string name="download_confirmation">Pobierz moduł z Internetu?</string>
     <string name="download_source_message">Moduł zostanie pobrany z\nhttp://www.crosswire.org</string>
     <string name="download_document_confirm_prefix">"Pobieranie "</string>
-    <string name="error_downloading">Wystąpił błąd podczas pobierania.  Sprawdź połączenie z Internetem.</string>
-    <string name="no_internet_connection">Połączenie z Internetem jest niedostępne</string>
+    <string name="error_downloading">Wystąpił błąd podczas pobierania. Sprawdź połączenie z Internetem.</string>
+    <string name="no_internet_connection">Połączenie z Internetem jest niedostępne.</string>
     <string name="wait_for_bible">Pobieranie trwa, proszę czekać.  Po ukończeniu zostanie wyświetlone główne okno programu.</string>
 	<string name="wait_for_bible_not_yet">Proszę czekać, trwa instalacja modułu.</string>
-	<string name="download_complete_no_bibles">Moduł nie został zainstalowany.  Ponów próbę.</string>
-	<string name="too_many_jobs">Zbyt dużo zadań wykonywanych jednocześnie.  Proszę czekać na ich ukończenie.</string>
+	<string name="download_complete_no_bibles">Moduł nie został zainstalowany. Ponów próbę.</string>
+	<string name="too_many_jobs">Zbyt dużo zadań wykonywanych jednocześnie. Proszę czekać na ich ukończenie.</string>
 
 	<!-- Document context menu -->
     <string name="delete">Usuń</string>
@@ -119,7 +119,7 @@
     <string name="search_dictionary_hint">Znajdź w słowniku</string>
     <string name="dictionary_contents">Zawartość</string>
 	
-    <string name="error_occurred">Występił błąd</string>
+    <string name="error_occurred">Wystąpił błąd</string>
     <string name="okay">OK</string>
     <string name="cancel">Odrzuć</string>
     <string name="error">Błąd </string>
