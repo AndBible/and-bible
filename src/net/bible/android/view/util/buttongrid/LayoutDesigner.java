@@ -9,6 +9,12 @@ import org.apache.commons.lang.StringUtils;
 
 import android.util.Log;
 
+/** Calculate the number of columns and rows to be used to layout a grid of bible books, numbers, or whatever
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class LayoutDesigner {
 
 	private static int MIN_ROWS = 8;
