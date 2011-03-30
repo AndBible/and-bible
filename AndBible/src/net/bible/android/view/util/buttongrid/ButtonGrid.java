@@ -18,6 +18,12 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+/** Show a grid of buttons to allow selection for navigation
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class ButtonGrid extends TableLayout {
 
 	public static class ButtonInfo {
@@ -68,10 +74,15 @@ public class ButtonGrid extends TableLayout {
 		setStretchAllColumns(true);
     }
     
+    /** Called during initialisation to add the list of buttons to be laid out on the screen
+     * 
+     * @param buttonInfoList
+     */
     public void addButtons(List<ButtonInfo> buttonInfoList) {
     	this.buttonInfoList = buttonInfoList;
     	int numButtons = buttonInfoList.size();
     	
+    	// calculate the number of rows and columns so that the grid looks nice
     	mRowColLayout = new LayoutDesigner().calculateLayout(buttonInfoList); 
 		
     	TableLayout.LayoutParams rowInTableLp = new TableLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1.0f);
