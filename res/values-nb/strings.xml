@@ -93,7 +93,12 @@
     <string name="dictionary">Ordbok</string>
     <string name="search_dictionary_hint">Søk i ordbok</string>
     <string name="dictionary_contents">Innhold</string>
-	
+
+	<!-- Document types -->    
+	<string name="doc_type_bible">Bibel</string>
+	<string name="doc_type_commentary">Kommentar</string>
+	<string name="doc_type_dictionary">Ordbok</string>
+
     <string name="error_occurred">En feil har opstått</string>
     <string name="okay">OK</string>
     <string name="cancel">Avbryt</string>

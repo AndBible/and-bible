@@ -138,6 +138,31 @@
   <!-- Speak - Common -->
   <string name="stop">Arrêt</string>
   <string name="tts_lang_not_available">La langue n\'est pas disponible.</string>
+  
+	<!-- Document types -->    
+	<string name="doc_type_bible">Bible</string>
+	<string name="doc_type_commentary">Commentaire</string>
+	<string name="doc_type_dictionary">Dictionnaire</string>
+	<string name="doc_type_book">Livre</string>
+
+    <!-- Languages -->
+	<string name="lang_default">Défaut</string>
+	<string name="lang_chinese">中文</string>
+	<string name="lang_czech">Česky</string>
+	<string name="lang_english">English</string>
+	<string name="lang_faroese">Faroese</string>
+	<string name="lang_french">Français</string>
+	<string name="lang_german">Deutsch</string>
+	<string name="lang_hebrew">עִבְרִית</string>
+	<string name="lang_hungarian">Magyar</string>
+	<string name="lang_lithuanian">Lituanienne</string>
+	<string name="lang_norwegian">Norsk (bokmål)</string>
+	<string name="lang_polish">Polski</string>
+	<string name="lang_portuguese">Português</string>
+	<string name="lang_russian">Русский</string>
+	<string name="lang_swedish">Svenska</string>
+
+  
   <!-- General -->
   <string name="error_occurred">Une erreur s\'est produite</string>
   <string name="okay">OK</string>

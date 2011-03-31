@@ -81,6 +81,11 @@
 	<string name="search_dictionary_hint">查询字典</string>
 	<string name="dictionary_contents">字典内容</string>
 
+	<!-- Document types -->    
+	<string name="doc_type_bible">圣经</string>
+	<string name="doc_type_commentary">注释</string>
+	<string name="doc_type_dictionary">字典</string>
+
 	<string name="error_occurred">出错了!</string>
 	<string name="okay">确定</string>
 	<string name="cancel">取消</string>

@@ -156,6 +156,29 @@
     <string name="stop">Остановить</string>
     <string name="tts_lang_not_available">Язык не установлен</string>
     
+	<!-- Document types -->    
+	<string name="doc_type_bible">Библия</string>
+	<string name="doc_type_commentary">Комментарий</string>
+	<string name="doc_type_dictionary">Словарь</string>
+	<string name="doc_type_book">Книга</string>
+
+    <!-- Languages -->
+	<string name="lang_default">По умолчанию</string>
+	<string name="lang_chinese">Китайский</string>
+	<string name="lang_czech">Чешский</string>
+	<string name="lang_english">Английский</string>
+	<string name="lang_faroese">Фарерский</string>
+	<string name="lang_french">Французский</string>
+	<string name="lang_german">Немецкий</string>
+	<string name="lang_hebrew">Иврит</string>
+	<string name="lang_hungarian">Венгерский</string>
+	<string name="lang_lithuanian">Литовский</string>
+	<string name="lang_norwegian">Норвежский</string>
+	<string name="lang_polish">Польский</string>
+	<string name="lang_portuguese">Португальский</string>
+	<string name="lang_russian">Русский</string>
+	<string name="lang_swedish">Шведский</string>
+	
     <!-- General -->
     <string name="error_occurred">Произошла ошибка</string>
     <string name="okay">OK</string>

@@ -118,7 +118,13 @@
     <string name="dictionary">Słownik</string>
     <string name="search_dictionary_hint">Znajdź w słowniku</string>
     <string name="dictionary_contents">Zawartość</string>
-	
+
+	<!-- Document types -->    
+	<string name="doc_type_bible">Biblia</string>
+	<string name="doc_type_commentary">Komentarz</string>
+	<string name="doc_type_dictionary">Słownik</string>
+	<string name="doc_type_book">Księga</string>
+
     <string name="error_occurred">Wystąpił błąd</string>
     <string name="okay">OK</string>
     <string name="cancel">Odrzuć</string>
