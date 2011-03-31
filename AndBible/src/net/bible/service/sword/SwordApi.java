@@ -242,6 +242,10 @@ public class SwordApi {
 	        extraBook = createRepoBookInfo("TrainTwelve", trainTwelveConf, XIPHOS_REPOSITORY);
 	        allBooks.add(extraBook);
 	        
+	        String polBibTysiaConf = "[polbibtysia]\nDataPath=./modules/texts/rawtext/polbibtysia/\nModDrv=RawText\nSourceType=ThML\nLang=pl\nEncoding=UTF-8\nVersion=1.080330\nDescription=Biblia Tysiaclecia\nAbout=";
+	        extraBook = createRepoBookInfo("PolBibTysia", polBibTysiaConf, XIPHOS_REPOSITORY);
+	        allBooks.add(extraBook);
+
 	        // get them in the coorect order
 	        Collections.sort(allBooks);
 	        
