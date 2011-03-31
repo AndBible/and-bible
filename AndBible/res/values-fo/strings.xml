@@ -120,6 +120,11 @@
     <string name="search_dictionary_hint">Leita í orðabók</string>
     <string name="dictionary_contents">Innihald</string>
 	
+	<!-- Document types -->    
+	<string name="doc_type_bible">Bíbliur</string>
+	<string name="doc_type_commentary">Kommentarir</string>
+	<string name="doc_type_dictionary">Orðabøkur</string>
+	
     <string name="error_occurred">Ein feilur er íkomin</string>
     <string name="okay">OK</string>
     <string name="cancel">Avbrót</string>

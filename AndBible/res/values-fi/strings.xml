@@ -120,7 +120,12 @@
     <string name="dictionary">Sanakirja</string>
     <string name="search_dictionary_hint">Etsi sanakirjasta</string>
     <string name="dictionary_contents">Sisältö</string>
-	
+
+	<!-- Document types -->    
+	<string name="doc_type_bible">Raamattu</string>
+	<string name="doc_type_commentary">Kommentaari</string>
+	<string name="doc_type_dictionary">Sanakirja</string>
+
     <string name="error_occurred">Tapahtui virhe</string>
     <string name="okay">OK</string>
     <string name="cancel">Peruuta</string>

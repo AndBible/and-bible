@@ -7,29 +7,29 @@
 -->
 <resources>
 	<string-array name="documentTypes">
-		<item>Bible</item>
-		<item>Commentary</item>
-		<item>Dictionary</item>
-		<item>Book</item>
+		<item>@string/doc_type_bible</item>
+		<item>@string/doc_type_commentary</item>
+		<item>@string/doc_type_dictionary</item>
+		<item>@string/doc_type_book</item>
 	</string-array>
 	
 	<!-- These languages must be in the same order as the language codes below -->
 	<string-array name="prefs_interface_locale_descriptions">
-		<item>Default</item>
-		<item>Chinese</item>
-		<item>Czech</item>
-		<item>English</item>
-		<item>Faroese</item>
-		<item>French</item>
-		<item>German</item>
-		<item>Hebrew</item>
-		<item>Hungarian</item>
-		<item>Lithuanian</item>
-		<item>Norwegian</item>
-		<item>Polish</item>
-		<item>Portuguese</item>
-		<item>Russian</item>
-		<item>Swedish</item>
+		<item>@string/lang_default</item>
+		<item>@string/lang_chinese</item>
+		<item>@string/lang_czech</item>
+		<item>@string/lang_english</item>
+		<item>@string/lang_faroese</item>
+		<item>@string/lang_french</item>
+		<item>@string/lang_german</item>
+		<item>@string/lang_hebrew</item>
+		<item>@string/lang_hungarian</item>
+		<item>@string/lang_lithuanian</item>
+		<item>@string/lang_norwegian</item>
+		<item>@string/lang_polish</item>
+		<item>@string/lang_portuguese</item>
+		<item>@string/lang_russian</item>
+		<item>@string/lang_swedish</item>
 	</string-array>
 	
 	<!--  DO NOT TRANSLATE the following language codes -->

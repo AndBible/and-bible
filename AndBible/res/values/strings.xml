@@ -8,6 +8,7 @@
 <resources>
     <string name="app_name">And Bible</string>
 
+	<!-- Startup & Help -->
     <string name="splash_top_text">\n\"And God said, \'Let there be light,\' and there was light.\"\nGenesis 1:3</string>
     <string name="help_text">Press the MENU key for actions\n\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger</string>
     <string name="help_text_long">Navigation\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger
@@ -18,7 +19,8 @@
     \n\nSpeech\nPress Speak to access a dialog to start or stop reading
     \n\nBookmarks\nBookmarks can be added via the verse context menu.  The Bookmark Manager is accessed via the main menu.  The Bookmark Manager context menu allows bookmarks to be grouped using labels.</string>
     <string name="version_text">Version %s</string>
-    <string name="no_sdcard_error">Please insert an SD card and start And Bible again.</string>
+	<string name="no_sdcard_error">Please insert an SD card and start And Bible again.</string>
+    
     <!-- main menu -->
     <string name="chooseBook">Document</string>
     <string name="selectPassage">Passage</string>
@@ -28,26 +30,25 @@
     <string name="speak">Speak</string>
     <string name="help">Help</string>
     
+    <!-- Passage navigation -->
     <string name="choosePassageBookName">Choose Book</string>
     <string name="choosePassageChapterName">Choose Chapter</string>
     <string name="chapter_range">%1$s chapters %2$d to %3$d</string>
     <string name="chapter_no">Chapter %d</string>
 
+	<!--  Search -->
     <string name="search_index">Search Index</string>
-    <string name="search_chinese_na">Searching Chinese documents is planned for a future release.</string>
     <string name="index_creation_required">An index is required to search.\n\nIndexes may be downloaded from the internet or created locally.\n\nDownloading is much quicker and downloaded indexes have more search features.\n\nAn internet connection is required to download indexes.\n</string>
     <string name="indexing_wait_msg">When indexing has completed you will be taken to the search screen.</string>
     <string name="index">Index</string>
     <string name="index_download">Download</string>
     <string name="index_not_available_for_download">This index is not available for download</string>
     <string name="index_create">Create</string>
-    
-    <string name="sdcard_error">Sorry, you have no SD card!</string>
-    <string name="directory_error">Sorry, unable to access directory %s</string> 
+
+	<!-- Tasks -->
     <string name="progress_status">Progress</string>
     <string name="task_kill_warning">These long running tasks may terminate if you switch to another application before they finish.</string>
     <string name="no_tasks_running">There are no tasks currently being executed.</string>
-    <string name="delete_doc">Delete %s?</string>
 
     <!-- Search -->
     <string name="search_words_group_prompt">Find verses</string>
@@ -107,6 +108,7 @@
     <!-- Document context menu -->
     <string name="delete">Delete</string>
     <string name="about">About</string>
+    <string name="delete_doc">Delete %s?</string>
     
     <!-- Verse context menu -->
     <string name="notes">Footnotes and references</string>
@@ -155,7 +157,30 @@
     <!-- Speak - Common -->
     <string name="stop">Stop</string>
     <string name="tts_lang_not_available">Language is not available.</string>
-    
+
+	<!-- Document types -->    
+	<string name="doc_type_bible">Bible</string>
+	<string name="doc_type_commentary">Commentary</string>
+	<string name="doc_type_dictionary">Dictionary</string>
+	<string name="doc_type_book">Book</string>
+
+    <!-- Languages -->
+	<string name="lang_default">Default</string>
+	<string name="lang_chinese">Chinese</string>
+	<string name="lang_czech">Czech</string>
+	<string name="lang_english">English</string>
+	<string name="lang_faroese">Faroese</string>
+	<string name="lang_french">French</string>
+	<string name="lang_german">German</string>
+	<string name="lang_hebrew">Hebrew</string>
+	<string name="lang_hungarian">Hungarian</string>
+	<string name="lang_lithuanian">Lithuanian</string>
+	<string name="lang_norwegian">Norwegian</string>
+	<string name="lang_polish">Polish</string>
+	<string name="lang_portuguese">Portuguese</string>
+	<string name="lang_russian">Russian</string>
+	<string name="lang_swedish">Swedish</string>
+	
     <!-- General -->
     <string name="error_occurred">An error has occurred</string>
     <string name="okay">OK</string>

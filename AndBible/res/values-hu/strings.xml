@@ -118,6 +118,11 @@
     <string name="search_dictionary_hint">Szótár keresése</string>
     <string name="dictionary_contents">Tartalom</string>
 	
+	<!-- Document types -->    
+	<string name="doc_type_bible">Biblia</string>
+	<string name="doc_type_commentary">Kommentár</string>
+	<string name="doc_type_dictionary">Szótár</string>
+	
     <string name="error_occurred">Hiba történt.</string>
     <string name="okay">OK</string>
     <string name="cancel">Mégsem</string>

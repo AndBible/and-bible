@@ -156,6 +156,12 @@
 	<string name="stop">Stop</string>
 	<string name="tts_lang_not_available">Sprache nicht verfügbar.</string>
 	
+	<!-- Document types -->    
+	<string name="doc_type_bible">Bibel</string>
+	<string name="doc_type_commentary">Kommentar</string>
+	<string name="doc_type_dictionary">Wörterbuch</string>
+	<string name="doc_type_book">Buch</string>
+	
 	<!-- General -->
 	<string name="error_occurred">Ein Fehler ist aufgetreten!</string>
 	<string name="okay">OK</string>

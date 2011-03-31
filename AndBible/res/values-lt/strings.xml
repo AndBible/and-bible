@@ -161,6 +161,30 @@
     <string name="stop">Sustabdyti</string>
     <string name="tts_lang_not_available">N&#279;ra kalbos.</string>
 	
+	<!-- Document types -->    
+	<string name="doc_type_bible">Biblija</string>
+	<string name="doc_type_commentary">Komentarai</string>
+	<string name="doc_type_dictionary">Žodynas</string>
+	<string name="doc_type_book">Knyga</string>
+	
+	<!-- Languages -->
+	<string name="lang_default">&#302;prastin&#279;</string>
+	<string name="lang_chinese">Kin&#371;</string>
+	<string name="lang_czech">Ček&#371;</string>
+	<string name="lang_english">Angl&#371;</string>
+	<string name="lang_faroese">Farer&#371;</string>
+	<string name="lang_french">Pranc&#363;z&#371;</string>
+	<string name="lang_german">Vokieči&#371;</string>
+	<string name="lang_hebrew">Hebraj&#371;</string>
+	<string name="lang_hungarian">Vengr&#371;</string>
+	<string name="lang_lithuanian">Lietuvi&#371;</string>
+	<string name="lang_norwegian">Norveg&#371;</string>
+	<string name="lang_polish">Lenk&#371;</string>
+	<string name="lang_portuguese">Portugal&#371;</string>
+	<string name="lang_russian">Rus&#371;</string>
+	<string name="lang_swedish">Šved&#371;</string>
+	
+	
     <!-- General -->
     <string name="error_occurred">&#302;vyko klaida</string>
     <string name="okay">Gerai</string>

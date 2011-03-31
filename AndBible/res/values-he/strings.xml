@@ -140,6 +140,12 @@
     <string name="search_dictionary_hint">חיפוש במילון</string>
     <string name="dictionary_contents">תכנים</string>
 	
+	<!-- Document types -->    
+	<string name="doc_type_bible">תנ"ך</string>
+	<string name="doc_type_commentary">פרשנות</string>
+	<string name="doc_type_dictionary">מילון</string>
+	<string name="doc_type_book">ספר</string>
+
     <string name="error_occurred">אירעה שגיאה</string>
     <string name="okay">אישור</string>
     <string name="cancel">ביטול</string>

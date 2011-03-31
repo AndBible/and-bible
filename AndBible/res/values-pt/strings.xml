@@ -125,6 +125,11 @@
     <string name="search_dictionary_hint">Procurar dicionário</string>
     <string name="dictionary_contents">Conteúdo</string>
 	
+	<!-- Document types -->    
+	<string name="doc_type_bible">Bíblia</string>
+	<string name="doc_type_commentary">Comentário</string>
+	<string name="doc_type_dictionary">Dicionário</string>
+
     <string name="error_occurred">Ocorreu um erro</string>
     <string name="okay">OK</string>
     <string name="cancel">Cancelar</string>
