@@ -1,3 +1,6 @@
+Android memory analysis and Memory Analyzer Tool
+http://android-developers.blogspot.com/2011/03/memory-analysis-for-android.html
+
 example of embedded hourglass
 http://apps-for-android.googlecode.com/svn-history/r77/trunk/RingsExtended/src/com/example/android/rings_extended/MusicPicker.java
 
