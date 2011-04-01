@@ -32,15 +32,12 @@
   <string name="chapter_range">%1$s kapitoly %2$d z %3$d</string>
   <string name="chapter_no">Kapitola %d</string>
   <string name="search_index">Vyhledávací index</string>
-  <string name="search_chinese_na">Vyhledávání v dokumentech v čínštině je naplánováno pro budoucí verze programu.</string>
   <string name="index_creation_required">Pro hledání je nutný index.\n\nIndexy lze stáhnout z Internetu nebo vytvořit lokálně.\n\nStáhnutí je mnohem rychlejší a stáhnuté indexy obsahují více vyhledávacích vlastností.\n\nKe stáhnutí indexů je vyžadováno internetové připojení.\n</string>
   <string name="indexing_wait_msg">Až bude indexace dokončena tak se zobrazí obrazovka pro hledání.</string>
   <string name="index">Index</string>
   <string name="index_download">Stáhnout</string>
   <string name="index_not_available_for_download">Tento index není dostupný ke stažení</string>
   <string name="index_create">Vytvořit</string>
-  <string name="sdcard_error">Promiňte, ale nemáte SD kartu!</string>
-  <string name="directory_error">Promiňte, ale nelze přistupovat ke složce %s</string>
   <string name="progress_status">Průběh</string>
   <string name="task_kill_warning">Tyto dlouho běžící úlohy mohou být zrušeny pokud před jejich dokončením přepnete na jinou aplikaci.</string>
   <string name="no_tasks_running">Nejsou spuštěny žádné úlohy.</string>
@@ -134,30 +131,27 @@
     <item quantity="one">%d strana</item>
     <item quantity="other">%d stránek</item>
   </plurals>
-  
-  	<!-- Document types -->    
-	<string name="doc_type_bible">Bible</string>
-	<string name="doc_type_commentary">Komentář</string>
-	<string name="doc_type_dictionary">Slovník</string>
-	<string name="doc_type_book">Book</string>
-
-    <!-- Languages -->
-	<string name="lang_default">Výchozí</string>
-	<string name="lang_chinese">Čínsky</string>
-	<string name="lang_czech">Česky</string>
-	<string name="lang_english">Anglicky</string>
-	<string name="lang_faroese">Faroese</string>
-	<string name="lang_french">Francousky</string>
-	<string name="lang_german">Německy</string>
-	<string name="lang_hebrew">Hebrejsky</string>
-	<string name="lang_hungarian">Maďarsky</string>
-	<string name="lang_lithuanian">Litevsky</string>
-	<string name="lang_norwegian">Norsky</string>
-	<string name="lang_polish">Polsky</string>
-	<string name="lang_portuguese">Portugalsky</string>
-	<string name="lang_russian">Rusky</string>
-	<string name="lang_swedish">Švédsky</string>
-  
+  <!-- Document types -->
+  <string name="doc_type_bible">Bible</string>
+  <string name="doc_type_commentary">Komentář</string>
+  <string name="doc_type_dictionary">Slovník</string>
+  <string name="doc_type_book">Book</string>
+  <!-- Languages -->
+  <string name="lang_default">Výchozí</string>
+  <string name="lang_chinese">Čínsky</string>
+  <string name="lang_czech">Česky</string>
+  <string name="lang_english">Anglicky</string>
+  <string name="lang_faroese">Faroese</string>
+  <string name="lang_french">Francousky</string>
+  <string name="lang_german">Německy</string>
+  <string name="lang_hebrew">Hebrejsky</string>
+  <string name="lang_hungarian">Maďarsky</string>
+  <string name="lang_lithuanian">Litevsky</string>
+  <string name="lang_norwegian">Norsky</string>
+  <string name="lang_polish">Polsky</string>
+  <string name="lang_portuguese">Portugalsky</string>
+  <string name="lang_russian">Rusky</string>
+  <string name="lang_swedish">Švédsky</string>
   <!-- Speak - Common -->
   <string name="stop">Zastavit</string>
   <string name="tts_lang_not_available">Jazyk není dostupný.</string>
@@ -165,10 +159,10 @@
   <string name="okay">OK</string>
   <string name="cancel">Zrušit</string>
   <string name="no">Ne</string>
-  <string name="error">Chyba </string>
+  <string name="error">"Chyba "</string>
   <string name="more">Více</string>
   <string name="retry">Zkusit znovu</string>
-  <string name="please_wait">Prosím vyčkejte...</string>
+  <string name="please_wait">Čekejte prosím ...</string>
   <string name="all">Vše</string>
   <string name="general_book">Book</string>
   <string name="general_book_contents">Contents</string>
