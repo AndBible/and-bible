@@ -337,8 +337,11 @@ public class SwordApi {
 			Log.w(TAG, "KEY:"+key+" not found in doc:"+book);
 			retVal.setHtmlPassage("Not found in document");
 		} else {
+			// we have a fast way of handling OSIS zText docs but WEB/HNV needs the superior JSword error recovery for mismatching tags 
 			if ("OSIS".equals(book.getBookMetaData().getProperty("SourceType")) &&
-				"zText".equals(book.getBookMetaData().getProperty("ModDrv"))) {
+				"zText".equals(book.getBookMetaData().getProperty("ModDrv")) &&
+				!"WEB".equals(book.getInitials()) &&
+				!"HNV".equals(book.getInitials())) {
 				retVal = readHtmlTextOptimizedZTextOsis(book, key, maxKeyCount);
 			} else {
 				retVal = readHtmlTextStandardJSwordMethod(book, key, maxKeyCount);
