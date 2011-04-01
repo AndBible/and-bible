@@ -30,15 +30,12 @@
   <string name="chapter_range">%1$s chapitres %2$d à %3$d</string>
   <string name="chapter_no">Chapitre %d</string>
   <string name="search_index">Recherche Index</string>
-  <string name="search_chinese_na">Rechercher dans des documents en chinois est prévu dans une future version.</string>
   <string name="index_creation_required">Un index de recherche est nécessaire.\n\nLes index peuvent être téléchargés à partir d\'Internet ou créés localement.\n\nLe téléchargement est beaucoup plus rapide et les index téléchargés offrent plus de fonctionnalités.\n\nUne connexion internet est requise pour télécharger les index.</string>
   <string name="indexing_wait_msg">Quand l\'indexation sera terminée, vous retrouverez l\'écran de recherche</string>
   <string name="index">Index</string>
   <string name="index_download">Télécharger</string>
   <string name="index_not_available_for_download">Cet index n\'est pas disponible au téléchargement</string>
   <string name="index_create">Créer</string>
-  <string name="sdcard_error">Désolé, pas de SD card!</string>
-  <string name="directory_error">Désolé, impossible d\'accéder au répertoire %s</string>
   <string name="progress_status">Progression</string>
   <string name="task_kill_warning">Ces tâches en cours d\'exécution risquent d\'être terminées si vous passez à une autre application avant d\'avoir fini.</string>
   <string name="no_tasks_running">Il n\'y a pas de tâches en cours d\'exécution.</string>
@@ -138,37 +135,33 @@
   <!-- Speak - Common -->
   <string name="stop">Arrêt</string>
   <string name="tts_lang_not_available">La langue n\'est pas disponible.</string>
-  
-	<!-- Document types -->    
-	<string name="doc_type_bible">Bible</string>
-	<string name="doc_type_commentary">Commentaire</string>
-	<string name="doc_type_dictionary">Dictionnaire</string>
-	<string name="doc_type_book">Livre</string>
-
-    <!-- Languages -->
-	<string name="lang_default">Défaut</string>
-	<string name="lang_chinese">中文</string>
-	<string name="lang_czech">Česky</string>
-	<string name="lang_english">English</string>
-	<string name="lang_faroese">Faroese</string>
-	<string name="lang_french">Français</string>
-	<string name="lang_german">Deutsch</string>
-	<string name="lang_hebrew">עִבְרִית</string>
-	<string name="lang_hungarian">Magyar</string>
-	<string name="lang_lithuanian">Lituanienne</string>
-	<string name="lang_norwegian">Norsk (bokmål)</string>
-	<string name="lang_polish">Polski</string>
-	<string name="lang_portuguese">Português</string>
-	<string name="lang_russian">Русский</string>
-	<string name="lang_swedish">Svenska</string>
-
-  
+  <!-- Document types -->
+  <string name="doc_type_bible">Bible</string>
+  <string name="doc_type_commentary">Commentaire</string>
+  <string name="doc_type_dictionary">Dictionnaire</string>
+  <string name="doc_type_book">Livre</string>
+  <!-- Languages -->
+  <string name="lang_default">Par défaut</string>
+  <string name="lang_chinese">Chinois</string>
+  <string name="lang_czech">Tchèque</string>
+  <string name="lang_english">Anglais</string>
+  <string name="lang_faroese">Des îles Féroé</string>
+  <string name="lang_french">Français</string>
+  <string name="lang_german">Allemand</string>
+  <string name="lang_hebrew">Hébreu</string>
+  <string name="lang_hungarian">Hongrois</string>
+  <string name="lang_lithuanian">Lituanien</string>
+  <string name="lang_norwegian">Norvégien</string>
+  <string name="lang_polish">Polonais</string>
+  <string name="lang_portuguese">Portugais</string>
+  <string name="lang_russian">Russe</string>
+  <string name="lang_swedish">Suédois</string>
   <!-- General -->
   <string name="error_occurred">Une erreur s\'est produite</string>
   <string name="okay">OK</string>
   <string name="cancel">Annuler</string>
   <string name="no">Non</string>
-  <string name="error">Erreur </string>
+  <string name="error">"Erreur "</string>
   <string name="more">Plus</string>
   <string name="retry">Recommencer</string>
   <string name="please_wait">Attendez svp...</string>
