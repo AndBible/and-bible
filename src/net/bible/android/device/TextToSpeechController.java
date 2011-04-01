@@ -5,12 +5,7 @@ import java.util.Locale;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
-import net.bible.android.control.page.CurrentPage;
-
-import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.passage.Key;
-
-import android.app.AlertDialog;
+import net.bible.android.view.activity.base.Dialogs;
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
@@ -70,7 +65,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 		            this  // TextToSpeech.OnInitListener
 		            );
 	    	} catch (Exception e) {
-	    		showError("Error preparing text to display");
+	    		showError(R.string.error_occurred);
 	    	}
     	} else {
     		sayText();
@@ -88,7 +83,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
                 result == TextToSpeech.LANG_NOT_SUPPORTED) {
     	    	Log.e(TAG, "TTS missing or not supported ("+result+")");
                // Language data is missing or the language is not supported.
-                showError(context.getString(R.string.tts_lang_not_available));
+                showError(R.string.tts_lang_not_available);
             } else {
                 // The TTS engine has been successfully initialized.
             	int ok = mTts.setOnUtteranceCompletedListener(this);
@@ -101,7 +96,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
             }
         } else {
             // Initialization failed.
-            showError("Could not initialize TextToSpeech.");
+            showError(R.string.error_occurred);
         }
     }
 
@@ -118,12 +113,8 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
             dummyTTSParams);
     }
     
-    private void showError(String text) {
-    	Log.e(TAG, text);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
-        builder.setMessage(text);
-        builder.setPositiveButton(context.getText(R.string.okay), null);
-        builder.show();
+    private void showError(int msgId) {
+    	Dialogs.getInstance().showErrorMsg(msgId);
     }
 
 	public void stop() {
