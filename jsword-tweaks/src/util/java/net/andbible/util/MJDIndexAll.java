@@ -45,11 +45,11 @@ public class MJDIndexAll {
 //    	indexAll.setupDirs();
 //    	indexAll.showInstalledBooks();
 //    	indexAll.showRepoBooks();
-    	indexAll.installSingleBook("Gill");
+    	indexAll.installSingleBook("PolBibTysia");
 //    	indexAll.installRepoBooks();
 //    	indexAll.checkAllBooksInstalled();
 //    	indexAll.manageCreateIndexes();
-//    	indexAll.indexSingleBook("ChiUns");
+//    	indexAll.indexSingleBook("UkrKulish");
     }
 
     private void installSingleBook(String initials) {
