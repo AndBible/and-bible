@@ -172,8 +172,7 @@ public class Download extends DocumentSelectionBase {
 	private void doDownload(Book document) {
     	try {
 			// the download happens in another thread
-			SwordApi.getInstance().downloadDocument(document);
-	    	Log.d(TAG, "Download requested");
+			downloadControl.downloadDocument(document);
 	    	
 	    	Intent intent;
 	    	if (forceBasicFlow) {
