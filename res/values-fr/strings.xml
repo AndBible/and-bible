@@ -82,7 +82,7 @@
   <string name="download_confirmation">Télécharger des documents à partir d\'Internet?</string>
   <string name="download_source_message">Les documents sont téléchargés à partir de\nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Télécharger "</string>
-  <string name="refresh_book_list">Rafraîchir la liste des livres disponibles?</string>
+  <string name="refresh_book_list">Rafraîchir la liste des documents disponibles?</string>
   <string name="error_downloading">Une erreur est apparue pendant le téléchargement. Vérifiez votre connexion internet.</string>
   <string name="no_internet_connection">Impossible de se connecter à internet</string>
   <string name="storage_space_warning">Espace de stockage local insuffisant.</string>
