@@ -38,6 +38,8 @@ public class XiphosRepo implements BooksListener {
 	
 	private static int booksToListenForCount = 0;
 	
+	/** get a list of books that are available in Xiphos repo and seem to work in And Bible
+	 */
 	public List<Book> getXiphosRepoBooks() {
 		List<Book> bookList = new ArrayList<Book>();
 		for (XiphosRepoBook xiphosRepoBook : xiphosRepoBookList) {
@@ -54,11 +56,15 @@ public class XiphosRepo implements BooksListener {
 	}
 	
 	private static final String TAG = "PostDownloadAction";
-		
+
+	/** true if book is in Xiphos repo
+	 */
 	public boolean needsPostDownloadAction(Book book) {
 		return findRepoBook(book)!=null;
 	}
 
+	/** add a listener to handle module rename after download
+	 */
 	public void addHandler(Book book) {
 		// If you want to know about new books as they arrive:
 		if (needsPostDownloadAction(book)) {
@@ -68,6 +74,8 @@ public class XiphosRepo implements BooksListener {
 		}
 	}
 
+	/** called after download of book from Xiphos repo completes
+	 */
 	@Override
 	public void bookAdded(BooksEvent ev) {
 		Book book = ev.getBook();
