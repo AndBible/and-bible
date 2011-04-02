@@ -19,6 +19,7 @@ import net.bible.android.activity.R;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.ParseException;
 import net.bible.service.download.DownloadManager;
+import net.bible.service.download.XiphosRepo;
 import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.OsisToCanonicalTextSaxHandler;
 import net.bible.service.format.OsisToHtmlSaxHandler;
@@ -29,7 +30,6 @@ import org.crosswire.common.xml.SAXEventProvider;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookData;
-import org.crosswire.jsword.book.BookDriver;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
@@ -37,9 +37,6 @@ import org.crosswire.jsword.book.BookMetaData;
 import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.OSISUtil;
 import org.crosswire.jsword.book.install.InstallException;
-import org.crosswire.jsword.book.sword.SwordBook;
-import org.crosswire.jsword.book.sword.SwordBookDriver;
-import org.crosswire.jsword.book.sword.SwordBookMetaData;
 import org.crosswire.jsword.book.sword.SwordBookPath;
 import org.crosswire.jsword.book.sword.SwordConstants;
 import org.crosswire.jsword.index.IndexManager;
@@ -62,7 +59,6 @@ import android.util.Log;
  *      The copyright to this program is held by it's author.
  */
 public class SwordApi {
-	private static final String REPOSITORY_KEY = "repository";
 	private static final String TAG = "SwordApi";
 	private static SwordApi singleton;
 	private static String NIGHT_MODE_STYLESHEET = "night_mode.css";
@@ -73,7 +69,6 @@ public class SwordApi {
 	private static final String LUCENE_DIR = "lucene";
 	
 	private static final String CROSSWIRE_REPOSITORY = "CrossWire";
-	private static final String XIPHOS_REPOSITORY = "Xiphos";
 	
 	private static BookFilter SUPPORTED_DOCUMENT_TYPES = new AcceptableBookTypeFilter();
 	private SharedPreferences preferences;
@@ -192,82 +187,20 @@ public class SwordApi {
 		DownloadManager crossWireDownloadManager = new DownloadManager();
         List<Book> crosswireBookList = crossWireDownloadManager.getDownloadableBooks(SUPPORTED_DOCUMENT_TYPES, CROSSWIRE_REPOSITORY, refresh);
 
-		//Xiphos
-//		DownloadManager xiphosDownloadManager = new DownloadManager();
-//        List<Book> xiphosBookList = xiphosDownloadManager.getDownloadableBooks(SUPPORTED_DOCUMENT_TYPES, XIPHOS_REPOSITORY, refresh);
-
         List<Book> allBooks = new ArrayList<Book>(crosswireBookList);
         
-		try {
-			// see here for info ftp://ftp.xiphos.org/mods.d/
-			//Commentaries - Gill
-			// give these Xiphos modules a lower case module name in these dummy files for installation, the actual conf contains mixed case names
-			String gillConf = "[gill]\nDataPath=./modules/comments/zcom/gill/\nModDrv=zCom\nSourceType=ThML\nBlockType=BOOK\nCompressType=ZIP\nLang=en\nDescription=John Gill's Expositor\nAbout=";
-	        Book extraBook = createRepoBookInfo("Gill", gillConf, XIPHOS_REPOSITORY);
-	        allBooks.add(extraBook);
+		XiphosRepo xiphosRepo = new XiphosRepo();
+        allBooks.addAll(xiphosRepo.getXiphosRepoBooks());
 
-			//Gen books - Augustine, BaxterPastor, FinneySysTheo, HodgeSysTheo, LifeTimes, SacredMeditations, Shaw, TrainTwelve
-			String augustineConf = "[augustine]\nDataPath=./modules/genbook/rawgenbook/augustine/augustine\nModDrv=RawGenBook\nLang=en\nEncoding=UTF-8\nSourceType=ThML\nDescription=St. Augustine: Works\nAbout=";
-	        extraBook = createRepoBookInfo("Augustine", augustineConf, XIPHOS_REPOSITORY);
-	        allBooks.add(extraBook);
-
-	        // doesn't work - can download but can't unzip
-//	        String baxterConf = "[baxterpastor]\nDataPath=./modules/genbook/rawgenbook/baxterpastor/baxterpastor\nModDrv=RawGenBook\nLang=en\nEncoding=UTF-8\nSourceType=OSIS\nGlobalOptionFilter=OSISFootnotes\nGlobalOptionFilter=OSISScripRef\nLang=en\nVersion=1.0\nDescription=Baxter, The Reformed Pastor\n";
-//	        extraBook = createRepoBookInfo("BaxterPastor", baxterConf, XIPHOS_REPOSITORY);
-//	        allBooks.add(extraBook);
-	
-	        String finneyConf = "[finneysystheo]\nDataPath=./modules/genbook/rawgenbook/finneysystheo/finneysystheo\nModDrv=RawGenBook\nLang=en\nEncoding=UTF-8\nSourceType=ThML\nDescription=Finney's Systematic Theology\nAbout=";
-	        extraBook = createRepoBookInfo("FinneySysTheo", finneyConf, XIPHOS_REPOSITORY);
-	        allBooks.add(extraBook);
-	        
-	        String hodgeConf = "[hodgesystheo]\nDataPath=./modules/genbook/rawgenbook/hodgesystheo/systheo\nModDrv=RawGenBook\nSourceType=ThML\nGlobalOptionFilter=ThMLFootnotes\nEncoding=UTF-8\nLang=en\nDescription=Hodge's Systematic Theology - Volumes I/II/III/IV\nAbout=";
-	        extraBook = createRepoBookInfo("HodgeSysTheo", hodgeConf, XIPHOS_REPOSITORY);
-	        allBooks.add(extraBook);
-
-	        String lifeTimesConf = "[lifetimes]\nDataPath=./modules/genbook/rawgenbook/lifetimes/lifetimes\nEncoding=UTF-8\nModDrv=RawGenBook\nSourceType=ThML\nLang=en\nDescription=The Life and Times of Jesus the Messiah\nAbout=";
-	        extraBook = createRepoBookInfo("LifeTimes", lifeTimesConf, XIPHOS_REPOSITORY);
-	        allBooks.add(extraBook);
-
-	        // doesn't work - can download but can't unzip
-//	        String sacredMeditations = "[sacredmeditations]\nDataPath=./modules/genbook/rawgenbook/sacredmeditations/sacredmeditations\nModDrv=RawGenBook\nSourceType=ThML\nGlobalOptionFilter=THMLScripref\nEncoding=UTF-8\nLang=en\nDescription=Johann Gerhard's Sacred Meditations\nLCSH=Meditations. Devotional exercises.\n";
-//	        extraBook = createRepoBookInfo("SacredMeditations", sacredMeditations, XIPHOS_REPOSITORY);
-//	        allBooks.add(extraBook);
-	        
-	        // doesn't work - can download but can't unzip
-//	        String shaw = "[shaw]\nDataPath=./modules/genbook/rawgenbook/shaw/shaw\nModDrv=RawGenBook\nLang=en\nEncoding=UTF-8\nSourceType=OSIS\nLang=en\nDescription=Robert Shaw, The Reformed Faith\n";
-//	        extraBook = createRepoBookInfo("Shaw", shaw, XIPHOS_REPOSITORY);
-//	        allBooks.add(extraBook);
-
-	        String trainTwelveConf = "[traintwelve]\nDataPath=./modules/genbook/rawgenbook/traintwelve/traintwelve\nModDrv=RawGenBook\nLang=en\nEncoding=UTF-8\nSourceType=ThML\nDescription=The Training of the Twelve\nAbout=";
-	        extraBook = createRepoBookInfo("TrainTwelve", trainTwelveConf, XIPHOS_REPOSITORY);
-	        allBooks.add(extraBook);
-	        
-	        String polBibTysiaConf = "[polbibtysia]\nDataPath=./modules/texts/rawtext/polbibtysia/\nModDrv=RawText\nSourceType=ThML\nLang=pl\nEncoding=UTF-8\nVersion=1.080330\nDescription=Biblia Tysiaclecia\nAbout=";
-	        extraBook = createRepoBookInfo("PolBibTysia", polBibTysiaConf, XIPHOS_REPOSITORY);
-	        allBooks.add(extraBook);
-
-	        // get them in the coorect order
-	        Collections.sort(allBooks);
-	        
-		} catch (Exception e) {
-			Log.e(TAG, "Error creating dummy books", e);
-		}
+        // get them in the coorect order
+        Collections.sort(allBooks);
 
 		return allBooks;	
 	}
 
-	private Book createRepoBookInfo(String module, String conf, String repo) throws IOException {
-		SwordBookMetaData sbmd = new SwordBookMetaData(conf.getBytes(), module);
-		sbmd.putProperty(REPOSITORY_KEY, repo);
-		BookDriver fake = SwordBookDriver.instance();
-		sbmd.setDriver(fake);
-		Book extraBook = new SwordBook(sbmd, null);
-		return extraBook;
-	}
-
 	public void downloadDocument(Book document) throws InstallException, BookException {
 		DownloadManager downloadManager = new DownloadManager();
-		String repo = (String)document.getProperty(REPOSITORY_KEY);
+		String repo = (String)document.getProperty(DownloadManager.REPOSITORY_KEY);
 		if (repo==null) {
 			repo = CROSSWIRE_REPOSITORY;
 		}

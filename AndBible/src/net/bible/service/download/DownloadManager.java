@@ -45,6 +45,8 @@ import android.util.Log;
  */
 public class DownloadManager {
 
+	public static final String REPOSITORY_KEY = "repository";
+
 	private static final String TAG = "DownloadManager";
 	
     public DownloadManager() {

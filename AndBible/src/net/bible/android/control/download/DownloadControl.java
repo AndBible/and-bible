@@ -6,8 +6,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import net.bible.service.download.XiphosRepo;
 import net.bible.service.sword.SwordApi;
 
+import org.crosswire.common.util.LucidException;
 import org.crosswire.jsword.book.Book;
 
 import android.util.Log;
@@ -15,6 +17,8 @@ import android.util.Log;
 public class DownloadControl {
 
 	private static final String TAG = "DownloadControl";
+	
+	private XiphosRepo postDownloadActions = new XiphosRepo();
 	
 	/** return a list of all available docs that have not already been downloaded, have no lang, or don't work
 	 * 
@@ -63,5 +67,15 @@ public class DownloadControl {
 			availableDocs = new ArrayList<Book>();
 		}
 		return availableDocs;
+	}
+	
+	public void downloadDocument(Book document) throws LucidException {
+    	Log.d(TAG, "Download requested");
+    	if (postDownloadActions.needsPostDownloadAction(document)) {
+    		postDownloadActions.addHandler(document);
+    	}
+    	
+		// the download happens in another thread
+		SwordApi.getInstance().downloadDocument(document);
 	}
 }
