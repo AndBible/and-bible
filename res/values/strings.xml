@@ -33,7 +33,6 @@
     <!-- Passage navigation -->
     <string name="choosePassageBookName">Choose Book</string>
     <string name="choosePassageChapterName">Choose Chapter</string>
-    <string name="chapter_range">%1$s chapters %2$d to %3$d</string>
     <string name="chapter_no">Chapter %d</string>
 
 	<!--  Search -->
