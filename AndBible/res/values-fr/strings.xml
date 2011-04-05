@@ -27,7 +27,6 @@
   <string name="help">Aide</string>
   <string name="choosePassageBookName">Sélectionner un livre</string>
   <string name="choosePassageChapterName">Sélectionner un chapitre</string>
-  <string name="chapter_range">%1$s chapitres %2$d à %3$d</string>
   <string name="chapter_no">Chapitre %d</string>
   <string name="search_index">Recherche Index</string>
   <string name="index_creation_required">Un index de recherche est nécessaire.\n\nLes index peuvent être téléchargés à partir d\'Internet ou créés localement.\n\nLe téléchargement est beaucoup plus rapide et les index téléchargés offrent plus de fonctionnalités.\n\nUne connexion internet est requise pour télécharger les index.</string>
