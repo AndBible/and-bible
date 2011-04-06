@@ -77,7 +77,7 @@
   <string name="strongs">Dictionnaire Strong\'s</string>
   <string name="strongs_not_installed">Téléchargez un dictionnaire Strong\'s Hébreu et Grec</string>
   <!-- Module download -->
-  <string name="download">Téléchargement de documents</string>
+  <string name="download">Télécharger documents</string>
   <string name="download_confirmation">Télécharger des documents à partir d\'Internet?</string>
   <string name="download_source_message">Les documents sont téléchargés à partir de\nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Télécharger "</string>
