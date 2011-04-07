@@ -89,6 +89,9 @@
     <!--  Strongs -->
     <string name="strongs">Strong\'s Dictionary</string>
     <string name="strongs_not_installed">Please download Strong\'s Hebrew and Greek dictionaries</string>
+    <string name="all_greek_occurrences">Show all occurrences</string>
+    <string name="all_hebrew_occurrences">Show all occurrences</string>
+    <string name="no_indexed_bible_with_strongs_ref">You must download a bible containing Strong\'s numbers and download its index via Search</string>
 
     <!-- Module download -->
     <string name="download">Download Documents</string>

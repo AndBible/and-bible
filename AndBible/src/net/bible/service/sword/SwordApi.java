@@ -17,6 +17,7 @@ import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.service.common.CommonUtils;
+import net.bible.service.common.Constants;
 import net.bible.service.common.ParseException;
 import net.bible.service.download.DownloadManager;
 import net.bible.service.download.XiphosRepo;
@@ -35,6 +36,7 @@ import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
 import org.crosswire.jsword.book.BookMetaData;
 import org.crosswire.jsword.book.Books;
+import org.crosswire.jsword.book.FeatureType;
 import org.crosswire.jsword.book.OSISUtil;
 import org.crosswire.jsword.book.install.InstallException;
 import org.crosswire.jsword.book.sword.SwordBookPath;
@@ -174,6 +176,18 @@ public class SwordApi {
 		return allDocuments;
 	}
 
+	public Book getDefaultBibleWithStrongs() {
+		List<Book> bibles = getBibles();
+		for (Book book : bibles) {
+			if (book.hasFeature(FeatureType.STRONGS_NUMBERS)) {
+				if (book.getIndexStatus().equals(IndexStatus.DONE)) {
+					return book;
+				}
+			}
+		}
+		return null;
+	}
+	
 	public Book getDocumentByInitials(String initials) {
 		log.debug("Getting book:"+initials);
 
@@ -288,7 +302,7 @@ public class SwordApi {
 		log.debug("Using fast method to fetch document data");
 		InputStream is = new OSISInputStream(book, key);
 
-		OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book);
+		OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book, key);
 	
 		SAXParser parser = getSAXParser();
 		try {
@@ -317,7 +331,7 @@ public class SwordApi {
 				Log.e(TAG, "No osis SEP returned");
 				retVal.setHtmlPassage("Error fetching osis SEP"); //$NON-NLS-1$
 			} else {
-				OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book);
+				OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book, key);
 		
 				osissep.provideSAXEvents(osisToHtml);
 		
@@ -349,13 +363,13 @@ public class SwordApi {
 		} else {
 			key = book.createEmptyKeyList();
 
-			Iterator iter = book.getKey(reference).iterator();
+			Iterator<Key> iter = book.getKey(reference).iterator();
 			int count = 0;
 			while (iter.hasNext()) {
 				if (++count >= maxKeyCount) {
 					break;
 				}
-				key.addAll((Key) iter.next());
+				key.addAll(iter.next());
 			}
 		}
 
@@ -431,18 +445,19 @@ public class SwordApi {
 //        Key key1 = book.find("strong:h3068");
 //        System.out.println("*** h3068 result count:"+key1.getCardinality());
 
+		Log.d(TAG,	"Searching:"+bible+" Search term:" + searchText);
 		
 		// This does a standard operator search. See the search
 		// documentation for more examples of how to search
 		Key key = bible.find(searchText); //$NON-NLS-1$
 
-		Log.d(TAG,	"There are "+key.getCardinality()+" verses containing " + searchText); //$NON-NLS-1$
+		Log.d(TAG,	"There are "+key.getCardinality()+" verses containing " + searchText);
 
 		return key;
 
 	}
 
-	private OsisToHtmlSaxHandler getSaxHandler(Book book) {
+	private OsisToHtmlSaxHandler getSaxHandler(Book book, Key key) {
 		OsisToHtmlSaxHandler osisToHtml = new OsisToHtmlSaxHandler();
 		BookMetaData bmd = book.getBookMetaData();
 		osisToHtml.setLeftToRight(bmd.isLeftToRight());
@@ -459,6 +474,18 @@ public class SwordApi {
 			if (preferences.getBoolean("night_mode_pref", false)) {
 				osisToHtml.setExtraStylesheet(NIGHT_MODE_STYLESHEET);
 			}
+			if (book.getBookCategory().equals(BookCategory.DICTIONARY)) {
+				if (book.hasFeature(FeatureType.HEBREW_DEFINITIONS)) {
+					//add allHebrew refs link
+					String prompt = BibleApplication.getApplication().getString(R.string.all_hebrew_occurrences);
+					osisToHtml.setExtraFooter("<br /><a href='"+Constants.ALL_HEBREW_OCCURRENCES_PROTOCOL+":"+key.getName()+"' class='allStrongsRefsLink'>"+prompt+"</a>");
+				} else if (book.hasFeature(FeatureType.GREEK_DEFINITIONS)) {
+					//add allGreek refs link
+					String prompt = BibleApplication.getApplication().getString(R.string.all_greek_occurrences);
+					osisToHtml.setExtraFooter("<br /><a href='"+Constants.ALL_GREEK_OCCURRENCES_PROTOCOL+":"+key.getName()+"' class='allStrongsRefsLink'>"+prompt+"</a>");
+				}
+			}
+
 		}
 		
 		return osisToHtml;

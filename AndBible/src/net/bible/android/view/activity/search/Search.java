@@ -29,8 +29,6 @@ import android.widget.RadioGroup.OnCheckedChangeListener;
  */
 public class Search extends ActivityBase {
 	
-	public static final String SEARCH_TEXT = "SearchText";
-	
 	private static final String TAG = "Search";
 	
 	private EditText mSearchTextInput;
@@ -38,6 +36,7 @@ public class Search extends ActivityBase {
 	private int wordsRadioSelection = R.id.allWords;
 	private int sectionRadioSelection = R.id.searchAllBible;
 	
+	private SearchControl searchControl = ControlFactory.getInstance().getSearchControl();
 	
     /** Called when the activity is first created. */
     @Override
@@ -87,16 +86,13 @@ public class Search extends ActivityBase {
         	Log.d(TAG, "Search text:"+searchText);
         	
         	Intent intent = new Intent(this, SearchResults.class);
-        	intent.putExtra(SEARCH_TEXT, searchText);
+        	intent.putExtra(SearchControl.SEARCH_TEXT, searchText);
         	startActivityForResult(intent, 1);
     	}
     }
     
     private String decorateSearchString(String searchString) {
-    	SearchControl searchControl = ControlFactory.getInstance().getSearchControl();
-    	String decorated = searchControl.decorateSearchString(searchString, getSearchType(), getBibleSection());
-
-    	return decorated;
+    	return searchControl.decorateSearchString(searchString, getSearchType(), getBibleSection());
     }
 
     /** get all, any, phrase query limitation

@@ -6,9 +6,12 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.search.SearchControl;
+import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
+import net.bible.service.sword.SwordApi;
 
-import org.crosswire.jsword.book.BookException;
+import org.apache.commons.lang.StringUtils;
+import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
 import android.app.Activity;
@@ -41,24 +44,29 @@ public class SearchResults extends ListActivityBase {
         Log.i(TAG, "Displaying Search results view");
         setContentView(R.layout.search_results);
     
-        prepareResults();
-        
-    	mKeyArrayAdapter = new SearchItemAdapter(this, LIST_ITEM_TYPE, mSearchResults);
-        setListAdapter(mKeyArrayAdapter);
-        
-        Log.d(TAG, "Finished displaying Search view");
+        if (prepareResults()) {
+        	mKeyArrayAdapter = new SearchItemAdapter(this, LIST_ITEM_TYPE, mSearchResults);
+            setListAdapter(mKeyArrayAdapter);
+            
+            Log.d(TAG, "Finished displaying Search view");
+        }
     }
 
     /** do the search query and prepare results in lists ready for display
      * 
      */
-    private void prepareResults() {
+    private boolean prepareResults() {
     	Log.d(TAG, "Preparing search results");
+    	boolean isOk;
 
     	try {
 			// get search string
-			String searchText = getIntent().getExtras().getString(Search.SEARCH_TEXT);
-			mSearchResults = ControlFactory.getInstance().getSearchControl().getSearchResults(searchText);
+			String searchText = getIntent().getExtras().getString(SearchControl.SEARCH_TEXT);
+			String searchDocument = getIntent().getExtras().getString(SearchControl.SEARCH_DOCUMENT);
+			if (StringUtils.isEmpty(searchDocument)) {
+				searchDocument = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument().getInitials();
+			}
+			mSearchResults = ControlFactory.getInstance().getSearchControl().getSearchResults(searchDocument, searchText);
 		
 			// tell user how many results were returned
 			String msg;
@@ -68,10 +76,13 @@ public class SearchResults extends ListActivityBase {
 				msg = getString(R.string.search_result_count, mSearchResults.size());
 			}
 			Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
-    	} catch (BookException e) {
+			isOk = true;
+    	} catch (Exception e) {
     		Log.e(TAG, "Error processing search query", e);
-    		Toast.makeText(this, R.string.error_executing_search, Toast.LENGTH_SHORT).show();
+    		Dialogs.getInstance().showErrorMsg(R.string.error_executing_search);
+    		isOk = false;
     	}
+    	return isOk;
     }
     
     private void doFinish() {
@@ -93,7 +104,14 @@ public class SearchResults extends ListActivityBase {
     private void verseSelected(Key key) {
     	Log.i(TAG, "chose:"+key);
     	if (key!=null) {
-    		CurrentPageManager.getInstance().getCurrentPage().setKey(key);
+    		// which doc do we show
+			String targetDocInitials = getIntent().getExtras().getString(SearchControl.TARGET_DOCUMENT);
+			if (StringUtils.isEmpty(targetDocInitials)) {
+				targetDocInitials = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument().getInitials();
+			}
+			Book targetBook = SwordApi.getInstance().getDocumentByInitials(targetDocInitials); 
+    		
+    		CurrentPageManager.getInstance().setCurrentDocumentAndKey(targetBook, key);
     		doFinish();
     	}
     }

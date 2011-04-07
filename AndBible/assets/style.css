@@ -32,6 +32,11 @@ h1 {
 	text-decoration: none
 }
 
+.allStrongsRefsLink {
+	display: block;
+	float: right;
+}
+
 .rtl-notusedyet {
 	direction: rtl;
   	unicode-bidi: embed;

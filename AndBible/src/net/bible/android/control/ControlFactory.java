@@ -4,6 +4,7 @@ import net.bible.android.control.bookmark.Bookmark;
 import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.download.DownloadControl;
+import net.bible.android.control.link.LinkControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.search.SearchControl;
@@ -20,6 +21,7 @@ public class ControlFactory {
 	private CurrentPageManager currentPageManager = CurrentPageManager.getInstance();
 	private DocumentControl documentControl = new DocumentControl();
 	private PageControl pageControl = new PageControl();
+	private LinkControl linkControl = new LinkControl();
 	private SearchControl searchControl = new SearchControl();
 	private Bookmark bookmarkControl = new BookmarkControl();
 	private DownloadControl downloadControl = new DownloadControl();
@@ -51,6 +53,10 @@ public class ControlFactory {
 
 	public CurrentPageManager getCurrentPageControl() {
 		return currentPageManager;		
+	}
+
+	public LinkControl getLinkControl() {
+		return linkControl;
 	}
 
 	/**
