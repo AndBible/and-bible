@@ -44,6 +44,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     private boolean isShowNotes = false;
     private boolean isShowStrongs = false;
     private String extraStylesheet;
+    private String extraFooter;
     
     // internal logic
     private boolean isDelayVerse = false;
@@ -110,6 +111,11 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     @Override
     public void endDocument () throws SAXException
     {
+    	// add optional footer e.g. Strongs show all occurrences link 
+    	if (StringUtils.isNotEmpty(extraFooter)) {
+    		write(extraFooter);
+    	}
+    	
         if (!isLeftToRight) {
         	write("</span>");
         }
@@ -437,6 +443,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	}
 	public List<Note> getNotesList() {
 		return notesList;
+	}
+	public void setExtraFooter(String extraFooter) {
+		this.extraFooter = extraFooter;
 	}
 }
 

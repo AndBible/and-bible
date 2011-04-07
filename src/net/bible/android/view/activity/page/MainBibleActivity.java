@@ -16,16 +16,10 @@ import net.bible.android.view.activity.bookmark.Bookmarks;
 import net.bible.android.view.activity.download.Download;
 import net.bible.android.view.activity.navigation.ChooseDocument;
 import net.bible.android.view.activity.navigation.History;
-import net.bible.android.view.activity.search.Search;
-import net.bible.android.view.activity.search.SearchIndex;
 import net.bible.android.view.activity.speak.Speak;
 import net.bible.android.view.util.DataPipe;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.history.HistoryManager;
-
-import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.index.IndexStatus;
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -124,7 +118,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	        	handlerIntent = new Intent(this, CurrentPageManager.getInstance().getCurrentPage().getKeyChooserActivity());
 	        	break;
 	        case R.id.searchButton:
-	        	handlerIntent = getSearchIntent();
+	        	handlerIntent = ControlFactory.getInstance().getSearchControl().getSearchIntent(CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument());
 	        	break;
 	        case R.id.settingsButton:
 	        	handlerIntent = new Intent(this, SettingsActivity.class);
@@ -192,7 +186,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 			HistoryManager.getInstance().goBack();
 			return true;
 		} else if ((keyCode == KeyEvent.KEYCODE_SEARCH && CurrentPageManager.getInstance().getCurrentPage().isSearchable())) {
-			Intent intent = getSearchIntent();
+			Intent intent = ControlFactory.getInstance().getSearchControl().getSearchIntent(CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument());
 			if (intent!=null) {
 				startActivityForResult(intent, STD_REQUEST_CODE);
 			}
@@ -223,19 +217,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	}
     }
 
-    private Intent getSearchIntent() {
-    	Book book = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
-
-    	IndexStatus indexStatus = book.getIndexStatus();
-    	Log.d(TAG, "Index status:"+indexStatus);
-    	if (indexStatus.equals(IndexStatus.DONE)) {
-    		Log.d(TAG, "Index status is DONE");
-    	    return new Intent(this, Search.class);
-    	} else {
-    		Log.d(TAG, "Index status is NOT DONE");
-    	    return new Intent(this, SearchIndex.class);
-    	}
-    }
     
     /** called just before starting work to change teh current passage
      */

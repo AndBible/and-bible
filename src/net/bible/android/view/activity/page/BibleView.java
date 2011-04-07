@@ -1,15 +1,7 @@
 package net.bible.android.view.activity.page;
 
-import net.bible.android.activity.R;
-import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.view.activity.base.Dialogs;
+import net.bible.android.control.ControlFactory;
 import net.bible.service.common.CommonUtils;
-import net.bible.service.common.Constants;
-
-import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.book.Defaults;
-import org.crosswire.jsword.passage.Key;
-
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.AttributeSet;
@@ -94,7 +86,7 @@ public class BibleView extends WebView {
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String url) {
 				// load Strongs refs when a user clicks on a link
-				if (loadApplicationUrl(url)) {
+				if (ControlFactory.getInstance().getLinkControl().loadApplicationUrl(url)) {
 					return true;
 				} else {
 					return super.shouldOverrideUrlLoading(view, url);
@@ -165,48 +157,4 @@ public class BibleView extends WebView {
 		return super.onKeyDown(keyCode, event);
 	}
     
-	/** Currently the only uris handled are for Strongs refs
-	 * see OSISToHtmlSaxHandler.getStrongsUrl for format of uri
-	 * 
-	 * @param url
-	 * @return true if successfully changed to Strongs ref
-	 */
-	private boolean loadApplicationUrl(String uri) {
-		try {
-			Log.d(TAG, "Loading: "+uri);
-			// check for urls like gdef:01234 
-			if (!uri.contains(":")) {
-				return false;
-			}
-			String[] uriTokens = uri.split(":");
-	        String protocol = uriTokens[0];
-	        String ref = uriTokens[1];
-	
-	        // hebrew or greek
-	        Book book = null;
-	        if (Constants.GREEK_DEF_PROTOCOL.equals(protocol)) {
-	        	book = Defaults.getGreekDefinitions();
-	        } else if (Constants.HEBREW_DEF_PROTOCOL.equals(protocol)) {
-	        	book = Defaults.getHebrewDefinitions();
-	        } else {
-	        	// not a valid Strongs Uri
-	        	return false;
-	        }
-		        
-	        // valid Strongs uri but Strongs refs not installed
-	        if (book==null) {
-	        	Dialogs.getInstance().showErrorMsg(R.string.strongs_not_installed);
-	        	// this uri request was handled by showing an error message so return true
-	        	return true;
-	        }
-	
-	        Key strongsNumberKey = book.getKey(ref); 
-	   		CurrentPageManager.getInstance().setCurrentDocumentAndKey(book, strongsNumberKey);
-	
-			return true;
-		} catch (Exception e) {
-			Log.e(TAG, "Error going to Strongs", e);
-			return false;
-		}
-	}
 }

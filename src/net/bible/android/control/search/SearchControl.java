@@ -6,15 +6,21 @@ import java.util.List;
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
+import net.bible.android.view.activity.search.Search;
+import net.bible.android.view.activity.search.SearchIndex;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordApi;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
+import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.index.search.SearchType;
 import org.crosswire.jsword.passage.Key;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.util.Log;
 
 public class SearchControl {
@@ -29,9 +35,31 @@ public class SearchControl {
 	private static final String SEARCH_NEW_TESTAMENT = "+[Mat-Rev]";
 //	private BookName currentBibleBook; 
 
+	public static final String SEARCH_TEXT = "SearchText";
+	public static final String SEARCH_DOCUMENT = "SearchDocument";
+	public static final String TARGET_DOCUMENT = "TargetDocument";
+	
 	public static final int MAX_SEARCH_RESULTS = 100;
 
 	private static final String TAG = "SearchControl";
+	
+	/** if current document is indexed then go to search else go to download index page
+	 * 
+	 * @return required Intent
+	 */
+    public Intent getSearchIntent(Book document) {
+
+    	IndexStatus indexStatus = document.getIndexStatus();
+    	Log.d(TAG, "Index status:"+indexStatus);
+    	Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
+    	if (indexStatus.equals(IndexStatus.DONE)) {
+    		Log.d(TAG, "Index status is DONE");
+    	    return new Intent(currentActivity, Search.class);
+    	} else {
+    		Log.d(TAG, "Index status is NOT DONE");
+    	    return new Intent(currentActivity, SearchIndex.class);
+    	}
+    }
 	
     public String decorateSearchString(String searchString, SearchType searchType, SearchBibleSection bibleSection) {
     	String cleanSearchString = cleanSearchString(searchString);
@@ -50,13 +78,13 @@ public class SearchControl {
     /** do the search query and prepare results in lists ready for display
      * 
      */
-    public List<Key> getSearchResults(String searchText) throws BookException {
+    public List<Key> getSearchResults(String document, String searchText) throws BookException {
     	Log.d(TAG, "Preparing search results");
     	List<Key> resultKeys = new ArrayList<Key>();
     	
     	// search the current book
-        Book book = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
     	SwordApi swordApi = SwordApi.getInstance();
+        Book book = swordApi.getDocumentByInitials(document);
     	Key result = swordApi.search(book, searchText);
     	if (result!=null) {
     		int resNum = result.getCardinality();

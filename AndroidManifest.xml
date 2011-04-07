@@ -57,10 +57,6 @@
                   android:label="@string/bookmark_labels"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:name="net.bible.android.view.activity.StrongsRef"
-                  android:label="@string/strongs"
-                  android:configChanges="keyboardHidden|orientation">
-        </activity>
         <activity android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"
                   android:label="@string/dictionary"
                   android:configChanges="keyboardHidden|orientation">
