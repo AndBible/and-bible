@@ -90,6 +90,7 @@
     <string name="download_document_confirm_prefix">"Pobieranie "</string>
     <string name="error_downloading">Wystąpił błąd podczas pobierania. Sprawdź połączenie z Internetem.</string>
     <string name="no_internet_connection">Połączenie z Internetem jest niedostępne.</string>
+    <string name="storage_space_warning">Niewystarczająca ilość zasobów pamięci</string>
     <string name="wait_for_bible">Pobieranie trwa, proszę czekać.  Po ukończeniu zostanie wyświetlone główne okno programu.</string>
 	<string name="wait_for_bible_not_yet">Proszę czekać, trwa instalacja modułu.</string>
 	<string name="download_complete_no_bibles">Moduł nie został zainstalowany. Ponów próbę.</string>
@@ -102,7 +103,12 @@
 	<!-- Verse context menu -->
     <string name="notes">Przypisy i odnośniki</string>
     <string name="copy">Skopiuj werset</string>
-    <string name="send_sms">Wyślij werset jako SMS</string>
+    <string name="share_verse">Udostępnij werset ...</string>
+    <string name="share_verse_subject">Ten werset został przesłany z programu And Bible</string>
+    
+    <!-- General Book -->
+    <string name="general_book">Księga</string>
+    <string name="general_book_contents">Treść</string>
 
 	<!-- Bookmarks -->
     <string name="bookmarks">Ulubione</string>
@@ -134,5 +140,24 @@
     <string name="please_wait">Proszę czekać...</string>
     <string name="all">Wszystkie</string>
 
+    <!-- Speak - Bible -->
+    <plurals name="num_chapters">
+        <item quantity="one">%d rozdział</item>
+        <item quantity="other">%d rozdziałów</item>
+    </plurals>
+    <string name="rest_of_book">Do końca księgi</string>
+    <!-- Speak - Commentary -->
+    <plurals name="num_verses">
+        <item quantity="one">%d werset</item>
+        <item quantity="other">%d wersetów</item>
+    </plurals>
+    <string name="rest_of_chapter">Do końca rozdziału</string>
+    <!-- Speak - Dictionary and other -->
+    <plurals name="num_pages">
+        <item quantity="one">%d strona</item>
+        <item quantity="other">%d stron</item>
+    </plurals>
+    <!-- Speak - Common -->
+    <string name="stop">Stop</string>
     <string name="tts_lang_not_available">Język niedostępny.</string>
 </resources>
