@@ -7,7 +7,6 @@
 -->
 <resources>
     <!-- Languages -->
-	<string name="lang_default">Default</string>
 	<string name="lang_chinese">Chinese</string>
 	<string name="lang_czech">Czech</string>
 	<string name="lang_english">English - en</string>
