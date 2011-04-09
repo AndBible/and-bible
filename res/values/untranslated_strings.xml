@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Application text
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<resources>
+    <!-- Languages -->
+	<string name="lang_default">Default</string>
+	<string name="lang_chinese">Chinese</string>
+	<string name="lang_czech">Czech</string>
+	<string name="lang_english">English - en</string>
+	<string name="lang_faroese">Faroese</string>
+	<string name="lang_french">Français - fr</string>
+	<string name="lang_german">Deutsch - de</string>
+	<string name="lang_hebrew">Hebrew</string>
+	<string name="lang_hungarian">Hungarian</string>
+	<string name="lang_lithuanian">Lithuanian</string>
+	<string name="lang_norwegian">Norwegian</string>
+	<string name="lang_polish">Polish</string>
+	<string name="lang_portuguese">Portuguese</string>
+	<string name="lang_russian">Русский - ru</string>
+	<string name="lang_swedish">Swedish</string>
+</resources>
