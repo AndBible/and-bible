@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- Application text
  
  @author Martin Denham [mjdenham at gmail dot com]
@@ -8,136 +8,132 @@
  
 -->
 <resources>
-    <string name="app_name">And Bible</string>
-
-    <string name="splash_top_text">\n\"E disse Deus:\'Haja luz,\' e houve luz.\"\nGenesis 1:3</string>
-    <string name="help_text">Pressione a tecla MENU para executar as ações\n\nUse o track-ball, os botões direcionais ou toque na tela para avançar ou retroceder os capítulos</string>
-    <string name="help_text_long">Navigation\nVá para o próximo capítulo ou o anterior usando o track-ball, os botões direcionais ou toque na tela para avançar ou retroceder
+  <string name="app_name">And Bible</string>
+  <string name="splash_top_text">\n\"E disse Deus:\'Haja luz,\' e houve luz.\"\nGenesis 1:3</string>
+  <string name="help_text">Pressione a tecla MENU para executar as ações\n\nUse o track-ball, os botões direcionais ou toque na tela para avançar ou retroceder os capítulos</string>
+  <string name="help_text_long">Navigation\nVá para o próximo capítulo ou o anterior usando o track-ball, os botões direcionais ou toque na tela para avançar ou retroceder
     \n\nPressione a tecla MENU para executar as ações
     \n\nFala\nPressione o botão Falar para que o programa leia o capítulo atual\nPressione novamente o botão Falar para parar a leitura
     \n\nPressione longamente a página da bíblia para abrir o menu com as ações para o respectivo versículo.
     \nPressione longamente sobre um documento no seletor de documentos para excluir ou ver informações a respeito do documento.
     \n\nFavoritos\nOs Favoritos podem ser adicionados pressionando longamente sobre os versículos. O Gerenciador dos Favoritos pode ser acessado pelo menu principal.  O menu do Gerenciador dos Favoritos permite que os favoritos sejam agrupados, através de marcadores.</string>
-    <string name="version_text">Versão %s</string>
-    <string name="no_sdcard_error">Por favor insira um cartão SD e inicie o And Biblie novamente.</string>
-    <!-- main menu -->
-    <string name="chooseBook">Documento</string>
-    <string name="selectPassage">Passagem</string>
-    <string name="search">Pesquisar</string>
-    <string name="settings">Configurações</string>
-    <string name="history">Histórico</string>
-    <string name="speak">Falar</string>
-    <string name="help">Ajuda</string>
-    
-    <string name="choosePassageBookName">Escolha o livro</string>
-    <string name="choosePassageChapterName">Escolha o capítulo</string>
-    <string name="chapter_range">%1$s capítulos %2$d ao %3$d</string>
-    <string name="chapter_no">Capítulo %d</string>
-
-    <string name="search_index">Índice da pesquisa</string>
-    <string name="search_chinese_na">Pesquisa por documentos chineses está planejado para uma versão futura.</string>
-    <string name="index_creation_required">É preciso ter um índice para pesquisar.\n\nÍndices podem ser baixados na internet ou criados localmente.\n\nBaixar os índices é uma maneira mais prática e os índices baixados possuem mais recursos de busca.\n\nÉ necessário possuir uma conexão com a internet para baixar os índices.\n</string>
-    <string name="indexing_wait_msg">Quando a indexação for concluída, você será levado para a tela de busca.</string>
-    <string name="index">Índice</string>
-    <string name="index_download">Download</string>
-    <string name="index_not_available_for_download">Este índice não está disponível para download</string>
-    <string name="index_create">Criar índice</string>
-    
-    <string name="sdcard_error">Me desculpe, você não possui um cartão SD!</string>
-    <string name="directory_error">Me desculpe, não foi possível acessar o diretório %s</string> 
-	<string name="progress_status">Progresso</string>
-	<string name="task_kill_warning">Estas tarefas demoradas podem ser finalizadas se você ir para outra aplicação antes que elas terminem.</string>
-	<string name="no_tasks_running">Não existem tarefas sendo executadas neste momento.</string>
-	<string name="delete_doc">Excluir %s?</string>
-
-	<!-- Search -->
-	<string name="search_words_group_prompt">Pesquisar versículos</string>
-    <string name="search_all_words">Todas as palavras</string>
-    <string name="search_any_word">Qualquer palavra</string>
-    <string name="search_phrase">Frase</string>
-    <string name="search_result_count">%d resultado(s) encontrado(s)</string>
-    <string name="search_showing_first">Muitos resultados foram encontrados.  Mostrando primeiros %d</string> 
-    <string name="search_bible_section_group_prompt">Onde?</string>
-    <string name="search_all_bible">Toda a Bíblia</string>
-    <string name="search_new_testament">Novo Testamento</string>
-    <string name="search_old_testament">Velho Testamento</string>
-    <string name="search_current_book">Livro atual</string>
-
-    <string name="error_executing_search">Pesquisa inválida</string>
-	<!-- Preferences -->
-    <string name="prefs_show_verseno_title">Números dos versículos</string>
-    <string name="prefs_show_verseno_summary">Mostrar números dos versículos</string>
-    <string name="prefs_show_notes_title">Notas</string>
-    <string name="prefs_show_notes_summary">Mostrar notas</string>
-    <string name="prefs_show_strongs_title">Mostrar números do dicionário Strong</string>
-    <string name="prefs_show_strongs_summary">Links para definições em grego &amp; hebraico</string>
-    <string name="prefs_night_mode_title">Modo noturno</string>
-    <string name="prefs_night_mode_summary">Para uma melhor leitura no escuro</string>
-    <string name="prefs_text_size_title">Tamanho do texto</string>
-    <string name="prefs_text_size_summary">Para ver mais texto, ou enxergar com mais clareza</string>
-    <string name="prefs_grid_navigation_title">Navegar usando tabelas</string>
-    <string name="prefs_grid_navigation_summary">Use tabelas ou listas para navegar</string>
-
-	<!-- Notes screen -->
-    <string name="no_chapter_notes">Não existem notas para este capítulo</string>
-    <string name="no_verse_notes">Não existem notas para este versículo</string>
-    <string name="previous">Anterior</string>
-    <string name="next">Próximo</string>
-
-	<!--  Strongs -->
-    <string name="strongs">Dicionário Bíblico Strong</string>
-    <string name="strongs_not_installed">Por favor instale os dicionários Strong em hebraico e grego</string>
-
-	<!-- Module download -->
-    <string name="download">Baixar documentos</string>
-    <string name="download_confirmation">Deseja fazer o download da bíblia da internet?</string>
-    <string name="download_source_message">Os documentos são baixados do site\nhttp://www.crosswire.org</string>
-    <string name="download_document_confirm_prefix">"Download "</string>
-    <string name="error_downloading">Ocorreu um erro durante o download. Por favor verifique sua conexão com a internet.</string>
-    <string name="no_internet_connection">Não foi possível se conectar à internet</string>
-    <string name="storage_space_warning">Espaço insuficiente no dispositivo de armazenamento local.</string>
-    <string name="wait_for_bible">Por favor espere o download da bíblia ser concluído.  Você será levado para a tela principal.</string>
-	<string name="wait_for_bible_not_yet">Por favor aguarde.  Uma bíblia não teve sua instalação concluída.</string>
-	<string name="download_complete_no_bibles">Nenhuma bíblia foi instalada.  Por favor volte e tente novamente.</string>
-	<string name="too_many_jobs">Existem muitas tarefas sendo executadas.  Por favor aguarde que algumas sejam concluídas e tente novamente.</string>
-
-	<!-- Document context menu -->
-    <string name="delete">Excluir</string>
-    <string name="about">Sobre</string>
-    
-	<!-- Verse context menu -->
-    <string name="notes">Referências e notas de rodapé</string>
-    <string name="copy">Copiar versículo</string>
-    <string name="send_sms">Enviar versículo via SMS</string>
-
-	<!-- Bookmarks -->
-    <string name="bookmarks">Favoritos</string>
-    <string name="add_bookmark">Adicionar favorito</string>
-    <string name="bookmark_added">O favorito foi adicionado</string>
-    <string name="bookmark_exists">O favorito já existe</string>
-    <string name="bookmark_labels">Marcadores dos Favoritos</string>
-    <string name="assign_labels">Atribuir marcadores</string>
-    <string name="new_label">Novo marcador</string>
-    <string name="new_label_prompt">Nome</string>
-	
-	<!-- Dictionary -->
-    <string name="dictionary">Dicionário</string>
-    <string name="search_dictionary_hint">Procurar dicionário</string>
-    <string name="dictionary_contents">Conteúdo</string>
-	
-	<!-- Document types -->    
-	<string name="doc_type_bible">Bíblia</string>
-	<string name="doc_type_commentary">Comentário</string>
-	<string name="doc_type_dictionary">Dicionário</string>
-
-    <string name="error_occurred">Ocorreu um erro</string>
-    <string name="okay">OK</string>
-    <string name="cancel">Cancelar</string>
-    <string name="error">Erro</string>
-    <string name="more">Mais</string>
-    <string name="retry">Tente novamente</string>
-    <string name="please_wait">Por favor aguarde...</string>
-    <string name="all">Todos</string>
-
-    <string name="tts_lang_not_available">Não disponível para esta língua.</string>
+  <string name="version_text">Versão %s</string>
+  <string name="no_sdcard_error">Por favor insira um cartão SD e inicie o And Biblie novamente.</string>
+  <!-- main menu -->
+  <string name="chooseBook">Documento</string>
+  <string name="selectPassage">Passagem</string>
+  <string name="search">Pesquisar</string>
+  <string name="settings">Configurações</string>
+  <string name="history">Histórico</string>
+  <string name="speak">Falar</string>
+  <string name="help">Ajuda</string>
+  <string name="choosePassageBookName">Escolha o livro</string>
+  <string name="choosePassageChapterName">Escolha o capítulo</string>
+  <string name="chapter_no">Capítulo %d</string>
+  <string name="search_index">Índice da pesquisa</string>
+  <string name="index_creation_required">É preciso ter um índice para pesquisar.\n\nÍndices podem ser baixados na internet ou criados localmente.\n\nBaixar os índices é uma maneira mais prática e os índices baixados possuem mais recursos de busca.\n\nÉ necessário possuir uma conexão com a internet para baixar os índices.\n</string>
+  <string name="indexing_wait_msg">Quando a indexação for concluída, você será levado para a tela de busca.</string>
+  <string name="index">Índice</string>
+  <string name="index_download">Download</string>
+  <string name="index_not_available_for_download">Este índice não está disponível para download</string>
+  <string name="index_create">Criar índice</string>
+  <string name="progress_status">Progresso</string>
+  <string name="task_kill_warning">Estas tarefas demoradas podem ser finalizadas se você ir para outra aplicação antes que elas terminem.</string>
+  <string name="no_tasks_running">Não existem tarefas sendo executadas neste momento.</string>
+  <string name="delete_doc">Excluir %s?</string>
+  <!-- Search -->
+  <string name="search_words_group_prompt">Pesquisar versículos</string>
+  <string name="search_all_words">Todas as palavras</string>
+  <string name="search_any_word">Qualquer palavra</string>
+  <string name="search_phrase">Frase</string>
+  <string name="search_result_count">%d resultado(s) encontrado(s)</string>
+  <string name="search_showing_first">Muitos resultados foram encontrados.  Mostrando primeiros %d</string>
+  <string name="search_bible_section_group_prompt">Onde?</string>
+  <string name="search_all_bible">Toda a Bíblia</string>
+  <string name="search_new_testament">Novo Testamento</string>
+  <string name="search_old_testament">Velho Testamento</string>
+  <string name="search_current_book">Livro atual</string>
+  <string name="error_executing_search">Pesquisa inválida</string>
+  <!-- Preferences -->
+  <string name="prefs_show_verseno_title">Números dos versículos</string>
+  <string name="prefs_show_verseno_summary">Mostrar números dos versículos</string>
+  <string name="prefs_show_notes_title">Notas</string>
+  <string name="prefs_show_notes_summary">Mostrar notas</string>
+  <string name="prefs_show_strongs_title">Mostrar números do dicionário Strong</string>
+  <string name="prefs_show_strongs_summary">Links para definições em grego &amp; hebraico</string>
+  <string name="prefs_night_mode_title">Modo noturno</string>
+  <string name="prefs_night_mode_summary">Para uma melhor leitura no escuro</string>
+  <string name="prefs_text_size_title">Tamanho do texto</string>
+  <string name="prefs_text_size_summary">Para ver mais texto, ou enxergar com mais clareza</string>
+  <!-- Notes screen -->
+  <string name="no_chapter_notes">Não existem notas para este capítulo</string>
+  <string name="no_verse_notes">Não existem notas para este versículo</string>
+  <string name="previous">Anterior</string>
+  <string name="next">Próximo</string>
+  <!--  Strongs -->
+  <string name="strongs">Dicionário Bíblico Strong</string>
+  <string name="strongs_not_installed">Por favor instale os dicionários Strong em hebraico e grego</string>
+  <!-- Module download -->
+  <string name="download">Baixar documentos</string>
+  <string name="download_confirmation">Deseja fazer o download da bíblia da internet?</string>
+  <string name="download_source_message">Os documentos são baixados do site\nhttp://www.crosswire.org</string>
+  <string name="download_document_confirm_prefix">"Download "</string>
+  <string name="error_downloading">Ocorreu um erro durante o download. Por favor verifique sua conexão com a internet.</string>
+  <string name="no_internet_connection">Não foi possível se conectar à internet</string>
+  <string name="storage_space_warning">Espaço insuficiente no dispositivo de armazenamento local.</string>
+  <string name="wait_for_bible">Por favor espere o download da bíblia ser concluído.  Você será levado para a tela principal.</string>
+  <string name="wait_for_bible_not_yet">Por favor aguarde.  Uma bíblia não teve sua instalação concluída.</string>
+  <string name="download_complete_no_bibles">Nenhuma bíblia foi instalada.  Por favor volte e tente novamente.</string>
+  <string name="too_many_jobs">Existem muitas tarefas sendo executadas.  Por favor aguarde que algumas sejam concluídas e tente novamente.</string>
+  <!-- Document context menu -->
+  <string name="delete">Excluir</string>
+  <string name="about">Sobre</string>
+  <!-- Verse context menu -->
+  <string name="notes">Referências e notas de rodapé</string>
+  <string name="copy">Copiar versículo</string>
+  <!-- Bookmarks -->
+  <string name="bookmarks">Favoritos</string>
+  <string name="add_bookmark">Adicionar favorito</string>
+  <string name="bookmark_added">O favorito foi adicionado</string>
+  <string name="bookmark_exists">O favorito já existe</string>
+  <string name="bookmark_labels">Marcadores dos Favoritos</string>
+  <string name="assign_labels">Atribuir marcadores</string>
+  <string name="new_label">Novo marcador</string>
+  <string name="new_label_prompt">Nome</string>
+  <!-- Dictionary -->
+  <string name="dictionary">Dicionário</string>
+  <string name="search_dictionary_hint">Procurar dicionário</string>
+  <string name="dictionary_contents">Conteúdo</string>
+  <!-- Document types -->
+  <string name="doc_type_bible">Bíblia</string>
+  <string name="doc_type_commentary">Comentário</string>
+  <string name="doc_type_dictionary">Dicionário</string>
+  <string name="error_occurred">Ocorreu um erro</string>
+  <string name="okay">OK</string>
+  <string name="cancel">Cancelar</string>
+  <string name="error">Erro</string>
+  <string name="more">Mais</string>
+  <string name="retry">Tente novamente</string>
+  <string name="please_wait">Por favor aguarde...</string>
+  <string name="all">Todos</string>
+  <string name="tts_lang_not_available">Não disponível para esta língua.</string>
+  <string name="all_greek_occurrences">Show all occurrences</string>
+  <string name="all_hebrew_occurrences">Show all occurrences</string>
+  <string name="doc_type_book">Book</string>
+  <string name="general_book">Book</string>
+  <string name="general_book_contents">Contents</string>
+  <string name="lang_default">Default</string>
+  <string name="locale_change_warning">Application will be restarted to switch to the new interface language</string>
+  <string name="no">No</string>
+  <string name="no_indexed_bible_with_strongs_ref">You must download a bible containing Strong\'s numbers and download its index via Search</string>
+  <string name="prefs_interface_locale_summary">Select custom user interface language</string>
+  <string name="prefs_interface_locale_title">Aplication language</string>
+  <string name="prefs_verse_per_line_summary">Show each verse on a different line</string>
+  <string name="prefs_verse_per_line_title">One verse per line</string>
+  <string name="refresh_book_list">Refresh list of available documents?</string>
+  <string name="rest_of_book">To end of book</string>
+  <string name="rest_of_chapter">To end of chapter</string>
+  <string name="share_verse">Share current verse ...</string>
+  <string name="share_verse_subject">A Bible verse has been shared with you using And Bible</string>
+  <string name="stop">Stop</string>
 </resources>
