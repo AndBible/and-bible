@@ -166,6 +166,9 @@
 	<string name="doc_type_dictionary">Dictionary</string>
 	<string name="doc_type_book">Book</string>
 
+    <!-- Languages -->
+	<string name="lang_default">Default</string>
+	
     <!-- General -->
     <string name="error_occurred">An error has occurred</string>
     <string name="okay">OK</string>
