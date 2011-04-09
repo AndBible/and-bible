@@ -7,18 +7,18 @@
 -->
 <resources>
     <!-- Languages -->
-	<string name="lang_chinese">Chinese</string>
-	<string name="lang_czech">Czech</string>
-	<string name="lang_english">English - en</string>
-	<string name="lang_faroese">Faroese</string>
-	<string name="lang_french">Français - fr</string>
-	<string name="lang_german">Deutsch - de</string>
-	<string name="lang_hebrew">Hebrew</string>
-	<string name="lang_hungarian">Hungarian</string>
-	<string name="lang_lithuanian">Lithuanian</string>
-	<string name="lang_norwegian">Norwegian</string>
-	<string name="lang_polish">Polish</string>
-	<string name="lang_portuguese">Portuguese</string>
-	<string name="lang_russian">Русский - ru</string>
-	<string name="lang_swedish">Swedish</string>
+	<string name="lang_czech">cs: Čeština</string>
+	<string name="lang_german">de: Deutsch</string>
+	<string name="lang_english">en: English</string>
+	<string name="lang_faroese">fo: Føroyskt</string>
+	<string name="lang_french">fr: Français</string>
+	<string name="lang_hebrew">he: ‫עברית‬</string>
+	<string name="lang_hungarian">hu: Magyar</string>
+	<string name="lang_lithuanian">lt: Lietuvių</string>
+	<string name="lang_norwegian">nb: Norsk bokmål</string>
+	<string name="lang_polish">pl: Polski</string>
+	<string name="lang_portuguese">pt: Português</string>
+	<string name="lang_russian">ru: Русский</string>
+	<string name="lang_swedish">sv: Svenska</string>
+	<string name="lang_chinese">zh: 古文/文言文</string>
 </resources>
