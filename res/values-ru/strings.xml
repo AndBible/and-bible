@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- Application text
  
  @author Martin Denham [mjdenham at gmail dot com]
@@ -6,187 +6,153 @@
       The copyright to this program is held by it's author.
 -->
 <resources>
-    <string name="app_name">Библия</string>
-
-    <string name="splash_top_text">\n\"И сказал Бог: \'Да будет свет.\' И стал свет. \"\nБытие 1:3</string>
-    <string name="help_text">Нажмите кнопку MENU для дальнейших действий\n\nДля того, чтобы перейти перейти к следующей или предыдущей главе, прокрутите трэкбол или проведите пальцем по экрану вправо или влево</string>
-    <string name="help_text_long">Навигация\nДля того, чтобы перейти к следующей или предыдущей главе, прокрутите трэкбол или проведите пальцем по экрану вправо или влево.
+  <string name="app_name">Библия</string>
+  <string name="splash_top_text">\n\"И сказал Бог: \'Да будет свет.\' И стал свет. \"\nБытие 1:3</string>
+  <string name="help_text">Нажмите кнопку MENU для дальнейших действий\n\nДля того, чтобы перейти перейти к следующей или предыдущей главе, прокрутите трэкбол или проведите пальцем по экрану вправо или влево</string>
+  <string name="help_text_long">Навигация\nДля того, чтобы перейти к следующей или предыдущей главе, прокрутите трэкбол или проведите пальцем по экрану вправо или влево.
     \n\nДля дальнейших действий нажмите кнопку MENU. 
     \n\nДля того, чтобы скачать Библии или другие ресурсы нажмите MENU/Далее/Скачать ресурс.
     \n\nДля того, чтобы открыть контекстное меню стиха, удерживайте палец на экране в течении нескольких секунд.
     \n\nДля того, чтобы  удалить Библию в списке с Библиями или просмотреть ее источник, удерживайте палец на Библии на экране в течении нескольких секунд.
     \n\nПрослушивание вслух\nНажмите [Прослушать вслух] для того, чтобы начать или остановить прослушивание.
     \n\nЗакладки\nДля того, чтобы добавить закладки, зайдите в контекстное меню стиха. Для того, чтобы зайти в Менеджер закладок, пойдите в основное меню.  Менеджер закладок позволяет сгруппировать закладки через ярлыки.</string>
-    <string name="version_text">Версия %s</string>
-    <string name="no_sdcard_error">Вставьте SD карту и запустите Библию снова.</string>
-    <!-- main menu -->
-    <string name="chooseBook">Ресурсы</string>
-    <string name="selectPassage">Библия</string>
-    <string name="search">Найти</string>
-    <string name="settings">Настройки</string>
-    <string name="history">История</string>
-    <string name="speak">Прослушать вслух</string>
-    <string name="help">Помощь</string>
-    
-    <string name="choosePassageBookName">Выбрать книгу</string>
-    <string name="choosePassageChapterName">Выбрать главу</string>
-    <string name="chapter_range">%1$s главы с %2$d по %3$d</string>
-    <string name="chapter_no">Главы %d</string>
-
-    <string name="search_index">Поисковой индекс</string>
-    <string name="search_chinese_na">Поиск на китайском языке планируется в будующих версиях.</string>
-    <string name="index_creation_required">Для поиска требуется индекс.\n\nИндексы можно скачать с Интернета или создать вручную.\n\nСкачать будет быстрее, а также скачанные индексы имееют больше функций поиска.\n\nДля того, чтобы скачать индексы,подключитесь к Интернету.\n</string>
-    <string name="indexing_wait_msg">Когда создание индексов завершится вы автоматически будете перемещены в экран поиска.</string>
-    <string name="index">Индекс</string>
-    <string name="index_download">Скачать</string>
-    <string name="index_not_available_for_download">Этот индекс недоступен для скачивания</string>
-    <string name="index_create">Создать</string>
-    
-    <string name="sdcard_error">Извините, у вас нет SD карты!</string>
-    <string name="directory_error">Извините, нет доступа к директории %s</string> 
-    <string name="progress_status">Прогресс</string>
-    <string name="task_kill_warning">Эти задания будут приостановлены, если вы перейдете к другой программе до их завершения.</string>
-    <string name="no_tasks_running">Никакие задания сейчас не выполняются.</string>
-    <string name="delete_doc">Удалить %s?</string>
-
-    <!-- Search -->
-    <string name="search_words_group_prompt">Найти стихи</string>
-    <string name="search_all_words">Все слова</string>
-    <string name="search_any_word">Любое слово</string>
-    <string name="search_phrase">Фраза</string>
-    <string name="search_result_count">%d совпадений найдено</string>
-    <string name="search_showing_first">Слишком много совпадений. Показаны первые %d</string> 
-    <string name="search_bible_section_group_prompt">Искать в</string>
-    <string name="search_all_bible">Вся Библия</string>
-    <string name="search_new_testament">Новый Завет</string>
-    <string name="search_old_testament">Ветхий Завет</string>
-    <string name="search_current_book">Текущая книга</string>
-    <string name="error_executing_search">Неверный запрос</string>
-
-    <!-- Preferences -->
-    <string name="prefs_show_verseno_title">Нумерация стихов</string>
-    <string name="prefs_show_verseno_summary">Отображать нумерацию стихов</string>
-    <string name="prefs_verse_per_line_title">Стих с новой строки</string>
-    <string name="prefs_verse_per_line_summary">Расположить каждый стих с новой строки</string>
-    <string name="prefs_show_notes_title">Заметки</string>
-    <string name="prefs_show_notes_summary">Показывать заметки</string>
-    <string name="prefs_show_strongs_title"> Числа Стронга</string>
-    <string name="prefs_show_strongs_summary">Отображать ссылки к определениям на греческом &amp; и иврите</string>
-    <string name="prefs_night_mode_title">Ночной режим</string>
-    <string name="prefs_night_mode_summary">Для более легкого чтения в темноте</string>
-    <string name="prefs_text_size_title">Размер текста</string>
-    <string name="prefs_text_size_summary">Отображать текст крупными буквами</string>
-    <string name="prefs_interface_locale_title">Язык</string>
-    <string name="prefs_interface_locale_summary">Выбрать язык интерфейса</string>
-    <string name="locale_change_warning">Приложение перезагрузится для перехода интерфейса на новый язык</string>
-
-    <!-- Notes screen -->
-    <string name="no_chapter_notes">В этой главе нет заметок</string>
-    <string name="no_verse_notes">В этом стихе нет заметок</string>
-    <string name="previous">Назад</string>
-    <string name="next">Вперед</string>
-
-    <!--  Strongs -->
-    <string name="strongs">Словарь Стронга</string>
-    <string name="strongs_not_installed">Скачать словари Стронга на греческом и иврите</string>
-
-    <!-- Module download -->
-    <string name="download">Скачать документы</string>
-    <string name="download_confirmation">Скачать Библию с Интернета?</string>
-    <string name="download_source_message">Идет подключение к \nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
-    <string name="download_document_confirm_prefix">"Скачать "</string>
-    <string name="refresh_book_list">Обновить список доступных книг?</string>
-    <string name="error_downloading">Произошла ошибка. Проверьте подключение к Интернету.</string>
-    <string name="no_internet_connection">Нет подключения к Интернету.</string>
-    <string name="storage_space_warning">Недостаточно места на диске.</string>
-    <string name="wait_for_bible">Подождите, Библия еще не скачалась. Далее вы автоматически перейдете в основное меню.</string>
-    <string name="wait_for_bible_not_yet">Пожалуйста подождите. Библия еще не установилась.</string>
-    <string name="download_complete_no_bibles">Библия не установилась. Нажмите [Назад] и попытайтесь снова.</string>
-    <string name="too_many_jobs">Выполняется слишком много заданий. Подождите немного и попытайтесь снова.</string>
-
-    <!-- Document context menu -->
-    <string name="delete">Удалить Библию?</string>
-    <string name="about">Источник</string>
-    
-    <!-- Verse context menu -->
-    <string name="notes">Заметки и перекрестные ссылки</string>
-    <string name="copy">Скопировать этот стих</string>
-    <string name="share_verse">Отправить стих через...</string>
-    <string name="share_verse_subject">Стих был отправлен</string>
-
-    <!-- Bookmarks -->
-    <string name="bookmarks">Закладки</string>
-    <string name="add_bookmark">Добавить закладку</string>
-    <string name="bookmark_added">Закладка добавлена</string>
-    <string name="bookmark_exists">Закладка уже существует</string>
-    <string name="bookmark_labels">Ярлыки</string>
-    <string name="assign_labels">Прикрепить ярлык</string>
-    <string name="new_label">Новый ярлык</string>
-    <string name="new_label_prompt">Имя</string>
-    
-    <!-- Dictionary -->
-    <string name="dictionary">Словарь</string>
-    <string name="search_dictionary_hint">Найти словарь</string>
-    <string name="dictionary_contents">Содержание</string>
-
-    <!-- General Book -->
-    <string name="general_book">Книга</string>
-    <string name="general_book_contents">Содержание</string>
-
-
-    <!-- Speak -->
-    <!-- Speak - Bible -->
-    <plurals name="num_chapters">
-        <item quantity="one">%d глав</item>
-        <item quantity="other">%d глав</item>
-    </plurals>
-    <string name="rest_of_book">в конец книги</string>
-    <!-- Speak - Commentary -->
-    <plurals name="num_verses">
-        <item quantity="one">%d стих</item>
-        <item quantity="other">%d стихи</item>
-    </plurals>
-    <string name="rest_of_chapter">в конец главы</string>
-    <!-- Speak - Dictionary and other -->
-    <plurals name="num_pages">
-        <item quantity="one">%d страница</item>
-        <item quantity="other">%d страниц</item>
-    </plurals>
-    <!-- Speak - Common -->
-    <string name="stop">Остановить</string>
-    <string name="tts_lang_not_available">Язык не установлен</string>
-    
-	<!-- Document types -->    
-	<string name="doc_type_bible">Библия</string>
-	<string name="doc_type_commentary">Комментарий</string>
-	<string name="doc_type_dictionary">Словарь</string>
-	<string name="doc_type_book">Книга</string>
-
-    <!-- Languages -->
-	<string name="lang_default">По умолчанию</string>
-	<string name="lang_chinese">Китайский</string>
-	<string name="lang_czech">Чешский</string>
-	<string name="lang_english">Английский</string>
-	<string name="lang_faroese">Фарерский</string>
-	<string name="lang_french">Французский</string>
-	<string name="lang_german">Немецкий</string>
-	<string name="lang_hebrew">Иврит</string>
-	<string name="lang_hungarian">Венгерский</string>
-	<string name="lang_lithuanian">Литовский</string>
-	<string name="lang_norwegian">Норвежский</string>
-	<string name="lang_polish">Польский</string>
-	<string name="lang_portuguese">Португальский</string>
-	<string name="lang_russian">Русский</string>
-	<string name="lang_swedish">Шведский</string>
-	
-    <!-- General -->
-    <string name="error_occurred">Произошла ошибка</string>
-    <string name="okay">OK</string>
-    <string name="cancel">Отмена</string>
-    <string name="no">Нет</string>
-    <string name="error">Ошибка</string>
-    <string name="more">Еще</string>
-    <string name="retry">Попытайтесь снова</string>
-    <string name="please_wait">Пожалуйста подождите...</string>
-    <string name="all">Все</string>
+  <string name="version_text">Версия %s</string>
+  <string name="no_sdcard_error">Вставьте SD карту и запустите Библию снова.</string>
+  <!-- main menu -->
+  <string name="chooseBook">Ресурсы</string>
+  <string name="selectPassage">Библия</string>
+  <string name="search">Найти</string>
+  <string name="settings">Настройки</string>
+  <string name="history">История</string>
+  <string name="speak">Прослушать вслух</string>
+  <string name="help">Помощь</string>
+  <string name="choosePassageBookName">Выбрать книгу</string>
+  <string name="choosePassageChapterName">Выбрать главу</string>
+  <string name="chapter_no">Главы %d</string>
+  <string name="search_index">Поисковой индекс</string>
+  <string name="index_creation_required">Для поиска требуется индекс.\n\nИндексы можно скачать с Интернета или создать вручную.\n\nСкачать будет быстрее, а также скачанные индексы имееют больше функций поиска.\n\nДля того, чтобы скачать индексы,подключитесь к Интернету.\n</string>
+  <string name="indexing_wait_msg">Когда создание индексов завершится вы автоматически будете перемещены в экран поиска.</string>
+  <string name="index">Индекс</string>
+  <string name="index_download">Скачать</string>
+  <string name="index_not_available_for_download">Этот индекс недоступен для скачивания</string>
+  <string name="index_create">Создать</string>
+  <string name="progress_status">Прогресс</string>
+  <string name="task_kill_warning">Эти задания будут приостановлены, если вы перейдете к другой программе до их завершения.</string>
+  <string name="no_tasks_running">Никакие задания сейчас не выполняются.</string>
+  <string name="delete_doc">Удалить %s?</string>
+  <!-- Search -->
+  <string name="search_words_group_prompt">Найти стихи</string>
+  <string name="search_all_words">Все слова</string>
+  <string name="search_any_word">Любое слово</string>
+  <string name="search_phrase">Фраза</string>
+  <string name="search_result_count">%d совпадений найдено</string>
+  <string name="search_showing_first">Слишком много совпадений. Показаны первые %d</string>
+  <string name="search_bible_section_group_prompt">Искать в</string>
+  <string name="search_all_bible">Вся Библия</string>
+  <string name="search_new_testament">Новый Завет</string>
+  <string name="search_old_testament">Ветхий Завет</string>
+  <string name="search_current_book">Текущая книга</string>
+  <string name="error_executing_search">Неверный запрос</string>
+  <!-- Preferences -->
+  <string name="prefs_show_verseno_title">Нумерация стихов</string>
+  <string name="prefs_show_verseno_summary">Отображать нумерацию стихов</string>
+  <string name="prefs_verse_per_line_title">Стих с новой строки</string>
+  <string name="prefs_verse_per_line_summary">Расположить каждый стих с новой строки</string>
+  <string name="prefs_show_notes_title">Заметки</string>
+  <string name="prefs_show_notes_summary">Показывать заметки</string>
+  <string name="prefs_show_strongs_title">" Числа Стронга"</string>
+  <string name="prefs_show_strongs_summary">Отображать ссылки к определениям на греческом &amp; и иврите</string>
+  <string name="prefs_night_mode_title">Ночной режим</string>
+  <string name="prefs_night_mode_summary">Для более легкого чтения в темноте</string>
+  <string name="prefs_text_size_title">Размер текста</string>
+  <string name="prefs_text_size_summary">Отображать текст крупными буквами</string>
+  <string name="prefs_interface_locale_title">Язык</string>
+  <string name="prefs_interface_locale_summary">Выбрать язык интерфейса</string>
+  <string name="locale_change_warning">Приложение перезагрузится для перехода интерфейса на новый язык</string>
+  <!-- Notes screen -->
+  <string name="no_chapter_notes">В этой главе нет заметок</string>
+  <string name="no_verse_notes">В этом стихе нет заметок</string>
+  <string name="previous">Назад</string>
+  <string name="next">Вперед</string>
+  <!--  Strongs -->
+  <string name="strongs">Словарь Стронга</string>
+  <string name="strongs_not_installed">Скачать словари Стронга на греческом и иврите</string>
+  <!-- Module download -->
+  <string name="download">Скачать документы</string>
+  <string name="download_confirmation">Скачать Библию с Интернета?</string>
+  <string name="download_source_message">Идет подключение к \nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
+  <string name="download_document_confirm_prefix">"Скачать "</string>
+  <string name="refresh_book_list">Обновить список доступных книг?</string>
+  <string name="error_downloading">Произошла ошибка. Проверьте подключение к Интернету.</string>
+  <string name="no_internet_connection">Нет подключения к Интернету.</string>
+  <string name="storage_space_warning">Недостаточно места на диске.</string>
+  <string name="wait_for_bible">Подождите, Библия еще не скачалась. Далее вы автоматически перейдете в основное меню.</string>
+  <string name="wait_for_bible_not_yet">Пожалуйста подождите. Библия еще не установилась.</string>
+  <string name="download_complete_no_bibles">Библия не установилась. Нажмите [Назад] и попытайтесь снова.</string>
+  <string name="too_many_jobs">Выполняется слишком много заданий. Подождите немного и попытайтесь снова.</string>
+  <!-- Document context menu -->
+  <string name="delete">Удалить Библию?</string>
+  <string name="about">Источник</string>
+  <!-- Verse context menu -->
+  <string name="notes">Заметки и перекрестные ссылки</string>
+  <string name="copy">Скопировать этот стих</string>
+  <string name="share_verse">Отправить стих через...</string>
+  <string name="share_verse_subject">Стих был отправлен</string>
+  <!-- Bookmarks -->
+  <string name="bookmarks">Закладки</string>
+  <string name="add_bookmark">Добавить закладку</string>
+  <string name="bookmark_added">Закладка добавлена</string>
+  <string name="bookmark_exists">Закладка уже существует</string>
+  <string name="bookmark_labels">Ярлыки</string>
+  <string name="assign_labels">Прикрепить ярлык</string>
+  <string name="new_label">Новый ярлык</string>
+  <string name="new_label_prompt">Имя</string>
+  <!-- Dictionary -->
+  <string name="dictionary">Словарь</string>
+  <string name="search_dictionary_hint">Найти словарь</string>
+  <string name="dictionary_contents">Содержание</string>
+  <!-- General Book -->
+  <string name="general_book">Книга</string>
+  <string name="general_book_contents">Содержание</string>
+  <!-- Speak -->
+  <!-- Speak - Bible -->
+  <plurals name="num_chapters">
+    <item quantity="one">%d глав</item>
+    <item quantity="other">%d глав</item>
+  </plurals>
+  <string name="rest_of_book">в конец книги</string>
+  <!-- Speak - Commentary -->
+  <plurals name="num_verses">
+    <item quantity="one">%d стих</item>
+    <item quantity="other">%d стихи</item>
+  </plurals>
+  <string name="rest_of_chapter">в конец главы</string>
+  <!-- Speak - Dictionary and other -->
+  <plurals name="num_pages">
+    <item quantity="one">%d страница</item>
+    <item quantity="other">%d страниц</item>
+  </plurals>
+  <!-- Speak - Common -->
+  <string name="stop">Остановить</string>
+  <string name="tts_lang_not_available">Язык не установлен</string>
+  <!-- Document types -->
+  <string name="doc_type_bible">Библия</string>
+  <string name="doc_type_commentary">Комментарий</string>
+  <string name="doc_type_dictionary">Словарь</string>
+  <string name="doc_type_book">Книга</string>
+  <!-- Languages -->
+  <string name="lang_default">По умолчанию</string>
+  <!-- General -->
+  <string name="error_occurred">Произошла ошибка</string>
+  <string name="okay">OK</string>
+  <string name="cancel">Отмена</string>
+  <string name="no">Нет</string>
+  <string name="error">Ошибка</string>
+  <string name="more">Еще</string>
+  <string name="retry">Попытайтесь снова</string>
+  <string name="please_wait">Пожалуйста подождите...</string>
+  <string name="all">Все</string>
+  <string name="all_greek_occurrences">Show all occurrences</string>
+  <string name="all_hebrew_occurrences">Show all occurrences</string>
+  <string name="no_indexed_bible_with_strongs_ref">You must download a bible containing Strong\'s numbers and download its index via Search</string>
 </resources>
