@@ -29,7 +29,6 @@
   <string name="help">Nápověda</string>
   <string name="choosePassageBookName">Vybrat knihu</string>
   <string name="choosePassageChapterName">Vybrat kapitolu</string>
-  <string name="chapter_range">%1$s kapitoly %2$d z %3$d</string>
   <string name="chapter_no">Kapitola %d</string>
   <string name="search_index">Vyhledávací index</string>
   <string name="index_creation_required">Pro hledání je nutný index.\n\nIndexy lze stáhnout z Internetu nebo vytvořit lokálně.\n\nStáhnutí je mnohem rychlejší a stáhnuté indexy obsahují více vyhledávacích vlastností.\n\nKe stáhnutí indexů je vyžadováno internetové připojení.\n</string>
@@ -138,20 +137,6 @@
   <string name="doc_type_book">Book</string>
   <!-- Languages -->
   <string name="lang_default">Výchozí</string>
-  <string name="lang_chinese">Čínsky</string>
-  <string name="lang_czech">Česky</string>
-  <string name="lang_english">Anglicky</string>
-  <string name="lang_faroese">Faroese</string>
-  <string name="lang_french">Francousky</string>
-  <string name="lang_german">Německy</string>
-  <string name="lang_hebrew">Hebrejsky</string>
-  <string name="lang_hungarian">Maďarsky</string>
-  <string name="lang_lithuanian">Litevsky</string>
-  <string name="lang_norwegian">Norsky</string>
-  <string name="lang_polish">Polsky</string>
-  <string name="lang_portuguese">Portugalsky</string>
-  <string name="lang_russian">Rusky</string>
-  <string name="lang_swedish">Švédsky</string>
   <!-- Speak - Common -->
   <string name="stop">Zastavit</string>
   <string name="tts_lang_not_available">Jazyk není dostupný.</string>
@@ -166,4 +151,7 @@
   <string name="all">Vše</string>
   <string name="general_book">Book</string>
   <string name="general_book_contents">Contents</string>
+  <string name="all_greek_occurrences">Show all occurrences</string>
+  <string name="all_hebrew_occurrences">Show all occurrences</string>
+  <string name="no_indexed_bible_with_strongs_ref">You must download a bible containing Strong\'s numbers and download its index via Search</string>
 </resources>
