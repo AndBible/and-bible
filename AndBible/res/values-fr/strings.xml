@@ -20,7 +20,7 @@
   <!-- main menu -->
   <string name="chooseBook">Document</string>
   <string name="selectPassage">Passage</string>
-  <string name="search">Chercher</string>
+  <string name="search">Rechercher</string>
   <string name="settings">Paramètres</string>
   <string name="history">Historique</string>
   <string name="speak">Écouter</string>
@@ -28,7 +28,7 @@
   <string name="choosePassageBookName">Sélectionner un livre</string>
   <string name="choosePassageChapterName">Sélectionner un chapitre</string>
   <string name="chapter_no">Chapitre %d</string>
-  <string name="search_index">Recherche Index</string>
+  <string name="search_index">Rechercher Index</string>
   <string name="index_creation_required">Un index de recherche est nécessaire.\n\nLes index peuvent être téléchargés à partir d\'Internet ou créés localement.\n\nLe téléchargement est beaucoup plus rapide et les index téléchargés offrent plus de fonctionnalités.\n\nUne connexion internet est requise pour télécharger les index.</string>
   <string name="indexing_wait_msg">Quand l\'indexation sera terminée, vous retrouverez l\'écran de recherche</string>
   <string name="index">Index</string>
@@ -141,20 +141,6 @@
   <string name="doc_type_book">Livre</string>
   <!-- Languages -->
   <string name="lang_default">Par défaut</string>
-  <string name="lang_chinese">Chinois</string>
-  <string name="lang_czech">Tchèque</string>
-  <string name="lang_english">Anglais</string>
-  <string name="lang_faroese">Des îles Féroé</string>
-  <string name="lang_french">Français</string>
-  <string name="lang_german">Allemand</string>
-  <string name="lang_hebrew">Hébreu</string>
-  <string name="lang_hungarian">Hongrois</string>
-  <string name="lang_lithuanian">Lituanien</string>
-  <string name="lang_norwegian">Norvégien</string>
-  <string name="lang_polish">Polonais</string>
-  <string name="lang_portuguese">Portugais</string>
-  <string name="lang_russian">Russe</string>
-  <string name="lang_swedish">Suédois</string>
   <!-- General -->
   <string name="error_occurred">Une erreur s\'est produite</string>
   <string name="okay">OK</string>
@@ -165,4 +151,7 @@
   <string name="retry">Recommencer</string>
   <string name="please_wait">Attendez svp...</string>
   <string name="all">Tout</string>
+  <string name="all_greek_occurrences">Voir toutes les occurrences</string>
+  <string name="all_hebrew_occurrences">Voir toutes les occurrences</string>
+  <string name="no_indexed_bible_with_strongs_ref">Vous devez télécharger une bible contenant les numéros Strong et télécharger son index via Rechercher</string>
 </resources>
