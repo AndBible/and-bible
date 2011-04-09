@@ -166,23 +166,6 @@
 	<string name="doc_type_dictionary">Dictionary</string>
 	<string name="doc_type_book">Book</string>
 
-    <!-- Languages -->
-	<string name="lang_default">Default</string>
-	<string name="lang_chinese">Chinese</string>
-	<string name="lang_czech">Czech</string>
-	<string name="lang_english">English</string>
-	<string name="lang_faroese">Faroese</string>
-	<string name="lang_french">French</string>
-	<string name="lang_german">German</string>
-	<string name="lang_hebrew">Hebrew</string>
-	<string name="lang_hungarian">Hungarian</string>
-	<string name="lang_lithuanian">Lithuanian</string>
-	<string name="lang_norwegian">Norwegian</string>
-	<string name="lang_polish">Polish</string>
-	<string name="lang_portuguese">Portuguese</string>
-	<string name="lang_russian">Russian</string>
-	<string name="lang_swedish">Swedish</string>
-	
     <!-- General -->
     <string name="error_occurred">An error has occurred</string>
     <string name="okay">OK</string>
