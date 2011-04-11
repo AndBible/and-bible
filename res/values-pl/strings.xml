@@ -30,7 +30,7 @@
   <string name="search_index">Indeks wyszukiwania</string>
   <string name="index_creation_required">Aby przeprowadzić wyszukiwanie wymagane jest stworzenie indeksu.\n\nIndeks może zostać pobrany z Internetu lub stworzony lokalnie.\n\nZaleca się pobranie indeksu z sieci.\n\nAby pobrać indeks wymagane jest połaczenie z Internetem.</string>
   <string name="indexing_wait_msg">Po zakończeniu indeksowania zostaniesz przeniesiony do ekranu wyszukiwania.</string>
-  <string name="index">Index</string>
+  <string name="index">Spis</string>
   <string name="index_download">Pobierz</string>
   <string name="index_not_available_for_download">Ten indeks nie jest dostępny.</string>
   <string name="index_create">Utwórz</string>
@@ -137,18 +137,18 @@
     <item quantity="other">%d stron</item>
   </plurals>
   <!-- Speak - Common -->
-  <string name="stop">Stop</string>
+  <string name="stop">Wstrzymaj</string>
   <string name="tts_lang_not_available">Język niedostępny.</string>
   <string name="all_greek_occurrences">Pokaż wszystkie</string>
   <string name="all_hebrew_occurrences">Pokaż wszystkie</string>
   <string name="chapter_no">Rozdział %d</string>
-  <string name="lang_default">Default</string>
+  <string name="lang_default">Domyślny</string>
   <string name="locale_change_warning">Application will be restarted to switch to the new interface language</string>
-  <string name="no">No</string>
-  <string name="no_indexed_bible_with_strongs_ref">You must download a bible containing Strong\'s numbers and download its index via Search</string>
-  <string name="prefs_interface_locale_summary">Select custom user interface language</string>
-  <string name="prefs_interface_locale_title">Aplication language</string>
-  <string name="prefs_verse_per_line_summary">Show each verse on a different line</string>
-  <string name="prefs_verse_per_line_title">One verse per line</string>
-  <string name="refresh_book_list">Refresh list of available documents?</string>
+  <string name="no">Nie</string>
+  <string name="no_indexed_bible_with_strongs_ref">Należy pobrać Biblię zawierającą numery Stronga i następnie pobierać ich spis przez \"Szukaj\"</string>
+  <string name="prefs_interface_locale_summary">Wybierz język</string>
+  <string name="prefs_interface_locale_title">Język programu</string>
+  <string name="prefs_verse_per_line_summary">Pokaż każdy werset w osobnej linii</string>
+  <string name="prefs_verse_per_line_title">Jeden werset na linię</string>
+  <string name="refresh_book_list">Odświeżyć listę dostępnych dokumentów?</string>
 </resources>
