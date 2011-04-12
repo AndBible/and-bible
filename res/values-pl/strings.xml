@@ -143,7 +143,7 @@
   <string name="all_hebrew_occurrences">Pokaż wszystkie</string>
   <string name="chapter_no">Rozdział %d</string>
   <string name="lang_default">Domyślny</string>
-  <string name="locale_change_warning">Application will be restarted to switch to the new interface language</string>
+  <string name="locale_change_warning">Aplikacja zostanie ponownie uruchomiona, aby przełączyć się na nowy język interfejsu</string>
   <string name="no">Nie</string>
   <string name="no_indexed_bible_with_strongs_ref">Należy pobrać Biblię zawierającą numery Stronga i następnie pobierać ich spis przez \"Szukaj\"</string>
   <string name="prefs_interface_locale_summary">Wybierz język</string>
