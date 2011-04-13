@@ -19,7 +19,6 @@ import net.bible.android.view.activity.navigation.History;
 import net.bible.android.view.activity.speak.Speak;
 import net.bible.android.view.util.DataPipe;
 import net.bible.service.common.CommonUtils;
-import net.bible.service.history.HistoryManager;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -69,6 +68,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
         
         setContentView(R.layout.main_bible_view);
 
+        setIntegrateWithHistoryManager(true);
+        
         // create related objects
         gestureDetector = new GestureDetector( new BibleSwipeListener(MainBibleActivity.this) );
         bibleWebView = (BibleView)findViewById(R.id.main_text);
@@ -180,10 +181,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		Log.d(TAG, "Keycode:"+keyCode);
 		// common key handling i.e. KEYCODE_DPAD_RIGHT & KEYCODE_DPAD_LEFT
 		if (BibleKeyHandler.getInstance().onKeyDown(keyCode, event)) {
-			return true;
-		} else if ((keyCode == KeyEvent.KEYCODE_BACK) && HistoryManager.getInstance().canGoBack()) {
-			Log.d(TAG, "Back");
-			HistoryManager.getInstance().goBack();
 			return true;
 		} else if ((keyCode == KeyEvent.KEYCODE_SEARCH && CurrentPageManager.getInstance().getCurrentPage().isSearchable())) {
 			Intent intent = ControlFactory.getInstance().getSearchControl().getSearchIntent(CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument());
