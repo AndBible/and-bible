@@ -43,7 +43,9 @@ public class SearchResults extends ListActivityBase {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "Displaying Search results view");
         setContentView(R.layout.search_results);
-    
+
+        setIntegrateWithHistoryManager(true);
+        
         if (prepareResults()) {
         	mKeyArrayAdapter = new SearchItemAdapter(this, LIST_ITEM_TYPE, mSearchResults);
             setListAdapter(mKeyArrayAdapter);
@@ -60,9 +62,10 @@ public class SearchResults extends ListActivityBase {
     	boolean isOk;
 
     	try {
-			// get search string
-			String searchText = getIntent().getExtras().getString(SearchControl.SEARCH_TEXT);
-			String searchDocument = getIntent().getExtras().getString(SearchControl.SEARCH_DOCUMENT);
+    		// get search string - passed in using extras so extras cannot be null
+            Bundle extras = getIntent().getExtras();
+			String searchText = extras.getString(SearchControl.SEARCH_TEXT);
+			String searchDocument = extras.getString(SearchControl.SEARCH_DOCUMENT);
 			if (StringUtils.isEmpty(searchDocument)) {
 				searchDocument = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument().getInitials();
 			}
@@ -94,6 +97,8 @@ public class SearchResults extends ListActivityBase {
     @Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
     	try {
+    		// no need to call HistoryManager.beforePageChange() here because PassageChangeMediator will tell HistoryManager a change is about to occur 
+    		
 	    	verseSelected(mSearchResults.get(position));
 		} catch (Exception e) {
 			Log.e(TAG, "Selection error", e);

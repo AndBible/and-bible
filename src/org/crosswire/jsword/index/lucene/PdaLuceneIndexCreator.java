@@ -25,13 +25,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import net.bible.service.common.CommonUtils;
-import net.bible.service.common.ParseException;
 import net.bible.service.sword.Logger;
-import net.bible.service.sword.SwordApi;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
@@ -44,15 +41,19 @@ import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.progress.Progress;
 import org.crosswire.common.util.NetUtil;
 import org.crosswire.common.util.Reporter;
+import org.crosswire.jsword.JSMsg;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
+import org.crosswire.jsword.book.BookData;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.DataPolice;
+import org.crosswire.jsword.book.FeatureType;
+import org.crosswire.jsword.book.OSISUtil;
 import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.index.lucene.analysis.LuceneAnalyzer;
 import org.crosswire.jsword.passage.Key;
-import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.PassageKeyFactory;
+import org.jdom.Element;
 
 /**
  * Implement the SearchEngine using Lucene as the search engine.
@@ -77,6 +78,10 @@ public class PdaLuceneIndexCreator {
      */
     public static final String FIELD_BODY = "content";
 
+    /**
+     * The Lucene field for the strong numbers
+     */
+    public static final String FIELD_STRONG = "strong";
 
     /** we are on a device with limited ram so don't use too much */
     private static final int MAX_RAM_BUFFER_SIZE_MB = 1;
@@ -102,14 +107,14 @@ public class PdaLuceneIndexCreator {
             this.path = finalPath.getCanonicalPath();
         } catch (IOException ex) {
             // TRANSLATOR: Error condition: Could not initialize a search index. Lucene is the name of the search technology being used.
-            throw new BookException(UserMsg.gettext("Failed to initialize Lucene search engine."), ex);
+            throw new BookException(JSMsg.gettext("Failed to initialize Lucene search engine."), ex);
         }
 
         // Indexing the book is a good way to police data errors.
         DataPolice.setBook(book.getBookMetaData());
 
         // TRANSLATOR: Progress label indicating the start of indexing. {0} is a placeholder for the book's short name.
-        String jobName = UserMsg.gettext("Creating index. Processing {0}", book.getInitials());
+        String jobName = JSMsg.gettext("Creating index. Processing {0}", book.getInitials());
         Progress job = JobManager.createJob(jobName, Thread.currentThread());
         job.beginJob(jobName);
 
@@ -144,12 +149,12 @@ public class PdaLuceneIndexCreator {
 	                } catch (Exception e) {
 	                	e.printStackTrace();
                         // TRANSLATOR: The search index could not be moved to it's final location.
-                        throw new BookException(UserMsg.gettext("Installation failed."));
+                        throw new BookException(JSMsg.gettext("Installation failed."));
 	                }
 	                logger.info("Finished indexing "+book.getName()+" starting optimisation");
 	
 	                // TRANSLATOR: Progress label for optimizing a search index. This may take a bit of time, so we have a label for it.
-	                job.setSectionName(UserMsg.gettext("Optimizing"));
+	                job.setSectionName(JSMsg.gettext("Optimizing"));
 	                // must be 1 more than 95 for the notification to be sent through to the listener
 	                job.setWork(96);
 	
@@ -168,7 +173,7 @@ public class PdaLuceneIndexCreator {
                 	logger.debug("Renaming "+tempPath+" to "+finalPath);
                     if (!tempPath.renameTo(finalPath)) {
                         // TRANSLATOR: The search index could not be moved to it's final location.
-                        throw new BookException(UserMsg.gettext("Installation failed."));
+                        throw new BookException(JSMsg.gettext("Installation failed."));
                     }
                 }
 
@@ -177,21 +182,20 @@ public class PdaLuceneIndexCreator {
                 }
 
                 if (!errors.isEmpty()) {
-                    StringBuffer buf = new StringBuffer();
-                    Iterator<Key> iter = errors.iterator();
-                    while (iter.hasNext()) {
-                        buf.append(iter.next());
+                    StringBuilder buf = new StringBuilder();
+                    for (Key error : errors) {
+                        buf.append(error);
                         buf.append('\n');
                     }
                     // TRANSLATOR: It is likely that one or more verses could not be indexed due to errors in those verses.
                     // This message gives a listing of them to the user.
-                    Reporter.informUser(this, UserMsg.gettext("The following verses have errors and could not be indexed\n{0}", buf));
+                    Reporter.informUser(this, JSMsg.gettext("The following verses have errors and could not be indexed\n{0}", buf));
                 }
             }
         } catch (Exception ex) {
             job.cancel();
             // TRANSLATOR: Common error condition: Some error happened while creating a search index.
-            throw new BookException(UserMsg.gettext("Failed to initialize Lucene search engine."), ex);
+            throw new BookException(JSMsg.gettext("Failed to initialize Lucene search engine."), ex);
         } finally {
             book.setIndexStatus(finalStatus);
             job.done();
@@ -206,41 +210,39 @@ public class PdaLuceneIndexCreator {
      */
     private void generateSearchIndexImpl(Progress job, List<Key> errors, IndexWriter writer, Key key, int count) throws BookException, IOException {
         logger.debug("Generating search Index");
+        boolean hasStrongs = book.getBookMetaData().hasFeature(FeatureType.STRONGS_NUMBERS);
 
-        String oldRootName = ""; //$NON-NLS-1$
+        String oldRootName = "";
         int percent = 0;
-        String rootName = ""; //$NON-NLS-1$
-        Key subkey = null;
-        String canonicalText = null;
+        String rootName = "";
+        BookData data = null;
+        Element osis = null;
 
         // Set up for reuse.
         Document doc = new Document();
-        Field keyField = new Field(FIELD_KEY, "", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO); //$NON-NLS-1$
-        Field bodyField = new Field(FIELD_BODY, "", Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.NO); //$NON-NLS-1$
+        Field keyField = new Field(FIELD_KEY, "", Field.Store.YES, Field.Index.NOT_ANALYZED, Field.TermVector.NO);
+        Field bodyField = new Field(FIELD_BODY, "", Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.NO);
+        Field strongField = new Field(FIELD_STRONG, "", Field.Store.NO, Field.Index.ANALYZED, Field.TermVector.NO);
 
         int size = key.getCardinality();
         logger.debug("Number of keys:"+size);
         int subCount = count;
-        Iterator<Key> it = key.iterator();
-        while (it.hasNext()) {
-            subkey = it.next();
+        for (Key subkey : key) {
             if (subkey.canHaveChildren()) {
                 generateSearchIndexImpl(job, errors, writer, subkey, subCount);
             } else {
                 // Set up DataPolice for this key.
                 DataPolice.setKey(subkey);
 
+                data = new BookData(book, subkey);
+                osis = null;
+
                 try {
-                	canonicalText = SwordApi.getInstance().getCanonicalText(book, subkey);
-                } catch (NoSuchKeyException e) {
-                	logger.warn("No such key:"+subkey.getName());
+                    osis = data.getOsisFragment();
+                } catch (BookException e) {
                     errors.add(subkey);
                     continue;
-	            } catch (ParseException e) {
-	            	logger.warn("Parse exception:"+subkey.getName());
-	                errors.add(subkey);
-	                continue;
-	            }
+                }
 
                 // Remove all fields from the document
                 doc.getFields().clear();
@@ -250,14 +252,18 @@ public class PdaLuceneIndexCreator {
                 keyField.setValue(subkey.getOsisRef());
                 doc.add(keyField);
 
-                addField(doc, bodyField, canonicalText);
+                addField(doc, bodyField, OSISUtil.getCanonicalText(osis));
+
+                if (hasStrongs) {
+                    addField(doc, strongField, OSISUtil.getStrongsNumbers(osis));
+                }
 
                 // Add the document if we added more than just the key.
                 if (doc.getFields().size() > 1) {
                     writer.addDocument(doc);
                 }
 
-                subCount++;
+                 subCount++;
 
                 // report progress but not all the time for efficiency
                 if (subCount%50 ==0) {
@@ -272,7 +278,6 @@ public class PdaLuceneIndexCreator {
 	                // and force a garbage collect every so often
 	                System.gc();
                 }
-                
 
                 // This could take a long time ...
                 Thread.yield();

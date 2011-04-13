@@ -1,10 +1,12 @@
 package net.bible.android.view.activity.base;
 
 import net.bible.android.view.util.UiUtils;
+import net.bible.service.history.HistoryManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 
 /** Base class for activities
  * 
@@ -13,6 +15,9 @@ import android.util.Log;
  *      The copyright to this program is held by it's author.
  */
 public class ActivityBase extends Activity implements AndBibleActivity {
+	
+	private boolean integrateWithHistoryManager;
+	
 	private static final String TAG = "ActivityBase";
 	
     public ActivityBase() {
@@ -35,6 +40,20 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 		UiUtils.applyTheme(this);
     }
     
+    /** handle back key here by using the HistoryManager
+     */
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+		// common key handling i.e. KEYCODE_DPAD_RIGHT & KEYCODE_DPAD_LEFT
+		if (integrateWithHistoryManager && (keyCode == KeyEvent.KEYCODE_BACK) && HistoryManager.getInstance().canGoBack()) {
+			Log.d(TAG, "Back");
+			HistoryManager.getInstance().goBack();
+			return true;
+		}
+		
+		return super.onKeyDown(keyCode, event);
+	}
+
 	public void showErrorMsg(int msgResId) {
 		Dialogs.getInstance().showErrorMsg(msgResId);
 	}
@@ -59,6 +78,14 @@ public class ActivityBase extends Activity implements AndBibleActivity {
     	finish();    
     }
     
+	public boolean isIntegrateWithHistoryManager() {
+		return integrateWithHistoryManager;
+	}
+
+	public void setIntegrateWithHistoryManager(boolean integrateWithHistoryManager) {
+		this.integrateWithHistoryManager = integrateWithHistoryManager;
+	}
+
 	@Override
 	protected void onResume() {
 		super.onResume();

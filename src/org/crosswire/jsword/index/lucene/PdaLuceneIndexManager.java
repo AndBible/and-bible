@@ -49,18 +49,14 @@ public class PdaLuceneIndexManager  {
      * .crosswire.common.progress.Job)
      */
     public void scheduleIndexCreation(final Book book) {
-    	log.debug("1");
         book.setIndexStatus(IndexStatus.SCHEDULED);
 
-    	log.debug("2");
         Thread work = new Thread(new Runnable() {
             public void run() {
                 IndexStatus finalStatus = IndexStatus.UNDONE;
 
-            	log.debug("3");
                 try {
                     URI storage = getStorageArea(book);
-                	log.debug("4");
 
                     PdaLuceneIndexCreator index = new PdaLuceneIndexCreator(book, storage, true);
                     // We were successful if the directory exists.
@@ -116,7 +112,7 @@ public class PdaLuceneIndexManager  {
     /**
      * The lucene search index directory
      */
-    private static final String DIR_LUCENE = "lucene"; //$NON-NLS-1$
+    private static final String DIR_LUCENE = "lucene";
 
     /**
      * The log stream

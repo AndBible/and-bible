@@ -6,6 +6,7 @@ import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.search.SearchControl.SearchBibleSection;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.page.MainBibleActivity;
+import net.bible.service.history.HistoryManager;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.index.search.SearchType;
@@ -44,7 +45,9 @@ public class Search extends ActivityBase {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "Displaying Search view");
         setContentView(R.layout.search);
-    
+        
+        setIntegrateWithHistoryManager(true);
+   
         mSearchTextInput =  (EditText)findViewById(R.id.searchText);
         mSearchTextInput.setOnKeyListener(new OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -58,6 +61,15 @@ public class Search extends ActivityBase {
                 return false;
             }
         });
+
+        // pre-load search string if passed in
+        Bundle extras = getIntent().getExtras();
+        if (extras!=null) {
+			String searchText = extras.getString(SearchControl.SEARCH_TEXT);
+			if (StringUtils.isNotEmpty(searchText)) {
+				mSearchTextInput.setText(searchText);
+			}
+        }
         
         RadioGroup wordsRadioGroup = (RadioGroup)findViewById(R.id.wordsGroup);
         wordsRadioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
@@ -82,6 +94,11 @@ public class Search extends ActivityBase {
     	Log.i(TAG, "CLICKED");
     	String searchText = mSearchTextInput.getText().toString();
     	if (!StringUtils.isEmpty(searchText)) {
+    		// Call HistoryManager to notify of imminent page change
+    		// update current intent so search is restored if we return here via history/back
+    		getIntent().putExtra(SearchControl.SEARCH_TEXT, searchText);
+    		HistoryManager.getInstance().beforePageChange();
+    		
         	searchText = decorateSearchString(searchText);
         	Log.d(TAG, "Search text:"+searchText);
         	
