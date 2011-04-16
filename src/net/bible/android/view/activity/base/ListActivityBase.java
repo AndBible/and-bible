@@ -40,7 +40,28 @@ public class ListActivityBase extends ListActivity implements AndBibleActivity {
 
 		UiUtils.applyTheme(this);
     }
-    
+
+    @Override
+	public void startActivity(Intent intent) {
+    	beforeStartActivity();
+    	
+		super.startActivity(intent);
+	}
+	@Override
+	public void startActivityForResult(Intent intent, int requestCode) {
+    	beforeStartActivity();
+
+    	super.startActivityForResult(intent, requestCode);
+	}
+    /**
+     * about to change activity so tell the HistoryManager so it can register the old activity in its list
+     */
+	protected void beforeStartActivity() {
+		if (integrateWithHistoryManager) {
+			HistoryManager.getInstance().beforePageChange();
+		}
+	}
+
     /** handle back key here by using the HistoryManager
      */
 	@Override
@@ -48,11 +69,17 @@ public class ListActivityBase extends ListActivity implements AndBibleActivity {
 		// common key handling i.e. KEYCODE_DPAD_RIGHT & KEYCODE_DPAD_LEFT
 		if (integrateWithHistoryManager && (keyCode == KeyEvent.KEYCODE_BACK) && HistoryManager.getInstance().canGoBack()) {
 			Log.d(TAG, "Back");
-			HistoryManager.getInstance().goBack();
+			goBack();
 			return true;
 		}
 		
 		return super.onKeyDown(keyCode, event);
+	}
+
+	/** go back to previous screen 
+	 */
+	protected void goBack() {
+		HistoryManager.getInstance().goBack();
 	}
 
 	public void showErrorMsg(int msgResId) {

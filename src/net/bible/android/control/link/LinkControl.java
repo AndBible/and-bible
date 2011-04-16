@@ -45,7 +45,6 @@ public class LinkControl {
 	        String ref = uriTokens[1];
 	
 	        // hebrew or greek
-	        Book book = null;
 	        if (Constants.GREEK_DEF_PROTOCOL.equals(protocol)) {
 	        	showStrongs(Defaults.getGreekDefinitions(), ref);
 	        } else if (Constants.HEBREW_DEF_PROTOCOL.equals(protocol)) {
@@ -97,7 +96,6 @@ public class LinkControl {
     		return;
     	}
     	
-
     	// The below uses ANY_WORDS because that does not add anything to the search string
     	String searchText = ControlFactory.getInstance().getSearchControl().decorateSearchString("strong:"+refPrefix+ref, SearchType.ANY_WORDS, biblesection);
     	Log.d(TAG, "Search text:"+searchText);

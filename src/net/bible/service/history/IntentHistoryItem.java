@@ -1,6 +1,8 @@
 package net.bible.service.history;
 
 import net.bible.android.view.activity.base.CurrentActivityHolder;
+import net.bible.android.view.activity.page.MainBibleActivity;
+import android.app.Activity;
 import android.content.Intent;
 
 
@@ -38,6 +40,14 @@ public class IntentHistoryItem implements HistoryItem {
 
 	@Override
 	public void revertTo() {
-		CurrentActivityHolder.getInstance().getCurrentActivity().startActivity(intent);
+		Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
+
+		// start activity chosen from activity
+		currentActivity.startActivity(intent);
+		
+		// finish current activity
+		if (!(currentActivity instanceof MainBibleActivity)) {
+			currentActivity.finish();
+		}
 	}
 }
