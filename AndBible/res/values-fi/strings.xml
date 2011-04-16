@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- Application text
  
  @author Jori Brander [branderj at gmail dot com]
@@ -6,134 +6,127 @@
       The copyright to this program is held by it's author.
 -->
 <resources>
-    <string name="app_name">And Bible</string>
-
-    <string name="splash_top_text">\n\"Ja Jumala sanoi: \'Tulkoon valkeus\'. Ja valkeus tuli.\"\n1. Moos. 1:3</string>
-    <string name="help_text">Siirry VALIKKO näppäimellä toimintoihin\n\nSiirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjaimella tai pyyhkäisemällä näyttöä sormella\n\nPaina Puhu kuullaksesi luvun puhuttuna</string>
-    <string name="help_text_long">Navigointi\nSiirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjaimella tai pyyhkäisemällä näyttöä sormella
-    \n\nSiirry VALIKKO näppäimellä toimintoihin
-    \n\nPuhe\nPaina Puhu kuullaksesi luvun puhuttuna\nPaina Puhu uudelleen keskeyttääksi puheen
-    \n\nPitkä painallus raamattunäkymässä avaa valittuun jakeeseen liittyvän toimintavalikon.
-    \nPaina pitkään teoksen nimen päällä teosten valintanäkymässä poistaaksesi sen tai nähdäksesi teoksen tiedot.
-    \n\nKirjanmerkit\nKirjanmerkkejä lisätään jakeen toimintavalikosta.  Kirjanmerkkien hallintaan pääseen päävalikosta.  Kirjanmerkit voi ryhmitellä vapaasti omiin ryhmiinsä.</string>
-    <string name="version_text">Versio %s</string>
-    <string name="no_sdcard_error">Ole hyvä ja aseta SD kortti sekä käynnistä And Bible uudelleen.</string>
-    <!-- main menu -->
-    <string name="chooseBook">Teos</string>
-    <string name="selectPassage">Siirry</string>
-    <string name="search">Etsi</string>
-    <string name="settings">Asetukset</string>
-    <string name="history">Historia</string>
-    <string name="speak">Puhu</string>
-    <string name="help">Ohje</string>
-    
-    <string name="choosePassageBookName">Valitse kirja</string>
-    <string name="choosePassageChapterName">Valitse luku</string>
-    <string name="chapter_range">%1$s luvut %2$d - %3$d</string>
-    <string name="chapter_no">Luku %d</string>
-
-    <string name="search_index">Hakuindeksi</string>
-    <string name="search_chinese_na">Kiinan kielisten teosten haku toteutetaan tulevissa versioissa.</string>
-    <string name="index_creation_required">Etsiminen vaatii indeksin.\n\nIndeksit voidaan ladata netistä tai luoda paikallisesti.\n\nLataaminen on huomattavasti nopeampaa, minkä lisäksi ladatuissa indekseissä on enemmän ominaisuuksia.\n\nInternetyhteys tarvitaan indeksin lataamiseksi.\n</string>
-    <string name="indexing_wait_msg">Kun indeksointi on valmis, ohjelma siirtyy suoraan etsi-toimintoon.</string>
-    <string name="index">Indeksoi</string>
-    <string name="index_download">Lataa</string>
-    <string name="index_not_available_for_download">Tämä indeksi ei ole ladatavissa</string>
-    <string name="index_create">Luo uusi</string>
-    
-    <string name="sdcard_error">Tarvitset SD-kortin jatkaaksesi!</string>
-    <string name="directory_error">Hakemisto %s ei ole käytettävissä.</string> 
-	<string name="progress_status">Edistyminen</string>
-	<string name="task_kill_warning">Pitkäkestoiset tehtävät voivat keskeytyä, jos siirryt toiseen sovellukseen ennen kuin ne on suoritettu loppuun.</string>
-	<string name="no_tasks_running">Tehtäviä ei ole tällä hetkellä suoritettavana.</string>
-	<string name="delete_doc">Poista %s?</string>
-
-	<!-- Search -->
-	<string name="search_words_group_prompt">Etsi jakeista</string>
-    <string name="search_all_words">Kaikkia sanoja</string>
-    <string name="search_any_word">Jotain sanoista</string>
-    <string name="search_phrase">Lausetta</string>
-    <string name="search_result_count">%d jaetta löytyi</string>
-    <string name="search_showing_first">Liian monta hakutulosta.  Näytetään ensimmäiset %d</string> 
-    <string name="search_bible_section_group_prompt">Kohdista haku</string>
-    <string name="search_all_bible">Koko Raamattuun</string>
-    <string name="search_new_testament">Uuteen testamenttiin</string>
-    <string name="search_old_testament">Vanhaan testamenttiin</string>
-    <string name="search_current_book">Avoimeen kirjaan</string>
-    <string name="error_executing_search">Virheellinen haku</string>
-
-	<!-- Preferences -->
-    <string name="prefs_show_verseno_title">Jaenumerot</string>
-    <string name="prefs_show_verseno_summary">Näytä jaenumerot</string>
-    <string name="prefs_show_notes_title">Alaviitteet</string>
-    <string name="prefs_show_notes_summary">Näytä alaviitteet</string>
-    <string name="prefs_show_strongs_title">Näytä Strongin numerointi</string>
-    <string name="prefs_show_strongs_summary">Linkitys kreikan- ja hepreankielen sanakirjaan</string>
-    <string name="prefs_night_mode_title">Yönäkymä</string>
-    <string name="prefs_night_mode_summary">Hämärässä lukemiseen soveltuva väritys</string>
-    <string name="prefs_text_size_title">Tekstin koko</string>
-    <string name="prefs_text_size_summary">Näe enemmän tai näe selvemmin</string>
-
-	<!-- Notes screen -->
-    <string name="no_chapter_notes">Tähän lukuun ei liity alaviitteitä</string>
-    <string name="no_verse_notes">Tähän jakeeseen ei liity alaviitteitä</string>
-    <string name="previous">Edellinen</string>
-    <string name="next">Seuraava</string>
-
-	<!--  Strongs -->
-    <string name="strongs">Strongin sanakirja</string>
-    <string name="strongs_not_installed">Ole hyvä ja lataa Strongin heprean- ja kreikankielen sanakirjat</string>
-
-	<!-- Module download -->
-    <string name="download">Lataa teoksia</string>
-    <string name="download_confirmation">Lataa teoksia internetistä?</string>
-    <string name="download_source_message">Teokset ovat ladattavissa osoitteesta \nhttp://www.crosswire.org</string>
-    <string name="download_document_confirm_prefix">"Lataa "</string>
-    <string name="error_downloading">Virhe ladattaessa teosta.  Ole hyvä ja tarkista yhteyden toimivuus.</string>
-    <string name="no_internet_connection">Ei saada yhteyttä internettiin</string>
-    <string name="storage_space_warning">Liian vähän tilaa tallentaa teos laitteeseen.</string>
-    <string name="wait_for_bible">Ole hyvä ja odota, että teos on ladattu kokonaan.  Latauksen jäleen siirryt takaisin ohjelmaan.</string>
-	<string name="wait_for_bible_not_yet">Ole hyvä ja odota.  Teoksen asennus ei ole vielä valmis.</string>
-	<string name="download_complete_no_bibles">Teosta ei onnistuttu asennetamaan.  Siirry takaisin ja yritä uudelleen.</string>
-	<string name="too_many_jobs">Liian monta tehtävää suorituksessa.  Odota hetki, että tehtäviä valmistuu ja yritä uudelleen.</string>
-
-	<!-- Document context menu -->
-    <string name="delete">Poista</string>
-    <string name="about">Tiedot</string>
-    
-	<!-- Verse context menu -->
-    <string name="notes">Alaviitteet ja rinnakkaispaikat</string>
-    <string name="copy">Kopioi jae</string>
-    <string name="send_sms">Lähetä jae tekstiviestinä</string>
-
-	<!-- Bookmarks -->
-    <string name="bookmarks">Kirjanmerkit</string>
-    <string name="add_bookmark">Lisää kirjanmerkit</string>
-    <string name="bookmark_added">Kirjanmerkki lisätty</string>
-    <string name="bookmark_exists">Kirjanmerkki on jo olemassa</string>
-    <string name="bookmark_labels">Kirjanmerkkien ryhmät</string>
-    <string name="assign_labels">Sijoita ryhmään</string>
-    <string name="new_label">Uusi ryhmä</string>
-    <string name="new_label_prompt">Nimi</string>
-	
-	<!-- Dictionary -->
-    <string name="dictionary">Sanakirja</string>
-    <string name="search_dictionary_hint">Etsi sanakirjasta</string>
-    <string name="dictionary_contents">Sisältö</string>
-
-	<!-- Document types -->    
-	<string name="doc_type_bible">Raamattu</string>
-	<string name="doc_type_commentary">Kommentaari</string>
-	<string name="doc_type_dictionary">Sanakirja</string>
-
-    <string name="error_occurred">Tapahtui virhe</string>
-    <string name="okay">OK</string>
-    <string name="cancel">Peruuta</string>
-    <string name="error">Virhe </string>
-    <string name="more">Lisää</string>
-    <string name="retry">Yritä uudelleen</string>
-    <string name="please_wait">Ole hyvä ja odota...</string>
-    <string name="all">Kaikki</string>
-
-    <string name="tts_lang_not_available">Kieli ei ole saatavilla.</string>
+  <string name="app_name">And Bible</string>
+  <string name="splash_top_text">\n\"Ja Jumala sanoi: \'Tulkoon valkeus\'. Ja valkeus tuli.\"\n1. Moos. 1:3</string>
+  <string name="help_text">Siirry VALIKKO näppäimellä toimintoihin\n\nSiirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjaimella tai pyyhkäisemällä näyttöä sormella</string>
+  <string name="help_text_long">"Navigointi\nSiirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjaimella tai pyyhkäisemällä näyttöä sormella \n\nSiirry VALIKKO näppäimellä toimintoihin \n\nLataa lisää teoksia siirtymällä Valikko / Lisää / Lataa asiakirjat \n\nPainamalla pitkään Raamatun tekstin päällä avautuu tekstivalikko liittyen nykyiseen jakeeseen.\nPainamalla pitkään teosvalitsimen päällä voit poistaa teoksen tai tarkastella sen tietoja. \n\nPuhe\nPaina Puhu kuullaksesi luvun puhuttuna tai keskeyttääksesi puheen.\n\nKirjanmerkit \nKirjanmerkkejä voi lisätä pikavalikon kautta. Kirjanmerkkien hallintaan pääsee päävalikon kautta, missä kirjanmerkkejä voi ryhmitellä vapaasti omiin ryhmiinsä.\n"</string>
+  <string name="version_text">Versio %s</string>
+  <string name="no_sdcard_error">Ole hyvä ja aseta SD kortti sekä käynnistä And Bible uudelleen.</string>
+  <!-- main menu -->
+  <string name="chooseBook">Teos</string>
+  <string name="selectPassage">Siirry</string>
+  <string name="search">Etsi</string>
+  <string name="settings">Asetukset</string>
+  <string name="history">Historia</string>
+  <string name="speak">Puhu</string>
+  <string name="help">Ohje</string>
+  <string name="choosePassageBookName">Valitse kirja</string>
+  <string name="choosePassageChapterName">Valitse luku</string>
+  <string name="chapter_no">Luku %d</string>
+  <string name="search_index">Hakuindeksi</string>
+  <string name="index_creation_required">Etsiminen vaatii indeksin.\n\nIndeksit voidaan ladata netistä tai luoda paikallisesti.\n\nLataaminen on huomattavasti nopeampaa, minkä lisäksi ladatuissa indekseissä on enemmän ominaisuuksia.\n\nInternetyhteys tarvitaan indeksin lataamiseksi.\n</string>
+  <string name="indexing_wait_msg">Kun indeksointi on valmis, ohjelma siirtyy suoraan etsi-toimintoon.</string>
+  <string name="index">Indeksoi</string>
+  <string name="index_download">Lataa</string>
+  <string name="index_not_available_for_download">Tämä indeksi ei ole ladatavissa</string>
+  <string name="index_create">Luo uusi</string>
+  <string name="progress_status">Edistyminen</string>
+  <string name="task_kill_warning">Pitkäkestoiset tehtävät voivat keskeytyä, jos siirryt toiseen sovellukseen ennen kuin ne on suoritettu loppuun.</string>
+  <string name="no_tasks_running">Tehtäviä ei ole tällä hetkellä suoritettavana.</string>
+  <string name="delete_doc">Poista %s?</string>
+  <!-- Search -->
+  <string name="search_words_group_prompt">Etsi jakeista</string>
+  <string name="search_all_words">Kaikkia sanoja</string>
+  <string name="search_any_word">Jotain sanoista</string>
+  <string name="search_phrase">Lausetta</string>
+  <string name="search_result_count">%d jaetta löytyi</string>
+  <string name="search_showing_first">Liian monta hakutulosta.  Näytetään ensimmäiset %d</string>
+  <string name="search_bible_section_group_prompt">Kohdista haku</string>
+  <string name="search_all_bible">Koko Raamattuun</string>
+  <string name="search_new_testament">Uuteen testamenttiin</string>
+  <string name="search_old_testament">Vanhaan testamenttiin</string>
+  <string name="search_current_book">Avoimeen kirjaan</string>
+  <string name="error_executing_search">Virheellinen haku</string>
+  <!-- Preferences -->
+  <string name="prefs_show_verseno_title">Jaenumerot</string>
+  <string name="prefs_show_verseno_summary">Näytä jaenumerot</string>
+  <string name="prefs_show_notes_title">Alaviitteet</string>
+  <string name="prefs_show_notes_summary">Näytä alaviitteet</string>
+  <string name="prefs_show_strongs_title">Näytä Strongin numerointi</string>
+  <string name="prefs_show_strongs_summary">Linkitys kreikan- ja hepreankielen sanakirjaan</string>
+  <string name="prefs_night_mode_title">Yönäkymä</string>
+  <string name="prefs_night_mode_summary">Hämärässä lukemiseen soveltuva väritys</string>
+  <string name="prefs_text_size_title">Tekstin koko</string>
+  <string name="prefs_text_size_summary">Näe enemmän tai näe selvemmin</string>
+  <!-- Notes screen -->
+  <string name="no_chapter_notes">Tähän lukuun ei liity alaviitteitä</string>
+  <string name="no_verse_notes">Tähän jakeeseen ei liity alaviitteitä</string>
+  <string name="previous">Edellinen</string>
+  <string name="next">Seuraava</string>
+  <!--  Strongs -->
+  <string name="strongs">Strongin sanakirja</string>
+  <string name="strongs_not_installed">Ole hyvä ja lataa Strongin heprean- ja kreikankielen sanakirjat</string>
+  <!-- Module download -->
+  <string name="download">Lataa teoksia</string>
+  <string name="download_confirmation">Lataa teos internetistä?</string>
+  <string name="download_source_message">Teokset ovat ladattavissa osoitteesta \nhttp://www.crosswire.org</string>
+  <string name="download_document_confirm_prefix">"Lataa "</string>
+  <string name="error_downloading">Virhe ladattaessa teosta.  Ole hyvä ja tarkista yhteyden toimivuus.</string>
+  <string name="no_internet_connection">Ei saada yhteyttä internettiin</string>
+  <string name="storage_space_warning">Liian vähän tilaa tallentaa teos laitteeseen.</string>
+  <string name="wait_for_bible">Ole hyvä ja odota, että teos on ladattu kokonaan. Latauksen jälkeen ohjelma siirtyy takaisin tekstinäkymään.</string>
+  <string name="wait_for_bible_not_yet">Ole hyvä ja odota hetki. Teoksen lataus ei ole vielä valmis.</string>
+  <string name="download_complete_no_bibles">Teosta ei onnistuttu asennetamaan.  Siirry takaisin ja yritä uudelleen.</string>
+  <string name="too_many_jobs">Liian monta tehtävää suorituksessa.  Odota hetki, että tehtäviä valmistuu ja yritä uudelleen.</string>
+  <!-- Document context menu -->
+  <string name="delete">Poista</string>
+  <string name="about">Tietoja</string>
+  <!-- Verse context menu -->
+  <string name="notes">Alaviitteet ja rinnakkaispaikat</string>
+  <string name="copy">Kopioi jae</string>
+  <!-- Bookmarks -->
+  <string name="bookmarks">Kirjanmerkit</string>
+  <string name="add_bookmark">Lisää kirjanmerkit</string>
+  <string name="bookmark_added">Kirjanmerkki lisätty</string>
+  <string name="bookmark_exists">Kirjanmerkki on jo olemassa</string>
+  <string name="bookmark_labels">Kirjanmerkkien ryhmät</string>
+  <string name="assign_labels">Sijoita ryhmään</string>
+  <string name="new_label">Uusi ryhmä</string>
+  <string name="new_label_prompt">Nimi</string>
+  <!-- Dictionary -->
+  <string name="dictionary">Sanakirja</string>
+  <string name="search_dictionary_hint">Etsi sanakirjasta</string>
+  <string name="dictionary_contents">Sisältö</string>
+  <!-- Document types -->
+  <string name="doc_type_bible">Raamattu</string>
+  <string name="doc_type_commentary">Kommentaari</string>
+  <string name="doc_type_dictionary">Sanakirja</string>
+  <string name="error_occurred">Tapahtui virhe</string>
+  <string name="okay">OK</string>
+  <string name="cancel">Peruuta</string>
+  <string name="error">"Virhe "</string>
+  <string name="more">Lisää</string>
+  <string name="retry">Yritä uudelleen</string>
+  <string name="please_wait">Ole hyvä ja odota...</string>
+  <string name="all">Kaikki</string>
+  <string name="tts_lang_not_available">Kieli ei ole saatavilla.</string>
+  <string name="all_greek_occurrences">Näytä kaikki esiintymät</string>
+  <string name="all_hebrew_occurrences">Näytä kaikki esiintymät</string>
+  <string name="doc_type_book">Kirja</string>
+  <string name="general_book">Kirja</string>
+  <string name="general_book_contents">Sisällys</string>
+  <string name="lang_default">Oletus</string>
+  <string name="locale_change_warning">Sovellus pitää käynnistää uudelleen uuden käyttöliittymän kielen ottamiseksi käyttöön.</string>
+  <string name="no">Ei</string>
+  <string name="no_indexed_bible_with_strongs_ref">Sinun pitää ladata Raamattu, joka sisältää Strongin numerot ja ladata myös sen indeksi.</string>
+  <string name="prefs_interface_locale_summary">Valitse käyttöliittymän kieli</string>
+  <string name="prefs_interface_locale_title">Sovelluksen kieli</string>
+  <string name="prefs_verse_per_line_summary">Näytä kukin jae omalla rivillään</string>
+  <string name="prefs_verse_per_line_title">Jokainen jae omalla rivillään</string>
+  <string name="refresh_book_list">Päivitä luettelo saatavilla olevista teoksista?</string>
+  <string name="rest_of_book">Kirjan loppuun</string>
+  <string name="rest_of_chapter">Luvun loppuun</string>
+  <string name="share_verse">Jaa nykyinen jae ...</string>
+  <string name="share_verse_subject">Raamatun jae on jaettu käyttäen And Bible -sovellusta.</string>
+  <string name="stop">Pysäytä</string>
 </resources>
