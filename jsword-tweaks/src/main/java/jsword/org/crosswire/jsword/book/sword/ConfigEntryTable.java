@@ -17,7 +17,7 @@
  * Copyright: 2005
  *     The copyright to this program is held by it's authors.
  *
- * ID: $Id: ConfigEntryTable.java 2068 2011-01-01 23:53:21Z dmsmith $
+ * ID: $Id: ConfigEntryTable.java 2099 2011-03-07 17:13:00Z dmsmith $
  */
 package org.crosswire.jsword.book.sword;
 
@@ -41,6 +41,7 @@ import org.crosswire.common.util.Language;
 import org.crosswire.common.util.Languages;
 import org.crosswire.common.util.Logger;
 import org.crosswire.common.util.Reporter;
+import org.crosswire.jsword.JSMsg;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.OSISUtil;
 import org.jdom.Element;
@@ -75,8 +76,8 @@ public final class ConfigEntryTable {
      *            the name of the book
      */
     public ConfigEntryTable(String bookName) {
-        table = new HashMap<ConfigEntryType,ConfigEntry>();
-        extra = new TreeMap<String,ConfigEntry>();
+        table = new HashMap<ConfigEntryType, ConfigEntry>();
+        extra = new TreeMap<String, ConfigEntry>();
         internal = bookName;
         supported = true;
     }
@@ -229,7 +230,7 @@ public final class ConfigEntryTable {
                 save();
             } catch (IOException e) {
                 // TRANSLATOR: Common error condition: The user supplied unlock key could not be saved.
-                Reporter.informUser(this, UserMsg.gettext("Unable to save the book's unlock key."));
+                Reporter.informUser(this, JSMsg.gettext("Unable to save the book's unlock key."));
             }
         }
         return true;
@@ -293,36 +294,6 @@ public final class ConfigEntryTable {
      */
     public boolean match(ConfigEntryType type, Object search) {
         ConfigEntry ce = table.get(type);
-        return ce != null && ce.match(search);
-    }
-
-    /**
-     * Gets a particular unknown entries value by its key
-     * 
-     * @param key
-     *            of the unknown entry
-     * @return the requested value or null (if there is no value)
-     */
-    public Object getExtraValue(String key) {
-        ConfigEntry ce = table.get(key);
-        if (ce != null) {
-            return ce.getValue();
-        }
-        return null;
-    }
-
-    /**
-     * Determine whether this ConfigEntryTable has the ConfigEntry and it
-     * matches the value.
-     * 
-     * @param key
-     *            The kind of unknown entry to look for
-     * @param search
-     *            the value to match against
-     * @return true if there is a unknown entry matching the value
-     */
-    public boolean matchExtra(String key, String search) {
-        ConfigEntry ce = table.get(key);
         return ce != null && ce.match(search);
     }
 
@@ -737,9 +708,9 @@ public final class ConfigEntryTable {
     /**
      * Build an ordered map so that it displays in a consistent order.
      */
-    private void toOSIS(OSISUtil.OSISFactory factory, Element ele, String aTitle, Map<String,ConfigEntry> map) {
+    private void toOSIS(OSISUtil.OSISFactory factory, Element ele, String aTitle, Map<String, ConfigEntry> map) {
         Element title = null;
-        for (Map.Entry<String,ConfigEntry> mapEntry : map.entrySet()) {
+        for (Map.Entry<String, ConfigEntry> mapEntry : map.entrySet()) {
             ConfigEntry entry = mapEntry.getValue();
             Element configElement = null;
 
@@ -760,8 +731,8 @@ public final class ConfigEntryTable {
         }
     }
 
-    private void toConf(StringBuilder buf, Map<String,ConfigEntry> map) {
-        for (Map.Entry<String,ConfigEntry> mapEntry : map.entrySet()) {
+    private void toConf(StringBuilder buf, Map<String, ConfigEntry> map) {
+        for (Map.Entry<String, ConfigEntry> mapEntry : map.entrySet()) {
             ConfigEntry entry = mapEntry.getValue();
             String text = entry.toConf();
             if (text != null && text.length() > 0) {
@@ -845,12 +816,12 @@ public final class ConfigEntryTable {
     /**
      * A map of lists of known config entries.
      */
-    private Map<ConfigEntryType,ConfigEntry> table;
+    private Map<ConfigEntryType, ConfigEntry> table;
 
     /**
      * A map of lists of unknown config entries.
      */
-    private Map<String,ConfigEntry> extra;
+    private Map<String, ConfigEntry> extra;
 
     /**
      * The BookType for this ConfigEntry

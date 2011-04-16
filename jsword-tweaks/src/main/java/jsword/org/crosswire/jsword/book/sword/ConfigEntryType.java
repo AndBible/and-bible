@@ -17,7 +17,7 @@
  * Copyright: 2005
  *     The copyright to this program is held by it's authors.
  *
- * ID: $Id: ConfigEntryType.java 2050 2010-12-09 15:31:45Z dmsmith $
+ * ID: $Id: ConfigEntryType.java 2106 2011-03-07 21:14:31Z dmsmith $
  */
 package org.crosswire.jsword.book.sword;
 
@@ -810,9 +810,9 @@ public class ConfigEntryType implements Serializable {
     };
 
     /**
-     * A list of prior "initials" for the current book. TODO(dms): when a user
-     * installs a book with an obsoletes that matches an installed book, offer
-     * the user the opportunity to delete the old book.
+     * A list of prior "initials" for the current book.
+     * TODO(dms): when a user installs a book with an obsoletes that matches
+     * an installed book, offer the user the opportunity to delete the old book.
      */
     public static final ConfigEntryType OBSOLETES = new ConfigEntryType("Obsoletes") {
 

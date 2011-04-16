@@ -4,6 +4,7 @@
 	<property name="jsword.resources" location="../jsword/src/main/resources"/>
 	<property name="tweaks.common.src" location="src/main/java/common"/>
 	<property name="tweaks.jsword.src" location="src/main/java/jsword"/>
+	<property name="tweaks.jsword.resources" location="src/main/resources"/>
 	<property name="tweaks.util.src" location="src/util/java"/>
 	<property name="build.src" location="build/src" />
 	<property name="build.class" location="build/class" />
@@ -34,6 +35,7 @@
 		<copy todir="${build.src}" overwrite="true">
 			<fileset dir="${tweaks.common.src}"/>
 			<fileset dir="${tweaks.jsword.src}"/>
+			<fileset dir="${tweaks.jsword.resources}"/>
 		</copy>
 	</target>
 
@@ -67,6 +69,9 @@
 			<fileset dir="${tweaks.common.src}"/>
 			<fileset dir="${tweaks.jsword.src}"/>
 			<fileset dir="${tweaks.util.src}"/>
+		</copy>
+		<copy todir="${jsword.resources}" overwrite="true">
+			<fileset dir="${tweaks.jsword.resources}"/>
 		</copy>
 	</target>
 </project>

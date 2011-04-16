@@ -3,6 +3,7 @@
 	<classpathentry kind="src" path="src/main/java/jsword"/>
 	<classpathentry kind="src" path="src/main/java/common"/>
 	<classpathentry kind="src" path="src/util/java"/>
+	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/jsword"/>
 	<classpathentry kind="lib" path="jar/commons-lang-2.5.jar"/>

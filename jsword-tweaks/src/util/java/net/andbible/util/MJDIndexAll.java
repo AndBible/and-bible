@@ -26,8 +26,8 @@ import org.crosswire.jsword.index.IndexManagerFactory;
 
 public class MJDIndexAll {
 
-//	private static final String REPOSITORY = "CrossWire";
-	private static final String REPOSITORY = "Xiphos";
+	private static final String REPOSITORY = "CrossWire";
+//	private static final String REPOSITORY = "Xiphos";
 //	private static final BookFilter BOOK_FILTER = BookFilters.getBibles();
 	private static final BookFilter BOOK_FILTER = BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries());
 
@@ -45,11 +45,11 @@ public class MJDIndexAll {
 //    	indexAll.setupDirs();
 //    	indexAll.showInstalledBooks();
 //    	indexAll.showRepoBooks();
-    	indexAll.installSingleBook("PolBibTysia");
+    	indexAll.installSingleBook("KJV");
 //    	indexAll.installRepoBooks();
 //    	indexAll.checkAllBooksInstalled();
 //    	indexAll.manageCreateIndexes();
-//    	indexAll.indexSingleBook("UkrKulish");
+//    	indexAll.indexSingleBook("PolBibTysia");
     }
 
     private void installSingleBook(String initials) {

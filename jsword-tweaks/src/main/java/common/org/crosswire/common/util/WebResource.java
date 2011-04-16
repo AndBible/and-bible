@@ -17,7 +17,7 @@
  * Copyright: 2005
  *     The copyright to this program is held by it's authors.
  *
- * ID: $Id: WebResource.java 2047 2010-12-07 03:49:58Z dmsmith $
+ * ID: $Id: WebResource.java 2099 2011-03-07 17:13:00Z dmsmith $
  */
 package org.crosswire.common.util;
 
@@ -45,6 +45,7 @@ import org.apache.http.impl.conn.ProxySelectorRoutePlanner;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.crosswire.common.progress.Progress;
+import org.crosswire.jsword.JSMsg;
 
 /**
  * A WebResource is backed by an URL and potentially the proxy through which it
@@ -210,9 +211,7 @@ public class WebResource {
             String reason = response.getStatusLine().getReasonPhrase();
             // TRANSLATOR: Common error condition: {0} is a placeholder for the
             // URL of what could not be found.
-            Reporter.informUser(this, UserMsg.gettext("Unable to find: {0}", new Object[] {
-                reason + ':' + uri.getPath()
-            }));
+            Reporter.informUser(this, JSMsg.gettext("Unable to find: {0}", reason + ':' + uri.getPath()));
         } catch (IOException e) {
             return 0;
         }
@@ -240,9 +239,7 @@ public class WebResource {
             String reason = response.getStatusLine().getReasonPhrase();
             // TRANSLATOR: Common error condition: {0} is a placeholder for the
             // URL of what could not be found.
-            Reporter.informUser(this, UserMsg.gettext("Unable to find: {0}", new Object[] {
-                reason + ':' + uri.getPath()
-            }));
+            Reporter.informUser(this, JSMsg.gettext("Unable to find: {0}", reason + ':' + uri.getPath()));
         } catch (IOException e) {
             return new Date().getTime();
         }
@@ -298,16 +295,12 @@ public class WebResource {
                 String reason = response.getStatusLine().getReasonPhrase();
                 // TRANSLATOR: Common error condition: {0} is a placeholder for
                 // the URL of what could not be found.
-                Reporter.informUser(this, UserMsg.gettext("Unable to find: {0}", new Object[] {
-                    reason + ':' + uri.getPath()
-                }));
+                Reporter.informUser(this, JSMsg.gettext("Unable to find: {0}", reason + ':' + uri.getPath()));
             }
         } catch (IOException e) {
             // TRANSLATOR: Common error condition: {0} is a placeholder for the
             // URL of what could not be found.
-            throw new LucidException(UserMsg.gettext("Unable to find: {0}", new Object[] {
-                uri.toString()
-            }), e);
+            throw new LucidException(JSMsg.gettext("Unable to find: {0}", uri.toString()), e);
         } finally {
             // Close the streams
             IOUtil.close(in);

@@ -39,6 +39,8 @@ import org.crosswire.common.util.IOUtil;
 import org.crosswire.common.util.Logger;
 import org.crosswire.common.util.NetUtil;
 import org.crosswire.common.util.Reporter;
+import org.crosswire.jsword.JSMsg;
+import org.crosswire.jsword.JSOtherMsg;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookDriver;
 import org.crosswire.jsword.book.BookException;
@@ -231,7 +233,7 @@ public abstract class AbstractSwordInstaller extends AbstractBookList implements
             @Override
             public void run() {
                 // TRANSLATOR: Progress label indicating the installation of a book. {0} is a placeholder for the name of the book.
-                String jobName = UserMsg.gettext("Installing book: {0}", sbmd.getName());
+                String jobName = JSMsg.gettext("Installing book: {0}", sbmd.getName());
                 Progress job = JobManager.createJob(jobName, this);
 
                 // Don't bother setting a size, we'll do it later.
@@ -242,7 +244,7 @@ public abstract class AbstractSwordInstaller extends AbstractBookList implements
                 URI temp = null;
                 try {
                     // TRANSLATOR: Progress label indicating the Initialization of installing of a book.
-                    job.setSectionName(UserMsg.gettext("Initializing"));
+                    job.setSectionName(JSMsg.gettext("Initializing"));
 
                     temp = NetUtil.getTemporaryURI("swd", ZIP_SUFFIX);
 
@@ -254,7 +256,7 @@ public abstract class AbstractSwordInstaller extends AbstractBookList implements
                         File dldir = SwordBookPath.getSwordDownloadDir();
                         IOUtil.unpackZip(NetUtil.getAsFile(temp), dldir);
                         // TRANSLATOR: Progress label for installing the conf file for a book.
-                        job.setSectionName(UserMsg.gettext("Copying config file"));
+                        job.setSectionName(JSMsg.gettext("Copying config file"));
                         sbmd.setLibrary(NetUtil.getURI(dldir));
                         SwordBookDriver.registerNewBook(sbmd);
                     }
@@ -296,7 +298,7 @@ public abstract class AbstractSwordInstaller extends AbstractBookList implements
      */
     public void reloadBookList() throws InstallException {
         // TRANSLATOR: Progress label for downloading one or more files.
-        String jobName = UserMsg.gettext("Downloading files");
+        String jobName = JSMsg.gettext("Downloading files");
         Progress job = JobManager.createJob(jobName, Thread.currentThread());
         job.beginJob(jobName);
 
@@ -321,7 +323,7 @@ public abstract class AbstractSwordInstaller extends AbstractBookList implements
      */
     public void downloadSearchIndex(Book book, URI localDest) throws InstallException {
         // TRANSLATOR: Progress label for downloading one or more files.
-        String jobName = UserMsg.gettext("Downloading files");
+        String jobName = JSMsg.gettext("Downloading files");
         Progress job = JobManager.createJob(jobName, Thread.currentThread());
         job.beginJob(jobName);
 
@@ -416,7 +418,7 @@ public abstract class AbstractSwordInstaller extends AbstractBookList implements
 
             ConfigEntry.dumpStatistics();
         } catch (IOException ex) {
-            throw new InstallException(Msg.CACHE_ERROR, ex);
+            throw new InstallException(JSOtherMsg.lookupText("Error loading from cache"), ex);
         } finally {
             IOUtil.close(tin);
             IOUtil.close(gin);
@@ -546,7 +548,7 @@ public abstract class AbstractSwordInstaller extends AbstractBookList implements
             URI scratchdir = CWProject.instance().getWriteableProjectSubdir(getTempFileExtension(host, catalogDirectory), true);
             return NetUtil.lengthenURI(scratchdir, FILE_LIST_GZ);
         } catch (IOException ex) {
-            throw new InstallException(Msg.URL_FAILED, ex);
+            throw new InstallException(JSOtherMsg.lookupText("URL manipulation failed"), ex);
         }
     }
 
@@ -617,7 +619,7 @@ public abstract class AbstractSwordInstaller extends AbstractBookList implements
     /**
      * A map of the books in this download area
      */
-    protected Map<String,Book> entries = new HashMap<String,Book>();
+    protected Map<String, Book> entries = new HashMap<String, Book>();
 
     /**
      * The remote hostname.
