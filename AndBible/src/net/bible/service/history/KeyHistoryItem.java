@@ -1,9 +1,13 @@
 package net.bible.service.history;
 
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.view.activity.base.CurrentActivityHolder;
+import net.bible.android.view.activity.page.MainBibleActivity;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
+
+import android.app.Activity;
 
 public class KeyHistoryItem implements HistoryItem {
 	private Book document;
@@ -21,6 +25,13 @@ public class KeyHistoryItem implements HistoryItem {
 	@Override
 	public void revertTo() {
 		CurrentPageManager.getInstance().setCurrentDocumentAndKey(document, key);
+		
+		// finish current activity if not the Main screen
+		Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
+		if (!(currentActivity instanceof MainBibleActivity)) {
+			currentActivity.finish();
+		}
+
 	}
 
 	

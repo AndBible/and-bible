@@ -5,7 +5,6 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.search.SearchControl.SearchBibleSection;
 import net.bible.android.view.activity.base.ActivityBase;
-import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.service.history.HistoryManager;
 
 import org.apache.commons.lang.StringUtils;
@@ -94,10 +93,10 @@ public class Search extends ActivityBase {
     	Log.i(TAG, "CLICKED");
     	String searchText = mSearchTextInput.getText().toString();
     	if (!StringUtils.isEmpty(searchText)) {
-    		// Call HistoryManager to notify of imminent page change
+
     		// update current intent so search is restored if we return here via history/back
+    		// the current intent is saved by HistoryManager
     		getIntent().putExtra(SearchControl.SEARCH_TEXT, searchText);
-    		HistoryManager.getInstance().beforePageChange();
     		
         	searchText = decorateSearchString(searchText);
         	Log.d(TAG, "Search text:"+searchText);
@@ -146,17 +145,10 @@ public class Search extends ActivityBase {
     	}
     }
     
-    @Override 
+	@Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
     	if (resultCode==Activity.RESULT_OK) {
-    		returnToMainScreen();
+    		returnToPreviousScreen();
     	}
-    }
-    
-    private void returnToMainScreen() {
-    	// just pass control back to teh main screen
-    	Intent resultIntent = new Intent(this, MainBibleActivity.class);
-    	setResult(Activity.RESULT_OK, resultIntent);
-    	finish();
     }
 }
