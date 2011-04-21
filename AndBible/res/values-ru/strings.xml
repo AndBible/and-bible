@@ -144,7 +144,7 @@
   <string name="lang_default">По умолчанию</string>
   <!-- General -->
   <string name="error_occurred">Произошла ошибка</string>
-  <string name="okay">OK</string>
+  <string name="okay">ОК</string>
   <string name="cancel">Отмена</string>
   <string name="no">Нет</string>
   <string name="error">Ошибка</string>
@@ -152,7 +152,7 @@
   <string name="retry">Попытайтесь снова</string>
   <string name="please_wait">Пожалуйста подождите...</string>
   <string name="all">Все</string>
-  <string name="all_greek_occurrences">Show all occurrences</string>
-  <string name="all_hebrew_occurrences">Show all occurrences</string>
-  <string name="no_indexed_bible_with_strongs_ref">You must download a bible containing Strong\'s numbers and download its index via Search</string>
+  <string name="all_greek_occurrences">Показать все  случаи употребления</string>
+  <string name="all_hebrew_occurrences">Показать все  случаи употребления</string>
+  <string name="no_indexed_bible_with_strongs_ref">"Необходимо скачать Библию с числами Стронга и скачать индекс через Поиск"</string>
 </resources>
