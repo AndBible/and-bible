@@ -42,14 +42,45 @@ public class MJDIndexAll {
 	
     public static void main(String[] args) {
     	MJDIndexAll indexAll = new MJDIndexAll();
+    	indexAll.updateCachedRepoBookList();
 //    	indexAll.setupDirs();
 //    	indexAll.showInstalledBooks();
 //    	indexAll.showRepoBooks();
-    	indexAll.installSingleBook("KJV");
+//    	indexAll.installSingleBook("KJV");
 //    	indexAll.installRepoBooks();
 //    	indexAll.checkAllBooksInstalled();
 //    	indexAll.manageCreateIndexes();
 //    	indexAll.indexSingleBook("PolBibTysia");
+    	
+    	// 22/4/11 updates
+    	indexAll.installAndIndexSingleBook("Clarke"); // somehow deleted
+    	// new
+    	indexAll.installAndIndexSingleBook("Antoniades");
+    	// updated
+    	indexAll.installAndIndexSingleBook("Elzevir"); //1.0 -> 1.1
+    	indexAll.installAndIndexSingleBook("TR"); // 1.2 -> 2.1
+		indexAll.installAndIndexSingleBook("SBLGNT"); // 1.2 -> 1.3
+		indexAll.installAndIndexSingleBook("SBLGNTApp"); // 1.2 -> 1.3
+		indexAll.installAndIndexSingleBook("Byz"); //1.10 -> 2.1
+		indexAll.installAndIndexSingleBook("WHNU"); //1.10 -> 2.1
+		indexAll.installAndIndexSingleBook("Luther"); //1.100322 -> 1.1
+
+//bug, still need to create this index    	indexAll.installAndIndexSingleBook("SpaRV"); // 1.5-> 1.6
+    }
+    
+    private void updateCachedRepoBookList() {
+    	try {
+	    	BookInstaller bookInstaller = new BookInstaller();
+	    	bookInstaller.reloadBookList(REPOSITORY);
+    	} catch (Exception e) {
+    		e.printStackTrace();
+    	}
+    }
+
+    private void installAndIndexSingleBook(String initials) {
+    	deleteBook(initials);
+    	installSingleBook(initials);
+    	indexSingleBook(initials);
     }
 
     private void installSingleBook(String initials) {
@@ -119,20 +150,31 @@ public class MJDIndexAll {
         
         BookInstaller bookInstaller = new BookInstaller();
         for (Book book : books) {
-        	System.out.println("Deleting:"+book.getInitials()+" name:"+book.getName());
-        	try {
-                IndexManager imanager = IndexManagerFactory.getIndexManager();
-                if (imanager.isIndexed(book)) {
-                    imanager.deleteIndex(book);
-                }
-
-                book.getDriver().delete(book);
-        	} catch (Exception e) {
-        		System.out.println("Failed to delete "+book.getInitials()+":"+e.getMessage());
-        		e.printStackTrace();
-        	}
+        	deleteBook(book);
         }
     }
+
+	private void deleteBook(String initials) {
+		Book book = BookInstaller.getInstalledBook(initials);
+		if (book!=null) {
+			deleteBook(book);
+		}
+	}
+
+	private void deleteBook(Book book) {
+		System.out.println("Deleting:"+book.getInitials()+" name:"+book.getName());
+		try {
+		    IndexManager imanager = IndexManagerFactory.getIndexManager();
+		    if (imanager.isIndexed(book)) {
+		        imanager.deleteIndex(book);
+		    }
+
+		    book.getDriver().delete(book);
+		} catch (Exception e) {
+			System.out.println("Failed to delete "+book.getInitials()+":"+e.getMessage());
+			e.printStackTrace();
+		}
+	}
     
     private void showRepoBooks() {
     	BookInstaller bookInstaller = new BookInstaller();
@@ -173,6 +215,14 @@ public class MJDIndexAll {
             	Book installedBook = bookInstaller.getInstalledBook(book.getInitials());
             	if (installedBook==null) {
             		System.out.println("Not installed:"+book.getInitials()+" Name:"+book.getName());
+            	} else {
+            		String version = (String)book.getProperty("Version");
+            		String installedVersion = (String)installedBook.getBookMetaData().getProperty("Version");
+            		if (!version.equals(installedVersion)) {
+                		System.out.println("Incorrect version of "+book.getInitials()+" installed:"+installedVersion+" Repo:"+version);
+            		} else {
+            			System.out.println("Okay:"+book.getInitials()+" "+version);
+            		}
             	}
             } catch (Exception e) {
             	System.out.println("Error installing:"+book.getInitials());
