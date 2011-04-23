@@ -8,155 +8,149 @@
 <resources>
   <string name="app_name">And Bible</string>
   <!-- Startup & Help -->
-  <string name="splash_top_text">\n\"And God said, \'Let there be light,\' and there was light.\"\nGenesis 1:3</string>
-  <string name="help_text">Press the MENU key for actions\n\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger</string>
-  <string name="help_text_long">Navigation\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger
-    \n\nPress the MENU key for actions
-    \n\nTo download more documents press Menu/More/Download Documents
-    \n\nLong press on the bible view to open the context menu for actions affecting the current verse.
-    \nLong press on a document in the document selector to delete it or view information.
-    \n\nSpeech\nPress Speak to access a dialog to start or stop reading
-    \n\nBookmarks\nBookmarks can be added via the verse context menu.  The Bookmark Manager is accessed via the main menu.  The Bookmark Manager context menu allows bookmarks to be grouped using labels.</string>
-  <string name="version_text">Version %s</string>
-  <string name="no_sdcard_error">Please insert an SD card and start And Bible again.</string>
+  <string name="splash_top_text">\"Dwedodd Duw, “Dw i eisiau golau!” a daeth golau i fod.\" Genesis 01:03</string>
+  <string name="help_text">Gwasgwch y DDEWISLEN i weithredu Ewch i\'r bennod nesaf neu\'r flaenorol drwy ddefnyddio\'r trac-bel, D-pad neu drwy lusgo\'ch bys ar y sgrîn.</string>
+  <string name="help_text_long">Cyfeirio \nEwch i\'r bennod nesaf neu\'r flaenorol drwy ddefnyddio\'r trac-bel, D-pad neu drwy lusgo\'ch bys ar y sgrîn. Gwasgwch y DDEWISLEN i weithredu.\nI lawrlwytho mwy o ddogfennau gwasgwch Dewislen/Mwy/Lawrlwytho Dogfennau \nGwasgiad hir ar \'gweld Beibl\' i agor y ddewislen weithredu ar gyfer yr adnod gyfredol. \nGwasgiad hir ar ddogfen yn y dewisydd dogfen i\'w dileu neu weld gwybodaeth. \nSiarad\nGwasgu \'Siarad\' i fynd i ddeialog dechrau neu stopio darllen\n\nNodau Llyfr\nGellir ychwanegu Nod Llyfr drwy\'r ddewislen cyd-destun adnod. Mae\'r Rheolwr Llyfrnodi yn gyrchir drwy brif ddewislen. Mae\'r ddewislen cyd-destun Rheoli Llyfrnodi yn caniatáu grwpio Nodau Llyfr dan labeli.</string>
+  <string name="version_text">Fersiwn %s</string>
+  <string name="no_sdcard_error">Rhowch gerdyn SD yn eich ffôn a dechrau And Bible eto.</string>
   <!-- main menu -->
-  <string name="chooseBook">Document</string>
-  <string name="selectPassage">Passage</string>
-  <string name="search">Find</string>
-  <string name="settings">Settings</string>
-  <string name="history">History</string>
-  <string name="speak">Speak</string>
-  <string name="help">Help</string>
+  <string name="chooseBook">Dogfen</string>
+  <string name="selectPassage">Adran</string>
+  <string name="search">Dod o hyd i</string>
+  <string name="settings">Gosodiadau</string>
+  <string name="history">Hanes</string>
+  <string name="speak">Siarad</string>
+  <string name="help">Cymorth</string>
   <!-- Passage navigation -->
-  <string name="choosePassageBookName">Choose Book</string>
-  <string name="choosePassageChapterName">Choose Chapter</string>
-  <string name="chapter_no">Chapter %d</string>
+  <string name="choosePassageBookName">Dewis Lyfr</string>
+  <string name="choosePassageChapterName">Dewis Bennod</string>
+  <string name="chapter_no">Pennod %d</string>
   <!--  Search -->
-  <string name="search_index">Search Index</string>
-  <string name="index_creation_required">An index is required to search.\n\nIndexes may be downloaded from the internet or created locally.\n\nDownloading is much quicker and downloaded indexes have more search features.\n\nAn internet connection is required to download indexes.\n</string>
-  <string name="indexing_wait_msg">When indexing has completed you will be taken to the search screen.</string>
-  <string name="index">Index</string>
-  <string name="index_download">Download</string>
-  <string name="index_not_available_for_download">This index is not available for download</string>
-  <string name="index_create">Create</string>
+  <string name="search_index">Chwilio Mynegai</string>
+  <string name="index_creation_required">Mae angen mynegai i chwilio. \nGellir lawrlwytho Mynegeion oddi ar y rhyngrwyd neu eu creu.\nMae lawrlwytho yn llawer cyflymach ac mae\'r mynegeion hynny yn fwy hyblyg wrth chwilio.\nMae angen cysylltiad rhyngrwyd i lawrlwytho Mynegeion.</string>
+  <string name="indexing_wait_msg">Pan fydd y mynegeio wedi cwblhau eir â chi i\'r sgrîn chwilio.</string>
+  <string name="index">Mynegai</string>
+  <string name="index_download">Lawrlwytho</string>
+  <string name="index_not_available_for_download">Nid yw\'r mynegai hwn ar gael i\'w lawrlwytho</string>
+  <string name="index_create">Creu</string>
   <!-- Tasks -->
-  <string name="progress_status">Progress</string>
-  <string name="task_kill_warning">These long running tasks may terminate if you switch to another application before they finish.</string>
-  <string name="no_tasks_running">There are no tasks currently being executed.</string>
+  <string name="progress_status">Cynnydd</string>
+  <string name="task_kill_warning">Gall y tasgau hir yma ddarfod os newidir i gymhwysiad arall cyn iddynt orffen.</string>
+  <string name="no_tasks_running">Nid oes tasgau yn weithredol ar hyn o bryd.</string>
   <!-- Search -->
-  <string name="search_words_group_prompt">Find verses</string>
-  <string name="search_all_words">All words</string>
-  <string name="search_any_word">Any word</string>
-  <string name="search_phrase">Phrase</string>
-  <string name="search_result_count">%d matches found</string>
-  <string name="search_showing_first">Too many matches.  Showing first %d</string>
-  <string name="search_bible_section_group_prompt">Search Where</string>
-  <string name="search_all_bible">Whole bible</string>
-  <string name="search_new_testament">New Testament</string>
-  <string name="search_old_testament">Old Testament</string>
-  <string name="search_current_book">Current book</string>
-  <string name="error_executing_search">Invalid search query</string>
+  <string name="search_words_group_prompt">Dod o hyd i adnodau</string>
+  <string name="search_all_words">Pob gair</string>
+  <string name="search_any_word">Unrhyw air</string>
+  <string name="search_phrase">Cymal</string>
+  <string name="search_result_count">%d canlyniad</string>
+  <string name="search_showing_first">Gormod o ganlyniadau. Yn dangos y %d cyntaf</string>
+  <string name="search_bible_section_group_prompt">Chwilio ble?</string>
+  <string name="search_all_bible">Beibl cyfan</string>
+  <string name="search_new_testament">Testament Newydd</string>
+  <string name="search_old_testament">Yr Hen Destament</string>
+  <string name="search_current_book">Llyfr cyfredol</string>
+  <string name="error_executing_search">Chwiliad annilys</string>
   <!-- Preferences -->
-  <string name="prefs_show_verseno_title">Verse numbers</string>
-  <string name="prefs_show_verseno_summary">Show verse numbers</string>
-  <string name="prefs_verse_per_line_title">One verse per line</string>
-  <string name="prefs_verse_per_line_summary">Show each verse on a different line</string>
-  <string name="prefs_show_notes_title">Notes</string>
-  <string name="prefs_show_notes_summary">Show notes</string>
-  <string name="prefs_show_strongs_title">Show Strong\'s numbers</string>
-  <string name="prefs_show_strongs_summary">Links to Greek &amp; Hebrew definitions</string>
-  <string name="prefs_night_mode_title">Night mode</string>
-  <string name="prefs_night_mode_summary">For easier reading in the dark</string>
-  <string name="prefs_text_size_title">Text size</string>
-  <string name="prefs_text_size_summary">See more or see more clearly</string>
-  <string name="prefs_interface_locale_title">Aplication language</string>
-  <string name="prefs_interface_locale_summary">Select custom user interface language</string>
-  <string name="locale_change_warning">Application will be restarted to switch to the new interface language</string>
+  <string name="prefs_show_verseno_title">Rhifau adnodau</string>
+  <string name="prefs_show_verseno_summary">Dangos rhifau adnodau</string>
+  <string name="prefs_verse_per_line_title">Un adnod i bob llinell</string>
+  <string name="prefs_verse_per_line_summary">Dangos pob adnod ar linell wahanol</string>
+  <string name="prefs_show_notes_title">Nodiadau</string>
+  <string name="prefs_show_notes_summary">Dangos nodiadau</string>
+  <string name="prefs_show_strongs_title">Dangos rhifau Strong</string>
+  <string name="prefs_show_strongs_summary">Dolenni i ddiffiniadau Groeg a Hebraeg</string>
+  <string name="prefs_night_mode_title">Fformat nos</string>
+  <string name="prefs_night_mode_summary">Ar gyfer darllen yn haws yn y tywyllwch</string>
+  <string name="prefs_text_size_title">Maint y testun</string>
+  <string name="prefs_text_size_summary">Gweld mwy neu weld yn gliriach</string>
+  <string name="prefs_interface_locale_title">Iaith y rhaglen</string>
+  <string name="prefs_interface_locale_summary">Dewiswch iaith y rhyngwyneb i\'r defnyddiwr arferol</string>
+  <string name="locale_change_warning">Bydd y rhaglen yn ailgychwyn i newid iaith y rhyngwyneb.</string>
   <!-- Notes screen -->
-  <string name="no_chapter_notes">No notes exist in this chapter</string>
-  <string name="no_verse_notes">No notes exist in this verse</string>
-  <string name="previous">Previous</string>
-  <string name="next">Next</string>
+  <string name="no_chapter_notes">Dim nodiadau yn bodoli yn y bennod hon</string>
+  <string name="no_verse_notes">Dim nodiadau i\'r adnod hon</string>
+  <string name="previous">Blaenorol</string>
+  <string name="next">Nesaf</string>
   <!--  Strongs -->
-  <string name="strongs">Strong\'s Dictionary</string>
-  <string name="strongs_not_installed">Please download Strong\'s Hebrew and Greek dictionaries</string>
+  <string name="strongs">Geiriadur Strong</string>
+  <string name="strongs_not_installed">Lawrlwythwch geiriaduron Hebraeg a Groeg Strong.</string>
   <!-- Module download -->
-  <string name="download">Download Documents</string>
-  <string name="download_confirmation">Download a bible from the internet?</string>
-  <string name="download_source_message">Documents are downloaded from\nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
-  <string name="download_document_confirm_prefix">"Download "</string>
-  <string name="refresh_book_list">Refresh list of available documents?</string>
-  <string name="error_downloading">An error occurred downloading.  Please check your internet connection.</string>
-  <string name="no_internet_connection">Could not connect to the internet</string>
-  <string name="storage_space_warning">Insufficient local storage space.</string>
-  <string name="wait_for_bible">Please wait for the bible to finish downloading.  You will then be taken to the main screen.</string>
-  <string name="wait_for_bible_not_yet">Please wait.  A bible has not yet completed installation.</string>
-  <string name="download_complete_no_bibles">No bible was installed.  Please press Back and try again.</string>
-  <string name="too_many_jobs">Too many tasks executing.  Please wait for some to finish and try again.</string>
+  <string name="download">Lawrlwytho Dogfennau</string>
+  <string name="download_confirmation">Llwytho Beibl oddi ar y rhyngrwyd?</string>
+  <string name="download_source_message">Dogfennau yn cael eu lawrlwytho o http://www.crosswire.org &amp; http://xiphos.org</string>
+  <string name="download_document_confirm_prefix">"Lawrlwytho"</string>
+  <string name="refresh_book_list">Adnewyddu\'r rhestr dogfennau sydd ar gael?</string>
+  <string name="error_downloading">Gwall wrth lawrlwytho. Ydy\'ch cysylltiad rhyngrwyd yn gweithio?</string>
+  <string name="no_internet_connection">Methu cysylltu â\'r rhyngrwyd</string>
+  <string name="storage_space_warning">Dim digon o le i\'w storio.</string>
+  <string name="wait_for_bible">Arhoswch i\'r Beibl orffen lawrlwytho. Eir a chi wedyn i\'r brif sgrin.</string>
+  <string name="wait_for_bible_not_yet">Arhoswch. Nid yw\'r Beibl wedi cwblhau ei osod.</string>
+  <string name="download_complete_no_bibles">Dim Beibl wedi ei osod. Pwyswch \'yn ôl\' a cheisio eto.</string>
+  <string name="too_many_jobs">Mae gormod o dasgau\'n gweithredu. Arhoswch i rai i orffen a cheisiwch eto.</string>
   <!-- Document context menu -->
-  <string name="delete">Delete</string>
-  <string name="about">About</string>
+  <string name="delete">Dileu</string>
+  <string name="about">Am</string>
   <string name="delete_doc">Delete %s?</string>
   <!-- Verse context menu -->
-  <string name="notes">Footnotes and references</string>
-  <string name="copy">Copy current verse</string>
-  <string name="share_verse">Share current verse ...</string>
-  <string name="share_verse_subject">A Bible verse has been shared with you using And Bible</string>
+  <string name="notes">Troednodiadau a chyfeiriadau</string>
+  <string name="copy">Copïo’r adnod hon</string>
+  <string name="share_verse">Rhannu\'r adnod hon ...</string>
+  <string name="share_verse_subject">Mae adnod o\'r Beibl wedi ei rhannu gyda chi drwy AndBible</string>
   <!-- Bookmarks -->
   <string name="bookmarks">Bookmarks</string>
-  <string name="add_bookmark">Add bookmark</string>
-  <string name="bookmark_added">Bookmark added</string>
-  <string name="bookmark_exists">Bookmark already exists</string>
-  <string name="bookmark_labels">Bookmark Labels</string>
-  <string name="assign_labels">Assign labels</string>
-  <string name="new_label">New Label</string>
-  <string name="new_label_prompt">Name</string>
+  <string name="add_bookmark">Gosod Nod Llyfr</string>
+  <string name="bookmark_added">Ychwanegwyd Nod Llyfr</string>
+  <string name="bookmark_exists">Nod Llyfr yn bodoli eisoes</string>
+  <string name="bookmark_labels">Labeli Llyfrnodi</string>
+  <string name="assign_labels">Pennu labeli</string>
+  <string name="new_label">Label newydd</string>
+  <string name="new_label_prompt">Enw</string>
   <!-- Dictionary -->
-  <string name="dictionary">Dictionary</string>
-  <string name="search_dictionary_hint">Search dictionary</string>
-  <string name="dictionary_contents">Contents</string>
+  <string name="dictionary">Geiriadur</string>
+  <string name="search_dictionary_hint">Chwilio geiriadur</string>
+  <string name="dictionary_contents">Cynnwys</string>
   <!-- General Book -->
-  <string name="general_book">Book</string>
-  <string name="general_book_contents">Contents</string>
+  <string name="general_book">Llyfr</string>
+  <string name="general_book_contents">Cynnwys</string>
   <!-- Speak -->
   <!-- Speak - Bible -->
   <plurals name="num_chapters">
     <item quantity="one">%d chapter</item>
     <item quantity="other">%d chapters</item>
   </plurals>
-  <string name="rest_of_book">To end of book</string>
+  <string name="rest_of_book">I ddiwedd y llyfr</string>
   <!-- Speak - Commentary -->
   <plurals name="num_verses">
     <item quantity="one">%d verse</item>
     <item quantity="other">%d verses</item>
   </plurals>
-  <string name="rest_of_chapter">To end of chapter</string>
+  <string name="rest_of_chapter">I ddiwedd y bennod</string>
   <!-- Speak - Dictionary and other -->
   <plurals name="num_pages">
     <item quantity="one">%d page</item>
     <item quantity="other">%d pages</item>
   </plurals>
   <!-- Speak - Common -->
-  <string name="stop">Stop</string>
-  <string name="tts_lang_not_available">Language is not available.</string>
+  <string name="stop">Stopiwch</string>
+  <string name="tts_lang_not_available">Nid yw\'r iaith ar gael.</string>
   <!-- Document types -->
-  <string name="doc_type_bible">Bible</string>
-  <string name="doc_type_commentary">Commentary</string>
-  <string name="doc_type_dictionary">Dictionary</string>
-  <string name="doc_type_book">Book</string>
+  <string name="doc_type_bible">Beibl</string>
+  <string name="doc_type_commentary">Esboniad</string>
+  <string name="doc_type_dictionary">Geiriadur</string>
+  <string name="doc_type_book">Llyfr</string>
   <!-- Languages -->
-  <string name="lang_default">Default</string>
+  <string name="lang_default">Diofyn</string>
   <!-- General -->
-  <string name="error_occurred">An error has occurred</string>
+  <string name="error_occurred">Mae gwall wedi digwydd</string>
   <string name="okay">OK</string>
-  <string name="cancel">Cancel</string>
-  <string name="no">No</string>
-  <string name="error">"Error "</string>
-  <string name="more">More</string>
-  <string name="retry">Try Again</string>
-  <string name="please_wait">Please wait...</string>
-  <string name="all">All</string>
-  <string name="all_greek_occurrences">Show all occurrences</string>
-  <string name="all_hebrew_occurrences">Show all occurrences</string>
-  <string name="no_indexed_bible_with_strongs_ref">You must download a bible containing Strong\'s numbers and download its index via Search</string>
+  <string name="cancel">Canslo</string>
+  <string name="no">Na</string>
+  <string name="error">"Gwall"</string>
+  <string name="more">Mwy</string>
+  <string name="retry">Ceisiwch eto</string>
+  <string name="please_wait">Arhoswch ...</string>
+  <string name="all">Y Cwbl</string>
+  <string name="all_greek_occurrences">Dangos pob un</string>
+  <string name="all_hebrew_occurrences">Dangos pob digwyddiad</string>
+  <string name="no_indexed_bible_with_strongs_ref">Rhaid i chi lawrlwytho Beibl sy\'n cynnwys rhifau Strong a llwytho ei fynegai trwy Chwilio</string>
 </resources>
