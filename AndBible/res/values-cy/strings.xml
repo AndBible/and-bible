@@ -44,7 +44,7 @@
   <string name="search_phrase">Cymal</string>
   <string name="search_result_count">%d canlyniad</string>
   <string name="search_showing_first">Gormod o ganlyniadau. Yn dangos y %d cyntaf</string>
-  <string name="search_bible_section_group_prompt">Chwilio ble?</string>
+  <string name="search_bible_section_group_prompt">Ble i chwilio</string>
   <string name="search_all_bible">Beibl cyfan</string>
   <string name="search_new_testament">Testament Newydd</string>
   <string name="search_old_testament">Yr Hen Destament</string>
@@ -59,7 +59,7 @@
   <string name="prefs_show_notes_summary">Dangos nodiadau</string>
   <string name="prefs_show_strongs_title">Dangos rhifau Strong</string>
   <string name="prefs_show_strongs_summary">Dolenni i ddiffiniadau Groeg a Hebraeg</string>
-  <string name="prefs_night_mode_title">Fformat nos</string>
+  <string name="prefs_night_mode_title">Cyfrwng nos</string>
   <string name="prefs_night_mode_summary">Ar gyfer darllen yn haws yn y tywyllwch</string>
   <string name="prefs_text_size_title">Maint y testun</string>
   <string name="prefs_text_size_summary">Gweld mwy neu weld yn gliriach</string>
