@@ -119,13 +119,13 @@ public class PdaLuceneIndexCreator {
         job.beginJob(jobName);
 
         IndexStatus finalStatus = IndexStatus.UNDONE;
-
-        Analyzer analyzer = new LuceneAnalyzer(book);
-
         List<Key> errors = new ArrayList<Key>();
         File tempPath = new File(path + '.' + IndexStatus.CREATING.toString());
 
         try {
+        	// this can throw an error if indexing is misconfigured so needs to be in the try/catch block
+	        Analyzer analyzer = new LuceneAnalyzer(book);
+
             synchronized (CREATING) {
 
                 book.setIndexStatus(IndexStatus.CREATING);

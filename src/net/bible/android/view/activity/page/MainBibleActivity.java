@@ -73,7 +73,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
         // create related objects
         gestureDetector = new GestureDetector( new BibleSwipeListener(MainBibleActivity.this) );
         bibleWebView = (BibleView)findViewById(R.id.main_text);
-    	bibleContentManager = new BibleContentManager(bibleWebView, MainBibleActivity.this);
+    	bibleContentManager = new BibleContentManager(bibleWebView);
 
         PassageChangeMediator.getInstance().setMainBibleActivity(MainBibleActivity.this);
         

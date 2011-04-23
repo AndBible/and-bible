@@ -16,7 +16,6 @@ import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -35,14 +34,12 @@ public class BibleContentManager {
 	private List<Note> notesList;
 
 	private BibleView bibleWebView;
-	private Context context;
 	
 	private static final String TAG = "BibleView";
 	
 	private String NO_CONTENT = "No content for selected verse";
 	
-	public BibleContentManager(BibleView bibleWebView, Context context) {
-		this.context = context;
+	public BibleContentManager(BibleView bibleWebView) {
 		this.bibleWebView = bibleWebView;
 		
 		PassageChangeMediator.getInstance().setBibleContentManager(this);
