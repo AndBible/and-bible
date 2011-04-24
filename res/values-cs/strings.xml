@@ -134,7 +134,7 @@
   <string name="doc_type_bible">Bible</string>
   <string name="doc_type_commentary">Komentář</string>
   <string name="doc_type_dictionary">Slovník</string>
-  <string name="doc_type_book">Book</string>
+  <string name="doc_type_book">Kniha</string>
   <!-- Languages -->
   <string name="lang_default">Výchozí</string>
   <!-- Speak - Common -->
@@ -149,9 +149,9 @@
   <string name="retry">Zkusit znovu</string>
   <string name="please_wait">Čekejte prosím ...</string>
   <string name="all">Vše</string>
-  <string name="general_book">Book</string>
-  <string name="general_book_contents">Contents</string>
-  <string name="all_greek_occurrences">Show all occurrences</string>
-  <string name="all_hebrew_occurrences">Show all occurrences</string>
-  <string name="no_indexed_bible_with_strongs_ref">You must download a bible containing Strong\'s numbers and download its index via Search</string>
+  <string name="general_book">Kniha</string>
+  <string name="general_book_contents">Obsah</string>
+  <string name="all_greek_occurrences">Zobrazit všechny výskyty</string>
+  <string name="all_hebrew_occurrences">Zobrazit všechny výskyty</string>
+  <string name="no_indexed_bible_with_strongs_ref">Je potřeba stáhnout Bibli, obsahující Strongova čísla a také stáhnout k této Bibli index pro vyhledávání</string>
 </resources>
