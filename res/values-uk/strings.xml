@@ -6,7 +6,7 @@
       The copyright to this program is held by it's author.
 -->
 <resources>
-    <string name="app_name">Android Біблія</string>
+    <string name="app_name">And Біблія</string>
 
 	<!-- Startup & Help -->
     <string name="splash_top_text">"\n\"І сказав Бог: Хай станеться світло! І сталося світло.\"\nБуття 1:3"</string>
