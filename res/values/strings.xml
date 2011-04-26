@@ -72,11 +72,13 @@
     <string name="prefs_show_notes_summary">Show notes</string>
     <string name="prefs_show_strongs_title">Show Strong\'s numbers</string>
     <string name="prefs_show_strongs_summary">Links to Greek &amp; Hebrew definitions</string>
+    <string name="prefs_show_morphology_title">Morphological codes</string>
+    <string name="prefs_show_morphology_summary">Show Robinson\'s Greek morphology</string>
     <string name="prefs_night_mode_title">Night mode</string>
     <string name="prefs_night_mode_summary">For easier reading in the dark</string>
     <string name="prefs_text_size_title">Text size</string>
     <string name="prefs_text_size_summary">See more or see more clearly</string>
-    <string name="prefs_interface_locale_title">Aplication language</string>
+    <string name="prefs_interface_locale_title">Application language</string>
     <string name="prefs_interface_locale_summary">Select custom user interface language</string>
     <string name="locale_change_warning">Application will be restarted to switch to the new interface language</string>
 
@@ -92,6 +94,7 @@
     <string name="all_greek_occurrences">Show all occurrences</string>
     <string name="all_hebrew_occurrences">Show all occurrences</string>
     <string name="no_indexed_bible_with_strongs_ref">You must download a bible containing Strong\'s numbers and download its index via Search</string>
+    <string name="morph_robinson_not_installed">Please download \'Robinson\'s Morphological Analysis Codes\' dictionary</string>
 
     <!-- Module download -->
     <string name="download">Download Documents</string>

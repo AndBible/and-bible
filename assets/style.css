@@ -31,6 +31,12 @@ h1 {
 	vertical-align: sub;
 	text-decoration: none
 }
+.morphology {
+	color: #4B7E4B;
+	font-size: 0.7em;
+	vertical-align: sub;
+	text-decoration: none
+}
 
 .allStrongsRefsLink {
 	display: block;
