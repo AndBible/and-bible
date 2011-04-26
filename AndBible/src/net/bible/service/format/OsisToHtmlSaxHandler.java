@@ -43,6 +43,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     private boolean isVersePerline = false;
     private boolean isShowNotes = false;
     private boolean isShowStrongs = false;
+    private boolean isShowMorphology = false;
     private String extraStylesheet;
     private String extraFooter;
     
@@ -54,7 +55,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
     private boolean isWriteContent = true;
     private boolean isWriteNote = false;
-    List<String> pendingStrongsTags;
+    List<String> pendingStrongsAndMorphTags;
     
     //todo temporarily use a string but later switch to Map<int,String> of verse->note
     private List<Note> notesList = new ArrayList<Note>();
@@ -184,12 +185,14 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			// ensure 'who' attribute does not exist because esv uses q for red-letter and for quote mark
 			// quotation, this could be beginning or end of quotation because it is an empty tag
 			write("&quot;");
-		} else if (isShowStrongs && name.equals(OSISUtil.OSIS_ELEMENT_W) && isAttr(OSISUtil.ATTRIBUTE_W_LEMMA, attrs)) {
-			// Strongs reference
+		} else if ((isShowStrongs || isShowMorphology) && name.equals(OSISUtil.OSIS_ELEMENT_W) && isAttr(OSISUtil.ATTRIBUTE_W_LEMMA, attrs)) {
+			// Strongs & morphology references
 			// example of strongs refs: <w lemma="strong:H0430">God</w> <w lemma="strong:H0853 strong:H01254" morph="strongMorph:TH8804">created</w>
-			String lemma = attrs.getValue(OSISUtil.ATTRIBUTE_W_LEMMA);
-			if (lemma.startsWith(OSISUtil.LEMMA_STRONGS)) {
-				pendingStrongsTags = getStrongsTags(lemma);
+			// better example, because we just use Robinson: <w lemma="strong:G652" morph="robinson:N-NSM" src="2">an apostle</w>
+			String strongsLemma = attrs.getValue(OSISUtil.ATTRIBUTE_W_LEMMA);
+			if (strongsLemma.startsWith(OSISUtil.LEMMA_STRONGS)) {
+				String morphology = attrs.getValue(OSISUtil.ATTRIBUTE_W_MORPH);
+				pendingStrongsAndMorphTags = getStrongsAndMorphTags(strongsLemma, morphology);
 			}
 		}
 	}
@@ -240,14 +243,14 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {
 			// end quotation, but <q /> tag is a marker and contains no content so <q /> will appear at beginning and end of speech
-		} else if (isShowStrongs && name.equals(OSISUtil.OSIS_ELEMENT_W)) {
-			if (pendingStrongsTags!=null) {
-				for (int i=0; i<pendingStrongsTags.size(); i++) {
+		} else if ((isShowStrongs || isShowMorphology) && name.equals(OSISUtil.OSIS_ELEMENT_W)) {
+			if (pendingStrongsAndMorphTags!=null) {
+				for (int i=0; i<pendingStrongsAndMorphTags.size(); i++) {
 					write(SPACE); // separator between adjacent tags and words
-					write(pendingStrongsTags.get(i));
+					write(pendingStrongsAndMorphTags.get(i));
 				}
 				write(SPACE); // separator between adjacent tags and words
-				pendingStrongsTags = null;
+				pendingStrongsAndMorphTags = null;
 			}
 		}
 	}
@@ -337,40 +340,109 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
      * 
      * @return a single char to use as a note ref
      */
-    private List<String> getStrongsTags(String lemma) {
+    private List<String> getStrongsAndMorphTags(String strongsLemma, String morphology) {
+    	// there may occasionally be more than on ref so split them into a list of single refs
+    	List<String> strongsTags = getStrongsTags(strongsLemma);
+    	List<String> morphTags = getMorphTags(morphology);
+
+    	List<String> mergedStrongsAndMorphTags = new ArrayList<String>();
+
+    	// each morph tag should relate to a Strongs tag so they should be same length but can't assume that
+    	// merge the tags into the merge list
+    	for (int i=0; i<Math.max(strongsTags.size(), morphTags.size()); i++) {
+    		StringBuilder merged = new StringBuilder();
+    		if (i<strongsTags.size()) {
+    			merged.append(strongsTags.get(i));
+    		}
+    		if (i<morphTags.size()) {
+    			merged.append(morphTags.get(i));
+    		}
+    		mergedStrongsAndMorphTags.add(merged.toString());
+    	}
+    	
+    	// for some reason the generic tags should come last and the order seems always reversed in other systems
+    	// the second tag (once reversed) seems to relate to a missing word like eth
+    	Collections.reverse(mergedStrongsAndMorphTags);
+    	return mergedStrongsAndMorphTags;
+    }
+
+    private List<String> getStrongsTags(String strongsLemma) {
     	// there may occasionally be more than on ref so split them into a list of single refs
     	List<String> strongsTags = new ArrayList<String>();
     	
-    	String[] refList = lemma.split(" ");
-    	for (String ref : refList) {
-    		// ignore if string doesn't start with "strong;"
-    		if (ref.startsWith(OSISUtil.LEMMA_STRONGS) && ref.length()>OSISUtil.LEMMA_STRONGS.length()+2) {
-    			// reduce ref like "strong:H0430" to "H0430"
-    			ref = ref.substring(OSISUtil.LEMMA_STRONGS.length());
-    			
-            	// select Hebrew or Greek protocol
-    	    	String protocol = null;
-    			if (ref.startsWith("H")) {
-    				protocol = Constants.HEBREW_DEF_PROTOCOL;
-    			} else if (ref.startsWith("G")) {
-       				protocol = Constants.GREEK_DEF_PROTOCOL;
-       			}
-    			
-        		if (protocol!=null) {
-        			// remove initial G or H
-            		String noPadRef = ref.substring(1);
-            		// pad with leading zeros to 5 characters
-            		String paddedRef = StringUtils.leftPad(noPadRef, 5, "0");
-            		String uri = protocol+":"+paddedRef;
-            		String tag = "<a href='"+uri+"' class='strongs'>"+noPadRef+"</a>";
-            		strongsTags.add(tag);
-        		}
-    		}
+    	if (isShowStrongs) {
+	    	String[] refList = strongsLemma.split(" ");
+	    	for (String ref : refList) {
+	    		// ignore if string doesn't start with "strong;"
+	    		if (ref.startsWith(OSISUtil.LEMMA_STRONGS) && ref.length()>OSISUtil.LEMMA_STRONGS.length()+2) {
+	    			// reduce ref like "strong:H0430" to "H0430"
+	    			ref = ref.substring(OSISUtil.LEMMA_STRONGS.length());
+	
+	            	// select Hebrew or Greek protocol
+	    	    	String protocol = null;
+	    			if (ref.startsWith("H")) {
+	    				protocol = Constants.HEBREW_DEF_PROTOCOL;
+	    			} else if (ref.startsWith("G")) {
+	       				protocol = Constants.GREEK_DEF_PROTOCOL;
+	       			}
+	    			
+	        		if (protocol!=null) {
+	        			// remove initial G or H
+	            		String noPadRef = ref.substring(1);
+	            		// pad with leading zeros to 5 characters
+	            		String paddedRef = StringUtils.leftPad(noPadRef, 5, "0");
+	            		
+	            		StringBuilder tag = new StringBuilder();
+	            		// create opening tag for Strong's link
+	            		tag.append("<a href='");
+	            		
+	            		// calculate uri e.g. H:01234
+	            		tag.append(protocol).append(":").append(paddedRef);
+	            		
+	            		// set css class
+	            		tag.append("' class='strongs'>");
+	            		
+	            		// descriptive string
+	            		tag.append(noPadRef);
+	            		
+	            		// link closing tag
+	            		tag.append("</a>");
+	            		
+	            		strongsTags.add(tag.toString());
+	        		}
+	    		}
+	    	}
     	}
-    	// for some reason the generic tags should come last and the order seems always reversed in other systems
-    	// the second tag (once reversed) seems to relate to a missing word like eth
-    	Collections.reverse(strongsTags);
     	return strongsTags;
+    }
+
+    /**
+     * 	example of strongs and morphology, we just use Robinson: <w lemma="strong:G652" morph="robinson:N-NSM" src="2">an apostle</w>
+     * @param morphology
+     * @return
+     */
+    private List<String> getMorphTags(String morphology) {
+    	// there may occasionally be more than on ref so split them into a list of single refs
+    	List<String> morphTags = new ArrayList<String>();
+    	
+    	if (isShowMorphology) {
+	    	if (StringUtils.isNotEmpty(morphology)) {
+		    	String[] refList = morphology.split(" ");
+		    	for (String ref : refList) {
+		    		// ignore if string doesn't start with "robinson"
+		    		if (ref.startsWith(OSISUtil.MORPH_ROBINSONS) && ref.length()>OSISUtil.MORPH_ROBINSONS.length()+2) {
+		    			// reduce ref like "robinson:N-NSM" to "N-NSM" for display
+		    			String display = ref.substring(OSISUtil.MORPH_ROBINSONS.length());
+		
+		           		StringBuilder tag = new StringBuilder();
+		           		tag.append("<a href='").append(ref).append("' class='morphology'>").append(display).append("</a>");
+		           		
+		           		morphTags.add(tag.toString());
+		    		}
+		    	}
+	    	}
+    	}
+    	return morphTags;
     }
 
     /** StringUtils methods only compare with a single char and hence create lots of temporary Strings
@@ -440,6 +512,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	}
 	public void setShowStrongs(boolean isShowStrongs) {
 		this.isShowStrongs = isShowStrongs;
+	}
+	public void setShowMorphology(boolean isShowMorphology) {
+		this.isShowMorphology = isShowMorphology;
 	}
 	public List<Note> getNotesList() {
 		return notesList;

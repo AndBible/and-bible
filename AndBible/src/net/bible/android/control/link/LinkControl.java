@@ -49,6 +49,8 @@ public class LinkControl {
 	        	showStrongs(Defaults.getGreekDefinitions(), ref);
 	        } else if (Constants.HEBREW_DEF_PROTOCOL.equals(protocol)) {
 	        	showStrongs(Defaults.getHebrewDefinitions(), ref);
+	        } else if (Constants.ROBINSON_GREEK_MORPH_PROTOCOL.equals(protocol)) {
+	        	showRobinsonMorphology(ref);
 	        } else if (Constants.ALL_GREEK_OCCURRENCES_PROTOCOL.equals(protocol)) {
 	        	showAllOccurrences(ref, SearchBibleSection.NT, "g");
 	        } else if (Constants.ALL_HEBREW_OCCURRENCES_PROTOCOL.equals(protocol)) {
@@ -65,6 +67,8 @@ public class LinkControl {
 		}
 	}
 	
+	/** user has selected a Strong's Number link so show Strong's page for key in link
+	 */
 	private void showStrongs(Book book, String key) throws NoSuchKeyException {
 		
         // valid Strongs uri but Strongs refs not installed
@@ -76,6 +80,23 @@ public class LinkControl {
 
         Key strongsNumberKey = book.getKey(key); 
    		CurrentPageManager.getInstance().setCurrentDocumentAndKey(book, strongsNumberKey);
+		
+		return;
+	}
+
+	/** user has selected a morphology link so show morphology page for key in link
+	 */
+	private void showRobinsonMorphology(String key) throws NoSuchKeyException {
+		Book robinson = SwordApi.getInstance().getDocumentByInitials("robinson");
+        // valid Strongs uri but Strongs refs not installed
+        if (robinson==null) {
+        	Dialogs.getInstance().showErrorMsg(R.string.morph_robinson_not_installed);
+        	// this uri request was handled by showing an error message
+        	return;
+        }
+
+        Key robinsonNumberKey = robinson.getKey(key); 
+   		CurrentPageManager.getInstance().setCurrentDocumentAndKey(robinson, robinsonNumberKey);
 		
 		return;
 	}

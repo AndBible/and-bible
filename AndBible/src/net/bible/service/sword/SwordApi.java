@@ -470,6 +470,7 @@ public class SwordApi {
 				osisToHtml.setVersePerline(preferences.getBoolean("verse_per_line_pref", false));
 				osisToHtml.setShowNotes(preferences.getBoolean("show_notes_pref", true));
 				osisToHtml.setShowStrongs(preferences.getBoolean("show_strongs_pref", true));
+				osisToHtml.setShowMorphology(preferences.getBoolean("show_morphology_pref", false));
 			}
 			if (preferences.getBoolean("night_mode_pref", false)) {
 				osisToHtml.setExtraStylesheet(NIGHT_MODE_STYLESHEET);
