@@ -144,7 +144,7 @@ public class SearchControl {
 	 * 
 	 * @return true if managed to start download in background
 	 */
-	public boolean downloadIndex() {
+	public boolean downloadIndex(Book book) {
 		boolean ok = false;
     	try {
         	if (CommonUtils.getSDCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
@@ -153,7 +153,6 @@ public class SearchControl {
             	Dialogs.getInstance().showErrorMsg(R.string.no_internet_connection);
             	ok = false;
         	} else {
-		        Book book = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
 		        
 		        if (SwordApi.getInstance().isIndexDownloadAvailable(book)) {
 			        // this starts a new thread to do the indexing and returns immediately
@@ -178,11 +177,9 @@ public class SearchControl {
 	 * 
 	 * @return true if managed to start download in background
 	 */
-	public boolean createIndex() {
+	public boolean createIndex(Book book) {
 		boolean ok = false;
     	try {
-	        Book book = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
-	        
 	        // this starts a new thread to do the indexing and returns immediately
 	        // if index creation is already in progress then nothing will happen
 	        SwordApi.getInstance().ensureIndexCreation(book);

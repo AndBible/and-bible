@@ -7,10 +7,14 @@
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+	<item android:id="@+id/about" 
+		  android:title="@string/about"/>
+
 	<item android:id="@+id/delete" 
 		  android:title="@string/delete"/>
 
-	<item android:id="@+id/about" 
-		  android:title="@string/about"/>
+	<item android:id="@+id/delete_index" 
+		  android:title="@string/delete_index"/>
+
 
 </menu>
