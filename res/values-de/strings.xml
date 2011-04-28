@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!-- Application text
  
  @author Martin Denham [mjdenham at gmail dot com]
@@ -6,170 +6,149 @@
 	  The copyright to this program is held by it's author.
 -->
 <resources>
-	<string name="app_name">And Bible</string>
-	
-	<string name="splash_top_text">\n\"Und Gott sprach: \'"Es werde Licht!"\' Und es wurde Licht.\"\nGenesis 1:3</string>
-	<string name="help_text">Menü-Knopf für Optionen\n\nKapitelnavigation ist mit dem Trackball, D-pad oder durch Querstreichen mit dem Finger möglich.</string>
-	<string name="help_text_long">Navigation\nKapitelnavigation ist mit dem Trackball, D-pad oder durch Querstreichen mit dem Finger möglich.
-	\n\nMenü-Knopf für Optionen drücken
-	\n\nUm Module herunterzuladen, "Menü-Optionen-Module herunterladen" drücken
-	\n\nFür Aktionen betreffend den aktuellen Vers lang auf den Bildschirm drücken.
-	\nUm ein Modul zu löschen oder Informationen anzusehen, im Dokument-Auswahldialog lang auf das entsprechende Modul drücken.
-	\n\nVorlesen\nUm einen Text vorlesen zu lassen, auf "Menü-Optionen-Vorlesen" drücken.
-	\n\nBookmarks\nBookmarks werden über das Vers-Kontextmenü hinzugefügt. Der Bookmark Manager ist im Hauptmenü zu finden.  Im Bookmark Manager Kontextmenü kann man Bookmarks nach Gruppen ordnen.</string>
-	<string name="version_text">Version %s</string>
-	<string name="no_sdcard_error">Bitte legen Sie eine SD-Karte ein und starten AndBible neu.</string>
-	<!-- Hauptmenü -->
-	<string name="chooseBook">Dokument</string>
-	<string name="selectPassage">Navigation</string>
-	<string name="search">Suche</string>
-	<string name="settings">Einstellungen</string>
-	<string name="history">Verlauf</string>
-	<string name="speak">Vorlesen</string>
-	<string name="help">Hilfe</string>
-	
-	<string name="choosePassageBookName">Buchauswahl</string>
-	<string name="choosePassageChapterName">Kapitelauswahl</string>
-	<string name="chapter_range">%1$s Kapitel %2$d bis %3$d</string>
-	<string name="chapter_no">Kapitel Nr. %d</string>
-	
-	<string name="search_index">Suchindex</string>
-	<string name="search_chinese_na">Chinesische Suche ist für eine zukünftige Version geplant.</string>
-	<string name="index_creation_required">Für die Suche ist ein Index nötig.\n\nIndices können heruntergeladen oder lokal erzeugt werden.\n\nHerunterladen ist schneller und ermöglicht mehr Suchfunktionen.\n\nEine funktionierende Internetverbindung ist zum Herunterladen von Indices nötig.\n</string>
-	<string name="indexing_wait_msg">Nach erfolgreicher Indexerstellung werden Sie zum Suchdialog weitergeleitet.</string>
-	<string name="index">Index</string>
-	<string name="index_download">Download</string>
-	<string name="index_not_available_for_download">Dieser Index kann nicht heruntergeladen werden.</string>
-	<string name="index_create">Erzeuge Index</string>
-	
-	<string name="sdcard_error">Kann keine SD-Karte finden!</string>
-	<string name="directory_error">Kann auf Unterordner %s nicht zugreifen!</string> 
-	<string name="progress_status">Fortschritt</string>
-	<string name="task_kill_warning">Diese Aufgaben dauern länger und könnten abgebrochen werden, wenn Sie zu einem anderen Programm wechseln.</string>
-	<string name="no_tasks_running">Keine laufenden Aufgaben.</string>
-	<string name="delete_doc">%s löschen?</string>
-	
-	<!-- Search -->
-	<string name="search_words_group_prompt">Verssuche</string>
-	<string name="search_all_words">Alle Wörter</string>
-	<string name="search_any_word">Einige Wörter</string>
-	<string name="search_phrase">genaue Wortfolge</string>
-	<string name="search_result_count">%d Treffer gefunden</string>
-	<string name="search_showing_first">Zu viele Treffer.  Nur die ersten %d werden angezeigt</string> 
-	<string name="search_bible_section_group_prompt">Suchbereich</string>
-	<string name="search_all_bible">Ganze Bibel</string>
-	<string name="search_new_testament">NT</string>
-	<string name="search_old_testament">AT</string>
-	<string name="search_current_book">Derzeitiges Buch</string>
-	<string name="error_executing_search">Ungültige Suchabfrage</string>
-	
-	<!-- Preferences -->
-	<string name="prefs_show_verseno_title">Versnummer</string>
-	<string name="prefs_show_verseno_summary">Zeige Versnummern</string>
-	<string name="prefs_verse_per_line_title">Ein Vers pro Zeile</string>
-	<string name="prefs_verse_per_line_summary">Jeden Vers auf einer neuen Zeile anzeigen</string>
-	<string name="prefs_show_notes_title">Anmerkungen</string>
-	<string name="prefs_show_notes_summary">Zeige Anmerkungen</string>
-	<string name="prefs_show_strongs_title">Strong\'s Nummern anzeigen</string>
-	<string name="prefs_show_strongs_summary">Verweise zu Strong\'s Wörterbuch</string>
-	<string name="prefs_night_mode_title">Nachtmodus</string>
-	<string name="prefs_night_mode_summary">Für leichteres Lesen im Dunkeln</string>
-	<string name="prefs_text_size_title">Zeichengröße</string>
-	<string name="prefs_text_size_summary">Text größer/kleiner anzeigen</string>
-	<string name="prefs_interface_locale_title">Sprache umschalten</string>
-	<string name="prefs_interface_locale_summary">Umschalten der Sprache der Benutzerführung</string>
-	<string name="locale_change_warning">AndBible wird zur Sprachumstellung neu gestartet</string>
-	
-	<!-- Notes screen -->
-	<string name="no_chapter_notes">Keine Anmerkungen in diesem Kapitel</string>
-	<string name="no_verse_notes">Keine Anmerkungen in diesem Vers</string>
-	<string name="previous">Zurück</string>
-	<string name="next">Vorwärts</string>
-	
-	<!--  Strongs -->
-	<string name="strongs">Strong\'s Wörterbuch</string>
-	<string name="strongs_not_installed">Bitte laden Sie die Strong\'s Wörterbücher für Griechisch und Hebräisch herunter</string>
-	
-	<!-- Module download -->
-	<string name="download">Module herunterladen</string>
-	<string name="download_confirmation">Das Modul aus dem Internet herunterladen?</string>
-	<string name="download_source_message">Die Module werden von\nhttp://www.crosswire.org\n&amp; http://xiphos.org heruntergeladen</string>
-	<string name="download_document_confirm_prefix">"Download "</string>
-	<string name="refresh_book_list">Liste aktualisieren?</string>
-	<string name="error_downloading">Download fehlgeschlagen. Überprüfen Sie ihre Internetverbindung!</string>
-	<string name="no_internet_connection">Keine Verbindung zum Internet!</string>
-	<string name="storage_space_warning">Nicht genügend Speicherplatz!</string>
-	<string name="wait_for_bible">Warten Sie, bis der Download fertig ist - dann werden Sie auf den Hauptschirm weitergeleitet.</string>
-	<string name="wait_for_bible_not_yet">Modulinstallation noch nicht abgeschlossen. Bitte warten!</string>
-	<string name="download_complete_no_bibles">Kein Modul installiert. Bitte noch einmal!</string>
-	<string name="too_many_jobs">Zu viele Aufgaben am Laufen. Bitte warten!.</string>
-	
-	<!-- Document context menu -->
-	<string name="delete">Löschen</string>
-	<string name="about">Info</string>
-	
-	<!-- Verse context menu -->
-	<string name="notes">Fußnoten und Querverweise</string>
-	<string name="copy">Vers kopieren</string>
-	<string name="share_verse">Vers teilen...</string>
-	<string name="share_verse_subject">Ein Bibelvers wurde dir mit Hilfe von AndBible geschickt</string>
-	
-	<!-- Bookmarks -->
-	<string name="bookmarks">Bookmarks</string>
-	<string name="add_bookmark">Bookmark hinzufügen</string>
-	<string name="bookmark_added">Bookmark hinzugefügt</string>
-	<string name="bookmark_exists">Bookmark existiert schon!</string>
-	<string name="bookmark_labels">Bookmark Labels</string>
-	<string name="assign_labels">Gruppennamen auswählen</string>
-	<string name="new_label">Neue Gruppe</string>
-	<string name="new_label_prompt">Name</string>
-	
-	<!-- Dictionary -->
-	<string name="dictionary">Wörterbuch</string>
-	<string name="search_dictionary_hint">Durchsuche Wörterbuch</string>
-	<string name="dictionary_contents">Inhalt</string>
-	
-	<!-- General Book -->
-	<string name="general_book">Buch</string>
-	<string name="general_book_contents">Inhalt</string>
-	
-	
-	<!-- Speak -->
-	<!-- Speak - Bible -->
-	<plurals name="num_chapters">
-		<item quantity="one">%d Kapitel</item>
-		<item quantity="other">%d Kapitel</item>
-	</plurals>
-	<string name="rest_of_book">Bis zum Buchende</string>
-	<!-- Speak - Commentary -->
-	<plurals name="num_verses">
-		<item quantity="one">%d Vers</item>
-		<item quantity="other">%d Verse</item>
-	</plurals>
-	<string name="rest_of_chapter">Bis zum Kapitelende</string>
-	<!-- Speak - Dictionary and other -->
-	<plurals name="num_pages">
-		<item quantity="one">%d Seite</item>
-		<item quantity="other">%d Seiten</item>
-	</plurals>
-	<!-- Speak - Common -->
-	<string name="stop">Stop</string>
-	<string name="tts_lang_not_available">Sprache nicht verfügbar.</string>
-	
-	<!-- Document types -->    
-	<string name="doc_type_bible">Bibel</string>
-	<string name="doc_type_commentary">Kommentar</string>
-	<string name="doc_type_dictionary">Wörterbuch</string>
-	<string name="doc_type_book">Buch</string>
-	
-	<!-- General -->
-	<string name="error_occurred">Ein Fehler ist aufgetreten!</string>
-	<string name="okay">OK</string>
-	<string name="cancel">Abbruch</string>
-	<string name="no">Nein</string>
-	<string name="error">Fehler </string>
-	<string name="more">Mehr</string>
-	<string name="retry">Wiederholen</string>
-	<string name="please_wait">Bitte warten...</string>
-	<string name="all">Alles</string>
+  <string name="app_name">And Bible</string>
+  <string name="splash_top_text">"\n\"Und Gott sprach: '\"Es werde Licht!\"' Und es wurde Licht.\"\nGenesis 1:3"</string>
+  <string name="help_text">Menü-Knopf für Optionen\n\nKapitelnavigation ist mit dem Trackball, D-pad oder durch Querstreichen mit dem Finger möglich.</string>
+  <string name="help_text_long">Navigation\nKapitelnavigation ist mit dem Trackball, D-pad oder durch Querstreichen mit dem Finger möglich. \n\nMenü-Knopf für Optionen drücken \n\nUm Module herunterzuladen, \"Menü-Optionen-Module herunterladen\" drücken \n\nFür Aktionen betreffend den aktuellen Vers lang auf den Bildschirm drücken. \nUm ein Modul zu löschen oder Informationen anzusehen, im Dokument-Auswahldialog lang auf das entsprechende Modul drücken. \n\nVorlesen\nUm einen Text vorlesen zu lassen, auf \"Menü-Optionen-Vorlesen\" drücken. \n\nBookmarks\nBookmarks werden über das Vers-Kontextmenü hinzugefügt. Der Bookmark Manager ist im Hauptmenü zu finden. Im Bookmark Manager Kontextmenü kann man Bookmarks nach Gruppen ordnen.</string>
+  <string name="version_text">Version %s</string>
+  <string name="no_sdcard_error">Bitte legen Sie eine SD-Karte ein und starten AndBible neu.</string>
+  <!-- Hauptmenü -->
+  <string name="chooseBook">Dokument</string>
+  <string name="selectPassage">Navigation</string>
+  <string name="search">Suche</string>
+  <string name="settings">Einstellungen</string>
+  <string name="history">Verlauf</string>
+  <string name="speak">Vorlesen</string>
+  <string name="help">Hilfe</string>
+  <string name="choosePassageBookName">Buchauswahl</string>
+  <string name="choosePassageChapterName">Kapitelauswahl</string>
+  <string name="chapter_no">Kapitel Nr. %d</string>
+  <string name="search_index">Suchindex</string>
+  <string name="index_creation_required">"Für die Suche ist ein Index nötig.\n\nIndices können heruntergeladen oder lokal erzeugt werden.\n\nHerunterladen ist schneller und ermöglicht mehr Suchfunktionen.\n\nEine funktionierende Internetverbindung ist zum Herunterladen von Indices nötig.\n"</string>
+  <string name="indexing_wait_msg">Nach erfolgreicher Indexerstellung werden Sie zum Suchdialog weitergeleitet.</string>
+  <string name="index">Index</string>
+  <string name="index_download">Download</string>
+  <string name="index_not_available_for_download">Dieser Index kann nicht heruntergeladen werden.</string>
+  <string name="index_create">Erzeuge Index</string>
+  <string name="progress_status">Fortschritt</string>
+  <string name="task_kill_warning">Diese Aufgaben dauern länger und könnten abgebrochen werden, wenn Sie zu einem anderen Programm wechseln.</string>
+  <string name="no_tasks_running">Keine laufenden Aufgaben.</string>
+  <string name="delete_doc">%s löschen?</string>
+  <!-- Search -->
+  <string name="search_words_group_prompt">Verssuche</string>
+  <string name="search_all_words">Alle Wörter</string>
+  <string name="search_any_word">Einige Wörter</string>
+  <string name="search_phrase">genaue Wortfolge</string>
+  <string name="search_result_count">%d Treffer gefunden</string>
+  <string name="search_showing_first">Zu viele Treffer. Nur die ersten %d werden angezeigt</string>
+  <string name="search_bible_section_group_prompt">Suchbereich</string>
+  <string name="search_all_bible">Ganze Bibel</string>
+  <string name="search_new_testament">NT</string>
+  <string name="search_old_testament">AT</string>
+  <string name="search_current_book">Derzeitiges Buch</string>
+  <string name="error_executing_search">Ungültige Suchabfrage</string>
+  <!-- Preferences -->
+  <string name="prefs_show_verseno_title">Versnummer</string>
+  <string name="prefs_show_verseno_summary">Zeige Versnummern</string>
+  <string name="prefs_verse_per_line_title">Ein Vers pro Zeile</string>
+  <string name="prefs_verse_per_line_summary">Jeden Vers auf einer neuen Zeile anzeigen</string>
+  <string name="prefs_show_notes_title">Anmerkungen</string>
+  <string name="prefs_show_notes_summary">Zeige Anmerkungen</string>
+  <string name="prefs_show_strongs_title">Strong\'s Nummern anzeigen</string>
+  <string name="prefs_show_strongs_summary">Verweise zu Strong\'s Wörterbuch</string>
+  <string name="prefs_night_mode_title">Nachtmodus</string>
+  <string name="prefs_night_mode_summary">Für leichteres Lesen im Dunkeln</string>
+  <string name="prefs_text_size_title">Zeichengröße</string>
+  <string name="prefs_text_size_summary">Text größer/kleiner anzeigen</string>
+  <string name="prefs_interface_locale_title">Sprache umschalten</string>
+  <string name="prefs_interface_locale_summary">Umschalten der Sprache der Benutzerführung</string>
+  <string name="locale_change_warning">AndBible wird zur Sprachumstellung neu gestartet</string>
+  <!-- Notes screen -->
+  <string name="no_chapter_notes">Keine Anmerkungen in diesem Kapitel</string>
+  <string name="no_verse_notes">Keine Anmerkungen in diesem Vers</string>
+  <string name="previous">Zurück</string>
+  <string name="next">Vorwärts</string>
+  <!--  Strongs -->
+  <string name="strongs">Strong\'s Wörterbuch</string>
+  <string name="strongs_not_installed">Bitte laden Sie die Strong\'s Wörterbücher für Griechisch und Hebräisch herunter</string>
+  <!-- Module download -->
+  <string name="download">Module herunterladen</string>
+  <string name="download_confirmation">Das Modul aus dem Internet herunterladen?</string>
+  <string name="download_source_message">Die Module werden von\nhttp://www.crosswire.org\n&amp;amp; http://xiphos.org heruntergeladen</string>
+  <string name="download_document_confirm_prefix">"Download "</string>
+  <string name="refresh_book_list">Liste aktualisieren?</string>
+  <string name="error_downloading">Download fehlgeschlagen. Überprüfen Sie ihre Internetverbindung!</string>
+  <string name="no_internet_connection">Keine Verbindung zum Internet!</string>
+  <string name="storage_space_warning">Nicht genügend Speicherplatz!</string>
+  <string name="wait_for_bible">Warten Sie, bis der Download fertig ist - dann werden Sie auf den Hauptschirm weitergeleitet.</string>
+  <string name="wait_for_bible_not_yet">Modulinstallation noch nicht abgeschlossen. Bitte warten!</string>
+  <string name="download_complete_no_bibles">Kein Modul installiert. Bitte noch einmal!</string>
+  <string name="too_many_jobs">Zu viele Aufgaben am Laufen. Bitte warten!.</string>
+  <!-- Document context menu -->
+  <string name="delete">Löschen</string>
+  <string name="about">Info</string>
+  <!-- Verse context menu -->
+  <string name="notes">Fußnoten und Querverweise</string>
+  <string name="copy">Vers kopieren</string>
+  <string name="share_verse">Vers teilen...</string>
+  <string name="share_verse_subject">Ein Bibelvers wurde dir mit Hilfe von AndBible geschickt</string>
+  <!-- Bookmarks -->
+  <string name="bookmarks">Lesezeichen</string>
+  <string name="add_bookmark">Lesezeichen hinzufügen</string>
+  <string name="bookmark_added">Lesezeichen hinzugefügt</string>
+  <string name="bookmark_exists">Lesezeichen existiert schon!</string>
+  <string name="bookmark_labels">Gruppen</string>
+  <string name="assign_labels">Gruppennamen auswählen</string>
+  <string name="new_label">Neue Gruppe</string>
+  <string name="new_label_prompt">Name</string>
+  <!-- Dictionary -->
+  <string name="dictionary">Wörterbuch</string>
+  <string name="search_dictionary_hint">Durchsuche Wörterbuch</string>
+  <string name="dictionary_contents">Inhalt</string>
+  <!-- General Book -->
+  <string name="general_book">Buch</string>
+  <string name="general_book_contents">Inhalt</string>
+  <!-- Speak -->
+  <!-- Speak - Bible -->
+  <plurals name="num_chapters">
+    <item quantity="one">%d Kapitel</item>
+    <item quantity="other">%d Kapitel</item>
+  </plurals>
+  <string name="rest_of_book">Bis zum Buchende</string>
+  <!-- Speak - Commentary -->
+  <plurals name="num_verses">
+    <item quantity="one">%d Vers</item>
+    <item quantity="other">%d Verse</item>
+  </plurals>
+  <string name="rest_of_chapter">Bis zum Kapitelende</string>
+  <!-- Speak - Dictionary and other -->
+  <plurals name="num_pages">
+    <item quantity="one">%d Seite</item>
+    <item quantity="other">%d Seiten</item>
+  </plurals>
+  <!-- Speak - Common -->
+  <string name="stop">Stop</string>
+  <string name="tts_lang_not_available">Sprache nicht verfügbar.</string>
+  <!-- Document types -->
+  <string name="doc_type_bible">Bibel</string>
+  <string name="doc_type_commentary">Kommentar</string>
+  <string name="doc_type_dictionary">Wörterbuch</string>
+  <string name="doc_type_book">Buch</string>
+  <!-- General -->
+  <string name="error_occurred">Ein Fehler ist aufgetreten!</string>
+  <string name="okay">OK</string>
+  <string name="cancel">Abbruch</string>
+  <string name="no">Nein</string>
+  <string name="error">"Fehler "</string>
+  <string name="more">Mehr</string>
+  <string name="retry">Wiederholen</string>
+  <string name="please_wait">Bitte warten...</string>
+  <string name="all">Alles</string>
+  <string name="all_greek_occurrences">Alle Ergebnisse anzeigen</string>
+  <string name="all_hebrew_occurrences">Alle Ergebnisse anzeigen</string>
+  <string name="lang_default">Vorgabe</string>
+  <string name="morph_robinson_not_installed">Laden Sie bitte das Modul \'Robinson\'s Morphological Analysis Codes\' herunter</string>
+  <string name="no_indexed_bible_with_strongs_ref">Sie müssen zuerst ein Bibelmodul mit Strongs Nummer sowie den Suchindex dazu herunterladen</string>
+  <string name="prefs_show_morphology_summary">Zeige griechische Morphologie nach Robinson</string>
+  <string name="prefs_show_morphology_title">Zeige morphologische Codes</string>
 </resources>
