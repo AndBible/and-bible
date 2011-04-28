@@ -7,15 +7,9 @@
 -->
 <resources>
   <string name="app_name">And Bible</string>
-  <string name="splash_top_text">\n\"Dievas tarė, „Teatsiranda šviesa!“ Ir atsirado šviesa.\"\nPradžios 1:3</string>
+  <string name="splash_top_text">"\n\"Dievas tarė, „Teatsiranda šviesa!“ Ir atsirado šviesa.\"\nPradžios 1:3"</string>
   <string name="help_text">Veiksmams atlikti spauskite MENIU mygtuką\n\nKeiskite skyrius naudodami ratuką, D-pad arba braukdami per ekraną pirštu.</string>
-  <string name="help_text_long">Vartymas\nKeiskite skyrius naudodami ratuką, D-pad arba braukdami pirštu per ekraną.
-    \n\nVeiksmams atlikti spauskite MENIU
-    \n\nNorėdami parsisiųsti daugiau dokumentų spauskite Meniu/Daugiau/Parsiųsti dokumentus
-    \n\nNorėdami atverti kontekstinį meniu pasirinktai eilutei, palaikykite paspaudę ekraną pirštu.
-    \nNorėdami gauti dokumento informaciją arba jį pašalinti, palaikykite paspaudę ant dokumento pirštu.
-    \n\nKlausymas\nNorėdami klausytis skyriaus, spauskite „Klausyti“.\nNorėdami nustoti klausytis, dar kartą spauskite „Klausyti“.
-    \n\nŽymės\nŽymės gali būti pridėtos per eilučių kontekstinį meniu. Žymių tvarkyklė pasiekiama per pagrindinį meniu. Žymių tvarkyklės kontekstinis meniu leidžia grupuoti žymes naudojant korteles.</string>
+  <string name="help_text_long">Vartymas\nKeiskite skyrius naudodami ratuką, D-pad arba braukdami pirštu per ekraną. \n\nVeiksmams atlikti spauskite MENIU \n\nNorėdami parsisiųsti daugiau dokumentų spauskite Meniu/Daugiau/Parsiųsti dokumentus \n\nNorėdami atverti kontekstinį meniu pasirinktai eilutei, palaikykite paspaudę ekraną pirštu. \nNorėdami gauti dokumento informaciją arba jį pašalinti, palaikykite paspaudę ant dokumento pirštu. \n\nKlausymas\nNorėdami klausytis skyriaus, spauskite „Klausyti“.\nNorėdami nustoti klausytis, dar kartą spauskite „Klausyti“. \n\nŽymės\nŽymės gali būti pridėtos per eilučių kontekstinį meniu. Žymių tvarkyklė pasiekiama per pagrindinį meniu. Žymių tvarkyklės kontekstinis meniu leidžia grupuoti žymes naudojant korteles.</string>
   <string name="version_text">Versija %s</string>
   <string name="no_sdcard_error">Prašome įdėti SD kortelę ir iš naujo paleisti And Bible.</string>
   <!-- main menu -->
@@ -30,7 +24,7 @@
   <string name="choosePassageChapterName">Rinkitės skyrių</string>
   <string name="chapter_no">Skyrius %d</string>
   <string name="search_index">Paieškos indeksas</string>
-  <string name="index_creation_required">Paieškai reikia indekso.\n\nIndeksai gali būti parsiųsti iš interneto arba sukurti vietoje.\n\nParsiuntimas yra žymiai greitesnis, o ir parsiųsti indeksai turi daugiau savybių, reikalingų paieškai.\n\nIndeksų parsiuntimui reikia interneto ryšio.\n</string>
+  <string name="index_creation_required">"Paieškai reikia indekso.\n\nIndeksai gali būti parsiųsti iš interneto arba sukurti vietoje.\n\nParsiuntimas yra žymiai greitesnis, o ir parsiųsti indeksai turi daugiau savybių, reikalingų paieškai.\n\nIndeksų parsiuntimui reikia interneto ryšio.\n"</string>
   <string name="indexing_wait_msg">Kai indeksavimas bus užbaigtas, jūs atsirasite paieškos lange.</string>
   <string name="index">Indeksas</string>
   <string name="index_download">Parsiųsti</string>
@@ -46,7 +40,7 @@
   <string name="search_any_word">Bet kuris žodis</string>
   <string name="search_phrase">Frazė</string>
   <string name="search_result_count">Surasta atitikčių: %d</string>
-  <string name="search_showing_first">Per daug atitikčių.  Rodomos pirmos %d</string>
+  <string name="search_showing_first">Per daug atitikčių. Rodomos pirmos %d</string>
   <string name="search_bible_section_group_prompt">Kur ieškoti</string>
   <string name="search_all_bible">Visoje Biblijoje</string>
   <string name="search_new_testament">Naujajame Testamente</string>
@@ -61,7 +55,7 @@
   <string name="prefs_show_notes_title">Pastabos</string>
   <string name="prefs_show_notes_summary">Rodyti pastabas</string>
   <string name="prefs_show_strongs_title">Rodyti Strongo numerius</string>
-  <string name="prefs_show_strongs_summary">Nuorodos į graikų &amp; hebrajų apibrėžimus</string>
+  <string name="prefs_show_strongs_summary">Nuorodos į graikų &amp;amp; hebrajų apibrėžimus</string>
   <string name="prefs_night_mode_title">Naktinė veiksena</string>
   <string name="prefs_night_mode_summary">Lengvesniam skaitymui tamsoje</string>
   <string name="prefs_text_size_title">Teksto dydis</string>
@@ -83,13 +77,13 @@
   <string name="download_source_message">Dokumentai parsiunčiami iš\nhttp://www.crosswire.org\nir http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Parsiųsti "</string>
   <string name="refresh_book_list">Atnaujinti knygų sąrašą?</string>
-  <string name="error_downloading">Parsiunčiant įvyko klaida.  Patikrinkite interneto ryšį.</string>
+  <string name="error_downloading">Parsiunčiant įvyko klaida. Patikrinkite interneto ryšį.</string>
   <string name="no_internet_connection">Nepavyko prisijungti prie interneto</string>
   <string name="storage_space_warning">Nepakanka vietos vietinėje saugykloje.</string>
   <string name="wait_for_bible">Prašome palaukti, kol bus parsiųsta Biblija. Tuomet jūs atsirasite pagrindiniame lange.</string>
   <string name="wait_for_bible_not_yet">Prašome palaukti. Biblijos diegimas dar nebaigtas.</string>
-  <string name="download_complete_no_bibles">Nėra įdiegtų Biblijų.  Spauskite „Atgal“ ir bandykite vėl.</string>
-  <string name="too_many_jobs">Per daug vykdomų veiksmų.  Prašome palaukti, kol kai kurie baigsis ir tuomet bandykite vėl.</string>
+  <string name="download_complete_no_bibles">Nėra įdiegtų Biblijų. Spauskite „Atgal“ ir bandykite vėl.</string>
+  <string name="too_many_jobs">Per daug vykdomų veiksmų. Prašome palaukti, kol kai kurie baigsis ir tuomet bandykite vėl.</string>
   <!-- Document context menu -->
   <string name="delete">Pašalinti</string>
   <string name="about">Apie</string>
@@ -155,4 +149,4 @@
   <string name="all_greek_occurrences">Rodyti visus atvejus</string>
   <string name="all_hebrew_occurrences">Rodyti visus atvejus</string>
   <string name="no_indexed_bible_with_strongs_ref">Jums reikia atsisiųsti bibliją su Strongo numeriais, o taip pat ir jos indeksus per „Paeišką“</string>
-</resources>
+<string name="morph_robinson_not_installed">"Prašome atsisiųsti žodyną 'Robinson's Morphological Analysis Codes'"</string><string name="prefs_show_morphology_summary">Rodyti Robinsono graikų morfologiją</string><string name="prefs_show_morphology_title">Morfologiniai kodai</string></resources>
