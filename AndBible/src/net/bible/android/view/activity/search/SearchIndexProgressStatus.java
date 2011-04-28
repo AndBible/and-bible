@@ -2,9 +2,12 @@ package net.bible.android.view.activity.search;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.search.SearchControl;
 import net.bible.android.view.activity.base.ProgressActivityBase;
 import net.bible.service.common.CommonUtils;
+import net.bible.service.sword.SwordApi;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.progress.Progress;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.index.IndexStatus;
@@ -27,8 +30,8 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 		hideButtons();
 		setMainText(getString(R.string.indexing_wait_msg));
 		
-		documentBeingIndexed = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
-
+		String docInitials = getIntent().getStringExtra(SearchControl.SEARCH_DOCUMENT);
+		documentBeingIndexed = SwordApi.getInstance().getDocumentByInitials(docInitials);
 	}
 
 	/**
@@ -46,8 +49,16 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 		
 		// if index is fine then goto search
 		if (documentBeingIndexed.getIndexStatus().equals(IndexStatus.DONE)) {
-			Log.i(TAG, "Index created going to search");
-			Intent intent = new Intent(this, Search.class);
+			Log.i(TAG, "Index created");
+			Intent intent = null;
+			if (StringUtils.isNotEmpty( getIntent().getStringExtra(SearchControl.SEARCH_TEXT) )) {
+				// the search string was passed in so execute it directly
+				intent = new Intent(this, SearchResults.class);
+				intent.putExtras(getIntent().getExtras());
+			} else {
+				// just go to the normal Search screen
+				intent = new Intent(this, Search.class);
+			}
 			startActivity(intent);
 			finish();
 		} else {

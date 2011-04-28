@@ -1,7 +1,6 @@
 package net.bible.android.view.activity.navigation;
 
 import java.util.List;
-import java.util.Map;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
@@ -16,12 +15,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 
 /**
  * Choose a bible or commentary to use
@@ -88,7 +81,28 @@ public class ChooseDocument extends DocumentSelectionBase {
 			.show();
 	}
 	
-	private void finishedSelection() {
+    @Override
+	protected void handleDeleteIndex(final Book document) {
+		CharSequence msg = getString(R.string.delete_search_index_doc, document.getName());
+		new AlertDialog.Builder(this)
+			.setMessage(msg).setCancelable(true)
+			.setPositiveButton(R.string.okay,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog,	int buttonId) {
+						try {
+							Log.d(TAG, "Deleting index:"+document);
+							SwordApi.getInstance().deleteDocumentIndex(document);
+						} catch (Exception e) {
+							showErrorMsg(R.string.error_occurred);
+						}
+					}
+				}
+			)
+			.create()
+			.show();
+	}
+
+    private void finishedSelection() {
     	Log.i(TAG, "finished selection");
     	Intent resultIntent = new Intent();
     	setResult(Activity.RESULT_OK, resultIntent);

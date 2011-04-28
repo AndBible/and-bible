@@ -53,6 +53,8 @@ public class KeyHistoryItem implements HistoryItem {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result
+				+ ((document == null) ? 0 : document.getInitials().hashCode());
 		result = prime * result + ((key == null) ? 0 : key.hashCode());
 		return result;
 	}
@@ -66,6 +68,11 @@ public class KeyHistoryItem implements HistoryItem {
 		if (getClass() != obj.getClass())
 			return false;
 		KeyHistoryItem other = (KeyHistoryItem) obj;
+		if (document == null) {
+			if (other.document != null)
+				return false;
+		} else if (!document.getInitials().equals(other.document.getInitials()))
+			return false;
 		if (key == null) {
 			if (other.key != null)
 				return false;
@@ -73,6 +80,4 @@ public class KeyHistoryItem implements HistoryItem {
 			return false;
 		return true;
 	}
-	
-	
 }

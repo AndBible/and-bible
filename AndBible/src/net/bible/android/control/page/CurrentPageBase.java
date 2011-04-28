@@ -114,10 +114,17 @@ abstract class CurrentPageBase implements CurrentPage {
 	 */
 	@Override
 	public void setCurrentDocument(Book doc) {
+		Book prevDoc = currentDocument;
+		
 		if (!doc.equals(currentDocument) && !shareKeyBetweenDocs && getKey()!=null && !doc.contains(getKey())) {
 			doSetKey(null);
 		}
 		localSetCurrentDocument(doc);
+		
+		// try to clear memory to prevent OutOfMemory errors
+		if (!currentDocument.equals(prevDoc)) {
+			prevDoc.deactivate(null);
+		}
 	}
 	
 	/* Set new doc and if possible show new doc

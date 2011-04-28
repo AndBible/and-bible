@@ -235,14 +235,28 @@ public class SwordApi {
 	}
 	
 	public void deleteDocument(Book document) throws BookException {
-        document.getDriver().delete(document);
+		// delete index first if it exists but wrap in try to ensure an attempt is made to delete the document
+		try {
+	        IndexManager imanager = IndexManagerFactory.getIndexManager();
+	        if (imanager.isIndexed(document)) {
+	            imanager.deleteIndex(document);
+	        }
+		} catch (Exception e) {
+			// just log index delete error, deleting doc is the important thing
+			Log.e(TAG, "Error deleting document index", e);
+		}
 
+        document.getDriver().delete(document);
+	}
+	
+	public void deleteDocumentIndex(Book document) throws BookException {
         IndexManager imanager = IndexManagerFactory.getIndexManager();
         if (imanager.isIndexed(document)) {
             imanager.deleteIndex(document);
         }
 	}
 	
+
 	/** this custom index creation has been optimised for slow, low memory devices
 	 * If an index is in progress then nothing will happen
 	 * 

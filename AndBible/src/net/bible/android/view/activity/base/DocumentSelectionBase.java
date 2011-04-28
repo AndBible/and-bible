@@ -63,15 +63,14 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 	private ArrayAdapter<Language> langArrayAdapter; 
 	
 	// the document list
-	private ArrayAdapter<String> listArrayAdapter;
+	private ArrayAdapter<Book> listArrayAdapter;
 	private List<Book> allDocuments;
 	//TODO just use displayedDocuments with a model giving 2 lines in list
 	private List<Book> displayedDocuments;
-	private List<String> displayedDocumentDescriptions;
 
 	private boolean isDeletePossible;
 	
-	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1;
+	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
 
 	private static final String TAG = "DocumentSelectionBase";
 
@@ -96,11 +95,8 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     private void initialiseView() {
     	languageList = new ArrayList<Language>();
     	displayedDocuments = new ArrayList<Book>();
-    	displayedDocumentDescriptions = new ArrayList<String>();
     	
-    	listArrayAdapter = new ArrayAdapter<String>(this,
-    	        LIST_ITEM_TYPE,
-    	        displayedDocumentDescriptions);
+    	listArrayAdapter = new DocumentItemAdapter(this, LIST_ITEM_TYPE, displayedDocuments);
     	setListAdapter(listArrayAdapter);
     	
     	//prepare the documentType spinner
@@ -252,13 +248,11 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     		if (allDocuments!=null && allDocuments.size()>0) {
    	        	Log.d(TAG, "filtering documents");
 	        	displayedDocuments.clear();
-	        	displayedDocumentDescriptions.clear();
 	        	Language lang = languageList.get(selectedLanguageNo);
 	        	for (Book doc : allDocuments) {
 	        		BookFilter filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo];
 	        		if (filter.test(doc) && doc.getLanguage().equals(lang)) {
 		        		displayedDocuments.add(doc);
-		        		displayedDocumentDescriptions.add(doc.getName());
 	        		}
 	        	}
 	        	if (listArrayAdapter!=null) {
@@ -314,6 +308,10 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 			boolean canDeleteCurrentDocument = ControlFactory.getInstance().getDocumentControl().canDelete(document);
 			deleteItem.setEnabled(canDeleteCurrentDocument);
 		}
+
+		// delete index
+		MenuItem deleteIndexItem = menu.findItem(R.id.delete_index);
+		deleteIndexItem.setVisible(isDeletePossible);
 	}
 
 
@@ -331,12 +329,18 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 			case (R.id.delete):
 				handleDelete(document);
 				return true;
+			case (R.id.delete_index):
+				handleDeleteIndex(document);
+				return true;
 			}
 		}
 		return false; 
 	}
 
 	protected void handleDelete(final Book document) {
+		// default is that delete is disabled, override to handle delete if enabled
+    }
+	protected void handleDeleteIndex(final Book document) {
 		// default is that delete is disabled, override to handle delete if enabled
     }
 

@@ -3,10 +3,11 @@ package net.bible.android.view.activity.search;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.search.SearchControl;
 import net.bible.android.view.activity.base.ActivityBase;
-import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordApi;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 
 import android.content.Intent;
@@ -39,13 +40,10 @@ public class SearchIndex extends ActivityBase {
      */
     public void onDownload(View v) {
     	Log.i(TAG, "CLICKED");
-    	boolean bOk = ControlFactory.getInstance().getSearchControl().downloadIndex();
+    	boolean bOk = ControlFactory.getInstance().getSearchControl().downloadIndex(getDocumentToIndex());
 
     	if (bOk) {
-        	// monitor the progress
-        	Intent myIntent = new Intent(this, SearchIndexProgressStatus.class);
-        	startActivity(myIntent);
-        	finish();
+        	monitorProgress();
     	}
     }
 
@@ -57,17 +55,45 @@ public class SearchIndex extends ActivityBase {
     	Log.i(TAG, "CLICKED");
     	try {
     		// start background thread to create index
-        	boolean bOk = ControlFactory.getInstance().getSearchControl().createIndex();
+        	boolean bOk = ControlFactory.getInstance().getSearchControl().createIndex(getDocumentToIndex());
 
         	if (bOk) {
-	        	// monitor the progress
-	        	Intent myIntent = new Intent(this, SearchIndexProgressStatus.class);
-	        	startActivity(myIntent);
-	        	finish();
+	        	monitorProgress();
         	}
     	} catch (Exception e) {
     		Log.e(TAG, "error indexing:"+e.getMessage());
     		e.printStackTrace();
     	}
     }
+    
+    private Book getDocumentToIndex() {
+    	String documentInitials = getIntent().getStringExtra(SearchControl.SEARCH_DOCUMENT);
+
+    	Book documentToIndex = null;
+        if (StringUtils.isNotEmpty(documentInitials)) {
+        	documentToIndex = SwordApi.getInstance().getDocumentByInitials(documentInitials);
+        } else {
+        	documentToIndex = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
+        }
+
+        return documentToIndex;
+    }
+
+    /**
+	 * Show progress monitor screen
+	 */
+	private void monitorProgress() {
+		// monitor the progress
+		Intent intent = new Intent(this, SearchIndexProgressStatus.class);
+		
+		// a search may be pre-defined, if so then pass the pre-defined search through so it can be executed directly
+		intent.putExtras(getIntent().getExtras());
+		if (StringUtils.isEmpty(intent.getStringExtra(SearchControl.SEARCH_DOCUMENT))) {
+			// must tell the progress status screen which doc is being downloaded because it checks it downloaded successfully
+			intent.putExtra(SearchControl.SEARCH_DOCUMENT, getDocumentToIndex().getInitials());
+		}
+		
+		startActivity(intent);
+		finish();
+	}
 }

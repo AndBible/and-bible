@@ -7,10 +7,12 @@ import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.search.SearchControl.SearchBibleSection;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
+import net.bible.android.view.activity.search.SearchIndex;
 import net.bible.android.view.activity.search.SearchResults;
 import net.bible.service.common.Constants;
 import net.bible.service.sword.SwordApi;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.Defaults;
 import org.crosswire.jsword.book.FeatureType;
@@ -21,6 +23,7 @@ import org.crosswire.jsword.passage.NoSuchKeyException;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 
 public class LinkControl {
@@ -52,9 +55,9 @@ public class LinkControl {
 	        } else if (Constants.ROBINSON_GREEK_MORPH_PROTOCOL.equals(protocol)) {
 	        	showRobinsonMorphology(ref);
 	        } else if (Constants.ALL_GREEK_OCCURRENCES_PROTOCOL.equals(protocol)) {
-	        	showAllOccurrences(ref, SearchBibleSection.NT, "g");
+	        	showAllOccurrences(ref, SearchBibleSection.ALL, "g");
 	        } else if (Constants.ALL_HEBREW_OCCURRENCES_PROTOCOL.equals(protocol)) {
-	        	showAllOccurrences(ref, SearchBibleSection.OT, "h");
+	        	showAllOccurrences(ref, SearchBibleSection.ALL, "h");
 	        } else {
 	        	// not a valid Strongs Uri
 	        	return false;
@@ -105,28 +108,45 @@ public class LinkControl {
     	Book currentBible = CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument();
     	Book strongsBible = null;
 
-    	// if current bible has no refs then try to find one that has
+    	// if current bible has no Strongs refs then try to find one that has
     	if (currentBible.hasFeature(FeatureType.STRONGS_NUMBERS)) {
     		strongsBible = currentBible;
     	} else {
     		strongsBible = SwordApi.getInstance().getDefaultBibleWithStrongs();
     	}
     	
-    	if (strongsBible == null || !strongsBible.getIndexStatus().equals(IndexStatus.DONE)) {
+    	// possibly no Strong's bible or it has not been indexed
+    	boolean needToDownloadIndex = false;
+    	if (strongsBible == null) {
     		Dialogs.getInstance().showErrorMsg(R.string.no_indexed_bible_with_strongs_ref);
     		return;
+    	} else if (currentBible.equals(strongsBible) && !currentBible.getIndexStatus().equals(IndexStatus.DONE)) {
+    		Log.d(TAG, "Index status is NOT DONE");
+    		needToDownloadIndex = true;
     	}
     	
     	// The below uses ANY_WORDS because that does not add anything to the search string
+    	//String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
     	String searchText = ControlFactory.getInstance().getSearchControl().decorateSearchString("strong:"+refPrefix+ref, SearchType.ANY_WORDS, biblesection);
     	Log.d(TAG, "Search text:"+searchText);
 
     	Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
-    	Intent intent = new Intent(activity, SearchResults.class);
-    	intent.putExtra(SearchControl.SEARCH_TEXT, searchText);
-    	intent.putExtra(SearchControl.SEARCH_DOCUMENT, strongsBible.getInitials());
-    	intent.putExtra(SearchControl.TARGET_DOCUMENT, currentBible.getInitials());
-    	activity.startActivity(intent);
+    	Bundle searchParams = new Bundle();
+    	searchParams.putString(SearchControl.SEARCH_TEXT, searchText);
+    	searchParams.putString(SearchControl.SEARCH_DOCUMENT, strongsBible.getInitials());
+    	searchParams.putString(SearchControl.TARGET_DOCUMENT, currentBible.getInitials());
+
+    	Intent intent = null;
+    	if (needToDownloadIndex) {
+    	    intent = new Intent(activity, SearchIndex.class);
+    	} else {
+        	//If an indexed Strong's module is in place then do the search - the normal situation
+        	intent = new Intent(activity, SearchResults.class);
+    	}
+    	
+    	intent.putExtras(searchParams);
+		activity.startActivity(intent);
+
 		return;
 	}
 }
