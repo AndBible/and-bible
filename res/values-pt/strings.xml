@@ -9,14 +9,9 @@
 -->
 <resources>
   <string name="app_name">And Bible</string>
-  <string name="splash_top_text">\n\"E disse Deus:\'Haja luz,\' e houve luz.\"\nGenesis 1:3</string>
+  <string name="splash_top_text">"\n\"E disse Deus:'Haja luz,' e houve luz.\"\nGenesis 1:3"</string>
   <string name="help_text">Pressione a tecla MENU para executar as ações\n\nUse o track-ball, os botões direcionais ou toque na tela para avançar ou retroceder os capítulos</string>
-  <string name="help_text_long">Navegação\nVá para o próximo capítulo ou o anterior usando o track-ball, os botões direcionais ou toque na tela para avançar ou retroceder
-    \n\nPressione a tecla MENU para executar as ações
-    \n\nFala\nPressione o botão Falar para que o programa leia o capítulo atual\nPressione novamente o botão Falar para parar a leitura
-    \n\nPressione longamente a página da bíblia para abrir o menu com as ações para o respectivo versículo.
-    \nPressione longamente sobre um documento no seletor de documentos para excluir ou ver informações a respeito do documento.
-    \n\nFavoritos\nOs Favoritos podem ser adicionados pressionando longamente sobre os versículos. O Gerenciador dos Favoritos pode ser acessado pelo menu principal.  O menu do Gerenciador dos Favoritos permite que os favoritos sejam agrupados, através de marcadores.</string>
+  <string name="help_text_long">Navegação\nVá para o próximo capítulo ou o anterior usando o track-ball, os botões direcionais ou toque na tela para avançar ou retroceder \n\nPressione a tecla MENU para executar as ações \n\nFala\nPressione o botão Falar para que o programa leia o capítulo atual\nPressione novamente o botão Falar para parar a leitura \n\nPressione longamente a página da bíblia para abrir o menu com as ações para o respectivo versículo. \nPressione longamente sobre um documento no seletor de documentos para excluir ou ver informações a respeito do documento. \n\nFavoritos\nOs Favoritos podem ser adicionados pressionando longamente sobre os versículos. O Gerenciador dos Favoritos pode ser acessado pelo menu principal. O menu do Gerenciador dos Favoritos permite que os favoritos sejam agrupados, através de marcadores.</string>
   <string name="version_text">Versão %s</string>
   <string name="no_sdcard_error">Por favor insira um cartão SD e inicie o And Biblie novamente.</string>
   <!-- main menu -->
@@ -31,7 +26,7 @@
   <string name="choosePassageChapterName">Escolha o capítulo</string>
   <string name="chapter_no">Capítulo %d</string>
   <string name="search_index">Índice da pesquisa</string>
-  <string name="index_creation_required">É preciso ter um índice para pesquisar.\n\nÍndices podem ser baixados na internet ou criados localmente.\n\nBaixar os índices é uma maneira mais prática e os índices baixados possuem mais recursos de busca.\n\nÉ necessário possuir uma conexão com a internet para baixar os índices.\n</string>
+  <string name="index_creation_required">"É preciso ter um índice para pesquisar.\n\nÍndices podem ser baixados na internet ou criados localmente.\n\nBaixar os índices é uma maneira mais prática e os índices baixados possuem mais recursos de busca.\n\nÉ necessário possuir uma conexão com a internet para baixar os índices.\n"</string>
   <string name="indexing_wait_msg">Quando a indexação for concluída, você será levado para a tela de busca.</string>
   <string name="index">Índice</string>
   <string name="index_download">Download</string>
@@ -47,7 +42,7 @@
   <string name="search_any_word">Qualquer palavra</string>
   <string name="search_phrase">Frase</string>
   <string name="search_result_count">%d resultado(s) encontrado(s)</string>
-  <string name="search_showing_first">Muitos resultados foram encontrados.  Mostrando primeiros %d</string>
+  <string name="search_showing_first">Muitos resultados foram encontrados. Mostrando primeiros %d</string>
   <string name="search_bible_section_group_prompt">Onde procurar</string>
   <string name="search_all_bible">Toda a Bíblia</string>
   <string name="search_new_testament">Novo Testamento</string>
@@ -60,7 +55,7 @@
   <string name="prefs_show_notes_title">Notas</string>
   <string name="prefs_show_notes_summary">Mostrar notas</string>
   <string name="prefs_show_strongs_title">Mostrar números do dicionário Strong</string>
-  <string name="prefs_show_strongs_summary">Links para definições em grego &amp; hebraico</string>
+  <string name="prefs_show_strongs_summary">Links para definições em grego &amp;amp; hebraico</string>
   <string name="prefs_night_mode_title">Modo noturno</string>
   <string name="prefs_night_mode_summary">Para uma melhor leitura no escuro</string>
   <string name="prefs_text_size_title">Tamanho do texto</string>
@@ -81,10 +76,10 @@
   <string name="error_downloading">Ocorreu um erro durante o download. Por favor verifique sua conexão com a internet.</string>
   <string name="no_internet_connection">Não foi possível conectar à internet</string>
   <string name="storage_space_warning">Espaço insuficiente de armazenamento local.</string>
-  <string name="wait_for_bible">Por favor espere o download da bíblia ser concluído.  Você será levado para a tela principal após o download.</string>
-  <string name="wait_for_bible_not_yet">Por favor aguarde.  Uma bíblia não teve sua instalação concluída.</string>
-  <string name="download_complete_no_bibles">Nenhuma bíblia foi instalada.  Por favor volte e tente novamente.</string>
-  <string name="too_many_jobs">Existem muitas tarefas sendo executadas.  Por favor aguarde que algumas sejam concluídas e tente novamente.</string>
+  <string name="wait_for_bible">Por favor espere o download da bíblia ser concluído. Você será levado para a tela principal após o download.</string>
+  <string name="wait_for_bible_not_yet">Por favor aguarde. Uma bíblia não teve sua instalação concluída.</string>
+  <string name="download_complete_no_bibles">Nenhuma bíblia foi instalada. Por favor volte e tente novamente.</string>
+  <string name="too_many_jobs">Existem muitas tarefas sendo executadas. Por favor aguarde que algumas sejam concluídas e tente novamente.</string>
   <!-- Document context menu -->
   <string name="delete">Excluir</string>
   <string name="about">Sobre</string>
@@ -127,7 +122,7 @@
   <string name="no">Não</string>
   <string name="no_indexed_bible_with_strongs_ref">Você deve baixar uma bíblia contendo números do dicionário Strong e baixar seu índice através da Pesquisa</string>
   <string name="prefs_interface_locale_summary">Selecione o idioma de preferencia para a interface do usuário</string>
-  <string name="prefs_interface_locale_title">"Idioma do aplicativo. "</string>
+  <string name="prefs_interface_locale_title">"Idioma do aplicativo"</string>
   <string name="prefs_verse_per_line_summary">Mostrar cada versículo em uma linha diferente</string>
   <string name="prefs_verse_per_line_title">Um versículo por linha</string>
   <string name="refresh_book_list">Atualizar a lista de documentos disponíveis?</string>
@@ -136,4 +131,4 @@
   <string name="share_verse">Compartilhar este versículo...</string>
   <string name="share_verse_subject">Um versículo da Bíblia foi enviado para você pelo And Bible</string>
   <string name="stop">Parar</string>
-</resources>
+<string name="morph_robinson_not_installed">Faça o download do dicionário \'Robinson\'s Morphological Analysis Codes\' (em inglês)</string><string name="prefs_show_morphology_summary">Mostrar morfologia grega do dicionário Robinson.</string><string name="prefs_show_morphology_title">Códigos morfológicos</string></resources>
