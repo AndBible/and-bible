@@ -25,17 +25,15 @@ public class TreeKeyHelper {
 	 */
 	private static boolean isMatch(Key key1, Key key2, boolean checkParent) {
 		boolean isMatch = false;
-		if (key1!=null && key2!=null) {
+		if (key1==null && key2==null) {
+			isMatch = true;
+		} else if (key1!=null && key2!=null) {
 			if (key1.getName().equals(key2.getName())) {
 				// keys match so now default to match = true unless parents exist and are different
 				isMatch = true;
 				// KeyTrees nodes can have the same name but different parents
 				if (checkParent) {
-					if (key1.getParent()!=null && key2.getParent()!=null) {
-						if (!key1.getParent().equals(key2.getParent())) {
-							isMatch = false;
-						}
-					}
+					isMatch = isMatch(key1.getParent(), key2.getParent(), true);
 				}
 			}
 		}
