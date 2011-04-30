@@ -17,6 +17,7 @@
 	<string-array name="prefs_interface_locale_descriptions">
 		<item>@string/lang_default</item>
 		<item>@string/lang_czech</item>
+		<item>@string/lang_welsh</item>
 		<item>@string/lang_german</item>
 		<item>@string/lang_english</item>
 		<item>@string/lang_faroese</item>
@@ -36,6 +37,7 @@
 	<string-array name="prefs_interface_locale_values">
 		<item></item>
 		<item>cs</item>
+		<item>cy</item>
 		<item>de</item>
 		<item>en</item>
 		<item>fo</item>
