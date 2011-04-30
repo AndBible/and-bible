@@ -8,13 +8,9 @@
 -->
 <resources>
   <string name="app_name">And Bible</string>
-  <string name="splash_top_text">\n\"Dieu dit : « Qu\'il y ait de la lumière! », et il y eut de la lumière.\" Genèse 1.3</string>
+  <string name="splash_top_text">"\n\"Dieu dit : « Qu'il y ait de la lumière! », et il y eut de la lumière.\" Genèse 1.3"</string>
   <string name="help_text">Appuyer sur la touche MENU pour toute action\n\nAller au chapitre suivant ou précédent en utilisant le track-ball, le D-pad ou en balayant l\'écran avec votre doigt</string>
-  <string name="help_text_long">Navigation\nAller au chapitre suivant ou précédent en utilisant le track-ball, le D-pad ou en balayant l\'écran avec votre doigt
-    \n\nAppuyer sur la touche MENU pour toute action
-    \n\nÉcoute\nCliquer sur Écouter pour entendre le chapitre en cours\nCliquer encore sur Écouter pour arrêter la lecture
-    \n\nUn appui long dans le sélecteur de documents pour le supprimer ou afficher les informations.
-    \n\nSignets\nLes signets peuvent être ajoutées via le menu contextuel verset. Le gestionnaire de signets est accessible via le menu principal. Le menu contextuel du gestionnaire de signets permet de grouper les signets en utilisant des étiquettes.</string>
+  <string name="help_text_long">Navigation\nAller au chapitre suivant ou précédent en utilisant le track-ball, le D-pad ou en balayant l\'écran avec votre doigt \n\nAppuyer sur la touche MENU pour toute action \n\nÉcoute\nCliquer sur Écouter pour entendre le chapitre en cours\nCliquer encore sur Écouter pour arrêter la lecture \n\nUn appui long dans le sélecteur de documents pour le supprimer ou afficher les informations. \n\nSignets\nLes signets peuvent être ajoutées via le menu contextuel verset. Le gestionnaire de signets est accessible via le menu principal. Le menu contextuel du gestionnaire de signets permet de grouper les signets en utilisant des étiquettes.</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Insérez une carte SD et redémarrez And Bible.</string>
   <!-- main menu -->
@@ -60,7 +56,7 @@
   <string name="prefs_show_notes_title">Notes</string>
   <string name="prefs_show_notes_summary">Afficher les notes</string>
   <string name="prefs_show_strongs_title">Afficher les nombres de Strong\'s</string>
-  <string name="prefs_show_strongs_summary">Liens aux définitions Grec &amp; Hébreu</string>
+  <string name="prefs_show_strongs_summary">Liens aux définitions Grec &amp;amp; Hébreu</string>
   <string name="prefs_night_mode_title">Mode nuit</string>
   <string name="prefs_night_mode_summary">Pour une lecture plus facile dans le noir</string>
   <string name="prefs_text_size_title">Taille du texte</string>
@@ -79,7 +75,7 @@
   <!-- Module download -->
   <string name="download">Télécharger documents</string>
   <string name="download_confirmation">Télécharger des documents à partir d\'Internet?</string>
-  <string name="download_source_message">Les documents sont téléchargés à partir de\nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
+  <string name="download_source_message">Les documents sont téléchargés à partir de\nhttp://www.crosswire.org\n&amp;amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Télécharger "</string>
   <string name="refresh_book_list">Rafraîchir la liste des documents disponibles?</string>
   <string name="error_downloading">Une erreur est apparue pendant le téléchargement. Vérifiez votre connexion internet.</string>
@@ -151,7 +147,7 @@
   <string name="retry">Recommencer</string>
   <string name="please_wait">Attendez svp...</string>
   <string name="all">Tout</string>
-  <string name="all_greek_occurrences">Voir toutes les occurrences</string>
-  <string name="all_hebrew_occurrences">Voir toutes les occurrences</string>
+  <string name="all_greek_occurrences">Trouver toutes les occurrences</string>
+  <string name="all_hebrew_occurrences">Trouver toutes les occurrences</string>
   <string name="no_indexed_bible_with_strongs_ref">Vous devez télécharger une bible contenant les numéros Strong et télécharger son index via Rechercher</string>
-</resources>
+<string name="delete_index">Supprimer l\'index de recherche</string><string name="delete_search_index_doc">Supprimer l\'index de %s?</string><string name="morph_robinson_not_installed">Veuillez télécharger le dictionnaire « Robinson analyse morphologique Codes »</string><string name="prefs_show_morphology_summary">Afficher la morphologie grecque de Robinson</string><string name="prefs_show_morphology_title">Codes morphologiques</string></resources>
