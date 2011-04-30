@@ -8,6 +8,7 @@
 <resources>
     <!-- Languages -->
 	<string name="lang_czech">cs: Čeština</string>
+	<string name="lang_welsh">cy: Cymraeg</string>
 	<string name="lang_german">de: Deutsch</string>
 	<string name="lang_english">en: English</string>
 	<string name="lang_faroese">fo: Føroyskt</string>
