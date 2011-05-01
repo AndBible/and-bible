@@ -7,7 +7,7 @@
 -->
 <resources>
   <string name="app_name">And Bible</string>
-  <string name="splash_top_text">\n\"Ja Jumala sanoi: \'Tulkoon valkeus\'. Ja valkeus tuli.\"\n1. Moos. 1:3</string>
+  <string name="splash_top_text">"\n\"Ja Jumala sanoi: 'Tulkoon valkeus'. Ja valkeus tuli.\"\n1. Moos. 1:3"</string>
   <string name="help_text">Siirry VALIKKO näppäimellä toimintoihin\n\nSiirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjaimella tai pyyhkäisemällä näyttöä sormella</string>
   <string name="help_text_long">"Navigointi\nSiirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjaimella tai pyyhkäisemällä näyttöä sormella \n\nSiirry VALIKKO näppäimellä toimintoihin \n\nLataa lisää teoksia siirtymällä Valikko / Lisää / Lataa asiakirjat \n\nPainamalla pitkään Raamatun tekstin päällä avautuu tekstivalikko liittyen nykyiseen jakeeseen.\nPainamalla pitkään teosvalitsimen päällä voit poistaa teoksen tai tarkastella sen tietoja. \n\nPuhe\nPaina Puhu kuullaksesi luvun puhuttuna tai keskeyttääksesi puheen.\n\nKirjanmerkit \nKirjanmerkkejä voi lisätä pikavalikon kautta. Kirjanmerkkien hallintaan pääsee päävalikon kautta, missä kirjanmerkkejä voi ryhmitellä vapaasti omiin ryhmiinsä.\n"</string>
   <string name="version_text">Versio %s</string>
@@ -24,7 +24,7 @@
   <string name="choosePassageChapterName">Valitse luku</string>
   <string name="chapter_no">Luku %d</string>
   <string name="search_index">Hakuindeksi</string>
-  <string name="index_creation_required">Etsiminen vaatii indeksin.\n\nIndeksit voidaan ladata netistä tai luoda paikallisesti.\n\nLataaminen on huomattavasti nopeampaa, minkä lisäksi ladatuissa indekseissä on enemmän ominaisuuksia.\n\nInternetyhteys tarvitaan indeksin lataamiseksi.\n</string>
+  <string name="index_creation_required">"Etsiminen vaatii indeksin.\n\nIndeksit voidaan ladata netistä tai luoda paikallisesti.\n\nLataaminen on huomattavasti nopeampaa, minkä lisäksi ladatuissa indekseissä on enemmän ominaisuuksia.\n\nInternetyhteys tarvitaan indeksin lataamiseksi.\n"</string>
   <string name="indexing_wait_msg">Kun indeksointi on valmis, ohjelma siirtyy suoraan etsi-toimintoon.</string>
   <string name="index">Indeksoi</string>
   <string name="index_download">Lataa</string>
@@ -40,7 +40,7 @@
   <string name="search_any_word">Jotain sanoista</string>
   <string name="search_phrase">Lausetta</string>
   <string name="search_result_count">%d jaetta löytyi</string>
-  <string name="search_showing_first">Liian monta hakutulosta.  Näytetään ensimmäiset %d</string>
+  <string name="search_showing_first">Liian monta hakutulosta. Näytetään ensimmäiset %d</string>
   <string name="search_bible_section_group_prompt">Kohdista haku</string>
   <string name="search_all_bible">Koko Raamattuun</string>
   <string name="search_new_testament">Uuteen testamenttiin</string>
@@ -71,13 +71,13 @@
   <string name="download_confirmation">Lataa teos internetistä?</string>
   <string name="download_source_message">Teokset ovat ladattavissa osoitteesta \nhttp://www.crosswire.org</string>
   <string name="download_document_confirm_prefix">"Lataa "</string>
-  <string name="error_downloading">Virhe ladattaessa teosta.  Ole hyvä ja tarkista yhteyden toimivuus.</string>
+  <string name="error_downloading">Virhe ladattaessa teosta. Ole hyvä ja tarkista yhteyden toimivuus.</string>
   <string name="no_internet_connection">Ei saada yhteyttä internettiin</string>
   <string name="storage_space_warning">Liian vähän tilaa tallentaa teos laitteeseen.</string>
   <string name="wait_for_bible">Ole hyvä ja odota, että teos on ladattu kokonaan. Latauksen jälkeen ohjelma siirtyy takaisin tekstinäkymään.</string>
-  <string name="wait_for_bible_not_yet">Ole hyvä ja odota hetki. Teoksen lataus ei ole vielä valmis.</string>
-  <string name="download_complete_no_bibles">Teosta ei onnistuttu asennetamaan.  Siirry takaisin ja yritä uudelleen.</string>
-  <string name="too_many_jobs">Liian monta tehtävää suorituksessa.  Odota hetki, että tehtäviä valmistuu ja yritä uudelleen.</string>
+  <string name="wait_for_bible_not_yet">Ole hyvä ja odota hetki. Teoksen asennus ei ole vielä valmis.</string>
+  <string name="download_complete_no_bibles">Teosta ei onnistuttu asennetamaan. Siirry takaisin ja yritä uudelleen.</string>
+  <string name="too_many_jobs">Liian monta tehtävää suorituksessa. Odota hetki, että tehtäviä valmistuu ja yritä uudelleen.</string>
   <!-- Document context menu -->
   <string name="delete">Poista</string>
   <string name="about">Tietoja</string>
@@ -110,8 +110,8 @@
   <string name="please_wait">Ole hyvä ja odota...</string>
   <string name="all">Kaikki</string>
   <string name="tts_lang_not_available">Kieli ei ole saatavilla.</string>
-  <string name="all_greek_occurrences">Näytä kaikki esiintymät</string>
-  <string name="all_hebrew_occurrences">Näytä kaikki esiintymät</string>
+  <string name="all_greek_occurrences">Etsi kaikki esiintymät</string>
+  <string name="all_hebrew_occurrences">Etsi kaikki esiintymät</string>
   <string name="doc_type_book">Kirja</string>
   <string name="general_book">Kirja</string>
   <string name="general_book_contents">Sisällys</string>
@@ -129,4 +129,4 @@
   <string name="share_verse">Jaa nykyinen jae ...</string>
   <string name="share_verse_subject">Raamatun jae on jaettu käyttäen And Bible -sovellusta.</string>
   <string name="stop">Pysäytä</string>
-</resources>
+<string name="delete_index">Poista hakuindeksi</string><string name="delete_search_index_doc">Poista %s indeksi?</string><string name="morph_robinson_not_installed">Lataa \'Robinsonin muoto-opilliset koodit\' -sanakirja</string><string name="prefs_show_morphology_summary">Näytä Robinsonin kreikankielen morfologia</string><string name="prefs_show_morphology_title">Morfologiset koodit</string></resources>
