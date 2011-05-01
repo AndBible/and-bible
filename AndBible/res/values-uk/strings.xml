@@ -6,7 +6,7 @@
       The copyright to this program is held by it's author.
 -->
 <resources>
-    <string name="app_name">And Біблія</string>
+    <string name="app_name">Android Біблія</string>
 
 	<!-- Startup & Help -->
     <string name="splash_top_text">"\n\"І сказав Бог: Хай станеться світло! І сталося світло.\"\nБуття 1:3"</string>
@@ -90,7 +90,7 @@
     <!-- Module download -->
     <string name="download">Завантажити документи</string>
     <string name="download_confirmation">Завантажити Біблію з інтернету?</string>
-    <string name="download_source_message">Документи можна завантажити з \nhttp://www.crosswire.org \nі http://xiphos.org</string>
+    <string name="download_source_message">Документи завантажуються з \nhttp://www.crosswire.org \nі http://xiphos.org</string>
     <string name="download_document_confirm_prefix">"Завантажити"</string>
     <string name="refresh_book_list">Оновити список наявних документів?</string>
     <string name="error_downloading">Сталася помилка при завантаженні. Будь ласка, перевірте ваше інтернет-з\'єднання.</string>
@@ -173,4 +173,4 @@
     <string name="retry">Спробуйте ще раз</string>
     <string name="please_wait">Зачекайте ...</string>
     <string name="all">Всі</string>
-</resources>
+<string name="delete_index">Видалити індекс пошуку</string><string name="delete_search_index_doc">Видалити індекс %s?</string><string name="morph_robinson_not_installed">Завантажте словник Робінсона з кодами морфологічного аналізу</string><string name="prefs_show_morphology_summary">Показати грецьку морфологію Робінсона</string><string name="prefs_show_morphology_title">Морфологічні коди</string></resources>
