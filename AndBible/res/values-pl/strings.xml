@@ -146,4 +146,4 @@
   <string name="prefs_verse_per_line_summary">Pokaż każdy werset w osobnej linii</string>
   <string name="prefs_verse_per_line_title">Jeden werset na linię</string>
   <string name="refresh_book_list">Odświeżyć listę dostępnych dokumentów?</string>
-<string name="morph_robinson_not_installed">Please download \'Robinson\'s Morphological Analysis Codes\' dictionary</string><string name="prefs_show_morphology_summary">Pokaż kody morfologiczne Robinsona (RMAC)</string><string name="prefs_show_morphology_title">Kody morfologiczne</string></resources>
+<string name="morph_robinson_not_installed">Please download \'Robinson\'s Morphological Analysis Codes\' dictionary</string><string name="prefs_show_morphology_summary">Pokaż kody morfologiczne Robinsona (RMAC)</string><string name="prefs_show_morphology_title">Kody morfologiczne</string><string name="delete_index">Usuń indeks wyszukiwań</string><string name="delete_search_index_doc">Czy usunąć indeks dla %s ?</string></resources>
