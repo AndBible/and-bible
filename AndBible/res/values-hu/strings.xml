@@ -7,14 +7,9 @@
 -->
 <resources>
   <string name="app_name">And Bible</string>
-  <string name="splash_top_text">\n\"És monda Isten: \'Legyen világosság:\' és lőn világosság.\"\nMózes I. 1:3</string>
+  <string name="splash_top_text">"\n\"És monda Isten: 'Legyen világosság:' és lőn világosság.\"\nMózes I. 1:3"</string>
   <string name="help_text">Isten hozta!\nNavigáció könyv olvasás közben\nLapozás:\nHúzd az ujjad balra az előre lapozáshoz\nHúzd az ujjad jobbra a vissza lapozáshoz\nForgasd a golyót balra/jobbra az előre/hátra lapozáshoz.</string>
-  <string name="help_text_long">Navigáció\nElőző / következő fejezethez használd a trackballt, D-padot vagy húzd végig az ujjad a képernyőn
-    \n\nNyomd MENU gombot további lehetőségekért
-    \n\nBeszéd\nNyomd a \"Felolvasás\" gombot a fejezet felolvasásához\nNyomd újra a \"Felolvasást\" a feolvasás végéhez
-    \n\nAz aktuális vershez kapcsolód lehetőségekért nyomd hosszan a szöveget, amire megnyílik a helyi menü
-    \nA dokumentumok listájában hosszan nyomva egy dokumentumot törölheted azt, vagy további információkat érhetsz el.
-    \n\nKönyvjelzők\nKönyvjelzőt a vers helyimenüjénben hozhatsz létre.  A könyvjelző kezelő a fő menüben érhető el. A könyvjelző kezelőben a helyi menüvel csoportosíthatod azokat címkék segítségével.</string>
+  <string name="help_text_long">Navigáció\nElőző / következő fejezethez használd a trackballt, D-padot vagy húzd végig az ujjad a képernyőn \n\nNyomd MENU gombot további lehetőségekért \n\nBeszéd\nNyomd a \"Felolvasás\" gombot a fejezet felolvasásához\nNyomd újra a \"Felolvasást\" a feolvasás végéhez \n\nAz aktuális vershez kapcsolód lehetőségekért nyomd hosszan a szöveget, amire megnyílik a helyi menü \nA dokumentumok listájában hosszan nyomva egy dokumentumot törölheted azt, vagy további információkat érhetsz el. \n\nKönyvjelzők\nKönyvjelzőt a vers helyimenüjénben hozhatsz létre. A könyvjelző kezelő a fő menüben érhető el. A könyvjelző kezelőben a helyi menüvel csoportosíthatod azokat címkék segítségével.</string>
   <string name="version_text">Verzió: %s</string>
   <string name="no_sdcard_error">Tegyél be egy SD kártyát, és indítsd újra az alkalmazást.</string>
   <!-- main menu -->
@@ -28,7 +23,7 @@
   <string name="choosePassageBookName">Válassz könyvet</string>
   <string name="choosePassageChapterName">Válassz fejezetet</string>
   <string name="search_index">Keresési index létrehozása</string>
-  <string name="index_creation_required">A kereséshez index szükséges.\n\nAz indexek letölthetőek, vagy helyben is készíthető.\n\nA letöltés előnyösebb, mert a helyi generálás nagyon időigényes. A letöltéshez internet kapcsolat szükséges.\n</string>
+  <string name="index_creation_required">"A kereséshez index szükséges.\n\nAz indexek letölthetőek, vagy helyben is készíthető.\n\nA letöltés előnyösebb, mert a helyi generálás nagyon időigényes. A letöltéshez internet kapcsolat szükséges.\n"</string>
   <string name="indexing_wait_msg">Ha az indexelés befejeződött, a kereső képernyő automatikusan megjelenik.</string>
   <string name="index">Index</string>
   <string name="index_download">Letölt</string>
@@ -77,10 +72,10 @@
   <string name="download_document_confirm_prefix">"Letölt "</string>
   <string name="error_downloading">Hiba a letöltés közben. Kérem ellenőrizze az internet kapcsolatot.</string>
   <string name="no_internet_connection">Nem sikerült kapcsolódni az internethez.</string>
-  <string name="wait_for_bible">Kérem várjon, amíg a Biblia teljesen letöltődik.  Utána automatikusan a fő képernyő jelenik meg.</string>
+  <string name="wait_for_bible">Kérem várjon, amíg a Biblia teljesen letöltődik. Utána automatikusan a fő képernyő jelenik meg.</string>
   <string name="wait_for_bible_not_yet">Kérem várjon. A Biblia telepítése még nem fejeződött be.</string>
-  <string name="download_complete_no_bibles">Nincs Biblia telepítve.  Nyomjon Vissza gombot, és próbálja újra.</string>
-  <string name="too_many_jobs">Túl sok feladat fut.  Kérem várjon, amíg valamelyik befejeződik, és próbálja újra.</string>
+  <string name="download_complete_no_bibles">Nincs Biblia telepítve. Nyomjon Vissza gombot, és próbálja újra.</string>
+  <string name="too_many_jobs">Túl sok feladat fut. Kérem várjon, amíg valamelyik befejeződik, és próbálja újra.</string>
   <!-- Document context menu -->
   <string name="delete">Törlés</string>
   <string name="about">Névjegy</string>
@@ -134,4 +129,4 @@
   <string name="share_verse_subject">A Biblia egy versét megosztották veled az And Bible programon keresztül.</string>
   <string name="stop">Stop</string>
   <string name="storage_space_warning">Nincs elég memória.</string>
-</resources>
+<string name="delete_index">Index törlése</string><string name="delete_search_index_doc">Töröljem a %s indexét?</string><string name="morph_robinson_not_installed">Kérem, töltse le a Robinson morfológiai elemzés szótárát</string><string name="prefs_show_morphology_summary">Mutasd a Robinson görög morfológiáját</string><string name="prefs_show_morphology_title">Morfológiai kódok</string></resources>
