@@ -109,7 +109,7 @@
   <string name="all">Mind</string>
   <string name="tts_lang_not_available">Ez a nyelv nem elérhető.</string>
   <string name="all_greek_occurrences">Összes előfordulás mutatása</string>
-  <string name="all_hebrew_occurrences">Összes előfordulás mutatása</string>
+  <string name="all_hebrew_occurrences">Találd meg az összes események</string>
   <string name="chapter_no">%d. fejezet</string>
   <string name="doc_type_book">Könyv</string>
   <string name="general_book">Könyv</string>
