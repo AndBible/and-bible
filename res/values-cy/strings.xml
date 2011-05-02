@@ -77,7 +77,7 @@
   <!-- Module download -->
   <string name="download">Lawrlwytho Dogfennau</string>
   <string name="download_confirmation">Llwytho Beibl oddi ar y rhyngrwyd?</string>
-  <string name="download_source_message">Dogfennau yn cael eu lawrlwytho o http://www.crosswire.org &amp; http://xiphos.org</string>
+  <string name="download_source_message">Dogfennau yn cael eu lawrlwytho o http://www.crosswire.org &amp;amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Lawrlwytho"</string>
   <string name="refresh_book_list">Adnewyddu\'r rhestr dogfennau sydd ar gael?</string>
   <string name="error_downloading">Gwall wrth lawrlwytho. Ydy\'ch cysylltiad rhyngrwyd yn gweithio?</string>
@@ -90,14 +90,14 @@
   <!-- Document context menu -->
   <string name="delete">Dileu</string>
   <string name="about">Am</string>
-  <string name="delete_doc">Delete %s?</string>
+  <string name="delete_doc">Dileu %s?</string>
   <!-- Verse context menu -->
   <string name="notes">Troednodiadau a chyfeiriadau</string>
   <string name="copy">Copïo’r adnod hon</string>
   <string name="share_verse">Rhannu\'r adnod hon ...</string>
   <string name="share_verse_subject">Mae adnod o\'r Beibl wedi ei rhannu gyda chi drwy AndBible</string>
   <!-- Bookmarks -->
-  <string name="bookmarks">Bookmarks</string>
+  <string name="bookmarks">Nodau Llyfr</string>
   <string name="add_bookmark">Gosod Nod Llyfr</string>
   <string name="bookmark_added">Ychwanegwyd Nod Llyfr</string>
   <string name="bookmark_exists">Nod Llyfr yn bodoli eisoes</string>
@@ -151,6 +151,6 @@
   <string name="please_wait">Arhoswch ...</string>
   <string name="all">Y Cwbl</string>
   <string name="all_greek_occurrences">Dangos pob un</string>
-  <string name="all_hebrew_occurrences">Dangos pob digwyddiad</string>
+  <string name="all_hebrew_occurrences">Dangos pob un</string>
   <string name="no_indexed_bible_with_strongs_ref">Rhaid i chi lawrlwytho Beibl sy\'n cynnwys rhifau Strong a llwytho ei fynegai trwy Chwilio</string>
-</resources>
+<string name="delete_index">Dileu mynegai chwilio</string><string name="delete_search_index_doc">Dileu mynegai %s?</string><string name="morph_robinson_not_installed">Lawrlwytho geiriadur \'Robinson\'s Morphological Analysis Codes\'</string><string name="prefs_show_morphology_summary">Dangos morffoleg Groeg Robinson</string><string name="prefs_show_morphology_title">Codau morffolegol</string></resources>
