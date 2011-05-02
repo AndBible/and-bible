@@ -55,7 +55,7 @@
   <string name="prefs_show_notes_title">Pastabos</string>
   <string name="prefs_show_notes_summary">Rodyti pastabas</string>
   <string name="prefs_show_strongs_title">Rodyti Strongo numerius</string>
-  <string name="prefs_show_strongs_summary">Nuorodos į graikų &amp;amp; hebrajų apibrėžimus</string>
+  <string name="prefs_show_strongs_summary">Nuorodos į graikų &amp;amp;amp; hebrajų apibrėžimus</string>
   <string name="prefs_night_mode_title">Naktinė veiksena</string>
   <string name="prefs_night_mode_summary">Lengvesniam skaitymui tamsoje</string>
   <string name="prefs_text_size_title">Teksto dydis</string>
@@ -147,6 +147,6 @@
   <string name="please_wait">Prašome palaukti...</string>
   <string name="all">Viskas</string>
   <string name="all_greek_occurrences">Rodyti visus atvejus</string>
-  <string name="all_hebrew_occurrences">Rodyti visus atvejus</string>
+  <string name="all_hebrew_occurrences">Rasti visus atvejus</string>
   <string name="no_indexed_bible_with_strongs_ref">Jums reikia atsisiųsti bibliją su Strongo numeriais, o taip pat ir jos indeksus per „Paeišką“</string>
-<string name="morph_robinson_not_installed">"Prašome atsisiųsti žodyną 'Robinson's Morphological Analysis Codes'"</string><string name="prefs_show_morphology_summary">Rodyti Robinsono graikų morfologiją</string><string name="prefs_show_morphology_title">Morfologiniai kodai</string></resources>
+<string name="morph_robinson_not_installed">"Prašome atsisiųsti žodyną 'Robinson's Morphological Analysis Codes"</string><string name="prefs_show_morphology_summary">Rodyti Robinsono graikų morfologiją</string><string name="prefs_show_morphology_title">Morfologiniai kodai</string><string name="delete_index">Pašalinti paieškos indeksą</string><string name="delete_search_index_doc">Pašalinti %s indeksą?</string></resources>
