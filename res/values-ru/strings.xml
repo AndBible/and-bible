@@ -7,17 +7,11 @@
 -->
 <resources>
   <string name="app_name">Библия</string>
-  <string name="splash_top_text">\n\"И сказал Бог: \'Да будет свет.\' И стал свет. \"\nБытие 1:3</string>
+  <string name="splash_top_text">"\n\"И сказал Бог: 'Да будет свет.' И стал свет. \"\nБытие 1:3"</string>
   <string name="help_text">Нажмите кнопку MENU для дальнейших действий\n\nДля того, чтобы перейти перейти к следующей или предыдущей главе, прокрутите трэкбол или проведите пальцем по экрану вправо или влево</string>
-  <string name="help_text_long">Навигация\nДля того, чтобы перейти к следующей или предыдущей главе, прокрутите трэкбол или проведите пальцем по экрану вправо или влево.
-    \n\nДля дальнейших действий нажмите кнопку MENU. 
-    \n\nДля того, чтобы скачать Библии или другие ресурсы нажмите MENU/Далее/Скачать ресурс.
-    \n\nДля того, чтобы открыть контекстное меню стиха, удерживайте палец на экране в течении нескольких секунд.
-    \n\nДля того, чтобы  удалить Библию в списке с Библиями или просмотреть ее источник, удерживайте палец на Библии на экране в течении нескольких секунд.
-    \n\nПрослушивание вслух\nНажмите [Прослушать вслух] для того, чтобы начать или остановить прослушивание.
-    \n\nЗакладки\nДля того, чтобы добавить закладки, зайдите в контекстное меню стиха. Для того, чтобы зайти в Менеджер закладок, пойдите в основное меню.  Менеджер закладок позволяет сгруппировать закладки через ярлыки.</string>
+  <string name="help_text_long">Навигация\nДля того, чтобы перейти к следующей или предыдущей главе, прокрутите трэкбол или проведите пальцем по экрану вправо или влево. \n\nДля дальнейших действий нажмите кнопку MENU. \n\nДля того, чтобы скачать Библии или другие ресурсы нажмите MENU/Далее/Скачать ресурс. \n\nДля того, чтобы открыть контекстное меню стиха, удерживайте палец на экране в течении нескольких секунд. \n\nДля того, чтобы удалить Библию в списке с Библиями или просмотреть ее источник, удерживайте палец на Библии на экране в течении нескольких секунд. \n\nПрослушивание вслух\nНажмите [Прослушать вслух] для того, чтобы начать или остановить прослушивание. \n\nЗакладки\nДля того, чтобы добавить закладки, зайдите в контекстное меню стиха. Для того, чтобы зайти в Менеджер закладок, пойдите в основное меню. Менеджер закладок позволяет сгруппировать закладки через ярлыки.</string>
   <string name="version_text">Версия %s</string>
-  <string name="no_sdcard_error">Вставьте SD карту и запустите Библию снова.</string>
+  <string name="no_sdcard_error">Вставьте SD карту и запустите Библию снова</string>
   <!-- main menu -->
   <string name="chooseBook">Ресурсы</string>
   <string name="selectPassage">Библия</string>
@@ -30,15 +24,15 @@
   <string name="choosePassageChapterName">Выбрать главу</string>
   <string name="chapter_no">Главы %d</string>
   <string name="search_index">Поисковой индекс</string>
-  <string name="index_creation_required">Для поиска требуется индекс.\n\nИндексы можно скачать с Интернета или создать вручную.\n\nСкачать будет быстрее, а также скачанные индексы имееют больше функций поиска.\n\nДля того, чтобы скачать индексы,подключитесь к Интернету.\n</string>
-  <string name="indexing_wait_msg">Когда создание индексов завершится вы автоматически будете перемещены в экран поиска.</string>
+  <string name="index_creation_required">"Для поиска требуется индекс.\n\nИндексы можно скачать с Интернета или создать вручную.\n\nСкачать будет быстрее, а также скачанные индексы имееют больше функций поиска.\n\nДля того, чтобы скачать индексы,подключитесь к Интернету.\n"</string>
+  <string name="indexing_wait_msg">Когда создание индексов завершится вы автоматически будете перемещены в экран поиска</string>
   <string name="index">Индекс</string>
   <string name="index_download">Скачать</string>
   <string name="index_not_available_for_download">Этот индекс недоступен для скачивания</string>
   <string name="index_create">Создать</string>
   <string name="progress_status">Прогресс</string>
   <string name="task_kill_warning">Эти задания будут приостановлены, если вы перейдете к другой программе до их завершения.</string>
-  <string name="no_tasks_running">Никакие задания сейчас не выполняются.</string>
+  <string name="no_tasks_running">Никакие задания сейчас не выполняются</string>
   <string name="delete_doc">Удалить %s?</string>
   <!-- Search -->
   <string name="search_words_group_prompt">Найти стихи</string>
@@ -61,7 +55,7 @@
   <string name="prefs_show_notes_title">Заметки</string>
   <string name="prefs_show_notes_summary">Показывать заметки</string>
   <string name="prefs_show_strongs_title">" Числа Стронга"</string>
-  <string name="prefs_show_strongs_summary">Отображать ссылки к определениям на греческом &amp; и иврите</string>
+  <string name="prefs_show_strongs_summary">Отображать ссылки к определениям на греческом &amp;amp; и иврите</string>
   <string name="prefs_night_mode_title">Ночной режим</string>
   <string name="prefs_night_mode_summary">Для более легкого чтения в темноте</string>
   <string name="prefs_text_size_title">Размер текста</string>
@@ -80,11 +74,11 @@
   <!-- Module download -->
   <string name="download">Скачать документы</string>
   <string name="download_confirmation">Скачать Библию с Интернета?</string>
-  <string name="download_source_message">Идет подключение к \nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
+  <string name="download_source_message">Идет подключение к \nhttp://www.crosswire.org\n&amp;amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Скачать "</string>
   <string name="refresh_book_list">Обновить список доступных книг?</string>
   <string name="error_downloading">Произошла ошибка. Проверьте подключение к Интернету.</string>
-  <string name="no_internet_connection">Нет подключения к Интернету.</string>
+  <string name="no_internet_connection">Нет подключения к Интернету</string>
   <string name="storage_space_warning">Недостаточно места на диске.</string>
   <string name="wait_for_bible">Подождите, Библия еще не скачалась. Далее вы автоматически перейдете в основное меню.</string>
   <string name="wait_for_bible_not_yet">Пожалуйста подождите. Библия еще не установилась.</string>
@@ -152,7 +146,7 @@
   <string name="retry">Попытайтесь снова</string>
   <string name="please_wait">Пожалуйста подождите...</string>
   <string name="all">Все</string>
-  <string name="all_greek_occurrences">Показать все  случаи употребления</string>
-  <string name="all_hebrew_occurrences">Показать все  случаи употребления</string>
+  <string name="all_greek_occurrences">Показать все случаи употребления</string>
+  <string name="all_hebrew_occurrences">Показать все случаи употребления</string>
   <string name="no_indexed_bible_with_strongs_ref">"Необходимо скачать Библию с числами Стронга и скачать индекс через Поиск"</string>
-</resources>
+<string name="delete_index">Удалить поисковой индекс?</string><string name="delete_search_index_doc">Удалить индекс?</string><string name="morph_robinson_not_installed">Пожалуйста скачайте словарь \'Морфолочические коды анализа Робинсона\'</string><string name="prefs_show_morphology_summary">Показать морфологию греческого языка по Робинсону?</string><string name="prefs_show_morphology_title">Морфологические коды</string></resources>
