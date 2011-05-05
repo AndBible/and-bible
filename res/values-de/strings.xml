@@ -74,7 +74,7 @@
   <!-- Module download -->
   <string name="download">Module herunterladen</string>
   <string name="download_confirmation">Das Modul aus dem Internet herunterladen?</string>
-  <string name="download_source_message">Die Module werden von\nhttp://www.crosswire.org\n&amp;amp; http://xiphos.org heruntergeladen</string>
+  <string name="download_source_message">Die Module werden von\nhttp://www.crosswire.org\n&amp;amp;amp; http://xiphos.org heruntergeladen</string>
   <string name="download_document_confirm_prefix">"Download "</string>
   <string name="refresh_book_list">Liste aktualisieren?</string>
   <string name="error_downloading">Download fehlgeschlagen. Überprüfen Sie ihre Internetverbindung!</string>
@@ -151,4 +151,4 @@
   <string name="no_indexed_bible_with_strongs_ref">Sie müssen zuerst ein Bibelmodul mit Strongs Nummer sowie den Suchindex dazu herunterladen</string>
   <string name="prefs_show_morphology_summary">Zeige griechische Morphologie nach Robinson</string>
   <string name="prefs_show_morphology_title">Zeige morphologische Codes</string>
-</resources>
+<string name="delete_index">Suchindex löschen</string><string name="delete_search_index_doc">Index von %s löschen?</string></resources>
