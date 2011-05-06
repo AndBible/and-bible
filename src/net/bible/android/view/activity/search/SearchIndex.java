@@ -87,7 +87,11 @@ public class SearchIndex extends ActivityBase {
 		Intent intent = new Intent(this, SearchIndexProgressStatus.class);
 		
 		// a search may be pre-defined, if so then pass the pre-defined search through so it can be executed directly
-		intent.putExtras(getIntent().getExtras());
+		if (getIntent().getExtras()!=null) {
+			intent.putExtras(getIntent().getExtras());
+		}
+		
+		// always need to specify which document is being indexed
 		if (StringUtils.isEmpty(intent.getStringExtra(SearchControl.SEARCH_DOCUMENT))) {
 			// must tell the progress status screen which doc is being downloaded because it checks it downloaded successfully
 			intent.putExtra(SearchControl.SEARCH_DOCUMENT, getDocumentToIndex().getInitials());
