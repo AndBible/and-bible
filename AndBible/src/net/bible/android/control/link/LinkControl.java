@@ -14,6 +14,7 @@ import net.bible.service.sword.SwordApi;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.Defaults;
 import org.crosswire.jsword.book.FeatureType;
 import org.crosswire.jsword.index.IndexStatus;
@@ -120,7 +121,7 @@ public class LinkControl {
     	if (strongsBible == null) {
     		Dialogs.getInstance().showErrorMsg(R.string.no_indexed_bible_with_strongs_ref);
     		return;
-    	} else if (currentBible.equals(strongsBible) && !currentBible.getIndexStatus().equals(IndexStatus.DONE)) {
+    	} else if (currentBible.equals(strongsBible) && !checkStrongs(currentBible)) {
     		Log.d(TAG, "Index status is NOT DONE");
     		needToDownloadIndex = true;
     	}
@@ -148,5 +149,19 @@ public class LinkControl {
 		activity.startActivity(intent);
 
 		return;
+	}
+	
+	/** ensure a book is indexed and the index contains typical Greek or Hebrew Strongs Numbers
+	 */
+	private boolean checkStrongs(Book bible) {
+		try {
+			return bible.getIndexStatus().equals(IndexStatus.DONE) &&
+				   (bible.find("+[Gen 1:1] strong:h7225").getCardinality()>0 ||
+					bible.find("+[John 1:1] strong:g746").getCardinality()>0 ||
+					bible.find("+[Gen 1:1] strong:g746").getCardinality()>0);
+		} catch (BookException be) {
+			Log.e(TAG, "Error checking strongs numbers", be);
+			return false;
+		}
 	}
 }
