@@ -5,8 +5,6 @@ import java.util.List;
 
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
-import android.util.Log;
-import android.webkit.WebView;
 
 /** Automatically find current verse at top of display to aid quick movement to Commentary.
  * todo: ensure last verse is selectable 
@@ -17,27 +15,15 @@ import android.webkit.WebView;
  */
 public class VerseCalculator {
 
-	private int numVerses = 0;
-	
 	private List<Integer> versePositionList = new LinkedList<Integer>();
 	
-	private WebView view;
-	
-	private static final String TAG = "VerseCalculator";
+//	private static final String TAG = "VerseCalculator";
 
-	public VerseCalculator(WebView bibleView) {
+	public VerseCalculator() {
 		super();
-		
-		this.view = bibleView;
-
-		// calculate num verses now and whenever the chapter changes
-		calculateNumVerses();
 	}
 	
 	public void init() {
-
-		calculateNumVerses();
-		
 		versePositionList = new LinkedList<Integer>();
 	}
 	
@@ -52,7 +38,7 @@ public class VerseCalculator {
 	}
 	
 	public void newPosition(int scrollOffset) {
-		// it is onlt bibles that have dynamic vere update on scroll
+		// it is only bibles that have dynamic verse update on scroll
 		if (CurrentPageManager.getInstance().getCurrentPage() instanceof CurrentBiblePage) {
 			int currentVerse = calculateCurrentVerse(scrollOffset);
 			CurrentPageManager.getInstance().getCurrentBible().setCurrentVerseNo(currentVerse);
@@ -74,20 +60,5 @@ public class VerseCalculator {
 		}
 		// maybe scrolled off botttom
 		return versePositionList.size();
-	}
-
-	private void calculateNumVerses() {
-		try {
-			numVerses = getBiblePage().getNumberOfVersesDisplayed();
-		} catch (Exception e) {
-			Log.e(TAG, "Error calculating verses number"+e.getMessage());
-		}
-	}
-	
-	private boolean mustCalculate() {
-		return CurrentPageManager.getInstance().getCurrentPage() instanceof CurrentBiblePage;
-	}
-	private CurrentBiblePage getBiblePage() {
-		return CurrentPageManager.getInstance().getCurrentBible();
 	}
 }
