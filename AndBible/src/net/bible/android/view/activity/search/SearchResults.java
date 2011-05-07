@@ -88,12 +88,6 @@ public class SearchResults extends ListActivityBase {
     	return isOk;
     }
     
-    private void doFinish() {
-    	Intent resultIntent = new Intent();
-    	setResult(Activity.RESULT_OK, resultIntent);
-    	finish();    
-    }
-
     @Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
     	try {
@@ -117,7 +111,7 @@ public class SearchResults extends ListActivityBase {
 			Book targetBook = SwordApi.getInstance().getDocumentByInitials(targetDocInitials); 
     		
     		CurrentPageManager.getInstance().setCurrentDocumentAndKey(targetBook, key);
-    		doFinish();
+    		returnToPreviousScreen();
     	}
     }
 }

@@ -5,7 +5,6 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.search.SearchControl.SearchBibleSection;
 import net.bible.android.view.activity.base.ActivityBase;
-import net.bible.service.history.HistoryManager;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.index.search.SearchType;
@@ -104,6 +103,9 @@ public class Search extends ActivityBase {
         	Intent intent = new Intent(this, SearchResults.class);
         	intent.putExtra(SearchControl.SEARCH_TEXT, searchText);
         	startActivityForResult(intent, 1);
+        	
+        	// Back button is now handled by HistoryManager - Back will cause a new Intent instead of just finish
+        	finish();
     	}
     }
     

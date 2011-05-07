@@ -4,12 +4,15 @@ import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import android.app.Activity;
 import android.content.Intent;
+import android.util.Log;
 
 
 public class IntentHistoryItem implements HistoryItem {
 
 	private String description;
 	private Intent intent;
+	
+	private static final String TAG = "IntentHistoryItem"; 
 	
 	public IntentHistoryItem(String description, Intent intent) {
 		this.description = description;
@@ -40,6 +43,7 @@ public class IntentHistoryItem implements HistoryItem {
 
 	@Override
 	public void revertTo() {
+		Log.d(TAG, "Revert to history item:"+description);
 		Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
 
 		// start activity chosen from activity
@@ -49,5 +53,6 @@ public class IntentHistoryItem implements HistoryItem {
 		if (!(currentActivity instanceof MainBibleActivity)) {
 			currentActivity.finish();
 		}
+
 	}
 }
