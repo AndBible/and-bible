@@ -6,6 +6,7 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.Bookmark;
 import net.bible.service.db.bookmark.BookmarkDto;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +22,8 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 
 	private int resource;
 	private Bookmark bookmarkControl;
+	
+	private static final String TAG = "BookmarkItemAdapter";
 
 	public BookmarkItemAdapter(Context _context, int _resource, List<BookmarkDto> _items) {
 		super(_context, _resource, _items);
@@ -50,8 +53,13 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 
 		// set value for the second text field
 		if (view.getText2() != null) {
-			String verseText = bookmarkControl.getBookmarkVerseText(item);
-			view.getText2().setText(verseText);
+			try {
+				String verseText = bookmarkControl.getBookmarkVerseText(item);
+				view.getText2().setText(verseText);
+			} catch (Exception e) {
+				Log.e(TAG, "Error loading label verse text", e);
+				view.getText2().setText("");
+			}
 		}
 
 		return view;

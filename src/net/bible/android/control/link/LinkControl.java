@@ -12,7 +12,6 @@ import net.bible.android.view.activity.search.SearchResults;
 import net.bible.service.common.Constants;
 import net.bible.service.sword.SwordApi;
 
-import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.Defaults;
