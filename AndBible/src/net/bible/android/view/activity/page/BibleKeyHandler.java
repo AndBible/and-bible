@@ -1,7 +1,6 @@
 package net.bible.android.view.activity.page;
 
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.service.history.HistoryManager;
 import android.util.Log;
 import android.view.KeyEvent;
 

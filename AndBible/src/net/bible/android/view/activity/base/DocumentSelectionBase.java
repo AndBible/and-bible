@@ -2,6 +2,7 @@ package net.bible.android.view.activity.base;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -15,7 +16,6 @@ import org.crosswire.common.util.Language;
 import org.crosswire.common.util.Languages;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
-import org.crosswire.jsword.book.BookComparators;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
 
@@ -258,7 +258,11 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 	        	}
 	        	
 	        	// sort by initials because that is field 1
-	        	Collections.sort(displayedDocuments, BookComparators.getInitialComparator());	        		
+	        	Collections.sort(displayedDocuments, new Comparator<Book>() {
+	                public int compare(Book o1, Book o2) {
+	                    return o1.getInitials().compareToIgnoreCase(o2.getInitials());
+	                }
+                });	        		
 	        	
 	        	if (listArrayAdapter!=null) {
 	        		DocumentSelectionBase.this.listArrayAdapter.notifyDataSetChanged();

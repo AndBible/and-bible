@@ -1,8 +1,6 @@
 package net.bible.android.view.activity.page;
 
 import net.bible.android.control.page.CurrentPageManager;
-import android.app.Activity;
-import android.content.Context;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;

@@ -26,9 +26,6 @@ public class BibleView extends WebView {
 
 	private int mJumpToVerse = 0;
 	
-	// prevent too may scroll events causing multi-page changes
-	private long lastHandledDpadEventTime = 0;
-
 	private static final String TAG = "BibleView";
 	
 	/**
@@ -58,7 +55,7 @@ public class BibleView extends WebView {
 	}
 	
 	private void initialise() {
-		verseCalculator = new VerseCalculator(this);
+		verseCalculator = new VerseCalculator();
 		javascriptInterface = new BibleJavascriptInterface(verseCalculator);
 		
 		addJavascriptInterface(javascriptInterface, "jsInterface");
