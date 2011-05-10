@@ -8,7 +8,6 @@ import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.util.buttongrid.ButtonGrid;
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener;
 import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo;
-import net.bible.service.common.CommonUtils;
 
 import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.Verse;
@@ -27,11 +26,12 @@ import android.view.View;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class GridChoosePassageChapter extends ActivityBase implements OnButtonGridActionListener {
+public class GridChoosePassageVerse extends ActivityBase implements OnButtonGridActionListener {
 	
 	private static final String TAG = "GridChoosePassageChapter";
 	
 	private int mBibleBookNo=1;
+	private int mBibleChapterNo=1;
 
     /** Called when the activity is first created. */
     @Override
@@ -39,31 +39,32 @@ public class GridChoosePassageChapter extends ActivityBase implements OnButtonGr
         super.onCreate(savedInstanceState);
 
         mBibleBookNo = getIntent().getIntExtra(GridChoosePassageBook.BOOK_NO, 1);
+        mBibleChapterNo = getIntent().getIntExtra(GridChoosePassageBook.CHAPTER_NO, 1);
         
         // show chosen book in page title to confirm user choice
         try {
-        	setTitle(BibleInfo.getLongBookName(mBibleBookNo));
+        	setTitle(BibleInfo.getLongBookName(mBibleBookNo)+" "+mBibleChapterNo);
         } catch (NoSuchVerseException nsve) {
-        	Log.e(TAG, "Error in selected book no", nsve);
+        	Log.e(TAG, "Error in selected book no or chapter no", nsve);
         }
         
         ButtonGrid grid = new ButtonGrid(this);
         grid.setOnButtonGridActionListener(this);
         
-        grid.addButtons(getBibleChaptersButtonInfo(mBibleBookNo));
+        grid.addButtons(getBibleVersesButtonInfo(mBibleBookNo, mBibleChapterNo));
         setContentView(grid);
     }
     
-    private List<ButtonInfo> getBibleChaptersButtonInfo(int bookNo) {
-    	int chapters = -1;
+    private List<ButtonInfo> getBibleVersesButtonInfo(int bookNo, int chapterNo) {
+    	int verses = -1;
     	try {
-	    	chapters = BibleInfo.chaptersInBook(bookNo);
+	    	verses = BibleInfo.versesInChapter(bookNo, chapterNo);
 		} catch (NoSuchVerseException nsve) {
-			chapters = -1;
+			verses = -1;
 		}
     	
     	List<ButtonInfo> keys = new ArrayList<ButtonInfo>();
-    	for (int i=1; i<=chapters; i++) {
+    	for (int i=1; i<=verses; i++) {
     		ButtonInfo buttonInfo = new ButtonInfo();
 			// this is used for preview
 			buttonInfo.id = i;
@@ -75,26 +76,15 @@ public class GridChoosePassageChapter extends ActivityBase implements OnButtonGr
     
 	@Override
 	public void buttonPressed(ButtonInfo buttonInfo) {
-		int chapter = buttonInfo.id;
-		Log.d(TAG, "Chapter selected:"+chapter);
+		int verse = buttonInfo.id;
+		Log.d(TAG, "Verse selected:"+verse);
 		try {
-			if (!navigateToVerse()) {
-				CurrentPageManager.getInstance().getCurrentPage().setKey(new Verse(mBibleBookNo, chapter, 1));
-				onSave(null);
-			} else {
-    			// select verse
-	        	Intent myIntent = new Intent(this, GridChoosePassageVerse.class);
-	        	myIntent.putExtra(GridChoosePassageBook.BOOK_NO, mBibleBookNo);
-	        	myIntent.putExtra(GridChoosePassageBook.CHAPTER_NO, chapter);
-	        	startActivityForResult(myIntent, chapter);
-			}
+			CurrentPageManager.getInstance().getCurrentPage().setKey(new Verse(mBibleBookNo, mBibleChapterNo, verse));
+			onSave(null);
+
 		} catch (Exception e) {
 			Log.e(TAG, "error on select of bible book", e);
 		}
-	}
-	
-	static boolean navigateToVerse() {
-		return CommonUtils.getSharedPreferences().getBoolean("navigate_to_verse_pref", false);
 	}
 
     public void onSave(View v) {
@@ -102,12 +92,5 @@ public class GridChoosePassageChapter extends ActivityBase implements OnButtonGr
     	Intent resultIntent = new Intent(this, GridChoosePassageBook.class);
     	setResult(Activity.RESULT_OK, resultIntent);
     	finish();    
-    }
-
-    @Override 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	if (resultCode==Activity.RESULT_OK) {
-    		returnToPreviousScreen();
-    	}
     }
 }

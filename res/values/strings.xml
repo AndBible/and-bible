@@ -33,7 +33,7 @@
     <!-- Passage navigation -->
     <string name="choosePassageBookName">Choose Book</string>
     <string name="choosePassageChapterName">Choose Chapter</string>
-    <string name="chapter_no">Chapter %d</string>
+    <string name="choosePassageVerseName">Choose Verse</string>
 
 	<!--  Search -->
     <string name="search_index">Search Index</string>
@@ -76,6 +76,8 @@
     <string name="prefs_show_morphology_summary">Show Robinson\'s Greek morphology</string>
     <string name="prefs_night_mode_title">Night mode</string>
     <string name="prefs_night_mode_summary">For easier reading in the dark</string>
+    <string name="prefs_navigate_to_verse_title">Navigate to verse</string>
+    <string name="prefs_navigate_to_verse_summary">Drill down to verse when navigating</string>
     <string name="prefs_text_size_title">Text size</string>
     <string name="prefs_text_size_summary">See more or see more clearly</string>
     <string name="prefs_interface_locale_title">Application language</string>
