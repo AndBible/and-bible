@@ -5,7 +5,6 @@ import java.util.List;
 
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ActivityBase;
-import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.android.view.util.buttongrid.ButtonGrid;
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener;
 import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo;
@@ -30,6 +29,9 @@ import android.util.Log;
  */
 public class GridChoosePassageBook extends ActivityBase implements OnButtonGridActionListener {
 
+	static final String BOOK_NO = "BOOK_NO";
+	static final String CHAPTER_NO = "CHAPTER_NO";
+	
 	// colour and grouping taken from http://en.wikipedia.org/wiki/Books_of_the_Bible
 	private static final int PENTATEUCH_COLOR = Color.rgb(0xCC, 0xCC, 0xFE);
 	private static final int HISTORY_COLOR = Color.rgb(0xFE, 0xCC, 0x9B);
@@ -67,14 +69,22 @@ public class GridChoosePassageBook extends ActivityBase implements OnButtonGridA
     private void bookSelected(int bibleBookNo) {
     	Log.d(TAG, "Book selected:"+bibleBookNo);
     	try {
-    		// if there is only 1 chapter then no need to select chapter
+    		// if there is only 1 chapter then no need to select chapter, but may need to select verse still
     		if (BibleInfo.chaptersInBook(bibleBookNo)==1) {
-        		CurrentPageManager.getInstance().getCurrentBible().setKey(new Verse(bibleBookNo, 1, 1));
-        		returnToMainScreen();
+    			if (!GridChoosePassageChapter.navigateToVerse()) {
+    				CurrentPageManager.getInstance().getCurrentBible().setKey(new Verse(bibleBookNo, 1, 1));
+    				returnToPreviousScreen();
+    			} else {
+        			// select verse (only 1 chapter)
+    	        	Intent myIntent = new Intent(this, GridChoosePassageVerse.class);
+    	        	myIntent.putExtra(GridChoosePassageBook.BOOK_NO, bibleBookNo);
+    	        	myIntent.putExtra(GridChoosePassageBook.CHAPTER_NO, 1);
+    	        	startActivityForResult(myIntent, 1);
+    			}
     		} else {
     			// select chapter
 	        	Intent myIntent = new Intent(this, GridChoosePassageChapter.class);
-	        	myIntent.putExtra("BOOK_NO", bibleBookNo);
+	        	myIntent.putExtra(GridChoosePassageBook.BOOK_NO, bibleBookNo);
 	        	startActivityForResult(myIntent, bibleBookNo);
     		}
     	} catch (Exception e) {
@@ -85,16 +95,10 @@ public class GridChoosePassageBook extends ActivityBase implements OnButtonGridA
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
     	if (resultCode==Activity.RESULT_OK) {
-    		returnToMainScreen();
+    		returnToPreviousScreen();
     	}
     }
-    
-    private void returnToMainScreen() {
-    	// just pass control back to teh main screen
-    	Intent resultIntent = new Intent(this, MainBibleActivity.class);
-    	setResult(Activity.RESULT_OK, resultIntent);
-    	finish();    
-    }
+
     private List<ButtonInfo> getBibleBookButtonInfo() {
     	boolean isShortBookNamesAvailable = isShortBookNames();
     	

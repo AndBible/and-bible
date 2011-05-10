@@ -73,8 +73,7 @@ public class SwordApi {
 	private static final String CROSSWIRE_REPOSITORY = "CrossWire";
 	
 	private static BookFilter SUPPORTED_DOCUMENT_TYPES = new AcceptableBookTypeFilter();
-	private SharedPreferences preferences;
-	
+
 	private static boolean isSwordLoaded;
 	
 	// set to false for testing
@@ -477,6 +476,7 @@ public class SwordApi {
 		osisToHtml.setLeftToRight(bmd.isLeftToRight());
 		osisToHtml.setLanguageCode(book.getLanguage().getCode());
 		
+		SharedPreferences preferences = CommonUtils.getSharedPreferences();
 		if (preferences!=null) {
 			// show verse numbers if user has selected to show verse numbers AND teh book is a bible (so don't even try to show verses in a Dictionary)
 			if (BookCategory.BIBLE.equals(book.getBookCategory())) {
@@ -506,11 +506,6 @@ public class SwordApi {
 		return osisToHtml;
 	}
 	
-	private OsisToCanonicalTextSaxHandler getCanonicalTextSaxHandler(Book book) {
-		
-		return osisToCanonicalTextSaxHandler;
-	}
-
 	private String getPaths() {
 		String text = "Paths:";
 		try {
@@ -535,11 +530,6 @@ public class SwordApi {
 		SwordApi.isAndroid = isAndroid;
 	}
 
-	public void setPreferences(SharedPreferences preferences) {
-		this.preferences = preferences;
-		Log.d(TAG, "Contains versenopref:"+preferences.contains("show_verseno_pref")+" notes pref:"+preferences.contains("show_notes_pref"));
-	}
-	
 	private void ensureDirExists(File dir) {
 		if (!dir.exists() || !dir.isDirectory()) {
 			dir.mkdirs();
