@@ -22,7 +22,6 @@
   <string name="help">Помощь</string>
   <string name="choosePassageBookName">Выбрать книгу</string>
   <string name="choosePassageChapterName">Выбрать главу</string>
-  <string name="chapter_no">Главы %d</string>
   <string name="search_index">Поисковой индекс</string>
   <string name="index_creation_required">"Для поиска требуется индекс.\n\nИндексы можно скачать с Интернета или создать вручную.\n\nСкачать будет быстрее, а также скачанные индексы имееют больше функций поиска.\n\nДля того, чтобы скачать индексы,подключитесь к Интернету.\n"</string>
   <string name="indexing_wait_msg">Когда создание индексов завершится вы автоматически будете перемещены в экран поиска</string>
@@ -55,7 +54,7 @@
   <string name="prefs_show_notes_title">Заметки</string>
   <string name="prefs_show_notes_summary">Показывать заметки</string>
   <string name="prefs_show_strongs_title">" Числа Стронга"</string>
-  <string name="prefs_show_strongs_summary">Отображать ссылки к определениям на греческом &amp;amp; и иврите</string>
+  <string name="prefs_show_strongs_summary">Отображать ссылки к определениям на греческом &amp;amp;amp; и иврите</string>
   <string name="prefs_night_mode_title">Ночной режим</string>
   <string name="prefs_night_mode_summary">Для более легкого чтения в темноте</string>
   <string name="prefs_text_size_title">Размер текста</string>
@@ -74,7 +73,7 @@
   <!-- Module download -->
   <string name="download">Скачать документы</string>
   <string name="download_confirmation">Скачать Библию с Интернета?</string>
-  <string name="download_source_message">Идет подключение к \nhttp://www.crosswire.org\n&amp;amp; http://xiphos.org</string>
+  <string name="download_source_message">Идет подключение к \nhttp://www.crosswire.org\n&amp;amp;amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Скачать "</string>
   <string name="refresh_book_list">Обновить список доступных книг?</string>
   <string name="error_downloading">Произошла ошибка. Проверьте подключение к Интернету.</string>
@@ -149,4 +148,12 @@
   <string name="all_greek_occurrences">Показать все случаи употребления</string>
   <string name="all_hebrew_occurrences">Показать все случаи употребления</string>
   <string name="no_indexed_bible_with_strongs_ref">"Необходимо скачать Библию с числами Стронга и скачать индекс через Поиск"</string>
-<string name="delete_index">Удалить поисковой индекс?</string><string name="delete_search_index_doc">Удалить индекс?</string><string name="morph_robinson_not_installed">Пожалуйста скачайте словарь \'Морфолочические коды анализа Робинсона\'</string><string name="prefs_show_morphology_summary">Показать морфологию греческого языка по Робинсону?</string><string name="prefs_show_morphology_title">Морфологические коды</string></resources>
+  <string name="delete_index">Удалить поисковой индекс?</string>
+  <string name="delete_search_index_doc">Удалить индекс?</string>
+  <string name="morph_robinson_not_installed">Пожалуйста скачайте словарь \'Морфолочические коды анализа Робинсона\'</string>
+  <string name="prefs_show_morphology_summary">Показать морфологию греческого языка по Робинсону?</string>
+  <string name="prefs_show_morphology_title">Морфологические коды</string>
+  <string name="choosePassageVerseName">Выбрать стих</string>
+  <string name="prefs_navigate_to_verse_summary">Перейти на уровень стиха при просмотре</string>
+  <string name="prefs_navigate_to_verse_title">Перейти к стиху</string>
+</resources>
