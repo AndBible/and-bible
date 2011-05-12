@@ -136,7 +136,6 @@
   <string name="tts_lang_not_available">Język niedostępny.</string>
   <string name="all_greek_occurrences">Pokaż wszystkie</string>
   <string name="all_hebrew_occurrences">Pokaż wszystkie</string>
-  <string name="chapter_no">Rozdział %d</string>
   <string name="lang_default">Domyślny</string>
   <string name="locale_change_warning">Aplikacja zostanie ponownie uruchomiona, aby przełączyć się na nowy język interfejsu</string>
   <string name="no">Nie</string>
@@ -146,4 +145,12 @@
   <string name="prefs_verse_per_line_summary">Pokaż każdy werset w osobnej linii</string>
   <string name="prefs_verse_per_line_title">Jeden werset na linię</string>
   <string name="refresh_book_list">Odświeżyć listę dostępnych dokumentów?</string>
-<string name="morph_robinson_not_installed">Please download \'Robinson\'s Morphological Analysis Codes\' dictionary</string><string name="prefs_show_morphology_summary">Pokaż kody morfologiczne Robinsona (RMAC)</string><string name="prefs_show_morphology_title">Kody morfologiczne</string><string name="delete_index">Usuń indeks wyszukiwań</string><string name="delete_search_index_doc">Czy usunąć indeks dla %s ?</string></resources>
+  <string name="morph_robinson_not_installed">Pobierz słownik analizy morfologicznej Robinsona</string>
+  <string name="prefs_show_morphology_summary">Pokaż kody morfologiczne Robinsona (RMAC)</string>
+  <string name="prefs_show_morphology_title">Kody morfologiczne</string>
+  <string name="delete_index">Usuń indeks wyszukiwań</string>
+  <string name="delete_search_index_doc">Czy usunąć indeks dla %s ?</string>
+  <string name="choosePassageVerseName">Wybierz werset</string>
+  <string name="prefs_navigate_to_verse_summary">Rozbij werset podczas nawigacji</string>
+  <string name="prefs_navigate_to_verse_title">Przejdź do wersetu</string>
+</resources>
