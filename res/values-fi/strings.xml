@@ -22,7 +22,6 @@
   <string name="help">Ohje</string>
   <string name="choosePassageBookName">Valitse kirja</string>
   <string name="choosePassageChapterName">Valitse luku</string>
-  <string name="chapter_no">Luku %d</string>
   <string name="search_index">Hakuindeksi</string>
   <string name="index_creation_required">"Etsiminen vaatii indeksin.\n\nIndeksit voidaan ladata netistä tai luoda paikallisesti.\n\nLataaminen on huomattavasti nopeampaa, minkä lisäksi ladatuissa indekseissä on enemmän ominaisuuksia.\n\nInternetyhteys tarvitaan indeksin lataamiseksi.\n"</string>
   <string name="indexing_wait_msg">Kun indeksointi on valmis, ohjelma siirtyy suoraan etsi-toimintoon.</string>
@@ -129,4 +128,12 @@
   <string name="share_verse">Jaa nykyinen jae ...</string>
   <string name="share_verse_subject">Raamatun jae on jaettu käyttäen And Bible -sovellusta.</string>
   <string name="stop">Pysäytä</string>
-<string name="delete_index">Poista hakuindeksi</string><string name="delete_search_index_doc">Poista %s indeksi?</string><string name="morph_robinson_not_installed">Lataa \'Robinsonin muoto-opilliset koodit\' -sanakirja</string><string name="prefs_show_morphology_summary">Näytä Robinsonin kreikankielen morfologia</string><string name="prefs_show_morphology_title">Morfologiset koodit</string></resources>
+  <string name="delete_index">Poista hakuindeksi</string>
+  <string name="delete_search_index_doc">Poista %s indeksi?</string>
+  <string name="morph_robinson_not_installed">Lataa \'Robinsonin muoto-opilliset koodit\' -sanakirja</string>
+  <string name="prefs_show_morphology_summary">Näytä Robinsonin kreikankielen morfologia</string>
+  <string name="prefs_show_morphology_title">Morfologiset koodit</string>
+  <string name="choosePassageVerseName">Valitse jae</string>
+  <string name="prefs_navigate_to_verse_summary">Poraudu jakeeseen saakka navigoidessa</string>
+  <string name="prefs_navigate_to_verse_title">Navigoi jakeeseen</string>
+</resources>
