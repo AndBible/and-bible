@@ -22,7 +22,6 @@
   <string name="help">Hilfe</string>
   <string name="choosePassageBookName">Buchauswahl</string>
   <string name="choosePassageChapterName">Kapitelauswahl</string>
-  <string name="chapter_no">Kapitel Nr. %d</string>
   <string name="search_index">Suchindex</string>
   <string name="index_creation_required">"Für die Suche ist ein Index nötig.\n\nIndices können heruntergeladen oder lokal erzeugt werden.\n\nHerunterladen ist schneller und ermöglicht mehr Suchfunktionen.\n\nEine funktionierende Internetverbindung ist zum Herunterladen von Indices nötig.\n"</string>
   <string name="indexing_wait_msg">Nach erfolgreicher Indexerstellung werden Sie zum Suchdialog weitergeleitet.</string>
@@ -74,7 +73,7 @@
   <!-- Module download -->
   <string name="download">Module herunterladen</string>
   <string name="download_confirmation">Das Modul aus dem Internet herunterladen?</string>
-  <string name="download_source_message">Die Module werden von\nhttp://www.crosswire.org\n&amp;amp;amp; http://xiphos.org heruntergeladen</string>
+  <string name="download_source_message">Die Module werden von\nhttp://www.crosswire.org\n&amp;amp;amp;amp; http://xiphos.org heruntergeladen</string>
   <string name="download_document_confirm_prefix">"Download "</string>
   <string name="refresh_book_list">Liste aktualisieren?</string>
   <string name="error_downloading">Download fehlgeschlagen. Überprüfen Sie ihre Internetverbindung!</string>
@@ -151,4 +150,9 @@
   <string name="no_indexed_bible_with_strongs_ref">Sie müssen zuerst ein Bibelmodul mit Strongs Nummer sowie den Suchindex dazu herunterladen</string>
   <string name="prefs_show_morphology_summary">Zeige griechische Morphologie nach Robinson</string>
   <string name="prefs_show_morphology_title">Zeige morphologische Codes</string>
-<string name="delete_index">Suchindex löschen</string><string name="delete_search_index_doc">Index von %s löschen?</string></resources>
+  <string name="delete_index">Suchindex löschen</string>
+  <string name="delete_search_index_doc">Index von %s löschen?</string>
+  <string name="choosePassageVerseName">Vers wählen</string>
+  <string name="prefs_navigate_to_verse_summary">Zum Vers hinunterscrollen</string>
+  <string name="prefs_navigate_to_verse_title">Zum Vers wechseln</string>
+</resources>
