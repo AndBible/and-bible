@@ -22,7 +22,6 @@
   <string name="help">Pagalba</string>
   <string name="choosePassageBookName">Rinkitės knygą</string>
   <string name="choosePassageChapterName">Rinkitės skyrių</string>
-  <string name="chapter_no">Skyrius %d</string>
   <string name="search_index">Paieškos indeksas</string>
   <string name="index_creation_required">"Paieškai reikia indekso.\n\nIndeksai gali būti parsiųsti iš interneto arba sukurti vietoje.\n\nParsiuntimas yra žymiai greitesnis, o ir parsiųsti indeksai turi daugiau savybių, reikalingų paieškai.\n\nIndeksų parsiuntimui reikia interneto ryšio.\n"</string>
   <string name="indexing_wait_msg">Kai indeksavimas bus užbaigtas, jūs atsirasite paieškos lange.</string>
@@ -55,7 +54,7 @@
   <string name="prefs_show_notes_title">Pastabos</string>
   <string name="prefs_show_notes_summary">Rodyti pastabas</string>
   <string name="prefs_show_strongs_title">Rodyti Strongo numerius</string>
-  <string name="prefs_show_strongs_summary">Nuorodos į graikų &amp;amp;amp; hebrajų apibrėžimus</string>
+  <string name="prefs_show_strongs_summary">Nuorodos į graikų &amp;amp;amp;amp; hebrajų apibrėžimus</string>
   <string name="prefs_night_mode_title">Naktinė veiksena</string>
   <string name="prefs_night_mode_summary">Lengvesniam skaitymui tamsoje</string>
   <string name="prefs_text_size_title">Teksto dydis</string>
@@ -149,4 +148,12 @@
   <string name="all_greek_occurrences">Rodyti visus atvejus</string>
   <string name="all_hebrew_occurrences">Rasti visus atvejus</string>
   <string name="no_indexed_bible_with_strongs_ref">Jums reikia atsisiųsti bibliją su Strongo numeriais, o taip pat ir jos indeksus per „Paeišką“</string>
-<string name="morph_robinson_not_installed">"Prašome atsisiųsti žodyną 'Robinson's Morphological Analysis Codes"</string><string name="prefs_show_morphology_summary">Rodyti Robinsono graikų morfologiją</string><string name="prefs_show_morphology_title">Morfologiniai kodai</string><string name="delete_index">Pašalinti paieškos indeksą</string><string name="delete_search_index_doc">Pašalinti %s indeksą?</string></resources>
+  <string name="morph_robinson_not_installed">"Prašome atsisiųsti žodyną 'Robinson's Morphological Analysis Codes"</string>
+  <string name="prefs_show_morphology_summary">Rodyti Robinsono graikų morfologiją</string>
+  <string name="prefs_show_morphology_title">Morfologiniai kodai</string>
+  <string name="delete_index">Pašalinti paieškos indeksą</string>
+  <string name="delete_search_index_doc">Pašalinti %s indeksą?</string>
+  <string name="choosePassageVerseName">Rinktis eilutę</string>
+  <string name="prefs_navigate_to_verse_summary">Nukreipia į konkrečią eilutę, o ne skyrių</string>
+  <string name="prefs_navigate_to_verse_title">Nukreipti į eilutę</string>
+</resources>
