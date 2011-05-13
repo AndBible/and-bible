@@ -23,7 +23,6 @@
   <string name="help">Aide</string>
   <string name="choosePassageBookName">Sélectionner un livre</string>
   <string name="choosePassageChapterName">Sélectionner un chapitre</string>
-  <string name="chapter_no">Chapitre %d</string>
   <string name="search_index">Rechercher Index</string>
   <string name="index_creation_required">Un index de recherche est nécessaire.\n\nLes index peuvent être téléchargés à partir d\'Internet ou créés localement.\n\nLe téléchargement est beaucoup plus rapide et les index téléchargés offrent plus de fonctionnalités.\n\nUne connexion internet est requise pour télécharger les index.</string>
   <string name="indexing_wait_msg">Quand l\'indexation sera terminée, vous retrouverez l\'écran de recherche</string>
@@ -56,7 +55,7 @@
   <string name="prefs_show_notes_title">Notes</string>
   <string name="prefs_show_notes_summary">Afficher les notes</string>
   <string name="prefs_show_strongs_title">Afficher les nombres de Strong\'s</string>
-  <string name="prefs_show_strongs_summary">Liens aux définitions Grec &amp;amp; Hébreu</string>
+  <string name="prefs_show_strongs_summary">Liens aux définitions Grec &amp;amp;amp; Hébreu</string>
   <string name="prefs_night_mode_title">Mode nuit</string>
   <string name="prefs_night_mode_summary">Pour une lecture plus facile dans le noir</string>
   <string name="prefs_text_size_title">Taille du texte</string>
@@ -75,7 +74,7 @@
   <!-- Module download -->
   <string name="download">Télécharger documents</string>
   <string name="download_confirmation">Télécharger des documents à partir d\'Internet?</string>
-  <string name="download_source_message">Les documents sont téléchargés à partir de\nhttp://www.crosswire.org\n&amp;amp; http://xiphos.org</string>
+  <string name="download_source_message">Les documents sont téléchargés à partir de\nhttp://www.crosswire.org\n&amp;amp;amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Télécharger "</string>
   <string name="refresh_book_list">Rafraîchir la liste des documents disponibles?</string>
   <string name="error_downloading">Une erreur est apparue pendant le téléchargement. Vérifiez votre connexion internet.</string>
@@ -150,4 +149,12 @@
   <string name="all_greek_occurrences">Trouver toutes les occurrences</string>
   <string name="all_hebrew_occurrences">Trouver toutes les occurrences</string>
   <string name="no_indexed_bible_with_strongs_ref">Vous devez télécharger une bible contenant les numéros Strong et télécharger son index via Rechercher</string>
-<string name="delete_index">Supprimer l\'index de recherche</string><string name="delete_search_index_doc">Supprimer l\'index de %s?</string><string name="morph_robinson_not_installed">Veuillez télécharger le dictionnaire « Robinson analyse morphologique Codes »</string><string name="prefs_show_morphology_summary">Afficher la morphologie grecque de Robinson</string><string name="prefs_show_morphology_title">Codes morphologiques</string></resources>
+  <string name="delete_index">Supprimer l\'index de recherche</string>
+  <string name="delete_search_index_doc">Supprimer l\'index de %s?</string>
+  <string name="morph_robinson_not_installed">Veuillez télécharger le dictionnaire « Robinson analyse morphologique Codes »</string>
+  <string name="prefs_show_morphology_summary">Afficher la morphologie grecque de Robinson</string>
+  <string name="prefs_show_morphology_title">Codes morphologiques</string>
+  <string name="choosePassageVerseName">Choisissez Verset</string>
+  <string name="prefs_navigate_to_verse_summary">Basculer en mode navigation par verset</string>
+  <string name="prefs_navigate_to_verse_title">Aller au verset</string>
+</resources>
