@@ -331,7 +331,7 @@ public abstract class AbstractSwordInstaller extends AbstractBookList implements
         //use and-bible index location
         String indexLocation = "/and-bible/indices/v1";
         try {
-            String version = (String)book.getBookMetaData().getProperty("Version");
+            String version = book.getBookMetaData().getProperty("Version").toString();
             String versionSuffix = version!=null ? "-"+version : "";
             download(job, indexLocation, book.getInitials()+versionSuffix + ZIP_SUFFIX, localDest);
 		//MJD END

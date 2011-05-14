@@ -19,10 +19,13 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
 import org.crosswire.jsword.book.Books;
+import org.crosswire.jsword.book.FeatureType;
 import org.crosswire.jsword.bridge.BookIndexer;
 import org.crosswire.jsword.bridge.BookInstaller;
 import org.crosswire.jsword.index.IndexManager;
 import org.crosswire.jsword.index.IndexManagerFactory;
+import org.crosswire.jsword.index.IndexStatus;
+import org.crosswire.jsword.passage.Key;
 
 public class MJDIndexAll {
 
@@ -42,7 +45,8 @@ public class MJDIndexAll {
 	
     public static void main(String[] args) {
     	MJDIndexAll indexAll = new MJDIndexAll();
-    	indexAll.updateCachedRepoBookList();
+//    	indexAll.validateAllIndexes();
+//    	indexAll.updateCachedRepoBookList();
 //    	indexAll.setupDirs();
 //    	indexAll.showInstalledBooks();
 //    	indexAll.showRepoBooks();
@@ -50,24 +54,60 @@ public class MJDIndexAll {
 //    	indexAll.installRepoBooks();
 //    	indexAll.checkAllBooksInstalled();
 //    	indexAll.manageCreateIndexes();
-//    	indexAll.indexSingleBook("PolBibTysia");
+//    	indexAll.indexSingleBook("KJV");
     	
     	// 22/4/11 updates
-    	indexAll.installAndIndexSingleBook("Clarke"); // somehow deleted
-    	// new
-    	indexAll.installAndIndexSingleBook("Antoniades");
-    	// updated
-    	indexAll.installAndIndexSingleBook("Elzevir"); //1.0 -> 1.1
-    	indexAll.installAndIndexSingleBook("TR"); // 1.2 -> 2.1
-		indexAll.installAndIndexSingleBook("SBLGNT"); // 1.2 -> 1.3
-		indexAll.installAndIndexSingleBook("SBLGNTApp"); // 1.2 -> 1.3
-		indexAll.installAndIndexSingleBook("Byz"); //1.10 -> 2.1
-		indexAll.installAndIndexSingleBook("WHNU"); //1.10 -> 2.1
-		indexAll.installAndIndexSingleBook("Luther"); //1.100322 -> 1.1
+//    	indexAll.installAndIndexSingleBook("Clarke"); // somehow deleted
+//    	// new
+//    	indexAll.installAndIndexSingleBook("Antoniades");
+//    	// updated
+//    	indexAll.installAndIndexSingleBook("Elzevir"); //1.0 -> 1.1
+//    	indexAll.installAndIndexSingleBook("TR"); // 1.2 -> 2.1
+//		indexAll.installAndIndexSingleBook("SBLGNT"); // 1.2 -> 1.3
+//		indexAll.installAndIndexSingleBook("SBLGNTApp"); // 1.2 -> 1.3
+//		indexAll.installAndIndexSingleBook("Byz"); //1.10 -> 2.1
+//		indexAll.installAndIndexSingleBook("WHNU"); //1.10 -> 2.1
+//		indexAll.installAndIndexSingleBook("Luther"); //1.100322 -> 1.1
 
-//bug, still need to create this index    	indexAll.installAndIndexSingleBook("SpaRV"); // 1.5-> 1.6
+// just done to be uploaded indexAll.installAndIndexSingleBook("SpaRV"); // 1.5-> 1.6
+    	
+    	//Need to fix indexes without Strong's
+//    	indexAll.indexSingleBook("LXX");
+//    	indexAll.indexSingleBook("ABP");
+//    	indexAll.indexSingleBook("ABPGrk");
+//    	indexAll.indexSingleBook("ChiUn");
+//    	indexAll.indexSingleBook("ChiUns");
+    	
+    	
+//    	indexAll.indexSingleBook("RUSVZh");  //is this broken
+
     }
     
+	public void validateAllIndexes() {
+		List<Book> bibles = Books.installed().getBooks(BookFilters.getBibles());
+		
+		for (Book book : bibles) {
+			try {
+				if (book.hasFeature(FeatureType.STRONGS_NUMBERS)) {
+					if (!book.getIndexStatus().equals(IndexStatus.DONE)) {
+						System.out.println("Unindexed:"+book);
+					} else {
+						Key resultsH = book.find("strong:h3068");
+						Key resultsG = book.find("strong:g746");
+						if (resultsH.getCardinality()==0 && resultsG.getCardinality()==0) {
+							System.out.println("No refs returned in"+book.getInitials());
+						} else {
+							System.out.println("Ok:"+book.getInitials());
+						}
+	//					assertTrue("No refs returned in"+book.getInitials(), resultsH.getCardinality()>0 || resultsG.getCardinality()>0);
+					}
+				}
+			} catch (Exception e) {
+				System.out.println("Error:"+book.getInitials()+":"+e.getMessage());
+			}
+		}
+	}
+
     private void updateCachedRepoBookList() {
     	try {
 	    	BookInstaller bookInstaller = new BookInstaller();
@@ -116,9 +156,21 @@ public class MJDIndexAll {
         
     }
     private void indexSingleBook(String initials) {
-    	Book book = BookInstaller.getInstalledBook(initials);
-    	indexBook(book);
-    	createZipFile(book);
+    	try {
+	    	Book book = BookInstaller.getInstalledBook(initials);
+	    	
+		    IndexManager imanager = IndexManagerFactory.getIndexManager();
+		    if (imanager.isIndexed(book)) {
+		        imanager.deleteIndex(book);
+		    }
+	    	
+	    	indexBook(book);
+	    	createZipFile(book);
+        } catch (Exception e) {
+        	System.out.println("Error indexing:"+initials);
+        	e.printStackTrace();
+        }
+
     }
     private void manageCreateIndexes() {
     	setupDirs();
@@ -216,7 +268,7 @@ public class MJDIndexAll {
             	if (installedBook==null) {
             		System.out.println("Not installed:"+book.getInitials()+" Name:"+book.getName());
             	} else {
-            		String version = (String)book.getProperty("Version");
+            		String version = book.getProperty("Version").toString();
             		String installedVersion = (String)installedBook.getBookMetaData().getProperty("Version");
             		if (!version.equals(installedVersion)) {
                 		System.out.println("Incorrect version of "+book.getInitials()+" installed:"+installedVersion+" Repo:"+version);
@@ -244,17 +296,23 @@ public class MJDIndexAll {
 	 */
 	private void indexBook(Book book) {
 		System.out.println("Indexing:"+book.getInitials()+" name:"+book.getName());
-		BookIndexer bookIndexer = new BookIndexer(book);
-		if (!bookIndexer.isIndexed()) {
-		    try {
-		    	bookIndexer.createIndex();
-		    	waitToFinish();
-		    } catch (Exception e) {
-		    	System.out.println(e.getMessage());
-		    	e.printStackTrace();
-		    }
-		} else {
-			System.out.println("Already indexed:"+book.getInitials());
+		try {
+			BookIndexer bookIndexer = new BookIndexer(book);
+			
+			if (!bookIndexer.isIndexed()) {
+			    try {
+			    	bookIndexer.createIndex();
+			    	waitToFinish();
+			    } catch (Exception e) {
+			    	System.out.println(e.getMessage());
+			    	e.printStackTrace();
+			    }
+			} else {
+				System.out.println("Already indexed:"+book.getInitials());
+			}
+		} catch (Exception e) {
+			System.out.println("Failed to delete "+book.getInitials()+":"+e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
@@ -269,8 +327,6 @@ public class MJDIndexAll {
         for (Book book : books) {
         	System.out.println("Adding properties file:"+book.getInitials()+" name:"+book.getName());
         	String initials = book.getInitials();
-            String version = (String)book.getBookMetaData().getProperty("Version");
-            String versionSuffix = version!=null ? "-"+version : "";
             File indexPropertiesFile = new File(LUCENE_INDEX_DIR_FILE, initials+"/index.properties");
             
             FileOutputStream fos = null;
@@ -306,7 +362,7 @@ public class MJDIndexAll {
 	private void createZipFile(Book book) {
 		System.out.println("Zipping file:"+book.getInitials()+" name:"+book.getName());
 		String initials = book.getInitials();
-		String version = (String)book.getBookMetaData().getProperty("Version");
+		String version = book.getBookMetaData().getProperty("Version").toString();
 		String versionSuffix = version!=null ? "-"+version : "";
 		File zipFile = new File(LUCENE_ZIP_DIR_FILE, initials+versionSuffix+".zip");
 
