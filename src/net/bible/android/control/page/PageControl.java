@@ -16,8 +16,8 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.BibleInfo;
-import org.crosswire.jsword.versification.BibleNames;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -78,9 +78,9 @@ public class PageControl {
 	 */
 	public void setFirstUseDefaultVerse() {
 		try {
-			Verse[] defaultVerses = new Verse[] { new Verse(BibleNames.GENESIS,1,1),
-												  new Verse(BibleNames.JOHN,3,16),
-												  new Verse(BibleNames.PSALMS,1,1)};
+			Verse[] defaultVerses = new Verse[] { new Verse(BibleBook.GEN,1,1),
+												  new Verse(BibleBook.JOHN,3,16),
+												  new Verse(BibleBook.PS,1,1)};
 	    	List<Book> bibles = SwordApi.getInstance().getBibles();
 	        if (bibles.size()==1) {
 	        	Book bible = bibles.get(0);

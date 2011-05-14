@@ -12,6 +12,7 @@ import net.bible.service.common.CommonUtils;
 
 import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.BibleInfo;
 
 import android.app.Activity;
@@ -31,18 +32,19 @@ public class GridChoosePassageChapter extends ActivityBase implements OnButtonGr
 	
 	private static final String TAG = "GridChoosePassageChapter";
 	
-	private int mBibleBookNo=1;
+	private BibleBook mBibleBook=BibleBook.GEN;
 
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        mBibleBookNo = getIntent().getIntExtra(GridChoosePassageBook.BOOK_NO, 1);
-        
+        int bibleBookNo = getIntent().getIntExtra(GridChoosePassageBook.BOOK_NO, 0);
+        mBibleBook = BibleBook.getBooks()[bibleBookNo];
+                             
         // show chosen book in page title to confirm user choice
         try {
-        	setTitle(BibleInfo.getLongBookName(mBibleBookNo));
+        	setTitle(mBibleBook.getLongName());
         } catch (NoSuchVerseException nsve) {
         	Log.e(TAG, "Error in selected book no", nsve);
         }
@@ -50,14 +52,14 @@ public class GridChoosePassageChapter extends ActivityBase implements OnButtonGr
         ButtonGrid grid = new ButtonGrid(this);
         grid.setOnButtonGridActionListener(this);
         
-        grid.addButtons(getBibleChaptersButtonInfo(mBibleBookNo));
+        grid.addButtons(getBibleChaptersButtonInfo(mBibleBook));
         setContentView(grid);
     }
     
-    private List<ButtonInfo> getBibleChaptersButtonInfo(int bookNo) {
+    private List<ButtonInfo> getBibleChaptersButtonInfo(BibleBook book) {
     	int chapters = -1;
     	try {
-	    	chapters = BibleInfo.chaptersInBook(bookNo);
+	    	chapters = BibleInfo.chaptersInBook(book);
 		} catch (NoSuchVerseException nsve) {
 			chapters = -1;
 		}
@@ -79,12 +81,12 @@ public class GridChoosePassageChapter extends ActivityBase implements OnButtonGr
 		Log.d(TAG, "Chapter selected:"+chapter);
 		try {
 			if (!navigateToVerse()) {
-				CurrentPageManager.getInstance().getCurrentPage().setKey(new Verse(mBibleBookNo, chapter, 1));
+				CurrentPageManager.getInstance().getCurrentPage().setKey(new Verse(mBibleBook, chapter, 1));
 				onSave(null);
 			} else {
     			// select verse
 	        	Intent myIntent = new Intent(this, GridChoosePassageVerse.class);
-	        	myIntent.putExtra(GridChoosePassageBook.BOOK_NO, mBibleBookNo);
+	        	myIntent.putExtra(GridChoosePassageBook.BOOK_NO, mBibleBook.ordinal());
 	        	myIntent.putExtra(GridChoosePassageBook.CHAPTER_NO, chapter);
 	        	startActivityForResult(myIntent, chapter);
 			}
