@@ -26,6 +26,7 @@ import net.bible.service.format.OsisToCanonicalTextSaxHandler;
 import net.bible.service.format.OsisToHtmlSaxHandler;
 
 import org.crosswire.common.util.CWProject;
+import org.crosswire.common.util.Version;
 import org.crosswire.common.util.WebResource;
 import org.crosswire.common.xml.SAXEventProvider;
 import org.crosswire.jsword.book.Book;
@@ -222,7 +223,8 @@ public class SwordApi {
 
 	public boolean isIndexDownloadAvailable(Book document) throws InstallException, BookException {
 		// not sure how to integrate reuse this in JSword index download
-        String version = (String)document.getBookMetaData().getProperty("Version");
+		Version versionObj = (Version)document.getBookMetaData().getProperty("Version");
+        String version = versionObj==null ? null : versionObj.toString();
         String versionSuffix = version!=null ? "-"+version : "";
 
 		String url = "http://www.crosswire.org/and-bible/indices/v1/"+document.getInitials()+versionSuffix+".zip";
