@@ -13,6 +13,7 @@ import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
+import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.BibleInfo;
 
 import android.app.Activity;
@@ -80,7 +81,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	 */
 	public Verse getKeyPlus(int num) {
 		Verse currVer = this.currentBibleVerse.getVerseSelected();
-		int book = currVer.getBook();
+		BibleBook book = currVer.getBook();
 		int chapter = currVer.getChapter();
 
 		try {
@@ -91,8 +92,8 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 				if (chapter>1) {
 					chapter--;
 				} else {
-					if (book>1) {
-						book--;
+					if (BibleBook.GEN.compareTo(book)<0) {
+						book = BibleBook.getBooks()[book.ordinal()-1];
 						chapter = BibleInfo.chaptersInBook(book);
 					}
 				}
@@ -168,7 +169,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 			}
 			return key;
 		} else {
-			return new Verse(1,1,1, true);
+			return new Verse(BibleBook.GEN,1,1, true);
 		}
     }
 
@@ -186,7 +187,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	}
 
 	public boolean isSingleChapterBook() throws NoSuchKeyException{
-    	return BibleInfo.chaptersInBook(currentBibleVerse.getCurrentBibleBookNo())==1;
+    	return BibleInfo.chaptersInBook(currentBibleVerse.getCurrentBibleBook())==1;
 	}
 	
 	public int getNumberOfVersesDisplayed() {
@@ -204,7 +205,8 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 			Log.d(TAG, "Saving state");
 			SharedPreferences.Editor editor = outState.edit();
 			editor.putString("document", getCurrentDocument().getInitials());
-			editor.putInt("bible-book", currentBibleVerse.getCurrentBibleBookNo());
+			// dec/inc bibleBook on save/restore because the book no used to be 1 based, unlike now
+			editor.putInt("bible-book", currentBibleVerse.getCurrentBibleBookNo()+1);
 			editor.putInt("chapter", currentBibleVerse.getVerseSelected().getChapter());
 			editor.putInt("verse", currentBibleVerse.getVerseNo());
 			editor.commit();
@@ -230,12 +232,13 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 			}
 
 			// bypass setter to avoid automatic notifications
-			int bibleBookNo =  inState.getInt("bible-book", 0);
+			int bibleBookNo =  inState.getInt("bible-book", -1);
 			int chapterNo = inState.getInt("chapter", 1);
 			int verseNo = inState.getInt("verse", 1);
-			if (bibleBookNo!=0) {
+			if (bibleBookNo>0) {
 				Log.d(TAG, "Restored verse:"+bibleBookNo+"."+chapterNo+"."+verseNo);
-				Verse verse = new Verse(bibleBookNo, chapterNo, verseNo, true);
+				// dec/inc bibleBook on save/restore because the book no used to be 1 based, unlike now
+				Verse verse = new Verse(BibleBook.getBooks()[bibleBookNo-1], chapterNo, verseNo, true);
 				this.currentBibleVerse.setVerseSelected(verse);
 			}
 			Log.d(TAG, "Current passage:"+toString());

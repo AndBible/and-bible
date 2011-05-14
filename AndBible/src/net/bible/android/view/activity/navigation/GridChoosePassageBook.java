@@ -1,6 +1,7 @@
 package net.bible.android.view.activity.navigation;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 
 import net.bible.android.control.page.CurrentPageManager;
@@ -11,8 +12,8 @@ import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo;
 
 import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.BibleInfo;
-import org.crosswire.jsword.versification.BibleNames;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -43,6 +44,7 @@ public class GridChoosePassageBook extends ActivityBase implements OnButtonGridA
 	private static final int PAULINE_COLOR = Color.rgb(0xFF, 0xFF, 0x31);
 	private static final int GENERAL_EPISTLES_COLOR = Color.rgb(0x67, 0xCC, 0x66); // changed 99 to CC to make a little clearer on dark background
 	private static final int REVELATION_COLOR = Color.rgb(0xFE, 0x33, 0xFF);
+	private static final int OTHER_COLOR = ACTS_COLOR;
 	
 	private static final String TAG = "GridChoosePassageBook";
 
@@ -69,10 +71,11 @@ public class GridChoosePassageBook extends ActivityBase implements OnButtonGridA
     private void bookSelected(int bibleBookNo) {
     	Log.d(TAG, "Book selected:"+bibleBookNo);
     	try {
+        	BibleBook book = BibleBook.getBooks()[bibleBookNo];
     		// if there is only 1 chapter then no need to select chapter, but may need to select verse still
-    		if (BibleInfo.chaptersInBook(bibleBookNo)==1) {
+    		if (BibleInfo.chaptersInBook(book)==1) {
     			if (!GridChoosePassageChapter.navigateToVerse()) {
-    				CurrentPageManager.getInstance().getCurrentBible().setKey(new Verse(bibleBookNo, 1, 1));
+    				CurrentPageManager.getInstance().getCurrentBible().setKey(new Verse(book, 1, 1));
     				returnToPreviousScreen();
     			} else {
         			// select verse (only 1 chapter)
@@ -103,13 +106,13 @@ public class GridChoosePassageBook extends ActivityBase implements OnButtonGridA
     	boolean isShortBookNamesAvailable = isShortBookNames();
     	
     	List<ButtonInfo> keys = new ArrayList<ButtonInfo>(BibleInfo.booksInBible());
-    	for (int i=BibleNames.GENESIS; i<=BibleNames.REVELATION; i++) {
+    	for (BibleBook book: EnumSet.range(BibleBook.GEN, BibleBook.REV)) {
     		ButtonInfo buttonInfo = new ButtonInfo();
     		try {
     			// this is used for preview
-    			buttonInfo.id = i;
-	    		buttonInfo.name = getShortBookName(i, isShortBookNamesAvailable);
-	    		buttonInfo.textColor = getBookTextColor(i);
+    			buttonInfo.id = book.ordinal();
+	    		buttonInfo.name = getShortBookName(book, isShortBookNamesAvailable);
+	    		buttonInfo.textColor = getBookTextColor(book.ordinal());
     		} catch (NoSuchVerseException nsve) {
     			buttonInfo.name = "ERR";
     		}
@@ -124,7 +127,7 @@ public class GridChoosePassageBook extends ActivityBase implements OnButtonGridA
 	 */
 	private boolean isShortBookNames() {
 		try {
-			return !BibleInfo.getShortBookName(BibleNames.GENESIS).equals(BibleInfo.getLongBookName(BibleNames.GENESIS));
+			return !BibleBook.GEN.getShortName().equals(BibleBook.GEN.getLongName());
 		} catch (NoSuchVerseException nsve) {
 			// should never get here
 			Log.e(TAG, "No such bible book no: 1", nsve);
@@ -132,14 +135,14 @@ public class GridChoosePassageBook extends ActivityBase implements OnButtonGridA
 		}
 	}
     
-    private String getShortBookName(int bookNo, boolean isShortBookNamesAvailable) throws NoSuchVerseException {
+    private String getShortBookName(BibleBook book, boolean isShortBookNamesAvailable) throws NoSuchVerseException {
     	// shortened names exist so use them
     	if (isShortBookNamesAvailable) {
-    		return BibleInfo.getShortBookName(bookNo);
+    		return book.getShortName();
     	}
 
     	// getShortName will return the long name in place of the short name
-    	String bookName = BibleInfo.getShortBookName(bookNo);
+    	String bookName = book.getShortName();
     	
     	// so now we shorten the name programatically
     	StringBuilder shortenedName = new StringBuilder(4);
@@ -157,36 +160,38 @@ public class GridChoosePassageBook extends ActivityBase implements OnButtonGridA
     
     private int getBookTextColor(int bookNo) {
     	// colour and grouping taken from http://en.wikipedia.org/wiki/Books_of_the_Bible
-    	if (bookNo<6) {
+    	if (bookNo<=BibleBook.DEUT.ordinal()) {
     		// Pentateuch - books of Moses
     		return PENTATEUCH_COLOR;
-    	} else if (bookNo<18) {
+    	} else if (bookNo<=BibleBook.ESTH.ordinal()) {
     		// History
     		return HISTORY_COLOR;
-    	} else if (bookNo<23) {
+    	} else if (bookNo<=BibleBook.SONG.ordinal()) {
     		// Wisdom
     		return WISDOM_COLOR;
-    	} else if (bookNo<28) {
+    	} else if (bookNo<=BibleBook.DAN.ordinal()) {
     		// Major prophets
     		return MAJOR_PROPHETS_COLOR;
-    	} else if (bookNo<40) {
+    	} else if (bookNo<=BibleBook.MAL.ordinal()) {
     		// Minor prophets
     		return MINOR_PROPHETS_COLOR;
-    	} else if (bookNo<44) {
+    	} else if (bookNo<=BibleBook.JOHN.ordinal()) {
     		// Gospels
     		return GOSPEL_COLOR;
-    	} else if (bookNo<45) {
+    	} else if (bookNo<=BibleBook.ACTS.ordinal()) {
     		// Acts
     		return ACTS_COLOR;
-    	} else if (bookNo<58) {
+    	} else if (bookNo<=BibleBook.PHLM.ordinal()) {
     		// Pauline epistles
     		return PAULINE_COLOR;
-    	} else if (bookNo<66) {
+    	} else if (bookNo<=BibleBook.JUDE.ordinal()) {
     		// General epistles
     		return GENERAL_EPISTLES_COLOR;
-    	} else {
+    	} else if (bookNo<=BibleBook.JUDE.ordinal()) {
     		// Revelation
     		return REVELATION_COLOR;
+    	} else {
+    		return OTHER_COLOR;
     	}
     }
 }

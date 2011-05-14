@@ -95,7 +95,7 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
     }
 
 	public boolean isSingleChapterBook() throws NoSuchKeyException{
-    	return BibleInfo.chaptersInBook(currentBibleVerse.getCurrentBibleBookNo())==1;
+    	return BibleInfo.chaptersInBook(currentBibleVerse.getCurrentBibleBook())==1;
 	}
 	
 	public int getNumberOfVersesDisplayed() {
