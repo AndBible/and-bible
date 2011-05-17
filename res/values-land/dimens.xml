@@ -20,5 +20,6 @@
 
 <resources>
 	<dimen name="title_bar_title_width">280dip</dimen>
-	<integer name="key_grid_cols">11</integer>
+	<!-- number of breaks at bottom to allow selection of last verse -->
+	<integer name="br_count_at_bottom">8</integer>
 </resources>

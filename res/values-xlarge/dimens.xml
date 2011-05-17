@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- number of breaks at bottom to allow selection of last verse -->
+	<integer name="br_count_at_bottom">30</integer>
+</resources>
