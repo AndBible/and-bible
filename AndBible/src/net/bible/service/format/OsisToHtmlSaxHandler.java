@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import net.bible.android.BibleApplication;
+import net.bible.android.activity.R;
 import net.bible.service.common.Constants;
 import net.bible.service.format.Note.NoteType;
 import net.bible.service.sword.Logger;
@@ -35,7 +37,7 @@ In the <note n="a" osisID="Gen.1.1!crossReference.a" osisRef="Gen.1.1" type="cro
  */
 public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
-    // properties
+	// properties
     private String languageCode = "en";
     private boolean isLeftToRight = true;
     private boolean isShowHeadings = true;
@@ -65,6 +67,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
     private static final String NBSP = "&#160;";
     private static final String SPACE = " ";
+    private static final String HTML_BR = "<br />";
 
     // the following characters are not handled well in Android 2.2 & 2.3 and need special processing which for all except Sof Pasuq means removal
     // puctuation char at the end of hebrew verses that looks like a ':'
@@ -121,7 +124,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
         	write("</span>");
         }
     	// add padding at bottom to allow last verse to scroll to top of page and become current verse
-        write("<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /></body></html>");
+        write(getPaddingAtBottom()+"</body></html>");
     }
 
     /*
@@ -170,14 +173,14 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			// store the osisRef attribute for use with the note
 			this.currentRefOsisRef = attrs.getValue(OSISUtil.OSIS_ATTR_REF);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LB)) {
-			write("<br />");
+			write(HTML_BR);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
 			// Refer to Gen 3:14 in ESV for example use of type=x-indent
 			String type = attrs.getValue(OSISUtil.OSIS_ATTR_TYPE);
 			if (StringUtils.isNotEmpty(type) && type.contains("indent")) {
 				write(NBSP+NBSP);
 			} else {
-				write("<br />");
+				write(HTML_BR);
 			}
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_P)) {
 			write("<p />");
@@ -489,6 +492,11 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     	return StringUtils.isNotEmpty(attrValue);
     }
 
+    private String getPaddingAtBottom() {
+    	int brCount = BibleApplication.getApplication().getResources().getInteger(R.integer.br_count_at_bottom);
+    	return StringUtils.repeat(HTML_BR, brCount);
+    }
+    
     public void setLanguageCode(String languageCode) {
         this.languageCode = languageCode;
     }
