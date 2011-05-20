@@ -39,6 +39,7 @@ import org.crosswire.common.util.IOUtil;
 import org.crosswire.common.util.Logger;
 import org.crosswire.common.util.NetUtil;
 import org.crosswire.common.util.Reporter;
+import org.crosswire.common.util.Version;
 import org.crosswire.jsword.JSMsg;
 import org.crosswire.jsword.JSOtherMsg;
 import org.crosswire.jsword.book.Book;
@@ -331,7 +332,8 @@ public abstract class AbstractSwordInstaller extends AbstractBookList implements
         //use and-bible index location
         String indexLocation = "/and-bible/indices/v1";
         try {
-            String version = book.getBookMetaData().getProperty("Version").toString();
+    		Version versionObj = (Version)book.getBookMetaData().getProperty("Version");
+            String version = versionObj==null ? null : versionObj.toString();
             String versionSuffix = version!=null ? "-"+version : "";
             download(job, indexLocation, book.getInitials()+versionSuffix + ZIP_SUFFIX, localDest);
 		//MJD END

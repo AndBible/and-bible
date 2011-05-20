@@ -15,6 +15,7 @@ import java.util.zip.ZipOutputStream;
 
 import org.apache.lucene.LucenePackage;
 import org.crosswire.common.progress.JobManager;
+import org.crosswire.common.util.Version;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
@@ -45,14 +46,14 @@ public class MJDIndexAll {
 	
     public static void main(String[] args) {
     	MJDIndexAll indexAll = new MJDIndexAll();
-//    	indexAll.validateAllIndexes();
-//    	indexAll.updateCachedRepoBookList();
+    	indexAll.validateAllIndexes();
+//  	indexAll.updateCachedRepoBookList();
 //    	indexAll.setupDirs();
 //    	indexAll.showInstalledBooks();
 //    	indexAll.showRepoBooks();
 //    	indexAll.installSingleBook("KJV");
 //    	indexAll.installRepoBooks();
-//    	indexAll.checkAllBooksInstalled();
+//  	indexAll.checkAllBooksInstalled();
 //    	indexAll.manageCreateIndexes();
 //    	indexAll.indexSingleBook("KJV");
     	
@@ -69,17 +70,19 @@ public class MJDIndexAll {
 //		indexAll.installAndIndexSingleBook("WHNU"); //1.10 -> 2.1
 //		indexAll.installAndIndexSingleBook("Luther"); //1.100322 -> 1.1
 
-// just done to be uploaded indexAll.installAndIndexSingleBook("SpaRV"); // 1.5-> 1.6
-    	
+    	//uploaded 14.5.2010
+//    	indexAll.installAndIndexSingleBook("PorLivre"); // 1.5-> 1.6
+//    	indexAll.installAndIndexSingleBook("SpaRV"); // 1.5-> 1.6
+
+    	//uploaded 28/4/2011
     	//Need to fix indexes without Strong's
 //    	indexAll.indexSingleBook("LXX");
 //    	indexAll.indexSingleBook("ABP");
 //    	indexAll.indexSingleBook("ABPGrk");
 //    	indexAll.indexSingleBook("ChiUn");
 //    	indexAll.indexSingleBook("ChiUns");
-    	
-    	
-//    	indexAll.indexSingleBook("RUSVZh");  //is this broken
+    	//uploaded 14.5.2010
+//    	indexAll.installAndIndexSingleBook("RUSVZh");  //is this broken
 
     }
     
@@ -268,8 +271,11 @@ public class MJDIndexAll {
             	if (installedBook==null) {
             		System.out.println("Not installed:"+book.getInitials()+" Name:"+book.getName());
             	} else {
-            		String version = book.getProperty("Version").toString();
-            		String installedVersion = (String)installedBook.getBookMetaData().getProperty("Version");
+            		Version versionObj = (Version)book.getProperty("Version");
+           			String version = versionObj==null ? "No version" : versionObj.toString();
+           			
+           			Version installedVersionObj = (Version)installedBook.getBookMetaData().getProperty("Version");
+            		String installedVersion = installedVersionObj==null ? "No version" : installedVersionObj.toString();
             		if (!version.equals(installedVersion)) {
                 		System.out.println("Incorrect version of "+book.getInitials()+" installed:"+installedVersion+" Repo:"+version);
             		} else {
