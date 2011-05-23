@@ -4,10 +4,9 @@
 	held by it's author. -->
 <resources>
   <string name="app_name">And Bible</string>
-  <string name="splash_top_text">\n\"神說：「要有光」，就有了光\"\n创世记 1:3</string>
+  <string name="splash_top_text">"\n\"神說：「要有光」，就有了光\"\n创世记 1:3"</string>
   <string name="help_text">导航:\n使用菜单的动作按钮\n向左滑动手指看下一章\n向右滑动手指看上一章\n向左或向右按轨迹球也可以前后翻动章节</string>
-  <string name="no_sdcard_error">"请插入并启用存储卡,然后再次启动本程序
-	"</string>
+  <string name="no_sdcard_error">"请插入并启用存储卡,然后再次启动本程序 "</string>
   <!-- main menu -->
   <string name="chooseBook">版本</string>
   <string name="selectPassage">卷</string>
@@ -24,8 +23,7 @@
   <string name="index">索引</string>
   <string name="progress_status">请等待</string>
   <string name="task_kill_warning">"请等待! 当前的任务需要稍微多一些的时间来完成. 如果您现在转换的别的程序,这些任务有可能被系统终止."</string>
-  <string name="no_tasks_running">"当前没有任务
-	"</string>
+  <string name="no_tasks_running">"当前没有任务 "</string>
   <string name="search_words_group_prompt">查询</string>
   <string name="search_all_words">所有的词</string>
   <string name="search_any_word">任何一词</string>
@@ -99,22 +97,15 @@
   <string name="strongs_not_installed">" 请下载Strong的希伯来语和希腊语字典"</string>
   <string name="new_label_prompt">标签名称</string>
   <string name="new_label">新标签</string>
-  <string name="chapter_no">第 %s 章</string>
   <string name="delete_doc">删除 %s</string>
   <string name="assign_labels">分配标签</string>
-  <string name="all_greek_occurrences">希腊字符</string>
-  <string name="all_hebrew_occurrences">希伯来文</string>
+  <string name="all_greek_occurrences">查找所有希腊字符</string>
+  <string name="all_hebrew_occurrences">查找所有希伯来文</string>
   <string name="doc_type_book">Book</string>
   <string name="general_book">卷</string>
   <string name="general_book_contents">内容</string>
   <string name="help">帮助</string>
-  <string name="help_text_long">Navigation\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger
-    \n\nPress the MENU key for actions
-    \n\nTo download more documents press Menu/More/Download Documents
-    \n\nLong press on the bible view to open the context menu for actions affecting the current verse.
-    \nLong press on a document in the document selector to delete it or view information.
-    \n\nSpeech\nPress Speak to access a dialog to start or stop reading
-    \n\nBookmarks\nBookmarks can be added via the verse context menu.  The Bookmark Manager is accessed via the main menu.  The Bookmark Manager context menu allows bookmarks to be grouped using labels.</string>
+  <string name="help_text_long">Navigation\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger \n\nPress the MENU key for actions \n\nTo download more documents press Menu/More/Download Documents \n\nLong press on the bible view to open the context menu for actions affecting the current verse. \nLong press on a document in the document selector to delete it or view information. \n\nSpeech\nPress Speak to access a dialog to start or stop reading \n\nBookmarks\nBookmarks can be added via the verse context menu. The Bookmark Manager is accessed via the main menu. The Bookmark Manager context menu allows bookmarks to be grouped using labels.</string>
   <string name="index_create">创建索引</string>
   <string name="index_download">下载索引</string>
   <string name="lang_default">默认语言</string>
@@ -122,11 +113,19 @@
   <string name="no">No</string>
   <string name="no_indexed_bible_with_strongs_ref">You must download a bible containing Strong\'s numbers and download its index via Search</string>
   <string name="prefs_interface_locale_summary">选择自定义用户界面语言</string>
-  <string name="prefs_interface_locale_title">语言的应用</string>
+  <string name="prefs_interface_locale_title">语言</string>
   <string name="prefs_verse_per_line_summary">每行一小节圣经</string>
   <string name="prefs_verse_per_line_title">每行一节</string>
   <string name="refresh_book_list">刷新列表</string>
   <string name="rest_of_book">余下的卷</string>
   <string name="rest_of_chapter">余下的章</string>
   <string name="stop">停止</string>
+  <string name="choosePassageVerseName">选择经节</string>
+  <string name="delete_index">删除索引</string>
+  <string name="delete_search_index_doc">删除 %s 的索引</string>
+  <string name="morph_robinson_not_installed">请下载Robinson的形态分析码的字典</string>
+  <string name="prefs_navigate_to_verse_summary">定位到经文小节</string>
+  <string name="prefs_navigate_to_verse_title">导航到经文小节标题</string>
+  <string name="prefs_show_morphology_summary">显示 Robinson的希腊文</string>
+  <string name="prefs_show_morphology_title">形态</string>
 </resources>
