@@ -22,4 +22,19 @@
 	<string name="lang_russian">ru: Русский</string>
 	<string name="lang_swedish">sv: Svenska</string>
 	<string name="lang_chinese">zh: 古文/文言文</string>
+	
+    <!-- Speak -->
+    <plurals name="num_chapters">
+        <item quantity="one">@string/one_chapter</item>
+        <item quantity="other">@string/some_chapters</item>
+    </plurals>
+	<plurals name="num_verses">
+        <item quantity="one">@string/one_verse</item>
+        <item quantity="other">@string/some_verses</item>
+    </plurals>
+    <plurals name="num_pages">
+        <item quantity="one">@string/one_page</item>
+        <item quantity="other">@string/some_pages</item>
+    </plurals>
+	
 </resources>
