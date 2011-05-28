@@ -227,14 +227,6 @@ public final class BibleInfo {
      * @exception NoSuchVerseException
      *                If the reference is illegal
      */
-    private static List<BibleBook> defaultRange;
-    static {
-        defaultRange = new ArrayList<BibleBook>();
-        for (BibleBook bibleBook : EnumSet.range(BibleBook.GEN, BibleBook.REV)) {
-            defaultRange.add(bibleBook);
-        }
-    }
-    
     public static Verse decodeOrdinal(int ordinal) throws NoSuchVerseException {
         if (ordinal < 1 || ordinal > BibleInfo.versesInBible()) {
             throw new NoSuchVerseException(JSOtherMsg.lookupText("Ordinal must be between 1 and {0,number,integer} (given {1,number,integer}).", Integer.valueOf(BibleInfo.versesInBible()), Integer.valueOf(ordinal)));
@@ -823,6 +815,14 @@ public final class BibleInfo {
      * methods to non-static
      */
     static final BibleInfo instance = new BibleInfo();
+
+    private static List<BibleBook> defaultRange;
+    static {
+        defaultRange = new ArrayList<BibleBook>();
+        for (BibleBook bibleBook : EnumSet.range(BibleBook.GEN, BibleBook.REV)) {
+            defaultRange.add(bibleBook);
+        }
+    }
 
     /**
      * This is the code used to create ORDINAL_AT_START_OF_CHAPTER and
