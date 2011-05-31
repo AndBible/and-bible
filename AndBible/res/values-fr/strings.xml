@@ -55,7 +55,7 @@
   <string name="prefs_show_notes_title">Notes</string>
   <string name="prefs_show_notes_summary">Afficher les notes</string>
   <string name="prefs_show_strongs_title">Afficher les nombres de Strong\'s</string>
-  <string name="prefs_show_strongs_summary">Liens aux définitions Grec &amp;amp;amp; Hébreu</string>
+  <string name="prefs_show_strongs_summary">Liens aux définitions Grec &amp;amp;amp;amp; Hébreu</string>
   <string name="prefs_night_mode_title">Mode nuit</string>
   <string name="prefs_night_mode_summary">Pour une lecture plus facile dans le noir</string>
   <string name="prefs_text_size_title">Taille du texte</string>
@@ -74,7 +74,7 @@
   <!-- Module download -->
   <string name="download">Télécharger documents</string>
   <string name="download_confirmation">Télécharger des documents à partir d\'Internet?</string>
-  <string name="download_source_message">Les documents sont téléchargés à partir de\nhttp://www.crosswire.org\n&amp;amp;amp; http://xiphos.org</string>
+  <string name="download_source_message">Les documents sont téléchargés à partir de\nhttp://www.crosswire.org\n&amp;amp;amp;amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Télécharger "</string>
   <string name="refresh_book_list">Rafraîchir la liste des documents disponibles?</string>
   <string name="error_downloading">Une erreur est apparue pendant le téléchargement. Vérifiez votre connexion internet.</string>
@@ -157,4 +157,4 @@
   <string name="choosePassageVerseName">Choisissez Verset</string>
   <string name="prefs_navigate_to_verse_summary">Basculer en mode navigation par verset</string>
   <string name="prefs_navigate_to_verse_title">Aller au verset</string>
-</resources>
+<string name="one_chapter">%d chapitre</string><string name="one_page">%d page</string><string name="one_verse">%d verset</string><string name="some_chapters">%d chaptitres</string><string name="some_pages">%d pages</string><string name="some_verses">%d versets</string></resources>
