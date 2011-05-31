@@ -52,7 +52,7 @@
   <string name="prefs_show_notes_title">Jegyzetek</string>
   <string name="prefs_show_notes_summary">Jegyzetek megjelenítése</string>
   <string name="prefs_show_strongs_title">Strong számozás</string>
-  <string name="prefs_show_strongs_summary">Strong számok megjelenítése a KJV-ben.</string>
+  <string name="prefs_show_strongs_summary">Hivatkozás a görög és héber meghatározásokhoz</string>
   <string name="prefs_night_mode_title">Esti üzemmód</string>
   <string name="prefs_night_mode_summary">Sötétben való könnyebb olvasáshoz</string>
   <string name="prefs_text_size_title">Szövegméret</string>
@@ -68,7 +68,7 @@
   <!-- Module download -->
   <string name="download">Dokumentumok letöltése</string>
   <string name="download_confirmation">Letöltsem a dokumentumokat az internetről?</string>
-  <string name="download_source_message">A dokumentumok a crosswire.org-ról töltődnek le.</string>
+  <string name="download_source_message">A dokumentumok a crosswire.orgról illetve a xiphos.orgról töltődnek le.</string>
   <string name="download_document_confirm_prefix">"Letölt "</string>
   <string name="error_downloading">Hiba a letöltés közben. Kérem ellenőrizze az internet kapcsolatot.</string>
   <string name="no_internet_connection">Nem sikerült kapcsolódni az internethez.</string>
@@ -110,7 +110,6 @@
   <string name="tts_lang_not_available">Ez a nyelv nem elérhető.</string>
   <string name="all_greek_occurrences">Összes előfordulás mutatása</string>
   <string name="all_hebrew_occurrences">Találd meg az összes események</string>
-  <string name="chapter_no">%d. fejezet</string>
   <string name="doc_type_book">Könyv</string>
   <string name="general_book">Könyv</string>
   <string name="general_book_contents">Tartalom</string>
@@ -129,4 +128,18 @@
   <string name="share_verse_subject">A Biblia egy versét megosztották veled az And Bible programon keresztül.</string>
   <string name="stop">Stop</string>
   <string name="storage_space_warning">Nincs elég memória.</string>
-<string name="delete_index">Index törlése</string><string name="delete_search_index_doc">Töröljem a %s indexét?</string><string name="morph_robinson_not_installed">Kérem, töltse le a Robinson morfológiai elemzés szótárát</string><string name="prefs_show_morphology_summary">Mutasd a Robinson görög morfológiáját</string><string name="prefs_show_morphology_title">Morfológiai kódok</string></resources>
+  <string name="delete_index">Index törlése</string>
+  <string name="delete_search_index_doc">Töröljem a %s indexét?</string>
+  <string name="morph_robinson_not_installed">Kérem, töltse le a Robinson morfológiai elemzés szótárát</string>
+  <string name="prefs_show_morphology_summary">Mutasd a Robinson görög morfológiáját</string>
+  <string name="prefs_show_morphology_title">Morfológiai kódok</string>
+  <string name="choosePassageVerseName">Válassz verset</string>
+  <string name="one_chapter">%d fejezet</string>
+  <string name="one_page">%d oldal</string>
+  <string name="one_verse">%d vers</string>
+  <string name="prefs_navigate_to_verse_summary">Ugorjon a vershez navigáció közben</string>
+  <string name="prefs_navigate_to_verse_title">Vershez ugrás</string>
+  <string name="some_chapters">%d fejezet</string>
+  <string name="some_pages">%d oldal</string>
+  <string name="some_verses">%d vers</string>
+</resources>
