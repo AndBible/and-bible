@@ -153,4 +153,4 @@
   <string name="choosePassageVerseName">Wybierz werset</string>
   <string name="prefs_navigate_to_verse_summary">Rozbij werset podczas nawigacji</string>
   <string name="prefs_navigate_to_verse_title">Przejdź do wersetu</string>
-</resources>
+<string name="one_chapter">%d rozdział</string><string name="one_page">%d strona</string><string name="one_verse">%d werset</string><string name="some_chapters">%d rozdziałów</string><string name="some_pages">%d stron</string><string name="some_verses">%d wersetów</string></resources>
