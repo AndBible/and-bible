@@ -72,8 +72,8 @@
   <string name="strongs_not_installed">Bitte laden Sie die Strong\'s Wörterbücher für Griechisch und Hebräisch herunter</string>
   <!-- Module download -->
   <string name="download">Module herunterladen</string>
-  <string name="download_confirmation">Das Modul aus dem Internet herunterladen?</string>
-  <string name="download_source_message">Die Module werden von\nhttp://www.crosswire.org\n&amp;amp;amp;amp; http://xiphos.org heruntergeladen</string>
+  <string name="download_confirmation">Möchten Sie Module aus dem Internet herunterladen?</string>
+  <string name="download_source_message">Die Modulliste wird von\nhttp://www.crosswire.org\n&amp;amp;amp;amp;amp;amp; http://xiphos.org heruntergeladen</string>
   <string name="download_document_confirm_prefix">"Download "</string>
   <string name="refresh_book_list">Liste aktualisieren?</string>
   <string name="error_downloading">Download fehlgeschlagen. Überprüfen Sie ihre Internetverbindung!</string>
@@ -155,4 +155,4 @@
   <string name="choosePassageVerseName">Vers wählen</string>
   <string name="prefs_navigate_to_verse_summary">Zum Vers hinunterscrollen</string>
   <string name="prefs_navigate_to_verse_title">Zum Vers wechseln</string>
-</resources>
+<string name="one_chapter">Kapitel %d</string><string name="one_page">Seite %</string><string name="one_verse">Vers %d</string><string name="some_chapters">%d Kapitel</string><string name="some_pages">%d Seiten</string><string name="some_verses">%d Verse</string></resources>
