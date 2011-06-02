@@ -46,7 +46,8 @@ public class MJDIndexAll {
 	
     public static void main(String[] args) {
     	MJDIndexAll indexAll = new MJDIndexAll();
-    	indexAll.validateAllIndexes();
+    	indexAll.validateIndex("FreBBB");
+    	indexAll.validateIndex("SpaRV");
 //  	indexAll.updateCachedRepoBookList();
 //    	indexAll.setupDirs();
 //    	indexAll.showInstalledBooks();
@@ -111,7 +112,33 @@ public class MJDIndexAll {
 		}
 	}
 
-    private void updateCachedRepoBookList() {
+	public void validateIndex(String bookInitials) {
+		Book book = Books.installed().getBook(bookInitials);
+		
+		try {
+			Key key = book.find("noah");
+			
+			if (book.hasFeature(FeatureType.STRONGS_NUMBERS)) {
+				if (!book.getIndexStatus().equals(IndexStatus.DONE)) {
+					System.out.println("Unindexed:"+book);
+				} else {
+					Key resultsH = book.find("strong:h3068");
+					Key resultsG = book.find("strong:g746");
+					if (resultsH.getCardinality()==0 && resultsG.getCardinality()==0) {
+						System.out.println("No refs returned in"+book.getInitials());
+					} else {
+						System.out.println("Ok:"+book.getInitials());
+					}
+	//					assertTrue("No refs returned in"+book.getInitials(), resultsH.getCardinality()>0 || resultsG.getCardinality()>0);
+				}
+			}
+		} catch (Exception e) {
+			System.out.println("Error:"+book.getInitials()+":"+e.getMessage());
+		}
+
+	}
+
+	private void updateCachedRepoBookList() {
     	try {
 	    	BookInstaller bookInstaller = new BookInstaller();
 	    	bookInstaller.reloadBookList(REPOSITORY);

@@ -78,6 +78,7 @@ public class Languages {
         try {
             return commonLangs.getString(code);
         } catch (MissingResourceException e) {
+        	//MJD
 //            try {
 //                return allLangs.getString(code);
 //            } catch (MissingResourceException e1) {
@@ -127,12 +128,11 @@ public class Languages {
 //    private static/* final */ResourceBundle allLangs;
     static {
         try {
-            System.out.println("*** LOADING ISO369.PROPERTIES ***");
             commonLangs = ResourceBundle.getBundle("iso639", Locale.getDefault(), CWClassLoader.instance());
-            System.out.println("*** FINISHED LOADING ISO369.PROPERTIES ***");
         } catch (MissingResourceException e) {
             assert false;
         }
+        //MJD
 //        try {
 //            allLangs = ResourceBundle.getBundle("iso639full", Locale.getDefault(), CWClassLoader.instance());
 //        } catch (MissingResourceException e) {
