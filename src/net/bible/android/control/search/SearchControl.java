@@ -112,13 +112,13 @@ public class SearchControl {
 		return verseText;
 	}
 
-	/** double spaces and leading or trailing space cause lucene errors
+	/** double spaces, :, and leading or trailing space cause lucene errors
 	 * 
 	 * @param search
 	 * @return
 	 */
 	private String cleanSearchString(String search) {
-		return search.replace("  ", " ").trim();
+		return search.replace("  ", " ").replace(":", " ").trim();
 	}
     /** get OT, NT, or all query limitation
      * 
