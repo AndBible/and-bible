@@ -22,14 +22,9 @@
   <string name="rest_of_chapter">לסוף הפרק</string>
   <string name="stop">עצור</string>
   <string name="no">לא</string>
-  <string name="splash_top_text">\n\"ויאמר אלוהים, \'יהי אור,\' ויהי אור.\"\nבראשית א\' 3</string>
+  <string name="splash_top_text">"\n\"ויאמר אלוהים, 'יהי אור,' ויהי אור.\"\nבראשית א' 3"</string>
   <string name="help_text">לחץ על כפתור התפריט לאפשרויות נוספות\n\nמעבר לפרק הבא או הקודם מתבצע ע\"י החלקת האצבע לרוחב המסך</string>
-  <string name="help_text_long">דפדוף\nמעבר לפרק הבא או הקודם מתבצע ע\"י החלקת האצבע לרוחב המסך, או ע\"י גלגלת המכשיר.
-    \n\nלחץ על כפתור התפריט לאפשרויות נוספות
-    \n\הקראה\nלחץ הקראה כדי להקריא בקול רם טקסט מסומן\nלחץ שוב כדי להפסיק את ההקראה
-    \n\nלחיצה ארוכה על פסוק, תתן אפשרויות נוספות לגביו
-    \nלחיצה ארוכה על טקסט תציג אפשרות למידע או למחיקהו
-    \n\סימניות\nניתן להוסיף סימניות מתפריט ההקשר. לניהול הסימניות ניתן להגיע באמצעות התפריט.  ניתן גם להוסיף תוויות לסימניות.</string>
+  <string name="help_text_long">דפדוף\nמעבר לפרק הבא או הקודם מתבצע ע\"י החלקת האצבע לרוחב המסך, או ע\"י גלגלת המכשיר. \n\nלחץ על כפתור התפריט לאפשרויות נוספות \n\הקראה\nלחץ הקראה כדי להקריא בקול רם טקסט מסומן\nלחץ שוב כדי להפסיק את ההקראה \n\nלחיצה ארוכה על פסוק, תתן אפשרויות נוספות לגביו \nלחיצה ארוכה על טקסט תציג אפשרות למידע או למחיקהו \n\סימניות\nניתן להוסיף סימניות מתפריט ההקשר. לניהול הסימניות ניתן להגיע באמצעות התפריט. ניתן גם להוסיף תוויות לסימניות.</string>
   <string name="version_text">גרסה %s</string>
   <string name="no_sdcard_error">אנא הכנס כרטיס זכרון, והפעל מחדש את התוכנה.</string>
   <!-- main menu -->
@@ -42,9 +37,8 @@
   <string name="help">עזרה</string>
   <string name="choosePassageBookName">בחר ספר</string>
   <string name="choosePassageChapterName">בחר פרק</string>
-  <string name="chapter_no">פרק %d</string>
   <string name="search_index">אינדקס לחיפוש</string>
-  <string name="index_creation_required">נדרש אינדקס כדי לחפש.\n\nניתן להוריד אינדקסים מהאינטרנט, או ליצור אותם במכשיר.\n\nהורדה תהיה מהירה יותר, ותכיל יותר אפשרויות.\n\nנדרש חיבור לאינטרנט כדי להוריד אינדקסים.\n</string>
+  <string name="index_creation_required">"נדרש אינדקס כדי לחפש.\n\nניתן להוריד אינדקסים מהאינטרנט, או ליצור אותם במכשיר.\n\nהורדה תהיה מהירה יותר, ותכיל יותר אפשרויות.\n\nנדרש חיבור לאינטרנט כדי להוריד אינדקסים.\n"</string>
   <string name="indexing_wait_msg">כשיצירת האינדקס תסתיים, תועבר למסך החיפוש.</string>
   <string name="index">אינדקס</string>
   <string name="index_download">הורדה</string>
@@ -94,8 +88,8 @@
   <string name="error_downloading">אירעה שגיאה במהלך ההורדה. אנא בדוק את החיבור לאינטרנט.</string>
   <string name="no_internet_connection">לא מצליח להתחבר לאינטרנט</string>
   <string name="storage_space_warning">אין מספיק מקום אחסון.</string>
-  <string name="wait_for_bible">אנא המתן לסיום ההורדה.  לאחר מכן תוחזר למסך הראשי.</string>
-  <string name="wait_for_bible_not_yet">אנא המתן.  יש טקסט שהתקנתו עדיין לא הסתיימה.</string>
+  <string name="wait_for_bible">אנא המתן לסיום ההורדה. לאחר מכן תוחזר למסך הראשי.</string>
+  <string name="wait_for_bible_not_yet">אנא המתן. יש טקסט שהתקנתו עדיין לא הסתיימה.</string>
   <string name="download_complete_no_bibles">אין טקסטים מותקנים. אנא לחץ על כפתור החזרה ונסה שנית.</string>
   <string name="too_many_jobs">יותר מדי משימות פועלות יחד כרגע. אנא המתן שחלקן יסתיימו, ונסה שוב.</string>
   <!-- Document context menu -->
@@ -131,8 +125,22 @@
   <string name="please_wait">אנא המתן...</string>
   <string name="all">הכל</string>
   <string name="tts_lang_not_available">שפה זו אינה זמינה.</string>
-  <string name="all_greek_occurrences">Show all occurrences</string>
-  <string name="all_hebrew_occurrences">Show all occurrences</string>
-  <string name="lang_default">Default</string>
-  <string name="no_indexed_bible_with_strongs_ref">You must download a bible containing Strong\'s numbers and download its index via Search</string>
+  <string name="all_greek_occurrences">מצא את כל המופעים</string>
+  <string name="all_hebrew_occurrences">מצא את כל המופעים</string>
+  <string name="lang_default">ברירת מחדל</string>
+  <string name="no_indexed_bible_with_strongs_ref">עליך להוריד טקסט שמכיל מספרי Strong, וגם להוריד את קובץ האינדקס שלו, ממסך החיפוש</string>
+  <string name="choosePassageVerseName">בחר פסוק</string>
+  <string name="delete_index">מחק אינדקס חיפוש</string>
+  <string name="delete_search_index_doc">האם למחוק את האינדקס של %s ?</string>
+  <string name="morph_robinson_not_installed">נא להוריד את המילון \'Robinson\'s Morphological Analysis Codes\'</string>
+  <string name="one_chapter">פרק %d</string>
+  <string name="one_page">עמוד %d</string>
+  <string name="one_verse">פסוק %d</string>
+  <string name="prefs_navigate_to_verse_summary">אפשר בחירת פסוק בעת מעבר</string>
+  <string name="prefs_navigate_to_verse_title">עבור לפסוק</string>
+  <string name="prefs_show_morphology_summary">הצג את המילון המורפולוגי של רובינסון</string>
+  <string name="prefs_show_morphology_title">סימנים מורפולוגיים</string>
+  <string name="some_chapters">%d פרקים</string>
+  <string name="some_pages">%d עמודים</string>
+  <string name="some_verses">%d פסוקים</string>
 </resources>
