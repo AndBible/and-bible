@@ -138,8 +138,8 @@ public class ConfigurableSnowballAnalyzer extends AbstractBookAnalyzer {
     public void pickStemmer(String languageCode) {
         if (languageCode != null) {
             // Check for allowed stemmers
-            if (allowedStemmersCodeToLanguageMap.containsKey(languageCode)) {
-                stemmerName = allowedStemmersCodeToLanguageMap.get(languageCode);
+            if (languageCodeToStemmerLanguageNameMap.containsKey(languageCode)) {
+                stemmerName = languageCodeToStemmerLanguageNameMap.get(languageCode);
             } else {
                 throw new IllegalArgumentException("SnowballAnalyzer configured for unavailable stemmer " + stemmerName);
             } 
@@ -156,20 +156,20 @@ public class ConfigurableSnowballAnalyzer extends AbstractBookAnalyzer {
      */
     private String stemmerName;
 
-    private static Map<String, String> allowedStemmersCodeToLanguageMap = new HashMap<String, String>();
+    private static Map<String, String> languageCodeToStemmerLanguageNameMap = new HashMap<String, String>();
     static {
-    	allowedStemmersCodeToLanguageMap.put("da", "Danish");
-    	allowedStemmersCodeToLanguageMap.put("nl", "Dutch");
-    	allowedStemmersCodeToLanguageMap.put("en", "English");
-    	allowedStemmersCodeToLanguageMap.put("fi", "Finnish");
-    	allowedStemmersCodeToLanguageMap.put("fr", "French");
-    	allowedStemmersCodeToLanguageMap.put("de", "German");
-    	allowedStemmersCodeToLanguageMap.put("it", "Italian");
-    	allowedStemmersCodeToLanguageMap.put("no", "Norwegian");
-    	allowedStemmersCodeToLanguageMap.put("pt", "Portuguese");
-    	allowedStemmersCodeToLanguageMap.put("ru", "Russian");
-    	allowedStemmersCodeToLanguageMap.put("es", "Spanish");
-    	allowedStemmersCodeToLanguageMap.put("sv", "Swedish");
+    	languageCodeToStemmerLanguageNameMap.put("da", "Danish");
+    	languageCodeToStemmerLanguageNameMap.put("nl", "Dutch");
+    	languageCodeToStemmerLanguageNameMap.put("en", "English");
+    	languageCodeToStemmerLanguageNameMap.put("fi", "Finnish");
+    	languageCodeToStemmerLanguageNameMap.put("fr", "French");
+    	languageCodeToStemmerLanguageNameMap.put("de", "German");
+    	languageCodeToStemmerLanguageNameMap.put("it", "Italian");
+    	languageCodeToStemmerLanguageNameMap.put("no", "Norwegian");
+    	languageCodeToStemmerLanguageNameMap.put("pt", "Portuguese");
+    	languageCodeToStemmerLanguageNameMap.put("ru", "Russian");
+    	languageCodeToStemmerLanguageNameMap.put("es", "Spanish");
+    	languageCodeToStemmerLanguageNameMap.put("sv", "Swedish");
     }
 
     // Maps StemmerName > String array of standard stop words
