@@ -16,6 +16,7 @@ import net.bible.service.sword.SwordApi;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.index.IndexStatus;
+import org.crosswire.jsword.index.lucene.PdaLuceneIndexCreator;
 import org.crosswire.jsword.index.search.SearchType;
 import org.crosswire.jsword.passage.Key;
 
@@ -38,6 +39,9 @@ public class SearchControl {
 	public static final String SEARCH_TEXT = "SearchText";
 	public static final String SEARCH_DOCUMENT = "SearchDocument";
 	public static final String TARGET_DOCUMENT = "TargetDocument";
+	
+	private static final String STRONG_COLON_STRING = PdaLuceneIndexCreator.FIELD_STRONG+":";
+	private static final String STRONG_COLON_STRING_PLACE_HOLDER = PdaLuceneIndexCreator.FIELD_STRONG+"COLON";
 	
 	public static final int MAX_SEARCH_RESULTS = 100;
 
@@ -118,7 +122,13 @@ public class SearchControl {
 	 * @return
 	 */
 	private String cleanSearchString(String search) {
-		return search.replace("  ", " ").replace(":", " ").trim();
+		// remove colons but leave Strong lookups
+		// replace "strong:" with a place holder, remove ':', replace "strong:"
+		search = search.replace(STRONG_COLON_STRING, STRONG_COLON_STRING_PLACE_HOLDER);
+		search = search.replace(":", " ");
+		search = search.replace(STRONG_COLON_STRING_PLACE_HOLDER, STRONG_COLON_STRING);
+		
+		return search.replace("  ", " ").trim();
 	}
     /** get OT, NT, or all query limitation
      * 
