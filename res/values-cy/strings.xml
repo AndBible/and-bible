@@ -8,7 +8,7 @@
 <resources>
   <string name="app_name">And Bible</string>
   <!-- Startup & Help -->
-  <string name="splash_top_text">\"Dwedodd Duw, “Dw i eisiau golau!” a daeth golau i fod.\" Genesis 01:03</string>
+  <string name="splash_top_text">\"Dwedodd Duw,\'Dw i eisiau golau!\' a daeth golau i fod.\" Genesis 01:03</string>
   <string name="help_text">Gwasgwch y DDEWISLEN i weithredu Ewch i\'r bennod nesaf neu\'r flaenorol drwy ddefnyddio\'r trac-bel, D-pad neu drwy lusgo\'ch bys ar y sgrîn.</string>
   <string name="help_text_long">Cyfeirio \nEwch i\'r bennod nesaf neu\'r flaenorol drwy ddefnyddio\'r trac-bel, D-pad neu drwy lusgo\'ch bys ar y sgrîn. Gwasgwch y DDEWISLEN i weithredu.\nI lawrlwytho mwy o ddogfennau gwasgwch Dewislen/Mwy/Lawrlwytho Dogfennau \nGwasgiad hir ar \'gweld Beibl\' i agor y ddewislen weithredu ar gyfer yr adnod gyfredol. \nGwasgiad hir ar ddogfen yn y dewisydd dogfen i\'w dileu neu weld gwybodaeth. \nSiarad\nGwasgu \'Siarad\' i fynd i ddeialog dechrau neu stopio darllen\n\nNodau Llyfr\nGellir ychwanegu Nod Llyfr drwy\'r ddewislen cyd-destun adnod. Mae\'r Rheolwr Llyfrnodi yn gyrchir drwy brif ddewislen. Mae\'r ddewislen cyd-destun Rheoli Llyfrnodi yn caniatáu grwpio Nodau Llyfr dan labeli.</string>
   <string name="version_text">Fersiwn %s</string>
@@ -24,7 +24,6 @@
   <!-- Passage navigation -->
   <string name="choosePassageBookName">Dewis Lyfr</string>
   <string name="choosePassageChapterName">Dewis Bennod</string>
-  <string name="chapter_no">Pennod %d</string>
   <!--  Search -->
   <string name="search_index">Chwilio Mynegai</string>
   <string name="index_creation_required">Mae angen mynegai i chwilio. \nGellir lawrlwytho Mynegeion oddi ar y rhyngrwyd neu eu creu.\nMae lawrlwytho yn llawer cyflymach ac mae\'r mynegeion hynny yn fwy hyblyg wrth chwilio.\nMae angen cysylltiad rhyngrwyd i lawrlwytho Mynegeion.</string>
@@ -77,7 +76,7 @@
   <!-- Module download -->
   <string name="download">Lawrlwytho Dogfennau</string>
   <string name="download_confirmation">Llwytho Beibl oddi ar y rhyngrwyd?</string>
-  <string name="download_source_message">Dogfennau yn cael eu lawrlwytho o http://www.crosswire.org &amp;amp; http://xiphos.org</string>
+  <string name="download_source_message">Dogfennau yn cael eu lawrlwytho o http://www.crosswire.org &amp;amp;amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Lawrlwytho"</string>
   <string name="refresh_book_list">Adnewyddu\'r rhestr dogfennau sydd ar gael?</string>
   <string name="error_downloading">Gwall wrth lawrlwytho. Ydy\'ch cysylltiad rhyngrwyd yn gweithio?</string>
@@ -153,4 +152,18 @@
   <string name="all_greek_occurrences">Dangos pob un</string>
   <string name="all_hebrew_occurrences">Dangos pob un</string>
   <string name="no_indexed_bible_with_strongs_ref">Rhaid i chi lawrlwytho Beibl sy\'n cynnwys rhifau Strong a llwytho ei fynegai trwy Chwilio</string>
-<string name="delete_index">Dileu mynegai chwilio</string><string name="delete_search_index_doc">Dileu mynegai %s?</string><string name="morph_robinson_not_installed">Lawrlwytho geiriadur \'Robinson\'s Morphological Analysis Codes\'</string><string name="prefs_show_morphology_summary">Dangos morffoleg Groeg Robinson</string><string name="prefs_show_morphology_title">Codau morffolegol</string></resources>
+  <string name="delete_index">Dileu mynegai chwilio</string>
+  <string name="delete_search_index_doc">Dileu mynegai %s?</string>
+  <string name="morph_robinson_not_installed">Lawrlwytho geiriadur \'Robinson\'s Morphological Analysis Codes\'</string>
+  <string name="prefs_show_morphology_summary">Dangos morffoleg Groeg Robinson</string>
+  <string name="prefs_show_morphology_title">Codau morffolegol</string>
+  <string name="choosePassageVerseName">Dewis adnod</string>
+  <string name="one_chapter">%d chapter</string>
+  <string name="one_page">%d page</string>
+  <string name="one_verse">%d verse</string>
+  <string name="prefs_navigate_to_verse_summary">Drill down to verse when navigating</string>
+  <string name="prefs_navigate_to_verse_title">Llywio i\'r adnod</string>
+  <string name="some_chapters">%d pennod</string>
+  <string name="some_pages">%d tudalen</string>
+  <string name="some_verses">%d adnod</string>
+</resources>
