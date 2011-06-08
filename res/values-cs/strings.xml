@@ -23,7 +23,6 @@
   <string name="help">Nápověda</string>
   <string name="choosePassageBookName">Vybrat knihu</string>
   <string name="choosePassageChapterName">Vybrat kapitolu</string>
-  <string name="chapter_no">Kapitola %d</string>
   <string name="search_index">Vyhledávací index</string>
   <string name="index_creation_required">"Pro hledání je nutný index.\n\nIndexy lze stáhnout z Internetu nebo vytvořit lokálně.\n\nStáhnutí je mnohem rychlejší a stáhnuté indexy obsahují více vyhledávacích vlastností.\n\nKe stáhnutí indexů je vyžadováno internetové připojení.\n"</string>
   <string name="indexing_wait_msg">Až bude indexace dokončena tak se zobrazí obrazovka pro hledání.</string>
@@ -148,4 +147,18 @@
   <string name="all_greek_occurrences">Najít všechny výskyty</string>
   <string name="all_hebrew_occurrences">Najít všechny výskyty</string>
   <string name="no_indexed_bible_with_strongs_ref">Je potřeba stáhnout Bibli, obsahující Strongova čísla a také stáhnout k této Bibli index pro vyhledávání</string>
-<string name="delete_index">Smazat vyhledávací index</string><string name="delete_search_index_doc">Smazat index k %s?</string><string name="morph_robinson_not_installed">Stáhněte si prosím slovník \'Robinson\'s Morphological Analysis Codes\'</string><string name="prefs_show_morphology_summary">Zobrazit Robinsonovu řeckou morfologie</string><string name="prefs_show_morphology_title">Morphological codes</string></resources>
+  <string name="delete_index">Smazat vyhledávací index</string>
+  <string name="delete_search_index_doc">Smazat index k %s?</string>
+  <string name="morph_robinson_not_installed">Stáhněte si prosím slovník \'Robinson\'s Morphological Analysis Codes\'</string>
+  <string name="prefs_show_morphology_summary">Zobrazit Robinsonovu řeckou morfologie</string>
+  <string name="prefs_show_morphology_title">Morphological codes</string>
+  <string name="choosePassageVerseName">Vybrat verš</string>
+  <string name="one_chapter">Kapitola %d</string>
+  <string name="one_page">Strana %d</string>
+  <string name="one_verse">Verš %d</string>
+  <string name="prefs_navigate_to_verse_summary">Zadávat i verš při výběru pasáže</string>
+  <string name="prefs_navigate_to_verse_title">Přejít na verš</string>
+  <string name="some_chapters">%d kapitol</string>
+  <string name="some_pages">%d stran</string>
+  <string name="some_verses">%d veršů</string>
+</resources>
