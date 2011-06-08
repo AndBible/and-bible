@@ -136,4 +136,4 @@
   <string name="choosePassageVerseName">Valitse jae</string>
   <string name="prefs_navigate_to_verse_summary">Poraudu jakeeseen saakka navigoidessa</string>
   <string name="prefs_navigate_to_verse_title">Navigoi jakeeseen</string>
-</resources>
+<string name="one_chapter">%d luku</string><string name="one_page">%d sivu</string><string name="one_verse">%d jae</string><string name="some_chapters">%d lukua</string><string name="some_pages">%d sivua</string><string name="some_verses">%d jaetta</string></resources>
