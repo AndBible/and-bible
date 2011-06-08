@@ -74,7 +74,7 @@
   <!-- Module download -->
   <string name="download">Télécharger documents</string>
   <string name="download_confirmation">Télécharger des documents à partir d\'Internet?</string>
-  <string name="download_source_message">Les documents sont téléchargés à partir de\nhttp://www.crosswire.org et http://xiphos.org</string>
+  <string name="download_source_message">Les documents sont téléchargés à partir de\nhttp://www.crosswire.org &amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Télécharger "</string>
   <string name="refresh_book_list">Rafraîchir la liste des documents disponibles?</string>
   <string name="error_downloading">Une erreur est apparue pendant le téléchargement. Vérifiez votre connexion internet.</string>
