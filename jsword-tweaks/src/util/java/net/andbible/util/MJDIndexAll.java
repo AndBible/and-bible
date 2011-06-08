@@ -1,7 +1,6 @@
 package net.andbible.util;
 
 
-
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -17,16 +16,15 @@ import org.apache.lucene.LucenePackage;
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.util.Version;
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
 import org.crosswire.jsword.book.Books;
-import org.crosswire.jsword.book.FeatureType;
 import org.crosswire.jsword.bridge.BookIndexer;
 import org.crosswire.jsword.bridge.BookInstaller;
 import org.crosswire.jsword.index.IndexManager;
 import org.crosswire.jsword.index.IndexManagerFactory;
 import org.crosswire.jsword.index.IndexStatus;
-import org.crosswire.jsword.passage.Key;
 
 public class MJDIndexAll {
 
@@ -46,9 +44,9 @@ public class MJDIndexAll {
 	
     public static void main(String[] args) {
     	MJDIndexAll indexAll = new MJDIndexAll();
-    	indexAll.validateIndex("FreBBB");
-    	indexAll.validateIndex("SpaRV");
-//  	indexAll.updateCachedRepoBookList();
+//    	indexAll.validateIndex("OSMHB");
+    	indexAll.validateAllIndexes();
+//    	indexAll.updateCachedRepoBookList();
 //    	indexAll.setupDirs();
 //    	indexAll.showInstalledBooks();
 //    	indexAll.showRepoBooks();
@@ -85,46 +83,33 @@ public class MJDIndexAll {
     	//uploaded 14.5.2010
 //    	indexAll.installAndIndexSingleBook("RUSVZh");  //is this broken
 
+    	// 8/6/11 books without Feature=Strongs but with Strongs
+//    	indexAll.indexSingleBook("OSMHB");
+//    	indexAll.indexSingleBook("RWebster");
+//    	indexAll.indexSingleBook("RST");
+//    	indexAll.indexSingleBook("SpaTDP");
+//    	indexAll.indexSingleBook("Byz");
     }
     
 	public void validateAllIndexes() {
 		List<Book> bibles = Books.installed().getBooks(BookFilters.getBibles());
 		
 		for (Book book : bibles) {
-			try {
-				if (book.hasFeature(FeatureType.STRONGS_NUMBERS)) {
-					if (!book.getIndexStatus().equals(IndexStatus.DONE)) {
-						System.out.println("Unindexed:"+book);
-					} else {
-						Key resultsH = book.find("strong:h3068");
-						Key resultsG = book.find("strong:g746");
-						if (resultsH.getCardinality()==0 && resultsG.getCardinality()==0) {
-							System.out.println("No refs returned in"+book.getInitials());
-						} else {
-							System.out.println("Ok:"+book.getInitials());
-						}
-	//					assertTrue("No refs returned in"+book.getInitials(), resultsH.getCardinality()>0 || resultsG.getCardinality()>0);
-					}
-				}
-			} catch (Exception e) {
-				System.out.println("Error:"+book.getInitials()+":"+e.getMessage());
-			}
+			validateIndex(book);
 		}
 	}
 
 	public void validateIndex(String bookInitials) {
-		Book book = Books.installed().getBook(bookInitials);
-		
+		validateIndex(Books.installed().getBook(bookInitials));
+	}
+	
+	public void validateIndex(Book book) {
 		try {
-			Key key = book.find("noah");
-			
-			if (book.hasFeature(FeatureType.STRONGS_NUMBERS)) {
+			if (hasStrongs(book)) {
 				if (!book.getIndexStatus().equals(IndexStatus.DONE)) {
 					System.out.println("Unindexed:"+book);
 				} else {
-					Key resultsH = book.find("strong:h3068");
-					Key resultsG = book.find("strong:g746");
-					if (resultsH.getCardinality()==0 && resultsG.getCardinality()==0) {
+					if (!checkStrongs(book)) {
 						System.out.println("No refs returned in"+book.getInitials());
 					} else {
 						System.out.println("Ok:"+book.getInitials());
@@ -136,6 +121,25 @@ public class MJDIndexAll {
 			System.out.println("Error:"+book.getInitials()+":"+e.getMessage());
 		}
 
+	}
+
+	private boolean hasStrongs(Book book) {
+		Object globalOptionFilter = book.getBookMetaData().getProperty("GlobalOptionFilter");
+		return globalOptionFilter==null ? false : globalOptionFilter.toString().contains("Strongs"); 
+	}
+
+	/** ensure a book is indexed and the index contains typical Greek or Hebrew Strongs Numbers
+	 */
+	private boolean checkStrongs(Book bible) {
+		try {
+			return bible.getIndexStatus().equals(IndexStatus.DONE) &&
+				   (bible.find("+[Gen 1:1] strong:h7225").getCardinality()>0 ||
+					bible.find("+[John 1:1] strong:g746").getCardinality()>0 ||
+					bible.find("+[Gen 1:1] strong:g746").getCardinality()>0);
+		} catch (BookException be) {
+			System.out.println("Error checking strongs numbers: "+ be.getMessage());
+			return false;
+		}
 	}
 
 	private void updateCachedRepoBookList() {
