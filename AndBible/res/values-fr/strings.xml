@@ -55,7 +55,7 @@
   <string name="prefs_show_notes_title">Notes</string>
   <string name="prefs_show_notes_summary">Afficher les notes</string>
   <string name="prefs_show_strongs_title">Afficher les numéros Strong</string>
-  <string name="prefs_show_strongs_summary">Liens vers les définitions grec et hébreu</string>
+  <string name="prefs_show_strongs_summary">Liens vers les définitions grec &amp; hébreu</string>
   <string name="prefs_night_mode_title">Mode nuit</string>
   <string name="prefs_night_mode_summary">Pour une lecture plus facile dans le noir</string>
   <string name="prefs_text_size_title">Taille du texte</string>
