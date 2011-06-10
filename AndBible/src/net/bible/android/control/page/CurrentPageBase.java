@@ -8,6 +8,7 @@ import net.bible.android.control.PassageChangeMediator;
 import net.bible.service.sword.SwordApi;
 
 import org.apache.commons.lang.StringUtils;
+import org.crosswire.common.activate.Activator;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
@@ -114,6 +115,7 @@ abstract class CurrentPageBase implements CurrentPage {
 	 */
 	@Override
 	public void setCurrentDocument(Book doc) {
+		Log.d(TAG, "Set current doc to "+doc);
 		Book prevDoc = currentDocument;
 		
 		if (!doc.equals(currentDocument) && !shareKeyBetweenDocs && getKey()!=null && !doc.contains(getKey())) {
@@ -123,7 +125,7 @@ abstract class CurrentPageBase implements CurrentPage {
 		
 		// try to clear memory to prevent OutOfMemory errors
 		if (!currentDocument.equals(prevDoc)) {
-			prevDoc.deactivate(null);
+			Activator.deactivate(prevDoc);
 		}
 	}
 	
