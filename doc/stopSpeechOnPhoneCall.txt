@@ -1,0 +1,2 @@
+Stop speaking on phone call
+http://stackoverflow.com/questions/1843911/android-detect-when-another-activity-is-launched-or-your-activity-loses-focus
