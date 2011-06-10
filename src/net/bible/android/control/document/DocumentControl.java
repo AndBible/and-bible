@@ -12,6 +12,8 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
 
+import android.util.Log;
+
 public class DocumentControl {
 	
 	/** user wants to change to a different document/module
@@ -48,8 +50,6 @@ public class DocumentControl {
 	}
 
 	/** Suggest an alternative commentary to view or return null
-	 * 
-	 * @return
 	 */
 	public Book getSuggestedCommentary() {
 		CurrentPageManager currentPageManager = ControlFactory.getInstance().getCurrentPageControl();
@@ -57,7 +57,23 @@ public class DocumentControl {
 		Key requiredVerse = getRequiredVerseForSuggestions();
 		return getSuggestedBook(SwordApi.getInstance().getBooks(BookCategory.COMMENTARY), currentCommentary, requiredVerse, currentPageManager.isCommentaryShown());
 	}
+
+	/** Suggest an alternative dictionary to view or return null
+	 */
+	public Book getSuggestedDictionary() {
+		CurrentPageManager currentPageManager = ControlFactory.getInstance().getCurrentPageControl();
+		Book currentDictionary = currentPageManager.getCurrentDictionary().getCurrentDocument();
+		return getSuggestedBook(SwordApi.getInstance().getBooks(BookCategory.DICTIONARY), currentDictionary, null, currentPageManager.isDictionaryShown());
+	}
 	
+	/** Suggest an alternative dictionary to view or return null
+	 */
+	public Book getSuggestedGenBook() {
+		CurrentPageManager currentPageManager = ControlFactory.getInstance().getCurrentPageControl();
+		Book currentBook = currentPageManager.getCurrentGeneralBook().getCurrentDocument();
+		return getSuggestedBook(SwordApi.getInstance().getBooks(BookCategory.GENERAL_BOOK), currentBook, null, currentPageManager.isGenBookShown());
+	}
+
 	/** possible books will often not include the current verse but most will include chap 1 verse 1
 	 */
 	private Key getRequiredVerseForSuggestions() {
@@ -73,7 +89,7 @@ public class DocumentControl {
 	private Book getSuggestedBook(List<Book> books, Book currentDocument, Key requiredKey, boolean isBookTypeShownNow) {
 		Book suggestion = null;
 		if (!isBookTypeShownNow) {
-			// allow easy switch back to bible view
+			// allow easy switch back to current doc
 			suggestion = currentDocument;
 		} else {
 			// only suggest alternative if more than 1
@@ -89,7 +105,7 @@ public class DocumentControl {
 				// find the next doc containing related content e.g. if in NT then don't show TDavid
 				for (int i=0; i<books.size()-1 && suggestion==null; i++) {
 					Book possibleDoc = books.get((currentDocIndex+i+1)%books.size());
-					if (possibleDoc.contains(requiredKey)) {
+					if (requiredKey==null || possibleDoc.contains(requiredKey)) {
 						 suggestion = possibleDoc;
 					}
 				}

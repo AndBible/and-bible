@@ -24,6 +24,7 @@ package org.crosswire.jsword.index.lucene;
 import java.io.IOException;
 import java.net.URI;
 
+import org.crosswire.common.activate.Activator;
 import org.crosswire.common.util.CWProject;
 import org.crosswire.common.util.Logger;
 import org.crosswire.common.util.NetUtil;
@@ -62,9 +63,8 @@ public class PdaLuceneIndexManager  {
                     // We were successful if the directory exists.
                     if (NetUtil.getAsFile(storage).exists()) {
                         finalStatus = IndexStatus.DONE;
-                        book.deactivate(null);
-                        book.activate(null);
-//                        INDEXES.put(book, index);
+                        Activator.deactivate(book);
+                        Activator.activate(book);
                     }
                 } catch (IOException e) {
                 	System.out.println("error"+e.getMessage());

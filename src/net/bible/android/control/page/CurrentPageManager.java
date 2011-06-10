@@ -65,17 +65,18 @@ public class CurrentPageManager {
 	
 	public CurrentPage setCurrentDocument(Book currentBook) {
 		PassageChangeMediator.getInstance().onBeforeCurrentPageChanged();
-
+		
 		CurrentPage nextPage = getBookPage(currentBook.getBookCategory());
-		if (nextPage!=null) {
-			// must be in this order because History needs to grab the current doc before change
-			nextPage.setCurrentDocument(currentBook);
-			currentDisplayedPage = nextPage;
-		}
+
+		boolean sameDoc = currentBook.equals(nextPage.getCurrentDocument());
+		
+		// must be in this order because History needs to grab the current doc before change
+		nextPage.setCurrentDocument(currentBook);
+		currentDisplayedPage = nextPage;
 		
 		// page will change due to above
-		// if there is a valid share key then show the page straight away
-		if (nextPage.isShareKeyBetweenDocs()) {
+		// if there is a valid share key or the doc (hence the key) in the next page is the same then show the page straight away
+		if (nextPage.isShareKeyBetweenDocs() || sameDoc) {
 			PassageChangeMediator.getInstance().onCurrentPageChanged();
 		} else {
 			Context context = CurrentActivityHolder.getInstance().getCurrentActivity();
@@ -163,6 +164,12 @@ public class CurrentPageManager {
 	}
 	public boolean isBibleShown() {
 		return currentBiblePage == currentDisplayedPage;
+	}
+	public boolean isDictionaryShown() {
+		return currentDictionaryPage == currentDisplayedPage;
+	}
+	public boolean isGenBookShown() {
+		return currentGeneralBookPage == currentDisplayedPage;
 	}
 	public void showBible() {
 		PassageChangeMediator.getInstance().onBeforeCurrentPageChanged();

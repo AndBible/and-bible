@@ -29,7 +29,7 @@
 		<item name="android:paddingRight">10dip</item>
 		<item name="android:paddingBottom">0dip</item>
 		<item name="android:paddingTop">0dip</item>
-		<item name="android:layout_marginBottom">2dip</item>
+		<item name="android:layout_marginBottom">1dip</item>
     </style>
 
     <style name="ChoosePassageBookGridFont">

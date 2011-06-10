@@ -2,4 +2,7 @@
 <resources>
 	<!-- number of breaks at bottom to allow selection of last verse -->
 	<integer name="br_count_at_bottom">41</integer>
+
+	<!--  number of buttons varies depending on screen size and orientation -->
+	<integer name="number_of_quick_buttons">4</integer>
 </resources>

@@ -3,7 +3,12 @@ package net.bible.android.control.page;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.bible.android.activity.R;
+import net.bible.android.view.activity.base.Dialogs;
+
 import org.apache.commons.lang.StringUtils;
+import org.crosswire.common.activate.Activator;
+import org.crosswire.common.activate.Kill;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
@@ -13,7 +18,7 @@ abstract public class CachedKeyPage extends CurrentPageBase  {
 
 	private List<Key> mCachedGlobalKeyList;
 
-	private static String TAG = "CachedKeyBase";
+	private static String TAG = "CachedKeyPage";
 	
 	CachedKeyPage(boolean shareKeyBetweenDocs) {
 		super(shareKeyBetweenDocs);
@@ -36,20 +41,27 @@ abstract public class CachedKeyPage extends CurrentPageBase  {
 	public List<Key> getCachedGlobalKeyList() {
 		if (getCurrentDocument()!=null && mCachedGlobalKeyList==null) {
 			try {
-				Log.d(TAG, "Start to create cached key list");
+				Log.d(TAG, "Start to create cached key list for "+getCurrentDocument());
 				// this cache is cleared in setCurrentDoc
 		    	mCachedGlobalKeyList = new ArrayList<Key>();
+
 		    	for (Key key : getCurrentDocument().getGlobalKeyList()) {
 		    		// root key has no name and can be ignored but also check for any other keys with no name
 		    		if (!StringUtils.isEmpty(key.getName())) {
 						mCachedGlobalKeyList.add(key);
 		    		}
 		    	}
+
 			} catch (OutOfMemoryError oom) {
 				mCachedGlobalKeyList = null;
 				System.gc();
 				Log.e(TAG, "out of memory", oom);
 				throw oom;
+			} catch (Exception e) {
+				mCachedGlobalKeyList = null;
+				System.gc();
+				Log.e(TAG, "Error getting keys for "+getCurrentDocument(), e);
+				Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
 			}
 			Log.d(TAG, "Finished creating cached key list len:"+mCachedGlobalKeyList.size());
 		}

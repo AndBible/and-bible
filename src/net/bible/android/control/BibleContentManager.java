@@ -12,6 +12,8 @@ import net.bible.service.format.Note;
 import net.bible.service.sword.SwordApi;
 
 import org.apache.commons.lang.StringUtils;
+import org.crosswire.common.activate.Activator;
+import org.crosswire.common.activate.Kill;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
@@ -100,6 +102,7 @@ public class BibleContentManager {
         		text = "Error getting bible text: "+e.getMessage();
 	    	} catch (OutOfMemoryError oom) {
 	    		Log.e(TAG, "Out of memory error", oom);
+	    		System.gc();
 	    		text = "Error: document section is too large.";
 	    	}
         	return text;
