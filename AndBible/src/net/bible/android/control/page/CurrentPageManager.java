@@ -63,20 +63,21 @@ public class CurrentPageManager {
 		return currentGeneralBookPage;
 	}
 	
-	public CurrentPage setCurrentDocument(Book currentBook) {
+	public CurrentPage setCurrentDocument(Book nextDocument) {
 		PassageChangeMediator.getInstance().onBeforeCurrentPageChanged();
 		
-		CurrentPage nextPage = getBookPage(currentBook.getBookCategory());
+		CurrentPage nextPage = getBookPage(nextDocument.getBookCategory());
 
-		boolean sameDoc = currentBook.equals(nextPage.getCurrentDocument());
+		// is the next doc the same as the prev doc
+		boolean sameDoc = nextDocument.equals(nextPage.getCurrentDocument());
 		
 		// must be in this order because History needs to grab the current doc before change
-		nextPage.setCurrentDocument(currentBook);
+		nextPage.setCurrentDocument(nextDocument);
 		currentDisplayedPage = nextPage;
 		
 		// page will change due to above
 		// if there is a valid share key or the doc (hence the key) in the next page is the same then show the page straight away
-		if (nextPage.isShareKeyBetweenDocs() || sameDoc) {
+		if ((nextPage.isShareKeyBetweenDocs() || sameDoc) && nextPage.getKey()!=null) {
 			PassageChangeMediator.getInstance().onCurrentPageChanged();
 		} else {
 			Context context = CurrentActivityHolder.getInstance().getCurrentActivity();
