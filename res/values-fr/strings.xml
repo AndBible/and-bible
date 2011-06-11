@@ -155,6 +155,6 @@
   <string name="prefs_show_morphology_summary">Afficher la morphologie grecque de Robinson</string>
   <string name="prefs_show_morphology_title">Codes morphologiques</string>
   <string name="choosePassageVerseName">Choisissez Verset</string>
-  <string name="prefs_navigate_to_verse_summary">Basculer en mode navigation par verset</string>
+  <string name="prefs_navigate_to_verse_summary">Choisissez le verset (et le chapitre) lors de la sélection d\'un passage</string>
   <string name="prefs_navigate_to_verse_title">Aller au verset</string>
 <string name="one_chapter">%d chapitre</string><string name="one_page">%d page</string><string name="one_verse">%d verset</string><string name="some_chapters">%d chaptitres</string><string name="some_pages">%d pages</string><string name="some_verses">%d versets</string></resources>
