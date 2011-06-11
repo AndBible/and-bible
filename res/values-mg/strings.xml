@@ -57,7 +57,7 @@
   <string name="prefs_show_notes_title">Naoty</string>
   <string name="prefs_show_notes_summary">Asehoy ny naoty</string>
   <string name="prefs_show_strongs_title">Show Strong\'s numbers</string>
-  <string name="prefs_show_strongs_summary">Links to Greek &amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp; Hebrew definitions</string>
+  <string name="prefs_show_strongs_summary">Links to Greek &amp; Hebrew definitions</string>
   <string name="prefs_night_mode_title">Night mode</string>
   <string name="prefs_night_mode_summary">Mba hanamora ny famakian-teny anaty maizina</string>
   <string name="prefs_text_size_title">Haben\'ny andalan-tsoratra</string>
@@ -79,7 +79,7 @@
   <!-- Module download -->
   <string name="download">Download Documents</string>
   <string name="download_confirmation">Download a bible from the internet?</string>
-  <string name="download_source_message">Documents are downloaded from\nhttp://www.crosswire.org\n&amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp;amp; http://xiphos.org</string>
+  <string name="download_source_message">Documents are downloaded from\nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Download "</string>
   <string name="refresh_book_list">Refresh list of available documents?</string>
   <string name="error_downloading">An error occurred downloading. Please check your internet connection.</string>

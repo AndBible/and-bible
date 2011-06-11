@@ -54,7 +54,7 @@
   <string name="prefs_show_notes_title">Notas</string>
   <string name="prefs_show_notes_summary">Mostrar notas</string>
   <string name="prefs_show_strongs_title">Mostrar números do dicionário Strong</string>
-  <string name="prefs_show_strongs_summary">Links para definições em grego &amp;amp;amp;amp; hebraico</string>
+  <string name="prefs_show_strongs_summary">Links para definições em grego &amp; hebraico</string>
   <string name="prefs_night_mode_title">Modo noturno</string>
   <string name="prefs_night_mode_summary">Para uma melhor leitura no escuro</string>
   <string name="prefs_text_size_title">Tamanho do texto</string>
