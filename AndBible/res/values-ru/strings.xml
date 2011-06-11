@@ -54,7 +54,7 @@
   <string name="prefs_show_notes_title">Заметки</string>
   <string name="prefs_show_notes_summary">Показывать заметки</string>
   <string name="prefs_show_strongs_title">" Числа Стронга"</string>
-  <string name="prefs_show_strongs_summary">Отображать ссылки к определениям на греческом &amp;amp; и иврите</string>
+  <string name="prefs_show_strongs_summary">Отображать ссылки к определениям на греческом &amp; и иврите</string>
   <string name="prefs_night_mode_title">Ночной режим</string>
   <string name="prefs_night_mode_summary">Для более легкого чтения в темноте</string>
   <string name="prefs_text_size_title">Размер текста</string>
@@ -73,7 +73,7 @@
   <!-- Module download -->
   <string name="download">Скачать документы</string>
   <string name="download_confirmation">Скачать Библию с Интернета?</string>
-  <string name="download_source_message">Идет подключение к \nhttp://www.crosswire.org\n&amp;amp; http://xiphos.org</string>
+  <string name="download_source_message">Идет подключение к \nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Скачать "</string>
   <string name="refresh_book_list">Обновить список доступных книг?</string>
   <string name="error_downloading">Произошла ошибка. Проверьте подключение к Интернету.</string>

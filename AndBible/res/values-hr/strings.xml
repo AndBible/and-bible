@@ -65,7 +65,7 @@
     <string name="prefs_show_notes_title">Bilješke</string>
     <string name="prefs_show_notes_summary">Prikaži bilješke</string>
     <string name="prefs_show_strongs_title">Prikaži Strong\'s brojeve</string>
-    <string name="prefs_show_strongs_summary">Poveznice na Grčke &amp;amp; Hebrejske definicije</string>
+    <string name="prefs_show_strongs_summary">Poveznice na Grčke &amp; Hebrejske definicije</string>
     <string name="prefs_show_morphology_title">Morfološki kodovi</string>
     <string name="prefs_show_morphology_summary">Prikaži Robinsonovu Grčku morfologiju</string>
     <string name="prefs_night_mode_title">Noćni prikaz</string>

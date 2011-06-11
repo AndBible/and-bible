@@ -54,7 +54,7 @@
   <string name="prefs_show_notes_title">Pastabos</string>
   <string name="prefs_show_notes_summary">Rodyti pastabas</string>
   <string name="prefs_show_strongs_title">Rodyti Strongo numerius</string>
-  <string name="prefs_show_strongs_summary">Nuorodos į graikų &amp;amp; hebrajų apibrėžimus</string>
+  <string name="prefs_show_strongs_summary">Nuorodos į graikų &amp; hebrajų apibrėžimus</string>
   <string name="prefs_night_mode_title">Naktinė veiksena</string>
   <string name="prefs_night_mode_summary">Lengvesniam skaitymui tamsoje</string>
   <string name="prefs_text_size_title">Teksto dydis</string>

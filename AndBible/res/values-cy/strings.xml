@@ -76,7 +76,7 @@
   <!-- Module download -->
   <string name="download">Lawrlwytho Dogfennau</string>
   <string name="download_confirmation">Llwytho Beibl oddi ar y rhyngrwyd?</string>
-  <string name="download_source_message">Dogfennau yn cael eu lawrlwytho o http://www.crosswire.org &amp;amp;amp; http://xiphos.org</string>
+  <string name="download_source_message">Dogfennau yn cael eu lawrlwytho o http://www.crosswire.org &amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Lawrlwytho"</string>
   <string name="refresh_book_list">Adnewyddu\'r rhestr dogfennau sydd ar gael?</string>
   <string name="error_downloading">Gwall wrth lawrlwytho. Ydy\'ch cysylltiad rhyngrwyd yn gweithio?</string>
