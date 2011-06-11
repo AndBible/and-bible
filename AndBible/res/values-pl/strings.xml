@@ -151,6 +151,6 @@
   <string name="delete_index">Usuń indeks wyszukiwań</string>
   <string name="delete_search_index_doc">Czy usunąć indeks dla %s ?</string>
   <string name="choosePassageVerseName">Wybierz werset</string>
-  <string name="prefs_navigate_to_verse_summary">Rozbij werset podczas nawigacji</string>
+  <string name="prefs_navigate_to_verse_summary">Wybierz werset podczas zaznaczania fragmentu</string>
   <string name="prefs_navigate_to_verse_title">Przejdź do wersetu</string>
 <string name="one_chapter">%d rozdział</string><string name="one_page">%d strona</string><string name="one_verse">%d werset</string><string name="some_chapters">%d rozdziałów</string><string name="some_pages">%d stron</string><string name="some_verses">%d wersetów</string></resources>
