@@ -65,7 +65,7 @@
     <string name="prefs_show_notes_title">Piezīmes</string>
     <string name="prefs_show_notes_summary">Rādīt piezīmes</string>
     <string name="prefs_show_strongs_title">Rādīt Strong\'s numerāciju</string>
-    <string name="prefs_show_strongs_summary">Saites uz Grieķu &amp;amp;amp; Ebreju definīcijām</string>
+    <string name="prefs_show_strongs_summary">Saites uz Grieķu &amp;amp;amp;amp; Ebreju definīcijām</string>
     <string name="prefs_show_morphology_title">Morfoloģiskie kodi</string>
     <string name="prefs_show_morphology_summary">Rādīt Robinson\'s Grieķu morfoloģiju</string>
     <string name="prefs_night_mode_title">Nakts režīms</string>
@@ -95,7 +95,7 @@
     <!-- Module download -->
     <string name="download">Lejuplādēt Dokumentus</string>
     <string name="download_confirmation">Lejuplādēt Bībeli no interneta?</string>
-    <string name="download_source_message">Dokumenti ir lejuplādēti no\nhttp://www.crosswire.org\n&amp;amp;amp;amp;amp; http://xiphos.org</string>
+    <string name="download_source_message">Dokumenti ir lejuplādēti no\nhttp://www.crosswire.org\n&amp;amp;amp;amp;amp;amp; http://xiphos.org</string>
     <string name="download_document_confirm_prefix">"Lejuplādēt"</string>
     <string name="refresh_book_list">Atsvaidzināt sarakstu ar pieejamajiem dokumentiem?</string>
     <string name="error_downloading">Kļūda lejupielādējot. Lūdzu, pārbaudiet savu interneta pieslēgumu.</string>
@@ -180,4 +180,4 @@
     <string name="retry">Mēģināt vēlreiz</string>
     <string name="please_wait">Lūdzu, uzgaidiet ...</string>
     <string name="all">Viss</string>
-</resources>
+<string name="one_chapter">%d nodaļa</string><string name="one_page">%d lapa</string><string name="one_verse">%d pants</string><string name="some_chapters">%d nodaļas</string><string name="some_pages">%d lapas</string><string name="some_verses">%d panti</string></resources>
