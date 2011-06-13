@@ -153,6 +153,6 @@
   <string name="delete_index">Suchindex löschen</string>
   <string name="delete_search_index_doc">Index von %s löschen?</string>
   <string name="choosePassageVerseName">Vers wählen</string>
-  <string name="prefs_navigate_to_verse_summary">Zum Vers hinunterscrollen</string>
+  <string name="prefs_navigate_to_verse_summary">Vers (und Kapitel) auswählen</string>
   <string name="prefs_navigate_to_verse_title">Zum Vers wechseln</string>
 <string name="one_chapter">Kapitel %d</string><string name="one_page">Seite %</string><string name="one_verse">Vers %d</string><string name="some_chapters">%d Kapitel</string><string name="some_pages">%d Seiten</string><string name="some_verses">%d Verse</string></resources>
