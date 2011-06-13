@@ -134,6 +134,6 @@
   <string name="prefs_show_morphology_summary">Näytä Robinsonin kreikankielen morfologia</string>
   <string name="prefs_show_morphology_title">Morfologiset koodit</string>
   <string name="choosePassageVerseName">Valitse jae</string>
-  <string name="prefs_navigate_to_verse_summary">Poraudu jakeeseen saakka navigoidessa</string>
+  <string name="prefs_navigate_to_verse_summary">Valitse jae (ja luku) kohtaa valitsessa</string>
   <string name="prefs_navigate_to_verse_title">Navigoi jakeeseen</string>
 <string name="one_chapter">%d luku</string><string name="one_page">%d sivu</string><string name="one_verse">%d jae</string><string name="some_chapters">%d lukua</string><string name="some_pages">%d sivua</string><string name="some_verses">%d jaetta</string></resources>
