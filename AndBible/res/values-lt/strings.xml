@@ -154,6 +154,6 @@
   <string name="delete_index">Pašalinti paieškos indeksą</string>
   <string name="delete_search_index_doc">Pašalinti %s indeksą?</string>
   <string name="choosePassageVerseName">Rinktis eilutę</string>
-  <string name="prefs_navigate_to_verse_summary">Nukreipia į konkrečią eilutę, o ne skyrių</string>
+  <string name="prefs_navigate_to_verse_summary">Pasirinkite eilutę (ir skyrių) renkantis ištrauką</string>
   <string name="prefs_navigate_to_verse_title">Nukreipti į eilutę</string>
 <string name="one_chapter">%d skyrius</string><string name="one_page">%d puslapis</string><string name="one_verse">%d eilutė</string><string name="some_chapters">%d skyriai</string><string name="some_pages">%d puslapiai</string><string name="some_verses">%d eilutės</string></resources>
