@@ -8,6 +8,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -98,6 +99,7 @@ public class ButtonGrid extends TableLayout {
 					// create a graphical Button View object to show on the screen and link it to the ButtonInfo object
 					ButtonInfo buttonInfo = buttonInfoList.get(iCellNo);
 					Button button = new Button(mContext);
+					button.setTextSize(TypedValue.COMPLEX_UNIT_SP, getResources().getInteger(R.integer.grid_cell_text_size_sp));
 					button.setText(buttonInfo.name);
 					button.setBackgroundResource(R.drawable.buttongrid_button_background);
 					button.setTextColor(buttonInfo.textColor);

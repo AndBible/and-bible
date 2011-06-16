@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+	<integer name="grid_cell_text_size_sp">21</integer>
+	
+</resources>
