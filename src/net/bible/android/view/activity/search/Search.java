@@ -5,8 +5,11 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.search.SearchControl.SearchBibleSection;
 import net.bible.android.view.activity.base.ActivityBase;
+import net.bible.android.view.activity.base.Callback;
+import net.bible.android.view.activity.base.Dialogs;
 
 import org.apache.commons.lang.StringUtils;
+import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.index.search.SearchType;
 
 import android.app.Activity;
@@ -46,6 +49,15 @@ public class Search extends ActivityBase {
         
         setIntegrateWithHistoryManager(true);
    
+        if (!searchControl.validateIndex(getDocumentToSearch())) {
+    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, new Callback() {
+    			@Override
+    			public void okay() {
+    				finish();
+    			}
+    		});
+        }
+        
         mSearchTextInput =  (EditText)findViewById(R.id.searchText);
         mSearchTextInput.setOnKeyListener(new OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -99,14 +111,23 @@ public class Search extends ActivityBase {
     		
         	searchText = decorateSearchString(searchText);
         	Log.d(TAG, "Search text:"+searchText);
-        	
+
+        	// specify search string and doc in new Intent; 
+        	// if doc is not specifed a, possibly invalid, doc may be used when returning to search via history list e.g. search bible, select dict, history list, search results
         	Intent intent = new Intent(this, SearchResults.class);
         	intent.putExtra(SearchControl.SEARCH_TEXT, searchText);
+        	String currentDocInitials = getDocumentToSearch().getInitials();
+        	intent.putExtra(SearchControl.SEARCH_DOCUMENT, currentDocInitials);
+        	intent.putExtra(SearchControl.TARGET_DOCUMENT, currentDocInitials);
         	startActivityForResult(intent, 1);
         	
         	// Back button is now handled by HistoryManager - Back will cause a new Intent instead of just finish
         	finish();
     	}
+    }
+    
+    private Book getDocumentToSearch() {
+    	return ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument();
     }
     
     private String decorateSearchString(String searchString) {
@@ -146,7 +167,10 @@ public class Search extends ActivityBase {
     		return SearchBibleSection.ALL;
     	}
     }
-    
+
+    /** I don't think this is used because of hte finish() in onSearch()
+     * TODO remove
+     */
 	@Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
     	if (resultCode==Activity.RESULT_OK) {

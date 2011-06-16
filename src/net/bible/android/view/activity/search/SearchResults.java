@@ -6,6 +6,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.search.SearchControl;
+import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.sword.SwordApi;
@@ -14,8 +15,6 @@ import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -82,8 +81,13 @@ public class SearchResults extends ListActivityBase {
 			isOk = true;
     	} catch (Exception e) {
     		Log.e(TAG, "Error processing search query", e);
-    		Dialogs.getInstance().showErrorMsg(R.string.error_executing_search);
     		isOk = false;
+    		Dialogs.getInstance().showErrorMsg(R.string.error_executing_search, new Callback() {
+    			@Override
+    			public void okay() {
+    				goBack();
+    			}
+    		});
     	}
     	return isOk;
     }

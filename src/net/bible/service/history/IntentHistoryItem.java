@@ -44,6 +44,7 @@ public class IntentHistoryItem implements HistoryItem {
 	@Override
 	public void revertTo() {
 		Log.d(TAG, "Revert to history item:"+description);
+		// need to get current activity and call startActivity on that 
 		Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
 
 		// start activity chosen from activity
