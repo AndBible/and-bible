@@ -302,6 +302,8 @@ public class SwordApi {
 			// we have a fast way of handling OSIS zText docs but WEB/HNV needs the superior JSword error recovery for mismatching tags 
 			if ("OSIS".equals(book.getBookMetaData().getProperty("SourceType")) &&
 				"zText".equals(book.getBookMetaData().getProperty("ModDrv")) &&
+				!"FreCrampon".equals(book.getInitials()) &&
+				!"AB".equals(book.getInitials()) &&
 				!"WEB".equals(book.getInitials()) &&
 				!"HNV".equals(book.getInitials())) {
 				retVal = readHtmlTextOptimizedZTextOsis(book, key, maxKeyCount);
