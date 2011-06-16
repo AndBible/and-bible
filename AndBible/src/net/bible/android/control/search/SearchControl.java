@@ -64,7 +64,11 @@ public class SearchControl {
     	    return new Intent(currentActivity, SearchIndex.class);
     	}
     }
-	
+
+    public boolean validateIndex(Book document) {
+    	return document.getIndexStatus().equals(IndexStatus.DONE);
+    }
+    
     public String decorateSearchString(String searchString, SearchType searchType, SearchBibleSection bibleSection) {
     	String cleanSearchString = cleanSearchString(searchString);
     	
