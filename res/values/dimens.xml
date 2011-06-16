@@ -22,9 +22,11 @@
 	<dimen name="title_bar_title_width">130dip</dimen>
 
 	<!-- number of breaks at bottom to allow selection of last verse -->
-	<integer name="br_count_at_bottom">13</integer>
+	<integer name="br_count_at_bottom">14</integer>
 	
 	<!--  number of buttons varies depending on screen size and orientation -->
 	<integer name="number_of_quick_buttons">2</integer>
+	
+	<integer name="grid_cell_text_size_sp">15</integer>
 	
 </resources>

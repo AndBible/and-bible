@@ -5,4 +5,7 @@
 	
 	<!--  number of buttons varies depending on screen size and orientation -->
 	<integer name="number_of_quick_buttons">4</integer>
+	
+	<integer name="grid_cell_text_size_sp">28</integer>
+	
 </resources>

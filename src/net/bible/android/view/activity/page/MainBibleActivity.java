@@ -177,10 +177,10 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     }
 
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
+	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		Log.d(TAG, "Keycode:"+keyCode);
 		// common key handling i.e. KEYCODE_DPAD_RIGHT & KEYCODE_DPAD_LEFT
-		if (BibleKeyHandler.getInstance().onKeyDown(keyCode, event)) {
+		if (BibleKeyHandler.getInstance().onKeyUp(keyCode, event)) {
 			return true;
 		} else if ((keyCode == KeyEvent.KEYCODE_SEARCH && CurrentPageManager.getInstance().getCurrentPage().isSearchable())) {
 			Intent intent = ControlFactory.getInstance().getSearchControl().getSearchIntent(CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument());
@@ -189,7 +189,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 			}
 			return true;
 		}
-		return super.onKeyDown(keyCode, event);
+
+		return super.onKeyUp(keyCode, event);
 	}
     
     @Override 

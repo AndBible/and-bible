@@ -1,5 +1,7 @@
 package net.bible.android.view.activity.base;
 
+import net.bible.android.view.activity.navigation.History;
+import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.android.view.util.UiUtils;
 import net.bible.service.history.HistoryManager;
 import android.app.Activity;
@@ -61,18 +63,45 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 		}
 	}
 
-	/** handle back key here by using the HistoryManager
-     */
+	/**	This will be called automatically for you on 2.0 or later
+	 */
 	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		// common key handling i.e. KEYCODE_DPAD_RIGHT & KEYCODE_DPAD_LEFT
-		if (integrateWithHistoryManager && (keyCode == KeyEvent.KEYCODE_BACK) && HistoryManager.getInstance().canGoBack()) {
-			Log.d(TAG, "Back");
+	public void onBackPressed() {
+		if (integrateWithHistoryManager && HistoryManager.getInstance().canGoBack()) {
+			Log.d(TAG, "Go back");
 			goBack();
+		} else {
+			super.onBackPressed();
+		}
+	}
+	
+	/** called by Android 2.0 +
+	 */
+	@Override
+	public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+		// ignore long press on search because it causes errors
+		if (keyCode == KeyEvent.KEYCODE_SEARCH) {
+	    	// ignore
 			return true;
 		}
 		
-		return super.onKeyDown(keyCode, event);
+		//TODO make Long press work for screens other than main window e.g. does not work from search screen because wrong window is displayed 
+	    if (keyCode == KeyEvent.KEYCODE_BACK && this instanceof MainBibleActivity) {
+			Log.d(TAG, "Back Long");
+	        // a long press of the back key. do our work, returning true to consume it.  by returning true, the framework knows an action has
+	        // been performed on the long press, so will set the cancelled flag for the following up event.
+	    	Intent intent = new Intent(this, History.class);
+	    	startActivityForResult(intent, 1);
+	        return true;
+	    }
+	    
+		//TODO make Long press back - currently the History screen does not show the correct screen after item selection if not called from main window 
+	    if (keyCode == KeyEvent.KEYCODE_BACK) {
+	    	// ignore
+	    	return true;
+	    }
+
+	    return super.onKeyLongPress(keyCode, event);
 	}
 	
 	/** go back to previous screen 
