@@ -1,0 +1,46 @@
+06-16 21:54:53.198: DEBUG/BibleView(4080): Loading html in background
+06-16 21:54:53.198: DEBUG/BibleView(4080): Loading document:AB key:Genesis 2
+06-16 21:54:53.198: DEBUG/net.bible.service.sword.SwordApi(4080): Using fast method to fetch document data
+06-16 21:54:53.198: DEBUG/OsisToHtmlSaxHandler(4080): Show verses:true notes:false
+06-16 21:54:53.288: ERROR/net.bible.service.sword.SwordApi(4080): Parsing error
+06-16 21:54:53.288: ERROR/net.bible.service.sword.SwordApi(4080): org.apache.harmony.xml.ExpatParser$ParseException: At line 1, column 3773: mismatched tag
+06-16 21:54:53.288: ERROR/net.bible.service.sword.SwordApi(4080):     at org.apache.harmony.xml.ExpatParser.parseFragment(ExpatParser.java:520)
+06-16 21:54:53.288: ERROR/net.bible.service.sword.SwordApi(4080):     at org.apache.harmony.xml.ExpatParser.parseDocument(ExpatParser.java:479)
+06-16 21:54:53.288: ERROR/net.bible.service.sword.SwordApi(4080):     at org.apache.harmony.xml.ExpatReader.parse(ExpatReader.java:318)
+06-16 21:54:53.288: ERROR/net.bible.service.sword.SwordApi(4080):     at org.apache.harmony.xml.ExpatReader.parse(ExpatReader.java:275)
+06-16 21:54:53.288: ERROR/net.bible.service.sword.SwordApi(4080):     at javax.xml.parsers.SAXParser.parse(SAXParser.java:390)
+06-16 21:54:53.288: ERROR/net.bible.service.sword.SwordApi(4080):     at javax.xml.parsers.SAXParser.parse(SAXParser.java:187)
+06-16 21:54:53.288: ERROR/net.bible.service.sword.SwordApi(4080):     at net.bible.service.sword.SwordApi.readHtmlTextOptimizedZTextOsis(SwordApi.java:324)
+06-16 21:54:53.288: ERROR/net.bible.service.sword.SwordApi(4080):     at net.bible.service.sword.SwordApi.readHtmlText(SwordApi.java:307)
+06-16 21:54:53.288: ERROR/net.bible.service.sword.SwordApi(4080):     at net.bible.android.control.BibleContentManager$UpdateTextTask.doInBackground(BibleContentManager.java:89)
+06-16 21:54:53.288: ERROR/net.bible.service.sword.SwordApi(4080):     at net.bible.android.control.BibleContentManager$UpdateTextTask.doInBackground(BibleContentManager.java:1)
+06-16 21:54:53.288: ERROR/net.bible.service.sword.SwordApi(4080):     at android.os.AsyncTask$2.call(AsyncTask.java:185)
+06-16 21:54:53.288: ERROR/net.bible.service.sword.SwordApi(4080):     at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:306)
+06-16 21:54:53.288: ERROR/net.bible.service.sword.SwordApi(4080):     at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+06-16 21:54:53.288: ERROR/net.bible.service.sword.SwordApi(4080):     at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1088)
+06-16 21:54:53.288: ERROR/net.bible.service.sword.SwordApi(4080):     at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:581)
+06-16 21:54:53.288: ERROR/net.bible.service.sword.SwordApi(4080):     at java.lang.Thread.run(Thread.java:1019)
+06-16 21:54:53.298: ERROR/BibleView(4080): Error getting bible text
+06-16 21:54:53.298: ERROR/BibleView(4080): net.bible.service.common.ParseException: Parsing error
+06-16 21:54:53.298: ERROR/BibleView(4080):     at net.bible.service.sword.SwordApi.readHtmlTextOptimizedZTextOsis(SwordApi.java:327)
+06-16 21:54:53.298: ERROR/BibleView(4080):     at net.bible.service.sword.SwordApi.readHtmlText(SwordApi.java:307)
+06-16 21:54:53.298: ERROR/BibleView(4080):     at net.bible.android.control.BibleContentManager$UpdateTextTask.doInBackground(BibleContentManager.java:89)
+06-16 21:54:53.298: ERROR/BibleView(4080):     at net.bible.android.control.BibleContentManager$UpdateTextTask.doInBackground(BibleContentManager.java:1)
+06-16 21:54:53.298: ERROR/BibleView(4080):     at android.os.AsyncTask$2.call(AsyncTask.java:185)
+06-16 21:54:53.298: ERROR/BibleView(4080):     at java.util.concurrent.FutureTask$Sync.innerRun(FutureTask.java:306)
+06-16 21:54:53.298: ERROR/BibleView(4080):     at java.util.concurrent.FutureTask.run(FutureTask.java:138)
+06-16 21:54:53.298: ERROR/BibleView(4080):     at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1088)
+06-16 21:54:53.298: ERROR/BibleView(4080):     at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:581)
+06-16 21:54:53.298: ERROR/BibleView(4080):     at java.lang.Thread.run(Thread.java:1019)
+06-16 21:54:53.298: ERROR/BibleView(4080): Caused by: org.apache.harmony.xml.ExpatParser$ParseException: At line 1, column 3773: mismatched tag
+06-16 21:54:53.298: ERROR/BibleView(4080):     at org.apache.harmony.xml.ExpatParser.parseFragment(ExpatParser.java:520)
+06-16 21:54:53.298: ERROR/BibleView(4080):     at org.apache.harmony.xml.ExpatParser.parseDocument(ExpatParser.java:479)
+06-16 21:54:53.298: ERROR/BibleView(4080):     at org.apache.harmony.xml.ExpatReader.parse(ExpatReader.java:318)
+06-16 21:54:53.298: ERROR/BibleView(4080):     at org.apache.harmony.xml.ExpatReader.parse(ExpatReader.java:275)
+06-16 21:54:53.298: ERROR/BibleView(4080):     at javax.xml.parsers.SAXParser.parse(SAXParser.java:390)
+06-16 21:54:53.298: ERROR/BibleView(4080):     at javax.xml.parsers.SAXParser.parse(SAXParser.java:187)
+06-16 21:54:53.298: ERROR/BibleView(4080):     at net.bible.service.sword.SwordApi.readHtmlTextOptimizedZTextOsis(SwordApi.java:324)
+06-16 21:54:53.298: ERROR/BibleView(4080):     ... 9 more
+06-16 21:54:53.308: DEBUG/BibleView(4080): Loading html:Error getting bible text: Parsing error
+06-16 21:54:53.308: DEBUG/BibleView(4080): Show(html,1)
+06-16 21:54:53.318: DEBUG/net.bible.service.sword.SwordApi(4080): Getting bibles
