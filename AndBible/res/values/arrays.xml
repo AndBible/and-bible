@@ -20,11 +20,13 @@
 		<item>@string/lang_welsh</item>
 		<item>@string/lang_german</item>
 		<item>@string/lang_english</item>
+		<item>@string/lang_finnish</item>
 		<item>@string/lang_faroese</item>
 		<item>@string/lang_french</item>
 		<item>@string/lang_hebrew</item>
 		<item>@string/lang_hungarian</item>
 		<item>@string/lang_lithuanian</item>
+		<item>@string/lang_malagasy</item>
 		<item>@string/lang_norwegian</item>
 		<item>@string/lang_polish</item>
 		<item>@string/lang_portuguese</item>
@@ -40,11 +42,13 @@
 		<item>cy</item>
 		<item>de</item>
 		<item>en</item>
+		<item>fi</item>
 		<item>fo</item>
 		<item>fr</item>
 		<item>he</item>
 		<item>hu</item>
 		<item>lt</item>
+		<item>mg</item>
 		<item>nb</item>
 		<item>pl</item>
 		<item>pt</item>

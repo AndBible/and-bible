@@ -4,6 +4,8 @@
  @author Martin Denham [mjdenham at gmail dot com]
  @see gnu.lgpl.License for license details.<br>
       The copyright to this program is held by it's author.
+      
+Look here for language names and codes: http://en.fr.open-tran.eu/
 -->
 <resources>
     <!-- Languages -->
@@ -11,11 +13,13 @@
 	<string name="lang_welsh">cy: Cymraeg</string>
 	<string name="lang_german">de: Deutsch</string>
 	<string name="lang_english">en: English</string>
+	<string name="lang_finnish">fi: Suomi</string>
 	<string name="lang_faroese">fo: Føroyskt</string>
 	<string name="lang_french">fr: Français</string>
 	<string name="lang_hebrew">he: ‫עברית‬</string>
 	<string name="lang_hungarian">hu: Magyar</string>
 	<string name="lang_lithuanian">lt: Lietuvių</string>
+	<string name="lang_malagasy">mg: Malagasy</string>
 	<string name="lang_norwegian">nb: Norsk bokmål</string>
 	<string name="lang_polish">pl: Polski</string>
 	<string name="lang_portuguese">pt: Português</string>
