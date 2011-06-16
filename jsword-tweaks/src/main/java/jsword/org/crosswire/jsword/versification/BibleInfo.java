@@ -819,6 +819,7 @@ public final class BibleInfo {
     private static List<BibleBook> defaultRange;
     static {
         defaultRange = new ArrayList<BibleBook>();
+        //see http://code.google.com/p/android/issues/detail?id=2497
         for (BibleBook bibleBook : EnumSet.range(BibleBook.GEN, BibleBook.REV)) {
             defaultRange.add(bibleBook);
         }
