@@ -128,4 +128,4 @@
   <string name="prefs_navigate_to_verse_title">导航到经文小节标题</string>
   <string name="prefs_show_morphology_summary">显示 Robinson的希腊文</string>
   <string name="prefs_show_morphology_title">形态</string>
-</resources>
+<string name="one_chapter">%d chapter</string><string name="one_page">%d page</string><string name="one_verse">%d verse</string><string name="some_chapters">%d chapters</string><string name="some_pages">%d pages</string><string name="some_verses">%d verses</string></resources>
