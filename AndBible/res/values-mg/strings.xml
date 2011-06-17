@@ -160,4 +160,4 @@
   <string name="choosePassageVerseName">Mifidiana andininy</string>
   <string name="prefs_navigate_to_verse_summary">Drill down to verse when navigating</string>
   <string name="prefs_navigate_to_verse_title">Mandehana any amin\'ny andininy</string>
-</resources>
+<string name="one_chapter">%d chapter</string><string name="one_page">%d page</string><string name="one_verse">%d verse</string><string name="some_chapters">%d chapters</string><string name="some_pages">%d pages</string><string name="some_verses">%d verses</string></resources>
