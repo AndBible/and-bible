@@ -6,176 +6,164 @@
       The copyright to this program is held by it's author.
 -->
 <resources>
-    <string name="app_name">And Bible</string>
-
-	<!-- Startup & Help -->
-    <string name="splash_top_text">\"I reče Bog: \'Neka bude svjetlost\", i bi svjetlost. \" Knjiga Postanka 1:03</string>
-    <string name="help_text">Pritisnite MENU gumb za popis mogućih radnji.\n\nKrenite na sljedeće ili prethodno poglavlje koristeći track-ball, D-pad ili povlačenjem prsta preko ekrana.</string>
-    <string name="help_text_long">Navigacija\nKrenite na sljedeće ili prethodno poglavlje koristeći track-ball, D-pad ili povlačeći prst preko ekrana. \n\nPritisnite MENU gumb za popis radnji \n\nZa preuzimanje dodatnih dokumenata pritisnite Menu/Još/Preuzimanje dokumenata \n\nLong press on the bible view to open the context menu for actions affecting the current verse. \nLong press on a document in the document selector to delete it or view information. \n\nIzgovor\nPritisnite izgovor kako bi pristupili dijaloškom okviru za pokretanje ili zaustavljanje izgovora \n\nOznake\nOznake mogu biti dodane kroz izbornik retka. Kroz glavni izbornik možete pristupiti Upravitelju oznaka. Kroz izbornik Upravitelja oznaka, oznake se mogu grupirati s Nazivima.</string>
-    <string name="version_text">Verzija %s</string>
-	<string name="no_sdcard_error">Molimo umetnite SD karticu i ponovno pokrenite And Bible.</string>
-    
-    <!-- main menu -->
-    <string name="chooseBook">Dokument</string>
-    <string name="selectPassage">Odlomak</string>
-    <string name="search">Traži</string>
-    <string name="settings">Postavke</string>
-    <string name="history">Povijest</string>
-    <string name="speak">Izgovori</string>
-    <string name="help">Pomoć</string>
-    
-    <!-- Passage navigation -->
-    <string name="choosePassageBookName">Odaberi knjigu</string>
-    <string name="choosePassageChapterName">Odaberite poglavlje</string>
-    <string name="chapter_no">Poglavlje %d</string>
-
-	<!--  Search -->
-    <string name="search_index">Popis pretraživanja</string>
-    <string name="index_creation_required">"Popis je potreban za pretraživanje.\n\nPopisi se mogu preuzeti s interneta ili kreirati lokalno.\n\nPreuzimanje je puno brže i preuzeti popisi imaju puno više mogućnosti pretraživanja.\n\nKako bi preuzeli popise, potrebna je veza na internet.\n"</string>
-    <string name="indexing_wait_msg">Kada popisivanje završi biti ćete vraćeni na ekran za pretraživanje.</string>
-    <string name="index">Popis</string>
-    <string name="index_download">Preuzmi</string>
-    <string name="index_not_available_for_download">Ovaj popis nije raspoloživ za preuzimanje.</string>
-    <string name="index_create">Kreiraj</string>
-
-	<!-- Tasks -->
-    <string name="progress_status">Napredak</string>
-    <string name="task_kill_warning">Zadaci koji dugo traju mogu biti prekinuti ako se prebacite u drugi program prije završetka.</string>
-    <string name="no_tasks_running">Nijedan se zadatak trenutno ne obavlja.</string>
-
-    <!-- Search -->
-    <string name="search_words_group_prompt">Pretraži retke</string>
-    <string name="search_all_words">Sve riječi</string>
-    <string name="search_any_word">Bilo koja riječ</string>
-    <string name="search_phrase">Izraz</string>
-    <string name="search_result_count">Pronađeno %d rezultata</string>
-    <string name="search_showing_first">Previše rezultata. Prikazujem prvih %d</string> 
-    <string name="search_bible_section_group_prompt">Traži gdje</string>
-    <string name="search_all_bible">Cijela Biblija</string>
-    <string name="search_new_testament">Novi Zavjet</string>
-    <string name="search_old_testament">Stari Zavjet</string>
-    <string name="search_current_book">Trenutna knjga</string>
-    <string name="error_executing_search">Neispravan upit za pretraživanje.</string>
-
-    <!-- Preferences -->
-    <string name="prefs_show_verseno_title">Brojevi redaka</string>
-    <string name="prefs_show_verseno_summary">Prikaži brojeve redaka</string>
-    <string name="prefs_verse_per_line_title">Jedan redak po liniji</string>
-    <string name="prefs_verse_per_line_summary">Prikaži svaki redak posebno</string>
-    <string name="prefs_show_notes_title">Bilješke</string>
-    <string name="prefs_show_notes_summary">Prikaži bilješke</string>
-    <string name="prefs_show_strongs_title">Prikaži Strong\'s brojeve</string>
-    <string name="prefs_show_strongs_summary">Poveznice na Grčke &amp; Hebrejske definicije</string>
-    <string name="prefs_show_morphology_title">Morfološki kodovi</string>
-    <string name="prefs_show_morphology_summary">Prikaži Robinsonovu Grčku morfologiju</string>
-    <string name="prefs_night_mode_title">Noćni prikaz</string>
-    <string name="prefs_night_mode_summary">Za lakše čitanje u mraku</string>
-    <string name="prefs_text_size_title">Veličina teksta</string>
-    <string name="prefs_text_size_summary">Vidite više ili vidite jasnije</string>
-    <string name="prefs_interface_locale_title">Jezik programa</string>
-    <string name="prefs_interface_locale_summary">Odaberite jezik sučelja</string>
-    <string name="locale_change_warning">Program će se ponovno pokrenuti kako bi sučelje bilo prikazano u drugom jeziku.</string>
-
-    <!-- Notes screen -->
-    <string name="no_chapter_notes">Ne postoje bilješke u ovom poglavlju</string>
-    <string name="no_verse_notes">Ne postoje bilješke za trenutni redak</string>
-    <string name="previous">Prethodno</string>
-    <string name="next">Dalje</string>
-
-    <!--  Strongs -->
-    <string name="strongs">Strong\'s Rječnik</string>
-    <string name="strongs_not_installed">Molimo preuzmite Strong\'s Hebrejski i Grčki rječnik</string>
-    <string name="all_greek_occurrences">Nađi sva pojavljivanja</string>
-    <string name="all_hebrew_occurrences">Nađi sva pojavljivanja</string>
-    <string name="no_indexed_bible_with_strongs_ref">Morate preuzeti Bibliju koja sadrži Strong\'s brojeve i preuzeti njen popis putem ekrana za pretraživanje.</string>
-    <string name="morph_robinson_not_installed">Molimo preuzmite \'Kodovi Robinsonove Morfološke Analize\' rječnik</string>
-
-    <!-- Module download -->
-    <string name="download">Preuzimanje dokumenata</string>
-    <string name="download_confirmation">Preuzmite Bibliju s interneta?</string>
-    <string name="download_source_message">Dokumenti se preuzimaju sa http://www.crosswire.org &amp; http://xiphos.org</string>
-    <string name="download_document_confirm_prefix">"Preuzmi"</string>
-    <string name="refresh_book_list">Osvježi popis dostupnih dokumenata?</string>
-    <string name="error_downloading">Došlo je do greške prilikom preuzimanja. Molimo provjerite vezu s internetom.</string>
-    <string name="no_internet_connection">Nije se moguće spojiti na internet.</string>
-    <string name="storage_space_warning">Nedovoljno prostora za pohranu.</string>
-    <string name="wait_for_bible">Molimo pričekajte završetak preuzimanja Biblije. Nakon toga biti ćete preusmjereni na glavni ekran.</string>
-    <string name="wait_for_bible_not_yet">Molimo pričekajte. Instalacija Biblije nije dovršena.</string>
-    <string name="download_complete_no_bibles">Nijedna Biblija nije instalirana. Molimo pritisnite natrag i pokušajte ponovno.</string>
-    <string name="too_many_jobs">Previše aktivnih zadataka. Molimo pričekajte da neki završe pa pokušajte ponovno.</string>
-
-    <!-- Document context menu -->
-    <string name="delete">Obriši</string>
-    <string name="delete_index">Obriši popis pretraživanja</string>
-    <string name="about">O programu</string>
-    <string name="delete_doc">Obriši %s?</string>
-    <string name="delete_search_index_doc">Obriši popis %s?</string>
-    
-    <!-- Verse context menu -->
-    <string name="notes">Fusnote i reference</string>
-    <string name="copy">Kopirajte trenutni redak</string>
-    <string name="share_verse">Dijeli trenutni redak...</string>
-    <string name="share_verse_subject">Redak iz Biblije podijeljen je s Vama koristeći And Bible</string>
-
-    <!-- Bookmarks -->
-    <string name="bookmarks">Oznake</string>
-    <string name="add_bookmark">Dodaj oznaku</string>
-    <string name="bookmark_added">Oznaka dodana</string>
-    <string name="bookmark_exists">Oznaka već postoji</string>
-    <string name="bookmark_labels">Nazivi oznaka</string>
-    <string name="assign_labels">Dodjeli nazive</string>
-    <string name="new_label">Novi naziv</string>
-    <string name="new_label_prompt">Naziv</string>
-    
-    <!-- Dictionary -->
-    <string name="dictionary">Rječnik</string>
-    <string name="search_dictionary_hint">Pretraži rječnik</string>
-    <string name="dictionary_contents">Sadržaj</string>
-
-    <!-- General Book -->
-    <string name="general_book">Knjiga</string>
-    <string name="general_book_contents">Sadržaj</string>
-
-
-    <!-- Speak -->
-    <!-- Speak - Bible -->
-    <plurals name="num_chapters">
-        <item quantity="one">%d chapter</item>
-        <item quantity="other">%d chapters</item>
-    </plurals>
-    <string name="rest_of_book">Na kraj knjige</string>
-    <!-- Speak - Commentary -->
-    <plurals name="num_verses">
-        <item quantity="one">%d verse</item>
-        <item quantity="other">%d verses</item>
-    </plurals>
-    <string name="rest_of_chapter">Na kraj poglavlja</string>
-    <!-- Speak - Dictionary and other -->
-    <plurals name="num_pages">
-        <item quantity="one">%d page</item>
-        <item quantity="other">%d pages</item>
-    </plurals>
-    <!-- Speak - Common -->
-    <string name="stop">Zaustavi</string>
-    <string name="tts_lang_not_available">Jezik nije dostupan.</string>
-
-	<!-- Document types -->    
-	<string name="doc_type_bible">Biblija</string>
-	<string name="doc_type_commentary">Komentar</string>
-	<string name="doc_type_dictionary">Rječnik</string>
-	<string name="doc_type_book">Knjiga</string>
-
-    <!-- Languages -->
-	<string name="lang_default">Zadano</string>
-	
-    <!-- General -->
-    <string name="error_occurred">Došlo je do greške.</string>
-    <string name="okay">OK</string>
-    <string name="cancel">Otkaži</string>
-    <string name="no">Ne</string>
-    <string name="error">Greška</string>
-    <string name="more">Još</string>
-    <string name="retry">Pokušajte ponovno</string>
-    <string name="please_wait">Molimo pričekajte...</string>
-    <string name="all">Sve</string>
+  <string name="app_name">And Bible</string>
+  <!-- Startup & Help -->
+  <string name="splash_top_text">\"I reče Bog: \'Neka bude svjetlost\", i bi svjetlost. \" Knjiga Postanka 1:03</string>
+  <string name="help_text">Pritisnite MENU gumb za popis mogućih radnji.\n\nKrenite na sljedeće ili prethodno poglavlje koristeći track-ball, D-pad ili povlačenjem prsta preko ekrana.</string>
+  <string name="help_text_long">Navigacija\nKrenite na sljedeće ili prethodno poglavlje koristeći track-ball, D-pad ili povlačeći prst preko ekrana. \n\nPritisnite MENU gumb za popis radnji \n\nZa preuzimanje dodatnih dokumenata pritisnite Menu/Još/Preuzimanje dokumenata \n\nLong press on the bible view to open the context menu for actions affecting the current verse. \nLong press on a document in the document selector to delete it or view information. \n\nIzgovor\nPritisnite izgovor kako bi pristupili dijaloškom okviru za pokretanje ili zaustavljanje izgovora \n\nOznake\nOznake mogu biti dodane kroz izbornik retka. Kroz glavni izbornik možete pristupiti Upravitelju oznaka. Kroz izbornik Upravitelja oznaka, oznake se mogu grupirati s Nazivima.</string>
+  <string name="version_text">Verzija %s</string>
+  <string name="no_sdcard_error">Molimo umetnite SD karticu i ponovno pokrenite And Bible.</string>
+  <!-- main menu -->
+  <string name="chooseBook">Dokument</string>
+  <string name="selectPassage">Odlomak</string>
+  <string name="search">Traži</string>
+  <string name="settings">Postavke</string>
+  <string name="history">Povijest</string>
+  <string name="speak">Izgovori</string>
+  <string name="help">Pomoć</string>
+  <!-- Passage navigation -->
+  <string name="choosePassageBookName">Odaberi knjigu</string>
+  <string name="choosePassageChapterName">Odaberite poglavlje</string>
+  <!--  Search -->
+  <string name="search_index">Popis pretraživanja</string>
+  <string name="index_creation_required">"Popis je potreban za pretraživanje.\n\nPopisi se mogu preuzeti s interneta ili kreirati lokalno.\n\nPreuzimanje je puno brže i preuzeti popisi imaju puno više mogućnosti pretraživanja.\n\nKako bi preuzeli popise, potrebna je veza na internet.\n"</string>
+  <string name="indexing_wait_msg">Kada popisivanje završi biti ćete vraćeni na ekran za pretraživanje.</string>
+  <string name="index">Popis</string>
+  <string name="index_download">Preuzmi</string>
+  <string name="index_not_available_for_download">Ovaj popis nije raspoloživ za preuzimanje.</string>
+  <string name="index_create">Kreiraj</string>
+  <!-- Tasks -->
+  <string name="progress_status">Napredak</string>
+  <string name="task_kill_warning">Zadaci koji dugo traju mogu biti prekinuti ako se prebacite u drugi program prije završetka.</string>
+  <string name="no_tasks_running">Nijedan se zadatak trenutno ne obavlja.</string>
+  <!-- Search -->
+  <string name="search_words_group_prompt">Pretraži retke</string>
+  <string name="search_all_words">Sve riječi</string>
+  <string name="search_any_word">Bilo koja riječ</string>
+  <string name="search_phrase">Izraz</string>
+  <string name="search_result_count">Pronađeno %d rezultata</string>
+  <string name="search_showing_first">Previše rezultata. Prikazujem prvih %d</string>
+  <string name="search_bible_section_group_prompt">Traži gdje</string>
+  <string name="search_all_bible">Cijela Biblija</string>
+  <string name="search_new_testament">Novi Zavjet</string>
+  <string name="search_old_testament">Stari Zavjet</string>
+  <string name="search_current_book">Trenutna knjga</string>
+  <string name="error_executing_search">Neispravan upit za pretraživanje.</string>
+  <!-- Preferences -->
+  <string name="prefs_show_verseno_title">Brojevi redaka</string>
+  <string name="prefs_show_verseno_summary">Prikaži brojeve redaka</string>
+  <string name="prefs_verse_per_line_title">Jedan redak po liniji</string>
+  <string name="prefs_verse_per_line_summary">Prikaži svaki redak posebno</string>
+  <string name="prefs_show_notes_title">Bilješke</string>
+  <string name="prefs_show_notes_summary">Prikaži bilješke</string>
+  <string name="prefs_show_strongs_title">Prikaži Strong\'s brojeve</string>
+  <string name="prefs_show_strongs_summary">Poveznice na Grčke &amp; Hebrejske definicije</string>
+  <string name="prefs_show_morphology_title">Morfološki kodovi</string>
+  <string name="prefs_show_morphology_summary">Prikaži Robinsonovu Grčku morfologiju</string>
+  <string name="prefs_night_mode_title">Noćni prikaz</string>
+  <string name="prefs_night_mode_summary">Za lakše čitanje u mraku</string>
+  <string name="prefs_text_size_title">Veličina teksta</string>
+  <string name="prefs_text_size_summary">Vidite više ili vidite jasnije</string>
+  <string name="prefs_interface_locale_title">Jezik programa</string>
+  <string name="prefs_interface_locale_summary">Odaberite jezik sučelja</string>
+  <string name="locale_change_warning">Program će se ponovno pokrenuti kako bi sučelje bilo prikazano u drugom jeziku.</string>
+  <!-- Notes screen -->
+  <string name="no_chapter_notes">Ne postoje bilješke u ovom poglavlju</string>
+  <string name="no_verse_notes">Ne postoje bilješke za trenutni redak</string>
+  <string name="previous">Prethodno</string>
+  <string name="next">Dalje</string>
+  <!--  Strongs -->
+  <string name="strongs">Strong\'s Rječnik</string>
+  <string name="strongs_not_installed">Molimo preuzmite Strong\'s Hebrejski i Grčki rječnik</string>
+  <string name="all_greek_occurrences">Nađi sva pojavljivanja</string>
+  <string name="all_hebrew_occurrences">Nađi sva pojavljivanja</string>
+  <string name="no_indexed_bible_with_strongs_ref">Morate preuzeti Bibliju koja sadrži Strong\'s brojeve i preuzeti njen popis putem ekrana za pretraživanje.</string>
+  <string name="morph_robinson_not_installed">Molimo preuzmite \'Kodovi Robinsonove Morfološke Analize\' rječnik</string>
+  <!-- Module download -->
+  <string name="download">Preuzimanje dokumenata</string>
+  <string name="download_confirmation">Preuzmite Bibliju s interneta?</string>
+  <string name="download_source_message">Dokumenti se preuzimaju sa http://www.crosswire.org &amp; http://xiphos.org</string>
+  <string name="download_document_confirm_prefix">"Preuzmi"</string>
+  <string name="refresh_book_list">Osvježi popis dostupnih dokumenata?</string>
+  <string name="error_downloading">Došlo je do greške prilikom preuzimanja. Molimo provjerite vezu s internetom.</string>
+  <string name="no_internet_connection">Nije se moguće spojiti na internet.</string>
+  <string name="storage_space_warning">Nedovoljno prostora za pohranu.</string>
+  <string name="wait_for_bible">Molimo pričekajte završetak preuzimanja Biblije. Nakon toga biti ćete preusmjereni na glavni ekran.</string>
+  <string name="wait_for_bible_not_yet">Molimo pričekajte. Instalacija Biblije nije dovršena.</string>
+  <string name="download_complete_no_bibles">Nijedna Biblija nije instalirana. Molimo pritisnite natrag i pokušajte ponovno.</string>
+  <string name="too_many_jobs">Previše aktivnih zadataka. Molimo pričekajte da neki završe pa pokušajte ponovno.</string>
+  <!-- Document context menu -->
+  <string name="delete">Obriši</string>
+  <string name="delete_index">Obriši popis pretraživanja</string>
+  <string name="about">O programu</string>
+  <string name="delete_doc">Obriši %s?</string>
+  <string name="delete_search_index_doc">Obriši popis %s?</string>
+  <!-- Verse context menu -->
+  <string name="notes">Fusnote i reference</string>
+  <string name="copy">Kopirajte trenutni redak</string>
+  <string name="share_verse">Dijeli trenutni redak...</string>
+  <string name="share_verse_subject">Redak iz Biblije podijeljen je s Vama koristeći And Bible</string>
+  <!-- Bookmarks -->
+  <string name="bookmarks">Oznake</string>
+  <string name="add_bookmark">Dodaj oznaku</string>
+  <string name="bookmark_added">Oznaka dodana</string>
+  <string name="bookmark_exists">Oznaka već postoji</string>
+  <string name="bookmark_labels">Nazivi oznaka</string>
+  <string name="assign_labels">Dodjeli nazive</string>
+  <string name="new_label">Novi naziv</string>
+  <string name="new_label_prompt">Naziv</string>
+  <!-- Dictionary -->
+  <string name="dictionary">Rječnik</string>
+  <string name="search_dictionary_hint">Pretraži rječnik</string>
+  <string name="dictionary_contents">Sadržaj</string>
+  <!-- General Book -->
+  <string name="general_book">Knjiga</string>
+  <string name="general_book_contents">Sadržaj</string>
+  <!-- Speak -->
+  <!-- Speak - Bible -->
+  <plurals name="num_chapters">
+    <item quantity="one">%d chapter</item>
+    <item quantity="other">%d chapters</item>
+  </plurals>
+  <string name="rest_of_book">Na kraj knjige</string>
+  <!-- Speak - Commentary -->
+  <plurals name="num_verses">
+    <item quantity="one">%d verse</item>
+    <item quantity="other">%d verses</item>
+  </plurals>
+  <string name="rest_of_chapter">Na kraj poglavlja</string>
+  <!-- Speak - Dictionary and other -->
+  <plurals name="num_pages">
+    <item quantity="one">%d page</item>
+    <item quantity="other">%d pages</item>
+  </plurals>
+  <!-- Speak - Common -->
+  <string name="stop">Zaustavi</string>
+  <string name="tts_lang_not_available">Jezik nije dostupan.</string>
+  <!-- Document types -->
+  <string name="doc_type_bible">Biblija</string>
+  <string name="doc_type_commentary">Komentar</string>
+  <string name="doc_type_dictionary">Rječnik</string>
+  <string name="doc_type_book">Knjiga</string>
+  <!-- Languages -->
+  <string name="lang_default">Zadano</string>
+  <!-- General -->
+  <string name="error_occurred">Došlo je do greške.</string>
+  <string name="okay">OK</string>
+  <string name="cancel">Otkaži</string>
+  <string name="no">Ne</string>
+  <string name="error">Greška</string>
+  <string name="more">Još</string>
+  <string name="retry">Pokušajte ponovno</string>
+  <string name="please_wait">Molimo pričekajte...</string>
+  <string name="all">Sve</string>
+  <string name="choosePassageVerseName">Odaberite redak</string>
+  <string name="one_chapter">%d poglavlje</string>
+  <string name="one_page">%d stranica</string>
+  <string name="one_verse">%d redak</string>
+  <string name="prefs_navigate_to_verse_summary">Drill down to verse when navigating</string>
+  <string name="prefs_navigate_to_verse_title">Navigate to verse</string>
+  <string name="some_chapters">%d poglavlja</string>
+  <string name="some_pages">%d stranica</string>
+  <string name="some_verses">%d redaka</string>
 </resources>
