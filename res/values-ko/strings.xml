@@ -6,171 +6,164 @@
       The copyright to this program is held by it's author.
 -->
 <resources>
-    <string name="app_name">And 성경</string>
-
-	<!-- Startup & Help -->
-    <string name="splash_top_text">"\"그리고 하나님이 '빛이 있으라'라고 라이트가 발생했습니다.\" 창세기 1장 3절"</string>
-    <string name="help_text">보도 행동은 트랙 공, 패드를 사용하거나 보내주시면 화면을 손가락으로하여 다음 또는 이전 챕터로 이동의 메뉴 키</string>
-    <string name="help_text_long">, D - 패드 트랙 공을 사용하거나 보내주시면 화면을 동작에 손가락을 누르면 메뉴 키를 이상의 문서를 다운로드하려면하여 다음 또는 이전 챕터로 이동 이동은 성경보기에 긴 언론 열고 메뉴 / 기타 / 다운로드 문서를 누르십시오 현재 구절에 영향을 미치는 작업에 대한 컨텍스트 메뉴. 문서 선택기에서 문서에 긴 언론을 삭제하거나 정보를 볼 수 있습니다. 연설 보도 말해 시작하거나 북마크 북마크 구절 컨텍스트 메뉴를 통해 추가할 수있는 독서 중단 대화 상자를 액세스합니다. 북마크 관리자는 메인 메뉴를 통해 액세스할 수 있습니다. 북마크 관리자 컨텍스트 메뉴 즐겨찾기 레이블을 사용하여 그룹화 수 있습니다.</string>
-    <string name="version_text">버전의 %s</string>
-	<string name="no_sdcard_error">다시 삽입 SD 카드 및 시작하고 성경을 알려드립니다.</string>
-    
-    <!-- main menu -->
-    <string name="chooseBook">문서</string>
-    <string name="selectPassage">통로</string>
-    <string name="search">찾기</string>
-    <string name="settings">설정</string>
-    <string name="history">역사</string>
-    <string name="speak">말하다</string>
-    <string name="help">도움말</string>
-    
-    <!-- Passage navigation -->
-    <string name="choosePassageBookName">도서 선택</string>
-    <string name="choosePassageChapterName">장 선택</string>
-    <string name="chapter_no">%d 장 개</string>
-
-	<!--  Search -->
-    <string name="search_index">검색 색인</string>
-    <string name="index_creation_required">"색인 검색을해야합니다. 인덱스는 인터넷에서 다운로드할 수 있습니다 또는 로컬로 만들었습니다. 다운로드가 훨씬 빠르고 다운로드 인덱스보다 검색 기능이 있습니다. 인터넷 연결이 인덱스를 다운로드해야합니다."</string>
-    <string name="indexing_wait_msg">When indexing has completed you will be taken to the search screen.</string>
-    <string name="index">색인</string>
-    <string name="index_download">다운로드</string>
-    <string name="index_not_available_for_download">이 색인은 다운로드할 수 없습니다</string>
-    <string name="index_create">만들기</string>
-
-	<!-- Tasks -->
-    <string name="progress_status">진행</string>
-    <string name="task_kill_warning">그들이 완료하기 전에 다른 응용 프로그램으로 전환할 경우에는 이러한 오래 실행되는 작업을 종료할 수 있습니다.</string>
-    <string name="no_tasks_running">아무 작업이 현재 실행중인 없습니다.</string>
-
-    <!-- Search -->
-    <string name="search_words_group_prompt">찾기 구절</string>
-    <string name="search_all_words">모든 단어</string>
-    <string name="search_any_word">모든 단어</string>
-    <string name="search_phrase">구문</string>
-    <string name="search_result_count">%d 개의 검색된</string>
-    <string name="search_showing_first">너무 많습니다 일치합니다. %d 조 첫번째 보기</string> 
-    <string name="search_bible_section_group_prompt">검색은 어디</string>
-    <string name="search_all_bible">성경 전체를</string>
-    <string name="search_new_testament">신약 성서</string>
-    <string name="search_old_testament">구약 성서</string>
-    <string name="search_current_book">현재 도서</string>
-    <string name="error_executing_search">잘못된 검색어</string>
-
-    <!-- Preferences -->
-    <string name="prefs_show_verseno_title">구절 번호</string>
-    <string name="prefs_show_verseno_summary">보기 구절 번호</string>
-    <string name="prefs_verse_per_line_title">한 줄에 한 구절</string>
-    <string name="prefs_verse_per_line_summary">다른 라인에있는 각 구절보기</string>
-    <string name="prefs_show_notes_title">노트</string>
-    <string name="prefs_show_notes_summary">표시 노트</string>
-    <string name="prefs_show_strongs_title">보기 스트롱 번호</string>
-    <string name="prefs_show_strongs_summary">링크 그리스어 및 히브리어 정의</string>
-    <string name="prefs_night_mode_title">야간 모드</string>
-    <string name="prefs_night_mode_summary">어둠 속에서 쉽게 읽기</string>
-    <string name="prefs_text_size_title">텍스트 크기</string>
-    <string name="prefs_text_size_summary">자세한 내용을 참조하거나 더 명확하게보기</string>
-    <string name="prefs_interface_locale_title">응용 프로그램 언어</string>
-    <string name="prefs_interface_locale_summary">선택하고 사용자 지정 사용자 인터페이스 언어</string>
-    <string name="locale_change_warning">응용 프로그램이 새로운 인터페이스 언어로 전환할 다시 시작됩니다</string>
-
-    <!-- Notes screen -->
-    <string name="no_chapter_notes">아니 참고이 장에서 존재</string>
-    <string name="no_verse_notes">아니 참고이 구절에 존재</string>
-    <string name="previous">이전</string>
-    <string name="next">다음</string>
-
-    <!--  Strongs -->
-    <string name="strongs">스트롱 사전</string>
-    <string name="strongs_not_installed">다운로드 스트롱 히브리어 및 그리스어 사전을하시기 바랍니다</string>
-    <string name="all_greek_occurrences">모든 사건보기</string>
-    <string name="all_hebrew_occurrences">모든 사건보기</string>
-    <string name="no_indexed_bible_with_strongs_ref">당신의 강한 숫자를 포함하는 성경을 다운로드해야하고 검색을 통해 색인을 다운로드</string>
-
-    <!-- Module download -->
-    <string name="download">다운로드 문서</string>
-    <string name="download_confirmation">다운로드 인터넷에서 성경?</string>
-    <string name="download_source_message">문서 http://www.crosswire.org &amp; http://xiphos.org 에서 다운로드한</string>
-    <string name="download_document_confirm_prefix">"다운로드"</string>
-    <string name="refresh_book_list">해당 문서의 목록 새로 고침?</string>
-    <string name="error_downloading">다운로드 오류가 발생했습니다. 당신의 인터넷 연결을 확인하시기 바랍니다.</string>
-    <string name="no_internet_connection">인터넷에 연결할 수 없습니다</string>
-    <string name="storage_space_warning">부족 로컬 저장 공간.</string>
-    <string name="wait_for_bible">다운로드를 완료 성경 기다려주십시오. 그렇다면 당신은 메인 화면으로 이동합니다.</string>
-    <string name="wait_for_bible_not_yet">잠시 기다려주세요. 성경은 아직 설치를 완료하지 않았습니다.</string>
-    <string name="download_complete_no_bibles">아니 성경은 설치되었습니다. Back 누른 후 다시 시도하십시오.</string>
-    <string name="too_many_jobs">너무 많은 작업을 실행. 일부는 완료하고 다시 시도 기다려주십시오.</string>
-
-    <!-- Document context menu -->
-    <string name="delete">삭제</string>
-    <string name="about">소개</string>
-    <string name="delete_doc">삭제 %s 가 뭐죠?</string>
-    
-    <!-- Verse context menu -->
-    <string name="notes">각주 및 참고 문헌</string>
-    <string name="copy">복사 현재 구절</string>
-    <string name="share_verse">공유 전류 구절 ...</string>
-    <string name="share_verse_subject">성경 구절은 당신이 사용하고 And 성경을 공유했습니다</string>
-
-    <!-- Bookmarks -->
-    <string name="bookmarks">즐겨찾기</string>
-    <string name="add_bookmark">즐겨찾기 추가</string>
-    <string name="bookmark_added">추가된 즐겨찾기</string>
-    <string name="bookmark_exists">즐겨찾기가 이미 존재합니다</string>
-    <string name="bookmark_labels">즐겨찾기 레이블</string>
-    <string name="assign_labels">할당 레이블</string>
-    <string name="new_label">새 분류</string>
-    <string name="new_label_prompt">이름</string>
-    
-    <!-- Dictionary -->
-    <string name="dictionary">사전</string>
-    <string name="search_dictionary_hint">사전 검색</string>
-    <string name="dictionary_contents">내용</string>
-
-    <!-- General Book -->
-    <string name="general_book">책</string>
-    <string name="general_book_contents">내용</string>
-
-
-    <!-- Speak -->
-    <!-- Speak - Bible -->
-    <plurals name="num_chapters">
-        <item quantity="one">%d chapter</item>
-        <item quantity="other">%d chapters</item>
-    </plurals>
-    <string name="rest_of_book">도서의 종료하려면</string>
-    <!-- Speak - Commentary -->
-    <plurals name="num_verses">
-        <item quantity="one">%d verse</item>
-        <item quantity="other">%d verses</item>
-    </plurals>
-    <string name="rest_of_chapter">장 종료하려면</string>
-    <!-- Speak - Dictionary and other -->
-    <plurals name="num_pages">
-        <item quantity="one">%d page</item>
-        <item quantity="other">%d pages</item>
-    </plurals>
-    <!-- Speak - Common -->
-    <string name="stop">그만</string>
-    <string name="tts_lang_not_available">언어는 사용할 수 없습니다.</string>
-
-	<!-- Document types -->    
-	<string name="doc_type_bible">성경</string>
-	<string name="doc_type_commentary">논평</string>
-	<string name="doc_type_dictionary">사전</string>
-	<string name="doc_type_book">책</string>
-
-    <!-- Languages -->
-	<string name="lang_default">기본</string>
-	
-    <!-- General -->
-    <string name="error_occurred">오류가 발생했습니다</string>
-    <string name="okay">확인</string>
-    <string name="cancel">취소</string>
-    <string name="no">없음</string>
-    <string name="error">"오류"</string>
-    <string name="more">기타</string>
-    <string name="retry">다시 시도</string>
-    <string name="please_wait">기다려주십시오 ...</string>
-    <string name="all">전체</string>
+  <string name="app_name">And 성경</string>
+  <!-- Startup & Help -->
+  <string name="splash_top_text">"\"그리고 하나님이 '빛이 있으라'라고 라이트가 발생했습니다.\" 창세기 1장 3절"</string>
+  <string name="help_text">보도 행동은 트랙 공, 패드를 사용하거나 보내주시면 화면을 손가락으로하여 다음 또는 이전 챕터로 이동의 메뉴 키</string>
+  <string name="help_text_long">, D - 패드 트랙 공을 사용하거나 보내주시면 화면을 동작에 손가락을 누르면 메뉴 키를 이상의 문서를 다운로드하려면하여 다음 또는 이전 챕터로 이동 이동은 성경보기에 긴 언론 열고 메뉴 / 기타 / 다운로드 문서를 누르십시오 현재 구절에 영향을 미치는 작업에 대한 컨텍스트 메뉴. 문서 선택기에서 문서에 긴 언론을 삭제하거나 정보를 볼 수 있습니다. 연설 보도 말해 시작하거나 북마크 북마크 구절 컨텍스트 메뉴를 통해 추가할 수있는 독서 중단 대화 상자를 액세스합니다. 북마크 관리자는 메인 메뉴를 통해 액세스할 수 있습니다. 북마크 관리자 컨텍스트 메뉴 즐겨찾기 레이블을 사용하여 그룹화 수 있습니다.</string>
+  <string name="version_text">버전의 %s</string>
+  <string name="no_sdcard_error">다시 삽입 SD 카드 및 시작하고 성경을 알려드립니다.</string>
+  <!-- main menu -->
+  <string name="chooseBook">문서</string>
+  <string name="selectPassage">통로</string>
+  <string name="search">찾기</string>
+  <string name="settings">설정</string>
+  <string name="history">역사</string>
+  <string name="speak">말하다</string>
+  <string name="help">도움말</string>
+  <!-- Passage navigation -->
+  <string name="choosePassageBookName">도서 선택</string>
+  <string name="choosePassageChapterName">장 선택</string>
+  <!--  Search -->
+  <string name="search_index">검색 색인</string>
+  <string name="index_creation_required">"색인 검색을해야합니다. 인덱스는 인터넷에서 다운로드할 수 있습니다 또는 로컬로 만들었습니다. 다운로드가 훨씬 빠르고 다운로드 인덱스보다 검색 기능이 있습니다. 인터넷 연결이 인덱스를 다운로드해야합니다."</string>
+  <string name="indexing_wait_msg">When indexing has completed you will be taken to the search screen.</string>
+  <string name="index">색인</string>
+  <string name="index_download">다운로드</string>
+  <string name="index_not_available_for_download">이 색인은 다운로드할 수 없습니다</string>
+  <string name="index_create">만들기</string>
+  <!-- Tasks -->
+  <string name="progress_status">진행</string>
+  <string name="task_kill_warning">그들이 완료하기 전에 다른 응용 프로그램으로 전환할 경우에는 이러한 오래 실행되는 작업을 종료할 수 있습니다.</string>
+  <string name="no_tasks_running">아무 작업이 현재 실행중인 없습니다.</string>
+  <!-- Search -->
+  <string name="search_words_group_prompt">찾기 구절</string>
+  <string name="search_all_words">모든 단어</string>
+  <string name="search_any_word">모든 단어</string>
+  <string name="search_phrase">구문</string>
+  <string name="search_result_count">%d 개의 검색된</string>
+  <string name="search_showing_first">너무 많습니다 일치합니다. %d 조 첫번째 보기</string>
+  <string name="search_bible_section_group_prompt">검색은 어디</string>
+  <string name="search_all_bible">성경 전체를</string>
+  <string name="search_new_testament">신약 성서</string>
+  <string name="search_old_testament">구약 성서</string>
+  <string name="search_current_book">현재 도서</string>
+  <string name="error_executing_search">잘못된 검색어</string>
+  <!-- Preferences -->
+  <string name="prefs_show_verseno_title">구절 번호</string>
+  <string name="prefs_show_verseno_summary">보기 구절 번호</string>
+  <string name="prefs_verse_per_line_title">한 줄에 한 구절</string>
+  <string name="prefs_verse_per_line_summary">다른 라인에있는 각 구절보기</string>
+  <string name="prefs_show_notes_title">노트</string>
+  <string name="prefs_show_notes_summary">표시 노트</string>
+  <string name="prefs_show_strongs_title">보기 스트롱 번호</string>
+  <string name="prefs_show_strongs_summary">링크 그리스어 및 히브리어 정의</string>
+  <string name="prefs_night_mode_title">야간 모드</string>
+  <string name="prefs_night_mode_summary">어둠 속에서 쉽게 읽기</string>
+  <string name="prefs_text_size_title">텍스트 크기</string>
+  <string name="prefs_text_size_summary">자세한 내용을 참조하거나 더 명확하게보기</string>
+  <string name="prefs_interface_locale_title">응용 프로그램 언어</string>
+  <string name="prefs_interface_locale_summary">선택하고 사용자 지정 사용자 인터페이스 언어</string>
+  <string name="locale_change_warning">응용 프로그램이 새로운 인터페이스 언어로 전환할 다시 시작됩니다</string>
+  <!-- Notes screen -->
+  <string name="no_chapter_notes">아니 참고이 장에서 존재</string>
+  <string name="no_verse_notes">아니 참고이 구절에 존재</string>
+  <string name="previous">이전</string>
+  <string name="next">다음</string>
+  <!--  Strongs -->
+  <string name="strongs">스트롱 사전</string>
+  <string name="strongs_not_installed">다운로드 스트롱 히브리어 및 그리스어 사전을하시기 바랍니다</string>
+  <string name="all_greek_occurrences">모든 사건보기</string>
+  <string name="all_hebrew_occurrences">모든 사건보기</string>
+  <string name="no_indexed_bible_with_strongs_ref">당신의 강한 숫자를 포함하는 성경을 다운로드해야하고 검색을 통해 색인을 다운로드</string>
+  <!-- Module download -->
+  <string name="download">다운로드 문서</string>
+  <string name="download_confirmation">다운로드 인터넷에서 성경?</string>
+  <string name="download_source_message">문서 http://www.crosswire.org &amp; http://xiphos.org 에서 다운로드한</string>
+  <string name="download_document_confirm_prefix">"다운로드"</string>
+  <string name="refresh_book_list">해당 문서의 목록 새로 고침?</string>
+  <string name="error_downloading">다운로드 오류가 발생했습니다. 당신의 인터넷 연결을 확인하시기 바랍니다.</string>
+  <string name="no_internet_connection">인터넷에 연결할 수 없습니다</string>
+  <string name="storage_space_warning">부족 로컬 저장 공간.</string>
+  <string name="wait_for_bible">다운로드를 완료 성경 기다려주십시오. 그렇다면 당신은 메인 화면으로 이동합니다.</string>
+  <string name="wait_for_bible_not_yet">잠시 기다려주세요. 성경은 아직 설치를 완료하지 않았습니다.</string>
+  <string name="download_complete_no_bibles">아니 성경은 설치되었습니다. Back 누른 후 다시 시도하십시오.</string>
+  <string name="too_many_jobs">너무 많은 작업을 실행. 일부는 완료하고 다시 시도 기다려주십시오.</string>
+  <!-- Document context menu -->
+  <string name="delete">삭제</string>
+  <string name="about">소개</string>
+  <string name="delete_doc">삭제 %s 가 뭐죠?</string>
+  <!-- Verse context menu -->
+  <string name="notes">각주 및 참고 문헌</string>
+  <string name="copy">복사 현재 구절</string>
+  <string name="share_verse">공유 전류 구절 ...</string>
+  <string name="share_verse_subject">성경 구절은 당신이 사용하고 And 성경을 공유했습니다</string>
+  <!-- Bookmarks -->
+  <string name="bookmarks">즐겨찾기</string>
+  <string name="add_bookmark">즐겨찾기 추가</string>
+  <string name="bookmark_added">추가된 즐겨찾기</string>
+  <string name="bookmark_exists">즐겨찾기가 이미 존재합니다</string>
+  <string name="bookmark_labels">즐겨찾기 레이블</string>
+  <string name="assign_labels">할당 레이블</string>
+  <string name="new_label">새 분류</string>
+  <string name="new_label_prompt">이름</string>
+  <!-- Dictionary -->
+  <string name="dictionary">사전</string>
+  <string name="search_dictionary_hint">사전 검색</string>
+  <string name="dictionary_contents">내용</string>
+  <!-- General Book -->
+  <string name="general_book">책</string>
+  <string name="general_book_contents">내용</string>
+  <!-- Speak -->
+  <!-- Speak - Bible -->
+  <plurals name="num_chapters">
+    <item quantity="one">%d chapter</item>
+    <item quantity="other">%d chapters</item>
+  </plurals>
+  <string name="rest_of_book">도서의 종료하려면</string>
+  <!-- Speak - Commentary -->
+  <plurals name="num_verses">
+    <item quantity="one">%d verse</item>
+    <item quantity="other">%d verses</item>
+  </plurals>
+  <string name="rest_of_chapter">장 종료하려면</string>
+  <!-- Speak - Dictionary and other -->
+  <plurals name="num_pages">
+    <item quantity="one">%d page</item>
+    <item quantity="other">%d pages</item>
+  </plurals>
+  <!-- Speak - Common -->
+  <string name="stop">그만</string>
+  <string name="tts_lang_not_available">언어는 사용할 수 없습니다.</string>
+  <!-- Document types -->
+  <string name="doc_type_bible">성경</string>
+  <string name="doc_type_commentary">논평</string>
+  <string name="doc_type_dictionary">사전</string>
+  <string name="doc_type_book">책</string>
+  <!-- Languages -->
+  <string name="lang_default">기본</string>
+  <!-- General -->
+  <string name="error_occurred">오류가 발생했습니다</string>
+  <string name="okay">확인</string>
+  <string name="cancel">취소</string>
+  <string name="no">없음</string>
+  <string name="error">"오류"</string>
+  <string name="more">기타</string>
+  <string name="retry">다시 시도</string>
+  <string name="please_wait">기다려주십시오 ...</string>
+  <string name="all">전체</string>
+  <string name="choosePassageVerseName">Choose Verse</string>
+  <string name="delete_index">Delete search index</string>
+  <string name="delete_search_index_doc">Delete index of %s?</string>
+  <string name="morph_robinson_not_installed">Please download \'Robinson\'s Morphological Analysis Codes\' dictionary</string>
+  <string name="one_chapter">%d chapter</string>
+  <string name="one_page">%d page</string>
+  <string name="one_verse">%d verse</string>
+  <string name="prefs_navigate_to_verse_summary">Drill down to verse when navigating</string>
+  <string name="prefs_navigate_to_verse_title">Navigate to verse</string>
+  <string name="prefs_show_morphology_summary">Show Robinson\'s Greek morphology</string>
+  <string name="prefs_show_morphology_title">Morphological codes</string>
+  <string name="some_chapters">%d chapters</string>
+  <string name="some_pages">%d pages</string>
+  <string name="some_verses">%d verses</string>
 </resources>
