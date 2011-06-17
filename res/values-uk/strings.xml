@@ -6,171 +6,164 @@
       The copyright to this program is held by it's author.
 -->
 <resources>
-    <string name="app_name">Android Біблія</string>
-
-	<!-- Startup & Help -->
-    <string name="splash_top_text">"\n\"І сказав Бог: Хай станеться світло! І сталося світло.\"\nБуття 1:3"</string>
-    <string name="help_text">"Натисніть кнопку MЕНЮ для дій\n\nЩоб перейти до наступного або попереднього розділу, користуйтесь трекболом, D-Pad або рухом пальця по сенсорному екрані "</string>
-    <string name="help_text_long">Навігація\nЩоб перейти до наступного або попереднього розділу, користуйтесь трекболом, D-Pad або рухом пальця по сенсорному екрані\n\nНатисніть кнопку MЕНЮ для дій\n\nДля завантаження додаткових документів натисніть Меню/Детальніше/Завантажити документи\n\nТривало натисніть в поданні Біблії щоб відкрити контекстне меню для дій, щодо поточного вірша.\nТривало натисніть на документ у селекторі документів щоб видалити його або переглянути інформацію.\n\nМовлення\nНатисніть Озвучити для доступу в діалогове вікно щоб розпочати або припинити читання \n\nЗакладки\nЗакладки можуть бути додані через контекстне меню вірша. Менеджер Закладок доступний через головне меню. Контекстне меню Менеджера Закладок дозволяє групувати закладки за допомогою міток.</string>
-    <string name="version_text">Версія %s</string>
-	<string name="no_sdcard_error">Вставте SD-карту і перезапустіть знову Android Біблію.</string>
-    
-    <!-- main menu -->
-    <string name="chooseBook">Документ</string>
-    <string name="selectPassage">Уривок</string>
-    <string name="search">Знайти</string>
-    <string name="settings">Параметри</string>
-    <string name="history">Журнал</string>
-    <string name="speak">Озвучити</string>
-    <string name="help">Довідка</string>
-    
-    <!-- Passage navigation -->
-    <string name="choosePassageBookName">Виберіть книгу</string>
-    <string name="choosePassageChapterName">Виберіть розділ</string>
-    <string name="chapter_no">Розділ %d</string>
-
-	<!--  Search -->
-    <string name="search_index">"Індекс пошуку"</string>
-    <string name="index_creation_required">"Для пошуку необхідних індекс. \n\nІндекси можуть бути завантажені з Інтернету або створені локально.\n\nЗавантаження набагато швидше і завантаженні індекси мають більше можливостей пошуку.\n\nНеобхідне підключення до Інтернету для завантаження індексів."</string>
-    <string name="indexing_wait_msg">Коли індексування завершиться ви потрапите на екран пошуку.</string>
-    <string name="index">Індекс</string>
-    <string name="index_download">Завантажити</string>
-    <string name="index_not_available_for_download">Цей індекс не доступний для завантаження</string>
-    <string name="index_create">Створити</string>
-
-	<!-- Tasks -->
-    <string name="progress_status">Перебіг виконання</string>
-    <string name="task_kill_warning">Ці тривалі завдання можуть припинитися, якщо ви перейдете до іншого застосунку/програми, перш ніж вони закінчаться.</string>
-    <string name="no_tasks_running">В даний час нема завдань які виконуються.</string>
-
-    <!-- Search -->
-    <string name="search_words_group_prompt">Знайти вірші</string>
-    <string name="search_all_words">Всі слова</string>
-    <string name="search_any_word">Будь-яке слово</string>
-    <string name="search_phrase">Фраза</string>
-    <string name="search_result_count">%d знайдено</string>
-    <string name="search_showing_first">Занадто багато збігів. Показані перші %d</string> 
-    <string name="search_bible_section_group_prompt">Де шукати</string>
-    <string name="search_all_bible">Вся Біблія</string>
-    <string name="search_new_testament">Новий Заповіт</string>
-    <string name="search_old_testament">Старий Заповіт</string>
-    <string name="search_current_book">Поточна книга</string>
-    <string name="error_executing_search">Неприпустимий запит пошуку</string>
-
-    <!-- Preferences -->
-    <string name="prefs_show_verseno_title">Номери віршів</string>
-    <string name="prefs_show_verseno_summary">Відобразити номери віршів</string>
-    <string name="prefs_verse_per_line_title">Один вірш на рядок</string>
-    <string name="prefs_verse_per_line_summary">Показати один вірш на рядок</string>
-    <string name="prefs_show_notes_title">Нотатки</string>
-    <string name="prefs_show_notes_summary">Відобразити нотатки</string>
-    <string name="prefs_show_strongs_title">"Відобразити номери Стронга"</string>
-    <string name="prefs_show_strongs_summary">Посилання на грецькі та єврейські визначення</string>
-    <string name="prefs_night_mode_title">Нічний режим</string>
-    <string name="prefs_night_mode_summary">Для зручного читання в темряві</string>
-    <string name="prefs_text_size_title">Розмір тексту</string>
-    <string name="prefs_text_size_summary">Бачити більше або бачити більш чітко</string>
-    <string name="prefs_interface_locale_title">Мова застосунку</string>
-    <string name="prefs_interface_locale_summary">Виберіть мову користувача інтерфейсу</string>
-    <string name="locale_change_warning">Застосування буде перезапущене, щоб перейти до нової мови інтерфейсу</string>
-
-    <!-- Notes screen -->
-    <string name="no_chapter_notes">Нема нотаток в цьому розділі</string>
-    <string name="no_verse_notes">Нема нотаток в цьому вірші</string>
-    <string name="previous">Попередній</string>
-    <string name="next">Наступний</string>
-
-    <!--  Strongs -->
-    <string name="strongs">Словник Стронга</string>
-    <string name="strongs_not_installed">Завантажте єврейський і грецький словники Стронга</string>
-    <string name="all_greek_occurrences">Показати всі повторення</string>
-    <string name="all_hebrew_occurrences">Показати всі повторення</string>
-    <string name="no_indexed_bible_with_strongs_ref">Ви повинні завантажити Біблію, що містить номера Стронга і завантажити її індекс за допомогою пошуку</string>
-
-    <!-- Module download -->
-    <string name="download">Завантажити документи</string>
-    <string name="download_confirmation">Завантажити Біблію з інтернету?</string>
-    <string name="download_source_message">Документи завантажуються з \nhttp://www.crosswire.org \nі http://xiphos.org</string>
-    <string name="download_document_confirm_prefix">"Завантажити"</string>
-    <string name="refresh_book_list">Оновити список наявних документів?</string>
-    <string name="error_downloading">Сталася помилка при завантаженні. Будь ласка, перевірте ваше інтернет-з\'єднання.</string>
-    <string name="no_internet_connection">Не вдалося підключитися до Інтернету</string>
-    <string name="storage_space_warning">Недостатньо місцевого дискового простору.</string>
-    <string name="wait_for_bible">Зачекайте щоб Біблія завантажилась. Ви після цього потрапите до головного екрану.</string>
-    <string name="wait_for_bible_not_yet">Зачекайте. Інсталяція Біблії ще не закінчилась.</string>
-    <string name="download_complete_no_bibles">Жодна Біблія не була встановлена. Будь ласка, натисніть Назад і спробуйте ще раз.</string>
-    <string name="too_many_jobs">Занадто багато завдань виконується. Зачекайте щоб деякі із них закінчились і спробуйте ще раз.</string>
-
-    <!-- Document context menu -->
-    <string name="delete">Видалити</string>
-    <string name="about">Про</string>
-    <string name="delete_doc">Видалити %s?</string>
-    
-    <!-- Verse context menu -->
-    <string name="notes">Виноски та посилання</string>
-    <string name="copy">Копіювати поточний вірш</string>
-    <string name="share_verse">Надіслати поточний вірш ...</string>
-    <string name="share_verse_subject">Вірш з Біблії був надісланий вам за допомогою Android Біблії</string>
-
-    <!-- Bookmarks -->
-    <string name="bookmarks">Закладки</string>
-    <string name="add_bookmark">Додати закладку</string>
-    <string name="bookmark_added">Закладка добавлена</string>
-    <string name="bookmark_exists">Закладка вже існує</string>
-    <string name="bookmark_labels">"Етикетки закладки"</string>
-    <string name="assign_labels">Призначення етикетки</string>
-    <string name="new_label">Нова мітка</string>
-    <string name="new_label_prompt">Назва</string>
-    
-    <!-- Dictionary -->
-    <string name="dictionary">Словник</string>
-    <string name="search_dictionary_hint">Пошук в словнику</string>
-    <string name="dictionary_contents">Зміст</string>
-
-    <!-- General Book -->
-    <string name="general_book">Книга</string>
-    <string name="general_book_contents">Зміст</string>
-
-
-    <!-- Speak -->
-    <!-- Speak - Bible -->
-    <plurals name="num_chapters">
-        <item quantity="one">%d chapter</item>
-        <item quantity="other">%d chapters</item>
-    </plurals>
-    <string name="rest_of_book">До кінця книги</string>
-    <!-- Speak - Commentary -->
-    <plurals name="num_verses">
-        <item quantity="one">%d verse</item>
-        <item quantity="other">%d verses</item>
-    </plurals>
-    <string name="rest_of_chapter">До кінця розділу</string>
-    <!-- Speak - Dictionary and other -->
-    <plurals name="num_pages">
-        <item quantity="one">%d page</item>
-        <item quantity="other">%d pages</item>
-    </plurals>
-    <!-- Speak - Common -->
-    <string name="stop">Зупинити</string>
-    <string name="tts_lang_not_available">Мова недоступна.</string>
-
-	<!-- Document types -->    
-	<string name="doc_type_bible">Біблія</string>
-	<string name="doc_type_commentary">Коментар</string>
-	<string name="doc_type_dictionary">Словник</string>
-	<string name="doc_type_book">Книга</string>
-
-    <!-- Languages -->
-	<string name="lang_default">За промовчанням</string>
-	
-    <!-- General -->
-    <string name="error_occurred">Сталася помилка</string>
-    <string name="okay">ОК</string>
-    <string name="cancel">Скасувати</string>
-    <string name="no">Ні</string>
-    <string name="error">Помилка</string>
-    <string name="more">Детальніше</string>
-    <string name="retry">Спробуйте ще раз</string>
-    <string name="please_wait">Зачекайте ...</string>
-    <string name="all">Всі</string>
-<string name="delete_index">Видалити індекс пошуку</string><string name="delete_search_index_doc">Видалити індекс %s?</string><string name="morph_robinson_not_installed">Завантажте словник Робінсона з кодами морфологічного аналізу</string><string name="prefs_show_morphology_summary">Показати грецьку морфологію Робінсона</string><string name="prefs_show_morphology_title">Морфологічні коди</string></resources>
+  <string name="app_name">Android Біблія</string>
+  <!-- Startup & Help -->
+  <string name="splash_top_text">"\n\"І сказав Бог: Хай станеться світло! І сталося світло.\"\nБуття 1:3"</string>
+  <string name="help_text">"Натисніть кнопку MЕНЮ для дій\n\nЩоб перейти до наступного або попереднього розділу, користуйтесь трекболом, D-Pad або рухом пальця по сенсорному екрані "</string>
+  <string name="help_text_long">Навігація\nЩоб перейти до наступного або попереднього розділу, користуйтесь трекболом, D-Pad або рухом пальця по сенсорному екрані\n\nНатисніть кнопку MЕНЮ для дій\n\nДля завантаження додаткових документів натисніть Меню/Детальніше/Завантажити документи\n\nТривало натисніть в поданні Біблії щоб відкрити контекстне меню для дій, щодо поточного вірша.\nТривало натисніть на документ у селекторі документів щоб видалити його або переглянути інформацію.\n\nМовлення\nНатисніть Озвучити для доступу в діалогове вікно щоб розпочати або припинити читання \n\nЗакладки\nЗакладки можуть бути додані через контекстне меню вірша. Менеджер Закладок доступний через головне меню. Контекстне меню Менеджера Закладок дозволяє групувати закладки за допомогою міток.</string>
+  <string name="version_text">Версія %s</string>
+  <string name="no_sdcard_error">Вставте SD-карту і перезапустіть знову Android Біблію.</string>
+  <!-- main menu -->
+  <string name="chooseBook">Документ</string>
+  <string name="selectPassage">Уривок</string>
+  <string name="search">Знайти</string>
+  <string name="settings">Параметри</string>
+  <string name="history">Журнал</string>
+  <string name="speak">Озвучити</string>
+  <string name="help">Довідка</string>
+  <!-- Passage navigation -->
+  <string name="choosePassageBookName">Виберіть книгу</string>
+  <string name="choosePassageChapterName">Виберіть розділ</string>
+  <!--  Search -->
+  <string name="search_index">"Індекс пошуку"</string>
+  <string name="index_creation_required">"Для пошуку необхідних індекс. \n\nІндекси можуть бути завантажені з Інтернету або створені локально.\n\nЗавантаження набагато швидше і завантаженні індекси мають більше можливостей пошуку.\n\nНеобхідне підключення до Інтернету для завантаження індексів."</string>
+  <string name="indexing_wait_msg">Коли індексування завершиться ви потрапите на екран пошуку.</string>
+  <string name="index">Індекс</string>
+  <string name="index_download">Завантажити</string>
+  <string name="index_not_available_for_download">Цей індекс не доступний для завантаження</string>
+  <string name="index_create">Створити</string>
+  <!-- Tasks -->
+  <string name="progress_status">Перебіг виконання</string>
+  <string name="task_kill_warning">Ці тривалі завдання можуть припинитися, якщо ви перейдете до іншого застосунку/програми, перш ніж вони закінчаться.</string>
+  <string name="no_tasks_running">В даний час нема завдань які виконуються.</string>
+  <!-- Search -->
+  <string name="search_words_group_prompt">Знайти вірші</string>
+  <string name="search_all_words">Всі слова</string>
+  <string name="search_any_word">Будь-яке слово</string>
+  <string name="search_phrase">Фраза</string>
+  <string name="search_result_count">%d знайдено</string>
+  <string name="search_showing_first">Занадто багато збігів. Показані перші %d</string>
+  <string name="search_bible_section_group_prompt">Де шукати</string>
+  <string name="search_all_bible">Вся Біблія</string>
+  <string name="search_new_testament">Новий Заповіт</string>
+  <string name="search_old_testament">Старий Заповіт</string>
+  <string name="search_current_book">Поточна книга</string>
+  <string name="error_executing_search">Неприпустимий запит пошуку</string>
+  <!-- Preferences -->
+  <string name="prefs_show_verseno_title">Номери віршів</string>
+  <string name="prefs_show_verseno_summary">Відобразити номери віршів</string>
+  <string name="prefs_verse_per_line_title">Один вірш на рядок</string>
+  <string name="prefs_verse_per_line_summary">Показати один вірш на рядок</string>
+  <string name="prefs_show_notes_title">Нотатки</string>
+  <string name="prefs_show_notes_summary">Відобразити нотатки</string>
+  <string name="prefs_show_strongs_title">"Відобразити номери Стронга"</string>
+  <string name="prefs_show_strongs_summary">Посилання на грецькі та єврейські визначення</string>
+  <string name="prefs_night_mode_title">Нічний режим</string>
+  <string name="prefs_night_mode_summary">Для зручного читання в темряві</string>
+  <string name="prefs_text_size_title">Розмір тексту</string>
+  <string name="prefs_text_size_summary">Бачити більше або бачити більш чітко</string>
+  <string name="prefs_interface_locale_title">Мова застосунку</string>
+  <string name="prefs_interface_locale_summary">Виберіть мову користувача інтерфейсу</string>
+  <string name="locale_change_warning">Застосування буде перезапущене, щоб перейти до нової мови інтерфейсу</string>
+  <!-- Notes screen -->
+  <string name="no_chapter_notes">Нема нотаток в цьому розділі</string>
+  <string name="no_verse_notes">Нема нотаток в цьому вірші</string>
+  <string name="previous">Попередній</string>
+  <string name="next">Наступний</string>
+  <!--  Strongs -->
+  <string name="strongs">Словник Стронга</string>
+  <string name="strongs_not_installed">Завантажте єврейський і грецький словники Стронга</string>
+  <string name="all_greek_occurrences">Показати всі повторення</string>
+  <string name="all_hebrew_occurrences">Показати всі повторення</string>
+  <string name="no_indexed_bible_with_strongs_ref">Ви повинні завантажити Біблію, що містить номера Стронга і завантажити її індекс за допомогою пошуку</string>
+  <!-- Module download -->
+  <string name="download">Завантажити документи</string>
+  <string name="download_confirmation">Завантажити Біблію з інтернету?</string>
+  <string name="download_source_message">Документи завантажуються з \nhttp://www.crosswire.org \nі http://xiphos.org</string>
+  <string name="download_document_confirm_prefix">"Завантажити"</string>
+  <string name="refresh_book_list">Оновити список наявних документів?</string>
+  <string name="error_downloading">Сталася помилка при завантаженні. Будь ласка, перевірте ваше інтернет-з\'єднання.</string>
+  <string name="no_internet_connection">Не вдалося підключитися до Інтернету</string>
+  <string name="storage_space_warning">Недостатньо місцевого дискового простору.</string>
+  <string name="wait_for_bible">Зачекайте щоб Біблія завантажилась. Ви після цього потрапите до головного екрану.</string>
+  <string name="wait_for_bible_not_yet">Зачекайте. Інсталяція Біблії ще не закінчилась.</string>
+  <string name="download_complete_no_bibles">Жодна Біблія не була встановлена. Будь ласка, натисніть Назад і спробуйте ще раз.</string>
+  <string name="too_many_jobs">Занадто багато завдань виконується. Зачекайте щоб деякі із них закінчились і спробуйте ще раз.</string>
+  <!-- Document context menu -->
+  <string name="delete">Видалити</string>
+  <string name="about">Про</string>
+  <string name="delete_doc">Видалити %s?</string>
+  <!-- Verse context menu -->
+  <string name="notes">Виноски та посилання</string>
+  <string name="copy">Копіювати поточний вірш</string>
+  <string name="share_verse">Надіслати поточний вірш ...</string>
+  <string name="share_verse_subject">Вірш з Біблії був надісланий вам за допомогою Android Біблії</string>
+  <!-- Bookmarks -->
+  <string name="bookmarks">Закладки</string>
+  <string name="add_bookmark">Додати закладку</string>
+  <string name="bookmark_added">Закладка добавлена</string>
+  <string name="bookmark_exists">Закладка вже існує</string>
+  <string name="bookmark_labels">"Етикетки закладки"</string>
+  <string name="assign_labels">Призначення етикетки</string>
+  <string name="new_label">Нова мітка</string>
+  <string name="new_label_prompt">Назва</string>
+  <!-- Dictionary -->
+  <string name="dictionary">Словник</string>
+  <string name="search_dictionary_hint">Пошук в словнику</string>
+  <string name="dictionary_contents">Зміст</string>
+  <!-- General Book -->
+  <string name="general_book">Книга</string>
+  <string name="general_book_contents">Зміст</string>
+  <!-- Speak -->
+  <!-- Speak - Bible -->
+  <plurals name="num_chapters">
+    <item quantity="one">%d chapter</item>
+    <item quantity="other">%d chapters</item>
+  </plurals>
+  <string name="rest_of_book">До кінця книги</string>
+  <!-- Speak - Commentary -->
+  <plurals name="num_verses">
+    <item quantity="one">%d verse</item>
+    <item quantity="other">%d verses</item>
+  </plurals>
+  <string name="rest_of_chapter">До кінця розділу</string>
+  <!-- Speak - Dictionary and other -->
+  <plurals name="num_pages">
+    <item quantity="one">%d page</item>
+    <item quantity="other">%d pages</item>
+  </plurals>
+  <!-- Speak - Common -->
+  <string name="stop">Зупинити</string>
+  <string name="tts_lang_not_available">Мова недоступна.</string>
+  <!-- Document types -->
+  <string name="doc_type_bible">Біблія</string>
+  <string name="doc_type_commentary">Коментар</string>
+  <string name="doc_type_dictionary">Словник</string>
+  <string name="doc_type_book">Книга</string>
+  <!-- Languages -->
+  <string name="lang_default">За промовчанням</string>
+  <!-- General -->
+  <string name="error_occurred">Сталася помилка</string>
+  <string name="okay">ОК</string>
+  <string name="cancel">Скасувати</string>
+  <string name="no">Ні</string>
+  <string name="error">Помилка</string>
+  <string name="more">Детальніше</string>
+  <string name="retry">Спробуйте ще раз</string>
+  <string name="please_wait">Зачекайте ...</string>
+  <string name="all">Всі</string>
+  <string name="delete_index">Видалити індекс пошуку</string>
+  <string name="delete_search_index_doc">Видалити індекс %s?</string>
+  <string name="morph_robinson_not_installed">Завантажте словник Робінсона з кодами морфологічного аналізу</string>
+  <string name="prefs_show_morphology_summary">Показати грецьку морфологію Робінсона</string>
+  <string name="prefs_show_morphology_title">Морфологічні коди</string>
+  <string name="choosePassageVerseName">Виберіть вірш</string>
+  <string name="one_chapter">%d chapter</string>
+  <string name="one_page">%d page</string>
+  <string name="one_verse">%d verse</string>
+  <string name="prefs_navigate_to_verse_summary">Деталізація вірша при навігації</string>
+  <string name="prefs_navigate_to_verse_title">Перейти до вірша</string>
+  <string name="some_chapters">%d chapters</string>
+  <string name="some_pages">%d pages</string>
+  <string name="some_verses">%d verses</string>
+</resources>
