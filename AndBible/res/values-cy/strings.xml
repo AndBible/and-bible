@@ -8,7 +8,7 @@
 <resources>
   <string name="app_name">And Bible</string>
   <!-- Startup & Help -->
-  <string name="splash_top_text">\"Dwedodd Duw,\'Dw i eisiau golau!\' a daeth golau i fod.\" Genesis 01:03</string>
+  <string name="splash_top_text">\"Dwedodd Duw,\'Dw i eisiau golau!\' a daeth golau i fod.\" Genesis 1:3</string>
   <string name="help_text">Gwasgwch y DDEWISLEN i weithredu Ewch i\'r bennod nesaf neu\'r flaenorol drwy ddefnyddio\'r trac-bel, D-pad neu drwy lusgo\'ch bys ar y sgrîn.</string>
   <string name="help_text_long">Cyfeirio \nEwch i\'r bennod nesaf neu\'r flaenorol drwy ddefnyddio\'r trac-bel, D-pad neu drwy lusgo\'ch bys ar y sgrîn. Gwasgwch y DDEWISLEN i weithredu.\nI lawrlwytho mwy o ddogfennau gwasgwch Dewislen/Mwy/Lawrlwytho Dogfennau \nGwasgiad hir ar \'gweld Beibl\' i agor y ddewislen weithredu ar gyfer yr adnod gyfredol. \nGwasgiad hir ar ddogfen yn y dewisydd dogfen i\'w dileu neu weld gwybodaeth. \nSiarad\nGwasgu \'Siarad\' i fynd i ddeialog dechrau neu stopio darllen\n\nNodau Llyfr\nGellir ychwanegu Nod Llyfr drwy\'r ddewislen cyd-destun adnod. Mae\'r Rheolwr Llyfrnodi yn gyrchir drwy brif ddewislen. Mae\'r ddewislen cyd-destun Rheoli Llyfrnodi yn caniatáu grwpio Nodau Llyfr dan labeli.</string>
   <string name="version_text">Fersiwn %s</string>
