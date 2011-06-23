@@ -480,6 +480,9 @@ public class SwordApi {
 		osisToHtml.setLeftToRight(bmd.isLeftToRight());
 		osisToHtml.setLanguageCode(book.getLanguage().getCode());
 		
+		// a basis for partial references
+    	osisToHtml.setBasisRef(key);
+		
 		if (isAndroid) {
 			// size of padding at bottom depends on screen size
 	    	osisToHtml.setNumPaddingBrsAtBottom(BibleApplication.getApplication().getResources().getInteger(R.integer.br_count_at_bottom));

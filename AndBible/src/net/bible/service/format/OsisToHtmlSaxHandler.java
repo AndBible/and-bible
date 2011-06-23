@@ -14,12 +14,12 @@ import net.bible.service.sword.Logger;
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
 import org.crosswire.jsword.passage.Key;
-import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.Passage;
 import org.crosswire.jsword.passage.PassageKeyFactory;
 import org.crosswire.jsword.passage.RestrictionType;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
+
 /**
  * Convert OSIS tags into html tags
  * 
@@ -69,6 +69,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     private List<Note> notesList = new ArrayList<Note>();
     private String currentNoteRef;
     private String currentRefOsisRef;
+    // used as a basis if a reference has only chapter and no book
+    private Key basisRef;
 
     private static final String NBSP = "&#160;";
     private static final String SPACE = " ";
@@ -461,8 +463,16 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     /** create a link tag from an OSISref and the content of the tag
      */
     private String getReferenceTag(String reference, String content) {
+    	log.debug("Reference:"+reference+" Content:"+content);
+    	
     	StringBuilder result = new StringBuilder();
     	try {
+    		//JSword does not know the basis (default book) so prepend it if it looks like JSword failed to work it out
+    		if (reference==null && content!=null && content.length()>0 && StringUtils.isNumeric(content.subSequence(0,1))) {
+    			reference = basisRef.getRootName()+" "+content;
+    			log.debug("Patched reference:"+reference);
+    		}
+    		
 	        Passage ref = (Passage) PassageKeyFactory.instance().getKey(reference);
 	        boolean isSingleVerse = ref.countVerses()==1;
 	        boolean isSimpleContent = content.length()<3 && content.length()>0;
@@ -580,6 +590,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	}
 	public void setBibleStyleNotesAndRefs(boolean isBibleStyleNotesAndRefs) {
 		this.isBibleStyleNotesAndRefs = isBibleStyleNotesAndRefs;
+	}
+	public void setBasisRef(Key basisRef) {
+		this.basisRef = basisRef;
 	}
 }
 
