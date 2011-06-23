@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.page;
 
+import net.bible.android.control.PassageChangeMediator;
 import android.util.Log;
 
 public class BibleJavascriptInterface {
@@ -18,7 +19,10 @@ public class BibleJavascriptInterface {
 	}
 
 	public void onScroll(int newYPos) {
-		verseCalculator.newPosition(newYPos);
+		// do not try to change verse while the page is changing - can cause all sorts of errors e.g. selected verse may not be valid in new chapter and cause chapter jumps
+		if (!PassageChangeMediator.getInstance().isPageChanging()) {
+			verseCalculator.newPosition(newYPos);
+		}
 	}
 	
 	public void registerVersePosition(int verse, int offset) {
