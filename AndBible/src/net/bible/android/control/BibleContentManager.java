@@ -35,7 +35,7 @@ public class BibleContentManager {
 
 	private BibleView bibleWebView;
 	
-	private static final String TAG = "BibleView";
+	private static final String TAG = "BibleContentManager";
 	
 	private String NO_CONTENT = "No content for selected verse";
 	

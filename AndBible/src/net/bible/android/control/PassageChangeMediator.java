@@ -13,6 +13,7 @@ public class PassageChangeMediator {
 
 	private MainBibleActivity mMainBibleActivity;
 	private BibleContentManager mBibleContentManager;
+	private boolean isPageChanging = false;
 	
 	private static final String TAG = "PassageChangeMediator";
 	
@@ -22,9 +23,14 @@ public class PassageChangeMediator {
 		return singleton;
 	}
 
+	/** first time we know a page or doc will imminently change
+	 */
 	public void onBeforeCurrentPageChanged() {
+		isPageChanging = true;
 		HistoryManager.getInstance().beforePageChange();
 	}
+	/** the document has changed so ask the view to refresh itself
+	 */
 	public void onCurrentPageChanged() {
 		if (mBibleContentManager!=null) {
 			mBibleContentManager.updateText();
@@ -32,10 +38,15 @@ public class PassageChangeMediator {
 			Log.w(TAG, "BibleContentManager not yet registered");
 		}
 	}
+
+	/** this is triggered on scroll
+	 */
 	public void onCurrentPageDetailChanged() {
 		doVerseChanged();
 	}
 
+	/** The thread which fetches the new page html has started
+	 */
 	public void contentChangeStarted() {
 		if (mMainBibleActivity!=null) {
 			mMainBibleActivity.onPassageChangeStarted();
@@ -43,12 +54,15 @@ public class PassageChangeMediator {
 			Log.w(TAG, "Bible activity not yet registered");
 		}
 	}
+	/** finished fetching html so should hide hourglass
+	 */
 	public void contentChangeFinished() {
 		if (mMainBibleActivity!=null) {
 			mMainBibleActivity.onPassageChanged();
 		} else {
 			Log.w(TAG, "Bible activity not yet registered");
 		}
+		isPageChanging = false;
 	}
 	
 	private void doVerseChanged() {
@@ -57,6 +71,10 @@ public class PassageChangeMediator {
 		} else {
 			Log.w(TAG, "Bible activity not yet registered");
 		}
+	}
+
+	public boolean isPageChanging() {
+		return isPageChanging;
 	}
 
 	public void setBibleContentManager(BibleContentManager bibleContentManager) {
