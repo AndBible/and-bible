@@ -4,16 +4,20 @@ package net.bible.service.format;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
-import net.bible.android.BibleApplication;
-import net.bible.android.activity.R;
 import net.bible.service.common.Constants;
 import net.bible.service.format.Note.NoteType;
 import net.bible.service.sword.Logger;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
+import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.NoSuchKeyException;
+import org.crosswire.jsword.passage.Passage;
+import org.crosswire.jsword.passage.PassageKeyFactory;
+import org.crosswire.jsword.passage.RestrictionType;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 /**
@@ -44,10 +48,12 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     private boolean isShowVerseNumbers = false;
     private boolean isVersePerline = false;
     private boolean isShowNotes = false;
+    private boolean isBibleStyleNotesAndRefs = false;
     private boolean isShowStrongs = false;
     private boolean isShowMorphology = false;
     private String extraStylesheet;
     private String extraFooter;
+    private int numPaddingBrsAtBottom;
     
     // internal logic
     private boolean isDelayVerse = false;
@@ -55,14 +61,13 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     private int currentVerseNo;
     private int noteCount = 0;
 
-    private boolean isWriteContent = true;
-    private boolean isWriteNote = false;
+    private boolean isWriteTempStore = false;
+    private StringBuilder tempStore = new StringBuilder();
     List<String> pendingStrongsAndMorphTags;
     
     //todo temporarily use a string but later switch to Map<int,String> of verse->note
     private List<Note> notesList = new ArrayList<Note>();
     private String currentNoteRef;
-    private StringBuffer currentNote = new StringBuffer();
     private String currentRefOsisRef;
 
     private static final String NBSP = "&#160;";
@@ -164,12 +169,12 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 			// prepare to fetch the actual note into the notes repo
 			currentNoteRef = noteRef;
-			isWriteNote = true;
-			isWriteContent = false;
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE) && isWriteNote) {
+			isWriteTempStore = true;
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
 			// don't need to do anything until closing reference tag except..
 			// delete separators like ';' that sometimes occur between reference tags
-			currentNote.delete(0, currentNote.length());
+			tempStore.delete(0, tempStore.length());
+			isWriteTempStore = true;
 			// store the osisRef attribute for use with the note
 			this.currentRefOsisRef = attrs.getValue(OSISUtil.OSIS_ATTR_REF);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LB)) {
@@ -225,24 +230,30 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 				// A space is needed to separate one verse from the next, otherwise the 2 verses butt up against each other which looks bad
 				write(" ");
 			}
-		} else if (name.equals("note")) {
-			String noteText = currentNote.toString();
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {
+			String noteText = tempStore.toString();
 			if (noteText.length()>0) {
-				isWriteNote = false;
 				if (!StringUtils.containsOnly(noteText, "[];().,")) {
 					Note note = new Note(currentVerseNo, currentNoteRef, noteText, NoteType.TYPE_GENERAL, null);
 					notesList.add(note);
 				}
 				// and clear the buffer
-				currentNote.delete(0, currentNote.length());
+				tempStore.delete(0, tempStore.length());
 			}
-			isWriteContent = true;
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE) && isWriteNote) {
-			Note note = new Note(currentVerseNo, currentNoteRef, currentNote.toString(), NoteType.TYPE_REFERENCE, currentRefOsisRef);
-			notesList.add(note);
-			// and clear the buffer
-			currentNote.delete(0, currentNote.length());
-			currentRefOsisRef = null;
+			isWriteTempStore = false;
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
+			if (isBibleStyleNotesAndRefs) {
+				Note note = new Note(currentVerseNo, currentNoteRef, tempStore.toString(), NoteType.TYPE_REFERENCE, currentRefOsisRef);
+				notesList.add(note);
+				// and clear the buffer
+				tempStore.delete(0, tempStore.length());
+				currentRefOsisRef = null;
+			} else {
+				log.debug("OSIS reference"+currentRefOsisRef);
+				write(getReferenceTag(currentRefOsisRef, tempStore.toString()));
+				tempStore.delete(0, tempStore.length());
+				isWriteTempStore = false;
+			}
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {
 			// end quotation, but <q /> tag is a marker and contains no content so <q /> will appear at beginning and end of speech
@@ -267,15 +278,14 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     public void characters (char buf [], int offset, int len) throws SAXException
     {
     	writeVerse();
-        if (isWriteContent) {
+        if (!isWriteTempStore) {
             String s = new String(buf, offset, len);
         	if (HEBREW_LANGUAGE_CODE.equals(languageCode)) {
         		s = doHebrewCharacterAdjustments(s);
         	}
             write(s);
-        }
-        if (isWriteNote) {
-        	currentNote.append(buf, offset, len); 
+        } else {
+        	tempStore.append(buf, offset, len); 
         }
     }
 
@@ -448,6 +458,42 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     	return morphTags;
     }
 
+    /** create a link tag from an OSISref and the content of the tag
+     */
+    private String getReferenceTag(String reference, String content) {
+    	StringBuilder result = new StringBuilder();
+    	try {
+	        Passage ref = (Passage) PassageKeyFactory.instance().getKey(reference);
+	        boolean isSingleVerse = ref.countVerses()==1;
+	        boolean isSimpleContent = content.length()<3 && content.length()>0;
+	        Iterator<Key> it = ref.rangeIterator(RestrictionType.CHAPTER);
+	        
+	        String display;
+	        if (isSingleVerse && isSimpleContent) {
+		        // simple verse no e.g. 1 or 2 preceding the actual verse in TSK
+				result.append("<a href='").append(Constants.BIBLE_PROTOCOL).append(":").append(it.next().getOsisRef()).append("'>");
+				result.append(content);
+				result.append("</a>");
+	        } else {
+	        	// multiple complex references
+	        	boolean isFirst = true;
+				while (it.hasNext()) {
+					Key key = it.next();
+					if (!isFirst) {
+						result.append(" ");
+					}
+					result.append("<a href='").append(Constants.BIBLE_PROTOCOL).append(":").append(key.iterator().next().getOsisRef()).append("'>");
+					result.append(key);
+					result.append("</a>&nbsp; ");
+					isFirst = false;
+				}
+	        }
+    	} catch (Exception e) {
+    		log.error("Error parsing OSIS reference:"+reference, e);
+    	}
+    	return result.toString();
+    }
+    
     /** StringUtils methods only compare with a single char and hence create lots of temporary Strings
      * This method compares with all chars and just creates one new string for each original string.
      * This is to minimise memory overhead & gc.
@@ -493,8 +539,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     }
 
     private String getPaddingAtBottom() {
-    	int brCount = BibleApplication.getApplication().getResources().getInteger(R.integer.br_count_at_bottom);
-    	return StringUtils.repeat(HTML_BR, brCount);
+    	return StringUtils.repeat(HTML_BR, numPaddingBrsAtBottom);
     }
     
     public void setLanguageCode(String languageCode) {
@@ -529,6 +574,12 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	}
 	public void setExtraFooter(String extraFooter) {
 		this.extraFooter = extraFooter;
+	}
+	public void setNumPaddingBrsAtBottom(int numPaddingBrsAtBottom) {
+		this.numPaddingBrsAtBottom = numPaddingBrsAtBottom;
+	}
+	public void setBibleStyleNotesAndRefs(boolean isBibleStyleNotesAndRefs) {
+		this.isBibleStyleNotesAndRefs = isBibleStyleNotesAndRefs;
 	}
 }
 
