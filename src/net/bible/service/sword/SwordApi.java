@@ -480,31 +480,39 @@ public class SwordApi {
 		osisToHtml.setLeftToRight(bmd.isLeftToRight());
 		osisToHtml.setLanguageCode(book.getLanguage().getCode());
 		
-		SharedPreferences preferences = CommonUtils.getSharedPreferences();
-		if (preferences!=null) {
-			// show verse numbers if user has selected to show verse numbers AND teh book is a bible (so don't even try to show verses in a Dictionary)
-			if (BookCategory.BIBLE.equals(book.getBookCategory())) {
-				osisToHtml.setShowVerseNumbers(preferences.getBoolean("show_verseno_pref", true) && book.getBookCategory().equals(BookCategory.BIBLE));
-				osisToHtml.setVersePerline(preferences.getBoolean("verse_per_line_pref", false));
-				osisToHtml.setShowNotes(preferences.getBoolean("show_notes_pref", true));
-				osisToHtml.setShowStrongs(preferences.getBoolean("show_strongs_pref", true));
-				osisToHtml.setShowMorphology(preferences.getBoolean("show_morphology_pref", false));
-			}
-			if (preferences.getBoolean("night_mode_pref", false)) {
-				osisToHtml.setExtraStylesheet(NIGHT_MODE_STYLESHEET);
-			}
-			if (book.getBookCategory().equals(BookCategory.DICTIONARY)) {
-				if (book.hasFeature(FeatureType.HEBREW_DEFINITIONS)) {
-					//add allHebrew refs link
-					String prompt = BibleApplication.getApplication().getString(R.string.all_hebrew_occurrences);
-					osisToHtml.setExtraFooter("<br /><a href='"+Constants.ALL_HEBREW_OCCURRENCES_PROTOCOL+":"+key.getName()+"' class='allStrongsRefsLink'>"+prompt+"</a>");
-				} else if (book.hasFeature(FeatureType.GREEK_DEFINITIONS)) {
-					//add allGreek refs link
-					String prompt = BibleApplication.getApplication().getString(R.string.all_greek_occurrences);
-					osisToHtml.setExtraFooter("<br /><a href='"+Constants.ALL_GREEK_OCCURRENCES_PROTOCOL+":"+key.getName()+"' class='allStrongsRefsLink'>"+prompt+"</a>");
+		if (isAndroid) {
+			// size of padding at bottom depends on screen size
+	    	osisToHtml.setNumPaddingBrsAtBottom(BibleApplication.getApplication().getResources().getInteger(R.integer.br_count_at_bottom));
+	    	
+	    	// use old style discreet references if viewing a bible
+	    	osisToHtml.setBibleStyleNotesAndRefs(BookCategory.BIBLE.equals(book.getBookCategory()));
+	    	
+			SharedPreferences preferences = CommonUtils.getSharedPreferences();
+			if (preferences!=null) {
+				// show verse numbers if user has selected to show verse numbers AND teh book is a bible (so don't even try to show verses in a Dictionary)
+				if (BookCategory.BIBLE.equals(book.getBookCategory())) {
+					osisToHtml.setShowVerseNumbers(preferences.getBoolean("show_verseno_pref", true) && book.getBookCategory().equals(BookCategory.BIBLE));
+					osisToHtml.setVersePerline(preferences.getBoolean("verse_per_line_pref", false));
+					osisToHtml.setShowNotes(preferences.getBoolean("show_notes_pref", true));
+					osisToHtml.setShowStrongs(preferences.getBoolean("show_strongs_pref", true));
+					osisToHtml.setShowMorphology(preferences.getBoolean("show_morphology_pref", false));
 				}
+				if (preferences.getBoolean("night_mode_pref", false)) {
+					osisToHtml.setExtraStylesheet(NIGHT_MODE_STYLESHEET);
+				}
+				if (book.getBookCategory().equals(BookCategory.DICTIONARY)) {
+					if (book.hasFeature(FeatureType.HEBREW_DEFINITIONS)) {
+						//add allHebrew refs link
+						String prompt = BibleApplication.getApplication().getString(R.string.all_hebrew_occurrences);
+						osisToHtml.setExtraFooter("<br /><a href='"+Constants.ALL_HEBREW_OCCURRENCES_PROTOCOL+":"+key.getName()+"' class='allStrongsRefsLink'>"+prompt+"</a>");
+					} else if (book.hasFeature(FeatureType.GREEK_DEFINITIONS)) {
+						//add allGreek refs link
+						String prompt = BibleApplication.getApplication().getString(R.string.all_greek_occurrences);
+						osisToHtml.setExtraFooter("<br /><a href='"+Constants.ALL_GREEK_OCCURRENCES_PROTOCOL+":"+key.getName()+"' class='allStrongsRefsLink'>"+prompt+"</a>");
+					}
+				}
+	
 			}
-
 		}
 		
 		return osisToHtml;

@@ -48,7 +48,9 @@ public class LinkControl {
 	        String ref = uriTokens[1];
 	
 	        // hebrew or greek
-	        if (Constants.GREEK_DEF_PROTOCOL.equals(protocol)) {
+	        if (Constants.BIBLE_PROTOCOL.equals(protocol)) {
+	        	showBible(ref);
+	        } else if (Constants.GREEK_DEF_PROTOCOL.equals(protocol)) {
 	        	showStrongs(Defaults.getGreekDefinitions(), ref);
 	        } else if (Constants.HEBREW_DEF_PROTOCOL.equals(protocol)) {
 	        	showStrongs(Defaults.getHebrewDefinitions(), ref);
@@ -70,6 +72,17 @@ public class LinkControl {
 		}
 	}
 	
+	/** user has selected a Bible verse link
+	 */
+	private void showBible(String key) throws NoSuchKeyException {
+		Book book = CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument();
+
+        Key bibleKey = book.getKey(key); 
+   		CurrentPageManager.getInstance().setCurrentDocumentAndKey(book, bibleKey);
+		
+		return;
+	}
+
 	/** user has selected a Strong's Number link so show Strong's page for key in link
 	 */
 	private void showStrongs(Book book, String key) throws NoSuchKeyException {
