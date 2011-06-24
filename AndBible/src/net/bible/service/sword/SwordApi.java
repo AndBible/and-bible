@@ -304,6 +304,7 @@ public class SwordApi {
 				"zText".equals(book.getBookMetaData().getProperty("ModDrv")) &&
 				!"FreCrampon".equals(book.getInitials()) &&
 				!"AB".equals(book.getInitials()) &&
+				!"FarsiOPV".equals(book.getInitials()) &&
 				!"WEB".equals(book.getInitials()) &&
 				!"HNV".equals(book.getInitials())) {
 				retVal = readHtmlTextOptimizedZTextOsis(book, key, maxKeyCount);

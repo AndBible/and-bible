@@ -14,9 +14,11 @@ import net.bible.service.sword.Logger;
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Passage;
 import org.crosswire.jsword.passage.PassageKeyFactory;
 import org.crosswire.jsword.passage.RestrictionType;
+import org.crosswire.jsword.passage.Verse;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -70,7 +72,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     private String currentNoteRef;
     private String currentRefOsisRef;
     // used as a basis if a reference has only chapter and no book
-    private Key basisRef;
+    private Verse basisRef;
 
     private static final String NBSP = "&#160;";
     private static final String SPACE = " ";
@@ -468,8 +470,16 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     	StringBuilder result = new StringBuilder();
     	try {
     		//JSword does not know the basis (default book) so prepend it if it looks like JSword failed to work it out
+    		//We only need to worry about the first ref because JSword uses the first ref as the basis for the subsequent refs
     		if (reference==null && content!=null && content.length()>0 && StringUtils.isNumeric(content.subSequence(0,1))) {
-    			reference = basisRef.getRootName()+" "+content;
+    			// this check for a colon to see if the first ref is verse:chap is not perfect but it will do until JSword adds a fix
+    			int firstColonPos = content.indexOf(":");
+    			boolean isVerseAndChapter = firstColonPos>0 && firstColonPos<4;
+    			if (isVerseAndChapter) {
+        			reference = basisRef.getBook()+" "+content;
+    			} else {
+    				reference = basisRef.getBook()+" "+basisRef.getChapter()+":"+content;
+    			}
     			log.debug("Patched reference:"+reference);
     		}
     		
@@ -500,6 +510,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	        }
     	} catch (Exception e) {
     		log.error("Error parsing OSIS reference:"+reference, e);
+    		// just return the content with no html markup
+    		result.append(content);
     	}
     	return result.toString();
     }
@@ -592,7 +604,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		this.isBibleStyleNotesAndRefs = isBibleStyleNotesAndRefs;
 	}
 	public void setBasisRef(Key basisRef) {
-		this.basisRef = basisRef;
+		// KeyUtil always returns a Verse even if it is only Gen 1:1
+		this.basisRef = KeyUtil.getVerse(basisRef);
 	}
 }
 
