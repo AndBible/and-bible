@@ -253,7 +253,6 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 				tempStore.delete(0, tempStore.length());
 				currentRefOsisRef = null;
 			} else {
-				log.debug("OSIS reference"+currentRefOsisRef);
 				write(getReferenceTag(currentRefOsisRef, tempStore.toString()));
 				tempStore.delete(0, tempStore.length());
 				isWriteTempStore = false;
@@ -465,7 +464,6 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     /** create a link tag from an OSISref and the content of the tag
      */
     private String getReferenceTag(String reference, String content) {
-    	log.debug("Reference:"+reference+" Content:"+content);
     	
     	StringBuilder result = new StringBuilder();
     	try {
