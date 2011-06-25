@@ -90,7 +90,6 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 	 */
 	@Override
 	public Key getKey() {
-		Log.i(TAG, "getKey:"+currentBibleVerse.getVerseSelected());
 		return currentBibleVerse.getVerseSelected();
     }
 
