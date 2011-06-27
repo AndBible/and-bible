@@ -63,12 +63,13 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     private int currentVerseNo;
     private int noteCount = 0;
 
-    private boolean isWriteTempStore = false;
+    private int writeTempStoreRequestCount = 0;
     private StringBuilder tempStore = new StringBuilder();
     List<String> pendingStrongsAndMorphTags;
     
     //todo temporarily use a string but later switch to Map<int,String> of verse->note
     private List<Note> notesList = new ArrayList<Note>();
+    private boolean isInNote = false;
     private String currentNoteRef;
     private String currentRefOsisRef;
     // used as a basis if a reference has only chapter and no book
@@ -166,19 +167,17 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 				write("<div>");
 			}
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {
-			String noteRef = getNoteRef(attrs);
-			if (isShowNotes) {
-				write("<span class='noteRef'>" + noteRef + "</span> ");
-			}
+			isInNote = true;
+			currentNoteRef = getNoteRef(attrs);
+			writeNoteRef(currentNoteRef);
 
 			// prepare to fetch the actual note into the notes repo
-			currentNoteRef = noteRef;
-			isWriteTempStore = true;
+			writeTempStoreRequestCount++;
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
 			// don't need to do anything until closing reference tag except..
 			// delete separators like ';' that sometimes occur between reference tags
 			tempStore.delete(0, tempStore.length());
-			isWriteTempStore = true;
+			writeTempStoreRequestCount++;
 			// store the osisRef attribute for use with the note
 			this.currentRefOsisRef = attrs.getValue(OSISUtil.OSIS_ATTR_REF);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LB)) {
@@ -244,9 +243,15 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 				// and clear the buffer
 				tempStore.delete(0, tempStore.length());
 			}
-			isWriteTempStore = false;
+			isInNote = false;
+			writeTempStoreRequestCount--;
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
 			if (isBibleStyleNotesAndRefs) {
+				// a few modules like HunUj have refs in the text but not surrounded by a Note tag (like esv) so need to add  Note here
+				if (!isInNote) {
+					currentNoteRef = createNoteRef();
+					writeNoteRef(currentNoteRef);
+				}
 				Note note = new Note(currentVerseNo, currentNoteRef, tempStore.toString(), NoteType.TYPE_REFERENCE, currentRefOsisRef);
 				notesList.add(note);
 				// and clear the buffer
@@ -255,8 +260,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			} else {
 				write(getReferenceTag(currentRefOsisRef, tempStore.toString()));
 				tempStore.delete(0, tempStore.length());
-				isWriteTempStore = false;
 			}
+			writeTempStoreRequestCount--;
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {
 			// end quotation, but <q /> tag is a marker and contains no content so <q /> will appear at beginning and end of speech
@@ -281,7 +286,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     public void characters (char buf [], int offset, int len) throws SAXException
     {
     	writeVerse();
-        if (!isWriteTempStore) {
+        if (writeTempStoreRequestCount==0) {
             String s = new String(buf, offset, len);
         	if (HEBREW_LANGUAGE_CODE.equals(languageCode)) {
         		s = doHebrewCharacterAdjustments(s);
@@ -342,16 +347,31 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
     private String getNoteRef(Attributes attrs) {
     	// if the ref is specified as an attribute then use that
     	String noteRef = attrs.getValue("n");
-    	if (StringUtils.isEmpty(noteRef)) {
-    		// else just get the next char
-	    	int inta = (int)'a';
-	    	char nextNoteChar = (char)(inta+(noteCount++ % 26));
-	    	noteRef = String.valueOf(nextNoteChar);
-    	}
+		if (StringUtils.isEmpty(noteRef)) {
+			noteRef = createNoteRef();
+		}
     	return noteRef;
     }
+    /** either use the character passed in or get the next character in a list a-z
+     * 
+     * @return a single char to use as a note ref
+     */
+	private String createNoteRef() {
+		// else just get the next char
+    	int inta = (int)'a';
+    	char nextNoteChar = (char)(inta+(noteCount++ % 26));
+    	return String.valueOf(nextNoteChar);
+	}
 
-    /** Convert a Strongs lemma into a url
+	/** write noteref html to outputstream
+	 */
+	private void writeNoteRef(String noteRef) throws SAXException {
+		if (isShowNotes) {
+			write("<span class='noteRef'>" + noteRef + "</span> ");
+		}
+	}
+
+	/** Convert a Strongs lemma into a url
      * E.g. lemmas "strong:H0430", "strong:H0853 strong:H01254"
      * 
      * @return a single char to use as a note ref
