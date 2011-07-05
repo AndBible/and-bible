@@ -7,6 +7,12 @@ import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
 
 /** This can either signify a quote or Red Letter
+ * Example from ESV 
+ * 		But he answered them, <q marker="" who="Jesus"><q level="1" marker="“" sID="40024002.1"/>You see all these
+ * Example from KJV
+ * 		said ... unto them, <q who="Jesus">...See ye
+ * 
+ * Apparently quotation marks are not supposed to appear in the KJV (https://sites.google.com/site/kjvtoday/home/Features-of-the-KJV/quotation-marks)
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
