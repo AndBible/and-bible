@@ -2,6 +2,9 @@ package net.bible.service.format;
 
 import junit.framework.TestCase;
 
+import net.bible.service.format.osistohtml.OsisToHtmlParameters;
+import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler;
+
 import org.xml.sax.helpers.AttributesImpl;
 
 public class OsisToHtmlSaxHandlerTest extends TestCase {
@@ -14,7 +17,7 @@ public class OsisToHtmlSaxHandlerTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		try {
-		testClass = new OsisToHtmlSaxHandler();
+		testClass = new OsisToHtmlSaxHandler(new OsisToHtmlParameters());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -30,7 +33,7 @@ public class OsisToHtmlSaxHandlerTest extends TestCase {
 	public void testStartElementStringStringStringAttributes() throws Exception {
 		char[] written = "written text".toCharArray();
 		char[] ignored = "ignored".toCharArray();
-		testClass.setShowNotes(false);
+//		testClass.setShowNotes(false);
 		
 		testClass.startDocument();
 		testClass.startElement(null, "verse", null, new AttributesImpl());

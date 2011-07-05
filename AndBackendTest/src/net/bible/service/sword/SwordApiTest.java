@@ -1,5 +1,7 @@
 package net.bible.service.sword;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
@@ -46,8 +48,8 @@ public class SwordApiTest extends TestCase {
 		for (Object prop : props.keySet()) {
 			System.out.println(prop);
 		}
-
 	}
+	
 	public void testReadHtmlText() throws Exception {
 		Book jfb = getJFB();
 		Key key = PassageKeyFactory.instance().getKey("Mat 1:1");
@@ -94,6 +96,17 @@ public class SwordApiTest extends TestCase {
 		System.out.println(html);
 	}
 	
+	public void testReadPolBibTysia() throws Exception {
+		Book esv = getBook("PolBibTysia");
+		Key key = PassageKeyFactory.instance().getKey("Gen 1");
+		
+		String html = getHtml(esv, key, 100);
+		System.out.println(html);
+//		assertTrue("key text missing", html.contains("searched and inquired carefully,"));
+//		assertTrue("key text missing", html.contains("inquiring what person or time"));
+//		System.out.println(html);
+	}
+
 	public void testReadWSCKeys() throws Exception {
 		Book book = getBook("Westminster");
 		Key keyList = book.getGlobalKeyList();
@@ -132,6 +145,35 @@ public class SwordApiTest extends TestCase {
     		System.out.println(globalKeyList.get(i));
     	}
     	assertEquals("Incorrect number of top level keys", 6, globalKeyList.getChildCount());
+	}
+
+	public void testGetTags() throws Exception {
+		Book book = getBook("TS1998");
+
+		Key key = book.getKey("matt.25.6");
+		System.out.println(book.getRawText(key));
+
+		key = book.getKey("matt.25.7");
+		System.out.println(book.getRawText(key));
+	}
+	
+	public void testComparePilgrimKeys() throws Exception {
+		Book book = getBook("Pilgrim");
+		
+		// flatten and cache all the keys 
+		List<Key> cachedKeyList = new ArrayList<Key>();
+		for (Key key : book.getGlobalKeyList()) {
+			cachedKeyList.add(key);
+		}
+		// get Part II/First Stage key
+		Key partIIFirstStage = cachedKeyList.get(20);
+    	assertEquals("wrong key 20", "THE FIRST STAGE", partIIFirstStage.getName());
+    	assertEquals("wrong key 20", "PART II", partIIFirstStage.getParent().getName());
+		
+    	// now try to find the above key in our cached list of keys but the wrong key is returned
+    	int indexOfKey = cachedKeyList.indexOf(partIIFirstStage);
+    	// this test fails because Part I/First Stage is returned instead of Part II/First Stage
+    	assertEquals("Wrong index", 20, indexOfKey);
 	}
 
 	public void testReadHodgeMissingKey() throws Exception {

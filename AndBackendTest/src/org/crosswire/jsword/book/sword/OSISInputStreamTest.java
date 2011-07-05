@@ -7,18 +7,24 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 
 import junit.framework.TestCase;
 import net.bible.service.common.ParseException;
 import net.bible.service.format.OsisToCanonicalTextSaxHandler;
-import net.bible.service.format.OsisToHtmlSaxHandler;
+import net.bible.service.format.osistohtml.OsisToHtmlParameters;
+import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler;
 import net.bible.service.sword.OSISInputStream;
 
 import org.crosswire.common.xml.SAXEventProvider;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookData;
+import org.crosswire.jsword.book.BookFilters;
+import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.Defaults;
+import org.crosswire.jsword.book.FeatureType;
+import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.PassageKeyFactory;
 import org.xml.sax.ContentHandler;
@@ -71,6 +77,16 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		Book kjv = getBook("KJV");
 
 		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Col 1:1"));
+		String chapter = convertStreamToString(osisInputStream);
+//		int numOpeningDivs = count(chapter, "<div>");
+//		int numClosingDivs = count(chapter, "</div>");
+		System.out.println(chapter);
+	}
+
+	public void testReadABPGRKJn1() throws Exception {
+		Book kjv = getBook("ABP");
+
+		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Jn 1:1"));
 		String chapter = convertStreamToString(osisInputStream);
 //		int numOpeningDivs = count(chapter, "<div>");
 //		int numClosingDivs = count(chapter, "</div>");
@@ -194,7 +210,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		try {
 
 			if (osissep != null) {
-				ContentHandler osisHandler = new OsisToHtmlSaxHandler();
+				ContentHandler osisHandler = new OsisToHtmlSaxHandler(new OsisToHtmlParameters());
 
 				osissep.provideSAXEvents(osisHandler);
 		
@@ -250,7 +266,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		try {
 
 			if (osissep != null) {
-				ContentHandler osisHandler = new OsisToHtmlSaxHandler();
+				ContentHandler osisHandler = new OsisToHtmlSaxHandler(new OsisToHtmlParameters());
 
 				osissep.provideSAXEvents(osisHandler);
 		
@@ -311,6 +327,32 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		System.out.println(chapter);
 	}
 
+	public void testFindAllStrongsRef() throws Exception {
+		List<Book> bibles = Books.installed().getBooks(BookFilters.getBibles());
+		
+		for (Book book : bibles) {
+			try {
+				if (book.hasFeature(FeatureType.STRONGS_NUMBERS)) {
+					if (!book.getIndexStatus().equals(IndexStatus.DONE)) {
+						System.out.println("Unindexed:"+book);
+					} else {
+						Key resultsH = book.find("+[Gen 1:1] strong:h7225"); //beginning
+						Key resultsG = book.find("+[John 1:1] strong:g746"); //beginning
+						Key resultsGOT = book.find("+[Gen 1:1] strong:g746"); //beginning
+						if (resultsH.getCardinality()==0 && resultsG.getCardinality()==0 && resultsGOT.getCardinality()==0) {
+							System.out.println("No refs returned in"+book.getInitials());
+						} else {
+							System.out.println("Ok:"+book.getInitials()+" "+resultsH.getCardinality()+"/"+resultsG.getCardinality()+ "/" + resultsGOT.getCardinality());
+						}
+	//					assertTrue("No refs returned in"+book.getInitials(), resultsH.getCardinality()>0 || resultsG.getCardinality()>0);
+					}
+				}
+			} catch (Exception e) {
+				System.out.println("Error:"+book.getInitials()+":"+e.getMessage());
+			}
+		}
+	}
+
 	private Book getKJV() {
 		return getBook("KJV");
 	}
@@ -323,6 +365,8 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		}
 		return null;
 	}
+	
+	
 //	/**
 //	 * Test method for {@link org.crosswire.jsword.book.sword.OSISInputStream#OSISInputStream(org.crosswire.jsword.book.Book, org.crosswire.jsword.passage.Key)}.
 //	 */

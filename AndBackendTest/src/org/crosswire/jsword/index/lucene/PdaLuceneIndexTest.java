@@ -9,10 +9,17 @@ import net.bible.service.sword.SwordApi;
 import org.crosswire.common.util.CWProject;
 import org.crosswire.common.util.NetUtil;
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.BookData;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.BookMetaData;
+import org.crosswire.jsword.book.Books;
+import org.crosswire.jsword.book.FeatureType;
+import org.crosswire.jsword.book.OSISUtil;
 import org.crosswire.jsword.book.sword.SwordBookDriver;
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.NoSuchKeyException;
+import org.crosswire.jsword.passage.PassageKeyFactory;
+import org.jdom.Element;
 
 public class PdaLuceneIndexTest extends TestCase {
 
@@ -58,6 +65,18 @@ public class PdaLuceneIndexTest extends TestCase {
 			e.printStackTrace();
 		}
 		
+	}
+	
+	public void testGetStrongs() throws NoSuchKeyException, BookException {
+		Book book = Books.installed().getBook("KJV");
+		assertTrue("Should have Strongs", book.getBookMetaData().hasFeature(FeatureType.STRONGS_NUMBERS));
+		
+		Key key = book.getKey("Gen 1:1");
+		BookData data = new BookData(book, key);
+		Element osis = data.getOsisFragment();
+		
+		String strongsNumbers = OSISUtil.getStrongsNumbers(osis);
+		assertTrue("No Strongs in KJV", strongsNumbers.length()>0);
 	}
 
 	private void doFindTest(Book book, String test, int expected) throws BookException {
