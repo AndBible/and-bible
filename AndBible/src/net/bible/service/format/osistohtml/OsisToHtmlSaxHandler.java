@@ -197,6 +197,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			write("<p />");
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {
 			qHandler.start(attrs);
+		} else if (name.equals("transChange")) {
+			write("<span class='transChange'>");
 		} else if ((parameters.isShowStrongs() || parameters.isShowMorphology()) && name.equals(OSISUtil.OSIS_ELEMENT_W) && isAttr(OSISUtil.ATTRIBUTE_W_LEMMA, attrs)) {
 			// Strongs & morphology references
 			// example of strongs refs: <w lemma="strong:H0430">God</w> <w lemma="strong:H0853 strong:H01254" morph="strongMorph:TH8804">created</w>
@@ -237,6 +239,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			// end quotation, but <q /> tag is a marker and contains no content
 			// so <q /> will appear at beginning and end of speech
 			qHandler.end();
+		} else if (name.equals("transChange")) {
+			write("</span>");
 		} else if ((parameters.isShowStrongs() || parameters.isShowMorphology())
 				&& name.equals(OSISUtil.OSIS_ELEMENT_W)) {
 			if (pendingStrongsAndMorphTags != null) {

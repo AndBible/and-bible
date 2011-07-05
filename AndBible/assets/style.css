@@ -34,6 +34,9 @@ h1 {
 .redLetter {
 	color: #800;
 }
+.transChange {
+	font-style: italic;
+}
 .morphology {
 	color: #4B7E4B;
 	font-size: 0.7em;
