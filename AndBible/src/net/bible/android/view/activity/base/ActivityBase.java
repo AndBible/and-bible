@@ -153,7 +153,6 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 	protected void onPause() {
 		super.onPause();
         Log.i(getLocalClassName(), "onPause");
-        CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this);
 	}
 
 	@Override
@@ -173,5 +172,7 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 	protected void onStop() {
 		super.onStop();
         Log.i(getLocalClassName(), "onStop");
+        // call this onStop, although it is not guarranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
+        CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this);
 	}
 }

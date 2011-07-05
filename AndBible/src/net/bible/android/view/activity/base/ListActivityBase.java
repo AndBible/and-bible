@@ -143,7 +143,6 @@ public class ListActivityBase extends ListActivity implements AndBibleActivity {
 	protected void onPause() {
 		super.onPause();
         Log.i(getLocalClassName(), "onPause");
-        CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this);
 	}
 
 	@Override
@@ -163,5 +162,6 @@ public class ListActivityBase extends ListActivity implements AndBibleActivity {
 	protected void onStop() {
 		super.onStop();
         Log.i(getLocalClassName(), "onStop");
+        CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this);
 	}
 }
