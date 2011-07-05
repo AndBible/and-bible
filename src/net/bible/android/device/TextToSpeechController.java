@@ -5,6 +5,9 @@ import java.util.Locale;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
+import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
+import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
+import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
@@ -26,7 +29,7 @@ import android.util.Log;
  * </p>
  * <ul>
  */
-public class TextToSpeechController implements TextToSpeech.OnInitListener, TextToSpeech.OnUtteranceCompletedListener{
+public class TextToSpeechController implements TextToSpeech.OnInitListener, TextToSpeech.OnUtteranceCompletedListener, AppToBackgroundListener {
 
     private static final String TAG = "TextToSpeechController";
 
@@ -49,6 +52,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     
     private TextToSpeechController() {
     	context = BibleApplication.getApplication().getApplicationContext();
+    	CurrentActivityHolder.getInstance().addAppToBackgroundListener(this);
     }
 
     public void speak(Locale speechLocale, String textToSpeak, boolean queue) {
@@ -143,5 +147,10 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 	public boolean isSpeaking() {
 		Log.d(TAG, "isSpeaking called");
 		return mTts!=null && mTts.isSpeaking();
+	}
+
+	@Override
+	public void applicationNowInBackground(AppToBackgroundEvent e) {
+		stop();		
 	}
 }

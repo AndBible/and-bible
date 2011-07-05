@@ -76,6 +76,8 @@ public class SpeakControl {
 		return definitions;
 	}
 	
+	/** prepare to speak
+	 */
 	public void speak(NumPagesToSpeakDefinition numPagesDefn, boolean queue, boolean repeat) {
 		Log.d(TAG, "Chapters:"+numPagesDefn.getNumPages());
 		CurrentPage page = CurrentPageManager.getInstance().getCurrentPage();

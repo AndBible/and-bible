@@ -209,7 +209,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 				pendingStrongsAndMorphTags = getStrongsAndMorphTags(strongsLemma, morphology);
 			}
 		} else {
-			log.info("Verse "+currentVerseNo+" unsupported OSIS tag:"+name);
+//			log.info("Verse "+currentVerseNo+" unsupported OSIS tag:"+name);
 		}
 	}
 
