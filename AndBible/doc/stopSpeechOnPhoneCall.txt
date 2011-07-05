@@ -1,2 +1,4 @@
 Stop speaking on phone call
 http://stackoverflow.com/questions/1843911/android-detect-when-another-activity-is-launched-or-your-activity-loses-focus
+http://stackoverflow.com/questions/5314748/android-activity-stack
+http://stackoverflow.com/questions/2314969/how-to-determine-if-one-of-my-activities-is-in-the-foreground

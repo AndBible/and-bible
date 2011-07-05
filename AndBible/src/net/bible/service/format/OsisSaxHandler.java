@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import net.bible.service.format.osistohtml.HtmlTextWriter;
 import net.bible.service.sword.Logger;
 
 import org.xml.sax.Attributes;
@@ -19,21 +20,15 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public class OsisSaxHandler extends DefaultHandler {
     
-    // internal logic
-    private int currentVerseNo;
-
     // debugging
     private boolean isDebugMode = false;
 
-    private Writer writer;
+    private HtmlTextWriter writer;
     
     private static final Logger log = new Logger("OsisSaxHandler");
     
     public OsisSaxHandler() {
-        this(null);
-    }
-    public OsisSaxHandler(Writer theWriter) {
-        writer = theWriter == null ? new StringWriter() : theWriter;
+        writer = new HtmlTextWriter();
     }
 
     /*
@@ -43,7 +38,7 @@ public class OsisSaxHandler extends DefaultHandler {
      */
     /* @Override */
     public String toString() {
-        return writer.toString();
+        return writer.getHtml();
     }
 
     /** return verse from osis id of format book.chap.verse
@@ -73,12 +68,8 @@ public class OsisSaxHandler extends DefaultHandler {
         }
     }
     
-	protected void write(String s) throws SAXException {
-		try {
-			writer.write(s);
-		} catch (IOException e) {
-			throw new SAXException("I/O error", e);
-		}
+	protected void write(String s) {
+		writer.write(s);
 	}
 
     /** check the value of the specified attribute and return true if same as checkvalue
@@ -96,7 +87,7 @@ public class OsisSaxHandler extends DefaultHandler {
     	return checkValue.equals(value);
     }
     
-    protected void debug(String name, Attributes attrs, boolean isStartTag) throws SAXException {
+    protected void debug(String name, Attributes attrs, boolean isStartTag) {
 	    if (isDebugMode) {
 	        write("*"+name);
 	        if (attrs != null) {
@@ -115,14 +106,11 @@ public class OsisSaxHandler extends DefaultHandler {
 		this.isDebugMode = isDebugMode;
 	}
 	protected void reset() {
-		try {
-			writer.flush();
-			if (writer instanceof StringWriter) {
-				((StringWriter)writer).getBuffer().setLength(0);
-			}
-		} catch (IOException e) {
-			log.error("Error clearing SAX writer buffer", e);
-		}
+		writer.reset();
+	}
+
+	public HtmlTextWriter getWriter() {
+		return writer;
 	}
 }
 
