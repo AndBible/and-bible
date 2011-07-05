@@ -1,7 +1,6 @@
 package net.bible.service.format;
 
 
-import java.io.Writer;
 import java.util.Stack;
 
 import net.bible.service.sword.Logger;
@@ -18,7 +17,6 @@ import org.xml.sax.SAXException;
  */
 public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
     
-    // internal logic
     private int currentVerseNo;
 
     // debugging
@@ -30,15 +28,11 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
     private static final Logger log = new Logger("OsisToCanonicalTextSaxHandler");
     
     public OsisToCanonicalTextSaxHandler() {
-        super(null);
-    }
-    public OsisToCanonicalTextSaxHandler(Writer theWriter) {
-        super(theWriter);
+        super();
     }
 
     @Override
-    public void startDocument () throws SAXException
-    {
+    public void startDocument () {
     	reset();
     	// default mode is to write
     	writeContentStack.push(CONTENT_STATE.WRITE);
@@ -48,8 +42,7 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
      *Called when the Parser Completes parsing the Current XML File.
     */
     @Override
-    public void endDocument () throws SAXException
-    {
+    public void endDocument() {
     	// pop initial value
     	writeContentStack.pop();
     	assert(writeContentStack.isEmpty());
@@ -66,7 +59,6 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
             String sName, // simple name
             String qName, // qualified name
             Attributes attrs)
-    throws SAXException
     {
 		String name = getName(sName, qName); // element name
 
@@ -110,7 +102,6 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
             String sName, // simple name
             String qName  // qualified name
             )
-    throws SAXException
     {
 		String name = getName(sName, qName);
 		debug(name, null, false);
@@ -128,8 +119,7 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
      * Handle characters encountered in tags
     */
     @Override
-    public void characters (char buf[], int offset, int len) throws SAXException
-    {
+    public void characters (char buf[], int offset, int len) {
         if (CONTENT_STATE.WRITE.equals(writeContentStack.peek())) {
         	String s = new String(buf, offset, len);
 

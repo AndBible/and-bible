@@ -23,7 +23,8 @@ import net.bible.service.download.DownloadManager;
 import net.bible.service.download.XiphosRepo;
 import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.OsisToCanonicalTextSaxHandler;
-import net.bible.service.format.OsisToHtmlSaxHandler;
+import net.bible.service.format.osistohtml.OsisToHtmlParameters;
+import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler;
 
 import org.crosswire.common.util.CWProject;
 import org.crosswire.common.util.Version;
@@ -284,7 +285,6 @@ public class SwordApi {
 	 * @throws NoSuchKeyException
 	 * @throws BookException
 	 * @throws IOException
-	 * @throws SAXException
 	 * @throws URISyntaxException
 	 * @throws ParserConfigurationException
 	 */
@@ -476,48 +476,50 @@ public class SwordApi {
 	}
 
 	private OsisToHtmlSaxHandler getSaxHandler(Book book, Key key) {
-		OsisToHtmlSaxHandler osisToHtml = new OsisToHtmlSaxHandler();
+		OsisToHtmlParameters osisToHtmlParameters = new OsisToHtmlParameters();
 		BookMetaData bmd = book.getBookMetaData();
-		osisToHtml.setLeftToRight(bmd.isLeftToRight());
-		osisToHtml.setLanguageCode(book.getLanguage().getCode());
+		osisToHtmlParameters.setLeftToRight(bmd.isLeftToRight());
+		osisToHtmlParameters.setLanguageCode(book.getLanguage().getCode());
 		
 		// a basis for partial references
-    	osisToHtml.setBasisRef(key);
+		osisToHtmlParameters.setBasisRef(key);
 		
 		if (isAndroid) {
 			// size of padding at bottom depends on screen size
-	    	osisToHtml.setNumPaddingBrsAtBottom(BibleApplication.getApplication().getResources().getInteger(R.integer.br_count_at_bottom));
+			osisToHtmlParameters.setNumPaddingBrsAtBottom(BibleApplication.getApplication().getResources().getInteger(R.integer.br_count_at_bottom));
 	    	
 	    	// use old style discreet references if viewing a bible
-	    	osisToHtml.setBibleStyleNotesAndRefs(BookCategory.BIBLE.equals(book.getBookCategory()));
+	    	osisToHtmlParameters.setBibleStyleNotesAndRefs(BookCategory.BIBLE.equals(book.getBookCategory()));
 	    	
 			SharedPreferences preferences = CommonUtils.getSharedPreferences();
 			if (preferences!=null) {
 				// show verse numbers if user has selected to show verse numbers AND teh book is a bible (so don't even try to show verses in a Dictionary)
 				if (BookCategory.BIBLE.equals(book.getBookCategory())) {
-					osisToHtml.setShowVerseNumbers(preferences.getBoolean("show_verseno_pref", true) && book.getBookCategory().equals(BookCategory.BIBLE));
-					osisToHtml.setVersePerline(preferences.getBoolean("verse_per_line_pref", false));
-					osisToHtml.setShowNotes(preferences.getBoolean("show_notes_pref", true));
-					osisToHtml.setShowStrongs(preferences.getBoolean("show_strongs_pref", true));
-					osisToHtml.setShowMorphology(preferences.getBoolean("show_morphology_pref", false));
+					osisToHtmlParameters.setShowVerseNumbers(preferences.getBoolean("show_verseno_pref", true) && book.getBookCategory().equals(BookCategory.BIBLE));
+					osisToHtmlParameters.setVersePerline(preferences.getBoolean("verse_per_line_pref", false));
+					osisToHtmlParameters.setShowNotes(preferences.getBoolean("show_notes_pref", true));
+					osisToHtmlParameters.setShowStrongs(preferences.getBoolean("show_strongs_pref", true));
+					osisToHtmlParameters.setShowMorphology(preferences.getBoolean("show_morphology_pref", false));
+					osisToHtmlParameters.setRedLetter(preferences.getBoolean("red_letter_pref", false));
 				}
 				if (preferences.getBoolean("night_mode_pref", false)) {
-					osisToHtml.setExtraStylesheet(NIGHT_MODE_STYLESHEET);
+					osisToHtmlParameters.setExtraStylesheet(NIGHT_MODE_STYLESHEET);
 				}
 				if (book.getBookCategory().equals(BookCategory.DICTIONARY)) {
 					if (book.hasFeature(FeatureType.HEBREW_DEFINITIONS)) {
 						//add allHebrew refs link
 						String prompt = BibleApplication.getApplication().getString(R.string.all_hebrew_occurrences);
-						osisToHtml.setExtraFooter("<br /><a href='"+Constants.ALL_HEBREW_OCCURRENCES_PROTOCOL+":"+key.getName()+"' class='allStrongsRefsLink'>"+prompt+"</a>");
+						osisToHtmlParameters.setExtraFooter("<br /><a href='"+Constants.ALL_HEBREW_OCCURRENCES_PROTOCOL+":"+key.getName()+"' class='allStrongsRefsLink'>"+prompt+"</a>");
 					} else if (book.hasFeature(FeatureType.GREEK_DEFINITIONS)) {
 						//add allGreek refs link
 						String prompt = BibleApplication.getApplication().getString(R.string.all_greek_occurrences);
-						osisToHtml.setExtraFooter("<br /><a href='"+Constants.ALL_GREEK_OCCURRENCES_PROTOCOL+":"+key.getName()+"' class='allStrongsRefsLink'>"+prompt+"</a>");
+						osisToHtmlParameters.setExtraFooter("<br /><a href='"+Constants.ALL_GREEK_OCCURRENCES_PROTOCOL+":"+key.getName()+"' class='allStrongsRefsLink'>"+prompt+"</a>");
 					}
 				}
 	
 			}
 		}
+		OsisToHtmlSaxHandler osisToHtml = new OsisToHtmlSaxHandler(osisToHtmlParameters);
 		
 		return osisToHtml;
 	}

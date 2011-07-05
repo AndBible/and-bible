@@ -23,14 +23,15 @@ public class CommonUtils {
 	private static final String ELLIPSIS = "...";
 
 	private static final String TAG = "CommonUtils"; 
-	static private boolean isAndroid;
+	static private boolean isAndroid = false;
 	
 	//todo have to finish implementing switchable logging here
 	static {
 		try {
-			Class.forName("android.util.Log");
-			isAndroid = true;
-		} catch (ClassNotFoundException cnfe) {
+	        if (android.os.Build.ID != null) {
+	            isAndroid = true;
+	        }
+		} catch (Exception cnfe) {
 			isAndroid = false;
 		}
 		System.out.println("isAndroid:"+isAndroid);
