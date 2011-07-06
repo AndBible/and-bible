@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.bible.service.common.Constants;
+import net.bible.service.common.Constants.HTML;
 import net.bible.service.format.Note;
 import net.bible.service.format.OsisSaxHandler;
 import net.bible.service.sword.Logger;
@@ -12,7 +13,6 @@ import net.bible.service.sword.Logger;
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
 
 /**
  * Convert OSIS tags into html tags
@@ -52,16 +52,13 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 	private NoteAndReferenceHandler noteAndReferenceHandler;
 	private QHandler qHandler;
+	private LHandler lHandler;
 
 	// internal logic
 	private int currentVerseNo;
 	private int currentVersePosition;
 
 	List<String> pendingStrongsAndMorphTags;
-
-	private static final String NBSP = "&#160;";
-	private static final String SPACE = " ";
-	private static final String HTML_BR = "<br />";
 
 	// the following characters are not handled well in Android 2.2 & 2.3 and
 	// need special processing which for all except Sof Pasuq means removal
@@ -86,6 +83,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		this.parameters = parameters;
 		noteAndReferenceHandler = new NoteAndReferenceHandler(parameters, getWriter());
 		qHandler = new QHandler(parameters, getWriter());
+		lHandler = new LHandler(parameters, getWriter());
 	}
 
 	@Override
@@ -184,15 +182,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
 			noteAndReferenceHandler.startReference(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LB)) {
-			write(HTML_BR);
+			write(HTML.BR);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
-			// Refer to Gen 3:14 in ESV for example use of type=x-indent
-			String type = attrs.getValue(OSISUtil.OSIS_ATTR_TYPE);
-			if (StringUtils.isNotEmpty(type) && type.contains("indent")) {
-				write(NBSP+NBSP);
-			} else {
-				write(HTML_BR);
-			}
+			lHandler.startL(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_P)) {
 			write("<p />");
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {
@@ -235,20 +227,20 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
 			noteAndReferenceHandler.endReference(currentVerseNo);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
+			lHandler.endL();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {
 			// end quotation, but <q /> tag is a marker and contains no content
 			// so <q /> will appear at beginning and end of speech
 			qHandler.end();
 		} else if (name.equals("transChange")) {
 			write("</span>");
-		} else if ((parameters.isShowStrongs() || parameters.isShowMorphology())
-				&& name.equals(OSISUtil.OSIS_ELEMENT_W)) {
+		} else if ((parameters.isShowStrongs() || parameters.isShowMorphology()) && name.equals(OSISUtil.OSIS_ELEMENT_W)) {
 			if (pendingStrongsAndMorphTags != null) {
 				for (int i = 0; i < pendingStrongsAndMorphTags.size(); i++) {
-					write(SPACE); // separator between adjacent tags and words
+					write(HTML.SPACE); // separator between adjacent tags and words
 					write(pendingStrongsAndMorphTags.get(i));
 				}
-				write(SPACE); // separator between adjacent tags and words
+				write(HTML.SPACE); // separator between adjacent tags and words
 				pendingStrongsAndMorphTags = null;
 			}
 		}
@@ -296,7 +288,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		// need the verse tag with an id
 		StringBuilder verseHtml = new StringBuilder();
 		if (parameters.isShowVerseNumbers()) {
-			verseHtml.append(" <span class='verse' id='").append(verseNo).append("'>").append(verseNo).append("</span>").append(NBSP);
+			verseHtml.append(" <span class='verse' id='").append(verseNo).append("'>").append(verseNo).append("</span>").append(HTML.NBSP);
 		} else {
 			// we really want an empty span but that is illegal and causes
 			// problems such as incorrect verse calculation in Psalms
@@ -499,7 +491,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	}
 
 	private String getPaddingAtBottom() {
-		return StringUtils.repeat(HTML_BR, parameters
+		return StringUtils.repeat(HTML.BR, parameters
 				.getNumPaddingBrsAtBottom());
 	}
 

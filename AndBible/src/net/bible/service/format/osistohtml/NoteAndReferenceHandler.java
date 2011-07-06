@@ -95,22 +95,23 @@ public class NoteAndReferenceHandler {
     }
     
     public void endReference(int currentVerseNo) {
-			if (parameters.isBibleStyleNotesAndRefs()) {
-				// a few modules like HunUj have refs in the text but not surrounded by a Note tag (like esv) so need to add  Note here
-				if (!isInNote) {
-					currentNoteRef = createNoteRef();
-					writeNoteRef(currentNoteRef);
-				}
-				Note note = new Note(currentVerseNo, currentNoteRef, writer.getTempStoreString(), NoteType.TYPE_REFERENCE, currentRefOsisRef);
-				notesList.add(note);
-				// and clear the buffer
-				writer.clearTempStore();
-				currentRefOsisRef = null;
-			} else {
-				writer.write(getReferenceTag(currentRefOsisRef, writer.getTempStoreString()));
-				writer.clearTempStore();
+		writer.finishWritingToTempStore();
+   	
+		if (parameters.isBibleStyleNotesAndRefs()) {
+			// a few modules like HunUj have refs in the text but not surrounded by a Note tag (like esv) so need to add  Note here
+			if (!isInNote) {
+				currentNoteRef = createNoteRef();
+				writeNoteRef(currentNoteRef);
 			}
-			writer.finishWritingToTempStore();
+			Note note = new Note(currentVerseNo, currentNoteRef, writer.getTempStoreString(), NoteType.TYPE_REFERENCE, currentRefOsisRef);
+			notesList.add(note);
+		} else {
+			String refText = writer.getTempStoreString();
+			writer.write(getReferenceTag(currentRefOsisRef, refText));
+		}
+		// and clear the buffer
+		writer.clearTempStore();
+		currentRefOsisRef = null;
 	}
     
     /** either use the 'n' attribute for the note ref or just get the next character in a list a-z
