@@ -39,7 +39,6 @@ public class BookmarkLabels extends ListActivityBase {
 	private static final String TAG = "BookmarkLabels";
 	
 	private List<LabelDto> labels = new ArrayList<LabelDto>();
-	private ArrayAdapter<LabelDto> listArrayAdapter;
 	
 	// this resource returns a CheckedTextView which has setChecked(..), isChecked(), and toggle() methods
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_multiple_choice; 
@@ -63,7 +62,7 @@ public class BookmarkLabels extends ListActivityBase {
 
     	loadLabelList();
     	
-    	listArrayAdapter = new ArrayAdapter<LabelDto>(this,
+    	ArrayAdapter<LabelDto> listArrayAdapter = new ArrayAdapter<LabelDto>(this,
     	        LIST_ITEM_TYPE,
     	        labels);
     	setListAdapter(listArrayAdapter);
@@ -176,9 +175,7 @@ public class BookmarkLabels extends ListActivityBase {
 		labels.addAll(bookmarkControl.getAssignableLabels());
 
     	// ensure ui is updated
-    	if (listArrayAdapter!=null) {
-			listArrayAdapter.notifyDataSetChanged();
-		}
+		notifyDataSetChanged();
 	}
 
 	/** check labels associated with the bookmark
@@ -225,8 +222,6 @@ public class BookmarkLabels extends ListActivityBase {
     	}
 
     	// ensure ui is updated
-    	if (listArrayAdapter!=null) {
-			listArrayAdapter.notifyDataSetChanged();
-		}
+		notifyDataSetChanged();
 	}
 }

@@ -1,4 +1,4 @@
-package net.bible.android.view.activity;
+package net.bible.android.view.activity.help;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;

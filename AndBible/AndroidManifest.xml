@@ -49,7 +49,7 @@
                   android:label="@string/search_index"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:name="net.bible.android.view.activity.NotesActivity"
+        <activity android:name="net.bible.android.view.activity.references.NotesActivity"
                   android:label="@string/notes"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
@@ -69,7 +69,7 @@
                   android:label="@string/general_book"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:name="net.bible.android.view.activity.SettingsActivity"
+        <activity android:name="net.bible.android.view.activity.settings.SettingsActivity"
                   android:label="@string/settings"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
@@ -94,7 +94,7 @@
         <activity android:name="net.bible.android.view.activity.download.ProgressStatus"
                   android:label="@string/progress_status">
         </activity>
-        <activity android:name="net.bible.android.view.activity.Help"
+        <activity android:name="net.bible.android.view.activity.help.Help"
                   android:label="@string/help"
                   android:configChanges="keyboardHidden|orientation">
         </activity>

@@ -1,11 +1,11 @@
-package net.bible.android.view.activity;
+package net.bible.android.view.activity.references;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.view.activity.base.ActivityBase;
+import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.android.view.util.DataPipe;
 import net.bible.service.format.Note;
 
@@ -16,11 +16,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
-import android.widget.AdapterView.OnItemClickListener;
 
 /** Show Notes and Cross references for the current verse
  * 
@@ -28,10 +26,8 @@ import android.widget.AdapterView.OnItemClickListener;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class NotesActivity extends ActivityBase {
+public class NotesActivity extends ListActivityBase {
 	private static final String TAG = "NotesActivity";
-	
-	private ListView mNotesListView;
 	
 	private TextView mTitle;
 	private TextView mWarning;
@@ -42,9 +38,11 @@ public class NotesActivity extends ActivityBase {
     private int mVerseNo=1;
     private List<Note> mChapterNotesList;
     private List<Note> mVerseNotesList;
-	private SimpleAdapter mNotesListAdapter; 
+	private ArrayAdapter<Note> mNotesListAdapter; 
 	
-    /** Called when the activity is first created. */
+	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
+
+	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -53,7 +51,6 @@ public class NotesActivity extends ActivityBase {
     
         mTitle =  (TextView)findViewById(R.id.title);
         mWarning =  (TextView)findViewById(R.id.warningText);
-        mNotesListView =  (ListView)findViewById(R.id.notesList);
         
         mVerseNo = CurrentPageManager.getInstance().getCurrentBible().getCurrentVerseNo();
         mChapterNotesList = DataPipe.getInstance().popNotes();
@@ -69,20 +66,14 @@ public class NotesActivity extends ActivityBase {
     	populateVerseNotesList();
     	prepareWarningMsg();
     	
-        mNotesListAdapter = new SimpleAdapter(this, mVerseNotesList, 
-                    android.R.layout.two_line_list_item, 
-                    new String[] {Note.SUMMARY, Note.DETAIL}, 
-                    new int[] {android.R.id.text1, android.R.id.text2});
-        	
-        mNotesListView.setAdapter(mNotesListAdapter);
-        
-    	mNotesListView.setOnItemClickListener(new OnItemClickListener() {
-    	    @Override
-    	    public void onItemClick(AdapterView<?> parentView, View selectedItemView, int position, long id) {
-    	    	noteSelected(mVerseNotesList.get(position));
-    	    }
-    	});
+    	mNotesListAdapter = new NoteRefItemAdapter(this, LIST_ITEM_TYPE, mVerseNotesList);
+        setListAdapter(mNotesListAdapter);
     }
+
+    @Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+    	noteSelected(mVerseNotesList.get(position));
+	}
 
     public void onPrevious(View v) {
     	if (mVerseNo>1) {
@@ -100,7 +91,7 @@ public class NotesActivity extends ActivityBase {
     private void onVerseChanged() {
     	showCurrentVerse();
     	populateVerseNotesList();
-    	mNotesListAdapter.notifyDataSetChanged();
+    	notifyDataSetChanged();
     	prepareWarningMsg();
     }
     
@@ -127,10 +118,10 @@ public class NotesActivity extends ActivityBase {
 		mWarning.setText(warning);
     	if (StringUtils.isNotEmpty(warning)) {
     		mWarning.setVisibility(View.VISIBLE);
-    		mNotesListView.setVisibility(View.GONE);
+    		getListView().setVisibility(View.GONE);
     	} else {
     		mWarning.setVisibility(View.GONE);
-    		mNotesListView.setVisibility(View.VISIBLE);
+    		getListView().setVisibility(View.VISIBLE);
     	}
     }
 

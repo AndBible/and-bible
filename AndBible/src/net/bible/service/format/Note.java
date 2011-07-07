@@ -1,7 +1,5 @@
 package net.bible.service.format;
 
-import java.util.HashMap;
-
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordApi;
@@ -17,7 +15,7 @@ import android.util.Log;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class Note extends HashMap<String, String> {
+public class Note {
 
 	public enum NoteType {TYPE_GENERAL, TYPE_REFERENCE};
 	
@@ -40,27 +38,23 @@ public class Note extends HashMap<String, String> {
 		this.noteType = noteType;
 		this.osisRef = osisRef;
 	}
-	
-	@Override
-	public String get(Object key) {
+
+	public String getSummary() {
+		return "Ref "+getNoteRef()+": "+getNoteText();
+	}
+
+	public String getDetail() {
 		String retval = "";
 		try {
-    		if (key.equals(SUMMARY)) {
-    			retval = "Ref "+getNoteRef()+": "+getNoteText();
-    		} else if (key.equals(DETAIL)) {
-    			if (noteType.equals(NoteType.TYPE_REFERENCE)) {
-    				String verse = StringUtils.isNotEmpty(osisRef) ? osisRef : noteText; 
-    				retval = SwordApi.getInstance().getPlainText(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), verse, 1);
-    				retval = CommonUtils.limitTextLength(retval);
-    			}
-    		} else {
-    			retval = "Error";
-    		}
+			if (noteType.equals(NoteType.TYPE_REFERENCE)) {
+				String verse = StringUtils.isNotEmpty(osisRef) ? osisRef : noteText; 
+				retval = SwordApi.getInstance().getPlainText(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), verse, 1);
+				retval = CommonUtils.limitTextLength(retval);
+			}
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting search result", e);
 		}
 		return retval;
-
 	}
 	
 	public boolean isNavigable() {
@@ -77,10 +71,9 @@ public class Note extends HashMap<String, String> {
 		} else {
 			ref = noteText;
 		}
-		//xxxtodo also need to switch docs
+
 		CurrentPageManager.getInstance().getCurrentBible().setKey(ref);
 		CurrentPageManager.getInstance().showBible();
-		
 	}
 
 	@Override

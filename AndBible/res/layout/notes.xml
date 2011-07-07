@@ -15,7 +15,7 @@
 		android:layout_width="fill_parent" 
 		android:layout_alignParentTop="true"
 		android:textSize="16sp"/>
-	<ListView android:id="@+id/notesList" 
+	<ListView android:id="@android:id/list"
 		android:layout_height="fill_parent" 
 		android:layout_width="fill_parent"
 		android:layout_below="@+id/title"

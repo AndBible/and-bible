@@ -64,7 +64,6 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 	private ArrayAdapter<Language> langArrayAdapter; 
 	
 	// the document list
-	private ArrayAdapter<Book> listArrayAdapter;
 	private List<Book> allDocuments;
 	//TODO just use displayedDocuments with a model giving 2 lines in list
 	private List<Book> displayedDocuments;
@@ -97,7 +96,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     	languageList = new ArrayList<Language>();
     	displayedDocuments = new ArrayList<Book>();
     	
-    	listArrayAdapter = new DocumentItemAdapter(this, LIST_ITEM_TYPE, displayedDocuments);
+    	ArrayAdapter<Book> listArrayAdapter = new DocumentItemAdapter(this, LIST_ITEM_TYPE, displayedDocuments);
     	setListAdapter(listArrayAdapter);
     	
     	//prepare the documentType spinner
@@ -264,9 +263,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 	                }
                 });	        		
 	        	
-	        	if (listArrayAdapter!=null) {
-	        		DocumentSelectionBase.this.listArrayAdapter.notifyDataSetChanged();
-	        	}
+        		notifyDataSetChanged();
     		}
     	} catch (Exception e) {
     		Log.e(TAG, "Error initialising view", e);
