@@ -161,9 +161,9 @@
   <string name="one_chapter">%d chapter</string>
   <string name="one_page">%d page</string>
   <string name="one_verse">%d verse</string>
-  <string name="prefs_navigate_to_verse_summary">Drill down to verse when navigating</string>
+  <string name="prefs_navigate_to_verse_summary">Dewiswch adnod (a phennod) wrth ddewis adran</string>
   <string name="prefs_navigate_to_verse_title">Llywio i\'r adnod</string>
   <string name="some_chapters">%d pennod</string>
   <string name="some_pages">%d tudalen</string>
   <string name="some_verses">%d adnod</string>
-</resources>
+<string name="prefs_red_letter_summary">Dangos geiriau Crist mewn coch</string><string name="prefs_red_letter_title">Llythrennau Coch</string></resources>
