@@ -24,6 +24,8 @@ abstract class CurrentPageBase implements CurrentPage {
 	private boolean inhibitChangeNotifications;
 	
 	private float currentYOffsetRatio;
+	private Key keyWhenYOffsetRatioSet;
+	private Book docWhenYOffsetRatioSet;
 
 	private static final String TAG = "CurrentPage";
 
@@ -72,12 +74,6 @@ abstract class CurrentPageBase implements CurrentPage {
 	@Override
 	public void setKey(Key key) {
 		beforePageChange();
-		
-		// if a different page key then clear the current screen offset so user starts reading from top of screen rather than last position
-		if (!key.equals(getKey())) {
-			currentYOffsetRatio = 0;
-		}
-
 		doSetKey(key);
 		pageChange();
 	}
@@ -128,11 +124,6 @@ abstract class CurrentPageBase implements CurrentPage {
 		
 		if (!doc.equals(currentDocument) && !shareKeyBetweenDocs && getKey()!=null && !doc.contains(getKey())) {
 			doSetKey(null);
-		}
-		
-		// if a different doc then clear the current screen offset so user starts reading from top of screen rather than last position
-		if (!doc.equals(currentDocument)) {
-			currentYOffsetRatio = 0;
 		}
 		
 		localSetCurrentDocument(doc);
@@ -239,10 +230,16 @@ abstract class CurrentPageBase implements CurrentPage {
 
 
 	public float getCurrentYOffsetRatio() {
+		// if key has changed then offsetRatio must be reset because user has changed page
+		if (!getKey().equals(keyWhenYOffsetRatioSet) || !getCurrentDocument().equals(docWhenYOffsetRatioSet)) {
+			currentYOffsetRatio = 0;
+		}
 		return currentYOffsetRatio;
 	}
 	public void setCurrentYOffsetRatio(float currentYOffsetRatio) {
-		Log.d(TAG, "*** set offset:"+currentYOffsetRatio);
+		this.docWhenYOffsetRatioSet = getCurrentDocument();
+		this.keyWhenYOffsetRatioSet = getKey();
+		
 		this.currentYOffsetRatio = currentYOffsetRatio;
 	}
 }
