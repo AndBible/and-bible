@@ -61,4 +61,9 @@ public interface CurrentPage {
 	public abstract boolean isInhibitChangeNotifications();
 
 	public abstract boolean isSearchable();
+	
+	//screen offset as a percentage of total height of screen
+	public float getCurrentYOffsetRatio();
+	public void setCurrentYOffsetRatio(float currentYOffsetRatio);
+
 }

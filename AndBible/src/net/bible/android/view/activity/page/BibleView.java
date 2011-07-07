@@ -4,6 +4,7 @@ import net.bible.android.control.ControlFactory;
 import net.bible.service.common.CommonUtils;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Picture;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -25,6 +26,7 @@ public class BibleView extends WebView {
 	private VerseCalculator verseCalculator;
 
 	private int mJumpToVerse = 0;
+	private float mJumpToYOffsetRatio = 0;
 	
 	private static final String TAG = "BibleView";
 	
@@ -59,27 +61,32 @@ public class BibleView extends WebView {
 		javascriptInterface = new BibleJavascriptInterface(verseCalculator);
 		
 		addJavascriptInterface(javascriptInterface, "jsInterface");
-		
-		/* WebViewClient must be set BEFORE calling loadUrl! */  
-		setWebViewClient(new WebViewClient() {  
-		    @Override  
-		    public void onPageFinished(WebView view, String url)  
-		    {
-		    	super.onPageFinished(view, url);
-		    	
-		    	if (mJumpToVerse > 0) { 
-		    		Log.d(TAG, "Jumping to verse "+mJumpToVerse);
+
+		setPictureListener(new PictureListener() {
+			/** this is called after the WebView page has finished loading and a new "picture" is on the webview.
+			 */
+			@Override
+		    public void onNewPicture(WebView view, Picture arg1) {
+	    		if (mJumpToYOffsetRatio>0) {
+		            int contentHeight = view.getContentHeight(); 
+		            int y = (int) ((float)contentHeight*mJumpToYOffsetRatio);
+		    		view.scrollTo(0, y);
+		    	} else if (mJumpToVerse > 0) { 
 		    		if (mJumpToVerse==1) {
 		    			// use scroll to becasue difficult to place a tag exactly at the top
 		    			view.scrollTo(0,0);
 		    		} else {
 		    			view.loadUrl("javascript:location.href='#"+mJumpToVerse+"'");
 		    		}
-		    	    // must zero mJumpToVerse because setting location causes another onPageFinished
-		    	    mJumpToVerse = -1; 
-		    	 } 
-		    }
-
+	    		}
+	    	    // must zero mJumpToVerse because setting location causes another onPageFinished
+	    	    mJumpToVerse = -1; 
+	    		mJumpToYOffsetRatio = -1;
+		    }    
+		});
+		
+		/* WebViewClient must be set BEFORE calling loadUrl! */  
+		setWebViewClient(new WebViewClient() {  
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String url) {
 				// load Strongs refs when a user clicks on a link
@@ -133,9 +140,10 @@ public class BibleView extends WebView {
 	 * 
 	 * @param html
 	 */
-	public void show(String html, int jumpToVerse) {
-		Log.d(TAG, "Show(html,"+jumpToVerse+")");
+	public void show(String html, int jumpToVerse, float jumpToYOffsetRatio) {
+		Log.d(TAG, "Show(html,"+jumpToVerse+","+jumpToYOffsetRatio+")");
 		mJumpToVerse = jumpToVerse;
+		mJumpToYOffsetRatio = jumpToYOffsetRatio;
 		loadDataWithBaseURL("http://baseUrl", html, "text/html", "UTF-8", "http://historyUrl");
 	}
 	
@@ -153,5 +161,4 @@ public class BibleView extends WebView {
 		// allow movement from link to link in current page
 		return super.onKeyUp(keyCode, event);
 	}
-    
 }

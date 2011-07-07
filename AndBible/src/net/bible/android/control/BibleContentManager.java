@@ -62,7 +62,8 @@ public class BibleContentManager {
     }
 
     private class UpdateTextTask extends AsyncTask<CurrentPage, Integer, String> {
-    	int verseNo;
+    	private int verseNo;
+    	private float yScreenOffsetRatio;
     	@Override
     	protected void onPreExecute() {
     		PassageChangeMediator.getInstance().contentChangeStarted();
@@ -81,6 +82,7 @@ public class BibleContentManager {
 	    		if (currentPage instanceof CurrentBiblePage) {
 	    			verseNo = ((CurrentBiblePage)currentPage).getCurrentVerseNo();
 	    		}
+	    		yScreenOffsetRatio = currentPage.getCurrentYOffsetRatio();
 	
 	            Log.d(TAG, "Loading document:"+document.getInitials()+" key:"+key);
 	            
@@ -110,13 +112,13 @@ public class BibleContentManager {
 
         protected void onPostExecute(String htmlFromDoInBackground) {
             Log.d(TAG, "Loading html:"+htmlFromDoInBackground);
-            showText(htmlFromDoInBackground, verseNo);
+            showText(htmlFromDoInBackground, verseNo, yScreenOffsetRatio);
     		PassageChangeMediator.getInstance().contentChangeFinished();
         }
     }
-	private void showText(String text, int verseNo) {
+	private void showText(String text, int verseNo, float yOffsetRatio) {
 		if (bibleWebView!=null) {
-			bibleWebView.show(text, verseNo);
+			bibleWebView.show(text, verseNo, yOffsetRatio);
 		} else {
 			Log.w(TAG, "Bible web view not yet registered");
 		}

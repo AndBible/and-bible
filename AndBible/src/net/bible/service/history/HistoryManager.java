@@ -58,7 +58,8 @@ public class HistoryManager {
 			}
 			
 			Key key = currentPage.getSingleKey();
-			historyItem = new KeyHistoryItem(doc, key);
+			float yOffsetRatio = currentPage.getCurrentYOffsetRatio();
+			historyItem = new KeyHistoryItem(doc, key, yOffsetRatio);
 		} else if (currentActivity instanceof Search) {
 			historyItem = new IntentHistoryItem("Search", currentActivity.getIntent());
 		} else if (currentActivity instanceof SearchResults) {

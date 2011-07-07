@@ -334,6 +334,17 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		return false; 
 	}
 
+    /** return percentage scrolled down page
+     */
+    public float getCurrentPosition() {
+    	// see http://stackoverflow.com/questions/1086283/getting-document-position-in-a-webview
+        int contentHeight = bibleWebView.getContentHeight();
+        int scrollY = bibleWebView.getScrollY();
+        float ratio = ((float) scrollY / ((float) contentHeight));
+
+        return ratio;
+    }
+    
 	// handle swipe left and right
     // http://android-journey.blogspot.com/2010_01_01_archive.html
     //http://android-journey.blogspot.com/2010/01/android-gestures.html
