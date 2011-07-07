@@ -157,4 +157,4 @@
   <string name="choosePassageVerseName">Choisissez Verset</string>
   <string name="prefs_navigate_to_verse_summary">Choisissez le verset (et le chapitre) lors de la sélection d\'un passage</string>
   <string name="prefs_navigate_to_verse_title">Aller au verset</string>
-<string name="one_chapter">%d chapitre</string><string name="one_page">%d page</string><string name="one_verse">%d verset</string><string name="some_chapters">%d chaptitres</string><string name="some_pages">%d pages</string><string name="some_verses">%d versets</string></resources>
+<string name="one_chapter">%d chapitre</string><string name="one_page">%d page</string><string name="one_verse">%d verset</string><string name="some_chapters">%d chaptitres</string><string name="some_pages">%d pages</string><string name="some_verses">%d versets</string><string name="prefs_red_letter_summary">Afficher les mots du Christ en rouge</string><string name="prefs_red_letter_title">Lettre rouge</string></resources>
