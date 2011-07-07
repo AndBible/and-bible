@@ -45,9 +45,7 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 	@Override
 	public void next() {
 		Log.d(TAG, "Next");
-		beforePageChange();
 		nextVerse();
-		pageChange();
 	}
 	/* (non-Javadoc)
 	 * @see net.bible.android.control.CurrentPage#previous()
@@ -55,16 +53,14 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 	@Override
 	public void previous() {
 		Log.d(TAG, "Previous");
-		beforePageChange();
 		previousVerse();
-		pageChange();
 	}
 	
 	private void nextVerse() {
-		currentBibleVerse.setVerseSelected(getKeyPlus(1));
+		setKey(getKeyPlus(1));
 	}
 	private void previousVerse() {
-		currentBibleVerse.setVerseSelected(getKeyPlus(-1));
+		setKey(getKeyPlus(-1));
 	}
 	
 	/** add or subtract a number of pages from the current position and return Verse

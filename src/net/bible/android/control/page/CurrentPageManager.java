@@ -90,6 +90,9 @@ public class CurrentPageManager {
 	}
 
 	public CurrentPage setCurrentDocumentAndKey(Book currentBook, Key key) {
+		return setCurrentDocumentAndKeyAndOffset(currentBook, key, 0);
+	}
+	public CurrentPage setCurrentDocumentAndKeyAndOffset(Book currentBook, Key key, float yOffsetRatio) {
 		PassageChangeMediator.getInstance().onBeforeCurrentPageChanged();
 
 		CurrentPage nextPage = getBookPage(currentBook.getBookCategory());
@@ -98,6 +101,7 @@ public class CurrentPageManager {
 				nextPage.setInhibitChangeNotifications(true);
 				nextPage.setCurrentDocument(currentBook);
 				nextPage.setKey(key);
+				nextPage.setCurrentYOffsetRatio(yOffsetRatio);
 				currentDisplayedPage = nextPage;
 			} finally {
 				nextPage.setInhibitChangeNotifications(false);

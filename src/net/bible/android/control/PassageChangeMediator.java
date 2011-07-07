@@ -1,5 +1,6 @@
 package net.bible.android.control;
 
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.service.history.HistoryManager;
 import android.util.Log;
@@ -27,6 +28,11 @@ public class PassageChangeMediator {
 	 */
 	public void onBeforeCurrentPageChanged() {
 		isPageChanging = true;
+		
+		// save screen offset for current doc before change occurs
+		float screenPosn = mMainBibleActivity.getCurrentPosition();
+		CurrentPageManager.getInstance().getCurrentPage().setCurrentYOffsetRatio(screenPosn);
+
 		HistoryManager.getInstance().beforePageChange();
 	}
 	/** the document has changed so ask the view to refresh itself
@@ -62,6 +68,7 @@ public class PassageChangeMediator {
 		} else {
 			Log.w(TAG, "Bible activity not yet registered");
 		}
+
 		isPageChanging = false;
 	}
 	

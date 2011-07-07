@@ -8,15 +8,22 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
 import android.app.Activity;
+import android.util.Log;
 
 public class KeyHistoryItem implements HistoryItem {
 	private Book document;
 	private Key key;
+	private float yOffsetRatio;
 
-	public KeyHistoryItem(Book doc, Key verse) {
+	private static final String TAG = "KeyHistoryItem"; 
+
+	public KeyHistoryItem(Book doc, Key verse, float yOffsetRatio) {
 		super();
 		this.document = doc;
 		this.key = verse;
+		this.yOffsetRatio = yOffsetRatio;
+		Log.d(TAG, "*** historyirem offset:"+yOffsetRatio);
+		
 	}
 	
 	/* (non-Javadoc)
@@ -24,8 +31,8 @@ public class KeyHistoryItem implements HistoryItem {
 	 */
 	@Override
 	public void revertTo() {
-		CurrentPageManager.getInstance().setCurrentDocumentAndKey(document, key);
-		
+		CurrentPageManager.getInstance().setCurrentDocumentAndKeyAndOffset(document, key, yOffsetRatio);
+
 		// finish current activity if not the Main screen
 		Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
 		if (!(currentActivity instanceof MainBibleActivity)) {
