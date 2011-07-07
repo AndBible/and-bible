@@ -54,6 +54,8 @@ public class PassageChangeMediator {
 	/** The thread which fetches the new page html has started
 	 */
 	public void contentChangeStarted() {
+		isPageChanging = true;
+		
 		if (mMainBibleActivity!=null) {
 			mMainBibleActivity.onPassageChangeStarted();
 		} else {

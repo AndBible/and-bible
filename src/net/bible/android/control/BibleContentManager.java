@@ -12,8 +12,6 @@ import net.bible.service.format.Note;
 import net.bible.service.sword.SwordApi;
 
 import org.apache.commons.lang.StringUtils;
-import org.crosswire.common.activate.Activator;
-import org.crosswire.common.activate.Kill;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 

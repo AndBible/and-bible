@@ -67,17 +67,17 @@ public class BibleView extends WebView {
 			 */
 			@Override
 		    public void onNewPicture(WebView view, Picture arg1) {
-	    		if (mJumpToYOffsetRatio>0) {
-		            int contentHeight = view.getContentHeight(); 
-		            int y = (int) ((float)contentHeight*mJumpToYOffsetRatio);
-		    		view.scrollTo(0, y);
-		    	} else if (mJumpToVerse > 0) { 
+				if (mJumpToVerse > 0) { 
 		    		if (mJumpToVerse==1) {
 		    			// use scroll to becasue difficult to place a tag exactly at the top
 		    			view.scrollTo(0,0);
 		    		} else {
 		    			view.loadUrl("javascript:location.href='#"+mJumpToVerse+"'");
 		    		}
+	    		} else if (mJumpToYOffsetRatio>0) {
+		            int contentHeight = view.getContentHeight(); 
+		            int y = (int) ((float)contentHeight*mJumpToYOffsetRatio);
+		    		view.scrollTo(0, y);
 	    		}
 	    	    // must zero mJumpToVerse because setting location causes another onPageFinished
 	    	    mJumpToVerse = -1; 
@@ -86,7 +86,7 @@ public class BibleView extends WebView {
 		});
 		
 		/* WebViewClient must be set BEFORE calling loadUrl! */  
-		setWebViewClient(new WebViewClient() {  
+		setWebViewClient(new WebViewClient() {
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String url) {
 				// load Strongs refs when a user clicks on a link
