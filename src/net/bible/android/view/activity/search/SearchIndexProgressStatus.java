@@ -1,7 +1,6 @@
 package net.bible.android.view.activity.search;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.view.activity.base.ProgressActivityBase;
 import net.bible.service.common.CommonUtils;

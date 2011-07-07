@@ -1,12 +1,8 @@
-package net.bible.android.view.activity.search;
+package net.bible.android.view.activity.references;
 
 import java.util.List;
 
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.search.SearchControl;
-
-import org.crosswire.jsword.passage.Key;
-
+import net.bible.service.format.Note;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,21 +15,19 @@ import android.widget.TwoLineListItem;
  * @author denha1m
  *
  */
-public class SearchItemAdapter extends ArrayAdapter<Key> {
+public class NoteRefItemAdapter extends ArrayAdapter<Note> {
 
 	private int resource;
-	private SearchControl searchControl;
 
-	public SearchItemAdapter(Context _context, int _resource, List<Key> _items) {
+	public NoteRefItemAdapter(Context _context, int _resource, List<Note> _items) {
 		super(_context, _resource, _items);
 		resource = _resource;
-		searchControl = ControlFactory.getInstance().getSearchControl();
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 
-		Key item = getItem(position);
+		Note item = getItem(position);
 
 		// Pick up the TwoLineListItem defined in the xml file
 		TwoLineListItem view;
@@ -46,14 +40,14 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 
 		// Set value for the first text field
 		if (view.getText1() != null) {
-			String key = item.getName();
-			view.getText1().setText(key);
+			String summary = item.getSummary();
+			view.getText1().setText(summary);
 		}
 
 		// set value for the second text field
 		if (view.getText2() != null) {
-			String verseText = searchControl.getSearchResultVerseText(item);
-			view.getText2().setText(verseText);
+			String detail = item.getDetail();
+			view.getText2().setText(detail);
 		}
 
 		return view;

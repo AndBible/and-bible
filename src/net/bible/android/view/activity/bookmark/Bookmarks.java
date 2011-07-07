@@ -15,17 +15,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemSelectedListener;
 
 /**
  * Choose Document (Book) to download
@@ -51,7 +51,6 @@ public class Bookmarks extends ListActivityBase {
 	private ArrayAdapter<LabelDto> labelArrayAdapter; 
 	
 	// the document list
-	private ArrayAdapter<BookmarkDto> bookmarkArrayAdapter;
 	private List<BookmarkDto> bookmarkList = new ArrayList<BookmarkDto>();
 
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
@@ -91,7 +90,7 @@ public class Bookmarks extends ListActivityBase {
     	loadBookmarkList();
     	
     	// prepare the document list view
-    	bookmarkArrayAdapter = new BookmarkItemAdapter(this, LIST_ITEM_TYPE, bookmarkList);
+    	ArrayAdapter<BookmarkDto> bookmarkArrayAdapter = new BookmarkItemAdapter(this, LIST_ITEM_TYPE, bookmarkList);
     	setListAdapter(bookmarkArrayAdapter);
     	
     	registerForContextMenu(getListView());
@@ -178,10 +177,7 @@ public class Bookmarks extends ListActivityBase {
    	        	bookmarkList.clear();
    	        	bookmarkList.addAll( bookmarkControl.getBookmarksWithLabel(selectedLabel) );
    	        	
-	        	if (bookmarkArrayAdapter!=null) {
-	        		Bookmarks.this.bookmarkArrayAdapter.notifyDataSetChanged();
-	        	}
-	        	
+        		notifyDataSetChanged();
     		}
     	} catch (Exception e) {
     		Log.e(TAG, "Error initialising view", e);

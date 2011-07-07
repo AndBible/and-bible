@@ -129,17 +129,17 @@ public class ChooseDictionaryWord extends ListActivityBase {
 			if (mDictionaryGlobalList!=null) {
 				searchText = searchText.toLowerCase();
 		
-				Iterator iter = mDictionaryGlobalList.iterator();
+				Iterator<Key> iter = mDictionaryGlobalList.iterator();
 				mMatchingKeyList.clear();
 				while (iter.hasNext()) {
-					Key key = (Key)iter.next();
+					Key key = iter.next();
 					if (key.getName().toLowerCase().startsWith(searchText)) {
 						mMatchingKeyList.add(key);
 					}
 				}
 				Log.d(TAG, "matches found:"+mMatchingKeyList.size());
 		
-		    	((ArrayAdapter)getListAdapter()).notifyDataSetChanged();
+		    	notifyDataSetChanged();
 				Log.d(TAG, "Finished searching for:"+searchText);
 			} else {
 				Log.d(TAG, "Cached global key list is null");

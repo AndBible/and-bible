@@ -1,7 +1,6 @@
-package net.bible.android.view.activity;
+package net.bible.android.view.activity.settings;
 
 import net.bible.android.activity.R;
-import net.bible.android.activity.R.xml;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.util.Log;

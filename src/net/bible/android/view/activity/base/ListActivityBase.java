@@ -1,7 +1,5 @@
 package net.bible.android.view.activity.base;
 
-import net.bible.android.view.activity.navigation.History;
-import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.android.view.util.UiUtils;
 import net.bible.service.history.HistoryManager;
 import android.app.Activity;
@@ -10,6 +8,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 
 /** Base class for activities
  * 
@@ -101,6 +101,16 @@ public class ListActivityBase extends ListActivity implements AndBibleActivity {
 		HistoryManager.getInstance().goBack();
 	}
 
+	@SuppressWarnings("unchecked")
+	protected void notifyDataSetChanged() {
+		ListAdapter listAdapter = getListAdapter();
+    	if (listAdapter!=null && listAdapter instanceof ArrayAdapter) {
+    		((ArrayAdapter)listAdapter).notifyDataSetChanged();
+    	} else {
+    		Log.w(TAG, "Could not update list Array Adapter");
+    	}
+	}
+	
 	public void showErrorMsg(int msgResId) {
 		Dialogs.getInstance().showErrorMsg(msgResId);
 	}
