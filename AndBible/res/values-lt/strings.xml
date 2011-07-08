@@ -156,4 +156,4 @@
   <string name="choosePassageVerseName">Rinktis eilutę</string>
   <string name="prefs_navigate_to_verse_summary">Pasirinkite eilutę (ir skyrių) renkantis ištrauką</string>
   <string name="prefs_navigate_to_verse_title">Nukreipti į eilutę</string>
-<string name="one_chapter">%d skyrius</string><string name="one_page">%d puslapis</string><string name="one_verse">%d eilutė</string><string name="some_chapters">%d skyriai</string><string name="some_pages">%d puslapiai</string><string name="some_verses">%d eilutės</string></resources>
+<string name="one_chapter">%d skyrius</string><string name="one_page">%d puslapis</string><string name="one_verse">%d eilutė</string><string name="some_chapters">%d skyriai</string><string name="some_pages">%d puslapiai</string><string name="some_verses">%d eilutės</string><string name="prefs_red_letter_summary">Kristaus žodžius rodyti raudonai</string><string name="prefs_red_letter_title">Raudonas laiškas</string></resources>
