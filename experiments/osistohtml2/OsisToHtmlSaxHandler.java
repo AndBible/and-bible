@@ -1,7 +1,13 @@
 package net.bible.service.format.osistohtml;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
+import net.bible.service.common.Constants;
 import net.bible.service.common.Constants.HTML;
 import net.bible.service.format.Note;
 import net.bible.service.format.OsisSaxHandler;
@@ -44,22 +50,29 @@ import org.xml.sax.Attributes;
  */
 public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
-	// properties
-	private OsisToHtmlParameters parameters;
-
-	private VerseHandler verseHandler;
+	/** TagHandler, CommonHandlerData, and TagHandlerData all have different scopes - static, per-parse, per-tag. 
+	 *  TagHandlers are re-used by all handlers, 
+	 *  CommonHandlerData is created once per call to this SaxHandler. 
+	 *  TagData objects are created when start tag is encountered for each tag and passed to the start and end calls
+	 */
+	private static Map<String, TagHandler> tagHandlerMap;
+	static {
+		tagHandlerMap = new HashMap<String, TagHandler>();
+		TagHandler tagHandler = new QHandler();
+		tagHandlerMap.put(tagHandler.getTagName(), tagHandler);
+	}
+	
+	private CommonHandlerData commonHandlerData;
+	private Stack<TagHandlerData> stack = new Stack<TagHandlerData>();
+	
 	private NoteAndReferenceHandler noteAndReferenceHandler;
-	private TitleHandler titleHandler;
-	private QHandler qHandler;
 	private LHandler lHandler;
-	private StrongsHandler strongsHandler;
 
 	// internal logic
-	private VerseInfo verseInfo = new VerseInfo();
-	class VerseInfo {
-		int currentVerseNo;
-		int currentVersePosition;
-	}
+	private int currentVerseNo;
+	private int currentVersePosition;
+
+	List<String> pendingStrongsAndMorphTags;
 
 	// the following characters are not handled well in Android 2.2 & 2.3 and
 	// need special processing which for all except Sof Pasuq means removal
@@ -81,23 +94,23 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 	public OsisToHtmlSaxHandler(OsisToHtmlParameters parameters) {
 		super();
-		this.parameters = parameters;
-		verseHandler = new VerseHandler(parameters, verseInfo, getWriter());
+		
+		this.commonHandlerData = new CommonHandlerData(parameters, getWriter());
+
 		noteAndReferenceHandler = new NoteAndReferenceHandler(parameters, getWriter());
-		titleHandler = new TitleHandler(parameters, verseInfo, getWriter());
-		qHandler = new QHandler(parameters, getWriter());
 		lHandler = new LHandler(parameters, getWriter());
-		strongsHandler = new StrongsHandler(parameters, getWriter());
 	}
 
 	@Override
 	public void startDocument()  {
+		log.debug("Show verses:" + commonHandlerData.getParameters().isShowVerseNumbers() + " notes:"
+				+ commonHandlerData.getParameters().isShowNotes());
 		String jsTag = "\n<script type='text/javascript' src='file:///android_asset/script.js'></script>\n";
 		String styleSheetTag = "<link href='file:///android_asset/style.css' rel='stylesheet' type='text/css'/>";
 		String extraStyleSheetTag = "";
-		if (parameters.getExtraStylesheet() != null) {
+		if (commonHandlerData.getParameters().getExtraStylesheet() != null) {
 			extraStyleSheetTag = "<link href='file:///android_asset/"
-					+ parameters.getExtraStylesheet()
+					+ commonHandlerData.getParameters().getExtraStylesheet()
 					+ "' rel='stylesheet' type='text/css'/>";
 		}
 		write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"> "
@@ -110,7 +123,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 		// force rtl for rtl languages - rtl support on Android is poor but
 		// forcing it seems to help occasionally
-		if (!parameters.isLeftToRight()) {
+		if (!commonHandlerData.getParameters().isLeftToRight()) {
 			write("<span dir='rtl'>");
 		}
 	}
@@ -122,19 +135,19 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	public void endDocument() {
 
 		// close last verse
-		if (parameters.isVersePerline()) {
-			//close last verse
-			if (verseInfo.currentVerseNo>1) {
+		if (commonHandlerData.getParameters().isVersePerline()) {
+			//close preceding verse
+			if (currentVerseNo>1) {
 				write("</div>");
 			}
 		}
 		
 		// add optional footer e.g. Strongs show all occurrences link
-		if (StringUtils.isNotEmpty(parameters.getExtraFooter())) {
-			write(parameters.getExtraFooter());
+		if (StringUtils.isNotEmpty(commonHandlerData.getParameters().getExtraFooter())) {
+			write(commonHandlerData.getParameters().getExtraFooter());
 		}
 
-		if (!parameters.isLeftToRight()) {
+		if (!commonHandlerData.getParameters().isLeftToRight()) {
 			write("</span>");
 		}
 		// add padding at bottom to allow last verse to scroll to top of page
@@ -160,9 +173,25 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		debug(name, attrs, true);
 
 		if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
-			verseHandler.startAndUpdateVerse(attrs);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_TITLE)) {
-			titleHandler.start(attrs);		
+			if (attrs!=null) {
+				currentVerseNo = osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID));
+			} else {
+				currentVerseNo++;
+			}
+
+			if (commonHandlerData.getParameters().isVersePerline()) {
+				//close preceding verse
+				if (currentVerseNo>1) {
+					write("</div>");
+				}
+				// start current verse
+				write("<div>");
+			}
+
+			writeVerse(currentVerseNo);
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_TITLE) && commonHandlerData.getParameters().isShowHeadings()) {
+				getWriter().beginInsertAt(currentVersePosition);
+				write("<h1>");
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {
 			noteAndReferenceHandler.startNote(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
@@ -174,11 +203,21 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_P)) {
 			write("<p />");
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {
-			qHandler.start(attrs);
+			TagHandler tagHandler = tagHandlerMap.get(name);
+			TagHandlerData tagData = tagHandler.createData(attrs, commonHandlerData);
+			stack.push(tagData);
+			tagHandler.start(tagData, commonHandlerData);
 		} else if (name.equals("transChange")) {
 			write("<span class='transChange'>");
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_W)) {
-			strongsHandler.start(attrs);
+		} else if ((commonHandlerData.getParameters().isShowStrongs() || commonHandlerData.getParameters().isShowMorphology()) && name.equals(OSISUtil.OSIS_ELEMENT_W) && isAttr(OSISUtil.ATTRIBUTE_W_LEMMA, attrs)) {
+			// Strongs & morphology references
+			// example of strongs refs: <w lemma="strong:H0430">God</w> <w lemma="strong:H0853 strong:H01254" morph="strongMorph:TH8804">created</w>
+			// better example, because we just use Robinson: <w lemma="strong:G652" morph="robinson:N-NSM" src="2">an apostle</w>
+			String strongsLemma = attrs.getValue(OSISUtil.ATTRIBUTE_W_LEMMA);
+			if (strongsLemma.startsWith(OSISUtil.LEMMA_STRONGS)) {
+				String morphology = attrs.getValue(OSISUtil.ATTRIBUTE_W_MORPH);
+				pendingStrongsAndMorphTags = getStrongsAndMorphTags(strongsLemma, morphology);
+			}
 		} else {
 //			log.info("Verse "+currentVerseNo+" unsupported OSIS tag:"+name);
 		}
@@ -196,24 +235,34 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 		debug(name, null, false);
 
-		if (name.equals(OSISUtil.OSIS_ELEMENT_TITLE)) {
-			titleHandler.end();
+		if (name.equals(OSISUtil.OSIS_ELEMENT_TITLE) && commonHandlerData.getParameters().isShowHeadings()) {
+			write("</h1>");
+			getWriter().finishInserting();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
 			// verse opening and closing tags wrap the verse number at start of the verse
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {
-			noteAndReferenceHandler.endNote(verseInfo.currentVerseNo);
+			noteAndReferenceHandler.endNote(currentVerseNo);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
-			noteAndReferenceHandler.endReference(verseInfo.currentVerseNo);
+			noteAndReferenceHandler.endReference(currentVerseNo);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
 			lHandler.endL();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {
 			// end quotation, but <q /> tag is a marker and contains no content
 			// so <q /> will appear at beginning and end of speech
-			qHandler.end();
+			TagHandler tagHandler = tagHandlerMap.get(name);
+			TagHandlerData tagData = stack.pop();
+			tagHandler.end(tagData, commonHandlerData);
 		} else if (name.equals("transChange")) {
 			write("</span>");
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_W)) {
-			strongsHandler.end();
+		} else if ((commonHandlerData.getParameters().isShowStrongs() || commonHandlerData.getParameters().isShowMorphology()) && name.equals(OSISUtil.OSIS_ELEMENT_W)) {
+			if (pendingStrongsAndMorphTags != null) {
+				for (int i = 0; i < pendingStrongsAndMorphTags.size(); i++) {
+					write(HTML.SPACE); // separator between adjacent tags and words
+					write(pendingStrongsAndMorphTags.get(i));
+				}
+				write(HTML.SPACE); // separator between adjacent tags and words
+				pendingStrongsAndMorphTags = null;
+			}
 		}
 	}
 
@@ -226,7 +275,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	@Override
 	public void characters(char buf[], int offset, int len) {
 		String s = new String(buf, offset, len);
-		if (HEBREW_LANGUAGE_CODE.equals(parameters.getLanguageCode())) {
+		if (HEBREW_LANGUAGE_CODE.equals(commonHandlerData.getParameters().getLanguageCode())) {
 			s = doHebrewCharacterAdjustments(s);
 		}
 		write(s);
@@ -252,6 +301,24 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		return s;
 	}
 
+	private void writeVerse(int verseNo) {
+		currentVersePosition = getWriter().getPosition();
+		
+		// the id is used to 'jump to' the verse using javascript so always
+		// need the verse tag with an id
+		StringBuilder verseHtml = new StringBuilder();
+		if (commonHandlerData.getParameters().isShowVerseNumbers()) {
+			verseHtml.append(" <span class='verse' id='").append(verseNo).append("'>").append(verseNo).append("</span>").append(HTML.NBSP);
+		} else {
+			// we really want an empty span but that is illegal and causes
+			// problems such as incorrect verse calculation in Psalms
+			// so use something that will hopefully interfere as little as
+			// possible - a zero-width-space
+			verseHtml.append("<span class='verse' id='").append(verseNo).append("'/>&#x200b;</span>");
+		}
+		write(verseHtml.toString());
+	}
+
 	/*
 	 * In the XML File if the parser encounters a Processing Instruction which
 	 * is declared like this <?ProgramName:BooksLib
@@ -265,7 +332,134 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	}
 
 	public String getDirection() {
-		return parameters.isLeftToRight() ? "ltr" : "rtl";
+		return commonHandlerData.getParameters().isLeftToRight() ? "ltr" : "rtl";
+	}
+
+	/**
+	 * Convert a Strongs lemma into a url E.g. lemmas "strong:H0430",
+	 * "strong:H0853 strong:H01254"
+	 * 
+	 * @return a single char to use as a note ref
+	 */
+	private List<String> getStrongsAndMorphTags(String strongsLemma,
+			String morphology) {
+		// there may occasionally be more than on ref so split them into a list
+		// of single refs
+		List<String> strongsTags = getStrongsTags(strongsLemma);
+		List<String> morphTags = getMorphTags(morphology);
+
+		List<String> mergedStrongsAndMorphTags = new ArrayList<String>();
+
+		// each morph tag should relate to a Strongs tag so they should be same
+		// length but can't assume that
+		// merge the tags into the merge list
+		for (int i = 0; i < Math.max(strongsTags.size(), morphTags.size()); i++) {
+			StringBuilder merged = new StringBuilder();
+			if (i < strongsTags.size()) {
+				merged.append(strongsTags.get(i));
+			}
+			if (i < morphTags.size()) {
+				merged.append(morphTags.get(i));
+			}
+			mergedStrongsAndMorphTags.add(merged.toString());
+		}
+
+		// for some reason the generic tags should come last and the order seems
+		// always reversed in other systems
+		// the second tag (once reversed) seems to relate to a missing word like
+		// eth
+		Collections.reverse(mergedStrongsAndMorphTags);
+		return mergedStrongsAndMorphTags;
+	}
+
+	private List<String> getStrongsTags(String strongsLemma) {
+		// there may occasionally be more than on ref so split them into a list
+		// of single refs
+		List<String> strongsTags = new ArrayList<String>();
+
+		if (commonHandlerData.getParameters().isShowStrongs()) {
+			String[] refList = strongsLemma.split(" ");
+			for (String ref : refList) {
+				// ignore if string doesn't start with "strong;"
+				if (ref.startsWith(OSISUtil.LEMMA_STRONGS)
+						&& ref.length() > OSISUtil.LEMMA_STRONGS.length() + 2) {
+					// reduce ref like "strong:H0430" to "H0430"
+					ref = ref.substring(OSISUtil.LEMMA_STRONGS.length());
+
+					// select Hebrew or Greek protocol
+					String protocol = null;
+					if (ref.startsWith("H")) {
+						protocol = Constants.HEBREW_DEF_PROTOCOL;
+					} else if (ref.startsWith("G")) {
+						protocol = Constants.GREEK_DEF_PROTOCOL;
+					}
+
+					if (protocol != null) {
+						// remove initial G or H
+						String noPadRef = ref.substring(1);
+						// pad with leading zeros to 5 characters
+						String paddedRef = StringUtils
+								.leftPad(noPadRef, 5, "0");
+
+						StringBuilder tag = new StringBuilder();
+						// create opening tag for Strong's link
+						tag.append("<a href='");
+
+						// calculate uri e.g. H:01234
+						tag.append(protocol).append(":").append(paddedRef);
+
+						// set css class
+						tag.append("' class='strongs'>");
+
+						// descriptive string
+						tag.append(noPadRef);
+
+						// link closing tag
+						tag.append("</a>");
+
+						strongsTags.add(tag.toString());
+					}
+				}
+			}
+		}
+		return strongsTags;
+	}
+
+	/**
+	 * example of strongs and morphology, we just use Robinson: <w
+	 * lemma="strong:G652" morph="robinson:N-NSM" src="2">an apostle</w>
+	 * 
+	 * @param morphology
+	 * @return
+	 */
+	private List<String> getMorphTags(String morphology) {
+		// there may occasionally be more than on ref so split them into a list
+		// of single refs
+		List<String> morphTags = new ArrayList<String>();
+
+		if (commonHandlerData.getParameters().isShowMorphology()) {
+			if (StringUtils.isNotEmpty(morphology)) {
+				String[] refList = morphology.split(" ");
+				for (String ref : refList) {
+					// ignore if string doesn't start with "robinson"
+					if (ref.startsWith(OSISUtil.MORPH_ROBINSONS)
+							&& ref.length() > OSISUtil.MORPH_ROBINSONS.length() + 2) {
+						// reduce ref like "robinson:N-NSM" to "N-NSM" for
+						// display
+						String display = ref.substring(OSISUtil.MORPH_ROBINSONS
+								.length());
+
+						StringBuilder tag = new StringBuilder();
+						tag.append("<a href='").append(ref).append(
+								"' class='morphology'>").append(display)
+								.append("</a>");
+
+						morphTags.add(tag.toString());
+					}
+				}
+			}
+		}
+		return morphTags;
 	}
 
 	/**
@@ -304,9 +498,20 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		return r.toString();
 	}
 
+	/**
+	 * see if an attribute exists and has a value
+	 * 
+	 * @param attributeName
+	 * @param attrs
+	 * @return
+	 */
+	private boolean isAttr(String attributeName, Attributes attrs) {
+		String attrValue = attrs.getValue(attributeName);
+		return StringUtils.isNotEmpty(attrValue);
+	}
 
 	private String getPaddingAtBottom() {
-		return StringUtils.repeat(HTML.BR, parameters
+		return StringUtils.repeat(HTML.BR, commonHandlerData.getParameters()
 				.getNumPaddingBrsAtBottom());
 	}
 

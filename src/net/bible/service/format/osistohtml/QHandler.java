@@ -45,7 +45,7 @@ public class QHandler {
 			writer.write("&quot;");
 			stack.push(QType.quote);
 		} else {
-			if (parameters.isRedLetter()) {
+			if (parameters.isRedLetter() && "Jesus".equals(who)) {
 				// esv uses q for red-letter and for quote mark
 				writer.write("<span class='redLetter'>");
 			}

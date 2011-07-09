@@ -55,7 +55,7 @@ public class LHandler {
 				log.debug("Unknown <l> tag type:"+type);
 			}
 		} else {
-			log.debug("Ignoring <l> tag with no type");
+//			log.debug("Ignoring <l> tag with no type");
 		}
 	}
 

@@ -51,7 +51,6 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.Passage;
 import org.xml.sax.ContentHandler;
-import org.xml.sax.SAXException;
 
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -493,13 +492,14 @@ public class SwordApi {
 	    	
 			SharedPreferences preferences = CommonUtils.getSharedPreferences();
 			if (preferences!=null) {
-				// show verse numbers if user has selected to show verse numbers AND teh book is a bible (so don't even try to show verses in a Dictionary)
+				// show verse numbers if user has selected to show verse numbers AND the book is a bible (so don't even try to show verses in a Dictionary)
 				if (BookCategory.BIBLE.equals(book.getBookCategory())) {
 					osisToHtmlParameters.setShowVerseNumbers(preferences.getBoolean("show_verseno_pref", true) && book.getBookCategory().equals(BookCategory.BIBLE));
 					osisToHtmlParameters.setVersePerline(preferences.getBoolean("verse_per_line_pref", false));
 					osisToHtmlParameters.setShowNotes(preferences.getBoolean("show_notes_pref", true));
 					osisToHtmlParameters.setShowStrongs(preferences.getBoolean("show_strongs_pref", true));
 					osisToHtmlParameters.setShowMorphology(preferences.getBoolean("show_morphology_pref", false));
+					osisToHtmlParameters.setShowTitles(preferences.getBoolean("section_title_pref", true));
 					osisToHtmlParameters.setRedLetter(preferences.getBoolean("red_letter_pref", false));
 				}
 				if (preferences.getBoolean("night_mode_pref", false)) {

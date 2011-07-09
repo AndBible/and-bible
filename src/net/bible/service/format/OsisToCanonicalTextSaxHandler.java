@@ -3,11 +3,11 @@ package net.bible.service.format;
 
 import java.util.Stack;
 
+import net.bible.service.format.osistohtml.TagHandlerHelper;
 import net.bible.service.sword.Logger;
 
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
 /**
  * Convert OSIS input into Canonical text (used when creating search index)
  * 
@@ -69,7 +69,7 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
 			writeContentStack.push(CONTENT_STATE.WRITE);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
 			if (attrs!=null) {
-				currentVerseNo = osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID));
+				currentVerseNo = TagHandlerHelper.osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID));
 			}
 			writeContentStack.push(CONTENT_STATE.WRITE);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {
