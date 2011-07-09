@@ -1,6 +1,6 @@
 package net.bible.service.format.osistohtml;
 
-import net.bible.service.sword.Logger;
+import net.bible.service.common.Logger;
 
 public class HtmlTextWriter {
 

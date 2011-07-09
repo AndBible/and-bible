@@ -2,12 +2,11 @@ package net.bible.android.control.speak;
 
 import java.util.Locale;
 
-import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.device.TextToSpeechController;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordContentFacade;
 
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
@@ -105,7 +104,7 @@ public class SpeakControl {
 			for (int i=0; i<numPagesDefn.getNumPages(); i++) {
 				Key current = page.getPagePlus(i);
 				if (current!=null) {
-					textToSpeak.append( SwordApi.getInstance().getCanonicalText(page.getCurrentDocument(), current));
+					textToSpeak.append( SwordContentFacade.getInstance().getCanonicalText(page.getCurrentDocument(), current));
 				}
 			}
 		} catch (Exception e) {

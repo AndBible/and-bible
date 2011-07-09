@@ -4,7 +4,7 @@ import java.util.List;
 
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
@@ -46,7 +46,7 @@ public class DocumentControl {
 		CurrentPageManager currentPageManager = ControlFactory.getInstance().getCurrentPageControl();
 		Book currentBible = currentPageManager.getCurrentBible().getCurrentDocument();
 		Key requiredVerse = getRequiredVerseForSuggestions();
-		return getSuggestedBook(SwordApi.getInstance().getBibles(), currentBible, requiredVerse, currentPageManager.isBibleShown());
+		return getSuggestedBook(SwordDocumentFacade.getInstance().getBibles(), currentBible, requiredVerse, currentPageManager.isBibleShown());
 	}
 
 	/** Suggest an alternative commentary to view or return null
@@ -55,7 +55,7 @@ public class DocumentControl {
 		CurrentPageManager currentPageManager = ControlFactory.getInstance().getCurrentPageControl();
 		Book currentCommentary = currentPageManager.getCurrentCommentary().getCurrentDocument();
 		Key requiredVerse = getRequiredVerseForSuggestions();
-		return getSuggestedBook(SwordApi.getInstance().getBooks(BookCategory.COMMENTARY), currentCommentary, requiredVerse, currentPageManager.isCommentaryShown());
+		return getSuggestedBook(SwordDocumentFacade.getInstance().getBooks(BookCategory.COMMENTARY), currentCommentary, requiredVerse, currentPageManager.isCommentaryShown());
 	}
 
 	/** Suggest an alternative dictionary to view or return null
@@ -63,7 +63,7 @@ public class DocumentControl {
 	public Book getSuggestedDictionary() {
 		CurrentPageManager currentPageManager = ControlFactory.getInstance().getCurrentPageControl();
 		Book currentDictionary = currentPageManager.getCurrentDictionary().getCurrentDocument();
-		return getSuggestedBook(SwordApi.getInstance().getBooks(BookCategory.DICTIONARY), currentDictionary, null, currentPageManager.isDictionaryShown());
+		return getSuggestedBook(SwordDocumentFacade.getInstance().getBooks(BookCategory.DICTIONARY), currentDictionary, null, currentPageManager.isDictionaryShown());
 	}
 	
 	/** Suggest an alternative dictionary to view or return null
@@ -71,7 +71,7 @@ public class DocumentControl {
 	public Book getSuggestedGenBook() {
 		CurrentPageManager currentPageManager = ControlFactory.getInstance().getCurrentPageControl();
 		Book currentBook = currentPageManager.getCurrentGeneralBook().getCurrentDocument();
-		return getSuggestedBook(SwordApi.getInstance().getBooks(BookCategory.GENERAL_BOOK), currentBook, null, currentPageManager.isGenBookShown());
+		return getSuggestedBook(SwordDocumentFacade.getInstance().getBooks(BookCategory.GENERAL_BOOK), currentBook, null, currentPageManager.isGenBookShown());
 	}
 
 	/** possible books will often not include the current verse but most will include chap 1 verse 1

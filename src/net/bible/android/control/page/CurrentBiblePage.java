@@ -2,7 +2,7 @@ package net.bible.android.control.page;
 
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.navigation.GridChoosePassageBook;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
@@ -219,7 +219,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 			String document = inState.getString("document", null);
 			if (StringUtils.isNotEmpty(document)) {
 				Log.d(TAG, "State document:"+document);
-				Book book = SwordApi.getInstance().getDocumentByInitials(document);
+				Book book = SwordDocumentFacade.getInstance().getDocumentByInitials(document);
 				if (book!=null) {
 					Log.d(TAG, "Document:"+book.getName());
 					// bypass setter to avoid automatic notifications

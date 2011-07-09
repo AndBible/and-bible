@@ -1,5 +1,7 @@
-package net.bible.service.sword;
+package net.bible.service.format;
 
+
+import net.bible.service.common.Logger;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.OSISUtil;

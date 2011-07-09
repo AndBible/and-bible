@@ -1,6 +1,5 @@
-package net.bible.service.sword;
+package net.bible.service.common;
 
-import net.bible.service.common.TestUtils;
 import android.util.Log;
 
 /** Not sure whether to use Log or jdk logger or log4j.

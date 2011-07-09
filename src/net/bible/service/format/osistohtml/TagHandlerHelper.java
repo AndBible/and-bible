@@ -1,6 +1,6 @@
 package net.bible.service.format.osistohtml;
 
-import net.bible.service.sword.Logger;
+import net.bible.service.common.Logger;
 
 import org.apache.commons.lang.StringUtils;
 import org.xml.sax.Attributes;

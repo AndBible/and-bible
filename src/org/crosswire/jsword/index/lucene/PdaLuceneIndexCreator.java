@@ -28,7 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.bible.service.common.CommonUtils;
-import net.bible.service.sword.Logger;
+import net.bible.service.common.Logger;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;

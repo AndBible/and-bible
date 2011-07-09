@@ -9,7 +9,7 @@ import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.page.BibleView;
 import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.Note;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordContentFacade;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
@@ -86,7 +86,7 @@ public class BibleContentManager {
 	            
 	            notesList = new ArrayList<Note>();
 	            
-	            FormattedDocument formattedDocument = SwordApi.getInstance().readHtmlText(document, key, 200);
+	            FormattedDocument formattedDocument = SwordContentFacade.getInstance().readHtmlText(document, key, 200);
 	            text = formattedDocument.getHtmlPassage();
 	            notesList = formattedDocument.getNotesList();
 	            
