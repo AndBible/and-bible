@@ -7,7 +7,7 @@ import org.crosswire.jsword.passage.Verse;
 public class OsisToHtmlParameters {
     private String languageCode = "en";
     private boolean isLeftToRight = true;
-    private boolean isShowHeadings = true;
+    private boolean isShowTitles = true;
     private boolean isShowVerseNumbers = false;
     private boolean isVersePerline = false;
     private boolean isShowNotes = false;
@@ -34,11 +34,11 @@ public class OsisToHtmlParameters {
 	public void setLeftToRight(boolean isLeftToRight) {
 		this.isLeftToRight = isLeftToRight;
 	}
-	public boolean isShowHeadings() {
-		return isShowHeadings;
+	public boolean isShowTitles() {
+		return isShowTitles;
 	}
-	public void setShowHeadings(boolean isShowHeadings) {
-		this.isShowHeadings = isShowHeadings;
+	public void setShowTitles(boolean isShowTitles) {
+		this.isShowTitles = isShowTitles;
 	}
 	public boolean isShowVerseNumbers() {
 		return isShowVerseNumbers;

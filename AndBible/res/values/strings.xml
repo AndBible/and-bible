@@ -74,6 +74,8 @@
     <string name="prefs_show_strongs_summary">Links to Greek &amp; Hebrew definitions</string>
     <string name="prefs_show_morphology_title">Morphological codes</string>
     <string name="prefs_show_morphology_summary">Show Robinson\'s Greek morphology</string>
+    <string name="prefs_section_title_title">Section Titles</string>
+    <string name="prefs_section_title_summary">Show non-canonical section titles</string>
     <string name="prefs_red_letter_title">Red Letter</string>
     <string name="prefs_red_letter_summary">Show words of Christ in red</string>
     <string name="prefs_night_mode_title">Night mode</string>

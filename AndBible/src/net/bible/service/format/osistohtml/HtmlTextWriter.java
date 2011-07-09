@@ -2,11 +2,11 @@ package net.bible.service.format.osistohtml;
 
 import net.bible.service.sword.Logger;
 
-import org.xml.sax.SAXException;
-
 public class HtmlTextWriter {
 
     private StringBuilder writer;
+    
+    private int dontWriteRequestCount = 0;
     
     private int writeTempStoreRequestCount = 0;
     private StringBuilder tempStore = new StringBuilder();
@@ -14,6 +14,7 @@ public class HtmlTextWriter {
     // allow insert at a certain position
     private String overwrittenString = "";
     
+    @SuppressWarnings("unused")
     private static final Logger log = new Logger("HtmlTextWriter");
     
     public HtmlTextWriter() {
@@ -21,7 +22,9 @@ public class HtmlTextWriter {
     }
 
     public void write(String htmlText) {
-        if (writeTempStoreRequestCount==0) {
+    	if (dontWriteRequestCount>0) {
+    		// ignore all text
+    	} else if (writeTempStoreRequestCount==0) {
 			writer.append(htmlText);
         } else {
         	tempStore.append(htmlText); 
@@ -63,5 +66,12 @@ public class HtmlTextWriter {
     }
     public String getHtml() {
     	return writer.toString();
+    }
+    public void setDontWrite(boolean dontWrite) {
+    	if (dontWrite) {
+    		dontWriteRequestCount++;
+    	} else {
+    		dontWriteRequestCount--;
+    	}
     }
 }
