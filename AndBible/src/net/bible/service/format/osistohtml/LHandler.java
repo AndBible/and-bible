@@ -48,7 +48,7 @@ public class LHandler {
 			if (type.contains("indent")) {
 				writer.write(HTML.NBSP+HTML.NBSP);
 				stack.push(LType.indent);
-			} else if (type.contains("br")) {
+			} else if (type.contains("br") || TagHandlerHelper.isAttr(OSISUtil.OSIS_ATTR_EID, attrs)) {
 				writer.write(HTML.BR);
 				stack.push(LType.br);
 			} else {
