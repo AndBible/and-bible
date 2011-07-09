@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.URI;
 
 import junit.framework.TestCase;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.common.util.CWProject;
 import org.crosswire.common.util.NetUtil;
@@ -24,12 +24,12 @@ import org.jdom.Element;
 public class PdaLuceneIndexTest extends TestCase {
 
 	private Book[] books;
-	private SwordApi swordApi;
+	private SwordDocumentFacade swordApi;
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		SwordApi.setAndroid(false);
-		swordApi = SwordApi.getInstance();
+		SwordDocumentFacade.setAndroid(false);
+		swordApi = SwordDocumentFacade.getInstance();
 		
         SwordBookDriver swordBookDriver = new SwordBookDriver();
         books = swordBookDriver.getBooks();

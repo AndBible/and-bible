@@ -4,7 +4,7 @@ import java.io.File;
 import java.net.URI;
 
 import junit.framework.TestCase;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.sword.SwordBookDriver;
@@ -13,12 +13,12 @@ import org.crosswire.jsword.index.IndexStatus;
 public class PdaLuceneIndexManagerTest extends TestCase {
 
 	private Book[] books;
-	private SwordApi swordApi;
+	private SwordDocumentFacade swordApi;
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		SwordApi.setAndroid(false);
-		swordApi = SwordApi.getInstance();
+		SwordDocumentFacade.setAndroid(false);
+		swordApi = SwordDocumentFacade.getInstance();
 		
         SwordBookDriver swordBookDriver = new SwordBookDriver();
         books = swordBookDriver.getBooks();

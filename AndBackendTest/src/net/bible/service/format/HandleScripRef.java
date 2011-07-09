@@ -5,7 +5,6 @@ import java.util.Locale;
 
 import junit.framework.TestCase;
 import net.bible.android.TestUtil;
-import net.bible.service.sword.OSISInputStream;
 
 import org.crosswire.common.xml.SAXEventProvider;
 import org.crosswire.jsword.book.Book;

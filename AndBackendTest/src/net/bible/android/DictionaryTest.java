@@ -1,13 +1,12 @@
 package net.bible.android;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.TestCase;
-
 import net.bible.service.format.FormattedDocument;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordContentFacade;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookData;
@@ -55,7 +54,7 @@ public class DictionaryTest extends TestCase {
 			Key wordKey = bookg.getKey("03056");
 	        BookData data = new BookData(bookg, wordKey);
 	        System.out.println(OSISUtil.getPlainText(data.getOsisFragment())); //$NON-NLS-1$
-	        System.out.println(SwordApi.getInstance().readHtmlText(bookg, wordKey, 1).getHtmlPassage());
+	        System.out.println(SwordContentFacade.getInstance().readHtmlText(bookg, wordKey, 1).getHtmlPassage());
 
 //			Key wordKey2 = bookg.getKey("03004");
 //	        BookData data2 = new BookData(bookg, wordKey2);
@@ -90,7 +89,7 @@ public class DictionaryTest extends TestCase {
 	}
 
 	public void testSearchStrongs() throws Exception {
-        Book book = SwordApi.getInstance().getDocumentByInitials("KJV");
+        Book book = SwordDocumentFacade.getInstance().getDocumentByInitials("KJV");
         Key key = book.find("strong:h3068");
         System.out.println("h3068 result count:"+key.getCardinality());
         Key key2 = book.find("strong:h4714");
@@ -122,7 +121,7 @@ public class DictionaryTest extends TestCase {
 	}
 	
 	private String getHtml(Book book, Key key, int maxVerses) throws Exception {
-		FormattedDocument formattedDocument = SwordApi.getInstance().readHtmlText(book, key, 100);
+		FormattedDocument formattedDocument = SwordContentFacade.getInstance().readHtmlText(book, key, 100);
 		String html = formattedDocument.getHtmlPassage();
 		return html;		
 	}

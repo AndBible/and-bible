@@ -6,7 +6,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import net.bible.service.format.FormattedDocument;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordContentFacade;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.Books;
@@ -14,11 +15,11 @@ import org.crosswire.jsword.passage.Key;
 
 public class TestUtil {
 
-	private static SwordApi swordApi;
+	private static SwordDocumentFacade swordApi;
 	static {
-		SwordApi.isAndroid = false;
-		SwordApi.setAndroid(false);
-		swordApi = SwordApi.getInstance();
+		SwordDocumentFacade.isAndroid = false;
+		SwordDocumentFacade.setAndroid(false);
+		swordApi = SwordDocumentFacade.getInstance();
 	}
 	
 	public static Book getBook(String initials) {
@@ -51,7 +52,7 @@ public class TestUtil {
     }
     
 	public static String getHtml(Book book, Key key, int maxVerses) throws Exception {
-		FormattedDocument formattedDocument = swordApi.readHtmlText(book, key, 100);
+		FormattedDocument formattedDocument = SwordContentFacade.getInstance().readHtmlText(book, key, 100);
 		String html = formattedDocument.getHtmlPassage();
 		return html;		
 	}

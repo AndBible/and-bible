@@ -3,7 +3,7 @@ package net.bible.android.activity;
 import java.util.List;
 
 import junit.framework.TestCase;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookFilters;
@@ -42,7 +42,7 @@ public class DownloadTest extends TestCase {
 				}
 			}
 			
-			SwordApi.getInstance().downloadDocument(gill);
+			SwordDocumentFacade.getInstance().downloadDocument(gill);
 			Thread.sleep(300000);
 			System.out.println("fin");
 		} catch (Exception e) {
@@ -61,9 +61,9 @@ public class DownloadTest extends TestCase {
 
 	public void testDownloadKJV() {
 		try {
-			SwordApi.getInstance().downloadDocument(getBook("KJV"));
+			SwordDocumentFacade.getInstance().downloadDocument(getBook("KJV"));
 			Thread.sleep(30000);
-			Book book = SwordApi.getInstance().getDocumentByInitials("KJV");
+			Book book = SwordDocumentFacade.getInstance().getDocumentByInitials("KJV");
 			assertNotNull("KJV not downloaded:", book);
 			System.out.println("fin");
 		} catch (Exception e) {
@@ -74,9 +74,9 @@ public class DownloadTest extends TestCase {
 
 	public void testDownloadIndex() {
 		try {
-			Book book = SwordApi.getInstance().getDocumentByInitials("KJV");
+			Book book = SwordDocumentFacade.getInstance().getDocumentByInitials("KJV");
 			
-			SwordApi.getInstance().downloadDocument(book);
+			SwordDocumentFacade.getInstance().downloadDocument(book);
 			Thread.sleep(30000);
 			System.out.println("fin");
 		} catch (Exception e) {
@@ -86,14 +86,14 @@ public class DownloadTest extends TestCase {
 	}
 
 	public void testDownloadJubilee2000() throws Exception {
-		SwordApi.getInstance().downloadDocument(getBook("Jubilee2000"));
+		SwordDocumentFacade.getInstance().downloadDocument(getBook("Jubilee2000"));
 		System.out.println("finished");
 	}
 
 	public void testDownloadJosephus() throws Exception {
 		try {
 			Book sgBook = getBook("Josephus");
-			SwordApi.getInstance().downloadDocument(sgBook);
+			SwordDocumentFacade.getInstance().downloadDocument(sgBook);
 			Thread.sleep(30000);
 			System.out.println("fin");
 		} catch (Exception e) {
@@ -105,7 +105,7 @@ public class DownloadTest extends TestCase {
 	public void testGetGreekDictionary() {
 		try {
 			Book sgBook = getStrongsGreek();
-			SwordApi.getInstance().downloadDocument(sgBook);
+			SwordDocumentFacade.getInstance().downloadDocument(sgBook);
 			Thread.sleep(30000);
 			System.out.println("fin");
 		} catch (Exception e) {

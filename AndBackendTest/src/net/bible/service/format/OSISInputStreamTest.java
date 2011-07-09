@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.crosswire.jsword.book.sword;
+package net.bible.service.format;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,10 +11,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import net.bible.service.common.ParseException;
-import net.bible.service.format.OsisToCanonicalTextSaxHandler;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler;
-import net.bible.service.sword.OSISInputStream;
 
 import org.crosswire.common.xml.SAXEventProvider;
 import org.crosswire.jsword.book.Book;
@@ -24,9 +22,12 @@ import org.crosswire.jsword.book.BookFilters;
 import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.Defaults;
 import org.crosswire.jsword.book.FeatureType;
+import org.crosswire.jsword.book.sword.SwordBookDriver;
 import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.PassageKeyFactory;
+import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.passage.VerseFactory;
 import org.xml.sax.ContentHandler;
 
 
@@ -67,20 +68,35 @@ public class OSISInputStreamTest extends TestCase {
 	}
 
 	/**
-	 * Test method for {@link net.scripture.service.sword.OSISInputStream#read()}.
+	 * Test method for {@link net.bible.service.format.scripture.service.sword.OSISInputStream#read()}.
 	 * <!DOCTYPE div [<!ENTITY nbsp "&#160;"><!ENTITY copy "&#169;">]><div><verse osisID='Gen.1.1'/><w lemma="strong:H07225">In the begin
 ning</w> <w lemma="strong:H0430">God</w> <w lemma="strong:H0853 strong:H01254" morph="strongMorph:TH8804">created</w> <w lemma="st
 rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H0776">the earth</w>.
 </div>
 	 */
 	public void testReadKJV() throws Exception {
-		Book kjv = getBook("KJV");
+		Book kjv = getBook("ESV");
 
-		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Col 1:1"));
+		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Psalm 66.5"));
 		String chapter = convertStreamToString(osisInputStream);
 //		int numOpeningDivs = count(chapter, "<div>");
 //		int numClosingDivs = count(chapter, "</div>");
 		System.out.println(chapter);
+	}
+
+	public void testReadTitle() throws Exception {
+		Book book = getBook("WEB");
+
+		OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Hosea 1:2"));
+		String verse = convertStreamToString(osisInputStream);
+		System.out.println(verse);
+		
+		osisInputStream = new OSISInputStream(book, book.getKey("Psalm 36:1"));
+		verse = convertStreamToString(osisInputStream);
+		System.out.println(verse);
+		
+		
+		
 	}
 
 	public void testReadABPGRKJn1() throws Exception {
@@ -94,7 +110,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 	}
 
 	/**
-	 * Test method for {@link net.scripture.service.sword.OSISInputStream#read()}.
+	 * Test method for {@link net.bible.service.format.scripture.service.sword.OSISInputStream#read()}.
 	 */
 	public void testReadNetBible() throws Exception {
 		OSISInputStream osisInputStream = new OSISInputStream(netBook, netBook.getKey("Gen 4"));
@@ -130,7 +146,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 	}
 
 	/**
-	 * Test method for {@link net.scripture.service.sword.OSISInputStream#read()}.
+	 * Test method for {@link net.bible.service.format.scripture.service.sword.OSISInputStream#read()}.
 	 */
 	public void testReadSingleChapterBook() throws Exception {
 		OSISInputStream osisInputStream = new OSISInputStream(netBook, netBook.getKey("3 John"));
@@ -142,7 +158,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 	}
 	
 	/**
-	 * Test method for {@link net.scripture.service.sword.OSISInputStream#read()}.
+	 * Test method for {@link net.bible.service.format.scripture.service.sword.OSISInputStream#read()}.
 	 */
 	public void testReadVeryLongBook() throws Exception {
 		Book esv = getBook("ESV");

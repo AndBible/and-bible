@@ -18,13 +18,13 @@ import org.crosswire.jsword.passage.PassageKeyFactory;
 public class SwordApiTest extends TestCase {
 
 	private Book[] books;
-	private SwordApi swordApi;
+	private SwordDocumentFacade swordDocumentFacade;
 
 	protected void setUp() throws Exception {
 		super.setUp();
-		SwordApi.isAndroid = false;
-		SwordApi.setAndroid(false);
-		swordApi = SwordApi.getInstance();
+		SwordDocumentFacade.isAndroid = false;
+		SwordDocumentFacade.setAndroid(false);
+		swordDocumentFacade = SwordDocumentFacade.getInstance();
 		
         SwordBookDriver swordBookDriver = new SwordBookDriver();
         books = swordBookDriver.getBooks();
@@ -262,13 +262,13 @@ public class SwordApiTest extends TestCase {
 		Book esv = getBook("ESV");
 		Key key = PassageKeyFactory.instance().getKey("Gen 1:1");
 		
-		String html = swordApi.getCanonicalText(esv, key);
+		String html = SwordContentFacade.getInstance().getCanonicalText(esv, key);
 		assertEquals("Wrong canonical text", html, "In the beginning, God created the heavens and the earth.");
 		System.out.println(html);
 	}
 
 	private String getHtml(Book book, Key key, int maxVerses) throws Exception {
-		FormattedDocument formattedDocument = swordApi.readHtmlText(book, key, 100);
+		FormattedDocument formattedDocument = SwordContentFacade.getInstance().readHtmlText(book, key, 100);
 		String html = formattedDocument.getHtmlPassage();
 		return html;		
 	}
