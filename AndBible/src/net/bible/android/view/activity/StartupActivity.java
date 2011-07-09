@@ -9,7 +9,7 @@ import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.download.Download;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.service.common.CommonUtils;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordDocumentFacade;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -64,7 +64,7 @@ public class StartupActivity extends ActivityBase {
         	public void run() {
         		try {
 	                // force Sword to initialise itself
-	                SwordApi.getInstance().getBibles();
+	                SwordDocumentFacade.getInstance().getBibles();
         		} finally {
         			// switch back to ui thread to continue
         			uiHandler.post(uiThreadRunnable);
@@ -74,7 +74,7 @@ public class StartupActivity extends ActivityBase {
     }
     
     private void postBasicInitialisationControl() {
-        if (SwordApi.getInstance().getBibles().size()==0) {
+        if (SwordDocumentFacade.getInstance().getBibles().size()==0) {
         	Log.i(TAG, "Invoking download activity because no bibles exist");
         	askIfGotoDownloadActivity();
         } else {
@@ -154,7 +154,7 @@ public class StartupActivity extends ActivityBase {
     	
     	if (requestCode == 1) {
     		Log.i(TAG, "Returned from Download");
-    		if (SwordApi.getInstance().getBibles().size()>0) {
+    		if (SwordDocumentFacade.getInstance().getBibles().size()>0) {
         		Log.i(TAG, "Bibles now exist so go to main bible view");
     			gotoMainBibleActivity();
     		} else {

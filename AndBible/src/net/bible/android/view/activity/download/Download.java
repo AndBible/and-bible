@@ -10,7 +10,7 @@ import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.DocumentSelectionBase;
 import net.bible.service.common.CommonUtils;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.jsword.book.Book;
@@ -54,7 +54,7 @@ public class Download extends DocumentSelectionBase {
 
         downloadControl = ControlFactory.getInstance().getDownloadControl();
 
-        forceBasicFlow = SwordApi.getInstance().getBibles().size()==0;
+        forceBasicFlow = SwordDocumentFacade.getInstance().getBibles().size()==0;
         
     	// in the basic flow we force the user to download a bible
     	getDocumentTypeSpinner().setEnabled(!forceBasicFlow);

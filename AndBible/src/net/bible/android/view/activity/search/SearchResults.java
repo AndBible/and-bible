@@ -9,7 +9,7 @@ import net.bible.android.control.search.SearchControl;
 import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
@@ -112,7 +112,7 @@ public class SearchResults extends ListActivityBase {
 			if (StringUtils.isEmpty(targetDocInitials)) {
 				targetDocInitials = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument().getInitials();
 			}
-			Book targetBook = SwordApi.getInstance().getDocumentByInitials(targetDocInitials); 
+			Book targetBook = SwordDocumentFacade.getInstance().getDocumentByInitials(targetDocInitials); 
     		
     		CurrentPageManager.getInstance().setCurrentDocumentAndKey(targetBook, key);
     		returnToPreviousScreen();

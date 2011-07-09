@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 
+import net.bible.service.common.Logger;
 import net.bible.service.format.osistohtml.HtmlTextWriter;
-import net.bible.service.sword.Logger;
 
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;

@@ -8,7 +8,7 @@ import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ProgressActivityBase;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.service.common.CommonUtils;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.progress.Progress;
@@ -39,7 +39,7 @@ public class EnsureBibleDownloaded extends ProgressActivityBase {
         Log.i(TAG, "Displaying ensure-bible-downloaded");
         setContentView(R.layout.ensure_bible_downloaded);
     
-        if (SwordApi.getInstance().getBibles().size()>0) {
+        if (SwordDocumentFacade.getInstance().getBibles().size()>0) {
         	gotoMainScreen();
         } 
     }
@@ -47,14 +47,14 @@ public class EnsureBibleDownloaded extends ProgressActivityBase {
     @Override
 	protected void jobFinished(Progress prog) {
     	Log.d(TAG, "Finished download, going to main screen");
-        if (SwordApi.getInstance().getBibles().size()>0) {
+        if (SwordDocumentFacade.getInstance().getBibles().size()>0) {
         	gotoMainScreen();
         } else {
 	
         	Log.w(TAG, "Could not immediately find downloaded bible");
 	        // can't find downloaded bible, wait a sec and try again
 	        CommonUtils.pause(2);
-	        if (SwordApi.getInstance().getBibles().size()>0) {
+	        if (SwordDocumentFacade.getInstance().getBibles().size()>0) {
 	        	Log.d(TAG, "Downloaded bible found now");
 	        	gotoMainScreen();
 	        } else {
@@ -76,7 +76,7 @@ public class EnsureBibleDownloaded extends ProgressActivityBase {
      */
     public void onContinue(View v) {
     	Log.i(TAG, "CLICKED");
-        if (SwordApi.getInstance().getBibles().size()>0) {
+        if (SwordDocumentFacade.getInstance().getBibles().size()>0) {
         	gotoMainScreen();
         } else {
         	TextView warn = (TextView)findViewById(R.id.waitForBibleNotYet);

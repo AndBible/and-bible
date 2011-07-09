@@ -1,10 +1,12 @@
-package net.bible.service.sword;
+package net.bible.service.format;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 
+
+import net.bible.service.common.Logger;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;

@@ -10,7 +10,7 @@ import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.search.SearchIndex;
 import net.bible.android.view.activity.search.SearchResults;
 import net.bible.service.common.Constants;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
@@ -103,7 +103,7 @@ public class LinkControl {
 	/** user has selected a morphology link so show morphology page for key in link
 	 */
 	private void showRobinsonMorphology(String key) throws NoSuchKeyException {
-		Book robinson = SwordApi.getInstance().getDocumentByInitials("robinson");
+		Book robinson = SwordDocumentFacade.getInstance().getDocumentByInitials("robinson");
         // valid Strongs uri but Strongs refs not installed
         if (robinson==null) {
         	Dialogs.getInstance().showErrorMsg(R.string.morph_robinson_not_installed);
@@ -125,7 +125,7 @@ public class LinkControl {
     	if (currentBible.hasFeature(FeatureType.STRONGS_NUMBERS)) {
     		strongsBible = currentBible;
     	} else {
-    		strongsBible = SwordApi.getInstance().getDefaultBibleWithStrongs();
+    		strongsBible = SwordDocumentFacade.getInstance().getDefaultBibleWithStrongs();
     	}
     	
     	// possibly no Strong's bible or it has not been indexed

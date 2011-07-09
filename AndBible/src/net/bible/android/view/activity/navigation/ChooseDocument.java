@@ -5,7 +5,7 @@ import java.util.List;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.base.DocumentSelectionBase;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.jsword.book.Book;
 
@@ -41,7 +41,7 @@ public class ChooseDocument extends DocumentSelectionBase {
     @Override
     protected List<Book> getDocumentsFromSource(boolean refresh) {
 		Log.d(TAG, "get document list from source");
-		return SwordApi.getInstance().getDocuments();
+		return SwordDocumentFacade.getInstance().getDocuments();
 	}
 
     @Override
@@ -67,7 +67,7 @@ public class ChooseDocument extends DocumentSelectionBase {
 					public void onClick(DialogInterface dialog,	int buttonId) {
 						try {
 							Log.d(TAG, "Deleting:"+document);
-							SwordApi.getInstance().deleteDocument(document);
+							SwordDocumentFacade.getInstance().deleteDocument(document);
 
 							// the doc list should now change
 							reloadDocuments();
@@ -91,7 +91,7 @@ public class ChooseDocument extends DocumentSelectionBase {
 					public void onClick(DialogInterface dialog,	int buttonId) {
 						try {
 							Log.d(TAG, "Deleting index:"+document);
-							SwordApi.getInstance().deleteDocumentIndex(document);
+							SwordDocumentFacade.getInstance().deleteDocumentIndex(document);
 						} catch (Exception e) {
 							showErrorMsg(R.string.error_occurred);
 						}

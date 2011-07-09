@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import net.bible.service.download.XiphosRepo;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.common.util.LucidException;
 import org.crosswire.jsword.book.Book;
@@ -27,11 +27,11 @@ public class DownloadControl {
 	public List<Book> getDownloadableDocuments(boolean refresh) {
 		List<Book> availableDocs = null;
 		try {
-			availableDocs = SwordApi.getInstance().getDownloadableDocuments(refresh);
+			availableDocs = SwordDocumentFacade.getInstance().getDownloadableDocuments(refresh);
 			
 			// create a Map of installed doc names so we can remove them from the list of downloadable books
 			// need to compare using lower case because Xiphos repo books are lower case
-			List<Book> installedDocs = SwordApi.getInstance().getDocuments();
+			List<Book> installedDocs = SwordDocumentFacade.getInstance().getDocuments();
 			Map<String, Object> installedDocInitials = new HashMap<String, Object>();
 			for (Book book : installedDocs) {
     			Log.d(TAG, "Install list "+book.getInitials()+"/"+book.getInitials().toLowerCase());
@@ -76,6 +76,6 @@ public class DownloadControl {
     	}
     	
 		// the download happens in another thread
-		SwordApi.getInstance().downloadDocument(document);
+		SwordDocumentFacade.getInstance().downloadDocument(document);
 	}
 }

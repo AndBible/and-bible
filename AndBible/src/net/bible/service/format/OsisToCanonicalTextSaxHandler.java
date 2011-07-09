@@ -3,8 +3,8 @@ package net.bible.service.format;
 
 import java.util.Stack;
 
+import net.bible.service.common.Logger;
 import net.bible.service.format.osistohtml.TagHandlerHelper;
-import net.bible.service.sword.Logger;
 
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;

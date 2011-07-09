@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.PassageChangeMediator;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.activate.Activator;
@@ -105,7 +105,7 @@ abstract class CurrentPageBase implements CurrentPage {
 	@Override
 	public Book getCurrentDocument() {
 		if (currentDocument==null) {
-			List<Book> books = SwordApi.getInstance().getBooks(getBookCategory());
+			List<Book> books = SwordDocumentFacade.getInstance().getBooks(getBookCategory());
 			if (books.size()>0) {
 				currentDocument = books.get(0);
 			}
@@ -186,7 +186,7 @@ abstract class CurrentPageBase implements CurrentPage {
 			String document = inState.getString(getBookCategory().getName()+"_document", null);
 			if (StringUtils.isNotEmpty(document)) {
 				Log.d(TAG, "State document:"+document);
-				Book book = SwordApi.getInstance().getDocumentByInitials(document);
+				Book book = SwordDocumentFacade.getInstance().getDocumentByInitials(document);
 				if (book!=null) {
 					Log.d(TAG, "Restored document:"+book.getName());
 					// bypass setter to avoid automatic notifications

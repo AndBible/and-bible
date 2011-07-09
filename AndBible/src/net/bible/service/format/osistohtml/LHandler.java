@@ -2,8 +2,8 @@ package net.bible.service.format.osistohtml;
 
 import java.util.Stack;
 
+import net.bible.service.common.Logger;
 import net.bible.service.common.Constants.HTML;
-import net.bible.service.sword.Logger;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;

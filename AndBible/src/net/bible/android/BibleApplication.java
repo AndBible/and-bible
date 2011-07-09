@@ -7,7 +7,7 @@ import net.bible.android.activity.R;
 import net.bible.android.device.ProgressNotificationManager;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.util.Language;
@@ -126,7 +126,7 @@ public class BibleApplication extends Application{
 				Log.d(TAG, "Deleting old Chinese indexes");
 				Language CHINESE = new Language("zh");
 
-				List<Book> books = SwordApi.getInstance().getDocuments();
+				List<Book> books = SwordDocumentFacade.getInstance().getDocuments();
 				for (Book book : books) {
 					if (CHINESE.equals(book.getLanguage())) {
 						try {

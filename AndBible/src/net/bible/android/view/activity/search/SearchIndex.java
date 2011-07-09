@@ -5,7 +5,7 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.view.activity.base.ActivityBase;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
@@ -71,7 +71,7 @@ public class SearchIndex extends ActivityBase {
 
     	Book documentToIndex = null;
         if (StringUtils.isNotEmpty(documentInitials)) {
-        	documentToIndex = SwordApi.getInstance().getDocumentByInitials(documentInitials);
+        	documentToIndex = SwordDocumentFacade.getInstance().getDocumentByInitials(documentInitials);
         } else {
         	documentToIndex = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
         }

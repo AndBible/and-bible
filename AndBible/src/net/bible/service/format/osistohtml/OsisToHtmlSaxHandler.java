@@ -2,10 +2,10 @@ package net.bible.service.format.osistohtml;
 
 import java.util.List;
 
+import net.bible.service.common.Logger;
 import net.bible.service.common.Constants.HTML;
 import net.bible.service.format.Note;
 import net.bible.service.format.OsisSaxHandler;
-import net.bible.service.sword.Logger;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;

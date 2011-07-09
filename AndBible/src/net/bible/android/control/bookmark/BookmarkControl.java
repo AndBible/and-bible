@@ -14,7 +14,7 @@ import net.bible.service.common.CommonUtils;
 import net.bible.service.db.bookmark.BookmarkDBAdapter;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordContentFacade;
 
 import org.crosswire.jsword.passage.Key;
 
@@ -63,7 +63,7 @@ public class BookmarkControl implements Bookmark {
 	public String getBookmarkVerseText(BookmarkDto bookmark) {
 		String verseText = "";
 		try {
-			verseText = SwordApi.getInstance().getPlainText(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), bookmark.getKey().getOsisRef(), 1);
+			verseText = SwordContentFacade.getInstance().getPlainText(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), bookmark.getKey().getOsisRef(), 1);
 			verseText = CommonUtils.limitTextLength(verseText);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);

@@ -11,7 +11,8 @@ import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.search.Search;
 import net.bible.android.view.activity.search.SearchIndex;
 import net.bible.service.common.CommonUtils;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordContentFacade;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
@@ -91,9 +92,8 @@ public class SearchControl {
     	List<Key> resultKeys = new ArrayList<Key>();
     	
     	// search the current book
-    	SwordApi swordApi = SwordApi.getInstance();
-        Book book = swordApi.getDocumentByInitials(document);
-    	Key result = swordApi.search(book, searchText);
+        Book book = SwordDocumentFacade.getInstance().getDocumentByInitials(document);
+    	Key result = SwordContentFacade.getInstance().search(book, searchText);
     	if (result!=null) {
     		int resNum = result.getCardinality();
         	Log.d(TAG, "Number of results:"+resNum);
@@ -112,7 +112,7 @@ public class SearchControl {
 		// There is similar functionality in BookmarkControl
 		String verseText = "";
 		try {
-			verseText = SwordApi.getInstance().getPlainText(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), key.getOsisRef(), 1);
+			verseText = SwordContentFacade.getInstance().getPlainText(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), key.getOsisRef(), 1);
 			verseText = CommonUtils.limitTextLength(verseText);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);
@@ -168,10 +168,10 @@ public class SearchControl {
             	ok = false;
         	} else {
 		        
-		        if (SwordApi.getInstance().isIndexDownloadAvailable(book)) {
+		        if (SwordDocumentFacade.getInstance().isIndexDownloadAvailable(book)) {
 			        // this starts a new thread to do the indexing and returns immediately
 			        // if index creation is already in progress then nothing will happen
-			        SwordApi.getInstance().downloadIndex(book);
+			        SwordDocumentFacade.getInstance().downloadIndex(book);
 			        
 			        ok = true;
 		        } else {
@@ -196,7 +196,7 @@ public class SearchControl {
     	try {
 	        // this starts a new thread to do the indexing and returns immediately
 	        // if index creation is already in progress then nothing will happen
-	        SwordApi.getInstance().ensureIndexCreation(book);
+	        SwordDocumentFacade.getInstance().ensureIndexCreation(book);
 	        
 	        ok = true;
     	} catch (Exception e) {

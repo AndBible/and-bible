@@ -8,7 +8,8 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
-import net.bible.service.sword.SwordApi;
+import net.bible.service.sword.SwordContentFacade;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang.ABStringUtils;
 import org.apache.commons.lang.WordUtils;
@@ -37,7 +38,7 @@ public class PageControl {
 			Book book = mCurrentPageManager.getCurrentPage().getCurrentDocument();
 			Key key = mCurrentPageManager.getCurrentPage().getSingleKey();
 			
-			String text = key.getName()+"\n"+SwordApi.getInstance().getCanonicalText(book, key);
+			String text = key.getName()+"\n"+SwordContentFacade.getInstance().getCanonicalText(book, key);
 			ClipboardManager clipboard = (ClipboardManager)BibleApplication.getApplication().getSystemService(Activity.CLIPBOARD_SERVICE);
 			clipboard.setText(text);
 		} catch (Exception e) {
@@ -55,7 +56,7 @@ public class PageControl {
 			Book book = mCurrentPageManager.getCurrentPage().getCurrentDocument();
 			Key key = mCurrentPageManager.getCurrentPage().getSingleKey();
 			
-			String text = key.getName()+"\n"+SwordApi.getInstance().getCanonicalText(book, key);
+			String text = key.getName()+"\n"+SwordContentFacade.getInstance().getCanonicalText(book, key);
 			
 			Intent sendIntent  = new Intent(Intent.ACTION_SEND);
 			sendIntent.setType("text/plain");
@@ -81,7 +82,7 @@ public class PageControl {
 			Verse[] defaultVerses = new Verse[] { new Verse(BibleBook.GEN,1,1),
 												  new Verse(BibleBook.JOHN,3,16),
 												  new Verse(BibleBook.PS,1,1)};
-	    	List<Book> bibles = SwordApi.getInstance().getBibles();
+	    	List<Book> bibles = SwordDocumentFacade.getInstance().getBibles();
 	        if (bibles.size()==1) {
 	        	Book bible = bibles.get(0);
 	        	for (Verse verse : defaultVerses) {

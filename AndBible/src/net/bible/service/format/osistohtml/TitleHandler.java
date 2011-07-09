@@ -1,7 +1,7 @@
 package net.bible.service.format.osistohtml;
 
+import net.bible.service.common.Logger;
 import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler.VerseInfo;
-import net.bible.service.sword.Logger;
 
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
