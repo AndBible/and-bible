@@ -138,6 +138,8 @@ public class StartupActivity extends ActivityBase {
             	           public void onClick(DialogInterface dialog, int id) {
             	        	   removeDialog(CAN_DOWNLOAD_DLG);
             	        	   StartupActivity.this.finish();
+            	        	   // ensure app exits to force Sword to reload or if a sdcard/jsword folder is created it may not be recognised 
+            	        	   System.exit(2);
             	           }
             	       }).create();
         }

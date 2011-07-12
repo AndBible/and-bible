@@ -105,6 +105,11 @@ public class SwordDocumentFacade {
 		}
 	}
 
+	public void reset() {
+		singleton = null;
+		isSwordLoaded = false;
+	}
+	
 	public List<Book> getBibles() {
 		log.debug("Getting bibles");
 		List<Book> documents = Books.installed().getBooks(BookFilters.getBibles());
