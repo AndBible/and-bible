@@ -142,4 +142,4 @@
   <string name="some_chapters">%d fejezet</string>
   <string name="some_pages">%d oldal</string>
   <string name="some_verses">%d vers</string>
-</resources>
+<string name="prefs_red_letter_summary">Krisztus szavait pirossal jelenítsd meg</string><string name="prefs_red_letter_title">Piros betűk</string><string name="prefs_section_title_summary">Nem kanonizált címek megjelenítése</string><string name="prefs_section_title_title">Fejezet címek</string></resources>
