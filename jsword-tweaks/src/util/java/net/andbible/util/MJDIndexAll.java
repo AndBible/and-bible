@@ -45,14 +45,14 @@ public class MJDIndexAll {
     public static void main(String[] args) {
     	MJDIndexAll indexAll = new MJDIndexAll();
 //    	indexAll.validateIndex("OSMHB");
-    	indexAll.validateAllIndexes();
-//    	indexAll.updateCachedRepoBookList();
+//    	indexAll.validateAllIndexes();
+    	indexAll.updateCachedRepoBookList();
 //    	indexAll.setupDirs();
 //    	indexAll.showInstalledBooks();
 //    	indexAll.showRepoBooks();
 //    	indexAll.installSingleBook("KJV");
 //    	indexAll.installRepoBooks();
-//  	indexAll.checkAllBooksInstalled();
+    	indexAll.checkAllBooksInstalled();
 //    	indexAll.manageCreateIndexes();
 //    	indexAll.indexSingleBook("KJV");
     	
@@ -89,6 +89,14 @@ public class MJDIndexAll {
 //    	indexAll.indexSingleBook("RST");
 //    	indexAll.indexSingleBook("SpaTDP");
 //    	indexAll.indexSingleBook("Byz");
+    	
+    	// 11/7/11
+    	indexAll.installAndIndexSingleBook("Sorani");
+    	indexAll.installAndIndexSingleBook("GerNeUe"); //up to ver 1.4
+    	indexAll.installAndIndexSingleBook("AraNAV");
+    	indexAll.installAndIndexSingleBook("UrduGeo"); //up to 1.1 (some time ago)
+    	indexAll.installAndIndexSingleBook("WelBeiblNet");
+    	indexAll.installAndIndexSingleBook("Azeri");
     }
     
 	public void validateAllIndexes() {
