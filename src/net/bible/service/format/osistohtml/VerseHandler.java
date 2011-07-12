@@ -71,7 +71,8 @@ public class VerseHandler {
 			// problems such as incorrect verse calculation in Psalms
 			// so use something that will hopefully interfere as little as
 			// possible - a zero-width-space
-			verseHtml.append("<span class='verse' id='").append(verseNo).append("'/>&#x200b;</span>");
+			// also put a space before it to allow a seperation from teh last word of previous verse or to be ignored if start of line
+			verseHtml.append(" <span class='verse' id='").append(verseNo).append("'/>&#x200b;</span>");
 		}
 		writer.write(verseHtml.toString());
 	}
