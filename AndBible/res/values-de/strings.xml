@@ -155,4 +155,4 @@
   <string name="choosePassageVerseName">Vers wählen</string>
   <string name="prefs_navigate_to_verse_summary">Vers (und Kapitel) auswählen</string>
   <string name="prefs_navigate_to_verse_title">Zum Vers wechseln</string>
-<string name="one_chapter">Kapitel %d</string><string name="one_page">Seite %</string><string name="one_verse">Vers %d</string><string name="some_chapters">%d Kapitel</string><string name="some_pages">%d Seiten</string><string name="some_verses">%d Verse</string></resources>
+<string name="one_chapter">Kapitel %d</string><string name="one_page">Seite %</string><string name="one_verse">Vers %d</string><string name="some_chapters">%d Kapitel</string><string name="some_pages">%d Seiten</string><string name="some_verses">%d Verse</string><string name="prefs_red_letter_summary">Zeige Worte Jesu in roter Farbe</string><string name="prefs_red_letter_title">Red Letter</string><string name="prefs_section_title_summary">Zeige nichtkanonische Überschriften</string><string name="prefs_section_title_title">Überschriften</string></resources>
