@@ -231,7 +231,7 @@ abstract class CurrentPageBase implements CurrentPage {
 
 	public float getCurrentYOffsetRatio() {
 		// if key has changed then offsetRatio must be reset because user has changed page
-		if (!getKey().equals(keyWhenYOffsetRatioSet) || !getCurrentDocument().equals(docWhenYOffsetRatioSet)) {
+		if (getKey()==null || !getKey().equals(keyWhenYOffsetRatioSet) || !getCurrentDocument().equals(docWhenYOffsetRatioSet)) {
 			currentYOffsetRatio = 0;
 		}
 		return currentYOffsetRatio;
