@@ -22,8 +22,6 @@ public class KeyHistoryItem implements HistoryItem {
 		this.document = doc;
 		this.key = verse;
 		this.yOffsetRatio = yOffsetRatio;
-		Log.d(TAG, "*** historyirem offset:"+yOffsetRatio);
-		
 	}
 	
 	/* (non-Javadoc)

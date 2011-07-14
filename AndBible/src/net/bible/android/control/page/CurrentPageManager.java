@@ -132,7 +132,7 @@ public class CurrentPageManager {
 	 * @param outState
 	 */
 	public void saveState(SharedPreferences outState) {
-		Log.i(TAG, "**** save state");
+		Log.i(TAG, "save state");
 		currentBiblePage.saveState(outState);
 		currentCommentaryPage.saveState(outState);
 		currentDictionaryPage.saveState(outState);
@@ -147,7 +147,7 @@ public class CurrentPageManager {
 	 * @param inState
 	 */
 	public void restoreState(SharedPreferences inState) {
-		Log.i(TAG, "**** restore state");
+		Log.i(TAG, "restore state");
 		currentBiblePage.restoreState(inState);
 		currentCommentaryPage.restoreState(inState);
 		currentDictionaryPage.restoreState(inState);
