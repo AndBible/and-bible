@@ -20,7 +20,7 @@ import android.util.Log;
 
 public class HistoryManager {
 
-	private static int MAX_HISTORY = 50;
+	private static int MAX_HISTORY = 80;
 	private Stack<HistoryItem> history = new Stack<HistoryItem>();
 	private static HistoryManager singleton = new HistoryManager();
 

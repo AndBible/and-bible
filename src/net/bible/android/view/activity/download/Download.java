@@ -41,7 +41,7 @@ public class Download extends DocumentSelectionBase {
 	private DownloadControl downloadControl;
 
 	private static final String REPO_REFRESH_DATE = "repoRefreshDate";
-	private static final long REPO_LIST_STALE_AFTER_DAYS = 30;
+	private static final long REPO_LIST_STALE_AFTER_DAYS = 10;
 	private static final long MILLISECS_IN_DAY = 1000*60*60*24;
 	
 	public static final int DOWNLOAD_MORE_RESULT = 10;
