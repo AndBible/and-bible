@@ -166,4 +166,4 @@
   <string name="some_chapters">%d pennod</string>
   <string name="some_pages">%d tudalen</string>
   <string name="some_verses">%d adnod</string>
-<string name="prefs_red_letter_summary">Dangos geiriau Crist mewn coch</string><string name="prefs_red_letter_title">Llythrennau Coch</string></resources>
+<string name="prefs_red_letter_summary">Dangos geiriau Crist mewn coch</string><string name="prefs_red_letter_title">Llythrennau Coch</string><string name="prefs_section_title_summary">Dangos teitlau adrannau tu allan i\'r canon</string><string name="prefs_section_title_title">Teitlau Adran</string></resources>
