@@ -21,7 +21,7 @@ import org.xml.sax.Attributes;
  */
 public class LHandler {
 
-	enum LType {indent, br};
+	enum LType {indent, br, end_br, ignore};
 
 	private HtmlTextWriter writer;
 	
@@ -44,24 +44,35 @@ public class LHandler {
 	public void startL(Attributes attrs) {
 		// Refer to Gen 3:14 in ESV for example use of type=x-indent
 		String type = attrs.getValue(OSISUtil.OSIS_ATTR_TYPE);
+		LType ltype = LType.ignore;
 		if (StringUtils.isNotEmpty(type)) {
 			if (type.contains("indent")) {
 				writer.write(HTML.NBSP+HTML.NBSP);
-				stack.push(LType.indent);
+				ltype = LType.indent;
 			} else if (type.contains("br")) {
 				writer.write(HTML.BR);
-				stack.push(LType.br);
+				ltype = LType.br;
 			} else {
+				ltype = LType.ignore;
 				log.debug("Unknown <l> tag type:"+type);
 			}
+		} else if (TagHandlerHelper.isAttr(OSISUtil.OSIS_ATTR_SID, attrs)) {
+			ltype = LType.ignore;
 		} else if (TagHandlerHelper.isAttr(OSISUtil.OSIS_ATTR_EID, attrs)) {
+			// e.g. Isaiah 40:12
 			writer.write(HTML.BR);
-			stack.push(LType.br);
+			ltype = LType.br;
 		} else {
-//			log.debug("Ignoring <l> tag with no type");
+			//simple <l>
+			ltype = LType.end_br;
 		}
+		stack.push(ltype);
 	}
 
 	public void endL() {
+		LType type = stack.pop();
+		if (LType.end_br.equals(type)) {
+			writer.write(HTML.BR);
+		}
 	}
 }

@@ -175,6 +175,14 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			write("<p />");
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {
 			qHandler.start(attrs);
+		} else if (name.equals("milestone")) {
+			String type = attrs.getValue(OSISUtil.OSIS_ATTR_TYPE);
+			if (StringUtils.isNotEmpty(type)) {
+				if (type.equals("line") || type.equals("x-p")) {
+					//e.g. NETtext Mt 4:14
+					write(HTML.BR);
+				}
+			}
 		} else if (name.equals("transChange")) {
 			write("<span class='transChange'>");
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_W)) {
