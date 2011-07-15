@@ -30,8 +30,10 @@ public class PassageChangeMediator {
 		isPageChanging = true;
 		
 		// save screen offset for current doc before change occurs
-		float screenPosn = mMainBibleActivity.getCurrentPosition();
-		CurrentPageManager.getInstance().getCurrentPage().setCurrentYOffsetRatio(screenPosn);
+		if (mMainBibleActivity!=null && CurrentPageManager.getInstance().getCurrentPage()!=null) {
+			float screenPosn = mMainBibleActivity.getCurrentPosition();
+			CurrentPageManager.getInstance().getCurrentPage().setCurrentYOffsetRatio(screenPosn);
+		}
 
 		HistoryManager.getInstance().beforePageChange();
 	}
