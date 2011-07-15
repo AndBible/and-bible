@@ -25,6 +25,7 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
 	<string name="lang_portuguese">pt: Português</string>
 	<string name="lang_russian">ru: Русский</string>
 	<string name="lang_swedish">sv: Svenska</string>
+	<string name="lang_thai">th: ไทย</string>
 	<string name="lang_chinese">zh: 古文/文言文</string>
 	
     <!-- Speak -->
