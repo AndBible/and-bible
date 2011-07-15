@@ -60,13 +60,8 @@ public class EnsureBibleDownloaded extends ProgressActivityBase {
 	        } else {
 	        	Log.e(TAG, "Downloaded bible not found");
 	        	if (JobManager.getJobs().size()==0) {
-	        		runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							// something went wrong with the download
-							Dialogs.getInstance().showErrorMsg(R.string.download_complete_no_bibles);
-						}
-	        		});
+					// something went wrong with the download
+					Dialogs.getInstance().showErrorMsg(R.string.download_complete_no_bibles);
 	        	}
 	        }
         }
