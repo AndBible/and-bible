@@ -164,8 +164,10 @@ abstract class CurrentPageBase implements CurrentPage {
 		menu.findItem(R.id.add_bookmark).setVisible(true);
 
 		//set title - can only be set when cast to a ContextMenu
-		ContextMenu contextMenu = (ContextMenu)menu;
-		contextMenu.setHeaderTitle(getSingleKey().getName());
+		if (getSingleKey()!=null) {
+			ContextMenu contextMenu = (ContextMenu)menu;
+			contextMenu.setHeaderTitle(getSingleKey().getName());
+		}
 	}
 	
 	@Override
