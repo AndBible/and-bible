@@ -1,0 +1,182 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!-- Application text
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<resources>
+    <string name="app_name">And Bible</string>
+
+	<!-- Startup & Help -->
+    <string name="splash_top_text">"\n\"พระ​เจ้า​ตรัส​ว่า “จง​เกิด​ความ​สว่าง” ความ​สว่าง​ก็​เกิด​ขึ้น\"\nปฐมกาล 1:3"</string>
+    <string name="help_text">กดปุ่มเมนูสำหรับการดำเนินการ\n\nไปที่บทต่อไปหรือก่อนหน้าโดยการใช้ track-ball, D-pad หรือปัดหน้าจอด้วยนิ้วของคุณ</string>
+    <string name="help_text_long">การนำทาง\nเพื่อไปบทต่อไปหรือก่อนหน้าโดยการใช้ track-ball, D-pad หรือการปัดหน้าจอด้วยนิ้วของคุณ\n\nกดปุ่มเมนูสำหรับสิ่งที่ต้องการ\n\nดาวน์โหลดเอกสารเพิ่มเติม กดเมนู/เพิ่มเติม/ดาวน์โหลดเอกสาร\n\nกดแช่ในมุมมองพระคัมภีร์เพื่อเปิดเมนูทางลัดเพื่อจัดการในข้อปัจจุบัน\nกดแช่บนเอกสารสำหรับเอกสารที่เลือกจะลบหรือดูข้อมูล\n\nพูด\nกดพูดเพื่อเข้าถึงกล่องโต้ตอบสำหรับการเริ่มต้นหรือหยุดการอ่าน\n\nตัวคั่น\nสามารถเพิ่มตัวคั่นผ่านเมนูทางลัดของข้อพระคัมภีร์ เข้าถึงการจัดการตัวคั่นได้ผ่านทางเมนูหลัก เมนูทางลัดในการจัดการตัวคั่นจะช่วยให้ตัวคั่นถูกจัดกลุ่มโดยใช้ป้ายกำกับ</string>
+    <string name="version_text">รุ่นที่ %s</string>
+	<string name="no_sdcard_error">กรุณาใส่ SD card และเริ่มต้น And Bible อีกครั้ง</string>
+    
+    <!-- main menu -->
+    <string name="chooseBook">เอกสาร</string>
+    <string name="selectPassage">ไปถึง</string>
+    <string name="search">ค้นหา</string>
+    <string name="settings">การตั้งค่า</string>
+    <string name="history">ประวัติ</string>
+    <string name="speak">Speak</string>
+    <string name="help">ช่วยเหลือ</string>
+    
+    <!-- Passage navigation -->
+    <string name="choosePassageBookName">เลือกหนังสือ</string>
+    <string name="choosePassageChapterName">เลือกบท</string>
+    <string name="choosePassageVerseName">เลือกข้อพระคัมภีร์</string>
+
+	<!--  Search -->
+    <string name="search_index">ดัชนีค้นหา</string>
+    <string name="index_creation_required">ดัชนีที่จำเป็นในการค้นหา\n\nดัชนีอาจจะดาวน์โหลดจากอินเทอร์เน็ตหรือสร้างขึ้นเอง\n\nการดาวน์โหลดทำให้เร็วกว่าและการดาวน์โหลดดัชนีมีคุณสมบัติเพิ่มเติมในการค้นหา\n\nการดาวน์โหลดดัชนีต้องเชื่อมต่ออินเทอร์เน็ต</string>
+    <string name="indexing_wait_msg">เมื่อสร้างดัชนีเสร็จสมบูรณ์ จะต้องถูกนำไปยังส่วนการค้นหา</string>
+    <string name="index">ดัชนี</string>
+    <string name="index_download">ดาวน์โหลด</string>
+    <string name="index_not_available_for_download">ดัชนีนี้ไม่มีดาวน์โหลด</string>
+    <string name="index_create">Create</string>
+
+	<!-- Tasks -->
+    <string name="progress_status">ความคืบหน้า</string>
+    <string name="task_kill_warning">อาจถูกยกเลิก หากคุณสลับไปใช้โปรแกรมอื่นก่อนการดำเนินการที่ต้องใช้เวลานานนี้จะเสร็จ</string>
+    <string name="no_tasks_running">ไม่มีงานที่ถูกดำเนินการในขณะนี้</string>
+
+    <!-- Search -->
+    <string name="search_words_group_prompt">ค้นหาข้อพระคัมภีร์</string>
+    <string name="search_all_words">ทุกคำ</string>
+    <string name="search_any_word">คำใดๆ ก็ได้</string>
+    <string name="search_phrase">วลี</string>
+    <string name="search_result_count">พบ %d รายการที่สอดคล้อง</string>
+    <string name="search_showing_first">ตรงมากเกินไป แสดงครั้งแรกของ %d</string> 
+    <string name="search_bible_section_group_prompt">ค้นหา</string>
+    <string name="search_all_bible">พระคัมภีร์ทั้งเล่ม</string>
+    <string name="search_new_testament">พันธสัญญาใหม่</string>
+    <string name="search_old_testament">พันธสัญญาเดิม</string>
+    <string name="search_current_book">หนังสือปัจจุบัน</string>
+    <string name="error_executing_search">การค้นหาไม่ถูกต้อง</string>
+
+    <!-- Preferences -->
+    <string name="prefs_show_verseno_title">เลขข้อพระคัมภีร์</string>
+    <string name="prefs_show_verseno_summary">แสดงหมายเลขข้อพระคัมภีร์</string>
+    <string name="prefs_verse_per_line_title">หนึ่งข้อต่อหนึ่งบรรทัด</string>
+    <string name="prefs_verse_per_line_summary">แยกกันข้อละบรรทัด</string>
+    <string name="prefs_show_notes_title">บันทึก</string>
+    <string name="prefs_show_notes_summary">แสดงการบันทึก</string>
+    <string name="prefs_show_strongs_title">แสดงตัวเลขสตรอง</string>
+    <string name="prefs_show_strongs_summary">เชื่อมโยงคำจำกัดความกรีกและฮีบรู</string>
+    <string name="prefs_show_morphology_title">รหัสไวยากรณ์</string>
+    <string name="prefs_show_morphology_summary">แสดงรหัสไวยากรณ์กรีกของ Robinson</string>
+    <string name="prefs_section_title_title">ส่วนหัวข้อ</string>
+    <string name="prefs_section_title_summary">แสดงชื่อพระคัมภีร์นอกสารระบบ</string>
+    <string name="prefs_red_letter_title">ตัวอักษรสีแดง</string>
+    <string name="prefs_red_letter_summary">ถ้อยคำของพระเยซูคริสต์เป็นสีแดง</string>
+    <string name="prefs_night_mode_title">โหมดกลางคืน</string>
+    <string name="prefs_night_mode_summary">เหมาะสำหรับอ่านในที่มืด</string>
+    <string name="prefs_navigate_to_verse_title">ไปที่ข้อ</string>
+    <string name="prefs_navigate_to_verse_summary">เลือกข้อพระคัมภีร์ (และบท) เมื่อเลือกใช้</string>
+    <string name="prefs_text_size_title">ขนาดแบบอักษร</string>
+    <string name="prefs_text_size_summary">ดูรายละเอียดเพิ่มเติมหรือดูให้ชัดเจนยิ่งขึ้น</string>
+    <string name="prefs_interface_locale_title">ภาษาสำหรับโปรแกรม</string>
+    <string name="prefs_interface_locale_summary">เลือกเพื่อกำหนดภาษาที่แสดงเอง</string>
+    <string name="locale_change_warning">โปรแกรมจะเริ่มต้นใหม่อีกครั้งเพื่อสลับไปใช้ภาษาใหม่</string>
+
+    <!-- Notes screen -->
+    <string name="no_chapter_notes">ไม่มีบันทึกในบทนี้</string>
+    <string name="no_verse_notes">ไม่มีบันทึกอยู่ในข้อพระคัมภีร์นี้</string>
+    <string name="previous">Previous</string>
+    <string name="next">ถัดไป</string>
+
+    <!--  Strongs -->
+    <string name="strongs">พจนานุกรมตัวเลขสตรอง</string>
+    <string name="strongs_not_installed">กรุณาดาวน์โหลดตัวเลขสตรองฮีบรูและพจนานุกรมกรีก</string>
+    <string name="all_greek_occurrences">ค้นหาที่เกิดขึ้นทั้งหมด</string>
+    <string name="all_hebrew_occurrences">ค้นหาที่เกิดขึ้นทั้งหมด</string>
+    <string name="no_indexed_bible_with_strongs_ref">คุณจะต้องดาวน์โหลดพระคัมภีร์ที่มีตัวเลขสตรองและดาวน์โหลดดัชนีผ่านการค้นหา</string>
+    <string name="morph_robinson_not_installed">กรุณาดาวน์โหลดประมวลศัพท์ \'Robinson\'s Morphological Analysis Codes\'</string>
+
+    <!-- Module download -->
+    <string name="download">ดาวน์โหลดเอกสาร</string>
+    <string name="download_confirmation">จะดาวน์โหลดพระคัมภีร์จากอินเทอร์เน็ตหรือไม่?</string>
+    <string name="download_source_message">จะดาวน์โหลดเอกสารจาก\nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
+    <string name="download_document_confirm_prefix">"ดาวน์โหลด"</string>
+    <string name="refresh_book_list">แสดงรายของเอกสารที่มีให้ใหม่หรือไม่?</string>
+    <string name="error_downloading">เกิดข้อผิดพลาดในการดาวน์โหลด กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต</string>
+    <string name="no_internet_connection">ไม่สามารถเชื่อมต่อกับอินเทอร์เน็ต</string>
+    <string name="storage_space_warning">พื้นที่จัดเก็บไม่เพียงพอ</string>
+    <string name="wait_for_bible">โปรดรอสักครู่ เพื่อให้ดาวน์โหลดพระคัมภีร์เสร็จ แล้วคุณจะถูกนำไปยังหน้าจอหลัก</string>
+    <string name="wait_for_bible_not_yet">โปรดรอสักครู่ พระคัมภีร์ยังติดตั้งไม่เสร็จ</string>
+    <string name="download_complete_no_bibles">ยังไม่ได้ติดตั้งพระคัมภีร์ กรุณากด Back และลองอีกครั้ง</string>
+    <string name="too_many_jobs">การดำเนินงานมีจำนวนมากเกินไป โปรดรอสักครู่ให้บางงานเสร็จและลองอีกครั้ง</string>
+
+    <!-- Document context menu -->
+    <string name="delete">ลบ</string>
+    <string name="delete_index">ลบดัชนีการค้นหา</string>
+    <string name="about">เกี่ยวกับ</string>
+    <string name="delete_doc">ลบ %s หรือไม่?</string>
+    <string name="delete_search_index_doc">ลบดัชนีของ %s หรือไม่?</string>
+    
+    <!-- Verse context menu -->
+    <string name="notes">เชิงอรรถและข้ออ้างโยง</string>
+    <string name="copy">คัดลอกข้อพระคัมภีร์ปัจจุบัน</string>
+    <string name="share_verse">แบ่งปันข้อพระคัมภีร์ปัจจุบัน ...</string>
+    <string name="share_verse_subject">ข้อพระคัมภีร์จะถูกใช้ร่วมกันกับคุณโดยกาใช้ And Bible</string>
+
+    <!-- Bookmarks -->
+    <string name="bookmarks">ตัวคั่น</string>
+    <string name="add_bookmark">เพิ่มตัวคั่น</string>
+    <string name="bookmark_added">เพิ่มตัวคั่น</string>
+    <string name="bookmark_exists">มีตัวคั่นอยู่แล้ว</string>
+    <string name="bookmark_labels">ป้ายกำกับตัวคั่น</string>
+    <string name="assign_labels">กำหนดป้ายกำกับ</string>
+    <string name="new_label">ป้ายกำกับใหม่</string>
+    <string name="new_label_prompt">ชื่อ</string>
+    
+    <!-- Dictionary -->
+    <string name="dictionary">ประมวลศัพท์</string>
+    <string name="search_dictionary_hint">ค้นหาประมวลศัพท์</string>
+    <string name="dictionary_contents">เนื้อความ</string>
+
+    <!-- General Book -->
+    <string name="general_book">หนังสือ</string>
+    <string name="general_book_contents">เนื้อความ</string>
+
+
+    <!-- Speak -->
+    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
+    <!-- Speak - Bible -->
+    <string name="one_chapter">%d บท</string>
+    <string name="some_chapters">%d บท</string>
+    <string name="rest_of_book">ที่ส่วนท้ายของหนังสือ</string>
+    <!-- Speak - Commentary -->
+    <string name="one_verse">%d ข้อพระคัมภีร์</string>
+    <string name="some_verses">%d ข้อพระคัมภีร์</string>
+    <string name="rest_of_chapter">ที่ส่วนท้ายของบท</string>
+    <!-- Speak - Dictionary and other -->
+    <string name="one_page">%d หน้า</string>
+    <string name="some_pages">%d หน้า</string>
+    <!-- Speak - Common -->
+    <string name="stop">หยุด</string>
+    <string name="tts_lang_not_available">ไม่สามารถใช้ภาษาได้</string>
+
+	<!-- Document types -->    
+	<string name="doc_type_bible">พระคัมภีร์</string>
+	<string name="doc_type_commentary">คู่มืออธิบาย</string>
+	<string name="doc_type_dictionary">ประมวลศัพท์</string>
+	<string name="doc_type_book">หนังสือ</string>
+
+    <!-- Languages -->
+	<string name="lang_default">ค่าเริ่มต้น</string>
+	
+    <!-- General -->
+    <string name="error_occurred">เกิดข้อผิดพลาด</string>
+    <string name="okay">ตกลง</string>
+    <string name="cancel">ยกเลิก</string>
+    <string name="no">ไม่มี</string>
+    <string name="error">เกิดข้อผิดพลาด</string>
+    <string name="more">เพิ่มเติม</string>
+    <string name="retry">ลองใหม่อีกครั้ง</string>
+    <string name="please_wait">กรุณารอสักครู่...</string>
+    <string name="all">ทั้งหมด</string>
+</resources>
