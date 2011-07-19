@@ -2,8 +2,9 @@ package net.bible.service.format.osistohtml;
 
 import java.util.List;
 
-import net.bible.service.common.Logger;
 import net.bible.service.common.Constants.HTML;
+import net.bible.service.common.Logger;
+import net.bible.service.format.FontControl;
 import net.bible.service.format.Note;
 import net.bible.service.format.OsisSaxHandler;
 
@@ -77,6 +78,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			'\u05A4', '\u05A5', '\u05A6', '\u05A7', '\u05A8', '\u05A9',
 			'\u05AA', '\u05AB', '\u05AC', '\u05AD', '\u05AE', '\u05AF' };
 
+	@SuppressWarnings("unused")
 	private static final Logger log = new Logger("OsisToHtmlSaxHandler");
 
 	public OsisToHtmlSaxHandler(OsisToHtmlParameters parameters) {
@@ -100,9 +102,11 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 					+ parameters.getExtraStylesheet()
 					+ "' rel='stylesheet' type='text/css'/>";
 		}
+		String customFontStyle = FontControl.getInstance().getHtmlFontStyle(parameters.getFont());
 		write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"> "
 				+ "<html xmlns='http://www.w3.org/1999/xhtml' dir='" + getDirection() + "'><head>"
-				+ styleSheetTag + extraStyleSheetTag
+				+ styleSheetTag + extraStyleSheetTag+"\n"
+				+ customFontStyle
 				+ jsTag
 				+ "<meta charset='utf-8'/>"
 				+ "</head>"
@@ -311,7 +315,6 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		}
 		return r.toString();
 	}
-
 
 	private String getPaddingAtBottom() {
 		return StringUtils.repeat(HTML.BR, parameters
