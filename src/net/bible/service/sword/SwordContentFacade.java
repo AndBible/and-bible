@@ -1,54 +1,35 @@
 package net.bible.service.sword;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
-import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import net.bible.android.BibleApplication;
-import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Constants;
 import net.bible.service.common.Logger;
 import net.bible.service.common.ParseException;
-import net.bible.service.download.DownloadManager;
-import net.bible.service.download.XiphosRepo;
+import net.bible.service.format.FontControl;
 import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.OSISInputStream;
 import net.bible.service.format.OsisToCanonicalTextSaxHandler;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler;
 
-import org.crosswire.common.util.CWProject;
-import org.crosswire.common.util.Version;
-import org.crosswire.common.util.WebResource;
 import org.crosswire.common.xml.SAXEventProvider;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookData;
 import org.crosswire.jsword.book.BookException;
-import org.crosswire.jsword.book.BookFilter;
-import org.crosswire.jsword.book.BookFilters;
 import org.crosswire.jsword.book.BookMetaData;
-import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.FeatureType;
 import org.crosswire.jsword.book.OSISUtil;
-import org.crosswire.jsword.book.install.InstallException;
-import org.crosswire.jsword.book.sword.SwordBookPath;
-import org.crosswire.jsword.book.sword.SwordConstants;
-import org.crosswire.jsword.index.IndexManager;
-import org.crosswire.jsword.index.IndexManagerFactory;
-import org.crosswire.jsword.index.IndexStatus;
-import org.crosswire.jsword.index.lucene.PdaLuceneIndexManager;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.Passage;
@@ -332,7 +313,8 @@ public class SwordContentFacade {
 						osisToHtmlParameters.setExtraFooter("<br /><a href='"+Constants.ALL_GREEK_OCCURRENCES_PROTOCOL+":"+key.getName()+"' class='allStrongsRefsLink'>"+prompt+"</a>");
 					}
 				}
-	
+				// which font, if any
+				osisToHtmlParameters.setFont(FontControl.getInstance().getFontForBook(book));				
 			}
 		}
 		OsisToHtmlSaxHandler osisToHtml = new OsisToHtmlSaxHandler(osisToHtmlParameters);

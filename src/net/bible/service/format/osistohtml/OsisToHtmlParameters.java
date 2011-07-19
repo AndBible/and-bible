@@ -14,6 +14,7 @@ public class OsisToHtmlParameters {
     private boolean isBibleStyleNotesAndRefs = false;
     // used as a basis if a reference has only chapter and no book
     private Verse basisRef;
+    private String font;
 
     private boolean isShowStrongs = false;
     private boolean isShowMorphology = false;
@@ -106,5 +107,11 @@ public class OsisToHtmlParameters {
 	}
 	public void setRedLetter(boolean isRedLetter) {
 		this.isRedLetter = isRedLetter;
+	}
+	public String getFont() {
+		return font;
+	}
+	public void setFont(String font) {
+		this.font = font;
 	}
 }
