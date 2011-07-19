@@ -75,9 +75,11 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 </div>
 	 */
 	public void testReadKJV() throws Exception {
-		Book kjv = getBook("ESV");
+		Book kjv = getBook("KJV");
 
-		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Psalm 66.5"));
+//		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Is 40:11"));
+//		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Mt 4:14"));
+		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Ps 67:1"));
 		String chapter = convertStreamToString(osisInputStream);
 //		int numOpeningDivs = count(chapter, "<div>");
 //		int numClosingDivs = count(chapter, "</div>");

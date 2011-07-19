@@ -1,7 +1,7 @@
 package net.bible.service.format;
 
 import junit.framework.TestCase;
-
+import net.bible.service.format.osistohtml.HtmlTextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler;
 
@@ -59,6 +59,19 @@ public class OsisToHtmlSaxHandlerTest extends TestCase {
 	 */
 	public void testStrongs() {
 		String input = "<w lemma=\"strong:H07225\">In the beginning</w> <w lemma=\"strong:H0430\">God</w> <w lemma=\"strong:H0853 strong:H01254\" morph=\"strongMorph:TH8804\">created</w>";
+	}
+	
+	public void testHtmlTextWriterInsert() {
+		HtmlTextWriter htmlTextWriter = new HtmlTextWriter();
+		htmlTextWriter.write("123");
+		int posn = htmlTextWriter.getPosition();
+		htmlTextWriter.write("789");
+		htmlTextWriter.beginInsertAt(posn);
+		htmlTextWriter.write("456");
+		htmlTextWriter.finishInserting();
+		htmlTextWriter.write("ABC");
+		String result = htmlTextWriter.getHtml();
+		System.out.println(result);
 	}
 
 }
