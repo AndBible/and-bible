@@ -23,22 +23,11 @@ public class FontControl {
     private static FontControl SINGLETON = new FontControl();
     
     private FontControl() {
-    	// load font properties from manual install dir
-    	File manualFontsDir = new File(MANUAL_FONT_DIR);
-    	if (manualFontsDir.exists() && manualFontsDir.isDirectory()) {
-    		File fontPropFile = new File(manualFontsDir, FONT_PROPERTIES_FILENAME);
-    		if (fontPropFile.exists()) {
-    			FileInputStream in = null;
-    			try {
-	            	in = new FileInputStream(fontPropFile);
-	            	fontProperties.load(in);
-    			} catch (Exception e) {
-    				log.error("Error loading manual font properties", e);
-    			} finally {
-                	IOUtil.close(in);
-    			}
-    		}
-    	}
+    	loadFontProperties();
+    }
+    
+    public void reloadProperties() {
+    	loadFontProperties();
     }
     
     public static FontControl getInstance() {
@@ -61,4 +50,23 @@ public class FontControl {
 		return fontStyle;
 	}
 
+	private void loadFontProperties() {
+    	// load font properties from manual install dir
+    	File manualFontsDir = new File(MANUAL_FONT_DIR);
+    	if (manualFontsDir.exists() && manualFontsDir.isDirectory()) {
+    		File fontPropFile = new File(manualFontsDir, FONT_PROPERTIES_FILENAME);
+    		if (fontPropFile.exists()) {
+    			FileInputStream in = null;
+    			try {
+	            	in = new FileInputStream(fontPropFile);
+	            	fontProperties.clear();
+	            	fontProperties.load(in);
+    			} catch (Exception e) {
+    				log.error("Error loading manual font properties", e);
+    			} finally {
+                	IOUtil.close(in);
+    			}
+    		}
+    	}
+	}
 }
