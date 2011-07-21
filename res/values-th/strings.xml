@@ -10,8 +10,8 @@
 
 	<!-- Startup & Help -->
     <string name="splash_top_text">"\n\"พระ​เจ้า​ตรัส​ว่า “จง​เกิด​ความ​สว่าง” ความ​สว่าง​ก็​เกิด​ขึ้น\"\nปฐมกาล 1:3"</string>
-    <string name="help_text">กดปุ่ม เมนู เพื่อตั้งค่า\n\nไปยังบทถัดไปหรือก่อนหน้า โดยใช้นิ้วปัดหน้าจอ (หรือใช้ track-ball, D-pad)</string>
-    <string name="help_text_long">การนำทาง\nไปยังบทถัดไปหรือก่อนหน้า โดยใช้นิ้วปัดหน้าจอ (หรือใช้ track-ball, D-pad)\n\nกดปุ่ม เมนู เพื่อตั้งค่า\n\nดาวน์โหลดโมดูล ให้กดปุ่ม เมนู/เพิ่มเติม/ดาวน์โหลดโมดูล\n\nกดแช่ในมุมมองพระคัมภีร์ เพื่อเปิดเมนูทางลัดสำหรับจัดการข้อปัจจุบัน\nกดแช่บนโมดูล เพื่อลบหรือดูข้อมูล\n\nอ่านให้ฟัง\nกดอ่านให้ฟัง เพื่อตั้งค่าเริ่มต้นหรือหยุดการอ่าน\n\nตัวคั่น\nสามารถเพิ่มตัวคั่นผ่านเมนูทางลัดของข้อพระคัมภีร์ เข้าถึงการจัดการตัวคั่นได้ผ่านทางเมนูหลัก เมนูทางลัดในการจัดการตัวคั่น จะช่วยให้ตัวคั่นถูกจัดกลุ่มโดยใช้ป้ายกำกับ</string>
+    <string name="help_text">​กด​ปุ่ม เมนู เพื่อ​ตั้ง​ค่า\n\n​ไป​ยัง​บท​ถัดไป​หรือ​ก่อน​หน้า​โดย​ใช้​นิ้ว​ปัด​หน้าจอ (หรือ​ใช้ track-ball​, D-pad)</string>
+    <string name="help_text_long">"\n​การ​นำ​ทาง\n​ไป​ยัง​บท​ถัดไป​หรือ​ก่อน​หน้า โดย​ใช้​นิ้ว​ปัด​หน้าจอ (หรือ​ใช้ track-ball​, D-pad) \n\n​กด​ปุ่ม เมนู เพื่อ​ตั้ง​ค่า\n\n​ดาวน์​โหลด​โมดูล ให้​กด​ปุ่ม เมนู​/​More​/​ดาวน์​โหลด​โมดูล\n\n​กด​แช่​ใน​มุมมอง​พระ​คัมภีร์ เพื่อ​เปิด​เมนู​ทาง​ลัด​สำหรับ​จัดการ​ข้อ​ปัจจุบัน\n​กด​แช่​บน​โมดูล เพื่อ​ลบ​หรือ​ดู​ข้อมูล\n\n​อ่าน​ให้​ฟัง\n​กด​อ่าน​ให้​ฟัง เพื่อ​ตั้ง​ค่า​เริ่มต้น​หรือ​หยุด​การ​อ่าน\n\n​ตัว​คั่น\n​สามารถ​เพิ่ม​ตัว​คั่น​ผ่าน​เมนู​ทาง​ลัด​ของ​ข้อ​พระ​คัมภีร์ เข้าถึง​การ​จัดการ​ตัว​คั่น​ได้​ผ่าน​ทาง​เมนู​หลัก เมนู​ทาง​ลัด​ใน​การ​จัดการ​ตัว​คั่น จะ​ช่วย​ให้​ตัว​คั่น​ถูก​จัด​กลุ่ม​โดย​ใช้​ป้าย​กำกับ"</string>
     <string name="version_text">รุ่นที่  %s</string>
 	<string name="no_sdcard_error">กรุณาใส่ SD card และเริ่มต้น And Bible อีกครั้ง</string>
     
@@ -31,8 +31,8 @@
 
 	<!--  Search -->
     <string name="search_index">ดัชนีค้นหา</string>
-    <string name="index_creation_required">ดัชนีที่จำเป็นสเพื่อการค้นหา\n\nสามารถดาวน์โหลดดัชนี จากอินเตอร์เน็ต หรือสร้างขึ้นเอง\n\nการดาวน์โหลดจะเร็วกว่า และดัชนีที่ดาวน์โหลด มีคุณสมบัติในการค้นหาที่มากกว่า\n\nการดาวน์โหลดดัชนี ต้องเชื่อมต่ออินเตอร์เน็ต</string>
-    <string name="indexing_wait_msg">เมื่อการสร้างดัชนีเสร็จ จะไปยังหน้าการค้นหา</string>
+    <string name="index_creation_required">​ดัชนี​ที่​จำเป็น​สำหรับ​การ​ค้นหา\n\n​สามารถ​ดาวน์​โหลด​ดัชนี​จาก​อินเตอร์เน็ต​หรือ​สร้าง​ขึ้น​เอง\n\n​การ​ดาวน์​โหลด​จะ​เร็ว​กว่า และ​ดัชนี​ที่​ดาวน์​โหลด​มี​คุณสมบัติ​ที่​ช่วย​ใน​การ​ค้นหา​มากกว่า\n\n​การ​ดาวน์​โหลด​ดัชนี​ต้อง​เชื่อมต่อ​อินเตอร์เน็ต</string>
+    <string name="indexing_wait_msg">​เมื่อ​การ​สร้าง​ดัชนี​เสร็จ​จะ​ไป​ยัง​หน้า​การ​ค้นหา</string>
     <string name="index">ดัชนี</string>
     <string name="index_download">ดาวน์โหลด</string>
     <string name="index_not_available_for_download">ไม่มีดัชนีนี้ให้ดาวน์โหลด</string>
@@ -40,7 +40,7 @@
 
 	<!-- Tasks -->
     <string name="progress_status">ความคืบหน้า</string>
-    <string name="task_kill_warning">อาจถูกยกเลิก หากคุณสลับไปใช้โปรแกรมอื่น ก่อนที่งานซึ่งต้องใช้เวลานานนี้จะเสร็จ</string>
+    <string name="task_kill_warning">​อาจ​ถูก​ยกเลิก​หาก​คุณ​สลับ​ไป​ใช้​โปรแกรม​อื่น ก่อนที่​งาน​ซึ่ง​ต้อง​ใช้​เวลานาน​นี้​จะ​เสร็จ</string>
     <string name="no_tasks_running">ไม่มีงานดำเนินการในขณะนี้</string>
 
     <!-- Search -->
@@ -60,8 +60,8 @@
     <!-- Preferences -->
     <string name="prefs_show_verseno_title">หมายเลขข้อพระคัมภีร์</string>
     <string name="prefs_show_verseno_summary">แสดงหมายเลขข้อพระคัมภีร์</string>
-    <string name="prefs_verse_per_line_title">เมื่อขึ้นข้อพระคัมภีร์ข้อใหม่ ให้ขึ้นบรรทัดใหม่</string>
-    <string name="prefs_verse_per_line_summary">ข้อใหม่บรรทัดใหม่</string>
+    <string name="prefs_verse_per_line_title">ข้อใหม่บรรทัดใหม่</string>
+    <string name="prefs_verse_per_line_summary">​เมื่อ​ขึ้น​ข้อ​พระ​คัมภีร์​ข้อ​ใหม่​จะ​ขึ้น​บรรทัด​ใหม่</string>
     <string name="prefs_show_notes_title">บันทึก</string>
     <string name="prefs_show_notes_summary">แสดงส่วนที่บันทึก</string>
     <string name="prefs_show_strongs_title">แสดงตัวเลขสตรอง</string>
@@ -71,20 +71,20 @@
     <string name="prefs_section_title_title">หัวข้อ</string>
     <string name="prefs_section_title_summary">แสดงหัวข้อ ซึ่งไม่ใช่ส่วนของเนื้อความพระคัมภีร์</string>
     <string name="prefs_red_letter_title">ตัวอักษรสีแดง</string>
-    <string name="prefs_red_letter_summary">ถ้อยคำของพระเยซูคริสต์ เป็นสีแดง</string>
+    <string name="prefs_red_letter_summary">​ถ้อยคำ​ของ​พระ​เยซู​คริสต์​เป็น​สี​แดง</string>
     <string name="prefs_night_mode_title">โหมดกลางคืน</string>
     <string name="prefs_night_mode_summary">เหมาะสำหรับการอ่านในที่มืด</string>
     <string name="prefs_navigate_to_verse_title">เลือกเปิดข้อพระคัมภีร์</string>
     <string name="prefs_navigate_to_verse_summary">สามารถเลือกข้อพระคัมภีร์ (และบท) ได้ เมื่อไปที่เมนู เปิดพระคัมภีร์</string>
     <string name="prefs_text_size_title">ขนาดแบบอักษร</string>
-    <string name="prefs_text_size_summary">"ปรับขนาดแบบอักษร ตามความต้องการ "</string>
+    <string name="prefs_text_size_summary">"​ปรับ​ขนาด​แบบ​อักษร​ตาม​ความ​ต้องการ"</string>
     <string name="prefs_interface_locale_title">ภาษาสำหรับโปรแกรม</string>
     <string name="prefs_interface_locale_summary">เลือกเพื่อกำหนดเมนูภาษาเอง</string>
-    <string name="locale_change_warning">โปรแกรมจะเริ่มต้นใหม่อีกครั้ง เพื่อสลับเมนูภาษา</string>
+    <string name="locale_change_warning">​โปรแกรม​จะ​เริ่มต้น​ใหม่​อีก​ครั้ง​เพื่อ​สลับ​เมนู​ภาษา</string>
 
     <!-- Notes screen -->
     <string name="no_chapter_notes">ไม่มีบันทึกในบทนี้</string>
-    <string name="no_verse_notes">ไม่มีบันทึกอยู่ในข้อพระคัมภีร์นี้</string>
+    <string name="no_verse_notes">​ไม่​มี​การ​บันทึก​ใน​ข้อ​พระ​คัมภีร์​นี้</string>
     <string name="previous">ก่อนหน้า</string>
     <string name="next">ถัดไป</string>
 
@@ -93,19 +93,19 @@
     <string name="strongs_not_installed">กรุณาดาวน์โหลด ตัวเลขสตรองฮีบรู และพจนานุกรมกรีก</string>
     <string name="all_greek_occurrences">ค้นหาที่พบทั้งหมด</string>
     <string name="all_hebrew_occurrences">ค้นหาที่พบทั้งหมด</string>
-    <string name="no_indexed_bible_with_strongs_ref">จะต้องดาวน์โหลดโมดูลพระคัมภีร์ ที่มีตัวเลขสตรอง และดาวน์โหลดดัชนีโดยการค้นหา</string>
-    <string name="morph_robinson_not_installed">กรุณาดาวน์โหลด พจนานุกรมรหัสไวยากรณ์กรีก</string>
+    <string name="no_indexed_bible_with_strongs_ref">​จะต้อง​ดาวน์​โหลด​โมดูล​พระ​คัมภีร์​ที่​มี​ตัวเลข​สต​รอง และ​ดาวน์​โหลด​ดัชนี​โดย​การ​ค้นหา</string>
+    <string name="morph_robinson_not_installed">​กรุณา​ดาวน์​โหลด​พจนานุกรม​รหัส​ไวยากรณ์​กรีก</string>
 
     <!-- Module download -->
     <string name="download">ดาวน์โหลดโมดูล</string>
-    <string name="download_confirmation">จะดาวน์โหลดโมดูลพระคัมภีร์จากอินเทอร์เน็ตหรือไม่?</string>
+    <string name="download_confirmation">​จะ​ดาวน์​โหลด​โมดูล​พระ​คัมภีร์​จาก​อินเทอร์เน็ต​หรือไม่?</string>
     <string name="download_source_message">จะดาวน์โหลดโมดูลจาก\nhttp://www.crosswire.org\nและ http://xiphos.org</string>
     <string name="download_document_confirm_prefix">"ดาวน์โหลด"</string>
     <string name="refresh_book_list">ปรับปรุงรายการโมดูลใหม่หรือไม่?</string>
-    <string name="error_downloading">เกิดข้อผิดพลาดในการดาวน์โหลด กรุณาตรวจสอบการเชื่อมต่ออินเตอร์เน็ต</string>
+    <string name="error_downloading">​เกิด​ข้อ​ผิด​พลาด​ใน​การ​ดาวน์​โหลด กรุณา​ตรวจสอบ​การ​เชื่อมต่อ​อินเตอร์เน็ต</string>
     <string name="no_internet_connection">ไม่สามารถเชื่อมต่อกับอินเตอร์เน็ต</string>
     <string name="storage_space_warning">พื้นที่จัดเก็บที่มี ไม่เพียงพอ</string>
-    <string name="wait_for_bible">โปรดรอสักครู่ เพื่อดาวน์โหลดโมดูลพระคัมภีร์ให้เสร็จ แล้วจะถูกนำไปยังหน้าจอหลัก</string>
+    <string name="wait_for_bible">​โปรด​รอ​สักครู่ เพื่อ​ดาวน์​โหลด​โมดูล​พระ​คัมภีร์​ให้​เสร็จ แล้ว​จะ​ถูก​นำไป​ยัง​หน้าจอ​หลัก</string>
     <string name="wait_for_bible_not_yet">โปรดรอสักครู่ พระคัมภีร์ยังติดตั้งไม่เสร็จ</string>
     <string name="download_complete_no_bibles">ยังไม่ได้ติดตั้งโมดูลพระคัมภีร์ กรุณากด Back และลองอีกครั้ง</string>
     <string name="too_many_jobs">งานมีมากเกินไป โปรดรอสักครู่ เพื่อให้บางงานเสร็จก่อน และลองใหม่อีกครั้ง</string>
@@ -175,7 +175,7 @@
     <string name="cancel">ยกเลิก</string>
     <string name="no">ไม่มี</string>
     <string name="error">เกิดข้อผิดพลาด</string>
-    <string name="more">เพิ่มเติม</string>
+    <string name="more">More</string>
     <string name="retry">ลองใหม่อีกครั้ง</string>
     <string name="please_wait">กรุณารอสักครู่...</string>
     <string name="all">ทั้งหมด</string>
