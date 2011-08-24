@@ -36,7 +36,13 @@ public class FontControl {
 
 	public String getFontForBook(Book book) {
 		String langCode = book.getBookMetaData().getLanguage().getCode();
+		// is there a font for the book
 		String font = fontProperties.getProperty(book.getInitials());
+		// is there a font for the language code
+		if (StringUtils.isEmpty(font)) {
+			font = fontProperties.getProperty(langCode);
+		}
+		
 		log.debug("Book:"+book.getInitials()+" Language code:"+langCode+" Font:"+font);
 		return font;
 	}
@@ -44,7 +50,7 @@ public class FontControl {
 	public String getHtmlFontStyle(String font) {
 		String fontStyle = "";
 		if (!StringUtils.isEmpty(font)) {
-			fontStyle = "<style>@font-face {font-family: 'CustomFont';src: url('file:///mnt/sdcard/jsword/fonts/"+font+"');}"+
+			fontStyle = "<style>@font-face {font-family: 'CustomFont';src: url('file:///mnt/sdcard/jsword/fonts/"+font+"'); font-weight:normal; font-style:normal; font-variant:normal;}"+
 						"body {font-family: 'CustomFont', sans-serif;}</style>";
 		}
 		return fontStyle;

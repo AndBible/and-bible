@@ -38,7 +38,7 @@ public class DownloadStatus extends ProgressActivityBase {
 		mOkayButton = (Button)findViewById(R.id.okButton);
         enableOkay();
 
-        Log.d(TAG, "Finished displaying Search Index view");
+        Log.d(TAG, "Finished displaying Download Status view");
     }
 
     
