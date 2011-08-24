@@ -44,9 +44,9 @@ public class MJDIndexAll {
 	
     public static void main(String[] args) {
     	MJDIndexAll indexAll = new MJDIndexAll();
+    	indexAll.updateCachedRepoBookList();
 //    	indexAll.validateIndex("OSMHB");
 //    	indexAll.validateAllIndexes();
-    	indexAll.updateCachedRepoBookList();
 //    	indexAll.setupDirs();
 //    	indexAll.showInstalledBooks();
 //    	indexAll.showRepoBooks();
@@ -91,12 +91,16 @@ public class MJDIndexAll {
 //    	indexAll.indexSingleBook("Byz");
     	
     	// 11/7/11
-    	indexAll.installAndIndexSingleBook("Sorani");
-    	indexAll.installAndIndexSingleBook("GerNeUe"); //up to ver 1.4
-    	indexAll.installAndIndexSingleBook("AraNAV");
-    	indexAll.installAndIndexSingleBook("UrduGeo"); //up to 1.1 (some time ago)
-    	indexAll.installAndIndexSingleBook("WelBeiblNet");
-    	indexAll.installAndIndexSingleBook("Azeri");
+//    	indexAll.installAndIndexSingleBook("Sorani");
+//    	indexAll.installAndIndexSingleBook("GerNeUe"); //up to ver 1.4
+//    	indexAll.installAndIndexSingleBook("AraNAV");
+//    	indexAll.installAndIndexSingleBook("UrduGeo"); //up to 1.1 (some time ago)
+//    	indexAll.installAndIndexSingleBook("WelBeiblNet");
+//    	indexAll.installAndIndexSingleBook("Azeri");
+    	
+    	// 19/8/2011
+    	indexAll.installAndIndexSingleBook("PorCapNT");
+    	indexAll.installAndIndexSingleBook("GerLut1545");
     }
     
 	public void validateAllIndexes() {
