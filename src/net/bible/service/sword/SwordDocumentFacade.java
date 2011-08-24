@@ -8,6 +8,7 @@ import java.util.List;
 import net.bible.android.SharedConstants;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Logger;
+import net.bible.service.download.BetaRepo;
 import net.bible.service.download.DownloadManager;
 import net.bible.service.download.XiphosRepo;
 
@@ -183,7 +184,10 @@ public class SwordDocumentFacade {
 		XiphosRepo xiphosRepo = new XiphosRepo();
         allBooks.addAll(xiphosRepo.getXiphosRepoBooks());
 
-        // get them in the coorect order
+		BetaRepo betaRepo = new BetaRepo();
+        allBooks.addAll(betaRepo.getRepoBooks(refresh));
+
+        // get them in the correct order
         Collections.sort(allBooks);
 
 		return allBooks;	
