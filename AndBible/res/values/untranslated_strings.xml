@@ -17,15 +17,20 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
 	<string name="lang_faroese">fo: Føroyskt</string>
 	<string name="lang_french">fr: Français</string>
 	<string name="lang_hebrew">he: ‫עברית‬</string>
+	<string name="lang_croatian">hr: Hrvatski‬</string>
 	<string name="lang_hungarian">hu: Magyar</string>
+	<string name="lang_korean">ko: 한국어</string>
 	<string name="lang_lithuanian">lt: Lietuvių</string>
+	<string name="lang_latvian">lv: Latviešu</string>
 	<string name="lang_malagasy">mg: Malagasy</string>
 	<string name="lang_norwegian">nb: Norsk bokmål</string>
+	<string name="lang_dutch">nl: Nederlands</string>
 	<string name="lang_polish">pl: Polski</string>
 	<string name="lang_portuguese">pt: Português</string>
 	<string name="lang_russian">ru: Русский</string>
 	<string name="lang_swedish">sv: Svenska</string>
 	<string name="lang_thai">th: ไทย</string>
+	<string name="lang_ukrainian">uk: Українська</string>
 	<string name="lang_chinese">zh: 古文/文言文</string>
 	
     <!-- Speak -->

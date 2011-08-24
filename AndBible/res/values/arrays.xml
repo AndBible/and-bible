@@ -24,15 +24,20 @@
 		<item>@string/lang_faroese</item>
 		<item>@string/lang_french</item>
 		<item>@string/lang_hebrew</item>
+		<item>@string/lang_croatian</item>
 		<item>@string/lang_hungarian</item>
+		<item>@string/lang_korean</item>
 		<item>@string/lang_lithuanian</item>
+		<item>@string/lang_latvian</item>
 		<item>@string/lang_malagasy</item>
 		<item>@string/lang_norwegian</item>
+		<item>@string/lang_dutch</item>
 		<item>@string/lang_polish</item>
 		<item>@string/lang_portuguese</item>
 		<item>@string/lang_russian</item>
 		<item>@string/lang_swedish</item>
 		<item>@string/lang_thai</item>
+		<item>@string/lang_ukrainian</item>
 		<item>@string/lang_chinese</item>
 	</string-array>
 	
@@ -47,15 +52,20 @@
 		<item>fo</item>
 		<item>fr</item>
 		<item>he</item>
+		<item>hr</item>
 		<item>hu</item>
+		<item>ko</item>
 		<item>lt</item>
+		<item>lv</item>
 		<item>mg</item>
 		<item>nb</item>
+		<item>nl</item>
 		<item>pl</item>
 		<item>pt</item>
 		<item>ru</item>
 		<item>sv</item>
 		<item>th</item>
+		<item>uk</item>
 		<item>zh</item>
 	</string-array>
 		
