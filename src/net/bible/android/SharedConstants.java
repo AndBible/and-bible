@@ -18,9 +18,11 @@ public class SharedConstants {
      */
     public static final File MODULE_DIR = getModuleDir();
     public static final File MANUAL_INSTALL_DIR = getManualInstallDir();
-
 	private static final String MANUAL_INSTALL_SUBDIR = "jsword";
-    
+	
+    private static final String FONT_SUBDIR_NAME = "fonts";
+    public static final File FONT_DIR = new File(MODULE_DIR, FONT_SUBDIR_NAME);
+    public static final File MANUAL_FONT_DIR = new File(MANUAL_INSTALL_DIR, FONT_SUBDIR_NAME);
     
     public static final int APPLICATION_THEME =  android.R.style.Theme_Light;
     

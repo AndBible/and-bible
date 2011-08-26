@@ -1,4 +1,4 @@
-package net.bible.service.format;
+package net.bible.service.font;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -47,10 +47,15 @@ public class FontControl {
 		return font;
 	}
 	
+	public boolean exists(String font) {
+		return 	new File(SharedConstants.FONT_DIR, font).exists() ||
+				new File(SharedConstants.MANUAL_FONT_DIR, font).exists();
+	}
+	
 	public String getHtmlFontStyle(String font) {
 		String fontStyle = "";
 		if (!StringUtils.isEmpty(font)) {
-			fontStyle = "<style>@font-face {font-family: 'CustomFont';src: url('file:///mnt/sdcard/jsword/fonts/"+font+"'); font-weight:normal; font-style:normal; font-variant:normal;}"+
+			fontStyle = "<style>@font-face {font-family: 'CustomFont';src: url('"+getFontFile(font).toURI()+"'); font-weight:normal; font-style:normal; font-variant:normal;}"+
 						"body {font-family: 'CustomFont', sans-serif;}</style>";
 		}
 		return fontStyle;
@@ -74,5 +79,25 @@ public class FontControl {
     			}
     		}
     	}
+	}
+	
+	/** find font in manual or default font dir
+	 */
+	private File getFontFile(String font) {
+		File retVal = null;
+		File autoFont = new File(SharedConstants.FONT_DIR, font);
+
+		if (autoFont.exists()) {
+			retVal = autoFont;
+		} else {
+			File manualFont = new File(SharedConstants.MANUAL_FONT_DIR, font);
+			if (manualFont.exists()) {
+				retVal = manualFont;
+			} else {
+				log.error("Font not found:"+font);
+			}
+		}
+		log.debug("Font location:"+retVal.toURI());
+		return retVal;
 	}
 }

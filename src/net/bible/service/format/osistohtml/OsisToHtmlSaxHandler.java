@@ -4,7 +4,7 @@ import java.util.List;
 
 import net.bible.service.common.Constants.HTML;
 import net.bible.service.common.Logger;
-import net.bible.service.format.FontControl;
+import net.bible.service.font.FontControl;
 import net.bible.service.format.Note;
 import net.bible.service.format.OsisSaxHandler;
 
