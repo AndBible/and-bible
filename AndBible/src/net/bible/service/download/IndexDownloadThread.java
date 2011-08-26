@@ -53,7 +53,7 @@ public class IndexDownloadThread {
 	                // At the moment, JSword will not re-install. Later it will, if the
 	                // remote version is greater.
 	                if (bookIndexer.isIndexed()) {
-	                    Log.d(TAG, "** deleting index");
+	                    Log.d(TAG, "deleting index");
 	                    bookIndexer.deleteIndex();
 	                }
 	

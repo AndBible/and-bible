@@ -15,7 +15,7 @@ import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Constants;
 import net.bible.service.common.Logger;
 import net.bible.service.common.ParseException;
-import net.bible.service.format.FontControl;
+import net.bible.service.font.FontControl;
 import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.OSISInputStream;
 import net.bible.service.format.OsisToCanonicalTextSaxHandler;

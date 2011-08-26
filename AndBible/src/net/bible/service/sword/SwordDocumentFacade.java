@@ -1,6 +1,8 @@
 package net.bible.service.sword;
 
 import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -10,6 +12,7 @@ import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Logger;
 import net.bible.service.download.BetaRepo;
 import net.bible.service.download.DownloadManager;
+import net.bible.service.download.GenericFileDownloader;
 import net.bible.service.download.XiphosRepo;
 
 import org.crosswire.common.util.CWProject;
@@ -39,7 +42,6 @@ import android.util.Log;
  *      The copyright to this program is held by it's author.
  */
 public class SwordDocumentFacade {
-	private static final String TAG = "SwordApi";
 	private static SwordDocumentFacade singleton;
 
 	private static final String LUCENE_DIR = "lucene";
@@ -53,6 +55,7 @@ public class SwordDocumentFacade {
 	// set to false for testing
 	public static boolean isAndroid = true; //CommonUtils.isAndroid();
 	
+	private static final String TAG = "SwordDocumentFacade";
     private static final Logger log = new Logger(SwordDocumentFacade.class.getName()); 
 
 	public static SwordDocumentFacade getInstance() {
@@ -85,6 +88,8 @@ public class SwordDocumentFacade {
 				ensureDirExists(new File(moduleDir, SwordConstants.DIR_DATA));
 				// indexes
 				ensureDirExists(new File(moduleDir, LUCENE_DIR));
+				//fonts
+				ensureDirExists(SharedConstants.FONT_DIR);
 
 				// the second value below is the one which is used in effectively all circumstances
 		        CWProject.setHome("jsword.home", moduleDir.getAbsolutePath(), SharedConstants.MANUAL_INSTALL_DIR.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -202,6 +207,21 @@ public class SwordDocumentFacade {
 		downloadManager.installBook(repo, document);
 	}
 
+	public void downloadFont(String font) throws InstallException {
+		log.debug("Download font "+font);
+		URI source = null;
+		try {
+			source = new URI("http://www.crosswire.org/and-bible/fonts/v1/"+font);
+		} catch (URISyntaxException use) {
+    		Log.e(TAG, "Invalid URI", use);
+    		throw new InstallException("Error downloading font");
+		}
+		File target = new File(SharedConstants.FONT_DIR, font);
+		
+		GenericFileDownloader downloader = new GenericFileDownloader();
+		downloader.downloadFileInBackground(source, target);
+	}
+
 	public boolean isIndexDownloadAvailable(Book document) throws InstallException, BookException {
 		// not sure how to integrate reuse this in JSword index download
 		Version versionObj = (Version)document.getBookMetaData().getProperty("Version");
@@ -225,7 +245,7 @@ public class SwordDocumentFacade {
 	        }
 		} catch (Exception e) {
 			// just log index delete error, deleting doc is the important thing
-			Log.e(TAG, "Error deleting document index", e);
+			log.error("Error deleting document index", e);
 		}
 
         document.getDriver().delete(document);

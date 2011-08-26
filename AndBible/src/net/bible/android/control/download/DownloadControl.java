@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 import net.bible.service.download.XiphosRepo;
+import net.bible.service.font.FontControl;
 import net.bible.service.sword.SwordDocumentFacade;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.util.LucidException;
 import org.crosswire.jsword.book.Book;
 
@@ -18,7 +20,9 @@ public class DownloadControl {
 
 	private static final String TAG = "DownloadControl";
 	
-	private XiphosRepo postDownloadActions = new XiphosRepo();
+	private XiphosRepo xiphosRepo = new XiphosRepo();
+	
+	private FontControl fontControl = FontControl.getInstance();
 	
 	/** return a list of all available docs that have not already been downloaded, have no lang, or don't work
 	 * 
@@ -71,11 +75,19 @@ public class DownloadControl {
 	
 	public void downloadDocument(Book document) throws LucidException {
     	Log.d(TAG, "Download requested");
-    	if (postDownloadActions.needsPostDownloadAction(document)) {
-    		postDownloadActions.addHandler(document);
+    	if (xiphosRepo.needsPostDownloadAction(document)) {
+    		xiphosRepo.addHandler(document);
     	}
     	
 		// the download happens in another thread
 		SwordDocumentFacade.getInstance().downloadDocument(document);
+
+		// if a font is required then download that too
+		String font = fontControl.getFontForBook(document);
+    	if (!StringUtils.isEmpty(font) && !fontControl.exists(font)) {
+    		// the download happens in another thread
+    		SwordDocumentFacade.getInstance().downloadFont(font);
+    	}
+    	
 	}
 }
