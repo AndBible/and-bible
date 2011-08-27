@@ -65,7 +65,11 @@ public class DownloadControl {
         			iter.remove();
         		}
         	}
-			
+        	
+        	// get fonts.properties at the same time as repo list, or if not yet downloaded
+       		// the download happens in another thread
+       		fontControl.checkFontPropertiesFile(refresh);
+       		
 		} catch (Exception e) {
 			Log.e(TAG, "Error downloading document list", e);
 			availableDocs = new ArrayList<Book>();
@@ -86,7 +90,7 @@ public class DownloadControl {
 		String font = fontControl.getFontForBook(document);
     	if (!StringUtils.isEmpty(font) && !fontControl.exists(font)) {
     		// the download happens in another thread
-    		SwordDocumentFacade.getInstance().downloadFont(font);
+    		fontControl.downloadFont(font);
     	}
     	
 	}

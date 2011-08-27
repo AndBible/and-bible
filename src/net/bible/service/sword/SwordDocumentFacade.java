@@ -1,8 +1,6 @@
 package net.bible.service.sword;
 
 import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -12,7 +10,6 @@ import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Logger;
 import net.bible.service.download.BetaRepo;
 import net.bible.service.download.DownloadManager;
-import net.bible.service.download.GenericFileDownloader;
 import net.bible.service.download.XiphosRepo;
 
 import org.crosswire.common.util.CWProject;
@@ -32,8 +29,6 @@ import org.crosswire.jsword.index.IndexManager;
 import org.crosswire.jsword.index.IndexManagerFactory;
 import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.index.lucene.PdaLuceneIndexManager;
-
-import android.util.Log;
 
 /** JSword facade
  * 
@@ -55,7 +50,6 @@ public class SwordDocumentFacade {
 	// set to false for testing
 	public static boolean isAndroid = true; //CommonUtils.isAndroid();
 	
-	private static final String TAG = "SwordDocumentFacade";
     private static final Logger log = new Logger(SwordDocumentFacade.class.getName()); 
 
 	public static SwordDocumentFacade getInstance() {
@@ -81,15 +75,15 @@ public class SwordDocumentFacade {
 				File moduleDir = SharedConstants.MODULE_DIR;
 
 				// main module dir
-				ensureDirExists(moduleDir);
+				CommonUtils.ensureDirExists(moduleDir);
 				// mods.d
-				ensureDirExists(new File(moduleDir, SwordConstants.DIR_CONF));
+				CommonUtils.ensureDirExists(new File(moduleDir, SwordConstants.DIR_CONF));
 				// modules
-				ensureDirExists(new File(moduleDir, SwordConstants.DIR_DATA));
+				CommonUtils.ensureDirExists(new File(moduleDir, SwordConstants.DIR_DATA));
 				// indexes
-				ensureDirExists(new File(moduleDir, LUCENE_DIR));
+				CommonUtils.ensureDirExists(new File(moduleDir, LUCENE_DIR));
 				//fonts
-				ensureDirExists(SharedConstants.FONT_DIR);
+				CommonUtils.ensureDirExists(SharedConstants.FONT_DIR);
 
 				// the second value below is the one which is used in effectively all circumstances
 		        CWProject.setHome("jsword.home", moduleDir.getAbsolutePath(), SharedConstants.MANUAL_INSTALL_DIR.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -207,21 +201,6 @@ public class SwordDocumentFacade {
 		downloadManager.installBook(repo, document);
 	}
 
-	public void downloadFont(String font) throws InstallException {
-		log.debug("Download font "+font);
-		URI source = null;
-		try {
-			source = new URI("http://www.crosswire.org/and-bible/fonts/v1/"+font);
-		} catch (URISyntaxException use) {
-    		Log.e(TAG, "Invalid URI", use);
-    		throw new InstallException("Error downloading font");
-		}
-		File target = new File(SharedConstants.FONT_DIR, font);
-		
-		GenericFileDownloader downloader = new GenericFileDownloader();
-		downloader.downloadFileInBackground(source, target);
-	}
-
 	public boolean isIndexDownloadAvailable(Book document) throws InstallException, BookException {
 		// not sure how to integrate reuse this in JSword index download
 		Version versionObj = (Version)document.getBookMetaData().getProperty("Version");
@@ -231,6 +210,7 @@ public class SwordDocumentFacade {
 		String url = "http://www.crosswire.org/and-bible/indices/v1/"+document.getInitials()+versionSuffix+".zip";
 		return CommonUtils.isHttpUrlAvailable(url);
 	}
+
 	public void downloadIndex(Book document) throws InstallException, BookException {
 		DownloadManager downloadManager = new DownloadManager();
 		downloadManager.installIndex(CROSSWIRE_REPOSITORY, document);
@@ -298,12 +278,6 @@ public class SwordDocumentFacade {
 
 	public static void setAndroid(boolean isAndroid) {
 		SwordDocumentFacade.isAndroid = isAndroid;
-	}
-
-	private void ensureDirExists(File dir) {
-		if (!dir.exists() || !dir.isDirectory()) {
-			dir.mkdirs();
-		}
 	}
 
 	/** needs to be static because otherwise the constructor triggers initialisation

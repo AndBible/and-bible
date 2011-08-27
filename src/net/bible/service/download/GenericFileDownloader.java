@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.progress.Progress;
 import org.crosswire.common.util.LucidException;
@@ -19,7 +20,7 @@ public class GenericFileDownloader {
 	
 	private static final String TAG = "GenericFileDownloader";
 
-	public void downloadFileInBackground(final URI source, final File target) {
+	public void downloadFileInBackground(final URI source, final File target, final String description) {
 
         // So now we know what we want to install - all we need to do
         // is installer.install(name) however we are doing it in the
@@ -43,7 +44,7 @@ public class GenericFileDownloader {
 	                }
 	
 	                try {
-	                	downloadFile(source, target);
+	                	downloadFile(source, target, description);
 	                    
 	                } catch (Exception e) {
 	            		Reporter.informUser(this, "IO Error creating index");
@@ -62,8 +63,8 @@ public class GenericFileDownloader {
         worker.start();
 	}
 	
-	public void downloadFile(URI source, File target) {
-        String jobName = JSMsg.gettext("Downloading : {0}", target.getName());
+	public void downloadFile(URI source, File target, String description) {
+        String jobName = JSMsg.gettext("Downloading : {0}", target.getName()+" "+ description);
         Progress job = JobManager.createJob(jobName);
 
         // Don't bother setting a size, we'll do it later.

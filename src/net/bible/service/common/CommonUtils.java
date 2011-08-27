@@ -1,11 +1,16 @@
 package net.bible.service.common;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Properties;
 
 import net.bible.android.BibleApplication;
+
+import org.crosswire.common.util.IOUtil;
+
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -129,7 +134,13 @@ public class CommonUtils {
     	}
     }
 
-	static public boolean deleteDirectory(File path) {
+	public static void ensureDirExists(File dir) {
+		if (!dir.exists() || !dir.isDirectory()) {
+			dir.mkdirs();
+		}
+	}
+
+	public static boolean deleteDirectory(File path) {
 		Log.d(TAG, "Deleting directory:"+path.getAbsolutePath());
 		if (path.exists()) {
 			if (path.isDirectory()) {
@@ -152,6 +163,22 @@ public class CommonUtils {
 		return false;
 	}
 
+	public static Properties loadProperties(File propertiesFile) {
+		Properties properties = new Properties();
+		if (propertiesFile.exists()) {
+			FileInputStream in = null;
+			try {
+            	in = new FileInputStream(propertiesFile);
+            	properties.load(in);
+			} catch (Exception e) {
+				Log.e(TAG, "Error loading properties", e);
+			} finally {
+            	IOUtil.close(in);
+			}
+		}
+		return properties;
+	}
+	
     public static void pause(int seconds) {
     	try {
     		Thread.sleep(seconds*1000);
