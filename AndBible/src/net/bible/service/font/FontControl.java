@@ -58,8 +58,13 @@ public class FontControl {
 	public String getHtmlFontStyle(String font) {
 		String fontStyle = "";
 		if (!StringUtils.isEmpty(font)) {
-			fontStyle = "<style>@font-face {font-family: 'CustomFont';src: url('"+getFontFile(font).toURI()+"'); font-weight:normal; font-style:normal; font-variant:normal;}"+
-						"body {font-family: 'CustomFont', sans-serif;}</style>";
+			File fontFile = getFontFile(font);
+			if (fontFile!=null && fontFile.exists()) {
+				fontStyle = "<style>@font-face {font-family: 'CustomFont';src: url('"+getFontFile(font).toURI()+"'); font-weight:normal; font-style:normal; font-variant:normal;}"+
+							"body {font-family: 'CustomFont', sans-serif;}</style>";
+			} else {
+				log.error("Font not found:"+font);
+			}
 		}
 		return fontStyle;
 	}
@@ -129,7 +134,6 @@ public class FontControl {
 				log.error("Font not found:"+font);
 			}
 		}
-		log.debug("Font location:"+retVal.toURI());
 		return retVal;
 	}
 }
