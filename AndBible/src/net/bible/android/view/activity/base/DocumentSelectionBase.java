@@ -25,17 +25,17 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemSelectedListener;
 
 /**
  * Choose Document (Book)
@@ -60,7 +60,8 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 	// language spinner
 	private Spinner langSpinner;
 	private List<Language> languageList;
-	private int selectedLanguageNo = 0;
+	private int selectedLanguageNo = -1;
+	private static Language lastSelectedLanguage; 
 	private ArrayAdapter<Language> langArrayAdapter; 
 	
 	// the document list
@@ -122,6 +123,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 				@Override
 				public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 			    	selectedLanguageNo = position;
+			    	lastSelectedLanguage = languageList.get(selectedLanguageNo);
 			    	DocumentSelectionBase.this.filterDocuments();
 				}
 	
@@ -136,10 +138,18 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     }
 
     private void setDefaultLanguage() {
-    	
-    	Language lang = getDefaultLanguage();
+    	if (selectedLanguageNo==-1) {
+    		Language lang = null;
+    		// make selected language sticky
+    		if (lastSelectedLanguage!=null && languageList.contains(lastSelectedLanguage)) {
+    			lang = lastSelectedLanguage;
+    		} else {
+    			// set default lang to lang of mobile
+    	    	lang = getDefaultLanguage();
+    		}
 
-    	selectedLanguageNo = languageList.indexOf(lang);
+	    	selectedLanguageNo = languageList.indexOf(lang);
+    	}
 		langSpinner.setSelection(selectedLanguageNo);
     }
     
