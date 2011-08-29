@@ -61,7 +61,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 	private Spinner langSpinner;
 	private List<Language> languageList;
 	private int selectedLanguageNo = -1;
-	private static Language lastSelectedLanguage; 
+	private static Language lastSelectedLanguage; // allow sticky language selection
 	private ArrayAdapter<Language> langArrayAdapter; 
 	
 	// the document list
