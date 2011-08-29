@@ -38,7 +38,10 @@ public class BetaRepo {
 		@Override
 		public boolean test(Book book) {
 			// just Calvin Commentaries for now to see how we go
-			return super.test(book) && book.getInitials().contains("CalvinCommentaries");
+			return super.test(book) && 
+					(	book.getInitials().contains("CalvinCommentaries") ||
+						book.getInitials().startsWith("Jap")
+					);
 		}
 		
 		
