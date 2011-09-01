@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 
@@ -40,6 +41,8 @@ public class ListActivityBase extends ListActivity implements AndBibleActivity {
         // this affected jsword dynamic classloading
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 
+        setFullScreen(SharedActivityState.getInstance().isFullScreen());
+        
 		UiUtils.applyTheme(this);
     }
 
@@ -99,6 +102,19 @@ public class ListActivityBase extends ListActivity implements AndBibleActivity {
 	 */
 	protected void goBack() {
 		HistoryManager.getInstance().goBack();
+	}
+
+	private void setFullScreen(boolean isFullScreen) {
+    	if (!isFullScreen) {
+    		Log.d(TAG, "NOT Fullscreen");
+    		// http://stackoverflow.com/questions/991764/hiding-title-in-a-fullscreen-mode
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+    	} else {
+    		Log.d(TAG, "Fullscreen");
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+    	}
 	}
 
 	@SuppressWarnings("unchecked")

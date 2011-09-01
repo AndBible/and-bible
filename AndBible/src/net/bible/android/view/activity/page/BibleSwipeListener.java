@@ -43,6 +43,7 @@ public class BibleSwipeListener extends SimpleOnGestureListener {
 		mainBibleActivity.openContextMenu();
 	}
 
+	@Override
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 		
 		// get distance between points of the fling
@@ -66,5 +67,12 @@ public class BibleSwipeListener extends SimpleOnGestureListener {
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public boolean onDoubleTap(MotionEvent e) {
+		Log.d(TAG, "*** onDoubleTap");
+		mainBibleActivity.toggleFullScreen();
+		return super.onDoubleTap(e);
 	}
 }

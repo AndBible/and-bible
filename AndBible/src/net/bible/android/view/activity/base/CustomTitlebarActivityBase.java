@@ -11,13 +11,15 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
 public class CustomTitlebarActivityBase extends ActivityBase {
 
+	private View mTitleBar;
+	
 	private Button mDocumentTitleLink;
 	private Button mPageTitleLink;
 	private ProgressBar mProgressBarIndeterminate;
@@ -30,6 +32,8 @@ public class CustomTitlebarActivityBase extends ActivityBase {
 	private Button mQuickGenBookChangeLink;
 	private Book mSuggestedGenBook;
 	
+	private View mContentView;
+	
 	private static final String TAG = "CustomTitlebarActivityBase";
 	
 	/** custom title bar code to add the FEATURE_CUSTOM_TITLE just before setContentView
@@ -37,10 +41,12 @@ public class CustomTitlebarActivityBase extends ActivityBase {
 	 */
     @Override
 	public void setContentView(int layoutResID) {
-        requestWindowFeature(Window.FEATURE_CUSTOM_TITLE);
+    	requestWindowFeature(Window.FEATURE_NO_TITLE);
 		super.setContentView(layoutResID);
-        getWindow().setFeatureInt(Window.FEATURE_CUSTOM_TITLE, R.layout.title_bar);
 
+        mTitleBar = findViewById(R.id.titleBar);
+        mContentView = mTitleBar.getRootView();
+        
         mDocumentTitleLink = (Button)findViewById(R.id.titleDocument);
         mPageTitleLink = (Button)findViewById(R.id.titlePassage);
         mProgressBarIndeterminate = (ProgressBar)findViewById(R.id.progressCircular);
@@ -88,6 +94,22 @@ public class CustomTitlebarActivityBase extends ActivityBase {
         });
 
     }
+    
+    public void toggleFullScreen() {
+    	super.toggleFullScreen();
+    	
+    	if (!isFullScreen()) {
+    		Log.d(TAG, "Showing title bar");
+    		mTitleBar.setVisibility(View.VISIBLE);
+    	} else {
+    		Log.d(TAG, "Hiding title bar");
+    		mTitleBar.setVisibility(View.GONE);
+    	}
+
+    	mContentView.requestLayout();
+    }
+    
+
 
     @Override
 	public void onConfigurationChanged(Configuration newConfig) {

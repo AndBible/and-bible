@@ -44,7 +44,7 @@ public class SearchControl {
 	private static final String STRONG_COLON_STRING = PdaLuceneIndexCreator.FIELD_STRONG+":";
 	private static final String STRONG_COLON_STRING_PLACE_HOLDER = PdaLuceneIndexCreator.FIELD_STRONG+"COLON";
 	
-	public static final int MAX_SEARCH_RESULTS = 500;
+	public static final int MAX_SEARCH_RESULTS = 1000;
 
 	private static final String TAG = "SearchControl";
 	
