@@ -12,7 +12,7 @@ import android.view.GestureDetector.SimpleOnGestureListener;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class BibleSwipeListener extends SimpleOnGestureListener {
+public class BibleGestureListener extends SimpleOnGestureListener {
 
 	// measurements in dips for density independence
 	private static final float DISTANCE_DIP = 40.0f;
@@ -21,9 +21,9 @@ public class BibleSwipeListener extends SimpleOnGestureListener {
 	private int minScaledVelocity;
 	private MainBibleActivity mainBibleActivity;
 	
-	private static final String TAG = "BibleSwipeListener";
+	private static final String TAG = "BibleGestureListener";
 	
-	public BibleSwipeListener(MainBibleActivity mainBibleActivity) {
+	public BibleGestureListener(MainBibleActivity mainBibleActivity) {
 		super();
 		this.mainBibleActivity = mainBibleActivity;
 		// convert dip measurements to pixels
