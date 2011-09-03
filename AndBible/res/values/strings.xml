@@ -101,6 +101,8 @@
     <string name="all_hebrew_occurrences">Find all occurrences</string>
     <string name="no_indexed_bible_with_strongs_ref">You must download a bible containing Strong\'s numbers and download its index via Search</string>
     <string name="morph_robinson_not_installed">Please download \'Robinson\'s Morphological Analysis Codes\' dictionary</string>
+    <string name="strongs_toggle_button_on">nnnn</string>
+    <string name="strongs_toggle_button_off">nnnn</string>
 
     <!-- Module download -->
     <string name="download">Download Documents</string>
