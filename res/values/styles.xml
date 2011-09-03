@@ -20,6 +20,7 @@
 
     <style name="TitleBarToggleButton" parent="TitleBarButton">
     	<item name="android:background">@drawable/btn_tiny_toggle</item>
+        <item name="android:layout_width">wrap_content</item>
 	</style>
 	
     <style name="TitleBarButton">

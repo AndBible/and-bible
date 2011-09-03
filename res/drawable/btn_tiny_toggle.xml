@@ -3,5 +3,5 @@
     <item android:state_checked="true" 
           android:drawable="@drawable/btn_tiny_normal_on" /> 
     <item android:state_checked="false"
-          android:drawable="@drawable/btn_tiny_normal" /> 
+          android:drawable="@drawable/btn_tiny_normal_off" /> 
 </selector>
