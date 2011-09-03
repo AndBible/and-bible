@@ -207,14 +207,19 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     			mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, intent);
     			System.exit(2);
     			return;
+    		} else {
+    			preferenceSettingsChanged();
     		}
-    		bibleWebView.applyPreferenceSettings();
-    		bibleContentManager.updateText(true);
     	} else if (requestCode == UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH) {
     		updateSuggestedDocuments();
     	}
     }
 
+    @Override
+    protected void preferenceSettingsChanged() {
+		bibleWebView.applyPreferenceSettings();
+		bibleContentManager.updateText(true);
+    }
     
     /** called just before starting work to change teh current passage
      */

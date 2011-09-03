@@ -8,11 +8,10 @@ import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
+import org.crosswire.jsword.book.FeatureType;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
-
-import android.util.Log;
 
 public class DocumentControl {
 	
@@ -38,6 +37,13 @@ public class DocumentControl {
 				!document.equals(CurrentPageManager.getInstance().getCurrentGeneralBook().getCurrentDocument());
 	}
 	
+	/** Suggest an alternative dictionary to view or return null
+	 */
+	public boolean isStrongsInBook() {
+		Book currentBook = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument();
+		return currentBook.getBookMetaData().hasFeature(FeatureType.STRONGS_NUMBERS);
+	}
+
 	/** Suggest an alternative bible to view or return null
 	 * 
 	 * @return

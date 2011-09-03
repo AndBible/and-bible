@@ -3,14 +3,15 @@
 	android:id="@+id/titleBar"
     android:layout_width="fill_parent" 
     android:layout_height="28dip"
-    android:background="#FF848284">
+    android:background="#FF848284"
+    >
 
 	<LinearLayout android:id="@+id/leftTitlePanel" 
 		android:orientation="horizontal"
 		android:layout_width="wrap_content"
 		android:layout_height="fill_parent"
 		android:layout_alignParentLeft="true"
-		android:layout_toLeftOf="@+id/rightTitlePanel"
+	    android:layout_toLeftOf="@+id/rightTitlePanel"
 	>
 	    <Button android:id="@+id/titleDocument"
 		        android:layout_width="wrap_content"
@@ -37,23 +38,27 @@
 		android:layout_height="fill_parent"
 		android:layout_alignParentRight="true"
 	>
+		<ToggleButton android:id="@+id/strongsToggle"
+					android:textOn="nnnn"
+					android:textOff="nnnn"
+			        android:visibility="gone"
+			        android:checked="true"
+					android:textStyle="italic"
+					style="@style/TitleBarToggleButton"
+		/>
 	    <Button android:id="@+id/quickBibleChange"
-		        android:layout_width="70dip"
 		        android:visibility="invisible"
 				style="@style/TitleBarButton"
 	    />
 	    <Button android:id="@+id/quickCommentaryChange"
-		        android:layout_width="70dip"
 		        android:visibility="gone"
 				style="@style/TitleBarButton"
 	    />
 	    <Button android:id="@+id/quickDictionaryChange"
-		        android:layout_width="70dip"
 		        android:visibility="gone"
 				style="@style/TitleBarButton"
 	    />
 	    <Button android:id="@+id/quickGenBookChange"
-		        android:layout_width="70dip"
 		        android:visibility="gone"
 				style="@style/TitleBarButton"
 	    />

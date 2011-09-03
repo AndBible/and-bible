@@ -18,15 +18,20 @@
         <item name="android:shadowRadius">2.75</item>
     </style>
 
+    <style name="TitleBarToggleButton" parent="TitleBarButton">
+    	<item name="android:background">@drawable/btn_tiny_toggle</item>
+	</style>
+	
     <style name="TitleBarButton">
     	<item name="android:background">@drawable/btn_tiny</item>
         <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">60dip</item>
 		<item name="android:layout_centerInParent">true</item>
 		<item name="android:textSize">12sp</item>
 		<item name="android:singleLine">true</item>
 		<item name="android:textColor">#FFFFF0</item>
-		<item name="android:paddingLeft">10dip</item>
-		<item name="android:paddingRight">10dip</item>
+		<item name="android:paddingLeft">7dip</item>
+		<item name="android:paddingRight">7dip</item>
 		<item name="android:paddingBottom">0dip</item>
 		<item name="android:paddingTop">0dip</item>
 		<item name="android:layout_marginBottom">1dip</item>
