@@ -39,8 +39,8 @@
 		android:layout_alignParentRight="true"
 	>
 		<ToggleButton android:id="@+id/strongsToggle"
-					android:textOn="nnnn"
-					android:textOff="nnnn"
+					android:textOn="@string/strongs_toggle_button_on"
+					android:textOff="@string/strongs_toggle_button_off"
 			        android:visibility="gone"
 			        android:checked="true"
 					android:textStyle="italic"
