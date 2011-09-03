@@ -4,6 +4,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.navigation.ChooseDocument;
+import net.bible.service.common.CommonUtils;
 
 import org.crosswire.jsword.book.Book;
 
@@ -15,8 +16,9 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.ToggleButton;
 
-public class CustomTitlebarActivityBase extends ActivityBase {
+public abstract class CustomTitlebarActivityBase extends ActivityBase {
 
 	private View mTitleBar;
 	
@@ -32,9 +34,14 @@ public class CustomTitlebarActivityBase extends ActivityBase {
 	private Button mQuickGenBookChangeLink;
 	private Book mSuggestedGenBook;
 	
+	private ToggleButton mStrongsToggle;
+	
 	private View mContentView;
 	
 	private static final String TAG = "CustomTitlebarActivityBase";
+
+	// called whenever something like strong preferences have been changed by the user.  Should refresh the screen
+	protected abstract void preferenceSettingsChanged();
 	
 	/** custom title bar code to add the FEATURE_CUSTOM_TITLE just before setContentView
 	 * and set the new titlebar layout just after
@@ -54,7 +61,9 @@ public class CustomTitlebarActivityBase extends ActivityBase {
         mQuickCommentaryChangeLink = (Button)findViewById(R.id.quickCommentaryChange);
         mQuickDictionaryChangeLink = (Button)findViewById(R.id.quickDictionaryChange);
         mQuickGenBookChangeLink = (Button)findViewById(R.id.quickGenBookChange);
-
+        
+        mStrongsToggle = (ToggleButton)findViewById(R.id.strongsToggle);
+        
         mDocumentTitleLink.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
             	Intent handlerIntent = new Intent(CustomTitlebarActivityBase.this, ChooseDocument.class);
@@ -88,11 +97,21 @@ public class CustomTitlebarActivityBase extends ActivityBase {
         });
         
         mQuickGenBookChangeLink.setOnClickListener(new OnClickListener() {
+			@Override
             public void onClick(View v) {
             	CurrentPageManager.getInstance().setCurrentDocument(mSuggestedGenBook);
             }
         });
+        
+        mStrongsToggle.setOnClickListener(new OnClickListener() {
+			public void onClick(View v) {
+				// update the show-strongs pref setting according to the ToggleButton
+				CommonUtils.getSharedPreferences().edit().putBoolean("show_strongs_pref", mStrongsToggle.isChecked()).commit();
 
+				// redisplay the current page
+				preferenceSettingsChanged();
+			}
+		});
     }
     
     public void toggleFullScreen() {
@@ -119,7 +138,7 @@ public class CustomTitlebarActivityBase extends ActivityBase {
 		setPageTitle(ControlFactory.getInstance().getPageControl().getCurrentPageTitle());
 
 		// show or hide right 2 buttons depending on screen width and book availability
-		if (showAllButtons()) {
+		if (numButtonsToShow()>=4) {
 			if (mSuggestedDictionary!=null) {
 				mQuickDictionaryChangeLink.setVisibility(View.VISIBLE);
 			}
@@ -139,12 +158,13 @@ public class CustomTitlebarActivityBase extends ActivityBase {
 
     /** number of buttons varies depending on screen size and orientation
      */
-    private boolean showAllButtons() {
-    	return 4 <= getResources().getInteger(R.integer.number_of_quick_buttons);
+    private int numButtonsToShow() {
+    	return getResources().getInteger(R.integer.number_of_quick_buttons);
     }
 	/** update the quick links in the title bar
      */
     public void updateSuggestedDocuments() {
+        int numButtonsToShow = numButtonsToShow();
     	
         mSuggestedBible = ControlFactory.getInstance().getDocumentControl().getSuggestedBible();
         updateQuickButton(mSuggestedBible, mQuickBibleChangeLink, true);
@@ -152,12 +172,18 @@ public class CustomTitlebarActivityBase extends ActivityBase {
         mSuggestedCommentary = ControlFactory.getInstance().getDocumentControl().getSuggestedCommentary();
         updateQuickButton(mSuggestedCommentary, mQuickCommentaryChangeLink, true);
 
-        boolean canShow = showAllButtons();
         mSuggestedDictionary = ControlFactory.getInstance().getDocumentControl().getSuggestedDictionary();
-        updateQuickButton(mSuggestedDictionary, mQuickDictionaryChangeLink, canShow);
+        updateQuickButton(mSuggestedDictionary, mQuickDictionaryChangeLink, numButtonsToShow>=3);
 
         mSuggestedGenBook = ControlFactory.getInstance().getDocumentControl().getSuggestedGenBook();
-        updateQuickButton(mSuggestedGenBook, mQuickGenBookChangeLink, canShow);
+        updateQuickButton(mSuggestedGenBook, mQuickGenBookChangeLink, numButtonsToShow>=4);
+        
+        boolean showStrongsToggle = ControlFactory.getInstance().getDocumentControl().isStrongsInBook();
+        mStrongsToggle.setVisibility(showStrongsToggle? View.VISIBLE : View.GONE);
+        if (showStrongsToggle) {
+	        boolean isShowstrongs = CommonUtils.getSharedPreferences().getBoolean("show_strongs_pref", true);
+	        mStrongsToggle.setChecked(isShowstrongs);
+        }
     }
 
 	private void updateQuickButton(Book suggestedBook, Button quickButton, boolean canShow) {
