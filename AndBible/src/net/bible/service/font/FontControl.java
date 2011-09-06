@@ -49,7 +49,17 @@ public class FontControl {
 		log.debug("Book:"+book.getInitials()+" Language code:"+langCode+" Font:"+font);
 		return font;
 	}
-	
+
+	/** SBLGNT is a bit small so font size  needs to be adjusted up, but this is a bit of a hack at the moment
+	 */
+	public int getFontSizeAdjustment(String font) {
+		if ("SBL_grk.ttf".equals(font)) {
+			return 2;
+		} else {
+			return 0;
+		}
+	}
+
 	public boolean exists(String font) {
 		return 	new File(SharedConstants.FONT_DIR, font).exists() ||
 				new File(SharedConstants.MANUAL_FONT_DIR, font).exists();
