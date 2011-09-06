@@ -7,6 +7,10 @@ import net.bible.service.common.Logger;
 import net.bible.service.font.FontControl;
 import net.bible.service.format.Note;
 import net.bible.service.format.OsisSaxHandler;
+import net.bible.service.format.osistohtml.preprocessor.HebrewCharacterPreprocessor;
+import net.bible.service.format.osistohtml.preprocessor.TextPreprocessor;
+import net.bible.service.format.osistohtml.strongs.StrongsHandler;
+import net.bible.service.format.osistohtml.strongs.StrongsLinkCreator;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
@@ -48,12 +52,16 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	// properties
 	private OsisToHtmlParameters parameters;
 
+	// tag handlers for the different OSIS tags
 	private VerseHandler verseHandler;
 	private NoteAndReferenceHandler noteAndReferenceHandler;
 	private TitleHandler titleHandler;
 	private QHandler qHandler;
 	private LHandler lHandler;
 	private StrongsHandler strongsHandler;
+	
+	// processor for the tag content
+	private TextPreprocessor textPreprocessor;
 
 	// internal logic
 	private VerseInfo verseInfo = new VerseInfo();
@@ -62,21 +70,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		int currentVersePosition;
 	}
 
-	// the following characters are not handled well in Android 2.2 & 2.3 and
-	// need special processing which for all except Sof Pasuq means removal
-	// puctuation char at the end of hebrew verses that looks like a ':'
 	private static final String HEBREW_LANGUAGE_CODE = "he";
-	private static final String HEBREW_SOF_PASUQ_CHAR = "\u05C3";
-	// vowels are on the first row and cantillations on the second
-	private static final char[] HEBREW_VOWELS_AND_CANTILLATIONS = new char[] {
-			'\u05B0', '\u05B1', '\u05B2', '\u05B3', '\u05B4', '\u05B5',
-			'\u05B6', '\u05B7', '\u05B8', '\u05B9', '\u05BA', '\u05BB',
-			'\u05BC', '\u05BD', '\u05BE', '\u05BF', '\u05C1', '\u05C2',
-			'\u0591', '\u0592', '\u0593', '\u0594', '\u0595', '\u0596',
-			'\u0597', '\u0598', '\u0599', '\u059A', '\u059B', '\u059C',
-			'\u059D', '\u059E', '\u05A0', '\u05A1', '\u05A2', '\u05A3',
-			'\u05A4', '\u05A5', '\u05A6', '\u05A7', '\u05A8', '\u05A9',
-			'\u05AA', '\u05AB', '\u05AC', '\u05AD', '\u05AE', '\u05AF' };
 
 	@SuppressWarnings("unused")
 	private static final Logger log = new Logger("OsisToHtmlSaxHandler");
@@ -90,6 +84,14 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		qHandler = new QHandler(parameters, getWriter());
 		lHandler = new LHandler(parameters, getWriter());
 		strongsHandler = new StrongsHandler(parameters, getWriter());
+		
+		//TODO at the moment we can only have a single TextPreprocesor, need to chain them and maybe make the writer a TextPreprocessor and put it at the end of the chain
+		if (HEBREW_LANGUAGE_CODE.equals(parameters.getLanguageCode())) {
+			textPreprocessor = new HebrewCharacterPreprocessor();
+		} else if (parameters.isConvertStrongsRefsToLinks()) {
+			textPreprocessor = new StrongsLinkCreator();
+		}
+
 	}
 
 	@Override
@@ -238,30 +240,12 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	@Override
 	public void characters(char buf[], int offset, int len) {
 		String s = new String(buf, offset, len);
-		if (HEBREW_LANGUAGE_CODE.equals(parameters.getLanguageCode())) {
-			s = doHebrewCharacterAdjustments(s);
+		
+		if (textPreprocessor!=null) {
+			s = textPreprocessor.process(s);
 		}
+		
 		write(s);
-	}
-
-	/**
-	 * Some characters are not handled well in Android 2.2 & 2.3 and need
-	 * special processing which for all except Sof Pasuq means removal
-	 * 
-	 * @param s
-	 * @return adjusted string
-	 */
-	private String doHebrewCharacterAdjustments(String s) {
-		// remove Hebrew vowels because i) they confuse bidi and ii) they are
-		// not positioned correctly under/over the appropriate letter
-		// http://groups.google.com/group/android-contrib/browse_thread/thread/5b6b079f9ec7792a?pli=1
-		s = remove(s, HEBREW_VOWELS_AND_CANTILLATIONS);
-
-		// even without vowel points the : at the end of each verse confuses
-		// Android's bidi but specifying the char as rtl helps
-		s = s.replace(HEBREW_SOF_PASUQ_CHAR, "<span dir='rtl'>"
-				+ HEBREW_SOF_PASUQ_CHAR + "</span> ");
-		return s;
 	}
 
 	/*
@@ -278,42 +262,6 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 	public String getDirection() {
 		return parameters.isLeftToRight() ? "ltr" : "rtl";
-	}
-
-	/**
-	 * StringUtils methods only compare with a single char and hence create lots
-	 * of temporary Strings This method compares with all chars and just creates
-	 * one new string for each original string. This is to minimise memory
-	 * overhead & gc.
-	 * 
-	 * @param str
-	 * @param removeChars
-	 * @return
-	 */
-	public static String remove(String str, char[] removeChars) {
-		if (StringUtils.isEmpty(str)
-				|| !StringUtils.containsAny(str, removeChars)) {
-			return str;
-		}
-
-		StringBuilder r = new StringBuilder(str.length());
-		// for all chars in string
-		for (int i = 0; i < str.length(); i++) {
-			char strCur = str.charAt(i);
-
-			// compare with all chars to be removed
-			boolean matched = false;
-			for (int j = 0; j < removeChars.length && !matched; j++) {
-				if (removeChars[j] == strCur) {
-					matched = true;
-				}
-			}
-			// if current char does not match any in the list then add it to the
-			if (!matched) {
-				r.append(strCur);
-			}
-		}
-		return r.toString();
 	}
 
 	private String getPaddingAtBottom() {

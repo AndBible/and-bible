@@ -1,4 +1,4 @@
-package net.bible.service.format.osistohtml;
+package net.bible.service.format.osistohtml.strongs;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,6 +6,9 @@ import java.util.List;
 
 import net.bible.service.common.Constants;
 import net.bible.service.common.Constants.HTML;
+import net.bible.service.format.osistohtml.HtmlTextWriter;
+import net.bible.service.format.osistohtml.OsisToHtmlParameters;
+import net.bible.service.format.osistohtml.TagHandlerHelper;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
@@ -115,37 +118,15 @@ public class StrongsHandler {
 					ref = ref.substring(OSISUtil.LEMMA_STRONGS.length());
 
 					// select Hebrew or Greek protocol
-					String protocol = null;
-					if (ref.startsWith("H")) {
-						protocol = Constants.HEBREW_DEF_PROTOCOL;
-					} else if (ref.startsWith("G")) {
-						protocol = Constants.GREEK_DEF_PROTOCOL;
-					}
+					String protocol = StrongsUtil.getStrongsProtocol(ref);
 
 					if (protocol != null) {
 						// remove initial G or H
-						String noPadRef = ref.substring(1);
-						// pad with leading zeros to 5 characters
-						String paddedRef = StringUtils
-								.leftPad(noPadRef, 5, "0");
+						String strongsNumber = ref.substring(1);
+						
+						String strTag = StrongsUtil.createStrongsLink(protocol, strongsNumber);
 
-						StringBuilder tag = new StringBuilder();
-						// create opening tag for Strong's link
-						tag.append("<a href='");
-
-						// calculate uri e.g. H:01234
-						tag.append(protocol).append(":").append(paddedRef);
-
-						// set css class
-						tag.append("' class='strongs'>");
-
-						// descriptive string
-						tag.append(noPadRef);
-
-						// link closing tag
-						tag.append("</a>");
-
-						strongsTags.add(tag.toString());
+						strongsTags.add(strTag);
 					}
 				}
 			}

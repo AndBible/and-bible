@@ -9,6 +9,7 @@ import java.util.Properties;
 
 import net.bible.android.BibleApplication;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.util.IOUtil;
 
 import android.content.SharedPreferences;
@@ -201,5 +202,41 @@ public class CommonUtils {
 	 */
 	public static SharedPreferences getSharedPreferences() {
 		return PreferenceManager.getDefaultSharedPreferences(BibleApplication.getApplication().getApplicationContext());
+	}
+	
+	/**
+	 * StringUtils methods only compare with a single char and hence create lots
+	 * of temporary Strings This method compares with all chars and just creates
+	 * one new string for each original string. This is to minimise memory
+	 * overhead & gc.
+	 * 
+	 * @param str
+	 * @param removeChars
+	 * @return
+	 */
+	public static String remove(String str, char[] removeChars) {
+		if (StringUtils.isEmpty(str)
+				|| !StringUtils.containsAny(str, removeChars)) {
+			return str;
+		}
+
+		StringBuilder r = new StringBuilder(str.length());
+		// for all chars in string
+		for (int i = 0; i < str.length(); i++) {
+			char strCur = str.charAt(i);
+
+			// compare with all chars to be removed
+			boolean matched = false;
+			for (int j = 0; j < removeChars.length && !matched; j++) {
+				if (removeChars[j] == strCur) {
+					matched = true;
+				}
+			}
+			// if current char does not match any in the list then add it to the
+			if (!matched) {
+				r.append(strCur);
+			}
+		}
+		return r.toString();
 	}
 }

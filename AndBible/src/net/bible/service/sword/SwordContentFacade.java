@@ -307,10 +307,16 @@ public class SwordContentFacade {
 						//add allHebrew refs link
 						String prompt = BibleApplication.getApplication().getString(R.string.all_hebrew_occurrences);
 						osisToHtmlParameters.setExtraFooter("<br /><a href='"+Constants.ALL_HEBREW_OCCURRENCES_PROTOCOL+":"+key.getName()+"' class='allStrongsRefsLink'>"+prompt+"</a>");
+
+						//convert text refs to links
+						osisToHtmlParameters.setConvertStrongsRefsToLinks(true);
 					} else if (book.hasFeature(FeatureType.GREEK_DEFINITIONS)) {
 						//add allGreek refs link
 						String prompt = BibleApplication.getApplication().getString(R.string.all_greek_occurrences);
 						osisToHtmlParameters.setExtraFooter("<br /><a href='"+Constants.ALL_GREEK_OCCURRENCES_PROTOCOL+":"+key.getName()+"' class='allStrongsRefsLink'>"+prompt+"</a>");
+
+						//convert text refs to links
+						osisToHtmlParameters.setConvertStrongsRefsToLinks(true);
 					}
 				}
 				
