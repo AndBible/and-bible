@@ -1,6 +1,7 @@
 package net.bible.android.view.activity.page;
 
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.page.PageControl;
 import net.bible.service.common.CommonUtils;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -27,6 +28,8 @@ public class BibleView extends WebView {
 
 	private int mJumpToVerse = 0;
 	private float mJumpToYOffsetRatio = 0;
+	
+	private PageControl pageControl = ControlFactory.getInstance().getPageControl();
 	
 	private static final String TAG = "BibleView";
 	
@@ -130,10 +133,11 @@ public class BibleView extends WebView {
 	/** apply settings set by the user using Preferences
 	 */
 	public void applyPreferenceSettings() {
-		SharedPreferences preferences = CommonUtils.getSharedPreferences();
-		// see this bug (http://code.google.com/p/android/issues/detail?id=2096) for the reason we can't just use an integer-array in values.xml
-		int fontSize = preferences.getInt("text_size_pref", 16);
-		getSettings().setDefaultFontSize(fontSize);
+		applyFontSize();
+	}
+	
+	private void applyFontSize() {
+		getSettings().setDefaultFontSize(pageControl.getDocumentFontSize());
 	}
 	
 	/** show a page from bible commentary
@@ -142,6 +146,8 @@ public class BibleView extends WebView {
 	 */
 	public void show(String html, int jumpToVerse, float jumpToYOffsetRatio) {
 		Log.d(TAG, "Show(html,"+jumpToVerse+","+jumpToYOffsetRatio+")");
+		applyFontSize();
+		
 		mJumpToVerse = jumpToVerse;
 		mJumpToYOffsetRatio = jumpToYOffsetRatio;
 		loadDataWithBaseURL("http://baseUrl", html, "text/html", "UTF-8", "http://historyUrl");

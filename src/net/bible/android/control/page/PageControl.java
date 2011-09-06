@@ -8,6 +8,7 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
+import net.bible.service.font.FontControl;
 import net.bible.service.sword.SwordContentFacade;
 import net.bible.service.sword.SwordDocumentFacade;
 
@@ -22,6 +23,7 @@ import org.crosswire.jsword.versification.BibleInfo;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.text.ClipboardManager;
 import android.util.Log;
 
@@ -150,6 +152,21 @@ public class PageControl {
 		return retVal;
 	}
 
+	/** font size may be adjusted for certain fonts e.g. SBLGNT
+	 */
+	public int getDocumentFontSize() {
+		// get base font size
+		SharedPreferences preferences = CommonUtils.getSharedPreferences();
+		int fontSize = preferences.getInt("text_size_pref", 16);
+
+		// if book has a special font it may require an adjusted font size
+		Book book = mCurrentPageManager.getCurrentPage().getCurrentDocument();
+		String font = FontControl.getInstance().getFontForBook(book);
+		int fontSizeAdjustment = FontControl.getInstance().getFontSizeAdjustment(font);
+		
+		return fontSize+fontSizeAdjustment;		
+	}
+	
 	private String shorten(String title, int maxLength) {
 		String retVal = null;
 		if (title.length()>maxLength) {
