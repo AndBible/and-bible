@@ -22,6 +22,7 @@ public class OsisToHtmlParameters {
     private String extraStylesheet;
     private String extraFooter;
     private int numPaddingBrsAtBottom;
+    private boolean convertStrongsRefsToLinks;
 
     public String getLanguageCode() {
 		return languageCode;
@@ -113,5 +114,11 @@ public class OsisToHtmlParameters {
 	}
 	public void setFont(String font) {
 		this.font = font;
+	}
+	public boolean isConvertStrongsRefsToLinks() {
+		return convertStrongsRefsToLinks;
+	}
+	public void setConvertStrongsRefsToLinks(boolean convertStrongsRefsToLinks) {
+		this.convertStrongsRefsToLinks = convertStrongsRefsToLinks;
 	}
 }
