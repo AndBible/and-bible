@@ -20,6 +20,7 @@ public class FontControl {
     
     private static final String FONT_DOWNLOAD_URL = "http://www.crosswire.org/and-bible/fonts/v1/";
     public static String FONT_PROPERTIES_FILENAME = "fonts.properties";
+    private static String FONT_SIZE_ADJUSTMENT = ".fontSizeAdjustment";
     
     private static FontControl SINGLETON = new FontControl();
     
@@ -50,14 +51,22 @@ public class FontControl {
 		return font;
 	}
 
-	/** SBLGNT is a bit small so font size  needs to be adjusted up, but this is a bit of a hack at the moment
+	/** SBLGNT is a bit small so font size  needs to be adjusted up, but the same method can be used for other fonts
+	 * adding
+	 *  fontname.fontSizeAdjustment=2
+	 * will increase the size when fontname is used
 	 */
 	public int getFontSizeAdjustment(String font) {
-		if ("SBL_grk.ttf".equals(font)) {
-			return 2;
-		} else {
-			return 0;
+		int sizeAdjustment = 0;
+		try {
+			if (!StringUtils.isEmpty(font)) {
+				String sizeAdjustmentString = fontProperties.getProperty(font+FONT_SIZE_ADJUSTMENT, "0");
+				sizeAdjustment = Integer.parseInt(sizeAdjustmentString);
+			}
+		} catch (Exception e) {
+			log.error("Error getting font size adjustment", e);
 		}
+		return sizeAdjustment;
 	}
 
 	public boolean exists(String font) {
