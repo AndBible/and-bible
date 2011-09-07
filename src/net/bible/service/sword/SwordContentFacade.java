@@ -320,9 +320,6 @@ public class SwordContentFacade {
 					}
 				}
 				
-				//TODO **** do not reload every time ***
-				//keep reloading properties file for now to allow user edits to be actioned without a restart 
-				FontControl.getInstance().reloadProperties();
 				// which font, if any
 				osisToHtmlParameters.setFont(FontControl.getInstance().getFontForBook(book));				
 			}
