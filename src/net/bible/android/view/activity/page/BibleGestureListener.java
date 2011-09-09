@@ -1,10 +1,14 @@
 package net.bible.android.view.activity.page;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.control.page.CurrentPageManager;
+import android.content.Context;
 import android.util.Log;
+import android.view.Display;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
-import android.view.GestureDetector.SimpleOnGestureListener;
+import android.view.WindowManager;
 
 /** Listen for side swipes to change chapter.  This listener class seems to work better that subclassing WebView.
  * 
@@ -71,8 +75,24 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 
 	@Override
 	public boolean onDoubleTap(MotionEvent e) {
-		Log.d(TAG, "*** onDoubleTap");
+		Log.d(TAG, "onDoubleTap");
 		mainBibleActivity.toggleFullScreen();
 		return super.onDoubleTap(e);
 	}
+
+	@Override
+	public boolean onSingleTapConfirmed(MotionEvent e) {
+		Log.d(TAG, "onSingleTapConfirmed ");
+	    WindowManager window = (WindowManager)BibleApplication.getApplication().getSystemService(Context.WINDOW_SERVICE); 
+	    Display display = window.getDefaultDisplay();
+	    int height = display.getHeight();
+	    
+	    if (e.getY()>height*0.93) {
+			Log.d(TAG, "scrolling down");
+			mainBibleActivity.scrollScreenDown();
+	    }
+		return super.onSingleTapConfirmed(e);
+	}
+	
+	
 }
