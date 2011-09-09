@@ -193,6 +193,12 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		return super.onKeyUp(keyCode, event);
 	}
     
+	/** user tapped bottom of screen
+	 */
+    public void scrollScreenDown() {
+    	bibleWebView.pageDown(false);
+    }
+
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) { 
     	Log.d(TAG, "Activity result:"+resultCode);

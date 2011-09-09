@@ -127,8 +127,6 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 
     	mContentView.requestLayout();
     }
-    
-
 
     @Override
 	public void onConfigurationChanged(Configuration newConfig) {
