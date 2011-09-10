@@ -64,7 +64,7 @@ public class LinkControl {
 	        	// not a valid Strongs Uri
 	        	return false;
 	        }
-	        // handled this url (or at least attemoted to)
+	        // handled this url (or at least attempted to)
 	        return true;
 		} catch (Exception e) {
 			Log.e(TAG, "Error going to Strongs", e);
