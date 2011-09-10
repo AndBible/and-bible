@@ -23,6 +23,7 @@
     \n\n<b>Context Menus</b>
     \nLong press on the bible view to open the context menu for actions affecting the current verse.
     \nLong press on a document in the document selector to delete it or view information.
+    \nLong press the Back button to access the History list
     </string>
     <string name="version_text">Version %s</string>
 	<string name="no_sdcard_error">Please insert an SD card and start And Bible again.</string>
