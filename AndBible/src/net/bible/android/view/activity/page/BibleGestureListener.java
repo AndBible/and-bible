@@ -77,7 +77,7 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 	public boolean onDoubleTap(MotionEvent e) {
 		Log.d(TAG, "onDoubleTap");
 		mainBibleActivity.toggleFullScreen();
-		return super.onDoubleTap(e);
+		return true;
 	}
 
 	@Override
@@ -87,11 +87,16 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 	    Display display = window.getDefaultDisplay();
 	    int height = display.getHeight();
 	    
+	    boolean handled;
 	    if (e.getY()>height*0.93) {
 			Log.d(TAG, "scrolling down");
 			mainBibleActivity.scrollScreenDown();
+			handled = true;
+	    } else {
+	    	handled = super.onSingleTapConfirmed(e);
 	    }
-		return super.onSingleTapConfirmed(e);
+		Log.d(TAG, "finished onSingleTapConfirmed ");
+	    return handled;
 	}
 	
 	
