@@ -80,24 +80,25 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 		return true;
 	}
 
-	@Override
-	public boolean onSingleTapConfirmed(MotionEvent e) {
-		Log.d(TAG, "onSingleTapConfirmed ");
-	    WindowManager window = (WindowManager)BibleApplication.getApplication().getSystemService(Context.WINDOW_SERVICE); 
-	    Display display = window.getDefaultDisplay();
-	    int height = display.getHeight();
-	    
-	    boolean handled;
-	    if (e.getY()>height*0.93) {
-			Log.d(TAG, "scrolling down");
-			mainBibleActivity.scrollScreenDown();
-			handled = true;
-	    } else {
-	    	handled = super.onSingleTapConfirmed(e);
-	    }
-		Log.d(TAG, "finished onSingleTapConfirmed ");
-	    return handled;
-	}
+// remove for now as it confuses Strongs link navigation
+//	@Override
+//	public boolean onSingleTapConfirmed(MotionEvent e) {
+//		Log.d(TAG, "onSingleTapConfirmed ");
+//	    WindowManager window = (WindowManager)BibleApplication.getApplication().getSystemService(Context.WINDOW_SERVICE); 
+//	    Display display = window.getDefaultDisplay();
+//	    int height = display.getHeight();
+//	    
+//	    boolean handled;
+//	    if (e.getY()>height*0.93) {
+//			Log.d(TAG, "scrolling down");
+//			mainBibleActivity.scrollScreenDown();
+//			handled = true;
+//	    } else {
+//	    	handled = super.onSingleTapConfirmed(e);
+//	    }
+//		Log.d(TAG, "finished onSingleTapConfirmed ");
+//	    return handled;
+//	}
 	
 	
 }
