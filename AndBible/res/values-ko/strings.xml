@@ -8,9 +8,9 @@
 <resources>
   <string name="app_name">And 성경</string>
   <!-- Startup & Help -->
-  <string name="splash_top_text">"\"그리고 하나님이 '빛이 있으라'라고 라이트가 발생했습니다.\" 창세기 1장 3절"</string>
-  <string name="help_text">보도 행동은 트랙 공, 패드를 사용하거나 보내주시면 화면을 손가락으로하여 다음 또는 이전 챕터로 이동의 메뉴 키</string>
-  <string name="help_text_long">, D - 패드 트랙 공을 사용하거나 보내주시면 화면을 동작에 손가락을 누르면 메뉴 키를 이상의 문서를 다운로드하려면하여 다음 또는 이전 챕터로 이동 이동은 성경보기에 긴 언론 열고 메뉴 / 기타 / 다운로드 문서를 누르십시오 현재 구절에 영향을 미치는 작업에 대한 컨텍스트 메뉴. 문서 선택기에서 문서에 긴 언론을 삭제하거나 정보를 볼 수 있습니다. 연설 보도 말해 시작하거나 북마크 북마크 구절 컨텍스트 메뉴를 통해 추가할 수있는 독서 중단 대화 상자를 액세스합니다. 북마크 관리자는 메인 메뉴를 통해 액세스할 수 있습니다. 북마크 관리자 컨텍스트 메뉴 즐겨찾기 레이블을 사용하여 그룹화 수 있습니다.</string>
+  <string name="splash_top_text">"\"하나님이 빛이 있으라 하시매 빛이 있었고\"창세기 1장 3절"</string>
+  <string name="help_text">실행을 위해 메뉴 키를 사용.\n손으로 D-패드를 움직이거나 마우스를 사용하여 이전 또는 다음 장으로 이동</string>
+  <string name="help_text_long">실행을 위한 메뉴 키 사용\n문서를 다운로드하려면 다음 또는 이전 챕터로 이동합니다.\n성경보기를 열고 메뉴 / 기타 / 다운로드 문서를 누르십시오.\n현재구절에 영향을 미치는 작업은 내용 메뉴. 문서 선택에서 문서를 삭제하거나 정보를 공유할 수 있읍니다.\n스피치\n스피치를 누르면 대화창을 시작하거나 중단 합니다. \n북마크 관리자는 메인 메뉴를 통해 액세스할 수 있습니다. 북마크 관리자 컨텍스트 메뉴 즐겨찾기 꼬리표를 사용하여 그룹화 할 수 있습니다.</string>
   <string name="version_text">버전의 %s</string>
   <string name="no_sdcard_error">다시 삽입 SD 카드 및 시작하고 성경을 알려드립니다.</string>
   <!-- main menu -->
@@ -19,7 +19,7 @@
   <string name="search">찾기</string>
   <string name="settings">설정</string>
   <string name="history">역사</string>
-  <string name="speak">말하다</string>
+  <string name="speak">말하기</string>
   <string name="help">도움말</string>
   <!-- Passage navigation -->
   <string name="choosePassageBookName">도서 선택</string>
@@ -78,21 +78,21 @@
   <string name="no_indexed_bible_with_strongs_ref">당신의 강한 숫자를 포함하는 성경을 다운로드해야하고 검색을 통해 색인을 다운로드</string>
   <!-- Module download -->
   <string name="download">다운로드 문서</string>
-  <string name="download_confirmation">다운로드 인터넷에서 성경?</string>
-  <string name="download_source_message">문서 http://www.crosswire.org &amp; http://xiphos.org 에서 다운로드한</string>
+  <string name="download_confirmation">인터넷에서 성경을 다운로드?</string>
+  <string name="download_source_message">문서 http://www.crosswire.org &amp; http://xiphos.org 에서 다운로드</string>
   <string name="download_document_confirm_prefix">"다운로드"</string>
   <string name="refresh_book_list">해당 문서의 목록 새로 고침?</string>
-  <string name="error_downloading">다운로드 오류가 발생했습니다. 당신의 인터넷 연결을 확인하시기 바랍니다.</string>
+  <string name="error_downloading">다운로드 오류가 발생했습니다. 인터넷 연결을 확인하시기 바랍니다.</string>
   <string name="no_internet_connection">인터넷에 연결할 수 없습니다</string>
   <string name="storage_space_warning">부족 로컬 저장 공간.</string>
   <string name="wait_for_bible">다운로드를 완료 성경 기다려주십시오. 그렇다면 당신은 메인 화면으로 이동합니다.</string>
   <string name="wait_for_bible_not_yet">잠시 기다려주세요. 성경은 아직 설치를 완료하지 않았습니다.</string>
-  <string name="download_complete_no_bibles">아니 성경은 설치되었습니다. Back 누른 후 다시 시도하십시오.</string>
+  <string name="download_complete_no_bibles">대한 성서가 설치되지 않았습니다. 백을 누른 후 다시 시도하시기 바랍니다.</string>
   <string name="too_many_jobs">너무 많은 작업을 실행. 일부는 완료하고 다시 시도 기다려주십시오.</string>
   <!-- Document context menu -->
   <string name="delete">삭제</string>
   <string name="about">소개</string>
-  <string name="delete_doc">삭제 %s 가 뭐죠?</string>
+  <string name="delete_doc">%s 을 (를) 삭제하시겠습니까?</string>
   <!-- Verse context menu -->
   <string name="notes">각주 및 참고 문헌</string>
   <string name="copy">복사 현재 구절</string>
@@ -103,7 +103,7 @@
   <string name="add_bookmark">즐겨찾기 추가</string>
   <string name="bookmark_added">추가된 즐겨찾기</string>
   <string name="bookmark_exists">즐겨찾기가 이미 존재합니다</string>
-  <string name="bookmark_labels">즐겨찾기 레이블</string>
+  <string name="bookmark_labels">즐겨찾기 꼬리표</string>
   <string name="assign_labels">할당 레이블</string>
   <string name="new_label">새 분류</string>
   <string name="new_label_prompt">이름</string>
@@ -152,18 +152,18 @@
   <string name="retry">다시 시도</string>
   <string name="please_wait">기다려주십시오 ...</string>
   <string name="all">전체</string>
-  <string name="choosePassageVerseName">Choose Verse</string>
-  <string name="delete_index">Delete search index</string>
-  <string name="delete_search_index_doc">Delete index of %s?</string>
-  <string name="morph_robinson_not_installed">Please download \'Robinson\'s Morphological Analysis Codes\' dictionary</string>
-  <string name="one_chapter">%d chapter</string>
-  <string name="one_page">%d page</string>
-  <string name="one_verse">%d verse</string>
-  <string name="prefs_navigate_to_verse_summary">Drill down to verse when navigating</string>
-  <string name="prefs_navigate_to_verse_title">Navigate to verse</string>
-  <string name="prefs_show_morphology_summary">Show Robinson\'s Greek morphology</string>
-  <string name="prefs_show_morphology_title">Morphological codes</string>
-  <string name="some_chapters">%d chapters</string>
-  <string name="some_pages">%d pages</string>
-  <string name="some_verses">%d verses</string>
-</resources>
+  <string name="choosePassageVerseName">구절 선택</string>
+  <string name="delete_index">검색 색인을 삭제합니다</string>
+  <string name="delete_search_index_doc">%s 의 색인을 삭제하시겠습니까?</string>
+  <string name="morph_robinson_not_installed">\'Robinson\'s Morphological Analysis Codes\'사전을 다운로드하십시오</string>
+  <string name="one_chapter">%d 개의 장</string>
+  <string name="one_page">%d 개의 페이지</string>
+  <string name="one_verse">%d 개의 구절</string>
+  <string name="prefs_navigate_to_verse_summary">구절 선택할 때</string>
+  <string name="prefs_navigate_to_verse_title">구절 선택할 때</string>
+  <string name="prefs_show_morphology_summary">보기 \"Robinson\'s Greek Morphology\"</string>
+  <string name="prefs_show_morphology_title">형태학의 코드</string>
+  <string name="some_chapters">%d 개의 장들</string>
+  <string name="some_pages">%d 개의 페이지들</string>
+  <string name="some_verses">%d 개의 구절들</string>
+<string name="prefs_red_letter_summary">빨간색으로 \"예수님의 말씀\" 보기</string><string name="prefs_red_letter_title">레드 레터</string><string name="prefs_section_title_summary">비정규 섹션 제목보기</string><string name="prefs_section_title_title">섹션 제목</string><string name="strongs_toggle_button_off">nnnn</string><string name="strongs_toggle_button_on">nnnn</string></resources>
