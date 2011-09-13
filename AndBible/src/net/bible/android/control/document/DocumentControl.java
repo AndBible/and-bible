@@ -44,6 +44,12 @@ public class DocumentControl {
 		return currentBook.getBookMetaData().hasFeature(FeatureType.STRONGS_NUMBERS);
 	}
 
+	/** are we currently in Bible, Commentary, Dict, or Gen Book mode
+	 */
+	public BookCategory getCurrentCategory() {
+		return ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getBookCategory();
+	}
+	
 	/** Suggest an alternative bible to view or return null
 	 * 
 	 * @return
