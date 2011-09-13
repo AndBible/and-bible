@@ -80,8 +80,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     abstract protected List<Book> getDocumentsFromSource(boolean refresh);
     
     abstract protected void handleDocumentSelection(Book selectedDocument);
-
-	
+    
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -102,6 +101,8 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     	
     	//prepare the documentType spinner
     	documentTypeSpinner = (Spinner)findViewById(R.id.documentTypeSpinner);
+    	setInitialDocumentType();
+    	documentTypeSpinner.setSelection(selectedDocumentFilterNo);
     	documentTypeSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 			@Override
@@ -399,5 +400,23 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 
 	public List<Book> getDisplayedDocuments() {
 		return displayedDocuments;
+	}
+
+	/** allow selection of initial doc type
+	 */
+	protected void setInitialDocumentType() {
+		selectedDocumentFilterNo = 0;
+	}
+	
+	/** map between book category and item no
+	 */
+	public void setSelectedBookCategory(BookCategory bookCategory) {
+    	switch (bookCategory) {
+			case BIBLE:				selectedDocumentFilterNo = 0;  		break;
+			case COMMENTARY:		selectedDocumentFilterNo = 1;  		break;
+			case DICTIONARY:		selectedDocumentFilterNo = 2;  		break;
+			case GENERAL_BOOK:		selectedDocumentFilterNo = 3;  		break;
+			default:				selectedDocumentFilterNo = 0;  		break;
+    	}
 	}
 }

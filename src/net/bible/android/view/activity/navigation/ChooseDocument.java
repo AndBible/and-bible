@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.document.DocumentControl;
 import net.bible.android.view.activity.base.DocumentSelectionBase;
 import net.bible.service.sword.SwordDocumentFacade;
 
@@ -25,6 +26,8 @@ import android.util.Log;
  */
 public class ChooseDocument extends DocumentSelectionBase {
 	private static final String TAG = "ChooseDocument";
+	
+	private DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
 	
     /** Called when the activity is first created. */
     @Override
@@ -48,7 +51,7 @@ public class ChooseDocument extends DocumentSelectionBase {
     protected void handleDocumentSelection(Book selectedBook) {
     	Log.d(TAG, "Book selected:"+selectedBook.getInitials());
     	try {
-    		ControlFactory.getInstance().getDocumentControl().changeDocument(selectedBook);
+    		documentControl.changeDocument(selectedBook);
 
     		// if key is valid then the new doc will have been shown already
 			finishedSelection();
@@ -107,5 +110,10 @@ public class ChooseDocument extends DocumentSelectionBase {
     	Intent resultIntent = new Intent();
     	setResult(Activity.RESULT_OK, resultIntent);
     	finish();    
+    }
+    
+    @Override
+    protected void setInitialDocumentType() {
+    	setSelectedBookCategory(documentControl.getCurrentCategory());
     }
 }
