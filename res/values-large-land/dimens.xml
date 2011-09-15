@@ -5,4 +5,5 @@
 	
 	<!--  number of buttons varies depending on screen size and orientation -->
 	<integer name="number_of_quick_buttons">4</integer>
+	<dimen name="size_of_quick_buttons">70dip</dimen>
 </resources>
