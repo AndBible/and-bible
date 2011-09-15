@@ -24,8 +24,9 @@
 	<!-- number of breaks at bottom to allow selection of last verse -->
 	<integer name="br_count_at_bottom">14</integer>
 	
-	<!--  number of buttons varies depending on screen size and orientation -->
+	<!--  number and size of buttons varies depending on screen size and orientation -->
 	<integer name="number_of_quick_buttons">2</integer>
+	<dimen name="size_of_quick_buttons">60dip</dimen>
 	
 	<integer name="grid_cell_text_size_sp">15</integer>
 	
