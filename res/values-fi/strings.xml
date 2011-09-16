@@ -8,8 +8,8 @@
 <resources>
   <string name="app_name">And Bible</string>
   <string name="splash_top_text">"\n\"Ja Jumala sanoi: 'Tulkoon valkeus'. Ja valkeus tuli.\"\n1. Moos. 1:3"</string>
-  <string name="help_text">Siirry VALIKKO näppäimellä toimintoihin\n\nSiirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjaimella tai pyyhkäisemällä näyttöä sormella</string>
-  <string name="help_text_long">"Navigointi\nSiirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjaimella tai pyyhkäisemällä näyttöä sormella \n\nSiirry VALIKKO näppäimellä toimintoihin \n\nLataa lisää teoksia siirtymällä Valikko / Lisää / Lataa asiakirjat \n\nPainamalla pitkään Raamatun tekstin päällä avautuu tekstivalikko liittyen nykyiseen jakeeseen.\nPainamalla pitkään teosvalitsimen päällä voit poistaa teoksen tai tarkastella sen tietoja. \n\nPuhe\nPaina Puhu kuullaksesi luvun puhuttuna tai keskeyttääksesi puheen.\n\nKirjanmerkit \nKirjanmerkkejä voi lisätä pikavalikon kautta. Kirjanmerkkien hallintaan pääsee päävalikon kautta, missä kirjanmerkkejä voi ryhmitellä vapaasti omiin ryhmiinsä.\n"</string>
+  <string name="help_text">Siirry VALIKKO näppäimellä toimintoihin\n\nSiirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjainta käyttäen tai \'pyyhkäisemällä\' näyttöä sormella</string>
+  <string name="help_text_long">"&lt;b&gt;Navigointi&lt;/b&gt;\nSiirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjainta käyttäen tai 'pyyhkäisemällä' näyttöä sormella.\nNapauta näytön alareunaa vierittääksesi tekstiä alas.\nKaksoisnapautus vaihtaa kokonäyttötilaan tai pois siitä.\n\n&lt;b&gt;Valikko&lt;/b&gt;\nSiirry VALIKKO näppäimellä valikon toimintoihin\n\nLataa lisää teoksia siirtymällä Valikkossa kohtaan Lisää / Lataa teoksia\n\n&lt;b&gt;Puhe&lt;/b&gt;\nPaina Puhu kuunnellaksi luvun puhuttuna tai keskeyttääksesi puheen.\n\n&lt;b&gt;Kirjanmerkit&lt;/b&gt;\nKirjanmerkkejä voi lisätä pikavalikon kautta. Kirjanmerkkien hallintaan voi siirtyä päävalikon kautta, missä voit ryhmitellä kirjanmerkkejä omiin ryhmiinsä.\n\n&lt;b&gt;Etsi&lt;/b&gt;\nTekstin etsimisessä voi käyttää jokerimerkkejä kuten *, ?, AND, OR, NOT (ks. \"Apache Lucene - Query Parser Syntax\" merkityksistä)\n\n&lt;b&gt;Pikavalikot&lt;/b&gt;\nPitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko liittyen ylätunnisteessa mainittuun aktiiviseen jakeeseen.\nPitämällä sormea pitkään teosvalitsimella, voit poistaa teoksen tai tarkastella sen tietoja. \nPitämällä sormea pitkään takaisin painikkeella, avatuu historiatiedot luetusta"</string>
   <string name="version_text">Versio %s</string>
   <string name="no_sdcard_error">Ole hyvä ja aseta SD kortti sekä käynnistä And Bible uudelleen.</string>
   <!-- main menu -->
@@ -24,7 +24,7 @@
   <string name="choosePassageChapterName">Valitse luku</string>
   <string name="search_index">Hakuindeksi</string>
   <string name="index_creation_required">"Etsiminen vaatii indeksin.\n\nIndeksit voidaan ladata netistä tai luoda paikallisesti.\n\nLataaminen on huomattavasti nopeampaa, minkä lisäksi ladatuissa indekseissä on enemmän ominaisuuksia.\n\nInternetyhteys tarvitaan indeksin lataamiseksi.\n"</string>
-  <string name="indexing_wait_msg">Kun indeksointi on valmis, ohjelma siirtyy suoraan etsi-toimintoon.</string>
+  <string name="indexing_wait_msg">Kun indeksointi on valmis, ohjelma siirtyy välittömästi etsi-toimintoon.</string>
   <string name="index">Indeksoi</string>
   <string name="index_download">Lataa</string>
   <string name="index_not_available_for_download">Tämä indeksi ei ole ladatavissa</string>
@@ -44,7 +44,7 @@
   <string name="search_all_bible">Koko Raamattuun</string>
   <string name="search_new_testament">Uuteen testamenttiin</string>
   <string name="search_old_testament">Vanhaan testamenttiin</string>
-  <string name="search_current_book">Avoimeen kirjaan</string>
+  <string name="search_current_book">Avoin kirja</string>
   <string name="error_executing_search">Virheellinen haku</string>
   <!-- Preferences -->
   <string name="prefs_show_verseno_title">Jaenumerot</string>
@@ -68,11 +68,11 @@
   <!-- Module download -->
   <string name="download">Lataa teoksia</string>
   <string name="download_confirmation">Lataa teos internetistä?</string>
-  <string name="download_source_message">Teokset ovat ladattavissa osoitteesta \nhttp://www.crosswire.org</string>
+  <string name="download_source_message">Teokset voi ladata osoitteesta \nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Lataa "</string>
   <string name="error_downloading">Virhe ladattaessa teosta. Ole hyvä ja tarkista yhteyden toimivuus.</string>
   <string name="no_internet_connection">Ei saada yhteyttä internettiin</string>
-  <string name="storage_space_warning">Liian vähän tilaa tallentaa teos laitteeseen.</string>
+  <string name="storage_space_warning">Liian vähän tilaa teoksen tallentamiseksi.</string>
   <string name="wait_for_bible">Ole hyvä ja odota, että teos on ladattu kokonaan. Latauksen jälkeen ohjelma siirtyy takaisin tekstinäkymään.</string>
   <string name="wait_for_bible_not_yet">Ole hyvä ja odota hetki. Teoksen asennus ei ole vielä valmis.</string>
   <string name="download_complete_no_bibles">Teosta ei onnistuttu asennetamaan. Siirry takaisin ja yritä uudelleen.</string>
@@ -81,7 +81,7 @@
   <string name="delete">Poista</string>
   <string name="about">Tietoja</string>
   <!-- Verse context menu -->
-  <string name="notes">Alaviitteet ja rinnakkaispaikat</string>
+  <string name="notes">Alaviitteet ja rinnakkaisviitteet</string>
   <string name="copy">Kopioi jae</string>
   <!-- Bookmarks -->
   <string name="bookmarks">Kirjanmerkit</string>
@@ -106,9 +106,9 @@
   <string name="error">"Virhe "</string>
   <string name="more">Lisää</string>
   <string name="retry">Yritä uudelleen</string>
-  <string name="please_wait">Ole hyvä ja odota...</string>
+  <string name="please_wait">Odota hetki...</string>
   <string name="all">Kaikki</string>
-  <string name="tts_lang_not_available">Kieli ei ole saatavilla.</string>
+  <string name="tts_lang_not_available">Kieli ei ole käytettävissä.</string>
   <string name="all_greek_occurrences">Etsi kaikki esiintymät</string>
   <string name="all_hebrew_occurrences">Etsi kaikki esiintymät</string>
   <string name="doc_type_book">Kirja</string>
@@ -122,7 +122,7 @@
   <string name="prefs_interface_locale_title">Sovelluksen kieli</string>
   <string name="prefs_verse_per_line_summary">Näytä kukin jae omalla rivillään</string>
   <string name="prefs_verse_per_line_title">Jokainen jae omalla rivillään</string>
-  <string name="refresh_book_list">Päivitä luettelo saatavilla olevista teoksista?</string>
+  <string name="refresh_book_list">Päivitä luettelo ladattavista teoksista?</string>
   <string name="rest_of_book">Kirjan loppuun</string>
   <string name="rest_of_chapter">Luvun loppuun</string>
   <string name="share_verse">Jaa nykyinen jae ...</string>
@@ -136,4 +136,4 @@
   <string name="choosePassageVerseName">Valitse jae</string>
   <string name="prefs_navigate_to_verse_summary">Valitse jae (ja luku) kohtaa valitsessa</string>
   <string name="prefs_navigate_to_verse_title">Navigoi jakeeseen</string>
-<string name="one_chapter">%d luku</string><string name="one_page">%d sivu</string><string name="one_verse">%d jae</string><string name="some_chapters">%d lukua</string><string name="some_pages">%d sivua</string><string name="some_verses">%d jaetta</string><string name="prefs_red_letter_summary">Näytä Jeesuksen sanat punaisella</string><string name="prefs_red_letter_title">Punaiset kirjaimet</string><string name="prefs_section_title_summary">Näytä ei-kanoniset kappaleotsikot</string><string name="prefs_section_title_title">Kappaleotsikot</string></resources>
+<string name="one_chapter">%d luku</string><string name="one_page">%d sivu</string><string name="one_verse">%d jae</string><string name="some_chapters">%d lukua</string><string name="some_pages">%d sivua</string><string name="some_verses">%d jaetta</string><string name="prefs_red_letter_summary">Näytä Jeesuksen sanat punaisella tekstillä</string><string name="prefs_red_letter_title">Punaiset kirjaimet</string><string name="prefs_section_title_summary">Näytä ei-kanoniset kappaleotsikot</string><string name="prefs_section_title_title">Väliotsikot</string><string name="strongs_toggle_button_off">nnnn</string><string name="strongs_toggle_button_on">nnnn</string></resources>
