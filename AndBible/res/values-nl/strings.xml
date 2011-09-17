@@ -12,7 +12,7 @@
     <string name="splash_top_text">"\"En God zei: 'Er moet licht komen'en er was licht.\" Genesis 1:3"</string>
     <string name="help_text">Druk op de MENU-toets voor acties \n\nGa naar het volgende of vorige hoofdstuk met behulp van de track-bal, D-pad of veeg op het scherm met je vinger</string>
     <string name="help_text_long">Navigatie \nGa naar het volgende of vorige hoofdstuk met behulp van de track-bal, D-pad of vegen op het scherm met je vinger \n\nDruk op de MENU toets voor acties \n\nOm meer documenten te downloaden druk op Menu / Meer / Download documenten \n\nDruk lang op het bijbel venster om het contextmenu te openen voor acties met betrekking tot het huidige vers. \nDruk lang op een document in de document selector om het te verwijderen of te bekijken. \n\nSpraak\nDruk op Spreek om een dialoog te starten of te stoppen met lezen \n\nBladwijzers \nBladwijzers kunnen worden toegevoegd via het vers context menu. De Bladwijzer Manager is toegankelijk via het hoofdmenu. Met het Bladwijzer Manager context menu kunnen bladwijzers worden gegroepeerd met behulp van labels.</string>
-    <string name="version_text">Versie% s</string>
+    <string name="version_text">Versie %s</string>
 	<string name="no_sdcard_error">Gelieve een SD-kaart in te steken en start And Bible opnieuw</string>
     
     <!-- main menu -->
@@ -48,8 +48,8 @@
     <string name="search_all_words">Alle woorden</string>
     <string name="search_any_word">Elk woord</string>
     <string name="search_phrase">Uitdrukking</string>
-    <string name="search_result_count">% D items gevonden</string>
-    <string name="search_showing_first">Te veel items. Weergegeven eerste% d</string> 
+    <string name="search_result_count">%d items gevonden</string>
+    <string name="search_showing_first">Te veel items. Weergegeven eerste %d</string> 
     <string name="search_bible_section_group_prompt">Waar zoeken</string>
     <string name="search_all_bible">Hele bijbel</string>
     <string name="search_new_testament">Nieuwe Testament</string>
@@ -114,8 +114,8 @@
     <string name="delete">Verwijder</string>
     <string name="delete_index">Verwijder zoekindex</string>
     <string name="about">Over</string>
-    <string name="delete_doc">Verwijder % s?</string>
-    <string name="delete_search_index_doc">Verwijder index van% s?</string>
+    <string name="delete_doc">Verwijder %s?</string>
+    <string name="delete_search_index_doc">Verwijder index van %s?</string>
     
     <!-- Verse context menu -->
     <string name="notes">Voetnoten en verwijzingen</string>
@@ -146,16 +146,16 @@
     <!-- Speak -->
     <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
     <!-- Speak - Bible -->
-    <string name="one_chapter">% D hoofdstuk</string>
-    <string name="some_chapters">% D hoofdstukken</string>
+    <string name="one_chapter">%d hoofdstuk</string>
+    <string name="some_chapters">%d hoofdstukken</string>
     <string name="rest_of_book">Naar het einde van het boek</string>
     <!-- Speak - Commentary -->
-    <string name="one_verse">% D vers</string>
-    <string name="some_verses">% D verzen</string>
+    <string name="one_verse">%d vers</string>
+    <string name="some_verses">%d verzen</string>
     <string name="rest_of_chapter">Naar het einde van het hoofdstuk</string>
     <!-- Speak - Dictionary and other -->
-    <string name="one_page">% D pagina</string>
-    <string name="some_pages">% D pagina\'s</string>
+    <string name="one_page">%d pagina</string>
+    <string name="some_pages">%d pagina\'s</string>
     <!-- Speak - Common -->
     <string name="stop">Stop</string>
     <string name="tts_lang_not_available">Taal is niet beschikbaar.</string>
