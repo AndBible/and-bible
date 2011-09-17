@@ -28,8 +28,10 @@ import org.crosswire.jsword.index.IndexStatus;
 
 public class MJDIndexAll {
 
-	private static final String REPOSITORY = "CrossWire";
-//	private static final String REPOSITORY = "Xiphos";
+//	private static final String REPOSITORY = "CrossWire";
+	private static final String REPOSITORY = "Xiphos";
+//	private static final String REPOSITORY = "Crosswire Beta";
+	
 //	private static final BookFilter BOOK_FILTER = BookFilters.getBibles();
 	private static final BookFilter BOOK_FILTER = BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries());
 
@@ -99,8 +101,19 @@ public class MJDIndexAll {
 //    	indexAll.installAndIndexSingleBook("Azeri");
     	
     	// 19/8/2011
-    	indexAll.installAndIndexSingleBook("PorCapNT");
-    	indexAll.installAndIndexSingleBook("GerLut1545");
+//    	indexAll.installAndIndexSingleBook("PorCapNT");
+//    	indexAll.installAndIndexSingleBook("GerLut1545");
+
+    	// 11/9/2011
+    	// Crosswire Beta
+//    	indexAll.installAndIndexSingleBook("JapBungo");
+//    	indexAll.installAndIndexSingleBook("JapDenmo");
+//    	indexAll.installAndIndexSingleBook("JapKougo");
+//    	indexAll.installAndIndexSingleBook("JapMeiji");
+//    	indexAll.installAndIndexSingleBook("JapRaguet");
+//    	indexAll.installAndIndexSingleBook("CalvinCommentaries");
+    	// Xiphos - manually download first
+//    	indexAll.indexSingleBook("ChiPinyin");
     }
     
 	public void validateAllIndexes() {
