@@ -128,4 +128,4 @@
   <string name="prefs_navigate_to_verse_title">导航到经文小节标题</string>
   <string name="prefs_show_morphology_summary">显示 Robinson的希腊文</string>
   <string name="prefs_show_morphology_title">形态</string>
-<string name="one_chapter">%d chapter</string><string name="one_page">%d page</string><string name="one_verse">%d verse</string><string name="some_chapters">%d chapters</string><string name="some_pages">%d pages</string><string name="some_verses">%d verses</string></resources>
+<string name="one_chapter">第%d章</string><string name="one_page">第 %d页</string><string name="one_verse">第 %d句</string><string name="some_chapters">%d 章</string><string name="some_pages">%d pages</string><string name="some_verses">%d 句</string><string name="prefs_red_letter_summary">基督的话显示红色</string><string name="prefs_red_letter_title">红字</string><string name="prefs_section_title_summary">显示非规范的章节标题</string><string name="prefs_section_title_title">章节标题</string><string name="strongs_toggle_button_off">已关闭</string><string name="strongs_toggle_button_on">已打开</string></resources>
