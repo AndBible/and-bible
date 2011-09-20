@@ -121,22 +121,9 @@
   <string name="general_book_contents">Sadržaj</string>
   <!-- Speak -->
   <!-- Speak - Bible -->
-  <plurals name="num_chapters">
-    <item quantity="one">%d chapter</item>
-    <item quantity="other">%d chapters</item>
-  </plurals>
   <string name="rest_of_book">Na kraj knjige</string>
   <!-- Speak - Commentary -->
-  <plurals name="num_verses">
-    <item quantity="one">%d verse</item>
-    <item quantity="other">%d verses</item>
-  </plurals>
   <string name="rest_of_chapter">Na kraj poglavlja</string>
-  <!-- Speak - Dictionary and other -->
-  <plurals name="num_pages">
-    <item quantity="one">%d page</item>
-    <item quantity="other">%d pages</item>
-  </plurals>
   <!-- Speak - Common -->
   <string name="stop">Zaustavi</string>
   <string name="tts_lang_not_available">Jezik nije dostupan.</string>
@@ -166,4 +153,10 @@
   <string name="some_chapters">%d poglavlja</string>
   <string name="some_pages">%d stranica</string>
   <string name="some_verses">%d redaka</string>
-<string name="prefs_red_letter_summary">Show words of Christ in red</string><string name="prefs_red_letter_title">Red Letter</string><string name="prefs_section_title_summary">Show non-canonical section titles</string><string name="prefs_section_title_title">Section Titles</string><string name="strongs_toggle_button_off">nnnn</string><string name="strongs_toggle_button_on">nnnn</string></resources>
+  <string name="prefs_red_letter_summary">Show words of Christ in red</string>
+  <string name="prefs_red_letter_title">Red Letter</string>
+  <string name="prefs_section_title_summary">Show non-canonical section titles</string>
+  <string name="prefs_section_title_title">Section Titles</string>
+  <string name="strongs_toggle_button_off">nnnn</string>
+  <string name="strongs_toggle_button_on">nnnn</string>
+</resources>

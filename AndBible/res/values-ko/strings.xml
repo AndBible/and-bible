@@ -115,23 +115,9 @@
   <string name="general_book">책</string>
   <string name="general_book_contents">내용</string>
   <!-- Speak -->
-  <!-- Speak - Bible -->
-  <plurals name="num_chapters">
-    <item quantity="one">%d chapter</item>
-    <item quantity="other">%d chapters</item>
-  </plurals>
   <string name="rest_of_book">도서의 종료하려면</string>
   <!-- Speak - Commentary -->
-  <plurals name="num_verses">
-    <item quantity="one">%d verse</item>
-    <item quantity="other">%d verses</item>
-  </plurals>
   <string name="rest_of_chapter">장 종료하려면</string>
-  <!-- Speak - Dictionary and other -->
-  <plurals name="num_pages">
-    <item quantity="one">%d page</item>
-    <item quantity="other">%d pages</item>
-  </plurals>
   <!-- Speak - Common -->
   <string name="stop">그만</string>
   <string name="tts_lang_not_available">언어는 사용할 수 없습니다.</string>
@@ -166,4 +152,10 @@
   <string name="some_chapters">%d 개의 장들</string>
   <string name="some_pages">%d 개의 페이지들</string>
   <string name="some_verses">%d 개의 구절들</string>
-<string name="prefs_red_letter_summary">빨간색으로 \"예수님의 말씀\" 보기</string><string name="prefs_red_letter_title">레드 레터</string><string name="prefs_section_title_summary">비정규 섹션 제목보기</string><string name="prefs_section_title_title">섹션 제목</string><string name="strongs_toggle_button_off">nnnn</string><string name="strongs_toggle_button_on">nnnn</string></resources>
+  <string name="prefs_red_letter_summary">빨간색으로 \"예수님의 말씀\" 보기</string>
+  <string name="prefs_red_letter_title">레드 레터</string>
+  <string name="prefs_section_title_summary">비정규 섹션 제목보기</string>
+  <string name="prefs_section_title_title">섹션 제목</string>
+  <string name="strongs_toggle_button_off">nnnn</string>
+  <string name="strongs_toggle_button_on">nnnn</string>
+</resources>

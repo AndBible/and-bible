@@ -115,22 +115,10 @@
   <string name="please_wait">Proszę czekać...</string>
   <string name="all">Wszystkie</string>
   <!-- Speak - Bible -->
-  <plurals name="num_chapters">
-    <item quantity="one">%d rozdział</item>
-    <item quantity="other">%d rozdziałów</item>
-  </plurals>
   <string name="rest_of_book">Do końca księgi</string>
   <!-- Speak - Commentary -->
-  <plurals name="num_verses">
-    <item quantity="one">%d werset</item>
-    <item quantity="other">%d wersetów</item>
-  </plurals>
   <string name="rest_of_chapter">Do końca rozdziału</string>
   <!-- Speak - Dictionary and other -->
-  <plurals name="num_pages">
-    <item quantity="one">%d strona</item>
-    <item quantity="other">%d stron</item>
-  </plurals>
   <!-- Speak - Common -->
   <string name="stop">Wstrzymaj</string>
   <string name="tts_lang_not_available">Język niedostępny.</string>
@@ -153,4 +141,16 @@
   <string name="choosePassageVerseName">Wybierz werset</string>
   <string name="prefs_navigate_to_verse_summary">Wybierz werset podczas zaznaczania fragmentu</string>
   <string name="prefs_navigate_to_verse_title">Przejdź do wersetu</string>
-<string name="one_chapter">%d rozdział</string><string name="one_page">%d strona</string><string name="one_verse">%d werset</string><string name="some_chapters">%d rozdziałów</string><string name="some_pages">%d stron</string><string name="some_verses">%d wersetów</string><string name="prefs_red_letter_summary">Pokaż słowa Chrystusa na czerwono</string><string name="prefs_red_letter_title">Tytuł na czerwono</string><string name="prefs_section_title_summary">Pokaż niekanoniczne tytuły sekcji</string><string name="prefs_section_title_title">Tytuły sekcji</string><string name="strongs_toggle_button_off">włączony</string><string name="strongs_toggle_button_on">włączony</string></resources>
+  <string name="one_chapter">%d rozdział</string>
+  <string name="one_page">%d strona</string>
+  <string name="one_verse">%d werset</string>
+  <string name="some_chapters">%d rozdziałów</string>
+  <string name="some_pages">%d stron</string>
+  <string name="some_verses">%d wersetów</string>
+  <string name="prefs_red_letter_summary">Pokaż słowa Chrystusa na czerwono</string>
+  <string name="prefs_red_letter_title">Tytuł na czerwono</string>
+  <string name="prefs_section_title_summary">Pokaż niekanoniczne tytuły sekcji</string>
+  <string name="prefs_section_title_title">Tytuły sekcji</string>
+  <string name="strongs_toggle_button_off">włączony</string>
+  <string name="strongs_toggle_button_on">włączony</string>
+</resources>

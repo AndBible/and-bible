@@ -13,8 +13,12 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
 
+import android.util.Log;
+
 public class DocumentControl {
 	
+	private static final String TAG = "DocumentControl";
+
 	/** user wants to change to a different document/module
 	 * 
 	 * @param newDocument
@@ -40,8 +44,14 @@ public class DocumentControl {
 	/** Suggest an alternative dictionary to view or return null
 	 */
 	public boolean isStrongsInBook() {
-		Book currentBook = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument();
-		return currentBook.getBookMetaData().hasFeature(FeatureType.STRONGS_NUMBERS);
+		try {
+			Book currentBook = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument();
+			// very occasionally the below has thrown an Exception and I don't know why, so I wrap all this in a try/catch
+			return currentBook.getBookMetaData().hasFeature(FeatureType.STRONGS_NUMBERS);
+		} catch (Exception e) {
+			Log.e(TAG, "Error checking for strongs Numbers in book", e);
+			return false;
+		}
 	}
 
 	/** are we currently in Bible, Commentary, Dict, or Gen Book mode

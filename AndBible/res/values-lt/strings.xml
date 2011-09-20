@@ -109,22 +109,10 @@
   <string name="general_book_contents">Turinys</string>
   <!-- Speak -->
   <!-- Speak - Bible -->
-  <plurals name="num_chapters">
-    <item quantity="one">%d skyrius</item>
-    <item quantity="other">%d skyriai</item>
-  </plurals>
   <string name="rest_of_book">Iki knygos pabaigos</string>
   <!-- Speak - Commentary -->
-  <plurals name="num_verses">
-    <item quantity="one">%d eilutė</item>
-    <item quantity="other">%d eilutės</item>
-  </plurals>
   <string name="rest_of_chapter">Iki skyriaus pabaigos</string>
   <!-- Speak - Dictionary and other -->
-  <plurals name="num_pages">
-    <item quantity="one">%d puslapis</item>
-    <item quantity="other">%d puslapiai</item>
-  </plurals>
   <!-- Speak - Common -->
   <string name="stop">Sustabdyti</string>
   <string name="tts_lang_not_available">Nėra kalbos.</string>
@@ -156,4 +144,16 @@
   <string name="choosePassageVerseName">Rinktis eilutę</string>
   <string name="prefs_navigate_to_verse_summary">Pasirinkite eilutę (ir skyrių) renkantis ištrauką</string>
   <string name="prefs_navigate_to_verse_title">Nukreipti į eilutę</string>
-<string name="one_chapter">%d skyrius</string><string name="one_page">%d puslapis</string><string name="one_verse">%d eilutė</string><string name="some_chapters">%d skyriai</string><string name="some_pages">%d puslapiai</string><string name="some_verses">%d eilutės</string><string name="prefs_red_letter_summary">Kristaus žodžius rodyti raudonai</string><string name="prefs_red_letter_title">Raudonas laiškas</string><string name="prefs_section_title_summary">Rodyti nekanoninių skyrių antraštes</string><string name="prefs_section_title_title">Skyriaus antraštės</string><string name="strongs_toggle_button_off">nnnn</string><string name="strongs_toggle_button_on">nnnn</string></resources>
+  <string name="one_chapter">%d skyrius</string>
+  <string name="one_page">%d puslapis</string>
+  <string name="one_verse">%d eilutė</string>
+  <string name="some_chapters">%d skyriai</string>
+  <string name="some_pages">%d puslapiai</string>
+  <string name="some_verses">%d eilutės</string>
+  <string name="prefs_red_letter_summary">Kristaus žodžius rodyti raudonai</string>
+  <string name="prefs_red_letter_title">Raudonas laiškas</string>
+  <string name="prefs_section_title_summary">Rodyti nekanoninių skyrių antraštes</string>
+  <string name="prefs_section_title_title">Skyriaus antraštės</string>
+  <string name="strongs_toggle_button_off">nnnn</string>
+  <string name="strongs_toggle_button_on">nnnn</string>
+</resources>

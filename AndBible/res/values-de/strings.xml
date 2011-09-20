@@ -109,22 +109,9 @@
   <string name="general_book_contents">Inhalt</string>
   <!-- Speak -->
   <!-- Speak - Bible -->
-  <plurals name="num_chapters">
-    <item quantity="one">%d Kapitel</item>
-    <item quantity="other">%d Kapitel</item>
-  </plurals>
   <string name="rest_of_book">Bis zum Buchende</string>
   <!-- Speak - Commentary -->
-  <plurals name="num_verses">
-    <item quantity="one">%d Vers</item>
-    <item quantity="other">%d Verse</item>
-  </plurals>
   <string name="rest_of_chapter">Bis zum Kapitelende</string>
-  <!-- Speak - Dictionary and other -->
-  <plurals name="num_pages">
-    <item quantity="one">%d Seite</item>
-    <item quantity="other">%d Seiten</item>
-  </plurals>
   <!-- Speak - Common -->
   <string name="stop">Stop</string>
   <string name="tts_lang_not_available">Sprache nicht verfügbar.</string>
@@ -155,4 +142,16 @@
   <string name="choosePassageVerseName">Vers wählen</string>
   <string name="prefs_navigate_to_verse_summary">Vers (und Kapitel) auswählen</string>
   <string name="prefs_navigate_to_verse_title">Zum Vers wechseln</string>
-<string name="one_chapter">Kapitel %d</string><string name="one_page">Seite %</string><string name="one_verse">Vers %d</string><string name="some_chapters">%d Kapitel</string><string name="some_pages">%d Seiten</string><string name="some_verses">%d Verse</string><string name="prefs_red_letter_summary">Zeige Worte Jesu in roter Farbe</string><string name="prefs_red_letter_title">Red Letter</string><string name="prefs_section_title_summary">Zeige nichtkanonische Überschriften</string><string name="prefs_section_title_title">Überschriften</string><string name="strongs_toggle_button_off">Verberge Strongs Nummern</string><string name="strongs_toggle_button_on">Zeige Strongs Nummern</string></resources>
+  <string name="one_chapter">Kapitel %d</string>
+  <string name="one_page">Seite %d</string>
+  <string name="one_verse">Vers %d</string>
+  <string name="some_chapters">%d Kapitel</string>
+  <string name="some_pages">%d Seiten</string>
+  <string name="some_verses">%d Verse</string>
+  <string name="prefs_red_letter_summary">Zeige Worte Jesu in roter Farbe</string>
+  <string name="prefs_red_letter_title">Red Letter</string>
+  <string name="prefs_section_title_summary">Zeige nichtkanonische Überschriften</string>
+  <string name="prefs_section_title_title">Überschriften</string>
+  <string name="strongs_toggle_button_off">Verberge Strongs Nummern</string>
+  <string name="strongs_toggle_button_on">Zeige Strongs Nummern</string>
+</resources>

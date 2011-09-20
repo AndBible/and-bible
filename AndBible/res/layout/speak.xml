@@ -45,11 +45,11 @@
 		android:padding="5dip"
 	    android:layout_toRightOf="@+id/leftPanel">
 	    <CheckBox android:id="@+id/queue"
-	    	android:text="Queue"  
+	    	android:text="@string/speak_queue"  
 	    	android:layout_width="wrap_content" 
 	    	android:layout_height="wrap_content"/>
 	    <CheckBox android:id="@+id/repeat"
-	    	android:text="Repeat"  
+	    	android:text="@string/speak_repeat"  
 	    	android:layout_width="wrap_content" 
 	    	android:layout_height="wrap_content"/>
 	</LinearLayout>

@@ -9,8 +9,8 @@
   <string name="app_name">Android Біблія</string>
   <!-- Startup & Help -->
   <string name="splash_top_text">"\n\"І сказав Бог: Хай станеться світло! І сталося світло.\"\nБуття 1:3"</string>
-  <string name="help_text">"Натисніть кнопку MЕНЮ для дій\n\nЩоб перейти до наступного або попереднього розділу, користуйтесь трекболом, D-Pad або рухом пальця по сенсорному екрані "</string>
-  <string name="help_text_long">"&lt;b&gt;Навігація&lt;/b&gt;\nЩоб перейти до наступного або попереднього розділу, користуйтесь трекболом, D-Pad або рухом пальця по сенсорному екрані\nПодвійний дотик вкл./викл. повноекранний режим.\n\n&lt;b&gt;Меню&lt;/b&gt;\nНатисніть кнопку MЕНЮ для дій\n\nДля завантаження додаткових документів натисніть Меню/Детальніше/Завантажити Документи\n\n&lt;b&gt;Озвучення&lt;/b&gt;\nНатисніть Озвучити для доступу в діалогове вікно щоб розпочати або припинити читання\n\n&lt;b&gt;Закладки&lt;/b&gt;\nЗакладки можуть бути додані через контекстне меню вірша. Менеджер Закладок доступний через головне меню. Контекстне меню Менеджера Закладок дозволяє групувати закладки за допомогою міток.\n\n&lt;b&gt;Пошук&lt;/b&gt;\nТекст пошуку може містити в собі спеціальні символи такі як *, ?, AND, OR, NOT (див. \"Apache Lucene - Query Parser Syntax\" більш докладно)\n\n&lt;b&gt;Контекстне Меню&lt;/b&gt;\nТривало натисніть в поданні Біблії щоб відкрити контекстне меню для дій, щодо поточного вірша.\nТривало натисніть на документ у селекторі документів щоб видалити його або переглянути інформацію. \nТривало натисніть кнопку Назад щоб ввійти в список журналу"</string>
+  <string name="help_text">"Натисніть кнопку MЕНЮ для дій\n\nЩоб перейти до наступного або попереднього розділу, користуйтесь трекболом, D-Pad або рухом пальця по сенсорному екрані"</string>
+  <string name="help_text_long"><b>Навігація</b>\nЩоб перейти до наступного або попереднього розділу, користуйтесь трекболом, D-Pad або рухом пальця по сенсорному екрані\nПодвійний дотик вкл./викл. повноекранний режим.\n\n<b>Меню</b>\nНатисніть кнопку MЕНЮ для дій\n\nДля завантаження додаткових документів натисніть Меню/Детальніше/Завантажити Документи\n\n<b>Озвучення</b>\nНатисніть Озвучити для доступу в діалогове вікно щоб розпочати або припинити читання\n\n<b>Закладки</b>\nЗакладки можуть бути додані через контекстне меню вірша. Менеджер Закладок доступний через головне меню. Контекстне меню Менеджера Закладок дозволяє групувати закладки за допомогою міток.\n\n<b>Пошук</b>\nТекст пошуку може містити в собі спеціальні символи такі як *, ?, AND, OR, NOT (див. \"Apache Lucene - Query Parser Syntax\" більш докладно)\n\n<b>Контекстне Меню</b>\nТривало натисніть в поданні Біблії щоб відкрити контекстне меню для дій, щодо поточного вірша.\nТривало натисніть на документ у селекторі документів щоб видалити його або переглянути інформацію. \nТривало натисніть кнопку Назад щоб ввійти в список журналу</string>
   <string name="version_text">Версія %s</string>
   <string name="no_sdcard_error">Вставте SD-карту і перезапустіть знову Android Біблію.</string>
   <!-- main menu -->
@@ -116,22 +116,9 @@
   <string name="general_book_contents">Зміст</string>
   <!-- Speak -->
   <!-- Speak - Bible -->
-  <plurals name="num_chapters">
-    <item quantity="one">%d chapter</item>
-    <item quantity="other">%d chapters</item>
-  </plurals>
   <string name="rest_of_book">До кінця книги</string>
   <!-- Speak - Commentary -->
-  <plurals name="num_verses">
-    <item quantity="one">%d verse</item>
-    <item quantity="other">%d verses</item>
-  </plurals>
   <string name="rest_of_chapter">До кінця розділу</string>
-  <!-- Speak - Dictionary and other -->
-  <plurals name="num_pages">
-    <item quantity="one">%d page</item>
-    <item quantity="other">%d pages</item>
-  </plurals>
   <!-- Speak - Common -->
   <string name="stop">Зупинити</string>
   <string name="tts_lang_not_available">Мова недоступна.</string>
@@ -166,4 +153,10 @@
   <string name="some_chapters">%d розділи</string>
   <string name="some_pages">%d сторінок</string>
   <string name="some_verses">%d вірші</string>
-<string name="prefs_red_letter_summary">Показати слова Христа червоними буквами</string><string name="prefs_red_letter_title">Червона буква</string><string name="prefs_section_title_summary">Показати неканонічні назви розділу</string><string name="prefs_section_title_title">Назви розділів</string><string name="strongs_toggle_button_off">nnnn</string><string name="strongs_toggle_button_on">nnnn</string></resources>
+  <string name="prefs_red_letter_summary">Показати слова Христа червоними буквами</string>
+  <string name="prefs_red_letter_title">Червона буква</string>
+  <string name="prefs_section_title_summary">Показати неканонічні назви розділу</string>
+  <string name="prefs_section_title_title">Назви розділів</string>
+  <string name="strongs_toggle_button_off">nnnn</string>
+  <string name="strongs_toggle_button_on">nnnn</string>
+</resources>

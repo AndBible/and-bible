@@ -17,7 +17,6 @@
 
     <string name="choosePassageBookName">Velg bok</string>
     <string name="choosePassageChapterName">Velg kapittel</string>
-    <string name="chapter_range">%1$s kapittel %2$d til %3$d</string>
 
     <string name="search_index">Lag søkeregister</string>
     <string name="search_chinese_na">Søking i kinesise dokumenter er planlagt i en fremtidig utgave.</string>
@@ -73,13 +72,13 @@
 	<!-- Module download -->
     <string name="download">Last ned bibler</string>
     <string name="download_confirmation">Vil du laste ned bibler fra internett?</string>
-   <string name="download_source_message">Dokumenter blir lastet ned fra \nhttp://www.crosswire.org</string>
+    <string name="download_source_message">Dokumenter blir lastet ned fra \nhttp://www.crosswire.org</string>
     <string name="download_document_confirm_prefix">"Last ned"</string>
     <string name="error_downloading">En feil oppstod ved nedlasting. Sjekk din Internett forbindelse.</string>
     <string name="no_internet_connection">Kunne ikke koble til Internett</string>
-  <string name="wait_for_bible">Venligst vent på at modulen skal bli lastet ned. Du vil så bli tatt til hovedskjermen.</string>
+    <string name="wait_for_bible">Venligst vent på at modulen skal bli lastet ned. Du vil så bli tatt til hovedskjermen.</string>
 	<string name="wait_for_bible_not_yet">Vennligs vent. Modulen er ikke ferdig innstalert ennå.</string>
-        <string name="download_complete_no_bibles">Ingen bibler ble instalert.  Trykk tilbake og prøv igjen</string>
+    <string name="download_complete_no_bibles">Ingen bibler ble instalert.  Trykk tilbake og prøv igjen</string>
 	<string name="too_many_jobs">For mange jobber utføres. Vennligst vent på at noen skal fullføres og prøv igjen!</string>
 
 	<!-- Context menus -->

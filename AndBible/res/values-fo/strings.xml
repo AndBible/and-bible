@@ -29,7 +29,6 @@
     
     <string name="choosePassageBookName">Vel bók</string>
     <string name="choosePassageChapterName">Vel kapittul</string>
-    <string name="chapter_range">%1$s kapittul %2$d til %3$d</string>
     <string name="chapter_no">Kapittul %d</string>
 
     <string name="search_index">Leitiindeks</string>

@@ -83,7 +83,7 @@
   <!-- Module download -->
   <string name="download">הורדת טקסטים</string>
   <string name="download_confirmation">האם להוריד טקסט מהאינטרנט ?</string>
-  <string name="download_source_message">אנו מורידים את הטקסטים מ: \nhttp://www.crosswire.org\n&amp;amp;amp;amp;amp; http://xiphos.org</string>
+  <string name="download_source_message">אנו מורידים את הטקסטים מ: \nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"הורדה "</string>
   <string name="error_downloading">אירעה שגיאה במהלך ההורדה. אנא בדוק את החיבור לאינטרנט.</string>
   <string name="no_internet_connection">לא מצליח להתחבר לאינטרנט</string>

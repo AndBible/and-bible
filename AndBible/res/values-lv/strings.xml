@@ -141,22 +141,9 @@
 
     <!-- Speak -->
     <!-- Speak - Bible -->
-    <plurals name="num_chapters">
-        <item quantity="one">%d chapter</item>
-        <item quantity="other">%d chapters</item>
-    </plurals>
     <string name="rest_of_book">Uz grāmatas beigām</string>
     <!-- Speak - Commentary -->
-    <plurals name="num_verses">
-        <item quantity="one">%d verse</item>
-        <item quantity="other">%d verses</item>
-    </plurals>
     <string name="rest_of_chapter">Uz nodaļas beigām</string>
-    <!-- Speak - Dictionary and other -->
-    <plurals name="num_pages">
-        <item quantity="one">%d page</item>
-        <item quantity="other">%d pages</item>
-    </plurals>
     <!-- Speak - Common -->
     <string name="stop">Apturēt</string>
     <string name="tts_lang_not_available">Valoda nav pieejama.</string>
@@ -180,4 +167,16 @@
     <string name="retry">Mēģināt vēlreiz</string>
     <string name="please_wait">Lūdzu, uzgaidiet ...</string>
     <string name="all">Viss</string>
-<string name="one_chapter">%d nodaļa</string><string name="one_page">%d lapa</string><string name="one_verse">%d pants</string><string name="some_chapters">%d nodaļas</string><string name="some_pages">%d lapas</string><string name="some_verses">%d panti</string><string name="prefs_red_letter_summary">Show words of Christ in red</string><string name="prefs_red_letter_title">Red Letter</string><string name="prefs_section_title_summary">Show non-canonical section titles</string><string name="prefs_section_title_title">Section Titles</string><string name="strongs_toggle_button_off">nnnn</string><string name="strongs_toggle_button_on">nnnn</string></resources>
+    <string name="one_chapter">%d nodaļa</string>
+    <string name="one_page">%d lapa</string>
+    <string name="one_verse">%d pants</string>
+    <string name="some_chapters">%d nodaļas</string>
+    <string name="some_pages">%d lapas</string>
+    <string name="some_verses">%d panti</string>
+    <string name="prefs_red_letter_summary">Show words of Christ in red</string>
+    <string name="prefs_red_letter_title">Red Letter</string>
+    <string name="prefs_section_title_summary">Show non-canonical section titles</string>
+    <string name="prefs_section_title_title">Section Titles</string>
+    <string name="strongs_toggle_button_off">nnnn</string>
+    <string name="strongs_toggle_button_on">nnnn</string>
+</resources>

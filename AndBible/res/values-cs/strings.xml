@@ -107,22 +107,10 @@
   <string name="dictionary_contents">Obsah</string>
   <!-- Speak -->
   <!-- Speak - Bible -->
-  <plurals name="num_chapters">
-    <item quantity="one">%d kapitola</item>
-    <item quantity="other">%d kapitol</item>
-  </plurals>
   <string name="rest_of_book">Ke konci knihy</string>
   <!-- Speak - Commentary -->
-  <plurals name="num_verses">
-    <item quantity="one">%d verš</item>
-    <item quantity="other">%d veršů</item>
-  </plurals>
   <string name="rest_of_chapter">Ke konci kapitoly</string>
   <!-- Speak - Dictionary and other -->
-  <plurals name="num_pages">
-    <item quantity="one">%d strana</item>
-    <item quantity="other">%d stránek</item>
-  </plurals>
   <!-- Document types -->
   <string name="doc_type_bible">Bible</string>
   <string name="doc_type_commentary">Komentář</string>

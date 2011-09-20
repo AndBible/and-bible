@@ -116,22 +116,10 @@
   <string name="general_book_contents">Tokon\'ny boky</string>
   <!-- Speak -->
   <!-- Speak - Bible -->
-  <plurals name="num_chapters">
-    <item quantity="one">%d chapter</item>
-    <item quantity="other">%d chapters</item>
-  </plurals>
   <string name="rest_of_book">Faran\'ny boky</string>
   <!-- Speak - Commentary -->
-  <plurals name="num_verses">
-    <item quantity="one">%d verse</item>
-    <item quantity="other">%d verses</item>
-  </plurals>
   <string name="rest_of_chapter">Faran\'ny toko</string>
   <!-- Speak - Dictionary and other -->
-  <plurals name="num_pages">
-    <item quantity="one">%d page</item>
-    <item quantity="other">%d pages</item>
-  </plurals>
   <!-- Speak - Common -->
   <string name="stop">Ajanony</string>
   <string name="tts_lang_not_available">Tsy misy io teny io</string>
@@ -160,4 +148,16 @@
   <string name="choosePassageVerseName">Mifidiana andininy</string>
   <string name="prefs_navigate_to_verse_summary">Drill down to verse when navigating</string>
   <string name="prefs_navigate_to_verse_title">Mandehana any amin\'ny andininy</string>
-<string name="one_chapter">%d chapter</string><string name="one_page">%d page</string><string name="one_verse">%d verse</string><string name="some_chapters">%d chapters</string><string name="some_pages">%d pages</string><string name="some_verses">%d verses</string><string name="prefs_red_letter_summary">Show words of Christ in red</string><string name="prefs_red_letter_title">Red Letter</string><string name="prefs_section_title_summary">Show non-canonical section titles</string><string name="prefs_section_title_title">Section Titles</string><string name="strongs_toggle_button_off">nnnn</string><string name="strongs_toggle_button_on">nnnn</string></resources>
+  <string name="one_chapter">%d chapter</string>
+  <string name="one_page">%d page</string>
+  <string name="one_verse">%d verse</string>
+  <string name="some_chapters">%d chapters</string>
+  <string name="some_pages">%d pages</string>
+  <string name="some_verses">%d verses</string>
+  <string name="prefs_red_letter_summary">Show words of Christ in red</string>
+  <string name="prefs_red_letter_title">Red Letter</string>
+  <string name="prefs_section_title_summary">Show non-canonical section titles</string>
+  <string name="prefs_section_title_title">Section Titles</string>
+  <string name="strongs_toggle_button_off">nnnn</string>
+  <string name="strongs_toggle_button_on">nnnn</string>
+</resources>

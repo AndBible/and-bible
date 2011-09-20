@@ -179,4 +179,6 @@
     <string name="retry">ลองใหม่อีกครั้ง</string>
     <string name="please_wait">กรุณารอสักครู่...</string>
     <string name="all">ทั้งหมด</string>
-<string name="strongs_toggle_button_off">nnnn</string><string name="strongs_toggle_button_on">nnnn</string></resources>
+    <string name="strongs_toggle_button_off">nnnn</string>
+    <string name="strongs_toggle_button_on">nnnn</string>
+</resources>

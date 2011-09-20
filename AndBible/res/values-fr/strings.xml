@@ -110,22 +110,9 @@
   <string name="general_book_contents">Table des matières</string>
   <!-- Speak -->
   <!-- Speak - Bible -->
-  <plurals name="num_chapters">
-    <item quantity="one">%d chapitre</item>
-    <item quantity="other">%d chapitres</item>
-  </plurals>
   <string name="rest_of_book">À la fin du livre</string>
   <!-- Speak - Commentary -->
-  <plurals name="num_verses">
-    <item quantity="one">%d verset</item>
-    <item quantity="other">%d versets</item>
-  </plurals>
   <string name="rest_of_chapter">À la fin du chapitre</string>
-  <!-- Speak - Dictionary and other -->
-  <plurals name="num_pages">
-    <item quantity="one">%d page</item>
-    <item quantity="other">%d pages</item>
-  </plurals>
   <!-- Speak - Common -->
   <string name="stop">Arrêt</string>
   <string name="tts_lang_not_available">La langue n\'est pas disponible.</string>
@@ -157,4 +144,16 @@
   <string name="choosePassageVerseName">Choisissez Verset</string>
   <string name="prefs_navigate_to_verse_summary">Choisissez le verset (et le chapitre) lors de la sélection d\'un passage</string>
   <string name="prefs_navigate_to_verse_title">Aller au verset</string>
-<string name="one_chapter">%d chapitre</string><string name="one_page">%d page</string><string name="one_verse">%d verset</string><string name="some_chapters">%d chaptitres</string><string name="some_pages">%d pages</string><string name="some_verses">%d versets</string><string name="prefs_red_letter_summary">Afficher les mots du Christ en rouge</string><string name="prefs_red_letter_title">Lettre rouge</string><string name="prefs_section_title_summary">Voir les titres de section non-canonique</string><string name="prefs_section_title_title">Titres de section</string><string name="strongs_toggle_button_off">nnnn</string><string name="strongs_toggle_button_on">nnnn</string></resources>
+  <string name="one_chapter">%d chapitre</string>
+  <string name="one_page">%d page</string>
+  <string name="one_verse">%d verset</string>
+  <string name="some_chapters">%d chaptitres</string>
+  <string name="some_pages">%d pages</string>
+  <string name="some_verses">%d versets</string>
+  <string name="prefs_red_letter_summary">Afficher les mots du Christ en rouge</string>
+  <string name="prefs_red_letter_title">Lettre rouge</string>
+  <string name="prefs_section_title_summary">Voir les titres de section non-canonique</string>
+  <string name="prefs_section_title_title">Titres de section</string>
+  <string name="strongs_toggle_button_off">nnnn</string>
+  <string name="strongs_toggle_button_on">nnnn</string>
+</resources>

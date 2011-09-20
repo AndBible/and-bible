@@ -136,4 +136,16 @@
   <string name="choosePassageVerseName">Valitse jae</string>
   <string name="prefs_navigate_to_verse_summary">Valitse jae (ja luku) kohtaa valitsessa</string>
   <string name="prefs_navigate_to_verse_title">Navigoi jakeeseen</string>
-<string name="one_chapter">%d luku</string><string name="one_page">%d sivu</string><string name="one_verse">%d jae</string><string name="some_chapters">%d lukua</string><string name="some_pages">%d sivua</string><string name="some_verses">%d jaetta</string><string name="prefs_red_letter_summary">Näytä Jeesuksen sanat punaisella tekstillä</string><string name="prefs_red_letter_title">Punaiset kirjaimet</string><string name="prefs_section_title_summary">Näytä ei-kanoniset kappaleotsikot</string><string name="prefs_section_title_title">Väliotsikot</string><string name="strongs_toggle_button_off">nnnn</string><string name="strongs_toggle_button_on">nnnn</string></resources>
+  <string name="one_chapter">%d luku</string>
+  <string name="one_page">%d sivu</string>
+  <string name="one_verse">%d jae</string>
+  <string name="some_chapters">%d lukua</string>
+  <string name="some_pages">%d sivua</string>
+  <string name="some_verses">%d jaetta</string>
+  <string name="prefs_red_letter_summary">Näytä Jeesuksen sanat punaisella tekstillä</string>
+  <string name="prefs_red_letter_title">Punaiset kirjaimet</string>
+  <string name="prefs_section_title_summary">Näytä ei-kanoniset kappaleotsikot</string>
+  <string name="prefs_section_title_title">Väliotsikot</string>
+  <string name="strongs_toggle_button_off">nnnn</string>
+  <string name="strongs_toggle_button_on">nnnn</string>
+</resources>

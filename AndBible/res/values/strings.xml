@@ -173,7 +173,9 @@
     <!-- Speak - Common -->
     <string name="stop">Stop</string>
     <string name="tts_lang_not_available">Language is not available.</string>
-
+	<string name="speak_queue">Queue</string>
+	<string name="speak_repeat">Repeat</string>
+	
 	<!-- Document types -->    
 	<string name="doc_type_bible">Bible</string>
 	<string name="doc_type_commentary">Commentary</string>
