@@ -1,0 +1,74 @@
+<project name="buildJswordTweakedJar" default="copyJarsToAndBible" basedir=".">
+	
+	<property name="jsword.src" location="../jsword/src/main/java"/>
+	<property name="jsword.resources" location="../jsword/src/main/resources"/>
+	<property name="tweaks.jsword.src" location="src/main/java/jsword"/>
+	<property name="tweaks.jsword.resources" location="src/main/resources"/>
+	<property name="tweaks.util.src" location="src/util/java"/>
+	<property name="build.src" location="build/src" />
+	<property name="build.class" location="build/class" />
+	<property name="distribution" location="distribution" />
+
+	<path id="classpath">
+		<fileset dir="jar" includes="**/*.jar"/>
+	</path>
+	
+	<target name="clean">
+		<delete dir="${build.src}"/>
+		<delete dir="${build.class}"/>
+		<delete dir="${distribution}"/>
+	</target>
+	
+	<target name="init" depends="clean">
+		<tstamp/>
+		<mkdir dir="${build.src}"/>
+		<mkdir dir="${build.class}"/>
+		<mkdir dir="${distribution}"/>
+	</target>
+			
+	<target name="mergeCode" depends="init">
+		<copy todir="${build.src}">
+			<fileset dir="${jsword.src}"/>
+			<fileset dir="${jsword.resources}"/>
+		</copy>
+		<copy todir="${build.src}" overwrite="true">
+			<fileset dir="${tweaks.jsword.src}"/>
+			<fileset dir="${tweaks.jsword.resources}"/>
+		</copy>
+	</target>
+
+	<target name="compile" depends="mergeCode">
+		<javac srcdir="${build.src}" destdir="${build.class}" classpathref="classpath" debug="true"/>
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar jarfile="${distribution}/jsword-all-tweaked.jar">
+			<fileset dir="${build.class}"/>
+			<!-- need to include the .properties and .plugin files -->
+			<fileset dir="${build.src}">
+				<exclude name="**/*.java"/>
+				<exclude name="**/*.html"/>
+			</fileset>
+		</jar>	
+		<jar jarfile="${distribution}/jsword-all-tweaked-src.jar" basedir="${build.src}"/>
+	</target>
+
+	<target name="copyJarsToAndBible" depends="jar" description="Copy generated jars to And Bible for use">
+		<copy todir="../AndBible/libs">
+			<fileset dir="${distribution}" includes="*.jar" excludes="*-src.jar"/>
+		</copy>
+		<copy todir="../AndBible/libs-src">
+			<fileset dir="${distribution}" includes="*-src.jar"/>
+		</copy>
+	</target>
+	
+	<target name="copyTweaksToJsword" description="Copy tweaks to JSword project">
+		<copy todir="${jsword.src}" overwrite="true">
+			<fileset dir="${tweaks.jsword.src}"/>
+			<fileset dir="${tweaks.util.src}"/>
+		</copy>
+		<copy todir="${jsword.resources}" overwrite="true">
+			<fileset dir="${tweaks.jsword.resources}"/>
+		</copy>
+	</target>
+</project>
