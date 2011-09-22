@@ -12,15 +12,15 @@
     >
     
     <LinearLayout android:id="@+id/leftPanel"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:orientation="horizontal"
 		android:padding="5dip"
 	    android:layout_alignParentTop="true">
 		<RadioGroup android:id="@+id/numChapters" 
-			android:layout_alignParentTop="true"
-			android:layout_width="wrap_content" 
 			android:layout_height="wrap_content"
+			android:layout_width="0dip" 
+			android:layout_weight="1"
 			android:padding="5dip">
 			<RadioButton android:id="@+id/numChapters1" 
 				android:layout_width="wrap_content" 
@@ -36,23 +36,24 @@
 				android:layout_width="wrap_content" 
 				android:layout_height="wrap_content"/>
 		</RadioGroup>
+		
+		<LinearLayout android:id="@+id/rightPanel"
+			android:layout_height="wrap_content"
+			android:layout_width="0dip" 
+			android:layout_weight="1"
+	        android:orientation="vertical"
+			android:padding="5dip">
+		    <CheckBox android:id="@+id/queue"
+		    	android:text="@string/speak_queue"  
+		    	android:layout_width="wrap_content" 
+		    	android:layout_height="wrap_content"/>
+		    <CheckBox android:id="@+id/repeat"
+		    	android:text="@string/speak_repeat"  
+		    	android:layout_width="wrap_content" 
+		    	android:layout_height="wrap_content"/>
+		</LinearLayout>
 	</LinearLayout>
 
-	<LinearLayout android:id="@+id/rightPanel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-		android:padding="5dip"
-	    android:layout_toRightOf="@+id/leftPanel">
-	    <CheckBox android:id="@+id/queue"
-	    	android:text="@string/speak_queue"  
-	    	android:layout_width="wrap_content" 
-	    	android:layout_height="wrap_content"/>
-	    <CheckBox android:id="@+id/repeat"
-	    	android:text="@string/speak_repeat"  
-	    	android:layout_width="wrap_content" 
-	    	android:layout_height="wrap_content"/>
-	</LinearLayout>
 
 	<!-- Button bar with OK button -->
 	<LinearLayout android:id="@+id/button_panel"
