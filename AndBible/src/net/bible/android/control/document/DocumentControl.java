@@ -147,7 +147,7 @@ public class DocumentControl {
 		// book claims to containthe verse but 
 		// TDavid has a flawed index and incorrectly claims to contain contents for all books of the bible
 		// so only return true if !TDavid or is Psalms
-		return !document.getName().equals("TDavid") || 
+		return !document.getInitials().equals("TDavid") || 
 				requiredKey.getOsisID().contains(BibleBook.PS.getOSIS());
 	}
 }
