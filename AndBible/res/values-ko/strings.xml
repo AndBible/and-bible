@@ -39,7 +39,7 @@
   <!-- Search -->
   <string name="search_words_group_prompt">찾기 구절</string>
   <string name="search_all_words">모든 단어</string>
-  <string name="search_any_word">모든 단어</string>
+  <string name="search_any_word">단어별 말씀</string>
   <string name="search_phrase">구문</string>
   <string name="search_result_count">%d 개의 검색된</string>
   <string name="search_showing_first">너무 많습니다 일치합니다. %d 조 첫번째 보기</string>
@@ -158,4 +158,4 @@
   <string name="prefs_section_title_title">섹션 제목</string>
   <string name="strongs_toggle_button_off">nnnn</string>
   <string name="strongs_toggle_button_on">nnnn</string>
-<string name="speak_queue">Queue</string><string name="speak_repeat">Repeat</string></resources>
+<string name="speak_queue">대기열</string><string name="speak_repeat">반복</string></resources>
