@@ -152,6 +152,6 @@
   <string name="prefs_red_letter_title">Red Letter</string>
   <string name="prefs_section_title_summary">Zeige nichtkanonische Überschriften</string>
   <string name="prefs_section_title_title">Überschriften</string>
-  <string name="strongs_toggle_button_off">Verberge Strongs Nummern</string>
-  <string name="strongs_toggle_button_on">Zeige Strongs Nummern</string>
+  <string name="strongs_toggle_button_off">Strongs aus</string>
+  <string name="strongs_toggle_button_on">Strongs an</string>
 </resources>
