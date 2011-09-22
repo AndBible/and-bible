@@ -179,4 +179,4 @@
     <string name="retry">Probeer opnieuw</string>
     <string name="please_wait">Een ogenblik geduld a.u.b....</string>
     <string name="all">Alle</string>
-<string name="strongs_toggle_button_off">nnnn</string><string name="strongs_toggle_button_on">nnnn</string></resources>
+<string name="strongs_toggle_button_off">nnnn</string><string name="strongs_toggle_button_on">nnnn</string><string name="speak_queue">Queue</string><string name="speak_repeat">Repeat</string></resources>
