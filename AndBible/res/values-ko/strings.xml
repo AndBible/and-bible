@@ -158,4 +158,4 @@
   <string name="prefs_section_title_title">섹션 제목</string>
   <string name="strongs_toggle_button_off">nnnn</string>
   <string name="strongs_toggle_button_on">nnnn</string>
-</resources>
+<string name="speak_queue">Queue</string><string name="speak_repeat">Repeat</string></resources>
