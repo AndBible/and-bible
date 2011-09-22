@@ -153,4 +153,4 @@
   <string name="prefs_section_title_title">Tytuły sekcji</string>
   <string name="strongs_toggle_button_off">włączony</string>
   <string name="strongs_toggle_button_on">włączony</string>
-<string name="speak_queue">Queue</string><string name="speak_repeat">Repeat</string></resources>
+<string name="speak_queue">Kolejka</string><string name="speak_repeat">Powtórz</string></resources>
