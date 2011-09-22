@@ -12,6 +12,7 @@ import org.crosswire.jsword.book.FeatureType;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.versification.BibleBook;
 
 import android.util.Log;
 
@@ -127,7 +128,8 @@ public class DocumentControl {
 				// find the next doc containing related content e.g. if in NT then don't show TDavid
 				for (int i=0; i<books.size()-1 && suggestion==null; i++) {
 					Book possibleDoc = books.get((currentDocIndex+i+1)%books.size());
-					if (requiredKey==null || possibleDoc.contains(requiredKey)) {
+					
+					if (requiredKey==null || isDocumentCompatible(possibleDoc, requiredKey)) {
 						 suggestion = possibleDoc;
 					}
 				}
@@ -135,5 +137,17 @@ public class DocumentControl {
 		}
 		
 		return suggestion;
+	}
+	
+	private boolean isDocumentCompatible(Book document, Key requiredKey) {
+		if (!document.contains(requiredKey)) {
+			return false;
+		}
+		
+		// book claims to containthe verse but 
+		// TDavid has a flawed index and incorrectly claims to contain contents for all books of the bible
+		// so only return true if !TDavid or is Psalms
+		return !document.getName().equals("TDavid") || 
+				requiredKey.getOsisID().contains(BibleBook.PS.getOSIS());
 	}
 }

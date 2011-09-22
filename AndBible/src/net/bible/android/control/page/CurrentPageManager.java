@@ -62,30 +62,38 @@ public class CurrentPageManager {
 	public CurrentGeneralBookPage getCurrentGeneralBook() {
 		return currentGeneralBookPage;
 	}
-	
+
+	/** display a new Document and return the new Page
+	 */
 	public CurrentPage setCurrentDocument(Book nextDocument) {
-		PassageChangeMediator.getInstance().onBeforeCurrentPageChanged();
-		
-		CurrentPage nextPage = getBookPage(nextDocument.getBookCategory());
-
-		// is the next doc the same as the prev doc
-		boolean sameDoc = nextDocument.equals(nextPage.getCurrentDocument());
-		
-		// must be in this order because History needs to grab the current doc before change
-		nextPage.setCurrentDocument(nextDocument);
-		currentDisplayedPage = nextPage;
-		
-		// page will change due to above
-		// if there is a valid share key or the doc (hence the key) in the next page is the same then show the page straight away
-		if ((nextPage.isShareKeyBetweenDocs() || sameDoc) && nextPage.getKey()!=null) {
-			PassageChangeMediator.getInstance().onCurrentPageChanged();
+		CurrentPage nextPage = null;
+		if (nextDocument!=null) {
+			PassageChangeMediator.getInstance().onBeforeCurrentPageChanged();
+			
+			nextPage = getBookPage(nextDocument.getBookCategory());
+	
+			// is the next doc the same as the prev doc
+			boolean sameDoc = nextDocument.equals(nextPage.getCurrentDocument());
+			
+			// must be in this order because History needs to grab the current doc before change
+			nextPage.setCurrentDocument(nextDocument);
+			currentDisplayedPage = nextPage;
+			
+			// page will change due to above
+			// if there is a valid share key or the doc (hence the key) in the next page is the same then show the page straight away
+			if ((nextPage.isShareKeyBetweenDocs() || sameDoc) && nextPage.getKey()!=null) {
+				PassageChangeMediator.getInstance().onCurrentPageChanged();
+			} else {
+				Context context = CurrentActivityHolder.getInstance().getCurrentActivity();
+				// pop up a key selection screen
+		    	Intent intent = new Intent(context, nextPage.getKeyChooserActivity());
+		    	context.startActivity(intent);
+			}
 		} else {
-			Context context = CurrentActivityHolder.getInstance().getCurrentActivity();
-			// pop up a key selection screen
-	    	Intent intent = new Intent(context, nextPage.getKeyChooserActivity());
-	    	context.startActivity(intent);
+			// should never get here because a doc should always be passed in but I have seen errors lie this once or twice
+			nextPage = currentDisplayedPage;
 		}
-
+	
 		return nextPage;
 	}
 

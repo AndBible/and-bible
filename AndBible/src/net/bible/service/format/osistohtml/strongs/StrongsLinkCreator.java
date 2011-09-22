@@ -37,7 +37,7 @@ public class StrongsLinkCreator implements TextPreprocessor {
 			// append the actual link to the Strongs ref
 			result += StrongsUtil.createStrongsLink(protocol, refNo, m.group(), "");
 			
-			unmatchedStartPos = end+1;
+			unmatchedStartPos = end;
 		}
 		
 		// append any trailing space after the last match, or if no match then the whole string

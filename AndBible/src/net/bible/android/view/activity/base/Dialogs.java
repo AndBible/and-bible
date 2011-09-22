@@ -5,7 +5,6 @@ import net.bible.android.activity.R;
 import net.bible.android.view.util.Hourglass;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.util.Log;
 import android.widget.Toast;
@@ -46,26 +45,30 @@ public class Dialogs {
     }
 
     public void showErrorMsg(final String msg, final Callback okayCallback) {
-    	Log.d(TAG, "*** showErrorMesage message:"+msg);
-		final Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
-		if (activity!=null) {
-			activity.runOnUiThread(new Runnable() {
-
-				@Override
-				public void run() {
-			    	new AlertDialog.Builder(activity)
-					   .setMessage(msg)
-				       .setCancelable(false)
-				       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-				           public void onClick(DialogInterface dialog, int buttonId) {
-				        	   okayCallback.okay();
-				           }
-				       }).show();
-				}
-			});
-		} else {
-			Toast.makeText(BibleApplication.getApplication().getApplicationContext(), msg, Toast.LENGTH_LONG).show();
-		}
+    	Log.d(TAG, "showErrorMesage message:"+msg);
+    	try {
+			final Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
+			if (activity!=null) {
+				activity.runOnUiThread(new Runnable() {
+	
+					@Override
+					public void run() {
+				    	new AlertDialog.Builder(activity)
+						   .setMessage(msg)
+					       .setCancelable(false)
+					       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
+					           public void onClick(DialogInterface dialog, int buttonId) {
+					        	   okayCallback.okay();
+					           }
+					       }).show();
+					}
+				});
+			} else {
+				Toast.makeText(BibleApplication.getApplication().getApplicationContext(), msg, Toast.LENGTH_LONG).show();
+			}
+    	} catch (Exception e) {
+    		Log.e(TAG, "Error showing error message.  Original error msg:"+msg, e);
+    	}
     }
 
     public void showHourglass() {

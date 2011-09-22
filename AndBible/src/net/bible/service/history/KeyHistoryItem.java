@@ -42,7 +42,13 @@ public class KeyHistoryItem implements HistoryItem {
 	
 	@Override
 	public String getDescription() {
-		return document.getInitials()+" "+key.getName();
+		StringBuffer desc = new StringBuffer();
+		try {
+			desc.append(document.getInitials()).append(" ").append(key.getName());
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting description", e);
+		}
+		return desc.toString();
 	}
 
 	public Key getKey() {
