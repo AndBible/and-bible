@@ -154,4 +154,4 @@
   <string name="prefs_section_title_title">Überschriften</string>
   <string name="strongs_toggle_button_off">Strongs aus</string>
   <string name="strongs_toggle_button_on">Strongs an</string>
-</resources>
+<string name="speak_queue">An Wiedergabe anhängen</string><string name="speak_repeat">Wiedergabe wiederholen</string></resources>
