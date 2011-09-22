@@ -140,4 +140,4 @@
   <string name="prefs_section_title_title">章节标题</string>
   <string name="strongs_toggle_button_off">已关闭</string>
   <string name="strongs_toggle_button_on">已打开</string>
-</resources>
+<string name="speak_queue">Queue</string><string name="speak_repeat">Repeat</string></resources>
