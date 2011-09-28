@@ -75,7 +75,7 @@
   <string name="strongs_not_installed">다운로드 스트롱 히브리어 및 그리스어 사전을하시기 바랍니다</string>
   <string name="all_greek_occurrences">모든 사건보기</string>
   <string name="all_hebrew_occurrences">모든 사건보기</string>
-  <string name="no_indexed_bible_with_strongs_ref">당신의 강한 숫자를 포함하는 성경을 다운로드해야하고 검색을 통해 색인을 다운로드x</string>
+  <string name="no_indexed_bible_with_strongs_ref">당신의 강한 숫자를 포함하는 성경을 다운로드해야하고 검색을 통해 색인을 다운로드</string>
   <!-- Module download -->
   <string name="download">다운로드 문서</string>
   <string name="download_confirmation">인터넷에서 성경을 다운로드?</string>
