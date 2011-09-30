@@ -8,7 +8,7 @@
 <resources>
   <string name="app_name">And 성경</string>
   <!-- Startup & Help -->
-  <string name="splash_top_text">""하나님이 빛이 있으라 하시매 빛이 있었고"창세기 1장 3절"</string>
+  <string name="splash_top_text">"\"하나님이 빛이 있으라 하시매 빛이 있었고\"창세기 1장 3절"</string>
   <string name="help_text">실행을 위해 메뉴 키를 사용.\n손으로 D-패드를 움직이거나 마우스를 사용하여 이전 또는 다음 장으로 이동</string>
   <string name="help_text_long">실행을 위한 메뉴 키 사용\n문서를 다운로드하려면 다음 또는 이전 챕터로 이동합니다.\n성경보기를 열고 메뉴 / 기타 / 다운로드 문서를 누르십시오.\n현재구절에 영향을 미치는 작업은 내용 메뉴. 문서 선택에서 문서를 삭제하거나 정보를 공유할 수 있읍니다.\n스피치\n스피치를 누르면 대화창을 시작하거나 중단 합니다. \n북마크 관리자는 메인 메뉴를 통해 액세스할 수 있습니다. 북마크 관리자 컨텍스트 메뉴 즐겨찾기 꼬리표를 사용하여 그룹화 할 수 있습니다.</string>
   <string name="version_text">버전의 %s</string>
@@ -141,7 +141,7 @@
   <string name="choosePassageVerseName">구절 선택</string>
   <string name="delete_index">검색 색인을 삭제합니다</string>
   <string name="delete_search_index_doc">%s 의 색인을 삭제하시겠습니까?</string>
-  <string name="morph_robinson_not_installed">'Robinson\'s Morphological Analysis Codes\'사전을 다운로드하십시오</string>
+  <string name="morph_robinson_not_installed">\'Robinson\'s Morphological Analysis Codes\'사전을 다운로드하십시오x</string>
   <string name="one_chapter">%d 개의 장</string>
   <string name="one_page">%d 개의 페이지</string>
   <string name="one_verse">%d 개의 구절</string>
