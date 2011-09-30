@@ -141,7 +141,7 @@
   <string name="choosePassageVerseName">구절 선택</string>
   <string name="delete_index">검색 색인을 삭제합니다</string>
   <string name="delete_search_index_doc">%s 의 색인을 삭제하시겠습니까?</string>
-  <string name="morph_robinson_not_installed">\'Robinson\'s Morphological Analysis Codes\'사전을 다운로드하십시오x</string>
+  <string name="morph_robinson_not_installed">\'Robinson\'s Morphological Analysis Codes\'사전을 다운로드하십시오</string>
   <string name="one_chapter">%d 개의 장</string>
   <string name="one_page">%d 개의 페이지</string>
   <string name="one_verse">%d 개의 구절</string>
