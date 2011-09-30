@@ -1,7 +1,8 @@
 <project name="buildJswordTweakedJar" default="copyJarsToAndBible" basedir=".">
 	
-	<property name="jsword.src" location="../jsword/src/main/java"/>
-	<property name="jsword.resources" location="../jsword/src/main/resources"/>
+	<property name="jsword.project" location="../../jsword/jsword"/>
+	<property name="jsword.src" location="${jsword.project}/src/main/java"/>
+	<property name="jsword.resources" location="${jsword.project}/src/main/resources"/>
 	<property name="tweaks.jsword.src" location="src/main/java/jsword"/>
 	<property name="tweaks.jsword.resources" location="src/main/resources"/>
 	<property name="tweaks.util.src" location="src/util/java"/>

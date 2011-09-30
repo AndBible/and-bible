@@ -49,7 +49,7 @@ public class XiphosRepo implements BooksListener {
 		for (XiphosRepoBook xiphosRepoBook : xiphosRepoBookList) {
 			try {
 		        String conf = "[" + xiphosRepoBook.downloadFile + "]\n" + xiphosRepoBook.otherProperties;
-		        Book repoBook = createRepoBookInfo(xiphosRepoBook.normalInitials, conf, XIPHOS_REPOSITORY);
+		        Book repoBook = FakeSwordBookFactory.createFakeRepoBook(xiphosRepoBook.normalInitials, conf, XIPHOS_REPOSITORY);
 		        bookList.add(repoBook);
 			} catch (Exception e) {
 				Log.e(TAG, e.getMessage());
@@ -78,7 +78,7 @@ public class XiphosRepo implements BooksListener {
 		}
 	}
 
-	/** called after download of book from Xiphos repo completes
+	/** called after download of book from Xiphos repo completes to rename Module name to be camel case
 	 */
 	@Override
 	public void bookAdded(BooksEvent ev) {
@@ -87,7 +87,7 @@ public class XiphosRepo implements BooksListener {
 		if (xiphosRepoBook!=null) {
 			try {
 		        String conf = "[" + xiphosRepoBook.normalInitials + "]\n" + xiphosRepoBook.otherProperties;
-		        BookMetaData bmd = createRepoSBMD(xiphosRepoBook.normalInitials, conf);
+		        BookMetaData bmd = FakeSwordBookFactory.createRepoSBMD(xiphosRepoBook.normalInitials, conf);
 		        book.setBookMetaData(bmd);
 				Log.d(TAG, "Check initials "+book.getInitials());
 			} catch (Exception e) {
@@ -118,24 +118,6 @@ public class XiphosRepo implements BooksListener {
 		return foundBook;
 	}
 	
-	/** create dummy Book object for file available for download from repo
-	 */
-	private Book createRepoBookInfo(String module, String conf, String repo) throws IOException {
-		SwordBookMetaData sbmd = createRepoSBMD(module, conf);
-		sbmd.putProperty(DownloadManager.REPOSITORY_KEY, repo);
-		Book extraBook = new SwordBook(sbmd, null);
-		return extraBook;
-	}
-
-	/** create sbmd for file available for download from repo
-	 */
-	private SwordBookMetaData createRepoSBMD(String module, String conf) throws IOException {
-		SwordBookMetaData sbmd = new SwordBookMetaData(conf.getBytes(), module);
-		BookDriver fake = SwordBookDriver.instance();
-		sbmd.setDriver(fake);
-		return sbmd;
-	}
-
 	private static class XiphosRepoBook {
 		String downloadFile;
 		String normalInitials;
