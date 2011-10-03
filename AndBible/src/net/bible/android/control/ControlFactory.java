@@ -9,6 +9,8 @@ import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.speak.SpeakControl;
+import net.bible.android.control.usernote.UserNote;
+import net.bible.android.control.usernote.UserNoteControl;
 
 //TODO replace with ioc (maybe)
 /** allow access to control layer - would like to 
@@ -24,6 +26,7 @@ public class ControlFactory {
 	private LinkControl linkControl = new LinkControl();
 	private SearchControl searchControl = new SearchControl();
 	private Bookmark bookmarkControl = new BookmarkControl();
+	private UserNote usernoteControl = new UserNoteControl();
 	private DownloadControl downloadControl = new DownloadControl();
 	private SpeakControl speakControl = new SpeakControl();
 	
@@ -64,6 +67,10 @@ public class ControlFactory {
 	 */
 	public Bookmark getBookmarkControl() {
 		return bookmarkControl;
+	}
+	
+	public UserNote getUserNoteControl() {
+		return usernoteControl;
 	}
 
 	public DownloadControl getDownloadControl() {

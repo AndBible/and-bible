@@ -25,6 +25,10 @@
 	<item android:id="@+id/bookmarksButton"
 		  android:title="@string/bookmarks" android:icon="@drawable/ic_menu_bookmarks"/>
 
+	<item android:id="@+id/usernotesButton"
+		  android:title="@string/usernotes" 
+		  android:icon="@drawable/ic_menu_usernotes"/>
+
 	<item android:id="@+id/helpButton"
 		  android:title="@string/help"
 		  android:icon="@android:drawable/ic_menu_help"/>

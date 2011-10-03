@@ -57,6 +57,10 @@
                   android:label="@string/bookmarks"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
+        <activity android:name="net.bible.android.view.activity.usernote.UserNotes"
+                  android:label="@string/usernotes"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
         <activity android:name="net.bible.android.view.activity.bookmark.BookmarkLabels"
                   android:label="@string/bookmark_labels"
                   android:configChanges="keyboardHidden|orientation">
