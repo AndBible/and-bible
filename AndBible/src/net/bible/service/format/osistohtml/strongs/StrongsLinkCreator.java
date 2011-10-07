@@ -17,35 +17,25 @@ public class StrongsLinkCreator implements TextPreprocessor {
 	private static final String LINK_CSS_CLASS = "strongsLarge";
 	
 	public String process(String text) {
-		String result="";
+		StringBuffer result=new StringBuffer();
 		Matcher m = patt.matcher(text);
 		
-		int unmatchedStartPos = 0;
-		
 		while (m.find()) {
-			int start = m.start();
-			int end = m.end();
 			String lang = m.group(1);
 			String refNo = m.group(2);
 			
 			// select Hebrew or Greek protocol
 			String protocol = StrongsUtil.getStrongsProtocol(lang);
 
-			// append test between matches
-			result += text.substring(unmatchedStartPos, start);
-			
 			// append the actual link to the Strongs ref
-			result += StrongsUtil.createStrongsLink(protocol, refNo, m.group(), "");
-			
-			unmatchedStartPos = end;
+			String refLink = StrongsUtil.createStrongsLink(protocol, refNo, m.group(), "");
+			m.appendReplacement(result, refLink);
 		}
 		
 		// append any trailing space after the last match, or if no match then the whole string
-		if (unmatchedStartPos<text.length()) {
-			result += text.substring(unmatchedStartPos);
-		}
+		m.appendTail(result);
 
-		return result;
+		return result.toString();
 	}
 	
 
