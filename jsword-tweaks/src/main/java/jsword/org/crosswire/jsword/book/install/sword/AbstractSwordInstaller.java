@@ -263,12 +263,15 @@ public abstract class AbstractSwordInstaller extends AbstractBookList implements
                     }
 
                 } catch (IOException e) {
+                	e.printStackTrace();
                     Reporter.informUser(this, e);
                     job.cancel();
                 } catch (InstallException e) {
+                	e.printStackTrace();
                     Reporter.informUser(this, e);
                     job.cancel();
                 } catch (BookException e) {
+                	e.printStackTrace();
                     Reporter.informUser(this, e);
                     job.cancel();
                 } finally {
