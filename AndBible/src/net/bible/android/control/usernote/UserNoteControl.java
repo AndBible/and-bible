@@ -5,35 +5,35 @@ package net.bible.android.control.usernote;
 
 import java.util.Collections;
 import java.util.List;
+
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.db.usernote.UserNoteDBAdapter;
-import net.bible.service.db.usernote.UserNoteDatabaseHelper;
 import net.bible.service.db.usernote.UserNoteDto;
-//import net.bible.service.db.usernote.LabelDto;
-import net.bible.service.sword.SwordContentFacade;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.passage.Key;
 
-import android.text.Editable;
 import android.util.Log;
 import android.widget.Toast;
 
 /**
- * @author John D. Lewis
+ * User Note controller methods
  *
- * Based on corresponding Bookmark class(es)
- * 
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's authors.
+ * @author John D. Lewis [balinjdl at gmail dot com]
+ * @author Martin Denham [mjdenham at gmail dot com]
  */
 public class UserNoteControl implements UserNote {
 	
 	private static final String TAG = "UserNoteControl";
 	
 	@Override
-	public boolean usernoteCurrentVerse(String usertext) {
+	public boolean saveUsernoteCurrentVerse(String usertext) {
 		Log.d(TAG, "usernoteCurrentVerse started...");
 		
 		boolean bOk = false;
@@ -75,25 +75,17 @@ public class UserNoteControl implements UserNote {
 		return bOk;
 	}
 
-//	@Override
-//	public String getUserNoteVerseText(UserNoteDto usernote) {
-//		String verseText = "";
-//		try {
-//			verseText = SwordContentFacade.getInstance().getPlainText(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), usernote.getKey().getOsisRef(), 1);
-//			verseText = CommonUtils.limitTextLength(verseText);
-//		} catch (Exception e) {
-//			Log.e(TAG, "Error getting verse text", e);
-//		}
-//		return verseText;
-//	}
-	
 	@Override
 	public String getUserNoteText(UserNoteDto usernote, boolean abbreviated) {
 		String text = "";
 		try {
 			text = usernote.getNoteText();
-			if (abbreviated)
-				text = CommonUtils.limitTextLength(text);
+			if (abbreviated) {
+				// get first line but limit length in case there are no line breaks
+				text = StringUtils.substringBefore(text,"\n");
+				//TODO allow longer lines if portrait or tablet
+				text = CommonUtils.limitTextLength(text, 40);
+			}
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting user note text", e);
 		}

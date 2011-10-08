@@ -96,10 +96,13 @@ public class CommonUtils {
 	 * @return
 	 */
 	public static String limitTextLength(String text) {
-		if (text!=null && text.length()>DEFAULT_MAX_TEXT_LENGTH) {
+		return limitTextLength(text, DEFAULT_MAX_TEXT_LENGTH);
+	}
+	public static String limitTextLength(String text, int maxLength) {
+		if (text!=null && text.length()>maxLength) {
 			// break on a space rather than mid-word
-			int cutPoint = text.indexOf(" ", DEFAULT_MAX_TEXT_LENGTH);
-			if (cutPoint >= DEFAULT_MAX_TEXT_LENGTH) {
+			int cutPoint = text.indexOf(" ", maxLength);
+			if (cutPoint >= maxLength) {
 				text = text.substring(0, cutPoint+1)+ELLIPSIS;
 			}
 		}

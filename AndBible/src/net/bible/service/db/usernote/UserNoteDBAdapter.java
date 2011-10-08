@@ -6,8 +6,9 @@ package net.bible.service.db.usernote;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.bible.service.db.usernote.UserNoteDatabaseHelper.Table;
-import net.bible.service.db.usernote.UserNoteDatabaseHelper.UserNoteColumn;
+import net.bible.service.db.CommonDatabaseHelper;
+import net.bible.service.db.usernote.UserNoteDatabaseDefinition.Table;
+import net.bible.service.db.usernote.UserNoteDatabaseDefinition.UserNoteColumn;
 
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.PassageKeyFactory;
@@ -39,7 +40,7 @@ public class UserNoteDBAdapter {
 	private static final String TAG = "UserNoteDBAdapter";
 
 	public UserNoteDBAdapter(Context _context) {
-		dbHelper =  UserNoteDatabaseHelper.getInstance(_context); 
+		dbHelper =  CommonDatabaseHelper.getInstance(_context); 
 		Log.d(TAG, "got dbHelper: " + dbHelper.toString());
 	}
 

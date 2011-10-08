@@ -25,6 +25,7 @@
     </string>
     <string name="version_text">Version %s</string>
     <string name="no_sdcard_error">Please insert an SD card and start And Bible again.</string>
+
     <!-- main menu -->
     <string name="chooseBook">Document</string>
     <string name="selectPassage">Passage</string>
@@ -33,10 +34,12 @@
     <string name="history">History</string>
     <string name="speak">Speak</string>
     <string name="help">Help</string>
+
     <!-- Passage navigation -->
     <string name="choosePassageBookName">Choose Book</string>
     <string name="choosePassageChapterName">Choose Chapter</string>
     <string name="choosePassageVerseName">Choose Verse</string>
+
     <!--  Search -->
     <string name="search_index">Search Index</string>
     <string name="index_creation_required">An index is required to search.\n\nIndexes may be downloaded from the internet or created locally.\n\nDownloading is much quicker and downloaded indexes have more search features.\n\nAn internet connection is required to download indexes.\n</string>
@@ -45,10 +48,12 @@
     <string name="index_download">Download</string>
     <string name="index_not_available_for_download">This index is not available for download</string>
     <string name="index_create">Create</string>
+
     <!-- Tasks -->
     <string name="progress_status">Progress</string>
     <string name="task_kill_warning">These long running tasks may terminate if you switch to another application before they finish.</string>
     <string name="no_tasks_running">There are no tasks currently being executed.</string>
+
     <!-- Search -->
     <string name="search_words_group_prompt">Find verses</string>
     <string name="search_all_words">All words</string>
@@ -62,6 +67,7 @@
     <string name="search_old_testament">Old Testament</string>
     <string name="search_current_book">Current book</string>
     <string name="error_executing_search">Invalid search query</string>
+
     <!-- Preferences -->
     <string name="prefs_show_verseno_title">Verse numbers</string>
     <string name="prefs_show_verseno_summary">Show verse numbers</string>
@@ -86,11 +92,13 @@
     <string name="prefs_interface_locale_title">Application language</string>
     <string name="prefs_interface_locale_summary">Select custom user interface language</string>
     <string name="locale_change_warning">Application will be restarted to switch to the new interface language</string>
+
     <!-- Notes screen -->
     <string name="no_chapter_notes">No notes exist in this chapter</string>
     <string name="no_verse_notes">No notes exist in this verse</string>
     <string name="previous">Previous</string>
     <string name="next">Next</string>
+
     <!--  Strongs -->
     <string name="strongs">Strong\'s Dictionary</string>
     <string name="strongs_not_installed">Please download Strong\'s Hebrew and Greek dictionaries</string>
@@ -100,6 +108,7 @@
     <string name="morph_robinson_not_installed">Please download \'Robinson\'s Morphological Analysis Codes\' dictionary</string>
     <string name="strongs_toggle_button_on">nnnn</string>
     <string name="strongs_toggle_button_off">nnnn</string>
+
     <!-- Module download -->
     <string name="download">Download Documents</string>
     <string name="download_confirmation">Download a bible from the internet?</string>
@@ -113,17 +122,20 @@
     <string name="wait_for_bible_not_yet">Please wait.  A bible has not yet completed installation.</string>
     <string name="download_complete_no_bibles">No bible was installed.  Please press Back and try again.</string>
     <string name="too_many_jobs">Too many tasks executing.  Please wait for some to finish and try again.</string>
+
     <!-- Document context menu -->
     <string name="delete">Delete</string>
     <string name="delete_index">Delete search index</string>
     <string name="about">About</string>
     <string name="delete_doc">Delete %s?</string>
     <string name="delete_search_index_doc">Delete index of %s?</string>
+
     <!-- Verse context menu -->
     <string name="notes">Footnotes and references</string>
     <string name="copy">Copy current verse</string>
     <string name="share_verse">Share current verse ...</string>
     <string name="share_verse_subject">A Bible verse has been shared with you using And Bible</string>
+
     <!-- Bookmarks -->
     <string name="bookmarks">Bookmarks</string>
     <string name="add_bookmark">Add bookmark</string>
@@ -133,13 +145,16 @@
     <string name="assign_labels">Assign labels</string>
     <string name="new_label">New Label</string>
     <string name="new_label_prompt">Name</string>
+
     <!-- Dictionary -->
     <string name="dictionary">Dictionary</string>
     <string name="search_dictionary_hint">Search dictionary</string>
     <string name="dictionary_contents">Contents</string>
+
     <!-- General Book -->
     <string name="general_book">Book</string>
     <string name="general_book_contents">Contents</string>
+
     <!-- Speak -->
     <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
     <!-- Speak - Bible -->
@@ -158,34 +173,30 @@
     <string name="tts_lang_not_available">Language is not available.</string>
     <string name="speak_queue">Queue</string>
     <string name="speak_repeat">Repeat</string>
+
+    <!-- User Notes -->
+    <string name="usernotes">User Notes</string>
+    <string name="usernote_add">Add a user note</string>
+    <string name="usernote_added">User note added</string>
+
     <!-- Document types -->
     <string name="doc_type_bible">Bible</string>
     <string name="doc_type_commentary">Commentary</string>
     <string name="doc_type_dictionary">Dictionary</string>
     <string name="doc_type_book">Book</string>
+
     <!-- Languages -->
     <string name="lang_default">Default</string>
+
     <!-- General -->
     <string name="error_occurred">An error has occurred</string>
     <string name="okay">OK</string>
     <string name="cancel">Cancel</string>
     <string name="no">No</string>
+    <string name="save">Save</string>
     <string name="error">Error </string>
     <string name="more">More</string>
     <string name="retry">Try Again</string>
     <string name="please_wait">Please wait...</string>
     <string name="all">All</string>
-    <string name="usernotes">User Notes</string>
-    <string name="usernote_add">Add a user note</string>
-    <string name="usernote_added">User note added</string>
-    <string name="usernote_exists">User note already exists</string>
-    <string name="add_usernote">Add user note</string>
-    <string name="sample_pick_item">Pick an Item</string>
-    <string name="sample_show_dialog">Show Dialog</string>
-    <string-array name="sample_dialog_items">
-        <item>List Item 1</item>
-        <item>List Item 2</item>
-        <item>List Item 3</item>
-        <item>List Item 4</item>
-    </string-array>
 </resources>

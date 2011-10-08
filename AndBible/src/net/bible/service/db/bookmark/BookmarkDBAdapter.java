@@ -3,10 +3,11 @@ package net.bible.service.db.bookmark;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.bible.service.db.bookmark.BookmarkDatabaseHelper.BookmarkColumn;
-import net.bible.service.db.bookmark.BookmarkDatabaseHelper.BookmarkLabelColumn;
-import net.bible.service.db.bookmark.BookmarkDatabaseHelper.LabelColumn;
-import net.bible.service.db.bookmark.BookmarkDatabaseHelper.Table;
+import net.bible.service.db.CommonDatabaseHelper;
+import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.BookmarkColumn;
+import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.BookmarkLabelColumn;
+import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.LabelColumn;
+import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.Table;
 
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.PassageKeyFactory;
@@ -32,7 +33,7 @@ public class BookmarkDBAdapter {
 	private static final String TAG = "BookmarkDBAdapter";
 
 	public BookmarkDBAdapter(Context _context) {
-		dbHelper =  BookmarkDatabaseHelper.getInstance(_context); 
+		dbHelper =  CommonDatabaseHelper.getInstance(_context); 
 	}
 
 	public BookmarkDBAdapter open() throws SQLException {

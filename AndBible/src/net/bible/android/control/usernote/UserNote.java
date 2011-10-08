@@ -19,8 +19,7 @@ import net.bible.service.db.usernote.UserNoteDto;
 public interface UserNote {
 
 	//** business method */
-//	boolean usernoteCurrentVerse();
-	boolean usernoteCurrentVerse(String usertext);
+	boolean saveUsernoteCurrentVerse(String usertext);
 	
 	/** get user notes with the given id */
 	UserNoteDto getUserNoteById(Long id);

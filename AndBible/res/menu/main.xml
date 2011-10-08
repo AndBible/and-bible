@@ -23,11 +23,12 @@
 		  android:icon="@android:drawable/ic_menu_search"/>
 
 	<item android:id="@+id/bookmarksButton"
-		  android:title="@string/bookmarks" android:icon="@drawable/ic_menu_bookmarks"/>
+		  android:title="@string/bookmarks" 
+		  android:icon="@drawable/ic_menu_bookmarks"/>
 
 	<item android:id="@+id/usernotesButton"
-		  android:title="@string/usernote_add" 
-		  android:icon="@drawable/ic_menu_usernotes"/>
+		  android:title="@string/usernotes" 
+		  android:icon="@android:drawable/ic_menu_edit"/>
 
 	<item android:id="@+id/helpButton"
 		  android:title="@string/help"

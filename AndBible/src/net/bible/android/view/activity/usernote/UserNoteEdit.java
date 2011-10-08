@@ -13,13 +13,13 @@
 
 package net.bible.android.view.activity.usernote;
 
-import org.apache.commons.lang.CharSequenceUtils;
-import org.crosswire.jsword.passage.Key;
-
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.usernote.UserNoteControl;
 import net.bible.service.db.usernote.UserNoteDto;
+
+import org.crosswire.jsword.passage.Key;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
@@ -29,7 +29,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-public class UserNotesAdd extends Activity implements OnClickListener {
+/**
+ * Allow user to edit a User Note
+ *  
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's authors.
+ * @author John D. Lewis [balinjdl at gmail dot com]
+ * @author Martin Denham [mjdenham at gmail dot com]
+ */
+public class UserNoteEdit extends Activity implements OnClickListener {
 	private static final String TAG = "UserNotesAdd";
 	
 	UserNoteControl ctrl;
@@ -47,17 +55,17 @@ public class UserNotesAdd extends Activity implements OnClickListener {
 	
 		ctrl = new UserNoteControl();
 		
-		setContentView(R.layout.usernotes_add);
+		setContentView(R.layout.usernote_edit);
 
 		// Find views
-		editText1 = (EditText) findViewById(R.id.editText1);
-		button1 = (Button) findViewById(R.id.button1);
+		editText1 = (EditText) findViewById(R.id.userNoteText);
+		button1 = (Button) findViewById(R.id.submit);
 		button1.setOnClickListener(this);
 
 		textView1 = (TextView) findViewById(R.id.TextView1);
 		
 		Key currentVerse = CurrentPageManager.getInstance().getCurrentBible().getSingleKey();
-		textView1.setText(currentVerse.toString().toCharArray(), 0, currentVerse.toString().length());
+		textView1.setText(currentVerse.toString());
 
 		UserNoteDto usernoteDto = ctrl.getUserNoteByKey(currentVerse);
 		if (usernoteDto != null) {
@@ -70,7 +78,8 @@ public class UserNotesAdd extends Activity implements OnClickListener {
 	// Called when button is clicked //
 	public void onClick(View v) {
 		Log.d(TAG, "onClicked");
-		Boolean result = ctrl.usernoteCurrentVerse(editText1.getText().toString());
+		Boolean result = ctrl.saveUsernoteCurrentVerse(editText1.getText().toString());
+		finish();
 		Log.i(TAG, "...result = " + result);
 	}
 }

@@ -1,14 +1,9 @@
-/**
- * 
- */
 package net.bible.android.view.activity.usernote;
 
 import java.util.List;
 
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.bookmark.Bookmark;
 import net.bible.android.control.usernote.UserNote;
-import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.usernote.UserNoteDto;
 import android.content.Context;
 import android.util.Log;
@@ -19,8 +14,12 @@ import android.widget.ArrayAdapter;
 import android.widget.TwoLineListItem;
 
 /**
- * @author John
- *
+ * Display a single Note in a list row
+ * 
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's authors.
+ * @author John D. Lewis [balinjdl at gmail dot com]
+ * @author Martin Denham [mjdenham at gmail dot com]
  */
 public class UserNoteItemAdapter extends ArrayAdapter<UserNoteDto> {
 	private int resource;
@@ -57,7 +56,6 @@ public class UserNoteItemAdapter extends ArrayAdapter<UserNoteDto> {
 		// set value for the second text field
 		if (view.getText2() != null) {
 			try {
-//				String verseText = usernoteControl.getUserNoteVerseText(item);
 				String noteText = usernoteControl.getUserNoteText(item, true);
 				view.getText2().setText(noteText);
 			} catch (Exception e) {

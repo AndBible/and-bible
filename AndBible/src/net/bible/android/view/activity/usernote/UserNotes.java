@@ -10,6 +10,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.usernote.UserNote;
+import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.usernote.UserNoteDto;
 import android.app.Activity;
@@ -27,8 +28,12 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 /**
- * @author John
- *
+ * Show a list of existing User Notes and allow view/edit/delete
+ * 
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's authors.
+ * @author John D. Lewis [balinjdl at gmail dot com]
+ * @author Martin Denham [mjdenham at gmail dot com]
  */
 public class UserNotes extends ListActivityBase {
 	private static final String TAG = "UserNotes";
@@ -46,7 +51,6 @@ public class UserNotes extends ListActivityBase {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.usernotes);
 
         usernoteControl = ControlFactory.getInstance().getUserNoteControl();
         
@@ -87,9 +91,6 @@ public class UserNotes extends ListActivityBase {
         UserNoteDto usernote = usernoteList.get(menuInfo.position);
 		if (usernote!=null) {
 			switch (item.getItemId()) {
-//			case (R.id.assign_labels):
-//				assignLabels(usernote);
-//				return true;
 			case (R.id.delete):
 				delete(usernote);
 				return true;
@@ -121,18 +122,13 @@ public class UserNotes extends ListActivityBase {
     	Log.d(TAG, "User Note selected:"+usernote.getKey());
     	try {
         	if (usernote!=null) {
-        		CurrentPageManager.getInstance().getCurrentPage().setKey(usernote.getKey());
-        		doFinish();
+        		CurrentPageManager.getInstance().getCurrentBible().setKey(usernote.getKey());
+	        	Intent handlerIntent = new Intent(this, UserNoteEdit.class);
+        		startActivity(handlerIntent);
         	}
     	} catch (Exception e) {
-    		Log.e(TAG, "Error on attempt to download", e);
-    		Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show();
+    		Log.e(TAG, "Error on attempt to show note", e);
+    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
     	}
-    }
-
-    private void doFinish() {
-    	Intent resultIntent = new Intent();
-    	setResult(Activity.RESULT_OK, resultIntent);
-    	finish();    
     }
 }
