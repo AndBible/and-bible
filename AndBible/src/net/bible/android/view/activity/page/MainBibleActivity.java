@@ -36,6 +36,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.Toast;
 
 /** The main activity screen showing Bible text
  * 
@@ -340,6 +341,10 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		case R.id.shareVerse:
 			ControlFactory.getInstance().getPageControl().shareVerse();
 			return true;
+        case R.id.selectText:
+        	Toast.makeText(this, R.string.select_text_help, Toast.LENGTH_LONG).show();
+        	bibleWebView.selectAndCopyText();
+        	return true;
 		}
 
 		return false; 

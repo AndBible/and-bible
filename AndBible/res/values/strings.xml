@@ -132,6 +132,8 @@
     <string name="delete_search_index_doc">Delete index of %s?</string>
     
     <!-- Verse context menu -->
+    <string name="select_text">Select text</string>
+    <string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string>
     <string name="notes">Footnotes and references</string>
     <string name="copy">Copy current verse</string>
     <string name="share_verse">Share current verse ...</string>

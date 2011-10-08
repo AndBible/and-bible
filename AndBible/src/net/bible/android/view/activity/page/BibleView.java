@@ -1,10 +1,10 @@
 package net.bible.android.view.activity.page;
 
+import java.lang.reflect.Method;
+
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.PageControl;
-import net.bible.service.common.CommonUtils;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Picture;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -151,6 +151,21 @@ public class BibleView extends WebView {
 		mJumpToVerse = jumpToVerse;
 		mJumpToYOffsetRatio = jumpToYOffsetRatio;
 		loadDataWithBaseURL("http://baseUrl", html, "text/html", "UTF-8", "http://historyUrl");
+	}
+	
+	/** enter text selection mode
+	 */
+	public void selectAndCopyText() {
+	    try {
+	        Method m = WebView.class.getMethod("emulateShiftHeld", (Class[])null);
+	        m.invoke(this, (Object[])null);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        // fallback
+	        KeyEvent shiftPressEvent = new KeyEvent(0,0,
+	             KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_SHIFT_LEFT,0,0);
+	        shiftPressEvent.dispatch(this);
+	    }
 	}
 	
 	@Override
