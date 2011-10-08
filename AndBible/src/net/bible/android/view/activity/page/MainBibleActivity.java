@@ -17,6 +17,8 @@ import net.bible.android.view.activity.navigation.History;
 import net.bible.android.view.activity.references.NotesActivity;
 import net.bible.android.view.activity.settings.SettingsActivity;
 import net.bible.android.view.activity.speak.Speak;
+import net.bible.android.view.activity.usernote.UserNotes;
+import net.bible.android.view.activity.usernote.UserNotesAdd;
 import net.bible.android.view.util.DataPipe;
 import net.bible.service.common.CommonUtils;
 import android.app.AlarmManager;
@@ -133,7 +135,10 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	        case R.id.bookmarksButton:
 	        	handlerIntent = new Intent(this, Bookmarks.class);
 	        	break;
-	        case R.id.speakButton:
+	        case R.id.usernotesButton:
+	        	handlerIntent = new Intent(this, UserNotesAdd.class);
+	        	break;
+			case R.id.speakButton:
 	        	handlerIntent = new Intent(this, Speak.class);
 	        	break;
 	        case R.id.downloadButton:
@@ -334,6 +339,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
         case R.id.add_bookmark:
 			ControlFactory.getInstance().getBookmarkControl().bookmarkCurrentVerse();
 			return true;
+        case R.id.add_usernote:
+        	ControlFactory.getInstance().getUserNoteControl().usernoteCurrentVerse("MainBibleActivity static text"); // TODO Fix this static text! JDL
+        	return true;
 		case R.id.copy:
 			ControlFactory.getInstance().getPageControl().copyToClipboard();
 			return true;
