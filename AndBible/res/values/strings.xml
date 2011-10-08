@@ -180,4 +180,12 @@
     <string name="usernote_added">User note added</string>
     <string name="usernote_exists">User note already exists</string>
     <string name="add_usernote">Add user note</string>
+    <string name="sample_pick_item">Pick an Item</string>
+    <string name="sample_show_dialog">Show Dialog</string>
+    <string-array name="sample_dialog_items">
+        <item>List Item 1</item>
+        <item>List Item 2</item>
+        <item>List Item 3</item>
+        <item>List Item 4</item>
+    </string-array>
 </resources>

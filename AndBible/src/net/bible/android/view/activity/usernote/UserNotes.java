@@ -37,12 +37,6 @@ public class UserNotes extends ListActivityBase {
 
 	private UserNote usernoteControl;
 	
-	// language spinner
-//	private Spinner labelSpinner;
-//	private List<LabelDto> labelList = new ArrayList<LabelDto>();
-//	private int selectedLabelNo = 0;
-//	private ArrayAdapter<LabelDto> labelArrayAdapter; 
-	
 	// the document list
 	private List<UserNoteDto> usernoteList = new ArrayList<UserNoteDto>();
 
@@ -52,7 +46,7 @@ public class UserNotes extends ListActivityBase {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.bookmarks);
+        setContentView(R.layout.usernotes);
 
         usernoteControl = ControlFactory.getInstance().getUserNoteControl();
         

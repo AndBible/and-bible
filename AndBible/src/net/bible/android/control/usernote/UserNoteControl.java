@@ -11,12 +11,14 @@ import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.db.usernote.UserNoteDBAdapter;
+import net.bible.service.db.usernote.UserNoteDatabaseHelper;
 import net.bible.service.db.usernote.UserNoteDto;
 //import net.bible.service.db.usernote.LabelDto;
 import net.bible.service.sword.SwordContentFacade;
 
 import org.crosswire.jsword.passage.Key;
 
+import android.text.Editable;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -31,46 +33,59 @@ public class UserNoteControl implements UserNote {
 	private static final String TAG = "UserNoteControl";
 	
 	@Override
-	public boolean usernoteCurrentVerse() {
+	public boolean usernoteCurrentVerse(String usertext) {
+		Log.d(TAG, "usernoteCurrentVerse started...");
+		
 		boolean bOk = false;
 		if (CurrentPageManager.getInstance().isBibleShown() || CurrentPageManager.getInstance().isCommentaryShown()) {
+			Log.d(TAG, "usernoteCurrentVerse: either Bible or Commentary is showing...");
+			
 			Key currentVerse = CurrentPageManager.getInstance().getCurrentBible().getSingleKey();
+
+			UserNoteDto usernoteDto = new UserNoteDto();
 			
 			if (getUserNoteByKey(currentVerse)!=null) {
 				// user note for this verse already exists
-				Toast.makeText(BibleApplication.getApplication().getApplicationContext(), R.string.usernote_exists, Toast.LENGTH_SHORT).show();
-				// TODO: Allow user to edit existing note [JDL]
-			} else {
-				// prepare new user note and add to db
-				UserNoteDto usernoteDto = new UserNoteDto();
-				usernoteDto.setKey(currentVerse);
-				usernoteDto.setNoteText("user note text placeholder"); // TODO fix with real user-supplied content! JDL
-				Log.d(TAG, "usernoteDto in UserNoteControl; UserNote text = " + usernoteDto.getNoteText());
-				UserNoteDto newUserNote = addUserNote(usernoteDto);
+				Log.d(TAG, "usernoteCurrentVerse: Already have a note for this passage, so delete the existing note first before adding a replacement note");
+//				Toast.makeText(BibleApplication.getApplication().getApplicationContext(), R.string.usernote_exists, Toast.LENGTH_SHORT).show();
 				
-				if (newUserNote!=null) {
-					// success
-					Toast.makeText(BibleApplication.getApplication().getApplicationContext(), R.string.usernote_added, Toast.LENGTH_SHORT).show();
-					bOk = true;
-				} else {
-					Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
-				}
+				usernoteDto = getUserNoteByKey(currentVerse);
+				deleteUserNote(usernoteDto);
+			} else {
+				Log.d(TAG, "usernoteCurrentVerse: Creating a new note for this passage...");
+			}				
+
+			// prepare new user note and add to db
+			usernoteDto = new UserNoteDto();
+			usernoteDto.setKey(currentVerse);
+			usernoteDto.setNoteText(usertext);
+			Log.d(TAG, "usernoteDto in UserNoteControl; UserNote text = " + usernoteDto.getNoteText());
+			UserNoteDto newUserNote = addUserNote(usernoteDto);
+			
+			if (newUserNote!=null) {
+				Log.i(TAG, "usernoteCurrentVerse: New note successfully created for this passage!");
+				// success
+				Toast.makeText(BibleApplication.getApplication().getApplicationContext(), R.string.usernote_added, Toast.LENGTH_SHORT).show();
+				bOk = true;
+			} else {
+				Log.e(TAG, "usernoteCurrentVerse: Error adding a new note for this passage");
+				Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
 			}
 		}
 		return bOk;
 	}
 
-	@Override
-	public String getUserNoteVerseText(UserNoteDto usernote) {
-		String verseText = "";
-		try {
-			verseText = SwordContentFacade.getInstance().getPlainText(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), usernote.getKey().getOsisRef(), 1);
-			verseText = CommonUtils.limitTextLength(verseText);
-		} catch (Exception e) {
-			Log.e(TAG, "Error getting verse text", e);
-		}
-		return verseText;
-	}
+//	@Override
+//	public String getUserNoteVerseText(UserNoteDto usernote) {
+//		String verseText = "";
+//		try {
+//			verseText = SwordContentFacade.getInstance().getPlainText(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), usernote.getKey().getOsisRef(), 1);
+//			verseText = CommonUtils.limitTextLength(verseText);
+//		} catch (Exception e) {
+//			Log.e(TAG, "Error getting verse text", e);
+//		}
+//		return verseText;
+//	}
 	
 	@Override
 	public String getUserNoteText(UserNoteDto usernote, boolean abbreviated) {
