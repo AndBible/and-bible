@@ -19,6 +19,7 @@ import net.bible.service.font.FontControl;
 import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.OSISInputStream;
 import net.bible.service.format.OsisToCanonicalTextSaxHandler;
+import net.bible.service.format.OsisToSpeakTextSaxHandler;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler;
 
@@ -48,9 +49,6 @@ public class SwordContentFacade {
 	private static final String TAG = "SwordContentApi";
 	private static SwordContentFacade singleton;
 	private static String NIGHT_MODE_STYLESHEET = "night_mode.css";
-
-	// just keep one of these because it is called in the tight document indexing loop and isn't very complex
-	OsisToCanonicalTextSaxHandler osisToCanonicalTextSaxHandler = new OsisToCanonicalTextSaxHandler();
 
 	// set to false for testing
 	public static boolean isAndroid = true; //CommonUtils.isAndroid();
@@ -206,7 +204,31 @@ public class SwordContentFacade {
 			SAXEventProvider osissep = data.getSAXEventProvider();
 		
 			ContentHandler osisHandler = new OsisToCanonicalTextSaxHandler();
+
+			osissep.provideSAXEvents(osisHandler);
 		
+			return osisHandler.toString();
+    	} catch (Exception e) {
+    		Log.e(TAG, "Error getting text from book" , e);
+    		return BibleApplication.getApplication().getString(R.string.error_occurred);
+    	}
+    }
+
+    /**
+     * Get text to be spoken without any markup.
+     * 
+     * @param bookInitials
+     *            the book to use
+     * @param reference
+     *            a reference, appropriate for the book, of one or more entries
+     */
+    public String getTextToSpeak(Book book, Key key) throws NoSuchKeyException, BookException, ParseException {
+    	try {
+			BookData data = new BookData(book, key);
+			SAXEventProvider osissep = data.getSAXEventProvider();
+		
+			ContentHandler osisHandler = new OsisToSpeakTextSaxHandler();
+
 			osissep.provideSAXEvents(osisHandler);
 		
 			return osisHandler.toString();
