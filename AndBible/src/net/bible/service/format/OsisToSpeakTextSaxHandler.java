@@ -5,8 +5,15 @@ import org.xml.sax.Attributes;
 
 public class OsisToSpeakTextSaxHandler extends OsisToCanonicalTextSaxHandler {
 
+	private boolean sayReferences;
+	
 	private boolean writingRef;
 	
+	public OsisToSpeakTextSaxHandler(boolean sayReferences) {
+		super();
+		this.sayReferences = sayReferences;
+	}
+
 	@Override
 	public void startElement(String namespaceURI, String sName, String qName, Attributes attrs) {
 		String name = getName(sName, qName); // element name
@@ -14,7 +21,7 @@ public class OsisToSpeakTextSaxHandler extends OsisToCanonicalTextSaxHandler {
 		debug(name, attrs, true);
 
 		// if encountering either a verse tag or if the current tag is marked as being canonical then turn on writing
-		if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
+		if (sayReferences && name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
 			writeContent(true);
 			writingRef = true;
 		} else {

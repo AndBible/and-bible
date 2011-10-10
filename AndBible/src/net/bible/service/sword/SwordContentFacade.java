@@ -227,8 +227,10 @@ public class SwordContentFacade {
 			BookData data = new BookData(book, key);
 			SAXEventProvider osissep = data.getSAXEventProvider();
 		
-			ContentHandler osisHandler = new OsisToSpeakTextSaxHandler();
-
+			boolean sayReferences = BookCategory.GENERAL_BOOK.equals(book.getBookCategory());
+			ContentHandler osisHandler = new OsisToSpeakTextSaxHandler(sayReferences);
+			
+			
 			osissep.provideSAXEvents(osisHandler);
 		
 			return osisHandler.toString();
