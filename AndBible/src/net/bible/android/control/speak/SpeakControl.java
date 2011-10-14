@@ -104,7 +104,7 @@ public class SpeakControl {
 			for (int i=0; i<numPagesDefn.getNumPages(); i++) {
 				Key current = page.getPagePlus(i);
 				if (current!=null) {
-					textToSpeak.append( SwordContentFacade.getInstance().getCanonicalText(page.getCurrentDocument(), current));
+					textToSpeak.append( SwordContentFacade.getInstance().getTextToSpeak(page.getCurrentDocument(), current));
 				}
 			}
 		} catch (Exception e) {

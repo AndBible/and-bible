@@ -19,7 +19,7 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
     
     private int currentVerseNo;
 
-    // debugging
+	// debugging
     private boolean isDebugMode = false;
 
     private Stack<CONTENT_STATE> writeContentStack = new Stack<CONTENT_STATE>(); 
@@ -122,20 +122,17 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
     public void characters (char buf[], int offset, int len) {
         if (CONTENT_STATE.WRITE.equals(writeContentStack.peek())) {
         	String s = new String(buf, offset, len);
-
-        	// NetText often uses single quote where esv uses double quote and TTS says open single quote e.g. Matt 4
-        	// so replace all single quotes with double quotes but only if they are used for quoting text as in e.g. Ps 117
-        	// it is tricky to distinguish single quotes from apostrophes and this won't work all the time
-        	if (s.contains(" \'")) {
-        		s = s.replace("\'", "\"");
-        	}
-        	// Finney Gospel Sermons contains to many '--'s which are pronounced as hyphen hyphen
-        	if (s.contains(" --")) {
-        		s = s.replace(" --", ";");
-        	}
         	
             write(s);
         }
+    }
+
+    protected void writeContent(boolean writeContent) {
+    	if (writeContent) {
+    		writeContentStack.push(CONTENT_STATE.WRITE);    		
+    	} else {
+    		writeContentStack.push(CONTENT_STATE.IGNORE);
+    	}
     }
     
     private void replace(char buf[], int offset, int len, char find, char replacement) {
