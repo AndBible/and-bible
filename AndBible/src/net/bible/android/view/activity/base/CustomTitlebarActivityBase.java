@@ -19,6 +19,8 @@ import android.widget.ProgressBar;
 import android.widget.ToggleButton;
 
 public abstract class CustomTitlebarActivityBase extends ActivityBase {
+	
+	protected enum HeaderButton {DOCUMENT, PAGE, BIBLE, COMMENTARY, DICTIONARY, GEN_BOOK, TOGGLE_STRONGS};
 
 	private View mTitleBar;
 	
@@ -66,52 +68,89 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
         
         mDocumentTitleLink.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-            	Intent handlerIntent = new Intent(CustomTitlebarActivityBase.this, ChooseDocument.class);
-            	startActivityForResult(handlerIntent, 1);
+            	handleHeaderButtonPress(HeaderButton.DOCUMENT);
             }
         });
 
         mPageTitleLink.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-            	Intent handlerIntent = new Intent(CustomTitlebarActivityBase.this, CurrentPageManager.getInstance().getCurrentPage().getKeyChooserActivity());
-            	startActivityForResult(handlerIntent, 1);
+            	handleHeaderButtonPress(HeaderButton.PAGE);
             }
         });
 
         mQuickBibleChangeLink.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-            	CurrentPageManager.getInstance().setCurrentDocument(mSuggestedBible);
+            	handleHeaderButtonPress(HeaderButton.BIBLE);
             }
         });
         
         mQuickCommentaryChangeLink.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-            	CurrentPageManager.getInstance().setCurrentDocument(mSuggestedCommentary);
+            	handleHeaderButtonPress(HeaderButton.COMMENTARY);
             }
         });
 
         mQuickDictionaryChangeLink.setOnClickListener(new OnClickListener() {
             public void onClick(View v) {
-            	CurrentPageManager.getInstance().setCurrentDocument(mSuggestedDictionary);
+            	handleHeaderButtonPress(HeaderButton.DICTIONARY);
             }
         });
         
         mQuickGenBookChangeLink.setOnClickListener(new OnClickListener() {
 			@Override
             public void onClick(View v) {
-            	CurrentPageManager.getInstance().setCurrentDocument(mSuggestedGenBook);
+            	handleHeaderButtonPress(HeaderButton.GEN_BOOK);
             }
         });
         
         mStrongsToggle.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
-				// update the show-strongs pref setting according to the ToggleButton
-				CommonUtils.getSharedPreferences().edit().putBoolean("show_strongs_pref", mStrongsToggle.isChecked()).commit();
-
-				// redisplay the current page
-				preferenceSettingsChanged();
+            	handleHeaderButtonPress(HeaderButton.TOGGLE_STRONGS);
 			}
 		});
+    }
+    
+    /** Central method to initiate handling of header button presses
+     *  Also allows subclasses to know when a button has been pressed
+     * 
+     * @param buttonType
+     */
+    protected void handleHeaderButtonPress(HeaderButton buttonType) {
+    	switch (buttonType) {
+    	case BIBLE:
+    		quickChange(mSuggestedBible);
+    		break;
+    	case COMMENTARY:
+    		quickChange(mSuggestedCommentary);
+    		break;
+    	case DICTIONARY:
+    		quickChange(mSuggestedDictionary);
+    		break;
+    	case GEN_BOOK:
+    		quickChange(mSuggestedGenBook);
+    		break;
+    	case DOCUMENT:
+        	Intent docHandlerIntent = new Intent(CustomTitlebarActivityBase.this, ChooseDocument.class);
+        	startActivityForResult(docHandlerIntent, 1);
+    		break;
+    	case PAGE:
+        	Intent pageHandlerIntent = new Intent(CustomTitlebarActivityBase.this, CurrentPageManager.getInstance().getCurrentPage().getKeyChooserActivity());
+        	startActivityForResult(pageHandlerIntent, 1);
+    		break;
+    	case TOGGLE_STRONGS:
+			// update the show-strongs pref setting according to the ToggleButton
+			CommonUtils.getSharedPreferences().edit().putBoolean("show_strongs_pref", mStrongsToggle.isChecked()).commit();
+			// redisplay the current page
+			preferenceSettingsChanged();
+    		break;
+    	default:
+    		Log.e(TAG, "Unknown button pressed");
+    	}
+    	
+    }
+    
+    private void quickChange(Book changeToBook) {
+    	CurrentPageManager.getInstance().setCurrentDocument(changeToBook);
     }
     
     public void toggleFullScreen() {
@@ -132,8 +171,7 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		
-		// page title varies in length depending on orientation so need to redisplay it on rotation
-		setPageTitle(ControlFactory.getInstance().getPageControl().getCurrentPageTitle());
+		updatePageTitle();
 
 		// show or hide right 2 buttons depending on screen width and book availability
 		if (numButtonsToShow()>=4) {
@@ -152,6 +190,13 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 //		int titleBarTitleWidthPixels = getResources().getDimensionPixelSize(R.dimen.title_bar_title_width);
 //		Log.d(TAG, "Title bar width:"+titleBarTitleWidthPixels);
 //		mPageTitle.setWidth(titleBarTitleWidthPixels);
+	}
+
+	/** refresh page title which shows current verse for bibles and commentaries or chapter for books etc 
+	 */
+	protected void updatePageTitle() {
+		// page title varies in length depending on orientation so need to redisplay it on rotation
+		setPageTitle(ControlFactory.getInstance().getPageControl().getCurrentPageTitle());
 	}
 
     /** number of buttons varies depending on screen size and orientation

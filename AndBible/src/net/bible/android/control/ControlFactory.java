@@ -5,12 +5,12 @@ import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.control.link.LinkControl;
+import net.bible.android.control.mynote.MyNote;
+import net.bible.android.control.mynote.MyNoteControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.speak.SpeakControl;
-import net.bible.android.control.usernote.UserNote;
-import net.bible.android.control.usernote.UserNoteControl;
 
 //TODO replace with ioc (maybe)
 /** allow access to control layer - would like to 
@@ -26,7 +26,7 @@ public class ControlFactory {
 	private LinkControl linkControl = new LinkControl();
 	private SearchControl searchControl = new SearchControl();
 	private Bookmark bookmarkControl = new BookmarkControl();
-	private UserNote usernoteControl = new UserNoteControl();
+	private MyNote mynoteControl = new MyNoteControl();
 	private DownloadControl downloadControl = new DownloadControl();
 	private SpeakControl speakControl = new SpeakControl();
 	
@@ -69,8 +69,8 @@ public class ControlFactory {
 		return bookmarkControl;
 	}
 	
-	public UserNote getUserNoteControl() {
-		return usernoteControl;
+	public MyNote getMyNoteControl() {
+		return mynoteControl;
 	}
 
 	public DownloadControl getDownloadControl() {

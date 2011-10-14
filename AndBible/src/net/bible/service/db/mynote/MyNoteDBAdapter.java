@@ -1,14 +1,15 @@
 /**
  * 
  */
-package net.bible.service.db.usernote;
+package net.bible.service.db.mynote;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import net.bible.service.db.CommonDatabaseHelper;
-import net.bible.service.db.usernote.UserNoteDatabaseDefinition.Table;
-import net.bible.service.db.usernote.UserNoteDatabaseDefinition.UserNoteColumn;
+import net.bible.service.db.mynote.MyNoteDatabaseDefinition.Table;
+import net.bible.service.db.mynote.MyNoteDatabaseDefinition.UserNoteColumn;
 
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.PassageKeyFactory;
@@ -29,7 +30,7 @@ import android.util.Log;
  * Based on corresponding Bookmark class(es)
  * 
  */
-public class UserNoteDBAdapter {
+public class MyNoteDBAdapter {
 
 	// Variable to hold the database instance
 	private SQLiteDatabase db;
@@ -39,12 +40,12 @@ public class UserNoteDBAdapter {
 	
 	private static final String TAG = "UserNoteDBAdapter";
 
-	public UserNoteDBAdapter(Context _context) {
+	public MyNoteDBAdapter(Context _context) {
 		dbHelper =  CommonDatabaseHelper.getInstance(_context); 
 		Log.d(TAG, "got dbHelper: " + dbHelper.toString());
 	}
 
-	public UserNoteDBAdapter open() throws SQLException {
+	public MyNoteDBAdapter open() throws SQLException {
 		try {
 			Log.d(TAG, "about to getWritableDatabase");
 			db = dbHelper.getWritableDatabase();
@@ -59,34 +60,53 @@ public class UserNoteDBAdapter {
 		db.close();
 	}
 
-	public UserNoteDto insertUserNote(UserNoteDto usernote) {
+	public MyNoteDto insertUserNote(MyNoteDto usernote) {
 		// Create a new row of values to insert.
-		Log.d(TAG, "about to insertUserNote: " + usernote.getKey() + "; note text = " + usernote.getNoteText());
+		Log.d(TAG, "about to insertUserNote: " + usernote.getKey());
+        // Gets the current system time in milliseconds
+        Long now = Long.valueOf(System.currentTimeMillis());
+
 		ContentValues newValues = new ContentValues();
 		newValues.put(UserNoteColumn.KEY, usernote.getKey().getOsisID());
 		newValues.put(UserNoteColumn.USERNOTE, usernote.getNoteText());
-		
-		Log.d(TAG, "--> newValues = " + newValues.toString());
+		newValues.put(UserNoteColumn.LAST_UPDATED_ON, now);
+		newValues.put(UserNoteColumn.CREATED_ON, now);
 		
 		long newId = db.insert(Table.USERNOTE, null, newValues);
-		UserNoteDto newUserNote = getUserNoteDto(newId);
-		Log.d(TAG, "about to leave insertUserNote after adding newUserNote: " + newUserNote.getKey() + ": " + newUserNote.getNoteText()); // TODO: Remove in cleanup JDL
+		MyNoteDto newUserNote = getUserNoteDto(newId);
 		return newUserNote;
 	}
 
-	public boolean removeUserNote(UserNoteDto usernote) {
+	public MyNoteDto updateUserNote(MyNoteDto usernote) {
+		// Create a new row of values to insert.
+		Log.d(TAG, "about to updateUserNote: " + usernote.getKey());
+        // Gets the current system time in milliseconds
+        Long now = Long.valueOf(System.currentTimeMillis());
+
+		ContentValues newValues = new ContentValues();
+		newValues.put(UserNoteColumn.KEY, usernote.getKey().getOsisID());
+		newValues.put(UserNoteColumn.USERNOTE, usernote.getNoteText());
+		newValues.put(UserNoteColumn.LAST_UPDATED_ON, now);
+		
+		long rowsUpdated = db.update(Table.USERNOTE, newValues, "_id=?", new String []{String.valueOf(usernote.getId())});
+		Log.d(TAG, "Rows updated:"+rowsUpdated);
+		
+		return getUserNoteDto(usernote.getId());
+	}
+
+	public boolean removeUserNote(MyNoteDto usernote) {
 		Log.d(TAG, "Removing user note:" + usernote.getKey());
 		return db.delete(Table.USERNOTE, UserNoteColumn._ID + "=" + usernote.getId(), null) > 0;
 	}
 
-	public List<UserNoteDto> getAllUserNotes() {
+	public List<MyNoteDto> getAllUserNotes() {
 		Log.d(TAG, "about to getAllUserNotes");
-		List<UserNoteDto> allUserNotes = new ArrayList<UserNoteDto>();
+		List<MyNoteDto> allUserNotes = new ArrayList<MyNoteDto>();
 		Cursor c = db.query(UserNoteQuery.TABLE, UserNoteQuery.COLUMNS, null, null, null, null, null);
 		try {
 			if (c.moveToFirst()) {
 		        while (!c.isAfterLast()) {
-		        	UserNoteDto usernote = getUserNoteDto(c);
+		        	MyNoteDto usernote = getUserNoteDto(c);
 		    		allUserNotes.add(usernote);
 		       	    c.moveToNext();
 		        }
@@ -100,8 +120,8 @@ public class UserNoteDBAdapter {
         return allUserNotes;
 	}
 
-	public UserNoteDto getUserNoteDto(long id) {
-		UserNoteDto usernote = null;
+	public MyNoteDto getUserNoteDto(long id) {
+		MyNoteDto usernote = null;
 		
 		Cursor c = db.query(UserNoteQuery.TABLE, UserNoteQuery.COLUMNS, UserNoteColumn._ID+"=?", new String[] {String.valueOf(id)}, null, null, null);
 		try {
@@ -115,8 +135,8 @@ public class UserNoteDBAdapter {
 		return usernote;
 	}
 
-	public UserNoteDto getUserNoteByKey(String key) {
-		UserNoteDto usernote = null;
+	public MyNoteDto getUserNoteByKey(String key) {
+		MyNoteDto usernote = null;
 		
 		Cursor c = db.query(UserNoteQuery.TABLE, UserNoteQuery.COLUMNS, UserNoteColumn.KEY+"=?", new String[] {key}, null, null, null);
 		try {
@@ -135,8 +155,8 @@ public class UserNoteDBAdapter {
 	 * @return
 	 * @throws NoSuchKeyException
 	 */
-	private UserNoteDto getUserNoteDto(Cursor c) {
-		UserNoteDto dto = new UserNoteDto();
+	private MyNoteDto getUserNoteDto(Cursor c) {
+		MyNoteDto dto = new MyNoteDto();
 		try {
 			Long id = c.getLong(UserNoteQuery.ID);
 			dto.setId(id);
@@ -149,6 +169,12 @@ public class UserNoteDBAdapter {
 			String usernote = c.getString(UserNoteQuery.USERNOTE);
 			dto.setNoteText(usernote);
 			
+			long updated = c.getLong(UserNoteQuery.LAST_UPDATED_ON);
+			dto.setLastUpdatedOn(new Date(updated));
+
+			long created = c.getLong(UserNoteQuery.CREATED_ON);
+			dto.setCreatedOn(new Date(created));
+			
 		} catch (NoSuchKeyException nke) {
 			Log.e(TAG, "Key error", nke);
 		}
@@ -159,10 +185,12 @@ public class UserNoteDBAdapter {
 	private interface UserNoteQuery {
         final String TABLE = Table.USERNOTE;
 
-		final String[] COLUMNS = new String[] {UserNoteColumn._ID, UserNoteColumn.KEY, UserNoteColumn.USERNOTE};
+		final String[] COLUMNS = new String[] {UserNoteColumn._ID, UserNoteColumn.KEY, UserNoteColumn.USERNOTE, UserNoteColumn.LAST_UPDATED_ON, UserNoteColumn.CREATED_ON};
 
         final int ID = 0;
         final int KEY = 1;
         final int USERNOTE = 2;
+        final int LAST_UPDATED_ON = 3;
+        final int CREATED_ON = 4;
     }	
 }

@@ -1,7 +1,7 @@
 package net.bible.service.db;
 
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition;
-import net.bible.service.db.usernote.UserNoteDatabaseDefinition;
+import net.bible.service.db.mynote.MyNoteDatabaseDefinition;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -48,7 +48,7 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 		BookmarkDatabaseDefinition.getInstance().onCreate(db);
-		UserNoteDatabaseDefinition.getInstance().onCreate(db);
+		MyNoteDatabaseDefinition.getInstance().onCreate(db);
 	}
 	
 	@Override
@@ -61,7 +61,7 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
 				oldVersion = 1;
 			}
 			if (oldVersion == 1) {
-				UserNoteDatabaseDefinition.getInstance().onCreate(db);
+				MyNoteDatabaseDefinition.getInstance().onCreate(db);
 				oldVersion += 1;
 			}
 		} catch (SQLiteException e) {

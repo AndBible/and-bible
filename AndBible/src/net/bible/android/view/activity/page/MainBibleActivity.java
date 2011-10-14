@@ -12,13 +12,13 @@ import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.bookmark.Bookmarks;
 import net.bible.android.view.activity.download.Download;
 import net.bible.android.view.activity.help.Help;
+import net.bible.android.view.activity.mynote.MyNoteEdit;
+import net.bible.android.view.activity.mynote.MyNotes;
 import net.bible.android.view.activity.navigation.ChooseDocument;
 import net.bible.android.view.activity.navigation.History;
 import net.bible.android.view.activity.references.NotesActivity;
 import net.bible.android.view.activity.settings.SettingsActivity;
 import net.bible.android.view.activity.speak.Speak;
-import net.bible.android.view.activity.usernote.UserNotes;
-import net.bible.android.view.activity.usernote.UserNoteEdit;
 import net.bible.android.view.util.DataPipe;
 import net.bible.service.common.CommonUtils;
 import android.app.AlarmManager;
@@ -52,7 +52,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	private BibleView bibleWebView;
 	
 	// request codes passed to and returned from sub-activities
-	private static final int STD_REQUEST_CODE = 1;
 	private static final int REFRESH_DISPLAY_ON_FINISH = 2;
 	private static final int UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH = 3;
 
@@ -135,8 +134,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	        case R.id.bookmarksButton:
 	        	handlerIntent = new Intent(this, Bookmarks.class);
 	        	break;
-	        case R.id.usernotesButton:
-	        	handlerIntent = new Intent(this, UserNotes.class);
+	        case R.id.mynotesButton:
+	        	handlerIntent = new Intent(this, MyNotes.class);
 	        	break;
 			case R.id.speakButton:
 	        	handlerIntent = new Intent(this, Speak.class);
@@ -251,7 +250,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 			public void run() {
 				PageControl pageControl = ControlFactory.getInstance().getPageControl();
 		    	setDocumentTitle(pageControl.getCurrentDocumentTitle());
-		    	setPageTitle(pageControl.getCurrentPageTitle());
+		    	updatePageTitle();
 		    	setPageTitleVisible(true);
 		    	setProgressBar(false);
 		    	updateSuggestedDocuments();
@@ -265,8 +264,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-		    	String passageDesc = ControlFactory.getInstance().getPageControl().getCurrentPageTitle();
-		    	setPageTitle(passageDesc);
+		    	updatePageTitle();
 			}
 		});
     }
@@ -339,8 +337,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
         case R.id.add_bookmark:
 			ControlFactory.getInstance().getBookmarkControl().bookmarkCurrentVerse();
 			return true;
-        case R.id.addUsernote:
-        	Intent noteIntent = new Intent(this, UserNoteEdit.class);
+        case R.id.addMynote:
+        	Intent noteIntent = new Intent(this, MyNoteEdit.class);
         	startActivity(noteIntent);
         	return true;
 		case R.id.copy:

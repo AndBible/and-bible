@@ -61,12 +61,12 @@
                   android:label="@string/bookmark_labels"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:name="net.bible.android.view.activity.usernote.UserNotes"
-                  android:label="@string/usernotes"
+        <activity android:name="net.bible.android.view.activity.mynote.MyNotes"
+                  android:label="@string/mynotes"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:label="@string/usernote_add" 
-        		  android:name="net.bible.android.view.activity.usernote.UserNoteEdit"
+        <activity android:name="net.bible.android.view.activity.mynote.MyNoteEdit"
+        		  android:label="@string/mynote_add" 
         		  android:configChanges="keyboardHidden|orientation">
         </activity>
         <activity android:name="net.bible.android.view.activity.navigation.ChooseDictionaryWord"

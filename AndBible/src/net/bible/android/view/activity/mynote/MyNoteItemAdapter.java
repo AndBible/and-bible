@@ -1,10 +1,10 @@
-package net.bible.android.view.activity.usernote;
+package net.bible.android.view.activity.mynote;
 
 import java.util.List;
 
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.usernote.UserNote;
-import net.bible.service.db.usernote.UserNoteDto;
+import net.bible.android.control.mynote.MyNote;
+import net.bible.service.db.mynote.MyNoteDto;
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,22 +21,22 @@ import android.widget.TwoLineListItem;
  * @author John D. Lewis [balinjdl at gmail dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class UserNoteItemAdapter extends ArrayAdapter<UserNoteDto> {
+public class MyNoteItemAdapter extends ArrayAdapter<MyNoteDto> {
 	private int resource;
-	private UserNote usernoteControl;
+	private MyNote usernoteControl;
 	
 	private static final String TAG = "UserNoteItemAdapter";
 
-	public UserNoteItemAdapter(Context _context, int _resource, List<UserNoteDto> _items) {
+	public MyNoteItemAdapter(Context _context, int _resource, List<MyNoteDto> _items) {
 		super(_context, _resource, _items);
 		resource = _resource;
-		usernoteControl = ControlFactory.getInstance().getUserNoteControl();
+		usernoteControl = ControlFactory.getInstance().getMyNoteControl();
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 
-		UserNoteDto item = getItem(position);
+		MyNoteDto item = getItem(position);
 
 		// Pick up the TwoLineListItem defined in the xml file
 		TwoLineListItem view;

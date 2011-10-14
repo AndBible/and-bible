@@ -73,8 +73,8 @@
     <string name="prefs_show_verseno_summary">Show verse numbers</string>
     <string name="prefs_verse_per_line_title">One verse per line</string>
     <string name="prefs_verse_per_line_summary">Show each verse on a different line</string>
-    <string name="prefs_show_notes_title">Notes</string>
-    <string name="prefs_show_notes_summary">Show notes</string>
+    <string name="prefs_show_notes_title">Footnotes and x-refs</string>
+    <string name="prefs_show_notes_summary">Show footnotes and cross-references</string>
     <string name="prefs_show_strongs_title">Show Strong\'s numbers</string>
     <string name="prefs_show_strongs_summary">Links to Greek &amp; Hebrew definitions</string>
     <string name="prefs_show_morphology_title">Morphological codes</string>
@@ -175,9 +175,11 @@
     <string name="speak_repeat">Repeat</string>
 
     <!-- User Notes -->
-    <string name="usernotes">User Notes</string>
-    <string name="usernote_add">Add a user note</string>
-    <string name="usernote_added">User note added</string>
+    <string name="mynotes">My Notes</string>
+    <string name="mynote">My Note</string>
+    <string name="mynote_add">Add my note</string>
+    <string name="mynote_edit">Edit my note</string>
+    <string name="mynote_saved">My note saved</string>
 
     <!-- Document types -->
     <string name="doc_type_bible">Bible</string>

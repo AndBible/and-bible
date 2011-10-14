@@ -20,6 +20,7 @@ public class CurrentPageManager {
 	private CurrentCommentaryPage currentCommentaryPage;
 	private CurrentDictionaryPage currentDictionaryPage;
 	private CurrentGeneralBookPage currentGeneralBookPage;
+	private CurrentMyNotePage currentMyNotePage;
 	
 	private CurrentPage currentDisplayedPage;
 	
@@ -35,6 +36,7 @@ public class CurrentPageManager {
 					instance.currentBibleVerse = new CurrentBibleVerse();
 					instance.currentBiblePage = new CurrentBiblePage(instance.currentBibleVerse);
 					instance.currentCommentaryPage = new CurrentCommentaryPage(instance.currentBibleVerse);
+					instance.currentMyNotePage = new CurrentMyNotePage(instance.currentBibleVerse);
 					
 					instance.currentDictionaryPage = new CurrentDictionaryPage();
 					instance.currentGeneralBookPage = new CurrentGeneralBookPage();
@@ -95,6 +97,17 @@ public class CurrentPageManager {
 		}
 	
 		return nextPage;
+	}
+
+	/** My Note is different to all other pages.  It has no documents etc but I attempt to make it look a bit like a Commentary page
+	 * 
+	 * @param showing
+	 */
+	public void setShowingMyNote(boolean showing) {
+		// always true, above method effectively undoes this when another document is selected
+		if (showing) {
+			currentDisplayedPage = currentMyNotePage;
+		}
 	}
 
 	public CurrentPage setCurrentDocumentAndKey(Book currentBook, Key key) {

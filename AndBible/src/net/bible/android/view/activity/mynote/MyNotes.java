@@ -1,19 +1,19 @@
 /**
  * 
  */
-package net.bible.android.view.activity.usernote;
+package net.bible.android.view.activity.mynote;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.mynote.MyNote;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.usernote.UserNote;
+import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
-import net.bible.service.db.usernote.UserNoteDto;
-import android.app.Activity;
+import net.bible.service.db.mynote.MyNoteDto;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,7 +25,6 @@ import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.Toast;
 
 /**
  * Show a list of existing User Notes and allow view/edit/delete
@@ -35,15 +34,15 @@ import android.widget.Toast;
  * @author John D. Lewis [balinjdl at gmail dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class UserNotes extends ListActivityBase {
+public class MyNotes extends ListActivityBase {
 	private static final String TAG = "UserNotes";
 
 	static final String USERNOTE_EXTRA = "usernote";
 
-	private UserNote usernoteControl;
+	private MyNote usernoteControl;
 	
 	// the document list
-	private List<UserNoteDto> usernoteList = new ArrayList<UserNoteDto>();
+	private List<MyNoteDto> usernoteList = new ArrayList<MyNoteDto>();
 
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
 	
@@ -52,7 +51,7 @@ public class UserNotes extends ListActivityBase {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        usernoteControl = ControlFactory.getInstance().getUserNoteControl();
+        usernoteControl = ControlFactory.getInstance().getMyNoteControl();
         
        	initialiseView();
     }
@@ -61,7 +60,7 @@ public class UserNotes extends ListActivityBase {
     	loadUserNoteList();
     	
     	// prepare the document list view
-    	ArrayAdapter<UserNoteDto> usernoteArrayAdapter = new UserNoteItemAdapter(this, LIST_ITEM_TYPE, usernoteList);
+    	ArrayAdapter<MyNoteDto> usernoteArrayAdapter = new MyNoteItemAdapter(this, LIST_ITEM_TYPE, usernoteList);
     	setListAdapter(usernoteArrayAdapter);
     	
     	registerForContextMenu(getListView());
@@ -88,7 +87,7 @@ public class UserNotes extends ListActivityBase {
 	public boolean onContextItemSelected(MenuItem item) {
 		super.onContextItemSelected(item);
         AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
-        UserNoteDto usernote = usernoteList.get(menuInfo.position);
+        MyNoteDto usernote = usernoteList.get(menuInfo.position);
 		if (usernote!=null) {
 			switch (item.getItemId()) {
 			case (R.id.delete):
@@ -101,10 +100,14 @@ public class UserNotes extends ListActivityBase {
 
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	loadUserNoteList();
+    	if (resultCode==ActivityBase.RESULT_RETURN_TO_TOP) {
+    		returnToPreviousScreen();
+    	} else {
+        	loadUserNoteList();
+    	}
     }
 
-	private void delete(UserNoteDto usernote) {
+	private void delete(MyNoteDto usernote) {
 		usernoteControl.deleteUserNote(usernote);
 		loadUserNoteList();
 	}
@@ -118,13 +121,13 @@ public class UserNotes extends ListActivityBase {
      * 
      * @param document
      */
-    private void usernoteSelected(UserNoteDto usernote) {
+    private void usernoteSelected(MyNoteDto usernote) {
     	Log.d(TAG, "User Note selected:"+usernote.getKey());
     	try {
         	if (usernote!=null) {
         		CurrentPageManager.getInstance().getCurrentBible().setKey(usernote.getKey());
-	        	Intent handlerIntent = new Intent(this, UserNoteEdit.class);
-        		startActivity(handlerIntent);
+	        	Intent handlerIntent = new Intent(this, MyNoteEdit.class);
+        		startActivityForResult(handlerIntent, ActivityBase.STD_REQUEST_CODE);
         	}
     	} catch (Exception e) {
     		Log.e(TAG, "Error on attempt to show note", e);

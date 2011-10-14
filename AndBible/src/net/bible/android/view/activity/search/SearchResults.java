@@ -115,6 +115,8 @@ public class SearchResults extends ListActivityBase {
 			Book targetBook = SwordDocumentFacade.getInstance().getDocumentByInitials(targetDocInitials); 
     		
     		CurrentPageManager.getInstance().setCurrentDocumentAndKey(targetBook, key);
+    		
+    		// this also calls finish() on this Activity.  If a user re-selects from HistoryList then a new Activity is created
     		returnToPreviousScreen();
     	}
     }

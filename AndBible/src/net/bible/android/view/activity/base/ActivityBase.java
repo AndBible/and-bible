@@ -18,7 +18,13 @@ import android.view.WindowManager;
  *      The copyright to this program is held by it's author.
  */
 public class ActivityBase extends Activity implements AndBibleActivity {
+
+	// standard request code for startActivityForResult
+	public static final int STD_REQUEST_CODE = 1;
 	
+	// Special result that requests all activities to exit until the main/top Activity is reached
+    public static final int RESULT_RETURN_TO_TOP           = 900;
+
 	private boolean integrateWithHistoryManager;
 
 	private SharedActivityState sharedActivityState = SharedActivityState.getInstance();
@@ -161,6 +167,13 @@ public class ActivityBase extends Activity implements AndBibleActivity {
     	finish();    
     }
     
+    protected void returnToTop() {
+    	// just pass control back to the previous screen
+    	Intent resultIntent = new Intent(this, this.getClass());
+    	setResult(RESULT_RETURN_TO_TOP, resultIntent);
+    	finish();    
+    }
+    
 	public boolean isIntegrateWithHistoryManager() {
 		return integrateWithHistoryManager;
 	}
@@ -199,7 +212,7 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 	protected void onStop() {
 		super.onStop();
         Log.i(getLocalClassName(), "onStop");
-        // call this onStop, although it is not guarranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
+        // call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
         CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this);
 	}
 }

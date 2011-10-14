@@ -1,8 +1,10 @@
 /**
  * 
  */
-package net.bible.service.db.usernote;
+package net.bible.service.db.mynote;
 
+import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.BookmarkLabelColumn;
+import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.Table;
 import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import android.util.Log;
@@ -11,7 +13,7 @@ import android.util.Log;
  * @author John D. Lewis
  *
  */
-public class UserNoteDatabaseDefinition {
+public class MyNoteDatabaseDefinition {
 	private static final String TAG = "UserNoteDatabaseDefinition";
 
 	public interface Table {
@@ -31,13 +33,15 @@ public class UserNoteDatabaseDefinition {
 		public static final String _ID = BaseColumns._ID;
 		public static final String KEY = "key";
 		public static final String USERNOTE = "usernote";
+		public static final String LAST_UPDATED_ON = "last_updated_on";
+		public static final String CREATED_ON = "created_on";
 	}
     
-	private static UserNoteDatabaseDefinition sSingleton = null;
+	private static MyNoteDatabaseDefinition sSingleton = null;
 	
-    public static synchronized UserNoteDatabaseDefinition getInstance() {
+    public static synchronized MyNoteDatabaseDefinition getInstance() {
         if (sSingleton == null) {
-            sSingleton = new UserNoteDatabaseDefinition();
+            sSingleton = new MyNoteDatabaseDefinition();
         }
         return sSingleton;
     }
@@ -46,7 +50,7 @@ public class UserNoteDatabaseDefinition {
      * Private constructor, callers except unit tests should obtain an instance through
      * {@link #getInstance(android.content.Context)} instead.
      */
-    private UserNoteDatabaseDefinition() {
+    private MyNoteDatabaseDefinition() {
     }
 	
 	/** Called when no database exists in disk and the helper class needs
@@ -59,14 +63,12 @@ public class UserNoteDatabaseDefinition {
 	private void bootstrapDB(SQLiteDatabase db) {
 		Log.i(TAG, "Bootstrapping And Bible database (UserNotes)");
 		
-        String createSql = "CREATE TABLE " + Table.USERNOTE + " (" +
+		db.execSQL("CREATE TABLE " + Table.USERNOTE + " (" +
         		UserNoteColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
         		UserNoteColumn.KEY + " TEXT NOT NULL, " +
-        		UserNoteColumn.USERNOTE + " TEXT NOT NULL" +
-        ");";
-
-		Log.d(TAG, "Creating database table: " + createSql); // TODO: Remove in cleanup JDL
-        db.execSQL(createSql);
-		Log.d(TAG, "Done creating database table"); // TODO: Remove in cleanup JDL
+        		UserNoteColumn.USERNOTE + " TEXT NOT NULL, " +
+        		UserNoteColumn.LAST_UPDATED_ON + " INTEGER," +
+        		UserNoteColumn.CREATED_ON + " INTEGER" +
+        ");");
 	}
 }
