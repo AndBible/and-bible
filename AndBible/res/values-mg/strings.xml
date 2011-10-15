@@ -8,7 +8,7 @@
 <resources>
   <string name="app_name">And Bible</string>
   <!-- Startup & Help -->
-  <string name="splash_top_text">"\n\"Ary hoy Andriamanitra, 'Misia ny mazava,' dia nisy ny mazava.\"\nGenesisy 1:3"</string>
+  <string name="splash_top_text">"\n\"Ary hoy Andriamanitra, \'Misia ny mazava,\' dia nisy ny mazava.\"\nGenesisy 1:3"</string>
   <string name="help_text">Press the MENU key for actions\n\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger</string>
   <string name="help_text_long">Navigation\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger \n\nPress the MENU key for actions \n\nTo download more documents press Menu/More/Download Documents \n\nLong press on the bible view to open the context menu for actions affecting the current verse. \nLong press on a document in the document selector to delete it or view information. \n\nSpeech\nPress Speak to access a dialog to start or stop reading \n\nBookmarks\nBookmarks can be added via the verse context menu. The Bookmark Manager is accessed via the main menu. The Bookmark Manager context menu allows bookmarks to be grouped using labels.</string>
   <string name="version_text">Dikan-teny %s</string>
@@ -160,4 +160,4 @@
   <string name="prefs_section_title_title">Section Titles</string>
   <string name="strongs_toggle_button_off">nnnn</string>
   <string name="strongs_toggle_button_on">nnnn</string>
-<string name="speak_queue">Queue</string><string name="speak_repeat">Repeat</string></resources>
+<string name="speak_queue">Queue</string><string name="speak_repeat">Repeat</string><string name="select_text">Select text</string><string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string></resources>
