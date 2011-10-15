@@ -16,30 +16,29 @@ package net.bible.android.view.activity.mynote;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.mynote.MyNote;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
+import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.db.mynote.MyNoteDto;
-
-import org.crosswire.jsword.passage.Key;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.EditText;
 
 /**
- * Allow user to edit a User Note
+ * Allow user to edit a User Note with top menu shortcuts fully integrated
  *  
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's authors.
- * @author John D. Lewis [balinjdl at gmail dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
+ * @author John D. Lewis [balinjdl at gmail dot com]
  */
 public class MyNoteEdit extends CustomTitlebarActivityBase {
 	private static final String TAG = "MyNoteEdit";
 	
-	private MyNote mynoteControl = ControlFactory.getInstance().getMyNoteControl();
+	private MyNoteDto currentMynote;
 	
-	private EditText mynoteText;
+	private MyNote myNoteControl = ControlFactory.getInstance().getMyNoteControl();
+	
+	private EditText myNoteText;
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -48,8 +47,11 @@ public class MyNoteEdit extends CustomTitlebarActivityBase {
 	
 		setContentView(R.layout.mynote_edit);
 		
+		// this ensures the previous document is loaded again when the user presses Back
+		setIntegrateWithHistoryManager(true);
+		
 		// Find views
-		mynoteText = (EditText) findViewById(R.id.userNoteText);
+		myNoteText = (EditText) findViewById(R.id.myNoteText);
 	}
 	
 	/** onStart is called after onCreate or when being returned to from a change in verse
@@ -58,14 +60,10 @@ public class MyNoteEdit extends CustomTitlebarActivityBase {
 	protected void onStart() {
 		super.onStart();
 
-		// do enough to make the top menu state work correctly
-		mynoteControl.editStarted();
-
-		Key currentVerse = CurrentPageManager.getInstance().getCurrentBible().getSingleKey();
-		MyNoteDto usernoteDto = mynoteControl.getUserNoteByKey(currentVerse);
-		if (usernoteDto != null) {
-			Log.i(TAG, "Pre-existing note; pulling note text from database...");
-			mynoteText.setText(usernoteDto.getNoteText().toCharArray(), 0, usernoteDto.getNoteText().length());
+		// do enough to make the top menu state work correctly and get a myNote dto (empty if new)
+		currentMynote = myNoteControl.startMyNoteEdit();
+		if (currentMynote != null) {
+			myNoteText.setText(currentMynote.getNoteText());
 		}
 
 		// populate header 
@@ -73,8 +71,6 @@ public class MyNoteEdit extends CustomTitlebarActivityBase {
 		updatePageTitle();
 		updateSuggestedDocuments();
 	}
-
-
 
 	@Override
 	protected void handleHeaderButtonPress(HeaderButton buttonType) {
@@ -93,8 +89,14 @@ public class MyNoteEdit extends CustomTitlebarActivityBase {
 	protected void onPause() {
 		super.onPause();
 		Log.d(TAG, "saving My Note");
-		Boolean result = mynoteControl.saveUsernoteCurrentVerse(mynoteText.getText().toString());
-		mynoteText.setText("");
+		try {
+			currentMynote.setNoteText(myNoteText.getText().toString());
+			myNoteControl.saveMyNote(currentMynote);
+			currentMynote = null;
+			myNoteText.setText("");
+		} catch (Exception e) {
+			Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+		}
 	}
 
 	@Override

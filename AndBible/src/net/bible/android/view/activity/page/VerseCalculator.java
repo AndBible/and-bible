@@ -3,7 +3,6 @@ package net.bible.android.view.activity.page;
 import java.util.LinkedList;
 import java.util.List;
 
-import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 
 /** Automatically find current verse at top of display to aid quick movement to Commentary.
@@ -39,7 +38,7 @@ public class VerseCalculator {
 	
 	public void newPosition(int scrollOffset) {
 		// it is only bibles that have dynamic verse update on scroll
-		if (CurrentPageManager.getInstance().getCurrentPage() instanceof CurrentBiblePage) {
+		if (CurrentPageManager.getInstance().isBibleShown()) {
 			int currentVerse = calculateCurrentVerse(scrollOffset);
 			CurrentPageManager.getInstance().getCurrentBible().setCurrentVerseNo(currentVerse);
 		}

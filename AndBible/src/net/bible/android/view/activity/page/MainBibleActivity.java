@@ -338,7 +338,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
         case R.id.add_bookmark:
 			ControlFactory.getInstance().getBookmarkControl().bookmarkCurrentVerse();
 			return true;
-        case R.id.addMynote:
+        case R.id.myNoteAddEdit:
         	Intent noteIntent = new Intent(this, MyNoteEdit.class);
         	startActivity(noteIntent);
         	return true;

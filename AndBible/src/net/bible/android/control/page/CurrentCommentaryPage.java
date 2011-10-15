@@ -1,5 +1,7 @@
 package net.bible.android.control.page;
 
+import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.navigation.GridChoosePassageBook;
 
 import org.crosswire.jsword.book.BookCategory;
@@ -11,6 +13,8 @@ import org.crosswire.jsword.versification.BibleInfo;
 
 import android.app.Activity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 /** Reference to current passage shown by viewer
  * 
@@ -114,5 +118,15 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 	@Override
 	public boolean isSearchable() {
 		return true;
+	}
+
+	@Override
+	public void updateContextMenu(Menu menu) {
+		super.updateContextMenu(menu);
+		// by default disable notes but bible and commentary will enable
+		MenuItem myNotesMenuItem = menu.findItem(R.id.myNoteAddEdit);
+		myNotesMenuItem.setVisible(true);
+		myNotesMenuItem.setTitle(ControlFactory.getInstance().getMyNoteControl().getAddEditMenuText());
+		
 	}
 }

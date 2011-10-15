@@ -37,12 +37,10 @@ import android.widget.ListView;
 public class MyNotes extends ListActivityBase {
 	private static final String TAG = "UserNotes";
 
-	static final String USERNOTE_EXTRA = "usernote";
-
-	private MyNote usernoteControl;
+	private MyNote myNoteControl;
 	
 	// the document list
-	private List<MyNoteDto> usernoteList = new ArrayList<MyNoteDto>();
+	private List<MyNoteDto> myNoteList = new ArrayList<MyNoteDto>();
 
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
 	
@@ -51,7 +49,10 @@ public class MyNotes extends ListActivityBase {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        usernoteControl = ControlFactory.getInstance().getMyNoteControl();
+		// this ensures the previous document is loaded again when the user presses Back
+		setIntegrateWithHistoryManager(true);
+
+        myNoteControl = ControlFactory.getInstance().getMyNoteControl();
         
        	initialiseView();
     }
@@ -60,8 +61,8 @@ public class MyNotes extends ListActivityBase {
     	loadUserNoteList();
     	
     	// prepare the document list view
-    	ArrayAdapter<MyNoteDto> usernoteArrayAdapter = new MyNoteItemAdapter(this, LIST_ITEM_TYPE, usernoteList);
-    	setListAdapter(usernoteArrayAdapter);
+    	ArrayAdapter<MyNoteDto> myNoteArrayAdapter = new MyNoteItemAdapter(this, LIST_ITEM_TYPE, myNoteList);
+    	setListAdapter(myNoteArrayAdapter);
     	
     	registerForContextMenu(getListView());
     }
@@ -69,7 +70,10 @@ public class MyNotes extends ListActivityBase {
     @Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
     	try {
-    		usernoteSelected(usernoteList.get(position));
+    		myNoteSelected(myNoteList.get(position));
+    		
+    		// HistoryManager will create a new Activity on Back
+    		finish();
     	} catch (Exception e) {
     		Log.e(TAG, "document selection error", e);
     		showErrorMsg(R.string.error_occurred);
@@ -87,11 +91,11 @@ public class MyNotes extends ListActivityBase {
 	public boolean onContextItemSelected(MenuItem item) {
 		super.onContextItemSelected(item);
         AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
-        MyNoteDto usernote = usernoteList.get(menuInfo.position);
-		if (usernote!=null) {
+        MyNoteDto myNote = myNoteList.get(menuInfo.position);
+		if (myNote!=null) {
 			switch (item.getItemId()) {
 			case (R.id.delete):
-				delete(usernote);
+				delete(myNote);
 				return true;
 			}
 		}
@@ -107,25 +111,27 @@ public class MyNotes extends ListActivityBase {
     	}
     }
 
-	private void delete(MyNoteDto usernote) {
-		usernoteControl.deleteUserNote(usernote);
+	private void delete(MyNoteDto myNote) {
+		myNoteControl.deleteMyNote(myNote);
 		loadUserNoteList();
 	}
 
 	private void loadUserNoteList() {
-    	usernoteList.clear();
-    	usernoteList.addAll( usernoteControl.getAllUserNotes() );	
+    	myNoteList.clear();
+    	myNoteList.addAll( myNoteControl.getAllMyNotes() );
+    	
+    	notifyDataSetChanged();
     }
 
     /** user selected a document so download it
      * 
      * @param document
      */
-    private void usernoteSelected(MyNoteDto usernote) {
-    	Log.d(TAG, "User Note selected:"+usernote.getKey());
+    private void myNoteSelected(MyNoteDto myNote) {
+    	Log.d(TAG, "User Note selected:"+myNote.getKey());
     	try {
-        	if (usernote!=null) {
-        		CurrentPageManager.getInstance().getCurrentBible().setKey(usernote.getKey());
+        	if (myNote!=null) {
+        		CurrentPageManager.getInstance().getCurrentBible().setKey(myNote.getKey());
 	        	Intent handlerIntent = new Intent(this, MyNoteEdit.class);
         		startActivityForResult(handlerIntent, ActivityBase.STD_REQUEST_CODE);
         	}

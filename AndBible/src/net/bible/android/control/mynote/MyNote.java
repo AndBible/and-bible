@@ -17,27 +17,24 @@ import org.crosswire.jsword.passage.Key;
  */
 public interface MyNote {
 
-	void editStarted();
-	
-	//** business method */
-	boolean saveUsernoteCurrentVerse(String usertext);
-	
-	/** get user notes with the given id */
-	MyNoteDto getUserNoteById(Long id);
+	/** show add or edit depending on existence of note */
+	public int getAddEditMenuText();
 
-	// pure user note methods
+	/** called at start of edit/view.  Init environment and return a mynote dto for use */
+	public MyNoteDto startMyNoteEdit();
+	
+	/** save the note to the database if it is new or has been updated */
+	boolean saveMyNote(MyNoteDto myNoteDto);
 	
 	/** get all user notes */
-	List<MyNoteDto> getAllUserNotes();
-	
-	/** create a new user note */
-	MyNoteDto addUserNote(MyNoteDto bookmark);
+	List<MyNoteDto> getAllMyNotes();
 	
 	/** look up an existing mynote */
-	public MyNoteDto getUserNoteByKey(Key key);
+	public MyNoteDto getMyNoteByKey(Key key);
 
 	/** delete this user note (and any links to labels) */
-	boolean deleteUserNote(MyNoteDto usernote);
+	boolean deleteMyNote(MyNoteDto usernote);
 
-	String getUserNoteText(MyNoteDto usernote, boolean abbreviated);
+	/** get abbreviated text for use in Notes list */
+	String getMyNoteText(MyNoteDto usernote, boolean abbreviated);
 }

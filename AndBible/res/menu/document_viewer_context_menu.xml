@@ -7,12 +7,12 @@
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<item android:id="@+id/notes"
-		  android:title="@string/notes"/>
+	<item android:id="@+id/myNoteAddEdit" 
+		  android:title="@string/mynote_add"/>
 	<item android:id="@+id/add_bookmark"
 		  android:title="@string/add_bookmark"/>
-	<item android:id="@+id/addMynote" 
-		  android:title="@string/mynote_add"/>
+	<item android:id="@+id/notes"
+		  android:title="@string/notes"/>
 	<item android:id="@+id/copy" 
 		  android:title="@string/copy"/>
 	<item android:id="@+id/shareVerse" 

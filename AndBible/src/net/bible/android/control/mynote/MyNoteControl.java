@@ -10,7 +10,6 @@ import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.db.mynote.MyNoteDBAdapter;
 import net.bible.service.db.mynote.MyNoteDto;
@@ -31,66 +30,73 @@ import android.widget.Toast;
  */
 public class MyNoteControl implements MyNote {
 	
-	private static final String TAG = "UserNoteControl";
+	private static final String TAG = "MyNoteControl";
 
-	@Override
-	public void editStarted() {
-		ControlFactory.getInstance().getCurrentPageControl().setShowingMyNote(true);
-	}
-	
-	@Override
-	public boolean saveUsernoteCurrentVerse(String usertext) {
-		Log.d(TAG, "usernoteCurrentVerse started...");
+	public int getAddEditMenuText() {
+		// current note is linked to current bible verse
+		Key currentVerse = CurrentPageManager.getInstance().getCurrentBible().getSingleKey();
+
+		MyNoteDto myNote = getMyNoteByKey(currentVerse);
 		
-		boolean bOk = false;
-		if (CurrentPageManager.getInstance().isBibleShown() || CurrentPageManager.getInstance().isCommentaryShown()) {
-			Log.d(TAG, "usernoteCurrentVerse: either Bible or Commentary is showing...");
-			
-			Key currentVerse = CurrentPageManager.getInstance().getCurrentBible().getSingleKey();
+		if (myNote!=null) {
+			return R.string.mynote_edit;
+		} else {
+			return R.string.mynote_add;
+		}
+		
+	}
+	@Override
+	public MyNoteDto startMyNoteEdit() {
+		// update current page status
+		ControlFactory.getInstance().getCurrentPageControl().setShowingMyNote(true);
+		
+		// current note is linked to current bible verse
+		Key currentVerse = CurrentPageManager.getInstance().getCurrentBible().getSingleKey();
 
-			MyNoteDto usernoteDto = new MyNoteDto();
-			
-			if (getUserNoteByKey(currentVerse)!=null) {
-				// user note for this verse already exists
-				Log.d(TAG, "usernoteCurrentVerse: Already have a note for this passage, so delete the existing note first before adding a replacement note");
-//				Toast.makeText(BibleApplication.getApplication().getApplicationContext(), R.string.usernote_exists, Toast.LENGTH_SHORT).show();
-				
-				usernoteDto = getUserNoteByKey(currentVerse);
-				deleteUserNote(usernoteDto);
-			} else {
-				Log.d(TAG, "usernoteCurrentVerse: Creating a new note for this passage...");
-			}				
+		// get a dto
+		MyNoteDto myNote = getMyNoteByKey(currentVerse);
+		
+		// return an empty note dto
+		if (myNote==null) {
+			myNote = new MyNoteDto();
+			myNote.setKey(currentVerse);
+		}
 
-			// prepare new user note and add to db
-			usernoteDto = new MyNoteDto();
-			usernoteDto.setKey(currentVerse);
-			usernoteDto.setNoteText(usertext);
-			Log.d(TAG, "usernoteDto in UserNoteControl; UserNote text = " + usernoteDto.getNoteText());
-			MyNoteDto newUserNote = addUserNote(usernoteDto);
-			
-			if (newUserNote!=null) {
-				Log.i(TAG, "usernoteCurrentVerse: New note successfully created for this passage!");
-				// success
-				Toast.makeText(BibleApplication.getApplication().getApplicationContext(), R.string.mynote_saved, Toast.LENGTH_SHORT).show();
-				bOk = true;
-			} else {
-				Log.e(TAG, "usernoteCurrentVerse: Error adding a new note for this passage");
-				Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+		return myNote;
+	}
+
+	/** save the note to the database if it is new or has been updated
+	 */
+	@Override
+	public boolean saveMyNote(MyNoteDto myNoteDto) {
+		Log.d(TAG, "saveMyNote started...");
+		boolean isSaved = false;
+		
+		if (myNoteDto.isNew() && !myNoteDto.isEmpty()) {
+			myNoteDto = addMyNote(myNoteDto);
+			isSaved = true;
+		} else {
+			MyNoteDto oldNote = getMyNoteByKey(myNoteDto.getKey());
+			if (!myNoteDto.equals(oldNote)) {
+				updateMyNote(myNoteDto);
+				isSaved = true;
 			}
 		}
-		return bOk;
+		if (isSaved) {
+			Toast.makeText(BibleApplication.getApplication().getApplicationContext(), R.string.mynote_saved, Toast.LENGTH_SHORT).show();
+		}
+		return isSaved;
 	}
 
 	@Override
-	public String getUserNoteText(MyNoteDto usernote, boolean abbreviated) {
+	public String getMyNoteText(MyNoteDto myNote, boolean abbreviated) {
 		String text = "";
 		try {
-			text = usernote.getNoteText();
+			text = myNote.getNoteText();
 			if (abbreviated) {
-				// get first line but limit length in case there are no line breaks
-				text = StringUtils.substringBefore(text,"\n");
 				//TODO allow longer lines if portrait or tablet
-				text = CommonUtils.limitTextLength(text, 40);
+				boolean singleLine = true;
+				text = CommonUtils.limitTextLength(text, 40, singleLine);
 			}
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting user note text", e);
@@ -98,72 +104,85 @@ public class MyNoteControl implements MyNote {
 		return text;
 	}
 
-	// pure usernote methods
+	// pure myNote methods
 
-	/** get all usernotes */
-	public List<MyNoteDto> getAllUserNotes() {
+	/** get all myNotes */
+	public List<MyNoteDto> getAllMyNotes() {
 		MyNoteDBAdapter db = new MyNoteDBAdapter(BibleApplication.getApplication().getApplicationContext());
 		db.open();
-		List<MyNoteDto> usernoteList = null;
+		List<MyNoteDto> myNoteList = null;
 		try {
-			usernoteList = db.getAllUserNotes();
-			Collections.sort(usernoteList);
+			myNoteList = db.getAllMyNotes();
+			Collections.sort(myNoteList);
 		} finally {
 			db.close();
 		}
 
-		return usernoteList;
-	}
-
-	/** create a new usernote */
-	public MyNoteDto addUserNote(MyNoteDto usernote) {
-		MyNoteDBAdapter db = new MyNoteDBAdapter(BibleApplication.getApplication().getApplicationContext());
-		db.open();
-		MyNoteDto newUserNote = null;
-		try {
-			newUserNote = db.insertUserNote(usernote);
-		} finally {
-			db.close();
-		}
-		return newUserNote;
+		return myNoteList;
 	}
 
 	/** get all user notes */
-	public MyNoteDto getUserNoteById(Long id) {
+	public MyNoteDto getMyNoteById(Long id) {
 		MyNoteDBAdapter db = new MyNoteDBAdapter(BibleApplication.getApplication().getApplicationContext());
 		db.open();
-		MyNoteDto usernote = null;
+		MyNoteDto myNote = null;
 		try {
-			usernote = db.getUserNoteDto(id);
+			myNote = db.getMyNoteDto(id);
 		} finally {
 			db.close();
 		}
 
-		return usernote;
+		return myNote;
 	}
 
 	/** get user note with this key if it exists or return null */
-	public MyNoteDto getUserNoteByKey(Key key) {
+	public MyNoteDto getMyNoteByKey(Key key) {
 		MyNoteDBAdapter db = new MyNoteDBAdapter(BibleApplication.getApplication().getApplicationContext());
 		db.open();
-		MyNoteDto usernote = null;
+		MyNoteDto myNote = null;
 		try {
-			usernote = db.getUserNoteByKey(key.getOsisID());
+			myNote = db.getMyNoteByKey(key.getOsisID());
 		} finally {
 			db.close();
 		}
 
-		return usernote;
+		return myNote;
 	}
 
 	/** delete this user note (and any links to labels) */
-	public boolean deleteUserNote(MyNoteDto usernote) {
+	public boolean deleteMyNote(MyNoteDto myNote) {
 		boolean bOk = false;
-		if (usernote!=null && usernote.getId()!=null) {
+		if (myNote!=null && myNote.getId()!=null) {
 			MyNoteDBAdapter db = new MyNoteDBAdapter(BibleApplication.getApplication().getApplicationContext());
 			db.open();
-			bOk = db.removeUserNote(usernote);
+			bOk = db.removeMyNote(myNote);
 		}		
 		return bOk;
+	}
+
+	/** create a new myNote */
+	private MyNoteDto addMyNote(MyNoteDto myNote) {
+		MyNoteDBAdapter db = new MyNoteDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		db.open();
+		MyNoteDto newMyNote = null;
+		try {
+			newMyNote = db.insertMyNote(myNote);
+		} finally {
+			db.close();
+		}
+		return newMyNote;
+	}
+
+	/** create a new myNote */
+	private MyNoteDto updateMyNote(MyNoteDto myNote) {
+		MyNoteDBAdapter db = new MyNoteDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		db.open();
+		MyNoteDto updatedMyNote = null;
+		try {
+			updatedMyNote = db.updateMyNote(myNote);
+		} finally {
+			db.close();
+		}
+		return updatedMyNote;
 	}
 }

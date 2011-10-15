@@ -5,6 +5,7 @@ package net.bible.service.db.mynote;
 
 import java.util.Date;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.passage.Key;
 
 /**
@@ -19,6 +20,16 @@ public class MyNoteDto implements Comparable<MyNoteDto> {
 	private String noteText;
 	private Date lastUpdatedOn;
 	private Date createdOn;
+
+	/** was this dto retrieved from the db
+	 */
+	public boolean isNew() {
+		return id==null;
+	}
+	
+	public boolean isEmpty() {
+		return StringUtils.isEmpty(noteText);
+	}
 
 	public Long getId() {
 		return id;
@@ -63,8 +74,8 @@ public class MyNoteDto implements Comparable<MyNoteDto> {
 		result = prime * result + ((key == null) ? 0 : key.hashCode());
 		return result;
 	}
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
+	/*
+	 * compare verse and note text
 	 */
 	@Override
 	public boolean equals(Object obj) {
@@ -75,11 +86,6 @@ public class MyNoteDto implements Comparable<MyNoteDto> {
 		if (getClass() != obj.getClass())
 			return false;
 		MyNoteDto other = (MyNoteDto) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
 		if (key == null) {
 			if (other.key != null)
 				return false;

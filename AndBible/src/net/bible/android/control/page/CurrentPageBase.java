@@ -159,6 +159,7 @@ abstract class CurrentPageBase implements CurrentPage {
 	public void updateContextMenu(Menu menu) {
 		// by default disable notes but bible will enable
 		menu.findItem(R.id.notes).setVisible(false);	
+		menu.findItem(R.id.myNoteAddEdit).setVisible(false);	
 		
 		// dictionary will disable
 		menu.findItem(R.id.add_bookmark).setVisible(true);

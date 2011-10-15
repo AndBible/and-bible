@@ -99,11 +99,27 @@ public class CommonUtils {
 		return limitTextLength(text, DEFAULT_MAX_TEXT_LENGTH);
 	}
 	public static String limitTextLength(String text, int maxLength) {
-		if (text!=null && text.length()>maxLength) {
-			// break on a space rather than mid-word
-			int cutPoint = text.indexOf(" ", maxLength);
-			if (cutPoint >= maxLength) {
-				text = text.substring(0, cutPoint+1)+ELLIPSIS;
+		return limitTextLength(text, maxLength, false);
+	}
+	public static String limitTextLength(String text, int maxLength, boolean singleLine) {
+		if (text!=null) {
+			int origLength = text.length();
+			
+			if (singleLine) {
+				// get first line but limit length in case there are no line breaks
+				text = StringUtils.substringBefore(text,"\n");
+			}
+			
+			if (text.length()>maxLength) {
+				// break on a space rather than mid-word
+				int cutPoint = text.indexOf(" ", maxLength);
+				if (cutPoint >= maxLength) {
+					text = text.substring(0, cutPoint+1);
+				}
+			}
+			
+			if (text.length() != origLength) {
+				text += ELLIPSIS;
 			}
 		}
 		return text;
@@ -205,6 +221,10 @@ public class CommonUtils {
 	 */
 	public static SharedPreferences getSharedPreferences() {
 		return PreferenceManager.getDefaultSharedPreferences(BibleApplication.getApplication().getApplicationContext());
+	}
+	
+	public static String getResourceString(int resourceId) {
+		return BibleApplication.getApplication().getResources().getString(resourceId);
 	}
 	
 	/**

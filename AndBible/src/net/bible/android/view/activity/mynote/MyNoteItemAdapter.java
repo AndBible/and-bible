@@ -56,7 +56,7 @@ public class MyNoteItemAdapter extends ArrayAdapter<MyNoteDto> {
 		// set value for the second text field
 		if (view.getText2() != null) {
 			try {
-				String noteText = usernoteControl.getUserNoteText(item, true);
+				String noteText = usernoteControl.getMyNoteText(item, true);
 				view.getText2().setText(noteText);
 			} catch (Exception e) {
 				Log.e(TAG, "Error loading label verse text", e);

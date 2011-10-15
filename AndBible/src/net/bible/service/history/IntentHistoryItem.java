@@ -2,6 +2,7 @@ package net.bible.service.history;
 
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.page.MainBibleActivity;
+import net.bible.service.common.CommonUtils;
 import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
@@ -22,6 +23,10 @@ public class IntentHistoryItem implements HistoryItem {
 //		intent.putExtra(HISTORY_INTENT, true);
 	}
 
+	public IntentHistoryItem(int descriptionId, Intent intent) {
+		this(CommonUtils.getResourceString(descriptionId), intent);
+	}
+	
 	@Override
 	public boolean equals(Object o) {
 		if (o==null || !(o instanceof IntentHistoryItem)) {

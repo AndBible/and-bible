@@ -14,7 +14,7 @@ import android.util.Log;
  *
  */
 public class MyNoteDatabaseDefinition {
-	private static final String TAG = "UserNoteDatabaseDefinition";
+	private static final String TAG = "MyNoteDatabaseDefinition";
 
 	public interface Table {
 		public static final String USERNOTE = "usernote";
@@ -29,7 +29,7 @@ public class MyNoteDatabaseDefinition {
 	public interface Clause {
 	}
 
-	public interface UserNoteColumn {
+	public interface MyNoteColumn {
 		public static final String _ID = BaseColumns._ID;
 		public static final String KEY = "key";
 		public static final String USERNOTE = "usernote";
@@ -61,14 +61,14 @@ public class MyNoteDatabaseDefinition {
 	}
 	
 	private void bootstrapDB(SQLiteDatabase db) {
-		Log.i(TAG, "Bootstrapping And Bible database (UserNotes)");
+		Log.i(TAG, "Bootstrapping And Bible database (MyNotes)");
 		
 		db.execSQL("CREATE TABLE " + Table.USERNOTE + " (" +
-        		UserNoteColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-        		UserNoteColumn.KEY + " TEXT NOT NULL, " +
-        		UserNoteColumn.USERNOTE + " TEXT NOT NULL, " +
-        		UserNoteColumn.LAST_UPDATED_ON + " INTEGER," +
-        		UserNoteColumn.CREATED_ON + " INTEGER" +
+        		MyNoteColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
+        		MyNoteColumn.KEY + " TEXT NOT NULL, " +
+        		MyNoteColumn.USERNOTE + " TEXT NOT NULL, " +
+        		MyNoteColumn.LAST_UPDATED_ON + " INTEGER," +
+        		MyNoteColumn.CREATED_ON + " INTEGER" +
         ");");
 	}
 }

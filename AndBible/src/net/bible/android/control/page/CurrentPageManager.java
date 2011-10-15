@@ -50,6 +50,7 @@ public class CurrentPageManager {
 	}
 	
 	public CurrentPage getCurrentPage() {
+		Log.d(TAG, "current page type"+currentDisplayedPage.getClass().getName());
 		return currentDisplayedPage;
 	}
 	public CurrentBiblePage getCurrentBible() {

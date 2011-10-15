@@ -6,7 +6,7 @@
     >
 	<include 	layout="@layout/title_bar"
     			android:layout_alignParentTop="true"/>
-    <EditText 	android:id="@+id/userNoteText" 
+    <EditText 	android:id="@+id/myNoteText" 
     			android:layout_width="match_parent" 
     			android:layout_height="match_parent" 
     			android:inputType="textMultiLine" 

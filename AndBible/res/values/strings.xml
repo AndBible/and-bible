@@ -55,6 +55,7 @@
     <string name="no_tasks_running">There are no tasks currently being executed.</string>
 
     <!-- Search -->
+    <string name="search_results">Find Results</string>
     <string name="search_words_group_prompt">Find verses</string>
     <string name="search_all_words">All words</string>
     <string name="search_any_word">Any word</string>
@@ -179,9 +180,9 @@
     <!-- User Notes -->
     <string name="mynotes">My Notes</string>
     <string name="mynote">My Note</string>
-    <string name="mynote_add">Add my note</string>
-    <string name="mynote_edit">Edit my note</string>
-    <string name="mynote_saved">My note saved</string>
+    <string name="mynote_add">Add My Note</string>
+    <string name="mynote_edit">Edit My Note</string>
+    <string name="mynote_saved">My Note saved</string>
 
     <!-- Document types -->
     <string name="doc_type_bible">Bible</string>

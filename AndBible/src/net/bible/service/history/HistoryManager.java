@@ -5,9 +5,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
+import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
+import net.bible.android.view.activity.mynote.MyNoteEdit;
+import net.bible.android.view.activity.mynote.MyNotes;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.android.view.activity.search.Search;
 import net.bible.android.view.activity.search.SearchResults;
@@ -61,9 +64,13 @@ public class HistoryManager {
 			float yOffsetRatio = currentPage.getCurrentYOffsetRatio();
 			historyItem = new KeyHistoryItem(doc, key, yOffsetRatio);
 		} else if (currentActivity instanceof Search) {
-			historyItem = new IntentHistoryItem("Search", currentActivity.getIntent());
+			historyItem = new IntentHistoryItem(R.string.search, currentActivity.getIntent());
 		} else if (currentActivity instanceof SearchResults) {
-			historyItem = new IntentHistoryItem("Search Results", currentActivity.getIntent());
+			historyItem = new IntentHistoryItem(R.string.search_results, currentActivity.getIntent());
+		} else if (currentActivity instanceof MyNotes) {
+			historyItem = new IntentHistoryItem(R.string.mynotes, currentActivity.getIntent());
+		} else if (currentActivity instanceof MyNoteEdit) {
+			historyItem = new IntentHistoryItem(R.string.mynote_edit, currentActivity.getIntent());
 		}
 		return historyItem;
 	}
