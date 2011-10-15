@@ -14,7 +14,6 @@ import net.bible.service.common.CommonUtils;
 import net.bible.service.db.mynote.MyNoteDBAdapter;
 import net.bible.service.db.mynote.MyNoteDto;
 
-import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.passage.Key;
 
 import android.util.Log;
@@ -39,7 +38,7 @@ public class MyNoteControl implements MyNote {
 		MyNoteDto myNote = getMyNoteByKey(currentVerse);
 		
 		if (myNote!=null) {
-			return R.string.mynote_edit;
+			return R.string.mynote_view_edit;
 		} else {
 			return R.string.mynote_add;
 		}
@@ -50,16 +49,15 @@ public class MyNoteControl implements MyNote {
 		// update current page status
 		ControlFactory.getInstance().getCurrentPageControl().setShowingMyNote(true);
 		
-		// current note is linked to current bible verse
-		Key currentVerse = CurrentPageManager.getInstance().getCurrentBible().getSingleKey();
-
+		Key verse = ControlFactory.getInstance().getCurrentPageControl().getCurrentMyNotePage().getKey();
+		
 		// get a dto
-		MyNoteDto myNote = getMyNoteByKey(currentVerse);
+		MyNoteDto myNote = getMyNoteByKey(verse);
 		
 		// return an empty note dto
 		if (myNote==null) {
 			myNote = new MyNoteDto();
-			myNote.setKey(currentVerse);
+			myNote.setKey(verse);
 		}
 
 		return myNote;
@@ -72,9 +70,11 @@ public class MyNoteControl implements MyNote {
 		Log.d(TAG, "saveMyNote started...");
 		boolean isSaved = false;
 		
-		if (myNoteDto.isNew() && !myNoteDto.isEmpty()) {
-			myNoteDto = addMyNote(myNoteDto);
-			isSaved = true;
+		if (myNoteDto.isNew()) {
+			if (!myNoteDto.isEmpty()) {
+				myNoteDto = addMyNote(myNoteDto);
+				isSaved = true;
+			}
 		} else {
 			MyNoteDto oldNote = getMyNoteByKey(myNoteDto.getKey());
 			if (!myNoteDto.equals(oldNote)) {

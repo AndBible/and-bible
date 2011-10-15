@@ -14,10 +14,6 @@
 			android:title="@string/chooseBook"
 			android:icon="@android:drawable/ic_menu_save"/>
 
-	<item 	android:id="@+id/historyButton" 
-			android:title="@string/history"
-			android:icon="@android:drawable/ic_menu_recent_history"/>
-
 	<item android:id="@+id/searchButton"
 		  android:title="@string/search"
 		  android:icon="@android:drawable/ic_menu_search"/>
@@ -33,6 +29,10 @@
 	<item android:id="@+id/helpButton"
 		  android:title="@string/help"
 		  android:icon="@android:drawable/ic_menu_help"/>
+
+	<item 	android:id="@+id/historyButton" 
+			android:title="@string/history"
+			android:icon="@android:drawable/ic_menu_recent_history"/>
 
 	<item android:id="@+id/settingsButton"
 		  android:title="@string/settings"

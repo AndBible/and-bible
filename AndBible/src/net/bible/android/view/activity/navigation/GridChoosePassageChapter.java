@@ -80,7 +80,7 @@ public class GridChoosePassageChapter extends ActivityBase implements OnButtonGr
 		int chapter = buttonInfo.id;
 		Log.d(TAG, "Chapter selected:"+chapter);
 		try {
-			if (!navigateToVerse()) {
+			if (!navigateToVerse() && !CurrentPageManager.getInstance().getCurrentPage().isSingleKey()) {
 				CurrentPageManager.getInstance().getCurrentPage().setKey(new Verse(mBibleBook, chapter, 1));
 				onSave(null);
 			} else {

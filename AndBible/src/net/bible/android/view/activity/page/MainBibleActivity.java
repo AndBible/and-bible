@@ -1,6 +1,7 @@
 package net.bible.android.view.activity.page;
 
-import net.bible.android.SharedConstants;
+import org.crosswire.jsword.passage.Key;
+
 import net.bible.android.activity.R;
 import net.bible.android.control.BibleContentManager;
 import net.bible.android.control.ControlFactory;
@@ -8,28 +9,16 @@ import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
-import net.bible.android.view.activity.base.Dialogs;
-import net.bible.android.view.activity.bookmark.Bookmarks;
-import net.bible.android.view.activity.download.Download;
-import net.bible.android.view.activity.help.Help;
 import net.bible.android.view.activity.mynote.MyNoteEdit;
-import net.bible.android.view.activity.mynote.MyNotes;
-import net.bible.android.view.activity.navigation.ChooseDocument;
-import net.bible.android.view.activity.navigation.History;
 import net.bible.android.view.activity.references.NotesActivity;
-import net.bible.android.view.activity.settings.SettingsActivity;
-import net.bible.android.view.activity.speak.Speak;
 import net.bible.android.view.util.DataPipe;
-import net.bible.service.common.CommonUtils;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -37,7 +26,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.Toast;
 
 /** The main activity screen showing Bible text
@@ -52,14 +40,11 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	
 	private BibleView bibleWebView;
 	
-	// request codes passed to and returned from sub-activities
-	private static final int REFRESH_DISPLAY_ON_FINISH = 2;
-	private static final int UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH = 3;
-
-	private String mPrevLocalePref = "";
-	
 	private static final String TAG = "MainBibleActivity";
 
+	// handle requests from main menu
+	private MainMenuCommandHandler mainMenuCommandHandler = new MainMenuCommandHandler(this);
+	
 	// detect swipe left/right
 	private GestureDetector gestureDetector;
 
@@ -101,86 +86,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		}
 	}
 
-	/** 
-     * on Click handlers
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        boolean isHandled = false;
-        int requestCode = STD_REQUEST_CODE;
-        
-    	// Activities
-    	{
-    		Intent handlerIntent = null;
-	        // Handle item selection
-	        switch (item.getItemId()) {
-	        case R.id.chooseBookButton:
-	        	handlerIntent = new Intent(this, ChooseDocument.class);
-	        	break;
-	        case R.id.selectPassageButton:
-	        	handlerIntent = new Intent(this, CurrentPageManager.getInstance().getCurrentPage().getKeyChooserActivity());
-	        	break;
-	        case R.id.searchButton:
-	        	handlerIntent = ControlFactory.getInstance().getSearchControl().getSearchIntent(CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument());
-	        	break;
-	        case R.id.settingsButton:
-	        	handlerIntent = new Intent(this, SettingsActivity.class);
-	        	// force the bible view to be refreshed after returning from settings screen because notes, verses, etc. may be switched on or off
-	        	mPrevLocalePref = CommonUtils.getLocalePref();
-	        	requestCode = REFRESH_DISPLAY_ON_FINISH;
-	        	break;
-	        case R.id.historyButton:
-	        	handlerIntent = new Intent(this, History.class);
-	        	break;
-	        case R.id.bookmarksButton:
-	        	handlerIntent = new Intent(this, Bookmarks.class);
-	        	break;
-	        case R.id.mynotesButton:
-	        	handlerIntent = new Intent(this, MyNotes.class);
-	        	break;
-			case R.id.speakButton:
-	        	handlerIntent = new Intent(this, Speak.class);
-	        	break;
-	        case R.id.downloadButton:
-	        	if (CommonUtils.getSDCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
-	            	Dialogs.getInstance().showErrorMsg(R.string.storage_space_warning);
-	        	} else if (!CommonUtils.isInternetAvailable()) {
-	            	Dialogs.getInstance().showErrorMsg(R.string.no_internet_connection);
-	        	} else {
-	        		handlerIntent = new Intent(this, Download.class);
-	        		requestCode = UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH;
-	        	}
-	        	break;
-	        case R.id.helpButton:
-	        	handlerIntent = new Intent(this, Help.class);
-	        	break;
-	        }
-	        
-	        if (handlerIntent!=null) {
-	        	startActivityForResult(handlerIntent, requestCode);
-	        	isHandled = true;
-	        } 
-    	}
-
-    	//Dialogs
-    	{
-//    		if (!isHandled) {
-//                switch (item.getItemId()) {
-//                case R.id.notesButton:
-//                	showDialog(DIALOG_NOTES);
-//                	isHandled = true;
-//                	break;
-//                }
-//    		}
-    	}
-
-    	if (!isHandled) {
-            isHandled = super.onOptionsItemSelected(item);
-        }
-        
-        return isHandled;
-    }
-
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		Log.d(TAG, "Keycode:"+keyCode);
@@ -204,25 +109,35 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	bibleWebView.pageDown(false);
     }
 
+	/** 
+     * on Click handlers
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        boolean isHandled = mainMenuCommandHandler.handleMenuRequest(item.getItemId());
+        
+     	if (!isHandled) {
+            isHandled = super.onOptionsItemSelected(item);
+        }
+        
+     	return isHandled;
+    }
+
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) { 
     	Log.d(TAG, "Activity result:"+resultCode);
     	super.onActivityResult(requestCode, resultCode, data);
     	
-    	if (requestCode == REFRESH_DISPLAY_ON_FINISH) {
-    		Log.i(TAG, "Refresh on finish");
-    		if (!CommonUtils.getLocalePref().equals(mPrevLocalePref)) {
-    			// must restart to change locale
-    			PendingIntent intent = PendingIntent.getActivity(this.getBaseContext(), 0, new Intent(getIntent()), getIntent().getFlags());
-    			AlarmManager mgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-    			mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, intent);
-    			System.exit(2);
-    			return;
-    		} else {
-    			preferenceSettingsChanged();
-    		}
-    	} else if (requestCode == UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH) {
+    	boolean handled = mainMenuCommandHandler.restartIfRequiredOnReturn(requestCode);
+    	
+    	if (handled || mainMenuCommandHandler.isDisplayRefreshRequired(requestCode)) {
+    		preferenceSettingsChanged();
+    		handled = true;
+    	}
+
+    	if (handled || mainMenuCommandHandler.isDocumentChanged(requestCode)) {
     		updateSuggestedDocuments();
+    		handled = true;
     	}
     }
 
@@ -298,7 +213,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
         return true;
     }
     
- 
     @Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
@@ -340,6 +254,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 			return true;
         case R.id.myNoteAddEdit:
         	Intent noteIntent = new Intent(this, MyNoteEdit.class);
+        	Key verse = CurrentPageManager.getInstance().getCurrentBible().getSingleKey();
+            noteIntent.putExtra("Key", verse.getOsisID());
         	startActivity(noteIntent);
         	return true;
 		case R.id.copy:

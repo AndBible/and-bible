@@ -25,6 +25,8 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 	
 	/* default */ CurrentMyNotePage(CurrentBibleVerse currentVerse) {
 		super(currentVerse);
+		// this doc does not use the notification mechanism
+		setInhibitChangeNotifications(true);
 	}
 
 	/** can we enable the main menu search button 

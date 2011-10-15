@@ -131,8 +131,10 @@ public class MyNotes extends ListActivityBase {
     	Log.d(TAG, "User Note selected:"+myNote.getKey());
     	try {
         	if (myNote!=null) {
-        		CurrentPageManager.getInstance().getCurrentBible().setKey(myNote.getKey());
 	        	Intent handlerIntent = new Intent(this, MyNoteEdit.class);
+
+	        	// do request by setting key because this is set when HistoryManager tells Intent to revert even if no new Note editor page is shown e.g. change verse
+                CurrentPageManager.getInstance().getCurrentMyNotePage().setKey(myNote.getKey());
         		startActivityForResult(handlerIntent, ActivityBase.STD_REQUEST_CODE);
         	}
     	} catch (Exception e) {

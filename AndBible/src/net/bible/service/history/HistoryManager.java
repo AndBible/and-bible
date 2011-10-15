@@ -70,7 +70,7 @@ public class HistoryManager {
 		} else if (currentActivity instanceof MyNotes) {
 			historyItem = new IntentHistoryItem(R.string.mynotes, currentActivity.getIntent());
 		} else if (currentActivity instanceof MyNoteEdit) {
-			historyItem = new IntentHistoryItem(R.string.mynote_edit, currentActivity.getIntent());
+			historyItem = new MyNoteEditHistoryItem(R.string.mynote_view_edit, currentActivity.getIntent(), CurrentPageManager.getInstance().getCurrentMyNotePage().getKey());
 		}
 		return historyItem;
 	}

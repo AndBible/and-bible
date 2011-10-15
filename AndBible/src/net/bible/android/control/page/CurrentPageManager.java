@@ -50,7 +50,6 @@ public class CurrentPageManager {
 	}
 	
 	public CurrentPage getCurrentPage() {
-		Log.d(TAG, "current page type"+currentDisplayedPage.getClass().getName());
 		return currentDisplayedPage;
 	}
 	public CurrentBiblePage getCurrentBible() {
@@ -64,6 +63,9 @@ public class CurrentPageManager {
 	}
 	public CurrentGeneralBookPage getCurrentGeneralBook() {
 		return currentGeneralBookPage;
+	}
+	public CurrentMyNotePage getCurrentMyNotePage() {
+		return currentMyNotePage;
 	}
 
 	/** display a new Document and return the new Page
