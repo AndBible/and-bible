@@ -147,15 +147,15 @@
   <string name="one_verse">%d 개의 구절</string>
   <string name="prefs_navigate_to_verse_summary">구절 선택할 때</string>
   <string name="prefs_navigate_to_verse_title">구절 선택할 때</string>
-  <string name="prefs_show_morphology_summary">보기 "Robinson\'s Greek Morphology"</string>
+  <string name="prefs_show_morphology_summary">보기 \"Robinson\'s Greek Morphology\"</string>
   <string name="prefs_show_morphology_title">형태학의 코드</string>
   <string name="some_chapters">%d 개의 장들</string>
   <string name="some_pages">%d 개의 페이지들</string>
   <string name="some_verses">%d 개의 구절들</string>
-  <string name="prefs_red_letter_summary">빨간색으로 "예수님의 말씀" 보기</string>
+  <string name="prefs_red_letter_summary">빨간색으로 \"예수님의 말씀\" 보기</string>
   <string name="prefs_red_letter_title">레드 레터</string>
   <string name="prefs_section_title_summary">비정규 섹션 제목보기</string>
   <string name="prefs_section_title_title">섹션 제목</string>
   <string name="strongs_toggle_button_off">nnnn</string>
   <string name="strongs_toggle_button_on">nnnn</string>
-<string name="speak_queue">대기열</string><string name="speak_repeat">반복</string></resources>
+<string name="speak_queue">대기열</string><string name="speak_repeat">반복</string><string name="select_text">Select text</string><string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string></resources>
