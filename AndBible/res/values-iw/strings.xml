@@ -22,7 +22,7 @@
   <string name="rest_of_chapter">לסוף הפרק</string>
   <string name="stop">עצור</string>
   <string name="no">לא</string>
-  <string name="splash_top_text">"\n\"ויאמר אלוהים, 'יהי אור,' ויהי אור.\"\nבראשית א' 3"</string>
+  <string name="splash_top_text">"\n\"ויאמר אלוהים, \'יהי אור,\' ויהי אור.\"\nבראשית א\' 3"</string>
   <string name="help_text">לחץ על כפתור התפריט לאפשרויות נוספות\n\nמעבר לפרק הבא או הקודם מתבצע ע\"י החלקת האצבע לרוחב המסך</string>
   <string name="help_text_long">דפדוף\nמעבר לפרק הבא או הקודם מתבצע ע\"י החלקת האצבע לרוחב המסך, או ע\"י גלגלת המכשיר. \n\nלחץ על כפתור התפריט לאפשרויות נוספות \n\הקראה\nלחץ הקראה כדי להקריא בקול רם טקסט מסומן\nלחץ שוב כדי להפסיק את ההקראה \n\nלחיצה ארוכה על פסוק, תתן אפשרויות נוספות לגביו \nלחיצה ארוכה על טקסט תציג אפשרות למידע או למחיקהו \n\סימניות\nניתן להוסיף סימניות מתפריט ההקשר. לניהול הסימניות ניתן להגיע באמצעות התפריט. ניתן גם להוסיף תוויות לסימניות.</string>
   <string name="version_text">גרסה %s</string>
@@ -143,4 +143,4 @@
   <string name="some_chapters">%d פרקים</string>
   <string name="some_pages">%d עמודים</string>
   <string name="some_verses">%d פסוקים</string>
-<string name="prefs_red_letter_summary">Show words of Christ in red</string><string name="prefs_red_letter_title">Red Letter</string><string name="prefs_section_title_summary">Show non-canonical section titles</string><string name="prefs_section_title_title">Section Titles</string><string name="strongs_toggle_button_off">nnnn</string><string name="strongs_toggle_button_on">nnnn</string><string name="speak_queue">Queue</string><string name="speak_repeat">Repeat</string></resources>
+<string name="prefs_red_letter_summary">Show words of Christ in red</string><string name="prefs_red_letter_title">Red Letter</string><string name="prefs_section_title_summary">Show non-canonical section titles</string><string name="prefs_section_title_title">Section Titles</string><string name="strongs_toggle_button_off">nnnn</string><string name="strongs_toggle_button_on">nnnn</string><string name="speak_queue">Queue</string><string name="speak_repeat">Repeat</string><string name="select_text">Select text</string><string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string></resources>
