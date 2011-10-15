@@ -59,10 +59,10 @@
   <string name="indexing_wait_msg">Wanneer die indekseer voltooi het, sal u geneem word na die soek skerm.</string>
   <string name="lang_default">Standaard</string>
   <string name="locale_change_warning">Applikasie sal sal stop en weer van voor af begin om oor te skakel na die nuwe taal</string>
-  <string name="more">More</string>
+  <string name="more">Meer</string>
   <string name="morph_robinson_not_installed">Laai asseblief \'Robinson se morfologiese analise Kodes\' woordeboek af</string>
   <string name="new_label">Nuwe etiket</string>
-  <string name="new_label_prompt">Name</string>
+  <string name="new_label_prompt">Naam</string>
   <string name="next">Volgende</string>
   <string name="no">Nee</string>
   <string name="no_chapter_notes">Geen notas bestaan vir hierdie hoofstuk</string>
@@ -142,4 +142,4 @@
   <string name="version_text">Weergawe %s</string>
   <string name="wait_for_bible">Wag asseblief vir die Bybel om klaar af te laai. Jy sal dan na na die hoof skerm geneem word.</string>
   <string name="wait_for_bible_not_yet">Wag asseblief. \'n Bybel het nog klaar geïnstalleer nie.</string>
-</resources>
+<string name="select_text">Select text</string><string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string></resources>
