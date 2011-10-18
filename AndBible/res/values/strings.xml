@@ -195,7 +195,6 @@
     <string name="lang_default">Default</string>
 
     <!-- General -->
-    <string name="error_occurred">An error has occurred</string>
     <string name="okay">OK</string>
     <string name="cancel">Cancel</string>
     <string name="no">No</string>
@@ -205,4 +204,8 @@
     <string name="retry">Try Again</string>
     <string name="please_wait">Please wait...</string>
     <string name="all">All</string>
+    
+    <!-- Errors -->
+    <string name="error_occurred">An error has occurred</string>
+    <string name="error_no_content">No content for selected verse</string>
 </resources>

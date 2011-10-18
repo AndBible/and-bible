@@ -127,6 +127,5 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 		MenuItem myNotesMenuItem = menu.findItem(R.id.myNoteAddEdit);
 		myNotesMenuItem.setVisible(true);
 		myNotesMenuItem.setTitle(ControlFactory.getInstance().getMyNoteControl().getAddEditMenuText());
-		
 	}
 }

@@ -102,15 +102,6 @@ public class MyNotes extends ListActivityBase {
 		return false; 
 	}
 
-    @Override 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	if (resultCode==ActivityBase.RESULT_RETURN_TO_TOP) {
-    		returnToPreviousScreen();
-    	} else {
-        	loadUserNoteList();
-    	}
-    }
-
 	private void delete(MyNoteDto myNote) {
 		myNoteControl.deleteMyNote(myNote);
 		loadUserNoteList();
@@ -131,11 +122,7 @@ public class MyNotes extends ListActivityBase {
     	Log.d(TAG, "User Note selected:"+myNote.getKey());
     	try {
         	if (myNote!=null) {
-	        	Intent handlerIntent = new Intent(this, MyNoteEdit.class);
-
-	        	// do request by setting key because this is set when HistoryManager tells Intent to revert even if no new Note editor page is shown e.g. change verse
-                CurrentPageManager.getInstance().getCurrentMyNotePage().setKey(myNote.getKey());
-        		startActivityForResult(handlerIntent, ActivityBase.STD_REQUEST_CODE);
+        		myNoteControl.showNoteView(myNote);
         	}
     	} catch (Exception e) {
     		Log.e(TAG, "Error on attempt to show note", e);

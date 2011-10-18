@@ -4,11 +4,13 @@ import java.lang.reflect.Method;
 
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.PageControl;
+import net.bible.android.view.activity.base.DocumentView;
 import android.content.Context;
 import android.graphics.Picture;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
@@ -20,7 +22,7 @@ import android.webkit.WebViewClient;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class BibleView extends WebView {
+public class BibleView extends WebView implements DocumentView {
 	
 	private BibleJavascriptInterface javascriptInterface;
 	
@@ -132,6 +134,7 @@ public class BibleView extends WebView {
 
 	/** apply settings set by the user using Preferences
 	 */
+	@Override
 	public void applyPreferenceSettings() {
 		applyFontSize();
 	}
@@ -144,6 +147,7 @@ public class BibleView extends WebView {
 	 * 
 	 * @param html
 	 */
+	@Override
 	public void show(String html, int jumpToVerse, float jumpToYOffsetRatio) {
 		Log.d(TAG, "Show(html,"+jumpToVerse+","+jumpToYOffsetRatio+")");
 		applyFontSize();
@@ -155,6 +159,7 @@ public class BibleView extends WebView {
 	
 	/** enter text selection mode
 	 */
+	@Override
 	public void selectAndCopyText() {
 	    try {
 	        Method m = WebView.class.getMethod("emulateShiftHeld", (Class[])null);
@@ -169,6 +174,16 @@ public class BibleView extends WebView {
 	}
 	
 	@Override
+    public float getCurrentPosition() {
+    	// see http://stackoverflow.com/questions/1086283/getting-document-position-in-a-webview
+        int contentHeight = getContentHeight();
+        int scrollY = getScrollY();
+        float ratio = ((float) scrollY / ((float) contentHeight));
+
+        return ratio;
+    }
+
+	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		//TODO allow DPAD_LEFT to always change page and navigation between links using dpad
 		// placing BibleKeyHandler second means that DPAD left is unable to move to prev page if strongs refs are shown
@@ -181,5 +196,15 @@ public class BibleView extends WebView {
 		
 		// allow movement from link to link in current page
 		return super.onKeyUp(keyCode, event);
+	}
+
+	@Override
+	public View asView() {
+		return this;
+	}
+
+	@Override
+	public void save() {
+		//NOOP
 	}
 }

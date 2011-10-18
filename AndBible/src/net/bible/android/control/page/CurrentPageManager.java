@@ -75,7 +75,7 @@ public class CurrentPageManager {
 		if (nextDocument!=null) {
 			PassageChangeMediator.getInstance().onBeforeCurrentPageChanged();
 			
-			nextPage = getBookPage(nextDocument.getBookCategory());
+			nextPage = getBookPage(nextDocument);
 	
 			// is the next doc the same as the prev doc
 			boolean sameDoc = nextDocument.equals(nextPage.getCurrentDocument());
@@ -106,11 +106,12 @@ public class CurrentPageManager {
 	 * 
 	 * @param showing
 	 */
-	public void setShowingMyNote(boolean showing) {
-		// always true, above method effectively undoes this when another document is selected
-		if (showing) {
-			currentDisplayedPage = currentMyNotePage;
-		}
+	public void showMyNote() {
+		showMyNote(currentMyNotePage.getKey());
+	}
+	
+	public void showMyNote(Key verse) {
+		setCurrentDocumentAndKey(currentMyNotePage.getCurrentDocument(), verse);
 	}
 
 	public CurrentPage setCurrentDocumentAndKey(Book currentBook, Key key) {
@@ -119,7 +120,7 @@ public class CurrentPageManager {
 	public CurrentPage setCurrentDocumentAndKeyAndOffset(Book currentBook, Key key, float yOffsetRatio) {
 		PassageChangeMediator.getInstance().onBeforeCurrentPageChanged();
 
-		CurrentPage nextPage = getBookPage(currentBook.getBookCategory());
+		CurrentPage nextPage = getBookPage(currentBook);
 		if (nextPage!=null) {
 			try {
 				nextPage.setInhibitChangeNotifications(true);
@@ -137,7 +138,16 @@ public class CurrentPageManager {
 		return nextPage;
 	}
 	
+	private CurrentPage getBookPage(Book book) {
+		if (book.equals(currentMyNotePage.getCurrentDocument())) {
+			return currentMyNotePage;
+		} else {
+			return getBookPage(book.getBookCategory());
+		}
+		
+	}		
 	private CurrentPage getBookPage(BookCategory bookCategory) {
+
 		CurrentPage bookPage = null;
 		if (bookCategory.equals(BookCategory.BIBLE)) {
 			bookPage = currentBiblePage;
@@ -199,6 +209,9 @@ public class CurrentPageManager {
 	}
 	public boolean isGenBookShown() {
 		return currentGeneralBookPage == currentDisplayedPage;
+	}
+	public boolean isMyNoteShown() {
+		return currentMyNotePage == currentDisplayedPage;
 	}
 	public void showBible() {
 		PassageChangeMediator.getInstance().onBeforeCurrentPageChanged();

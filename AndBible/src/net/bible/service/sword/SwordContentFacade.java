@@ -82,7 +82,7 @@ public class SwordContentFacade {
 	 * @throws URISyntaxException
 	 * @throws ParserConfigurationException
 	 */
-	public synchronized FormattedDocument readHtmlText(Book book, Key key, int maxKeyCount) throws ParseException
+	public synchronized FormattedDocument readHtmlText(Book book, Key key) throws ParseException
 	{
 		FormattedDocument retVal = new FormattedDocument();
 		if (book==null || key==null) {
@@ -101,15 +101,15 @@ public class SwordContentFacade {
 				!"FarsiOPV".equals(book.getInitials()) &&
 				!"WEB".equals(book.getInitials()) &&
 				!"HNV".equals(book.getInitials())) {
-				retVal = readHtmlTextOptimizedZTextOsis(book, key, maxKeyCount);
+				retVal = readHtmlTextOptimizedZTextOsis(book, key);
 			} else {
-				retVal = readHtmlTextStandardJSwordMethod(book, key, maxKeyCount);
+				retVal = readHtmlTextStandardJSwordMethod(book, key);
 			}
 		}
 		return retVal;
 	}
 
-	private FormattedDocument readHtmlTextOptimizedZTextOsis(Book book, Key key, int maxKeyCount) throws ParseException
+	private FormattedDocument readHtmlTextOptimizedZTextOsis(Book book, Key key) throws ParseException
 	{
 		log.debug("Using fast method to fetch document data");
 		InputStream is = new OSISInputStream(book, key);
@@ -131,7 +131,7 @@ public class SwordContentFacade {
         return retVal;
 	}
 
-	private FormattedDocument readHtmlTextStandardJSwordMethod(Book book, Key key, int maxKeyCount) throws ParseException
+	private FormattedDocument readHtmlTextStandardJSwordMethod(Book book, Key key) throws ParseException
 	{
 		log.debug("Using standard JSword to fetch document data");
 		FormattedDocument retVal = new FormattedDocument();

@@ -1,5 +1,8 @@
 package net.bible.android.control.page;
 
+import net.bible.service.common.ParseException;
+import net.bible.service.format.FormattedDocument;
+
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
@@ -49,6 +52,9 @@ public interface CurrentPage {
 
 	public void setCurrentDocumentAndKey(Book doc, Key key);
 	
+	/** get a page to display */
+	public FormattedDocument getCurrentPageContent() throws ParseException;
+
 	public abstract void updateOptionsMenu(Menu menu);
 	public abstract void updateContextMenu(Menu menu);
 

@@ -79,7 +79,7 @@ public class MyNoteEdit extends CustomTitlebarActivityBase {
 //   			verse = PassageKeyFactory.instance().getKey(osisID);
 	        
 			// do enough to make the top menu state work correctly and get a myNote dto (empty if new)
-			currentMynote = myNoteControl.startMyNoteEdit();
+			currentMynote = myNoteControl.getCurrentMyNoteDto();
 			if (currentMynote != null) {
 				myNoteText.setText(currentMynote.getNoteText());
 			}

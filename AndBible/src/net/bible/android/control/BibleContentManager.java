@@ -6,12 +6,11 @@ import java.util.List;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.view.activity.page.BibleView;
+import net.bible.android.view.activity.base.DocumentView;
+import net.bible.android.view.activity.page.DocumentViewManager;
 import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.Note;
-import net.bible.service.sword.SwordContentFacade;
 
-import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
@@ -31,14 +30,12 @@ public class BibleContentManager {
 	private Key displayedVerse;
 	private List<Note> notesList;
 
-	private BibleView bibleWebView;
+	private DocumentViewManager documentViewManager;
 	
 	private static final String TAG = "BibleContentManager";
 	
-	private String NO_CONTENT = "No content for selected verse";
-	
-	public BibleContentManager(BibleView bibleWebView) {
-		this.bibleWebView = bibleWebView;
+	public BibleContentManager(DocumentViewManager documentViewManager) {
+		this.documentViewManager = documentViewManager;
 		
 		PassageChangeMediator.getInstance().setBibleContentManager(this);
 	}
@@ -52,7 +49,7 @@ public class BibleContentManager {
 		Book document = currentPage.getCurrentDocument();
 		Key key = currentPage.getKey();
 
-		// check for duplicate scren update requests
+		// check for duplicate screen update requests
 		if (!forceUpdate && document.equals(displayedBible) && key.equals(displayedVerse)) {
 			Log.w(TAG, "Duplicated screen update. Doc:"+document.getInitials()+" Key:"+key);
 		}
@@ -86,13 +83,9 @@ public class BibleContentManager {
 	            
 	            notesList = new ArrayList<Note>();
 	            
-	            FormattedDocument formattedDocument = SwordContentFacade.getInstance().readHtmlText(document, key, 200);
+	            FormattedDocument formattedDocument = currentPage.getCurrentPageContent();
 	            text = formattedDocument.getHtmlPassage();
 	            notesList = formattedDocument.getNotesList();
-	            
-	            if (StringUtils.isEmpty(text)) {
-	            	text = NO_CONTENT;
-	            }
 	
 	            displayedBible = document;
 	            displayedVerse = key;
@@ -115,10 +108,11 @@ public class BibleContentManager {
         }
     }
 	private void showText(String text, int verseNo, float yOffsetRatio) {
-		if (bibleWebView!=null) {
-			bibleWebView.show(text, verseNo, yOffsetRatio);
+		if (documentViewManager!=null) {
+			DocumentView view = documentViewManager.getDocumentView();
+			view.show(text, verseNo, yOffsetRatio);
 		} else {
-			Log.w(TAG, "Bible web view not yet registered");
+			Log.w(TAG, "Document view not yet registered");
 		}
     }
 

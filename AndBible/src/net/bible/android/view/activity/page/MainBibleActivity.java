@@ -1,7 +1,5 @@
 package net.bible.android.view.activity.page;
 
-import org.crosswire.jsword.passage.Key;
-
 import net.bible.android.activity.R;
 import net.bible.android.control.BibleContentManager;
 import net.bible.android.control.ControlFactory;
@@ -9,7 +7,6 @@ import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
-import net.bible.android.view.activity.mynote.MyNoteEdit;
 import net.bible.android.view.activity.references.NotesActivity;
 import net.bible.android.view.util.DataPipe;
 import android.content.Intent;
@@ -36,9 +33,9 @@ import android.widget.Toast;
  */
 public class MainBibleActivity extends CustomTitlebarActivityBase {
 
-	private BibleContentManager bibleContentManager;
+	private DocumentViewManager documentViewManager;
 	
-	private BibleView bibleWebView;
+	private BibleContentManager bibleContentManager;
 	
 	private static final String TAG = "MainBibleActivity";
 
@@ -59,8 +56,11 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
         
         // create related objects
         gestureDetector = new GestureDetector( new BibleGestureListener(MainBibleActivity.this) );
-        bibleWebView = (BibleView)findViewById(R.id.main_text);
-    	bibleContentManager = new BibleContentManager(bibleWebView);
+        
+        documentViewManager = new DocumentViewManager(this);
+        documentViewManager.buildView();
+
+    	bibleContentManager = new BibleContentManager(documentViewManager);
 
         PassageChangeMediator.getInstance().setMainBibleActivity(MainBibleActivity.this);
         
@@ -68,8 +68,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 
     	// initialise title etc
     	onPassageChanged();
-
-    	registerForContextMenu(bibleWebView);
     }
 
     /** adding android:configChanges to manifest causes this method to be called on flip, etc instead of a new instance and onCreate, which would cause a new observer -> duplicated threads
@@ -106,7 +104,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	/** user tapped bottom of screen
 	 */
     public void scrollScreenDown() {
-    	bibleWebView.pageDown(false);
+    	documentViewManager.getDocumentView().pageDown(false);
     }
 
 	/** 
@@ -143,8 +141,18 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 
     @Override
     protected void preferenceSettingsChanged() {
-		bibleWebView.applyPreferenceSettings();
+    	documentViewManager.getDocumentView().applyPreferenceSettings();
 		bibleContentManager.updateText(true);
+    }
+    
+    /** allow current page to save any settings or data before being changed
+     */
+    public void onBeforePageChange() {
+    	// save current scroll position so history can return to correct place in document
+		float screenPosn = getCurrentPosition();
+		CurrentPageManager.getInstance().getCurrentPage().setCurrentYOffsetRatio(screenPosn);
+		
+		documentViewManager.getDocumentView().save();
     }
     
     /** called just before starting work to change teh current passage
@@ -153,11 +161,14 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
+				Log.d(TAG, "*** onPassageChangeStarted");
+				documentViewManager.buildView();
 				setProgressBar(true);
 		    	setPageTitleVisible(false);
 			}
 		});
     }
+    
     /** called by PassageChangeMediator after a new passage has been changed and displayed
      */
     public void onPassageChanged() {
@@ -223,8 +234,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	}
 
     public void openContextMenu() {
-    	openContextMenu(bibleWebView);
+    	openContextMenu(documentViewManager.getDocumentView().asView());
     }
+    
     @Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
     	Log.d(TAG, "oncreatecontextmenu ");
@@ -253,10 +265,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 			ControlFactory.getInstance().getBookmarkControl().bookmarkCurrentVerse();
 			return true;
         case R.id.myNoteAddEdit:
-        	Intent noteIntent = new Intent(this, MyNoteEdit.class);
-        	Key verse = CurrentPageManager.getInstance().getCurrentBible().getSingleKey();
-            noteIntent.putExtra("Key", verse.getOsisID());
-        	startActivity(noteIntent);
+        	CurrentPageManager.getInstance().showMyNote();
         	return true;
 		case R.id.copy:
 			ControlFactory.getInstance().getPageControl().copyToClipboard();
@@ -266,7 +275,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 			return true;
         case R.id.selectText:
         	Toast.makeText(this, R.string.select_text_help, Toast.LENGTH_LONG).show();
-        	bibleWebView.selectAndCopyText();
+        	documentViewManager.getDocumentView().selectAndCopyText();
         	return true;
 		}
 
@@ -276,12 +285,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     /** return percentage scrolled down page
      */
     public float getCurrentPosition() {
-    	// see http://stackoverflow.com/questions/1086283/getting-document-position-in-a-webview
-        int contentHeight = bibleWebView.getContentHeight();
-        int scrollY = bibleWebView.getScrollY();
-        float ratio = ((float) scrollY / ((float) contentHeight));
-
-        return ratio;
+    	return documentViewManager.getDocumentView().getCurrentPosition();
     }
     
 	// handle swipe left and right

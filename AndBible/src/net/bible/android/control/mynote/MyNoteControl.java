@@ -42,13 +42,36 @@ public class MyNoteControl implements MyNote {
 		} else {
 			return R.string.mynote_add;
 		}
-		
 	}
+
 	@Override
-	public MyNoteDto startMyNoteEdit() {
-		// update current page status
-		ControlFactory.getInstance().getCurrentPageControl().setShowingMyNote(true);
+	public void showNoteView(MyNoteDto noteDto) {
+		ControlFactory.getInstance().getCurrentPageControl().showMyNote(noteDto.getKey());
+	}
+
+	@Override
+	public String getMyNoteTextByKey(Key verse) {
+		// get a dto
+		MyNoteDto myNote = getMyNoteByKey(verse);
 		
+		// return an empty note dto
+		String noteText = "";
+		if (myNote!=null) {
+			noteText = myNote.getNoteText();
+		}
+
+		return noteText;
+	}
+
+	@Override
+	public boolean saveMyNoteText(String myNote) {
+		MyNoteDto dto = getCurrentMyNoteDto();
+		dto.setNoteText(myNote);
+		return saveMyNote(dto);
+	}
+
+	@Override
+	public MyNoteDto getCurrentMyNoteDto() {
 		Key verse = ControlFactory.getInstance().getCurrentPageControl().getCurrentMyNotePage().getKey();
 		
 		// get a dto

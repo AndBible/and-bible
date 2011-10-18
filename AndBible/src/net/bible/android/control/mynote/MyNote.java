@@ -19,9 +19,18 @@ public interface MyNote {
 
 	/** show add or edit depending on existence of note */
 	public int getAddEditMenuText();
+	
+	/** go to MyNote edit screen and show this note */
+	public void showNoteView(MyNoteDto noteDto);
 
-	/** called at start of edit/view.  Init environment and return a mynote dto for use */
-	public MyNoteDto startMyNoteEdit();
+	/** called at start of edit/view.  Returns note text or empty string */
+	String getMyNoteTextByKey(Key verse);
+
+	/** save text for current verse */
+	boolean saveMyNoteText(String myNote);
+	
+	/** get a dto for current verse */
+	public MyNoteDto getCurrentMyNoteDto();
 	
 	/** save the note to the database if it is new or has been updated */
 	boolean saveMyNote(MyNoteDto myNoteDto);
@@ -37,4 +46,5 @@ public interface MyNote {
 
 	/** get abbreviated text for use in Notes list */
 	String getMyNoteText(MyNoteDto usernote, boolean abbreviated);
+
 }
