@@ -2,6 +2,13 @@ package net.bible.service.format.osistohtml;
 
 import net.bible.service.common.Logger;
 
+/**
+ * Write characters out to a StringBuilder - used while creating html for display
+ * 
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's authors.
+ * @author Martin Denham [mjdenham at gmail dot com]
+ */
 public class HtmlTextWriter {
 
     private StringBuilder writer;

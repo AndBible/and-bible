@@ -9,10 +9,12 @@ import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.passage.Key;
 
 /**
- * @author John D. Lewis
+ * DTO for MyNote
  * 
- * Based on corresponding Bookmark class(es) + user-supplied text
- *
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's authors.
+ * @author John D. Lewis [balinjdl at gmail dot com]
+ * @author Martin Denham [mjdenham at gmail dot com]
  */
 public class MyNoteDto implements Comparable<MyNoteDto> {
 	private Long id;

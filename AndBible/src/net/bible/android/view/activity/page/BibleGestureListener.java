@@ -1,14 +1,11 @@
 package net.bible.android.view.activity.page;
 
-import net.bible.android.BibleApplication;
 import net.bible.android.control.page.CurrentPageManager;
-import android.content.Context;
+import net.bible.service.common.CommonUtils;
 import android.util.Log;
-import android.view.Display;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
-import android.view.WindowManager;
 
 /** Listen for side swipes to change chapter.  This listener class seems to work better that subclassing WebView.
  * 
@@ -19,7 +16,7 @@ import android.view.WindowManager;
 public class BibleGestureListener extends SimpleOnGestureListener {
 
 	// measurements in dips for density independence
-	private static final float DISTANCE_DIP = 40.0f;
+	private static final int DISTANCE_DIP = 40;
 	private int scaledDistance;
 	
 	private int minScaledVelocity;
@@ -30,9 +27,7 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 	public BibleGestureListener(MainBibleActivity mainBibleActivity) {
 		super();
 		this.mainBibleActivity = mainBibleActivity;
-		// convert dip measurements to pixels
-		final float scale = mainBibleActivity.getResources().getDisplayMetrics().density;
-		scaledDistance = (int) ( DISTANCE_DIP * scale + 0.5f );
+		scaledDistance = CommonUtils.convertDipsToPx(DISTANCE_DIP);
     	minScaledVelocity = ViewConfiguration.get(mainBibleActivity).getScaledMinimumFlingVelocity();
     	// make it easier to swipe
     	minScaledVelocity = (int)(minScaledVelocity*0.66);

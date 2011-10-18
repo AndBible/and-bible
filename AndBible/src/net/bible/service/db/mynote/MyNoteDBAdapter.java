@@ -8,8 +8,8 @@ import java.util.Date;
 import java.util.List;
 
 import net.bible.service.db.CommonDatabaseHelper;
-import net.bible.service.db.mynote.MyNoteDatabaseDefinition.Table;
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition.MyNoteColumn;
+import net.bible.service.db.mynote.MyNoteDatabaseDefinition.Table;
 
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.PassageKeyFactory;
@@ -25,10 +25,12 @@ import android.text.TextUtils;
 import android.util.Log;
 
 /**
- * @author John D. Lewis
- *
- * Based on corresponding Bookmark class(es)
+ * MyNote database update methods
  * 
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's authors.
+ * @author John D. Lewis [balinjdl at gmail dot com]
+ * @author Martin Denham [mjdenham at gmail dot com]
  */
 public class MyNoteDBAdapter {
 
@@ -60,43 +62,43 @@ public class MyNoteDBAdapter {
 		db.close();
 	}
 
-	public MyNoteDto insertMyNote(MyNoteDto usernote) {
+	public MyNoteDto insertMyNote(MyNoteDto mynote) {
 		// Create a new row of values to insert.
-		Log.d(TAG, "about to insertMyNote: " + usernote.getKey());
+		Log.d(TAG, "about to insertMyNote: " + mynote.getKey());
         // Gets the current system time in milliseconds
         Long now = Long.valueOf(System.currentTimeMillis());
 
 		ContentValues newValues = new ContentValues();
-		newValues.put(MyNoteColumn.KEY, usernote.getKey().getOsisID());
-		newValues.put(MyNoteColumn.USERNOTE, usernote.getNoteText());
+		newValues.put(MyNoteColumn.KEY, mynote.getKey().getOsisID());
+		newValues.put(MyNoteColumn.MYNOTE, mynote.getNoteText());
 		newValues.put(MyNoteColumn.LAST_UPDATED_ON, now);
 		newValues.put(MyNoteColumn.CREATED_ON, now);
 		
-		long newId = db.insert(Table.USERNOTE, null, newValues);
+		long newId = db.insert(Table.MYNOTE, null, newValues);
 		MyNoteDto newMyNote = getMyNoteDto(newId);
 		return newMyNote;
 	}
 
-	public MyNoteDto updateMyNote(MyNoteDto usernote) {
+	public MyNoteDto updateMyNote(MyNoteDto mynote) {
 		// Create a new row of values to insert.
-		Log.d(TAG, "about to updateMyNote: " + usernote.getKey());
+		Log.d(TAG, "about to updateMyNote: " + mynote.getKey());
         // Gets the current system time in milliseconds
         Long now = Long.valueOf(System.currentTimeMillis());
 
 		ContentValues newValues = new ContentValues();
-		newValues.put(MyNoteColumn.KEY, usernote.getKey().getOsisID());
-		newValues.put(MyNoteColumn.USERNOTE, usernote.getNoteText());
+		newValues.put(MyNoteColumn.KEY, mynote.getKey().getOsisID());
+		newValues.put(MyNoteColumn.MYNOTE, mynote.getNoteText());
 		newValues.put(MyNoteColumn.LAST_UPDATED_ON, now);
 		
-		long rowsUpdated = db.update(Table.USERNOTE, newValues, "_id=?", new String []{String.valueOf(usernote.getId())});
+		long rowsUpdated = db.update(Table.MYNOTE, newValues, "_id=?", new String []{String.valueOf(mynote.getId())});
 		Log.d(TAG, "Rows updated:"+rowsUpdated);
 		
-		return getMyNoteDto(usernote.getId());
+		return getMyNoteDto(mynote.getId());
 	}
 
-	public boolean removeMyNote(MyNoteDto usernote) {
-		Log.d(TAG, "Removing user note:" + usernote.getKey());
-		return db.delete(Table.USERNOTE, MyNoteColumn._ID + "=" + usernote.getId(), null) > 0;
+	public boolean removeMyNote(MyNoteDto mynote) {
+		Log.d(TAG, "Removing my note:" + mynote.getKey());
+		return db.delete(Table.MYNOTE, MyNoteColumn._ID + "=" + mynote.getId(), null) > 0;
 	}
 
 	public List<MyNoteDto> getAllMyNotes() {
@@ -106,8 +108,8 @@ public class MyNoteDBAdapter {
 		try {
 			if (c.moveToFirst()) {
 		        while (!c.isAfterLast()) {
-		        	MyNoteDto usernote = getMyNoteDto(c);
-		    		allMyNotes.add(usernote);
+		        	MyNoteDto mynote = getMyNoteDto(c);
+		    		allMyNotes.add(mynote);
 		       	    c.moveToNext();
 		        }
 			}
@@ -121,33 +123,33 @@ public class MyNoteDBAdapter {
 	}
 
 	public MyNoteDto getMyNoteDto(long id) {
-		MyNoteDto usernote = null;
+		MyNoteDto mynote = null;
 		
 		Cursor c = db.query(MyNoteQuery.TABLE, MyNoteQuery.COLUMNS, MyNoteColumn._ID+"=?", new String[] {String.valueOf(id)}, null, null, null);
 		try {
 			if (c.moveToFirst()) {
-				usernote = getMyNoteDto(c);
+				mynote = getMyNoteDto(c);
 			}
 		} finally {
 			c.close();
 		}
 		
-		return usernote;
+		return mynote;
 	}
 
 	public MyNoteDto getMyNoteByKey(String key) {
-		MyNoteDto usernote = null;
+		MyNoteDto mynote = null;
 		
 		Cursor c = db.query(MyNoteQuery.TABLE, MyNoteQuery.COLUMNS, MyNoteColumn.KEY+"=?", new String[] {key}, null, null, null);
 		try {
 			if (c.moveToFirst()) {
-				usernote = getMyNoteDto(c);
+				mynote = getMyNoteDto(c);
 			}
 		} finally {
 			c.close();
 		}
 		
-		return usernote;
+		return mynote;
 	}
 	
 	/** return Dto from current cursor position or null
@@ -166,8 +168,8 @@ public class MyNoteDBAdapter {
 				dto.setKey(PassageKeyFactory.instance().getKey(key));
 			}
 			
-			String usernote = c.getString(MyNoteQuery.USERNOTE);
-			dto.setNoteText(usernote);
+			String mynote = c.getString(MyNoteQuery.MYNOTE);
+			dto.setNoteText(mynote);
 			
 			long updated = c.getLong(MyNoteQuery.LAST_UPDATED_ON);
 			dto.setLastUpdatedOn(new Date(updated));
@@ -183,13 +185,13 @@ public class MyNoteDBAdapter {
 	}
 	
 	private interface MyNoteQuery {
-        final String TABLE = Table.USERNOTE;
+        final String TABLE = Table.MYNOTE;
 
-		final String[] COLUMNS = new String[] {MyNoteColumn._ID, MyNoteColumn.KEY, MyNoteColumn.USERNOTE, MyNoteColumn.LAST_UPDATED_ON, MyNoteColumn.CREATED_ON};
+		final String[] COLUMNS = new String[] {MyNoteColumn._ID, MyNoteColumn.KEY, MyNoteColumn.MYNOTE, MyNoteColumn.LAST_UPDATED_ON, MyNoteColumn.CREATED_ON};
 
         final int ID = 0;
         final int KEY = 1;
-        final int USERNOTE = 2;
+        final int MYNOTE = 2;
         final int LAST_UPDATED_ON = 3;
         final int CREATED_ON = 4;
     }	

@@ -161,7 +161,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				Log.d(TAG, "*** onPassageChangeStarted");
 				documentViewManager.buildView();
 				setProgressBar(true);
 		    	setPageTitleVisible(false);

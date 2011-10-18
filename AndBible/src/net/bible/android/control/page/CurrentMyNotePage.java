@@ -9,6 +9,7 @@ import net.bible.service.download.FakeSwordBookFactory;
 import net.bible.service.format.FormattedDocument;
 
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.BookCategory;
 
 import android.util.Log;
 import android.view.Menu;
@@ -31,7 +32,7 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 		super(currentVerse);
 		
 		try {
-			fakeMyNoteBook = FakeSwordBookFactory.createFakeRepoBook("My Note", "[MyNote]\nDescription=My Note\nModDrv=zCom\nBlockType=CHAPTER\nLang=en\nEncoding=UTF-8\nLCSH=Bible--Commentaries.\nDataPath=./modules/comments/zcom/mynote/\nAbout=", "");
+			fakeMyNoteBook = FakeSwordBookFactory.createFakeRepoBook("My Note", "[MyNote]\nDescription=My Note\nCategory=OTHER\nModDrv=zCom\nBlockType=CHAPTER\nLang=en\nEncoding=UTF-8\nLCSH=Bible--Commentaries.\nDataPath=./modules/comments/zcom/mynote/\nAbout=", "");
 		} catch (IOException e) {
 			Log.e(TAG, "Error creating fake MyNote book", e);
 		}
@@ -65,5 +66,9 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 	@Override
 	public boolean isSearchable() {
 		return false;
+	}
+	
+	public BookCategory getBookCategory() {
+		return BookCategory.OTHER;
 	}
 }

@@ -157,6 +157,8 @@ public class CurrentPageManager {
 			bookPage = currentDictionaryPage;
 		} else if (bookCategory.equals(BookCategory.GENERAL_BOOK)) {
 			bookPage = currentGeneralBookPage;
+		} else if (bookCategory.equals(BookCategory.OTHER)) {
+			bookPage = currentMyNotePage;
 		}
 		return bookPage;
 	}

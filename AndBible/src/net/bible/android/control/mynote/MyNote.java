@@ -10,10 +10,12 @@ import net.bible.service.db.mynote.MyNoteDto;
 import org.crosswire.jsword.passage.Key;
 
 /**
- * @author John D. Lewis
+ * Control MyNote functionality
  * 
- * Based on corresponding Bookmark class(es)
- * 
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's authors.
+ * @author John D. Lewis [balinjdl at gmail dot com]
+ * @author Martin Denham [mjdenham at gmail dot com]
  */
 public interface MyNote {
 

@@ -9,7 +9,6 @@ import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
-import net.bible.android.view.activity.mynote.MyNoteEdit;
 import net.bible.android.view.activity.mynote.MyNotes;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.android.view.activity.search.Search;
@@ -21,6 +20,13 @@ import org.crosswire.jsword.passage.Key;
 import android.app.Activity;
 import android.util.Log;
 
+/**
+ * Application managed History List
+ * 
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's authors.
+ * @author Martin Denham [mjdenham at gmail dot com]
+ */
 public class HistoryManager {
 
 	private static int MAX_HISTORY = 80;
@@ -69,8 +75,6 @@ public class HistoryManager {
 			historyItem = new IntentHistoryItem(R.string.search_results, currentActivity.getIntent());
 		} else if (currentActivity instanceof MyNotes) {
 			historyItem = new IntentHistoryItem(R.string.mynotes, currentActivity.getIntent());
-		} else if (currentActivity instanceof MyNoteEdit) {
-			historyItem = new MyNoteEditHistoryItem(R.string.mynote_view_edit, currentActivity.getIntent(), CurrentPageManager.getInstance().getCurrentMyNotePage().getKey());
 		}
 		return historyItem;
 	}

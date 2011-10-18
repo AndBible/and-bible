@@ -5,7 +5,13 @@ import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.mynote.MyNoteViewBuilder;
 import android.app.Activity;
 import android.view.ViewGroup;
-
+/**
+ * Create Views for displaying documents
+ * 
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's authors.
+ * @author Martin Denham [mjdenham at gmail dot com]
+ */
 public class DocumentViewManager {
 
 	private DocumentWebViewBuilder documentWebViewBuilder;

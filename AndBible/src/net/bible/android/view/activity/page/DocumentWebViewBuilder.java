@@ -5,6 +5,13 @@ import net.bible.android.view.activity.base.DocumentView;
 import android.app.Activity;
 import android.view.ViewGroup;
 
+/**
+ * Build the main WebView component for displaying most document types
+ * 
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's authors.
+ * @author Martin Denham [mjdenham at gmail dot com]
+ */
 public class DocumentWebViewBuilder {
 
 	private BibleView bibleWebView;

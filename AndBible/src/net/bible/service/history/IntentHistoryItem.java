@@ -7,7 +7,13 @@ import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
 
-
+/**
+ * Any item in the History list that is not related to the main bible activity view e.g. search results etc
+ * 
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's authors.
+ * @author Martin Denham [mjdenham at gmail dot com]
+ */
 public class IntentHistoryItem implements HistoryItem {
 
 	private String description;
