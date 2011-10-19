@@ -12,6 +12,7 @@ import android.util.Log;
  *      The copyright to this program is held by it's author.
  */
 public class ExpandableListActivityBase extends ExpandableListActivity implements AndBibleActivity {
+	@SuppressWarnings("unused")
 	private static final String TAG = "ListActivityBase";
 	
     public ExpandableListActivityBase() {

@@ -4,7 +4,6 @@ import java.io.IOException;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookDriver;
-import org.crosswire.jsword.book.sword.AbstractBackend;
 import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.book.sword.SwordBookDriver;
 import org.crosswire.jsword.book.sword.SwordBookMetaData;

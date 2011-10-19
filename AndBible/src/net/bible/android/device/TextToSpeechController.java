@@ -106,7 +106,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 
     private void sayText() {
     	// Always set the UtteranceId (or else OnUtteranceCompleted will not be called)
-        HashMap dummyTTSParams = new HashMap();
+        HashMap<String, String> dummyTTSParams = new HashMap<String, String>();
         dummyTTSParams.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "AND-BIBLE"+System.currentTimeMillis());
 
         this.textCount++;

@@ -1,20 +1,12 @@
 package net.bible.android.view.activity.download;
 
- import java.util.Set;
-
-import net.bible.android.activity.R;
-import net.bible.android.activity.R.layout;
+ import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.ProgressActivityBase;
-
-import org.crosswire.common.progress.JobManager;
-import org.crosswire.common.progress.Progress;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 
 /**Show all Progress status
  * see BibleDesktop JobsProgressBar for example use

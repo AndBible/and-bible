@@ -4,6 +4,7 @@ import android.app.Activity;
 
 public class UiUtils {
 
+	@SuppressWarnings("unused")
 	private static final String TAG = "UiUtils"; 
 	
 

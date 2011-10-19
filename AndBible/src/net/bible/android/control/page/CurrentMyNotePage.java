@@ -13,7 +13,6 @@ import org.crosswire.jsword.book.BookCategory;
 
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 
 /** Provide information for My Note page
  * 

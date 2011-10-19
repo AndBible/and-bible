@@ -144,7 +144,7 @@ public class DownloadManager {
      * 
      * @return the list of installers
      */
-    public Map getInstallers() {
+    public Map<String, Installer> getInstallers() {
         // Ask the Install Manager for a map of all known remote repositories
         // sites
         return installManager.getInstallers();
@@ -155,7 +155,7 @@ public class DownloadManager {
      * 
      * @return the list of installed books
      */
-    public static List getInstalledBooks() {
+    public static List<Book> getInstalledBooks() {
         return Books.installed().getBooks();
     }
 
@@ -167,7 +167,7 @@ public class DownloadManager {
      * @see BookFilter
      * @see Books
      */
-    public static List getInstalledBooks(BookFilter filter) {
+    public static List<Book> getInstalledBooks(BookFilter filter) {
         return Books.installed().getBooks(filter);
     }
 
@@ -179,7 +179,7 @@ public class DownloadManager {
      * @see BookFilters#getCustom(java.lang.String)
      * @see Books
      */
-    public static List getInstalledBooks(String filterSpec) {
+    public static List<Book> getInstalledBooks(String filterSpec) {
         return getInstalledBooks(BookFilters.getCustom(filterSpec));
     }
 
@@ -200,7 +200,7 @@ public class DownloadManager {
      * @param repositoryName
      * @return the list of books at that repository
      */
-    public List getRepositoryBooks(String repositoryName) {
+    public List<Book> getRepositoryBooks(String repositoryName) {
         return installManager.getInstaller(repositoryName).getBooks();
     }
 
@@ -212,7 +212,7 @@ public class DownloadManager {
      * @see BookFilter
      * @see Books
      */
-    public List getRepositoryBooks(String repositoryName, BookFilter filter) {
+    public List<Book> getRepositoryBooks(String repositoryName, BookFilter filter) {
         return installManager.getInstaller(repositoryName).getBooks(filter);
     }
 
@@ -224,7 +224,7 @@ public class DownloadManager {
      * @see BookFilters#getCustom(java.lang.String)
      * @see Books
      */
-    public List getRepositoryBooks(String repositoryName, String filterSpec) {
+    public List<Book> getRepositoryBooks(String repositoryName, String filterSpec) {
         return getRepositoryBooks(repositoryName, BookFilters.getCustom(filterSpec));
     }
 

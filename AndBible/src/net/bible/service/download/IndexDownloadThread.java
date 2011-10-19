@@ -2,12 +2,9 @@ package net.bible.service.download;
 
 import java.io.IOException;
 
-import net.bible.android.control.page.CurrentPageManager;
-
 import org.crosswire.common.util.Reporter;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.install.Installer;
-import org.crosswire.jsword.book.sword.SwordBookMetaData;
 import org.crosswire.jsword.bridge.BookIndexer;
 import org.crosswire.jsword.util.IndexDownloader;
 
@@ -30,9 +27,8 @@ public class IndexDownloadThread {
         // return;
         // }
         //
-        final SwordBookMetaData sbmd = (SwordBookMetaData) book.getBookMetaData();
 
-        // So now we know what we want to install - all we need to do
+    	// So now we know what we want to install - all we need to do
         // is installer.install(name) however we are doing it in the
         // background so we create a job for it.
         final Thread worker = new Thread("DisplayPreLoader") //$NON-NLS-1$

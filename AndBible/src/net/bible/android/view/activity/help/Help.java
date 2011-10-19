@@ -2,10 +2,8 @@ package net.bible.android.view.activity.help;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
-import net.bible.android.activity.R.layout;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.service.common.CommonUtils;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.TextView;
@@ -23,7 +21,7 @@ public class Help extends ActivityBase {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(TAG, "Displaying History view");
+        Log.i(TAG, "Displaying Help view");
         setContentView(R.layout.help);
         
         TextView versionTextView = (TextView)findViewById(R.id.versionText);

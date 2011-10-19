@@ -1,7 +1,5 @@
 package net.bible.android.view.activity.download;
 
-import java.util.List;
-
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.base.Dialogs;
@@ -12,7 +10,6 @@ import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.progress.Progress;
-import org.crosswire.jsword.book.Book;
 
 import android.content.Intent;
 import android.os.Bundle;

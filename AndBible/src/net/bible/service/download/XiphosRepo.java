@@ -1,18 +1,13 @@
 package net.bible.service.download;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.book.BookDriver;
 import org.crosswire.jsword.book.BookMetaData;
 import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.BooksEvent;
 import org.crosswire.jsword.book.BooksListener;
-import org.crosswire.jsword.book.sword.SwordBook;
-import org.crosswire.jsword.book.sword.SwordBookDriver;
-import org.crosswire.jsword.book.sword.SwordBookMetaData;
 
 import android.util.Log;
 

@@ -14,6 +14,7 @@ import org.crosswire.common.progress.Progress;
 import org.crosswire.common.progress.WorkEvent;
 import org.crosswire.common.progress.WorkListener;
 
+import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -147,7 +148,7 @@ public class ProgressNotificationManager {
 
     private NotificationManager getNotificationManager() {
 		// add it to the NotificationManager
-		return  (NotificationManager) BibleApplication.getApplication().getSystemService(BibleApplication.getApplication().NOTIFICATION_SERVICE);
+		return  (NotificationManager) BibleApplication.getApplication().getSystemService(Application.NOTIFICATION_SERVICE);
 
     }
 }

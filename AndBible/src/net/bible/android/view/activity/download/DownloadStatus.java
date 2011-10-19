@@ -1,13 +1,10 @@
 package net.bible.android.view.activity.download;
 
  import net.bible.android.activity.R;
-import net.bible.android.activity.R.id;
-import net.bible.android.activity.R.layout;
 import net.bible.android.view.activity.base.ProgressActivityBase;
 
 import org.crosswire.common.progress.Progress;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;

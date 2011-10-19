@@ -12,7 +12,6 @@ import android.widget.Toast;
 public class Dialogs {
 
 	public static final int TOO_MANY_JOBS = 121;
-	private String errorMsg;
 
 	private Hourglass hourglass = new Hourglass();
 	

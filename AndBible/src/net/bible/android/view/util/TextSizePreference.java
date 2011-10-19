@@ -11,6 +11,7 @@ public class TextSizePreference extends SeekBarPreference {
 	
 	private static final String SAMPLE_TEXT = "Sample text";
 
+	@SuppressWarnings("unused")
 	private static final String TAG = "TextSizePreference";
 	
 	public TextSizePreference(Context context, AttributeSet attrs) {

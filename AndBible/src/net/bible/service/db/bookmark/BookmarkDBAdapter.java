@@ -175,7 +175,8 @@ public class BookmarkDBAdapter {
 		newValues.put(BookmarkLabelColumn.BOOKMARK_ID, bookmark.getId());
 		newValues.put(BookmarkLabelColumn.LABEL_ID, label.getId());
 
-		long newId = db.insert(Table.BOOKMARK_LABEL, null, newValues);
+		//long newId = 
+		db.insert(Table.BOOKMARK_LABEL, null, newValues);
 	}
 
 	public BookmarkDto getBookmarkDto(long id) {

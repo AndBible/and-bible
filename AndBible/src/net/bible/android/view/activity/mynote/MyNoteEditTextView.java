@@ -24,6 +24,7 @@ public class MyNoteEditTextView extends EditText implements DocumentView {
 
 	private MyNote myNoteControl = ControlFactory.getInstance().getMyNoteControl();
 
+	@SuppressWarnings("unused")
 	private static final String TAG = "MyNoteEditTextView";
 	
 	public MyNoteEditTextView(Context context) {

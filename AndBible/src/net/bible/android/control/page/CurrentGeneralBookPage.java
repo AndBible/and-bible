@@ -1,7 +1,5 @@
 package net.bible.android.control.page;
 
-import java.util.List;
-
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.navigation.ChooseGeneralBookKey;
 
@@ -21,8 +19,8 @@ public class CurrentGeneralBookPage extends CachedKeyPage implements CurrentPage
 	
 	private Key key;
 
+	@SuppressWarnings("unused")
 	private static final String TAG = "CurrentGeneralBookPage";
-	
 	
 	/* default */ CurrentGeneralBookPage() {
 		super(false);

@@ -7,8 +7,6 @@ import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.Dialogs;
 
 import org.apache.commons.lang.StringUtils;
-import org.crosswire.common.activate.Activator;
-import org.crosswire.common.activate.Kill;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 

@@ -19,7 +19,7 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
-import org.crosswire.jsword.versification.BibleInfo;
+import org.crosswire.jsword.versification.BookName;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -125,12 +125,12 @@ public class PageControl {
 	 * @return
 	 */
 	public String getCurrentPageTitle() {
-		boolean fullBookNameSave = BibleInfo.isFullBookName();
+		boolean fullBookNameSave = BookName.isFullBookName();
 		
 		boolean isPortrait = CommonUtils.isPortrait();
 		
 		// show short book name to save space if Portrait
-		BibleInfo.setFullBookName(!isPortrait);
+		BookName.setFullBookName(!isPortrait);
 		
 		StringBuilder title = new StringBuilder();
 		CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
@@ -140,7 +140,7 @@ public class PageControl {
 			}
 		}
 		// restore full book name setting
-		BibleInfo.setFullBookName(fullBookNameSave);
+		BookName.setFullBookName(fullBookNameSave);
 		
 		int maxLength = isPortrait ? 11 : 26;
 		String retVal = shorten(title.toString(), maxLength);

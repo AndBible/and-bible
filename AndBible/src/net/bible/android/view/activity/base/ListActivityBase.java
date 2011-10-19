@@ -117,11 +117,10 @@ public class ListActivityBase extends ListActivity implements AndBibleActivity {
     	}
 	}
 
-	@SuppressWarnings("unchecked")
 	protected void notifyDataSetChanged() {
 		ListAdapter listAdapter = getListAdapter();
     	if (listAdapter!=null && listAdapter instanceof ArrayAdapter) {
-    		((ArrayAdapter)listAdapter).notifyDataSetChanged();
+    		((ArrayAdapter<?>)listAdapter).notifyDataSetChanged();
     	} else {
     		Log.w(TAG, "Could not update list Array Adapter");
     	}

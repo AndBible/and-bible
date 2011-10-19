@@ -137,9 +137,8 @@ public class ProgressActivityBase extends ActivityBase {
      * @return true if all jobs finished or no jobs
      */
     protected boolean isAllJobsFinished() {
-		Set jobs = JobManager.getJobs();
-		Iterator iter = jobs.iterator();
-		boolean allFinished = true;
+		Set<Progress> jobs = JobManager.getJobs();
+		Iterator<Progress> iter = jobs.iterator();
 		while (iter.hasNext()) {
 			Progress job = (Progress)iter.next();
 			if (!job.isFinished()) {

@@ -19,6 +19,7 @@ public class CurrentDictionaryPage extends CachedKeyPage implements CurrentPage 
 	
 	private Key key;
 
+	@SuppressWarnings("unused")
 	private static final String TAG = "CurrentDictionaryPage";
 	
 	/* default */ CurrentDictionaryPage() {
