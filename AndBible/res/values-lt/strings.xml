@@ -136,7 +136,7 @@
   <string name="all_greek_occurrences">Rodyti visus atvejus</string>
   <string name="all_hebrew_occurrences">Rasti visus atvejus</string>
   <string name="no_indexed_bible_with_strongs_ref">Jums reikia atsisiųsti bibliją su Strongo numeriais, o taip pat ir jos indeksus per „Paeišką“</string>
-  <string name="morph_robinson_not_installed">"Prašome atsisiųsti žodyną 'Robinson's Morphological Analysis Codes"</string>
+  <string name="morph_robinson_not_installed">"Prašome atsisiųsti žodyną \'Robinson\'s Morphological Analysis Codes"</string>
   <string name="prefs_show_morphology_summary">Rodyti Robinsono graikų morfologiją</string>
   <string name="prefs_show_morphology_title">Morfologiniai kodai</string>
   <string name="delete_index">Pašalinti paieškos indeksą</string>
@@ -156,4 +156,4 @@
   <string name="prefs_section_title_title">Skyriaus antraštės</string>
   <string name="strongs_toggle_button_off">nnnn</string>
   <string name="strongs_toggle_button_on">nnnn</string>
-<string name="speak_queue">Queue</string><string name="speak_repeat">Repeat</string></resources>
+<string name="speak_queue">Queue</string><string name="speak_repeat">Repeat</string><string name="select_text">Select text</string><string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string></resources>
