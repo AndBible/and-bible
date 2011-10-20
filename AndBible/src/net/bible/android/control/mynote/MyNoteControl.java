@@ -3,6 +3,7 @@
  */
 package net.bible.android.control.mynote;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -100,7 +101,11 @@ public class MyNoteControl implements MyNote {
 			}
 		} else {
 			MyNoteDto oldNote = getMyNoteByKey(myNoteDto.getKey());
-			if (!myNoteDto.equals(oldNote)) {
+			// delete empty notes
+			if (myNoteDto.isEmpty()) {
+				deleteMyNote(myNoteDto);
+			} else if (!myNoteDto.equals(oldNote)) {
+				// update changed notes
 				updateMyNote(myNoteDto);
 				isSaved = true;
 			}
@@ -207,5 +212,26 @@ public class MyNoteControl implements MyNote {
 			db.close();
 		}
 		return updatedMyNote;
+	}
+
+	@Override
+	public List<Key> getKeysWithNotesInPassage(Key passage) {
+		MyNoteDBAdapter db = new MyNoteDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		db.open();
+		List<MyNoteDto> myNoteList = null;
+		try {
+			myNoteList = db.getMyNotesInPassage(passage);
+			Collections.sort(myNoteList);
+		} finally {
+			db.close();
+		}
+
+		List<Key> keysWithNotes = new ArrayList<Key>();
+		if (myNoteList!=null) {
+			for (MyNoteDto myNoteDto : myNoteList) {
+				keysWithNotes.add(myNoteDto.getKey());
+			}
+		}
+		return keysWithNotes;
 	}
 }

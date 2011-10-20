@@ -1,5 +1,8 @@
 package net.bible.service.format.osistohtml;
 
+import java.util.List;
+import java.util.Map;
+
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
@@ -23,8 +26,9 @@ public class OsisToHtmlParameters {
     private String extraFooter;
     private int numPaddingBrsAtBottom;
     private boolean convertStrongsRefsToLinks;
+    private List<Key> keysWithNotes;
 
-    public String getLanguageCode() {
+	public String getLanguageCode() {
 		return languageCode;
 	}
 	public void setLanguageCode(String languageCode) {
@@ -120,5 +124,11 @@ public class OsisToHtmlParameters {
 	}
 	public void setConvertStrongsRefsToLinks(boolean convertStrongsRefsToLinks) {
 		this.convertStrongsRefsToLinks = convertStrongsRefsToLinks;
+	}
+	public List<Key> getKeysWithNotes() {
+		return keysWithNotes;
+	}
+	public void setKeysWithNotes(List<Key> keysWithNotes) {
+		this.keysWithNotes = keysWithNotes;
 	}
 }

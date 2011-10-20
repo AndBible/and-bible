@@ -19,6 +19,9 @@ import org.crosswire.jsword.passage.Key;
  */
 public interface MyNote {
 
+	/** get a list of Keys which have notes in the passage (normally a chapter) */
+	List<Key> getKeysWithNotesInPassage(Key passage);
+	
 	/** show add or edit depending on existence of note */
 	public int getAddEditMenuText();
 	

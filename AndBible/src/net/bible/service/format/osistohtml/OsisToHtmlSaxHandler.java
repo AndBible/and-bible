@@ -54,6 +54,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 	// tag handlers for the different OSIS tags
 	private VerseHandler verseHandler;
+	private MyNoteMarker myNoteMarker;
 	private NoteAndReferenceHandler noteAndReferenceHandler;
 	private TitleHandler titleHandler;
 	private QHandler qHandler;
@@ -79,6 +80,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		super();
 		this.parameters = parameters;
 		verseHandler = new VerseHandler(parameters, verseInfo, getWriter());
+		myNoteMarker = new MyNoteMarker(parameters, verseInfo, getWriter());
 		noteAndReferenceHandler = new NoteAndReferenceHandler(parameters, getWriter());
 		titleHandler = new TitleHandler(parameters, verseInfo, getWriter());
 		qHandler = new QHandler(parameters, getWriter());
@@ -167,6 +169,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 		if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
 			verseHandler.startAndUpdateVerse(attrs);
+			myNoteMarker.start();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_TITLE)) {
 			titleHandler.start(attrs);		
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {

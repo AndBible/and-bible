@@ -49,6 +49,10 @@ h1 {
 	float: right;
 }
 
+.myNoteImg {
+	padding-right: 0.2em;
+}
+
 .rtl-notusedyet {
 	direction: rtl;
   	unicode-bidi: embed;

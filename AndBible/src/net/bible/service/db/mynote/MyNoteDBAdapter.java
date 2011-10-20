@@ -11,6 +11,7 @@ import net.bible.service.db.CommonDatabaseHelper;
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition.MyNoteColumn;
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition.Table;
 
+import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.PassageKeyFactory;
 
@@ -44,7 +45,6 @@ public class MyNoteDBAdapter {
 
 	public MyNoteDBAdapter(Context _context) {
 		dbHelper =  CommonDatabaseHelper.getInstance(_context); 
-		Log.d(TAG, "got dbHelper: " + dbHelper.toString());
 	}
 
 	public MyNoteDBAdapter open() throws SQLException {
@@ -114,12 +114,31 @@ public class MyNoteDBAdapter {
 		        }
 			}
 		} finally {
-			Log.d(TAG, "closing db in getAllMyNotes");
 	        c.close();
 		}
         
 		Log.d(TAG, "allMyNotes set to " + allMyNotes.size() + " item long list");
         return allMyNotes;
+	}
+	
+	public List<MyNoteDto> getMyNotesInPassage(Key passage) {
+		Log.d(TAG, "about to getMyNotesInPassage:"+passage.getOsisID());
+		List<MyNoteDto> notesList = new ArrayList<MyNoteDto>();
+		Cursor c = db.query(MyNoteQuery.TABLE, MyNoteQuery.COLUMNS, MyNoteColumn.KEY+" LIKE ?", new String []{String.valueOf(passage.getOsisID()+"%")}, null, null, null);
+		try {
+			if (c.moveToFirst()) {
+		        while (!c.isAfterLast()) {
+		        	MyNoteDto mynote = getMyNoteDto(c);
+		    		notesList.add(mynote);
+		       	    c.moveToNext();
+		        }
+			}
+		} finally {
+	        c.close();
+		}
+        
+		Log.d(TAG, "myNotesInPassage set to " + notesList.size() + " item long list");
+        return notesList;
 	}
 
 	public MyNoteDto getMyNoteDto(long id) {

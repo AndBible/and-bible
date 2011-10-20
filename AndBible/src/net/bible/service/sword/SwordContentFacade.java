@@ -11,6 +11,7 @@ import javax.xml.parsers.SAXParserFactory;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Constants;
 import net.bible.service.common.Logger;
@@ -320,6 +321,7 @@ public class SwordContentFacade {
 					osisToHtmlParameters.setShowNotes(preferences.getBoolean("show_notes_pref", true));
 					osisToHtmlParameters.setShowTitles(preferences.getBoolean("section_title_pref", true));
 					osisToHtmlParameters.setRedLetter(preferences.getBoolean("red_letter_pref", false));
+					osisToHtmlParameters.setKeysWithNotes(ControlFactory.getInstance().getMyNoteControl().getKeysWithNotesInPassage(key));
 
 					// showMorphology depends on showStrongs to allow the toolbar toggle button to affect both strongs and morphology
 					boolean showStrongs = preferences.getBoolean("show_strongs_pref", true);
