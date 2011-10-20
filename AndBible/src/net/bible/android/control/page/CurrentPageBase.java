@@ -169,6 +169,7 @@ abstract class CurrentPageBase implements CurrentPage {
 		menu.findItem(R.id.selectPassageButton).setTitle(R.string.selectPassage);		
 		menu.findItem(R.id.searchButton).setEnabled(isSearchable());	
 		menu.findItem(R.id.bookmarksButton).setEnabled(true);		
+		menu.findItem(R.id.speakButton).setEnabled(isSpeakable());	
 	}
 	
 	@Override
@@ -247,6 +248,12 @@ abstract class CurrentPageBase implements CurrentPage {
 		return shareKeyBetweenDocs;
 	}
 
+	/** can we enable the main menu Speak button 
+	 */
+	@Override
+	public boolean isSpeakable() {
+		return true;
+	}
 
 	public float getCurrentYOffsetRatio() {
 		// if key has changed then offsetRatio must be reset because user has changed page

@@ -67,6 +67,14 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 		return false;
 	}
 	
+	/** can we enable the main menu Speak button 
+	 */
+	@Override
+	public boolean isSpeakable() {
+		//TODO doesn't work currently - enable later
+		return false;
+	}
+
 	public BookCategory getBookCategory() {
 		return BookCategory.OTHER;
 	}
