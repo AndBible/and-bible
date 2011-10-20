@@ -240,6 +240,12 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
         }
 	}
 
+	/** return true if Strongs numbers are shown */
+	public boolean isStrongsShown() {
+		return ControlFactory.getInstance().getDocumentControl().isStrongsInBook() && 
+				CommonUtils.getSharedPreferences().getBoolean("show_strongs_pref", true);
+	}
+	
     /** must wait until child has setContentView before setting custom title bar so intercept the method and then set the title bar
      */
 	public void setPageTitleVisible(boolean show) {

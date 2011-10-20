@@ -44,6 +44,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	
 	// detect swipe left/right
 	private GestureDetector gestureDetector;
+	private BibleGestureListener gestureListener;
 
     /** Called when the activity is first created. */
     @Override
@@ -55,7 +56,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
         setIntegrateWithHistoryManager(true);
         
         // create related objects
-        gestureDetector = new GestureDetector( new BibleGestureListener(MainBibleActivity.this) );
+        gestureListener = new BibleGestureListener(MainBibleActivity.this);
+        gestureDetector = new GestureDetector( gestureListener );
         
         documentViewManager = new DocumentViewManager(this);
         documentViewManager.buildView();
@@ -143,6 +145,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     protected void preferenceSettingsChanged() {
     	documentViewManager.getDocumentView().applyPreferenceSettings();
 		bibleContentManager.updateText(true);
+		gestureListener.setSensePageDownTap(!isStrongsShown());
     }
     
     /** allow current page to save any settings or data before being changed
@@ -180,6 +183,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		    	setPageTitleVisible(true);
 		    	setProgressBar(false);
 		    	updateSuggestedDocuments();
+				gestureListener.setSensePageDownTap(!isStrongsShown());
 			}
 		});
     }
@@ -280,7 +284,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 
 		return false; 
 	}
-
+    
     /** return percentage scrolled down page
      */
     public float getCurrentPosition() {
