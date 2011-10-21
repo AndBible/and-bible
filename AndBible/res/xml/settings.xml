@@ -19,6 +19,10 @@
 				android:title="@string/prefs_verse_per_line_title" 
 				android:summary="@string/prefs_verse_per_line_summary" 
 				android:defaultValue="false"/>
+	<CheckBoxPreference android:key="show_mynotes_pref" 
+				android:title="@string/prefs_show_mynotes_title"
+				android:summary="@string/prefs_show_mynotes_summary"
+				android:defaultValue="true"/>
 	<CheckBoxPreference android:key="show_notes_pref" 
 				android:title="@string/prefs_show_notes_title"
 				android:summary="@string/prefs_show_notes_summary"

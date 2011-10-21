@@ -1,7 +1,6 @@
 package net.bible.service.format.osistohtml;
 
 import java.util.List;
-import java.util.Map;
 
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
@@ -13,6 +12,7 @@ public class OsisToHtmlParameters {
     private boolean isShowTitles = true;
     private boolean isShowVerseNumbers = false;
     private boolean isVersePerline = false;
+    private boolean isShowMyNotes = false;
     private boolean isShowNotes = false;
     private boolean isBibleStyleNotesAndRefs = false;
     // used as a basis if a reference has only chapter and no book
@@ -57,6 +57,12 @@ public class OsisToHtmlParameters {
 	}
 	public void setVersePerline(boolean isVersePerline) {
 		this.isVersePerline = isVersePerline;
+	}
+	public boolean isShowMyNotes() {
+		return isShowMyNotes;
+	}
+	public void setShowMyNotes(boolean isShowMyNotes) {
+		this.isShowMyNotes = isShowMyNotes;
 	}
 	public boolean isShowNotes() {
 		return isShowNotes;

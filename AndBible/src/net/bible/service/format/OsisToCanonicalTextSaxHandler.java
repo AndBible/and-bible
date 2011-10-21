@@ -19,13 +19,11 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
     
     private int currentVerseNo;
 
-	// debugging
-    private boolean isDebugMode = false;
-
     private Stack<CONTENT_STATE> writeContentStack = new Stack<CONTENT_STATE>(); 
 	private enum CONTENT_STATE {WRITE, IGNORE};
     
-    private static final Logger log = new Logger("OsisToCanonicalTextSaxHandler");
+    @SuppressWarnings("unused")
+	private static final Logger log = new Logger("OsisToCanonicalTextSaxHandler");
     
     public OsisToCanonicalTextSaxHandler() {
         super();

@@ -52,7 +52,7 @@ public class MyNoteMarker {
 	/** just after verse start tag
 	 */
 	public void start() {
-		if (myNoteVerseMap!=null) {
+		if (myNoteVerseMap!=null && parameters.isShowMyNotes()) {
 			if (myNoteVerseMap.containsKey(verseInfo.currentVerseNo)) {
 				writer.write("<img src='file:///android_asset/pencil16x16.png' class='myNoteImg'/>");
 			}

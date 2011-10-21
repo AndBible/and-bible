@@ -1,15 +1,10 @@
 package net.bible.service.format;
 
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
-
 import net.bible.service.common.Logger;
 import net.bible.service.format.osistohtml.HtmlTextWriter;
 
 import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 /**
  * Convert OSIS input into Canonical text (used when creating search index)
@@ -25,7 +20,8 @@ public class OsisSaxHandler extends DefaultHandler {
 
     private HtmlTextWriter writer;
     
-    private static final Logger log = new Logger("OsisSaxHandler");
+    @SuppressWarnings("unused")
+	private static final Logger log = new Logger("OsisSaxHandler");
     
     public OsisSaxHandler() {
         writer = new HtmlTextWriter();

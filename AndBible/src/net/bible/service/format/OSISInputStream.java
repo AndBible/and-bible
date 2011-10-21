@@ -5,13 +5,11 @@ import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
 
-
 import net.bible.service.common.Logger;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.passage.Key;
-import org.crosswire.jsword.passage.Verse;
 
 /** Read through the raw OSIS input from a bible, add verse tags if required, remove any extra div tags,
  * and pipe back as in InputStream ready to be fed to the SAXParser for html formatting.
@@ -40,8 +38,8 @@ public class OSISInputStream extends InputStream {
 	
 	private OSISVerseTidy osisVerseTidy;
 	
+	@SuppressWarnings("unused")
 	private static Logger log = new Logger(TAG);
-	
 	
 	/** Constructor to create an input stream from raw OSIS input
 	 * @param book

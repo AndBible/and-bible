@@ -16,7 +16,7 @@
     \nPress the MENU key for actions
     \n\nTo download more documents press Menu/More/Download Documents
     \n\n<b>Speech</b>\nPress Speak to access a dialog to start or stop reading
-    \n\n<b>My Note</b>\nNotes can be added via the My Note menu item on the Verse context menu.  The list of existing notes can be accessed via the main menu.
+    \n\n<b>My Note</b>\nNotes can be added via the My Note menu item on the verse context menu.  The list of existing notes can be accessed via the main menu.
     \n\n<b>Bookmarks</b>\nBookmarks can be added via the verse context menu.  The Bookmark Manager is accessed via the main menu.  The Bookmark Manager context menu allows bookmarks to be grouped using labels.
     \n\n<b>Search</b>\nSearch text can include special characters like *, ?, AND, OR, NOT (see "Apache Lucene - Query Parser Syntax" for more details)
     \n\n<b>Context Menus</b>
@@ -75,6 +75,8 @@
     <string name="prefs_show_verseno_summary">Show verse numbers</string>
     <string name="prefs_verse_per_line_title">One verse per line</string>
     <string name="prefs_verse_per_line_summary">Show each verse on a different line</string>
+    <string name="prefs_show_mynotes_title">Show My Note icons</string>
+    <string name="prefs_show_mynotes_summary">Show icon in verses with My Note</string>
     <string name="prefs_show_notes_title">Footnotes and x-refs</string>
     <string name="prefs_show_notes_summary">Show footnotes and cross-references</string>
     <string name="prefs_show_strongs_title">Show Strong\'s numbers</string>
