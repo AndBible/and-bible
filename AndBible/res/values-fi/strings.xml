@@ -64,7 +64,7 @@
   <string name="next">Seuraava</string>
   <!--  Strongs -->
   <string name="strongs">Strongin sanakirja</string>
-  <string name="strongs_not_installed">Ole hyvä ja lataa Strongin heprean- ja kreikankielen sanakirjat</string>
+  <string name="strongs_not_installed">Ole hyvä ja lataa ensin Strongin heprean- ja kreikankielen sanakirjat</string>
   <!-- Module download -->
   <string name="download">Lataa teoksia</string>
   <string name="download_confirmation">Lataa teos internetistä?</string>
@@ -76,7 +76,7 @@
   <string name="wait_for_bible">Ole hyvä ja odota, että teos on ladattu kokonaan. Latauksen jälkeen ohjelma siirtyy takaisin tekstinäkymään.</string>
   <string name="wait_for_bible_not_yet">Ole hyvä ja odota hetki. Teoksen asennus ei ole vielä valmis.</string>
   <string name="download_complete_no_bibles">Teosta ei onnistuttu asennetamaan. Siirry takaisin ja yritä uudelleen.</string>
-  <string name="too_many_jobs">Liian monta tehtävää suorituksessa. Odota hetki, että tehtäviä valmistuu ja yritä uudelleen.</string>
+  <string name="too_many_jobs">Liian monta tehtävää samaan aikaan tekeillä. Odota, että tehtävät valmistuvat ja yritä uudelleen.</string>
   <!-- Document context menu -->
   <string name="delete">Poista</string>
   <string name="about">Tietoja</string>
@@ -125,7 +125,7 @@
   <string name="refresh_book_list">Päivitä luettelo ladattavista teoksista?</string>
   <string name="rest_of_book">Kirjan loppuun</string>
   <string name="rest_of_chapter">Luvun loppuun</string>
-  <string name="share_verse">Jaa nykyinen jae ...</string>
+  <string name="share_verse">Jaa aktiivinen jae ...</string>
   <string name="share_verse_subject">Raamatun jae on jaettu käyttäen And Bible -sovellusta.</string>
   <string name="stop">Pysäytä</string>
   <string name="delete_index">Poista hakuindeksi</string>
@@ -148,4 +148,4 @@
   <string name="prefs_section_title_title">Väliotsikot</string>
   <string name="strongs_toggle_button_off">nnnn</string>
   <string name="strongs_toggle_button_on">nnnn</string>
-<string name="speak_queue">Jonoon</string><string name="speak_repeat">Toista</string><string name="select_text">Select text</string><string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string></resources>
+<string name="speak_queue">Jono</string><string name="speak_repeat">Toista</string><string name="select_text">Valitse teksti</string><string name="select_text_help">Valitse teksti maalaamalle se hitaasti.\nKopioidaksesi tekstin, kosketa valintaa maalaamisen jälkeen.</string><string name="error_no_content">No content for selected verse</string><string name="mynote">My Note</string><string name="mynote_add">Add My Note</string><string name="mynote_saved">My Note saved</string><string name="mynote_view_edit">My Note</string><string name="mynotes">My Notes</string><string name="prefs_show_mynotes_summary">Show icon in verses with My Note</string><string name="prefs_show_mynotes_title">Show My Note icons</string><string name="save">Save</string><string name="search_results">Find Results</string></resources>
