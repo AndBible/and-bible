@@ -51,8 +51,8 @@
   <string name="prefs_show_verseno_summary">Zeige Versnummern</string>
   <string name="prefs_verse_per_line_title">Ein Vers pro Zeile</string>
   <string name="prefs_verse_per_line_summary">Jeden Vers auf einer neuen Zeile anzeigen</string>
-  <string name="prefs_show_notes_title">Anmerkungen</string>
-  <string name="prefs_show_notes_summary">Zeige Anmerkungen</string>
+  <string name="prefs_show_notes_title">Fußnoten &amp; Querverweise</string>
+  <string name="prefs_show_notes_summary">Zeige Fußnoten und Querverweise</string>
   <string name="prefs_show_strongs_title">Strong\'s Nummern anzeigen</string>
   <string name="prefs_show_strongs_summary">Verweise zu Strong\'s Wörterbuch</string>
   <string name="prefs_night_mode_title">Nachtmodus</string>
@@ -154,4 +154,4 @@
   <string name="prefs_section_title_title">Überschriften</string>
   <string name="strongs_toggle_button_off">Strongs aus</string>
   <string name="strongs_toggle_button_on">Strongs an</string>
-<string name="speak_queue">An Wiedergabe anhängen</string><string name="speak_repeat">Wiedergabe wiederholen</string><string name="select_text">Select text</string><string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string></resources>
+<string name="speak_queue">An Wiedergabe anhängen</string><string name="speak_repeat">Wiedergabe wiederholen</string><string name="select_text">Text markieren</string><string name="select_text_help">Langsam ziehen um Text zu markieren,\ndann markierten Bereich berühren, um zu kopieren.</string><string name="error_no_content">No content for selected verse</string><string name="mynote">Eigene Notiz</string><string name="mynote_add">Notiz hinzufügen</string><string name="mynote_saved">Notiz gespeichert</string><string name="mynote_view_edit">bearbeiten</string><string name="mynotes">Eigene Notizen</string><string name="prefs_show_mynotes_summary">Show icon in verses with My Note</string><string name="prefs_show_mynotes_title">Show My Note icons</string><string name="save">Speichern</string><string name="search_results">Suchergebnisse</string></resources>
