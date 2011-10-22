@@ -53,6 +53,34 @@ h1 {
 	padding-right: 0.2em;
 }
 
+/** styles for hi tag e.g. <hi type="italic">123</hi> */ 
+.hi_acrostic {
+	/* NOOP */
+}
+.hi_bold, .hi_emphasis, .hi_illuminated {
+	font-weight: bold;
+}
+.hi_italic {
+	font-style: italic;
+}
+.hi_line-through {
+	text-decoration: line-through;
+}
+.hi_normal {
+	text-decoration: none;
+	font-weight: normal;
+	font-style: normal;
+}
+.hi_small-caps {
+	font-variant: small-caps;
+}
+.hi_sub {
+	vertical-align: sub;
+}
+.hi_sup {
+	vertical-align: super;
+}
+
 .rtl-notusedyet {
 	direction: rtl;
   	unicode-bidi: embed;

@@ -59,6 +59,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	private TitleHandler titleHandler;
 	private QHandler qHandler;
 	private LHandler lHandler;
+	private HiHandler hiHandler;
 	private StrongsHandler strongsHandler;
 	
 	// processor for the tag content
@@ -84,6 +85,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		noteAndReferenceHandler = new NoteAndReferenceHandler(parameters, getWriter());
 		titleHandler = new TitleHandler(parameters, verseInfo, getWriter());
 		qHandler = new QHandler(parameters, getWriter());
+		hiHandler = new HiHandler(parameters, getWriter());
 		lHandler = new LHandler(parameters, getWriter());
 		strongsHandler = new StrongsHandler(parameters, getWriter());
 		
@@ -181,9 +183,11 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
 			lHandler.startL(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_P)) {
-			write("<p />");
+			write("<p>");
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {
 			qHandler.start(attrs);
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_HI)) {
+			hiHandler.start(attrs);
 		} else if (name.equals("milestone")) {
 			String type = attrs.getValue(OSISUtil.OSIS_ATTR_TYPE);
 			if (StringUtils.isNotEmpty(type)) {
@@ -223,10 +227,14 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			noteAndReferenceHandler.endReference(verseInfo.currentVerseNo);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
 			lHandler.endL();
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_P)) {
+			write("</p>");
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {
 			// end quotation, but <q /> tag is a marker and contains no content
 			// so <q /> will appear at beginning and end of speech
 			qHandler.end();
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_HI)) {
+			hiHandler.end();
 		} else if (name.equals("transChange")) {
 			write("</span>");
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_W)) {

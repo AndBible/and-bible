@@ -1,0 +1,2 @@
+Moving the db to the SD Card
+http://stackoverflow.com/questions/3436434/is-it-possible-to-move-the-internal-db-to-the-sdcard
