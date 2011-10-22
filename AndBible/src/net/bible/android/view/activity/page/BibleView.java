@@ -2,10 +2,13 @@ package net.bible.android.view.activity.page;
 
 import java.lang.reflect.Method;
 
+import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.view.activity.base.DocumentView;
+import net.bible.service.common.CommonUtils;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Picture;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -137,6 +140,12 @@ public class BibleView extends WebView implements DocumentView {
 	@Override
 	public void applyPreferenceSettings() {
 		applyFontSize();
+		// if night mode then set scrollbar colour
+		if (CommonUtils.getSharedPreferences().getBoolean("night_mode_pref", false)) {
+			setBackgroundColor(Color.BLACK);
+		} else {
+			setBackgroundColor(Color.WHITE);
+		}
 	}
 	
 	private void applyFontSize() {
@@ -150,6 +159,7 @@ public class BibleView extends WebView implements DocumentView {
 	@Override
 	public void show(String html, int jumpToVerse, float jumpToYOffsetRatio) {
 		Log.d(TAG, "Show(html,"+jumpToVerse+","+jumpToYOffsetRatio+")");
+		// call this from here because some documents may require an adjusted font size e.g. those using Greek font
 		applyFontSize();
 		
 		mJumpToVerse = jumpToVerse;
