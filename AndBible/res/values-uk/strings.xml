@@ -10,7 +10,7 @@
   <!-- Startup & Help -->
   <string name="splash_top_text">"\n\"І сказав Бог: Хай станеться світло! І сталося світло.\"\nБуття 1:3"</string>
   <string name="help_text">"Натисніть кнопку MЕНЮ для дій\n\nЩоб перейти до наступного або попереднього розділу, користуйтесь трекболом, D-Pad або рухом пальця по сенсорному екрані"</string>
-  <string name="help_text_long"><b>Навігація</b>\nЩоб перейти до наступного або попереднього розділу, користуйтесь трекболом, D-Pad або рухом пальця по сенсорному екрані\nПодвійний дотик вкл./викл. повноекранний режим.\n\n<b>Меню</b>\nНатисніть кнопку MЕНЮ для дій\n\nДля завантаження додаткових документів натисніть Меню/Детальніше/Завантажити Документи\n\n<b>Озвучення</b>\nНатисніть Озвучити для доступу в діалогове вікно щоб розпочати або припинити читання\n\n<b>Закладки</b>\nЗакладки можуть бути додані через контекстне меню вірша. Менеджер Закладок доступний через головне меню. Контекстне меню Менеджера Закладок дозволяє групувати закладки за допомогою міток.\n\n<b>Пошук</b>\nТекст пошуку може містити в собі спеціальні символи такі як *, ?, AND, OR, NOT (див. \"Apache Lucene - Query Parser Syntax\" більш докладно)\n\n<b>Контекстне Меню</b>\nТривало натисніть в поданні Біблії щоб відкрити контекстне меню для дій, щодо поточного вірша.\nТривало натисніть на документ у селекторі документів щоб видалити його або переглянути інформацію. \nТривало натисніть кнопку Назад щоб ввійти в список журналу</string>
+  <string name="help_text_long"><b>Навігація</b>\nЩоб перейти до наступного або попереднього розділу, користуйтесь трекболом, D-Pad або рухом пальця по сенсорному екрані\nПодвійний дотик вкл./викл. повноекранний режим.\n\n<b>Меню</b>\nНатисніть кнопку MЕНЮ для дій\n\nДля завантаження додаткових документів натисніть Меню/Детальніше/Завантажити Документи\n\n<b>Озвучення</b>\nНатисніть Озвучити для доступу в діалогове вікно щоб розпочати або припинити читання\n\n<b>Моя примітка</b>\nНотатки/примітки можуть бути додані через меню \'Моя примітка\' в контекстному меню вірша. Список існуючих нотаток/приміток доступний через головне меню.\n\n<b>Закладки</b>\nЗакладки можуть бути додані через контекстне меню вірша. Менеджер Закладок доступний через головне меню. Контекстне меню Менеджера Закладок дозволяє групувати закладки за допомогою міток.\n\n<b>Пошук</b>\nТекст пошуку може містити в собі спеціальні символи такі як *, ?, AND, OR, NOT (див. \"Apache Lucene - Query Parser Syntax\" більш докладно)\n\n<b>Контекстне Меню</b>\nТривало натисніть в поданні Біблії щоб відкрити контекстне меню для дій, щодо поточного вірша.\nТривало натисніть на документ у селекторі документів щоб видалити його або переглянути інформацію. \nТривало натисніть кнопку Назад щоб ввійти в список журналу</string>
   <string name="version_text">Версія %s</string>
   <string name="no_sdcard_error">Вставте SD-карту і перезапустіть знову Android Біблію.</string>
   <!-- main menu -->
@@ -54,8 +54,8 @@
   <string name="prefs_show_verseno_summary">Відобразити номери віршів</string>
   <string name="prefs_verse_per_line_title">Один вірш на рядок</string>
   <string name="prefs_verse_per_line_summary">Показати один вірш на рядок</string>
-  <string name="prefs_show_notes_title">Нотатки</string>
-  <string name="prefs_show_notes_summary">Відобразити нотатки</string>
+  <string name="prefs_show_notes_title">Виноски і ссилки</string>
+  <string name="prefs_show_notes_summary">Відобразити виноски і ссилки</string>
   <string name="prefs_show_strongs_title">"Відобразити номери Стронга"</string>
   <string name="prefs_show_strongs_summary">Посилання на грецькі та єврейські визначення</string>
   <string name="prefs_night_mode_title">Нічний режим</string>
@@ -66,8 +66,8 @@
   <string name="prefs_interface_locale_summary">Вибрати мову інтерфейсу</string>
   <string name="locale_change_warning">Застосування буде перезапущене, щоб перейти до нової мови інтерфейсу</string>
   <!-- Notes screen -->
-  <string name="no_chapter_notes">Нема нотаток в цьому розділі</string>
-  <string name="no_verse_notes">Нема нотаток в цьому вірші</string>
+  <string name="no_chapter_notes">Нема приміток/нотаток в цьому розділі</string>
+  <string name="no_verse_notes">Нема приміток/нотаток в цьому вірші</string>
   <string name="previous">Попередній</string>
   <string name="next">Наступний</string>
   <!--  Strongs -->
@@ -159,4 +159,4 @@
   <string name="prefs_section_title_title">Назви розділів</string>
   <string name="strongs_toggle_button_off">nnnn</string>
   <string name="strongs_toggle_button_on">nnnn</string>
-<string name="speak_queue">Черга</string><string name="speak_repeat">Повторити</string><string name="select_text">Select text</string><string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string></resources>
+<string name="speak_queue">Черга</string><string name="speak_repeat">Повторити</string><string name="select_text">Вибір тексту</string><string name="select_text_help">Повільно перетягувати по екрані щоб вибрати текст. \nПотім торкнутись вибраного тексту щоб копіювати.</string><string name="error_no_content">Немає вмісту для вибраного вірша</string><string name="mynote">Моя примітка</string><string name="mynote_add">Додати примітку</string><string name="mynote_saved">Примітка збережена</string><string name="mynote_view_edit">Моя примітка</string><string name="mynotes">Мої примітки</string><string name="prefs_show_mynotes_summary">"Показати піктограму в віршах з моєю приміткою "</string><string name="prefs_show_mynotes_title">Показати піктограми приміток</string><string name="save">Зберегти</string><string name="search_results">Пошук результатів</string></resources>
