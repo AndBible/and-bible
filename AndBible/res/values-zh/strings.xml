@@ -40,7 +40,7 @@
   <string name="prefs_show_verseno_title">显示节数</string>
   <string name="prefs_show_verseno_summary">"是否显示小节的序号 "</string>
   <string name="prefs_show_notes_title">备注</string>
-  <string name="prefs_show_notes_summary">显示备注</string>
+  <string name="prefs_show_notes_summary">显示脚注和索引</string>
   <string name="prefs_night_mode_title">夜晚模式</string>
   <string name="prefs_night_mode_summary">方便在暗处阅读</string>
   <!-- Notes screen -->
@@ -105,7 +105,7 @@
   <string name="general_book">卷</string>
   <string name="general_book_contents">内容</string>
   <string name="help">帮助</string>
-  <string name="help_text_long">Navigation\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger \n\nPress the MENU key for actions \n\nTo download more documents press Menu/More/Download Documents \n\nLong press on the bible view to open the context menu for actions affecting the current verse. \nLong press on a document in the document selector to delete it or view information. \n\nSpeech\nPress Speak to access a dialog to start or stop reading \n\nBookmarks\nBookmarks can be added via the verse context menu. The Bookmark Manager is accessed via the main menu. The Bookmark Manager context menu allows bookmarks to be grouped using labels.</string>
+  <string name="help_text_long"><b>导航</b>\n使用轨迹球、D-pad或者用手指在屏幕上左右滑动到达前一章或者后一章\n双击屏幕来打开或者关闭全屏模式\n\n<b>菜单</b>\n按菜单键来开启动作菜单\n\n欲下载更多的圣经或者文档, 按 菜单／更多／下载文档\n\n<b>朗读</b>\n按朗读启动开关朗读功能的对话框\n\n<b>我的笔记</b>\n按弹出菜单中的我的笔记菜单项可以添加笔记。现有笔记列表通过主菜单访问\n\n<b>书签</b>\n在弹出菜单中可以给对应小节添加书签. 书签管理通过主菜单访问. 书签管理的弹出菜单提供书签分组功能，而且可以使用标签.\n\n<b>查询</b>\n查询文本可以包括的特殊字符有 *, ?, AND, OR, NOT (请参考 \"Apache Lucene - Query Parser Syntax\" 获得更多的信息)\n\n<b>弹出菜单</b>\n长按圣经文本显示针对当前小节的有效动作菜单.\n长按文档选择列表中某项来删除文档或者查看文档的信息.\n长按Back返回按钮查看历史记录</string>
   <string name="index_create">创建索引</string>
   <string name="index_download">下载索引</string>
   <string name="lang_default">默认语言</string>
@@ -140,4 +140,4 @@
   <string name="prefs_section_title_title">章节标题</string>
   <string name="strongs_toggle_button_off">已关闭</string>
   <string name="strongs_toggle_button_on">已打开</string>
-<string name="speak_queue">Queue</string><string name="speak_repeat">Repeat</string><string name="select_text">Select text</string><string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string></resources>
+<string name="speak_queue">队列</string><string name="speak_repeat">重复</string><string name="select_text">选择文本</string><string name="select_text_help">按住然后在屏幕上轻轻滑动来选择文本，\n然后触摸来复制已经选择的文本.</string><string name="error_no_content">选定小节没有对应内容</string><string name="mynote">我的手记</string><string name="mynote_add">添加笔记</string><string name="mynote_saved">笔记已保存</string><string name="mynote_view_edit">查看编辑我的笔记</string><string name="mynotes">笔记列表</string><string name="prefs_show_mynotes_summary">Show icon in verses with My Note</string><string name="prefs_show_mynotes_title">Show My Note icons</string><string name="save">保存</string><string name="search_results">查找结果</string></resources>
