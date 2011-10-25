@@ -44,7 +44,7 @@
   <string name="download_confirmation">Laai \'n Bybel van die internet af?</string>
   <string name="download_document_confirm_prefix">"Laai af"</string>
   <string name="download_source_message">Dokumente word afgelaai van http://www.crosswire.org &amp; http://xiphos.org</string>
-  <string name="error_downloading">\'n Fout met die aflaai. Gaan asseblief jou internet konneksie na.</string>
+  <string name="error_downloading">\'n Fout met aflaai. Gaan asseblief jou internet konneksie na.</string>
   <string name="error_executing_search">Ongeldige soektog</string>
   <string name="error_occurred">\'n Fout het ontstaan</string>
   <string name="help">Help</string>
@@ -65,12 +65,12 @@
   <string name="new_label_prompt">Naam</string>
   <string name="next">Volgende</string>
   <string name="no">Nee</string>
-  <string name="no_chapter_notes">Geen notas bestaan vir hierdie hoofstuk</string>
+  <string name="no_chapter_notes">Geen opmerkings bestaan vir hierdie hoofstuk</string>
   <string name="no_indexed_bible_with_strongs_ref">Jy moet \'n Bybel met die Strong\'s numbers aflaai, en dan, laai sy indeks volgens Soek funksie af</string>
   <string name="no_internet_connection">Kon nie na die internet konnekteer nie</string>
   <string name="no_sdcard_error">Plaas asseblief \'n SD kaart in en begin And Bible weer.</string>
   <string name="no_tasks_running">Daar is geen take wat tans uitgevoer word nie.</string>
-  <string name="no_verse_notes">Geen notas bestaan ​​vir hierdie vers nie</string>
+  <string name="no_verse_notes">Geen opmerkings bestaan ​​vir hierdie vers nie</string>
   <string name="notes">Voetnotas en verwysings</string>
   <string name="okay">Goed</string>
   <string name="one_chapter">%d hoofstuk</string>
@@ -89,8 +89,8 @@
   <string name="prefs_section_title_title">Afdeling Titels</string>
   <string name="prefs_show_morphology_summary">Wys Robinson se Griekse morfologie</string>
   <string name="prefs_show_morphology_title">Morfologiese kodes</string>
-  <string name="prefs_show_notes_summary">Wys notas</string>
-  <string name="prefs_show_notes_title">Notas</string>
+  <string name="prefs_show_notes_summary">Wys voetnotas en kruisverwysings</string>
+  <string name="prefs_show_notes_title">Voetnotas en x-refs</string>
   <string name="prefs_show_strongs_summary">Skakels na Grieks en Hebreeus definisies</string>
   <string name="prefs_show_strongs_title">Wys Strong\'s getalle</string>
   <string name="prefs_show_verseno_summary">Wys vers nommers</string>
@@ -142,4 +142,4 @@
   <string name="version_text">Weergawe %s</string>
   <string name="wait_for_bible">Wag asseblief vir die Bybel om klaar af te laai. Jy sal dan na na die hoof skerm geneem word.</string>
   <string name="wait_for_bible_not_yet">Wag asseblief. \'n Bybel het nog klaar geïnstalleer nie.</string>
-<string name="select_text">Select text</string><string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string></resources>
+<string name="select_text">Kies teks</string><string name="select_text_help">Beweeg stadig om te kies.\nDan raak seleksie aan om te kopieer.</string><string name="error_no_content">Geen inhoud vir geselekteerde vers</string><string name="mynote">My Nota</string><string name="mynote_add">Voeg My Nota by</string><string name="mynote_saved">My Nota is geberg</string><string name="mynote_view_edit">My Nota</string><string name="mynotes">My Notas</string><string name="prefs_show_mynotes_summary">Wys ikoon in verse met My Nota</string><string name="prefs_show_mynotes_title">Wys My Nota ikoone</string><string name="save">Stoor</string><string name="search_results">Soek Resultate</string></resources>
