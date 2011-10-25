@@ -54,8 +54,8 @@
   <string name="prefs_show_verseno_summary">보기 구절 번호</string>
   <string name="prefs_verse_per_line_title">한 줄에 한 구절</string>
   <string name="prefs_verse_per_line_summary">다른 라인에있는 각 구절보기</string>
-  <string name="prefs_show_notes_title">노트</string>
-  <string name="prefs_show_notes_summary">표시 노트</string>
+  <string name="prefs_show_notes_title">각주와 상호 참조</string>
+  <string name="prefs_show_notes_summary">표시 각주와 상호 참조</string>
   <string name="prefs_show_strongs_title">보기 스트롱 번호</string>
   <string name="prefs_show_strongs_summary">링크 그리스어 및 히브리어 정의</string>
   <string name="prefs_night_mode_title">야간 모드</string>
@@ -158,4 +158,4 @@
   <string name="prefs_section_title_title">섹션 제목</string>
   <string name="strongs_toggle_button_off">nnnn</string>
   <string name="strongs_toggle_button_on">nnnn</string>
-<string name="speak_queue">대기열</string><string name="speak_repeat">반복</string><string name="select_text">Select text</string><string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string><string name="error_no_content">No content for selected verse</string><string name="mynote">My Note</string><string name="mynote_add">Add My Note</string><string name="mynote_saved">My Note saved</string><string name="mynote_view_edit">My Note</string><string name="mynotes">My Notes</string><string name="prefs_show_mynotes_summary">Show icon in verses with My Note</string><string name="prefs_show_mynotes_title">Show My Note icons</string><string name="save">Save</string><string name="search_results">Find Results</string></resources>
+<string name="speak_queue">대기열</string><string name="speak_repeat">반복</string><string name="select_text">텍스트를 선택합니다</string><string name="select_text_help">선택 천천히 드래그합니다. 다음 복사 선택을 터치.</string><string name="error_no_content">선택된 구절에 대한 내용 없음</string><string name="mynote">내 참고</string><string name="mynote_add">내 참고 추가</string><string name="mynote_saved">내 참고 저장</string><string name="mynote_view_edit">내 참고</string><string name="mynotes">내 참고들</string><string name="prefs_show_mynotes_summary">내 참고 구절에 아이콘 표시</string><string name="prefs_show_mynotes_title">내 노트 아이콘 표시</string><string name="save">저장</string><string name="search_results">결과 찾기</string></resources>
