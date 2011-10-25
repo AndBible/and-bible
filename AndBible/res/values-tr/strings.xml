@@ -183,4 +183,4 @@
     <string name="retry">Try Again</string>
     <string name="please_wait">Please wait...</string>
     <string name="all">All</string>
-<string name="select_text">Select text</string><string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string></resources>
+<string name="select_text">Select text</string><string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string><string name="error_no_content">No content for selected verse</string><string name="mynote">My Note</string><string name="mynote_add">Add My Note</string><string name="mynote_saved">My Note saved</string><string name="mynote_view_edit">My Note</string><string name="mynotes">My Notes</string><string name="prefs_show_mynotes_summary">Show icon in verses with My Note</string><string name="prefs_show_mynotes_title">Show My Note icons</string><string name="save">Save</string><string name="search_results">Find Results</string></resources>
