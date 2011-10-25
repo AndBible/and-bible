@@ -11,7 +11,7 @@
 	<!-- Startup & Help -->
     <string name="splash_top_text">"\n\"พระ​เจ้า​ตรัส​ว่า “จง​เกิด​ความ​สว่าง” ความ​สว่าง​ก็​เกิด​ขึ้น\"\nปฐมกาล 1:3"</string>
     <string name="help_text">​กด​ปุ่ม เมนู เพื่อ​ตั้ง​ค่า\n\n​ไป​ยัง​บท​ถัดไป​หรือ​ก่อน​หน้า​โดย​ใช้​นิ้ว​ปัด​หน้าจอ (หรือ​ใช้ track-ball​, D-pad)</string>
-    <string name="help_text_long">"\n​<b>การ​นำ​ทาง</b>\n​ไป​ยัง​บท​ถัดไป​หรือ​ก่อน​หน้า โดย​ใช้​นิ้ว​ปัด​หน้าจอ (หรือ​ใช้ track-ball​, D-pad) \n\n​<b>เมนู​</b>\n​กด​ปุ่ม เมนู เพื่อ​ตั้ง​ค่า\n\n​ดาวน์​โหลด​โมดูล ให้​กด​ปุ่ม เมนู​/​เพิ่มเติม​/​ดาวน์​โหลด​โมดูล\n\n<b>อ่าน​ให้​ฟัง</b>\n​กด​อ่าน​ให้​ฟัง เพื่อ​ตั้ง​ค่า​เริ่มต้น​หรือ​หยุด​การ​อ่าน\n\n​<b>ตัว​คั่น</b>\n​สามารถ​เพิ่ม​ตัว​คั่น​ผ่าน​เมนู​ทาง​ลัด​ของ​ข้อ​พระ​คัมภีร์ เข้าถึง​การ​จัดการ​ตัว​คั่น​ได้​ผ่าน​ทาง​เมนู​หลัก เมนู​ทาง​ลัด​ใน​การ​จัดการ​ตัว​คั่น จะ​ช่วย​ให้​ตัว​คั่น​ถูก​จัด​กลุ่ม​โดย​ใช้​ป้าย​กำกับ\n\n<b>ค้นหา</b>\nค้นหาคำโดยใช้สัญลักษณ์ *, ?, AND, OR, NOT ช่วย (ดูรายละเอียดเพิ่มเติมจาก \"Apache Lucene - Query Parser Syntax\")\n\n​<b>เมนูบริบท</b>\nกด​แช่​ใน​มุมมอง​พระ​คัมภีร์ เพื่อ​เปิด​เมนู​ทาง​ลัด​สำหรับ​จัดการ​ข้อ​ปัจจุบัน\n​กด​แช่​บน​โมดูล เพื่อ​ลบ​หรือ​ดู​ข้อมูล\nกดแช่ปุ่ม Back เพื่อดูประวัติการใช้งาน\n"</string>
+    <string name="help_text_long">"\n​<b>การ​นำ​ทาง</b>\n​ไป​ยัง​บท​ถัดไป​หรือ​ก่อน​หน้า โดย​ใช้​นิ้ว​ปัด​หน้าจอ (หรือ​ใช้ track-ball​, D-pad) \n\n​<b>เมนู​</b>\n​กด​ปุ่ม เมนู เพื่อ​ตั้ง​ค่า\n\n​ดาวน์​โหลด​โมดูล ให้​กด​ปุ่ม เมนู​/​เพิ่มเติม​/​ดาวน์​โหลด​โมดูล\n\n<b>อ่าน​ให้​ฟัง</b>\n​กด​อ่าน​ให้​ฟัง เพื่อ​ตั้ง​ค่า​เริ่มต้น​หรือ​หยุด​การ​อ่าน\n\n<b>บันทึกส่วนตัว</b>\nสามารถเพิ่มบันทึก ผ่านทางรายการเมนูบันทึกส่วนตัว จากเมนูทางลัด รายการบันทึกที่มีอยู่แล้ว สามารถเข้าถึงได้ผ่านเมนูหลัก\n\n​<b>ตัว​คั่น</b>\n​สามารถ​เพิ่ม​ตัว​คั่น​ ผ่าน​เมนู​ทาง​ลัด​ของ​ข้อ​พระ​คัมภีร์ เข้าถึง​การ​จัดการ​ตัว​คั่น​ ได้​ผ่าน​ทาง​เมนู​หลัก เมนู​ทาง​ลัด​ใน​การ​จัดการ​ตัว​คั่น จะ​ช่วย​ให้​ตัว​คั่น​ถูก​จัด​กลุ่ม​โดย​ใช้​ป้าย​กำกับ\n\n<b>ค้นหา</b>\nค้นหาคำโดยใช้สัญลักษณ์ *, ?, AND, OR, NOT ช่วย (ดูรายละเอียดเพิ่มเติมจาก \"Apache Lucene - Query Parser Syntax\")\n\n​<b>เมนูทางลัด</b>\nกด​แช่​ใน​มุมมอง​พระ​คัมภีร์ เพื่อ​เปิด​เมนู​ทาง​ลัด​สำหรับ​จัดการ​ข้อ​ปัจจุบัน\n​กด​แช่​บน​โมดูล เพื่อ​ลบ​หรือ​ดู​ข้อมูล\nกดแช่ปุ่ม Back เพื่อดูประวัติการใช้งาน\n"</string>
     <string name="version_text">รุ่นที่ %s</string>
 	<string name="no_sdcard_error">กรุณาใส่ SD card และเริ่มต้น And Bible อีกครั้ง</string>
     
@@ -49,7 +49,7 @@
     <string name="search_any_word">คำใดก็ได้</string>
     <string name="search_phrase">วลี</string>
     <string name="search_result_count">พบ %d รายการที่สอดคล้อง</string>
-    <string name="search_showing_first">พบมากเกินไป แสดงเฉพาะส่วนแรกของ %d</string> 
+    <string name="search_showing_first">พบจำนวนมาก แสดงเฉพาะส่วนแรกของ %d</string> 
     <string name="search_bible_section_group_prompt">ค้นหา</string>
     <string name="search_all_bible">พระคัมภีร์ทั้งเล่ม</string>
     <string name="search_new_testament">พันธสัญญาใหม่</string>
@@ -79,7 +79,7 @@
     <string name="prefs_text_size_title">ขนาดแบบอักษร</string>
     <string name="prefs_text_size_summary">"​ปรับ​ขนาด​แบบ​อักษร​ที่​ต้องการ"</string>
     <string name="prefs_interface_locale_title">เลือกภาษา</string>
-    <string name="prefs_interface_locale_summary">เลือกเพื่อกำหนดเมนูภาษาเอง</string>
+    <string name="prefs_interface_locale_summary">เลือกเพื่อกำหนดเมนูภาษาด้วยตัวเอง</string>
     <string name="locale_change_warning">​โปรแกรม​จะ​เริ่มต้น​ใหม่​อีก​ครั้ง​เพื่อ​สลับ​เมนู​ภาษา</string>
 
     <!-- Notes screen -->
@@ -93,7 +93,7 @@
     <string name="strongs_not_installed">กรุณาดาวน์โหลด ตัวเลขสตรองฮีบรู และพจนานุกรมกรีก</string>
     <string name="all_greek_occurrences">ค้นหาที่พบทั้งหมด</string>
     <string name="all_hebrew_occurrences">ค้นหาที่พบทั้งหมด</string>
-    <string name="no_indexed_bible_with_strongs_ref">​จะต้อง​ดาวน์​โหลด​โมดูล​พระ​คัมภีร์​ที่​มี​ตัวเลข​สต​รอง และ​ดาวน์​โหลด​ดัชนี​โดย​การ​ค้นหา</string>
+    <string name="no_indexed_bible_with_strongs_ref">​จะต้อง​ดาวน์​โหลด​โมดูล​พระ​คัมภีร์ ​ที่​มี​ตัวเลข​สต​รอง และ​ดาวน์​โหลด​ดัชนี​โดย​การ​ค้นหา</string>
     <string name="morph_robinson_not_installed">​กรุณา​ดาวน์​โหลด​พจนานุกรม​รหัส​ไวยากรณ์​กรีก</string>
 
     <!-- Module download -->
@@ -108,7 +108,7 @@
     <string name="wait_for_bible">​​รอ​สักครู่ เพื่อ​ดาวน์​โหลด​โมดูล​พระ​คัมภีร์​ให้​เสร็จ แล้ว​จะ​ถูก​นำไป​ยัง​หน้าจอ​หลัก</string>
     <string name="wait_for_bible_not_yet">รอสักครู่ พระคัมภีร์ยังติดตั้งไม่เสร็จ</string>
     <string name="download_complete_no_bibles">ยังไม่ได้ติดตั้งโมดูลพระคัมภีร์ กรุณากด Back และลองอีกครั้ง</string>
-    <string name="too_many_jobs">งานมากไป รอสักครู่ เพื่อให้บางงานเสร็จก่อน และลองใหม่อีกครั้ง</string>
+    <string name="too_many_jobs">มีงานจำนวนมาก รอสักครู่ เพื่อให้บางงานเสร็จก่อน และลองใหม่อีกครั้ง</string>
 
     <!-- Document context menu -->
     <string name="delete">ลบ</string>
@@ -181,4 +181,4 @@
     <string name="all">ทั้งหมด</string>
     <string name="strongs_toggle_button_off">สตรอง</string>
     <string name="strongs_toggle_button_on">สตรอง</string>
-<string name="speak_queue">จัดเรียง</string><string name="speak_repeat">ซ้ำ</string><string name="select_text">Select text</string><string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string></resources>
+<string name="speak_queue">จัดเรียง</string><string name="speak_repeat">ซ้ำ</string><string name="select_text">เลือกเพื่อคัดลอก</string><string name="select_text_help">ลากช้าๆ เพื่อเลือก\nแล้วสัมผัสส่วนที่เลือกเพื่อคัดลอก</string><string name="error_no_content">ไม่มีเนื้อความสำหรับข้อพระคัมภีร์ที่เลือก</string><string name="mynote">บันทึกส่วนตัว</string><string name="mynote_add">เพิ่มบันทึกส่วนตัว</string><string name="mynote_saved">บันทึกส่วนตัวถูกบันทึกแล้ว</string><string name="mynote_view_edit">บันทึกส่วนตัว</string><string name="mynotes">บันทึกส่วนตัว</string><string name="prefs_show_mynotes_summary">Show icon in verses with My Note</string><string name="prefs_show_mynotes_title">Show My Note icons</string><string name="save">บันทึก</string><string name="search_results">ผลการค้นหา</string></resources>
