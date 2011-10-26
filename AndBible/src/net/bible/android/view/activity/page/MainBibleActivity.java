@@ -45,6 +45,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	// detect swipe left/right
 	private GestureDetector gestureDetector;
 	private BibleGestureListener gestureListener;
+	
+	private long lastContextMenuDisplayTimeMillis;
 
     /** Called when the activity is first created. */
     @Override
@@ -221,7 +223,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	super.onCreateOptionsMenu(menu);
-    	
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main, menu);
         return true;
@@ -237,7 +238,15 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	}
 
     public void openContextMenu() {
-    	openContextMenu(documentViewManager.getDocumentView().asView());
+    	System.currentTimeMillis();
+    	// The MyNote triggers it's own context menu which causes 2 to be displayed
+    	// I have also seen 2 displayed in normal view 
+    	// Avoid 2 by preventing display twice within 1 second
+    	if (System.currentTimeMillis()-lastContextMenuDisplayTimeMillis < 1000) {
+    		lastContextMenuDisplayTimeMillis = System.currentTimeMillis();
+    		
+    		openContextMenu(documentViewManager.getDocumentView().asView());
+    	}
     }
     
     @Override

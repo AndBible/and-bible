@@ -28,6 +28,7 @@ public class TitleHandler {
 	
 	private boolean isHeaderWritten;
 	
+	@SuppressWarnings("unused")
 	private static final Logger log = new Logger("TitleHandler");
 
 	public TitleHandler(OsisToHtmlParameters parameters, VerseInfo verseInfo, HtmlTextWriter writer) {
@@ -42,8 +43,6 @@ public class TitleHandler {
     }
 
 	public void start(Attributes attrs) {
-		log.debug("Title");
-		TagHandlerHelper.printAttributes(attrs);
 		//JSword adds the chapter no at the top but hide this because the chapter is in the And Bible header
 		boolean addedByJSword = attrs.getLength()==1 && OSISUtil.GENERATED_CONTENT.equals(attrs.getValue(OSISUtil.OSIS_ATTR_TYPE));
 		// otherwise show if user wants Titles or the title is canonical
