@@ -62,8 +62,8 @@
     <string name="prefs_show_verseno_summary">แสดงหมายเลขข้อพระคัมภีร์</string>
     <string name="prefs_verse_per_line_title">ข้อใหม่บรรทัดใหม่</string>
     <string name="prefs_verse_per_line_summary">​เมื่อ​ขึ้น​ข้อ​พระ​คัมภีร์​ข้อ​ใหม่​จะ​ขึ้น​บรรทัด​ใหม่</string>
-    <string name="prefs_show_notes_title">บันทึก</string>
-    <string name="prefs_show_notes_summary">แสดงส่วนที่บันทึก</string>
+    <string name="prefs_show_notes_title">เชิงอรรถและข้ออ้างโยง</string>
+    <string name="prefs_show_notes_summary">แสดงเชิงอรรถและข้ออ้างโยง</string>
     <string name="prefs_show_strongs_title">แสดงตัวเลขสตรอง</string>
     <string name="prefs_show_strongs_summary">เชื่อมโยงคำจำกัดความ กรีกและฮีบรู</string>
     <string name="prefs_show_morphology_title">รหัสไวยากรณ์</string>
@@ -181,4 +181,4 @@
     <string name="all">ทั้งหมด</string>
     <string name="strongs_toggle_button_off">สตรอง</string>
     <string name="strongs_toggle_button_on">สตรอง</string>
-<string name="speak_queue">จัดเรียง</string><string name="speak_repeat">ซ้ำ</string><string name="select_text">เลือกเพื่อคัดลอก</string><string name="select_text_help">ลากช้าๆ เพื่อเลือก\nแล้วสัมผัสส่วนที่เลือกเพื่อคัดลอก</string><string name="error_no_content">ไม่มีเนื้อความสำหรับข้อพระคัมภีร์ที่เลือก</string><string name="mynote">บันทึกส่วนตัว</string><string name="mynote_add">เพิ่มบันทึกส่วนตัว</string><string name="mynote_saved">บันทึกส่วนตัวถูกบันทึกแล้ว</string><string name="mynote_view_edit">บันทึกส่วนตัว</string><string name="mynotes">บันทึกส่วนตัว</string><string name="prefs_show_mynotes_summary">Show icon in verses with My Note</string><string name="prefs_show_mynotes_title">Show My Note icons</string><string name="save">บันทึก</string><string name="search_results">ผลการค้นหา</string></resources>
+<string name="speak_queue">จัดเรียง</string><string name="speak_repeat">ซ้ำ</string><string name="select_text">เลือกเพื่อคัดลอก</string><string name="select_text_help">ลากช้าๆ เพื่อเลือก\nแล้วสัมผัสส่วนที่เลือกเพื่อคัดลอก</string><string name="error_no_content">ไม่มีเนื้อความสำหรับข้อพระคัมภีร์ที่เลือก</string><string name="mynote">บันทึกส่วนตัว</string><string name="mynote_add">เพิ่มบันทึกส่วนตัว</string><string name="mynote_saved">บันทึกส่วนตัวถูกบันทึกแล้ว</string><string name="mynote_view_edit">บันทึกส่วนตัว</string><string name="mynotes">บันทึกส่วนตัว</string><string name="prefs_show_mynotes_summary">แสดงไอคอนบันทึกส่วนตัว ในข้อพระคัมภีร์</string><string name="prefs_show_mynotes_title">แสดงไอคอนบันทึกส่วนตัว</string><string name="save">บันทึก</string><string name="search_results">ผลการค้นหา</string></resources>
