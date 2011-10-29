@@ -43,9 +43,16 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 	 */
 	@Override
 	public void onLongPress(MotionEvent e) {
-		super.onLongPress(e);
 		Log.d(TAG, "onLongPress");
-		mainBibleActivity.openContextMenu();
+		super.onLongPress(e);
+		
+    	// The MyNote triggers it's own context menu which causes 2 to be displayed
+    	// I have also seen 2 displayed in normal view 
+    	// Avoid 2 by preventing display twice within 1.5 seconds
+		if (!mainBibleActivity.isContextMenuRecentlyCreated()) {
+			// This seems to be required for Android 2.1 because the context menu of a WebView is not automatically displayed for 2.1
+			mainBibleActivity.openContextMenu();
+		}
 	}
 
 	@Override

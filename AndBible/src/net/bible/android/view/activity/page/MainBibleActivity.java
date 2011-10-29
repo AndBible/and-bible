@@ -46,7 +46,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	private GestureDetector gestureDetector;
 	private BibleGestureListener gestureListener;
 	
-	private long lastContextMenuDisplayTimeMillis;
+	private long lastContextMenuCreateTimeMillis;
 
     /** Called when the activity is first created. */
     @Override
@@ -237,21 +237,25 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		return true;
 	}
 
+    /** called from gesture listener if the context menu is not displayed automatically
+     */
     public void openContextMenu() {
-    	System.currentTimeMillis();
-    	// The MyNote triggers it's own context menu which causes 2 to be displayed
-    	// I have also seen 2 displayed in normal view 
-    	// Avoid 2 by preventing display twice within 1 second
-    	if (System.currentTimeMillis()-lastContextMenuDisplayTimeMillis < 1000) {
-    		lastContextMenuDisplayTimeMillis = System.currentTimeMillis();
-    		
-    		openContextMenu(documentViewManager.getDocumentView().asView());
-    	}
+		Log.d(TAG,  "openContextMenu");
+		super.openContextMenu(documentViewManager.getDocumentView().asView());
     }
+
     
-    @Override
+    public boolean isContextMenuRecentlyCreated() {
+		return (System.currentTimeMillis()-lastContextMenuCreateTimeMillis)<1500;
+	}
+
+	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-    	Log.d(TAG, "oncreatecontextmenu ");
+    	Log.d(TAG, "onCreateContextMenu");
+    	// keep track of timing here because sometimes a child openContextMenu is called rather than the one in this activity, 
+    	// but the activities onCreateContextMenu always seems to be called
+		lastContextMenuCreateTimeMillis = System.currentTimeMillis();
+		
 		super.onCreateContextMenu(menu, v, menuInfo);
 
 		MenuInflater inflater = getMenuInflater();
