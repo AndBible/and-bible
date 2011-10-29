@@ -25,6 +25,7 @@ public class SharedConstants {
     public static final File MANUAL_FONT_DIR = new File(MANUAL_INSTALL_DIR, FONT_SUBDIR_NAME);
     
     public static final int APPLICATION_THEME =  android.R.style.Theme_Light;
+	public static final String NIGHT_MODE_STYLESHEET = "night_mode.css";
     
     public static final String LINE_SEPARATOR = System.getProperty ( "line.separator" ); 
     

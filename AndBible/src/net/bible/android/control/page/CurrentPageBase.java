@@ -8,6 +8,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.service.common.ParseException;
 import net.bible.service.format.FormattedDocument;
+import net.bible.service.format.HtmlMessageFormatter;
 import net.bible.service.sword.SwordContentFacade;
 import net.bible.service.sword.SwordDocumentFacade;
 
@@ -109,7 +110,8 @@ abstract class CurrentPageBase implements CurrentPage {
                 
         if (StringUtils.isEmpty(formattedDocument.getHtmlPassage())) {
         	String noContentErrorMsg = BibleApplication.getApplication().getResources().getString(R.string.error_no_content);
-        	formattedDocument.setHtmlPassage( noContentErrorMsg );
+        	String htmlMsg = HtmlMessageFormatter.format(noContentErrorMsg);
+        	formattedDocument.setHtmlPassage( htmlMsg );
         }
         
         return formattedDocument;	

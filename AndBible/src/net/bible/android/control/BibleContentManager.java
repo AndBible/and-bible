@@ -9,6 +9,7 @@ import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.page.DocumentViewManager;
 import net.bible.service.format.FormattedDocument;
+import net.bible.service.format.HtmlMessageFormatter;
 import net.bible.service.format.Note;
 
 import org.crosswire.jsword.book.Book;
@@ -92,11 +93,13 @@ public class BibleContentManager {
 		            
         	} catch (Exception e) {
         		Log.e(TAG, "Error getting bible text", e);
-        		text = "Error getting bible text: "+e.getMessage();
+	    		//TODO use resource
+        		text = HtmlMessageFormatter.format("Error getting bible text: "+e.getMessage());
 	    	} catch (OutOfMemoryError oom) {
 	    		Log.e(TAG, "Out of memory error", oom);
 	    		System.gc();
-	    		text = "Error: document section is too large.";
+	    		//TODO use resource
+	    		text = HtmlMessageFormatter.format("Error: document section is too large.");
 	    	}
         	return text;
         }

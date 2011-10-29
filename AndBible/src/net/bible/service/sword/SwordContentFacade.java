@@ -10,6 +10,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import net.bible.android.BibleApplication;
+import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.service.common.CommonUtils;
@@ -18,6 +19,7 @@ import net.bible.service.common.Logger;
 import net.bible.service.common.ParseException;
 import net.bible.service.font.FontControl;
 import net.bible.service.format.FormattedDocument;
+import net.bible.service.format.HtmlMessageFormatter;
 import net.bible.service.format.OSISInputStream;
 import net.bible.service.format.OsisToCanonicalTextSaxHandler;
 import net.bible.service.format.OsisToSpeakTextSaxHandler;
@@ -49,7 +51,6 @@ import android.util.Log;
 public class SwordContentFacade {
 	private static final String TAG = "SwordContentApi";
 	private static SwordContentFacade singleton;
-	private static String NIGHT_MODE_STYLESHEET = "night_mode.css";
 
 	// set to false for testing
 	public static boolean isAndroid = true; //CommonUtils.isAndroid();
@@ -87,12 +88,13 @@ public class SwordContentFacade {
 	{
 		FormattedDocument retVal = new FormattedDocument();
 		if (book==null || key==null) {
-			//TODO this should include css to change to night mode if necessary
 			retVal.setHtmlPassage("");
 		} else if (!book.contains(key)) {
-			//TODO this should include css to change to night mode if necessary
 			Log.w(TAG, "KEY:"+key+" not found in doc:"+book);
-			retVal.setHtmlPassage("Not found in document");
+			
+			//TODO this should be a translatable resource
+			String htmlMsg = HtmlMessageFormatter.format("Not found in document");
+			retVal.setHtmlPassage(htmlMsg);
 		} else {
 			// we have a fast way of handling OSIS zText docs but WEB/HNV needs the superior JSword error recovery for mismatching tags 
 			if ("OSIS".equals(book.getBookMetaData().getProperty("SourceType")) &&
@@ -100,6 +102,7 @@ public class SwordContentFacade {
 				!"FreCrampon".equals(book.getInitials()) &&
 				!"AB".equals(book.getInitials()) &&
 				!"FarsiOPV".equals(book.getInitials()) &&
+				!"Afr1953".equals(book.getInitials()) &&
 				!"WEB".equals(book.getInitials()) &&
 				!"HNV".equals(book.getInitials())) {
 				retVal = readHtmlTextOptimizedZTextOsis(book, key);
@@ -331,7 +334,7 @@ public class SwordContentFacade {
 					
 				}
 				if (preferences.getBoolean("night_mode_pref", false)) {
-					osisToHtmlParameters.setExtraStylesheet(NIGHT_MODE_STYLESHEET);
+					osisToHtmlParameters.setExtraStylesheet(SharedConstants.NIGHT_MODE_STYLESHEET);
 				}
 				if (book.getBookCategory().equals(BookCategory.DICTIONARY)) {
 					if (book.hasFeature(FeatureType.HEBREW_DEFINITIONS)) {
