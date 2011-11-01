@@ -14,6 +14,7 @@ import net.bible.android.control.ControlFactory;
 
 import org.crosswire.common.util.Language;
 import org.crosswire.common.util.Languages;
+import org.crosswire.common.util.Version;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookFilter;
@@ -374,6 +375,12 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 		} else {
 			// or default to name if there is no About
 			about = document.getName();
+		}
+
+		// add version
+		Version versionObj = (Version)document.getBookMetaData().getProperty("Version");
+		if (versionObj!=null) {
+			about += "\n\nVersion: "+versionObj.toString();
 		}
 
     	new AlertDialog.Builder(this)

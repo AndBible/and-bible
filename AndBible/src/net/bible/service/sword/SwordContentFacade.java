@@ -103,6 +103,7 @@ public class SwordContentFacade {
 				!"AB".equals(book.getInitials()) &&
 				!"FarsiOPV".equals(book.getInitials()) &&
 				!"Afr1953".equals(book.getInitials()) &&
+				!"UKJV".equals(book.getInitials()) &&
 				!"WEB".equals(book.getInitials()) &&
 				!"HNV".equals(book.getInitials())) {
 				retVal = readHtmlTextOptimizedZTextOsis(book, key);
