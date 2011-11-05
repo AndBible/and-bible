@@ -54,7 +54,7 @@ public class DictionaryTest extends TestCase {
 			Key wordKey = bookg.getKey("03056");
 	        BookData data = new BookData(bookg, wordKey);
 	        System.out.println(OSISUtil.getPlainText(data.getOsisFragment())); //$NON-NLS-1$
-	        System.out.println(SwordContentFacade.getInstance().readHtmlText(bookg, wordKey, 1).getHtmlPassage());
+	        System.out.println(SwordContentFacade.getInstance().readHtmlText(bookg, wordKey).getHtmlPassage());
 
 //			Key wordKey2 = bookg.getKey("03004");
 //	        BookData data2 = new BookData(bookg, wordKey2);
@@ -121,7 +121,7 @@ public class DictionaryTest extends TestCase {
 	}
 	
 	private String getHtml(Book book, Key key, int maxVerses) throws Exception {
-		FormattedDocument formattedDocument = SwordContentFacade.getInstance().readHtmlText(book, key, 100);
+		FormattedDocument formattedDocument = SwordContentFacade.getInstance().readHtmlText(book, key);
 		String html = formattedDocument.getHtmlPassage();
 		return html;		
 	}

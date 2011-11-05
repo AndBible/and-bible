@@ -52,7 +52,7 @@ public class TestUtil {
     }
     
 	public static String getHtml(Book book, Key key, int maxVerses) throws Exception {
-		FormattedDocument formattedDocument = SwordContentFacade.getInstance().readHtmlText(book, key, 100);
+		FormattedDocument formattedDocument = SwordContentFacade.getInstance().readHtmlText(book, key);
 		String html = formattedDocument.getHtmlPassage();
 		return html;		
 	}

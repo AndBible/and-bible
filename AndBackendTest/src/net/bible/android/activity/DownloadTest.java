@@ -21,7 +21,7 @@ public class DownloadTest extends TestCase {
 	}
 
 	public void testGetRepositoryBooks() {
-    	List<Book> bibles = new BookInstaller().getRepositoryBooks("Xiphos", BookFilters.getAll());
+    	List<Book> bibles = new BookInstaller().getRepositoryBooks("CrossWire", BookFilters.getAll());
     	assertTrue("Could not get bible list", bibles.size()>0);
 		System.out.println("Count:"+bibles.size());
 		for (Book book : bibles) {
