@@ -3,7 +3,6 @@ package net.bible.android.control.page;
 
 import java.util.List;
 
-import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.service.common.ParseException;
@@ -109,8 +108,7 @@ abstract class CurrentPageBase implements CurrentPage {
         FormattedDocument formattedDocument = SwordContentFacade.getInstance().readHtmlText(getCurrentDocument(), getKey());
                 
         if (StringUtils.isEmpty(formattedDocument.getHtmlPassage())) {
-        	String noContentErrorMsg = BibleApplication.getApplication().getResources().getString(R.string.error_no_content);
-        	String htmlMsg = HtmlMessageFormatter.format(noContentErrorMsg);
+        	String htmlMsg = HtmlMessageFormatter.format(R.string.error_no_content);
         	formattedDocument.setHtmlPassage( htmlMsg );
         }
         

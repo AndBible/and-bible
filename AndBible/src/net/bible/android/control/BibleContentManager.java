@@ -3,6 +3,7 @@ package net.bible.android.control;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
@@ -99,7 +100,7 @@ public class BibleContentManager {
 	    		Log.e(TAG, "Out of memory error", oom);
 	    		System.gc();
 	    		//TODO use resource
-	    		text = HtmlMessageFormatter.format("Error: document section is too large.");
+	    		text = HtmlMessageFormatter.format(R.string.error_page_too_large);
 	    	}
         	return text;
         }

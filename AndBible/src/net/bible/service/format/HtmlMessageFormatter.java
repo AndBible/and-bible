@@ -1,5 +1,6 @@
 package net.bible.service.format;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.service.common.CommonUtils;
 
@@ -17,7 +18,15 @@ public class HtmlMessageFormatter {
 	private static final String NIGHT_HEADER = "<html><head>"+NIGHT_STYLESHEET+"</head><body>";
 	private static final String NIGHT_FOOTER = "</body></html>";
 	
+	@SuppressWarnings("unused")
 	private static final String TAG = "HtmlmessageFormatter";
+	
+	/** wrap text with nightmode css if required
+	 */
+	public static String format(int msgId) {
+    	String errorMsg = BibleApplication.getApplication().getResources().getString(msgId);
+    	return format(errorMsg);
+	}
 	
 	/** wrap text with nightmode css if required
 	 */

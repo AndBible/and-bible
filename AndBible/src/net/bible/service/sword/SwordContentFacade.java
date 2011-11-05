@@ -92,8 +92,7 @@ public class SwordContentFacade {
 		} else if (!book.contains(key)) {
 			Log.w(TAG, "KEY:"+key+" not found in doc:"+book);
 			
-			//TODO this should be a translatable resource
-			String htmlMsg = HtmlMessageFormatter.format("Not found in document");
+			String htmlMsg = HtmlMessageFormatter.format(R.string.error_key_not_in_document);
 			retVal.setHtmlPassage(htmlMsg);
 		} else {
 			// we have a fast way of handling OSIS zText docs but WEB/HNV needs the superior JSword error recovery for mismatching tags 
