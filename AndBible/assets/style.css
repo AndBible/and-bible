@@ -80,6 +80,9 @@ h1 {
 .hi_sup {
 	vertical-align: super;
 }
+.hi_underline {
+	text-decoration: underline;
+}
 
 .rtl-notusedyet {
 	direction: rtl;
