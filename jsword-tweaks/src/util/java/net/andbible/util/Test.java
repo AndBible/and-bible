@@ -4,6 +4,7 @@ import java.util.Locale;
 
 import junit.framework.Assert;
 
+import org.crosswire.common.util.CallContext;
 import org.crosswire.jsword.JSMsg;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
@@ -16,7 +17,10 @@ public class Test {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		
+		
 		new Test().testInvalidKey();
+		new Test().testCallContext();
 		
 		Locale.setDefault(Locale.FRENCH);
 		String jobName = JSMsg.gettext("Creating index. Processing {0}", "ABC");
@@ -42,6 +46,11 @@ public class Test {
                 Assert.assertEquals("testing for a bad key", "No entry for '' in Pilgrim.", e.getMessage());
             }
         }
+    }
+    
+    public void testCallContext() {
+		System.out.println(CallContext.getCallingClass());
+		Assert.assertEquals("net.andbible.util.Test",CallContext.getCallingClass().getName());
     }
 
 }
