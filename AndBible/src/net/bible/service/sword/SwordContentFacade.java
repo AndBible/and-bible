@@ -49,6 +49,9 @@ import android.util.Log;
  *      The copyright to this program is held by it's author.
  */
 public class SwordContentFacade {
+	
+	private DocumentParseMethod documentParseMethod = new DocumentParseMethod();
+	
 	private static final String TAG = "SwordContentApi";
 	private static SwordContentFacade singleton;
 
@@ -95,18 +98,23 @@ public class SwordContentFacade {
 			String htmlMsg = HtmlMessageFormatter.format(R.string.error_key_not_in_document);
 			retVal.setHtmlPassage(htmlMsg);
 		} else {
-			// we have a fast way of handling OSIS zText docs but WEB/HNV needs the superior JSword error recovery for mismatching tags 
+
+			// we have a fast way of handling OSIS zText docs but some docs need the superior JSword error recovery for mismatching tags 
+			// try to parse using optimised method first if a suitable document and it has not failed previously
+			boolean isParsedOk = false;
 			if ("OSIS".equals(book.getBookMetaData().getProperty("SourceType")) &&
 				"zText".equals(book.getBookMetaData().getProperty("ModDrv")) &&
-				!"FreCrampon".equals(book.getInitials()) &&
-				!"AB".equals(book.getInitials()) &&
-				!"FarsiOPV".equals(book.getInitials()) &&
-				!"Afr1953".equals(book.getInitials()) &&
-				!"UKJV".equals(book.getInitials()) &&
-				!"WEB".equals(book.getInitials()) &&
-				!"HNV".equals(book.getInitials())) {
-				retVal = readHtmlTextOptimizedZTextOsis(book, key);
-			} else {
+				documentParseMethod.isFastParseOkay(book, key)) {
+				try {
+					retVal = readHtmlTextOptimizedZTextOsis(book, key);
+					isParsedOk = true;
+				} catch (ParseException pe) {
+					documentParseMethod.failedToParse(book, key);
+				}
+			} 
+			
+			// fall back to slightly slower JSword method with JSword's fallback approach of removing all tags
+			if (!isParsedOk) {
 				retVal = readHtmlTextStandardJSwordMethod(book, key);
 			}
 		}

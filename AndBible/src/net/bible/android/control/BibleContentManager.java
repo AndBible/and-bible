@@ -99,7 +99,6 @@ public class BibleContentManager {
 	    	} catch (OutOfMemoryError oom) {
 	    		Log.e(TAG, "Out of memory error", oom);
 	    		System.gc();
-	    		//TODO use resource
 	    		text = HtmlMessageFormatter.format(R.string.error_page_too_large);
 	    	}
         	return text;
