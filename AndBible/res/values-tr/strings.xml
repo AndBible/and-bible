@@ -16,27 +16,27 @@
 	<string name="no_sdcard_error">Please insert an SD card and start And Bible again.</string>
     
     <!-- main menu -->
-    <string name="chooseBook">Document</string>
-    <string name="selectPassage">Passage</string>
-    <string name="search">Find</string>
-    <string name="settings">Settings</string>
-    <string name="history">History</string>
-    <string name="speak">Speak</string>
-    <string name="help">Help</string>
+    <string name="chooseBook">Belge</string>
+    <string name="selectPassage">Pasaj</string>
+    <string name="search">Ara</string>
+    <string name="settings">Seçenekler</string>
+    <string name="history">Geçmiş</string>
+    <string name="speak">Söyle</string>
+    <string name="help">Yardım</string>
     
     <!-- Passage navigation -->
-    <string name="choosePassageBookName">Choose Book</string>
-    <string name="choosePassageChapterName">Choose Chapter</string>
-    <string name="choosePassageVerseName">Choose Verse</string>
+    <string name="choosePassageBookName">Kitabı Seç</string>
+    <string name="choosePassageChapterName">Bölümü Seç</string>
+    <string name="choosePassageVerseName">Ayeti Seç</string>
 
 	<!--  Search -->
-    <string name="search_index">Search Index</string>
+    <string name="search_index">Arama İndeksi</string>
     <string name="index_creation_required">"An index is required to search.\n\nIndexes may be downloaded from the internet or created locally.\n\nDownloading is much quicker and downloaded indexes have more search features.\n\nAn internet connection is required to download indexes.\n"</string>
-    <string name="indexing_wait_msg">When indexing has completed you will be taken to the search screen.</string>
-    <string name="index">Index</string>
-    <string name="index_download">Download</string>
-    <string name="index_not_available_for_download">This index is not available for download</string>
-    <string name="index_create">Create</string>
+    <string name="indexing_wait_msg">İndeksi yaratıldıktan sonra arama sayfasına götürülürsün.</string>
+    <string name="index">İndeks</string>
+    <string name="index_download">İndir</string>
+    <string name="index_not_available_for_download">Bu indeksi indirilemez</string>
+    <string name="index_create">Yarat</string>
 
 	<!-- Tasks -->
     <string name="progress_status">Progress</string>
@@ -44,73 +44,73 @@
     <string name="no_tasks_running">There are no tasks currently being executed.</string>
 
     <!-- Search -->
-    <string name="search_words_group_prompt">Find verses</string>
-    <string name="search_all_words">All words</string>
-    <string name="search_any_word">Any word</string>
-    <string name="search_phrase">Phrase</string>
-    <string name="search_result_count">%d matches found</string>
-    <string name="search_showing_first">Too many matches. Showing first %d</string> 
-    <string name="search_bible_section_group_prompt">Search Where</string>
-    <string name="search_all_bible">Whole bible</string>
-    <string name="search_new_testament">New Testament</string>
-    <string name="search_old_testament">Old Testament</string>
-    <string name="search_current_book">Current book</string>
-    <string name="error_executing_search">Invalid search query</string>
+    <string name="search_words_group_prompt">Ayetler bul</string>
+    <string name="search_all_words">Tüm sözler</string>
+    <string name="search_any_word">Herhangi söz</string>
+    <string name="search_phrase">İfade</string>
+    <string name="search_result_count">%d sonuç bulundu</string>
+    <string name="search_showing_first">Çok fazla sonuç bulunur. İlk %d gösterilir</string> 
+    <string name="search_bible_section_group_prompt">Nerede Ara</string>
+    <string name="search_all_bible">Bütün Kutsal Kitapta</string>
+    <string name="search_new_testament">Yeni Ahit</string>
+    <string name="search_old_testament">Eski Ahit</string>
+    <string name="search_current_book">Şimdiki Kitapta</string>
+    <string name="error_executing_search">Arama sorgusu geçersizdi</string>
 
     <!-- Preferences -->
-    <string name="prefs_show_verseno_title">Verse numbers</string>
-    <string name="prefs_show_verseno_summary">Show verse numbers</string>
-    <string name="prefs_verse_per_line_title">One verse per line</string>
-    <string name="prefs_verse_per_line_summary">Show each verse on a different line</string>
-    <string name="prefs_show_notes_title">Notes</string>
-    <string name="prefs_show_notes_summary">Show notes</string>
-    <string name="prefs_show_strongs_title">Show Strong\'s numbers</string>
-    <string name="prefs_show_strongs_summary">Links to Greek &amp; Hebrew definitions</string>
-    <string name="prefs_show_morphology_title">Morphological codes</string>
-    <string name="prefs_show_morphology_summary">Show Robinson\'s Greek morphology</string>
-    <string name="prefs_section_title_title">Section Titles</string>
-    <string name="prefs_section_title_summary">Show non-canonical section titles</string>
-    <string name="prefs_red_letter_title">Red Letter</string>
-    <string name="prefs_red_letter_summary">Show words of Christ in red</string>
-    <string name="prefs_night_mode_title">Night mode</string>
-    <string name="prefs_night_mode_summary">For easier reading in the dark</string>
-    <string name="prefs_navigate_to_verse_title">Navigate to verse</string>
-    <string name="prefs_navigate_to_verse_summary">Choose verse (and chapter) when selecting a passage</string>
-    <string name="prefs_text_size_title">Text size</string>
-    <string name="prefs_text_size_summary">See more or see more clearly</string>
-    <string name="prefs_interface_locale_title">Application language</string>
-    <string name="prefs_interface_locale_summary">Select custom user interface language</string>
-    <string name="locale_change_warning">Application will be restarted to switch to the new interface language</string>
+    <string name="prefs_show_verseno_title">Ayet Numaraları</string>
+    <string name="prefs_show_verseno_summary">Ayet numaraları gösterilir</string>
+    <string name="prefs_verse_per_line_title">Her ayet bir satırda</string>
+    <string name="prefs_verse_per_line_summary">Her ayet yeni bir satırda gösterilir</string>
+    <string name="prefs_show_notes_title">Notlar</string>
+    <string name="prefs_show_notes_summary">Notları gözterilir</string>
+    <string name="prefs_show_strongs_title">Strong\'un Numaraları göster</string>
+    <string name="prefs_show_strongs_summary">Gerkçe ve İbranice tanımlara bağlantılar gösterilir</string>
+    <string name="prefs_show_morphology_title">Morfolojik kodları</string>
+    <string name="prefs_show_morphology_summary">Robinson\'un Grekçe morfolojiği gösterilir</string>
+    <string name="prefs_section_title_title">Kısım Başlıkları</string>
+    <string name="prefs_section_title_summary">Asıl metinde bulunmayan başlıklar gösterilir</string>
+    <string name="prefs_red_letter_title">Kırmızı Harfları</string>
+    <string name="prefs_red_letter_summary">İsa\'nın sözleri kırmızı renginde gösterilir</string>
+    <string name="prefs_night_mode_title">Gece Renkleri</string>
+    <string name="prefs_night_mode_summary">Karanlıkta daha kolay okumak için başka renkler kullanılır</string>
+    <string name="prefs_navigate_to_verse_title">Ayete Yönlendir</string>
+    <string name="prefs_navigate_to_verse_summary">Pasaj seçerken bölümle birlikte ayet seçilebilir</string>
+    <string name="prefs_text_size_title">Metin büyüklüğü</string>
+    <string name="prefs_text_size_summary"></string>
+    <string name="prefs_interface_locale_title">Uygulama dili</string>
+    <string name="prefs_interface_locale_summary">Başka arayüzey dili kullanılır</string>
+    <string name="locale_change_warning">Yeni dilin kullanması için bu uygulama şimdi yeniden başlatılır</string>
 
     <!-- Notes screen -->
-    <string name="no_chapter_notes">No notes exist in this chapter</string>
-    <string name="no_verse_notes">No notes exist in this verse</string>
-    <string name="previous">Previous</string>
-    <string name="next">Next</string>
+    <string name="no_chapter_notes">Bu bölüm için not yok</string>
+    <string name="no_verse_notes">Bu ayet için not yuk</string>
+    <string name="previous">Önceki</string>
+    <string name="next">Sonraki</string>
 
     <!--  Strongs -->
-    <string name="strongs">Strong\'s Dictionary</string>
-    <string name="strongs_not_installed">Please download Strong\'s Hebrew and Greek dictionaries</string>
-    <string name="all_greek_occurrences">Find all occurrences</string>
-    <string name="all_hebrew_occurrences">Find all occurrences</string>
-    <string name="no_indexed_bible_with_strongs_ref">You must download a bible containing Strong\'s numbers and download its index via Search</string>
-    <string name="morph_robinson_not_installed">Please download \'Robinson\'s Morphological Analysis Codes\' dictionary</string>
+    <string name="strongs">Strong\'un Sözlüğü</string>
+    <string name="strongs_not_installed">Lütfen Strong\'un Grekçe ve İbranice sözlüğü indir</string>
+    <string name="all_greek_occurrences">Tüm oluşları bul</string>
+    <string name="all_hebrew_occurrences">Tüm oluşları bul</string>
+    <string name="no_indexed_bible_with_strongs_ref">Arama kullanarak Strong\'un numaraları dahil olan bir Kutsal Kitabı ve indeksleri indirmelisiniz.</string>
+    <string name="morph_robinson_not_installed">\'Robinson\'s Morphological Analysis Codes\' sözlüğü indirmelisiniz</string>
     <string name="strongs_toggle_button_on">nnnn</string>
     <string name="strongs_toggle_button_off">nnnn</string>
 
     <!-- Module download -->
-    <string name="download">Download Documents</string>
-    <string name="download_confirmation">Download a bible from the internet?</string>
-    <string name="download_source_message">Documents are downloaded from\nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
-    <string name="download_document_confirm_prefix">"Download "</string>
-    <string name="refresh_book_list">Refresh list of available documents?</string>
-    <string name="error_downloading">An error occurred downloading. Please check your internet connection.</string>
-    <string name="no_internet_connection">Could not connect to the internet</string>
-    <string name="storage_space_warning">Insufficient local storage space.</string>
-    <string name="wait_for_bible">Please wait for the bible to finish downloading. You will then be taken to the main screen.</string>
-    <string name="wait_for_bible_not_yet">Please wait. A bible has not yet completed installation.</string>
-    <string name="download_complete_no_bibles">No bible was installed. Please press Back and try again.</string>
-    <string name="too_many_jobs">Too many tasks executing. Please wait for some to finish and try again.</string>
+    <string name="download">Belgeler İndir</string>
+    <string name="download_confirmation">İnternetten bir Kutsal Kitap indirmek ister misiniz?</string>
+    <string name="download_source_message">http://www.crosswire.org\n&amp; http://xiphos.org\'tan belgeler indirilir</string>
+    <string name="download_document_confirm_prefix">"İndir "</string>
+    <string name="refresh_book_list">Mevcut Belgelerinin listesi yenlenmek ister misiniz?</string>
+    <string name="error_downloading">İndirirken bir hata vardi. İnternet bağlantınızı kontrol edin.</string>
+    <string name="no_internet_connection">İnternet\'e bağlanamaz</string>
+    <string name="storage_space_warning">Yetersiz yerel depolama.</string>
+    <string name="wait_for_bible">Lütfen bu Kutsal Kitab\'ın indirilmesi için bekleyin. Ondan sonra anasayfaya götürüleceksiniz.</string>
+    <string name="wait_for_bible_not_yet">Lütfen bekleyin. Bir Kutsal Kitap henüz yerleştirilmedi.</string>
+    <string name="download_complete_no_bibles">Bir Kutsal Kitap bulunmadı. Lütfen Geri tıklayın ve tekrar deneyin.</string>
+    <string name="too_many_jobs">Çok fazla iş yürütmekte. Birinin bitmesini bekleyip tekrar deneyin.</string>
 
     <!-- Document context menu -->
     <string name="delete">Delete</string>
