@@ -38,6 +38,7 @@
 		<item>@string/lang_russian</item>
 		<item>@string/lang_swedish</item>
 		<item>@string/lang_thai</item>
+		<item>@string/lang_turkish</item>
 		<item>@string/lang_ukrainian</item>
 		<item>@string/lang_chinese</item>
 	</string-array>
@@ -67,6 +68,7 @@
 		<item>ru</item>
 		<item>sv</item>
 		<item>th</item>
+		<item>tr</item>
 		<item>uk</item>
 		<item>zh</item>
 	</string-array>
