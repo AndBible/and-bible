@@ -2,6 +2,7 @@
 <!-- Application text
  
  @author Martin Denham [mjdenham at gmail dot com]
+ @author Caleb Maclennan [caleb@alerque.com]
  @see gnu.lgpl.License for license details.<br>
       The copyright to this program is held by it's author.
 -->
@@ -13,7 +14,7 @@
     <string name="help_text">Press the MENU key for actions\n\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger</string>
     <string name="help_text_long">"<b>Navigation</b>\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger \nDouble-tap toggles Fullscreen on/off. \n\n<b>Menu</b> \nPress the MENU key for actions \n\nTo download more documents press Menu/More/Download Documents \n\n<b>Speech</b>\nPress Speak to access a dialog to start or stop reading \n\n<b>Bookmarks</b>\nBookmarks can be added via the verse context menu. The Bookmark Manager is accessed via the main menu. The Bookmark Manager context menu allows bookmarks to be grouped using labels. \n\n<b>Search</b>\nSearch text can include special characters like *, ?, AND, OR, NOT (see \"Apache Lucene - Query Parser Syntax\" for more details) \n\n<b>Context Menus</b> \nLong press on the bible view to open the context menu for actions affecting the current verse. \nLong press on a document in the document selector to delete it or view information. \nLong press the Back button to access the History list "</string>
     <string name="version_text">Sürüm %s</string>
-	<string name="no_sdcard_error">Please insert an SD card and start And Bible again.</string>
+	<string name="no_sdcard_error">Lütfen SD kartı takın ve And Bible yeniden başlatın.</string>
     
     <!-- main menu -->
     <string name="chooseBook">Belge</string>
@@ -31,7 +32,7 @@
 
 	<!--  Search -->
     <string name="search_index">Arama İndeksi</string>
-    <string name="index_creation_required">"An index is required to search.\n\nIndexes may be downloaded from the internet or created locally.\n\nDownloading is much quicker and downloaded indexes have more search features.\n\nAn internet connection is required to download indexes.\n"</string>
+    <string name="index_creation_required">"Aramak için indeks gerekiyor.\n\nİndeksler internetten indirebilir veya cihazda oluşturabilir.\n\nİndirmek çok daha hızlı ve indirilen indexlerin arama funksiyonları daha fazla.\n\nİndexleri indirmek için internet bağlantısı gerekli.\n"</string>
     <string name="indexing_wait_msg">İndeks yaratıldıktan sonra arama sayfasına götürülürsün.</string>
     <string name="index">İndeks</string>
     <string name="index_download">İndir</string>
@@ -39,7 +40,7 @@
     <string name="index_create">Yarat</string>
 
 	<!-- Tasks -->
-    <string name="progress_status">Progress</string>
+    <string name="progress_status">Gelişim</string>
     <string name="task_kill_warning">These long running tasks may terminate if you switch to another application before they finish.</string>
     <string name="no_tasks_running">There are no tasks currently being executed.</string>
 
@@ -47,11 +48,11 @@
     <string name="search_words_group_prompt">Ayetler bul</string>
     <string name="search_all_words">Tüm kelime</string>
     <string name="search_any_word">Herhangi kelime</string>
-    <string name="search_phrase">İfade</string>
+    <string name="search_phrase">Cümle parçası</string>
     <string name="search_result_count">%d sonuç bulundu</string>
-    <string name="search_showing_first">Çok fazla sonuç bulunur. İlk %d gösterilir</string> 
+    <string name="search_showing_first">Çok fazla sonuç bulundu. İlk %d gösterilir</string> 
     <string name="search_bible_section_group_prompt">Nerede</string>
-    <string name="search_all_bible">Bütün Kutsal Kitapta</string>
+    <string name="search_all_bible">Bütün Kutsal Kitap'ta</string>
     <string name="search_new_testament">Yeni Antlaşma</string>
     <string name="search_old_testament">Eski Antlaşma</string>
     <string name="search_current_book">Şimdiki Kitapta</string>
@@ -144,7 +145,6 @@
     <string name="general_book">Kitap</string>
     <string name="general_book_contents">İcerik</string>
 
-
     <!-- Speak -->
     <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
     <!-- Speak - Bible -->
@@ -183,4 +183,18 @@
     <string name="retry">Tekrar Deneyin</string>
     <string name="please_wait">Lütfen bekleyin...</string>
     <string name="all">Hepsi</string>
-<string name="select_text">Metni seç</string><string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string><string name="error_no_content">Seçildiğin ayeti içeriği yok</string><string name="mynote">Notlarım</string><string name="mynote_add">Notlarıma ekle</string><string name="mynote_saved">Notlarım kaydedildi</string><string name="mynote_view_edit">Notlarım</string><string name="mynotes">Notlarım</string><string name="prefs_show_mynotes_summary">Show icon in verses with My Note</string><string name="prefs_show_mynotes_title">Show My Note icons</string><string name="save">Kaydet</string><string name="search_results">Sonuçlar</string><string name="error_key_not_in_document">Belgede bulunmadı</string><string name="error_page_too_large">Yüklenmesi için bu sayf</string></resources>
+	<string name="select_text">Metni seç</string>
+	<string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string>
+	<string name="error_no_content">Seçildiğin ayeti içeriği yok</string>
+	<string name="mynote">Notlarım</string>
+	<string name="mynote_add">Notlarıma ekle</string>
+	<string name="mynote_saved">Notlarım kaydedildi</string>
+	<string name="mynote_view_edit">Notlarım</string>
+	<string name="mynotes">Notlarım</string>
+	<string name="prefs_show_mynotes_summary">Show icon in verses with My Note</string>
+	<string name="prefs_show_mynotes_title">Show My Note icons</string>
+	<string name="save">Kaydet</string>
+	<string name="search_results">Sonuçlar</string>
+	<string name="error_key_not_in_document">Belgede bulunmadı</string>
+	<string name="error_page_too_large">Yüklenmesi için bu sayf</string>
+</resources>
