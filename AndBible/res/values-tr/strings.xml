@@ -2,6 +2,7 @@
 <!-- Application text
  
  @author Martin Denham [mjdenham at gmail dot com]
+ @author Caleb Maclennan [caleb@alerque.com]
  @see gnu.lgpl.License for license details.<br>
       The copyright to this program is held by it's author.
 -->
@@ -10,20 +11,20 @@
 
 	<!-- Startup & Help -->
     <string name="splash_top_text">"\n\'Tanrı, \"Işık olsun\" diye buyurdu ve ışık oldu.\'\nYaratılış 1:3"</string>
-    <string name="help_text">Etkinlikler için Menü düğmeyi basın\n\nSonraki veya önceki bölüme gitmek için ekranda parmağınız kaydırın.</string>
-    <string name="help_text_long"><b>Navigasyon</b>\nÖnceki veya sonraki bölüme geçmek için iztopu veya yön tuşları bas veya parmağınızla ekranı kaydırın
+    <string name="help_text">Etkinlikler için MENÜ düğmeyi basın.\n\nÖnceki veya sonraki bölüme gitmek için ekranda parmağınız kaydırın veya iztopu çevirin veya yön düğmeleri basın.</string>
+    <string name="help_text_long"><b>Navigasyon</b>\nÖnceki veya sonraki bölüme geçmek için iztopu veya yön düğmeleri bas veya parmağınızla ekranı kaydırın
     \nÇıft dökünmak Tamekran modu açıp kapatır.
     \n\n<b>Menü</b>
-    \nKomutlar içın MENÜ tuşunu basın.
-	\n\nDaha fazla belgeyi indirmek için Menü/Daha Fazla/Belgeler İndir\'i basın
+    \nEtkinlikler içın MENÜ düğmeyi basın.
+	\n\nDaha fazla belgeleri indirmek için Menü/Daha Fazla/Belgeler İndir\'i basın
     \n\n<b>Söyle</b>\nSelsi okumasını başlayıp durduran diyalogu görmek için Söyle\'i bas
-    \n\n<b>Notlarıme</b>\nAyet içerik menüsüde bulunan Notlarım komutun aracılığıyla notları ekleyenebilir. Var olan notları ana menüsünden erişilebilir.
+    \n\n<b>Notlarıme</b>\nAyet içerik menüsüde bulunan Notlarım etkinliğin aracılığıyla notları ekleyenebilir. Var olan notları ana menüsünden erişilebilir.
     \n\n<b>Yerimi</b>\nYerimileri, ayet içerik menüsünden eklenebilir. Yerimi yöneticisi ana menüsünden erişilebilir. Yerimi yöneticisi içerik menüsünü kullanarak yerimileri, ekiketlere göre sıralayabilir.
     \n\n<b>Arama</b>\nArama sorgular *, ?, AND, OR, NOT gibi özel karakterler içerebilir.  (daha fazla bilgi için "Apache Lucene - Query Parser Syntax" okuyun)
     \n\n<b>İçerik Menüleri</b>
-    \nGeçerli ayeti etkilenen komutlar için Kitsal Kitap okuma sayfanın üzerinde uzun süreli basarak içerik menüsünü açın.
+    \nGeçerli ayeti etkilenen etkinlikler için Kitsal Kitap okuma sayfanın üzerinde uzun süreli basarak içerik menüsünü açın.
     \nSilmek veya bilgisini görmek için belge menüsüde belgenin üzerinde uzun süreli basın.
-    \nGeçmiş Listesi için Geri tuşu uzun süreli basın</string>
+    \nGeçmiş Listesi için Geri düğmeyi uzun süreli basın</string>
     <string name="version_text">Sürüm %s</string>
 	<string name="no_sdcard_error">Lütfen SD kartı takın ve And Bible yeniden başlatın.</string>
     
@@ -44,7 +45,7 @@
 	<!--  Search -->
     <string name="search_index">Arama İndeksi</string>
     <string name="index_creation_required">"Aramak için indeks gerekiyor.\n\nİndeksler internetten indirebilir veya cihazda oluşturabilir.\n\nİndirmek çok daha hızlı ve indirilen indexlerin arama funksiyonları daha fazla.\n\nİndexleri indirmek için internet bağlantısı gerekli.\n"</string>
-    <string name="indexing_wait_msg">İndeks yaratıldıktan sonra arama sayfasına götürülürsün.</string>
+    <string name="indexing_wait_msg">İndeks yaratıldıktan sonra arama sayfasına götürüleceksin.</string>
     <string name="index">İndeks</string>
     <string name="index_download">İndir</string>
     <string name="index_not_available_for_download">Bu indeksi indirilemez</string>
@@ -56,14 +57,14 @@
     <string name="no_tasks_running">Şu an çalışan görev bulunmuyor.</string>
 
     <!-- Search -->
-    <string name="search_words_group_prompt">Ayette ara</string>
+    <string name="search_words_group_prompt">Ayetler bul</string>
     <string name="search_all_words">Tüm kelime</string>
     <string name="search_any_word">Herhangi kelime</string>
-    <string name="search_phrase">İfade</string>
+    <string name="search_phrase">Cümle parçası</string>
     <string name="search_result_count">%d sonuç bulundu</string>
-    <string name="search_showing_first">Çok fazla sonuç bulunur. İlk %d gösterilir</string> 
+    <string name="search_showing_first">Çok fazla sonuç bulundu. İlk %d gösterilir</string> 
     <string name="search_bible_section_group_prompt">Nerede</string>
-    <string name="search_all_bible">Bütün Kutsal Kitapta</string>
+    <string name="search_all_bible">Bütün Kutsal Kitap\'ta</string>
     <string name="search_new_testament">Yeni Antlaşma</string>
     <string name="search_old_testament">Eski Antlaşma</string>
     <string name="search_current_book">Şimdiki Kitapta</string>
@@ -89,7 +90,7 @@
     <string name="prefs_navigate_to_verse_title">Ayete Yönlendir</string>
     <string name="prefs_navigate_to_verse_summary">Pasaj seçerken bölümle birlikte ayet seçilebilir</string>
     <string name="prefs_text_size_title">Metin büyüklüğü</string>
-    <string name="prefs_text_size_summary">See more or see more clearly</string>
+    <string name="prefs_text_size_summary">Daha falza görünsün veya daha net görünsün</string>
     <string name="prefs_interface_locale_title">Uygulama dili</string>
     <string name="prefs_interface_locale_summary">Başka arayüzey dili seç</string>
     <string name="locale_change_warning">Yeni dilin kullanması için bu uygulama şimdi yeniden başlatılır</string>
@@ -105,7 +106,7 @@
     <string name="strongs_not_installed">Lütfen Strong\'un Grekçe ve İbranice sözlüğü indir</string>
     <string name="all_greek_occurrences">Tüm oluşları bul</string>
     <string name="all_hebrew_occurrences">Tüm oluşları bul</string>
-    <string name="no_indexed_bible_with_strongs_ref">Arama sayfası aracılığıyla Strong\'un numaraları dahil olan bir Kutsal Kitabı ve indeksleri indirmelisiniz.</string>
+    <string name="no_indexed_bible_with_strongs_ref">Arama sayfası aracılığıyla Strong\'un numaraları dahil olan bir Kutsal Kitap\'ı ve indeksleri indirmelisiniz.</string>
     <string name="morph_robinson_not_installed">Lütfen \'Robinson\'s Morphological Analysis Codes\' sözlüğü indirin</string>
     <string name="strongs_toggle_button_on">nnnn</string>
     <string name="strongs_toggle_button_off">nnnn</string>
@@ -119,7 +120,7 @@
     <string name="error_downloading">İndirirken bir hata vardi. İnternet bağlantınızı kontrol edin.</string>
     <string name="no_internet_connection">İnternet\'e bağlanamaz</string>
     <string name="storage_space_warning">Yetersiz yerel depolama.</string>
-    <string name="wait_for_bible">Lütfen bu Kutsal Kitab\'ın indirilmesi için bekleyin. Ondan sonra anasayfaya götürüleceksiniz.</string>
+    <string name="wait_for_bible">Lütfen bu Kutsal Kitap\'ın indirilmesi için bekleyin. Ondan sonra anasayfaya götürüleceksiniz.</string>
     <string name="wait_for_bible_not_yet">Lütfen bekleyin. Bir Kutsal Kitap henüz yerleştirilmedi.</string>
     <string name="download_complete_no_bibles">Bir Kutsal Kitap bulunmadı. Lütfen Geri tıklayın ve tekrar deneyin.</string>
     <string name="too_many_jobs">Şu anda çok fazla görev yürütmekte. Birinin bitmesini bekleyip tekrar deneyin.</string>
@@ -143,7 +144,7 @@
     <string name="bookmark_added">Yer imi eklendi</string>
     <string name="bookmark_exists">Yer imi önceden var oldu</string>
     <string name="bookmark_labels">Yer İmleri Etiketler</string>
-    <string name="assign_labels">Assign labels</string>
+    <string name="assign_labels">Etiketleri Ekle</string>
     <string name="new_label">Yeni Etiket</string>
     <string name="new_label_prompt">Adı</string>
     
@@ -155,7 +156,6 @@
     <!-- General Book -->
     <string name="general_book">Kitap</string>
     <string name="general_book_contents">İcerik</string>
-
 
     <!-- Speak -->
     <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
@@ -191,7 +191,7 @@
     <string name="cancel">İptal</string>
     <string name="no">Hayır</string>
     <string name="error">"Hata "</string>
-    <string name="more">Fazla</string>
+    <string name="more">Daha Fazla</string>
     <string name="retry">Tekrar Deneyin</string>
     <string name="please_wait">Lütfen bekleyin...</string>
     <string name="all">Hepsi</string>
