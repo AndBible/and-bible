@@ -57,7 +57,7 @@
     <string name="no_tasks_running">Şu an çalışan görev bulunmuyor.</string>
 
     <!-- Search -->
-    <string name="search_words_group_prompt">Ayette ara</string>
+    <string name="search_words_group_prompt">Ayetler bul</string>
     <string name="search_all_words">Tüm kelime</string>
     <string name="search_any_word">Herhangi kelime</string>
     <string name="search_phrase">Cümle parçası</string>
@@ -90,7 +90,7 @@
     <string name="prefs_navigate_to_verse_title">Ayete Yönlendir</string>
     <string name="prefs_navigate_to_verse_summary">Pasaj seçerken bölümle birlikte ayet seçilebilir</string>
     <string name="prefs_text_size_title">Metin büyüklüğü</string>
-    <string name="prefs_text_size_summary">See more or see more clearly</string>
+    <string name="prefs_text_size_summary">Daha falza görünsün veya daha net görünsün</string>
     <string name="prefs_interface_locale_title">Uygulama dili</string>
     <string name="prefs_interface_locale_summary">Başka arayüzey dili seç</string>
     <string name="locale_change_warning">Yeni dilin kullanması için bu uygulama şimdi yeniden başlatılır</string>
@@ -144,7 +144,7 @@
     <string name="bookmark_added">Yer imi eklendi</string>
     <string name="bookmark_exists">Yer imi önceden var oldu</string>
     <string name="bookmark_labels">Yer İmleri Etiketler</string>
-    <string name="assign_labels">Assign labels</string>
+    <string name="assign_labels">Etiketleri Ekle</string>
     <string name="new_label">Yeni Etiket</string>
     <string name="new_label_prompt">Adı</string>
     
@@ -190,7 +190,7 @@
     <string name="okay">Tamam</string>
     <string name="cancel">İptal</string>
     <string name="no">Hayır</string>
-    <string name="error">Hata </string>
+    <string name="error">"Hata "</string>
     <string name="more">Daha Fazla</string>
     <string name="retry">Tekrar Deneyin</string>
     <string name="please_wait">Lütfen bekleyin...</string>
