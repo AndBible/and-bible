@@ -10,6 +10,7 @@ import net.bible.android.view.util.buttongrid.ButtonGrid;
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener;
 import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo;
 
+import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
@@ -104,7 +105,8 @@ public class GridChoosePassageBook extends ActivityBase implements OnButtonGridA
 
     private List<ButtonInfo> getBibleBookButtonInfo() {
     	boolean isShortBookNamesAvailable = isShortBookNames();
-    	
+    	BibleBook currentBibleBook = KeyUtil.getVerse(CurrentPageManager.getInstance().getCurrentBible().getKey()).getBook();
+    	    	
     	List<ButtonInfo> keys = new ArrayList<ButtonInfo>(BibleInfo.booksInBible());
     	for (BibleBook book: EnumSet.range(BibleBook.GEN, BibleBook.REV)) {
     		ButtonInfo buttonInfo = new ButtonInfo();
@@ -113,6 +115,7 @@ public class GridChoosePassageBook extends ActivityBase implements OnButtonGridA
     			buttonInfo.id = book.ordinal();
 	    		buttonInfo.name = getShortBookName(book, isShortBookNamesAvailable);
 	    		buttonInfo.textColor = getBookTextColor(book.ordinal());
+	    		buttonInfo.highlight = book.equals(currentBibleBook);
     		} catch (NoSuchVerseException nsve) {
     			buttonInfo.name = "ERR";
     		}

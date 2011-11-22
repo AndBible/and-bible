@@ -6,6 +6,7 @@ import net.bible.android.activity.R;
 import net.bible.android.view.util.buttongrid.LayoutDesigner.RowColLayout;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -31,6 +32,7 @@ public class ButtonGrid extends TableLayout {
 		public int id;
 		public String name;
 		public int textColor = Color.WHITE;
+		public boolean highlight = false;
 
 		// used internally 
 		private Button button;
@@ -82,6 +84,7 @@ public class ButtonGrid extends TableLayout {
     public void addButtons(List<ButtonInfo> buttonInfoList) {
     	this.buttonInfoList = buttonInfoList;
     	int numButtons = buttonInfoList.size();
+		int textSize = getResources().getInteger(R.integer.grid_cell_text_size_sp);
     	
     	// calculate the number of rows and columns so that the grid looks nice
     	mRowColLayout = new LayoutDesigner().calculateLayout(buttonInfoList); 
@@ -99,8 +102,12 @@ public class ButtonGrid extends TableLayout {
 					// create a graphical Button View object to show on the screen and link it to the ButtonInfo object
 					ButtonInfo buttonInfo = buttonInfoList.get(iCellNo);
 					Button button = new Button(mContext);
-					button.setTextSize(TypedValue.COMPLEX_UNIT_SP, getResources().getInteger(R.integer.grid_cell_text_size_sp));
 					button.setText(buttonInfo.name);
+					button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
+					if (buttonInfo.highlight) {
+						button.setTypeface(Typeface.DEFAULT_BOLD);
+						button.setPressed(true);
+					}
 					button.setBackgroundResource(R.drawable.buttongrid_button_background);
 					button.setTextColor(buttonInfo.textColor);
 					// set pad to 0 prevents text being pushed off the bottom of buttons on small screens
