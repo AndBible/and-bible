@@ -192,7 +192,7 @@ public class NoteAndReferenceHandler {
 					}
 					result.append("<a href='").append(Constants.BIBLE_PROTOCOL).append(":").append(key.iterator().next().getOsisRef()).append("'>");
 					result.append(key);
-					result.append("</a>&nbsp; ");
+					result.append("</a>");
 					isFirst = false;
 				}
 	        }
