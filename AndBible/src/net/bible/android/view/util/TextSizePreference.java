@@ -1,5 +1,7 @@
 package net.bible.android.view.util;
 
+import net.bible.android.activity.R;
+import net.bible.service.common.CommonUtils;
 import android.content.Context;
 import android.util.AttributeSet;
 
@@ -9,8 +11,6 @@ public class TextSizePreference extends SeekBarPreference {
 	// there is no android:min attribute we can put in the xml definitions so easiest way is to set it here
 	private static final int MIN_TEXT_SIZE = 6;
 	
-	private static final String SAMPLE_TEXT = "Sample text";
-
 	@SuppressWarnings("unused")
 	private static final String TAG = "TextSizePreference";
 	
@@ -18,7 +18,7 @@ public class TextSizePreference extends SeekBarPreference {
 		super(context, attrs);
 		
 		setMin(MIN_TEXT_SIZE);
-		setDialogMessage(SAMPLE_TEXT);
+		setDialogMessage(CommonUtils.getResourceString(R.string.prefs_text_size_sample_text));
 	}
 	
     protected void updateScreenValue(int value) {
