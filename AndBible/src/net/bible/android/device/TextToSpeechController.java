@@ -1,6 +1,9 @@
 package net.bible.android.device;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 import net.bible.android.BibleApplication;
@@ -36,15 +39,14 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     private TextToSpeech mTts;
 
     private Locale speechLocale;
-    private String textToSpeak;
+    private List<String> mTextToSpeak = new ArrayList<String>();
+    private int currentSentence = 0;
     private boolean queue;
 
-    // keep track of the current count of requests so we know when to shutdown Tts
-    private int textCount =0;
-    
     private Context context;
     
     private static final TextToSpeechController singleton = new TextToSpeechController();
+    private static final String END_SENTENCE_PAUSE = ".";
     
     public static TextToSpeechController getInstance() {
     	return singleton;
@@ -56,7 +58,11 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     }
 
     public void speak(Locale speechLocale, String textToSpeak, boolean queue) {
-    	this.textToSpeak = textToSpeak;
+   		this.mTextToSpeak.addAll(Arrays.asList(textToSpeak.split("\\.")));
+//    	this.mTextToSpeak.add(textToSpeak);
+
+    	Log.d(TAG, "Num sentences:"+mTextToSpeak.size());
+    	
     	this.queue = queue;
     	
     	if (mTts==null) {
@@ -105,32 +111,39 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     }
 
     private void sayText() {
+        // ask TTs to say the text
+    	speakNextString();
+    }
+
+    private void speakNextString() {
     	// Always set the UtteranceId (or else OnUtteranceCompleted will not be called)
         HashMap<String, String> dummyTTSParams = new HashMap<String, String>();
         dummyTTSParams.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "AND-BIBLE"+System.currentTimeMillis());
 
-        this.textCount++;
-        
-        // ask TTs to say the text
-        mTts.speak(this.textToSpeak,
-            queue ? TextToSpeech.QUEUE_ADD : TextToSpeech.QUEUE_FLUSH,  // Drop all pending entries in the playback queue.
-            dummyTTSParams);
+        //TODO only add pause if not first string
+        mTts.speak(this.mTextToSpeak.get(currentSentence++),
+                queue ? TextToSpeech.QUEUE_ADD : TextToSpeech.QUEUE_FLUSH,  // Drop all pending entries in the playback queue.
+                dummyTTSParams);
+
     }
-    
     private void showError(int msgId) {
     	Dialogs.getInstance().showErrorMsg(msgId);
     }
 
 	public void stop() {
-		textCount = 0;
 		shutdown();
 	}
 
 	@Override
 	public void onUtteranceCompleted(String utteranceId) {
 		Log.d(TAG, "onUtteranceCompleted:"+utteranceId);
-		if (--textCount==0) {
+		if (currentSentence==mTextToSpeak.size()) {
+			Log.d(TAG, "Shutting down TTS");
 			shutdown();
+			mTextToSpeak.clear();
+			currentSentence = 0;
+		} else {
+			speakNextString();
 		}
 	}
 
