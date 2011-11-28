@@ -18,7 +18,7 @@
     \nEtkinlikler içın MENÜ düğmeyi basın.
 	\n\nDaha fazla belgeleri indirmek için Menü/Daha Fazla/Belgeler İndir\'i basın
     \n\n<b>Söyle</b>\nSelsi okumasını başlayıp durduran diyalogu görmek için Söyle\'i bas
-    \n\n<b>Notlarıme</b>\nAyet içerik menüsüde bulunan Notlarım etkinliğin aracılığıyla notları ekleyenebilir. Var olan notları ana menüsünden erişilebilir.
+    \n\n<b>Notlarım</b>\nAyet içerik menüsüde bulunan Notlarım etkinliğin aracılığıyla notları ekleyenebilir. Var olan notları ana menüsünden erişilebilir.
     \n\n<b>Yerimi</b>\nYerimileri, ayet içerik menüsünden eklenebilir. Yerimi yöneticisi ana menüsünden erişilebilir. Yerimi yöneticisi içerik menüsünü kullanarak yerimileri, ekiketlere göre sıralayabilir.
     \n\n<b>Arama</b>\nArama sorgular *, ?, AND, OR, NOT gibi özel karakterler içerebilir.  (daha fazla bilgi için "Apache Lucene - Query Parser Syntax" okuyun)
     \n\n<b>İçerik Menüleri</b>
