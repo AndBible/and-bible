@@ -10,6 +10,7 @@ import net.bible.android.view.util.DataPipe;
 import net.bible.service.format.Note;
 
 import org.apache.commons.lang.StringUtils;
+import org.crosswire.jsword.passage.Verse;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -29,13 +30,12 @@ import android.widget.TextView;
 public class NotesActivity extends ListActivityBase {
 	private static final String TAG = "NotesActivity";
 	
-	private TextView mTitle;
 	private TextView mWarning;
 	
     static final protected String LIST_ITEM_LINE1 = "line1";
     static final protected String LIST_ITEM_LINE2 = "line2";
     
-    private int mVerseNo=1;
+    private Verse mVerse;
     private List<Note> mChapterNotesList;
     private List<Note> mVerseNotesList;
 	private ArrayAdapter<Note> mNotesListAdapter; 
@@ -49,10 +49,9 @@ public class NotesActivity extends ListActivityBase {
         Log.i(TAG, "Displaying notes");
         setContentView(R.layout.notes);
     
-        mTitle =  (TextView)findViewById(R.id.title);
         mWarning =  (TextView)findViewById(R.id.warningText);
         
-        mVerseNo = CurrentPageManager.getInstance().getCurrentBible().getCurrentVerseNo();
+        mVerse = CurrentPageManager.getInstance().getCurrentBible().getSingleKey();
         mChapterNotesList = DataPipe.getInstance().popNotes();
         
         initialiseView();
@@ -76,14 +75,14 @@ public class NotesActivity extends ListActivityBase {
 	}
 
     public void onPrevious(View v) {
-    	if (mVerseNo>1) {
-    		mVerseNo--;
-    		onVerseChanged();
+    	if (!mVerse.isStartOfChapter()) {
+	    	mVerse = mVerse.subtract(1);
+			onVerseChanged();
     	}
     }
     public void onNext(View v) {
-    	if (mVerseNo<CurrentPageManager.getInstance().getCurrentBible().getNumberOfVersesDisplayed()) {
-    		mVerseNo++;
+    	if (!mVerse.isEndOfChapter()) {
+    		mVerse = mVerse.add(1);
     		onVerseChanged();
     	}
     }
@@ -100,7 +99,7 @@ public class NotesActivity extends ListActivityBase {
     	
     	if (mChapterNotesList!=null) {
 			for (Note note : mChapterNotesList) {
-				if (note.getVerseNo() == mVerseNo) {
+				if (note.getVerseNo() == mVerse.getVerse()) {
 					mVerseNotesList.add(note);
 				}
 			}
@@ -126,7 +125,7 @@ public class NotesActivity extends ListActivityBase {
     }
 
     private void showCurrentVerse() {
-    	mTitle.setText("Verse "+mVerseNo);
+    	setTitle(mVerse.getName());
     }
     
     private void noteSelected(Note note) {

@@ -141,8 +141,10 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	 * @see net.bible.android.control.CurrentPage#getSingleKey()
 	 */
 	@Override
-	public Key getSingleKey() {
-		return doGetKey(true);
+	public Verse getSingleKey() {
+		Key key = doGetKey(true);
+		// it is already a Verse but this avoids a downcast
+		return KeyUtil.getVerse(key);
     }
 	
 	/* (non-Javadoc)
@@ -188,11 +190,6 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
     	return BibleInfo.chaptersInBook(currentBibleVerse.getCurrentBibleBook())==1;
 	}
 	
-	public int getNumberOfVersesDisplayed() {
-		int numVerses = currentBibleVerse.getVerseSelected().getLastVerseInChapter().getVerse();
-		return numVerses;
-	}
-
 	/** called during app close down to save state
 	 * 
 	 * @param outState
