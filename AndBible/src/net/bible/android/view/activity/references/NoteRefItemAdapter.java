@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.bible.service.format.Note;
 import android.content.Context;
+import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,13 +42,13 @@ public class NoteRefItemAdapter extends ArrayAdapter<Note> {
 		// Set value for the first text field
 		if (view.getText1() != null) {
 			String summary = item.getSummary();
-			view.getText1().setText(summary);
+			view.getText1().setText(Html.fromHtml(summary));
 		}
 
 		// set value for the second text field
 		if (view.getText2() != null) {
 			String detail = item.getDetail();
-			view.getText2().setText(detail);
+			view.getText2().setText(Html.fromHtml(detail));
 		}
 
 		return view;
