@@ -65,6 +65,9 @@ public class OsisToSpeakTextSaxHandler extends OsisToCanonicalTextSaxHandler {
     	if (s.contains(" --")) {
     		s = s.replace(" --", ";");
     	}
+   		
+   		// for xxx's TTS says xxx s instead of xxxs so remove possessive apostrophe 
+   		s = s.replace("\'s ", "s ");
 		
 		// say verse rather than colon etc.
 		if (writingRef) {
