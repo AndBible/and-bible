@@ -65,10 +65,14 @@ public class Download extends DocumentSelectionBase {
         	populateMasterDocumentList(false);
         	updateLastRepoRefreshDate();
        	} else if (isRepoBookListOld()) {
-       		// normal user downloading but with old doc list
-       		// this will also trigger populateMasterDocumentList
-       		promptRefreshBookList();
-		 	updateLastRepoRefreshDate();
+       		// normal user downloading but need to refresh the document list
+       		Toast.makeText(this, R.string.refresh_book_list, Toast.LENGTH_LONG).show();
+       		
+    		// prepare the document list view - done in another thread
+    		populateMasterDocumentList(true);
+
+    		// restart refresh timeout
+    		updateLastRepoRefreshDate();
        	} else {
        		// normal user downloading with recent doc list
         	populateMasterDocumentList(false);
@@ -85,24 +89,6 @@ public class Download extends DocumentSelectionBase {
     	return (today.getTime()-repoRefreshDate)/MILLISECS_IN_DAY > REPO_LIST_STALE_AFTER_DAYS;
     }
     
-    private void promptRefreshBookList() {
-    	new AlertDialog.Builder(this)
-			.setMessage(getText(R.string.refresh_book_list))
-			.setCancelable(false)
-			.setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					// prepare the document list view - done in another thread
-					populateMasterDocumentList(true);
-				}
-			})
-			.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int id) {
-					// prepare the document list view - done in another thread
-					populateMasterDocumentList(false);
-				 }
-			}).create().show();
-	 }
-	 
     private void updateLastRepoRefreshDate() {
 	 	Date today = new Date();
 		CommonUtils.getSharedPreferences().edit().putLong(REPO_REFRESH_DATE, today.getTime()).commit();
