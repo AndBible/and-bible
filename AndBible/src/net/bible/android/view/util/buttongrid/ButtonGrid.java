@@ -103,10 +103,11 @@ public class ButtonGrid extends TableLayout {
 					ButtonInfo buttonInfo = buttonInfoList.get(iCellNo);
 					Button button = new Button(mContext);
 					button.setText(buttonInfo.name);
-					button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
 					if (buttonInfo.highlight) {
 						button.setTypeface(Typeface.DEFAULT_BOLD);
-						button.setPressed(true);
+						button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize+1);
+					} else {
+						button.setTextSize(TypedValue.COMPLEX_UNIT_SP, textSize);
 					}
 					button.setBackgroundResource(R.drawable.buttongrid_button_background);
 					button.setTextColor(buttonInfo.textColor);
