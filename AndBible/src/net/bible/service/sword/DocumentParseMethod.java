@@ -38,6 +38,19 @@ public class DocumentParseMethod {
 	
 	private static final String TAG = "DocumentParseMethod";
 	
+	public DocumentParseMethod() {
+		failureInfoMap.put("FreCrampon", FailPosition.FIRST_AND_LAST_BOOK_CHAPTER);		
+		failureInfoMap.put("AB", FailPosition.ALL);	
+		failureInfoMap.put("FarsiOPV", FailPosition.ALL);	
+		//Afr1953 only has trouble with Gen 1 and Rev 22
+		failureInfoMap.put("Afr1953", FailPosition.FIRST_AND_LAST_BOOK_CHAPTER);
+		failureInfoMap.put("UKJV", FailPosition.FIRST_AND_LAST_BOOK_CHAPTER);
+		//WEB has trouble with Gen 1 and Rev 22, is okay for much of NT but books like Hosea are also misformed
+		failureInfoMap.put("WEB", FailPosition.ALL);
+		//HNV only has trouble with Rev 22
+		failureInfoMap.put("HNV", FailPosition.FIRST_AND_LAST_BOOK_CHAPTER);
+	}
+	
 	/** return true if this book's chapter is believed to have a good xml structure and not require recovery fallback
 	 */
 	public boolean isFastParseOkay(Book document, Key key) {
