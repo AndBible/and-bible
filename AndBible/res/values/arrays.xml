@@ -31,8 +31,9 @@
 		<item>@string/lang_lithuanian</item>
 		<item>@string/lang_latvian</item>
 		<item>@string/lang_malagasy</item>
-		<item>@string/lang_norwegian</item>
+		<item>@string/lang_norwegian_bokmal</item>
 		<item>@string/lang_dutch</item>
+		<item>@string/lang_norwegian_nynorsk</item>
 		<item>@string/lang_polish</item>
 		<item>@string/lang_portuguese</item>
 		<item>@string/lang_russian</item>
@@ -63,6 +64,7 @@
 		<item>mg</item>
 		<item>nb</item>
 		<item>nl</item>
+		<item>nn</item>
 		<item>pl</item>
 		<item>pt</item>
 		<item>ru</item>
