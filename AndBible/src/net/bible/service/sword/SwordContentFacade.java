@@ -325,12 +325,14 @@ public class SwordContentFacade {
 	    	
 			SharedPreferences preferences = CommonUtils.getSharedPreferences();
 			if (preferences!=null) {
+				// prefs applying to any doc type
+				osisToHtmlParameters.setShowNotes(preferences.getBoolean("show_notes_pref", true));
+
 				// show verse numbers if user has selected to show verse numbers AND the book is a bible (so don't even try to show verses in a Dictionary)
 				if (BookCategory.BIBLE.equals(book.getBookCategory())) {
 					osisToHtmlParameters.setShowVerseNumbers(preferences.getBoolean("show_verseno_pref", true) && book.getBookCategory().equals(BookCategory.BIBLE));
 					osisToHtmlParameters.setVersePerline(preferences.getBoolean("verse_per_line_pref", false));
 					osisToHtmlParameters.setShowMyNotes(preferences.getBoolean("show_mynotes_pref", true));
-					osisToHtmlParameters.setShowNotes(preferences.getBoolean("show_notes_pref", true));
 					osisToHtmlParameters.setShowTitles(preferences.getBoolean("section_title_pref", true));
 					osisToHtmlParameters.setRedLetter(preferences.getBoolean("red_letter_pref", false));
 					osisToHtmlParameters.setKeysWithNotes(ControlFactory.getInstance().getMyNoteControl().getKeysWithNotesInPassage(key));
@@ -339,7 +341,6 @@ public class SwordContentFacade {
 					boolean showStrongs = preferences.getBoolean("show_strongs_pref", true);
 					osisToHtmlParameters.setShowStrongs(showStrongs);
 					osisToHtmlParameters.setShowMorphology(showStrongs && preferences.getBoolean("show_morphology_pref", false));
-					
 				}
 				if (preferences.getBoolean("night_mode_pref", false)) {
 					osisToHtmlParameters.setExtraStylesheet(SharedConstants.NIGHT_MODE_STYLESHEET);

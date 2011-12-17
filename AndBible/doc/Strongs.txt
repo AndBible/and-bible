@@ -1,0 +1,26 @@
+See DictionaryTest junit
+Crosswire Beta contains StrongsGreek/Hebrew 2.x that has:
+.conf
+	SourceType=TEI
+	Feature=GreekDef
+entries
+	<entryFree n="00428">
+		<title>H428</title>
+		<orth>אלּה</orth>
+		<orth rend="bold" type="trans">'êlleh</orth>
+		<pron rend="italic">ale'-leh</pron><lb/>
+		<def>Prolonged from <ref target="StrongsHebrew:00411">H411</ref>; <hi rend="italic">these</hi> or <hi rend="italic">those:</hi> - an- (the) other; one sort so some such them these (same) they this those thus which who (-m).</def>
+	</entryFree>
+
+See BibleDesktop simple.xsl for example TEI support
+
+Need to support links like StrongsHebrew:00411
+Need to switch to Hebrew/Greek font for <orth> content
+---------------------------------------------------------------------------
+Xiphos contains Real Strongs/Greek
+
+entries
+	<a name="01993">1993</a>   <b>ἐπιστομίζω</b> [E)PISTOMI/ZW] {epistomízō}   \<i>ep-ee-stom-id'-zo</i>\<br /> from <a href="sword://StrongsRealGreek/01909">1909</a> and <a href="sword://StrongsRealGreek/04750">4750</a>; to put something over the mouth, i.e. (figuratively) to silence:--stop mouths. <br />See Greek <a href="sword://StrongsRealGreek/01909">1909</a>. <br />See Greek <a href="sword://StrongsRealGreek/04750">4750</a>.
+
+Need to support links like sword://StrongsRealGreek/01909
+No guide when to use Greek/Hebrew font
