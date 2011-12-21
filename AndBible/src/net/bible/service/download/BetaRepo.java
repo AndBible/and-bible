@@ -46,7 +46,6 @@ public class BetaRepo {
 			// Cannot include Jasher, Jub, EEnochCharles because they are displayed as page per verse for some reason which looks awful.
 			return super.test(book) && 
 					(	book.getInitials().equals("CalvinCommentaries") ||
-						book.getInitials().equals("TurNTB") ||
 						( book.getInitials().startsWith("Jap") && !book.getInitials().equals("JapDenmo") )
 					);
 		}
