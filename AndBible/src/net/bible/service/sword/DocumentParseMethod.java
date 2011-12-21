@@ -49,6 +49,8 @@ public class DocumentParseMethod {
 		failureInfoMap.put("WEB", FailPosition.ALL);
 		//HNV only has trouble with Rev 22
 		failureInfoMap.put("HNV", FailPosition.FIRST_AND_LAST_BOOK_CHAPTER);
+		failureInfoMap.put("BulVeren", FailPosition.FIRST_AND_LAST_BOOK_CHAPTER);
+		failureInfoMap.put("BulCarigradNT", FailPosition.FIRST_AND_LAST_BOOK_CHAPTER);
 	}
 	
 	/** return true if this book's chapter is believed to have a good xml structure and not require recovery fallback
