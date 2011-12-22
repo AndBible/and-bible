@@ -1,0 +1,4 @@
+Q. I have a file that's been modified. I want to discards the changes and revert the file back to what's in the source repository.
+A. This can be done via the context menu "Replace with/File in Git index" on the file in package view.
+http://stackoverflow.com/questions/1750997/eclipse-git-checkout-aka-revert
+ 
