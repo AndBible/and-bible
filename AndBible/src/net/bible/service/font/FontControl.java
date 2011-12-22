@@ -39,15 +39,21 @@ public class FontControl {
     }
 
 	public String getFontForBook(Book book) {
-		String langCode = book.getBookMetaData().getLanguage().getCode();
-		// is there a font for the book
-		String font = fontProperties.getProperty(book.getInitials());
-		// is there a font for the language code
-		if (StringUtils.isEmpty(font)) {
-			font = fontProperties.getProperty(langCode);
+		String font = null;
+		try {
+			// sometimes an error occurs on following line - maybe due to missing language info in book metadata
+			String langCode = book.getBookMetaData().getLanguage().getCode();
+			// is there a font for the book
+			font = fontProperties.getProperty(book.getInitials());
+			// is there a font for the language code
+			if (StringUtils.isEmpty(font)) {
+				font = fontProperties.getProperty(langCode);
+			}
+			
+			log.debug("Book:"+book.getInitials()+" Language code:"+langCode+" Font:"+font);
+		} catch (Exception e) {
+			log.warn("Problem getting font for book:"+book.getInitials(), e);
 		}
-		
-		log.debug("Book:"+book.getInitials()+" Language code:"+langCode+" Font:"+font);
 		return font;
 	}
 
