@@ -2,7 +2,6 @@ package net.bible.android.view.activity.page;
 
 import java.lang.reflect.Method;
 
-import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.view.activity.base.DocumentView;
@@ -36,6 +35,8 @@ public class BibleView extends WebView implements DocumentView {
 	
 	private PageControl pageControl = ControlFactory.getInstance().getPageControl();
 	
+	private TiltScrollManager tiltScrollManager;
+
 	private static final String TAG = "BibleView";
 	
 	/**
@@ -133,6 +134,9 @@ public class BibleView extends WebView implements DocumentView {
 		getSettings().setJavaScriptEnabled(true);
 		
 		applyPreferenceSettings();
+		
+		tiltScrollManager = new TiltScrollManager(this);
+		tiltScrollManager.enableTiltScroll(true);
 	}
 
 	/** apply settings set by the user using Preferences
@@ -165,6 +169,32 @@ public class BibleView extends WebView implements DocumentView {
 		mJumpToVerse = jumpToVerse;
 		mJumpToYOffsetRatio = jumpToYOffsetRatio;
 		loadDataWithBaseURL("http://baseUrl", html, "text/html", "UTF-8", "http://historyUrl");
+	}
+	
+    @Override
+    public void pausing() {
+		Log.d(TAG, "Pausing tilt to scroll");
+        tiltScrollManager.enableTiltScroll(false);
+    }
+    
+    @Override
+    public void resuming() {
+		Log.d(TAG, "Resuming tilt to scroll");
+        tiltScrollManager.enableTiltScroll(true);
+    }
+
+	@Override
+	protected void onDisplayHint(int hint) {
+		super.onDisplayHint(hint);
+		if (View.VISIBLE == hint) {
+			Log.d(TAG, "Enabling tilt to scroll because view visible hint received");
+			tiltScrollManager.enableTiltScroll(true);
+		} else if (View.INVISIBLE == hint) {
+			Log.d(TAG, "Disabling tilt to scroll because view hidden hint received");
+			tiltScrollManager.enableTiltScroll(false);
+		} else {
+			Log.e(TAG, "Unexpected BibleView display hint:"+hint);
+		}
 	}
 	
 	/** enter text selection mode

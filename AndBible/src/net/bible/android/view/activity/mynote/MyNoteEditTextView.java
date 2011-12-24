@@ -7,6 +7,7 @@ import net.bible.service.common.CommonUtils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -81,4 +82,12 @@ public class MyNoteEditTextView extends EditText implements DocumentView {
 	public View asView() {
 		return this;
 	}
+	
+    @Override
+    public void pausing() {
+    }
+    
+    @Override
+    public void resuming() {
+    }
 }
