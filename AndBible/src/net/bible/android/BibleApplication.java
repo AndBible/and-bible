@@ -78,7 +78,7 @@ public class BibleApplication extends Application{
 		return singleton;
 	}
 
-	/**
+	/** If locale is overridden then need to set the locale again on any configuration change; see following link 
 	 * http://stackoverflow.com/questions/2264874/android-changing-locale-within-the-app-itself
 	 */
     @Override

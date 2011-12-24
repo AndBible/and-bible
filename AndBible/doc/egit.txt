@@ -1,4 +1,17 @@
 Q. I have a file that's been modified. I want to discards the changes and revert the file back to what's in the source repository.
 A. This can be done via the context menu "Replace with/File in Git index" on the file in package view.
 http://stackoverflow.com/questions/1750997/eclipse-git-checkout-aka-revert
- 
+
+Q.Git local commits mean fewer backups
+If you have a private server with ssh access all you need to do is this:
+	ssh my.server
+	mkdir ~/repo.git && cd ~/repo.git
+	git init --bare # bare repository that will serve as backup location
+	exit
+	# back on your box
+	cd $my_local_git_repo
+	git remote add --mirror backup ssh://my_server:repo.git
+	git config remote.backup.fetch ":" # don't replace our data when
+                                   # accidentally fetching from backup
+	git push backup # copy everything new to backup repo
+http://programmers.stackexchange.com/questions/8917/git-project-backups
