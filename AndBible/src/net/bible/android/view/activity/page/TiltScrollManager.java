@@ -18,9 +18,20 @@ public class TiltScrollManager {
 
 	private Handler mScrollHandler = new Handler();
 	
+	// the pitch at which a user views the text stationary
+	// this changes dynamically when the screen is touched
+	// both angles are degrees
+	private int mNoScrollViewingPitch = 57;
+	private static final int NO_SCROLL_VIEWING_TOLERANCE = 7;
+	private static final int NO_SPEED_INCREASE_VIEWING_TOLERANCE = 3;
+	
+	// this is decreased (subtracted from) to speed up scrolling
+	private static int BASE_TIME_BETWEEN_SCROLLS = 50;
+	
 	private float[] mAccelerometerValues;
 	private float[] mMagneticFieldValues;
-	private int pitch;
+	private int mPitch;
+	private int mTempPrevPitch;
 	
 	private static final String TAG = "TiltScrollManager";
 	
@@ -56,19 +67,39 @@ public class TiltScrollManager {
 	 */
 	private Runnable mScrollTask = new Runnable() {
 		public void run() {
-			Log.d(TAG, "Pitch:" + Math.round(pitch));
-			// TODO - do not allow scroll off end
-			if (pitch < 50) {
-				// scroll down/forward
-				mWebView.scrollBy(0, 1);
-			} else if (pitch > 70 && mWebView.getScrollY() > 0) {
-				// scroll up/back
-				mWebView.scrollBy(0, -1);
+			if (mPitch!=mTempPrevPitch) {
+				Log.d(TAG, "Pitch:" + Math.round(mPitch));
+			}
+			int speedUp = 0;
+			int devianceFromViewingAngle = Math.abs(mPitch-mNoScrollViewingPitch);
+			if (devianceFromViewingAngle > NO_SCROLL_VIEWING_TOLERANCE) {
+
+				// speedUp if tilt screen beyond a certain amount
+				speedUp = (devianceFromViewingAngle-NO_SPEED_INCREASE_VIEWING_TOLERANCE)*3;
+
+				// speedup is initially done by decreasing time between scrolls and then by increasing scroll amount
+				int scrollAmount = 1;
+				if (speedUp>BASE_TIME_BETWEEN_SCROLLS) {
+					scrollAmount = 2;
+				}
+				
+				boolean isTiltedForward = mPitch<mNoScrollViewingPitch; 
+				// TODO - do not allow scroll off end
+				if (isTiltedForward) {
+					// scroll down/forward
+					mWebView.scrollBy(0, scrollAmount);
+				} else if (mWebView.getScrollY() > 0) {
+					// scroll up/back
+					mWebView.scrollBy(0, -scrollAmount);
+				}
+				
 			}
 
 			if (mIsTiltScrollEnabled) {
-				mScrollHandler.postDelayed(mScrollTask, 50);
+				Log.d(TAG, "Speedup:" + speedUp);
+				mScrollHandler.postDelayed(mScrollTask, Math.max(0, BASE_TIME_BETWEEN_SCROLLS-speedUp));
 			}
+			mTempPrevPitch = mPitch; 
 		}
 	};
 
@@ -129,7 +160,7 @@ public class TiltScrollManager {
 	
 			// Convert from radians to degrees.
 //			values[0] = (float) Math.toDegrees(values[0]);
-			pitch = (int)Math.toDegrees(values[1]);
+			mPitch = (int)Math.toDegrees(values[1]);
 //			values[2] = (float) Math.toDegrees(values[2]);
 		}
 	}
