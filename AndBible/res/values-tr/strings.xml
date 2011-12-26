@@ -18,7 +18,7 @@
     
     <!-- main menu -->
     <string name="chooseBook">Belge</string>
-    <string name="selectPassage">Pasaj</string>
+    <string name="selectPassage">Kısım</string>
     <string name="search">Ara</string>
     <string name="settings">Seçenekler</string>
     <string name="history">Geçmiş</string>
@@ -76,7 +76,7 @@
     <string name="prefs_night_mode_title">Gece Renkleri</string>
     <string name="prefs_night_mode_summary">Karanlıkta daha kolay okumak için başka renkler kullanılır</string>
     <string name="prefs_navigate_to_verse_title">Ayete Yönlendir</string>
-    <string name="prefs_navigate_to_verse_summary">Pasaj seçerken bölümle birlikte ayet seçilebilir</string>
+    <string name="prefs_navigate_to_verse_summary">Kısım seçerken bölümden sonra ayet de seçilebilir</string>
     <string name="prefs_text_size_title">Metin büyüklüğü</string>
     <string name="prefs_text_size_summary">Daha falza görünsün veya daha net görünsün</string>
     <string name="prefs_interface_locale_title">Uygulama dili</string>
@@ -149,7 +149,7 @@
     <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
     <!-- Speak - Bible -->
     <string name="one_chapter">%d bölüm</string>
-    <string name="some_chapters">%d bölümler</string>
+    <string name="some_chapters">%d bölüm</string>
     <string name="rest_of_book">Kitabın sonuna git</string>
     <!-- Speak - Commentary -->
     <string name="one_verse">%d ayet</string>
