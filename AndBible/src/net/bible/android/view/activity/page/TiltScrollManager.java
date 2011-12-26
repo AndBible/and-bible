@@ -23,7 +23,7 @@ public class TiltScrollManager {
 	// both angles are degrees
 	private int mNoScrollViewingPitch = 57;
 	private static final int NO_SCROLL_VIEWING_TOLERANCE = 7;
-	private static final int NO_SPEED_INCREASE_VIEWING_TOLERANCE = 3;
+	private static final int NO_SPEED_INCREASE_VIEWING_TOLERANCE = 7;
 	
 	// this is decreased (subtracted from) to speed up scrolling
 	private static int BASE_TIME_BETWEEN_SCROLLS = 50;
@@ -75,13 +75,11 @@ public class TiltScrollManager {
 			if (devianceFromViewingAngle > NO_SCROLL_VIEWING_TOLERANCE) {
 
 				// speedUp if tilt screen beyond a certain amount
-				speedUp = (devianceFromViewingAngle-NO_SPEED_INCREASE_VIEWING_TOLERANCE)*3;
+				speedUp = Math.max(0, devianceFromViewingAngle-NO_SCROLL_VIEWING_TOLERANCE-NO_SPEED_INCREASE_VIEWING_TOLERANCE);
 
 				// speedup is initially done by decreasing time between scrolls and then by increasing scroll amount
-				int scrollAmount = 1;
-				if (speedUp>BASE_TIME_BETWEEN_SCROLLS) {
-					scrollAmount = 2;
-				}
+				int scrollAmount = 1+speedUp;
+				Log.d(TAG,  "scroll amount:"+scrollAmount);
 				
 				boolean isTiltedForward = mPitch<mNoScrollViewingPitch; 
 				// TODO - do not allow scroll off end
@@ -96,8 +94,7 @@ public class TiltScrollManager {
 			}
 
 			if (mIsTiltScrollEnabled) {
-				Log.d(TAG, "Speedup:" + speedUp);
-				mScrollHandler.postDelayed(mScrollTask, Math.max(0, BASE_TIME_BETWEEN_SCROLLS-speedUp));
+				mScrollHandler.postDelayed(mScrollTask, BASE_TIME_BETWEEN_SCROLLS);
 			}
 			mTempPrevPitch = mPitch; 
 		}
