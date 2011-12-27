@@ -21,16 +21,17 @@ public class TiltScrollManager {
 	// the pitch at which a user views the text stationary
 	// this changes dynamically when the screen is touched
 	// both angles are degrees
-	private int mNoScrollViewingPitch = 57;
-	private static final int NO_SCROLL_VIEWING_TOLERANCE = 7;
+	private int mNoScrollViewingPitch = -38;
+	private boolean mNoScrollViewingPitchCalculated = false;
+	
+	private static final int NO_SCROLL_VIEWING_TOLERANCE = 4;
 	private static final int NO_SPEED_INCREASE_VIEWING_TOLERANCE = 7;
 	
 	// this is decreased (subtracted from) to speed up scrolling
-	private static int BASE_TIME_BETWEEN_SCROLLS = 50;
+	private static int BASE_TIME_BETWEEN_SCROLLS = 40;
 	
-	private float[] mAccelerometerValues;
-	private float[] mMagneticFieldValues;
-	private int mPitch;
+	// current pitch of phone - varies dynamically
+	private int mPitch = mNoScrollViewingPitch;
 	private int mTempPrevPitch;
 	
 	private static final String TAG = "TiltScrollManager";
@@ -45,14 +46,20 @@ public class TiltScrollManager {
 		if (mIsTiltScrollEnabled != enable) {
 			mIsTiltScrollEnabled = enable;
 			if (enable) {
-				connectAMListeners();
+				connectListeners();
 				kickOffScrollHandler();
 			} else {
-				disconnectAMListeners();
+				disconnectListeners();
 			}
 		}
 	}
-	
+
+	/** called when user touches screen to reset home position
+	 */
+	public void recalculateViewingPosition() {
+		//TODO save to settings
+		mNoScrollViewingPitchCalculated = false;
+	}
 	/** 
 	 * Scroll screen at a certain speed
 	 */
@@ -60,7 +67,7 @@ public class TiltScrollManager {
 	/** start scrolling handler
 	 */
 	private void kickOffScrollHandler() {
-       mScrollHandler.post(mScrollTask);
+       mScrollHandler.postDelayed(mScrollTask, BASE_TIME_BETWEEN_SCROLLS);
 	}
 	
 	/** cause content of attached WebView to scroll
@@ -70,6 +77,13 @@ public class TiltScrollManager {
 			if (mPitch!=mTempPrevPitch) {
 				Log.d(TAG, "Pitch:" + Math.round(mPitch));
 			}
+			
+			if (!mNoScrollViewingPitchCalculated) {
+				// assume user's viewing pitch is the current one
+				mNoScrollViewingPitch = mPitch;
+				mNoScrollViewingPitchCalculated = true;
+			}
+			
 			int speedUp = 0;
 			int devianceFromViewingAngle = Math.abs(mPitch-mNoScrollViewingPitch);
 			if (devianceFromViewingAngle > NO_SCROLL_VIEWING_TOLERANCE) {
@@ -79,7 +93,6 @@ public class TiltScrollManager {
 
 				// speedup is initially done by decreasing time between scrolls and then by increasing scroll amount
 				int scrollAmount = 1+speedUp;
-				Log.d(TAG,  "scroll amount:"+scrollAmount);
 				
 				boolean isTiltedForward = mPitch<mNoScrollViewingPitch; 
 				// TODO - do not allow scroll off end
@@ -104,62 +117,26 @@ public class TiltScrollManager {
 	 * Orientation monitor (see Professional Android 2 App Dev Meier pg 469)
 	 */
 	
-	private void connectAMListeners() {
+	private void connectListeners() {
 		SensorManager sm = (SensorManager) BibleApplication.getApplication().getSystemService(Context.SENSOR_SERVICE);
-		Sensor aSensor = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		Sensor mfSensor = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+		Sensor oSensor = sm.getDefaultSensor(Sensor.TYPE_ORIENTATION);
 
-		sm.registerListener(myAccelerometerListener, aSensor, SensorManager.SENSOR_DELAY_UI);
-
-		sm.registerListener(myMagneticFieldListener, mfSensor, SensorManager.SENSOR_DELAY_UI);
+		sm.registerListener(myOrientationListener, oSensor, SensorManager.SENSOR_DELAY_UI);
 	}
-    private void disconnectAMListeners() {
+    private void disconnectListeners() {
 		SensorManager sm = (SensorManager) BibleApplication.getApplication().getSystemService(Context.SENSOR_SERVICE);
-    	sm.unregisterListener(myAccelerometerListener);
-    	sm.unregisterListener(myMagneticFieldListener);
+    	sm.unregisterListener(myOrientationListener);
     }
 
-	final SensorEventListener myAccelerometerListener = new SensorEventListener() {
+	final SensorEventListener myOrientationListener = new SensorEventListener() {
 		public void onSensorChanged(SensorEvent sensorEvent) {
-			if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-				mAccelerometerValues = sensorEvent.values;
-				calcOrientation();
+			if (sensorEvent.sensor.getType() == Sensor.TYPE_ORIENTATION) {
+				float[] orientationValues = sensorEvent.values;
+				mPitch = Math.round(orientationValues[1]);
 			}
 		}
 
 		public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		}
 	};
-
-	final SensorEventListener myMagneticFieldListener = new SensorEventListener() {
-		public void onSensorChanged(SensorEvent sensorEvent) {
-			if (sensorEvent.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-				mMagneticFieldValues = sensorEvent.values;
-			}
-		}
-
-		public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		}
-	};
-
-	private void calcOrientation() {
-		if (mMagneticFieldValues !=null && mAccelerometerValues!=null) {
-			float[] values = new float[3];
-			float[] R = new float[9];
-			SensorManager.getRotationMatrix(R, null, mAccelerometerValues, mMagneticFieldValues);
-	
-			float[] outR = new float[9];
-			SensorManager.remapCoordinateSystem(R,
-			                                    SensorManager.AXIS_X,
-			                                    SensorManager.AXIS_Z,
-			                                    outR);
-			SensorManager.getOrientation(outR, values);
-	
-			// Convert from radians to degrees.
-//			values[0] = (float) Math.toDegrees(values[0]);
-			mPitch = (int)Math.toDegrees(values[1]);
-//			values[2] = (float) Math.toDegrees(values[2]);
-		}
-	}
-
 }

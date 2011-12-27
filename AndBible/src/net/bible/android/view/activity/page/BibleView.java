@@ -12,6 +12,7 @@ import android.graphics.Picture;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
@@ -183,20 +184,17 @@ public class BibleView extends WebView implements DocumentView {
         tiltScrollManager.enableTiltScroll(true);
     }
 
+    
 	@Override
-	protected void onDisplayHint(int hint) {
-		super.onDisplayHint(hint);
-		if (View.VISIBLE == hint) {
-			Log.d(TAG, "Enabling tilt to scroll because view visible hint received");
-			tiltScrollManager.enableTiltScroll(true);
-		} else if (View.INVISIBLE == hint) {
-			Log.d(TAG, "Disabling tilt to scroll because view hidden hint received");
-			tiltScrollManager.enableTiltScroll(false);
-		} else {
-			Log.e(TAG, "Unexpected BibleView display hint:"+hint);
-		}
+	public boolean onTouchEvent(MotionEvent ev) {
+		boolean handled = super.onTouchEvent(ev);
+		
+		// Allow user to redefine viewing angle by touching screen
+		tiltScrollManager.recalculateViewingPosition();
+		
+		return handled;
 	}
-	
+
 	/** enter text selection mode
 	 */
 	@Override
