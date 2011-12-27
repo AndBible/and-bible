@@ -13,11 +13,10 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
-import android.webkit.WebView;
 
 public class TiltScrollManager {
 
-	private WebView mWebView;
+	private BibleView mWebView;
 	
 	private Boolean mIsOrientationSensor;
 	private boolean mIsTiltScrollEnabled;
@@ -31,7 +30,7 @@ public class TiltScrollManager {
 	private boolean mNoScrollViewingPitchCalculated = false;
 	
 	private static final int NO_SCROLL_VIEWING_TOLERANCE = 4;
-	private static final int NO_SPEED_INCREASE_VIEWING_TOLERANCE = 7;
+	private static final int NO_SPEED_INCREASE_VIEWING_TOLERANCE = 6;
 	
 	// this is decreased (subtracted from) to speed up scrolling
 	private static int BASE_TIME_BETWEEN_SCROLLS = 40;
@@ -46,7 +45,7 @@ public class TiltScrollManager {
 	
 	private static final String TAG = "TiltScrollManager";
 	
-	public TiltScrollManager(WebView webView) {
+	public TiltScrollManager(BibleView webView) {
 		this.mWebView = webView;
 	}
 	
@@ -84,12 +83,9 @@ public class TiltScrollManager {
 	 */
 	private Runnable mScrollTask = new Runnable() {
 		public void run() {
-	
+			int speedUp = 0;
 			if (mOrientationValues!=null) {
 				int normalisedPitch = getPitch(mRotation, mOrientationValues);
-				if (normalisedPitch!=mTempPrevPitch) {
-					Log.d(TAG, "Pitch:" + Math.round(normalisedPitch));
-				}
 				
 				if (!mNoScrollViewingPitchCalculated) {
 					// assume user's viewing pitch is the current one
@@ -97,35 +93,46 @@ public class TiltScrollManager {
 					mNoScrollViewingPitchCalculated = true;
 				}
 				
-				int speedUp = 0;
 				int devianceFromViewingAngle = Math.abs(normalisedPitch-mNoScrollViewingPitch);
 				if (devianceFromViewingAngle > NO_SCROLL_VIEWING_TOLERANCE) {
 	
 					// speedUp if tilt screen beyond a certain amount
 					speedUp = Math.max(0, devianceFromViewingAngle-NO_SCROLL_VIEWING_TOLERANCE-NO_SPEED_INCREASE_VIEWING_TOLERANCE);
 	
-					// speedup is initially done by decreasing time between scrolls and then by increasing scroll amount
-					int scrollAmount = 1+speedUp;
+					// speedup could be done by increasing scroll amount but that leads to a jumpy screen
+					int scrollAmount = 1;
 					
-					boolean isTiltedForward = normalisedPitch<mNoScrollViewingPitch; 
-					// TODO - do not allow scroll off end
-					if (isTiltedForward) {
-						// scroll down/forward
-						mWebView.scrollBy(0, scrollAmount);
-					} else if (mWebView.getScrollY() > 0) {
-						// scroll up/back
-						mWebView.scrollBy(0, -scrollAmount);
+					if (normalisedPitch!=mTempPrevPitch) {
+						Log.d(TAG, "Pitch:" + normalisedPitch+" Speedup:"+speedUp+" Scroll by:"+scrollAmount+" MaxHeight:"+mWebView.getMaxVerticalScroll()+" YPos:"+mWebView.getScrollY());
 					}
-					
+					boolean isTiltedForward = normalisedPitch<mNoScrollViewingPitch;
+					doScroll(isTiltedForward, scrollAmount);
 				}
 				mTempPrevPitch = normalisedPitch; 
 			}
 			if (mIsTiltScrollEnabled) {
-				mScrollHandler.postDelayed(mScrollTask, BASE_TIME_BETWEEN_SCROLLS);
+				mScrollHandler.postDelayed(mScrollTask, Math.max(0,BASE_TIME_BETWEEN_SCROLLS-(3*speedUp)));
 			}
 		}
 	};
 
+	private void doScroll(boolean forward, int scrollAmount) {
+		// TODO - do not allow scroll off end
+		mWebView.setVerticalScrollBarEnabled(false);
+		for (int i=0; i<scrollAmount; i++) {
+			//TODO calculate lineHeight properly
+			int lineHeight = 20;
+			if (forward && mWebView.getScrollY()+lineHeight < mWebView.getMaxVerticalScroll()-20) {
+				// scroll down/forward
+				mWebView.scrollBy(0, 1);
+			} else if (mWebView.getScrollY() > 0) {
+				// scroll up/back
+				mWebView.scrollBy(0, -1);
+			}
+		}					
+		mWebView.setVerticalScrollBarEnabled(true);
+
+	}
 	private int getPitch(int rotation, float[] orientationValues) {
 		float pitch = 0;
 		switch (rotation) {

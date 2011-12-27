@@ -236,6 +236,16 @@ public class BibleView extends WebView implements DocumentView {
 		return super.onKeyUp(keyCode, event);
 	}
 
+	/** Used to prevent scroll off bottom using auto-scroll
+	 * see http://stackoverflow.com/questions/5069765/android-webview-how-to-autoscroll-a-page
+	 * @return
+	 */
+    public int getMaxVerticalScroll() {
+    	
+    	// get these once, they probably won't change 
+        return computeVerticalScrollRange()-computeVerticalScrollExtent();
+    }
+
 	@Override
 	public View asView() {
 		return this;
