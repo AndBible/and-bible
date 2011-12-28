@@ -236,16 +236,46 @@ public class BibleView extends WebView implements DocumentView {
 		return super.onKeyUp(keyCode, event);
 	}
 
+	private boolean hideScrollBar;
+	public boolean scroll(boolean forward, int scrollAmount) {
+		boolean ok = false;
+		hideScrollBar = true;
+		for (int i=0; i<scrollAmount; i++) {
+			//TODO calculate lineHeight properly
+			int lineHeight = 20;
+			if (forward && getScrollY()+lineHeight < getMaxVerticalScroll()-20) {
+				// scroll down/forward
+				scrollBy(0, 1);
+				ok = true;
+			} else if (getScrollY() > 0) {
+				// scroll up/back
+				scrollBy(0, -1);
+				ok = true;
+			}
+		}
+		hideScrollBar = false;
+		return ok;
+	}
+
 	/** Used to prevent scroll off bottom using auto-scroll
 	 * see http://stackoverflow.com/questions/5069765/android-webview-how-to-autoscroll-a-page
 	 * @return
 	 */
-    public int getMaxVerticalScroll() {
+    private int getMaxVerticalScroll() {
     	
     	// get these once, they probably won't change 
         return computeVerticalScrollRange()-computeVerticalScrollExtent();
     }
 
+    /** allow vertical scroll bar to be hidden during auto-scroll
+     */
+    protected boolean awakenScrollBars(int startDelay, boolean invalidate) {
+    	if (!hideScrollBar) {
+    		return super.awakenScrollBars(startDelay, invalidate);
+    	} else {
+    		return false;
+    	}
+    }
 	@Override
 	public View asView() {
 		return this;

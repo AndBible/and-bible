@@ -9,11 +9,16 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
 
+/** The WebView component that shows teh main bible and commentary text
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class TiltScrollManager {
 
 	private BibleView mWebView;
@@ -29,7 +34,7 @@ public class TiltScrollManager {
 	private int mNoScrollViewingPitch = -38;
 	private boolean mNoScrollViewingPitchCalculated = false;
 	
-	private static final int NO_SCROLL_VIEWING_TOLERANCE = 4;
+	private static final int NO_SCROLL_VIEWING_TOLERANCE = 3;
 	private static final int NO_SPEED_INCREASE_VIEWING_TOLERANCE = 6;
 	
 	// this is decreased (subtracted from) to speed up scrolling
@@ -37,12 +42,12 @@ public class TiltScrollManager {
 	
 	// current pitch of phone - varies dynamically
 	private float[] mOrientationValues;
-	private int mTempPrevPitch;
 	private int mRotation = Surface.ROTATION_0;
 
 	// needed to find if screen switches to landscape and must different sensor value
 	private Display mDisplay;
 	
+	@SuppressWarnings("unused")
 	private static final String TAG = "TiltScrollManager";
 	
 	public TiltScrollManager(BibleView webView) {
@@ -95,20 +100,21 @@ public class TiltScrollManager {
 				
 				int devianceFromViewingAngle = Math.abs(normalisedPitch-mNoScrollViewingPitch);
 				if (devianceFromViewingAngle > NO_SCROLL_VIEWING_TOLERANCE) {
+					boolean isTiltedForward = normalisedPitch<mNoScrollViewingPitch;
 	
 					// speedUp if tilt screen beyond a certain amount
-					speedUp = Math.max(0, devianceFromViewingAngle-NO_SCROLL_VIEWING_TOLERANCE-NO_SPEED_INCREASE_VIEWING_TOLERANCE);
+					if (isTiltedForward) {
+						speedUp = Math.max(0, devianceFromViewingAngle-NO_SCROLL_VIEWING_TOLERANCE-NO_SPEED_INCREASE_VIEWING_TOLERANCE);
+					} else {
+						// speed up faster if going back because you don't read backwards but just want to move quickly
+						speedUp = Math.max(0, devianceFromViewingAngle-NO_SCROLL_VIEWING_TOLERANCE);
+					}
 	
 					// speedup could be done by increasing scroll amount but that leads to a jumpy screen
 					int scrollAmount = 1;
 					
-					if (normalisedPitch!=mTempPrevPitch) {
-						Log.d(TAG, "Pitch:" + normalisedPitch+" Speedup:"+speedUp+" Scroll by:"+scrollAmount+" MaxHeight:"+mWebView.getMaxVerticalScroll()+" YPos:"+mWebView.getScrollY());
-					}
-					boolean isTiltedForward = normalisedPitch<mNoScrollViewingPitch;
-					doScroll(isTiltedForward, scrollAmount);
+					mWebView.scroll(isTiltedForward, scrollAmount);
 				}
-				mTempPrevPitch = normalisedPitch; 
 			}
 			if (mIsTiltScrollEnabled) {
 				mScrollHandler.postDelayed(mScrollTask, Math.max(0,BASE_TIME_BETWEEN_SCROLLS-(3*speedUp)));
@@ -116,23 +122,6 @@ public class TiltScrollManager {
 		}
 	};
 
-	private void doScroll(boolean forward, int scrollAmount) {
-		// TODO - do not allow scroll off end
-		mWebView.setVerticalScrollBarEnabled(false);
-		for (int i=0; i<scrollAmount; i++) {
-			//TODO calculate lineHeight properly
-			int lineHeight = 20;
-			if (forward && mWebView.getScrollY()+lineHeight < mWebView.getMaxVerticalScroll()-20) {
-				// scroll down/forward
-				mWebView.scrollBy(0, 1);
-			} else if (mWebView.getScrollY() > 0) {
-				// scroll up/back
-				mWebView.scrollBy(0, -1);
-			}
-		}					
-		mWebView.setVerticalScrollBarEnabled(true);
-
-	}
 	private int getPitch(int rotation, float[] orientationValues) {
 		float pitch = 0;
 		switch (rotation) {
