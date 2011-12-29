@@ -47,6 +47,8 @@ public class MyNotes extends ListActivityBase {
 		// integrateWithHistoryManager to ensure the previous document is loaded again when the user presses Back
         super.onCreate(savedInstanceState, true);
 
+        setContentView(R.layout.list);
+
         myNoteControl = ControlFactory.getInstance().getMyNoteControl();
         
        	initialiseView();

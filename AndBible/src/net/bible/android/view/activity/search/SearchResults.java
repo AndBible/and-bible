@@ -41,7 +41,7 @@ public class SearchResults extends ListActivityBase {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, true);
         Log.i(TAG, "Displaying Search results view");
-        setContentView(R.layout.search_results);
+        setContentView(R.layout.list);
 
         if (prepareResults()) {
         	mKeyArrayAdapter = new SearchItemAdapter(this, LIST_ITEM_TYPE, mSearchResults);
