@@ -13,6 +13,7 @@ public class OsisToHtmlParameters {
     private boolean isShowVerseNumbers = false;
     private boolean isVersePerline = false;
     private boolean isShowMyNotes = false;
+    private boolean isShowBookmarks = false;
     private boolean isShowNotes = false;
     private boolean isBibleStyleNotesAndRefs = false;
     // used as a basis if a reference has only chapter and no book
@@ -27,6 +28,7 @@ public class OsisToHtmlParameters {
     private int numPaddingBrsAtBottom;
     private boolean convertStrongsRefsToLinks;
     private List<Key> keysWithNotes;
+    private List<Key> keysWithBookmarks;
 
 	public String getLanguageCode() {
 		return languageCode;
@@ -63,6 +65,12 @@ public class OsisToHtmlParameters {
 	}
 	public void setShowMyNotes(boolean isShowMyNotes) {
 		this.isShowMyNotes = isShowMyNotes;
+	}
+	public boolean isShowBookmarks() {
+		return isShowBookmarks;
+	}
+	public void setShowBookmarks(boolean isShowBookmarks) {
+		this.isShowBookmarks = isShowBookmarks;
 	}
 	public boolean isShowNotes() {
 		return isShowNotes;
@@ -136,5 +144,11 @@ public class OsisToHtmlParameters {
 	}
 	public void setKeysWithNotes(List<Key> keysWithNotes) {
 		this.keysWithNotes = keysWithNotes;
+	}
+	public List<Key> getKeysWithBookmarks() {
+		return keysWithBookmarks;
+	}
+	public void setKeysWithBookmarks(List<Key> keysWithBookmarks) {
+		this.keysWithBookmarks = keysWithBookmarks;
 	}
 }

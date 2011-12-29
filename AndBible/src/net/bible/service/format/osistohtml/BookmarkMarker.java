@@ -16,30 +16,30 @@ import org.crosswire.jsword.passage.Verse;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author. 
  */
-public class MyNoteMarker {
+public class BookmarkMarker {
 
-	private Map<Integer, Key> myNoteVerseMap= new HashMap<Integer, Key>();
+	private Map<Integer, Key> bookmarkVerseMap= new HashMap<Integer, Key>();
 	
 	private OsisToHtmlParameters parameters;
 	
-	private VerseInfo verseInfo; 
+	private VerseInfo verseInfo;
 	
 	private HtmlTextWriter writer;
 	
 	@SuppressWarnings("unused")
-	private static final Logger log = new Logger("MyNoteMarker");
+	private static final Logger log = new Logger("BookmarkMarker");
 
-	public MyNoteMarker(OsisToHtmlParameters parameters, VerseInfo verseInfo, HtmlTextWriter writer) {
+	public BookmarkMarker(OsisToHtmlParameters parameters, VerseInfo verseInfo, HtmlTextWriter writer) {
 		this.parameters = parameters;
 		this.verseInfo = verseInfo;
 		this.writer = writer;
 		
 		// create hashmap of verses to optimise verse note lookup
-		myNoteVerseMap.clear();
-		if (parameters.getKeysWithNotes()!=null) {
-			for (Key key : parameters.getKeysWithNotes()) {
+		bookmarkVerseMap.clear();
+		if (parameters.getKeysWithBookmarks()!=null) {
+			for (Key key : parameters.getKeysWithBookmarks()) {
 				Verse verse = KeyUtil.getVerse(key);
-				myNoteVerseMap.put(verse.getVerse(), key);
+				bookmarkVerseMap.put(verse.getVerse(), key);
 			}
 		}
 	}
@@ -52,9 +52,9 @@ public class MyNoteMarker {
 	/** just after verse start tag
 	 */
 	public void start() {
-		if (myNoteVerseMap!=null && parameters.isShowMyNotes()) {
-			if (myNoteVerseMap.containsKey(verseInfo.currentVerseNo)) {
-				writer.write("<img src='file:///android_asset/pencil16x16.png' class='myNoteImg'/>");
+		if (bookmarkVerseMap!=null && parameters.isShowBookmarks()) {
+			if (bookmarkVerseMap.containsKey(verseInfo.currentVerseNo)) {
+				writer.write("<img src='file:///android_asset/GoldStar16x16.png' class='myNoteImg'/>");
 			}
 		}
 	}

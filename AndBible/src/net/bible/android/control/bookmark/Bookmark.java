@@ -2,6 +2,8 @@ package net.bible.android.control.bookmark;
 
 import java.util.List;
 
+import org.crosswire.jsword.passage.Key;
+
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
 
@@ -48,4 +50,8 @@ public interface Bookmark {
 
 	/** label the bookmark with these and only these labels */
 	void setBookmarkLabels(BookmarkDto bookmark, List<LabelDto> labels);
+	
+	/** get a list of Keys which have bookmarks in the passage (normally a chapter) */
+	List<Key> getKeysWithBookmarksInPassage(Key passage);
+
 }

@@ -9,6 +9,7 @@ import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.BookmarkLabelCol
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.LabelColumn;
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.Table;
 
+import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.PassageKeyFactory;
 
@@ -99,6 +100,26 @@ public class BookmarkDBAdapter {
 		}
         
         return allBookmarks;
+	}
+
+	public List<BookmarkDto> getBookmarksInPassage(Key passage) {
+		Log.d(TAG, "about to getBookmarksInPassage:"+passage.getOsisID());
+		List<BookmarkDto> bookmarkList = new ArrayList<BookmarkDto>();
+		Cursor c = db.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn.KEY+" LIKE ?", new String []{String.valueOf(passage.getOsisID()+"%")}, null, null, null);
+		try {
+			if (c.moveToFirst()) {
+		        while (!c.isAfterLast()) {
+		        	BookmarkDto bookmark = getBookmarkDto(c);
+		    		bookmarkList.add(bookmark);
+		       	    c.moveToNext();
+		        }
+			}
+		} finally {
+	        c.close();
+		}
+        
+		Log.d(TAG, "bookmarksInPassage set to " + bookmarkList.size() + " item long list");
+        return bookmarkList;
 	}
 
 	public List<BookmarkDto> getBookmarksWithLabel(LabelDto label) {

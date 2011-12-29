@@ -14,6 +14,8 @@ import net.bible.service.common.CommonUtils;
 import net.bible.service.db.bookmark.BookmarkDBAdapter;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
+import net.bible.service.db.mynote.MyNoteDBAdapter;
+import net.bible.service.db.mynote.MyNoteDto;
 import net.bible.service.sword.SwordContentFacade;
 
 import org.crosswire.jsword.passage.Key;
@@ -255,5 +257,26 @@ public class BookmarkControl implements Bookmark {
 		}
 
 		return labelList;
+	}
+
+	@Override
+	public List<Key> getKeysWithBookmarksInPassage(Key passage) {
+		BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		db.open();
+		List<BookmarkDto> bookmarkList = null;
+		try {
+			bookmarkList = db.getBookmarksInPassage(passage);
+			Collections.sort(bookmarkList);
+		} finally {
+			db.close();
+		}
+
+		List<Key> keysWithBookmarks = new ArrayList<Key>();
+		if (bookmarkList!=null) {
+			for (BookmarkDto bookmarkDto : bookmarkList) {
+				keysWithBookmarks.add(bookmarkDto.getKey());
+			}
+		}
+		return keysWithBookmarks;
 	}
 }

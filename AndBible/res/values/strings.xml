@@ -75,6 +75,8 @@
     <string name="prefs_show_verseno_summary">Show verse numbers</string>
     <string name="prefs_verse_per_line_title">One verse per line</string>
     <string name="prefs_verse_per_line_summary">Show each verse on a different line</string>
+    <string name="prefs_show_bookmarks_title">Show bookmark icons</string>
+    <string name="prefs_show_bookmarks_summary">Show icon in bookmarked verses</string>
     <string name="prefs_show_mynotes_title">Show My Note icons</string>
     <string name="prefs_show_mynotes_summary">Show icon in verses with My Note</string>
     <string name="prefs_show_notes_title">Footnotes and x-refs</string>
@@ -215,4 +217,5 @@
     <string name="error_no_content">No content for selected verse</string>
     <string name="error_page_too_large">Page is too large to be loaded</string>
     <string name="error_key_not_in_document">Not found in document</string>
+    <string name="empty_list">No items to display</string>
 </resources>
