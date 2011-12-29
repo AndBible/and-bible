@@ -44,10 +44,8 @@ public class MyNotes extends ListActivityBase {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-		// this ensures the previous document is loaded again when the user presses Back
-		setIntegrateWithHistoryManager(true);
+		// integrateWithHistoryManager to ensure the previous document is loaded again when the user presses Back
+        super.onCreate(savedInstanceState, true);
 
         myNoteControl = ControlFactory.getInstance().getMyNoteControl();
         

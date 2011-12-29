@@ -51,12 +51,10 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState, true);
         
         setContentView(R.layout.main_bible_view);
 
-        setIntegrateWithHistoryManager(true);
-        
         // create related objects
         gestureListener = new BibleGestureListener(MainBibleActivity.this);
         gestureDetector = new GestureDetector( gestureListener );

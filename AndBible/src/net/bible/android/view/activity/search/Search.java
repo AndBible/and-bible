@@ -43,11 +43,9 @@ public class Search extends ActivityBase {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState, true);
         Log.i(TAG, "Displaying Search view");
         setContentView(R.layout.search);
-        
-        setIntegrateWithHistoryManager(true);
    
         if (!searchControl.validateIndex(getDocumentToSearch())) {
     		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, new Callback() {
