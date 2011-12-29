@@ -9,6 +9,7 @@ import net.bible.android.control.mynote.MyNote;
 import net.bible.android.control.mynote.MyNoteControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
+import net.bible.android.control.page.PageTiltScrollControl;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.speak.SpeakControl;
 
@@ -23,6 +24,7 @@ public class ControlFactory {
 	private CurrentPageManager currentPageManager = CurrentPageManager.getInstance();
 	private DocumentControl documentControl = new DocumentControl();
 	private PageControl pageControl = new PageControl();
+	private PageTiltScrollControl pageTiltScrollControl = new PageTiltScrollControl();
 	private LinkControl linkControl = new LinkControl();
 	private SearchControl searchControl = new SearchControl();
 	private Bookmark bookmarkControl = new BookmarkControl();
@@ -48,6 +50,10 @@ public class ControlFactory {
 
 	public PageControl getPageControl() {
 		return pageControl;		
+	}
+
+	public PageTiltScrollControl getPageTiltScrollControl() {
+		return pageTiltScrollControl;
 	}
 
 	public SearchControl getSearchControl() {

@@ -1,3 +1,6 @@
+Android source integration into Eclipse
+http://johnsenf.blogspot.com/2011/04/android-sources-in-eclipse.html
+
 Android memory analysis and Memory Analyzer Tool
 http://android-developers.blogspot.com/2011/03/memory-analysis-for-android.html
 

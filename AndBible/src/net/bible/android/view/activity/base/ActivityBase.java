@@ -3,7 +3,6 @@ package net.bible.android.view.activity.base;
 import net.bible.android.view.activity.navigation.History;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.android.view.util.UiUtils;
-import net.bible.service.history.HistoryManager;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,20 +24,22 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 	// Special result that requests all activities to exit until the main/top Activity is reached
     public static final int RESULT_RETURN_TO_TOP           = 900;
 
-	private boolean integrateWithHistoryManager;
-
 	private SharedActivityState sharedActivityState = SharedActivityState.getInstance();
 
+	private CommonActivityBase commonActivityBase = new CommonActivityBase();
+	
 	private static final String TAG = "ActivityBase";
 	
-    public ActivityBase() {
-		super();
-	}
-
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	this.onCreate(savedInstanceState, false);
+    }
+
+    /** Called when the activity is first created. */
+    public void onCreate(Bundle savedInstanceState, boolean integrateWithHistoryManager) {
         super.onCreate(savedInstanceState);
+    	
         Log.i(getLocalClassName(), "onCreate");
         
         // Register current activity in onCreate and onResume
@@ -51,37 +52,28 @@ public class ActivityBase extends Activity implements AndBibleActivity {
         setFullScreen(sharedActivityState.isFullScreen());
         
 		UiUtils.applyTheme(this);
+
+		commonActivityBase.setIntegrateWithHistoryManager(integrateWithHistoryManager);
     }
     
     @Override
 	public void startActivity(Intent intent) {
-    	beforeStartActivity();
+    	commonActivityBase.beforeStartActivity();
     	
 		super.startActivity(intent);
 	}
 	@Override
 	public void startActivityForResult(Intent intent, int requestCode) {
-    	beforeStartActivity();
+    	commonActivityBase.beforeStartActivity();
 
     	super.startActivityForResult(intent, requestCode);
-	}
-    /**
-     * about to change activity so tell the HistoryManager so it can register the old activity in its list
-     */
-	protected void beforeStartActivity() {
-		if (integrateWithHistoryManager) {
-			HistoryManager.getInstance().beforePageChange();
-		}
 	}
 
 	/**	This will be called automatically for you on 2.0 or later
 	 */
 	@Override
 	public void onBackPressed() {
-		if (integrateWithHistoryManager && HistoryManager.getInstance().canGoBack()) {
-			Log.d(TAG, "Go back");
-			goBack();
-		} else {
+		if (!commonActivityBase.goBack()) {
 			super.onBackPressed();
 		}
 	}
@@ -137,12 +129,6 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 	    return super.onKeyLongPress(keyCode, event);
 	}
 	
-	/** go back to previous screen 
-	 */
-	protected void goBack() {
-		HistoryManager.getInstance().goBack();
-	}
-
 	public void showErrorMsg(int msgResId) {
 		Dialogs.getInstance().showErrorMsg(msgResId);
 	}
@@ -174,14 +160,6 @@ public class ActivityBase extends Activity implements AndBibleActivity {
     	finish();    
     }
     
-	public boolean isIntegrateWithHistoryManager() {
-		return integrateWithHistoryManager;
-	}
-
-	public void setIntegrateWithHistoryManager(boolean integrateWithHistoryManager) {
-		this.integrateWithHistoryManager = integrateWithHistoryManager;
-	}
-
 	@Override
 	protected void onResume() {
 		super.onResume();

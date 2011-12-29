@@ -2,7 +2,6 @@ package net.bible.android.view.activity.page;
 
 import java.lang.reflect.Method;
 
-import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.view.activity.base.DocumentView;
@@ -13,6 +12,7 @@ import android.graphics.Picture;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
@@ -36,6 +36,8 @@ public class BibleView extends WebView implements DocumentView {
 	
 	private PageControl pageControl = ControlFactory.getInstance().getPageControl();
 	
+	private PageTiltScroller pageTiltScroller;
+
 	private static final String TAG = "BibleView";
 	
 	/**
@@ -133,6 +135,9 @@ public class BibleView extends WebView implements DocumentView {
 		getSettings().setJavaScriptEnabled(true);
 		
 		applyPreferenceSettings();
+		
+		pageTiltScroller = new PageTiltScroller(this);
+		pageTiltScroller.enableTiltScroll(true);
 	}
 
 	/** apply settings set by the user using Preferences
@@ -167,6 +172,29 @@ public class BibleView extends WebView implements DocumentView {
 		loadDataWithBaseURL("http://baseUrl", html, "text/html", "UTF-8", "http://historyUrl");
 	}
 	
+    @Override
+    public void pausing() {
+		Log.d(TAG, "Pausing tilt to scroll");
+        pageTiltScroller.enableTiltScroll(false);
+    }
+    
+    @Override
+    public void resuming() {
+		Log.d(TAG, "Resuming tilt to scroll");
+        pageTiltScroller.enableTiltScroll(true);
+    }
+
+    
+	@Override
+	public boolean onTouchEvent(MotionEvent ev) {
+		boolean handled = super.onTouchEvent(ev);
+		
+		// Allow user to redefine viewing angle by touching screen
+		pageTiltScroller.recalculateViewingPosition();
+		
+		return handled;
+	}
+
 	/** enter text selection mode
 	 */
 	@Override
@@ -208,6 +236,50 @@ public class BibleView extends WebView implements DocumentView {
 		return super.onKeyUp(keyCode, event);
 	}
 
+	private boolean hideScrollBar;
+	public boolean scroll(boolean forward, int scrollAmount) {
+		boolean ok = false;
+		hideScrollBar = true;
+		for (int i=0; i<scrollAmount; i++) {
+			//TODO calculate lineHeight properly
+			if (forward) {
+				// scroll down/forward if not at bottom
+				if (getScrollY()+1 < getMaxVerticalScroll()) {
+					scrollBy(0, 1);
+					ok = true;
+				}
+			} else {
+				// scroll up/backward if not at top
+				if (getScrollY() > 0) {
+					// scroll up/back
+					scrollBy(0, -1);
+					ok = true;
+				}
+			}
+		}
+		hideScrollBar = false;
+		return ok;
+	}
+
+	/** Used to prevent scroll off bottom using auto-scroll
+	 * see http://stackoverflow.com/questions/5069765/android-webview-how-to-autoscroll-a-page
+	 * @return
+	 */
+    private int getMaxVerticalScroll() {
+    	
+    	// get these once, they probably won't change 
+        return computeVerticalScrollRange()-computeVerticalScrollExtent();
+    }
+
+    /** allow vertical scroll bar to be hidden during auto-scroll
+     */
+    protected boolean awakenScrollBars(int startDelay, boolean invalidate) {
+    	if (!hideScrollBar) {
+    		return super.awakenScrollBars(startDelay, invalidate);
+    	} else {
+    		return false;
+    	}
+    }
 	@Override
 	public View asView() {
 		return this;

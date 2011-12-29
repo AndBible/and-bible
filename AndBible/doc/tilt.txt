@@ -1,0 +1,3 @@
+Sideways rotation is called Roll, whereas rotation forwards or backwards is Pitch.
+http://www.workingfromhere.com/blog/2009/03/30/orientation-sensor-tips-in-android/
+

@@ -39,12 +39,10 @@ public class SearchResults extends ListActivityBase {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState, true);
         Log.i(TAG, "Displaying Search results view");
         setContentView(R.layout.search_results);
 
-        setIntegrateWithHistoryManager(true);
-        
         if (prepareResults()) {
         	mKeyArrayAdapter = new SearchItemAdapter(this, LIST_ITEM_TYPE, mSearchResults);
             setListAdapter(mKeyArrayAdapter);
@@ -85,7 +83,7 @@ public class SearchResults extends ListActivityBase {
     		Dialogs.getInstance().showErrorMsg(R.string.error_executing_search, new Callback() {
     			@Override
     			public void okay() {
-    				goBack();
+    				onBackPressed();
     			}
     		});
     	}

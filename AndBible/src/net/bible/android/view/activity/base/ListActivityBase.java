@@ -1,7 +1,6 @@
 package net.bible.android.view.activity.base;
 
 import net.bible.android.view.util.UiUtils;
-import net.bible.service.history.HistoryManager;
 import android.app.Activity;
 import android.app.ListActivity;
 import android.content.Intent;
@@ -20,7 +19,7 @@ import android.widget.ListAdapter;
  */
 public class ListActivityBase extends ListActivity implements AndBibleActivity {
 
-	private boolean integrateWithHistoryManager;
+	private CommonActivityBase commonActivityBase = new CommonActivityBase();
 	
 	private static final String TAG = "ListActivityBase";
 	
@@ -28,9 +27,14 @@ public class ListActivityBase extends ListActivity implements AndBibleActivity {
 		super();
 	}
     
-    /** Called when the activity is first created. */
+	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	this.onCreate(savedInstanceState, false);
+    }
+
+    /** Called when the activity is first created. */
+    public void onCreate(Bundle savedInstanceState, boolean integrateWithHistoryManager) {
         super.onCreate(savedInstanceState);
         Log.i(getLocalClassName(), "onCreate");
 
@@ -44,37 +48,28 @@ public class ListActivityBase extends ListActivity implements AndBibleActivity {
         setFullScreen(SharedActivityState.getInstance().isFullScreen());
         
 		UiUtils.applyTheme(this);
+
+		commonActivityBase.setIntegrateWithHistoryManager(integrateWithHistoryManager);
     }
 
     @Override
 	public void startActivity(Intent intent) {
-    	beforeStartActivity();
+    	commonActivityBase.beforeStartActivity();
     	
 		super.startActivity(intent);
 	}
 	@Override
 	public void startActivityForResult(Intent intent, int requestCode) {
-    	beforeStartActivity();
+    	commonActivityBase.beforeStartActivity();
 
     	super.startActivityForResult(intent, requestCode);
-	}
-    /**
-     * about to change activity so tell the HistoryManager so it can register the old activity in its list
-     */
-	protected void beforeStartActivity() {
-		if (integrateWithHistoryManager) {
-			HistoryManager.getInstance().beforePageChange();
-		}
 	}
 
 	/**	This will be called automatically for you on 2.0 or later
 	 */
 	@Override
 	public void onBackPressed() {
-		if (integrateWithHistoryManager && HistoryManager.getInstance().canGoBack()) {
-			Log.d(TAG, "Go back");
-			goBack();
-		} else {
+		if (!commonActivityBase.goBack()) {
 			super.onBackPressed();
 		}
 	}
@@ -91,19 +86,13 @@ public class ListActivityBase extends ListActivity implements AndBibleActivity {
 		//TODO make Long press work for screens other than main window e.g. does not work from search screen because wrong window is displayed 
 	    if (keyCode == KeyEvent.KEYCODE_BACK) {
 	    	// just goBack for now rather than displaying History list
-	    	goBack();
+	    	commonActivityBase.goBack();
 	    	return true;
 	    }
 	    
 	    return super.onKeyLongPress(keyCode, event);
 	}
 	
-	/** go back to previous screen 
-	 */
-	protected void goBack() {
-		HistoryManager.getInstance().goBack();
-	}
-
 	private void setFullScreen(boolean isFullScreen) {
     	if (!isFullScreen) {
     		Log.d(TAG, "NOT Fullscreen");
@@ -140,14 +129,6 @@ public class ListActivityBase extends ListActivity implements AndBibleActivity {
     protected void dismissHourglass() {
     	Dialogs.getInstance().dismissHourglass();
     }
-
-	public boolean isIntegrateWithHistoryManager() {
-		return integrateWithHistoryManager;
-	}
-
-	public void setIntegrateWithHistoryManager(boolean integrateWithHistoryManager) {
-		this.integrateWithHistoryManager = integrateWithHistoryManager;
-	}
 
 	protected void returnToPreviousScreen() {
     	// just pass control back to the previous screen
