@@ -39,6 +39,7 @@ public class TiltScrollManager {
 	
 	// this is decreased (subtracted from) to speed up scrolling
 	private static int BASE_TIME_BETWEEN_SCROLLS = 40;
+	private static int TIME_TO_POLL_WHEN_NOT_SCROLLING = 400;
 	
 	// current pitch of phone - varies dynamically
 	private float[] mOrientationValues;
@@ -89,6 +90,7 @@ public class TiltScrollManager {
 	private Runnable mScrollTask = new Runnable() {
 		public void run() {
 			int speedUp = 0;
+			boolean scrolledOK = false;
 			if (mOrientationValues!=null) {
 				int normalisedPitch = getPitch(mRotation, mOrientationValues);
 				
@@ -100,7 +102,7 @@ public class TiltScrollManager {
 				
 				int devianceFromViewingAngle = Math.abs(normalisedPitch-mNoScrollViewingPitch);
 				if (devianceFromViewingAngle > NO_SCROLL_VIEWING_TOLERANCE) {
-					boolean isTiltedForward = normalisedPitch<mNoScrollViewingPitch;
+					boolean isTiltedForward = normalisedPitch>mNoScrollViewingPitch;
 	
 					// speedUp if tilt screen beyond a certain amount
 					if (isTiltedForward) {
@@ -113,11 +115,12 @@ public class TiltScrollManager {
 					// speedup could be done by increasing scroll amount but that leads to a jumpy screen
 					int scrollAmount = 1;
 					
-					mWebView.scroll(isTiltedForward, scrollAmount);
+					scrolledOK = mWebView.scroll(isTiltedForward, scrollAmount);
 				}
 			}
 			if (mIsTiltScrollEnabled) {
-				mScrollHandler.postDelayed(mScrollTask, Math.max(0,BASE_TIME_BETWEEN_SCROLLS-(3*speedUp)));
+				int delay = scrolledOK ? Math.max(0,BASE_TIME_BETWEEN_SCROLLS-(3*speedUp)) : TIME_TO_POLL_WHEN_NOT_SCROLLING;
+				mScrollHandler.postDelayed(mScrollTask, delay);
 			}
 		}
 	};
