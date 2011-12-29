@@ -1,14 +1,14 @@
-package net.bible.android.view.activity.page;
+package net.bible.android.control.page;
 
 import java.util.List;
 
 import net.bible.android.BibleApplication;
+import net.bible.service.common.CommonUtils;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.Handler;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
@@ -19,15 +19,12 @@ import android.view.WindowManager;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class TiltScrollManager {
+public class PageTiltScrollControl {
 
-	private BibleView mWebView;
-	
-	private Boolean mIsOrientationSensor;
-	private boolean mIsTiltScrollEnabled;
+	// must be null initially
+	private Boolean mIsOrientationSensor = null;
+	private boolean mIsTiltScrollEnabled = false;
 
-	private Handler mScrollHandler = new Handler();
-	
 	// the pitch at which a user views the text stationary
 	// this changes dynamically when the screen is touched
 	// both angles are degrees
@@ -39,7 +36,6 @@ public class TiltScrollManager {
 	
 	// this is decreased (subtracted from) to speed up scrolling
 	private static int BASE_TIME_BETWEEN_SCROLLS = 40;
-	private static int TIME_TO_POLL_WHEN_NOT_SCROLLING = 400;
 	
 	// current pitch of phone - varies dynamically
 	private float[] mOrientationValues;
@@ -49,23 +45,68 @@ public class TiltScrollManager {
 	private Display mDisplay;
 	
 	@SuppressWarnings("unused")
-	private static final String TAG = "TiltScrollManager";
+	private static final String TAG = "TiltScrollControl";
 	
-	public TiltScrollManager(BibleView webView) {
-		this.mWebView = webView;
+	public static class TiltScrollInfo {
+		public int scrollPixels;
+		public boolean forward;
+		public int delayToNextScroll;
+
+		public static int TIME_TO_POLL_WHEN_NOT_SCROLLING = 500;
+		
+		private TiltScrollInfo reset() {
+			scrollPixels = 0;
+			forward = true;
+			delayToNextScroll = TIME_TO_POLL_WHEN_NOT_SCROLLING;
+			return this;
+		}
+	}
+	// should not need more than one because teh request come in one at a time
+	private TiltScrollInfo tiltScrollInfoSingleton = new TiltScrollInfo();
+	
+	public TiltScrollInfo getTiltScrollInfo() {
+		TiltScrollInfo tiltScrollInfo = tiltScrollInfoSingleton.reset();
+		int speedUp = 0;
+		if (mOrientationValues!=null) {
+			int normalisedPitch = getPitch(mRotation, mOrientationValues);
+			int devianceFromViewingAngle = getDevianceFromStaticViewingAngle(normalisedPitch);
+			
+			if (devianceFromViewingAngle > NO_SCROLL_VIEWING_TOLERANCE) {
+				tiltScrollInfo.forward = normalisedPitch < mNoScrollViewingPitch;
+
+				// speedUp if tilt screen beyond a certain amount
+				if (tiltScrollInfo.forward) {
+					speedUp = Math.max(0, devianceFromViewingAngle-NO_SCROLL_VIEWING_TOLERANCE-NO_SPEED_INCREASE_VIEWING_TOLERANCE);
+				} else {
+					// speed up faster if going back because you don't read backwards but just want to move quickly
+					speedUp = Math.max(0, devianceFromViewingAngle-NO_SCROLL_VIEWING_TOLERANCE);
+				}
+
+				// speedup could be done by increasing scroll amount but that leads to a jumpy screen
+				tiltScrollInfo.scrollPixels = 1;
+			}
+		}
+		if (mIsTiltScrollEnabled) {
+			tiltScrollInfo.delayToNextScroll = Math.max(0,BASE_TIME_BETWEEN_SCROLLS-(3*speedUp));
+		}
+		return tiltScrollInfo;
 	}
 	
 	/** start or stop tilt to scroll functionality
 	 */
-	public void enableTiltScroll(boolean enable) {
-		if (mIsTiltScrollEnabled != enable && isOrientationSupported()) {
+	public boolean enableTiltScroll(boolean enable) {
+		if (!CommonUtils.getSharedPreferences().getBoolean("tilt_to_scroll_pref", true) || !isOrientationSensor()) {
+			return false;
+		} else if (mIsTiltScrollEnabled != enable) {
 			mIsTiltScrollEnabled = enable;
 			if (enable) {
 				connectListeners();
-				kickOffScrollHandler();
 			} else {
 				disconnectListeners();
 			}
+			return true;
+		} else {
+			return false;
 		}
 	}
 
@@ -75,56 +116,9 @@ public class TiltScrollManager {
 		//TODO save to settings
 		mNoScrollViewingPitchCalculated = false;
 	}
-	/** 
-	 * Scroll screen at a certain speed
-	 */
 
-	/** start scrolling handler
+	/** if screen rotates must switch between different values returned by orientation sensor
 	 */
-	private void kickOffScrollHandler() {
-       mScrollHandler.postDelayed(mScrollTask, BASE_TIME_BETWEEN_SCROLLS);
-	}
-	
-	/** cause content of attached WebView to scroll
-	 */
-	private Runnable mScrollTask = new Runnable() {
-		public void run() {
-			int speedUp = 0;
-			boolean scrolledOK = false;
-			if (mOrientationValues!=null) {
-				int normalisedPitch = getPitch(mRotation, mOrientationValues);
-				
-				if (!mNoScrollViewingPitchCalculated) {
-					// assume user's viewing pitch is the current one
-					mNoScrollViewingPitch = normalisedPitch;
-					mNoScrollViewingPitchCalculated = true;
-				}
-				
-				int devianceFromViewingAngle = Math.abs(normalisedPitch-mNoScrollViewingPitch);
-				if (devianceFromViewingAngle > NO_SCROLL_VIEWING_TOLERANCE) {
-					boolean isTiltedForward = normalisedPitch>mNoScrollViewingPitch;
-	
-					// speedUp if tilt screen beyond a certain amount
-					if (isTiltedForward) {
-						speedUp = Math.max(0, devianceFromViewingAngle-NO_SCROLL_VIEWING_TOLERANCE-NO_SPEED_INCREASE_VIEWING_TOLERANCE);
-					} else {
-						// speed up faster if going back because you don't read backwards but just want to move quickly
-						speedUp = Math.max(0, devianceFromViewingAngle-NO_SCROLL_VIEWING_TOLERANCE);
-					}
-	
-					// speedup could be done by increasing scroll amount but that leads to a jumpy screen
-					int scrollAmount = 1;
-					
-					scrolledOK = mWebView.scroll(isTiltedForward, scrollAmount);
-				}
-			}
-			if (mIsTiltScrollEnabled) {
-				int delay = scrolledOK ? Math.max(0,BASE_TIME_BETWEEN_SCROLLS-(3*speedUp)) : TIME_TO_POLL_WHEN_NOT_SCROLLING;
-				mScrollHandler.postDelayed(mScrollTask, delay);
-			}
-		}
-	};
-
 	private int getPitch(int rotation, float[] orientationValues) {
 		float pitch = 0;
 		switch (rotation) {
@@ -145,6 +139,20 @@ public class TiltScrollManager {
 		}
 		return Math.round(pitch);
 	}
+	
+	/** find angle between no-scroll-angle and current pitch
+	 */
+	private int getDevianceFromStaticViewingAngle(int normalisedPitch) {
+	
+		if (!mNoScrollViewingPitchCalculated) {
+			// assume user's viewing pitch is the current one
+			mNoScrollViewingPitch = normalisedPitch;
+			mNoScrollViewingPitchCalculated = true;
+		}
+		
+		return Math.abs(normalisedPitch-mNoScrollViewingPitch);
+	}
+	
 	/**
 	 * Orientation monitor (see Professional Android 2 App Dev Meier pg 469)
 	 */
@@ -177,7 +185,7 @@ public class TiltScrollManager {
     /**
      * Returns true if at least one Orientation sensor is available
      */
-    public boolean isOrientationSupported() {
+    public boolean isOrientationSensor() {
         if (mIsOrientationSensor == null) {
        		SensorManager sm = (SensorManager) BibleApplication.getApplication().getSystemService(Context.SENSOR_SERVICE);
             if (sm != null) {
@@ -189,4 +197,8 @@ public class TiltScrollManager {
         }
         return mIsOrientationSensor;
     }
+
+	public boolean isTiltScrollEnabled() {
+		return mIsTiltScrollEnabled;
+	}
 }

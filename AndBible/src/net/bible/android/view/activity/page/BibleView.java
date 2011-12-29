@@ -36,7 +36,7 @@ public class BibleView extends WebView implements DocumentView {
 	
 	private PageControl pageControl = ControlFactory.getInstance().getPageControl();
 	
-	private TiltScrollManager tiltScrollManager;
+	private PageTiltScroller pageTiltScroller;
 
 	private static final String TAG = "BibleView";
 	
@@ -136,8 +136,8 @@ public class BibleView extends WebView implements DocumentView {
 		
 		applyPreferenceSettings();
 		
-		tiltScrollManager = new TiltScrollManager(this);
-		tiltScrollManager.enableTiltScroll(true);
+		pageTiltScroller = new PageTiltScroller(this);
+		pageTiltScroller.enableTiltScroll(true);
 	}
 
 	/** apply settings set by the user using Preferences
@@ -175,13 +175,13 @@ public class BibleView extends WebView implements DocumentView {
     @Override
     public void pausing() {
 		Log.d(TAG, "Pausing tilt to scroll");
-        tiltScrollManager.enableTiltScroll(false);
+        pageTiltScroller.enableTiltScroll(false);
     }
     
     @Override
     public void resuming() {
 		Log.d(TAG, "Resuming tilt to scroll");
-        tiltScrollManager.enableTiltScroll(true);
+        pageTiltScroller.enableTiltScroll(true);
     }
 
     
@@ -190,7 +190,7 @@ public class BibleView extends WebView implements DocumentView {
 		boolean handled = super.onTouchEvent(ev);
 		
 		// Allow user to redefine viewing angle by touching screen
-		tiltScrollManager.recalculateViewingPosition();
+		pageTiltScroller.recalculateViewingPosition();
 		
 		return handled;
 	}
@@ -242,15 +242,19 @@ public class BibleView extends WebView implements DocumentView {
 		hideScrollBar = true;
 		for (int i=0; i<scrollAmount; i++) {
 			//TODO calculate lineHeight properly
-			int lineHeight = 20;
-			if (forward && getScrollY()+lineHeight < getMaxVerticalScroll()-20) {
-				// scroll down/forward
-				scrollBy(0, 1);
-				ok = true;
-			} else if (getScrollY() > 0) {
-				// scroll up/back
-				scrollBy(0, -1);
-				ok = true;
+			if (forward) {
+				// scroll down/forward if not at bottom
+				if (getScrollY()+1 < getMaxVerticalScroll()) {
+					scrollBy(0, 1);
+					ok = true;
+				}
+			} else {
+				// scroll up/backward if not at top
+				if (getScrollY() > 0) {
+					// scroll up/back
+					scrollBy(0, -1);
+					ok = true;
+				}
 			}
 		}
 		hideScrollBar = false;
