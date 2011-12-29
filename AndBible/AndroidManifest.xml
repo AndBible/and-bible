@@ -35,7 +35,8 @@
         </activity>
         <activity android:name="net.bible.android.view.activity.search.Search"
                   android:label="@string/search"
-                  android:configChanges="keyboardHidden|orientation">
+                  android:configChanges="keyboardHidden|orientation"
+                  android:windowSoftInputMode="adjustResize|stateHidden">
         </activity>
         <activity android:name="net.bible.android.view.activity.search.SearchResults"
                   android:label="@string/search"
