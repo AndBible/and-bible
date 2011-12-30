@@ -32,11 +32,11 @@
 	<!--  Search -->
     <string name="search_index">ดัชนีค้นหา</string>
     <string name="index_creation_required">​ดัชนี​ที่​จำเป็น​สำหรับ​การ​ค้นหา\n\n​สามารถ​ดาวน์​โหลด​ดัชนี​จาก​อินเตอร์เน็ต​หรือ​สร้าง​ขึ้น​เอง\n\n​การ​ดาวน์​โหลด​จะ​เร็ว​กว่า และ​ดัชนี​ที่​ดาวน์​โหลด​มี​คุณสมบัติ​ที่​ช่วย​ใน​การ​ค้นหา​มากกว่า\n\n​การ​ดาวน์​โหลด​ดัชนี​ต้อง​เชื่อมต่อ​อินเตอร์เน็ต</string>
-    <string name="indexing_wait_msg">​เมื่อ​การ​สร้าง​ดัชนี​เสร็จ​จะ​ไป​ยัง​หน้า​การ​ค้นหา</string>
+    <string name="indexing_wait_msg">​เมื่อ​การ​สร้าง​ดัชนี​เสร็จ​ จะ​ไป​ยัง​หน้า​การ​ค้นหา</string>
     <string name="index">ดัชนี</string>
     <string name="index_download">ดาวน์โหลด</string>
     <string name="index_not_available_for_download">ไม่มีดัชนีนี้ให้ดาวน์โหลด</string>
-    <string name="index_create">สร้าง</string>
+    <string name="index_create">สร้างดัชนี</string>
 
 	<!-- Tasks -->
     <string name="progress_status">ความคืบหน้า</string>
@@ -98,7 +98,7 @@
 
     <!-- Module download -->
     <string name="download">ดาวน์โหลดโมดูล</string>
-    <string name="download_confirmation">​จะ​ดาวน์​โหลด​โมดูล​พระ​คัมภีร์​จาก​อินเทอร์เน็ต​หรือไม่?</string>
+    <string name="download_confirmation">ต้องการ​ดาวน์​โหลด​โมดูล​พระ​คัมภีร์​จาก​อินเทอร์เน็ต​หรือไม่?</string>
     <string name="download_source_message">จะดาวน์โหลดโมดูลจาก\nhttp://www.crosswire.org\nและ http://xiphos.org</string>
     <string name="download_document_confirm_prefix">"ดาวน์โหลด"</string>
     <string name="refresh_book_list">ปรับปรุงรายการโมดูลใหม่หรือไม่?</string>
@@ -181,4 +181,4 @@
     <string name="all">ทั้งหมด</string>
     <string name="strongs_toggle_button_off">สตรอง</string>
     <string name="strongs_toggle_button_on">สตรอง</string>
-<string name="speak_queue">จัดเรียง</string><string name="speak_repeat">ซ้ำ</string><string name="select_text">เลือกเพื่อคัดลอก</string><string name="select_text_help">ลากช้าๆ เพื่อเลือก\nแล้วสัมผัสส่วนที่เลือกเพื่อคัดลอก</string><string name="error_no_content">ไม่มีเนื้อความสำหรับข้อพระคัมภีร์ที่เลือก</string><string name="mynote">บันทึกส่วนตัว</string><string name="mynote_add">เพิ่มบันทึกส่วนตัว</string><string name="mynote_saved">บันทึกส่วนตัวถูกบันทึกแล้ว</string><string name="mynote_view_edit">บันทึกส่วนตัว</string><string name="mynotes">บันทึกส่วนตัว</string><string name="prefs_show_mynotes_summary">แสดงไอคอนบันทึกส่วนตัว ในข้อพระคัมภีร์</string><string name="prefs_show_mynotes_title">แสดงไอคอนบันทึกส่วนตัว</string><string name="save">บันทึก</string><string name="search_results">ผลการค้นหา</string><string name="error_key_not_in_document">ไม่พบในเอกสาร</string><string name="error_page_too_large">หน้านี้ขนาดใหญ่เกินไปจะสามารถโหลดได้</string><string name="prefs_text_size_sample_text">ตัวอย่าง</string></resources>
+<string name="speak_queue">จัดเรียง</string><string name="speak_repeat">ซ้ำ</string><string name="select_text">เลือกเพื่อคัดลอก</string><string name="select_text_help">ลากช้าๆ เพื่อเลือก\nแล้วสัมผัสส่วนที่เลือกเพื่อคัดลอก</string><string name="error_no_content">ไม่มีเนื้อความสำหรับข้อพระคัมภีร์ที่เลือก</string><string name="mynote">บันทึกส่วนตัว</string><string name="mynote_add">เพิ่มบันทึกส่วนตัว</string><string name="mynote_saved">บันทึกส่วนตัวถูกบันทึกแล้ว</string><string name="mynote_view_edit">บันทึกส่วนตัว</string><string name="mynotes">บันทึกส่วนตัว</string><string name="prefs_show_mynotes_summary">แสดงไอคอนบันทึกส่วนตัว ในข้อพระคัมภีร์</string><string name="prefs_show_mynotes_title">แสดงไอคอนบันทึกส่วนตัว</string><string name="save">บันทึก</string><string name="search_results">ผลการค้นหา</string><string name="error_key_not_in_document">ไม่พบในเอกสาร</string><string name="error_page_too_large">หน้านี้มีขนาดใหญ่เกินไป ที่จะสามารถโหลดได้</string><string name="prefs_text_size_sample_text">ตัวอย่าง</string><string name="empty_list">ไม่มีรายการที่จะแสดง</string><string name="prefs_show_bookmarks_summary">แสดงไอคอนในข้อพระคัมภีร์ที่ทำตัวคั่นไว้</string><string name="prefs_show_bookmarks_title">แสดงไอคอนของตัวคั่น</string><string name="prefs_tilt_to_scroll_summary">เอียงอุปกรณ์เพื่อการเลื่อนหน้า ขึ้น/ลง</string><string name="prefs_tilt_to_scroll_title">เอียงเพื่อเลื่อน</string></resources>
