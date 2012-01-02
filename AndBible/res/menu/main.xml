@@ -42,6 +42,10 @@
 		  android:title="@string/download"
 		  android:icon="@drawable/ic_menu_goto"/>
 
+	<item android:id="@+id/dailyReadingPlanButton"
+		  android:title="@string/rdg_plan_title"
+		  android:icon="@android:drawable/ic_menu_month"/>
+	
 	<item android:id="@+id/speakButton"
 		  android:title="@string/speak"
 		  android:icon="@drawable/ic_menu_happy"/>

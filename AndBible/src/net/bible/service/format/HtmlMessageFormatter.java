@@ -11,7 +11,7 @@ import net.bible.service.common.CommonUtils;
  */
 public class HtmlMessageFormatter {
 
-	private static final String NIGHT_STYLESHEET = "<link href='file:///android_asset/"
+	private static final String NIGHT_STYLESHEET = "<link href='file:///android_asset/web/"
 			+ SharedConstants.NIGHT_MODE_STYLESHEET
 			+ "' rel='stylesheet' type='text/css'/>";
 	

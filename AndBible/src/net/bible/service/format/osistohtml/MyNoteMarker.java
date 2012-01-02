@@ -54,7 +54,7 @@ public class MyNoteMarker {
 	public void start() {
 		if (myNoteVerseMap!=null && parameters.isShowMyNotes()) {
 			if (myNoteVerseMap.containsKey(verseInfo.currentVerseNo)) {
-				writer.write("<img src='file:///android_asset/pencil16x16.png' class='myNoteImg'/>");
+				writer.write("<img src='file:///android_asset/images/pencil16x16.png' class='myNoteImg'/>");
 			}
 		}
 	}

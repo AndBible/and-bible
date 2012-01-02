@@ -54,7 +54,7 @@ public class BookmarkMarker {
 	public void start() {
 		if (bookmarkVerseMap!=null && parameters.isShowBookmarks()) {
 			if (bookmarkVerseMap.containsKey(verseInfo.currentVerseNo)) {
-				writer.write("<img src='file:///android_asset/GoldStar16x16.png' class='myNoteImg'/>");
+				writer.write("<img src='file:///android_asset/images/GoldStar16x16.png' class='myNoteImg'/>");
 			}
 		}
 	}

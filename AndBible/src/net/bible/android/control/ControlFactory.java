@@ -10,11 +10,12 @@ import net.bible.android.control.mynote.MyNoteControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.page.PageTiltScrollControl;
+import net.bible.android.control.readingplan.ReadingPlanControl;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.speak.SpeakControl;
 
 //TODO replace with ioc (maybe)
-/** allow access to control layer - would like to 
+/** allow access to control layer
  *
  * @author denha1m
  *
@@ -31,6 +32,7 @@ public class ControlFactory {
 	private MyNote mynoteControl = new MyNoteControl();
 	private DownloadControl downloadControl = new DownloadControl();
 	private SpeakControl speakControl = new SpeakControl();
+	private ReadingPlanControl readingPlanControl = new ReadingPlanControl();
 	
 	private static ControlFactory singleton = new ControlFactory();
 	
@@ -85,5 +87,9 @@ public class ControlFactory {
 
 	public SpeakControl getSpeakControl() {
 		return speakControl;
+	}
+
+	public ReadingPlanControl getReadingPlanControl() {
+		return readingPlanControl;
 	}
 }

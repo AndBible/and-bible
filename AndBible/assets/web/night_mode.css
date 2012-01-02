@@ -1,0 +1,19 @@
+/* colours:  http://www.w3schools.com/css/css_colornames.asp 
+*/
+
+body {
+	color: #B0B0B0;
+	background-color: black;	
+}
+
+h1 {
+	color: #B0B0B0;
+	text-decoration: none;
+}
+
+a {
+	color: #339900;
+}
+.redLetter {
+	color: #AA0000;
+}

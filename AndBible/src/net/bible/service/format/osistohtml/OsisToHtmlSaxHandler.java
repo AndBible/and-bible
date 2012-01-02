@@ -102,11 +102,11 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 	@Override
 	public void startDocument()  {
-		String jsTag = "\n<script type='text/javascript' src='file:///android_asset/script.js'></script>\n";
-		String styleSheetTag = "<link href='file:///android_asset/style.css' rel='stylesheet' type='text/css'/>";
+		String jsTag = "\n<script type='text/javascript' src='file:///android_asset/web/script.js'></script>\n";
+		String styleSheetTag = "<link href='file:///android_asset/web/style.css' rel='stylesheet' type='text/css'/>";
 		String extraStyleSheetTag = "";
 		if (parameters.getExtraStylesheet() != null) {
-			extraStyleSheetTag = "<link href='file:///android_asset/"
+			extraStyleSheetTag = "<link href='file:///android_asset/web/"
 					+ parameters.getExtraStylesheet()
 					+ "' rel='stylesheet' type='text/css'/>";
 		}

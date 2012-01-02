@@ -98,7 +98,7 @@
     <string name="prefs_text_size_title">Text size</string>
     <string name="prefs_text_size_summary">See more or see more clearly</string>
     <string name="prefs_text_size_sample_text">Sample text</string>
-        <string name="prefs_interface_locale_title">Application language</string>
+	<string name="prefs_interface_locale_title">Application language</string>
     <string name="prefs_interface_locale_summary">Select custom user interface language</string>
     <string name="locale_change_warning">Application will be restarted to switch to the new interface language</string>
 
@@ -132,6 +132,10 @@
     <string name="download_complete_no_bibles">No bible was installed.  Please press Back and try again.</string>
     <string name="too_many_jobs">Too many tasks executing.  Please wait for some to finish and try again.</string>
 
+    <!-- Daily Reading Plan -->
+    <string name="rdg_plan_title">Reading Plan</string>
+    <string name="rdg_plan_day">Day %s</string>
+    
     <!-- Document context menu -->
     <string name="delete">Delete</string>
     <string name="delete_index">Delete search index</string>

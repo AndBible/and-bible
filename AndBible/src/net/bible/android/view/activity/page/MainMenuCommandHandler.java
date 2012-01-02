@@ -12,6 +12,7 @@ import net.bible.android.view.activity.help.Help;
 import net.bible.android.view.activity.mynote.MyNotes;
 import net.bible.android.view.activity.navigation.ChooseDocument;
 import net.bible.android.view.activity.navigation.History;
+import net.bible.android.view.activity.readingplan.DailyReadingList;
 import net.bible.android.view.activity.settings.SettingsActivity;
 import net.bible.android.view.activity.speak.Speak;
 import net.bible.service.common.CommonUtils;
@@ -87,6 +88,9 @@ public class MainMenuCommandHandler {
 	        	break;
 			case R.id.speakButton:
 	        	handlerIntent = new Intent(callingActivity, Speak.class);
+	        	break;
+	        case R.id.dailyReadingPlanButton:
+	        	handlerIntent = new Intent(callingActivity, DailyReadingList.class);
 	        	break;
 	        case R.id.downloadButton:
 	        	if (CommonUtils.getSDCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {

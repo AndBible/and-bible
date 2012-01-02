@@ -74,6 +74,10 @@
                   android:label="@string/general_book"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
+        <activity android:name="net.bible.android.view.activity.readingplan.DailyReadingList"
+                  android:label="@string/rdg_plan_title"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
         <activity android:name="net.bible.android.view.activity.settings.SettingsActivity"
                   android:label="@string/settings"
                   android:configChanges="keyboardHidden|orientation">
