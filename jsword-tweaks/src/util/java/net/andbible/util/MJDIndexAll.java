@@ -32,7 +32,7 @@ public class MJDIndexAll {
 //	private static final String REPOSITORY = "Xiphos";
 //	private static final String REPOSITORY = "Crosswire Beta";
 	
-//	private static final BookFilter BOOK_FILTER = BookFilters.getBibles();
+//	private static final BookFilter BOOK_FILTER = BookFilters.getDictionaries();
 	private static final BookFilter BOOK_FILTER = BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries());
 
 	//TODO this is awful but I need to figure out how to set it appropriately 
@@ -52,7 +52,12 @@ public class MJDIndexAll {
 //    	indexAll.setupDirs();
 //    	indexAll.showInstalledBooks();
 //    	indexAll.showRepoBooks();
-//    	indexAll.installSingleBook("KJV");
+//    	indexAll.deleteBook("StrongsHebrew");
+//    	indexAll.deleteBook("StrongsGreek");
+//    	indexAll.installSingleBook("StrongsRealHebrew");
+//    	indexAll.installSingleBook("StrongsRealGreek");
+//    	indexAll.installSingleBook("StrongsRealHebrew");
+//    	indexAll.installSingleBook("StrongsRealGreek");
 //    	indexAll.installRepoBooks();
     	indexAll.checkAllBooksInstalled();
 //    	indexAll.manageCreateIndexes();
@@ -120,6 +125,10 @@ public class MJDIndexAll {
 //    	indexAll.installAndIndexSingleBook("AraSVD");
 //    	indexAll.installAndIndexSingleBook("Lithuanian");
     
+    	// 2/1/12
+    	indexAll.installAndIndexSingleBook("FrePGR");
+    	indexAll.installAndIndexSingleBook("NorBroed");
+    	indexAll.installAndIndexSingleBook("TurNTB");
     }
     
 	public void validateAllIndexes() {
