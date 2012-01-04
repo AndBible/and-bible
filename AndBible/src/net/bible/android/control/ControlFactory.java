@@ -43,7 +43,7 @@ public class ControlFactory {
 	private ControlFactory() {
 		// inject dependencies
 		pageControl.setCurrentPageManager(this.currentPageManager);
-		
+		readingPlanControl.setSpeakControl(this.speakControl);
 	}
 	
 	public DocumentControl getDocumentControl() {

@@ -7,8 +7,6 @@ import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
-import net.bible.android.view.activity.references.NotesActivity;
-import net.bible.android.view.util.DataPipe;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -23,7 +21,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Toast;
 
 /** The main activity screen showing Bible text
  * 
@@ -40,7 +37,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	private static final String TAG = "MainBibleActivity";
 
 	// handle requests from main menu
-	private MainMenuCommandHandler mainMenuCommandHandler = new MainMenuCommandHandler(this);
+	private MenuCommandHandler mainMenuCommandHandler;
 	
 	// detect swipe left/right
 	private GestureDetector gestureDetector;
@@ -64,6 +61,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 
     	bibleContentManager = new BibleContentManager(documentViewManager);
 
+    	mainMenuCommandHandler = new MenuCommandHandler(this);
+    	
         PassageChangeMediator.getInstance().setMainBibleActivity(MainBibleActivity.this);
         
         restoreState();
@@ -276,35 +275,13 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 
     @Override
 	public boolean onContextItemSelected(MenuItem item) {
-		super.onContextItemSelected(item);
-		
-		switch (item.getItemId()) {
-        case R.id.notes:
-        	Intent handlerIntent = new Intent(this, NotesActivity.class);
-        	// pump the notes into the viewer (there must be an easier way other than Parcelable)
-        	//TODO refactor so the notes are loaded by the Notes viewer using a separate SAX parser 
-        	DataPipe.getInstance().pushNotes(bibleContentManager.getNotesList());
-        	startActivity(handlerIntent);
-        	return true;
-        case R.id.add_bookmark:
-			ControlFactory.getInstance().getBookmarkControl().bookmarkCurrentVerse();
-			return true;
-        case R.id.myNoteAddEdit:
-        	CurrentPageManager.getInstance().showMyNote();
-        	return true;
-		case R.id.copy:
-			ControlFactory.getInstance().getPageControl().copyToClipboard();
-			return true;
-		case R.id.shareVerse:
-			ControlFactory.getInstance().getPageControl().shareVerse();
-			return true;
-        case R.id.selectText:
-        	Toast.makeText(this, R.string.select_text_help, Toast.LENGTH_LONG).show();
-        	documentViewManager.getDocumentView().selectAndCopyText();
-        	return true;
-		}
-
-		return false; 
+        boolean isHandled = mainMenuCommandHandler.handleMenuRequest(item.getItemId());
+        
+     	if (!isHandled) {
+            isHandled = super.onContextItemSelected(item);
+        }
+        
+     	return isHandled;
 	}
     
     /** return percentage scrolled down page
@@ -322,5 +299,13 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	public boolean dispatchTouchEvent(MotionEvent motionEvent) {
 		this.gestureDetector.onTouchEvent(motionEvent);
 		return super.dispatchTouchEvent(motionEvent);
+	}
+
+	protected DocumentViewManager getDocumentViewManager() {
+		return documentViewManager;
+	}
+
+	protected BibleContentManager getBibleContentManager() {
+		return bibleContentManager;
 	}
  }

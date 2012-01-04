@@ -13,20 +13,22 @@ import org.crosswire.jsword.passage.PassageKeyFactory;
 import android.util.Log;
 
 public class OneDaysReadingsDto implements Comparable<OneDaysReadingsDto> {
-	int mDay;
-	String mReadings;
-	Key[] mReadingKeys;
+	private ReadingPlanInfoDto mReadingPlanInfoDto;
+	private int mDay;
+	private String mReadings;
+	private List<Key> mReadingKeys;
 	
 	private static final String TAG = "OneDaysReadingsDto";
 	
-	public OneDaysReadingsDto(int day, String readings) {
+	public OneDaysReadingsDto(int day, String readings, ReadingPlanInfoDto readingPlanInfo) {
 		mDay = day;
 		mReadings = readings;
+		mReadingPlanInfoDto = readingPlanInfo;
 	}
 	
 	@Override
 	public String toString() {
-		return BibleApplication.getApplication().getString(R.string.rdg_plan_day, mDay);
+		return getDayDesc();
 	}
 
 	@Override
@@ -34,13 +36,29 @@ public class OneDaysReadingsDto implements Comparable<OneDaysReadingsDto> {
 		return mDay-another.mDay;
 	}
 	
+	public String getDayDesc() {
+		return BibleApplication.getApplication().getString(R.string.rdg_plan_day, mDay);
+	}
+	
+	public String getReadingsDesc() {
+		checkKeysGenerated();
+		StringBuffer readingsBuff = new StringBuffer();
+		for (int i=0; i<mReadingKeys.size(); i++) {
+			if (i>0) {
+				readingsBuff.append(", ");
+			}
+			readingsBuff.append(mReadingKeys.get(i).getName());
+		}
+		return readingsBuff.toString(); 
+	}
+
 	public Key getReadingKey(int no) {
 		checkKeysGenerated();
-		return mReadingKeys[no]; 
+		return mReadingKeys.get(no); 
 	}
 	public int getNumReadings() {
 		checkKeysGenerated();
-		return mReadingKeys.length; 
+		return mReadingKeys.size(); 
 	}
 	
 	private synchronized void checkKeysGenerated() {
@@ -55,7 +73,15 @@ public class OneDaysReadingsDto implements Comparable<OneDaysReadingsDto> {
 				}
 			}
 			
-			mReadingKeys = readingKeyList.toArray(new Key[readingKeyList.size()]);
+			mReadingKeys = readingKeyList;
 		}
+	}
+
+	public ReadingPlanInfoDto getReadingPlanInfo() {
+		return mReadingPlanInfoDto;
+	}
+
+	public List<Key> getReadingKeys() {
+		return mReadingKeys;
 	}
 }

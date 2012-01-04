@@ -5,6 +5,7 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.speak.NumPagesToSpeakDefinition;
 import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.view.activity.base.ActivityBase;
+import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import android.app.Activity;
 import android.content.Intent;
@@ -62,9 +63,13 @@ public class Speak extends ActivityBase {
 
     public void onSpeak(View v) {
     	Log.i(TAG, "CLICKED");
-    	speakControl.speak(getSelectedNumPagesToSpeak(), isQueue(), isRepeat());
-    	
-    	returnToMainScreen();
+    	try {
+	    	speakControl.speak(getSelectedNumPagesToSpeak(), isQueue(), isRepeat());
+	    	
+	    	returnToMainScreen();
+    	} catch (Exception e) {
+    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+    	}
     }
     
     public void onStop(View v) {

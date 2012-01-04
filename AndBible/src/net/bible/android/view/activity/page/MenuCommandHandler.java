@@ -12,9 +12,12 @@ import net.bible.android.view.activity.help.Help;
 import net.bible.android.view.activity.mynote.MyNotes;
 import net.bible.android.view.activity.navigation.ChooseDocument;
 import net.bible.android.view.activity.navigation.History;
-import net.bible.android.view.activity.readingplan.DailyReadingList;
+import net.bible.android.view.activity.readingplan.DailyReading;
+import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;
+import net.bible.android.view.activity.references.NotesActivity;
 import net.bible.android.view.activity.settings.SettingsActivity;
 import net.bible.android.view.activity.speak.Speak;
+import net.bible.android.view.util.DataPipe;
 import net.bible.service.common.CommonUtils;
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -22,13 +25,14 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.Toast;
 
 /** Handle requests from the main menu
  * 
  * @author denha1m
  *
  */
-public class MainMenuCommandHandler {
+public class MenuCommandHandler {
 
 	private static final String TAG = "MainMenuCommandHandler";
 	
@@ -37,7 +41,7 @@ public class MainMenuCommandHandler {
 		int requestCode;
 	}
 	
-	private Activity callingActivity;
+	private MainBibleActivity callingActivity;
 	
 	// request codes passed to and returned from sub-activities
 	static final int REFRESH_DISPLAY_ON_FINISH = 2;
@@ -45,7 +49,7 @@ public class MainMenuCommandHandler {
 
 	private String mPrevLocalePref = "";
 	
-	public MainMenuCommandHandler(Activity activity) {
+	public MenuCommandHandler(MainBibleActivity activity) {
 		super();
 		this.callingActivity = activity;
 	}
@@ -90,7 +94,12 @@ public class MainMenuCommandHandler {
 	        	handlerIntent = new Intent(callingActivity, Speak.class);
 	        	break;
 	        case R.id.dailyReadingPlanButton:
-	        	handlerIntent = new Intent(callingActivity, DailyReadingList.class);
+	        	// show todays plan or allow plan selection
+	        	if (ControlFactory.getInstance().getReadingPlanControl().isReadingPlanSelected()) {
+	        		handlerIntent = new Intent(callingActivity, DailyReading.class);
+	        	} else {
+	        		handlerIntent = new Intent(callingActivity, ReadingPlanSelectorList.class);
+	        	}
 	        	break;
 	        case R.id.downloadButton:
 	        	if (CommonUtils.getSDCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
@@ -105,6 +114,37 @@ public class MainMenuCommandHandler {
 	        case R.id.helpButton:
 	        	handlerIntent = new Intent(callingActivity, Help.class);
 	        	break;
+
+	        /** Pop-up options menu starts here */
+	        case R.id.notes:
+	        	handlerIntent = new Intent(callingActivity, NotesActivity.class);
+	        	// pump the notes into the viewer (there must be an easier way other than Parcelable)
+	        	//TODO refactor so the notes are loaded by the Notes viewer using a separate SAX parser 
+	        	DataPipe.getInstance().pushNotes(callingActivity.getBibleContentManager().getNotesList());
+	        	break;
+	        case R.id.add_bookmark:
+				ControlFactory.getInstance().getBookmarkControl().bookmarkCurrentVerse();
+				// refresh view to show new bookmark icon
+				callingActivity.getBibleContentManager().updateText(true);
+				isHandled = true;
+	        	break;
+	        case R.id.myNoteAddEdit:
+	        	CurrentPageManager.getInstance().showMyNote();
+				isHandled = true;
+	        	break;
+			case R.id.copy:
+				ControlFactory.getInstance().getPageControl().copyToClipboard();
+				isHandled = true;
+	        	break;
+			case R.id.shareVerse:
+				ControlFactory.getInstance().getPageControl().shareVerse();
+				isHandled = true;
+	        	break;
+	        case R.id.selectText:
+	        	Toast.makeText(callingActivity, R.string.select_text_help, Toast.LENGTH_LONG).show();
+	        	callingActivity.getDocumentViewManager().getDocumentView().selectAndCopyText();
+				isHandled = true;
+	        	break;
 	        }
 	        
 	        if (handlerIntent!=null) {
@@ -117,7 +157,7 @@ public class MainMenuCommandHandler {
     }
     
     public boolean restartIfRequiredOnReturn(int requestCode) {
-    	if (requestCode == MainMenuCommandHandler.REFRESH_DISPLAY_ON_FINISH) {
+    	if (requestCode == MenuCommandHandler.REFRESH_DISPLAY_ON_FINISH) {
     		Log.i(TAG, "Refresh on finish");
     		if (!CommonUtils.getLocalePref().equals(mPrevLocalePref)) {
     			// must restart to change locale
@@ -132,11 +172,11 @@ public class MainMenuCommandHandler {
     }
 
     public boolean isDisplayRefreshRequired(int requestCode) { 
-    	return requestCode == MainMenuCommandHandler.REFRESH_DISPLAY_ON_FINISH;
+    	return requestCode == MenuCommandHandler.REFRESH_DISPLAY_ON_FINISH;
 	}
     
     public boolean isDocumentChanged(int requestCode) { 
-    	return requestCode == MainMenuCommandHandler.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH;
+    	return requestCode == MenuCommandHandler.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH;
     }
 
 }

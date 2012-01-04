@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generic status screen
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    >
+  	<ImageView android:id="@+id/tick_off" 
+  	    android:src="@drawable/btn_check_buttonless_off"
+  	    android:contentDescription="Not ticked"
+  	    android:layout_marginRight="10dip"
+  	    android:visibility="visible"/>
+  	<ImageView android:id="@+id/tick_on" 
+  	    android:src="@drawable/btn_check_buttonless_on"
+  	    android:layout_marginRight="10dip"
+  	    android:contentDescription="Ticked"
+  	    android:visibility="gone"/>
+  	
+  	<TextView android:id="@+id/passage"
+		android:textAppearance="?android:attr/textAppearanceMedium"
+		android:layout_height="wrap_content" 
+        android:layout_weight="1"
+		android:layout_gravity="center_vertical"/>
+    
+  	<Button android:id="@+id/readButton"
+ 		android:text="@string/selectPassage"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+		android:layout_gravity="center"/>
+  	
+  	<Button android:id="@+id/speakButton"
+ 		android:text="@string/speak"
+        android:layout_weight="1"
+        android:layout_height="wrap_content"
+		android:layout_gravity="center"/>
+  			
+</TableRow>
+

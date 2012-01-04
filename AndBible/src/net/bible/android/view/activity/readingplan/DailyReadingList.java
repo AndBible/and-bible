@@ -1,13 +1,19 @@
 package net.bible.android.view.activity.readingplan;
 
+import java.util.List;
+
+import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.readingplan.ReadingPlanControl;
-import net.bible.android.view.activity.base.ExpandableListActivityBase;
+import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.android.view.activity.page.MainBibleActivity;
+import net.bible.service.readingplan.OneDaysReadingsDto;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.ExpandableListAdapter;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 /** show a history list and allow to go to history item
  * 
@@ -15,18 +21,16 @@ import android.widget.ExpandableListAdapter;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class DailyReadingList extends ExpandableListActivityBase {
+public class DailyReadingList extends ListActivityBase {
 
 	private static final int FINISHED = 99;
 
-	private static final String TAG = "ChooseGeneralBookKey";
+	private static final String TAG = "DailyReadingList";
 	
 	private ReadingPlanControl mReadingPlanControl = ControlFactory.getInstance().getReadingPlanControl();
 	
-//	private List<Key> mGeneralBookKeyList;
-    private ExpandableListAdapter mAdapter;
-
-//	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1;
+	private List<OneDaysReadingsDto> mReadingsList;
+    private ArrayAdapter mAdapter;
 
     /** Called when the activity is first created. */
     @Override
@@ -35,9 +39,9 @@ public class DailyReadingList extends ExpandableListActivityBase {
         Log.i(TAG, "Displaying General Book Key chooser");
 //        setContentView(R.layout.choose_general_book_key);
     
-//        prepareList();
+        prepareList();
 
-        mAdapter = new DailyReadingExpandableListAdapter(this, mReadingPlanControl.getCurrentDailyPlan()); //, LIST_ITEM_TYPE, mGeneralBookKeyList);
+        mAdapter = new DailyReadingItemAdapter(this, android.R.layout.simple_list_item_2, mReadingsList);
         setListAdapter(mAdapter);
         
         // if an item was selected previously then try to scroll to it
@@ -49,49 +53,36 @@ public class DailyReadingList extends ExpandableListActivityBase {
         Log.d(TAG, "Finished displaying Search view");
     }
 
-//    /**
-//     * Creates and returns a list adapter for the current list activity
-//     * @return
-//     */
-//    protected void prepareList()
-//    {
-//    	Log.d(TAG, "Getting book keys");
-//    	mGeneralBookKeyList = new ArrayList<Key>();
-//    	try {
-//	    	List<Key> keyList = getCurrentGeneralBookPage().getCachedGlobalKeyList();
-//	    	
-//	    	for (Key key : keyList) {
-//	        	mGeneralBookKeyList.add(key);
-//	    	}
-//    	} catch (Exception e) {
-//    		Log.e(TAG, "Error getting key");
-//    	}
-//    }
-//    
-//    @Override
-//	protected void onListItemClick(ListView l, View v, int position, long id) {
-//    	try {
-//    		itemSelected(mGeneralBookKeyList.get(position));
-//		} catch (Exception e) {
-//			Log.e(TAG, "Selection error", e);
-//			showErrorMsg(R.string.error_occurred);
-//		}
-//	}
-//    
-//    private void itemSelected(Key key) {
-//    	Log.d(TAG, "Key selected:"+key);
-//    	Log.d(TAG, "Key selected:"+key.getName());
-//    	try {
+    /**
+     * Creates and returns a list adapter for the current list activity
+     * @return
+     */
+    protected void prepareList()
+    {
+    	Log.d(TAG, "Readingss");
+    	mReadingsList = mReadingPlanControl.getCurrentPlansReadingList();
+    }
+    
+    @Override
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+    	try {
+    		itemSelected(mReadingsList.get(position));
+		} catch (Exception e) {
+			Log.e(TAG, "Selection error", e);
+			showErrorMsg(R.string.error_occurred);
+		}
+	}
+    
+    private void itemSelected(OneDaysReadingsDto oneDaysReadingsDto) {
+    	Log.d(TAG, "Day selected:"+oneDaysReadingsDto);
+    	try {
 //    		CurrentPageManager.getInstance().getCurrentGeneralBook().setKey(key);
-//    		returnToMainScreen();
-//    	} catch (Exception e) {
-//    		Log.e(TAG, "error on select of gen book key", e);
-//    	}
-//    }
-//
-//    private CurrentGeneralBookPage getCurrentGeneralBookPage() {
-//    	return ControlFactory.getInstance().getCurrentPageControl().getCurrentGeneralBook();
-//    }
+    		returnToMainScreen();
+    	} catch (Exception e) {
+    		Log.e(TAG, "error on select of gen book key", e);
+    	}
+    }
+
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) { 
     	Log.d(TAG, "Activity result:"+resultCode);

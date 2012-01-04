@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generic status screen
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+    <LinearLayout android:id="@+id/top_text"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+		android:layout_alignParentTop="true"
+    	android:layout_margin="10dip">
+	   	<TextView android:id="@+id/description"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:layout_height="wrap_content" 
+			android:layout_width="wrap_content"/>
+	   	
+	   	<TextView android:id="@+id/day"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:layout_height="wrap_content" 
+			android:layout_width="wrap_content"/>
+	
+	   	<TextView android:id="@+id/status_message"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:layout_height="wrap_content" 
+			android:layout_width="wrap_content"/>
+   	</LinearLayout>
+
+    <!-- container for daily readings -->
+    <TableLayout android:id="@+id/reading_container"
+	    android:layout_width="fill_parent"
+    	android:layout_height="wrap_content"
+    	android:layout_margin="10dip"
+		android:layout_below="@id/top_text">
+
+    </TableLayout>
+    
+	<!-- Button bar -->
+	<LinearLayout android:id="@+id/button_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        style="@android:style/ButtonBar"
+	    android:layout_alignParentBottom="true">
+
+	  	<Button android:id="@+id/prevButton"
+	 		android:text="&lt;"
+	 		android:textSize="20dip"
+			android:onClick="onPrevious"
+	        android:layout_width="0dip"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"/>
+
+	  	<Button android:id="@+id/doneButton"
+	 		android:text="@string/done"
+			android:onClick="onDone"
+	        android:layout_width="0dip"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="2"/>
+
+	  	<Button android:id="@+id/nextButton"
+	 		android:text="&gt;"
+	 		android:textSize="20dip"
+			android:onClick="onNext"
+	        android:layout_width="0dip"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"/>
+	  	
+	</LinearLayout>
+	
+</RelativeLayout>
+
