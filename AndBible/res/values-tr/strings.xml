@@ -79,7 +79,7 @@
     <string name="prefs_section_title_summary">Asıl metinde bulunmayan başlıklar gösterilir</string>
     <string name="prefs_red_letter_title">Kırmızı Harflar</string>
     <string name="prefs_red_letter_summary">İsa Mesih\'in sözleri kırmızı renklendirilir</string>
-    <string name="prefs_tilt_to_scroll_title">Eğ ve kaydır</string>   
+    <string name="prefs_tilt_to_scroll_title">Eğdirip kaydır</string>   
     <string name="prefs_tilt_to_scroll_summary">Cihazı eğerek sayfayı aşağa/yükarıya kaydırma</string>
     <string name="prefs_night_mode_title">Gece Modu</string>
     <string name="prefs_night_mode_summary">Karanlıkta daha kolay okumak için başka renkler kullanılır</string>
