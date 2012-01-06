@@ -25,7 +25,9 @@ public class ReadingPlanControl {
 	private static final String READING_PLAN = "reading_plan";
 	private static final String READING_PLAN_DAY_EXT = "_day";
 	private static final String READING_PLAN_START_EXT = "_start";
-
+	
+	private ReadingStatus readingStatus;
+	
 	/** allow front end to determine if a plan needs has been selected
 	 */
 	public boolean isReadingPlanSelected() {
@@ -60,6 +62,15 @@ public class ReadingPlanControl {
 		
 	}
 	
+	public ReadingStatus getReadingStatus(int day) {
+		if (readingStatus==null || 
+			!readingStatus.getPlanCode().equals(getCurrentPlanCode()) ||
+			readingStatus.getDay() != day) {
+			readingStatus = new ReadingStatus(getCurrentPlanCode(), day); 
+		}
+		return readingStatus;
+	}
+	
 	public int getCurrentPlanDay() {
 		String planCode = getCurrentPlanCode();
 		SharedPreferences prefs = CommonUtils.getSharedPreferences();
@@ -92,14 +103,21 @@ public class ReadingPlanControl {
 		return readingPlanDao.getReading(getCurrentPlanCode(), day);
 	}
 	
-	public void speak(int readingNo, Key readingKey) {
+	public void speak(int day, int readingNo, Key readingKey) {
 		List<Key> keyList = new ArrayList<Key>();
 		keyList.add(readingKey);
 		mSpeakControl.speak(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), keyList, true, false);
+		
+		getReadingStatus(day).setRead(readingNo);
 	}
 	
-	public void speak(List<Key> allReadings) {
+	public void speak(int day, List<Key> allReadings) {
 		mSpeakControl.speak(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), allReadings, true, false);
+
+		// mark all readings as read
+		for (int i=0; i<allReadings.size(); i++) {
+			getReadingStatus(day).setRead(i);
+		}
 	}
 
 	public void setSpeakControl(SpeakControl speakControl) {

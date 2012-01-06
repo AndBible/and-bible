@@ -1,8 +1,12 @@
 package net.bible.android.view.activity.readingplan;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.readingplan.ReadingPlanControl;
+import net.bible.android.control.readingplan.ReadingStatus;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.readingplan.OneDaysReadingsDto;
@@ -19,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
@@ -35,6 +40,7 @@ public class DailyReading extends ActivityBase {
 	private TextView mDescriptionView;
 	private TextView mDayView;
 	private TextView mStatusMsgView;
+	private List<ImageTickOnOff> mImageTickOnOffList;
 	
 	private int mDay;
 	public static final String DAY = "day";
@@ -69,11 +75,19 @@ public class DailyReading extends ActivityBase {
 	        mStatusMsgView =  (TextView)findViewById(R.id.status_message);
 	        mStatusMsgView.setText("Status goes here");
 	        
+	        mImageTickOnOffList = new ArrayList<ImageTickOnOff>();
+	        
 	        TableLayout layout = (TableLayout)findViewById(R.id.reading_container);
 	        for (int i=0; i<mReadings.getNumReadings(); i++) {
 	        	final int readingNo = i;
 	            View child = getLayoutInflater().inflate(R.layout.reading_plan_one_reading, null);
 	
+	            // Ticks
+	            ImageTickOnOff imageTickOnOff = new ImageTickOnOff();
+	            imageTickOnOff.unticked = (ImageView)child.findViewById(R.id.tick_off);
+	            imageTickOnOff.ticked = (ImageView)child.findViewById(R.id.tick_on);
+	            mImageTickOnOffList.add(imageTickOnOff);
+	            
 	            // Passage description
 	            TextView rdgText = (TextView)child.findViewById(R.id.passage);
 	            rdgText.setText(mReadings.getReadingKey(readingNo).getName());
@@ -90,6 +104,8 @@ public class DailyReading extends ActivityBase {
 	            layout.addView(child, readingNo);
 	        }
 	
+	        updateTicks();
+	        
 	        // All
 	        View child = getLayoutInflater().inflate(R.layout.reading_plan_one_reading, null);
 	
@@ -111,7 +127,7 @@ public class DailyReading extends ActivityBase {
 	        layout.addView(child, mReadings.getNumReadings());
 	        // end All
 	        
-	        layout.getRootView().requestLayout();
+//	        layout.getRootView().requestLayout();
 	        
 	        Log.d(TAG, "Finished displaying Reading view");
         } catch (Exception e) {
@@ -123,12 +139,15 @@ public class DailyReading extends ActivityBase {
     public void onSpeak(int readingNo) {
     	Log.i(TAG, "CLICKED "+readingNo);
     	Key readingKey = mReadings.getReadingKey(readingNo);
-    	mReadingPlanControl.speak(readingNo, readingKey);
+    	mReadingPlanControl.speak(mDay, readingNo, readingKey);
     	
+    	updateTicks();
     }
     public void onSpeakAll(View view) {
     	Log.i(TAG, "CLICKED All");
-    	mReadingPlanControl.speak(mReadings.getReadingKeys());
+    	mReadingPlanControl.speak(mDay, mReadings.getReadingKeys());
+    	
+    	updateTicks();
     }
 
     public void onNext(View view) {
@@ -206,4 +225,23 @@ public class DailyReading extends ActivityBase {
     		returnToPreviousScreen();
     	}
     }
+
+	private void updateTicks() {
+		ReadingStatus status = mReadingPlanControl.getReadingStatus(mDay);
+		for (int i=0; i<mImageTickOnOffList.size(); i++) {
+			ImageTickOnOff imageTickOnOff = mImageTickOnOffList.get(i);
+			if (status.isRead(i)) {
+				imageTickOnOff.ticked.setVisibility(View.VISIBLE);
+				imageTickOnOff.unticked.setVisibility(View.GONE);
+			} else {
+				imageTickOnOff.ticked.setVisibility(View.GONE);
+				imageTickOnOff.unticked.setVisibility(View.VISIBLE);
+			}
+		}
+	}
+	
+	private static class ImageTickOnOff {
+		private ImageView unticked;
+		private ImageView ticked;
+	}
 }
