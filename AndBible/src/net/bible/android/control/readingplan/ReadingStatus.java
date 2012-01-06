@@ -4,7 +4,6 @@ import java.util.BitSet;
 
 import net.bible.service.common.CommonUtils;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 
 public class ReadingStatus {
 
@@ -35,9 +34,11 @@ public class ReadingStatus {
 	 */
 	public void delete() {
 		SharedPreferences prefs = CommonUtils.getSharedPreferences();
-		Editor editablePrefs = prefs.edit();
-		editablePrefs.remove(getPrefsKey());
-		editablePrefs.commit();
+		if (prefs.contains(getPrefsKey())) {
+			prefs.edit()
+				.remove(getPrefsKey())
+				.commit();
+		}
 	}
 	
 	/** read status from prefs string
@@ -66,9 +67,9 @@ public class ReadingStatus {
 			}
 		}
 		SharedPreferences prefs = CommonUtils.getSharedPreferences();
-		Editor editablePrefs = prefs.edit();
-		editablePrefs.putString(getPrefsKey(), strStatus.toString());
-		editablePrefs.commit();
+		prefs.edit()
+			.putString(getPrefsKey(), strStatus.toString())
+			.commit();
 	}
 	
 	protected String getPlanCode() {

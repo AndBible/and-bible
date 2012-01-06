@@ -19,6 +19,11 @@ import org.crosswire.jsword.passage.Key;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 
+/** Control status of reading plans
+ * 
+ * @author denha1m
+ *
+ */
 public class ReadingPlanControl {
 
 	private ReadingPlanDao readingPlanDao = new ReadingPlanDao();
@@ -64,11 +69,18 @@ public class ReadingPlanControl {
 		
 	}
 	
+	/** get read status of this days readings
+	 */
 	public ReadingStatus getReadingStatus(int day) {
 		if (readingStatus==null || 
 			!readingStatus.getPlanCode().equals(getCurrentPlanCode()) ||
 			readingStatus.getDay() != day) {
-			readingStatus = new ReadingStatus(getCurrentPlanCode(), day); 
+			// if Historic then return historic status that returns read=true for all passages
+			if (day<getCurrentPlanDay()) {
+				readingStatus = new HistoricReadingStatus(getCurrentPlanCode(), day);
+			} else {
+				readingStatus = new ReadingStatus(getCurrentPlanCode(), day);
+			}
 		}
 		return readingStatus;
 	}
@@ -81,7 +93,10 @@ public class ReadingPlanControl {
 	}
 
 	public void completed(int day) {
-		if (getCurrentPlanDay() == day) {
+		if (getCurrentPlanDay() >= day) {
+			// do not leave prefs for historic days - we show all historic readings as 'read'
+			getReadingStatus(day).delete();
+			
 			if (readingPlanDao.getNumberOfPlanDays(getCurrentPlanCode()) == day) {
 				resetCurrentPlan();
 			} else {
@@ -144,17 +159,17 @@ public class ReadingPlanControl {
 	
 	/** User has chosen to start a plan
 	 */
-	public void resetCurrentPlan() {
+	private void resetCurrentPlan() {
 		SharedPreferences prefs = CommonUtils.getSharedPreferences();
 		String currentPlan = prefs.getString(READING_PLAN, null);
 
 		// if changing plan
 		if (!StringUtils.isEmpty(currentPlan)) {
-			Editor editablePrefs = prefs.edit();
-			editablePrefs.remove(READING_PLAN);
-			editablePrefs.remove(currentPlan+READING_PLAN_START_EXT);
-			editablePrefs.remove(currentPlan+READING_PLAN_DAY_EXT);
-			editablePrefs.commit();
+			prefs.edit()
+				.remove(READING_PLAN)
+				.remove(currentPlan+READING_PLAN_START_EXT)
+				.remove(currentPlan+READING_PLAN_DAY_EXT)
+				.commit();
 		}
 	}
 
