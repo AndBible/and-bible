@@ -16,12 +16,12 @@ import android.util.Log;
  */
 public class IntentHistoryItem implements HistoryItem {
 
-	private String description;
+	private CharSequence description;
 	private Intent intent;
 	
 	private static final String TAG = "IntentHistoryItem"; 
 	
-	public IntentHistoryItem(String description, Intent intent) {
+	public IntentHistoryItem(CharSequence description, Intent intent) {
 		this.description = description;
 		this.intent = intent;
 		
@@ -48,7 +48,7 @@ public class IntentHistoryItem implements HistoryItem {
 	}
 
 	@Override
-	public String getDescription() {
+	public CharSequence getDescription() {
 		return description;
 	}
 

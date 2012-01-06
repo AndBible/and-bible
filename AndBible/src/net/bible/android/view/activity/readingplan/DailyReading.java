@@ -91,10 +91,19 @@ public class DailyReading extends ActivityBase {
 	            // Passage description
 	            TextView rdgText = (TextView)child.findViewById(R.id.passage);
 	            rdgText.setText(mReadings.getReadingKey(readingNo).getName());
-	
+
+	            // handle read button clicks
+	            Button readBtn = (Button)child.findViewById(R.id.readButton);
+	            readBtn.setOnClickListener(new OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						onRead(readingNo);
+					}
+				});
+
+	            // handle speak button clicks
 	            Button speakBtn = (Button)child.findViewById(R.id.speakButton);
 	            speakBtn.setOnClickListener(new OnClickListener() {
-					
 					@Override
 					public void onClick(View v) {
 						onSpeak(readingNo);
@@ -127,8 +136,6 @@ public class DailyReading extends ActivityBase {
 	        layout.addView(child, mReadings.getNumReadings());
 	        // end All
 	        
-//	        layout.getRootView().requestLayout();
-	        
 	        Log.d(TAG, "Finished displaying Reading view");
         } catch (Exception e) {
         	Log.e(TAG, "Error showing daily readings", e);
@@ -136,15 +143,29 @@ public class DailyReading extends ActivityBase {
         }
     }
 
+    /** user pressed read button by 1 reading
+	 */
+    public void onRead(int readingNo) {
+    	Log.i(TAG, "Read "+readingNo);
+    	Key readingKey = mReadings.getReadingKey(readingNo);
+    	mReadingPlanControl.read(mDay, readingNo, readingKey);
+    	
+    	finish();
+    }
+
+    /** user pressed speak button by 1 reading
+	 */
     public void onSpeak(int readingNo) {
-    	Log.i(TAG, "CLICKED "+readingNo);
+    	Log.i(TAG, "Speak "+readingNo);
     	Key readingKey = mReadings.getReadingKey(readingNo);
     	mReadingPlanControl.speak(mDay, readingNo, readingKey);
     	
     	updateTicks();
     }
+    /** user pressed speak button by All
+	 */
     public void onSpeakAll(View view) {
-    	Log.i(TAG, "CLICKED All");
+    	Log.i(TAG, "Speak all");
     	mReadingPlanControl.speak(mDay, mReadings.getReadingKeys());
     	
     	updateTicks();

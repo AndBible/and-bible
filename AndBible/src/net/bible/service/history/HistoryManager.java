@@ -5,14 +5,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
-import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.view.activity.base.AndBibleActivity;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
-import net.bible.android.view.activity.mynote.MyNotes;
 import net.bible.android.view.activity.page.MainBibleActivity;
-import net.bible.android.view.activity.search.Search;
-import net.bible.android.view.activity.search.SearchResults;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
@@ -46,7 +43,7 @@ public class HistoryManager {
 	}
 	
 	/**
-	 *  called when a verse is changed
+	 *  called when a verse is changed to allow current Activity to be saved in History list
 	 */
 	public void beforePageChange() {
 		// if we cause the change by requesting Back then ignore it
@@ -69,12 +66,11 @@ public class HistoryManager {
 			Key key = currentPage.getSingleKey();
 			float yOffsetRatio = currentPage.getCurrentYOffsetRatio();
 			historyItem = new KeyHistoryItem(doc, key, yOffsetRatio);
-		} else if (currentActivity instanceof Search) {
-			historyItem = new IntentHistoryItem(R.string.search, currentActivity.getIntent());
-		} else if (currentActivity instanceof SearchResults) {
-			historyItem = new IntentHistoryItem(R.string.search_results, currentActivity.getIntent());
-		} else if (currentActivity instanceof MyNotes) {
-			historyItem = new IntentHistoryItem(R.string.mynotes, currentActivity.getIntent());
+		} else if (currentActivity instanceof AndBibleActivity) {
+			AndBibleActivity andBibleActivity = (AndBibleActivity)currentActivity;
+			if (andBibleActivity.isIntegrateWithHistoryManager()) {
+				historyItem = new IntentHistoryItem(currentActivity.getTitle(), currentActivity.getIntent());
+			}
 		}
 		return historyItem;
 	}

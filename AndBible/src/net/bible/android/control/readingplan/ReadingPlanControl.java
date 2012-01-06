@@ -7,11 +7,13 @@ import java.util.List;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.speak.SpeakControl;
 import net.bible.service.common.CommonUtils;
+import net.bible.service.history.HistoryManager;
 import net.bible.service.readingplan.OneDaysReadingsDto;
 import net.bible.service.readingplan.ReadingPlanDao;
 import net.bible.service.readingplan.ReadingPlanInfoDto;
 
 import org.apache.commons.lang.StringUtils;
+import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
 import android.content.SharedPreferences;
@@ -103,6 +105,22 @@ public class ReadingPlanControl {
 		return readingPlanDao.getReading(getCurrentPlanCode(), day);
 	}
 	
+	public void read(int day, int readingNo, Key readingKey) {
+    	if (readingKey!=null) {
+    		// mark reading as 'read'
+    		getReadingStatus(day).setRead(readingNo);
+
+			HistoryManager.getInstance().beforePageChange();
+
+			// show the current bible
+    		Book doc = CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument();
+    		// go to correct passage
+    		CurrentPageManager.getInstance().setCurrentDocumentAndKey(doc, readingKey);
+    	}
+	}
+
+	/** speak 1 reading and mark as read
+	 */
 	public void speak(int day, int readingNo, Key readingKey) {
 		List<Key> keyList = new ArrayList<Key>();
 		keyList.add(readingKey);

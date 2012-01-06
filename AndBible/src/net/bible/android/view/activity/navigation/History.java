@@ -49,12 +49,12 @@ public class History extends ListActivityBase {
     {
     	
     	mHistoryItemList = HistoryManager.getInstance().getHistory();
-    	List<String> historyTextList = new ArrayList<String>();
+    	List<CharSequence> historyTextList = new ArrayList<CharSequence>();
     	for (HistoryItem item : mHistoryItemList) {
     		historyTextList.add(item.getDescription());
     	}
     	
-    	return new ArrayAdapter<String>(this,
+    	return new ArrayAdapter<CharSequence>(this,
     	        LIST_ITEM_TYPE,
     	        historyTextList);
     }

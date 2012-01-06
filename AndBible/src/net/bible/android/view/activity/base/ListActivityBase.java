@@ -114,7 +114,12 @@ public class ListActivityBase extends ListActivity implements AndBibleActivity {
     		Log.w(TAG, "Could not update list Array Adapter");
     	}
 	}
-	
+
+	@Override
+	public boolean isIntegrateWithHistoryManager() {
+		return commonActivityBase.isIntegrateWithHistoryManager();
+	}
+
 	public void showErrorMsg(int msgResId) {
 		Dialogs.getInstance().showErrorMsg(msgResId);
 	}

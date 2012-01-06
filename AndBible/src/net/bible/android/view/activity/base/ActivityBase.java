@@ -128,6 +128,11 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 
 	    return super.onKeyLongPress(keyCode, event);
 	}
+
+	@Override
+	public boolean isIntegrateWithHistoryManager() {
+		return commonActivityBase.isIntegrateWithHistoryManager();
+	}
 	
 	public void showErrorMsg(int msgResId) {
 		Dialogs.getInstance().showErrorMsg(msgResId);
