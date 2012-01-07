@@ -60,7 +60,7 @@
     <!-- Preferences -->
     <string name="prefs_show_verseno_title">Versnummerering</string>
     <string name="prefs_show_verseno_summary">Vis versnummer</string>
-    <string name="prefs_verse_per_line_title">Eit vers per linje</string>
+    <string name="prefs_verse_per_line_title">Eit vers per line</string>
     <string name="prefs_verse_per_line_summary">Vis vers på kvar si line</string>
     <string name="prefs_show_mynotes_title">Vis notatikon</string>
     <string name="prefs_show_mynotes_summary">Vis ikon i vers med notat</string>
@@ -192,7 +192,7 @@
     <string name="error">Feil</string>
     <string name="more">Meir</string>
     <string name="retry">Prøv om att</string>
-    <string name="please_wait">Vennelg vent...</string>
+    <string name="please_wait">Vennleg vent...</string>
     <string name="all">Alle</string>
     
     <!-- Errors -->
@@ -200,4 +200,4 @@
     <string name="error_no_content">Ikkje noko innhald i verset</string>
     <string name="error_page_too_large">Sida er for stor til å laste</string>
     <string name="error_key_not_in_document">Ikkje funne i modulen</string>
-<string name="empty_list">No items to display</string><string name="prefs_show_bookmarks_summary">Show icon in bookmarked verses</string><string name="prefs_show_bookmarks_title">Show bookmark icons</string><string name="prefs_tilt_to_scroll_summary">Tilt device to scroll page up/down</string><string name="prefs_tilt_to_scroll_title">Tilt to scroll</string></resources>
+<string name="empty_list">Inkje data å syne</string><string name="prefs_show_bookmarks_summary">Syn ikon i bokmerkede vers</string><string name="prefs_show_bookmarks_title">Syn bokmerkeikon</string><string name="prefs_tilt_to_scroll_summary">Hell på eininga for å rulle side opp/ned</string><string name="prefs_tilt_to_scroll_title">Hell for å rulle sida</string></resources>

@@ -157,4 +157,4 @@
   <string name="storage_space_warning">Ikke nok lokal lagringsplass.</string>
   <string name="strongs_toggle_button_off">nnnn</string>
   <string name="strongs_toggle_button_on">nnnn</string>
-<string name="empty_list">No items to display</string><string name="prefs_show_bookmarks_summary">Show icon in bookmarked verses</string><string name="prefs_show_bookmarks_title">Show bookmark icons</string><string name="prefs_tilt_to_scroll_summary">Tilt device to scroll page up/down</string><string name="prefs_tilt_to_scroll_title">Tilt to scroll</string></resources>
+<string name="empty_list">Ingen data å vise</string><string name="prefs_show_bookmarks_summary">Vis ikon i bokmerkede vers</string><string name="prefs_show_bookmarks_title">Vis bokmerkeikon</string><string name="prefs_tilt_to_scroll_summary">Rull siden opp/ned ved å helle på enheten</string><string name="prefs_tilt_to_scroll_title">Hell for å rulle siden</string></resources>
