@@ -7,19 +7,18 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.readingplan.ReadingPlanControl;
 import net.bible.android.control.readingplan.ReadingStatus;
-import net.bible.android.view.activity.base.ActivityBase;
+import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.readingplan.OneDaysReadingsDto;
 
+import org.apache.commons.lang.StringUtils;
+import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -33,7 +32,7 @@ import android.widget.TextView;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class DailyReading extends ActivityBase {
+public class DailyReading extends CustomTitlebarActivityBase {
 	
 	private static final String TAG = "DailyReading";
 	
@@ -118,6 +117,10 @@ public class DailyReading extends ActivityBase {
 	        // All
 	        View child = getLayoutInflater().inflate(R.layout.reading_plan_one_reading, null);
 	
+	        // hide the tick
+	        ImageView tick = (ImageView)child.findViewById(R.id.tick_off);
+	        tick.setVisibility(View.INVISIBLE);
+	        
 	        // Passage description
 	        TextView rdgText = (TextView)child.findViewById(R.id.passage);
 	        rdgText.setText(getResources().getString(R.string.all));
@@ -136,13 +139,16 @@ public class DailyReading extends ActivityBase {
 	        layout.addView(child, mReadings.getNumReadings());
 	        // end All
 	        
+	        // show reading plan and current day in titlebar
+	        updatePageTitle();
+	        
 	        Log.d(TAG, "Finished displaying Reading view");
         } catch (Exception e) {
         	Log.e(TAG, "Error showing daily readings", e);
         	Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
         }
     }
-
+    
     /** user pressed read button by 1 reading
 	 */
     public void onRead(int readingNo) {
@@ -198,46 +204,6 @@ public class DailyReading extends ActivityBase {
     	finish();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-    	super.onCreateOptionsMenu(menu);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.reading_plan, menu);
-        return true;
-    }
-
-	/** 
-     * on Click handlers
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        boolean isHandled = false;
-        int requestCode = ActivityBase.STD_REQUEST_CODE;
-        
-    	// Activities
-    	{
-    		Intent handlerIntent = null;
-	        // Handle item selection
-	        switch (item.getItemId()) {
-	        case R.id.dailyReadingPlanSelectionButton:
-        		handlerIntent = new Intent(this, ReadingPlanSelectorList.class);
-	        	break;
-	        }
-	        
-	        if (handlerIntent!=null) {
-	        	startActivityForResult(handlerIntent, requestCode);
-	        	finish();
-	        	isHandled = true;
-	        } 
-    	}
-
-     	if (!isHandled) {
-            isHandled = super.onOptionsItemSelected(item);
-        }
-        
-     	return isHandled;
-    }
-
     /** I don't think this is used because of hte finish() in onSearch()
      */
 	@Override
@@ -265,4 +231,107 @@ public class DailyReading extends ActivityBase {
 		private ImageView unticked;
 		private ImageView ticked;
 	}
+
+    /** Override Doc & Page header buttons to show reading plans and days lists.
+     *  If any of the other buttons are pressed then finish and allow switch back to standard WebView
+     * 
+     * @param buttonType
+     */
+    protected void handleHeaderButtonPress(HeaderButton buttonType) {
+    	switch (buttonType) {
+    	case DOCUMENT:
+        	Intent docHandlerIntent = new Intent(this, ReadingPlanSelectorList.class);
+        	startActivityForResult(docHandlerIntent, 1);
+        	finish();
+    		break;
+    	case PAGE:
+        	Intent pageHandlerIntent = new Intent(this, DailyReadingList.class);
+        	startActivityForResult(pageHandlerIntent, 1);
+        	finish();
+    		break;
+    	default:
+    		super.handleHeaderButtonPress(buttonType);
+    		finish();
+    	}
+    }
+
+    /** need to switch to current doc instead of next doc if the type is currently shown in WebView
+     //TODO Flagging all doc types as not shown would be more elegant.
+     */
+    @Override
+    protected Book getSuggestedDocument(HeaderButton buttonType) {
+    	Book suggestedDoc = null;
+
+    	switch (buttonType) {
+    	case BIBLE:
+    		suggestedDoc = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getCurrentDocument();
+    		break;
+    	case COMMENTARY:
+    		suggestedDoc = ControlFactory.getInstance().getCurrentPageControl().getCurrentCommentary().getCurrentDocument();
+    		break;
+    	case DICTIONARY:
+    		suggestedDoc = ControlFactory.getInstance().getCurrentPageControl().getCurrentDictionary().getCurrentDocument();
+    		break;
+    	case GEN_BOOK:
+    		suggestedDoc = ControlFactory.getInstance().getCurrentPageControl().getCurrentGeneralBook().getCurrentDocument();
+    		break;
+    	}
+    	return suggestedDoc;
+    }
+
+    //TODO prevent Strongs button being shown
+	protected void updatePageTitle() {
+		// shorten plan code and show it in doc button
+    	setDocumentTitle(StringUtils.left(mReadings.getReadingPlanInfo().getCode(), 8));
+    	// show day in page/key button
+    	setPageTitle(mReadings.getDayDesc());
+    	
+    	// make sure docs show something
+    	updateSuggestedDocuments();
+	}
+	
+	@Override
+	protected void preferenceSettingsChanged() {
+		// TODO Auto-generated method stub
+	}
+	
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//    	super.onCreateOptionsMenu(menu);
+//        MenuInflater inflater = getMenuInflater();
+//        inflater.inflate(R.menu.reading_plan, menu);
+//        return true;
+//    }
+//
+//	/** 
+//     * on Click handlers
+//     */
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        boolean isHandled = false;
+//        int requestCode = ActivityBase.STD_REQUEST_CODE;
+//        
+//    	// Activities
+//    	{
+//    		Intent handlerIntent = null;
+//	        // Handle item selection
+//	        switch (item.getItemId()) {
+//	        case R.id.dailyReadingPlanSelectionButton:
+//        		handlerIntent = new Intent(this, ReadingPlanSelectorList.class);
+//	        	break;
+//	        }
+//	        
+//	        if (handlerIntent!=null) {
+//	        	startActivityForResult(handlerIntent, requestCode);
+//	        	finish();
+//	        	isHandled = true;
+//	        } 
+//    	}
+//
+//     	if (!isHandled) {
+//            isHandled = super.onOptionsItemSelected(item);
+//        }
+//        
+//     	return isHandled;
+//    }
 }

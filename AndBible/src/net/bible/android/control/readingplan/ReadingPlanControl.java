@@ -65,7 +65,7 @@ public class ReadingPlanControl {
 	/** get list of days and readings for a plan so user can see the plan in advance
 	 */
 	public List<OneDaysReadingsDto> getCurrentPlansReadingList() {
-		return readingPlanDao.getReadingList("y1ot1nt1_chronological");
+		return readingPlanDao.getReadingList(getCurrentPlanCode());
 		
 	}
 	

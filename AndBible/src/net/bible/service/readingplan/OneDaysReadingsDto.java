@@ -84,4 +84,8 @@ public class OneDaysReadingsDto implements Comparable<OneDaysReadingsDto> {
 	public List<Key> getReadingKeys() {
 		return mReadingKeys;
 	}
+
+	public int getDay() {
+		return mDay;
+	}
 }

@@ -204,21 +204,42 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
     private int numButtonsToShow() {
     	return getResources().getInteger(R.integer.number_of_quick_buttons);
     }
+    
+    protected Book getSuggestedDocument(HeaderButton buttonType) {
+    	Book suggestedDoc = null;
+
+    	switch (buttonType) {
+    	case BIBLE:
+    		suggestedDoc = ControlFactory.getInstance().getDocumentControl().getSuggestedBible();;
+    		break;
+    	case COMMENTARY:
+    		suggestedDoc = ControlFactory.getInstance().getDocumentControl().getSuggestedCommentary();;
+    		break;
+    	case DICTIONARY:
+    		suggestedDoc = ControlFactory.getInstance().getDocumentControl().getSuggestedDictionary();;
+    		break;
+    	case GEN_BOOK:
+    		suggestedDoc = ControlFactory.getInstance().getDocumentControl().getSuggestedGenBook();;
+    		break;
+    	}
+    	return suggestedDoc;
+    }
+    
 	/** update the quick links in the title bar
      */
     public void updateSuggestedDocuments() {
         int numButtonsToShow = numButtonsToShow();
     	
-        mSuggestedBible = ControlFactory.getInstance().getDocumentControl().getSuggestedBible();
+        mSuggestedBible = getSuggestedDocument(HeaderButton.BIBLE); 
         updateQuickButton(mSuggestedBible, mQuickBibleChangeLink, true);
     	
-        mSuggestedCommentary = ControlFactory.getInstance().getDocumentControl().getSuggestedCommentary();
+        mSuggestedCommentary = getSuggestedDocument(HeaderButton.COMMENTARY);
         updateQuickButton(mSuggestedCommentary, mQuickCommentaryChangeLink, true);
 
-        mSuggestedDictionary = ControlFactory.getInstance().getDocumentControl().getSuggestedDictionary();
+        mSuggestedDictionary = getSuggestedDocument(HeaderButton.DICTIONARY);
         updateQuickButton(mSuggestedDictionary, mQuickDictionaryChangeLink, numButtonsToShow>=3);
 
-        mSuggestedGenBook = ControlFactory.getInstance().getDocumentControl().getSuggestedGenBook();
+        mSuggestedGenBook = getSuggestedDocument(HeaderButton.GEN_BOOK);;
         updateQuickButton(mSuggestedGenBook, mQuickGenBookChangeLink, numButtonsToShow>=4);
         
         boolean showStrongsToggle = ControlFactory.getInstance().getDocumentControl().isStrongsInBook();

@@ -7,8 +7,6 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.readingplan.ReadingPlanControl;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.readingplan.ReadingPlanInfoDto;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -52,18 +50,11 @@ public class ReadingPlanSelectorList extends ListActivityBase {
     @Override
 	protected void onListItemClick(ListView l, View v, final int position, long id) {
     	try {
-    		new AlertDialog.Builder(ReadingPlanSelectorList.this)
-			   .setMessage(R.string.rdg_plan_selected_confirmation)
-			   .setCancelable(true)
-			   .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-				   public void onClick(DialogInterface dialog, int buttonId) {
-						mReadingPlanControl.startReadingPlan(mReadingPlanList.get(position));
-						
-						Intent intent = new Intent(ReadingPlanSelectorList.this, DailyReading.class);
-						startActivity(intent);
-						finish();
-			       }
-			   }).show();
+			mReadingPlanControl.startReadingPlan(mReadingPlanList.get(position));
+			
+			Intent intent = new Intent(ReadingPlanSelectorList.this, DailyReading.class);
+			startActivity(intent);
+			finish();
 		} catch (Exception e) {
 			Log.e(TAG, "Plan selection error", e);
 			showErrorMsg(R.string.error_occurred);

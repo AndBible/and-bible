@@ -23,8 +23,6 @@ import android.widget.ListView;
  */
 public class DailyReadingList extends ListActivityBase {
 
-	private static final int FINISHED = 99;
-
 	private static final String TAG = "DailyReadingList";
 	
 	private ReadingPlanControl mReadingPlanControl = ControlFactory.getInstance().getReadingPlanControl();
@@ -35,20 +33,14 @@ public class DailyReadingList extends ListActivityBase {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState, true);
         Log.i(TAG, "Displaying General Book Key chooser");
-//        setContentView(R.layout.choose_general_book_key);
+        setContentView(R.layout.list);
     
         prepareList();
 
         mAdapter = new DailyReadingItemAdapter(this, android.R.layout.simple_list_item_2, mReadingsList);
         setListAdapter(mAdapter);
-        
-        // if an item was selected previously then try to scroll to it
-//        Key currentKey = getCurrentGeneralBookPage().getKey();
-//        if (currentKey!=null && mGeneralBookKeyList.contains(currentKey)) {
-//        	setSelection(TreeKeyHelper.findIndexOf(currentKey, mGeneralBookKeyList));
-//        }
         
         Log.d(TAG, "Finished displaying Search view");
     }
@@ -76,28 +68,12 @@ public class DailyReadingList extends ListActivityBase {
     private void itemSelected(OneDaysReadingsDto oneDaysReadingsDto) {
     	Log.d(TAG, "Day selected:"+oneDaysReadingsDto);
     	try {
-//    		CurrentPageManager.getInstance().getCurrentGeneralBook().setKey(key);
-    		returnToMainScreen();
+			Intent intent = new Intent(this, DailyReading.class);
+			intent.putExtra(DailyReading.DAY, oneDaysReadingsDto.getDay());
+			startActivity(intent);
+			finish();
     	} catch (Exception e) {
     		Log.e(TAG, "error on select of gen book key", e);
     	}
-    }
-
-    @Override 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) { 
-    	Log.d(TAG, "Activity result:"+resultCode);
-    	super.onActivityResult(requestCode, resultCode, data);
-    	
-    	if (resultCode == FINISHED) {
-    		Log.i(TAG, "Leaf key selected so finish");
-    		returnToMainScreen();
-    	}
-    }
-
-    private void returnToMainScreen() {
-    	// just pass control back to the main screen
-    	Intent resultIntent = new Intent(this, MainBibleActivity.class);
-    	setResult(FINISHED, resultIntent);
-    	finish();    
     }
 }

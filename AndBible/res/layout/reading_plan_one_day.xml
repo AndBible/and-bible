@@ -10,11 +10,15 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
+   	<include layout="@layout/title_bar"
+   	    android:id="@+id/titleBar"
+   	    android:layout_alignParentTop="true"/>
+   	
     <LinearLayout android:id="@+id/top_text"
         android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-		android:layout_alignParentTop="true"
+        android:layout_below="@id/titleBar"
     	android:layout_margin="10dip">
 	   	<TextView android:id="@+id/description"
 			android:textAppearance="?android:attr/textAppearanceMedium"

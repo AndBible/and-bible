@@ -135,7 +135,6 @@
     <!-- Daily Reading Plan -->
     <string name="rdg_plan_title">Reading Plan</string>
     <string name="rdg_plan_selector_title">Choose a Reading Plan</string>
-    <string name="rdg_plan_selected_confirmation">Start Reading Plan?</string>
     <string name="rdg_plan_day">Day %s</string>
     <string name="done">Done</string>
     <string name="rdg_plan_m1gospels">Through the Gospels in a month</string>
