@@ -73,7 +73,7 @@ public class ReadingPlanDao {
 		Log.d(TAG, "Readings for day:"+readings);
 		return new OneDaysReadingsDto(dayNo, readings, getReadingPlanInfoDto(planName));
 	}
-	
+
 	public int getNumberOfPlanDays(String planCode) {
 		return getPlanProperties(planCode).size();
 	}

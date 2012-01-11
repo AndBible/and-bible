@@ -4,8 +4,8 @@ package net.bible.android.control.readingplan;
  */
 public class HistoricReadingStatus extends ReadingStatus {
 
-	public HistoricReadingStatus(String planCode, int day) {
-		super(planCode, day);
+	public HistoricReadingStatus(String planCode, int day, int numReadings) {
+		super(planCode, day, numReadings);
 	}
 
 	@Override

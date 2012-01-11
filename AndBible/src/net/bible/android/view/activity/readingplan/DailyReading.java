@@ -41,11 +41,15 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	private TextView mDateView;
 //	private TextView mStatusMsgView; //unused
 	private List<ImageTickOnOff> mImageTickOnOffList;
+	private Button mDoneButton;
 	
 	private int mDay;
 	public static final String DAY = "day";
 	
 	private OneDaysReadingsDto mReadings;
+
+	// user has not done any readings since navigating here
+	private boolean mIsUserJustEntered = true;
 	
 	private ReadingPlanControl mReadingPlanControl = ControlFactory.getInstance().getReadingPlanControl();
 	
@@ -57,6 +61,8 @@ public class DailyReading extends CustomTitlebarActivityBase {
         setContentView(R.layout.reading_plan_one_day);
         
         try {
+        	mIsUserJustEntered = true;
+        	
 			// may not be for current day if user presses forward or backward
 	        mDay = mReadingPlanControl.getCurrentPlanDay();
 			Bundle extras = getIntent().getExtras();
@@ -75,6 +81,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	        mDateView =  (TextView)findViewById(R.id.date);
 	        mDateView.setText(mReadings.getReadingDateString());
 	
+	        mDoneButton = (Button)findViewById(R.id.doneButton);
 //	        mStatusMsgView =  (TextView)findViewById(R.id.status_message);
 	        
 	        mImageTickOnOffList = new ArrayList<ImageTickOnOff>();
@@ -115,7 +122,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	            layout.addView(child, readingNo);
 	        }
 	
-	        updateTicks();
+	        updateTicksAndDone();
 	        
 	        // All
 	        View child = getLayoutInflater().inflate(R.layout.reading_plan_one_reading, null);
@@ -169,7 +176,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
     	Key readingKey = mReadings.getReadingKey(readingNo);
     	mReadingPlanControl.speak(mDay, readingNo, readingKey);
     	
-    	updateTicks();
+    	updateTicksAndDone();
     }
     /** user pressed speak button by All
 	 */
@@ -177,7 +184,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
     	Log.i(TAG, "Speak all");
     	mReadingPlanControl.speak(mDay, mReadings.getReadingKeys());
     	
-    	updateTicks();
+    	updateTicksAndDone();
     }
 
     public void onNext(View view) {
@@ -202,9 +209,16 @@ public class DailyReading extends CustomTitlebarActivityBase {
     
     public void onDone(View view) {
     	Log.i(TAG, "Done");
+    	// all readings must be ticked for this to be enabled
     	//TODO mark readings complete
-    	mReadingPlanControl.completed(mReadings.getReadingPlanInfo(), mDay);
-    	finish();
+    	mReadingPlanControl.done(mReadings.getReadingPlanInfo(), mDay);
+    	//if user has just entered then go to next days readings
+    	if (mIsUserJustEntered) {
+    		onNext(null);
+    	} else {
+    		// looks like user has actively read today's readings and just finished
+        	finish();
+    	}
     }
 
     /** I don't think this is used because of hte finish() in onSearch()
@@ -216,8 +230,9 @@ public class DailyReading extends CustomTitlebarActivityBase {
     	}
     }
 
-	private void updateTicks() {
+	private void updateTicksAndDone() {
 		ReadingStatus status = mReadingPlanControl.getReadingStatus(mDay);
+		
 		for (int i=0; i<mImageTickOnOffList.size(); i++) {
 			ImageTickOnOff imageTickOnOff = mImageTickOnOffList.get(i);
 			if (status.isRead(i)) {
@@ -228,6 +243,8 @@ public class DailyReading extends CustomTitlebarActivityBase {
 				imageTickOnOff.unticked.setVisibility(View.VISIBLE);
 			}
 		}
+		
+		mDoneButton.setEnabled(status.isAllRead());
 	}
 	
 	private static class ImageTickOnOff {

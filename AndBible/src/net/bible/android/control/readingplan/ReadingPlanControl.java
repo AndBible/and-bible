@@ -68,14 +68,17 @@ public class ReadingPlanControl {
 	/** get read status of this days readings
 	 */
 	public ReadingStatus getReadingStatus(int day) {
+		String planCode = getCurrentPlanCode();
+		
 		if (readingStatus==null || 
-			!readingStatus.getPlanCode().equals(getCurrentPlanCode()) ||
+			!readingStatus.getPlanCode().equals(planCode) ||
 			readingStatus.getDay() != day) {
+			OneDaysReadingsDto oneDaysReadingsDto = readingPlanDao.getReading(planCode, day);
 			// if Historic then return historic status that returns read=true for all passages
 			if (day<getCurrentPlanDay()) {
-				readingStatus = new HistoricReadingStatus(getCurrentPlanCode(), day);
+				readingStatus = new HistoricReadingStatus(getCurrentPlanCode(), day, oneDaysReadingsDto.getNumReadings());
 			} else {
-				readingStatus = new ReadingStatus(getCurrentPlanCode(), day);
+				readingStatus = new ReadingStatus(getCurrentPlanCode(), day, oneDaysReadingsDto.getNumReadings());
 			}
 		}
 		return readingStatus;
@@ -88,7 +91,7 @@ public class ReadingPlanControl {
 		return day;
 	}
 
-	public void completed(ReadingPlanInfoDto planInfo, int day) {
+	public void done(ReadingPlanInfoDto planInfo, int day) {
 		if (getCurrentPlanDay() >= day) {
 			// do not leave prefs for historic days - we show all historic readings as 'read'
 			getReadingStatus(day).delete();

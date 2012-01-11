@@ -9,15 +9,18 @@ public class ReadingStatus {
 
 	private String planCode;
 	private int day;
+	private int numReadings;
+	
 	// there won't be any more than 10 readings per day in any plan
 	private BitSet status = new BitSet(4);
 	private static final char ONE = '1';
 	private static final char ZERO = '0';
 
-	public ReadingStatus(String planCode, int day) {
+	public ReadingStatus(String planCode, int day, int numReadings) {
 		super();
 		this.planCode = planCode;
 		this.day = day;
+		this.numReadings = numReadings;
 		reloadStatus();
 	}
 
@@ -28,6 +31,14 @@ public class ReadingStatus {
 	
 	public boolean isRead(int readingNo) {
 		return status.get(readingNo);
+	}
+	public boolean isAllRead() {
+		for (int i=0; i<numReadings; i++) {
+			if (!isRead(i)) {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/** do not leave prefs around for historic days
