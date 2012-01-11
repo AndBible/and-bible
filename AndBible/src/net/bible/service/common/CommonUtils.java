@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Properties;
 
 import net.bible.android.BibleApplication;
@@ -270,5 +272,14 @@ public class CommonUtils {
 			}
 		}
 		return r.toString();
+	}
+	
+	public static Date getTruncatedDate() {
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.HOUR, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MILLISECOND, 0);
+		return calendar.getTime();
 	}
 }

@@ -1,6 +1,9 @@
 package net.bible.service.readingplan;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import net.bible.android.BibleApplication;
@@ -38,6 +41,20 @@ public class OneDaysReadingsDto implements Comparable<OneDaysReadingsDto> {
 	
 	public String getDayDesc() {
 		return BibleApplication.getApplication().getString(R.string.rdg_plan_day, mDay);
+	}
+
+	/** get a string representing the date this reading is planned for
+	 */
+	public String getReadingDateString() {
+		String dateString = "";
+		Date startDate = mReadingPlanInfoDto.getStartdate();
+		if (startDate!=null) {
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(startDate);
+			cal.add(Calendar.DAY_OF_MONTH, mDay-1);
+			dateString = SimpleDateFormat.getDateInstance().format(cal.getTime());
+		}
+		return dateString;
 	}
 	
 	public String getReadingsDesc() {

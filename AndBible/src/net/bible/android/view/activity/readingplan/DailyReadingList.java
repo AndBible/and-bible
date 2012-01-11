@@ -6,7 +6,6 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.readingplan.ReadingPlanControl;
 import net.bible.android.view.activity.base.ListActivityBase;
-import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.service.readingplan.OneDaysReadingsDto;
 import android.content.Intent;
 import android.os.Bundle;

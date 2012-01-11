@@ -38,7 +38,8 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	
 	private TextView mDescriptionView;
 	private TextView mDayView;
-	private TextView mStatusMsgView;
+	private TextView mDateView;
+//	private TextView mStatusMsgView; //unused
 	private List<ImageTickOnOff> mImageTickOnOffList;
 	
 	private int mDay;
@@ -68,11 +69,13 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	        mDescriptionView =  (TextView)findViewById(R.id.description);
 	        mDescriptionView.setText(mReadings.getReadingPlanInfo().getDescription());
 	
+	        // date display
 	        mDayView =  (TextView)findViewById(R.id.day);
 	        mDayView.setText(mReadings.getDayDesc());
+	        mDateView =  (TextView)findViewById(R.id.date);
+	        mDateView.setText(mReadings.getReadingDateString());
 	
-	        mStatusMsgView =  (TextView)findViewById(R.id.status_message);
-	        mStatusMsgView.setText("Status goes here");
+//	        mStatusMsgView =  (TextView)findViewById(R.id.status_message);
 	        
 	        mImageTickOnOffList = new ArrayList<ImageTickOnOff>();
 	        
@@ -200,7 +203,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
     public void onDone(View view) {
     	Log.i(TAG, "Done");
     	//TODO mark readings complete
-    	mReadingPlanControl.completed(mDay);
+    	mReadingPlanControl.completed(mReadings.getReadingPlanInfo(), mDay);
     	finish();
     }
 
@@ -294,44 +297,4 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	protected void preferenceSettingsChanged() {
 		// TODO Auto-generated method stub
 	}
-	
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//    	super.onCreateOptionsMenu(menu);
-//        MenuInflater inflater = getMenuInflater();
-//        inflater.inflate(R.menu.reading_plan, menu);
-//        return true;
-//    }
-//
-//	/** 
-//     * on Click handlers
-//     */
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        boolean isHandled = false;
-//        int requestCode = ActivityBase.STD_REQUEST_CODE;
-//        
-//    	// Activities
-//    	{
-//    		Intent handlerIntent = null;
-//	        // Handle item selection
-//	        switch (item.getItemId()) {
-//	        case R.id.dailyReadingPlanSelectionButton:
-//        		handlerIntent = new Intent(this, ReadingPlanSelectorList.class);
-//	        	break;
-//	        }
-//	        
-//	        if (handlerIntent!=null) {
-//	        	startActivityForResult(handlerIntent, requestCode);
-//	        	finish();
-//	        	isHandled = true;
-//	        } 
-//    	}
-//
-//     	if (!isHandled) {
-//            isHandled = super.onOptionsItemSelected(item);
-//        }
-//        
-//     	return isHandled;
-//    }
 }

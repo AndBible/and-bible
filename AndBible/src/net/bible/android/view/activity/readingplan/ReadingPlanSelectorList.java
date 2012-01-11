@@ -10,7 +10,12 @@ import net.bible.service.readingplan.ReadingPlanInfoDto;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -41,7 +46,8 @@ public class ReadingPlanSelectorList extends ListActivityBase {
 
        	mPlanArrayAdapter = new ReadingPlanItemAdapter(this, LIST_ITEM_TYPE, mReadingPlanList);
         setListAdapter(mPlanArrayAdapter);
-            
+           
+    	registerForContextMenu(getListView());
         Log.d(TAG, "Finished displaying Reading Plan list");
     }
  
@@ -59,5 +65,29 @@ public class ReadingPlanSelectorList extends ListActivityBase {
 			Log.e(TAG, "Plan selection error", e);
 			showErrorMsg(R.string.error_occurred);
 		}
+	}
+    
+    @Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.reading_plan_list_context_menu, menu);
+	}
+
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		super.onContextItemSelected(item);
+        AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
+		ReadingPlanInfoDto plan = mReadingPlanList.get(menuInfo.position);
+		Log.d(TAG, "Selected "+plan.getCode());
+		if (plan!=null) {
+			switch (item.getItemId()) {
+			case (R.id.reset):
+				mReadingPlanControl.reset(plan);
+				return true;
+			}
+		}
+		return false; 
 	}
 }

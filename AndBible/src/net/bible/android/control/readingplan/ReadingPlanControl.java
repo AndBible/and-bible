@@ -1,7 +1,6 @@
 package net.bible.android.control.readingplan;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import net.bible.android.control.page.CurrentPageManager;
@@ -31,7 +30,6 @@ public class ReadingPlanControl {
 	
 	private static final String READING_PLAN = "reading_plan";
 	private static final String READING_PLAN_DAY_EXT = "_day";
-	private static final String READING_PLAN_START_EXT = "_start";
 	
 	private ReadingStatus readingStatus;
 	
@@ -50,16 +48,14 @@ public class ReadingPlanControl {
 	/** User has chosen to start a plan
 	 */
 	public void startReadingPlan(ReadingPlanInfoDto plan) {
+		// set default plan to this
 		SharedPreferences prefs = CommonUtils.getSharedPreferences();
-		String currentPlan = prefs.getString(READING_PLAN, null);
-
-		// if changing plan
-		if (!plan.getCode().equals(currentPlan)) {
-			Editor editablePrefs = prefs.edit();
-			editablePrefs.putString(READING_PLAN, plan.getCode());
-			editablePrefs.putLong(plan.getCode()+READING_PLAN_START_EXT, new Date().getTime());
-			editablePrefs.commit();
-		}
+		prefs.edit()
+			.putString(READING_PLAN, plan.getCode())
+			.commit();
+			
+		// tell the plan to set a start date
+		plan.start();
 	}
 
 	/** get list of days and readings for a plan so user can see the plan in advance
@@ -92,13 +88,13 @@ public class ReadingPlanControl {
 		return day;
 	}
 
-	public void completed(int day) {
+	public void completed(ReadingPlanInfoDto planInfo, int day) {
 		if (getCurrentPlanDay() >= day) {
 			// do not leave prefs for historic days - we show all historic readings as 'read'
 			getReadingStatus(day).delete();
 			
 			if (readingPlanDao.getNumberOfPlanDays(getCurrentPlanCode()) == day) {
-				resetCurrentPlan();
+				reset(planInfo);
 			} else {
 				setCurrentPlanDay(day+1);
 			}
@@ -159,18 +155,21 @@ public class ReadingPlanControl {
 	
 	/** User has chosen to start a plan
 	 */
-	private void resetCurrentPlan() {
+	public void reset(ReadingPlanInfoDto plan) {
+		plan.reset();
+		
 		SharedPreferences prefs = CommonUtils.getSharedPreferences();
-		String currentPlan = prefs.getString(READING_PLAN, null);
+		Editor prefsEditor = prefs.edit();
 
 		// if changing plan
-		if (!StringUtils.isEmpty(currentPlan)) {
-			prefs.edit()
-				.remove(READING_PLAN)
-				.remove(currentPlan+READING_PLAN_START_EXT)
-				.remove(currentPlan+READING_PLAN_DAY_EXT)
-				.commit();
+		if (plan.equals(getCurrentPlanCode())) {
+			prefsEditor.remove(READING_PLAN);
 		}
+		
+		prefsEditor.remove(plan.getCode()+ReadingPlanInfoDto.READING_PLAN_START_EXT);
+		prefsEditor.remove(plan.getCode()+READING_PLAN_DAY_EXT);
+
+		prefsEditor.commit();
 	}
 
 	private String getCurrentPlanCode() {
