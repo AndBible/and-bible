@@ -6,7 +6,7 @@
   <string name="no_sdcard_error">Sett inn ett SD-kort og start And Bible på nytt.</string>
   <string name="version_text">Versjon %s</string>
   <!-- main menu -->
-  <string name="chooseBook">Dokument</string>
+  <string name="chooseBook">Moduler</string>
   <string name="selectPassage">Avsnitt</string>
   <string name="search">Finn</string>
   <string name="settings">Innstillinger</string>
@@ -74,13 +74,13 @@
   <string name="notes">Notater og kryssreferanser</string>
   <string name="copy">Kopier dette verset</string>
   <!-- Dictionary -->
-  <string name="dictionary">Ordbok</string>
+  <string name="dictionary">Bibelordbok</string>
   <string name="search_dictionary_hint">Søk i ordbok</string>
   <string name="dictionary_contents">Innhold</string>
   <!-- Document types -->
-  <string name="doc_type_bible">Bibel</string>
-  <string name="doc_type_commentary">Kommentar</string>
-  <string name="doc_type_dictionary">Ordbok</string>
+  <string name="doc_type_bible">Bibler</string>
+  <string name="doc_type_commentary">Bibelkommentarer</string>
+  <string name="doc_type_dictionary">Bibelordbøker</string>
   <string name="error_occurred">En feil har oppstått</string>
   <string name="okay">OK</string>
   <string name="cancel">Avbryt</string>
@@ -102,7 +102,7 @@
   <string name="choosePassageVerseName">Velg vers</string>
   <string name="delete_index">Slett søkeregister</string>
   <string name="delete_search_index_doc">Slette søkeregister for %s?</string>
-  <string name="doc_type_book">Bok</string>
+  <string name="doc_type_book">Bøker</string>
   <string name="error_key_not_in_document">Ikke funnet i modulen</string>
   <string name="error_no_content">Ikke noe innhold i dette verset</string>
   <string name="error_page_too_large">Siden er for stor til å laste inn</string>
@@ -157,4 +157,4 @@
   <string name="storage_space_warning">Ikke nok lokal lagringsplass.</string>
   <string name="strongs_toggle_button_off">nnnn</string>
   <string name="strongs_toggle_button_on">nnnn</string>
-</resources>
+<string name="empty_list">Ingen data å vise</string><string name="prefs_show_bookmarks_summary">Vis ikon i bokmerkede vers</string><string name="prefs_show_bookmarks_title">Vis bokmerkeikon</string><string name="prefs_tilt_to_scroll_summary">Rull siden opp/ned ved å helle på enheten</string><string name="prefs_tilt_to_scroll_title">Hell for å rulle siden</string></resources>
