@@ -90,7 +90,7 @@
     <string name="prefs_red_letter_title">Red Letter</string>
     <string name="prefs_red_letter_summary">Show words of Christ in red</string>
     <string name="prefs_tilt_to_scroll_title">Tilt to scroll</string>
-    <string name="prefs_tilt_to_scroll_summary">Tilt device to scroll page up/down</string>
+    <string name="prefs_tilt_to_scroll_summary">Tilt device to scroll page down</string>
     <string name="prefs_night_mode_title">Night mode</string>
     <string name="prefs_night_mode_summary">For easier reading in the dark</string>
     <string name="prefs_navigate_to_verse_title">Navigate to verse</string>

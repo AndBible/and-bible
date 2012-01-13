@@ -31,11 +31,11 @@ public class PageTiltScrollControl {
 	private int mNoScrollViewingPitch = -38;
 	private boolean mNoScrollViewingPitchCalculated = false;
 	
-	private static final int NO_SCROLL_VIEWING_TOLERANCE = 3;
-	private static final int NO_SPEED_INCREASE_VIEWING_TOLERANCE = 6;
+	private static final int NO_SCROLL_VIEWING_TOLERANCE = 0; //3;
+	private static final int NO_SPEED_INCREASE_VIEWING_TOLERANCE = 0; //6;
 	
 	// this is decreased (subtracted from) to speed up scrolling
-	private static int BASE_TIME_BETWEEN_SCROLLS = 40;
+	private static int BASE_TIME_BETWEEN_SCROLLS = 60; //40;
 	
 	// current pitch of phone - varies dynamically
 	private float[] mOrientationValues;
@@ -77,13 +77,14 @@ public class PageTiltScrollControl {
 				// speedUp if tilt screen beyond a certain amount
 				if (tiltScrollInfo.forward) {
 					speedUp = Math.max(0, devianceFromViewingAngle-NO_SCROLL_VIEWING_TOLERANCE-NO_SPEED_INCREASE_VIEWING_TOLERANCE);
-				} else {
-					// speed up faster if going back because you don't read backwards but just want to move quickly
-					speedUp = Math.max(0, devianceFromViewingAngle-NO_SCROLL_VIEWING_TOLERANCE);
-				}
 
-				// speedup could be done by increasing scroll amount but that leads to a jumpy screen
-				tiltScrollInfo.scrollPixels = 1;
+					// speedup could be done by increasing scroll amount but that leads to a jumpy screen
+					tiltScrollInfo.scrollPixels = 1;
+				} else {
+					// TURNED OFF UPSCROLL
+					speedUp = 0;
+					tiltScrollInfo.scrollPixels = 0;
+				}
 			}
 		}
 		if (mIsTiltScrollEnabled) {
