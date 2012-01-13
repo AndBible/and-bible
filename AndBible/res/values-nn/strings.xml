@@ -15,7 +15,7 @@
     <string name="no_sdcard_error">Vennleg koble til SD-kort og start And Bible opp att.</string>
 
     <!-- main menu -->
-    <string name="chooseBook">Modul</string>
+    <string name="chooseBook">Modular</string>
     <string name="selectPassage">Bibelvers</string>
     <string name="search">Søk</string>
     <string name="settings">Innstillingar</string>
@@ -60,7 +60,7 @@
     <!-- Preferences -->
     <string name="prefs_show_verseno_title">Versnummerering</string>
     <string name="prefs_show_verseno_summary">Vis versnummer</string>
-    <string name="prefs_verse_per_line_title">Eit vers per linje</string>
+    <string name="prefs_verse_per_line_title">Eit vers per line</string>
     <string name="prefs_verse_per_line_summary">Vis vers på kvar si line</string>
     <string name="prefs_show_mynotes_title">Vis notatikon</string>
     <string name="prefs_show_mynotes_summary">Vis ikon i vers med notat</string>
@@ -81,7 +81,7 @@
     <string name="prefs_text_size_title">Tekststorleik</string>
     <string name="prefs_text_size_summary">Sjå meir eller klarare</string>
     <string name="prefs_text_size_sample_text">Eksempeltekst</string>
-        <string name="prefs_interface_locale_title">Applikasjonsspråk</string>
+        <string name="prefs_interface_locale_title">Språk</string>
     <string name="prefs_interface_locale_summary">Vel språk</string>
     <string name="locale_change_warning">Applikasjonen vil starte opp att for å endre til det nye språket</string>
 
@@ -141,7 +141,7 @@
     <string name="new_label_prompt">Namn</string>
 
     <!-- Dictionary -->
-    <string name="dictionary">Ordbok</string>
+    <string name="dictionary">Bibelordbøker</string>
     <string name="search_dictionary_hint">Søk i ordboka</string>
     <string name="dictionary_contents">Innhald</string>
 
@@ -176,10 +176,10 @@
     <string name="mynote_saved">Notat lagra</string>
 
     <!-- Document types -->
-    <string name="doc_type_bible">Bibel</string>
-    <string name="doc_type_commentary">Kommentar</string>
-    <string name="doc_type_dictionary">Ordbok</string>
-    <string name="doc_type_book">Bok</string>
+    <string name="doc_type_bible">Biblar</string>
+    <string name="doc_type_commentary">Bibelkommentarar</string>
+    <string name="doc_type_dictionary">Bibelordbøker</string>
+    <string name="doc_type_book">Bøker</string>
 
     <!-- Languages -->
     <string name="lang_default">Standard</string>
@@ -192,7 +192,7 @@
     <string name="error">Feil</string>
     <string name="more">Meir</string>
     <string name="retry">Prøv om att</string>
-    <string name="please_wait">Vennelg vent...</string>
+    <string name="please_wait">Vennleg vent...</string>
     <string name="all">Alle</string>
     
     <!-- Errors -->
@@ -200,4 +200,4 @@
     <string name="error_no_content">Ikkje noko innhald i verset</string>
     <string name="error_page_too_large">Sida er for stor til å laste</string>
     <string name="error_key_not_in_document">Ikkje funne i modulen</string>
-</resources>
+<string name="empty_list">Inkje data å syne</string><string name="prefs_show_bookmarks_summary">Syn ikon i bokmerkede vers</string><string name="prefs_show_bookmarks_title">Syn bokmerkeikon</string><string name="prefs_tilt_to_scroll_summary">Hell på eininga for å rulle side opp/ned</string><string name="prefs_tilt_to_scroll_title">Hell for å rulle sida</string></resources>
