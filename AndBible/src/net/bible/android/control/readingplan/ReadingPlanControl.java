@@ -57,6 +57,13 @@ public class ReadingPlanControl {
 		plan.start();
 	}
 
+	/** Adjust the start date to Jan 1
+	 */
+	public void setStartToJan1(ReadingPlanInfoDto plan) {
+		// tell the plan to set a start date
+		plan.setStartToJan1();
+	}
+			
 	/** change default plan
 	 */
 	public void setReadingPlan(String planCode) {
@@ -103,6 +110,10 @@ public class ReadingPlanControl {
 	public long getDueDay(ReadingPlanInfoDto planInfo) {
 		Date today = CommonUtils.getTruncatedDate();
 		Date startDate = planInfo.getStartdate();
+		if (startDate==null) {
+			return 0;
+		}
+		
 		// should not need to round as we use truncated dates, but safety first
 		int diffInDays = Math.round(today.getTime() - startDate.getTime())/(1000*60*60*24);
 		
@@ -205,8 +216,8 @@ public class ReadingPlanControl {
 		SharedPreferences prefs = CommonUtils.getSharedPreferences();
 		Editor prefsEditor = prefs.edit();
 
-		// if changing plan
-		if (plan.equals(getCurrentPlanCode())) {
+		// if resetting default plan then remove default
+		if (plan.getCode().equals(getCurrentPlanCode())) {
 			prefsEditor.remove(READING_PLAN);
 		}
 		

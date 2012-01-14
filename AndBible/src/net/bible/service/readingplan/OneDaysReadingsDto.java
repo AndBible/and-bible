@@ -99,6 +99,7 @@ public class OneDaysReadingsDto implements Comparable<OneDaysReadingsDto> {
 	}
 
 	public List<Key> getReadingKeys() {
+		checkKeysGenerated();
 		return mReadingKeys;
 	}
 

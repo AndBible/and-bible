@@ -6,7 +6,10 @@
       The copyright to this program is held by it's author.
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@+id/dailyReadingPlanSelectionButton" 
-		  android:title="@string/rdg_plan_selector_title"
-		  android:icon="@android:drawable/ic_menu_month"/>
+	<item android:id="@+id/setStartToJan1" 
+		  android:title="@string/rdg_plan_set_start_jan1"
+		  android:icon="@android:drawable/ic_menu_day"/>
+	<item android:id="@+id/reset" 
+		  android:title="@string/reset"
+		  android:icon="@android:drawable/ic_menu_delete"/>
 </menu>

@@ -19,6 +19,9 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -341,4 +344,46 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	protected void preferenceSettingsChanged() {
 		// TODO Auto-generated method stub
 	}
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.reading_plan, menu);
+        return true;
+    }
+
+	/** 
+     * on Click handlers
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        boolean isHandled = false;
+        
+        switch (item.getItemId()) {
+		case (R.id.reset):
+			mReadingPlanControl.reset(mReadings.getReadingPlanInfo());
+			finish();
+			isHandled = true;
+			break;
+		case (R.id.setStartToJan1):
+			mReadingPlanControl.setStartToJan1(mReadings.getReadingPlanInfo());
+		
+			// refetch readings for chosen day
+	        mReadings = mReadingPlanControl.getDaysReading(mDay);
+	        
+	        // update date and day no
+	        mDateView.setText(mReadings.getReadingDateString());
+			mDayView.setText(mReadings.getDayDesc());
+			
+			isHandled = true;
+			break;
+        }
+        
+		if (!isHandled) {
+            isHandled = super.onOptionsItemSelected(item);
+        }
+        
+     	return isHandled;
+    }
 }

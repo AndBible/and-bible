@@ -19,7 +19,6 @@ import net.bible.android.view.activity.settings.SettingsActivity;
 import net.bible.android.view.activity.speak.Speak;
 import net.bible.android.view.util.DataPipe;
 import net.bible.service.common.CommonUtils;
-import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
