@@ -31,11 +31,11 @@ public class PageTiltScrollControl {
 	private int mNoScrollViewingPitch = -38;
 	private boolean mNoScrollViewingPitchCalculated = false;
 	
-	private static final int NO_SCROLL_VIEWING_TOLERANCE = 0; //3;
+	private static final int NO_SCROLL_VIEWING_TOLERANCE = 1; //3;
 	private static final int NO_SPEED_INCREASE_VIEWING_TOLERANCE = 0; //6;
 	
 	// this is decreased (subtracted from) to speed up scrolling
-	private static int BASE_TIME_BETWEEN_SCROLLS = 60; //40;
+	private static int BASE_TIME_BETWEEN_SCROLLS = 70; //40;
 	
 	// current pitch of phone - varies dynamically
 	private float[] mOrientationValues;
