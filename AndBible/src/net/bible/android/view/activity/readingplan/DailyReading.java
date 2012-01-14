@@ -44,13 +44,12 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	private Button mDoneButton;
 	
 	private int mDay;
-	public static final String DAY = "day";
+	
+	public static final String PLAN = "net.bible.android.view.activity.readingplan.Plan";
+	public static final String DAY = "net.bible.android.view.activity.readingplan.Day";
 	
 	private OneDaysReadingsDto mReadings;
 
-	// user has not done any readings since navigating here
-	private boolean mIsUserJustEntered = true;
-	
 	private ReadingPlanControl mReadingPlanControl = ControlFactory.getInstance().getReadingPlanControl();
 	
     /** Called when the activity is first created. */
@@ -61,16 +60,22 @@ public class DailyReading extends CustomTitlebarActivityBase {
         setContentView(R.layout.reading_plan_one_day);
         
         try {
-        	mIsUserJustEntered = true;
-        	
 			// may not be for current day if user presses forward or backward
 	        mDay = mReadingPlanControl.getCurrentPlanDay();
 			Bundle extras = getIntent().getExtras();
 			if (extras != null) {
-				mDay = extras.getInt(DAY, mDay);
+				if (extras.containsKey(PLAN)) {
+					mReadingPlanControl.setReadingPlan(extras.getString(PLAN));
+				}
+				if (extras.containsKey(DAY)) {
+					mDay = extras.getInt(DAY, mDay);
+				}
 			}
-	
+
+			// get readings for chosen day
 	        mReadings = mReadingPlanControl.getDaysReading(mDay);
+	        
+	        // Populate view
 	        
 	        mDescriptionView =  (TextView)findViewById(R.id.description);
 	        mDescriptionView.setText(mReadings.getReadingPlanInfo().getDescription());
@@ -124,29 +129,31 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	
 	        updateTicksAndDone();
 	        
-	        // All
-	        View child = getLayoutInflater().inflate(R.layout.reading_plan_one_reading, null);
-	
-	        // hide the tick
-	        ImageView tick = (ImageView)child.findViewById(R.id.tick_off);
-	        tick.setVisibility(View.INVISIBLE);
-	        
-	        // Passage description
-	        TextView rdgText = (TextView)child.findViewById(R.id.passage);
-	        rdgText.setText(getResources().getString(R.string.all));
-	
-	        Button passageBtn = (Button)child.findViewById(R.id.readButton);
-	        passageBtn.setVisibility(View.INVISIBLE);
-	        
-	        Button speakBtn = (Button)child.findViewById(R.id.speakButton);
-	        speakBtn.setOnClickListener(new OnClickListener() {
-				
-				@Override
-				public void onClick(View v) {
-					onSpeakAll(null);
-				}
-			});
-	        layout.addView(child, mReadings.getNumReadings());
+	        // Speak All
+	        if (mReadings.getNumReadings()>1) {
+		        View child = getLayoutInflater().inflate(R.layout.reading_plan_one_reading, null);
+		
+		        // hide the tick
+		        ImageView tick = (ImageView)child.findViewById(R.id.tick_off);
+		        tick.setVisibility(View.INVISIBLE);
+		        
+		        // Passage description
+		        TextView rdgText = (TextView)child.findViewById(R.id.passage);
+		        rdgText.setText(getResources().getString(R.string.all));
+		
+		        Button passageBtn = (Button)child.findViewById(R.id.readButton);
+		        passageBtn.setVisibility(View.INVISIBLE);
+		        
+		        Button speakBtn = (Button)child.findViewById(R.id.speakButton);
+		        speakBtn.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View v) {
+						onSpeakAll(null);
+					}
+				});
+		        layout.addView(child, mReadings.getNumReadings());
+	        }
 	        // end All
 	        
 	        // show reading plan and current day in titlebar
@@ -187,6 +194,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
     	updateTicksAndDone();
     }
 
+    // the button that called this has been removed
     public void onNext(View view) {
     	Log.i(TAG, "Next");
     	if (mDay<mReadings.getReadingPlanInfo().getNumberOfPlanDays()) {
@@ -197,6 +205,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
     	}
     }
 
+    // the button that called this has been removed
     public void onPrevious(View view) {
     	Log.i(TAG, "Previous");
     	if (mDay>1) {
@@ -209,17 +218,35 @@ public class DailyReading extends CustomTitlebarActivityBase {
     
     public void onDone(View view) {
     	Log.i(TAG, "Done");
+    	
+    	// do not add to History list because it will just redisplay same page
+    	setIntegrateWithHistoryManager(false);
+    	
     	// all readings must be ticked for this to be enabled
-    	//TODO mark readings complete
     	mReadingPlanControl.done(mReadings.getReadingPlanInfo(), mDay);
-    	//if user has just entered then go to next days readings
-    	if (mIsUserJustEntered) {
+    	
+    	//if user is behind then go to next days readings
+    	if (mReadingPlanControl.isDueToBeRead(mReadings.getReadingPlanInfo(), mDay+1)) {
     		onNext(null);
     	} else {
-    		// looks like user has actively read today's readings and just finished
+    		// else exit
         	finish();
     	}
+
+    	// if we move away then add to history list
+    	setIntegrateWithHistoryManager(true);
     }
+    
+    /** allow activity to enhance intent to correctly restore state */
+	public Intent getIntentForHistoryList() {
+		Intent intent = getIntent();
+		
+		intent.putExtra(DailyReading.PLAN, mReadings.getReadingPlanInfo().getCode());
+		intent.putExtra(DailyReading.DAY, mReadings.getDay());
+
+		return intent;
+	}
+
 
     /** I don't think this is used because of hte finish() in onSearch()
      */

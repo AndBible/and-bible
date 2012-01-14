@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.base;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 public interface AndBibleActivity {
@@ -8,5 +9,10 @@ public interface AndBibleActivity {
     
     /** allow HistoryManager to know if integration is required */
 	public boolean isIntegrateWithHistoryManager();
+	
+    /** allow HistoryManager to know if integration is required */
+	public void setIntegrateWithHistoryManager(boolean integrateWithHistoryManager);
 
+    /** allow activity to enhance intent to correctly restore state */
+	public Intent getIntentForHistoryList();
 }

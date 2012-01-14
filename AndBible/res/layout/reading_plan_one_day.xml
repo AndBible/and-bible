@@ -59,36 +59,31 @@
     
 	<!-- Button bar -->
 	<LinearLayout android:id="@+id/button_panel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        style="@android:style/ButtonBar"
-	    android:layout_alignParentBottom="true">
-
-	  	<Button android:id="@+id/prevButton"
-	 		android:text="&lt;"
-	 		android:textSize="20dip"
-			android:onClick="onPrevious"
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentBottom="true"
+	    android:orientation="horizontal"
+	    style="@android:style/ButtonBar">
+	    <!-- Left spacer -->
+	    <View
 	        android:layout_width="0dip"
-	        android:layout_height="wrap_content"
+	        android:layout_height="fill_parent"
 	        android:layout_weight="1"/>
-
-	  	<Button android:id="@+id/doneButton"
-	 		android:text="@string/done"
+	
+	 	<Button android:id="@+id/doneButton"
+ 			android:text="@string/done"
 			android:onClick="onDone"
 	        android:layout_width="0dip"
 	        android:layout_height="wrap_content"
 	        android:layout_weight="2"/>
 
-	  	<Button android:id="@+id/nextButton"
-	 		android:text="&gt;"
-	 		android:textSize="20dip"
-			android:onClick="onNext"
+	    <!-- Right spacer -->
+	    <View
 	        android:layout_width="0dip"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="1"/>
-	  	
+	        android:layout_height="fill_parent"
+	        android:layout_weight="1"
+	    />
 	</LinearLayout>
-	
+		
 </RelativeLayout>
 

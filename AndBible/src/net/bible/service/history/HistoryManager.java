@@ -69,7 +69,7 @@ public class HistoryManager {
 		} else if (currentActivity instanceof AndBibleActivity) {
 			AndBibleActivity andBibleActivity = (AndBibleActivity)currentActivity;
 			if (andBibleActivity.isIntegrateWithHistoryManager()) {
-				historyItem = new IntentHistoryItem(currentActivity.getTitle(), currentActivity.getIntent());
+				historyItem = new IntentHistoryItem(currentActivity.getTitle(), ((AndBibleActivity) currentActivity).getIntentForHistoryList());
 			}
 		}
 		return historyItem;

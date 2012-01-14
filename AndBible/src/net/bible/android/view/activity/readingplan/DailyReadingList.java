@@ -27,7 +27,7 @@ public class DailyReadingList extends ListActivityBase {
 	private ReadingPlanControl mReadingPlanControl = ControlFactory.getInstance().getReadingPlanControl();
 	
 	private List<OneDaysReadingsDto> mReadingsList;
-    private ArrayAdapter mAdapter;
+    private ArrayAdapter<OneDaysReadingsDto> mAdapter;
 
     /** Called when the activity is first created. */
     @Override

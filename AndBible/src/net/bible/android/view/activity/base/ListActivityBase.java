@@ -119,6 +119,15 @@ public class ListActivityBase extends ListActivity implements AndBibleActivity {
 	public boolean isIntegrateWithHistoryManager() {
 		return commonActivityBase.isIntegrateWithHistoryManager();
 	}
+	@Override
+	public void setIntegrateWithHistoryManager(boolean integrateWithHistoryManager) {
+		commonActivityBase.setIntegrateWithHistoryManager(integrateWithHistoryManager);
+	}
+
+    /** allow activity to enhance intent to correctly restore state */
+	public Intent getIntentForHistoryList() {
+		return getIntent();
+	}
 
 	public void showErrorMsg(int msgResId) {
 		Dialogs.getInstance().showErrorMsg(msgResId);

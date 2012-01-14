@@ -1,6 +1,7 @@
 package net.bible.android.control.readingplan;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import net.bible.android.control.page.CurrentPageManager;
@@ -20,8 +21,9 @@ import android.content.SharedPreferences.Editor;
 
 /** Control status of reading plans
  * 
- * @author denha1m
- *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class ReadingPlanControl {
 
@@ -48,16 +50,23 @@ public class ReadingPlanControl {
 	/** User has chosen to start a plan
 	 */
 	public void startReadingPlan(ReadingPlanInfoDto plan) {
-		// set default plan to this
-		SharedPreferences prefs = CommonUtils.getSharedPreferences();
-		prefs.edit()
-			.putString(READING_PLAN, plan.getCode())
-			.commit();
-			
+		// set default plan
+		setReadingPlan(plan.getCode());
+		
 		// tell the plan to set a start date
 		plan.start();
 	}
 
+	/** change default plan
+	 */
+	public void setReadingPlan(String planCode) {
+		// set default plan to this
+		SharedPreferences prefs = CommonUtils.getSharedPreferences();
+		prefs.edit()
+			.putString(READING_PLAN, planCode)
+			.commit();
+	}
+	
 	/** get list of days and readings for a plan so user can see the plan in advance
 	 */
 	public List<OneDaysReadingsDto> getCurrentPlansReadingList() {
@@ -91,34 +100,61 @@ public class ReadingPlanControl {
 		return day;
 	}
 
+	public long getDueDay(ReadingPlanInfoDto planInfo) {
+		Date today = CommonUtils.getTruncatedDate();
+		Date startDate = planInfo.getStartdate();
+		// should not need to round as we use truncated dates, but safety first
+		int diffInDays = Math.round(today.getTime() - startDate.getTime())/(1000*60*60*24);
+		
+		// if diff is zero then we are on day 1 so add 1
+		return diffInDays+1;
+	}
+
+	/** mark this day as complete unless it is in the future
+	 * if last day then reset plan
+	 */
 	public void done(ReadingPlanInfoDto planInfo, int day) {
-		if (getCurrentPlanDay() >= day) {
+		
+		if (getCurrentPlanDay() == day) {
 			// do not leave prefs for historic days - we show all historic readings as 'read'
 			getReadingStatus(day).delete();
 			
 			if (readingPlanDao.getNumberOfPlanDays(getCurrentPlanCode()) == day) {
+				// last plan day is just Done
 				reset(planInfo);
-			} else {
-				setCurrentPlanDay(day+1);
+			} else if (getCurrentPlanDay()==day){
+				// move to next plan day
+				incrementCurrentPlanDay();
 			}
 		}
 	}
 	
-	public void setCurrentPlanDay(int newDay) {
+	
+	public boolean isDueToBeRead(ReadingPlanInfoDto planInfo, int day) {
+		return getDueDay(planInfo) >= day;
+	}
+	
+	/** increment current day
+	 */
+	public void incrementCurrentPlanDay() {
 		String planCode = getCurrentPlanCode();
 		SharedPreferences prefs = CommonUtils.getSharedPreferences();
 		int day = prefs.getInt(planCode+READING_PLAN_DAY_EXT, 1);
-		if (day != newDay) {
-			Editor editablePrefs = prefs.edit();
-			editablePrefs.putInt(getCurrentPlanCode()+READING_PLAN_DAY_EXT, newDay);
-			editablePrefs.commit();
-		}
+		
+		prefs.edit()
+			.putInt(getCurrentPlanCode()+READING_PLAN_DAY_EXT, day+1)
+			.commit();
 	}
 
+	/** get readings due for current plan on specified day
+	 */
 	public OneDaysReadingsDto getDaysReading(int day) {
 		return readingPlanDao.getReading(getCurrentPlanCode(), day);
 	}
 	
+	/** User wants to read a passage from the daily reading
+	 * Also mark passage as read
+	 */
 	public void read(int day, int readingNo, Key readingKey) {
     	if (readingKey!=null) {
     		// mark reading as 'read'
@@ -143,6 +179,9 @@ public class ReadingPlanControl {
 		getReadingStatus(day).setRead(readingNo);
 	}
 	
+	/** User wants all passages from the daily reading spoken using TTS
+	 * Also mark passages as read
+	 */
 	public void speak(int day, List<Key> allReadings) {
 		mSpeakControl.speak(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), allReadings, true, false);
 
@@ -152,6 +191,8 @@ public class ReadingPlanControl {
 		}
 	}
 
+	/** IOC
+	 */
 	public void setSpeakControl(SpeakControl speakControl) {
 		this.mSpeakControl = speakControl;
 	}
@@ -175,6 +216,8 @@ public class ReadingPlanControl {
 		prefsEditor.commit();
 	}
 
+	/** keep track of which plan the user has currently.  This can be safely changed and reverted to without losing track
+	 */
 	private String getCurrentPlanCode() {
 		SharedPreferences prefs = CommonUtils.getSharedPreferences();
 		String currentPlan = prefs.getString(READING_PLAN, null);
