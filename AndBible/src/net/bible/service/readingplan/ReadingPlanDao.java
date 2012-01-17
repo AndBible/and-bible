@@ -99,8 +99,11 @@ public class ReadingPlanDao {
 		String[] files = assetManager.list(READING_PLAN_FOLDER);
 		List<String> codes = new ArrayList<String>();
 		for (String file : files) {
-			// remove the file extension to get the code
-			codes.add(file.replace(DOT_PROPERTIES, ""));
+			// this if statement ensures we only deal with .properties files - not folders or anything else
+			if (file.endsWith(DOT_PROPERTIES)) {
+				// remove the file extension to get the code
+				codes.add(file.replace(DOT_PROPERTIES, ""));
+			}
 		}
 		
 		return codes;
