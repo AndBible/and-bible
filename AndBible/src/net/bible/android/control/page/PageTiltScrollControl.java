@@ -96,7 +96,10 @@ public class PageTiltScrollControl {
 	/** start or stop tilt to scroll functionality
 	 */
 	public boolean enableTiltScroll(boolean enable) {
-		if (!CommonUtils.getSharedPreferences().getBoolean("tilt_to_scroll_pref", true) || !isOrientationSensor()) {
+		// Android 2.1 does not have Display.getRotation so disable tilt-scroll for 2.1 
+		if (!CommonUtils.getSharedPreferences().getBoolean("tilt_to_scroll_pref", true) || 
+			!isOrientationSensor() ||
+			!CommonUtils.isFroyoPlus()) {
 			return false;
 		} else if (mIsTiltScrollEnabled != enable) {
 			mIsTiltScrollEnabled = enable;
