@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.view.activity.base.DocumentView;
-import net.bible.service.common.CommonUtils;
+import net.bible.service.device.ScreenSettings;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Picture;
@@ -146,7 +146,7 @@ public class BibleView extends WebView implements DocumentView {
 	public void applyPreferenceSettings() {
 		applyFontSize();
 		// if night mode then set scrollbar colour
-		if (CommonUtils.getSharedPreferences().getBoolean("night_mode_pref", false)) {
+		if ((new ScreenSettings()).isNightMode()) {
 			setBackgroundColor(Color.BLACK);
 		} else {
 			setBackgroundColor(Color.WHITE);
