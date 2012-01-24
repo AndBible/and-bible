@@ -132,7 +132,7 @@
   <string name="prefs_interface_locale_title">Język programu</string>
   <string name="prefs_verse_per_line_summary">Pokaż każdy werset w osobnej linii</string>
   <string name="prefs_verse_per_line_title">Jeden werset na linię</string>
-  <string name="refresh_book_list">Odśwież listę dostępnych dokumentów</string>
+  <string name="download_refreshing_book_list">Odśwież listę dostępnych dokumentów</string>
   <string name="morph_robinson_not_installed">Pobierz słownik analizy morfologicznej Robinsona</string>
   <string name="prefs_show_morphology_summary">Pokaż kody morfologiczne Robinsona (RMAC)</string>
   <string name="prefs_show_morphology_title">Kody morfologiczne</string>

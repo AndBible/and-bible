@@ -101,7 +101,7 @@
     <string name="download_confirmation">Een bijbel van het internet downloaden?</string>
     <string name="download_source_message">Documenten worden gedownload van http://www.crosswire.org &amp; http://xiphos.org</string>
     <string name="download_document_confirm_prefix">"Download"</string>
-    <string name="refresh_book_list">Vernieuw de lijst van de beschikbare documenten?</string>
+    <string name="download_refreshing_book_list">Vernieuw de lijst van de beschikbare documenten?</string>
     <string name="error_downloading">Er is een fout opgetreden bij het downloaden. Controleer uw internetverbinding.</string>
     <string name="no_internet_connection">Kan geen verbinding met het internet maken</string>
     <string name="storage_space_warning">Onvoldoende lokale opslag ruimte.</string>

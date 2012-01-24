@@ -81,7 +81,7 @@
   <string name="download_confirmation">인터넷에서 성경을 다운로드?</string>
   <string name="download_source_message">문서 http://www.crosswire.org &amp; http://xiphos.org 에서 다운로드</string>
   <string name="download_document_confirm_prefix">"다운로드"</string>
-  <string name="refresh_book_list">해당 문서의 목록 새로 고침?</string>
+  <string name="download_refreshing_book_list">해당 문서의 목록 새로 고침?</string>
   <string name="error_downloading">다운로드 오류가 발생했습니다. 인터넷 연결을 확인하시기 바랍니다.</string>
   <string name="no_internet_connection">인터넷에 연결할 수 없습니다</string>
   <string name="storage_space_warning">부족 로컬 저장 공간.</string>

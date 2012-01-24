@@ -122,7 +122,7 @@
   <string name="prefs_interface_locale_title">Sovelluksen kieli</string>
   <string name="prefs_verse_per_line_summary">Näytä kukin jae omalla rivillään</string>
   <string name="prefs_verse_per_line_title">Jokainen jae omalla rivillään</string>
-  <string name="refresh_book_list">Päivitä luettelo saatavilla olevista teoksista</string>
+  <string name="download_refreshing_book_list">Päivitä luettelo saatavilla olevista teoksista</string>
   <string name="rest_of_book">Kirjan loppuun</string>
   <string name="rest_of_chapter">Luvun loppuun</string>
   <string name="share_verse">Jaa aktiivinen jae ...</string>

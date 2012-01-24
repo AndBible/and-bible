@@ -121,7 +121,7 @@
   <string name="prefs_interface_locale_title">Alkalmazás nyelve</string>
   <string name="prefs_verse_per_line_summary">A versek külön sorba kezdje</string>
   <string name="prefs_verse_per_line_title">Soronként egy vers</string>
-  <string name="refresh_book_list">Elérhető dokumentumok frissítése</string>
+  <string name="download_refreshing_book_list">Elérhető dokumentumok frissítése</string>
   <string name="rest_of_book">A könyv végéhez</string>
   <string name="rest_of_chapter">A fejezet végéhez</string>
   <string name="share_verse">A vers megosztása...</string>

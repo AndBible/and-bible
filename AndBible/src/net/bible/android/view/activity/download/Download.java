@@ -69,7 +69,7 @@ public class Download extends DocumentSelectionBase {
         	updateLastRepoRefreshDate();
        	} else if (isRepoBookListOld()) {
        		// normal user downloading but need to refresh the document list
-       		Toast.makeText(this, R.string.refresh_book_list, Toast.LENGTH_LONG).show();
+       		Toast.makeText(this, R.string.download_refreshing_book_list, Toast.LENGTH_LONG).show();
        		
     		// prepare the document list view - done in another thread
     		populateMasterDocumentList(true);
@@ -208,7 +208,7 @@ public class Download extends DocumentSelectionBase {
         switch (item.getItemId()) {
 		case (R.id.refresh):
        		// normal user downloading but need to refresh the document list
-       		Toast.makeText(this, R.string.refresh_book_list, Toast.LENGTH_LONG).show();
+       		Toast.makeText(this, R.string.download_refreshing_book_list, Toast.LENGTH_LONG).show();
        		
     		// prepare the document list view - done in another thread
     		populateMasterDocumentList(true);

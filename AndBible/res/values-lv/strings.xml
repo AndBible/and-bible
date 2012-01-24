@@ -97,7 +97,7 @@
     <string name="download_confirmation">Lejuplādēt Bībeli no interneta?</string>
     <string name="download_source_message">Dokumenti ir lejuplādēti no\nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
     <string name="download_document_confirm_prefix">"Lejuplādēt"</string>
-    <string name="refresh_book_list">Atsvaidzināt sarakstu ar pieejamajiem dokumentiem?</string>
+    <string name="download_refreshing_book_list">Atsvaidzināt sarakstu ar pieejamajiem dokumentiem?</string>
     <string name="error_downloading">Kļūda lejupielādējot. Lūdzu, pārbaudiet savu interneta pieslēgumu.</string>
     <string name="no_internet_connection">Nevarēja izveidot savienojumu ar internetu</string>
     <string name="storage_space_warning">Nepietiekama diska vieta.</string>

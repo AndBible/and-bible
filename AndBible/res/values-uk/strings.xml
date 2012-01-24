@@ -81,7 +81,7 @@
   <string name="download_confirmation">Завантажити Біблію з інтернету?</string>
   <string name="download_source_message">Документи завантажуються з \nhttp://www.crosswire.org \nі http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Завантажити"</string>
-  <string name="refresh_book_list">Оновлення списку наявних документів</string>
+  <string name="download_refreshing_book_list">Оновлення списку наявних документів</string>
   <string name="error_downloading">Сталася помилка при завантаженні. Будь ласка, перевірте ваше інтернет-з\'єднання.</string>
   <string name="no_internet_connection">Не вдалося підключитися до Інтернету</string>
   <string name="storage_space_warning">Недостатньо місцевого дискового простору.</string>

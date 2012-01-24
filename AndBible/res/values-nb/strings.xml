@@ -139,7 +139,7 @@
   <string name="prefs_text_size_sample_text">Eksempeltekst</string>
   <string name="prefs_verse_per_line_summary">Vis hvert bibelvers på egen linje</string>
   <string name="prefs_verse_per_line_title">Ett vers per linje</string>
-  <string name="refresh_book_list">Oppfrisker listen over tilgjengelige moduler</string>
+  <string name="download_refreshing_book_list">Oppfrisker listen over tilgjengelige moduler</string>
   <string name="rest_of_book">Til slutten av boken</string>
   <string name="rest_of_chapter">Til slutten av kapittelet</string>
   <string name="save">Lagre</string>

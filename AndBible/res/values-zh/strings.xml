@@ -116,7 +116,7 @@
   <string name="prefs_interface_locale_title">语言</string>
   <string name="prefs_verse_per_line_summary">每行一小节圣经</string>
   <string name="prefs_verse_per_line_title">每行一节</string>
-  <string name="refresh_book_list">刷新列表</string>
+  <string name="download_refreshing_book_list">刷新列表</string>
   <string name="rest_of_book">余下的卷</string>
   <string name="rest_of_chapter">余下的章</string>
   <string name="stop">停止</string>

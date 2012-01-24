@@ -76,7 +76,7 @@
   <string name="download_confirmation">Stáhnout Bibli z Internetu?</string>
   <string name="download_source_message">Dokumenty se stahují z\nhttp://www.crosswire.org\na http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Stáhnout "</string>
-  <string name="refresh_book_list">Obnovit seznam dostupných knih?</string>
+  <string name="download_refreshing_book_list">Obnovit seznam dostupných knih?</string>
   <string name="error_downloading">Vznikla chyba při stahování. Prosím prověřte internetové spojení.</string>
   <string name="no_internet_connection">Nelze se připojit k Internetu</string>
   <string name="storage_space_warning">Nedostatek místa k uložení dat.</string>

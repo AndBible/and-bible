@@ -78,7 +78,7 @@
   <string name="download_confirmation">Llwytho Beibl oddi ar y rhyngrwyd?</string>
   <string name="download_source_message">Dogfennau yn cael eu lawrlwytho o http://www.crosswire.org &amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Lawrlwytho"</string>
-  <string name="refresh_book_list">Adnewyddu\'r rhestr dogfennau sydd ar gael</string>
+  <string name="download_refreshing_book_list">Adnewyddu\'r rhestr dogfennau sydd ar gael</string>
   <string name="error_downloading">Gwall wrth lawrlwytho. Ydy\'ch cysylltiad rhyngrwyd yn gweithio?</string>
   <string name="no_internet_connection">Methu cysylltu â\'r rhyngrwyd</string>
   <string name="storage_space_warning">Dim digon o le i\'w storio.</string>

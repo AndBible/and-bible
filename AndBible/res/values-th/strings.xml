@@ -101,7 +101,7 @@
     <string name="download_confirmation">ต้องการ​ดาวน์​โหลด​โมดูล​พระ​คัมภีร์​จาก​อินเทอร์เน็ต​หรือไม่?</string>
     <string name="download_source_message">จะดาวน์โหลดโมดูลจาก\nhttp://www.crosswire.org\nและ http://xiphos.org</string>
     <string name="download_document_confirm_prefix">"ดาวน์โหลด"</string>
-    <string name="refresh_book_list">ปรับปรุงรายการโมดูลใหม่หรือไม่?</string>
+    <string name="download_refreshing_book_list">ปรับปรุงรายการโมดูลใหม่หรือไม่?</string>
     <string name="error_downloading">​เกิด​ข้อ​ผิด​พลาด​ใน​การ​ดาวน์​โหลด กรุณา​ตรวจสอบ​การ​เชื่อมต่อ​อินเตอร์เน็ต</string>
     <string name="no_internet_connection">ไม่สามารถเชื่อมต่อกับอินเตอร์เน็ต</string>
     <string name="storage_space_warning">พื้นที่จัดเก็บที่มี ไม่เพียงพอ</string>

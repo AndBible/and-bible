@@ -75,7 +75,7 @@
   <string name="download_confirmation">Parsiųsti Bibliją iš interneto?</string>
   <string name="download_source_message">Dokumentai parsiunčiami iš\nhttp://www.crosswire.org\nir http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Parsiųsti "</string>
-  <string name="refresh_book_list">Atnaujinamas dokumentų sąrašas</string>
+  <string name="download_refreshing_book_list">Atnaujinamas dokumentų sąrašas</string>
   <string name="error_downloading">Parsiunčiant įvyko klaida. Patikrinkite interneto ryšį.</string>
   <string name="no_internet_connection">Nepavyko prisijungti prie interneto</string>
   <string name="storage_space_warning">Nepakanka vietos vietinėje saugykloje.</string>

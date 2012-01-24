@@ -75,7 +75,7 @@
   <string name="download_confirmation">Скачать Библию с Интернета?</string>
   <string name="download_source_message">Идет подключение к \nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Скачать "</string>
-  <string name="refresh_book_list">Список доступных книг обновляется</string>
+  <string name="download_refreshing_book_list">Список доступных книг обновляется</string>
   <string name="error_downloading">Произошла ошибка. Проверьте подключение к Интернету.</string>
   <string name="no_internet_connection">Нет подключения к Интернету.</string>
   <string name="storage_space_warning">Недостаточно места на диске.</string>

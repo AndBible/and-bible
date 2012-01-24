@@ -113,7 +113,7 @@
     <string name="download_confirmation">İnternetten bir Kutsal Kitap çevirisini indirmek ister misiniz?</string>
     <string name="download_source_message">http://www.crosswire.org\n&amp; http://xiphos.org\'dan\nbelgeler alınıyor</string>
     <string name="download_document_confirm_prefix">İndir</string>
-    <string name="refresh_book_list">Mevcut belgelerinin listesi yenlenmek ister misiniz?</string>
+    <string name="download_refreshing_book_list">Mevcut belgelerinin listesi yenlenmek ister misiniz?</string>
     <string name="error_downloading">İndirirken bir hata oldu. İnternet bağlantınızı kontrol edin.</string>
     <string name="no_internet_connection">İnternet bağlantısı yok</string>
     <string name="storage_space_warning">Yerel depo yetersiz</string>

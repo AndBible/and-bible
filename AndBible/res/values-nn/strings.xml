@@ -106,7 +106,7 @@
     <string name="download_confirmation">Last ned ein bibel frå internett?</string>
     <string name="download_source_message">Modular lastast ned frå \nhttp://www.crosswire.org\nog http://xiphos.org</string>
     <string name="download_document_confirm_prefix">"Last ned"</string>
-    <string name="refresh_book_list">Oppfriskar lista over tilgjengelege modular</string>
+    <string name="download_refreshing_book_list">Oppfriskar lista over tilgjengelege modular</string>
     <string name="error_downloading">Kunne ikkje laste ned. Vennleg kontrollér internettilkoblinga di.</string>
     <string name="no_internet_connection">Kan ikkje koble til internett</string>
     <string name="storage_space_warning">Ikkje nok lokal lagringsplass.</string>

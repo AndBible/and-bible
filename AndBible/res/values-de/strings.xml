@@ -75,7 +75,7 @@
   <string name="download_confirmation">Möchten Sie Module aus dem Internet herunterladen?</string>
   <string name="download_source_message">Die Modulliste wird von\nhttp://www.crosswire.org\n&amp;\nhttp://xiphos.org\nheruntergeladen</string>
   <string name="download_document_confirm_prefix">"Download "</string>
-  <string name="refresh_book_list">Liste aktualisieren</string>
+  <string name="download_refreshing_book_list">Liste aktualisieren</string>
   <string name="error_downloading">Download fehlgeschlagen. Überprüfen Sie ihre Internetverbindung!</string>
   <string name="no_internet_connection">Keine Verbindung zum Internet!</string>
   <string name="storage_space_warning">Nicht genügend Speicherplatz!</string>

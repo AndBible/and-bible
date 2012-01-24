@@ -84,7 +84,7 @@
   <string name="download_confirmation">Preuzmite Bibliju s interneta?</string>
   <string name="download_source_message">Dokumenti se preuzimaju sa http://www.crosswire.org &amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Preuzmi"</string>
-  <string name="refresh_book_list">Osvježi popis dostupnih dokumenata?</string>
+  <string name="download_refreshing_book_list">Osvježi popis dostupnih dokumenata?</string>
   <string name="error_downloading">Došlo je do greške prilikom preuzimanja. Molimo provjerite vezu s internetom.</string>
   <string name="no_internet_connection">Nije se moguće spojiti na internet.</string>
   <string name="storage_space_warning">Nedovoljno prostora za pohranu.</string>

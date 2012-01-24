@@ -101,7 +101,7 @@
   <string name="prefs_verse_per_line_title">Een vers per lyn</string>
   <string name="previous">Vorige</string>
   <string name="progress_status">Vordering</string>
-  <string name="refresh_book_list">Herlaai lys van die beskikbare dokumente?</string>
+  <string name="download_refreshing_book_list">Herlaai lys van die beskikbare dokumente?</string>
   <string name="rest_of_book">Gaan na die einde van die boek</string>
   <string name="rest_of_chapter">Gaan na die einde van hoofstuk</string>
   <string name="retry">Probeer weer</string>
