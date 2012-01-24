@@ -4,6 +4,7 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.mynote.MyNote;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.service.common.CommonUtils;
+import net.bible.service.device.ScreenSettings;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -56,7 +57,7 @@ public class MyNoteEditTextView extends EditText implements DocumentView {
 	@Override
 	public void applyPreferenceSettings() {
 		SharedPreferences preferences = CommonUtils.getSharedPreferences();
-		if (preferences.getBoolean("night_mode_pref", false)) {
+		if (ScreenSettings.isNightMode()) {
 			setBackgroundColor(Color.BLACK);
 			setTextColor(Color.WHITE);
 		} else {

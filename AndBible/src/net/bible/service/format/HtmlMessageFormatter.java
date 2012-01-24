@@ -2,7 +2,7 @@ package net.bible.service.format;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
-import net.bible.service.common.CommonUtils;
+import net.bible.service.device.ScreenSettings;
 
 /** prepare an error message for display in a WebView
  * 
@@ -31,7 +31,7 @@ public class HtmlMessageFormatter {
 	/** wrap text with nightmode css if required
 	 */
 	public static String format(String text) {
-		boolean isNightMode = CommonUtils.getSharedPreferences().getBoolean("night_mode_pref", false);
+		boolean isNightMode = ScreenSettings.isNightMode();
 		
 		String formattedText = "";
 		

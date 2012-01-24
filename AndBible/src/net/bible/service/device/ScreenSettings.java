@@ -5,11 +5,11 @@ import net.bible.service.common.CommonUtils;
 
 public class ScreenSettings {
 
-	LightSensor mLightSensor = new LightSensor();		
+	private static LightSensor mLightSensor = new LightSensor();		
 	
 	private static final int MAX_DARK_READING = 50;
 	
-	public boolean isNightMode() {
+	public static boolean isNightMode() {
 		boolean isNightMode = false;
 		SharedPreferences preferences = CommonUtils.getSharedPreferences();
 		if (preferences!=null) {

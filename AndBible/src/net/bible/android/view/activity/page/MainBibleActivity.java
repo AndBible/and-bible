@@ -71,6 +71,18 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	onPassageChanged();
     }
 
+    /** called if the app is re-entered after returning from another app.
+     * Trigger redisplay in case mobile has gone from light to dark or vice-versa
+     */
+    @Override
+    protected void onRestart() {
+    	super.onRestart();
+
+    	// colour may need to change which affects View colour and html
+    	documentViewManager.getDocumentView().applyPreferenceSettings();
+		bibleContentManager.updateText(true);
+    }
+
     /** adding android:configChanges to manifest causes this method to be called on flip, etc instead of a new instance and onCreate, which would cause a new observer -> duplicated threads
      */
     @Override

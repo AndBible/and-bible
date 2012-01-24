@@ -146,7 +146,7 @@ public class BibleView extends WebView implements DocumentView {
 	public void applyPreferenceSettings() {
 		applyFontSize();
 		// if night mode then set scrollbar colour
-		if ((new ScreenSettings()).isNightMode()) {
+		if (ScreenSettings.isNightMode()) {
 			setBackgroundColor(Color.BLACK);
 		} else {
 			setBackgroundColor(Color.WHITE);

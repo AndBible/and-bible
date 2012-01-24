@@ -53,8 +53,6 @@ public class SwordContentFacade {
 	
 	private DocumentParseMethod documentParseMethod = new DocumentParseMethod();
 	
-	private ScreenSettings screenSettings = new ScreenSettings();
-	
 	private static final String TAG = "SwordContentApi";
 	private static SwordContentFacade singleton;
 
@@ -347,7 +345,7 @@ public class SwordContentFacade {
 					osisToHtmlParameters.setShowStrongs(showStrongs);
 					osisToHtmlParameters.setShowMorphology(showStrongs && preferences.getBoolean("show_morphology_pref", false));
 				}
-				if (screenSettings.isNightMode()) {
+				if (ScreenSettings.isNightMode()) {
 					osisToHtmlParameters.setExtraStylesheet(SharedConstants.NIGHT_MODE_STYLESHEET);
 				}
 				if (book.getBookCategory().equals(BookCategory.DICTIONARY)) {
