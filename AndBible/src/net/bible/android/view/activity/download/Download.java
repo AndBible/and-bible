@@ -20,6 +20,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 /**
@@ -187,4 +190,43 @@ public class Download extends DocumentSelectionBase {
     	}
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.download_documents, menu);
+        return true;
+    }
+
+	/** 
+     * on Click handlers
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        boolean isHandled = false;
+        
+        switch (item.getItemId()) {
+		case (R.id.refresh):
+       		// normal user downloading but need to refresh the document list
+       		Toast.makeText(this, R.string.refresh_book_list, Toast.LENGTH_LONG).show();
+       		
+    		// prepare the document list view - done in another thread
+    		populateMasterDocumentList(true);
+
+    		// restart refresh timeout
+    		updateLastRepoRefreshDate();
+    		
+    		// update screen
+    		notifyDataSetChanged();
+    		
+			isHandled = true;
+			break;
+        }
+        
+		if (!isHandled) {
+            isHandled = super.onOptionsItemSelected(item);
+        }
+        
+     	return isHandled;
+    }
 }
