@@ -54,12 +54,13 @@ public class MJDIndexAll {
 //    	indexAll.showRepoBooks();
 //    	indexAll.deleteBook("StrongsHebrew");
 //    	indexAll.deleteBook("StrongsGreek");
+//    	indexAll.installSingleBook("ESV");
 //    	indexAll.installSingleBook("StrongsRealHebrew");
 //    	indexAll.installSingleBook("StrongsRealGreek");
 //    	indexAll.installSingleBook("StrongsRealHebrew");
 //    	indexAll.installSingleBook("StrongsRealGreek");
 //    	indexAll.installRepoBooks();
-    	indexAll.checkAllBooksInstalled();
+//    	indexAll.checkAllBooksInstalled();
 //    	indexAll.manageCreateIndexes();
 //    	indexAll.indexSingleBook("KJV");
     	
@@ -126,9 +127,27 @@ public class MJDIndexAll {
 //    	indexAll.installAndIndexSingleBook("Lithuanian");
     
     	// 2/1/12
-    	indexAll.installAndIndexSingleBook("FrePGR");
-    	indexAll.installAndIndexSingleBook("NorBroed");
-    	indexAll.installAndIndexSingleBook("TurNTB");
+//    	indexAll.installAndIndexSingleBook("FrePGR");
+//    	indexAll.installAndIndexSingleBook("NorBroed");
+//    	indexAll.installAndIndexSingleBook("TurNTB");
+
+    	//19/1/2012
+//    	indexAll.installAndIndexSingleBook("WEBME");
+//    	indexAll.installAndIndexSingleBook("WEBBE");
+//    	indexAll.installAndIndexSingleBook("FreCJE");
+//    	indexAll.installAndIndexSingleBook("FarOPV");
+//    	indexAll.installAndIndexSingleBook("FrePGR");
+
+//    	indexAll.installAndIndexSingleBook("WEB");
+//    	indexAll.installAndIndexSingleBook("EMTV");
+    	
+    	//25/1/2012
+    	indexAll.installAndIndexSingleBook("SpaRVG");
+    	indexAll.installAndIndexSingleBook("GerNeUe");
+    	indexAll.installAndIndexSingleBook("NorSMB");
+    	indexAll.installAndIndexSingleBook("WEB");
+    	indexAll.installAndIndexSingleBook("WEBME");
+    	indexAll.installAndIndexSingleBook("WEBBE");
     }
     
 	public void validateAllIndexes() {
