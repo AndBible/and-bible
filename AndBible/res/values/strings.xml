@@ -93,6 +93,7 @@
     <string name="prefs_tilt_to_scroll_summary">Tilt device to scroll page down</string>
     <string name="prefs_night_mode_title">Night mode</string>
     <string name="prefs_night_mode_summary">For easier reading in the dark</string>
+    <string name="prefs_night_mode_automatic">Automatic</string>
     <string name="prefs_navigate_to_verse_title">Navigate to verse</string>
     <string name="prefs_navigate_to_verse_summary">Choose verse (and chapter) when selecting a passage</string>
     <string name="prefs_text_size_title">Text size</string>
@@ -219,6 +220,7 @@
     <!-- General -->
     <string name="okay">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="save">Save</string>
     <string name="error">Error </string>
