@@ -87,6 +87,12 @@ public class HistoryManager {
 				if (previousItem!=null) {
 					Log.d(TAG, "Going back to:"+previousItem);
 					previousItem.revertTo();
+					
+					// finish current activity if not the Main screen
+					Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
+					if (!(currentActivity instanceof MainBibleActivity)) {
+						currentActivity.finish();
+					}
 				}
 			} finally {
 				isGoingBack = false;

@@ -60,11 +60,5 @@ public class IntentHistoryItem implements HistoryItem {
 
 		// start activity chosen from activity
 		currentActivity.startActivity(intent);
-		
-		// finish current activity
-		if (!(currentActivity instanceof MainBibleActivity)) {
-			currentActivity.finish();
-		}
-
 	}
 }
