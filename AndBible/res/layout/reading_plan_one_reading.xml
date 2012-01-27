@@ -12,31 +12,39 @@
   	<ImageView android:id="@+id/tick_off" 
   	    android:src="@drawable/btn_check_buttonless_off"
   	    android:contentDescription="Not ticked"
-  	    android:layout_marginRight="10dip"
+  	    android:layout_marginRight="5dip"
   	    android:visibility="visible"/>
   	<ImageView android:id="@+id/tick_on" 
   	    android:src="@drawable/btn_check_buttonless_on"
-  	    android:layout_marginRight="10dip"
+  	    android:layout_marginRight="5dip"
   	    android:contentDescription="Ticked"
   	    android:visibility="gone"/>
   	
   	<TextView android:id="@+id/passage"
 		android:textAppearance="?android:attr/textAppearanceMedium"
 		android:layout_height="wrap_content" 
-        android:layout_weight="1"
+        android:layout_weight="2"
 		android:layout_gravity="center_vertical"/>
     
   	<Button android:id="@+id/readButton"
  		android:text="@string/selectPassage"
-        android:layout_weight="1"
+        android:layout_weight="3"
         android:layout_height="wrap_content"
-		android:layout_gravity="center"/>
+		android:layout_gravity="center"
+		android:lines="1"
+		android:minWidth="100dip"
+		android:paddingLeft="1dip"		
+		android:paddingRight="1dip"/>
   	
   	<Button android:id="@+id/speakButton"
  		android:text="@string/speak"
-        android:layout_weight="1"
+        android:layout_weight="3"
         android:layout_height="wrap_content"
-		android:layout_gravity="center"/>
+		android:layout_gravity="center"
+		android:lines="1"
+		android:minWidth="100dip"
+		android:paddingLeft="1dip"		
+		android:paddingRight="1dip"/>
   			
 </TableRow>
 
