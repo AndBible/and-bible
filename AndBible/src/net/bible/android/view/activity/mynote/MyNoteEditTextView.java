@@ -8,7 +8,6 @@ import net.bible.service.device.ScreenSettings;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -56,7 +55,15 @@ public class MyNoteEditTextView extends EditText implements DocumentView {
 
 	@Override
 	public void applyPreferenceSettings() {
+		changeBackgroundColour();
+
 		SharedPreferences preferences = CommonUtils.getSharedPreferences();
+		int fontSize = preferences.getInt("text_size_pref", 16);
+		setTextSize(TypedValue.COMPLEX_UNIT_DIP ,fontSize);
+	}
+
+	@Override
+	public boolean changeBackgroundColour() {
 		if (ScreenSettings.isNightMode()) {
 			setBackgroundColor(Color.BLACK);
 			setTextColor(Color.WHITE);
@@ -64,9 +71,8 @@ public class MyNoteEditTextView extends EditText implements DocumentView {
 			setBackgroundColor(Color.WHITE);
 			setTextColor(Color.BLACK);
 		}
-
-		int fontSize = preferences.getInt("text_size_pref", 16);
-		setTextSize(TypedValue.COMPLEX_UNIT_DIP ,fontSize);
+		// should not return false but it is used to see if text needs refreshing, which it doesn't
+		return false;
 	}
 
 	@Override

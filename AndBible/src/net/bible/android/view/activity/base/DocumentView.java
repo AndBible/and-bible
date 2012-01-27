@@ -9,6 +9,10 @@ public interface DocumentView {
 	public abstract void show(String html, int jumpToVerse, float jumpToYOffsetRatio);
 
 	public abstract void applyPreferenceSettings();
+
+	/** may need updating depending on environmental brightness
+	 */
+	public abstract boolean changeBackgroundColour();
 	
 	public abstract boolean pageDown(boolean toBottom);
 	

@@ -27,18 +27,22 @@ import android.webkit.WebViewClient;
  */
 public class BibleView extends WebView implements DocumentView {
 	
-	private BibleJavascriptInterface javascriptInterface;
+	private BibleJavascriptInterface mJavascriptInterface;
 	
-	private VerseCalculator verseCalculator;
+	private VerseCalculator mVerseCalculator;
 
 	private int mJumpToVerse = 0;
 	private float mJumpToYOffsetRatio = 0;
 	
-	private PageControl pageControl = ControlFactory.getInstance().getPageControl();
+	private PageControl mPageControl = ControlFactory.getInstance().getPageControl();
 	
-	private PageTiltScroller pageTiltScroller;
+	private PageTiltScroller mPageTiltScroller;
 
 	private static final String TAG = "BibleView";
+	
+	// remember current background colour so we know when it changes
+	// -123 is not equal to WHITE or BLACK forcing first setting to be actioned
+	private int mCurrentBackgroundColour = -123;
 	
 	/**
      * Constructor.  This version is only needed if you will be instantiating
@@ -67,10 +71,10 @@ public class BibleView extends WebView implements DocumentView {
 	}
 	
 	private void initialise() {
-		verseCalculator = new VerseCalculator();
-		javascriptInterface = new BibleJavascriptInterface(verseCalculator);
+		mVerseCalculator = new VerseCalculator();
+		mJavascriptInterface = new BibleJavascriptInterface(mVerseCalculator);
 		
-		addJavascriptInterface(javascriptInterface, "jsInterface");
+		addJavascriptInterface(mJavascriptInterface, "jsInterface");
 
 		setPictureListener(new PictureListener() {
 			/** this is called after the WebView page has finished loading and a new "picture" is on the webview.
@@ -136,8 +140,8 @@ public class BibleView extends WebView implements DocumentView {
 		
 		applyPreferenceSettings();
 		
-		pageTiltScroller = new PageTiltScroller(this);
-		pageTiltScroller.enableTiltScroll(true);
+		mPageTiltScroller = new PageTiltScroller(this);
+		mPageTiltScroller.enableTiltScroll(true);
 	}
 
 	/** apply settings set by the user using Preferences
@@ -145,16 +149,27 @@ public class BibleView extends WebView implements DocumentView {
 	@Override
 	public void applyPreferenceSettings() {
 		applyFontSize();
-		// if night mode then set scrollbar colour
-		if (ScreenSettings.isNightMode()) {
-			setBackgroundColor(Color.BLACK);
-		} else {
-			setBackgroundColor(Color.WHITE);
-		}
+		
+		changeBackgroundColour();
+	}
+
+	private void applyFontSize() {
+		getSettings().setDefaultFontSize(mPageControl.getDocumentFontSize());
 	}
 	
-	private void applyFontSize() {
-		getSettings().setDefaultFontSize(pageControl.getDocumentFontSize());
+	/** may need updating depending on environmental brightness
+	 */
+	@Override
+	public boolean changeBackgroundColour() {
+		// if night mode then set scrollbar colour
+		int newBackgroundColour = ScreenSettings.isNightMode() ? Color.BLACK : Color.WHITE;
+		boolean changed = mCurrentBackgroundColour != newBackgroundColour;
+		
+		if (changed) {
+			setBackgroundColor(newBackgroundColour);
+			mCurrentBackgroundColour = newBackgroundColour;
+		}
+		return changed;
 	}
 	
 	/** show a page from bible commentary
@@ -175,13 +190,13 @@ public class BibleView extends WebView implements DocumentView {
     @Override
     public void pausing() {
 		Log.d(TAG, "Pausing tilt to scroll");
-        pageTiltScroller.enableTiltScroll(false);
+        mPageTiltScroller.enableTiltScroll(false);
     }
     
     @Override
     public void resuming() {
 		Log.d(TAG, "Resuming tilt to scroll");
-        pageTiltScroller.enableTiltScroll(true);
+        mPageTiltScroller.enableTiltScroll(true);
     }
 
     
@@ -190,7 +205,7 @@ public class BibleView extends WebView implements DocumentView {
 		boolean handled = super.onTouchEvent(ev);
 		
 		// Allow user to redefine viewing angle by touching screen
-		pageTiltScroller.recalculateViewingPosition();
+		mPageTiltScroller.recalculateViewingPosition();
 		
 		return handled;
 	}
