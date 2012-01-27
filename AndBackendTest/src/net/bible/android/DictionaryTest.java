@@ -11,6 +11,7 @@ import net.bible.service.sword.SwordDocumentFacade;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookData;
 import org.crosswire.jsword.book.BookFilters;
+import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.Defaults;
 import org.crosswire.jsword.book.OSISUtil;
 import org.crosswire.jsword.bridge.BookInstaller;
@@ -78,11 +79,26 @@ public class DictionaryTest extends TestCase {
 	public void testReadStrongs() throws Exception {
 		Book book = Defaults.getHebrewDefinitions();
 		assertEquals(book.getInitials(), "StrongsHebrew");
-		Key key = book.getKey("00430");
+//		Key key = book.getKey("00430");
+//		System.out.println(book.getRawText(key));
+		Key key = book.getKey("00428");
+		System.out.println(book.getRawText(key));
+		
+		
 		Key firstKey = book.getGlobalKeyList().get(0);
 		String firstName = firstKey.getName();
 		System.out.println("ist="+firstName);
 		System.out.println(firstName.compareTo("00430"));
+		
+		String html = getHtml(book, key, 100);
+//		System.out.println(html);
+	}
+
+	public void testReadRealStrongs() throws Exception {
+		Book book = Books.installed().getBook("StrongsRealGreek");
+		assertNotNull("Real Strongs Greek not installed", book);
+		Key key = book.getKey("01993");
+		System.out.println(book.getRawText(key));
 		
 //		String html = getHtml(book, key, 100);
 //		System.out.println(html);
