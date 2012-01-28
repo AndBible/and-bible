@@ -232,17 +232,14 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		super.onPause();
     	SharedPreferences settings = getSharedPreferences(TAG, 0);
 		CurrentPageManager.getInstance().saveState(settings);
-
-		// allow webView to stop monitoring tilt 
-		documentViewManager.getDocumentView().pausing();
 	}
     
     @Override
     protected void onResume() {
     	super.onResume();
 
-    	// allow webView to start monitoring tilt 
-		documentViewManager.getDocumentView().resuming();
+    	// allow webView to start monitoring tilt by setting focus which causes tilt-scrol to resume 
+		documentViewManager.getDocumentView().asView().requestFocus();
     }
 
     private void restoreState() {

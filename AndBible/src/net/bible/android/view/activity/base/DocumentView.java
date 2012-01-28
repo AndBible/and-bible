@@ -23,8 +23,4 @@ public interface DocumentView {
     
     /** give document an opportunity to save any data entered */
     public void save();
-    
-    public void pausing();
-    
-    public void resuming();
 }

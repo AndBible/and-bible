@@ -89,12 +89,4 @@ public class MyNoteEditTextView extends EditText implements DocumentView {
 	public View asView() {
 		return this;
 	}
-	
-    @Override
-    public void pausing() {
-    }
-    
-    @Override
-    public void resuming() {
-    }
 }

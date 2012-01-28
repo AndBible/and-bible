@@ -187,18 +187,27 @@ public class BibleView extends WebView implements DocumentView {
 		loadDataWithBaseURL("http://baseUrl", html, "text/html", "UTF-8", "http://historyUrl");
 	}
 	
-    @Override
-    public void pausing() {
+	@Override
+	public void onWindowFocusChanged(boolean hasWindowFocus) {
+		// TODO Auto-generated method stub
+		super.onWindowFocusChanged(hasWindowFocus);
+
+		if (hasWindowFocus) {
+			resumeTiltScroll();
+		} else {
+			pauseTiltScroll();
+		}
+	}
+	
+    private void pauseTiltScroll() {
 		Log.d(TAG, "Pausing tilt to scroll");
         mPageTiltScroller.enableTiltScroll(false);
     }
     
-    @Override
-    public void resuming() {
+    private void resumeTiltScroll() {
 		Log.d(TAG, "Resuming tilt to scroll");
         mPageTiltScroller.enableTiltScroll(true);
     }
-
     
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {

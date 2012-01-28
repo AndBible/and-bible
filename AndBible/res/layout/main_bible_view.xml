@@ -14,7 +14,8 @@
     >
 	<include layout="@layout/title_bar"/>
 		
-	<!-- net.bible.android.view.activity.page.BibleView  
+	<!-- removed explicit view reference because this page could contain a MyNote view
+	 net.bible.android.view.activity.page.BibleView  
 		android:id="@+id/main_text" 
 	    android:layout_width="fill_parent" 
 	    android:layout_height="fill_parent"
