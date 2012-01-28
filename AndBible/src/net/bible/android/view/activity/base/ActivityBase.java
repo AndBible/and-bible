@@ -38,7 +38,9 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 
     /** Called when the activity is first created. */
     public void onCreate(Bundle savedInstanceState, boolean integrateWithHistoryManager) {
-        super.onCreate(savedInstanceState);
+		UiUtils.applyTheme(this);
+
+		super.onCreate(savedInstanceState);
     	
         Log.i(getLocalClassName(), "onCreate");
         
@@ -51,7 +53,6 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 		
         setFullScreen(sharedActivityState.isFullScreen());
         
-		UiUtils.applyTheme(this);
 
 		commonActivityBase.setIntegrateWithHistoryManager(integrateWithHistoryManager);
     }

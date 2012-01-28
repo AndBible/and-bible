@@ -35,6 +35,8 @@ public class ListActivityBase extends ListActivity implements AndBibleActivity {
 
     /** Called when the activity is first created. */
     public void onCreate(Bundle savedInstanceState, boolean integrateWithHistoryManager) {
+		UiUtils.applyTheme(this);
+
         super.onCreate(savedInstanceState);
         Log.i(getLocalClassName(), "onCreate");
 
@@ -47,8 +49,6 @@ public class ListActivityBase extends ListActivity implements AndBibleActivity {
 
         setFullScreen(SharedActivityState.getInstance().isFullScreen());
         
-		UiUtils.applyTheme(this);
-
 		commonActivityBase.setIntegrateWithHistoryManager(integrateWithHistoryManager);
     }
 
