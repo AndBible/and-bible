@@ -12,6 +12,7 @@ import java.util.Properties;
 import net.bible.android.BibleApplication;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.time.DateUtils;
 import org.crosswire.common.util.IOUtil;
 
 import android.content.SharedPreferences;
@@ -275,11 +276,6 @@ public class CommonUtils {
 	}
 	
 	public static Date getTruncatedDate() {
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(Calendar.HOUR_OF_DAY, 0);
-		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.SECOND, 0);
-		calendar.set(Calendar.MILLISECOND, 0);
-		return calendar.getTime();
+		return DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH);
 	}
 }
