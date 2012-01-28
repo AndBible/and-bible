@@ -15,7 +15,7 @@
   <string name="choosePassageBookName">Velg bok</string>
   <string name="choosePassageChapterName">Velg kapittel</string>
   <string name="search_index">Lag søkeregister</string>
-  <string name="index_creation_required">For å søke trengs et søkeregister.\n\nSøkeregistrene kan lastes ned fra internett eller bygges lokalt.\n\nNedlasting er raskere og de gir ofte bedre søkemuligheter.\n\nEn internettforbindelse er nødvendig for å laste ned søkeregister.</string>
+  <string name="index_creation_required">For å søke trengs et søkeregister.\n\nSøkeregistrene kan lastes ned fra internett eller bygges lokalt.\n\nNedlasting er raskere og de gir ofte bedre søkemuligheter. Dersom du bygger lokalt, kan det ta opptil 10 minutt på f.eks. en HTC Desire.\n\nEn internettforbindelse er nødvendig for å laste ned søkeregister.</string>
   <string name="indexing_wait_msg">Når indekseringen er utført vil du bli tatt til søkeskjermen.</string>
   <string name="index">Lag søkeregister</string>
   <string name="index_download">Last ned</string>
@@ -139,7 +139,7 @@
   <string name="prefs_text_size_sample_text">Eksempeltekst</string>
   <string name="prefs_verse_per_line_summary">Vis hvert bibelvers på egen linje</string>
   <string name="prefs_verse_per_line_title">Ett vers per linje</string>
-  <string name="download_refreshing_book_list">Oppfrisker listen over tilgjengelige moduler</string>
+  <string name="download_refreshing_book_list">Oppdaterer listen over tilgjengelige moduler</string>
   <string name="rest_of_book">Til slutten av boken</string>
   <string name="rest_of_chapter">Til slutten av kapittelet</string>
   <string name="save">Lagre</string>
@@ -157,4 +157,4 @@
   <string name="storage_space_warning">Ikke nok lokal lagringsplass.</string>
   <string name="strongs_toggle_button_off">nnnn</string>
   <string name="strongs_toggle_button_on">nnnn</string>
-<string name="empty_list">Ingen data å vise</string><string name="prefs_show_bookmarks_summary">Vis ikon i bokmerkede vers</string><string name="prefs_show_bookmarks_title">Vis bokmerkeikon</string><string name="prefs_tilt_to_scroll_summary">Rull siden nedover ved å helle på enheten</string><string name="prefs_tilt_to_scroll_title">Hell for å rulle teksten</string><string name="rdg_plan_title">Leseplan</string><string name="rdg_plan_selector_title">Velg en leseplan</string><string name="rdg_plan_day">Dag %s</string><string name="rdg_plan_set_start_jan1">Start 1. januar</string><string name="done">Ferdig</string><string name="reset">Tilbakestill</string><string name="rdg_plan_y1ntpspr">Det nye testamente, salmene og ordspråkene på ett år</string><string name="rdg_plan_y1ot1nt1_chronological">Hele Bibelen kronologisk på ett år</string><string name="rdg_plan_y1ot1nt1_OTandNT">Hele Bibelen på ett år (GT og NT parallelt)</string><string name="rdg_plan_y1ot1nt1_OTthenNT">Hele Bibelen på ett år (GT, deretter NT)</string><string name="rdg_plan_y1ot1nt2_mcheyne">Hele Bibelen på ett år (M\'Cheyne)</string></resources>
+<string name="empty_list">Ingen data å vise</string><string name="prefs_show_bookmarks_summary">Vis ikon i bokmerkede vers</string><string name="prefs_show_bookmarks_title">Vis bokmerkeikon</string><string name="prefs_tilt_to_scroll_summary">Rull siden nedover ved å helle på enheten</string><string name="prefs_tilt_to_scroll_title">Hell for å rulle teksten</string><string name="rdg_plan_title">Leseplan</string><string name="rdg_plan_selector_title">Velg en leseplan</string><string name="rdg_plan_day">Dag %s</string><string name="rdg_plan_set_start_jan1">Start 1. januar</string><string name="done">Ferdig</string><string name="reset">Tilbakestill</string><string name="rdg_plan_y1ntpspr">Det nye testamente, salmene og ordspråkene på ett år</string><string name="rdg_plan_y1ot1nt1_chronological">Hele Bibelen kronologisk på ett år</string><string name="rdg_plan_y1ot1nt1_OTandNT">Hele Bibelen på ett år (GT og NT parallelt)</string><string name="rdg_plan_y1ot1nt1_OTthenNT">Hele Bibelen på ett år (GT, deretter NT)</string><string name="rdg_plan_y1ot1nt2_mcheyne">Hele Bibelen på ett år (M\'Cheyne)</string><string name="prefs_night_mode_automatic">Automatic</string><string name="download_refresh_book_list_menu_item">Oppdater</string><string name="yes">Yes</string></resources>
