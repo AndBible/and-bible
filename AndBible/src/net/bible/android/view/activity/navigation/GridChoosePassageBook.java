@@ -52,6 +52,8 @@ public class GridChoosePassageBook extends ActivityBase implements OnButtonGridA
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	// background goes white in some circumstances if theme changes so prevent theme change
+    	setAllowThemeChange(false);
         super.onCreate(savedInstanceState);
 
         ButtonGrid grid = new ButtonGrid(this);

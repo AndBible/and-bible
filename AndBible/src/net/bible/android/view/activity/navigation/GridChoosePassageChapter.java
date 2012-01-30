@@ -37,6 +37,8 @@ public class GridChoosePassageChapter extends ActivityBase implements OnButtonGr
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	// background goes white in some circumstances if theme changes so prevent theme change
+    	setAllowThemeChange(false);
         super.onCreate(savedInstanceState);
 
         int bibleBookNo = getIntent().getIntExtra(GridChoosePassageBook.BOOK_NO, 0);

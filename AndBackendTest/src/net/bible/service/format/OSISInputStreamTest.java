@@ -86,6 +86,19 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		System.out.println(chapter);
 	}
 
+	public void testReadNETText() throws Exception {
+		Book book = getBook("NETtext");
+
+//		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Is 40:11"));
+//		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Mt 4:14"));
+		System.out.println(netBook.getInitials());
+		OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Matt 1:18"));
+		String chapter = convertStreamToString(osisInputStream);
+//		int numOpeningDivs = count(chapter, "<div>");
+//		int numClosingDivs = count(chapter, "</div>");
+		System.out.println(chapter);
+	}
+
 	public void testReadTitle() throws Exception {
 		Book book = getBook("WEB");
 

@@ -31,11 +31,13 @@ public class PageTiltScrollControl {
 	private int mNoScrollViewingPitch = -38;
 	private boolean mNoScrollViewingPitchCalculated = false;
 	
-	private static final int NO_SCROLL_VIEWING_TOLERANCE = 1; //3;
+	private static final int NO_SCROLL_VIEWING_TOLERANCE = 2; //3;
 	private static final int NO_SPEED_INCREASE_VIEWING_TOLERANCE = 0; //6;
 	
 	// this is decreased (subtracted from) to speed up scrolling
-	private static int BASE_TIME_BETWEEN_SCROLLS = 70; //40;
+	private static int BASE_TIME_BETWEEN_SCROLLS = 60; //70(jerky) 40((fast);
+
+	private static int MIN_TIME_BETWEEN_SCROLLS = 4;
 	
 	// current pitch of phone - varies dynamically
 	private float[] mOrientationValues;
@@ -88,7 +90,7 @@ public class PageTiltScrollControl {
 			}
 		}
 		if (mIsTiltScrollEnabled) {
-			tiltScrollInfo.delayToNextScroll = Math.max(0,BASE_TIME_BETWEEN_SCROLLS-(3*speedUp));
+			tiltScrollInfo.delayToNextScroll = Math.max(MIN_TIME_BETWEEN_SCROLLS, BASE_TIME_BETWEEN_SCROLLS-(3*speedUp));
 		}
 		return tiltScrollInfo;
 	}
@@ -97,7 +99,7 @@ public class PageTiltScrollControl {
 	 */
 	public boolean enableTiltScroll(boolean enable) {
 		// Android 2.1 does not have Display.getRotation so disable tilt-scroll for 2.1 
-		if (!CommonUtils.getSharedPreferences().getBoolean("tilt_to_scroll_pref", true) || 
+		if (!CommonUtils.getSharedPreferences().getBoolean("tilt_to_scroll_pref", false) || 
 			!isOrientationSensor() ||
 			!CommonUtils.isFroyoPlus()) {
 			return false;

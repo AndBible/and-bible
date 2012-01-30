@@ -142,12 +142,14 @@ public class MJDIndexAll {
 //    	indexAll.installAndIndexSingleBook("EMTV");
     	
     	//25/1/2012
-    	indexAll.installAndIndexSingleBook("SpaRVG");
-    	indexAll.installAndIndexSingleBook("GerNeUe");
-    	indexAll.installAndIndexSingleBook("NorSMB");
-    	indexAll.installAndIndexSingleBook("WEB");
-    	indexAll.installAndIndexSingleBook("WEBME");
-    	indexAll.installAndIndexSingleBook("WEBBE");
+//    	indexAll.installAndIndexSingleBook("SpaRVG");
+//    	indexAll.installAndIndexSingleBook("GerNeUe");
+//    	indexAll.installAndIndexSingleBook("NorSMB");
+//    	indexAll.installAndIndexSingleBook("WEB");
+//    	indexAll.installAndIndexSingleBook("WEBME");
+//    	indexAll.installAndIndexSingleBook("WEBBE");
+    	
+    	indexAll.installSingleBook("NETtext");
     }
     
 	public void validateAllIndexes() {

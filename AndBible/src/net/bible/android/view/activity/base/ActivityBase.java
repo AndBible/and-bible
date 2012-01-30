@@ -26,6 +26,9 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 
 	private SharedActivityState sharedActivityState = SharedActivityState.getInstance();
 
+	// some screens are highly customised and the theme looks odd if it changes
+	private boolean allowThemeChange = true;
+	
 	private CommonActivityBase commonActivityBase = new CommonActivityBase();
 	
 	private static final String TAG = "ActivityBase";
@@ -38,7 +41,9 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 
     /** Called when the activity is first created. */
     public void onCreate(Bundle savedInstanceState, boolean integrateWithHistoryManager) {
-		UiUtils.applyTheme(this);
+    	if (allowThemeChange) {
+    		UiUtils.applyTheme(this);
+    	}
 
 		super.onCreate(savedInstanceState);
     	
@@ -207,5 +212,9 @@ public class ActivityBase extends Activity implements AndBibleActivity {
         Log.i(getLocalClassName(), "onStop");
         // call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
         CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this);
+	}
+
+	public void setAllowThemeChange(boolean allowThemeChange) {
+		this.allowThemeChange = allowThemeChange;
 	}
 }
