@@ -53,6 +53,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+		Log.i(TAG, "Creating MainBibleActivity");
+
         super.onCreate(savedInstanceState, true);
         
         setContentView(R.layout.main_bible_view);

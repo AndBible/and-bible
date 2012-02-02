@@ -92,6 +92,8 @@ public class PassageChangeMediator {
 	}
 
 	public void setMainBibleActivity(MainBibleActivity mainBibleActivity) {
+		Log.i(TAG, "setMainBibleActivity in PassageChangeMediator.  Previous mainBibleActivity="+mMainBibleActivity);
+
 		this.mMainBibleActivity = mainBibleActivity;
 	}
 }
