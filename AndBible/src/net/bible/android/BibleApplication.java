@@ -2,11 +2,13 @@ package net.bible.android;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Map.Entry;
 
 import net.bible.android.activity.R;
+import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
+import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.device.ProgressNotificationManager;
+import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordDocumentFacade;
@@ -33,6 +35,9 @@ public class BibleApplication extends Application{
 	private static final String NIGHT_MODE_PREF2 = "night_mode_pref2";
 	private static final String NIGHT_MODE_PREF = "night_mode_pref";
 	
+	// this was moved from the MainBibleActivity and has always been called this
+	private static final String saveStateTag = "MainBibleActivity";
+
 	private static BibleApplication singleton;
 	private static final String TAG = "BibleApplication";
 	
@@ -68,22 +73,32 @@ public class BibleApplication extends Application{
     	restoreState();
     	
 		// register to save state when moved to background
-		
+    	CurrentActivityHolder.getInstance().addAppToBackgroundListener(new AppToBackgroundListener() {
+			@Override
+			public void applicationNowInBackground(AppToBackgroundEvent e) {
+				saveState();
+			}
+		});
 	}
 
-	private String mainBibleActivityTag = "MainBibleActivity";
+    /** restore current page and document state */
     private void restoreState() {
     	try {
         	Log.i(TAG, "Restore instance state");
-        	SharedPreferences settings = getSharedPreferences(mainBibleActivityTag, 0);
-        	for (Entry entry : settings.getAll().entrySet()) {
-        		Log.d(TAG, "SETTING:"+entry.getKey()+":"+entry.getValue());
-        	}
-//    		CurrentPageManager.getInstance().restoreState(settings);
+        	SharedPreferences settings = getSharedPreferences(saveStateTag, 0);
+    		CurrentPageManager.getInstance().restoreState(settings);
     	} catch (Exception e) {
     		Log.e(TAG, "Restore error", e);
     	}
     }
+    
+    /** save current page and document state */
+	protected void saveState() {
+    	Log.i(TAG, "Saving instance state");
+    	SharedPreferences settings = getSharedPreferences(saveStateTag, 0);
+		CurrentPageManager.getInstance().saveState(settings);
+	}
+
 
 	/** Allow user interface locale override by changing Settings
 	 */

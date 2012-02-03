@@ -195,9 +195,10 @@ public class CurrentPageManager {
 			currentDisplayedPage = getBookPage(restoredBookCategory);
 		}
 
+// removed since this now happens on application start instead of main view load
 		// force an update here from default chapter/verse
-		PassageChangeMediator.getInstance().onCurrentPageChanged();
-		PassageChangeMediator.getInstance().onCurrentPageDetailChanged();
+//		PassageChangeMediator.getInstance().onCurrentPageChanged();
+//		PassageChangeMediator.getInstance().onCurrentPageDetailChanged();
 	}
 	
 	public boolean isCommentaryShown() {
