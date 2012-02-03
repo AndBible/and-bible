@@ -2,8 +2,10 @@ package net.bible.android;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map.Entry;
 
 import net.bible.android.activity.R;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.device.ProgressNotificationManager;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
@@ -61,7 +63,27 @@ public class BibleApplication extends Application{
 		allowLocaleOverride();
 		Locale locale = Locale.getDefault();
 		Log.i(TAG, "Locale language:"+locale.getLanguage()+" Variant:"+locale.getDisplayName());
+		
+		// restore state from previous invocation
+    	restoreState();
+    	
+		// register to save state when moved to background
+		
 	}
+
+	private String mainBibleActivityTag = "MainBibleActivity";
+    private void restoreState() {
+    	try {
+        	Log.i(TAG, "Restore instance state");
+        	SharedPreferences settings = getSharedPreferences(mainBibleActivityTag, 0);
+        	for (Entry entry : settings.getAll().entrySet()) {
+        		Log.d(TAG, "SETTING:"+entry.getKey()+":"+entry.getValue());
+        	}
+//    		CurrentPageManager.getInstance().restoreState(settings);
+    	} catch (Exception e) {
+    		Log.e(TAG, "Restore error", e);
+    	}
+    }
 
 	/** Allow user interface locale override by changing Settings
 	 */

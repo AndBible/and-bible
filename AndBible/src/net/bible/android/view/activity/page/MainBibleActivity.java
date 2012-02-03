@@ -71,11 +71,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	mainMenuCommandHandler = new MenuCommandHandler(this);
     	
         PassageChangeMediator.getInstance().setMainBibleActivity(MainBibleActivity.this);
-        
-        restoreState();
 
-    	// initialise title etc
-    	onPassageChanged();
+        // force the screen to be populated
+        bibleContentManager.updateText(true);
 
     	// need to know when app is returned to foreground to check the screen colours
     	CurrentActivityHolder.getInstance().addAppToBackgroundListener(new AppToBackgroundListener() {
@@ -232,8 +230,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	//TODO do this at the application level because these prefs are not activity specific
     	Log.i(TAG, "Saving instance state");
 		super.onPause();
-    	SharedPreferences settings = getSharedPreferences(TAG, 0);
-		CurrentPageManager.getInstance().saveState(settings);
+//    	SharedPreferences settings = getSharedPreferences(TAG, 0);
+//		CurrentPageManager.getInstance().saveState(settings);
 	}
     
     @Override
