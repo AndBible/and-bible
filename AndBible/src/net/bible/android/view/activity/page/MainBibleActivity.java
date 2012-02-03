@@ -11,7 +11,6 @@ import net.bible.android.control.page.PageControl;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
@@ -231,16 +230,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 
     	// allow webView to start monitoring tilt by setting focus which causes tilt-scrol to resume 
 		documentViewManager.getDocumentView().asView().requestFocus();
-    }
-
-    private void restoreState() {
-    	try {
-        	Log.i(TAG, "Restore instance state");
-        	SharedPreferences settings = getSharedPreferences(TAG, 0);
-    		CurrentPageManager.getInstance().restoreState(settings);
-    	} catch (Exception e) {
-    		Log.e(TAG, "Restore error", e);
-    	}
     }
 
     @Override
