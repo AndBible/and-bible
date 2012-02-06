@@ -185,6 +185,15 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			write(HTML.BR);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
 			lHandler.startL(attrs);
+		} else if (name.equals("div")) {
+			String type = attrs.getValue("type");
+			if ("paragraph".equals(type)) {
+				// ignore sID start paragraph sID because it often comes after the verse no and causes a gap between verse no verse text
+				String eID = attrs.getValue("eID");
+				if (eID!=null) {
+					write("<p />");
+				}
+			}
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_P)) {
 			write("<p>");
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {
