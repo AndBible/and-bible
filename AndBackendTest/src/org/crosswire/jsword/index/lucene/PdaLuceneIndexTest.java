@@ -2,6 +2,7 @@ package org.crosswire.jsword.index.lucene;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.Locale;
 
 import junit.framework.TestCase;
 import net.bible.service.sword.SwordDocumentFacade;
@@ -51,8 +52,9 @@ public class PdaLuceneIndexTest extends TestCase {
 	public void testFind() {
 		try {
 			Book book = getBook("ESV");
-			URI storage = new URI("file:/C:/Documents%20and%20Settings/denha1m/Application%20Data/JSword/lucene/Sword/ESV");
 
+			Locale.setDefault(new Locale("nn"));
+			
 			doFindTest(book, "rebekah", 29);
 
 			doFindTest(book, "bless", 120);
@@ -61,6 +63,11 @@ public class PdaLuceneIndexTest extends TestCase {
 
 			doFindTest(book, "+[Mat-Rev] +Noah", 8);
 
+			doFindTest(book, "key:John.1.1", 1);
+
+			doFindTest(book, "month", 183);
+
+			doFindTest(book, "+[Mat-Rev] +John", 132);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
