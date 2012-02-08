@@ -10,6 +10,12 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
 
+/** Light Sensor interface 
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class LightSensor {
 
 	private float mReading = -1;
@@ -48,11 +54,6 @@ public class LightSensor {
 		}
 	}
 	
-//	private void disconnectListeners() {
-//		SensorManager sm = (SensorManager) BibleApplication.getApplication().getSystemService(Context.SENSOR_SERVICE);
-//		sm.unregisterListener(myOrientationListener);
-//	}
-	
 	final SensorEventListener myLightListener = new SensorEventListener() {
 		public void onSensorChanged(SensorEvent sensorEvent) {
 			if (sensorEvent.sensor.getType() == Sensor.TYPE_LIGHT) {
@@ -64,7 +65,6 @@ public class LightSensor {
 		}
 	};
 	
-		
     /**
      * Returns true if at least one Orientation sensor is available
      */

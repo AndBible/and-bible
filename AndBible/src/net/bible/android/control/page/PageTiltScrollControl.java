@@ -13,7 +13,7 @@ import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
 
-/** The WebView component that shows teh main bible and commentary text
+/** Manage the logic behind tilt-to-scroll
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
@@ -46,6 +46,8 @@ public class PageTiltScrollControl {
 	// needed to find if screen switches to landscape and must different sensor value
 	private Display mDisplay;
 	
+	public static final String TILT_TO_SCROLL_PREFERENCE_KEY = "tilt_to_scroll_pref";
+
 	@SuppressWarnings("unused")
 	private static final String TAG = "TiltScrollControl";
 	
@@ -99,9 +101,8 @@ public class PageTiltScrollControl {
 	 */
 	public boolean enableTiltScroll(boolean enable) {
 		// Android 2.1 does not have Display.getRotation so disable tilt-scroll for 2.1 
-		if (!CommonUtils.getSharedPreferences().getBoolean("tilt_to_scroll_pref", false) || 
-			!isOrientationSensor() ||
-			!CommonUtils.isFroyoPlus()) {
+		if (!CommonUtils.getSharedPreferences().getBoolean(TILT_TO_SCROLL_PREFERENCE_KEY, false) || 
+			!isTiltSensingPossible()) {
 			return false;
 		} else if (mIsTiltScrollEnabled != enable) {
 			mIsTiltScrollEnabled = enable;
@@ -187,6 +188,13 @@ public class PageTiltScrollControl {
 		public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		}
 	};
+
+	/** return true if both a sensor and android support are available to sense device tilt
+	 */
+	public boolean isTiltSensingPossible() {
+		return 	isOrientationSensor() &&
+				CommonUtils.isFroyoPlus();
+	}
 	
     /**
      * Returns true if at least one Orientation sensor is available

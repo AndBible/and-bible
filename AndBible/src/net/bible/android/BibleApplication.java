@@ -11,6 +11,7 @@ import net.bible.android.device.ProgressNotificationManager;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
+import net.bible.service.device.ScreenSettings;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang.StringUtils;
@@ -32,8 +33,6 @@ public class BibleApplication extends Application{
 	private Locale overrideLocale;
 	
 	private static final String TEXT_SIZE_PREF = "text_size_pref";
-	private static final String NIGHT_MODE_PREF2 = "night_mode_pref2";
-	private static final String NIGHT_MODE_PREF = "night_mode_pref";
 	
 	// this was moved from the MainBibleActivity and has always been called this
 	private static final String saveStateTag = "MainBibleActivity";
@@ -182,16 +181,15 @@ public class BibleApplication extends Application{
 					}
 				}
 			}
-			// change from 
+			// add new  
 			if (prevInstalledVersion < 61) {
-				if (prefs.contains(NIGHT_MODE_PREF)) {
-					String pref2Val = prefs.getBoolean(NIGHT_MODE_PREF, false) ? "true" : "false";
-					Log.d(TAG, "Updating night mode pref to list value:"+pref2Val);
-					editor.putString(NIGHT_MODE_PREF2, pref2Val);
-					editor.remove(NIGHT_MODE_PREF);
+				if (prefs.contains(ScreenSettings.NIGHT_MODE_PREF_NO_SENSOR)) {
+					String pref2Val = prefs.getBoolean(ScreenSettings.NIGHT_MODE_PREF_NO_SENSOR, false) ? "true" : "false";
+					Log.d(TAG, "Setting new night mode pref list value:"+pref2Val);
+					editor.putString(ScreenSettings.NIGHT_MODE_PREF_WITH_SENSOR, pref2Val);
 				}
 			}
-			
+
 			editor.putInt("version", CommonUtils.getApplicationVersionNumber());
 			editor.commit();
 			Log.d(TAG, "Finished all Upgrading");
