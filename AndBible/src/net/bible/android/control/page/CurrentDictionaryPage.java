@@ -62,6 +62,7 @@ public class CurrentDictionaryPage extends CachedKeyPage implements CurrentPage 
 
 	@Override
 	public void updateOptionsMenu(Menu menu) {
+		super.updateOptionsMenu(menu);
 		menu.findItem(R.id.selectPassageButton).setTitle(R.string.dictionary_contents);		
 		menu.findItem(R.id.bookmarksButton).setEnabled(false);		
 	}

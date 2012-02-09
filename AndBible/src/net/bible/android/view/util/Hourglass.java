@@ -5,6 +5,7 @@ import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import android.app.Activity;
 import android.app.ProgressDialog;
+import android.util.Log;
 
 /** Helper class to show HourGlass
  * 
@@ -15,6 +16,8 @@ import android.app.ProgressDialog;
 public class Hourglass {
 	
 	private ProgressDialog hourglass;
+	
+	private static final String TAG = "HourGlass";
 	
 	public Hourglass() {
 		super();
@@ -37,17 +40,21 @@ public class Hourglass {
 	}
 	
 	public void dismiss() {
-		if (hourglass!=null) {
-			final Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
-			if (activity!=null) {
-				activity.runOnUiThread(new Runnable() {
-					@Override
-					public void run() {
-						hourglass.dismiss();
-						hourglass = null;
-					}
-				});
+		try {
+			if (hourglass!=null) {
+				final Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
+				if (activity!=null) {
+					activity.runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							hourglass.dismiss();
+							hourglass = null;
+						}
+					});
+				}
 			}
+		} catch (Exception e) {
+			Log.e(TAG, "Error dismissing hourglass", e);
 		}
 	}
 

@@ -9,11 +9,13 @@ import net.bible.android.control.readingplan.ReadingPlanControl;
 import net.bible.android.control.readingplan.ReadingStatus;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.readingplan.OneDaysReadingsDto;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.versification.BookName;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -93,6 +95,10 @@ public class DailyReading extends CustomTitlebarActivityBase {
 //	        mStatusMsgView =  (TextView)findViewById(R.id.status_message);
 	        
 	        mImageTickList = new ArrayList<ImageView>();
+
+	        // show short book name to save space if Portrait
+			boolean fullBookNameSave = BookName.isFullBookName();
+			BookName.setFullBookName(!CommonUtils.isPortrait());
 	        
 	        TableLayout layout = (TableLayout)findViewById(R.id.reading_container);
 	        for (int i=0; i<mReadings.getNumReadings(); i++) {
@@ -127,6 +133,9 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	            layout.addView(child, readingNo);
 	        }
 	
+			// restore full book name setting
+			BookName.setFullBookName(fullBookNameSave);
+
 	        updateTicksAndDone();
 	        
 	        // Speak All
@@ -218,23 +227,27 @@ public class DailyReading extends CustomTitlebarActivityBase {
     
     public void onDone(View view) {
     	Log.i(TAG, "Done");
-    	
-    	// do not add to History list because it will just redisplay same page
-    	setIntegrateWithHistoryManager(false);
-    	
-    	// all readings must be ticked for this to be enabled
-    	mReadingPlanControl.done(mReadings.getReadingPlanInfo(), mDay);
-    	
-    	//if user is behind then go to next days readings
-    	if (mReadingPlanControl.isDueToBeRead(mReadings.getReadingPlanInfo(), mDay+1)) {
-    		onNext(null);
-    	} else {
-    		// else exit
-        	finish();
-    	}
-
-    	// if we move away then add to history list
-    	setIntegrateWithHistoryManager(true);
+    	try {
+	    	// do not add to History list because it will just redisplay same page
+	    	setIntegrateWithHistoryManager(false);
+	    	
+	    	// all readings must be ticked for this to be enabled
+	    	mReadingPlanControl.done(mReadings.getReadingPlanInfo(), mDay);
+	    	
+	    	//if user is behind then go to next days readings
+	    	if (mReadingPlanControl.isDueToBeRead(mReadings.getReadingPlanInfo(), mDay+1)) {
+	    		onNext(null);
+	    	} else {
+	    		// else exit
+	        	finish();
+	    	}
+	
+	    	// if we move away then add to history list
+	    	setIntegrateWithHistoryManager(true);
+        } catch (Exception e) {
+        	Log.e(TAG, "Error when Done daily reading", e);
+        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+        }
     }
     
     /** allow activity to enhance intent to correctly restore state */
@@ -319,6 +332,8 @@ public class DailyReading extends CustomTitlebarActivityBase {
     	return suggestedDoc;
     }
 
+    //TODO move the below up to more general parent class
+    
     //TODO prevent Strongs button being shown
 	protected void updatePageTitle() {
 		// shorten plan code and show it in doc button

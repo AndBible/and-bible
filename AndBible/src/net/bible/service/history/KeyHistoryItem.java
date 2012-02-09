@@ -67,6 +67,7 @@ public class KeyHistoryItem implements HistoryItem {
 		return result;
 	}
 
+	//TODO use Book.equals and Key.equals in the below
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -78,6 +79,9 @@ public class KeyHistoryItem implements HistoryItem {
 		KeyHistoryItem other = (KeyHistoryItem) obj;
 		if (document == null) {
 			if (other.document != null)
+				return false;
+		} else if (document.getInitials() == null) {
+			if (other.document.getInitials() != null)
 				return false;
 		} else if (!document.getInitials().equals(other.document.getInitials()))
 			return false;

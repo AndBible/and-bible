@@ -116,37 +116,41 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
      * @param buttonType
      */
     protected void handleHeaderButtonPress(HeaderButton buttonType) {
-    	switch (buttonType) {
-    	case BIBLE:
-    		quickChange(mSuggestedBible);
-    		break;
-    	case COMMENTARY:
-    		quickChange(mSuggestedCommentary);
-    		break;
-    	case DICTIONARY:
-    		quickChange(mSuggestedDictionary);
-    		break;
-    	case GEN_BOOK:
-    		quickChange(mSuggestedGenBook);
-    		break;
-    	case DOCUMENT:
-        	Intent docHandlerIntent = new Intent(CustomTitlebarActivityBase.this, ChooseDocument.class);
-        	startActivityForResult(docHandlerIntent, 1);
-    		break;
-    	case PAGE:
-        	Intent pageHandlerIntent = new Intent(CustomTitlebarActivityBase.this, CurrentPageManager.getInstance().getCurrentPage().getKeyChooserActivity());
-        	startActivityForResult(pageHandlerIntent, 1);
-    		break;
-    	case TOGGLE_STRONGS:
-			// update the show-strongs pref setting according to the ToggleButton
-			CommonUtils.getSharedPreferences().edit().putBoolean("show_strongs_pref", mStrongsToggle.isChecked()).commit();
-			// redisplay the current page
-			preferenceSettingsChanged();
-    		break;
-    	default:
-    		Log.e(TAG, "Unknown button pressed");
+    	try {
+	    	switch (buttonType) {
+	    	case BIBLE:
+	    		quickChange(mSuggestedBible);
+	    		break;
+	    	case COMMENTARY:
+	    		quickChange(mSuggestedCommentary);
+	    		break;
+	    	case DICTIONARY:
+	    		quickChange(mSuggestedDictionary);
+	    		break;
+	    	case GEN_BOOK:
+	    		quickChange(mSuggestedGenBook);
+	    		break;
+	    	case DOCUMENT:
+	        	Intent docHandlerIntent = new Intent(CustomTitlebarActivityBase.this, ChooseDocument.class);
+	        	startActivityForResult(docHandlerIntent, 1);
+	    		break;
+	    	case PAGE:
+	        	Intent pageHandlerIntent = new Intent(CustomTitlebarActivityBase.this, CurrentPageManager.getInstance().getCurrentPage().getKeyChooserActivity());
+	        	startActivityForResult(pageHandlerIntent, 1);
+	    		break;
+	    	case TOGGLE_STRONGS:
+				// update the show-strongs pref setting according to the ToggleButton
+				CommonUtils.getSharedPreferences().edit().putBoolean("show_strongs_pref", mStrongsToggle.isChecked()).commit();
+				// redisplay the current page
+				preferenceSettingsChanged();
+	    		break;
+	    	default:
+	    		Log.e(TAG, "Unknown button pressed");
+	    	}
+    	} catch (Exception e) {
+    		Log.e(TAG, "Error pressing header button");
+    		showErrorMsg(R.string.error_occurred);
     	}
-    	
     }
     
     private void quickChange(Book changeToBook) {

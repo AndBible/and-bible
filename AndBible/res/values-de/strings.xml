@@ -28,7 +28,7 @@
   <string name="index">Index</string>
   <string name="index_download">Download</string>
   <string name="index_not_available_for_download">Dieser Index kann nicht heruntergeladen werden.</string>
-  <string name="index_create">Erzeuge Index</string>
+  <string name="index_create">Erzeuge</string>
   <string name="progress_status">Fortschritt</string>
   <string name="task_kill_warning">Diese Aufgaben dauern länger und könnten abgebrochen werden, wenn Sie zu einem anderen Programm wechseln.</string>
   <string name="no_tasks_running">Keine laufenden Aufgaben.</string>
