@@ -112,9 +112,8 @@ public class ReadingPlanControl {
 
 	public long getDueDay(ReadingPlanInfoDto planInfo) {
 		Date today = CommonUtils.getTruncatedDate();
-		Log.d(TAG, "Today:"+today.toLocaleString());
 		Date startDate = planInfo.getStartdate();
-		Log.d(TAG, "Start day:"+startDate.toLocaleString());
+		// on final day, after done the startDate will be null
 		if (startDate==null) {
 			return 0;
 		}
