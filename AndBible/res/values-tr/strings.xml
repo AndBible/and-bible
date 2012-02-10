@@ -83,6 +83,7 @@
     <string name="prefs_tilt_to_scroll_summary">Cihazı eğerek sayfayı aşağa/yükarıya kaydırma</string>
     <string name="prefs_night_mode_title">Gece Modu</string>
     <string name="prefs_night_mode_summary">Karanlıkta daha kolay okumak için başka renkler kullanılır</string>
+    <string name="prefs_night_mode_automatic">Otomatik</string>
     <string name="prefs_navigate_to_verse_title">Ayet seçimi</string>
     <string name="prefs_navigate_to_verse_summary">Kısım seçerken bölümden sonra ayet de seçilir</string>
     <string name="prefs_text_size_title">Metin boyu</string>
@@ -113,7 +114,8 @@
     <string name="download_confirmation">İnternetten bir Kutsal Kitap çevirisini indirmek ister misiniz?</string>
     <string name="download_source_message">http://www.crosswire.org\n&amp; http://xiphos.org\'dan\nbelgeler alınıyor</string>
     <string name="download_document_confirm_prefix">İndir</string>
-    <string name="download_refreshing_book_list">Mevcut belgelerinin listesi yenlenmek ister misiniz?</string>
+    <string name="download_refreshing_book_list">Mevcut belgelerinin listesi yenilenmek ister misiniz?</string>
+    <string name="download_refresh_book_list_menu_item">Yenilen</string>
     <string name="error_downloading">İndirirken bir hata oldu. İnternet bağlantınızı kontrol edin.</string>
     <string name="no_internet_connection">İnternet bağlantısı yok</string>
     <string name="storage_space_warning">Yerel depo yetersiz</string>
@@ -121,6 +123,20 @@
     <string name="wait_for_bible_not_yet">Lütfen bekleyiniz. Çeviri cihazınıza yükleniyor.</string>
     <string name="download_complete_no_bibles">Çeviri yüklenmedi. Lütfen Geri düğmesine basın ve tekrar deneyin.</string>
     <string name="too_many_jobs">Şu anda çok fazla görev işleniyor. Birinin bitmesini bekleyip tekrar deneyin.</string>
+
+    <!-- Daily Reading Plan -->
+    <string name="rdg_plan_title">Okuma Planı</string>
+    <string name="rdg_plan_selector_title">Okuma Planını Seçin</string>
+    <string name="rdg_plan_day">%s. Gün</string>
+    <string name="rdg_plan_set_start_jan1">1 Ocakta Başlat</string>
+    <string name="done">Bitti</string>
+    <string name="reset">Sıfırla</string>
+    <string name="rdg_plan_y1ntpspr">Bir senelik  Yeni Antlaşma, Mezmurlar ve Süleyman\'ın Özdeyişleri</string>
+    <string name="rdg_plan_y1ot1nt1_chronological">Bir senelik tarih sırasıyla tüm Kutsal Kitap</string>
+    <string name="rdg_plan_y1ot1nt1_OTandNT">Bir senelik  tüm Kutsal Kitap - Eski ve Yeni Antlaşma birlikte</string>
+    <string name="rdg_plan_y1ot1nt1_OTthenNT">Bir senelik tüm Kutsal Kitap - Önce Eski sonra Yeni Antlaşma</string>
+    <string name="rdg_plan_y1ot1nt2_mcheyne">Bir senelik tüm Kutsal Kitap (M\'Cheyne)</string>
+    <!-- string name="rdg_plan_m1gospels">Through the Gospels in a month</string -->
 
     <!-- Document context menu -->
     <string name="delete">Sil</string>
@@ -181,8 +197,8 @@
     <string name="mynote_saved">Notlarım kaydedildi</string>
     <string name="mynote_view_edit">Notum</string>
     <string name="mynotes">Notlarım</string>
-	
-	<!-- Document types -->    
+
+    <!-- Document types -->    
     <string name="doc_type_bible">Kutsal Kitap</string>
     <string name="doc_type_commentary">Yorum Kitabı</string>
     <string name="doc_type_dictionary">Sözlük</string>
@@ -190,10 +206,11 @@
 
     <!-- Languages -->
     <string name="lang_default">Varsayılan</string>
-	
+
     <!-- General -->
     <string name="okay">Tamam</string>
     <string name="cancel">İptal</string>
+    <string name="yes">Evet</string>
     <string name="no">Hayır</string>
     <string name="save">Kaydet</string>
     <string name="error">Hata</string>
@@ -203,9 +220,9 @@
     <string name="all">Hepsi</string>
 
    <!-- Errors -->
-   <string name="error_occurred">Bir hata oldu</string>
-   <string name="error_no_content">Seçilen ayeti için içerik yok</string>
-   <string name="error_page_too_large">Sayfa yüklenmek için fazla büyük</string>
-   <string name="error_key_not_in_document">Belgede bulunmadı</string>
-   <string name="empty_list">Öğe bulunmadı</string>
-<string name="rdg_plan_title">Reading Plan</string><string name="rdg_plan_selector_title">Choose a Reading Plan</string><string name="rdg_plan_day">Day %s</string><string name="rdg_plan_set_start_jan1">Start Jan 1</string><string name="done">Done</string><string name="reset">Reset</string><string name="rdg_plan_y1ntpspr">New Testament, Psalms, and Proverbs in a year</string><string name="rdg_plan_y1ot1nt1_chronological">Through the Bible chronologically in a year</string><string name="rdg_plan_y1ot1nt1_OTandNT">Through the bible in a year - OT and NT</string><string name="rdg_plan_y1ot1nt1_OTthenNT">Through the bible in a year - OT then NT</string><string name="rdg_plan_y1ot1nt2_mcheyne">Through the bible in a year (M\'Cheyne)</string><string name="prefs_night_mode_automatic">Automatic</string><string name="download_refresh_book_list_menu_item">Refresh</string><string name="yes">Yes</string></resources>
+    <string name="error_occurred">Bir hata oldu</string>
+    <string name="error_no_content">Seçilen ayeti için içerik yok</string>
+    <string name="error_page_too_large">Sayfa yüklenmek için fazla büyük</string>
+    <string name="error_key_not_in_document">Belgede bulunmadı</string>
+    <string name="empty_list">Öğe bulunmadı</string>
+</resources>
