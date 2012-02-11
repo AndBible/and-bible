@@ -93,7 +93,7 @@ public class NoteAndReferenceHandler {
 		isInNote = false;
 		writer.finishWritingToTempStore();
     }
-    
+
     public void endReference(int currentVerseNo) {
 		writer.finishWritingToTempStore();
 

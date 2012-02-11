@@ -62,7 +62,11 @@ public class TitleHandler {
 				// section Titles normally come before a verse, so overwrite the, already written verse, which is rewritten on writer.finishedInserting
 				writer.beginInsertAt(verseInfo.positionToInsertBeforeVerse);
 			}
-			writer.write("<h1>");
+			
+			// get title type from level
+			String titleClass = "heading"+TagHandlerHelper.getAttribute(OSISUtil.OSIS_ATTR_LEVEL, attrs, "1");
+			
+			writer.write("<h1 class='"+titleClass+"'>");
 		} else {
 			writer.setDontWrite(true);
 		}

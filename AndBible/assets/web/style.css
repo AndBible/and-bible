@@ -6,12 +6,21 @@ body {
 	font-size: 1.1em;
 }
 
-h1 {
+h1, .heading1 {
 	color: navy;
 	text-align: left;
 	font-size: 1.2em;
-	margin-top: 0.3em;
+	margin-top: 0.2em;
 	margin-bottom: 0.2em;
+}
+
+h1 a, .heading2, .heading3, .heading4 {
+	color: navy;
+	text-align: left;
+	font-size: 0.9em;
+	margin-top: 0em;
+	margin-bottom: 0.2em;
+	text-decoration: none
 }
 
 .verse {
