@@ -96,13 +96,15 @@ public class NoteAndReferenceHandler {
     
     public void endReference(int currentVerseNo) {
 		writer.finishWritingToTempStore();
-   	
-		if (parameters.isBibleStyleNotesAndRefs()) {
-			// a few modules like HunUj have refs in the text but not surrounded by a Note tag (like esv) so need to add  Note here
-			if (!isInNote) {
-				currentNoteRef = createNoteRef();
-				writeNoteRef(currentNoteRef);
-			}
+
+		// a few modules like HunUj have refs in the text but not surrounded by a Note tag (like esv) so need to add  Note here
+		// special code to cope with HunUj problem
+		if (parameters.isAutoWrapUnwrappedRefsInNote() && !isInNote ) {
+			currentNoteRef = createNoteRef();
+			writeNoteRef(currentNoteRef);
+		}
+
+		if (isInNote || parameters.isAutoWrapUnwrappedRefsInNote()) {
 			Note note = new Note(currentVerseNo, currentNoteRef, writer.getTempStoreString(), NoteType.TYPE_REFERENCE, currentRefOsisRef);
 			notesList.add(note);
 		} else {

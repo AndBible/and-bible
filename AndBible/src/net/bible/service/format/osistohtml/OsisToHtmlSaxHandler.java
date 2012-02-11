@@ -215,8 +215,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			write("<span class='transChange'>");
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_W)) {
 			strongsHandler.start(attrs);
-		} else {
-//			log.info("Verse "+currentVerseNo+" unsupported OSIS tag:"+name);
+//		} else {
+//			log.info("Verse "+verseInfo.currentVerseNo+" unsupported OSIS tag:"+name);
 		}
 	}
 

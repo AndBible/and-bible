@@ -15,7 +15,7 @@ public class OsisToHtmlParameters {
     private boolean isShowMyNotes = false;
     private boolean isShowBookmarks = false;
     private boolean isShowNotes = false;
-    private boolean isBibleStyleNotesAndRefs = false;
+    private boolean isAutoWrapUnwrappedRefsInNote = false;
     // used as a basis if a reference has only chapter and no book
     private Verse basisRef;
     private String font;
@@ -78,11 +78,11 @@ public class OsisToHtmlParameters {
 	public void setShowNotes(boolean isShowNotes) {
 		this.isShowNotes = isShowNotes;
 	}
-	public boolean isBibleStyleNotesAndRefs() {
-		return isBibleStyleNotesAndRefs;
+	public boolean isAutoWrapUnwrappedRefsInNote() {
+		return isAutoWrapUnwrappedRefsInNote;
 	}
-	public void setBibleStyleNotesAndRefs(boolean isBibleStyleNotesAndRefs) {
-		this.isBibleStyleNotesAndRefs = isBibleStyleNotesAndRefs;
+	public void setAutoWrapUnwrappedRefsInNote(boolean isAutoWrapUnwrappedRefsInNote) {
+		this.isAutoWrapUnwrappedRefsInNote = isAutoWrapUnwrappedRefsInNote;
 	}
 	public boolean isShowStrongs() {
 		return isShowStrongs;
