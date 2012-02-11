@@ -60,7 +60,7 @@ public class TitleHandler {
 			isMoveBeforeVerse = StringUtils.containsIgnoreCase(subtype, PREVERSE) || !verseInfo.isTextSinceVerse;
 			if (isMoveBeforeVerse) {
 				// section Titles normally come before a verse, so overwrite the, already written verse, which is rewritten on writer.finishedInserting
-				writer.beginInsertAt(verseInfo.currentVersePosition);
+				writer.beginInsertAt(verseInfo.positionToInsertBeforeVerse);
 			}
 			writer.write("<h1>");
 		} else {
@@ -72,6 +72,8 @@ public class TitleHandler {
 		if (isShowTitle) {
 			writer.write("</h1>");
 			if (isMoveBeforeVerse) {
+				// move positionToInsertBeforeVerse forward to after this title otherwise any subtitle will be above the title
+				verseInfo.positionToInsertBeforeVerse = writer.getPosition();
 				writer.finishInserting();
 			}
 		} else {

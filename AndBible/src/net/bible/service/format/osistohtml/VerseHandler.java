@@ -59,7 +59,7 @@ public class VerseHandler {
 	}
 
 	private void writeVerse(int verseNo) {
-		verseInfo.currentVersePosition = writer.getPosition();
+		verseInfo.positionToInsertBeforeVerse = writer.getPosition();
 		
 		// the id is used to 'jump to' the verse using javascript so always
 		// need the verse tag with an id

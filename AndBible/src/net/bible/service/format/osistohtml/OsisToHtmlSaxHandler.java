@@ -70,7 +70,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	private VerseInfo verseInfo = new VerseInfo();
 	class VerseInfo {
 		int currentVerseNo;
-		int currentVersePosition;
+		int positionToInsertBeforeVerse;
 		boolean isTextSinceVerse = false;
 	}
 
@@ -284,7 +284,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	protected void writeOptionallyBeforeVerse(String s) {
 		boolean writeBeforeVerse = !verseInfo.isTextSinceVerse;
 		if (writeBeforeVerse) {
-			getWriter().beginInsertAt(verseInfo.currentVersePosition);
+			getWriter().beginInsertAt(verseInfo.positionToInsertBeforeVerse);
 		}
 		getWriter().write(s);
 		if (writeBeforeVerse) {

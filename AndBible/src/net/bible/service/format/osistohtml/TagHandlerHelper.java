@@ -9,6 +9,17 @@ public class TagHandlerHelper {
 
 	private static final Logger log = new Logger("TagHandlerHelper");
 
+	/** support defaultvalue with attribute fetch
+	 */
+	public static String getAttribute(String attributeName, Attributes attrs, String defaultValue) {
+		String attrValue = attrs.getValue(attributeName);
+		if (attrValue != null) {
+			return attrValue;
+		} else {
+			return defaultValue;
+		}
+	}
+
 	/**
 	 * see if an attribute exists and has a value
 	 * 
