@@ -13,6 +13,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+/** Control singletons of the different current document page types
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class CurrentPageManager {
 	// use the same verse in the commentary and bible to keep them in sync
 	private CurrentBibleVerse currentBibleVerse;

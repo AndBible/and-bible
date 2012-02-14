@@ -25,6 +25,12 @@ import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
 
+/** Support for the document search functionality
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class SearchControl {
 
 	public static enum SearchBibleSection {

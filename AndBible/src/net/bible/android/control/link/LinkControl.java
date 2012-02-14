@@ -26,6 +26,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+/** Control traversal via links pressed by user in a browser e.g. to Strongs
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class LinkControl {
 
 	private static final String TAG = "LinkControl";

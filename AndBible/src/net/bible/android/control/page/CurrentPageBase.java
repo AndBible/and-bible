@@ -21,6 +21,12 @@ import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
 
+/** Common functionality for different document page types
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 abstract class CurrentPageBase implements CurrentPage {
 
 	private Book currentDocument;

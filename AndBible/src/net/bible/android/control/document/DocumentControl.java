@@ -16,6 +16,12 @@ import org.crosswire.jsword.versification.BibleBook;
 
 import android.util.Log;
 
+/** Control use of different documents/books/modules - used by front end
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class DocumentControl {
 	
 	private static final String TAG = "DocumentControl";
