@@ -2,6 +2,7 @@ package net.bible.android.control;
 
 import net.bible.android.control.bookmark.Bookmark;
 import net.bible.android.control.bookmark.BookmarkControl;
+import net.bible.android.control.comparetranslations.CompareTranslationsControl;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.control.link.LinkControl;
@@ -33,6 +34,7 @@ public class ControlFactory {
 	private DownloadControl downloadControl = new DownloadControl();
 	private SpeakControl speakControl = new SpeakControl();
 	private ReadingPlanControl readingPlanControl = new ReadingPlanControl();
+	private CompareTranslationsControl compareTranslationsControl = new CompareTranslationsControl();
 	
 	private static ControlFactory singleton = new ControlFactory();
 	
@@ -44,6 +46,7 @@ public class ControlFactory {
 		// inject dependencies
 		pageControl.setCurrentPageManager(this.currentPageManager);
 		readingPlanControl.setSpeakControl(this.speakControl);
+		compareTranslationsControl.setCurrentPageManager(currentPageManager);
 	}
 	
 	public DocumentControl getDocumentControl() {
@@ -91,5 +94,9 @@ public class ControlFactory {
 
 	public ReadingPlanControl getReadingPlanControl() {
 		return readingPlanControl;
+	}
+
+	public CompareTranslationsControl getCompareTranslationsControl() {
+		return compareTranslationsControl;
 	}
 }

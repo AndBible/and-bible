@@ -162,7 +162,8 @@
     <string name="copy">Copy current verse</string>
     <string name="share_verse">Share current verse ...</string>
     <string name="share_verse_subject">A Bible verse has been shared with you using And Bible</string>
-
+    <string name="compare_translations">Compare translations</string>
+    
     <!-- Bookmarks -->
     <string name="bookmarks">Bookmarks</string>
     <string name="add_bookmark">Add bookmark</string>

@@ -7,7 +7,9 @@
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-	<item android:id="@+id/myNoteAddEdit" 
+	<item android:id="@+id/compareTranslations" 
+		  android:title="@string/compare_translations"/>
+   	<item android:id="@+id/myNoteAddEdit" 
 		  android:title="@string/mynote_add"/>
 	<item android:id="@+id/add_bookmark"
 		  android:title="@string/add_bookmark"/>

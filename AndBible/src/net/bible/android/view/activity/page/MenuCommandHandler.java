@@ -7,6 +7,7 @@ import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.bookmark.Bookmarks;
+import net.bible.android.view.activity.comparetranslations.CompareTranslations;
 import net.bible.android.view.activity.download.Download;
 import net.bible.android.view.activity.help.Help;
 import net.bible.android.view.activity.mynote.MyNotes;
@@ -115,6 +116,9 @@ public class MenuCommandHandler {
 	        	break;
 
 	        /** Pop-up options menu starts here */
+			case R.id.compareTranslations:
+	        	handlerIntent = new Intent(callingActivity, CompareTranslations.class);
+	        	break;
 	        case R.id.notes:
 	        	handlerIntent = new Intent(callingActivity, NotesActivity.class);
 	        	// pump the notes into the viewer (there must be an easier way other than Parcelable)

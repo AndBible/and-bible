@@ -62,6 +62,10 @@
                   android:label="@string/bookmark_labels"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
+        <activity android:name="net.bible.android.view.activity.comparetranslations.CompareTranslations"
+                  android:label="@string/compare_translations"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
         <activity android:name="net.bible.android.view.activity.mynote.MyNotes"
                   android:label="@string/mynotes"
                   android:configChanges="keyboardHidden|orientation">
