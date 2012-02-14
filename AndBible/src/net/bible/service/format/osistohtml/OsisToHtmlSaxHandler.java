@@ -59,6 +59,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	private NoteAndReferenceHandler noteAndReferenceHandler;
 	private TitleHandler titleHandler;
 	private QHandler qHandler;
+	private LGHandler lgHandler;
 	private LHandler lHandler;
 	private HiHandler hiHandler;
 	private StrongsHandler strongsHandler;
@@ -89,6 +90,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		titleHandler = new TitleHandler(parameters, verseInfo, getWriter());
 		qHandler = new QHandler(parameters, getWriter());
 		hiHandler = new HiHandler(parameters, getWriter());
+		lgHandler = new LGHandler(parameters, getWriter());
 		lHandler = new LHandler(parameters, getWriter());
 		strongsHandler = new StrongsHandler(parameters, getWriter());
 		
@@ -186,6 +188,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			noteAndReferenceHandler.startReference(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LB)) {
 			write(HTML.BR);
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LG)) {
+			lgHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
 			lHandler.startL(attrs);
 		} else if (name.equals("div")) {
@@ -240,6 +244,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			noteAndReferenceHandler.endNote(verseInfo.currentVerseNo);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
 			noteAndReferenceHandler.endReference(verseInfo.currentVerseNo);
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LG)) {
+			lgHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
 			lHandler.endL();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_P)) {

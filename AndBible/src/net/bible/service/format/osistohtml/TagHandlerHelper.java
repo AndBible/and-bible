@@ -20,6 +20,21 @@ public class TagHandlerHelper {
 		}
 	}
 
+	/** support defaultvalue with attribute fetch
+	 */
+	public static int getAttribute(String attributeName, Attributes attrs, int defaultValue) {
+		int retval = defaultValue;
+		try {
+			String attrValue = attrs.getValue(attributeName);
+			if (attrValue != null) {
+				retval = Integer.parseInt(attrValue);
+			}
+		} catch (Exception e) {
+			log.warn("Non numeric but expected integer for "+attributeName);
+		}
+		return retval;
+	}
+
 	/**
 	 * see if an attribute exists and has a value
 	 * 

@@ -2,8 +2,8 @@ package net.bible.service.format.osistohtml;
 
 import java.util.Stack;
 
-import net.bible.service.common.Logger;
 import net.bible.service.common.Constants.HTML;
+import net.bible.service.common.Logger;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
@@ -29,6 +29,8 @@ public class LHandler {
 	
 	private Stack<LType> stack = new Stack<LType>();
 	
+	private static final String INDENT = HTML.NBSP+HTML.NBSP;
+	
 	private static final Logger log = new Logger("LHandler");
 
 	public LHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
@@ -44,10 +46,16 @@ public class LHandler {
 	public void startL(Attributes attrs) {
 		// Refer to Gen 3:14 in ESV for example use of type=x-indent
 		String type = attrs.getValue(OSISUtil.OSIS_ATTR_TYPE);
+		int level = TagHandlerHelper.getAttribute(OSISUtil.OSIS_ATTR_LEVEL, attrs, 1);
+		// make numIndents default to zero
+		int numIndents = Math.max(0, level-1);
+		
 		LType ltype = LType.ignore;
 		if (StringUtils.isNotEmpty(type)) {
 			if (type.contains("indent")) {
-				writer.write(HTML.NBSP+HTML.NBSP);
+				// this tag is specifically for indenting so ensure there is an indent
+				numIndents = numIndents+1;
+				writer.write(StringUtils.repeat(INDENT, numIndents));
 				ltype = LType.indent;
 			} else if (type.contains("br")) {
 				writer.write(HTML.BR);
@@ -57,6 +65,7 @@ public class LHandler {
 				log.debug("Unknown <l> tag type:"+type);
 			}
 		} else if (TagHandlerHelper.isAttr(OSISUtil.OSIS_ATTR_SID, attrs)) {
+			writer.write(StringUtils.repeat(INDENT, numIndents));
 			ltype = LType.ignore;
 		} else if (TagHandlerHelper.isAttr(OSISUtil.OSIS_ATTR_EID, attrs)) {
 			// e.g. Isaiah 40:12
@@ -64,6 +73,7 @@ public class LHandler {
 			ltype = LType.br;
 		} else {
 			//simple <l>
+			writer.write(StringUtils.repeat(INDENT, numIndents));
 			ltype = LType.end_br;
 		}
 		stack.push(ltype);
