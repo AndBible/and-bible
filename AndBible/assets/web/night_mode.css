@@ -6,9 +6,22 @@ body {
 	background-color: black;	
 }
 
-h1 {
+h1, .heading1 {
 	color: #B0B0B0;
+	text-align: left;
+	font-size: 1.2em;
+	margin-top: 0.2em;
+	margin-bottom: 0.2em;
 	text-decoration: none;
+}
+
+h1 a, .heading2, .heading3, .heading4 {
+	color: #B0B0B0;
+	text-align: left;
+	font-size: 0.9em;
+	margin-top: 0em;
+	margin-bottom: 0.2em;
+	text-decoration: none
 }
 
 a {
