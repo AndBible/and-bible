@@ -332,9 +332,16 @@ public class DailyReading extends CustomTitlebarActivityBase {
     	return suggestedDoc;
     }
 
+    /** prevent Strongs button being shown
+     */
+	@Override
+	public boolean isStrongsRelevant() {
+		// TODO Auto-generated method stub
+		return super.isStrongsRelevant();
+	}
+
     //TODO move the below up to more general parent class
     
-    //TODO prevent Strongs button being shown
 	protected void updatePageTitle() {
 		// shorten plan code and show it in doc button
     	setDocumentTitle(StringUtils.left(mReadings.getReadingPlanInfo().getCode(), 8));

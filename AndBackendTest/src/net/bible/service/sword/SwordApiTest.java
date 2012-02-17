@@ -1,6 +1,7 @@
 package net.bible.service.sword;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
@@ -11,9 +12,15 @@ import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.xml.SAXEventProvider;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookData;
+import org.crosswire.jsword.book.Books;
+import org.crosswire.jsword.book.OSISUtil;
 import org.crosswire.jsword.book.sword.SwordBookDriver;
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.PassageKeyFactory;
+import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.versification.BibleBook;
+import org.crosswire.jsword.versification.BibleInfo;
 
 public class SwordApiTest extends TestCase {
 
@@ -300,4 +307,28 @@ public class SwordApiTest extends TestCase {
 		}
 		return null;
 	}
+	
+	public void testCheckISVVersesExist() {
+		Book isv = Books.installed().getBook("ISV");
+    	for (BibleBook book: EnumSet.range(BibleBook.GEN, BibleBook.REV)) {
+    		System.out.println(book);
+    		try {
+	    		for (int chap=1; chap<=BibleInfo.chaptersInBook(book); chap++ ) {
+	    			for (int verse=1; verse <= BibleInfo.versesInChapter(book, chap); verse++) {
+				        Key key = isv.getKey(new Verse(book, chap, verse).getOsisID());
+				        BookData data = new BookData(isv, key);
+				        String plainText = OSISUtil.getCanonicalText(data.getOsisFragment());
+				        if (plainText.isEmpty()) {
+				        	System.out.println("Missing:"+key.getOsisID());
+				        }
+	    			}
+	    		}
+    		} catch (Exception e) {
+    			System.out.println("missing verse");
+    		}
+    		
+    	}
+
+	}
+
 }

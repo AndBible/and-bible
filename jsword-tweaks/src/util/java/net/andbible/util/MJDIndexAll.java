@@ -149,7 +149,14 @@ public class MJDIndexAll {
 //    	indexAll.installAndIndexSingleBook("WEBME");
 //    	indexAll.installAndIndexSingleBook("WEBBE");
     	
-    	indexAll.installSingleBook("NETtext");
+//    	indexAll.installSingleBook("HunUj");
+    	
+    	// 17/12/2012
+    	indexAll.installAndIndexSingleBook("FrePGR");
+    	indexAll.installAndIndexSingleBook("BurJudson");
+    	indexAll.installAndIndexSingleBook("GerNeUe");
+    	indexAll.installAndIndexSingleBook("KhmerNT");
+    	indexAll.installAndIndexSingleBook("ThaiKJV");
     }
     
 	public void validateAllIndexes() {

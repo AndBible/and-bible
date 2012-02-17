@@ -246,7 +246,7 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
         mSuggestedGenBook = getSuggestedDocument(HeaderButton.GEN_BOOK);;
         updateQuickButton(mSuggestedGenBook, mQuickGenBookChangeLink, numButtonsToShow>=4);
         
-        boolean showStrongsToggle = ControlFactory.getInstance().getDocumentControl().isStrongsInBook();
+        boolean showStrongsToggle = isStrongsRelevant();
         mStrongsToggle.setVisibility(showStrongsToggle? View.VISIBLE : View.GONE);
         if (showStrongsToggle) {
 	        boolean isShowstrongs = CommonUtils.getSharedPreferences().getBoolean("show_strongs_pref", true);
@@ -267,10 +267,15 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 
 	/** return true if Strongs numbers are shown */
 	public boolean isStrongsShown() {
-		return ControlFactory.getInstance().getDocumentControl().isStrongsInBook() && 
-				CommonUtils.getSharedPreferences().getBoolean("show_strongs_pref", true);
+		return isStrongsRelevant() && 
+			   CommonUtils.getSharedPreferences().getBoolean("show_strongs_pref", true);
 	}
 	
+	/** return true if Strongs are relevant to this doc & screen */
+	public boolean isStrongsRelevant() {
+		return ControlFactory.getInstance().getDocumentControl().isStrongsInBook();
+	}
+
     /** must wait until child has setContentView before setting custom title bar so intercept the method and then set the title bar
      */
 	public void setPageTitleVisible(boolean show) {
