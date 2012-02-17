@@ -10,7 +10,7 @@ import net.bible.service.sword.SwordContentFacade;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.Verse;
 
 import android.util.Log;
 
@@ -29,36 +29,38 @@ public class CompareTranslationsControl {
 	private SwordDocumentFacade swordDocumentFacade = SwordDocumentFacade.getInstance();
 	private SwordContentFacade swordContentFacade = SwordContentFacade.getInstance();
 	
-	public String getTitle() {
+	public String getTitle(Verse verse) {
 		StringBuilder stringBuilder = new StringBuilder();
-		Key currentVerse = currentPageManager.getCurrentBible().getSingleKey();
 
 		stringBuilder.append(BibleApplication.getApplication().getString(R.string.compare_translations))
 					 .append(" ")
-					 .append(currentVerse.getName());
+					 .append(verse.getName());
 		return stringBuilder.toString();
 	}
 	
-	public List<TranslationDto> getAllTranslations() {
+	public Verse getDefaultVerse() {
+		return currentPageManager.getCurrentBible().getSingleKey();
+	}
+	
+	public List<TranslationDto> getAllTranslations(Verse verse) {
 		List<TranslationDto> retval = new ArrayList<TranslationDto>();
-		Key currentVerse = currentPageManager.getCurrentBible().getSingleKey(); 
 		List<Book> books = swordDocumentFacade.getBibles();
 		for (Book book : books) {
 			try {
-				String text = swordContentFacade.getPlainText(book, currentVerse.getOsisID(), 1);
+				String text = swordContentFacade.getPlainText(book, verse.getOsisID(), 1);
 				if (text.length()>0) {
 					retval.add(new TranslationDto(book, text));
 				}
 			} catch (Exception nske) {
-				Log.d(TAG, currentVerse+" not in "+book);
+				Log.d(TAG, verse+" not in "+book);
 			}
 		}
 
 		return retval;		
 	}
 	
-	public void showTranslation(TranslationDto translationDto) {
-		currentPageManager.setCurrentDocument(translationDto.getBook());
+	public void showTranslation(TranslationDto translationDto, Verse verse) {
+		currentPageManager.setCurrentDocumentAndKey(translationDto.getBook(), verse);
 	}
 
 	public void setCurrentPageManager(CurrentPageManager currentPageManager) {
