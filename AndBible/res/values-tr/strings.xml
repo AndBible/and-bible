@@ -131,9 +131,9 @@
     <string name="rdg_plan_set_start_jan1">1 Ocakta Başlat</string>
     <string name="done">Bitti</string>
     <string name="reset">Sıfırla</string>
-    <string name="rdg_plan_y1ntpspr">Bir senelik  Yeni Antlaşma, Mezmurlar ve Süleyman\'ın Özdeyişleri</string>
+    <string name="rdg_plan_y1ntpspr">Bir senelik Yeni Antlaşma, Mezmurlar ve Süleyman\'ın Özdeyişleri</string>
     <string name="rdg_plan_y1ot1nt1_chronological">Bir senelik tarih sırasıyla tüm Kutsal Kitap</string>
-    <string name="rdg_plan_y1ot1nt1_OTandNT">Bir senelik  tüm Kutsal Kitap - Eski ve Yeni Antlaşma birlikte</string>
+    <string name="rdg_plan_y1ot1nt1_OTandNT">Bir senelik tüm Kutsal Kitap - Eski ve Yeni Antlaşma birlikte</string>
     <string name="rdg_plan_y1ot1nt1_OTthenNT">Bir senelik tüm Kutsal Kitap - Önce Eski sonra Yeni Antlaşma</string>
     <string name="rdg_plan_y1ot1nt2_mcheyne">Bir senelik tüm Kutsal Kitap (M\'Cheyne)</string>
     <!-- string name="rdg_plan_m1gospels">Through the Gospels in a month</string -->
@@ -225,4 +225,4 @@
     <string name="error_page_too_large">Sayfa yüklenmek için fazla büyük</string>
     <string name="error_key_not_in_document">Belgede bulunmadı</string>
     <string name="empty_list">Öğe bulunmadı</string>
-</resources>
+<string name="compare_translations">Compare translations</string></resources>
