@@ -52,7 +52,8 @@ public class FontControl {
 			
 			log.debug("Book:"+book.getInitials()+" Language code:"+langCode+" Font:"+font);
 		} catch (Exception e) {
-			log.warn("Problem getting font for book:"+book.getInitials(), e);
+			// sometimes get here if a book has no initials - so do not attempt to print a books initials in the error 
+			log.warn("Problem getting font for book", e);
 		}
 		return font;
 	}

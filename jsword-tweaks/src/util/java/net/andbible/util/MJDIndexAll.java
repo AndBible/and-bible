@@ -152,11 +152,13 @@ public class MJDIndexAll {
 //    	indexAll.installSingleBook("HunUj");
     	
     	// 17/12/2012
-    	indexAll.installAndIndexSingleBook("FrePGR");
-    	indexAll.installAndIndexSingleBook("BurJudson");
-    	indexAll.installAndIndexSingleBook("GerNeUe");
-    	indexAll.installAndIndexSingleBook("KhmerNT");
-    	indexAll.installAndIndexSingleBook("ThaiKJV");
+//    	indexAll.installAndIndexSingleBook("FrePGR");
+//    	indexAll.installAndIndexSingleBook("BurJudson");
+//    	indexAll.installAndIndexSingleBook("GerNeUe");
+//    	indexAll.installAndIndexSingleBook("KhmerNT");
+//    	indexAll.installAndIndexSingleBook("ThaiKJV");
+    	indexAll.installSingleBook("WelBeiblNet");
+
     }
     
 	public void validateAllIndexes() {

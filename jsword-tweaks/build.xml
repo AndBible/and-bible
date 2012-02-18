@@ -30,8 +30,7 @@
 	<target name="mergeCode" depends="init">
 		<copy todir="${build.src}">
 			<fileset dir="${jsword.src}"/>
-			<!-- make JSword use names like Deutsch instead of German similarly to And Bible -->
-			<fileset dir="${jsword.resources}" excludes="iso639_en.properties"/>
+			<fileset dir="${jsword.resources}"/>
 		</copy>
 		<copy todir="${build.src}" overwrite="true">
 			<fileset dir="${tweaks.jsword.src}"/>
