@@ -30,4 +30,5 @@
 	
 	<integer name="grid_cell_text_size_sp">15</integer>
 	
+	<integer name="poetry_indent_chars">2</integer>
 </resources>

@@ -2,6 +2,8 @@ package net.bible.service.format.osistohtml;
 
 import java.util.Stack;
 
+import net.bible.android.activity.R;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Constants.HTML;
 import net.bible.service.common.Logger;
 
@@ -21,7 +23,7 @@ import org.xml.sax.Attributes;
  */
 public class LHandler {
 
-	enum LType {indent, br, end_br, ignore};
+	enum LType {INDENT, BR, END_BR, IGNORE};
 
 	private HtmlTextWriter writer;
 	
@@ -29,13 +31,15 @@ public class LHandler {
 	
 	private Stack<LType> stack = new Stack<LType>();
 	
-	private static final String INDENT = HTML.NBSP+HTML.NBSP;
+	private static String indent_html = HTML.NBSP+HTML.NBSP;
 	
 	private static final Logger log = new Logger("LHandler");
 
 	public LHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
 		this.parameters = parameters;
 		this.writer = writer;
+		int indentCharCount = CommonUtils.getResourceInteger(R.integer.poetry_indent_chars);
+		indent_html = StringUtils.repeat(HTML.NBSP, indentCharCount);
 	}
 	
 	
@@ -50,38 +54,38 @@ public class LHandler {
 		// make numIndents default to zero
 		int numIndents = Math.max(0, level-1);
 		
-		LType ltype = LType.ignore;
+		LType ltype = LType.IGNORE;
 		if (StringUtils.isNotEmpty(type)) {
 			if (type.contains("indent")) {
 				// this tag is specifically for indenting so ensure there is an indent
 				numIndents = numIndents+1;
-				writer.write(StringUtils.repeat(INDENT, numIndents));
-				ltype = LType.indent;
+				writer.write(StringUtils.repeat(indent_html, numIndents));
+				ltype = LType.INDENT;
 			} else if (type.contains("br")) {
 				writer.write(HTML.BR);
-				ltype = LType.br;
+				ltype = LType.BR;
 			} else {
-				ltype = LType.ignore;
+				ltype = LType.IGNORE;
 				log.debug("Unknown <l> tag type:"+type);
 			}
 		} else if (TagHandlerHelper.isAttr(OSISUtil.OSIS_ATTR_SID, attrs)) {
-			writer.write(StringUtils.repeat(INDENT, numIndents));
-			ltype = LType.ignore;
+			writer.write(StringUtils.repeat(indent_html, numIndents));
+			ltype = LType.IGNORE;
 		} else if (TagHandlerHelper.isAttr(OSISUtil.OSIS_ATTR_EID, attrs)) {
 			// e.g. Isaiah 40:12
 			writer.write(HTML.BR);
-			ltype = LType.br;
+			ltype = LType.BR;
 		} else {
 			//simple <l>
-			writer.write(StringUtils.repeat(INDENT, numIndents));
-			ltype = LType.end_br;
+			writer.write(StringUtils.repeat(indent_html, numIndents));
+			ltype = LType.END_BR;
 		}
 		stack.push(ltype);
 	}
 
 	public void endL() {
 		LType type = stack.pop();
-		if (LType.end_br.equals(type)) {
+		if (LType.END_BR.equals(type)) {
 			writer.write(HTML.BR);
 		}
 	}

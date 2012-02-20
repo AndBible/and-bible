@@ -229,6 +229,10 @@ public class CommonUtils {
 	public static String getResourceString(int resourceId) {
 		return BibleApplication.getApplication().getResources().getString(resourceId);
 	}
+
+	public static int getResourceInteger(int resourceId) {
+		return BibleApplication.getApplication().getResources().getInteger(resourceId);
+	}
 	
 	/**
 	 * convert dip measurements to pixels
