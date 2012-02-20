@@ -5,6 +5,7 @@ import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.comparetranslations.CompareTranslationsControl;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.download.DownloadControl;
+import net.bible.android.control.footnoteandref.FootnoteAndRefControl;
 import net.bible.android.control.link.LinkControl;
 import net.bible.android.control.mynote.MyNote;
 import net.bible.android.control.mynote.MyNoteControl;
@@ -35,6 +36,7 @@ public class ControlFactory {
 	private SpeakControl speakControl = new SpeakControl();
 	private ReadingPlanControl readingPlanControl = new ReadingPlanControl();
 	private CompareTranslationsControl compareTranslationsControl = new CompareTranslationsControl();
+	private FootnoteAndRefControl footnoteAndRefControl = new FootnoteAndRefControl();
 	
 	private static ControlFactory singleton = new ControlFactory();
 	
@@ -47,6 +49,7 @@ public class ControlFactory {
 		pageControl.setCurrentPageManager(this.currentPageManager);
 		readingPlanControl.setSpeakControl(this.speakControl);
 		compareTranslationsControl.setCurrentPageManager(currentPageManager);
+		footnoteAndRefControl.setCurrentPageManager(currentPageManager);
 	}
 	
 	public DocumentControl getDocumentControl() {
@@ -98,5 +101,9 @@ public class ControlFactory {
 
 	public CompareTranslationsControl getCompareTranslationsControl() {
 		return compareTranslationsControl;
+	}
+
+	public FootnoteAndRefControl getFootnoteAndRefControl() {
+		return footnoteAndRefControl;
 	}
 }

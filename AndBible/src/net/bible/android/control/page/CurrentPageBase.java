@@ -100,7 +100,7 @@ abstract class CurrentPageBase implements CurrentPage {
 	 * default is one key per page - all except bible use this default
 	 */
 	public Key getPagePlus(int num) {
-		// verse per page so same as getKeyPlus
+		// If 1 key per page then same as getKeyPlus
 		return getKeyPlus(num);
 	}
 
@@ -186,6 +186,9 @@ abstract class CurrentPageBase implements CurrentPage {
 		
 		// dictionary will disable
 		menu.findItem(R.id.add_bookmark).setVisible(true);
+		
+		// by default disable compare translation except for Bibles
+		menu.findItem(R.id.compareTranslations).setVisible(true);
 
 		//set title - can only be set when cast to a ContextMenu
 		if (getSingleKey()!=null) {

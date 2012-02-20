@@ -58,6 +58,22 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 		Log.d(TAG, "Next");
 		nextChapter();
 	}
+	/* go to prev verse quietly without updates
+	 */
+	public void doPreviousVerse() {
+		Log.d(TAG, "Previous");
+		Verse verse = currentBibleVerse.getVerseSelected();
+		currentBibleVerse.setVerseSelected(verse.subtract(1));
+	}
+	
+	/* go to next verse quietly without updates
+	 */
+	public void doNextVerse() {
+		Log.d(TAG, "NextVerse");
+		Verse verse = currentBibleVerse.getVerseSelected();
+		currentBibleVerse.setVerseSelected(verse.add(1));
+	}
+	
 	/* (non-Javadoc)
 	 * @see net.bible.android.control.CurrentPage#previous()
 	 */
@@ -66,7 +82,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 		Log.d(TAG, "Previous");
 		previousChapter();
 	}
-	
+
 	private void nextChapter() {
 		setKey( getKeyPlus(+1) );
 	}
@@ -125,11 +141,12 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 		}
 	}
 
+	
 	/** set key without notification
 	 * 
 	 * @param key
 	 */
-	protected void doSetKey(Key key) {
+	public void doSetKey(Key key) {
 		Log.d(TAG, "Bible key set to:"+key);
 		if (key!=null) {
 			Verse verse = KeyUtil.getVerse(key);
@@ -258,5 +275,8 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 		MenuItem myNotesMenuItem = menu.findItem(R.id.myNoteAddEdit);
 		myNotesMenuItem.setVisible(true);
 		myNotesMenuItem.setTitle(ControlFactory.getInstance().getMyNoteControl().getAddEditMenuText());
+
+		// by default disable compare translation except for Bibles
+		menu.findItem(R.id.compareTranslations).setVisible(true);
 	}
 }

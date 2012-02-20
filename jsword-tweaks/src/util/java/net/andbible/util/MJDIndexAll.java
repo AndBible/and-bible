@@ -157,7 +157,7 @@ public class MJDIndexAll {
 //    	indexAll.installAndIndexSingleBook("GerNeUe");
 //    	indexAll.installAndIndexSingleBook("KhmerNT");
 //    	indexAll.installAndIndexSingleBook("ThaiKJV");
-    	indexAll.installSingleBook("WelBeiblNet");
+    	indexAll.installRepoBooks();
 
     }
     

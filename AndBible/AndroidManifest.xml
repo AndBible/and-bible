@@ -50,7 +50,7 @@
                   android:label="@string/search_index"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:name="net.bible.android.view.activity.references.NotesActivity"
+        <activity android:name="net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity"
                   android:label="@string/notes"
                   android:configChanges="keyboardHidden|orientation">
         </activity>

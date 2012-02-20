@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.references;
+package net.bible.android.view.activity.footnoteandref;
 
 import java.util.List;
 
@@ -16,11 +16,11 @@ import android.widget.TwoLineListItem;
  * @author denha1m
  *
  */
-public class NoteRefItemAdapter extends ArrayAdapter<Note> {
+public class ItemAdapter extends ArrayAdapter<Note> {
 
 	private int resource;
 
-	public NoteRefItemAdapter(Context _context, int _resource, List<Note> _items) {
+	public ItemAdapter(Context _context, int _resource, List<Note> _items) {
 		super(_context, _resource, _items);
 		resource = _resource;
 	}

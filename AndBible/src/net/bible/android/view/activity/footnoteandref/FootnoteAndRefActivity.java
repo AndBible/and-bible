@@ -1,21 +1,25 @@
-package net.bible.android.view.activity.references;
+package net.bible.android.view.activity.footnoteandref;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.ControlFactory;
+import net.bible.android.control.footnoteandref.FootnoteAndRefControl;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.android.view.util.DataPipe;
+import net.bible.android.view.util.swipe.SwipeGestureEventHandler;
+import net.bible.android.view.util.swipe.SwipeGestureListener;
 import net.bible.service.format.Note;
 
 import org.apache.commons.lang.StringUtils;
-import org.crosswire.jsword.passage.Verse;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -27,7 +31,7 @@ import android.widget.TextView;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class NotesActivity extends ListActivityBase {
+public class FootnoteAndRefActivity extends ListActivityBase implements SwipeGestureEventHandler {
 	private static final String TAG = "NotesActivity";
 	
 	private TextView mWarning;
@@ -35,11 +39,15 @@ public class NotesActivity extends ListActivityBase {
     static final protected String LIST_ITEM_LINE1 = "line1";
     static final protected String LIST_ITEM_LINE2 = "line2";
     
-    private Verse mVerse;
     private List<Note> mChapterNotesList;
     private List<Note> mVerseNotesList;
 	private ArrayAdapter<Note> mNotesListAdapter; 
 	
+	// detect swipe left/right
+	private GestureDetector gestureDetector;
+
+	private FootnoteAndRefControl footnoteAndRefControl = ControlFactory.getInstance().getFootnoteAndRefControl();
+
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
 
 	/** Called when the activity is first created. */
@@ -51,11 +59,12 @@ public class NotesActivity extends ListActivityBase {
     
         mWarning =  (TextView)findViewById(R.id.warningText);
         
-        mVerse = CurrentPageManager.getInstance().getCurrentBible().getSingleKey();
         mChapterNotesList = DataPipe.getInstance().popNotes();
         
         initialiseView();
-        Log.d(TAG, "Finished displaying Search view");
+
+        // create gesture related objects
+        gestureDetector = new GestureDetector( new SwipeGestureListener(this) );
     }
 
     private void initialiseView() {
@@ -65,7 +74,7 @@ public class NotesActivity extends ListActivityBase {
     	populateVerseNotesList();
     	prepareWarningMsg();
     	
-    	mNotesListAdapter = new NoteRefItemAdapter(this, LIST_ITEM_TYPE, mVerseNotesList);
+    	mNotesListAdapter = new ItemAdapter(this, LIST_ITEM_TYPE, mVerseNotesList);
         setListAdapter(mNotesListAdapter);
     }
 
@@ -74,17 +83,20 @@ public class NotesActivity extends ListActivityBase {
     	noteSelected(mVerseNotesList.get(position));
 	}
 
-    public void onPrevious(View v) {
-    	if (!mVerse.isStartOfChapter()) {
-	    	mVerse = mVerse.subtract(1);
-			onVerseChanged();
-    	}
+    /** swiped left
+     */
+    public void onNext() {
+    	Log.d(TAG, "Next");
+    	footnoteAndRefControl.next();
+    	onVerseChanged();
     }
-    public void onNext(View v) {
-    	if (!mVerse.isEndOfChapter()) {
-    		mVerse = mVerse.add(1);
-    		onVerseChanged();
-    	}
+
+    /** swiped right
+     */
+    public void onPrevious() {
+    	Log.d(TAG, "Previous");
+    	footnoteAndRefControl.previous();
+    	onVerseChanged();
     }
 
     private void onVerseChanged() {
@@ -96,10 +108,10 @@ public class NotesActivity extends ListActivityBase {
     
     private void populateVerseNotesList() {
     	mVerseNotesList.clear();
-    	
+    	int verseNo = footnoteAndRefControl.getVerse().getVerse();
     	if (mChapterNotesList!=null) {
 			for (Note note : mChapterNotesList) {
-				if (note.getVerseNo() == mVerse.getVerse()) {
+				if (note.getVerseNo() == verseNo) {
 					mVerseNotesList.add(note);
 				}
 			}
@@ -125,7 +137,7 @@ public class NotesActivity extends ListActivityBase {
     }
 
     private void showCurrentVerse() {
-    	setTitle(mVerse.getName());
+    	setTitle(footnoteAndRefControl.getTitle());
     }
     
     private void noteSelected(Note note) {
@@ -144,4 +156,11 @@ public class NotesActivity extends ListActivityBase {
     	setResult(Activity.RESULT_OK, resultIntent);
     	finish();    
     }
+
+    // handle swipe left and right
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent motionEvent) {
+		this.gestureDetector.onTouchEvent(motionEvent);
+		return super.dispatchTouchEvent(motionEvent);
+	}
 }

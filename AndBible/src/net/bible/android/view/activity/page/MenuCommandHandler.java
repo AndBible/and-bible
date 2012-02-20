@@ -9,13 +9,13 @@ import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.bookmark.Bookmarks;
 import net.bible.android.view.activity.comparetranslations.CompareTranslations;
 import net.bible.android.view.activity.download.Download;
+import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity;
 import net.bible.android.view.activity.help.Help;
 import net.bible.android.view.activity.mynote.MyNotes;
 import net.bible.android.view.activity.navigation.ChooseDocument;
 import net.bible.android.view.activity.navigation.History;
 import net.bible.android.view.activity.readingplan.DailyReading;
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;
-import net.bible.android.view.activity.references.NotesActivity;
 import net.bible.android.view.activity.settings.SettingsActivity;
 import net.bible.android.view.activity.speak.Speak;
 import net.bible.android.view.util.DataPipe;
@@ -120,7 +120,7 @@ public class MenuCommandHandler {
 	        	handlerIntent = new Intent(callingActivity, CompareTranslations.class);
 	        	break;
 	        case R.id.notes:
-	        	handlerIntent = new Intent(callingActivity, NotesActivity.class);
+	        	handlerIntent = new Intent(callingActivity, FootnoteAndRefActivity.class);
 	        	// pump the notes into the viewer (there must be an easier way other than Parcelable)
 	        	//TODO refactor so the notes are loaded by the Notes viewer using a separate SAX parser 
 	        	DataPipe.getInstance().pushNotes(callingActivity.getBibleContentManager().getNotesList());
