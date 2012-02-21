@@ -32,7 +32,7 @@ public class FootnoteAndRefControl {
 		BookName.setFullBookName(false);
 		
 		stringBuilder.append(BibleApplication.getApplication().getString(R.string.notes))
-					 .append(" ")
+					 .append(": ")
 					 .append(getVerse().getName());
 		
 		BookName.setFullBookName(wasFullBookname);

@@ -36,7 +36,7 @@ public class CompareTranslationsControl {
 		BookName.setFullBookName(false);
 
 		stringBuilder.append(BibleApplication.getApplication().getString(R.string.compare_translations))
-					 .append(" ")
+					 .append(": ")
 					 .append(getVerse().getName());
 
 		BookName.setFullBookName(wasFullBookname);
