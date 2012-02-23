@@ -1,6 +1,9 @@
 package net.bible.android.control.page;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.control.PassageChangeMediator;
+import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
+import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 
 import org.apache.commons.lang.StringUtils;
@@ -32,6 +35,9 @@ public class CurrentPageManager {
 	
 	private static CurrentPageManager singleton;
 	
+	// this was moved from the MainBibleActivity and has always been called this
+	private static final String saveStateTag = "MainBibleActivity";
+
 	private static final String TAG = "CurrentPageManager";
 	
 	static public CurrentPageManager getInstance() {
@@ -39,20 +45,34 @@ public class CurrentPageManager {
 			synchronized(CurrentPageManager.class)  {
 				if (singleton==null) {
 					CurrentPageManager instance = new CurrentPageManager();
-					instance.currentBibleVerse = new CurrentBibleVerse();
-					instance.currentBiblePage = new CurrentBiblePage(instance.currentBibleVerse);
-					instance.currentCommentaryPage = new CurrentCommentaryPage(instance.currentBibleVerse);
-					instance.currentMyNotePage = new CurrentMyNotePage(instance.currentBibleVerse);
-					
-					instance.currentDictionaryPage = new CurrentDictionaryPage();
-					instance.currentGeneralBookPage = new CurrentGeneralBookPage();
-					
-					instance.currentDisplayedPage = instance.currentBiblePage;
 					singleton = instance;
 				}
 			}
 		}
 		return singleton;
+	}
+
+	private CurrentPageManager() {
+		currentBibleVerse = new CurrentBibleVerse();
+		currentBiblePage = new CurrentBiblePage(currentBibleVerse);
+		currentCommentaryPage = new CurrentCommentaryPage(currentBibleVerse);
+		currentMyNotePage = new CurrentMyNotePage(currentBibleVerse);
+		
+		currentDictionaryPage = new CurrentDictionaryPage();
+		currentGeneralBookPage = new CurrentGeneralBookPage();
+		
+		currentDisplayedPage = currentBiblePage;
+		
+		// restore state from previous invocation
+    	restoreState();
+    	
+		// register to save state when moved to background
+    	CurrentActivityHolder.getInstance().addAppToBackgroundListener(new AppToBackgroundListener() {
+			@Override
+			public void applicationNowInBackground(AppToBackgroundEvent e) {
+				saveState();
+			}
+		});
 	}
 	
 	public CurrentPage getCurrentPage() {
@@ -200,11 +220,6 @@ public class CurrentPageManager {
 			BookCategory restoredBookCategory = BookCategory.fromString(restoredPageCategoryName);
 			currentDisplayedPage = getBookPage(restoredBookCategory);
 		}
-
-// removed since this now happens on application start instead of main view load
-		// force an update here from default chapter/verse
-//		PassageChangeMediator.getInstance().onCurrentPageChanged();
-//		PassageChangeMediator.getInstance().onCurrentPageDetailChanged();
 	}
 	
 	public boolean isCommentaryShown() {
@@ -227,4 +242,26 @@ public class CurrentPageManager {
 		currentDisplayedPage = currentBiblePage;
 		PassageChangeMediator.getInstance().onCurrentPageChanged();
 	}
+
+    /** save current page and document state */
+	protected void saveState() {
+    	Log.i(TAG, "Saving instance state");
+    	SharedPreferences settings = getAppStateSharedPreferences();
+		saveState(settings);
+	}
+
+	/** restore current page and document state */
+    private void restoreState() {
+    	try {
+        	Log.i(TAG, "Restore instance state");
+        	SharedPreferences settings = getAppStateSharedPreferences();
+    		restoreState(settings);
+    	} catch (Exception e) {
+    		Log.e(TAG, "Restore error", e);
+    	}
+    }
+    
+    private SharedPreferences getAppStateSharedPreferences() {
+    	return BibleApplication.getApplication().getSharedPreferences(saveStateTag, 0);
+    }
 }

@@ -4,11 +4,7 @@ import java.util.List;
 import java.util.Locale;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
-import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.device.ProgressNotificationManager;
-import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
@@ -34,9 +30,6 @@ public class BibleApplication extends Application{
 	
 	private static final String TEXT_SIZE_PREF = "text_size_pref";
 	
-	// this was moved from the MainBibleActivity and has always been called this
-	private static final String saveStateTag = "MainBibleActivity";
-
 	private static BibleApplication singleton;
 	private static final String TAG = "BibleApplication";
 	
@@ -68,34 +61,6 @@ public class BibleApplication extends Application{
 		Locale locale = Locale.getDefault();
 		Log.i(TAG, "Locale language:"+locale.getLanguage()+" Variant:"+locale.getDisplayName());
 		
-		// restore state from previous invocation
-    	restoreState();
-    	
-		// register to save state when moved to background
-    	CurrentActivityHolder.getInstance().addAppToBackgroundListener(new AppToBackgroundListener() {
-			@Override
-			public void applicationNowInBackground(AppToBackgroundEvent e) {
-				saveState();
-			}
-		});
-	}
-
-    /** restore current page and document state */
-    private void restoreState() {
-    	try {
-        	Log.i(TAG, "Restore instance state");
-        	SharedPreferences settings = getSharedPreferences(saveStateTag, 0);
-    		CurrentPageManager.getInstance().restoreState(settings);
-    	} catch (Exception e) {
-    		Log.e(TAG, "Restore error", e);
-    	}
-    }
-    
-    /** save current page and document state */
-	protected void saveState() {
-    	Log.i(TAG, "Saving instance state");
-    	SharedPreferences settings = getSharedPreferences(saveStateTag, 0);
-		CurrentPageManager.getInstance().saveState(settings);
 	}
 
 
@@ -249,5 +214,4 @@ public class BibleApplication extends Application{
 		Log.i(TAG, "onTerminate");
 		super.onTerminate();
 	}
-	
 }
