@@ -114,7 +114,7 @@
     <string name="download_confirmation">İnternetten bir Kutsal Kitap çevirisini indirmek ister misiniz?</string>
     <string name="download_source_message">http://www.crosswire.org\n&amp; http://xiphos.org\'dan\nbelgeler alınıyor</string>
     <string name="download_document_confirm_prefix">İndir</string>
-    <string name="download_refreshing_book_list">Mevcut belgelerinin listesi yenilenmek ister misiniz?</string>
+    <string name="download_refreshing_book_list">Mevcut belgelerinin listesi yenileniyor</string>
     <string name="download_refresh_book_list_menu_item">Yenilen</string>
     <string name="error_downloading">İndirirken bir hata oldu. İnternet bağlantınızı kontrol edin.</string>
     <string name="no_internet_connection">İnternet bağlantısı yok</string>
@@ -152,6 +152,7 @@
     <string name="copy">Seçili ayeti kopyala</string>
     <string name="share_verse">Şeçili ayeti paylaş ...</string>
     <string name="share_verse_subject">And Bible uygulamasını kullanarak sizinle Kutsal Kitap\'tan bir ayet paylaştım.</string>
+	<string name="compare_translations">Çevirileri karşılaştır</string>
 
     <!-- Bookmarks -->
     <string name="bookmarks">Yer İmleri</string>
@@ -225,4 +226,4 @@
     <string name="error_page_too_large">Sayfa yüklenmek için fazla büyük</string>
     <string name="error_key_not_in_document">Belgede bulunmadı</string>
     <string name="empty_list">Öğe bulunmadı</string>
-<string name="compare_translations">Compare translations</string></resources>
+</resources>
