@@ -157,7 +157,18 @@ public class MJDIndexAll {
 //    	indexAll.installAndIndexSingleBook("GerNeUe");
 //    	indexAll.installAndIndexSingleBook("KhmerNT");
 //    	indexAll.installAndIndexSingleBook("ThaiKJV");
-    	indexAll.installRepoBooks();
+//    	indexAll.installRepoBooks();
+
+    	//25/2/12
+//    	indexAll.installAndIndexSingleBook("AraNAV");
+//    	indexAll.installAndIndexSingleBook("Azeri");
+//    	indexAll.installAndIndexSingleBook("FreBBB");
+//    	indexAll.installAndIndexSingleBook("FrePGR");
+//    	indexAll.installAndIndexSingleBook("SomKQA");
+//    	indexAll.installAndIndexSingleBook("Sorani");
+//    	indexAll.installAndIndexSingleBook("WelBeiblNet");
+    	
+    	indexAll.installAndIndexSingleBook("MonKJV");
 
     }
     
