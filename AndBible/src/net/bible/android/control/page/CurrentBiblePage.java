@@ -261,8 +261,13 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	 */
 	@Override
 	public boolean isSearchable() {
-		//TODO allow japanese search - japanese bibles use smartcn which is not available
-		return !"ja".equals(getCurrentDocument().getLanguage().getCode());
+		try {
+			//TODO allow japanese search - japanese bibles use smartcn which is not available
+			return !"ja".equals(getCurrentDocument().getLanguage().getCode());
+		} catch (Exception e) {
+			Log.w(TAG,  "Missing language code", e);
+			return true;
+		}
 	}
 
 	@Override
