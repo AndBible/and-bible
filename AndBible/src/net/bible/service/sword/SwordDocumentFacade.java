@@ -182,7 +182,7 @@ public class SwordDocumentFacade {
         List<Book> allBooks = new ArrayList<Book>(crosswireBookList);
         
 		XiphosRepo xiphosRepo = new XiphosRepo();
-        allBooks.addAll(xiphosRepo.getXiphosRepoBooks());
+        allBooks.addAll(xiphosRepo.getXiphosRepoBooks(refresh));
 
 		BetaRepo betaRepo = new BetaRepo();
         allBooks.addAll(betaRepo.getRepoBooks(refresh));
