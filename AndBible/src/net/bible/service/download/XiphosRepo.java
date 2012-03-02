@@ -150,6 +150,9 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 		try {
 			String conf = getConfString(book, realInitials);
 	        BookMetaData bmd = FakeSwordBookFactory.createRepoSBMD(realInitials, conf);
+	        // library is set during download, ensure it is maintained in recreated sbmd
+	        bmd.setLibrary(book.getBookMetaData().getLibrary());
+	        
 	        book.setBookMetaData(bmd);
 			log.debug("Check initials "+book.getInitials());
 		} catch (Exception e) {
