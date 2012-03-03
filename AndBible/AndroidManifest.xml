@@ -74,8 +74,12 @@
                   android:label="@string/dictionary"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
-        <activity android:name="net.bible.android.view.activity.navigation.ChooseGeneralBookKey"
+        <activity android:name="net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey"
                   android:label="@string/general_book"
+                  android:configChanges="keyboardHidden|orientation">
+        </activity>
+        <activity android:name="net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey"
+                  android:label="@string/doc_type_map"
                   android:configChanges="keyboardHidden|orientation">
         </activity>
         <activity android:name="net.bible.android.view.activity.readingplan.ReadingPlanSelectorList"

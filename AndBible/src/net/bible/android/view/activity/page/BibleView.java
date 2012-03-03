@@ -3,6 +3,7 @@ package net.bible.android.view.activity.page;
 import java.lang.reflect.Method;
 
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.service.device.ScreenSettings;
@@ -37,6 +38,7 @@ public class BibleView extends WebView implements DocumentView {
 	private PageControl mPageControl = ControlFactory.getInstance().getPageControl();
 	
 	private PageTiltScroller mPageTiltScroller;
+	private boolean hideScrollBar;
 
 	private static final String TAG = "BibleView";
 	
@@ -184,9 +186,35 @@ public class BibleView extends WebView implements DocumentView {
 		
 		mJumpToVerse = jumpToVerse;
 		mJumpToYOffsetRatio = jumpToYOffsetRatio;
+		
+		// allow zooming if map
+		getSettings().setBuiltInZoomControls(CurrentPageManager.getInstance().isMapShown());
+		
 		loadDataWithBaseURL("http://baseUrl", html, "text/html", "UTF-8", "http://historyUrl");
 	}
+
+	/** prevent swipe right if the user is scrolling the page right */
+	public boolean isPageRightOkay() {
+		boolean isOkay = true;
+		if (CurrentPageManager.getInstance().isMapShown()) {
+			// allow swipe right if at right side of map
+			isOkay = (getScrollX() >= getMaxHorizontalScroll());
+			Log.d(TAG, "Pos:"+getScrollX()+" Max:"+getMaxHorizontalScroll());
+		}
+		return isOkay;
+	}
 	
+	/** prevent swipe left if the user is scrolling the page left */
+	public boolean isPageLeftOkay() {
+		boolean isOkay = true;
+		if (CurrentPageManager.getInstance().isMapShown()) {
+			// allow swipe left if at left edge of map
+			isOkay = (getScrollX() == 0);
+			Log.d(TAG, "Pos:"+getScrollX());
+		}
+		return isOkay;
+	}
+
 	@Override
 	public void onWindowFocusChanged(boolean hasWindowFocus) {
 		// TODO Auto-generated method stub
@@ -260,7 +288,6 @@ public class BibleView extends WebView implements DocumentView {
 		return super.onKeyUp(keyCode, event);
 	}
 
-	private boolean hideScrollBar;
 	public boolean scroll(boolean forward, int scrollAmount) {
 		boolean ok = false;
 		hideScrollBar = true;
@@ -291,8 +318,12 @@ public class BibleView extends WebView implements DocumentView {
 	 */
     private int getMaxVerticalScroll() {
     	
-    	// get these once, they probably won't change 
+    	//TODO get these once, they probably won't change 
         return computeVerticalScrollRange()-computeVerticalScrollExtent();
+    }
+
+    private int getMaxHorizontalScroll() {
+        return computeHorizontalScrollRange()-computeHorizontalScrollExtent();
     }
 
     /** allow vertical scroll bar to be hidden during auto-scroll

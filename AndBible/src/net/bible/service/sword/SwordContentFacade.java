@@ -313,6 +313,7 @@ public class SwordContentFacade {
 		BookMetaData bmd = book.getBookMetaData();
 		osisToHtmlParameters.setLeftToRight(bmd.isLeftToRight());
 		osisToHtmlParameters.setLanguageCode(book.getLanguage().getCode());
+		osisToHtmlParameters.setModuleBasePath(book.getBookMetaData().getLocation());
 		
 		// a basis for partial references
 		osisToHtmlParameters.setBasisRef(key);

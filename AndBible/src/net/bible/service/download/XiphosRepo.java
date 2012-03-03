@@ -11,6 +11,7 @@ import net.bible.service.sword.AcceptableBookTypeFilter;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookMetaData;
 import org.crosswire.jsword.book.Books;
@@ -53,7 +54,8 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 		@Override
 		public boolean test(Book book) {
 			return 	super.test(book) && 
-					acceptableInitials.contains(book.getInitials());
+					( acceptableInitials.contains(book.getInitials()) ||
+					  book.getBookCategory().equals(BookCategory.MAPS));
 		}
 	}
 	
@@ -106,6 +108,10 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 		buff.append(getConfEntry(props, ConfigEntryType.ABOUT));
 		buff.append(getConfEntry(props, ConfigEntryType.GLOBAL_OPTION_FILTER));
 		buff.append(getConfEntry(props, ConfigEntryType.VERSION));
+		buff.append(getConfEntry(props, ConfigEntryType.CATEGORY));
+		buff.append(getConfEntry(props, ConfigEntryType.COMPRESS_TYPE));
+		buff.append(getConfEntry(props, ConfigEntryType.COPYRIGHT));
+		buff.append(getConfEntry(props, ConfigEntryType.VERSIFICATION));
 
 		return buff.toString();
 	}

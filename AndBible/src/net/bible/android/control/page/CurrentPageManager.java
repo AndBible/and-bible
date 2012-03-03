@@ -29,6 +29,7 @@ public class CurrentPageManager {
 	private CurrentCommentaryPage currentCommentaryPage;
 	private CurrentDictionaryPage currentDictionaryPage;
 	private CurrentGeneralBookPage currentGeneralBookPage;
+	private CurrentMapPage currentMapPage;
 	private CurrentMyNotePage currentMyNotePage;
 	
 	private CurrentPage currentDisplayedPage;
@@ -60,6 +61,7 @@ public class CurrentPageManager {
 		
 		currentDictionaryPage = new CurrentDictionaryPage();
 		currentGeneralBookPage = new CurrentGeneralBookPage();
+		currentMapPage = new CurrentMapPage();
 		
 		currentDisplayedPage = currentBiblePage;
 		
@@ -89,6 +91,9 @@ public class CurrentPageManager {
 	}
 	public CurrentGeneralBookPage getCurrentGeneralBook() {
 		return currentGeneralBookPage;
+	}
+	public CurrentMapPage getCurrentMap() {
+		return currentMapPage;
 	}
 	public CurrentMyNotePage getCurrentMyNotePage() {
 		return currentMyNotePage;
@@ -183,6 +188,8 @@ public class CurrentPageManager {
 			bookPage = currentDictionaryPage;
 		} else if (bookCategory.equals(BookCategory.GENERAL_BOOK)) {
 			bookPage = currentGeneralBookPage;
+		} else if (bookCategory.equals(BookCategory.MAPS)) {
+			bookPage = currentMapPage;
 		} else if (bookCategory.equals(BookCategory.OTHER)) {
 			bookPage = currentMyNotePage;
 		}
@@ -199,6 +206,7 @@ public class CurrentPageManager {
 		currentCommentaryPage.saveState(outState);
 		currentDictionaryPage.saveState(outState);
 		currentGeneralBookPage.saveState(outState);
+		currentMapPage.saveState(outState);
 		
 		SharedPreferences.Editor editor = outState.edit();
 		editor.putString("currentPageCategory", currentDisplayedPage.getBookCategory().getName());
@@ -214,6 +222,7 @@ public class CurrentPageManager {
 		currentCommentaryPage.restoreState(inState);
 		currentDictionaryPage.restoreState(inState);
 		currentGeneralBookPage.restoreState(inState);
+		currentMapPage.restoreState(inState);
 		
 		String restoredPageCategoryName = inState.getString("currentPageCategory", null);
 		if (StringUtils.isNotEmpty(restoredPageCategoryName)) {
@@ -236,6 +245,9 @@ public class CurrentPageManager {
 	}
 	public boolean isMyNoteShown() {
 		return currentMyNotePage == currentDisplayedPage;
+	}
+	public boolean isMapShown() {
+		return currentMapPage == currentDisplayedPage;
 	}
 	public void showBible() {
 		PassageChangeMediator.getInstance().onBeforeCurrentPageChanged();

@@ -1,7 +1,7 @@
 package net.bible.android.control.page;
 
 import net.bible.android.activity.R;
-import net.bible.android.view.activity.navigation.genbookmap.ChooseGeneralBookKey;
+import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey;
 
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
@@ -9,30 +9,30 @@ import org.crosswire.jsword.passage.Key;
 import android.app.Activity;
 import android.view.Menu;
 
-/** Reference to current passage shown by viewer
+/** Reference to current Map shown by viewer
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class CurrentGeneralBookPage extends CachedKeyPage implements CurrentPage {
+public class CurrentMapPage extends CachedKeyPage implements CurrentPage {
 	
 	private Key key;
 
 	@SuppressWarnings("unused")
-	private static final String TAG = "CurrentGeneralBookPage";
+	private static final String TAG = "CurrentMapPage";
 	
-	/* default */ CurrentGeneralBookPage() {
+	/* default */ CurrentMapPage() {
 		super(false);
 	}
 	
 	public BookCategory getBookCategory() {
-		return BookCategory.GENERAL_BOOK;
+		return BookCategory.MAPS;
 	}
 
 	@Override
 	public Class<? extends Activity> getKeyChooserActivity() {
-		return ChooseGeneralBookKey.class;
+		return ChooseMapKey.class;
 	}
 	
 	/** set key without notification

@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.navigation;
+package net.bible.android.view.activity.navigation.genbookmap;
 
 import java.util.List;
 
@@ -18,11 +18,11 @@ import android.widget.TextView;
  * @author denha1m
  *
  */
-public class GeneralBookKeyItemAdapter extends ArrayAdapter<Key> {
+public class KeyItemAdapter extends ArrayAdapter<Key> {
 
 	private int resource;
 
-	public GeneralBookKeyItemAdapter(Context _context, int _resource, List<Key> _items) {
+	public KeyItemAdapter(Context _context, int _resource, List<Key> _items) {
 		super(_context, _resource, _items);
 		resource = _resource;
 	}

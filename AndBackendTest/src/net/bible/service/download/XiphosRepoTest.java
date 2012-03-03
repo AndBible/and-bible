@@ -16,7 +16,7 @@ public class XiphosRepoTest extends TestCase {
 		try {
 			List<Book> books = new XiphosRepo().getXiphosRepoBooks(true);
 			
-			assertEquals(8, books.size());
+			assertEquals(18, books.size());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

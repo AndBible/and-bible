@@ -1,12 +1,9 @@
-package net.bible.android.view.activity.navigation;
+package net.bible.android.view.activity.navigation.genbookmap;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.page.CurrentGeneralBookPage;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.TreeKeyHelper;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.android.view.activity.page.MainBibleActivity;
@@ -20,39 +17,43 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-/** show a history list and allow to go to history item
+/** show a list of keys and allow to select an item
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class ChooseGeneralBookKey extends ListActivityBase {
+public abstract class ChooseKeyBase extends ListActivityBase {
 
 	private static final int FINISHED = 99;
 
-	private static final String TAG = "ChooseGeneralBookKey";
+	private static final String TAG = "ChooseKeyBase";
 	
-	private List<Key> mGeneralBookKeyList;
+	private List<Key> mKeyList;
     private ArrayAdapter<Key> mKeyArrayAdapter;
 
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1;
 
+	abstract Key getCurrentKey();
+	abstract List<Key> getKeyList();
+    abstract void itemSelected(Key key);
+	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.i(TAG, "Displaying General Book Key chooser");
+        Log.i(TAG, "Displaying Key chooser");
         setContentView(R.layout.choose_general_book_key);
     
         prepareList();
 
-        mKeyArrayAdapter = new GeneralBookKeyItemAdapter(this, LIST_ITEM_TYPE, mGeneralBookKeyList);
+        mKeyArrayAdapter = new KeyItemAdapter(this, LIST_ITEM_TYPE, mKeyList);
         setListAdapter(mKeyArrayAdapter);
         
         // if an item was selected previously then try to scroll to it
-        Key currentKey = getCurrentGeneralBookPage().getKey();
-        if (currentKey!=null && mGeneralBookKeyList.contains(currentKey)) {
-        	setSelection(TreeKeyHelper.findIndexOf(currentKey, mGeneralBookKeyList));
+        Key currentKey = getCurrentKey();
+        if (currentKey!=null && mKeyList.contains(currentKey)) {
+        	setSelection(TreeKeyHelper.findIndexOf(currentKey, mKeyList));
         }
         
         Log.d(TAG, "Finished displaying Search view");
@@ -65,12 +66,12 @@ public class ChooseGeneralBookKey extends ListActivityBase {
     protected void prepareList()
     {
     	Log.d(TAG, "Getting book keys");
-    	mGeneralBookKeyList = new ArrayList<Key>();
+    	mKeyList = new ArrayList<Key>();
     	try {
-	    	List<Key> keyList = getCurrentGeneralBookPage().getCachedGlobalKeyList();
+	    	List<Key> keyList = getKeyList();
 	    	
 	    	for (Key key : keyList) {
-	        	mGeneralBookKeyList.add(key);
+	        	mKeyList.add(key);
 	    	}
     	} catch (Exception e) {
     		Log.e(TAG, "Error getting key");
@@ -80,27 +81,17 @@ public class ChooseGeneralBookKey extends ListActivityBase {
     @Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
     	try {
-    		itemSelected(mGeneralBookKeyList.get(position));
+    		Key selected = mKeyList.get(position);
+    		Log.i(TAG, "Selected:"+selected);
+    		itemSelected(selected);
+
+    		returnToMainScreen();
 		} catch (Exception e) {
 			Log.e(TAG, "Selection error", e);
 			showErrorMsg(R.string.error_occurred);
 		}
 	}
     
-    private void itemSelected(Key key) {
-    	Log.d(TAG, "Key selected:"+key);
-    	Log.d(TAG, "Key selected:"+key.getName());
-    	try {
-    		CurrentPageManager.getInstance().getCurrentGeneralBook().setKey(key);
-    		returnToMainScreen();
-    	} catch (Exception e) {
-    		Log.e(TAG, "error on select of gen book key", e);
-    	}
-    }
-
-    private CurrentGeneralBookPage getCurrentGeneralBookPage() {
-    	return ControlFactory.getInstance().getCurrentPageControl().getCurrentGeneralBook();
-    }
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) { 
     	Log.d(TAG, "Activity result:"+resultCode);
