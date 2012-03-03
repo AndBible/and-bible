@@ -35,9 +35,11 @@ public class PageTiltScrollControl {
 	private static final int NO_SPEED_INCREASE_VIEWING_TOLERANCE = 0; //6;
 	
 	// this is decreased (subtracted from) to speed up scrolling
-	private static int BASE_TIME_BETWEEN_SCROLLS = 60; //70(jerky) 40((fast);
+	private static final int BASE_TIME_BETWEEN_SCROLLS = 60; //70(jerky) 40((fast);
 
-	private static int MIN_TIME_BETWEEN_SCROLLS = 4;
+	private static final int MIN_TIME_BETWEEN_SCROLLS = 4;
+	
+	private static final int SPEEDUP_MULTIPLIER = 4; 
 	
 	// current pitch of phone - varies dynamically
 	private float[] mOrientationValues;
@@ -92,7 +94,7 @@ public class PageTiltScrollControl {
 			}
 		}
 		if (mIsTiltScrollEnabled) {
-			tiltScrollInfo.delayToNextScroll = Math.max(MIN_TIME_BETWEEN_SCROLLS, BASE_TIME_BETWEEN_SCROLLS-(3*speedUp));
+			tiltScrollInfo.delayToNextScroll = Math.max(MIN_TIME_BETWEEN_SCROLLS, BASE_TIME_BETWEEN_SCROLLS-(SPEEDUP_MULTIPLIER*speedUp));
 		}
 		return tiltScrollInfo;
 	}

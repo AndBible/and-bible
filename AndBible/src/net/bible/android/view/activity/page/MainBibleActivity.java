@@ -297,14 +297,14 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     
     /** user swiped right */
     public void next() {
-    	if (getDocumentViewManager().getDocumentView().isPageRightOkay()) {
+    	if (getDocumentViewManager().getDocumentView().isPageNextOkay()) {
     		CurrentPageManager.getInstance().getCurrentPage().next();
     	}		
     }
     
     /** user swiped left */
     public void previous() {
-    	if (getDocumentViewManager().getDocumentView().isPageLeftOkay()) {
+    	if (getDocumentViewManager().getDocumentView().isPagePreviousOkay()) {
     		CurrentPageManager.getInstance().getCurrentPage().previous();
     	}
     }
