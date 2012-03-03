@@ -63,8 +63,10 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 //		xiphosRepoBookList.add(new XiphosRepoBook("strongsrealgreek", "StrongsRealGreek", "DataPath=./modules/lexdict/rawld4/strongsrealgreek/strongsrealgreek\nModDrv=RawLD4\nLang=en\nFeature=GreekDef\nVersion=1.4-100511\nEncoding=UTF-8\nSourceType=ThML\nDescription=Strongs Real Greek Bible Dictionary\nAbout=Text pulled from Ulrik Petersen's content at http://morphgnt.org/projects/strongs-dictionary. In 1996, Michael Grier produced an e-text of Strong's dictionary. He entered every single letter, and did some proof-reading, but transliterated the Greek. In 2006, Ulrik Petersen took Michael Grier's e-text in the version published by the SWORD project and added Greek in UTF-8 where applicable, while transforming the text to XML."));
 // causes error after download - unzipping?		xiphosRepoBookList.add(new XiphosRepoBook("shaw", "Shaw", "DataPath=./modules/genbook/rawgenbook/shaw/shaw\nModDrv=RawGenBook\nLang=en\nEncoding=UTF-8\nSourceType=OSIS\nDescription=Robert Shaw, The Reformed Faith\nAbout=Robert Shaw, Scottish Presbyterian (1795-1863) was a leader in the Original Secession Church and a minister at Whitburn. His commentary 'The Reformed Faith, An Exposition of the Westminster Confession of Faith', is the standard commentary and companion to the Westminster Confession of Faith. The source for this text was obtained from www.reformed.org. With thanks to Ed Walsh."));
 // causes error after download - unzipping?		xiphosRepoBookList.add(new XiphosRepoBook("kretzmann", "Kretzmann", "DataPath=./modules/comments/zcom/kretzmann/\nModDrv=zCom\nBlockType=CHAPTER\nSourceType=OSIS\nCompressType=ZIP\nEncoding=UTF-8\nLang=en\nLCSH=Bible--Commentaries.\nVersion=1.20110405\nDescription=Kretzmann Popular Commentary\nAbout=Popular Commentary of the Bible by\\par\\par PAUL E. KRETZMANN, M.A., PhD., B.D."));
-	
+
+	// must only register book listener once or books get given null names
 	private static int booksToListenForCount = 0;
+	private static boolean isBookListenerAdded = false; 
 	
 	/** get a list of books that are available in Xiphos repo and seem to work in And Bible
 	 */
@@ -141,8 +143,10 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 	public void addHandler(Book book) {
 		// If you want to know about new books as they arrive:
 		if (needsPostDownloadAction(book)) {
-			log.debug("Adding BooksListener for "+book);
-	        Books.installed().addBooksListener(this);
+			if (!isBookListenerAdded) {
+		        isBookListenerAdded = true;
+		        Books.installed().addBooksListener(this);
+			}
 	        booksToListenForCount++;
 		}
 	}
@@ -152,6 +156,7 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 	@Override
 	public void bookAdded(BooksEvent ev) {
 		Book book = ev.getBook();
+		log.debug("Book added "+book);
 		String realInitials = (String)book.getProperty(REAL_INITIALS);
 		try {
 			String conf = getConfString(book, realInitials);
@@ -160,13 +165,13 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 	        bmd.setLibrary(book.getBookMetaData().getLibrary());
 	        
 	        book.setBookMetaData(bmd);
-			log.debug("Check initials "+book.getInitials());
 		} catch (Exception e) {
 			log.error(e.getMessage());
 		}
 		
 		booksToListenForCount--;
 		if (booksToListenForCount==0) {
+			isBookListenerAdded = false;
 	        Books.installed().removeBooksListener(this);
 		}
 	}
