@@ -39,6 +39,9 @@ public class BibleView extends WebView implements DocumentView {
 	
 	private PageTiltScroller mPageTiltScroller;
 	private boolean hideScrollBar;
+	
+	private boolean wasAtRightEdge;
+	private boolean wasAtLeftEdge;
 
 	private static final String TAG = "BibleView";
 	
@@ -194,23 +197,31 @@ public class BibleView extends WebView implements DocumentView {
 	}
 
 	/** prevent swipe right if the user is scrolling the page right */
-	public boolean isPageRightOkay() {
+	public boolean isPageNextOkay() {
 		boolean isOkay = true;
 		if (CurrentPageManager.getInstance().isMapShown()) {
 			// allow swipe right if at right side of map
-			isOkay = (getScrollX() >= getMaxHorizontalScroll());
-			Log.d(TAG, "Pos:"+getScrollX()+" Max:"+getMaxHorizontalScroll());
+			boolean isAtRightEdge = (getScrollX() >= getMaxHorizontalScroll());
+
+			// the first side swipe takes us to the edge and second takes us to next page
+			isOkay = isAtRightEdge && wasAtRightEdge;
+			wasAtRightEdge = isAtRightEdge;
+			wasAtLeftEdge = false;
 		}
 		return isOkay;
 	}
 	
 	/** prevent swipe left if the user is scrolling the page left */
-	public boolean isPageLeftOkay() {
+	public boolean isPagePreviousOkay() {
 		boolean isOkay = true;
 		if (CurrentPageManager.getInstance().isMapShown()) {
 			// allow swipe left if at left edge of map
-			isOkay = (getScrollX() == 0);
-			Log.d(TAG, "Pos:"+getScrollX());
+			boolean isAtLeftEdge = (getScrollX() == 0);
+
+			// the first side swipe takes us to the edge and second takes us to next page
+			isOkay = isAtLeftEdge && wasAtLeftEdge;
+			wasAtLeftEdge = isAtLeftEdge;
+			wasAtRightEdge = false;
 		}
 		return isOkay;
 	}
