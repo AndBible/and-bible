@@ -191,7 +191,10 @@ public class BibleView extends WebView implements DocumentView {
 		mJumpToYOffsetRatio = jumpToYOffsetRatio;
 		
 		// allow zooming if map
-		getSettings().setBuiltInZoomControls(CurrentPageManager.getInstance().isMapShown());
+		boolean isMap = CurrentPageManager.getInstance().isMapShown();
+		getSettings().setBuiltInZoomControls(isMap);
+		getSettings().setLoadWithOverviewMode(isMap);
+		getSettings().setUseWideViewPort(isMap);
 		
 		loadDataWithBaseURL("http://baseUrl", html, "text/html", "UTF-8", "http://historyUrl");
 	}

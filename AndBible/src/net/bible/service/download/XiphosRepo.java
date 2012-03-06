@@ -1,6 +1,7 @@
 package net.bible.service.download;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,13 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 	private static final Logger log = new Logger(XiphosRepo.class.getName()); 
 
 	private static BookFilter SUPPORTED_DOCUMENTS = new XiphosBookFilter();
+	
+	private static Map<String, String> nameToZipMap = new HashMap<String, String>();
+	static {
+		nameToZipMap.put("eBibleTeacherMaps", "ebibleteacher");
+		nameToZipMap.put("EpiphanyMaps", "epiphany-maps");
+		nameToZipMap.put("SmithBibleAtlas", "smithatlas");
+	}
 	
 	private static class XiphosBookFilter extends AcceptableBookTypeFilter {
 		private static Set<String> acceptableInitials = new HashSet<String>();
@@ -77,7 +85,7 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 		for (Book repoBook : booksInRepo) {
 			try {
 				// all the zip files incorrectly have lower case names so set initials to lowercase until after download
-				String conf = getConfString(repoBook, repoBook.getInitials().toLowerCase());
+				String conf = getConfString(repoBook, getZipFileName(repoBook.getInitials()));
 				System.out.println(conf);
 		        Book alteredBook = FakeSwordBookFactory.createFakeRepoBook(repoBook.getInitials(), conf, XIPHOS_REPOSITORY);
 	        	alteredBook.getBookMetaData().putProperty(REAL_INITIALS, repoBook.getInitials());
@@ -90,6 +98,14 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 		storeRepoNameInMetaData(bookList, XIPHOS_REPOSITORY);
 		
 		return bookList;		
+	}
+	
+	private String getZipFileName(String initials) {
+		String zipName = nameToZipMap.get(initials);
+		if (zipName==null) {
+			zipName = initials.toLowerCase();
+		}
+		return zipName;
 	}
 
 	/** reverse engineer the .conf file properties from a Book
