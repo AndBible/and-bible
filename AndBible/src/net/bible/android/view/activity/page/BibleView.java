@@ -193,6 +193,7 @@ public class BibleView extends WebView implements DocumentView {
 		// allow zooming if map
 		boolean isMap = CurrentPageManager.getInstance().isMapShown();
 		getSettings().setBuiltInZoomControls(isMap);
+		// http://stackoverflow.com/questions/3808532/how-to-set-the-initial-zoom-width-for-a-webview
 		getSettings().setLoadWithOverviewMode(isMap);
 		getSettings().setUseWideViewPort(isMap);
 		
@@ -231,7 +232,6 @@ public class BibleView extends WebView implements DocumentView {
 
 	@Override
 	public void onWindowFocusChanged(boolean hasWindowFocus) {
-		// TODO Auto-generated method stub
 		super.onWindowFocusChanged(hasWindowFocus);
 
 		if (hasWindowFocus) {

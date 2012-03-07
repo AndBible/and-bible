@@ -57,20 +57,30 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 			acceptableInitials.add("TrainTwelve");
 			acceptableInitials.add("PolBibTysia");
 			acceptableInitials.add("ChiPinyin");
+			acceptableInitials.add("LuthersWorks");
+			acceptableInitials.add("Shaw");
+			// maps
+			acceptableInitials.add("ABSMaps");
+			acceptableInitials.add("eBibleTeacherMaps");
+			acceptableInitials.add("EpiphanyMaps");
+			acceptableInitials.add("HistMidEast");
+			acceptableInitials.add("SmithBibleAtlas");
+			acceptableInitials.add("SonLightFreeMaps");
+			acceptableInitials.add("TextbookAtlas");
+			acceptableInitials.add("KretzmannMaps");
+			
+			// acceptableInitials.add("Lineage"); booktype is Images and zip error opening
 		}
 
 		@Override
 		public boolean test(Book book) {
 			return 	super.test(book) && 
-					( acceptableInitials.contains(book.getInitials()) ||
-					  book.getBookCategory().equals(BookCategory.MAPS));
+					acceptableInitials.contains(book.getInitials());
 		}
 	}
 	
 // This shows the greek word in addition to the content of the default Strongs dictionary but some of the Greek characters don't display correctly.  
 //		xiphosRepoBookList.add(new XiphosRepoBook("strongsrealgreek", "StrongsRealGreek", "DataPath=./modules/lexdict/rawld4/strongsrealgreek/strongsrealgreek\nModDrv=RawLD4\nLang=en\nFeature=GreekDef\nVersion=1.4-100511\nEncoding=UTF-8\nSourceType=ThML\nDescription=Strongs Real Greek Bible Dictionary\nAbout=Text pulled from Ulrik Petersen's content at http://morphgnt.org/projects/strongs-dictionary. In 1996, Michael Grier produced an e-text of Strong's dictionary. He entered every single letter, and did some proof-reading, but transliterated the Greek. In 2006, Ulrik Petersen took Michael Grier's e-text in the version published by the SWORD project and added Greek in UTF-8 where applicable, while transforming the text to XML."));
-// causes error after download - unzipping?		xiphosRepoBookList.add(new XiphosRepoBook("shaw", "Shaw", "DataPath=./modules/genbook/rawgenbook/shaw/shaw\nModDrv=RawGenBook\nLang=en\nEncoding=UTF-8\nSourceType=OSIS\nDescription=Robert Shaw, The Reformed Faith\nAbout=Robert Shaw, Scottish Presbyterian (1795-1863) was a leader in the Original Secession Church and a minister at Whitburn. His commentary 'The Reformed Faith, An Exposition of the Westminster Confession of Faith', is the standard commentary and companion to the Westminster Confession of Faith. The source for this text was obtained from www.reformed.org. With thanks to Ed Walsh."));
-// causes error after download - unzipping?		xiphosRepoBookList.add(new XiphosRepoBook("kretzmann", "Kretzmann", "DataPath=./modules/comments/zcom/kretzmann/\nModDrv=zCom\nBlockType=CHAPTER\nSourceType=OSIS\nCompressType=ZIP\nEncoding=UTF-8\nLang=en\nLCSH=Bible--Commentaries.\nVersion=1.20110405\nDescription=Kretzmann Popular Commentary\nAbout=Popular Commentary of the Bible by\\par\\par PAUL E. KRETZMANN, M.A., PhD., B.D."));
 
 	// must only register book listener once or books get given null names
 	private static int booksToListenForCount = 0;
@@ -106,6 +116,14 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 			zipName = initials.toLowerCase();
 		}
 		return zipName;
+	}
+
+	public static String getRealInitials(Book book) {
+		String realInitials = (String)book.getProperty(REAL_INITIALS);
+		if (realInitials==null) {
+			realInitials = book.getInitials();
+		}
+		return realInitials;
 	}
 
 	/** reverse engineer the .conf file properties from a Book
@@ -173,7 +191,7 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 	public void bookAdded(BooksEvent ev) {
 		Book book = ev.getBook();
 		log.debug("Book added "+book);
-		String realInitials = (String)book.getProperty(REAL_INITIALS);
+		String realInitials = getRealInitials(book);
 		try {
 			String conf = getConfString(book, realInitials);
 	        BookMetaData bmd = FakeSwordBookFactory.createRepoSBMD(realInitials, conf);

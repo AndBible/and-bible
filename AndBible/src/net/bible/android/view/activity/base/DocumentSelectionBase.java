@@ -51,18 +51,12 @@ import android.widget.Toast;
 abstract public class DocumentSelectionBase extends ListActivityBase {
 
 	// document type spinner
-	/** for some reason there is no MapFilter in BookFilters */
-    private static BookFilter MAP_FILTER = new BookFilter() {
-        public boolean test(Book book) {
-            return book.getBookCategory().equals(BookCategory.MAPS) && !book.isLocked();
-        }
-    };
 	private Spinner documentTypeSpinner;
 	private static final BookFilter[] DOCUMENT_TYPE_SPINNER_FILTERS = new BookFilter[] {BookFilters.getBibles(), 
 																						BookFilters.getCommentaries(), 
 																						BookFilters.getDictionaries(), 
 																						BookFilters.getGeneralBooks(),
-																						MAP_FILTER};
+																						BookFilters.getMaps()};
 	private int selectedDocumentFilterNo = 0;
 
 	// language spinner

@@ -57,6 +57,10 @@ public class DownloadControl {
         		} else if (installedDocInitials.containsKey(doc.getInitials().toLowerCase())) {
         			Log.d(TAG, "Ignoring "+doc.getInitials()+" because already installed");
         			iter.remove();
+        		} else if (installedDocInitials.containsKey(XiphosRepo.getRealInitials(doc).toLowerCase())) {
+        			// this effectively duplicates the previous if but also catches Xiphos amended book names 
+        			Log.d(TAG, "Ignoring "+doc.getInitials()+" because already installed");
+        			iter.remove();
         		} else if (doc.isQuestionable()) {
         			Log.d(TAG, "Ignoring "+doc.getInitials()+" because it is questionable");
         			iter.remove();
