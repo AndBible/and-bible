@@ -25,7 +25,7 @@
 	<integer name="br_count_at_bottom">8</integer>
 	
 	<!--  number of buttons varies depending on screen size and orientation -->
-	<integer name="number_of_quick_buttons">4</integer>
+	<integer name="number_of_quick_buttons">5</integer>
 	
 	<!-- width of one poetry line indent -->
 	<integer name="poetry_indent_chars">4</integer>

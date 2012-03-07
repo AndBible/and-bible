@@ -4,6 +4,6 @@
 	<integer name="br_count_at_bottom">16</integer>
 	
 	<!--  number of buttons varies depending on screen size and orientation -->
-	<integer name="number_of_quick_buttons">4</integer>
+	<integer name="number_of_quick_buttons">6</integer>
 	<dimen name="size_of_quick_buttons">70dip</dimen>
 </resources>

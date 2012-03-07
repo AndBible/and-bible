@@ -103,6 +103,14 @@ public class DocumentControl {
 		return getSuggestedBook(SwordDocumentFacade.getInstance().getBooks(BookCategory.GENERAL_BOOK), currentBook, null, currentPageManager.isGenBookShown());
 	}
 
+	/** Suggest an alternative map to view or return null
+	 */
+	public Book getSuggestedMap() {
+		CurrentPageManager currentPageManager = ControlFactory.getInstance().getCurrentPageControl();
+		Book currentBook = currentPageManager.getCurrentMap().getCurrentDocument();
+		return getSuggestedBook(SwordDocumentFacade.getInstance().getBooks(BookCategory.MAPS), currentBook, null, currentPageManager.isMapShown());
+	}
+
 	/** possible books will often not include the current verse but most will include chap 1 verse 1
 	 */
 	private Key getRequiredVerseForSuggestions() {

@@ -328,6 +328,9 @@ public class DailyReading extends CustomTitlebarActivityBase {
     	case GEN_BOOK:
     		suggestedDoc = ControlFactory.getInstance().getCurrentPageControl().getCurrentGeneralBook().getCurrentDocument();
     		break;
+    	case MAP:
+    		suggestedDoc = ControlFactory.getInstance().getCurrentPageControl().getCurrentMap().getCurrentDocument();
+    		break;
     	}
     	return suggestedDoc;
     }
