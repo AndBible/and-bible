@@ -1,6 +1,7 @@
 package net.bible.service.format.osistohtml.preprocessor;
 
 import net.bible.service.common.CommonUtils;
+import android.os.Build;
 
 public class HebrewCharacterPreprocessor implements TextPreprocessor {
 
@@ -29,7 +30,17 @@ public class HebrewCharacterPreprocessor implements TextPreprocessor {
 	 */
 	@Override
 	public String process(String text) {
-		return doHebrewCharacterAdjustments(text);
+		if (isVowelsBugFixed()) {
+			return text;
+		} else {
+			return doHebrewCharacterAdjustments(text);
+		}
+	}
+	
+	/** vowels rtl problem fixed in recent cyanogenmod and 4.0.3 */
+	private boolean isVowelsBugFixed() {
+		return Build.VERSION.SDK_INT >= 15 || //Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1;
+			   (Build.VERSION.SDK_INT >= 10 &&System.getProperty("os.version").contains("cyanogenmod")); // 10 is GINGERBREAD_MR1 (2.3.3) 	
 	}
 
 	private String doHebrewCharacterAdjustments(String s) {
