@@ -11,6 +11,7 @@ import java.util.Set;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.common.util.Language;
 import org.crosswire.common.util.Languages;
@@ -19,6 +20,7 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
+import org.crosswire.jsword.index.IndexStatus;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -72,8 +74,9 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 	private List<Book> displayedDocuments;
 
 	private boolean isDeletePossible;
+	private boolean isInstallStatusIconsShown;
 	
-	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
+	private static final int LIST_ITEM_TYPE = R.layout.list_item_2_image;
 
 
     private static final String TAG = "DocumentSelectionBase";
@@ -99,7 +102,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     	languageList = new ArrayList<Language>();
     	displayedDocuments = new ArrayList<Book>();
     	
-    	ArrayAdapter<Book> listArrayAdapter = new DocumentItemAdapter(this, LIST_ITEM_TYPE, displayedDocuments);
+    	ArrayAdapter<Book> listArrayAdapter = new DocumentItemAdapter(this, LIST_ITEM_TYPE, displayedDocuments, isInstallStatusIconsShown);
     	setListAdapter(listArrayAdapter);
     	
     	//prepare the documentType spinner
@@ -141,7 +144,16 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     	}
     }
 
-    private void setDefaultLanguage() {
+    
+    @Override
+	protected void onRestart() {
+		super.onRestart();
+
+		// if downloading documents then ensure the correct ticks are checked after user presses More to return here
+		notifyDataSetChanged();
+	}
+
+	private void setDefaultLanguage() {
     	if (selectedLanguageNo==-1) {
     		Language lang = null;
     		// make selected language sticky
@@ -331,7 +343,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 
 		// delete index
 		MenuItem deleteIndexItem = menu.findItem(R.id.delete_index);
-		deleteIndexItem.setVisible(isDeletePossible);
+		deleteIndexItem.setVisible(isDeletePossible && document.getIndexStatus().equals(IndexStatus.DONE));
 	}
 
 
@@ -358,11 +370,47 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 	}
 
 	protected void handleDelete(final Book document) {
-		// default is that delete is disabled, override to handle delete if enabled
-    }
+		CharSequence msg = getString(R.string.delete_doc, document.getName());
+		new AlertDialog.Builder(this)
+			.setMessage(msg).setCancelable(true)
+			.setPositiveButton(R.string.okay,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog,	int buttonId) {
+						try {
+							Log.d(TAG, "Deleting:"+document);
+							SwordDocumentFacade.getInstance().deleteDocument(document);
+
+							// the doc list should now change
+							reloadDocuments();
+						} catch (Exception e) {
+							showErrorMsg(R.string.error_occurred);
+						}
+					}
+				}
+			)
+			.create()
+			.show();
+	}
+	
 	protected void handleDeleteIndex(final Book document) {
-		// default is that delete is disabled, override to handle delete if enabled
-    }
+		CharSequence msg = getString(R.string.delete_search_index_doc, document.getName());
+		new AlertDialog.Builder(this)
+			.setMessage(msg).setCancelable(true)
+			.setPositiveButton(R.string.okay,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog,	int buttonId) {
+						try {
+							Log.d(TAG, "Deleting index:"+document);
+							SwordDocumentFacade.getInstance().deleteDocumentIndex(document);
+						} catch (Exception e) {
+							showErrorMsg(R.string.error_occurred);
+						}
+					}
+				}
+			)
+			.create()
+			.show();
+	}
 
 	/** about display is generic so handle it here
 	 */
@@ -397,6 +445,10 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 
 	public void setDeletePossible(boolean isDeletePossible) {
 		this.isDeletePossible = isDeletePossible;
+	}
+
+	public void setInstallStatusIconsShown(boolean isInstallStatusIconsShown) {
+		this.isInstallStatusIconsShown = isInstallStatusIconsShown;
 	}
 
 	public Spinner getDocumentTypeSpinner() {

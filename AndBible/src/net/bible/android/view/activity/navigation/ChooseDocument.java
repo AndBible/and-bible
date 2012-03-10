@@ -32,6 +32,8 @@ public class ChooseDocument extends DocumentSelectionBase {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	setInstallStatusIconsShown(false);
+    	
         super.onCreate(savedInstanceState);
         
         setDeletePossible(true);
@@ -59,51 +61,6 @@ public class ChooseDocument extends DocumentSelectionBase {
     		Log.e(TAG, "error on select of bible book", e);
     	}
     }
-
-    @Override
-	protected void handleDelete(final Book document) {
-		CharSequence msg = getString(R.string.delete_doc, document.getName());
-		new AlertDialog.Builder(this)
-			.setMessage(msg).setCancelable(true)
-			.setPositiveButton(R.string.okay,
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog,	int buttonId) {
-						try {
-							Log.d(TAG, "Deleting:"+document);
-							SwordDocumentFacade.getInstance().deleteDocument(document);
-
-							// the doc list should now change
-							reloadDocuments();
-						} catch (Exception e) {
-							showErrorMsg(R.string.error_occurred);
-						}
-					}
-				}
-			)
-			.create()
-			.show();
-	}
-	
-    @Override
-	protected void handleDeleteIndex(final Book document) {
-		CharSequence msg = getString(R.string.delete_search_index_doc, document.getName());
-		new AlertDialog.Builder(this)
-			.setMessage(msg).setCancelable(true)
-			.setPositiveButton(R.string.okay,
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog,	int buttonId) {
-						try {
-							Log.d(TAG, "Deleting index:"+document);
-							SwordDocumentFacade.getInstance().deleteDocumentIndex(document);
-						} catch (Exception e) {
-							showErrorMsg(R.string.error_occurred);
-						}
-					}
-				}
-			)
-			.create()
-			.show();
-	}
 
     private void finishedSelection() {
     	Log.i(TAG, "finished selection");

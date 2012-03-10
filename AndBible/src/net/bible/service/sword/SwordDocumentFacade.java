@@ -3,15 +3,16 @@ package net.bible.service.sword;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import net.bible.android.SharedConstants;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Logger;
-import net.bible.service.download.AndBibleRepo;
-import net.bible.service.download.BetaRepo;
 import net.bible.service.download.DownloadManager;
-import net.bible.service.download.XiphosRepo;
+import net.bible.service.download.RepoBase;
+import net.bible.service.download.RepoFactory;
 
 import org.crosswire.common.util.CWProject;
 import org.crosswire.common.util.Version;
@@ -41,8 +42,6 @@ public class SwordDocumentFacade {
 	private static SwordDocumentFacade singleton;
 
 	private static final String LUCENE_DIR = "lucene";
-	
-	private static final String CROSSWIRE_REPOSITORY = "CrossWire";
 	
 	private static BookFilter SUPPORTED_DOCUMENT_TYPES = new AcceptableBookTypeFilter();
 
@@ -174,35 +173,30 @@ public class SwordDocumentFacade {
 	
 	public List<Book> getDownloadableDocuments(boolean refresh) throws InstallException {
 		log.debug("Getting downloadable documents");
+		RepoFactory repoFactory = RepoFactory.getInstance();
+		
+		//store books in a Set to ensure only one of each type and allow override from AndBible repo if necessary
+        Set<Book> allBooks = new HashSet<Book>();
 
-		//CrossWire
-		DownloadManager crossWireDownloadManager = new DownloadManager();
-        List<Book> crosswireBookList = crossWireDownloadManager.getDownloadableBooks(SUPPORTED_DOCUMENT_TYPES, CROSSWIRE_REPOSITORY, refresh);
-
-        List<Book> allBooks = new ArrayList<Book>(crosswireBookList);
+        allBooks.addAll(repoFactory.getAndBibleRepo().getRepoBooks(refresh));
         
-		XiphosRepo xiphosRepo = new XiphosRepo();
-        allBooks.addAll(xiphosRepo.getXiphosRepoBooks(refresh));
+        allBooks.addAll(repoFactory.getCrosswireRepo().getRepoBooks(refresh));
 
-		BetaRepo betaRepo = new BetaRepo();
-        allBooks.addAll(betaRepo.getRepoBooks(refresh));
+        allBooks.addAll(repoFactory.getXiphosRepo().getRepoBooks(refresh));
 
-		AndBibleRepo andBibleRepo = new AndBibleRepo();
-        allBooks.addAll(andBibleRepo.getRepoBooks(refresh));
+        allBooks.addAll(repoFactory.getBetaRepo().getRepoBooks(refresh));
 
         // get them in the correct order
-        Collections.sort(allBooks);
+        List<Book> bookList = new ArrayList<Book>(allBooks);
+        Collections.sort(bookList);
 
-		return allBooks;	
+		return bookList;	
 	}
 
 	public void downloadDocument(Book document) throws InstallException, BookException {
-		DownloadManager downloadManager = new DownloadManager();
-		String repo = (String)document.getProperty(DownloadManager.REPOSITORY_KEY);
-		if (repo==null) {
-			repo = CROSSWIRE_REPOSITORY;
-		}
-		downloadManager.installBook(repo, document);
+		RepoBase repo = RepoFactory.getInstance().getRepoForBook(document);
+
+		repo.downloadDocument(document);
 	}
 
 	public boolean isIndexDownloadAvailable(Book document) throws InstallException, BookException {
@@ -217,28 +211,34 @@ public class SwordDocumentFacade {
 
 	public void downloadIndex(Book document) throws InstallException, BookException {
 		DownloadManager downloadManager = new DownloadManager();
-		downloadManager.installIndex(CROSSWIRE_REPOSITORY, document);
+		downloadManager.installIndex(RepoFactory.getInstance().getAndBibleRepo().getRepoName(), document);
 	}
 	
 	public void deleteDocument(Book document) throws BookException {
+		// make sure we have the correct Book and not just a copy e.g. one from a Download Manager
+		Book realDocument = getDocumentByInitials(document.getInitials());
+		
 		// delete index first if it exists but wrap in try to ensure an attempt is made to delete the document
 		try {
 	        IndexManager imanager = IndexManagerFactory.getIndexManager();
-	        if (imanager.isIndexed(document)) {
-	            imanager.deleteIndex(document);
+	        if (imanager.isIndexed(realDocument)) {
+	            imanager.deleteIndex(realDocument);
 	        }
 		} catch (Exception e) {
 			// just log index delete error, deleting doc is the important thing
 			log.error("Error deleting document index", e);
 		}
 
-        document.getDriver().delete(document);
+        document.getDriver().delete(realDocument);
 	}
 	
 	public void deleteDocumentIndex(Book document) throws BookException {
-        IndexManager imanager = IndexManagerFactory.getIndexManager();
-        if (imanager.isIndexed(document)) {
-            imanager.deleteIndex(document);
+		// make sure we have the correct Book and not just a copy e.g. one from a Download Manager
+		Book realDocument = getDocumentByInitials(document.getInitials());
+
+		IndexManager imanager = IndexManagerFactory.getIndexManager();
+        if (imanager.isIndexed(realDocument)) {
+            imanager.deleteIndex(realDocument);
         }
 	}
 	

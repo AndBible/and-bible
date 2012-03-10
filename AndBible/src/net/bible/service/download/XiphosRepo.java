@@ -1,6 +1,6 @@
 package net.bible.service.download;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,7 +12,7 @@ import net.bible.service.sword.AcceptableBookTypeFilter;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.book.BookCategory;
+import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookMetaData;
 import org.crosswire.jsword.book.Books;
@@ -41,9 +41,11 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 	
 	private static Map<String, String> nameToZipMap = new HashMap<String, String>();
 	static {
-		nameToZipMap.put("eBibleTeacherMaps", "ebibleteacher");
-		nameToZipMap.put("EpiphanyMaps", "epiphany-maps");
-		nameToZipMap.put("SmithBibleAtlas", "smithatlas");
+// gave up with this approach because of problems with deletion... moved and renamed archives to AndBible repo
+// 1. copy zip from xiphos 2. rename zip to same as Initials 3. open zip and rename module conf to same as initials but lowercase
+//		nameToZipMap.put("eBibleTeacherMaps", "ebibleteacher");
+//		nameToZipMap.put("EpiphanyMaps", "epiphany-maps");
+//		nameToZipMap.put("SmithBibleAtlas", "smithatlas");
 	}
 	
 	private static class XiphosBookFilter extends AcceptableBookTypeFilter {
@@ -61,10 +63,10 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 			acceptableInitials.add("Shaw");
 			// maps
 			acceptableInitials.add("ABSMaps");
-			acceptableInitials.add("eBibleTeacherMaps");
-			acceptableInitials.add("EpiphanyMaps");
+//			acceptableInitials.add("eBibleTeacherMaps"); // moved to AB repo because of naming inconsistency
+//			acceptableInitials.add("EpiphanyMaps"); // moved to AB repo because of naming inconsistency
 			acceptableInitials.add("HistMidEast");
-			acceptableInitials.add("SmithBibleAtlas");
+//			acceptableInitials.add("SmithBibleAtlas"); // moved to AB repo because of naming inconsistency
 			acceptableInitials.add("SonLightFreeMaps");
 			acceptableInitials.add("TextbookAtlas");
 			acceptableInitials.add("KretzmannMaps");
@@ -88,28 +90,29 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 	
 	/** get a list of books that are available in Xiphos repo and seem to work in And Bible
 	 */
-	public List<Book> getXiphosRepoBooks(boolean refresh) throws InstallException {
-		List<Book> booksInRepo = getBookList(XIPHOS_REPOSITORY, SUPPORTED_DOCUMENTS, refresh);
+	public List<Book> getRepoBooks(boolean refresh) throws InstallException {
+		List<Book> booksInRepo = getBookList(SUPPORTED_DOCUMENTS, refresh);
 
-		List<Book> bookList = new ArrayList<Book>();
-		for (Book repoBook : booksInRepo) {
-			try {
-				// all the zip files incorrectly have lower case names so set initials to lowercase until after download
-				String conf = getConfString(repoBook, getZipFileName(repoBook.getInitials()));
-				System.out.println(conf);
-		        Book alteredBook = FakeSwordBookFactory.createFakeRepoBook(repoBook.getInitials(), conf, XIPHOS_REPOSITORY);
-	        	alteredBook.getBookMetaData().putProperty(REAL_INITIALS, repoBook.getInitials());
-		        bookList.add(alteredBook);
-			} catch(Exception e) {
-				log.error(e.getMessage());
-			}
-		}
+		storeRepoNameInMetaData(booksInRepo);
 		
-		storeRepoNameInMetaData(bookList, XIPHOS_REPOSITORY);
-		
-		return bookList;		
+		return booksInRepo;		
 	}
 	
+	@Override
+	public void downloadDocument(Book book) throws InstallException, BookException {
+		try {
+			// all the zip files incorrectly have lower case names and other alterations e.g. 'added '-' so change initials until after download
+			String alteredConf = getConfString(book, getZipFileName(book.getInitials()));
+			
+	        Book alteredBook = FakeSwordBookFactory.createFakeRepoBook(book.getInitials(), alteredConf, XIPHOS_REPOSITORY);
+	    	alteredBook.getBookMetaData().putProperty(REAL_INITIALS, book.getInitials());
+	
+			super.downloadDocument(alteredBook);
+		} catch (IOException ioe) {
+			throw new InstallException(ioe.getMessage());
+		}
+	}
+
 	private String getZipFileName(String initials) {
 		String zipName = nameToZipMap.get(initials);
 		if (zipName==null) {
@@ -213,5 +216,10 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 	@Override
 	public void bookRemoved(BooksEvent ev) {
 		//ignore
+	}
+
+	@Override
+	public String getRepoName() {
+		return XIPHOS_REPOSITORY;
 	}
 }

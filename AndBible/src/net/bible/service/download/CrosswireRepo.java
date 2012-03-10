@@ -12,28 +12,23 @@ import org.crosswire.jsword.book.install.InstallException;
  * 
  * @author denha1m
  */
-public class AndBibleRepo extends RepoBase {
+public class CrosswireRepo extends RepoBase {
 
 	// see here for info ftp://ftp.xiphos.org/mods.d/
-	private static final String REPOSITORY = "AndBible";
+	private static final String REPOSITORY = "CrossWire";
 	
 	private static BookFilter SUPPORTED_DOCUMENTS = new AcceptableBookTypeFilter();
 	
-	@SuppressWarnings("unused")
-	private static final String TAG = "AndBibleRepo";
-	
-	
-	/** get a list of books that are available in AndBible repo
+	/** get a list of books that are available in default repo and seem to work in And Bible
 	 */
 	public List<Book> getRepoBooks(boolean refresh) throws InstallException {
+
+		List<Book> books = getBookList(SUPPORTED_DOCUMENTS, refresh);
+		storeRepoNameInMetaData(books);
 		
-        List<Book> bookList = getBookList(SUPPORTED_DOCUMENTS, refresh);
-
-        storeRepoNameInMetaData(bookList);
-        
-		return bookList;		
+		return books;
 	}
-
+	
 	@Override
 	public String getRepoName() {
 		return REPOSITORY;

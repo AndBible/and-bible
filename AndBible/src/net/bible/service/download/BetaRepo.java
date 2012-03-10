@@ -23,8 +23,8 @@ public class BetaRepo extends RepoBase {
 	 */
 	public List<Book> getRepoBooks(boolean refresh) throws InstallException {
 
-		List<Book> books = getBookList(BETA_REPOSITORY, SUPPORTED_DOCUMENTS, refresh);
-		storeRepoNameInMetaData(books, BETA_REPOSITORY);
+		List<Book> books = getBookList(SUPPORTED_DOCUMENTS, refresh);
+		storeRepoNameInMetaData(books);
 		
 		return books;
 	}
@@ -46,5 +46,10 @@ public class BetaRepo extends RepoBase {
 						( book.getInitials().startsWith("Jap") && !book.getInitials().equals("JapDenmo") )
 					);
 		}
+	}
+
+	@Override
+	public String getRepoName() {
+		return BETA_REPOSITORY;
 	}
 }

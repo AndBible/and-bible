@@ -1,10 +1,8 @@
 package net.bible.android.control.download;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import net.bible.service.download.XiphosRepo;
 import net.bible.service.font.FontControl;
@@ -12,6 +10,7 @@ import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.util.LucidException;
+import org.crosswire.common.util.Version;
 import org.crosswire.jsword.book.Book;
 
 import android.util.Log;
@@ -24,11 +23,13 @@ import android.util.Log;
  */
 public class DownloadControl {
 
-	private static final String TAG = "DownloadControl";
-	
+	public enum BookInstallStatus {INSTALLED, NOT_INSTALLED, BEING_INSTALLED, UPGRADE_AVAILABLE};
+
 	private XiphosRepo xiphosRepo = new XiphosRepo();
 	
 	private FontControl fontControl = FontControl.getInstance();
+
+	private static final String TAG = "DownloadControl";
 	
 	/** return a list of all available docs that have not already been downloaded, have no lang, or don't work
 	 * 
@@ -39,27 +40,11 @@ public class DownloadControl {
 		try {
 			availableDocs = SwordDocumentFacade.getInstance().getDownloadableDocuments(refresh);
 			
-			// create a Map of installed doc names so we can remove them from the list of downloadable books
-			// need to compare using lower case because Xiphos repo books are lower case
-			List<Book> installedDocs = SwordDocumentFacade.getInstance().getDocuments();
-			Map<String, Object> installedDocInitials = new HashMap<String, Object>();
-			for (Book book : installedDocs) {
-    			Log.d(TAG, "Install list "+book.getInitials()+"/"+book.getInitials().toLowerCase());
-				installedDocInitials.put(book.getInitials().toLowerCase(), null);
-			}
-			
 			// there are a number of books we need to filter out of the download list for various reasons
         	for (Iterator<Book> iter=availableDocs.iterator(); iter.hasNext(); ) {
         		Book doc = iter.next();
         		if (doc.getLanguage()==null) {
         			Log.d(TAG, "Ignoring "+doc.getInitials()+" because it has no language");
-        			iter.remove();
-        		} else if (installedDocInitials.containsKey(doc.getInitials().toLowerCase())) {
-        			Log.d(TAG, "Ignoring "+doc.getInitials()+" because already installed");
-        			iter.remove();
-        		} else if (installedDocInitials.containsKey(XiphosRepo.getRealInitials(doc).toLowerCase())) {
-        			// this effectively duplicates the previous if but also catches Xiphos amended book names 
-        			Log.d(TAG, "Ignoring "+doc.getInitials()+" because already installed");
         			iter.remove();
         		} else if (doc.isQuestionable()) {
         			Log.d(TAG, "Ignoring "+doc.getInitials()+" because it is questionable");
@@ -102,6 +87,27 @@ public class DownloadControl {
     		// the download happens in another thread
     		fontControl.downloadFont(font);
     	}
-    	
+	}
+
+	/** return install status - installed, not inst, or upgrade **/
+	public BookInstallStatus getBookInstallStatus(Book book) {
+		Book installedBook = SwordDocumentFacade.getInstance().getDocumentByInitials(book.getInitials());
+		if (installedBook!=null) {
+			// see if the new book is a later version
+			try {
+	    		Version newVersionObj = (Version)book.getBookMetaData().getProperty("Version");
+	    		Version installedVersionObj = (Version)installedBook.getBookMetaData().getProperty("Version");
+	    		if (newVersionObj!=null && installedVersionObj!=null && 
+	    			newVersionObj.compareTo(installedVersionObj)>0) {
+	    			return BookInstallStatus.UPGRADE_AVAILABLE;
+	    		}
+			} catch (Exception e) {
+				Log.e(TAG,  "Error comparing versions", e);
+			}
+			// otherwise same book is already installed
+			return BookInstallStatus.INSTALLED;
+		} else {
+			return BookInstallStatus.NOT_INSTALLED;
+		}
 	}
 }
