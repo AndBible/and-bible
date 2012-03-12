@@ -3,6 +3,7 @@ package net.bible.android.view.activity.page;
 import java.lang.reflect.Method;
 
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.service.device.ScreenSettings;
@@ -37,6 +38,10 @@ public class BibleView extends WebView implements DocumentView {
 	private PageControl mPageControl = ControlFactory.getInstance().getPageControl();
 	
 	private PageTiltScroller mPageTiltScroller;
+	private boolean hideScrollBar;
+	
+	private boolean wasAtRightEdge;
+	private boolean wasAtLeftEdge;
 
 	private static final String TAG = "BibleView";
 	
@@ -184,12 +189,49 @@ public class BibleView extends WebView implements DocumentView {
 		
 		mJumpToVerse = jumpToVerse;
 		mJumpToYOffsetRatio = jumpToYOffsetRatio;
+		
+		// allow zooming if map
+		boolean isMap = CurrentPageManager.getInstance().isMapShown();
+		getSettings().setBuiltInZoomControls(isMap);
+		// http://stackoverflow.com/questions/3808532/how-to-set-the-initial-zoom-width-for-a-webview
+		getSettings().setLoadWithOverviewMode(isMap);
+		getSettings().setUseWideViewPort(isMap);
+		
 		loadDataWithBaseURL("http://baseUrl", html, "text/html", "UTF-8", "http://historyUrl");
 	}
+
+	/** prevent swipe right if the user is scrolling the page right */
+	public boolean isPageNextOkay() {
+		boolean isOkay = true;
+		if (CurrentPageManager.getInstance().isMapShown()) {
+			// allow swipe right if at right side of map
+			boolean isAtRightEdge = (getScrollX() >= getMaxHorizontalScroll());
+
+			// the first side swipe takes us to the edge and second takes us to next page
+			isOkay = isAtRightEdge && wasAtRightEdge;
+			wasAtRightEdge = isAtRightEdge;
+			wasAtLeftEdge = false;
+		}
+		return isOkay;
+	}
 	
+	/** prevent swipe left if the user is scrolling the page left */
+	public boolean isPagePreviousOkay() {
+		boolean isOkay = true;
+		if (CurrentPageManager.getInstance().isMapShown()) {
+			// allow swipe left if at left edge of map
+			boolean isAtLeftEdge = (getScrollX() == 0);
+
+			// the first side swipe takes us to the edge and second takes us to next page
+			isOkay = isAtLeftEdge && wasAtLeftEdge;
+			wasAtLeftEdge = isAtLeftEdge;
+			wasAtRightEdge = false;
+		}
+		return isOkay;
+	}
+
 	@Override
 	public void onWindowFocusChanged(boolean hasWindowFocus) {
-		// TODO Auto-generated method stub
 		super.onWindowFocusChanged(hasWindowFocus);
 
 		if (hasWindowFocus) {
@@ -260,7 +302,6 @@ public class BibleView extends WebView implements DocumentView {
 		return super.onKeyUp(keyCode, event);
 	}
 
-	private boolean hideScrollBar;
 	public boolean scroll(boolean forward, int scrollAmount) {
 		boolean ok = false;
 		hideScrollBar = true;
@@ -291,8 +332,12 @@ public class BibleView extends WebView implements DocumentView {
 	 */
     private int getMaxVerticalScroll() {
     	
-    	// get these once, they probably won't change 
+    	//TODO get these once, they probably won't change 
         return computeVerticalScrollRange()-computeVerticalScrollExtent();
+    }
+
+    private int getMaxHorizontalScroll() {
+        return computeHorizontalScrollRange()-computeHorizontalScrollExtent();
     }
 
     /** allow vertical scroll bar to be hidden during auto-scroll

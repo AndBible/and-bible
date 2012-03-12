@@ -53,11 +53,13 @@ public class Download extends DocumentSelectionBase {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        forceBasicFlow = SwordDocumentFacade.getInstance().getBibles().size()==0;
+    	setInstallStatusIconsShown(!forceBasicFlow);
+        setDeletePossible(!forceBasicFlow);
+    	
         super.onCreate(savedInstanceState);
 
         downloadControl = ControlFactory.getInstance().getDownloadControl();
-
-        forceBasicFlow = SwordDocumentFacade.getInstance().getBibles().size()==0;
         
     	// in the basic flow we force the user to download a bible
     	getDocumentTypeSpinner().setEnabled(!forceBasicFlow);

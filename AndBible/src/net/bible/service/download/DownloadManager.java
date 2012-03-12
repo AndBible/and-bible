@@ -24,6 +24,8 @@ package net.bible.service.download;
 import java.util.List;
 import java.util.Map;
 
+import net.bible.service.common.Logger;
+
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.BookFilter;
@@ -32,8 +34,6 @@ import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.install.InstallException;
 import org.crosswire.jsword.book.install.InstallManager;
 import org.crosswire.jsword.book.install.Installer;
-
-import android.util.Log;
 
 /**
  * Originally copied from BookInstaller it calls Sword routines related to installation and removal of books and indexes
@@ -47,7 +47,7 @@ public class DownloadManager {
 
 	public static final String REPOSITORY_KEY = "repository";
 
-	private static final String TAG = "DownloadManager";
+    private static final Logger log = new Logger(DownloadManager.class.getName()); 
 	
     public DownloadManager() {
         installManager = new InstallManager();
@@ -63,17 +63,17 @@ public class DownloadManager {
         Installer installer = installManager.getInstaller(repo);
 
         // Now we can get the list of books
-    	Log.d(TAG, "getting downloadable books");
+    	log.debug("getting downloadable books");
     	if (installer.getBooks().size()==0 || refresh) {
     		//todo should warn user of implications of downloading book list e.g. from persecuted country
-    		Log.w(TAG, "Reloading book list");
+    		log.warn("Reloading book list");
     		installer.reloadBookList();
     	}
 
         // Get a list of all the available books
         List<Book> documents = installer.getBooks(filter); //$NON-NLS-1$
         installer.close();
-    	Log.i(TAG, "number of documents available:"+documents.size());
+    	log.info("number of documents available:"+documents.size());
 
 		return documents;
 	}
@@ -116,7 +116,7 @@ public class DownloadManager {
      */
     public void installIndex(String repositoryName, Book book) throws BookException, InstallException {
     	// An installer knows how to install indexes
-        Log.d(TAG, "installIndex");
+        log.debug("installIndex");
         Installer installer = installManager.getInstaller(repositoryName);
     	IndexDownloadThread idt = new IndexDownloadThread();
     	idt.downloadIndex(installer, book);

@@ -62,6 +62,10 @@
 		        android:visibility="gone"
 				style="@style/TitleBarButton"
 	    />
-	</LinearLayout>
+	    <Button android:id="@+id/quickMapChange"
+		        android:visibility="gone"
+				style="@style/TitleBarButton"
+	    />
+   	</LinearLayout>
            
 </RelativeLayout>

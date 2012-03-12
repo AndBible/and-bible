@@ -12,25 +12,21 @@ import org.crosswire.jsword.book.install.InstallException;
  * 
  * @author denha1m
  */
-public class BetaRepo {
+public class BetaRepo extends RepoBase {
 
 	// see here for info ftp://ftp.xiphos.org/mods.d/
 	private static final String BETA_REPOSITORY = "Crosswire Beta";
 	
 	private static BookFilter SUPPORTED_DOCUMENTS = new BetaBookFilter();
 	
-	/** get a list of books that are available in Xiphos repo and seem to work in And Bible
+	/** get a list of good books that are available in Beta repo and seem to work in And Bible
 	 */
 	public List<Book> getRepoBooks(boolean refresh) throws InstallException {
-		
-		DownloadManager crossWireDownloadManager = new DownloadManager();
-        List<Book> bookList = crossWireDownloadManager.getDownloadableBooks(SUPPORTED_DOCUMENTS, BETA_REPOSITORY, refresh);
 
-        for (Book book : bookList) {
-        	book.getBookMetaData().putProperty(DownloadManager.REPOSITORY_KEY, BETA_REPOSITORY);
-        }
-        
-		return bookList;		
+		List<Book> books = getBookList(SUPPORTED_DOCUMENTS, refresh);
+		storeRepoNameInMetaData(books);
+		
+		return books;
 	}
 	
 	private static class BetaBookFilter extends AcceptableBookTypeFilter {
@@ -50,7 +46,10 @@ public class BetaRepo {
 						( book.getInitials().startsWith("Jap") && !book.getInitials().equals("JapDenmo") )
 					);
 		}
-		
-		
+	}
+
+	@Override
+	public String getRepoName() {
+		return BETA_REPOSITORY;
 	}
 }

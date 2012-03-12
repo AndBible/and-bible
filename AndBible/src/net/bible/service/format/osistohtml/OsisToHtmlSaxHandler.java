@@ -63,6 +63,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	private LHandler lHandler;
 	private HiHandler hiHandler;
 	private StrongsHandler strongsHandler;
+	private FigureHandler figureHandler;
 	
 	// processor for the tag content
 	private TextPreprocessor textPreprocessor;
@@ -93,6 +94,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		lgHandler = new LGHandler(parameters, getWriter());
 		lHandler = new LHandler(parameters, getWriter());
 		strongsHandler = new StrongsHandler(parameters, getWriter());
+		figureHandler = new FigureHandler(parameters, getWriter());
 		
 		//TODO at the moment we can only have a single TextPreprocesor, need to chain them and maybe make the writer a TextPreprocessor and put it at the end of the chain
 		if (HEBREW_LANGUAGE_CODE.equals(parameters.getLanguageCode())) {
@@ -219,8 +221,10 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			write("<span class='transChange'>");
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_W)) {
 			strongsHandler.start(attrs);
-//		} else {
-//			log.info("Verse "+verseInfo.currentVerseNo+" unsupported OSIS tag:"+name);
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_FIGURE)) {
+			figureHandler.start(attrs);
+		} else {
+			log.info("Verse "+verseInfo.currentVerseNo+" unsupported OSIS tag:"+name);
 		}
 	}
 

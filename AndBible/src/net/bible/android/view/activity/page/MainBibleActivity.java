@@ -208,7 +208,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		    	setPageTitleVisible(true);
 		    	setProgressBar(false);
 		    	updateSuggestedDocuments();
-				gestureListener.setSensePageDownTap(!isStrongsShown());
+		    	// don't sense taps at bottom of screen if Strongs numbers link might be there or Map zoom control might be there
+				gestureListener.setSensePageDownTap(!isStrongsShown() && !CurrentPageManager.getInstance().isMapShown());
 			}
 		});
     }
@@ -294,6 +295,21 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	return documentViewManager.getDocumentView().getCurrentPosition();
     }
     
+    /** user swiped right */
+    public void next() {
+    	if (getDocumentViewManager().getDocumentView().isPageNextOkay()) {
+    		CurrentPageManager.getInstance().getCurrentPage().next();
+    	}		
+    }
+    
+    /** user swiped left */
+    public void previous() {
+    	if (getDocumentViewManager().getDocumentView().isPagePreviousOkay()) {
+    		CurrentPageManager.getInstance().getCurrentPage().previous();
+    	}
+    }
+
+
 	// handle swipe left and right
     // http://android-journey.blogspot.com/2010_01_01_archive.html
     //http://android-journey.blogspot.com/2010/01/android-gestures.html

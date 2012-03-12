@@ -20,7 +20,7 @@ import android.widget.ToggleButton;
 
 public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	
-	protected enum HeaderButton {DOCUMENT, PAGE, BIBLE, COMMENTARY, DICTIONARY, GEN_BOOK, TOGGLE_STRONGS};
+	protected enum HeaderButton {DOCUMENT, PAGE, BIBLE, COMMENTARY, DICTIONARY, GEN_BOOK, MAP, TOGGLE_STRONGS};
 
 	private View mTitleBar;
 	
@@ -35,6 +35,8 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	private Book mSuggestedDictionary;
 	private Button mQuickGenBookChangeLink;
 	private Book mSuggestedGenBook;
+	private Button mQuickMapChangeLink;
+	private Book mSuggestedMap;
 	
 	private ToggleButton mStrongsToggle;
 	
@@ -63,6 +65,7 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
         mQuickCommentaryChangeLink = (Button)findViewById(R.id.quickCommentaryChange);
         mQuickDictionaryChangeLink = (Button)findViewById(R.id.quickDictionaryChange);
         mQuickGenBookChangeLink = (Button)findViewById(R.id.quickGenBookChange);
+        mQuickMapChangeLink = (Button)findViewById(R.id.quickMapChange);
         
         mStrongsToggle = (ToggleButton)findViewById(R.id.strongsToggle);
         
@@ -103,6 +106,13 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
             }
         });
         
+        mQuickMapChangeLink.setOnClickListener(new OnClickListener() {
+			@Override
+            public void onClick(View v) {
+            	handleHeaderButtonPress(HeaderButton.MAP);
+            }
+        });
+
         mStrongsToggle.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
             	handleHeaderButtonPress(HeaderButton.TOGGLE_STRONGS);
@@ -129,6 +139,9 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	    		break;
 	    	case GEN_BOOK:
 	    		quickChange(mSuggestedGenBook);
+	    		break;
+	    	case MAP:
+	    		quickChange(mSuggestedMap);
 	    		break;
 	    	case DOCUMENT:
 	        	Intent docHandlerIntent = new Intent(CustomTitlebarActivityBase.this, ChooseDocument.class);
@@ -178,16 +191,20 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 		updatePageTitle();
 
 		// show or hide right 2 buttons depending on screen width and book availability
-		if (numButtonsToShow()>=4) {
+		if (numButtonsToShow()>=5) {
 			if (mSuggestedDictionary!=null) {
 				mQuickDictionaryChangeLink.setVisibility(View.VISIBLE);
 			}
 			if (mSuggestedGenBook!=null) {
 				mQuickGenBookChangeLink.setVisibility(View.VISIBLE);
 			}
+			if (mSuggestedMap!=null) {
+				mQuickMapChangeLink.setVisibility(View.VISIBLE);
+			}
 		} else {
 			mQuickDictionaryChangeLink.setVisibility(View.GONE);
 			mQuickGenBookChangeLink.setVisibility(View.GONE);
+			mQuickMapChangeLink.setVisibility(View.GONE);
 		}
 		
 //		// the title bar has different widths depending on the orientation
@@ -225,6 +242,9 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
     	case GEN_BOOK:
     		suggestedDoc = ControlFactory.getInstance().getDocumentControl().getSuggestedGenBook();;
     		break;
+    	case MAP:
+    		suggestedDoc = ControlFactory.getInstance().getDocumentControl().getSuggestedMap();;
+    		break;
     	}
     	return suggestedDoc;
     }
@@ -243,9 +263,12 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
         mSuggestedDictionary = getSuggestedDocument(HeaderButton.DICTIONARY);
         updateQuickButton(mSuggestedDictionary, mQuickDictionaryChangeLink, numButtonsToShow>=3);
 
-        mSuggestedGenBook = getSuggestedDocument(HeaderButton.GEN_BOOK);;
+        mSuggestedGenBook = getSuggestedDocument(HeaderButton.GEN_BOOK);
         updateQuickButton(mSuggestedGenBook, mQuickGenBookChangeLink, numButtonsToShow>=4);
         
+        mSuggestedMap = getSuggestedDocument(HeaderButton.MAP);
+        updateQuickButton(mSuggestedMap, mQuickMapChangeLink, numButtonsToShow>=5);
+
         boolean showStrongsToggle = isStrongsRelevant();
         mStrongsToggle.setVisibility(showStrongsToggle? View.VISIBLE : View.GONE);
         if (showStrongsToggle) {

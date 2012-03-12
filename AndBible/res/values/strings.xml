@@ -214,7 +214,8 @@
     <string name="doc_type_commentary">Commentary</string>
     <string name="doc_type_dictionary">Dictionary</string>
     <string name="doc_type_book">Book</string>
-
+    <string name="doc_type_map">Map</string>
+    
     <!-- Languages -->
     <string name="lang_default">Default</string>
 

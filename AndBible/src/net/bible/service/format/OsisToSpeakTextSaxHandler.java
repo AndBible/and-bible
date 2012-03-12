@@ -58,7 +58,7 @@ public class OsisToSpeakTextSaxHandler extends OsisToCanonicalTextSaxHandler {
     	// NetText often uses single quote where esv uses double quote and TTS says open single quote e.g. Matt 4
     	// so replace all single quotes with double quotes but only if they are used for quoting text as in e.g. Ps 117
     	// it is tricky to distinguish single quotes from apostrophes and this won't work all the time
-    	if (s.contains(" \'")) {
+    	if (s.contains(" \'") || s.startsWith("\'")) {
     		s = s.replace("\'", "\"");
     	}
     	// Finney Gospel Sermons contains to many '--'s which are pronounced as hyphen hyphen

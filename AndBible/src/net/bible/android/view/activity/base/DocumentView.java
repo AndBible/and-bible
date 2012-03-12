@@ -16,6 +16,12 @@ public interface DocumentView {
 	
 	public abstract boolean pageDown(boolean toBottom);
 	
+	/** prevent swipe right if the user is scrolling the page right */
+	public boolean isPageNextOkay();
+	
+	/** prevent swipe left if the user is scrolling the page left */
+	public boolean isPagePreviousOkay();
+	
     public float getCurrentPosition();
     
     /** same as this but of type View */

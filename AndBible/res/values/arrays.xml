@@ -11,6 +11,7 @@
 		<item>@string/doc_type_commentary</item>
 		<item>@string/doc_type_dictionary</item>
 		<item>@string/doc_type_book</item>
+		<item>@string/doc_type_map</item>
 	</string-array>
 
 	<!-- These languages must be in the same order as the language codes below -->

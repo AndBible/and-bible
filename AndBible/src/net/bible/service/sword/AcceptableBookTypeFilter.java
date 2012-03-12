@@ -21,7 +21,8 @@ public class AcceptableBookTypeFilter implements BookFilter {
     		return bookCategory.equals(BookCategory.BIBLE) ||
     		bookCategory.equals(BookCategory.COMMENTARY) ||
     		bookCategory.equals(BookCategory.DICTIONARY) ||
-    		bookCategory.equals(BookCategory.GENERAL_BOOK);
+    		bookCategory.equals(BookCategory.GENERAL_BOOK) || 
+    		bookCategory.equals(BookCategory.MAPS);
     	}
     }
 }
