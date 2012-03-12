@@ -103,6 +103,8 @@ public class DownloadControl {
 	    		}
 			} catch (Exception e) {
 				Log.e(TAG,  "Error comparing versions", e);
+				// probably not the same version if an error occurred comparing
+    			return BookInstallStatus.UPGRADE_AVAILABLE;
 			}
 			// otherwise same book is already installed
 			return BookInstallStatus.INSTALLED;

@@ -61,7 +61,7 @@ public class DocumentItemAdapter extends ArrayAdapter<Book> {
 					view.getIcon().setImageResource(R.drawable.btn_check_buttonless_on);
 					break;
 				case UPGRADE_AVAILABLE:
-					view.getIcon().setImageResource(R.drawable.btn_check_buttonless_off);
+					view.getIcon().setImageResource(R.drawable.amber_up_arrow);
 					break;
 				}
 			} else {
