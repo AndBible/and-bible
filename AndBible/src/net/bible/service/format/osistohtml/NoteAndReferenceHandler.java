@@ -150,7 +150,7 @@ public class NoteAndReferenceHandler {
     /** create a link tag from an OSISref and the content of the tag
      */
     private String getReferenceTag(String reference, String content) {
-    	
+    	log.debug("Ref:"+reference+" Content:"+content);
     	StringBuilder result = new StringBuilder();
     	try {
     		
@@ -174,30 +174,39 @@ public class NoteAndReferenceHandler {
     			reference = content;
     		}
     		
-	        Passage ref = (Passage) PassageKeyFactory.instance().getKey(reference);
-	        boolean isSingleVerse = ref.countVerses()==1;
-	        boolean isSimpleContent = content.length()<3 && content.length()>0;
-	        Iterator<Key> it = ref.rangeIterator(RestrictionType.CHAPTER);
-	        
-	        if (isSingleVerse && isSimpleContent) {
-		        // simple verse no e.g. 1 or 2 preceding the actual verse in TSK
-				result.append("<a href='").append(Constants.BIBLE_PROTOCOL).append(":").append(it.next().getOsisRef()).append("'>");
+    		boolean isFullSwordUrn = reference.contains("/") && reference.contains(":");
+    		if (isFullSwordUrn) {
+    			// e.g. sword://StrongsRealGreek/01909
+    			// don't play with the reference - just assume it is correct
+				result.append("<a href='").append(reference).append("'>");
 				result.append(content);
 				result.append("</a>");
-	        } else {
-	        	// multiple complex references
-	        	boolean isFirst = true;
-				while (it.hasNext()) {
-					Key key = it.next();
-					if (!isFirst) {
-						result.append(" ");
-					}
-					result.append("<a href='").append(Constants.BIBLE_PROTOCOL).append(":").append(key.iterator().next().getOsisRef()).append("'>");
-					result.append(key);
+    		} else {
+		        Passage ref = (Passage) PassageKeyFactory.instance().getKey(reference);
+		        boolean isSingleVerse = ref.countVerses()==1;
+		        boolean isSimpleContent = content.length()<3 && content.length()>0;
+		        Iterator<Key> it = ref.rangeIterator(RestrictionType.CHAPTER);
+		        
+		        if (isSingleVerse && isSimpleContent) {
+			        // simple verse no e.g. 1 or 2 preceding the actual verse in TSK
+					result.append("<a href='").append(Constants.BIBLE_PROTOCOL).append(":").append(it.next().getOsisRef()).append("'>");
+					result.append(content);
 					result.append("</a>");
-					isFirst = false;
-				}
-	        }
+		        } else {
+		        	// multiple complex references
+		        	boolean isFirst = true;
+					while (it.hasNext()) {
+						Key key = it.next();
+						if (!isFirst) {
+							result.append(" ");
+						}
+						result.append("<a href='").append(Constants.BIBLE_PROTOCOL).append(":").append(key.iterator().next().getOsisRef()).append("'>");
+						result.append(key);
+						result.append("</a>");
+						isFirst = false;
+					}
+		        }
+    		}
     	} catch (Exception e) {
     		log.error("Error parsing OSIS reference:"+reference, e);
     		// just return the content with no html markup

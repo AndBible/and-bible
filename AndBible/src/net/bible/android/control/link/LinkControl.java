@@ -9,9 +9,9 @@ import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.search.SearchIndex;
 import net.bible.android.view.activity.search.SearchResults;
-import net.bible.service.common.Constants;
 import net.bible.service.sword.SwordDocumentFacade;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.Defaults;
@@ -45,39 +45,56 @@ public class LinkControl {
 	public boolean loadApplicationUrl(String uri) {
 		try {
 			Log.d(TAG, "Loading: "+uri);
-			// check for urls like gdef:01234 
-			if (!uri.contains(":")) {
-				return false;
+
+			UriAnalyzer uriAnalyzer = new UriAnalyzer(); 
+			if (uriAnalyzer.analyze(uri)) {
+				switch (uriAnalyzer.getDocType()) {
+				case BIBLE:
+		        	showBible(uriAnalyzer.getKey());
+					break;
+				case GREEK_DIC:
+					showStrongs(Defaults.getGreekDefinitions(), uriAnalyzer.getKey());
+					break;
+				case HEBREW_DIC:
+					showStrongs(Defaults.getHebrewDefinitions(), uriAnalyzer.getKey());
+					break;
+				case ROBINSON:
+					showRobinsonMorphology(uriAnalyzer.getKey());
+					break;
+				case ALL_GREEK:
+		        	showAllOccurrences(uriAnalyzer.getKey(), SearchBibleSection.ALL, "g");
+					break;
+				case ALL_HEBREW:
+					showAllOccurrences(uriAnalyzer.getKey(), SearchBibleSection.ALL, "h");
+					break;
+				case SPECIFIC_DOC:
+					showSpecificDocRef(uriAnalyzer.getBook(), uriAnalyzer.getKey());
+					break;
+				default:
+					return false;
+				}
+				
 			}
-			String[] uriTokens = uri.split(":");
-	        String protocol = uriTokens[0];
-	        String ref = uriTokens[1];
-	
-	        // hebrew or greek
-	        if (Constants.BIBLE_PROTOCOL.equals(protocol)) {
-	        	showBible(ref);
-	        } else if (Constants.GREEK_DEF_PROTOCOL.equals(protocol)) {
-	        	showStrongs(Defaults.getGreekDefinitions(), ref);
-	        } else if (Constants.HEBREW_DEF_PROTOCOL.equals(protocol)) {
-	        	showStrongs(Defaults.getHebrewDefinitions(), ref);
-	        } else if (Constants.ROBINSON_GREEK_MORPH_PROTOCOL.equals(protocol)) {
-	        	showRobinsonMorphology(ref);
-	        } else if (Constants.ALL_GREEK_OCCURRENCES_PROTOCOL.equals(protocol)) {
-	        	showAllOccurrences(ref, SearchBibleSection.ALL, "g");
-	        } else if (Constants.ALL_HEBREW_OCCURRENCES_PROTOCOL.equals(protocol)) {
-	        	showAllOccurrences(ref, SearchBibleSection.ALL, "h");
-	        } else {
-	        	// not a valid Strongs Uri
-	        	return false;
-	        }
 	        // handled this url (or at least attempted to)
 	        return true;
 		} catch (Exception e) {
-			Log.e(TAG, "Error going to Strongs", e);
+			Log.e(TAG, "Error going to link", e);
 			return false;
 		}
 	}
-	
+
+	private void showSpecificDocRef(String initials, String ref) throws NoSuchKeyException {
+		if (StringUtils.isEmpty(initials)) {
+			showBible(ref);
+		} else {
+			Book document = SwordDocumentFacade.getInstance().getDocumentByInitials(initials);
+			if (document!=null) {
+				Key bookKey = document.getKey(ref);
+				CurrentPageManager.getInstance().setCurrentDocumentAndKey(document, bookKey);
+			}
+		}
+	}
+
 	/** user has selected a Bible verse link
 	 */
 	private void showBible(String key) throws NoSuchKeyException {

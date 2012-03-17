@@ -2,6 +2,7 @@ package net.bible.service.common;
 
 public class Constants {
     // Strings for URL protocols/URI schemes
+    public static final String SWORD_PROTOCOL = "sword"; //$NON-NLS-1$
     public static final String BIBLE_PROTOCOL = "bible"; //$NON-NLS-1$
     public static final String DICTIONARY_PROTOCOL = "dict"; //$NON-NLS-1$
     public static final String GREEK_DEF_PROTOCOL = "gdef"; //$NON-NLS-1$

@@ -28,8 +28,8 @@ import org.crosswire.jsword.index.IndexStatus;
 
 public class MJDIndexAll {
 
-	private static final String REPOSITORY = "CrossWire";
-//	private static final String REPOSITORY = "Xiphos";
+//	private static final String REPOSITORY = "CrossWire";
+	private static final String REPOSITORY = "Xiphos";
 //	private static final String REPOSITORY = "Crosswire Beta";
 	
 //	private static final BookFilter BOOK_FILTER = BookFilters.getDictionaries();
@@ -55,10 +55,8 @@ public class MJDIndexAll {
 //    	indexAll.deleteBook("StrongsHebrew");
 //    	indexAll.deleteBook("StrongsGreek");
 //    	indexAll.installSingleBook("ESV");
-//    	indexAll.installSingleBook("StrongsRealHebrew");
-//    	indexAll.installSingleBook("StrongsRealGreek");
-//    	indexAll.installSingleBook("StrongsRealHebrew");
-//    	indexAll.installSingleBook("StrongsRealGreek");
+    	indexAll.installSingleBook("strongsrealhebrew");
+    	indexAll.installSingleBook("strongsrealgreek");
 //    	indexAll.installRepoBooks();
 //    	indexAll.checkAllBooksInstalled();
 //    	indexAll.manageCreateIndexes();
@@ -168,7 +166,7 @@ public class MJDIndexAll {
 //    	indexAll.installAndIndexSingleBook("Sorani");
 //    	indexAll.installAndIndexSingleBook("WelBeiblNet");
     	
-    	indexAll.installAndIndexSingleBook("MonKJV");
+//    	indexAll.installAndIndexSingleBook("MonKJV");
 
     }
     
@@ -240,7 +238,7 @@ public class MJDIndexAll {
 
     private void installSingleBook(String initials) {
     	BookInstaller bookInstaller = new BookInstaller();
-        List<Book> books = (List<Book>)bookInstaller.getRepositoryBooks(REPOSITORY, BOOK_FILTER);
+        List<Book> books = (List<Book>)bookInstaller.getRepositoryBooks(REPOSITORY, BookFilters.getDictionaries());
         
         for (Book book : books) {
         	if (initials.equalsIgnoreCase(book.getInitials())) {

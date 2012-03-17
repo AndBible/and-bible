@@ -1,6 +1,7 @@
 package net.bible.service.format.osistohtml.strongs;
 
-import net.bible.service.format.osistohtml.strongs.StrongsLinkCreator;
+import java.net.URI;
+
 import junit.framework.TestCase;
 
 public class StrongsLinkCreatorTest extends TestCase {

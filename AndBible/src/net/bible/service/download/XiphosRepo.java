@@ -41,7 +41,7 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 	
 	private static Map<String, String> nameToZipMap = new HashMap<String, String>();
 	static {
-// gave up with this approach because of problems with deletion... moved and renamed archives to AndBible repo
+// gave up with this approach because of problems with deletion... moved and renamed the following 3 archives to AndBible repo
 // 1. copy zip from xiphos 2. rename zip to same as Initials 3. open zip and rename module conf to same as initials but lowercase
 //		nameToZipMap.put("eBibleTeacherMaps", "ebibleteacher");
 //		nameToZipMap.put("EpiphanyMaps", "epiphany-maps");
@@ -61,6 +61,8 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 			acceptableInitials.add("ChiPinyin");
 			acceptableInitials.add("LuthersWorks");
 			acceptableInitials.add("Shaw");
+			acceptableInitials.add("StrongsRealGreek");
+			acceptableInitials.add("StrongsRealHebrew");
 			// maps
 			acceptableInitials.add("ABSMaps");
 //			acceptableInitials.add("eBibleTeacherMaps"); // moved to AB repo because of naming inconsistency
