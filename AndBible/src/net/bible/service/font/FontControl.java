@@ -21,6 +21,7 @@ public class FontControl {
     private static final String FONT_DOWNLOAD_URL = "http://www.crosswire.org/and-bible/fonts/v1/";
     public static String FONT_PROPERTIES_FILENAME = "fonts.properties";
     private static String FONT_SIZE_ADJUSTMENT = ".fontSizeAdjustment";
+    private static String CSS_CLASS = ".cssClass";
     
     private static FontControl SINGLETON = new FontControl();
     
@@ -63,12 +64,15 @@ public class FontControl {
 	 *  fontname.fontSizeAdjustment=2
 	 * will increase the size when fontname is used
 	 */
-	public int getFontSizeAdjustment(String font) {
+	public int getFontSizeAdjustment(String font, Book book) {
 		int sizeAdjustment = 0;
 		try {
 			if (!StringUtils.isEmpty(font)) {
-				String sizeAdjustmentString = fontProperties.getProperty(font+FONT_SIZE_ADJUSTMENT, "0");
-				sizeAdjustment = Integer.parseInt(sizeAdjustmentString);
+				// only modify font size if font is for whole page otherwise some characters are different sizes which looks odd
+				if (StringUtils.isEmpty(getCssClassForCustomFont(book))) {
+					String sizeAdjustmentString = fontProperties.getProperty(font+FONT_SIZE_ADJUSTMENT, "0");
+					sizeAdjustment = Integer.parseInt(sizeAdjustmentString);
+				}
 			}
 		} catch (Exception e) {
 			log.error("Error getting font size adjustment", e);
@@ -76,18 +80,28 @@ public class FontControl {
 		return sizeAdjustment;
 	}
 
+	public String getCssClassForCustomFont(Book book) {
+		return fontProperties.getProperty(book.getInitials()+CSS_CLASS, "");
+	}
+	
+
 	public boolean exists(String font) {
 		return 	new File(SharedConstants.FONT_DIR, font).exists() ||
 				new File(SharedConstants.MANUAL_FONT_DIR, font).exists();
 	}
 	
-	public String getHtmlFontStyle(String font) {
+	public String getHtmlFontStyle(String font, String cssClass) {
 		String fontStyle = "";
 		if (!StringUtils.isEmpty(font)) {
+			if (StringUtils.isEmpty(cssClass)) {
+				cssClass = "body";
+			}
+			
 			File fontFile = getFontFile(font);
 			if (fontFile!=null && fontFile.exists()) {
-				fontStyle = "<style>@font-face {font-family: 'CustomFont';src: url('"+getFontFile(font).toURI()+"'); font-weight:normal; font-style:normal; font-variant:normal;}"+
-							"body {font-family: 'CustomFont', sans-serif;}</style>";
+				fontStyle = "<style>@font-face {font-family: 'CustomFont';src: url('"+getFontFile(font).toURI()+"'); font-weight:normal; font-style:normal; font-variant:normal;} "+
+							cssClass+" {font-family: 'CustomFont', 'Droid Sans';}</style>";
+				// if range specified the default font also changes e.g. unicode-range:U+0370-03FF,U+1F00-1FFE;
 			} else {
 				log.error("Font not found:"+font);
 			}

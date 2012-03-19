@@ -20,6 +20,7 @@ public class OsisToHtmlParameters {
     // used as a basis if a reference has only chapter and no book
     private Verse basisRef;
     private String font;
+    private String cssClassForCustomFont;
 
     private boolean isShowStrongs = false;
     private boolean isShowMorphology = false;
@@ -134,6 +135,12 @@ public class OsisToHtmlParameters {
 	}
 	public void setFont(String font) {
 		this.font = font;
+	}
+	public String getCssClassForCustomFont() {
+		return cssClassForCustomFont;
+	}
+	public void setCssClassForCustomFont(String cssClassForCustomFont) {
+		this.cssClassForCustomFont = cssClassForCustomFont;
 	}
 	public boolean isConvertStrongsRefsToLinks() {
 		return convertStrongsRefsToLinks;

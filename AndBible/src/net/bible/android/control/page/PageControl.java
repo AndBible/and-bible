@@ -162,7 +162,7 @@ public class PageControl {
 		// if book has a special font it may require an adjusted font size
 		Book book = mCurrentPageManager.getCurrentPage().getCurrentDocument();
 		String font = FontControl.getInstance().getFontForBook(book);
-		int fontSizeAdjustment = FontControl.getInstance().getFontSizeAdjustment(font);
+		int fontSizeAdjustment = FontControl.getInstance().getFontSizeAdjustment(font, book);
 		
 		return fontSize+fontSizeAdjustment;		
 	}

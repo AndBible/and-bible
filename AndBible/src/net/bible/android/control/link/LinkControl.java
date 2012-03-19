@@ -88,7 +88,10 @@ public class LinkControl {
 			showBible(ref);
 		} else {
 			Book document = SwordDocumentFacade.getInstance().getDocumentByInitials(initials);
-			if (document!=null) {
+			if (document==null) {
+	        	// tell user to install book
+	        	Dialogs.getInstance().showErrorMsg(R.string.document_not_installed, initials);
+			} else {
 				Key bookKey = document.getKey(ref);
 				CurrentPageManager.getInstance().setCurrentDocumentAndKey(document, bookKey);
 			}

@@ -369,6 +369,7 @@ public class SwordContentFacade {
 				
 				// which font, if any
 				osisToHtmlParameters.setFont(FontControl.getInstance().getFontForBook(book));				
+				osisToHtmlParameters.setCssClassForCustomFont(FontControl.getInstance().getCssClassForCustomFont(book));				
 			}
 		}
 		OsisToHtmlSaxHandler osisToHtml = new OsisToHtmlSaxHandler(osisToHtmlParameters);

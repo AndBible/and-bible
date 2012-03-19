@@ -30,6 +30,9 @@ public class Dialogs {
     public void showErrorMsg(int msgId) {
     	showErrorMsg(BibleApplication.getApplication().getString(msgId));
     }
+    public void showErrorMsg(int msgId, String param) {
+    	showErrorMsg(BibleApplication.getApplication().getString(msgId, param));
+    }
     public void showErrorMsg(String msg) {
     	showErrorMsg(msg, new Callback() {
 			@Override

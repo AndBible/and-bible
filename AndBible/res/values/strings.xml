@@ -133,7 +133,8 @@
     <string name="wait_for_bible_not_yet">Please wait.  A bible has not yet completed installation.</string>
     <string name="download_complete_no_bibles">No bible was installed.  Please press Back and try again.</string>
     <string name="too_many_jobs">Too many tasks executing.  Please wait for some to finish and try again.</string>
-
+    <string name="document_not_installed">Please download \'%s\'</string>
+    
     <!-- Daily Reading Plan -->
     <string name="rdg_plan_title">Reading Plan</string>
     <string name="rdg_plan_selector_title">Choose a Reading Plan</string>
