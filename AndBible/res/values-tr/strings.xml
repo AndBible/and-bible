@@ -226,4 +226,4 @@
     <string name="error_page_too_large">Sayfa yüklenmek için fazla büyük</string>
     <string name="error_key_not_in_document">Belgede bulunmadı</string>
     <string name="empty_list">Öğe bulunmadı</string>
-</resources>
+<string name="doc_type_map">Map</string></resources>
