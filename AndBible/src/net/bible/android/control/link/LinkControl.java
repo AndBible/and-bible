@@ -14,7 +14,6 @@ import net.bible.service.sword.SwordDocumentFacade;
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
-import org.crosswire.jsword.book.Defaults;
 import org.crosswire.jsword.book.FeatureType;
 import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.index.search.SearchType;
@@ -53,10 +52,10 @@ public class LinkControl {
 		        	showBible(uriAnalyzer.getKey());
 					break;
 				case GREEK_DIC:
-					showStrongs(Defaults.getGreekDefinitions(), uriAnalyzer.getKey());
+					showStrongs(SwordDocumentFacade.getInstance().getDefaultStrongsGreekDictionary(), uriAnalyzer.getKey());
 					break;
 				case HEBREW_DIC:
-					showStrongs(Defaults.getHebrewDefinitions(), uriAnalyzer.getKey());
+					showStrongs(SwordDocumentFacade.getInstance().getDefaultStrongsHebrewDictionary(), uriAnalyzer.getKey());
 					break;
 				case ROBINSON:
 					showRobinsonMorphology(uriAnalyzer.getKey());

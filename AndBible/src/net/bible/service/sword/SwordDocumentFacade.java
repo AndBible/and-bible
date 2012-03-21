@@ -23,6 +23,7 @@ import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
 import org.crosswire.jsword.book.Books;
+import org.crosswire.jsword.book.Defaults;
 import org.crosswire.jsword.book.FeatureType;
 import org.crosswire.jsword.book.install.InstallException;
 import org.crosswire.jsword.book.sword.SwordBookPath;
@@ -151,6 +152,24 @@ public class SwordDocumentFacade {
 		log.debug("Got books, Num="+allDocuments.size());
 		isSwordLoaded = true;
 		return allDocuments;
+	}
+
+	public Book getDefaultStrongsGreekDictionary() {
+		// default to StrongsRealGreek
+		Book strongs = Books.installed().getBook("StrongsRealGreek");
+		if (strongs==null) {
+			strongs = Defaults.getGreekDefinitions();
+		}
+		return strongs; 
+	}
+
+	public Book getDefaultStrongsHebrewDictionary() {
+		// default to StrongsRealHebrew
+		Book strongs = Books.installed().getBook("StrongsRealHebrew");
+		if (strongs==null) {
+			strongs = Defaults.getHebrewDefinitions();
+		}
+		return strongs; 
 	}
 
 	public Book getDefaultBibleWithStrongs() {
