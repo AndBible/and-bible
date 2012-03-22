@@ -208,7 +208,7 @@ public class NoteAndReferenceHandler {
 		        }
     		}
     	} catch (Exception e) {
-    		log.error("Error parsing OSIS reference:"+reference, e);
+    		log.error("Error parsing OSIS reference:"+reference);
     		// just return the content with no html markup
     		result.append(content);
     	}
