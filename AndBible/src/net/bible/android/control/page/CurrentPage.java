@@ -52,6 +52,8 @@ public interface CurrentPage {
 
 	public void setCurrentDocumentAndKey(Book doc, Key key);
 	
+	public boolean checkCurrentDocumentStillInstalled();
+
 	/** get a page to display */
 	public FormattedDocument getCurrentPageContent() throws ParseException;
 

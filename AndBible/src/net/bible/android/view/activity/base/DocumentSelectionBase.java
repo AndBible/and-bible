@@ -11,6 +11,7 @@ import java.util.Set;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.document.DocumentControl;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.common.util.Language;
@@ -75,6 +76,8 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 
 	private boolean isDeletePossible;
 	private boolean isInstallStatusIconsShown;
+	
+	private DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
 	
 	private static final int LIST_ITEM_TYPE = R.layout.list_item_2_image;
 
@@ -337,7 +340,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 		MenuItem deleteItem = menu.findItem(R.id.delete);
 		deleteItem.setVisible(isDeletePossible);
 		if (isDeletePossible) {
-			boolean canDeleteCurrentDocument = ControlFactory.getInstance().getDocumentControl().canDelete(document);
+			boolean canDeleteCurrentDocument = documentControl.canDelete(document);
 			deleteItem.setEnabled(canDeleteCurrentDocument);
 		}
 
@@ -378,7 +381,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 					public void onClick(DialogInterface dialog,	int buttonId) {
 						try {
 							Log.d(TAG, "Deleting:"+document);
-							SwordDocumentFacade.getInstance().deleteDocument(document);
+							documentControl.deleteDocument(document);
 
 							// the doc list should now change
 							reloadDocuments();

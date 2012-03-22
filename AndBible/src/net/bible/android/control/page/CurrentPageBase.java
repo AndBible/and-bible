@@ -121,6 +121,15 @@ abstract class CurrentPageBase implements CurrentPage {
         return formattedDocument;	
 	}
 	
+	public boolean checkCurrentDocumentStillInstalled() {
+		if (currentDocument!=null) {
+			Log.d(TAG, "checkCurrentDocumentStillInstalled:"+currentDocument);
+			// this sets currentDoc to null if it does not exist
+			currentDocument = SwordDocumentFacade.getInstance().getDocumentByInitials(currentDocument.getInitials());
+		}
+		return currentDocument!=null;
+	}
+	
 	/* (non-Javadoc)
 	 * @see net.bible.android.control.CurrentPage#getCurrentDocument()
 	 */

@@ -169,7 +169,7 @@ public class CurrentPageManager {
 		return nextPage;
 	}
 	
-	private CurrentPage getBookPage(Book book) {
+	public CurrentPage getBookPage(Book book) {
 		if (book.equals(currentMyNotePage.getCurrentDocument())) {
 			return currentMyNotePage;
 		} else {

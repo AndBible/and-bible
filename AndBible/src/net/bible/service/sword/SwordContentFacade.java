@@ -33,6 +33,7 @@ import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookData;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.BookMetaData;
+import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.FeatureType;
 import org.crosswire.jsword.book.OSISUtil;
 import org.crosswire.jsword.passage.Key;
@@ -93,9 +94,13 @@ public class SwordContentFacade {
 		FormattedDocument retVal = new FormattedDocument();
 		if (book==null || key==null) {
 			retVal.setHtmlPassage("");
+		} else if (Books.installed().getBook(book.getInitials())==null) {
+			Log.w(TAG, "Book may have been uninstalled:"+book);
+			String errorMsg = BibleApplication.getApplication().getString(R.string.document_not_installed, book.getInitials());
+			String htmlMsg = HtmlMessageFormatter.format(errorMsg);
+			retVal.setHtmlPassage(htmlMsg);
 		} else if (!book.contains(key)) {
 			Log.w(TAG, "KEY:"+key+" not found in doc:"+book);
-			
 			String htmlMsg = HtmlMessageFormatter.format(R.string.error_key_not_in_document);
 			retVal.setHtmlPassage(htmlMsg);
 		} else {

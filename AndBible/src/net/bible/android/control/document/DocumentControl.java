@@ -3,11 +3,13 @@ package net.bible.android.control.document;
 import java.util.List;
 
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
+import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.FeatureType;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
@@ -44,8 +46,19 @@ public class DocumentControl {
 				document.getDriver().isDeletable(document) &&
 				!document.equals(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument()) &&
 				!document.equals(CurrentPageManager.getInstance().getCurrentCommentary().getCurrentDocument()) &&
-				!document.equals(CurrentPageManager.getInstance().getCurrentDictionary().getCurrentDocument()) &&
-				!document.equals(CurrentPageManager.getInstance().getCurrentGeneralBook().getCurrentDocument());
+				!document.equals(CurrentPageManager.getInstance().getCurrentDictionary().getCurrentDocument());
+	}
+	
+	/** delete selected document, even of current doc (Map and Gen Book only currently) and tidy up CurrentPage
+	 */
+	public void deleteDocument(Book document) throws BookException {
+		SwordDocumentFacade.getInstance().deleteDocument(document);
+				
+		CurrentPageManager currentPageManager = ControlFactory.getInstance().getCurrentPageControl();
+		CurrentPage currentPage = currentPageManager.getBookPage(document);
+		if (currentPage!=null) {
+			currentPage.checkCurrentDocumentStillInstalled();
+		}
 	}
 	
 	/** Suggest an alternative dictionary to view or return null
