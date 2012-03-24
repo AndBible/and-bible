@@ -63,6 +63,12 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 			acceptableInitials.add("Shaw");
 			acceptableInitials.add("StrongsRealGreek");
 			acceptableInitials.add("StrongsRealHebrew");
+			
+//			acceptableInitials.add("Augustin");
+//			acceptableInitials.add("Chrysostom");
+//			acceptableInitials.add("LutherBondageOfTheWill");
+//			acceptableInitials.add("LutherShortClassics");
+			
 			// maps
 			acceptableInitials.add("ABSMaps");
 //			acceptableInitials.add("eBibleTeacherMaps"); // moved to AB repo because of naming inconsistency
@@ -78,6 +84,7 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 
 		@Override
 		public boolean test(Book book) {
+			log.debug("Testing:"+book.getInitials());
 			return 	super.test(book) && 
 					acceptableInitials.contains(book.getInitials());
 		}
