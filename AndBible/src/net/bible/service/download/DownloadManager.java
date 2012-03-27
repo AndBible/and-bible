@@ -96,8 +96,10 @@ public class DownloadManager {
         // At the moment, JSword will not re-install. Later it will, if the
         // remote version is greater.
         String bookInitials = book.getInitials();
-        if (Books.installed().getBook(bookInitials) != null) {
-            deleteBook(book);
+        Book installedBook = Books.installed().getBook(bookInitials);
+        if (installedBook!= null) {
+        	// installedBook may differ by case of initials if Xiphos so delete installedBook rather than book
+            deleteBook(installedBook);
         }
 
         // Now install it. Note this is a background task.
@@ -130,9 +132,10 @@ public class DownloadManager {
      * @throws BookException
      */
     public void deleteBook(Book book) throws BookException {
-        // Make the book unavailable.
+// removeBook(book) is called at the end of delete(book) so do not call it here or an error can occur.
+    	// Make the book unavailable.
         // This is normally done via listeners.
-        Books.installed().removeBook(book);
+//        Books.installed().removeBook(book);
 
         // Actually do the delete
         // This should be a call on installer.
