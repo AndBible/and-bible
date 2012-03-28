@@ -24,7 +24,9 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData;
 
 /** some books need renaming after download due to problems with Xiphos module case
  * 
- * @author denha1m
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class XiphosRepo extends RepoBase implements BooksListener {
 
@@ -66,8 +68,8 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 			
 //			acceptableInitials.add("Augustin");
 //			acceptableInitials.add("Chrysostom");
-//			acceptableInitials.add("LutherBondageOfTheWill");
-//			acceptableInitials.add("LutherShortClassics");
+			acceptableInitials.add("LutherBondageOfTheWill");
+			acceptableInitials.add("LutherShortClassics");
 			
 			// maps
 			acceptableInitials.add("ABSMaps");
@@ -84,7 +86,6 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 
 		@Override
 		public boolean test(Book book) {
-			log.debug("Testing:"+book.getInitials());
 			return 	super.test(book) && 
 					acceptableInitials.contains(book.getInitials());
 		}
