@@ -123,6 +123,7 @@
     <string name="wait_for_bible_not_yet">Lütfen bekleyiniz. Çeviri cihazınıza yükleniyor.</string>
     <string name="download_complete_no_bibles">Çeviri yüklenmedi. Lütfen Geri düğmesine basın ve tekrar deneyin.</string>
     <string name="too_many_jobs">Şu anda çok fazla görev işleniyor. Birinin bitmesini bekleyip tekrar deneyin.</string>
+	<string name="document_not_installed">Lütfen \'%s\' dosyasını indirin</string>
 
     <!-- Daily Reading Plan -->
     <string name="rdg_plan_title">Okuma Planı</string>
@@ -204,6 +205,7 @@
     <string name="doc_type_commentary">Yorum Kitabı</string>
     <string name="doc_type_dictionary">Sözlük</string>
     <string name="doc_type_book">Kitap</string>
+	<string name="doc_type_map">Harita</string>
 
     <!-- Languages -->
     <string name="lang_default">Varsayılan</string>
@@ -226,4 +228,4 @@
     <string name="error_page_too_large">Sayfa yüklenmek için fazla büyük</string>
     <string name="error_key_not_in_document">Belgede bulunmadı</string>
     <string name="empty_list">Öğe bulunmadı</string>
-<string name="doc_type_map">Map</string><string name="document_not_installed">Please download \'%s\'</string></resources>
+</resources>
