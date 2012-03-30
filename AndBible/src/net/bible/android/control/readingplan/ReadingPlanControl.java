@@ -119,11 +119,14 @@ public class ReadingPlanControl {
 		}
 		
 		// should not need to round as we use truncated dates, but safety first
-		long diffInDays = (today.getTime() - startDate.getTime())/(1000*60*60*24);
-		Log.d(TAG, "Days diff between today and start:"+diffInDays);
+		// later found that rounding is necessary (due to DST I think) because 
+		// when the clocks went forward the difference became 88.95833 but should have been 89
+		double diffInDays = (today.getTime() - startDate.getTime())/(1000.0*60*60*24);
+		long diffInWholeDays = Math.round(diffInDays);
+		Log.d(TAG, "Days diff between today and start:"+diffInWholeDays);
 		
 		// if diff is zero then we are on day 1 so add 1
-		return diffInDays+1;
+		return diffInWholeDays+1;
 	}
 
 	/** mark this day as complete unless it is in the future
