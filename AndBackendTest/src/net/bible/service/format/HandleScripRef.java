@@ -146,13 +146,15 @@ basis is the current verse to use in case of no book or chapter
 
 	public void testStrongsRef() throws Exception {
 		{
-		Book strongs = TestUtil.getBook("StrongsHebrew");
-		Key key = strongs.getKey("00778");
-		String text = strongs.getRawText(key);
-		System.out.println(text);
+			Book strongs = TestUtil.getBook("StrongsRealHebrew");
+			Key key = strongs.getKey("00778");
+			String text = strongs.getRawText(key);
+			System.out.println(text);
+			String html = TestUtil.getHtml(strongs, key, 100);
+			System.out.println(html);
 		}
 		{
-		Book strongs = TestUtil.getBook("StrongsGreek");
+		Book strongs = TestUtil.getBook("StrongsRealGreek");
 		Key key = strongs.getKey("01252");
 		String text = strongs.getRawText(key);
 		System.out.println(text);
