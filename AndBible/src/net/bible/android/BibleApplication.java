@@ -28,6 +28,8 @@ public class BibleApplication extends Application{
 
 	private Locale overrideLocale;
 	
+	private int errorDuringStartup = 0;
+	
 	private static final String TEXT_SIZE_PREF = "text_size_pref";
 	
 	private static BibleApplication singleton;
@@ -213,5 +215,10 @@ public class BibleApplication extends Application{
 	public void onTerminate() {
 		Log.i(TAG, "onTerminate");
 		super.onTerminate();
+	}
+	
+	// difficult to show dialogs during Activity onCreate so save it until later
+	public int getErrorDuringStartup() {
+		return errorDuringStartup;
 	}
 }

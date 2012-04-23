@@ -1,5 +1,6 @@
 package net.bible.service.db;
 
+import net.bible.android.BibleApplication;
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition;
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition;
 import android.content.Context;
@@ -19,16 +20,13 @@ import android.util.Log;
 public class CommonDatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = "CommonDatabaseHelper";
 	static final int DATABASE_VERSION = 2;
-	private static final String DATABASE_NAME = "andBibleDatabase.db";
+	public static final String DATABASE_NAME = "andBibleDatabase.db";
 
-	private final Context mContext;
-    
 	private static CommonDatabaseHelper sSingleton = null;
 	
-	
-    public static synchronized CommonDatabaseHelper getInstance(Context context) {
+    public static synchronized CommonDatabaseHelper getInstance() {
         if (sSingleton == null) {
-            sSingleton = new CommonDatabaseHelper(context);
+            sSingleton = new CommonDatabaseHelper(BibleApplication.getApplication().getApplicationContext());
         }
         return sSingleton;
     }
@@ -39,7 +37,6 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
      */
     CommonDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
-        mContext = context;
     }
 	
 	/** Called when no database exists in disk and the helper class needs

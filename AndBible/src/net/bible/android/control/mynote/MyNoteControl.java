@@ -136,7 +136,7 @@ public class MyNoteControl implements MyNote {
 
 	/** get all myNotes */
 	public List<MyNoteDto> getAllMyNotes() {
-		MyNoteDBAdapter db = new MyNoteDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		MyNoteDBAdapter db = new MyNoteDBAdapter();
 		db.open();
 		List<MyNoteDto> myNoteList = null;
 		try {
@@ -151,7 +151,7 @@ public class MyNoteControl implements MyNote {
 
 	/** get all user notes */
 	public MyNoteDto getMyNoteById(Long id) {
-		MyNoteDBAdapter db = new MyNoteDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		MyNoteDBAdapter db = new MyNoteDBAdapter();
 		db.open();
 		MyNoteDto myNote = null;
 		try {
@@ -165,7 +165,7 @@ public class MyNoteControl implements MyNote {
 
 	/** get user note with this key if it exists or return null */
 	public MyNoteDto getMyNoteByKey(Key key) {
-		MyNoteDBAdapter db = new MyNoteDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		MyNoteDBAdapter db = new MyNoteDBAdapter();
 		db.open();
 		MyNoteDto myNote = null;
 		try {
@@ -181,7 +181,7 @@ public class MyNoteControl implements MyNote {
 	public boolean deleteMyNote(MyNoteDto myNote) {
 		boolean bOk = false;
 		if (myNote!=null && myNote.getId()!=null) {
-			MyNoteDBAdapter db = new MyNoteDBAdapter(BibleApplication.getApplication().getApplicationContext());
+			MyNoteDBAdapter db = new MyNoteDBAdapter();
 			db.open();
 			bOk = db.removeMyNote(myNote);
 		}		
@@ -190,7 +190,7 @@ public class MyNoteControl implements MyNote {
 
 	/** create a new myNote */
 	private MyNoteDto addMyNote(MyNoteDto myNote) {
-		MyNoteDBAdapter db = new MyNoteDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		MyNoteDBAdapter db = new MyNoteDBAdapter();
 		db.open();
 		MyNoteDto newMyNote = null;
 		try {
@@ -203,7 +203,7 @@ public class MyNoteControl implements MyNote {
 
 	/** create a new myNote */
 	private MyNoteDto updateMyNote(MyNoteDto myNote) {
-		MyNoteDBAdapter db = new MyNoteDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		MyNoteDBAdapter db = new MyNoteDBAdapter();
 		db.open();
 		MyNoteDto updatedMyNote = null;
 		try {
@@ -216,7 +216,7 @@ public class MyNoteControl implements MyNote {
 
 	@Override
 	public List<Key> getKeysWithNotesInPassage(Key passage) {
-		MyNoteDBAdapter db = new MyNoteDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		MyNoteDBAdapter db = new MyNoteDBAdapter();
 		db.open();
 		List<MyNoteDto> myNoteList = null;
 		try {

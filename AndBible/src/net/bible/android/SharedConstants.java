@@ -23,7 +23,10 @@ public class SharedConstants {
     private static final String FONT_SUBDIR_NAME = "fonts";
     public static final File FONT_DIR = new File(MODULE_DIR, FONT_SUBDIR_NAME);
     public static final File MANUAL_FONT_DIR = new File(MANUAL_INSTALL_DIR, FONT_SUBDIR_NAME);
-    
+
+    private static final String BACKUP_SUBDIR_NAME = "andbible_backup";
+    public static final File BACKUP_DIR = getBackupDir();
+
     public static final int APPLICATION_THEME =  android.R.style.Theme_Light;
 	public static final String NIGHT_MODE_STYLESHEET = "night_mode.css";
     
@@ -55,4 +58,8 @@ public class SharedConstants {
     	return new File(sdcard, MANUAL_INSTALL_SUBDIR);
     }
     
+    static private File getBackupDir() {
+		File sdcard = Environment.getExternalStorageDirectory();
+    	return new File(sdcard, BACKUP_SUBDIR_NAME);
+    }
 }

@@ -14,7 +14,6 @@ import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.PassageKeyFactory;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -33,8 +32,8 @@ public class BookmarkDBAdapter {
 	
 	private static final String TAG = "BookmarkDBAdapter";
 
-	public BookmarkDBAdapter(Context _context) {
-		dbHelper =  CommonDatabaseHelper.getInstance(_context); 
+	public BookmarkDBAdapter() {
+		dbHelper =  CommonDatabaseHelper.getInstance(); 
 	}
 
 	public BookmarkDBAdapter open() throws SQLException {

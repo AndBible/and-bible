@@ -42,12 +42,28 @@ public class StartupActivity extends ActivityBase {
         String versionMsg = BibleApplication.getApplication().getString(R.string.version_text, CommonUtils.getApplicationVersionName());
         versionTextView.setText(versionMsg);
         
+        //See if any errors occurred during app initialisation, especially upgrade tasks
+        int abortErrorMsgId = BibleApplication.getApplication().getErrorDuringStartup();
+        
         // check for SD card 
-        //TODO it would be great to check in the Application but how to show dialog from Application?
+        // it would be great to check in the Application but how to show dialog from Application?
         if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-        	showErrorMsg(R.string.no_sdcard_error);
+        	abortErrorMsgId = R.string.no_sdcard_error;
+        }
+        
+        // show fatal startup msg and close app
+        if (abortErrorMsgId!=0) {
+        	Dialogs.getInstance().showErrorMsg(abortErrorMsgId, new Callback() {
+				@Override
+				public void okay() {
+					// this causes the blue splashscreen activity to finish and since it is the top the app closes
+					finish();					
+				}
+			});
+        	// this aborts further initialisation but leaves blue splashscreen activity
         	return;
         }
+
     
         // allow call back and continuation in the ui thread after JSword has been initialised
         final Handler uiHandler = new Handler();
