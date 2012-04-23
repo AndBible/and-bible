@@ -14,8 +14,6 @@ import net.bible.service.common.CommonUtils;
 import net.bible.service.db.bookmark.BookmarkDBAdapter;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
-import net.bible.service.db.mynote.MyNoteDBAdapter;
-import net.bible.service.db.mynote.MyNoteDto;
 import net.bible.service.sword.SwordContentFacade;
 
 import org.crosswire.jsword.passage.Key;
@@ -23,6 +21,11 @@ import org.crosswire.jsword.passage.Key;
 import android.util.Log;
 import android.widget.Toast;
 
+/**
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class BookmarkControl implements Bookmark {
 
 	private static final LabelDto LABEL_ALL;
@@ -77,7 +80,7 @@ public class BookmarkControl implements Bookmark {
 
 	/** get all bookmarks */
 	public List<BookmarkDto> getAllBookmarks() {
-		BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		db.open();
 		List<BookmarkDto> bookmarkList = null;
 		try {
@@ -92,7 +95,7 @@ public class BookmarkControl implements Bookmark {
 
 	/** create a new bookmark */
 	public BookmarkDto addBookmark(BookmarkDto bookmark) {
-		BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		db.open();
 		BookmarkDto newBookmark = null;
 		try {
@@ -105,7 +108,7 @@ public class BookmarkControl implements Bookmark {
 
 	/** get all bookmarks */
 	public BookmarkDto getBookmarkById(Long id) {
-		BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		db.open();
 		BookmarkDto bookmark = null;
 		try {
@@ -119,7 +122,7 @@ public class BookmarkControl implements Bookmark {
 
 	/** get bookmark with this key if it exists or return null */
 	public BookmarkDto getBookmarkByKey(Key key) {
-		BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		db.open();
 		BookmarkDto bookmark = null;
 		try {
@@ -135,7 +138,7 @@ public class BookmarkControl implements Bookmark {
 	public boolean deleteBookmark(BookmarkDto bookmark) {
 		boolean bOk = false;
 		if (bookmark!=null && bookmark.getId()!=null) {
-			BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
+			BookmarkDBAdapter db = new BookmarkDBAdapter();
 			db.open();
 			bOk = db.removeBookmark(bookmark);
 		}		
@@ -145,7 +148,7 @@ public class BookmarkControl implements Bookmark {
 	// Label related methods
 	/** get bookmarks with the given label */
 	public List<BookmarkDto> getBookmarksWithLabel(LabelDto label) {
-		BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		db.open();
 		List<BookmarkDto> bookmarkList = null;
 		try {
@@ -168,7 +171,7 @@ public class BookmarkControl implements Bookmark {
 	public List<LabelDto> getBookmarkLabels(BookmarkDto bookmark) {
 		List<LabelDto> labels;
 		
-		BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		db.open();
 		try {
 			labels = db.getBookmarkLabels(bookmark);
@@ -184,7 +187,7 @@ public class BookmarkControl implements Bookmark {
 		// never save LABEL_ALL 
 		labels.remove(LABEL_ALL);
 		
-		BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		db.open();
 		try {
 			List<LabelDto> prevLabels = db.getBookmarkLabels(bookmark);
@@ -210,7 +213,7 @@ public class BookmarkControl implements Bookmark {
 
 	@Override
 	public LabelDto addLabel(LabelDto label) {
-		BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		db.open();
 		LabelDto newLabel = null;
 		try {
@@ -225,7 +228,7 @@ public class BookmarkControl implements Bookmark {
 	public boolean deleteLabel(LabelDto label) {
 		boolean bOk = false;
 		if (label!=null && label.getId()!=null && !LABEL_ALL.equals(label)) {
-			BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
+			BookmarkDBAdapter db = new BookmarkDBAdapter();
 			db.open();
 			bOk = db.removeLabel(label);
 		}
@@ -247,7 +250,7 @@ public class BookmarkControl implements Bookmark {
 
 	@Override
 	public List<LabelDto> getAssignableLabels() {
-		BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		db.open();
 		List<LabelDto> labelList = new ArrayList<LabelDto>();
 		try {
@@ -261,7 +264,7 @@ public class BookmarkControl implements Bookmark {
 
 	@Override
 	public List<Key> getKeysWithBookmarksInPassage(Key passage) {
-		BookmarkDBAdapter db = new BookmarkDBAdapter(BibleApplication.getApplication().getApplicationContext());
+		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		db.open();
 		List<BookmarkDto> bookmarkList = null;
 		try {

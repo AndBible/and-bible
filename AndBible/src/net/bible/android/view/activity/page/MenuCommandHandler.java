@@ -114,6 +114,14 @@ public class MenuCommandHandler {
 	        case R.id.helpButton:
 	        	handlerIntent = new Intent(callingActivity, Help.class);
 	        	break;
+	        case R.id.backup:
+				ControlFactory.getInstance().getBackupControl().backupDatabase();
+				isHandled = true;
+	        	break;
+	        case R.id.restore:
+				ControlFactory.getInstance().getBackupControl().restoreDatabase();
+				isHandled = true;
+	        	break;
 
 	        /** Pop-up options menu starts here */
 			case R.id.compareTranslations:

@@ -27,6 +27,9 @@ public class Dialogs {
 		super();
 	}
 
+    public void showMsg(int msgId, String param) {
+    	showErrorMsg(BibleApplication.getApplication().getString(msgId, param));
+    }
     public void showErrorMsg(int msgId) {
     	showErrorMsg(BibleApplication.getApplication().getString(msgId));
     }

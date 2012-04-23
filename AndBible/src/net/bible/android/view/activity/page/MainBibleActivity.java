@@ -246,6 +246,10 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		super.onPrepareOptionsMenu(menu);
 		
 		CurrentPageManager.getInstance().getCurrentPage().updateOptionsMenu(menu);
+		
+		// if there is no backup file then disable the restore menu item
+		ControlFactory.getInstance().getBackupControl().updateOptionsMenu(menu);
+		
 		// must return true for menu to be displayed
 		return true;
 	}

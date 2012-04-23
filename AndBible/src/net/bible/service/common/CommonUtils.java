@@ -86,11 +86,16 @@ public class CommonUtils {
 	}
 
 	public static long getSDCardMegsFree() {
-		StatFs stat = new StatFs(Environment.getExternalStorageDirectory().getPath());
-		long bytesAvailable = (long)stat.getBlockSize() *(long)stat.getAvailableBlocks();
+		long bytesAvailable = getFreeSpace(Environment.getExternalStorageDirectory().getPath());
 		long megAvailable = bytesAvailable / 1048576;
 		Log.d(TAG, "Megs available on SD card :"+megAvailable);
 		return megAvailable;
+	}
+	public static long getFreeSpace(String path) {
+		StatFs stat = new StatFs(path);
+		long bytesAvailable = (long)stat.getBlockSize() * (long)stat.getAvailableBlocks();
+		Log.d(TAG, "Free space :"+bytesAvailable);
+		return bytesAvailable;
 	}
 	
 	/** shorten text for display in lists etc.

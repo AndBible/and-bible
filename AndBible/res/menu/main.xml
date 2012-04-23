@@ -30,6 +30,18 @@
 		  android:title="@string/help"
 		  android:icon="@android:drawable/ic_menu_help"/>
 
+	<item android:id="@+id/backupMainMenu"
+		  android:title="@string/backup"
+		  android:icon="@android:drawable/ic_menu_save">
+		<menu>
+			<item android:id="@+id/backup"
+				  android:title="@string/backup"
+				  android:icon="@android:drawable/ic_menu_save"/>
+			<item android:id="@+id/restore"
+				  android:title="@string/restore"
+				  android:icon="@android:drawable/ic_menu_set_as"/>
+		</menu>
+	</item>
 	<item 	android:id="@+id/historyButton" 
 			android:title="@string/history"
 			android:icon="@android:drawable/ic_menu_recent_history"/>
