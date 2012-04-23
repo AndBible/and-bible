@@ -213,7 +213,7 @@
     <!-- Backup and restore -->
     <string name="backup">Backup</string>
     <string name="restore">Restore</string>
-    <string name="backup_success">Notes and bookmarks saved to %s on the SD card</string>    
+    <string name="backup_success">Notes and bookmarks saved in %s on the SD card</string>    
     <string name="restore_success">Notes and bookmarks restored from %s on the SD card</string>    
     
     <!-- Document types -->
