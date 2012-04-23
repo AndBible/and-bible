@@ -30,6 +30,9 @@ public class Dialogs {
     public void showMsg(int msgId, String param) {
     	showErrorMsg(BibleApplication.getApplication().getString(msgId, param));
     }
+    public void showMsg(int msgId, boolean isCancelable, final Callback okayCallback) {
+    	showMsg(BibleApplication.getApplication().getString(msgId), isCancelable, okayCallback);
+    }
     public void showErrorMsg(int msgId) {
     	showErrorMsg(BibleApplication.getApplication().getString(msgId));
     }
@@ -50,6 +53,10 @@ public class Dialogs {
     }
 
     public void showErrorMsg(final String msg, final Callback okayCallback) {
+    	showMsg(msg, false, okayCallback);
+    }
+    
+    public void showMsg(final String msg, final boolean isCancelable, final Callback okayCallback) {
     	Log.d(TAG, "showErrorMesage message:"+msg);
     	try {
 			final Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
@@ -58,14 +65,25 @@ public class Dialogs {
 	
 					@Override
 					public void run() {
-				    	new AlertDialog.Builder(activity)
+				    	AlertDialog.Builder dlgBuilder = new AlertDialog.Builder(activity)
 						   .setMessage(msg)
-					       .setCancelable(false)
+					       .setCancelable(isCancelable)
 					       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
 					           public void onClick(DialogInterface dialog, int buttonId) {
 					        	   okayCallback.okay();
 					           }
-					       }).show();
+					       });
+				    	
+				    	// if cancelable then show a Cancel button
+				    	if (isCancelable) {
+					    	dlgBuilder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+						           public void onClick(DialogInterface dialog, int buttonId) {
+						        	   // do nothing
+						           }
+						       });
+				    	}
+				    	
+				    	dlgBuilder.show();
 					}
 				});
 			} else {
