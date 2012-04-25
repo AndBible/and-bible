@@ -265,16 +265,21 @@ public class BibleView extends WebView implements DocumentView {
 	 */
 	@Override
 	public void selectAndCopyText() {
-	    try {
-	        Method m = WebView.class.getMethod("emulateShiftHeld", (Class[])null);
-	        m.invoke(this, (Object[])null);
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	        // fallback
-	        KeyEvent shiftPressEvent = new KeyEvent(0,0,
-	             KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_SHIFT_LEFT,0,0);
-	        shiftPressEvent.dispatch(this);
-	    }
+		try {
+			// Later versions of Android e.g. ICS
+            WebView.class.getMethod("selectText").invoke(this);
+        } catch (Exception e1) {
+		    try {
+		        Method m = WebView.class.getMethod("emulateShiftHeld", (Class[])null);
+		        m.invoke(this, (Object[])null);
+		    } catch (Exception e2) {
+		        e2.printStackTrace();
+		        // fallback
+		        KeyEvent shiftPressEvent = new KeyEvent(0,0,
+		             KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_SHIFT_LEFT,0,0);
+		        shiftPressEvent.dispatch(this);
+		    }
+        }
 	}
 	
 	@Override
