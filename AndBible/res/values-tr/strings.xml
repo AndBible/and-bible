@@ -200,7 +200,14 @@
     <string name="mynote_view_edit">Notum</string>
     <string name="mynotes">Notlarım</string>
 
-    <!-- Document types -->    
+    <!-- Backup and restore -->
+	<string name="backup">Yedekle</string>
+	<string name="backup_success">Not ve Yer İmileri hafiz kartına %s klasörüne kaydedildi.</string>
+	<string name="restore">Yedekten geri yükle</string>
+	<string name="restore_confirmation">Var olan Not ve Yer İmilerin üstüne yazılsın mı?</string>
+	<string name="restore_success">Not ve Yer İmileri hafiz karttan %s klasöründen geri yüklendi.</string>
+
+    <!-- Document types -->
     <string name="doc_type_bible">Kutsal Kitap</string>
     <string name="doc_type_commentary">Yorum Kitabı</string>
     <string name="doc_type_dictionary">Sözlük</string>
@@ -228,4 +235,4 @@
     <string name="error_page_too_large">Sayfa yüklenmek için fazla büyük</string>
     <string name="error_key_not_in_document">Belgede bulunmadı</string>
     <string name="empty_list">Öğe bulunmadı</string>
-<string name="backup">Backup</string><string name="backup_success">My Notes and Bookmarks saved in %s on the SD card</string><string name="restore">Restore</string><string name="restore_confirmation">Overwrite My Notes and Bookmarks?</string><string name="restore_success">My Notes and Bookmarks restored from %s on the SD card</string></resources>
+</resources>
