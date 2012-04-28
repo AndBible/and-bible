@@ -11,6 +11,8 @@
 	</style>
 
     <style name="TitleBarTitleButton" parent="TitleBarButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:minWidth">@dimen/size_of_quick_buttons</item>
         <item name="android:textColor">#fff</item>
         <item name="android:textSize">14sp</item>
         <item name="android:textStyle">bold</item>

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+	<dimen name="title_bar_height">32dip</dimen>
+    
 	<integer name="grid_cell_text_size_sp">21</integer>
 	
 	<!-- width of one poetry line indent -->
