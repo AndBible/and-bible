@@ -225,4 +225,4 @@
     <string name="error_page_too_large">Halaman terlalu besar untuk dimuat</string>
     <string name="error_key_not_in_document">Tidak ditemukan dalam dokumen</string>
     <string name="empty_list">Tidak ada item untuk ditampilkan</string>
-<string name="backup">Backup</string><string name="backup_success">Catatan-catatan Saya dan Bookmarks sudah disimpan di %s di kartu SD</string><string name="restore">Restore</string><string name="restore_confirmation">Timpa Catatan-catatan Saya dan Bookmarks?</string><string name="restore_success">Catatan-catatan Saya dan Bookmarks dikembalikan dari %s di Kartu SD</string></resources>
+<string name="backup">Backup</string><string name="backup_success">Catatan-catatan Saya dan Bookmarks disimpan di %s di kartu SD</string><string name="restore">Restore</string><string name="restore_confirmation">Tulis lagi di atas Catatan-catatan Saya dan Bookmarks?</string><string name="restore_success">Catatan-catatan Saya dan Bookmarks disimpan kembali %s ke Kartu SD</string></resources>
