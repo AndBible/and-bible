@@ -52,6 +52,9 @@ public class DownloadControl {
         		} else if (doc.getInitials().equalsIgnoreCase("westminster")) {
         			Log.d(TAG, "Ignoring "+doc.getInitials()+" because some sections are too large for a mobile phone e.g. Q91-150");
         			iter.remove();
+        		} else if (doc.getInitials().equalsIgnoreCase("BDBGlosses_Strongs")) {
+        			Log.d(TAG, "Ignoring "+doc.getInitials()+" because I still need to make it work");
+        			iter.remove();
         		} else if (doc.getInitials().equalsIgnoreCase("passion")) {
         			Log.d(TAG, "Ignoring "+doc.getInitials());
         			iter.remove();
