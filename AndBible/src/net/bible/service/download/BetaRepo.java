@@ -43,8 +43,8 @@ public class BetaRepo extends RepoBase {
 			return super.test(book) && 
 					(	book.getInitials().equals("CalvinCommentaries") ||
 						book.getInitials().equals("TurNTB") ||
-						( book.getInitials().startsWith("Jap") && !book.getInitials().equals("JapDenmo") ) ||
-						book.getInitials().startsWith("Strongs")
+						( book.getInitials().startsWith("Jap") && !book.getInitials().equals("JapDenmo") ) 
+//						|| 	book.getInitials().startsWith("Strongs")
 					);
 		}
 	}

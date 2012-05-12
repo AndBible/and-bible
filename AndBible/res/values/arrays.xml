@@ -55,6 +55,7 @@
 		<item>@string/lang_thai</item>
 		<item>@string/lang_turkish</item>
 		<item>@string/lang_ukrainian</item>
+		<item>@string/lang_vietnamese</item>
 		<item>@string/lang_chinese</item>
 	</string-array>
 	
@@ -87,6 +88,7 @@
 		<item>th</item>
 		<item>tr</item>
 		<item>uk</item>
+		<item>vi</item>
 		<item>zh</item>
 	</string-array>
 		
