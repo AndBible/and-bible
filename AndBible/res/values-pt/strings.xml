@@ -11,7 +11,7 @@
   <string name="app_name">And Bible</string>
   <string name="splash_top_text">"\n\"E disse Deus:\'Haja luz,\' e houve luz.\"\nGenesis 1:3"</string>
   <string name="help_text">Pressione a tecla MENU para executar as ações\n\nUse o track-ball, os botões direcionais ou toque na tela para avançar ou retroceder os capítulos</string>
-  <string name="help_text_long">Navegação\nVá para o próximo capítulo ou o anterior usando o track-ball, os botões direcionais ou toque na tela para avançar ou retroceder \n\nPressione a tecla MENU para executar as ações \n\nFala\nPressione o botão Falar para que o programa leia o capítulo atual\nPressione novamente o botão Falar para parar a leitura \n\nPressione longamente a página da bíblia para abrir o menu com as ações para o respectivo versículo. \nPressione longamente sobre um documento no seletor de documentos para excluir ou ver informações a respeito do documento. \n\nFavoritos\nOs Favoritos podem ser adicionados pressionando longamente sobre os versículos. O Gerenciador dos Favoritos pode ser acessado pelo menu principal. O menu do Gerenciador dos Favoritos permite que os favoritos sejam agrupados, através de marcadores.</string>
+  <string name="help_text_long">"<b>Navegação</b>\nVá para o próximo capítulo ou o anterior usando o track-ball, os botões direcionais ou toque na tela para avançar ou retroceder \n\n<b>Menu</b>\nPressione a tecla MENU para executar as ações \n\nPara baixar mais documentos, pressione Menu/Mais/Baixar Documentos\n\n<b>Falar</b>\nPressione Falar para acessar um menu para iniciar ou parar a leitura.\n\n<b>Anotações</b>\nAnotações podem ser adicionadas através da opção de menu Anotações no menu de contexto dos versículos. A lista de anotações pode ser acessada através do menu principal.\n\n<b>Favoritos</b>\nOs Favoritos podem ser adicionados através do menu de contexto dos versículos. O Gerenciador dos Favoritos pode ser acessado através do menu principal. O menu de contexto do Gerenciador dos Favoritos permite que os favoritos sejam agrupados, através de marcadores.\n\n<b>Busca</b>\nA Busca pode conter caracteres especiais como: *, ?, AND, OR, NOT (veja \"Apache Lucene - Query Parser Syntax\" para mais detalhes - link em inglês)\n\n<b>Menus de Contexto</b>\nPressione longamente algum versículo com a bíblia aberta para abrir o menu de contexto para ações que afetem o versículo selecionado.\nPressione longamente em um documento no seletor de documentos para apagar o documento ou ver mais informações.\nPressione longamente o botão voltar para acessar o Histórico.\n"</string>
   <string name="version_text">Versão %s</string>
   <string name="no_sdcard_error">Por favor insira um cartão SD e inicie o And Biblie novamente.</string>
   <!-- main menu -->
@@ -51,8 +51,8 @@
   <!-- Preferences -->
   <string name="prefs_show_verseno_title">Números dos versículos</string>
   <string name="prefs_show_verseno_summary">Mostrar números dos versículos</string>
-  <string name="prefs_show_notes_title">Notas</string>
-  <string name="prefs_show_notes_summary">Mostrar notas</string>
+  <string name="prefs_show_notes_title">"Notas de rodapé e referências cruzadas"</string>
+  <string name="prefs_show_notes_summary">Mostrar notas de rodapé e referências cruzadas</string>
   <string name="prefs_show_strongs_title">Mostrar números do dicionário Strong</string>
   <string name="prefs_show_strongs_summary">Links para definições em grego &amp; hebraico</string>
   <string name="prefs_night_mode_title">Modo noturno</string>
@@ -70,7 +70,7 @@
   <!-- Module download -->
   <string name="download">Baixar documentos</string>
   <string name="download_confirmation">Deseja fazer o download da bíblia da internet?</string>
-  <string name="download_source_message">Os documentos são baixados do site\nhttp://www.crosswire.org</string>
+  <string name="download_source_message">Os documentos são baixados do site\nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">"Download "</string>
   <string name="error_downloading">Ocorreu um erro durante o download. Por favor verifique sua conexão com a internet.</string>
   <string name="no_internet_connection">Não foi possível conectar à internet</string>
@@ -124,7 +124,7 @@
   <string name="prefs_interface_locale_title">"Idioma do aplicativo"</string>
   <string name="prefs_verse_per_line_summary">Mostrar cada versículo em uma linha diferente</string>
   <string name="prefs_verse_per_line_title">Um versículo por linha</string>
-  <string name="download_refreshing_book_list">Atualizar a lista de documentos disponíveis?</string>
+  <string name="download_refreshing_book_list">Atualizando a lista de documentos disponíveis</string>
   <string name="rest_of_book">Para o fim do livro</string>
   <string name="rest_of_chapter">Para o fim do capítulo</string>
   <string name="share_verse">Compartilhar este versículo...</string>
@@ -136,7 +136,7 @@
   <string name="choosePassageVerseName">Escolher versículo</string>
   <string name="delete_index">Excluir índice de pesquisa</string>
   <string name="delete_search_index_doc">Excluir índice de %s?</string>
-  <string name="prefs_navigate_to_verse_summary">Detalhar o versículo ao navegar</string>
+  <string name="prefs_navigate_to_verse_summary">Escolher o versículo (e capítulo) quando selecionando uma passagem</string>
   <string name="prefs_navigate_to_verse_title">"Navegue até o versículo"</string>
   <string name="one_chapter">capítulo %d</string>
   <string name="one_page">página %d</string>
@@ -144,10 +144,10 @@
   <string name="some_chapters">capítulos %d</string>
   <string name="some_pages">páginas %d</string>
   <string name="some_verses">versículos %d</string>
-  <string name="prefs_red_letter_summary">Show words of Christ in red</string>
-  <string name="prefs_red_letter_title">Red Letter</string>
-  <string name="prefs_section_title_summary">Show non-canonical section titles</string>
-  <string name="prefs_section_title_title">Section Titles</string>
+  <string name="prefs_red_letter_summary">Mostrar as palavras de Cristo em vermelho</string>
+  <string name="prefs_red_letter_title">Letras vermelhas</string>
+  <string name="prefs_section_title_summary">Mostrar títulos de seção não-canônicos</string>
+  <string name="prefs_section_title_title">Títulos de seções</string>
   <string name="strongs_toggle_button_off">nnnn</string>
   <string name="strongs_toggle_button_on">nnnn</string>
-<string name="speak_queue">Queue</string><string name="speak_repeat">Repeat</string><string name="select_text">Select text</string><string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string><string name="error_no_content">No content for selected verse</string><string name="mynote">My Note</string><string name="mynote_add">Add My Note</string><string name="mynote_saved">My Note saved</string><string name="mynote_view_edit">My Note</string><string name="mynotes">My Notes</string><string name="prefs_show_mynotes_summary">Show icon in verses with My Note</string><string name="prefs_show_mynotes_title">Show My Note icons</string><string name="save">Save</string><string name="search_results">Find Results</string><string name="error_key_not_in_document">Not found in document</string><string name="error_page_too_large">Page is too large to be loaded</string><string name="prefs_text_size_sample_text">Sample text</string><string name="empty_list">No items to display</string><string name="prefs_show_bookmarks_summary">Show icon in bookmarked verses</string><string name="prefs_show_bookmarks_title">Show bookmark icons</string><string name="prefs_tilt_to_scroll_summary">Tilt device to scroll page down</string><string name="prefs_tilt_to_scroll_title">Tilt to scroll</string><string name="rdg_plan_title">Reading Plan</string><string name="rdg_plan_selector_title">Choose a Reading Plan</string><string name="rdg_plan_day">Day %s</string><string name="rdg_plan_set_start_jan1">Start Jan 1</string><string name="done">Done</string><string name="reset">Reset</string><string name="rdg_plan_y1ntpspr">New Testament, Psalms, and Proverbs in a year</string><string name="rdg_plan_y1ot1nt1_chronological">Through the Bible chronologically in a year</string><string name="rdg_plan_y1ot1nt1_OTandNT">Through the bible in a year - OT and NT</string><string name="rdg_plan_y1ot1nt1_OTthenNT">Through the bible in a year - OT then NT</string><string name="rdg_plan_y1ot1nt2_mcheyne">Through the bible in a year (M\'Cheyne)</string><string name="prefs_night_mode_automatic">Automatic</string><string name="download_refresh_book_list_menu_item">Refresh</string><string name="yes">Yes</string><string name="compare_translations">Compare translations</string><string name="doc_type_map">Map</string><string name="document_not_installed">Please download \'%s\'</string><string name="backup">Backup</string><string name="backup_success">My Notes and Bookmarks saved in %s on the SD card</string><string name="restore">Restore</string><string name="restore_confirmation">Overwrite My Notes and Bookmarks?</string><string name="restore_success">My Notes and Bookmarks restored from %s on the SD card</string></resources>
+<string name="speak_queue">Fila</string><string name="speak_repeat">Repetir</string><string name="select_text">Texto selecionado</string><string name="select_text_help">Arraste lentamente para selecionar.\nEntão toque a seleção para copiar.</string><string name="error_no_content">Nenhum conteúdo para o versículo selecionado</string><string name="mynote">Minha anotação</string><string name="mynote_add">Adicionar nova anotação</string><string name="mynote_saved">Anotação salva</string><string name="mynote_view_edit">Minha anotação</string><string name="mynotes">Anotações</string><string name="prefs_show_mynotes_summary">Mostrar ícone nos versículos com Anotações</string><string name="prefs_show_mynotes_title">Mostrar ícones das minhas Anotações</string><string name="save">Salvar</string><string name="search_results">Resultados da busca</string><string name="error_key_not_in_document">Não encontrado no documento</string><string name="error_page_too_large">Página grande demais para ser carregada</string><string name="prefs_text_size_sample_text">Texto de exemplo</string><string name="empty_list">Sem itens para exibir</string><string name="prefs_show_bookmarks_summary">Mostrar ícone nos versículos favoritos</string><string name="prefs_show_bookmarks_title">Mostrar ícones dos favoritos.</string><string name="prefs_tilt_to_scroll_summary">Sacudir o aparelho para rolar página para baixo</string><string name="prefs_tilt_to_scroll_title">Sacudir para rolar página</string><string name="rdg_plan_title">Plano de leitura</string><string name="rdg_plan_selector_title">Escolha um plano de leitura</string><string name="rdg_plan_day">Dia %s</string><string name="rdg_plan_set_start_jan1">Início em 1º de Janeiro</string><string name="done">Concluído</string><string name="reset">Reiniciar</string><string name="rdg_plan_y1ntpspr">Novo Testamento, Salmos e Provérbios em um ano</string><string name="rdg_plan_y1ot1nt1_chronological">Pela Bíblia em um ano, cronológicamente</string><string name="rdg_plan_y1ot1nt1_OTandNT">Pela Bíblia em um ano - Antigo e Novo Testamento</string><string name="rdg_plan_y1ot1nt1_OTthenNT">Pela Bíblia em um ano - Antigo Testamento  e então Novo Testamento</string><string name="rdg_plan_y1ot1nt2_mcheyne">Pela Bíblia em um ano (M\'Cheyne)</string><string name="prefs_night_mode_automatic">Automático</string><string name="download_refresh_book_list_menu_item">Atualizar</string><string name="yes">Sim</string><string name="compare_translations">Compare as traduções</string><string name="doc_type_map">Mapa</string><string name="document_not_installed">Por favor baixe: \'%s\'</string><string name="backup">Backup</string><string name="backup_success">As Anotações e Favoritos foram salvos em %s no cartão de memória SD</string><string name="restore">Restaurar</string><string name="restore_confirmation">Sobrescrever as Anotações e os Favoritos?</string><string name="restore_success">As Anotações e os Favoritos foram restaurados de %s do cartão de memória SD</string></resources>
