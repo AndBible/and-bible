@@ -28,12 +28,12 @@ import org.crosswire.jsword.index.IndexStatus;
 
 public class MJDIndexAll {
 
-//	private static final String REPOSITORY = "CrossWire";
-	private static final String REPOSITORY = "Xiphos";
+	private static final String REPOSITORY = "CrossWire";
+//	private static final String REPOSITORY = "Xiphos";
 //	private static final String REPOSITORY = "Crosswire Beta";
 	
-//	private static final BookFilter BOOK_FILTER = BookFilters.getDictionaries();
-	private static final BookFilter BOOK_FILTER = BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries());
+	private static final BookFilter BOOK_FILTER = BookFilters.getDictionaries();
+//	private static final BookFilter BOOK_FILTER = BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries());
 
 	//TODO this is awful but I need to figure out how to set it appropriately 
 	private static final String LUCENE_INDEX_DIR = "C:/Documents and Settings/denha1m/Application Data/JSword/lucene/Sword";
@@ -46,7 +46,7 @@ public class MJDIndexAll {
 	
     public static void main(String[] args) {
     	MJDIndexAll indexAll = new MJDIndexAll();
-    	indexAll.updateCachedRepoBookList();
+//    	indexAll.updateCachedRepoBookList();
 //    	indexAll.validateIndex("OSMHB");
 //    	indexAll.validateAllIndexes();
 //    	indexAll.setupDirs();
@@ -55,8 +55,11 @@ public class MJDIndexAll {
 //    	indexAll.deleteBook("StrongsHebrew");
 //    	indexAll.deleteBook("StrongsGreek");
 //    	indexAll.installSingleBook("ESV");
-    	indexAll.installSingleBook("strongsrealhebrew");
-    	indexAll.installSingleBook("strongsrealgreek");
+//    	indexAll.installSingleBook("strongsrealhebrew");
+//    	indexAll.installSingleBook("strongsrealgreek");
+//    	indexAll.installSingleBook("StrongsHebrew");
+//    	indexAll.installSingleBook("StrongsGreek");
+    	indexAll.installSingleBook("BDBGlosses_Strongs");
 //    	indexAll.installRepoBooks();
 //    	indexAll.checkAllBooksInstalled();
 //    	indexAll.manageCreateIndexes();
