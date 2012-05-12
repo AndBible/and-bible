@@ -11,6 +11,10 @@ import net.bible.service.format.osistohtml.preprocessor.HebrewCharacterPreproces
 import net.bible.service.format.osistohtml.preprocessor.TextPreprocessor;
 import net.bible.service.format.osistohtml.strongs.StrongsHandler;
 import net.bible.service.format.osistohtml.strongs.StrongsLinkCreator;
+import net.bible.service.format.osistohtml.tei.OrthHandler;
+import net.bible.service.format.osistohtml.tei.PronHandler;
+import net.bible.service.format.osistohtml.tei.RefHandler;
+import net.bible.service.format.osistohtml.tei.TEIUtil;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
@@ -56,12 +60,16 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	private VerseHandler verseHandler;
 	private MyNoteMarker myNoteMarker;
 	private BookmarkMarker bookmarkMarker;
-	private NoteAndReferenceHandler noteAndReferenceHandler;
+	private NoteHandler noteHandler;
+	private ReferenceHandler referenceHandler;
+	private RefHandler refHandler;
 	private TitleHandler titleHandler;
 	private QHandler qHandler;
 	private LGHandler lgHandler;
 	private LHandler lHandler;
 	private HiHandler hiHandler;
+	private OrthHandler orthHandler;
+	private PronHandler pronHandler;
 	private StrongsHandler strongsHandler;
 	private FigureHandler figureHandler;
 	
@@ -78,7 +86,6 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 	private static final String HEBREW_LANGUAGE_CODE = "he";
 
-	@SuppressWarnings("unused")
 	private static final Logger log = new Logger("OsisToHtmlSaxHandler");
 
 	public OsisToHtmlSaxHandler(OsisToHtmlParameters parameters) {
@@ -87,10 +94,14 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		verseHandler = new VerseHandler(parameters, verseInfo, getWriter());
 		myNoteMarker = new MyNoteMarker(parameters, verseInfo, getWriter());
 		bookmarkMarker = new BookmarkMarker(parameters, verseInfo, getWriter());
-		noteAndReferenceHandler = new NoteAndReferenceHandler(parameters, getWriter());
+		noteHandler = new NoteHandler(parameters, verseInfo, getWriter());
+		referenceHandler = new ReferenceHandler(parameters, noteHandler, getWriter());
+		refHandler = new RefHandler(parameters, noteHandler, getWriter());
 		titleHandler = new TitleHandler(parameters, verseInfo, getWriter());
 		qHandler = new QHandler(parameters, getWriter());
 		hiHandler = new HiHandler(parameters, getWriter());
+		orthHandler = new OrthHandler(parameters, getWriter());
+		pronHandler = new PronHandler(parameters, getWriter());
 		lgHandler = new LGHandler(parameters, getWriter());
 		lHandler = new LHandler(parameters, getWriter());
 		strongsHandler = new StrongsHandler(parameters, getWriter());
@@ -185,9 +196,11 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_TITLE)) {
 			titleHandler.start(attrs);		
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {
-			noteAndReferenceHandler.startNote(attrs);
+			noteHandler.startNote(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
-			noteAndReferenceHandler.startReference(attrs);
+			referenceHandler.start(attrs);
+		} else if (name.equals(TEIUtil.TEI_ELEMENT_REF)) {
+			refHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LB)) {
 			write(HTML.BR);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LG)) {
@@ -209,6 +222,10 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			qHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_HI)) {
 			hiHandler.start(attrs);
+		} else if (name.equals(TEIUtil.TEI_ELEMENT_ORTH)) {
+			orthHandler.start(attrs);
+		} else if (name.equals(TEIUtil.TEI_ELEMENT_PRON)) {
+			pronHandler.start(attrs);
 		} else if (name.equals("milestone")) {
 			String type = attrs.getValue(OSISUtil.OSIS_ATTR_TYPE);
 			if (StringUtils.isNotEmpty(type)) {
@@ -245,9 +262,11 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
 			// verse opening and closing tags wrap the verse number at start of the verse
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {
-			noteAndReferenceHandler.endNote(verseInfo.currentVerseNo);
+			noteHandler.endNote();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
-			noteAndReferenceHandler.endReference(verseInfo.currentVerseNo);
+			referenceHandler.end();
+		} else if (name.equals(TEIUtil.TEI_ELEMENT_REF)) {
+			refHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LG)) {
 			lgHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
@@ -260,6 +279,10 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			qHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_HI)) {
 			hiHandler.end();
+		} else if (name.equals(TEIUtil.TEI_ELEMENT_ORTH)) {
+			orthHandler.end();
+		} else if (name.equals(TEIUtil.TEI_ELEMENT_PRON)) {
+			pronHandler.end();
 		} else if (name.equals("transChange")) {
 			write("</span>");
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_W)) {
@@ -324,6 +347,6 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	}
 
 	public List<Note> getNotesList() {
-		return noteAndReferenceHandler.getNotesList();
+		return noteHandler.getNotesList();
 	}
 }

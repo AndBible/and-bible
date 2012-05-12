@@ -76,19 +76,39 @@ public class DictionaryTest extends TestCase {
 		}
 	}
 	
-	public void testReadStrongs() throws Exception {
-		Book book = Defaults.getHebrewDefinitions();
-		assertEquals(book.getInitials(), "StrongsHebrew");
-//		Key key = book.getKey("00430");
-//		System.out.println(book.getRawText(key));
-		Key key = book.getKey("00428");
+	public void testReadBDBGlossesStrongs() throws Exception {
+		Book book = Books.installed().getBook("BDBGlosses_Strongs");
+		assertEquals(book.getInitials(), "BDBGlosses_Strongs");
+		Key key = book.getKey("H0006");
+		// the following incorrectly prints H0002/H0002
+		System.out.println(key.getName()+"/"+key.getRootName());
+		// the next line throws a "Key not found H0002" error in RawLDBackend.getRawText 
 		System.out.println(book.getRawText(key));
 		
 		
-		Key firstKey = book.getGlobalKeyList().get(0);
-		String firstName = firstKey.getName();
-		System.out.println("ist="+firstName);
-		System.out.println(firstName.compareTo("00430"));
+//		Key firstKey = book.getGlobalKeyList().get(0);
+//		String firstName = firstKey.getName();
+//		System.out.println("ist="+firstName);
+//		System.out.println(firstName.compareTo("00430"));
+		
+		String html = getHtml(book, key, 100);
+//		System.out.println(html);
+	}
+	public void testReadStrongs() throws Exception {
+		Book book = Books.installed().getBook("StrongsHebrew");
+		assertEquals(book.getInitials(), "StrongsHebrew");
+		Key key = book.getKey("00428");
+		System.out.println(book.getRawText(key));
+		
+		Book gbook = Books.installed().getBook("StrongsGreek");
+		assertEquals(gbook.getInitials(), "StrongsGreek");
+		Key gkey = gbook.getKey("00428");
+		System.out.println(gbook.getRawText(gkey));
+		
+//		Key firstKey = book.getGlobalKeyList().get(0);
+//		String firstName = firstKey.getName();
+//		System.out.println("ist="+firstName);
+//		System.out.println(firstName.compareTo("00430"));
 		
 		String html = getHtml(book, key, 100);
 //		System.out.println(html);

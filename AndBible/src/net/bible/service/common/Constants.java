@@ -1,5 +1,5 @@
 package net.bible.service.common;
-
+// see http://www.crosswire.org/wiki/Frontends:URI_Standard
 public class Constants {
     // Strings for URL protocols/URI schemes
     public static final String SWORD_PROTOCOL = "sword"; //$NON-NLS-1$

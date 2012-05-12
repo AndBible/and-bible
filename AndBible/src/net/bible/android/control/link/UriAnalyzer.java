@@ -10,6 +10,7 @@ import org.apache.commons.lang.StringUtils;
  *  
  *  Also And Bible specific links:
  *  
+ *  see http://www.crosswire.org/wiki/Frontends:URI_Standard
  * 
  * @author denha1m
  *

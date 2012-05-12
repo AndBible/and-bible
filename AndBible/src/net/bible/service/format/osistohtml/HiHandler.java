@@ -38,19 +38,25 @@ public class HiHandler {
 		this.writer = writer;
 	}
 	
-	
 	public String getTagName() {
         return "hi";
     }
 
 	public void start(Attributes attrs) {
 		String type = attrs.getValue(OSISUtil.OSIS_ATTR_TYPE);
-		if (type==null || !HI_TYPE_LIST.contains(type)) {
-			type = DEFAULT;
+		start(type, DEFAULT);
+	}
+
+	public void start(String style, String defaultStyle) {
+		if (style==null || !HI_TYPE_LIST.contains(style)) {
+			style = defaultStyle;
 		}
 
+		// add any styles that are relevant - the tag name and the style attribute
+		String cssClasses = getTagName()+" hi_"+style;
+		
 		// start span with CSS class of 'hi_*' e.g. hi_bold
-		writer.write("<span class=\'hi_"+type+"\'>");
+		writer.write("<span class=\'"+cssClasses+"\'>");
 	}
 
 	public void end() {

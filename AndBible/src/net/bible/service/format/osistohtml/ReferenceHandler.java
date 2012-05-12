@@ -1,14 +1,10 @@
 package net.bible.service.format.osistohtml;
 
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 
 import net.bible.service.common.Constants;
 import net.bible.service.common.Logger;
-import net.bible.service.format.Note;
-import net.bible.service.format.Note.NoteType;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
@@ -37,116 +33,54 @@ In the <note n="a" osisID="Gen.1.1!crossReference.a" osisRef="Gen.1.1" type="cro
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class NoteAndReferenceHandler {
+public class ReferenceHandler {
 
     private OsisToHtmlParameters parameters;
 
-    private int noteCount = 0;
-
-    //todo temporarily use a string but later switch to Map<int,String> of verse->note
-    private List<Note> notesList = new ArrayList<Note>();
-    private boolean isInNote = false;
-    private String currentNoteRef;
     private String currentRefOsisRef;
+    
+    private NoteHandler noteHandler;
 
     private HtmlTextWriter writer;
+
+    private static final Logger log = new Logger("ReferenceHandler");
     
-    private static final Logger log = new Logger("NoteAndReferenceHandler");
-    
-    public NoteAndReferenceHandler(OsisToHtmlParameters osisToHtmlParameters, HtmlTextWriter theWriter) {
+    public ReferenceHandler(OsisToHtmlParameters osisToHtmlParameters, NoteHandler noteHandler, HtmlTextWriter theWriter) {
         this.parameters = osisToHtmlParameters;
+        this.noteHandler = noteHandler;
         this.writer = theWriter;
     }
 
-    public void startNote(Attributes attrs) {
-		isInNote = true;
-		currentNoteRef = getNoteRef(attrs);
-		writeNoteRef(currentNoteRef);
-
-		// prepare to fetch the actual note into the notes repo
-		writer.writeToTempStore();
-    }
-
-    public void startReference(Attributes attrs) {
+    public void start(Attributes attrs) {
+		// store the osisRef attribute for use with the note
+		String target = attrs.getValue(OSISUtil.OSIS_ATTR_REF);
+		start(target);
+	}
+    
+    protected void start(String target) {
 		// don't need to do anything until closing reference tag except..
 		// delete separators like ';' that sometimes occur between reference tags
 		writer.clearTempStore();
 		writer.writeToTempStore();
 		// store the osisRef attribute for use with the note
-		this.currentRefOsisRef = attrs.getValue(OSISUtil.OSIS_ATTR_REF);
+		this.currentRefOsisRef = target;
 	}
     
-    /*
-     * Called when the Ending of the current Element is reached. For example in the
-     * above explanation, this method is called when </Title> tag is reached
-    */
-    public void endNote(int currentVerseNo) {
-		String noteText = writer.getTempStoreString();
-		if (noteText.length()>0) {
-			if (!StringUtils.containsOnly(noteText, "[];().,")) {
-				Note note = new Note(currentVerseNo, currentNoteRef, noteText, NoteType.TYPE_GENERAL, null);
-				notesList.add(note);
-			}
-			// and clear the buffer
-			writer.clearTempStore();
-		}
-		isInNote = false;
-		writer.finishWritingToTempStore();
-    }
-
-    public void endReference(int currentVerseNo) {
+    public void end() {
 		writer.finishWritingToTempStore();
 
-		// a few modules like HunUj have refs in the text but not surrounded by a Note tag (like esv) so need to add  Note here
-		// special code to cope with HunUj problem
-		if (parameters.isAutoWrapUnwrappedRefsInNote() && !isInNote ) {
-			currentNoteRef = createNoteRef();
-			writeNoteRef(currentNoteRef);
-		}
-
-		if (isInNote || parameters.isAutoWrapUnwrappedRefsInNote()) {
-			Note note = new Note(currentVerseNo, currentNoteRef, writer.getTempStoreString(), NoteType.TYPE_REFERENCE, currentRefOsisRef);
-			notesList.add(note);
+		if (noteHandler.isInNote() || parameters.isAutoWrapUnwrappedRefsInNote()) {
+			noteHandler.addNoteForReference(writer.getTempStoreString(), currentRefOsisRef);
 		} else {
 			String refText = writer.getTempStoreString();
 			writer.write(getReferenceTag(currentRefOsisRef, refText));
 		}
+
 		// and clear the buffer
 		writer.clearTempStore();
 		currentRefOsisRef = null;
 	}
     
-    /** either use the 'n' attribute for the note ref or just get the next character in a list a-z
-     * 
-     * @return a single char to use as a note ref
-     */
-    private String getNoteRef(Attributes attrs) {
-    	// if the ref is specified as an attribute then use that
-    	String noteRef = attrs.getValue("n");
-		if (StringUtils.isEmpty(noteRef)) {
-			noteRef = createNoteRef();
-		}
-    	return noteRef;
-    }
-    /** either use the character passed in or get the next character in a list a-z
-     * 
-     * @return a single char to use as a note ref
-     */
-	private String createNoteRef() {
-		// else just get the next char
-    	int inta = (int)'a';
-    	char nextNoteChar = (char)(inta+(noteCount++ % 26));
-    	return String.valueOf(nextNoteChar);
-	}
-
-	/** write noteref html to outputstream
-	 */
-	private void writeNoteRef(String noteRef) {
-		if (parameters.isShowNotes()) {
-			writer.write("<span class='noteRef'>" + noteRef + "</span> ");
-		}
-	}
-
     /** create a link tag from an OSISref and the content of the tag
      */
     private String getReferenceTag(String reference, String content) {
@@ -174,6 +108,12 @@ public class NoteAndReferenceHandler {
     			reference = content;
     		}
     		
+    		// convert urns of type book:key to sword://book/key to simplify urn parsing (1 fewer case to check for).  
+    		// Avoid urls of type 'matt 3:14' by excludng urns with a space
+    		if (reference.contains(":") && !reference.contains(" ") && !reference.startsWith("sword://")) {
+    			reference = "sword://"+reference.replace(":", "/");
+    		}
+
     		boolean isFullSwordUrn = reference.contains("/") && reference.contains(":");
     		if (isFullSwordUrn) {
     			// e.g. sword://StrongsRealGreek/01909
@@ -214,9 +154,5 @@ public class NoteAndReferenceHandler {
     	}
     	return result.toString();
     }
-    
-	public List<Note> getNotesList() {
-		return notesList;
-	}
 }
 

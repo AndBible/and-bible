@@ -141,8 +141,6 @@ public class SwordDocumentFacade {
 	}
 
 	/** return all supported documents - bibles and commentaries for now
-	 * 
-	 * @return
 	 */
 	public List<Book> getDocuments() {
 		log.debug("Getting books");
@@ -154,21 +152,28 @@ public class SwordDocumentFacade {
 		return allDocuments;
 	}
 
+	/** prefer the Real alternatives to the default versions because they contain the native Greek Hebrew words
+	 */
 	public Book getDefaultStrongsGreekDictionary() {
 		// default to StrongsRealGreek
 		Book strongs = Books.installed().getBook("StrongsRealGreek");
-		if (strongs==null) {
-			strongs = Defaults.getGreekDefinitions();
+		if (strongs!=null) {
+			return strongs;
 		}
+
+		strongs = Defaults.getGreekDefinitions();
 		return strongs; 
 	}
 
 	public Book getDefaultStrongsHebrewDictionary() {
 		// default to StrongsRealHebrew
 		Book strongs = Books.installed().getBook("StrongsRealHebrew");
-		if (strongs==null) {
-			strongs = Defaults.getHebrewDefinitions();
+		if (strongs!=null) {
+			return strongs;
 		}
+
+		// Should Defaults prefer BDB to StrongsHebrew - well it does
+		strongs = Defaults.getHebrewDefinitions();
 		return strongs; 
 	}
 
