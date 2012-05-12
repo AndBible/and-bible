@@ -174,7 +174,8 @@
     <string name="assign_labels">Assign labels</string>
     <string name="new_label">New Label</string>
     <string name="new_label_prompt">Name</string>
-
+    <string name="label_unlabelled">Unlabelled</string>
+    
     <!-- Dictionary -->
     <string name="dictionary">Dictionary</string>
     <string name="search_dictionary_hint">Search dictionary</string>

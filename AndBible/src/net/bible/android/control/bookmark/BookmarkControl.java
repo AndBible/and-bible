@@ -29,10 +29,14 @@ import android.widget.Toast;
 public class BookmarkControl implements Bookmark {
 
 	private static final LabelDto LABEL_ALL;
+	private static final LabelDto LABEL_UNLABELLED;
 	static {
 		LABEL_ALL = new LabelDto();
 		LABEL_ALL.setName(BibleApplication.getApplication().getString(R.string.all));
 		LABEL_ALL.setId(new Long(-999));
+		LABEL_UNLABELLED = new LabelDto();
+		LABEL_UNLABELLED.setName(BibleApplication.getApplication().getString(R.string.label_unlabelled));
+		LABEL_UNLABELLED.setId(new Long(-998));
 	}
 	
 	private static final String TAG = "BookmarkControl";
@@ -154,6 +158,8 @@ public class BookmarkControl implements Bookmark {
 		try {
 			if (LABEL_ALL.equals(label)) {
 				bookmarkList = db.getAllBookmarks();
+			} else if (LABEL_UNLABELLED.equals(label)) {
+				bookmarkList = db.getUnlabelledBookmarks();
 			} else {
 				bookmarkList = db.getBookmarksWithLabel(label);
 			}
@@ -186,6 +192,7 @@ public class BookmarkControl implements Bookmark {
 	public void setBookmarkLabels(BookmarkDto bookmark, List<LabelDto> labels) {
 		// never save LABEL_ALL 
 		labels.remove(LABEL_ALL);
+		labels.remove(LABEL_UNLABELLED);
 		
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		db.open();
@@ -227,7 +234,7 @@ public class BookmarkControl implements Bookmark {
 	/** delete this bookmark (and any links to labels) */
 	public boolean deleteLabel(LabelDto label) {
 		boolean bOk = false;
-		if (label!=null && label.getId()!=null && !LABEL_ALL.equals(label)) {
+		if (label!=null && label.getId()!=null && !LABEL_ALL.equals(label) && !LABEL_UNLABELLED.equals(label)) {
 			BookmarkDBAdapter db = new BookmarkDBAdapter();
 			db.open();
 			bOk = db.removeLabel(label);
@@ -243,6 +250,7 @@ public class BookmarkControl implements Bookmark {
 		Collections.sort(labelList);
 		
 		// add special label that is automatically associated with all-bookmarks
+		labelList.add(0, LABEL_UNLABELLED);
 		labelList.add(0, LABEL_ALL);
 
 		return labelList;
