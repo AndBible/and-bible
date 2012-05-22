@@ -27,6 +27,9 @@ public class SharedConstants {
     private static final String BACKUP_SUBDIR_NAME = "andbible_backup";
     public static final File BACKUP_DIR = getBackupDir();
 
+	public static final String READINGPLAN_DIR_NAME = "readingplan";
+    public static final File MANUAL_READINGPLAN_DIR = new File(MANUAL_INSTALL_DIR, READINGPLAN_DIR_NAME);
+
     public static final int APPLICATION_THEME =  android.R.style.Theme_Light;
 	public static final String NIGHT_MODE_STYLESHEET = "night_mode.css";
     

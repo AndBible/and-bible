@@ -146,6 +146,28 @@ public class BookmarkDBAdapter {
         return allBookmarks;
 	}
 
+	public List<BookmarkDto> getUnlabelledBookmarks() {
+		String sql = "SELECT bookmark._id, bookmark.key "+
+					 "FROM bookmark "+
+					 "WHERE NOT EXISTS (SELECT * FROM bookmark_label WHERE bookmark._id = bookmark_label.bookmark_id)";
+		
+		List<BookmarkDto> bookmarks = new ArrayList<BookmarkDto>();
+		Cursor c = db.rawQuery(sql, null);
+		try {
+			if (c.moveToFirst()) {
+		        while (!c.isAfterLast()) {
+		    		BookmarkDto bookmark = getBookmarkDto(c);
+		    		bookmarks.add(bookmark);
+		       	    c.moveToNext();
+		        }
+			}
+		} finally {
+	        c.close();
+		}
+        
+        return bookmarks;
+	}
+
 	public List<LabelDto> getAllLabels() {
 		List<LabelDto> allLabels = new ArrayList<LabelDto>();
 		Cursor c = db.query(LabelQuery.TABLE, LabelQuery.COLUMNS, null, null, null, null, LabelColumn.NAME);
