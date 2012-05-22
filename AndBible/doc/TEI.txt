@@ -1,0 +1,26 @@
+Example:
+<entryFree n="00428">
+<title>H428</title>
+<orth>????</orth>
+<orth rend="bold" type="trans">'êlleh</orth>
+<pron rend="italic">ale'-leh</pron><lb/>
+<def>Prolonged from <ref target="StrongsHebrew:00411">H411</ref>; <hi rend="italic">these</hi> or <hi rend="italic">those:</hi> - an- (the) other; one sort so some such them these (same) they this those thus which who (-m).</def>
+</entryFree>
+
+<entryFree n="00428">
+<title>G428</title>
+<orth>?????????</orth>
+<orth rend="bold" type="trans">aneuthetos</orth>
+<pron rend="italic">an-yoo'-the-tos</pron><lb/>
+<def>From <ref target="StrongsGreek:00001">G1</ref> (as a negative particle) and <ref target="StrongsGreek:02111">G2111</ref>; <hi rend="italic">not well set</hi> that is <hi rend="italic">inconvenient:</hi> - not commodious.</def>
+</entryFree>
+
+Example xslt:
+\bibledesktop\src\main\resources\xsl\cswing\simple.xsl
+
+Formatting:
+  <!-- the following are for dictionary entries -->
+  FONT.orth { font-weight: bold; }
+  FONT.pron { font-style: italic; }
+// italic for def is not a good choice  FONT.def  { font-style: italic; }
+  FONT.usg  { font-style: plain; }
