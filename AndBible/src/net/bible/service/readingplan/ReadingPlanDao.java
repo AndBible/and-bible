@@ -1,6 +1,7 @@
 package net.bible.service.readingplan;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -10,9 +11,11 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 import net.bible.android.BibleApplication;
+import net.bible.android.SharedConstants;
 import net.bible.service.common.AndRuntimeException;
 
 import org.apache.commons.lang.StringUtils;
+import org.crosswire.common.util.IOUtil;
 
 import android.content.res.AssetManager;
 import android.content.res.Resources;
@@ -20,7 +23,8 @@ import android.util.Log;
 
 public class ReadingPlanDao {
 
-	private static final String READING_PLAN_FOLDER = "readingplan";
+	private static final String READING_PLAN_FOLDER = SharedConstants.READINGPLAN_DIR_NAME;
+	private static final File USER_READING_PLAN_FOLDER = SharedConstants.MANUAL_READINGPLAN_DIR;
 	private static final String DOT_PROPERTIES = ".properties";
 	private static final String TAG = "ReadingPlanDao";
 
@@ -90,41 +94,68 @@ public class ReadingPlanDao {
 		info.setNumberOfPlanDays(getNumberOfPlanDays(planCode));
 		return info;
 	}
-	
+
+	/** look in assets/readingplan and sdcard/jsword/readingplan for reading plans and return a list of all codes
+	 */
 	private List<String> getAllReadingPlanCodes() throws IOException {
 		
 		Resources resources = BibleApplication.getApplication().getResources();
 		AssetManager assetManager = resources.getAssets();
 
-		String[] files = assetManager.list(READING_PLAN_FOLDER);
-		List<String> codes = new ArrayList<String>();
-		for (String file : files) {
-			// this if statement ensures we only deal with .properties files - not folders or anything else
-			if (file.endsWith(DOT_PROPERTIES)) {
-				// remove the file extension to get the code
-				codes.add(file.replace(DOT_PROPERTIES, ""));
-			}
-		}
+		List<String> allCodes = new ArrayList<String>();
 		
+		String[] internalPlans = assetManager.list(READING_PLAN_FOLDER);
+		allCodes.addAll(getReadingPlanCodes(internalPlans));
+		
+		String[] userPlans = USER_READING_PLAN_FOLDER.list();
+		allCodes.addAll(getReadingPlanCodes(userPlans));
+		
+		return allCodes;
+	}
+
+	private List<String> getReadingPlanCodes(String[] files) {
+		List<String> codes = new ArrayList<String>();
+		if (files!=null) {
+			for (String file : files) {
+				// this if statement ensures we only deal with .properties files - not folders or anything else
+				if (file.endsWith(DOT_PROPERTIES)) {
+					// remove the file extension to get the code
+					codes.add(file.replace(DOT_PROPERTIES, ""));
+				}
+			}
+		}		
 		return codes;
 	}
 
+	/* either load reading plan info from assets/readingplan or sdcard/jsword/readingplan
+	 */
 	private Properties getPlanProperties(String planCode) {
 		Resources resources = BibleApplication.getApplication().getResources();
 		AssetManager assetManager = resources.getAssets();
+		String filename = planCode+DOT_PROPERTIES;
 
 		// Read from the /assets directory
 	    Properties properties = new Properties();
+	    InputStream inputStream = null;
 		try {
-		    InputStream inputStream = assetManager.open(READING_PLAN_FOLDER+File.separator+planCode+DOT_PROPERTIES);
+			// check to see if a user has created his own reading plan with this name
+			File userReadingPlanFile = new File(USER_READING_PLAN_FOLDER, filename);
+			boolean isUserPlan = userReadingPlanFile.exists();
+
+		    if (!isUserPlan) {
+		    	inputStream = assetManager.open(READING_PLAN_FOLDER+File.separator+filename);
+		    } else {
+		    	inputStream = new FileInputStream(userReadingPlanFile);
+		    }
 		    properties.load(inputStream);
 		    Log.d(TAG, "The properties are now loaded");
 		    Log.d(TAG, "properties: " + properties);
 		} catch (IOException e) {
 		    System.err.println("Failed to open reading plan property file");
 		    e.printStackTrace();
+		} finally {
+			IOUtil.close(inputStream);
 		}
 		return properties;
 	}
-	
 }
