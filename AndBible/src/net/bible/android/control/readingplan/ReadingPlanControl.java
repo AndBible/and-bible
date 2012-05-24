@@ -143,7 +143,13 @@ public class ReadingPlanControl {
 				reset(planInfo);
 			} else if (getCurrentPlanDay()==day){
 				// move to next plan day
-				incrementCurrentPlanDay();
+				int nextDay = incrementCurrentPlanDay();
+				
+				// if there are no readings scheduled for the next day then mark it as Done and carry on to next next day
+				OneDaysReadingsDto nextReadings = getDaysReading(nextDay);
+				if (nextReadings.getNumReadings()==0) {
+					done(planInfo, nextDay);
+				}
 			}
 		}
 	}
@@ -155,14 +161,16 @@ public class ReadingPlanControl {
 	
 	/** increment current day
 	 */
-	public void incrementCurrentPlanDay() {
+	public int incrementCurrentPlanDay() {
 		String planCode = getCurrentPlanCode();
 		SharedPreferences prefs = CommonUtils.getSharedPreferences();
-		int day = prefs.getInt(planCode+READING_PLAN_DAY_EXT, 1);
+		int nextDay = prefs.getInt(planCode+READING_PLAN_DAY_EXT, 1) + 1;
 		
 		prefs.edit()
-			.putInt(getCurrentPlanCode()+READING_PLAN_DAY_EXT, day+1)
+			.putInt(getCurrentPlanCode()+READING_PLAN_DAY_EXT, nextDay)
 			.commit();
+		
+		return nextDay;
 	}
 
 	/** get readings due for current plan on specified day

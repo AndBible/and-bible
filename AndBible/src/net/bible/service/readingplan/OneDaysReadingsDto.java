@@ -9,6 +9,7 @@ import java.util.List;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.PassageKeyFactory;
@@ -80,16 +81,17 @@ public class OneDaysReadingsDto implements Comparable<OneDaysReadingsDto> {
 	
 	private synchronized void checkKeysGenerated() {
 		if (mReadingKeys==null) {
-			String[] readingArray = mReadings.split(",");
 			List<Key> readingKeyList = new ArrayList<Key>();
-			for (String reading : readingArray) {
-				try {
-					readingKeyList.add(PassageKeyFactory.instance().getKey(reading));
-				} catch (NoSuchKeyException nsk) {
-					Log.e(TAG, "Error getting daily reading passage", nsk);
+			if (StringUtils.isNotEmpty(mReadings)) {
+				String[] readingArray = mReadings.split(",");
+				for (String reading : readingArray) {
+					try {
+						readingKeyList.add(PassageKeyFactory.instance().getKey(reading));
+					} catch (NoSuchKeyException nsk) {
+						Log.e(TAG, "Error getting daily reading passage", nsk);
+					}
 				}
-			}
-			
+			}			
 			mReadingKeys = readingKeyList;
 		}
 	}

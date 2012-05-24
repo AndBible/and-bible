@@ -78,8 +78,18 @@ public class ReadingPlanDao {
 		return new OneDaysReadingsDto(dayNo, readings, getReadingPlanInfoDto(planName));
 	}
 
+	/** get last day number - there may be missed days so cannot simply do props.size()
+	 */
 	public int getNumberOfPlanDays(String planCode) {
-		return getPlanProperties(planCode).size();
+		int maxDayNo = 0;
+		
+		for(Object oDayNo : getPlanProperties(planCode).keySet() ) {
+			String dayNoStr = (String) oDayNo;
+			int dayNo = Integer.parseInt(dayNoStr);
+			maxDayNo = Math.max(maxDayNo, dayNo);
+		}
+		
+		return maxDayNo;
 	}
 
 	private ReadingPlanInfoDto getReadingPlanInfoDto(String planCode) {
