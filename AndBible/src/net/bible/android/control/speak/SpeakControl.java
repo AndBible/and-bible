@@ -116,8 +116,9 @@ public class SpeakControl {
 				
 				// content
 				textToSpeak.append( SwordContentFacade.getInstance().getTextToSpeak(book, key));
-				
-				textToSpeak.append(".\n");
+
+//TODO - add a pause that is not said by the new chunked Speak
+//				textToSpeak.append(".\n");
 			}
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting chapters to speak", e);
