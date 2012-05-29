@@ -80,7 +80,9 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 	    		showError(R.string.error_occurred);
 	    	}
     	} else {
-    		sayText();
+    		if (!mTts.isSpeaking()) {
+    			sayText();
+    		}
     	}
     }
 
@@ -104,9 +106,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
             	}
             	
             	// say the text
-            	if (!mTts.isSpeaking()) {
-            		sayText();
-            	}
+           		sayText();
             }
         } else {
             // Initialization failed.
