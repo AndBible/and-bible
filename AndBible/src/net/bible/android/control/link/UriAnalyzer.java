@@ -70,6 +70,12 @@ public class UriAnalyzer {
 		} else {
 			int firstSlash = ref.indexOf("/");
 	        book = ref.substring(0, firstSlash);
+	        
+	        // handle uri like sword://Bible/John.17.11 found in Calvin's commentary avoiding any attempt to find a book named Bible that will fail
+	        if (Constants.BIBLE_PROTOCOL.equalsIgnoreCase(book)) {
+	        	docType = DocType.BIBLE;
+	        }
+	        
 	        // safe to grab after slash because slash can't be on end due to above strip("/") 
 	        key = ref.substring(firstSlash+1);
 		}

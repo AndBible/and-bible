@@ -28,6 +28,10 @@ import android.util.Log;
  * http://developer.android.com/reference/android/speech/tts/package-summary.html
  * </p>
  * <ul>
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+
  */
 public class TextToSpeechController implements TextToSpeech.OnInitListener, TextToSpeech.OnUtteranceCompletedListener, AppToBackgroundListener {
 
@@ -36,13 +40,14 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     private TextToSpeech mTts;
 
     private Locale speechLocale;
-    private String textToSpeak;
-    private boolean queue;
+    private SpeakTextProvider mSpeakTextProvider;
 
-    // keep track of the current count of requests so we know when to shutdown Tts
-    private int textCount =0;
-    
     private Context context;
+
+    private long uniqueUtteranceNo = 0;
+    private String mLatestUtteranceId = "";
+    // tts.isSpeaking() returns false when multiple text is queued on some older versions of Android so maintain it manually
+    private boolean isSpeaking = false;
     
     private static final TextToSpeechController singleton = new TextToSpeechController();
     
@@ -53,12 +58,16 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     private TextToSpeechController() {
     	context = BibleApplication.getApplication().getApplicationContext();
     	CurrentActivityHolder.getInstance().addAppToBackgroundListener(this);
+    	mSpeakTextProvider = new SpeakTextProvider();
     }
 
     public void speak(Locale speechLocale, String textToSpeak, boolean queue) {
-    	this.textToSpeak = textToSpeak;
-    	this.queue = queue;
-    	
+   		if (!queue) {
+   			Log.d(TAG, "Queue is false so requesting stop");
+   			stop();
+   		}
+   		mSpeakTextProvider.addTextToSpeak(textToSpeak);
+
     	if (mTts==null) {
     		// currently can't change Locale until speech ends
         	this.speechLocale = speechLocale;
@@ -72,7 +81,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 	    		showError(R.string.error_occurred);
 	    	}
     	} else {
-    		sayText();
+   			speakAllText();
     	}
     }
 
@@ -96,7 +105,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
             	}
             	
             	// say the text
-                sayText();
+           		speakAllText();
             }
         } else {
             // Initialization failed.
@@ -104,53 +113,76 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
         }
     }
 
-    private void sayText() {
+    private void speakAllText() {
+        // ask TTs to say the text
+    	while (mSpeakTextProvider.isMoreTextToSpeak()) {
+    		String text = mSpeakTextProvider.getNextTextToSpeak();
+    		speakString(text);
+    	}
+    	mSpeakTextProvider.reset();
+    }
+
+    private void speakString(String text) {
     	// Always set the UtteranceId (or else OnUtteranceCompleted will not be called)
         HashMap<String, String> dummyTTSParams = new HashMap<String, String>();
-        dummyTTSParams.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "AND-BIBLE"+System.currentTimeMillis());
+        String utteranceId = "AND-BIBLE-"+uniqueUtteranceNo++;
+        dummyTTSParams.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId);
 
-        this.textCount++;
+        mTts.speak(text,
+                TextToSpeech.QUEUE_ADD, // handle flush by clearing text queue 
+                dummyTTSParams);
         
-        // ask TTs to say the text
-        mTts.speak(this.textToSpeak,
-            queue ? TextToSpeech.QUEUE_ADD : TextToSpeech.QUEUE_FLUSH,  // Drop all pending entries in the playback queue.
-            dummyTTSParams);
+        mLatestUtteranceId = utteranceId;
+        isSpeaking = true;
+        Log.d(TAG, "Speaking:"+text);
     }
-    
     private void showError(int msgId) {
     	Dialogs.getInstance().showErrorMsg(msgId);
     }
 
 	public void stop() {
-		textCount = 0;
-		shutdown();
+    	Log.d(TAG, "Stop TTS");
+		
+        // Don't forget to shutdown!
+        if (isSpeaking()) {
+        	Log.d(TAG, "Flushing speech");
+        	// flush remaining text
+	        mTts.speak(" ", TextToSpeech.QUEUE_FLUSH, null);
+        }
+        
+        mSpeakTextProvider.reset();
+        isSpeaking = false;
 	}
 
 	@Override
 	public void onUtteranceCompleted(String utteranceId) {
 		Log.d(TAG, "onUtteranceCompleted:"+utteranceId);
-		if (--textCount==0) {
+		if (mLatestUtteranceId.equals(utteranceId)) {
+			Log.d(TAG, "Shutting down TTS");
 			shutdown();
 		}
 	}
 
-    private void shutdown() {
+    public void shutdown() {
     	Log.d(TAG, "Shutdown TTS");
+		
         // Don't forget to shutdown!
         if (mTts != null) {
             mTts.stop();
             mTts.shutdown();
             mTts = null;
         }
+        
+        mSpeakTextProvider.reset();
+        isSpeaking = false;
     }
 
 	public boolean isSpeaking() {
-		Log.d(TAG, "isSpeaking called");
-		return mTts!=null && mTts.isSpeaking();
+		return isSpeaking;
 	}
 
 	@Override
 	public void applicationNowInBackground(AppToBackgroundEvent e) {
-		stop();		
+		shutdown();		
 	}
 }

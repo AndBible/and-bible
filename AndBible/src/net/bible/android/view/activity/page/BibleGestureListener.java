@@ -68,8 +68,8 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 		}
 		// test horizontal distance and velocity
 		else if ( horizontal > scaledDistance && Math.abs(velocityX) > minScaledVelocity ) {
-			// right to left swipe
-			if (velocityX < 0 ) {
+			// right to left swipe - sometimes velocity seems to have wrong sign so use raw positions to determine direction  
+			if (e1.getX() > e2.getX()) {
 				mainBibleActivity.next();
 			}
 			// left to right swipe

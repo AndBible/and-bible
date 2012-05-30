@@ -171,7 +171,10 @@ public class CurrentPageManager {
 	}
 	
 	public CurrentPage getBookPage(Book book) {
-		if (book.equals(currentMyNotePage.getCurrentDocument())) {
+		// book should never be null but it happened on one user's phone
+		if (book==null) {
+			return null;
+		} else if (book.equals(currentMyNotePage.getCurrentDocument())) {
 			return currentMyNotePage;
 		} else {
 			return getBookPage(book.getBookCategory());
