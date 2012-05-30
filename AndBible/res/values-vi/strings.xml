@@ -232,4 +232,4 @@
     <string name="error_page_too_large">Trang quá lớn để nạp</string>
     <string name="error_key_not_in_document">Không tìm thấy trong tài liệu</string>
     <string name="empty_list">Không có mục nào để hiển thị</string>
-<string name="label_unlabelled">Unlabelled</string></resources>
+<string name="label_unlabelled">Chưa được gán nhãn</string></resources>
