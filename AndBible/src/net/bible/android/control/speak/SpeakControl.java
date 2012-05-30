@@ -20,6 +20,11 @@ import org.crosswire.jsword.versification.BibleInfo;
 
 import android.util.Log;
 
+/**
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class SpeakControl {
 
 	private static final int NUM_LEFT_IDX = 3;
@@ -167,7 +172,7 @@ public class SpeakControl {
 	public void stop() {
 		Log.d(TAG, "Stop TTS speaking");
     	TextToSpeechController tts = TextToSpeechController.getInstance();
-		tts.stop();
+		tts.shutdown();
 	}
 	
 	private String getDefaultCountryCode(String language) {

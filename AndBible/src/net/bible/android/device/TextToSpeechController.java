@@ -1,11 +1,7 @@
 package net.bible.android.device;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
@@ -32,6 +28,10 @@ import android.util.Log;
  * http://developer.android.com/reference/android/speech/tts/package-summary.html
  * </p>
  * <ul>
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+
  */
 public class TextToSpeechController implements TextToSpeech.OnInitListener, TextToSpeech.OnUtteranceCompletedListener, AppToBackgroundListener {
 
@@ -40,11 +40,14 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     private TextToSpeech mTts;
 
     private Locale speechLocale;
-    private List<String> mTextToSpeak = new ArrayList<String>();
-    private int currentSentence = 0;
-    private boolean queue;
+    private SpeakTextProvider mSpeakTextProvider;
 
     private Context context;
+
+    private long uniqueUtteranceNo = 0;
+    private String mLatestUtteranceId = "";
+    // tts.isSpeaking() returns false when multiple text is queued on some older versions of Android so maintain it manually
+    private boolean isSpeaking = false;
     
     private static final TextToSpeechController singleton = new TextToSpeechController();
     
@@ -55,18 +58,16 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     private TextToSpeechController() {
     	context = BibleApplication.getApplication().getApplicationContext();
     	CurrentActivityHolder.getInstance().addAppToBackgroundListener(this);
+    	mSpeakTextProvider = new SpeakTextProvider();
     }
 
     public void speak(Locale speechLocale, String textToSpeak, boolean queue) {
    		if (!queue) {
+   			Log.d(TAG, "Queue is false so requesting stop");
    			stop();
    		}
-   		this.mTextToSpeak.addAll(breakUpText(textToSpeak));
+   		mSpeakTextProvider.addTextToSpeak(textToSpeak);
 
-    	Log.d(TAG, "Num sentences:"+mTextToSpeak.size());
-    	
-    	this.queue = queue;
-    	
     	if (mTts==null) {
     		// currently can't change Locale until speech ends
         	this.speechLocale = speechLocale;
@@ -80,9 +81,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 	    		showError(R.string.error_occurred);
 	    	}
     	} else {
-    		if (!mTts.isSpeaking()) {
-    			sayText();
-    		}
+   			speakAllText();
     	}
     }
 
@@ -106,7 +105,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
             	}
             	
             	// say the text
-           		sayText();
+           		speakAllText();
             }
         } else {
             // Initialization failed.
@@ -114,52 +113,58 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
         }
     }
 
-    private void sayText() {
+    private void speakAllText() {
         // ask TTs to say the text
-    	speakNextString();
-//    	// prepare following chunk to prevent pauses between chunks
-//    	speakNextString();
+    	while (mSpeakTextProvider.isMoreTextToSpeak()) {
+    		String text = mSpeakTextProvider.getNextTextToSpeak();
+    		speakString(text);
+    	}
+    	mSpeakTextProvider.reset();
     }
 
-    private void speakNextString() {
+    private void speakString(String text) {
     	// Always set the UtteranceId (or else OnUtteranceCompleted will not be called)
         HashMap<String, String> dummyTTSParams = new HashMap<String, String>();
-        dummyTTSParams.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "AND-BIBLE"+System.currentTimeMillis());
+        String utteranceId = "AND-BIBLE-"+uniqueUtteranceNo++;
+        dummyTTSParams.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId);
 
-        if (currentSentence<mTextToSpeak.size()) {
-	        String text = this.mTextToSpeak.get(currentSentence++);
-	        mTts.speak(text,
-	                TextToSpeech.QUEUE_ADD, // handle flush by clearing text queue 
-	                dummyTTSParams);
-	        Log.d(TAG, "Speaking:"+text);
-        }
+        mTts.speak(text,
+                TextToSpeech.QUEUE_ADD, // handle flush by clearing text queue 
+                dummyTTSParams);
+        
+        mLatestUtteranceId = utteranceId;
+        isSpeaking = true;
+        Log.d(TAG, "Speaking:"+text);
     }
     private void showError(int msgId) {
     	Dialogs.getInstance().showErrorMsg(msgId);
     }
 
 	public void stop() {
-		shutdown();
+    	Log.d(TAG, "Stop TTS");
+		
+        // Don't forget to shutdown!
+        if (isSpeaking()) {
+        	Log.d(TAG, "Flushing speech");
+        	// flush remaining text
+	        mTts.speak(" ", TextToSpeech.QUEUE_FLUSH, null);
+        }
+        
+        mSpeakTextProvider.reset();
+        isSpeaking = false;
 	}
 
 	@Override
 	public void onUtteranceCompleted(String utteranceId) {
 		Log.d(TAG, "onUtteranceCompleted:"+utteranceId);
-		if (currentSentence==mTextToSpeak.size()) {
+		if (mLatestUtteranceId.equals(utteranceId)) {
 			Log.d(TAG, "Shutting down TTS");
 			shutdown();
-		} else {
-			speakNextString();
 		}
 	}
 
-    private void shutdown() {
+    public void shutdown() {
     	Log.d(TAG, "Shutdown TTS");
-    	
-    	if (mTextToSpeak!=null) {
-    		mTextToSpeak.clear();
-    	}
-		currentSentence = 0;
 		
         // Don't forget to shutdown!
         if (mTts != null) {
@@ -167,33 +172,17 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
             mTts.shutdown();
             mTts = null;
         }
+        
+        mSpeakTextProvider.reset();
+        isSpeaking = false;
     }
 
 	public boolean isSpeaking() {
-		Log.d(TAG, "isSpeaking called");
-		return mTts!=null && mTts.isSpeaking();
+		return isSpeaking;
 	}
 
 	@Override
 	public void applicationNowInBackground(AppToBackgroundEvent e) {
-		stop();		
-	}
-
-	private Pattern breakPattern = Pattern.compile(".{100,200}[a-z][.?!][ ]{1,}");
-	private List<String> breakUpText(String text) {
-		List<String> chunks = new ArrayList<String>();
-		Matcher matcher = breakPattern.matcher(text);
-
-		int matchedUpTo = 0;
-		while (matcher.find()) {
-			// -1 because the pattern includes a char after the last space
-			int nextEnd = matcher.end();
-			chunks.add(text.substring(matchedUpTo, nextEnd));
-			matchedUpTo = nextEnd;
-		}
-		// add on the final part of the text
-		chunks.add(text.substring(matchedUpTo));
-
-		return chunks;
+		shutdown();		
 	}
 }
