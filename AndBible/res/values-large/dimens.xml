@@ -5,5 +5,5 @@
 	<integer name="grid_cell_text_size_sp">21</integer>
 	
 	<!-- width of one poetry line indent -->
-	<integer name="poetry_indent_chars">4</integer>
+	<integer name="poetry_indent_chars">5</integer>
 </resources>
