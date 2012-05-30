@@ -18,7 +18,8 @@ public class SpeakTextProvider {
     private List<String> mTextToSpeak = new ArrayList<String>();
     private int currentSentence = 0;
 
-	private static Pattern BREAK_PATTERN = Pattern.compile(".{100,2000}[a-z][.?!][ ]{1,}");
+    // require DOTALL to allow . to match new lines which occur in books like JOChrist
+	private static Pattern BREAK_PATTERN = Pattern.compile(".{100,3000}[a-z]+[.?!][\\s]{1,}+", Pattern.DOTALL);
 	
 	private static final String TAG = "SpeakTextProvider";
 
@@ -51,7 +52,6 @@ public class SpeakTextProvider {
 
 		int matchedUpTo = 0;
 		while (matcher.find()) {
-			// -1 because the pattern includes a char after the last space
 			int nextEnd = matcher.end();
 			chunks.add(text.substring(matchedUpTo, nextEnd));
 			matchedUpTo = nextEnd;
@@ -62,4 +62,23 @@ public class SpeakTextProvider {
 		return chunks;
 	}
 
+//	private List<String> nonREbreakUpText(String text) {
+//		List<String> chunks = new ArrayList<String>();
+//
+//		int matchedUpTo = 0;
+//		int count = 0;
+//		while (text.length()-matchedUpTo>1000) {
+//			int nextEnd = text.indexOf(". ",matchedUpTo+100)+2;
+//			if (nextEnd!=-1) {
+//				Log.d(TAG, "Match "+(++count)+" from "+matchedUpTo+" to "+nextEnd);
+//				chunks.add(text.substring(matchedUpTo, nextEnd));
+//				matchedUpTo = nextEnd;
+//			}
+//		}
+//		// add on the final part of the text
+//		chunks.add(text.substring(matchedUpTo));
+//
+//		return chunks;
+//	}
+//
 }
