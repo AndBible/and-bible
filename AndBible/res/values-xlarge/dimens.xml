@@ -2,9 +2,6 @@
 <resources>
 	<dimen name="title_bar_height">36dip</dimen>
 	
-    <!-- number of breaks at bottom to allow selection of last verse -->
-	<integer name="br_count_at_bottom">30</integer>
-	
 	<!--  number of buttons varies depending on screen size and orientation -->
 	<integer name="number_of_quick_buttons">6</integer>
 	
