@@ -57,16 +57,23 @@ public class SpeakTextProvider {
 		// first try to split text nicely at the end of sentences
 		//
 		List<String> chunks1 = new ArrayList<String>();
-		Matcher matcher = BREAK_PATTERN.matcher(text);
-
-		int matchedUpTo = 0;
-		while (matcher.find()) {
-			int nextEnd = matcher.end();
-			chunks1.add(text.substring(matchedUpTo, nextEnd));
-			matchedUpTo = nextEnd;
+		
+		// is the text short enough to use as is
+		if (text.length()<MAX_SPEECH_ITEM_CHAR_LENGTH) {
+			chunks1.add(text);
+		} else {
+			// break up the text at sentence ends
+			Matcher matcher = BREAK_PATTERN.matcher(text);
+	
+			int matchedUpTo = 0;
+			while (matcher.find()) {
+				int nextEnd = matcher.end();
+				chunks1.add(text.substring(matchedUpTo, nextEnd));
+				matchedUpTo = nextEnd;
+			}
+			// add on the final part of the text
+			chunks1.add(text.substring(matchedUpTo));
 		}
-		// add on the final part of the text
-		chunks1.add(text.substring(matchedUpTo));
 		
 		//
 		// If any text is still too long because the regexp was not matched then forcefully split it up
