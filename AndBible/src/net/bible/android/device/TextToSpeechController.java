@@ -43,6 +43,8 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     private List<Locale> localePreferenceList;
     private SpeakTextProvider mSpeakTextProvider;
 
+    private TTSLanguageSupport ttsLanguageSupport = new TTSLanguageSupport();
+    
     private Context context;
 
     private long uniqueUtteranceNo = 0;
@@ -60,6 +62,10 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     	context = BibleApplication.getApplication().getApplicationContext();
     	CurrentActivityHolder.getInstance().addAppToBackgroundListener(this);
     	mSpeakTextProvider = new SpeakTextProvider();
+    }
+
+    public boolean isLanguageAvailable(String langCode) {
+    	return ttsLanguageSupport.isLangKnownToBeSupported(langCode);
     }
 
     public void speak(List<Locale> localePreferenceList, String textToSpeak, boolean queue) {
@@ -92,8 +98,9 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
         // status can be either TextToSpeech.SUCCESS or TextToSpeech.ERROR.
         if (status == TextToSpeech.SUCCESS) {
         	boolean localeOK = false;
+        	Locale locale = null;
         	for (int i=0; i<localePreferenceList.size() && !localeOK; i++) {
-        		Locale locale = localePreferenceList.get(i);
+        		locale = localePreferenceList.get(i);
         		Log.d(TAG, "Checking for locale:"+locale);
         		int result = mTts.setLanguage(locale);
         		localeOK = ((result != TextToSpeech.LANG_MISSING_DATA) && (result != TextToSpeech.LANG_NOT_SUPPORTED));
@@ -105,9 +112,11 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
             if (!localeOK) {
     	    	Log.e(TAG, "TTS missing or not supported");
                // Language data is missing or the language is not supported.
+    	    	ttsLanguageSupport.addUnsupportedLocale(locale);
                 showError(R.string.tts_lang_not_available);
             } else {
                 // The TTS engine has been successfully initialized.
+    	    	ttsLanguageSupport.addSupportedLocale(locale);
             	int ok = mTts.setOnUtteranceCompletedListener(this);
             	if (ok==TextToSpeech.ERROR) {
             		Log.e(TAG, "Error registering onUtteranceCompletedListener");

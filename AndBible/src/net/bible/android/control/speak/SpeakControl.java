@@ -84,6 +84,44 @@ public class SpeakControl {
 		return definitions;
 	}
 	
+	/** Toggle speech - prepare to speak single page OR if speaking then stop speaking
+	 */
+	public void speakToggleCurrentPage() {
+		Log.d(TAG, "Speak current page");
+		if (isSpeaking()) {
+			stop();
+		} else {
+			try {
+				CurrentPage page = CurrentPageManager.getInstance().getCurrentPage();
+				Book fromBook = page.getCurrentDocument();
+		    	// first find keys to Speak
+				List<Key> keyList = new ArrayList<Key>();
+				keyList.add(page.getKey());
+					
+				speak(fromBook, keyList, true, false);
+			} catch (Exception e) {
+				Log.e(TAG, "Error getting chapters to speak", e);
+				throw new AndRuntimeException("Error preparing Speech", e);
+			}
+		}
+	}
+	
+	public boolean isCurrentDocSpeakAvailable() {
+		boolean isAvailable = false;
+		try {
+			String docLangCode = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument().getLanguage().getCode();
+			isAvailable = TextToSpeechController.getInstance().isLanguageAvailable(docLangCode);
+		} catch (Exception e) {
+			Log.e(TAG, "Error checking TTS lang available");
+			isAvailable = false;
+		}
+		return isAvailable;
+	}
+
+	public boolean isSpeaking() {
+		return TextToSpeechController.getInstance().isSpeaking();
+	}
+
 	/** prepare to speak
 	 */
 	public void speak(NumPagesToSpeakDefinition numPagesDefn, boolean queue, boolean repeat) {

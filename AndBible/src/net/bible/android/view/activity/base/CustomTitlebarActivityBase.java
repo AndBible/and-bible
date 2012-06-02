@@ -15,12 +15,13 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.ToggleButton;
 
 public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	
-	protected enum HeaderButton {DOCUMENT, PAGE, BIBLE, COMMENTARY, DICTIONARY, GEN_BOOK, MAP, TOGGLE_STRONGS};
+	protected enum HeaderButton {DOCUMENT, PAGE, BIBLE, COMMENTARY, DICTIONARY, TOGGLE_STRONGS, SPEAK};
 
 	private View mTitleBar;
 	
@@ -33,11 +34,8 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	private Book mSuggestedCommentary;
 	private Button mQuickDictionaryChangeLink;
 	private Book mSuggestedDictionary;
-	private Button mQuickGenBookChangeLink;
-	private Book mSuggestedGenBook;
-	private Button mQuickMapChangeLink;
-	private Book mSuggestedMap;
-	
+
+	private ImageButton mQuickSpeakLink;
 	private ToggleButton mStrongsToggle;
 	
 	private View mContentView;
@@ -64,9 +62,8 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
         mQuickBibleChangeLink = (Button)findViewById(R.id.quickBibleChange);
         mQuickCommentaryChangeLink = (Button)findViewById(R.id.quickCommentaryChange);
         mQuickDictionaryChangeLink = (Button)findViewById(R.id.quickDictionaryChange);
-        mQuickGenBookChangeLink = (Button)findViewById(R.id.quickGenBookChange);
-        mQuickMapChangeLink = (Button)findViewById(R.id.quickMapChange);
         
+        mQuickSpeakLink = (ImageButton)findViewById(R.id.quickSpeak);
         mStrongsToggle = (ToggleButton)findViewById(R.id.strongsToggle);
         
         mDocumentTitleLink.setOnClickListener(new OnClickListener() {
@@ -99,17 +96,10 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
             }
         });
         
-        mQuickGenBookChangeLink.setOnClickListener(new OnClickListener() {
+        mQuickSpeakLink.setOnClickListener(new OnClickListener() {
 			@Override
             public void onClick(View v) {
-            	handleHeaderButtonPress(HeaderButton.GEN_BOOK);
-            }
-        });
-        
-        mQuickMapChangeLink.setOnClickListener(new OnClickListener() {
-			@Override
-            public void onClick(View v) {
-            	handleHeaderButtonPress(HeaderButton.MAP);
+            	handleHeaderButtonPress(HeaderButton.SPEAK);
             }
         });
 
@@ -137,12 +127,6 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	    	case DICTIONARY:
 	    		quickChange(mSuggestedDictionary);
 	    		break;
-	    	case GEN_BOOK:
-	    		quickChange(mSuggestedGenBook);
-	    		break;
-	    	case MAP:
-	    		quickChange(mSuggestedMap);
-	    		break;
 	    	case DOCUMENT:
 	        	Intent docHandlerIntent = new Intent(CustomTitlebarActivityBase.this, ChooseDocument.class);
 	        	startActivityForResult(docHandlerIntent, 1);
@@ -150,6 +134,9 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	    	case PAGE:
 	        	Intent pageHandlerIntent = new Intent(CustomTitlebarActivityBase.this, CurrentPageManager.getInstance().getCurrentPage().getKeyChooserActivity());
 	        	startActivityForResult(pageHandlerIntent, 1);
+	    		break;
+	    	case SPEAK:
+	    		ControlFactory.getInstance().getSpeakControl().speakToggleCurrentPage();
 	    		break;
 	    	case TOGGLE_STRONGS:
 				// update the show-strongs pref setting according to the ToggleButton
@@ -195,16 +182,8 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 			if (mSuggestedDictionary!=null) {
 				mQuickDictionaryChangeLink.setVisibility(View.VISIBLE);
 			}
-			if (mSuggestedGenBook!=null) {
-				mQuickGenBookChangeLink.setVisibility(View.VISIBLE);
-			}
-			if (mSuggestedMap!=null) {
-				mQuickMapChangeLink.setVisibility(View.VISIBLE);
-			}
 		} else {
 			mQuickDictionaryChangeLink.setVisibility(View.GONE);
-			mQuickGenBookChangeLink.setVisibility(View.GONE);
-			mQuickMapChangeLink.setVisibility(View.GONE);
 		}
 		
 //		// the title bar has different widths depending on the orientation
@@ -239,12 +218,6 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
     	case DICTIONARY:
     		suggestedDoc = ControlFactory.getInstance().getDocumentControl().getSuggestedDictionary();;
     		break;
-    	case GEN_BOOK:
-    		suggestedDoc = ControlFactory.getInstance().getDocumentControl().getSuggestedGenBook();;
-    		break;
-    	case MAP:
-    		suggestedDoc = ControlFactory.getInstance().getDocumentControl().getSuggestedMap();;
-    		break;
     	}
     	return suggestedDoc;
     }
@@ -263,12 +236,17 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
         mSuggestedDictionary = getSuggestedDocument(HeaderButton.DICTIONARY);
         updateQuickButton(mSuggestedDictionary, mQuickDictionaryChangeLink, numButtonsToShow>=3);
 
-        mSuggestedGenBook = getSuggestedDocument(HeaderButton.GEN_BOOK);
-        updateQuickButton(mSuggestedGenBook, mQuickGenBookChangeLink, numButtonsToShow>=4);
-        
-        mSuggestedMap = getSuggestedDocument(HeaderButton.MAP);
-        updateQuickButton(mSuggestedMap, mQuickMapChangeLink, numButtonsToShow>=5);
+		//hide/show speak button dependant on lang and speak support of lang
+        if (isSpeakShown()) {
+        	//TODO: would have to switch back to speak on speak completion
+        	boolean isSpeaking = ControlFactory.getInstance().getSpeakControl().isSpeaking();
+        	mQuickSpeakLink.setImageResource(isSpeaking ? R.drawable.ic_menu_serious_21 : R.drawable.ic_menu_happy_21);
 
+        	mQuickSpeakLink.setVisibility(View.VISIBLE);
+        } else {
+        	mQuickSpeakLink.setVisibility(View.GONE);
+        }
+        
         boolean showStrongsToggle = isStrongsRelevant();
         mStrongsToggle.setVisibility(showStrongsToggle? View.VISIBLE : View.GONE);
         if (showStrongsToggle) {
@@ -299,7 +277,13 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 		return ControlFactory.getInstance().getDocumentControl().isStrongsInBook();
 	}
 
-    /** must wait until child has setContentView before setting custom title bar so intercept the method and then set the title bar
+	/**  return true if Speak button can be shown */
+	public boolean isSpeakShown() {
+		return ControlFactory.getInstance().getSpeakControl().isCurrentDocSpeakAvailable();
+
+	}
+
+	/** must wait until child has setContentView before setting custom title bar so intercept the method and then set the title bar
      */
 	public void setPageTitleVisible(boolean show) {
 		mPageTitleLink.setVisibility(show ? View.VISIBLE : View.GONE);

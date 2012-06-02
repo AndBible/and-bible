@@ -36,7 +36,13 @@
 		android:layout_height="fill_parent"
 		android:layout_alignParentRight="true"
 	>
-		<ToggleButton android:id="@+id/strongsToggle"
+	    <ImageButton android:id="@+id/quickSpeak"
+	        	android:src="@drawable/ic_menu_happy_21"
+	        	android:contentDescription="@string/speak"
+	        	android:visibility="gone"
+				style="@style/TitleBarButton"
+	    />
+	    <ToggleButton android:id="@+id/strongsToggle"
 					android:textOn="@string/strongs_toggle_button_on"
 					android:textOff="@string/strongs_toggle_button_off"
 			        android:visibility="gone"
@@ -44,7 +50,7 @@
 					android:textStyle="italic"
 					style="@style/TitleBarToggleButton"
 		/>
-	    <Button android:id="@+id/quickBibleChange"
+   	    <Button android:id="@+id/quickBibleChange"
 		        android:visibility="invisible"
 				style="@style/TitleBarButton"
 	    />
@@ -53,14 +59,6 @@
 				style="@style/TitleBarButton"
 	    />
 	    <Button android:id="@+id/quickDictionaryChange"
-		        android:visibility="gone"
-				style="@style/TitleBarButton"
-	    />
-	    <Button android:id="@+id/quickGenBookChange"
-		        android:visibility="gone"
-				style="@style/TitleBarButton"
-	    />
-	    <Button android:id="@+id/quickMapChange"
 		        android:visibility="gone"
 				style="@style/TitleBarButton"
 	    />
