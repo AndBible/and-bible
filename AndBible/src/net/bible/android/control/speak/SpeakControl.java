@@ -145,28 +145,31 @@ public class SpeakControl {
 	 */
 	public void speak(String textToSpeak, Book fromBook, boolean queue) {
 		
-		//calculate locale to use for speech
-    	String bookLanguageCode = fromBook.getLanguage().getCode();
+		//calculate preferred locales to use for speech
         // Set preferred language to the same language as the book.
-        // Note that a language may not be available, and the result will indicate this.
+        // Note that a language may not be available, and so we have a preference list
+    	String bookLanguageCode = fromBook.getLanguage().getCode();
     	Log.d(TAG, "Book has language code:"+bookLanguageCode);
-    	Locale speechLocale = null;
+
+    	List<Locale> localePreferenceList = new ArrayList<Locale>();
     	if (bookLanguageCode.equals(Locale.getDefault().getLanguage())) {
     		// for people in UK the UK accent is preferable to the US accent
-    		speechLocale = Locale.getDefault();
-    	} else {
-    		String countryCode = getDefaultCountryCode(bookLanguageCode);
-    		if (countryCode!=null) {
-    			speechLocale = new Locale(bookLanguageCode, countryCode);
-    		} else {
-    			speechLocale = new Locale(bookLanguageCode);
-    		}
+    		localePreferenceList.add( Locale.getDefault() );
     	}
+
+    	// try to get the native country for the lang
+		String countryCode = getDefaultCountryCode(bookLanguageCode);
+		if (countryCode!=null) {
+			localePreferenceList.add( new Locale(bookLanguageCode, countryCode));
+		}
+		
+		// finally just add the language of the book
+		localePreferenceList.add( new Locale(bookLanguageCode));
 
 		// speak current chapter or stop speech if already speaking
     	TextToSpeechController tts = TextToSpeechController.getInstance();
-		Log.d(TAG, "Tell TTS to say current chapter");
-    	tts.speak(speechLocale, textToSpeak.toString(), queue);
+		Log.d(TAG, "Tell TTS to speak");
+    	tts.speak(localePreferenceList, textToSpeak.toString(), queue);
 	}
 	
 	public void stop() {

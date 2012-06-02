@@ -1,6 +1,7 @@
 package net.bible.android.device;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 import net.bible.android.BibleApplication;
@@ -39,7 +40,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 
     private TextToSpeech mTts;
 
-    private Locale speechLocale;
+    private List<Locale> localePreferenceList;
     private SpeakTextProvider mSpeakTextProvider;
 
     private Context context;
@@ -61,7 +62,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     	mSpeakTextProvider = new SpeakTextProvider();
     }
 
-    public void speak(Locale speechLocale, String textToSpeak, boolean queue) {
+    public void speak(List<Locale> localePreferenceList, String textToSpeak, boolean queue) {
    		if (!queue) {
    			Log.d(TAG, "Queue is false so requesting stop");
    			stop();
@@ -70,7 +71,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 
     	if (mTts==null) {
     		// currently can't change Locale until speech ends
-        	this.speechLocale = speechLocale;
+        	this.localePreferenceList = localePreferenceList;
 	    	try {
 		        // Initialize text-to-speech. This is an asynchronous operation.
 		        // The OnInitListener (second argument) is called after initialization completes.
@@ -90,11 +91,19 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     public void onInit(int status) {
         // status can be either TextToSpeech.SUCCESS or TextToSpeech.ERROR.
         if (status == TextToSpeech.SUCCESS) {
-	    	Log.d(TAG, "Speech locale:"+speechLocale);
-            int result = mTts.setLanguage(speechLocale);
-            if (result == TextToSpeech.LANG_MISSING_DATA ||
-                result == TextToSpeech.LANG_NOT_SUPPORTED) {
-    	    	Log.e(TAG, "TTS missing or not supported ("+result+")");
+        	boolean localeOK = false;
+        	for (int i=0; i<localePreferenceList.size() && !localeOK; i++) {
+        		Locale locale = localePreferenceList.get(i);
+        		Log.d(TAG, "Checking for locale:"+locale);
+        		int result = mTts.setLanguage(locale);
+        		localeOK = ((result != TextToSpeech.LANG_MISSING_DATA) && (result != TextToSpeech.LANG_NOT_SUPPORTED));
+        		if (localeOK) {
+        			Log.d(TAG, "Successful locale:"+locale);
+        		}
+        	}
+        		
+            if (!localeOK) {
+    	    	Log.e(TAG, "TTS missing or not supported");
                // Language data is missing or the language is not supported.
                 showError(R.string.tts_lang_not_available);
             } else {
