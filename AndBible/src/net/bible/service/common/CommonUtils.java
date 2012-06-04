@@ -249,6 +249,14 @@ public class CommonUtils {
 	}
 	
 	/**
+	 * convert dip measurements to pixels
+	 */
+	public static int convertPxToDips(int px) {
+		float scale = BibleApplication.getApplication().getResources().getDisplayMetrics().density;
+		return Math.round(px/scale);
+	}
+
+	/**
 	 * StringUtils methods only compare with a single char and hence create lots
 	 * of temporary Strings This method compares with all chars and just creates
 	 * one new string for each original string. This is to minimise memory

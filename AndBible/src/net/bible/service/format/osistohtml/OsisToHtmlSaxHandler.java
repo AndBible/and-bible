@@ -2,6 +2,7 @@ package net.bible.service.format.osistohtml;
 
 import java.util.List;
 
+import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Constants.HTML;
 import net.bible.service.common.Logger;
 import net.bible.service.device.ScreenSettings;
@@ -345,8 +346,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	private String getPaddingAtBottom() {
 		// this is not very accurate.  Some books have a <br />s at the end making the padding too large
 		// also the user can toggle full screen after the last view height calculation
-		int paddingHeight = ScreenSettings.getContentViewHeightPx()-ScreenSettings.getLineHeightPx();
-		return "<img height='"+paddingHeight+"' width='1' border='0' vspace='0' style='display:block'/>"; 
+		int paddingHeightPx = ScreenSettings.getContentViewHeightPx()-ScreenSettings.getLineHeightPx();
+		int paddingHeightDips = CommonUtils.convertPxToDips(paddingHeightPx);
+		return "<img height='"+paddingHeightDips+"' width='1' border='0' vspace='0' style='display:block'/>"; 
 	}
 
 	public List<Note> getNotesList() {

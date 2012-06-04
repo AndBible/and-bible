@@ -75,15 +75,16 @@ public class ScreenSettings {
 	/** get the height of the WebView that will contain the text
 	 */
 	public static int getContentViewHeightPx() {
+		int heightPx = 0;
 		// content view height is not set until after the first page view so first call is normally an approximation
 		if (contentViewHeightPx > 0) {
-			return contentViewHeightPx;
+			heightPx = contentViewHeightPx;
 		} else {
 			// return an appropriate default if the actual content height has not been set yet
-			int screenHt = BibleApplication.getApplication().getResources().getDisplayMetrics().heightPixels;
-			Log.d(TAG, "ScreenHeightPx:"+screenHt);
-			return screenHt;
+			heightPx = BibleApplication.getApplication().getResources().getDisplayMetrics().heightPixels;
 		}
+		
+		return heightPx;
 	}
 	public static void setContentViewHeightPx(int contentViewHeightPx) {
 		Log.d(TAG, "ContentViewHeightPx:"+contentViewHeightPx);
