@@ -23,14 +23,15 @@ public class ScreenSettings {
 	private static LightSensor mLightSensor = new LightSensor();		
 	
 	private static final int MAX_DARK_READING = 60;
+
+	private static boolean isNightMode = false;
 	
 	private static int contentViewHeightPx = 0;
 	private static int lineHeightPx = 0;
 	
 	private static final String TAG = "ScreenSettings";
 	
-	public static boolean isNightMode() {
-		boolean isNightMode = false;
+	public static void updateNightModeValue() {
 		String nightModePref = getNightModePreferenceValue();
 		
 		if (AUTO_NIGHT_MODE.equals(nightModePref)) {
@@ -40,7 +41,9 @@ public class ScreenSettings {
 		} else {
 			isNightMode = NIGHT_MODE.equals(nightModePref);
 		}
-		
+	}
+	
+	public static boolean isNightMode() {
 		return isNightMode;
 	}
 	
