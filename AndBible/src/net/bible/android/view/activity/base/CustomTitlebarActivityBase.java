@@ -237,15 +237,7 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
         updateQuickButton(mSuggestedDictionary, mQuickDictionaryChangeLink, numButtonsToShow>=3);
 
 		//hide/show speak button dependant on lang and speak support of lang
-        if (isSpeakShown()) {
-        	//TODO: would have to switch back to speak on speak completion
-        	boolean isSpeaking = ControlFactory.getInstance().getSpeakControl().isSpeaking();
-        	mQuickSpeakLink.setImageResource(isSpeaking ? R.drawable.ic_menu_serious_21 : R.drawable.ic_menu_happy_21);
-
-        	mQuickSpeakLink.setVisibility(View.VISIBLE);
-        } else {
-        	mQuickSpeakLink.setVisibility(View.GONE);
-        }
+       	mQuickSpeakLink.setVisibility(isSpeakShown() ? View.VISIBLE : View.GONE);
         
         boolean showStrongsToggle = isStrongsRelevant();
         mStrongsToggle.setVisibility(showStrongsToggle? View.VISIBLE : View.GONE);
