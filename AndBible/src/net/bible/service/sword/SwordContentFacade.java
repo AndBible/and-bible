@@ -324,9 +324,6 @@ public class SwordContentFacade {
 		osisToHtmlParameters.setBasisRef(key);
 		
 		if (isAndroid) {
-			// size of padding at bottom depends on screen size
-			osisToHtmlParameters.setNumPaddingBrsAtBottom(BibleApplication.getApplication().getResources().getInteger(R.integer.br_count_at_bottom));
-	    	
 	    	// HunUj has an error in that refs are not wrapped so automatically add notes around refs
 	    	osisToHtmlParameters.setAutoWrapUnwrappedRefsInNote("HunUj".equals(book.getInitials()));
 	    	

@@ -27,7 +27,6 @@ public class OsisToHtmlParameters {
     private boolean isRedLetter = false;
     private String extraStylesheet;
     private String extraFooter;
-    private int numPaddingBrsAtBottom;
     private boolean convertStrongsRefsToLinks;
     private List<Key> keysWithNotes;
     private List<Key> keysWithBookmarks;
@@ -117,12 +116,6 @@ public class OsisToHtmlParameters {
 	public void setBasisRef(Key basisRef) {
 		// KeyUtil always returns a Verse even if it is only Gen 1:1
 		this.basisRef = KeyUtil.getVerse(basisRef);
-	}
-	public int getNumPaddingBrsAtBottom() {
-		return numPaddingBrsAtBottom;
-	}
-	public void setNumPaddingBrsAtBottom(int numPaddingBrsAtBottom) {
-		this.numPaddingBrsAtBottom = numPaddingBrsAtBottom;
 	}
 	public boolean isRedLetter() {
 		return isRedLetter;

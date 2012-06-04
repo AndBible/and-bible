@@ -86,6 +86,7 @@ public class BibleView extends WebView implements DocumentView {
 			 */
 			@Override
 		    public void onNewPicture(WebView view, Picture arg1) {
+				// go to any specified verse or offset
 				if (mJumpToVerse > 0) { 
 		    		if (mJumpToVerse==1) {
 		    			// use scroll to becasue difficult to place a tag exactly at the top
@@ -148,6 +149,13 @@ public class BibleView extends WebView implements DocumentView {
 		mPageTiltScroller = new PageTiltScroller(this);
 		mPageTiltScroller.enableTiltScroll(true);
 	}
+	
+	@Override
+	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+		// update the height in ScreenSettings
+		ScreenSettings.setContentViewHeightPx(getMeasuredHeight());
+	}
 
 	/** apply settings set by the user using Preferences
 	 */
@@ -156,10 +164,15 @@ public class BibleView extends WebView implements DocumentView {
 		applyFontSize();
 		
 		changeBackgroundColour();
+		
+		ScreenSettings.setContentViewHeightPx(getHeight());
 	}
 
 	private void applyFontSize() {
-		getSettings().setDefaultFontSize(mPageControl.getDocumentFontSize());
+		int fontSize = mPageControl.getDocumentFontSize();
+		getSettings().setDefaultFontSize(fontSize);
+
+		ScreenSettings.setLineHeightPx((int)(1.6*fontSize));
 	}
 	
 	/** may need updating depending on environmental brightness

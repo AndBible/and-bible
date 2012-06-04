@@ -1,7 +1,9 @@
 package net.bible.service.device;
 
+import net.bible.android.BibleApplication;
 import net.bible.service.common.CommonUtils;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 /** Manage screen related functions
  * 
@@ -21,6 +23,11 @@ public class ScreenSettings {
 	private static LightSensor mLightSensor = new LightSensor();		
 	
 	private static final int MAX_DARK_READING = 60;
+	
+	private static int contentViewHeightPx = 0;
+	private static int lineHeightPx = 0;
+	
+	private static final String TAG = "ScreenSettings";
 	
 	public static boolean isNightMode() {
 		boolean isNightMode = false;
@@ -63,5 +70,33 @@ public class ScreenSettings {
 	}			
 	public static String getUnusedNightModePreferenceKey() {
 		return mLightSensor.isLightSensor() ? ScreenSettings.NIGHT_MODE_PREF_NO_SENSOR : ScreenSettings.NIGHT_MODE_PREF_WITH_SENSOR;
+	}
+
+	/** get the height of the WebView that will contain the text
+	 */
+	public static int getContentViewHeightPx() {
+		// content view height is not set until after the first page view so first call is normally an approximation
+		if (contentViewHeightPx > 0) {
+			return contentViewHeightPx;
+		} else {
+			// return an appropriate default if the actual content height has not been set yet
+			int screenHt = BibleApplication.getApplication().getResources().getDisplayMetrics().heightPixels;
+			Log.d(TAG, "ScreenHeightPx:"+screenHt);
+			return screenHt;
+		}
+	}
+	public static void setContentViewHeightPx(int contentViewHeightPx) {
+		Log.d(TAG, "ContentViewHeightPx:"+contentViewHeightPx);
+		ScreenSettings.contentViewHeightPx = contentViewHeightPx;
+	}
+
+	/** get the height of each line in the WebView
+	 */
+	public static int getLineHeightPx() {
+		return lineHeightPx;
+	}
+	public static void setLineHeightPx(int lineHeightPx) {
+		Log.d(TAG, "LineHeightPx:"+lineHeightPx);
+		ScreenSettings.lineHeightPx = lineHeightPx;
 	}			
 }

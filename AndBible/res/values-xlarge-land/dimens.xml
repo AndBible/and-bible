@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="size_of_quick_buttons">90dip</dimen>
-    
-	<!-- number of breaks at bottom to allow selection of last verse -->
-	<integer name="br_count_at_bottom">24</integer>
-
 </resources>
