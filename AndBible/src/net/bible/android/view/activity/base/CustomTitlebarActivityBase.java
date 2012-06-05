@@ -186,6 +186,9 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 			mQuickDictionaryChangeLink.setVisibility(View.GONE);
 		}
 		
+		//hide/show speak button dependant on lang and speak support of lang && space available
+       	mQuickSpeakLink.setVisibility(isSpeakShown() ? View.VISIBLE : View.GONE);
+
 //		// the title bar has different widths depending on the orientation
 //		int titleBarTitleWidthPixels = getResources().getDimensionPixelSize(R.dimen.title_bar_title_width);
 //		Log.d(TAG, "Title bar width:"+titleBarTitleWidthPixels);
@@ -271,7 +274,8 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 
 	/**  return true if Speak button can be shown */
 	public boolean isSpeakShown() {
-		return ControlFactory.getInstance().getSpeakControl().isCurrentDocSpeakAvailable();
+		return (numButtonsToShow()>2 || !isStrongsRelevant()) &&
+				ControlFactory.getInstance().getSpeakControl().isCurrentDocSpeakAvailable();
 
 	}
 
