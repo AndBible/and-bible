@@ -172,7 +172,8 @@ public class BibleView extends WebView implements DocumentView {
 		int fontSize = mPageControl.getDocumentFontSize();
 		getSettings().setDefaultFontSize(fontSize);
 
-		ScreenSettings.setLineHeightPx((int)(1.6*fontSize));
+		// 1.6 is taken from css - line-height: 1.6em;
+		ScreenSettings.setLineHeightDips((int)(1.6*fontSize));
 	}
 	
 	/** may need updating depending on environmental brightness

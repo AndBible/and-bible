@@ -41,6 +41,8 @@
 	        	android:contentDescription="@string/speak"
 	        	android:visibility="gone"
 				style="@style/TitleBarButton"
+				android:layout_width="wrap_content"
+				
 	    />
 	    <ToggleButton android:id="@+id/strongsToggle"
 					android:textOn="@string/strongs_toggle_button_on"

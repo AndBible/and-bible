@@ -27,7 +27,7 @@ public class ScreenSettings {
 	private static boolean isNightMode = false;
 	
 	private static int contentViewHeightPx = 0;
-	private static int lineHeightPx = 0;
+	private static int lineHeightDips = 0;
 	
 	private static final String TAG = "ScreenSettings";
 	
@@ -77,7 +77,7 @@ public class ScreenSettings {
 
 	/** get the height of the WebView that will contain the text
 	 */
-	public static int getContentViewHeightPx() {
+	public static int getContentViewHeightDips() {
 		int heightPx = 0;
 		// content view height is not set until after the first page view so first call is normally an approximation
 		if (contentViewHeightPx > 0) {
@@ -87,7 +87,9 @@ public class ScreenSettings {
 			heightPx = BibleApplication.getApplication().getResources().getDisplayMetrics().heightPixels;
 		}
 		
-		return heightPx;
+		int heightDips = CommonUtils.convertPxToDips(heightPx);
+		
+		return heightDips;
 	}
 	public static void setContentViewHeightPx(int contentViewHeightPx) {
 		Log.d(TAG, "ContentViewHeightPx:"+contentViewHeightPx);
@@ -96,11 +98,11 @@ public class ScreenSettings {
 
 	/** get the height of each line in the WebView
 	 */
-	public static int getLineHeightPx() {
-		return lineHeightPx;
+	public static int getLineHeightDips() {
+		return lineHeightDips;
 	}
-	public static void setLineHeightPx(int lineHeightPx) {
-		Log.d(TAG, "LineHeightPx:"+lineHeightPx);
-		ScreenSettings.lineHeightPx = lineHeightPx;
+	public static void setLineHeightDips(int lineHeightDips) {
+		Log.d(TAG, "LineHeightPx:"+lineHeightDips);
+		ScreenSettings.lineHeightDips = lineHeightDips;
 	}			
 }
