@@ -85,14 +85,19 @@ public class ReadingPlanDao {
 		
 		for(Object oDayNo : getPlanProperties(planCode).keySet() ) {
 			String dayNoStr = (String) oDayNo;
-			int dayNo = Integer.parseInt(dayNoStr);
-			maxDayNo = Math.max(maxDayNo, dayNo);
+			if (StringUtils.isNumeric(dayNoStr)) {
+				int dayNo = Integer.parseInt(dayNoStr);
+				maxDayNo = Math.max(maxDayNo, dayNo);
+			} else {
+				Log.e(TAG, "Invalid day number:"+dayNoStr);
+			}
 		}
 		
 		return maxDayNo;
 	}
 
 	private ReadingPlanInfoDto getReadingPlanInfoDto(String planCode) {
+		Log.d(TAG, "Get reading plan info:"+planCode);
 		ReadingPlanInfoDto info = new ReadingPlanInfoDto(planCode);
 		int id = BibleApplication.getApplication().getResources().getIdentifier("rdg_plan_"+planCode, "string", "net.bible.android.activity");
 		String desc = "";

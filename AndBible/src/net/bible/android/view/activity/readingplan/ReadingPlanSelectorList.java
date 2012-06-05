@@ -5,6 +5,7 @@ package net.bible.android.view.activity.readingplan;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.readingplan.ReadingPlanControl;
+import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.readingplan.ReadingPlanInfoDto;
 import android.content.Intent;
@@ -41,14 +42,19 @@ public class ReadingPlanSelectorList extends ListActivityBase {
         super.onCreate(savedInstanceState, true);
         Log.i(TAG, "Displaying Reading Plan List");
         setContentView(R.layout.list);
-        
-        mReadingPlanList = mReadingPlanControl.getReadingPlanList();
-
-       	mPlanArrayAdapter = new ReadingPlanItemAdapter(this, LIST_ITEM_TYPE, mReadingPlanList);
-        setListAdapter(mPlanArrayAdapter);
-           
-    	registerForContextMenu(getListView());
-        Log.d(TAG, "Finished displaying Reading Plan list");
+        try {
+	        mReadingPlanList = mReadingPlanControl.getReadingPlanList();
+	
+	       	mPlanArrayAdapter = new ReadingPlanItemAdapter(this, LIST_ITEM_TYPE, mReadingPlanList);
+	        setListAdapter(mPlanArrayAdapter);
+	           
+	    	registerForContextMenu(getListView());
+        } catch (Exception e) {
+        	Log.e(TAG, "Error occurred analysing reading lists", e);
+        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+        	finish();
+        }
+    	Log.d(TAG, "Finished displaying Reading Plan list");
     }
  
     /** if a plan is selected then ask confirmation, save plan, and go straight to first day
