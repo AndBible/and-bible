@@ -349,12 +349,9 @@ public class SwordContentFacade {
 					osisToHtmlParameters.setShowMorphology(showStrongs && preferences.getBoolean("show_morphology_pref", false));
 				}
 				
-				// only update occasionally otherwise black-on-black or w-on-w may occur in variable light conditions
-				ScreenSettings.updateNightModeValue();
 				if (ScreenSettings.isNightMode()) {
 					osisToHtmlParameters.setExtraStylesheet(SharedConstants.NIGHT_MODE_STYLESHEET);
 				}
-				
 				if (book.getBookCategory().equals(BookCategory.DICTIONARY)) {
 					if (book.hasFeature(FeatureType.HEBREW_DEFINITIONS)) {
 						//add allHebrew refs link

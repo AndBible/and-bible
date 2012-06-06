@@ -2,6 +2,7 @@ package net.bible.android.control;
 
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.page.MainBibleActivity;
+import net.bible.service.device.ScreenSettings;
 import net.bible.service.history.HistoryManager;
 import android.util.Log;
 
@@ -56,7 +57,10 @@ public class PassageChangeMediator {
 	 */
 	public void contentChangeStarted() {
 		isPageChanging = true;
-		
+
+		// only update occasionally otherwise black-on-black or w-on-w may occur in variable light conditions
+		ScreenSettings.updateNightModeValue();
+
 		if (mMainBibleActivity!=null) {
 			mMainBibleActivity.onPassageChangeStarted();
 		} else {
