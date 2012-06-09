@@ -39,7 +39,7 @@
 
     <!-- Tasks -->
     <string name="progress_status">Framgang</string>
-    <string name="task_kill_warning">Desse langdryge jobbane kan avbrytast om du bytter til ein annan applikasjon før dei er fullførde.</string>
+    <string name="task_kill_warning">Desse langdryge jobbane kan avbrytast om du byter til ein annan applikasjon før dei er fullførde.</string>
     <string name="no_tasks_running">Ingen oppgaver kjører no.</string>
 
     <!-- Search -->
