@@ -207,10 +207,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
     public void onNext(View view) {
     	Log.i(TAG, "Next");
     	if (mDay<mReadings.getReadingPlanInfo().getNumberOfPlanDays()) {
-	    	Intent handlerIntent = new Intent(this, DailyReading.class);
-	    	handlerIntent.putExtra(DAY, mDay+1);
-	    	startActivity(handlerIntent);
-	    	finish();
+    		showDay(mDay+1);
     	}
     }
 
@@ -218,13 +215,12 @@ public class DailyReading extends CustomTitlebarActivityBase {
     public void onPrevious(View view) {
     	Log.i(TAG, "Previous");
     	if (mDay>1) {
-	    	Intent handlerIntent = new Intent(this, DailyReading.class);
-	    	handlerIntent.putExtra(DAY, mDay-1);
-	    	startActivity(handlerIntent);
-	    	finish();
+    		showDay(mDay-1);
     	}
     }
     
+    /** user pressed Done button so must have read currently displayed readings
+     */
     public void onDone(View view) {
     	Log.i(TAG, "Done");
     	try {
@@ -232,11 +228,11 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	    	setIntegrateWithHistoryManager(false);
 	    	
 	    	// all readings must be ticked for this to be enabled
-	    	mReadingPlanControl.done(mReadings.getReadingPlanInfo(), mDay);
+	    	int nextDayToShow = mReadingPlanControl.done(mReadings.getReadingPlanInfo(), mDay);
 	    	
 	    	//if user is behind then go to next days readings
-	    	if (mReadingPlanControl.isDueToBeRead(mReadings.getReadingPlanInfo(), mDay+1)) {
-	    		onNext(null);
+	    	if (nextDayToShow>0) {
+	    		showDay(nextDayToShow);
 	    	} else {
 	    		// else exit
 	        	finish();
@@ -268,6 +264,14 @@ public class DailyReading extends CustomTitlebarActivityBase {
     	if (resultCode==Activity.RESULT_OK) {
     		returnToPreviousScreen();
     	}
+    }
+
+	private void showDay(int dayNo) {
+    	Log.i(TAG, "ShowDay "+dayNo);
+    	Intent handlerIntent = new Intent(this, DailyReading.class);
+    	handlerIntent.putExtra(DAY, dayNo);
+    	startActivity(handlerIntent);
+    	finish();
     }
 
 	private void updateTicksAndDone() {
@@ -335,6 +339,11 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	public boolean isStrongsRelevant() {
 		// TODO Auto-generated method stub
 		return super.isStrongsRelevant();
+	}
+
+	/**  do not show Speak button in Daily Reading screen */
+	public boolean isSpeakShown() {
+		return false;
 	}
 
     //TODO move the below up to more general parent class

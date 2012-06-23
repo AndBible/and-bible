@@ -132,26 +132,44 @@ public class ReadingPlanControl {
 	/** mark this day as complete unless it is in the future
 	 * if last day then reset plan
 	 */
-	public void done(ReadingPlanInfoDto planInfo, int day) {
+	public int done(ReadingPlanInfoDto planInfo, int day) {
+		// which day to show next -1 means the user is up to date and can close Reading Plan 
+		int nextDayToShow = -1;
 		
+		// was this the next reading plan day due whether on schedule or not
 		if (getCurrentPlanDay() == day) {
 			// do not leave prefs for historic days - we show all historic readings as 'read'
 			getReadingStatus(day).delete();
 			
+			// was this the last day in the plan
 			if (readingPlanDao.getNumberOfPlanDays(getCurrentPlanCode()) == day) {
 				// last plan day is just Done so clear all plan status
 				reset(planInfo);
-			} else if (getCurrentPlanDay()==day){
+				nextDayToShow = -1;
+			} else {
 				// move to next plan day
 				int nextDay = incrementCurrentPlanDay();
 				
 				// if there are no readings scheduled for the next day then mark it as Done and carry on to next next day
 				OneDaysReadingsDto nextReadings = getDaysReading(nextDay);
 				if (nextReadings.getNumReadings()==0) {
-					done(planInfo, nextDay);
+					nextDay = done(planInfo, nextDay);
 				}
+
+				nextDayToShow = nextDay;
+			}
+		} else {
+			if (planInfo.getNumberOfPlanDays()>day) {
+				nextDayToShow = day+1;
 			}
 		}
+		
+    	//if user is not behind then do not show Daily Reading screen
+    	if (!isDueToBeRead(planInfo, nextDayToShow)) {
+    		nextDayToShow = -1;    	}
+
+		
+		return nextDayToShow;
 	}
 	
 	
