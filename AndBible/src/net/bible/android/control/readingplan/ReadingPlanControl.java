@@ -109,6 +109,13 @@ public class ReadingPlanControl {
 		int day = prefs.getInt(planCode+READING_PLAN_DAY_EXT, 1);
 		return day;
 	}
+	private void setCurrentPlanDay(int day) {
+		String planCode = getCurrentPlanCode();
+		SharedPreferences prefs = CommonUtils.getSharedPreferences();
+		prefs.edit()
+			.putInt(planCode+READING_PLAN_DAY_EXT, day)
+			.commit();
+	}
 
 	public long getDueDay(ReadingPlanInfoDto planInfo) {
 		Date today = CommonUtils.getTruncatedDate();
@@ -132,9 +139,18 @@ public class ReadingPlanControl {
 	/** mark this day as complete unless it is in the future
 	 * if last day then reset plan
 	 */
-	public int done(ReadingPlanInfoDto planInfo, int day) {
+	public int done(ReadingPlanInfoDto planInfo, int day, boolean force) {
 		// which day to show next -1 means the user is up to date and can close Reading Plan 
 		int nextDayToShow = -1;
+		
+		// force Done to work for whatever day is passed in, otherwise Done only works for current plan day and ignores other days
+		if (force) {
+			// for Done to work for non plan day
+			setCurrentPlanDay(day);
+			
+			// normal reading status update is circumvented so mark all as read here
+			getReadingStatus(day).setAllRead();
+		}
 		
 		// was this the next reading plan day due whether on schedule or not
 		if (getCurrentPlanDay() == day) {
@@ -153,7 +169,7 @@ public class ReadingPlanControl {
 				// if there are no readings scheduled for the next day then mark it as Done and carry on to next next day
 				OneDaysReadingsDto nextReadings = getDaysReading(nextDay);
 				if (nextReadings.getNumReadings()==0) {
-					nextDay = done(planInfo, nextDay);
+					nextDay = done(planInfo, nextDay, force);
 				}
 
 				nextDayToShow = nextDay;
@@ -180,13 +196,8 @@ public class ReadingPlanControl {
 	/** increment current day
 	 */
 	public int incrementCurrentPlanDay() {
-		String planCode = getCurrentPlanCode();
-		SharedPreferences prefs = CommonUtils.getSharedPreferences();
-		int nextDay = prefs.getInt(planCode+READING_PLAN_DAY_EXT, 1) + 1;
-		
-		prefs.edit()
-			.putInt(getCurrentPlanCode()+READING_PLAN_DAY_EXT, nextDay)
-			.commit();
+		int nextDay = getCurrentPlanDay() + 1;
+		setCurrentPlanDay(nextDay);
 		
 		return nextDay;
 	}

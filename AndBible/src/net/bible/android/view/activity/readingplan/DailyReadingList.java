@@ -41,6 +41,8 @@ public class DailyReadingList extends ListActivityBase {
         mAdapter = new DailyReadingItemAdapter(this, android.R.layout.simple_list_item_2, mReadingsList);
         setListAdapter(mAdapter);
         
+        getListView().setFastScrollEnabled(true);
+        
         Log.d(TAG, "Finished displaying Search view");
     }
 

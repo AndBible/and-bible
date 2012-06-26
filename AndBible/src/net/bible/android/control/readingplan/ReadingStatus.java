@@ -32,6 +32,12 @@ public class ReadingStatus {
 	public boolean isRead(int readingNo) {
 		return status.get(readingNo);
 	}
+	public void setAllRead() {
+		for (int i=0; i<numReadings; i++) {
+			setRead(i);
+		}
+		saveStatus();
+	}
 	public boolean isAllRead() {
 		for (int i=0; i<numReadings; i++) {
 			if (!isRead(i)) {

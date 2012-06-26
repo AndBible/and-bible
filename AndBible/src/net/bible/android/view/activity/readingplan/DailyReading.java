@@ -228,7 +228,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	    	setIntegrateWithHistoryManager(false);
 	    	
 	    	// all readings must be ticked for this to be enabled
-	    	int nextDayToShow = mReadingPlanControl.done(mReadings.getReadingPlanInfo(), mDay);
+	    	int nextDayToShow = mReadingPlanControl.done(mReadings.getReadingPlanInfo(), mDay, false);
 	    	
 	    	//if user is behind then go to next days readings
 	    	if (nextDayToShow>0) {
@@ -379,6 +379,18 @@ public class DailyReading extends CustomTitlebarActivityBase {
         boolean isHandled = false;
         
         switch (item.getItemId()) {
+        // selected to allow jump to a certain day
+		case (R.id.done):
+	    	Log.i(TAG, "Force Done");
+	    	try {
+		    	mReadingPlanControl.done(mReadings.getReadingPlanInfo(), mDay, true);
+		    	updateTicksAndDone();
+	        } catch (Exception e) {
+	        	Log.e(TAG, "Error when Done daily reading", e);
+	        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+	        }
+
+			break;
 		case (R.id.reset):
 			mReadingPlanControl.reset(mReadings.getReadingPlanInfo());
 			finish();
