@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.device.TextToSpeechController;
+import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.sword.SwordContentFacade;
 
@@ -19,6 +21,7 @@ import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleInfo;
 
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -90,6 +93,7 @@ public class SpeakControl {
 		Log.d(TAG, "Speak current page");
 		if (isSpeaking()) {
 			stop();
+        	Toast.makeText(BibleApplication.getApplication(), R.string.stop, Toast.LENGTH_SHORT).show();
 		} else {
 			try {
 				CurrentPage page = CurrentPageManager.getInstance().getCurrentPage();
@@ -99,6 +103,8 @@ public class SpeakControl {
 				keyList.add(page.getKey());
 					
 				speak(fromBook, keyList, true, false);
+
+				Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
 			} catch (Exception e) {
 				Log.e(TAG, "Error getting chapters to speak", e);
 				throw new AndRuntimeException("Error preparing Speech", e);
