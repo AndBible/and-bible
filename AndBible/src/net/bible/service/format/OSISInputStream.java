@@ -28,16 +28,21 @@ public class OSISInputStream extends InputStream {
 	private boolean isFirstVerse = true;
 	private Iterator<Key> keyIterator;
 	private boolean isClosingTagWritten = false;
-	
+
 	// cache
 	private byte[] verseBuffer;
 	private int length = 0;
 	private int next = 0;
 	
-	private static String TAG = "OSISInputStream";
-	
+	//todo get the proper ENTITY refs working rather than my simple 2 fixed entities
+//	private static final String DOC_START = "<!ENTITY % HTMLlat1 PUBLIC \"-//W3C//ENTITIES Latin 1 for XHTML//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent\">\n%HTMLlat1;\n<div>";
+	private static final String DOC_START =	"<!DOCTYPE div [<!ENTITY nbsp \"&#160;\"><!ENTITY copy \"&#169;\">]><div>";
+	private static final String DOC_END =	"<div>";
+
 	private OSISVerseTidy osisVerseTidy;
 	
+	private static String TAG = "OSISInputStream";
+
 	@SuppressWarnings("unused")
 	private static Logger log = new Logger(TAG);
 	
@@ -106,9 +111,6 @@ public class OSISInputStream extends InputStream {
 	 * 
 	 * @throws UnsupportedEncodingException
 	 */
-	//todo get the proper ENTITY refs working rather than my simple 2 fixed entities
-//	private static final String DOC_START = "<!ENTITY % HTMLlat1 PUBLIC \"-//W3C//ENTITIES Latin 1 for XHTML//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent\">\n%HTMLlat1;\n<div>";
-	private static final String DOC_START =	"<!DOCTYPE div [<!ENTITY nbsp \"&#160;\"><!ENTITY copy \"&#169;\">]><div>";
 	private void loadNextVerse() throws UnsupportedEncodingException {
 		try {
 			if (isFirstVerse) {
@@ -127,7 +129,7 @@ public class OSISInputStream extends InputStream {
 			}
 			
 			if (!isClosingTagWritten) {
-				putInVerseBuffer("</div>");
+				putInVerseBuffer(DOC_END);
 				isClosingTagWritten = true;
 			}
 		} catch (UnsupportedEncodingException usc) {
