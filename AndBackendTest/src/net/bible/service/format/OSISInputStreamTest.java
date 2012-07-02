@@ -160,6 +160,13 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 //		assertEquals("wrong number of divs", numOpeningDivs, numClosingDivs);
 	}
 
+	public void testReadMergedVerse() throws Exception {
+		Book esv = getBook("TurNTB");
+
+		OSISInputStream osisInputStream = new OSISInputStream(esv, esv.getKey("Eph 2:4,5"));
+		String chapter = convertStreamToString(osisInputStream);
+		System.out.println(chapter);
+	}
 	/**
 	 * Test method for {@link net.bible.service.format.scripture.service.sword.OSISInputStream#read()}.
 	 */
