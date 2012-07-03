@@ -34,6 +34,7 @@
 		<item>@string/lang_welsh</item>
 		<item>@string/lang_german</item>
 		<item>@string/lang_english</item>
+		<item>@string/lang_estonian</item>
 		<item>@string/lang_finnish</item>
 		<item>@string/lang_faroese</item>
 		<item>@string/lang_french</item>
@@ -67,6 +68,7 @@
 		<item>cy</item>
 		<item>de</item>
 		<item>en</item>
+		<item>et</item>
 		<item>fi</item>
 		<item>fo</item>
 		<item>fr</item>
