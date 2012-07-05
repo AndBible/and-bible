@@ -4,7 +4,7 @@
 	<classpathentry kind="src" path="src/util/java"/>
 	<classpathentry kind="src" path="src/main/resources"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/jsword"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/jsword-svn"/>
 	<classpathentry kind="lib" path="jar/commons-lang-2.5.jar"/>
 	<classpathentry kind="lib" path="jar/javatar-2.5.jar"/>
 	<classpathentry kind="lib" path="jar/jdom111Fixed.jar"/>

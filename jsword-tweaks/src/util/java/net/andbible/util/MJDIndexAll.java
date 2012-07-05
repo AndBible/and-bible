@@ -32,8 +32,8 @@ public class MJDIndexAll {
 //	private static final String REPOSITORY = "Xiphos";
 //	private static final String REPOSITORY = "Crosswire Beta";
 	
-	private static final BookFilter BOOK_FILTER = BookFilters.getDictionaries();
-//	private static final BookFilter BOOK_FILTER = BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries());
+//	private static final BookFilter BOOK_FILTER = BookFilters.getDictionaries();
+	private static final BookFilter BOOK_FILTER = BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries());
 
 	//TODO this is awful but I need to figure out how to set it appropriately 
 	private static final String LUCENE_INDEX_DIR = "C:/Documents and Settings/denha1m/Application Data/JSword/lucene/Sword";
@@ -46,7 +46,7 @@ public class MJDIndexAll {
 	
     public static void main(String[] args) {
     	MJDIndexAll indexAll = new MJDIndexAll();
-//    	indexAll.updateCachedRepoBookList();
+    	indexAll.updateCachedRepoBookList();
 //    	indexAll.validateIndex("OSMHB");
 //    	indexAll.validateAllIndexes();
 //    	indexAll.setupDirs();
@@ -59,9 +59,9 @@ public class MJDIndexAll {
 //    	indexAll.installSingleBook("strongsrealgreek");
 //    	indexAll.installSingleBook("StrongsHebrew");
 //    	indexAll.installSingleBook("StrongsGreek");
-    	indexAll.installSingleBook("BDBGlosses_Strongs");
+//    	indexAll.installSingleBook("BDBGlosses_Strongs");
 //    	indexAll.installRepoBooks();
-//    	indexAll.checkAllBooksInstalled();
+    	indexAll.checkAllBooksInstalled();
 //    	indexAll.manageCreateIndexes();
 //    	indexAll.indexSingleBook("KJV");
     	
@@ -170,7 +170,20 @@ public class MJDIndexAll {
 //    	indexAll.installAndIndexSingleBook("WelBeiblNet");
     	
 //    	indexAll.installAndIndexSingleBook("MonKJV");
-
+    	
+    	//25/6/2012
+//    	indexAll.installAndIndexSingleBook("BretonNT");
+//    	indexAll.installAndIndexSingleBook("PorLivre");
+//    	indexAll.installAndIndexSingleBook("OEBcth");
+//    	indexAll.installAndIndexSingleBook("OEB");
+//    	indexAll.installAndIndexSingleBook("LEB");
+//    	indexAll.installAndIndexSingleBook("KorRV");
+    	
+    	//3/7/2012
+    	indexAll.installAndIndexSingleBook("Pohnpeian");
+    	indexAll.installAndIndexSingleBook("LEB");
+    	indexAll.installAndIndexSingleBook("MonKJV");
+    	indexAll.installAndIndexSingleBook("Che1860");
     }
     
 	public void validateAllIndexes() {
@@ -241,7 +254,7 @@ public class MJDIndexAll {
 
     private void installSingleBook(String initials) {
     	BookInstaller bookInstaller = new BookInstaller();
-        List<Book> books = (List<Book>)bookInstaller.getRepositoryBooks(REPOSITORY, BookFilters.getDictionaries());
+        List<Book> books = (List<Book>)bookInstaller.getRepositoryBooks(REPOSITORY, BOOK_FILTER);
         
         for (Book book : books) {
         	if (initials.equalsIgnoreCase(book.getInitials())) {

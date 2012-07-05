@@ -30,7 +30,9 @@
 	<target name="mergeCode" depends="init">
 		<copy todir="${build.src}">
 			<fileset dir="${jsword.src}"/>
-			<fileset dir="${jsword.resources}"/>
+			<fileset dir="${jsword.resources}">
+			    <exclude name="BibleNames_ar_EG.properties"/>
+			</fileset>
 		</copy>
 		<copy todir="${build.src}" overwrite="true">
 			<fileset dir="${tweaks.jsword.src}"/>
