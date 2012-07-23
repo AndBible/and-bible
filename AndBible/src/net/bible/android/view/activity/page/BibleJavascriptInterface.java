@@ -25,8 +25,8 @@ public class BibleJavascriptInterface {
 		}
 	}
 	
-	public void registerVersePosition(int verse, int offset) {
-		verseCalculator.registerVersePosition(verse, offset);
+	public void registerVersePosition(String verseId, int offset) {
+		verseCalculator.registerVersePosition(Integer.valueOf(verseId), offset);
 	}
 	
 	public void log(String msg) {
