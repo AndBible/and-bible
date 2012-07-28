@@ -41,7 +41,8 @@ public class OsisToSpeakTextSaxHandler extends OsisToCanonicalTextSaxHandler {
     {
 		String name = getName(sName, qName);
 		debug(name, null, false);
-		if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
+		if (sayReferences && name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
+			writeContent(false);
 			// A space is needed to separate one verse from the next, otherwise the 2 verses butt up against each other
 			// which looks bad and confuses TTS
 			writingRef = false;
