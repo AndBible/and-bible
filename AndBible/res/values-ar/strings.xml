@@ -29,41 +29,41 @@
     <string name="choosePassageVerseName">إختر آية</string>
 
     <!--  Search -->
-    <string name="search_index">Search Index</string>
-    <string name="index_creation_required">"An index is required to search.\n\nIndexes may be downloaded from the internet or created locally.\n\nDownloading is much quicker and downloaded indexes have more search features.\n\nAn internet connection is required to download indexes.\n"</string>
-    <string name="indexing_wait_msg">When indexing has completed you will be taken to the search screen.</string>
-    <string name="index">Index</string>
-    <string name="index_download">Download</string>
-    <string name="index_not_available_for_download">This index is not available for download</string>
-    <string name="index_create">Create</string>
+    <string name="search_index">"بحث الفهرس"</string>
+    <string name="index_creation_required">"الفهرسة ضرورية لعملية البحث.\n\nتستطيع تحميل الفهرس عن طريق الانترنت أو انشاءه على جهازك.\n\nتحميل الفهرس أسرع طريقة و تحوي العديد المزايا.\n\nيجب عليك الاتصال بشبكة الانترنت لتحميل الفهرس.\n"</string>
+    <string name="indexing_wait_msg">بعد اكتمال عملية الفهرسة، سيتم توجيهك لشاشة البحث.</string>
+    <string name="index">فهرس</string>
+    <string name="index_download">تحميل</string>
+    <string name="index_not_available_for_download">الفهرس غير متاح للتحميل</string>
+    <string name="index_create">إنشاء</string>
 
     <!-- Tasks -->
-    <string name="progress_status">Progress</string>
-    <string name="task_kill_warning">These long running tasks may terminate if you switch to another application before they finish.</string>
-    <string name="no_tasks_running">There are no tasks currently being executed.</string>
+    <string name="progress_status">الحالة</string>
+    <string name="task_kill_warning">"قد ينقطع تنفيذ المهام إذا تحولت إلى برنامج آخر قبل أن تنتهي العملية."</string>
+    <string name="no_tasks_running">لا يوجد أي مهام في مرحلة التنفيذ.</string>
 
     <!-- Search -->
-    <string name="search_results">Find Results</string>
-    <string name="search_words_group_prompt">Find verses</string>
-    <string name="search_all_words">All words</string>
-    <string name="search_any_word">Any word</string>
-    <string name="search_phrase">Phrase</string>
-    <string name="search_result_count">%d matches found</string>
-    <string name="search_showing_first">Too many matches. Showing first %d</string>
-    <string name="search_bible_section_group_prompt">Search Where</string>
-    <string name="search_all_bible">Whole bible</string>
-    <string name="search_new_testament">New Testament</string>
-    <string name="search_old_testament">Old Testament</string>
-    <string name="search_current_book">Current book</string>
-    <string name="error_executing_search">Invalid search query</string>
+    <string name="search_results">بحث النتائج</string>
+    <string name="search_words_group_prompt">بحث الآيات</string>
+    <string name="search_all_words">كل الكلمات</string>
+    <string name="search_any_word">أي كلمة</string>
+    <string name="search_phrase">جملة</string>
+    <string name="search_result_count">"يوجد %d "</string>
+    <string name="search_showing_first">يوجد نتائج كثيرة جدا،  نعرض أول  %d نتيجة</string>
+    <string name="search_bible_section_group_prompt">أين</string>
+    <string name="search_all_bible">الإنجيل ككل</string>
+    <string name="search_new_testament">العهد الجديد</string>
+    <string name="search_old_testament">العهد القديم</string>
+    <string name="search_current_book">السفر الحالي</string>
+    <string name="error_executing_search">مدخلات البحث غير صحيحة</string>
 
     <!-- Preferences -->
-    <string name="prefs_show_verseno_title">Verse numbers</string>
-    <string name="prefs_show_verseno_summary">Show verse numbers</string>
-    <string name="prefs_verse_per_line_title">One verse per line</string>
-    <string name="prefs_verse_per_line_summary">Show each verse on a different line</string>
-    <string name="prefs_show_bookmarks_title">Show bookmark icons</string>
-    <string name="prefs_show_bookmarks_summary">Show icon in bookmarked verses</string>
+    <string name="prefs_show_verseno_title">رقم الآية</string>
+    <string name="prefs_show_verseno_summary">أظهر رقم الآية</string>
+    <string name="prefs_verse_per_line_title">آية واحدة في السطر</string>
+    <string name="prefs_verse_per_line_summary">أظهر كل آية في سطر مختلف</string>
+    <string name="prefs_show_bookmarks_title">أظهر أيقونة شارات الرجوع</string>
+    <string name="prefs_show_bookmarks_summary">"أظهر أيقونة في آيات شارات الرجوع"</string>
     <string name="prefs_show_mynotes_title">Show My Note icons</string>
     <string name="prefs_show_mynotes_summary">Show icon in verses with My Note</string>
     <string name="prefs_show_notes_title">Footnotes and x-refs</string>
