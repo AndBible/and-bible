@@ -37,7 +37,7 @@ public class OSISInputStream extends InputStream {
 	//todo get the proper ENTITY refs working rather than my simple 2 fixed entities
 //	private static final String DOC_START = "<!ENTITY % HTMLlat1 PUBLIC \"-//W3C//ENTITIES Latin 1 for XHTML//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml-lat1.ent\">\n%HTMLlat1;\n<div>";
 	private static final String DOC_START =	"<!DOCTYPE div [<!ENTITY nbsp \"&#160;\"><!ENTITY copy \"&#169;\">]><div>";
-	private static final String DOC_END =	"<div>";
+	private static final String DOC_END =	"</div>";
 
 	private OSISVerseTidy osisVerseTidy;
 	
