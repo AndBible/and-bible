@@ -23,6 +23,9 @@ import android.util.Log;
 
 public class ReadingPlanDao {
 
+	private String cachedPlanCode = "";
+	private Properties cachedPlanProperties;
+	
 	private static final String READING_PLAN_FOLDER = SharedConstants.READINGPLAN_DIR_NAME;
 	private static final File USER_READING_PLAN_FOLDER = SharedConstants.MANUAL_READINGPLAN_DIR;
 	private static final String DOT_PROPERTIES = ".properties";
@@ -144,33 +147,40 @@ public class ReadingPlanDao {
 
 	/* either load reading plan info from assets/readingplan or sdcard/jsword/readingplan
 	 */
-	private Properties getPlanProperties(String planCode) {
-		Resources resources = BibleApplication.getApplication().getResources();
-		AssetManager assetManager = resources.getAssets();
-		String filename = planCode+DOT_PROPERTIES;
+	private synchronized Properties getPlanProperties(String planCode) {
+		if (!planCode.equals(cachedPlanCode)) {
+			Resources resources = BibleApplication.getApplication().getResources();
+			AssetManager assetManager = resources.getAssets();
+			String filename = planCode+DOT_PROPERTIES;
+	
+			// Read from the /assets directory
+		    Properties properties = new Properties();
+		    InputStream inputStream = null;
+			try {
+				// check to see if a user has created his own reading plan with this name
+				File userReadingPlanFile = new File(USER_READING_PLAN_FOLDER, filename);
+				boolean isUserPlan = userReadingPlanFile.exists();
+	
+			    if (!isUserPlan) {
+			    	inputStream = assetManager.open(READING_PLAN_FOLDER+File.separator+filename);
+			    } else {
+			    	inputStream = new FileInputStream(userReadingPlanFile);
+			    }
+			    properties.load(inputStream);
+			    Log.d(TAG, "The properties are now loaded");
+			    Log.d(TAG, "properties: " + properties);
 
-		// Read from the /assets directory
-	    Properties properties = new Properties();
-	    InputStream inputStream = null;
-		try {
-			// check to see if a user has created his own reading plan with this name
-			File userReadingPlanFile = new File(USER_READING_PLAN_FOLDER, filename);
-			boolean isUserPlan = userReadingPlanFile.exists();
-
-		    if (!isUserPlan) {
-		    	inputStream = assetManager.open(READING_PLAN_FOLDER+File.separator+filename);
-		    } else {
-		    	inputStream = new FileInputStream(userReadingPlanFile);
-		    }
-		    properties.load(inputStream);
-		    Log.d(TAG, "The properties are now loaded");
-		    Log.d(TAG, "properties: " + properties);
-		} catch (IOException e) {
-		    System.err.println("Failed to open reading plan property file");
-		    e.printStackTrace();
-		} finally {
-			IOUtil.close(inputStream);
+			    // cache it so we don't constantly reload the properties
+			    cachedPlanCode = planCode;
+			    cachedPlanProperties = properties;
+			    		
+			} catch (IOException e) {
+			    System.err.println("Failed to open reading plan property file");
+			    e.printStackTrace();
+			} finally {
+				IOUtil.close(inputStream);
+			}
 		}
-		return properties;
+		return cachedPlanProperties;
 	}
 }
