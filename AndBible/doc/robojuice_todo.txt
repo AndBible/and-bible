@@ -1,0 +1,31 @@
+
+// inject documentViewManager somehow
+	public BibleContentManager(DocumentViewManager documentViewManager) {
+		this.documentViewManager = documentViewManager;
+
+
+// make sure  mainActivity is mainBibleActivity, even on start up
+	@Inject public DocumentViewManager(Activity mainActivity) {
+		this.mainActivity = mainActivity;
+
+// inject mainActivity somehow
+	public MenuCommandHandler(MainBibleActivity activity) {
+		super();
+		this.callingActivity = activity;
+
+// remove this when fully injected
+	public static final PassageChangeMediator getInstance() {
+		return singleton;
+	}
+	public PassageChangeMediator() {
+		singleton = this;
+	}
+
+// work out how to inject this
+mPassageChangeMediator.setMainBibleActivity(MainBibleActivity.this);
+
+// remove and remove references to
+PassageChangeMediator getInstance() {
+
+// remove
+	static public CurrentPageManager getInstance() {

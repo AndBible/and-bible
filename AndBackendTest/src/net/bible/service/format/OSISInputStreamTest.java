@@ -92,10 +92,11 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 //		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Is 40:11"));
 //		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Mt 4:14"));
 		System.out.println(netBook.getInitials());
-		OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Matt 1:18"));
+		OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Gal 6:17"));
 		String chapter = convertStreamToString(osisInputStream);
-//		int numOpeningDivs = count(chapter, "<div>");
-//		int numClosingDivs = count(chapter, "</div>");
+		System.out.println(chapter);
+		osisInputStream = new OSISInputStream(book, book.getKey("Gal 6:18"));
+		chapter = convertStreamToString(osisInputStream);
 		System.out.println(chapter);
 	}
 
