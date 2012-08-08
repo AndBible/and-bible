@@ -25,7 +25,8 @@
 	<!--  number and size of buttons varies depending on screen size and orientation -->
 	<integer name="number_of_quick_buttons">2</integer>
 	<dimen name="size_of_quick_buttons">60dip</dimen>
-	
+	<dimen name="size_of_small_quick_buttons">45dip</dimen>
+		
 	<integer name="grid_cell_text_size_sp">15</integer>
 	
 	<integer name="poetry_indent_chars">2</integer>

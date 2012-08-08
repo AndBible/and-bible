@@ -1,6 +1,3 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<!--  number of buttons varies depending on screen size and orientation -->
-	<integer name="number_of_quick_buttons">6</integer>
-	<dimen name="size_of_quick_buttons">70dip</dimen>
 </resources>

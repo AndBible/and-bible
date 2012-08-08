@@ -20,11 +20,14 @@
         <item name="android:shadowRadius">2.75</item>
     </style>
 
-    <style name="TitleBarToggleButton" parent="TitleBarButton">
+    <style name="TitleBarToggleButton" parent="SmallTitleBarButton">
     	<item name="android:background">@drawable/btn_tiny_toggle</item>
-        <item name="android:layout_width">wrap_content</item>
 	</style>
 	
+    <style name="SmallTitleBarButton" parent="TitleBarButton">
+        <item name="android:layout_width">@dimen/size_of_small_quick_buttons</item>
+	</style>
+    
     <style name="TitleBarButton">
     	<item name="android:background">@drawable/btn_tiny</item>
         <item name="android:layout_height">fill_parent</item>

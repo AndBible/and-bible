@@ -40,9 +40,7 @@
 	        	android:src="@drawable/ic_menu_happy_21"
 	        	android:contentDescription="@string/speak"
 	        	android:visibility="gone"
-				style="@style/TitleBarButton"
-				android:layout_width="wrap_content"
-				
+				style="@style/SmallTitleBarButton"
 	    />
 	    <ToggleButton android:id="@+id/strongsToggle"
 					android:textOn="@string/strongs_toggle_button_on"

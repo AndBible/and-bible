@@ -6,4 +6,10 @@
 	
 	<!-- width of one poetry line indent -->
 	<integer name="poetry_indent_chars">5</integer>
+
+	<!--  number of buttons varies depending on screen size and orientation -->
+	<integer name="number_of_quick_buttons">6</integer>
+	<dimen name="size_of_quick_buttons">70dip</dimen>
+	<dimen name="size_of_small_quick_buttons">70dip</dimen>
+		
 </resources>
