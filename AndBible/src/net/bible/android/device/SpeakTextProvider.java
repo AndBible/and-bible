@@ -24,7 +24,7 @@ public class SpeakTextProvider {
     private static final int MAX_SPEECH_ITEM_CHAR_LENGTH = 4000;
     
     // require DOTALL to allow . to match new lines which occur in books like JOChrist
-	private static Pattern BREAK_PATTERN = Pattern.compile(".{100,3000}[a-z]+[.?!][\\s]{1,}+", Pattern.DOTALL);
+	private static Pattern BREAK_PATTERN = Pattern.compile(".{100,2000}[a-z]+[.?!][\\s]{1,}+", Pattern.DOTALL);
 	
 	private static final String TAG = "SpeakTextProvider";
 
@@ -71,8 +71,11 @@ public class SpeakTextProvider {
 				chunks1.add(text.substring(matchedUpTo, nextEnd));
 				matchedUpTo = nextEnd;
 			}
-			// add on the final part of the text
-			chunks1.add(text.substring(matchedUpTo));
+			
+			// add on the final part of the text, if there is any
+			if (matchedUpTo < text.length()) {
+				chunks1.add(text.substring(matchedUpTo));
+			}
 		}
 		
 		//

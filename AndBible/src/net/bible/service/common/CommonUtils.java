@@ -85,6 +85,13 @@ public class CommonUtils {
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO;
 	}
 
+	public static boolean isIceCreamSandwichPlus() {
+		return Build.VERSION.SDK_INT >= 14;
+	}
+	public static boolean isJellyBeanPlus() {
+		return Build.VERSION.SDK_INT >= 16;
+	}
+
 	public static long getSDCardMegsFree() {
 		long bytesAvailable = getFreeSpace(Environment.getExternalStorageDirectory().getPath());
 		long megAvailable = bytesAvailable / 1048576;

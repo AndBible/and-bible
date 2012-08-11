@@ -9,7 +9,6 @@ import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.device.TextToSpeechController;
-import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.sword.SwordContentFacade;
 
@@ -90,7 +89,7 @@ public class SpeakControl {
 	/** Toggle speech - prepare to speak single page OR if speaking then stop speaking
 	 */
 	public void speakToggleCurrentPage() {
-		Log.d(TAG, "Speak current page");
+		Log.d(TAG, "Speak toggle current page");
 		if (isSpeaking()) {
 			stop();
         	Toast.makeText(BibleApplication.getApplication(), R.string.stop, Toast.LENGTH_SHORT).show();

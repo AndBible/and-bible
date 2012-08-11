@@ -59,6 +59,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     }
     
     private TextToSpeechController() {
+    	Log.d(TAG, "Creating TextToSpeechController");
     	context = BibleApplication.getApplication().getApplicationContext();
     	CurrentActivityHolder.getInstance().addAppToBackgroundListener(this);
     	mSpeakTextProvider = new SpeakTextProvider();
@@ -69,6 +70,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     }
 
     public void speak(List<Locale> localePreferenceList, String textToSpeak, boolean queue) {
+    	Log.d(TAG, "speak string of length:"+textToSpeak.length()+(queue?" queued":""));
    		if (!queue) {
    			Log.d(TAG, "Queue is false so requesting stop");
    			stop();
@@ -76,6 +78,8 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
    		mSpeakTextProvider.addTextToSpeak(textToSpeak);
 
     	if (mTts==null) {
+        	Log.d(TAG, "mTts was null so initialising Tts");
+
     		// currently can't change Locale until speech ends
         	this.localePreferenceList = localePreferenceList;
 	    	try {
@@ -85,6 +89,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 		            this  // TextToSpeech.OnInitListener
 		            );
 	    	} catch (Exception e) {
+	    		Log.e(TAG,  "Error initialising Tts", e);
 	    		showError(R.string.error_occurred);
 	    	}
     	} else {
@@ -95,8 +100,11 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     // Implements TextToSpeech.OnInitListener.
     @Override
     public void onInit(int status) {
+    	Log.d(TAG, "Tts initialised");
+
         // status can be either TextToSpeech.SUCCESS or TextToSpeech.ERROR.
         if (status == TextToSpeech.SUCCESS) {
+        	Log.d(TAG, "Tts initialisation succeeded");
         	boolean localeOK = false;
         	Locale locale = null;
         	for (int i=0; i<localePreferenceList.size() && !localeOK; i++) {
@@ -126,12 +134,14 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
            		speakAllText();
             }
         } else {
+        	Log.d(TAG, "Tts initialisation failed");
             // Initialization failed.
             showError(R.string.error_occurred);
         }
     }
 
     private void speakAllText() {
+    	Log.d(TAG, "about to send all text to TTS");
         // ask TTs to say the text
     	while (mSpeakTextProvider.isMoreTextToSpeak()) {
     		String text = mSpeakTextProvider.getNextTextToSpeak();
@@ -146,6 +156,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
         String utteranceId = "AND-BIBLE-"+uniqueUtteranceNo++;
         dummyTTSParams.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId);
 
+    	Log.d(TAG, "do speak substring of length:"+text.length()+" utteranceId:"+utteranceId);
         mTts.speak(text,
                 TextToSpeech.QUEUE_ADD, // handle flush by clearing text queue 
                 dummyTTSParams);
@@ -183,16 +194,20 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 
     public void shutdown() {
     	Log.d(TAG, "Shutdown TTS");
-		
-        // Don't forget to shutdown!
-        if (mTts != null) {
-            mTts.stop();
-            mTts.shutdown();
-            mTts = null;
-        }
-        
-        mSpeakTextProvider.reset();
-        isSpeaking = false;
+		try {
+	        // Don't forget to shutdown!
+	        if (mTts != null) {
+	            mTts.stop();
+	            mTts.shutdown();
+	            mTts = null;
+	        }
+		} catch (Exception e) {
+			Log.e(TAG, "Error shutting down Tts engine", e);
+		} finally {
+			mTts = null;
+	        isSpeaking = false;
+	        mSpeakTextProvider.reset();
+		}
     }
 
 	public boolean isSpeaking() {
