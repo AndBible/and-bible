@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.PassageChangeMediator;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.common.ParseException;
 import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.HtmlMessageFormatter;
@@ -197,13 +198,17 @@ abstract class CurrentPageBase implements CurrentPage {
 		menu.findItem(R.id.add_bookmark).setVisible(true);
 		
 		// by default disable compare translation except for Bibles
-		menu.findItem(R.id.compareTranslations).setVisible(true);
+		menu.findItem(R.id.compareTranslations).setVisible(false);
 
 		//set title - can only be set when cast to a ContextMenu
 		if (getSingleKey()!=null) {
 			ContextMenu contextMenu = (ContextMenu)menu;
 			contextMenu.setHeaderTitle(getSingleKey().getName());
 		}
+		
+//		if (CommonUtils.isJellyBeanPlus()) {
+//			menu.findItem(R.id.selectText).setVisible(false);
+//		}
 	}
 	
 	@Override
