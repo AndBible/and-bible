@@ -43,6 +43,7 @@
 		<item>@string/lang_croatian</item>
 		<item>@string/lang_hungarian</item>
 		<item>@string/lang_indonesian</item>
+		<item>@string/lang_italian</item>
 		<item>@string/lang_korean</item>
 		<item>@string/lang_lithuanian</item>
 		<item>@string/lang_latvian</item>
@@ -78,6 +79,7 @@
 		<item>hr</item>
 		<item>hu</item>
 		<item>in</item>
+		<item>it</item>
 		<item>ko</item>
 		<item>lt</item>
 		<item>lv</item>
