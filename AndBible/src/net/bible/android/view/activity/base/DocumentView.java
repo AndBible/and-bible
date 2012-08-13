@@ -1,10 +1,11 @@
 package net.bible.android.view.activity.base;
 
+import net.bible.android.view.activity.page.LongPressControl;
 import android.view.View;
 
 public interface DocumentView {
 
-	public abstract void selectAndCopyText();
+	public abstract void selectAndCopyText(LongPressControl longPressControl);
 
 	public abstract void show(String html, int jumpToVerse, float jumpToYOffsetRatio);
 

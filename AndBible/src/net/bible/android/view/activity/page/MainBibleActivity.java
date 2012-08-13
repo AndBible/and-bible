@@ -261,19 +261,35 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		super.openContextMenu(documentViewManager.getDocumentView().asView());
     }
 
-    
-    public boolean isContextMenuRecentlyCreated() {
-		return (System.currentTimeMillis()-lastContextMenuCreateTimeMillis)<1500;
+
+    /** Attempt to prevent two context menus being created one on top of the other
+     * 
+     *  The MyNote triggers it's own context menu which causes 2 to be displayed
+     *  I have also seen 2 displayed in normal view
+     *  Avoid 2 by preventing display twice within 1.5 seconds
+     */
+    private boolean isLastContextMenuRecentlyCreated() {
+		boolean isRecent = (System.currentTimeMillis()-lastContextMenuCreateTimeMillis)<1500;
+		lastContextMenuCreateTimeMillis = System.currentTimeMillis();
+
+		return isRecent;
 	}
 
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+
+		if (mainMenuCommandHandler.isIgnoreLongPress()) {
+			Log.d(TAG, "Ignoring long press to allow it to pass thro to WebView handler");
+			return;
+		}
     	Log.d(TAG, "onCreateContextMenu");
+    	
     	// keep track of timing here because sometimes a child openContextMenu is called rather than the one in this activity, 
     	// but the activities onCreateContextMenu always seems to be called
-		lastContextMenuCreateTimeMillis = System.currentTimeMillis();
-		
-		super.onCreateContextMenu(menu, v, menuInfo);
+    	if (isLastContextMenuRecentlyCreated()) {
+    		return;
+    	}
 
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.document_viewer_context_menu, menu);

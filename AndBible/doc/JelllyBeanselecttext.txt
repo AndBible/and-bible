@@ -1,0 +1,48 @@
+WebViewCore
+// for cut & paste
+1183         static final int COPY_TEXT = 210;
+1184         static final int DELETE_TEXT = 211;
+1185         static final int INSERT_TEXT = 212;
+1186         static final int SELECT_TEXT = 213;
+1187         static final int SELECT_WORD_AT = 214;
+1188         static final int SELECT_ALL = 215;
+
+ case REVEAL_SELECTION:
+1299                             nativeRevealSelection(mNativeClass);
+1300                             break;
+
+WebView
+what is onHoverEvent?
+
+WebViewClassic
+        if (isEnterActionKey(keyCode)) {
+            switchOutDrawHistory();
+            if (event.getRepeatCount() == 0) {
+                if (mSelectingText) {
+                    return true; // discard press if copy in progress
+                }
+                mGotCenterDown = true;
+*                mPrivateHandler.sendMessageDelayed(mPrivateHandler
+*                        .obtainMessage(LONG_PRESS_CENTER), LONG_PRESS_TIMEOUT);
+            }
+        }
+ 
+     private boolean isEnterActionKey(int keyCode) {
+        return keyCode == KeyEvent.KEYCODE_DPAD_CENTER
+                || keyCode == KeyEvent.KEYCODE_ENTER
+                || keyCode == KeyEvent.KEYCODE_NUMPAD_ENTER;
+    }
+
+ 
+
+ case LONG_PRESS_CENTER:
+                    // as this is shared by keydown and trackballdown, reset all
+                    // the states
+                    mGotCenterDown = false;
+                    mTrackballDown = false;
+                    mWebView.performLongClick();
+                    break;
+
+
+    @Override
+    public boolean performLongClick() {

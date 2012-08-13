@@ -6,6 +6,7 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.view.activity.base.DocumentView;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
 import android.content.Context;
 import android.graphics.Color;
@@ -278,22 +279,35 @@ public class BibleView extends WebView implements DocumentView {
 	/** enter text selection mode
 	 */
 	@Override
-	public void selectAndCopyText() {
-		try {
-			// Later versions of Android e.g. ICS
-            WebView.class.getMethod("selectText").invoke(this);
-        } catch (Exception e1) {
-		    try {
-		        Method m = WebView.class.getMethod("emulateShiftHeld", (Class[])null);
-		        m.invoke(this, (Object[])null);
-		    } catch (Exception e2) {
-		        e2.printStackTrace();
-		        // fallback
-		        KeyEvent shiftPressEvent = new KeyEvent(0,0,
-		             KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_SHIFT_LEFT,0,0);
-		        shiftPressEvent.dispatch(this);
-		    }
-        }
+	public void selectAndCopyText(LongPressControl longPressControl) {
+		Log.d(TAG, "enter text selection mode");
+		
+		// JellyBean
+		if (CommonUtils.isJellyBeanPlus()) {	
+			Log.d(TAG, "keycode Enter for JB+");
+			// retrigger a long-press but allow it to be handled by WebView
+	        KeyEvent enterEvent = new KeyEvent(0,0,KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_ENTER,0,0);
+	        longPressControl.ignoreNextLongPress();
+	        enterEvent.dispatch(this);
+		} else {
+			    
+			try {
+				Log.d(TAG, "selectText for ICS");
+				// ICS
+	            WebView.class.getMethod("selectText").invoke(this);
+	        } catch (Exception e1) {
+			    try {
+					Log.d(TAG, "emulateShiftHeld");
+			        Method m = WebView.class.getMethod("emulateShiftHeld", (Class[])null);
+			        m.invoke(this, (Object[])null);
+			    } catch (Exception e2) {
+					Log.d(TAG, "shiftPressEvent");
+			        // fallback
+			        KeyEvent shiftPressEvent = new KeyEvent(0,0,KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_SHIFT_LEFT,0,0);
+			        shiftPressEvent.dispatch(this);
+			    }
+	        }
+		}
 	}
 	
 	@Override

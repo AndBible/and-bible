@@ -85,6 +85,10 @@ public class CommonUtils {
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO;
 	}
 
+	public static boolean isGingerBreadPlus() {
+		return Build.VERSION.SDK_INT >= 9;
+	}
+
 	public static boolean isIceCreamSandwichPlus() {
 		return Build.VERSION.SDK_INT >= 14;
 	}

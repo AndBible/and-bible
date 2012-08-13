@@ -34,6 +34,8 @@ import android.widget.Toast;
  */
 public class MenuCommandHandler {
 
+	private LongPressControl longPressControl = new LongPressControl();
+	
 	private static final String TAG = "MainMenuCommandHandler";
 	
 	public static class IntentHolder {
@@ -52,6 +54,10 @@ public class MenuCommandHandler {
 	public MenuCommandHandler(MainBibleActivity activity) {
 		super();
 		this.callingActivity = activity;
+	}
+	
+	public boolean isIgnoreLongPress() {
+		return longPressControl.isIgnoreLongPress();
 	}
 
 	/** 
@@ -152,8 +158,11 @@ public class MenuCommandHandler {
 				isHandled = true;
 	        	break;
 	        case R.id.selectText:
-	        	Toast.makeText(callingActivity, R.string.select_text_help, Toast.LENGTH_LONG).show();
-	        	callingActivity.getDocumentViewManager().getDocumentView().selectAndCopyText();
+	        	// ICS+ have their own ui prompts for copy/paste
+	        	if (!CommonUtils.isIceCreamSandwichPlus()) {
+	        		Toast.makeText(callingActivity, R.string.select_text_help, Toast.LENGTH_LONG).show();
+	        	}
+	        	callingActivity.getDocumentViewManager().getDocumentView().selectAndCopyText(longPressControl);
 				isHandled = true;
 	        	break;
 	        }

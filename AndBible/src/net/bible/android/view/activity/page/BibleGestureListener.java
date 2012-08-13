@@ -19,8 +19,10 @@ import android.view.WindowManager;
 public class BibleGestureListener extends SimpleOnGestureListener {
 
 	// measurements in dips for density independence
+	// TODO: final int swipeMinDistance = vc.getScaledTouchSlop();
+	// TODO: and other suggestions in http://stackoverflow.com/questions/937313/android-basic-gesture-detection
 	private static final int DISTANCE_DIP = 40;
-	private int scaledDistance;
+	private int scaledMinimumDistance;
 	
 	private int minScaledVelocity;
 	private MainBibleActivity mainBibleActivity;
@@ -32,7 +34,7 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 	public BibleGestureListener(MainBibleActivity mainBibleActivity) {
 		super();
 		this.mainBibleActivity = mainBibleActivity;
-		scaledDistance = CommonUtils.convertDipsToPx(DISTANCE_DIP);
+		scaledMinimumDistance = CommonUtils.convertDipsToPx(DISTANCE_DIP);
     	minScaledVelocity = ViewConfiguration.get(mainBibleActivity).getScaledMinimumFlingVelocity();
     	// make it easier to swipe
     	minScaledVelocity = (int)(minScaledVelocity*0.66);
@@ -45,11 +47,9 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 		Log.d(TAG, "onLongPress");
 		super.onLongPress(e);
 		
-    	// The MyNote triggers it's own context menu which causes 2 to be displayed
-    	// I have also seen 2 displayed in normal view 
-    	// Avoid 2 by preventing display twice within 1.5 seconds
-		if (!mainBibleActivity.isContextMenuRecentlyCreated()) {
-			// This seems to be required for Android 2.1 because the context menu of a WebView is not automatically displayed for 2.1
+		// This seems to be required for Android 2.1 because the context menu of a WebView is not automatically displayed for 2.1
+		// also do for 2.2 but not for 2.3+ as I can test that version
+		if (!CommonUtils.isGingerBreadPlus()) {
 			mainBibleActivity.openContextMenu();
 		}
 	}
@@ -63,11 +63,11 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 		Log.d(TAG, "onFling vertical:"+vertical+" horizontal:"+horizontal+" VelocityX"+velocityX);
 		
 		// test vertical distance, make sure it's a swipe
-		if ( vertical > scaledDistance ) {
+		if ( vertical > scaledMinimumDistance ) {
 			 return false;
 		}
 		// test horizontal distance and velocity
-		else if ( horizontal > scaledDistance && Math.abs(velocityX) > minScaledVelocity ) {
+		else if ( horizontal > scaledMinimumDistance && Math.abs(velocityX) > minScaledVelocity ) {
 			// right to left swipe - sometimes velocity seems to have wrong sign so use raw positions to determine direction  
 			if (e1.getX() > e2.getX()) {
 				mainBibleActivity.next();
