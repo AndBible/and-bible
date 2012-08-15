@@ -93,9 +93,12 @@ public class BibleApplication extends Application{
         super.onConfigurationChanged(newConfig);
         if (overrideLocale != null)
         {
-            newConfig.locale = overrideLocale;
-            Locale.setDefault(overrideLocale);
-            getBaseContext().getResources().updateConfiguration(newConfig, getBaseContext().getResources().getDisplayMetrics());
+        	if (!overrideLocale.getLanguage().equals(newConfig.locale.getLanguage())) {
+            	Log.d(TAG, "re-applying changed Locale");
+	            newConfig.locale = overrideLocale;
+	            Locale.setDefault(overrideLocale);
+	            getBaseContext().getResources().updateConfiguration(newConfig, getBaseContext().getResources().getDisplayMetrics());
+        	}
         }
     }
 
