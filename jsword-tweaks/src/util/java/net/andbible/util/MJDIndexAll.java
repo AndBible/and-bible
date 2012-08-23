@@ -180,10 +180,29 @@ public class MJDIndexAll {
 //    	indexAll.installAndIndexSingleBook("KorRV");
     	
     	//3/7/2012
+//    	indexAll.installAndIndexSingleBook("Pohnpeian");
+//    	indexAll.installAndIndexSingleBook("LEB");
+//    	indexAll.installAndIndexSingleBook("MonKJV");
+//    	indexAll.installAndIndexSingleBook("Che1860");
+    	
+    	//18/08/2012
+    	indexAll.installAndIndexSingleBook("BBE");
+    	indexAll.installAndIndexSingleBook("ACV");
+    	indexAll.installAndIndexSingleBook("IriODomhnuill");
+    	indexAll.installAndIndexSingleBook("ABP");
+    	indexAll.installAndIndexSingleBook("FrePGR");
     	indexAll.installAndIndexSingleBook("Pohnpeian");
+    	indexAll.installAndIndexSingleBook("PorAR");
+    	indexAll.installAndIndexSingleBook("PorLivre");
+    	indexAll.installAndIndexSingleBook("FreBBB");
+    	indexAll.installAndIndexSingleBook("Geez");
+    	indexAll.installAndIndexSingleBook("KorHKJV");
+    	indexAll.installAndIndexSingleBook("KJVPCE");
+    	indexAll.installAndIndexSingleBook("PolGdanska");
+    	indexAll.installAndIndexSingleBook("SpaRV1909");
     	indexAll.installAndIndexSingleBook("LEB");
-    	indexAll.installAndIndexSingleBook("MonKJV");
-    	indexAll.installAndIndexSingleBook("Che1860");
+    	indexAll.installAndIndexSingleBook("WEBME");
+ //   	indexAll.installAndIndexSingleBook("QuotingPassages");
     }
     
 	public void validateAllIndexes() {
