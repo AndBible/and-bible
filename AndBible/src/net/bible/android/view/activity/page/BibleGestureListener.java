@@ -49,6 +49,8 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 		
 		// This seems to be required for Android 2.1 because the context menu of a WebView is not automatically displayed for 2.1
 		// also do for 2.2 but not for 2.3+ as I can test that version
+		// A user on 2.3.6 complained the context menu was no longer shown.  However, a user on '2.3.4 on an HTC EVO Shift' says it works great now
+		// so it does not seem that we can simply use android version to determine if this forwarding is required
 		if (!CommonUtils.isGingerBreadPlus()) {
 			mainBibleActivity.openContextMenu();
 		}
