@@ -146,7 +146,7 @@ public class Download extends DocumentSelectionBase {
     protected void manageDownload(final Book documentToDownload) {
     	if (documentToDownload!=null) {
         	new AlertDialog.Builder(this)
-    		   .setMessage(getText(R.string.download_document_confirm_prefix)+documentToDownload.getName())
+    		   .setMessage(getText(R.string.download_document_confirm_prefix)+" "+documentToDownload.getName())
     	       .setCancelable(false)
     	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
     	           public void onClick(DialogInterface dialog, int id) {
