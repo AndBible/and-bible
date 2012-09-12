@@ -1,18 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<!-- Application text
- 
- @author Martin Denham [mjdenham at gmail dot com]
- @see gnu.lgpl.License for license details.<br>
-      The copyright to this program is held by it's author.
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
-  <string name="splash_top_text">"\n\"I rzekł Bóg: \'Niech stanie się światłość.\' I stała się światłość.\"\nRodzaju 1:3"</string>
-  <string name="help_text">"Naciśnij przycisk MENU aby przejść do menu głównego.\n\nAby przejść do następnego lub poprzedniego rozdziału użyj trackball\'a \nlub przesuń palcem po ekranie. "</string>
+  <!--Startup & Help-->
+  <string name="splash_top_text">\n\"I rzekł Bóg: \'Niech stanie się światłość.\' I stała się światłość.\"\nRodzaju 1:3</string>
+  <string name="help_text">Naciśnij przycisk MENU aby przejść do menu głównego.\n\nAby przejść do następnego lub poprzedniego rozdziału użyj trackball\'a \nlub przesuń palcem po ekranie.</string>
   <string name="help_text_long"><b>Nawigacja</b>\nAby przejść do następnego lub poprzedniego rozdziału użyj trackball\'a \nlub przesuń palcem po ekranie odpowiednio w prawo lub lewo. \n\n<b>Menu</b>\nNaciśnij przycisk MENU aby przejść do menu głównego.\nAby pobrać więcej dokumentów naciśnij Menu / Więcej / Pobierz Dokumenty\n\n<b>Odsłuchiwanie</b>\nAby odsłuchać dany fragment użyj opcji Odsłuchaj\nAby wyłączyć odsłuchiwanie wybierz ponownie opcję Odsłuchaj.\nTa opcja nie jest dostępna dla wszystkich wersji językowych.\n\nDłuższe przyciśnięcie wersetu spowoduje wyświetlenie menu kontekstowego dla wersetów.\nDłuższe przyciśnięcie danego dokumentu spowoduje wyświetlenie menu kontekstowego dla dokumentów. \n\n<b>Wyszukiwanie</b>\nSzukana fraza może zawierać znaki specjalne takich jak *,?, AND, OR, NOT (patrz \"Apache Lucene - Query Parser Syntax\")\n\n<b>Moje notatki</b>\nNotatki mogą być tworzone ya pomocą opcji \"Moje notatki\" w menu kontekstowym wersetu. List istniejących notatek dostępna jest w menu głównym.\n\n<b>Ulubione</b>\nWersety można dodawać do ulubionych używając menu kontekstowego dla wersetów. Zarządzanie Ulubionymi odbywa się z menu głównego. Wersety dodane do ulubionych można grupować używając etykiet. \nDłuższe przyciśniecie danego wersetu w sekcji Ulubione spowoduje wyświetlenie menu kontekstowego.</string>
   <string name="version_text">Wersja %s</string>
   <string name="no_sdcard_error">Proszę włożyć kartę SD i ponownie uruchomić And Bible.</string>
-  <!-- main menu -->
+  <!--main menu-->
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Fragment</string>
   <string name="search">Znajdź</string>
@@ -20,8 +15,11 @@
   <string name="history">Historia</string>
   <string name="speak">Odsłuchaj</string>
   <string name="help">Pomoc</string>
+  <!--Passage navigation-->
   <string name="choosePassageBookName">Wybierz księgę</string>
   <string name="choosePassageChapterName">Wybierz rozdział</string>
+  <string name="choosePassageVerseName">Wybierz werset</string>
+  <!--Search-->
   <string name="search_index">Indeks wyszukiwania</string>
   <string name="index_creation_required">Aby przeprowadzić wyszukiwanie wymagane jest stworzenie indeksu.\n\nIndeks może zostać pobrany z Internetu lub stworzony lokalnie.\n\nZaleca się pobranie indeksu z sieci.\n\nAby pobrać indeks wymagane jest połaczenie z Internetem.</string>
   <string name="indexing_wait_msg">Po zakończeniu indeksowania zostaniesz przeniesiony do ekranu wyszukiwania.</string>
@@ -29,11 +27,12 @@
   <string name="index_download">Pobierz</string>
   <string name="index_not_available_for_download">Ten indeks nie jest dostępny.</string>
   <string name="index_create">Utwórz</string>
+  <!--Tasks-->
   <string name="progress_status">Postęp</string>
   <string name="task_kill_warning">To zadanie może zostać przerwane jeśli przed jego zakończeniem przejdziesz do innej aplikacji.</string>
   <string name="no_tasks_running">Obecnie żadne zadanie nie jest wykonywane.</string>
-  <string name="delete_doc">Czy chcesz usunąć %s?</string>
-  <!-- Search -->
+  <!--Search-->
+  <string name="search_results">Znajdź wyniki</string>
   <string name="search_words_group_prompt">Znajdź werset</string>
   <string name="search_all_words">Znajdź wszystkie</string>
   <string name="search_any_word">Znajdź dowolne</string>
@@ -46,30 +45,59 @@
   <string name="search_old_testament">Stary Testament</string>
   <string name="search_current_book">Aktualnie używana księga</string>
   <string name="error_executing_search">Niepoprawne zapytanie</string>
-  <!-- Preferences -->
+  <!--Preferences-->
   <string name="prefs_show_verseno_title">Numer wersetu</string>
   <string name="prefs_show_verseno_summary">Pokaż numer wersetu</string>
+  <string name="prefs_verse_per_line_title">Jeden werset na linię</string>
+  <string name="prefs_verse_per_line_summary">Pokaż każdy werset w osobnej linii</string>
+  <string name="prefs_show_bookmarks_title">Pokaż ikony ulubionych</string>
+  <string name="prefs_show_bookmarks_summary">Pokaż ikony dla ulbionych wersetów</string>
+  <string name="prefs_show_mynotes_title">Pokaż ikony notatek</string>
+  <string name="prefs_show_mynotes_summary">Wersety z moich notatek oznacz ikoną</string>
   <string name="prefs_show_notes_title">Przypisy i odsyłacze</string>
   <string name="prefs_show_notes_summary">Pokaż przypisy i odsyłacze</string>
   <string name="prefs_show_strongs_title">Pokaż numeracje Stronga</string>
   <string name="prefs_show_strongs_summary">Pokaż numeracje Stronga dla KJV</string>
+  <string name="prefs_show_morphology_title">Kody morfologiczne</string>
+  <string name="prefs_show_morphology_summary">Pokaż kody morfologiczne Robinsona (RMAC)</string>
+  <string name="prefs_section_title_title">Tytuły sekcji</string>
+  <string name="prefs_section_title_summary">Pokaż niekanoniczne tytuły sekcji</string>
+  <string name="prefs_red_letter_title">Tytuł na czerwono</string>
+  <string name="prefs_red_letter_summary">Pokaż słowa Chrystusa na czerwono</string>
+  <string name="prefs_tilt_to_scroll_title">Przechyl urządzenie aby przesunąć</string>
+  <string name="prefs_tilt_to_scroll_summary">Przechyl urządzenie aby przewinąć w górę/dół</string>
   <string name="prefs_night_mode_title">Tryb nocny</string>
   <string name="prefs_night_mode_summary">Ułatwia czytanie po ciemku</string>
+  <string name="prefs_night_mode_automatic">Automatycznie</string>
+  <string name="prefs_navigate_to_verse_title">Przejdź do wersetu</string>
+  <string name="prefs_navigate_to_verse_summary">Wybierz werset podczas zaznaczania fragmentu</string>
   <string name="prefs_text_size_title">Rozmiar czcionki</string>
   <string name="prefs_text_size_summary">Powiększ/pomniejsz rozmiar czcionki</string>
-  <!-- Notes screen -->
+  <string name="prefs_text_size_sample_text">Zwykły tekst</string>
+  <string name="prefs_interface_locale_title">Język programu</string>
+  <string name="prefs_interface_locale_summary">Wybierz język</string>
+  <string name="locale_change_warning">Aplikacja zostanie ponownie uruchomiona, aby przełączyć się na nowy język interfejsu</string>
+  <!--Notes screen-->
   <string name="no_chapter_notes">Brak przypisów dla tego rozdziału</string>
   <string name="no_verse_notes">Brak przypisów dla tego wersetu</string>
   <string name="previous">Poprzedni</string>
   <string name="next">Następny</string>
-  <!--  Strongs -->
+  <!--Strongs-->
   <string name="strongs">Słownik Strong</string>
   <string name="strongs_not_installed">Pobierz hebrajski i grecki słownik Strong</string>
-  <!-- Module download -->
+  <string name="all_greek_occurrences">Pokaż wszystkie</string>
+  <string name="all_hebrew_occurrences">Pokaż wszystkie</string>
+  <string name="no_indexed_bible_with_strongs_ref">Należy pobrać Biblię zawierającą numery Stronga i następnie pobierać ich spis przez \"Szukaj\"</string>
+  <string name="morph_robinson_not_installed">Pobierz słownik analizy morfologicznej Robinsona</string>
+  <string name="strongs_toggle_button_on">włączony</string>
+  <string name="strongs_toggle_button_off">włączony</string>
+  <!--Module download-->
   <string name="download">Pobierz moduł</string>
   <string name="download_confirmation">Pobierz moduł z Internetu?</string>
   <string name="download_source_message">Moduł zostanie pobrany z\nhttp://www.crosswire.org\ni http://xiphos.org</string>
-  <string name="download_document_confirm_prefix">"Pobieranie "</string>
+  <string name="download_document_confirm_prefix">Pobieranie</string>
+  <string name="download_refreshing_book_list">Odśwież listę dostępnych dokumentów</string>
+  <string name="download_refresh_book_list_menu_item">Odśwież</string>
   <string name="error_downloading">Wystąpił błąd podczas pobierania. Sprawdź połączenie z Internetem.</string>
   <string name="no_internet_connection">Połączenie z Internetem jest niedostępne.</string>
   <string name="storage_space_warning">Niewystarczająca ilość zasobów pamięci</string>
@@ -77,18 +105,35 @@
   <string name="wait_for_bible_not_yet">Proszę czekać, trwa instalacja modułu.</string>
   <string name="download_complete_no_bibles">Moduł nie został zainstalowany. Ponów próbę.</string>
   <string name="too_many_jobs">Zbyt dużo zadań wykonywanych jednocześnie. Proszę czekać na ich ukończenie.</string>
-  <!-- Document context menu -->
+  <string name="document_not_installed">Proszę pobrać \'%s\'</string>
+  <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">Plan czytania</string>
+  <string name="rdg_plan_selector_title">Wybierz plan czytania</string>
+  <string name="rdg_plan_day">Dzień %s</string>
+  <string name="rdg_plan_set_start_jan1">Start 1 styczeń</string>
+  <string name="done">Gotowe</string>
+  <string name="reset">Reset</string>
+  <string name="rdg_plan_y1ntpspr">Nowy Testamen, Psalmy i Księga Przysłów w rok</string>
+  <string name="rdg_plan_y1ot1nt1_chronological">Przeczytaj Biblię w rok - chronologicznie</string>
+  <string name="rdg_plan_y1ot1nt1_OTandNT">Przeczytaj Biblię w ciągu roku - ST i NT</string>
+  <string name="rdg_plan_y1ot1nt1_OTthenNT">Przeczytaj Biblię w ciągu roku - najpierw ST potem NT</string>
+  <string name="rdg_plan_y1ot1nt2_mcheyne">Przeczytaj Biblię w ciągu roku (M\'Cheyne)</string>
+  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
+  <!--Document context menu-->
   <string name="delete">Usuń</string>
+  <string name="delete_index">Usuń indeks wyszukiwań</string>
   <string name="about">O programie</string>
-  <!-- Verse context menu -->
+  <string name="delete_doc">Czy chcesz usunąć %s?</string>
+  <string name="delete_search_index_doc">Czy usunąć indeks dla %s ?</string>
+  <!--Verse context menu-->
+  <string name="select_text">Zaznacz tekst</string>
+  <string name="select_text_help">Przeciągnij powoli, aby wybrać. Następnie dotknij wybór aby skopiować.</string>
   <string name="notes">Przypisy i odnośniki</string>
   <string name="copy">Skopiuj werset</string>
   <string name="share_verse">Udostępnij werset ...</string>
   <string name="share_verse_subject">Ten werset został przesłany z programu And Bible</string>
-  <!-- General Book -->
-  <string name="general_book">Księga</string>
-  <string name="general_book_contents">Zawartość</string>
-  <!-- Bookmarks -->
+  <string name="compare_translations">Porównaj tłumaczenia</string>
+  <!--Bookmarks-->
   <string name="bookmarks">Ulubione</string>
   <string name="add_bookmark">Dodaj do ulubionych</string>
   <string name="bookmark_added">Dodano do ulubionych</string>
@@ -97,60 +142,67 @@
   <string name="assign_labels">Przypisz etykiety</string>
   <string name="new_label">Nowa etykieta</string>
   <string name="new_label_prompt">Nazwa</string>
-  <!-- Dictionary -->
+  <string name="label_unlabelled">Nieoznaczony</string>
+  <!--Dictionary-->
   <string name="dictionary">Słownik</string>
   <string name="search_dictionary_hint">Znajdź w słowniku</string>
   <string name="dictionary_contents">Zawartość</string>
-  <!-- Document types -->
+  <!--General Book-->
+  <string name="general_book">Księga</string>
+  <string name="general_book_contents">Zawartość</string>
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <string name="one_chapter">%d rozdział</string>
+  <string name="some_chapters">%d rozdziałów</string>
+  <string name="rest_of_book">Do końca księgi</string>
+  <!--Speak - Commentary-->
+  <string name="one_verse">%d werset</string>
+  <string name="some_verses">%d wersetów</string>
+  <string name="rest_of_chapter">Do końca rozdziału</string>
+  <!--Speak - Dictionary and other-->
+  <string name="one_page">%d strona</string>
+  <string name="some_pages">%d stron</string>
+  <!--Speak - Common-->
+  <string name="stop">Wstrzymaj</string>
+  <string name="tts_lang_not_available">Język niedostępny.</string>
+  <string name="speak_queue">Kolejka</string>
+  <string name="speak_repeat">Powtórz</string>
+  <!--User Notes-->
+  <string name="mynotes">Moje notatki</string>
+  <string name="mynote">Moja notatka</string>
+  <string name="mynote_add">Dodaj notatkę</string>
+  <string name="mynote_view_edit">Moja notatka</string>
+  <string name="mynote_saved">Moja notatka zapisana</string>
+  <!--Backup and restore-->
+  <string name="backup">Backup</string>
+  <string name="backup_success">Zapisz moje notatki i zakładki na karcie SD w %s</string>
+  <string name="restore">Przywróć</string>
+  <string name="restore_confirmation">Czy chcesz nadpisać swoje notatki i zakładki?</string>
+  <string name="restore_success">Przywróć moje notatki i zakładki zapisane w %s na karcie SD</string>
+  <!--Document types-->
   <string name="doc_type_bible">Biblia</string>
   <string name="doc_type_commentary">Komentarz</string>
   <string name="doc_type_dictionary">Słownik</string>
   <string name="doc_type_book">Księga</string>
-  <string name="error_occurred">Wystąpił błąd</string>
+  <string name="doc_type_map">Mapa</string>
+  <!--Languages-->
+  <string name="lang_default">Domyślny</string>
+  <!--General-->
   <string name="okay">OK</string>
   <string name="cancel">Anuluj</string>
-  <string name="error">"Błąd "</string>
+  <string name="yes">Tak</string>
+  <string name="no">Nie</string>
+  <string name="save">Zapisz</string>
+  <string name="error">Błąd</string>
   <string name="more">Więcej</string>
   <string name="retry">Ponów próbę</string>
   <string name="please_wait">Proszę czekać...</string>
   <string name="all">Wszystkie</string>
-  <!-- Speak - Bible -->
-  <string name="rest_of_book">Do końca księgi</string>
-  <!-- Speak - Commentary -->
-  <string name="rest_of_chapter">Do końca rozdziału</string>
-  <!-- Speak - Dictionary and other -->
-  <!-- Speak - Common -->
-  <string name="stop">Wstrzymaj</string>
-  <string name="tts_lang_not_available">Język niedostępny.</string>
-  <string name="all_greek_occurrences">Pokaż wszystkie</string>
-  <string name="all_hebrew_occurrences">Pokaż wszystkie</string>
-  <string name="lang_default">Domyślny</string>
-  <string name="locale_change_warning">Aplikacja zostanie ponownie uruchomiona, aby przełączyć się na nowy język interfejsu</string>
-  <string name="no">Nie</string>
-  <string name="no_indexed_bible_with_strongs_ref">Należy pobrać Biblię zawierającą numery Stronga i następnie pobierać ich spis przez \"Szukaj\"</string>
-  <string name="prefs_interface_locale_summary">Wybierz język</string>
-  <string name="prefs_interface_locale_title">Język programu</string>
-  <string name="prefs_verse_per_line_summary">Pokaż każdy werset w osobnej linii</string>
-  <string name="prefs_verse_per_line_title">Jeden werset na linię</string>
-  <string name="download_refreshing_book_list">Odśwież listę dostępnych dokumentów</string>
-  <string name="morph_robinson_not_installed">Pobierz słownik analizy morfologicznej Robinsona</string>
-  <string name="prefs_show_morphology_summary">Pokaż kody morfologiczne Robinsona (RMAC)</string>
-  <string name="prefs_show_morphology_title">Kody morfologiczne</string>
-  <string name="delete_index">Usuń indeks wyszukiwań</string>
-  <string name="delete_search_index_doc">Czy usunąć indeks dla %s ?</string>
-  <string name="choosePassageVerseName">Wybierz werset</string>
-  <string name="prefs_navigate_to_verse_summary">Wybierz werset podczas zaznaczania fragmentu</string>
-  <string name="prefs_navigate_to_verse_title">Przejdź do wersetu</string>
-  <string name="one_chapter">%d rozdział</string>
-  <string name="one_page">%d strona</string>
-  <string name="one_verse">%d werset</string>
-  <string name="some_chapters">%d rozdziałów</string>
-  <string name="some_pages">%d stron</string>
-  <string name="some_verses">%d wersetów</string>
-  <string name="prefs_red_letter_summary">Pokaż słowa Chrystusa na czerwono</string>
-  <string name="prefs_red_letter_title">Tytuł na czerwono</string>
-  <string name="prefs_section_title_summary">Pokaż niekanoniczne tytuły sekcji</string>
-  <string name="prefs_section_title_title">Tytuły sekcji</string>
-  <string name="strongs_toggle_button_off">włączony</string>
-  <string name="strongs_toggle_button_on">włączony</string>
-<string name="speak_queue">Kolejka</string><string name="speak_repeat">Powtórz</string><string name="select_text">Zaznacz tekst</string><string name="select_text_help">Przeciągnij powoli, aby wybrać. Następnie dotknij wybór aby skopiować.</string><string name="error_no_content">Brak zawartości dla wybranego wiersza</string><string name="mynote">Moja notatka</string><string name="mynote_add">Dodaj notatkę</string><string name="mynote_saved">Moja notatka zapisana</string><string name="mynote_view_edit">Moja notatka</string><string name="mynotes">Moje notatki</string><string name="prefs_show_mynotes_summary">Wersety z moich notatek oznacz ikoną</string><string name="prefs_show_mynotes_title">Pokaż ikony notatek</string><string name="save">Zapisz</string><string name="search_results">Znajdź wyniki</string><string name="error_key_not_in_document">Nie znaleziono w dokumencie</string><string name="error_page_too_large">Strona jest za duża i nie zostanie wczytana</string><string name="prefs_text_size_sample_text">Zwykły tekst</string><string name="empty_list">Brak elementów do wyświetlenia</string><string name="prefs_show_bookmarks_summary">Pokaż ikony dla ulbionych wersetów</string><string name="prefs_show_bookmarks_title">Pokaż ikony ulubionych</string><string name="prefs_tilt_to_scroll_summary">Przechyl urządzenie aby przewinąć w górę/dół</string><string name="prefs_tilt_to_scroll_title">Przechyl urządzenie aby przesunąć</string><string name="rdg_plan_title">Plan czytania</string><string name="rdg_plan_selector_title">Wybierz plan czytania</string><string name="rdg_plan_day">Dzień %s</string><string name="rdg_plan_set_start_jan1">Start 1 styczeń</string><string name="done">Gotowe</string><string name="reset">Reset</string><string name="rdg_plan_y1ot1nt1_chronological">Przeczytaj Biblię w rok - chronologicznie</string><string name="rdg_plan_y1ot1nt1_OTandNT">Przeczytaj Biblię w ciągu roku - ST i NT</string><string name="rdg_plan_y1ot1nt1_OTthenNT">Przeczytaj Biblię w ciągu roku - najpierw ST potem NT</string><string name="rdg_plan_y1ot1nt2_mcheyne">Przeczytaj Biblię w ciągu roku (M\'Cheyne)</string><string name="rdg_plan_y1ntpspr">Nowy Testamen, Psalmy i Księga Przysłów w rok</string><string name="prefs_night_mode_automatic">Automatycznie</string><string name="download_refresh_book_list_menu_item">Odśwież</string><string name="yes">Tak</string><string name="compare_translations">Porównaj tłumaczenia</string><string name="doc_type_map">Mapa</string><string name="document_not_installed">Proszę pobrać \'%s\'</string><string name="backup">Backup</string><string name="backup_success">Zapisz moje notatki i zakładki na karcie SD w %s</string><string name="restore">Przywróć</string><string name="restore_confirmation">Czy chcesz nadpisać swoje notatki i zakładki?</string><string name="restore_success">Przywróć moje notatki i zakładki zapisane w %s na karcie SD</string><string name="label_unlabelled">Nieoznaczony</string></resources>
+  <!--Errors-->
+  <string name="error_occurred">Wystąpił błąd</string>
+  <string name="error_no_content">Brak zawartości dla wybranego wiersza</string>
+  <string name="error_page_too_large">Strona jest za duża i nie zostanie wczytana</string>
+  <string name="error_key_not_in_document">Nie znaleziono w dokumencie</string>
+  <string name="empty_list">Brak elementów do wyświetlenia</string>
+</resources>

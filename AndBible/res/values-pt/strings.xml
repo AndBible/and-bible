@@ -1,20 +1,13 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<!-- Application text
- 
- @author Martin Denham [mjdenham at gmail dot com]
- @see gnu.lgpl.License for license details.<br>
-      The copyright to this program is held by it's author.
- @translator Filipe C. Mondaini [filipemondaini at gmail dot com]
- 
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="app_name">And Bible</string>
-  <string name="splash_top_text">"\n\"E disse Deus:\'Haja luz,\' e houve luz.\"\nGenesis 1:3"</string>
+  <!--Startup & Help-->
+  <string name="splash_top_text">\n\"E disse Deus:\'Haja luz,\' e houve luz.\"\nGenesis 1:3</string>
   <string name="help_text">Pressione a tecla MENU para executar as ações\n\nUse o track-ball, os botões direcionais ou toque na tela para avançar ou retroceder os capítulos</string>
-  <string name="help_text_long">"<b>Navegação</b>\nVá para o próximo capítulo ou o anterior usando o track-ball, os botões direcionais ou toque na tela para avançar ou retroceder \n\n<b>Menu</b>\nPressione a tecla MENU para executar as ações \n\nPara baixar mais documentos, pressione Menu/Mais/Baixar Documentos\n\n<b>Falar</b>\nPressione Falar para acessar um menu para iniciar ou parar a leitura.\n\n<b>Anotações</b>\nAnotações podem ser adicionadas através da opção de menu Anotações no menu de contexto dos versículos. A lista de anotações pode ser acessada através do menu principal.\n\n<b>Favoritos</b>\nOs Favoritos podem ser adicionados através do menu de contexto dos versículos. O Gerenciador dos Favoritos pode ser acessado através do menu principal. O menu de contexto do Gerenciador dos Favoritos permite que os favoritos sejam agrupados, através de marcadores.\n\n<b>Busca</b>\nA Busca pode conter caracteres especiais como: *, ?, AND, OR, NOT (veja \"Apache Lucene - Query Parser Syntax\" para mais detalhes - link em inglês)\n\n<b>Menus de Contexto</b>\nPressione longamente algum versículo com a bíblia aberta para abrir o menu de contexto para ações que afetem o versículo selecionado.\nPressione longamente em um documento no seletor de documentos para apagar o documento ou ver mais informações.\nPressione longamente o botão voltar para acessar o Histórico.\n"</string>
+  <string name="help_text_long"><b>Navegação</b>\nVá para o próximo capítulo ou o anterior usando o track-ball, os botões direcionais ou toque na tela para avançar ou retroceder \n\n<b>Menu</b>\nPressione a tecla MENU para executar as ações \n\nPara baixar mais documentos, pressione Menu/Mais/Baixar Documentos\n\n<b>Falar</b>\nPressione Falar para acessar um menu para iniciar ou parar a leitura.\n\n<b>Anotações</b>\nAnotações podem ser adicionadas através da opção de menu Anotações no menu de contexto dos versículos. A lista de anotações pode ser acessada através do menu principal.\n\n<b>Favoritos</b>\nOs Favoritos podem ser adicionados através do menu de contexto dos versículos. O Gerenciador dos Favoritos pode ser acessado através do menu principal. O menu de contexto do Gerenciador dos Favoritos permite que os favoritos sejam agrupados, através de marcadores.\n\n<b>Busca</b>\nA Busca pode conter caracteres especiais como: *, ?, AND, OR, NOT (veja \"Apache Lucene - Query Parser Syntax\" para mais detalhes - link em inglês)\n\n<b>Menus de Contexto</b>\nPressione longamente algum versículo com a bíblia aberta para abrir o menu de contexto para ações que afetem o versículo selecionado.\nPressione longamente em um documento no seletor de documentos para apagar o documento ou ver mais informações.\nPressione longamente o botão voltar para acessar o Histórico.\n</string>
   <string name="version_text">Versão %s</string>
   <string name="no_sdcard_error">Por favor insira um cartão SD e inicie o And Biblie novamente.</string>
-  <!-- main menu -->
+  <!--main menu-->
   <string name="chooseBook">Documento</string>
   <string name="selectPassage">Passagem</string>
   <string name="search">Pesquisar</string>
@@ -22,20 +15,24 @@
   <string name="history">Histórico</string>
   <string name="speak">Falar</string>
   <string name="help">Ajuda</string>
+  <!--Passage navigation-->
   <string name="choosePassageBookName">Escolha o livro</string>
   <string name="choosePassageChapterName">Escolha o capítulo</string>
+  <string name="choosePassageVerseName">Escolher versículo</string>
+  <!--Search-->
   <string name="search_index">Índice da pesquisa</string>
-  <string name="index_creation_required">"É preciso ter um índice para pesquisar.\n\nÍndices podem ser baixados na internet ou criados localmente.\n\nBaixar os índices é uma maneira mais prática e os índices baixados possuem mais recursos de busca.\n\nÉ necessário possuir uma conexão com a internet para baixar os índices.\n"</string>
+  <string name="index_creation_required">É preciso ter um índice para pesquisar.\n\nÍndices podem ser baixados na internet ou criados localmente.\n\nBaixar os índices é uma maneira mais prática e os índices baixados possuem mais recursos de busca.\n\nÉ necessário possuir uma conexão com a internet para baixar os índices.\n</string>
   <string name="indexing_wait_msg">Quando a indexação for concluída, você será levado para a tela de busca.</string>
   <string name="index">Índice</string>
   <string name="index_download">Download</string>
   <string name="index_not_available_for_download">Este índice não está disponível para download</string>
   <string name="index_create">Criar índice</string>
+  <!--Tasks-->
   <string name="progress_status">Progresso</string>
   <string name="task_kill_warning">Estas tarefas de longa duração podem ser finalizadas se você ir para outra aplicação antes que elas terminem.</string>
   <string name="no_tasks_running">Não há tarefas sendo executadas.</string>
-  <string name="delete_doc">Excluir %s?</string>
-  <!-- Search -->
+  <!--Search-->
+  <string name="search_results">Resultados da busca</string>
   <string name="search_words_group_prompt">Pesquisar versículos</string>
   <string name="search_all_words">Todas as palavras</string>
   <string name="search_any_word">Qualquer palavra</string>
@@ -48,30 +45,59 @@
   <string name="search_old_testament">Antigo Testamento</string>
   <string name="search_current_book">Livro atual</string>
   <string name="error_executing_search">Pesquisa inválida</string>
-  <!-- Preferences -->
+  <!--Preferences-->
   <string name="prefs_show_verseno_title">Números dos versículos</string>
   <string name="prefs_show_verseno_summary">Mostrar números dos versículos</string>
-  <string name="prefs_show_notes_title">"Notas de rodapé e referências cruzadas"</string>
+  <string name="prefs_verse_per_line_title">Um versículo por linha</string>
+  <string name="prefs_verse_per_line_summary">Mostrar cada versículo em uma linha diferente</string>
+  <string name="prefs_show_bookmarks_title">Mostrar ícones dos favoritos.</string>
+  <string name="prefs_show_bookmarks_summary">Mostrar ícone nos versículos favoritos</string>
+  <string name="prefs_show_mynotes_title">Mostrar ícones das minhas Anotações</string>
+  <string name="prefs_show_mynotes_summary">Mostrar ícone nos versículos com Anotações</string>
+  <string name="prefs_show_notes_title">Notas de rodapé e referências cruzadas</string>
   <string name="prefs_show_notes_summary">Mostrar notas de rodapé e referências cruzadas</string>
   <string name="prefs_show_strongs_title">Mostrar números do dicionário Strong</string>
   <string name="prefs_show_strongs_summary">Links para definições em grego &amp; hebraico</string>
+  <string name="prefs_show_morphology_title">Códigos morfológicos</string>
+  <string name="prefs_show_morphology_summary">Mostrar morfologia grega do dicionário Robinson.</string>
+  <string name="prefs_section_title_title">Títulos de seções</string>
+  <string name="prefs_section_title_summary">Mostrar títulos de seção não-canônicos</string>
+  <string name="prefs_red_letter_title">Letras vermelhas</string>
+  <string name="prefs_red_letter_summary">Mostrar as palavras de Cristo em vermelho</string>
+  <string name="prefs_tilt_to_scroll_title">Sacudir para rolar página</string>
+  <string name="prefs_tilt_to_scroll_summary">Sacudir o aparelho para rolar página para baixo</string>
   <string name="prefs_night_mode_title">Modo noturno</string>
   <string name="prefs_night_mode_summary">Para uma melhor leitura no escuro</string>
+  <string name="prefs_night_mode_automatic">Automático</string>
+  <string name="prefs_navigate_to_verse_title">Navegue até o versículo</string>
+  <string name="prefs_navigate_to_verse_summary">Escolher o versículo (e capítulo) quando selecionando uma passagem</string>
   <string name="prefs_text_size_title">Tamanho do texto</string>
   <string name="prefs_text_size_summary">Para ver mais texto, ou enxergar com mais clareza</string>
-  <!-- Notes screen -->
+  <string name="prefs_text_size_sample_text">Texto de exemplo</string>
+  <string name="prefs_interface_locale_title">Idioma do aplicativo</string>
+  <string name="prefs_interface_locale_summary">Selecione o idioma de preferencia para a interface do usuário</string>
+  <string name="locale_change_warning">O aplicativo será reiniciado para trocar o idioma da nova interface.</string>
+  <!--Notes screen-->
   <string name="no_chapter_notes">Não existem notas neste capítulo</string>
   <string name="no_verse_notes">Não existem notas para este versículo</string>
   <string name="previous">Anterior</string>
   <string name="next">Próximo</string>
-  <!--  Strongs -->
+  <!--Strongs-->
   <string name="strongs">Dicionário Bíblico Strong</string>
   <string name="strongs_not_installed">Por favor instale os dicionários Strong em hebraico e grego</string>
-  <!-- Module download -->
+  <string name="all_greek_occurrences">Mostrar todas as ocorrências</string>
+  <string name="all_hebrew_occurrences">Mostrar todas as ocorrências</string>
+  <string name="no_indexed_bible_with_strongs_ref">Você deve baixar uma bíblia contendo números do dicionário Strong e baixar seu índice através da Pesquisa</string>
+  <string name="morph_robinson_not_installed">Faça o download do dicionário \'Robinson\'s Morphological Analysis Codes\' (em inglês)</string>
+  <string name="strongs_toggle_button_on">nnnn</string>
+  <string name="strongs_toggle_button_off">nnnn</string>
+  <!--Module download-->
   <string name="download">Baixar documentos</string>
   <string name="download_confirmation">Deseja fazer o download da bíblia da internet?</string>
   <string name="download_source_message">Os documentos são baixados do site\nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
-  <string name="download_document_confirm_prefix">"Download "</string>
+  <string name="download_document_confirm_prefix">Download</string>
+  <string name="download_refreshing_book_list">Atualizando a lista de documentos disponíveis</string>
+  <string name="download_refresh_book_list_menu_item">Atualizar</string>
   <string name="error_downloading">Ocorreu um erro durante o download. Por favor verifique sua conexão com a internet.</string>
   <string name="no_internet_connection">Não foi possível conectar à internet</string>
   <string name="storage_space_warning">Espaço insuficiente de armazenamento local.</string>
@@ -79,13 +105,35 @@
   <string name="wait_for_bible_not_yet">Por favor aguarde. Uma bíblia não teve sua instalação concluída.</string>
   <string name="download_complete_no_bibles">Nenhuma bíblia foi instalada. Por favor volte e tente novamente.</string>
   <string name="too_many_jobs">Existem muitas tarefas sendo executadas. Por favor aguarde que algumas sejam concluídas e tente novamente.</string>
-  <!-- Document context menu -->
+  <string name="document_not_installed">Por favor baixe: \'%s\'</string>
+  <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">Plano de leitura</string>
+  <string name="rdg_plan_selector_title">Escolha um plano de leitura</string>
+  <string name="rdg_plan_day">Dia %s</string>
+  <string name="rdg_plan_set_start_jan1">Início em 1º de Janeiro</string>
+  <string name="done">Concluído</string>
+  <string name="reset">Reiniciar</string>
+  <string name="rdg_plan_y1ntpspr">Novo Testamento, Salmos e Provérbios em um ano</string>
+  <string name="rdg_plan_y1ot1nt1_chronological">Pela Bíblia em um ano, cronológicamente</string>
+  <string name="rdg_plan_y1ot1nt1_OTandNT">Pela Bíblia em um ano - Antigo e Novo Testamento</string>
+  <string name="rdg_plan_y1ot1nt1_OTthenNT">Pela Bíblia em um ano - Antigo Testamento e então Novo Testamento</string>
+  <string name="rdg_plan_y1ot1nt2_mcheyne">Pela Bíblia em um ano (M\'Cheyne)</string>
+  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
+  <!--Document context menu-->
   <string name="delete">Excluir</string>
+  <string name="delete_index">Excluir índice de pesquisa</string>
   <string name="about">Sobre</string>
-  <!-- Verse context menu -->
+  <string name="delete_doc">Excluir %s?</string>
+  <string name="delete_search_index_doc">Excluir índice de %s?</string>
+  <!--Verse context menu-->
+  <string name="select_text">Texto selecionado</string>
+  <string name="select_text_help">Arraste lentamente para selecionar.\nEntão toque a seleção para copiar.</string>
   <string name="notes">Referências e notas de rodapé</string>
   <string name="copy">Copiar versículo</string>
-  <!-- Bookmarks -->
+  <string name="share_verse">Compartilhar este versículo...</string>
+  <string name="share_verse_subject">Um versículo da Bíblia foi enviado para você pelo And Bible</string>
+  <string name="compare_translations">Compare as traduções</string>
+  <!--Bookmarks-->
   <string name="bookmarks">Favoritos</string>
   <string name="add_bookmark">Adicionar favorito</string>
   <string name="bookmark_added">O favorito foi adicionado</string>
@@ -94,60 +142,66 @@
   <string name="assign_labels">Atribuir marcadores</string>
   <string name="new_label">Novo marcador</string>
   <string name="new_label_prompt">Nome</string>
-  <!-- Dictionary -->
+  <!--Dictionary-->
   <string name="dictionary">Dicionário</string>
   <string name="search_dictionary_hint">Procurar dicionário</string>
   <string name="dictionary_contents">Conteúdo</string>
-  <!-- Document types -->
+  <!--General Book-->
+  <string name="general_book">Livro</string>
+  <string name="general_book_contents">Conteúdo</string>
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <string name="one_chapter">capítulo %d</string>
+  <string name="some_chapters">capítulos %d</string>
+  <string name="rest_of_book">Para o fim do livro</string>
+  <!--Speak - Commentary-->
+  <string name="one_verse">versículo %d</string>
+  <string name="some_verses">versículos %d</string>
+  <string name="rest_of_chapter">Para o fim do capítulo</string>
+  <!--Speak - Dictionary and other-->
+  <string name="one_page">página %d</string>
+  <string name="some_pages">páginas %d</string>
+  <!--Speak - Common-->
+  <string name="stop">Parar</string>
+  <string name="tts_lang_not_available">Idioma não disponível</string>
+  <string name="speak_queue">Fila</string>
+  <string name="speak_repeat">Repetir</string>
+  <!--User Notes-->
+  <string name="mynotes">Anotações</string>
+  <string name="mynote">Minha anotação</string>
+  <string name="mynote_add">Adicionar nova anotação</string>
+  <string name="mynote_view_edit">Minha anotação</string>
+  <string name="mynote_saved">Anotação salva</string>
+  <!--Backup and restore-->
+  <string name="backup">Backup</string>
+  <string name="backup_success">As Anotações e Favoritos foram salvos em %s no cartão de memória SD</string>
+  <string name="restore">Restaurar</string>
+  <string name="restore_confirmation">Sobrescrever as Anotações e os Favoritos?</string>
+  <string name="restore_success">As Anotações e os Favoritos foram restaurados de %s do cartão de memória SD</string>
+  <!--Document types-->
   <string name="doc_type_bible">Bíblia</string>
   <string name="doc_type_commentary">Comentário</string>
   <string name="doc_type_dictionary">Dicionário</string>
-  <string name="error_occurred">Ocorreu um erro</string>
+  <string name="doc_type_book">Livro</string>
+  <string name="doc_type_map">Mapa</string>
+  <!--Languages-->
+  <string name="lang_default">Padrão</string>
+  <!--General-->
   <string name="okay">OK</string>
   <string name="cancel">Cancelar</string>
+  <string name="yes">Sim</string>
+  <string name="no">Não</string>
+  <string name="save">Salvar</string>
   <string name="error">Erro</string>
   <string name="more">Mais</string>
   <string name="retry">Tente novamente</string>
   <string name="please_wait">Por favor, aguarde...</string>
   <string name="all">Todos</string>
-  <string name="tts_lang_not_available">Idioma não disponível</string>
-  <string name="all_greek_occurrences">Mostrar todas as ocorrências</string>
-  <string name="all_hebrew_occurrences">Mostrar todas as ocorrências</string>
-  <string name="doc_type_book">Livro</string>
-  <string name="general_book">Livro</string>
-  <string name="general_book_contents">Conteúdo</string>
-  <string name="lang_default">Padrão</string>
-  <string name="locale_change_warning">O aplicativo será reiniciado para trocar o idioma da nova interface.</string>
-  <string name="no">Não</string>
-  <string name="no_indexed_bible_with_strongs_ref">Você deve baixar uma bíblia contendo números do dicionário Strong e baixar seu índice através da Pesquisa</string>
-  <string name="prefs_interface_locale_summary">Selecione o idioma de preferencia para a interface do usuário</string>
-  <string name="prefs_interface_locale_title">"Idioma do aplicativo"</string>
-  <string name="prefs_verse_per_line_summary">Mostrar cada versículo em uma linha diferente</string>
-  <string name="prefs_verse_per_line_title">Um versículo por linha</string>
-  <string name="download_refreshing_book_list">Atualizando a lista de documentos disponíveis</string>
-  <string name="rest_of_book">Para o fim do livro</string>
-  <string name="rest_of_chapter">Para o fim do capítulo</string>
-  <string name="share_verse">Compartilhar este versículo...</string>
-  <string name="share_verse_subject">Um versículo da Bíblia foi enviado para você pelo And Bible</string>
-  <string name="stop">Parar</string>
-  <string name="morph_robinson_not_installed">Faça o download do dicionário \'Robinson\'s Morphological Analysis Codes\' (em inglês)</string>
-  <string name="prefs_show_morphology_summary">Mostrar morfologia grega do dicionário Robinson.</string>
-  <string name="prefs_show_morphology_title">Códigos morfológicos</string>
-  <string name="choosePassageVerseName">Escolher versículo</string>
-  <string name="delete_index">Excluir índice de pesquisa</string>
-  <string name="delete_search_index_doc">Excluir índice de %s?</string>
-  <string name="prefs_navigate_to_verse_summary">Escolher o versículo (e capítulo) quando selecionando uma passagem</string>
-  <string name="prefs_navigate_to_verse_title">"Navegue até o versículo"</string>
-  <string name="one_chapter">capítulo %d</string>
-  <string name="one_page">página %d</string>
-  <string name="one_verse">versículo %d</string>
-  <string name="some_chapters">capítulos %d</string>
-  <string name="some_pages">páginas %d</string>
-  <string name="some_verses">versículos %d</string>
-  <string name="prefs_red_letter_summary">Mostrar as palavras de Cristo em vermelho</string>
-  <string name="prefs_red_letter_title">Letras vermelhas</string>
-  <string name="prefs_section_title_summary">Mostrar títulos de seção não-canônicos</string>
-  <string name="prefs_section_title_title">Títulos de seções</string>
-  <string name="strongs_toggle_button_off">nnnn</string>
-  <string name="strongs_toggle_button_on">nnnn</string>
-<string name="speak_queue">Fila</string><string name="speak_repeat">Repetir</string><string name="select_text">Texto selecionado</string><string name="select_text_help">Arraste lentamente para selecionar.\nEntão toque a seleção para copiar.</string><string name="error_no_content">Nenhum conteúdo para o versículo selecionado</string><string name="mynote">Minha anotação</string><string name="mynote_add">Adicionar nova anotação</string><string name="mynote_saved">Anotação salva</string><string name="mynote_view_edit">Minha anotação</string><string name="mynotes">Anotações</string><string name="prefs_show_mynotes_summary">Mostrar ícone nos versículos com Anotações</string><string name="prefs_show_mynotes_title">Mostrar ícones das minhas Anotações</string><string name="save">Salvar</string><string name="search_results">Resultados da busca</string><string name="error_key_not_in_document">Não encontrado no documento</string><string name="error_page_too_large">Página grande demais para ser carregada</string><string name="prefs_text_size_sample_text">Texto de exemplo</string><string name="empty_list">Sem itens para exibir</string><string name="prefs_show_bookmarks_summary">Mostrar ícone nos versículos favoritos</string><string name="prefs_show_bookmarks_title">Mostrar ícones dos favoritos.</string><string name="prefs_tilt_to_scroll_summary">Sacudir o aparelho para rolar página para baixo</string><string name="prefs_tilt_to_scroll_title">Sacudir para rolar página</string><string name="rdg_plan_title">Plano de leitura</string><string name="rdg_plan_selector_title">Escolha um plano de leitura</string><string name="rdg_plan_day">Dia %s</string><string name="rdg_plan_set_start_jan1">Início em 1º de Janeiro</string><string name="done">Concluído</string><string name="reset">Reiniciar</string><string name="rdg_plan_y1ntpspr">Novo Testamento, Salmos e Provérbios em um ano</string><string name="rdg_plan_y1ot1nt1_chronological">Pela Bíblia em um ano, cronológicamente</string><string name="rdg_plan_y1ot1nt1_OTandNT">Pela Bíblia em um ano - Antigo e Novo Testamento</string><string name="rdg_plan_y1ot1nt1_OTthenNT">Pela Bíblia em um ano - Antigo Testamento e então Novo Testamento</string><string name="rdg_plan_y1ot1nt2_mcheyne">Pela Bíblia em um ano (M\'Cheyne)</string><string name="prefs_night_mode_automatic">Automático</string><string name="download_refresh_book_list_menu_item">Atualizar</string><string name="yes">Sim</string><string name="compare_translations">Compare as traduções</string><string name="doc_type_map">Mapa</string><string name="document_not_installed">Por favor baixe: \'%s\'</string><string name="backup">Backup</string><string name="backup_success">As Anotações e Favoritos foram salvos em %s no cartão de memória SD</string><string name="restore">Restaurar</string><string name="restore_confirmation">Sobrescrever as Anotações e os Favoritos?</string><string name="restore_success">As Anotações e os Favoritos foram restaurados de %s do cartão de memória SD</string><string name="label_unlabelled">Unlabelled</string></resources>
+  <!--Errors-->
+  <string name="error_occurred">Ocorreu um erro</string>
+  <string name="error_no_content">Nenhum conteúdo para o versículo selecionado</string>
+  <string name="error_page_too_large">Página grande demais para ser carregada</string>
+  <string name="error_key_not_in_document">Não encontrado no documento</string>
+  <string name="empty_list">Sem itens para exibir</string>
+</resources>
