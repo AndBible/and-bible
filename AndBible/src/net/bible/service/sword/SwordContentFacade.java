@@ -130,6 +130,11 @@ public class SwordContentFacade {
 	private FormattedDocument readHtmlTextOptimizedZTextOsis(Book book, Key key) throws ParseException
 	{
 		log.debug("Using fast method to fetch document data");
+		/**
+		 * When you supply an InputStream, the SAX implementation wraps the stream in an InputStreamReader; 
+		 * then SAX automatically detects the correct character encoding from the stream. You can then omit the setEncoding() step, 
+		 * reducing the method invocations once again. The result is an application that is faster, and always has the correct character encoding.
+		 */
 		InputStream is = new OSISInputStream(book, key);
 
 		OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book, key);
