@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!-- Application text
+
+TODO: error and download_document_confirm_prefix need to be parameterized rather than used for concatenation 
  
  @author Martin Denham [mjdenham at gmail dot com]
  @see gnu.lgpl.License for license details.<br>
@@ -234,7 +236,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="save">Save</string>
-    <string name="error">Error </string>
+    <string name="error">Error</string>
     <string name="more">More</string>
     <string name="retry">Try Again</string>
     <string name="please_wait">Please wait...</string>

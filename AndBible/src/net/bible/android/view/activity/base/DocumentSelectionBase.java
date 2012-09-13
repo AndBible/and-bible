@@ -296,7 +296,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     		}
     	} catch (Exception e) {
     		Log.e(TAG, "Error initialising view", e);
-    		Toast.makeText(this, getString(R.string.error)+e.getMessage(), Toast.LENGTH_SHORT);
+    		Toast.makeText(this, getString(R.string.error)+" "+e.getMessage(), Toast.LENGTH_SHORT).show();
     	}
     }
 
@@ -323,7 +323,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     		}
     	} catch (Exception e) {
     		Log.e(TAG, "Error initialising view", e);
-    		Toast.makeText(this, getString(R.string.error)+e.getMessage(), Toast.LENGTH_SHORT);
+    		Toast.makeText(this, getString(R.string.error)+" "+e.getMessage(), Toast.LENGTH_SHORT).show();
     	}
     }
 
