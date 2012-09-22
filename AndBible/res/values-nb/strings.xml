@@ -1,19 +1,25 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="splash_top_text">"\n\"Da sa Gud, \'Bli lys!\' Og det ble lys.\"\n1. Mosebok 1, 3"</string>
-  <string name="help_text">"Trykk menyknappen for å vise tilgjengelige valg\n\nDu skifter til neste eller forrige kapittel ved å bruke rulleballen, retningsknappene eller ved å dra fingeren vannrett over skjermen"</string>
-  <string name="help_text_long">"<b>Navigering</b>\nDu skifter til neste eller forrige kapittel ved å bruke rulleballen, retningsknappene eller ved å dra fingeren vannrett over skjermen\nDobbeltrykk på skjermen å slå fullskjermmodus av/på.\n\n<b>Meny</b>\nTrykk menyknappen for å vise tilgjengelige valg\n\nFor å laste ned flere moduler, trykk menyknappen-&gt;Mer-&gt;Last ned bibler\n\n<b>Høytlesing</b>\nTrykk på høytlesing for å vise skjermbildet for å starte og stoppe høytlesing\n\n<b>Mine notater</b>\nNotater kan du legge til fra menyvalget Mine notater på menyen for bibelvers. En liste over eksisterende notater kan du vise fra hovedmenyen.\n\n<b>Bokmerker</b>\nDu kan legge til bokmerker fra menyen for bibelvers. Bokmerkehåndtereren åpner du fra hovedmenyen. Bokmerkehåndtereren lar deg gruppere bokmerker.\n\n<b>Søk</b>\nSøkefunksjonen lar deg bruke spesialtegn som *, ?, AND, OR, NOT (se \"Apache Lucene – Query Parser Syntax\" for flere detaljer).\n\n<b>Kontekstmenyer</b>\nTrykk lenge på et bibelvers for å vise tilgjengelige valg for valgte bibelvers.\nTrykk lenge på en modul i modullisten for å slette eller vise informasjon om den.\nTrykk lenge på tilbakeknappen for å vise historikk."</string>
-  <string name="no_sdcard_error">Sett inn ett minnekort og start And Bible på nytt.</string>
+  <string name="app_name">And Bible</string>
+  <!--Startup & Help-->
+  <string name="splash_top_text">\n\"Da sa Gud, \'Bli lys!\' Og det ble lys.\"\n1. Mosebok 1, 3</string>
+  <string name="help_text">Trykk menyknappen for å vise tilgjengelige valg\n\nDu skifter til neste eller forrige kapittel ved å bruke rulleballen, retningsknappene eller ved å dra fingeren vannrett over skjermen</string>
+  <string name="help_text_long"><b>Navigering</b>\nDu skifter til neste eller forrige kapittel ved å bruke rulleballen, retningsknappene eller ved å dra fingeren vannrett over skjermen\nDobbeltrykk på skjermen å slå fullskjermmodus av/på.\n\n<b>Meny</b>\nTrykk menyknappen for å vise tilgjengelige valg\n\nFor å laste ned flere moduler, trykk menyknappen-&gt;Mer-&gt;Last ned bibler\n\n<b>Høytlesing</b>\nTrykk på høytlesing for å vise skjermbildet for å starte og stoppe høytlesing\n\n<b>Mine notater</b>\nNotater kan du legge til fra menyvalget Mine notater på menyen for bibelvers. En liste over eksisterende notater kan du vise fra hovedmenyen.\n\n<b>Bokmerker</b>\nDu kan legge til bokmerker fra menyen for bibelvers. Bokmerkehåndtereren åpner du fra hovedmenyen. Bokmerkehåndtereren lar deg gruppere bokmerker.\n\n<b>Søk</b>\nSøkefunksjonen lar deg bruke spesialtegn som *, ?, AND, OR, NOT (se \"Apache Lucene – Query Parser Syntax\" for flere detaljer).\n\n<b>Kontekstmenyer</b>\nTrykk lenge på et bibelvers for å vise tilgjengelige valg for valgte bibelvers.\nTrykk lenge på en modul i modullisten for å slette eller vise informasjon om den.\nTrykk lenge på tilbakeknappen for å vise historikk.</string>
   <string name="version_text">Versjon %s</string>
-  <!-- main menu -->
+  <string name="no_sdcard_error">Sett inn ett minnekort og start And Bible på nytt.</string>
+  <!--main menu-->
   <string name="chooseBook">Moduler</string>
   <string name="selectPassage">Bibelvers</string>
   <string name="search">Søk</string>
   <string name="settings">Innstillinger</string>
   <string name="history">Historikk</string>
   <string name="speak">Høytlesing</string>
+  <string name="help">Hjelp</string>
+  <!--Passage navigation-->
   <string name="choosePassageBookName">Velg bok</string>
   <string name="choosePassageChapterName">Velg kapittel</string>
+  <string name="choosePassageVerseName">Velg vers</string>
+  <!--Search-->
   <string name="search_index">Lag søkeregister</string>
   <string name="index_creation_required">For å søke trengs et søkeregister.\n\nSøkeregistrene kan lastes ned fra internett eller bygges lokalt.\n\nNedlasting er raskere og de gir ofte bedre søkemuligheter. Dersom du bygger lokalt, kan det ta opptil 10 minutt på f.eks. en HTC Desire.\n\nEn internettforbindelse er nødvendig for å laste ned søkeregister.</string>
   <string name="indexing_wait_msg">Når indekseringen er utført vil du bli tatt til søkeskjermen.</string>
@@ -21,11 +27,12 @@
   <string name="index_download">Last ned</string>
   <string name="index_not_available_for_download">Dette registeret er ikke tilgjengelig for nedlasting</string>
   <string name="index_create">Bygg lokalt</string>
+  <!--Tasks-->
   <string name="progress_status">Fremdrift</string>
   <string name="task_kill_warning">Vær klar over at Android kan avlutte disse tidkrevende jobbende hvis du skifter til en annen applikasjon før jobben er utført.</string>
   <string name="no_tasks_running">Det er for tiden ingen jobber som utføres.</string>
-  <string name="delete_doc">Slette %s?</string>
-  <!-- Search -->
+  <!--Search-->
+  <string name="search_results">Søketreff</string>
   <string name="search_words_group_prompt">Type søk:</string>
   <string name="search_all_words">Alle ordene</string>
   <string name="search_any_word">Noen av ordene</string>
@@ -38,123 +45,164 @@
   <string name="search_old_testament">Det gamle testamentet</string>
   <string name="search_current_book">Gjeldene bok</string>
   <string name="error_executing_search">Feil i søkestrengen</string>
-  <!-- Preferences -->
+  <!--Preferences-->
   <string name="prefs_show_verseno_title">Versnummer</string>
   <string name="prefs_show_verseno_summary">Vis versnummer</string>
+  <string name="prefs_verse_per_line_title">Ett vers per linje</string>
+  <string name="prefs_verse_per_line_summary">Vis hvert bibelvers på egen linje</string>
+  <string name="prefs_show_bookmarks_title">Vis bokmerkeikon</string>
+  <string name="prefs_show_bookmarks_summary">Vis ikon i bokmerkede vers</string>
+  <string name="prefs_show_mynotes_title">Vis notatikoner</string>
+  <string name="prefs_show_mynotes_summary">Vis ikon i vers du har skrevet notater</string>
   <string name="prefs_show_notes_title">Fotnoter og kryssreferanser</string>
   <string name="prefs_show_notes_summary">Vis notater</string>
   <string name="prefs_show_strongs_title">Vis Strongs ordtall</string>
   <string name="prefs_show_strongs_summary">Lenker til greske og hebraiske ordforklaringer</string>
+  <string name="prefs_show_morphology_title">Vis morfologiske koder</string>
+  <string name="prefs_show_morphology_summary">Vis \'Robinson\'s Greek morphology\'</string>
+  <string name="prefs_section_title_title">Seksjonsoverskrifter</string>
+  <string name="prefs_section_title_summary">Vis ikke-kanoniske seksjonsoverskrifter</string>
+  <string name="prefs_red_letter_title">Rød skrift</string>
+  <string name="prefs_red_letter_summary">Vis Jesu tale i rød skrift</string>
+  <string name="prefs_tilt_to_scroll_title">Hell for å rulle teksten</string>
+  <string name="prefs_tilt_to_scroll_summary">Rull siden nedover ved å helle på enheten</string>
   <string name="prefs_night_mode_title">Nattmodus</string>
   <string name="prefs_night_mode_summary">For enklere lesing i mørke</string>
+  <string name="prefs_night_mode_automatic">Automatisk</string>
+  <string name="prefs_navigate_to_verse_title">Naviger til vers</string>
+  <string name="prefs_navigate_to_verse_summary">Velg kapittel og vers når du skal navigere til et nytt bibelsted</string>
   <string name="prefs_text_size_title">Skriftstørrelse</string>
   <string name="prefs_text_size_summary">Se mer eller se klarere</string>
-  <!-- Notes screen -->
+  <string name="prefs_text_size_sample_text">Eksempeltekst</string>
+  <string name="prefs_interface_locale_title">Språk</string>
+  <string name="prefs_interface_locale_summary">Velg ønsket språk for brukergrensesnittet</string>
+  <string name="locale_change_warning">Applikasjonen vil omstarte for at det nye språket skal tre i kraft</string>
+  <!--Notes screen-->
   <string name="no_chapter_notes">Ingen notater eksisterer for dette kapittelet.</string>
   <string name="no_verse_notes">Ingen notat til dette verset</string>
   <string name="previous">Tilbake</string>
   <string name="next">Fram</string>
-  <!--  Strongs -->
+  <!--Strongs-->
   <string name="strongs">Strongs ordbok</string>
   <string name="strongs_not_installed">Vennligst last ned Strongs hebraiske og greske ordbøker</string>
-  <!-- Module download -->
+  <string name="all_greek_occurrences">Finn alle forekomstene</string>
+  <string name="all_hebrew_occurrences">Finn alle forekomstene</string>
+  <string name="no_indexed_bible_with_strongs_ref">Du må laste ned en Bibel som inneholder Strongs ordboknummer og laste ned søkeregisteret via Søkefunksjonen.</string>
+  <string name="morph_robinson_not_installed">Vennligst last ned ordboken \'Robinson\'s Morphological Analysis Codes\'</string>
+  <string name="strongs_toggle_button_on">nnnn</string>
+  <string name="strongs_toggle_button_off">nnnn</string>
+  <!--Module download-->
   <string name="download">Last ned moduler</string>
   <string name="download_confirmation">Vil du laste ned bibler fra internett?</string>
   <string name="download_source_message">Moduler blir lastet ned fra \nhttp://www.crosswire.org\nog http://xiphos.org</string>
-  <string name="download_document_confirm_prefix">"Last ned"</string>
+  <string name="download_document_confirm_prefix">Last ned</string>
+  <string name="download_refreshing_book_list">Oppdaterer listen over tilgjengelige moduler</string>
+  <string name="download_refresh_book_list_menu_item">Oppdater</string>
   <string name="error_downloading">En feil oppstod ved nedlasting. Vennligst sjekk din internettilkobling.</string>
   <string name="no_internet_connection">Kunne ikke koble til internett</string>
+  <string name="storage_space_warning">Ikke nok lokal lagringsplass.</string>
   <string name="wait_for_bible">Vennligst vent til Bibelen er ferdig nedlastet, og du vil deretter bli tatt til hovedskjermen.</string>
   <string name="wait_for_bible_not_yet">Vennligs vent. Bibelen er enda ikke ferdig installert.</string>
   <string name="download_complete_no_bibles">Ingen bibler ble installert. Trykk tilbake og prøv igjen.</string>
   <string name="too_many_jobs">For mange jobber utføres. Vennligst vent til noen er fullført før du prøver igjen.</string>
-  <!-- Context menus -->
+  <string name="document_not_installed">Vennligst last ned \'%s\'</string>
+  <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">Leseplan</string>
+  <string name="rdg_plan_selector_title">Velg en leseplan</string>
+  <string name="rdg_plan_day">Dag %s</string>
+  <string name="rdg_plan_set_start_jan1">Start 1. januar</string>
+  <string name="done">Ferdig</string>
+  <string name="reset">Tilbakestill</string>
+  <string name="rdg_plan_y1ntpspr">Det nye testamente, salmene og ordspråkene på ett år</string>
+  <string name="rdg_plan_y1ot1nt1_chronological">Hele Bibelen kronologisk på ett år</string>
+  <string name="rdg_plan_y1ot1nt1_OTandNT">Hele Bibelen på ett år (GT og NT parallelt)</string>
+  <string name="rdg_plan_y1ot1nt1_OTthenNT">Hele Bibelen på ett år (GT, deretter NT)</string>
+  <string name="rdg_plan_y1ot1nt2_mcheyne">Hele Bibelen på ett år (M\'Cheyne)</string>
+  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
+  <!--Document context menu-->
   <string name="delete">Slett</string>
+  <string name="delete_index">Slett søkeregister</string>
   <string name="about">Om</string>
+  <string name="delete_doc">Slette %s?</string>
+  <string name="delete_search_index_doc">Slette søkeregister for %s?</string>
+  <!--Verse context menu-->
+  <string name="select_text">Marker tekst</string>
+  <string name="select_text_help">Dra over teksten for å merke.\nTrykk deretter på merket tekst for å kopiere.</string>
   <string name="notes">Notater og kryssreferanser</string>
   <string name="copy">Kopier dette verset</string>
-  <!-- Dictionary -->
-  <string name="dictionary">Bibelordbok</string>
-  <string name="search_dictionary_hint">Søk i ordbok</string>
-  <string name="dictionary_contents">Innhold</string>
-  <!-- Document types -->
-  <string name="doc_type_bible">Bibler</string>
-  <string name="doc_type_commentary">Bibelkommentarer</string>
-  <string name="doc_type_dictionary">Bibelordbøker</string>
-  <string name="error_occurred">En feil har oppstått</string>
-  <string name="okay">OK</string>
-  <string name="cancel">Avbryt</string>
-  <string name="error">"Feil "</string>
-  <string name="more">Mer</string>
-  <string name="retry">Prøv igjen</string>
-  <string name="please_wait">Vennligst vent...</string>
-  <string name="tts_lang_not_available">Språket er ikke tilgjengelig.</string>
+  <string name="share_verse">Del dette verset...</string>
+  <string name="share_verse_subject">Et bibelvers har blitt delt med deg via And Bible</string>
+  <string name="compare_translations">Sammenlign oversettelser</string>
+  <!--Bookmarks-->
+  <string name="bookmarks">Bokmerker</string>
   <string name="add_bookmark">Legg til bokmerke</string>
-  <string name="all">Alle</string>
-  <string name="all_greek_occurrences">Finn alle forekomstene</string>
-  <string name="all_hebrew_occurrences">Finn alle forekomstene</string>
-  <string name="app_name">And Bible</string>
-  <string name="assign_labels">Legg til i grupper</string>
   <string name="bookmark_added">Bokmerke lagret</string>
   <string name="bookmark_exists">Bokmerket finnes allerede</string>
   <string name="bookmark_labels">Bokmerkegrupper</string>
-  <string name="bookmarks">Bokmerker</string>
-  <string name="choosePassageVerseName">Velg vers</string>
-  <string name="delete_index">Slett søkeregister</string>
-  <string name="delete_search_index_doc">Slette søkeregister for %s?</string>
-  <string name="doc_type_book">Bøker</string>
-  <string name="error_key_not_in_document">Ikke funnet i modulen</string>
-  <string name="error_no_content">Ikke noe innhold i dette verset</string>
-  <string name="error_page_too_large">Siden er for stor til å laste inn</string>
-  <string name="general_book">Bok</string>
-  <string name="general_book_contents">Innhold</string>
-  <string name="help">Hjelp</string>
-  <string name="lang_default">Standard</string>
-  <string name="locale_change_warning">Applikasjonen vil omstarte for at det nye språket skal tre i kraft</string>
-  <string name="morph_robinson_not_installed">Vennligst last ned ordboken \'Robinson\'s Morphological Analysis Codes\'</string>
-  <string name="mynote">Mine notater</string>
-  <string name="mynote_add">Legg til i mine notater</string>
-  <string name="mynote_saved">Notater lagret</string>
-  <string name="mynote_view_edit">Mine notater</string>
-  <string name="mynotes">Mine notater</string>
+  <string name="assign_labels">Legg til i grupper</string>
   <string name="new_label">Ny gruppe</string>
   <string name="new_label_prompt">Gruppenavn</string>
-  <string name="no">Nei</string>
-  <string name="no_indexed_bible_with_strongs_ref">Du må laste ned en Bibel som inneholder Strongs ordboknummer og laste ned søkeregisteret via Søkefunksjonen.</string>
+  <string name="label_unlabelled">Umerket</string>
+  <!--Dictionary-->
+  <string name="dictionary">Bibelordbok</string>
+  <string name="search_dictionary_hint">Søk i ordbok</string>
+  <string name="dictionary_contents">Innhold</string>
+  <!--General Book-->
+  <string name="general_book">Bok</string>
+  <string name="general_book_contents">Innhold</string>
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
   <string name="one_chapter">%d kapittel</string>
-  <string name="one_page">%d side</string>
-  <string name="one_verse">%d vers</string>
-  <string name="prefs_interface_locale_summary">Velg ønsket språk for brukergrensesnittet</string>
-  <string name="prefs_interface_locale_title">Språk</string>
-  <string name="prefs_navigate_to_verse_summary">Velg kapittel og vers når du skal navigere til et nytt bibelsted</string>
-  <string name="prefs_navigate_to_verse_title">Naviger til vers</string>
-  <string name="prefs_red_letter_summary">Vis Jesu tale i rød skrift</string>
-  <string name="prefs_red_letter_title">Rød skrift</string>
-  <string name="prefs_section_title_summary">Vis ikke-kanoniske seksjonsoverskrifter</string>
-  <string name="prefs_section_title_title">Seksjonsoverskrifter</string>
-  <string name="prefs_show_morphology_summary">Vis \'Robinson\'s Greek morphology\'</string>
-  <string name="prefs_show_morphology_title">Vis morfologiske koder</string>
-  <string name="prefs_show_mynotes_summary">Vis ikon i vers du har skrevet notater</string>
-  <string name="prefs_show_mynotes_title">Vis notatikoner</string>
-  <string name="prefs_text_size_sample_text">Eksempeltekst</string>
-  <string name="prefs_verse_per_line_summary">Vis hvert bibelvers på egen linje</string>
-  <string name="prefs_verse_per_line_title">Ett vers per linje</string>
-  <string name="download_refreshing_book_list">Oppdaterer listen over tilgjengelige moduler</string>
-  <string name="rest_of_book">Til slutten av boken</string>
-  <string name="rest_of_chapter">Til slutten av kapittelet</string>
-  <string name="save">Lagre</string>
-  <string name="search_results">Søketreff</string>
-  <string name="select_text">Marker tekst</string>
-  <string name="select_text_help">Dra over teksten for å merke.\nTrykk deretter på merket tekst for å kopiere.</string>
-  <string name="share_verse">Del dette verset...</string>
-  <string name="share_verse_subject">Et bibelvers har blitt delt med deg via And Bible</string>
   <string name="some_chapters">%d kapitler</string>
-  <string name="some_pages">%d sider</string>
+  <string name="rest_of_book">Til slutten av boken</string>
+  <!--Speak - Commentary-->
+  <string name="one_verse">%d vers</string>
   <string name="some_verses">%d vers</string>
+  <string name="rest_of_chapter">Til slutten av kapittelet</string>
+  <!--Speak - Dictionary and other-->
+  <string name="one_page">%d side</string>
+  <string name="some_pages">%d sider</string>
+  <!--Speak - Common-->
+  <string name="stop">Stopp</string>
+  <string name="tts_lang_not_available">Språket er ikke tilgjengelig.</string>
   <string name="speak_queue">Legg i kø</string>
   <string name="speak_repeat">Repeter</string>
-  <string name="stop">Stopp</string>
-  <string name="storage_space_warning">Ikke nok lokal lagringsplass.</string>
-  <string name="strongs_toggle_button_off">nnnn</string>
-  <string name="strongs_toggle_button_on">nnnn</string>
-<string name="empty_list">Ingen data å vise</string><string name="prefs_show_bookmarks_summary">Vis ikon i bokmerkede vers</string><string name="prefs_show_bookmarks_title">Vis bokmerkeikon</string><string name="prefs_tilt_to_scroll_summary">Rull siden nedover ved å helle på enheten</string><string name="prefs_tilt_to_scroll_title">Hell for å rulle teksten</string><string name="rdg_plan_title">Leseplan</string><string name="rdg_plan_selector_title">Velg en leseplan</string><string name="rdg_plan_day">Dag %s</string><string name="rdg_plan_set_start_jan1">Start 1. januar</string><string name="done">Ferdig</string><string name="reset">Tilbakestill</string><string name="rdg_plan_y1ntpspr">Det nye testamente, salmene og ordspråkene på ett år</string><string name="rdg_plan_y1ot1nt1_chronological">Hele Bibelen kronologisk på ett år</string><string name="rdg_plan_y1ot1nt1_OTandNT">Hele Bibelen på ett år (GT og NT parallelt)</string><string name="rdg_plan_y1ot1nt1_OTthenNT">Hele Bibelen på ett år (GT, deretter NT)</string><string name="rdg_plan_y1ot1nt2_mcheyne">Hele Bibelen på ett år (M\'Cheyne)</string><string name="prefs_night_mode_automatic">Automatisk</string><string name="download_refresh_book_list_menu_item">Oppdater</string><string name="yes">Ja</string><string name="compare_translations">Sammenlign oversettelser</string><string name="doc_type_map">Kart</string><string name="document_not_installed">Vennligst last ned \'%s\'</string><string name="backup">Sikkerhetskopi</string><string name="backup_success">Notater og bokmerker er lagret på %s på minnekortet</string><string name="restore">Gjenopprett</string><string name="restore_confirmation">Overskrive notater og bokmerker?</string><string name="restore_success">Notater og bokmerker er gjenopprettet fra %s på minnekortet</string><string name="label_unlabelled">Umerket</string></resources>
+  <!--User Notes-->
+  <string name="mynotes">Mine notater</string>
+  <string name="mynote">Mine notater</string>
+  <string name="mynote_add">Legg til i mine notater</string>
+  <string name="mynote_view_edit">Mine notater</string>
+  <string name="mynote_saved">Notater lagret</string>
+  <!--Backup and restore-->
+  <string name="backup">Sikkerhetskopi</string>
+  <string name="backup_success">Notater og bokmerker er lagret på %s på minnekortet</string>
+  <string name="restore">Gjenopprett</string>
+  <string name="restore_confirmation">Overskrive notater og bokmerker?</string>
+  <string name="restore_success">Notater og bokmerker er gjenopprettet fra %s på minnekortet</string>
+  <!--Document types-->
+  <string name="doc_type_bible">Bibler</string>
+  <string name="doc_type_commentary">Bibelkommentarer</string>
+  <string name="doc_type_dictionary">Bibelordbøker</string>
+  <string name="doc_type_book">Bøker</string>
+  <string name="doc_type_map">Kart</string>
+  <!--Languages-->
+  <string name="lang_default">Standard</string>
+  <!--General-->
+  <string name="okay">OK</string>
+  <string name="cancel">Avbryt</string>
+  <string name="yes">Ja</string>
+  <string name="no">Nei</string>
+  <string name="save">Lagre</string>
+  <string name="error">Feil</string>
+  <string name="more">Mer</string>
+  <string name="retry">Prøv igjen</string>
+  <string name="please_wait">Vennligst vent...</string>
+  <string name="all">Alle</string>
+  <!--Errors-->
+  <string name="error_occurred">En feil har oppstått</string>
+  <string name="error_no_content">Ikke noe innhold i dette verset</string>
+  <string name="error_page_too_large">Siden er for stor til å laste inn</string>
+  <string name="error_key_not_in_document">Ikke funnet i modulen</string>
+  <string name="empty_list">Ingen data å vise</string>
+</resources>
