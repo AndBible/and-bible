@@ -142,6 +142,7 @@
   <string name="assign_labels">Pennu labeli</string>
   <string name="new_label">Label newydd</string>
   <string name="new_label_prompt">Enw</string>
+  <string name="label_unlabelled">Heb label</string>
   <!--Dictionary-->
   <string name="dictionary">Geiriadur</string>
   <string name="search_dictionary_hint">Chwilio geiriadur</string>
@@ -152,12 +153,15 @@
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
+  <string name="one_chapter">pennod %d</string>
   <string name="some_chapters">%d pennod</string>
   <string name="rest_of_book">I ddiwedd y llyfr</string>
   <!--Speak - Commentary-->
+  <string name="one_verse">adnod %d</string>
   <string name="some_verses">%d adnod</string>
   <string name="rest_of_chapter">I ddiwedd y bennod</string>
   <!--Speak - Dictionary and other-->
+  <string name="one_page">tudalen %d</string>
   <string name="some_pages">%d tudalen</string>
   <!--Speak - Common-->
   <string name="stop">Stopiwch</string>

@@ -68,6 +68,7 @@
   <string name="prefs_tilt_to_scroll_summary">הטה את המכשיר כדי לגלול למעלה ולמטה</string>
   <string name="prefs_night_mode_title">מצב לילה</string>
   <string name="prefs_night_mode_summary">לקריאה נוחה יותר בחושך</string>
+  <string name="prefs_night_mode_automatic">אוטומטי</string>
   <string name="prefs_navigate_to_verse_title">עבור לפסוק</string>
   <string name="prefs_navigate_to_verse_summary">אפשר בחירת פסוק בעת מעבר</string>
   <string name="prefs_text_size_title">גודל הטקסט</string>
@@ -96,6 +97,7 @@
   <string name="download_source_message">אנו מורידים את הטקסטים מ: \nhttp://www.crosswire.org</string>
   <string name="download_document_confirm_prefix">הורדה</string>
   <string name="download_refreshing_book_list">טוען רשימת טקסטים זמינים</string>
+  <string name="download_refresh_book_list_menu_item">רענון</string>
   <string name="error_downloading">אירעה שגיאה במהלך ההורדה. אנא בדוק את החיבור לאינטרנט.</string>
   <string name="no_internet_connection">לא מצליח להתחבר לאינטרנט</string>
   <string name="storage_space_warning">אין מספיק מקום אחסון.</string>
@@ -103,7 +105,17 @@
   <string name="wait_for_bible_not_yet">אנא המתן. יש טקסט שהתקנתו עדיין לא הסתיימה.</string>
   <string name="download_complete_no_bibles">אין טקסטים מותקנים. אנא לחץ על כפתור החזרה ונסה שנית.</string>
   <string name="too_many_jobs">יותר מדי משימות פועלות יחד כרגע. אנא המתן שחלקן יסתיימו, ונסה שוב.</string>
+  <string name="document_not_installed">אנא הורד \'%s\'</string>
   <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">תוכנית קריאה</string>
+  <string name="rdg_plan_selector_title">בחר תוכנית קריאה</string>
+  <string name="rdg_plan_day">יום %s</string>
+  <string name="rdg_plan_set_start_jan1">התחל 1 בינואר</string>
+  <string name="done">סיום</string>
+  <string name="reset">איפוס</string>
+  <string name="rdg_plan_y1ntpspr">הברית החדשה, תהילים ומשלי במשך שנה</string>
+  <string name="rdg_plan_y1ot1nt1_OTandNT">כל הכתובים במשך שנה - תנ\"ך ברית חדשה</string>
+  <string name="rdg_plan_y1ot1nt2_mcheyne">רק התנ\"ך במשך שנה (M\'Cheyne)</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">מחיקה</string>
@@ -118,6 +130,7 @@
   <string name="copy">העתק פסוק זה</string>
   <string name="share_verse">שתף פסוק זה ...</string>
   <string name="share_verse_subject">הפסוק הזה נשלח אליך באמצעות And Bible</string>
+  <string name="compare_translations">השוואת תרגומים</string>
   <!--Bookmarks-->
   <string name="bookmarks">סימניות</string>
   <string name="add_bookmark">הוסף סימניה</string>
@@ -127,6 +140,7 @@
   <string name="assign_labels">הוסף תוויות</string>
   <string name="new_label">תווית חדשה</string>
   <string name="new_label_prompt">שם</string>
+  <string name="label_unlabelled">לא מתויג</string>
   <!--Dictionary-->
   <string name="dictionary">מילון</string>
   <string name="search_dictionary_hint">חיפוש במילון</string>
@@ -159,16 +173,22 @@
   <string name="mynote_view_edit">הערה אישית</string>
   <string name="mynote_saved">ההערה נשמרה</string>
   <!--Backup and restore-->
+  <string name="backup">גיבוי</string>
+  <string name="restore">שחזור</string>
+  <string name="restore_confirmation">האם להחליף את ההערות והסימניות הקיימות ?</string>
+  <string name="restore_success">ההערות והסימניות שוחזרו מ %s בכרטיס הזכרון</string>
   <!--Document types-->
   <string name="doc_type_bible">תנ\"ך</string>
   <string name="doc_type_commentary">פרשנות</string>
   <string name="doc_type_dictionary">מילון</string>
   <string name="doc_type_book">ספר</string>
+  <string name="doc_type_map">מפה</string>
   <!--Languages-->
   <string name="lang_default">ברירת מחדל</string>
   <!--General-->
   <string name="okay">אישור</string>
   <string name="cancel">ביטול</string>
+  <string name="yes">כן</string>
   <string name="no">לא</string>
   <string name="save">שמירה</string>
   <string name="error">שגיאה</string>

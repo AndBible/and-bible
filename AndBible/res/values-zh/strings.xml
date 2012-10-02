@@ -3,8 +3,9 @@
   <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"神說：「要有光」，就有了光\"\n创世记 1:3</string>
-  <string name="help_text">导航:\n使用菜单的动作按钮\n向左滑动手指看下一章\n向右滑动手指看上一章\n向左或向右按轨迹球也可以前后翻动章节</string>
+  <string name="help_text">导航:\n使用菜单的动作按钮\n向左滑动手指看下一章\n向右滑动手指看上一章\n向左或向右按轨迹球\n也可以前后翻动章节</string>
   <string name="help_text_long"><b>导航</b>\n使用轨迹球、D-pad或者用手指在屏幕上左右滑动到达前一章或者后一章\n双击屏幕来打开或者关闭全屏模式\n\n<b>菜单</b>\n按菜单键来开启动作菜单\n\n欲下载更多的圣经或者文档, 按 菜单／更多／下载文档\n\n<b>朗读</b>\n按朗读启动开关朗读功能的对话框\n\n<b>我的笔记</b>\n按弹出菜单中的我的笔记菜单项可以添加笔记。现有笔记列表通过主菜单访问\n\n<b>书签</b>\n在弹出菜单中可以给对应小节添加书签. 书签管理通过主菜单访问. 书签管理的弹出菜单提供书签分组功能，而且可以使用标签.\n\n<b>查询</b>\n查询文本可以包括的特殊字符有 *, ?, AND, OR, NOT (请参考 \"Apache Lucene - Query Parser Syntax\" 获得更多的信息)\n\n<b>弹出菜单</b>\n长按圣经文本显示针对当前小节的有效动作菜单.\n长按文档选择列表中某项来删除文档或者查看文档的信息.\n长按Back返回按钮查看历史记录</string>
+  <string name="version_text"> %s 版本 </string>
   <string name="no_sdcard_error">请插入并启用存储卡,然后再次启动本程序</string>
   <!--main menu-->
   <string name="chooseBook">版本</string>
@@ -56,7 +57,7 @@
   <string name="prefs_show_notes_title">备注</string>
   <string name="prefs_show_notes_summary">显示脚注和索引</string>
   <string name="prefs_show_strongs_title">显示Strong序数</string>
-  <string name="prefs_show_strongs_summary">显示Strong的定义</string>
+  <string name="prefs_show_strongs_summary">显示Strong序数的希腊文和犹太文定义的链接         </string>
   <string name="prefs_show_morphology_title">形态</string>
   <string name="prefs_show_morphology_summary">显示 Robinson的希腊文</string>
   <string name="prefs_section_title_title">章节标题</string>
@@ -83,9 +84,10 @@
   <string name="next">下一页</string>
   <!--Strongs-->
   <string name="strongs">Strong字典</string>
-  <string name="strongs_not_installed">请下载Strong的希伯来语和希腊语字典</string>
+  <string name="strongs_not_installed">请下载Strong序数的希伯来语和希腊语字典</string>
   <string name="all_greek_occurrences">查找所有希腊字符</string>
   <string name="all_hebrew_occurrences">查找所有希伯来文</string>
+  <string name="no_indexed_bible_with_strongs_ref">需要下载包含Strong序数的圣经并通过查询下载相应索引</string>
   <string name="morph_robinson_not_installed">请下载Robinson的形态分析码的字典</string>
   <string name="strongs_toggle_button_on">已打开</string>
   <string name="strongs_toggle_button_off">已关闭</string>
@@ -103,6 +105,7 @@
   <string name="wait_for_bible_not_yet">请等待，正在安装已经下载的圣经版本</string>
   <string name="download_complete_no_bibles">没有安装圣经. 请后退再重新下载</string>
   <string name="too_many_jobs">太多的任务要执行. 请稍等, 等一些任务完成后再试</string>
+  <string name="document_not_installed">请下载 \"%s\"</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">阅读计划</string>
   <string name="rdg_plan_selector_title">请选择阅读计划</string>
@@ -139,6 +142,7 @@
   <string name="assign_labels">分配标签</string>
   <string name="new_label">新标签</string>
   <string name="new_label_prompt">标签名称</string>
+  <string name="label_unlabelled">没有标签</string>
   <!--Dictionary-->
   <string name="dictionary">字典</string>
   <string name="search_dictionary_hint">查询字典</string>
@@ -158,6 +162,7 @@
   <string name="rest_of_chapter">余下的章</string>
   <!--Speak - Dictionary and other-->
   <string name="one_page">第 %d页</string>
+  <string name="some_pages">共%d页</string>
   <!--Speak - Common-->
   <string name="stop">停止</string>
   <string name="tts_lang_not_available">汉语版本不支持朗读功能</string>
@@ -170,10 +175,16 @@
   <string name="mynote_view_edit">查看编辑我的笔记</string>
   <string name="mynote_saved">笔记已保存</string>
   <!--Backup and restore-->
+  <string name="backup">备份</string>
+  <string name="backup_success">我的笔记和书签保存在SD卡的%s目录中</string>
+  <string name="restore">恢复</string>
+  <string name="restore_confirmation">覆盖现有笔记和书签么?</string>
+  <string name="restore_success">笔记和书签已经从SD卡目录 %s 中的备份中恢复</string>
   <!--Document types-->
   <string name="doc_type_bible">圣经</string>
   <string name="doc_type_commentary">注释</string>
   <string name="doc_type_dictionary">字典</string>
+  <string name="doc_type_book">卷</string>
   <string name="doc_type_map">地图</string>
   <!--Languages-->
   <string name="lang_default">默认语言</string>
@@ -181,6 +192,7 @@
   <string name="okay">确定</string>
   <string name="cancel">取消</string>
   <string name="yes">确定</string>
+  <string name="no">否</string>
   <string name="save">保存</string>
   <string name="error">错误</string>
   <string name="more">更多</string>
