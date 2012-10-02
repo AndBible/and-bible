@@ -54,7 +54,7 @@ public class SwordContentFacade {
 	
 	private DocumentParseMethod documentParseMethod = new DocumentParseMethod();
 	
-	private static final String TAG = "SwordContentApi";
+	private static final String TAG = "SwordContentFacade";
 	private static SwordContentFacade singleton;
 
 	// set to false for testing
