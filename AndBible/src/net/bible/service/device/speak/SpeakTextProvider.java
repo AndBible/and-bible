@@ -1,4 +1,4 @@
-package net.bible.android.device;
+package net.bible.service.device.speak;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 
 import android.util.Log;
 
-/** this was intended to support pause, FF, rew but that is not yet implemented
+/** Keep track of a list of chunks of text being fed to TTS
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
@@ -28,18 +28,34 @@ public class SpeakTextProvider {
 	
 	private static final String TAG = "SpeakTextProvider";
 
-	public void addTextToSpeak(String textToSpeak) {
-   		this.mTextToSpeak.addAll(breakUpText(textToSpeak));
-    	Log.d(TAG, "Num sentences:"+mTextToSpeak.size());
+	public void addTextsToSpeak(List<String> textsToSpeak) {
+		for (String text : textsToSpeak) {
+	   		this.mTextToSpeak.addAll(breakUpText(text));
+		}
+    	Log.d(TAG, "Total Num blocks in speak queue:"+mTextToSpeak.size());
 	}
 	
 	public boolean isMoreTextToSpeak() {
 		return currentSentence<mTextToSpeak.size();
 	}
 	
-	public String getNextTextToSpeak() {
-        String text = mTextToSpeak.get(currentSentence++);
+	public String getNextTextToSpeak(double fractionAlreadySpoken) {
+        String text = getNextTextToSpeak();
+        if (fractionAlreadySpoken>0) {
+        	Log.d(TAG, "Getting part of text to read.  Fraction:"+fractionAlreadySpoken);
+        	text = text.substring((int)(Math.min(1,fractionAlreadySpoken)*text.length()));
+        }
         return text;		
+	}
+
+	public String getNextTextToSpeak() {
+        return mTextToSpeak.get(currentSentence++);
+	}
+	
+	/** current chunk needs to be re-read (at least a fraction of it after pause)
+	 */
+	public void backOneChunk() {
+		currentSentence = Math.max(0, currentSentence-1);
 	}
 	
 	public void reset() {

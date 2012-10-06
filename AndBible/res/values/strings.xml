@@ -202,6 +202,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="some_pages">%d pages</string>
     <!-- Speak - Common -->
     <string name="stop">Stop</string>
+    <string name="pause">Pause</string>
     <string name="tts_lang_not_available">Language is not available.</string>
     <string name="speak_queue">Queue</string>
     <string name="speak_repeat">Repeat</string>

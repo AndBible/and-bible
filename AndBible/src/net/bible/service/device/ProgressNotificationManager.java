@@ -1,4 +1,4 @@
-package net.bible.android.device;
+package net.bible.service.device;
 
 import java.util.HashMap;
 import java.util.Map;

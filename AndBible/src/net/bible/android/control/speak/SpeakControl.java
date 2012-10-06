@@ -8,8 +8,8 @@ import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.device.TextToSpeechController;
 import net.bible.service.common.AndRuntimeException;
+import net.bible.service.device.speak.TextToSpeechController;
 import net.bible.service.sword.SwordContentFacade;
 
 import org.crosswire.jsword.book.Book;
@@ -90,9 +90,14 @@ public class SpeakControl {
 	 */
 	public void speakToggleCurrentPage() {
 		Log.d(TAG, "Speak toggle current page");
-		if (isSpeaking()) {
-			stop();
-        	Toast.makeText(BibleApplication.getApplication(), R.string.stop, Toast.LENGTH_SHORT).show();
+		if (isPaused()) {
+			//stop();
+			continueAfterPause();
+        	Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
+		} else if (isSpeaking()) {
+			//stop();
+			pause();
+        	Toast.makeText(BibleApplication.getApplication(), R.string.pause, Toast.LENGTH_SHORT).show();
 		} else {
 			try {
 				CurrentPage page = CurrentPageManager.getInstance().getCurrentPage();
@@ -127,6 +132,10 @@ public class SpeakControl {
 		return TextToSpeechController.getInstance().isSpeaking();
 	}
 
+	public boolean isPaused() {
+		return TextToSpeechController.getInstance().isPaused();
+	}
+
 	/** prepare to speak
 	 */
 	public void speak(NumPagesToSpeakDefinition numPagesDefn, boolean queue, boolean repeat) {
@@ -154,16 +163,17 @@ public class SpeakControl {
 	public void speak(Book book, List<Key> keyList, boolean queue, boolean repeat) {
 		Log.d(TAG, "Keys:"+keyList.size());
 		// build a string containing the text to be spoken
-		StringBuffer textToSpeak = new StringBuffer();
+		List<String> textToSpeak = new ArrayList<String>();
 		
     	// first concatenate the number of required chapters
 		try {
 			for (Key key : keyList) {
 				// intro
-				textToSpeak.append(key).append(".\n");
+				textToSpeak.add(key.getName()+".");
+				textToSpeak.add("\n");
 				
 				// content
-				textToSpeak.append( SwordContentFacade.getInstance().getTextToSpeak(book, key));
+				textToSpeak.add( SwordContentFacade.getInstance().getTextToSpeak(book, key));
 
 //TODO - add a pause that is not said by the new chunked Speak
 //				textToSpeak.append(".\n");
@@ -175,19 +185,44 @@ public class SpeakControl {
 		
 		// if repeat was checked then concatenate with itself
 		if (repeat) {
-			// grab the text now before repeating is appended otherwise 'repeating..' is also appended at the end
-			String baseText = textToSpeak.toString();
-			textToSpeak.append("\n")
-					   .append(baseText);
+			textToSpeak.add("\n");
+			textToSpeak.addAll(textToSpeak);
 		}
 
-		speak(textToSpeak.toString(), book, queue);
+		speak(textToSpeak, book, queue);
 	}
 	
 	/** prepare to speak
 	 */
-	public void speak(String textToSpeak, Book fromBook, boolean queue) {
+	public void speak(List<String> textsToSpeak, Book fromBook, boolean queue) {
 		
+		List<Locale> localePreferenceList = calculateLocalePreferenceList(fromBook);
+
+		// speak current chapter or stop speech if already speaking
+    	TextToSpeechController tts = TextToSpeechController.getInstance();
+		Log.d(TAG, "Tell TTS to speak");
+    	tts.speak(localePreferenceList, textsToSpeak, queue);
+	}
+
+	public void pause() {
+		Log.d(TAG, "Pause TTS speaking");
+    	TextToSpeechController tts = TextToSpeechController.getInstance();
+		tts.pause();
+	}
+
+	public void continueAfterPause() {
+		Log.d(TAG, "Continue TTS speaking after pause");
+    	TextToSpeechController tts = TextToSpeechController.getInstance();
+		tts.continueAfterPause();
+	}
+	
+	public void stop() {
+		Log.d(TAG, "Stop TTS speaking");
+    	TextToSpeechController tts = TextToSpeechController.getInstance();
+		tts.shutdown();
+	}
+	
+	private List<Locale> calculateLocalePreferenceList(Book fromBook) {
 		//calculate preferred locales to use for speech
         // Set preferred language to the same language as the book.
         // Note that a language may not be available, and so we have a preference list
@@ -208,17 +243,7 @@ public class SpeakControl {
 		
 		// finally just add the language of the book
 		localePreferenceList.add( new Locale(bookLanguageCode));
-
-		// speak current chapter or stop speech if already speaking
-    	TextToSpeechController tts = TextToSpeechController.getInstance();
-		Log.d(TAG, "Tell TTS to speak");
-    	tts.speak(localePreferenceList, textToSpeak.toString(), queue);
-	}
-	
-	public void stop() {
-		Log.d(TAG, "Stop TTS speaking");
-    	TextToSpeechController tts = TextToSpeechController.getInstance();
-		tts.shutdown();
+		return localePreferenceList;
 	}
 	
 	private String getDefaultCountryCode(String language) {

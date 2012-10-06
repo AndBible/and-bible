@@ -192,6 +192,22 @@ public class SwordApiTest extends TestCase {
 		}
 	}
 
+	public void testReadDodsonKey() throws Exception {
+		Book book = Books.installed().getBook("Dodson");
+		assertNotNull("Dodson not installed", book);
+		assertEquals("Dodson incorrectly installed", book.getInitials(), "Dodson");
+		
+		Key allKeys = book.getGlobalKeyList();
+		assertTrue("Global key list problem in Dobsons", allKeys.getCardinality()>1000);
+		
+		Key firstKey = allKeys.get(0);
+		assertEquals("Incorrect first key", "G0001", firstKey.getName());
+		// all the below fail
+		assertEquals("Cannot getKey G0001", "G0001", book.getKey("G0001").getName()); // G0002 is returned
+		assertEquals("Cannot getKey G0009", "G0009", book.getKey("G0009").getName()); // G0002 is returned
+		assertTrue("G0001 not in Dodson", book.contains(firstKey)); // false is returned
+	}
+
 	public void testReadWordsOfChrist() throws Exception {
 		Book esv = getBook("ESV");
 		Key key = PassageKeyFactory.instance().getKey("Luke 15:3-8");
