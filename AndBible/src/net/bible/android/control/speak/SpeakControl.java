@@ -51,6 +51,8 @@ public class SpeakControl {
 			new NumPagesToSpeakDefinition(10, R.plurals.num_pages, true, R.id.numChapters4)
 	};
 
+	private Key prevSpeakTogglePassageKey;
+	
 	private static final String TAG = "SpeakControl";
 
 	/** return a list of prompt ids for the speak screen associated with the current document type
@@ -90,22 +92,29 @@ public class SpeakControl {
 	 */
 	public void speakToggleCurrentPage() {
 		Log.d(TAG, "Speak toggle current page");
-		if (isPaused()) {
-			//stop();
+		CurrentPage page = CurrentPageManager.getInstance().getCurrentPage();
+		Book fromBook = page.getCurrentDocument();
+		Key currentPassage = page.getKey();
+		boolean isSamePassage = currentPassage.equals(prevSpeakTogglePassageKey);
+
+		// Continue
+		if (isSamePassage && isPaused()) {
 			continueAfterPause();
         	Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
-		} else if (isSpeaking()) {
-			//stop();
+        //Pause
+		} else if (isSamePassage && isSpeaking()) {
 			pause();
         	Toast.makeText(BibleApplication.getApplication(), R.string.pause, Toast.LENGTH_SHORT).show();
+        // Start Speak
 		} else {
 			try {
-				CurrentPage page = CurrentPageManager.getInstance().getCurrentPage();
-				Book fromBook = page.getCurrentDocument();
+				if (isSpeaking()) {
+					stop();
+				}
 		    	// first find keys to Speak
 				List<Key> keyList = new ArrayList<Key>();
 				keyList.add(page.getKey());
-					
+			
 				speak(fromBook, keyList, true, false);
 
 				Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
@@ -114,6 +123,7 @@ public class SpeakControl {
 				throw new AndRuntimeException("Error preparing Speech", e);
 			}
 		}
+		prevSpeakTogglePassageKey = currentPassage;
 	}
 	
 	public boolean isCurrentDocSpeakAvailable() {
@@ -140,6 +150,12 @@ public class SpeakControl {
 	 */
 	public void speak(NumPagesToSpeakDefinition numPagesDefn, boolean queue, boolean repeat) {
 		Log.d(TAG, "Chapters:"+numPagesDefn.getNumPages());
+		// if a previous speak request is paused clear the cached text 
+		if (isPaused()) {
+			Log.d(TAG, "Clearing paused Speak text");
+			stop();
+		}
+		
 		CurrentPage page = CurrentPageManager.getInstance().getCurrentPage();
 		Book fromBook = page.getCurrentDocument()
 				;
