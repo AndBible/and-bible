@@ -28,7 +28,8 @@ public class SpeakTiming {
 			// ignore short text strings as they can be way off in cps e.g. passage header (e.g. Job 39 v7)  has lots of 1 char numbers that take a long time to say
 			if (timeTaken>SHORT_TEXT_LIMIT_MSEC) {
 				// calculate characters per millisecond
-				cpms = ((float)lastSpeakTextLength)/milliSecsSinceStart();
+				float latestCpms = ((float)lastSpeakTextLength)/milliSecsSinceStart();
+				updateAverageCpms(latestCpms);
 				Log.d(TAG, "CPmS:"+cpms+" CPS:"+cpms*1000.0);
 			}
 			lastUtteranceId = null;
@@ -52,5 +53,10 @@ public class SpeakTiming {
 		long duration = System.currentTimeMillis() - lastSpeakStartTime;
 		Log.d(TAG, "Duration:"+duration);
 		return duration;
+	}
+	
+	private void updateAverageCpms(float lastCpms) {
+		// take the average of historical figures and the new figure to attempt to lessen the affect of weird text but aadjust for different types of text 
+		cpms = (cpms+lastCpms)/2.0f;
 	}
 }

@@ -1,5 +1,6 @@
 package net.bible.service.device.speak;
 
+import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -17,6 +18,7 @@ public class SpeakTextProvider {
 
     private List<String> mTextToSpeak = new ArrayList<String>();
     private int currentSentence = 0;
+    private double fractionCompletedWhenPaused = 0;
     
     // Before ICS Android would split up long text for you but since ICS this error occurs:
 	//    if (mText.length() >= MAX_SPEECH_ITEM_CHAR_LENGTH) {
@@ -39,22 +41,49 @@ public class SpeakTextProvider {
 		return currentSentence<mTextToSpeak.size();
 	}
 	
-	public String getNextTextToSpeak(double fractionAlreadySpoken) {
-        String text = getNextTextToSpeak();
-        if (fractionAlreadySpoken>0) {
-        	Log.d(TAG, "Getting part of text to read.  Fraction:"+fractionAlreadySpoken);
-        	text = text.substring((int)(Math.min(1,fractionAlreadySpoken)*text.length()));
+	public String getNextTextToSpeak() {
+        String text = getNextTextChunk();
+        
+        // if a pause occurred then skip the first part
+        if (fractionCompletedWhenPaused>0) {
+        	Log.d(TAG, "Getting part of text to read.  Fraction:"+fractionCompletedWhenPaused);
+        	int allTextLength = text.length();
+        	int nextTextOffset = (int)(Math.min(1,fractionCompletedWhenPaused)*allTextLength);
+        	
+        	BreakIterator breakIterator = BreakIterator.getSentenceInstance();
+        	breakIterator.setText(text);
+        	int sentenceStart = breakIterator.preceding(nextTextOffset);
+        	
+        	// because we don't return an exact fraction, but go to the beginning of a sentence, we need to update the fractionAlreadySpoken  
+        	fractionCompletedWhenPaused = ((float)sentenceStart)/allTextLength;
+        	
+        	text = text.substring(sentenceStart);
         }
         return text;		
 	}
 
-	public String getNextTextToSpeak() {
+	private String getNextTextChunk() {
         return mTextToSpeak.get(currentSentence++);
+	}
+	
+	public void pause(float fractionCompleted) {
+        // accumulate these fractions until we reach the end of a chunk of text
+        // if pause several times the fraction of text completed becomes a fraction of the fraction left i.e. 1-previousFractionCompleted
+        // also ensure the fraction is never greater than 1/all text
+        fractionCompletedWhenPaused += Math.min(1, 
+        								((1.0-fractionCompletedWhenPaused)*fractionCompleted));
+
+        backOneChunk();
+	}
+	
+	public void finishedUtterance(String utteranceId) {
+		// reset pause info as a chunk is now finished and it may have been started using continue
+		fractionCompletedWhenPaused = 0;
 	}
 	
 	/** current chunk needs to be re-read (at least a fraction of it after pause)
 	 */
-	public void backOneChunk() {
+	private void backOneChunk() {
 		currentSentence = Math.max(0, currentSentence-1);
 	}
 	

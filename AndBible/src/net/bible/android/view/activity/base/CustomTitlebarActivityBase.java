@@ -5,6 +5,9 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.navigation.ChooseDocument;
 import net.bible.service.common.CommonUtils;
+import net.bible.service.device.speak.event.SpeakEvent;
+import net.bible.service.device.speak.event.SpeakEventListener;
+import net.bible.service.device.speak.event.SpeakEventManager;
 
 import org.crosswire.jsword.book.Book;
 
@@ -19,9 +22,9 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.ToggleButton;
 
-public abstract class CustomTitlebarActivityBase extends ActivityBase {
+public abstract class CustomTitlebarActivityBase extends ActivityBase implements SpeakEventListener {
 	
-	protected enum HeaderButton {DOCUMENT, PAGE, BIBLE, COMMENTARY, DICTIONARY, TOGGLE_STRONGS, SPEAK};
+	protected enum HeaderButton {DOCUMENT, PAGE, BIBLE, COMMENTARY, DICTIONARY, TOGGLE_STRONGS, SPEAK, SPEAK_FF, SPEAK_REW};
 
 	private View mTitleBar;
 	
@@ -36,6 +39,9 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	private Book mSuggestedDictionary;
 
 	private ImageButton mQuickSpeakLink;
+	private ImageButton mQuickSpeakFFLink;
+	private ImageButton mQuickSpeakRewLink;
+	
 	private ToggleButton mStrongsToggle;
 	
 	private View mContentView;
@@ -110,7 +116,19 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 		});
     }
     
-    /** Central method to initiate handling of header button presses
+    @Override
+	protected void onStart() {
+		super.onStart();
+		// the manager will also instantly fire a catch-up event to ensure state is current
+        SpeakEventManager.getInstance().addSpeakEventListener(this);
+	}
+    @Override
+	protected void onStop() {
+		super.onStop();
+        SpeakEventManager.getInstance().removeSpeakEventListener(this);
+	}
+
+	/** Central method to initiate handling of header button presses
      *  Also allows subclasses to know when a button has been pressed
      * 
      * @param buttonType
@@ -136,6 +154,7 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	        	startActivityForResult(pageHandlerIntent, 1);
 	    		break;
 	    	case SPEAK:
+	    		Log.d(TAG, "Speak");
 	    		ControlFactory.getInstance().getSpeakControl().speakToggleCurrentPage();
 	    		break;
 	    	case TOGGLE_STRONGS:
@@ -277,6 +296,25 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 		return (numButtonsToShow()>2 || !isStrongsRelevant()) &&
 				ControlFactory.getInstance().getSpeakControl().isCurrentDocSpeakAvailable();
 
+	}
+
+	@Override
+	public void speakStateChange(final SpeakEvent e) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (e.isSpeaking()) {
+					Log.d(TAG, "Speaking");
+					mQuickSpeakLink.setImageResource(android.R.drawable.ic_media_pause);
+				} else if (e.isPaused()) {
+					Log.d(TAG, "Paused");
+					mQuickSpeakLink.setImageResource(android.R.drawable.ic_media_play);
+				} else {
+					Log.d(TAG, "Stopped");
+					mQuickSpeakLink.setImageResource(R.drawable.ic_menu_happy_21);
+				}
+			}
+		});
 	}
 
 	/** must wait until child has setContentView before setting custom title bar so intercept the method and then set the title bar

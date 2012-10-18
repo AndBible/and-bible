@@ -51,8 +51,6 @@ public class SpeakControl {
 			new NumPagesToSpeakDefinition(10, R.plurals.num_pages, true, R.id.numChapters4)
 	};
 
-	private Key prevSpeakTogglePassageKey;
-	
 	private static final String TAG = "SpeakControl";
 
 	/** return a list of prompt ids for the speak screen associated with the current document type
@@ -92,25 +90,20 @@ public class SpeakControl {
 	 */
 	public void speakToggleCurrentPage() {
 		Log.d(TAG, "Speak toggle current page");
-		CurrentPage page = CurrentPageManager.getInstance().getCurrentPage();
-		Book fromBook = page.getCurrentDocument();
-		Key currentPassage = page.getKey();
-		boolean isSamePassage = currentPassage.equals(prevSpeakTogglePassageKey);
 
 		// Continue
-		if (isSamePassage && isPaused()) {
+		if (isPaused()) {
 			continueAfterPause();
         	Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
         //Pause
-		} else if (isSamePassage && isSpeaking()) {
+		} else if (isSpeaking()) {
 			pause();
         	Toast.makeText(BibleApplication.getApplication(), R.string.pause, Toast.LENGTH_SHORT).show();
         // Start Speak
 		} else {
 			try {
-				if (isSpeaking()) {
-					stop();
-				}
+				CurrentPage page = CurrentPageManager.getInstance().getCurrentPage();
+				Book fromBook = page.getCurrentDocument();
 		    	// first find keys to Speak
 				List<Key> keyList = new ArrayList<Key>();
 				keyList.add(page.getKey());
@@ -123,7 +116,6 @@ public class SpeakControl {
 				throw new AndRuntimeException("Error preparing Speech", e);
 			}
 		}
-		prevSpeakTogglePassageKey = currentPassage;
 	}
 	
 	public boolean isCurrentDocSpeakAvailable() {

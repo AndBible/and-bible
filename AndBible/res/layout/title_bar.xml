@@ -36,8 +36,20 @@
 		android:layout_height="fill_parent"
 		android:layout_alignParentRight="true"
 	>
+	    <ImageButton android:id="@+id/quickSpeakRew"
+	        	android:src="@android:drawable/ic_media_rew"
+	        	android:contentDescription="@string/speak"
+	        	android:visibility="gone"
+				style="@style/SmallTitleBarButton"
+	    />
 	    <ImageButton android:id="@+id/quickSpeak"
 	        	android:src="@drawable/ic_menu_happy_21"
+	        	android:contentDescription="@string/speak"
+	        	android:visibility="gone"
+				style="@style/SmallTitleBarButton"
+	    />
+	    <ImageButton android:id="@+id/quickSpeakFF"
+	        	android:src="@android:drawable/ic_media_ff"
 	        	android:contentDescription="@string/speak"
 	        	android:visibility="gone"
 				style="@style/SmallTitleBarButton"
