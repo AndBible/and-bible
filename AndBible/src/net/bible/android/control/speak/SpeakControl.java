@@ -8,6 +8,7 @@ import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.device.speak.TextToSpeechController;
 import net.bible.service.sword.SwordContentFacade;
@@ -19,6 +20,7 @@ import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleInfo;
 
+import android.media.AudioManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -202,10 +204,12 @@ public class SpeakControl {
 	
 	/** prepare to speak
 	 */
-	public void speak(List<String> textsToSpeak, Book fromBook, boolean queue) {
+	private void speak(List<String> textsToSpeak, Book fromBook, boolean queue) {
 		
 		List<Locale> localePreferenceList = calculateLocalePreferenceList(fromBook);
 
+		preSpeak();
+		
 		// speak current chapter or stop speech if already speaking
     	TextToSpeechController tts = TextToSpeechController.getInstance();
 		Log.d(TAG, "Tell TTS to speak");
@@ -220,6 +224,7 @@ public class SpeakControl {
 
 	public void continueAfterPause() {
 		Log.d(TAG, "Continue TTS speaking after pause");
+		preSpeak();
     	TextToSpeechController tts = TextToSpeechController.getInstance();
 		tts.continueAfterPause();
 	}
@@ -229,7 +234,13 @@ public class SpeakControl {
     	TextToSpeechController tts = TextToSpeechController.getInstance();
 		tts.shutdown();
 	}
-	
+
+	private void preSpeak() {
+		// ensure volume controls adjust correct stream - not phone which is the default
+		// STREAM_TTS does not seem to be available but this article says use STREAM_MUSIC instead: http://stackoverflow.com/questions/7558650/how-to-set-volume-for-text-to-speech-speak-method
+        CurrentActivityHolder.getInstance().getCurrentActivity().setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+	}
 	private List<Locale> calculateLocalePreferenceList(Book fromBook) {
 		//calculate preferred locales to use for speech
         // Set preferred language to the same language as the book.
