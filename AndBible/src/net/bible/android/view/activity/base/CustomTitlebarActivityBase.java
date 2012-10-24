@@ -3,6 +3,7 @@ package net.bible.android.view.activity.base;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.view.activity.navigation.ChooseDocument;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.speak.event.SpeakEvent;
@@ -24,7 +25,7 @@ import android.widget.ToggleButton;
 
 public abstract class CustomTitlebarActivityBase extends ActivityBase implements SpeakEventListener {
 	
-	protected enum HeaderButton {DOCUMENT, PAGE, BIBLE, COMMENTARY, DICTIONARY, TOGGLE_STRONGS, SPEAK, SPEAK_FF, SPEAK_REW};
+	protected enum HeaderButton {DOCUMENT, PAGE, BIBLE, COMMENTARY, DICTIONARY, TOGGLE_STRONGS, SPEAK, SPEAK_STOP, SPEAK_FF, SPEAK_REW};
 
 	private View mTitleBar;
 	
@@ -39,8 +40,11 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase implements
 	private Book mSuggestedDictionary;
 
 	private ImageButton mQuickSpeakLink;
+	private ImageButton mQuickSpeakStopLink;
 	private ImageButton mQuickSpeakFFLink;
 	private ImageButton mQuickSpeakRewLink;
+	
+	private SpeakControl speakControl = ControlFactory.getInstance().getSpeakControl();
 	
 	private ToggleButton mStrongsToggle;
 	
@@ -70,6 +74,9 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase implements
         mQuickDictionaryChangeLink = (Button)findViewById(R.id.quickDictionaryChange);
         
         mQuickSpeakLink = (ImageButton)findViewById(R.id.quickSpeak);
+        mQuickSpeakStopLink = (ImageButton)findViewById(R.id.quickSpeakStop);
+        mQuickSpeakRewLink = (ImageButton)findViewById(R.id.quickSpeakRew);
+        mQuickSpeakFFLink = (ImageButton)findViewById(R.id.quickSpeakFF);
         mStrongsToggle = (ToggleButton)findViewById(R.id.strongsToggle);
         
         mDocumentTitleLink.setOnClickListener(new OnClickListener() {
@@ -106,6 +113,27 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase implements
 			@Override
             public void onClick(View v) {
             	handleHeaderButtonPress(HeaderButton.SPEAK);
+            }
+        });
+
+        mQuickSpeakStopLink.setOnClickListener(new OnClickListener() {
+			@Override
+            public void onClick(View v) {
+            	handleHeaderButtonPress(HeaderButton.SPEAK_STOP);
+            }
+        });
+
+        mQuickSpeakRewLink.setOnClickListener(new OnClickListener() {
+			@Override
+            public void onClick(View v) {
+            	handleHeaderButtonPress(HeaderButton.SPEAK_REW);
+            }
+        });
+
+        mQuickSpeakFFLink.setOnClickListener(new OnClickListener() {
+			@Override
+            public void onClick(View v) {
+            	handleHeaderButtonPress(HeaderButton.SPEAK_FF);
             }
         });
 
@@ -155,7 +183,19 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase implements
 	    		break;
 	    	case SPEAK:
 	    		Log.d(TAG, "Speak");
-	    		ControlFactory.getInstance().getSpeakControl().speakToggleCurrentPage();
+	    		speakControl.speakToggleCurrentPage();
+	    		break;
+	    	case SPEAK_STOP:
+	    		Log.d(TAG, "Stop");
+	    		speakControl.stop();
+	    		break;
+	    	case SPEAK_REW:
+	    		Log.d(TAG, "Rewind");
+	    		speakControl.rewind();
+	    		break;
+	    	case SPEAK_FF:
+	    		Log.d(TAG, "Forward");
+	    		speakControl.forward();
 	    		break;
 	    	case TOGGLE_STRONGS:
 				// update the show-strongs pref setting according to the ToggleButton
@@ -167,7 +207,7 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase implements
 	    		Log.e(TAG, "Unknown button pressed");
 	    	}
     	} catch (Exception e) {
-    		Log.e(TAG, "Error pressing header button");
+    		Log.e(TAG, "Error pressing header button", e);
     		showErrorMsg(R.string.error_occurred);
     	}
     }
@@ -207,6 +247,8 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase implements
 		
 		//hide/show speak button dependant on lang and speak support of lang && space available
        	mQuickSpeakLink.setVisibility(isSpeakShown() ? View.VISIBLE : View.GONE);
+       	
+       	showSpeakButtons();
 
 //		// the title bar has different widths depending on the orientation
 //		int titleBarTitleWidthPixels = getResources().getDimensionPixelSize(R.dimen.title_bar_title_width);
@@ -279,7 +321,7 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase implements
         	quickButton.setVisibility(View.GONE);
         }
 	}
-
+	
 	/** return true if Strongs numbers are shown */
 	public boolean isStrongsShown() {
 		return isStrongsRelevant() && 
@@ -291,11 +333,22 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase implements
 		return ControlFactory.getInstance().getDocumentControl().isStrongsInBook();
 	}
 
+	private void showSpeakButtons() {
+		boolean showExtraButtons = isSpeakFFRewShown();
+       	mQuickSpeakStopLink.setVisibility(showExtraButtons ? View.VISIBLE : View.GONE);
+       	mQuickSpeakRewLink.setVisibility(showExtraButtons ? View.VISIBLE : View.GONE);
+       	mQuickSpeakFFLink.setVisibility(showExtraButtons ? View.VISIBLE : View.GONE);
+	}
+
 	/**  return true if Speak button can be shown */
 	public boolean isSpeakShown() {
 		return (numButtonsToShow()>2 || !isStrongsRelevant()) &&
-				ControlFactory.getInstance().getSpeakControl().isCurrentDocSpeakAvailable();
+				speakControl.isCurrentDocSpeakAvailable();
 
+	}
+	
+	public boolean isSpeakFFRewShown() {
+		return isSpeakShown() && numButtonsToShow()>=5 && (speakControl.isSpeaking() || speakControl.isPaused());
 	}
 
 	@Override
@@ -304,15 +357,13 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase implements
 			@Override
 			public void run() {
 				if (e.isSpeaking()) {
-					Log.d(TAG, "Speaking");
 					mQuickSpeakLink.setImageResource(android.R.drawable.ic_media_pause);
 				} else if (e.isPaused()) {
-					Log.d(TAG, "Paused");
 					mQuickSpeakLink.setImageResource(android.R.drawable.ic_media_play);
 				} else {
-					Log.d(TAG, "Stopped");
 					mQuickSpeakLink.setImageResource(R.drawable.ic_menu_happy_21);
 				}
+				showSpeakButtons();
 			}
 		});
 	}

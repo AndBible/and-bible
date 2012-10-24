@@ -10,7 +10,7 @@ public class SpeakTiming {
 	private static float cpms = 0.016F;
 	
 	private static final int SHORT_TEXT_LIMIT_MSEC = 20000;
-	private static final String TAG = "SpeakTiming";
+	private static final String TAG = "Speak";
 	
 	public void started(String utteranceId, int speakTextLength) {
 		Log.d(TAG, "Speak timer started");
@@ -45,8 +45,16 @@ public class SpeakTiming {
 		if (cpms >0 && lastSpeakTextLength>0) {
 			fractionCompleted = (float)milliSecsSinceStart()/((float)lastSpeakTextLength/cpms);
 			Log.d(TAG, "Fraction completed:"+fractionCompleted);
+		} else {
+			Log.e(TAG, "SpeakTiming- Cpms:"+cpms+" lastSpeakTextLength:"+lastSpeakTextLength);
 		}
 		return fractionCompleted;
+	}
+
+	/** estimate how much of the last string sent to TTS has been spoken 
+	 */
+	public long getCharsInSecs(int secs) {
+		return (long)(cpms*(1000.0*secs));
 	}
 
 	private long milliSecsSinceStart(){

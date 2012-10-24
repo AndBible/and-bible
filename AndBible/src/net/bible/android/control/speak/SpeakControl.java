@@ -179,14 +179,14 @@ public class SpeakControl {
 		try {
 			for (Key key : keyList) {
 				// intro
-				textToSpeak.add(key.getName()+".");
-				textToSpeak.add("\n");
+				textToSpeak.add(key.getName()+". ");
+//				textToSpeak.add("\n");
 				
 				// content
 				textToSpeak.add( SwordContentFacade.getInstance().getTextToSpeak(book, key));
 
-//TODO - add a pause that is not said by the new chunked Speak
-//				textToSpeak.append(".\n");
+				// add a pause at end to separate passages
+				textToSpeak.add("\n");
 			}
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting chapters to speak", e);
@@ -216,6 +216,20 @@ public class SpeakControl {
     	tts.speak(localePreferenceList, textsToSpeak, queue);
 	}
 
+	public void rewind() {
+		Log.d(TAG, "Rewind TTS speaking");
+    	TextToSpeechController tts = TextToSpeechController.getInstance();
+		tts.rewind();
+    	Toast.makeText(BibleApplication.getApplication(), R.string.rewind, Toast.LENGTH_SHORT).show();
+	}
+	
+	public void forward() {
+		Log.d(TAG, "Forward TTS speaking");
+    	TextToSpeechController tts = TextToSpeechController.getInstance();
+		tts.forward();
+    	Toast.makeText(BibleApplication.getApplication(), R.string.forward, Toast.LENGTH_SHORT).show();
+	}
+
 	public void pause() {
 		Log.d(TAG, "Pause TTS speaking");
     	TextToSpeechController tts = TextToSpeechController.getInstance();
@@ -231,6 +245,11 @@ public class SpeakControl {
 	
 	public void stop() {
 		Log.d(TAG, "Stop TTS speaking");
+		doStop();
+    	Toast.makeText(BibleApplication.getApplication(), R.string.stop, Toast.LENGTH_SHORT).show();
+	}
+	
+	private void doStop() {
     	TextToSpeechController tts = TextToSpeechController.getInstance();
 		tts.shutdown();
 	}
