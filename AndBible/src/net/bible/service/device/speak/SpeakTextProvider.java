@@ -49,14 +49,14 @@ public class SpeakTextProvider {
 		//TODO: there seems to be an occasional problem when using ff/rew/pause in the last chunk
 		return currentSentence<mTextToSpeak.size();
 	}
-	
+
 	public String getNextTextToSpeak() {
         String text = getNextTextChunk();
         
         // if a pause occurred then skip the first part
         if (fractionOfNextSentenceSpoken>0) {
         	Log.d(TAG, "Getting part of text to read.  Fraction:"+fractionOfNextSentenceSpoken);
-        	
+
         	StartPos textFraction = getPrevTextStartPos(text, fractionOfNextSentenceSpoken);
         	if (textFraction.found) {
 	        	fractionOfNextSentenceSpoken = textFraction.actualFractionOfWhole;
@@ -72,6 +72,7 @@ public class SpeakTextProvider {
 	}
 
 	private String getNextTextChunk() {
+		Log.d(TAG, "***CurrentSentence:"+currentSentence);
 		String text = peekCurrentTextChunk();
 		currentSentence++;
         return text;
@@ -89,6 +90,8 @@ public class SpeakTextProvider {
 	 * @param fractionCompleted of last block of text returned by getNextTextToSpeak
 	 */
 	public void pause(float fractionCompleted) {
+		Log.d(TAG, "*** 1 CurrentSentence:"+currentSentence);
+
         // accumulate these fractions until we reach the end of a chunk of text
         // if pause several times the fraction of text completed becomes a fraction of the fraction left i.e. 1-previousFractionCompleted
         // also ensure the fraction is never greater than 1/all text
@@ -97,6 +100,7 @@ public class SpeakTextProvider {
         Log.d(TAG, "Paused start position:"+fractionOfNextSentenceSpoken);
 
         backOneChunk();
+		Log.d(TAG, "*** 2 CurrentSentence:"+currentSentence);
 	}
 	
 	public void rewind() {
@@ -126,11 +130,17 @@ public class SpeakTextProvider {
 	}
 
 	public void forward() {
+    	Log.d(TAG, "Forward 1 position:"+fractionOfNextSentenceSpoken);
+		Log.d(TAG, "***CurrentSentence:"+currentSentence);
+
 		// go back to start of current sentence
     	StartPos textFraction = getForwardTextStartPos(peekCurrentTextChunk(), fractionOfNextSentenceSpoken);
+    	Log.d(TAG, "Forward 2 position:"+textFraction.actualFractionOfWhole);
+		Log.d(TAG, "***CurrentSentence:"+currentSentence);
 
     	// if could not find the next sentence start
     	if (!textFraction.found && forwardOneChunk()) {
+        	Log.d(TAG, "Forward 3 NOT found");
 	    	textFraction = getForwardTextStartPos(peekCurrentTextChunk(), 0.0f);   		
 		}
     	
@@ -213,7 +223,7 @@ public class SpeakTextProvider {
     	retVal.found = startPos>=0;
     	
     	if (retVal.found) {
-    		// nudge the startPos past the beginning of sentence so this seantence start is found when searching for previous bock in getNextSentence
+    		// nudge the startPos past the beginning of sentence so this sentence start is found when searching for previous block in getNextSentence
         	retVal.startPosition = startPos<text.length()-1-1? startPos+1 : startPos;
         	
 	    	// because we don't return an exact fraction, but go to the beginning of a sentence, we need to update the fractionAlreadySpoken  

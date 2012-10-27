@@ -165,6 +165,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     public synchronized void rewind() {
     	Log.d(TAG, "Rewind TTS");
     	// prevent onUtteranceCompleted causing next text to be grabbed
+    	uniqueUtteranceNo++;
     	boolean wasPaused = isPaused;
     	isPaused = true;
     	if (isSpeaking) {
@@ -172,8 +173,10 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     	}
         isSpeaking = false;
         
-        // save current position
-        mSpeakTextProvider.pause(mSpeakTiming.getFractionCompleted());
+        if (!wasPaused) {
+	        // ensure current position is saved which is done during pause
+	        mSpeakTextProvider.pause(mSpeakTiming.getFractionCompleted());
+        }
 
         // move current position back a bit
         mSpeakTextProvider.rewind();
@@ -187,6 +190,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     public synchronized void forward() {
     	Log.d(TAG, "Forward TTS");
     	// prevent onUtteranceCompleted causing next text to be grabbed
+    	uniqueUtteranceNo++;
     	boolean wasPaused = isPaused;
     	isPaused = true;
     	if (isSpeaking) {
@@ -194,8 +198,10 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     	}
         isSpeaking = false;
         
-        // save current position
-        mSpeakTextProvider.pause(mSpeakTiming.getFractionCompleted());
+        if (!wasPaused) {
+	        // ensure current position is saved which is done during pause
+        	mSpeakTextProvider.pause(mSpeakTiming.getFractionCompleted());
+        }
 
         // move current position back a bit
         mSpeakTextProvider.forward();
@@ -300,7 +306,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 	        
 	        mSpeakTiming.started(utteranceId, text.length());
 	        isSpeaking = true;
-	        Log.d(TAG, "Speaking:"+text);
+//	        Log.d(TAG, "Speaking:"+text);
 		}
     }
 
