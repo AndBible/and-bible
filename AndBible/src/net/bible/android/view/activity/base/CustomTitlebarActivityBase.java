@@ -274,13 +274,13 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase implements
 
     	switch (buttonType) {
     	case BIBLE:
-    		suggestedDoc = ControlFactory.getInstance().getDocumentControl().getSuggestedBible();;
+    		suggestedDoc = ControlFactory.getInstance().getDocumentControl().getSuggestedBible();
     		break;
     	case COMMENTARY:
-    		suggestedDoc = ControlFactory.getInstance().getDocumentControl().getSuggestedCommentary();;
+    		suggestedDoc = ControlFactory.getInstance().getDocumentControl().getSuggestedCommentary();
     		break;
     	case DICTIONARY:
-    		suggestedDoc = ControlFactory.getInstance().getDocumentControl().getSuggestedDictionary();;
+    		suggestedDoc = ControlFactory.getInstance().getDocumentControl().getSuggestedDictionary();
     		break;
     	}
     	return suggestedDoc;
