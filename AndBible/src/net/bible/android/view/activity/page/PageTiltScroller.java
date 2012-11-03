@@ -4,6 +4,7 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.PageTiltScrollControl;
 import net.bible.android.control.page.PageTiltScrollControl.TiltScrollInfo;
 import android.os.Handler;
+import android.util.Log;
 
 /** The WebView component that shows teh main bible and commentary text
  * 
@@ -49,6 +50,7 @@ public class PageTiltScroller {
 
 	/** start scrolling handler
 	 */
+	//TODO use Timer and TimerTask instead of Handler for greater reliability under Android 4+ -- https://groups.google.com/forum/?fromgroups=#!topic/android-developers/Ewm3c9z17Es
 	private void kickOffScrollHandler() {
 		TiltScrollInfo tiltScrollInfo = mPageTiltScrollControl.getTiltScrollInfo();
 		mScrollHandler.postDelayed(mScrollTask, tiltScrollInfo.delayToNextScroll);
@@ -70,6 +72,7 @@ public class PageTiltScroller {
 
 			if (mPageTiltScrollControl.isTiltScrollEnabled()) {
 				int delay = scrolledOK ? tiltScrollInfo.delayToNextScroll : TiltScrollInfo.TIME_TO_POLL_WHEN_NOT_SCROLLING;
+				Log.d(TAG,  "Posting scroll delay");
 				mScrollHandler.postDelayed(mScrollTask, delay);
 			}
 		}

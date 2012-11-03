@@ -7,7 +7,6 @@ import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.page.PageControl;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import android.content.Intent;
@@ -160,7 +159,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	} else if (mainMenuCommandHandler.isDisplayRefreshRequired(requestCode)) {
     		preferenceSettingsChanged();
     	} else if (mainMenuCommandHandler.isDocumentChanged(requestCode)) {
-    		updateSuggestedDocuments();
+    		updateToolbarButtonText();
     	}
     }
 
@@ -168,7 +167,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     protected void preferenceSettingsChanged() {
     	documentViewManager.getDocumentView().applyPreferenceSettings();
 		bibleContentManager.updateText(true);
-		gestureListener.setSensePageDownTap(!isStrongsShown());
     }
     
     /** allow current page to save any settings or data before being changed
@@ -191,7 +189,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 				getDocumentViewManager().getDocumentView().changeBackgroundColour();
 				
 				setProgressBar(true);
-		    	setPageTitleVisible(false);
+//TODO remove or refactor
+//		    	setPageTitleVisible(false);
 			}
 		});
     }
@@ -202,12 +201,10 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				PageControl pageControl = ControlFactory.getInstance().getPageControl();
-		    	setDocumentTitle(pageControl.getCurrentDocumentTitle());
-		    	updatePageTitle();
-		    	setPageTitleVisible(true);
+//TODO remove or refactor if required
+//		    	setPageTitleVisible(true);
 		    	setProgressBar(false);
-		    	updateSuggestedDocuments();
+		    	updateToolbarButtonText();
 		    	// don't sense taps at bottom of screen if Strongs numbers link might be there or Map zoom control might be there
 				gestureListener.setSensePageDownTap(!isStrongsShown() && !CurrentPageManager.getInstance().isMapShown());
 			}
@@ -220,7 +217,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-		    	updatePageTitle();
+//TODO add events to PassageChangeMediator to signal when page detail/verse changes and register event in CurrentPageTitle
+//		    	updatePageTitle();
 			}
 		});
     }

@@ -294,25 +294,25 @@ public class DailyReading extends CustomTitlebarActivityBase {
      * 
      * @param buttonType
      */
-    protected void handleHeaderButtonPress(HeaderButton buttonType) {
-    	switch (buttonType) {
-    	case DOCUMENT:
-        	Intent docHandlerIntent = new Intent(this, ReadingPlanSelectorList.class);
-        	startActivityForResult(docHandlerIntent, 1);
-        	finish();
-    		break;
-    	case PAGE:
-        	Intent pageHandlerIntent = new Intent(this, DailyReadingList.class);
-        	startActivityForResult(pageHandlerIntent, 1);
-        	finish();
-    		break;
-    	default:
-    		super.handleHeaderButtonPress(buttonType);
-    		finish();
-    	}
-    }
+	//TODO NEED T FIX THIS AFTER TOOLBAR REFACTOR
+//    protected void handleHeaderButtonPress(HeaderButton buttonType) {
+//    	switch (buttonType) {
+//    	case DOCUMENT:
+//        	Intent docHandlerIntent = new Intent(this, ReadingPlanSelectorList.class);
+//        	startActivityForResult(docHandlerIntent, 1);
+//        	finish();
+//    		break;
+//    	case PAGE:
+//        	Intent pageHandlerIntent = new Intent(this, DailyReadingList.class);
+//        	startActivityForResult(pageHandlerIntent, 1);
+//        	finish();
+//    		break;
+//    	default:
+//    		super.handleHeaderButtonPress(buttonType);
+//    		finish();
+//    	}
+//    }
 
-//TODO NEED T FIX THIS AFTER TOOLBAR REFACTOR
 //    /** need to switch to current doc instead of next doc if the type is currently shown in WebView
 //     //TODO Flagging all doc types as not shown would be more elegant.
 //     */
@@ -333,30 +333,31 @@ public class DailyReading extends CustomTitlebarActivityBase {
 //    	}
 //    	return suggestedDoc;
 //    }
-
-    /** prevent Strongs button being shown
-     */
-	@Override
-	public boolean isStrongsRelevant() {
-		// TODO Auto-generated method stub
-		return super.isStrongsRelevant();
-	}
-
-	/**  do not show Speak button in Daily Reading screen */
-	public boolean isSpeakShown() {
-		return false;
-	}
+//
+//    /** prevent Strongs button being shown
+//     */
+//	@Override
+//	public boolean isStrongsRelevant() {
+//		// TODO Auto-generated method stub
+//		return super.isStrongsRelevant();
+//	}
+//
+//	/**  do not show Speak button in Daily Reading screen */
+//	public boolean isSpeakShown() {
+//		return false;
+//	}
 
     //TODO move the below up to more general parent class
     
 	protected void updatePageTitle() {
 		// shorten plan code and show it in doc button
-    	setDocumentTitle(StringUtils.left(mReadings.getReadingPlanInfo().getCode(), 8));
-    	// show day in page/key button
-    	setPageTitle(mReadings.getDayDesc());
+//TODO refactor setting of page title
+//    	setDocumentTitle(StringUtils.left(mReadings.getReadingPlanInfo().getCode(), 8));
+//    	// show day in page/key button
+//    	setPageTitle(mReadings.getDayDesc());
     	
     	// make sure docs show something
-    	updateSuggestedDocuments();
+    	updateToolbarButtonText();
 	}
 	
 	@Override
