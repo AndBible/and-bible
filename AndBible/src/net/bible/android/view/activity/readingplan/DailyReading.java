@@ -312,26 +312,27 @@ public class DailyReading extends CustomTitlebarActivityBase {
     	}
     }
 
-    /** need to switch to current doc instead of next doc if the type is currently shown in WebView
-     //TODO Flagging all doc types as not shown would be more elegant.
-     */
-    @Override
-    protected Book getSuggestedDocument(HeaderButton buttonType) {
-    	Book suggestedDoc = null;
-
-    	switch (buttonType) {
-    	case BIBLE:
-    		suggestedDoc = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getCurrentDocument();
-    		break;
-    	case COMMENTARY:
-    		suggestedDoc = ControlFactory.getInstance().getCurrentPageControl().getCurrentCommentary().getCurrentDocument();
-    		break;
-    	case DICTIONARY:
-    		suggestedDoc = ControlFactory.getInstance().getCurrentPageControl().getCurrentDictionary().getCurrentDocument();
-    		break;
-    	}
-    	return suggestedDoc;
-    }
+//TODO NEED T FIX THIS AFTER TOOLBAR REFACTOR
+//    /** need to switch to current doc instead of next doc if the type is currently shown in WebView
+//     //TODO Flagging all doc types as not shown would be more elegant.
+//     */
+//    @Override
+//    protected Book getSuggestedDocument(HeaderButton buttonType) {
+//    	Book suggestedDoc = null;
+//
+//    	switch (buttonType) {
+//    	case BIBLE:
+//    		suggestedDoc = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getCurrentDocument();
+//    		break;
+//    	case COMMENTARY:
+//    		suggestedDoc = ControlFactory.getInstance().getCurrentPageControl().getCurrentCommentary().getCurrentDocument();
+//    		break;
+//    	case DICTIONARY:
+//    		suggestedDoc = ControlFactory.getInstance().getCurrentPageControl().getCurrentDictionary().getCurrentDocument();
+//    		break;
+//    	}
+//    	return suggestedDoc;
+//    }
 
     /** prevent Strongs button being shown
      */

@@ -42,15 +42,15 @@
 	        	android:visibility="gone"
 				style="@style/SmallTitleBarButton"
 	    />
-	    <ImageButton android:id="@+id/quickSpeak"
-	        	android:src="@drawable/ic_menu_happy_21"
-	        	android:contentDescription="@string/speak"
-	        	android:visibility="gone"
-				style="@style/SmallTitleBarButton"
-	    />
 	    <ImageButton android:id="@+id/quickSpeakStop"
 	        	android:src="@drawable/ic_media_stop"
 	        	android:contentDescription="@string/stop"
+	        	android:visibility="gone"
+				style="@style/SmallTitleBarButton"
+	    />
+	    <ImageButton android:id="@+id/quickSpeak"
+	        	android:src="@drawable/ic_menu_happy_21"
+	        	android:contentDescription="@string/speak"
 	        	android:visibility="gone"
 				style="@style/SmallTitleBarButton"
 	    />
