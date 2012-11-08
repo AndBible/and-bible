@@ -1,21 +1,9 @@
 package net.bible.android.view.activity.base;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
-import net.bible.android.view.activity.base.toolbar.BibleToolbarButton;
-import net.bible.android.view.activity.base.toolbar.CommentaryToolbarButton;
-import net.bible.android.view.activity.base.toolbar.CurrentDocumentToolbarButton;
-import net.bible.android.view.activity.base.toolbar.CurrentPageToolbarButton;
-import net.bible.android.view.activity.base.toolbar.DictionaryToolbarButton;
-import net.bible.android.view.activity.base.toolbar.StrongsToolbarButton;
-import net.bible.android.view.activity.base.toolbar.ToolbarButton;
-import net.bible.android.view.activity.base.toolbar.speak.SpeakFFToolbarButton;
-import net.bible.android.view.activity.base.toolbar.speak.SpeakRewToolbarButton;
-import net.bible.android.view.activity.base.toolbar.speak.SpeakStopToolbarButton;
-import net.bible.android.view.activity.base.toolbar.speak.SpeakToolbarButton;
+import net.bible.android.view.activity.base.toolbar.DefaultToolbar;
+import net.bible.android.view.activity.base.toolbar.Toolbar;
 import android.content.res.Configuration;
 import android.util.Log;
 import android.view.View;
@@ -28,10 +16,10 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 
 	private View mTitleBar;
 	
+	private Toolbar mToolbar;
+	
 	private ProgressBar mProgressBarIndeterminate;
 
-	private List<ToolbarButton> mToolbarButtonList;
-	
 	private View mContentView;
 	
 	private static final String TAG = "CustomTitlebarActivityBase";
@@ -50,17 +38,7 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
         mTitleBar = findViewById(R.id.titleBar);
         mContentView = mTitleBar.getRootView();
         
-        mToolbarButtonList = new ArrayList<ToolbarButton>();
-        mToolbarButtonList.add(new CurrentDocumentToolbarButton(mTitleBar));
-        mToolbarButtonList.add(new CurrentPageToolbarButton(mTitleBar));
-        mToolbarButtonList.add(new BibleToolbarButton(mTitleBar));
-        mToolbarButtonList.add(new CommentaryToolbarButton(mTitleBar));
-        mToolbarButtonList.add(new DictionaryToolbarButton(mTitleBar));
-        mToolbarButtonList.add(new SpeakToolbarButton(mTitleBar));
-        mToolbarButtonList.add(new SpeakStopToolbarButton(mTitleBar));
-        mToolbarButtonList.add(new SpeakRewToolbarButton(mTitleBar));
-        mToolbarButtonList.add(new SpeakFFToolbarButton(mTitleBar));
-        mToolbarButtonList.add(new StrongsToolbarButton(mTitleBar));
+        initialiseToolbar(mTitleBar);
         
         mProgressBarIndeterminate = (ProgressBar)findViewById(R.id.progressCircular);
     }
@@ -94,9 +72,18 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	/** update the quick links in the title bar
      */
     public void updateToolbarButtonText() {
-        for (ToolbarButton button : mToolbarButtonList) {
-        	button.update();
-        }
+        getToolbar().updateButtons();
+    }
+    
+    protected void initialiseToolbar(View toolBarContainer) {
+    	getToolbar().initialise(toolBarContainer);
+    }
+    
+    protected Toolbar getToolbar() {
+    	if (mToolbar==null) {
+    		mToolbar = new DefaultToolbar();
+    	}
+    	return mToolbar;
     }
 
     //TODO move this somewhere appropriate or call PageControl directly

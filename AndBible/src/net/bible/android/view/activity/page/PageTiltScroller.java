@@ -72,7 +72,6 @@ public class PageTiltScroller {
 
 			if (mPageTiltScrollControl.isTiltScrollEnabled()) {
 				int delay = scrolledOK ? tiltScrollInfo.delayToNextScroll : TiltScrollInfo.TIME_TO_POLL_WHEN_NOT_SCROLLING;
-				Log.d(TAG,  "Posting scroll delay");
 				mScrollHandler.postDelayed(mScrollTask, delay);
 			}
 		}

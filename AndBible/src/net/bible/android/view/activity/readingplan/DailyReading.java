@@ -9,11 +9,11 @@ import net.bible.android.control.readingplan.ReadingPlanControl;
 import net.bible.android.control.readingplan.ReadingStatus;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
+import net.bible.android.view.activity.base.toolbar.Toolbar;
+import net.bible.android.view.activity.readingplan.toolbar.ReadingPlanToolbar;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.readingplan.OneDaysReadingsDto;
 
-import org.apache.commons.lang.StringUtils;
-import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.versification.BookName;
 
@@ -44,7 +44,6 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	private TextView mDescriptionView;
 	private TextView mDayView;
 	private TextView mDateView;
-//	private TextView mStatusMsgView; //unused
 	private List<ImageView> mImageTickList;
 	private Button mDoneButton;
 	
@@ -54,6 +53,8 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	public static final String DAY = "net.bible.android.view.activity.readingplan.Day";
 	
 	private OneDaysReadingsDto mReadings;
+
+	private Toolbar mToolbar;
 
 	private ReadingPlanControl mReadingPlanControl = ControlFactory.getInstance().getReadingPlanControl();
 	
@@ -81,7 +82,6 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	        mReadings = mReadingPlanControl.getDaysReading(mDay);
 	        
 	        // Populate view
-	        
 	        mDescriptionView =  (TextView)findViewById(R.id.description);
 	        mDescriptionView.setText(mReadings.getReadingPlanInfo().getDescription());
 	
@@ -92,7 +92,6 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	        mDateView.setText(mReadings.getReadingDateString());
 	
 	        mDoneButton = (Button)findViewById(R.id.doneButton);
-//	        mStatusMsgView =  (TextView)findViewById(R.id.status_message);
 	        
 	        mImageTickList = new ArrayList<ImageView>();
 
@@ -165,8 +164,8 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	        }
 	        // end All
 	        
-	        // show reading plan and current day in titlebar
-	        updatePageTitle();
+	        // force the toolbar buttons to be shown correctly
+	        getToolbar().updateButtons();
 	        
 	        Log.d(TAG, "Finished displaying Reading view");
         } catch (Exception e) {
@@ -289,77 +288,14 @@ public class DailyReading extends CustomTitlebarActivityBase {
 		mDoneButton.setEnabled(status.isAllRead());
 	}
 	
-    /** Override Doc & Page header buttons to show reading plans and days lists.
-     *  If any of the other buttons are pressed then finish and allow switch back to standard WebView
-     * 
-     * @param buttonType
-     */
-	//TODO NEED T FIX THIS AFTER TOOLBAR REFACTOR
-//    protected void handleHeaderButtonPress(HeaderButton buttonType) {
-//    	switch (buttonType) {
-//    	case DOCUMENT:
-//        	Intent docHandlerIntent = new Intent(this, ReadingPlanSelectorList.class);
-//        	startActivityForResult(docHandlerIntent, 1);
-//        	finish();
-//    		break;
-//    	case PAGE:
-//        	Intent pageHandlerIntent = new Intent(this, DailyReadingList.class);
-//        	startActivityForResult(pageHandlerIntent, 1);
-//        	finish();
-//    		break;
-//    	default:
-//    		super.handleHeaderButtonPress(buttonType);
-//    		finish();
-//    	}
-//    }
-
-//    /** need to switch to current doc instead of next doc if the type is currently shown in WebView
-//     //TODO Flagging all doc types as not shown would be more elegant.
-//     */
-//    @Override
-//    protected Book getSuggestedDocument(HeaderButton buttonType) {
-//    	Book suggestedDoc = null;
-//
-//    	switch (buttonType) {
-//    	case BIBLE:
-//    		suggestedDoc = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getCurrentDocument();
-//    		break;
-//    	case COMMENTARY:
-//    		suggestedDoc = ControlFactory.getInstance().getCurrentPageControl().getCurrentCommentary().getCurrentDocument();
-//    		break;
-//    	case DICTIONARY:
-//    		suggestedDoc = ControlFactory.getInstance().getCurrentPageControl().getCurrentDictionary().getCurrentDocument();
-//    		break;
-//    	}
-//    	return suggestedDoc;
-//    }
-//
-//    /** prevent Strongs button being shown
-//     */
-//	@Override
-//	public boolean isStrongsRelevant() {
-//		// TODO Auto-generated method stub
-//		return super.isStrongsRelevant();
-//	}
-//
-//	/**  do not show Speak button in Daily Reading screen */
-//	public boolean isSpeakShown() {
-//		return false;
-//	}
+    protected Toolbar getToolbar() {
+    	if (mToolbar==null) {
+    		mToolbar = new ReadingPlanToolbar();
+    	}
+    	return mToolbar;
+    }
 
     //TODO move the below up to more general parent class
-    
-	protected void updatePageTitle() {
-		// shorten plan code and show it in doc button
-//TODO refactor setting of page title
-//    	setDocumentTitle(StringUtils.left(mReadings.getReadingPlanInfo().getCode(), 8));
-//    	// show day in page/key button
-//    	setPageTitle(mReadings.getDayDesc());
-    	
-    	// make sure docs show something
-    	updateToolbarButtonText();
-	}
-	
 	@Override
 	protected void preferenceSettingsChanged() {
 		// TODO Auto-generated method stub

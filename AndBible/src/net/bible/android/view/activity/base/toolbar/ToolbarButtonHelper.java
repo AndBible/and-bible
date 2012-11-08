@@ -10,7 +10,7 @@ import android.widget.Button;
 
 public class ToolbarButtonHelper {
 	
-	void updateQuickButton(Book suggestedBook, Button quickButton, boolean canShow) {
+	public void updateQuickButton(Book suggestedBook, Button quickButton, boolean canShow) {
 		if (quickButton!=null) {
 			if (suggestedBook!=null) {
 	        	updateButtonText(suggestedBook.getInitials(), quickButton);
@@ -19,7 +19,7 @@ public class ToolbarButtonHelper {
 		}
 	}
 
-	void updateButtonText(String bookName, Button quickButton) {
+	public void updateButtonText(String bookName, Button quickButton) {
 		if (bookName!=null && quickButton!=null) {
         	quickButton.setText(bookName);
 		}
