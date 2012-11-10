@@ -1,5 +1,6 @@
 package net.bible.service.device.speak;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -12,6 +13,7 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.device.speak.event.SpeakEvent;
 import net.bible.service.device.speak.event.SpeakEventManager;
 import net.bible.service.device.speak.event.SpeakEvent.SpeakState;
@@ -46,6 +48,9 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     private TextToSpeech mTts;
 
     private List<Locale> localePreferenceList;
+    private Locale currentLocale = Locale.getDefault();
+    private static String PERSIST_LOCALE_KEY = "SpeakLocale";
+    
     private SpeakTextProvider mSpeakTextProvider;
     private SpeakTiming mSpeakTiming;
 
@@ -75,6 +80,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     	CurrentActivityHolder.getInstance().addAppToBackgroundListener(this);
     	mSpeakTextProvider = new SpeakTextProvider();
     	mSpeakTiming = new SpeakTiming();
+    	restorePauseState();
     }
 
     public boolean isLanguageAvailable(String langCode) {
@@ -136,6 +142,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
         		localeOK = ((result != TextToSpeech.LANG_MISSING_DATA) && (result != TextToSpeech.LANG_NOT_SUPPORTED));
         		if (localeOK) {
         			Log.d(TAG, "Successful locale:"+locale);
+        			currentLocale = locale;
         		}
         	}
         		
@@ -382,8 +389,49 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 	public void applicationNowInBackground(AppToBackgroundEvent e) {
 		if (isSpeaking()) {
 			pause();
-		} else {
-			shutdown();
 		}
+
+		if (isPaused()) {
+			persistPauseState();
+		} else {
+			// ensure a previous does not hang around and be restored incorrectly
+			clearPauseState();
+		}
+		
+		shutdownTtsEngine();
+	}
+
+	@Override
+	public void applicationReturnedFromBackground(AppToBackgroundEvent e) {
+		restorePauseState();
+	}
+	
+	/** persist and restore pause state to allow pauses to continue over an app exit
+	 */
+	private void persistPauseState() {
+		Log.d(TAG, "Persisting Pause state");
+		mSpeakTextProvider.persistState();
+		CommonUtils.getSharedPreferences()
+					.edit()
+					.putString(PERSIST_LOCALE_KEY, currentLocale.toString())
+					.commit();
+	}
+	
+	private void restorePauseState() {
+		// ensure no relevant current state is overwritten accidentally
+		if (!isSpeaking()  && !isPaused()) {
+			Log.d(TAG, "Attempting to restore any Persisted Pause state");
+			isPaused = mSpeakTextProvider.restoreState();
+			
+			// restore locale information so tts knows which voice to load when it initialises
+			currentLocale = new Locale(CommonUtils.getSharedPreferences().getString(PERSIST_LOCALE_KEY, Locale.getDefault().toString()));
+			localePreferenceList = new ArrayList<Locale>();
+			localePreferenceList.add(currentLocale);
+		}
+	}
+	private void clearPauseState() {
+		Log.d(TAG, "Clearing Persisted Pause state");
+		mSpeakTextProvider.clearPersistedState();
+		CommonUtils.getSharedPreferences().edit().remove(PERSIST_LOCALE_KEY).commit();
 	}
 }

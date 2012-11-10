@@ -79,6 +79,11 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 			public void applicationNowInBackground(AppToBackgroundEvent e) {
 				mWholeAppWasInBackground = true;
 			}
+
+			@Override
+			public void applicationReturnedFromBackground(AppToBackgroundEvent e) {
+				//NOOP
+			}
 		});
     }
 

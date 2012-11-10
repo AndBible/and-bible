@@ -2,7 +2,6 @@ package net.bible.android.view.activity.base.toolbar.speak;
 
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.toolbar.ToolbarButton;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 
@@ -16,7 +15,6 @@ public class SpeakToolbarButton extends SpeakToolbarButtonBase implements Toolba
 
 	@Override
 	public void update() {
-		Log.d(TAG, "Speak");
 		// run on ui thread
 		getButton().post(new Runnable() {
 			@Override

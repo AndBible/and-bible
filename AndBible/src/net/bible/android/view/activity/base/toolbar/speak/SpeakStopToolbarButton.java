@@ -16,7 +16,7 @@ public class SpeakStopToolbarButton extends SpeakToolbarButtonBase implements To
 
 	@Override
 	public void update() {
-		Log.d(TAG, "Speak");
+		Log.d(TAG, "Update Speak button");
 		// run on ui thread
 		getButton().post(new Runnable() {
 			@Override

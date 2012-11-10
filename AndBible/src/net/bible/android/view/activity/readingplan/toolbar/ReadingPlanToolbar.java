@@ -3,8 +3,6 @@ package net.bible.android.view.activity.readingplan.toolbar;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.bible.android.view.activity.base.toolbar.CommentaryToolbarButton;
-import net.bible.android.view.activity.base.toolbar.DictionaryToolbarButton;
 import net.bible.android.view.activity.base.toolbar.Toolbar;
 import net.bible.android.view.activity.base.toolbar.ToolbarButton;
 import net.bible.android.view.activity.base.toolbar.speak.SpeakFFToolbarButton;
