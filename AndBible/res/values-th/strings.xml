@@ -105,6 +105,7 @@
   <string name="wait_for_bible_not_yet">รอสักครู่ พระคัมภีร์ยังติดตั้งไม่เสร็จ</string>
   <string name="download_complete_no_bibles">ยังไม่ได้ติดตั้งโมดูลพระคัมภีร์ กรุณากด Back และลองอีกครั้ง</string>
   <string name="too_many_jobs">มีงานจำนวนมาก รอสักครู่ เพื่อให้บางงานเสร็จก่อน และลองใหม่อีกครั้ง</string>
+  <string name="document_not_installed">กรุณาดาวน์โหลด \'%s\'</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">แผนการอ่าน</string>
   <string name="rdg_plan_selector_title">เลือกแผนการอ่าน</string>
@@ -131,6 +132,7 @@
   <string name="copy">คัดลอกข้อพระคัมภีร์นี้</string>
   <string name="share_verse">แบ่งปันข้อพระคัมภีร์นี้...</string>
   <string name="share_verse_subject">แบ่งปันข้อพระคัมภีร์จาก And Bible</string>
+  <string name="compare_translations">เปรียบเทียบ</string>
   <!--Bookmarks-->
   <string name="bookmarks">ตัวคั่น</string>
   <string name="add_bookmark">เพิ่มตัวคั่น</string>
@@ -140,6 +142,7 @@
   <string name="assign_labels">กำหนดป้ายกำกับ</string>
   <string name="new_label">ป้ายกำกับใหม่</string>
   <string name="new_label_prompt">ชื่อ</string>
+  <string name="label_unlabelled">ไม่มีป้ายกำกับ</string>
   <!--Dictionary-->
   <string name="dictionary">ประมวลศัพท์</string>
   <string name="search_dictionary_hint">ค้นหาประมวลศัพท์</string>
@@ -172,11 +175,17 @@
   <string name="mynote_view_edit">บันทึกส่วนตัว</string>
   <string name="mynote_saved">บันทึกส่วนตัวถูกบันทึกแล้ว</string>
   <!--Backup and restore-->
+  <string name="backup">สำรองข้อมูล</string>
+  <string name="backup_success">บันทึกย่อและที่คั่นหน้าของฉันได้บันทึกไว้ใน %s บนการ์ด SD</string>
+  <string name="restore">เรียกข้อมูลเดิม</string>
+  <string name="restore_confirmation">ทับบันทึกย่อและที่คั่นหน้าของฉัน</string>
+  <string name="restore_success">เรียกข้อมูลบันทึกย่อและที่คั่นหน้าของฉันจาก %s บนการ์ด SD</string>
   <!--Document types-->
   <string name="doc_type_bible">พระคัมภีร์</string>
   <string name="doc_type_commentary">คู่มืออธิบายพระคัมภีร์</string>
   <string name="doc_type_dictionary">ประมวลศัพท์</string>
   <string name="doc_type_book">หนังสือทั่วไป</string>
+  <string name="doc_type_map">แผนที่</string>
   <!--Languages-->
   <string name="lang_default">ค่าเริ่มต้น</string>
   <!--General-->

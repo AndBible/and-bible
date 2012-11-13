@@ -1,0 +1,153 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="app_name">आन्ड बाइबल</string>
+  <!--Startup & Help-->
+  <string name="splash_top_text">\nतब परमेश्वर ने कहा, “उजियाला हो” और उजियाला हो गया।\nउत्पत्ति 1:3</string>
+  <string name="help_text">अगले या पिछले अध्याय के लिए स्क्रीन पर उंगली से बाएं/दाहिने जाओ⏎ ⏎ अन्य कार्य के लिये \'मेनू\' दबाएँ</string>
+  <string name="version_text">संस्करण %s</string>
+  <string name="no_sdcard_error">एक एसडी कार्ड डालें और बाइबिल फिर से शुरू करे.</string>
+  <!--main menu-->
+  <string name="chooseBook">किताबें</string>
+  <string name="selectPassage">पुस्तक/अध्याय</string>
+  <string name="search">खोज</string>
+  <string name="settings">सेटिंग्स</string>
+  <string name="history">इतिहास</string>
+  <string name="speak">अध्याय पढ़</string>
+  <string name="help">मदद</string>
+  <!--Passage navigation-->
+  <string name="choosePassageBookName">पुस्तक चुनें</string>
+  <string name="choosePassageChapterName">अध्याय चुनें</string>
+  <string name="choosePassageVerseName">छंद चुनें</string>
+  <!--Search-->
+  <string name="search_index">खोज सूचकांक</string>
+  <string name="index">सूची</string>
+  <string name="index_download">डाउनलोड</string>
+  <string name="index_not_available_for_download">यह सूची डाउनलोड करने के लिए उपलब्ध नहीं है</string>
+  <string name="index_create">बनाना</string>
+  <!--Tasks-->
+  <string name="progress_status">प्रगति</string>
+  <!--Search-->
+  <string name="search_results">परिणाम</string>
+  <string name="search_words_group_prompt">छंद खोज</string>
+  <string name="search_all_words">सभी शब्द</string>
+  <string name="search_any_word">कोई भी शब्द</string>
+  <string name="search_phrase">वाक्य</string>
+  <string name="search_result_count">%d परिणाम मिला</string>
+  <string name="search_showing_first">बहुत सारे परिणाम, पहले के %d</string>
+  <string name="search_bible_section_group_prompt">खोज क्षेत्र</string>
+  <string name="search_all_bible">﻿﻿﻿संपूर्ण बाइबल</string>
+  <string name="search_new_testament">नया नियम</string>
+  <string name="search_old_testament">पुराना नियम</string>
+  <string name="search_current_book">वर्तमान पुस्तक</string>
+  <string name="error_executing_search">खोज वाक्य में गलती</string>
+  <!--Preferences-->
+  <string name="prefs_verse_per_line_title">हर छंद, नई पंक्ति में</string>
+  <string name="prefs_verse_per_line_summary">हर एक छंद, नई पंक्ति में पढ़िये</string>
+  <string name="prefs_show_mynotes_title">मेरे टिप्पणी-चित्र दिखाना</string>
+  <string name="prefs_show_notes_title">पाद टिप्पणी और संबंधित संदर्भ</string>
+  <string name="prefs_show_notes_summary">पाद टिप्पणी और संबंधित संदर्भ दिखाना</string>
+  <string name="prefs_red_letter_summary">यीशु मसीह के शब्द, लाल रंग में</string>
+  <string name="prefs_night_mode_title">अंधेरे में पढ़िये</string>
+  <string name="prefs_night_mode_summary">अंधेरे में पढ़ने के लिए</string>
+  <string name="prefs_night_mode_automatic">ऑटोमैटिक</string>
+  <string name="prefs_navigate_to_verse_title">छंद पर पहुंचे</string>
+  <string name="prefs_navigate_to_verse_summary">पुस्तक मे अध्याय और छंद चुनें</string>
+  <string name="prefs_text_size_title">अक्षर का आकार</string>
+  <string name="prefs_text_size_sample_text">नमूना वाक्य</string>
+  <string name="prefs_interface_locale_title">आन्ड बाइबिल, इस भाषा में</string>
+  <string name="prefs_interface_locale_summary">आन्ड बाइबिल की भाषा चुनिए</string>
+  <string name="locale_change_warning">आपकी चुनी भाषा में, आन्ड बाइबिल पुनः आरंभ हो रहा है</string>
+  <!--Notes screen-->
+  <string name="no_chapter_notes">कोई नोट इस अध्याय में मौजूद नहीं</string>
+  <string name="no_verse_notes">कोई टिप्पणी इस छंद में मौजूद नहीं</string>
+  <string name="previous">पिछला</string>
+  <string name="next">﻿﻿﻿﻿अगला</string>
+  <!--Strongs-->
+  <string name="strongs">\"र्स्टो्ग\" शब्दकोश</string>
+  <!--Module download-->
+  <string name="download">अन्य किताबें डाउनलोड करें</string>
+  <string name="download_confirmation">बाइबिल डाउनलोड करें, इंटरनेट से ?</string>
+  <string name="download_source_message">किताबें ⏎ http://www.crosswire.org⏎ &amp; http://xiphos.org वेबसाइट से</string>
+  <string name="download_document_confirm_prefix">डाउनलोड</string>
+  <string name="download_refresh_book_list_menu_item">ताज़ा करें</string>
+  <string name="storage_space_warning">किताब के लिए जगह कम है</string>
+  <string name="wait_for_bible">कृपया प्रतीक्षा करें, बाइबिल डाउनलोड \nहोने के बाद पहला स्क्रीन दिखाई देगा</string>
+  <string name="wait_for_bible_not_yet">कृपया प्रतीक्षा करें,\nबाइबिल डाउनलोड हो रहा है</string>
+  <string name="download_complete_no_bibles">कोई बाइबिल उपलब्ध नहीं,\"बैक बटन\" दबाएँ</string>
+  <string name="document_not_installed">कृपया डाउनलोड करें \'%s\'</string>
+  <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">पढ़ने की योजना</string>
+  <string name="rdg_plan_selector_title">एक \"पढ़ने की योजना\" चुनें</string>
+  <string name="done">समाप्त</string>
+  <string name="rdg_plan_y1ot1nt1_chronological">बाइबिल एक वर्ष में: कालक्रम के अनुसार</string>
+  <string name="rdg_plan_y1ot1nt1_OTandNT">बाइबिल एक वर्ष में: पुराना और नया नियम</string>
+  <string name="rdg_plan_y1ot1nt1_OTthenNT">बाइबिल एक वर्ष में: पुराना नियम,फिर नया नियम</string>
+  <string name="rdg_plan_y1ot1nt2_mcheyne"> (M\'Cheyne)</string>
+  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
+  <!--Document context menu-->
+  <string name="delete">मिटाओ</string>
+  <string name="delete_index">खोज सूचकांक मिटाओ</string>
+  <string name="about">आन्ड बाइबिल विवरण</string>
+  <string name="delete_search_index_doc">%s पुस्तक की खोज सूचकांक मिटाओ</string>
+  <!--Verse context menu-->
+  <string name="select_text">वाक्य चुनिए</string>
+  <string name="select_text_help">वाक्य चुनने के लिए धीरे खींचें,\nफिर \'कापी\' करें</string>
+  <string name="notes">पाद टिप्पणी और संबंधित संदर्भ</string>
+  <string name="copy">मौजूदा छंद, \'कापी\' करें</string>
+  <string name="share_verse">मौजूदा छंद, दूसरों के साथ बाँटना</string>
+  <string name="share_verse_subject">एक पवित्र वाक्य आपके लिए, आन्ड बाइबिल (AndBible) के जरीए</string>
+  <string name="compare_translations">अन्य अनुवादों से तुलना</string>
+  <!--Bookmarks-->
+  <string name="bookmarks">पुस्तक चिन्ह</string>
+  <string name="add_bookmark">पुस्तक चिन्ह लगाओ</string>
+  <string name="bookmark_added">पुस्तक चिन्ह लग गया</string>
+  <string name="bookmark_exists">यह पुस्तक चिन्ह, पहले से ही मौजूद</string>
+  <!--Dictionary-->
+  <string name="dictionary">बाइबिल शब्दकोश</string>
+  <string name="search_dictionary_hint">शब्दकोश में खोजें</string>
+  <string name="dictionary_contents">\t\nविषय - सूची</string>
+  <!--General Book-->
+  <string name="general_book">पुस्तक</string>
+  <string name="general_book_contents">सामग्री</string>
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <string name="one_chapter">%d अध्याय</string>
+  <string name="some_chapters">%d अध्याय</string>
+  <string name="rest_of_book">पुस्तक के अंत तक</string>
+  <!--Speak - Commentary-->
+  <string name="one_verse">%d छंद</string>
+  <string name="rest_of_chapter">अध्याय के अंत तक</string>
+  <!--Speak - Dictionary and other-->
+  <!--Speak - Common-->
+  <string name="stop">रोक</string>
+  <string name="tts_lang_not_available">भाषा मौजूद नही</string>
+  <string name="speak_queue">पंक्ति में लगाना</string>
+  <string name="speak_repeat">दोहराना</string>
+  <!--User Notes-->
+  <string name="mynotes">मेरे टिप्पणीयां</string>
+  <string name="mynote">मेरे टिप्पणी</string>
+  <string name="mynote_add">टिप्पणी लिखो</string>
+  <string name="mynote_view_edit">मेरे टिप्पणी</string>
+  <string name="mynote_saved">टिप्पणी सुरक्षित </string>
+  <!--Backup and restore-->
+  <string name="backup">बैकअप</string>
+  <string name="backup_success">टिप्पणी / पुस्तक चिन्ह, एसडी कार्ड में यहां सुरक्षित: %s </string>
+  <string name="restore">बैकअप से नवीकरण</string>
+  <string name="restore_confirmation">बैकअप से मेरे टिप्पणी/पुस्तक-चिन्ह लिखना ?</string>
+  <string name="restore_success">टिप्पणी / पुस्तक चिन्ह लिए, एसडी कार्ड से: %s </string>
+  <!--Document types-->
+  <string name="doc_type_bible">बाइबिल</string>
+  <string name="doc_type_book">पुस्तक</string>
+  <!--Languages-->
+  <!--General-->
+  <string name="okay">हाँ</string>
+  <string name="cancel">रद्द करें</string>
+  <string name="yes">हाँ</string>
+  <string name="no"> नही</string>
+  <string name="more">और</string>
+  <!--Errors-->
+  <string name="error_no_content">यह छंद खाली है</string>
+  <string name="error_key_not_in_document">इस किताब में नहीं मिला</string>
+  <string name="empty_list">कुछ मौजूद नहीं</string>
+</resources>
