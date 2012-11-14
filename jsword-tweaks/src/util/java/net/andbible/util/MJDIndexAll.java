@@ -180,10 +180,15 @@ public class MJDIndexAll {
 //    	indexAll.installAndIndexSingleBook("KorRV");
     	
     	//3/7/2012
-    	indexAll.installAndIndexSingleBook("Pohnpeian");
-    	indexAll.installAndIndexSingleBook("LEB");
-    	indexAll.installAndIndexSingleBook("MonKJV");
-    	indexAll.installAndIndexSingleBook("Che1860");
+//    	indexAll.installAndIndexSingleBook("Pohnpeian");
+//    	indexAll.installAndIndexSingleBook("LEB");
+//    	indexAll.installAndIndexSingleBook("MonKJV");
+//    	indexAll.installAndIndexSingleBook("Che1860");
+    	
+    	// 14/11/12
+    	indexAll.installAndIndexSingleBook("HinERV");
+    	indexAll.installAndIndexSingleBook("MalBSI");
+    	indexAll.installAndIndexSingleBook("GerNeUe");
     }
     
 	public void validateAllIndexes() {
