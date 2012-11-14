@@ -1,228 +1,208 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<!-- Application text
- 
- @author Martin Denham [mjdenham at gmail dot com]
- @see gnu.lgpl.License for license details.<br>
-      The copyright to this program is held by it's author.
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
-    <string name="app_name">And Alkitab</string>
-    <!-- Startup & Help -->
-    <string name="splash_top_text">"\n\"Allah berkata, \"Jadilah terang!\" Lalu terang itu jadi.\"\nKejadian 1:3"</string>
-    <string name="help_text">Tekan tombol MENU untuk tindakan\n\nPergi ke bab berikutnya atau sebelumnya dengan menggunakan jalur-bola, D-pad atau menggesekkan layar dengan jari anda</string>
-    <string name="help_text_long">"<b>Navigasi</b> \nKlik bab berikutnya atau sebelumnya dengan menggunakan jalur-bola, D-pad atau menggesekkan layar dengan jari anda\nKilk dua kali untuk matikan atau hidupkan Fullscreen. \n\n<b>Menu</b>\nTekan tombol MENU untuk tindakan\n\nUntuk men-download lebih banyak dokumen tekan Menu / Lainnya / Ambil Dokumen Pers\n\n<b>Pidato</b> \nTekan Berbicara untuk akses sebuah percakapan untuk mulai atau stop membaca\n\n<b>Catatan Saya</b> \nCatatan bisa ditambahkan melalui menu Catatan Saya pada menu konteks ayat. Daftar catatan yang ada dapat diakses melalui menu utama.\n\n <b>Bookmarks</b> \nBookmarks dapat ditambahkan melalui menu konteks ayat. Manajer Bookmark diakses melalui menu utama. Manajer Bookmark menu konteks memungkinkan bookmark untuk dikelompokkan menggunakan label. \n\n<b>Pencarian</b> \nTeks Pencarian dapat menyertakan karakter khusus seperti *, ?, AND, OR, NOT (lihat \"Apache Lucene - Query Parser Syntax\" untuk penjelas lebih mendetail).\n \n<b>Menu Konteks</b> \nTekan lama pada tampilan Alkitab melihat untuk membuka menu konteks untuk tindakan yg mempengaruhi ayat yg sedang dibuka. \nTekan lama pada dokumen dalam pilihan dokumen untuk menghapus atau melihat informasi.\nTekan lama pada tombol Kembali untuk mengakses Daftar riwayat"</string>
-    <string name="version_text">Versi %s</string>
-    <string name="no_sdcard_error">Silahkan masukkan kartu SD dan mulai And Alkitab lagi.</string>
-
-    <!-- main menu -->
-    <string name="chooseBook">Dokumen</string>
-    <string name="selectPassage">Nats</string>
-    <string name="search">Cari</string>
-    <string name="settings">Pengaturan</string>
-    <string name="history">Sejarah</string>
-    <string name="speak">Berbicara</string>
-    <string name="help">Bantuan</string>
-
-    <!-- Passage navigation -->
-    <string name="choosePassageBookName">Pilih Buku</string>
-    <string name="choosePassageChapterName">Pilih Bab</string>
-    <string name="choosePassageVerseName">Pilih Ayat</string>
-
-    <!--  Search -->
-    <string name="search_index">Cari Indeks</string>
-    <string name="index_creation_required">"Untuk mencari informasi, indeks diperlukan.\n\nIndeks bisa di-download dari internet atau dibuat secara lokal.\n\nIndeks yg di-download dari internet jauh lebih cepat dan mempunyai lebih banyak fitur.\n\nKoneksi internet diperlukan untuk download indeks.\n"</string>
-    <string name="indexing_wait_msg">Ketika sudah dapat indeks, anda akan dibawa ke fitur pencarian.</string>
-    <string name="index">Indeks</string>
-    <string name="index_download">Download</string>
-    <string name="index_not_available_for_download">Indeks ini tidak bisa di-download</string>
-    <string name="index_create">Membuat</string>
-
-    <!-- Tasks -->
-    <string name="progress_status">Kemajuan</string>
-    <string name="task_kill_warning">Hubungan akan terputus kalau anda berpindah ke aplikasi lain sebelum tugas khusus selesai</string>
-    <string name="no_tasks_running">Tidak ada tugas yang sedang berjalan.</string>
-
-    <!-- Search -->
-    <string name="search_results">Temukan Hasil</string>
-    <string name="search_words_group_prompt">Temukan ayat-ayat</string>
-    <string name="search_all_words">Semua kata</string>
-    <string name="search_any_word">Kata apa saja</string>
-    <string name="search_phrase">Frase</string>
-    <string name="search_result_count">%d hasil pencarian</string>
-    <string name="search_showing_first">Terlalu banyak hasil pencarian. Tunjuk yg pertama saja %d</string>
-    <string name="search_bible_section_group_prompt">Cari dimana</string>
-    <string name="search_all_bible">Seluruh Alkitab</string>
-    <string name="search_new_testament">Pejanjian Baru</string>
-    <string name="search_old_testament">Perjanjian Lama</string>
-    <string name="search_current_book">Buku sekarang</string>
-    <string name="error_executing_search">"Permintaan pencarian salah"</string>
-
-    <!-- Preferences -->
-    <string name="prefs_show_verseno_title">Nomor ayat</string>
-    <string name="prefs_show_verseno_summary">Tampilkan nomor ayat</string>
-    <string name="prefs_verse_per_line_title">Satu ayat satu baris</string>
-    <string name="prefs_verse_per_line_summary">Tunjukan setiap ayat di baris yang berbeda</string>
-    <string name="prefs_show_bookmarks_title">Tampilkan ikon bookmark</string>
-    <string name="prefs_show_bookmarks_summary">Tampilkan ikon di ayat-ayat yg di-bookmark</string>
-    <string name="prefs_show_mynotes_title">Tampilkan ikon Catatan Saya</string>
-    <string name="prefs_show_mynotes_summary">Tampilkan ikon di ayat-ayat dengan Catatan Saya</string>
-    <string name="prefs_show_notes_title">Catatan kaki dan x-referensi</string>
-    <string name="prefs_show_notes_summary">Tampilkan catatan kaki dan x-referensi</string>
-    <string name="prefs_show_strongs_title">Tampilkan Strong nomor</string>
-    <string name="prefs_show_strongs_summary">Link ke definisi Yunani dan Ibrani</string>
-    <string name="prefs_show_morphology_title">Kode-kode Morfologi</string>
-    <string name="prefs_show_morphology_summary">Tampilkan morfologi Yunani Robinson</string>
-    <string name="prefs_section_title_title">Judul Perikop</string>
-    <string name="prefs_section_title_summary">Tampilkan judul perikop yg non-kanonik</string>
-    <string name="prefs_red_letter_title">Huruf merah</string>
-    <string name="prefs_red_letter_summary">Tampilkan kata-kata Kristus dalam huruf merah</string>
-    <string name="prefs_tilt_to_scroll_title">Miringkan untuk menggulir</string>
-    <string name="prefs_tilt_to_scroll_summary">Miringkan perangkat untuk menggulir halaman ke bawah</string>
-    <string name="prefs_night_mode_title">Modus malam</string>
-    <string name="prefs_night_mode_summary">Untuk membaca lebih mudah waktu gelap</string>
-    <string name="prefs_night_mode_automatic">Otomatis</string>
-    <string name="prefs_navigate_to_verse_title">Arahkan ke ayat</string>
-    <string name="prefs_navigate_to_verse_summary">Pilih ayat (dan bab) ketika memilih sebuah bagian</string>
-    <string name="prefs_text_size_title">Ukuran huruf</string>
-    <string name="prefs_text_size_summary">Lihat lebih lanjut atau lihat lebih jelas</string>
-    <string name="prefs_text_size_sample_text">Contoh teks</string>
-	<string name="prefs_interface_locale_title">Aplikasi bahasa</string>
-    <string name="prefs_interface_locale_summary">"Pilih bahasa perantara pengguna "</string>
-    <string name="locale_change_warning">Aplikasi akan dijalankan ulang untuk beralih ke bahasa perantara</string>
-
-    <!-- Notes screen -->
-    <string name="no_chapter_notes">Tidak ada catatan dalam bab ini</string>
-    <string name="no_verse_notes">Tidak ada catatan dalam ayat ini</string>
-    <string name="previous">Sebelumnya</string>
-    <string name="next">Berikutnya</string>
-
-    <!--  Strongs -->
-    <string name="strongs">Kamus Strong</string>
-    <string name="strongs_not_installed">Silahkan download kamus Strong Ibrani dan kamus Yunani</string>
-    <string name="all_greek_occurrences">Cari semua yg ada</string>
-    <string name="all_hebrew_occurrences">Cari semua yg ada</string>
-    <string name="no_indexed_bible_with_strongs_ref">Anda harus men-download Alkitab berisi nomor Strong dan download indeks melalui Penelusuran</string>
-    <string name="morph_robinson_not_installed">Silahkan download kamus \'Kode Analisis Morfologi Robinson\'</string>
-    <string name="strongs_toggle_button_on">nnnn</string>
-    <string name="strongs_toggle_button_off">nnnn</string>
-
-    <!-- Module download -->
-    <string name="download">Download Dokumen</string>
-    <string name="download_confirmation">Download versi Alkitab dari internet?</string>
-    <string name="download_source_message">Dokumen di-download dari http://www.crosswire.org &amp; http://xiphos.org</string>
-    <string name="download_document_confirm_prefix">"Download "</string>
-    <string name="download_refreshing_book_list">Menyegarkan daftar dokumen yang tersedia</string>
-    <string name="download_refresh_book_list_menu_item">Menyegarkan</string>
-    <string name="error_downloading">Terjadi kesalahan saat download. Silakan periksa koneksi internet Anda.</string>
-    <string name="no_internet_connection">Tidak dapat terhubung ke internet</string>
-    <string name="storage_space_warning">Kurangnya tempat penyimpanan lokal.</string>
-    <string name="wait_for_bible">Silakan tunggu. Sebuah Alkitab belum menyelesaikan download. Anda akan dibawa ke layar utama.</string>
-    <string name="wait_for_bible_not_yet">Silahkan tunggu. Sebuah Alkitab belum selesai di-instalasi.</string>
-    <string name="download_complete_no_bibles">Tidak ada Alkitab yang dipasang. Silahkan tekan Kembali dan coba lagi.</string>
-    <string name="too_many_jobs">Terlalu banyak tugas yang sedang berjalan. Silahkan tunggu sampai menyelesaikan dan coba lagi.</string>
-    <string name="document_not_installed">Silahkan download \'%s\'</string>
-    
-    <!-- Daily Reading Plan -->
-    <string name="rdg_plan_title">Rencana Bacaan</string>
-    <string name="rdg_plan_selector_title">Pilih Rencana Bacaan</string>
-    <string name="rdg_plan_day">Hari %s</string>
-    <string name="rdg_plan_set_start_jan1">Mulai 1 Jan</string>
-    <string name="done">Selesai</string>
-    <string name="reset">Atur Ulang</string>
-    <string name="rdg_plan_y1ntpspr">Perjanjian Baru, Mazmur, dan Amsal dalam setahun</string>
-    <string name="rdg_plan_y1ot1nt1_chronological">Lalui kronologis Alkitab dalam setahun</string>
-    <string name="rdg_plan_y1ot1nt1_OTandNT">Lalui Alkitab dalam setahun - PL dan PB</string>
-    <string name="rdg_plan_y1ot1nt1_OTthenNT">Lalui Alkitab dalam setahun - PL kemudian PB</string>
-    <string name="rdg_plan_y1ot1nt2_mcheyne">Lalui Alkitab dalam setahun (M\'Cheyne)</string>
-    <!-- string name="rdg_plan_m1gospels">Through the Gospels in a month</string -->
-    
-    <!-- Document context menu -->
-    <string name="delete">Hapus</string>
-    <string name="delete_index">Hapus indeks pencarian</string>
-    <string name="about">Tentang</string>
-    <string name="delete_doc">Hapus %s?</string>
-    <string name="delete_search_index_doc">Hapus indeks dari %s?</string>
-
-    <!-- Verse context menu -->
-    <string name="select_text">Pilih teks</string>
-    <string name="select_text_help">Tarik perlahan untuk memilih. \nKemudian sentuh seleksi untuk mengkopy.</string>
-    <string name="notes">Catatan kaki dan referensi</string>
-    <string name="copy">Kopy ayat aktif</string>
-    <string name="share_verse">Berbagi ayat aktif ...</string>
-    <string name="share_verse_subject">Sebuah ayat Alkitab telah dibagikan dengan anda menggunakan And Alkitab</string>
-    <string name="compare_translations">"Terjemahan bandingkan "</string>
-    
-    <!-- Bookmarks -->
-    <string name="bookmarks">Bookmarks</string>
-    <string name="add_bookmark">Tambahkan bookmark</string>
-    <string name="bookmark_added">Bookmark ditambahkan</string>
-    <string name="bookmark_exists">Bookmark sudah ada</string>
-    <string name="bookmark_labels">Label Bookmark</string>
-    <string name="assign_labels">Menetapkan label</string>
-    <string name="new_label">Label Baru</string>
-    <string name="new_label_prompt">Nama</string>
-
-    <!-- Dictionary -->
-    <string name="dictionary">Kamus</string>
-    <string name="search_dictionary_hint">Cari kamus</string>
-    <string name="dictionary_contents">Daftar Isi</string>
-
-    <!-- General Book -->
-    <string name="general_book">Buku</string>
-    <string name="general_book_contents">Daftar Isi</string>
-
-    <!-- Speak -->
-    <!-- plurals tags referencing the below have been moved to untranslated_strings.xml -->
-    <!-- Speak - Bible -->
-    <string name="one_chapter">%d bab</string>
-    <string name="some_chapters">%d bab-bab</string>
-    <string name="rest_of_book">Ke akhir buku</string>
-    <!-- Speak - Commentary -->
-    <string name="one_verse">%d ayat</string>
-    <string name="some_verses">%d ayat-ayat</string>
-    <string name="rest_of_chapter">Ke ahkir fasal</string>
-    <!-- Speak - Dictionary and other -->
-    <string name="one_page">%d halaman</string>
-    <string name="some_pages">%d halaman-halaman</string>
-    <!-- Speak - Common -->
-    <string name="stop">Stop</string>
-    <string name="tts_lang_not_available">Bahasa tidak tersedia.</string>
-    <string name="speak_queue">Antrian</string>
-    <string name="speak_repeat">Ulangi</string>
-
-    <!-- User Notes -->
-    <string name="mynotes">Catatan-catatan Saya</string>
-    <string name="mynote">Catatan Saya</string>
-    <string name="mynote_add">Tambahkan Catatan Saya</string>
-    <string name="mynote_view_edit">Catatan Saya</string>
-    <string name="mynote_saved">Catatan Saya disimpan</string>
-
-    <!-- Document types -->
-    <string name="doc_type_bible">Alkitab</string>
-    <string name="doc_type_commentary">Tafsiran</string>
-    <string name="doc_type_dictionary">Kamus</string>
-    <string name="doc_type_book">Buku</string>
-    <string name="doc_type_map">Peta</string>
-    
-    <!-- Languages -->
-    <string name="lang_default">Standar</string>
-
-    <!-- General -->
-    <string name="okay">OK</string>
-    <string name="cancel">Batalkan</string>
-    <string name="yes">Iya</string>
-    <string name="no">Tidak</string>
-    <string name="save">Simpan</string>
-    <string name="error">"Kesalahan"</string>
-    <string name="more">Lebih</string>
-    <string name="retry">Coba lagi</string>
-    <string name="please_wait">Silakan tunggu ...</string>
-    <string name="all">Semua</string>
-    
-    <!-- Errors -->
-    <string name="error_occurred">Sebuah kesalahan telah terjadi</string>
-    <string name="error_no_content">"Ayat yang dipilih, tidak ada isi "</string>
-    <string name="error_page_too_large">Halaman terlalu besar untuk dimuat</string>
-    <string name="error_key_not_in_document">Tidak ditemukan dalam dokumen</string>
-    <string name="empty_list">Tidak ada item untuk ditampilkan</string>
-<string name="backup">Backup</string><string name="backup_success">Catatan-catatan Saya dan Bookmarks disimpan di %s di kartu SD</string><string name="restore">Restore</string><string name="restore_confirmation">Tulis lagi di atas Catatan-catatan Saya dan Bookmarks?</string><string name="restore_success">Catatan-catatan Saya dan Bookmarks disimpan kembali %s ke Kartu SD</string><string name="label_unlabelled">Tanpa label</string></resources>
+  <string name="app_name">And Alkitab</string>
+  <!--Startup & Help-->
+  <string name="splash_top_text">\n\"Allah berkata, \"Jadilah terang!\" Lalu terang itu jadi.\"\nKejadian 1:3</string>
+  <string name="help_text">Tekan tombol MENU untuk tindakan\n\nPergi ke bab berikutnya atau sebelumnya dengan menggunakan jalur-bola, D-pad atau menggesekkan layar dengan jari anda</string>
+  <string name="help_text_long"><b>Navigasi</b> \nKlik bab berikutnya atau sebelumnya dengan menggunakan jalur-bola, D-pad atau menggesekkan layar dengan jari anda\nKilk dua kali untuk matikan atau hidupkan Fullscreen. \n\n<b>Menu</b>\nTekan tombol MENU untuk tindakan\n\nUntuk men-download lebih banyak dokumen tekan Menu / Lainnya / Ambil Dokumen Pers\n\n<b>Pidato</b> \nTekan Berbicara untuk akses sebuah percakapan untuk mulai atau stop membaca\n\n<b>Catatan Saya</b> \nCatatan bisa ditambahkan melalui menu Catatan Saya pada menu konteks ayat. Daftar catatan yang ada dapat diakses melalui menu utama.\n\n <b>Bookmarks</b> \nBookmarks dapat ditambahkan melalui menu konteks ayat. Manajer Bookmark diakses melalui menu utama. Manajer Bookmark menu konteks memungkinkan bookmark untuk dikelompokkan menggunakan label. \n\n<b>Pencarian</b> \nTeks Pencarian dapat menyertakan karakter khusus seperti *, ?, AND, OR, NOT (lihat \"Apache Lucene - Query Parser Syntax\" untuk penjelas lebih mendetail).\n \n<b>Menu Konteks</b> \nTekan lama pada tampilan Alkitab melihat untuk membuka menu konteks untuk tindakan yg mempengaruhi ayat yg sedang dibuka. \nTekan lama pada dokumen dalam pilihan dokumen untuk menghapus atau melihat informasi.\nTekan lama pada tombol Kembali untuk mengakses Daftar riwayat</string>
+  <string name="version_text">Versi %s</string>
+  <string name="no_sdcard_error">Silahkan masukkan kartu SD dan mulai And Alkitab lagi.</string>
+  <!--main menu-->
+  <string name="chooseBook">Dokumen</string>
+  <string name="selectPassage">Nats</string>
+  <string name="search">Cari</string>
+  <string name="settings">Pengaturan</string>
+  <string name="history">Sejarah</string>
+  <string name="speak">Berbicara</string>
+  <string name="help">Bantuan</string>
+  <!--Passage navigation-->
+  <string name="choosePassageBookName">Pilih Buku</string>
+  <string name="choosePassageChapterName">Pilih Bab</string>
+  <string name="choosePassageVerseName">Pilih Ayat</string>
+  <!--Search-->
+  <string name="search_index">Cari Indeks</string>
+  <string name="index_creation_required">Untuk mencari informasi, indeks diperlukan.\n\nIndeks bisa di-download dari internet atau dibuat secara lokal.\n\nIndeks yg di-download dari internet jauh lebih cepat dan mempunyai lebih banyak fitur.\n\nKoneksi internet diperlukan untuk download indeks.\n</string>
+  <string name="indexing_wait_msg">Ketika sudah dapat indeks, anda akan dibawa ke fitur pencarian.</string>
+  <string name="index">Indeks</string>
+  <string name="index_download">Download</string>
+  <string name="index_not_available_for_download">Indeks ini tidak bisa di-download</string>
+  <string name="index_create">Membuat</string>
+  <!--Tasks-->
+  <string name="progress_status">Kemajuan</string>
+  <string name="task_kill_warning">Hubungan akan terputus kalau anda berpindah ke aplikasi lain sebelum tugas khusus selesai</string>
+  <string name="no_tasks_running">Tidak ada tugas yang sedang berjalan.</string>
+  <!--Search-->
+  <string name="search_results">Temukan Hasil</string>
+  <string name="search_words_group_prompt">Temukan ayat-ayat</string>
+  <string name="search_all_words">Semua kata</string>
+  <string name="search_any_word">Kata apa saja</string>
+  <string name="search_phrase">Frase</string>
+  <string name="search_result_count">%d hasil pencarian</string>
+  <string name="search_showing_first">Terlalu banyak hasil pencarian. Tunjuk yg pertama saja %d</string>
+  <string name="search_bible_section_group_prompt">Cari dimana</string>
+  <string name="search_all_bible">Seluruh Alkitab</string>
+  <string name="search_new_testament">Pejanjian Baru</string>
+  <string name="search_old_testament">Perjanjian Lama</string>
+  <string name="search_current_book">Buku sekarang</string>
+  <string name="error_executing_search">Permintaan pencarian salah</string>
+  <!--Preferences-->
+  <string name="prefs_show_verseno_title">Nomor ayat</string>
+  <string name="prefs_show_verseno_summary">Tampilkan nomor ayat</string>
+  <string name="prefs_verse_per_line_title">Satu ayat satu baris</string>
+  <string name="prefs_verse_per_line_summary">Tunjukan setiap ayat di baris yang berbeda</string>
+  <string name="prefs_show_bookmarks_title">Tampilkan ikon bookmark</string>
+  <string name="prefs_show_bookmarks_summary">Tampilkan ikon di ayat-ayat yg di-bookmark</string>
+  <string name="prefs_show_mynotes_title">Tampilkan ikon Catatan Saya</string>
+  <string name="prefs_show_mynotes_summary">Tampilkan ikon di ayat-ayat dengan Catatan Saya</string>
+  <string name="prefs_show_notes_title">Catatan kaki dan x-referensi</string>
+  <string name="prefs_show_notes_summary">Tampilkan catatan kaki dan x-referensi</string>
+  <string name="prefs_show_strongs_title">Tampilkan Strong nomor</string>
+  <string name="prefs_show_strongs_summary">Link ke definisi Yunani dan Ibrani</string>
+  <string name="prefs_show_morphology_title">Kode-kode Morfologi</string>
+  <string name="prefs_show_morphology_summary">Tampilkan morfologi Yunani Robinson</string>
+  <string name="prefs_section_title_title">Judul Perikop</string>
+  <string name="prefs_section_title_summary">Tampilkan judul perikop yg non-kanonik</string>
+  <string name="prefs_red_letter_title">Huruf merah</string>
+  <string name="prefs_red_letter_summary">Tampilkan kata-kata Kristus dalam huruf merah</string>
+  <string name="prefs_tilt_to_scroll_title">Miringkan untuk menggulir</string>
+  <string name="prefs_tilt_to_scroll_summary">Miringkan perangkat untuk menggulir halaman ke bawah</string>
+  <string name="prefs_night_mode_title">Modus malam</string>
+  <string name="prefs_night_mode_summary">Untuk membaca lebih mudah waktu gelap</string>
+  <string name="prefs_night_mode_automatic">Otomatis</string>
+  <string name="prefs_navigate_to_verse_title">Arahkan ke ayat</string>
+  <string name="prefs_navigate_to_verse_summary">Pilih ayat (dan bab) ketika memilih sebuah bagian</string>
+  <string name="prefs_text_size_title">Ukuran huruf</string>
+  <string name="prefs_text_size_summary">Lihat lebih lanjut atau lihat lebih jelas</string>
+  <string name="prefs_text_size_sample_text">Contoh teks</string>
+  <string name="prefs_interface_locale_title">Aplikasi bahasa</string>
+  <string name="prefs_interface_locale_summary">Pilih bahasa perantara pengguna </string>
+  <string name="locale_change_warning">Aplikasi akan dijalankan ulang untuk beralih ke bahasa perantara</string>
+  <!--Notes screen-->
+  <string name="no_chapter_notes">Tidak ada catatan dalam bab ini</string>
+  <string name="no_verse_notes">Tidak ada catatan dalam ayat ini</string>
+  <string name="previous">Sebelumnya</string>
+  <string name="next">Berikutnya</string>
+  <!--Strongs-->
+  <string name="strongs">Kamus Strong</string>
+  <string name="strongs_not_installed">Silahkan download kamus Strong Ibrani dan kamus Yunani</string>
+  <string name="all_greek_occurrences">Cari semua yg ada</string>
+  <string name="all_hebrew_occurrences">Cari semua yg ada</string>
+  <string name="no_indexed_bible_with_strongs_ref">Anda harus men-download Alkitab berisi nomor Strong dan download indeks melalui Penelusuran</string>
+  <string name="morph_robinson_not_installed">Silahkan download kamus \'Kode Analisis Morfologi Robinson\'</string>
+  <string name="strongs_toggle_button_on">nnnn</string>
+  <string name="strongs_toggle_button_off">nnnn</string>
+  <!--Module download-->
+  <string name="download">Download Dokumen</string>
+  <string name="download_confirmation">Download versi Alkitab dari internet?</string>
+  <string name="download_source_message">Dokumen di-download dari http://www.crosswire.org &amp; http://xiphos.org</string>
+  <string name="download_document_confirm_prefix">Download </string>
+  <string name="download_refreshing_book_list">Menyegarkan daftar dokumen yang tersedia</string>
+  <string name="download_refresh_book_list_menu_item">Menyegarkan</string>
+  <string name="error_downloading">Terjadi kesalahan saat download. Silakan periksa koneksi internet Anda.</string>
+  <string name="no_internet_connection">Tidak dapat terhubung ke internet</string>
+  <string name="storage_space_warning">Kurangnya tempat penyimpanan lokal.</string>
+  <string name="wait_for_bible">Silakan tunggu. Sebuah Alkitab belum menyelesaikan download. Anda akan dibawa ke layar utama.</string>
+  <string name="wait_for_bible_not_yet">Silahkan tunggu. Sebuah Alkitab belum selesai di-instalasi.</string>
+  <string name="download_complete_no_bibles">Tidak ada Alkitab yang dipasang. Silahkan tekan Kembali dan coba lagi.</string>
+  <string name="too_many_jobs">Terlalu banyak tugas yang sedang berjalan. Silahkan tunggu sampai menyelesaikan dan coba lagi.</string>
+  <string name="document_not_installed">Silahkan download \'%s\'</string>
+  <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">Rencana Bacaan</string>
+  <string name="rdg_plan_selector_title">Pilih Rencana Bacaan</string>
+  <string name="rdg_plan_day">Hari %s</string>
+  <string name="rdg_plan_set_start_jan1">Mulai 1 Jan</string>
+  <string name="done">Selesai</string>
+  <string name="reset">Atur Ulang</string>
+  <string name="rdg_plan_y1ntpspr">Perjanjian Baru, Mazmur, dan Amsal dalam setahun</string>
+  <string name="rdg_plan_y1ot1nt1_chronological">Lalui kronologis Alkitab dalam setahun</string>
+  <string name="rdg_plan_y1ot1nt1_OTandNT">Lalui Alkitab dalam setahun - PL dan PB</string>
+  <string name="rdg_plan_y1ot1nt1_OTthenNT">Lalui Alkitab dalam setahun - PL kemudian PB</string>
+  <string name="rdg_plan_y1ot1nt2_mcheyne">Lalui Alkitab dalam setahun (M\'Cheyne)</string>
+  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
+  <!--Document context menu-->
+  <string name="delete">Hapus</string>
+  <string name="delete_index">Hapus indeks pencarian</string>
+  <string name="about">Tentang</string>
+  <string name="delete_doc">Hapus %s?</string>
+  <string name="delete_search_index_doc">Hapus indeks dari %s?</string>
+  <!--Verse context menu-->
+  <string name="select_text">Pilih teks</string>
+  <string name="select_text_help">Tarik perlahan untuk memilih. \nKemudian sentuh seleksi untuk mengkopy.</string>
+  <string name="notes">Catatan kaki dan referensi</string>
+  <string name="copy">Kopy ayat aktif</string>
+  <string name="share_verse">Berbagi ayat aktif ...</string>
+  <string name="share_verse_subject">Sebuah ayat Alkitab telah dibagikan dengan anda menggunakan And Alkitab</string>
+  <string name="compare_translations">Terjemahan bandingkan </string>
+  <!--Bookmarks-->
+  <string name="bookmarks">Bookmarks</string>
+  <string name="add_bookmark">Tambahkan bookmark</string>
+  <string name="bookmark_added">Bookmark ditambahkan</string>
+  <string name="bookmark_exists">Bookmark sudah ada</string>
+  <string name="bookmark_labels">Label Bookmark</string>
+  <string name="assign_labels">Menetapkan label</string>
+  <string name="new_label">Label Baru</string>
+  <string name="new_label_prompt">Nama</string>
+  <string name="label_unlabelled">Tanpa label</string>
+  <!--Dictionary-->
+  <string name="dictionary">Kamus</string>
+  <string name="search_dictionary_hint">Cari kamus</string>
+  <string name="dictionary_contents">Daftar Isi</string>
+  <!--General Book-->
+  <string name="general_book">Buku</string>
+  <string name="general_book_contents">Daftar Isi</string>
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <string name="one_chapter">%d bab</string>
+  <string name="some_chapters">%d bab-bab</string>
+  <string name="rest_of_book">Ke akhir buku</string>
+  <!--Speak - Commentary-->
+  <string name="one_verse">%d ayat</string>
+  <string name="some_verses">%d ayat-ayat</string>
+  <string name="rest_of_chapter">Ke ahkir fasal</string>
+  <!--Speak - Dictionary and other-->
+  <string name="one_page">%d halaman</string>
+  <string name="some_pages">%d halaman-halaman</string>
+  <!--Speak - Common-->
+  <string name="stop">Stop</string>
+  <string name="tts_lang_not_available">Bahasa tidak tersedia.</string>
+  <string name="speak_queue">Antrian</string>
+  <string name="speak_repeat">Ulangi</string>
+  <!--User Notes-->
+  <string name="mynotes">Catatan-catatan Saya</string>
+  <string name="mynote">Catatan Saya</string>
+  <string name="mynote_add">Tambahkan Catatan Saya</string>
+  <string name="mynote_view_edit">Catatan Saya</string>
+  <string name="mynote_saved">Catatan Saya disimpan</string>
+  <!--Backup and restore-->
+  <string name="backup">Backup</string>
+  <string name="backup_success">Catatan-catatan Saya dan Bookmarks disimpan di %s di kartu SD</string>
+  <string name="restore">Restore</string>
+  <string name="restore_confirmation">Tulis lagi di atas Catatan-catatan Saya dan Bookmarks?</string>
+  <string name="restore_success">Catatan-catatan Saya dan Bookmarks disimpan kembali %s ke Kartu SD</string>
+  <!--Document types-->
+  <string name="doc_type_bible">Alkitab</string>
+  <string name="doc_type_commentary">Tafsiran</string>
+  <string name="doc_type_dictionary">Kamus</string>
+  <string name="doc_type_book">Buku</string>
+  <string name="doc_type_map">Peta</string>
+  <!--Languages-->
+  <string name="lang_default">Standar</string>
+  <!--General-->
+  <string name="okay">OK</string>
+  <string name="cancel">Batalkan</string>
+  <string name="yes">Iya</string>
+  <string name="no">Tidak</string>
+  <string name="save">Simpan</string>
+  <string name="error">Kesalahan</string>
+  <string name="more">Lebih</string>
+  <string name="retry">Coba lagi</string>
+  <string name="please_wait">Silakan tunggu ...</string>
+  <string name="all">Semua</string>
+  <!--Errors-->
+  <string name="error_occurred">Sebuah kesalahan telah terjadi</string>
+  <string name="error_no_content">Ayat yang dipilih, tidak ada isi </string>
+  <string name="error_page_too_large">Halaman terlalu besar untuk dimuat</string>
+  <string name="error_key_not_in_document">Tidak ditemukan dalam dokumen</string>
+  <string name="empty_list">Tidak ada item untuk ditampilkan</string>
+</resources>
