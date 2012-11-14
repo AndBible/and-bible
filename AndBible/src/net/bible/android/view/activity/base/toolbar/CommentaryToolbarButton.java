@@ -46,4 +46,9 @@ public class CommentaryToolbarButton implements ToolbarButton {
 	public int getPriority() {
 		return 2;
 	}
+	
+	@Override
+	public void setEnoughRoomInToolbar(boolean isRoom) {
+		// always enough room for this button		
+	}
 }

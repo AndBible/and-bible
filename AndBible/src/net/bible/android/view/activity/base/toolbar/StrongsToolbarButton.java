@@ -13,6 +13,8 @@ public class StrongsToolbarButton implements ToolbarButton {
 
 	private ToggleButton mButton;
 	
+	private boolean isEnoughRoomInToolbar = false;
+
 	public StrongsToolbarButton(View parent) {
         mButton = (ToggleButton)parent.findViewById(R.id.strongsToggle);
 
@@ -39,19 +41,19 @@ public class StrongsToolbarButton implements ToolbarButton {
         }
 	}
 
-	/** return true if Strongs numbers are shown */
-	public boolean isStrongsShown() {
-		return ControlFactory.getInstance().getPageControl().isStrongsShown();
-	}
-	
 	/** return true if Strongs are relevant to this doc & screen */
 	@Override
 	public boolean canShow() {
-		return ControlFactory.getInstance().getDocumentControl().isStrongsInBook();
+		return isEnoughRoomInToolbar && ControlFactory.getInstance().getDocumentControl().isStrongsInBook();
 	}
 
 	@Override
 	public int getPriority() {
 		return 1;
+	}
+
+	@Override
+	public void setEnoughRoomInToolbar(boolean isRoom) {
+		isEnoughRoomInToolbar = isRoom;
 	}
 }

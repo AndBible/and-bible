@@ -15,6 +15,8 @@ public abstract class ShowDocumentToolbarButton implements ToolbarButton {
 
 	private Button mButton;
 	
+	private boolean isEnoughRoomInToolbar = false;
+	
 	private ToolbarButtonHelper helper = new ToolbarButtonHelper();
 	
 	public abstract Book getDocument();
@@ -42,11 +44,16 @@ public abstract class ShowDocumentToolbarButton implements ToolbarButton {
 
 	@Override
 	public boolean canShow() {
-		return getDocument()!=null;
+		return isEnoughRoomInToolbar && getDocument()!=null;
 	}
 
 	@Override
 	public int getPriority() {
 		return 1;
+	}
+	
+	@Override
+	public void setEnoughRoomInToolbar(boolean isRoom) {
+		isEnoughRoomInToolbar = isRoom;		
 	}
 }

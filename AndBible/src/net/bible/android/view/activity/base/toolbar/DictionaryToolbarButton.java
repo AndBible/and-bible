@@ -16,6 +16,8 @@ public class DictionaryToolbarButton implements ToolbarButton {
 	private Button mButton;
 	private Book mSuggestedDocument;
 	
+	private boolean isEnoughRoomInToolbar = false;
+
 	private ToolbarButtonHelper helper = new ToolbarButtonHelper();
 	
 	public DictionaryToolbarButton(View parent) {
@@ -39,11 +41,15 @@ public class DictionaryToolbarButton implements ToolbarButton {
 
 	@Override
 	public boolean canShow() {
-		return mSuggestedDocument!=null && ToolbarButtonHelper.numButtonsToShow()>=3;
+		return isEnoughRoomInToolbar && mSuggestedDocument!=null;
 	}
 
 	@Override
 	public int getPriority() {
 		return 1;
+	}
+	@Override
+	public void setEnoughRoomInToolbar(boolean isRoom) {
+		isEnoughRoomInToolbar = isRoom;
 	}
 }

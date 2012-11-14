@@ -23,7 +23,7 @@
 	<dimen name="title_bar_height">28dip</dimen>
 	
 	<!--  number and size of buttons varies depending on screen size and orientation -->
-	<integer name="number_of_quick_buttons">2</integer>
+	<integer name="number_of_quick_buttons">3</integer>
 	<dimen name="size_of_quick_buttons">60dip</dimen>
 	<dimen name="size_of_small_quick_buttons">45dip</dimen>
 		

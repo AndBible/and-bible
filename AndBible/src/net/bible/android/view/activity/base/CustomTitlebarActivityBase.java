@@ -41,6 +41,9 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
         initialiseToolbar(mTitleBar);
         
         mProgressBarIndeterminate = (ProgressBar)findViewById(R.id.progressCircular);
+        
+        // force the toolbar buttons to be shown correctly
+        getToolbar().updateButtons();
     }
     
     public void toggleFullScreen() {

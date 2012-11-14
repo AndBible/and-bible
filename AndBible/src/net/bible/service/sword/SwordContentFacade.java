@@ -304,7 +304,7 @@ public class SwordContentFacade {
 // 		  example of fetching Strongs ref - only works with downloaded indexes!
 //        Book book = getDocumentByInitials("KJV");
 //        Key key1 = book.find("strong:h3068");
-//        System.out.println("*** h3068 result count:"+key1.getCardinality());
+//        System.out.println("h3068 result count:"+key1.getCardinality());
 
 		Log.d(TAG,	"Searching:"+bible+" Search term:" + searchText);
 		

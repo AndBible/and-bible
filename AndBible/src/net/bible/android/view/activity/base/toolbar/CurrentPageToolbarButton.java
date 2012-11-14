@@ -9,6 +9,7 @@ import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import android.app.Activity;
 import android.content.Intent;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -18,6 +19,7 @@ public class CurrentPageToolbarButton implements ToolbarButton {
 	private Button mButton;
 	private String mCurrentPageTitle;
 	
+	private static final String TAG = "Toolbar";
 	private ToolbarButtonHelper helper = new ToolbarButtonHelper();
 	
 	public CurrentPageToolbarButton(View parent) {
@@ -49,10 +51,12 @@ public class CurrentPageToolbarButton implements ToolbarButton {
         mCurrentPageTitle = ControlFactory.getInstance().getPageControl().getCurrentPageTitle();
 
         // must do ui update in ui thread
+        // copy title to ensure it isn't changed before ui thread executes the following
+        final String title = mCurrentPageTitle;
 		mButton.post(new Runnable() {
 			@Override
 			public void run() {
-		        helper.updateButtonText(mCurrentPageTitle, mButton);
+		        helper.updateButtonText(title, mButton);
 			}
 		});
 	}
@@ -65,5 +69,10 @@ public class CurrentPageToolbarButton implements ToolbarButton {
 	@Override
 	public int getPriority() {
 		return 1;
+	}
+
+	@Override
+	public void setEnoughRoomInToolbar(boolean isRoom) {
+		// always enough room for this button		
 	}
 }

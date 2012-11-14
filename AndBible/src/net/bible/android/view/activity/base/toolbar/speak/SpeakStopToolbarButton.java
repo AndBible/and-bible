@@ -16,7 +16,6 @@ public class SpeakStopToolbarButton extends SpeakToolbarButtonBase implements To
 
 	@Override
 	public void update() {
-		Log.d(TAG, "Update Speak button");
 		// run on ui thread
 		getButton().post(new Runnable() {
 			@Override
@@ -29,7 +28,8 @@ public class SpeakStopToolbarButton extends SpeakToolbarButtonBase implements To
 
 	@Override
 	public boolean canShow() {
-		return canSpeak() && (getSpeakControl().isSpeaking() || getSpeakControl().isPaused());
+		// this button is unlike the other buttons - if speaking then always show Stop even if there is no room!
+		return getSpeakControl().isSpeaking() || getSpeakControl().isPaused();
 	}
 
 	/** button clicked */

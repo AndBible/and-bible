@@ -164,9 +164,6 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	        }
 	        // end All
 	        
-	        // force the toolbar buttons to be shown correctly
-	        getToolbar().updateButtons();
-	        
 	        Log.d(TAG, "Finished displaying Reading view");
         } catch (Exception e) {
         	Log.e(TAG, "Error showing daily readings", e);

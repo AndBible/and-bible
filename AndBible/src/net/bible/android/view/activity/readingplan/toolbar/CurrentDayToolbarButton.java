@@ -56,4 +56,9 @@ public class CurrentDayToolbarButton implements ToolbarButton {
 	public int getPriority() {
 		return 1;
 	}
+
+	@Override
+	public void setEnoughRoomInToolbar(boolean isRoom) {
+		// always enough room for this button		
+	}
 }

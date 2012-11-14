@@ -271,7 +271,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 	public void onUtteranceCompleted(String utteranceId) {
 		Log.d(TAG, "onUtteranceCompleted:"+utteranceId);
 		// pause/rew/ff can sometimes allow old messages to complete so need to prevent move to next sentence if completed utterance is out of date 
-		if (!isPaused || !StringUtils.startsWith(utteranceId, UTTERANCE_PREFIX)) {
+		if ((!isPaused && isSpeaking) && StringUtils.startsWith(utteranceId, UTTERANCE_PREFIX)) {
 			long utteranceNo = Long.valueOf(StringUtils.removeStart(utteranceId, UTTERANCE_PREFIX));
 			if (utteranceNo == uniqueUtteranceNo-1) {
 				mSpeakTextProvider.finishedUtterance(utteranceId);
@@ -339,9 +339,12 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 	
     public void shutdown() {
     	Log.d(TAG, "Shutdown TTS");
-    	shutdownTtsEngine();
-        isSpeaking = false;
+
+    	isSpeaking = false;
         isPaused = false;
+        
+        // tts.stop can trigger onUtteranceCompleted so set above flags first to avoid sending of a further text and setting isSpeaking to true
+    	shutdownTtsEngine();
         mSpeakTextProvider.reset();
         
         fireStateChangeEvent();
