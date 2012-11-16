@@ -10,12 +10,18 @@ import android.widget.Button;
 
 public class ToolbarButtonHelper {
 	
-	public void updateQuickButton(Book suggestedBook, Button quickButton, boolean canShow) {
+	public void updateQuickButton(final Book suggestedBook, final Button quickButton, final boolean canShow) {
 		if (quickButton!=null) {
-			if (suggestedBook!=null) {
-	        	updateButtonText(suggestedBook.getInitials(), quickButton);
-			}
-	   		quickButton.setVisibility(canShow && suggestedBook!=null? View.VISIBLE: View.GONE);
+			
+			quickButton.post(new Runnable() {
+				@Override
+				public void run() {
+					if (suggestedBook!=null) {
+			        	updateButtonText(suggestedBook.getInitials(), quickButton);
+					}
+			   		quickButton.setVisibility(canShow && suggestedBook!=null? View.VISIBLE: View.GONE);
+				}
+			});
 		}
 	}
 

@@ -36,7 +36,14 @@ public class CurrentDocumentToolbarButton implements ToolbarButton {
 
 	public void update() {
         mCurrentDocumentTitle = ControlFactory.getInstance().getPageControl().getCurrentDocumentTitle();
-        helper.updateButtonText(mCurrentDocumentTitle, mButton);
+        
+        final String title = mCurrentDocumentTitle;
+		mButton.post(new Runnable() {
+			@Override
+			public void run() {
+		        helper.updateButtonText(title, mButton);
+			}
+		});
 	}
 
 	@Override

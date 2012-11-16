@@ -1,5 +1,6 @@
 package net.bible.service.device.speak;
 
+import net.bible.service.common.CommonUtils;
 import android.util.Log;
 
 public class SpeakTiming {
@@ -7,11 +8,19 @@ public class SpeakTiming {
 	private String lastUtteranceId;
 	private int lastSpeakTextLength;
 	private long lastSpeakStartTime;
-	private static float cpms = 0.016F;
+	
+	private float cpms = DEFAULT_CPMS;
+	private static final float DEFAULT_CPMS = 0.016f;
+	private static final String SPEAK_CPMS_KEY = "SpeakCPMS";
 	
 	private static final int SHORT_TEXT_LIMIT_MSEC = 20000;
 	private static final String TAG = "Speak";
 	
+	public SpeakTiming() {
+		loadCpms();
+		Log.d(TAG, "Average Speak CPMS:"+cpms);
+	}
+
 	public void started(String utteranceId, int speakTextLength) {
 		Log.d(TAG, "Speak timer started");
 		lastUtteranceId = utteranceId;
@@ -66,5 +75,13 @@ public class SpeakTiming {
 	private void updateAverageCpms(float lastCpms) {
 		// take the average of historical figures and the new figure to attempt to lessen the affect of weird text but aadjust for different types of text 
 		cpms = (cpms+lastCpms)/2.0f;
+		saveCpms();
+	}
+	
+	private void loadCpms() {
+		cpms = CommonUtils.getSharedPreferences().getFloat(SPEAK_CPMS_KEY, DEFAULT_CPMS);
+	}
+	private void saveCpms() {
+		CommonUtils.getSharedPreferences().edit().putFloat(SPEAK_CPMS_KEY, cpms).commit();
 	}
 }

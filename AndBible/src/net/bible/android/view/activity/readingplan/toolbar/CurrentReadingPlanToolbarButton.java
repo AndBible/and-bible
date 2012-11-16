@@ -39,8 +39,14 @@ public class CurrentReadingPlanToolbarButton implements ToolbarButton {
 	}
 
 	public void update() {
-        String title = ControlFactory.getInstance().getReadingPlanControl().getShortTitle();
-        helper.updateButtonText(title, mButton);
+        final String title = ControlFactory.getInstance().getReadingPlanControl().getShortTitle();
+        
+		mButton.post(new Runnable() {
+			@Override
+			public void run() {
+		        helper.updateButtonText(title, mButton);
+			}
+		});
 	}
 
 	@Override
