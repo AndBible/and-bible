@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.bible.android.activity"
       android:installLocation="auto"
-      android:versionName="1.6.0" android:versionCode="83">
-    <application android:icon="@drawable/bible" android:label="@string/app_name" android:name="net.bible.android.BibleApplication" android:theme="@style/AndBibleTheme">
+      android:versionName="20121116" android:versionCode="84">
+    <application android:icon="@drawable/bible" android:label="@string/app_name" android:name="net.bible.android.BibleApplication" android:theme="@style/AndBibleTheme" android:allowBackup="true">
         <!-- deprecated but necessary to prevent old shortcut breaking -->
         <activity android:name=".StartupActivity"
                   android:label="@string/app_name"
