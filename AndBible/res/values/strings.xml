@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <!-- Application text
+
+TODO: error and download_document_confirm_prefix need to be parameterized rather than used for concatenation 
  
  @author Martin Denham [mjdenham at gmail dot com]
  @see gnu.lgpl.License for license details.<br>
@@ -123,7 +125,7 @@
     <string name="download">Download Documents</string>
     <string name="download_confirmation">Download a bible from the internet?</string>
     <string name="download_source_message">Documents are downloaded from\nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
-    <string name="download_document_confirm_prefix">"Download "</string>
+    <string name="download_document_confirm_prefix">Download</string>
     <string name="download_refreshing_book_list">Refreshing list of available documents</string>
     <string name="download_refresh_book_list_menu_item">Refresh</string>
     <string name="error_downloading">An error occurred downloading.  Please check your internet connection.</string>
@@ -200,6 +202,9 @@
     <string name="some_pages">%d pages</string>
     <!-- Speak - Common -->
     <string name="stop">Stop</string>
+    <string name="pause">Pause</string>
+    <string name="rewind">Rewind</string>
+    <string name="forward">Forward</string>
     <string name="tts_lang_not_available">Language is not available.</string>
     <string name="speak_queue">Queue</string>
     <string name="speak_repeat">Repeat</string>
@@ -234,7 +239,7 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="save">Save</string>
-    <string name="error">Error </string>
+    <string name="error">Error</string>
     <string name="more">More</string>
     <string name="retry">Try Again</string>
     <string name="please_wait">Please wait...</string>

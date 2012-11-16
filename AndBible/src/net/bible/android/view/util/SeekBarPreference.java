@@ -77,7 +77,6 @@ public class SeekBarPreference extends DialogPreference implements
     }
 
     public void setValue(int value) {
-    	Log.d(TAG, "*** setValue:"+value);
         if (value > mMax) {
             value = mMax;
         } else if (value < 0) {

@@ -8,8 +8,9 @@ import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.device.TextToSpeechController;
+import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.AndRuntimeException;
+import net.bible.service.device.speak.TextToSpeechController;
 import net.bible.service.sword.SwordContentFacade;
 
 import org.crosswire.jsword.book.Book;
@@ -19,6 +20,7 @@ import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleInfo;
 
+import android.media.AudioManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -90,9 +92,16 @@ public class SpeakControl {
 	 */
 	public void speakToggleCurrentPage() {
 		Log.d(TAG, "Speak toggle current page");
-		if (isSpeaking()) {
-			stop();
-        	Toast.makeText(BibleApplication.getApplication(), R.string.stop, Toast.LENGTH_SHORT).show();
+
+		// Continue
+		if (isPaused()) {
+			continueAfterPause();
+        	Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
+        //Pause
+		} else if (isSpeaking()) {
+			pause();
+        	Toast.makeText(BibleApplication.getApplication(), R.string.pause, Toast.LENGTH_SHORT).show();
+        // Start Speak
 		} else {
 			try {
 				CurrentPage page = CurrentPageManager.getInstance().getCurrentPage();
@@ -100,7 +109,7 @@ public class SpeakControl {
 		    	// first find keys to Speak
 				List<Key> keyList = new ArrayList<Key>();
 				keyList.add(page.getKey());
-					
+			
 				speak(fromBook, keyList, true, false);
 
 				Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
@@ -127,10 +136,20 @@ public class SpeakControl {
 		return TextToSpeechController.getInstance().isSpeaking();
 	}
 
+	public boolean isPaused() {
+		return TextToSpeechController.getInstance().isPaused();
+	}
+
 	/** prepare to speak
 	 */
 	public void speak(NumPagesToSpeakDefinition numPagesDefn, boolean queue, boolean repeat) {
 		Log.d(TAG, "Chapters:"+numPagesDefn.getNumPages());
+		// if a previous speak request is paused clear the cached text 
+		if (isPaused()) {
+			Log.d(TAG, "Clearing paused Speak text");
+			stop();
+		}
+		
 		CurrentPage page = CurrentPageManager.getInstance().getCurrentPage();
 		Book fromBook = page.getCurrentDocument()
 				;
@@ -154,19 +173,20 @@ public class SpeakControl {
 	public void speak(Book book, List<Key> keyList, boolean queue, boolean repeat) {
 		Log.d(TAG, "Keys:"+keyList.size());
 		// build a string containing the text to be spoken
-		StringBuffer textToSpeak = new StringBuffer();
+		List<String> textToSpeak = new ArrayList<String>();
 		
     	// first concatenate the number of required chapters
 		try {
 			for (Key key : keyList) {
 				// intro
-				textToSpeak.append(key).append(".\n");
+				textToSpeak.add(key.getName()+". ");
+//				textToSpeak.add("\n");
 				
 				// content
-				textToSpeak.append( SwordContentFacade.getInstance().getTextToSpeak(book, key));
+				textToSpeak.add( SwordContentFacade.getInstance().getTextToSpeak(book, key));
 
-//TODO - add a pause that is not said by the new chunked Speak
-//				textToSpeak.append(".\n");
+				// add a pause at end to separate passages
+				textToSpeak.add("\n");
 			}
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting chapters to speak", e);
@@ -175,19 +195,72 @@ public class SpeakControl {
 		
 		// if repeat was checked then concatenate with itself
 		if (repeat) {
-			// grab the text now before repeating is appended otherwise 'repeating..' is also appended at the end
-			String baseText = textToSpeak.toString();
-			textToSpeak.append("\n")
-					   .append(baseText);
+			textToSpeak.add("\n");
+			textToSpeak.addAll(textToSpeak);
 		}
 
-		speak(textToSpeak.toString(), book, queue);
+		speak(textToSpeak, book, queue);
 	}
 	
 	/** prepare to speak
 	 */
-	public void speak(String textToSpeak, Book fromBook, boolean queue) {
+	private void speak(List<String> textsToSpeak, Book fromBook, boolean queue) {
 		
+		List<Locale> localePreferenceList = calculateLocalePreferenceList(fromBook);
+
+		preSpeak();
+		
+		// speak current chapter or stop speech if already speaking
+    	TextToSpeechController tts = TextToSpeechController.getInstance();
+		Log.d(TAG, "Tell TTS to speak");
+    	tts.speak(localePreferenceList, textsToSpeak, queue);
+	}
+
+	public void rewind() {
+		Log.d(TAG, "Rewind TTS speaking");
+    	TextToSpeechController tts = TextToSpeechController.getInstance();
+		tts.rewind();
+    	Toast.makeText(BibleApplication.getApplication(), R.string.rewind, Toast.LENGTH_SHORT).show();
+	}
+	
+	public void forward() {
+		Log.d(TAG, "Forward TTS speaking");
+    	TextToSpeechController tts = TextToSpeechController.getInstance();
+		tts.forward();
+    	Toast.makeText(BibleApplication.getApplication(), R.string.forward, Toast.LENGTH_SHORT).show();
+	}
+
+	public void pause() {
+		Log.d(TAG, "Pause TTS speaking");
+    	TextToSpeechController tts = TextToSpeechController.getInstance();
+		tts.pause();
+	}
+
+	public void continueAfterPause() {
+		Log.d(TAG, "Continue TTS speaking after pause");
+		preSpeak();
+    	TextToSpeechController tts = TextToSpeechController.getInstance();
+		tts.continueAfterPause();
+	}
+	
+	public void stop() {
+		Log.d(TAG, "Stop TTS speaking");
+		doStop();
+    	Toast.makeText(BibleApplication.getApplication(), R.string.stop, Toast.LENGTH_SHORT).show();
+	}
+	
+	private void doStop() {
+    	TextToSpeechController tts = TextToSpeechController.getInstance();
+		tts.shutdown();
+	}
+
+	private void preSpeak() {
+		// ensure volume controls adjust correct stream - not phone which is the default
+		// STREAM_TTS does not seem to be available but this article says use STREAM_MUSIC instead: http://stackoverflow.com/questions/7558650/how-to-set-volume-for-text-to-speech-speak-method
+        CurrentActivityHolder.getInstance().getCurrentActivity().setVolumeControlStream(AudioManager.STREAM_MUSIC);
+
+	}
+	private List<Locale> calculateLocalePreferenceList(Book fromBook) {
 		//calculate preferred locales to use for speech
         // Set preferred language to the same language as the book.
         // Note that a language may not be available, and so we have a preference list
@@ -208,17 +281,7 @@ public class SpeakControl {
 		
 		// finally just add the language of the book
 		localePreferenceList.add( new Locale(bookLanguageCode));
-
-		// speak current chapter or stop speech if already speaking
-    	TextToSpeechController tts = TextToSpeechController.getInstance();
-		Log.d(TAG, "Tell TTS to speak");
-    	tts.speak(localePreferenceList, textToSpeak.toString(), queue);
-	}
-	
-	public void stop() {
-		Log.d(TAG, "Stop TTS speaking");
-    	TextToSpeechController tts = TextToSpeechController.getInstance();
-		tts.shutdown();
+		return localePreferenceList;
 	}
 	
 	private String getDefaultCountryCode(String language) {

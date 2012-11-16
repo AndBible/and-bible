@@ -12,6 +12,8 @@ public class CurrentActivityHolder {
 	
 	private Activity currentActivity;
 	
+	private boolean appIsInForeground = false;
+	
 	private static final CurrentActivityHolder singleton = new CurrentActivityHolder();
 	
 	private static final String TAG = "CurrentActivityHolder";
@@ -24,6 +26,9 @@ public class CurrentActivityHolder {
 	
 	public void setCurrentActivity(Activity activity) {
 		currentActivity = activity;
+		
+		// if activity changes then app must be in foreground so use this to trigger appToForeground event if it was in background
+		appIsNowInForeground();
 	}
 	
 	public Activity getCurrentActivity() {
@@ -35,7 +40,8 @@ public class CurrentActivityHolder {
 		if (currentActivity!=null && currentActivity.equals(activity)) {
 			Log.w(TAG, "Temporarily null current ativity");
 			currentActivity = null;
-			fireAppToBackground(new AppToBackgroundEvent());
+			fireAppToBackground(true);
+			appIsInForeground = false;
 		}
 	}
 	
@@ -47,18 +53,31 @@ public class CurrentActivityHolder {
 	{
 	     appToBackgroundListeners.remove(AppToBackgroundListener.class, listener);
 	}
-	protected void fireAppToBackground(AppToBackgroundEvent appToBackgroundEvent) 
-	{
-	     Object[] listeners = appToBackgroundListeners.getListenerList();
-	     // loop through each listener and pass on the event if needed
-	     int numListeners = listeners.length;
-	     for (int i = 0; i<numListeners; i+=2) 
-	     {
-	          if (listeners[i]==AppToBackgroundListener.class) 
-	          {
-	               // pass the event to the listeners event dispatch method
-	                ((AppToBackgroundListener)listeners[i+1]).applicationNowInBackground(appToBackgroundEvent);
-	          }            
-	     }
+	
+	/** really need to check for app being restored after an exit
+	 */
+	private void appIsNowInForeground() {
+		if (!appIsInForeground) {
+			Log.d(TAG, "AppIsInForeground firing event");
+			fireAppToBackground(false);
+			appIsInForeground = true;
+		}
+	}
+	
+	protected void fireAppToBackground(boolean isNowBackGround) {
+		AppToBackgroundEvent event = new AppToBackgroundEvent();
+		Object[] listeners = appToBackgroundListeners.getListenerList();
+		// loop through each listener and pass on the event if needed
+		int numListeners = listeners.length;
+		for (int i = 0; i < numListeners; i += 2) {
+			if (listeners[i] == AppToBackgroundListener.class) {
+				// pass the event to the listeners event dispatch method
+				if (isNowBackGround) {
+					((AppToBackgroundListener) listeners[i + 1]).applicationNowInBackground(event);
+				} else {
+					((AppToBackgroundListener) listeners[i + 1]).applicationReturnedFromBackground(event);
+				}
+			}
+		}
 	}
 }

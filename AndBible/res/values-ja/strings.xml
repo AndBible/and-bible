@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="app_name">エンドバイブル</string>
+  <!--Startup & Help-->
+  <string name="splash_top_text">\"そのとき、神が「光よ.あれ.」と仰せられた。すると光ができた。\n創世記１：３</string>
+  <string name="no_sdcard_error">SDカードを差し入れてからまたエンドバイブルを初めてください。</string>
+  <!--main menu-->
+  <string name="chooseBook">文書</string>
+  <string name="selectPassage">節</string>
+  <string name="search">探し\n</string>
+  <string name="settings">設定</string>
+  <string name="history">歴史</string>
+  <string name="speak">スピーキング</string>
+  <string name="help">ヘルプ</string>
+  <!--Passage navigation-->
+  <!--Search-->
+  <string name="index_download">ダウンロード</string>
+  <!--Tasks-->
+  <!--Search-->
+  <string name="search_new_testament">新約</string>
+  <string name="search_old_testament">旧約</string>
+  <!--Preferences-->
+  <!--Notes screen-->
+  <!--Strongs-->
+  <!--Module download-->
+  <!--Daily Reading Plan-->
+  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
+  <!--Document context menu-->
+  <!--Verse context menu-->
+  <!--Bookmarks-->
+  <!--Dictionary-->
+  <!--General Book-->
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <!--Speak - Commentary-->
+  <!--Speak - Dictionary and other-->
+  <!--Speak - Common-->
+  <!--User Notes-->
+  <!--Backup and restore-->
+  <!--Document types-->
+  <!--Languages-->
+  <!--General-->
+  <!--Errors-->
+</resources>

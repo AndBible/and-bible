@@ -277,7 +277,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     		if (allDocuments!=null && allDocuments.size()>0) {
    	        	Log.d(TAG, "filtering documents");
 	        	displayedDocuments.clear();
-	        	Language lang = languageList.get(selectedLanguageNo);
+	        	Language lang = getSelectedLanguage();
 	        	for (Book doc : allDocuments) {
 	        		BookFilter filter = DOCUMENT_TYPE_SPINNER_FILTERS[selectedDocumentFilterNo];
 	        		if (filter.test(doc) && doc.getLanguage().equals(lang)) {
@@ -296,7 +296,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     		}
     	} catch (Exception e) {
     		Log.e(TAG, "Error initialising view", e);
-    		Toast.makeText(this, getString(R.string.error)+e.getMessage(), Toast.LENGTH_SHORT);
+    		Toast.makeText(this, getString(R.string.error)+" "+e.getMessage(), Toast.LENGTH_SHORT).show();
     	}
     }
 
@@ -323,7 +323,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     		}
     	} catch (Exception e) {
     		Log.e(TAG, "Error initialising view", e);
-    		Toast.makeText(this, getString(R.string.error)+e.getMessage(), Toast.LENGTH_SHORT);
+    		Toast.makeText(this, getString(R.string.error)+" "+e.getMessage(), Toast.LENGTH_SHORT).show();
     	}
     }
 
@@ -446,6 +446,14 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 	       }).create().show();
 	}
 
+	private Language getSelectedLanguage() {
+		if (selectedLanguageNo==-1) {
+			setDefaultLanguage();
+		}
+		
+		return languageList.get(selectedLanguageNo);
+	}
+	
 	public void setDeletePossible(boolean isDeletePossible) {
 		this.isDeletePossible = isDeletePossible;
 	}

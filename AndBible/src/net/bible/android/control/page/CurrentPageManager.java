@@ -74,6 +74,11 @@ public class CurrentPageManager {
 			public void applicationNowInBackground(AppToBackgroundEvent e) {
 				saveState();
 			}
+
+			@Override
+			public void applicationReturnedFromBackground(AppToBackgroundEvent e) {
+				//NOOP
+			}
 		});
 	}
 	

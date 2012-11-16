@@ -4,4 +4,5 @@ import java.util.EventListener;
 
 public interface AppToBackgroundListener extends EventListener {
 	void applicationNowInBackground(AppToBackgroundEvent e);
+	void applicationReturnedFromBackground(AppToBackgroundEvent e);
 }

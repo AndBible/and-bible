@@ -272,6 +272,18 @@ public class ReadingPlanControl {
 		prefsEditor.commit();
 	}
 
+	public String getShortTitle() {
+		return StringUtils.left(getCurrentPlanCode(), 8);
+	}
+	
+	public String getCurrentDayDescription() {
+		if (isReadingPlanSelected()) {
+			return getDaysReading(getCurrentPlanDay()).getDayDesc();
+		} else {
+			return "";
+		}
+	}
+	
 	/** keep track of which plan the user has currently.  This can be safely changed and reverted to without losing track
 	 */
 	private String getCurrentPlanCode() {

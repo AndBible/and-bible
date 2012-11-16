@@ -15,17 +15,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
+import android.widget.AdapterView.AdapterContextMenuInfo;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.Toast;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemSelectedListener;
 
 /**
  * Choose Document (Book) to download
@@ -40,7 +40,8 @@ import android.widget.AdapterView.OnItemSelectedListener;
 public class Bookmarks extends ListActivityBase {
 	private static final String TAG = "Bookmarks";
 
-	static final String BOOKMARK_EXTRA = "bookmark";
+	static final String BOOKMARK_ID_EXTRA = "bookmarkId";
+	static final String LABEL_NO_EXTRA = "labelNo";
 
 	private Bookmark bookmarkControl;
 	
@@ -58,10 +59,21 @@ public class Bookmarks extends ListActivityBase {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState, true);
         setContentView(R.layout.bookmarks);
 
         bookmarkControl = ControlFactory.getInstance().getBookmarkControl();
+        
+        // if coming Back using History then the LabelNo will be in the intent allowing the correct label to be pre-selected
+		Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			if (extras.containsKey(LABEL_NO_EXTRA)) {
+				int labelNo = extras.getInt(LABEL_NO_EXTRA);
+				if (labelNo>=0) {
+					selectedLabelNo = labelNo;
+				}
+			}
+		}
         
        	initialiseView();
     }
@@ -74,6 +86,12 @@ public class Bookmarks extends ListActivityBase {
     	labelArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     	labelSpinner = (Spinner)findViewById(R.id.labelSpinner);
     	labelSpinner.setAdapter(labelArrayAdapter);
+
+    	// check for pre-selected label e.g. when returning via History using Back button 
+    	if (selectedLabelNo>=0 && selectedLabelNo<labelList.size()) {
+    		labelSpinner.setSelection(selectedLabelNo);
+    	}
+
     	labelSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 			@Override
@@ -151,9 +169,20 @@ public class Bookmarks extends ListActivityBase {
     	loadBookmarkList();
     }
 
+    /** allow activity to enhance intent to correctly restore state */
+	public Intent getIntentForHistoryList() {
+		Log.d(TAG, "Saving label no in History Intent");
+		Intent intent = getIntent();
+		
+		intent.putExtra(LABEL_NO_EXTRA, selectedLabelNo);
+
+		return intent;
+	}
+
+    
     private void assignLabels(BookmarkDto bookmark) {
 		Intent intent = new Intent(this, BookmarkLabels.class);
-		intent.putExtra(BOOKMARK_EXTRA, bookmark.getId());
+		intent.putExtra(BOOKMARK_ID_EXTRA, bookmark.getId());
 		startActivityForResult(intent, 1);
 	}
 
@@ -181,7 +210,7 @@ public class Bookmarks extends ListActivityBase {
     		}
     	} catch (Exception e) {
     		Log.e(TAG, "Error initialising view", e);
-    		Toast.makeText(this, getString(R.string.error)+e.getMessage(), Toast.LENGTH_SHORT);
+    		Toast.makeText(this, getString(R.string.error)+" "+e.getMessage(), Toast.LENGTH_SHORT).show();
     	}
     }
 

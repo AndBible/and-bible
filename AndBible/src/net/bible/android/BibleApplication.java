@@ -4,9 +4,9 @@ import java.util.List;
 import java.util.Locale;
 
 import net.bible.android.activity.R;
-import net.bible.android.device.ProgressNotificationManager;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
+import net.bible.service.device.ProgressNotificationManager;
 import net.bible.service.device.ScreenSettings;
 import net.bible.service.sword.SwordDocumentFacade;
 

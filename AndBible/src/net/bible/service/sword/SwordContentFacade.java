@@ -54,7 +54,7 @@ public class SwordContentFacade {
 	
 	private DocumentParseMethod documentParseMethod = new DocumentParseMethod();
 	
-	private static final String TAG = "SwordContentApi";
+	private static final String TAG = "SwordContentFacade";
 	private static SwordContentFacade singleton;
 
 	// set to false for testing
@@ -130,6 +130,11 @@ public class SwordContentFacade {
 	private FormattedDocument readHtmlTextOptimizedZTextOsis(Book book, Key key) throws ParseException
 	{
 		log.debug("Using fast method to fetch document data");
+		/**
+		 * When you supply an InputStream, the SAX implementation wraps the stream in an InputStreamReader; 
+		 * then SAX automatically detects the correct character encoding from the stream. You can then omit the setEncoding() step, 
+		 * reducing the method invocations once again. The result is an application that is faster, and always has the correct character encoding.
+		 */
 		InputStream is = new OSISInputStream(book, key);
 
 		OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book, key);
@@ -299,7 +304,7 @@ public class SwordContentFacade {
 // 		  example of fetching Strongs ref - only works with downloaded indexes!
 //        Book book = getDocumentByInitials("KJV");
 //        Key key1 = book.find("strong:h3068");
-//        System.out.println("*** h3068 result count:"+key1.getCardinality());
+//        System.out.println("h3068 result count:"+key1.getCardinality());
 
 		Log.d(TAG,	"Searching:"+bible+" Search term:" + searchText);
 		

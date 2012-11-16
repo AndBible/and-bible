@@ -21,6 +21,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.os.Build;
+import android.os.Build.VERSION;
 import android.os.Environment;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
@@ -83,6 +84,21 @@ public class CommonUtils {
 	
 	public static boolean isFroyoPlus() {
 		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO;
+	}
+
+	/** return true if Android 2.3.7 or greater
+	 */
+	public static boolean is2_3_7_Plus() {
+		if (Build.VERSION.SDK_INT > 9) {
+			return true;
+		} else if (Build.VERSION.SDK_INT < 9) {
+			return false;
+		} else {
+			// this isn't brilliant code but should not fail and should work most times, maybe all
+			String rel = Build.VERSION.RELEASE;
+			String finalDigit = StringUtils.right(rel,1);
+			return "789".contains(finalDigit);
+		}
 	}
 
 	public static boolean isGingerBreadPlus() {

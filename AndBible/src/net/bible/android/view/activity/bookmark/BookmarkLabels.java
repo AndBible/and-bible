@@ -51,7 +51,7 @@ public class BookmarkLabels extends ListActivityBase {
 
         bookmarkControl = ControlFactory.getInstance().getBookmarkControl();
         
-        long bookmarkId = getIntent().getLongExtra(Bookmarks.BOOKMARK_EXTRA, -1);
+        long bookmarkId = getIntent().getLongExtra(Bookmarks.BOOKMARK_ID_EXTRA, -1);
         bookmark = bookmarkControl.getBookmarkById(bookmarkId);
 
         initialiseView();

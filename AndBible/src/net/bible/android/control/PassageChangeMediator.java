@@ -1,5 +1,6 @@
 package net.bible.android.control;
 
+import net.bible.android.control.event.passage.PassageEventManager;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.service.device.ScreenSettings;
@@ -16,6 +17,9 @@ public class PassageChangeMediator {
 	private MainBibleActivity mMainBibleActivity;
 	private BibleContentManager mBibleContentManager;
 	private boolean isPageChanging = false;
+
+	// slowly moving toward events but not there yet
+	private PassageEventManager passageEventManager = PassageEventManager.getInstance();
 	
 	private static final String TAG = "PassageChangeMediator";
 	
@@ -47,10 +51,20 @@ public class PassageChangeMediator {
 		}
 	}
 
+	/** the document has changed so ask the view to refresh itself
+	 */
+	public void forcePageUpdate() {
+		if (mBibleContentManager!=null) {
+			mBibleContentManager.updateText(true);
+		} else {
+			Log.w(TAG, "BibleContentManager not yet registered");
+		}
+	}
+
 	/** this is triggered on scroll
 	 */
 	public void onCurrentPageDetailChanged() {
-		doVerseChanged();
+		passageEventManager.passageDetailChanged();
 	}
 
 	/** The thread which fetches the new page html has started
@@ -79,14 +93,6 @@ public class PassageChangeMediator {
 		isPageChanging = false;
 	}
 	
-	private void doVerseChanged() {
-		if (mMainBibleActivity!=null) {
-			mMainBibleActivity.onVerseChanged();
-		} else {
-			Log.w(TAG, "Bible activity not yet registered");
-		}
-	}
-
 	public boolean isPageChanging() {
 		return isPageChanging;
 	}

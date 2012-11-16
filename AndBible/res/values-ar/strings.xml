@@ -1,74 +1,207 @@
-﻿<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<!-- Application text
- 
- @author Martin Denham [mjdenham at gmail dot com]
- @see gnu.lgpl.License for license details.<br>
-      The copyright to this program is held by it's author.
--->
+<?xml version='1.0' encoding='UTF-8'?>
 <resources>
-    <!-- Startup & Help -->
-    <string name="splash_top_text">"\n\"و قال الله ليكن نور فكان نور.\"\nتكوين 1:3"</string>
-    <string name="help_text">"إضغط على زر \"القائمة\" \nتستطيع التنقل بين الإصحاحات (التالي أو السابق) عن طريق التراك بول، دي باد، بلمس الشاشة باصبعك يمينا او يسارا"</string>
-    <string name="version_text">إصدار %s</string>
-    <string name="no_sdcard_error">"برجاء وضع شريحة الذاكرة و إعادة تشغيل البرنامج"</string>
-
-    <!-- main menu -->
-    <string name="chooseBook">إختار المستند</string>
-    <string name="selectPassage">مرور</string>
-    <string name="search">إبحث</string>
-    <string name="settings">إعدادات</string>
-    <string name="history">تاريخ</string>
-    <string name="speak">تكلم</string>
-    <string name="help">مساعدة</string>
-
-    <!-- Passage navigation -->
-    <string name="choosePassageBookName">"إختر سفر"</string>
-    <string name="choosePassageChapterName">إختر إصحاح</string>
-    <string name="choosePassageVerseName">إختر آية</string>
-
-    <!--  Search -->
-    <string name="search_index">"بحث الفهرس"</string>
-    <string name="index_creation_required">"الفهرسة ضرورية لعملية البحث.\n\nتستطيع تحميل الفهرس عن طريق الانترنت أو انشاءه على جهازك.\n\nتحميل الفهرس أسرع طريقة و تحوي العديد المزايا.\n\nيجب عليك الاتصال بشبكة الانترنت لتحميل الفهرس.\n"</string>
-    <string name="indexing_wait_msg">بعد اكتمال عملية الفهرسة، سيتم توجيهك لشاشة البحث.</string>
-    <string name="index">فهرس</string>
-    <string name="index_download">تحميل</string>
-    <string name="index_not_available_for_download">الفهرس غير متاح للتحميل</string>
-    <string name="index_create">إنشاء</string>
-
-    <!-- Tasks -->
-    <string name="progress_status">الحالة</string>
-    <string name="task_kill_warning">"قد ينقطع تنفيذ المهام إذا تحولت إلى برنامج آخر قبل أن تنتهي العملية."</string>
-    <string name="no_tasks_running">لا يوجد أي مهام في مرحلة التنفيذ.</string>
-
-    <!-- Search -->
-    <string name="search_results">بحث النتائج</string>
-    <string name="search_words_group_prompt">بحث الآيات</string>
-    <string name="search_all_words">كل الكلمات</string>
-    <string name="search_any_word">أي كلمة</string>
-    <string name="search_phrase">جملة</string>
-    <string name="search_result_count">"يوجد %d "</string>
-    <string name="search_showing_first">يوجد نتائج كثيرة جدا،  نعرض أول  %d نتيجة</string>
-    <string name="search_bible_section_group_prompt">أين</string>
-    <string name="search_all_bible">الإنجيل ككل</string>
-    <string name="search_new_testament">العهد الجديد</string>
-    <string name="search_old_testament">العهد القديم</string>
-    <string name="search_current_book">السفر الحالي</string>
-    <string name="error_executing_search">مدخلات البحث غير صحيحة</string>
-
-    <!-- Preferences -->
-    <string name="prefs_show_verseno_title">رقم الآية</string>
-    <string name="prefs_show_verseno_summary">أظهر رقم الآية</string>
-    <string name="prefs_verse_per_line_title">آية واحدة في السطر</string>
-    <string name="prefs_verse_per_line_summary">أظهر كل آية في سطر مختلف</string>
-    <string name="prefs_show_bookmarks_title">أظهر أيقونة شارات الرجوع</string>
-    <string name="prefs_show_bookmarks_summary">"أظهر أيقونة في آيات شارات الرجوع"</string>
-
-    <string name="error">"خطأ"</string>
-    <string name="more">المزيد</string>
-    <string name="retry">حاول مرة أخرى</string>
-    <string name="please_wait">برجاء الإنتظار</string>
-    <string name="all">الكل</string>
-    
-    <!-- Errors -->
-    <string name="error_occurred">حدث خطأ ما</string>
+  <string name="app_name">And Bible</string>
+  <!--Startup & Help-->
+  <string name="splash_top_text">\n\\"و قال الله ليكن نور فكان نور.\\"\nتكوين 1:3</string>
+  <string name="help_text">إضغط على زر \\"القائمة\\" \nتستطيع التنقل بين الإصحاحات (التالي أو السابق) عن طريق التراك بول، دي باد، بلمس الشاشة باصبعك يمينا او يسارا</string>
+  <string name="version_text">إصدار %s</string>
+  <string name="no_sdcard_error">برجاء وضع شريحة الذاكرة و إعادة تشغيل البرنامج</string>
+  <!--main menu-->
+  <string name="chooseBook">إختار المستند</string>
+  <string name="selectPassage">مرور</string>
+  <string name="search">إبحث</string>
+  <string name="settings">إعدادات</string>
+  <string name="history">تاريخ</string>
+  <string name="speak">تكلم</string>
+  <string name="help">مساعدة</string>
+  <!--Passage navigation-->
+  <string name="choosePassageBookName">إختر سفر</string>
+  <string name="choosePassageChapterName">إختر إصحاح</string>
+  <string name="choosePassageVerseName">إختر آية</string>
+  <!--Search-->
+  <string name="search_index">بحث الفهرس</string>
+  <string name="index_creation_required">الفهرسة ضرورية لعملية البحث.\n\nتستطيع تحميل الفهرس عن طريق الانترنت أو انشاءه على جهازك.\n\nتحميل الفهرس أسرع طريقة و تحوي العديد المزايا.\n\nيجب عليك الاتصال بشبكة الانترنت لتحميل الفهرس.\n</string>
+  <string name="indexing_wait_msg">بعد اكتمال عملية الفهرسة، سيتم توجيهك لشاشة البحث.</string>
+  <string name="index">فهرس</string>
+  <string name="index_download">تحميل</string>
+  <string name="index_not_available_for_download">الفهرس غير متاح للتحميل</string>
+  <string name="index_create">إنشاء</string>
+  <!--Tasks-->
+  <string name="progress_status">الحالة</string>
+  <string name="task_kill_warning">قد ينقطع تنفيذ المهام إذا تحولت إلى برنامج آخر قبل أن تنتهي العملية.</string>
+  <string name="no_tasks_running">لا يوجد أي مهام في مرحلة التنفيذ.</string>
+  <!--Search-->
+  <string name="search_results">بحث النتائج</string>
+  <string name="search_words_group_prompt">بحث الآيات</string>
+  <string name="search_all_words">كل الكلمات</string>
+  <string name="search_any_word">أي كلمة</string>
+  <string name="search_phrase">جملة</string>
+  <string name="search_result_count">يوجد %d </string>
+  <string name="search_showing_first">يوجد نتائج كثيرة جدا،  نعرض أول  %d نتيجة</string>
+  <string name="search_bible_section_group_prompt">أين</string>
+  <string name="search_all_bible">الإنجيل ككل</string>
+  <string name="search_new_testament">العهد الجديد</string>
+  <string name="search_old_testament">العهد القديم</string>
+  <string name="search_current_book">السفر الحالي</string>
+  <string name="error_executing_search">مدخلات البحث غير صحيحة</string>
+  <!--Preferences-->
+  <string name="prefs_show_verseno_title">رقم الآية</string>
+  <string name="prefs_show_verseno_summary">أظهر رقم الآية</string>
+  <string name="prefs_verse_per_line_title">آية واحدة في السطر</string>
+  <string name="prefs_verse_per_line_summary">أظهر كل آية في سطر مختلف</string>
+  <string name="prefs_show_bookmarks_title">أظهر أيقونة شارات الرجوع</string>
+  <string name="prefs_show_bookmarks_summary">أظهر أيقونة في آيات شارات الرجوع</string>
+  <string name="prefs_show_mynotes_title">إظهار علامة ملاحظاتي</string>
+  <string name="prefs_show_mynotes_summary">إظهار علامة ملاحظاتي في الآيات </string>
+  <string name="prefs_show_notes_title">التذييل و x-ref</string>
+  <string name="prefs_show_notes_summary">اظهر التذييل و المراجع </string>
+  <string name="prefs_show_strongs_title">أظهر أرقام القوة</string>
+  <string name="prefs_show_strongs_summary">روابط وصل للتعريفات اليونانية و العبرية</string>
+  <string name="prefs_show_morphology_title">رموز التشكيل (المورفولوجية)</string>
+  <string name="prefs_show_morphology_summary">أظهر رموز روبنسون اليونانية</string>
+  <string name="prefs_section_title_title">عناوين المقاطع</string>
+  <string name="prefs_section_title_summary">أظهر عناوين المقاطع الغير قانونية</string>
+  <string name="prefs_red_letter_title">حروف حمراء</string>
+  <string name="prefs_red_letter_summary">اظهار كلةم السيد المسيح بخط احمر</string>
+  <string name="prefs_tilt_to_scroll_title">امل الهاتف للف الصفحة</string>
+  <string name="prefs_tilt_to_scroll_summary">امل الهاتف للف الصفحة لاسفل</string>
+  <string name="prefs_night_mode_title">الوضع الليلي</string>
+  <string name="prefs_night_mode_summary">لقراءة افضل في الظلام</string>
+  <string name="prefs_night_mode_automatic">اوتوماتيك</string>
+  <string name="prefs_navigate_to_verse_title">الذهاب الى الآية</string>
+  <string name="prefs_navigate_to_verse_summary">اختار الآية ( او الاصحاح) للاختيار</string>
+  <string name="prefs_text_size_title">حجم الجط</string>
+  <string name="prefs_text_size_summary">انظر المزيد او المزيد بشكل افضل</string>
+  <string name="prefs_text_size_sample_text">نموذج من الكتابة</string>
+  <string name="prefs_interface_locale_title">لغة التطبيق (البرنامج)</string>
+  <string name="prefs_interface_locale_summary">اختر اللغة لواجهة الاستخدام في البرنامج</string>
+  <string name="locale_change_warning">سيتم اعادة فتح البرنامج لتفعيل اللغة المختارة لواجهة المستخدم</string>
+  <!--Notes screen-->
+  <string name="no_chapter_notes">لا يوجد ملاحظات في الاصحاح</string>
+  <string name="no_verse_notes">لا يوجد ملاحظات للآية</string>
+  <string name="previous">السابق</string>
+  <string name="next">التالي</string>
+  <!--Strongs-->
+  <string name="strongs">معجم المفهرس للقوة (غير متاح في النسخ العربية)</string>
+  <string name="strongs_not_installed">تحميل معجم القوة للغة العبرية و اليونانية</string>
+  <string name="all_greek_occurrences">ايجاد كل التواجد</string>
+  <string name="all_hebrew_occurrences">ايجاد كل التواجد</string>
+  <string name="no_indexed_bible_with_strongs_ref">يجب تحميل كتاب مقدس بفهرس ارقام القوة و تحميل فهرسة البحث</string>
+  <string name="morph_robinson_not_installed">برجاء تحميل فهرس روبنسون التحليلي.</string>
+  <string name="strongs_toggle_button_on">nnnn</string>
+  <string name="strongs_toggle_button_off">nnnn</string>
+  <!--Module download-->
+  <string name="download">تحميل المستندات</string>
+  <string name="download_confirmation">تحميل الكتاب المقدس من الانترنت</string>
+  <string name="download_source_message">يتم تحميل المستندات من  http://www.crosswire.org⏎ &amp; http://xiphos.org</string>
+  <string name="download_document_confirm_prefix">تحميل</string>
+  <string name="download_refreshing_book_list">اعادة تحديث قائمة المستندات المتاحة</string>
+  <string name="download_refresh_book_list_menu_item">اعادة تحديث (refresh)</string>
+  <string name="error_downloading">حدث خطأ اتناء التحميل، من فضلك تأكد من اتصالك بشبكة الانترنت</string>
+  <string name="no_internet_connection">تعذر الاتصال بشبكة الانترنت</string>
+  <string name="storage_space_warning">لا يوجد مساحة مناسبة على الجهاز</string>
+  <string name="wait_for_bible">برجاء الانتظار حتى يتم الانتهاء من تحميل الكتاب المقدس. سيتم تحميلك للقائمة الرئيسية.</string>
+  <string name="wait_for_bible_not_yet">برجاء الانتظار. لم يتم الانتهاء من اعداد الكتاب المقدس.</string>
+  <string name="download_complete_no_bibles">لا يوجد كتاب مقدس معد على الجهاز. اضغط على السابق و جرب مرة أخرى.</string>
+  <string name="too_many_jobs">يوجد العديد من المهام تنفذ. برجاء انتظارها حتى تنتهى ثم حاول مرة أخرى.</string>
+  <string name="document_not_installed">برجاء تحميل \'%s\'</string>
+  <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">خطة القراءة</string>
+  <string name="rdg_plan_selector_title">اختيار خطة القراءة</string>
+  <string name="rdg_plan_day">يوم %s</string>
+  <string name="rdg_plan_set_start_jan1">بداية من 1 يناير</string>
+  <string name="done">تم</string>
+  <string name="reset">اعادة تهيئة</string>
+  <string name="rdg_plan_y1ntpspr">العهد الجديد، المزامير و الامثال في سنة.</string>
+  <string name="rdg_plan_y1ot1nt1_chronological">الكتاب المقدس خلال العام.</string>
+  <string name="rdg_plan_y1ot1nt1_OTandNT">الكتاب المقدس العهد الجديد و القديم خلال عام.</string>
+  <string name="rdg_plan_y1ot1nt1_OTthenNT">الكتاب المقدس العهد القديم ثم العهد الجديد خلال عام.</string>
+  <string name="rdg_plan_y1ot1nt2_mcheyne">الكتاب المقدس خلال عام، (م.شاين)</string>
+  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
+  <!--Document context menu-->
+  <string name="delete">الغاء (حذف)</string>
+  <string name="delete_index">حذف  فهرس البحث.</string>
+  <string name="about">عن البرنامج</string>
+  <string name="delete_doc">حذف %s ؟</string>
+  <string name="delete_search_index_doc">حذف فهرس من %s ؟</string>
+  <!--Verse context menu-->
+  <string name="select_text">اختار كتابة</string>
+  <string name="select_text_help">حرك الختيان على الكتابة لاختيارها ثم اضغط عليها لنسخها</string>
+  <string name="notes">التذييل و المراجع</string>
+  <string name="copy">نسخ الآية الحالية</string>
+  <string name="share_verse">مشاركة الآية الحالية</string>
+  <string name="share_verse_subject">تم مشاركتك بآية من الكتاب المقدس من خلال آند بايبل</string>
+  <string name="compare_translations">مقارنة الترجمات</string>
+  <!--Bookmarks-->
+  <string name="bookmarks">شارات الرجوع</string>
+  <string name="add_bookmark">اضف شارة رجوع</string>
+  <string name="bookmark_added">تم اضافة شارة رجوع</string>
+  <string name="bookmark_exists">شارة الرجوع موجودة مسبقا</string>
+  <string name="bookmark_labels">كلمات دالة على شارات الرجوع</string>
+  <string name="assign_labels">تحديد كلمات دالة</string>
+  <string name="new_label">كلمة دالة جديدة</string>
+  <string name="new_label_prompt">اسم</string>
+  <string name="label_unlabelled">بدون كلمات دالة</string>
+  <!--Dictionary-->
+  <string name="dictionary">القاموس</string>
+  <string name="search_dictionary_hint">إبحث في القاموس</string>
+  <string name="dictionary_contents">محتوى القاموس</string>
+  <!--General Book-->
+  <string name="general_book">سفر</string>
+  <string name="general_book_contents">المحتوى</string>
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <string name="one_chapter">%d إصحاح</string>
+  <string name="some_chapters">%d إصحاح</string>
+  <string name="rest_of_book">إلى نهاية السفر</string>
+  <!--Speak - Commentary-->
+  <string name="one_verse">%d آية</string>
+  <string name="some_verses">%d آية</string>
+  <string name="rest_of_chapter">إلى نهاية الإصحاح</string>
+  <!--Speak - Dictionary and other-->
+  <string name="one_page">%d صفحة</string>
+  <string name="some_pages">%d صفحة</string>
+  <!--Speak - Common-->
+  <string name="stop">توقف</string>
+  <string name="tts_lang_not_available">اللغة غير متاحة</string>
+  <string name="speak_queue">بانتظام</string>
+  <string name="speak_repeat">كرر</string>
+  <!--User Notes-->
+  <string name="mynotes">ملاحظاتي</string>
+  <string name="mynote">ملاحظتي</string>
+  <string name="mynote_add">أضف ملاحظة </string>
+  <string name="mynote_view_edit">ملاحظتي</string>
+  <string name="mynote_saved">تم حفظ ملاحظتي</string>
+  <!--Backup and restore-->
+  <string name="backup">عمل نسخة احتياطية للرجوع</string>
+  <string name="backup_success">تم حفظ %s ملاحظاتي و شارات الرجوع على شريحة الذاكرة </string>
+  <string name="restore">إستعادة</string>
+  <string name="restore_confirmation">متأكد من الكتابة على ملاحظاتي و شارات الرجوع؟</string>
+  <string name="restore_success">تم تحميل %s ملاحظاتي و شارات الرجوع على شريحة الذاكرة </string>
+  <!--Document types-->
+  <string name="doc_type_bible">إنجيل</string>
+  <string name="doc_type_commentary">تعليق</string>
+  <string name="doc_type_dictionary">قاموس</string>
+  <string name="doc_type_book">سفر</string>
+  <string name="doc_type_map">خريطة</string>
+  <!--Languages-->
+  <string name="lang_default">إفتراضي</string>
+  <!--General-->
+  <string name="okay">موافق</string>
+  <string name="cancel">تجاهل</string>
+  <string name="yes">نعم</string>
+  <string name="no">لا</string>
+  <string name="save">حفظ</string>
+  <string name="error">خطأ</string>
+  <string name="more">المزيد</string>
+  <string name="retry">حاول مرة أخرى</string>
+  <string name="please_wait">برجاء الإنتظار</string>
+  <string name="all">الكل</string>
+  <!--Errors-->
+  <string name="error_occurred">حدث خطأ ما</string>
+  <string name="error_no_content">لا يوجد محتوى للآية المختارة</string>
+  <string name="error_page_too_large">لا نستطيع تحميل الصفحة لأنها كبيرة جدا</string>
+  <string name="error_key_not_in_document">لا يوجد مستند</string>
+  <string name="empty_list">لا يوجد مواد للعرض</string>
 </resources>

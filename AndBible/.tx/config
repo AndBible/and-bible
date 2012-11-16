@@ -1,0 +1,8 @@
+[main]
+host = https://www.transifex.com
+
+[andbible.and-bible-stringsxml]
+file_filter = res\values-<lang>\strings.xml
+source_lang = en
+source_file = res\values\strings.xml
+

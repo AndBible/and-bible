@@ -3,7 +3,7 @@
 	<dimen name="title_bar_height">36dip</dimen>
 	
 	<!--  number of buttons varies depending on screen size and orientation -->
-	<integer name="number_of_quick_buttons">6</integer>
+	<integer name="number_of_quick_buttons">8</integer>
 	
 	<integer name="grid_cell_text_size_sp">28</integer>
 	

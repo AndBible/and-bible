@@ -167,6 +167,17 @@ public class PageControl {
 		return fontSize+fontSizeAdjustment;		
 	}
 	
+	/** return true if Strongs numbers are shown */
+	public boolean isStrongsShown() {
+		return isStrongsRelevant() && 
+			   CommonUtils.getSharedPreferences().getBoolean("show_strongs_pref", true);
+	}
+	
+	/** return true if Strongs are relevant to this doc & screen */
+	public boolean isStrongsRelevant() {
+		return ControlFactory.getInstance().getDocumentControl().isStrongsInBook();
+	}
+	
 	private String shorten(String title, int maxLength) {
 		String retVal = null;
 		if (title.length()>maxLength) {

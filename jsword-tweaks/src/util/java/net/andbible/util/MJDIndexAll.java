@@ -185,24 +185,29 @@ public class MJDIndexAll {
 //    	indexAll.installAndIndexSingleBook("MonKJV");
 //    	indexAll.installAndIndexSingleBook("Che1860");
     	
-    	//18/08/2012
-    	indexAll.installAndIndexSingleBook("BBE");
-    	indexAll.installAndIndexSingleBook("ACV");
-    	indexAll.installAndIndexSingleBook("IriODomhnuill");
-    	indexAll.installAndIndexSingleBook("ABP");
-    	indexAll.installAndIndexSingleBook("FrePGR");
-    	indexAll.installAndIndexSingleBook("Pohnpeian");
-    	indexAll.installAndIndexSingleBook("PorAR");
-    	indexAll.installAndIndexSingleBook("PorLivre");
-    	indexAll.installAndIndexSingleBook("FreBBB");
-    	indexAll.installAndIndexSingleBook("Geez");
-    	indexAll.installAndIndexSingleBook("KorHKJV");
-    	indexAll.installAndIndexSingleBook("KJVPCE");
-    	indexAll.installAndIndexSingleBook("PolGdanska");
-    	indexAll.installAndIndexSingleBook("SpaRV1909");
-    	indexAll.installAndIndexSingleBook("LEB");
-    	indexAll.installAndIndexSingleBook("WEBME");
+//    	//18/08/2012
+//    	indexAll.installAndIndexSingleBook("BBE");
+//    	indexAll.installAndIndexSingleBook("ACV");
+//    	indexAll.installAndIndexSingleBook("IriODomhnuill");
+//    	indexAll.installAndIndexSingleBook("ABP");
+//    	indexAll.installAndIndexSingleBook("FrePGR");
+//    	indexAll.installAndIndexSingleBook("Pohnpeian");
+//    	indexAll.installAndIndexSingleBook("PorAR");
+//    	indexAll.installAndIndexSingleBook("PorLivre");
+//    	indexAll.installAndIndexSingleBook("FreBBB");
+//    	indexAll.installAndIndexSingleBook("Geez");
+//    	indexAll.installAndIndexSingleBook("KorHKJV");
+//    	indexAll.installAndIndexSingleBook("KJVPCE");
+//    	indexAll.installAndIndexSingleBook("PolGdanska");
+//    	indexAll.installAndIndexSingleBook("SpaRV1909");
+//    	indexAll.installAndIndexSingleBook("LEB");
+//    	indexAll.installAndIndexSingleBook("WEBME");
  //   	indexAll.installAndIndexSingleBook("QuotingPassages");
+
+    	// 14/11/12
+//    	indexAll.installAndIndexSingleBook("HinERV");
+//    	indexAll.installAndIndexSingleBook("MalBSI");
+//    	indexAll.installAndIndexSingleBook("GerNeUe");
     }
     
 	public void validateAllIndexes() {
