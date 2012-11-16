@@ -165,6 +165,9 @@
   <string name="some_pages">%d หน้า</string>
   <!--Speak - Common-->
   <string name="stop">หยุด</string>
+  <string name="pause">หยุด</string>
+  <string name="rewind">ย้อนกลับ</string>
+  <string name="forward">ข้างหน้า</string>
   <string name="tts_lang_not_available">ภาษาที่ต้องการยังไม่มีให้</string>
   <string name="speak_queue">จัดเรียง</string>
   <string name="speak_repeat">ซ้ำ</string>

@@ -165,6 +165,9 @@
   <string name="some_pages">%d pages</string>
   <!--Speak - Common-->
   <string name="stop">Arrêt</string>
+  <string name="pause">Pause</string>
+  <string name="rewind">Reculer</string>
+  <string name="forward">Avancer</string>
   <string name="tts_lang_not_available">La langue n\'est pas disponible.</string>
   <string name="speak_queue">File d\'attente</string>
   <string name="speak_repeat">Répéter</string>

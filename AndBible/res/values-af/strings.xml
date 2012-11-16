@@ -165,6 +165,9 @@
   <string name="some_pages">%d bladsye</string>
   <!--Speak - Common-->
   <string name="stop">Stop</string>
+  <string name="pause">Pouse</string>
+  <string name="rewind">Terugwen</string>
+  <string name="forward">Vorentoe</string>
   <string name="tts_lang_not_available">Taal is nie beskikbaar nie.</string>
   <string name="speak_queue">Lys</string>
   <string name="speak_repeat">Herhaal</string>

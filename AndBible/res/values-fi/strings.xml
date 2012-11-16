@@ -165,6 +165,9 @@
   <string name="some_pages">%d sivua</string>
   <!--Speak - Common-->
   <string name="stop">Pysäytä</string>
+  <string name="pause">Tauko</string>
+  <string name="rewind">Taakse</string>
+  <string name="forward">Eteen</string>
   <string name="tts_lang_not_available">Tätä kieltä ei voi käyttää.</string>
   <string name="speak_queue">Jono</string>
   <string name="speak_repeat">Toista</string>

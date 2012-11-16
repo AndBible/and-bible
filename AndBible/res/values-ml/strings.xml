@@ -67,8 +67,15 @@
   <string name="prefs_text_size_title">അക്ഷര വലിപ്പം</string>
   <string name="prefs_text_size_summary">കൂടുതലായി അലെങ്കിൽ വ്യക്തമായി കാണാൻ</string>
   <!--Notes screen-->
+  <string name="previous">മുൻപുള്ള</string>
+  <string name="next">അടുത്ത</string>
   <!--Strongs-->
   <!--Module download-->
+  <string name="download_refresh_book_list_menu_item">പുതുക്കുക</string>
+  <string name="no_internet_connection">ഇന്റർനെറ്റ് ബന്ധം കിട്ടുന്നില്ല</string>
+  <string name="storage_space_warning">കംപ്യൂട്ടറിൽ സ്ഥലം അപര്യപ്തം</string>
+  <string name="wait_for_bible_not_yet">അല്പം ക്ഷമിക്ക... ബൈബിൾ ഇൻസ്റ്റലേഷൻ പൂർണ്ണമായില്ല</string>
+  <string name="download_complete_no_bibles">ബൈബിൾ ഇൻസ്റ്റാൾ ആയില്ല...ദയവായി വീണ്ടും ശ്രമിക്കുക</string>
   <!--Daily Reading Plan-->
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->

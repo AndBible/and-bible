@@ -165,6 +165,9 @@
   <string name="some_pages">%d stran</string>
   <!--Speak - Common-->
   <string name="stop">Zastavit</string>
+  <string name="pause">Pauza</string>
+  <string name="rewind">Přetočit</string>
+  <string name="forward">Dopředu</string>
   <string name="tts_lang_not_available">Jazyk není dostupný.</string>
   <string name="speak_queue">Fronta</string>
   <string name="speak_repeat">Opakovat</string>
