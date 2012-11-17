@@ -6,9 +6,6 @@ import net.bible.android.control.speak.NumPagesToSpeakDefinition;
 import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
-import net.bible.android.view.activity.page.MainBibleActivity;
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -61,23 +58,46 @@ public class Speak extends ActivityBase {
         Log.d(TAG, "Finished displaying Speak view");
     }
 
-    public void onSpeak(View v) {
-    	Log.i(TAG, "CLICKED");
+    public void onRewind(View v) {
     	try {
-	    	speakControl.speak(getSelectedNumPagesToSpeak(), isQueue(), isRepeat());
-	    	
-	    	returnToMainScreen();
+	    	speakControl.rewind();
+    	} catch (Exception e) {
+    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+    	}
+    }
+    public void onStop(View v) {
+    	try {
+    		speakControl.stop();
+    	} catch (Exception e) {
+    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+    	}
+    }
+    public void onPause(View v) {
+    	try {
+    		speakControl.pause();
+    	} catch (Exception e) {
+    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+    	}
+    }
+    public void onSpeak(View v) {
+    	try {
+    		if (speakControl.isPaused()) {
+    			speakControl.continueAfterPause();
+    		} else {
+    			speakControl.speak(getSelectedNumPagesToSpeak(), isQueue(), isRepeat());
+    		}
+    	} catch (Exception e) {
+    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+    	}
+    }
+    public void onForward(View v) {
+    	try {
+    		speakControl.forward();
     	} catch (Exception e) {
     		Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
     	}
     }
     
-    public void onStop(View v) {
-    	Log.i(TAG, "CLICKED");
-    	speakControl.stop();
-		returnToMainScreen();
-    }
-
     private NumPagesToSpeakDefinition getSelectedNumPagesToSpeak() {
         RadioGroup chaptersRadioGroup = (RadioGroup)findViewById(R.id.numChapters);
         int selectedId = chaptersRadioGroup.getCheckedRadioButtonId();
@@ -97,12 +117,5 @@ public class Speak extends ActivityBase {
     
     private boolean isRepeat() {
     	return mRepeatCheckBox.isChecked();
-    }
-
-    private void returnToMainScreen() {
-    	// just pass control back to teh main screen
-    	Intent resultIntent = new Intent(this, MainBibleActivity.class);
-    	setResult(Activity.RESULT_OK, resultIntent);
-    	finish();
     }
 }

@@ -96,11 +96,9 @@ public class SpeakControl {
 		// Continue
 		if (isPaused()) {
 			continueAfterPause();
-        	Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
         //Pause
 		} else if (isSpeaking()) {
 			pause();
-        	Toast.makeText(BibleApplication.getApplication(), R.string.pause, Toast.LENGTH_SHORT).show();
         // Start Speak
 		} else {
 			try {
@@ -234,6 +232,7 @@ public class SpeakControl {
 		Log.d(TAG, "Pause TTS speaking");
     	TextToSpeechController tts = TextToSpeechController.getInstance();
 		tts.pause();
+    	Toast.makeText(BibleApplication.getApplication(), R.string.pause, Toast.LENGTH_SHORT).show();
 	}
 
 	public void continueAfterPause() {
@@ -241,6 +240,7 @@ public class SpeakControl {
 		preSpeak();
     	TextToSpeechController tts = TextToSpeechController.getInstance();
 		tts.continueAfterPause();
+    	Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
 	}
 	
 	public void stop() {
