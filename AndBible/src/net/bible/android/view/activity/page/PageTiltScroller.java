@@ -3,7 +3,9 @@ package net.bible.android.view.activity.page;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.PageTiltScrollControl;
 import net.bible.android.control.page.PageTiltScrollControl.TiltScrollInfo;
+import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 
 /** The WebView component that shows teh main bible and commentary text
@@ -14,10 +16,24 @@ import android.util.Log;
  */
 public class PageTiltScroller {
 
+	private static final String FORWARD_KEY = "Forward";
+
+	private static final String SCROLL_PIXELS_KEY = "ScrollPixels";
+
 	private BibleView mWebView;
 	
-	private Handler mScrollHandler = new Handler();
-	
+	private Thread mScrollTriggerThread;
+	private boolean mIsScrolling;
+	private Handler mScrollHandler = new Handler(){
+		@Override
+		public void handleMessage(Message msg) {
+			Bundle b = msg.getData();
+			int scrollPixels = b.getInt(SCROLL_PIXELS_KEY, 1);
+			boolean forward = b.getBoolean(FORWARD_KEY, true);
+
+			mIsScrolling = mWebView.scroll(forward, scrollPixels);
+		}
+	};	
 	private PageTiltScrollControl mPageTiltScrollControl = ControlFactory.getInstance().getPageTiltScrollControl();
 	
 	@SuppressWarnings("unused")
@@ -32,9 +48,9 @@ public class PageTiltScroller {
 	public void enableTiltScroll(boolean enable) {
 		if (mPageTiltScrollControl.enableTiltScroll(enable)) {
 			if (enable) {
-				kickOffScrollHandler();
+				kickOffScrollThread();
 			} else {
-				stopScrollHandler();
+				stopScrollThread();
 			}
 		}
 	}
@@ -50,30 +66,60 @@ public class PageTiltScroller {
 
 	/** start scrolling handler
 	 */
-	//TODO use Timer and TimerTask instead of Handler for greater reliability under Android 4+ -- https://groups.google.com/forum/?fromgroups=#!topic/android-developers/Ewm3c9z17Es
-	private void kickOffScrollHandler() {
-		TiltScrollInfo tiltScrollInfo = mPageTiltScrollControl.getTiltScrollInfo();
-		mScrollHandler.postDelayed(mScrollTask, tiltScrollInfo.delayToNextScroll);
+	private void kickOffScrollThread() {
+		if (mScrollTriggerThread==null) {
+			mScrollTrigger.enable();
+			mScrollTriggerThread = new Thread(mScrollTrigger);
+			mScrollTriggerThread.start();
+		}
 	}
 	
 	/** start scrolling handler
 	 */
-	private void stopScrollHandler() {
-		mScrollHandler.removeCallbacks(mScrollTask);
+	private void stopScrollThread() {
+		if (mScrollTriggerThread!=null) {
+			mScrollTrigger.stop();
+			mScrollTriggerThread = null;
+		}
 	}
 
-	/** cause content of attached WebView to scroll
-	 */
-	private Runnable mScrollTask = new Runnable() {
+	private ScrollTrigger mScrollTrigger = new ScrollTrigger();
+	class ScrollTrigger implements Runnable {
+		private boolean isContinue = true;
+		
+		void enable() {
+			isContinue = true;
+		}
+		void stop() {
+			isContinue = false;
+		}
+
+		@Override
 		public void run() {
-			TiltScrollInfo tiltScrollInfo = mPageTiltScrollControl.getTiltScrollInfo();
+			while (isContinue) {
+				try {
+					TiltScrollInfo tiltScrollInfo = mPageTiltScrollControl.getTiltScrollInfo();
 
-			boolean scrolledOK = mWebView.scroll(tiltScrollInfo.forward, tiltScrollInfo.scrollPixels);
+					if (tiltScrollInfo.scrollPixels!=0) {
+						Message msg = new Message();
+						Bundle b = new Bundle();
+						b.putInt(SCROLL_PIXELS_KEY, tiltScrollInfo.scrollPixels);
+						b.putBoolean(FORWARD_KEY, tiltScrollInfo.forward);
+						msg.setData(b);
+						mScrollHandler.sendMessageAtFrontOfQueue(msg);
+					}
 
-			if (mPageTiltScrollControl.isTiltScrollEnabled()) {
-				int delay = scrolledOK ? tiltScrollInfo.delayToNextScroll : TiltScrollInfo.TIME_TO_POLL_WHEN_NOT_SCROLLING;
-				mScrollHandler.postDelayed(mScrollTask, delay);
+					if (mPageTiltScrollControl.isTiltScrollEnabled()) {
+						long delay = mIsScrolling ? tiltScrollInfo.delayToNextScroll : TiltScrollInfo.TIME_TO_POLL_WHEN_NOT_SCROLLING;
+					    Thread.sleep(delay);        
+					} else {
+						isContinue = false;
+					}
+			     } catch (Exception e) {
+			      Log.v("Error", e.toString());
+			     }
+				
 			}
 		}
-	};
+	}
 }

@@ -4,11 +4,13 @@ import java.util.List;
 
 import net.bible.android.BibleApplication;
 import net.bible.service.common.CommonUtils;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
@@ -19,6 +21,8 @@ import android.view.WindowManager;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+//Tilt-scroll is disabled on 2.1/ only enabled on 2.2+
+@TargetApi(Build.VERSION_CODES.FROYO)
 public class PageTiltScrollControl {
 
 	// must be null initially
@@ -32,14 +36,14 @@ public class PageTiltScrollControl {
 	private boolean mNoScrollViewingPitchCalculated = false;
 	
 	private static final int NO_SCROLL_VIEWING_TOLERANCE = 2; //3;
-	private static final int NO_SPEED_INCREASE_VIEWING_TOLERANCE = 0; //6;
+	private static final int NO_SPEED_INCREASE_VIEWING_TOLERANCE = 0;
 	
 	// this is decreased (subtracted from) to speed up scrolling
-	private static final int BASE_TIME_BETWEEN_SCROLLS = 60; //70(jerky) 40((fast);
+	private static final int BASE_TIME_BETWEEN_SCROLLS = 48; //70(jerky) 40((fast);
 
-	private static final int MIN_TIME_BETWEEN_SCROLLS = 4;
+	private static final int MIN_TIME_BETWEEN_SCROLLS = 6; //4;
 	
-	private static final int SPEEDUP_MULTIPLIER = 4; 
+	private static final float SPEEDUP_MULTIPLIER = 1.3f; //4; 
 	
 	// current pitch of phone - varies dynamically
 	private float[] mOrientationValues;
@@ -94,7 +98,7 @@ public class PageTiltScrollControl {
 			}
 		}
 		if (mIsTiltScrollEnabled) {
-			tiltScrollInfo.delayToNextScroll = Math.max(MIN_TIME_BETWEEN_SCROLLS, BASE_TIME_BETWEEN_SCROLLS-(SPEEDUP_MULTIPLIER*speedUp));
+			tiltScrollInfo.delayToNextScroll = Math.max(MIN_TIME_BETWEEN_SCROLLS, BASE_TIME_BETWEEN_SCROLLS-(int)(SPEEDUP_MULTIPLIER*speedUp));
 		}
 		return tiltScrollInfo;
 	}
@@ -206,7 +210,7 @@ public class PageTiltScrollControl {
        		SensorManager sm = (SensorManager) BibleApplication.getApplication().getSystemService(Context.SENSOR_SERVICE);
             if (sm != null) {
                 List<Sensor> sensors = sm.getSensorList(Sensor.TYPE_ORIENTATION);
-                mIsOrientationSensor = new Boolean(sensors.size() > 0);
+                mIsOrientationSensor = Boolean.valueOf(sensors.size() > 0);
             } else {
                 mIsOrientationSensor = Boolean.FALSE;
             }
