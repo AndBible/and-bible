@@ -4,6 +4,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.toolbar.ToolbarButton;
+import net.bible.android.view.activity.base.toolbar.ToolbarButtonBase;
 import net.bible.android.view.activity.base.toolbar.ToolbarButtonHelper;
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;
 import android.app.Activity;
@@ -12,7 +13,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public class CurrentReadingPlanToolbarButton implements ToolbarButton {
+public class CurrentReadingPlanToolbarButton extends ToolbarButtonBase implements ToolbarButton {
 
 	private Button mButton;
 	
@@ -57,10 +58,5 @@ public class CurrentReadingPlanToolbarButton implements ToolbarButton {
 	@Override
 	public int getPriority() {
 		return 1;
-	}
-
-	@Override
-	public void setEnoughRoomInToolbar(boolean isRoom) {
-		// always enough room for this button		
 	}
 }

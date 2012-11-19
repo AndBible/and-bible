@@ -9,6 +9,9 @@ import net.bible.android.view.activity.base.toolbar.ToolbarButtonHelper;
 import net.bible.android.view.activity.base.toolbar.speak.SpeakFFToolbarButton;
 import net.bible.android.view.activity.base.toolbar.speak.SpeakRewToolbarButton;
 import net.bible.android.view.activity.base.toolbar.speak.SpeakStopToolbarButton;
+import net.bible.service.device.speak.event.SpeakEvent;
+import net.bible.service.device.speak.event.SpeakEventListener;
+import net.bible.service.device.speak.event.SpeakEventManager;
 import android.view.View;
 
 /** manages all the buttons on a toolbar
@@ -35,14 +38,24 @@ public class ReadingPlanToolbar implements Toolbar {
         mToolbarButtonList.add(new SpeakFFToolbarButton(buttonContainer));
         mToolbarButtonList.add(new ShowDictionaryToolbarButton(buttonContainer));
 //        mToolbarButtonList.add(new StrongsToolbarButton(buttonContainer));
+        
+		// the manager will also instantly fire a catch-up event to ensure state is current
+        SpeakEventManager.getInstance().addSpeakEventListener(new SpeakEventListener() {
+			@Override
+			public void speakStateChange(SpeakEvent e) {
+				updateButtons();
+			}
+		});
 	}
 
 	@Override
 	public void updateButtons() {
-		int maxNumButtonsToShow = ToolbarButtonHelper.numButtonsToShow()+MANDATORY_BUTTON_NUM;
+		int numQuickButtons = ToolbarButtonHelper.numQuickButtonsToShow();
+		int maxNumButtonsToShow = numQuickButtons+MANDATORY_BUTTON_NUM;
 		int numButtonsShown = 0;
 		for (ToolbarButton button : mToolbarButtonList) {
 			button.setEnoughRoomInToolbar(numButtonsShown<maxNumButtonsToShow);
+			button.setNarrow(numQuickButtons<=3);
 			button.update();
 			if (button.canShow()) {
 				numButtonsShown++;

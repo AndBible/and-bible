@@ -11,13 +11,11 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 //TODO do not inherit from button - see: http://stackoverflow.com/questions/8369504/why-so-complex-to-set-style-from-code-in-android
-public class DictionaryToolbarButton implements ToolbarButton {
+public class DictionaryToolbarButton extends ToolbarButtonBase implements ToolbarButton {
 
 	private Button mButton;
 	private Book mSuggestedDocument;
 	
-	private boolean isEnoughRoomInToolbar = false;
-
 	private ToolbarButtonHelper helper = new ToolbarButtonHelper();
 	
 	public DictionaryToolbarButton(View parent) {
@@ -41,15 +39,11 @@ public class DictionaryToolbarButton implements ToolbarButton {
 
 	@Override
 	public boolean canShow() {
-		return isEnoughRoomInToolbar && mSuggestedDocument!=null;
+		return isEnoughRoomInToolbar() && mSuggestedDocument!=null &&!isNarrow();
 	}
 
 	@Override
 	public int getPriority() {
 		return 1;
-	}
-	@Override
-	public void setEnoughRoomInToolbar(boolean isRoom) {
-		isEnoughRoomInToolbar = isRoom;
 	}
 }

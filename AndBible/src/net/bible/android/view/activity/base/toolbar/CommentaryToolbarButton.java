@@ -11,7 +11,7 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 
 //TODO do not inherit from button - see: http://stackoverflow.com/questions/8369504/why-so-complex-to-set-style-from-code-in-android
-public class CommentaryToolbarButton implements ToolbarButton {
+public class CommentaryToolbarButton extends ToolbarButtonBase implements ToolbarButton {
 
 	private Button mButton;
 	private Book mSuggestedDocument;
@@ -45,10 +45,5 @@ public class CommentaryToolbarButton implements ToolbarButton {
 	@Override
 	public int getPriority() {
 		return 2;
-	}
-	
-	@Override
-	public void setEnoughRoomInToolbar(boolean isRoom) {
-		// always enough room for this button		
 	}
 }

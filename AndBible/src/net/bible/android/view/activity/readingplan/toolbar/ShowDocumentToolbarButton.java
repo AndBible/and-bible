@@ -3,6 +3,7 @@ package net.bible.android.view.activity.readingplan.toolbar;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.toolbar.ToolbarButton;
+import net.bible.android.view.activity.base.toolbar.ToolbarButtonBase;
 import net.bible.android.view.activity.base.toolbar.ToolbarButtonHelper;
 
 import org.crosswire.jsword.book.Book;
@@ -11,11 +12,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public abstract class ShowDocumentToolbarButton implements ToolbarButton {
+public abstract class ShowDocumentToolbarButton extends ToolbarButtonBase implements ToolbarButton {
 
 	private Button mButton;
-	
-	private boolean isEnoughRoomInToolbar = false;
 	
 	private ToolbarButtonHelper helper = new ToolbarButtonHelper();
 	
@@ -44,16 +43,11 @@ public abstract class ShowDocumentToolbarButton implements ToolbarButton {
 
 	@Override
 	public boolean canShow() {
-		return isEnoughRoomInToolbar && getDocument()!=null;
+		return isEnoughRoomInToolbar() && getDocument()!=null;
 	}
 
 	@Override
 	public int getPriority() {
 		return 1;
-	}
-	
-	@Override
-	public void setEnoughRoomInToolbar(boolean isRoom) {
-		isEnoughRoomInToolbar = isRoom;		
 	}
 }

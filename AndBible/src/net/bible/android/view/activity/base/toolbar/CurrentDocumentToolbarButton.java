@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public class CurrentDocumentToolbarButton implements ToolbarButton {
+public class CurrentDocumentToolbarButton extends ToolbarButtonBase implements ToolbarButton {
 
 	private Button mButton;
 	private String mCurrentDocumentTitle;
@@ -54,9 +54,5 @@ public class CurrentDocumentToolbarButton implements ToolbarButton {
 	@Override
 	public int getPriority() {
 		return 1;
-	}
-	@Override
-	public void setEnoughRoomInToolbar(boolean isRoom) {
-		// always enough room for this button		
 	}
 }

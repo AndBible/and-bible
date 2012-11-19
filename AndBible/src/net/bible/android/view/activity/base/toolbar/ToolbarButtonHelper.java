@@ -33,7 +33,7 @@ public class ToolbarButtonHelper {
 
 	/** number of buttons varies depending on screen size and orientation
      */
-    public static int numButtonsToShow() {
+    public static int numQuickButtonsToShow() {
     	return BibleApplication.getApplication().getResources().getInteger(R.integer.number_of_quick_buttons);
     }
 

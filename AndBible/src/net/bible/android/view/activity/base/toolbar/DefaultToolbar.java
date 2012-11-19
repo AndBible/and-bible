@@ -53,10 +53,12 @@ public class DefaultToolbar implements Toolbar {
 
 	@Override
 	public void updateButtons() {
-		int maxNumButtonsToShow = ToolbarButtonHelper.numButtonsToShow()+MANDATORY_BUTTON_NUM;
+		int numQuickButtons = ToolbarButtonHelper.numQuickButtonsToShow();
+		int maxNumButtonsToShow = numQuickButtons+MANDATORY_BUTTON_NUM;
 		int numButtonsShown = 0;
 		for (ToolbarButton button : mToolbarButtonList) {
 			button.setEnoughRoomInToolbar(numButtonsShown<maxNumButtonsToShow);
+			button.setNarrow(numQuickButtons<=3);
 			button.update();
 			if (button.canShow()) {
 				numButtonsShown++;

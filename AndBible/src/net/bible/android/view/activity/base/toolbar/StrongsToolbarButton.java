@@ -9,12 +9,10 @@ import android.view.View.OnClickListener;
 import android.widget.ToggleButton;
 
 //TODO do not inherit from button - see: http://stackoverflow.com/questions/8369504/why-so-complex-to-set-style-from-code-in-android
-public class StrongsToolbarButton implements ToolbarButton {
+public class StrongsToolbarButton extends ToolbarButtonBase implements ToolbarButton {
 
 	private ToggleButton mButton;
 	
-	private boolean isEnoughRoomInToolbar = false;
-
 	public StrongsToolbarButton(View parent) {
         mButton = (ToggleButton)parent.findViewById(R.id.strongsToggle);
 
@@ -44,16 +42,11 @@ public class StrongsToolbarButton implements ToolbarButton {
 	/** return true if Strongs are relevant to this doc & screen */
 	@Override
 	public boolean canShow() {
-		return isEnoughRoomInToolbar && ControlFactory.getInstance().getDocumentControl().isStrongsInBook();
+		return isEnoughRoomInToolbar() && ControlFactory.getInstance().getDocumentControl().isStrongsInBook();
 	}
 
 	@Override
 	public int getPriority() {
 		return 1;
-	}
-
-	@Override
-	public void setEnoughRoomInToolbar(boolean isRoom) {
-		isEnoughRoomInToolbar = isRoom;
 	}
 }

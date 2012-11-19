@@ -14,7 +14,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public class CurrentPageToolbarButton implements ToolbarButton {
+public class CurrentPageToolbarButton extends ToolbarButtonBase implements ToolbarButton {
 
 	private Button mButton;
 	private String mCurrentPageTitle;
@@ -69,10 +69,5 @@ public class CurrentPageToolbarButton implements ToolbarButton {
 	@Override
 	public int getPriority() {
 		return 1;
-	}
-
-	@Override
-	public void setEnoughRoomInToolbar(boolean isRoom) {
-		// always enough room for this button		
 	}
 }

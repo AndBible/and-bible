@@ -10,7 +10,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public class BibleToolbarButton implements ToolbarButton {
+public class BibleToolbarButton extends ToolbarButtonBase implements ToolbarButton {
 
 	private Button mButton;
 	private Book mSuggestedDocument;
@@ -45,10 +45,4 @@ public class BibleToolbarButton implements ToolbarButton {
 	public int getPriority() {
 		return 1;
 	}
-
-	@Override
-	public void setEnoughRoomInToolbar(boolean isRoom) {
-		// always enough room for this button		
-	}
-
 }

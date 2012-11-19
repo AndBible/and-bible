@@ -22,7 +22,7 @@ public class ShowDictionaryToolbarButton extends ShowDocumentToolbarButton imple
 
 	@Override
 	public boolean canShow() {
-		return super.canShow() && ToolbarButtonHelper.numButtonsToShow()>=3;
+		return super.canShow() && !isNarrow();
 	}
 	
 	
