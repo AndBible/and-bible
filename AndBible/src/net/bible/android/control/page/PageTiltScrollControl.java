@@ -36,15 +36,37 @@ public class PageTiltScrollControl {
 	private boolean mNoScrollViewingPitchCalculated = false;
 	
 	private static final int NO_SCROLL_VIEWING_TOLERANCE = 2; //3;
-	private static final int NO_SPEED_INCREASE_VIEWING_TOLERANCE = 0;
 	
 	// this is decreased (subtracted from) to speed up scrolling
 	private static final int BASE_TIME_BETWEEN_SCROLLS = 48; //70(jerky) 40((fast);
 
-	private static final int MIN_TIME_BETWEEN_SCROLLS = 6; //4;
-	
-	private static final float SPEEDUP_MULTIPLIER = 1.3f; //4; 
-	
+	private static final int MIN_TIME_BETWEEN_SCROLLS = 4;
+
+	/**
+	 * Time between scroll = Periodic time = 1/frequency
+	 * Scroll speed = frequency*wavelength // wavelength = 1 pixel so can ignore wavelength
+	 * => speed = 1/Time between each scroll event 
+	 * If we use regular changes in periodic time then initial changes in tilt have little affect on speed 
+	 * but when tilt is greater small changes in tilt cause large changes in speed
+	 * Therefore the following mTimeBetweenScrollListEvery5Degrees is used to even out speed changes
+	 * 
+	 * This was my starting spreadsheet from which the below array was derived.  
+	 * The spreadsheet starts with regular changes in speed and calculates the required Periodic time
+	 * degrees	speed	Periodic time (ms)
+		0		0.02	50
+		5		0.04	25
+		10		0.06	16.6666666666667
+		15		0.08	12.5
+		20		0.1		10
+		25		0.12	8.33333333333333
+		30		0.14	7.14285714285714
+		35		0.16	6.25
+		40		0.18	5.55555555555556
+		45		0.2	5
+	 */
+	// calculated to ensure even speed up of scrolling
+	private static Integer[] mTimeBetweenScrollListEvery5Degrees = new Integer[] {50, 25, 17, 13, 10, 8, 7, 6, 5, 4} ;
+
 	// current pitch of phone - varies dynamically
 	private float[] mOrientationValues;
 	private int mRotation = Surface.ROTATION_0;
@@ -71,12 +93,12 @@ public class PageTiltScrollControl {
 			return this;
 		}
 	}
-	// should not need more than one because teh request come in one at a time
+	// should not need more than one because the request come in one at a time
 	private TiltScrollInfo tiltScrollInfoSingleton = new TiltScrollInfo();
 	
 	public TiltScrollInfo getTiltScrollInfo() {
 		TiltScrollInfo tiltScrollInfo = tiltScrollInfoSingleton.reset();
-		int speedUp = 0;
+		int delayToNextScroll = BASE_TIME_BETWEEN_SCROLLS;
 		if (mOrientationValues!=null) {
 			int normalisedPitch = getPitch(mRotation, mOrientationValues);
 			int devianceFromViewingAngle = getDevianceFromStaticViewingAngle(normalisedPitch);
@@ -86,19 +108,19 @@ public class PageTiltScrollControl {
 
 				// speedUp if tilt screen beyond a certain amount
 				if (tiltScrollInfo.forward) {
-					speedUp = Math.max(0, devianceFromViewingAngle-NO_SCROLL_VIEWING_TOLERANCE-NO_SPEED_INCREASE_VIEWING_TOLERANCE);
+					delayToNextScroll = getDelayToNextScroll(devianceFromViewingAngle-NO_SCROLL_VIEWING_TOLERANCE);
 
 					// speedup could be done by increasing scroll amount but that leads to a jumpy screen
 					tiltScrollInfo.scrollPixels = 1;
 				} else {
 					// TURNED OFF UPSCROLL
-					speedUp = 0;
+					delayToNextScroll = BASE_TIME_BETWEEN_SCROLLS;
 					tiltScrollInfo.scrollPixels = 0;
 				}
 			}
 		}
 		if (mIsTiltScrollEnabled) {
-			tiltScrollInfo.delayToNextScroll = Math.max(MIN_TIME_BETWEEN_SCROLLS, BASE_TIME_BETWEEN_SCROLLS-(int)(SPEEDUP_MULTIPLIER*speedUp));
+			tiltScrollInfo.delayToNextScroll = Math.max(MIN_TIME_BETWEEN_SCROLLS, delayToNextScroll);
 		}
 		return tiltScrollInfo;
 	}
@@ -164,6 +186,18 @@ public class PageTiltScrollControl {
 		}
 		
 		return Math.abs(normalisedPitch-mNoScrollViewingPitch);
+	}
+
+	private int getDelayToNextScroll(int tilt) {
+		// speed changes every 5 degree tilt
+		// ensure we have a positive number
+		tilt = Math.abs(tilt);
+		int tiltDiv5 = tilt/5;
+		if (tiltDiv5 < mTimeBetweenScrollListEvery5Degrees.length) {
+			return mTimeBetweenScrollListEvery5Degrees[tiltDiv5];
+		} else {
+			return mTimeBetweenScrollListEvery5Degrees[mTimeBetweenScrollListEvery5Degrees.length-1];
+		}
 	}
 	
 	/**
