@@ -129,6 +129,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     @Override
     public void onInit(int status) {
     	Log.d(TAG, "Tts initialised");
+    	boolean isOk = false;
 
         // status can be either TextToSpeech.SUCCESS or TextToSpeech.ERROR.
         if (status == TextToSpeech.SUCCESS) {
@@ -157,15 +158,21 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
             	int ok = mTts.setOnUtteranceCompletedListener(this);
             	if (ok==TextToSpeech.ERROR) {
             		Log.e(TAG, "Error registering onUtteranceCompletedListener");
+            	} else {
+            		// everything seems to have succeeded if we get here
+            		isOk = true;
+                	// say the text
+               		startSpeaking();
             	}
-            	
-            	// say the text
-           		startSpeaking();
             }
         } else {
         	Log.d(TAG, "Tts initialisation failed");
             // Initialization failed.
             showError(R.string.error_occurred);
+        }
+        
+        if (!isOk) {
+        	shutdown();
         }
     }
     
