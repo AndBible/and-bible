@@ -165,6 +165,9 @@
   <string name="some_pages">%d lehekülge</string>
   <!--Speak - Common-->
   <string name="stop">Peata</string>
+  <string name="pause">Paus</string>
+  <string name="rewind">Tagasi</string>
+  <string name="forward">Edasi</string>
   <string name="tts_lang_not_available">Keel pole saadaval.</string>
   <string name="speak_queue">Järjekord</string>
   <string name="speak_repeat">Korda</string>

@@ -1,0 +1,211 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="app_name">And Bible</string>
+  <!--Startup & Help-->
+  <string name="splash_top_text">\n\"വെളിച്ചം ഉണ്ടാകട്ടെ എന്നു ദൈവം കല്പിച്ചു; വെളിച്ചം ഉണ്ടായി.\"\nഉല്പത്തി 1:3</string>
+  <string name="help_text">Press the MENU key for actions\n\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger</string>
+  <string name="help_text_long"><b>Navigation</b>\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger\n    \nDouble-tap toggles Fullscreen on/off.\n    \n\n<b>Menu</b>\n    \nPress the MENU key for actions\n    \n\nTo download more documents press Menu/More/Download Documents\n    \n\n<b>Speech</b>\nPress Speak to access a dialog to start or stop reading\n    \n\n<b>My Note</b>\nNotes can be added via the My Note menu item on the verse context menu.  The list of existing notes can be accessed via the main menu.\n    \n\n<b>Bookmarks</b>\nBookmarks can be added via the verse context menu.  The Bookmark Manager is accessed via the main menu.  The Bookmark Manager context menu allows bookmarks to be grouped using labels.\n    \n\n<b>Search</b>\nSearch text can include special characters like *, ?, AND, OR, NOT (see \"Apache Lucene - Query Parser Syntax\" for more details)\n    \n\n<b>Context Menus</b>\n    \nLong press on the bible view to open the context menu for actions affecting the current verse.\n    \nLong press on a document in the document selector to delete it or view information.\n    \nLong press the Back button to access the History list\n    </string>
+  <string name="version_text">വേർഷൻ %s</string>
+  <string name="no_sdcard_error">SD കാർഡ്‌ ഉള്ളിൽ ഇട്ടശേഷം And Bible വീണ്ടും തുടങ്ങുക.</string>
+  <!--main menu-->
+  <string name="chooseBook">ഡോക്കുമെന്റ്</string>
+  <string name="selectPassage">ഭാഗം</string>
+  <string name="search">കണ്ടുപിടിക്കുക</string>
+  <string name="settings">സെറ്റിങ്ങ്സ്</string>
+  <string name="history">പഴയ ഭാഗങ്ങൾ</string>
+  <string name="speak">വായിക്കുക</string>
+  <string name="help">സഹായം</string>
+  <!--Passage navigation-->
+  <string name="choosePassageBookName">പുസ്തകം തിരഞ്ഞെടുക്കുക</string>
+  <string name="choosePassageChapterName">അദ്ധ്യായം തിരഞ്ഞെടുക്കുക</string>
+  <string name="choosePassageVerseName">വാക്യം തിരഞ്ഞെടുക്കുക</string>
+  <!--Search-->
+  <string name="search_index">തിരെച്ചിൽ പട്ടിക</string>
+  <string name="index_creation_required">An index is required to search.\n\nIndexes may be downloaded from the internet or created locally.\n\nDownloading is much quicker and downloaded indexes have more search features.\n\nAn internet connection is required to download indexes.\n</string>
+  <string name="indexing_wait_msg">കണ്ണിക്രമികരണം ചെയ്താലുടനെ തിരെച്ചിൽ സ്ക്രീൻ തുറക്കും</string>
+  <string name="index">പട്ടിക</string>
+  <string name="index_download">ഡൗൺലോഡ്</string>
+  <string name="index_not_available_for_download">ഈ കണ്ണി ഡൗൺലോഡു ചെയ്യാൻ ലഭ്യമല്ല</string>
+  <string name="index_create">ഉണ്ടാക്കുക</string>
+  <!--Tasks-->
+  <string name="progress_status">പുരോഗതി</string>
+  <string name="task_kill_warning">ഈ പ്രവർത്തനം തീരുന്നതിനു മുമ്പായി മറ്റൊരു പ്രവർത്തനം തുടങ്ങിയാൽ ദീർഘസമയം വേണ്ടിവരുന്ന ഇതു നിലച്ചുപോകാൻ സാധ്യത ഉണ്ടു.</string>
+  <string name="no_tasks_running">ഇപ്പോൾ ഒരു പ്രവർത്തനവും തുടങ്ങീട്ടില്ല</string>
+  <!--Search-->
+  <string name="search_results">ഫലങ്ങൾ കാണുക</string>
+  <string name="search_words_group_prompt">വാക്യങ്ങൾ കണ്ടുപിടിക്കുക</string>
+  <string name="search_all_words">എല്ലാ പദങ്ങളും</string>
+  <string name="search_any_word">ഏതെങ്കിലും പദം</string>
+  <string name="search_phrase">ഉപവാക്യം</string>
+  <string name="search_result_count">%d ഫലങ്ങൾ ലഭിച്ചു</string>
+  <string name="search_showing_first">അനേകം ഫലങ്ങൾ. ആദ്യഫലങ്ങൾ കാണു %d</string>
+  <string name="search_bible_section_group_prompt">എവിടെ തിരെയണം</string>
+  <string name="search_all_bible">മുഴുവൻ ബയിബുളും</string>
+  <string name="search_new_testament">പുതിയനിയമം</string>
+  <string name="search_old_testament">പഴയനിയമം</string>
+  <string name="search_current_book">ഈ പുസ്തകം</string>
+  <string name="error_executing_search">തിരെച്ചിലിനു സാധിക്കാത്ത അന്വേഷണം</string>
+  <!--Preferences-->
+  <string name="prefs_show_verseno_title">വാക്യങ്ങളുടെ അക്കങ്ങൾ</string>
+  <string name="prefs_show_verseno_summary">വാക്യങ്ങളുടെ അക്കങ്ങൾ കാണിക്കുക</string>
+  <string name="prefs_verse_per_line_title">ഒരു വരിയിൽ ഒരു വാക്യം വീതം</string>
+  <string name="prefs_verse_per_line_summary">ഒരോ വാക്യങ്ങളും വിത്യസ്ഥ വരികളിൽ കാണിക്കുക</string>
+  <string name="prefs_show_bookmarks_title">സൂചക ഐക്കോണുകൾ കാണിക്ക</string>
+  <string name="prefs_show_bookmarks_summary">സൂചകം ചെയ്യിത വാക്യങ്ങളിൽ ഐക്കോൺ കാണിക്ക</string>
+  <string name="prefs_show_mynotes_title">എന്റെ നോട്ട് ഐക്കോൺ കാണിക്ക</string>
+  <string name="prefs_show_mynotes_summary">എന്റെ നോട്ടിൽ വാക്ക്യത്തോടൊപ്പം ഐക്കോൺ കാണിക്ക</string>
+  <string name="prefs_show_notes_title">അടിക്കുറിപ്പും മറ്റു ഫലകങ്ങളും</string>
+  <string name="prefs_show_notes_summary">അടിക്കുറിപ്പും അനുയോജ്യ ഭാഗങ്ങളും കാണിക്ക</string>
+  <string name="prefs_show_strongs_title">സ്റ്റോറോങ്ങിന്റെ സംഖ്യ കാണിക്ക</string>
+  <string name="prefs_show_strongs_summary">ഗ്രീക്കും ഹീബ്രും വ്യാഖ്യാനം നല്കുന്ന കണ്ണികൾ</string>
+  <string name="prefs_show_morphology_title">മോർഫോളജി കോഡ്</string>
+  <string name="prefs_show_morphology_summary">റോബിൻസണ്ണിന്റെ ഗ്രീക്ക് മോർഫോളജി കാണിക്കു</string>
+  <string name="prefs_section_title_title">ശീർഷകം തലക്കെട്ട്</string>
+  <string name="prefs_section_title_summary">കാനോനിൽ ഉൾപെടാത്ത ശീർഷകം തലക്കെട്ട് കാണിക്കുക</string>
+  <string name="prefs_red_letter_title">ചുവന്ന അക്ഷരം</string>
+  <string name="prefs_red_letter_summary">ക്രിസ്തുവിന്റെ വാക്കുകൾ ചുവന്ന അക്ഷരത്തിൽ കാണിക്കുക</string>
+  <string name="prefs_tilt_to_scroll_title">സ്ക്രോൾ ചെയ്യുവാൻ ചരിക്കുക</string>
+  <string name="prefs_tilt_to_scroll_summary">താഴത്തെ പുറം കാണുവാൻ ചരിക്കുക</string>
+  <string name="prefs_night_mode_title">രാത്രി രീതി</string>
+  <string name="prefs_night_mode_summary">ഇരുട്ടിൽ വായിക്കാൻ കൂടുതൽ എളുപ്പം</string>
+  <string name="prefs_night_mode_automatic">ഓട്ടോമാറ്റിക്ക്</string>
+  <string name="prefs_navigate_to_verse_title">വാക്യത്തിലേക്കു പോകു</string>
+  <string name="prefs_navigate_to_verse_summary">ഒരു ഭാഗം എടുക്കാൻ (അധ്യായ) വാക്ക്യങ്ങൾ തിരയുക</string>
+  <string name="prefs_text_size_title">അക്ഷര വലിപ്പം</string>
+  <string name="prefs_text_size_summary">കൂടുതലായി അലെങ്കിൽ വ്യക്തമായി കാണാൻ</string>
+  <string name="prefs_text_size_sample_text">സാമ്പിൾ വാചകം</string>
+  <string name="prefs_interface_locale_title">ഉപയോഗ ഭാഷ</string>
+  <string name="prefs_interface_locale_summary">ഉപയോഗ ഭാഷ തിരഞ്ഞെടുക്കുക</string>
+  <string name="locale_change_warning"> തിരഞ്ഞെടുത്ത ഭാഷയിലേക്ക് ആപ്ലിക്കേഷൻ പുനരാരംഭിക്കും</string>
+  <!--Notes screen-->
+  <string name="no_chapter_notes">ഈ അധ്യായത്തിൽ കുറിപ്പുകൾ ഒന്നും ഇല്ല</string>
+  <string name="no_verse_notes">ഈ വാക്യത്തിൽ കുറിപ്പുകൾ ഒന്നും ഇല്ല</string>
+  <string name="previous">മുൻപുള്ള</string>
+  <string name="next">അടുത്ത</string>
+  <!--Strongs-->
+  <string name="strongs">സ്ടോങ്ങ്സിന്റെ നിഘണ്ടു</string>
+  <string name="strongs_not_installed">ദയവായി സ്ടോങ്ങ്സിന്റെ ഹീബ്രുവും, ഗ്രീക്കും നിഘണ്ടുകൾ ഡൌൺലോഡ് ചെയ്യുക</string>
+  <string name="all_greek_occurrences">എവിടെയെല്ലാമാണ് ഇത് പരാമർശിച്ചിരിക്കുന്നത്</string>
+  <string name="all_hebrew_occurrences">എവിടെയെല്ലാമാണ് ഇത് പരാമർശിച്ചിരിക്കുന്നത്</string>
+  <string name="no_indexed_bible_with_strongs_ref">സ്ടോങ്ങ്സ് നംബറുള്ള വേദപുസ്തകം ഡൌൺലോഡ് ചെയ്ത ശേഷം, ഇതിന്റെ പട്ടിക, \"സേർച്ച്\"  വഴി ഡൌൺലോഡ് ചെയ്യുക</string>
+  <string name="morph_robinson_not_installed">ദയവായി \"റോബിൻസണ്ണിന്റെ മോർഫോളജിക്കൽ അപഗ്രഥന കോഡിന്റെ നിഘണ്ടു\" ഡൌൺലോഡ് ചെയ്യുക</string>
+  <string name="strongs_toggle_button_on">nnnn</string>
+  <string name="strongs_toggle_button_off">nnnn</string>
+  <!--Module download-->
+  <string name="download">ഡോക്കുമെന്റ് ഡൌൺലോഡ് ചെയ്യുക</string>
+  <string name="download_confirmation">വേദപുസ്തകം ഇന്റർനെറ്റിൽ നിന്ന് ഡൌൺലോഡ് ചെയ്യുക</string>
+  <string name="download_source_message"> ഡോക്കുമെന്റ് ഡൌൺലോഡ് ചെയ്തത് : \nhttp://www.crosswire.org  http://xiphos.org</string>
+  <string name="download_document_confirm_prefix">ഡൌൺലോഡ് </string>
+  <string name="download_refreshing_book_list">ലഭ്യമായ ഡോക്കുമെന്റ് പട്ടിക പുതുക്കുന്നു</string>
+  <string name="download_refresh_book_list_menu_item">പുതുക്കുക</string>
+  <string name="error_downloading">ഡൌൺലോഡ് ചെയ്യുന്നില്ല ; ദയവായി നിങ്ങളുടെ ഇന്റർനെറ്റ് ബന്ധം പരിശോധിക്കു</string>
+  <string name="no_internet_connection">ഇന്റർനെറ്റ് ബന്ധം കിട്ടുന്നില്ല</string>
+  <string name="storage_space_warning">കംപ്യൂട്ടറിൽ സ്ഥലം അപര്യപ്തം</string>
+  <string name="wait_for_bible">മുഴുവൻ വേദപുസ്തകം ഡൌൺലോഡ് ചെയ്യുവാൻ ദയവായി കാത്തിരിക്കു: പിന്നീട് പ്രധാന പേജിലേക്ക് വരും</string>
+  <string name="wait_for_bible_not_yet">അല്പം ക്ഷമിക്ക... ബൈബിൾ ഇൻസ്റ്റലേഷൻ പൂർണ്ണമായില്ല</string>
+  <string name="download_complete_no_bibles">ബൈബിൾ ഇൻസ്റ്റാൾ ആയില്ല...ദയവായി വീണ്ടും ശ്രമിക്കുക</string>
+  <string name="too_many_jobs">പല കാര്യങ്ങൾ പ്രവർത്തിക്കുന്നതുകൊണ്ട്, ദയവായി അത് പൂർത്തിയായ ശേഷം വീണ്ടും ശ്രമിക്കുക</string>
+  <string name="document_not_installed">ദയവായി ഡൌൺലോഡ് ചെയ്യുക  \'%s\'</string>
+  <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">വായന പദ്ധതി</string>
+  <string name="rdg_plan_selector_title">ഒരു വായന പദ്ധതി തിരഞ്ഞെടുക്കു</string>
+  <string name="rdg_plan_day">ദിവസം %s</string>
+  <string name="rdg_plan_set_start_jan1">ജനു 1 തുടങ്ങു</string>
+  <string name="done">കഴിഞ്ഞു</string>
+  <string name="reset">പുനഃആരംഭിക്കു</string>
+  <string name="rdg_plan_y1ntpspr">പുതിയനിയമം, സങ്കീര്‍ത്തനങ്ങൾ, സദൃശവാക്യങ്ങൾ എന്നിവ ഒരു വർഷത്തിൽ</string>
+  <string name="rdg_plan_y1ot1nt1_chronological">അനുദിനം വേദപുസ്തകത്തിൽ കൂടി ഒരു വർഷം</string>
+  <string name="rdg_plan_y1ot1nt1_OTandNT">വേദപുസ്തകത്തിൽ കൂടി ഒരു വർഷം OT and NT</string>
+  <string name="rdg_plan_y1ot1nt1_OTthenNT">വേദപുസ്തകത്തിൽ കൂടി ഒരു വർഷം OT പിന്നീട് NT</string>
+  <string name="rdg_plan_y1ot1nt2_mcheyne">വേദപുസ്തകത്തിൽ കൂടി ഒരു വർഷം (M\'Cheyne)</string>
+  <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
+  <!--Document context menu-->
+  <string name="delete">നീക്കി കളയുക</string>
+  <string name="delete_index">അന്വേഷണപട്ടിക നീക്കി കളയുക</string>
+  <string name="about">സംബന്ധിച്ച്</string>
+  <string name="delete_doc">നീക്കി കളയുക %s?</string>
+  <string name="delete_search_index_doc">പട്ടിക നീക്കി കളയുക %s?</string>
+  <!--Verse context menu-->
+  <string name="select_text">വേദപുസ്തകവാക്യങ്ങള്‍ തിരഞ്ഞെടുക്കുക</string>
+  <string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string>
+  <string name="notes">അടിക്കുറിപ്പും സൂചനകളും</string>
+  <string name="copy">ഇപ്പോഴത്തെ വാക്ക്യം പകർത്തു</string>
+  <string name="share_verse">ഇപ്പോഴത്തെ വാക്ക്യം പങ്കുവെക്കു ...</string>
+  <string name="share_verse_subject">And Bible ഉപയ്യോഗിച്ചാണു ഈ വേദവാക്ക്യം നിങ്ങളുമായി പങ്കുവെച്ചതു</string>
+  <string name="compare_translations">പരിഭാഷ താരതമ്യം ചെയ്യുക</string>
+  <!--Bookmarks-->
+  <string name="bookmarks">പുസ്തക അടയാളങ്ങൾ</string>
+  <string name="add_bookmark">പുസ്തക അടയാളങ്ങൾ ചേർക്കക</string>
+  <string name="bookmark_added">പുസ്തക അടയാളം  ചേർത്തു</string>
+  <string name="bookmark_exists">പുസ്തക അടയാളം നിലവിലുണ്ട്</string>
+  <string name="bookmark_labels">പുസ്തക അടയാള-ശീർഷകങ്ങൾ</string>
+  <string name="assign_labels">ശീർഷകം നിർണ്ണയിക്കുക</string>
+  <string name="new_label">പുതിയ ശീർഷകം </string>
+  <string name="new_label_prompt">പേര്</string>
+  <string name="label_unlabelled">ശീർഷകം ഇല്ലാത്തത്</string>
+  <!--Dictionary-->
+  <string name="dictionary">നിഘണ്ടു</string>
+  <string name="search_dictionary_hint">നിഘണ്ടുവിൽ തിരയുക</string>
+  <string name="dictionary_contents">ഉള്ളടക്കം</string>
+  <!--General Book-->
+  <string name="general_book">പുസ്തകം</string>
+  <string name="general_book_contents">ഉള്ളടക്കം</string>
+  <!--Speak-->
+  <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
+  <!--Speak - Bible-->
+  <string name="one_chapter">%d അധ്യായം</string>
+  <string name="some_chapters">%d അധ്യായങ്ങൾ</string>
+  <string name="rest_of_book">പുസ്തക അവസാനം</string>
+  <!--Speak - Commentary-->
+  <string name="one_verse">%d വാക്യം</string>
+  <string name="some_verses">%d വാക്യങ്ങൾ</string>
+  <string name="rest_of_chapter">അധ്യായ അവസാനം</string>
+  <!--Speak - Dictionary and other-->
+  <string name="one_page">%d പുറം</string>
+  <string name="some_pages">%d പുറങ്ങൾ</string>
+  <!--Speak - Common-->
+  <string name="stop">നിർത്തുക</string>
+  <string name="pause">ഒന്നു നിർത്തു</string>
+  <string name="rewind">പുറകിലേക്കുപോകൂ</string>
+  <string name="forward">മുമ്പിലേക്കു പോകൂ</string>
+  <string name="tts_lang_not_available">ഈ ഭാഷ ലഭ്യമല്ല</string>
+  <string name="speak_queue">നിര </string>
+  <string name="speak_repeat">ആവർത്തിക്കുക</string>
+  <!--User Notes-->
+  <string name="mynotes">എന്റെ കുറിപ്പുകൾ</string>
+  <string name="mynote">എന്റെ കുറിപ്പ്</string>
+  <string name="mynote_add">എന്റെ കുറിപ്പിൽ ചേർക്കുക</string>
+  <string name="mynote_view_edit">എന്റെ കുറിപ്പ്</string>
+  <string name="mynote_saved">എന്റെ കുറിപ്പ് </string>
+  <!--Backup and restore-->
+  <string name="backup">സംരഷിക്ക</string>
+  <string name="backup_success">എന്റെ കുറിപ്പുകളും സൂചകങ്ങളും SD കാർഡിൽ സൂക്ഷിരിക്കുന്നു</string>
+  <string name="restore">പുനഃരുദ്ധികരിക്കു</string>
+  <string name="restore_confirmation"> എന്റെ കുറിപ്പുകളും സൂചകങ്ങളും വീണ്ടും ഒന്നുകൂടി എഴുതുണമോ?</string>
+  <string name="restore_success">എന്റെ കുറിപ്പുകളും സൂചകങ്ങളും SD കാർഡിൽ നിന്നും പുനഃരുദ്ധികരിച്ചു</string>
+  <!--Document types-->
+  <string name="doc_type_bible">വേദപുസ്തകം </string>
+  <string name="doc_type_commentary">പാഠ്യപുസ്തകം </string>
+  <string name="doc_type_dictionary">നിഘണ്ഡു</string>
+  <string name="doc_type_book">പുസ്തകം </string>
+  <string name="doc_type_map">സ്ഥലപടം</string>
+  <!--Languages-->
+  <string name="lang_default">ഉറപ്പിച്ചിട്ടുള്ളതു</string>
+  <!--General-->
+  <string name="okay">കൊള്ളാം</string>
+  <string name="cancel">മാറ്റികളയുക</string>
+  <string name="yes">അതെ</string>
+  <string name="no">അല്ല</string>
+  <string name="save">സൂക്ഷിക്കു</string>
+  <string name="error">തെറ്റ്</string>
+  <string name="more">കൂടുതൽ</string>
+  <string name="retry">വീണ്ടും ശ്രമിക്കു</string>
+  <string name="please_wait">ദയവായി അല്പം കാക്കു</string>
+  <string name="all">എല്ലാം</string>
+  <!--Errors-->
+  <string name="error_occurred">ഒരു തെറ്റ് പറ്റിയിരിക്കുന്നു</string>
+  <string name="error_no_content">തിരഞ്ഞ ഈ വാക്യം ശുന്യമാണു</string>
+  <string name="error_page_too_large">ഉൾക്കെള്ളിക്കാൻ കഴിയുന്നതിലും വളരെ വലിയതാണ്‌</string>
+  <string name="error_key_not_in_document">ഡോക്കുമെന്റൽ കാണുന്നില്ല</string>
+  <string name="empty_list">കാണിക്കുവാൻ ഒന്നുമില്ല</string>
+</resources>

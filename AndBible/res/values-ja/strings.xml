@@ -28,6 +28,9 @@
   <!--Document context menu-->
   <!--Verse context menu-->
   <!--Bookmarks-->
+  <string name="bookmarks">しおり\n</string>
+  <string name="add_bookmark">しおりを加える\n</string>
+  <string name="bookmark_added">しおりが加えました。</string>
   <!--Dictionary-->
   <!--General Book-->
   <!--Speak-->
@@ -36,10 +39,22 @@
   <!--Speak - Commentary-->
   <!--Speak - Dictionary and other-->
   <!--Speak - Common-->
+  <string name="pause">中止</string>
   <!--User Notes-->
   <!--Backup and restore-->
   <!--Document types-->
   <!--Languages-->
   <!--General-->
+  <string name="yes">はい</string>
+  <string name="no">いいえ</string>
+  <string name="save">保存</string>
+  <string name="error">エラー</string>
+  <string name="more">もっと見る</string>
+  <string name="retry">やり直してください。</string>
+  <string name="please_wait">お待たせください。</string>
+  <string name="all">全部\n</string>
   <!--Errors-->
+  <string name="error_occurred">エラーが起こりました。</string>
+  <string name="error_page_too_large">このページは多すぎて呼び付けません。</string>
+  <string name="error_key_not_in_document">文書から探す事ができません。</string>
 </resources>

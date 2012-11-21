@@ -4,15 +4,16 @@
   <!--Startup & Help-->
   <string name="splash_top_text">\nतब परमेश्वर ने कहा, “उजियाला हो” और उजियाला हो गया।\nउत्पत्ति 1:3</string>
   <string name="help_text">अगले या पिछले अध्याय के लिए स्क्रीन पर उंगली से बाएं/दाहिने जाओ⏎ ⏎ अन्य कार्य के लिये \'मेनू\' दबाएँ</string>
+  <string name="help_text_long"><b>Navigation</b>\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger\n    \nDouble-tap toggles Fullscreen on/off.\n    \n\n<b>Menu</b>\n    \nPress the MENU key for actions\n    \n\nTo download more documents press Menu/More/Download Documents\n    \n\n<b>Speech</b>\nPress Speak to access a dialog to start or stop reading\n    \n\n<b>My Note</b>\nNotes can be added via the My Note menu item on the verse context menu.  The list of existing notes can be accessed via the main menu.\n    \n\n<b>Bookmarks</b>\nBookmarks can be added via the verse context menu.  The Bookmark Manager is accessed via the main menu.  The Bookmark Manager context menu allows bookmarks to be grouped using labels.\n    \n\n<b>Search</b>\nSearch text can include special characters like *, ?, AND, OR, NOT (see \"Apache Lucene - Query Parser Syntax\" for more details)\n    \n\n<b>Context Menus</b>\n    \nLong press on the bible view to open the context menu for actions affecting the current verse.\n    \nLong press on a document in the document selector to delete it or view information.\n    \nLong press the Back button to access the History list\n    </string>
   <string name="version_text">संस्करण %s</string>
-  <string name="no_sdcard_error">एक एसडी कार्ड डालें और बाइबिल फिर से शुरू करे.</string>
+  <string name="no_sdcard_error">एक एस-डी कार्ड डालें और बाइबिल फिर से शुरू करे.</string>
   <!--main menu-->
   <string name="chooseBook">किताबें</string>
   <string name="selectPassage">पुस्तक/अध्याय</string>
   <string name="search">खोज</string>
   <string name="settings">सेटिंग्स</string>
-  <string name="history">इतिहास</string>
-  <string name="speak">अध्याय पढ़</string>
+  <string name="history">अध्ययन इतिहास</string>
+  <string name="speak">अध्याय सुनिए</string>
   <string name="help">मदद</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">पुस्तक चुनें</string>
@@ -26,35 +27,52 @@
   <string name="index_create">बनाना</string>
   <!--Tasks-->
   <string name="progress_status">प्रगति</string>
+  <string name="task_kill_warning">अगर आप आन्ड बाइबिल को छोड़ जाऐं, तो लंबे कार्य समाप्त होने की संभावना है</string>
+  <string name="no_tasks_running">कोई कार्य इस समय क्रियान्वित नही</string>
   <!--Search-->
   <string name="search_results">परिणाम</string>
   <string name="search_words_group_prompt">छंद खोज</string>
   <string name="search_all_words">सभी शब्द</string>
   <string name="search_any_word">कोई भी शब्द</string>
-  <string name="search_phrase">वाक्य</string>
+  <string name="search_phrase">सभी शब्द, क्रम में</string>
   <string name="search_result_count">%d परिणाम मिला</string>
   <string name="search_showing_first">बहुत सारे परिणाम, पहले के %d</string>
-  <string name="search_bible_section_group_prompt">खोज क्षेत्र</string>
+  <string name="search_bible_section_group_prompt">खोज सीमा</string>
   <string name="search_all_bible">﻿﻿﻿संपूर्ण बाइबल</string>
   <string name="search_new_testament">नया नियम</string>
   <string name="search_old_testament">पुराना नियम</string>
   <string name="search_current_book">वर्तमान पुस्तक</string>
   <string name="error_executing_search">खोज वाक्य में गलती</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">छंद संख्या</string>
+  <string name="prefs_show_verseno_summary">छंद संख्या दिखाना</string>
   <string name="prefs_verse_per_line_title">हर छंद, नई पंक्ति में</string>
   <string name="prefs_verse_per_line_summary">हर एक छंद, नई पंक्ति में पढ़िये</string>
+  <string name="prefs_show_bookmarks_title">पुस्तक चिन्ह-चित्र दिखाना</string>
+  <string name="prefs_show_bookmarks_summary">आपकी इकट्ठा की छंद में चित्र दिखाना</string>
   <string name="prefs_show_mynotes_title">मेरे टिप्पणी-चित्र दिखाना</string>
+  <string name="prefs_show_mynotes_summary">मेरे टिप्पणी वाले छंद में चित्र दिखाना</string>
   <string name="prefs_show_notes_title">पाद टिप्पणी और संबंधित संदर्भ</string>
   <string name="prefs_show_notes_summary">पाद टिप्पणी और संबंधित संदर्भ दिखाना</string>
+  <string name="prefs_show_strongs_title">\"र्स्टो्न्ग\" की संख्या दिखाना</string>
+  <string name="prefs_show_strongs_summary">यूनानी और हिब्रू परिभाषा</string>
+  <string name="prefs_show_morphology_title">आकारिकी(Morphology) संख्या </string>
+  <string name="prefs_show_morphology_summary">रॉबिन्सन यूनानी(ग्रीक) आकारिकी दिखाना</string>
+  <string name="prefs_section_title_title">खंड शीर्षक (टाइटिल)</string>
+  <string name="prefs_section_title_summary">तमाम खंड शीर्षक (टाइटिल) दिखाना</string>
+  <string name="prefs_red_letter_title">लाल अक्षर</string>
   <string name="prefs_red_letter_summary">यीशु मसीह के शब्द, लाल रंग में</string>
+  <string name="prefs_tilt_to_scroll_title">नीचे के पृष्ठ के लिए फ़ोन झुकना</string>
+  <string name="prefs_tilt_to_scroll_summary">फ़ोन झुकना - नीचे के पृष्ठ देखें</string>
   <string name="prefs_night_mode_title">अंधेरे में पढ़िये</string>
   <string name="prefs_night_mode_summary">अंधेरे में पढ़ने के लिए</string>
   <string name="prefs_night_mode_automatic">ऑटोमैटिक</string>
   <string name="prefs_navigate_to_verse_title">छंद पर पहुंचे</string>
   <string name="prefs_navigate_to_verse_summary">पुस्तक मे अध्याय और छंद चुनें</string>
   <string name="prefs_text_size_title">अक्षर का आकार</string>
+  <string name="prefs_text_size_summary">अधिक / स्पष्ट रूप से देखने</string>
   <string name="prefs_text_size_sample_text">नमूना वाक्य</string>
-  <string name="prefs_interface_locale_title">आन्ड बाइबिल, इस भाषा में</string>
+  <string name="prefs_interface_locale_title">आन्ड बाइबिल, नई भाषा में</string>
   <string name="prefs_interface_locale_summary">आन्ड बाइबिल की भाषा चुनिए</string>
   <string name="locale_change_warning">आपकी चुनी भाषा में, आन्ड बाइबिल पुनः आरंभ हो रहा है</string>
   <!--Notes screen-->
@@ -63,22 +81,37 @@
   <string name="previous">पिछला</string>
   <string name="next">﻿﻿﻿﻿अगला</string>
   <!--Strongs-->
-  <string name="strongs">\"र्स्टो्ग\" शब्दकोश</string>
+  <string name="strongs">\"र्स्टो्न्ग\" शब्दकोश</string>
+  <string name="strongs_not_installed">\"र्स्टो्न्ग\" की हिब्रू और यूनानी शब्दकोश डाउनलोड करें</string>
+  <string name="all_greek_occurrences">खोज - सभी घटना</string>
+  <string name="all_hebrew_occurrences">सभी मिसाल खोजें</string>
+  <string name="no_indexed_bible_with_strongs_ref">\"र्स्टो्न्ग\" संख्या वाले बाइबिल डाउनलोड करें, फिर खोज सूचकांक डाउनलोड करें</string>
+  <string name="morph_robinson_not_installed">\'Robinson\'s Morphological Analysis Codes\' शब्दकोश, डाउनलोड करें</string>
+  <string name="strongs_toggle_button_on">nnnn</string>
+  <string name="strongs_toggle_button_off">nnnn</string>
   <!--Module download-->
   <string name="download">अन्य किताबें डाउनलोड करें</string>
   <string name="download_confirmation">बाइबिल डाउनलोड करें, इंटरनेट से ?</string>
   <string name="download_source_message">किताबें ⏎ http://www.crosswire.org⏎ &amp; http://xiphos.org वेबसाइट से</string>
   <string name="download_document_confirm_prefix">डाउनलोड</string>
+  <string name="download_refreshing_book_list">किताब-सूची ताज़ा करें</string>
   <string name="download_refresh_book_list_menu_item">ताज़ा करें</string>
+  <string name="error_downloading">डाउनलोड में त्रुटि. इंटरनेट चेक करें</string>
+  <string name="no_internet_connection">इंटरनेट उपलब्ध नहीं</string>
   <string name="storage_space_warning">किताब के लिए जगह कम है</string>
   <string name="wait_for_bible">कृपया प्रतीक्षा करें, बाइबिल डाउनलोड \nहोने के बाद पहला स्क्रीन दिखाई देगा</string>
   <string name="wait_for_bible_not_yet">कृपया प्रतीक्षा करें,\nबाइबिल डाउनलोड हो रहा है</string>
-  <string name="download_complete_no_bibles">कोई बाइबिल उपलब्ध नहीं,\"बैक बटन\" दबाएँ</string>
+  <string name="download_complete_no_bibles">कोई बाइबिल उपलब्ध नहीं, कृपया \'बैक बटन\' दबाएँ</string>
+  <string name="too_many_jobs">कई कार्य क्रियान्वित.  कृपया प्रतीक्षा करें</string>
   <string name="document_not_installed">कृपया डाउनलोड करें \'%s\'</string>
   <!--Daily Reading Plan-->
-  <string name="rdg_plan_title">पढ़ने की योजना</string>
-  <string name="rdg_plan_selector_title">एक \"पढ़ने की योजना\" चुनें</string>
+  <string name="rdg_plan_title">पठन-योजना</string>
+  <string name="rdg_plan_selector_title">एक पठन-योजना चुनें</string>
+  <string name="rdg_plan_day">दिवस %s</string>
+  <string name="rdg_plan_set_start_jan1">आरंभ - जनवरी 1</string>
   <string name="done">समाप्त</string>
+  <string name="reset"> पुनः तैयार करना</string>
+  <string name="rdg_plan_y1ntpspr">नया नियम, भजन संहिता और नीतिवचन, एक वर्ष में</string>
   <string name="rdg_plan_y1ot1nt1_chronological">बाइबिल एक वर्ष में: कालक्रम के अनुसार</string>
   <string name="rdg_plan_y1ot1nt1_OTandNT">बाइबिल एक वर्ष में: पुराना और नया नियम</string>
   <string name="rdg_plan_y1ot1nt1_OTthenNT">बाइबिल एक वर्ष में: पुराना नियम,फिर नया नियम</string>
@@ -87,14 +120,15 @@
   <!--Document context menu-->
   <string name="delete">मिटाओ</string>
   <string name="delete_index">खोज सूचकांक मिटाओ</string>
-  <string name="about">आन्ड बाइबिल विवरण</string>
-  <string name="delete_search_index_doc">%s पुस्तक की खोज सूचकांक मिटाओ</string>
+  <string name="about">बाइबिल विवरण</string>
+  <string name="delete_doc">%s किताब मिटाओ</string>
+  <string name="delete_search_index_doc">%s किताब की खोज सूचकांक मिटाओ</string>
   <!--Verse context menu-->
   <string name="select_text">वाक्य चुनिए</string>
   <string name="select_text_help">वाक्य चुनने के लिए धीरे खींचें,\nफिर \'कापी\' करें</string>
   <string name="notes">पाद टिप्पणी और संबंधित संदर्भ</string>
-  <string name="copy">मौजूदा छंद, \'कापी\' करें</string>
-  <string name="share_verse">मौजूदा छंद, दूसरों के साथ बाँटना</string>
+  <string name="copy">वर्तमान छंद, \'कापी\' करें</string>
+  <string name="share_verse">वर्तमान छंद, दूसरों के साथ बाँटना</string>
   <string name="share_verse_subject">एक पवित्र वाक्य आपके लिए, आन्ड बाइबिल (AndBible) के जरीए</string>
   <string name="compare_translations">अन्य अनुवादों से तुलना</string>
   <!--Bookmarks-->
@@ -102,6 +136,11 @@
   <string name="add_bookmark">पुस्तक चिन्ह लगाओ</string>
   <string name="bookmark_added">पुस्तक चिन्ह लग गया</string>
   <string name="bookmark_exists">यह पुस्तक चिन्ह, पहले से ही मौजूद</string>
+  <string name="bookmark_labels">पुस्तक चिन्ह  के नाम</string>
+  <string name="assign_labels">लेबल लिखना/देना</string>
+  <string name="new_label">नया लेबल</string>
+  <string name="new_label_prompt">नाम</string>
+  <string name="label_unlabelled">कोई लेबल नही</string>
   <!--Dictionary-->
   <string name="dictionary">बाइबिल शब्दकोश</string>
   <string name="search_dictionary_hint">शब्दकोश में खोजें</string>
@@ -117,10 +156,16 @@
   <string name="rest_of_book">पुस्तक के अंत तक</string>
   <!--Speak - Commentary-->
   <string name="one_verse">%d छंद</string>
+  <string name="some_verses">%d छंद</string>
   <string name="rest_of_chapter">अध्याय के अंत तक</string>
   <!--Speak - Dictionary and other-->
+  <string name="one_page">%d पृष्ठ</string>
+  <string name="some_pages">%d पृष्ठों</string>
   <!--Speak - Common-->
-  <string name="stop">रोक</string>
+  <string name="stop">रोकना</string>
+  <string name="pause">विराम</string>
+  <string name="rewind">उल्टा फिराना</string>
+  <string name="forward">आगे बढ़ाना</string>
   <string name="tts_lang_not_available">भाषा मौजूद नही</string>
   <string name="speak_queue">पंक्ति में लगाना</string>
   <string name="speak_repeat">दोहराना</string>
@@ -132,22 +177,33 @@
   <string name="mynote_saved">टिप्पणी सुरक्षित </string>
   <!--Backup and restore-->
   <string name="backup">बैकअप</string>
-  <string name="backup_success">टिप्पणी / पुस्तक चिन्ह, एसडी कार्ड में यहां सुरक्षित: %s </string>
+  <string name="backup_success">टिप्पणी / पुस्तक चिन्ह, एस-डी कार्ड में यहां सुरक्षित: %s </string>
   <string name="restore">बैकअप से नवीकरण</string>
   <string name="restore_confirmation">बैकअप से मेरे टिप्पणी/पुस्तक-चिन्ह लिखना ?</string>
-  <string name="restore_success">टिप्पणी / पुस्तक चिन्ह लिए, एसडी कार्ड से: %s </string>
+  <string name="restore_success">टिप्पणी / पुस्तक चिन्ह लिए, एस-डी कार्ड से: %s </string>
   <!--Document types-->
   <string name="doc_type_bible">बाइबिल</string>
+  <string name="doc_type_commentary">कमेंटरी</string>
+  <string name="doc_type_dictionary">शब्दकोश</string>
   <string name="doc_type_book">पुस्तक</string>
+  <string name="doc_type_map">नक्शा</string>
   <!--Languages-->
+  <string name="lang_default">डिफॉल्ट</string>
   <!--General-->
-  <string name="okay">हाँ</string>
+  <string name="okay">ठीक है</string>
   <string name="cancel">रद्द करें</string>
   <string name="yes">हाँ</string>
   <string name="no"> नही</string>
+  <string name="save">सुरक्षित</string>
+  <string name="error">त्रुटि</string>
   <string name="more">और</string>
+  <string name="retry">फिर कोशिश करें</string>
+  <string name="please_wait"> कृपया प्रतीक्षा करें...</string>
+  <string name="all">संपूर्ण</string>
   <!--Errors-->
+  <string name="error_occurred">त्रुटि हुई</string>
   <string name="error_no_content">यह छंद खाली है</string>
+  <string name="error_page_too_large">पृष्ठ बहुत बड़ी, लोड नहीं हुई</string>
   <string name="error_key_not_in_document">इस किताब में नहीं मिला</string>
   <string name="empty_list">कुछ मौजूद नहीं</string>
 </resources>

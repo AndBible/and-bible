@@ -114,7 +114,9 @@
   <string name="done">סיום</string>
   <string name="reset">איפוס</string>
   <string name="rdg_plan_y1ntpspr">הברית החדשה, תהילים ומשלי במשך שנה</string>
+  <string name="rdg_plan_y1ot1nt1_chronological">כל התנך בשנה - בסדר כרונולוגי</string>
   <string name="rdg_plan_y1ot1nt1_OTandNT">כל הכתובים במשך שנה - תנ\"ך ברית חדשה</string>
+  <string name="rdg_plan_y1ot1nt1_OTthenNT">כל הכתובים בשנה - תנך וברית חדשה</string>
   <string name="rdg_plan_y1ot1nt2_mcheyne">רק התנ\"ך במשך שנה (M\'Cheyne)</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
@@ -163,6 +165,9 @@
   <string name="some_pages">%d עמודים</string>
   <!--Speak - Common-->
   <string name="stop">עצור</string>
+  <string name="pause">הפסק</string>
+  <string name="rewind">אחורה</string>
+  <string name="forward">קדימה</string>
   <string name="tts_lang_not_available">שפה זו אינה זמינה.</string>
   <string name="speak_queue">תור</string>
   <string name="speak_repeat">חזור שנית</string>
@@ -174,6 +179,7 @@
   <string name="mynote_saved">ההערה נשמרה</string>
   <!--Backup and restore-->
   <string name="backup">גיבוי</string>
+  <string name="backup_success">ההערות והסימניות נשמרו ב %s בכרטיס הזכרון</string>
   <string name="restore">שחזור</string>
   <string name="restore_confirmation">האם להחליף את ההערות והסימניות הקיימות ?</string>
   <string name="restore_success">ההערות והסימניות שוחזרו מ %s בכרטיס הזכרון</string>

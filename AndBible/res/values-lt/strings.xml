@@ -165,6 +165,9 @@
   <string name="some_pages">%d puslapiai</string>
   <!--Speak - Common-->
   <string name="stop">Sustabdyti</string>
+  <string name="pause">Pauzė</string>
+  <string name="rewind">Persukti</string>
+  <string name="forward">Į priekį</string>
   <string name="tts_lang_not_available">Nėra kalbos.</string>
   <string name="speak_queue">Eilė</string>
   <string name="speak_repeat">Kartoti</string>
