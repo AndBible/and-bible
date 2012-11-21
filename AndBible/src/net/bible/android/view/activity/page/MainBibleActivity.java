@@ -9,6 +9,7 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
+import net.bible.service.device.ScreenSettings;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -97,6 +98,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	if (mWholeAppWasInBackground) {
 			mWholeAppWasInBackground = false;
 	    	// colour may need to change which affects View colour and html
+			// first refresh the night mode setting using light meter if appropriate
+			ScreenSettings.updateNightModeValue();
+			// then update text if colour changes
 	    	if (documentViewManager.getDocumentView().changeBackgroundColour()) {
 	    		bibleContentManager.updateText(true);
 	    	}

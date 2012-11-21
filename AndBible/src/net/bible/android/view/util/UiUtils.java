@@ -10,6 +10,7 @@ public class UiUtils {
 	
 
     public static void applyTheme(Activity activity) {
+    	ScreenSettings.updateNightModeValue();
         if (ScreenSettings.isNightMode()) {
         	activity.setTheme(android.R.style.Theme);
         } else {
