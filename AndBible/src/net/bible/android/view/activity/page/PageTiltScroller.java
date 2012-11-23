@@ -1,5 +1,7 @@
 package net.bible.android.view.activity.page;
 
+import java.lang.ref.WeakReference;
+
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.PageTiltScrollControl;
 import net.bible.android.control.page.PageTiltScrollControl.TiltScrollInfo;
@@ -24,19 +26,10 @@ public class PageTiltScroller {
 	
 	private Thread mScrollTriggerThread;
 	private boolean mIsScrolling;
-	private Handler mScrollHandler = new Handler(){
-		@Override
-		public void handleMessage(Message msg) {
-			Bundle b = msg.getData();
-			int scrollPixels = b.getInt(SCROLL_PIXELS_KEY, 1);
-			boolean forward = b.getBoolean(FORWARD_KEY, true);
+	private Handler mScrollMsgHandler = new ScrollMsgHandler(this);
 
-			mIsScrolling = mWebView.scroll(forward, scrollPixels);
-		}
-	};	
 	private PageTiltScrollControl mPageTiltScrollControl = ControlFactory.getInstance().getPageTiltScrollControl();
 	
-	@SuppressWarnings("unused")
 	private static final String TAG = "PageTiltScroller";
 	
 	public PageTiltScroller(BibleView webView) {
@@ -96,6 +89,7 @@ public class PageTiltScroller {
 
 		@Override
 		public void run() {
+			Log.d(TAG, "Tilt-Scroll loop starting");
 			while (isContinue) {
 				try {
 					TiltScrollInfo tiltScrollInfo = mPageTiltScrollControl.getTiltScrollInfo();
@@ -106,7 +100,7 @@ public class PageTiltScroller {
 						b.putInt(SCROLL_PIXELS_KEY, tiltScrollInfo.scrollPixels);
 						b.putBoolean(FORWARD_KEY, tiltScrollInfo.forward);
 						msg.setData(b);
-						mScrollHandler.sendMessageAtFrontOfQueue(msg);
+						mScrollMsgHandler.sendMessageAtFrontOfQueue(msg);
 					}
 
 					if (mPageTiltScrollControl.isTiltScrollEnabled()) {
@@ -116,10 +110,36 @@ public class PageTiltScroller {
 						isContinue = false;
 					}
 			     } catch (Exception e) {
-			      Log.v("Error", e.toString());
+			    	 Log.v("Error", e.toString());
+			    	 isContinue = false;
 			     }
-				
 			}
+			Log.d(TAG, "Tilt-Scroll loop exiting");
 		}
 	}
+
+	/** handle message requesting the bible view be scrolled up one pixel
+	 */
+	private static class ScrollMsgHandler extends Handler {
+		// avoid potential memory leak.  See http://stackoverflow.com/questions/11407943/this-handler-class-should-be-static-or-leaks-might-occur-incominghandler
+		private final WeakReference<PageTiltScroller> pageTiltScrollerRef;
+		ScrollMsgHandler(PageTiltScroller pageTiltScroller) {
+			this.pageTiltScrollerRef = new WeakReference<PageTiltScroller>(pageTiltScroller);
+		}
+		
+		/** scroll the window 1 pixel up
+		 */
+		@Override
+		public void handleMessage(Message msg) {
+			Bundle b = msg.getData();
+			int scrollPixels = b.getInt(SCROLL_PIXELS_KEY, 1);
+			boolean forward = b.getBoolean(FORWARD_KEY, true);
+
+			PageTiltScroller pageTiltScroller = pageTiltScrollerRef.get();
+			if (pageTiltScroller!=null) {
+				pageTiltScroller.mIsScrolling = pageTiltScroller.mWebView.scroll(forward, scrollPixels);
+			}
+		}
+	};	
+
 }

@@ -1,5 +1,6 @@
 package net.bible.android.control.page;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.bible.android.BibleApplication;
@@ -41,7 +42,7 @@ public class PageTiltScrollControl {
 	private static final int BASE_TIME_BETWEEN_SCROLLS = 48; //70(jerky) 40((fast);
 
 	private static final int MIN_TIME_BETWEEN_SCROLLS = 4;
-
+	
 	/**
 	 * Time between scroll = Periodic time = 1/frequency
 	 * Scroll speed = frequency*wavelength // wavelength = 1 pixel so can ignore wavelength
@@ -64,8 +65,12 @@ public class PageTiltScrollControl {
 		40		0.18	5.55555555555556
 		45		0.2	5
 	 */
+	private static int MIN_DEGREES_OFFSET = 0;
+	private static int MAX_DEGREES_OFFSET = 45;
+	private static float MIN_SPEED = 0.02f;
+	private static float MAX_SPEED = 0.2f;
 	// calculated to ensure even speed up of scrolling
-	private static Integer[] mTimeBetweenScrollListEvery5Degrees = new Integer[] {50, 25, 17, 13, 10, 8, 7, 6, 5, 4} ;
+	private static Integer[] mTimeBetweenScrolls;
 
 	// current pitch of phone - varies dynamically
 	private float[] mOrientationValues;
@@ -96,6 +101,10 @@ public class PageTiltScrollControl {
 	// should not need more than one because the request come in one at a time
 	private TiltScrollInfo tiltScrollInfoSingleton = new TiltScrollInfo();
 	
+	public PageTiltScrollControl() {
+		initialiseTiltSpeedPeriods();
+	}
+	
 	public TiltScrollInfo getTiltScrollInfo() {
 		TiltScrollInfo tiltScrollInfo = tiltScrollInfoSingleton.reset();
 		int delayToNextScroll = BASE_TIME_BETWEEN_SCROLLS;
@@ -108,7 +117,7 @@ public class PageTiltScrollControl {
 
 				// speedUp if tilt screen beyond a certain amount
 				if (tiltScrollInfo.forward) {
-					delayToNextScroll = getDelayToNextScroll(devianceFromViewingAngle-NO_SCROLL_VIEWING_TOLERANCE);
+					delayToNextScroll = getDelayToNextScroll(devianceFromViewingAngle-NO_SCROLL_VIEWING_TOLERANCE-1);
 
 					// speedup could be done by increasing scroll amount but that leads to a jumpy screen
 					tiltScrollInfo.scrollPixels = 1;
@@ -189,14 +198,13 @@ public class PageTiltScrollControl {
 	}
 
 	private int getDelayToNextScroll(int tilt) {
-		// speed changes every 5 degree tilt
+		// speed changes with every degree of tilt
 		// ensure we have a positive number
 		tilt = Math.abs(tilt);
-		int tiltDiv5 = tilt/5;
-		if (tiltDiv5 < mTimeBetweenScrollListEvery5Degrees.length) {
-			return mTimeBetweenScrollListEvery5Degrees[tiltDiv5];
+		if (tilt < mTimeBetweenScrolls.length) {
+			return mTimeBetweenScrolls[tilt];
 		} else {
-			return mTimeBetweenScrollListEvery5Degrees[mTimeBetweenScrollListEvery5Degrees.length-1];
+			return mTimeBetweenScrolls[mTimeBetweenScrolls.length-1];
 		}
 	}
 	
@@ -254,5 +262,21 @@ public class PageTiltScrollControl {
 
 	public boolean isTiltScrollEnabled() {
 		return mIsTiltScrollEnabled;
+	}
+	
+	/** map degrees tilt to time between 1 pixel scrolls to save time at runtime 
+	 */
+	private void initialiseTiltSpeedPeriods() {
+		float degreeRange = MAX_DEGREES_OFFSET - MIN_DEGREES_OFFSET;
+		float speedRange = MAX_SPEED - MIN_SPEED;
+		
+		List<Integer> delayPeriods = new ArrayList<Integer>();
+		for (int deg=MIN_DEGREES_OFFSET; deg<=MAX_DEGREES_OFFSET; deg++) {
+			float speed = MIN_SPEED+((deg/degreeRange)*speedRange);
+			float period = 1/speed;
+			delayPeriods.add(Math.round(period));
+		}
+		
+		mTimeBetweenScrolls = delayPeriods.toArray(new Integer[delayPeriods.size()]);
 	}
 }
