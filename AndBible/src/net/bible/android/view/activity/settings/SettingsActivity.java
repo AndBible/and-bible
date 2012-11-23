@@ -1,13 +1,17 @@
 package net.bible.android.view.activity.settings;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.PageTiltScrollControl;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.util.UiUtils;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
 import android.os.Bundle;
+import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.util.Log;
@@ -20,6 +24,7 @@ import android.util.Log;
  */
 public class SettingsActivity extends PreferenceActivity {
 
+	private static final String LOCALE_PREF = "locale_pref";
 	private static final String TAG = "SettingsActivity";
 	
 	@Override
@@ -43,9 +48,23 @@ public class SettingsActivity extends PreferenceActivity {
 			
 			// if no tilt sensor then remove tilt-to-scroll setting
 			if (!ControlFactory.getInstance().getPageTiltScrollControl().isTiltSensingPossible()) {
-				Preference tiltToScrollPreferenceKey = getPreferenceScreen().findPreference(PageTiltScrollControl.TILT_TO_SCROLL_PREFERENCE_KEY);
-				getPreferenceScreen().removePreference(tiltToScrollPreferenceKey);
+				Preference tiltToScrollPreference = getPreferenceScreen().findPreference(PageTiltScrollControl.TILT_TO_SCROLL_PREFERENCE_KEY);
+				getPreferenceScreen().removePreference(tiltToScrollPreference);
 			}
+			
+			// only JellyBean supports Malayalam so remove ml for older versions of Android
+			if (!CommonUtils.isJellyBeanPlus()) {
+		        ListPreference localePref = (ListPreference)getPreferenceScreen().findPreference(LOCALE_PREF);
+		        CharSequence[] entries = localePref.getEntries();
+		        CharSequence[] entryValues = localePref.getEntryValues();
+		        int mlIndex = ArrayUtils.indexOf(entryValues, "ml");
+		        if (mlIndex!=-1) {
+		        	Log.d(TAG, "removing Malayalam from preference list");
+		        	localePref.setEntries( ArrayUtils.remove(entries, mlIndex));
+		        	localePref.setEntryValues( ArrayUtils.remove(entryValues, mlIndex));
+		        }
+		    }
+
 	    } catch (Exception e) {
 			Log.e(TAG, "Error preparing preference screen", e);
 			Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
