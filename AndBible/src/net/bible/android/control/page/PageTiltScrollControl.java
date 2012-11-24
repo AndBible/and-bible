@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.bible.android.BibleApplication;
+import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
+import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
+import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.CommonUtils;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -12,6 +15,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
+import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
@@ -35,8 +39,10 @@ public class PageTiltScrollControl {
 	// both angles are degrees
 	private int mNoScrollViewingPitch = -38;
 	private boolean mNoScrollViewingPitchCalculated = false;
+	private boolean mSensorsTriggered = false;
 	
 	private static final int NO_SCROLL_VIEWING_TOLERANCE = 2; //3;
+	private static final int NO_SPEED_INCREASE_VIEWING_TOLERANCE = 2;
 	
 	// this is decreased (subtracted from) to speed up scrolling
 	private static final int BASE_TIME_BETWEEN_SCROLLS = 48; //70(jerky) 40((fast);
@@ -103,6 +109,20 @@ public class PageTiltScrollControl {
 	
 	public PageTiltScrollControl() {
 		initialiseTiltSpeedPeriods();
+
+		// reset home position if returning to this app
+		CurrentActivityHolder.getInstance().addAppToBackgroundListener(new AppToBackgroundListener() {
+			@Override
+			public void applicationReturnedFromBackground(AppToBackgroundEvent e) {
+				// prevent sudden scrolling when returning to the app
+				recalculateViewingPosition();
+			}
+			
+			@Override
+			public void applicationNowInBackground(AppToBackgroundEvent e) {
+				// NOOP
+			}
+		});
 	}
 	
 	public TiltScrollInfo getTiltScrollInfo() {
@@ -117,10 +137,12 @@ public class PageTiltScrollControl {
 
 				// speedUp if tilt screen beyond a certain amount
 				if (tiltScrollInfo.forward) {
-					delayToNextScroll = getDelayToNextScroll(devianceFromViewingAngle-NO_SCROLL_VIEWING_TOLERANCE-1);
+					delayToNextScroll = getDelayToNextScroll(devianceFromViewingAngle-NO_SCROLL_VIEWING_TOLERANCE-NO_SPEED_INCREASE_VIEWING_TOLERANCE-1);
 
 					// speedup could be done by increasing scroll amount but that leads to a jumpy screen
 					tiltScrollInfo.scrollPixels = 1;
+					
+//					Log.d(TAG, "*** deviance:"+devianceFromViewingAngle+" delay:"+delayToNextScroll);
 				} else {
 					// TURNED OFF UPSCROLL
 					delayToNextScroll = BASE_TIME_BETWEEN_SCROLLS;
@@ -159,6 +181,7 @@ public class PageTiltScrollControl {
 	public void recalculateViewingPosition() {
 		//TODO save to settings
 		mNoScrollViewingPitchCalculated = false;
+		mSensorsTriggered = false;
 	}
 
 	/** if screen rotates must switch between different values returned by orientation sensor
@@ -189,18 +212,32 @@ public class PageTiltScrollControl {
 	private int getDevianceFromStaticViewingAngle(int normalisedPitch) {
 	
 		if (!mNoScrollViewingPitchCalculated) {
+			Log.d(TAG, "Recalculating home/noscroll pitch "+normalisedPitch);
+
 			// assume user's viewing pitch is the current one
 			mNoScrollViewingPitch = normalisedPitch;
-			mNoScrollViewingPitchCalculated = true;
+			// pitch can be 0 before the sensors have fired
+			if (mSensorsTriggered) {
+				mNoScrollViewingPitchCalculated = true;
+			}
 		}
 		
 		return Math.abs(normalisedPitch-mNoScrollViewingPitch);
 	}
 
+	/** Get delay between scrolls for specified tilt 
+	 * 
+	 *  negative tilts will return min delay
+	 *  0-num elts in mTimeBetweenScrolls array will return associated period from array
+	 *  larger tilts will return max period from array
+	 *  
+	 * @param tilt
+	 * @return
+	 */
 	private int getDelayToNextScroll(int tilt) {
 		// speed changes with every degree of tilt
 		// ensure we have a positive number
-		tilt = Math.abs(tilt);
+		tilt = Math.max(tilt, 0);
 		if (tilt < mTimeBetweenScrolls.length) {
 			return mTimeBetweenScrolls[tilt];
 		} else {
@@ -230,6 +267,7 @@ public class PageTiltScrollControl {
 			if (sensorEvent.sensor.getType() == Sensor.TYPE_ORIENTATION) {
 				mOrientationValues = sensorEvent.values;
 				mRotation = mDisplay.getRotation();
+				mSensorsTriggered = true;
 			}
 		}
 
