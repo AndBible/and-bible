@@ -23,7 +23,7 @@ import android.util.Log;
 public class SpeakTextProvider {
 
     private List<String> mTextToSpeak = new ArrayList<String>();
-    private int currentSentence = 0;
+    private int nextTextToSpeak = 0;
     // this fraction supports pause/rew/ff; if o then speech occurs normally, if 0.5 then next speech chunk is half completed...
     private float fractionOfNextSentenceSpoken = 0;
     
@@ -45,7 +45,7 @@ public class SpeakTextProvider {
 	// enable state to be persisted if paused for a long time
 	private static final String PERSIST_SPEAK_TEXT = "SpeakText";
 	private static final String PERSIST_SPEAK_TEXT_SEPARATOR = "XXSEPXX";
-	private static final String PERSIST_CURRENT_SENTENCE = "CurrentSentence";
+	private static final String PERSIST_NEXT_TEXT = "NextText";
 	private static final String PERSIST_FRACTION_SPOKEN = "FractionSpoken";
 	
 	private static final String TAG = "Speak";
@@ -59,7 +59,7 @@ public class SpeakTextProvider {
 	
 	public boolean isMoreTextToSpeak() {
 		//TODO: there seems to be an occasional problem when using ff/rew/pause in the last chunk
-		return currentSentence<mTextToSpeak.size();
+		return nextTextToSpeak<mTextToSpeak.size();
 	}
 
 	public String getNextTextToSpeak() {
@@ -84,16 +84,16 @@ public class SpeakTextProvider {
 	}
 
 	private String getNextTextChunk() {
-		String text = peekCurrentTextChunk();
-		currentSentence++;
+		String text = peekNextTextChunk();
+		nextTextToSpeak++;
         return text;
 	}
-	private String peekCurrentTextChunk() {
+	private String peekNextTextChunk() {
 		if (!isMoreTextToSpeak()) {
-			Log.e(TAG, "Error: passed end of Speaktext.  crrentsentence:"+currentSentence+" textToSpeak size:"+mTextToSpeak.size());
+			Log.e(TAG, "Error: passed end of Speaktext.  nextText:"+nextTextToSpeak+" textToSpeak size:"+mTextToSpeak.size());
 			return "";
 		}
-        return mTextToSpeak.get(currentSentence);
+        return mTextToSpeak.get(nextTextToSpeak);
 	}
 	
 	/** fractionCompleted may be a fraction of a fraction of the current block if this is not the first pause in this block
@@ -101,7 +101,7 @@ public class SpeakTextProvider {
 	 * @param fractionCompleted of last block of text returned by getNextTextToSpeak
 	 */
 	public void pause(float fractionCompleted) {
-		Log.d(TAG, "Pause CurrentSentence:"+currentSentence);
+		Log.d(TAG, "Pause CurrentSentence:"+nextTextToSpeak);
 
         // accumulate these fractions until we reach the end of a chunk of text
         // if pause several times the fraction of text completed becomes a fraction of the fraction left i.e. 1-previousFractionCompleted
@@ -115,16 +115,16 @@ public class SpeakTextProvider {
 	
 	public void rewind() {
 		// go back to start of current sentence
-    	StartPos textFraction = getPrevTextStartPos(peekCurrentTextChunk(), fractionOfNextSentenceSpoken);
+    	StartPos textFraction = getPrevTextStartPos(peekNextTextChunk(), fractionOfNextSentenceSpoken);
 
     	// if could not find a previous sentence end
     	if (!textFraction.found) {
     		if (backOneChunk()) {
-    			textFraction = getPrevTextStartPos(peekCurrentTextChunk(), 1.0f);
+    			textFraction = getPrevTextStartPos(peekNextTextChunk(), 1.0f);
     		}
 		} else {
 			// go back a little bit further in the current chunk
-			StartPos extraFraction = getPrevTextStartPos(peekCurrentTextChunk(), getStartPosFraction(textFraction.startPosition, peekCurrentTextChunk()));
+			StartPos extraFraction = getPrevTextStartPos(peekNextTextChunk(), getStartPosFraction(textFraction.startPosition, peekNextTextChunk()));
 			if (extraFraction.found) {
 				textFraction = extraFraction;
 			}
@@ -140,14 +140,14 @@ public class SpeakTextProvider {
 	}
 
 	public void forward() {
-		Log.d(TAG, "Forward CurrentSentence:"+currentSentence);
+		Log.d(TAG, "Forward nextText:"+nextTextToSpeak);
 
 		// go back to start of current sentence
-    	StartPos textFraction = getForwardTextStartPos(peekCurrentTextChunk(), fractionOfNextSentenceSpoken);
+    	StartPos textFraction = getForwardTextStartPos(peekNextTextChunk(), fractionOfNextSentenceSpoken);
 
     	// if could not find the next sentence start
     	if (!textFraction.found && forwardOneChunk()) {
-	    	textFraction = getForwardTextStartPos(peekCurrentTextChunk(), 0.0f);   		
+	    	textFraction = getForwardTextStartPos(peekNextTextChunk(), 0.0f);   		
 		}
     	
     	if (textFraction.found) {
@@ -167,8 +167,8 @@ public class SpeakTextProvider {
 	/** current chunk needs to be re-read (at least a fraction of it after pause)
 	 */
 	private boolean backOneChunk() {
-		if (currentSentence > 0) {
-			currentSentence--;
+		if (nextTextToSpeak > 0) {
+			nextTextToSpeak--;
 			return true;
 		} else {
 			return false;
@@ -178,8 +178,8 @@ public class SpeakTextProvider {
 	/** current chunk needs to be re-read (at least a fraction of it after pause)
 	 */
 	private boolean forwardOneChunk() {
-		if (currentSentence < mTextToSpeak.size()-1) {
-			currentSentence++;
+		if (nextTextToSpeak < mTextToSpeak.size()-1) {
+			nextTextToSpeak++;
 			return true;
 		} else {
 			return false;
@@ -190,7 +190,7 @@ public class SpeakTextProvider {
     	if (mTextToSpeak!=null) {
     		mTextToSpeak.clear();
     	}
-		currentSentence = 0;
+		nextTextToSpeak = 0;
 		fractionOfNextSentenceSpoken = 0;
 	}
 	
@@ -201,7 +201,7 @@ public class SpeakTextProvider {
 			CommonUtils.getSharedPreferences()
 						.edit()
 						.putString(PERSIST_SPEAK_TEXT, StringUtils.join(mTextToSpeak, PERSIST_SPEAK_TEXT_SEPARATOR))
-						.putInt(PERSIST_CURRENT_SENTENCE, currentSentence)
+						.putInt(PERSIST_NEXT_TEXT, nextTextToSpeak)
 						.putFloat(PERSIST_FRACTION_SPOKEN, fractionOfNextSentenceSpoken)
 						.commit();
 		}
@@ -216,7 +216,7 @@ public class SpeakTextProvider {
 		SharedPreferences sharedPreferences = CommonUtils.getSharedPreferences();
 		if (sharedPreferences.contains(PERSIST_SPEAK_TEXT)) {
 			mTextToSpeak = new ArrayList<String>(Arrays.asList(sharedPreferences.getString(PERSIST_SPEAK_TEXT, "").split(PERSIST_SPEAK_TEXT_SEPARATOR)));
-			currentSentence = sharedPreferences.getInt(PERSIST_CURRENT_SENTENCE, 0);
+			nextTextToSpeak = sharedPreferences.getInt(PERSIST_NEXT_TEXT, 0);
 			fractionOfNextSentenceSpoken = sharedPreferences.getFloat(PERSIST_FRACTION_SPOKEN, 0);
 			clearPersistedState();
 			isRestored = true;
@@ -226,7 +226,7 @@ public class SpeakTextProvider {
 	}
 	public void clearPersistedState() {
 		CommonUtils.getSharedPreferences().edit().remove(PERSIST_SPEAK_TEXT)
-												.remove(PERSIST_CURRENT_SENTENCE)
+												.remove(PERSIST_NEXT_TEXT)
 												.remove(PERSIST_FRACTION_SPOKEN)
 												.commit();
 	}
@@ -341,6 +341,37 @@ public class SpeakTextProvider {
 		startFraction = Math.min(1, startFraction);
 		
 		return startFraction;
+	}
+	
+	public int getPercentageSpoken() {
+		int percentage = 0;
+		if (mTextToSpeak.size()>0) {
+			percentage = Math.round((100.0f*getSpokenChars())/getTotalChars());
+		}
+		return percentage;
+	}
+	
+	private long getTotalChars() {
+		long totChars = 0;
+		for (String chunk: mTextToSpeak) {
+			totChars += chunk.length();
+		}
+		return totChars;
+	}
+	/** this relies on fraction which is set at pause
+	 */
+	private long getSpokenChars() {
+		long spokenChars = 0;
+		for (int i=0; i<nextTextToSpeak-1; i++) {
+			String chunk = mTextToSpeak.get(i);
+			spokenChars += chunk.length();
+		}
+		
+		if (nextTextToSpeak<mTextToSpeak.size()) {
+			spokenChars += fractionOfNextSentenceSpoken * (float)mTextToSpeak.get(nextTextToSpeak).length();
+		}
+		
+		return spokenChars;
 	}
 	
 //	private List<String> nonREbreakUpText(String text) {

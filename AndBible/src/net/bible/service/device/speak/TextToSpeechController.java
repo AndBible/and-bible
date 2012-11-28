@@ -260,6 +260,10 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     	isPaused = false;
     }
 
+    public int getPausedPercentageComplete() {
+    	return mSpeakTextProvider.getPercentageSpoken();
+    }
+    
     private void startSpeaking() {
     	Log.d(TAG, "about to send all text to TTS");
         // ask TTs to say the text

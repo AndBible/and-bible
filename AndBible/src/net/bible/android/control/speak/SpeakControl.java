@@ -10,6 +10,7 @@ import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.AndRuntimeException;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.device.speak.TextToSpeechController;
 import net.bible.service.sword.SwordContentFacade;
 
@@ -232,7 +233,9 @@ public class SpeakControl {
 		Log.d(TAG, "Pause TTS speaking");
     	TextToSpeechController tts = TextToSpeechController.getInstance();
 		tts.pause();
-    	Toast.makeText(BibleApplication.getApplication(), R.string.pause, Toast.LENGTH_SHORT).show();
+		String pause = CommonUtils.getResourceString(R.string.pause);
+		String percentageComplete = tts.getPausedPercentageComplete()+"%";
+    	Toast.makeText(BibleApplication.getApplication(), pause+"\n"+percentageComplete, Toast.LENGTH_SHORT).show();
 	}
 
 	public void continueAfterPause() {
