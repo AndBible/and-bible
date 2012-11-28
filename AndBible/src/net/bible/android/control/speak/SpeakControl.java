@@ -234,8 +234,8 @@ public class SpeakControl {
     	TextToSpeechController tts = TextToSpeechController.getInstance();
 		tts.pause();
 		String pause = CommonUtils.getResourceString(R.string.pause);
-		String percentageComplete = tts.getPausedPercentageComplete()+"%";
-    	Toast.makeText(BibleApplication.getApplication(), pause+"\n"+percentageComplete, Toast.LENGTH_SHORT).show();
+		String timeProgress = CommonUtils.getHoursMinsSecs(tts.getPausedCompletedSeconds())+"/"+CommonUtils.getHoursMinsSecs(tts.getPausedTotalSeconds());
+    	Toast.makeText(BibleApplication.getApplication(), pause+"\n"+timeProgress, Toast.LENGTH_SHORT).show();
 	}
 
 	public void continueAfterPause() {

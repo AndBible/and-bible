@@ -21,7 +21,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.os.Build;
-import android.os.Build.VERSION;
 import android.os.Environment;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
@@ -29,6 +28,7 @@ import android.util.Log;
 
 public class CommonUtils {
 
+	private static final String COLON = ":";
 	private static final int DEFAULT_MAX_TEXT_LENGTH = 250;
 	private static final String ELLIPSIS = "...";
 
@@ -321,5 +321,34 @@ public class CommonUtils {
 	
 	public static Date getTruncatedDate() {
 		return DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH);
+	}
+	
+	/** format seconds duration as h:m:s
+	 * 
+	 * @param milliSecs duration
+	 * @return h:m:s
+	 */
+	public static String getHoursMinsSecs(long secs) {
+		int h = (int) (secs / 3600);
+		int m = (int) ((secs / 60) % 60);
+		int s = (int) (secs % 60);
+		
+		StringBuilder hms = new StringBuilder();
+		if (h>0) {
+			hms.append(h).append(COLON);
+		}
+
+		// add padding for 1 digit mins
+		if (m<10) {
+			hms.append(0);
+		}
+		hms.append(m).append(COLON);
+		
+		// add padding for 1 digit secs
+		if (s<10) {
+			hms.append(0);
+		}
+		hms.append(s);
+		return hms.toString();
 	}
 }

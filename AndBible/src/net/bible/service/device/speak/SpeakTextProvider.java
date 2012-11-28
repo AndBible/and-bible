@@ -343,15 +343,7 @@ public class SpeakTextProvider {
 		return startFraction;
 	}
 	
-	public int getPercentageSpoken() {
-		int percentage = 0;
-		if (mTextToSpeak.size()>0) {
-			percentage = Math.round((100.0f*getSpokenChars())/getTotalChars());
-		}
-		return percentage;
-	}
-	
-	private long getTotalChars() {
+	public long getTotalChars() {
 		long totChars = 0;
 		for (String chunk: mTextToSpeak) {
 			totChars += chunk.length();
@@ -360,17 +352,18 @@ public class SpeakTextProvider {
 	}
 	/** this relies on fraction which is set at pause
 	 */
-	private long getSpokenChars() {
+	public long getSpokenChars() {
 		long spokenChars = 0;
-		for (int i=0; i<nextTextToSpeak-1; i++) {
-			String chunk = mTextToSpeak.get(i);
-			spokenChars += chunk.length();
-		}
-		
-		if (nextTextToSpeak<mTextToSpeak.size()) {
-			spokenChars += fractionOfNextSentenceSpoken * (float)mTextToSpeak.get(nextTextToSpeak).length();
-		}
-		
+		if (mTextToSpeak.size()>0) {
+			for (int i=0; i<nextTextToSpeak-1; i++) {
+				String chunk = mTextToSpeak.get(i);
+				spokenChars += chunk.length();
+			}
+			
+			if (nextTextToSpeak<mTextToSpeak.size()) {
+				spokenChars += fractionOfNextSentenceSpoken * (float)mTextToSpeak.get(nextTextToSpeak).length();
+			}
+		}		
 		return spokenChars;
 	}
 	

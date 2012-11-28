@@ -65,6 +65,11 @@ public class SpeakTiming {
 	public long getCharsInSecs(int secs) {
 		return (long)(cpms*(1000.0*secs));
 	}
+	/** estimate how long it will take to speak so many chars 
+	 */
+	public long getSecsForChars(long chars) {
+		return Math.round(((1.0*chars)/cpms)/1000.0);
+	}
 
 	private long milliSecsSinceStart(){
 		long duration = System.currentTimeMillis() - lastSpeakStartTime;

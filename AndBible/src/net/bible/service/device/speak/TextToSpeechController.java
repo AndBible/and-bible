@@ -260,8 +260,13 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     	isPaused = false;
     }
 
-    public int getPausedPercentageComplete() {
-    	return mSpeakTextProvider.getPercentageSpoken();
+    /** only check timing when paused to prevent concurrency problems
+     */
+    public long getPausedTotalSeconds() {
+    	return mSpeakTiming.getSecsForChars(mSpeakTextProvider.getTotalChars());
+    }
+    public long getPausedCompletedSeconds() {
+    	return mSpeakTiming.getSecsForChars(mSpeakTextProvider.getSpokenChars());
     }
     
     private void startSpeaking() {
