@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name">ആന്ദ് ബീബല്‍</string>
+  <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"വെളിച്ചം ഉണ്ടാകട്ടെ എന്നു ദൈവം കല്പിച്ചു; വെളിച്ചം ഉണ്ടായി.\"\nഉല്പത്തി 1:3</string>
   <string name="help_text">Press the MENU key for actions\n\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger</string>
@@ -37,8 +37,8 @@
   <string name="search_all_words">എല്ലാ പദങ്ങളും</string>
   <string name="search_any_word">ഏതെങ്കിലും പദം</string>
   <string name="search_phrase">ഉപവാക്യം</string>
-  <string name="search_result_count">യോജ്യഫലങ്ങൾ ലഭിച്ചു %d</string>
-  <string name="search_showing_first">അനേകം യോജ്യഫലങ്ങൾ. ആദ്യഫലങ്ങൾ കാണൂ %d</string>
+  <string name="search_result_count">%d യോജ്യഫലങ്ങൾ ലഭിച്ചു</string>
+  <string name="search_showing_first">അനേകം യോജ്യഫലങ്ങൾ. ആദ്യ %d ഫലങ്ങൾ കാണൂ</string>
   <string name="search_bible_section_group_prompt">എവിടെ തിരെയണം</string>
   <string name="search_all_bible">മുഴുവൻ വേദപുസ്തകവും</string>
   <string name="search_new_testament">പുതിയനിയമം</string>
