@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.bible.android.BibleApplication;
-import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
-import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
-import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.CommonUtils;
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -87,7 +84,6 @@ public class PageTiltScrollControl {
 	
 	public static final String TILT_TO_SCROLL_PREFERENCE_KEY = "tilt_to_scroll_pref";
 
-	@SuppressWarnings("unused")
 	private static final String TAG = "TiltScrollControl";
 	
 	public static class TiltScrollInfo {
@@ -109,20 +105,6 @@ public class PageTiltScrollControl {
 	
 	public PageTiltScrollControl() {
 		initialiseTiltSpeedPeriods();
-
-		// reset home position if returning to this app
-		CurrentActivityHolder.getInstance().addAppToBackgroundListener(new AppToBackgroundListener() {
-			@Override
-			public void applicationReturnedFromBackground(AppToBackgroundEvent e) {
-				// prevent sudden scrolling when returning to the app
-				recalculateViewingPosition();
-			}
-			
-			@Override
-			public void applicationNowInBackground(AppToBackgroundEvent e) {
-				// NOOP
-			}
-		});
 	}
 	
 	public TiltScrollInfo getTiltScrollInfo() {

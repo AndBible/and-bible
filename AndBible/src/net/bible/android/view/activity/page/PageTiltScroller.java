@@ -41,6 +41,7 @@ public class PageTiltScroller {
 	public void enableTiltScroll(boolean enable) {
 		if (mPageTiltScrollControl.enableTiltScroll(enable)) {
 			if (enable) {
+				recalculateViewingPosition();
 				kickOffScrollThread();
 			} else {
 				stopScrollThread();
