@@ -165,6 +165,9 @@
   <string name="some_pages">%d trang</string>
   <!--Speak - Common-->
   <string name="stop">Ngừng</string>
+  <string name="pause">Tạm dừng</string>
+  <string name="rewind">Tua lại</string>
+  <string name="forward">Đi tới</string>
   <string name="tts_lang_not_available">Ngôn ngữ không có sẵn.</string>
   <string name="speak_queue">Hàng đợi</string>
   <string name="speak_repeat">Đọc lại</string>

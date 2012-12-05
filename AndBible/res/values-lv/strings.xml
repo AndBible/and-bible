@@ -165,6 +165,9 @@
   <string name="some_pages">%d lapas</string>
   <!--Speak - Common-->
   <string name="stop">Apturēt</string>
+  <string name="pause">Pauze</string>
+  <string name="rewind">Atpakaļ</string>
+  <string name="forward">Uz priekšu</string>
   <string name="tts_lang_not_available">Valoda nav pieejama.</string>
   <string name="speak_queue">Rinda</string>
   <string name="speak_repeat">Atkārtot</string>

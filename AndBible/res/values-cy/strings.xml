@@ -165,6 +165,9 @@
   <string name="some_pages">%d tudalen</string>
   <!--Speak - Common-->
   <string name="stop">Stopiwch</string>
+  <string name="pause">Oedi</string>
+  <string name="rewind">Ailddirwyn</string>
+  <string name="forward">Ymlaen</string>
   <string name="tts_lang_not_available">Nid yw\'r iaith ar gael.</string>
   <string name="speak_queue">Ciw</string>
   <string name="speak_repeat">Ailadrodd</string>
