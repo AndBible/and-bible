@@ -2,7 +2,9 @@ package net.bible.service.device;
 
 import net.bible.android.BibleApplication;
 import net.bible.service.common.CommonUtils;
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.PowerManager;
 import android.util.Log;
 
 /** Manage screen related functions
@@ -45,6 +47,11 @@ public class ScreenSettings {
 	
 	public static boolean isNightMode() {
 		return isNightMode;
+	}
+	
+	public static boolean isScreenOn() {
+		PowerManager pm = (PowerManager) BibleApplication.getApplication().getSystemService(Context.POWER_SERVICE);
+		return pm.isScreenOn();
 	}
 	
 	/** get the preference setting - could be using either of 2 preference settings depending on presence of a light sensor

@@ -97,17 +97,30 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 
     	if (mWholeAppWasInBackground) {
 			mWholeAppWasInBackground = false;
-	    	// colour may need to change which affects View colour and html
-			// first refresh the night mode setting using light meter if appropriate
-			ScreenSettings.updateNightModeValue();
-			// then update text if colour changes
-	    	if (documentViewManager.getDocumentView().changeBackgroundColour()) {
-	    		bibleContentManager.updateText(true);
-	    	}
+			refreshIfNightModeChange();
     	}
     }
 
-    /** adding android:configChanges to manifest causes this method to be called on flip, etc instead of a new instance and onCreate, which would cause a new observer -> duplicated threads
+    @Override
+	protected void onScreenTurnedOn() {
+		super.onScreenTurnedOn();
+		refreshIfNightModeChange();
+	}
+
+    /** if using auto night mode then may need to refresh
+     */
+    private void refreshIfNightModeChange() {
+    	// colour may need to change which affects View colour and html
+		// first refresh the night mode setting using light meter if appropriate
+		ScreenSettings.updateNightModeValue();
+		// then update text if colour changes
+    	if (documentViewManager.getDocumentView().changeBackgroundColour()) {
+    		bibleContentManager.updateText(true);
+    	}
+
+    }
+    
+	/** adding android:configChanges to manifest causes this method to be called on flip, etc instead of a new instance and onCreate, which would cause a new observer -> duplicated threads
      */
     @Override
 	public void onConfigurationChanged(Configuration newConfig) {

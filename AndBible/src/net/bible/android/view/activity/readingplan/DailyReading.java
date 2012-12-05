@@ -285,7 +285,25 @@ public class DailyReading extends CustomTitlebarActivityBase {
 		mDoneButton.setEnabled(status.isAllRead());
 	}
 	
-    protected Toolbar getToolbar() {
+	
+	
+    @Override
+	protected void onScreenTurnedOn() {
+		super.onScreenTurnedOn();
+		// use reload to ensure colour is correct
+		reload();
+	}
+
+    /** TODO Could possibly push this reload up to a higher level after next release
+     * See: http://stackoverflow.com/questions/1397361/how-do-i-restart-an-android-activity
+     */
+    private void reload() {
+    	Intent intent = getIntent();
+    	finish();
+    	startActivity(intent);
+    }
+
+	protected Toolbar getToolbar() {
     	if (mToolbar==null) {
     		mToolbar = new ReadingPlanToolbar();
     	}

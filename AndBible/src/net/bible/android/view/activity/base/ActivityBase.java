@@ -3,6 +3,7 @@ package net.bible.android.view.activity.base;
 import net.bible.android.view.activity.navigation.History;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.android.view.util.UiUtils;
+import net.bible.service.device.ScreenSettings;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -25,6 +26,8 @@ public class ActivityBase extends Activity implements AndBibleActivity {
     public static final int RESULT_RETURN_TO_TOP           = 900;
 
 	private SharedActivityState sharedActivityState = SharedActivityState.getInstance();
+	
+	private boolean isScreenOn = true;
 
 	// some screens are highly customised and the theme looks odd if it changes
 	private boolean allowThemeChange = true;
@@ -185,12 +188,25 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 		super.onResume();
         Log.i(getLocalClassName(), "onResume");
         CurrentActivityHolder.getInstance().setCurrentActivity(this);
+        
+        //allow action to be called on screen being turned on
+		if (!isScreenOn && ScreenSettings.isScreenOn()) {
+			isScreenOn = true;
+			onScreenTurnedOn();
+		}
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
         Log.i(getLocalClassName(), "onPause");
+		if (isScreenOn && !ScreenSettings.isScreenOn()) {
+			isScreenOn = false;
+		}
+	}
+	
+	protected void onScreenTurnedOn() {
+		Log.d(TAG, "Screen turned on");
 	}
 
 	@Override
