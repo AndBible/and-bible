@@ -105,11 +105,11 @@
   <string name="wait_for_bible_not_yet">Lūdzu uzgaidiet. Bībeles uzstādīšana vēl nav pabeigta.</string>
   <string name="download_complete_no_bibles">Neviena Bībele nav instalēta. Lūdzu nospiediet atpakaļ\nUn mēģiniet vēlreiz.</string>
   <string name="too_many_jobs">Pārāk daudz aktīvu uzdevumu. Lūdzu uzgaidiet kamēr daži tiek izpildīti un mēģiniet vēlreiz.</string>
-  <string name="document_not_installed">Lūdzu lejuplādējiet \'%\'.</string>
+  <string name="document_not_installed">Lūdzu lejuplādējiet \'%s\'.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Lāsīšanas plāns</string>
   <string name="rdg_plan_selector_title">Izvēlies lasīšanas plānu</string>
-  <string name="rdg_plan_day">%. Diena</string>
+  <string name="rdg_plan_day">%s. Diena</string>
   <string name="rdg_plan_set_start_jan1">Sākt ar 1. janvāri</string>
   <string name="done">Pabeigts</string>
   <string name="reset">Salikt no jauna</string>
