@@ -179,10 +179,10 @@
   <string name="mynote_saved">എന്റെ കുറിപ്പ് </string>
   <!--Backup and restore-->
   <string name="backup">സംരക്ഷിക്കൂ</string>
-  <string name="backup_success">എന്റെ കുറിപ്പുകളും സൂചകങ്ങളും SD കാർഡിൽ സൂക്ഷിച്ചിരിക്കുന്നു</string>
+  <string name="backup_success">എന്റെ കുറിപ്പുകളും സൂചകങ്ങളും SD കാർഡിൽ %s -ൽ സൂക്ഷിച്ചിരിക്കുന്നു</string>
   <string name="restore">പുനഃരുദ്ധരിക്കുക</string>
   <string name="restore_confirmation"> എന്റെ കുറിപ്പുകളും സൂചകങ്ങളും വീണ്ടും ഒന്നുകൂടി എഴുതുണമോ?</string>
-  <string name="restore_success">എന്റെ കുറിപ്പുകളും സൂചകങ്ങളും SD കാർഡിൽ നിന്നും പുനഃരുദ്ധരിച്ചു</string>
+  <string name="restore_success">എന്റെ കുറിപ്പുകളും സൂചകങ്ങളും SD കാർഡിൽ %s -ൽ നിന്നും പുനഃരുദ്ധരിച്ചു</string>
   <!--Document types-->
   <string name="doc_type_bible">വേദപുസ്തകം </string>
   <string name="doc_type_commentary">പാഠ്യപുസ്തകം </string>
