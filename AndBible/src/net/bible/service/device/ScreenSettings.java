@@ -24,7 +24,7 @@ public class ScreenSettings {
 
 	private static LightSensor mLightSensor = new LightSensor();
 
-	private static final int MAX_DARK_READING = 60;
+	private static final int MAX_DARK_READING = 30;
 
 	private static boolean isNightMode = false;
 	
