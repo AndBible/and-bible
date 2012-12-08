@@ -298,9 +298,16 @@ public class DailyReading extends CustomTitlebarActivityBase {
      * See: http://stackoverflow.com/questions/1397361/how-do-i-restart-an-android-activity
      */
     private void reload() {
+    	// do not save current page to history because it is being reloaded
+    	boolean wasIntegrateWithhistory = isIntegrateWithHistoryManager();
+    	setIntegrateWithHistoryManager(false);
+    	
+    	// reload page to refresh if screen colour change
     	Intent intent = getIntent();
     	finish();
     	startActivity(intent);
+    	
+    	setIntegrateWithHistoryManager(wasIntegrateWithhistory);
     }
 
 	protected Toolbar getToolbar() {
