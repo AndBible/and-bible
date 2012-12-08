@@ -124,7 +124,7 @@
   <string name="delete_index">Удалить поисковой индекс?</string>
   <string name="about">Источник</string>
   <string name="delete_doc">Удалить %s?</string>
-  <string name="delete_search_index_doc">Удалить индекс?</string>
+  <string name="delete_search_index_doc">Удалить индекс %s?</string>
   <!--Verse context menu-->
   <string name="select_text">Выбрать отрывок из текста</string>
   <string name="select_text_help">Для того, чтобы выбрать отрывок из текста медленно проведите по нему пальцем.\nЗатем прикоснитесь к выбранному, чтобы скопировать.</string>

@@ -200,7 +200,7 @@
     
     <!-- Backup and restore -->
     <string name="backup">ll backup</string>
-    <string name="backup_success">i miei appunti e i miei segnalibri salvati sulla carta \'SD\'</string>    
+    <string name="backup_success">I miei appunti e i miei segnalibri salvati %s sulla carta \'SD\'</string>    
     <string name="restore">Ripristina</string>
     <string name="restore_confirmation">Modifica i miei appunti e i miei segnalibri?</string>    
     <string name="restore_success">I miei appunti e i miei segnalirbi ripristinati da %s sulla carta \'SD\'</string>    
