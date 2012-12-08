@@ -3,13 +3,9 @@ package net.bible.android.control.footnoteandref;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.service.sword.SwordContentFacade;
-import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BookName;
-
-import android.view.View;
 
 /** Support the Compare Translations screen
  * 
@@ -18,13 +14,11 @@ import android.view.View;
  *      The copyright to this program is held by it's author.
  */
 public class FootnoteAndRefControl {
-	
+
+	@SuppressWarnings("unused")
 	private static final String TAG = "FootnoteAndRefControl";
 
 	private CurrentPageManager currentPageManager; // injected
-	
-	private SwordDocumentFacade swordDocumentFacade = SwordDocumentFacade.getInstance();
-	private SwordContentFacade swordContentFacade = SwordContentFacade.getInstance();
 	
 	public String getTitle() {
 		StringBuilder stringBuilder = new StringBuilder();

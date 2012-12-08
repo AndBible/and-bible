@@ -304,7 +304,8 @@ public class PdaLuceneIndexCreator {
     /**
      * Are we active
      */
-    private boolean active;
+    @SuppressWarnings("unused")
+	private boolean active;
 
     /**
      * The Book that we are indexing

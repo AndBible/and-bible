@@ -22,6 +22,7 @@ import org.crosswire.jsword.passage.Key;
 public class OSISInputStream extends InputStream {
 	// requested passage
 	private Book book;
+	@SuppressWarnings("unused")
 	private Key key;
 	
 	// iterator

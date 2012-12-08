@@ -59,7 +59,8 @@ public class PdaLuceneIndexManager  {
                 try {
                     URI storage = getStorageArea(book);
 
-                    PdaLuceneIndexCreator index = new PdaLuceneIndexCreator(book, storage, true);
+                    @SuppressWarnings("unused")
+					PdaLuceneIndexCreator index = new PdaLuceneIndexCreator(book, storage, true);
                     // We were successful if the directory exists.
                     if (NetUtil.getAsFile(storage).exists()) {
                         finalStatus = IndexStatus.DONE;
@@ -117,5 +118,6 @@ public class PdaLuceneIndexManager  {
     /**
      * The log stream
      */
-    private static final Logger log = Logger.getLogger(PdaLuceneIndexManager.class);
+    @SuppressWarnings("unused")
+	private static final Logger log = Logger.getLogger(PdaLuceneIndexManager.class);
 }

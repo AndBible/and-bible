@@ -14,8 +14,6 @@ public class StrongsLinkCreator implements TextPreprocessor {
 	
 	static Pattern patt = Pattern.compile( "see (HEBREW|GREEK) for (\\d{1,5})"); //".*see ([HEBREW|GREEK]) for (\\d{1,5}).*");
 
-	private static final String LINK_CSS_CLASS = "strongsLarge";
-	
 	public String process(String text) {
 		StringBuffer result=new StringBuffer();
 		Matcher m = patt.matcher(text);

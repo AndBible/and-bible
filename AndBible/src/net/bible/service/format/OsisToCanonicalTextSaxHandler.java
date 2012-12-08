@@ -17,7 +17,8 @@ import org.xml.sax.Attributes;
  */
 public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
     
-    private int currentVerseNo;
+    @SuppressWarnings("unused")
+	private int currentVerseNo;
 
     private Stack<CONTENT_STATE> writeContentStack = new Stack<CONTENT_STATE>(); 
 	private enum CONTENT_STATE {WRITE, IGNORE};
@@ -131,14 +132,6 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
     	} else {
     		writeContentStack.push(CONTENT_STATE.IGNORE);
     	}
-    }
-    
-    private void replace(char buf[], int offset, int len, char find, char replacement) {
-        for (int i=offset; i<len; i++) {
-        	if (buf[i]=='\'') {
-        		buf[i]='\"';
-        	}
-        }
     }
 }
 

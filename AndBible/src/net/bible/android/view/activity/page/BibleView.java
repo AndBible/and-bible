@@ -8,6 +8,7 @@ import net.bible.android.control.page.PageControl;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Picture;
@@ -76,6 +77,7 @@ public class BibleView extends WebView implements DocumentView {
 		initialise();		
 	}
 	
+	@SuppressLint("SetJavaScriptEnabled")
 	private void initialise() {
 		mVerseCalculator = new VerseCalculator();
 		mJavascriptInterface = new BibleJavascriptInterface(mVerseCalculator);

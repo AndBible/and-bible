@@ -18,6 +18,7 @@ public class FigureHandler {
 	
 	private OsisToHtmlParameters parameters;
 	
+	@SuppressWarnings("unused")
 	private static final Logger log = new Logger("LHandler");
 
 	public FigureHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {

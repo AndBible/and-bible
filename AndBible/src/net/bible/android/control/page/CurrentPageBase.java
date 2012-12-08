@@ -5,7 +5,6 @@ import java.util.List;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.PassageChangeMediator;
-import net.bible.service.common.CommonUtils;
 import net.bible.service.common.ParseException;
 import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.HtmlMessageFormatter;

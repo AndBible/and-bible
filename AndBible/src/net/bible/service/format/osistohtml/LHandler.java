@@ -27,6 +27,7 @@ public class LHandler {
 
 	private HtmlTextWriter writer;
 	
+	@SuppressWarnings("unused")
 	private OsisToHtmlParameters parameters;
 	
 	private Stack<LType> stack = new Stack<LType>();

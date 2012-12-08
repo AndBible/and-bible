@@ -16,6 +16,7 @@ public abstract class SpeakToolbarButtonBase extends ToolbarButtonBase implement
 	
 	protected static final int SPEAK_START_PRIORITY = 10;
 
+	@SuppressWarnings("unused")
 	private static final String TAG = "Speak";
 
 	public SpeakToolbarButtonBase(View parent, int resourceId) {

@@ -2,8 +2,6 @@ package net.bible.android.view.activity.readingplan;
 
 import java.util.List;
 
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.search.SearchControl;
 import net.bible.service.readingplan.ReadingPlanInfoDto;
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -20,12 +18,10 @@ import android.widget.TwoLineListItem;
 public class ReadingPlanItemAdapter extends ArrayAdapter<ReadingPlanInfoDto> {
 
 	private int resource;
-	private SearchControl searchControl;
 
 	public ReadingPlanItemAdapter(Context _context, int _resource, List<ReadingPlanInfoDto> _items) {
 		super(_context, _resource, _items);
 		resource = _resource;
-		searchControl = ControlFactory.getInstance().getSearchControl();
 	}
 
 	@Override

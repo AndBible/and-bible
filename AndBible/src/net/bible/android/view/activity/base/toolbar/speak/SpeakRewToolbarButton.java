@@ -7,6 +7,7 @@ import android.view.View.OnClickListener;
 
 public class SpeakRewToolbarButton extends SpeakToolbarButtonBase implements ToolbarButton, OnClickListener {
 
+	@SuppressWarnings("unused")
 	private static final String TAG = "Speak";
 
 	public SpeakRewToolbarButton(View parent) {

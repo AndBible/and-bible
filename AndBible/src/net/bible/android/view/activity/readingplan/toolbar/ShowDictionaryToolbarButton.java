@@ -3,7 +3,6 @@ package net.bible.android.view.activity.readingplan.toolbar;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.base.toolbar.ToolbarButton;
-import net.bible.android.view.activity.base.toolbar.ToolbarButtonHelper;
 
 import org.crosswire.jsword.book.Book;
 

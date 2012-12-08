@@ -4,19 +4,16 @@ import java.util.Stack;
 
 import net.bible.service.common.Logger;
 
-import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
 
-/** This can either signify a quote or Red Letter
- * Example from ESV Prov 19:1
- * 		<l sID="x9938"/>...<l eID="x9938" type="x-br"/><l sID="x9939" type="x-indent"/>..<l eID="x9939" type="x-br"/>
- * 
- * Apparently quotation marks are not supposed to appear in the KJV (https://sites.google.com/site/kjvtoday/home/Features-of-the-KJV/quotation-marks)
+/** The lg or "line group" element is used to contain any group of poetic lines.  Poetic lines are handled at the line level by And Bible, not line group 
+ * so this class does nothing.
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author. 
  */
+@SuppressWarnings("unused")
 public class LGHandler {
 
 	enum LGType {DIV, IGNORE};
