@@ -10,7 +10,6 @@ import net.bible.android.view.activity.base.toolbar.speak.SpeakToolbarButton;
 import net.bible.service.device.speak.event.SpeakEvent;
 import net.bible.service.device.speak.event.SpeakEventListener;
 import net.bible.service.device.speak.event.SpeakEventManager;
-import android.util.Log;
 import android.view.View;
 
 /** manages all the buttons on a toolbar

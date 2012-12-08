@@ -9,8 +9,6 @@ import net.bible.service.sword.SwordDocumentFacade;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BookName;
 
-import android.view.View;
-
 /** Support the Compare Translations screen
  * 
  * @author Martin Denham [mjdenham at gmail dot com]

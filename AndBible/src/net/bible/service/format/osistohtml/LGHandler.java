@@ -4,7 +4,6 @@ import java.util.Stack;
 
 import net.bible.service.common.Logger;
 
-import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
 
 /** This can either signify a quote or Red Letter

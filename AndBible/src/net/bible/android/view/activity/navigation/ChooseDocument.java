@@ -2,7 +2,6 @@ package net.bible.android.view.activity.navigation;
 
 import java.util.List;
 
-import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.android.view.activity.base.DocumentSelectionBase;
@@ -11,8 +10,6 @@ import net.bible.service.sword.SwordDocumentFacade;
 import org.crosswire.jsword.book.Book;
 
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;

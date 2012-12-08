@@ -4,16 +4,11 @@ import java.util.List;
 
 import net.bible.service.readingplan.OneDaysReadingsDto;
 
-import org.apache.commons.lang.ABStringUtils;
-import org.apache.commons.lang.WordUtils;
-import org.crosswire.jsword.passage.Key;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
 import android.widget.TwoLineListItem;
 
 /**
