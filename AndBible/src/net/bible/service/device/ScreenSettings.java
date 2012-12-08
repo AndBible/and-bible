@@ -22,8 +22,8 @@ public class ScreenSettings {
 	private static final String NOT_NIGHT_MODE = "false";
 	private static final String AUTO_NIGHT_MODE = "automatic";
 
-	private static LightSensor mLightSensor = new LightSensor();		
-	
+	private static LightSensor mLightSensor = new LightSensor();
+
 	private static final int MAX_DARK_READING = 60;
 
 	private static boolean isNightMode = false;
@@ -38,8 +38,7 @@ public class ScreenSettings {
 		
 		if (AUTO_NIGHT_MODE.equals(nightModePref)) {
 			int lightReading = mLightSensor.getReading();
-			// -1 == no sensor
-			isNightMode = (lightReading!=-1 && lightReading<=MAX_DARK_READING);
+			isNightMode = (lightReading!=LightSensor.NO_READING_YET && lightReading<=MAX_DARK_READING);
 		} else {
 			isNightMode = NIGHT_MODE.equals(nightModePref);
 		}

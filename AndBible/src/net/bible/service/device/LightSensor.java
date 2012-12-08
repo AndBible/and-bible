@@ -18,7 +18,8 @@ import android.util.Log;
  */
 public class LightSensor {
 
-	private float mReading = -1;
+	public final static float NO_READING_YET = -1919;
+	private float mReading = NO_READING_YET;
 	
 	private boolean mMonitoring = false;
 	
