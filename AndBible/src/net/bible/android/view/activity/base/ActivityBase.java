@@ -202,9 +202,14 @@ public class ActivityBase extends Activity implements AndBibleActivity {
         Log.i(getLocalClassName(), "onPause");
 		if (isScreenOn && !ScreenSettings.isScreenOn()) {
 			isScreenOn = false;
+			onScreenTurnedOff();
 		}
 	}
 	
+	protected void onScreenTurnedOff() {
+		Log.d(TAG, "Screen turned off");
+	}
+
 	protected void onScreenTurnedOn() {
 		Log.d(TAG, "Screen turned on");
 	}

@@ -276,6 +276,17 @@ public class BibleView extends WebView implements DocumentView {
 		return handled;
 	}
 
+	/** ensure auto-scroll does not continue when screen is powered off
+	 */
+	@Override
+	public void onScreenTurnedOn() {
+		resumeTiltScroll();
+	}
+	@Override
+	public void onScreenTurnedOff() {
+		pauseTiltScroll();
+	}
+
 	/** enter text selection mode
 	 */
 	@Override

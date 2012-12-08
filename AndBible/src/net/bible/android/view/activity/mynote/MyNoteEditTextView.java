@@ -98,4 +98,13 @@ public class MyNoteEditTextView extends EditText implements DocumentView {
 	public View asView() {
 		return this;
 	}
+
+	@Override
+	public void onScreenTurnedOn() {
+		// NOOP
+	}
+	@Override
+	public void onScreenTurnedOff() {
+		// NOOP
+	}
 }

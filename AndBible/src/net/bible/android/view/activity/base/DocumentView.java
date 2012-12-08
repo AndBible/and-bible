@@ -15,6 +15,10 @@ public interface DocumentView {
 	 */
 	public abstract boolean changeBackgroundColour();
 	
+	// allow stop/start of autoscroll
+	public abstract void onScreenTurnedOn();
+	public abstract void onScreenTurnedOff();
+	
 	public abstract boolean pageDown(boolean toBottom);
 	
 	/** prevent swipe right if the user is scrolling the page right */

@@ -102,9 +102,16 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     }
 
     @Override
+	protected void onScreenTurnedOff() {
+		super.onScreenTurnedOff();
+		documentViewManager.getDocumentView().onScreenTurnedOff();
+	}
+
+    @Override
 	protected void onScreenTurnedOn() {
 		super.onScreenTurnedOn();
 		refreshIfNightModeChange();
+		documentViewManager.getDocumentView().onScreenTurnedOn();
 	}
 
     /** if using auto night mode then may need to refresh
