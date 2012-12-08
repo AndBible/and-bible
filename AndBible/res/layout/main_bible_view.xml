@@ -11,6 +11,7 @@
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:fadingEdgeLength="0sp"
+    android:keepScreenOn = "true"
     >
 	<include layout="@layout/title_bar"/>
 		
