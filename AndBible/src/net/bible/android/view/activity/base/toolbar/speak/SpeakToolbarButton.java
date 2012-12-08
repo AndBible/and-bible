@@ -2,7 +2,6 @@ package net.bible.android.view.activity.base.toolbar.speak;
 
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.toolbar.ToolbarButton;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 
