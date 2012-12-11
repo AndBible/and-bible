@@ -42,7 +42,7 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
 	<string name="lang_turkish">tr: Türkçe</string>
 	<string name="lang_ukrainian">uk: Українська</string>
 	<string name="lang_vietnamese">vi: Tiếng Việt</string>
-	<string name="lang_chinese">zh: 古文/文言文</string>
+	<string name="lang_chinese">zh: 古文</string>
 	    	
     <!-- Speak -->
     <plurals name="num_chapters">
