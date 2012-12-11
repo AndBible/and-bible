@@ -38,7 +38,10 @@ public class ScreenSettings {
 		
 		if (AUTO_NIGHT_MODE.equals(nightModePref)) {
 			int lightReading = mLightSensor.getReading();
-			isNightMode = (lightReading!=LightSensor.NO_READING_YET && lightReading<=MAX_DARK_READING);
+			// may possible be no reading yet but need to have a screen colour
+			// If no light change has occurred then it is most likely pitch black so allow default of black, 
+			// which will happen automatically because NO_READING_YET is negative 
+			isNightMode = lightReading<=MAX_DARK_READING;
 		} else {
 			isNightMode = NIGHT_MODE.equals(nightModePref);
 		}
