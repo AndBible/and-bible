@@ -50,7 +50,7 @@
 		<item>@string/lang_lithuanian</item>
 		<item>@string/lang_latvian</item>
 		<item>@string/lang_malagasy</item>
-		<item>@string/lang_malayalam</item> <!-- Only displayed if JellyBean+ because that is when teh ml font was added to Android -->
+		<item>@string/lang_malayalam</item> <!-- Only displayed if JellyBean+ because that is when the ml font was added to Android -->
 		<item>@string/lang_norwegian_bokmal</item>
 		<item>@string/lang_dutch</item>
 		<item>@string/lang_norwegian_nynorsk</item>
