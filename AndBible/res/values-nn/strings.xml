@@ -165,6 +165,9 @@
   <string name="some_pages">%d sider</string>
   <!--Speak - Common-->
   <string name="stop">Stans</string>
+  <string name="pause">Stans</string>
+  <string name="rewind">Spol attende</string>
+  <string name="forward">Spol fram</string>
   <string name="tts_lang_not_available">Språket er ikkje tilgjengeleg</string>
   <string name="speak_queue">Legg til i kø</string>
   <string name="speak_repeat">Gjenta</string>

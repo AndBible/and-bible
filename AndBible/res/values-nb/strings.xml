@@ -165,6 +165,9 @@
   <string name="some_pages">%d sider</string>
   <!--Speak - Common-->
   <string name="stop">Stopp</string>
+  <string name="pause">Pause</string>
+  <string name="rewind">Spol tilbake</string>
+  <string name="forward">Spol frem</string>
   <string name="tts_lang_not_available">Språket er ikke tilgjengelig.</string>
   <string name="speak_queue">Legg i kø</string>
   <string name="speak_repeat">Repeter</string>

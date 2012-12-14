@@ -3,6 +3,7 @@
   <string name="app_name">エンドバイブル</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\"そのとき、神が「光よ.あれ.」と仰せられた。すると光ができた。\n創世記１：３</string>
+  <string name="version_text">%s版</string>
   <string name="no_sdcard_error">SDカードを差し入れてからまたエンドバイブルを初めてください。</string>
   <!--main menu-->
   <string name="chooseBook">文書</string>
@@ -13,19 +14,62 @@
   <string name="speak">スピーキング</string>
   <string name="help">ヘルプ</string>
   <!--Passage navigation-->
+  <string name="choosePassageBookName">書を選択</string>
+  <string name="choosePassageChapterName">章を選択</string>
+  <string name="choosePassageVerseName">節を選択</string>
   <!--Search-->
+  <string name="search_index">検索索引</string>
+  <string name="indexing_wait_msg">索引を作成は終了したあと、検索画面へ移動します。</string>
+  <string name="index">索引</string>
   <string name="index_download">ダウンロード</string>
+  <string name="index_not_available_for_download">索引ダウンロードできません</string>
+  <string name="index_create">索引作る</string>
   <!--Tasks-->
+  <string name="progress_status">進行状況</string>
   <!--Search-->
+  <string name="search_all_words">すべての単語</string>
+  <string name="search_any_word">任意の単語</string>
+  <string name="search_phrase">語句</string>
+  <string name="search_result_count">%d 件見つかりました</string>
+  <string name="search_all_bible">聖書全体</string>
   <string name="search_new_testament">新約</string>
   <string name="search_old_testament">旧約</string>
+  <string name="search_current_book">現在の本</string>
+  <string name="error_executing_search">検索クエリエラー</string>
   <!--Preferences-->
+  <string name="prefs_show_verseno_title">節番号</string>
+  <string name="prefs_show_verseno_summary">節番号表示する</string>
+  <string name="prefs_show_bookmarks_title">ブックマークのアイコンを表示</string>
+  <string name="prefs_show_bookmarks_summary">ブックマークされた章節にアイコンを表示する</string>
+  <string name="prefs_show_mynotes_title">マイメモのアイコンを表示</string>
+  <string name="prefs_show_mynotes_summary">章節にマイメモのアイコンを表示する</string>
+  <string name="prefs_section_title_title">セクションタイトル</string>
+  <string name="prefs_red_letter_title">赤文字</string>
+  <string name="prefs_red_letter_summary">イエスの語った箇所を表示されて赤字になる</string>
+  <string name="prefs_night_mode_title">ナイトモード</string>
+  <string name="prefs_night_mode_summary">暗い場所で読みやすい</string>
+  <string name="prefs_night_mode_automatic">ナイトモードオートスタート</string>
+  <string name="prefs_text_size_title">テキストサイズ</string>
+  <string name="prefs_text_size_sample_text">サンプル</string>
+  <string name="prefs_interface_locale_title">応用言語</string>
+  <string name="prefs_interface_locale_summary">カスタム言語を選択</string>
   <!--Notes screen-->
+  <string name="previous">先へ</string>
+  <string name="next">次へ</string>
   <!--Strongs-->
+  <string name="all_greek_occurrences">すべての出現箇所を検索する</string>
+  <string name="all_hebrew_occurrences">すべての出現箇所を検索する</string>
   <!--Module download-->
+  <string name="download">文書をダウンロード</string>
+  <string name="download_document_confirm_prefix">ダウンロード</string>
+  <string name="download_refreshing_book_list">入手可能な文書リストは更新中</string>
+  <string name="download_refresh_book_list_menu_item">更新</string>
+  <string name="document_not_installed">「%s」をダウンロードして下さい</string>
   <!--Daily Reading Plan-->
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
+  <string name="delete_index">索引消す</string>
+  <string name="delete_search_index_doc">%sの索引消す？</string>
   <!--Verse context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">しおり\n</string>
@@ -39,12 +83,32 @@
   <!--Speak - Commentary-->
   <!--Speak - Dictionary and other-->
   <!--Speak - Common-->
-  <string name="pause">中止</string>
+  <string name="pause">停止</string>
+  <string name="rewind">巻き戻し</string>
+  <string name="forward">早送り</string>
+  <string name="tts_lang_not_available">言語は使用できません。</string>
+  <string name="speak_queue">キュー</string>
+  <string name="speak_repeat">繰り返す</string>
   <!--User Notes-->
+  <string name="mynotes">マイメモ</string>
+  <string name="mynote">マイメモ</string>
+  <string name="mynote_add">メモを追加</string>
+  <string name="mynote_view_edit">マイメモ</string>
+  <string name="mynote_saved">マイメモが保存された</string>
   <!--Backup and restore-->
+  <string name="backup">バックアップ</string>
+  <string name="restore">リストア</string>
   <!--Document types-->
+  <string name="doc_type_bible">聖書</string>
+  <string name="doc_type_commentary">解説</string>
+  <string name="doc_type_dictionary">辞書</string>
+  <string name="doc_type_book">書籍</string>
+  <string name="doc_type_map">マップ</string>
   <!--Languages-->
+  <string name="lang_default">既定</string>
   <!--General-->
+  <string name="okay">OK</string>
+  <string name="cancel">キャンセル</string>
   <string name="yes">はい</string>
   <string name="no">いいえ</string>
   <string name="save">保存</string>
@@ -57,4 +121,5 @@
   <string name="error_occurred">エラーが起こりました。</string>
   <string name="error_page_too_large">このページは多すぎて呼び付けません。</string>
   <string name="error_key_not_in_document">文書から探す事ができません。</string>
+  <string name="empty_list">アイテムなし</string>
 </resources>

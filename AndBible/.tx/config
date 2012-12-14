@@ -5,4 +5,4 @@ host = https://www.transifex.com
 file_filter = res\values-<lang>\strings.xml
 source_lang = en
 source_file = res\values\strings.xml
-
+lang_map = zh_TW: zh-rTW

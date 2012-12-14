@@ -165,6 +165,9 @@
   <string name="some_pages">%d страниц</string>
   <!--Speak - Common-->
   <string name="stop">Остановить</string>
+  <string name="pause"> \t\nПауза</string>
+  <string name="rewind">Назад</string>
+  <string name="forward">Вперед</string>
   <string name="tts_lang_not_available">Язык не установлен</string>
   <string name="speak_queue">По порядку</string>
   <string name="speak_repeat">Повторить</string>
