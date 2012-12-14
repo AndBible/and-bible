@@ -216,26 +216,32 @@ public class SpeakControl {
 	}
 
 	public void rewind() {
-		Log.d(TAG, "Rewind TTS speaking");
-    	TextToSpeechController tts = TextToSpeechController.getInstance();
-		tts.rewind();
-    	Toast.makeText(BibleApplication.getApplication(), R.string.rewind, Toast.LENGTH_SHORT).show();
+		if (isSpeaking() || isPaused()) {
+			Log.d(TAG, "Rewind TTS speaking");
+	    	TextToSpeechController tts = TextToSpeechController.getInstance();
+			tts.rewind();
+	    	Toast.makeText(BibleApplication.getApplication(), R.string.rewind, Toast.LENGTH_SHORT).show();
+		}
 	}
 	
 	public void forward() {
-		Log.d(TAG, "Forward TTS speaking");
-    	TextToSpeechController tts = TextToSpeechController.getInstance();
-		tts.forward();
-    	Toast.makeText(BibleApplication.getApplication(), R.string.forward, Toast.LENGTH_SHORT).show();
+		if (isSpeaking() || isPaused()) {
+			Log.d(TAG, "Forward TTS speaking");
+	    	TextToSpeechController tts = TextToSpeechController.getInstance();
+			tts.forward();
+	    	Toast.makeText(BibleApplication.getApplication(), R.string.forward, Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	public void pause() {
-		Log.d(TAG, "Pause TTS speaking");
-    	TextToSpeechController tts = TextToSpeechController.getInstance();
-		tts.pause();
-		String pause = CommonUtils.getResourceString(R.string.pause);
-		String timeProgress = CommonUtils.getHoursMinsSecs(tts.getPausedCompletedSeconds())+"/"+CommonUtils.getHoursMinsSecs(tts.getPausedTotalSeconds());
-    	Toast.makeText(BibleApplication.getApplication(), pause+"\n"+timeProgress, Toast.LENGTH_SHORT).show();
+		if (isSpeaking() || isPaused()) {
+			Log.d(TAG, "Pause TTS speaking");
+	    	TextToSpeechController tts = TextToSpeechController.getInstance();
+			tts.pause();
+			String pause = CommonUtils.getResourceString(R.string.pause);
+			String timeProgress = CommonUtils.getHoursMinsSecs(tts.getPausedCompletedSeconds())+"/"+CommonUtils.getHoursMinsSecs(tts.getPausedTotalSeconds());
+	    	Toast.makeText(BibleApplication.getApplication(), pause+"\n"+timeProgress, Toast.LENGTH_SHORT).show();
+		}
 	}
 
 	public void continueAfterPause() {
