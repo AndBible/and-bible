@@ -34,6 +34,11 @@
 			    <exclude name="BibleNames_ar_EG.properties"/>
 			</fileset>
 		</copy>
+
+		<!-- switch the Chinese localisation defaults around so default CN is simplified and TW is Traditional-->
+		<copy file="${jsword.resources}/BibleNames_zh.properties" tofile="${build.src}/BibleNames_zh_TW.properties" />
+		<copy file="${jsword.resources}/BibleNames_zh_CN.properties" tofile="${build.src}/BibleNames_zh.properties" overwrite="true"/>
+		
 		<copy todir="${build.src}" overwrite="true">
 			<fileset dir="${tweaks.jsword.src}"/>
 			<fileset dir="${tweaks.jsword.resources}"/>
