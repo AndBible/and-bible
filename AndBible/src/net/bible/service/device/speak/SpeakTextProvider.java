@@ -239,7 +239,13 @@ public class SpeakTextProvider {
     	
     	BreakIterator breakIterator = BreakIterator.getSentenceInstance();
     	breakIterator.setText(text);
-    	int startPos = breakIterator.preceding(nextTextOffset);
+    	int startPos = 0;
+    	try {
+    		// this can rarely throw an Exception
+    		startPos = breakIterator.preceding(nextTextOffset);
+    	} catch (Exception e) {
+    		Log.e(TAG, "Error finding previous sentence start", e);
+    	}
     	retVal.found = startPos>=0;
     	
     	if (retVal.found) {
@@ -262,7 +268,13 @@ public class SpeakTextProvider {
     	
     	BreakIterator breakIterator = BreakIterator.getSentenceInstance();
     	breakIterator.setText(text);
-    	int startPos = breakIterator.following(nextTextOffset);
+    	int startPos = 0; 
+    	try {
+    		// this can rarely throw an Exception
+    		startPos = breakIterator.following(nextTextOffset);
+    	} catch (Exception e) {
+    		Log.e(TAG, "Error finding next sentence start", e);
+    	}
     	retVal.found = startPos>=0;
     	
     	if (retVal.found) {
