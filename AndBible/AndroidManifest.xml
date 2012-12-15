@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.bible.android.activity"
       android:installLocation="auto"
-      android:versionName="20121214" android:versionCode="87">
+      android:versionName="1.7.0" android:versionCode="88">
     <application android:icon="@drawable/bible" android:label="@string/app_name" android:name="net.bible.android.BibleApplication" android:theme="@style/AndBibleTheme" android:allowBackup="true">
         <!-- deprecated but necessary to prevent old shortcut breaking -->
         <activity android:name=".StartupActivity"
@@ -133,4 +133,7 @@
 <uses-sdk android:minSdkVersion="7" android:targetSdkVersion="8"/>
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 <uses-permission android:name="android.permission.INTERNET"/>
+
+<!-- allow use on Google TV -->
+<uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 </manifest> 
