@@ -42,9 +42,10 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
 	<string name="lang_turkish">tr: Türkçe</string>
 	<string name="lang_ukrainian">uk: Українська</string>
 	<string name="lang_vietnamese">vi: Tiếng Việt</string>
-	<string name="lang_chinese">zh: 古文</string>
-	<string name="lang_chinese_simplified">zh-CN: 古文 (简体)</string>
-	<string name="lang_chinese_traditional">zh-TW: 古文 (繁體)</string>
+	<string name="lang_chinese">zh: 中文</string>
+	<!-- following 2 strings are currently unused, should be used in the future for Simplified/Traditional selection -->
+	<string name="lang_chinese_simplified">zh-CN: 中文 (简体)</string>
+	<string name="lang_chinese_traditional">zh-TW: 中文 (繁體)</string>
 		    	
     <!-- Speak -->
     <plurals name="num_chapters">
