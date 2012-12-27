@@ -8,6 +8,12 @@ import org.crosswire.common.util.EventListenerList;
 import android.app.Activity;
 import android.util.Log;
 
+/** Allow operations form middle tier that require a reference to the current Activity
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class CurrentActivityHolder {
 	
 	private Activity currentActivity;

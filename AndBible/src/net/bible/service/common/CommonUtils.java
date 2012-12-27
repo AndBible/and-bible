@@ -258,8 +258,8 @@ public class CommonUtils {
 		return PreferenceManager.getDefaultSharedPreferences(BibleApplication.getApplication().getApplicationContext());
 	}
 	
-	public static String getResourceString(int resourceId) {
-		return BibleApplication.getApplication().getResources().getString(resourceId);
+	public static String getResourceString(int resourceId, Object... formatArgs) {
+		return BibleApplication.getApplication().getResources().getString(resourceId, formatArgs);
 	}
 
 	public static int getResourceInteger(int resourceId) {

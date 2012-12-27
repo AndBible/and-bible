@@ -1,7 +1,5 @@
 package net.bible.android.view.activity.settings;
 
-import org.apache.commons.lang.ArrayUtils;
-
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.PageTiltScrollControl;
@@ -10,9 +8,14 @@ import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.util.UiUtils;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
+import net.bible.service.device.ScreenTimeoutSettings;
+
+import org.apache.commons.lang.ArrayUtils;
+
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.util.Log;
 
@@ -25,6 +28,7 @@ import android.util.Log;
 public class SettingsActivity extends PreferenceActivity {
 
 	private static final String LOCALE_PREF = "locale_pref";
+	
 	private static final String TAG = "SettingsActivity";
 	
 	@Override
@@ -64,10 +68,30 @@ public class SettingsActivity extends PreferenceActivity {
 		        	localePref.setEntryValues( ArrayUtils.remove(entryValues, mlIndex));
 		        }
 		    }
+			
+			addScreenTimeoutSettings();
 
 	    } catch (Exception e) {
 			Log.e(TAG, "Error preparing preference screen", e);
 			Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
 		}
+	}
+	
+	private void addScreenTimeoutSettings() {
+        ListPreference timeoutPref = (ListPreference)getPreferenceScreen().findPreference(ScreenTimeoutSettings.SCREEN_TIMEOUT_PREF);
+        
+        timeoutPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
+			
+			@Override
+			public boolean onPreferenceChange(Preference preference, Object newValue) {
+				//TODO update screen timeout
+				ScreenTimeoutSettings.setScreenTimeout(Integer.parseInt((String)newValue));
+				return true;
+			}
+		});
+
+        ScreenTimeoutSettings screenTimeoutSettings = new ScreenTimeoutSettings();
+        timeoutPref.setEntries(screenTimeoutSettings.getPreferenceEntries());
+        timeoutPref.setEntryValues(screenTimeoutSettings.getPreferenceEntryValues());
 	}
 }

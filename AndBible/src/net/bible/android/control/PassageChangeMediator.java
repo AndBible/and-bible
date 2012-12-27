@@ -9,8 +9,10 @@ import android.util.Log;
 
 /** when a bible passage is changed there are lots o things to update and they should be done in a helpful order
  * This helps to control screen updates after a passage change
- * @author denha1m
- *
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class PassageChangeMediator {
 

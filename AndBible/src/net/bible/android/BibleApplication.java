@@ -8,6 +8,7 @@ import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ProgressNotificationManager;
 import net.bible.service.device.ScreenSettings;
+import net.bible.service.device.ScreenTimeoutSettings;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang.StringUtils;
@@ -24,6 +25,12 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.util.Log;
 
+/** Main And Bible application singleton object
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class BibleApplication extends Application{
 
 	private Locale overrideLocale;
@@ -31,6 +38,8 @@ public class BibleApplication extends Application{
 	private int errorDuringStartup = 0;
 	
 	private static final String TEXT_SIZE_PREF = "text_size_pref";
+	
+	private ScreenTimeoutSettings screenTimeoutSettings = new ScreenTimeoutSettings();
 	
 	private static BibleApplication singleton;
 	private static final String TAG = "BibleApplication";
@@ -62,9 +71,9 @@ public class BibleApplication extends Application{
 		allowLocaleOverride();
 		Locale locale = Locale.getDefault();
 		Log.i(TAG, "Locale language:"+locale.getLanguage()+" Variant:"+locale.getDisplayName());
-		
-	}
 
+		screenTimeoutSettings.overrideScreenTimeout();	
+	}
 
 	/** Allow user interface locale override by changing Settings
 	 */
@@ -157,6 +166,14 @@ public class BibleApplication extends Application{
 					String pref2Val = prefs.getBoolean(ScreenSettings.NIGHT_MODE_PREF_NO_SENSOR, false) ? "true" : "false";
 					Log.d(TAG, "Setting new night mode pref list value:"+pref2Val);
 					editor.putString(ScreenSettings.NIGHT_MODE_PREF_WITH_SENSOR, pref2Val);
+				}
+			}
+
+			// add new  
+			if (prevInstalledVersion < 89) {
+				if (!prefs.contains(ScreenTimeoutSettings.SCREEN_TIMEOUT_PREF)) {
+					Log.d(TAG, "Adding default screen timeout setting");
+					editor.putString(ScreenTimeoutSettings.SCREEN_TIMEOUT_PREF, Integer.toString(ScreenTimeoutSettings.DEFAULT_VALUE));
 				}
 			}
 
