@@ -23,15 +23,15 @@ public class ScreenTimeoutSettings {
 
 	public static final String SCREEN_TIMEOUT_PREF = "screen_timeout_pref";
 	
+	// persist the system screen timeout otherwise it could potentially be lost if not reset and app is terminated
+	public static final String SYSTEM_SCREEN_TIMEOUT_KEY = "system_screen_timeout";
+	
 	// Offset custom timeout by 27 milliseconds to ensure custom timeouts are recognisable - all standard timeouts will be whole seconds
 	// This is a safety measure to allow custom timeouts to be recognised and not permanently override system timeout
 	private static final int CUSTOM_TIMEOUT_OFFSET_MARKER_MILLIS = 17;
 
 	public static final int NOT_SET = -999;
 	public static final int DEFAULT_VALUE = -998;
-	
-	// this is accessed from different instances and so needs to be static - and can be because there is only one System Sleep value
-	private static int systemTimeoutTimeMillis = NOT_SET;
 	
 	private static final int ONE_MINUTE_MILLIS = 60*1000;
 	
@@ -96,13 +96,19 @@ public class ScreenTimeoutSettings {
 			// we use the OFFSET_MARKER to distinguish system and custom timeouts because all system timeouts should be a whole number of seconds
 			boolean isCurrentTimeoutCustom = ((currentTimeoutTime % 1000)==CUSTOM_TIMEOUT_OFFSET_MARKER_MILLIS); 
 			if (!isCurrentTimeoutCustom) {
-				systemTimeoutTimeMillis = currentTimeoutTime;
+				CommonUtils.getSharedPreferences().edit()
+							.putInt(SYSTEM_SCREEN_TIMEOUT_KEY, currentTimeoutTime)
+							.commit();
 			}
 		} catch (SettingNotFoundException snfe) {
 			Log.e(TAG, "Error setting Screen timeout", snfe);
 		}
 	}
 	
+	private static int getSystemTimeoutTimeMillis() {
+		return CommonUtils.getSharedPreferences().getInt(SYSTEM_SCREEN_TIMEOUT_KEY, NOT_SET);
+	}
+
 	public void restoreSystemTimeout() {
 		setScreenTimeout(getSystemTimeoutTimeMillis());
 	}
@@ -138,9 +144,5 @@ public class ScreenTimeoutSettings {
 	
 	private static ContentResolver getContentResolver() {
 		return BibleApplication.getApplication().getContentResolver();
-	}
-	
-	private static int getSystemTimeoutTimeMillis() {
-		return systemTimeoutTimeMillis;
 	}
 }

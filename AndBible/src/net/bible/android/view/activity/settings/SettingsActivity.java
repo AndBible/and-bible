@@ -40,6 +40,7 @@ public class SettingsActivity extends PreferenceActivity {
 
 		// allow partial integration with And Bible framework - without this TTS stops
 		// putting this before the below ensures any error dialog will be displayed in front of the settings screen and not the previous screen
+		// see onStop for paired iAmNoLongerCurrent method call
 		CurrentActivityHolder.getInstance().setCurrentActivity(this);
 		
 		try {
@@ -94,4 +95,13 @@ public class SettingsActivity extends PreferenceActivity {
         timeoutPref.setEntries(screenTimeoutSettings.getPreferenceEntries());
         timeoutPref.setEntryValues(screenTimeoutSettings.getPreferenceEntryValues());
 	}
+	
+	@Override
+	protected void onStop() {
+		super.onStop();
+        Log.i(getLocalClassName(), "onStop");
+        // call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
+        CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this);
+	}
+
 }
