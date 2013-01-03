@@ -4,6 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
+import net.bible.android.activity.R;
+import net.bible.service.common.CommonUtils;
+import net.bible.service.common.FileManager;
+
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.progress.Progress;
 import org.crosswire.common.util.LucidException;
@@ -84,7 +88,12 @@ public class GenericFileDownloader {
             // Once the download is complete, we need to continue
             job.setCancelable(false);
             if (!job.isFinished()) {
-                NetUtil.getAsFile(temp).renameTo(target);
+            	File tempFile = NetUtil.getAsFile(temp);
+                if (!FileManager.copyFile(tempFile, target)) {
+                	Log.e(TAG, "Download Error renaming temp file "+tempFile+" to:"+target);
+                    Reporter.informUser(this, CommonUtils.getResourceString(R.string.error_occurred));
+                    job.cancel();
+                }
             }
 
         } catch (IOException e) {

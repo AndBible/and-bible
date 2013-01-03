@@ -160,7 +160,7 @@ public class FontControl {
 	
 	/** find font in manual or default font dir
 	 */
-	private File getFontFile(String font) {
+	public File getFontFile(String font) {
 		File retVal = null;
 		File autoFont = new File(SharedConstants.FONT_DIR, font);
 
