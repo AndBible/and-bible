@@ -74,6 +74,9 @@
   <string name="prefs_text_size_title">Maint y testun</string>
   <string name="prefs_text_size_summary">Gweld mwy neu weld yn gliriach</string>
   <string name="prefs_text_size_sample_text">sampl o destun</string>
+  <string name="prefs_screen_timeout_title">Cysgu</string>
+  <string name="prefs_screen_timeout_summary">Amser segur cyn i\'r sgrîn ddiffodd</string>
+  <string name="x_minutes">%d munud</string>
   <string name="prefs_interface_locale_title">Iaith y rhaglen</string>
   <string name="prefs_interface_locale_summary">Dewiswch iaith y rhyngwyneb i\'r defnyddiwr arferol</string>
   <string name="locale_change_warning">Bydd y rhaglen yn ailgychwyn i newid iaith y rhyngwyneb.</string>
@@ -202,6 +205,7 @@
   <string name="retry">Ceisiwch eto</string>
   <string name="please_wait">Arhoswch ...</string>
   <string name="all">Y Cwbl</string>
+  <string name="default_value">@string/lang_default</string>
   <!--Errors-->
   <string name="error_occurred">Mae gwall wedi digwydd</string>
   <string name="error_no_content">Dim cynnwys ar gyfer yr adnod hon</string>

@@ -74,6 +74,9 @@
   <string name="prefs_text_size_title">Velikost textu</string>
   <string name="prefs_text_size_summary">Vidět více nebo vidět zřetelněji</string>
   <string name="prefs_text_size_sample_text">Příklad textu</string>
+  <string name="prefs_screen_timeout_title">Uspání</string>
+  <string name="prefs_screen_timeout_summary">Doba neaktivity před vypnutím displeje</string>
+  <string name="x_minutes">%d minut</string>
   <string name="prefs_interface_locale_title">Jazyk aplikace</string>
   <string name="prefs_interface_locale_summary">Vybrat jiný jazyk uživatelského rozhraní</string>
   <string name="locale_change_warning">Aplikace bude restartována, aby došlo ke změně jazyka</string>
@@ -202,6 +205,7 @@
   <string name="retry">Zkusit znovu</string>
   <string name="please_wait">Čekejte prosím ...</string>
   <string name="all">Vše</string>
+  <string name="default_value">@string/lang_default</string>
   <!--Errors-->
   <string name="error_occurred">Vznikla chyba</string>
   <string name="error_no_content">Žádný obsah pro vybraný verš</string>

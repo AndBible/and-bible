@@ -74,6 +74,9 @@
   <string name="prefs_text_size_title">अक्षर का आकार</string>
   <string name="prefs_text_size_summary">अधिक / स्पष्ट रूप से देखने</string>
   <string name="prefs_text_size_sample_text">नमूना वाक्य</string>
+  <string name="prefs_screen_timeout_title">स्क्रीन  निद्रा</string>
+  <string name="prefs_screen_timeout_summary">निष्क्रिय(idle) समय,स्क्रीन निद्रा के लिए</string>
+  <string name="x_minutes">%d मिनट</string>
   <string name="prefs_interface_locale_title">आन्ड बाइबिल, नई भाषा में</string>
   <string name="prefs_interface_locale_summary">आन्ड बाइबिल की भाषा चुनिए</string>
   <string name="locale_change_warning">आपकी चुनी भाषा में, आन्ड बाइबिल पुनः आरंभ हो रहा है</string>
@@ -202,6 +205,7 @@
   <string name="retry">फिर कोशिश करें</string>
   <string name="please_wait"> कृपया प्रतीक्षा करें...</string>
   <string name="all">संपूर्ण</string>
+  <string name="default_value">@string/lang_default</string>
   <!--Errors-->
   <string name="error_occurred">त्रुटि हुई</string>
   <string name="error_no_content">यह छंद खाली है</string>

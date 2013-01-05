@@ -74,6 +74,9 @@
   <string name="prefs_text_size_title">അക്ഷര വലിപ്പം</string>
   <string name="prefs_text_size_summary">കൂടുതലായി അല്ലെങ്കിൽ വ്യക്തമായി കാണുവാൻ</string>
   <string name="prefs_text_size_sample_text">സാമ്പിൾ വാചകം</string>
+  <string name="prefs_screen_timeout_title">സ്ലീപ്</string>
+  <string name="prefs_screen_timeout_summary">സ്ക്രീൻ ഓഫ് ആകുന്നതിനു മുൻപുള്ള നിശ്ചല സമയം</string>
+  <string name="x_minutes">%d മിനിട്ടുകൾ</string>
   <string name="prefs_interface_locale_title">ഉപയോഗ ഭാഷ</string>
   <string name="prefs_interface_locale_summary">ഉപയോഗ ഭാഷ തിരഞ്ഞെടുക്കുക</string>
   <string name="locale_change_warning"> തിരഞ്ഞെടുത്ത ഭാഷയിലേക്ക് ആപ്ലിക്കേഷൻ പുനഃരാരംഭിക്കും</string>
@@ -202,6 +205,7 @@
   <string name="retry">വീണ്ടും ശ്രമിക്കു</string>
   <string name="please_wait">ദയവായി അല്പം കാക്കു</string>
   <string name="all">എല്ലാം</string>
+  <string name="default_value">@string/lang_default</string>
   <!--Errors-->
   <string name="error_occurred">ഒരു തെറ്റ് പറ്റിയിരിക്കുന്നു</string>
   <string name="error_no_content">തിരഞ്ഞ ഈ വാക്യം ശുന്യമാണു</string>

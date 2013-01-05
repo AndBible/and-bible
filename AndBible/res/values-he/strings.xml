@@ -74,6 +74,9 @@
   <string name="prefs_text_size_title">גודל הטקסט</string>
   <string name="prefs_text_size_summary">שינוי גודל האותיות</string>
   <string name="prefs_text_size_sample_text">טקסט לדוגמה</string>
+  <string name="prefs_screen_timeout_title">שינה</string>
+  <string name="prefs_screen_timeout_summary"> זמן המתנה ללא פעילות עד לכיבוי המסך</string>
+  <string name="x_minutes">%d דקות</string>
   <string name="prefs_interface_locale_title">שפת התוכנה</string>
   <string name="prefs_interface_locale_summary">בחירת שפה עבור התוכנה</string>
   <string name="locale_change_warning">התוכנה תופעל מחדש כדי לשנות את השפה</string>
@@ -202,6 +205,7 @@
   <string name="retry">נסה שנית</string>
   <string name="please_wait">אנא המתן...</string>
   <string name="all">הכל</string>
+  <string name="default_value">@string/lang_default</string>
   <!--Errors-->
   <string name="error_occurred">אירעה שגיאה</string>
   <string name="error_no_content">אין תוכן עבור הפסוק הנבחר</string>

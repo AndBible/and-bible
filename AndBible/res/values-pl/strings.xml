@@ -74,6 +74,9 @@
   <string name="prefs_text_size_title">Rozmiar czcionki</string>
   <string name="prefs_text_size_summary">Powiększ/pomniejsz rozmiar czcionki</string>
   <string name="prefs_text_size_sample_text">Zwykły tekst</string>
+  <string name="prefs_screen_timeout_title">Uśpij</string>
+  <string name="prefs_screen_timeout_summary">Czas bezczynności zanim ekran zostanie wyłączony</string>
+  <string name="x_minutes">%d minut</string>
   <string name="prefs_interface_locale_title">Język programu</string>
   <string name="prefs_interface_locale_summary">Wybierz język</string>
   <string name="locale_change_warning">Aplikacja zostanie ponownie uruchomiona, aby przełączyć się na nowy język interfejsu</string>
@@ -165,6 +168,9 @@
   <string name="some_pages">%d stron</string>
   <!--Speak - Common-->
   <string name="stop">Wstrzymaj</string>
+  <string name="pause">Pauza</string>
+  <string name="rewind">Przewiń wstecz</string>
+  <string name="forward">Przewiń w przód</string>
   <string name="tts_lang_not_available">Język niedostępny.</string>
   <string name="speak_queue">Kolejka</string>
   <string name="speak_repeat">Powtórz</string>
@@ -199,6 +205,7 @@
   <string name="retry">Ponów próbę</string>
   <string name="please_wait">Proszę czekać...</string>
   <string name="all">Wszystkie</string>
+  <string name="default_value">Domyślny język</string>
   <!--Errors-->
   <string name="error_occurred">Wystąpił błąd</string>
   <string name="error_no_content">Brak zawartości dla wybranego wiersza</string>

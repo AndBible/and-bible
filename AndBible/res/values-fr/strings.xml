@@ -74,6 +74,9 @@
   <string name="prefs_text_size_title">Taille du texte</string>
   <string name="prefs_text_size_summary">Voir plus ou voir plus clair</string>
   <string name="prefs_text_size_sample_text">Exemple de texte</string>
+  <string name="prefs_screen_timeout_title">Veille</string>
+  <string name="prefs_screen_timeout_summary">Durée d\'inactivité avant la désactivation de l\'écran</string>
+  <string name="x_minutes">%d minutes</string>
   <string name="prefs_interface_locale_title">Langue de l\'application</string>
   <string name="prefs_interface_locale_summary">Choisir une langue personnalisée dans l\'interface utilisateur</string>
   <string name="locale_change_warning">L\'application sera redémarrée pour prendre en compte la nouvelle langue d\'interface</string>
@@ -202,6 +205,7 @@
   <string name="retry">Recommencer</string>
   <string name="please_wait">Attendez svp...</string>
   <string name="all">Tout</string>
+  <string name="default_value">@string/lang_default</string>
   <!--Errors-->
   <string name="error_occurred">Une erreur s\'est produite</string>
   <string name="error_no_content">Aucun contenu pour le verset sélectionné</string>

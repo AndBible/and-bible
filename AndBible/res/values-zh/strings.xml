@@ -74,6 +74,9 @@
   <string name="prefs_text_size_title">字体大小</string>
   <string name="prefs_text_size_summary">调整字体</string>
   <string name="prefs_text_size_sample_text">示例文本</string>
+  <string name="prefs_screen_timeout_title">睡眠模式</string>
+  <string name="prefs_screen_timeout_summary">设置睡眠模式启动前的闲置时间</string>
+  <string name="x_minutes">%d 分钟</string>
   <string name="prefs_interface_locale_title">程式用戶界面语言</string>
   <string name="prefs_interface_locale_summary">选择用户界面语言</string>
   <string name="locale_change_warning">应用程序将重新启动切换到新的界面语言</string>
@@ -202,6 +205,7 @@
   <string name="retry">再试</string>
   <string name="please_wait">请等待</string>
   <string name="all">全部</string>
+  <string name="default_value">@string/lang_default</string>
   <!--Errors-->
   <string name="error_occurred">出错了!</string>
   <string name="error_no_content">选定小节没有对应内容</string>
