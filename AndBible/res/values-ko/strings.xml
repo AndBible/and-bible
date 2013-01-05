@@ -21,6 +21,7 @@
   <string name="choosePassageVerseName">구절 선택</string>
   <!--Search-->
   <string name="search_index">검색 색인</string>
+  <string name="index_creation_required">색인을 검색 할 필요합니다.\n\n색인은 인터넷에서 다운로드 또는 로컬 만들 수 있습니다. ⏎ ⏎ 다운로드가 훨씬 빠르고 다운로드 인덱스가 더 검색 기능을 가지고 있습니다.\n\n인터넷 연결이 인덱스를 다운로드해야합니다.\n</string>
   <string name="indexing_wait_msg">When indexing has completed you will be taken to the search screen.</string>
   <string name="index">색인</string>
   <string name="index_download">다운로드</string>
@@ -73,6 +74,9 @@
   <string name="prefs_text_size_title">텍스트 크기</string>
   <string name="prefs_text_size_summary">자세한 내용을 참조하거나 더 명확하게보기</string>
   <string name="prefs_text_size_sample_text">샘플 텍스트</string>
+  <string name="prefs_screen_timeout_title">절전</string>
+  <string name="prefs_screen_timeout_summary">화면 전에 유휴 시간이 꺼집니다</string>
+  <string name="x_minutes">%d 분</string>
   <string name="prefs_interface_locale_title">어플리케이션 언어</string>
   <string name="prefs_interface_locale_summary">사용자 인터페이스 언어 설정</string>
   <string name="locale_change_warning">인터페이스 언어 전환을 위해 어플리케이션을 재시작합니다</string>
@@ -164,6 +168,9 @@
   <string name="some_pages">%d 개의 페이지들</string>
   <!--Speak - Common-->
   <string name="stop">말하기 정지</string>
+  <string name="pause">일시 중지</string>
+  <string name="rewind">되감기</string>
+  <string name="forward">앞으로</string>
   <string name="tts_lang_not_available">언어는 사용할 수 없습니다.</string>
   <string name="speak_queue">대기열</string>
   <string name="speak_repeat">반복</string>
@@ -198,6 +205,7 @@
   <string name="retry">다시 시도</string>
   <string name="please_wait">기다려주십시오 ...</string>
   <string name="all">전체</string>
+  <string name="default_value">@string/lang_default</string>
   <!--Errors-->
   <string name="error_occurred">오류가 발생했습니다</string>
   <string name="error_no_content">선택된 구절에 대한 내용 없음</string>
