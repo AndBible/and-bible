@@ -277,10 +277,19 @@ abstract class CurrentPageBase implements CurrentPage {
 		return true;
 	}
 
+	/** how far down the page was the user - allows Back to go to correct line on non-Bible pages (Bibles use verse number for positioning)
+	 */
 	public float getCurrentYOffsetRatio() {
-		// if key has changed then offsetRatio must be reset because user has changed page
-		if (getKey()==null || !getKey().equals(keyWhenYOffsetRatioSet) || !getCurrentDocument().equals(docWhenYOffsetRatioSet)) {
+		try {
+			// if key has changed then offsetRatio must be reset because user has changed page
+			if (getKey()==null || !getKey().equals(keyWhenYOffsetRatioSet) || !getCurrentDocument().equals(docWhenYOffsetRatioSet)) {
+				currentYOffsetRatio = 0;
+			}
+		} catch (Exception e) {
+			// cope with occasional NPE thrown by above if statement
+			// just pretend we are at the top of the page if error occurs
 			currentYOffsetRatio = 0;
+			Log.w(TAG, "NPE getting currentYOffsetRatio");
 		}
 		return currentYOffsetRatio;
 	}

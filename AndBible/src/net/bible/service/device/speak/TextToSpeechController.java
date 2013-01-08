@@ -132,7 +132,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     	boolean isOk = false;
 
         // status can be either TextToSpeech.SUCCESS or TextToSpeech.ERROR.
-        if (status == TextToSpeech.SUCCESS) {
+        if (mTts!=null && status == TextToSpeech.SUCCESS) {
         	Log.d(TAG, "Tts initialisation succeeded");
         	boolean localeOK = false;
         	Locale locale = null;
