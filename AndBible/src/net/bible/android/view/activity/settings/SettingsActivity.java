@@ -11,6 +11,7 @@ import net.bible.service.device.ScreenSettings;
 import net.bible.service.device.ScreenTimeoutSettings;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -85,8 +86,15 @@ public class SettingsActivity extends PreferenceActivity {
 			
 			@Override
 			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				//TODO update screen timeout
-				ScreenTimeoutSettings.setScreenTimeout(Integer.parseInt((String)newValue));
+				// update screen timeout
+				try {
+					if (StringUtils.isNotEmpty((String)newValue)) {
+						ScreenTimeoutSettings.setScreenTimeout(Integer.parseInt((String)newValue));
+					}
+				} catch (Exception e) {
+					Log.e(TAG, "Error updating timeout set in preference screen", e);
+				}
+					
 				return true;
 			}
 		});

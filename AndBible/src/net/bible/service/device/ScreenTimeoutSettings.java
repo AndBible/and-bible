@@ -1,5 +1,7 @@
 package net.bible.service.device;
 
+import org.apache.commons.lang.StringUtils;
+
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
@@ -134,10 +136,17 @@ public class ScreenTimeoutSettings {
 
 	private int getScreenTimeoutPreferenceValue() {
 		int screenTimeoutPref = NOT_SET;
-		
-		SharedPreferences preferences = CommonUtils.getSharedPreferences();
-		if (preferences!=null) {
-			screenTimeoutPref = Integer.parseInt(preferences.getString(SCREEN_TIMEOUT_PREF, Integer.toString(NOT_SET)));
+		try {
+			SharedPreferences preferences = CommonUtils.getSharedPreferences();
+			if (preferences!=null) {
+				String prefString = preferences.getString(SCREEN_TIMEOUT_PREF, Integer.toString(NOT_SET));
+				if (StringUtils.isNotEmpty(prefString)) {
+					screenTimeoutPref = Integer.parseInt(prefString);
+				}
+			}
+		} catch (Exception e) {
+			// just allow return of NOT_SET
+			Log.e(TAG, "Error getting screen timeout preference setting", e);
 		}
 		return screenTimeoutPref;
 	}
