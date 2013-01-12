@@ -44,12 +44,21 @@ public class ScreenTimeoutSettings {
     	// set/reset app/standard screen timeout values
     	CurrentActivityHolder.getInstance().addAppToBackgroundListener(new AppToBackgroundListener() {
 			@Override
-			public void applicationNowInBackground(AppToBackgroundEvent e) {
-				restoreSystemTimeout();
+			public void applicationNowInBackground(AppToBackgroundEvent event) {
+				try {
+					restoreSystemTimeout();
+				} catch (Exception e) {
+					// Avoid occasional exception in setScreenTimeout when restoring system timeout:
+					// java.lang.SecurityException: Permission Denial: writing com.android.providers.settings.OverlaySettingsProvider uri content://settings/system from pid=9176, uid=10076 requires android.permission.WRITE_SETTINGS
+					// Bad, but cannot allow app to crash on exit - system timeout may not be set if crash occurs in above method
+					// It only occurred twice among thousands of users in first few days of release
+					Log.e(TAG, "Error restoring system timeout", e);
+				}
+					
 			}
 
 			@Override
-			public void applicationReturnedFromBackground(AppToBackgroundEvent e) {
+			public void applicationReturnedFromBackground(AppToBackgroundEvent event) {
 				// save the, possibly changed, system timeout
 				saveSystemTimeout();
 				
