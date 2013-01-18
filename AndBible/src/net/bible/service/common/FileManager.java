@@ -37,14 +37,18 @@ public class FileManager {
 	        		ok = false;            		
 	        	} else {
 	            	// move the file
-	                FileChannel src = new FileInputStream(fromFile).getChannel();
-	                FileChannel dst = new FileOutputStream(toFile).getChannel();
+	        		FileInputStream srcStream = new FileInputStream(fromFile);
+	                FileChannel src = srcStream.getChannel();
+	                FileOutputStream dstStream = new FileOutputStream(toFile);
+	                FileChannel dst = dstStream.getChannel();
 	            	try {
 	            		dst.transferFrom(src, 0, src.size());
 		                ok = true;
 	            	} finally {
 		                src.close();
 		                dst.close();
+		                srcStream.close();
+		                dstStream.close();
 	            	}
 	        	}
 	        } else {
