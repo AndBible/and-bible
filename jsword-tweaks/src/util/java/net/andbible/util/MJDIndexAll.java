@@ -20,6 +20,7 @@ import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
 import org.crosswire.jsword.book.Books;
+import org.crosswire.jsword.book.sword.SwordBookPath;
 import org.crosswire.jsword.bridge.BookIndexer;
 import org.crosswire.jsword.bridge.BookInstaller;
 import org.crosswire.jsword.index.IndexManager;
@@ -35,179 +36,205 @@ public class MJDIndexAll {
 //	private static final BookFilter BOOK_FILTER = BookFilters.getDictionaries();
 	private static final BookFilter BOOK_FILTER = BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries());
 
+	private static final String SWORD_BOOK_PATH = "C:/Sword/Books";
+	
 	//TODO this is awful but I need to figure out how to set it appropriately 
-	private static final String LUCENE_INDEX_DIR = "C:/Documents and Settings/denha1m/Application Data/JSword/lucene/Sword";
+	private static final String LUCENE_INDEX_DIR = "C:/Users/Martin/Application Data/JSword/lucene/Sword";
 	private static final File LUCENE_INDEX_DIR_FILE = new File(LUCENE_INDEX_DIR);
 	
-	private static final String LUCENE_ZIP_DIR = "C:/JSwordLuceneZips";
+	private static final String LUCENE_ZIP_DIR = "C:/Sword/JSwordLuceneZips";
 	private static final File LUCENE_ZIP_DIR_FILE = new File(LUCENE_ZIP_DIR);
 	
     private static final int JAR_BUFFER_SIZE = 2048;
 	
     public static void main(String[] args) {
-    	MJDIndexAll indexAll = new MJDIndexAll();
-    	indexAll.updateCachedRepoBookList();
-//    	indexAll.validateIndex("OSMHB");
-//    	indexAll.validateAllIndexes();
-//    	indexAll.setupDirs();
-//    	indexAll.showInstalledBooks();
-//    	indexAll.showRepoBooks();
-//    	indexAll.deleteBook("StrongsHebrew");
-//    	indexAll.deleteBook("StrongsGreek");
-//    	indexAll.installSingleBook("ESV");
-//    	indexAll.installSingleBook("strongsrealhebrew");
-//    	indexAll.installSingleBook("strongsrealgreek");
-//    	indexAll.installSingleBook("StrongsHebrew");
-//    	indexAll.installSingleBook("StrongsGreek");
-//    	indexAll.installSingleBook("BDBGlosses_Strongs");
-//    	indexAll.installRepoBooks();
-    	indexAll.checkAllBooksInstalled();
-//    	indexAll.manageCreateIndexes();
-//    	indexAll.indexSingleBook("KJV");
-    	
-    	// 22/4/11 updates
-//    	indexAll.installAndIndexSingleBook("Clarke"); // somehow deleted
-//    	// new
-//    	indexAll.installAndIndexSingleBook("Antoniades");
-//    	// updated
-//    	indexAll.installAndIndexSingleBook("Elzevir"); //1.0 -> 1.1
-//    	indexAll.installAndIndexSingleBook("TR"); // 1.2 -> 2.1
-//		indexAll.installAndIndexSingleBook("SBLGNT"); // 1.2 -> 1.3
-//		indexAll.installAndIndexSingleBook("SBLGNTApp"); // 1.2 -> 1.3
-//		indexAll.installAndIndexSingleBook("Byz"); //1.10 -> 2.1
-//		indexAll.installAndIndexSingleBook("WHNU"); //1.10 -> 2.1
-//		indexAll.installAndIndexSingleBook("Luther"); //1.100322 -> 1.1
-
-    	//uploaded 14.5.2010
-//    	indexAll.installAndIndexSingleBook("PorLivre"); // 1.5-> 1.6
-//    	indexAll.installAndIndexSingleBook("SpaRV"); // 1.5-> 1.6
-
-    	//uploaded 28/4/2011
-    	//Need to fix indexes without Strong's
-//    	indexAll.indexSingleBook("LXX");
-//    	indexAll.indexSingleBook("ABP");
-//    	indexAll.indexSingleBook("ABPGrk");
-//    	indexAll.indexSingleBook("ChiUn");
-//    	indexAll.indexSingleBook("ChiUns");
-    	//uploaded 14.5.2010
-//    	indexAll.installAndIndexSingleBook("RUSVZh");  //is this broken
-
-    	// 8/6/11 books without Feature=Strongs but with Strongs
-//    	indexAll.indexSingleBook("OSMHB");
-//    	indexAll.indexSingleBook("RWebster");
-//    	indexAll.indexSingleBook("RST");
-//    	indexAll.indexSingleBook("SpaTDP");
-//    	indexAll.indexSingleBook("Byz");
-    	
-    	// 11/7/11
-//    	indexAll.installAndIndexSingleBook("Sorani");
-//    	indexAll.installAndIndexSingleBook("GerNeUe"); //up to ver 1.4
-//    	indexAll.installAndIndexSingleBook("AraNAV");
-//    	indexAll.installAndIndexSingleBook("UrduGeo"); //up to 1.1 (some time ago)
-//    	indexAll.installAndIndexSingleBook("WelBeiblNet");
-//    	indexAll.installAndIndexSingleBook("Azeri");
-    	
-    	// 19/8/2011
-//    	indexAll.installAndIndexSingleBook("PorCapNT");
-//    	indexAll.installAndIndexSingleBook("GerLut1545");
-
-    	// 11/9/2011
-    	// Crosswire Beta
-//    	indexAll.installAndIndexSingleBook("JapBungo");
-//    	indexAll.installAndIndexSingleBook("JapDenmo");
-//    	indexAll.installAndIndexSingleBook("JapKougo");
-//    	indexAll.installAndIndexSingleBook("JapMeiji");
-//    	indexAll.installAndIndexSingleBook("JapRaguet");
-//    	indexAll.installAndIndexSingleBook("CalvinCommentaries");
-    	// Xiphos - manually download first
-//    	indexAll.indexSingleBook("ChiPinyin");
-
-//		1/11/2011  	
-//    	indexAll.installAndIndexSingleBook("Latvian");
-//    	indexAll.installAndIndexSingleBook("AraSVD");
-//    	indexAll.installAndIndexSingleBook("Lithuanian");
-    
-    	// 2/1/12
-//    	indexAll.installAndIndexSingleBook("FrePGR");
-//    	indexAll.installAndIndexSingleBook("NorBroed");
-//    	indexAll.installAndIndexSingleBook("TurNTB");
-
-    	//19/1/2012
-//    	indexAll.installAndIndexSingleBook("WEBME");
-//    	indexAll.installAndIndexSingleBook("WEBBE");
-//    	indexAll.installAndIndexSingleBook("FreCJE");
-//    	indexAll.installAndIndexSingleBook("FarOPV");
-//    	indexAll.installAndIndexSingleBook("FrePGR");
-
-//    	indexAll.installAndIndexSingleBook("WEB");
-//    	indexAll.installAndIndexSingleBook("EMTV");
-    	
-    	//25/1/2012
-//    	indexAll.installAndIndexSingleBook("SpaRVG");
-//    	indexAll.installAndIndexSingleBook("GerNeUe");
-//    	indexAll.installAndIndexSingleBook("NorSMB");
-//    	indexAll.installAndIndexSingleBook("WEB");
-//    	indexAll.installAndIndexSingleBook("WEBME");
-//    	indexAll.installAndIndexSingleBook("WEBBE");
-    	
-//    	indexAll.installSingleBook("HunUj");
-    	
-    	// 17/12/2012
-//    	indexAll.installAndIndexSingleBook("FrePGR");
-//    	indexAll.installAndIndexSingleBook("BurJudson");
-//    	indexAll.installAndIndexSingleBook("GerNeUe");
-//    	indexAll.installAndIndexSingleBook("KhmerNT");
-//    	indexAll.installAndIndexSingleBook("ThaiKJV");
-//    	indexAll.installRepoBooks();
-
-    	//25/2/12
-//    	indexAll.installAndIndexSingleBook("AraNAV");
-//    	indexAll.installAndIndexSingleBook("Azeri");
-//    	indexAll.installAndIndexSingleBook("FreBBB");
-//    	indexAll.installAndIndexSingleBook("FrePGR");
-//    	indexAll.installAndIndexSingleBook("SomKQA");
-//    	indexAll.installAndIndexSingleBook("Sorani");
-//    	indexAll.installAndIndexSingleBook("WelBeiblNet");
-    	
-//    	indexAll.installAndIndexSingleBook("MonKJV");
-    	
-    	//25/6/2012
-//    	indexAll.installAndIndexSingleBook("BretonNT");
-//    	indexAll.installAndIndexSingleBook("PorLivre");
-//    	indexAll.installAndIndexSingleBook("OEBcth");
-//    	indexAll.installAndIndexSingleBook("OEB");
-//    	indexAll.installAndIndexSingleBook("LEB");
-//    	indexAll.installAndIndexSingleBook("KorRV");
-    	
-    	//3/7/2012
-//    	indexAll.installAndIndexSingleBook("Pohnpeian");
-//    	indexAll.installAndIndexSingleBook("LEB");
-//    	indexAll.installAndIndexSingleBook("MonKJV");
-//    	indexAll.installAndIndexSingleBook("Che1860");
-    	
-//    	//18/08/2012
-//    	indexAll.installAndIndexSingleBook("BBE");
-//    	indexAll.installAndIndexSingleBook("ACV");
-//    	indexAll.installAndIndexSingleBook("IriODomhnuill");
-//    	indexAll.installAndIndexSingleBook("ABP");
-//    	indexAll.installAndIndexSingleBook("FrePGR");
-//    	indexAll.installAndIndexSingleBook("Pohnpeian");
-//    	indexAll.installAndIndexSingleBook("PorAR");
-//    	indexAll.installAndIndexSingleBook("PorLivre");
-//    	indexAll.installAndIndexSingleBook("FreBBB");
-//    	indexAll.installAndIndexSingleBook("Geez");
-//    	indexAll.installAndIndexSingleBook("KorHKJV");
-//    	indexAll.installAndIndexSingleBook("KJVPCE");
-//    	indexAll.installAndIndexSingleBook("PolGdanska");
-//    	indexAll.installAndIndexSingleBook("SpaRV1909");
-//    	indexAll.installAndIndexSingleBook("LEB");
-//    	indexAll.installAndIndexSingleBook("WEBME");
- //   	indexAll.installAndIndexSingleBook("QuotingPassages");
-
-    	// 14/11/12
-//    	indexAll.installAndIndexSingleBook("HinERV");
-//    	indexAll.installAndIndexSingleBook("MalBSI");
-//    	indexAll.installAndIndexSingleBook("GerNeUe");
+    	try {
+	    	MJDIndexAll indexAll = new MJDIndexAll();
+	    	
+	    	File bookDir = new File(SWORD_BOOK_PATH);
+	    	File[] augmentPath = new File[1];
+	    	augmentPath[0] = bookDir;
+	    	SwordBookPath.setAugmentPath(augmentPath);
+	    	SwordBookPath.setDownloadDir(bookDir);
+	    	
+	//    	indexAll.updateCachedRepoBookList();
+	//    	indexAll.validateIndex("OSMHB");
+	//    	indexAll.validateAllIndexes();
+	//    	indexAll.setupDirs();
+	//    	indexAll.showInstalledBooks();
+	//    	indexAll.showRepoBooks();
+	//    	indexAll.deleteBook("StrongsHebrew");
+	//    	indexAll.deleteBook("StrongsGreek");
+	//    	indexAll.installSingleBook("ESV");
+	//    	indexAll.installSingleBook("strongsrealhebrew");
+	//    	indexAll.installSingleBook("strongsrealgreek");
+	//    	indexAll.installSingleBook("StrongsHebrew");
+	//    	indexAll.installSingleBook("StrongsGreek");
+	//    	indexAll.installSingleBook("BDBGlosses_Strongs");
+	//    	indexAll.installRepoBooks();
+	//    	indexAll.checkAllBooksInstalled();
+	//    	indexAll.manageCreateIndexes();
+	//    	indexAll.indexSingleBook("KJV");
+	    	
+	    	// 22/4/11 updates
+	//    	indexAll.installAndIndexSingleBook("Clarke"); // somehow deleted
+	//    	// new
+	//    	indexAll.installAndIndexSingleBook("Antoniades");
+	//    	// updated
+	//    	indexAll.installAndIndexSingleBook("Elzevir"); //1.0 -> 1.1
+	//    	indexAll.installAndIndexSingleBook("TR"); // 1.2 -> 2.1
+	//		indexAll.installAndIndexSingleBook("SBLGNT"); // 1.2 -> 1.3
+	//		indexAll.installAndIndexSingleBook("SBLGNTApp"); // 1.2 -> 1.3
+	//		indexAll.installAndIndexSingleBook("Byz"); //1.10 -> 2.1
+	//		indexAll.installAndIndexSingleBook("WHNU"); //1.10 -> 2.1
+	//		indexAll.installAndIndexSingleBook("Luther"); //1.100322 -> 1.1
+	
+	    	//uploaded 14.5.2010
+	//    	indexAll.installAndIndexSingleBook("PorLivre"); // 1.5-> 1.6
+	//    	indexAll.installAndIndexSingleBook("SpaRV"); // 1.5-> 1.6
+	
+	    	//uploaded 28/4/2011
+	    	//Need to fix indexes without Strong's
+	//    	indexAll.indexSingleBook("LXX");
+	//    	indexAll.indexSingleBook("ABP");
+	//    	indexAll.indexSingleBook("ABPGrk");
+	//    	indexAll.indexSingleBook("ChiUn");
+	//    	indexAll.indexSingleBook("ChiUns");
+	    	//uploaded 14.5.2010
+	//    	indexAll.installAndIndexSingleBook("RUSVZh");  //is this broken
+	
+	    	// 8/6/11 books without Feature=Strongs but with Strongs
+	//    	indexAll.indexSingleBook("OSMHB");
+	//    	indexAll.indexSingleBook("RWebster");
+	//    	indexAll.indexSingleBook("RST");
+	//    	indexAll.indexSingleBook("SpaTDP");
+	//    	indexAll.indexSingleBook("Byz");
+	    	
+	    	// 11/7/11
+	//    	indexAll.installAndIndexSingleBook("Sorani");
+	//    	indexAll.installAndIndexSingleBook("GerNeUe"); //up to ver 1.4
+	//    	indexAll.installAndIndexSingleBook("AraNAV");
+	//    	indexAll.installAndIndexSingleBook("UrduGeo"); //up to 1.1 (some time ago)
+	//    	indexAll.installAndIndexSingleBook("WelBeiblNet");
+	//    	indexAll.installAndIndexSingleBook("Azeri");
+	    	
+	    	// 19/8/2011
+	//    	indexAll.installAndIndexSingleBook("PorCapNT");
+	//    	indexAll.installAndIndexSingleBook("GerLut1545");
+	
+	    	// 11/9/2011
+	    	// Crosswire Beta
+	//    	indexAll.installAndIndexSingleBook("JapBungo");
+	//    	indexAll.installAndIndexSingleBook("JapDenmo");
+	//    	indexAll.installAndIndexSingleBook("JapKougo");
+	//    	indexAll.installAndIndexSingleBook("JapMeiji");
+	//    	indexAll.installAndIndexSingleBook("JapRaguet");
+	//    	indexAll.installAndIndexSingleBook("CalvinCommentaries");
+	    	// Xiphos - manually download first
+	//    	indexAll.indexSingleBook("ChiPinyin");
+	
+	//		1/11/2011  	
+	//    	indexAll.installAndIndexSingleBook("Latvian");
+	//    	indexAll.installAndIndexSingleBook("AraSVD");
+	//    	indexAll.installAndIndexSingleBook("Lithuanian");
+	    
+	    	// 2/1/12
+	//    	indexAll.installAndIndexSingleBook("FrePGR");
+	//    	indexAll.installAndIndexSingleBook("NorBroed");
+	//    	indexAll.installAndIndexSingleBook("TurNTB");
+	
+	    	//19/1/2012
+	//    	indexAll.installAndIndexSingleBook("WEBME");
+	//    	indexAll.installAndIndexSingleBook("WEBBE");
+	//    	indexAll.installAndIndexSingleBook("FreCJE");
+	//    	indexAll.installAndIndexSingleBook("FarOPV");
+	//    	indexAll.installAndIndexSingleBook("FrePGR");
+	
+	//    	indexAll.installAndIndexSingleBook("WEB");
+	//    	indexAll.installAndIndexSingleBook("EMTV");
+	    	
+	    	//25/1/2012
+	//    	indexAll.installAndIndexSingleBook("SpaRVG");
+	//    	indexAll.installAndIndexSingleBook("GerNeUe");
+	//    	indexAll.installAndIndexSingleBook("NorSMB");
+	//    	indexAll.installAndIndexSingleBook("WEB");
+	//    	indexAll.installAndIndexSingleBook("WEBME");
+	//    	indexAll.installAndIndexSingleBook("WEBBE");
+	    	
+	//    	indexAll.installSingleBook("HunUj");
+	    	
+	    	// 17/12/2012
+	//    	indexAll.installAndIndexSingleBook("FrePGR");
+	//    	indexAll.installAndIndexSingleBook("BurJudson");
+	//    	indexAll.installAndIndexSingleBook("GerNeUe");
+	//    	indexAll.installAndIndexSingleBook("KhmerNT");
+	//    	indexAll.installAndIndexSingleBook("ThaiKJV");
+	//    	indexAll.installRepoBooks();
+	
+	    	//25/2/12
+	//    	indexAll.installAndIndexSingleBook("AraNAV");
+	//    	indexAll.installAndIndexSingleBook("Azeri");
+	//    	indexAll.installAndIndexSingleBook("FreBBB");
+	//    	indexAll.installAndIndexSingleBook("FrePGR");
+	//    	indexAll.installAndIndexSingleBook("SomKQA");
+	//    	indexAll.installAndIndexSingleBook("Sorani");
+	//    	indexAll.installAndIndexSingleBook("WelBeiblNet");
+	    	
+	//    	indexAll.installAndIndexSingleBook("MonKJV");
+	    	
+	    	//25/6/2012
+	//    	indexAll.installAndIndexSingleBook("BretonNT");
+	//    	indexAll.installAndIndexSingleBook("PorLivre");
+	//    	indexAll.installAndIndexSingleBook("OEBcth");
+	//    	indexAll.installAndIndexSingleBook("OEB");
+	//    	indexAll.installAndIndexSingleBook("LEB");
+	//    	indexAll.installAndIndexSingleBook("KorRV");
+	    	
+	    	//3/7/2012
+	//    	indexAll.installAndIndexSingleBook("Pohnpeian");
+	//    	indexAll.installAndIndexSingleBook("LEB");
+	//    	indexAll.installAndIndexSingleBook("MonKJV");
+	//    	indexAll.installAndIndexSingleBook("Che1860");
+	    	
+	//    	//18/08/2012
+	//    	indexAll.installAndIndexSingleBook("BBE");
+	//    	indexAll.installAndIndexSingleBook("ACV");
+	//    	indexAll.installAndIndexSingleBook("IriODomhnuill");
+	//    	indexAll.installAndIndexSingleBook("ABP");
+	//    	indexAll.installAndIndexSingleBook("FrePGR");
+	//    	indexAll.installAndIndexSingleBook("Pohnpeian");
+	//    	indexAll.installAndIndexSingleBook("PorAR");
+	//    	indexAll.installAndIndexSingleBook("PorLivre");
+	//    	indexAll.installAndIndexSingleBook("FreBBB");
+	//    	indexAll.installAndIndexSingleBook("Geez");
+	//    	indexAll.installAndIndexSingleBook("KorHKJV");
+	//    	indexAll.installAndIndexSingleBook("KJVPCE");
+	//    	indexAll.installAndIndexSingleBook("PolGdanska");
+	//    	indexAll.installAndIndexSingleBook("SpaRV1909");
+	//    	indexAll.installAndIndexSingleBook("LEB");
+	//    	indexAll.installAndIndexSingleBook("WEBME");
+	 //   	indexAll.installAndIndexSingleBook("QuotingPassages");
+	
+	    	// 14/11/12
+	//    	indexAll.installAndIndexSingleBook("HinERV");
+	//    	indexAll.installAndIndexSingleBook("MalBSI");
+	//    	indexAll.installAndIndexSingleBook("GerNeUe");
+	    	
+	    	// 19/1/13
+	    	// new
+//	    	indexAll.installAndIndexSingleBook("Dari");
+//	    	indexAll.installAndIndexSingleBook("sml_BL_2008");
+//	    	indexAll.installAndIndexSingleBook("FarHezareNoh");
+// 			indexAll.installAndIndexSingleBook("FarTPV");
+// 			indexAll.installAndIndexSingleBook("UrduGeoDeva");
+// 			indexAll.installAndIndexSingleBook("Burkitt");
+// 			// updated
+// 			indexAll.installAndIndexSingleBook("FinPR92"); //Errors
+// 			indexAll.installAndIndexSingleBook("UrduGeo");
+// 			indexAll.installAndIndexSingleBook("RWP");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
     }
     
 	public void validateAllIndexes() {
