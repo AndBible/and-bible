@@ -3,16 +3,20 @@ package net.bible.android.view.activity.page;
 import java.lang.reflect.Method;
 
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.event.splitscreen.SplitScreenEvent;
+import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
+import net.bible.android.control.page.splitscreen.SplitScreenControl;
+import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Picture;
-import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -28,7 +32,9 @@ import android.webkit.WebViewClient;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class BibleView extends WebView implements DocumentView {
+public class BibleView extends WebView implements DocumentView, SplitScreenEventListener {
+	
+	private Screen splitScreenNo;
 	
 	private BibleJavascriptInterface mJavascriptInterface;
 	
@@ -37,14 +43,16 @@ public class BibleView extends WebView implements DocumentView {
 	private int mJumpToVerse = 0;
 	private float mJumpToYOffsetRatio = 0;
 	
-	private PageControl mPageControl = ControlFactory.getInstance().getPageControl();
-	
 	private PageTiltScroller mPageTiltScroller;
 	private boolean hideScrollBar;
 	
 	private boolean wasAtRightEdge;
 	private boolean wasAtLeftEdge;
 
+	private PageControl mPageControl = ControlFactory.getInstance().getPageControl();
+	
+	private static SplitScreenControl splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
+	
 	private static final String TAG = "BibleView";
 	
 	// remember current background colour so we know when it changes
@@ -56,26 +64,27 @@ public class BibleView extends WebView implements DocumentView {
      * the object manually (not from a layout XML file).
      * @param context
      */
-	public BibleView(Context context) {
+	public BibleView(Context context, Screen splitScreenNo) {
 		super(context);
+		this.splitScreenNo = splitScreenNo;
 		initialise();
 	}
 
-    /**
-     * Construct object, initializing with any attributes we understand from a
-     * layout file. These attributes are defined in
-     * SDK/assets/res/any/classes.xml.
-     * 
-     * @see android.view.View#View(android.content.Context, android.util.AttributeSet)
-     */
-	public BibleView(Context context, AttributeSet attrs) {
-		super(context, attrs);
-		initialise();
-	}
-	public BibleView(Context context, AttributeSet attrs, int defStyle) {
-		super(context, attrs, defStyle);
-		initialise();		
-	}
+//    /**
+//     * Construct object, initializing with any attributes we understand from a
+//     * layout file. These attributes are defined in
+//     * SDK/assets/res/any/classes.xml.
+//     * 
+//     * @see android.view.View#View(android.content.Context, android.util.AttributeSet)
+//     */
+//	public BibleView(Context context, AttributeSet attrs) {
+//		super(context, attrs);
+//		initialise();
+//	}
+//	public BibleView(Context context, AttributeSet attrs, int defStyle) {
+//		super(context, attrs, defStyle);
+//		initialise();		
+//	}
 	
 	@SuppressLint("SetJavaScriptEnabled")
 	private void initialise() {
@@ -151,6 +160,9 @@ public class BibleView extends WebView implements DocumentView {
 		
 		mPageTiltScroller = new PageTiltScroller(this);
 		mPageTiltScroller.enableTiltScroll(true);
+
+		// if this webview becomes (in)active then must start/stop auto-scroll
+		splitScreenControl.addSplitScreenEventListener(this);
 	}
 	
 	@Override
@@ -214,13 +226,13 @@ public class BibleView extends WebView implements DocumentView {
 		getSettings().setLoadWithOverviewMode(isMap);
 		getSettings().setUseWideViewPort(isMap);
 		
-		loadDataWithBaseURL("http://baseUrl", html, "text/html", "UTF-8", "http://historyUrl");
+		loadDataWithBaseURL("file:///android_asset/", html, "text/html", "UTF-8", "http://historyUrl");
 	}
 
 	/** prevent swipe right if the user is scrolling the page right */
 	public boolean isPageNextOkay() {
 		boolean isOkay = true;
-		if (CurrentPageManager.getInstance().isMapShown()) {
+		if (CurrentPageManager.getInstance(splitScreenNo).isMapShown()) {
 			// allow swipe right if at right side of map
 			boolean isAtRightEdge = (getScrollX() >= getMaxHorizontalScroll());
 
@@ -235,7 +247,7 @@ public class BibleView extends WebView implements DocumentView {
 	/** prevent swipe left if the user is scrolling the page left */
 	public boolean isPagePreviousOkay() {
 		boolean isOkay = true;
-		if (CurrentPageManager.getInstance().isMapShown()) {
+		if (CurrentPageManager.getInstance(splitScreenNo).isMapShown()) {
 			// allow swipe left if at left edge of map
 			boolean isAtLeftEdge = (getScrollX() == 0);
 
@@ -250,7 +262,7 @@ public class BibleView extends WebView implements DocumentView {
 	@Override
 	public void onWindowFocusChanged(boolean hasWindowFocus) {
 		super.onWindowFocusChanged(hasWindowFocus);
-
+		Log.d(TAG, "Focus changed so start/stop scroll");
 		if (hasWindowFocus) {
 			resumeTiltScroll();
 		} else {
@@ -259,18 +271,23 @@ public class BibleView extends WebView implements DocumentView {
 	}
 	
     private void pauseTiltScroll() {
-		Log.d(TAG, "Pausing tilt to scroll");
+		Log.d(TAG, "Pausing tilt to scroll "+splitScreenNo);
         mPageTiltScroller.enableTiltScroll(false);
     }
     
     private void resumeTiltScroll() {
-		Log.d(TAG, "Resuming tilt to scroll");
-        mPageTiltScroller.enableTiltScroll(true);
+    	// but if split screen then only if the current active split
+    	if (splitScreenControl.isCurrentActiveScreen(splitScreenNo)) {
+			Log.d(TAG, "Resuming tilt to scroll "+splitScreenNo);
+	        mPageTiltScroller.enableTiltScroll(true);
+    	}
     }
     
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
 		boolean handled = super.onTouchEvent(ev);
+		
+		splitScreenControl.setCurrentActiveScreen(splitScreenNo);
 		
 		// Allow user to redefine viewing angle by touching screen
 		mPageTiltScroller.recalculateViewingPosition();
@@ -403,5 +420,42 @@ public class BibleView extends WebView implements DocumentView {
 	@Override
 	public void save() {
 		//NOOP
+	}
+
+	@Override
+	public void currentSplitScreenChanged(SplitScreenEvent e) {
+		if (splitScreenNo == e.getCurrentActiveScreen()) {
+			mJavascriptInterface.setNotificationsEnabled(true);
+			resumeTiltScroll();
+		} else {
+			mJavascriptInterface.setNotificationsEnabled(false);
+			pauseTiltScroll();
+		}
+	}
+
+	@Override
+	public void updateSecondaryScreen(Screen updateScreen, String html, int verseNo) {
+		if (splitScreenNo == updateScreen) {
+			show(html, verseNo, 0);
+		}		
+	}
+
+
+	@Override
+	public void scrollSecondaryScreen(Screen updateScreen, final int verseNo) {
+		if (splitScreenNo == updateScreen) {
+			getHandler().post(new Runnable() {
+				
+				@Override
+				public void run() {
+					loadUrl("javascript:location.href='#"+verseNo+"'");
+//					loadUrl("javascript:$('html,body').animate({scrollTop: $('#"+verseNo+"').offset().top}, 1000);");
+				}
+			});
+		}
+	}
+
+	public Screen getSplitScreenNo() {
+		return splitScreenNo;
 	}
 }

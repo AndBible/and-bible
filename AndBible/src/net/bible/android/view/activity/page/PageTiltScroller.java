@@ -5,6 +5,7 @@ import java.lang.ref.WeakReference;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.PageTiltScrollControl;
 import net.bible.android.control.page.PageTiltScrollControl.TiltScrollInfo;
+
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -28,12 +29,13 @@ public class PageTiltScroller {
 	private boolean mIsScrolling;
 	private Handler mScrollMsgHandler = new ScrollMsgHandler(this);
 
-	private PageTiltScrollControl mPageTiltScrollControl = ControlFactory.getInstance().getPageTiltScrollControl();
+	private PageTiltScrollControl mPageTiltScrollControl;
 	
 	private static final String TAG = "PageTiltScroller";
 	
 	public PageTiltScroller(BibleView webView) {
 		this.mWebView = webView;
+		mPageTiltScrollControl = ControlFactory.getInstance().getPageTiltScrollControl(webView.getSplitScreenNo());
 	}
 	
 	/** start or stop tilt to scroll functionality

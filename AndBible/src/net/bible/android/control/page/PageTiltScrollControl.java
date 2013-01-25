@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.bible.android.BibleApplication;
 import net.bible.service.common.CommonUtils;
+
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.hardware.Sensor;
@@ -12,7 +13,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
-import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
@@ -28,7 +28,7 @@ import android.view.WindowManager;
 public class PageTiltScrollControl {
 
 	// must be null initially
-	private Boolean mIsOrientationSensor = null;
+	private static Boolean mIsOrientationSensor = null;
 	private boolean mIsTiltScrollEnabled = false;
 
 	// the pitch at which a user views the text stationary
@@ -194,7 +194,7 @@ public class PageTiltScrollControl {
 	private int getDevianceFromStaticViewingAngle(int normalisedPitch) {
 	
 		if (!mNoScrollViewingPitchCalculated) {
-			Log.d(TAG, "Recalculating home/noscroll pitch "+normalisedPitch);
+//			Log.d(TAG, "Recalculating home/noscroll pitch "+normalisedPitch);
 
 			// assume user's viewing pitch is the current one
 			mNoScrollViewingPitch = normalisedPitch;
@@ -259,7 +259,7 @@ public class PageTiltScrollControl {
 
 	/** return true if both a sensor and android support are available to sense device tilt
 	 */
-	public boolean isTiltSensingPossible() {
+	public static boolean isTiltSensingPossible() {
 		return 	isOrientationSensor() &&
 				CommonUtils.isFroyoPlus();
 	}
@@ -267,7 +267,7 @@ public class PageTiltScrollControl {
     /**
      * Returns true if at least one Orientation sensor is available
      */
-    public boolean isOrientationSensor() {
+    public static boolean isOrientationSensor() {
         if (mIsOrientationSensor == null) {
        		SensorManager sm = (SensorManager) BibleApplication.getApplication().getSystemService(Context.SENSOR_SERVICE);
             if (sm != null) {

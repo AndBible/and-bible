@@ -1,23 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Man Bible view
+<!-- Main Bible view
  
  @author Martin Denham [mjdenham at gmail dot com]
  @see gnu.lgpl.License for license details.<br>
       The copyright to this program is held by it's author.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/mainBibleView" 
+	android:id="@+id/mainBibleViewContainer" 
     android:layout_width="fill_parent" 
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:fadingEdgeLength="0sp"
     >
-	<include layout="@layout/title_bar"/>
-		
-	<!-- removed explicit view reference because this page could contain a MyNote view
-	 net.bible.android.view.activity.page.BibleView  
-		android:id="@+id/main_text" 
+    <include layout="@layout/title_bar"/>
+    <LinearLayout android:id="@+id/mainBibleView" 
 	    android:layout_width="fill_parent" 
 	    android:layout_height="fill_parent"
-	/-->
+	    android:orientation="vertical"
+	    android:fadingEdgeLength="0sp"
+	    >
+		
+		<!-- removed explicit view reference because this page could contain a MyNote view
+		 net.bible.android.view.activity.page.BibleView  
+			android:id="@+id/main_text" 
+		    android:layout_width="fill_parent" 
+		    android:layout_height="fill_parent"
+		/-->
+	</LinearLayout>
 </LinearLayout>

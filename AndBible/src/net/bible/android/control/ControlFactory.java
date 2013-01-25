@@ -13,6 +13,8 @@ import net.bible.android.control.mynote.MyNoteControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.page.PageTiltScrollControl;
+import net.bible.android.control.page.splitscreen.SplitScreenControl;
+import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.control.readingplan.ReadingPlanControl;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.speak.SpeakControl;
@@ -25,10 +27,11 @@ import net.bible.android.control.speak.SpeakControl;
  */
 public class ControlFactory {
 	//TODO move instance creation here
-	private CurrentPageManager currentPageManager = CurrentPageManager.getInstance();
 	private DocumentControl documentControl = new DocumentControl();
 	private PageControl pageControl = new PageControl();
-	private PageTiltScrollControl pageTiltScrollControl = new PageTiltScrollControl();
+	private SplitScreenControl splitScreenControl = new SplitScreenControl();
+	private PageTiltScrollControl pageTiltScrollControlSplitScreen1 = new PageTiltScrollControl();
+	private PageTiltScrollControl pageTiltScrollControlSplitScreen2 = new PageTiltScrollControl();
 	private LinkControl linkControl = new LinkControl();
 	private SearchControl searchControl = new SearchControl();
 	private Bookmark bookmarkControl = new BookmarkControl();
@@ -48,10 +51,7 @@ public class ControlFactory {
 	
 	private ControlFactory() {
 		// inject dependencies
-		pageControl.setCurrentPageManager(this.currentPageManager);
 		readingPlanControl.setSpeakControl(this.speakControl);
-		compareTranslationsControl.setCurrentPageManager(currentPageManager);
-		footnoteAndRefControl.setCurrentPageManager(currentPageManager);
 	}
 	
 	public DocumentControl getDocumentControl() {
@@ -62,8 +62,16 @@ public class ControlFactory {
 		return pageControl;		
 	}
 
-	public PageTiltScrollControl getPageTiltScrollControl() {
-		return pageTiltScrollControl;
+	public SplitScreenControl getSplitScreenControl() {
+		return splitScreenControl;
+	}
+
+	public PageTiltScrollControl getPageTiltScrollControl(Screen screen) {
+		if (Screen.SCREEN_1==screen) {
+			return pageTiltScrollControlSplitScreen1;
+		} else {
+			return pageTiltScrollControlSplitScreen2;
+		}
 	}
 
 	public SearchControl getSearchControl() {
@@ -71,7 +79,7 @@ public class ControlFactory {
 	}
 
 	public CurrentPageManager getCurrentPageControl() {
-		return currentPageManager;		
+		return CurrentPageManager.getInstance();		
 	}
 
 	public LinkControl getLinkControl() {

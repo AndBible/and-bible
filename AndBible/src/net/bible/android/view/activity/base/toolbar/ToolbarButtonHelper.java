@@ -25,9 +25,9 @@ public class ToolbarButtonHelper {
 		}
 	}
 
-	public void updateButtonText(String bookName, Button quickButton) {
-		if (bookName!=null && quickButton!=null) {
-        	quickButton.setText(bookName);
+	public void updateButtonText(String buttonText, Button quickButton) {
+		if (buttonText!=null && quickButton!=null) {
+        	quickButton.setText(buttonText);
 		}
 	}
 

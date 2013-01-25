@@ -53,7 +53,7 @@ public class FootnoteAndRefControl {
 		}		
 	}
 	
-	public void setCurrentPageManager(CurrentPageManager currentPageManager) {
-		this.currentPageManager = currentPageManager;
+	public CurrentPageManager getCurrentPageManager() {
+		return CurrentPageManager.getInstance();
 	}
 }

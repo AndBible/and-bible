@@ -1,22 +1,17 @@
 package net.bible.android.control;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import net.bible.android.activity.R;
-import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.UpdateTextTask;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.page.DocumentViewManager;
-import net.bible.service.format.FormattedDocument;
-import net.bible.service.format.HtmlMessageFormatter;
 import net.bible.service.format.Note;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
-import android.os.AsyncTask;
 import android.util.Log;
 
 /** Control content of main view screen
@@ -26,13 +21,13 @@ import android.util.Log;
  *      The copyright to this program is held by it's author.
  */
 public class BibleContentManager {
-	
-	// bible and verse displayed on the screen
-	private Book displayedBible;
-	private Key displayedVerse;
-	private List<Note> notesList;
 
 	private DocumentViewManager documentViewManager;
+	
+	// previous document and verse (currently displayed on the screen)
+	private Book previousDocument;
+	private Key previousVerse;
+	private List<Note> notesList;
 	
 	private static final String TAG = "BibleContentManager";
 	
@@ -52,70 +47,42 @@ public class BibleContentManager {
 		Key key = currentPage.getKey();
 
 		// check for duplicate screen update requests
-		if (!forceUpdate && document.equals(displayedBible) && key.equals(displayedVerse)) {
+		if (!forceUpdate && document.equals(previousDocument) && key.equals(previousVerse)) {
 			Log.w(TAG, "Duplicated screen update. Doc:"+document.getInitials()+" Key:"+key);
+		} else {
+			previousDocument = document;
+			previousVerse = key;
 		}
-		new UpdateTextTask().execute(currentPage);
+		new UpdateMainTextTask().execute(currentPage);
     }
 
-    private class UpdateTextTask extends AsyncTask<CurrentPage, Integer, String> {
-    	private int verseNo;
-    	private float yScreenOffsetRatio;
+    private class UpdateMainTextTask extends UpdateTextTask {
     	@Override
     	protected void onPreExecute() {
+    		super.onPreExecute();
     		PassageChangeMediator.getInstance().contentChangeStarted();
     	}
-    	
-		@Override
-        protected String doInBackground(CurrentPage... currentPageArgs) {
-            Log.d(TAG, "Loading html in background");
-        	String text = "Error";
-        	try {
-        		CurrentPage currentPage = currentPageArgs[0]; 
-	    		Book document = currentPage.getCurrentDocument();
-	    		// if bible show whole chapter
-	    		Key key = currentPage.getKey();
-	    		// but allow for jump to specific verse e.g. after search result
-	    		if (currentPage instanceof CurrentBiblePage) {
-	    			verseNo = ((CurrentBiblePage)currentPage).getCurrentVerseNo();
-	    		}
-	    		yScreenOffsetRatio = currentPage.getCurrentYOffsetRatio();
-	
-	            Log.d(TAG, "Loading document:"+document.getInitials()+" key:"+key);
-	            
-	            notesList = new ArrayList<Note>();
-	            
-	            FormattedDocument formattedDocument = currentPage.getCurrentPageContent();
-	            text = formattedDocument.getHtmlPassage();
-	            notesList = formattedDocument.getNotesList();
-	
-	            displayedBible = document;
-	            displayedVerse = key;
-		            
-        	} catch (Exception e) {
-        		Log.e(TAG, "Error getting bible text", e);
-	    		//TODO use resource
-        		text = HtmlMessageFormatter.format("Error getting bible text: "+e.getMessage());
-	    	} catch (OutOfMemoryError oom) {
-	    		Log.e(TAG, "Out of memory error", oom);
-	    		System.gc();
-	    		text = HtmlMessageFormatter.format(R.string.error_page_too_large);
-	    	}
-        	return text;
-        }
 
         protected void onPostExecute(String htmlFromDoInBackground) {
-            Log.d(TAG, "Loading html:"+htmlFromDoInBackground);
-            showText(htmlFromDoInBackground, verseNo, yScreenOffsetRatio);
+        	super.onPostExecute(htmlFromDoInBackground);
     		PassageChangeMediator.getInstance().contentChangeFinished();
         }
-    }
-	private void showText(String text, int verseNo, float yOffsetRatio) {
-		if (documentViewManager!=null) {
-			DocumentView view = documentViewManager.getDocumentView();
-			view.show(text, verseNo, yOffsetRatio);
-		} else {
-			Log.w(TAG, "Document view not yet registered");
+
+        /** callback from base class when result is ready */
+    	@Override
+    	protected void showText(String text, int verseNo, float yOffsetRatio) {
+    		if (documentViewManager!=null) {
+    			DocumentView view = documentViewManager.getDocumentView();
+    			view.show(text, verseNo, yOffsetRatio);
+    		} else {
+    			Log.w(TAG, "Document view not yet registered");
+    		}
+        }
+
+		@Override
+		protected void handleNotes(List<Note> notesList) {
+			// save the notes for access if the user requests to see them
+			BibleContentManager.this.notesList = notesList;
 		}
     }
 

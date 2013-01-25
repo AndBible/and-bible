@@ -28,8 +28,6 @@ public class CompareTranslationsControl {
 	
 	private static final String TAG = "CompareTranslationsControl";
 
-	private CurrentPageManager currentPageManager; // injected
-	
 	private SwordDocumentFacade swordDocumentFacade = SwordDocumentFacade.getInstance();
 	private SwordContentFacade swordContentFacade = SwordContentFacade.getInstance();
 	
@@ -47,24 +45,24 @@ public class CompareTranslationsControl {
 	}
 	
 	public void setVerse(Verse verse) {
-		currentPageManager.getCurrentBible().doSetKey(verse);
+		getCurrentPageManager().getCurrentBible().doSetKey(verse);
 	}
 
 	public Verse getVerse() {
-		return currentPageManager.getCurrentBible().getSingleKey();
+		return getCurrentPageManager().getCurrentBible().getSingleKey();
 	}
 	
 	/** go to previous verse
 	 */
 	public Verse next() {
-		 currentPageManager.getCurrentBible().doNextVerse();
+		 getCurrentPageManager().getCurrentBible().doNextVerse();
 		 return getVerse();
 	}
 	
 	/** go to next verse
 	 */
 	public Verse previous() {
-		 currentPageManager.getCurrentBible().doPreviousVerse();
+		 getCurrentPageManager().getCurrentBible().doPreviousVerse();
 		 return getVerse();
 	}
 	
@@ -98,11 +96,11 @@ public class CompareTranslationsControl {
 	}
 	
 	public void showTranslation(TranslationDto translationDto) {
-		currentPageManager.setCurrentDocument(translationDto.getBook());
+		getCurrentPageManager().setCurrentDocument(translationDto.getBook());
 	}
 
 	/** IOC */
-	public void setCurrentPageManager(CurrentPageManager currentPageManager) {
-		this.currentPageManager = currentPageManager;
+	public CurrentPageManager getCurrentPageManager() {
+		return CurrentPageManager.getInstance();
 	}
 }

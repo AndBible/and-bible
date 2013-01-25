@@ -31,6 +31,10 @@ public interface CurrentPage {
 	 */
 	public Key getPagePlus(int num);
 
+	/** set key without updating screens */
+	public abstract void doSetKey(Key key);
+
+	/** set key and update screens */
 	public abstract void setKey(Key key);
 
 	public abstract boolean isSingleKey();

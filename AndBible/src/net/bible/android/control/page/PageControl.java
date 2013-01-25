@@ -29,16 +29,14 @@ import android.util.Log;
 
 public class PageControl {
 	
-	private CurrentPageManager mCurrentPageManager;
-	
 	private static final String TAG = "PageControl";
 	
 	/** paste the current verse to the system clipboard
 	 */
 	public void copyToClipboard() {
 		try {
-			Book book = mCurrentPageManager.getCurrentPage().getCurrentDocument();
-			Key key = mCurrentPageManager.getCurrentPage().getSingleKey();
+			Book book = getCurrentPageManager().getCurrentPage().getCurrentDocument();
+			Key key = getCurrentPageManager().getCurrentPage().getSingleKey();
 			
 			String text = key.getName()+"\n"+SwordContentFacade.getInstance().getCanonicalText(book, key);
 			ClipboardManager clipboard = (ClipboardManager)BibleApplication.getApplication().getSystemService(Activity.CLIPBOARD_SERVICE);
@@ -55,8 +53,8 @@ public class PageControl {
 	 */
 	public void shareVerse() {
 		try {
-			Book book = mCurrentPageManager.getCurrentPage().getCurrentDocument();
-			Key key = mCurrentPageManager.getCurrentPage().getSingleKey();
+			Book book = getCurrentPageManager().getCurrentPage().getCurrentDocument();
+			Key key = getCurrentPageManager().getCurrentPage().getSingleKey();
 			
 			String text = key.getName()+"\n"+SwordContentFacade.getInstance().getCanonicalText(book, key);
 			
@@ -160,7 +158,7 @@ public class PageControl {
 		int fontSize = preferences.getInt("text_size_pref", 16);
 
 		// if book has a special font it may require an adjusted font size
-		Book book = mCurrentPageManager.getCurrentPage().getCurrentDocument();
+		Book book = getCurrentPageManager().getCurrentPage().getCurrentDocument();
 		String font = FontControl.getInstance().getFontForBook(book);
 		int fontSizeAdjustment = FontControl.getInstance().getFontSizeAdjustment(font, book);
 		
@@ -188,7 +186,7 @@ public class PageControl {
 		return retVal;
 	}
 	
-	public void setCurrentPageManager(CurrentPageManager currentPageManager) {
-		mCurrentPageManager = currentPageManager;
+	public CurrentPageManager getCurrentPageManager() {
+		return CurrentPageManager.getInstance();
 	}
 }

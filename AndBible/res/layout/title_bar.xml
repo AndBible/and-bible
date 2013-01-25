@@ -68,7 +68,12 @@
 					android:textStyle="italic"
 					style="@style/TitleBarToggleButton"
 		/>
-   	    <Button android:id="@+id/quickBibleChange"
+   	    <Button android:id="@+id/quickSplitScreen"
+		        android:visibility="invisible"
+				style="@style/TitleBarButton"
+				android:text="¦"
+	    />
+	    <Button android:id="@+id/quickBibleChange"
 		        android:visibility="invisible"
 				style="@style/TitleBarButton"
 	    />

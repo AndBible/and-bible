@@ -3,6 +3,7 @@ package net.bible.android.view.activity.page;
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.mynote.MyNoteViewBuilder;
+
 import android.app.Activity;
 import android.view.ViewGroup;
 /**
@@ -18,7 +19,7 @@ public class DocumentViewManager {
 	private MyNoteViewBuilder myNoteViewBuilder;
 	private Activity mainActivity;
 	private ViewGroup parent;
-
+	
 	public DocumentViewManager(Activity mainActivity) {
 		this.mainActivity = mainActivity;
 		documentWebViewBuilder = new DocumentWebViewBuilder(this.mainActivity);

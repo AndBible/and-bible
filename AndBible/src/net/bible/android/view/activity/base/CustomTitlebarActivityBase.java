@@ -4,6 +4,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.base.toolbar.DefaultToolbar;
 import net.bible.android.view.activity.base.toolbar.Toolbar;
+
 import android.content.res.Configuration;
 import android.util.Log;
 import android.view.View;
@@ -94,25 +95,6 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	public boolean isStrongsShown() {
 		return ControlFactory.getInstance().getPageControl().isStrongsShown();
 	}
-
-//TODO - do we need this
-//	/** must wait until child has setContentView before setting custom title bar so intercept the method and then set the title bar
-//     */
-//	public void setPageTitleVisible(boolean show) {
-//		mPageTitleLink.setVisibility(show ? View.VISIBLE : View.GONE);
-//	}
-
-//	/** must wait until child has setContentView before setting custom title bar so intercept the method and then set the title bar
-//     */
-//	public void setPageTitle(CharSequence title) {
-//		mPageTitleLink.setText(title);
-//	}
-	
-//    /** must wait until child has setContentView before setting custom title bar so intercept the method and then set the title bar
-//     */
-//	public void setDocumentTitle(CharSequence title) {
-//		mDocumentTitleLink.setText(title);
-//	}
 
 	public void setProgressBar(boolean on) {
 		mProgressBarIndeterminate.setVisibility(on ? View.VISIBLE : View.GONE);

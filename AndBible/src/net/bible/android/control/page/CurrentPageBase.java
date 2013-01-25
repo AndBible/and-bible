@@ -42,7 +42,7 @@ abstract class CurrentPageBase implements CurrentPage {
 	// all bibles and commentaries share the same key
 	private boolean shareKeyBetweenDocs = false;
 	
-	abstract protected void doSetKey(Key key);
+	public abstract void doSetKey(Key key);
 	
 	
 	protected CurrentPageBase(boolean shareKeyBetweenDocs) {

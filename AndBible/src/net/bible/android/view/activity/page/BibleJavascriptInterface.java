@@ -1,10 +1,13 @@
 package net.bible.android.view.activity.page;
 
 import net.bible.android.control.PassageChangeMediator;
+
 import android.util.Log;
 
 public class BibleJavascriptInterface {
 
+	private boolean notificationsEnabled = false;
+	
 	private VerseCalculator verseCalculator;
 	
 	private static final String TAG = "BibleJavascriptInterface";
@@ -20,7 +23,7 @@ public class BibleJavascriptInterface {
 
 	public void onScroll(int newYPos) {
 		// do not try to change verse while the page is changing - can cause all sorts of errors e.g. selected verse may not be valid in new chapter and cause chapter jumps
-		if (!PassageChangeMediator.getInstance().isPageChanging()) {
+		if (notificationsEnabled && !PassageChangeMediator.getInstance().isPageChanging()) {
 			verseCalculator.newPosition(newYPos);
 		}
 	}
@@ -31,5 +34,9 @@ public class BibleJavascriptInterface {
 	
 	public void log(String msg) {
 		Log.d(TAG, msg);
+	}
+
+	public void setNotificationsEnabled(boolean notificationsEnabled) {
+		this.notificationsEnabled = notificationsEnabled;
 	}
 }

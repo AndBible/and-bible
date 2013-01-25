@@ -2,9 +2,11 @@ package net.bible.android.control;
 
 import net.bible.android.control.event.passage.PassageEventManager;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.service.device.ScreenSettings;
 import net.bible.service.history.HistoryManager;
+
 import android.util.Log;
 
 /** when a bible passage is changed there are lots o things to update and they should be done in a helpful order
@@ -18,6 +20,7 @@ public class PassageChangeMediator {
 
 	private MainBibleActivity mMainBibleActivity;
 	private BibleContentManager mBibleContentManager;
+	private SplitScreenControl mSplitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
 	private boolean isPageChanging = false;
 
 	// slowly moving toward events but not there yet
@@ -67,6 +70,7 @@ public class PassageChangeMediator {
 	 */
 	public void onCurrentPageDetailChanged() {
 		passageEventManager.passageDetailChanged();
+		mSplitScreenControl.synchronizeScreens();
 	}
 
 	/** The thread which fetches the new page html has started
@@ -88,6 +92,7 @@ public class PassageChangeMediator {
 	public void contentChangeFinished() {
 		if (mMainBibleActivity!=null) {
 			mMainBibleActivity.onPassageChanged();
+			mSplitScreenControl.synchronizeScreens();
 		} else {
 			Log.w(TAG, "Bible activity not yet registered");
 		}

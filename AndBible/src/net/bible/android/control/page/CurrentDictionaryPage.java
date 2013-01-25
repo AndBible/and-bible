@@ -38,7 +38,7 @@ public class CurrentDictionaryPage extends CachedKeyPage implements CurrentPage 
 	 * 
 	 * @param key
 	 */
-	protected void doSetKey(Key key) {
+	public void doSetKey(Key key) {
 		this.key = key;
 	}
 

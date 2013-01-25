@@ -1,7 +1,6 @@
 package net.bible.android.view.activity.settings;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.PageTiltScrollControl;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
@@ -53,7 +52,7 @@ public class SettingsActivity extends PreferenceActivity {
 			getPreferenceScreen().removePreference(unusedNightModePreference);
 			
 			// if no tilt sensor then remove tilt-to-scroll setting
-			if (!ControlFactory.getInstance().getPageTiltScrollControl().isTiltSensingPossible()) {
+			if (!PageTiltScrollControl.isTiltSensingPossible()) {
 				Preference tiltToScrollPreference = getPreferenceScreen().findPreference(PageTiltScrollControl.TILT_TO_SCROLL_PREFERENCE_KEY);
 				getPreferenceScreen().removePreference(tiltToScrollPreference);
 			}

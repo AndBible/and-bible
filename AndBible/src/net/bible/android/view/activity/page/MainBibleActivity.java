@@ -6,10 +6,14 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
+import net.bible.android.control.event.splitscreen.SplitScreenEvent;
+import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.service.device.ScreenSettings;
+
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -84,6 +88,24 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 			@Override
 			public void applicationReturnedFromBackground(AppToBackgroundEvent e) {
 				//NOOP
+			}
+		});
+    	
+		ControlFactory.getInstance().getSplitScreenControl().addSplitScreenEventListener(new SplitScreenEventListener() {
+			
+			@Override
+			public void currentSplitScreenChanged(SplitScreenEvent e) {
+				MainBibleActivity.this.updateToolbarButtonText();				
+			}
+
+			@Override
+			public void updateSecondaryScreen(Screen updateScreen, String html, int verseNo) {
+				// NOOP - handle in BibleWebView				
+			}
+
+			@Override
+			public void scrollSecondaryScreen(Screen screen, int verseNo) {
+				// NOOP - handle in BibleWebView
 			}
 		});
     }
@@ -218,8 +240,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 				getDocumentViewManager().getDocumentView().changeBackgroundColour();
 				
 				setProgressBar(true);
-//TODO remove or refactor
-//		    	setPageTitleVisible(false);
 			}
 		});
     }
@@ -230,8 +250,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-//TODO remove or refactor if required
-//		    	setPageTitleVisible(true);
 		    	setProgressBar(false);
 		    	updateToolbarButtonText();
 		    	// don't sense taps at bottom of screen if Strongs numbers link might be there or Map zoom control might be there

@@ -78,7 +78,7 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 	 * 
 	 * @param key
 	 */
-	protected void doSetKey(Key key) {
+	public void doSetKey(Key key) {
 		if (key!=null) {
 			Verse verse = KeyUtil.getVerse(key);
 			currentBibleVerse.setVerseSelected(verse);
