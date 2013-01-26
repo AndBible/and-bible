@@ -222,10 +222,10 @@ abstract class CurrentPageBase implements CurrentPage {
 
 
 	@Override
-	public void restoreState(SharedPreferences inState) {
+	public void restoreState(SharedPreferences inState, String screenId) {
 		if (inState!=null) {
 			Log.d(TAG, "State not null");
-			String document = inState.getString(getBookCategory().getName()+"_document", null);
+			String document = inState.getString(getBookCategory().getName()+"_document"+screenId, null);
 			if (StringUtils.isNotEmpty(document)) {
 				Log.d(TAG, "State document:"+document);
 				Book book = SwordDocumentFacade.getInstance().getDocumentByInitials(document);
@@ -235,7 +235,7 @@ abstract class CurrentPageBase implements CurrentPage {
 					localSetCurrentDocument(book);
 					
 					try {
-						String keyName = inState.getString(getBookCategory().getName()+"_key", null);
+						String keyName = inState.getString(getBookCategory().getName()+"_key"+screenId, null);
 						if (StringUtils.isNotEmpty(keyName)) {
 							doSetKey(book.getKey(keyName));
 							Log.d(TAG, "Restored key:"+keyName);
@@ -253,13 +253,13 @@ abstract class CurrentPageBase implements CurrentPage {
 	 * @param outState
 	 */
 	@Override
-	public void saveState(SharedPreferences outState) {
+	public void saveState(SharedPreferences outState, String screenId) {
 		if (currentDocument!=null) {
 			SharedPreferences.Editor editor = outState.edit();
 			Log.d(TAG, "Saving state for "+getBookCategory().getName());
-			editor.putString(getBookCategory().getName()+"_document", getCurrentDocument().getInitials());
+			editor.putString(getBookCategory().getName()+"_document"+screenId, getCurrentDocument().getInitials());
 			if (this.getKey()!=null) {
-				editor.putString(getBookCategory().getName()+"_key", getKey().getName());
+				editor.putString(getBookCategory().getName()+"_key"+screenId, getKey().getName());
 			}
 			editor.commit();
 		}

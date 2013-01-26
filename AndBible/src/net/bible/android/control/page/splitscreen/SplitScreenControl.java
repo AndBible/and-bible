@@ -24,6 +24,7 @@ public class SplitScreenControl {
 	private Screen currentActiveScreen = Screen.SCREEN_1;
 	
 	private Key lastActiveScreenKey;
+	private boolean isFirstSynchronize = true;
 	
 	private SplitScreenEventManager splitScreenEventManager = new SplitScreenEventManager();
 	
@@ -45,6 +46,7 @@ public class SplitScreenControl {
 				// prevent infinite loop as each screen update causes a synchronize
 				if (lastActiveScreenKey==null || !lastActiveScreenKey.equals(activeScreenKey)) {
 					updateInactiveScreen(inactivePage, activeScreenKey, inactivePage.getKey());
+					lastActiveScreenKey = activeScreenKey;
 				}
 			}
 		}
@@ -55,15 +57,16 @@ public class SplitScreenControl {
 		Verse targetVerse = KeyUtil.getVerse(activeScreenKey);
 		Verse currentVerse = KeyUtil.getVerse(inactiveScreenKey);
 		
-		if (BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) &&
-			targetVerse.isSameChapter(currentVerse)	) {
+		// update secondary split CurrentPage info using doSetKey which does not cause screen updates
+		inactivePage.doSetKey(activeScreenKey);
+		
+		// update split screen as smoothly as possible i.e. just scroll if verse is already on page
+		if (!isFirstSynchronize && BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && targetVerse.isSameChapter(currentVerse)	) {
 			splitScreenEventManager.scrollSecondaryScreen(getNonActiveScreen(), targetVerse.getVerse());
 		} else {
-			lastActiveScreenKey = activeScreenKey;
-			inactivePage.doSetKey(activeScreenKey);
-			
 			new UpdateInactiveScreenTextTask().execute(inactivePage);
 		}
+		isFirstSynchronize = false;
 	}
 
 	/** only Bibles and commentaries have the same sort of key and can be synchronized
@@ -90,7 +93,10 @@ public class SplitScreenControl {
 		return isSplit;
 	}
 	public void setSplit(boolean isSplit) {
-		this.isSplit = isSplit;
+		if (this.isSplit!=isSplit) {
+			this.isSplit = isSplit;
+			synchronizeScreens();
+		}
 	}
 
 	public Screen getNonActiveScreen() {

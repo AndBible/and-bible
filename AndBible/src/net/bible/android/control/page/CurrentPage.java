@@ -64,9 +64,9 @@ public interface CurrentPage {
 	public abstract void updateOptionsMenu(Menu menu);
 	public abstract void updateContextMenu(Menu menu);
 
-	public abstract void restoreState(SharedPreferences inState);
+	public abstract void restoreState(SharedPreferences inState, String screenId);
 
-	public abstract void saveState(SharedPreferences outState);
+	public abstract void saveState(SharedPreferences outState, String screenId);
 
 	public abstract void setInhibitChangeNotifications(boolean inhibitChangeNotifications);
 

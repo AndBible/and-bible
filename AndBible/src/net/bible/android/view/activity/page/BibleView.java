@@ -443,7 +443,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 
 	@Override
 	public void scrollSecondaryScreen(Screen updateScreen, final int verseNo) {
-		if (splitScreenNo == updateScreen) {
+		if (splitScreenNo == updateScreen && getHandler()!=null) {
 			getHandler().post(new Runnable() {
 				
 				@Override

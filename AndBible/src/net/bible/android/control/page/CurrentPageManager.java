@@ -37,6 +37,8 @@ public class CurrentPageManager {
 	
 	private CurrentPage currentDisplayedPage;
 	
+	private Screen splitScreenNo;
+	
 	private static SplitScreenControl splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
 	// For split screen need 2 CurrentPageManagers
 	private static CurrentPageManager screen1PageManager;
@@ -58,10 +60,10 @@ public class CurrentPageManager {
 		if (screen1PageManager==null || screen2PageManager==null) {
 			synchronized(CurrentPageManager.class)  {
 				if (screen1PageManager==null) {
-					screen1PageManager = new CurrentPageManager();
+					screen1PageManager = new CurrentPageManager(Screen.SCREEN_1);
 				}
 				if (screen2PageManager==null) {
-					screen2PageManager = new CurrentPageManager();
+					screen2PageManager = new CurrentPageManager(Screen.SCREEN_2);
 				}
 			}
 		}
@@ -72,7 +74,9 @@ public class CurrentPageManager {
 		}
 	}
 
-	private CurrentPageManager() {
+	private CurrentPageManager(Screen splitScreenNo) {
+		this.splitScreenNo = splitScreenNo;
+		
 		currentBibleVerse = new CurrentBibleVerse();
 		currentBiblePage = new CurrentBiblePage(currentBibleVerse);
 		currentCommentaryPage = new CurrentCommentaryPage(currentBibleVerse);
@@ -224,41 +228,6 @@ public class CurrentPageManager {
 		return bookPage;
 	}
 
-	/** called during app close down to save state
-	 * 
-	 * @param outState
-	 */
-	public void saveState(SharedPreferences outState) {
-		Log.i(TAG, "save state");
-		currentBiblePage.saveState(outState);
-		currentCommentaryPage.saveState(outState);
-		currentDictionaryPage.saveState(outState);
-		currentGeneralBookPage.saveState(outState);
-		currentMapPage.saveState(outState);
-		
-		SharedPreferences.Editor editor = outState.edit();
-		editor.putString("currentPageCategory", currentDisplayedPage.getBookCategory().getName());
-		editor.commit();
-	}
-	/** called during app start-up to restore previous state
-	 * 
-	 * @param inState
-	 */
-	public void restoreState(SharedPreferences inState) {
-		Log.i(TAG, "restore state");
-		currentBiblePage.restoreState(inState);
-		currentCommentaryPage.restoreState(inState);
-		currentDictionaryPage.restoreState(inState);
-		currentGeneralBookPage.restoreState(inState);
-		currentMapPage.restoreState(inState);
-		
-		String restoredPageCategoryName = inState.getString("currentPageCategory", null);
-		if (StringUtils.isNotEmpty(restoredPageCategoryName)) {
-			BookCategory restoredBookCategory = BookCategory.fromString(restoredPageCategoryName);
-			currentDisplayedPage = getBookPage(restoredBookCategory);
-		}
-	}
-	
 	public boolean isCommentaryShown() {
 		return currentCommentaryPage == currentDisplayedPage;
 	}
@@ -285,7 +254,7 @@ public class CurrentPageManager {
 
     /** save current page and document state */
 	protected void saveState() {
-    	Log.i(TAG, "Saving instance state");
+    	Log.i(TAG, "Save instance state for screen "+splitScreenNo);
     	SharedPreferences settings = getAppStateSharedPreferences();
 		saveState(settings);
 	}
@@ -293,14 +262,57 @@ public class CurrentPageManager {
 	/** restore current page and document state */
     private void restoreState() {
     	try {
-        	Log.i(TAG, "Restore instance state");
+        	Log.i(TAG, "Restore instance state for screen "+splitScreenNo);
         	SharedPreferences settings = getAppStateSharedPreferences();
     		restoreState(settings);
     	} catch (Exception e) {
     		Log.e(TAG, "Restore error", e);
     	}
     }
-    
+	/** called during app close down to save state
+	 * 
+	 * @param outState
+	 */
+	private void saveState(SharedPreferences outState) {
+		Log.i(TAG, "save state");
+		String screenId = getScreenIdForState();
+
+		currentBiblePage.saveState(outState, screenId);
+		currentCommentaryPage.saveState(outState, screenId);
+		currentDictionaryPage.saveState(outState, screenId);
+		currentGeneralBookPage.saveState(outState, screenId);
+		currentMapPage.saveState(outState, screenId);
+		
+		SharedPreferences.Editor editor = outState.edit();
+		editor.putString("currentPageCategory"+screenId, currentDisplayedPage.getBookCategory().getName());
+		editor.commit();
+	}
+	/** called during app start-up to restore previous state
+	 * 
+	 * @param inState
+	 */
+	private void restoreState(SharedPreferences inState) {
+		Log.i(TAG, "restore state");
+		String screenId = getScreenIdForState();
+
+		currentBiblePage.restoreState(inState, screenId);
+		currentCommentaryPage.restoreState(inState, screenId);
+		currentDictionaryPage.restoreState(inState, screenId);
+		currentGeneralBookPage.restoreState(inState, screenId);
+		currentMapPage.restoreState(inState, screenId);
+		
+		String restoredPageCategoryName = inState.getString("currentPageCategory"+screenId, null);
+		if (StringUtils.isNotEmpty(restoredPageCategoryName)) {
+			BookCategory restoredBookCategory = BookCategory.fromString(restoredPageCategoryName);
+			currentDisplayedPage = getBookPage(restoredBookCategory);
+		}
+	}
+	
+	private String getScreenIdForState() {
+		// need to have empty screenId for screen 1 so as to use pre-splitScreen state
+		return Screen.SCREEN_1==splitScreenNo? "" : "_SCREEN2";
+	}
+	
     private SharedPreferences getAppStateSharedPreferences() {
     	return BibleApplication.getApplication().getSharedPreferences(saveStateTag, 0);
     }
