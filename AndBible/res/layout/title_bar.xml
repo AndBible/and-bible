@@ -69,7 +69,7 @@
 					style="@style/TitleBarToggleButton"
 		/>
    	    <Button android:id="@+id/quickSplitScreen"
-		        android:visibility="invisible"
+		        android:visibility="gone"
 				style="@style/TitleBarButton"
 				android:text="¦"
 	    />

@@ -448,8 +448,8 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 				
 				@Override
 				public void run() {
-					loadUrl("javascript:location.href='#"+verseNo+"'");
-//					loadUrl("javascript:$('html,body').animate({scrollTop: $('#"+verseNo+"').offset().top}, 1000);");
+//					loadUrl("javascript:location.href='#"+verseNo+"'");
+					loadUrl("javascript:scrollTo('"+verseNo+"')");
 				}
 			});
 		}

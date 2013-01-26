@@ -40,6 +40,27 @@ function getElementsByClass( searchClass, domNode, tagName) {
 			matches.push(tagMatches[i]);
 	} 
 	return matches;
-} 
+}
 
-
+function scrollTo(toId) {
+	window.jsInterface.log("scrollTo called id:"+toId)
+	var toElement = document.getElementById(toId);
+	if (toElement != null) {
+		toPosition = toElement.offsetTop;
+		doScrollTo(document.body, document.body.scrollTop, toPosition);
+	}
+}
+function doScrollTo(element, elementPosition, to) {
+	// 20 pixels/100ms is the standard speed
+	var speed = 20; 
+    var difference = to - elementPosition;
+    if (difference == 0) return;
+    var perTick = Math.max(Math.min(speed, difference),-speed); 
+    
+    setTimeout(function() {
+    	// scrolling is sometimes delayed so keep track of scrollTop rather than calling element.scrollTop
+    	var newElementScrollTop = elementPosition + perTick;
+        element.scrollTop = newElementScrollTop;
+        doScrollTo(element, newElementScrollTop, to);
+    }, 100);
+}
