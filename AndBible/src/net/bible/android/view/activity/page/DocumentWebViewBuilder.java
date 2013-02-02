@@ -7,10 +7,12 @@ import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.view.activity.base.DocumentView;
+import net.bible.android.view.util.TouchDelegateView;
 import net.bible.service.common.CommonUtils;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -37,11 +39,12 @@ public class DocumentWebViewBuilder {
 	private BibleView bibleWebView2;
 	private static final int BIBLE_WEB_VIEW_ID = 991;
 	private static final int BIBLE_WEB_VIEW2_ID = 992;
-	private SeparatorHandle separatorLineHandle;
+	private Separator separator;
 	
 	private static SplitScreenControl splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
 
-	private ViewGroup bottomSplitFrameLayout;
+	private ViewGroup splitFrameLayout1;
+	private ViewGroup splitFrameLayout2;
 	private ViewGroup parentLayout;
 	private Activity mainActivity;
 
@@ -54,9 +57,10 @@ public class DocumentWebViewBuilder {
         bibleWebView2 = new BibleView(this.mainActivity, Screen.SCREEN_2);
         bibleWebView2.setId(BIBLE_WEB_VIEW2_ID);
         
-        separatorLineHandle = new SeparatorHandle(this.mainActivity);
+        separator = new Separator(this.mainActivity);
         
-        bottomSplitFrameLayout = new FrameLayout(this.mainActivity);
+        splitFrameLayout1 = new FrameLayout(this.mainActivity);
+        splitFrameLayout2 = new FrameLayout(this.mainActivity);
 
 	}
 	
@@ -78,38 +82,55 @@ public class DocumentWebViewBuilder {
     		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, 0, 1);
 
 			// add top view whether split or not
-			parent.addView(bibleWebView, lp);
-    		mainActivity.registerForContextMenu(bibleWebView);
 
-    		if (splitScreenControl.isSplit()) {
-    			// line dividing the split screens
-    			View separatorLine = new View(this.mainActivity);
-    			separatorLine.setBackgroundColor(0xFF6B6B6B);
-    			parent.addView(separatorLine, new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, (int) BibleApplication.getApplication().getResources().getDimension(R.dimen.split_screen_separator_width), 0));
+    		if (!splitScreenControl.isSplit()) {
+    			parent.addView(bibleWebView, lp);
+    		} else {
+    			//AddTop FrameLayout, then webview, then separatorTouchExtender(beside separator)
+    			// add a FrameLayout
+        		parent.addView(splitFrameLayout1, lp);
 
-    			// add a FrameLayout to the lower part of the LinearLayout to contain both the webView and separator handle overlaid
-        		LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, 0, 1);
-        		parent.addView(bottomSplitFrameLayout, lp2);
-        		
     			// add bible to framelayout
     			LayoutParams frameLayoutParamsBibleWebView = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-    			bottomSplitFrameLayout.addView(bibleWebView2, frameLayoutParamsBibleWebView);
-    			
-    			// add separator handle to framelayout
-    			FrameLayout.LayoutParams frameLayoutParamsSeparatorHandle = new FrameLayout.LayoutParams(CommonUtils.convertDipsToPx(40), CommonUtils.convertDipsToPx(20), Gravity.TOP | Gravity.CENTER_HORIZONTAL);
-    			bottomSplitFrameLayout.addView(separatorLineHandle, frameLayoutParamsSeparatorHandle);
+    			splitFrameLayout1.addView(bibleWebView, frameLayoutParamsBibleWebView);
 
-    			separatorLineHandle.setView1LayoutParams(lp);
-    			separatorLineHandle.setView2LayoutParams(lp2);
+    			// add separator handle touch delegate to framelayout
+    			FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, CommonUtils.convertDipsToPx(10), Gravity.BOTTOM);
+    			splitFrameLayout1.addView(separator.getTouchDelegateView1(), frameLayoutParamsSeparatorDelegate);
+
+    			
+    			// line dividing the split screens
+    			parent.addView(separator, new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, (int) BibleApplication.getApplication().getResources().getDimension(R.dimen.split_screen_separator_width), 0));
+
+    			
+    			// add a FrameLayout to the lower part of the LinearLayout to contain both a webView and separator extension
+        		LinearLayout.LayoutParams lp2 = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, 0, 1);
+        		parent.addView(splitFrameLayout2, lp2);
+        		
+    			// add bible to framelayout
+    			LayoutParams frameLayoutParamsBibleWebView2 = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+    			splitFrameLayout2.addView(bibleWebView2, frameLayoutParamsBibleWebView2);
+    			
+    			// add separator handle touch delegate to framelayout
+    			FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate2 = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, CommonUtils.convertDipsToPx(10), Gravity.TOP);
+    			splitFrameLayout2.addView(separator.getTouchDelegateView2(), frameLayoutParamsSeparatorDelegate2);
+
+    			// separator will adjust layouts when dragged
+    			separator.setView1LayoutParams(lp);
+    			separator.setView2LayoutParams(lp2);
 
     			mainActivity.registerForContextMenu(bibleWebView2);
     		}
+    		mainActivity.registerForContextMenu(bibleWebView);
     	}
 	}
 
 	public void removeWebView(ViewGroup parent) {
-		if (bottomSplitFrameLayout!=null) {
-			bottomSplitFrameLayout.removeAllViews();
+		if (splitFrameLayout1!=null) {
+			splitFrameLayout1.removeAllViews();
+		}
+		if (splitFrameLayout2!=null) {
+			splitFrameLayout2.removeAllViews();
 		}
 		if (parent!=null) {
 			parent.removeAllViews();
@@ -123,27 +144,33 @@ public class DocumentWebViewBuilder {
 			return bibleWebView2;
 		}
 	}
-	
 
-	//TODO USE TouchDelegate TO EXTEND TOUCH AREA
-	// SEE http://stackoverflow.com/questions/9667870/how-to-extend-a-views-touch-area
-	private class SeparatorHandle extends View {
+	private class Separator extends View {
 
-//		private int screenHeightPx;
+		// offset absolute points from top of layout to enable correct calculation of screen weights in layout
+		private float parentTopPx;
+
+		// the offset of the touch from th centre of the separator - to prevent initial jerk of separator to touch point
+		private int touchOffsetPx;
+		
 		private LinearLayout.LayoutParams view1LayoutParams;
 		private LinearLayout.LayoutParams view2LayoutParams;
+
+		private TouchDelegateView touchDelegateView1;
+		private TouchDelegateView touchDelegateView2;
 		
+		private static final int SEPARATOR_COLOUR = 0xFF6B6B6B;
+		private static final int SEPARATOR_DRAG_COLOUR = Color.GREEN;
+
 		private static final String TAG = "Separator";
 		
-		public SeparatorHandle(Context context) {
+		public Separator(Context context) {
 			super(context);
-	        setBackgroundResource(R.drawable.separator_handle_horizontal);
+	        setBackgroundColor(SEPARATOR_COLOUR);
+	        touchDelegateView1 = new TouchDelegateView(context, this);
+	        touchDelegateView2 = new TouchDelegateView(context, this);
 		}
 		
-		private float containerTopY;
-		
-		private boolean dragging = false;
-
 		/** Must use rawY below because this view is moving and getY would give the position relative to a moving component.
 		 * 
 		 */
@@ -152,32 +179,27 @@ public class DocumentWebViewBuilder {
 		    switch (event.getAction() & MotionEvent.ACTION_MASK)   
 		    {
 		    case MotionEvent.ACTION_DOWN:
-		    	Log.d(TAG, "Down x:"+event.getX()+" y:"+event.getY());
-		    	containerTopY = parentLayout.getTop();
-		    	getBackground().setState(View.PRESSED_ENABLED_STATE_SET);
-		        //setBackgroundColor(0xFF6B6B6B);
-		        dragging = true;
+		    	Log.d(TAG, " y:"+event.getRawY());
+		    	int[] rawParentLocation = new int[2]; 
+		    	parentLayout.getLocationOnScreen(rawParentLocation);
+		    	parentTopPx = rawParentLocation[1];
+		        setBackgroundColor(SEPARATOR_DRAG_COLOUR);
+		        touchOffsetPx = (int)event.getRawY()-getCentreY();
 		        break;
-		    case MotionEvent.ACTION_POINTER_DOWN:   // first and second finger down
-		    	Log.d(TAG, "Pointer Down x:"+event.getX()+" y:"+event.getY());
-		        break;
-		    case MotionEvent.ACTION_UP: // first finger lifted
+		    case MotionEvent.ACTION_UP:
+		    case MotionEvent.ACTION_POINTER_UP:
 		    	Log.d(TAG, "Up x:"+event.getX()+" y:"+event.getY());
-		    	getBackground().setState(View.ENABLED_STATE_SET);
-		    	break;
-		    case MotionEvent.ACTION_POINTER_UP:   // second finger lifted
-		    	Log.d(TAG, "Pointer Up x:"+event.getX()+" y:"+event.getY());
-		        //setBackgroundColor(0x556B6B6B);
-		    	getBackground().setState(View.ENABLED_STATE_SET);
-		    	dragging = false;
+		        setBackgroundColor(SEPARATOR_COLOUR);
 		        break;
 		    case MotionEvent.ACTION_MOVE:
-		    	int screenHeightPx = getScreenHeightPx();
-		    	Log.d(TAG, "container top Y:"+containerTopY+" y:"+event.getRawY()+" offset y:"+(event.getRawY()-containerTopY)+" screen height px:"+screenHeightPx);
-		    	float y = event.getRawY()-containerTopY;
-		    	Log.d(TAG, "weight 1:"+y/screenHeightPx+" weight 2:"+(1-(y/screenHeightPx)));
-		    	view1LayoutParams.weight = y/screenHeightPx;
-		    	view2LayoutParams.weight = 1-(y/screenHeightPx);
+		    	int parentHeightPx = getParentHeightPx();
+		    	Log.d(TAG, "container top Y:"+parentTopPx+" raw y:"+event.getRawY()+" offset y:"+(event.getRawY()-parentTopPx)+" parent height px:"+parentHeightPx);
+		    	// calculate y offset in pixels from top of parent layout
+		    	float y = event.getRawY()-parentTopPx-touchOffsetPx;
+		    	
+		    	// change the weights of both bible views to effectively move the separator
+		    	view1LayoutParams.weight = y/parentHeightPx;
+		    	view2LayoutParams.weight = 1-(y/parentHeightPx);
 		    	parentLayout.requestLayout();
 		        break;
 		    }   
@@ -185,28 +207,13 @@ public class DocumentWebViewBuilder {
 			return true; //super.onTouchEvent(event);
 		}
 
-		private int getScreenHeightPx() {
-//			separatorLine.setScreenHeightPx(CommonUtils.convertDipsToPx(ScreenSettings.getContentViewHeightDips()));
-			return parentLayout.getHeight()+(int)containerTopY;
+		private int getParentHeightPx() {
+			return parentLayout.getHeight();
 		}
-//		private void expandTouchArea() {
-//			final View delegate = Separator.this;
-//			// post a runnable to the parent view's message queue so its run
-//			// after the view is drawn
-//			parentLayout.post(new Runnable() {
-//				@Override
-//				public void run() {
-//					Rect delegateArea = new Rect();
-//					getHitRect(delegateArea);
-//					delegateArea.top -= 200;
-////					delegateArea.bottom += 100;
-//					TouchDelegate expandedArea = new TouchDelegate(delegateArea, delegate);
-//					// give the delegate to an ancestor of the view we're delegating the area to
-//					bibleWebView.setTouchDelegate(expandedArea);
-//				}
-//			});
-//		}
 
+		private int getCentreY() {
+			return +(int)parentTopPx + ((getTop()+getBottom())/2);
+		}
 		public void setView1LayoutParams(LinearLayout.LayoutParams view1LayoutParams) {
 			this.view1LayoutParams = view1LayoutParams;
 		}
@@ -214,7 +221,12 @@ public class DocumentWebViewBuilder {
 		public void setView2LayoutParams(LinearLayout.LayoutParams view2LayoutParams) {
 			this.view2LayoutParams = view2LayoutParams;
 		}
+
+		public TouchDelegateView getTouchDelegateView1() {
+			return touchDelegateView1;
+		}
+		public TouchDelegateView getTouchDelegateView2() {
+			return touchDelegateView2;
+		}
 	}
-	
-	
 }
