@@ -38,27 +38,39 @@ public class SplitScreenControl {
 	}
 	
 	public void synchronizeScreens() {
+		CurrentPage activePage = CurrentPageManager.getInstance(getCurrentActiveScreen()).getCurrentPage();
+		CurrentPage inactivePage = CurrentPageManager.getInstance(getNonActiveScreen()).getCurrentPage();
+		Key activeScreenKey = activePage.getSingleKey();
+		boolean isFirstTimeInit = (lastActiveScreenKey==null);
+		boolean inactiveUpdated = false;
+		
 		if (isSplit() && isSplitScreensLinked()) {
-			CurrentPage activePage = CurrentPageManager.getInstance(getCurrentActiveScreen()).getCurrentPage();
-			CurrentPage inactivePage = CurrentPageManager.getInstance(getNonActiveScreen()).getCurrentPage();
+			
 			if (isSynchronizable(activePage) && isSynchronizable(inactivePage)) {
-				Key activeScreenKey = activePage.getSingleKey();
 				// prevent infinite loop as each screen update causes a synchronize
-				if (lastActiveScreenKey==null || !lastActiveScreenKey.equals(activeScreenKey)) {
+				if (isFirstTimeInit || !lastActiveScreenKey.equals(activeScreenKey)) {
 					updateInactiveScreen(inactivePage, activeScreenKey, inactivePage.getKey());
-					lastActiveScreenKey = activeScreenKey;
+					inactiveUpdated = true;
 				}
-			}
+			} 
 		}
+
+		// force inactive screen to display something otherwise it may be initially blank
+		if (isFirstTimeInit && !inactiveUpdated) {
+			// force an update of the inactive page to prevent blant screen
+			updateInactiveScreen(inactivePage, inactivePage.getKey(), inactivePage.getKey());
+		}
+		
+		lastActiveScreenKey = activeScreenKey;
 	}
 	
-	private void updateInactiveScreen(CurrentPage inactivePage,	Key activeScreenKey, Key inactiveScreenKey) {
+	private void updateInactiveScreen(CurrentPage inactivePage,	Key targetScreenKey, Key inactiveScreenKey) {
 		// only bibles and commentaries get this far so fine to convert key to verse
-		Verse targetVerse = KeyUtil.getVerse(activeScreenKey);
+		Verse targetVerse = KeyUtil.getVerse(targetScreenKey);
 		Verse currentVerse = KeyUtil.getVerse(inactiveScreenKey);
 		
 		// update secondary split CurrentPage info using doSetKey which does not cause screen updates
-		inactivePage.doSetKey(activeScreenKey);
+		inactivePage.doSetKey(targetScreenKey);
 		
 		// update split screen as smoothly as possible i.e. just scroll if verse is already on page
 		if (!isFirstSynchronize && BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && targetVerse.isSameChapter(currentVerse)	) {
