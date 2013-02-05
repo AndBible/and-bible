@@ -15,6 +15,8 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
 
+import android.util.Log;
+
 public class SplitScreenControl {
 	public enum Screen {SCREEN_1, SCREEN_2};
 	
@@ -39,16 +41,23 @@ public class SplitScreenControl {
 		return currentActiveScreen == this.currentActiveScreen;
 	}
 	
+	/** Synchronise the inactive key and inactive screen with the active key and screen if required
+	 */
 	public void synchronizeScreens() {
+		Log.d(TAG, "synchronizeScreens");
 		CurrentPage activePage = CurrentPageManager.getInstance(getCurrentActiveScreen()).getCurrentPage();
 		CurrentPage inactivePage = CurrentPageManager.getInstance(getNonActiveScreen()).getCurrentPage();
 		Key activeScreenKey = activePage.getSingleKey();
 		boolean isFirstTimeInit = (lastActiveScreenKey==null);
 		boolean inactiveUpdated = false;
 		boolean isTotalRefreshRequired = isFirstTimeInit ||	lastSynchWasInNightMode!=ScreenSettings.isNightMode();
-		
+
 		if (isSplit() && isSplitScreensLinked()) {
-			
+
+			// inactive screen may not be displayed but if switched to the key must be correct
+			// Only Bible and cmtry are synch'd and they share a Verse key
+			updateInactiveBibleKey();
+
 			if (isSynchronizable(activePage) && isSynchronizable(inactivePage)) {
 				// prevent infinite loop as each screen update causes a synchronize
 				if (isFirstTimeInit || !lastActiveScreenKey.equals(activeScreenKey)) {
@@ -69,13 +78,22 @@ public class SplitScreenControl {
 		lastSynchWasInNightMode = ScreenSettings.isNightMode();
 	}
 	
+	/** Only call if screens are synchronised.  Update synch'd keys even if inactive page not shown so if it is shown then it is correct
+	 */
+	private void updateInactiveBibleKey() {
+		Log.d(TAG, "updateInactiveBibleKey");
+		// update secondary split CurrentPage info using doSetKey which does not cause screen updates
+		Key activeBibleKey = CurrentPageManager.getInstance(getCurrentActiveScreen()).getCurrentBible().getSingleKey();
+		CurrentPageManager.getInstance(getNonActiveScreen()).getCurrentBible().doSetKey(activeBibleKey);
+	}
+	
+	/** refresh/synch inactive screen if required
+	 */
 	private void updateInactiveScreen(CurrentPage inactivePage,	Key targetScreenKey, Key inactiveScreenKey, boolean forceRefresh) {
+		Log.d(TAG, "updateInactiveScreen");
 		// only bibles and commentaries get this far so fine to convert key to verse
 		Verse targetVerse = KeyUtil.getVerse(targetScreenKey);
 		Verse currentVerse = KeyUtil.getVerse(inactiveScreenKey);
-		
-		// update secondary split CurrentPage info using doSetKey which does not cause screen updates
-		inactivePage.doSetKey(targetScreenKey);
 		
 		// update split screen as smoothly as possible i.e. just scroll if verse is already on page
 		if (!forceRefresh && BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && targetVerse.isSameChapter(currentVerse)	) {
@@ -112,7 +130,9 @@ public class SplitScreenControl {
 	public void setSplit(boolean isSplit) {
 		if (this.isSplit!=isSplit) {
 			this.isSplit = isSplit;
-			synchronizeScreens();
+			if (isSplit) {
+				synchronizeScreens();
+			}
 		}
 	}
 
