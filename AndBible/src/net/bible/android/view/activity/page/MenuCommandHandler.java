@@ -3,6 +3,7 @@ package net.bible.android.view.activity.page;
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
@@ -20,6 +21,7 @@ import net.bible.android.view.activity.settings.SettingsActivity;
 import net.bible.android.view.activity.speak.Speak;
 import net.bible.android.view.util.DataPipe;
 import net.bible.service.common.CommonUtils;
+
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -142,7 +144,7 @@ public class MenuCommandHandler {
 	        case R.id.add_bookmark:
 				ControlFactory.getInstance().getBookmarkControl().bookmarkCurrentVerse();
 				// refresh view to show new bookmark icon
-				callingActivity.getBibleContentManager().updateText(true);
+				PassageChangeMediator.getInstance().forcePageUpdate();
 				isHandled = true;
 	        	break;
 	        case R.id.myNoteAddEdit:

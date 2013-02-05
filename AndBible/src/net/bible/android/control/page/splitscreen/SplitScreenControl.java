@@ -7,6 +7,7 @@ import net.bible.android.control.event.splitscreen.SplitScreenEventManager;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.UpdateTextTask;
+import net.bible.service.device.ScreenSettings;
 import net.bible.service.format.Note;
 
 import org.crosswire.jsword.book.BookCategory;
@@ -24,6 +25,7 @@ public class SplitScreenControl {
 	private Screen currentActiveScreen = Screen.SCREEN_1;
 	
 	private Key lastActiveScreenKey;
+	private boolean lastSynchWasInNightMode;
 	private boolean isFirstSynchronize = true;
 	
 	private SplitScreenEventManager splitScreenEventManager = new SplitScreenEventManager();
@@ -43,28 +45,31 @@ public class SplitScreenControl {
 		Key activeScreenKey = activePage.getSingleKey();
 		boolean isFirstTimeInit = (lastActiveScreenKey==null);
 		boolean inactiveUpdated = false;
+		boolean isTotalRefreshRequired = isFirstTimeInit ||	lastSynchWasInNightMode!=ScreenSettings.isNightMode();
 		
 		if (isSplit() && isSplitScreensLinked()) {
 			
 			if (isSynchronizable(activePage) && isSynchronizable(inactivePage)) {
 				// prevent infinite loop as each screen update causes a synchronize
 				if (isFirstTimeInit || !lastActiveScreenKey.equals(activeScreenKey)) {
-					updateInactiveScreen(inactivePage, activeScreenKey, inactivePage.getKey());
+					updateInactiveScreen(inactivePage, activeScreenKey, inactivePage.getKey(), isTotalRefreshRequired);
 					inactiveUpdated = true;
 				}
 			} 
 		}
 
 		// force inactive screen to display something otherwise it may be initially blank
-		if (isFirstTimeInit && !inactiveUpdated) {
+		// or if nightMode has changed then force an update
+		if (!inactiveUpdated && isTotalRefreshRequired) {
 			// force an update of the inactive page to prevent blant screen
-			updateInactiveScreen(inactivePage, inactivePage.getKey(), inactivePage.getKey());
+			updateInactiveScreen(inactivePage, inactivePage.getKey(), inactivePage.getKey(), isTotalRefreshRequired);
 		}
 		
 		lastActiveScreenKey = activeScreenKey;
+		lastSynchWasInNightMode = ScreenSettings.isNightMode();
 	}
 	
-	private void updateInactiveScreen(CurrentPage inactivePage,	Key targetScreenKey, Key inactiveScreenKey) {
+	private void updateInactiveScreen(CurrentPage inactivePage,	Key targetScreenKey, Key inactiveScreenKey, boolean forceRefresh) {
 		// only bibles and commentaries get this far so fine to convert key to verse
 		Verse targetVerse = KeyUtil.getVerse(targetScreenKey);
 		Verse currentVerse = KeyUtil.getVerse(inactiveScreenKey);
@@ -73,7 +78,7 @@ public class SplitScreenControl {
 		inactivePage.doSetKey(targetScreenKey);
 		
 		// update split screen as smoothly as possible i.e. just scroll if verse is already on page
-		if (!isFirstSynchronize && BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && targetVerse.isSameChapter(currentVerse)	) {
+		if (!forceRefresh && BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && targetVerse.isSameChapter(currentVerse)	) {
 			splitScreenEventManager.scrollSecondaryScreen(getNonActiveScreen(), targetVerse.getVerse());
 		} else {
 			new UpdateInactiveScreenTextTask().execute(inactivePage);

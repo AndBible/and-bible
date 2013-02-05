@@ -137,7 +137,6 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 
 			@Override
 			public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
-				// TODO Auto-generated method stub
 				super.onReceivedError(view, errorCode, description, failingUrl);
 				Log.e(TAG, description);
 			}
@@ -195,7 +194,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	 */
 	@Override
 	public boolean changeBackgroundColour() {
-		// if night mode then set scrollbar colour
+		// if night mode then set dark background colour
 		int newBackgroundColour = ScreenSettings.isNightMode() ? Color.BLACK : Color.WHITE;
 		boolean changed = mCurrentBackgroundColour != newBackgroundColour;
 		
@@ -213,6 +212,9 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	@Override
 	public void show(String html, int jumpToVerse, float jumpToYOffsetRatio) {
 		Log.d(TAG, "Show(html,"+jumpToVerse+","+jumpToYOffsetRatio+")");
+		// set background colour if necessary
+		changeBackgroundColour();
+		
 		// call this from here because some documents may require an adjusted font size e.g. those using Greek font
 		applyFontSize();
 		
@@ -394,7 +396,6 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	 * @return
 	 */
     private int getMaxVerticalScroll() {
-    	
     	//TODO get these once, they probably won't change 
         return computeVerticalScrollRange()-computeVerticalScrollExtent();
     }
@@ -436,6 +437,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	@Override
 	public void updateSecondaryScreen(Screen updateScreen, String html, int verseNo) {
 		if (splitScreenNo == updateScreen) {
+			changeBackgroundColour();
 			show(html, verseNo, 0);
 		}		
 	}

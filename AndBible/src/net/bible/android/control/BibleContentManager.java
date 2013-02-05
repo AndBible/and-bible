@@ -37,11 +37,11 @@ public class BibleContentManager {
 		PassageChangeMediator.getInstance().setBibleContentManager(this);
 	}
 	
-    public void updateText() {
+    /* package */ void updateText() {
     	updateText(false);
     }
     
-    public void updateText(boolean forceUpdate) {
+    /* package */ void updateText(boolean forceUpdate) {
     	CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
 		Book document = currentPage.getCurrentDocument();
 		Key key = currentPage.getKey();

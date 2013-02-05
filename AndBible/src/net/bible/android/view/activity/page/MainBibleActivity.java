@@ -76,7 +76,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
         PassageChangeMediator.getInstance().setMainBibleActivity(MainBibleActivity.this);
 
         // force the screen to be populated
-        bibleContentManager.updateText(true);
+		PassageChangeMediator.getInstance().forcePageUpdate();
 
     	// need to know when app is returned to foreground to check the screen colours
     	CurrentActivityHolder.getInstance().addAppToBackgroundListener(new AppToBackgroundListener() {
@@ -144,7 +144,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		ScreenSettings.updateNightModeValue();
 		// then update text if colour changes
     	if (documentViewManager.getDocumentView().changeBackgroundColour()) {
-    		bibleContentManager.updateText(true);
+			PassageChangeMediator.getInstance().forcePageUpdate();
     	}
 
     }
@@ -159,7 +159,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		// if not then don't redisplay because it would force the page to the top which would be annoying if you are half way down a gen book page
 		if (!ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().isSingleKey()) {
 			// force a recalculation of verse offsets
-			bibleContentManager.updateText(true);
+			PassageChangeMediator.getInstance().forcePageUpdate();
 		}
 	}
 
@@ -217,7 +217,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     @Override
     protected void preferenceSettingsChanged() {
     	documentViewManager.getDocumentView().applyPreferenceSettings();
-		bibleContentManager.updateText(true);
+		PassageChangeMediator.getInstance().forcePageUpdate();
     }
     
     /** allow current page to save any settings or data before being changed
@@ -237,7 +237,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 			@Override
 			public void run() {
 				documentViewManager.buildView();
-				getDocumentViewManager().getDocumentView().changeBackgroundColour();
 				
 				setProgressBar(true);
 			}
