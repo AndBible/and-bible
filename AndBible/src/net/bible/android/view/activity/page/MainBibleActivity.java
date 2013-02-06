@@ -6,7 +6,6 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
-import net.bible.android.control.event.splitscreen.SplitScreenEvent;
 import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
@@ -94,7 +93,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		ControlFactory.getInstance().getSplitScreenControl().addSplitScreenEventListener(new SplitScreenEventListener() {
 			
 			@Override
-			public void currentSplitScreenChanged(SplitScreenEvent e) {
+			public void currentSplitScreenChanged(Screen activeScreen) {
 				MainBibleActivity.this.updateToolbarButtonText();				
 			}
 

@@ -2,6 +2,7 @@ package net.bible.service.history;
 
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.CommonUtils;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
@@ -13,7 +14,7 @@ import android.util.Log;
  *      The copyright to this program is held by it's authors.
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class IntentHistoryItem implements HistoryItem {
+public class IntentHistoryItem extends HistoryItemBase {
 
 	private CharSequence description;
 	private Intent intent;
@@ -21,6 +22,7 @@ public class IntentHistoryItem implements HistoryItem {
 	private static final String TAG = "IntentHistoryItem"; 
 	
 	public IntentHistoryItem(CharSequence description, Intent intent) {
+		super();
 		this.description = description;
 		this.intent = intent;
 		

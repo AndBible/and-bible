@@ -2,11 +2,14 @@ package net.bible.android.control.page.splitscreen;
 
 import java.util.List;
 
+import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
+import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
 import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
 import net.bible.android.control.event.splitscreen.SplitScreenEventManager;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.UpdateTextTask;
+import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.device.ScreenSettings;
 import net.bible.service.format.Note;
 
@@ -28,11 +31,25 @@ public class SplitScreenControl {
 	
 	private Key lastActiveScreenKey;
 	private boolean lastSynchWasInNightMode;
-	private boolean isFirstSynchronize = true;
 	
 	private SplitScreenEventManager splitScreenEventManager = new SplitScreenEventManager();
 	
 	private static final String TAG = "SplitScreenControl";
+	
+	public SplitScreenControl() {
+		CurrentActivityHolder.getInstance().addAppToBackgroundListener(new AppToBackgroundListener() {
+			@Override
+			public void applicationNowInBackground(AppToBackgroundEvent e) {
+				// ensure nonactive screen is initialised when returning from background
+				lastActiveScreenKey = null;
+			}
+
+			@Override
+			public void applicationReturnedFromBackground(AppToBackgroundEvent e) {
+				lastActiveScreenKey = null;
+			}
+		});
+	}
 	
 	public boolean isFirstScreenActive() {
 		return currentActiveScreen==Screen.SCREEN_1;
@@ -58,12 +75,12 @@ public class SplitScreenControl {
 			// Only Bible and cmtry are synch'd and they share a Verse key
 			updateInactiveBibleKey();
 
-			if (isSynchronizable(activePage) && isSynchronizable(inactivePage)) {
-				// prevent infinite loop as each screen update causes a synchronize
-				if (isFirstTimeInit || !lastActiveScreenKey.equals(activeScreenKey)) {
-					updateInactiveScreen(inactivePage, activeScreenKey, inactivePage.getKey(), isTotalRefreshRequired);
-					inactiveUpdated = true;
-				}
+			// prevent infinite loop as each screen update causes a synchronise by comparing last key
+			// only update pages if empty or synchronised
+			if (isFirstTimeInit || 
+			   (isSynchronizable(activePage) && isSynchronizable(inactivePage) && !lastActiveScreenKey.equals(activeScreenKey)) ) {
+				updateInactiveScreen(inactivePage, activeScreenKey, inactivePage.getKey(), isTotalRefreshRequired);
+				inactiveUpdated = true;
 			} 
 		}
 
@@ -101,7 +118,6 @@ public class SplitScreenControl {
 		} else {
 			new UpdateInactiveScreenTextTask().execute(inactivePage);
 		}
-		isFirstSynchronize = false;
 	}
 
 	/** only Bibles and commentaries have the same sort of key and can be synchronized

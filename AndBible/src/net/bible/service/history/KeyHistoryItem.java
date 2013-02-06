@@ -14,7 +14,7 @@ import android.util.Log;
  *      The copyright to this program is held by it's authors.
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class KeyHistoryItem implements HistoryItem {
+public class KeyHistoryItem extends HistoryItemBase {
 	private Book document;
 	private Key key;
 	private float yOffsetRatio;

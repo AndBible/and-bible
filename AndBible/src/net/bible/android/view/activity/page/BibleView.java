@@ -3,7 +3,6 @@ package net.bible.android.view.activity.page;
 import java.lang.reflect.Method;
 
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.event.splitscreen.SplitScreenEvent;
 import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
@@ -162,6 +161,8 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 
 		// if this webview becomes (in)active then must start/stop auto-scroll
 		splitScreenControl.addSplitScreenEventListener(this);
+		// initialise split state related code - always screen1 is selected first
+		currentSplitScreenChanged(splitScreenControl.getCurrentActiveScreen());
 	}
 	
 	@Override
@@ -424,8 +425,8 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	}
 
 	@Override
-	public void currentSplitScreenChanged(SplitScreenEvent e) {
-		if (splitScreenNo == e.getCurrentActiveScreen()) {
+	public void currentSplitScreenChanged(Screen activeScreen) {
+		if (splitScreenNo == activeScreen) {
 			mJavascriptInterface.setNotificationsEnabled(true);
 			resumeTiltScroll();
 		} else {

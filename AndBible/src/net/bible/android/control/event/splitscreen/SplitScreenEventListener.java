@@ -5,7 +5,7 @@ import java.util.EventListener;
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 
 public interface SplitScreenEventListener extends EventListener {
-	void currentSplitScreenChanged(SplitScreenEvent e);
+	void currentSplitScreenChanged(Screen activeScreen);
 	
 	// active screen has changed and the screens are synchronized so need to change inactive split screen
 	void updateSecondaryScreen(Screen updateScreen, String html, int verseNo);

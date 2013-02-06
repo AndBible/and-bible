@@ -24,15 +24,14 @@ public class SplitScreenEventManager {
 
 	/** detail/verse changed
 	 */
-	public void splitScreenDetailChanged(Screen screen) {
-		SplitScreenEvent event = new SplitScreenEvent(screen);
+	public void splitScreenDetailChanged(Screen activeScreen) {
 		Object[] listeners = splitScreenEventListeners.getListenerList();
 		// loop through each listener and pass on the event if needed
 		int numListeners = listeners.length;
 		for (int i = 0; i < numListeners; i += 2) {
 			if (listeners[i] == SplitScreenEventListener.class) {
 				// pass the event to the listeners event dispatch method
-				((SplitScreenEventListener) listeners[i + 1]).currentSplitScreenChanged(event);
+				((SplitScreenEventListener) listeners[i + 1]).currentSplitScreenChanged(activeScreen);
 			}
 		}
 	}

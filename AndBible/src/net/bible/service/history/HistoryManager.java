@@ -5,8 +5,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Stack;
 
+import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.view.activity.base.AndBibleActivity;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.page.MainBibleActivity;
@@ -27,10 +29,14 @@ import android.util.Log;
 public class HistoryManager {
 
 	private static int MAX_HISTORY = 80;
-	private Stack<HistoryItem> history = new Stack<HistoryItem>();
+	private Stack<HistoryItem> historyScreen1 = new Stack<HistoryItem>();
+	private Stack<HistoryItem> historyScreen2 = new Stack<HistoryItem>();
+
 	private static HistoryManager singleton = new HistoryManager();
 
 	private boolean isGoingBack = false;
+	
+	private static SplitScreenControl splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
 	
 	private static final String TAG = "HistoryManager";
 	
@@ -39,7 +45,7 @@ public class HistoryManager {
 	}
 	
 	public boolean canGoBack() {
-		return history.size()>0;
+		return getHistoryStack().size()>0;
 	}
 	
 	/**
@@ -49,7 +55,7 @@ public class HistoryManager {
 		// if we cause the change by requesting Back then ignore it
 		if (!isGoingBack) {
 			HistoryItem item = createHistoryItem();
-			add(history, item);
+			add(getHistoryStack(), item);
 		}
 	}
 	private HistoryItem createHistoryItem() {
@@ -76,13 +82,13 @@ public class HistoryManager {
 	}
 	
 	public void goBack() {
-		if (history.size()>0) {
+		if (getHistoryStack().size()>0) {
 			try {
-				Log.d(TAG, "History size:"+history.size());
+				Log.d(TAG, "History size:"+getHistoryStack().size());
 				isGoingBack = true;
 	
 				// pop the previous item
-				HistoryItem previousItem = history.pop();
+				HistoryItem previousItem = getHistoryStack().pop();
 	
 				if (previousItem!=null) {
 					Log.d(TAG, "Going back to:"+previousItem);
@@ -101,7 +107,7 @@ public class HistoryManager {
 	}
 	
 	public List<HistoryItem> getHistory() {
-		List<HistoryItem> allHistory = new ArrayList<HistoryItem>(history);
+		List<HistoryItem> allHistory = new ArrayList<HistoryItem>(getHistoryStack());
 		// reverse so most recent items are at top rather than end
 		Collections.reverse(allHistory);
 		return allHistory;
@@ -125,6 +131,14 @@ public class HistoryManager {
 					stack.remove(0);
 				}
 			}
+		}
+	}
+	
+	private Stack<HistoryItem> getHistoryStack() {
+		if (splitScreenControl.isFirstScreenActive()) {
+			return historyScreen1;
+		} else {
+			return historyScreen2;
 		}
 	}
 }
