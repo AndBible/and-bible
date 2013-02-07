@@ -13,12 +13,15 @@ import net.bible.service.common.CommonUtils;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
@@ -43,10 +46,14 @@ public class DocumentWebViewBuilder {
 	
 	private static SplitScreenControl splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
 
+	private ViewGroup parentLayout;
 	private ViewGroup splitFrameLayout1;
 	private ViewGroup splitFrameLayout2;
-	private ViewGroup parentLayout;
+	private Button minimiseScreen2Button;
+	private Button restoreScreen2Button;
 	private Activity mainActivity;
+	
+	private static final String TAG="DocumentWebViewBuilder";
 
 	public DocumentWebViewBuilder(Activity mainActivity) {
 		this.mainActivity = mainActivity;
@@ -62,6 +69,21 @@ public class DocumentWebViewBuilder {
         splitFrameLayout1 = new FrameLayout(this.mainActivity);
         splitFrameLayout2 = new FrameLayout(this.mainActivity);
 
+        // minimise button
+        minimiseScreen2Button = createTextButton("__", new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				splitScreenControl.minimiseScreen2();				
+			}
+		});
+
+        // restore button
+        restoreScreen2Button = createTextButton("\u2588\u2588", new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				splitScreenControl.restoreScreen2();				
+			}
+		});
 	}
 	
 	/** return true if the current page should show a NyNote
@@ -82,22 +104,19 @@ public class DocumentWebViewBuilder {
     		LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, 0, 1);
 
 			// add top view whether split or not
+			//AddTop FrameLayout, then webview, [then separatorTouchExtender(beside separator)]
+			// add a FrameLayout
+    		parent.addView(splitFrameLayout1, lp);
 
-    		if (!splitScreenControl.isSplit()) {
-    			parent.addView(bibleWebView, lp);
-    		} else {
-    			//AddTop FrameLayout, then webview, then separatorTouchExtender(beside separator)
-    			// add a FrameLayout
-        		parent.addView(splitFrameLayout1, lp);
+			// add bible to framelayout
+			LayoutParams frameLayoutParamsBibleWebView = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+			splitFrameLayout1.addView(bibleWebView, frameLayoutParamsBibleWebView);
 
-    			// add bible to framelayout
-    			LayoutParams frameLayoutParamsBibleWebView = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
-    			splitFrameLayout1.addView(bibleWebView, frameLayoutParamsBibleWebView);
+    		if (splitScreenControl.isSplit()) {
 
     			// add separator handle touch delegate to framelayout
     			FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, CommonUtils.convertDipsToPx(10), Gravity.BOTTOM);
     			splitFrameLayout1.addView(separator.getTouchDelegateView1(), frameLayoutParamsSeparatorDelegate);
-
     			
     			// line dividing the split screens
     			parent.addView(separator, new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, (int) BibleApplication.getApplication().getResources().getDimension(R.dimen.split_screen_separator_width), 0));
@@ -114,13 +133,19 @@ public class DocumentWebViewBuilder {
     			// add separator handle touch delegate to framelayout
     			FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate2 = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, CommonUtils.convertDipsToPx(10), Gravity.TOP);
     			splitFrameLayout2.addView(separator.getTouchDelegateView2(), frameLayoutParamsSeparatorDelegate2);
+    			splitFrameLayout2.addView(minimiseScreen2Button, new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.TOP|Gravity.RIGHT));
+
 
     			// separator will adjust layouts when dragged
     			separator.setView1LayoutParams(lp);
     			separator.setView2LayoutParams(lp2);
 
     			mainActivity.registerForContextMenu(bibleWebView2);
+    		} else if (splitScreenControl.isScreen2Minimized()) {
+    			Log.d(TAG,  "Show restore button");
+    			splitFrameLayout1.addView(restoreScreen2Button, new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.BOTTOM|Gravity.RIGHT));
     		}
+    		
     		mainActivity.registerForContextMenu(bibleWebView);
     	}
 	}
@@ -144,7 +169,19 @@ public class DocumentWebViewBuilder {
 			return bibleWebView2;
 		}
 	}
-
+	
+	private Button createTextButton(String text, OnClickListener onClickListener) {
+		Button button = new Button(this.mainActivity);
+        button.setText(text);
+        button.setWidth(80);
+        button.setHeight(70);
+        button.setBackgroundColor(0x666B6B6B);
+        button.setTextColor(0x66FFFFFF);
+        button.setTypeface(null, Typeface.BOLD);
+        button.setOnClickListener(onClickListener);
+        return button;
+	}
+	
 	private class Separator extends View {
 
 		// offset absolute points from top of layout to enable correct calculation of screen weights in layout

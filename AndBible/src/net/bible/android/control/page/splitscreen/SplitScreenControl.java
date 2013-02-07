@@ -2,6 +2,7 @@ package net.bible.android.control.page.splitscreen;
 
 import java.util.List;
 
+import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
 import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
@@ -24,6 +25,7 @@ public class SplitScreenControl {
 	public enum Screen {SCREEN_1, SCREEN_2};
 	
 	private boolean isSplit = true;
+	private boolean isScreen2Minimized;
 	
 	private boolean isSplitScreensLinked = true;
 	
@@ -56,6 +58,22 @@ public class SplitScreenControl {
 	}
 	public boolean isCurrentActiveScreen(Screen currentActiveScreen) {
 		return currentActiveScreen == this.currentActiveScreen;
+	}
+	
+	public void minimiseScreen2() {
+		setSplit(false);
+		currentActiveScreen = Screen.SCREEN_1;
+		isScreen2Minimized = true;
+		// redisplay the current page
+		PassageChangeMediator.getInstance().forcePageUpdate();
+	}
+
+	public void restoreScreen2() {
+		isScreen2Minimized = false;
+		currentActiveScreen = Screen.SCREEN_1;
+		setSplit(true);
+		// redisplay the current page
+		PassageChangeMediator.getInstance().forcePageUpdate();
 	}
 	
 	/** Synchronise the inactive key and inactive screen with the active key and screen if required
@@ -146,6 +164,8 @@ public class SplitScreenControl {
 	public void setSplit(boolean isSplit) {
 		if (this.isSplit!=isSplit) {
 			this.isSplit = isSplit;
+			// if split is false or true then it can no longer be minimised
+			isScreen2Minimized = false;
 			if (isSplit) {
 				synchronizeScreens();
 			}
@@ -172,6 +192,10 @@ public class SplitScreenControl {
 		this.isSplitScreensLinked = isSplitScreensLinked;
 	}
 	
+	public boolean isScreen2Minimized() {
+		return isScreen2Minimized;
+	}
+
 	// Event listener management code
 	public void addSplitScreenEventListener(SplitScreenEventListener listener) 
 	{

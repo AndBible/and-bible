@@ -1,14 +1,11 @@
 package net.bible.android.view.activity.page;
 
-import net.bible.android.BibleApplication;
 import net.bible.service.common.CommonUtils;
-import android.content.Context;
+
 import android.util.Log;
-import android.view.Display;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
-import android.view.WindowManager;
 
 /** Listen for side swipes to change chapter.  This listener class seems to work better that subclassing WebView.
  * 
@@ -90,28 +87,30 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 		return true;
 	}
 
-	@Override
-	public boolean onSingleTapConfirmed(MotionEvent e) {
-		boolean handled=false;
-		if (sensePageDownTap) {
-			Log.d(TAG, "onSingleTapConfirmed ");
-		    WindowManager window = (WindowManager)BibleApplication.getApplication().getSystemService(Context.WINDOW_SERVICE); 
-		    Display display = window.getDefaultDisplay();
-		    int height = display.getHeight();
-		    
-		    if (e.getY()>height*0.93) {
-				Log.d(TAG, "scrolling down");
-				mainBibleActivity.scrollScreenDown();
-				handled = true;
-		    }
-			Log.d(TAG, "finished onSingleTapConfirmed ");
-		}
-		if (!handled) {
-	    	handled = super.onSingleTapConfirmed(e);
-
-		}
-	    return handled;
-	}
+// conflicts with maximize button in split screens - could add && !split.isSplit && !split.isMinimized 
+//	but I don't think many people use this so remove in next release if no grumbles
+//	@Override
+//	public boolean onSingleTapConfirmed(MotionEvent e) {
+//		boolean handled=false;
+//		if (sensePageDownTap) {
+//			Log.d(TAG, "onSingleTapConfirmed ");
+//		    WindowManager window = (WindowManager)BibleApplication.getApplication().getSystemService(Context.WINDOW_SERVICE); 
+//		    Display display = window.getDefaultDisplay();
+//		    int height = display.getHeight();
+//		    
+//		    if (e.getY()>height*0.93) {
+//				Log.d(TAG, "scrolling down");
+//				mainBibleActivity.scrollScreenDown();
+//				handled = true;
+//		    }
+//			Log.d(TAG, "finished onSingleTapConfirmed ");
+//		}
+//		if (!handled) {
+//	    	handled = super.onSingleTapConfirmed(e);
+//
+//		}
+//	    return handled;
+//	}
 
 	public void setSensePageDownTap(boolean sensePageDownTap) {
 		this.sensePageDownTap = sensePageDownTap;
