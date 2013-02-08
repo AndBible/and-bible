@@ -57,7 +57,7 @@ public class MJDIndexAll {
 	    	SwordBookPath.setAugmentPath(augmentPath);
 	    	SwordBookPath.setDownloadDir(bookDir);
 	    	
-	//    	indexAll.updateCachedRepoBookList();
+	    	indexAll.updateCachedRepoBookList();
 	//    	indexAll.validateIndex("OSMHB");
 	//    	indexAll.validateAllIndexes();
 	//    	indexAll.setupDirs();
@@ -72,7 +72,7 @@ public class MJDIndexAll {
 	//    	indexAll.installSingleBook("StrongsGreek");
 	//    	indexAll.installSingleBook("BDBGlosses_Strongs");
 	//    	indexAll.installRepoBooks();
-	//    	indexAll.checkAllBooksInstalled();
+	    	indexAll.checkAllBooksInstalled();
 	//    	indexAll.manageCreateIndexes();
 	//    	indexAll.indexSingleBook("KJV");
 	    	
@@ -232,6 +232,8 @@ public class MJDIndexAll {
 // 			indexAll.installAndIndexSingleBook("FinPR92"); //Errors
 // 			indexAll.installAndIndexSingleBook("UrduGeo");
 // 			indexAll.installAndIndexSingleBook("RWP");
+	    	// 8/2/13
+	    	indexAll.installAndIndexSingleBook("HinERV");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
