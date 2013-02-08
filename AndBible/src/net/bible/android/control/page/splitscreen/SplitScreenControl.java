@@ -83,6 +83,7 @@ public class SplitScreenControl {
 		CurrentPage activePage = CurrentPageManager.getInstance(getCurrentActiveScreen()).getCurrentPage();
 		CurrentPage inactivePage = CurrentPageManager.getInstance(getNonActiveScreen()).getCurrentPage();
 		Key activeScreenKey = activePage.getSingleKey();
+		Key inactiveScreenKey = inactivePage.getSingleKey();
 		boolean isFirstTimeInit = (lastActiveScreenKey==null);
 		boolean inactiveUpdated = false;
 		boolean isTotalRefreshRequired = isFirstTimeInit ||	lastSynchWasInNightMode!=ScreenSettings.isNightMode();
@@ -97,7 +98,7 @@ public class SplitScreenControl {
 			// only update pages if empty or synchronised
 			if (isFirstTimeInit || 
 			   (isSynchronizable(activePage) && isSynchronizable(inactivePage) && !lastActiveScreenKey.equals(activeScreenKey)) ) {
-				updateInactiveScreen(inactivePage, activeScreenKey, inactivePage.getKey(), isTotalRefreshRequired);
+				updateInactiveScreen(inactivePage, activeScreenKey, inactiveScreenKey, isTotalRefreshRequired);
 				inactiveUpdated = true;
 			} 
 		}
@@ -105,8 +106,8 @@ public class SplitScreenControl {
 		// force inactive screen to display something otherwise it may be initially blank
 		// or if nightMode has changed then force an update
 		if (!inactiveUpdated && isTotalRefreshRequired) {
-			// force an update of the inactive page to prevent blant screen
-			updateInactiveScreen(inactivePage, inactivePage.getKey(), inactivePage.getKey(), isTotalRefreshRequired);
+			// force an update of the inactive page to prevent blank screen
+			updateInactiveScreen(inactivePage, inactiveScreenKey, inactiveScreenKey, isTotalRefreshRequired);
 		}
 		
 		lastActiveScreenKey = activeScreenKey;
@@ -132,8 +133,10 @@ public class SplitScreenControl {
 		
 		// update split screen as smoothly as possible i.e. just scroll if verse is already on page
 		if (!forceRefresh && BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && targetVerse.isSameChapter(currentVerse)	) {
+			Log.d(TAG, "Scrolling to new verse target:"+targetVerse+" current:"+currentVerse);
 			splitScreenEventManager.scrollSecondaryScreen(getNonActiveScreen(), targetVerse.getVerse());
 		} else {
+			Log.d(TAG, "Jumping to new verse");
 			new UpdateInactiveScreenTextTask().execute(inactivePage);
 		}
 	}
