@@ -31,7 +31,7 @@ public class SplitScreenControl {
 	
 	private Screen currentActiveScreen = Screen.SCREEN_1;
 	
-	private Key lastActiveScreenKey;
+	private Key lastSynchdInactiveScreenKey;
 	private boolean lastSynchWasInNightMode;
 	
 	private SplitScreenEventManager splitScreenEventManager = new SplitScreenEventManager();
@@ -43,12 +43,12 @@ public class SplitScreenControl {
 			@Override
 			public void applicationNowInBackground(AppToBackgroundEvent e) {
 				// ensure nonactive screen is initialised when returning from background
-				lastActiveScreenKey = null;
+				lastSynchdInactiveScreenKey = null;
 			}
 
 			@Override
 			public void applicationReturnedFromBackground(AppToBackgroundEvent e) {
-				lastActiveScreenKey = null;
+				lastSynchdInactiveScreenKey = null;
 			}
 		});
 	}
@@ -62,8 +62,9 @@ public class SplitScreenControl {
 	
 	public void minimiseScreen2() {
 		setSplit(false);
-		currentActiveScreen = Screen.SCREEN_1;
 		isScreen2Minimized = true;
+		// calling sCAS will cause events to be dispatched to set active screen so auto-scroll works
+		setCurrentActiveScreen(Screen.SCREEN_1);
 		// redisplay the current page
 		PassageChangeMediator.getInstance().forcePageUpdate();
 	}
@@ -84,7 +85,7 @@ public class SplitScreenControl {
 		CurrentPage inactivePage = CurrentPageManager.getInstance(getNonActiveScreen()).getCurrentPage();
 		Key activeScreenKey = activePage.getSingleKey();
 		Key inactiveScreenKey = inactivePage.getSingleKey();
-		boolean isFirstTimeInit = (lastActiveScreenKey==null);
+		boolean isFirstTimeInit = (lastSynchdInactiveScreenKey==null);
 		boolean inactiveUpdated = false;
 		boolean isTotalRefreshRequired = isFirstTimeInit ||	lastSynchWasInNightMode!=ScreenSettings.isNightMode();
 
@@ -97,8 +98,9 @@ public class SplitScreenControl {
 			// prevent infinite loop as each screen update causes a synchronise by comparing last key
 			// only update pages if empty or synchronised
 			if (isFirstTimeInit || 
-			   (isSynchronizable(activePage) && isSynchronizable(inactivePage) && !lastActiveScreenKey.equals(activeScreenKey)) ) {
+			   (isSynchronizable(activePage) && isSynchronizable(inactivePage) && !lastSynchdInactiveScreenKey.equals(activeScreenKey)) ) {
 				updateInactiveScreen(inactivePage, activeScreenKey, inactiveScreenKey, isTotalRefreshRequired);
+				lastSynchdInactiveScreenKey = activeScreenKey;
 				inactiveUpdated = true;
 			} 
 		}
@@ -110,7 +112,6 @@ public class SplitScreenControl {
 			updateInactiveScreen(inactivePage, inactiveScreenKey, inactiveScreenKey, isTotalRefreshRequired);
 		}
 		
-		lastActiveScreenKey = activeScreenKey;
 		lastSynchWasInNightMode = ScreenSettings.isNightMode();
 	}
 	
@@ -133,10 +134,8 @@ public class SplitScreenControl {
 		
 		// update split screen as smoothly as possible i.e. just scroll if verse is already on page
 		if (!forceRefresh && BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && targetVerse.isSameChapter(currentVerse)	) {
-			Log.d(TAG, "Scrolling to new verse target:"+targetVerse+" current:"+currentVerse);
 			splitScreenEventManager.scrollSecondaryScreen(getNonActiveScreen(), targetVerse.getVerse());
 		} else {
-			Log.d(TAG, "Jumping to new verse");
 			new UpdateInactiveScreenTextTask().execute(inactivePage);
 		}
 	}
