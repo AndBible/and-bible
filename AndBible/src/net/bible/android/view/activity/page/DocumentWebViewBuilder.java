@@ -12,7 +12,7 @@ import net.bible.service.common.CommonUtils;
 
 import android.app.Activity;
 import android.content.Context;
-import android.graphics.Color;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.util.Log;
 import android.view.Gravity;
@@ -53,6 +53,9 @@ public class DocumentWebViewBuilder {
 	private Button restoreScreen2Button;
 	private Activity mainActivity;
 	
+	private int SPLIT_BUTTON_TEXT_COLOUR;
+	private int SPLIT_BUTTON_BACKGROUND_COLOUR;
+
 	private static final String TAG="DocumentWebViewBuilder";
 
 	public DocumentWebViewBuilder(Activity mainActivity) {
@@ -63,6 +66,10 @@ public class DocumentWebViewBuilder {
 
         bibleWebView2 = new BibleView(this.mainActivity, Screen.SCREEN_2);
         bibleWebView2.setId(BIBLE_WEB_VIEW2_ID);
+        
+        Resources res = BibleApplication.getApplication().getResources();
+        SPLIT_BUTTON_TEXT_COLOUR = res.getColor(R.color.split_button_text_colour);
+        SPLIT_BUTTON_BACKGROUND_COLOUR = res.getColor(R.color.split_button_background_colour);
         
         separator = new Separator(this.mainActivity);
         
@@ -172,12 +179,14 @@ public class DocumentWebViewBuilder {
 	
 	private Button createTextButton(String text, OnClickListener onClickListener) {
 		Button button = new Button(this.mainActivity);
+		int buttonSize = BibleApplication.getApplication().getResources().getDimensionPixelSize(R.dimen.minimise_restore_button_size);
         button.setText(text);
-        button.setWidth(80);
-        button.setHeight(70);
-        button.setBackgroundColor(0x666B6B6B);
-        button.setTextColor(0x66FFFFFF);
+        button.setWidth(buttonSize);
+        button.setHeight(buttonSize);
+        button.setBackgroundColor(SPLIT_BUTTON_BACKGROUND_COLOUR);
+        button.setTextColor(SPLIT_BUTTON_TEXT_COLOUR);
         button.setTypeface(null, Typeface.BOLD);
+        button.setSingleLine(true);
         button.setOnClickListener(onClickListener);
         return button;
 	}
@@ -196,13 +205,16 @@ public class DocumentWebViewBuilder {
 		private TouchDelegateView touchDelegateView1;
 		private TouchDelegateView touchDelegateView2;
 		
-		private static final int SEPARATOR_COLOUR = 0xFF6B6B6B;
-		private static final int SEPARATOR_DRAG_COLOUR = Color.GREEN;
+		private int SEPARATOR_COLOUR;
+		private int SEPARATOR_DRAG_COLOUR;
 
 		private static final String TAG = "Separator";
 		
 		public Separator(Context context) {
 			super(context);
+			Resources res = BibleApplication.getApplication().getResources();
+			SEPARATOR_COLOUR = res.getColor(R.color.split_separator_colour);
+			SEPARATOR_DRAG_COLOUR = res.getColor(R.color.split_separator_drag_colour);
 	        setBackgroundColor(SEPARATOR_COLOUR);
 	        touchDelegateView1 = new TouchDelegateView(context, this);
 	        touchDelegateView2 = new TouchDelegateView(context, this);
