@@ -8,7 +8,6 @@ import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.util.TouchDelegateView;
-import net.bible.service.common.CommonUtils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -53,6 +52,8 @@ public class DocumentWebViewBuilder {
 	private Button restoreScreen2Button;
 	private Activity mainActivity;
 	
+	private int SPLIT_SEPARATOR_WIDTH_PX;
+	private int SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX;
 	private int SPLIT_BUTTON_TEXT_COLOUR;
 	private int SPLIT_BUTTON_BACKGROUND_COLOUR;
 
@@ -68,10 +69,12 @@ public class DocumentWebViewBuilder {
         bibleWebView2.setId(BIBLE_WEB_VIEW2_ID);
         
         Resources res = BibleApplication.getApplication().getResources();
+        SPLIT_SEPARATOR_WIDTH_PX = res.getDimensionPixelSize(R.dimen.split_screen_separator_width);
+        SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX = res.getDimensionPixelSize(R.dimen.split_screen_separator_touch_expansion_width);
         SPLIT_BUTTON_TEXT_COLOUR = res.getColor(R.color.split_button_text_colour);
         SPLIT_BUTTON_BACKGROUND_COLOUR = res.getColor(R.color.split_button_background_colour);
         
-        separator = new Separator(this.mainActivity);
+        separator = new Separator(this.mainActivity, SPLIT_SEPARATOR_WIDTH_PX);
         
         splitFrameLayout1 = new FrameLayout(this.mainActivity);
         splitFrameLayout2 = new FrameLayout(this.mainActivity);
@@ -121,12 +124,12 @@ public class DocumentWebViewBuilder {
 
     		if (splitScreenControl.isSplit()) {
 
-    			// add separator handle touch delegate to framelayout
-    			FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, CommonUtils.convertDipsToPx(10), Gravity.BOTTOM);
+    			// add separator touch delegate to framelayout which extends the touch area, otherwise it is difficult to select the separator to move it
+    			FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, Gravity.BOTTOM);
     			splitFrameLayout1.addView(separator.getTouchDelegateView1(), frameLayoutParamsSeparatorDelegate);
     			
     			// line dividing the split screens
-    			parent.addView(separator, new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, (int) BibleApplication.getApplication().getResources().getDimension(R.dimen.split_screen_separator_width), 0));
+    			parent.addView(separator, new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, SPLIT_SEPARATOR_WIDTH_PX, 0));
 
     			
     			// add a FrameLayout to the lower part of the LinearLayout to contain both a webView and separator extension
@@ -138,7 +141,7 @@ public class DocumentWebViewBuilder {
     			splitFrameLayout2.addView(bibleWebView2, frameLayoutParamsBibleWebView2);
     			
     			// add separator handle touch delegate to framelayout
-    			FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate2 = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, CommonUtils.convertDipsToPx(10), Gravity.TOP);
+    			FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate2 = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, Gravity.TOP);
     			splitFrameLayout2.addView(separator.getTouchDelegateView2(), frameLayoutParamsSeparatorDelegate2);
     			splitFrameLayout2.addView(minimiseScreen2Button, new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.TOP|Gravity.RIGHT));
 
@@ -204,13 +207,14 @@ public class DocumentWebViewBuilder {
 
 		private TouchDelegateView touchDelegateView1;
 		private TouchDelegateView touchDelegateView2;
-		
+
+		private int SEPARATOR_WIDTH;
 		private int SEPARATOR_COLOUR;
 		private int SEPARATOR_DRAG_COLOUR;
 
 		private static final String TAG = "Separator";
 		
-		public Separator(Context context) {
+		public Separator(Context context, int width) {
 			super(context);
 			Resources res = BibleApplication.getApplication().getResources();
 			SEPARATOR_COLOUR = res.getColor(R.color.split_separator_colour);
@@ -218,6 +222,7 @@ public class DocumentWebViewBuilder {
 	        setBackgroundColor(SEPARATOR_COLOUR);
 	        touchDelegateView1 = new TouchDelegateView(context, this);
 	        touchDelegateView2 = new TouchDelegateView(context, this);
+	        SEPARATOR_WIDTH = width;
 		}
 		
 		/** Must use rawY below because this view is moving and getY would give the position relative to a moving component.
@@ -225,6 +230,7 @@ public class DocumentWebViewBuilder {
 		 */
 		@Override
 		public boolean onTouchEvent(MotionEvent event) {
+			// lazy init after layout height is known
 		    switch (event.getAction() & MotionEvent.ACTION_MASK)   
 		    {
 		    case MotionEvent.ACTION_DOWN:
@@ -247,8 +253,10 @@ public class DocumentWebViewBuilder {
 		    	float y = event.getRawY()-parentTopPx-touchOffsetPx;
 		    	
 		    	// change the weights of both bible views to effectively move the separator
-		    	view1LayoutParams.weight = y/parentHeightPx;
-		    	view2LayoutParams.weight = 1-(y/parentHeightPx);
+		    	// min prevents the separator going off screen at the bottom
+				float separatorPercentOfScreen = SEPARATOR_WIDTH/getParentHeightPx();
+		    	view1LayoutParams.weight = Math.min(y/parentHeightPx, 1-separatorPercentOfScreen);
+		    	view2LayoutParams.weight = 1-view1LayoutParams.weight;
 		    	parentLayout.requestLayout();
 		        break;
 		    }   

@@ -4,6 +4,6 @@
 	<color name="split_separator_drag_colour">#FF00FF00</color>
 
 	<color name="split_button_text_colour">#66FFFFFF</color>
-	<color name="split_button_background_colour">#FF6B6B6B</color>
+	<color name="split_button_background_colour">#666B6B6B</color>
 				    
 </resources>

@@ -32,6 +32,7 @@
 	<integer name="poetry_indent_chars">2</integer>
 	
 	<dimen name="split_screen_separator_width">4dip</dimen>
+	<dimen name="split_screen_separator_touch_expansion_width">10dip</dimen>
 	<dimen name="minimise_restore_button_size">35dip</dimen>
 		
 </resources>
