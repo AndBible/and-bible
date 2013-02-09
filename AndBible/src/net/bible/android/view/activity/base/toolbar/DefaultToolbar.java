@@ -36,7 +36,7 @@ public class DefaultToolbar implements Toolbar {
         mToolbarButtonList.add(new BibleToolbarButton(buttonContainer));
         mToolbarButtonList.add(new CommentaryToolbarButton(buttonContainer));
         mToolbarButtonList.add(new StrongsToolbarButton(buttonContainer));
-        mToolbarButtonList.add(new SplitScreenToolbarButton(buttonContainer));
+//        mToolbarButtonList.add(new SplitScreenToolbarButton(buttonContainer));
         mToolbarButtonList.add(new SpeakToolbarButton(buttonContainer));
         mToolbarButtonList.add(new SpeakStopToolbarButton(buttonContainer));  // Stop is always shown if speaking or paused regardless of priority
         mToolbarButtonList.add(new SpeakRewToolbarButton(buttonContainer));
