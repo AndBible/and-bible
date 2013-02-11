@@ -51,8 +51,8 @@ function scrollTo(toId) {
 	}
 }
 function doScrollTo(element, elementPosition, to) {
-	// 20 pixels/100ms is the standard speed
-	var speed = 20; 
+	// 25 pixels/100ms is the standard speed
+	var speed = 25; 
     var difference = to - elementPosition;
     if (difference == 0) return;
     var perTick = Math.max(Math.min(speed, difference),-speed); 

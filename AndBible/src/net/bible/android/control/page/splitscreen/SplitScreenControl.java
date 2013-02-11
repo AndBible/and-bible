@@ -2,7 +2,6 @@ package net.bible.android.control.page.splitscreen;
 
 import java.util.List;
 
-import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
 import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
@@ -66,24 +65,26 @@ public class SplitScreenControl {
 		// calling sCAS will cause events to be dispatched to set active screen so auto-scroll works
 		setCurrentActiveScreen(Screen.SCREEN_1);
 		// redisplay the current page
-		PassageChangeMediator.getInstance().forcePageUpdate();
+		splitScreenEventManager.numberOfScreensChanged();
 	}
 
 	public void restoreScreen2() {
 		isScreen2Minimized = false;
 		currentActiveScreen = Screen.SCREEN_1;
-		setSplit(true);
-		// redisplay the current page
-		PassageChangeMediator.getInstance().forcePageUpdate();
+		isSplit = true;
+		// causes BibleViews to be created and laid out
+		splitScreenEventManager.numberOfScreensChanged();
+		synchronizeScreens();
 	}
 	
 	/** Synchronise the inactive key and inactive screen with the active key and screen if required
 	 */
 	public void synchronizeScreens() {
-		Log.d(TAG, "synchronizeScreens");
+		Log.d(TAG, "synchronizeScreens active:"+currentActiveScreen);
 		CurrentPage activePage = CurrentPageManager.getInstance(getCurrentActiveScreen()).getCurrentPage();
 		CurrentPage inactivePage = CurrentPageManager.getInstance(getNonActiveScreen()).getCurrentPage();
 		Key activeScreenKey = activePage.getSingleKey();
+		Log.d(TAG, "active key:"+activeScreenKey);
 		Key inactiveScreenKey = inactivePage.getSingleKey();
 		boolean isFirstTimeInit = (lastSynchdInactiveScreenKey==null);
 		boolean inactiveUpdated = false;
@@ -132,8 +133,9 @@ public class SplitScreenControl {
 		Verse targetVerse = KeyUtil.getVerse(targetScreenKey);
 		Verse currentVerse = KeyUtil.getVerse(inactiveScreenKey);
 		
-		// update split screen as smoothly as possible i.e. just scroll if verse is already on page
-		if (!forceRefresh && BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && targetVerse.isSameChapter(currentVerse)	) {
+		// update split screen as smoothly as possible i.e. just scroll if verse is adjacent on current page
+		if (!forceRefresh && BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && 
+				targetVerse.isSameChapter(currentVerse)  && targetVerse.adjacentTo(currentVerse)) {
 			splitScreenEventManager.scrollSecondaryScreen(getNonActiveScreen(), targetVerse.getVerse());
 		} else {
 			new UpdateInactiveScreenTextTask().execute(inactivePage);

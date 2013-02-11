@@ -5,6 +5,10 @@ import java.util.EventListener;
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 
 public interface SplitScreenEventListener extends EventListener {
+	// Split screen has been minimized/restored/removed/added
+	void numberOfScreensChanged();
+
+	// focus has been changed
 	void currentSplitScreenChanged(Screen activeScreen);
 	
 	// active screen has changed and the screens are synchronized so need to change inactive split screen

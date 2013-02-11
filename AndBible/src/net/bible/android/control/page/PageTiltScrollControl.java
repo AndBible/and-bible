@@ -123,8 +123,6 @@ public class PageTiltScrollControl {
 
 					// speedup could be done by increasing scroll amount but that leads to a jumpy screen
 					tiltScrollInfo.scrollPixels = 1;
-					
-//					Log.d(TAG, "*** deviance:"+devianceFromViewingAngle+" delay:"+delayToNextScroll);
 				} else {
 					// TURNED OFF UPSCROLL
 					delayToNextScroll = BASE_TIME_BETWEEN_SCROLLS;

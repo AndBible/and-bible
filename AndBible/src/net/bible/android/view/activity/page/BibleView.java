@@ -9,6 +9,7 @@ import net.bible.android.control.page.PageControl;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.view.activity.base.DocumentView;
+import net.bible.android.view.activity.page.screen.PageTiltScroller;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
 
@@ -212,7 +213,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	 */
 	@Override
 	public void show(String html, int jumpToVerse, float jumpToYOffsetRatio) {
-		Log.d(TAG, "Show(html,"+jumpToVerse+","+jumpToYOffsetRatio+")");
+		Log.d(TAG, "Show(html,"+jumpToVerse+","+jumpToYOffsetRatio+") screen:"+splitScreenNo);
 		// set background colour if necessary
 		changeBackgroundColour();
 		
@@ -458,7 +459,13 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 		}
 	}
 
+	@Override
+	public void numberOfScreensChanged() {
+		// Noop
+	}
+
 	public Screen getSplitScreenNo() {
 		return splitScreenNo;
 	}
+
 }

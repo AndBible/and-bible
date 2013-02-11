@@ -6,7 +6,7 @@ import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.UpdateTextTask;
 import net.bible.android.view.activity.base.DocumentView;
-import net.bible.android.view.activity.page.DocumentViewManager;
+import net.bible.android.view.activity.page.screen.DocumentViewManager;
 import net.bible.service.format.Note;
 
 import org.crosswire.jsword.book.Book;

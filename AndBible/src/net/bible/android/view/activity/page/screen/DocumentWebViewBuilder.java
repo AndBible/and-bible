@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.page;
+package net.bible.android.view.activity.page.screen;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
@@ -7,7 +7,9 @@ import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.view.activity.base.DocumentView;
+import net.bible.android.view.activity.page.BibleView;
 import net.bible.android.view.util.TouchDelegateView;
+import net.bible.android.view.util.TouchOwner;
 
 import android.app.Activity;
 import android.content.Context;
@@ -43,7 +45,7 @@ public class DocumentWebViewBuilder {
 	private static final int BIBLE_WEB_VIEW2_ID = 992;
 	private Separator separator;
 	
-	private static SplitScreenControl splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
+	private static SplitScreenControl splitScreenControl;
 
 	private ViewGroup parentLayout;
 	private ViewGroup splitFrameLayout1;
@@ -61,6 +63,8 @@ public class DocumentWebViewBuilder {
 
 	public DocumentWebViewBuilder(Activity mainActivity) {
 		this.mainActivity = mainActivity;
+		
+		splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
 		
         bibleWebView = new BibleView(this.mainActivity, Screen.SCREEN_1);
         bibleWebView.setId(BIBLE_WEB_VIEW_ID);
@@ -211,6 +215,8 @@ public class DocumentWebViewBuilder {
 		private int SEPARATOR_WIDTH;
 		private int SEPARATOR_COLOUR;
 		private int SEPARATOR_DRAG_COLOUR;
+		
+		private TouchOwner touchOwner = TouchOwner.getInstance();
 
 		private static final String TAG = "Separator";
 		
@@ -235,6 +241,7 @@ public class DocumentWebViewBuilder {
 		    {
 		    case MotionEvent.ACTION_DOWN:
 		    	Log.d(TAG, " y:"+event.getRawY());
+		    	touchOwner.setTouchOwner(this);
 		    	int[] rawParentLocation = new int[2]; 
 		    	parentLayout.getLocationOnScreen(rawParentLocation);
 		    	parentTopPx = rawParentLocation[1];
@@ -244,6 +251,7 @@ public class DocumentWebViewBuilder {
 		    case MotionEvent.ACTION_UP:
 		    case MotionEvent.ACTION_POINTER_UP:
 		    	Log.d(TAG, "Up x:"+event.getX()+" y:"+event.getY());
+		    	touchOwner.releaseOwnership(this);
 		        setBackgroundColor(SEPARATOR_COLOUR);
 		        break;
 		    case MotionEvent.ACTION_MOVE:

@@ -1,6 +1,10 @@
-package net.bible.android.view.activity.page;
+package net.bible.android.view.activity.page.screen;
 
 import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
+import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
+import net.bible.android.control.page.splitscreen.SplitScreenControl;
+import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.mynote.MyNoteViewBuilder;
 
@@ -20,11 +24,37 @@ public class DocumentViewManager {
 	private Activity mainActivity;
 	private ViewGroup parent;
 	
+	private SplitScreenControl splitScreenControl;
+	
 	public DocumentViewManager(Activity mainActivity) {
 		this.mainActivity = mainActivity;
 		documentWebViewBuilder = new DocumentWebViewBuilder(this.mainActivity);
 		myNoteViewBuilder = new MyNoteViewBuilder(this.mainActivity);
 		this.parent = (ViewGroup)mainActivity.findViewById(R.id.mainBibleView);
+		splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
+		
+		splitScreenControl.addSplitScreenEventListener(new SplitScreenEventListener() {
+			
+			@Override
+			public void numberOfScreensChanged() {
+				buildView();
+			}
+			
+			@Override
+			public void updateSecondaryScreen(Screen updateScreen, String html,	int verseNo) {
+				// Noop				
+			}
+			
+			@Override
+			public void scrollSecondaryScreen(Screen screen, int verseNo) {
+				// Noop
+			}
+			
+			@Override
+			public void currentSplitScreenChanged(Screen activeScreen) {
+				// Noop
+			}
+		});		
 	}
 	
 	public void buildView() {

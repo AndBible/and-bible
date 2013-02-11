@@ -11,6 +11,8 @@ import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
+import net.bible.android.view.activity.page.screen.DocumentViewManager;
+import net.bible.android.view.util.TouchOwner;
 import net.bible.service.device.ScreenSettings;
 
 import android.content.Intent;
@@ -105,6 +107,11 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 			@Override
 			public void scrollSecondaryScreen(Screen screen, int verseNo) {
 				// NOOP - handle in BibleWebView
+			}
+
+			@Override
+			public void numberOfScreensChanged() {
+				// Noop
 			}
 		});
     }
@@ -322,23 +329,25 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
 
-		if (mainMenuCommandHandler.isIgnoreLongPress()) {
-			Log.d(TAG, "Ignoring long press to allow it to pass thro to WebView handler");
-			return;
+		if (!TouchOwner.getInstance().isTouchOwned()) {
+			if (mainMenuCommandHandler.isIgnoreLongPress()) {
+				Log.d(TAG, "Ignoring long press to allow it to pass thro to WebView handler");
+				return;
+			}
+	    	Log.d(TAG, "onCreateContextMenu");
+	    	
+	    	// keep track of timing here because sometimes a child openContextMenu is called rather than the one in this activity, 
+	    	// but the activities onCreateContextMenu always seems to be called
+	    	if (isLastContextMenuRecentlyCreated()) {
+	    		return;
+	    	}
+	
+			MenuInflater inflater = getMenuInflater();
+			inflater.inflate(R.menu.document_viewer_context_menu, menu);
+	
+			// allow current page type to add, delete or disable menu items
+			CurrentPageManager.getInstance().getCurrentPage().updateContextMenu(menu);
 		}
-    	Log.d(TAG, "onCreateContextMenu");
-    	
-    	// keep track of timing here because sometimes a child openContextMenu is called rather than the one in this activity, 
-    	// but the activities onCreateContextMenu always seems to be called
-    	if (isLastContextMenuRecentlyCreated()) {
-    		return;
-    	}
-
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.document_viewer_context_menu, menu);
-
-		// allow current page type to add, delete or disable menu items
-		CurrentPageManager.getInstance().getCurrentPage().updateContextMenu(menu);
 	}
 
     @Override

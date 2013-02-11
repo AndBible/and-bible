@@ -18,8 +18,6 @@ public class FootnoteAndRefControl {
 	@SuppressWarnings("unused")
 	private static final String TAG = "FootnoteAndRefControl";
 
-	private CurrentPageManager currentPageManager; // injected
-	
 	public String getTitle() {
 		StringBuilder stringBuilder = new StringBuilder();
 		boolean wasFullBookname = BookName.isFullBookName();
@@ -34,14 +32,14 @@ public class FootnoteAndRefControl {
 	}
 	
 	public Verse getVerse() {
-		return currentPageManager.getCurrentBible().getSingleKey();
+		return getCurrentPageManager().getCurrentBible().getSingleKey();
 	}
 
 	/** go to previous verse
 	 */
 	public void next() {
 		if (!getVerse().isEndOfChapter()) {
-			currentPageManager.getCurrentBible().doNextVerse();
+			getCurrentPageManager().getCurrentBible().doNextVerse();
 		}
 	}
 	
@@ -49,7 +47,7 @@ public class FootnoteAndRefControl {
 	 */
 	public void previous() {
 		if (!getVerse().isStartOfChapter()) {
-			currentPageManager.getCurrentBible().doPreviousVerse();
+			getCurrentPageManager().getCurrentBible().doPreviousVerse();
 		}		
 	}
 	
