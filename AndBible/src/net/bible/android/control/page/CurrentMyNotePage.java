@@ -6,7 +6,6 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.service.common.ParseException;
 import net.bible.service.download.FakeSwordBookFactory;
-import net.bible.service.format.FormattedDocument;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
@@ -38,10 +37,8 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 	}
 
 	@Override
-	public FormattedDocument getCurrentPageContent() throws ParseException {
-        FormattedDocument formattedDocument = new FormattedDocument();
-        formattedDocument.setHtmlPassage(ControlFactory.getInstance().getMyNoteControl().getMyNoteTextByKey(getKey()));
-        return formattedDocument;	
+	public String getCurrentPageContent() throws ParseException {
+        return ControlFactory.getInstance().getMyNoteControl().getMyNoteTextByKey(getKey());
 	}
 	
 	@Override

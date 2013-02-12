@@ -19,7 +19,6 @@ import net.bible.android.view.activity.readingplan.DailyReading;
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;
 import net.bible.android.view.activity.settings.SettingsActivity;
 import net.bible.android.view.activity.speak.Speak;
-import net.bible.android.view.util.DataPipe;
 import net.bible.service.common.CommonUtils;
 
 import android.app.AlarmManager;
@@ -137,9 +136,6 @@ public class MenuCommandHandler {
 	        	break;
 	        case R.id.notes:
 	        	handlerIntent = new Intent(callingActivity, FootnoteAndRefActivity.class);
-	        	// pump the notes into the viewer (there must be an easier way other than Parcelable)
-	        	//TODO refactor so the notes are loaded by the Notes viewer using a separate SAX parser 
-	        	DataPipe.getInstance().pushNotes(callingActivity.getBibleContentManager().getNotesList());
 	        	break;
 	        case R.id.add_bookmark:
 				ControlFactory.getInstance().getBookmarkControl().bookmarkCurrentVerse();

@@ -1,7 +1,5 @@
 package net.bible.android.control.page.splitscreen;
 
-import java.util.List;
-
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
 import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
@@ -11,7 +9,6 @@ import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.UpdateTextTask;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.device.ScreenSettings;
-import net.bible.service.format.Note;
 
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
@@ -155,11 +152,6 @@ public class SplitScreenControl {
     	protected void showText(String text, int verseNo, float yOffsetRatio) {
     		splitScreenEventManager.updateSecondaryScreen(getNonActiveScreen(), text, verseNo);
         }
-
-		@Override
-		protected void handleNotes(List<Note> notesList) {
-			//NOOP
-		}
     }
 
 	public boolean isSplit() {

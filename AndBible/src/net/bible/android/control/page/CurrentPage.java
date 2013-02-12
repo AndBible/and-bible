@@ -1,7 +1,9 @@
 package net.bible.android.control.page;
 
+import java.util.List;
+
 import net.bible.service.common.ParseException;
-import net.bible.service.format.FormattedDocument;
+import net.bible.service.format.Note;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
@@ -59,7 +61,10 @@ public interface CurrentPage {
 	public boolean checkCurrentDocumentStillInstalled();
 
 	/** get a page to display */
-	public FormattedDocument getCurrentPageContent() throws ParseException;
+	public String getCurrentPageContent() throws ParseException;
+
+	/** get footnotes */
+	public List<Note> getCurrentPageFootnotesAndReferences() throws ParseException;
 
 	public abstract void updateOptionsMenu(Menu menu);
 	public abstract void updateContextMenu(Menu menu);

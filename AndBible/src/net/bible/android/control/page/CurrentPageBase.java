@@ -6,8 +6,8 @@ import java.util.List;
 import net.bible.android.activity.R;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.service.common.ParseException;
-import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.HtmlMessageFormatter;
+import net.bible.service.format.Note;
 import net.bible.service.sword.SwordContentFacade;
 import net.bible.service.sword.SwordDocumentFacade;
 
@@ -110,17 +110,24 @@ abstract class CurrentPageBase implements CurrentPage {
 	}
 
 	@Override
-	public FormattedDocument getCurrentPageContent() throws ParseException {
-        FormattedDocument formattedDocument = SwordContentFacade.getInstance().readHtmlText(getCurrentDocument(), getKey());
+	public String getCurrentPageContent() throws ParseException {
+        String htmlText = SwordContentFacade.getInstance().readHtmlText(getCurrentDocument(), getKey());
                 
-        if (StringUtils.isEmpty(formattedDocument.getHtmlPassage())) {
-        	String htmlMsg = HtmlMessageFormatter.format(R.string.error_no_content);
-        	formattedDocument.setHtmlPassage( htmlMsg );
+        if (StringUtils.isEmpty(htmlText)) {
+        	htmlText = HtmlMessageFormatter.format(R.string.error_no_content);
         }
         
-        return formattedDocument;	
+        return htmlText;	
 	}
 	
+	@Override
+	public List<Note> getCurrentPageFootnotesAndReferences() throws ParseException {
+        List<Note> footnotes = SwordContentFacade.getInstance().readFootnotesAndReferences(getCurrentDocument(), getKey());
+        
+        return footnotes;	
+	}
+
+
 	public boolean checkCurrentDocumentStillInstalled() {
 		if (currentDocument!=null) {
 			Log.d(TAG, "checkCurrentDocumentStillInstalled:"+currentDocument);

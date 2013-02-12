@@ -3,7 +3,9 @@ package net.bible.service.sword;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -19,8 +21,8 @@ import net.bible.service.common.Logger;
 import net.bible.service.common.ParseException;
 import net.bible.service.device.ScreenSettings;
 import net.bible.service.font.FontControl;
-import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.HtmlMessageFormatter;
+import net.bible.service.format.Note;
 import net.bible.service.format.OSISInputStream;
 import net.bible.service.format.OsisToCanonicalTextSaxHandler;
 import net.bible.service.format.OsisToSpeakTextSaxHandler;
@@ -89,20 +91,20 @@ public class SwordContentFacade {
 	 * @throws URISyntaxException
 	 * @throws ParserConfigurationException
 	 */
-	public synchronized FormattedDocument readHtmlText(Book book, Key key) throws ParseException
+	public synchronized String readHtmlText(Book book, Key key) throws ParseException
 	{
-		FormattedDocument retVal = new FormattedDocument();
+		String retVal = "";
 		if (book==null || key==null) {
-			retVal.setHtmlPassage("");
+			retVal = "";
 		} else if (Books.installed().getBook(book.getInitials())==null) {
 			Log.w(TAG, "Book may have been uninstalled:"+book);
 			String errorMsg = BibleApplication.getApplication().getString(R.string.document_not_installed, book.getInitials());
 			String htmlMsg = HtmlMessageFormatter.format(errorMsg);
-			retVal.setHtmlPassage(htmlMsg);
+			retVal = htmlMsg;
 		} else if (!book.contains(key)) {
 			Log.w(TAG, "KEY:"+key+" not found in doc:"+book);
 			String htmlMsg = HtmlMessageFormatter.format(R.string.error_key_not_in_document);
-			retVal.setHtmlPassage(htmlMsg);
+			retVal = htmlMsg;
 		} else {
 
 			// we have a fast way of handling OSIS zText docs but some docs need the superior JSword error recovery for mismatching tags 
@@ -127,7 +129,32 @@ public class SwordContentFacade {
 		return retVal;
 	}
 
-	private FormattedDocument readHtmlTextOptimizedZTextOsis(Book book, Key key) throws ParseException
+	/** Get Footnotes and references from specified document page
+	 */
+	public List<Note> readFootnotesAndReferences(Book book, Key key) throws ParseException {
+		List<Note> retVal = new ArrayList<Note>();
+		try {
+			// based on standard JSword SAX handling method because few performance gains would be gained for the extra complexity of Streaming
+			BookData data = new BookData(book, key);		
+			SAXEventProvider osissep = data.getSAXEventProvider();
+			if (osissep != null) {
+				OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book, key);
+		
+				osissep.provideSAXEvents(osisToHtml);
+		
+				retVal = osisToHtml.getNotesList();
+			} else {
+				Log.e(TAG, "No osis SEP returned");
+			}
+	        return retVal;
+		} catch (Exception e) {
+			log.error("Parsing error", e);
+			throw new ParseException("Parsing error", e);
+		}
+		
+	}
+	
+	private String readHtmlTextOptimizedZTextOsis(Book book, Key key) throws ParseException
 	{
 		log.debug("Using fast method to fetch document data");
 		/**
@@ -147,31 +174,26 @@ public class SwordContentFacade {
 			throw new ParseException("Parsing error", e);
 		}
 		
-		FormattedDocument retVal = new FormattedDocument();
-		retVal.setHtmlPassage(osisToHtml.toString());
-		retVal.setNotesList(osisToHtml.getNotesList());
-		
-        return retVal;
+		return osisToHtml.toString();
 	}
 
-	private FormattedDocument readHtmlTextStandardJSwordMethod(Book book, Key key) throws ParseException
+	private String readHtmlTextStandardJSwordMethod(Book book, Key key) throws ParseException
 	{
 		log.debug("Using standard JSword to fetch document data");
-		FormattedDocument retVal = new FormattedDocument();
+		String retVal;
 
 		try {
 			BookData data = new BookData(book, key);		
 			SAXEventProvider osissep = data.getSAXEventProvider();
 			if (osissep == null) {
 				Log.e(TAG, "No osis SEP returned");
-				retVal.setHtmlPassage("Error fetching osis SEP"); //$NON-NLS-1$
+				retVal = "Error fetching osis SEP";
 			} else {
 				OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book, key);
 		
 				osissep.provideSAXEvents(osisToHtml);
 		
-				retVal.setHtmlPassage(osisToHtml.toString());
-				retVal.setNotesList(osisToHtml.getNotesList());
+				retVal = osisToHtml.toString();
 			}		
 	        return retVal;
 		} catch (Exception e) {

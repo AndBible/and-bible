@@ -59,7 +59,8 @@ public class FootnoteAndRefActivity extends ListActivityBase implements SwipeGes
     
         mWarning =  (TextView)findViewById(R.id.warningText);
         
-        mChapterNotesList = DataPipe.getInstance().popNotes();
+        mChapterNotesList = footnoteAndRefControl.getCurrentPageFootnotesAndReferences();
+        		//TODO: remove this redundant stuff - DataPipe.getInstance().popNotes();
         
         initialiseView();
 

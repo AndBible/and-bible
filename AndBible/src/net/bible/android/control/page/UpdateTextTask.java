@@ -1,11 +1,7 @@
 package net.bible.android.control.page;
 
-import java.util.List;
-
 import net.bible.android.activity.R;
-import net.bible.service.format.FormattedDocument;
 import net.bible.service.format.HtmlMessageFormatter;
-import net.bible.service.format.Note;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
@@ -22,8 +18,6 @@ abstract public class UpdateTextTask extends AsyncTask<CurrentPage, Integer, Str
 	
     /** callbacks from base class when result is ready */
 	abstract protected void showText(String text, int verseNo, float yOffsetRatio);
-	abstract protected void handleNotes(List<Note> notesList);
-
 	
 	@Override
 	protected void onPreExecute() {
@@ -47,9 +41,7 @@ abstract public class UpdateTextTask extends AsyncTask<CurrentPage, Integer, Str
 
             Log.d(TAG, "Loading document:"+document.getInitials()+" key:"+key);
             
-            FormattedDocument formattedDocument = currentPage.getCurrentPageContent();
-            text = formattedDocument.getHtmlPassage();
-            handleNotes( formattedDocument.getNotesList() );
+            text = currentPage.getCurrentPageContent();
             
     	} catch (Exception e) {
     		Log.e(TAG, "Error getting bible text", e);

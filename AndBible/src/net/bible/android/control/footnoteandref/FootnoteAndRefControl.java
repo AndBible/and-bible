@@ -1,8 +1,13 @@
 package net.bible.android.control.footnoteandref;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.view.activity.base.Dialogs;
+import net.bible.service.format.Note;
 
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BookName;
@@ -18,6 +23,15 @@ public class FootnoteAndRefControl {
 	@SuppressWarnings("unused")
 	private static final String TAG = "FootnoteAndRefControl";
 
+	public List<Note> getCurrentPageFootnotesAndReferences() {
+		try {
+			return CurrentPageManager.getInstance().getCurrentPage().getCurrentPageFootnotesAndReferences();
+		} catch (Exception e) {
+			Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+			return new ArrayList<Note>();
+		}
+	}
+	
 	public String getTitle() {
 		StringBuilder stringBuilder = new StringBuilder();
 		boolean wasFullBookname = BookName.isFullBookName();

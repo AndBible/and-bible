@@ -1,13 +1,10 @@
 package net.bible.android.control;
 
-import java.util.List;
-
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.UpdateTextTask;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.page.screen.DocumentViewManager;
-import net.bible.service.format.Note;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
@@ -27,7 +24,6 @@ public class BibleContentManager {
 	// previous document and verse (currently displayed on the screen)
 	private Book previousDocument;
 	private Key previousVerse;
-	private List<Note> notesList;
 	
 	private static final String TAG = "BibleContentManager";
 	
@@ -78,15 +74,5 @@ public class BibleContentManager {
     			Log.w(TAG, "Document view not yet registered");
     		}
         }
-
-		@Override
-		protected void handleNotes(List<Note> notesList) {
-			// save the notes for access if the user requests to see them
-			BibleContentManager.this.notesList = notesList;
-		}
     }
-
-	public List<Note> getNotesList() {
-		return notesList;
-	}
 }
