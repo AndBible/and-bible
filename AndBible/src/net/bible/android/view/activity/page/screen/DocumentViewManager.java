@@ -9,7 +9,7 @@ import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.mynote.MyNoteViewBuilder;
 
 import android.app.Activity;
-import android.view.ViewGroup;
+import android.widget.LinearLayout;
 /**
  * Create Views for displaying documents
  * 
@@ -22,7 +22,7 @@ public class DocumentViewManager {
 	private DocumentWebViewBuilder documentWebViewBuilder;
 	private MyNoteViewBuilder myNoteViewBuilder;
 	private Activity mainActivity;
-	private ViewGroup parent;
+	private LinearLayout parent;
 	
 	private SplitScreenControl splitScreenControl;
 	
@@ -30,7 +30,7 @@ public class DocumentViewManager {
 		this.mainActivity = mainActivity;
 		documentWebViewBuilder = new DocumentWebViewBuilder(this.mainActivity);
 		myNoteViewBuilder = new MyNoteViewBuilder(this.mainActivity);
-		this.parent = (ViewGroup)mainActivity.findViewById(R.id.mainBibleView);
+		this.parent = (LinearLayout)mainActivity.findViewById(R.id.mainBibleView);
 		splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
 		
 		splitScreenControl.addSplitScreenEventListener(new SplitScreenEventListener() {
@@ -52,6 +52,11 @@ public class DocumentViewManager {
 			
 			@Override
 			public void currentSplitScreenChanged(Screen activeScreen) {
+				// Noop
+			}
+
+			@Override
+			public void splitScreenSizeChanged() {
 				// Noop
 			}
 		});		

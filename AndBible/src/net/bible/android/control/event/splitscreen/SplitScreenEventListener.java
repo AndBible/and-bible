@@ -8,6 +8,9 @@ public interface SplitScreenEventListener extends EventListener {
 	// Split screen has been minimized/restored/removed/added
 	void numberOfScreensChanged();
 
+	// Split screen size changed - often due to separator being moved
+	void splitScreenSizeChanged();
+
 	// focus has been changed
 	void currentSplitScreenChanged(Screen activeScreen);
 	

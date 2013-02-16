@@ -1,7 +1,3 @@
-function getNum() {
-	return 300;
-}
-
 function jsonload() {
 	window.jsInterface.onLoad();
 	registerVersePositions();
@@ -12,6 +8,8 @@ function jsonscroll() {
 }
 
 function registerVersePositions() {
+	window.jsInterface.clearVersePositionCache();
+	
 	var verseTags = getVerseElements();
 	window.jsInterface.log("Num verses found:"+verseTags.length);
 	for (i=0; i<verseTags.length; i++) {

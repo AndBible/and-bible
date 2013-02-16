@@ -25,6 +25,9 @@ public class SplitScreenControl {
 	
 	private boolean isSplitScreensLinked = true;
 	
+	private boolean isSeparatorMoving = false;
+	private boolean resynchRequired = false;
+	
 	private Screen currentActiveScreen = Screen.SCREEN_1;
 	
 	private Key lastSynchdInactiveScreenKey;
@@ -63,6 +66,7 @@ public class SplitScreenControl {
 		setCurrentActiveScreen(Screen.SCREEN_1);
 		// redisplay the current page
 		splitScreenEventManager.numberOfScreensChanged();
+		splitScreenEventManager.splitScreenSizeChanged();
 	}
 
 	public void restoreScreen2() {
@@ -71,6 +75,7 @@ public class SplitScreenControl {
 		isSplit = true;
 		// causes BibleViews to be created and laid out
 		splitScreenEventManager.numberOfScreensChanged();
+		splitScreenEventManager.splitScreenSizeChanged();
 		synchronizeScreens();
 	}
 	
@@ -95,7 +100,7 @@ public class SplitScreenControl {
 
 			// prevent infinite loop as each screen update causes a synchronise by comparing last key
 			// only update pages if empty or synchronised
-			if (isFirstTimeInit || 
+			if (isFirstTimeInit || resynchRequired || 
 			   (isSynchronizable(activePage) && isSynchronizable(inactivePage) && !lastSynchdInactiveScreenKey.equals(activeScreenKey)) ) {
 				updateInactiveScreen(inactivePage, activeScreenKey, inactiveScreenKey, isTotalRefreshRequired);
 				lastSynchdInactiveScreenKey = activeScreenKey;
@@ -111,6 +116,7 @@ public class SplitScreenControl {
 		}
 		
 		lastSynchWasInNightMode = ScreenSettings.isNightMode();
+		resynchRequired = false;
 	}
 	
 	/** Only call if screens are synchronised.  Update synch'd keys even if inactive page not shown so if it is shown then it is correct
@@ -200,5 +206,16 @@ public class SplitScreenControl {
 	public void removeSplitScreenEventListener(SplitScreenEventListener listener) 
 	{
 		splitScreenEventManager.removeSplitScreenEventListener(listener);
+	}
+
+	public boolean isSeparatorMoving() {
+		return isSeparatorMoving;
+	}
+	public void setSeparatorMoving(boolean isSeparatorMoving) {
+		this.isSeparatorMoving = isSeparatorMoving;
+		if (!isSeparatorMoving) {
+			resynchRequired = true;
+			splitScreenEventManager.splitScreenSizeChanged();
+		}
 	}
 }

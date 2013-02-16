@@ -98,17 +98,19 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 			public void currentSplitScreenChanged(Screen activeScreen) {
 				MainBibleActivity.this.updateToolbarButtonText();				
 			}
-
+			
+			@Override
+			public void splitScreenSizeChanged() {
+				// Noop
+			}
 			@Override
 			public void updateSecondaryScreen(Screen updateScreen, String html, int verseNo) {
 				// NOOP - handle in BibleWebView				
 			}
-
 			@Override
 			public void scrollSecondaryScreen(Screen screen, int verseNo) {
 				// NOOP - handle in BibleWebView
 			}
-
 			@Override
 			public void numberOfScreensChanged() {
 				// Noop

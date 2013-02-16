@@ -42,6 +42,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 
 	private int mJumpToVerse = 0;
 	private float mJumpToYOffsetRatio = 0;
+	private boolean mIsVersePositionRecalcRequired = true;
 	
 	private PageTiltScroller mPageTiltScroller;
 	private boolean hideScrollBar;
@@ -70,22 +71,6 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 		initialise();
 	}
 
-//    /**
-//     * Construct object, initializing with any attributes we understand from a
-//     * layout file. These attributes are defined in
-//     * SDK/assets/res/any/classes.xml.
-//     * 
-//     * @see android.view.View#View(android.content.Context, android.util.AttributeSet)
-//     */
-//	public BibleView(Context context, AttributeSet attrs) {
-//		super(context, attrs);
-//		initialise();
-//	}
-//	public BibleView(Context context, AttributeSet attrs, int defStyle) {
-//		super(context, attrs, defStyle);
-//		initialise();		
-//	}
-	
 	@SuppressLint("SetJavaScriptEnabled")
 	private void initialise() {
 		mVerseCalculator = new VerseCalculator();
@@ -98,10 +83,17 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 			 */
 			@Override
 		    public void onNewPicture(WebView view, Picture arg1) {
+				if (mIsVersePositionRecalcRequired) {
+					mIsVersePositionRecalcRequired = false;
+					loadUrl("javascript:registerVersePositions()");
+				}
+				
+				mJavascriptInterface.setNotificationsEnabled(splitScreenControl.isCurrentActiveScreen(splitScreenNo));
+
 				// go to any specified verse or offset
 				if (mJumpToVerse > 0) { 
 		    		if (mJumpToVerse==1) {
-		    			// use scroll to becasue difficult to place a tag exactly at the top
+		    			// use scroll to because difficult to place a tag exactly at the top
 		    			view.scrollTo(0,0);
 		    		} else {
 		    			view.loadUrl("javascript:location.href='#"+mJumpToVerse+"'");
@@ -452,13 +444,25 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 				
 				@Override
 				public void run() {
-//					loadUrl("javascript:location.href='#"+verseNo+"'");
-					loadUrl("javascript:scrollTo('"+verseNo+"')");
+					loadUrl("javascript:location.href='#"+verseNo+"'");
+//					loadUrl("javascript:scrollTo('"+verseNo+"')");
 				}
 			});
 		}
 	}
-
+	
+	@Override
+	public void splitScreenSizeChanged() {
+		mIsVersePositionRecalcRequired = true;
+	}
+	
+	@Override
+	protected void onDetachedFromWindow() {
+		super.onDetachedFromWindow();
+		// prevent random verse changes while layout is being rebuild because of split screen changes
+		mJavascriptInterface.setNotificationsEnabled(false);
+	}
+	
 	@Override
 	public void numberOfScreensChanged() {
 		// Noop
@@ -467,5 +471,4 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	public Screen getSplitScreenNo() {
 		return splitScreenNo;
 	}
-
 }

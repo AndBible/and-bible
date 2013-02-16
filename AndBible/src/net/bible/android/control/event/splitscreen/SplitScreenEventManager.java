@@ -36,6 +36,21 @@ public class SplitScreenEventManager {
 		}
 	}
 
+	/** Split screen has changed in size
+	 */
+	public void splitScreenSizeChanged() {
+		Object[] listeners = splitScreenEventListeners.getListenerList();
+		// loop through each listener and pass on the event if needed
+		int numListeners = listeners.length;
+		for (int i = 0; i < numListeners; i += 2) {
+			if (listeners[i] == SplitScreenEventListener.class) {
+				// pass the event to the listeners event dispatch method
+				((SplitScreenEventListener) listeners[i + 1]).splitScreenSizeChanged();
+			}
+		}
+	}
+
+
 	/** detail/verse changed
 	 */
 	public void splitScreenDetailChanged(Screen activeScreen) {
