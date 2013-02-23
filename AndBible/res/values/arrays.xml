@@ -5,7 +5,9 @@
  @see gnu.lgpl.License for license details.<br>
       The copyright to this program is held by it's author.
 -->
-<resources>
+<resources
+  xmlns:tools="http://schemas.android.com/tools"
+  tools:ignore="MissingTranslation">
 	<string-array name="documentTypes">
 		<item>@string/doc_type_bible</item>
 		<item>@string/doc_type_commentary</item>
@@ -14,7 +16,7 @@
 		<item>@string/doc_type_map</item>
 	</string-array>
 
-	<!-- These languages must be in the same order as the language codes below -->
+	<!-- Screen colors: automatic night mode, day, night -->
 	<string-array name="prefs_night_mode_descriptions">
 		<item>@string/no</item>
 		<item>@string/yes</item>
@@ -24,6 +26,18 @@
 		<item>false</item>
 		<item>true</item>
 		<item>automatic</item>
+	</string-array>
+	
+	<!-- Split screen -->
+	<string-array name="prefs_split_screen_descriptions">
+		<item>@string/prefs_split_screen_single</item>
+		<item>@string/prefs_split_screen_linked</item>
+		<item>@string/prefs_split_screen_not_linked</item>
+	</string-array>
+	<string-array name="prefs_split_screen_values">
+		<item>single</item>
+		<item>linked</item>
+		<item>not_linked</item>
 	</string-array>
 	
 	<!-- These languages must be in the same order as the language codes below -->

@@ -19,7 +19,7 @@
 -->
 
 <resources>
-	<dimen name="title_bar_title_width">130dip</dimen>
+	<!-- dimen name="title_bar_title_width">130dip</dimen -->
 	<dimen name="title_bar_height">28dip</dimen>
 	
 	<!--  number and size of buttons varies depending on screen size and orientation -->

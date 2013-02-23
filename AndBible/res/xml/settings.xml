@@ -20,6 +20,13 @@
 				android:entryValues="@array/prefs_night_mode_values"
 				android:defaultValue="false"/>
 
+	<ListPreference android:key="split_screen_pref" 
+				android:title="@string/prefs_split_screen_title"
+				android:summary="@string/prefs_split_screen_summary"
+				android:entries="@array/prefs_split_screen_descriptions"
+				android:entryValues="@array/prefs_split_screen_values"
+				android:defaultValue="false"/>
+	
 	<CheckBoxPreference android:key="show_verseno_pref" 
 				android:title="@string/prefs_show_verseno_title"
 				android:summary="@string/prefs_show_verseno_summary"

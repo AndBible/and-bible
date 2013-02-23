@@ -8,6 +8,7 @@ import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.UpdateTextTask;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
 
 import org.crosswire.jsword.book.BookCategory;
@@ -15,15 +16,17 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
 
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.util.Log;
 
 public class SplitScreenControl {
 	public enum Screen {SCREEN_1, SCREEN_2};
 	
-	private boolean isSplit = true;
+	private boolean isSplit;
 	private boolean isScreen2Minimized;
 	
-	private boolean isSplitScreensLinked = true;
+	private boolean isSplitScreensLinked;
 	
 	private boolean isSeparatorMoving = false;
 	private boolean resynchRequired = false;
@@ -35,9 +38,24 @@ public class SplitScreenControl {
 	
 	private SplitScreenEventManager splitScreenEventManager = new SplitScreenEventManager();
 	
+	public static final String SPLIT_SCREEN_PREF = "split_screen_pref";
+	private static final String PREFS_SPLIT_SCREEN_SINGLE = "single";
+	private static final String PREFS_SPLIT_SCREEN_LINKED = "linked";
+	private static final String PREFS_SPLIT_SCREEN_NOT_LINKED = "not_linked";
 	private static final String TAG = "SplitScreenControl";
 	
+	private OnSharedPreferenceChangeListener onSettingsChangeListener = new OnSharedPreferenceChangeListener() {
+		@Override
+		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,	String key) {
+			if (SPLIT_SCREEN_PREF.equals(key)) {
+				refreshFromSettings();
+			}
+		}
+	};
+	
 	public SplitScreenControl() {
+		refreshFromSettings();
+		
 		CurrentActivityHolder.getInstance().addAppToBackgroundListener(new AppToBackgroundListener() {
 			@Override
 			public void applicationNowInBackground(AppToBackgroundEvent e) {
@@ -50,6 +68,8 @@ public class SplitScreenControl {
 				lastSynchdInactiveScreenKey = null;
 			}
 		});
+		// the listener needs to be a class variable because it is held in a WeakHashMap by SharedPreferences
+		CommonUtils.getSharedPreferences().registerOnSharedPreferenceChangeListener(onSettingsChangeListener);
 	}
 	
 	public boolean isFirstScreenActive() {
@@ -160,6 +180,32 @@ public class SplitScreenControl {
         }
     }
 
+	private void refreshFromSettings() {
+		Log.d(TAG, "Refresh split screen settings");
+		String splitScreenPreference = PREFS_SPLIT_SCREEN_SINGLE;
+		SharedPreferences preferences = CommonUtils.getSharedPreferences();
+		if (preferences!=null) {
+			splitScreenPreference = preferences.getString(SPLIT_SCREEN_PREF, PREFS_SPLIT_SCREEN_SINGLE);
+		}
+		
+		if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_SINGLE)) {
+			isSplit = false;
+			isSplitScreensLinked = false;
+		} else if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_LINKED)) {
+			isSplit = true;
+			isSplitScreensLinked = true;
+		} else if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_NOT_LINKED)) {
+			isSplit = true;
+			isSplitScreensLinked = false;
+		} else {
+			// unexpected value so default to no split
+			isSplit = false;
+			isSplitScreensLinked = false;
+		}
+
+		//TODO save and restore minimized setting
+	}
+	
 	public boolean isSplit() {
 		return isSplit;
 	}
