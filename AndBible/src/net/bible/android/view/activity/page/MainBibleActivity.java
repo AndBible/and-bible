@@ -1,5 +1,7 @@
 package net.bible.android.view.activity.page;
 
+import java.util.Map;
+
 import net.bible.android.activity.R;
 import net.bible.android.control.BibleContentManager;
 import net.bible.android.control.ControlFactory;
@@ -8,6 +10,7 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
 import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
@@ -41,6 +44,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	
 	private BibleContentManager bibleContentManager;
 	
+	private SplitScreenControl splitScreenControl;
+	
 	private static final String TAG = "MainBibleActivity";
 
 	// handle requests from main menu
@@ -66,6 +71,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
         // create related objects
         gestureListener = new BibleGestureListener(MainBibleActivity.this);
         gestureDetector = new GestureDetector( gestureListener );
+
+        splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
         
         documentViewManager = new DocumentViewManager(this);
         documentViewManager.buildView();
@@ -100,7 +107,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 			}
 			
 			@Override
-			public void splitScreenSizeChanged() {
+			public void splitScreenSizeChange(boolean isMoveFinished, Map<Screen, Integer> screenVerseMap) {
 				// Noop
 			}
 			@Override
@@ -112,7 +119,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 				// NOOP - handle in BibleWebView
 			}
 			@Override
-			public void numberOfScreensChanged() {
+			public void numberOfScreensChanged(Map<Screen, Integer> screenVerseMap) {
 				// Noop
 			}
 		});
@@ -168,6 +175,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		if (!ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().isSingleKey()) {
 			// force a recalculation of verse offsets
 			PassageChangeMediator.getInstance().forcePageUpdate();
+		} else if (splitScreenControl.isSplit()) {
+			// need to layout split screens differently
+			splitScreenControl.orientationCange();
 		}
 	}
 

@@ -1,5 +1,7 @@
 package net.bible.android.view.activity.page.screen;
 
+import java.util.Map;
+
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
@@ -36,7 +38,7 @@ public class DocumentViewManager {
 		splitScreenControl.addSplitScreenEventListener(new SplitScreenEventListener() {
 			
 			@Override
-			public void numberOfScreensChanged() {
+			public void numberOfScreensChanged(Map<Screen, Integer> screenVerseMap) {
 				buildView();
 			}
 			
@@ -56,7 +58,7 @@ public class DocumentViewManager {
 			}
 
 			@Override
-			public void splitScreenSizeChanged() {
+			public void splitScreenSizeChange(boolean isMoveFinished, Map<Screen, Integer> screenVerseMap) {
 				// Noop
 			}
 		});		

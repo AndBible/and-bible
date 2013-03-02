@@ -1,15 +1,16 @@
 package net.bible.android.control.event.splitscreen;
 
 import java.util.EventListener;
+import java.util.Map;
 
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 
 public interface SplitScreenEventListener extends EventListener {
 	// Split screen has been minimized/restored/removed/added
-	void numberOfScreensChanged();
+	void numberOfScreensChanged(Map<Screen, Integer> screenVerseMap);
 
 	// Split screen size changed - often due to separator being moved
-	void splitScreenSizeChanged();
+	void splitScreenSizeChange(boolean isFinished, Map<Screen, Integer> screenVerseMap);
 
 	// focus has been changed
 	void currentSplitScreenChanged(Screen activeScreen);

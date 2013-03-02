@@ -1,6 +1,7 @@
 package net.bible.android.view.activity.page;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
@@ -42,6 +43,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 
 	private int mJumpToVerse = 0;
 	private float mJumpToYOffsetRatio = 0;
+	private static final int NO_JUMP = -1;
 	private boolean mIsVersePositionRecalcRequired = true;
 	
 	private PageTiltScroller mPageTiltScroller;
@@ -52,6 +54,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 
 	private PageControl mPageControl = ControlFactory.getInstance().getPageControl();
 	
+	private int maintainMovingVerse = -1;
 	private static SplitScreenControl splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
 	
 	private static final String TAG = "BibleView";
@@ -73,7 +76,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 
 	@SuppressLint("SetJavaScriptEnabled")
 	private void initialise() {
-		mVerseCalculator = new VerseCalculator();
+		mVerseCalculator = new VerseCalculator(splitScreenNo);
 		mJavascriptInterface = new BibleJavascriptInterface(mVerseCalculator);
 		
 		addJavascriptInterface(mJavascriptInterface, "jsInterface");
@@ -83,6 +86,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 			 */
 			@Override
 		    public void onNewPicture(WebView view, Picture arg1) {
+				Log.d(TAG, splitScreenNo+"*** on new picture");
 				if (mIsVersePositionRecalcRequired) {
 					mIsVersePositionRecalcRequired = false;
 					loadUrl("javascript:registerVersePositions()");
@@ -90,8 +94,16 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 				
 				mJavascriptInterface.setNotificationsEnabled(splitScreenControl.isCurrentActiveScreen(splitScreenNo));
 
+				// screen is changing shape/size so constantly maintain the current verse position
+				// main difference from jumpToVerse is that this is not cleared after jump
+				if (maintainMovingVerse>0) {
+					Log.d(TAG, splitScreenNo+"*** maintain current verse on new picture:"+maintainMovingVerse);
+					loadUrl("javascript:location.href='#"+maintainMovingVerse+"'");
+				}
+
 				// go to any specified verse or offset
-				if (mJumpToVerse > 0) { 
+				if (mJumpToVerse > 0) {
+					Log.d(TAG, splitScreenNo+"*** Jump to verse on new picture:"+mJumpToVerse);
 		    		if (mJumpToVerse==1) {
 		    			// use scroll to because difficult to place a tag exactly at the top
 		    			view.scrollTo(0,0);
@@ -99,13 +111,14 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 		    			view.loadUrl("javascript:location.href='#"+mJumpToVerse+"'");
 		    		}
 	    		} else if (mJumpToYOffsetRatio>0) {
+					Log.d(TAG, splitScreenNo+"*** Jump to Y offset ratio:"+mJumpToYOffsetRatio);
 		            int contentHeight = view.getContentHeight(); 
 		            int y = (int) ((float)contentHeight*mJumpToYOffsetRatio);
 		    		view.scrollTo(0, y);
 	    		}
 	    	    // must zero mJumpToVerse because setting location causes another onPageFinished
-	    	    mJumpToVerse = -1; 
-	    		mJumpToYOffsetRatio = -1;
+	    	    mJumpToVerse = NO_JUMP; 
+	    		mJumpToYOffsetRatio = NO_JUMP;
 		    }    
 		});
 		
@@ -452,8 +465,30 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	}
 	
 	@Override
-	public void splitScreenSizeChanged() {
-		mIsVersePositionRecalcRequired = true;
+	public void splitScreenSizeChange(boolean isMoveFinished, Map<Screen, Integer> screenVerseMap) {
+		Log.d(TAG, "split screen size changed");
+		boolean isScreenVerse = screenVerseMap.containsKey(splitScreenNo);
+		if (isScreenVerse) {
+			this.maintainMovingVerse = screenVerseMap.get(splitScreenNo);
+		}
+
+		// when move finished the verse positions will have changed if in Landscape so recalc positions
+		if (isMoveFinished && isScreenVerse) {
+			final int verse = screenVerseMap.get(splitScreenNo);
+			jumpToVerse(verse);
+			
+			getHandler().postDelayed(new Runnable() {
+				@Override
+				public void run() {
+					// clear jump value if still set
+					BibleView.this.maintainMovingVerse = NO_JUMP;
+					
+					// ensure we are in the correct place after screen settles
+					loadUrl("javascript:location.href='#"+verse+"'");
+					loadUrl("javascript:registerVersePositions()");
+				}
+			} , SplitScreenControl.SCREEN_SETTLE_TIME_MILLIS/2);
+		}		
 	}
 	
 	@Override
@@ -464,11 +499,23 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	}
 	
 	@Override
-	public void numberOfScreensChanged() {
-		// Noop
+	public void numberOfScreensChanged(Map<Screen, Integer> screenVerseMap) {
+		if (getVisibility()==View.VISIBLE && screenVerseMap.containsKey(splitScreenNo)) {
+			jumpToVerse(screenVerseMap.get(splitScreenNo));
+		}
 	}
 
 	public Screen getSplitScreenNo() {
 		return splitScreenNo;
+	}
+
+	public void setVersePositionRecalcRequired(boolean mIsVersePositionRecalcRequired) {
+		this.mIsVersePositionRecalcRequired = mIsVersePositionRecalcRequired;
+	}
+	
+	public void jumpToVerse(int verseNo) {
+		Log.d(TAG, splitScreenNo+"*** Jump to verse:"+verseNo);
+		this.mJumpToVerse = verseNo;
+//		loadUrl("javascript:location.href='#"+verseNo+"'");
 	}
 }

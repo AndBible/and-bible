@@ -1,5 +1,8 @@
 package net.bible.android.control.page.splitscreen;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
 import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
@@ -29,6 +32,7 @@ public class SplitScreenControl {
 	private boolean isSplitScreensLinked;
 	
 	private boolean isSeparatorMoving = false;
+	private long stoppedMovingTime = 0;
 	private boolean resynchRequired = false;
 	
 	private Screen currentActiveScreen = Screen.SCREEN_1;
@@ -38,27 +42,33 @@ public class SplitScreenControl {
 	
 	private SplitScreenEventManager splitScreenEventManager = new SplitScreenEventManager();
 	
+	public static int SCREEN_SETTLE_TIME_MILLIS = 5000;
+	
 	public static final String SPLIT_SCREEN_PREF = "split_screen_pref";
 	private static final String PREFS_SPLIT_SCREEN_SINGLE = "single";
 	private static final String PREFS_SPLIT_SCREEN_LINKED = "linked";
 	private static final String PREFS_SPLIT_SCREEN_NOT_LINKED = "not_linked";
+	private static final String SPLIT_SCREEN2_MINIMIZED = "screen2_minimized";
+	
 	private static final String TAG = "SplitScreenControl";
 	
 	private OnSharedPreferenceChangeListener onSettingsChangeListener = new OnSharedPreferenceChangeListener() {
 		@Override
 		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,	String key) {
 			if (SPLIT_SCREEN_PREF.equals(key)) {
-				refreshFromSettings();
+				restoreFromSettings();
 			}
 		}
 	};
 	
 	public SplitScreenControl() {
-		refreshFromSettings();
+		restoreNonPreferenceState();
+		restoreFromSettings();
 		
 		CurrentActivityHolder.getInstance().addAppToBackgroundListener(new AppToBackgroundListener() {
 			@Override
 			public void applicationNowInBackground(AppToBackgroundEvent e) {
+				saveNonPreferenceState();
 				// ensure nonactive screen is initialised when returning from background
 				lastSynchdInactiveScreenKey = null;
 			}
@@ -66,6 +76,7 @@ public class SplitScreenControl {
 			@Override
 			public void applicationReturnedFromBackground(AppToBackgroundEvent e) {
 				lastSynchdInactiveScreenKey = null;
+				restoreNonPreferenceState();
 			}
 		});
 		// the listener needs to be a class variable because it is held in a WeakHashMap by SharedPreferences
@@ -85,8 +96,7 @@ public class SplitScreenControl {
 		// calling sCAS will cause events to be dispatched to set active screen so auto-scroll works
 		setCurrentActiveScreen(Screen.SCREEN_1);
 		// redisplay the current page
-		splitScreenEventManager.numberOfScreensChanged();
-		splitScreenEventManager.splitScreenSizeChanged();
+		splitScreenEventManager.numberOfScreensChanged(getScreenVerseMap());
 	}
 
 	public void restoreScreen2() {
@@ -94,9 +104,14 @@ public class SplitScreenControl {
 		currentActiveScreen = Screen.SCREEN_1;
 		isSplit = true;
 		// causes BibleViews to be created and laid out
-		splitScreenEventManager.numberOfScreensChanged();
-		splitScreenEventManager.splitScreenSizeChanged();
+		splitScreenEventManager.numberOfScreensChanged(getScreenVerseMap());
 		synchronizeScreens();
+	}
+
+	/** screen orientation has changed */
+	public void orientationCange() {
+		// causes BibleViews to be created and laid out
+		splitScreenEventManager.numberOfScreensChanged(getScreenVerseMap());
 	}
 	
 	/** Synchronise the inactive key and inactive screen with the active key and screen if required
@@ -112,27 +127,32 @@ public class SplitScreenControl {
 		boolean inactiveUpdated = false;
 		boolean isTotalRefreshRequired = isFirstTimeInit ||	lastSynchWasInNightMode!=ScreenSettings.isNightMode();
 
-		if (isSplit() && isSplitScreensLinked()) {
+		if (isSplitScreensLinked()) {
+			if ((isSplit() || isScreen2Minimized()) ) {
+				// inactive screen may not be displayed but if switched to the key must be correct
+				// Only Bible and cmtry are synch'd and they share a Verse key
+				updateInactiveBibleKey();
+			}
 
-			// inactive screen may not be displayed but if switched to the key must be correct
-			// Only Bible and cmtry are synch'd and they share a Verse key
-			updateInactiveBibleKey();
-
-			// prevent infinite loop as each screen update causes a synchronise by comparing last key
-			// only update pages if empty or synchronised
-			if (isFirstTimeInit || resynchRequired || 
-			   (isSynchronizable(activePage) && isSynchronizable(inactivePage) && !lastSynchdInactiveScreenKey.equals(activeScreenKey)) ) {
-				updateInactiveScreen(inactivePage, activeScreenKey, inactiveScreenKey, isTotalRefreshRequired);
-				lastSynchdInactiveScreenKey = activeScreenKey;
-				inactiveUpdated = true;
-			} 
+			if (isSplit() && !isScreen2Minimized()) {
+				// prevent infinite loop as each screen update causes a synchronise by comparing last key
+				// only update pages if empty or synchronised
+				if (isFirstTimeInit || resynchRequired || 
+				   (isSynchronizable(activePage) && isSynchronizable(inactivePage) && !lastSynchdInactiveScreenKey.equals(activeScreenKey)) ) {
+					updateInactiveScreen(inactivePage, activeScreenKey, inactiveScreenKey, isTotalRefreshRequired);
+					lastSynchdInactiveScreenKey = activeScreenKey;
+					inactiveUpdated = true;
+				} 
+			}
 		}
-
+			
 		// force inactive screen to display something otherwise it may be initially blank
 		// or if nightMode has changed then force an update
 		if (!inactiveUpdated && isTotalRefreshRequired) {
 			// force an update of the inactive page to prevent blank screen
 			updateInactiveScreen(inactivePage, inactiveScreenKey, inactiveScreenKey, isTotalRefreshRequired);
+			lastSynchdInactiveScreenKey = inactiveScreenKey;
+			inactiveUpdated = true;
 		}
 		
 		lastSynchWasInNightMode = ScreenSettings.isNightMode();
@@ -156,9 +176,9 @@ public class SplitScreenControl {
 		Verse targetVerse = KeyUtil.getVerse(targetScreenKey);
 		Verse currentVerse = KeyUtil.getVerse(inactiveScreenKey);
 		
-		// update split screen as smoothly as possible i.e. just scroll if verse is adjacent on current page
+		// update split screen as smoothly as possible i.e. just jump/scroll if verse is on current page
 		if (!forceRefresh && BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && 
-				targetVerse.isSameChapter(currentVerse)  && targetVerse.adjacentTo(currentVerse)) {
+				targetVerse.isSameChapter(currentVerse)) {
 			splitScreenEventManager.scrollSecondaryScreen(getNonActiveScreen(), targetVerse.getVerse());
 		} else {
 			new UpdateInactiveScreenTextTask().execute(inactivePage);
@@ -180,7 +200,7 @@ public class SplitScreenControl {
         }
     }
 
-	private void refreshFromSettings() {
+	private void restoreFromSettings() {
 		Log.d(TAG, "Refresh split screen settings");
 		String splitScreenPreference = PREFS_SPLIT_SCREEN_SINGLE;
 		SharedPreferences preferences = CommonUtils.getSharedPreferences();
@@ -191,21 +211,34 @@ public class SplitScreenControl {
 		if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_SINGLE)) {
 			isSplit = false;
 			isSplitScreensLinked = false;
+			isScreen2Minimized = false;
 		} else if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_LINKED)) {
-			isSplit = true;
+			isSplit = !isScreen2Minimized;
 			isSplitScreensLinked = true;
 		} else if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_NOT_LINKED)) {
-			isSplit = true;
+			isSplit = !isScreen2Minimized;
 			isSplitScreensLinked = false;
 		} else {
 			// unexpected value so default to no split
 			isSplit = false;
 			isSplitScreensLinked = false;
+			isScreen2Minimized = false;
 		}
-
-		//TODO save and restore minimized setting
 	}
 	
+	private void restoreNonPreferenceState() {
+		Log.d(TAG, "Refresh split non pref state");
+		SharedPreferences preferences = CommonUtils.getSharedPreferences();
+		if (preferences!=null) {
+			isScreen2Minimized = preferences.getBoolean(SPLIT_SCREEN2_MINIMIZED, false);
+		}
+	}
+	
+	private void saveNonPreferenceState() {
+		Log.d(TAG, "Save split non pref state");
+		CommonUtils.getSharedPreferences().edit().putBoolean(SPLIT_SCREEN2_MINIMIZED, isScreen2Minimized).commit();
+	}
+
 	public boolean isSplit() {
 		return isSplit;
 	}
@@ -255,13 +288,55 @@ public class SplitScreenControl {
 	}
 
 	public boolean isSeparatorMoving() {
+		Log.d(TAG, "isseperatorMoving");
+		// allow 1 sec for screen to settle after splitscreen drag
+		if (stoppedMovingTime>0) {
+			// allow a second after stopping for screen to settle
+			if (stoppedMovingTime+SCREEN_SETTLE_TIME_MILLIS>System.currentTimeMillis()) {
+				Log.d(TAG, "*** seperator stopped moving but settle time NOT passed");
+				return true;
+			}
+			Log.d(TAG, "*** seperator stopped moving and settle time passed stopped:"+stoppedMovingTime+" current:"+System.currentTimeMillis());
+			stoppedMovingTime = 0;
+		}
 		return isSeparatorMoving;
 	}
+	
 	public void setSeparatorMoving(boolean isSeparatorMoving) {
-		this.isSeparatorMoving = isSeparatorMoving;
 		if (!isSeparatorMoving) {
-			resynchRequired = true;
-			splitScreenEventManager.splitScreenSizeChanged();
+			// facilitate time for the screen to settle
+			this.stoppedMovingTime = System.currentTimeMillis();
+			Log.d(TAG, "*** stopped moving:"+System.currentTimeMillis());
 		}
+		this.isSeparatorMoving = isSeparatorMoving;
+		
+		boolean isMoveFinished = !isSeparatorMoving;
+		if (isMoveFinished) {
+			resynchRequired = true;
+		}
+		
+		splitScreenEventManager.splitScreenSizeChange(isMoveFinished, getScreenVerseMap());
+	}
+
+	/**
+	 * @return
+	 */
+	private Map<Screen, Integer> getScreenVerseMap() {
+		// get page offsets to maintain for each screen
+		Map<Screen,Integer> screenVerseMap = new HashMap<Screen,Integer>();
+		for (Screen screen : Screen.values()) {
+			if (BookCategory.BIBLE == getCurrentPage(screen).getCurrentDocument().getBookCategory()) {
+				int verse = KeyUtil.getVerse(getCurrentPage(screen).getSingleKey()).getVerse();
+				screenVerseMap.put(screen, verse);
+				Log.d(TAG, screen+"* registered verse no:"+verse);
+			} else {
+				Log.e(TAG, screen+"* prob getting registered verse for doc:"+getCurrentPage(screen).getCurrentDocument());
+			}
+		}
+		return screenVerseMap;
+	}
+	
+	private CurrentPage getCurrentPage(Screen screenNo) {
+		return CurrentPageManager.getInstance(screenNo).getCurrentPage();
 	}
 }

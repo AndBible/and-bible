@@ -1,5 +1,7 @@
 package net.bible.android.control.event.splitscreen;
 
+import java.util.Map;
+
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 
 import org.crosswire.common.util.EventListenerList;
@@ -24,28 +26,28 @@ public class SplitScreenEventManager {
 
 	/** Split screen has been minimized/restored/removed/added
 	 */
-	public void numberOfScreensChanged() {
+	public void numberOfScreensChanged(Map<Screen, Integer> screenVerseMap) {
 		Object[] listeners = splitScreenEventListeners.getListenerList();
 		// loop through each listener and pass on the event if needed
 		int numListeners = listeners.length;
 		for (int i = 0; i < numListeners; i += 2) {
 			if (listeners[i] == SplitScreenEventListener.class) {
 				// pass the event to the listeners event dispatch method
-				((SplitScreenEventListener) listeners[i + 1]).numberOfScreensChanged();
+				((SplitScreenEventListener) listeners[i + 1]).numberOfScreensChanged(screenVerseMap);
 			}
 		}
 	}
 
 	/** Split screen has changed in size
 	 */
-	public void splitScreenSizeChanged() {
+	public void splitScreenSizeChange(boolean isFinished, Map<Screen, Integer> screenVerseMap) {
 		Object[] listeners = splitScreenEventListeners.getListenerList();
 		// loop through each listener and pass on the event if needed
 		int numListeners = listeners.length;
 		for (int i = 0; i < numListeners; i += 2) {
 			if (listeners[i] == SplitScreenEventListener.class) {
 				// pass the event to the listeners event dispatch method
-				((SplitScreenEventListener) listeners[i + 1]).splitScreenSizeChanged();
+				((SplitScreenEventListener) listeners[i + 1]).splitScreenSizeChange(isFinished, screenVerseMap);
 			}
 		}
 	}

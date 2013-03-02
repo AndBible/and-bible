@@ -2,6 +2,7 @@ package net.bible.service.device;
 
 import net.bible.android.BibleApplication;
 import net.bible.service.common.CommonUtils;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.PowerManager;
@@ -101,7 +102,6 @@ public class ScreenSettings {
 		return heightDips;
 	}
 	public static void setContentViewHeightPx(int contentViewHeightPx) {
-		Log.d(TAG, "ContentViewHeightPx:"+contentViewHeightPx);
 		ScreenSettings.contentViewHeightPx = contentViewHeightPx;
 	}
 

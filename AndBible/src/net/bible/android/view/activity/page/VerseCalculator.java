@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 
 import android.util.Log;
 
@@ -19,13 +20,15 @@ public class VerseCalculator {
 	private List<Integer> versePositionList = new LinkedList<Integer>();
 
 	private int prevCurrentVerse = 0;
-	
+
+	private Screen screen;
 	// going to a verse pushes the offset a couple of pixels past the verse position on large screens i.e. going to Judg 5:11 will show Judg 5:12
 	private static final int SLACK_FOR_JUMP_TO_VERSE = 5;
 	private static final String TAG = "VerseCalculator";
 
-	public VerseCalculator() {
+	public VerseCalculator(Screen screen) {
 		super();
+		this.screen = screen;
 	}
 	
 	public void init() {
@@ -52,6 +55,8 @@ public class VerseCalculator {
 		if (CurrentPageManager.getInstance().isBibleShown()) {
 			int currentVerse = calculateCurrentVerse(scrollOffset);
 			if (currentVerse!=prevCurrentVerse) {
+				//TODO delete this logging
+				Log.d(TAG, screen+"*** new position - verse:"+currentVerse);
 				CurrentPageManager.getInstance().getCurrentBible().setCurrentVerseNo(currentVerse);
 			}
 			prevCurrentVerse = currentVerse;
