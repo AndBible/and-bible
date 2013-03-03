@@ -42,7 +42,7 @@ public class SplitScreenControl {
 	
 	private SplitScreenEventManager splitScreenEventManager = new SplitScreenEventManager();
 	
-	public static int SCREEN_SETTLE_TIME_MILLIS = 5000;
+	public static int SCREEN_SETTLE_TIME_MILLIS = 1000;
 	
 	public static final String SPLIT_SCREEN_PREF = "split_screen_pref";
 	private static final String PREFS_SPLIT_SCREEN_SINGLE = "single";
