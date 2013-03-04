@@ -33,6 +33,8 @@ public class SplitScreenControl {
 	
 	private boolean isSeparatorMoving = false;
 	private long stoppedMovingTime = 0;
+	private float screen1Weight = 0.5f;
+
 	private boolean resynchRequired = false;
 	
 	private Screen currentActiveScreen = Screen.SCREEN_1;
@@ -48,6 +50,7 @@ public class SplitScreenControl {
 	private static final String PREFS_SPLIT_SCREEN_SINGLE = "single";
 	private static final String PREFS_SPLIT_SCREEN_LINKED = "linked";
 	private static final String PREFS_SPLIT_SCREEN_NOT_LINKED = "not_linked";
+	private static final String SPLIT_SCREEN1_WEIGHT = "screen1_weight";
 	private static final String SPLIT_SCREEN2_MINIMIZED = "screen2_minimized";
 	
 	private static final String TAG = "SplitScreenControl";
@@ -212,6 +215,7 @@ public class SplitScreenControl {
 			isSplit = false;
 			isSplitScreensLinked = false;
 			isScreen2Minimized = false;
+			screen1Weight = 0.5f;
 		} else if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_LINKED)) {
 			isSplit = !isScreen2Minimized;
 			isSplitScreensLinked = true;
@@ -223,6 +227,7 @@ public class SplitScreenControl {
 			isSplit = false;
 			isSplitScreensLinked = false;
 			isScreen2Minimized = false;
+			screen1Weight = 0.5f;
 		}
 	}
 	
@@ -230,13 +235,17 @@ public class SplitScreenControl {
 		Log.d(TAG, "Refresh split non pref state");
 		SharedPreferences preferences = CommonUtils.getSharedPreferences();
 		if (preferences!=null) {
+			screen1Weight = preferences.getFloat(SPLIT_SCREEN1_WEIGHT, 0.5f);
 			isScreen2Minimized = preferences.getBoolean(SPLIT_SCREEN2_MINIMIZED, false);
 		}
 	}
 	
 	private void saveNonPreferenceState() {
 		Log.d(TAG, "Save split non pref state");
-		CommonUtils.getSharedPreferences().edit().putBoolean(SPLIT_SCREEN2_MINIMIZED, isScreen2Minimized).commit();
+		CommonUtils.getSharedPreferences().edit()
+										.putFloat(SPLIT_SCREEN1_WEIGHT, screen1Weight)
+										.putBoolean(SPLIT_SCREEN2_MINIMIZED, isScreen2Minimized)
+										.commit();
 	}
 
 	public boolean isSplit() {
@@ -288,7 +297,6 @@ public class SplitScreenControl {
 	}
 
 	public boolean isSeparatorMoving() {
-		Log.d(TAG, "isseperatorMoving");
 		// allow 1 sec for screen to settle after splitscreen drag
 		if (stoppedMovingTime>0) {
 			// allow a second after stopping for screen to settle
@@ -316,6 +324,13 @@ public class SplitScreenControl {
 		}
 		
 		splitScreenEventManager.splitScreenSizeChange(isMoveFinished, getScreenVerseMap());
+	}
+
+	public float getScreen1Weight() {
+		return screen1Weight;
+	}
+	public void setScreen1Weight(float screen1Weight) {
+		this.screen1Weight = screen1Weight;
 	}
 
 	/**

@@ -2,7 +2,6 @@ package net.bible.android.view.util;
 
 import android.content.Context;
 import android.graphics.Color;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -24,7 +23,6 @@ public class TouchDelegateView extends View {
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		Log.d("TouchDelegateView", "Delegating touch");
 		return delegate.onTouchEvent(event);
 	}
 }

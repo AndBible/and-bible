@@ -4,21 +4,18 @@ import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.splitscreen.Separator;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.page.BibleView;
-import net.bible.android.view.util.TouchDelegateView;
-import net.bible.android.view.util.TouchOwner;
 import net.bible.service.common.CommonUtils;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -111,6 +108,7 @@ public class DocumentWebViewBuilder {
 	public void addWebView(LinearLayout parent) {
 		Log.d(TAG, "addWebView - layout web view");
 		this.parentLayout = parent;
+		separator.setParentLayout(parentLayout);
     	boolean isWebView = parent.findViewById(BIBLE_WEB_VIEW_ID)!=null;
     	boolean isAlreadySplitWebView = isWebView && parent.findViewById(BIBLE_WEB_VIEW2_ID)!=null;
     	boolean isPortrait = CommonUtils.isPortrait();
@@ -125,9 +123,10 @@ public class DocumentWebViewBuilder {
     		
     		parent.setOrientation(isPortrait? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
     		separator.setPortrait(isPortrait);
-    		
-    		LinearLayout.LayoutParams lp = isPortrait?	new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, 0, 1) :
-    													new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, 1);
+
+    		float screen1Weight = splitScreenControl.getScreen1Weight();
+    		LinearLayout.LayoutParams lp = isPortrait?	new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, 0, screen1Weight) :
+    													new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, screen1Weight);
 
 			// add top view whether split or not
 			//AddTop FrameLayout, then webview, [then separatorTouchExtender(beside separator)]
@@ -150,8 +149,8 @@ public class DocumentWebViewBuilder {
     													new LinearLayout.LayoutParams(SPLIT_SEPARATOR_WIDTH_PX, LayoutParams.FILL_PARENT, 0));
     			
     			// add a FrameLayout to the lower part of the LinearLayout to contain both a webView and separator extension
-        		LinearLayout.LayoutParams lp2 = isPortrait?	new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, 0, 1) :
-        													new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, 1);
+        		LinearLayout.LayoutParams lp2 = isPortrait?	new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, 0, 1-screen1Weight) :
+        													new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, 1-screen1Weight);
         		parent.addView(splitFrameLayout2, lp2);
         		
     			// add bible to framelayout
@@ -213,117 +212,4 @@ public class DocumentWebViewBuilder {
         return button;
 	}
 	
-	private class Separator extends View {
-
-		// offset absolute points from top of layout to enable correct calculation of screen weights in layout
-		private float parentStartRawPx;
-		
-		private boolean isPortrait = true;
-
-		// the offset of the touch from th centre of the separator - to prevent initial jerk of separator to touch point
-		private int touchOffsetPx;
-		
-		private int lastOffsetFromEdgePx;
-		
-		private LinearLayout.LayoutParams view1LayoutParams;
-		private LinearLayout.LayoutParams view2LayoutParams;
-
-		private TouchDelegateView touchDelegateView1;
-		private TouchDelegateView touchDelegateView2;
-
-		private int SEPARATOR_WIDTH;
-		private int SEPARATOR_COLOUR;
-		private int SEPARATOR_DRAG_COLOUR;
-		
-		private TouchOwner touchOwner = TouchOwner.getInstance();
-
-		private static final String TAG = "Separator";
-		
-		public Separator(Context context, int width) {
-			super(context);
-			Resources res = BibleApplication.getApplication().getResources();
-			SEPARATOR_COLOUR = res.getColor(R.color.split_separator_colour);
-			SEPARATOR_DRAG_COLOUR = res.getColor(R.color.split_separator_drag_colour);
-	        setBackgroundColor(SEPARATOR_COLOUR);
-	        touchDelegateView1 = new TouchDelegateView(context, this);
-	        touchDelegateView2 = new TouchDelegateView(context, this);
-	        SEPARATOR_WIDTH = width;
-		}
-		
-		/** Must use rawY below because this view is moving and getY would give the position relative to a moving component.
-		 * 
-		 */
-		@Override
-		public boolean onTouchEvent(MotionEvent event) {
-		    switch (event.getAction() & MotionEvent.ACTION_MASK)   
-		    {
-		    case MotionEvent.ACTION_DOWN:
-		    	Log.d(TAG, " y:"+event.getRawY());
-		    	touchOwner.setTouchOwner(this);
-		    	splitScreenControl.setSeparatorMoving(true);
-		    	int[] rawParentLocation = new int[2]; 
-		    	parentLayout.getLocationOnScreen(rawParentLocation);
-		    	parentStartRawPx = isPortrait? rawParentLocation[1] : rawParentLocation[0];
-		        setBackgroundColor(SEPARATOR_DRAG_COLOUR);
-		        touchOffsetPx = isPortrait?	(int)event.getRawY()-getCentreY() : 
-		        							(int)event.getRawX()-getCentreX();
-		        break;
-		    case MotionEvent.ACTION_UP:
-		    case MotionEvent.ACTION_POINTER_UP:
-		    	Log.d(TAG, "Up x:"+event.getX()+" y:"+event.getY());
-		        setBackgroundColor(SEPARATOR_COLOUR);
-		    	splitScreenControl.setSeparatorMoving(false);
-		    	touchOwner.releaseOwnership(this);
-		        break;
-		    case MotionEvent.ACTION_MOVE:
-		    	int parentDimensionPx = getParentDimensionPx();
-		    	// calculate y offset in pixels from top of parent layout
-		    	float offsetFromEdgePx = (isPortrait? event.getRawY() : event.getRawX())
-		    								-parentStartRawPx-touchOffsetPx;
-		    	// if position has moved at least one px then redraw separator
-		    	if ((int)offsetFromEdgePx != lastOffsetFromEdgePx) {
-			    	// change the weights of both bible views to effectively move the separator
-			    	// min prevents the separator going off screen at the bottom
-					float separatorPercentOfScreen = SEPARATOR_WIDTH/getParentDimensionPx();
-			    	view1LayoutParams.weight = Math.min(offsetFromEdgePx/parentDimensionPx, 1-separatorPercentOfScreen);
-			    	view2LayoutParams.weight = 1-view1LayoutParams.weight;
-			    	Log.d(TAG, "request layout weight 1:"+view1LayoutParams.weight+" weight 2:"+view2LayoutParams.weight+" offset:"+offsetFromEdgePx);
-			    	parentLayout.requestLayout();
-			    	lastOffsetFromEdgePx = (int)offsetFromEdgePx;
-		    	}
-		        break;
-		    }   
-
-			return true; //super.onTouchEvent(event);
-		}
-
-		private int getParentDimensionPx() {
-			return isPortrait? parentLayout.getHeight() : parentLayout.getWidth();
-		}
-
-		private int getCentreY() {
-			return +(int)parentStartRawPx + ((getTop()+getBottom())/2);
-		}
-		private int getCentreX() {
-			return +(int)parentStartRawPx + ((getLeft()+getRight())/2);
-		}
-		public void setView1LayoutParams(LinearLayout.LayoutParams view1LayoutParams) {
-			this.view1LayoutParams = view1LayoutParams;
-		}
-
-		public void setView2LayoutParams(LinearLayout.LayoutParams view2LayoutParams) {
-			this.view2LayoutParams = view2LayoutParams;
-		}
-
-		public TouchDelegateView getTouchDelegateView1() {
-			return touchDelegateView1;
-		}
-		public TouchDelegateView getTouchDelegateView2() {
-			return touchDelegateView2;
-		}
-
-		public void setPortrait(boolean isPortrait) {
-			this.isPortrait = isPortrait;
-		}
-	}
 }

@@ -98,18 +98,13 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 				// main difference from jumpToVerse is that this is not cleared after jump
 				if (maintainMovingVerse>0) {
 					Log.d(TAG, splitScreenNo+"*** maintain current verse on new picture:"+maintainMovingVerse);
-					loadUrl("javascript:location.href='#"+maintainMovingVerse+"'");
+					doScrollOrJumpToVerse(maintainMovingVerse);
 				}
 
 				// go to any specified verse or offset
 				if (mJumpToVerse > 0) {
 					Log.d(TAG, splitScreenNo+"*** Jump to verse on new picture:"+mJumpToVerse);
-		    		if (mJumpToVerse==1) {
-		    			// use scroll to because difficult to place a tag exactly at the top
-		    			view.scrollTo(0,0);
-		    		} else {
-		    			view.loadUrl("javascript:location.href='#"+mJumpToVerse+"'");
-		    		}
+					doScrollOrJumpToVerse(mJumpToVerse);
 	    		} else if (mJumpToYOffsetRatio>0) {
 					Log.d(TAG, splitScreenNo+"*** Jump to Y offset ratio:"+mJumpToYOffsetRatio);
 		            int contentHeight = view.getContentHeight(); 
@@ -517,5 +512,16 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 		Log.d(TAG, splitScreenNo+"*** Jump to verse:"+verseNo);
 		this.mJumpToVerse = verseNo;
 //		loadUrl("javascript:location.href='#"+verseNo+"'");
+	}
+
+	/** move the view so the selected verse is at the top or at least visible
+	 */
+	private void doScrollOrJumpToVerse(int verse) {
+		if (mJumpToVerse==1) {
+			// use scroll to because difficult to place a tag exactly at the top
+			scrollTo(0,0);
+		} else {
+			loadUrl("javascript:location.href='#"+mJumpToVerse+"'");
+		}
 	}
 }
