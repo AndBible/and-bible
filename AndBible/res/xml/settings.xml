@@ -25,7 +25,7 @@
 				android:summary="@string/prefs_split_screen_summary"
 				android:entries="@array/prefs_split_screen_descriptions"
 				android:entryValues="@array/prefs_split_screen_values"
-				android:defaultValue="false"/>
+				android:defaultValue="single"/>
 	
 	<CheckBoxPreference android:key="show_verseno_pref" 
 				android:title="@string/prefs_show_verseno_title"
