@@ -113,5 +113,5 @@ public class ScreenSettings {
 	public static void setLineHeightDips(int lineHeightDips) {
 		Log.d(TAG, "LineHeightPx:"+lineHeightDips);
 		ScreenSettings.lineHeightDips = lineHeightDips;
-	}			
+	}
 }

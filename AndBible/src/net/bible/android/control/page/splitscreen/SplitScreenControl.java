@@ -36,6 +36,7 @@ public class SplitScreenControl {
 	private float screen1Weight = 0.5f;
 
 	private boolean resynchRequired = false;
+	private boolean screenPreferencesChanged = false;
 	
 	private Screen currentActiveScreen = Screen.SCREEN_1;
 	
@@ -60,7 +61,11 @@ public class SplitScreenControl {
 		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,	String key) {
 			if (SPLIT_SCREEN_PREF.equals(key)) {
 				restoreFromSettings();
+			} else {
+				Log.d(TAG, "screen preferences changed so inactive screen needs to be refreshed");
+				screenPreferencesChanged = true;
 			}
+			
 		}
 	};
 	
@@ -128,7 +133,7 @@ public class SplitScreenControl {
 		Key inactiveScreenKey = inactivePage.getSingleKey();
 		boolean isFirstTimeInit = (lastSynchdInactiveScreenKey==null);
 		boolean inactiveUpdated = false;
-		boolean isTotalRefreshRequired = isFirstTimeInit ||	lastSynchWasInNightMode!=ScreenSettings.isNightMode();
+		boolean isTotalRefreshRequired = isFirstTimeInit ||	lastSynchWasInNightMode!=ScreenSettings.isNightMode() || screenPreferencesChanged;
 
 		if (isSplitScreensLinked()) {
 			if ((isSplit() || isScreen2Minimized()) ) {
@@ -159,6 +164,7 @@ public class SplitScreenControl {
 		}
 		
 		lastSynchWasInNightMode = ScreenSettings.isNightMode();
+		screenPreferencesChanged = false;
 		resynchRequired = false;
 	}
 	
