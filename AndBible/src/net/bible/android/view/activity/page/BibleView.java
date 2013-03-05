@@ -185,7 +185,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	}
 
 	private void applyFontSize() {
-		int fontSize = mPageControl.getDocumentFontSize();
+		int fontSize = mPageControl.getDocumentFontSize(splitScreenNo);
 		getSettings().setDefaultFontSize(fontSize);
 
 		// 1.6 is taken from css - line-height: 1.6em;

@@ -5,6 +5,7 @@ import java.util.List;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
@@ -152,13 +153,13 @@ public class PageControl {
 
 	/** font size may be adjusted for certain fonts e.g. SBLGNT
 	 */
-	public int getDocumentFontSize() {
+	public int getDocumentFontSize(Screen splitScreenNo) {
 		// get base font size
 		SharedPreferences preferences = CommonUtils.getSharedPreferences();
 		int fontSize = preferences.getInt("text_size_pref", 16);
 
 		// if book has a special font it may require an adjusted font size
-		Book book = getCurrentPageManager().getCurrentPage().getCurrentDocument();
+		Book book = CurrentPageManager.getInstance(splitScreenNo).getCurrentPage().getCurrentDocument();
 		String font = FontControl.getInstance().getFontForBook(book);
 		int fontSizeAdjustment = FontControl.getInstance().getFontSizeAdjustment(font, book);
 		
