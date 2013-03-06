@@ -108,7 +108,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_interface_locale_summary">Select custom user interface language</string>
     <string name="locale_change_warning">Application will be restarted to switch to the new interface language</string>
     <string name="prefs_split_screen_title">Split screen</string>
-    <string name="prefs_split_screen_summary">Split &amp; linking</string>
+    <string name="prefs_split_screen_summary">Splitting &amp; linking</string>
     <string name="prefs_split_screen_single">Single screen</string>
     <string name="prefs_split_screen_linked">Linked</string>
     <string name="prefs_split_screen_not_linked">Not linked</string>
