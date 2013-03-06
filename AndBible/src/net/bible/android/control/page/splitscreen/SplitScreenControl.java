@@ -113,6 +113,7 @@ public class SplitScreenControl {
 		isSplit = true;
 		// causes BibleViews to be created and laid out
 		splitScreenEventManager.numberOfScreensChanged(getScreenVerseMap());
+		
 		synchronizeScreens();
 	}
 
@@ -146,8 +147,8 @@ public class SplitScreenControl {
 				// prevent infinite loop as each screen update causes a synchronise by comparing last key
 				// only update pages if empty or synchronised
 				if (isFirstTimeInit || resynchRequired || 
-				   (isSynchronizable(activePage) && isSynchronizable(inactivePage) && !lastSynchdInactiveScreenKey.equals(activeScreenKey)) ) {
-					updateInactiveScreen(inactivePage, activeScreenKey, inactiveScreenKey, isTotalRefreshRequired);
+				   (isSynchronizable(activePage) && isSynchronizable(inactivePage) && !activeScreenKey.equals(lastSynchdInactiveScreenKey)) ) {
+					updateInactiveScreen(inactivePage, activeScreenKey, lastSynchdInactiveScreenKey, isTotalRefreshRequired);
 					lastSynchdInactiveScreenKey = activeScreenKey;
 					inactiveUpdated = true;
 				} 
@@ -183,11 +184,16 @@ public class SplitScreenControl {
 		Log.d(TAG, "updateInactiveScreen");
 		// only bibles and commentaries get this far so fine to convert key to verse
 		Verse targetVerse = KeyUtil.getVerse(targetScreenKey);
-		Verse currentVerse = KeyUtil.getVerse(inactiveScreenKey);
+		
+		Verse currentVerse = null;
+		if (inactiveScreenKey!=null) {
+			currentVerse = KeyUtil.getVerse(inactiveScreenKey);
+		}
 		
 		// update split screen as smoothly as possible i.e. just jump/scroll if verse is on current page
-		if (!forceRefresh && BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && 
-				targetVerse.isSameChapter(currentVerse)) {
+		if (!forceRefresh && 
+				BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && 
+				currentVerse!=null && targetVerse.isSameChapter(currentVerse)) {
 			splitScreenEventManager.scrollSecondaryScreen(getNonActiveScreen(), targetVerse.getVerse());
 		} else {
 			new UpdateInactiveScreenTextTask().execute(inactivePage);
