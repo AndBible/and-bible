@@ -61,16 +61,31 @@
   <string name="all_hebrew_occurrences">すべての出現箇所を検索する</string>
   <!--Module download-->
   <string name="download">文書をダウンロード</string>
+  <string name="download_confirmation">聖書をダウンロードしますか？</string>
   <string name="download_document_confirm_prefix">ダウンロード</string>
   <string name="download_refreshing_book_list">入手可能な文書リストは更新中</string>
   <string name="download_refresh_book_list_menu_item">更新</string>
+  <string name="error_downloading">ダウンロードエラーが発生しました。インターネットの接続を確認してください。</string>
+  <string name="no_internet_connection">インターネットに接続できませんでした</string>
+  <string name="storage_space_warning">ローカルストレージ容量不足です</string>
+  <string name="wait_for_bible_not_yet">しばらくお待ちください。聖書がインストールを完了していません。</string>
   <string name="document_not_installed">「%s」をダウンロードして下さい</string>
   <!--Daily Reading Plan-->
+  <string name="rdg_plan_title">読書計画</string>
+  <string name="rdg_plan_selector_title">読書計画を選択</string>
+  <string name="rdg_plan_day">%s 日</string>
+  <string name="rdg_plan_set_start_jan1">1月1日をスタート</string>
+  <string name="done">完了</string>
+  <string name="reset">リセット</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
+  <string name="delete">削除</string>
   <string name="delete_index">索引消す</string>
+  <string name="about">ついて</string>
+  <string name="delete_doc">%s を削除しますか？</string>
   <string name="delete_search_index_doc">%sの索引消す？</string>
   <!--Verse context menu-->
+  <string name="select_text">テキストを選択します</string>
   <!--Bookmarks-->
   <string name="bookmarks">しおり\n</string>
   <string name="add_bookmark">しおりを加える\n</string>

@@ -74,6 +74,7 @@
   <string name="prefs_text_size_title">Metin boyu</string>
   <string name="prefs_text_size_summary">Harfler büyüsün. Görüntülenen metin çoğalsın.</string>
   <string name="prefs_text_size_sample_text">Metin örneği</string>
+  <string name="x_minutes">%d dakika</string>
   <string name="prefs_interface_locale_title">Arayüz dili</string>
   <string name="prefs_interface_locale_summary">Farklı bir arayüz dilini seç</string>
   <string name="locale_change_warning">Arayüzü yeni dilde kullanabilmek için uygulama yeniden başlatılacaktır.</string>

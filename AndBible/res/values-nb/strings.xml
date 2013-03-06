@@ -74,6 +74,9 @@
   <string name="prefs_text_size_title">Skriftstørrelse</string>
   <string name="prefs_text_size_summary">Se mer eller se klarere</string>
   <string name="prefs_text_size_sample_text">Eksempeltekst</string>
+  <string name="prefs_screen_timeout_title">Dvale</string>
+  <string name="prefs_screen_timeout_summary">Tid før skjermen slår seg av</string>
+  <string name="x_minutes">%d minutter</string>
   <string name="prefs_interface_locale_title">Språk</string>
   <string name="prefs_interface_locale_summary">Velg ønsket språk for brukergrensesnittet</string>
   <string name="locale_change_warning">Applikasjonen vil omstarte for at det nye språket skal tre i kraft</string>
@@ -202,6 +205,7 @@
   <string name="retry">Prøv igjen</string>
   <string name="please_wait">Vennligst vent...</string>
   <string name="all">Alle</string>
+  <string name="default_value">@string/lang_default</string>
   <!--Errors-->
   <string name="error_occurred">En feil har oppstått</string>
   <string name="error_no_content">Ikke noe innhold i dette verset</string>
