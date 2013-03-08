@@ -3,8 +3,10 @@ package net.bible.android.control;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.UpdateTextTask;
+import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.page.screen.DocumentViewManager;
+import net.bible.service.common.CommonUtils;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
@@ -38,7 +40,8 @@ public class BibleContentManager {
     }
     
     /* package */ void updateText(boolean forceUpdate) {
-    	CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
+    	Screen screen = CommonUtils.getActiveSplitScreen();
+    	CurrentPage currentPage = CurrentPageManager.getInstance(screen).getCurrentPage();
 		Book document = currentPage.getCurrentDocument();
 		Key key = currentPage.getKey();
 
@@ -49,7 +52,7 @@ public class BibleContentManager {
 			previousDocument = document;
 			previousVerse = key;
 		}
-		new UpdateMainTextTask().execute(currentPage);
+		new UpdateMainTextTask().execute(screen);
     }
 
     private class UpdateMainTextTask extends UpdateTextTask {
@@ -66,9 +69,9 @@ public class BibleContentManager {
 
         /** callback from base class when result is ready */
     	@Override
-    	protected void showText(String text, int verseNo, float yOffsetRatio) {
+    	protected void showText(String text, Screen screen, int verseNo, float yOffsetRatio) {
     		if (documentViewManager!=null) {
-    			DocumentView view = documentViewManager.getDocumentView();
+    			DocumentView view = documentViewManager.getDocumentView(screen);
     			view.show(text, verseNo, yOffsetRatio);
     		} else {
     			Log.w(TAG, "Document view not yet registered");

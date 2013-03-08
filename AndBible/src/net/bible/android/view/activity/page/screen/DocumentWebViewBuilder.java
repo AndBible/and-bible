@@ -190,8 +190,8 @@ public class DocumentWebViewBuilder {
 		}		
 	}
 	
-	public DocumentView getView() {
-		if (ControlFactory.getInstance().getSplitScreenControl().isFirstScreenActive()) {
+	public DocumentView getView(Screen screen) {
+		if (Screen.SCREEN_1 == screen) {
 			return bibleWebView;
 		} else {
 			return bibleWebView2;

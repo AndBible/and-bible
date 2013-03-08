@@ -75,10 +75,14 @@ public class DocumentViewManager {
 	}
 
 	public DocumentView getDocumentView() {
+		return getDocumentView(splitScreenControl.getCurrentActiveScreen());
+	}
+	public DocumentView getDocumentView(Screen screen) {
 		if (myNoteViewBuilder.isMyNoteViewType()) {
 			return myNoteViewBuilder.getView();
 		} else {
-			return documentWebViewBuilder.getView();
+			// a specific screen is specified to prevent content going to wrong screen if active screen is changed fast
+			return documentWebViewBuilder.getView(screen);
 		}
 	}
 }

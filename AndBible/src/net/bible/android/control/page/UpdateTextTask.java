@@ -1,6 +1,7 @@
 package net.bible.android.control.page;
 
 import net.bible.android.activity.R;
+import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.service.format.HtmlMessageFormatter;
 
 import org.crosswire.jsword.book.Book;
@@ -9,15 +10,16 @@ import org.crosswire.jsword.passage.Key;
 import android.os.AsyncTask;
 import android.util.Log;
 
-abstract public class UpdateTextTask extends AsyncTask<CurrentPage, Integer, String> {
-	
+abstract public class UpdateTextTask extends AsyncTask<Screen, Integer, String> {
+
+	private Screen screen;
 	private int verseNo;
 	private float yScreenOffsetRatio;
 	
 	private static final String TAG = "UpdateTextTask";
 	
     /** callbacks from base class when result is ready */
-	abstract protected void showText(String text, int verseNo, float yOffsetRatio);
+	abstract protected void showText(String text, Screen screenToUpdate, int verseNo, float yOffsetRatio);
 	
 	@Override
 	protected void onPreExecute() {
@@ -25,11 +27,12 @@ abstract public class UpdateTextTask extends AsyncTask<CurrentPage, Integer, Str
 	}
 	
 	@Override
-    protected String doInBackground(CurrentPage... currentPageArgs) {
+    protected String doInBackground(Screen... splitScreen) {
         Log.d(TAG, "Loading html in background");
     	String text = "Error";
     	try {
-    		CurrentPage currentPage = currentPageArgs[0]; 
+    		screen = splitScreen[0];
+    		CurrentPage currentPage = CurrentPageManager.getInstance(screen).getCurrentPage(); 
     		Book document = currentPage.getCurrentDocument();
     		// if bible show whole chapter
     		Key key = currentPage.getKey();
@@ -57,6 +60,6 @@ abstract public class UpdateTextTask extends AsyncTask<CurrentPage, Integer, Str
 
     protected void onPostExecute(String htmlFromDoInBackground) {
         Log.d(TAG, "Loading html:"+htmlFromDoInBackground);
-        showText(htmlFromDoInBackground, verseNo, yScreenOffsetRatio);
+        showText(htmlFromDoInBackground, screen, verseNo, yScreenOffsetRatio);
     }
 }

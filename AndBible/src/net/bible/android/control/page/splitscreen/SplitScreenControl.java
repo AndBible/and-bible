@@ -126,9 +126,11 @@ public class SplitScreenControl {
 	/** Synchronise the inactive key and inactive screen with the active key and screen if required
 	 */
 	public void synchronizeScreens() {
-		Log.d(TAG, "synchronizeScreens active:"+currentActiveScreen);
-		CurrentPage activePage = CurrentPageManager.getInstance(getCurrentActiveScreen()).getCurrentPage();
-		CurrentPage inactivePage = CurrentPageManager.getInstance(getNonActiveScreen()).getCurrentPage();
+		Screen activeScreen = getCurrentActiveScreen();
+		Screen inactiveScreen = getNonActiveScreen();
+		Log.d(TAG, "synchronizeScreens active:"+activeScreen);
+		CurrentPage activePage = CurrentPageManager.getInstance(activeScreen).getCurrentPage();
+		CurrentPage inactivePage = CurrentPageManager.getInstance(inactiveScreen).getCurrentPage();
 		Key activeScreenKey = activePage.getSingleKey();
 		Log.d(TAG, "active key:"+activeScreenKey);
 		Key inactiveScreenKey = inactivePage.getSingleKey();
@@ -140,7 +142,7 @@ public class SplitScreenControl {
 			if ((isSplit() || isScreen2Minimized()) ) {
 				// inactive screen may not be displayed but if switched to the key must be correct
 				// Only Bible and cmtry are synch'd and they share a Verse key
-				updateInactiveBibleKey();
+				updateInactiveBibleKey(inactiveScreen, activeScreenKey);
 			}
 
 			if (isSplit() && !isScreen2Minimized()) {
@@ -148,7 +150,7 @@ public class SplitScreenControl {
 				// only update pages if empty or synchronised
 				if (isFirstTimeInit || resynchRequired || 
 				   (isSynchronizable(activePage) && isSynchronizable(inactivePage) && !activeScreenKey.equals(lastSynchdInactiveScreenKey)) ) {
-					updateInactiveScreen(inactivePage, activeScreenKey, lastSynchdInactiveScreenKey, isTotalRefreshRequired);
+					updateInactiveScreen(inactiveScreen, inactivePage, activeScreenKey, lastSynchdInactiveScreenKey, isTotalRefreshRequired);
 					lastSynchdInactiveScreenKey = activeScreenKey;
 					inactiveUpdated = true;
 				} 
@@ -159,7 +161,7 @@ public class SplitScreenControl {
 		// or if nightMode has changed then force an update
 		if (!inactiveUpdated && isTotalRefreshRequired) {
 			// force an update of the inactive page to prevent blank screen
-			updateInactiveScreen(inactivePage, inactiveScreenKey, inactiveScreenKey, isTotalRefreshRequired);
+			updateInactiveScreen(inactiveScreen, inactivePage, inactiveScreenKey, inactiveScreenKey, isTotalRefreshRequired);
 			lastSynchdInactiveScreenKey = inactiveScreenKey;
 			inactiveUpdated = true;
 		}
@@ -171,16 +173,14 @@ public class SplitScreenControl {
 	
 	/** Only call if screens are synchronised.  Update synch'd keys even if inactive page not shown so if it is shown then it is correct
 	 */
-	private void updateInactiveBibleKey() {
+	private void updateInactiveBibleKey(Screen inactiveScreen, Key activeScreenKey) {
 		Log.d(TAG, "updateInactiveBibleKey");
-		// update secondary split CurrentPage info using doSetKey which does not cause screen updates
-		Key activeBibleKey = CurrentPageManager.getInstance(getCurrentActiveScreen()).getCurrentBible().getSingleKey();
-		CurrentPageManager.getInstance(getNonActiveScreen()).getCurrentBible().doSetKey(activeBibleKey);
+		CurrentPageManager.getInstance(inactiveScreen).getCurrentBible().doSetKey(activeScreenKey);
 	}
 	
 	/** refresh/synch inactive screen if required
 	 */
-	private void updateInactiveScreen(CurrentPage inactivePage,	Key targetScreenKey, Key inactiveScreenKey, boolean forceRefresh) {
+	private void updateInactiveScreen(Screen inactiveScreen, CurrentPage inactivePage,	Key targetScreenKey, Key inactiveScreenKey, boolean forceRefresh) {
 		Log.d(TAG, "updateInactiveScreen");
 		// only bibles and commentaries get this far so fine to convert key to verse
 		Verse targetVerse = KeyUtil.getVerse(targetScreenKey);
@@ -194,9 +194,9 @@ public class SplitScreenControl {
 		if (!forceRefresh && 
 				BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && 
 				currentVerse!=null && targetVerse.isSameChapter(currentVerse)) {
-			splitScreenEventManager.scrollSecondaryScreen(getNonActiveScreen(), targetVerse.getVerse());
+			splitScreenEventManager.scrollSecondaryScreen(inactiveScreen, targetVerse.getVerse());
 		} else {
-			new UpdateInactiveScreenTextTask().execute(inactivePage);
+			new UpdateInactiveScreenTextTask().execute(inactiveScreen);
 		}
 	}
 
@@ -207,11 +207,10 @@ public class SplitScreenControl {
 	}
 
     private class UpdateInactiveScreenTextTask extends UpdateTextTask {
-
         /** callback from base class when result is ready */
     	@Override
-    	protected void showText(String text, int verseNo, float yOffsetRatio) {
-    		splitScreenEventManager.updateSecondaryScreen(getNonActiveScreen(), text, verseNo);
+    	protected void showText(String text, Screen screen, int verseNo, float yOffsetRatio) {
+    		splitScreenEventManager.updateSecondaryScreen(screen, text, verseNo);
         }
     }
 
@@ -356,11 +355,13 @@ public class SplitScreenControl {
 				int verse = KeyUtil.getVerse(getCurrentPage(screen).getSingleKey()).getVerse();
 				screenVerseMap.put(screen, verse);
 				Log.d(TAG, screen+"* registered verse no:"+verse);
-			} else {
-				Log.e(TAG, screen+"* prob getting registered verse for doc:"+getCurrentPage(screen).getCurrentDocument());
 			}
 		}
 		return screenVerseMap;
+	}
+	
+	private Screen getOtherScreen(Screen notThisOne) {
+		return Screen.SCREEN_1==notThisOne ? Screen.SCREEN_2 : Screen.SCREEN_1;
 	}
 	
 	private CurrentPage getCurrentPage(Screen screenNo) {
