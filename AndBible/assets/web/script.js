@@ -17,6 +17,8 @@ function registerVersePositions() {
 		// send position of each verse to java to allow calculation of current verse after each scroll
 		window.jsInterface.registerVersePosition(verseTag.id, verseTag.offsetTop);
 	}
+//	window.jsInterface.log("*** Register document height:"+document.height);
+//	window.jsInterface.setDocumentHeightWhenVersePositionsRegistered(document.height);
 }
 
 function getVerseElements() {
