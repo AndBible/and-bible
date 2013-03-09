@@ -80,6 +80,11 @@
   <string name="prefs_interface_locale_title">Applikasie taal</string>
   <string name="prefs_interface_locale_summary">Kies \'n persoonlike gebruikers taal</string>
   <string name="locale_change_warning">Applikasie sal sal stop en weer van voor af begin om oor te skakel na die nuwe taal</string>
+  <string name="prefs_split_screen_title">Verdeelde skerm</string>
+  <string name="prefs_split_screen_summary">Verdeeling &amp; Kopeling</string>
+  <string name="prefs_split_screen_single">Enkel Skerm</string>
+  <string name="prefs_split_screen_linked">Gekoppel</string>
+  <string name="prefs_split_screen_not_linked">Nie Gekoppel</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Daar is geen notas vir hierdie hoofstuk nie</string>
   <string name="no_verse_notes">Daar is geen notas ​​vir hierdie vers nie</string>
