@@ -20,6 +20,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnKeyListener;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 
@@ -95,6 +96,10 @@ public class Search extends ActivityBase {
 			}
 		});        
         
+        // set text for current bible book on appropriate radio button
+		RadioButton currentBookRadioButton = (RadioButton)findViewById(R.id.searchCurrentBook);
+		currentBookRadioButton.setText(searchControl.getCurrentBookDescription());
+		
         Log.d(TAG, "Finished displaying Search view");
     }
 
@@ -160,6 +165,8 @@ public class Search extends ActivityBase {
             return SearchBibleSection.OT;
     	case R.id.searchNewTestament:
             return SearchBibleSection.NT;
+    	case R.id.searchCurrentBook:
+            return SearchBibleSection.CURRENT_BOOK;
         default:
         	Log.e(TAG, "Unexpected radio selection");
     		return SearchBibleSection.ALL;

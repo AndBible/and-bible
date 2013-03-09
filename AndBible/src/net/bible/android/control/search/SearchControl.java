@@ -20,6 +20,8 @@ import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.index.lucene.PdaLuceneIndexCreator;
 import org.crosswire.jsword.index.search.SearchType;
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.NoSuchVerseException;
+import org.crosswire.jsword.versification.BibleBook;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -41,7 +43,6 @@ public class SearchControl {
 	}
 	private static final String SEARCH_OLD_TESTAMENT = "+[Gen-Mal]";
 	private static final String SEARCH_NEW_TESTAMENT = "+[Mat-Rev]";
-//	private BookName currentBibleBook; 
 
 	public static final String SEARCH_TEXT = "SearchText";
 	public static final String SEARCH_DOCUMENT = "SearchDocument";
@@ -74,6 +75,21 @@ public class SearchControl {
 
     public boolean validateIndex(Book document) {
     	return document.getIndexStatus().equals(IndexStatus.DONE);
+    }
+    
+    public String getCurrentBookDescription() {
+    	try {
+	    	BibleBook book = CurrentPageManager.getInstance().getCurrentBible().getSingleKey().getBook();
+	    	if (book.getLongName().length() < 14) {
+	    		return book.getLongName();
+	    	} else {
+	    		return book.getShortName();
+	    	}
+    	} catch (NoSuchVerseException nsve) {
+    		// This should never occur
+    		Log.e(TAG, "Error getting current book name", nsve);
+    		return "-";
+    	}
     }
     
     public String decorateSearchString(String searchString, SearchType searchType, SearchBibleSection bibleSection) {
@@ -152,8 +168,8 @@ public class SearchControl {
             return SEARCH_OLD_TESTAMENT;
     	case NT:
             return SEARCH_NEW_TESTAMENT;
-//    	case R.id.searchCurrentBook:
-//            return "+["+currentBibleBook.getShortName()+"];
+    	case CURRENT_BOOK:
+            return "+["+getCurrentBookDescription()+"]";
         default:
         	Log.e(TAG, "Unexpected radio selection");
             return "";

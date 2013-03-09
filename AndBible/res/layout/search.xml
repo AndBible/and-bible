@@ -45,12 +45,10 @@
 				android:text="@string/search_new_testament" 
 				android:layout_width="wrap_content" 
 				android:layout_height="wrap_content"/>
-	<!-- 
 			<RadioButton android:id="@+id/searchCurrentBook" 
 				android:text="@string/search_current_book" 
 				android:layout_width="wrap_content" 
 				android:layout_height="wrap_content"/>
-	 -->
 		</RadioGroup>
 
 		<RadioGroup android:id="@+id/wordsGroup" 
