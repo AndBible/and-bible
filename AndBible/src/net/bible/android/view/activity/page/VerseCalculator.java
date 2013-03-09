@@ -6,8 +6,6 @@ import java.util.List;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 
-import android.util.Log;
-
 /** Automatically find current verse at top of display to aid quick movement to Commentary.
  * todo: ensure last verse is selectable 
  * 
@@ -44,7 +42,7 @@ public class VerseCalculator {
 		// cope with missing verses
 		while (verse>versePositionList.size()+1) {
 			// missed verse but need to put some offset so make it off screen
-			Log.d(TAG, "Missing verse:"+(versePositionList.size()+1));
+			// commentaries will have all missing verses except current verse but don't know if it is a commentary
 			versePositionList.add(-1000);
 		}
 		versePositionList.add(offset);
@@ -55,8 +53,6 @@ public class VerseCalculator {
 		if (CurrentPageManager.getInstance().isBibleShown()) {
 			int currentVerse = calculateCurrentVerse(scrollOffset);
 			if (currentVerse!=prevCurrentVerse) {
-				//TODO delete this logging
-				Log.d(TAG, screen+"*** new position - verse:"+currentVerse);
 				CurrentPageManager.getInstance().getCurrentBible().setCurrentVerseNo(currentVerse);
 			}
 			prevCurrentVerse = currentVerse;

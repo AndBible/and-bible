@@ -42,12 +42,12 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 	protected void jobFinished(Progress jobJustFinished) {
 		// give the document up to 12 secs to reload - the Progress declares itself finished before the index status has been changed
 		int attempts = 0;
-		while (!documentBeingIndexed.getIndexStatus().equals(IndexStatus.DONE) && attempts++<6) {
+		while (!IndexStatus.DONE.equals(documentBeingIndexed.getIndexStatus()) && attempts++<6) {
 			CommonUtils.pause(2);
 		}
 		
 		// if index is fine then goto search
-		if (documentBeingIndexed.getIndexStatus().equals(IndexStatus.DONE)) {
+		if (IndexStatus.DONE.equals(documentBeingIndexed.getIndexStatus())) {
 			Log.i(TAG, "Index created");
 			Intent intent = null;
 			if (StringUtils.isNotEmpty( getIntent().getStringExtra(SearchControl.SEARCH_TEXT) )) {

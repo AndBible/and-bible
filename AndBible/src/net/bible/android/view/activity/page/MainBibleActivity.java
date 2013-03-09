@@ -275,23 +275,11 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		});
     }
 
-    /** called by PassageChangeMediator after a new passage has been changed and displayed
-     */
-    public void onVerseChanged() {
-    	runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-//TODO add events to PassageChangeMediator to signal when page detail/verse changes and register event in CurrentPageTitle
-//		    	updatePageTitle();
-			}
-		});
-    }
-    
     @Override
     protected void onResume() {
     	super.onResume();
 
-    	// allow webView to start monitoring tilt by setting focus which causes tilt-scrol to resume 
+    	// allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume 
 		documentViewManager.getDocumentView().asView().requestFocus();
     }
 

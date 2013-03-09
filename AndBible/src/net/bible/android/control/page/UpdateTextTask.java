@@ -59,7 +59,7 @@ abstract public class UpdateTextTask extends AsyncTask<Screen, Integer, String> 
     }
 
     protected void onPostExecute(String htmlFromDoInBackground) {
-        Log.d(TAG, "Loading html:"+htmlFromDoInBackground);
+        Log.d(TAG, "Got html length "+htmlFromDoInBackground.length());
         showText(htmlFromDoInBackground, screen, verseNo, yScreenOffsetRatio);
     }
 }

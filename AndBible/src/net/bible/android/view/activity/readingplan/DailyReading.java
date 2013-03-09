@@ -294,7 +294,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
 		reload();
 	}
 
-    /** TODO Could possibly push this reload up to a higher level after next release
+    /** Could possibly push this reload up to a higher level
      * See: http://stackoverflow.com/questions/1397361/how-do-i-restart-an-android-activity
      */
     private void reload() {
@@ -317,10 +317,9 @@ public class DailyReading extends CustomTitlebarActivityBase {
     	return mToolbar;
     }
 
-    //TODO move the below up to more general parent class
 	@Override
 	protected void preferenceSettingsChanged() {
-		// TODO Auto-generated method stub
+		//NOOP
 	}
 
     @Override

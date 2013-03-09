@@ -4,11 +4,11 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.service.common.CommonUtils;
+
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ToggleButton;
 
-//TODO do not inherit from button - see: http://stackoverflow.com/questions/8369504/why-so-complex-to-set-style-from-code-in-android
 public class StrongsToolbarButton extends ToolbarButtonBase implements ToolbarButton {
 
 	private ToggleButton mButton;

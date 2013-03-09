@@ -4,6 +4,7 @@ import java.util.List;
 
 import net.bible.android.activity.R;
 import net.bible.android.view.util.buttongrid.LayoutDesigner.RowColLayout;
+
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -273,7 +274,6 @@ public class ButtonGrid extends TableLayout {
 	protected void onDetachedFromWindow() {
     	close();
     	
-		// TODO Auto-generated method stub
 		super.onDetachedFromWindow();
 	}
     

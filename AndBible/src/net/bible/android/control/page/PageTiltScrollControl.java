@@ -159,7 +159,6 @@ public class PageTiltScrollControl {
 	/** called when user touches screen to reset home position
 	 */
 	public void recalculateViewingPosition() {
-		//TODO save to settings
 		mNoScrollViewingPitchCalculated = false;
 		mSensorsTriggered = false;
 	}
