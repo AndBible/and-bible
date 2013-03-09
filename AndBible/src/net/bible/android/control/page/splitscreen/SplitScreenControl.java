@@ -360,10 +360,6 @@ public class SplitScreenControl {
 		return screenVerseMap;
 	}
 	
-	private Screen getOtherScreen(Screen notThisOne) {
-		return Screen.SCREEN_1==notThisOne ? Screen.SCREEN_2 : Screen.SCREEN_1;
-	}
-	
 	private CurrentPage getCurrentPage(Screen screenNo) {
 		return CurrentPageManager.getInstance(screenNo).getCurrentPage();
 	}

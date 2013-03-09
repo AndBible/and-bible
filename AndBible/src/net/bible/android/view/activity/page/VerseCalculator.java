@@ -19,14 +19,17 @@ public class VerseCalculator {
 
 	private int prevCurrentVerse = 0;
 
-	private Screen screen;
+	// used in logging, but none currently done
+//	private Screen screen;
+	
 	// going to a verse pushes the offset a couple of pixels past the verse position on large screens i.e. going to Judg 5:11 will show Judg 5:12
 	private static final int SLACK_FOR_JUMP_TO_VERSE = 5;
+	@SuppressWarnings("unused")
 	private static final String TAG = "VerseCalculator";
 
 	public VerseCalculator(Screen screen) {
 		super();
-		this.screen = screen;
+//		this.screen = screen;
 	}
 	
 	public void init() {

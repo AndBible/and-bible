@@ -7,7 +7,6 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.footnoteandref.FootnoteAndRefControl;
 import net.bible.android.view.activity.base.ListActivityBase;
-import net.bible.android.view.util.DataPipe;
 import net.bible.android.view.util.swipe.SwipeGestureEventHandler;
 import net.bible.android.view.util.swipe.SwipeGestureListener;
 import net.bible.service.format.Note;

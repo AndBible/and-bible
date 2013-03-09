@@ -84,6 +84,7 @@ public class PageTiltScrollControl {
 	
 	public static final String TILT_TO_SCROLL_PREFERENCE_KEY = "tilt_to_scroll_pref";
 
+	@SuppressWarnings("unused")
 	private static final String TAG = "TiltScrollControl";
 	
 	public static class TiltScrollInfo {

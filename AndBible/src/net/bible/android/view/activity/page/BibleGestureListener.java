@@ -25,7 +25,7 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 	private int minScaledVelocity;
 	private MainBibleActivity mainBibleActivity;
 	
-	private boolean sensePageDownTap;
+//	private boolean sensePageDownTap;
 	
 	private static final String TAG = "BibleGestureListener";
 	
@@ -118,6 +118,7 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 //	}
 
 	public void setSensePageDownTap(boolean sensePageDownTap) {
-		this.sensePageDownTap = sensePageDownTap;
+// disable pagedown tap during split screen development due to complexity and lack of importance - may remove later if nobody comments		
+//		this.sensePageDownTap = sensePageDownTap;
 	}
 }
