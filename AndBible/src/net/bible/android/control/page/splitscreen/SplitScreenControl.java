@@ -141,8 +141,10 @@ public class SplitScreenControl {
 		if (isSplitScreensLinked()) {
 			if ((isSplit() || isScreen2Minimized()) ) {
 				// inactive screen may not be displayed but if switched to the key must be correct
-				// Only Bible and cmtry are synch'd and they share a Verse key
-				updateInactiveBibleKey(inactiveScreen, activeScreenKey);
+				if (isSynchronizable(activePage)) {
+					// Only Bible and cmtry are synch'd and they share a Verse key
+					updateInactiveBibleKey(inactiveScreen, activeScreenKey);
+				}
 			}
 
 			if (isSplit() && !isScreen2Minimized()) {
