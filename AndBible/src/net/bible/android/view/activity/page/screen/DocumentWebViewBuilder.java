@@ -106,14 +106,18 @@ public class DocumentWebViewBuilder {
 	}
 	
 	public void addWebView(LinearLayout parent) {
-		Log.d(TAG, "addWebView - layout web view");
 		this.parentLayout = parent;
 		separator.setParentLayout(parentLayout);
     	boolean isWebView = parent.findViewById(BIBLE_WEB_VIEW_ID)!=null;
     	boolean isAlreadySplitWebView = isWebView && parent.findViewById(BIBLE_WEB_VIEW2_ID)!=null;
+    	boolean isAlreadyScreen2Minimized = isWebView && restoreScreen2Button.getParent()!=null;
     	boolean isPortrait = CommonUtils.isPortrait();
 
-    	if (!isWebView || isAlreadySplitWebView!=splitScreenControl.isSplit() || isPortrait!=isLaidOutForPortrait) {
+    	if (!isWebView || 
+    			isAlreadySplitWebView!=splitScreenControl.isSplit() || 
+    			isAlreadyScreen2Minimized!=splitScreenControl.isScreen2Minimized() ||
+    			isPortrait!=isLaidOutForPortrait) {
+    		Log.d(TAG, "Layout web view");
     		// ensure we have a known starting point - could be none, 1, or 2 webviews present
     		removeWebView(parent);
     		
@@ -187,7 +191,7 @@ public class DocumentWebViewBuilder {
 		}
 		if (parent!=null) {
 			parent.removeAllViews();
-		}		
+		}
 	}
 	
 	public DocumentView getView(Screen screen) {
