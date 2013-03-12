@@ -177,7 +177,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 			PassageChangeMediator.getInstance().forcePageUpdate();
 		} else if (splitScreenControl.isSplit()) {
 			// need to layout split screens differently
-			splitScreenControl.orientationCange();
+			splitScreenControl.orientationChange();
 		}
 	}
 

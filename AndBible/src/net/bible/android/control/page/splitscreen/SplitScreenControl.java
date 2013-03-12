@@ -118,7 +118,7 @@ public class SplitScreenControl {
 	}
 
 	/** screen orientation has changed */
-	public void orientationCange() {
+	public void orientationChange() {
 		// causes BibleViews to be created and laid out
 		splitScreenEventManager.numberOfScreensChanged(getScreenVerseMap());
 	}
