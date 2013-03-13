@@ -109,7 +109,7 @@ public class PageTiltScroller {
 
 					if (mPageTiltScrollControl.isTiltScrollEnabled()) {
 						long delay = mIsScrolling ? tiltScrollInfo.delayToNextScroll : TiltScrollInfo.TIME_TO_POLL_WHEN_NOT_SCROLLING;
-					    Thread.sleep(delay);        
+					    Thread.sleep(delay);
 					} else {
 						isContinue = false;
 					}

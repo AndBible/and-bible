@@ -13,6 +13,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Build;
+import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
 import android.view.WindowManager;
@@ -40,6 +41,7 @@ public class PageTiltScrollControl {
 	
 	private static final int NO_SCROLL_VIEWING_TOLERANCE = 2; //3;
 	private static final int NO_SPEED_INCREASE_VIEWING_TOLERANCE = 2;
+	private static final int INVALID_STATE = -9999;
 	
 	// this is decreased (subtracted from) to speed up scrolling
 	private static final int BASE_TIME_BETWEEN_SCROLLS = 48; //70(jerky) 40((fast);
@@ -113,21 +115,23 @@ public class PageTiltScrollControl {
 		int delayToNextScroll = BASE_TIME_BETWEEN_SCROLLS;
 		if (mOrientationValues!=null) {
 			int normalisedPitch = getPitch(mRotation, mOrientationValues);
-			int devianceFromViewingAngle = getDevianceFromStaticViewingAngle(normalisedPitch);
-			
-			if (devianceFromViewingAngle > NO_SCROLL_VIEWING_TOLERANCE) {
-				tiltScrollInfo.forward = normalisedPitch < mNoScrollViewingPitch;
-
-				// speedUp if tilt screen beyond a certain amount
-				if (tiltScrollInfo.forward) {
-					delayToNextScroll = getDelayToNextScroll(devianceFromViewingAngle-NO_SCROLL_VIEWING_TOLERANCE-NO_SPEED_INCREASE_VIEWING_TOLERANCE-1);
-
-					// speedup could be done by increasing scroll amount but that leads to a jumpy screen
-					tiltScrollInfo.scrollPixels = 1;
-				} else {
-					// TURNED OFF UPSCROLL
-					delayToNextScroll = BASE_TIME_BETWEEN_SCROLLS;
-					tiltScrollInfo.scrollPixels = 0;
+			if (normalisedPitch!=INVALID_STATE) {
+				int devianceFromViewingAngle = getDevianceFromStaticViewingAngle(normalisedPitch);
+				
+				if (devianceFromViewingAngle > NO_SCROLL_VIEWING_TOLERANCE) {
+					tiltScrollInfo.forward = normalisedPitch < mNoScrollViewingPitch;
+	
+					// speedUp if tilt screen beyond a certain amount
+					if (tiltScrollInfo.forward) {
+						delayToNextScroll = getDelayToNextScroll(devianceFromViewingAngle-NO_SCROLL_VIEWING_TOLERANCE-NO_SPEED_INCREASE_VIEWING_TOLERANCE-1);
+	
+						// speedup could be done by increasing scroll amount but that leads to a jumpy screen
+						tiltScrollInfo.scrollPixels = 1;
+					} else {
+						// TURNED OFF UPSCROLL
+						delayToNextScroll = BASE_TIME_BETWEEN_SCROLLS;
+						tiltScrollInfo.scrollPixels = 0;
+					}
 				}
 			}
 		}
@@ -168,6 +172,15 @@ public class PageTiltScrollControl {
 	 */
 	private int getPitch(int rotation, float[] orientationValues) {
 		float pitch = 0;
+		
+		// occasionally the viewing position was being unexpectedly reset to zero - avoid by checking for the problematic state  
+		if (rotation==0 && 
+				orientationValues[1]==0.0f && 
+				orientationValues[2]==0.0f && 
+				!mNoScrollViewingPitchCalculated) {
+			return INVALID_STATE;
+		}
+		
 		switch (rotation) {
 		//Portrait for Nexus
 		case Surface.ROTATION_0:
@@ -183,6 +196,8 @@ public class PageTiltScrollControl {
 		case Surface.ROTATION_180:
 			pitch = -orientationValues[1];
 			break;
+		default:
+			Log.e(TAG, "Invalid Scroll rotation:"+rotation);
 		}
 		return Math.round(pitch);
 	}
