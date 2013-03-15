@@ -80,7 +80,7 @@
   <string name="prefs_interface_locale_title">Aplikasi bahasa</string>
   <string name="prefs_interface_locale_summary">Pilih bahasa perantara pengguna </string>
   <string name="locale_change_warning">Aplikasi akan dijalankan ulang untuk beralih ke bahasa perantara</string>
-  <string name="prefs_split_screen_title">membagi layar</string>
+  <string name="prefs_split_screen_title">Membagi layar</string>
   <string name="prefs_split_screen_summary">Membagi &amp; linking</string>
   <string name="prefs_split_screen_single">Satu Layar</string>
   <string name="prefs_split_screen_linked">Linked</string>
