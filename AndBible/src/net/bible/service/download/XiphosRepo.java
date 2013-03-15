@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -126,7 +127,7 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 	private String getZipFileName(String initials) {
 		String zipName = nameToZipMap.get(initials);
 		if (zipName==null) {
-			zipName = initials.toLowerCase();
+			zipName = initials.toLowerCase(Locale.ENGLISH);
 		}
 		return zipName;
 	}
