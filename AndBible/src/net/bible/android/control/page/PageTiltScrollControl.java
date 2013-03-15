@@ -38,6 +38,7 @@ public class PageTiltScrollControl {
 	private int mNoScrollViewingPitch = -38;
 	private boolean mNoScrollViewingPitchCalculated = false;
 	private boolean mSensorsTriggered = false;
+	private int mLastNormalisedPitchValue;
 	
 	private static final int NO_SCROLL_VIEWING_TOLERANCE = 2; //3;
 	private static final int NO_SPEED_INCREASE_VIEWING_TOLERANCE = 2;
@@ -86,7 +87,6 @@ public class PageTiltScrollControl {
 	
 	public static final String TILT_TO_SCROLL_PREFERENCE_KEY = "tilt_to_scroll_pref";
 
-	@SuppressWarnings("unused")
 	private static final String TAG = "TiltScrollControl";
 	
 	public static class TiltScrollInfo {
@@ -114,7 +114,7 @@ public class PageTiltScrollControl {
 		TiltScrollInfo tiltScrollInfo = tiltScrollInfoSingleton.reset();
 		int delayToNextScroll = BASE_TIME_BETWEEN_SCROLLS;
 		if (mOrientationValues!=null) {
-			int normalisedPitch = getPitch(mRotation, mOrientationValues);
+			int normalisedPitch = getNormalisedPitch(mRotation, mOrientationValues);
 			if (normalisedPitch!=INVALID_STATE) {
 				int devianceFromViewingAngle = getDevianceFromStaticViewingAngle(normalisedPitch);
 				
@@ -170,15 +170,18 @@ public class PageTiltScrollControl {
 
 	/** if screen rotates must switch between different values returned by orientation sensor
 	 */
-	private int getPitch(int rotation, float[] orientationValues) {
+	private int getNormalisedPitch(int rotation, float[] orientationValues) {
 		float pitch = 0;
 		
 		// occasionally the viewing position was being unexpectedly reset to zero - avoid by checking for the problematic state  
 		if (rotation==0 && 
-				orientationValues[1]==0.0f && 
-				orientationValues[2]==0.0f && 
-				!mNoScrollViewingPitchCalculated) {
-			return INVALID_STATE;
+			orientationValues[1]==0.0f && 
+			orientationValues[2]==0.0f) {
+			if (!mNoScrollViewingPitchCalculated) {
+				return INVALID_STATE;
+			} else {
+				return mLastNormalisedPitchValue;
+			}
 		}
 		
 		switch (rotation) {
@@ -199,7 +202,10 @@ public class PageTiltScrollControl {
 		default:
 			Log.e(TAG, "Invalid Scroll rotation:"+rotation);
 		}
-		return Math.round(pitch);
+		
+		int normalisedPitch = Math.round(pitch); 
+		mLastNormalisedPitchValue = normalisedPitch;
+		return normalisedPitch;
 	}
 	
 	/** find angle between no-scroll-angle and current pitch
