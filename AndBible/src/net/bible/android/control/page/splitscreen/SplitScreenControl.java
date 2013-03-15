@@ -314,10 +314,8 @@ public class SplitScreenControl {
 		if (stoppedMovingTime>0) {
 			// allow a second after stopping for screen to settle
 			if (stoppedMovingTime+SCREEN_SETTLE_TIME_MILLIS>System.currentTimeMillis()) {
-				Log.d(TAG, "*** seperator stopped moving but settle time NOT passed");
 				return true;
 			}
-			Log.d(TAG, "*** seperator stopped moving and settle time passed stopped:"+stoppedMovingTime+" current:"+System.currentTimeMillis());
 			stoppedMovingTime = 0;
 		}
 		return isSeparatorMoving;
@@ -327,7 +325,6 @@ public class SplitScreenControl {
 		if (!isSeparatorMoving) {
 			// facilitate time for the screen to settle
 			this.stoppedMovingTime = System.currentTimeMillis();
-			Log.d(TAG, "*** stopped moving:"+System.currentTimeMillis());
 		}
 		this.isSeparatorMoving = isSeparatorMoving;
 		

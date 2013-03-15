@@ -86,7 +86,6 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 			 */
 			@Override
 		    public void onNewPicture(WebView view, Picture arg1) {
-				Log.d(TAG, splitScreenNo+"*** on new picture");
 				if (mIsVersePositionRecalcRequired) {
 					mIsVersePositionRecalcRequired = false;
 					loadUrl("javascript:registerVersePositions()");
@@ -97,16 +96,13 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 				// screen is changing shape/size so constantly maintain the current verse position
 				// main difference from jumpToVerse is that this is not cleared after jump
 				if (maintainMovingVerse>0) {
-					Log.d(TAG, splitScreenNo+"*** maintain current verse on new picture:"+maintainMovingVerse);
 					doScrollOrJumpToVerse(maintainMovingVerse);
 				}
 
 				// go to any specified verse or offset
 				if (mJumpToVerse > 0) {
-					Log.d(TAG, splitScreenNo+"*** Jump to verse on new picture:"+mJumpToVerse);
 					doScrollOrJumpToVerse(mJumpToVerse);
 	    		} else if (mJumpToYOffsetRatio>0) {
-					Log.d(TAG, splitScreenNo+"*** Jump to Y offset ratio:"+mJumpToYOffsetRatio);
 		            int contentHeight = view.getContentHeight(); 
 		            int y = (int) ((float)contentHeight*mJumpToYOffsetRatio);
 		    		view.scrollTo(0, y);
@@ -509,7 +505,6 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	}
 	
 	public void jumpToVerse(int verseNo) {
-		Log.d(TAG, splitScreenNo+"*** Jump to verse:"+verseNo);
 		this.mJumpToVerse = verseNo;
 //		loadUrl("javascript:location.href='#"+verseNo+"'");
 	}
