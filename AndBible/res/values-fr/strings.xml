@@ -80,6 +80,11 @@
   <string name="prefs_interface_locale_title">Langue de l\'application</string>
   <string name="prefs_interface_locale_summary">Choisir une langue personnalisée dans l\'interface utilisateur</string>
   <string name="locale_change_warning">L\'application sera redémarrée pour prendre en compte la nouvelle langue d\'interface</string>
+  <string name="prefs_split_screen_title">Scission d\'écran</string>
+  <string name="prefs_split_screen_summary">Scission &amp; liaison</string>
+  <string name="prefs_split_screen_single">Écran simple</string>
+  <string name="prefs_split_screen_linked">Liés</string>
+  <string name="prefs_split_screen_not_linked">Non liés</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Aucune note dans ce chapitre</string>
   <string name="no_verse_notes">Aucune note dans ce verset</string>

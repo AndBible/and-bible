@@ -80,6 +80,11 @@
   <string name="prefs_interface_locale_title">ഉപയോഗ ഭാഷ</string>
   <string name="prefs_interface_locale_summary">ഉപയോഗ ഭാഷ തിരഞ്ഞെടുക്കുക</string>
   <string name="locale_change_warning"> തിരഞ്ഞെടുത്ത ഭാഷയിലേക്ക് ആപ്ലിക്കേഷൻ പുനഃരാരംഭിക്കും</string>
+  <string name="prefs_split_screen_title">സ്ക്രീൻ വിഭജനം</string>
+  <string name="prefs_split_screen_summary">വിഭജിക്കുകയും ബന്ധപ്പെടുത്തുകയും</string>
+  <string name="prefs_split_screen_single">ഒരു സ്ക്രീൻ</string>
+  <string name="prefs_split_screen_linked">ബന്ധപ്പെടുത്തിയത്‌</string>
+  <string name="prefs_split_screen_not_linked">ബന്ധപ്പെടുത്താത്തത്‌</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">ഈ അധ്യായത്തിൽ കുറിപ്പുകൾ ഒന്നും ഇല്ല</string>
   <string name="no_verse_notes">ഈ വാക്യത്തിൽ കുറിപ്പുകൾ ഒന്നും ഇല്ല</string>

@@ -80,6 +80,11 @@
   <string name="prefs_interface_locale_title">Iaith y rhaglen</string>
   <string name="prefs_interface_locale_summary">Dewiswch iaith y rhyngwyneb i\'r defnyddiwr arferol</string>
   <string name="locale_change_warning">Bydd y rhaglen yn ailgychwyn i newid iaith y rhyngwyneb.</string>
+  <string name="prefs_split_screen_title">Sgrin hollt</string>
+  <string name="prefs_split_screen_summary">Hollti &amp; dolennu</string>
+  <string name="prefs_split_screen_single">Sgrin lawn</string>
+  <string name="prefs_split_screen_linked">Wedi dolennu</string>
+  <string name="prefs_split_screen_not_linked">Heb ddolenu</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Dim nodiadau yn bodoli yn y bennod hon</string>
   <string name="no_verse_notes">Dim nodiadau i\'r adnod hon</string>

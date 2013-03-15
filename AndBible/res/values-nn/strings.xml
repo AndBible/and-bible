@@ -80,6 +80,11 @@
   <string name="prefs_interface_locale_title">Vel språk</string>
   <string name="prefs_interface_locale_summary">Vel språk for programvaren</string>
   <string name="locale_change_warning">Applikasjonen vil starte opp att for å endre til det nye språket</string>
+  <string name="prefs_split_screen_title">Delt skjerm</string>
+  <string name="prefs_split_screen_summary">Deling og synkronisering</string>
+  <string name="prefs_split_screen_single">Enkeltskjerm</string>
+  <string name="prefs_split_screen_linked">Delt og synkronisert</string>
+  <string name="prefs_split_screen_not_linked">Delt og ikkje-synkronisert</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Det finst ikkje notat til dette kapitlet</string>
   <string name="no_verse_notes">Det finst ikkje notat for dette verset</string>
