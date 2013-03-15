@@ -21,7 +21,7 @@
             android:gravity="bottom" 
             android:layout_below="@android:id/title"
             android:layout_alignLeft="@android:id/title"
-            android:textAppearance="?android:attr/textAppearanceSmallInverse"
+            android:textAppearance="?android:attr/textAppearanceSmall"
             android:maxLines="2" />
 		<SeekBar android:id="@+android:id/myBar"
             android:layout_width="fill_parent"
@@ -33,7 +33,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@android:id/myBar"
             android:layout_alignLeft="@android:id/myBar"
-            android:textAppearance="?android:attr/textAppearanceSmallInverse"
+            android:textAppearance="?android:attr/textAppearanceSmall"
             android:maxLines="1" />
     </RelativeLayout>
 </LinearLayout>
