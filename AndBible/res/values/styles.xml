@@ -72,4 +72,9 @@
         <item name="android:textSize">12sp</item>
         <item name="android:typeface">sans</item>
     </style>
+    
+    <style name="SmallGreyText" parent="@android:style/TextAppearance.Small">
+        <item name="android:textColor">#C0C0C0</item>
+    </style>
+    
 </resources>
