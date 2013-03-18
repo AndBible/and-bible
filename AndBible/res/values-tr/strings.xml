@@ -74,10 +74,17 @@
   <string name="prefs_text_size_title">Metin boyu</string>
   <string name="prefs_text_size_summary">Harfler büyüsün. Görüntülenen metin çoğalsın.</string>
   <string name="prefs_text_size_sample_text">Metin örneği</string>
+  <string name="prefs_screen_timeout_title">Uyku</string>
+  <string name="prefs_screen_timeout_summary">İşlem yapılmadığında ekran kapanacak</string>
   <string name="x_minutes">%d dakika</string>
   <string name="prefs_interface_locale_title">Arayüz dili</string>
   <string name="prefs_interface_locale_summary">Farklı bir arayüz dilini seç</string>
   <string name="locale_change_warning">Arayüzü yeni dilde kullanabilmek için uygulama yeniden başlatılacaktır.</string>
+  <string name="prefs_split_screen_title">Bölünmüş ekran</string>
+  <string name="prefs_split_screen_summary">Ekran bölünmesi &amp; bağlanması</string>
+  <string name="prefs_split_screen_single">Tek ekran</string>
+  <string name="prefs_split_screen_linked">Bağımlı</string>
+  <string name="prefs_split_screen_not_linked">Bağımsız</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Bu bölüme ait not bulunmadı</string>
   <string name="no_verse_notes">Bu ayete ait not bulunmadı</string>
@@ -166,6 +173,9 @@
   <string name="some_pages">%d sayfa</string>
   <!--Speak - Common-->
   <string name="stop">Durdur</string>
+  <string name="pause">Duraklat</string>
+  <string name="rewind">Geri sar</string>
+  <string name="forward">İleri sar</string>
   <string name="tts_lang_not_available">Dil bulunmadı.</string>
   <string name="speak_queue">Sıra</string>
   <string name="speak_repeat">Tekrar</string>
@@ -200,6 +210,7 @@
   <string name="retry">Tekrar Deneyin</string>
   <string name="please_wait">Lütfen bekleyin...</string>
   <string name="all">Hepsi</string>
+  <string name="default_value">@string/lang_default</string>
   <!--Errors-->
   <string name="error_occurred">Bir hata oldu</string>
   <string name="error_no_content">Seçilen ayeti için içerik yok</string>
