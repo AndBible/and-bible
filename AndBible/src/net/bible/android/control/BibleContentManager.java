@@ -46,7 +46,9 @@ public class BibleContentManager {
 		Key key = currentPage.getKey();
 
 		// check for duplicate screen update requests
-		if (!forceUpdate && document.equals(previousDocument) && key.equals(previousVerse)) {
+		if (!forceUpdate && 
+				document!=null && document.equals(previousDocument) && 
+				key!=null && key.equals(previousVerse)) {
 			Log.w(TAG, "Duplicated screen update. Doc:"+document.getInitials()+" Key:"+key);
 		} else {
 			previousDocument = document;
