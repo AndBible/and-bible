@@ -468,17 +468,19 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 			final int verse = screenVerseMap.get(splitScreenNo);
 			jumpToVerse(verse);
 			
-			getHandler().postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					// clear jump value if still set
-					BibleView.this.maintainMovingVerse = NO_JUMP;
-					
-					// ensure we are in the correct place after screen settles
-					loadUrl("javascript:location.href='#"+verse+"'");
-					loadUrl("javascript:registerVersePositions()");
-				}
-			} , SplitScreenControl.SCREEN_SETTLE_TIME_MILLIS/2);
+			if (getHandler()!=null) {
+				getHandler().postDelayed(new Runnable() {
+					@Override
+					public void run() {
+						// clear jump value if still set
+						BibleView.this.maintainMovingVerse = NO_JUMP;
+						
+						// ensure we are in the correct place after screen settles
+						loadUrl("javascript:location.href='#"+verse+"'");
+						loadUrl("javascript:registerVersePositions()");
+					}
+				} , SplitScreenControl.SCREEN_SETTLE_TIME_MILLIS/2);
+			}
 		}		
 	}
 	

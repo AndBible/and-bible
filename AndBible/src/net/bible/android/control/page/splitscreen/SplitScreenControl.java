@@ -184,21 +184,24 @@ public class SplitScreenControl {
 	 */
 	private void updateInactiveScreen(Screen inactiveScreen, CurrentPage inactivePage,	Key targetScreenKey, Key inactiveScreenKey, boolean forceRefresh) {
 		Log.d(TAG, "updateInactiveScreen");
-		// only bibles and commentaries get this far so fine to convert key to verse
-		Verse targetVerse = KeyUtil.getVerse(targetScreenKey);
-		
-		Verse currentVerse = null;
-		if (inactiveScreenKey!=null) {
-			currentVerse = KeyUtil.getVerse(inactiveScreenKey);
-		}
-		
-		// update split screen as smoothly as possible i.e. just jump/scroll if verse is on current page
-		if (!forceRefresh && 
-				BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && 
-				currentVerse!=null && targetVerse.isSameChapter(currentVerse)) {
-			splitScreenEventManager.scrollSecondaryScreen(inactiveScreen, targetVerse.getVerse());
-		} else {
-			new UpdateInactiveScreenTextTask().execute(inactiveScreen);
+		// standard null checks
+		if (targetScreenKey!=null && inactivePage!=null) {
+			// only bibles and commentaries get this far so fine to convert key to verse
+			Verse targetVerse = KeyUtil.getVerse(targetScreenKey);
+			
+			Verse currentVerse = null;
+			if (inactiveScreenKey!=null) {
+				currentVerse = KeyUtil.getVerse(inactiveScreenKey);
+			}
+			
+			// update split screen as smoothly as possible i.e. just jump/scroll if verse is on current page
+			if (!forceRefresh && 
+					BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && 
+					currentVerse!=null && targetVerse.isSameChapter(currentVerse)) {
+				splitScreenEventManager.scrollSecondaryScreen(inactiveScreen, targetVerse.getVerse());
+			} else {
+				new UpdateInactiveScreenTextTask().execute(inactiveScreen);
+			}
 		}
 	}
 
