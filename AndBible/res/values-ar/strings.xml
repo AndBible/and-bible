@@ -4,6 +4,7 @@
   <!--Startup & Help-->
   <string name="splash_top_text">\n\\"و قال الله ليكن نور فكان نور.\\"\nتكوين 1:3</string>
   <string name="help_text">إضغط على زر \\"القائمة\\" \nتستطيع التنقل بين الإصحاحات (التالي أو السابق) عن طريق التراك بول، دي باد، بلمس الشاشة باصبعك يمينا او يسارا</string>
+  <string name="help_text_long"><b>الذهاب</b>\nاذهب إلى القادم أو السابق باستخدام كرة الذهاب الدي باد أو تحريك اصبعك على الشاشة\n    \nاضغط ضغطا مزدوجا لتفعيل أو إيقاف خاصية الشاشة الكاملة.\n    \n\n<b>القائمة</b>\n    \nاضغط على زر القائمة للوصول إلى الاجراءات المتاحة.\n    \n\nلتنزيل المزيد من المستندات اضغط القائمة/المزيد/تنزيل المستندات\n    \n\n<b>Speech</b>\nPress Speak to access a dialog to start or stop reading\n    \n\n<b>My Note</b>\nNotes can be added via the My Note menu item on the verse context menu.  The list of existing notes can be accessed via the main menu.\n    \n\n<b>Bookmarks</b>\nBookmarks can be added via the verse context menu.  The Bookmark Manager is accessed via the main menu.  The Bookmark Manager context menu allows bookmarks to be grouped using labels.\n    \n\n<b>Search</b>\nSearch text can include special characters like *, ?, AND, OR, NOT (see \"Apache Lucene - Query Parser Syntax\" for more details)\n    \n\n<b>Context Menus</b>\n    \nLong press on the Bible view to open the context menu for actions affecting the current verse.\n    \nLong press on a document in the document selector to delete it or view information.\n    \nLong press the Back button to access the History list\n    </string>
   <string name="version_text">إصدار %s</string>
   <string name="no_sdcard_error">برجاء وضع شريحة الذاكرة و إعادة تشغيل البرنامج</string>
   <!--main menu-->
@@ -79,6 +80,11 @@
   <string name="prefs_interface_locale_title">لغة التطبيق (البرنامج)</string>
   <string name="prefs_interface_locale_summary">اختر اللغة لواجهة الاستخدام في البرنامج</string>
   <string name="locale_change_warning">سيتم اعادة فتح البرنامج لتفعيل اللغة المختارة لواجهة المستخدم</string>
+  <string name="prefs_split_screen_title">تقسيم الشاشة</string>
+  <string name="prefs_split_screen_summary">تقسيم و وصل</string>
+  <string name="prefs_split_screen_single">شاشة واحدة</string>
+  <string name="prefs_split_screen_linked">موصول</string>
+  <string name="prefs_split_screen_not_linked">غير موصول</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">لا يوجد ملاحظات في الاصحاح</string>
   <string name="no_verse_notes">لا يوجد ملاحظات للآية</string>
@@ -204,6 +210,7 @@
   <string name="retry">حاول مرة أخرى</string>
   <string name="please_wait">برجاء الإنتظار</string>
   <string name="all">الكل</string>
+  <string name="default_value">@string/lang_default</string>
   <!--Errors-->
   <string name="error_occurred">حدث خطأ ما</string>
   <string name="error_no_content">لا يوجد محتوى للآية المختارة</string>

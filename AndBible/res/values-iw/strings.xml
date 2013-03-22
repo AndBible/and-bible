@@ -80,6 +80,11 @@
   <string name="prefs_interface_locale_title">שפת התוכנה</string>
   <string name="prefs_interface_locale_summary">בחירת שפה עבור התוכנה</string>
   <string name="locale_change_warning">התוכנה תופעל מחדש כדי לשנות את השפה</string>
+  <string name="prefs_split_screen_title">מסך מפוצל</string>
+  <string name="prefs_split_screen_summary">פיצול &amp; קישור</string>
+  <string name="prefs_split_screen_single">מסך אחד</string>
+  <string name="prefs_split_screen_linked">מקושר</string>
+  <string name="prefs_split_screen_not_linked">לא מקושר</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">אין הערות לפרק זה</string>
   <string name="no_verse_notes">אין הערות לפסוק זה</string>

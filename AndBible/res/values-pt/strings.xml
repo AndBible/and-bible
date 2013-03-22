@@ -74,9 +74,17 @@
   <string name="prefs_text_size_title">Tamanho do texto</string>
   <string name="prefs_text_size_summary">Para ver mais texto, ou enxergar com mais clareza</string>
   <string name="prefs_text_size_sample_text">Texto de exemplo</string>
+  <string name="prefs_screen_timeout_title">Hibernar</string>
+  <string name="prefs_screen_timeout_summary">Tempo em espera antes que a tela seja desligada</string>
+  <string name="x_minutes">%d minutos</string>
   <string name="prefs_interface_locale_title">Idioma do aplicativo</string>
   <string name="prefs_interface_locale_summary">Selecione o idioma de preferencia para a interface do usuário</string>
   <string name="locale_change_warning">O aplicativo será reiniciado para trocar o idioma da nova interface.</string>
+  <string name="prefs_split_screen_title">Dividir tela</string>
+  <string name="prefs_split_screen_summary">Divisão &amp; relação entre telas</string>
+  <string name="prefs_split_screen_single">Uma tela</string>
+  <string name="prefs_split_screen_linked">Telas relacionadas</string>
+  <string name="prefs_split_screen_not_linked">Não relacionadas</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Não existem notas neste capítulo</string>
   <string name="no_verse_notes">Não existem notas para este versículo</string>
@@ -165,6 +173,9 @@
   <string name="some_pages">páginas %d</string>
   <!--Speak - Common-->
   <string name="stop">Parar</string>
+  <string name="pause">Pause</string>
+  <string name="rewind">Retroceder</string>
+  <string name="forward">Avançar</string>
   <string name="tts_lang_not_available">Idioma não disponível</string>
   <string name="speak_queue">Fila</string>
   <string name="speak_repeat">Repetir</string>
@@ -199,6 +210,7 @@
   <string name="retry">Tente novamente</string>
   <string name="please_wait">Por favor, aguarde...</string>
   <string name="all">Todos</string>
+  <string name="default_value">@string/lang_default</string>
   <!--Errors-->
   <string name="error_occurred">Ocorreu um erro</string>
   <string name="error_no_content">Nenhum conteúdo para o versículo selecionado</string>

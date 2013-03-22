@@ -80,6 +80,11 @@
   <string name="prefs_interface_locale_title">Rakenduse keel</string>
   <string name="prefs_interface_locale_summary">Vali rakenduse keel</string>
   <string name="locale_change_warning">Rakendus käivitatakse, et näidata uut kasutajaliidese keelt</string>
+  <string name="prefs_split_screen_title">Jaga ekraan</string>
+  <string name="prefs_split_screen_summary">Jagatud ekraan &amp; linkimine</string>
+  <string name="prefs_split_screen_single">Üks ekraan</string>
+  <string name="prefs_split_screen_linked">Lingitud</string>
+  <string name="prefs_split_screen_not_linked">Pole lingitud</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Selles peatükis märkmeid pole</string>
   <string name="no_verse_notes">Selles salmis märkmeid pole</string>
