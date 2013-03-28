@@ -128,11 +128,9 @@ public class SplitScreenControl {
 	public void synchronizeScreens() {
 		Screen activeScreen = getCurrentActiveScreen();
 		Screen inactiveScreen = getNonActiveScreen();
-		Log.d(TAG, "synchronizeScreens active:"+activeScreen);
 		CurrentPage activePage = CurrentPageManager.getInstance(activeScreen).getCurrentPage();
 		CurrentPage inactivePage = CurrentPageManager.getInstance(inactiveScreen).getCurrentPage();
 		Key activeScreenKey = activePage.getSingleKey();
-		Log.d(TAG, "active key:"+activeScreenKey);
 		Key inactiveScreenKey = inactivePage.getSingleKey();
 		boolean isFirstTimeInit = (lastSynchdInactiveScreenKey==null);
 		boolean inactiveUpdated = false;
@@ -176,7 +174,6 @@ public class SplitScreenControl {
 	/** Only call if screens are synchronised.  Update synch'd keys even if inactive page not shown so if it is shown then it is correct
 	 */
 	private void updateInactiveBibleKey(Screen inactiveScreen, Key activeScreenKey) {
-		Log.d(TAG, "updateInactiveBibleKey");
 		CurrentPageManager.getInstance(inactiveScreen).getCurrentBible().doSetKey(activeScreenKey);
 	}
 	
