@@ -4,3 +4,4 @@ Installer.2=sword-http,Bible.org,ftp.bible.org,/sword/packages/rawzip,/sword/raw
 Installer.3=sword-http,Crosswire Beta,www.crosswire.org,/ftpmirror/pub/sword/betapackages/rawzip,/ftpmirror/pub/sword/betaraw,,,
 Installer.4=sword-http,Xiphos,ftp.xiphos.org,/sword/zip,/sword,,,
 Installer.5=sword-http,AndBible,www.crosswire.org,/and-bible/modules/sword/zip,/and-bible/modules/sword,,,
+Installer.6=sword-http,IBT,ibt.org.ru,/ftpmirror/pub/modsword/rawzip,/ftpmirror/pub/modsword/raw,,,

@@ -6,11 +6,10 @@ import java.util.List;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.util.buttongrid.ButtonGrid;
-import net.bible.android.view.util.buttongrid.OnButtonGridActionListener;
 import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo;
+import net.bible.android.view.util.buttongrid.OnButtonGridActionListener;
 import net.bible.service.common.CommonUtils;
 
-import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.BibleInfo;
@@ -42,12 +41,14 @@ public class GridChoosePassageChapter extends ActivityBase implements OnButtonGr
         super.onCreate(savedInstanceState);
 
         int bibleBookNo = getIntent().getIntExtra(GridChoosePassageBook.BOOK_NO, 0);
-        mBibleBook = BibleBook.getBooks()[bibleBookNo];
+        //TODO av11n - this is done now
+        mBibleBook = BibleBook.values()[bibleBookNo];
                              
         // show chosen book in page title to confirm user choice
         try {
+            //TODO av11n - probably should use same v11n as used in GridChoosePassageBook
         	setTitle(mBibleBook.getLongName());
-        } catch (NoSuchVerseException nsve) {
+        } catch (Exception nsve) {
         	Log.e(TAG, "Error in selected book no", nsve);
         }
         
@@ -62,7 +63,7 @@ public class GridChoosePassageChapter extends ActivityBase implements OnButtonGr
     	int chapters = -1;
     	try {
 	    	chapters = BibleInfo.chaptersInBook(book);
-		} catch (NoSuchVerseException nsve) {
+		} catch (Exception nsve) {
 			chapters = -1;
 		}
     	

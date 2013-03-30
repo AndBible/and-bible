@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import net.bible.android.SharedConstants;
@@ -59,8 +58,9 @@ public class ProgressActivityBase extends ActivityBase {
     	noTasksMessageView = (TextView)findViewById(R.id.noTasksRunning);
     	taskKillWarningView = (TextView)findViewById(R.id.progressStatusMessage);
 
-    	Set<Progress> jobs = JobManager.getJobs();
-    	for (Progress job : jobs) {
+    	Iterator<Progress> jobsIterator = JobManager.iterator();
+    	while (jobsIterator.hasNext()) {
+    		Progress job = jobsIterator.next();
     		findOrCreateUIControl(job);
     	}
 
@@ -101,7 +101,7 @@ public class ProgressActivityBase extends ActivityBase {
 			new Runnable() {
 				@Override
 				public void run() {
-					if (JobManager.getJobs().size()==0) {
+					if (!JobManager.iterator().hasNext()) {
 						showNoTaskMsg(true);				
 					}
 				}
@@ -137,10 +137,9 @@ public class ProgressActivityBase extends ActivityBase {
      * @return true if all jobs finished or no jobs
      */
     protected boolean isAllJobsFinished() {
-		Set<Progress> jobs = JobManager.getJobs();
-		Iterator<Progress> iter = jobs.iterator();
-		while (iter.hasNext()) {
-			Progress job = (Progress)iter.next();
+    	Iterator<Progress> jobsIterator = JobManager.iterator();
+    	while (jobsIterator.hasNext()) {
+    		Progress job = jobsIterator.next();
 			if (!job.isFinished()) {
 				return false;
 			}

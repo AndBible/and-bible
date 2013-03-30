@@ -14,6 +14,7 @@ import net.bible.service.db.mynote.MyNoteDatabaseDefinition.Table;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.PassageKeyFactory;
+import org.crosswire.jsword.versification.system.Versifications;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -183,7 +184,8 @@ public class MyNoteDBAdapter {
 			
 			String key = c.getString(MyNoteQuery.KEY);
 			if (!TextUtils.isEmpty(key)) {
-				dto.setKey(PassageKeyFactory.instance().getKey(key));
+				//TODO av11n - probably should use the v11n of the current book
+				dto.setKey(PassageKeyFactory.instance().getKey(Versifications.instance().getDefaultVersification(), key));
 			}
 			
 			String mynote = c.getString(MyNoteQuery.MYNOTE);

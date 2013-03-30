@@ -8,14 +8,16 @@ import net.bible.service.sword.SwordDocumentFacade;
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
+import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.NoSuchKeyException;
-import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.BibleInfo;
+import org.crosswire.jsword.versification.Versification;
+import org.crosswire.jsword.versification.system.Versifications;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -102,19 +104,29 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 			if (num>=0) {
 				// allow verse correction to move to next book if required
 				chapter = chapter+num;
+				// if past last chapter of book then go to next book - algorithm not foolproof but we only move one chapter at a time like this 
+				if (chapter>getVersification().getLastChapter(book)) {
+					if (!book.equals(getVersification().getLastBook())) {
+						chapter = chapter - getVersification().getLastChapter(book);
+						book = getVersification().getNextBook(book);
+					}
+				}
 			} else {
 				if (chapter>1) {
 					chapter--;
 				} else {
 					if (BibleBook.GEN.compareTo(book)<0) {
-						book = BibleBook.getBooks()[book.ordinal()-1];
-						chapter = BibleInfo.chaptersInBook(book);
+						//TODO av11n - was BibleBook.getBooks()[book.ordinal()-1];
+						//TODO book order - this assumes the versification book order is used whereas teh Navigation grid currently assumes KJV book order
+						//TODO inspired - assumes previous book is inspired which may not be the case
+						book = getVersification().getPreviousBook(book);
+						chapter = getVersification().getLastChapter(book);
 					}
 				}
 			}
 		
-			return new Verse(book, chapter, 1, true);
-		} catch (NoSuchVerseException nsve) {
+			return new Verse(getVersification(), book, chapter, 1, true);
+		} catch (Exception nsve) {
 			Log.e(TAG, "Incorrect verse", nsve);
 			return currVer;
 		}
@@ -124,8 +136,9 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	 */
 	public Key getPagePlus(int num) {
 		Verse targetChapterVerse1 = getKeyPlus(num);
+
 		// convert to full chapter before returning because bible view is for a full chapter
-		return new VerseRange(targetChapterVerse1.getFirstVerseInChapter(), targetChapterVerse1.getLastVerseInChapter());
+		return getWholeChapter(targetChapterVerse1);
 	}
 
 	/* (non-Javadoc)
@@ -147,7 +160,6 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	 * @param key
 	 */
 	public void doSetKey(Key key) {
-		Log.d(TAG, "Bible key set to:"+key);
 		if (key!=null) {
 			Verse verse = KeyUtil.getVerse(key);
 			currentBibleVerse.setVerseSelected(verse);
@@ -179,8 +191,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 			if (!requireSingleKey) {
 				// display whole page of bible so return whole chapter key - not just teh single verse even if a single verse was set in verseKey
 				// if verseNo is required too then use getVerse()
-		        Key wholeChapterKey = new VerseRange(verse.getFirstVerseInChapter(), verse.getLastVerseInChapter());
-		        key = wholeChapterKey;
+		        key = getWholeChapter(verse);
 			} else {
 				key = verse;
 			}
@@ -249,7 +260,8 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 			if (bibleBookNo>0) {
 				Log.d(TAG, "Restored verse:"+bibleBookNo+"."+chapterNo+"."+verseNo);
 				// dec/inc bibleBook on save/restore because the book no used to be 1 based, unlike now
-				Verse verse = new Verse(BibleBook.getBooks()[bibleBookNo-1], chapterNo, verseNo, true);
+				//TODO av11n - this is done now
+				Verse verse = new Verse(getVersification(), BibleBook.values()[bibleBookNo-1], chapterNo, verseNo, true);
 				this.currentBibleVerse.setVerseSelected(verse);
 			}
 			Log.d(TAG, "Current passage:"+toString());
@@ -282,5 +294,27 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 
 		// by default disable compare translation except for Bibles
 		menu.findItem(R.id.compareTranslations).setVisible(true);
+	}
+
+	//TODO av11n - this is done now
+	private Versification getVersification() {
+		try {
+			// Bibles must be a PassageBook
+			return ((AbstractPassageBook)getCurrentDocument()).getVersification();
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting versification for Book", e);
+			return Versifications.instance().getVersification("KJV");
+		}
+	}
+
+	private Key getWholeChapter(Verse currentVerse) {
+		Versification versification = getVersification();
+		//TODO av11n - this is done now
+		BibleBook book = currentVerse.getBook();
+		int chapter = currentVerse.getChapter();
+		Verse targetChapterFirstVerse = new Verse(versification, book, chapter, 1);
+		Verse targetChapterLastVerse = new Verse(versification, book, chapter, versification.getLastVerse(book, chapter));
+		// convert to full chapter before returning because bible view is for a full chapter
+		return new VerseRange(versification, targetChapterFirstVerse, targetChapterLastVerse);
 	}
 }

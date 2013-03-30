@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.PassageKeyFactory;
+import org.crosswire.jsword.versification.system.Versifications;
 
 import android.util.Log;
 
@@ -86,7 +87,8 @@ public class OneDaysReadingsDto implements Comparable<OneDaysReadingsDto> {
 				String[] readingArray = mReadings.split(",");
 				for (String reading : readingArray) {
 					try {
-						readingKeyList.add(PassageKeyFactory.instance().getKey(reading));
+						//TODO av11n - probably should use the v11n of the current Bible
+						readingKeyList.add(PassageKeyFactory.instance().getKey(Versifications.instance().getDefaultVersification(), reading));
 					} catch (NoSuchKeyException nsk) {
 						Log.e(TAG, "Error getting daily reading passage", nsk);
 					}

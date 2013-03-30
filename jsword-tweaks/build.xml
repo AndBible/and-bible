@@ -1,6 +1,6 @@
 <project name="buildJswordTweakedJar" default="copyJarsToAndBible" basedir=".">
 	
-	<property name="jsword.project" location="../../jsword-svn/jsword"/>
+	<property name="jsword.project" location="../../jsword-git/jsword"/>
 	<property name="jsword.src" location="${jsword.project}/src/main/java"/>
 	<property name="jsword.resources" location="${jsword.project}/src/main/resources"/>
 	<property name="tweaks.jsword.src" location="src/main/java/jsword"/>
@@ -9,9 +9,10 @@
 	<property name="build.src" location="build/src" />
 	<property name="build.class" location="build/class" />
 	<property name="distribution" location="distribution" />
+	<property name="andbible" location="../AndBible" />
 
 	<path id="classpath">
-		<fileset dir="jar" includes="**/*.jar"/>
+		<fileset dir="${jsword.project}/lib/jars" includes="*.jar"/>
 	</path>
 	
 	<target name="clean">
@@ -30,19 +31,18 @@
 	<target name="mergeCode" depends="init">
 		<copy todir="${build.src}">
 			<fileset dir="${jsword.src}"/>
-			<fileset dir="${jsword.resources}">
-			    <exclude name="BibleNames_ar_EG.properties"/>
-			</fileset>
+			<fileset dir="${jsword.resources}"/>
 		</copy>
 
 		<!-- switch the Chinese localisation defaults around so default CN is simplified and TW is Traditional-->
 		<copy file="${jsword.resources}/BibleNames_zh.properties" tofile="${build.src}/BibleNames_zh_TW.properties" />
 		<copy file="${jsword.resources}/BibleNames_zh_CN.properties" tofile="${build.src}/BibleNames_zh.properties" overwrite="true"/>
-		
+
 		<copy todir="${build.src}" overwrite="true">
-			<fileset dir="${tweaks.jsword.src}"/>
+			<!-- No Tweaks if poss fileset dir="${tweaks.jsword.src}"/ -->
 			<fileset dir="${tweaks.jsword.resources}"/>
 		</copy>
+
 	</target>
 
 	<target name="compile" depends="mergeCode">
@@ -50,7 +50,7 @@
 	</target>
 
 	<target name="jar" depends="compile">
-		<jar jarfile="${distribution}/jsword-all-tweaked.jar">
+		<jar jarfile="${distribution}/jsword.jar">
 			<fileset dir="${build.class}"/>
 			<!-- need to include the .properties and .plugin files -->
 			<fileset dir="${build.src}">
@@ -58,18 +58,20 @@
 				<exclude name="**/*.html"/>
 			</fileset>
 		</jar>	
-		<jar jarfile="${distribution}/jsword-all-tweaked-src.jar" basedir="${build.src}"/>
+		<jar jarfile="${distribution}/jsword-src.jar" basedir="${build.src}"/>
 	</target>
 
 	<target name="copyJarsToAndBible" depends="jar" description="Copy generated jars to And Bible for use">
-		<copy todir="../AndBible/libs">
+		<copy todir="${andbible}/libs">
 			<fileset dir="${distribution}" includes="*.jar" excludes="*-src.jar"/>
 		</copy>
-		<copy todir="../AndBible/libs-src">
+		<copy todir="${andbible}/libs-src">
 			<fileset dir="${distribution}" includes="*-src.jar"/>
 		</copy>
 	</target>
-	
+
+<!--
+No Tweaks 	
 	<target name="copyTweaksToJsword" description="Copy tweaks to JSword project">
 		<copy todir="${jsword.src}" overwrite="true">
 			<fileset dir="${tweaks.jsword.src}"/>
@@ -79,4 +81,5 @@
 			<fileset dir="${tweaks.jsword.resources}"/>
 		</copy>
 	</target>
+ -->
 </project>

@@ -56,7 +56,7 @@ public class EnsureBibleDownloaded extends ProgressActivityBase {
 	        	gotoMainScreen();
 	        } else {
 	        	Log.e(TAG, "Downloaded bible not found");
-	        	if (JobManager.getJobs().size()==0) {
+	        	if (JobManager.getJobCount()==0) {
 					// something went wrong with the download
 					Dialogs.getInstance().showErrorMsg(R.string.download_complete_no_bibles);
 	        	}

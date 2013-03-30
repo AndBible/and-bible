@@ -15,7 +15,6 @@ import net.bible.android.control.document.DocumentControl;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.common.util.Language;
-import org.crosswire.common.util.Languages;
 import org.crosswire.common.util.Version;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
@@ -175,7 +174,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     protected Language getDefaultLanguage() {
     	// get the current language code
     	String langCode = Locale.getDefault().getLanguage();
-    	if (!Languages.isValidLanguage(langCode)) {
+    	if (!new Language(langCode).isValidLanguage()) {
     		langCode = Locale.ENGLISH.getLanguage();
     	}
 
@@ -195,7 +194,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     	// if no bibles exist in current lang then fall back to default language (English) so the user will not see an initially empty list
     	if (!foundBibleInLocalLanguage) {
         	Log.d(TAG, "No bibles found in local language so falling back to default lang");
-    		localLanguage = new Language(Languages.DEFAULT_LANG_CODE);
+    		localLanguage = Language.DEFAULT_LANG;
     	}
     	return localLanguage;
     }

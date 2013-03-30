@@ -17,7 +17,6 @@ import org.apache.commons.lang.ABStringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
-import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.BookName;
@@ -94,7 +93,7 @@ public class PageControl {
 	        	}
 	        }
 			
-		} catch (NoSuchVerseException e) {
+		} catch (Exception e) {
 			Log.e(TAG, "Verse error");
 		}
 	}

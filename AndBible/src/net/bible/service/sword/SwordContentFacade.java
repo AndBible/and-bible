@@ -342,13 +342,16 @@ public class SwordContentFacade {
 
 	private OsisToHtmlSaxHandler getSaxHandler(Book book, Key key) {
 		OsisToHtmlParameters osisToHtmlParameters = new OsisToHtmlParameters();
+		BookCategory bookCategory = book.getBookCategory();
 		BookMetaData bmd = book.getBookMetaData();
 		osisToHtmlParameters.setLeftToRight(bmd.isLeftToRight());
 		osisToHtmlParameters.setLanguageCode(book.getLanguage().getCode());
 		osisToHtmlParameters.setModuleBasePath(book.getBookMetaData().getLocation());
 		
-		// a basis for partial references
-		osisToHtmlParameters.setBasisRef(key);
+		// If Bible or Commentary then set Basis for partial references to current Key/Verse 
+		if (BookCategory.BIBLE.equals(bookCategory) || BookCategory.COMMENTARY.equals(bookCategory)) {
+			osisToHtmlParameters.setBasisRef(key);
+		}
 		
 		if (isAndroid) {
 	    	// HunUj has an error in that refs are not wrapped so automatically add notes around refs
@@ -360,8 +363,8 @@ public class SwordContentFacade {
 				osisToHtmlParameters.setShowNotes(preferences.getBoolean("show_notes_pref", true));
 
 				// show verse numbers if user has selected to show verse numbers AND the book is a bible (so don't even try to show verses in a Dictionary)
-				if (BookCategory.BIBLE.equals(book.getBookCategory())) {
-					osisToHtmlParameters.setShowVerseNumbers(preferences.getBoolean("show_verseno_pref", true) && book.getBookCategory().equals(BookCategory.BIBLE));
+				if (BookCategory.BIBLE.equals(bookCategory)) {
+					osisToHtmlParameters.setShowVerseNumbers(preferences.getBoolean("show_verseno_pref", true) && BookCategory.BIBLE.equals(bookCategory));
 					osisToHtmlParameters.setVersePerline(preferences.getBoolean("verse_per_line_pref", false));
 					osisToHtmlParameters.setShowMyNotes(preferences.getBoolean("show_mynotes_pref", true));
 					osisToHtmlParameters.setShowBookmarks(preferences.getBoolean("show_bookmarks_pref", true));
@@ -379,7 +382,7 @@ public class SwordContentFacade {
 				if (ScreenSettings.isNightMode()) {
 					osisToHtmlParameters.setExtraStylesheet(SharedConstants.NIGHT_MODE_STYLESHEET);
 				}
-				if (book.getBookCategory().equals(BookCategory.DICTIONARY)) {
+				if (BookCategory.DICTIONARY.equals(bookCategory)) {
 					if (book.hasFeature(FeatureType.HEBREW_DEFINITIONS)) {
 						//add allHebrew refs link
 						String prompt = BibleApplication.getApplication().getString(R.string.all_hebrew_occurrences);

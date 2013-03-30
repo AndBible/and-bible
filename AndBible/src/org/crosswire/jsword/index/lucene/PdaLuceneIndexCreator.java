@@ -46,14 +46,12 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookData;
 import org.crosswire.jsword.book.BookException;
-import org.crosswire.jsword.book.DataPolice;
 import org.crosswire.jsword.book.FeatureType;
 import org.crosswire.jsword.book.OSISUtil;
 import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.index.lucene.analysis.LuceneAnalyzer;
 import org.crosswire.jsword.passage.Key;
-import org.crosswire.jsword.passage.PassageKeyFactory;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 /**
  * Implement the SearchEngine using Lucene as the search engine.
@@ -110,8 +108,8 @@ public class PdaLuceneIndexCreator {
             throw new BookException(JSMsg.gettext("Failed to initialize Lucene search engine."), ex);
         }
 
-        // Indexing the book is a good way to police data errors.
-        DataPolice.setBook(book.getBookMetaData());
+//        // Indexing the book is a good way to police data errors.
+//        DataPolice.setBook(book.getBookMetaData());
 
         // TRANSLATOR: Progress label indicating the start of indexing. {0} is a placeholder for the book's short name.
         String jobName = JSMsg.gettext("Creating index. Processing {0}", book.getInitials());
@@ -141,7 +139,7 @@ public class PdaLuceneIndexCreator {
 	                	Key keyList = null;
 	                	if (book.getBookCategory().equals(BookCategory.BIBLE)) {
 	                		// this method is so much faster than getGlobalKeyList but not accurate e.g. some bibles are only NT
-	                		keyList = PassageKeyFactory.instance().getGlobalKeyList();
+//	                		keyList = PassageKeyFactory.instance().getGlobalKeyList();
 	                	} else {
 	                		keyList = book.getGlobalKeyList();
 	                	}
@@ -232,7 +230,7 @@ public class PdaLuceneIndexCreator {
                 generateSearchIndexImpl(job, errors, writer, subkey, subCount);
             } else {
                 // Set up DataPolice for this key.
-                DataPolice.setKey(subkey);
+//                DataPolice.setKey(subkey);
 
                 data = new BookData(book, subkey);
                 osis = null;

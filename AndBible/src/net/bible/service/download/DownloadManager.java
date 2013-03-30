@@ -21,9 +21,12 @@
  */
 package net.bible.service.download;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import net.bible.android.activity.R;
+import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.Logger;
 
 import org.crosswire.jsword.book.Book;
@@ -47,7 +50,7 @@ public class DownloadManager {
 
 	public static final String REPOSITORY_KEY = "repository";
 
-    private static final Logger log = new Logger(DownloadManager.class.getName()); 
+    private static final Logger log = new Logger(DownloadManager.class.getName());
 	
     public DownloadManager() {
         installManager = new InstallManager();
@@ -59,22 +62,32 @@ public class DownloadManager {
 	 */
 	public List<Book> getDownloadableBooks(BookFilter filter, String repo, boolean refresh) throws InstallException {
 
+		List<Book> documents;
+		
         // If we know the name of the installer we can get it directly
         Installer installer = installManager.getInstaller(repo);
+        
+        if (installer==null) {
+			log.error("Error getting installer for repo "+repo);
+			Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+			documents = Collections.emptyList();
+        } else {
+	        // Now we can get the list of books
+	    	log.debug("getting downloadable books");
+	    	if (installer.getBooks().size()==0 || refresh) {
+	    		//todo should warn user of implications of downloading book list e.g. from persecuted country
+	    		log.warn("Reloading book list");
+	    		installer.reloadBookList();
+	    	}
+	
+	        // Get a list of all the available books
+	        documents = installer.getBooks(filter); //$NON-NLS-1$
+        }
 
-        // Now we can get the list of books
-    	log.debug("getting downloadable books");
-    	if (installer.getBooks().size()==0 || refresh) {
-    		//todo should warn user of implications of downloading book list e.g. from persecuted country
-    		log.warn("Reloading book list");
-    		installer.reloadBookList();
-    	}
-
-        // Get a list of all the available books
-        List<Book> documents = installer.getBooks(filter); //$NON-NLS-1$
+        //free memory
         installer.close();
+        
     	log.info("number of documents available:"+documents.size());
-
 		return documents;
 	}
 	
@@ -88,10 +101,7 @@ public class DownloadManager {
      * @throws BookException
      * @throws InstallException
      */
-    public void installBook(String repositoryName, Book book) throws BookException, InstallException {
-        // An installer knows how to install books
-        Installer installer = installManager.getInstaller(repositoryName);
-
+    public void installBook(final String repositoryName, final Book book) throws BookException, InstallException {
         // Delete the book, if present
         // At the moment, JSword will not re-install. Later it will, if the
         // remote version is greater.
@@ -102,8 +112,26 @@ public class DownloadManager {
             deleteBook(installedBook);
         }
 
-        // Now install it. Note this is a background task.
-        installer.install(book);
+        // Now install it in the background
+        final Thread worker = new Thread("BookDownloader") {
+            /* (non-Javadoc)
+             * @see java.lang.Thread#run()
+             */
+            @Override
+            public void run() {
+                try {
+                    // An installer knows how to install books
+                    Installer installer = installManager.getInstaller(repositoryName);
+
+                    installer.install(book);
+                } catch (InstallException ex) {
+                    Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+                }
+            }
+        };
+
+        // this actually starts the thread off
+        worker.start();
     }
 
     /**

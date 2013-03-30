@@ -117,7 +117,7 @@ public class Download extends DocumentSelectionBase {
     protected void handleDocumentSelection(Book document) {
     	Log.d(TAG, "Document selected:"+document.getInitials());
     	try {
-    		if (JobManager.getJobs().size()>=2) {
+    		if (JobManager.getJobCount()>=2) {
     			showTooManyJobsDialog();
     		} else {
     			manageDownload(document);
@@ -129,7 +129,7 @@ public class Download extends DocumentSelectionBase {
     }
 
 	private void showTooManyJobsDialog() {
-		Log.i(TAG, "Too many jobs:"+JobManager.getJobs().size());
+		Log.i(TAG, "Too many jobs:"+JobManager.getJobCount());
 		Dialogs.getInstance().showErrorMsg(R.string.too_many_jobs, new Callback() {
 			@Override
 			public void okay() {

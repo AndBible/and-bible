@@ -20,7 +20,6 @@ import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.index.lucene.PdaLuceneIndexCreator;
 import org.crosswire.jsword.index.search.SearchType;
 import org.crosswire.jsword.passage.Key;
-import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.versification.BibleBook;
 
 import android.app.Activity;
@@ -85,7 +84,7 @@ public class SearchControl {
 	    	} else {
 	    		return book.getShortName();
 	    	}
-    	} catch (NoSuchVerseException nsve) {
+    	} catch (Exception nsve) {
     		// This should never occur
     		Log.e(TAG, "Error getting current book name", nsve);
     		return "-";

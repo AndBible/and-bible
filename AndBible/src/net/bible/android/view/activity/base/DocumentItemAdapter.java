@@ -8,6 +8,7 @@ import net.bible.android.control.download.DownloadControl;
 import net.bible.android.view.util.widget.TwoLineListItemWithImage;
 
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.basic.AbstractPassageBook;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -78,6 +79,9 @@ public class DocumentItemAdapter extends ArrayAdapter<Book> {
 		// set value for the second text field
 		if (view.getText2() != null) {
 			String name = item.getName();
+			if (item instanceof AbstractPassageBook) {
+				name += "("+((AbstractPassageBook)item).getVersification().getName()+")";
+			}
 			view.getText2().setText(name);
 		}
 

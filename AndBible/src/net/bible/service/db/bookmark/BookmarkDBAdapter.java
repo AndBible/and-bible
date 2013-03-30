@@ -12,6 +12,7 @@ import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.Table;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.PassageKeyFactory;
+import org.crosswire.jsword.versification.system.Versifications;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -264,7 +265,8 @@ public class BookmarkDBAdapter {
 			
 			String key = c.getString(BookmarkQuery.KEY);
 			if (!TextUtils.isEmpty(key)) {
-				dto.setKey(PassageKeyFactory.instance().getKey(key));
+				//TODO av11n - probably should use the v11n of the current Bible
+				dto.setKey(PassageKeyFactory.instance().getKey(Versifications.instance().getDefaultVersification(), key));
 			}
 		} catch (NoSuchKeyException nke) {
 			Log.e(TAG, "Key error", nke);
