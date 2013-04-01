@@ -159,7 +159,7 @@ public class SplitScreenControl {
 			
 		// force inactive screen to display something otherwise it may be initially blank
 		// or if nightMode has changed then force an update
-		if (!inactiveUpdated && isTotalRefreshRequired) {
+		if (!inactiveUpdated && isTotalRefreshRequired && isSynchronizable(inactivePage)) {
 			// force an update of the inactive page to prevent blank screen
 			updateInactiveScreen(inactiveScreen, inactivePage, inactiveScreenKey, inactiveScreenKey, isTotalRefreshRequired);
 			lastSynchdInactiveScreenKey = inactiveScreenKey;
