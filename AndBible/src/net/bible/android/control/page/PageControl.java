@@ -129,24 +129,29 @@ public class PageControl {
 		
 		// show short book name to save space if Portrait
 		BookName.setFullBookName(!isPortrait);
-		
-		StringBuilder title = new StringBuilder();
-		CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
-		if (currentPage!=null) {
-			if (currentPage.getSingleKey()!=null) {
-				 title.append(currentPage.getSingleKey().getName());
+		String retVal="";
+		try {
+			StringBuilder title = new StringBuilder();
+			CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
+			if (currentPage!=null) {
+				if (currentPage.getSingleKey()!=null) {
+					 title.append(currentPage.getSingleKey().getName());
+				}
 			}
+			
+			int maxLength = isPortrait ? 11 : 26;
+			retVal = shorten(title.toString(), maxLength);
+			// favour correct capitalisation because it looks better and is narrower so more fits in
+			if (ABStringUtils.isAllUpperCaseWherePossible(retVal)) {
+				// Books like INSTITUTES need corrected capitalisation
+				retVal = WordUtils.capitalizeFully(retVal);
+			}		
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting page title", e);
+		} finally {
+			// restore full book name setting
+			BookName.setFullBookName(fullBookNameSave);
 		}
-		// restore full book name setting
-		BookName.setFullBookName(fullBookNameSave);
-		
-		int maxLength = isPortrait ? 11 : 26;
-		String retVal = shorten(title.toString(), maxLength);
-		// favour correct capitalisation because it looks better and is narrower so more fits in
-		if (ABStringUtils.isAllUpperCaseWherePossible(retVal)) {
-			// Books like INSTITUTES need corrected capitalisation
-			retVal = WordUtils.capitalizeFully(retVal);
-		}		
 		return retVal;
 	}
 
