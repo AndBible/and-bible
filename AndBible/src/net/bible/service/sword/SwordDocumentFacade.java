@@ -13,6 +13,7 @@ import net.bible.service.common.Logger;
 import net.bible.service.download.DownloadManager;
 import net.bible.service.download.RepoBase;
 import net.bible.service.download.RepoFactory;
+import net.bible.service.sword.index.IndexCreator;
 
 import org.crosswire.common.util.CWProject;
 import org.crosswire.common.util.Version;
@@ -31,7 +32,6 @@ import org.crosswire.jsword.book.sword.SwordConstants;
 import org.crosswire.jsword.index.IndexManager;
 import org.crosswire.jsword.index.IndexManagerFactory;
 import org.crosswire.jsword.index.IndexStatus;
-import org.crosswire.jsword.index.lucene.PdaLuceneIndexManager;
 
 /** JSword facade
  * 
@@ -279,8 +279,8 @@ public class SwordDocumentFacade {
     	// ensure this isn't just the user re-clicking the Index button
 		if (!book.getIndexStatus().equals(IndexStatus.CREATING) && !book.getIndexStatus().equals(IndexStatus.SCHEDULED)) {
 
-			PdaLuceneIndexManager lim = new PdaLuceneIndexManager();
-	        lim.scheduleIndexCreation(book);
+			IndexCreator ic = new IndexCreator();
+	        ic.scheduleIndexCreation(book);
 		}
 	}
 	
