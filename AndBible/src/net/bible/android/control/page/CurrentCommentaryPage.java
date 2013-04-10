@@ -5,11 +5,14 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.navigation.GridChoosePassageBook;
 
 import org.crosswire.jsword.book.BookCategory;
+import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleInfo;
+import org.crosswire.jsword.versification.Versification;
+import org.crosswire.jsword.versification.system.Versifications;
 
 import android.app.Activity;
 import android.util.Log;
@@ -70,7 +73,7 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 	/** add or subtract a number of pages from the current position and return Verse
 	 */
 	public Verse getKeyPlus(int num) {
-		Verse currVer = this.currentBibleVerse.getVerseSelected();
+		Verse currVer = this.currentBibleVerse.getVerseSelected(getVersification());
 		return currVer.add(num);
 	}
 	
@@ -81,7 +84,7 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 	public void doSetKey(Key key) {
 		if (key!=null) {
 			Verse verse = KeyUtil.getVerse(key);
-			currentBibleVerse.setVerseSelected(verse);
+			currentBibleVerse.setVerseSelected(getVersification(), verse);
 		}
 	}
 
@@ -90,7 +93,7 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 	 */
 	@Override
 	public Key getKey() {
-		return currentBibleVerse.getVerseSelected();
+		return currentBibleVerse.getVerseSelected(getVersification());
     }
 
 	public boolean isSingleChapterBook() throws NoSuchKeyException{
@@ -118,6 +121,17 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 	@Override
 	public boolean isSearchable() {
 		return true;
+	}
+
+	//TODO av11n - need to make this method shared between cmtry and bible
+	private Versification getVersification() {
+		try {
+			// Bibles must be a PassageBook
+			return ((AbstractPassageBook)getCurrentDocument()).getVersification();
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting versification for Book", e);
+			return Versifications.instance().getVersification("KJV");
+		}
 	}
 
 	@Override

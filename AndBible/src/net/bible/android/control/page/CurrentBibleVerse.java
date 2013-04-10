@@ -1,30 +1,34 @@
 package net.bible.android.control.page;
 
+import net.bible.android.control.versification.VerseVersification;
+
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
+import org.crosswire.jsword.versification.Versification;
+import org.crosswire.jsword.versification.system.Versifications;
 
 public class CurrentBibleVerse {
 	
-	private Verse verseSelected = new Verse(BibleBook.GEN,1,1,true);
+	private VerseVersification verseVersificationSelected = new VerseVersification(Versifications.instance().getDefaultVersification(), BibleBook.GEN, 1, 1);
 
 	public int getCurrentBibleBookNo() {
-		return verseSelected.getBook().ordinal();
+		return verseVersificationSelected.getBook().ordinal();
 	}
 
 	public BibleBook getCurrentBibleBook() {
-		return verseSelected.getBook();
+		return verseVersificationSelected.getBook();
 	}
 	
-	public Verse getVerseSelected() {
-		return verseSelected;
+	public Verse getVerseSelected(Versification versification) {
+		return verseVersificationSelected.getVerse(versification);
 	}
-	public void setVerseSelected(Verse verseSelected) {
-		this.verseSelected = verseSelected;
+	public void setVerseSelected(Versification versification, Verse verseSelected) {
+		verseVersificationSelected.setVerse(versification, verseSelected);
 	}
 	public void setVerseNo(int verseNo) {
-		verseSelected = new Verse(verseSelected.getBook(), verseSelected.getChapter(), verseNo, true);
+		verseVersificationSelected.setVerseNo(verseNo);
 	}
 	public int getVerseNo() {
-		return verseSelected.getVerse();
+		return verseVersificationSelected.getVerseNo();
 	}
 }

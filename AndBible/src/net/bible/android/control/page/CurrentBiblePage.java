@@ -64,16 +64,18 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	 */
 	public void doPreviousVerse() {
 		Log.d(TAG, "Previous");
-		Verse verse = currentBibleVerse.getVerseSelected();
-		currentBibleVerse.setVerseSelected(verse.subtract(1));
+		Versification versification = getVersification();
+		Verse verse = currentBibleVerse.getVerseSelected(versification);
+		currentBibleVerse.setVerseSelected(versification, versification.subtract(verse, 1));
 	}
 	
 	/* go to next verse quietly without updates
 	 */
 	public void doNextVerse() {
 		Log.d(TAG, "NextVerse");
-		Verse verse = currentBibleVerse.getVerseSelected();
-		currentBibleVerse.setVerseSelected(verse.add(1));
+		Versification versification = getVersification();
+		Verse verse = currentBibleVerse.getVerseSelected(versification);
+		currentBibleVerse.setVerseSelected(versification, versification.add(verse, 1));
 	}
 	
 	/* (non-Javadoc)
@@ -96,7 +98,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	/** add or subtract a number of pages from the current position and return Verse
 	 */
 	public Verse getKeyPlus(int num) {
-		Verse currVer = this.currentBibleVerse.getVerseSelected();
+		Verse currVer = this.currentBibleVerse.getVerseSelected(getVersification());
 		BibleBook book = currVer.getBook();
 		int chapter = currVer.getChapter();
 
@@ -162,7 +164,8 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	public void doSetKey(Key key) {
 		if (key!=null) {
 			Verse verse = KeyUtil.getVerse(key);
-			currentBibleVerse.setVerseSelected(verse);
+			//TODO av11n should this be the verse Versification or the Module/doc's Versification
+			currentBibleVerse.setVerseSelected(getVersification(), verse);
 		}
 	}
 
@@ -185,7 +188,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
     }
 
 	private Key doGetKey(boolean requireSingleKey) {
-		Verse verse = currentBibleVerse.getVerseSelected();
+		Verse verse = currentBibleVerse.getVerseSelected(getVersification());
 		if (verse!=null) {
 			Key key;
 			if (!requireSingleKey) {
@@ -215,6 +218,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	}
 
 	public boolean isSingleChapterBook() throws NoSuchKeyException{
+		//TODO av11n
     	return BibleInfo.chaptersInBook(currentBibleVerse.getCurrentBibleBook())==1;
 	}
 	
@@ -224,13 +228,13 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 	 */
 	@Override
 	public void saveState(SharedPreferences outState, String screenId) {
-		if (getCurrentDocument()!=null && currentBibleVerse!=null && currentBibleVerse.getVerseSelected()!=null) {
+		if (getCurrentDocument()!=null && currentBibleVerse!=null && currentBibleVerse.getVerseSelected(getVersification())!=null) {
 			Log.d(TAG, "Saving state, screenId:"+screenId);
 			SharedPreferences.Editor editor = outState.edit();
 			editor.putString("document"+screenId, getCurrentDocument().getInitials());
 			// dec/inc bibleBook on save/restore because the book no used to be 1 based, unlike now
 			editor.putInt("bible-book"+screenId, currentBibleVerse.getCurrentBibleBookNo()+1);
-			editor.putInt("chapter"+screenId, currentBibleVerse.getVerseSelected().getChapter());
+			editor.putInt("chapter"+screenId, currentBibleVerse.getVerseSelected(getVersification()).getChapter());
 			editor.putInt("verse"+screenId, currentBibleVerse.getVerseNo());
 			editor.commit();
 		}
@@ -262,7 +266,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 				// dec/inc bibleBook on save/restore because the book no used to be 1 based, unlike now
 				//TODO av11n - this is done now
 				Verse verse = new Verse(getVersification(), BibleBook.values()[bibleBookNo-1], chapterNo, verseNo, true);
-				this.currentBibleVerse.setVerseSelected(verse);
+				this.currentBibleVerse.setVerseSelected(getVersification(), verse);
 			}
 			Log.d(TAG, "Current passage:"+toString());
 		} 
@@ -296,7 +300,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 		menu.findItem(R.id.compareTranslations).setVisible(true);
 	}
 
-	//TODO av11n - this is done now
+	//TODO av11n - need to make this method shared between cmtry and bible
 	private Versification getVersification() {
 		try {
 			// Bibles must be a PassageBook

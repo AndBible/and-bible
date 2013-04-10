@@ -42,7 +42,7 @@ abstract public class UpdateTextTask extends AsyncTask<Screen, Integer, String> 
     		}
     		yScreenOffsetRatio = currentPage.getCurrentYOffsetRatio();
 
-            Log.d(TAG, "Loading document:"+document.getInitials()+" key:"+key);
+            Log.d(TAG, "Loading document:"+document.getInitials()+" key:"+key.getOsisRef());
             
             text = currentPage.getCurrentPageContent();
             
