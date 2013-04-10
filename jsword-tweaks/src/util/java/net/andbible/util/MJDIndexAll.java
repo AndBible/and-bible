@@ -560,7 +560,7 @@ public class MJDIndexAll {
         //Wait for job to start
         waitSec(3);
         //Wait for job to finish
-        while (JobManager.getJobs().size()>0) {
+        while (JobManager.getJobCount()>0) {
             waitSec(3);
         }
     }
