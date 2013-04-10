@@ -159,7 +159,7 @@ public class SplitScreenControl {
 			
 		// force inactive screen to display something otherwise it may be initially blank
 		// or if nightMode has changed then force an update
-		if (!inactiveUpdated && isTotalRefreshRequired && isSynchronizable(inactivePage)) {
+		if (!inactiveUpdated && isTotalRefreshRequired) {
 			// force an update of the inactive page to prevent blank screen
 			updateInactiveScreen(inactiveScreen, inactivePage, inactiveScreenKey, inactiveScreenKey, isTotalRefreshRequired);
 			lastSynchdInactiveScreenKey = inactiveScreenKey;
@@ -183,18 +183,22 @@ public class SplitScreenControl {
 		Log.d(TAG, "updateInactiveScreen");
 		// standard null checks
 		if (targetScreenKey!=null && inactivePage!=null) {
-			// only bibles and commentaries get this far so fine to convert key to verse
-			Verse targetVerse = KeyUtil.getVerse(targetScreenKey);
+			// Not just bibles and commentaries get this far so NOT always fine to convert key to verse
+			Verse targetVerse = null;
+			if (targetScreenKey instanceof Verse) {
+				targetVerse = KeyUtil.getVerse(targetScreenKey);
+			}
 			
 			Verse currentVerse = null;
-			if (inactiveScreenKey!=null) {
+			if (inactiveScreenKey!=null && inactiveScreenKey instanceof Verse) {
 				currentVerse = KeyUtil.getVerse(inactiveScreenKey);
 			}
 			
 			// update split screen as smoothly as possible i.e. just jump/scroll if verse is on current page
+			//TODO av11n
 			if (!forceRefresh && 
 					BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && 
-					currentVerse!=null && targetVerse.isSameChapter(currentVerse)) {
+					currentVerse!=null && targetVerse!=null && targetVerse.isSameChapter(currentVerse)) {
 				splitScreenEventManager.scrollSecondaryScreen(inactiveScreen, targetVerse.getVerse());
 			} else {
 				new UpdateInactiveScreenTextTask().execute(inactiveScreen);
