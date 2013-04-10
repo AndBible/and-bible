@@ -10,6 +10,8 @@ public class RepoFactory {
 	private BetaRepo betaRepo = new BetaRepo();
 
 	private AndBibleRepo andBibleRepo = new AndBibleRepo();
+
+	private IBTRepo ibtRepo = new IBTRepo();
 	
 	private static RepoFactory instance = new RepoFactory();
 	private RepoFactory() {}
@@ -30,6 +32,8 @@ public class RepoFactory {
 			repoForBook = andBibleRepo;
 		} else if (betaRepo.getRepoName().equals(repoName)) {
 			repoForBook = betaRepo;
+		} else if (ibtRepo.getRepoName().equals(repoName)) {
+			repoForBook = ibtRepo;
 		} else {
 			repoForBook = crosswireRepo;
 		}
@@ -46,5 +50,8 @@ public class RepoFactory {
 	}
 	public AndBibleRepo getAndBibleRepo() {
 		return andBibleRepo;
+	}
+	public IBTRepo getIBTRepo() {
+		return ibtRepo;
 	}
 }
