@@ -20,6 +20,7 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.BookName;
+import org.crosswire.jsword.versification.Versification;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -79,9 +80,10 @@ public class PageControl {
 	 */
 	public void setFirstUseDefaultVerse() {
 		try {
-			Verse[] defaultVerses = new Verse[] { new Verse(BibleBook.GEN,1,1),
-												  new Verse(BibleBook.JOHN,3,16),
-												  new Verse(BibleBook.PS,1,1)};
+			Versification versification = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getVersification();
+			Verse[] defaultVerses = new Verse[] { new Verse(versification, BibleBook.GEN,1,1),
+												  new Verse(versification, BibleBook.JOHN,3,16),
+												  new Verse(versification, BibleBook.PS,1,1)};
 	    	List<Book> bibles = SwordDocumentFacade.getInstance().getBibles();
 	        if (bibles.size()==1) {
 	        	Book bible = bibles.get(0);
@@ -135,7 +137,7 @@ public class PageControl {
 			CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
 			if (currentPage!=null) {
 				if (currentPage.getSingleKey()!=null) {
-					 title.append(currentPage.getSingleKey().getName());
+					title.append(CommonUtils.getVerseDescription(currentPage.getSingleKey()));
 				}
 			}
 			

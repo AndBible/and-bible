@@ -4,12 +4,16 @@ import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 
-public class VerseVersification {
+public class VerseVersificationConverter {
 	private Verse mainVerse;
 	//todo implement cache to optimise verse creation time
 //	private Map<Versification, Verse> versificationToVerse = new HashMap<Versification, Verse>();
 
-	public VerseVersification(Versification versification, BibleBook book, int chapter, int verseNo) {
+	public VerseVersificationConverter(Verse verse) {
+		this(verse.getVersification(), verse.getBook(), verse.getChapter(), verse.getVerse());
+	}
+
+	public VerseVersificationConverter(Versification versification, BibleBook book, int chapter, int verseNo) {
 		mainVerse = new Verse(versification, book, chapter, verseNo, true);
 //		versificationToVerse.put(versification, mainVerse);
 	}

@@ -3,6 +3,8 @@ package net.bible.android.view.activity.navigation;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.bible.android.control.ControlFactory;
+import net.bible.android.control.navigation.NavigationControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.util.buttongrid.ButtonGrid;
@@ -12,7 +14,6 @@ import net.bible.service.common.CommonUtils;
 
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
-import org.crosswire.jsword.versification.BibleInfo;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -32,6 +33,8 @@ public class GridChoosePassageChapter extends ActivityBase implements OnButtonGr
 	private static final String TAG = "GridChoosePassageChapter";
 	
 	private BibleBook mBibleBook=BibleBook.GEN;
+	
+	private NavigationControl navigationControl = ControlFactory.getInstance().getNavigationControl();
 
     /** Called when the activity is first created. */
     @Override
@@ -47,7 +50,7 @@ public class GridChoosePassageChapter extends ActivityBase implements OnButtonGr
         // show chosen book in page title to confirm user choice
         try {
             //TODO av11n - probably should use same v11n as used in GridChoosePassageBook
-        	setTitle(mBibleBook.getLongName());
+        	setTitle(navigationControl.getVersification().getLongName(mBibleBook));
         } catch (Exception nsve) {
         	Log.e(TAG, "Error in selected book no", nsve);
         }
@@ -62,7 +65,7 @@ public class GridChoosePassageChapter extends ActivityBase implements OnButtonGr
     private List<ButtonInfo> getBibleChaptersButtonInfo(BibleBook book) {
     	int chapters = -1;
     	try {
-	    	chapters = BibleInfo.chaptersInBook(book);
+	    	chapters = navigationControl.getVersification().getLastChapter(book);
 		} catch (Exception nsve) {
 			chapters = -1;
 		}
@@ -84,7 +87,7 @@ public class GridChoosePassageChapter extends ActivityBase implements OnButtonGr
 		Log.d(TAG, "Chapter selected:"+chapter);
 		try {
 			if (!navigateToVerse() && !CurrentPageManager.getInstance().getCurrentPage().isSingleKey()) {
-				CurrentPageManager.getInstance().getCurrentPage().setKey(new Verse(mBibleBook, chapter, 1));
+				CurrentPageManager.getInstance().getCurrentPage().setKey(new Verse(navigationControl.getVersification(), mBibleBook, chapter, 1));
 				onSave(null);
 			} else {
     			// select verse

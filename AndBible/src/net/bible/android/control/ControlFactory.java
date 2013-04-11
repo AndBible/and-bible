@@ -10,6 +10,7 @@ import net.bible.android.control.footnoteandref.FootnoteAndRefControl;
 import net.bible.android.control.link.LinkControl;
 import net.bible.android.control.mynote.MyNote;
 import net.bible.android.control.mynote.MyNoteControl;
+import net.bible.android.control.navigation.NavigationControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.page.PageTiltScrollControl;
@@ -42,6 +43,8 @@ public class ControlFactory {
 	private CompareTranslationsControl compareTranslationsControl = new CompareTranslationsControl();
 	private FootnoteAndRefControl footnoteAndRefControl = new FootnoteAndRefControl();
 	private BackupControl backupControl = new BackupControl();
+
+	private NavigationControl navigationControl = new NavigationControl();
 	
 	private static ControlFactory singleton = new ControlFactory();
 	
@@ -52,6 +55,7 @@ public class ControlFactory {
 	private ControlFactory() {
 		// inject dependencies
 		readingPlanControl.setSpeakControl(this.speakControl);
+		navigationControl.setPageControl(this.pageControl);
 	}
 	
 	public DocumentControl getDocumentControl() {
@@ -119,5 +123,9 @@ public class ControlFactory {
 
 	public BackupControl getBackupControl() {
 		return backupControl;
+	}
+
+	public NavigationControl getNavigationControl() {
+		return navigationControl;
 	}
 }

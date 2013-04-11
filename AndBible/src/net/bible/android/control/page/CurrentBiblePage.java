@@ -8,16 +8,13 @@ import net.bible.service.sword.SwordDocumentFacade;
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
-import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BibleBook;
-import org.crosswire.jsword.versification.BibleInfo;
 import org.crosswire.jsword.versification.Versification;
-import org.crosswire.jsword.versification.system.Versifications;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -31,7 +28,7 @@ import android.view.MenuItem;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
+public class CurrentBiblePage extends VersePage implements CurrentPage {
 	
 	private CurrentBibleVerse currentBibleVerse;
 
@@ -200,7 +197,7 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 			}
 			return key;
 		} else {
-			return new Verse(BibleBook.GEN,1,1, true);
+			return new Verse(getVersification(), BibleBook.GEN,1,1, true);
 		}
     }
 
@@ -217,11 +214,6 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 		pageDetailChange();
 	}
 
-	public boolean isSingleChapterBook() throws NoSuchKeyException{
-		//TODO av11n
-    	return BibleInfo.chaptersInBook(currentBibleVerse.getCurrentBibleBook())==1;
-	}
-	
 	/** called during app close down to save state
 	 * 
 	 * @param outState
@@ -298,17 +290,6 @@ public class CurrentBiblePage extends CurrentPageBase implements CurrentPage {
 
 		// by default disable compare translation except for Bibles
 		menu.findItem(R.id.compareTranslations).setVisible(true);
-	}
-
-	//TODO av11n - need to make this method shared between cmtry and bible
-	private Versification getVersification() {
-		try {
-			// Bibles must be a PassageBook
-			return ((AbstractPassageBook)getCurrentDocument()).getVersification();
-		} catch (Exception e) {
-			Log.e(TAG, "Error getting versification for Book", e);
-			return Versifications.instance().getVersification("KJV");
-		}
 	}
 
 	private Key getWholeChapter(Verse currentVerse) {

@@ -1,9 +1,10 @@
 package net.bible.android.view.activity.navigation;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
+import net.bible.android.control.ControlFactory;
+import net.bible.android.control.navigation.NavigationControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.util.buttongrid.ButtonGrid;
@@ -15,7 +16,6 @@ import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
-import org.crosswire.jsword.versification.system.Versifications;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -32,6 +32,8 @@ import android.util.Log;
  */
 public class GridChoosePassageBook extends ActivityBase implements OnButtonGridActionListener {
 
+	private NavigationControl navigationControl = ControlFactory.getInstance().getNavigationControl();
+	
 	static final String BOOK_NO = "BOOK_NO";
 	static final String CHAPTER_NO = "CHAPTER_NO";
 	
@@ -48,13 +50,6 @@ public class GridChoosePassageBook extends ActivityBase implements OnButtonGridA
 	private static final int REVELATION_COLOR = Color.rgb(0xFE, 0x33, 0xFF);
 	private static final int OTHER_COLOR = ACTS_COLOR;
 
-	private static List<BibleBook> INTROS = new ArrayList<BibleBook>();
-	static {
-		INTROS.add(BibleBook.INTRO_BIBLE);
-		INTROS.add(BibleBook.INTRO_OT);
-		INTROS.add(BibleBook.INTRO_NT);
-	}
-	
 	private static final String TAG = "GridChoosePassageBook";
 
     /** Called when the activity is first created. */
@@ -119,23 +114,20 @@ public class GridChoosePassageBook extends ActivityBase implements OnButtonGridA
     	boolean isShortBookNamesAvailable = isShortBookNames();
     	BibleBook currentBibleBook = KeyUtil.getVerse(CurrentPageManager.getInstance().getCurrentBible().getKey()).getBook();
     	    	
-    	List<ButtonInfo> keys = new ArrayList<ButtonInfo>(getVersification().getBookCount());
-    	Iterator<BibleBook> bookIterator = getVersification().getBookIterator();
-    	while (bookIterator.hasNext()) {
-    		BibleBook book = bookIterator.next();
-    		if (!INTROS.contains(book)) {
-	    		ButtonInfo buttonInfo = new ButtonInfo();
-	    		try {
-	    			// this is used for preview
-	    			buttonInfo.id = book.ordinal();
-		    		buttonInfo.name = getShortBookName(book, isShortBookNamesAvailable);
-		    		buttonInfo.textColor = getBookTextColor(book.ordinal());
-		    		buttonInfo.highlight = book.equals(currentBibleBook);
-	    		} catch (NoSuchVerseException nsve) {
-	    			buttonInfo.name = "ERR";
-	    		}
-	    		keys.add(buttonInfo);
+    	List<BibleBook> bibleBookList = navigationControl.getScripturalBibleBooks();
+    	List<ButtonInfo> keys = new ArrayList<ButtonInfo>(bibleBookList.size());
+    	for (BibleBook book : bibleBookList) {
+    		ButtonInfo buttonInfo = new ButtonInfo();
+    		try {
+    			// this is used for preview
+    			buttonInfo.id = book.ordinal();
+	    		buttonInfo.name = getShortBookName(book, isShortBookNamesAvailable);
+	    		buttonInfo.textColor = getBookTextColor(book.ordinal());
+	    		buttonInfo.highlight = book.equals(currentBibleBook);
+    		} catch (NoSuchVerseException nsve) {
+    			buttonInfo.name = "ERR";
     		}
+    		keys.add(buttonInfo);
     	}
     	return keys;
     }
@@ -214,8 +206,7 @@ public class GridChoosePassageBook extends ActivityBase implements OnButtonGridA
     	}
     }
     
-	// TODO av11n - probably should use the v11n of the current Bible
     private Versification getVersification() {
-    	return Versifications.instance().getDefaultVersification();
+    	return navigationControl.getVersification();
     }
 }

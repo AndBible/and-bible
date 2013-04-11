@@ -7,12 +7,15 @@ import java.util.List;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.versification.VerseVersificationConverter;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.font.FontControl;
 import net.bible.service.sword.SwordContentFacade;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BookName;
 
@@ -38,7 +41,7 @@ public class CompareTranslationsControl {
 
 		stringBuilder.append(BibleApplication.getApplication().getString(R.string.compare_translations))
 					 .append(": ")
-					 .append(getVerse().getName());
+					 .append(CommonUtils.getVerseDescription(getVerse()));
 
 		BookName.setFullBookName(wasFullBookname);
 		return stringBuilder.toString();
@@ -72,9 +75,12 @@ public class CompareTranslationsControl {
 		List<TranslationDto> retval = new ArrayList<TranslationDto>();
 		List<Book> books = swordDocumentFacade.getBibles();
 		FontControl fontControl = FontControl.getInstance();
+		
+		VerseVersificationConverter verseVersificationConverter = new VerseVersificationConverter(getVerse());
+		
 		for (Book book : books) {
 			try {
-				String text = swordContentFacade.getPlainText(book, getVerse().getOsisID(), 1);
+				String text = swordContentFacade.getPlainText(book, verseVersificationConverter.getVerse(((AbstractPassageBook)book).getVersification()), 1);
 				if (text.length()>0) {
 					
 					// does this book require a custom font to display it

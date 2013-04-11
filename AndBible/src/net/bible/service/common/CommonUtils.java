@@ -16,6 +16,7 @@ import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.crosswire.common.util.IOUtil;
+import org.crosswire.jsword.passage.Key;
 
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -356,5 +357,17 @@ public class CommonUtils {
 	
 	public static Screen getActiveSplitScreen() {
 		return ControlFactory.getInstance().getSplitScreenControl().getCurrentActiveScreen();
+	}
+	
+	public static String getVerseDescription(Key key) {
+		String name;
+		try {
+			name = key.getName();
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting key name - could that Versification does not contain book");
+			// but this normally works
+			name = key.getOsisID().replace('.', ' ');
+		}
+		return name;
 	}
 }

@@ -5,14 +5,9 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.navigation.GridChoosePassageBook;
 
 import org.crosswire.jsword.book.BookCategory;
-import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
-import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.Verse;
-import org.crosswire.jsword.versification.BibleInfo;
-import org.crosswire.jsword.versification.Versification;
-import org.crosswire.jsword.versification.system.Versifications;
 
 import android.app.Activity;
 import android.util.Log;
@@ -25,7 +20,7 @@ import android.view.MenuItem;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPage {
+public class CurrentCommentaryPage extends VersePage implements CurrentPage {
 	
 	private CurrentBibleVerse currentBibleVerse;
 
@@ -74,7 +69,7 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 	 */
 	public Verse getKeyPlus(int num) {
 		Verse currVer = this.currentBibleVerse.getVerseSelected(getVersification());
-		return currVer.add(num);
+		return getVersification().add(currVer, num);
 	}
 	
 	/** set key without notification
@@ -96,10 +91,6 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 		return currentBibleVerse.getVerseSelected(getVersification());
     }
 
-	public boolean isSingleChapterBook() throws NoSuchKeyException{
-    	return BibleInfo.chaptersInBook(currentBibleVerse.getCurrentBibleBook())==1;
-	}
-	
 	public int getNumberOfVersesDisplayed() {
 		return 1;
 	}
@@ -121,17 +112,6 @@ public class CurrentCommentaryPage extends CurrentPageBase implements CurrentPag
 	@Override
 	public boolean isSearchable() {
 		return true;
-	}
-
-	//TODO av11n - need to make this method shared between cmtry and bible
-	private Versification getVersification() {
-		try {
-			// Bibles must be a PassageBook
-			return ((AbstractPassageBook)getCurrentDocument()).getVersification();
-		} catch (Exception e) {
-			Log.e(TAG, "Error getting versification for Book", e);
-			return Versifications.instance().getVersification("KJV");
-		}
 	}
 
 	@Override

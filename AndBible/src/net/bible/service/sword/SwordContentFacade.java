@@ -102,7 +102,7 @@ public class SwordContentFacade {
 			String htmlMsg = HtmlMessageFormatter.format(errorMsg);
 			retVal = htmlMsg;
 		} else if (!book.contains(key)) {
-			Log.w(TAG, "KEY:"+key+" not found in doc:"+book);
+			Log.w(TAG, "KEY:"+key.getOsisID()+" not found in doc:"+book);
 			String htmlMsg = HtmlMessageFormatter.format(R.string.error_key_not_in_document);
 			retVal = htmlMsg;
 		} else {
@@ -299,6 +299,7 @@ public class SwordContentFacade {
 		}
 		return saxParser;
     }
+    
     /**
      * Get just the canonical text of one or more book entries without any
      * markup.
@@ -313,6 +314,27 @@ public class SwordContentFacade {
     	try {
     		if (book != null) {
 		        Key key = book.getKey(reference);
+		        plainText = getPlainText(book, key, maxKeyCount);
+    		}
+    	} catch (Exception e) {
+    		Log.e(TAG, "Error getting plain text", e);
+    	}
+    	return plainText;
+    }
+
+    /**
+     * Get just the canonical text of one or more book entries without any
+     * markup.
+     * 
+     * @param bookInitials
+     *            the book to use
+     * @param reference
+     *            a reference, appropriate for the book, of one or more entries
+     */
+    public String getPlainText(Book book, Key key, int maxKeyCount) throws BookException, NoSuchKeyException {
+    	String plainText = "";
+    	try {
+    		if (book != null) {
 		        BookData data = new BookData(book, key);
 		        plainText = OSISUtil.getCanonicalText(data.getOsisFragment());
     		}
@@ -322,7 +344,7 @@ public class SwordContentFacade {
     	return plainText;
     }
 
-	public Key search(Book bible, String searchText) throws BookException {
+    public Key search(Book bible, String searchText) throws BookException {
 // 		  example of fetching Strongs ref - only works with downloaded indexes!
 //        Book book = getDocumentByInitials("KJV");
 //        Key key1 = book.find("strong:h3068");

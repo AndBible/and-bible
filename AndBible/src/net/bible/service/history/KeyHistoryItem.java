@@ -1,6 +1,7 @@
 package net.bible.service.history;
 
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.service.common.CommonUtils;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
@@ -41,7 +42,8 @@ public class KeyHistoryItem extends HistoryItemBase {
 	public String getDescription() {
 		StringBuffer desc = new StringBuffer();
 		try {
-			desc.append(document.getInitials()).append(" ").append(key.getName());
+			String verseDesc = CommonUtils.getVerseDescription(key);
+			desc.append(document.getInitials()).append(" ").append(verseDesc);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting description", e);
 		}
