@@ -2,12 +2,14 @@ package net.bible.android.control.page;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.versification.Scripture;
 import net.bible.android.view.activity.navigation.GridChoosePassageBook;
 
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.versification.Versification;
 
 import android.app.Activity;
 import android.util.Log;
@@ -68,8 +70,30 @@ public class CurrentCommentaryPage extends VersePage implements CurrentPage {
 	/** add or subtract a number of pages from the current position and return Verse
 	 */
 	public Verse getKeyPlus(int num) {
-		Verse currVer = this.currentBibleVerse.getVerseSelected(getVersification());
-		return getVersification().add(currVer, num);
+		Versification v11n = getVersification();
+		Verse currVer = this.currentBibleVerse.getVerseSelected(v11n);
+
+		try {
+			Verse nextVer = currVer;
+			if (num>=0) {
+				// move to next book or chapter if required
+				for (int i=0; i<num; i++) {
+					nextVer = Scripture.getNextVerse(nextVer);
+				}
+			} else {
+				// move to next book if required
+				// allow standard loop structure by changing num to positive
+				num = -num;
+				for (int i=0; i<num; i++) {
+					nextVer = Scripture.getPrevVerse(nextVer);
+				}
+			}
+		
+			return nextVer;
+		} catch (Exception nsve) {
+			Log.e(TAG, "Incorrect verse", nsve);
+			return currVer;
+		}
 	}
 	
 	/** set key without notification

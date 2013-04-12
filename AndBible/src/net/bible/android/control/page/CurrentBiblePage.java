@@ -2,6 +2,7 @@ package net.bible.android.control.page;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.versification.Scripture;
 import net.bible.android.view.activity.navigation.GridChoosePassageBook;
 import net.bible.service.sword.SwordDocumentFacade;
 
@@ -96,35 +97,24 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 	 */
 	public Verse getKeyPlus(int num) {
 		Verse currVer = this.currentBibleVerse.getVerseSelected(getVersification());
-		BibleBook book = currVer.getBook();
-		int chapter = currVer.getChapter();
 
 		try {
+			Verse nextVer = currVer;
 			if (num>=0) {
-				// allow verse correction to move to next book if required
-				chapter = chapter+num;
-				// if past last chapter of book then go to next book - algorithm not foolproof but we only move one chapter at a time like this 
-				if (chapter>getVersification().getLastChapter(book)) {
-					if (!book.equals(getVersification().getLastBook())) {
-						chapter = chapter - getVersification().getLastChapter(book);
-						book = getVersification().getNextBook(book);
-					}
+				// move to next book if required
+				for (int i=0; i<num; i++) {
+					nextVer = Scripture.getNextChapter(nextVer);
 				}
 			} else {
-				if (chapter>1) {
-					chapter--;
-				} else {
-					if (BibleBook.GEN.compareTo(book)<0) {
-						//TODO av11n - was BibleBook.getBooks()[book.ordinal()-1];
-						//TODO book order - this assumes the versification book order is used whereas teh Navigation grid currently assumes KJV book order
-						//TODO inspired - assumes previous book is inspired which may not be the case
-						book = getVersification().getPreviousBook(book);
-						chapter = getVersification().getLastChapter(book);
-					}
+				// move to prev book if required
+				// allow standard loop structure by changing num to positive
+				num = -num;
+				for (int i=0; i<num; i++) {
+					nextVer = Scripture.getPrevChapter(nextVer);
 				}
 			}
 		
-			return new Verse(getVersification(), book, chapter, 1, true);
+			return nextVer;
 		} catch (Exception nsve) {
 			Log.e(TAG, "Incorrect verse", nsve);
 			return currVer;
