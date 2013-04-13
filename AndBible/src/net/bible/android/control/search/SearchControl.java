@@ -7,6 +7,7 @@ import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.versification.Scripture;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.search.Search;
@@ -17,11 +18,13 @@ import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
+import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.index.lucene.LuceneIndex;
 import org.crosswire.jsword.index.search.SearchType;
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 
@@ -125,9 +128,14 @@ public class SearchControl {
     	if (result!=null) {
     		int resNum = result.getCardinality();
         	Log.d(TAG, "Number of results:"+resNum);
-
+        	
+        	//if Bible or commentary then filter out any non Scripture keys, otherwise don't filter
+        	boolean isBibleOrCommentary = book instanceof AbstractPassageBook;
     		for (int i=0; i<Math.min(resNum, MAX_SEARCH_RESULTS+1); i++) {
-    			resultKeys.add(result.get(i));
+    			Key key = result.get(i);
+    			if (!isBibleOrCommentary || Scripture.isScripture(((Verse)key).getBook())) {
+    				resultKeys.add(key);
+    			}
     		}
     	}
     	
