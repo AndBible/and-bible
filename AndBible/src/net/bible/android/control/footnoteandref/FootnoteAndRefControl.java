@@ -52,7 +52,8 @@ public class FootnoteAndRefControl {
 	/** go to previous verse
 	 */
 	public void next() {
-		if (!getVerse().isEndOfChapter()) {
+		Verse verse = getVerse();
+		if (!verse.getVersification().isEndOfChapter(verse)) {
 			getCurrentPageManager().getCurrentBible().doNextVerse();
 		}
 	}
@@ -60,7 +61,8 @@ public class FootnoteAndRefControl {
 	/** go to next verse
 	 */
 	public void previous() {
-		if (!getVerse().isStartOfChapter()) {
+		Verse verse = getVerse();
+		if (!verse.getVersification().isStartOfChapter(verse)) {
 			getCurrentPageManager().getCurrentBible().doPreviousVerse();
 		}		
 	}

@@ -18,6 +18,7 @@ import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.versification.Versification;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -185,8 +186,10 @@ public class SplitScreenControl {
 		if (targetScreenKey!=null && inactivePage!=null) {
 			// Not just bibles and commentaries get this far so NOT always fine to convert key to verse
 			Verse targetVerse = null;
+			Versification targetV11n = null;
 			if (targetScreenKey instanceof Verse) {
 				targetVerse = KeyUtil.getVerse(targetScreenKey);
+				targetV11n = targetVerse.getVersification();
 			}
 			
 			Verse currentVerse = null;
@@ -198,7 +201,7 @@ public class SplitScreenControl {
 			//TODO av11n
 			if (!forceRefresh && 
 					BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && 
-					currentVerse!=null && targetVerse!=null && targetVerse.isSameChapter(currentVerse)) {
+					currentVerse!=null && targetVerse!=null && targetV11n.isSameChapter(targetVerse, currentVerse)) {
 				splitScreenEventManager.scrollSecondaryScreen(inactiveScreen, targetVerse.getVerse());
 			} else {
 				new UpdateInactiveScreenTextTask().execute(inactiveScreen);

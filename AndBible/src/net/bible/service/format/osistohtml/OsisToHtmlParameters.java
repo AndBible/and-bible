@@ -6,6 +6,8 @@ import java.util.List;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.versification.Versification;
+import org.crosswire.jsword.versification.system.Versifications;
 
 public class OsisToHtmlParameters {
     private String languageCode = "en";
@@ -19,6 +21,7 @@ public class OsisToHtmlParameters {
     private boolean isAutoWrapUnwrappedRefsInNote = false;
     // used as a basis if a reference has only chapter and no book
     private Verse basisRef;
+    private Versification documentVersification;
     private String font;
     private String cssClassForCustomFont;
 
@@ -158,5 +161,15 @@ public class OsisToHtmlParameters {
 	}
 	public void setModuleBasePath(URI moduleBasePath) {
 		this.moduleBasePath = moduleBasePath;
+	}
+	public Versification getDocumentVersification() {
+		if (documentVersification!=null) {
+			return documentVersification;
+		} else {
+			return Versifications.instance().getVersification(Versifications.DEFAULT_V11N);
+		}
+	}
+	public void setDocumentVersification(Versification documentVersification) {
+		this.documentVersification = documentVersification;
 	}
 }

@@ -3,6 +3,8 @@ package net.bible.android.view.activity.navigation;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.bible.android.control.ControlFactory;
+import net.bible.android.control.navigation.NavigationControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.util.buttongrid.ButtonGrid;
@@ -11,7 +13,6 @@ import net.bible.android.view.util.buttongrid.OnButtonGridActionListener;
 
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
-import org.crosswire.jsword.versification.BibleInfo;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -33,6 +34,8 @@ public class GridChoosePassageVerse extends ActivityBase implements OnButtonGrid
 	private BibleBook mBibleBook=BibleBook.GEN;
 	private int mBibleChapterNo=1;
 
+	private NavigationControl navigationControl = ControlFactory.getInstance().getNavigationControl();
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,8 +51,8 @@ public class GridChoosePassageVerse extends ActivityBase implements OnButtonGrid
         
         // show chosen book in page title to confirm user choice
         try {
-            //TODO av11n - probably should use same v11n as used in GridChoosePassageBook
-        	setTitle(mBibleBook.getLongName()+" "+mBibleChapterNo);
+            //TODO av11n - done
+        	setTitle(navigationControl.getVersification().getLongName(mBibleBook)+" "+mBibleChapterNo);
         } catch (Exception nsve) {
         	Log.e(TAG, "Error in selected book no or chapter no", nsve);
         }
@@ -64,8 +67,9 @@ public class GridChoosePassageVerse extends ActivityBase implements OnButtonGrid
     private List<ButtonInfo> getBibleVersesButtonInfo(BibleBook book, int chapterNo) {
     	int verses = -1;
     	try {
-	    	verses = BibleInfo.versesInChapter(book, chapterNo);
+	    	verses = navigationControl.getVersification().getLastVerse(book, chapterNo);
 		} catch (Exception nsve) {
+			Log.e(TAG, "Error getting number of verses", nsve);
 			verses = -1;
 		}
     	
@@ -85,7 +89,7 @@ public class GridChoosePassageVerse extends ActivityBase implements OnButtonGrid
 		int verse = buttonInfo.id;
 		Log.d(TAG, "Verse selected:"+verse);
 		try {
-			CurrentPageManager.getInstance().getCurrentPage().setKey(new Verse(mBibleBook, mBibleChapterNo, verse));
+			CurrentPageManager.getInstance().getCurrentPage().setKey(new Verse(navigationControl.getVersification(), mBibleBook, mBibleChapterNo, verse));
 			onSave(null);
 
 		} catch (Exception e) {

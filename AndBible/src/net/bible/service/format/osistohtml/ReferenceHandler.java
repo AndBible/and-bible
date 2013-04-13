@@ -12,7 +12,6 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.Passage;
 import org.crosswire.jsword.passage.PassageKeyFactory;
 import org.crosswire.jsword.passage.RestrictionType;
-import org.crosswire.jsword.versification.system.Versifications;
 import org.xml.sax.Attributes;
 
 /**
@@ -123,7 +122,7 @@ public class ReferenceHandler {
 				result.append(content);
 				result.append("</a>");
     		} else {
-		        Passage ref = (Passage) PassageKeyFactory.instance().getKey(Versifications.instance().getDefaultVersification(), reference);
+		        Passage ref = (Passage) PassageKeyFactory.instance().getKey(parameters.getDocumentVersification(), reference);
 		        boolean isSingleVerse = ref.countVerses()==1;
 		        boolean isSimpleContent = content.length()<3 && content.length()>0;
 		        Iterator<Key> it = ref.rangeIterator(RestrictionType.CHAPTER);

@@ -16,10 +16,11 @@ import net.bible.service.sword.SwordContentFacade;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
+import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
-import org.crosswire.jsword.versification.BibleInfo;
+import org.crosswire.jsword.versification.Versification;
 
 import android.media.AudioManager;
 import android.util.Log;
@@ -64,20 +65,22 @@ public class SpeakControl {
 		CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
 		BookCategory bookCategory = currentPage.getCurrentDocument().getBookCategory();
 		if (BookCategory.BIBLE.equals(bookCategory)) {
+			Versification v11n = ((SwordBook) currentPage.getCurrentDocument()).getVersification();
 			Verse verse = KeyUtil.getVerse(currentPage.getSingleKey());
 			int chaptersLeft = 0;
 			try {
-				chaptersLeft = BibleInfo.chaptersInBook(verse.getBook())-verse.getChapter()+1;
+				chaptersLeft = v11n.getLastChapter(verse.getBook()) - verse.getChapter() + 1;
 			} catch (Exception e) {
 				Log.e(TAG, "Error in book no", e);
 			}
 			definitions = BIBLE_PAGES_TO_SPEAK_DEFNS;
 			definitions[NUM_LEFT_IDX].setNumPages(chaptersLeft);
 		} else if (BookCategory.COMMENTARY.equals(bookCategory)) {
+			Versification v11n = ((SwordBook) currentPage.getCurrentDocument()).getVersification();
 			Verse verse = KeyUtil.getVerse(currentPage.getSingleKey());
 			int versesLeft = 0;
 			try {
-				versesLeft = BibleInfo.versesInChapter(verse.getBook(), verse.getChapter())-verse.getVerse()+1;
+				versesLeft = v11n.getLastVerse(verse.getBook(), verse.getChapter()) - verse.getVerse() + 1;
 			} catch (Exception e) {
 				Log.e(TAG, "Error in book no", e);
 			}

@@ -9,7 +9,7 @@ import org.crosswire.jsword.versification.system.Versifications;
 
 public class CurrentBibleVerse {
 	
-	private VerseVersificationConverter verseVersificationSelected = new VerseVersificationConverter(Versifications.instance().getDefaultVersification(), BibleBook.GEN, 1, 1);
+	private VerseVersificationConverter verseVersificationSelected = new VerseVersificationConverter(Versifications.instance().getVersification(Versifications.DEFAULT_V11N), BibleBook.GEN, 1, 1);
 
 	public int getCurrentBibleBookNo() {
 		return verseVersificationSelected.getBook().ordinal();

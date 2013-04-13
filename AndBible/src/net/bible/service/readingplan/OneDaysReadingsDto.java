@@ -87,8 +87,8 @@ public class OneDaysReadingsDto implements Comparable<OneDaysReadingsDto> {
 				String[] readingArray = mReadings.split(",");
 				for (String reading : readingArray) {
 					try {
-						//TODO av11n - probably should use the v11n of the current Bible
-						readingKeyList.add(PassageKeyFactory.instance().getKey(Versifications.instance().getDefaultVersification(), reading));
+						//TODO av11n - possibly should use the v11n of the current Bible, but daily readings all assume KJV e.g. chronological readings would be incorrect for other v11n
+						readingKeyList.add(PassageKeyFactory.instance().getKey(Versifications.instance().getVersification("KJV"), reading));
 					} catch (NoSuchKeyException nsk) {
 						Log.e(TAG, "Error getting daily reading passage", nsk);
 					}

@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
+import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
@@ -16,11 +17,13 @@ import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
+import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.index.IndexStatus;
-import org.crosswire.jsword.index.lucene.PdaLuceneIndexCreator;
+import org.crosswire.jsword.index.lucene.LuceneIndex;
 import org.crosswire.jsword.index.search.SearchType;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.versification.BibleBook;
+import org.crosswire.jsword.versification.Versification;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -47,8 +50,8 @@ public class SearchControl {
 	public static final String SEARCH_DOCUMENT = "SearchDocument";
 	public static final String TARGET_DOCUMENT = "TargetDocument";
 	
-	private static final String STRONG_COLON_STRING = PdaLuceneIndexCreator.FIELD_STRONG+":";
-	private static final String STRONG_COLON_STRING_PLACE_HOLDER = PdaLuceneIndexCreator.FIELD_STRONG+"COLON";
+	private static final String STRONG_COLON_STRING = LuceneIndex.FIELD_STRONG+":";
+	private static final String STRONG_COLON_STRING_PLACE_HOLDER = LuceneIndex.FIELD_STRONG+"COLON";
 	
 	public static final int MAX_SEARCH_RESULTS = 1000;
 
@@ -78,11 +81,15 @@ public class SearchControl {
     
     public String getCurrentBookDescription() {
     	try {
-	    	BibleBook book = CurrentPageManager.getInstance().getCurrentBible().getSingleKey().getBook();
-	    	if (book.getLongName().length() < 14) {
-	    		return book.getLongName();
+    		CurrentBiblePage currentBiblePage = CurrentPageManager.getInstance().getCurrentBible();
+    		Versification v11n = ((SwordBook) currentBiblePage.getCurrentDocument()).getVersification();
+        	BibleBook book = currentBiblePage.getSingleKey().getBook();
+        	
+        	String longName = v11n.getLongName(book);
+        	if (longName != "" && longName.length() < 14) {
+	    		return longName;
 	    	} else {
-	    		return book.getShortName();
+	    		return v11n.getShortName(book);
 	    	}
     	} catch (Exception nsve) {
     		// This should never occur

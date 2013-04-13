@@ -7,8 +7,8 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.passage.VerseKey;
 import org.crosswire.jsword.versification.BibleBook;
-import org.crosswire.jsword.versification.BibleInfo;
 
 import android.util.Log;
 
@@ -97,11 +97,13 @@ public class DocumentParseMethod {
 	private boolean isStartOrEndOfBook(Key key) {
 		boolean isStartOrEnd = false;
 		try {
-			Verse verse = KeyUtil.getVerse(key);
-			
-			int chapter = verse.getChapter();
-			BibleBook book = verse.getBook();
-			isStartOrEnd = 	chapter == 1 || chapter == BibleInfo.chaptersInBook(book);
+			if (key instanceof VerseKey) {
+				Verse verse = KeyUtil.getVerse(key);
+				
+				int chapter = verse.getChapter();
+				BibleBook book = verse.getBook();
+				isStartOrEnd = 	chapter == 1 || chapter == verse.getVersification().getLastChapter(book);
+			}
 		} catch (Exception e) {
 			Log.e(TAG, "Verse error", e);
 			isStartOrEnd = false;

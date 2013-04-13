@@ -7,12 +7,16 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.comparetranslations.CompareTranslationsControl;
 import net.bible.android.control.comparetranslations.TranslationDto;
+import net.bible.android.control.page.CurrentBiblePage;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.android.view.util.swipe.SwipeGestureEventHandler;
 import net.bible.android.view.util.swipe.SwipeGestureListener;
 
+import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseFactory;
+import org.crosswire.jsword.versification.Versification;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -55,7 +59,9 @@ public class CompareTranslations extends ListActivityBase implements SwipeGestur
 		try {
 			if (extras != null) {
 				if (extras.containsKey(VERSE)) {
-					Verse verse = VerseFactory.fromString( extras.getString(VERSE) );
+					CurrentBiblePage currentDoc = CurrentPageManager.getInstance().getCurrentBible();
+					Versification currentV11n = ((SwordBook) currentDoc.getCurrentDocument()).getVersification();
+					Verse verse = VerseFactory.fromString(currentV11n, extras.getString(VERSE));
 					compareTranslationsControl.setVerse(verse);
 				}
 			}
