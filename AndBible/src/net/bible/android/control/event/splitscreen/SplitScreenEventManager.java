@@ -1,10 +1,10 @@
 package net.bible.android.control.event.splitscreen;
 
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
-
-import org.crosswire.common.util.EventListenerList;
 
 /**
  * Notify clients when SplitScreen changes 
@@ -14,41 +14,33 @@ import org.crosswire.common.util.EventListenerList;
  */
 public class SplitScreenEventManager {
 
-	private EventListenerList splitScreenEventListeners = new EventListenerList();
+	private List<SplitScreenEventListener> splitScreenEventListeners = new CopyOnWriteArrayList<SplitScreenEventListener>();
 
 	public void addSplitScreenEventListener(SplitScreenEventListener listener) {
-		splitScreenEventListeners.add(SplitScreenEventListener.class, listener);
+		splitScreenEventListeners.add(listener);
 	}
 
 	public void removeSplitScreenEventListener(SplitScreenEventListener listener) {
-		splitScreenEventListeners.remove(SplitScreenEventListener.class, listener);
+		splitScreenEventListeners.remove(listener);
 	}
 
 	/** Split screen has been minimized/restored/removed/added
 	 */
 	public void numberOfScreensChanged(Map<Screen, Integer> screenVerseMap) {
-		Object[] listeners = splitScreenEventListeners.getListenerList();
 		// loop through each listener and pass on the event if needed
-		int numListeners = listeners.length;
-		for (int i = 0; i < numListeners; i += 2) {
-			if (listeners[i] == SplitScreenEventListener.class) {
-				// pass the event to the listeners event dispatch method
-				((SplitScreenEventListener) listeners[i + 1]).numberOfScreensChanged(screenVerseMap);
-			}
+		for (SplitScreenEventListener listener : splitScreenEventListeners) {
+			// pass the event to the listeners event dispatch method
+			listener.numberOfScreensChanged(screenVerseMap);
 		}
 	}
 
 	/** Split screen has changed in size
 	 */
 	public void splitScreenSizeChange(boolean isFinished, Map<Screen, Integer> screenVerseMap) {
-		Object[] listeners = splitScreenEventListeners.getListenerList();
 		// loop through each listener and pass on the event if needed
-		int numListeners = listeners.length;
-		for (int i = 0; i < numListeners; i += 2) {
-			if (listeners[i] == SplitScreenEventListener.class) {
-				// pass the event to the listeners event dispatch method
-				((SplitScreenEventListener) listeners[i + 1]).splitScreenSizeChange(isFinished, screenVerseMap);
-			}
+		for (SplitScreenEventListener listener : splitScreenEventListeners) {
+			// pass the event to the listeners event dispatch method
+			listener.splitScreenSizeChange(isFinished, screenVerseMap);
 		}
 	}
 
@@ -56,39 +48,26 @@ public class SplitScreenEventManager {
 	/** detail/verse changed
 	 */
 	public void splitScreenDetailChanged(Screen activeScreen) {
-		Object[] listeners = splitScreenEventListeners.getListenerList();
 		// loop through each listener and pass on the event if needed
-		int numListeners = listeners.length;
-		for (int i = 0; i < numListeners; i += 2) {
-			if (listeners[i] == SplitScreenEventListener.class) {
-				// pass the event to the listeners event dispatch method
-				((SplitScreenEventListener) listeners[i + 1]).currentSplitScreenChanged(activeScreen);
-			}
+		for (SplitScreenEventListener listener : splitScreenEventListeners) {
+			// pass the event to the listeners event dispatch method
+			listener.currentSplitScreenChanged(activeScreen);
 		}
 	}
 	
 	public void updateSecondaryScreen(Screen screen, String html, int verseNo) {
-		Object[] listeners = splitScreenEventListeners.getListenerList();
 		// loop through each listener and pass on the event if needed
-		int numListeners = listeners.length;
-		for (int i = 0; i < numListeners; i += 2) {
-			if (listeners[i] == SplitScreenEventListener.class) {
-				// pass the event to the listeners event dispatch method
-				((SplitScreenEventListener) listeners[i + 1]).updateSecondaryScreen(screen, html, verseNo);
-			}
+		for (SplitScreenEventListener listener : splitScreenEventListeners) {
+			// pass the event to the listeners event dispatch method
+			listener.updateSecondaryScreen(screen, html, verseNo);
 		}
 	}
 	
 	public void scrollSecondaryScreen(Screen screen, int verseNo) {
-		Object[] listeners = splitScreenEventListeners.getListenerList();
 		// loop through each listener and pass on the event if needed
-		int numListeners = listeners.length;
-		for (int i = 0; i < numListeners; i += 2) {
-			if (listeners[i] == SplitScreenEventListener.class) {
-				// pass the event to the listeners event dispatch method
-				((SplitScreenEventListener) listeners[i + 1]).scrollSecondaryScreen(screen, verseNo);
-			}
+		for (SplitScreenEventListener listener : splitScreenEventListeners) {
+			// pass the event to the listeners event dispatch method
+			listener.scrollSecondaryScreen(screen, verseNo);
 		}
 	}
-
 }

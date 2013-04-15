@@ -12,7 +12,6 @@ import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.FeatureType;
 import org.crosswire.jsword.passage.Key;
-import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 
@@ -127,9 +126,8 @@ public class DocumentControl {
 	/** possible books will often not include the current verse but most will include chap 1 verse 1
 	 */
 	private Key getRequiredVerseForSuggestions() {
-		Key currentVerseKey = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getSingleKey();
-		Verse verse = KeyUtil.getVerse(currentVerseKey);
-		return new Verse(verse.getBook(), 1, 1, true);
+		Verse currentVerse = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getSingleKey();
+		return new Verse(currentVerse.getVersification(), currentVerse.getBook(), 1, 1, true);
 	}
 
 	/** Suggest an alternative document to view or return null

@@ -1,6 +1,7 @@
 package net.bible.service.device.speak.event;
 
-import org.crosswire.common.util.EventListenerList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /** Notify clients when speak state changes between speaking, paused, quiet
  * 
@@ -9,7 +10,7 @@ import org.crosswire.common.util.EventListenerList;
  */
 public class SpeakEventManager {
 
-	private EventListenerList speakEventListeners = new EventListenerList();
+	private List<SpeakEventListener> speakEventListeners = new CopyOnWriteArrayList<SpeakEventListener>();
 
 	private static final SpeakEventManager speakEventManager = new SpeakEventManager();
 	
@@ -21,7 +22,7 @@ public class SpeakEventManager {
 	
 	public void addSpeakEventListener(SpeakEventListener listener) 
 	{
-	     speakEventListeners.add(SpeakEventListener.class, listener);
+	     speakEventListeners.add(listener);
 	     if (lastEvent!=null) {
 	    	 // refire last speak event in case state is not default when listener registers or was unregistered when state changed
 	    	 listener.speakStateChange(lastEvent);
@@ -30,23 +31,17 @@ public class SpeakEventManager {
 
 	public void removeSpeakEventListener(SpeakEventListener listener) 
 	{
-	     speakEventListeners.remove(SpeakEventListener.class, listener);
+	     speakEventListeners.remove(listener);
 	}
 
 	public void speakStateChanged(SpeakEvent speakEvent) {
-	     Object[] listeners = speakEventListeners.getListenerList();
-	     // loop through each listener and pass on the event if needed
-	     int numListeners = listeners.length;
-	     for (int i = 0; i<numListeners; i+=2) 
-	     {
-	          if (listeners[i]==SpeakEventListener.class) 
-	          {
-	               // pass the event to the listeners event dispatch method
-	                ((SpeakEventListener)listeners[i+1]).speakStateChange(speakEvent);
-	          }            
-	     }
-	     
-	     lastEvent = speakEvent;
+		// loop through each listener and pass on the event if needed
+		for (SpeakEventListener listener : speakEventListeners) {
+			// pass the event to the listeners event dispatch method
+			listener.speakStateChange(speakEvent);
+		}
+
+		lastEvent = speakEvent;
 	}
 	
 }

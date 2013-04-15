@@ -1,6 +1,7 @@
 package net.bible.android.control.event.passage;
 
-import org.crosswire.common.util.EventListenerList;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * Notify clients when passage changes 
@@ -10,7 +11,7 @@ import org.crosswire.common.util.EventListenerList;
  */
 public class PassageEventManager {
 
-	private EventListenerList passageEventListeners = new EventListenerList();
+	private List<PassageEventListener> passageEventListeners = new CopyOnWriteArrayList<PassageEventListener>();
 
 	private static final PassageEventManager passageEventManager = new PassageEventManager();
 
@@ -19,26 +20,21 @@ public class PassageEventManager {
 	}
 
 	public void addPassageEventListener(PassageEventListener listener) {
-		passageEventListeners.add(PassageEventListener.class, listener);
+		passageEventListeners.add(listener);
 	}
 
 	public void removePassageEventListener(PassageEventListener listener) {
-		passageEventListeners.remove(PassageEventListener.class, listener);
+		passageEventListeners.remove(listener);
 	}
 
 	/** detail/verse changed
 	 */
 	public void passageDetailChanged() {
 		PassageEvent event = new PassageEvent();
-		Object[] listeners = passageEventListeners.getListenerList();
 		// loop through each listener and pass on the event if needed
-		int numListeners = listeners.length;
-		for (int i = 0; i < numListeners; i += 2) {
-			if (listeners[i] == PassageEventListener.class) {
-				// pass the event to the listeners event dispatch method
-				((PassageEventListener) listeners[i + 1]).pageDetailChange(event);
-			}
+		for (PassageEventListener listener : passageEventListeners) {
+			// pass the event to the listeners event dispatch method
+			listener.pageDetailChange(event);
 		}
 	}
-
 }
