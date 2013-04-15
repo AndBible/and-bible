@@ -2,10 +2,10 @@ package net.bible.android.control.bookmark;
 
 import java.util.List;
 
-import org.crosswire.jsword.passage.Key;
-
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
+
+import org.crosswire.jsword.passage.Key;
 
 public interface Bookmark {
 
@@ -24,9 +24,6 @@ public interface Bookmark {
 	BookmarkDto getBookmarkById(Long id);
 
 	// pure bookmark methods
-	
-	/** get all bookmarks */
-	List<BookmarkDto> getAllBookmarks();
 	
 	/** create a new bookmark */
 	BookmarkDto addBookmark(BookmarkDto bookmark);

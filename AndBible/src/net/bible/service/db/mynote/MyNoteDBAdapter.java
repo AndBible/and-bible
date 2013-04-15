@@ -8,12 +8,16 @@ import java.util.Date;
 import java.util.List;
 
 import net.bible.service.db.CommonDatabaseHelper;
+import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.BookmarkColumn;
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition.MyNoteColumn;
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition.Table;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
-import org.crosswire.jsword.passage.PassageKeyFactory;
+import org.crosswire.jsword.passage.VerseFactory;
+import org.crosswire.jsword.passage.VerseKey;
+import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
 
 import android.content.ContentValues;
@@ -22,7 +26,6 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.text.TextUtils;
 import android.util.Log;
 
 /**
@@ -65,11 +68,14 @@ public class MyNoteDBAdapter {
 	public MyNoteDto insertMyNote(MyNoteDto mynote) {
 		// Create a new row of values to insert.
 		Log.d(TAG, "about to insertMyNote: " + mynote.getKey());
+		Key key = mynote.getKey();
+		String v11nName = getVersification(key);
         // Gets the current system time in milliseconds
         Long now = Long.valueOf(System.currentTimeMillis());
 
 		ContentValues newValues = new ContentValues();
-		newValues.put(MyNoteColumn.KEY, mynote.getKey().getOsisID());
+		newValues.put(MyNoteColumn.KEY, key.getOsisID());
+		newValues.put(MyNoteColumn.VERSIFICATION, v11nName);
 		newValues.put(MyNoteColumn.MYNOTE, mynote.getNoteText());
 		newValues.put(MyNoteColumn.LAST_UPDATED_ON, now);
 		newValues.put(MyNoteColumn.CREATED_ON, now);
@@ -79,14 +85,30 @@ public class MyNoteDBAdapter {
 		return newMyNote;
 	}
 
+	/**
+	 * @param key
+	 * @return
+	 */
+	private String getVersification(Key key) {
+		String v11nName="";
+		if (key instanceof VerseKey) {
+			// must save a VerseKey's versification along with the key!
+			v11nName = ((VerseKey) key).getVersification().getName();
+		}
+		return v11nName;
+	}
+
 	public MyNoteDto updateMyNote(MyNoteDto mynote) {
 		// Create a new row of values to insert.
 		Log.d(TAG, "about to updateMyNote: " + mynote.getKey());
+		Key key = mynote.getKey();
+		String v11nName = getVersification(key);
         // Gets the current system time in milliseconds
         Long now = Long.valueOf(System.currentTimeMillis());
 
 		ContentValues newValues = new ContentValues();
-		newValues.put(MyNoteColumn.KEY, mynote.getKey().getOsisID());
+		newValues.put(MyNoteColumn.KEY, key.getOsisID());
+		newValues.put(MyNoteColumn.VERSIFICATION, v11nName);
 		newValues.put(MyNoteColumn.MYNOTE, mynote.getNoteText());
 		newValues.put(MyNoteColumn.LAST_UPDATED_ON, now);
 		
@@ -179,21 +201,35 @@ public class MyNoteDBAdapter {
 	private MyNoteDto getMyNoteDto(Cursor c) {
 		MyNoteDto dto = new MyNoteDto();
 		try {
+			//Id
 			Long id = c.getLong(MyNoteQuery.ID);
 			dto.setId(id);
 			
+			//Verse
 			String key = c.getString(MyNoteQuery.KEY);
-			if (!TextUtils.isEmpty(key)) {
-				//TODO av11n - probably should use the v11n of the current book
-				dto.setKey(PassageKeyFactory.instance().getKey(Versifications.instance().getDefaultVersification(), key));
+			Versification v11n=null;
+			if (!c.isNull(MyNoteQuery.VERSIFICATION)) {
+				String v11nString = c.getString(MyNoteQuery.VERSIFICATION);
+				if (!StringUtils.isEmpty(v11nString)) {
+					v11n = Versifications.instance().getVersification(v11nString);
+				}
 			}
-			
+			if (v11n==null) {
+				// use default v11n
+				v11n = Versifications.instance().getVersification(Versifications.DEFAULT_V11N);
+			}
+			Log.d(TAG, "Versification found:"+v11n);
+			dto.setKey(VerseFactory.fromString(v11n, key));
+
+			//Note
 			String mynote = c.getString(MyNoteQuery.MYNOTE);
 			dto.setNoteText(mynote);
 			
+			//Update date
 			long updated = c.getLong(MyNoteQuery.LAST_UPDATED_ON);
 			dto.setLastUpdatedOn(new Date(updated));
 
+			//Create date
 			long created = c.getLong(MyNoteQuery.CREATED_ON);
 			dto.setCreatedOn(new Date(created));
 			
@@ -207,12 +243,13 @@ public class MyNoteDBAdapter {
 	private interface MyNoteQuery {
         final String TABLE = Table.MYNOTE;
 
-		final String[] COLUMNS = new String[] {MyNoteColumn._ID, MyNoteColumn.KEY, MyNoteColumn.MYNOTE, MyNoteColumn.LAST_UPDATED_ON, MyNoteColumn.CREATED_ON};
+		final String[] COLUMNS = new String[] {MyNoteColumn._ID, MyNoteColumn.KEY, BookmarkColumn.VERSIFICATION, MyNoteColumn.MYNOTE, MyNoteColumn.LAST_UPDATED_ON, MyNoteColumn.CREATED_ON};
 
         final int ID = 0;
         final int KEY = 1;
-        final int MYNOTE = 2;
-        final int LAST_UPDATED_ON = 3;
-        final int CREATED_ON = 4;
+        final int VERSIFICATION = 2;
+        final int MYNOTE = 3;
+        final int LAST_UPDATED_ON = 4;
+        final int CREATED_ON = 5;
     }	
 }

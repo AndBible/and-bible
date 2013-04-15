@@ -33,10 +33,10 @@ public class BookmarkControl implements Bookmark {
 	static {
 		LABEL_ALL = new LabelDto();
 		LABEL_ALL.setName(BibleApplication.getApplication().getString(R.string.all));
-		LABEL_ALL.setId(new Long(-999));
+		LABEL_ALL.setId(Long.valueOf(-999));
 		LABEL_UNLABELLED = new LabelDto();
 		LABEL_UNLABELLED.setName(BibleApplication.getApplication().getString(R.string.label_unlabelled));
-		LABEL_UNLABELLED.setId(new Long(-998));
+		LABEL_UNLABELLED.setId(Long.valueOf(-998));
 	}
 	
 	private static final String TAG = "BookmarkControl";
@@ -81,21 +81,6 @@ public class BookmarkControl implements Bookmark {
 	}
 
 	// pure bookmark methods
-
-	/** get all bookmarks */
-	public List<BookmarkDto> getAllBookmarks() {
-		BookmarkDBAdapter db = new BookmarkDBAdapter();
-		db.open();
-		List<BookmarkDto> bookmarkList = null;
-		try {
-			bookmarkList = db.getAllBookmarks();
-			Collections.sort(bookmarkList);
-		} finally {
-			db.close();
-		}
-
-		return bookmarkList;
-	}
 
 	/** create a new bookmark */
 	public BookmarkDto addBookmark(BookmarkDto bookmark) {

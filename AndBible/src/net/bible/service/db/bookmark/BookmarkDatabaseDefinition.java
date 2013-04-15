@@ -34,6 +34,8 @@ public class BookmarkDatabaseDefinition {
 	public interface BookmarkColumn {
 		public static final String _ID = BaseColumns._ID;
 		public static final String KEY = "key";
+		public static final String VERSIFICATION = "versification";
+		public static final String CREATED_ON = "created_on";
 	}
 
 	public interface BookmarkLabelColumn {
@@ -64,12 +66,20 @@ public class BookmarkDatabaseDefinition {
 		bootstrapDB(db);
 	}
 	
+	public void upgradeToVersion3(SQLiteDatabase db) {
+		Log.i(TAG, "Upgrading Bookmark db to version 3");
+		db.execSQL("ALTER TABLE " + Table.BOOKMARK + " ADD COLUMN " + BookmarkColumn.VERSIFICATION + " TEXT;");
+		db.execSQL("ALTER TABLE " + Table.BOOKMARK + " ADD COLUMN " + BookmarkColumn.CREATED_ON + " INTEGER DEFAULT 0;");
+	}
+
 	private void bootstrapDB(SQLiteDatabase db) {
-		Log.i(TAG, "Bootstrapping And Bible database");
+		Log.i(TAG, "Bootstrapping And Bible database (Bookmarks)");
 		
         db.execSQL("CREATE TABLE " + Table.BOOKMARK + " (" +
                 BookmarkColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                BookmarkColumn.KEY + " TEXT NOT NULL" +
+                BookmarkColumn.KEY + " TEXT NOT NULL," +
+                BookmarkColumn.VERSIFICATION + " TEXT," +
+        		BookmarkColumn.CREATED_ON + " INTEGER DEFAULT 0" +
         ");");
 
         // Intersection table

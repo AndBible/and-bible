@@ -3,6 +3,7 @@ package net.bible.service.db;
 import net.bible.android.BibleApplication;
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition;
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition;
+
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -19,7 +20,7 @@ import android.util.Log;
  */
 public class CommonDatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = "CommonDatabaseHelper";
-	static final int DATABASE_VERSION = 2;
+	static final int DATABASE_VERSION = 3;
 	public static final String DATABASE_NAME = "andBibleDatabase.db";
 
 	private static CommonDatabaseHelper sSingleton = null;
@@ -61,9 +62,14 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
 				MyNoteDatabaseDefinition.getInstance().onCreate(db);
 				oldVersion += 1;
 			}
+			if (oldVersion == 2) {
+				BookmarkDatabaseDefinition.getInstance().upgradeToVersion3(db);
+				MyNoteDatabaseDefinition.getInstance().upgradeToVersion3(db);
+				oldVersion += 1;
+			}
 		} catch (SQLiteException e) {
 			Log.e(TAG, "onUpgrade: SQLiteException. " + e);
-//TODO allow complete recreation if error
+//TODO allow complete recreation if error - too scared to do this!
 //			Log.e(TAG, "onUpgrade: SQLiteException, recreating db. " + e);
 //			dropTables(db);
 //			bootstrapDB(db);

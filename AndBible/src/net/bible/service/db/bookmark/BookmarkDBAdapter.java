@@ -1,6 +1,7 @@
 package net.bible.service.db.bookmark;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import net.bible.service.db.CommonDatabaseHelper;
@@ -9,9 +10,12 @@ import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.BookmarkLabelCol
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.LabelColumn;
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.Table;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
-import org.crosswire.jsword.passage.PassageKeyFactory;
+import org.crosswire.jsword.passage.VerseFactory;
+import org.crosswire.jsword.passage.VerseKey;
+import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
 
 import android.content.ContentValues;
@@ -20,7 +24,6 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.text.TextUtils;
 import android.util.Log;
 
 public class BookmarkDBAdapter {
@@ -53,7 +56,19 @@ public class BookmarkDBAdapter {
 	public BookmarkDto insertBookmark(BookmarkDto bookmark) {
 		// Create a new row of values to insert.
 		ContentValues newValues = new ContentValues();
-		newValues.put(BookmarkColumn.KEY, bookmark.getKey().getOsisID());
+		Key key = bookmark.getKey();
+		String v11nName="";
+		if (key instanceof VerseKey) {
+			// must save a VerseKey's versification along with the key!
+			v11nName = ((VerseKey) key).getVersification().getName();
+		}
+		
+		// Gets the current system time in milliseconds
+        Long now = Long.valueOf(System.currentTimeMillis());
+        
+		newValues.put(BookmarkColumn.KEY, key.getOsisID());
+		newValues.put(BookmarkColumn.VERSIFICATION, v11nName);
+		newValues.put(BookmarkColumn.CREATED_ON, now);
 
 		long newId = db.insert(Table.BOOKMARK, null, newValues);
 		BookmarkDto newBookmark = getBookmarkDto(newId);
@@ -105,6 +120,7 @@ public class BookmarkDBAdapter {
 	public List<BookmarkDto> getBookmarksInPassage(Key passage) {
 		Log.d(TAG, "about to getBookmarksInPassage:"+passage.getOsisID());
 		List<BookmarkDto> bookmarkList = new ArrayList<BookmarkDto>();
+		//av11n TODO may need to map between different versifications here
 		Cursor c = db.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn.KEY+" LIKE ?", new String []{String.valueOf(passage.getOsisID()+"%")}, null, null, null);
 		try {
 			if (c.moveToFirst()) {
@@ -123,7 +139,7 @@ public class BookmarkDBAdapter {
 	}
 
 	public List<BookmarkDto> getBookmarksWithLabel(LabelDto label) {
-		String sql = "SELECT bookmark._id, bookmark.key "+
+		String sql = "SELECT "+StringUtils.join(BookmarkQuery.COLUMNS, ",")+
 					 "FROM bookmark "+
 					 "JOIN bookmark_label ON (bookmark._id = bookmark_label.bookmark_id) "+
 					 "JOIN label ON (bookmark_label.label_id = label._id) "+
@@ -148,7 +164,7 @@ public class BookmarkDBAdapter {
 	}
 
 	public List<BookmarkDto> getUnlabelledBookmarks() {
-		String sql = "SELECT bookmark._id, bookmark.key "+
+		String sql = "SELECT "+StringUtils.join(BookmarkQuery.COLUMNS, ",")+
 					 "FROM bookmark "+
 					 "WHERE NOT EXISTS (SELECT * FROM bookmark_label WHERE bookmark._id = bookmark_label.bookmark_id)";
 		
@@ -260,14 +276,29 @@ public class BookmarkDBAdapter {
 	private BookmarkDto getBookmarkDto(Cursor c) {
 		BookmarkDto dto = new BookmarkDto();
 		try {
+			//Id
 			Long id = c.getLong(BookmarkQuery.ID);
 			dto.setId(id);
 			
+			//Verse
 			String key = c.getString(BookmarkQuery.KEY);
-			if (!TextUtils.isEmpty(key)) {
-				//TODO av11n - probably should use the v11n of the current Bible
-				dto.setKey(PassageKeyFactory.instance().getKey(Versifications.instance().getDefaultVersification(), key));
+			Versification v11n=null;
+			if (!c.isNull(BookmarkQuery.VERSIFICATION)) {
+				String v11nString = c.getString(BookmarkQuery.VERSIFICATION);
+				if (!StringUtils.isEmpty(v11nString)) {
+					v11n = Versifications.instance().getVersification(v11nString);
+				}
 			}
+			if (v11n==null) {
+				// use default v11n
+				v11n = Versifications.instance().getVersification(Versifications.DEFAULT_V11N);
+			}
+			dto.setKey(VerseFactory.fromString(v11n, key));
+
+			//Created date
+			long created = c.getLong(BookmarkQuery.CREATED_ON);
+			dto.setCreatedOn(new Date(created));
+		
 		} catch (NoSuchKeyException nke) {
 			Log.e(TAG, "Key error", nke);
 		}
@@ -310,10 +341,12 @@ public class BookmarkDBAdapter {
 	private interface BookmarkQuery {
         final String TABLE = Table.BOOKMARK;
 
-		final String[] COLUMNS = new String[] {BookmarkColumn._ID, BookmarkColumn.KEY};
+		final String[] COLUMNS = new String[] {BookmarkColumn._ID, BookmarkColumn.KEY, BookmarkColumn.VERSIFICATION, BookmarkColumn.CREATED_ON};
 
         final int ID = 0;
         final int KEY = 1;
+        final int VERSIFICATION = 2;
+        final int CREATED_ON = 3;
     }
 	private interface LabelQuery {
         final String TABLE = Table.LABEL;

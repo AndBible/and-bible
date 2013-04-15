@@ -1,10 +1,13 @@
 package net.bible.service.db.bookmark;
 
+import java.util.Date;
+
 import org.crosswire.jsword.passage.Key;
 
 public class BookmarkDto implements Comparable<BookmarkDto> {
 	private Long id;
 	private Key key;
+	private Date createdOn;
 
 	public Long getId() {
 		return id;
@@ -17,6 +20,12 @@ public class BookmarkDto implements Comparable<BookmarkDto> {
 	}
 	public void setKey(Key key) {
 		this.key = key;
+	}
+	public Date getCreatedOn() {
+		return createdOn;
+	}
+	public void setCreatedOn(Date createdOn) {
+		this.createdOn = createdOn;
 	}
 
 	/* (non-Javadoc)

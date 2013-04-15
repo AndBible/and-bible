@@ -38,6 +38,7 @@ public class MyNoteDatabaseDefinition {
 	public interface MyNoteColumn {
 		public static final String _ID = BaseColumns._ID;
 		public static final String KEY = "key";
+		public static final String VERSIFICATION = "versification";
 		public static final String MYNOTE = "mynote";
 		public static final String LAST_UPDATED_ON = "last_updated_on";
 		public static final String CREATED_ON = "created_on";
@@ -72,6 +73,7 @@ public class MyNoteDatabaseDefinition {
 		db.execSQL("CREATE TABLE " + Table.MYNOTE + " (" +
         		MyNoteColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
         		MyNoteColumn.KEY + " TEXT NOT NULL, " +
+        		MyNoteColumn.VERSIFICATION + " TEXT," +
         		MyNoteColumn.MYNOTE + " TEXT NOT NULL, " +
         		MyNoteColumn.LAST_UPDATED_ON + " INTEGER," +
         		MyNoteColumn.CREATED_ON + " INTEGER" +
@@ -82,4 +84,11 @@ public class MyNoteDatabaseDefinition {
         		MyNoteColumn.KEY +
         ");");
 	}
+	
+	public void upgradeToVersion3(SQLiteDatabase db) {
+		Log.i(TAG, "Upgrading MyNote db to version 3");
+		db.execSQL("ALTER TABLE " + Table.MYNOTE + " ADD COLUMN " + MyNoteColumn.VERSIFICATION + " TEXT;");
+	}
+
+
 }
