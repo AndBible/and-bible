@@ -5,13 +5,15 @@ import java.util.List;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.versification.VerseVersificationConverter;
 import net.bible.service.sword.SwordDocumentFacade;
 
+import org.crosswire.common.util.Filter;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.FeatureType;
-import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 
@@ -86,8 +88,17 @@ public class DocumentControl {
 	public Book getSuggestedBible() {
 		CurrentPageManager currentPageManager = ControlFactory.getInstance().getCurrentPageControl();
 		Book currentBible = currentPageManager.getCurrentBible().getCurrentDocument();
-		Key requiredVerse = getRequiredVerseForSuggestions();
-		return getSuggestedBook(SwordDocumentFacade.getInstance().getBibles(), currentBible, requiredVerse, currentPageManager.isBibleShown());
+		final VerseVersificationConverter requiredVerseConverter = getRequiredVerseForSuggestions();
+		
+		// only show bibles that contain verse
+		Filter<Book> bookFilter = new Filter<Book>() {
+			@Override
+			public boolean test(Book book) {
+				return book.contains(requiredVerseConverter.getVerse(((AbstractPassageBook)book).getVersification()));
+			}
+		};
+		
+		return getSuggestedBook(SwordDocumentFacade.getInstance().getBibles(), currentBible, bookFilter, currentPageManager.isBibleShown());
 	}
 
 	/** Suggest an alternative commentary to view or return null
@@ -95,8 +106,26 @@ public class DocumentControl {
 	public Book getSuggestedCommentary() {
 		CurrentPageManager currentPageManager = ControlFactory.getInstance().getCurrentPageControl();
 		Book currentCommentary = currentPageManager.getCurrentCommentary().getCurrentDocument();
-		Key requiredVerse = getRequiredVerseForSuggestions();
-		return getSuggestedBook(SwordDocumentFacade.getInstance().getBooks(BookCategory.COMMENTARY), currentCommentary, requiredVerse, currentPageManager.isCommentaryShown());
+		final VerseVersificationConverter requiredVerseConverter = getRequiredVerseForSuggestions();
+		
+		// only show commentaries that contain verse - extra checks for TDavid because it always returns true
+		Filter<Book> bookFilter = new Filter<Book>() {
+			@Override
+			public boolean test(Book book) {
+				Verse verse = requiredVerseConverter.getVerse(((AbstractPassageBook)book).getVersification());
+				if (!book.contains(verse)) {
+					return false;
+				}
+
+				// book claims to contain the verse but 
+				// TDavid has a flawed index and incorrectly claims to contain contents for all books of the bible so only return true if !TDavid or is Psalms
+				return !book.getInitials().equals("TDavid") || 
+						verse.getBook().equals(BibleBook.PS);
+			}
+		};
+
+		
+		return getSuggestedBook(SwordDocumentFacade.getInstance().getBooks(BookCategory.COMMENTARY), currentCommentary, bookFilter, currentPageManager.isCommentaryShown());
 	}
 
 	/** Suggest an alternative dictionary to view or return null
@@ -125,16 +154,16 @@ public class DocumentControl {
 
 	/** possible books will often not include the current verse but most will include chap 1 verse 1
 	 */
-	private Key getRequiredVerseForSuggestions() {
+	private VerseVersificationConverter getRequiredVerseForSuggestions() {
 		Verse currentVerse = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getSingleKey();
-		return new Verse(currentVerse.getVersification(), currentVerse.getBook(), 1, 1, true);
+		return new VerseVersificationConverter(currentVerse.getBook(), 1, 1);
 	}
 
 	/** Suggest an alternative document to view or return null
 	 * 
 	 * @return
 	 */
-	private Book getSuggestedBook(List<Book> books, Book currentDocument, Key requiredKey, boolean isBookTypeShownNow) {
+	private Book getSuggestedBook(List<Book> books, Book currentDocument, Filter<Book> filter, boolean isBookTypeShownNow) {
 		Book suggestion = null;
 		if (!isBookTypeShownNow) {
 			// allow easy switch back to current doc
@@ -154,7 +183,7 @@ public class DocumentControl {
 				for (int i=0; i<books.size()-1 && suggestion==null; i++) {
 					Book possibleDoc = books.get((currentDocIndex+i+1)%books.size());
 					
-					if (requiredKey==null || isDocumentCompatible(possibleDoc, requiredKey)) {
+					if (filter==null || filter.test(possibleDoc)) {
 						 suggestion = possibleDoc;
 					}
 				}
@@ -162,17 +191,5 @@ public class DocumentControl {
 		}
 		
 		return suggestion;
-	}
-	
-	private boolean isDocumentCompatible(Book document, Key requiredKey) {
-		if (!document.contains(requiredKey)) {
-			return false;
-		}
-		
-		// book claims to containthe verse but 
-		// TDavid has a flawed index and incorrectly claims to contain contents for all books of the bible
-		// so only return true if !TDavid or is Psalms
-		return !document.getInitials().equals("TDavid") || 
-				requiredKey.getOsisID().contains(BibleBook.PS.getOSIS());
 	}
 }
