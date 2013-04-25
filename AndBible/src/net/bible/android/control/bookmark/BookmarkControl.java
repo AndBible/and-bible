@@ -28,8 +28,8 @@ import android.widget.Toast;
  */
 public class BookmarkControl implements Bookmark {
 
-	private static final LabelDto LABEL_ALL;
-	private static final LabelDto LABEL_UNLABELLED;
+	public static final LabelDto LABEL_ALL;
+	public static final LabelDto LABEL_UNLABELLED;
 	static {
 		LABEL_ALL = new LabelDto();
 		LABEL_ALL.setName(BibleApplication.getApplication().getString(R.string.all));
@@ -81,6 +81,21 @@ public class BookmarkControl implements Bookmark {
 	}
 
 	// pure bookmark methods
+
+	/** get all bookmarks */
+	public List<BookmarkDto> getAllBookmarks() {
+		BookmarkDBAdapter db = new BookmarkDBAdapter();
+		db.open();
+		List<BookmarkDto> bookmarkList = null;
+		try {
+			bookmarkList = db.getAllBookmarks();
+			Collections.sort(bookmarkList);
+		} finally {
+			db.close();
+		}
+
+		return bookmarkList;
+	}
 
 	/** create a new bookmark */
 	public BookmarkDto addBookmark(BookmarkDto bookmark) {

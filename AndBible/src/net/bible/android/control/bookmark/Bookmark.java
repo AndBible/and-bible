@@ -25,6 +25,9 @@ public interface Bookmark {
 
 	// pure bookmark methods
 	
+	/** get all bookmarks */
+	List<BookmarkDto> getAllBookmarks();
+	
 	/** create a new bookmark */
 	BookmarkDto addBookmark(BookmarkDto bookmark);
 	
