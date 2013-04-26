@@ -61,19 +61,20 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 	/* go to prev verse quietly without updates
 	 */
 	public void doPreviousVerse() {
-		Log.d(TAG, "Previous");
+		Log.d(TAG, "Previous verse");
+
 		Versification versification = getVersification();
 		Verse verse = currentBibleVerse.getVerseSelected(versification);
-		currentBibleVerse.setVerseSelected(versification, versification.subtract(verse, 1));
+		currentBibleVerse.setVerseSelected(versification, Scripture.getPrevVerse(verse));
 	}
 	
 	/* go to next verse quietly without updates
 	 */
 	public void doNextVerse() {
-		Log.d(TAG, "NextVerse");
+		Log.d(TAG, "Next verse");
 		Versification versification = getVersification();
 		Verse verse = currentBibleVerse.getVerseSelected(versification);
-		currentBibleVerse.setVerseSelected(versification, versification.add(verse, 1));
+		currentBibleVerse.setVerseSelected(versification, Scripture.getNextVerse(verse));
 	}
 	
 	/* (non-Javadoc)

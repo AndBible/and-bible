@@ -21,6 +21,8 @@ public class Scripture {
 		INTROS.add(BibleBook.INTRO_NT);
 	}
 	
+	/** TODO: needs to be improved because some books contain extra chapters which are non-scriptural
+	 */
 	static public boolean isScripture(BibleBook bibleBook) {
 		return SCRIPTURAL_V11N.containsBook(bibleBook) && !INTROS.contains(bibleBook);
 	}
