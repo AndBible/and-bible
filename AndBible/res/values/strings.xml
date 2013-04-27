@@ -132,7 +132,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!-- Module download -->
     <string name="download">Download Documents</string>
     <string name="download_confirmation">Download a Bible from the internet?</string>
-    <string name="download_source_message">Documents are downloaded from\nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
+    <string name="download_source_message">Documents are downloaded from\nhttp://www.crosswire.org\n&amp; http://ibt.org.ru\n&amp; http://xiphos.org</string>
     <string name="download_document_confirm_prefix">Download</string>
     <string name="download_refreshing_book_list">Refreshing list of available documents</string>
     <string name="download_refresh_book_list_menu_item">Refresh</string>

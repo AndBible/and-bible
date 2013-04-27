@@ -5,6 +5,8 @@ import org.crosswire.jsword.book.Book;
 public class RepoFactory {
 	private CrosswireRepo crosswireRepo = new CrosswireRepo();
 	
+	private CrosswireAVRepo crosswireAVRepo = new CrosswireAVRepo();
+
 	private XiphosRepo xiphosRepo = new XiphosRepo();
 
 	private BetaRepo betaRepo = new BetaRepo();
@@ -26,6 +28,8 @@ public class RepoFactory {
 		RepoBase repoForBook;
 		if (crosswireRepo.getRepoName().equals(repoName)) {
 			repoForBook = crosswireRepo;
+		} else if (crosswireAVRepo.getRepoName().equals(repoName)) {
+			repoForBook = crosswireAVRepo;
 		} else if (xiphosRepo.getRepoName().equals(repoName)) {
 			repoForBook = xiphosRepo;
 		} else if (andBibleRepo.getRepoName().equals(repoName)) {
@@ -41,6 +45,9 @@ public class RepoFactory {
 	}
 	public CrosswireRepo getCrosswireRepo() {
 		return crosswireRepo;
+	}
+	public CrosswireAVRepo getCrosswireAVRepo() {
+		return crosswireAVRepo;
 	}
 	public XiphosRepo getXiphosRepo() {
 		return xiphosRepo;
