@@ -85,7 +85,9 @@ public class DownloadManager {
         }
 
         //free memory
-        installer.close();
+        if (installer!=null) {
+        	installer.close();
+        }
         
     	log.info("number of documents available:"+documents.size());
 		return documents;
