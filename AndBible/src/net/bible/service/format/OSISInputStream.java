@@ -29,7 +29,10 @@ public class OSISInputStream extends InputStream {
 	private boolean isFirstVerse = true;
 	private Iterator<Key> keyIterator;
 	private boolean isClosingTagWritten = false;
-
+	
+	// allow avoidance of repeated text due to merged verses
+	private String previousVerseRawText = "";
+	
 	// cache
 	private byte[] verseBuffer;
 	private int length = 0;
@@ -44,7 +47,6 @@ public class OSISInputStream extends InputStream {
 	
 	private static String TAG = "OSISInputStream";
 
-	@SuppressWarnings("unused")
 	private static Logger log = new Logger(TAG);
 	
 	/** Constructor to create an input stream from raw OSIS input
@@ -120,13 +122,20 @@ public class OSISInputStream extends InputStream {
 				return;
 			}
 		
-			if (keyIterator.hasNext()) {
+			boolean isNextVerseLoaded = false;
+			while (keyIterator.hasNext() && !isNextVerseLoaded) {
 				Key currentVerse = keyIterator.next();
-				//get the actual verse text and tidy it up
-				String verseText = book.getRawText(currentVerse);
-				verseText = osisVerseTidy.tidy(currentVerse, verseText);
-				putInVerseBuffer(verseText);
-				return;
+				//get the actual verse text and tidy it up, but merged verses can cause duplicates so if dup then skip immediately to next verse
+				String rawText = book.getRawText(currentVerse);
+				if (!previousVerseRawText.equals(rawText)) {
+					String tidyText = osisVerseTidy.tidy(currentVerse, rawText);
+					putInVerseBuffer(tidyText);
+					previousVerseRawText = rawText;
+					isNextVerseLoaded = true;
+					return;
+				} else {
+					log.debug("Duplicate verse text:"+currentVerse);
+				}
 			}
 			
 			if (!isClosingTagWritten) {
