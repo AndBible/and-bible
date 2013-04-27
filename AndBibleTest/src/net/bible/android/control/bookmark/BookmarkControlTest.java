@@ -7,7 +7,8 @@ import junit.framework.TestCase;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
 
-import org.crosswire.jsword.passage.PassageKeyFactory;
+import org.crosswire.jsword.passage.VerseFactory;
+import org.crosswire.jsword.versification.system.Versifications;
 
 public class BookmarkControlTest extends TestCase {
 
@@ -150,7 +151,7 @@ public class BookmarkControlTest extends TestCase {
 			currentTestVerse = getNextTestVerse();
 			
 			BookmarkDto bookmark = new BookmarkDto();
-			bookmark.setKey(PassageKeyFactory.instance().getKey(currentTestVerse));
+			bookmark.setKey(VerseFactory.fromString(Versifications.instance().getVersification("KJV"), currentTestVerse));
 			BookmarkDto newDto = bookmarkControl.addBookmark(bookmark);
 			return newDto;
 		} catch (Exception e) {
