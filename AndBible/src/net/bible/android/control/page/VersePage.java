@@ -1,6 +1,8 @@
 package net.bible.android.control.page;
 
+import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
+import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
 
@@ -34,8 +36,19 @@ public abstract class VersePage extends CurrentPageBase {
 			return Versifications.instance().getVersification("KJV");
 		}
 	}
-	
+
 	protected CurrentBibleVerse getCurrentBibleVerse() {
 		return currentBibleVerse;
+	}
+
+	@Override
+	protected void localSetCurrentDocument(Book doc) {
+		// update current verse possibly remapped to v11n of new bible 
+		Versification newDocVersification = ((AbstractPassageBook)getCurrentDocument()).getVersification();
+		Verse newVerse = getCurrentBibleVerse().getVerseSelected(newDocVersification);
+
+		super.localSetCurrentDocument(doc);
+
+		doSetKey(newVerse);
 	}
 }

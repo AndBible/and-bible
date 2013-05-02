@@ -280,6 +280,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 	}
 
 	private Key getWholeChapter(Verse currentVerse) {
+		Log.i(TAG, "Whole chapter request :"+currentVerse);
 		Versification versification = getVersification();
 		//TODO av11n - this is done now
 		BibleBook book = currentVerse.getBook();
