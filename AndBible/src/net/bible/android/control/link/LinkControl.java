@@ -15,10 +15,13 @@ import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.FeatureType;
+import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.index.search.SearchType;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
+import org.crosswire.jsword.passage.PassageKeyFactory;
+import org.crosswire.jsword.versification.Versification;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -99,11 +102,25 @@ public class LinkControl {
 
 	/** user has selected a Bible verse link
 	 */
-	private void showBible(String key) throws NoSuchKeyException {
-		Book book = CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument();
+	private void showBible(String keyText) throws NoSuchKeyException {
+		CurrentPageManager pageManager = CurrentPageManager.getInstance();
+		Book bible = CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument();
 
-        Key bibleKey = book.getKey(key); 
-   		CurrentPageManager.getInstance().setCurrentDocumentAndKey(book, bibleKey);
+		// get source versification
+		Versification sourceDocumentVersification;
+		Book currentDoc = pageManager.getCurrentPage().getCurrentDocument();
+		if (currentDoc instanceof AbstractPassageBook) {
+			sourceDocumentVersification = ((AbstractPassageBook)currentDoc).getVersification();
+		} else {
+			// default to v11n of current Bible.  
+			//TODO av11n issue.  GenBooks have no v11n and this default would be used for links from GenBooks which would only sometimes be correct
+			sourceDocumentVersification = ((AbstractPassageBook)bible).getVersification();
+		}
+		
+		// create Passage with correct source Versification 
+        Key key = PassageKeyFactory.instance().getKey(sourceDocumentVersification, keyText);
+        
+   		CurrentPageManager.getInstance().setCurrentDocumentAndKey(bible, key);
 		
 		return;
 	}
