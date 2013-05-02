@@ -31,15 +31,11 @@ import android.view.MenuItem;
  */
 public class CurrentBiblePage extends VersePage implements CurrentPage {
 	
-	private CurrentBibleVerse currentBibleVerse;
-
 	private static final String TAG = "CurrentBiblePage";
 	
 	
-	/* default */ CurrentBiblePage(CurrentBibleVerse currentVerse) {
-		super(true);
-		// share the verse holder with the CurrentCommentaryPage
-		this.currentBibleVerse = currentVerse;
+	/* default */ CurrentBiblePage(CurrentBibleVerse currentBibleVerse) {
+		super(true, currentBibleVerse);
 	}
 
 	public BookCategory getBookCategory() {
@@ -64,8 +60,8 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 		Log.d(TAG, "Previous verse");
 
 		Versification versification = getVersification();
-		Verse verse = currentBibleVerse.getVerseSelected(versification);
-		currentBibleVerse.setVerseSelected(versification, Scripture.getPrevVerse(verse));
+		Verse verse = getCurrentBibleVerse().getVerseSelected(versification);
+		getCurrentBibleVerse().setVerseSelected(versification, Scripture.getPrevVerse(verse));
 	}
 	
 	/* go to next verse quietly without updates
@@ -73,8 +69,8 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 	public void doNextVerse() {
 		Log.d(TAG, "Next verse");
 		Versification versification = getVersification();
-		Verse verse = currentBibleVerse.getVerseSelected(versification);
-		currentBibleVerse.setVerseSelected(versification, Scripture.getNextVerse(verse));
+		Verse verse = getCurrentBibleVerse().getVerseSelected(versification);
+		getCurrentBibleVerse().setVerseSelected(versification, Scripture.getNextVerse(verse));
 	}
 	
 	/* (non-Javadoc)
@@ -97,7 +93,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 	/** add or subtract a number of pages from the current position and return Verse
 	 */
 	public Verse getKeyPlus(int num) {
-		Verse currVer = this.currentBibleVerse.getVerseSelected(getVersification());
+		Verse currVer = this.getCurrentBibleVerse().getVerseSelected(getVersification());
 
 		try {
 			Verse nextVer = currVer;
@@ -153,7 +149,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 		if (key!=null) {
 			Verse verse = KeyUtil.getVerse(key);
 			//TODO av11n should this be the verse Versification or the Module/doc's Versification
-			currentBibleVerse.setVerseSelected(getVersification(), verse);
+			getCurrentBibleVerse().setVerseSelected(getVersification(), verse);
 		}
 	}
 
@@ -176,7 +172,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
     }
 
 	private Key doGetKey(boolean requireSingleKey) {
-		Verse verse = currentBibleVerse.getVerseSelected(getVersification());
+		Verse verse = getCurrentBibleVerse().getVerseSelected(getVersification());
 		if (verse!=null) {
 			Key key;
 			if (!requireSingleKey) {
@@ -198,10 +194,10 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 	}
 	
 	public int getCurrentVerseNo() {
-		return currentBibleVerse.getVerseNo();
+		return getCurrentBibleVerse().getVerseNo();
 	}
 	public void setCurrentVerseNo(int verse) {
-		currentBibleVerse.setVerseNo(verse);
+		getCurrentBibleVerse().setVerseNo(verse);
 		pageDetailChange();
 	}
 
@@ -211,14 +207,14 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 	 */
 	@Override
 	public void saveState(SharedPreferences outState, String screenId) {
-		if (getCurrentDocument()!=null && currentBibleVerse!=null && currentBibleVerse.getVerseSelected(getVersification())!=null) {
+		if (getCurrentDocument()!=null && getCurrentBibleVerse()!=null && getCurrentBibleVerse().getVerseSelected(getVersification())!=null) {
 			Log.d(TAG, "Saving state, screenId:"+screenId);
 			SharedPreferences.Editor editor = outState.edit();
 			editor.putString("document"+screenId, getCurrentDocument().getInitials());
 			// dec/inc bibleBook on save/restore because the book no used to be 1 based, unlike now
-			editor.putInt("bible-book"+screenId, currentBibleVerse.getCurrentBibleBookNo()+1);
-			editor.putInt("chapter"+screenId, currentBibleVerse.getVerseSelected(getVersification()).getChapter());
-			editor.putInt("verse"+screenId, currentBibleVerse.getVerseNo());
+			editor.putInt("bible-book"+screenId, getCurrentBibleVerse().getCurrentBibleBookNo()+1);
+			editor.putInt("chapter"+screenId, getCurrentBibleVerse().getVerseSelected(getVersification()).getChapter());
+			editor.putInt("verse"+screenId, getCurrentBibleVerse().getVerseNo());
 			editor.commit();
 		}
 	}
@@ -249,7 +245,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 				// dec/inc bibleBook on save/restore because the book no used to be 1 based, unlike now
 				//TODO av11n - this is done now
 				Verse verse = new Verse(getVersification(), BibleBook.values()[bibleBookNo-1], chapterNo, verseNo, true);
-				this.currentBibleVerse.setVerseSelected(getVersification(), verse);
+				getCurrentBibleVerse().setVerseSelected(getVersification(), verse);
 			}
 			Log.d(TAG, "Current passage:"+toString());
 		} 

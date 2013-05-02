@@ -24,6 +24,13 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.util.Log;
 
+/**
+ * Central control of Split screens especially synchronization
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class SplitScreenControl {
 	public enum Screen {SCREEN_1, SCREEN_2};
 	
@@ -131,7 +138,7 @@ public class SplitScreenControl {
 		Screen inactiveScreen = getNonActiveScreen();
 		CurrentPage activePage = CurrentPageManager.getInstance(activeScreen).getCurrentPage();
 		CurrentPage inactivePage = CurrentPageManager.getInstance(inactiveScreen).getCurrentPage();
-		Key activeScreenKey = activePage.getSingleKey();
+		Key targetActiveScreenKey = activePage.getSingleKey();
 		Key inactiveScreenKey = inactivePage.getSingleKey();
 		boolean isFirstTimeInit = (lastSynchdInactiveScreenKey==null);
 		boolean inactiveUpdated = false;
@@ -140,9 +147,11 @@ public class SplitScreenControl {
 		if (isSplitScreensLinked()) {
 			if ((isSplit() || isScreen2Minimized()) ) {
 				// inactive screen may not be displayed but if switched to the key must be correct
-				if (isSynchronizable(activePage)) {
+				if (isSynchronizableVerseKey(activePage)) {
 					// Only Bible and cmtry are synch'd and they share a Verse key
-					updateInactiveBibleKey(inactiveScreen, activeScreenKey);
+					updateInactiveBibleKey(inactiveScreen, targetActiveScreenKey);
+					// re-get as it may have been mapped to the correct v11n
+					targetActiveScreenKey = inactivePage.getSingleKey();
 				}
 			}
 
@@ -150,9 +159,9 @@ public class SplitScreenControl {
 				// prevent infinite loop as each screen update causes a synchronise by comparing last key
 				// only update pages if empty or synchronised
 				if (isFirstTimeInit || resynchRequired || 
-				   (isSynchronizable(activePage) && isSynchronizable(inactivePage) && !activeScreenKey.equals(lastSynchdInactiveScreenKey)) ) {
-					updateInactiveScreen(inactiveScreen, inactivePage, activeScreenKey, lastSynchdInactiveScreenKey, isTotalRefreshRequired);
-					lastSynchdInactiveScreenKey = activeScreenKey;
+				   (isSynchronizableVerseKey(activePage) && isSynchronizableVerseKey(inactivePage) && !targetActiveScreenKey.equals(lastSynchdInactiveScreenKey)) ) {
+					updateInactiveScreen(inactiveScreen, inactivePage, targetActiveScreenKey, lastSynchdInactiveScreenKey, isTotalRefreshRequired);
+					lastSynchdInactiveScreenKey = targetActiveScreenKey;
 					inactiveUpdated = true;
 				} 
 			}
@@ -211,7 +220,7 @@ public class SplitScreenControl {
 
 	/** only Bibles and commentaries have the same sort of key and can be synchronized
 	 */
-	private boolean isSynchronizable(CurrentPage page) {
+	private boolean isSynchronizableVerseKey(CurrentPage page) {
 		return BookCategory.BIBLE.equals(page.getCurrentDocument().getBookCategory()) || BookCategory.COMMENTARY.equals(page.getCurrentDocument().getBookCategory()); 
 	}
 

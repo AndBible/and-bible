@@ -24,15 +24,10 @@ import android.view.MenuItem;
  */
 public class CurrentCommentaryPage extends VersePage implements CurrentPage {
 	
-	private CurrentBibleVerse currentBibleVerse;
-
 	private static final String TAG = "CurrentCommentaryPage";
 	
-	
-	/* default */ CurrentCommentaryPage(CurrentBibleVerse currentVerse) {
-		super(true);
-		// share the verse holder with the CurrentBiblePage
-		this.currentBibleVerse = currentVerse;
+	/* default */ CurrentCommentaryPage(CurrentBibleVerse currentBibleVerse) {
+		super(true, currentBibleVerse);
 	}
 
 	public BookCategory getBookCategory() {
@@ -71,7 +66,7 @@ public class CurrentCommentaryPage extends VersePage implements CurrentPage {
 	 */
 	public Verse getKeyPlus(int num) {
 		Versification v11n = getVersification();
-		Verse currVer = this.currentBibleVerse.getVerseSelected(v11n);
+		Verse currVer = this.getCurrentBibleVerse().getVerseSelected(v11n);
 
 		try {
 			Verse nextVer = currVer;
@@ -103,7 +98,7 @@ public class CurrentCommentaryPage extends VersePage implements CurrentPage {
 	public void doSetKey(Key key) {
 		if (key!=null) {
 			Verse verse = KeyUtil.getVerse(key);
-			currentBibleVerse.setVerseSelected(getVersification(), verse);
+			getCurrentBibleVerse().setVerseSelected(getVersification(), verse);
 		}
 	}
 
@@ -112,7 +107,7 @@ public class CurrentCommentaryPage extends VersePage implements CurrentPage {
 	 */
 	@Override
 	public Key getKey() {
-		return currentBibleVerse.getVerseSelected(getVersification());
+		return getCurrentBibleVerse().getVerseSelected(getVersification());
     }
 
 	public int getNumberOfVersesDisplayed() {
@@ -124,10 +119,10 @@ public class CurrentCommentaryPage extends VersePage implements CurrentPage {
 		return true;
 	}
 	public int getCurrentVerse() {
-		return currentBibleVerse.getVerseNo();
+		return getCurrentBibleVerse().getVerseNo();
 	}
 	public void setCurrentVerse(int verse) {
-		currentBibleVerse.setVerseNo(verse);
+		getCurrentBibleVerse().setVerseNo(verse);
 		pageDetailChange();
 	}
 	

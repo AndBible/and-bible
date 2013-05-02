@@ -3,9 +3,22 @@ package net.bible.service.common;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.channels.FileChannel;
+import java.util.Properties;
+
+import net.bible.android.BibleApplication;
+
+import org.apache.commons.lang.StringUtils;
+import org.crosswire.common.util.IOUtil;
+
+import android.content.res.AssetManager;
+import android.content.res.Resources;
 
 public class FileManager {
+
+	private static final String DOT_PROPERTIES = ".properties";
 
 	private static final Logger log = new Logger(FileManager.class.getName());
 
@@ -59,5 +72,36 @@ public class FileManager {
 	    	log.error("Error moving file to sd card", e);
 	    }
 		return ok;
+	}
+	
+	/* Open a properties file from the assets folder
+	 */
+	public static Properties readPropertiesFile(String folder, String filename) {
+	    Properties returnProperties = new Properties();
+
+		Resources resources = BibleApplication.getApplication().getResources();
+		AssetManager assetManager = resources.getAssets();
+		if (!filename.endsWith(DOT_PROPERTIES)) {
+			filename = filename+DOT_PROPERTIES;
+		}
+		if (StringUtils.isNotEmpty(folder)) {
+			filename = folder+File.separator+filename;
+		}
+
+		// Read from the /assets directory
+	    InputStream inputStream = null;
+		try {
+			// check to see if a user has created his own reading plan with this name
+	    	inputStream = assetManager.open(filename);
+
+	    	returnProperties.load(inputStream);
+		    log.debug("The properties are now loaded from: " + filename);
+		} catch (IOException e) {
+		    System.err.println("Failed to open property file:"+filename);
+		    e.printStackTrace();
+		} finally {
+			IOUtil.close(inputStream);
+		}
+		return returnProperties;
 	}
 }

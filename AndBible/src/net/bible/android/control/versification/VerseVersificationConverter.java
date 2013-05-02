@@ -1,14 +1,26 @@
 package net.bible.android.control.versification;
 
+import net.bible.android.control.versification.mapping.VersificationMapping;
+import net.bible.android.control.versification.mapping.VersificationMappingFactory;
+
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
 
+/** Store a main verse and return it in requested versification after mapping (if map available)
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class VerseVersificationConverter {
+	
 	private Verse mainVerse;
 	//todo implement cache to optimise verse creation time
 //	private Map<Versification, Verse> versificationToVerse = new HashMap<Versification, Verse>();
+
+	private VersificationMappingFactory versificationMappingFactory = VersificationMappingFactory.getInstance();
 
 	public VerseVersificationConverter(Verse verse) {
 		this(verse.getVersification(), verse.getBook(), verse.getChapter(), verse.getVerse());
@@ -32,12 +44,26 @@ public class VerseVersificationConverter {
 		return mainVerse.getVerse();
 	}
 
-	public void setVerse(Versification versification, Verse verse) {
-		mainVerse = new Verse(versification, verse.getBook(), verse.getChapter(), verse.getVerse());
+	/** Set the verse, mapping to the required versification if necessary
+	 */
+	public void setVerse(Versification requiredVersification, Verse verse) {
+		mainVerse = getVerse(requiredVersification, verse);
 	}
 
 	public Verse getVerse(Versification versification) {
-		return new Verse(versification, mainVerse.getBook(), mainVerse.getChapter(), mainVerse.getVerse());
+		VersificationMapping versificationMapping = versificationMappingFactory.getVersificationMapping(mainVerse.getVersification(), versification);
+		return versificationMapping.getMappedVerse(mainVerse, versification);
+	}
+
+	/** Return the verse in the required versification, mapping if necessary
+	 */
+	private Verse getVerse(Versification requiredVersification, Verse verse) {
+		if (requiredVersification.equals(verse.getVersification())) {
+			return verse;
+		} else {
+			VersificationMapping versificationMapping = versificationMappingFactory.getVersificationMapping(verse.getVersification(), requiredVersification);
+			return versificationMapping.getMappedVerse(verse, requiredVersification);
+		}
 	}
 
 	/** books should be the same as they are enums
