@@ -14,7 +14,7 @@ import org.crosswire.jsword.versification.system.Versifications;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class VerseVersificationConverter {
+public class VerseVersificationConverter implements Comparable<VerseVersificationConverter> {
 	
 	private Verse mainVerse;
 	//todo implement cache to optimise verse creation time
@@ -50,6 +50,10 @@ public class VerseVersificationConverter {
 		mainVerse = getVerse(requiredVersification, verse);
 	}
 
+	public Verse getVerse() {
+		return mainVerse;
+	}
+
 	public Verse getVerse(Versification versification) {
 		VersificationMapping versificationMapping = versificationMappingFactory.getVersificationMapping(mainVerse.getVersification(), versification);
 		return versificationMapping.getMappedVerse(mainVerse, versification);
@@ -70,5 +74,37 @@ public class VerseVersificationConverter {
 	 */
 	public BibleBook getBook() {
 		return mainVerse.getBook();
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((mainVerse == null) ? 0 : mainVerse.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		VerseVersificationConverter other = (VerseVersificationConverter) obj;
+		if (mainVerse == null) {
+			if (other.mainVerse != null)
+				return false;
+		} else if (!mainVerse.equals(other.mainVerse))
+			return false;
+		return true;
+	}
+	
+	@Override
+	public int compareTo(VerseVersificationConverter another) {
+		assert another!=null;
+		return mainVerse.compareTo(another.mainVerse);
 	}
 }

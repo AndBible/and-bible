@@ -5,6 +5,7 @@ import java.util.List;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.Bookmark;
 import net.bible.service.db.bookmark.BookmarkDto;
+
 import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -47,7 +48,7 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 
 		// Set value for the first text field
 		if (view.getText1() != null) {
-			String key = item.getKey().getName();
+			String key = bookmarkControl.getBookmarkVerseKey(item);
 			view.getText1().setText(key);
 		}
 

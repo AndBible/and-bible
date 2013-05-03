@@ -9,9 +9,11 @@ import org.crosswire.jsword.passage.Key;
 
 public interface Bookmark {
 
-	//** business method */
+	/** business method */
 	boolean bookmarkCurrentVerse();
 	
+	/** text for item list */
+	String getBookmarkVerseKey(BookmarkDto bookmark);
 	String getBookmarkVerseText(BookmarkDto bookmark);
 	
 	/** get all labels */

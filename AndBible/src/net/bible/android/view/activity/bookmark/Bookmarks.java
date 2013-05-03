@@ -10,6 +10,7 @@ import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -219,10 +220,10 @@ public class Bookmarks extends ListActivityBase {
      * @param document
      */
     private void bookmarkSelected(BookmarkDto bookmark) {
-    	Log.d(TAG, "Bookmark selected:"+bookmark.getKey());
+    	Log.d(TAG, "Bookmark selected:"+bookmark.getVerse());
     	try {
         	if (bookmark!=null) {
-        		CurrentPageManager.getInstance().getCurrentPage().setKey(bookmark.getKey());
+        		CurrentPageManager.getInstance().getCurrentPage().setKey(bookmark.getVerse());
         		doFinish();
         	}
     	} catch (Exception e) {

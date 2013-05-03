@@ -17,6 +17,8 @@ import net.bible.service.db.bookmark.LabelDto;
 import net.bible.service.sword.SwordContentFacade;
 
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.versification.Versification;
 
 import android.util.Log;
 import android.widget.Toast;
@@ -45,7 +47,7 @@ public class BookmarkControl implements Bookmark {
 	public boolean bookmarkCurrentVerse() {
 		boolean bOk = false;
 		if (CurrentPageManager.getInstance().isBibleShown() || CurrentPageManager.getInstance().isCommentaryShown()) {
-			Key currentVerse = CurrentPageManager.getInstance().getCurrentBible().getSingleKey();
+			Verse currentVerse = CurrentPageManager.getInstance().getCurrentBible().getSingleKey();
 			
 			if (getBookmarkByKey(currentVerse)!=null) {
 				// bookmark for this verse already exists
@@ -53,7 +55,7 @@ public class BookmarkControl implements Bookmark {
 			} else {
 				// prepare new bookmark and add to db
 				BookmarkDto bookmarkDto = new BookmarkDto();
-				bookmarkDto.setKey(currentVerse);
+				bookmarkDto.setVerse(currentVerse);
 				BookmarkDto newBookmark = addBookmark(bookmarkDto);
 				
 				if (newBookmark!=null) {
@@ -69,10 +71,23 @@ public class BookmarkControl implements Bookmark {
 	}
 
 	@Override
+	public String getBookmarkVerseKey(BookmarkDto bookmark) {
+		String keyText = "";
+		try {
+			Versification versification = CurrentPageManager.getInstance().getCurrentBible().getVersification();
+			keyText = bookmark.getVerse(versification).getName();
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting verse text", e);
+		}
+		return keyText;
+	}
+
+	@Override
 	public String getBookmarkVerseText(BookmarkDto bookmark) {
 		String verseText = "";
 		try {
-			verseText = SwordContentFacade.getInstance().getPlainText(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), bookmark.getKey().getOsisRef(), 1);
+			Versification versification = CurrentPageManager.getInstance().getCurrentBible().getVersification();
+			verseText = SwordContentFacade.getInstance().getPlainText(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), bookmark.getVerse(versification), 1);
 			verseText = CommonUtils.limitTextLength(verseText);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);
@@ -85,9 +100,9 @@ public class BookmarkControl implements Bookmark {
 	/** get all bookmarks */
 	public List<BookmarkDto> getAllBookmarks() {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
-		db.open();
 		List<BookmarkDto> bookmarkList = null;
 		try {
+			db.open();
 			bookmarkList = db.getAllBookmarks();
 			Collections.sort(bookmarkList);
 		} finally {
@@ -100,9 +115,9 @@ public class BookmarkControl implements Bookmark {
 	/** create a new bookmark */
 	public BookmarkDto addBookmark(BookmarkDto bookmark) {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
-		db.open();
 		BookmarkDto newBookmark = null;
 		try {
+			db.open();
 			newBookmark = db.insertBookmark(bookmark);
 		} finally {
 			db.close();
@@ -113,9 +128,9 @@ public class BookmarkControl implements Bookmark {
 	/** get all bookmarks */
 	public BookmarkDto getBookmarkById(Long id) {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
-		db.open();
 		BookmarkDto bookmark = null;
 		try {
+			db.open();
 			bookmark = db.getBookmarkDto(id);
 		} finally {
 			db.close();
@@ -127,9 +142,9 @@ public class BookmarkControl implements Bookmark {
 	/** get bookmark with this key if it exists or return null */
 	public BookmarkDto getBookmarkByKey(Key key) {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
-		db.open();
 		BookmarkDto bookmark = null;
 		try {
+			db.open();
 			bookmark = db.getBookmarkByKey(key.getOsisID());
 		} finally {
 			db.close();
@@ -143,8 +158,12 @@ public class BookmarkControl implements Bookmark {
 		boolean bOk = false;
 		if (bookmark!=null && bookmark.getId()!=null) {
 			BookmarkDBAdapter db = new BookmarkDBAdapter();
-			db.open();
-			bOk = db.removeBookmark(bookmark);
+			try {
+				db.open();
+				bOk = db.removeBookmark(bookmark);
+			} finally {
+				db.close();
+			}
 		}		
 		return bOk;
 	}
@@ -153,9 +172,9 @@ public class BookmarkControl implements Bookmark {
 	/** get bookmarks with the given label */
 	public List<BookmarkDto> getBookmarksWithLabel(LabelDto label) {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
-		db.open();
 		List<BookmarkDto> bookmarkList = null;
 		try {
+			db.open();
 			if (LABEL_ALL.equals(label)) {
 				bookmarkList = db.getAllBookmarks();
 			} else if (LABEL_UNLABELLED.equals(label)) {
@@ -178,8 +197,8 @@ public class BookmarkControl implements Bookmark {
 		List<LabelDto> labels;
 		
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
-		db.open();
 		try {
+			db.open();
 			labels = db.getBookmarkLabels(bookmark);
 		} finally {
 			db.close();
@@ -195,8 +214,8 @@ public class BookmarkControl implements Bookmark {
 		labels.remove(LABEL_UNLABELLED);
 		
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
-		db.open();
 		try {
+			db.open();
 			List<LabelDto> prevLabels = db.getBookmarkLabels(bookmark);
 			
 			//find those which have been deleted and remove them
@@ -221,9 +240,9 @@ public class BookmarkControl implements Bookmark {
 	@Override
 	public LabelDto addLabel(LabelDto label) {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
-		db.open();
 		LabelDto newLabel = null;
 		try {
+			db.open();
 			newLabel = db.insertLabel(label);
 		} finally {
 			db.close();
@@ -236,8 +255,12 @@ public class BookmarkControl implements Bookmark {
 		boolean bOk = false;
 		if (label!=null && label.getId()!=null && !LABEL_ALL.equals(label) && !LABEL_UNLABELLED.equals(label)) {
 			BookmarkDBAdapter db = new BookmarkDBAdapter();
-			db.open();
-			bOk = db.removeLabel(label);
+			try {
+				db.open();
+				bOk = db.removeLabel(label);
+			} finally {
+				db.close();
+			}
 		}
 		return bOk;
 	}
@@ -259,9 +282,9 @@ public class BookmarkControl implements Bookmark {
 	@Override
 	public List<LabelDto> getAssignableLabels() {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
-		db.open();
 		List<LabelDto> labelList = new ArrayList<LabelDto>();
 		try {
+			db.open();
 			labelList.addAll(db.getAllLabels());
 		} finally {
 			db.close();
@@ -273,9 +296,9 @@ public class BookmarkControl implements Bookmark {
 	@Override
 	public List<Key> getKeysWithBookmarksInPassage(Key passage) {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
-		db.open();
 		List<BookmarkDto> bookmarkList = null;
 		try {
+			db.open();
 			bookmarkList = db.getBookmarksInPassage(passage);
 			Collections.sort(bookmarkList);
 		} finally {
@@ -285,7 +308,7 @@ public class BookmarkControl implements Bookmark {
 		List<Key> keysWithBookmarks = new ArrayList<Key>();
 		if (bookmarkList!=null) {
 			for (BookmarkDto bookmarkDto : bookmarkList) {
-				keysWithBookmarks.add(bookmarkDto.getKey());
+				keysWithBookmarks.add(bookmarkDto.getVerse());
 			}
 		}
 		return keysWithBookmarks;

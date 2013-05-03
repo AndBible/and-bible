@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import net.bible.service.db.CommonDatabaseHelper;
+import net.bible.service.db.SQLHelper;
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.BookmarkColumn;
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.BookmarkLabelColumn;
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.LabelColumn;
@@ -56,7 +57,7 @@ public class BookmarkDBAdapter {
 	public BookmarkDto insertBookmark(BookmarkDto bookmark) {
 		// Create a new row of values to insert.
 		ContentValues newValues = new ContentValues();
-		Key key = bookmark.getKey();
+		Key key = bookmark.getVerse();
 		String v11nName="";
 		if (key instanceof VerseKey) {
 			// must save a VerseKey's versification along with the key!
@@ -76,7 +77,7 @@ public class BookmarkDBAdapter {
 	}
 
 	public boolean removeBookmark(BookmarkDto bookmark) {
-		Log.d(TAG, "Removing bookmark:"+bookmark.getKey());
+		Log.d(TAG, "Removing bookmark:"+bookmark.getVerse());
 		return db.delete(Table.BOOKMARK, BookmarkColumn._ID + "=" + bookmark.getId(), null) > 0;
 	}
 
@@ -139,8 +140,8 @@ public class BookmarkDBAdapter {
 	}
 
 	public List<BookmarkDto> getBookmarksWithLabel(LabelDto label) {
-		String sql = "SELECT "+StringUtils.join(BookmarkQuery.COLUMNS, ",")+
-					 "FROM bookmark "+
+		String sql = "SELECT "+SQLHelper.getColumnsForQuery(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS)+
+					 " FROM bookmark "+
 					 "JOIN bookmark_label ON (bookmark._id = bookmark_label.bookmark_id) "+
 					 "JOIN label ON (bookmark_label.label_id = label._id) "+
 					 "WHERE label._id = ? ";
@@ -164,9 +165,9 @@ public class BookmarkDBAdapter {
 	}
 
 	public List<BookmarkDto> getUnlabelledBookmarks() {
-		String sql = "SELECT "+StringUtils.join(BookmarkQuery.COLUMNS, ",")+
-					 "FROM bookmark "+
-					 "WHERE NOT EXISTS (SELECT * FROM bookmark_label WHERE bookmark._id = bookmark_label.bookmark_id)";
+		String sql = "SELECT "+SQLHelper.getColumnsForQuery(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS)+
+					 " FROM bookmark "+
+					 " WHERE NOT EXISTS (SELECT * FROM bookmark_label WHERE bookmark._id = bookmark_label.bookmark_id)";
 		
 		List<BookmarkDto> bookmarks = new ArrayList<BookmarkDto>();
 		Cursor c = db.rawQuery(sql, null);
@@ -184,6 +185,7 @@ public class BookmarkDBAdapter {
         
         return bookmarks;
 	}
+
 
 	public List<LabelDto> getAllLabels() {
 		List<LabelDto> allLabels = new ArrayList<LabelDto>();
@@ -293,7 +295,7 @@ public class BookmarkDBAdapter {
 				// use default v11n
 				v11n = Versifications.instance().getVersification(Versifications.DEFAULT_V11N);
 			}
-			dto.setKey(VerseFactory.fromString(v11n, key));
+			dto.setVerse(VerseFactory.fromString(v11n, key));
 
 			//Created date
 			long created = c.getLong(BookmarkQuery.CREATED_ON);
