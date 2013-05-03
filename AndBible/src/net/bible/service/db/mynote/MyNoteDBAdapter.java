@@ -146,7 +146,7 @@ public class MyNoteDBAdapter {
 	public List<MyNoteDto> getMyNotesInPassage(Key passage) {
 		Log.d(TAG, "about to getMyNotesInPassage:"+passage.getOsisID());
 		List<MyNoteDto> notesList = new ArrayList<MyNoteDto>();
-		Cursor c = db.query(MyNoteQuery.TABLE, MyNoteQuery.COLUMNS, MyNoteColumn.KEY+" LIKE ?", new String []{String.valueOf(passage.getOsisID()+"%")}, null, null, null);
+		Cursor c = db.query(MyNoteQuery.TABLE, MyNoteQuery.COLUMNS, MyNoteColumn.KEY+" LIKE ?", new String []{String.valueOf(passage.getOsisID()+".%")}, null, null, null);
 		try {
 			if (c.moveToFirst()) {
 		        while (!c.isAfterLast()) {

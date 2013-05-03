@@ -121,7 +121,7 @@ public class BookmarkDBAdapter {
 		Log.d(TAG, "about to getBookmarksInPassage:"+passage.getOsisID());
 		List<BookmarkDto> bookmarkList = new ArrayList<BookmarkDto>();
 		//av11n TODO may need to map between different versifications here
-		Cursor c = db.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn.KEY+" LIKE ?", new String []{String.valueOf(passage.getOsisID()+"%")}, null, null, null);
+		Cursor c = db.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn.KEY+" LIKE ?", new String []{String.valueOf(passage.getOsisID()+".%")}, null, null, null);
 		try {
 			if (c.moveToFirst()) {
 		        while (!c.isAfterLast()) {
