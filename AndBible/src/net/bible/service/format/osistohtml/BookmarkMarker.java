@@ -1,13 +1,10 @@
 package net.bible.service.format.osistohtml;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
 
 import net.bible.service.common.Logger;
 import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler.VerseInfo;
 
-import org.crosswire.jsword.passage.Key;
-import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
 
 /** Display an img if the current verse has MyNote
@@ -18,7 +15,7 @@ import org.crosswire.jsword.passage.Verse;
  */
 public class BookmarkMarker {
 
-	private Map<Integer, Key> bookmarkVerseMap= new HashMap<Integer, Key>();
+	private HashSet<Integer> bookmarkedVerses= new HashSet<Integer>();
 	
 	private OsisToHtmlParameters parameters;
 	
@@ -34,12 +31,11 @@ public class BookmarkMarker {
 		this.verseInfo = verseInfo;
 		this.writer = writer;
 		
-		// create hashmap of verses to optimise verse note lookup
-		bookmarkVerseMap.clear();
-		if (parameters.getKeysWithBookmarks()!=null) {
-			for (Key key : parameters.getKeysWithBookmarks()) {
-				Verse verse = KeyUtil.getVerse(key);
-				bookmarkVerseMap.put(verse.getVerse(), key);
+		// create hashset of verses to optimise verse note lookup
+		bookmarkedVerses.clear();
+		if (parameters.getVersesWithBookmarks()!=null) {
+			for (Verse verse : parameters.getVersesWithBookmarks()) {
+				bookmarkedVerses.add(verse.getVerse());
 			}
 		}
 	}
@@ -52,8 +48,8 @@ public class BookmarkMarker {
 	/** just after verse start tag
 	 */
 	public void start() {
-		if (bookmarkVerseMap!=null && parameters.isShowBookmarks()) {
-			if (bookmarkVerseMap.containsKey(verseInfo.currentVerseNo)) {
+		if (bookmarkedVerses!=null && parameters.isShowBookmarks()) {
+			if (bookmarkedVerses.contains(verseInfo.currentVerseNo)) {
 				writer.write("<img src='file:///android_asset/images/GoldStar16x16.png' class='myNoteImg'/>");
 			}
 		}

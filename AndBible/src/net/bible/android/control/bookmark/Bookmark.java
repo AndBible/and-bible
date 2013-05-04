@@ -6,6 +6,7 @@ import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
 
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.Verse;
 
 public interface Bookmark {
 
@@ -53,7 +54,7 @@ public interface Bookmark {
 	/** label the bookmark with these and only these labels */
 	void setBookmarkLabels(BookmarkDto bookmark, List<LabelDto> labels);
 	
-	/** get a list of Keys which have bookmarks in the passage (normally a chapter) */
-	List<Key> getKeysWithBookmarksInPassage(Key passage);
+	/** get a list of Verses which have bookmarks in the passage (normally a chapter) */
+	List<Verse> getVersesWithBookmarksInPassage(Key passage);
 
 }

@@ -17,7 +17,10 @@ import net.bible.service.db.bookmark.LabelDto;
 import net.bible.service.sword.SwordContentFacade;
 
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.passage.VerseRange;
+import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 
 import android.util.Log;
@@ -294,23 +297,41 @@ public class BookmarkControl implements Bookmark {
 	}
 
 	@Override
-	public List<Key> getKeysWithBookmarksInPassage(Key passage) {
+	public List<Verse> getVersesWithBookmarksInPassage(Key passage) {
+		// assumes the passage only covers one book, which always happens to be the case here
+		Verse firstVerse = KeyUtil.getVerse(passage);
+		BibleBook book = firstVerse.getBook();
+		
+		// get all Bookmarks in containing book to include variations due to differing versifications
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		List<BookmarkDto> bookmarkList = null;
 		try {
 			db.open();
-			bookmarkList = db.getBookmarksInPassage(passage);
-			Collections.sort(bookmarkList);
+			bookmarkList = db.getBookmarksInBook(book);
 		} finally {
 			db.close();
 		}
-
-		List<Key> keysWithBookmarks = new ArrayList<Key>();
+		
+		// convert to required versification and check verse is in passage
+		List<Verse> versesInPassage = new ArrayList<Verse>();
 		if (bookmarkList!=null) {
+			boolean isVerseRange = passage instanceof VerseRange;
+			Versification requiredVersification = firstVerse.getVersification();
 			for (BookmarkDto bookmarkDto : bookmarkList) {
-				keysWithBookmarks.add(bookmarkDto.getVerse());
+				Verse verse = bookmarkDto.getVerse(requiredVersification);
+				//TODO should not require VerseRange cast but bug in JSword
+				if (isVerseRange) {
+					if (((VerseRange)passage).contains(verse)) {
+						versesInPassage.add(verse);
+					}
+				} else {
+					if (passage.contains(verse)) {
+						versesInPassage.add(verse);
+					}
+				}
 			}
 		}
-		return keysWithBookmarks;
+
+		return versesInPassage;
 	}
 }

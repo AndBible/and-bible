@@ -46,7 +46,6 @@ public class KJVSynodalVersificationMapping implements VersificationMapping {
 	}
 
 	public Verse toSynodal(Verse verse) {
-		Log.d(TAG, "mapping KJV to Synodal:"+verse);
 		Verse synodalVerse = this.kjvSynodalVerseMap.getForward(verse);
 		if (synodalVerse==null) {
 			synodalVerse = new Verse(synodalV11n, verse.getBook(), verse.getChapter(), verse.getVerse());
@@ -55,7 +54,6 @@ public class KJVSynodalVersificationMapping implements VersificationMapping {
 	}
 
 	private Verse toKJV(Verse verse) {
-		Log.d(TAG, "mapping Synodal to KJV:"+verse);
 		Verse kjvVerse = this.kjvSynodalVerseMap.getBackward(verse);
 		if (kjvVerse==null) {
 			kjvVerse = new Verse(kjvV11n, verse.getBook(), verse.getChapter(), verse.getVerse());

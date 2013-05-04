@@ -32,7 +32,7 @@ public class OsisToHtmlParameters {
     private String extraFooter;
     private boolean convertStrongsRefsToLinks;
     private List<Key> keysWithNotes;
-    private List<Key> keysWithBookmarks;
+    private List<Verse> versesWithBookmarks;
     private URI moduleBasePath;
 
 	public String getLanguageCode() {
@@ -150,11 +150,11 @@ public class OsisToHtmlParameters {
 	public void setKeysWithNotes(List<Key> keysWithNotes) {
 		this.keysWithNotes = keysWithNotes;
 	}
-	public List<Key> getKeysWithBookmarks() {
-		return keysWithBookmarks;
+	public List<Verse> getVersesWithBookmarks() {
+		return versesWithBookmarks;
 	}
-	public void setKeysWithBookmarks(List<Key> keysWithBookmarks) {
-		this.keysWithBookmarks = keysWithBookmarks;
+	public void setVersesWithBookmarks(List<Verse> versesWithBookmarks) {
+		this.versesWithBookmarks = versesWithBookmarks;
 	}
 	public URI getModuleBasePath() {
 		return moduleBasePath;

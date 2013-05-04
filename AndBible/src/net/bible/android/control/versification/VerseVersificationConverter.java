@@ -105,6 +105,6 @@ public class VerseVersificationConverter implements Comparable<VerseVersificatio
 	@Override
 	public int compareTo(VerseVersificationConverter another) {
 		assert another!=null;
-		return mainVerse.compareTo(another.mainVerse);
+		return mainVerse.compareTo(another.getVerse(mainVerse.getVersification()));
 	}
 }

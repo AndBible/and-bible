@@ -16,6 +16,7 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.VerseFactory;
 import org.crosswire.jsword.passage.VerseKey;
+import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
 
@@ -118,11 +119,11 @@ public class BookmarkDBAdapter {
         return allBookmarks;
 	}
 
-	public List<BookmarkDto> getBookmarksInPassage(Key passage) {
-		Log.d(TAG, "about to getBookmarksInPassage:"+passage.getOsisID());
+	public List<BookmarkDto> getBookmarksInBook(BibleBook book) {
+		Log.d(TAG, "about to getBookmarksInPassage:"+book.getOSIS());
 		List<BookmarkDto> bookmarkList = new ArrayList<BookmarkDto>();
 		//av11n TODO may need to map between different versifications here
-		Cursor c = db.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn.KEY+" LIKE ?", new String []{String.valueOf(passage.getOsisID()+".%")}, null, null, null);
+		Cursor c = db.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn.KEY+" LIKE ?", new String []{String.valueOf(book.getOSIS()+".%")}, null, null, null);
 		try {
 			if (c.moveToFirst()) {
 		        while (!c.isAfterLast()) {
