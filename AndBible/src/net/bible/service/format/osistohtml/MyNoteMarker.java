@@ -1,7 +1,7 @@
 package net.bible.service.format.osistohtml;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 import net.bible.service.common.Logger;
 import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler.VerseInfo;
@@ -18,7 +18,7 @@ import org.crosswire.jsword.passage.Verse;
  */
 public class MyNoteMarker {
 
-	private Map<Integer, Key> myNoteVerseMap= new HashMap<Integer, Key>();
+	private Set<Integer> myNoteVerses = new HashSet<Integer>();
 	
 	private OsisToHtmlParameters parameters;
 	
@@ -35,11 +35,11 @@ public class MyNoteMarker {
 		this.writer = writer;
 		
 		// create hashmap of verses to optimise verse note lookup
-		myNoteVerseMap.clear();
-		if (parameters.getKeysWithNotes()!=null) {
-			for (Key key : parameters.getKeysWithNotes()) {
+		myNoteVerses.clear();
+		if (parameters.getVersesWithNotes()!=null) {
+			for (Key key : parameters.getVersesWithNotes()) {
 				Verse verse = KeyUtil.getVerse(key);
-				myNoteVerseMap.put(verse.getVerse(), key);
+				myNoteVerses.add(verse.getVerse());
 			}
 		}
 	}
@@ -52,8 +52,8 @@ public class MyNoteMarker {
 	/** just after verse start tag
 	 */
 	public void start() {
-		if (myNoteVerseMap!=null && parameters.isShowMyNotes()) {
-			if (myNoteVerseMap.containsKey(verseInfo.currentVerseNo)) {
+		if (myNoteVerses!=null && parameters.isShowMyNotes()) {
+			if (myNoteVerses.contains(verseInfo.currentVerseNo)) {
 				writer.write("<img src='file:///android_asset/images/pencil16x16.png' class='myNoteImg'/>");
 			}
 		}

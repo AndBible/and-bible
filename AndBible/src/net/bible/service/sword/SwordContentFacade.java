@@ -392,7 +392,7 @@ public class SwordContentFacade {
 					osisToHtmlParameters.setShowBookmarks(preferences.getBoolean("show_bookmarks_pref", true));
 					osisToHtmlParameters.setShowTitles(preferences.getBoolean("section_title_pref", true));
 					osisToHtmlParameters.setRedLetter(preferences.getBoolean("red_letter_pref", false));
-					osisToHtmlParameters.setKeysWithNotes(ControlFactory.getInstance().getMyNoteControl().getKeysWithNotesInPassage(key));
+					osisToHtmlParameters.setVersesWithNotes(ControlFactory.getInstance().getMyNoteControl().getVersesWithNotesInPassage(key));
 					osisToHtmlParameters.setVersesWithBookmarks(ControlFactory.getInstance().getBookmarkControl().getVersesWithBookmarksInPassage(key));
 
 					// showMorphology depends on showStrongs to allow the toolbar toggle button to affect both strongs and morphology

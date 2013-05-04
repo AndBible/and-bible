@@ -8,6 +8,7 @@ import java.util.List;
 import net.bible.service.db.mynote.MyNoteDto;
 
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.Verse;
 
 /**
  * Control MyNote functionality
@@ -20,13 +21,16 @@ import org.crosswire.jsword.passage.Key;
 public interface MyNote {
 
 	/** get a list of Keys which have notes in the passage (normally a chapter) */
-	List<Key> getKeysWithNotesInPassage(Key passage);
+	List<Verse> getVersesWithNotesInPassage(Key passage);
 	
 	/** show add or edit depending on existence of note */
 	public int getAddEditMenuText();
 	
 	/** go to MyNote edit screen and show this note */
 	public void showNoteView(MyNoteDto noteDto);
+
+	/** called by item adapter.  Returns key for v11n */
+	public String getMyNoteVerseKey(MyNoteDto myNote);
 
 	/** called at start of edit/view.  Returns note text or empty string */
 	String getMyNoteTextByKey(Key verse);

@@ -1,6 +1,6 @@
 package net.bible.android.control.page;
 
-import net.bible.android.control.versification.VerseVersificationConverter;
+import net.bible.android.control.versification.ConvertibleVerse;
 
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
@@ -9,7 +9,7 @@ import org.crosswire.jsword.versification.system.Versifications;
 
 public class CurrentBibleVerse {
 	
-	private VerseVersificationConverter verseVersificationSelected = new VerseVersificationConverter(Versifications.instance().getVersification(Versifications.DEFAULT_V11N), BibleBook.GEN, 1, 1);
+	private ConvertibleVerse verseVersificationSelected = new ConvertibleVerse(Versifications.instance().getVersification(Versifications.DEFAULT_V11N), BibleBook.GEN, 1, 1);
 
 	public int getCurrentBibleBookNo() {
 		return verseVersificationSelected.getBook().ordinal();

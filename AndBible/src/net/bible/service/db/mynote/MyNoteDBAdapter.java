@@ -15,8 +15,10 @@ import net.bible.service.db.mynote.MyNoteDatabaseDefinition.Table;
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
+import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseFactory;
 import org.crosswire.jsword.passage.VerseKey;
+import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
 
@@ -67,14 +69,14 @@ public class MyNoteDBAdapter {
 
 	public MyNoteDto insertMyNote(MyNoteDto mynote) {
 		// Create a new row of values to insert.
-		Log.d(TAG, "about to insertMyNote: " + mynote.getKey());
-		Key key = mynote.getKey();
-		String v11nName = getVersification(key);
+		Log.d(TAG, "about to insertMyNote: " + mynote.getVerse());
+		Verse verse = mynote.getVerse();
+		String v11nName = getVersification(verse);
         // Gets the current system time in milliseconds
         Long now = Long.valueOf(System.currentTimeMillis());
 
 		ContentValues newValues = new ContentValues();
-		newValues.put(MyNoteColumn.KEY, key.getOsisID());
+		newValues.put(MyNoteColumn.KEY, verse.getOsisID());
 		newValues.put(MyNoteColumn.VERSIFICATION, v11nName);
 		newValues.put(MyNoteColumn.MYNOTE, mynote.getNoteText());
 		newValues.put(MyNoteColumn.LAST_UPDATED_ON, now);
@@ -100,14 +102,14 @@ public class MyNoteDBAdapter {
 
 	public MyNoteDto updateMyNote(MyNoteDto mynote) {
 		// Create a new row of values to insert.
-		Log.d(TAG, "about to updateMyNote: " + mynote.getKey());
-		Key key = mynote.getKey();
-		String v11nName = getVersification(key);
+		Log.d(TAG, "about to updateMyNote: " + mynote.getVerse());
+		Verse verse = mynote.getVerse();
+		String v11nName = getVersification(verse);
         // Gets the current system time in milliseconds
         Long now = Long.valueOf(System.currentTimeMillis());
 
 		ContentValues newValues = new ContentValues();
-		newValues.put(MyNoteColumn.KEY, key.getOsisID());
+		newValues.put(MyNoteColumn.KEY, verse.getOsisID());
 		newValues.put(MyNoteColumn.VERSIFICATION, v11nName);
 		newValues.put(MyNoteColumn.MYNOTE, mynote.getNoteText());
 		newValues.put(MyNoteColumn.LAST_UPDATED_ON, now);
@@ -119,7 +121,7 @@ public class MyNoteDBAdapter {
 	}
 
 	public boolean removeMyNote(MyNoteDto mynote) {
-		Log.d(TAG, "Removing my note:" + mynote.getKey());
+		Log.d(TAG, "Removing my note:" + mynote.getVerse());
 		return db.delete(Table.MYNOTE, MyNoteColumn._ID + "=" + mynote.getId(), null) > 0;
 	}
 
@@ -143,10 +145,10 @@ public class MyNoteDBAdapter {
         return allMyNotes;
 	}
 	
-	public List<MyNoteDto> getMyNotesInPassage(Key passage) {
-		Log.d(TAG, "about to getMyNotesInPassage:"+passage.getOsisID());
+	public List<MyNoteDto> getMyNotesInBook(BibleBook book) {
+		Log.d(TAG, "about to getMyNotesInPassage:"+book.getOSIS());
 		List<MyNoteDto> notesList = new ArrayList<MyNoteDto>();
-		Cursor c = db.query(MyNoteQuery.TABLE, MyNoteQuery.COLUMNS, MyNoteColumn.KEY+" LIKE ?", new String []{String.valueOf(passage.getOsisID()+".%")}, null, null, null);
+		Cursor c = db.query(MyNoteQuery.TABLE, MyNoteQuery.COLUMNS, MyNoteColumn.KEY+" LIKE ?", new String []{String.valueOf(book.getOSIS()+".%")}, null, null, null);
 		try {
 			if (c.moveToFirst()) {
 		        while (!c.isAfterLast()) {
@@ -219,7 +221,7 @@ public class MyNoteDBAdapter {
 				v11n = Versifications.instance().getVersification(Versifications.DEFAULT_V11N);
 			}
 			Log.d(TAG, "Versification found:"+v11n);
-			dto.setKey(VerseFactory.fromString(v11n, key));
+			dto.setVerse(VerseFactory.fromString(v11n, key));
 
 			//Note
 			String mynote = c.getString(MyNoteQuery.MYNOTE);

@@ -31,7 +31,7 @@ public class OsisToHtmlParameters {
     private String extraStylesheet;
     private String extraFooter;
     private boolean convertStrongsRefsToLinks;
-    private List<Key> keysWithNotes;
+    private List<Verse> versesWithNotes;
     private List<Verse> versesWithBookmarks;
     private URI moduleBasePath;
 
@@ -144,11 +144,11 @@ public class OsisToHtmlParameters {
 	public void setConvertStrongsRefsToLinks(boolean convertStrongsRefsToLinks) {
 		this.convertStrongsRefsToLinks = convertStrongsRefsToLinks;
 	}
-	public List<Key> getKeysWithNotes() {
-		return keysWithNotes;
+	public List<Verse> getVersesWithNotes() {
+		return versesWithNotes;
 	}
-	public void setKeysWithNotes(List<Key> keysWithNotes) {
-		this.keysWithNotes = keysWithNotes;
+	public void setVersesWithNotes(List<Verse> versesWithNotes) {
+		this.versesWithNotes = versesWithNotes;
 	}
 	public List<Verse> getVersesWithBookmarks() {
 		return versesWithBookmarks;

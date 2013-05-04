@@ -2,14 +2,14 @@ package net.bible.service.db.bookmark;
 
 import java.util.Date;
 
-import net.bible.android.control.versification.VerseVersificationConverter;
+import net.bible.android.control.versification.ConvertibleVerse;
 
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.Versification;
 
 public class BookmarkDto implements Comparable<BookmarkDto> {
 	private Long id;
-	private VerseVersificationConverter verseVersificationConverter;
+	private ConvertibleVerse convertibleVerse;
 	private Date createdOn;
 
 	public Long getId() {
@@ -19,13 +19,13 @@ public class BookmarkDto implements Comparable<BookmarkDto> {
 		this.id = id;
 	}
 	public Verse getVerse() {
-		return verseVersificationConverter.getVerse();
+		return convertibleVerse.getVerse();
 	}
 	public Verse getVerse(Versification versification) {
-		return verseVersificationConverter.getVerse(versification);
+		return convertibleVerse.getVerse(versification);
 	}
 	public void setVerse(Verse verse) {
-		this.verseVersificationConverter = new VerseVersificationConverter(verse);
+		this.convertibleVerse = new ConvertibleVerse(verse);
 	}
 	public Date getCreatedOn() {
 		return createdOn;
@@ -41,10 +41,10 @@ public class BookmarkDto implements Comparable<BookmarkDto> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		if (verseVersificationConverter==null || verseVersificationConverter.getVerse()==null) {
+		if (convertibleVerse==null || convertibleVerse.getVerse()==null) {
 			result = prime * result;
 		} else {
-			Verse verse = verseVersificationConverter.getVerse();
+			Verse verse = convertibleVerse.getVerse();
 			result = prime * result + verse.hashCode();
 		}
 		return result;
@@ -66,10 +66,10 @@ public class BookmarkDto implements Comparable<BookmarkDto> {
 				return false;
 		} else if (!id.equals(other.id))
 			return false;
-		if (verseVersificationConverter == null) {
-			if (other.verseVersificationConverter != null)
+		if (convertibleVerse == null) {
+			if (other.convertibleVerse != null)
 				return false;
-		} else if (!verseVersificationConverter.equals(other.verseVersificationConverter))
+		} else if (!convertibleVerse.equals(other.convertibleVerse))
 			return false;
 		return true;
 	}
@@ -77,6 +77,6 @@ public class BookmarkDto implements Comparable<BookmarkDto> {
 	@Override
 	public int compareTo(BookmarkDto another) {
 		assert another!=null;
-		return verseVersificationConverter.compareTo(another.verseVersificationConverter);
+		return convertibleVerse.compareTo(another.convertibleVerse);
 	}
 }

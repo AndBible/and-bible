@@ -5,7 +5,7 @@ import java.util.List;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.versification.VerseVersificationConverter;
+import net.bible.android.control.versification.ConvertibleVerse;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.common.util.Filter;
@@ -88,7 +88,7 @@ public class DocumentControl {
 	public Book getSuggestedBible() {
 		CurrentPageManager currentPageManager = ControlFactory.getInstance().getCurrentPageControl();
 		Book currentBible = currentPageManager.getCurrentBible().getCurrentDocument();
-		final VerseVersificationConverter requiredVerseConverter = getRequiredVerseForSuggestions();
+		final ConvertibleVerse requiredVerseConverter = getRequiredVerseForSuggestions();
 		
 		// only show bibles that contain verse
 		Filter<Book> bookFilter = new Filter<Book>() {
@@ -106,7 +106,7 @@ public class DocumentControl {
 	public Book getSuggestedCommentary() {
 		CurrentPageManager currentPageManager = ControlFactory.getInstance().getCurrentPageControl();
 		Book currentCommentary = currentPageManager.getCurrentCommentary().getCurrentDocument();
-		final VerseVersificationConverter requiredVerseConverter = getRequiredVerseForSuggestions();
+		final ConvertibleVerse requiredVerseConverter = getRequiredVerseForSuggestions();
 		
 		// only show commentaries that contain verse - extra checks for TDavid because it always returns true
 		Filter<Book> bookFilter = new Filter<Book>() {
@@ -154,9 +154,9 @@ public class DocumentControl {
 
 	/** possible books will often not include the current verse but most will include chap 1 verse 1
 	 */
-	private VerseVersificationConverter getRequiredVerseForSuggestions() {
+	private ConvertibleVerse getRequiredVerseForSuggestions() {
 		Verse currentVerse = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getSingleKey();
-		return new VerseVersificationConverter(currentVerse.getBook(), 1, 1);
+		return new ConvertibleVerse(currentVerse.getBook(), 1, 1);
 	}
 
 	/** Suggest an alternative document to view or return null

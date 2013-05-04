@@ -1,6 +1,7 @@
 package net.bible.service.format.osistohtml;
 
 import java.util.HashSet;
+import java.util.Set;
 
 import net.bible.service.common.Logger;
 import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler.VerseInfo;
@@ -15,7 +16,7 @@ import org.crosswire.jsword.passage.Verse;
  */
 public class BookmarkMarker {
 
-	private HashSet<Integer> bookmarkedVerses= new HashSet<Integer>();
+	private Set<Integer> bookmarkedVerses= new HashSet<Integer>();
 	
 	private OsisToHtmlParameters parameters;
 	

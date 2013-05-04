@@ -16,6 +16,11 @@ import net.bible.service.db.mynote.MyNoteDBAdapter;
 import net.bible.service.db.mynote.MyNoteDto;
 
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.KeyUtil;
+import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.passage.VerseRange;
+import org.crosswire.jsword.versification.BibleBook;
+import org.crosswire.jsword.versification.Versification;
 
 import android.util.Log;
 import android.widget.Toast;
@@ -47,7 +52,20 @@ public class MyNoteControl implements MyNote {
 
 	@Override
 	public void showNoteView(MyNoteDto noteDto) {
-		ControlFactory.getInstance().getCurrentPageControl().showMyNote(noteDto.getKey());
+		ControlFactory.getInstance().getCurrentPageControl().showMyNote(noteDto.getVerse());
+	}
+	
+
+	@Override
+	public String getMyNoteVerseKey(MyNoteDto myNote) {
+		String keyText = "";
+		try {
+			Versification versification = CurrentPageManager.getInstance().getCurrentBible().getVersification();
+			keyText = myNote.getVerse(versification).getName();
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting verse text", e);
+		}
+		return keyText;
 	}
 
 	@Override
@@ -73,7 +91,8 @@ public class MyNoteControl implements MyNote {
 
 	@Override
 	public MyNoteDto getCurrentMyNoteDto() {
-		Key verse = ControlFactory.getInstance().getCurrentPageControl().getCurrentMyNotePage().getKey();
+		Key key = ControlFactory.getInstance().getCurrentPageControl().getCurrentMyNotePage().getKey();
+		Verse verse = KeyUtil.getVerse(key);
 		
 		// get a dto
 		MyNoteDto myNote = getMyNoteByKey(verse);
@@ -81,7 +100,7 @@ public class MyNoteControl implements MyNote {
 		// return an empty note dto
 		if (myNote==null) {
 			myNote = new MyNoteDto();
-			myNote.setKey(verse);
+			myNote.setVerse(verse);
 		}
 
 		return myNote;
@@ -100,7 +119,7 @@ public class MyNoteControl implements MyNote {
 				isSaved = true;
 			}
 		} else {
-			MyNoteDto oldNote = getMyNoteByKey(myNoteDto.getKey());
+			MyNoteDto oldNote = getMyNoteByKey(myNoteDto.getVerse());
 			// delete empty notes
 			if (myNoteDto.isEmpty()) {
 				deleteMyNote(myNoteDto);
@@ -137,9 +156,9 @@ public class MyNoteControl implements MyNote {
 	/** get all myNotes */
 	public List<MyNoteDto> getAllMyNotes() {
 		MyNoteDBAdapter db = new MyNoteDBAdapter();
-		db.open();
 		List<MyNoteDto> myNoteList = null;
 		try {
+			db.open();
 			myNoteList = db.getAllMyNotes();
 			Collections.sort(myNoteList);
 		} finally {
@@ -152,9 +171,9 @@ public class MyNoteControl implements MyNote {
 	/** get all user notes */
 	public MyNoteDto getMyNoteById(Long id) {
 		MyNoteDBAdapter db = new MyNoteDBAdapter();
-		db.open();
 		MyNoteDto myNote = null;
 		try {
+			db.open();
 			myNote = db.getMyNoteDto(id);
 		} finally {
 			db.close();
@@ -166,9 +185,9 @@ public class MyNoteControl implements MyNote {
 	/** get user note with this key if it exists or return null */
 	public MyNoteDto getMyNoteByKey(Key key) {
 		MyNoteDBAdapter db = new MyNoteDBAdapter();
-		db.open();
 		MyNoteDto myNote = null;
 		try {
+			db.open();
 			myNote = db.getMyNoteByKey(key.getOsisID());
 		} finally {
 			db.close();
@@ -182,8 +201,12 @@ public class MyNoteControl implements MyNote {
 		boolean bOk = false;
 		if (myNote!=null && myNote.getId()!=null) {
 			MyNoteDBAdapter db = new MyNoteDBAdapter();
-			db.open();
-			bOk = db.removeMyNote(myNote);
+			try {
+				db.open();
+				bOk = db.removeMyNote(myNote);
+			} finally {
+				db.close();
+			}
 		}		
 		return bOk;
 	}
@@ -191,9 +214,9 @@ public class MyNoteControl implements MyNote {
 	/** create a new myNote */
 	private MyNoteDto addMyNote(MyNoteDto myNote) {
 		MyNoteDBAdapter db = new MyNoteDBAdapter();
-		db.open();
 		MyNoteDto newMyNote = null;
 		try {
+			db.open();
 			newMyNote = db.insertMyNote(myNote);
 		} finally {
 			db.close();
@@ -204,9 +227,9 @@ public class MyNoteControl implements MyNote {
 	/** create a new myNote */
 	private MyNoteDto updateMyNote(MyNoteDto myNote) {
 		MyNoteDBAdapter db = new MyNoteDBAdapter();
-		db.open();
 		MyNoteDto updatedMyNote = null;
 		try {
+			db.open();
 			updatedMyNote = db.updateMyNote(myNote);
 		} finally {
 			db.close();
@@ -215,23 +238,40 @@ public class MyNoteControl implements MyNote {
 	}
 
 	@Override
-	public List<Key> getKeysWithNotesInPassage(Key passage) {
+	public List<Verse> getVersesWithNotesInPassage(Key passage) {
+		// assumes the passage only covers one book, which always happens to be the case here
+		Verse firstVerse = KeyUtil.getVerse(passage);
+		BibleBook book = firstVerse.getBook();
+
 		MyNoteDBAdapter db = new MyNoteDBAdapter();
-		db.open();
 		List<MyNoteDto> myNoteList = null;
 		try {
-			myNoteList = db.getMyNotesInPassage(passage);
-			Collections.sort(myNoteList);
+			db.open();
+			myNoteList = db.getMyNotesInBook(book);
 		} finally {
 			db.close();
 		}
 
-		List<Key> keysWithNotes = new ArrayList<Key>();
+		// convert to required versification and check verse is in passage
+		List<Verse> versesInPassage = new ArrayList<Verse>();
 		if (myNoteList!=null) {
+			boolean isVerseRange = passage instanceof VerseRange;
+			Versification requiredVersification = firstVerse.getVersification();
 			for (MyNoteDto myNoteDto : myNoteList) {
-				keysWithNotes.add(myNoteDto.getKey());
+				Verse verse = myNoteDto.getVerse(requiredVersification);
+				//TODO should not require VerseRange cast but bug in JSword
+				if (isVerseRange) {
+					if (((VerseRange)passage).contains(verse)) {
+						versesInPassage.add(verse);
+					}
+				} else {
+					if (passage.contains(verse)) {
+						versesInPassage.add(verse);
+					}
+				}
 			}
 		}
-		return keysWithNotes;
+
+		return versesInPassage;
 	}
 }

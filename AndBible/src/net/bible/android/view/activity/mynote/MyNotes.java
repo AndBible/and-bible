@@ -12,6 +12,7 @@ import net.bible.android.control.mynote.MyNote;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.mynote.MyNoteDto;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -116,7 +117,7 @@ public class MyNotes extends ListActivityBase {
      * @param document
      */
     private void myNoteSelected(MyNoteDto myNote) {
-    	Log.d(TAG, "User Note selected:"+myNote.getKey());
+    	Log.d(TAG, "User Note selected:"+myNote.getVerse());
     	try {
         	if (myNote!=null) {
         		myNoteControl.showNoteView(myNote);

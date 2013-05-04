@@ -7,7 +7,7 @@ import java.util.List;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.versification.VerseVersificationConverter;
+import net.bible.android.control.versification.ConvertibleVerse;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.font.FontControl;
 import net.bible.service.sword.SwordContentFacade;
@@ -76,11 +76,11 @@ public class CompareTranslationsControl {
 		List<Book> books = swordDocumentFacade.getBibles();
 		FontControl fontControl = FontControl.getInstance();
 		
-		VerseVersificationConverter verseVersificationConverter = new VerseVersificationConverter(getVerse());
+		ConvertibleVerse convertibleVerse = new ConvertibleVerse(getVerse());
 		
 		for (Book book : books) {
 			try {
-				String text = swordContentFacade.getPlainText(book, verseVersificationConverter.getVerse(((AbstractPassageBook)book).getVersification()), 1);
+				String text = swordContentFacade.getPlainText(book, convertibleVerse.getVerse(((AbstractPassageBook)book).getVersification()), 1);
 				if (text.length()>0) {
 					
 					// does this book require a custom font to display it
