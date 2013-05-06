@@ -31,10 +31,11 @@ public class MJDIndexAll {
 
 	private static final String REPOSITORY_CROSSWIRE = "CrossWire";
 	private static final String REPOSITORY_CROSSWIRE_AV = "CrossWire AV";
+	private static final String REPOSITORY_IBT = "IBT";
 	private static final String REPOSITORY_XIPHOS = "Xiphos";
 	private static final String REPOSITORY_CROSSWIRE_BETA = "Crosswire Beta";
 	// Default repo used below
-	private static final String REPOSITORY = REPOSITORY_CROSSWIRE_AV;
+	private static final String REPOSITORY = REPOSITORY_IBT;
 	
 //	private static final BookFilter BOOK_FILTER = BookFilters.getDictionaries();
 	private static final BookFilter BOOK_FILTER = BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries());
@@ -75,7 +76,7 @@ public class MJDIndexAll {
 	//    	indexAll.installSingleBook("StrongsGreek");
 	//    	indexAll.installSingleBook("BDBGlosses_Strongs");
 	//    	indexAll.installRepoBooks();
-//	    	indexAll.checkAllBooksInstalled();
+	    	indexAll.checkAllBooksInstalled();
 	//    	indexAll.manageCreateIndexes();
 	//    	indexAll.indexSingleBook("KJV");
 	    	
@@ -241,7 +242,7 @@ public class MJDIndexAll {
 //	    	indexAll.installAndIndexSingleBook("RusSynodal");
 	    	
 	    	// Crosswire AV
-//	    	indexAll.installAndIndexAllRepoBooks();
+	    	indexAll.installAndIndexAllRepoBooks();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
