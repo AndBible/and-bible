@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import junit.framework.TestCase;
-import net.bible.service.format.FormattedDocument;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.xml.SAXEventProvider;
@@ -14,9 +13,9 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookData;
 import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.OSISUtil;
+import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.book.sword.SwordBookDriver;
 import org.crosswire.jsword.passage.Key;
-import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.PassageKeyFactory;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
@@ -59,7 +58,7 @@ public class SwordApiTest extends TestCase {
 	
 	public void testReadHtmlText() throws Exception {
 		Book jfb = getJFB();
-		Key key = PassageKeyFactory.instance().getKey("Mat 1:1");
+		Key key = PassageKeyFactory.instance().getKey(((SwordBook)jfb).getVersification(), "Mat 1:1");
 		
 		String html = getHtml(jfb, key, 100);
 		System.out.println(html);
@@ -67,7 +66,7 @@ public class SwordApiTest extends TestCase {
 
 	public void testReadPsalm119() throws Exception {
 		Book esv = getBook("ESV");
-		Key key = PassageKeyFactory.instance().getKey("Ps 119");
+		Key key = PassageKeyFactory.instance().getKey(((SwordBook)esv).getVersification(), "Ps 119");
 		
 		String html = getHtml(esv, key, 200);
 		System.out.println(html);
@@ -79,7 +78,7 @@ public class SwordApiTest extends TestCase {
 	 */
 	public void testPsalmNoVerse() throws Exception {
 		Book esv = getBook("ESV");
-		Key key = PassageKeyFactory.instance().getKey("Ps 2");
+		Key key = PassageKeyFactory.instance().getKey(((SwordBook)esv).getVersification(), "Ps 2");
 		
 		String html = getHtml(esv, key, 100);
 		System.out.println(html);
@@ -94,7 +93,7 @@ public class SwordApiTest extends TestCase {
 	 */
 	public void testRead1Peter1v10() throws Exception {
 		Book esv = getBook("ESV");
-		Key key = PassageKeyFactory.instance().getKey("1 Pet 1");
+		Key key = PassageKeyFactory.instance().getKey(((SwordBook)esv).getVersification(), "1 Pet 1");
 		
 		String html = getHtml(esv, key, 100);
 		System.out.println(html);
@@ -105,7 +104,7 @@ public class SwordApiTest extends TestCase {
 	
 	public void testReadPolBibTysia() throws Exception {
 		Book esv = getBook("PolBibTysia");
-		Key key = PassageKeyFactory.instance().getKey("Gen 1");
+		Key key = PassageKeyFactory.instance().getKey(((SwordBook)esv).getVersification(), "Gen 1");
 		
 		String html = getHtml(esv, key, 100);
 		System.out.println(html);
@@ -210,7 +209,7 @@ public class SwordApiTest extends TestCase {
 
 	public void testReadWordsOfChrist() throws Exception {
 		Book esv = getBook("ESV");
-		Key key = PassageKeyFactory.instance().getKey("Luke 15:3-8");
+		Key key = PassageKeyFactory.instance().getKey(((SwordBook)esv).getVersification(), "Luke 15:3-8");
 		
 		String html = getHtml(esv, key, 100);
 		System.out.println(html);
@@ -222,12 +221,12 @@ public class SwordApiTest extends TestCase {
 	public void testReadTrickyWEBChaptersText() throws Exception {
 		Book web = getWEB();
 		{
-			Key key = PassageKeyFactory.instance().getKey("Ps 1");
+			Key key = PassageKeyFactory.instance().getKey(((SwordBook)web).getVersification(), "Ps 1");
 			String html = getHtml(web, key, 100);
 			System.out.println(html);
 		}
 		{
-			Key key2 = PassageKeyFactory.instance().getKey("Gen 49");
+			Key key2 = PassageKeyFactory.instance().getKey(((SwordBook)web).getVersification(), "Gen 49");
 			String html2 = getHtml(web, key2, 100);
 			System.out.println(html2);
 		}
@@ -276,14 +275,14 @@ public class SwordApiTest extends TestCase {
 
 	public void testReadDarby() throws Exception {
 		Book book = getBook("Darby");
-		Key key = PassageKeyFactory.instance().getKey("Gen 1");
+		Key key = PassageKeyFactory.instance().getKey(((SwordBook)book).getVersification(), "Gen 1");
 		String html = getHtml(book, key, 100);
 		System.out.println(html);
 	}
 
 	public void testReadCanonicalText() throws Exception {
 		Book esv = getBook("ESV");
-		Key key = PassageKeyFactory.instance().getKey("Gen 1:1");
+		Key key = PassageKeyFactory.instance().getKey(((SwordBook)esv).getVersification(), "Gen 1:1");
 		
 		String html = SwordContentFacade.getInstance().getCanonicalText(esv, key);
 		assertEquals("Wrong canonical text", html, "In the beginning, God created the heavens and the earth.");
@@ -291,8 +290,7 @@ public class SwordApiTest extends TestCase {
 	}
 
 	private String getHtml(Book book, Key key, int maxVerses) throws Exception {
-		FormattedDocument formattedDocument = SwordContentFacade.getInstance().readHtmlText(book, key);
-		String html = formattedDocument.getHtmlPassage();
+		String html = SwordContentFacade.getInstance().readHtmlText(book, key);
 		return html;		
 	}
 	private Book getJFB() {

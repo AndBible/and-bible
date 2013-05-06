@@ -19,8 +19,7 @@ import org.crosswire.jsword.book.OSISUtil;
 import org.crosswire.jsword.book.sword.SwordBookDriver;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
-import org.crosswire.jsword.passage.PassageKeyFactory;
-import org.jdom.Element;
+import org.jdom2.Element;
 
 public class PdaLuceneIndexTest extends TestCase {
 

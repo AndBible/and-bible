@@ -2,14 +2,14 @@ package org.crosswire.jsword;
 
 import java.util.Locale;
 
-import org.crosswire.jsword.versification.BibleBook;
-
 import junit.framework.TestCase;
+
+import org.crosswire.jsword.versification.system.Versifications;
 
 public class BookNameTest extends TestCase {
 
-    public void testMatch() {
+    public void testgetBookWithDifferentLocale() {
         Locale.setDefault(Locale.GERMAN);
-        System.out.println(BibleBook.getBook("Mr"));
+        assertNotNull(Versifications.instance().getVersification("KJV").getBook("Mr"));
     }
 }

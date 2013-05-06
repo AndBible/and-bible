@@ -5,6 +5,7 @@ import java.net.URI;
 
 import junit.framework.TestCase;
 import net.bible.service.sword.SwordDocumentFacade;
+import net.bible.service.sword.index.IndexCreator;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.sword.SwordBookDriver;
@@ -31,7 +32,7 @@ public class PdaLuceneIndexManagerTest extends TestCase {
 	public void testScheduleIndexCreation() {
 		try {
 			Book book = getBook("ESV");
-			PdaLuceneIndexManager fim = new PdaLuceneIndexManager();
+			IndexCreator fim = new IndexCreator();
 			
 			// delete existing index
 			IndexStatus indexStatus = book.getIndexStatus();

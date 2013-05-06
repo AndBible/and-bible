@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import net.bible.service.format.FormattedDocument;
 import net.bible.service.sword.SwordContentFacade;
 import net.bible.service.sword.SwordDocumentFacade;
 
@@ -52,8 +51,6 @@ public class TestUtil {
     }
     
 	public static String getHtml(Book book, Key key, int maxVerses) throws Exception {
-		FormattedDocument formattedDocument = SwordContentFacade.getInstance().readHtmlText(book, key);
-		String html = formattedDocument.getHtmlPassage();
-		return html;		
+		return SwordContentFacade.getInstance().readHtmlText(book, key);		
 	}
 }

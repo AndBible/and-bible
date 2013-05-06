@@ -26,8 +26,7 @@ import org.crosswire.jsword.book.sword.SwordBookDriver;
 import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.PassageKeyFactory;
-import org.crosswire.jsword.passage.Verse;
-import org.crosswire.jsword.passage.VerseFactory;
+import org.crosswire.jsword.versification.system.Versifications;
 import org.xml.sax.ContentHandler;
 
 
@@ -195,7 +194,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 
 	public void testTrickyWebChapters() throws Exception {
 		{
-			OSISInputStream osisInputStream = new OSISInputStream(webBook, PassageKeyFactory.instance().getKey("Ps 1"));
+			OSISInputStream osisInputStream = new OSISInputStream(webBook, PassageKeyFactory.instance().getKey(Versifications.instance().getVersification("KJV"), "Ps 1"));
 			String chapter = convertStreamToString(osisInputStream);
 			int numOpeningLs = count(chapter, "<l>") + count(chapter, "<l ");
 			int numClosingLs = count(chapter, "</l>");
@@ -203,7 +202,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 			assertEquals("wrong number of Ls", numOpeningLs, numClosingLs);
 		}
 		{
-			OSISInputStream osisInputStream = new OSISInputStream(webBook, PassageKeyFactory.instance().getKey("Gen 49"));
+			OSISInputStream osisInputStream = new OSISInputStream(webBook, PassageKeyFactory.instance().getKey(Versifications.instance().getVersification("KJV"), "Gen 49"));
 			String chapter = convertStreamToString(osisInputStream);
 			int numOpeningLs = count(chapter, "<l>") + count(chapter, "<l ");
 			int numClosingLs = count(chapter, "</l>");

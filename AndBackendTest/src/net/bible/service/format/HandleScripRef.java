@@ -10,11 +10,11 @@ import org.crosswire.common.xml.SAXEventProvider;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookData;
 import org.crosswire.jsword.book.Books;
-import org.crosswire.jsword.passage.AccuracyType;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.Passage;
 import org.crosswire.jsword.passage.PassageKeyFactory;
 import org.crosswire.jsword.passage.RestrictionType;
+import org.crosswire.jsword.versification.system.Versifications;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
@@ -36,7 +36,7 @@ basis is the current verse to use in case of no book or chapter
 	 */
 	public void testKeyRepresentations() {
 		try {
-			Key key = PassageKeyFactory.instance().getKey("Gen 1,2,4:3");
+			Key key = PassageKeyFactory.instance().getKey(Versifications.instance().getVersification("KJV"), "Gen 1,2,4:3");
 			assertEquals("Genesis 1-2, 4:3", key.toString());
 			assertEquals("Gen.1-Gen.2 Gen.4.3", key.getOsisRef());
 		} catch (Exception e) {
@@ -114,7 +114,7 @@ basis is the current verse to use in case of no book or chapter
 //				System.out.println(PassageKeyFactory.instance().getKey(part));
 //			}
 
-            Passage ref = (Passage) PassageKeyFactory.instance().getKey(testRef);
+            Passage ref = (Passage) PassageKeyFactory.instance().getKey(Versifications.instance().getVersification("KJV"), testRef);
 			System.out.println("osis ref"+ref.getOsisRef());
 			System.out.println("count ranges"+ref.countRanges(RestrictionType.CHAPTER));
 			System.out.println("count"+ref.getCardinality());

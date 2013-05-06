@@ -29,9 +29,12 @@ import org.crosswire.jsword.index.IndexStatus;
 
 public class MJDIndexAll {
 
-	private static final String REPOSITORY = "CrossWire";
-//	private static final String REPOSITORY = "Xiphos";
-//	private static final String REPOSITORY = "Crosswire Beta";
+	private static final String REPOSITORY_CROSSWIRE = "CrossWire";
+	private static final String REPOSITORY_CROSSWIRE_AV = "CrossWire AV";
+	private static final String REPOSITORY_XIPHOS = "Xiphos";
+	private static final String REPOSITORY_CROSSWIRE_BETA = "Crosswire Beta";
+	// Default repo used below
+	private static final String REPOSITORY = REPOSITORY_CROSSWIRE_AV;
 	
 //	private static final BookFilter BOOK_FILTER = BookFilters.getDictionaries();
 	private static final BookFilter BOOK_FILTER = BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries());
@@ -72,7 +75,7 @@ public class MJDIndexAll {
 	//    	indexAll.installSingleBook("StrongsGreek");
 	//    	indexAll.installSingleBook("BDBGlosses_Strongs");
 	//    	indexAll.installRepoBooks();
-	    	indexAll.checkAllBooksInstalled();
+//	    	indexAll.checkAllBooksInstalled();
 	//    	indexAll.manageCreateIndexes();
 	//    	indexAll.indexSingleBook("KJV");
 	    	
@@ -233,7 +236,12 @@ public class MJDIndexAll {
 // 			indexAll.installAndIndexSingleBook("UrduGeo");
 // 			indexAll.installAndIndexSingleBook("RWP");
 	    	// 8/2/13
-	    	indexAll.installAndIndexSingleBook("HinERV");
+//	    	indexAll.installAndIndexSingleBook("HinERV");
+	    	
+//	    	indexAll.installAndIndexSingleBook("RusSynodal");
+	    	
+	    	// Crosswire AV
+//	    	indexAll.installAndIndexAllRepoBooks();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -299,6 +307,15 @@ public class MJDIndexAll {
     	}
     }
 
+    private void installAndIndexAllRepoBooks() {
+    	BookInstaller bookInstaller = new BookInstaller();
+        List<Book> books = (List<Book>)bookInstaller.getRepositoryBooks(REPOSITORY, BOOK_FILTER);
+        
+        for (Book book : books) {
+        	installAndIndexSingleBook(book.getInitials());
+        }
+    }
+
     private void installAndIndexSingleBook(String initials) {
     	deleteBook(initials);
     	installSingleBook(initials);
@@ -315,6 +332,9 @@ public class MJDIndexAll {
                 System.out.println("Found in repo:"+lang+" "+book.getName());
 
                 try {
+                	if (bookInstaller.getInstalledBook(book.getInitials())!=null) {
+                		System.out.println("Installer thinks Already installed:"+book.getInitials()+":"+book.getName());
+                	}
                 	if (Books.installed().getBook(book.getInitials()) != null) {
                         System.out.println("Already installed:"+book.getInitials()+":"+book.getName());
                 	} else {
