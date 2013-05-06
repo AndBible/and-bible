@@ -48,7 +48,7 @@ public class BookmarkControlTest extends TestCase {
 	public void testAddBookmark() {
 		try {
 			BookmarkDto newDto = addTestVerse();
-			assertEquals("New Bookmark key incorrect.  Test:"+currentTestVerse+" was:"+newDto.getKey().getName(), newDto.getKey().getName(), currentTestVerse);
+			assertEquals("New Bookmark key incorrect.  Test:"+currentTestVerse+" was:"+newDto.getVerse().getName(), newDto.getVerse().getName(), currentTestVerse);
 			assertTrue("New Bookmark id incorrect", newDto.getId()>-1);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -64,7 +64,7 @@ public class BookmarkControlTest extends TestCase {
 			
 			List<BookmarkDto> bookmarks = bookmarkControl.getAllBookmarks();
 			for (BookmarkDto dto : bookmarks) {
-				System.out.println(dto.getId()+" "+dto.getKey().getName());
+				System.out.println(dto.getId()+" "+dto.getVerse().getName());
 			}
 			assertTrue( bookmarks.size()==3);
 		} catch (Exception e) {
@@ -151,7 +151,7 @@ public class BookmarkControlTest extends TestCase {
 			currentTestVerse = getNextTestVerse();
 			
 			BookmarkDto bookmark = new BookmarkDto();
-			bookmark.setKey(VerseFactory.fromString(Versifications.instance().getVersification("KJV"), currentTestVerse));
+			bookmark.setVerse(VerseFactory.fromString(Versifications.instance().getVersification("KJV"), currentTestVerse));
 			BookmarkDto newDto = bookmarkControl.addBookmark(bookmark);
 			return newDto;
 		} catch (Exception e) {
