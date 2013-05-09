@@ -1,5 +1,7 @@
 package net.bible.android.control.link;
 
+import java.net.URLDecoder;
+
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
@@ -94,6 +96,14 @@ public class LinkControl {
 	        	// tell user to install book
 	        	Dialogs.getInstance().showErrorMsg(R.string.document_not_installed, initials);
 			} else {
+				//Foreign language keys may have been URLEncoded so need to URLDecode them e.g. UZV module at Matthew 1. The first link is "David" (looks a bit like DOBYA)
+				ref = URLDecoder.decode(ref);
+				
+				//According to the OSIS schema, the osisRef attribute can contain letters and "_", but NOT punctuation and NOT spaces
+				//IBT dictionary entries sometimes contain spaces but osisrefs can't so _32_ is used
+				// e.g.  UZV Matthew 1:18: The link to "Holy Spirit" (Muqaddas Ruhdan)
+				ref = ref.replace("_32_", " ");
+				
 				Key bookKey = document.getKey(ref);
 				CurrentPageManager.getInstance().setCurrentDocumentAndKey(document, bookKey);
 			}
