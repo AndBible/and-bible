@@ -1,6 +1,8 @@
 package net.bible.android.control.link;
 
 import java.net.URLDecoder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
@@ -37,6 +39,8 @@ import android.util.Log;
  *      The copyright to this program is held by it's author.
  */
 public class LinkControl {
+
+	private static final Pattern IBT_SPECIAL_CHAR_RE = Pattern.compile("_(\\d+)_");
 
 	private static final String TAG = "LinkControl";
 	
@@ -102,12 +106,28 @@ public class LinkControl {
 				//According to the OSIS schema, the osisRef attribute can contain letters and "_", but NOT punctuation and NOT spaces
 				//IBT dictionary entries sometimes contain spaces but osisrefs can't so _32_ is used
 				// e.g.  UZV Matthew 1:18: The link to "Holy Spirit" (Muqaddas Ruhdan)
-				ref = ref.replace("_32_", " ");
+				ref = replaceIBTSpecialCharacters(ref);
 				
 				Key bookKey = document.getKey(ref);
 				CurrentPageManager.getInstance().setCurrentDocumentAndKey(document, bookKey);
 			}
 		}
+	}
+	
+	/**
+	 * IBT use _nn_ for punctuation chars in references to dictionaries e.g. _32_ represents a space so 'Holy_32_Spirit' should be converted to 'Holy Spirit'
+	 * @param ref Key e.g. dictionary key
+	 * @return ref with _nn_ replaced by punctuation
+	 */
+	private String replaceIBTSpecialCharacters(String ref) {
+		Matcher refIBTSpecialCharMatcher = IBT_SPECIAL_CHAR_RE.matcher(ref);
+		StringBuffer output = new StringBuffer();
+		while(refIBTSpecialCharMatcher.find()) {
+			String specialChar = Character.toString((char)Integer.parseInt(refIBTSpecialCharMatcher.group(1)));
+			refIBTSpecialCharMatcher.appendReplacement(output, specialChar);
+		}
+		refIBTSpecialCharMatcher.appendTail(output);
+		return output.toString();
 	}
 
 	/** user has selected a Bible verse link
