@@ -12,5 +12,6 @@
 	<classpathentry exported="true" kind="lib" path="libs/lucene-snowball-3.0.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/slf4j-android-1.6.1-RC1.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/jsword.jar" sourcepath="libs-src/jsword-src.jar"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
