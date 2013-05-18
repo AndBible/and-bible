@@ -15,24 +15,22 @@
         android:layout_marginBottom="6dip"
         android:layout_weight="1">
         <!-- set height to 30dp specifically to allow for variable text size in TextSizePreference-->
-        <TextView android:id="@+android:id/dialogMessage"
+        <TextView android:id="@+id/dialogMessage"
             android:layout_width="wrap_content"
             android:layout_height="40dp"
             android:gravity="bottom" 
-            android:layout_below="@android:id/title"
-            android:layout_alignLeft="@android:id/title"
             android:textAppearance="@style/SmallGreyText"
             android:maxLines="2" />
-		<SeekBar android:id="@+android:id/myBar"
+		<SeekBar android:id="@+id/myBar"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@android:id/dialogMessage"
-            android:layout_alignLeft="@android:id/dialogMessage" />
-        <TextView android:id="@+android:id/actualValue"
+            android:layout_below="@id/dialogMessage"
+            android:layout_alignLeft="@id/dialogMessage" />
+        <TextView android:id="@+id/actualValue"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@android:id/myBar"
-            android:layout_alignLeft="@android:id/myBar"
+            android:layout_below="@id/myBar"
+            android:layout_alignLeft="@id/myBar"
             android:textAppearance="@style/SmallGreyText"
             android:maxLines="1" />
     </RelativeLayout>
