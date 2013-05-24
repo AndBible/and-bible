@@ -514,7 +514,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	/** move the view so the selected verse is at the top or at least visible
 	 */
 	private void doScrollOrJumpToVerse(int verse) {
-		if (mJumpToVerse==1) {
+		if (mJumpToVerse<=1) {
 			// use scroll to because difficult to place a tag exactly at the top
 			scrollTo(0,0);
 		} else {

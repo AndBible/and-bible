@@ -54,6 +54,10 @@ public class HtmlTextWriter {
     public int getPosition() {
     	return writer.length();
     }
+
+    public void removeAfter(int position) {
+    	writer.delete(position, writer.length());
+    }
     
 	public void reset() {
 		writer.setLength(0);

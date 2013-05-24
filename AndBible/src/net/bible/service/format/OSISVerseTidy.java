@@ -20,9 +20,9 @@ public class OSISVerseTidy {
 	private Book book;
 	
     private static final String VERSE_OPENING_TAG_START = "<"+OSISUtil.OSIS_ELEMENT_VERSE+" "+OSISUtil.OSIS_ATTR_OSISID+"='";
-    private static final String VERSE_OPENING_TAG_END = "'/>";
+    private static final String VERSE_OPENING_TAG_END = "'>";
     // WEB has <l> tags that span verses so avoid errors by using empty verse tags
-    private static final String VERSE_CLOSING_TAG = ""; //"</"+OSISUtil.OSIS_ELEMENT_VERSE+">";
+    private static final String VERSE_CLOSING_TAG = "</"+OSISUtil.OSIS_ELEMENT_VERSE+">";
     
     private static final Logger log = new Logger(OSISVerseTidy.class.getName()); 
 
@@ -41,11 +41,9 @@ public class OSISVerseTidy {
 	 * @return
 	 */
 	public String tidy(Key key, String verseText) {
-		
 		verseText = checkVerseText(key, verseText);
 		verseText = addVerseTag(key, verseText);
 		return verseText;
-		
 	}
 	
 	/** This hack is based on a hack in JSword.  

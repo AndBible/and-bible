@@ -285,7 +285,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 		//TODO av11n - this is done now
 		BibleBook book = currentVerse.getBook();
 		int chapter = currentVerse.getChapter();
-		Verse targetChapterFirstVerse = new Verse(versification, book, chapter, 1);
+		Verse targetChapterFirstVerse = new Verse(versification, book, chapter, 0);
 		Verse targetChapterLastVerse = new Verse(versification, book, chapter, versification.getLastVerse(book, chapter));
 		// convert to full chapter before returning because bible view is for a full chapter
 		return new VerseRange(versification, targetChapterFirstVerse, targetChapterLastVerse);

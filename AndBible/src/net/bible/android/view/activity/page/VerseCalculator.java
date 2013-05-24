@@ -17,7 +17,7 @@ public class VerseCalculator {
 
 	private List<Integer> versePositionList = new LinkedList<Integer>();
 
-	private int prevCurrentVerse = 0;
+	private int prevCurrentVerse = -1;
 
 	// used in logging, but none currently done
 //	private Screen screen;
@@ -43,7 +43,7 @@ public class VerseCalculator {
 	 */
 	public void registerVersePosition(int verse, int offset) {
 		// cope with missing verses
-		while (verse>versePositionList.size()+1) {
+		while (verse>versePositionList.size()) {
 			// missed verse but need to put some offset so make it off screen
 			// commentaries will have all missing verses except current verse but don't know if it is a commentary
 			versePositionList.add(-1000);
@@ -72,10 +72,10 @@ public class VerseCalculator {
 		for (int verseIndex=0; verseIndex<versePositionList.size(); verseIndex++) {
 			int pos = versePositionList.get(verseIndex);
 			if (pos>adjustedScrollOffset) {
-				return verseIndex+1;
+				return verseIndex;
 			}
 		}
 		// maybe scrolled off botttom
-		return versePositionList.size();
+		return versePositionList.size()-1;
 	}
 }

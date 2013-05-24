@@ -17,6 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.crosswire.common.util.IOUtil;
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.Verse;
 
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -363,6 +364,15 @@ public class CommonUtils {
 		String name;
 		try {
 			name = key.getName();
+
+			// do not show verse 0
+			if (key instanceof Verse) {
+				Verse verseKey = (Verse)key;
+				if (verseKey.getVerse()==0 && name.endsWith("0")) {
+					final String verse0 = "[\\W]0$";
+					name = name.replaceAll(verse0, "");
+				}
+			}
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting key name - could that Versification does not contain book");
 			// but this normally works

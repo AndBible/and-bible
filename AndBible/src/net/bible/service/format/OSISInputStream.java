@@ -7,6 +7,7 @@ import java.util.Iterator;
 
 import net.bible.service.common.Logger;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.passage.Key;
@@ -125,16 +126,25 @@ public class OSISInputStream extends InputStream {
 			boolean isNextVerseLoaded = false;
 			while (keyIterator.hasNext() && !isNextVerseLoaded) {
 				Key currentVerse = keyIterator.next();
-				//get the actual verse text and tidy it up, but merged verses can cause duplicates so if dup then skip immediately to next verse
+				//get the actual verse text and tidy it up, 
 				String rawText = book.getRawText(currentVerse);
-				if (!previousVerseRawText.equals(rawText)) {
-					String tidyText = osisVerseTidy.tidy(currentVerse, rawText);
-					putInVerseBuffer(tidyText);
-					previousVerseRawText = rawText;
-					isNextVerseLoaded = true;
-					return;
+				
+				// do not output empty verses (commonly verse 0 is empty)
+				if (!StringUtils.isWhitespace(rawText)) {
+					
+					// merged verses can cause duplicates so if dup then skip immediately to next verse
+					if (!previousVerseRawText.equals(rawText)) {
+						String tidyText = osisVerseTidy.tidy(currentVerse, rawText);
+						putInVerseBuffer(tidyText);
+						previousVerseRawText = rawText;
+						isNextVerseLoaded = true;
+						return;
+					} else {
+						log.debug("Duplicate verse:"+currentVerse);
+					}
+					
 				} else {
-					log.debug("Duplicate verse text:"+currentVerse);
+					log.debug("Empty or missing verse:"+currentVerse);
 				}
 			}
 			

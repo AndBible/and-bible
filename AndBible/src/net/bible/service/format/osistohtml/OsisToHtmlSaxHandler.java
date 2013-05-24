@@ -84,7 +84,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		int positionToInsertBeforeVerse;
 		boolean isTextSinceVerse = false;
 	}
-
+	
+	private boolean isAnyTextWritten = false;
+	
 	private static final String HEBREW_LANGUAGE_CODE = "he";
 
 	private static final Logger log = new Logger("OsisToHtmlSaxHandler");
@@ -203,7 +205,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		} else if (name.equals(TEIUtil.TEI_ELEMENT_REF)) {
 			refHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LB)) {
-			write(HTML.BR);
+			if (isAnyTextWritten) {
+				write(HTML.BR);
+			}
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LG)) {
 			lgHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
@@ -213,7 +217,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			if ("paragraph".equals(type)) {
 				// ignore sID start paragraph sID because it often comes after the verse no and causes a gap between verse no verse text
 				String eID = attrs.getValue("eID");
-				if (eID!=null) {
+				if (eID!=null && isAnyTextWritten) {
 					write("<p />");
 				}
 			}
@@ -231,8 +235,10 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			String type = attrs.getValue(OSISUtil.OSIS_ATTR_TYPE);
 			if (StringUtils.isNotEmpty(type)) {
 				if (type.equals("line") || type.equals("x-p")) {
-					//e.g. NETtext Mt 4:14; KJV Gen 1:6
-					writeOptionallyBeforeVerse(HTML.BR);
+					if (isAnyTextWritten) {
+						//e.g. NETtext Mt 4:14; KJV Gen 1:6
+						writeOptionallyBeforeVerse(HTML.BR);
+					}
 				}
 			}
 		} else if (name.equals("transChange")) {
@@ -261,7 +267,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		if (name.equals(OSISUtil.OSIS_ELEMENT_TITLE)) {
 			titleHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
-			// verse opening and closing tags wrap the verse number at start of the verse
+			verseHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {
 			noteHandler.endNote();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
@@ -305,6 +311,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		verseInfo.isTextSinceVerse = verseInfo.isTextSinceVerse ||
 										len>2 ||
 										StringUtils.isNotBlank(s);
+		isAnyTextWritten = isAnyTextWritten || verseInfo.isTextSinceVerse;
 		
 		if (textPreprocessor!=null) {
 			s = textPreprocessor.process(s);

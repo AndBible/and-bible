@@ -1,7 +1,7 @@
 package net.bible.service.format.osistohtml;
 
-import net.bible.service.common.Logger;
 import net.bible.service.common.Constants.HTML;
+import net.bible.service.common.Logger;
 import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler.VerseInfo;
 
 import org.crosswire.jsword.book.OSISUtil;
@@ -20,6 +20,8 @@ public class VerseHandler {
 	
 	private VerseInfo verseInfo; 
 	
+	private int writerRollbackPosition;
+	
 	private HtmlTextWriter writer;
 	
 	@SuppressWarnings("unused")
@@ -37,6 +39,8 @@ public class VerseHandler {
     }
 
 	public void startAndUpdateVerse(Attributes attrs) {
+		writerRollbackPosition = writer.getPosition();
+		
 		if (attrs!=null) {
 			verseInfo.currentVerseNo = TagHandlerHelper.osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID));
 		} else {
@@ -56,22 +60,23 @@ public class VerseHandler {
 	}
 
 	public void end() {
+		if (!verseInfo.isTextSinceVerse) {
+			writer.removeAfter(writerRollbackPosition);
+		}
 	}
 
 	private void writeVerse(int verseNo) {
 		verseInfo.positionToInsertBeforeVerse = writer.getPosition();
 		
-		// the id is used to 'jump to' the verse using javascript so always
-		// need the verse tag with an id
+		// The id is used to 'jump to' the verse using javascript so always need the verse tag with an id
+		// Do not show verse 0
 		StringBuilder verseHtml = new StringBuilder();
-		if (parameters.isShowVerseNumbers()) {
+		if (parameters.isShowVerseNumbers() && verseNo!=0) {
 			verseHtml.append(" <span class='verse' id='").append(verseNo).append("'>").append(verseNo).append("</span>").append(HTML.NBSP);
 		} else {
-			// we really want an empty span but that is illegal and causes
-			// problems such as incorrect verse calculation in Psalms
-			// so use something that will hopefully interfere as little as
-			// possible - a zero-width-space
-			// also put a space before it to allow a seperation from teh last word of previous verse or to be ignored if start of line
+			// we really want an empty span but that is illegal and causes problems such as incorrect verse calculation in Psalms
+			// so use something that will hopefully interfere as little as possible - a zero-width-space
+			// also put a space before it to allow a separation from the last word of previous verse or to be ignored if start of line
 			verseHtml.append(" <span class='verse' id='").append(verseNo).append("'/>&#x200b;</span>");
 		}
 		writer.write(verseHtml.toString());
