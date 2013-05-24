@@ -201,15 +201,16 @@ public class SwordDocumentFacade {
 		
 		// store books in a Set to ensure only one of each type and allow override from AndBible repo if necessary
 		// First added to set gets priority so AB > IBT > CWAV > CW > X > CWB
+		// Temporarily put CWAV at end to prevent override of working nonav11n books with av11n books without a working map
         Set<Book> allBooks = new HashSet<Book>();
 
         allBooks.addAll(repoFactory.getAndBibleRepo().getRepoBooks(refresh));
         
         allBooks.addAll(repoFactory.getIBTRepo().getRepoBooks(refresh));
 
-        allBooks.addAll(repoFactory.getCrosswireAVRepo().getRepoBooks(refresh));
-
         allBooks.addAll(repoFactory.getCrosswireRepo().getRepoBooks(refresh));
+
+        allBooks.addAll(repoFactory.getCrosswireAVRepo().getRepoBooks(refresh));
 
         allBooks.addAll(repoFactory.getXiphosRepo().getRepoBooks(refresh));
 
