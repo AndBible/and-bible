@@ -11,8 +11,9 @@ import org.crosswire.jsword.versification.Versification;
  */
 public class VersificationMappingFactory {
 
-	// only one mapping supported at the moment
+	// Limited mappings supported at the moment
 	private static final KJVSynodalVersificationMapping kjvSynodalVersificationMapping = new KJVSynodalVersificationMapping();
+	private static final KJVLeningradVersificationMapping kjvLeningradVersificationMapping = new KJVLeningradVersificationMapping();
 	private static final DefaultVersificationMapping defaultVersificationMapping = new DefaultVersificationMapping();
 
 	private static final VersificationMappingFactory singleton = new VersificationMappingFactory();
@@ -24,6 +25,8 @@ public class VersificationMappingFactory {
 	public VersificationMapping getVersificationMapping(Versification from, Versification to) {
 		if (kjvSynodalVersificationMapping.canConvert(from, to)) {
 			return kjvSynodalVersificationMapping;
+		} else if (kjvLeningradVersificationMapping.canConvert(from, to)) {
+			return kjvLeningradVersificationMapping;
 		} else {
 			return defaultVersificationMapping;
 		}
