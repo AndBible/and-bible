@@ -4,7 +4,6 @@ import java.util.Map.Entry;
 import java.util.Properties;
 
 import net.bible.service.common.FileManager;
-import net.bible.service.common.TwoWayHashmap;
 
 import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.Verse;
@@ -23,7 +22,7 @@ import android.util.Log;
  */
 abstract public class PropertyFileVersificationMapping implements VersificationMapping {
 
-	protected TwoWayHashmap<Verse, Verse> verseMap;
+	protected TwoWayVerseMapping verseMap;
 	
 	private Versification leftVersification;
 	private Versification rightVersification;
@@ -95,7 +94,7 @@ abstract public class PropertyFileVersificationMapping implements VersificationM
 
 	private void initialiseMappingData() {
 		Log.d(TAG, "Loading KIV<->Synodal mapping data");
-		verseMap = new TwoWayHashmap<Verse, Verse>();
+		verseMap = new TwoWayVerseMapping();
 	
 		// load properties that define the map
 		Properties mappingProperties = FileManager.readPropertiesFile("versificationmaps", getPropertiesFileName());
@@ -109,7 +108,9 @@ abstract public class PropertyFileVersificationMapping implements VersificationM
 				Verse leftVerse = VerseFactory.fromString(leftVersification, leftVerseString);
 				Verse rightVerse = VerseFactory.fromString(rightVersification, rightVerseString);
 				
-				verseMap.add(leftVerse, rightVerse);
+				// add but allow for a/b extensions by using lowest mapping if multiple mappings
+				verseMap.addUsingLowestMappingIfMutiple(leftVerse, rightVerse);
+				
 			} catch (NoSuchVerseException nsve) {
 				Log.e(TAG, "Bad verse in mapping data:"+entry);
 			}
