@@ -116,4 +116,9 @@ abstract public class PropertyFileVersificationMapping implements VersificationM
 		return tidied;
 	}
 
+	@Override
+	public String toString() {
+		return leftVersification.getName() + rightVersification.getName() + "Mapping";
+	}
+
 }

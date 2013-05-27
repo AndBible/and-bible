@@ -27,4 +27,9 @@ public class DefaultVersificationMapping implements VersificationMapping {
 	public boolean canConvert(Versification from, Versification to) {
 		return true;
 	}
+
+	@Override
+	public String toString() {
+		return TAG;
+	}
 }
