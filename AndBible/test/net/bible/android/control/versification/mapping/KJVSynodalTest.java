@@ -1,7 +1,6 @@
 package net.bible.android.control.versification.mapping;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 import org.crosswire.jsword.passage.Verse;
@@ -43,6 +42,18 @@ public class KJVSynodalTest {
 	}
 	
 	@Test
+	public void testVerse0Case() {
+		// Num.12.16=Num.13.1
+		// Num.13.1=Num.13.2
+
+		// Rule: If there is no mapping rule for verse 0 but there is for verse 1 then use that rule but it can be different for both directions
+		check(BibleBook.NUM, 12, 16, 13, 1);
+		checkToSynodal(BibleBook.NUM, 13, 0, 13, 2); // i.e. if user scrolls just above verse 1 in KJV module
+		checkToKJV(BibleBook.NUM, 12, 16, 13, 0); // i.e. if user scrolls just above verse 1 in Synodal module
+		check(BibleBook.NUM, 13, 1, 13, 2);
+	}
+
+	@Test
 	public void testABVerseExtension() {
 //		Ps.17.0=Ps.16.1a
 //		Ps.17.1=Ps.16.1b
@@ -73,8 +84,8 @@ public class KJVSynodalTest {
 		Verse synodalVerse = new Verse(SYNODAL_VERSIFICATION, book, synChap, synVerseNo);
 		
 		//To KJV
-		assertEquals("Synodal "+book+" "+synChap+":"+synVerseNo+" should be KJV "+book+" "+kjvChap+":"+kjvVerseNo, 
-				kjvVerse,
-				testItem.getMappedVerse(synodalVerse, KJV_VERSIFICATION));
+		assertThat("Synodal "+book+" "+synChap+":"+synVerseNo+" should be KJV "+book+" "+kjvChap+":"+kjvVerseNo, 
+				testItem.getMappedVerse(synodalVerse, KJV_VERSIFICATION),
+				equalTo(kjvVerse));
 	}
 }

@@ -56,15 +56,28 @@ abstract public class PropertyFileVersificationMapping implements VersificationM
 	
 	private Verse mapVerse(Verse verse, boolean forward, Versification versification) {
 		Verse mappedVerse;
-		if (forward) {
-			 mappedVerse = this.verseMap.getForward(verse);
-		} else {
-			 mappedVerse = this.verseMap.getBackward(verse);
+		mappedVerse = getMappedVersefrom2WayMap(verse, forward);
+		
+		// Rule: If there is no mapping rule for verse 0 but there is for verse 1 then use that rule but it can be different for both directions
+		// This prevents wrong chapter jump when a user scrolls above v1 and v1 is mapped to a different chapter but v0 is unmapped
+		if (mappedVerse==null && verse.getVerse()==0) {
+			Verse verse1 = new Verse(verse.getVersification(), verse.getBook(), verse.getChapter(), 1);
+			mappedVerse = getMappedVersefrom2WayMap(verse1, forward);
 		}
 		
 		// no mapping found so just create a new unmapped verse with the correct versification
 		if (mappedVerse==null) {
 			mappedVerse = new Verse(versification, verse.getBook(), verse.getChapter(), verse.getVerse());
+		}
+		return mappedVerse;
+	}
+
+	private Verse getMappedVersefrom2WayMap(Verse verse, boolean forward) {
+		Verse mappedVerse;
+		if (forward) {
+			mappedVerse = this.verseMap.getForward(verse);
+		} else {
+			mappedVerse = this.verseMap.getBackward(verse);
 		}
 		return mappedVerse;
 	}
