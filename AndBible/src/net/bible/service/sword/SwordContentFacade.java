@@ -101,7 +101,7 @@ public class SwordContentFacade {
 			String errorMsg = BibleApplication.getApplication().getString(R.string.document_not_installed, book.getInitials());
 			String htmlMsg = HtmlMessageFormatter.format(errorMsg);
 			retVal = htmlMsg;
-		} else if (!book.contains(key)) {
+		} else if (!bookContainsAnyOf(book, key)) {
 			Log.w(TAG, "KEY:"+key.getOsisID()+" not found in doc:"+book);
 			String htmlMsg = HtmlMessageFormatter.format(R.string.error_key_not_in_document);
 			retVal = htmlMsg;
@@ -435,4 +435,24 @@ public class SwordContentFacade {
 	public static void setAndroid(boolean isAndroid) {
 		SwordContentFacade.isAndroid = isAndroid;
 	}
+
+	/**
+     * When checking a book contains a chapter SwordBook returns false if verse 0 is not in the chapter so this method compensates for that
+     * 
+     * This can be removed if SwordBook.contains is converted to be containsAnyOf as discussed in JS-273
+     */
+    private boolean bookContainsAnyOf(Book book, Key key) {
+        if (book.contains(key)) {
+            return true;
+        }
+        
+        Iterator<Key> iter = key.iterator();
+        while (iter.hasNext()) {
+            if (book.contains(iter.next())) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
 }
