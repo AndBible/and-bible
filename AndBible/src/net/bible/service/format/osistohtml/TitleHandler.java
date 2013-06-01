@@ -57,7 +57,7 @@ public class TitleHandler {
 		if (isShowTitle) {
 			// ESV has subType butNETtext has lower case subtype so concatenate both and search with contains() 
 			String subtype = attrs.getValue(OSISUtil.OSIS_ATTR_SUBTYPE)+attrs.getValue(OSISUtil.OSIS_ATTR_SUBTYPE.toLowerCase());
-			isMoveBeforeVerse = StringUtils.containsIgnoreCase(subtype, PREVERSE) || !verseInfo.isTextSinceVerse;
+			isMoveBeforeVerse = StringUtils.containsIgnoreCase(subtype, PREVERSE) || (!verseInfo.isTextSinceVerse && verseInfo.currentVerseNo>0);
 			if (isMoveBeforeVerse) {
 				// section Titles normally come before a verse, so overwrite the, already written verse, which is rewritten on writer.finishedInserting
 				writer.beginInsertAt(verseInfo.positionToInsertBeforeVerse);

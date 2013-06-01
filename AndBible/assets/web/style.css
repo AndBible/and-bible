@@ -14,6 +14,16 @@ h1, .heading1 {
 	margin-bottom: 0.2em;
 }
 
+/* prevent gaps between titles which have a span adjacent to them see example in ESV Ps 69 where a title is immediately followed by another */  
+span[id="0"].verse + h1 {
+	display:inline;
+}
+/* but ensure a heading in verse 0 is followed by a new line e.g. GerNeUe Ps 69 */
+span[id="0"].verse + h1:after { 
+	content: "\A";
+	white-space:pre; 
+}
+
 h1 a, .heading2, .heading3, .heading4 {
 	color: navy;
 	text-align: left;
