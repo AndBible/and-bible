@@ -9,6 +9,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.document.DocumentControl;
@@ -20,7 +21,9 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
+import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.index.IndexStatus;
+import org.crosswire.jsword.versification.Versification;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -432,7 +435,15 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 		// add version
 		Version versionObj = (Version)document.getBookMetaData().getProperty("Version");
 		if (versionObj!=null) {
-			about += "\n\nVersion: "+versionObj.toString();
+	        String versionMsg = BibleApplication.getApplication().getString(R.string.about_version, versionObj.toString());
+			about += "\n\n"+versionMsg;
+		}
+
+		// add versification
+		if (document instanceof SwordBook) {
+			Versification versification = ((SwordBook)document).getVersification();
+	        String versificationMsg = BibleApplication.getApplication().getString(R.string.about_versification, versification.getName());
+			about += "\n\n"+versificationMsg;
 		}
 
     	new AlertDialog.Builder(this)
