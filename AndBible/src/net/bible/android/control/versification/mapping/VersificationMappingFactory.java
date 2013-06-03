@@ -1,5 +1,8 @@
 package net.bible.android.control.versification.mapping;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.crosswire.jsword.versification.Versification;
 
 /**
@@ -11,17 +14,26 @@ import org.crosswire.jsword.versification.Versification;
  */
 public class VersificationMappingFactory {
 
-	// Limited mappings supported at the moment
-	private static final KJVSynodalVersificationMapping kjvSynodalVersificationMapping = new KJVSynodalVersificationMapping();
-	private static final KJVGermanVersificationMapping kjvGermanVersificationMapping = new KJVGermanVersificationMapping();
-	private static final KJVLeningradVersificationMapping kjvLeningradVersificationMapping = new KJVLeningradVersificationMapping();
-	private static final KJVVulgVersificationMapping kjvVulgVersificationMapping = new KJVVulgVersificationMapping();
-	private static final DefaultVersificationMapping defaultVersificationMapping = new DefaultVersificationMapping();
+	private static final NoVersificationMapping noVersificationMapping = new NoVersificationMapping();
 
+	private Map<String, VersificationMapping> versificationMappingMap = new HashMap<String, VersificationMapping>();
+	
 	private static final VersificationMappingFactory singleton = new VersificationMappingFactory();
 	
 	public static VersificationMappingFactory getInstance() {
 		return singleton;
+	}
+	
+	/**
+	 * Add all possible mappings to the HashMap
+	 */
+	private VersificationMappingFactory() {
+		// Limited mappings supported at the moment
+		addMapping(new KJVSynodalVersificationMapping());
+		addMapping(new KJVGermanVersificationMapping());
+		addMapping(new KJVLeningradVersificationMapping());
+		addMapping(new KJVVulgVersificationMapping());
+		addMapping(new GermanSynodalVersificationMapping());
 	}
 	
 	/** Return the correct v11n mapping provider for the versifications
@@ -29,16 +41,33 @@ public class VersificationMappingFactory {
 	 * @return	Mapping provider or default if no mapping provider exists or the v11ns are the same
 	 */
 	public VersificationMapping getVersificationMapping(Versification from, Versification to) {
-		if (kjvSynodalVersificationMapping.canConvert(from, to)) {
-			return kjvSynodalVersificationMapping;
-		} else if (kjvGermanVersificationMapping.canConvert(from, to)) {
-			return kjvGermanVersificationMapping;
-		} else if (kjvLeningradVersificationMapping.canConvert(from, to)) {
-			return kjvLeningradVersificationMapping;
-		} else if (kjvVulgVersificationMapping.canConvert(from, to)) {
-			return kjvVulgVersificationMapping;
-		} else {
-			return defaultVersificationMapping;
+		VersificationMapping versificationMapping = versificationMappingMap.get(getMappingIdentifier(from, to));
+		if (versificationMapping==null) {
+			versificationMapping = noVersificationMapping;
 		}
+
+		assert(versificationMapping.canConvert(from, to));
+		return versificationMapping;
+	}
+	
+	/** 
+	 * add a mapping to the HashMap of mappings.  Each mapping handles both forward and backward mapping.
+	 */
+	private void addMapping(VersificationMapping mapping) {
+		// forward mapping
+		String lToRMappingId = getMappingIdentifier(mapping.getLeftVersification(), mapping.getRightVersification());
+		versificationMappingMap.put(lToRMappingId, mapping);
+		
+		// reverse mapping
+		String rToLMappingId = getMappingIdentifier(mapping.getRightVersification(), mapping.getLeftVersification());
+		versificationMappingMap.put(rToLMappingId, mapping);
+	}
+
+	/** 
+	 * get a key/identifier t represent a specific mapping from one v11n to another
+	 */
+	private String getMappingIdentifier(Versification from, Versification to) {
+		StringBuilder builder = new StringBuilder();
+		return builder.append(from.getName()).append("->").append(to.getName()).toString();
 	}
 }

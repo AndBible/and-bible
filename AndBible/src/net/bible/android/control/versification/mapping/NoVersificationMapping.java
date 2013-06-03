@@ -10,9 +10,9 @@ import org.crosswire.jsword.versification.Versification;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class DefaultVersificationMapping implements VersificationMapping {
+public class NoVersificationMapping implements VersificationMapping {
 
-	private static final String TAG = "DefaultVersificationMapping";
+	private static final String TAG = "NoVersificationMapping";
 	
 	@Override
 	public Verse getMappedVerse(Verse verse, Versification toVersification) {
@@ -31,5 +31,15 @@ public class DefaultVersificationMapping implements VersificationMapping {
 	@Override
 	public String toString() {
 		return TAG;
+	}
+
+	@Override
+	public Versification getLeftVersification() {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Versification getRightVersification() {
+		throw new UnsupportedOperationException();
 	}
 }

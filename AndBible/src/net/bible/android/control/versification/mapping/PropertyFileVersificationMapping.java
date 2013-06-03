@@ -9,7 +9,6 @@ import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseFactory;
 import org.crosswire.jsword.versification.Versification;
-import org.crosswire.jsword.versification.system.Versifications;
 
 import android.util.Log;
 
@@ -20,28 +19,14 @@ import android.util.Log;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-abstract public class PropertyFileVersificationMapping implements VersificationMapping {
+abstract public class PropertyFileVersificationMapping extends AbstractVersificationMapping implements VersificationMapping {
 
 	protected TwoWayVerseMapping verseMap;
 	
-	private Versification leftVersification;
-	private Versification rightVersification;
-
 	static final String TAG = "PropertyFileVersificationMapping";
 	
 	public PropertyFileVersificationMapping(String leftVersificationName, String rightVersificationName) {
-		this(Versifications.instance().getVersification(leftVersificationName), Versifications.instance().getVersification(rightVersificationName));
-	}
-
-	public PropertyFileVersificationMapping(Versification leftVersification, Versification rightVersification) {
-		this.leftVersification = leftVersification;
-		this.rightVersification = rightVersification;
-	}
-
-	@Override
-	public boolean canConvert(Versification from, Versification to) {
-		return (from.equals(leftVersification) && to.equals(rightVersification)) ||
-			   (from.equals(rightVersification) && to.equals(leftVersification));
+		super(leftVersificationName, rightVersificationName);
 	}
 
 	@Override
@@ -49,7 +34,7 @@ abstract public class PropertyFileVersificationMapping implements VersificationM
 		// only load large properties file with mapping data if required
 		lazyInitializationOfMappingData();
 		
-		boolean isForward = toVersification.equals(rightVersification);
+		boolean isForward = toVersification.equals(getRightVersification());
 		return mapVerse(verse, isForward, toVersification);
 	}
 	
@@ -105,8 +90,8 @@ abstract public class PropertyFileVersificationMapping implements VersificationM
 				String leftVerseString = tidyVerse((String)entry.getKey());
 				String rightVerseString = tidyVerse((String)entry.getValue());
 				
-				Verse leftVerse = VerseFactory.fromString(leftVersification, leftVerseString);
-				Verse rightVerse = VerseFactory.fromString(rightVersification, rightVerseString);
+				Verse leftVerse = VerseFactory.fromString(getLeftVersification(), leftVerseString);
+				Verse rightVerse = VerseFactory.fromString(getRightVersification(), rightVerseString);
 				
 				// add but allow for a/b extensions by using lowest mapping if multiple mappings
 				verseMap.addUsingLowestMappingIfMutiple(leftVerse, rightVerse);
@@ -118,7 +103,7 @@ abstract public class PropertyFileVersificationMapping implements VersificationM
 	}
 	
 	private String getPropertiesFileName() {
-		return leftVersification.getName()+"To"+rightVersification.getName()+".properties";
+		return getLeftVersification().getName()+"To"+getRightVersification().getName()+".properties";
 	}
 
 	private String tidyVerse(String verse) {
@@ -129,10 +114,4 @@ abstract public class PropertyFileVersificationMapping implements VersificationM
 		}
 		return tidied;
 	}
-
-	@Override
-	public String toString() {
-		return leftVersification.getName() + rightVersification.getName() + "Mapping";
-	}
-
 }

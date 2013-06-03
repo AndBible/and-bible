@@ -15,4 +15,8 @@ public interface VersificationMapping {
 	public Verse getMappedVerse(Verse verse, Versification toVersification);
 	
 	public boolean canConvert(Versification from, Versification to);
+	
+	public Versification getLeftVersification();
+
+	public Versification getRightVersification();
 }

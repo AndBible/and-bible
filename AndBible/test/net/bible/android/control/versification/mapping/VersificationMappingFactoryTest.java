@@ -16,7 +16,7 @@ public class VersificationMappingFactoryTest extends TestCase {
 	private static final Versification KJV_VERSIFICATION = Versifications.instance().getVersification("KJV");
 	
 	protected void setUp() throws Exception {
-		underTest = new VersificationMappingFactory();
+		underTest = VersificationMappingFactory.getInstance();
 	}
 
 	public void testGetLeningradVersificationMapping() {
@@ -30,7 +30,7 @@ public class VersificationMappingFactoryTest extends TestCase {
 	}
 
 	public void testGetNoVersificationMapping() {
-		assertThat(underTest.getVersificationMapping(SYNODAL_VERSIFICATION, SYNODAL_VERSIFICATION).toString(), equalTo("DefaultVersificationMapping"));
-		assertThat(underTest.getVersificationMapping(SYNODAL_VERSIFICATION, LENINGRAD_VERSIFICATION).toString(), equalTo("DefaultVersificationMapping"));
+		assertThat(underTest.getVersificationMapping(SYNODAL_VERSIFICATION, SYNODAL_VERSIFICATION).toString(), equalTo("NoVersificationMapping"));
+		assertThat(underTest.getVersificationMapping(SYNODAL_VERSIFICATION, LENINGRAD_VERSIFICATION).toString(), equalTo("NoVersificationMapping"));
 	}
 }
