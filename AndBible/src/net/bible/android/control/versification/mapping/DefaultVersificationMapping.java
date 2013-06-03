@@ -19,7 +19,7 @@ public class DefaultVersificationMapping implements VersificationMapping {
 		if (toVersification.equals(verse.getVersification())) {
 			return verse;
 		} else {
-			return new Verse(toVersification, verse.getBook(), verse.getChapter(), verse.getVerse(), true);
+			return new Verse(toVersification, verse.getBook(), verse.getChapter(), verse.getVerse());
 		}
 	}
 

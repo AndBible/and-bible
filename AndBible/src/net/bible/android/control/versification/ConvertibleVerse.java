@@ -26,7 +26,7 @@ public class ConvertibleVerse implements Comparable<ConvertibleVerse> {
 	}
 
 	public ConvertibleVerse(Versification versification, BibleBook book, int chapter, int verseNo) {
-		mainVerse = new Verse(versification, book, chapter, verseNo, true);
+		mainVerse = new Verse(versification, book, chapter, verseNo);
 	}
 	
 	public void setVerseNo(int verseNo) {
