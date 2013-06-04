@@ -13,9 +13,9 @@ import net.bible.android.control.versification.mapping.base.PropertyFileVersific
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class KJVSynodalVersificationMapping extends PropertyFileVersificationMapping {
+public class NRSVKJVVersificationMapping extends PropertyFileVersificationMapping {
 
-	public KJVSynodalVersificationMapping() {
-		super("KJV", "Synodal");
+	public NRSVKJVVersificationMapping() {
+		super("NRSV", "KJV");
 	}
 }

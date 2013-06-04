@@ -1,8 +1,10 @@
-package net.bible.android.control.versification.mapping;
+package net.bible.android.control.versification.mapping.base;
 
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import net.bible.android.control.versification.mapping.VersificationMapping;
+import net.bible.android.control.versification.mapping.util.TwoWayVerseMapping;
 import net.bible.service.common.FileManager;
 
 import org.crosswire.jsword.passage.NoSuchVerseException;

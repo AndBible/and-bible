@@ -1,5 +1,7 @@
 package net.bible.android.control.versification.mapping;
 
+import net.bible.android.control.versification.mapping.base.TwoStepVersificationMapping;
+
 
 /**
  * Map verses between German and Synodal versification via KJV

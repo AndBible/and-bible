@@ -3,6 +3,8 @@ package net.bible.android.control.versification.mapping;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
+import net.bible.android.control.versification.mapping.base.PropertyFileVersificationMapping;
+
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;

@@ -14,16 +14,16 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
-public class KJVLeningradTest {
+public class NRSVLeningradTest {
 
 	private static final Versification LENINGRAD_VERSIFICATION = Versifications.instance().getVersification("Leningrad");
-	private static final Versification KJV_VERSIFICATION = Versifications.instance().getVersification("KJV");
-	private KJVLeningradVersificationMapping underTest;
+	private static final Versification NRSV_VERSIFICATION = Versifications.instance().getVersification("NRSV");
+	private NRSVLeningradVersificationMapping underTest;
 	
     @Before
     public void setUp() throws Exception
     {
-    	underTest = new KJVLeningradVersificationMapping();
+    	underTest = new NRSVLeningradVersificationMapping();
     }
 	
 	@Test
@@ -32,7 +32,7 @@ public class KJVLeningradTest {
 		check(BibleBook.CHR1, 6, 15, 5, 41);
 		check(BibleBook.CHR1, 6, 16, 6, 1);
 		// if move above 6:1 in Len then can only map same as 6,1 but there should be no mapping in the other direction 
-		checkToKJV(BibleBook.CHR1, 6, 16, 6, 0);
+		checkToNRSV(BibleBook.CHR1, 6, 16, 6, 0);
 	}
 
 	@Test
@@ -42,6 +42,13 @@ public class KJVLeningradTest {
 	}
 	
 	@Test
+	public void testExtraNRSVVerse() {
+		//3Jn.1.15, Rev.12.18
+		check(BibleBook.JOHN3, 1, 15, 1, 15);
+		check(BibleBook.REV, 12, 18, 12, 18);
+	}
+
+	@Test
 	public void testABVerseExtension() {
 //		Ps.11.0=Ps.11.1a
 //		Ps.11.1=Ps.11.1b
@@ -49,31 +56,31 @@ public class KJVLeningradTest {
 		checkToLeningrad(BibleBook.PS, 11, 1, 11, 1);
 	}
 	
-	private void check(BibleBook book, int kjvChap, int kjvVerseNo, int synChap, int synVerseNo ) {
+	private void check(BibleBook book, int nrsvChap, int nrsvVerseNo, int synChap, int synVerseNo ) {
 		//To Leningrad
-		checkToLeningrad(book, kjvChap, kjvVerseNo, synChap, synVerseNo ); 
+		checkToLeningrad(book, nrsvChap, nrsvVerseNo, synChap, synVerseNo ); 
 
-		//To KJV
-		checkToKJV(book, kjvChap, kjvVerseNo, synChap, synVerseNo ); 
+		//To NRSV
+		checkToNRSV(book, nrsvChap, nrsvVerseNo, synChap, synVerseNo ); 
 	}
 
-	private void checkToLeningrad(BibleBook book, int kjvChap, int kjvVerseNo, int synChap, int synVerseNo ) {
+	private void checkToLeningrad(BibleBook book, int nrsvChap, int nrsvVerseNo, int synChap, int synVerseNo ) {
 		//To Leningrad
-		Verse kjvVerse = new Verse(KJV_VERSIFICATION, book, kjvChap, kjvVerseNo);
+		Verse nrsvVerse = new Verse(NRSV_VERSIFICATION, book, nrsvChap, nrsvVerseNo);
 		Verse leningradVerse = new Verse(LENINGRAD_VERSIFICATION, book, synChap, synVerseNo);
 		
-		assertThat("KJV "+book+" "+kjvChap+":"+kjvVerseNo+" should be Leningrad "+book+" "+synChap+":"+synVerseNo, 
-				underTest.getMappedVerse(kjvVerse, LENINGRAD_VERSIFICATION),
+		assertThat("NRSV "+book+" "+nrsvChap+":"+nrsvVerseNo+" should be Leningrad "+book+" "+synChap+":"+synVerseNo, 
+				underTest.getMappedVerse(nrsvVerse, LENINGRAD_VERSIFICATION),
 				equalTo(leningradVerse)); 
 	}
-	private void checkToKJV(BibleBook book, int kjvChap, int kjvVerseNo, int synChap, int synVerseNo ) {
+	private void checkToNRSV(BibleBook book, int nrsvChap, int nrsvVerseNo, int synChap, int synVerseNo ) {
 		//To Leningrad
-		Verse kjvVerse = new Verse(KJV_VERSIFICATION, book, kjvChap, kjvVerseNo);
+		Verse nrsvVerse = new Verse(NRSV_VERSIFICATION, book, nrsvChap, nrsvVerseNo);
 		Verse leningradVerse = new Verse(LENINGRAD_VERSIFICATION, book, synChap, synVerseNo);
 		
-		//To KJV
-		assertEquals("Leningrad "+book+" "+synChap+":"+synVerseNo+" should be KJV "+book+" "+kjvChap+":"+kjvVerseNo, 
-				kjvVerse,
-				underTest.getMappedVerse(leningradVerse, KJV_VERSIFICATION));
+		//To NRSV
+		assertEquals("Leningrad "+book+" "+synChap+":"+synVerseNo+" should be NRSV "+book+" "+nrsvChap+":"+nrsvVerseNo, 
+				nrsvVerse,
+				underTest.getMappedVerse(leningradVerse, NRSV_VERSIFICATION));
 	}
 }

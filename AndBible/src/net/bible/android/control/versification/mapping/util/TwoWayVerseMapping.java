@@ -1,4 +1,4 @@
-package net.bible.android.control.versification.mapping;
+package net.bible.android.control.versification.mapping.util;
 
 import net.bible.service.common.TwoWayHashmap;
 

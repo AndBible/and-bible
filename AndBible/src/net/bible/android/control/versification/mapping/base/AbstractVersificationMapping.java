@@ -1,4 +1,6 @@
-package net.bible.android.control.versification.mapping;
+package net.bible.android.control.versification.mapping.base;
+
+import net.bible.android.control.versification.mapping.VersificationMapping;
 
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;

@@ -1,5 +1,7 @@
 package net.bible.android.control.versification.mapping;
 
+import net.bible.android.control.versification.mapping.base.PropertyFileVersificationMapping;
+
 /**
  * Map verses between KJV and Leningrad versification
  * 
