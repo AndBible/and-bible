@@ -190,7 +190,6 @@ public class SplitScreenControl {
 	/** refresh/synch inactive screen if required
 	 */
 	private void updateInactiveScreen(Screen inactiveScreen, CurrentPage inactivePage,	Key targetScreenKey, Key inactiveScreenKey, boolean forceRefresh) {
-		Log.d(TAG, "updateInactiveScreen");
 		// standard null checks
 		if (targetScreenKey!=null && inactivePage!=null) {
 			// Not just bibles and commentaries get this far so NOT always fine to convert key to verse
