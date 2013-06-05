@@ -16,6 +16,8 @@ public class VersificationMappingFactoryTest extends TestCase {
 	private static final Versification GERMAN_VERSIFICATION = Versifications.instance().getVersification("German");
 	private static final Versification KJV_VERSIFICATION = Versifications.instance().getVersification("KJV");
 	private static final Versification NRSV_VERSIFICATION = Versifications.instance().getVersification("NRSV");
+	private static final Versification VULG_VERSIFICATION = Versifications.instance().getVersification("Vulg");
+	private static final Versification CATHOLIC_VERSIFICATION = Versifications.instance().getVersification("Catholic");
 	
 	protected void setUp() throws Exception {
 		underTest = VersificationMappingFactory.getInstance();
@@ -26,6 +28,8 @@ public class VersificationMappingFactoryTest extends TestCase {
 		assertThat(underTest.getVersificationMapping(KJV_VERSIFICATION, LENINGRAD_VERSIFICATION).toString(), equalTo("KJVLeningradMapping"));
 		assertThat(underTest.getVersificationMapping(LENINGRAD_VERSIFICATION, NRSV_VERSIFICATION).toString(), equalTo("NRSVLeningradMapping"));
 		assertThat(underTest.getVersificationMapping(NRSV_VERSIFICATION, LENINGRAD_VERSIFICATION).toString(), equalTo("NRSVLeningradMapping"));
+		assertThat(underTest.getVersificationMapping(GERMAN_VERSIFICATION, LENINGRAD_VERSIFICATION).toString(), equalTo("GermanLeningradMapping"));
+		assertThat(underTest.getVersificationMapping(LENINGRAD_VERSIFICATION, VULG_VERSIFICATION).toString(), equalTo("LeningradVulgMapping"));
 	}
 
 	public void testGetSynodalVersificationMapping() {
@@ -33,6 +37,7 @@ public class VersificationMappingFactoryTest extends TestCase {
 		assertThat(underTest.getVersificationMapping(KJV_VERSIFICATION, SYNODAL_VERSIFICATION).toString(), equalTo("KJVSynodalMapping"));
 		assertThat(underTest.getVersificationMapping(SYNODAL_VERSIFICATION, NRSV_VERSIFICATION).toString(), equalTo("NRSVSynodalMapping"));
 		assertThat(underTest.getVersificationMapping(NRSV_VERSIFICATION, SYNODAL_VERSIFICATION).toString(), equalTo("NRSVSynodalMapping"));
+		assertThat(underTest.getVersificationMapping(VULG_VERSIFICATION, SYNODAL_VERSIFICATION).toString(), equalTo("SynodalVulgMapping"));
 	}
 
 	public void testGetGermanVersificationMapping() {
@@ -42,6 +47,6 @@ public class VersificationMappingFactoryTest extends TestCase {
 
 	public void testGetNoVersificationMapping() {
 		assertThat(underTest.getVersificationMapping(SYNODAL_VERSIFICATION, SYNODAL_VERSIFICATION).toString(), equalTo("NoVersificationMapping"));
-		assertThat(underTest.getVersificationMapping(SYNODAL_VERSIFICATION, LENINGRAD_VERSIFICATION).toString(), equalTo("NoVersificationMapping"));
+		assertThat(underTest.getVersificationMapping(VULG_VERSIFICATION, CATHOLIC_VERSIFICATION).toString(), equalTo("NoVersificationMapping"));
 	}
 }

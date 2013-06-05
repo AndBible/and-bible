@@ -33,12 +33,17 @@ public class VersificationMappingFactory {
 		addMapping(new KJVGermanVersificationMapping());
 		addMapping(new KJVLeningradVersificationMapping());
 		addMapping(new KJVVulgVersificationMapping());
-		addMapping(new GermanSynodalVersificationMapping());
 		addMapping(new NRSVKJVVersificationMapping());
 		addMapping(new NRSVSynodalVersificationMapping());
 		addMapping(new NRSVGermanVersificationMapping());
 		addMapping(new NRSVLeningradVersificationMapping());
 		addMapping(new NRSVVulgVersificationMapping());
+		addMapping(new SynodalLeningradVersificationMapping());
+		addMapping(new SynodalVulgVersificationMapping());
+		addMapping(new GermanSynodalVersificationMapping());
+		addMapping(new GermanLeningradVersificationMapping());
+		addMapping(new GermanVulgVersificationMapping());
+		addMapping(new LeningradVulgVersificationMapping());
 	}
 	
 	/** Return the correct v11n mapping provider for the versifications
