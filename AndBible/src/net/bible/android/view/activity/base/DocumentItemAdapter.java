@@ -5,6 +5,7 @@ import java.util.List;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.download.DownloadControl;
+import net.bible.android.control.versification.mapping.VersificationConstants;
 import net.bible.android.view.util.widget.TwoLineListItemWithImage;
 
 import org.crosswire.jsword.book.Book;
@@ -80,7 +81,11 @@ public class DocumentItemAdapter extends ArrayAdapter<Book> {
 		if (view.getText2() != null) {
 			String name = item.getName();
 			if (item instanceof AbstractPassageBook) {
-				name += "("+((AbstractPassageBook)item).getVersification().getName()+")";
+				final AbstractPassageBook bible = (AbstractPassageBook)item;
+				// display v11n name if not KJV
+				if (!VersificationConstants.KJV_V11N.equals(bible.getVersification().getName())) {
+					name += " ("+bible.getVersification().getName()+")";
+				}
 			}
 			view.getText2().setText(name);
 		}
