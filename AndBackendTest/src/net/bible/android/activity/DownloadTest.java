@@ -72,6 +72,19 @@ public class DownloadTest extends TestCase {
 		}
 	}
 
+	public void testDownloadOSMHB() {
+		try {
+			SwordDocumentFacade.getInstance().downloadDocument(getBook("OSMHB"));
+			Thread.sleep(30000);
+			Book book = SwordDocumentFacade.getInstance().getDocumentByInitials("OSMHB");
+			assertNotNull("OSMHB not downloaded:", book);
+			System.out.println("fin");
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Strongs problem");
+		}
+	}
+
 	public void testDownloadIndex() {
 		try {
 			Book book = SwordDocumentFacade.getInstance().getDocumentByInitials("KJV");
