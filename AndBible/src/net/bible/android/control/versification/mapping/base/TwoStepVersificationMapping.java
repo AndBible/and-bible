@@ -28,7 +28,7 @@ public class TwoStepVersificationMapping extends AbstractVersificationMapping {
 	/**
 	 * Need to initialize lazily to prevent cyclic call to VersificationMappingFactory
 	 */
-	private void lazyInitialisation() {
+	public void initialiseOnce() {
 		if (leftAndIntermediateMapping==null) {
 			synchronized(this) {
 				if (leftAndIntermediateMapping==null) {
@@ -45,7 +45,7 @@ public class TwoStepVersificationMapping extends AbstractVersificationMapping {
 	 */
 	@Override
 	public Verse getMappedVerse(Verse verse, Versification toVersification) {
-		lazyInitialisation();
+		initialiseOnce();
 
 		boolean isForward = toVersification.equals(getRightVersification());
 

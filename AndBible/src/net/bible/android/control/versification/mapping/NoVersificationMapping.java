@@ -43,4 +43,9 @@ public class NoVersificationMapping implements VersificationMapping {
 	public Versification getRightVersification() {
 		throw new UnsupportedOperationException();
 	}
+
+	@Override
+	public void initialiseOnce() {
+		// NOOP
+	}
 }

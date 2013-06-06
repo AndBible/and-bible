@@ -34,7 +34,7 @@ abstract public class PropertyFileVersificationMapping extends AbstractVersifica
 	@Override
 	public Verse getMappedVerse(Verse verse, Versification toVersification) {
 		// only load large properties file with mapping data if required
-		lazyInitializationOfMappingData();
+		initialiseOnce();
 		
 		boolean isForward = toVersification.equals(getRightVersification());
 		return mapVerse(verse, isForward, toVersification);
@@ -69,7 +69,7 @@ abstract public class PropertyFileVersificationMapping extends AbstractVersifica
 	}
 
 
-	private void lazyInitializationOfMappingData() {
+	public void initialiseOnce() {
 		if (verseMap==null) {
 			synchronized(this) {
 				if (verseMap==null) {
@@ -80,7 +80,7 @@ abstract public class PropertyFileVersificationMapping extends AbstractVersifica
 	}
 
 	private void initialiseMappingData() {
-		Log.d(TAG, "Loading KIV<->Synodal mapping data");
+		Log.d(TAG, "Loading "+getLeftVersification().getName()+"-"+getRightVersification().getName()+" versification mapping data");
 		verseMap = new TwoWayVerseMapping();
 	
 		// load properties that define the map

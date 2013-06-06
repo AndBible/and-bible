@@ -19,4 +19,7 @@ public interface VersificationMapping {
 	public Versification getLeftVersification();
 
 	public Versification getRightVersification();
+	
+	/** load any data files required for mapping */
+	public void initialiseOnce();
 }
