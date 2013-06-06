@@ -1,5 +1,7 @@
 package net.bible.android.control.versification.mapping;
 
+import static net.bible.android.control.versification.mapping.VersificationConstants.LENINGRAD_V11N;
+import static net.bible.android.control.versification.mapping.VersificationConstants.NRSV_V11N;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -16,8 +18,8 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public class NRSVLeningradTest {
 
-	private static final Versification LENINGRAD_VERSIFICATION = Versifications.instance().getVersification("Leningrad");
-	private static final Versification NRSV_VERSIFICATION = Versifications.instance().getVersification("NRSV");
+	private static final Versification LENINGRAD_VERSIFICATION = Versifications.instance().getVersification(LENINGRAD_V11N);
+	private static final Versification NRSV_VERSIFICATION = Versifications.instance().getVersification(NRSV_V11N);
 	private NRSVLeningradVersificationMapping underTest;
 	
     @Before

@@ -1,8 +1,9 @@
 package net.bible.android.control.versification.mapping;
 
+import static net.bible.android.control.versification.mapping.VersificationConstants.KJV_V11N;
+import static net.bible.android.control.versification.mapping.VersificationConstants.SYNODAL_V11N;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
-
 import net.bible.android.control.versification.mapping.base.PropertyFileVersificationMapping;
 
 import org.crosswire.jsword.passage.Verse;
@@ -17,8 +18,8 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public class KJVSynodalTest {
 
-	private static final Versification SYNODAL_VERSIFICATION = Versifications.instance().getVersification("Synodal");
-	private static final Versification KJV_VERSIFICATION = Versifications.instance().getVersification("KJV");
+	private static final Versification SYNODAL_VERSIFICATION = Versifications.instance().getVersification(SYNODAL_V11N);
+	private static final Versification KJV_VERSIFICATION = Versifications.instance().getVersification(KJV_V11N);
 	private PropertyFileVersificationMapping testItem;
 	
     @Before

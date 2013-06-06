@@ -1,5 +1,7 @@
 package net.bible.android.control.versification.mapping;
 
+import static net.bible.android.control.versification.mapping.VersificationConstants.KJV_V11N;
+import static net.bible.android.control.versification.mapping.VersificationConstants.LENINGRAD_V11N;
 import net.bible.android.control.versification.mapping.base.PropertyFileVersificationMapping;
 
 /**
@@ -11,6 +13,6 @@ import net.bible.android.control.versification.mapping.base.PropertyFileVersific
  */
 public class KJVLeningradVersificationMapping extends PropertyFileVersificationMapping {
 	public KJVLeningradVersificationMapping() {
-		super("KJV", "Leningrad");
+		super(KJV_V11N, LENINGRAD_V11N);
 	}
 }

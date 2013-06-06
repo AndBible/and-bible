@@ -1,9 +1,10 @@
 package net.bible.android.control.versification.mapping;
 
+import static net.bible.android.control.versification.mapping.VersificationConstants.GERMAN_V11N;
+import static net.bible.android.control.versification.mapping.VersificationConstants.SYNODAL_V11N;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
-
 
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
@@ -17,8 +18,8 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public class GermanSynodalTest {
 
-	private static final Versification GERMAN_VERSIFICATION = Versifications.instance().getVersification("German");
-	private static final Versification SYNODAL_VERSIFICATION = Versifications.instance().getVersification("Synodal");
+	private static final Versification GERMAN_VERSIFICATION = Versifications.instance().getVersification(GERMAN_V11N);
+	private static final Versification SYNODAL_VERSIFICATION = Versifications.instance().getVersification(SYNODAL_V11N);
 	private GermanSynodalVersificationMapping underTest;
 	
     @Before

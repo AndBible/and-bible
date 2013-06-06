@@ -1,5 +1,7 @@
 package net.bible.android.control.versification.mapping;
 
+import static net.bible.android.control.versification.mapping.VersificationConstants.KJV_V11N;
+import static net.bible.android.control.versification.mapping.VersificationConstants.LENINGRAD_V11N;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -16,8 +18,8 @@ import org.robolectric.RobolectricTestRunner;
 @RunWith(RobolectricTestRunner.class)
 public class KJVLeningradTest {
 
-	private static final Versification LENINGRAD_VERSIFICATION = Versifications.instance().getVersification("Leningrad");
-	private static final Versification KJV_VERSIFICATION = Versifications.instance().getVersification("KJV");
+	private static final Versification LENINGRAD_VERSIFICATION = Versifications.instance().getVersification(LENINGRAD_V11N);
+	private static final Versification KJV_VERSIFICATION = Versifications.instance().getVersification(KJV_V11N);
 	private KJVLeningradVersificationMapping underTest;
 	
     @Before
