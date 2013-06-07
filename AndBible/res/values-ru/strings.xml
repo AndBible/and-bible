@@ -102,7 +102,7 @@
   <!--Module download-->
   <string name="download">Скачать ресурсы</string>
   <string name="download_confirmation">Скачать Библию с Интернета?</string>
-  <string name="download_source_message">Идет подключение к \nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
+  <string name="download_source_message">Идет подключение к \nhttp://www.crosswire.org\n&amp; http://ibt.org.ru\n&amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">Скачать</string>
   <string name="download_refreshing_book_list">Список доступных книг обновляется</string>
   <string name="download_refresh_book_list_menu_item">Обновить</string>
@@ -191,6 +191,7 @@
   <string name="restore">Восстановить</string>
   <string name="restore_confirmation">Заменить заметки и закладки?</string>
   <string name="restore_success">Заметки и закладки восставлены из SD карты на %s</string>
+  <!--About-->
   <!--Document types-->
   <string name="doc_type_bible">Библия</string>
   <string name="doc_type_commentary">Комментарий</string>

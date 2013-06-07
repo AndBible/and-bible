@@ -191,6 +191,7 @@
   <string name="restore">Restaurar</string>
   <string name="restore_confirmation">Sobrescrever as Anotações e os Favoritos?</string>
   <string name="restore_success">As Anotações e os Favoritos foram restaurados de %s do cartão de memória SD</string>
+  <!--About-->
   <!--Document types-->
   <string name="doc_type_bible">Bíblia</string>
   <string name="doc_type_commentary">Comentário</string>

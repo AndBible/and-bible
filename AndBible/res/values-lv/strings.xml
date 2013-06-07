@@ -102,7 +102,7 @@
   <!--Module download-->
   <string name="download">Lejuplādēt Dokumentus</string>
   <string name="download_confirmation">Lejuplādēt Bībeli no interneta?</string>
-  <string name="download_source_message">Dokumenti ir lejuplādēti no\nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
+  <string name="download_source_message">Dokumenti ir lejuplādēti no\nhttp://www.crosswire.org\n&amp; http://ibt.org.ru\n&amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">Lejuplādēt</string>
   <string name="download_refreshing_book_list">Atsvaidzināt sarakstu ar pieejamajiem dokumentiem?</string>
   <string name="download_refresh_book_list_menu_item">Atjaunot</string>
@@ -191,6 +191,7 @@
   <string name="restore">Atjaunot</string>
   <string name="restore_confirmation">Pārrakstīt Manas Piezīmes un Grāmatzīmes?</string>
   <string name="restore_success">Manas Piezīmes un Grāmatzīmes atjaunotas no %s SD kartes</string>
+  <!--About-->
   <!--Document types-->
   <string name="doc_type_bible">Bībele</string>
   <string name="doc_type_commentary">Komentāri</string>

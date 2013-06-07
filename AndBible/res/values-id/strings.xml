@@ -102,7 +102,7 @@
   <!--Module download-->
   <string name="download">Download Dokumen</string>
   <string name="download_confirmation">Download versi Alkitab dari internet?</string>
-  <string name="download_source_message">Dokumen di-download dari http://www.crosswire.org &amp; http://xiphos.org</string>
+  <string name="download_source_message">Dokumen download dari⏎\nhttp://www.crosswire.org⏎\n&amp; http://ibt.org.ru⏎\n&amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">Download </string>
   <string name="download_refreshing_book_list">Menyegarkan daftar dokumen yang tersedia</string>
   <string name="download_refresh_book_list_menu_item">Menyegarkan</string>
@@ -191,6 +191,9 @@
   <string name="restore">Restore</string>
   <string name="restore_confirmation">Tulis lagi di atas Catatan-catatan Saya dan Bookmarks?</string>
   <string name="restore_success">Catatan-catatan Saya dan Bookmarks disimpan kembali %s ke Kartu SD</string>
+  <!--About-->
+  <string name="about_version">Versi: %s</string>
+  <string name="about_versification">Versification: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Alkitab</string>
   <string name="doc_type_commentary">Tafsiran</string>

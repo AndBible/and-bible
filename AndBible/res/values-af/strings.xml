@@ -102,7 +102,7 @@
   <!--Module download-->
   <string name="download">Laai Dokumente af</string>
   <string name="download_confirmation">Laai \'n Bybel van die internet af?</string>
-  <string name="download_source_message">Dokumente word afgelaai van\nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
+  <string name="download_source_message">Dokumente word afgelaai vanaf\nhttp://www.crosswire.org\n&amp; http://ibt.org.ru\n&amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">Laai af</string>
   <string name="download_refreshing_book_list">Herlaai lys van die beskikbare dokumente?</string>
   <string name="download_refresh_book_list_menu_item">Hernu</string>
@@ -191,6 +191,9 @@
   <string name="restore">Herstel</string>
   <string name="restore_confirmation">Vervang My Notas en Boekmerke?</string>
   <string name="restore_success">My Notas en Boekmerke is herstel van %s op die SD-kaart</string>
+  <!--About-->
+  <string name="about_version">Weergawe: %s</string>
+  <string name="about_versification">Beryming: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Bybel</string>
   <string name="doc_type_commentary">Kommentaar</string>

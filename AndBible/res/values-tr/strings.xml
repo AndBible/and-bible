@@ -191,6 +191,7 @@
   <string name="restore">Yedekten geri yükle</string>
   <string name="restore_confirmation">Var olan Not ve Yer İmilerin üstüne yazılsın mı?</string>
   <string name="restore_success">Not ve Yer İmileri hafiz karttan %s klasöründen geri yüklendi.</string>
+  <!--About-->
   <!--Document types-->
   <string name="doc_type_bible">Kutsal Kitap</string>
   <string name="doc_type_commentary">Yorum Kitabı</string>

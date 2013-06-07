@@ -113,6 +113,7 @@
   <!--Backup and restore-->
   <string name="backup">バックアップ</string>
   <string name="restore">リストア</string>
+  <!--About-->
   <!--Document types-->
   <string name="doc_type_bible">聖書</string>
   <string name="doc_type_commentary">解説</string>

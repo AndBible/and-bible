@@ -191,6 +191,7 @@
   <string name="restore">복원</string>
   <string name="restore_confirmation">내 참고들 및 즐겨찾기를 덮어 쓰시겠습니까?</string>
   <string name="restore_success">SD 카드에 %s 에서 복원한 내 참고들 및 즐겨찾기</string>
+  <!--About-->
   <!--Document types-->
   <string name="doc_type_bible">성경</string>
   <string name="doc_type_commentary">논평</string>

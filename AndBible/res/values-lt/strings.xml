@@ -102,7 +102,7 @@
   <!--Module download-->
   <string name="download">Parsiųsti dokumentus</string>
   <string name="download_confirmation">Parsiųsti Bibliją iš interneto?</string>
-  <string name="download_source_message">Dokumentai parsiunčiami iš\nhttp://www.crosswire.org\nir http://xiphos.org</string>
+  <string name="download_source_message">Dokumentai parsiunčiami iš\nhttp://www.crosswire.org\nir http://ibt.org.ru\nir http://xiphos.org</string>
   <string name="download_document_confirm_prefix">Parsiųsti</string>
   <string name="download_refreshing_book_list">Atnaujinamas dokumentų sąrašas</string>
   <string name="download_refresh_book_list_menu_item">Atnaujinti</string>
@@ -191,6 +191,7 @@
   <string name="restore">Atstatyti</string>
   <string name="restore_confirmation">Perrašyti mano pastabas bei žymes?</string>
   <string name="restore_success">Mano pastabos ir žymės atstatytos iš %s SD kortelėje</string>
+  <!--About-->
   <!--Document types-->
   <string name="doc_type_bible">Biblija</string>
   <string name="doc_type_commentary">Komentarai</string>

@@ -3,7 +3,7 @@
   <string name="app_name">And Bible</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\"Dwedodd Duw,\'Dw i eisiau golau!\' a daeth golau i fod.\" Genesis 1:3</string>
-  <string name="help_text">Gwasgwch y DDEWISLEN i weithredu Ewch i\'r bennod nesaf neu\'r flaenorol drwy ddefnyddio\'r trac-bel, D-pad neu drwy lusgo\'ch bys ar y sgrîn.</string>
+  <string name="help_text">Gwasgwch y DDEWISLEN i weithredu \n\nEwch i\'r bennod nesaf neu\'r flaenorol drwy ddefnyddio\'r trac-bel, D-pad neu drwy lusgo\'ch bys ar y sgrîn.</string>
   <string name="help_text_long"><b>Llywio</b> \nEwch i\'r bennod nesaf neu\'r flaenorol drwy ddefnyddio\'r trac-bel, D-pad neu drwy lusgo\'ch bys ar y sgrîn. \nMae tap dwbl yn toglo\'r Sgrîn Lawn i ffwrdd ac ymlaen.\n\n<b>Dewislen</b> \nGwasgwch y DDEWISLEN i weithredu.\n\nI lawrlwytho mwy o ddogfennau gwasgwch Dewislen/Mwy/Lawrlwytho Dogfennau \n\n<b>Siarad</b> \nGwasgu \'Siarad\' i fynd i ddeialog dechrau neu stopio darllen\n\n<b>Fy Nodyn</b> Gellir ychwanegu nodiadau drwy Fy Nodyn ar y ddewislen cyd-destun adnod. Gellir mynd i\'r rhestr lawn o nodiadau o\'r brif ddewislen.\n\n<b>Nodau Llyfr</b>\nGellir ychwanegu Nodau Llyfr drwy\'r ddewislen cyd-destun adnod. Gellir mynd i\'r Rheolwr Nodau Llyfr o\'r brif ddewislen. Mae dewislen cyd-destun y Rheolwr Nodau Llyfr yn caniatau i nodau llyfr gael eu grwpio dan labeli.\n\n<b>Chwilio</b> \nGall chwilio\'r testun gynnwys nodau fel *, ?, A, NEU, DIM (gw. \"Apache Lucene - Query Parser Syntax\" am fwy o fanylion) \n\n<b>Dewislen Cyd-destun</b>\nGwasgiad hir ar \'gweld Beibl\' i agor y ddewislen weithredu ar gyfer yr adnod gyfredol. \nGwasgiad hir ar ddogfen yn y dewisydd dogfen i\'w dileu neu weld gwybodaeth. \nGwasgiad hir ar y botwm \'yn ol\' i fynd i mewn i\'r Hanes\n</string>
   <string name="version_text">Fersiwn %s</string>
   <string name="no_sdcard_error">Rhowch gerdyn SD yn eich ffôn a dechrau And Bible eto.</string>
@@ -16,12 +16,12 @@
   <string name="speak">Siarad</string>
   <string name="help">Cymorth</string>
   <!--Passage navigation-->
-  <string name="choosePassageBookName">Dewis Lyfr</string>
-  <string name="choosePassageChapterName">Dewis Bennod</string>
+  <string name="choosePassageBookName">Dewis Llyfr</string>
+  <string name="choosePassageChapterName">Dewis Pennod</string>
   <string name="choosePassageVerseName">Dewis adnod</string>
   <!--Search-->
   <string name="search_index">Chwilio Mynegai</string>
-  <string name="index_creation_required">Mae angen mynegai i chwilio. \nGellir lawrlwytho Mynegeion oddi ar y rhyngrwyd neu eu creu.\nMae lawrlwytho yn llawer cyflymach ac mae\'r mynegeion hynny yn fwy hyblyg wrth chwilio.\nMae angen cysylltiad rhyngrwyd i lawrlwytho Mynegeion.</string>
+  <string name="index_creation_required">Mae angen mynegai i chwilio. \n\nGellir lawrlwytho Mynegeion oddi ar y rhyngrwyd neu eu creu.\n\nMae lawrlwytho yn llawer cyflymach ac mae\'r mynegeion hynny yn fwy hyblyg wrth chwilio.\n\nMae angen cysylltiad rhyngrwyd i lawrlwytho Mynegeion.</string>
   <string name="indexing_wait_msg">Pan fydd y mynegeio wedi cwblhau eir â chi i\'r sgrîn chwilio.</string>
   <string name="index">Mynegai</string>
   <string name="index_download">Lawrlwytho</string>
@@ -87,7 +87,7 @@
   <string name="prefs_split_screen_not_linked">Heb ddolenu</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Dim nodiadau yn bodoli yn y bennod hon</string>
-  <string name="no_verse_notes">Dim nodiadau i\'r adnod hon</string>
+  <string name="no_verse_notes">Dim nodiadau yn bodoli yn yr adnod hon</string>
   <string name="previous">Blaenorol</string>
   <string name="next">Nesaf</string>
   <!--Strongs-->
@@ -102,14 +102,14 @@
   <!--Module download-->
   <string name="download">Lawrlwytho Dogfennau</string>
   <string name="download_confirmation">Llwytho Beibl oddi ar y rhyngrwyd?</string>
-  <string name="download_source_message">Dogfennau yn cael eu lawrlwytho o http://www.crosswire.org &amp; http://xiphos.org</string>
+  <string name="download_source_message">Lawrlwythir dogfennau o\nhttp://www.crosswire.org⏎\n&amp; http://ibt.org.ru⏎\n&amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">Lawrlwytho</string>
   <string name="download_refreshing_book_list">Adnewyddu\'r rhestr dogfennau sydd ar gael</string>
   <string name="download_refresh_book_list_menu_item">Adnewyddu</string>
   <string name="error_downloading">Gwall wrth lawrlwytho. Ydy\'ch cysylltiad rhyngrwyd yn gweithio?</string>
   <string name="no_internet_connection">Methu cysylltu â\'r rhyngrwyd</string>
   <string name="storage_space_warning">Dim digon o le i\'w storio.</string>
-  <string name="wait_for_bible">Arhoswch i\'r Beibl orffen lawrlwytho. Eir a chi wedyn i\'r brif sgrin.</string>
+  <string name="wait_for_bible">Arhoswch i\'r Beibl orffen lawrlwytho. Eir a chi wedyn i\'r brif sgrin.\n\nLawrlwythwch fwy o ddogfennau yn nes ymlaen drwy lywio i\'r botwm Mynegai/Mwy/Lawrlwytho dogfennau</string>
   <string name="wait_for_bible_not_yet">Arhoswch. Nid yw\'r Beibl wedi cwblhau ei osod.</string>
   <string name="download_complete_no_bibles">Dim Beibl wedi ei osod. Pwyswch \'yn ôl\' a cheisio eto.</string>
   <string name="too_many_jobs">Mae gormod o dasgau\'n gweithredu. Arhoswch i rai i orffen a cheisiwch eto.</string>
@@ -191,6 +191,9 @@
   <string name="restore">Adfer</string>
   <string name="restore_confirmation">Trosysgrifo Fy Nodiadau a Nodau Llyfr?</string>
   <string name="restore_success">Fy Nodiadau a Nodau Llyfr wedi eu hadfer o %s ar y cerdyn SD</string>
+  <!--About-->
+  <string name="about_version">Fersiwn: %s</string>
+  <string name="about_versification">Rhifau adnodau: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Beibl</string>
   <string name="doc_type_commentary">Esboniad</string>

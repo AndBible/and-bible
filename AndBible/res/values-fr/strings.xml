@@ -102,7 +102,7 @@
   <!--Module download-->
   <string name="download">Télécharger documents</string>
   <string name="download_confirmation">Télécharger des documents à partir d\'Internet?</string>
-  <string name="download_source_message">Les documents sont téléchargés à partir de\nhttp://www.crosswire.org &amp; http://xiphos.org</string>
+  <string name="download_source_message">Les documents sont téléchargés à partir de \nhttp://www.crosswire.org⏎\n&amp; http://ibt.org.ru⏎\n&amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">Télécharger </string>
   <string name="download_refreshing_book_list">Rafraîchir la liste des documents disponibles</string>
   <string name="download_refresh_book_list_menu_item">Rafraîchir</string>
@@ -191,6 +191,9 @@
   <string name="restore">Restaurer</string>
   <string name="restore_confirmation">Écraser mes notes et signets?</string>
   <string name="restore_success">Mes notes et signets restaurés de %s sur la carte SD</string>
+  <!--About-->
+  <string name="about_version">Version: %s</string>
+  <string name="about_versification">Versification: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Bible</string>
   <string name="doc_type_commentary">Commentaire</string>

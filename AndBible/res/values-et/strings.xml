@@ -102,7 +102,7 @@
   <!--Module download-->
   <string name="download">Lae dokumente alla</string>
   <string name="download_confirmation">Laadida Piibel alla internetist?</string>
-  <string name="download_source_message">Dokumendid laetakse alla aadressilt\nhttp://www.crosswire.org\nja http://xiphos.org</string>
+  <string name="download_source_message">Dokumendid laetakse alla aadressilt\nhttp://www.crosswire.org\nja http://ibt.org.ru\nja http://xiphos.org</string>
   <string name="download_document_confirm_prefix">Lae alla </string>
   <string name="download_refreshing_book_list">Saadaolevate dokumentide nimekirja värskendamine</string>
   <string name="download_refresh_book_list_menu_item">Värskenda</string>
@@ -191,6 +191,7 @@
   <string name="restore">Taasta</string>
   <string name="restore_confirmation">Taasta</string>
   <string name="restore_success">Märkmed ja järjehoidjad on taastatud SD-kaardilt: %s</string>
+  <!--About-->
   <!--Document types-->
   <string name="doc_type_bible">Piibel</string>
   <string name="doc_type_commentary">Kommentaar</string>

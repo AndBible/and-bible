@@ -191,6 +191,7 @@
   <string name="restore">बैकअप से नवीकरण</string>
   <string name="restore_confirmation">बैकअप से मेरे टिप्पणी/पुस्तक-चिन्ह लिखना ?</string>
   <string name="restore_success">टिप्पणी / पुस्तक-चिन्ह लिए, एस-डी कार्ड से: %s </string>
+  <!--About-->
   <!--Document types-->
   <string name="doc_type_bible">बाइबिल</string>
   <string name="doc_type_commentary">कमेंटरी</string>

@@ -183,6 +183,7 @@
   <string name="restore">เรียกข้อมูลเดิม</string>
   <string name="restore_confirmation">ทับบันทึกย่อและที่คั่นหน้าของฉัน</string>
   <string name="restore_success">เรียกข้อมูลบันทึกย่อและที่คั่นหน้าของฉันจาก %s บนการ์ด SD</string>
+  <!--About-->
   <!--Document types-->
   <string name="doc_type_bible">พระคัมภีร์</string>
   <string name="doc_type_commentary">คู่มืออธิบายพระคัมภีร์</string>

@@ -191,6 +191,7 @@
   <string name="restore">Resturar</string>
   <string name="restore_confirmation">¿Sobreescribir Mis Notas y Marcadores?</string>
   <string name="restore_success">Se han restaurado Mis Notas y Marcadores desde %s en la tarjeta SD</string>
+  <!--About-->
   <!--Document types-->
   <string name="doc_type_bible">Biblia</string>
   <string name="doc_type_commentary">Comentario</string>

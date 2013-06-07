@@ -191,6 +191,9 @@
   <string name="restore">Wiederherstellen</string>
   <string name="restore_confirmation">Notizen und Lesezeichen überschreiben?</string>
   <string name="restore_success">Notizen und Lesezeichen wurden von %s auf der SD-Karte wiederhergestellt</string>
+  <!--About-->
+  <string name="about_version">Version %s</string>
+  <string name="about_versification">Versnummerierung: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Bibel</string>
   <string name="doc_type_commentary">Kommentar</string>

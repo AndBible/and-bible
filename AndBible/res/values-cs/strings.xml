@@ -102,7 +102,7 @@
   <!--Module download-->
   <string name="download">Stáhnout dokumenty</string>
   <string name="download_confirmation">Stáhnout Bibli z Internetu?</string>
-  <string name="download_source_message">Dokumenty se stahují z\nhttp://www.crosswire.org\na http://xiphos.org</string>
+  <string name="download_source_message">Dokumenty se stahují z\nhttp://www.crosswire.org\na http://ibt.org.ru\na http://xiphos.org</string>
   <string name="download_document_confirm_prefix">Stáhnout </string>
   <string name="download_refreshing_book_list">Obnovuji seznam dostupných dokumentů</string>
   <string name="download_refresh_book_list_menu_item">Obnovit</string>
@@ -191,6 +191,7 @@
   <string name="restore">Obnovit</string>
   <string name="restore_confirmation">Přepsat poznámky a záložky?</string>
   <string name="restore_success">Poznámky a záložky obnoveny z SD karty ze souboru %s</string>
+  <!--About-->
   <!--Document types-->
   <string name="doc_type_bible">Bible</string>
   <string name="doc_type_commentary">Komentář</string>

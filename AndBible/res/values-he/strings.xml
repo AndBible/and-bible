@@ -191,6 +191,7 @@
   <string name="restore">שחזור</string>
   <string name="restore_confirmation">האם להחליף את ההערות והסימניות הקיימות ?</string>
   <string name="restore_success">ההערות והסימניות שוחזרו מ %s בכרטיס הזכרון</string>
+  <!--About-->
   <!--Document types-->
   <string name="doc_type_bible">תנ\"ך</string>
   <string name="doc_type_commentary">פרשנות</string>

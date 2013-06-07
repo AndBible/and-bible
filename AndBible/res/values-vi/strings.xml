@@ -183,6 +183,7 @@
   <string name="restore">Khôi phục</string>
   <string name="restore_confirmation">Ghi đè lên Ghi chú và Đánh dấu?</string>
   <string name="restore_success">Các ghi chú và đánh dấu đã được khôi phục từ %s trên thẻ nhớ</string>
+  <!--About-->
   <!--Document types-->
   <string name="doc_type_bible">Kinh Thánh</string>
   <string name="doc_type_commentary">Lời dẫn giải</string>

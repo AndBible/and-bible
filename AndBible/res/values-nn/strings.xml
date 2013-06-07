@@ -191,6 +191,7 @@
   <string name="restore">Gjenopprette</string>
   <string name="restore_confirmation">Skrive over notat og bokmerke?</string>
   <string name="restore_success">Notat og bokmerke gjenoppretta frå %s på minnekortet</string>
+  <!--About-->
   <!--Document types-->
   <string name="doc_type_bible">Biblar</string>
   <string name="doc_type_commentary">Bibelkommentarar</string>
