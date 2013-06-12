@@ -109,7 +109,7 @@
   <string name="error_downloading">Ocurrió un error en la descarga. Por favor compruebe su conexión a internet.</string>
   <string name="no_internet_connection">No se ha podido conectar a internet</string>
   <string name="storage_space_warning">No hay suficiente espacio local de almacenamiento.</string>
-  <string name="wait_for_bible">Por favor espere a que la Biblia se termine de descargar. Entonces volverá a la pantalla principal.⏎\n⏎\nDescargue más documentos más tarde navegando desde el botón de Menú/Más/Descargar documentos.</string>
+  <string name="wait_for_bible">Por favor espere a que la Biblia se termine de descargar. Entonces volverá a la pantalla principal.\n\nDescargue más documentos más tarde navegando desde el botón de Menú/Más/Descargar documentos.</string>
   <string name="wait_for_bible_not_yet">Por favor, espere. Aún no se ha completado la instalación de la biblia.</string>
   <string name="download_complete_no_bibles">No hay biblia instalada. Por favor pulse Atrás e inténtelo de nuevo.</string>
   <string name="too_many_jobs">Demasiadas tareas en ejecución.  Por favor espere que algunas terminen e intente nuevamente.</string>
