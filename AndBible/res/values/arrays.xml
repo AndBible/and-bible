@@ -48,6 +48,7 @@
 		<item>@string/lang_czech</item>
 		<item>@string/lang_welsh</item>
 		<item>@string/lang_german</item>
+		<item>@string/lang_greek</item>
 		<item>@string/lang_english</item>
 		<item>@string/lang_spanish</item>
 		<item>@string/lang_estonian</item>
@@ -88,6 +89,7 @@
 		<item>cs</item>
 		<item>cy</item>
 		<item>de</item>
+		<item>el</item>
 		<item>en</item>
 		<item>es</item>
 		<item>et</item>
