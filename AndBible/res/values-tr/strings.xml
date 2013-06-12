@@ -102,7 +102,7 @@
   <!--Module download-->
   <string name="download">Belge İndir</string>
   <string name="download_confirmation">İnternetten bir Kutsal Kitap çevirisini indirmek ister misiniz?</string>
-  <string name="download_source_message">http://www.crosswire.org\n&amp; http://xiphos.org\'dan\nbelgeler alınıyor</string>
+  <string name="download_source_message">Belgeler http://www.crosswire.org\n&amp; http://ibt.org.ru\n&amp; http://xiphos.org\nsitelerden indiriliyor</string>
   <string name="download_document_confirm_prefix">İndir</string>
   <string name="download_refreshing_book_list">Mevcut belgelerinin listesi yenileniyor</string>
   <string name="download_refresh_book_list_menu_item">Yenilen</string>
@@ -192,6 +192,8 @@
   <string name="restore_confirmation">Var olan Not ve Yer İmilerin üstüne yazılsın mı?</string>
   <string name="restore_success">Not ve Yer İmileri hafiz karttan %s klasöründen geri yüklendi.</string>
   <!--About-->
+  <string name="about_version">Sürüm: %s</string>
+  <string name="about_versification">Ayetleme: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Kutsal Kitap</string>
   <string name="doc_type_commentary">Yorum Kitabı</string>

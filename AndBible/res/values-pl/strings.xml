@@ -192,6 +192,8 @@
   <string name="restore_confirmation">Czy chcesz nadpisać swoje notatki i zakładki?</string>
   <string name="restore_success">Przywróć moje notatki i zakładki zapisane w %s na karcie SD</string>
   <!--About-->
+  <string name="about_version">Wersja: %s</string>
+  <string name="about_versification">Wersyfikacja: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Biblia</string>
   <string name="doc_type_commentary">Komentarz</string>

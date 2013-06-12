@@ -192,6 +192,7 @@
   <string name="restore_confirmation">Taasta</string>
   <string name="restore_success">Märkmed ja järjehoidjad on taastatud SD-kaardilt: %s</string>
   <!--About-->
+  <string name="about_version">Versioon: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Piibel</string>
   <string name="doc_type_commentary">Kommentaar</string>

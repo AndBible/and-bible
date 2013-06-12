@@ -192,6 +192,8 @@
   <string name="restore_confirmation">覆盖现有笔记和书签么?</string>
   <string name="restore_success">笔记和书签已经从SD存储卡目录 %s 中的备份中恢复</string>
   <!--About-->
+  <string name="about_version">版本: %s</string>
+  <string name="about_versification">章节分段: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">圣经</string>
   <string name="doc_type_commentary">注释</string>

@@ -192,6 +192,8 @@
   <string name="restore_confirmation">متأكد من الكتابة على ملاحظاتي و شارات الرجوع؟</string>
   <string name="restore_success">تم تحميل %s ملاحظاتي و شارات الرجوع على شريحة الذاكرة </string>
   <!--About-->
+  <string name="about_version">رقم الإصدار: %s</string>
+  <string name="about_versification">رقم المنظومة: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">إنجيل</string>
   <string name="doc_type_commentary">تعليق</string>

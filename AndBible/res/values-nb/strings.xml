@@ -192,6 +192,8 @@
   <string name="restore_confirmation">Overskrive notater og bokmerker?</string>
   <string name="restore_success">Notater og bokmerker er gjenopprettet fra %s på minnekortet</string>
   <!--About-->
+  <string name="about_version">Versjon: %s</string>
+  <string name="about_versification">Versifisering: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Bibler</string>
   <string name="doc_type_commentary">Bibelkommentarer</string>

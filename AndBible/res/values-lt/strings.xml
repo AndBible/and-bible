@@ -192,6 +192,8 @@
   <string name="restore_confirmation">Perrašyti mano pastabas bei žymes?</string>
   <string name="restore_success">Mano pastabos ir žymės atstatytos iš %s SD kortelėje</string>
   <!--About-->
+  <string name="about_version">Versija: %s</string>
+  <string name="about_versification">Versijavimas: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Biblija</string>
   <string name="doc_type_commentary">Komentarai</string>

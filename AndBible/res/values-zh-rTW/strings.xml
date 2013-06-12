@@ -192,6 +192,8 @@
   <string name="restore_confirmation">覆蓋現有筆記和書簽麼?</string>
   <string name="restore_success">筆記和書簽已經從SD存儲卡目錄 %s 中的備份中恢復</string>
   <!--About-->
+  <string name="about_version">版本: %s</string>
+  <string name="about_versification">章節分段: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">聖經</string>
   <string name="doc_type_commentary">注釋</string>

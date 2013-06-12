@@ -102,7 +102,7 @@
   <!--Module download-->
   <string name="download">Module herunterladen</string>
   <string name="download_confirmation">Möchten Sie Module aus dem Internet herunterladen?</string>
-  <string name="download_source_message">Die Modulliste wird von\nhttp://www.crosswire.org\n&amp;\nhttp://xiphos.org\nheruntergeladen</string>
+  <string name="download_source_message">Die Modulliste wird von\nhttp://www.crosswire.org\n&amp; http://libt.org.ru\n&amp;\nhttp://xiphos.org\nheruntergeladen</string>
   <string name="download_document_confirm_prefix">Download</string>
   <string name="download_refreshing_book_list">Liste aktualisieren</string>
   <string name="download_refresh_book_list_menu_item">Aktualisieren</string>

@@ -27,10 +27,13 @@
   <!--Tasks-->
   <string name="progress_status">進行状況</string>
   <!--Search-->
+  <string name="search_results">検索結果</string>
+  <string name="search_words_group_prompt">節を探す</string>
   <string name="search_all_words">すべての単語</string>
   <string name="search_any_word">任意の単語</string>
   <string name="search_phrase">語句</string>
   <string name="search_result_count">%d 件見つかりました</string>
+  <string name="search_bible_section_group_prompt">どこで検索</string>
   <string name="search_all_bible">聖書全体</string>
   <string name="search_new_testament">新約</string>
   <string name="search_old_testament">旧約</string>
@@ -39,6 +42,7 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">節番号</string>
   <string name="prefs_show_verseno_summary">節番号表示する</string>
+  <string name="prefs_verse_per_line_title">各行一節</string>
   <string name="prefs_show_bookmarks_title">ブックマークのアイコンを表示</string>
   <string name="prefs_show_bookmarks_summary">ブックマークされた章節にアイコンを表示する</string>
   <string name="prefs_show_mynotes_title">マイメモのアイコンを表示</string>
@@ -46,13 +50,22 @@
   <string name="prefs_section_title_title">セクションタイトル</string>
   <string name="prefs_red_letter_title">赤文字</string>
   <string name="prefs_red_letter_summary">イエスの語った箇所を表示されて赤字になる</string>
+  <string name="prefs_tilt_to_scroll_title">センサースクロール</string>
+  <string name="prefs_tilt_to_scroll_summary">端末を傾けてスクロールする</string>
   <string name="prefs_night_mode_title">ナイトモード</string>
   <string name="prefs_night_mode_summary">暗い場所で読みやすい</string>
   <string name="prefs_night_mode_automatic">ナイトモードオートスタート</string>
+  <string name="prefs_navigate_to_verse_title">節に移動します</string>
   <string name="prefs_text_size_title">テキストサイズ</string>
   <string name="prefs_text_size_sample_text">サンプル</string>
+  <string name="prefs_screen_timeout_title">スリープモード</string>
+  <string name="x_minutes">%d分</string>
   <string name="prefs_interface_locale_title">応用言語</string>
   <string name="prefs_interface_locale_summary">カスタム言語を選択</string>
+  <string name="prefs_split_screen_title">分割表示</string>
+  <string name="prefs_split_screen_single">単画面表示</string>
+  <string name="prefs_split_screen_linked">連結された</string>
+  <string name="prefs_split_screen_not_linked">連結されていません</string>
   <!--Notes screen-->
   <string name="previous">先へ</string>
   <string name="next">次へ</string>
@@ -69,6 +82,7 @@
   <string name="no_internet_connection">インターネットに接続できませんでした</string>
   <string name="storage_space_warning">ローカルストレージ容量不足です</string>
   <string name="wait_for_bible_not_yet">しばらくお待ちください。聖書がインストールを完了していません。</string>
+  <string name="download_complete_no_bibles">聖書文書はインストールされていません。[BACK ボタン]を押して、もう一度試してください。</string>
   <string name="document_not_installed">「%s」をダウンロードして下さい</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">読書計画</string>
@@ -86,18 +100,31 @@
   <string name="delete_search_index_doc">%sの索引消す？</string>
   <!--Verse context menu-->
   <string name="select_text">テキストを選択します</string>
+  <string name="share_verse">現在の節を共有する</string>
+  <string name="compare_translations">翻訳比較</string>
   <!--Bookmarks-->
   <string name="bookmarks">しおり\n</string>
   <string name="add_bookmark">しおりを加える\n</string>
   <string name="bookmark_added">しおりが加えました。</string>
+  <string name="bookmark_labels">ブックマークラベル</string>
+  <string name="assign_labels">ラベルを割り当てる</string>
+  <string name="new_label">新しいラベル</string>
+  <string name="new_label_prompt">名</string>
+  <string name="label_unlabelled">未標識</string>
   <!--Dictionary-->
+  <string name="dictionary">辞書</string>
+  <string name="search_dictionary_hint">辞書を検索する</string>
+  <string name="dictionary_contents">内容</string>
   <!--General Book-->
+  <string name="general_book">本</string>
+  <string name="general_book_contents">内容</string>
   <!--Speak-->
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
   <!--Speak - Commentary-->
   <!--Speak - Dictionary and other-->
   <!--Speak - Common-->
+  <string name="stop">停止</string>
   <string name="pause">停止</string>
   <string name="rewind">巻き戻し</string>
   <string name="forward">早送り</string>
