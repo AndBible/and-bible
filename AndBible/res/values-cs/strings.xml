@@ -192,6 +192,8 @@
   <string name="restore_confirmation">Přepsat poznámky a záložky?</string>
   <string name="restore_success">Poznámky a záložky obnoveny z SD karty ze souboru %s</string>
   <!--About-->
+  <string name="about_version">Verze: %s</string>
+  <string name="about_versification">Veršování: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Bible</string>
   <string name="doc_type_commentary">Komentář</string>
