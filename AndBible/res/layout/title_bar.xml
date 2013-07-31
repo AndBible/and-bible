@@ -66,8 +66,13 @@
 			        android:visibility="gone"
 			        android:checked="true"
 					android:textStyle="italic"
-					style="@style/TitleBarToggleButton"
+					style="@style/SmallTitleBarButton"
 		/>
+        <Button android:id="@+id/verseMenu"
+                android:visibility="gone"
+                style="@style/TitleBarButton"
+                android:text="@string/verse_menu_button"
+                />
    	    <Button android:id="@+id/quickSplitScreen"
 		        android:visibility="gone"
 				style="@style/TitleBarButton"

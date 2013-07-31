@@ -98,6 +98,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_night_mode_automatic">Automatic</string>
     <string name="prefs_navigate_to_verse_title">Navigate to verse</string>
     <string name="prefs_navigate_to_verse_summary">Choose verse (and chapter) when selecting a passage</string>
+    <string name="prefs_verse_menu_button_title">Show Verse Menu Button</string>
+    <string name="prefs_verse_menu_button_summary">Trigger verse context menu via toolbar button</string>
     <string name="prefs_text_size_title">Text size</string>
     <string name="prefs_text_size_summary">See more or see more clearly</string>
     <string name="prefs_text_size_sample_text">Sample text</string>
@@ -167,6 +169,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="delete_search_index_doc">Delete index of %s?</string>
 
     <!-- Verse context menu -->
+    <string name="verse_menu_button">V</string>
     <string name="select_text">Select text</string>
     <string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string>
     <string name="notes">Footnotes and references</string>
