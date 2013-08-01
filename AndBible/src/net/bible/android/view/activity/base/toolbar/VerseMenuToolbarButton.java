@@ -14,7 +14,7 @@ import org.crosswire.jsword.book.BookCategory;
 
 public class VerseMenuToolbarButton extends ToolbarButtonBase implements ToolbarButton {
 
-	private static final String VERSE_CONTEXT_MENU_BUTTON_PREFERENCE_KEY = "tilt_to_scroll_pref";
+	private static final String VERSE_CONTEXT_MENU_BUTTON_PREFERENCE_KEY = "verse_menu_button_pref";
 	private final DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
 
 	private Button mButton;
