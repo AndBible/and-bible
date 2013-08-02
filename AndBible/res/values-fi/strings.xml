@@ -192,6 +192,8 @@
   <string name="restore_confirmation">Palauta muistiinpanot ja kirjanmerkit nykyisten päälle?</string>
   <string name="restore_success">Muistiinpanot ja kirjanmerkit on palautettu %s muistikortilta</string>
   <!--About-->
+  <string name="about_version">Käännös: %s</string>
+  <string name="about_versification">Jaejako: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Raamattu</string>
   <string name="doc_type_commentary">Kommentaari</string>

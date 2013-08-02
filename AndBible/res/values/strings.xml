@@ -98,8 +98,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_night_mode_automatic">Automatic</string>
     <string name="prefs_navigate_to_verse_title">Navigate to verse</string>
     <string name="prefs_navigate_to_verse_summary">Choose verse (and chapter) when selecting a passage</string>
-    <string name="prefs_verse_menu_button_title">Show Verse Menu Button</string>
-    <string name="prefs_verse_menu_button_summary">Trigger verse context menu via toolbar button</string>
+    <string name="prefs_verse_menu_button_title">Verse Context Menu Button</string>
+    <string name="prefs_verse_menu_button_summary">Show verse context menu button in the toolbar</string>
     <string name="prefs_text_size_title">Text size</string>
     <string name="prefs_text_size_summary">See more or see more clearly</string>
     <string name="prefs_text_size_sample_text">Sample text</string>
