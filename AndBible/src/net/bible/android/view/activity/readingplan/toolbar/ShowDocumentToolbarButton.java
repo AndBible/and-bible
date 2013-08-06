@@ -9,28 +9,20 @@ import net.bible.android.view.activity.base.toolbar.ToolbarButtonHelper;
 import org.crosswire.jsword.book.Book;
 
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public abstract class ShowDocumentToolbarButton extends ToolbarButtonBase implements ToolbarButton {
+public abstract class ShowDocumentToolbarButton extends ToolbarButtonBase<Button> implements ToolbarButton {
 
-	private Button mButton;
-	
 	private ToolbarButtonHelper helper = new ToolbarButtonHelper();
 	
 	public abstract Book getDocument();
 	
 	public ShowDocumentToolbarButton(View parent, int buttonId) {
-        mButton = (Button)parent.findViewById(buttonId);
-
-        mButton.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-            	onButtonPress();
-            }
-        });
+		super(parent, buttonId);
 	}
 
-	private void onButtonPress() {
+	@Override
+	protected void onButtonPress() {
     	CurrentPageManager.getInstance().setCurrentDocument(getDocument());
     	// exit the Daily Reading page, returning up to the Document page display to see the bible
     	CurrentActivityHolder.getInstance().getCurrentActivity().finish();
@@ -38,7 +30,7 @@ public abstract class ShowDocumentToolbarButton extends ToolbarButtonBase implem
 
 	public void update() {
 		Book doc = getDocument();
-        helper.updateQuickButton(doc, mButton, canShow());
+        helper.updateQuickButton(doc, getButton(), canShow());
 	}
 
 	@Override

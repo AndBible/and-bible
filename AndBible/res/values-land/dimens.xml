@@ -22,7 +22,9 @@
 	<!-- dimen name="title_bar_title_width">280dip</dimen -->
 
 	<!--  number of buttons varies depending on screen size and orientation -->
+	<bool name="split_passage_selector_buttons">true</bool>
 	<integer name="number_of_quick_buttons">8</integer>
+	<dimen name="size_of_small_quick_buttons">60dip</dimen>
 	
 	<!-- width of one poetry line indent -->
 	<integer name="poetry_indent_chars">4</integer>

@@ -1,8 +1,16 @@
 package net.bible.android.view.activity.base;
 
 import net.bible.android.view.activity.page.LongPressControl;
+
 import android.view.View;
 
+/**
+ * Base class for boble and My Note document views
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public interface DocumentView {
 
 	public abstract void selectAndCopyText(LongPressControl longPressControl);

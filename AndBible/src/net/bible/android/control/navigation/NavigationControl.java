@@ -1,6 +1,7 @@
 package net.bible.android.control.navigation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
@@ -32,6 +33,18 @@ public class NavigationControl {
 		}
 
 		return books;
+	}
+
+	/** default book for use when jumping into the middle of passage selection
+	 */
+	public int getDefaultBibleBookNo() {
+		return Arrays.binarySearch(BibleBook.values(), pageControl.getCurrentBibleVerse().getBook());
+	}
+
+	/** default chapter for use when jumping into the middle of passage selection
+	 */
+	public int getDefaultBibleChapterNo() {
+		return pageControl.getCurrentBibleVerse().getChapter();
 	}
 
 	/**

@@ -270,6 +270,9 @@ public class CommonUtils {
 		return BibleApplication.getApplication().getResources().getInteger(resourceId);
 	}
 	
+	public static boolean getResourceBoolean(int resourceId) {
+		return BibleApplication.getApplication().getResources().getBoolean(resourceId);
+	}
 	/**
 	 * convert dip measurements to pixels
 	 */

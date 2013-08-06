@@ -7,32 +7,32 @@ import net.bible.android.view.activity.base.toolbar.ToolbarButton;
 import net.bible.android.view.activity.base.toolbar.ToolbarButtonBase;
 import net.bible.android.view.activity.base.toolbar.ToolbarButtonHelper;
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public class CurrentReadingPlanToolbarButton extends ToolbarButtonBase implements ToolbarButton {
+/**
+ * Show reading plan code in toolbar e.g. y1ot1nt1
+ *  
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
+public class CurrentReadingPlanToolbarButton extends ToolbarButtonBase<Button> implements ToolbarButton {
 
-	private Button mButton;
-	
 	private ToolbarButtonHelper helper = new ToolbarButtonHelper();
 	
 	public CurrentReadingPlanToolbarButton(View parent) {
-        mButton = (Button)parent.findViewById(R.id.titleDocument);
-
-        mButton.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-            	onButtonPress();
-            }
-        });
+        super(parent, R.id.titleDocument);
 	}
 
 	/** 
 	 * load Reading Plan selector
 	 */
-	private void onButtonPress() {
+	@Override
+	protected void onButtonPress() {
 		Activity readingPlanActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
 		Intent docHandlerIntent = new Intent(readingPlanActivity, ReadingPlanSelectorList.class);
     	readingPlanActivity.startActivityForResult(docHandlerIntent, 1);
@@ -42,10 +42,10 @@ public class CurrentReadingPlanToolbarButton extends ToolbarButtonBase implement
 	public void update() {
         final String title = ControlFactory.getInstance().getReadingPlanControl().getShortTitle();
         
-		mButton.post(new Runnable() {
+		getButton().post(new Runnable() {
 			@Override
 			public void run() {
-		        helper.updateButtonText(title, mButton);
+		        helper.updateButtonText(title, getButton());
 			}
 		});
 	}

@@ -2,10 +2,12 @@ package net.bible.android.control.document;
 
 import java.util.List;
 
+import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.versification.ConvertibleVerse;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.common.util.Filter;
@@ -79,6 +81,16 @@ public class DocumentControl {
 	 */
 	public BookCategory getCurrentCategory() {
 		return ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getBookCategory();
+	}
+	
+	/** show split book/chap/verse buttons in toolbar for Bibles and Commentaries
+	 */
+	public boolean showSplitPassageSelectorButtons() {
+		BookCategory currentCategory = getCurrentCategory();
+		boolean canSplit = CommonUtils.getResourceBoolean(R.bool.split_passage_selector_buttons);
+		return	canSplit &&
+				(BookCategory.BIBLE.equals(currentCategory) ||
+				BookCategory.COMMENTARY.equals(currentCategory));
 	}
 	
 	/** Suggest an alternative bible to view or return null

@@ -18,9 +18,22 @@
 				android:text="@string/app_name"
 	    />
 	    <Button android:id="@+id/titlePassage"
+                android:visibility="gone"
 				style="@style/TitleBarTitleButton"
 	    />
-		<ProgressBar android:id="@+id/progressCircular"
+	    <Button android:id="@+id/bibleBookButton"
+                android:visibility="gone"
+                style="@style/SmallTitleBarTitleButton"
+                />
+        <Button android:id="@+id/bibleChapterButton"
+                android:visibility="gone"
+                style="@style/SmallTitleBarTitleButton"
+                />
+        <Button android:id="@+id/bibleVerseButton"
+                android:visibility="gone"
+                style="@style/SmallTitleBarTitleButton"
+                />
+   	    <ProgressBar android:id="@+id/progressCircular"
 				style="?android:attr/progressBarStyleSmallTitle"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
@@ -68,11 +81,6 @@
 					android:textStyle="italic"
 					style="@style/TitleBarToggleButton"
 		/>
-        <Button android:id="@+id/verseMenu"
-                android:visibility="gone"
-                style="@style/SmallTitleBarButton"
-                android:text="@string/verse_menu_button"
-                />
    	    <Button android:id="@+id/quickSplitScreen"
 		        android:visibility="gone"
 				style="@style/TitleBarButton"

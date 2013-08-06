@@ -7,34 +7,27 @@ import net.bible.android.control.page.CurrentPageManager;
 import org.crosswire.jsword.book.Book;
 
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 
 // does not inherit from button - see: http://stackoverflow.com/questions/8369504/why-so-complex-to-set-style-from-code-in-android
-public class CommentaryToolbarButton extends ToolbarButtonBase implements ToolbarButton {
+public class CommentaryToolbarButton extends ToolbarButtonBase<Button> implements ToolbarButton {
 
-	private Button mButton;
 	private Book mSuggestedDocument;
 	
 	private ToolbarButtonHelper helper = new ToolbarButtonHelper();
 	
 	public CommentaryToolbarButton(View parent) {
-        mButton = (Button)parent.findViewById(R.id.quickCommentaryChange);
-
-        mButton.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-            	onButtonPress();
-            }
-        });
+        super(parent, R.id.quickCommentaryChange);
 	}
 
-	private void onButtonPress() {
+	@Override
+	protected void onButtonPress() {
     	CurrentPageManager.getInstance().setCurrentDocument(mSuggestedDocument);
 	}
 
 	public void update() {
         mSuggestedDocument = ControlFactory.getInstance().getDocumentControl().getSuggestedCommentary();
-        helper.updateQuickButton(mSuggestedDocument, mButton, true);
+        helper.updateQuickButton(mSuggestedDocument, getButton(), true);
 	}
 
 	@Override

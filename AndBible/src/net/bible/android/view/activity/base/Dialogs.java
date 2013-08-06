@@ -3,12 +3,20 @@ package net.bible.android.view.activity.base;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.view.util.Hourglass;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.util.Log;
 import android.widget.Toast;
 
+/**
+ * Class to manage the display of various dialogs
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class Dialogs {
 
 	public static final int TOO_MANY_JOBS = 121;

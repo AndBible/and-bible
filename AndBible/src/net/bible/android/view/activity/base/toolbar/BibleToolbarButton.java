@@ -7,33 +7,31 @@ import net.bible.android.control.page.CurrentPageManager;
 import org.crosswire.jsword.book.Book;
 
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public class BibleToolbarButton extends ToolbarButtonBase implements ToolbarButton {
+/** Quick change bible toolbar button
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
+public class BibleToolbarButton extends ToolbarButtonBase<Button> {
 
-	private Button mButton;
 	private Book mSuggestedDocument;
 	
 	private ToolbarButtonHelper helper = new ToolbarButtonHelper();
 	
 	public BibleToolbarButton(View parent) {
-        mButton = (Button)parent.findViewById(R.id.quickBibleChange);
-
-        mButton.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-            	onButtonPress();
-            }
-        });
+        super(parent, R.id.quickBibleChange);
 	}
 
-	private void onButtonPress() {
+	public void onButtonPress() {
     	CurrentPageManager.getInstance().setCurrentDocument(mSuggestedDocument);
 	}
 
 	public void update() {
         mSuggestedDocument = ControlFactory.getInstance().getDocumentControl().getSuggestedBible();
-        helper.updateQuickButton(mSuggestedDocument, mButton, true);
+        helper.updateQuickButton(mSuggestedDocument, getButton(), true);
 	}
 
 	@Override

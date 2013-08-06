@@ -157,6 +157,24 @@ public class PageControl {
 		return retVal;
 	}
 
+	public String getCurrentBibleBookName() {
+		CurrentBiblePage page = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible();
+		Verse verse = page.getSingleKey();
+		BibleBook book = verse.getBook();
+		
+		String name;
+//		if (CommonUtils.isPortrait()) {
+			name = page.getVersification().getShortName(book);
+//		} else {
+//			name = page.getVersification().getLongName(book);
+//		}
+		return name;
+	}
+
+	public Verse getCurrentBibleVerse() {
+		return ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getSingleKey();
+	}
+	
 	/** font size may be adjusted for certain fonts e.g. SBLGNT
 	 */
 	public int getDocumentFontSize(Screen splitScreenNo) {
