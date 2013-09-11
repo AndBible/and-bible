@@ -12,7 +12,6 @@ import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import org.apache.lucene.LucenePackage;
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.util.Version;
 import org.crosswire.jsword.book.Book;
@@ -26,6 +25,7 @@ import org.crosswire.jsword.bridge.BookInstaller;
 import org.crosswire.jsword.index.IndexManager;
 import org.crosswire.jsword.index.IndexManagerFactory;
 import org.crosswire.jsword.index.IndexStatus;
+//import org.apache.lucene.LucenePackage;
 
 public class MJDIndexAll {
 
@@ -35,7 +35,7 @@ public class MJDIndexAll {
 	private static final String REPOSITORY_XIPHOS = "Xiphos";
 	private static final String REPOSITORY_CROSSWIRE_BETA = "Crosswire Beta";
 	// Default repo used below
-	private static final String REPOSITORY = REPOSITORY_IBT;
+	private static final String REPOSITORY = REPOSITORY_CROSSWIRE_AV;
 	
 //	private static final BookFilter BOOK_FILTER = BookFilters.getDictionaries();
 	private static final BookFilter BOOK_FILTER = BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries());
@@ -76,7 +76,8 @@ public class MJDIndexAll {
 	//    	indexAll.installSingleBook("StrongsGreek");
 	//    	indexAll.installSingleBook("BDBGlosses_Strongs");
 	//    	indexAll.installRepoBooks();
-	    	indexAll.checkAllBooksInstalled();
+			boolean installAndIndex = false;
+			indexAll.checkAllBooksInstalled(installAndIndex);
 	//    	indexAll.manageCreateIndexes();
 	//    	indexAll.indexSingleBook("KJV");
 	    	
@@ -242,7 +243,34 @@ public class MJDIndexAll {
 //	    	indexAll.installAndIndexSingleBook("RusSynodal");
 	    	
 	    	// Crosswire AV
-	    	indexAll.installAndIndexAllRepoBooks();
+//	    	indexAll.installAndIndexAllRepoBooks();
+
+//			indexAll.installAndIndexSingleBook("SBLGNT");
+//			indexAll.installAndIndexSingleBook("UrduGeo");
+//			indexAll.installAndIndexSingleBook("UrduGeoDeva");
+			
+			//2013-09-11
+//			indexAll.installAndIndexSingleBook("Chamorro");
+//			indexAll.installAndIndexSingleBook("GerElb1871");
+//			indexAll.installAndIndexSingleBook("GerSch");
+//			indexAll.installAndIndexSingleBook("SpaVNT");
+//			indexAll.installAndIndexSingleBook("Swe1917");
+//			indexAll.installAndIndexSingleBook("UKJV");
+//			indexAll.installAndIndexSingleBook("Viet");
+//			indexAll.installAndIndexSingleBook("sml_BL_2008");
+			//IBT
+//			indexAll.installAndIndexSingleBook("KAZ"); //errors like org.crosswire.jsword.passage.NoSuchVerseException: Verse should be between 0 and 6 for Isaiah 20 (given 15).
+//			indexAll.installAndIndexSingleBook("KYLSA");
+//			indexAll.installAndIndexSingleBook("RSP");
+//			indexAll.installAndIndexSingleBook("UZV");
+//			indexAll.installAndIndexSingleBook("UZVL");
+			//AV
+//			indexAll.installAndIndexSingleBook("FreKhan");
+//			indexAll.installAndIndexSingleBook("HunUj");
+//			indexAll.installAndIndexSingleBook("VulgClementine");
+//			indexAll.installAndIndexSingleBook("VulgConte");
+//			indexAll.installAndIndexSingleBook("VulgHetzenauer");
+//			indexAll.installAndIndexSingleBook("VulgSistine");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -384,7 +412,7 @@ public class MJDIndexAll {
     	indexAllBooks();
         addPropertiesFile();
     	createZipFiles();
-    	checkAllBooksInstalled();
+    	checkAllBooksInstalled(false);
     }
     
     private void setupDirs() {
@@ -461,12 +489,13 @@ public class MJDIndexAll {
         }
     }
 
-    private void checkAllBooksInstalled() {
+    private void checkAllBooksInstalled(boolean installAndIndex) {
     	BookInstaller bookInstaller = new BookInstaller();
         List<Book> books = (List<Book>)bookInstaller.getRepositoryBooks(REPOSITORY, BOOK_FILTER);
         
         for (Book book : books) {
             try {
+				boolean isOkay = false;
             	Book installedBook = bookInstaller.getInstalledBook(book.getInitials());
             	if (installedBook==null) {
             		System.out.println("Not installed:"+book.getInitials()+" Name:"+book.getName());
@@ -480,7 +509,11 @@ public class MJDIndexAll {
                 		System.out.println("Incorrect version of "+book.getInitials()+" installed:"+installedVersion+" Repo:"+version);
             		} else {
             			System.out.println("Okay:"+book.getInitials()+" "+version);
+						isOkay = true;
             		}
+					if (installAndIndex && !isOkay) {
+						installAndIndexSingleBook(book.getInitials());
+					}
             	}
             } catch (Exception e) {
             	System.out.println("Error installing:"+book.getInitials());
@@ -527,7 +560,7 @@ public class MJDIndexAll {
         indexProperties.put("version", "1");
         indexProperties.put("java.specification.version", System.getProperty("java.specification.version"));
         indexProperties.put("java.vendor", System.getProperty("java.vendor"));
-        indexProperties.put("lucene.specification.version",LucenePackage.get().getSpecificationVersion());
+//        indexProperties.put("lucene.specification.version",LucenePackage.get().getSpecificationVersion());
     	
         List<Book> books = (List<Book>)BookInstaller.getInstalledBooks();
         for (Book book : books) {
