@@ -64,6 +64,7 @@
 		<item>@string/lang_japanese</item>
 		<item>@string/lang_kazakh</item>
 		<item>@string/lang_korean</item>
+		<item>@string/lang_kyrgyz</item>
 		<item>@string/lang_lithuanian</item>
 		<item>@string/lang_latvian</item>
 		<item>@string/lang_malagasy</item>
@@ -106,6 +107,7 @@
 		<item>ja</item>
 		<item>kk</item>
 		<item>ko</item>
+		<item>ky</item>
 		<item>lt</item>
 		<item>lv</item>
 		<item>mg</item>
