@@ -42,7 +42,7 @@ public class KeyHistoryItem extends HistoryItemBase {
 	public String getDescription() {
 		StringBuffer desc = new StringBuffer();
 		try {
-			String verseDesc = CommonUtils.getVerseDescription(key);
+			String verseDesc = CommonUtils.getKeyDescription(key);
 			desc.append(document.getInitials()).append(" ").append(verseDesc);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting description", e);

@@ -37,8 +37,7 @@ public class DefaultToolbar implements Toolbar {
         mToolbarButtonList = new ArrayList<ToolbarButton>();
         mToolbarButtonList.add(new CurrentDocumentToolbarButton(buttonContainer));
         
-        mToolbarButtonList.add(new BibleBookToolbarButton(buttonContainer));
-        mToolbarButtonList.add(new BibleChapterToolbarButton(buttonContainer));
+        mToolbarButtonList.add(new BibleBookAndChapterToolbarButton(buttonContainer));
         mToolbarButtonList.add(new BibleVerseToolbarButton(buttonContainer));
         
         mToolbarButtonList.add(new CurrentPageToolbarButton(buttonContainer));

@@ -3,10 +3,8 @@ package net.bible.android.view.activity.base.toolbar;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.document.DocumentControl;
-import net.bible.android.control.event.passage.PassageEvent;
-import net.bible.android.control.event.passage.PassageEventListener;
-import net.bible.android.control.event.passage.PassageEventManager;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.PageControl;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 
 import android.app.Activity;
@@ -14,26 +12,17 @@ import android.content.Intent;
 import android.view.View;
 import android.widget.Button;
 
-public class CurrentPageToolbarButton extends ToolbarButtonBase<Button> implements ToolbarButton {
-
-	private String mCurrentPageTitle;
+public class BibleBookAndChapterToolbarButton extends ToolbarButtonBase<Button> implements ToolbarButton {
 
 	private final DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
+	private final PageControl pageControl = ControlFactory.getInstance().getPageControl();
 	
 	@SuppressWarnings("unused")
 	private static final String TAG = "Toolbar";
 	private ToolbarButtonHelper helper = new ToolbarButtonHelper();
 	
-	public CurrentPageToolbarButton(View parent) {
+	public BibleBookAndChapterToolbarButton(View parent) {
         super(parent, R.id.titlePassage);
-
-        // listen for verse change events
-        PassageEventManager.getInstance().addPassageEventListener(new PassageEventListener() {
-			@Override
-			public void pageDetailChange(PassageEvent event) {
-				update();
-			}
-		});
 	}
 
 	@Override
@@ -46,23 +35,20 @@ public class CurrentPageToolbarButton extends ToolbarButtonBase<Button> implemen
 
 	public void update() {
 		super.update();
-		
-        mCurrentPageTitle = ControlFactory.getInstance().getPageControl().getCurrentPageTitle();
 
-        // must do ui update in ui thread
-        // copy title to ensure it isn't changed before ui thread executes the following
-        final String title = mCurrentPageTitle;
+		// run on ui thread
 		getButton().post(new Runnable() {
 			@Override
 			public void run() {
-		        helper.updateButtonText(title, getButton());
+		        helper.updateButtonText(pageControl.getCurrentPageTitle(), getButton());
 			}
 		});
 	}
 
+	/** return true if this button is to be shown */
 	@Override
 	public boolean canShow() {
-		return 	mCurrentPageTitle!=null;
+		return documentControl.showSplitPassageSelectorButtons();
 	}
 
 	@Override

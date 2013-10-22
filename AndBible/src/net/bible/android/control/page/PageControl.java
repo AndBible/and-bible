@@ -136,8 +136,9 @@ public class PageControl {
 			StringBuilder title = new StringBuilder();
 			CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
 			if (currentPage!=null) {
-				if (currentPage.getSingleKey()!=null) {
-					title.append(CommonUtils.getVerseDescription(currentPage.getSingleKey()));
+				Key key = currentPage.getKey();
+				if (key!=null) {
+					title.append(CommonUtils.getKeyDescription(key));
 				}
 			}
 			

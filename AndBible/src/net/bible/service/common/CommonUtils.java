@@ -363,7 +363,7 @@ public class CommonUtils {
 		return ControlFactory.getInstance().getSplitScreenControl().getCurrentActiveScreen();
 	}
 	
-	public static String getVerseDescription(Key key) {
+	public static String getKeyDescription(Key key) {
 		String name;
 		try {
 			name = key.getName();
