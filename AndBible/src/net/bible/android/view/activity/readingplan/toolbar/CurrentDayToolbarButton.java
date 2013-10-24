@@ -7,30 +7,29 @@ import net.bible.android.view.activity.base.toolbar.ToolbarButton;
 import net.bible.android.view.activity.base.toolbar.ToolbarButtonBase;
 import net.bible.android.view.activity.base.toolbar.ToolbarButtonHelper;
 import net.bible.android.view.activity.readingplan.DailyReadingList;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public class CurrentDayToolbarButton extends ToolbarButtonBase implements ToolbarButton {
+/**
+ * Show current day number in toolbar
 
-	private Button mButton;
-	private String mCurrentPageTitle;
-	
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
+public class CurrentDayToolbarButton extends ToolbarButtonBase<Button> implements ToolbarButton {
+
 	private ToolbarButtonHelper helper = new ToolbarButtonHelper();
 	
 	public CurrentDayToolbarButton(View parent) {
-        mButton = (Button)parent.findViewById(R.id.titlePassage);
-
-        mButton.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-            	onButtonPress();
-            }
-        });
+        super(parent, R.id.titlePassage);
 	}
 
-	private void onButtonPress() {
+	@Override
+	protected void onButtonPress() {
 		Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
 		Intent pageHandlerIntent = new Intent(currentActivity, DailyReadingList.class);
 		currentActivity.startActivityForResult(pageHandlerIntent, 1);
@@ -38,19 +37,21 @@ public class CurrentDayToolbarButton extends ToolbarButtonBase implements Toolba
 	}
 
 	public void update() {
+		super.update();
+		
         final String title = ControlFactory.getInstance().getReadingPlanControl().getCurrentDayDescription();
         // must do ui update in ui thread
-		mButton.post(new Runnable() {
+		getButton().post(new Runnable() {
 			@Override
 			public void run() {
-		        helper.updateButtonText(title, mButton);
+		        helper.updateButtonText(title, getButton());
 			}
 		});
 	}
 
 	@Override
 	public boolean canShow() {
-		return mCurrentPageTitle!=null;
+		return true;
 	}
 
 	@Override

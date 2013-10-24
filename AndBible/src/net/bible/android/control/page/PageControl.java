@@ -136,8 +136,9 @@ public class PageControl {
 			StringBuilder title = new StringBuilder();
 			CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
 			if (currentPage!=null) {
-				if (currentPage.getSingleKey()!=null) {
-					title.append(CommonUtils.getVerseDescription(currentPage.getSingleKey()));
+				Key key = currentPage.getKey();
+				if (key!=null) {
+					title.append(CommonUtils.getKeyDescription(key));
 				}
 			}
 			
@@ -157,6 +158,24 @@ public class PageControl {
 		return retVal;
 	}
 
+	public String getCurrentBibleBookName() {
+		CurrentBiblePage page = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible();
+		Verse verse = page.getSingleKey();
+		BibleBook book = verse.getBook();
+		
+		String name;
+//		if (CommonUtils.isPortrait()) {
+			name = page.getVersification().getShortName(book);
+//		} else {
+//			name = page.getVersification().getLongName(book);
+//		}
+		return name;
+	}
+
+	public Verse getCurrentBibleVerse() {
+		return ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getSingleKey();
+	}
+	
 	/** font size may be adjusted for certain fonts e.g. SBLGNT
 	 */
 	public int getDocumentFontSize(Screen splitScreenNo) {

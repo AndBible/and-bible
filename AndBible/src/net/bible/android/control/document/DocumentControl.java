@@ -81,6 +81,14 @@ public class DocumentControl {
 		return ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getBookCategory();
 	}
 	
+	/** show split book/chap/verse buttons in toolbar for Bibles and Commentaries
+	 */
+	public boolean showSplitPassageSelectorButtons() {
+		BookCategory currentCategory = getCurrentCategory();
+		return	(BookCategory.BIBLE.equals(currentCategory) ||
+				BookCategory.COMMENTARY.equals(currentCategory));
+	}
+	
 	/** Suggest an alternative bible to view or return null
 	 * 
 	 * @return

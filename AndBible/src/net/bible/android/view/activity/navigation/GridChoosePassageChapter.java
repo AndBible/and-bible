@@ -43,7 +43,7 @@ public class GridChoosePassageChapter extends ActivityBase implements OnButtonGr
     	setAllowThemeChange(false);
         super.onCreate(savedInstanceState);
 
-        int bibleBookNo = getIntent().getIntExtra(GridChoosePassageBook.BOOK_NO, 0);
+        int bibleBookNo = getIntent().getIntExtra(GridChoosePassageBook.BOOK_NO, navigationControl.getDefaultBibleBookNo());
         //TODO av11n - this is done now
         mBibleBook = BibleBook.values()[bibleBookNo];
                              

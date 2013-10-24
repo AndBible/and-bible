@@ -23,7 +23,13 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
+/** 
+ * Base class for any screen that shows job progress indicators
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class ProgressActivityBase extends ActivityBase {
 
 	private Map<Progress, ProgressUIControl> progressMap = new HashMap<Progress, ProgressUIControl>();

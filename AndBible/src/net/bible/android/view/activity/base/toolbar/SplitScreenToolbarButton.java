@@ -6,33 +6,21 @@ import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 
-public class SplitScreenToolbarButton extends ToolbarButtonBase implements ToolbarButton {
+public class SplitScreenToolbarButton extends ToolbarButtonBase<Button> implements ToolbarButton {
 
-	private Button mButton;
-	
 	private SplitScreenControl splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
 	
 	public SplitScreenToolbarButton(View parent) {
-        mButton = (Button)parent.findViewById(R.id.quickSplitScreen);
-
-        mButton.setOnClickListener(new OnClickListener() {
-            public void onClick(View v) {
-            	onButtonPress();
-            }
-        });
+        super(parent, R.id.quickSplitScreen);
 	}
 
-	private void onButtonPress() {
+	@Override
+	protected void onButtonPress() {
     	splitScreenControl.setSplit(!splitScreenControl.isSplit());
 		// redisplay the current page
 		PassageChangeMediator.getInstance().forcePageUpdate();
-	}
-
-	public void update() {
-		mButton.setVisibility(canShow()? View.VISIBLE : View.INVISIBLE);
 	}
 
 	@Override

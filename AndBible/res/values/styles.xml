@@ -19,7 +19,11 @@
 		<item name="android:shadowColor">#BB000000</item>
         <item name="android:shadowRadius">2.75</item>
     </style>
-
+    
+    <style name="SmallTitleBarTitleButton" parent="TitleBarTitleButton">
+        <item name="android:minWidth">@dimen/size_of_small_quick_buttons</item>
+	</style>
+    
     <style name="TitleBarToggleButton" parent="SmallTitleBarButton">
     	<item name="android:background">@drawable/btn_tiny_toggle</item>
 	</style>

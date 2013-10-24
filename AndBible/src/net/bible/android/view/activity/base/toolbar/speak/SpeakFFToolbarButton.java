@@ -2,10 +2,16 @@ package net.bible.android.view.activity.base.toolbar.speak;
 
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.toolbar.ToolbarButton;
-import android.view.View;
-import android.view.View.OnClickListener;
 
-public class SpeakFFToolbarButton extends SpeakToolbarButtonBase implements ToolbarButton, OnClickListener {
+import android.view.View;
+/**
+ * Speak FF toolbar button
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
+public class SpeakFFToolbarButton extends SpeakToolbarButtonBase implements ToolbarButton {
 
 	@SuppressWarnings("unused")
 	private static final String TAG = "Speak";
@@ -33,7 +39,7 @@ public class SpeakFFToolbarButton extends SpeakToolbarButtonBase implements Tool
 
 	/** button clicked */
 	@Override
-	public void onClick(View v) {
+	protected void onButtonPress() {
 		getSpeakControl().forward();
 	}
 

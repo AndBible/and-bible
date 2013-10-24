@@ -270,6 +270,9 @@ public class CommonUtils {
 		return BibleApplication.getApplication().getResources().getInteger(resourceId);
 	}
 	
+	public static boolean getResourceBoolean(int resourceId) {
+		return BibleApplication.getApplication().getResources().getBoolean(resourceId);
+	}
 	/**
 	 * convert dip measurements to pixels
 	 */
@@ -360,7 +363,7 @@ public class CommonUtils {
 		return ControlFactory.getInstance().getSplitScreenControl().getCurrentActiveScreen();
 	}
 	
-	public static String getVerseDescription(Key key) {
+	public static String getKeyDescription(Key key) {
 		String name;
 		try {
 			name = key.getName();

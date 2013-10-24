@@ -11,6 +11,13 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ProgressBar;
 
+/**
+ * Base class for activities with a custom title bar
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	
 	public enum HeaderButton {DOCUMENT, PAGE, BIBLE, COMMENTARY, DICTIONARY, TOGGLE_STRONGS, SPEAK, SPEAK_STOP, SPEAK_FF, SPEAK_REW};
