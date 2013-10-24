@@ -71,7 +71,7 @@ public class OSISVerseTidy {
         // I think teh default JSword module loader would probably strip all tags
 //        <lg>
 //        <l type="x-primary">
-//         <verse sID="Ps.1.1" osisID="Ps.1.1" />Blessed is the man who doesn’t walk in the counsel of the wicked,</l>
+//         <verse sID="Ps.1.1" osisID="Ps.1.1" />Blessed is the man who doesnt walk in the counsel of the wicked,</l>
 //        <l type="x-secondary">nor stand in the way of sinners,</l>
 //        <l type="x-secondary">nor sit in the seat of scoffers;</l>
 //       </lg>

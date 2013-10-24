@@ -18,7 +18,6 @@
 				android:text="@string/app_name"
 	    />
 	    <Button android:id="@+id/titlePassage"
-                android:visibility="gone"
 				style="@style/TitleBarTitleButton"
 	    />
         <Button android:id="@+id/bibleVerseButton"
