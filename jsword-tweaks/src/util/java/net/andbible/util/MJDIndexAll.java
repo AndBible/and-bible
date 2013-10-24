@@ -271,6 +271,19 @@ public class MJDIndexAll {
 //			indexAll.installAndIndexSingleBook("VulgConte");
 //			indexAll.installAndIndexSingleBook("VulgHetzenauer");
 //			indexAll.installAndIndexSingleBook("VulgSistine");
+			
+			//2013-10-18 Crosswire AV
+//			indexAll.installAndIndexSingleBook("GerLut1545");
+//			indexAll.installAndIndexSingleBook("WLC");
+
+//			indexAll.installAndIndexSingleBook("KorRV");
+//			indexAll.installAndIndexSingleBook("OSHB");
+			//indexAll.installAndIndexSingleBook("RusSynodalLIO");
+			
+			//CW
+//			indexAll.installAndIndexSingleBook("KJV");
+//			indexAll.installAndIndexSingleBook("AB");
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
