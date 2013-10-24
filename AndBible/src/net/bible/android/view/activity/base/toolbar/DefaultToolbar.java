@@ -35,11 +35,9 @@ public class DefaultToolbar implements Toolbar {
 	public void initialise(View buttonContainer) {
 		// buttons should be added in priority order
         mToolbarButtonList = new ArrayList<ToolbarButton>();
+
         mToolbarButtonList.add(new CurrentDocumentToolbarButton(buttonContainer));
-        
-        mToolbarButtonList.add(new BibleBookAndChapterToolbarButton(buttonContainer));
         mToolbarButtonList.add(new BibleVerseToolbarButton(buttonContainer));
-        
         mToolbarButtonList.add(new CurrentPageToolbarButton(buttonContainer));
         
         // quich change buttons

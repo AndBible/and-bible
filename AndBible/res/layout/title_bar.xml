@@ -21,14 +21,6 @@
                 android:visibility="gone"
 				style="@style/TitleBarTitleButton"
 	    />
-	    <Button android:id="@+id/bibleBookButton"
-                android:visibility="gone"
-                style="@style/SmallTitleBarTitleButton"
-                />
-        <Button android:id="@+id/bibleChapterButton"
-                android:visibility="gone"
-                style="@style/SmallTitleBarTitleButton"
-                />
         <Button android:id="@+id/bibleVerseButton"
                 android:visibility="gone"
                 style="@style/SmallTitleBarTitleButton"
