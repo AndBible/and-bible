@@ -18,6 +18,9 @@ import org.apache.commons.lang.time.DateUtils;
 import org.crosswire.common.util.IOUtil;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.passage.VerseRange;
+import org.crosswire.jsword.versification.BibleBook;
+import org.crosswire.jsword.versification.Versification;
 
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -382,5 +385,18 @@ public class CommonUtils {
 			name = key.getOsisID().replace('.', ' ');
 		}
 		return name;
+	}
+	
+	public static Key getWholeChapter(Verse currentVerse) {
+		Log.i(TAG, "Whole chapter request :"+currentVerse.getOsisID());
+		Versification versification = currentVerse.getVersification();
+		BibleBook book = currentVerse.getBook();
+		int chapter = currentVerse.getChapter();
+
+		Verse targetChapterFirstVerse = new Verse(versification, book, chapter, 0);
+		Verse targetChapterLastVerse = new Verse(versification, book, chapter, versification.getLastVerse(book, chapter));
+
+		// convert to full chapter before returning because bible view is for a full chapter
+		return new VerseRange(versification, targetChapterFirstVerse, targetChapterLastVerse);
 	}
 }

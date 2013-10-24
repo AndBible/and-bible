@@ -4,6 +4,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.versification.Scripture;
 import net.bible.android.view.activity.navigation.GridChoosePassageBook;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang.StringUtils;
@@ -13,7 +14,6 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.Verse;
-import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 
@@ -124,7 +124,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 		Verse targetChapterVerse1 = getKeyPlus(num);
 
 		// convert to full chapter before returning because bible view is for a full chapter
-		return getWholeChapter(targetChapterVerse1);
+		return CommonUtils.getWholeChapter(targetChapterVerse1);
 	}
 
 	/* (non-Javadoc)
@@ -178,7 +178,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 			if (!requireSingleKey) {
 				// display whole page of bible so return whole chapter key - not just teh single verse even if a single verse was set in verseKey
 				// if verseNo is required too then use getVerse()
-		        key = getWholeChapter(verse);
+		        key = CommonUtils.getWholeChapter(verse);
 			} else {
 				key = verse;
 			}
@@ -279,15 +279,4 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 		menu.findItem(R.id.compareTranslations).setVisible(true);
 	}
 
-	private Key getWholeChapter(Verse currentVerse) {
-		Log.i(TAG, "Whole chapter request :"+currentVerse.getOsisID());
-		Versification versification = getVersification();
-		//TODO av11n - this is done now
-		BibleBook book = currentVerse.getBook();
-		int chapter = currentVerse.getChapter();
-		Verse targetChapterFirstVerse = new Verse(versification, book, chapter, 0);
-		Verse targetChapterLastVerse = new Verse(versification, book, chapter, versification.getLastVerse(book, chapter));
-		// convert to full chapter before returning because bible view is for a full chapter
-		return new VerseRange(versification, targetChapterFirstVerse, targetChapterLastVerse);
-	}
 }

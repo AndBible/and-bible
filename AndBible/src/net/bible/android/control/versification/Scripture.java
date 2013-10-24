@@ -54,8 +54,7 @@ public class Scripture {
 		BibleBook book = verse.getBook();
 		int chapter = verse.getChapter();
 		int verseNo = verse.getVerse();
-		// if past last chapter of book then go to next book - algorithm not foolproof but we only move one chapter at a time like this
-		if (verseNo>1) {
+		if (verseNo>0) {
 			verseNo -= 1;
 		} else {
 			Verse prevChap = getPrevChapter(verse);
