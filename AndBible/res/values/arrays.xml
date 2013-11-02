@@ -75,7 +75,9 @@
 		<item>@string/lang_polish</item>
 		<item>@string/lang_portuguese</item>
 		<item>@string/lang_russian</item>
+		<item>@string/lang_slovenian</item>
 		<item>@string/lang_swedish</item>
+		<item>@string/lang_telugu</item>
 		<item>@string/lang_thai</item>
 		<item>@string/lang_turkish</item>
 		<item>@string/lang_ukrainian</item>
@@ -118,7 +120,9 @@
 		<item>pl</item>
 		<item>pt</item>
 		<item>ru</item>
+		<item>sl</item>
 		<item>sv</item>
+		<item>te</item>
 		<item>th</item>
 		<item>tr</item>
 		<item>uk</item>

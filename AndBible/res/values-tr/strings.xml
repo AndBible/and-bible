@@ -75,7 +75,7 @@
   <string name="prefs_text_size_summary">Harfler büyüsün. Görüntülenen metin çoğalsın.</string>
   <string name="prefs_text_size_sample_text">Metin örneği</string>
   <string name="prefs_screen_timeout_title">Uyku</string>
-  <string name="prefs_screen_timeout_summary">İşlem yapılmadığında ekran kapanacak</string>
+  <string name="prefs_screen_timeout_summary">Ekran işlem yapılmayınca bu sürede kapanacak</string>
   <string name="x_minutes">%d dakika</string>
   <string name="prefs_interface_locale_title">Arayüz dili</string>
   <string name="prefs_interface_locale_summary">Farklı bir arayüz dilini seç</string>
@@ -83,8 +83,8 @@
   <string name="prefs_split_screen_title">Bölünmüş ekran</string>
   <string name="prefs_split_screen_summary">Ekran bölünmesi &amp; bağlanması</string>
   <string name="prefs_split_screen_single">Tek ekran</string>
-  <string name="prefs_split_screen_linked">Bağımlı</string>
-  <string name="prefs_split_screen_not_linked">Bağımsız</string>
+  <string name="prefs_split_screen_linked">Bağlandı</string>
+  <string name="prefs_split_screen_not_linked">Bağlı değil</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Bu bölüme ait not bulunmadı</string>
   <string name="no_verse_notes">Bu ayete ait not bulunmadı</string>
@@ -109,7 +109,7 @@
   <string name="error_downloading">İndirirken bir hata oldu. İnternet bağlantınızı kontrol edin.</string>
   <string name="no_internet_connection">İnternet bağlantısı yok</string>
   <string name="storage_space_warning">Yerel depo yetersiz</string>
-  <string name="wait_for_bible">Lütfen bekleyiniz. Çevirinin indiriliyor. İndirme bitince ana ekran görüntülenecek.</string>
+  <string name="wait_for_bible">Lütfen bekleyiniz. Çeviri indiriliyor. İndirme bitince ana ekran açılacak.\n\nDaha belge indirmek için Menü tuşu/Daha/Belge indirme öğesine gidiniz.</string>
   <string name="wait_for_bible_not_yet">Lütfen bekleyiniz. Çeviri cihazınıza yükleniyor.</string>
   <string name="download_complete_no_bibles">Çeviri yüklenmedi. Lütfen Geri düğmesine basın ve tekrar deneyin.</string>
   <string name="too_many_jobs">Şu anda çok fazla görev işleniyor. Birinin bitmesini bekleyip tekrar deneyin.</string>
@@ -174,8 +174,8 @@
   <!--Speak - Common-->
   <string name="stop">Durdur</string>
   <string name="pause">Duraklat</string>
-  <string name="rewind">Geri sar</string>
-  <string name="forward">İleri sar</string>
+  <string name="rewind">Geri al</string>
+  <string name="forward">İleri al</string>
   <string name="tts_lang_not_available">Dil bulunmadı.</string>
   <string name="speak_queue">Sıra</string>
   <string name="speak_repeat">Tekrar</string>
