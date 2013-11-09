@@ -104,6 +104,7 @@ public class BibleApplication extends Application{
         {
         	if (!overrideLocale.getLanguage().equals(newConfig.locale.getLanguage())) {
             	Log.d(TAG, "re-applying changed Locale");
+            	Locale.setDefault(overrideLocale);
             	Configuration config = new Configuration();
             	config.locale = overrideLocale;
             	getResources().updateConfiguration(config, getResources().getDisplayMetrics());            	
