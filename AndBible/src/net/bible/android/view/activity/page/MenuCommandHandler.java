@@ -179,9 +179,10 @@ public class MenuCommandHandler {
     		Log.i(TAG, "Refresh on finish");
     		if (!CommonUtils.getLocalePref().equals(mPrevLocalePref)) {
     			// must restart to change locale
-    			PendingIntent intent = PendingIntent.getActivity(callingActivity.getBaseContext(), 0, new Intent(callingActivity.getIntent()), callingActivity.getIntent().getFlags());
+    			Intent intent = new  Intent("net.bible.android.activity.StartupActivity.class");
+    			PendingIntent pendingIntent = PendingIntent.getActivity(callingActivity.getBaseContext(), 0, intent, 0);
     			AlarmManager mgr = (AlarmManager)callingActivity.getSystemService(Context.ALARM_SERVICE);
-    			mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, intent);
+    			mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent);
     			System.exit(2);
     			return true;
     		}
