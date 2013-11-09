@@ -388,7 +388,7 @@ public class CommonUtils {
 	}
 	
 	public static Key getWholeChapter(Verse currentVerse) {
-		Log.i(TAG, "Whole chapter request :"+currentVerse.getOsisID());
+		Log.i(TAG, "Get Chapter for:"+currentVerse.getOsisID());
 		Versification versification = currentVerse.getVersification();
 		BibleBook book = currentVerse.getBook();
 		int chapter = currentVerse.getChapter();

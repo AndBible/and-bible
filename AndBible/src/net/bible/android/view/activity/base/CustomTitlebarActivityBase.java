@@ -72,12 +72,8 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		
+		// the title bar has different widths depending on the orientation
 		updateToolbarButtonText();
-
-//		// the title bar has different widths depending on the orientation
-//		int titleBarTitleWidthPixels = getResources().getDimensionPixelSize(R.dimen.title_bar_title_width);
-//		Log.d(TAG, "Title bar width:"+titleBarTitleWidthPixels);
-//		mPageTitle.setWidth(titleBarTitleWidthPixels);
 	}
 
 	/** update the quick links in the title bar

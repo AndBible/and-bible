@@ -50,7 +50,7 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 
 		super.onCreate(savedInstanceState);
     	
-        Log.i(getLocalClassName(), "onCreate");
+        Log.i(getLocalClassName(), "onCreate:"+this);
         
         // Register current activity in onCreate and onResume
         CurrentActivityHolder.getInstance().setCurrentActivity(this);
@@ -186,7 +186,7 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-        Log.i(getLocalClassName(), "onResume");
+        Log.i(getLocalClassName(), "onResume:"+this);
         CurrentActivityHolder.getInstance().setCurrentActivity(this);
         
         //allow action to be called on screen being turned on
@@ -199,7 +199,7 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-        Log.i(getLocalClassName(), "onPause");
+        Log.i(getLocalClassName(), "onPause:"+this);
 		if (isScreenOn && !ScreenSettings.isScreenOn()) {
 			isScreenOn = false;
 			onScreenTurnedOff();
@@ -217,20 +217,20 @@ public class ActivityBase extends Activity implements AndBibleActivity {
 	@Override
 	protected void onRestart() {
 		super.onRestart();
-        Log.i(getLocalClassName(), "onRestart");
+        Log.i(getLocalClassName(), "onRestart:"+this);
 	}
 
 	@Override
 	protected void onStart() {
 		super.onStart();
-        Log.i(getLocalClassName(), "onStart");
+        Log.i(getLocalClassName(), "onStart:"+this);
 	}
 
 
 	@Override
 	protected void onStop() {
 		super.onStop();
-        Log.i(getLocalClassName(), "onStop");
+        Log.i(getLocalClassName(), "onStop:"+this);
         // call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
         CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this);
 	}

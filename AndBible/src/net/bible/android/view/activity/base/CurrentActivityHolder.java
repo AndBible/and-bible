@@ -47,8 +47,10 @@ public class CurrentActivityHolder {
 		if (currentActivity!=null && currentActivity.equals(activity)) {
 			Log.w(TAG, "Temporarily null current ativity");
 			currentActivity = null;
-			fireAppToBackground(true);
-			appIsInForeground = false;
+			if (appIsInForeground) {
+				appIsInForeground = false;
+				fireAppToBackground(true);
+			}
 		}
 	}
 	
@@ -66,8 +68,8 @@ public class CurrentActivityHolder {
 	private void appIsNowInForeground() {
 		if (!appIsInForeground) {
 			Log.d(TAG, "AppIsInForeground firing event");
-			fireAppToBackground(false);
 			appIsInForeground = true;
+			fireAppToBackground(false);
 		}
 	}
 	
