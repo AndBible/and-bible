@@ -2,6 +2,7 @@ package net.bible.android.view.activity.page;
 
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
+import net.bible.android.activity.StartupActivity;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.page.CurrentPageManager;
@@ -179,8 +180,16 @@ public class MenuCommandHandler {
     		Log.i(TAG, "Refresh on finish");
     		if (!CommonUtils.getLocalePref().equals(mPrevLocalePref)) {
     			// must restart to change locale
-    			Intent intent = new  Intent("net.bible.android.activity.StartupActivity.class");
-    			PendingIntent pendingIntent = PendingIntent.getActivity(callingActivity.getBaseContext(), 0, intent, 0);
+    			PendingIntent pendingIntent;
+    			if (CommonUtils.isIceCreamSandwichPlus()) {
+        			// works on 4.x but not on 2.1
+        			Intent startupIntent = new  Intent("net.bible.android.activity.StartupActivity.class");
+        			pendingIntent = PendingIntent.getActivity(callingActivity.getBaseContext(), 0, startupIntent, 0);
+    			} else {
+	    			//works on 2.1 but scroll errors on 4.x
+	    			Intent startupIntent = new  Intent(callingActivity.getBaseContext(), StartupActivity.class);
+	    			pendingIntent = PendingIntent.getActivity(callingActivity.getBaseContext(), 0, startupIntent, callingActivity.getIntent().getFlags());
+    			}
     			AlarmManager mgr = (AlarmManager)callingActivity.getSystemService(Context.ALARM_SERVICE);
     			mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent);
     			System.exit(2);
