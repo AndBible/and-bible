@@ -26,7 +26,7 @@ public class DefaultToolbar implements Toolbar {
 	private List<ToolbarButton> mToolbarButtonList;
 	
 	private static final int MANDATORY_BUTTON_NUM = 2;
-	private static final int MANDATORY_BUTTON_NUM_WITH_SPLIT_PASSAGE_SELECTOR_BUTTONS = 4;
+	private static final int MANDATORY_BUTTON_NUM_WITH_SPLIT_PASSAGE_SELECTOR_BUTTONS = 3;
 	
 	@SuppressWarnings("unused")
 	private static final String TAG = "Toolbar";
