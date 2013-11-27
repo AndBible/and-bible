@@ -27,7 +27,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-/** The WebView component that shows teh main bible and commentary text
+/** The WebView component that shows the main bible and commentary text
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
@@ -487,10 +487,19 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	@Override
 	protected void onDetachedFromWindow() {
 		super.onDetachedFromWindow();
+		Log.d(TAG, "Detached from window");
 		// prevent random verse changes while layout is being rebuild because of split screen changes
 		mJavascriptInterface.setNotificationsEnabled(false);
 	}
 	
+	@Override
+	protected void onAttachedToWindow() {
+		super.onAttachedToWindow();
+		Log.d(TAG, "Attached to window");
+		// may have returned from MyNote view
+		resumeTiltScroll();
+	}
+
 	@Override
 	public void numberOfScreensChanged(Map<Screen, Integer> screenVerseMap) {
 		if (getVisibility()==View.VISIBLE && screenVerseMap.containsKey(splitScreenNo)) {
