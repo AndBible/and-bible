@@ -86,7 +86,8 @@ public class DocumentControl {
 	public boolean showSplitPassageSelectorButtons() {
 		BookCategory currentCategory = getCurrentCategory();
 		return	(BookCategory.BIBLE.equals(currentCategory) ||
-				BookCategory.COMMENTARY.equals(currentCategory));
+				BookCategory.COMMENTARY.equals(currentCategory) ||
+				BookCategory.OTHER.equals(currentCategory));
 	}
 	
 	/** Suggest an alternative bible to view or return null
