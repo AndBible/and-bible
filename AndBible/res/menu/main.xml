@@ -60,6 +60,6 @@
 	
 	<item android:id="@+id/speakButton"
 		  android:title="@string/speak"
-		  android:icon="@drawable/ic_menu_happy"/>
+		  android:icon="@drawable/ic_action_volume_on"/>
 
 </menu>

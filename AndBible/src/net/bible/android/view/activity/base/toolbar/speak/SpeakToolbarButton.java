@@ -27,7 +27,7 @@ public class SpeakToolbarButton extends SpeakToolbarButtonBase implements Toolba
 				} else if (getSpeakControl().isPaused()) {
 					getButton().setImageResource(android.R.drawable.ic_media_play);
 				} else {
-					getButton().setImageResource(R.drawable.ic_menu_happy_21);
+					getButton().setImageResource(R.drawable.ic_action_volume_on);
 				}
 			}
 		});
