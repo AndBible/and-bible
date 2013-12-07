@@ -57,4 +57,6 @@ public interface Bookmark {
 	/** get a list of Verses which have bookmarks in the passage (normally a chapter) */
 	List<Verse> getVersesWithBookmarksInPassage(Key passage);
 
+	public abstract void setBookmarkSortOrder(BookmarkSortOrder bookmarkSortOrder);
+
 }

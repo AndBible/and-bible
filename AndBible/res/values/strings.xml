@@ -181,6 +181,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="add_bookmark">Add bookmark</string>
     <string name="bookmark_added">Bookmark added</string>
     <string name="bookmark_exists">Bookmark already exists</string>
+    <string name="bookmark_sort_by_date">Date order</string>
+    <string name="bookmark_sort_by_bible_book">Biblical order</string>
     <string name="bookmark_labels">Bookmark Labels</string>
     <string name="assign_labels">Assign labels</string>
     <string name="new_label">New Label</string>

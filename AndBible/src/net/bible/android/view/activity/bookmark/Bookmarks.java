@@ -6,7 +6,9 @@ import java.util.List;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.Bookmark;
+import net.bible.android.control.bookmark.BookmarkSortOrder;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
@@ -17,6 +19,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -230,6 +233,54 @@ public class Bookmarks extends ListActivityBase {
     		Log.e(TAG, "Error on attempt to download", e);
     		Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show();
     	}
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.bookmarks, menu);
+        return true;
+    }
+
+	/** 
+     * on Click handlers
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        boolean isHandled = false;
+        
+        switch (item.getItemId()) {
+        // selected to allow jump to a certain day
+		case (R.id.bookmarkSortByBibleBook):
+			isHandled = true;
+	    	try {
+	    		bookmarkControl.setBookmarkSortOrder(BookmarkSortOrder.BIBLE_BOOK);
+	    		loadBookmarkList();
+	        } catch (Exception e) {
+	        	Log.e(TAG, "Error sorting bookmarks", e);
+	        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+	        }
+
+			break;
+		case (R.id.bookmarkSortByDate):
+			isHandled = true;
+	    	try {
+	    		bookmarkControl.setBookmarkSortOrder(BookmarkSortOrder.DATE_CREATED);
+	    		loadBookmarkList();
+	        } catch (Exception e) {
+	        	Log.e(TAG, "Error sorting bookmarks", e);
+	        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+	        }
+
+			break;
+        }
+        
+		if (!isHandled) {
+            isHandled = super.onOptionsItemSelected(item);
+        }
+        
+     	return isHandled;
     }
 
     private void doFinish() {

@@ -1,5 +1,6 @@
 package net.bible.service.db.bookmark;
 
+import java.util.Comparator;
 import java.util.Date;
 
 import net.bible.android.control.versification.ConvertibleVerse;
@@ -73,10 +74,26 @@ public class BookmarkDto implements Comparable<BookmarkDto> {
 			return false;
 		return true;
 	}
-	
+
 	@Override
 	public int compareTo(BookmarkDto another) {
-		assert another!=null;
-		return convertibleVerse.compareTo(another.convertibleVerse);
+		return BOOKMARK_BIBLE_ORDER_COMPARATOR.compare(this, another);
 	}
+
+	/** Compare by Bible order */
+	public static Comparator<BookmarkDto> BOOKMARK_BIBLE_ORDER_COMPARATOR = new Comparator<BookmarkDto>() {
+
+		public int compare(BookmarkDto bookmark1, BookmarkDto bookmark2) {
+			// ascending order
+			return bookmark1.convertibleVerse.compareTo(bookmark2.convertibleVerse);
+		}
+	};
+	/** Compare by Create date - most recent first */
+	public static Comparator<BookmarkDto> BOOKMARK_CREATION_DATE_COMPARATOR = new Comparator<BookmarkDto>() {
+
+		public int compare(BookmarkDto bookmark1, BookmarkDto bookmark2) {
+			// descending order
+			return bookmark2.createdOn.compareTo(bookmark1.createdOn);
+		}
+	};
 }

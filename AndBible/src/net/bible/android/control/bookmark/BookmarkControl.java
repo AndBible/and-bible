@@ -2,6 +2,7 @@ package net.bible.android.control.bookmark;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -44,6 +45,8 @@ public class BookmarkControl implements Bookmark {
 		LABEL_UNLABELLED.setId(Long.valueOf(-998));
 	}
 	
+	private static final String BOOKMARK_SORT_ORDER = "BookmarkSortOrder";
+
 	private static final String TAG = "BookmarkControl";
 	
 	@Override
@@ -107,7 +110,7 @@ public class BookmarkControl implements Bookmark {
 		try {
 			db.open();
 			bookmarkList = db.getAllBookmarks();
-			Collections.sort(bookmarkList);
+			bookmarkList = getSortedBookmarks(bookmarkList);
 		} finally {
 			db.close();
 		}
@@ -186,7 +189,7 @@ public class BookmarkControl implements Bookmark {
 				bookmarkList = db.getBookmarksWithLabel(label);
 			}
 			assert bookmarkList!=null;
-			Collections.sort(bookmarkList);
+			bookmarkList = getSortedBookmarks(bookmarkList);
 
 		} finally {
 			db.close();
@@ -334,4 +337,31 @@ public class BookmarkControl implements Bookmark {
 
 		return versesInPassage;
 	}
+	
+	private List<BookmarkDto> getSortedBookmarks(List<BookmarkDto> bookmarkList) {
+		Comparator<BookmarkDto> comparator = null;
+		switch (getBookmarkSortOrder()) {
+			case DATE_CREATED:
+				comparator = BookmarkDto.BOOKMARK_CREATION_DATE_COMPARATOR;
+				break;
+			case BIBLE_BOOK:
+			default:
+				comparator = BookmarkDto.BOOKMARK_BIBLE_ORDER_COMPARATOR;
+				break;
+			
+		}
+		Collections.sort(bookmarkList, comparator);
+		return bookmarkList;
+	}
+	
+	public BookmarkSortOrder getBookmarkSortOrder() {
+		String bookmarkSortOrderStr = CommonUtils.getSharedPreference(BOOKMARK_SORT_ORDER, BookmarkSortOrder.BIBLE_BOOK.toString());
+		return BookmarkSortOrder.valueOf(bookmarkSortOrderStr);
+	}
+	
+	@Override
+	public void setBookmarkSortOrder(BookmarkSortOrder bookmarkSortOrder) {
+		CommonUtils.saveSharedPreference(BOOKMARK_SORT_ORDER, bookmarkSortOrder.toString());
+	}
+
 }

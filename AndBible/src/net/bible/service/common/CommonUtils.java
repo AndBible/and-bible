@@ -264,6 +264,16 @@ public class CommonUtils {
 	public static SharedPreferences getSharedPreferences() {
 		return PreferenceManager.getDefaultSharedPreferences(BibleApplication.getApplication().getApplicationContext());
 	}
+
+	public static String getSharedPreference(String key, String defaultValue) {
+    	return getSharedPreferences().getString(key, defaultValue);
+	}
+	public static void saveSharedPreference(String key, String value) {
+		SharedPreferences prefs = CommonUtils.getSharedPreferences();
+		prefs.edit()
+			.putString(key, value)
+			.commit();
+	}
 	
 	public static String getResourceString(int resourceId, Object... formatArgs) {
 		return BibleApplication.getApplication().getResources().getString(resourceId, formatArgs);
