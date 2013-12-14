@@ -242,18 +242,22 @@ public class BookmarkControl implements Bookmark {
 			db.close();
 		}
 	}
-
+	
 	@Override
-	public LabelDto addLabel(LabelDto label) {
+	public LabelDto saveOrUpdateLabel(LabelDto label) {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
-		LabelDto newLabel = null;
+		LabelDto retLabel = null;
 		try {
 			db.open();
-			newLabel = db.insertLabel(label);
+			if (label.getId()==null) {
+				retLabel = db.insertLabel(label);
+			} else {
+				retLabel = db.updateLabel(label);			
+			}
 		} finally {
 			db.close();
 		}
-		return newLabel;
+		return retLabel;
 	}
 
 	/** delete this bookmark (and any links to labels) */

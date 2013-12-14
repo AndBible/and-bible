@@ -186,8 +186,9 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="bookmark_labels">Bookmark Labels</string>
     <string name="assign_labels">Assign labels</string>
     <string name="new_label">New Label</string>
-    <string name="new_label_prompt">Name</string>
+    <string name="label_name_prompt">Name</string>
     <string name="label_unlabelled">Unlabelled</string>
+    <string name="rename">Rename</string>
     
     <!-- Dictionary -->
     <string name="dictionary">Dictionary</string>
@@ -257,7 +258,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="error">Error</string>
     <string name="more">More</string>
     <string name="retry">Try Again</string>
-    <string name="please_wait">Please wait...</string>
+    <string name="please_wait">Please wait ...</string>
     <string name="all">All</string>
     <string name="default_value">@string/lang_default</string>
     

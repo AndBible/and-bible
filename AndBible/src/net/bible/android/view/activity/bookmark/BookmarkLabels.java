@@ -9,19 +9,20 @@ import net.bible.android.control.bookmark.Bookmark;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
+
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 
 /**
  * Choose a bible or commentary to use
@@ -72,47 +73,6 @@ public class BookmarkLabels extends ListActivityBase {
     	registerForContextMenu(getListView());
     }
 
-    /** Finished selecting labels
-     *  
-     * @param v
-     */
-    public void onNewLabel(View v) {
-    	Log.i(TAG, "New label clicked");
-
-    	// Set an EditText view to get user input   
-    	final EditText labelInput = new EditText(this);  
-
-    	AlertDialog.Builder alert = new AlertDialog.Builder(this)
-										.setTitle(R.string.new_label)
-										.setMessage(R.string.new_label_prompt)
-										.setView(labelInput);
-    	
-    	alert.setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {  
-		    	public void onClick(DialogInterface dialog, int whichButton) {  
-					String name = labelInput.getText().toString();
-					LabelDto label = new LabelDto();
-					label.setName(name);
-					bookmarkControl.addLabel(label);
-					
-					List<LabelDto> selectedLabels = getCheckedLabels();
-					Log.d(TAG, "Num labels checked pre reload:"+selectedLabels.size());
-					
-					loadLabelList();
-					
-					setCheckedLabels(selectedLabels);
-					Log.d(TAG, "Num labels checked finally:"+selectedLabels.size());
-				}  
-	    	});  
-    	  
-    	alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {  
-    	  public void onClick(DialogInterface dialog, int whichButton) {  
-    	    // Canceled.  
-    	  }  
-    	});  
-    	  
-    	alert.show();    
-    }
-    
     @Override
 	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
@@ -129,6 +89,9 @@ public class BookmarkLabels extends ListActivityBase {
 			switch (item.getItemId()) {
 			case (R.id.delete):
 				delete(label);
+				return true;
+			case (R.id.rename):
+				edit(R.id.rename, label);
 				return true;
 			}
 		}
@@ -164,6 +127,52 @@ public class BookmarkLabels extends ListActivityBase {
 		setCheckedLabels(checkedLabels);
 	}
 
+    /** 
+     * New Label requested
+     */
+    public void onNewLabel(View v) {
+    	Log.i(TAG, "New label clicked");
+
+    	LabelDto newLabel = new LabelDto();
+    	edit(R.string.new_label, newLabel);
+    }
+    
+	private void edit(int titleId, final LabelDto label) {
+    	Log.i(TAG, "Rename label clicked");
+
+    	// Set an EditText view to get user input   
+    	final EditText labelInput = new EditText(this);
+    	labelInput.setText(label.getName());
+
+    	AlertDialog.Builder alert = new AlertDialog.Builder(this)
+										.setTitle(titleId)
+										.setMessage(R.string.label_name_prompt)
+										.setView(labelInput);
+    	
+    	alert.setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {  
+		    	public void onClick(DialogInterface dialog, int whichButton) {  
+					String name = labelInput.getText().toString();
+					label.setName(name);
+					bookmarkControl.saveOrUpdateLabel(label);
+					List<LabelDto> selectedLabels = getCheckedLabels();
+					Log.d(TAG, "Num labels checked pre reload:"+selectedLabels.size());
+					
+					loadLabelList();
+					
+					setCheckedLabels(selectedLabels);
+					Log.d(TAG, "Num labels checked finally:"+selectedLabels.size());
+				}  
+	    	});  
+    	  
+    	alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {  
+    	  public void onClick(DialogInterface dialog, int whichButton) {  
+    	    // Canceled.  
+    	  }  
+    	});  
+    	  
+    	alert.show();  
+	}
+	
 	/** load list of docs to display
 	 * 
 	 */

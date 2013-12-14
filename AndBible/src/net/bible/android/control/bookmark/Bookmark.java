@@ -39,11 +39,11 @@ public interface Bookmark {
 
 	// Label related methods
 
-	/** create a new label */
-	LabelDto addLabel(LabelDto label);
-
 	/** delete this label (and any links to bookmarks) */
 	boolean deleteLabel(LabelDto label);
+
+	/** create or update label name */ 
+	public LabelDto saveOrUpdateLabel(LabelDto label);
 
 	/** get bookmarks with the given label */
 	List<BookmarkDto> getBookmarksWithLabel(LabelDto label);

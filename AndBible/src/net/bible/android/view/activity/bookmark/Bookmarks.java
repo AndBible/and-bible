@@ -155,6 +155,7 @@ public class Bookmarks extends ListActivityBase {
 
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Log.d(TAG, "Restoring state after return from label editing");
     	// the bookmarkLabels activity may have added/deleted labels or changed the bookmarks with the current label
     	LabelDto prevLabel = labelList.get(selectedLabelNo);
     	
@@ -169,6 +170,9 @@ public class Bookmarks extends ListActivityBase {
     		selectedLabelNo = 0;
     	}
     	labelSpinner.setSelection(selectedLabelNo);
+    	
+    	// the label may have been renamed so cause the list to update it's text
+    	labelArrayAdapter.notifyDataSetChanged();
     	
     	loadBookmarkList();
     }

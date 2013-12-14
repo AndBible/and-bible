@@ -97,6 +97,16 @@ public class BookmarkDBAdapter {
 		return newLabel;
 	}
 
+	public LabelDto updateLabel(LabelDto label) {
+		// Create a new row of values to insert.
+		ContentValues newValues = new ContentValues();
+		newValues.put(LabelColumn.NAME, label.getName());
+
+		long newId = db.update(Table.LABEL, newValues, "_id=?", new String []{String.valueOf(label.getId())});
+		LabelDto newLabel = getLabelDto(newId);
+		return newLabel;
+	}
+
 	public boolean removeBookmarkLabelJoin(BookmarkDto bookmark, LabelDto label) {
 		return db.delete(Table.BOOKMARK_LABEL, BookmarkLabelColumn.BOOKMARK_ID + "=" + bookmark.getId()+" AND "+BookmarkLabelColumn.LABEL_ID + "=" + label.getId(), null) > 0;
 	}
