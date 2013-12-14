@@ -353,6 +353,14 @@ public class BookmarkControl implements Bookmark {
 		Collections.sort(bookmarkList, comparator);
 		return bookmarkList;
 	}
+
+	public void changeBookmarkSortOrder() {
+		if (getBookmarkSortOrder().equals(BookmarkSortOrder.BIBLE_BOOK)) {
+			setBookmarkSortOrder(BookmarkSortOrder.DATE_CREATED);
+		} else {
+			setBookmarkSortOrder(BookmarkSortOrder.BIBLE_BOOK);
+		}
+	}
 	
 	public BookmarkSortOrder getBookmarkSortOrder() {
 		String bookmarkSortOrderStr = CommonUtils.getSharedPreference(BOOKMARK_SORT_ORDER, BookmarkSortOrder.BIBLE_BOOK.toString());
