@@ -56,4 +56,6 @@ public interface MyNote {
 	/** get abbreviated text for use in Notes list */
 	String getMyNoteText(MyNoteDto usernote, boolean abbreviated);
 
+	/** change the order the MyNotes are listed in */
+	public void setSortOrder(MyNoteSortOrder sortOrder);
 }

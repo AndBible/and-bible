@@ -5,6 +5,7 @@ package net.bible.android.control.mynote;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import net.bible.android.BibleApplication;
@@ -36,6 +37,8 @@ import android.widget.Toast;
 public class MyNoteControl implements MyNote {
 	
 	private static final String TAG = "MyNoteControl";
+
+	private static final String MYNOTE_SORT_ORDER = "MyNoteSortOrder";
 
 	public int getAddEditMenuText() {
 		// current note is linked to current bible verse
@@ -160,7 +163,7 @@ public class MyNoteControl implements MyNote {
 		try {
 			db.open();
 			myNoteList = db.getAllMyNotes();
-			Collections.sort(myNoteList);
+			myNoteList = getSortedMyNotes(myNoteList);
 		} finally {
 			db.close();
 		}
@@ -274,4 +277,39 @@ public class MyNoteControl implements MyNote {
 
 		return versesInPassage;
 	}
+	
+	private List<MyNoteDto> getSortedMyNotes(List<MyNoteDto> myNoteList) {
+		Comparator<MyNoteDto> comparator = null;
+		switch (getSortOrder()) {
+			case DATE_CREATED:
+				comparator = MyNoteDto.MYNOTE_CREATION_DATE_COMPARATOR;
+				break;
+			case BIBLE_BOOK:
+			default:
+				comparator = MyNoteDto.MYNOTE_BIBLE_ORDER_COMPARATOR;
+				break;
+			
+		}
+		Collections.sort(myNoteList, comparator);
+		return myNoteList;
+	}
+
+	public void changeSortOrder() {
+		if (getSortOrder().equals(MyNoteSortOrder.BIBLE_BOOK)) {
+			setSortOrder(MyNoteSortOrder.DATE_CREATED);
+		} else {
+			setSortOrder(MyNoteSortOrder.BIBLE_BOOK);
+		}
+	}
+	
+	public MyNoteSortOrder getSortOrder() {
+		String sortOrderStr = CommonUtils.getSharedPreference(MYNOTE_SORT_ORDER, MyNoteSortOrder.BIBLE_BOOK.toString());
+		return MyNoteSortOrder.valueOf(sortOrderStr);
+	}
+	
+	@Override
+	public void setSortOrder(MyNoteSortOrder sortOrder) {
+		CommonUtils.saveSharedPreference(MYNOTE_SORT_ORDER, sortOrder.toString());
+	}
+
 }

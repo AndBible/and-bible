@@ -6,10 +6,10 @@
       The copyright to this program is held by it's author.
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@+id/bookmarkSortByDate" 
-		  android:title="@string/bookmark_sort_by_date"
+	<item android:id="@+id/sortByDate" 
+		  android:title="@string/sort_by_date"
 		  android:icon="@android:drawable/ic_menu_day"/>
-	<item android:id="@+id/bookmarkSortByBibleBook" 
-		  android:title="@string/bookmark_sort_by_bible_book"
+	<item android:id="@+id/sortByBibleBook" 
+		  android:title="@string/sort_by_bible_book"
 		  android:icon="@android:drawable/ic_menu_sort_by_size"/>
 </menu>

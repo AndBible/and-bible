@@ -3,6 +3,7 @@
  */
 package net.bible.service.db.mynote;
 
+import java.util.Comparator;
 import java.util.Date;
 
 import net.bible.android.control.versification.ConvertibleVerse;
@@ -120,7 +121,24 @@ public class MyNoteDto implements Comparable<MyNoteDto> {
 	
 	@Override
 	public int compareTo(MyNoteDto another) {
-		assert another!=null;
-		return convertibleVerse.compareTo(another.convertibleVerse);
+		return MYNOTE_BIBLE_ORDER_COMPARATOR.compare(this, another);
 	}
+
+	/** Compare by Bible order */
+	public static Comparator<MyNoteDto> MYNOTE_BIBLE_ORDER_COMPARATOR = new Comparator<MyNoteDto>() {
+
+		public int compare(MyNoteDto myNote1, MyNoteDto myNote2) {
+			// ascending order
+			return myNote1.convertibleVerse.compareTo(myNote2.convertibleVerse);
+		}
+	};
+	/** Compare by Create date - most recent first */
+	public static Comparator<MyNoteDto> MYNOTE_CREATION_DATE_COMPARATOR = new Comparator<MyNoteDto>() {
+
+		public int compare(MyNoteDto myNote1, MyNoteDto myNote2) {
+			// descending order
+			return myNote2.createdOn.compareTo(myNote1.createdOn);
+		}
+	};
+
 }

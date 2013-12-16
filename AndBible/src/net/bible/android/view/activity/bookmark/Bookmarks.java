@@ -243,7 +243,7 @@ public class Bookmarks extends ListActivityBase {
     public boolean onCreateOptionsMenu(Menu menu) {
     	super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.bookmarks, menu);
+        inflater.inflate(R.menu.bookmark_mynote_sort_menu, menu);
         return true;
     }
 
@@ -256,7 +256,7 @@ public class Bookmarks extends ListActivityBase {
         
         switch (item.getItemId()) {
         // selected to allow jump to a certain day
-		case (R.id.bookmarkSortByBibleBook):
+		case (R.id.sortByBibleBook):
 			isHandled = true;
 	    	try {
 	    		bookmarkControl.setBookmarkSortOrder(BookmarkSortOrder.BIBLE_BOOK);
@@ -267,7 +267,7 @@ public class Bookmarks extends ListActivityBase {
 	        }
 
 			break;
-		case (R.id.bookmarkSortByDate):
+		case (R.id.sortByDate):
 			isHandled = true;
 	    	try {
 	    		bookmarkControl.setBookmarkSortOrder(BookmarkSortOrder.DATE_CREATED);

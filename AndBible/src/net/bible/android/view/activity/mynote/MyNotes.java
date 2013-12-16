@@ -9,6 +9,7 @@ import java.util.List;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.mynote.MyNote;
+import net.bible.android.control.mynote.MyNoteSortOrder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.mynote.MyNoteDto;
@@ -17,6 +18,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -100,7 +102,55 @@ public class MyNotes extends ListActivityBase {
 		return false; 
 	}
 
-	private void delete(MyNoteDto myNote) {
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    	super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.bookmark_mynote_sort_menu, menu);
+        return true;
+    }
+
+	/** 
+     * on Click handlers
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        boolean isHandled = false;
+        
+        switch (item.getItemId()) {
+        // selected to allow jump to a certain day
+		case (R.id.sortByBibleBook):
+			isHandled = true;
+	    	try {
+	    		myNoteControl.setSortOrder(MyNoteSortOrder.BIBLE_BOOK);
+	    		loadUserNoteList();
+	        } catch (Exception e) {
+	        	Log.e(TAG, "Error sorting notes", e);
+	        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+	        }
+
+			break;
+		case (R.id.sortByDate):
+			isHandled = true;
+	    	try {
+	    		myNoteControl.setSortOrder(MyNoteSortOrder.DATE_CREATED);
+	    		loadUserNoteList();
+	        } catch (Exception e) {
+	        	Log.e(TAG, "Error sorting notes", e);
+	        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+	        }
+
+			break;
+        }
+        
+		if (!isHandled) {
+            isHandled = super.onOptionsItemSelected(item);
+        }
+        
+     	return isHandled;
+    }
+
+    private void delete(MyNoteDto myNote) {
 		myNoteControl.deleteMyNote(myNote);
 		loadUserNoteList();
 	}
