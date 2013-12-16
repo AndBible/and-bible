@@ -91,7 +91,7 @@ public class BookmarkLabels extends ListActivityBase {
 				delete(label);
 				return true;
 			case (R.id.rename):
-				edit(R.id.rename, label);
+				edit(R.string.rename, label);
 				return true;
 			}
 		}
