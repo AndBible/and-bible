@@ -63,7 +63,7 @@ public class Bookmarks extends ListActivityBase {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState, true);
+        super.onCreate(savedInstanceState, false);
         setContentView(R.layout.bookmarks);
 
         bookmarkControl = ControlFactory.getInstance().getBookmarkControl();
