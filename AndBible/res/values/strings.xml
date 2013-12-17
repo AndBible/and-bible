@@ -167,7 +167,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="delete_search_index_doc">Delete index of %s?</string>
 
     <!-- Verse context menu -->
-    <string name="verse_menu_button">V</string>
     <string name="select_text">Select text</string>
     <string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string>
     <string name="notes">Footnotes and references</string>
@@ -260,7 +259,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="error">Error</string>
     <string name="more">More</string>
     <string name="retry">Try Again</string>
-    <string name="please_wait">Please wait ...</string>
+    <string name="please_wait">Please wait...</string>
     <string name="all">All</string>
     <string name="default_value">@string/lang_default</string>
     
