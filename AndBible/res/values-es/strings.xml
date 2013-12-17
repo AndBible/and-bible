@@ -149,8 +149,12 @@
   <string name="bookmark_labels">Etiquetas de marcador</string>
   <string name="assign_labels">Asignar etiquetas</string>
   <string name="new_label">Nueva etiqueta</string>
-  <string name="new_label_prompt">Nombre</string>
+  <string name="label_name_prompt">Nombre</string>
   <string name="label_unlabelled">Sin etiquetar</string>
+  <string name="rename">Renombrar</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">Orden de fecha</string>
+  <string name="sort_by_bible_book">Orden bíblico</string>
   <!--Dictionary-->
   <string name="dictionary">Diccionario</string>
   <string name="search_dictionary_hint">Buscar diccionario</string>
