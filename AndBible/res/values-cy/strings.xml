@@ -149,8 +149,12 @@
   <string name="bookmark_labels">Labeli Llyfrnodi</string>
   <string name="assign_labels">Pennu labeli</string>
   <string name="new_label">Label newydd</string>
-  <string name="new_label_prompt">Enw</string>
+  <string name="label_name_prompt">Enw</string>
   <string name="label_unlabelled">Heb label</string>
+  <string name="rename">Ailenwi</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">Trefn dyddiad</string>
+  <string name="sort_by_bible_book">Trefn beiblaidd</string>
   <!--Dictionary-->
   <string name="dictionary">Geiriadur</string>
   <string name="search_dictionary_hint">Chwilio geiriadur</string>

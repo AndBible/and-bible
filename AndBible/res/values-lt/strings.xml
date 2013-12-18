@@ -149,8 +149,12 @@
   <string name="bookmark_labels">Žymės kortelės</string>
   <string name="assign_labels">Priskirti korteles</string>
   <string name="new_label">Nauja kortelė</string>
-  <string name="new_label_prompt">Pavadinimas</string>
+  <string name="label_name_prompt">Pavadinimas</string>
   <string name="label_unlabelled">Nėra kortelės</string>
+  <string name="rename">Pervadinti</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">Rūšiavimas pagal datą</string>
+  <string name="sort_by_bible_book">Rūšiavimas pagal Bibliją</string>
   <!--Dictionary-->
   <string name="dictionary">Žodynas</string>
   <string name="search_dictionary_hint">Ieškoti žodyne</string>

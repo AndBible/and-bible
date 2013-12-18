@@ -149,8 +149,12 @@
   <string name="bookmark_labels">Boekmerk etikette</string>
   <string name="assign_labels">Ken etikette toe</string>
   <string name="new_label">Nuwe etiket</string>
-  <string name="new_label_prompt">Naam</string>
+  <string name="label_name_prompt">Naam</string>
   <string name="label_unlabelled">Die etiket is verwyder</string>
+  <string name="rename">Hernoem</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">Datum volgorde</string>
+  <string name="sort_by_bible_book">Bybelse volgorde</string>
   <!--Dictionary-->
   <string name="dictionary">Woordeboek</string>
   <string name="search_dictionary_hint">Soek woordeboek</string>

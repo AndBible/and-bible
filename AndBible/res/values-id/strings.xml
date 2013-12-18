@@ -149,8 +149,12 @@
   <string name="bookmark_labels">Label Bookmark</string>
   <string name="assign_labels">Menetapkan label</string>
   <string name="new_label">Label Baru</string>
-  <string name="new_label_prompt">Nama</string>
+  <string name="label_name_prompt">Nama</string>
   <string name="label_unlabelled">Tanpa label</string>
+  <string name="rename">Ganti nama</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">Urutan tanggal</string>
+  <string name="sort_by_bible_book">Urutan Alkitab</string>
   <!--Dictionary-->
   <string name="dictionary">Kamus</string>
   <string name="search_dictionary_hint">Cari kamus</string>

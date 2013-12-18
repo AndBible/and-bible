@@ -149,8 +149,12 @@
   <string name="bookmark_labels">Etykiety</string>
   <string name="assign_labels">Przypisz etykiety</string>
   <string name="new_label">Nowa etykieta</string>
-  <string name="new_label_prompt">Nazwa</string>
+  <string name="label_name_prompt">Nazwa</string>
   <string name="label_unlabelled">Nieoznaczony</string>
+  <string name="rename">Zmień nazwę</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">Porządek chronologiczny</string>
+  <string name="sort_by_bible_book">Porządek biblijny</string>
   <!--Dictionary-->
   <string name="dictionary">Słownik</string>
   <string name="search_dictionary_hint">Znajdź w słowniku</string>

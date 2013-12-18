@@ -6,7 +6,7 @@
   <string name="help_text">Menü-Knopf für Optionen\n\nKapitelnavigation ist mit dem Trackball, D-pad oder durch Querstreichen mit dem Finger möglich.</string>
   <string name="help_text_long"><b>Navigation</b>\nKapitelnavigation ist mit dem Trackball, D-pad oder durch Querstreichen mit dem Finger möglich. \nAuf den unteren Bildschirmrand tippen, um eine Seite weiter zu blättern.\nDoppeltes Tippen schaltet den Vollbildmodus ein und aus.\n\n<b>Menüs</b>\nFür verschiedene Einstellungen \"Menü\" auswählen \nUm Module herunterzuladen, \"Menü-Optionen-Module herunterladen\" auswählen\n\n<b>Sprachausgabe</b>\nUm sich einen Text vorlesen zu lassen, \"Sprachausgabe\" auswählen.\n\n<b>Eigene Notizen</b>\nNotizen können über das Menü \"Eigene Notizen\" im Kontextmenü hinzugefügt werden. Die Liste der erstellten Notizen ist über das Hauptmenü abrufbar.\n\n\n<b>Lesezeichen</b>\nLesezeichen werden über das Vers-Kontextmenü hinzugefügt. Die angelegten Lesezeichen können über den Eintrag \"Lesezeichen\" im Hauptmenü verwaltet werden. Dort kann man über das Kontextmenü (langes Drücken) die Lesezeichen nach Gruppen ordnen.\n\n<b>Suche</b>\nDie Suche kann Platzhalter wie *, ?, AND, OR, NOT enthalten (weitere Informationen unter \"Apache Lucene - Query Parser Syntax\")\n\n<b>Kontextmenüs</b>\nFür Aktionen betreffend den aktuellen Vers lang auf den Bildschirm drücken. \nUm ein Modul zu löschen oder Informationen anzusehen, im Dokument-Auswahldialog lang auf das entsprechende Modul drücken. \nLang auf \"Zurück\" drücken, um den Verlauf anzusehen.</string>
   <string name="version_text">Version %s</string>
-  <string name="no_sdcard_error">Bitte legen Sie eine SD-Karte ein und starten Sie AndBible neu.</string>
+  <string name="no_sdcard_error">Bitte legen Sie eine SD-Karte ein und starten Sie And Bible neu.</string>
   <!--main menu-->
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Navigation</string>
@@ -33,10 +33,10 @@
   <string name="no_tasks_running">Keine laufenden Aufgaben.</string>
   <!--Search-->
   <string name="search_results">Suchergebnisse</string>
-  <string name="search_words_group_prompt">Verssuche</string>
-  <string name="search_all_words">Alle Wörter</string>
-  <string name="search_any_word">Einige Wörter</string>
-  <string name="search_phrase">genaue Wortfolge</string>
+  <string name="search_words_group_prompt">Suche nach Versen mit:</string>
+  <string name="search_all_words">allen Wörtern</string>
+  <string name="search_any_word">einigen Wörtern</string>
+  <string name="search_phrase">genauer Wortfolge</string>
   <string name="search_result_count">%d Treffer gefunden</string>
   <string name="search_showing_first">Zu viele Treffer. Nur die ersten %d werden angezeigt</string>
   <string name="search_bible_section_group_prompt">Suchbereich</string>
@@ -48,29 +48,29 @@
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Versnummer</string>
   <string name="prefs_show_verseno_summary">Zeige Versnummern</string>
-  <string name="prefs_verse_per_line_title">Ein Vers pro Zeile</string>
+  <string name="prefs_verse_per_line_title">Zeilenumbruch nach Vers</string>
   <string name="prefs_verse_per_line_summary">Jeden Vers auf einer neuen Zeile anzeigen</string>
-  <string name="prefs_show_bookmarks_title">Zeige Lesezeichensymbole</string>
-  <string name="prefs_show_bookmarks_summary">Zeige Marker in gespeicherten Versen</string>
-  <string name="prefs_show_mynotes_title">Zeige Icons f. eigene Notizen</string>
-  <string name="prefs_show_mynotes_summary">Zeige Symbol in Versen mit eigenen Notizen</string>
+  <string name="prefs_show_bookmarks_title">Lesezeichensymbole anzeigen</string>
+  <string name="prefs_show_bookmarks_summary">Markiere gespeicherte Verse</string>
+  <string name="prefs_show_mynotes_title">Eigene Notizen</string>
+  <string name="prefs_show_mynotes_summary">Markiere Verse mit eigenen Notizen</string>
   <string name="prefs_show_notes_title">Fußnoten &amp; Querverweise</string>
   <string name="prefs_show_notes_summary">Zeige Fußnoten und Querverweise</string>
-  <string name="prefs_show_strongs_title">Strong\'s Nummern anzeigen</string>
-  <string name="prefs_show_strongs_summary">Verweise zu Strong\'s Wörterbuch</string>
-  <string name="prefs_show_morphology_title">Zeige morphologische Codes</string>
+  <string name="prefs_show_strongs_title">Konkordanz anzeigen</string>
+  <string name="prefs_show_strongs_summary">Verweise zu Strong\'s Wörterbuch anzeigen</string>
+  <string name="prefs_show_morphology_title">Morphologie anzeigen</string>
   <string name="prefs_show_morphology_summary">Zeige griechische Morphologie nach Robinson</string>
   <string name="prefs_section_title_title">Überschriften</string>
-  <string name="prefs_section_title_summary">Zeige nichtkanonische Überschriften</string>
-  <string name="prefs_red_letter_title">Red Letter</string>
+  <string name="prefs_section_title_summary">Zeige Überschriften im Text an</string>
+  <string name="prefs_red_letter_title">Jesu Worte markieren</string>
   <string name="prefs_red_letter_summary">Zeige Worte Jesu in roter Farbe</string>
-  <string name="prefs_tilt_to_scroll_title">Kippen zum Blättern</string>
-  <string name="prefs_tilt_to_scroll_summary">Kippe Gerät zum Blättern</string>
+  <string name="prefs_tilt_to_scroll_title">Bildvorlauf</string>
+  <string name="prefs_tilt_to_scroll_summary">Kippe Gerät um Bildvorlauf ein- und auszuschalten</string>
   <string name="prefs_night_mode_title">Nachtmodus</string>
   <string name="prefs_night_mode_summary">Für leichteres Lesen im Dunkeln</string>
   <string name="prefs_night_mode_automatic">Automatisch</string>
-  <string name="prefs_navigate_to_verse_title">Zum Vers wechseln</string>
-  <string name="prefs_navigate_to_verse_summary">Vers (und Kapitel) auswählen</string>
+  <string name="prefs_navigate_to_verse_title">Versauswahl</string>
+  <string name="prefs_navigate_to_verse_summary">Bis zu einem bestimmten Vers navigieren</string>
   <string name="prefs_text_size_title">Zeichengröße</string>
   <string name="prefs_text_size_summary">Text größer/kleiner anzeigen</string>
   <string name="prefs_text_size_sample_text">Beispieltext</string>
@@ -87,7 +87,7 @@
   <string name="prefs_split_screen_not_linked">Nicht verbunden</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Keine Anmerkungen in diesem Kapitel</string>
-  <string name="no_verse_notes">Keine Anmerkungen in diesem Vers</string>
+  <string name="no_verse_notes">Keine Anmerkungen zu diesem Vers</string>
   <string name="previous">Zurück</string>
   <string name="next">Vorwärts</string>
   <!--Strongs-->
@@ -97,22 +97,22 @@
   <string name="all_hebrew_occurrences">Alle Ergebnisse anzeigen</string>
   <string name="no_indexed_bible_with_strongs_ref">Sie müssen zuerst ein Bibelmodul mit Strongs Nummer sowie den Suchindex dazu herunterladen</string>
   <string name="morph_robinson_not_installed">Laden Sie bitte das Modul \'Robinson\'s Morphological Analysis Codes\' herunter</string>
-  <string name="strongs_toggle_button_on">Strongs an</string>
-  <string name="strongs_toggle_button_off">Strongs aus</string>
+  <string name="strongs_toggle_button_on">Strongs anzeigen</string>
+  <string name="strongs_toggle_button_off">Strongs ausblenden</string>
   <!--Module download-->
   <string name="download">Module herunterladen</string>
   <string name="download_confirmation">Möchten Sie Module aus dem Internet herunterladen?</string>
   <string name="download_source_message">Die Modulliste wird von\nhttp://www.crosswire.org\n&amp; http://libt.org.ru\n&amp;\nhttp://xiphos.org\nheruntergeladen</string>
   <string name="download_document_confirm_prefix">Download</string>
-  <string name="download_refreshing_book_list">Liste aktualisieren</string>
+  <string name="download_refreshing_book_list">Liste wird aktualisiert</string>
   <string name="download_refresh_book_list_menu_item">Aktualisieren</string>
   <string name="error_downloading">Download fehlgeschlagen. Überprüfen Sie ihre Internetverbindung!</string>
   <string name="no_internet_connection">Keine Verbindung zum Internet!</string>
   <string name="storage_space_warning">Nicht genügend Speicherplatz!</string>
-  <string name="wait_for_bible">Warten Sie, bis der Download fertig ist - dann werden Sie auf den Hauptschirm weitergeleitet.</string>
+  <string name="wait_for_bible">Warten Sie, bis der Download fertig ist - dann werden Sie auf den Hauptschirm weitergeleitet.\n\nSie können danach weitere Module herunterladen indem Sie \"Menü-Optionen-Module herunterladen\" wählen.</string>
   <string name="wait_for_bible_not_yet">Modulinstallation noch nicht abgeschlossen. Bitte warten!</string>
-  <string name="download_complete_no_bibles">Kein Modul installiert. Bitte noch einmal!</string>
-  <string name="too_many_jobs">Zu viele Aufgaben am Laufen. Bitte warten!.</string>
+  <string name="download_complete_no_bibles">Kein Modul installiert. Bitte noch einmal probieren</string>
+  <string name="too_many_jobs">Zu viele aktive Aufgaben. Bitte warten Sie...</string>
   <string name="document_not_installed">Bitte \'%s\' herunterladen</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Leseplan</string>
@@ -149,8 +149,12 @@
   <string name="bookmark_labels">Gruppen</string>
   <string name="assign_labels">Gruppennamen auswählen</string>
   <string name="new_label">Neue Gruppe</string>
-  <string name="new_label_prompt">Name</string>
-  <string name="label_unlabelled">Unbenannt</string>
+  <string name="label_name_prompt">Name</string>
+  <string name="label_unlabelled">Nicht kategorisiert</string>
+  <string name="rename">Umbenennen</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">Sortieren nach Datum</string>
+  <string name="sort_by_bible_book">Sortieren nach Buch</string>
   <!--Dictionary-->
   <string name="dictionary">Wörterbuch</string>
   <string name="search_dictionary_hint">Durchsuche Wörterbuch</string>
