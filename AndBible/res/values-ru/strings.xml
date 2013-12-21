@@ -3,13 +3,13 @@
   <string name="app_name">Библия</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"И сказал Бог: \'Да будет свет.\' И стал свет. \"\nБытие 1:3</string>
-  <string name="help_text">Для доступа к настройкам и функциям зайдите в Меню.\nДля того, чтобы перейти перейти к следующей или предыдущей главе, прокрутите трэкбол или проведите пальцем по экрану вправо или влево.</string>
-  <string name="help_text_long"><b>Навигация</b>\nДля того, чтобы перейти к следующей или предыдущей главе, прокрутите трэкбол или проведите пальцем по экрану вправо или влево. \nДля того, чтобы выключить/включить просмотр на весь экран щелкните пальцем по экрану два раза. \n\n<b>Меню</b> \nДля доступа к настройкам и функциям зайдите в Меню. \nДля того, чтобы скачать Библии и/или другие ресурсы нажмите Mеню/Еще/Скачать ресурсы. \n\n<b>Прослушивание вслух</b>\nДля того, чтобы начать или остановить прослушивание нажмите Mеню/Еще/Прослушать вслух . \n\n<b>Мои заметки</b>\nДля того, чтобы добавить заметки, зайдите в Мои заметки в контекстном меню стиха. Для того, чтобы просмотреть список существующих заметок зайдите в Меню/Мои заметки. \n\n<b>Закладки</b>\nДля того, чтобы добавить закладки, зайдите в контекстное меню стиха. Для того, чтобы просмотреть существующие закладки, зайдите в Меню/Закладки. В нём можно сгруппировать закладки через ярлыки.\n\n<b>Поиск</b>\nПоиск может содержать особые символы как *, ?, И, ИЛИ, НЕТ (для более подробной информации см. \"Apache Lucene - Query Parser Syntax\")\n\n<b>Контестное меню</b>\nДля того, чтобы открыть контекстное меню стиха сделайте долгое нажатие по тексту Библии.\nДля того, чтобы удалить ресурс или посмотреть его источник сделайте долгое нажатие по ресурсу в разделе Ресурсы.\nДля того, чтобы просмотреть историю сделайте долгое нажатие на кнопку Назад\n\n</string>
+  <string name="help_text">Для доступа к настройкам и функциям зайдите в Меню.\nДля того, чтобы перейти к следующей или предыдущей главе, прокрутите трэкбол или проведите пальцем по экрану вправо или влево.</string>
+  <string name="help_text_long"><b>Навигация</b>\nДля того, чтобы перейти к следующей или предыдущей главе, прокрутите трэкбол или проведите пальцем по экрану вправо или влево. \nДля того, чтобы выключить/включить просмотр на весь экран щелкните пальцем по экрану два раза. \n\n<b>Меню</b> \nДля доступа к настройкам и функциям зайдите в Меню. \nДля того, чтобы скачать Библии и/или другие ресурсы нажмите Mеню/Еще/Скачать ресурсы. \n\n<b>Прослушивание вслух</b>\nДля того, чтобы начать или остановить прослушивание нажмите Mеню/Еще/Прослушать вслух . \n\n<b>Мои заметки</b>\nДля того, чтобы добавить заметки, зайдите в Мои заметки в контекстном меню стиха. Для того, чтобы просмотреть список существующих заметок зайдите в Меню/Мои заметки. \n\n<b>Закладки</b>\nДля того, чтобы добавить закладки, зайдите в контекстное меню стиха. Для того, чтобы просмотреть существующие закладки, зайдите в Меню/Закладки. В нём можно сгруппировать закладки через ярлыки.\n\n<b>Поиск</b>\nПоиск может содержать особые символы как *, ?, AND, OR, NOT (для более подробной информации см. \"Apache Lucene - Query Parser Syntax\")\n\n<b>Контестное меню</b>\nДля того, чтобы открыть контекстное меню стиха сделайте долгое нажатие по тексту Библии.\nДля того, чтобы удалить ресурс или посмотреть его источник сделайте долгое нажатие по ресурсу в разделе Ресурсы.\nДля того, чтобы просмотреть историю сделайте долгое нажатие на кнопку Назад</string>
   <string name="version_text">Версия %s</string>
   <string name="no_sdcard_error">Вставьте SD карту и запустите Библию снова.</string>
   <!--main menu-->
   <string name="chooseBook">Ресурсы</string>
-  <string name="selectPassage">Библия</string>
+  <string name="selectPassage">Отрывок</string>
   <string name="search">Найти</string>
   <string name="settings">Настройки</string>
   <string name="history">История</string>
@@ -21,7 +21,7 @@
   <string name="choosePassageVerseName">Выбрать стих</string>
   <!--Search-->
   <string name="search_index">Поисковой индекс</string>
-  <string name="index_creation_required">Для поиска требуется индекс.\nИндексы можно скачать с Интернета или создать вручную.\nСкачать будет быстрее, а также скачанные индексы имееют больше функций поиска.\nДля того, чтобы скачать индексы,подключитесь к Интернету.\n</string>
+  <string name="index_creation_required">Для поиска требуется индекс.\nИндексы можно скачать с Интернета или создать.\nСкачать будет быстрее, а также скачанные индексы имееют больше функций поиска.\nДля того, чтобы скачать индексы, подключитесь к Интернету.\n</string>
   <string name="indexing_wait_msg">Когда создание индексов завершится вы автоматически будете перемещены в экран поиска.</string>
   <string name="index">Индекс</string>
   <string name="index_download">Скачать</string>
@@ -55,22 +55,22 @@
   <string name="prefs_show_mynotes_title">Показать ярлык с моей заметкой в стихе</string>
   <string name="prefs_show_mynotes_summary">Показать значки в стихах с моими заметками</string>
   <string name="prefs_show_notes_title">Заметки</string>
-  <string name="prefs_show_notes_summary">Показывать заметки</string>
-  <string name="prefs_show_strongs_title"> Показывать числа Стронга</string>
-  <string name="prefs_show_strongs_summary">Отображать ссылки к определениям на греческом &amp; и иврите</string>
+  <string name="prefs_show_notes_summary">Показать заметки и ссылки</string>
+  <string name="prefs_show_strongs_title"> Показать числа Стронга</string>
+  <string name="prefs_show_strongs_summary">Отображать ссылки к значениям на греческом &amp; иврите</string>
   <string name="prefs_show_morphology_title">Морфологические коды</string>
   <string name="prefs_show_morphology_summary">Показать морфологию греческого языка по Робинсону</string>
   <string name="prefs_section_title_title">Названия разделов</string>
-  <string name="prefs_section_title_summary">Показать названия неканонических книг</string>
+  <string name="prefs_section_title_summary">Показать названия разделов</string>
   <string name="prefs_red_letter_title">Красный шрифт</string>
   <string name="prefs_red_letter_summary">Показать слова Иисуса красным цветом</string>
-  <string name="prefs_tilt_to_scroll_title">Наклоните для того, чтобы прокрутить</string>
+  <string name="prefs_tilt_to_scroll_title">Прокручивание текста</string>
   <string name="prefs_tilt_to_scroll_summary">Наклоните устройство для того, чтобы прокрутить страницы вниз</string>
   <string name="prefs_night_mode_title">Ночной режим</string>
   <string name="prefs_night_mode_summary">Для более легкого чтения в темноте</string>
   <string name="prefs_night_mode_automatic">Автоматически</string>
   <string name="prefs_navigate_to_verse_title">Перейти к стиху</string>
-  <string name="prefs_navigate_to_verse_summary">Перейти на уровень стиха при просмотре</string>
+  <string name="prefs_navigate_to_verse_summary">Перейти на уровень стиха при выборе отрывка</string>
   <string name="prefs_text_size_title">Размер текста</string>
   <string name="prefs_text_size_summary">Отображать текст крупными буквами</string>
   <string name="prefs_text_size_sample_text">Образец текста</string>
@@ -108,7 +108,7 @@
   <string name="download_refresh_book_list_menu_item">Обновить</string>
   <string name="error_downloading">Произошла ошибка. Проверьте подключение к Интернету.</string>
   <string name="no_internet_connection">Нет подключения к Интернету.</string>
-  <string name="storage_space_warning">Недостаточно места на диске.</string>
+  <string name="storage_space_warning">Недостаточно места на устройсве.</string>
   <string name="wait_for_bible">Подождите, Библия еще не скачалась. Далее вы автоматически перейдете в основное меню.</string>
   <string name="wait_for_bible_not_yet">Пожалуйста подождите. Библия еще не установилась.</string>
   <string name="download_complete_no_bibles">Библия не установилась. Нажмите Назад и попытайтесь снова.</string>
@@ -136,10 +136,10 @@
   <!--Verse context menu-->
   <string name="select_text">Выбрать отрывок из текста</string>
   <string name="select_text_help">Для того, чтобы выбрать отрывок из текста медленно проведите по нему пальцем.\nЗатем прикоснитесь к выбранному, чтобы скопировать.</string>
-  <string name="notes">Заметки и перекрестные ссылки</string>
+  <string name="notes">Заметки и ссылки</string>
   <string name="copy">Скопировать этот стих</string>
   <string name="share_verse">Отправить стих через...</string>
-  <string name="share_verse_subject">Стих был отправлен</string>
+  <string name="share_verse_subject">Стих отправлен для Вас от And Bible</string>
   <string name="compare_translations">Сравнить переводы</string>
   <!--Bookmarks-->
   <string name="bookmarks">Закладки</string>
@@ -149,8 +149,12 @@
   <string name="bookmark_labels">Ярлыки</string>
   <string name="assign_labels">Прикрепить ярлык</string>
   <string name="new_label">Новый ярлык</string>
-  <string name="new_label_prompt">Дать название</string>
+  <string name="label_name_prompt">Название</string>
   <string name="label_unlabelled">Ярлык удален</string>
+  <string name="rename">Переименовать</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">По датам</string>
+  <string name="sort_by_bible_book">Библейский порядок</string>
   <!--Dictionary-->
   <string name="dictionary">Словарь</string>
   <string name="search_dictionary_hint">Найти словарь</string>
@@ -192,6 +196,8 @@
   <string name="restore_confirmation">Заменить заметки и закладки?</string>
   <string name="restore_success">Заметки и закладки восставлены из SD карты на %s</string>
   <!--About-->
+  <string name="about_version">Версия: %s</string>
+  <string name="about_versification">Версификация: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Библия</string>
   <string name="doc_type_commentary">Комментарий</string>

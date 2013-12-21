@@ -149,8 +149,12 @@
   <string name="bookmark_labels">Grāmatzīmju atzīmes</string>
   <string name="assign_labels">Pievienot atzīmes</string>
   <string name="new_label">Jauna Atzīme</string>
-  <string name="new_label_prompt">Nosaukums</string>
+  <string name="label_name_prompt">Nosaukums</string>
   <string name="label_unlabelled">Nenosaukts</string>
+  <string name="rename">Pārsaukt</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">Pasūtīšanas datums</string>
+  <string name="sort_by_bible_book">Bibliska kārtība</string>
   <!--Dictionary-->
   <string name="dictionary">Vārdnīca</string>
   <string name="search_dictionary_hint">Meklēt vārdnīcā</string>
@@ -192,6 +196,7 @@
   <string name="restore_confirmation">Pārrakstīt Manas Piezīmes un Grāmatzīmes?</string>
   <string name="restore_success">Manas Piezīmes un Grāmatzīmes atjaunotas no %s SD kartes</string>
   <!--About-->
+  <string name="about_version">Versija: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Bībele</string>
   <string name="doc_type_commentary">Komentāri</string>

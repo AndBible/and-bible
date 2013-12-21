@@ -149,8 +149,12 @@
   <string name="bookmark_labels">Bokmerkegrupper</string>
   <string name="assign_labels">Legg til grupper</string>
   <string name="new_label">Ny gruppe</string>
-  <string name="new_label_prompt">Namn</string>
+  <string name="label_name_prompt">Namn</string>
   <string name="label_unlabelled">Umerka</string>
+  <string name="rename">Endre namn</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">Datorekkefølgje</string>
+  <string name="sort_by_bible_book">Bibelsk rekkefølgje</string>
   <!--Dictionary-->
   <string name="dictionary">Bibelordbøker</string>
   <string name="search_dictionary_hint">Søk i ordboka</string>
