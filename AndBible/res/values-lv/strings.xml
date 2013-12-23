@@ -197,6 +197,7 @@
   <string name="restore_success">Manas Piezīmes un Grāmatzīmes atjaunotas no %s SD kartes</string>
   <!--About-->
   <string name="about_version">Versija: %s</string>
+  <string name="about_versification">Pantu atšķirības: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Bībele</string>
   <string name="doc_type_commentary">Komentāri</string>
