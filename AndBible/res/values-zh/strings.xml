@@ -149,8 +149,12 @@
   <string name="bookmark_labels">书签标签</string>
   <string name="assign_labels">分配标签</string>
   <string name="new_label">新标签</string>
-  <string name="new_label_prompt">标签名称</string>
+  <string name="label_name_prompt">标签名称</string>
   <string name="label_unlabelled">没有标签</string>
+  <string name="rename">重命名</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">日期顺序</string>
+  <string name="sort_by_bible_book">圣经书序</string>
   <!--Dictionary-->
   <string name="dictionary">字典</string>
   <string name="search_dictionary_hint">查询字典</string>
@@ -211,7 +215,7 @@
   <string name="error">错误</string>
   <string name="more">更多</string>
   <string name="retry">再试</string>
-  <string name="please_wait">请等待</string>
+  <string name="please_wait">请等待...</string>
   <string name="all">全部</string>
   <string name="default_value">@string/lang_default</string>
   <!--Errors-->
