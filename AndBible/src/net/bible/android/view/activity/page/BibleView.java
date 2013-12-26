@@ -81,6 +81,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 		
 		addJavascriptInterface(mJavascriptInterface, "jsInterface");
 
+		//TODO: rework to remove deprecation see: http://stackoverflow.com/questions/4065134/is-there-a-listener-for-when-the-webview-displays-its-content
 		setPictureListener(new PictureListener() {
 			/** this is called after the WebView page has finished loading and a new "picture" is on the webview.
 			 */
@@ -523,11 +524,14 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	/** move the view so the selected verse is at the top or at least visible
 	 */
 	private void doScrollOrJumpToVerse(int verse) {
-		if (mJumpToVerse<=1) {
+		if (verse<=1) {
 			// use scroll to because difficult to place a tag exactly at the top
 			scrollTo(0,0);
 		} else {
-			loadUrl("javascript:location.href='#"+mJumpToVerse+"'");
+			// required format changed in 4.2 http://stackoverflow.com/questions/14771970/how-to-call-javascript-in-android-4-2
+			loadUrl("javascript:(function() { " +  
+	                "document.location = '#"+verse+"'" +  
+	                "})()");
 		}
 	}
 }

@@ -7,6 +7,7 @@ import net.bible.service.device.ScreenSettings;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.WindowManager;
@@ -17,7 +18,7 @@ import android.view.WindowManager;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class ActivityBase extends Activity implements AndBibleActivity {
+public class ActivityBase extends ActionBarActivity implements AndBibleActivity {
 
 	// standard request code for startActivityForResult
 	public static final int STD_REQUEST_CODE = 1;

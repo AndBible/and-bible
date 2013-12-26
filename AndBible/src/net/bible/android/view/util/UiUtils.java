@@ -10,12 +10,12 @@ public class UiUtils {
 	
 
     public static void applyTheme(Activity activity) {
-    	ScreenSettings.updateNightModeValue();
-        if (ScreenSettings.isNightMode()) {
-        	activity.setTheme(android.R.style.Theme);
-        } else {
-        	activity.setTheme(android.R.style.Theme_Light);
-        }
+//    	ScreenSettings.updateNightModeValue();
+//        if (ScreenSettings.isNightMode()) {
+//        	activity.setTheme(android.R.style.Theme);
+//        } else {
+//        	activity.setTheme(android.R.style.Theme_Light);
+//        }
     }
   
 }
