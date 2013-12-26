@@ -40,7 +40,6 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	 */
     @Override
 	public void setContentView(int layoutResID) {
-    	requestWindowFeature(Window.FEATURE_NO_TITLE);
 		super.setContentView(layoutResID);
 
         mTitleBar = findViewById(R.id.titleBar);
