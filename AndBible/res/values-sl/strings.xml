@@ -149,8 +149,12 @@
   <string name="bookmark_labels">Oznake zaznamkov</string>
   <string name="assign_labels">Dodaj oznake</string>
   <string name="new_label">Nova oznaka</string>
-  <string name="new_label_prompt">Ime</string>
+  <string name="label_name_prompt">Poimenuj</string>
   <string name="label_unlabelled">Neoznačeno</string>
+  <string name="rename">Preimenuj</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">Urejeno po datumu</string>
+  <string name="sort_by_bible_book">Urejeno po bibliji</string>
   <!--Dictionary-->
   <string name="dictionary">Slovar</string>
   <string name="search_dictionary_hint">Išči po slovarju</string>
