@@ -2,7 +2,7 @@
 host = https://www.transifex.com
 
 [andbible.and-bible-stringsxml]
-file_filter = res\values-<lang>\strings.xml
+file_filter = res/values-<lang>/strings.xml
 source_lang = en
-source_file = res\values\strings.xml
+source_file = res/values/strings.xml
 lang_map = zh_TW: zh-rTW
