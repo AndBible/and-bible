@@ -141,8 +141,9 @@
   <string name="bookmark_labels">ป้ายกำกับตัวคั่น</string>
   <string name="assign_labels">กำหนดป้ายกำกับ</string>
   <string name="new_label">ป้ายกำกับใหม่</string>
-  <string name="new_label_prompt">ชื่อ</string>
+  <string name="label_name_prompt">ชื่อ</string>
   <string name="label_unlabelled">ไม่มีป้ายกำกับ</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
   <!--Dictionary-->
   <string name="dictionary">ประมวลศัพท์</string>
   <string name="search_dictionary_hint">ค้นหาประมวลศัพท์</string>

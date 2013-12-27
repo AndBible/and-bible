@@ -141,8 +141,9 @@
   <string name="bookmark_labels">Nhãn đánh dấu</string>
   <string name="assign_labels">Gán nhãn</string>
   <string name="new_label">Nhãn mới</string>
-  <string name="new_label_prompt">Tên</string>
+  <string name="label_name_prompt">Tên</string>
   <string name="label_unlabelled">Chưa được gán nhãn</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
   <!--Dictionary-->
   <string name="dictionary">Từ điển</string>
   <string name="search_dictionary_hint">Tìm từ điển</string>

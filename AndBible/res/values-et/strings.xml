@@ -149,8 +149,9 @@
   <string name="bookmark_labels">Järjehoidja sildid</string>
   <string name="assign_labels">Määra sildid</string>
   <string name="new_label">Uus silt</string>
-  <string name="new_label_prompt">Nimi</string>
+  <string name="label_name_prompt">Nimi</string>
   <string name="label_unlabelled">Sildistamata</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
   <!--Dictionary-->
   <string name="dictionary">Sõnaraamat</string>
   <string name="search_dictionary_hint">Otsi sõnaraamatust</string>

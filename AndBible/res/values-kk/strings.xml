@@ -149,8 +149,9 @@
   <string name="bookmark_labels">Кітап белгісінің Таңбалары</string>
   <string name="assign_labels">Таңбаларды белгілеу</string>
   <string name="new_label">Жаңа Таңба</string>
-  <string name="new_label_prompt">Атауы</string>
+  <string name="label_name_prompt">Атауы</string>
   <string name="label_unlabelled">Таңбаланбаған</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
   <!--Dictionary-->
   <string name="dictionary">Сөздік</string>
   <string name="search_dictionary_hint">Сөздікті іздеу</string>

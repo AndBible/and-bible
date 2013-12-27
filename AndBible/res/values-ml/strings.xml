@@ -149,8 +149,9 @@
   <string name="bookmark_labels">പുസ്തകസൂചിക-ശീർഷകങ്ങൾ</string>
   <string name="assign_labels">ശീർഷകം നിർണ്ണയിക്കുക</string>
   <string name="new_label">പുതിയ ശീർഷകം </string>
-  <string name="new_label_prompt">പേര്</string>
+  <string name="label_name_prompt">പേര്</string>
   <string name="label_unlabelled">ശീർഷകം ഇല്ലാത്തത്</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
   <!--Dictionary-->
   <string name="dictionary">നിഘണ്ടു</string>
   <string name="search_dictionary_hint">നിഘണ്ടുവിൽ തിരയുക</string>

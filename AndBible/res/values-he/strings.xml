@@ -149,8 +149,9 @@
   <string name="bookmark_labels">תוויות לסימניות</string>
   <string name="assign_labels">הוסף תוויות</string>
   <string name="new_label">תווית חדשה</string>
-  <string name="new_label_prompt">שם</string>
+  <string name="label_name_prompt">שם</string>
   <string name="label_unlabelled">לא מתויג</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
   <!--Dictionary-->
   <string name="dictionary">מילון</string>
   <string name="search_dictionary_hint">חיפוש במילון</string>

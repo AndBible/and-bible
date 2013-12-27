@@ -149,8 +149,9 @@
   <string name="bookmark_labels">पुस्तक-चिन्ह  लेबल (नाम)</string>
   <string name="assign_labels">लेबल लिखना/देना</string>
   <string name="new_label">नया लेबल</string>
-  <string name="new_label_prompt">नाम</string>
+  <string name="label_name_prompt">नाम</string>
   <string name="label_unlabelled">कोई लेबल नही</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
   <!--Dictionary-->
   <string name="dictionary">बाइबिल शब्दकोश</string>
   <string name="search_dictionary_hint">शब्दकोश में खोजें</string>

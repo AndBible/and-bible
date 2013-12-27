@@ -149,8 +149,9 @@
   <string name="bookmark_labels">كلمات دالة على شارات الرجوع</string>
   <string name="assign_labels">تحديد كلمات دالة</string>
   <string name="new_label">كلمة دالة جديدة</string>
-  <string name="new_label_prompt">اسم</string>
+  <string name="label_name_prompt">اسم</string>
   <string name="label_unlabelled">بدون كلمات دالة</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
   <!--Dictionary-->
   <string name="dictionary">القاموس</string>
   <string name="search_dictionary_hint">إبحث في القاموس</string>

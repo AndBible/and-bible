@@ -149,8 +149,9 @@
   <string name="bookmark_labels">Yer İmi Etiketleri</string>
   <string name="assign_labels">Etiketle</string>
   <string name="new_label">Yeni Etiket</string>
-  <string name="new_label_prompt">Etiket Başlığı</string>
+  <string name="label_name_prompt">Etiket Başlığı</string>
   <string name="label_unlabelled">Etiketlenmemiş</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
   <!--Dictionary-->
   <string name="dictionary">Sözlük</string>
   <string name="search_dictionary_hint">Sözlükte bul</string>

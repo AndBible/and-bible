@@ -109,8 +109,9 @@
   <string name="bookmark_labels">ブックマークラベル</string>
   <string name="assign_labels">ラベルを割り当てる</string>
   <string name="new_label">新しいラベル</string>
-  <string name="new_label_prompt">名</string>
+  <string name="label_name_prompt">名</string>
   <string name="label_unlabelled">未標識</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
   <!--Dictionary-->
   <string name="dictionary">辞書</string>
   <string name="search_dictionary_hint">辞書を検索する</string>

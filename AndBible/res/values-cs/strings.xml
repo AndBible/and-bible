@@ -149,8 +149,9 @@
   <string name="bookmark_labels">Popisky záložky</string>
   <string name="assign_labels">Přiřadit popisky</string>
   <string name="new_label">Nový popisek</string>
-  <string name="new_label_prompt">Název</string>
+  <string name="label_name_prompt">Název</string>
   <string name="label_unlabelled">Neoznačený</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
   <!--Dictionary-->
   <string name="dictionary">Slovník</string>
   <string name="search_dictionary_hint">Vyhledávací slovník</string>

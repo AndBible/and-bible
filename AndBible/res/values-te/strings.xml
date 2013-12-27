@@ -149,8 +149,9 @@
   <string name="bookmark_labels">బుక్ మార్క్ గుర్తులు</string>
   <string name="assign_labels">గుర్తులను నిర్నయించుట</string>
   <string name="new_label">క్రొత్త గుర్తు</string>
-  <string name="new_label_prompt">పేరు</string>
+  <string name="label_name_prompt">పేరు</string>
   <string name="label_unlabelled">గుర్తించనిది</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
   <!--Dictionary-->
   <string name="dictionary">నిఘంటువు</string>
   <string name="search_dictionary_hint">నిఘంటువులో వెతకుట</string>

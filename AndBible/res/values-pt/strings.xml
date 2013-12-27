@@ -149,8 +149,9 @@
   <string name="bookmark_labels">Marcadores dos Favoritos</string>
   <string name="assign_labels">Atribuir marcadores</string>
   <string name="new_label">Novo marcador</string>
-  <string name="new_label_prompt">Nome</string>
+  <string name="label_name_prompt">Nome</string>
   <string name="label_unlabelled">Sem marcadores</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
   <!--Dictionary-->
   <string name="dictionary">Dicionário</string>
   <string name="search_dictionary_hint">Procurar dicionário</string>

@@ -149,8 +149,8 @@
   <string name="bookmark_labels">Ετικέτες σελιδοδείκτη</string>
   <string name="assign_labels">Εκχώρηση ετικετών</string>
   <string name="new_label">Νέα ετικέτα</string>
-  <string name="new_label_prompt">Ονομα</string>
   <string name="label_unlabelled">Μη σημασμένο</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
   <!--Dictionary-->
   <string name="dictionary">Λεξικό</string>
   <string name="search_dictionary_hint">Αναζήτηση λεξικού</string>
