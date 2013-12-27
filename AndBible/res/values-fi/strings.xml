@@ -149,8 +149,12 @@
   <string name="bookmark_labels">Kirjanmerkkien ryhmät</string>
   <string name="assign_labels">Sijoita ryhmään</string>
   <string name="new_label">Uusi ryhmä</string>
-  <string name="new_label_prompt">Nimi</string>
+  <string name="label_name_prompt">Nimi</string>
   <string name="label_unlabelled">Nimetön</string>
+  <string name="rename">Uudelleennimeä</string>
+  <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">Aikajärjestys</string>
+  <string name="sort_by_bible_book">Kirjajärjestys</string>
   <!--Dictionary-->
   <string name="dictionary">Sanakirja</string>
   <string name="search_dictionary_hint">Etsi sanakirjasta</string>
