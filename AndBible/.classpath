@@ -5,13 +5,13 @@
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry exported="true" kind="lib" path="libs/javatar-2.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/mmseg4j-all-1.8.4.jar"/>
-	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
+	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry exported="true" kind="lib" path="libs/jdom2-2.0.4.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/lucene-analyzers-3.0.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/lucene-core-3.0.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/lucene-snowball-3.0.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/slf4j-android-1.6.1-RC1.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/jsword.jar" sourcepath="libs-src/jsword-src.jar"/>
-	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
+	<classpathentry kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
