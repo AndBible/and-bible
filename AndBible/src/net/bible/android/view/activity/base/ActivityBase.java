@@ -192,7 +192,6 @@ public class ActivityBase extends ActionBarActivity implements AndBibleActivity 
         
         //allow action to be called on screen being turned on
 		if (!isScreenOn && ScreenSettings.isScreenOn()) {
-			isScreenOn = true;
 			onScreenTurnedOn();
 		}
 	}
@@ -202,17 +201,18 @@ public class ActivityBase extends ActionBarActivity implements AndBibleActivity 
 		super.onPause();
         Log.i(getLocalClassName(), "onPause:"+this);
 		if (isScreenOn && !ScreenSettings.isScreenOn()) {
-			isScreenOn = false;
 			onScreenTurnedOff();
 		}
 	}
 	
 	protected void onScreenTurnedOff() {
 		Log.d(TAG, "Screen turned off");
+		isScreenOn = false;
 	}
 
 	protected void onScreenTurnedOn() {
 		Log.d(TAG, "Screen turned on");
+		isScreenOn = true;
 	}
 
 	@Override
@@ -232,8 +232,12 @@ public class ActivityBase extends ActionBarActivity implements AndBibleActivity 
 	protected void onStop() {
 		super.onStop();
         Log.i(getLocalClassName(), "onStop:"+this);
-        // call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
-        CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this);
+        // screen can still be considered as current screen if put on stand-by
+        // removing this if causes speech to stop when screen is put on stand-by
+        if (isScreenOn) {
+	        // call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
+	        CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this);
+        }
 	}
 
 	public void setAllowThemeChange(boolean allowThemeChange) {
