@@ -97,12 +97,12 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 				// screen is changing shape/size so constantly maintain the current verse position
 				// main difference from jumpToVerse is that this is not cleared after jump
 				if (maintainMovingVerse>0) {
-					doScrollOrJumpToVerse(maintainMovingVerse);
+					scrollOrJumpToVerse(maintainMovingVerse);
 				}
 
 				// go to any specified verse or offset
 				if (mJumpToVerse > 0) {
-					doScrollOrJumpToVerse(mJumpToVerse);
+					scrollOrJumpToVerse(mJumpToVerse);
 	    		} else if (mJumpToYOffsetRatio>0) {
 		            int contentHeight = view.getContentHeight(); 
 		            int y = (int) ((float)contentHeight*mJumpToYOffsetRatio);
@@ -370,7 +370,6 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 		boolean ok = false;
 		hideScrollBar = true;
 		for (int i=0; i<scrollAmount; i++) {
-			//TODO calculate lineHeight properly
 			if (forward) {
 				// scroll down/forward if not at bottom
 				if (getScrollY()+1 < getMaxVerticalScroll()) {
@@ -445,14 +444,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	@Override
 	public void scrollSecondaryScreen(Screen updateScreen, final int verseNo) {
 		if (splitScreenNo == updateScreen && getHandler()!=null) {
-			getHandler().post(new Runnable() {
-				
-				@Override
-				public void run() {
-					loadUrl("javascript:location.href='#"+verseNo+"'");
-//					loadUrl("javascript:scrollTo('"+verseNo+"')");
-				}
-			});
+			scrollOrJumpToVerseOnUIThread(verseNo);
 		}
 	}
 	
@@ -477,7 +469,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 						BibleView.this.maintainMovingVerse = NO_JUMP;
 						
 						// ensure we are in the correct place after screen settles
-						loadUrl("javascript:location.href='#"+verse+"'");
+						scrollOrJumpToVerse(verse);
 						loadUrl("javascript:registerVersePositions()");
 					}
 				} , SplitScreenControl.SCREEN_SETTLE_TIME_MILLIS/2);
@@ -523,7 +515,18 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 
 	/** move the view so the selected verse is at the top or at least visible
 	 */
-	private void doScrollOrJumpToVerse(int verse) {
+	private void scrollOrJumpToVerseOnUIThread(final int verse) {
+		getHandler().post(new Runnable() {
+			
+			@Override
+			public void run() {
+				scrollOrJumpToVerse(verse);
+			}
+		});
+	}
+	/** move the view so the selected verse is at the top or at least visible
+	 */
+	private void scrollOrJumpToVerse(final int verse) {
 		if (verse<=1) {
 			// use scroll to because difficult to place a tag exactly at the top
 			scrollTo(0,0);
