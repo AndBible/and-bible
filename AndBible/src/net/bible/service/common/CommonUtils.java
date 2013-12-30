@@ -172,28 +172,50 @@ public class CommonUtils {
     	return CommonUtils.isHttpUrlAvailable(testUrl);
     }
 
-    public static boolean isHttpUrlAvailable(String urlString) {
- 	    HttpURLConnection connection = null;
-    	try {
-    		// might as well test for the url we need to access
-	 	    URL url = new URL(urlString);
-	 	         
-	 	    Log.d(TAG, "Opening test connection");
-	 	    connection = (HttpURLConnection)url.openConnection();
-	 	    connection.setConnectTimeout(3000);
-	 	    Log.d(TAG, "Connecting to test internet connection");
-	 	    connection.connect();
-	 	    boolean success = (connection.getResponseCode() == HttpURLConnection.HTTP_OK);
-	 	    Log.d(TAG, "Url test result for:"+urlString+" is "+success);
-	 	    return success;
-    	} catch (IOException e) {
-    		Log.i(TAG, "No internet connection");
-    		return false;
-    	} finally {
-    		if (connection!=null) {
-    			connection.disconnect();
-    		}
+    /** return true if URL is accessible
+     * 
+     * Since Android 3 must do on different or NetworkOnMainThreadException is thrown
+     */
+    public static boolean isHttpUrlAvailable(final String urlString) {
+		boolean isAvailable = false;
+		final int TIMEOUT_MILLIS = 3000;
+
+		try {
+			class CheckUrlThread extends Thread {
+				public boolean checkUrlSuccess = false;
+	
+				public void run() {
+			 	    HttpURLConnection connection = null;
+					try {
+	    	    		// might as well test for the url we need to access
+	    		 	    URL url = new URL(urlString);
+	
+	    		 	    Log.d(TAG, "Opening test connection");
+	    		 	    connection = (HttpURLConnection)url.openConnection();
+	    		 	    connection.setConnectTimeout(TIMEOUT_MILLIS);
+	    		 	    Log.d(TAG, "Connecting to test internet connection");
+	    		 	    connection.connect();
+	    		 	    checkUrlSuccess = (connection.getResponseCode() == HttpURLConnection.HTTP_OK);
+	    		 	    Log.d(TAG, "Url test result for:"+urlString+" is "+checkUrlSuccess);
+			    	} catch (IOException e) {
+			    		Log.i(TAG, "No internet connection");
+			    		checkUrlSuccess = false;
+			    	} finally {
+			    		if (connection!=null) {
+			    			connection.disconnect();
+			    		}
+			    	}
+				}
+			};
+			
+			CheckUrlThread checkThread = new CheckUrlThread();
+			checkThread.start();
+			checkThread.join(TIMEOUT_MILLIS);
+			isAvailable = checkThread.checkUrlSuccess;
+    	} catch (InterruptedException e) {
+    		Log.e(TAG, "Interrupted waiting for url check to complete", e);
     	}
+ 	    return isAvailable;
     }
 
 	public static void ensureDirExists(File dir) {
