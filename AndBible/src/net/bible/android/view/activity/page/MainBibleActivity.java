@@ -15,9 +15,9 @@ import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.page.screen.DocumentViewManager;
+import net.bible.android.view.activity.page.toolbar.BibleToolbarButtonManager;
 import net.bible.android.view.util.TouchOwner;
 import net.bible.service.device.ScreenSettings;
-
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -48,6 +48,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	
 	private static final String TAG = "MainBibleActivity";
 
+	private BibleToolbarButtonManager bibleToolbarButtonManager = new BibleToolbarButtonManager();
+	
 	// handle requests from main menu
 	private MenuCommandHandler mainMenuCommandHandler;
 	
@@ -288,7 +290,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	// Inflate the menu
         getMenuInflater().inflate(R.menu.main, menu);
         
-        return super.onCreateOptionsMenu(menu);
+        boolean showMenu = super.onCreateOptionsMenu(menu);
+        
+        return showMenu;
     }
     
     @Override
@@ -299,6 +303,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		
 		// if there is no backup file then disable the restore menu item
 		ControlFactory.getInstance().getBackupControl().updateOptionsMenu(menu);
+
+        bibleToolbarButtonManager.prepareOptionsMenu(menu);
 		
 		// must return true for menu to be displayed
 		return true;

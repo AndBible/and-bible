@@ -20,8 +20,6 @@ import android.widget.ProgressBar;
  */
 public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	
-	public enum HeaderButton {DOCUMENT, PAGE, BIBLE, COMMENTARY, DICTIONARY, TOGGLE_STRONGS, SPEAK, SPEAK_STOP, SPEAK_FF, SPEAK_REW};
-
 	private View mTitleBar;
 	
 	private Toolbar mToolbar;
