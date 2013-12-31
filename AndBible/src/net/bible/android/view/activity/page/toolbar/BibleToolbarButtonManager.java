@@ -9,4 +9,9 @@ public class BibleToolbarButtonManager {
 	public void prepareOptionsMenu(Menu menu) {
 		commentaryToolbarButton.addToMenu(menu);
 	}
+	
+	public void updateButtons() {
+		commentaryToolbarButton.update();
+	}
+
 }

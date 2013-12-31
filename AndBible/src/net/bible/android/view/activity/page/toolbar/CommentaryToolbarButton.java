@@ -34,18 +34,17 @@ public class CommentaryToolbarButton implements OnMenuItemClickListener {
 
 	public void update() {
         mSuggestedDocument = ControlFactory.getInstance().getDocumentControl().getSuggestedCommentary();
+        if (menuItem!=null) {
+        	menuItem.setTitle(getTitle());
+        }
 //        helper.updateQuickButton(mSuggestedDocument, getButton(), true);
 	}
 
 	@Override
 	public boolean onMenuItemClick(MenuItem arg0) {
     	Log.d(TAG, "Quick cmtry select");
-
     	CurrentPageManager.getInstance().setCurrentDocument(mSuggestedDocument);
-    	
-    	update();
-    	menuItem.setTitle(getTitle());
-		return true;
+    	return true;
 	}
 	
 	private String getTitle() {

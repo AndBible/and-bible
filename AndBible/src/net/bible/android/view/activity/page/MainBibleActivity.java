@@ -309,6 +309,13 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		// must return true for menu to be displayed
 		return true;
 	}
+    
+    public void updateToolbarButtonText() {
+    	super.updateToolbarButtonText();
+    	
+        bibleToolbarButtonManager.updateButtons();
+    }
+
 
     /** called from gesture listener if the context menu is not displayed automatically
      */
