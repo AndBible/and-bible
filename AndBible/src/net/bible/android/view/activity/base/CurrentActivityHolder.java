@@ -5,7 +5,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
-
 import android.app.Activity;
 import android.util.Log;
 
@@ -83,6 +82,15 @@ public class CurrentActivityHolder {
 			} else {
 				listener.applicationReturnedFromBackground(event);
 			}
+		}
+	}
+
+	/** convenience task with error checking
+	 */
+	public void runOnUiThread(Runnable runnable) {
+		Activity activity = getCurrentActivity();
+		if (activity!=null) {
+			getCurrentActivity().runOnUiThread(runnable);
 		}
 	}
 }

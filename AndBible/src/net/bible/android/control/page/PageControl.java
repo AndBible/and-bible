@@ -136,13 +136,8 @@ public class PageControl {
 			StringBuilder title = new StringBuilder();
 			CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
 			if (currentPage!=null) {
-				Key key = currentPage.getKey();
-				// remove verse number from verses because that is shown seperately
-				if (key instanceof Verse) {
-					key = CommonUtils.getWholeChapter((Verse)key);
-				}
-				if (key!=null) {
-					title.append(CommonUtils.getKeyDescription(key));
+				if (currentPage.getSingleKey()!=null) {
+					title.append(CommonUtils.getKeyDescription(currentPage.getSingleKey()));
 				}
 			}
 			

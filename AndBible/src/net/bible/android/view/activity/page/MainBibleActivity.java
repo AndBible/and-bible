@@ -50,7 +50,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	
 	private static final String TAG = "MainBibleActivity";
 
-	private ActionBarNavigationManager actionBarNavigationManager = new ActionBarNavigationManager();
 	private BibleToolbarButtonManager bibleToolbarButtonManager = new BibleToolbarButtonManager();
 	
 	// handle requests from main menu
@@ -307,9 +306,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		// if there is no backup file then disable the restore menu item
 		ControlFactory.getInstance().getBackupControl().updateOptionsMenu(menu);
 
-		actionBarNavigationManager.initialiseActionBarNavigation(getSupportActionBar());
-		
-        bibleToolbarButtonManager.prepareOptionsMenu(menu);
+        bibleToolbarButtonManager.prepareOptionsMenu(menu, getSupportActionBar());
 		
 		// must return true for menu to be displayed
 		return true;
