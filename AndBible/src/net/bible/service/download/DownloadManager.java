@@ -21,6 +21,7 @@
  */
 package net.bible.service.download;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +38,8 @@ import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.install.InstallException;
 import org.crosswire.jsword.book.install.InstallManager;
 import org.crosswire.jsword.book.install.Installer;
+
+import android.util.Log;
 
 /**
  * Originally copied from BookInstaller it calls Sword routines related to installation and removal of books and indexes
@@ -62,33 +65,37 @@ public class DownloadManager {
 	 */
 	public List<Book> getDownloadableBooks(BookFilter filter, String repo, boolean refresh) throws InstallException {
 
-		List<Book> documents;
+		List<Book> documents = new ArrayList<Book>();
 		
-        // If we know the name of the installer we can get it directly
-        Installer installer = installManager.getInstaller(repo);
-        
-        if (installer==null) {
-			log.error("Error getting installer for repo "+repo);
-			Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
-			documents = Collections.emptyList();
-        } else {
-	        // Now we can get the list of books
-	    	log.debug("getting downloadable books");
-	    	if (installer.getBooks().size()==0 || refresh) {
-	    		//todo should warn user of implications of downloading book list e.g. from persecuted country
-	    		log.warn("Reloading book list");
-	    		installer.reloadBookList();
-	    	}
+		try {
+	        // If we know the name of the installer we can get it directly
+	        Installer installer = installManager.getInstaller(repo);
+	        
+	        if (installer==null) {
+				log.error("Error getting installer for repo "+repo);
+				Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+				documents = Collections.emptyList();
+	        } else {
+		        // Now we can get the list of books
+		    	log.debug("getting downloadable books");
+		    	if (installer.getBooks().size()==0 || refresh) {
+		    		//todo should warn user of implications of downloading book list e.g. from persecuted country
+		    		log.warn("Reloading book list");
+		    		installer.reloadBookList();
+		    	}
+		
+		        // Get a list of all the available books
+		        documents = installer.getBooks(filter); //$NON-NLS-1$
+	        }
 	
-	        // Get a list of all the available books
-	        documents = installer.getBooks(filter); //$NON-NLS-1$
-        }
-
-        //free memory
-        if (installer!=null) {
-        	installer.close();
-        }
-        
+	        //free memory
+	        if (installer!=null) {
+	        	installer.close();
+	        }
+		} catch (Exception e) {
+			// ignore error because some minor repos are unreliable
+			log.error("Fatal error downloading books from "+repo);
+		}
     	log.info("number of documents available:"+documents.size());
 		return documents;
 	}
