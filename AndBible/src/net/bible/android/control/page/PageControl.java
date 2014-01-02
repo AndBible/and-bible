@@ -114,7 +114,7 @@ public class PageControl {
 			}
 		}
 		
-		int maxLength = isPortrait ? 5 : 12;
+		int maxLength = isPortrait ? 8 : 12;
 		String retVal = shorten(title.toString(), maxLength);
 
 		return retVal;
