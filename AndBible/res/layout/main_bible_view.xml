@@ -5,13 +5,11 @@
  @see gnu.lgpl.License for license details.<br>
       The copyright to this program is held by it's author.
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-	android:id="@+id/mainBibleViewContainer" 
-    android:layout_width="fill_parent" 
-    android:layout_height="fill_parent"
-    android:orientation="vertical"
-    android:fadingEdgeLength="0sp"
-    >
+<android.support.v4.widget.DrawerLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/drawer_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
     <include layout="@layout/title_bar"/>
     <LinearLayout android:id="@+id/mainBibleView" 
 	    android:layout_width="fill_parent" 
@@ -27,4 +25,12 @@
 		    android:layout_height="fill_parent"
 		/-->
 	</LinearLayout>
-</LinearLayout>
+	<ListView android:id="@+id/left_drawer"
+        android:layout_width="240dp"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:choiceMode="singleChoice"
+        android:divider="@android:color/transparent"
+        android:dividerHeight="0dp"
+        android:background="#111"/>
+</android.support.v4.widget.DrawerLayout>

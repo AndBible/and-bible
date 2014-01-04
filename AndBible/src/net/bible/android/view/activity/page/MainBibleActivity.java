@@ -207,17 +207,13 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     }
 
 	/** 
-     * on Click handlers
+     * on Click handlers.  Go through each handler until one returns true
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        boolean isHandled = mainMenuCommandHandler.handleMenuRequest(item.getItemId());
-        
-     	if (!isHandled) {
-            isHandled = super.onOptionsItemSelected(item);
-        }
-        
-     	return isHandled;
+        return bibleToolbarButtonManager.onOptionsItemSelected(item) || 
+        	   mainMenuCommandHandler.handleMenuRequest(item.getItemId()) ||
+               super.onOptionsItemSelected(item);
     }
 
     @Override 
@@ -304,11 +300,18 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		// if there is no backup file then disable the restore menu item
 		ControlFactory.getInstance().getBackupControl().updateOptionsMenu(menu);
 
-        bibleToolbarButtonManager.prepareOptionsMenu(menu, getSupportActionBar());
+        bibleToolbarButtonManager.prepareOptionsMenu(this, menu, getSupportActionBar(), mainMenuCommandHandler);
 		
 		// must return true for menu to be displayed
 		return true;
 	}
+    
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        bibleToolbarButtonManager.onPostCreate();
+    }
     
     public void updateToolbarButtonText() {
     	super.updateToolbarButtonText();

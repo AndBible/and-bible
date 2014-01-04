@@ -6,4 +6,5 @@
 	<color name="split_button_text_colour">#66FFFFFF</color>
 	<color name="split_button_background_colour">#666B6B6B</color>
 				    
+	<color name="nav_bar_background_holo_dark">#ff000000</color>
 </resources>

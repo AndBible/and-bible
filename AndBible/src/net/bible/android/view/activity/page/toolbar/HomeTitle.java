@@ -20,6 +20,9 @@ public class HomeTitle {
 	public void addToBar(ActionBar actionBar) {
 		this.actionBar = actionBar;
 		update(true);
+		
+		// do not display the app icon in the actionbar
+		actionBar.setDisplayShowHomeEnabled(false);
 
 		// listen for verse change events
         PassageEventManager.getInstance().addPassageEventListener(new PassageEventListener() {
