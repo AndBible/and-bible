@@ -91,10 +91,11 @@ public class NavigationDrawer {
 	}
 
 	public void update() {
-		navigationDrawerMenuItemList.clear();
-		navigationDrawerMenuItemList.addAll(getMenuItems(CurrentActivityHolder.getInstance().getCurrentActivity()));
-		arrayAdapter.notifyDataSetChanged();
-
+		if (navigationDrawerMenuItemList!=null) {
+			navigationDrawerMenuItemList.clear();
+			navigationDrawerMenuItemList.addAll(getMenuItems(CurrentActivityHolder.getInstance().getCurrentActivity()));
+			arrayAdapter.notifyDataSetChanged();
+		}
 	}
 	
 	/** allows title click to reveal nav drawer
