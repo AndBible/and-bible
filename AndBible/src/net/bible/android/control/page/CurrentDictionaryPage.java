@@ -8,6 +8,7 @@ import org.crosswire.jsword.passage.Key;
 
 import android.app.Activity;
 import android.view.Menu;
+import android.view.MenuItem;
 
 /** Reference to current passage shown by viewer
  * 
@@ -63,8 +64,15 @@ public class CurrentDictionaryPage extends CachedKeyPage implements CurrentPage 
 	@Override
 	public void updateOptionsMenu(Menu menu) {
 		super.updateOptionsMenu(menu);
-		menu.findItem(R.id.selectPassageButton).setTitle(R.string.dictionary_contents);		
-		menu.findItem(R.id.bookmarksButton).setEnabled(false);		
+		MenuItem menuItem = menu.findItem(R.id.selectPassageButton);
+		if (menuItem!=null) {
+			menuItem.setTitle(R.string.dictionary_contents);
+		}
+
+		menuItem = menu.findItem(R.id.bookmarksButton);
+		if (menuItem!=null) {
+			menuItem.setEnabled(false);
+		}
 	}
 	
 	@Override

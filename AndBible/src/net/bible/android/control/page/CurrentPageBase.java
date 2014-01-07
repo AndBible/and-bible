@@ -20,6 +20,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
+import android.view.MenuItem;
 
 /** Common functionality for different document page types
  * 
@@ -188,10 +189,22 @@ abstract class CurrentPageBase implements CurrentPage {
 	@Override
 	public void updateOptionsMenu(Menu menu) {
 		// these are fine for Bible and commentary
-		menu.findItem(R.id.selectPassageButton).setTitle(R.string.selectPassage);		
-		menu.findItem(R.id.searchButton).setEnabled(isSearchable());	
-		menu.findItem(R.id.bookmarksButton).setEnabled(true);		
-		menu.findItem(R.id.speakButton).setEnabled(isSpeakable());	
+		MenuItem menuItem = menu.findItem(R.id.selectPassageButton);
+		if (menuItem!=null) {
+			menuItem.setTitle(R.string.selectPassage);
+		}
+		menuItem = menu.findItem(R.id.searchButton);
+		if (menuItem!=null) {
+			menuItem.setEnabled(isSearchable());
+		}
+		menuItem = menu.findItem(R.id.bookmarksButton);
+		if (menuItem!=null) {
+			menuItem.setEnabled(true);
+		}
+		menuItem = menu.findItem(R.id.speakButton);
+		if (menuItem!=null) {
+			menuItem.setEnabled(isSpeakable());
+		}
 	}
 	
 	@Override

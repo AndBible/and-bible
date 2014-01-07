@@ -25,6 +25,7 @@ public class BibleToolbarButtonManager {
 	
 	public void updateButtons() {
 		homeTitle.update();
+		navigationDrawer.update();
 		
 		bibleToolbarButton.update();
 		commentaryToolbarButton.update();

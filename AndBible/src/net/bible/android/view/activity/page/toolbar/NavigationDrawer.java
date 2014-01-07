@@ -5,7 +5,9 @@ import java.util.List;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
+import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.page.MenuCommandHandler;
 import android.app.Activity;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -24,10 +26,11 @@ import android.widget.ListView;
 public class NavigationDrawer {
 
     private DrawerLayout mDrawerLayout;
+    private ArrayAdapter arrayAdapter;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
     
-    private NavigationDrawerMenuItem[] navigationDrawerMenuItemArray;
+    private List<NavigationDrawerMenuItem> navigationDrawerMenuItemList;
     private MenuCommandHandler menuCommandHandler;
 	
 	private ActionBar actionBar;
@@ -40,7 +43,7 @@ public class NavigationDrawer {
 		this.actionBar = actionBar;
 		this.menuCommandHandler = menuCommandHandler;
 		
-		navigationDrawerMenuItemArray = getMenuItems(activity);
+		navigationDrawerMenuItemList = getMenuItems(activity);
 
 		//mPlanetTitles = getResources().getStringArray(R.array.planets_array);
 		mDrawerLayout = (DrawerLayout) activity.findViewById(R.id.drawer_layout);
@@ -50,7 +53,8 @@ public class NavigationDrawer {
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
 		// Set the adapter for the list view
-		mDrawerList.setAdapter(new ArrayAdapter<NavigationDrawerMenuItem>(activity, R.layout.drawer_list_item, navigationDrawerMenuItemArray));
+        arrayAdapter = new ArrayAdapter<NavigationDrawerMenuItem>(activity, R.layout.drawer_list_item, navigationDrawerMenuItemList);
+		mDrawerList.setAdapter(arrayAdapter);
 
 		// Set the list's click listener
 	    mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
@@ -85,6 +89,13 @@ public class NavigationDrawer {
 
 		mDrawerToggle.syncState();
 	}
+
+	public void update() {
+		navigationDrawerMenuItemList.clear();
+		navigationDrawerMenuItemList.addAll(getMenuItems(CurrentActivityHolder.getInstance().getCurrentActivity()));
+		arrayAdapter.notifyDataSetChanged();
+
+	}
 	
 	/** allows title click to reveal nav drawer
 	 */
@@ -100,7 +111,7 @@ public class NavigationDrawer {
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             //selectItem(position);
         	Log.i(TAG, "Menu item selected");
-        	NavigationDrawerMenuItem selectedDrawerMenuItem = navigationDrawerMenuItemArray[position];
+        	NavigationDrawerMenuItem selectedDrawerMenuItem = navigationDrawerMenuItemList.get(position);
         	menuCommandHandler.handleMenuRequest(selectedDrawerMenuItem.getId());
         	
         	mDrawerLayout.closeDrawer(mDrawerList);
@@ -114,17 +125,24 @@ public class NavigationDrawer {
     	}
     }
 
-    private NavigationDrawerMenuItem[] getMenuItems(Activity activity) {
+    private List<NavigationDrawerMenuItem> getMenuItems(Activity activity) {
     	Menu menu = new MenuBuilder(activity);
     	activity.getMenuInflater().inflate(R.menu.navigation_drawer, menu);
+
+    	// some items will be disabled e.g. Bookmarks when viewing a dictionary
+    	CurrentPageManager.getInstance().getCurrentPage().updateOptionsMenu(menu);
+		// if there is no backup file then disable the restore menu item
+		ControlFactory.getInstance().getBackupControl().updateOptionsMenu(menu);
     	
     	List<NavigationDrawerMenuItem> navigationDrawerMenuItems = new ArrayList<NavigationDrawerMenuItem>();
     	for (int i=0; i<menu.size(); i++) {
         	MenuItem menuItem = menu.getItem(i);
-        	NavigationDrawerMenuItem drawerMenuItem = new NavigationDrawerMenuItem(menuItem);
-        	navigationDrawerMenuItems.add(drawerMenuItem);
+        	if (menuItem.isEnabled()) {
+	        	NavigationDrawerMenuItem drawerMenuItem = new NavigationDrawerMenuItem(menuItem);
+	        	navigationDrawerMenuItems.add(drawerMenuItem);
+        	}
     	}
-    	return navigationDrawerMenuItems.toArray(new NavigationDrawerMenuItem[navigationDrawerMenuItems.size()]);
+    	return navigationDrawerMenuItems;
     }
 
 //    @Override
