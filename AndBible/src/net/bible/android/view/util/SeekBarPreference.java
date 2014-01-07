@@ -47,7 +47,7 @@ public class SeekBarPreference extends DialogPreference implements
 
         mSeekBar = (SeekBar) v.findViewById(R.id.myBar);
         mSeekBar.setOnSeekBarChangeListener(this);
-        mSeekBar.setMax(mMax);
+        mSeekBar.setMax(mMax-mMin);
         mSeekBar.setProgress(mValue-mMin);
 
         String t = String.valueOf(mValue);
