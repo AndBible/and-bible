@@ -151,7 +151,10 @@
   <string name="new_label">Yeni Etiket</string>
   <string name="label_name_prompt">Etiket Başlığı</string>
   <string name="label_unlabelled">Etiketlenmemiş</string>
+  <string name="rename">Yeniden Adlandır</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">Tarih Sırası</string>
+  <string name="sort_by_bible_book">Kutsal Kitap Sırası</string>
   <!--Dictionary-->
   <string name="dictionary">Sözlük</string>
   <string name="search_dictionary_hint">Sözlükte bul</string>

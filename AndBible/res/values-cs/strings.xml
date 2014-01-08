@@ -151,7 +151,10 @@
   <string name="new_label">Nový popisek</string>
   <string name="label_name_prompt">Název</string>
   <string name="label_unlabelled">Neoznačený</string>
+  <string name="rename">Přejmenovat</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">Řazení dle data</string>
+  <string name="sort_by_bible_book">Biblické pořadí</string>
   <!--Dictionary-->
   <string name="dictionary">Slovník</string>
   <string name="search_dictionary_hint">Vyhledávací slovník</string>
