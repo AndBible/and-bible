@@ -27,15 +27,18 @@ abstract public class QuickDocumentChangeToolbarButton implements OnMenuItemClic
 
 	public void addToMenu(Menu menu) {
 		if (menuItem==null) {
-			update();
-			menuItem = menu.add(getTitle());
+			menuItem = menu.add("");
 			MenuItemCompat.setShowAsAction(menuItem, showAsActionFlags);
 			menuItem.setOnMenuItemClickListener(this);
+			update();
 		}
 	}
 
 	public void update() {
         mSuggestedDocument = getSuggestedDocument();
+        // if there are no documents of this sort then hide quick change button
+        menuItem.setVisible(mSuggestedDocument!=null);
+        
         if (menuItem!=null) {
         	menuItem.setTitle(getTitle());
         }
@@ -48,6 +51,10 @@ abstract public class QuickDocumentChangeToolbarButton implements OnMenuItemClic
 	}
 	
 	private String getTitle() {
-		return StringUtils.left(mSuggestedDocument.getInitials(), 3);
+		if (mSuggestedDocument!=null) {
+			return StringUtils.left(mSuggestedDocument.getInitials(), 3);
+		} else {
+			return "";
+		}
 	}
 }
