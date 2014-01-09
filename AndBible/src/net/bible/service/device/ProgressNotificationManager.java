@@ -130,11 +130,11 @@ public class ProgressNotificationManager {
             Intent intent = new Intent(BibleApplication.getApplication(), ProgressStatus.class);
             final PendingIntent pendingIntent = PendingIntent.getActivity(BibleApplication.getApplication(), 0, intent, 0);
 
-        	notification = new Notification(R.drawable.bible, prog.getJobName(), System.currentTimeMillis());
+        	notification = new Notification(R.drawable.ichthys, prog.getJobName(), System.currentTimeMillis());
             notification.flags = notification.flags | Notification.FLAG_ONGOING_EVENT | Notification.FLAG_AUTO_CANCEL;
             notification.contentView = new RemoteViews(SharedConstants.PACKAGE_NAME, R.layout.progress_notification);
             notification.contentIntent = pendingIntent;
-            notification.contentView.setImageViewResource(R.id.status_icon, R.drawable.bible);
+            notification.contentView.setImageViewResource(R.id.status_icon, R.drawable.ichthys);
             notification.contentView.setTextViewText(R.id.status_text, "");
             notification.contentView.setProgressBar(R.id.status_progress, 100, prog.getWork(), false);
 
