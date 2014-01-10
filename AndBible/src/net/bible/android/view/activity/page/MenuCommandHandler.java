@@ -1,5 +1,7 @@
 package net.bible.android.view.activity.page;
 
+import org.crosswire.jsword.book.BookCategory;
+
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.activity.StartupActivity;
@@ -21,7 +23,6 @@ import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;
 import net.bible.android.view.activity.settings.SettingsActivity;
 import net.bible.android.view.activity.speak.Speak;
 import net.bible.service.common.CommonUtils;
-
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -132,6 +133,14 @@ public class MenuCommandHandler {
 	        	break;
 
 	        /** Pop-up options menu starts here */
+	        case R.id.bibleVerseButton:
+	    		if (callingActivity instanceof MainBibleActivity) {
+	    			if (BookCategory.BIBLE.equals(ControlFactory.getInstance().getDocumentControl().getCurrentCategory())) {
+	    				// if bible then show verse context menu
+	    				((MainBibleActivity)callingActivity).openContextMenu();
+	    			}
+	    		}
+	    		break;
 			case R.id.compareTranslations:
 	        	handlerIntent = new Intent(callingActivity, CompareTranslations.class);
 	        	break;

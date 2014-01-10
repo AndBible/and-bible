@@ -8,7 +8,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:appcompat="http://schemas.android.com/apk/res-auto" >
 
-   	<item android:id="@+id/selectPassageButton" 
+    <item android:id="@+id/selectPassageButton" 
 		  android:title="@string/selectPassage"
 		  android:icon="@android:drawable/ic_menu_today"
 		  appcompat:showAsAction="always"/>
@@ -17,17 +17,12 @@
 		  android:title="@string/search"
 		  android:icon="@android:drawable/ic_menu_search"/>
 
-	<item android:id="@+id/bookmarksButton"
-		  android:title="@string/bookmarks" 
-		  android:icon="@drawable/ic_menu_bookmarks"/>
-
-	<item android:id="@+id/mynotesButton"
-		  android:title="@string/mynotes" 
-		  android:icon="@drawable/ic_menu_usernotes"/>
-
-	
 	<item android:id="@+id/speakButton"
 		  android:title="@string/speak"
 		  android:icon="@drawable/ic_action_volume_on"/>
 
+    <item android:id="@+id/bibleVerseButton" 
+		  android:title="@string/verse"
+		  android:icon="@android:drawable/ic_menu_day"/>
+   	
 </menu>

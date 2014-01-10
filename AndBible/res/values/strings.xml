@@ -37,6 +37,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="history">History</string>
     <string name="speak">Speak</string>
     <string name="help">Help</string>
+    <string name="verse">Verse</string>
     <string name="drawer_open">Open</string>
 	<string name="drawer_close">Close</string>
     
