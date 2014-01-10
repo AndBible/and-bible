@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.page.toolbar;
+package net.bible.android.view.activity.page.actionbar;
 
 import android.view.MenuItem;
 

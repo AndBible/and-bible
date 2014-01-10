@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.page.toolbar;
+package net.bible.android.view.activity.page.actionbar;
 
 import net.bible.android.view.activity.page.MenuCommandHandler;
 import android.app.Activity;
@@ -6,30 +6,30 @@ import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class BibleToolbarButtonManager {
+public class BibleActionBarManager {
 
 	private HomeTitle homeTitle = new HomeTitle();
 	private NavigationDrawer navigationDrawer = new NavigationDrawer();
-	private BibleToolbarButton bibleToolbarButton = new BibleToolbarButton();
-	private CommentaryToolbarButton commentaryToolbarButton = new CommentaryToolbarButton();
-	private DictionaryToolbarButton dictionaryToolbarButton = new DictionaryToolbarButton();
+	private BibleActionBarButton bibleActionBarButton = new BibleActionBarButton();
+	private CommentaryActionBarButton commentaryActionBarButton = new CommentaryActionBarButton();
+	private DictionaryActionBarButton dictionaryActionBarButton = new DictionaryActionBarButton();
 	
 	public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar, MenuCommandHandler menuCommandHandler) {
 		homeTitle.addToBar(actionBar);
 		navigationDrawer.addToBar(activity, actionBar, menuCommandHandler);
 		
-		bibleToolbarButton.addToMenu(menu);
-		commentaryToolbarButton.addToMenu(menu);
-		dictionaryToolbarButton.addToMenu(menu);
+		bibleActionBarButton.addToMenu(menu);
+		commentaryActionBarButton.addToMenu(menu);
+		dictionaryActionBarButton.addToMenu(menu);
 	}
 	
 	public void updateButtons() {
 		homeTitle.update();
 		navigationDrawer.update();
 		
-		bibleToolbarButton.update();
-		commentaryToolbarButton.update();
-		dictionaryToolbarButton.update();
+		bibleActionBarButton.update();
+		commentaryActionBarButton.update();
+		dictionaryActionBarButton.update();
 	}
 	
     public void onPostCreate() {

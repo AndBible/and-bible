@@ -14,8 +14,8 @@ import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
+import net.bible.android.view.activity.page.actionbar.BibleActionBarManager;
 import net.bible.android.view.activity.page.screen.DocumentViewManager;
-import net.bible.android.view.activity.page.toolbar.BibleToolbarButtonManager;
 import net.bible.android.view.util.TouchOwner;
 import net.bible.service.device.ScreenSettings;
 import android.content.Intent;
@@ -48,7 +48,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	
 	private static final String TAG = "MainBibleActivity";
 
-	private BibleToolbarButtonManager bibleToolbarButtonManager = new BibleToolbarButtonManager();
+	private BibleActionBarManager bibleActionBarManager = new BibleActionBarManager();
 	
 	// handle requests from main menu
 	private MenuCommandHandler mainMenuCommandHandler;
@@ -211,7 +211,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return bibleToolbarButtonManager.onOptionsItemSelected(item) || 
+        return bibleActionBarManager.onOptionsItemSelected(item) || 
         	   mainMenuCommandHandler.handleMenuRequest(item.getItemId()) ||
                super.onOptionsItemSelected(item);
     }
@@ -300,7 +300,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		// if there is no backup file then disable the restore menu item
 		ControlFactory.getInstance().getBackupControl().updateOptionsMenu(menu);
 
-        bibleToolbarButtonManager.prepareOptionsMenu(this, menu, getSupportActionBar(), mainMenuCommandHandler);
+        bibleActionBarManager.prepareOptionsMenu(this, menu, getSupportActionBar(), mainMenuCommandHandler);
 		
 		// must return true for menu to be displayed
 		return true;
@@ -310,13 +310,13 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         // Sync the toggle state after onRestoreInstanceState has occurred.
-        bibleToolbarButtonManager.onPostCreate();
+        bibleActionBarManager.onPostCreate();
     }
     
     public void updateToolbarButtonText() {
     	super.updateToolbarButtonText();
     	
-        bibleToolbarButtonManager.updateButtons();
+        bibleActionBarManager.updateButtons();
     }
 
 

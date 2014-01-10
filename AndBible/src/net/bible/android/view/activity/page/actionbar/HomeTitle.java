@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.page.toolbar;
+package net.bible.android.view.activity.page.actionbar;
 
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.passage.PassageEvent;

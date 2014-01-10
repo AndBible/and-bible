@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.page.toolbar;
+package net.bible.android.view.activity.page.actionbar;
 
 import net.bible.android.control.ControlFactory;
 
@@ -10,7 +10,7 @@ import org.crosswire.jsword.book.Book;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class BibleToolbarButton extends QuickDocumentChangeToolbarButton {
+public class BibleActionBarButton extends QuickDocumentChangeToolbarButton {
 
 	@Override
 	Book getSuggestedDocument() {
