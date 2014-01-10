@@ -151,7 +151,10 @@
   <string name="new_label">Жаңа Таңба</string>
   <string name="label_name_prompt">Атауы</string>
   <string name="label_unlabelled">Таңбаланбаған</string>
+  <string name="rename">Атын өзгерту</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">Күн реті</string>
+  <string name="sort_by_bible_book">Киелі кітап реті</string>
   <!--Dictionary-->
   <string name="dictionary">Сөздік</string>
   <string name="search_dictionary_hint">Сөздікті іздеу</string>
