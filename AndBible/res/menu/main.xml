@@ -17,10 +17,15 @@
 		  android:title="@string/search"
 		  android:icon="@android:drawable/ic_menu_search"/>
 
-	<item 	android:id="@+id/historyButton" 
-			android:title="@string/history"
-			android:icon="@android:drawable/ic_menu_recent_history"/>
+	<item android:id="@+id/bookmarksButton"
+		  android:title="@string/bookmarks" 
+		  android:icon="@drawable/ic_menu_bookmarks"/>
 
+	<item android:id="@+id/mynotesButton"
+		  android:title="@string/mynotes" 
+		  android:icon="@drawable/ic_menu_usernotes"/>
+
+	
 	<item android:id="@+id/speakButton"
 		  android:title="@string/speak"
 		  android:icon="@drawable/ic_action_volume_on"/>

@@ -12,14 +12,6 @@
 		  android:title="@string/chooseBook"
 		  android:icon="@android:drawable/ic_menu_save"/>
 
-	<item android:id="@+id/bookmarksButton"
-		  android:title="@string/bookmarks" 
-		  android:icon="@drawable/ic_menu_bookmarks"/>
-
-	<item android:id="@+id/mynotesButton"
-		  android:title="@string/mynotes" 
-		  android:icon="@drawable/ic_menu_usernotes"/>
-
 	<item android:id="@+id/dailyReadingPlanButton"
 		  android:title="@string/rdg_plan_title"
 		  android:icon="@android:drawable/ic_menu_month"/>
