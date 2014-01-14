@@ -18,6 +18,10 @@ public class VersificationConverter {
 	/** Return the verse in the required versification, mapping if necessary
 	 */
 	public Verse convert(Verse verse, Versification toVersification) {
+		//TODO: After Tyndale merge, this will be 
+		//     Key key = VersificationsMapper.instance().mapVerse(verse, toVersification)
+		// then need to return first verse in key
+		// 
 		if (toVersification.equals(verse.getVersification())) {
 			return verse;
 		} else {

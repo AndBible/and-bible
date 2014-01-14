@@ -1,4 +1,4 @@
-<project name="buildJswordTweakedJar" default="copyJarsToAndBible" basedir=".">
+<project name="buildJswordTweakedJar" default="copyJarsToAndBible" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
 	
 	<property name="jsword.project" location="../../jsword-git/jsword"/>
 	<property name="jsword.src" location="${jsword.project}/src/main/java"/>
@@ -10,9 +10,12 @@
 	<property name="build.class" location="build/class" />
 	<property name="distribution" location="distribution" />
 	<property name="andbible" location="../AndBible" />
-
+	
+	<dirname property="core.basedir"		file="${ant.file.core}" />
+	<property name="jsword-tweaks.home"			location="${core.basedir}" />
+	
 	<path id="classpath">
-		<fileset dir="${jsword.project}/lib/jars" includes="*.jar"/>
+		<fileset dir="${jsword-tweaks.home}/lib/jars" includes="*.jar"/>
 		<fileset dir="./libs" includes="*.jar"/>
 	</path>
 	
@@ -70,6 +73,69 @@
 			<fileset dir="${distribution}" includes="*-src.jar"/>
 		</copy>
 	</target>
+
+	<!--=======================================================================
+	== Use ivy to manage external jars.
+	== These are properties related to ivy.
+	=========================================================================-->
+	<property name="ivy.version"			value="2.3.0" />
+	<property name="tools.home"				location="${jsword-tweaks.home}/tools" />
+	<property name="ivy.home"				location="${tools.home}/ivy" />
+	<property name="ivy.url"				value="http://repo1.maven.org/maven2/org/apache/ivy/ivy/${ivy.version}/ivy-${ivy.version}.jar" />
+	<property name="ivy.jar.file"			location="${ivy.home}/ivy-${ivy.version}.jar" />
+	<property name="ivy.quiet"				value="default" /> <!-- default or quiet -->
+	<property name="ivy.sync"				value="false" /> <!-- true or false -->
+	<property name="ivy.project.dir"		location="${jsword-tweaks.home}"/>
+	<property name="ivy.lib.dir"			location="${ivy.project.dir}/lib"/>
+	<property name="ivy.dep.file"			location="${ivy.project.dir}/ivy.xml" />
+	<property name="ivy.default.ivy.user.dir"	location="${ivy.project.dir}/ivy" />
+
+	<!-- Ivy.sync controls whether only the current version of jar is allowed.
+	  == This is good when updating the project, but not from day-to-day
+	  == since we build extra stuff into the same location. Having sync="true"
+	  == causes that to be deleted and need to be restored.
+	-->
+	<target	name="ivy"
+			description="Retrieve dependencies with ivy"
+			depends="ivy.task">
+		<ivy:retrieve sync="${ivy.sync}" pattern="${ivy.lib.dir}/[type]s/[artifact]-[revision].[ext]" log="${ivy.quiet}" />
+		<ivy:cachepath pathid="default.path" />
+	</target>
+
+	<target	name="ivy.clean"
+			description="Remove the ivy installation">
+		<delete dir="${ivy.home}" />
+	</target>
+
+	<target	name="ivy.clean-cache"
+			description="Remove dependent jars that ivy manages"
+			depends="ivy.task">
+		<ivy:cleancache />
+	</target>
+
+	<!-- Make ivy visible to Ant -->
+	<target	name="ivy.task"
+			depends="ivy.download">
+		<path id="ivy.lib.path">
+			<fileset dir="${ivy.home}" includes="*.jar" />
+		</path>
+		<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="ivy.lib.path" />
+	</target>
+
+	<!-- Download ivy -->
+	<target	name="ivy.download"
+			depends="ivy.check"
+			unless="ivy.present">
+		<mkdir dir="${ivy.home}" />
+		<!-- download Ivy from web site so that it can be used even without any special installation -->
+		<get src="${ivy.url}" dest="${ivy.jar.file}" usetimestamp="true" />
+	</target>
+
+	<!-- See if Ivy is installed -->
+	<target	name="ivy.check">
+		<available file="${ivy.jar.file}"		type="file" property="ivy.present" />
+	</target>
+
 
 <!--
 No Tweaks 	
