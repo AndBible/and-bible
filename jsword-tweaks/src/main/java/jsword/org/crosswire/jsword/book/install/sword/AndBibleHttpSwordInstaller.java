@@ -21,7 +21,7 @@ public class AndBibleHttpSwordInstaller extends HttpSwordInstaller {
     public void downloadSearchIndex(Book book, URI localDest) throws InstallException {
         // TRANSLATOR: Progress label for downloading one or more files.
         String jobName = JSMsg.gettext("Downloading files");
-        Progress job = JobManager.createJob(jobName, Thread.currentThread());
+        Progress job = JobManager.createJob(String.format(Progress.DOWNLOAD_SEARCH_INDEX, book.getInitials()), jobName, Thread.currentThread());
         job.beginJob(jobName);
 
         //MJD START

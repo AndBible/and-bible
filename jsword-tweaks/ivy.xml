@@ -1,0 +1,16 @@
+<ivy-module version="2.0">
+  <info organisation="org.crosswire" module="jsword"/>
+  <dependencies>
+    <dependency org="org.apache.httpcomponents" name="httpcore"         rev="4.2.3"     conf="default->master,sources" />
+    <dependency org="org.apache.httpcomponents" name="httpclient"       rev="4.2.3"     conf="default->master,sources" />
+    <dependency org="javatar"                   name="javatar"          rev="2.5"       conf="default->master,sources" />
+    <dependency org="org.jdom"                  name="jdom2"            rev="2.0.4"     conf="default->master,sources" />
+    <dependency org="org.apache.lucene"         name="lucene-core"      rev="3.0.3"     conf="default->master,sources" />
+    <dependency org="org.apache.lucene"         name="lucene-analyzers" rev="3.0.3"     conf="default->master,sources" />
+    <dependency org="org.apache.lucene"         name="lucene-smartcn"   rev="3.0.3"     conf="default->master,sources" />
+    <dependency org="org.apache.lucene"         name="lucene-snowball"  rev="3.0.3"     conf="default->master,sources" />
+    <dependency org="junit"                     name="junit"            rev="4.11"      conf="default->master,sources" />
+	<dependency org="org.slf4j"                 name="slf4j-api"        rev="1.7.2"     conf="default->master,sources" />
+	<dependency org="org.slf4j"                 name="slf4j-jdk14"      rev="1.7.2"     conf="default->master,sources" />
+  </dependencies>
+</ivy-module>
