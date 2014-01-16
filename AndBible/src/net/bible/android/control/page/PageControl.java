@@ -113,8 +113,8 @@ public class PageControl {
 				title.append(currentPage.getCurrentDocument()).append(" ");
 			}
 		}
-		
-		int maxLength = isPortrait ? 8 : 12;
+		// ActionBar truncates very long text automatically
+		int maxLength = 12; //isPortrait ? 8 : 12;
 		String retVal = shorten(title.toString(), maxLength);
 
 		return retVal;

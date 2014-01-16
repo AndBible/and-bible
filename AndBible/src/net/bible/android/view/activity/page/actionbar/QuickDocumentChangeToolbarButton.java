@@ -36,11 +36,12 @@ abstract public class QuickDocumentChangeToolbarButton implements OnMenuItemClic
 
 	public void update() {
         mSuggestedDocument = getSuggestedDocument();
-        // if there are no documents of this sort then hide quick change button
-        menuItem.setVisible(mSuggestedDocument!=null);
         
         if (menuItem!=null) {
-        	menuItem.setTitle(getTitle());
+            // if there are no documents of this sort then hide quick change button
+            menuItem.setVisible(mSuggestedDocument!=null);
+
+            menuItem.setTitle(getTitle());
         }
 	}
 
