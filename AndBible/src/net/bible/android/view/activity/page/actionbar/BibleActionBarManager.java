@@ -13,6 +13,7 @@ public class BibleActionBarManager {
 	private BibleActionBarButton bibleActionBarButton = new BibleActionBarButton();
 	private CommentaryActionBarButton commentaryActionBarButton = new CommentaryActionBarButton();
 	private DictionaryActionBarButton dictionaryActionBarButton = new DictionaryActionBarButton();
+	private StrongsActionBarButton strongsActionBarButton = new StrongsActionBarButton();
 	
 	public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar, MenuCommandHandler menuCommandHandler) {
 		homeTitle.addToBar(actionBar, activity);
@@ -21,6 +22,7 @@ public class BibleActionBarManager {
 		bibleActionBarButton.addToMenu(menu);
 		commentaryActionBarButton.addToMenu(menu);
 		dictionaryActionBarButton.addToMenu(menu);
+		strongsActionBarButton.addToMenu(menu);
 	}
 	
 	public void updateButtons() {
@@ -30,6 +32,7 @@ public class BibleActionBarManager {
 		bibleActionBarButton.update();
 		commentaryActionBarButton.update();
 		dictionaryActionBarButton.update();
+		strongsActionBarButton.update();
 	}
 	
     public void onPostCreate() {
