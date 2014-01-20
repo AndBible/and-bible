@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.bible.android.SharedConstants;
+import net.bible.android.control.versification.VersificationMappingInitializer;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Logger;
 import net.bible.service.download.DownloadManager;
@@ -98,6 +99,9 @@ public class SwordDocumentFacade {
 				// because the above line causes initialisation set the is initialised flag here
 				isSwordLoaded = true;
 				
+				
+				new VersificationMappingInitializer().startListening();
+
 				log.debug(("Sword paths:"+getPaths()));
 			}
 			
