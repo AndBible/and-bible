@@ -33,6 +33,8 @@ import org.crosswire.jsword.book.sword.SwordConstants;
 import org.crosswire.jsword.index.IndexManager;
 import org.crosswire.jsword.index.IndexManagerFactory;
 import org.crosswire.jsword.index.IndexStatus;
+import org.crosswire.jsword.passage.PassageKeyFactory;
+import org.crosswire.jsword.passage.PassageType;
 
 /** JSword facade
  * 
@@ -87,6 +89,9 @@ public class SwordDocumentFacade {
 				//fonts
 				CommonUtils.ensureDirExists(SharedConstants.FONT_DIR);
 
+				// Optimize for less memory
+				PassageKeyFactory.setDefaultType(PassageType.MIX);
+				
 				// the second value below is the one which is used in effectively all circumstances
 		        CWProject.setHome("jsword.home", moduleDir.getAbsolutePath(), SharedConstants.MANUAL_INSTALL_DIR.getAbsolutePath()); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
