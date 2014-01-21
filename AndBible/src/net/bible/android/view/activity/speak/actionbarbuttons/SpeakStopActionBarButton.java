@@ -28,6 +28,6 @@ public class SpeakStopActionBarButton extends SpeakActionBarButtonBase {
 
 	@Override
 	protected boolean canShow() {
-		return getSpeakControl().isSpeaking() || getSpeakControl().isPaused();
+		return isSpeakMode();
 	}
 }

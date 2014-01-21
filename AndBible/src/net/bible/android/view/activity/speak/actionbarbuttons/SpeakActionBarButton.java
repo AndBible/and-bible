@@ -1,6 +1,8 @@
 package net.bible.android.view.activity.speak.actionbarbuttons;
 
 import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
+import net.bible.android.control.document.DocumentControl;
 import net.bible.service.common.CommonUtils;
 import android.view.MenuItem;
 
@@ -8,6 +10,8 @@ import android.view.MenuItem;
  * Toggle Strongs numbers on/off
  */
 public class SpeakActionBarButton extends SpeakActionBarButtonBase {
+
+	private DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
 
 	@Override
 	public boolean onMenuItemClick(MenuItem menuItem) {
@@ -35,6 +39,8 @@ public class SpeakActionBarButton extends SpeakActionBarButtonBase {
 
 	@Override
 	protected boolean canShow() {
-		return super.canSpeak();
+		// show if speakable or already speaking (to pause), and only if plenty of room
+		return (super.canSpeak() || isSpeakMode()) &&
+				(isWide() || !documentControl.isStrongsInBook() || isSpeakMode());
 	}
 }

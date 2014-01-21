@@ -32,13 +32,14 @@ public class ReadingPlanActionBarManager implements ActionBarManager {
 
 	public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar) {
 		readingPlanTitle.addToBar(actionBar, activity);
-		
-		bibleActionBarButton.addToMenu(menu);
-		commentaryActionBarButton.addToMenu(menu);
-		dictionaryActionBarButton.addToMenu(menu);
-		
-		pauseActionBarButton.addToMenu(menu);
+
+		// order is important to keep bible, cmtry, ... in same place on right
 		speakStopActionBarButton.addToMenu(menu);
+		pauseActionBarButton.addToMenu(menu);
+
+		dictionaryActionBarButton.addToMenu(menu);
+		commentaryActionBarButton.addToMenu(menu);
+		bibleActionBarButton.addToMenu(menu);
 	}
 	
 	public void updateButtons() {

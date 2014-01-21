@@ -38,14 +38,15 @@ public class BibleActionBarManager implements ActionBarManager {
 	@Override
 	public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar) {
 		homeTitle.addToBar(actionBar, activity);
-		
-		bibleActionBarButton.addToMenu(menu);
-		commentaryActionBarButton.addToMenu(menu);
-		dictionaryActionBarButton.addToMenu(menu);
-		strongsActionBarButton.addToMenu(menu);
-		
-		speakActionBarButton.addToMenu(menu);
+
+		// order is important to keep bible, cmtry, ... in same place on right
 		stopActionBarButton.addToMenu(menu);
+		speakActionBarButton.addToMenu(menu);
+
+		strongsActionBarButton.addToMenu(menu);
+		dictionaryActionBarButton.addToMenu(menu);
+		commentaryActionBarButton.addToMenu(menu);
+		bibleActionBarButton.addToMenu(menu);
 	}
 	
 	/* (non-Javadoc)

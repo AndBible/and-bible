@@ -47,10 +47,13 @@ public class StrongsActionBarButton extends QuickActionButton {
 		return CommonUtils.getResourceString(isStrongsVisible() ? R.string.strongs_toggle_button_on : R.string.strongs_toggle_button_off);
 	}
 
-	/** return true if Strongs are relevant to this doc & screen */
+	/** 
+	 * return true if Strongs are relevant to this doc & screen
+	 * Don't show with speak button on narrow screen to prevent over-crowding 
+	 */
 	@Override
 	protected boolean canShow() {
-		return //isEnoughRoomInToolbar() && 
-				documentControl.isStrongsInBook();
+		return  documentControl.isStrongsInBook() &&
+				(isWide() || !isSpeakMode());
 	}
 }
