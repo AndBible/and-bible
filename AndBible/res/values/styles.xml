@@ -6,11 +6,12 @@
       The copyright to this program is held by it's author.
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- 
-	<style name="AndBibleTheme" parent="@android:style/Theme.Light">
-		<item name="android:windowTitleSize">30dp</item>
-	</style>
-	-->
+
+    <style name="AppThemeDay" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+    </style>
+
+    <style name="AppThemeNight" parent="@style/Theme.AppCompat">
+    </style>
 
     <style name="ActionBarTitle">
         <item name="android:layout_width">wrap_content</item>
