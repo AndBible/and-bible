@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.page.actionbar;
+package net.bible.android.view.activity.base.actionbar;
 
 import android.support.v4.view.MenuItemCompat;
 import android.view.Menu;
@@ -12,6 +12,8 @@ abstract public class QuickActionButton implements OnMenuItemClickListener {
 	
 	abstract protected String getTitle();
 	abstract protected boolean canShow();
+	
+	private static final int NO_ICON = 0;
 
 	public QuickActionButton(int showAsActionFlags) {
 		this.showAsActionFlags = showAsActionFlags;
@@ -22,20 +24,28 @@ abstract public class QuickActionButton implements OnMenuItemClickListener {
 			menuItem = menu.add("");
 			MenuItemCompat.setShowAsAction(menuItem, showAsActionFlags);
 			menuItem.setOnMenuItemClickListener(this);
-			update();
+			update(menuItem);
 		}
 	}
 
 	public void update() {
         if (menuItem!=null) {
-        	// canShow means must show because we rely on AB logic
-            menuItem.setVisible(canShow());
+        	update(menuItem);
+        }
+	}
+	protected void update(MenuItem menuItem) {
+    	// canShow means must show because we rely on AB logic
+        menuItem.setVisible(canShow());
 
-            menuItem.setTitle(getTitle());
+        menuItem.setTitle(getTitle());
+        
+        int iconResId = getIcon();
+        if (iconResId!=NO_ICON) {
+        	menuItem.setIcon(iconResId);
         }
 	}
 	
-	protected MenuItem getMenuItem() {
-		return menuItem;
+	protected int getIcon() {
+		return NO_ICON;
 	}
 }

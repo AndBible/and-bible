@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.page.actionbar;
+package net.bible.android.view.activity.base.actionbar;
 
 import net.bible.service.common.CommonUtils;
 

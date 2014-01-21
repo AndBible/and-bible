@@ -4,6 +4,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.document.DocumentControl;
+import net.bible.android.view.activity.base.actionbar.QuickActionButton;
 import net.bible.service.common.CommonUtils;
 import android.support.v4.view.MenuItemCompat;
 import android.view.Menu;
@@ -17,7 +18,7 @@ public class StrongsActionBarButton extends QuickActionButton {
 	private DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
 	
 	public StrongsActionBarButton() {
-		// ALWAYS is overriden by setVisible which depends on canShow() below
+		// SHOW_AS_ACTION_ALWAYS is overriden by setVisible which depends on canShow() below
 		// because when visible this button is ALWAYS on the Actionbar
 		super(MenuItemCompat.SHOW_AS_ACTION_ALWAYS|MenuItemCompat.SHOW_AS_ACTION_WITH_TEXT);
 	}

@@ -48,8 +48,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	
 	private static final String TAG = "MainBibleActivity";
 
-	private BibleActionBarManager bibleActionBarManager = new BibleActionBarManager();
-	
 	// handle requests from main menu
 	private MenuCommandHandler mainMenuCommandHandler;
 	
@@ -61,6 +59,10 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	
 	private long lastContextMenuCreateTimeMillis;
 
+	public MainBibleActivity() {
+		super(new BibleActionBarManager(), R.menu.main );
+	}
+	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -211,8 +213,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return bibleActionBarManager.onOptionsItemSelected(item) || 
-        	   mainMenuCommandHandler.handleMenuRequest(item.getItemId()) ||
+        return mainMenuCommandHandler.handleMenuRequest(item.getItemId()) ||
                super.onOptionsItemSelected(item);
     }
 
@@ -281,16 +282,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		documentViewManager.getDocumentView().asView().requestFocus();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-    	// Inflate the menu
-        getMenuInflater().inflate(R.menu.main, menu);
-        
-        boolean showMenu = super.onCreateOptionsMenu(menu);
-        
-        return showMenu;
-    }
-    
+    /**
+     * Some menu items must be hidden for certain document types
+     */
     @Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		super.onPrepareOptionsMenu(menu);
@@ -300,26 +294,10 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		// if there is no backup file then disable the restore menu item
 		ControlFactory.getInstance().getBackupControl().updateOptionsMenu(menu);
 
-        bibleActionBarManager.prepareOptionsMenu(this, menu, getSupportActionBar(), mainMenuCommandHandler);
-		
 		// must return true for menu to be displayed
 		return true;
 	}
     
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        // Sync the toggle state after onRestoreInstanceState has occurred.
-        bibleActionBarManager.onPostCreate();
-    }
-    
-    public void updateToolbarButtonText() {
-    	super.updateToolbarButtonText();
-    	
-        bibleActionBarManager.updateButtons();
-    }
-
-
     /** called from gesture listener if the context menu is not displayed automatically
      */
     public void openContextMenu() {

@@ -1,10 +1,11 @@
-package net.bible.android.view.activity.page.actionbar;
+package net.bible.android.view.activity.base.actionbar;
 
 import net.bible.android.control.page.CurrentPageManager;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 
+import android.support.v4.view.MenuItemCompat;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 
@@ -12,15 +13,22 @@ abstract public class QuickDocumentChangeToolbarButton extends QuickActionButton
 	
 	private Book mSuggestedDocument;
 
-	abstract Book getSuggestedDocument();
+	protected abstract Book getSuggestedDocument();
+	
+	/**
+	 * SHOW_AS_ACTION_ALWAYS is overriden by setVisible which depends on canShow() below
+	 */
+	public QuickDocumentChangeToolbarButton() {
+		this(MenuItemCompat.SHOW_AS_ACTION_ALWAYS | MenuItemCompat.SHOW_AS_ACTION_WITH_TEXT);
+	}
 	
 	public QuickDocumentChangeToolbarButton(int showAsActionFlags) {
 		super(showAsActionFlags);
 	}
 
-	public void update() {
+	public void update(MenuItem menuItem) {
         mSuggestedDocument = getSuggestedDocument();
-        super.update();
+        super.update(menuItem);
 	}
 
 	@Override
