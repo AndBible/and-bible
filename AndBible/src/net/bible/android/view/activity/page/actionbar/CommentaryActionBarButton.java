@@ -13,4 +13,15 @@ public class CommentaryActionBarButton extends QuickDocumentChangeToolbarButton 
 	Book getSuggestedDocument() {
 		return ControlFactory.getInstance().getDocumentControl().getSuggestedCommentary();
 	}
+
+	/**
+	 * Not important enough to show if limited space
+	 * (non-Javadoc)
+	 * @see net.bible.android.view.activity.base.actionbar.QuickDocumentChangeToolbarButton#canShow()
+	 */
+	@Override
+	protected boolean canShow() {
+		return super.canShow() &&
+				(isWide() || !isSpeakMode());
+	}
 }

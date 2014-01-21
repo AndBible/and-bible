@@ -9,7 +9,6 @@ import net.bible.android.control.readingplan.ReadingPlanControl;
 import net.bible.android.control.readingplan.ReadingStatus;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
-import net.bible.android.view.activity.base.actionbar.ActionBarManager;
 import net.bible.android.view.activity.base.toolbar.Toolbar;
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager;
 import net.bible.android.view.activity.readingplan.toolbar.ReadingPlanToolbar;

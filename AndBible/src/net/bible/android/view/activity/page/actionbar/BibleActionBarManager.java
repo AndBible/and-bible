@@ -2,6 +2,7 @@ package net.bible.android.view.activity.page.actionbar;
 
 import net.bible.android.view.activity.base.actionbar.ActionBarManager;
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton;
+import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton;
 import net.bible.service.device.speak.event.SpeakEvent;
 import net.bible.service.device.speak.event.SpeakEventListener;
 import net.bible.service.device.speak.event.SpeakEventManager;
@@ -19,6 +20,7 @@ public class BibleActionBarManager implements ActionBarManager {
 	private StrongsActionBarButton strongsActionBarButton = new StrongsActionBarButton();
 	
 	private SpeakActionBarButton speakActionBarButton = new SpeakActionBarButton();
+	private SpeakStopActionBarButton stopActionBarButton = new SpeakStopActionBarButton();
 	
 	public BibleActionBarManager() {
 		// the manager will also instantly fire a catch-up event to ensure state is current
@@ -43,6 +45,7 @@ public class BibleActionBarManager implements ActionBarManager {
 		strongsActionBarButton.addToMenu(menu);
 		
 		speakActionBarButton.addToMenu(menu);
+		stopActionBarButton.addToMenu(menu);
 	}
 	
 	/* (non-Javadoc)
@@ -58,5 +61,6 @@ public class BibleActionBarManager implements ActionBarManager {
 		strongsActionBarButton.update();
 		
 		speakActionBarButton.update();
+		stopActionBarButton.update();
 	}
 }

@@ -1,6 +1,7 @@
 package net.bible.android.view.activity.readingplan.actionbar;
 
 import net.bible.android.view.activity.base.actionbar.ActionBarManager;
+import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton;
 import net.bible.service.device.speak.event.SpeakEvent;
 import net.bible.service.device.speak.event.SpeakEventListener;
 import net.bible.service.device.speak.event.SpeakEventManager;
@@ -14,7 +15,9 @@ public class ReadingPlanActionBarManager implements ActionBarManager {
 	private BibleActionBarButton bibleActionBarButton = new BibleActionBarButton();
 	private CommentaryActionBarButton commentaryActionBarButton = new CommentaryActionBarButton();
 	private DictionaryActionBarButton dictionaryActionBarButton = new DictionaryActionBarButton();
+
 	private PauseActionBarButton pauseActionBarButton = new PauseActionBarButton();
+	private SpeakStopActionBarButton speakStopActionBarButton = new SpeakStopActionBarButton();
 
 	
 	public ReadingPlanActionBarManager() {
@@ -35,6 +38,7 @@ public class ReadingPlanActionBarManager implements ActionBarManager {
 		dictionaryActionBarButton.addToMenu(menu);
 		
 		pauseActionBarButton.addToMenu(menu);
+		speakStopActionBarButton.addToMenu(menu);
 	}
 	
 	public void updateButtons() {
@@ -45,5 +49,6 @@ public class ReadingPlanActionBarManager implements ActionBarManager {
 		dictionaryActionBarButton.update();
 		
 		pauseActionBarButton.update();
+		speakStopActionBarButton.update();
 	}
 }

@@ -1,13 +1,10 @@
 package net.bible.android.view.activity.page.actionbar;
 
-import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.base.actionbar.QuickDocumentChangeToolbarButton;
-import net.bible.service.common.CommonUtils;
 
 import org.crosswire.jsword.book.Book;
 
-// does not inherit from button - see: http://stackoverflow.com/questions/8369504/why-so-complex-to-set-style-from-code-in-android
 public class DictionaryActionBarButton extends QuickDocumentChangeToolbarButton {
 
 	@Override
@@ -15,10 +12,14 @@ public class DictionaryActionBarButton extends QuickDocumentChangeToolbarButton 
 	Book getSuggestedDocument() {
 		return ControlFactory.getInstance().getDocumentControl().getSuggestedDictionary();
 	}
-	
-	/** return true if Strongs are relevant to this doc & screen */
+
+	/**
+	 * Not important enough to show if limited space
+	 * (non-Javadoc)
+	 * @see net.bible.android.view.activity.base.actionbar.QuickDocumentChangeToolbarButton#canShow()
+	 */
 	@Override
 	protected boolean canShow() {
-		return 4<CommonUtils.getResourceInteger(R.integer.number_of_quick_buttons); 
+		return isWide();
 	}
 }

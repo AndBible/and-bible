@@ -26,10 +26,6 @@ public abstract class SpeakActionBarButtonBase extends QuickActionButton {
 				canspeakDoc;
 	}
 	
-	public boolean canShowFFRew() {
-		return canSpeak() && (speakControl.isSpeaking() || speakControl.isPaused());
-	}
-
 	protected SpeakControl getSpeakControl() {
 		return speakControl;
 	}
