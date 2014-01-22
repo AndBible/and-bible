@@ -1,15 +1,11 @@
 package net.bible.android.view.activity.base;
 
-import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.base.actionbar.ActionBarManager;
-import net.bible.android.view.activity.base.toolbar.DefaultToolbar;
-import net.bible.android.view.activity.base.toolbar.Toolbar;
 import android.content.res.Configuration;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
-import android.widget.ProgressBar;
 
 /**
  * Base class for activities with a custom title bar
@@ -20,13 +16,10 @@ import android.widget.ProgressBar;
  */
 public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	
-	private View mTitleBar;
-	
-	private Toolbar mToolbar;
 	private ActionBarManager actionBarManager;
 	private int optionsMenuId;
 	
-	private ProgressBar mProgressBarIndeterminate;
+//TODO hourglass	private ProgressBar mProgressBarIndeterminate;
 
 	private View mContentView;
 	
@@ -47,15 +40,9 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	public void setContentView(int layoutResID) {
 		super.setContentView(layoutResID);
 
-        mTitleBar = findViewById(R.id.titleBar);
-        mContentView = mTitleBar.getRootView();
+        mContentView = getWindow().getDecorView().findViewById(android.R.id.content);
         
-        initialiseToolbar(mTitleBar);
-        
-        mProgressBarIndeterminate = (ProgressBar)findViewById(R.id.progressCircular);
-        
-        // force the toolbar buttons to be shown correctly
-        getToolbar().updateButtons();
+//TODO hourglass        mProgressBarIndeterminate = (ProgressBar)findViewById(R.id.progressCircular);
     }
     
     /** 
@@ -89,12 +76,10 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
     	super.toggleFullScreen();
     	
     	if (!isFullScreen()) {
-    		Log.d(TAG, "Showing title bar");
-    		mTitleBar.setVisibility(View.VISIBLE);
+    		Log.d(TAG, "Fullscreen off");
     		getSupportActionBar().show();
     	} else {
-    		Log.d(TAG, "Hiding title bar");
-    		mTitleBar.setVisibility(View.GONE);
+    		Log.d(TAG, "Fullscreen on");
     		getSupportActionBar().hide();
     	}
 
@@ -112,22 +97,7 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	/** update the quick links in the title bar
      */
     public void updateToolbarButtonText() {
-        getToolbar().updateButtons();
-    	
         actionBarManager.updateButtons();
-    }
-
-
-    
-    protected void initialiseToolbar(View toolBarContainer) {
-    	getToolbar().initialise(toolBarContainer);
-    }
-    
-    protected Toolbar getToolbar() {
-    	if (mToolbar==null) {
-    		mToolbar = new DefaultToolbar();
-    	}
-    	return mToolbar;
     }
 
     //TODO move this somewhere appropriate or call PageControl directly
@@ -137,6 +107,6 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	}
 
 	public void setProgressBar(boolean on) {
-		mProgressBarIndeterminate.setVisibility(on ? View.VISIBLE : View.GONE);
+//TODO hourglass		mProgressBarIndeterminate.setVisibility(on ? View.VISIBLE : View.GONE);
 	}
 }

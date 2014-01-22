@@ -9,9 +9,7 @@ import net.bible.android.control.readingplan.ReadingPlanControl;
 import net.bible.android.control.readingplan.ReadingStatus;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
-import net.bible.android.view.activity.base.toolbar.Toolbar;
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager;
-import net.bible.android.view.activity.readingplan.toolbar.ReadingPlanToolbar;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.readingplan.OneDaysReadingsDto;
 
@@ -55,8 +53,6 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	
 	private OneDaysReadingsDto mReadings;
 
-	private Toolbar mToolbar;
-	
 	private ReadingPlanControl mReadingPlanControl = ControlFactory.getInstance().getReadingPlanControl();
 	
 	public DailyReading() {
@@ -313,13 +309,6 @@ public class DailyReading extends CustomTitlebarActivityBase {
     	startActivity(intent);
     	
     	setIntegrateWithHistoryManager(wasIntegrateWithhistory);
-    }
-
-	protected Toolbar getToolbar() {
-    	if (mToolbar==null) {
-    		mToolbar = new ReadingPlanToolbar();
-    	}
-    	return mToolbar;
     }
 
 	@Override
