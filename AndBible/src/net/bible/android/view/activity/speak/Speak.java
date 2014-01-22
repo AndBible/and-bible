@@ -4,7 +4,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.speak.NumPagesToSpeakDefinition;
 import net.bible.android.control.speak.SpeakControl;
-import net.bible.android.view.activity.base.ActivityBase;
+import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,7 +19,7 @@ import android.widget.RadioGroup;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class Speak extends ActivityBase {
+public class Speak extends CustomTitlebarActivityBase {
 	
     private NumPagesToSpeakDefinition[] numPagesToSpeakDefinitions;
     

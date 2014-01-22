@@ -2,6 +2,7 @@ package net.bible.android.view.activity.base;
 
 import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.base.actionbar.ActionBarManager;
+import net.bible.android.view.activity.base.actionbar.DefaultActionBarManager;
 import net.bible.service.common.CommonUtils;
 import android.annotation.SuppressLint;
 import android.content.res.Configuration;
@@ -27,9 +28,10 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	
 	private static final String TAG = "CustomTitlebarActivityBase";
 
-	// called whenever something like strong preferences have been changed by the user.  Should refresh the screen
-	protected abstract void preferenceSettingsChanged();
-	
+	public CustomTitlebarActivityBase() {
+		this(new DefaultActionBarManager(), 0);
+	}
+
 	public CustomTitlebarActivityBase(ActionBarManager actionBarManager, int optionsMenuId) {
 		this.actionBarManager = actionBarManager;
 		this.optionsMenuId = optionsMenuId;
@@ -52,8 +54,10 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-    	// Inflate the menu
-        getMenuInflater().inflate(optionsMenuId, menu);
+    	if (optionsMenuId!=0) {
+	    	// Inflate the menu
+	        getMenuInflater().inflate(optionsMenuId, menu);
+    	}
         
         boolean showMenu = super.onCreateOptionsMenu(menu);
         
@@ -94,6 +98,12 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 
     	mContentView.requestLayout();
     }
+
+	/**
+	 *  Called whenever something like strong preferences have been changed by the user.  Should refresh the screen
+	 */
+	protected void preferenceSettingsChanged() {
+	}
 
     @Override
 	public void onConfigurationChanged(Configuration newConfig) {

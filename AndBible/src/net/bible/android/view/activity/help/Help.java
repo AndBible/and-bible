@@ -2,7 +2,7 @@ package net.bible.android.view.activity.help;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
-import net.bible.android.view.activity.base.ActivityBase;
+import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.service.common.CommonUtils;
 import android.os.Bundle;
 import android.util.Log;
@@ -14,7 +14,7 @@ import android.widget.TextView;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class Help extends ActivityBase {
+public class Help extends CustomTitlebarActivityBase {
 	private static final String TAG = "Help";
 
     /** Called when the activity is first created. */

@@ -3,8 +3,8 @@ package net.bible.android.view.activity;
 import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
-import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.base.Callback;
+import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.download.Download;
 import net.bible.android.view.activity.page.MainBibleActivity;
@@ -26,7 +26,7 @@ import android.widget.TextView;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class StartupActivity extends ActivityBase {
+public class StartupActivity extends CustomTitlebarActivityBase {
 
 	private static final int CAN_DOWNLOAD_DLG = 10;
 	

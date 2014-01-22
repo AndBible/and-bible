@@ -311,11 +311,6 @@ public class DailyReading extends CustomTitlebarActivityBase {
     	setIntegrateWithHistoryManager(wasIntegrateWithhistory);
     }
 
-	@Override
-	protected void preferenceSettingsChanged() {
-		//NOOP
-	}
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
     	super.onCreateOptionsMenu(menu);

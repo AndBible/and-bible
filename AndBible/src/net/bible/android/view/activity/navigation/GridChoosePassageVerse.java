@@ -6,7 +6,7 @@ import java.util.List;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.navigation.NavigationControl;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.view.activity.base.ActivityBase;
+import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.util.buttongrid.ButtonGrid;
 import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo;
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener;
@@ -27,7 +27,7 @@ import android.view.View;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class GridChoosePassageVerse extends ActivityBase implements OnButtonGridActionListener {
+public class GridChoosePassageVerse extends CustomTitlebarActivityBase implements OnButtonGridActionListener {
 	
 	private static final String TAG = "GridChoosePassageChapter";
 	

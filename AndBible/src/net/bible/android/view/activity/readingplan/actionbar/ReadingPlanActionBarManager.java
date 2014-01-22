@@ -1,6 +1,7 @@
 package net.bible.android.view.activity.readingplan.actionbar;
 
 import net.bible.android.view.activity.base.actionbar.ActionBarManager;
+import net.bible.android.view.activity.base.actionbar.DefaultActionBarManager;
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton;
 import net.bible.service.device.speak.event.SpeakEvent;
 import net.bible.service.device.speak.event.SpeakEventListener;
@@ -9,7 +10,7 @@ import android.app.Activity;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 
-public class ReadingPlanActionBarManager implements ActionBarManager {
+public class ReadingPlanActionBarManager extends DefaultActionBarManager implements ActionBarManager {
 
 	private ReadingPlanTitle readingPlanTitle = new ReadingPlanTitle();
 	private BibleActionBarButton bibleActionBarButton = new BibleActionBarButton();
@@ -31,6 +32,8 @@ public class ReadingPlanActionBarManager implements ActionBarManager {
     }
 
 	public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar) {
+		setDefaultActionBarColor(actionBar);
+		
 		readingPlanTitle.addToBar(actionBar, activity);
 
 		// order is important to keep bible, cmtry, ... in same place on right

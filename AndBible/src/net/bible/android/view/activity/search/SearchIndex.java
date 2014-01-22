@@ -4,7 +4,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.search.SearchControl;
-import net.bible.android.view.activity.base.ActivityBase;
+import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang.StringUtils;
@@ -21,7 +21,7 @@ import android.view.View;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class SearchIndex extends ActivityBase {
+public class SearchIndex extends CustomTitlebarActivityBase {
 	private static final String TAG = "SearchIndex";
 	
     /** Called when the activity is first created. */

@@ -4,8 +4,8 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.search.SearchControl.SearchBibleSection;
-import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.base.Callback;
+import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
 
 import org.apache.commons.lang.StringUtils;
@@ -30,7 +30,7 @@ import android.widget.RadioGroup.OnCheckedChangeListener;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class Search extends ActivityBase {
+public class Search extends CustomTitlebarActivityBase {
 	
 	private static final String TAG = "Search";
 	
