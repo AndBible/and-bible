@@ -13,14 +13,20 @@
     <style name="AppThemeNight" parent="@style/Theme.AppCompat">
     </style>
 
+    <style name="ActionBarTitle1" parent="ActionBarTitle">
+        <item name="android:gravity">center_horizontal|bottom</item>
+    </style>
+    <style name="ActionBarTitle2" parent="ActionBarTitle">
+        <item name="android:gravity">center_horizontal|top</item>
+    </style>
     <style name="ActionBarTitle">
         <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_weight">1</item>
         <item name="android:minWidth">@dimen/size_of_quick_buttons</item>
         <item name="android:singleLine">true</item>
-        <item name="android:textSize">14sp</item>
         <item name="android:textColor">@android:color/white</item>
-        <item name="android:gravity">center</item>
+        <item name="android:textSize">15sp</item>
     </style>
 
     <style name="ChoosePassageBookGridFont">

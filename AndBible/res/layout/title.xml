@@ -8,29 +8,27 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
     android:layout_width="wrap_content"
-    android:layout_height="fill_parent"
-    >
+    android:layout_height="fill_parent">
 	<LinearLayout android:id="@+id/documentTitleContainer"
               android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
+              android:layout_height="fill_parent"
               android:layout_gravity="center"
-              android:orientation="vertical"
-              android:paddingRight="8dp">
+              android:orientation="vertical">
 	    <TextView android:id="@+id/documentTitle"
-	        	  style="@style/ActionBarTitle"/>
+	        	  style="@style/ActionBarTitle1"/>
 	    <TextView android:id="@+id/documentSubtitle"
-	        	  style="@style/ActionBarTitle"/>
+	        	  style="@style/ActionBarTitle2"/>
 	</LinearLayout>
 	
 	<LinearLayout android:id="@+id/pageTitleContainer"
               android:layout_width="wrap_content"
-              android:layout_height="wrap_content"
+              android:layout_height="fill_parent"
               android:layout_gravity="center"
               android:orientation="vertical">
 	    <TextView android:id="@+id/pageTitle"
-	        	  style="@style/ActionBarTitle"/>
+	        	  style="@style/ActionBarTitle1"/>
 	    <TextView android:id="@+id/pageSubtitle"
-	        	  style="@style/ActionBarTitle"/>
+	        	  style="@style/ActionBarTitle2"/>
 	</LinearLayout>
 	
 </LinearLayout>
