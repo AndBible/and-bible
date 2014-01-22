@@ -1,5 +1,8 @@
 package net.bible.android.view.activity.page.actionbar;
 
+import net.bible.android.BibleApplication;
+import net.bible.android.activity.R;
+import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.actionbar.ActionBarManager;
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton;
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton;
@@ -7,6 +10,10 @@ import net.bible.service.device.speak.event.SpeakEvent;
 import net.bible.service.device.speak.event.SpeakEventListener;
 import net.bible.service.device.speak.event.SpeakEventManager;
 import android.app.Activity;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 
@@ -37,6 +44,8 @@ public class BibleActionBarManager implements ActionBarManager {
 	 */
 	@Override
 	public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar) {
+		changeColor(Color.BLACK, actionBar);
+		
 		homeTitle.addToBar(actionBar, activity);
 
 		// order is important to keep bible, cmtry, ... in same place on right
@@ -64,4 +73,17 @@ public class BibleActionBarManager implements ActionBarManager {
 		speakActionBarButton.update();
 		stopActionBarButton.update();
 	}
+	
+    public void changeColor(int newColor, ActionBar actionBar) {
+
+        Drawable colorDrawable = new ColorDrawable(newColor);
+//        Drawable bottomDrawable = CurrentActivityHolder.getInstance().getCurrentActivity().getResources().getDrawable(R.drawable.actionbar_bottom);
+//        LayerDrawable ld = new LayerDrawable(new Drawable[] { colorDrawable, bottomDrawable });
+
+        actionBar.setBackgroundDrawable(colorDrawable);
+
+//        actionBar.setDisplayShowTitleEnabled(false);
+//        actionBar.setDisplayShowTitleEnabled(true);
+    }
+
 }
