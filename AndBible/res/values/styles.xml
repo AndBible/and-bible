@@ -14,7 +14,7 @@
     </style>
 
     <style name="ActionBarTitle1" parent="ActionBarTitle">
-        <item name="android:gravity">center_horizontal|bottom</item>
+        <item name="android:gravity">center</item>
     </style>
     <style name="ActionBarTitle2" parent="ActionBarTitle">
         <item name="android:gravity">center_horizontal|top</item>
