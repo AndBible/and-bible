@@ -111,7 +111,9 @@ public class CommonUtils {
 	public static boolean isGingerBreadPlus() {
 		return Build.VERSION.SDK_INT >= 9;
 	}
-
+	public static boolean isHoneycombPlus() {
+		return Build.VERSION.SDK_INT >= 11;
+	}
 	public static boolean isIceCreamSandwichPlus() {
 		return Build.VERSION.SDK_INT >= 14;
 	}

@@ -2,6 +2,8 @@ package net.bible.android.view.activity.base;
 
 import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.base.actionbar.ActionBarManager;
+import net.bible.service.common.CommonUtils;
+import android.annotation.SuppressLint;
 import android.content.res.Configuration;
 import android.util.Log;
 import android.view.Menu;
@@ -72,15 +74,22 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	}
 
     
-    public void toggleFullScreen() {
+    @SuppressLint("NewApi")
+	public void toggleFullScreen() {
     	super.toggleFullScreen();
     	
     	if (!isFullScreen()) {
     		Log.d(TAG, "Fullscreen off");
     		getSupportActionBar().show();
+			if (CommonUtils.isHoneycombPlus()) {
+				mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+			}
     	} else {
     		Log.d(TAG, "Fullscreen on");
     		getSupportActionBar().hide();
+			if (CommonUtils.isHoneycombPlus()) {
+				mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+			}
     	}
 
     	mContentView.requestLayout();
