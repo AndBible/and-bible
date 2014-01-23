@@ -10,6 +10,6 @@ public class PauseActionBarButton extends SpeakActionBarButton {
 	@Override
 	public boolean canShow() {
 		return super.canShow() &&
-				(getSpeakControl().isSpeaking() || getSpeakControl().isPaused());
+				isSpeakMode();
 	}
 }

@@ -20,6 +20,7 @@ public class DictionaryActionBarButton extends QuickDocumentChangeToolbarButton 
 	 */
 	@Override
 	protected boolean canShow() {
-		return isWide();
+		return super.canShow() &&
+				isWide();
 	}
 }

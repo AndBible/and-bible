@@ -17,6 +17,7 @@ public class DictionaryActionBarButton extends ReadingPlanQuickDocumentChangeBut
 	/** return true if Strongs are relevant to this doc & screen */
 	@Override
 	protected boolean canShow() {
-		return super.canShow() && 4<CommonUtils.getResourceInteger(R.integer.number_of_quick_buttons); 
+		return super.canShow() && 
+				isWide(); 
 	}
 }
