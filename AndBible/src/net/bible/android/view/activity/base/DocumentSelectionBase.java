@@ -246,7 +246,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 				} catch (Exception e) {
 					Log.e(TAG, "Error getting documents", e);
 					//todo INTERNATIONALIZE
-					showErrorMsg("Error getting documents");
+					showErrorMsg(R.string.error_occurred);
 				}
 	        	return null;
 			}

@@ -3,7 +3,7 @@ package net.bible.android.view.activity.base;
 import android.util.Log;
 import net.bible.service.history.HistoryManager;
 
-public class CommonActivityBase {
+public class HistoryTraversal {
 
 	private boolean integrateWithHistoryManager;
 	
@@ -11,7 +11,7 @@ public class CommonActivityBase {
 	
 	private static long MIN_BACK_SEPERATION_MILLIS = 500;
 
-	private static String TAG = "CommonActivityBase";
+	private static String TAG = "HistoryTraversal";
 	
     /**
      * about to change activity so tell the HistoryManager so it can register the old activity in its list

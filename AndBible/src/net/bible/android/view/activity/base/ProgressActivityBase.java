@@ -30,7 +30,7 @@ import android.widget.TextView;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class ProgressActivityBase extends ActivityBase {
+public class ProgressActivityBase extends CustomTitlebarActivityBase {
 
 	private Map<Progress, ProgressUIControl> progressMap = new HashMap<Progress, ProgressUIControl>();
 	private LinearLayout progressControlContainer;

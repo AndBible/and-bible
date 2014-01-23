@@ -3,20 +3,16 @@ package net.bible.android.view.activity.base;
 import net.bible.android.view.activity.navigation.History;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.android.view.util.UiUtils;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
+import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
-import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.WindowManager;
 
 /** Base class for activities
@@ -40,7 +36,9 @@ public class ActivityBase extends ActionBarActivity implements AndBibleActivity 
 	// some screens are highly customised and the theme looks odd if it changes
 	private boolean allowThemeChange = true;
 	
-	private CommonActivityBase commonActivityBase = new CommonActivityBase();
+	private View mContentView;
+	
+	private HistoryTraversal historyTraversal = new HistoryTraversal();
 	
 	private static final String TAG = "ActivityBase";
 	
@@ -67,21 +65,20 @@ public class ActivityBase extends ActionBarActivity implements AndBibleActivity 
         // this affected jsword dynamic classloading
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 		
-        setFullScreen(sharedActivityState.isFullScreen());
-        
+        setFullScreen(isFullScreen());
 
-		commonActivityBase.setIntegrateWithHistoryManager(integrateWithHistoryManager);
+		historyTraversal.setIntegrateWithHistoryManager(integrateWithHistoryManager);
     }
     
     @Override
 	public void startActivity(Intent intent) {
-    	commonActivityBase.beforeStartActivity();
+    	historyTraversal.beforeStartActivity();
     	
 		super.startActivity(intent);
 	}
 	@Override
 	public void startActivityForResult(Intent intent, int requestCode) {
-    	commonActivityBase.beforeStartActivity();
+    	historyTraversal.beforeStartActivity();
 
     	super.startActivityForResult(intent, requestCode);
 	}
@@ -90,16 +87,22 @@ public class ActivityBase extends ActionBarActivity implements AndBibleActivity 
 	 */
 	@Override
 	public void onBackPressed() {
-		if (!commonActivityBase.goBack()) {
+		if (!historyTraversal.goBack()) {
 			super.onBackPressed();
 		}
 	}
 	
+	/**
+	 * Change fullscreen state for this and all future activities
+	 */
     public void toggleFullScreen() {
     	sharedActivityState.toggleFullScreen();
     	setFullScreen(sharedActivityState.isFullScreen());
     }
-    
+	
+    /**
+     * Are all activities currently in full screen mode
+     */
 	public boolean isFullScreen() {
 		return sharedActivityState.isFullScreen();
 	}
@@ -110,14 +113,28 @@ public class ActivityBase extends ActionBarActivity implements AndBibleActivity 
     		// http://stackoverflow.com/questions/991764/hiding-title-in-a-fullscreen-mode
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+			setLightsOutMode(false);
     	} else {
     		Log.d(TAG, "Fullscreen");
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
+			setLightsOutMode(true);
     	}
+	}
+	
+	@SuppressLint("NewApi")
+	private void setLightsOutMode(boolean isLightsOut) {
+		if (CommonUtils.isHoneycombPlus() && mContentView!=null) {
+	    	if (isLightsOut) {
+				mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
+	    	} else {
+				mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_VISIBLE);
+	    	}
+		}
 	}
 
 	/** called by Android 2.0 +
+	 * TODO: is this still used
 	 */
 	@Override
 	public boolean onKeyLongPress(int keyCode, KeyEvent event) {
@@ -148,11 +165,11 @@ public class ActivityBase extends ActionBarActivity implements AndBibleActivity 
 
 	@Override
 	public boolean isIntegrateWithHistoryManager() {
-		return commonActivityBase.isIntegrateWithHistoryManager();
+		return historyTraversal.isIntegrateWithHistoryManager();
 	}
 	@Override
 	public void setIntegrateWithHistoryManager(boolean integrateWithHistoryManager) {
-		commonActivityBase.setIntegrateWithHistoryManager(integrateWithHistoryManager);
+		historyTraversal.setIntegrateWithHistoryManager(integrateWithHistoryManager);
 	}
 	
     /** allow activity to enhance intent to correctly restore state */
@@ -250,4 +267,20 @@ public class ActivityBase extends ActionBarActivity implements AndBibleActivity 
 	public void setAllowThemeChange(boolean allowThemeChange) {
 		this.allowThemeChange = allowThemeChange;
 	}
+	
+	/** custom title bar code to add the FEATURE_CUSTOM_TITLE just before setContentView
+	 * and set the new titlebar layout just after
+	 */
+    @Override
+	public void setContentView(int layoutResID) {
+		super.setContentView(layoutResID);
+
+        mContentView = getWindow().getDecorView().findViewById(android.R.id.content);
+    }
+
+	public View getContentView() {
+		return mContentView;
+	}
+    
+
 }

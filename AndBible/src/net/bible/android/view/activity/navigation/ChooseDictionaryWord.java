@@ -100,13 +100,7 @@ public class ChooseDictionaryWord extends ListActivityBase {
 			    	Log.d(TAG, "Finished Initialising");
 				} catch (Throwable t) {
 					Log.e(TAG, "Error creating dictionary key list");
-			    	// must dismiss hourglass in ui thread
-			    	uiHandler.post(new Runnable() {
-						@Override
-						public void run() {
-							showErrorMsg("Error preparing dictionary for use.");
-						}
-			    	});
+					showErrorMsg(R.string.error_occurred);
 				} finally {
 			    	// must dismiss hourglass in ui thread
 			    	uiHandler.post(new Runnable() {
@@ -146,7 +140,7 @@ public class ChooseDictionaryWord extends ListActivityBase {
 			}
 		} catch (Throwable e) {
 			Log.e(TAG, "Error finding matching keys", e);
-			showErrorMsg("Error searching dictionary");
+			showErrorMsg(R.string.error_occurred);
 		}
     }
     
@@ -164,7 +158,7 @@ public class ChooseDictionaryWord extends ListActivityBase {
     		}
     	} catch (Exception e) {
     		Log.e(TAG, "Key not found", e);
-    		showErrorMsg("Key not found");
+			showErrorMsg(R.string.error_occurred);
     	}
     }
 

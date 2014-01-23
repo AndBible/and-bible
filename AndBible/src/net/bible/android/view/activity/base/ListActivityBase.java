@@ -1,110 +1,39 @@
 package net.bible.android.view.activity.base;
 
-import net.bible.android.view.util.UiUtils;
+import net.bible.android.activity.R;
 import android.app.Activity;
-import android.app.ListActivity;
-import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.WindowManager;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
+import android.widget.ListView;
 
-/** Base class for activities
+/** 
+ * Base class for List activities.  Copied from Android source.  
+ * A copy of ListActivity from Android source which also extends ActionBarActivity and the And Bible Activity base class.
+ *
+ * ListActivity does not extend ActionBarActivity so when implementing ActionBar functionality I created this, which does.
  * 
- * @author Martin Denham [mjdenham at gmail dot com]
- * @see gnu.lgpl.License for license details.<br>
- *      The copyright to this program is held by it's author.
  */
-public class ListActivityBase extends ListActivity implements AndBibleActivity {
-
-	private CommonActivityBase commonActivityBase = new CommonActivityBase();
-	
-	private static final String TAG = "ListActivityBase";
-	
-    public ListActivityBase() {
-		super();
-	}
-    
-	/** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-    	this.onCreate(savedInstanceState, false);
-    }
-
-    /** Called when the activity is first created. */
-    public void onCreate(Bundle savedInstanceState, boolean integrateWithHistoryManager) {
-		UiUtils.applyTheme(this);
-
-        super.onCreate(savedInstanceState);
-        Log.i(getLocalClassName(), "onCreate");
-
-        // Register current activity in onCreate and onresume
-        CurrentActivityHolder.getInstance().setCurrentActivity(this);
-
-        // fix for null context class loader (http://code.google.com/p/android/issues/detail?id=5697)
-        // this affected jsword dynamic classloading
-        Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-
-        setFullScreen(SharedActivityState.getInstance().isFullScreen());
-        
-		commonActivityBase.setIntegrateWithHistoryManager(integrateWithHistoryManager);
-    }
-
-    @Override
-	public void startActivity(Intent intent) {
-    	commonActivityBase.beforeStartActivity();
-    	
-		super.startActivity(intent);
-	}
-	@Override
-	public void startActivityForResult(Intent intent, int requestCode) {
-    	commonActivityBase.beforeStartActivity();
-
-    	super.startActivityForResult(intent, requestCode);
-	}
-
-	/**	This will be called automatically for you on 2.0 or later
+public class ListActivityBase extends CustomTitlebarActivityBase {
+	/**
+	 * This field should be made private, so it is hidden from the SDK. {@hide
+	 * }
 	 */
-	@Override
-	public void onBackPressed() {
-		if (!commonActivityBase.goBack()) {
-			super.onBackPressed();
-		}
-	}
-	
-	/** called by Android 2.0 +
+	protected ListAdapter mAdapter;
+	/**
+	 * This field should be made private, so it is hidden from the SDK. {@hide
+	 * }
 	 */
-	@Override
-	public boolean onKeyLongPress(int keyCode, KeyEvent event) {
-		// ignore long press on search because it causes errors
-		if (keyCode == KeyEvent.KEYCODE_SEARCH) {
-			return true;
-		}
+	protected ListView mList;
 
-		//TODO make Long press work for screens other than main window e.g. does not work from search screen because wrong window is displayed 
-	    if (keyCode == KeyEvent.KEYCODE_BACK) {
-	    	// just goBack for now rather than displaying History list
-	    	commonActivityBase.goBack();
-	    	return true;
-	    }
-	    
-	    return super.onKeyLongPress(keyCode, event);
-	}
+	private Handler mHandler = new Handler();
+	private boolean mFinishedStart = false;
 	
-	private void setFullScreen(boolean isFullScreen) {
-    	if (!isFullScreen) {
-    		Log.d(TAG, "NOT Fullscreen");
-    		// http://stackoverflow.com/questions/991764/hiding-title-in-a-fullscreen-mode
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-    	} else {
-    		Log.d(TAG, "Fullscreen");
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
-    	}
-	}
+	private static final String TAG = "ActionBarListActivity";
 
 	protected void notifyDataSetChanged() {
 		ListAdapter listAdapter = getListAdapter();
@@ -115,73 +44,140 @@ public class ListActivityBase extends ListActivity implements AndBibleActivity {
     	}
 	}
 
+	private Runnable mRequestFocus = new Runnable() {
+		public void run() {
+			mList.focusableViewAvailable(mList);
+		}
+	};
+
+	/**
+	 * This method will be called when an item in the list is selected.
+	 * Subclasses should override. Subclasses can call
+	 * getListView().getItemAtPosition(position) if they need to access the data
+	 * associated with the selected item.
+	 * 
+	 * @param l
+	 *            The ListView where the click happened
+	 * @param v
+	 *            The view that was clicked within the ListView
+	 * @param position
+	 *            The position of the view in the list
+	 * @param id
+	 *            The row id of the item that was clicked
+	 */
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+	}
+
+	/**
+	 * Ensures the list view has been created before Activity restores all of
+	 * the view states.
+	 * 
+	 * @see Activity#onRestoreInstanceState(Bundle)
+	 */
 	@Override
-	public boolean isIntegrateWithHistoryManager() {
-		return commonActivityBase.isIntegrateWithHistoryManager();
+	protected void onRestoreInstanceState(Bundle state) {
+		ensureList();
+		super.onRestoreInstanceState(state);
 	}
+
+	/**
+	 * @see Activity#onDestroy()
+	 */
 	@Override
-	public void setIntegrateWithHistoryManager(boolean integrateWithHistoryManager) {
-		commonActivityBase.setIntegrateWithHistoryManager(integrateWithHistoryManager);
+	protected void onDestroy() {
+		mHandler.removeCallbacks(mRequestFocus);
+		super.onDestroy();
 	}
 
-    /** allow activity to enhance intent to correctly restore state */
-	public Intent getIntentForHistoryList() {
-		return getIntent();
-	}
-
-	public void showErrorMsg(int msgResId) {
-		Dialogs.getInstance().showErrorMsg(msgResId);
-	}
-
-	public void showErrorMsg(String msg) {
-		Dialogs.getInstance().showErrorMsg(msg);
-	}
-
-	protected void showHourglass() {
-    	Dialogs.getInstance().showHourglass();
-    }
-    protected void dismissHourglass() {
-    	Dialogs.getInstance().dismissHourglass();
-    }
-
-	protected void returnToPreviousScreen() {
-    	// just pass control back to the previous screen
-    	Intent resultIntent = new Intent(this, this.getClass());
-    	setResult(Activity.RESULT_OK, resultIntent);
-    	finish();    
-    }
-
+	/**
+	 * Updates the screen state (current list and other views) when the content
+	 * changes.
+	 * 
+	 * @see Activity#onContentChanged()
+	 */
 	@Override
-	protected void onResume() {
-		super.onResume();
-        Log.i(getLocalClassName(), "onResume");
-        // Register current activity in onCreate and onresume
-        CurrentActivityHolder.getInstance().setCurrentActivity(this);
+//	public void onContentChanged() {
+	public void onSupportContentChanged() {
+		super.onSupportContentChanged();
+		View emptyView = findViewById(android.R.id.empty);
+		mList = (ListView) findViewById(android.R.id.list);
+		if (mList == null) {
+			throw new RuntimeException(
+					"Your content must have a ListView whose id attribute is "
+							+ "'android.R.id.list'");
+		}
+		if (emptyView != null) {
+			mList.setEmptyView(emptyView);
+		}
+		mList.setOnItemClickListener(mOnClickListener);
+		if (mFinishedStart) {
+			setListAdapter(mAdapter);
+		}
+		mHandler.post(mRequestFocus);
+		mFinishedStart = true;
 	}
 
-	@Override
-	protected void onPause() {
-		super.onPause();
-        Log.i(getLocalClassName(), "onPause");
+	/**
+	 * Provide the cursor for the list view.
+	 */
+	public void setListAdapter(ListAdapter adapter) {
+		synchronized (this) {
+			ensureList();
+			mAdapter = adapter;
+			mList.setAdapter(adapter);
+		}
 	}
 
-	@Override
-	protected void onRestart() {
-		super.onRestart();
-        Log.i(getLocalClassName(), "onRestart");
+	/**
+	 * Set the currently selected list item to the specified position with the
+	 * adapter's data
+	 * 
+	 * @param position
+	 */
+	public void setSelection(int position) {
+		mList.setSelection(position);
 	}
 
-	@Override
-	protected void onStart() {
-		super.onStart();
-        Log.i(getLocalClassName(), "onStart");
+	/**
+	 * Get the position of the currently selected list item.
+	 */
+	public int getSelectedItemPosition() {
+		return mList.getSelectedItemPosition();
 	}
 
-
-	@Override
-	protected void onStop() {
-		super.onStop();
-        Log.i(getLocalClassName(), "onStop");
-        CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this);
+	/**
+	 * Get the cursor row ID of the currently selected list item.
+	 */
+	public long getSelectedItemId() {
+		return mList.getSelectedItemId();
 	}
+
+	/**
+	 * Get the activity's list view widget.
+	 */
+	public ListView getListView() {
+		ensureList();
+		return mList;
+	}
+
+	/**
+	 * Get the ListAdapter associated with this activity's ListView.
+	 */
+	public ListAdapter getListAdapter() {
+		return mAdapter;
+	}
+
+	private void ensureList() {
+		if (mList != null) {
+			return;
+		}
+		setContentView(R.layout.list_content_simple);
+	}
+
+	private AdapterView.OnItemClickListener mOnClickListener = new AdapterView.OnItemClickListener() {
+		public void onItemClick(AdapterView<?> parent, View v, int position,
+				long id) {
+			onListItemClick((ListView) parent, v, position, id);
+		}
+	};
 }
