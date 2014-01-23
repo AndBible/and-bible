@@ -1,6 +1,5 @@
 package net.bible.android.view.util;
 
-import net.bible.android.activity.R;
 import net.bible.service.device.ScreenSettings;
 import android.app.Activity;
 import android.util.Log;
@@ -12,14 +11,14 @@ public class UiUtils {
 	
 
     public static void applyTheme(Activity activity) {
-//    	ScreenSettings.updateNightModeValue();
-//        if (ScreenSettings.isNightMode()) {
-//        	Log.d(TAG, "THEME Night");
-//        	activity.setTheme(R.style.AppThemeNight);
-//        } else {
-//        	Log.d(TAG, "THEME Day");
-//        	activity.setTheme(R.style.AppThemeDay);
-//        }
+    	ScreenSettings.updateNightModeValue();
+        if (ScreenSettings.isNightMode()) {
+        	Log.d(TAG, "THEME Night");
+        	activity.setTheme(android.R.style.Theme_Holo);
+        } else {
+        	Log.d(TAG, "THEME Day");
+        	activity.setTheme(android.R.style.Theme_Holo_Light_DarkActionBar);
+        }
     }
   
 }

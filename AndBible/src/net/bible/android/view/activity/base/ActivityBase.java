@@ -134,7 +134,6 @@ public class ActivityBase extends ActionBarActivity implements AndBibleActivity 
 	}
 
 	/** called by Android 2.0 +
-	 * TODO: is this still used
 	 */
 	@Override
 	public boolean onKeyLongPress(int keyCode, KeyEvent event) {

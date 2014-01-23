@@ -38,7 +38,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        style="@android:style/ButtonBar"
 	    android:layout_alignParentBottom="true">
 
 	  	<Button android:id="@+id/moreButton"

@@ -60,8 +60,7 @@
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentBottom="true"
-	    android:orientation="horizontal"
-	    style="@android:style/ButtonBar">
+	    android:orientation="horizontal">
 	    <!-- Left spacer -->
 	    <View
 	        android:layout_width="0dip"

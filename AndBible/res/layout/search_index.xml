@@ -21,7 +21,6 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        style="@android:style/ButtonBar"
 	    android:layout_alignParentBottom="true">
 
 	  	<Button android:id="@+id/downloadButton"

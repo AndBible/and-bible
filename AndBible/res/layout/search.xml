@@ -56,7 +56,7 @@
 			android:layout_width="0dip" 
 			android:layout_weight="1"
 			android:padding="5dip">	
-			<TextView android:id="@+id/submit"
+			<TextView
 				android:text="@string/search_words_group_prompt"
 				android:layout_height="wrap_content" 
 				android:layout_width="wrap_content"/>
@@ -66,12 +66,10 @@
 				android:layout_height="wrap_content"
 				android:checked="true"/>
 			<RadioButton android:id="@+id/anyWord" 
-				android:layout_below="@+id/allWords" 
 				android:layout_width="wrap_content" 
 				android:text="@string/search_any_word" 
 				android:layout_height="wrap_content"/>
 			<RadioButton android:id="@+id/phrase" 
-				android:layout_below="@+id/anyWord" 
 				android:layout_width="wrap_content" 
 				android:text="@string/search_phrase" 
 				android:layout_height="wrap_content"/>
@@ -84,8 +82,7 @@
 	    android:layout_width="fill_parent"
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentBottom="true"
-	    android:orientation="horizontal"
-	    style="@android:style/ButtonBar">
+	    android:orientation="horizontal">
 	    <!-- Left spacer -->
 	    <View
 	        android:layout_width="0dip"

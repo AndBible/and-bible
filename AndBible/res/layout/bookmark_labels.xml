@@ -10,8 +10,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-	<ListView xmlns:android="http://schemas.android.com/apk/res/android"
-		android:id="@android:id/list" 
+	<ListView	android:id="@android:id/list" 
 		android:layout_width="fill_parent" 
 		android:layout_height="fill_parent"
 		android:choiceMode="singleChoice"
@@ -23,7 +22,6 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        style="@android:style/ButtonBar"
 	    android:layout_alignParentBottom="true">
 
 	  	<Button android:id="@+id/okButton"
