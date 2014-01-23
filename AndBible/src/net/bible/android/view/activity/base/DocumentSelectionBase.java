@@ -171,6 +171,10 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 
 	    	selectedLanguageNo = languageList.indexOf(lang);
     	}
+    	
+    	// if last doc in last lang was just deleted then need to adjust index
+    	checkSpinnerIndexesValid();
+    	
 		langSpinner.setSelection(selectedLanguageNo);
     }
     
@@ -384,7 +388,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 						try {
 							Log.d(TAG, "Deleting:"+document);
 							documentControl.deleteDocument(document);
-
+							
 							// the doc list should now change
 							reloadDocuments();
 						} catch (Exception e) {
@@ -455,6 +459,16 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 	           }
 	       }).create().show();
 	}
+
+	/**
+	 *  deletion may have removed a language or document type so need to check current spinner selection is still valid
+	 */
+	private void checkSpinnerIndexesValid() {
+		if (selectedLanguageNo>=languageList.size()) {
+			selectedLanguageNo = languageList.size()-1;
+		}
+	}
+
 
 	private Language getSelectedLanguage() {
 		if (selectedLanguageNo==-1) {
