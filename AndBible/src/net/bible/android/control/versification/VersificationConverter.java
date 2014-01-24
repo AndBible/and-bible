@@ -6,6 +6,8 @@ import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.VersificationsMapper;
 
+import android.util.Log;
+
 /** Manage conversion of verses to a specific versification
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -14,19 +16,23 @@ import org.crosswire.jsword.versification.VersificationsMapper;
  */
 public class VersificationConverter {
 	
+	private static final String TAG = "VersificationConverter";
+	
 	private VersificationsMapper versificationsMapper = VersificationsMapper.instance();
-//	private VersificationsMappingFactory versificationMappingFactory = VersificationMappingFactory.getInstance();
 
 	/** Return the verse in the required versification, mapping if necessary
 	 */
 	public Verse convert(Verse verse, Versification toVersification) {
-		Key key = versificationsMapper.mapVerse(verse, toVersification);
-		return KeyUtil.getVerse(key);
-//		if (toVersification.equals(verse.getVersification())) {
-//			return verse;
-//		} else {
-//			VersificationMapping versificationMapping = versificationMappingFactory.getVersificationMapping(verse.getVersification(), toVersification);
-//			return versificationMapping.getMappedVerse(verse, toVersification);
-//		}
+		Log.d("TAG", "Converting "+verse.getName()+":"+verse.getVersification()+" To "+toVersification.getName());
+
+		try {
+			Key key = versificationsMapper.mapVerse(verse, toVersification);
+			
+			return KeyUtil.getVerse(key);
+		} catch (Exception e) {
+			// mapper chokes on unmapped verse 0 so try to cope with that with temporary hack
+			Log.e(TAG, "JSword Versification mapper failed to map "+verse+" from "+verse.getVersification().getName()+" to "+toVersification.getName(), e);
+			return new Verse(toVersification, verse.getBook(), verse.getChapter(), verse.getVerse());
+		}
 	}
 }
