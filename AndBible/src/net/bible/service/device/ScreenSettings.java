@@ -34,9 +34,10 @@ public class ScreenSettings {
 	
 	private static final String TAG = "ScreenSettings";
 	
-	public static void updateNightModeValue() {
-		String nightModePref = getNightModePreferenceValue();
+	public static boolean isNightModeChanged() {
+		boolean origNightMode = isNightMode;
 		
+		String nightModePref = getNightModePreferenceValue();
 		if (AUTO_NIGHT_MODE.equals(nightModePref)) {
 			int lightReading = mLightSensor.getReading();
 			// may possible be no reading yet but need to have a screen colour
@@ -46,6 +47,8 @@ public class ScreenSettings {
 		} else {
 			isNightMode = NIGHT_MODE.equals(nightModePref);
 		}
+		
+		return origNightMode==isNightMode;
 	}
 	
 	public static boolean isNightMode() {

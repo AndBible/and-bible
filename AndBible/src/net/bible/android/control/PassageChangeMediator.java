@@ -79,7 +79,7 @@ public class PassageChangeMediator {
 		isPageChanging = true;
 
 		// only update occasionally otherwise black-on-black or w-on-w may occur in variable light conditions
-		ScreenSettings.updateNightModeValue();
+		ScreenSettings.isNightModeChanged();
 
 		if (mMainBibleActivity!=null) {
 			mMainBibleActivity.onPassageChangeStarted();

@@ -98,12 +98,12 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 		super.onConfigurationChanged(newConfig);
 		
 		// the title bar has different widths depending on the orientation
-		updateToolbarButtonText();
+		updateActionBarButtons();
 	}
 
 	/** update the quick links in the title bar
      */
-    public void updateToolbarButtonText() {
+    public void updateActionBarButtons() {
         actionBarManager.updateButtons();
     }
 

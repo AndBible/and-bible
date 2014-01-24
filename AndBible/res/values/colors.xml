@@ -6,5 +6,10 @@
 	<color name="split_button_text_colour">#66FFFFFF</color>
 	<color name="split_button_background_colour">#666B6B6B</color>
 				    
-	<color name="nav_bar_background_holo_dark">#ff000000</color>
+	<!-- matches background_holo_dark -->
+	<color name="actionbar_background_night">#ff000000</color>
+	<!-- matches DKGRAY -->
+	<color name="actionbar_background_day">#ff444444</color>
+	
+	<color name="actionbar_text">#ffffffff</color>
 </resources>

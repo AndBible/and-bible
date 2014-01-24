@@ -310,6 +310,10 @@ public class CommonUtils {
 	public static boolean getResourceBoolean(int resourceId) {
 		return BibleApplication.getApplication().getResources().getBoolean(resourceId);
 	}
+
+	public static int getResourceColor(int resourceId) {
+		return BibleApplication.getApplication().getResources().getColor(resourceId);
+	}
 	/**
 	 * convert dip measurements to pixels
 	 */

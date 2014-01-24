@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ActionBar Styles used in application
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    
+    <!-- Application theme.  Also see styles-v14 for  
+    	ActionBar background color is also set in code to facilitate day/night mode switching. 
+    -->
+    
+    <style name="AppThemeDay" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="actionBarStyle">@style/ActionBar.Solid.Custom.Day</item>
+    </style>
+    
+    <style name="AppThemeNight" parent="@style/Theme.AppCompat">
+        <item name="actionBarStyle">@style/ActionBar.Solid.Custom.Night</item>
+    </style>
+    
+    <!-- Bar -->
+	<style name="ActionBar.Solid.Custom" parent="@style/Widget.AppCompat.ActionBar.Solid">
+    	<item name="android:textColor">@color/actionbar_text</item>
+        <item name="titleTextStyle">@style/ActionBar.Solid.Custom.Title</item>
+	</style>
+    <style name="ActionBar.Solid.Custom.Day" parent="@style/ActionBar.Solid.Custom">
+        <item name="background">@color/actionbar_background_day</item>
+	</style>
+    <style name="ActionBar.Solid.Custom.Night" parent="@style/ActionBar.Solid.Custom">
+        <item name="background">@color/actionbar_background_night</item>
+	</style>
+	<style name="ActionBar.Solid.Custom.Title">
+        <item name="android:textColor">@color/actionbar_text</item>
+    </style>
+    
+    <!-- Custom left title text -->
+    <style name="ActionBarTitle1" parent="ActionBarTitle">
+        <item name="android:gravity">center</item>
+    </style>
+    <style name="ActionBarTitle2" parent="ActionBarTitle">
+        <item name="android:gravity">center_horizontal|top</item>
+    </style>
+    <style name="ActionBarTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:minWidth">@dimen/size_of_quick_buttons</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">15sp</item>
+    </style>
+ 
+</resources>

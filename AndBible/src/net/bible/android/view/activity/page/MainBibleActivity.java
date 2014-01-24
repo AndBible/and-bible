@@ -107,7 +107,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 			
 			@Override
 			public void currentSplitScreenChanged(Screen activeScreen) {
-				MainBibleActivity.this.updateToolbarButtonText();				
+				MainBibleActivity.this.updateActionBarButtons();				
 			}
 			
 			@Override
@@ -160,9 +160,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     private void refreshIfNightModeChange() {
     	// colour may need to change which affects View colour and html
 		// first refresh the night mode setting using light meter if appropriate
-		ScreenSettings.updateNightModeValue();
-		// then update text if colour changes
-    	if (documentViewManager.getDocumentView().changeBackgroundColour()) {
+		if (ScreenSettings.isNightModeChanged()) {
+			// then update text if colour changed
+			documentViewManager.getDocumentView().changeBackgroundColour();
 			PassageChangeMediator.getInstance().forcePageUpdate();
     	}
 
@@ -227,7 +227,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	} else if (mainMenuCommandHandler.isDisplayRefreshRequired(requestCode)) {
     		preferenceSettingsChanged();
     	} else if (mainMenuCommandHandler.isDocumentChanged(requestCode)) {
-    		updateToolbarButtonText();
+    		updateActionBarButtons();
     	}
     }
 
@@ -267,7 +267,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 			@Override
 			public void run() {
 		    	setProgressBar(false);
-		    	updateToolbarButtonText();
+		    	updateActionBarButtons();
 		    	// don't sense taps at bottom of screen if Strongs numbers link might be there or Map zoom control might be there
 				gestureListener.setSensePageDownTap(!isStrongsShown() && !CurrentPageManager.getInstance().isMapShown());
 			}

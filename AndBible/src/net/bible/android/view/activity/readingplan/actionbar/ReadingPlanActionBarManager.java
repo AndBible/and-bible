@@ -32,7 +32,7 @@ public class ReadingPlanActionBarManager extends DefaultActionBarManager impleme
     }
 
 	public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar) {
-		setDefaultActionBarColor(actionBar);
+		super.prepareOptionsMenu(activity, menu, actionBar);
 		
 		readingPlanTitle.addToBar(actionBar, activity);
 
@@ -46,6 +46,8 @@ public class ReadingPlanActionBarManager extends DefaultActionBarManager impleme
 	}
 	
 	public void updateButtons() {
+		super.updateButtons();
+		
 		readingPlanTitle.update();
 		
 		bibleActionBarButton.update();

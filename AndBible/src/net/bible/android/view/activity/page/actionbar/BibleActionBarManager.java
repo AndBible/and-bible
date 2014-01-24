@@ -38,7 +38,7 @@ public class BibleActionBarManager extends DefaultActionBarManager implements Ac
 	 */
 	@Override
 	public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar) {
-		setDefaultActionBarColor(actionBar);
+		super.prepareOptionsMenu(activity, menu, actionBar);
 		
 		homeTitle.addToBar(actionBar, activity);
 
@@ -57,6 +57,8 @@ public class BibleActionBarManager extends DefaultActionBarManager implements Ac
 	 */
 	@Override
 	public void updateButtons() {
+		super.updateButtons();
+		
 		homeTitle.update();
 		
 		bibleActionBarButton.update();
