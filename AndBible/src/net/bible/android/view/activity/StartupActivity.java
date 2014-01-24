@@ -37,6 +37,9 @@ public class StartupActivity extends CustomTitlebarActivityBase {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.startup_view);
+
+        // do not show an actionBar/title on the splash screen
+        getSupportActionBar().hide();
         
         TextView versionTextView = (TextView)findViewById(R.id.versionText);
         String versionMsg = BibleApplication.getApplication().getString(R.string.version_text, CommonUtils.getApplicationVersionName());
