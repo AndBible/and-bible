@@ -24,11 +24,6 @@ public class StrongsActionBarButton extends QuickActionButton {
 	}
 	
 	@Override
-	public void addToMenu(Menu menu) {
-		super.addToMenu(menu);
-	}
-
-	@Override
 	public boolean onMenuItemClick(MenuItem arg0) {
 		// update the show-strongs pref setting according to the ToggleButton
 		CommonUtils.getSharedPreferences().edit().putBoolean("show_strongs_pref", !isStrongsVisible()).commit();

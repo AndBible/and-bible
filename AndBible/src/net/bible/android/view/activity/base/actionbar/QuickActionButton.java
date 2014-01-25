@@ -5,6 +5,7 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.speak.SpeakControl;
 import net.bible.service.common.CommonUtils;
 import android.support.v4.view.MenuItemCompat;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
@@ -17,6 +18,9 @@ abstract public class QuickActionButton implements OnMenuItemClickListener {
 	abstract protected String getTitle();
 	abstract protected boolean canShow();
 	
+	private int thisItemId = nextItemId++;
+	private static int nextItemId = 100;
+	
 	private static final int NO_ICON = 0;
 	
 	private SpeakControl speakControl = ControlFactory.getInstance().getSpeakControl();
@@ -26,8 +30,8 @@ abstract public class QuickActionButton implements OnMenuItemClickListener {
 	}
 
 	public void addToMenu(Menu menu) {
-		if (menuItem==null) {
-			menuItem = menu.add("");
+		if (menuItem==null || (menu.findItem(thisItemId) == null)) {
+			menuItem = menu.add(Menu.NONE, thisItemId, Menu.NONE, "");
 			MenuItemCompat.setShowAsAction(menuItem, showAsActionFlags);
 			menuItem.setOnMenuItemClickListener(this);
 			update(menuItem);

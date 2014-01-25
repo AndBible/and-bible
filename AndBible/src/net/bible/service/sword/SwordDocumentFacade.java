@@ -216,8 +216,6 @@ public class SwordDocumentFacade {
         
         allBooks.addAll(repoFactory.getIBTRepo().getRepoBooks(refresh));
 
-        allBooks.addAll(repoFactory.getCrosswireAVRepo().getRepoBooks(refresh));
-
         allBooks.addAll(repoFactory.getCrosswireRepo().getRepoBooks(refresh));
 
         allBooks.addAll(repoFactory.getXiphosRepo().getRepoBooks(refresh));

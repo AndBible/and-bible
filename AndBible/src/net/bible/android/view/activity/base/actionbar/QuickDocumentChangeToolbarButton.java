@@ -26,6 +26,7 @@ abstract public class QuickDocumentChangeToolbarButton extends QuickActionButton
 		super(showAsActionFlags);
 	}
 
+	@Override
 	public void update(MenuItem menuItem) {
         mSuggestedDocument = getSuggestedDocument();
         super.update(menuItem);
