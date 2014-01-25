@@ -34,7 +34,7 @@
 	
 	<dimen name="split_screen_separator_width">4dip</dimen>
 	<dimen name="split_screen_separator_touch_expansion_width">10dip</dimen>
-	<dimen name="minimise_restore_button_size">35dip</dimen>
+	<dimen name="minimise_restore_button_size">40dip</dimen>
 	
 	<!-- Navigation Drawer -->
 	<dimen name="list_preferred_item_height_small">48dip</dimen>

@@ -10,7 +10,6 @@ import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.page.BibleView;
 import net.bible.service.common.CommonUtils;
-
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Typeface;
@@ -57,6 +56,7 @@ public class DocumentWebViewBuilder {
 	private int SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX;
 	private int SPLIT_BUTTON_TEXT_COLOUR;
 	private int SPLIT_BUTTON_BACKGROUND_COLOUR;
+	private int BUTTON_SIZE_PX;
 
 	private static final String TAG="DocumentWebViewBuilder";
 
@@ -77,13 +77,15 @@ public class DocumentWebViewBuilder {
         SPLIT_BUTTON_TEXT_COLOUR = res.getColor(R.color.split_button_text_colour);
         SPLIT_BUTTON_BACKGROUND_COLOUR = res.getColor(R.color.split_button_background_colour);
         
+        BUTTON_SIZE_PX = res.getDimensionPixelSize(R.dimen.minimise_restore_button_size);
+        
         separator = new Separator(this.mainActivity, SPLIT_SEPARATOR_WIDTH_PX);
         
         splitFrameLayout1 = new FrameLayout(this.mainActivity);
         splitFrameLayout2 = new FrameLayout(this.mainActivity);
 
         // minimise button
-        minimiseScreen2Button = createTextButton("__", new OnClickListener() {
+        minimiseScreen2Button = createTextButton("━━", new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				splitScreenControl.minimiseScreen2();				
@@ -165,7 +167,7 @@ public class DocumentWebViewBuilder {
     			FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate2 = isPortrait ?	new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, Gravity.TOP) :
     																						new FrameLayout.LayoutParams(SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, LayoutParams.FILL_PARENT, Gravity.LEFT);
     			splitFrameLayout2.addView(separator.getTouchDelegateView2(), frameLayoutParamsSeparatorDelegate2);
-    			splitFrameLayout2.addView(minimiseScreen2Button, new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.TOP|Gravity.RIGHT));
+    			splitFrameLayout2.addView(minimiseScreen2Button, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP|Gravity.RIGHT));
 
     			// separator will adjust layouts when dragged
     			separator.setView1LayoutParams(lp);
@@ -174,7 +176,7 @@ public class DocumentWebViewBuilder {
     			mainActivity.registerForContextMenu(bibleWebView2);
     		} else if (splitScreenControl.isScreen2Minimized()) {
     			Log.d(TAG,  "Show restore button");
-    			splitFrameLayout1.addView(restoreScreen2Button, new FrameLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, Gravity.BOTTOM|Gravity.RIGHT));
+    			splitFrameLayout1.addView(restoreScreen2Button, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.BOTTOM|Gravity.RIGHT));
     		}
     		
     		mainActivity.registerForContextMenu(bibleWebView);
@@ -204,10 +206,9 @@ public class DocumentWebViewBuilder {
 	
 	private Button createTextButton(String text, OnClickListener onClickListener) {
 		Button button = new Button(this.mainActivity);
-		int buttonSize = BibleApplication.getApplication().getResources().getDimensionPixelSize(R.dimen.minimise_restore_button_size);
         button.setText(text);
-        button.setWidth(buttonSize);
-        button.setHeight(buttonSize);
+        button.setWidth(BUTTON_SIZE_PX);
+        button.setHeight(BUTTON_SIZE_PX);
         button.setBackgroundColor(SPLIT_BUTTON_BACKGROUND_COLOUR);
         button.setTextColor(SPLIT_BUTTON_TEXT_COLOUR);
         button.setTypeface(null, Typeface.BOLD);
