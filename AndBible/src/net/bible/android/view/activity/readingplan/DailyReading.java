@@ -55,8 +55,10 @@ public class DailyReading extends CustomTitlebarActivityBase {
 
 	private ReadingPlanControl mReadingPlanControl = ControlFactory.getInstance().getReadingPlanControl();
 	
+	private static ReadingPlanActionBarManager readingPlanActionBarManager = new ReadingPlanActionBarManager();
+	
 	public DailyReading() {
-		super(new ReadingPlanActionBarManager(), R.menu.reading_plan);
+		super(readingPlanActionBarManager, R.menu.reading_plan);
 	}
 
     /** Called when the activity is first created. */

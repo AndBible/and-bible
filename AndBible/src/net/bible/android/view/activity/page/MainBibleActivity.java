@@ -51,6 +51,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	// handle requests from main menu
 	private MenuCommandHandler mainMenuCommandHandler;
 	
+	private static BibleActionBarManager bibleActionBarManager = new BibleActionBarManager();
+	
 	// detect swipe left/right
 	private GestureDetector gestureDetector;
 	private BibleGestureListener gestureListener;
@@ -60,7 +62,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	private long lastContextMenuCreateTimeMillis;
 
 	public MainBibleActivity() {
-		super(new BibleActionBarManager(), R.menu.main );
+		super(bibleActionBarManager, R.menu.main);
 	}
 	
     /** Called when the activity is first created. */

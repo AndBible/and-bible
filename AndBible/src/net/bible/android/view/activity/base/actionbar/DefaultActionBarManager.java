@@ -1,6 +1,7 @@
 package net.bible.android.view.activity.base.actionbar;
 
 import net.bible.android.activity.R;
+import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
 import android.app.Activity;
@@ -30,19 +31,22 @@ public class DefaultActionBarManager implements ActionBarManager {
 		setActionBarColor();
 	}
 	
+	/** change actionBar colour according to day/night state
+	 */
 	protected void setActionBarColor() {
 		changeColor(ScreenSettings.isNightMode()? night : day, actionBar);
 	}
 
-    protected void changeColor(int newColor, ActionBar actionBar) {
+    private void changeColor(final int newColor, final ActionBar actionBar) {
+    	if (actionBar!=null) {
+    		CurrentActivityHolder.getInstance().runOnUiThread(new Runnable() {
 
-        Drawable colorDrawable = new ColorDrawable(newColor);
-//        Drawable bottomDrawable = CurrentActivityHolder.getInstance().getCurrentActivity().getResources().getDrawable(R.drawable.actionbar_bottom);
-//        LayerDrawable ld = new LayerDrawable(new Drawable[] { colorDrawable, bottomDrawable });
-
-        actionBar.setBackgroundDrawable(colorDrawable);
-
-//        actionBar.setDisplayShowTitleEnabled(false);
-//        actionBar.setDisplayShowTitleEnabled(true);
+				@Override
+				public void run() {
+			        Drawable colorDrawable = new ColorDrawable(newColor);
+			        actionBar.setBackgroundDrawable(colorDrawable);
+			    }
+    		});
+    	}
     }
 }
