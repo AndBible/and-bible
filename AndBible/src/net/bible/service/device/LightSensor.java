@@ -70,12 +70,16 @@ public class LightSensor {
      * Returns true if at least one Orientation sensor is available
      */
     public boolean isLightSensor() {
+		Log.d(TAG, "check for a light sensor");
+
     	boolean isLightSensor = false;
+		Log.d(TAG, "getSystemService - hangs on 2.2 emulator");
    		SensorManager sm = (SensorManager) BibleApplication.getApplication().getSystemService(Context.SENSOR_SERVICE);
         if (sm != null) {
             List<Sensor> sensors = sm.getSensorList(Sensor.TYPE_LIGHT);
             isLightSensor = (sensors.size() > 0);
         }
-        return isLightSensor;
+		Log.d(TAG, "Finished check for a light sensor");
+		return isLightSensor;
     }
 }

@@ -48,7 +48,7 @@ public class ScreenSettings {
 			isNightMode = NIGHT_MODE.equals(nightModePref);
 		}
 		
-		return origNightMode==isNightMode;
+		return origNightMode!=isNightMode;
 	}
 	
 	public static boolean isNightMode() {
