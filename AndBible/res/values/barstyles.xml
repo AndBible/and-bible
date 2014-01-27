@@ -13,27 +13,38 @@
     
     <style name="AppThemeDay" parent="@style/Theme.AppCompat.Light.DarkActionBar">
         <item name="actionBarStyle">@style/ActionBar.Solid.Custom.Day</item>
-    </style>
+		<item name="actionMenuTextAppearance">@style/ActionBar.Custom.Button.Appearance</item>
+        </style>
     
     <style name="AppThemeNight" parent="@style/Theme.AppCompat">
         <item name="actionBarStyle">@style/ActionBar.Solid.Custom.Night</item>
-    </style>
+		<item name="actionMenuTextAppearance">@style/ActionBar.Custom.Button.Appearance</item>
+        </style>
     
     <!-- Bar -->
-	<style name="ActionBar.Solid.Custom" parent="@style/Widget.AppCompat.ActionBar.Solid">
-    	<item name="android:textColor">@color/actionbar_text</item>
-        <item name="titleTextStyle">@style/ActionBar.Solid.Custom.Title</item>
-	</style>
     <style name="ActionBar.Solid.Custom.Day" parent="@style/ActionBar.Solid.Custom">
         <item name="background">@color/actionbar_background_day</item>
 	</style>
     <style name="ActionBar.Solid.Custom.Night" parent="@style/ActionBar.Solid.Custom">
         <item name="background">@color/actionbar_background_night</item>
 	</style>
+	<!-- All bars -->
+	<style name="ActionBar.Solid.Custom" parent="@style/Widget.AppCompat.ActionBar.Solid">
+    	<item name="android:textColor">@color/actionbar_text</item>
+        <item name="titleTextStyle">@style/ActionBar.Solid.Custom.Title</item>
+	</style>
+    	
+    <!-- Text -->
 	<style name="ActionBar.Solid.Custom.Title">
         <item name="android:textColor">@color/actionbar_text</item>
     </style>
-    
+	<style name="ActionBar.Custom.Button.Appearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Menu">
+        <item name="textAllCaps">false</item> <!-- This does not appear to correctly change text to mixed case -->
+        <item name="android:textStyle">normal</item>
+		<item name="android:textSize">14sp</item>
+    </style>
+	
+	
     <!-- Custom left title text -->
     <style name="ActionBarTitle1" parent="ActionBarTitle">
         <item name="android:gravity">center</item>
