@@ -39,7 +39,7 @@
         <item name="android:textColor">@color/actionbar_text</item>
     </style>
 	<style name="ActionBar.Custom.Button.Appearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Menu">
-        <item name="textAllCaps">false</item> <!-- This does not appear to correctly change text to mixed case -->
+        <item name="textAllCaps">false</item> <!-- This does not appear to correctly change text to mixed case.  see http://stackoverflow.com/questions/18742214/what-is-the-alternative-tag-to-item-name-androidtextallcapsfalse-item-for# -->
         <item name="android:textStyle">normal</item>
 		<item name="android:textSize">14sp</item>
     </style>
