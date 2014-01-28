@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.readingplan.actionbar;
 
+import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.actionbar.ActionBarManager;
 import net.bible.android.view.activity.base.actionbar.DefaultActionBarManager;
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton;
@@ -48,13 +49,18 @@ public class ReadingPlanActionBarManager extends DefaultActionBarManager impleme
 	public void updateButtons() {
 		super.updateButtons();
 		
-		readingPlanTitle.update();
-		
-		bibleActionBarButton.update();
-		commentaryActionBarButton.update();
-		dictionaryActionBarButton.update();
-		
-		pauseActionBarButton.update();
-		speakStopActionBarButton.update();
+		CurrentActivityHolder.getInstance().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				readingPlanTitle.update();
+				
+				bibleActionBarButton.update();
+				commentaryActionBarButton.update();
+				dictionaryActionBarButton.update();
+				
+				pauseActionBarButton.update();
+				speakStopActionBarButton.update();
+			}
+		});
 	}
 }

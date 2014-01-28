@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.page.actionbar;
 
+import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.actionbar.ActionBarManager;
 import net.bible.android.view.activity.base.actionbar.DefaultActionBarManager;
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton;
@@ -59,14 +60,20 @@ public class BibleActionBarManager extends DefaultActionBarManager implements Ac
 	public void updateButtons() {
 		super.updateButtons();
 		
-		homeTitle.update();
-		
-		bibleActionBarButton.update();
-		commentaryActionBarButton.update();
-		dictionaryActionBarButton.update();
-		strongsActionBarButton.update();
-		
-		speakActionBarButton.update();
-		stopActionBarButton.update();
+		// this can be called on end of speech in non-ui thread
+		CurrentActivityHolder.getInstance().runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				homeTitle.update();
+				
+				bibleActionBarButton.update();
+				commentaryActionBarButton.update();
+				dictionaryActionBarButton.update();
+				strongsActionBarButton.update();
+				
+				speakActionBarButton.update();
+				stopActionBarButton.update();
+		    }
+		});
 	}
 }
