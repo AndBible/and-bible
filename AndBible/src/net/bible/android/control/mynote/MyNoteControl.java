@@ -307,9 +307,17 @@ public class MyNoteControl implements MyNote {
 		return MyNoteSortOrder.valueOf(sortOrderStr);
 	}
 	
-	@Override
-	public void setSortOrder(MyNoteSortOrder sortOrder) {
+	private void setSortOrder(MyNoteSortOrder sortOrder) {
 		CommonUtils.saveSharedPreference(MYNOTE_SORT_ORDER, sortOrder.toString());
+	}
+
+	@Override
+	public String getSortOrderDescription() {
+		if (MyNoteSortOrder.BIBLE_BOOK.equals(getSortOrder())) {
+			return CommonUtils.getResourceString(R.string.sort_by_bible_book);
+		} else {
+			return CommonUtils.getResourceString(R.string.sort_by_date);
+		}
 	}
 
 }

@@ -60,6 +60,7 @@ public interface Bookmark {
 	/** toggle order between date and Bibical */
 	public void changeBookmarkSortOrder();
 
-	public abstract void setBookmarkSortOrder(BookmarkSortOrder bookmarkSortOrder);
+	public void setBookmarkSortOrder(BookmarkSortOrder bookmarkSortOrder);
 
+	public String getBookmarkSortOrderDescription();
 }

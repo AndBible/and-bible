@@ -9,11 +9,9 @@ import java.util.List;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.mynote.MyNote;
-import net.bible.android.control.mynote.MyNoteSortOrder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.mynote.MyNoteDto;
-
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -25,6 +23,7 @@ import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 /**
  * Show a list of existing User Notes and allow view/edit/delete
@@ -119,27 +118,18 @@ public class MyNotes extends ListActivityBase {
         
         switch (item.getItemId()) {
         // selected to allow jump to a certain day
-		case (R.id.sortByBibleBook):
+		case (R.id.sortByToggle):
 			isHandled = true;
 	    	try {
-	    		myNoteControl.setSortOrder(MyNoteSortOrder.BIBLE_BOOK);
+	    		myNoteControl.changeSortOrder();
+	    		String sortDesc = myNoteControl.getSortOrderDescription();
+				Toast.makeText(this, sortDesc, Toast.LENGTH_SHORT).show();
+				
 	    		loadUserNoteList();
 	        } catch (Exception e) {
 	        	Log.e(TAG, "Error sorting notes", e);
 	        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
 	        }
-
-			break;
-		case (R.id.sortByDate):
-			isHandled = true;
-	    	try {
-	    		myNoteControl.setSortOrder(MyNoteSortOrder.DATE_CREATED);
-	    		loadUserNoteList();
-	        } catch (Exception e) {
-	        	Log.e(TAG, "Error sorting notes", e);
-	        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
-	        }
-
 			break;
         }
         

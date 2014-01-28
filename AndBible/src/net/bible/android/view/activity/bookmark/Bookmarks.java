@@ -6,13 +6,11 @@ import java.util.List;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.Bookmark;
-import net.bible.android.control.bookmark.BookmarkSortOrder;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -255,22 +253,13 @@ public class Bookmarks extends ListActivityBase {
         boolean isHandled = false;
         
         switch (item.getItemId()) {
-        // selected to allow jump to a certain day
-		case (R.id.sortByBibleBook):
+        // Change sort order
+		case (R.id.sortByToggle):
 			isHandled = true;
 	    	try {
-	    		bookmarkControl.setBookmarkSortOrder(BookmarkSortOrder.BIBLE_BOOK);
-	    		loadBookmarkList();
-	        } catch (Exception e) {
-	        	Log.e(TAG, "Error sorting bookmarks", e);
-	        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
-	        }
-
-			break;
-		case (R.id.sortByDate):
-			isHandled = true;
-	    	try {
-	    		bookmarkControl.setBookmarkSortOrder(BookmarkSortOrder.DATE_CREATED);
+	    		bookmarkControl.changeBookmarkSortOrder();
+	    		String sortDesc = bookmarkControl.getBookmarkSortOrderDescription();
+				Toast.makeText(this, sortDesc, Toast.LENGTH_SHORT).show();
 	    		loadBookmarkList();
 	        } catch (Exception e) {
 	        	Log.e(TAG, "Error sorting bookmarks", e);

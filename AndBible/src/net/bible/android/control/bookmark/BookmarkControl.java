@@ -376,4 +376,12 @@ public class BookmarkControl implements Bookmark {
 		CommonUtils.saveSharedPreference(BOOKMARK_SORT_ORDER, bookmarkSortOrder.toString());
 	}
 
+	@Override
+	public String getBookmarkSortOrderDescription() {
+		if (BookmarkSortOrder.BIBLE_BOOK.equals(getBookmarkSortOrder())) {
+			return CommonUtils.getResourceString(R.string.sort_by_bible_book);
+		} else {
+			return CommonUtils.getResourceString(R.string.sort_by_date);
+		}
+	}
 }

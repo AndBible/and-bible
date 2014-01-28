@@ -57,5 +57,7 @@ public interface MyNote {
 	String getMyNoteText(MyNoteDto usernote, boolean abbreviated);
 
 	/** change the order the MyNotes are listed in */
-	public void setSortOrder(MyNoteSortOrder sortOrder);
+	public void changeSortOrder();
+	
+	public String getSortOrderDescription();
 }

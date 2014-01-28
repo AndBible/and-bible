@@ -5,11 +5,10 @@
  @see gnu.lgpl.License for license details.<br>
       The copyright to this program is held by it's author.
 -->
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:id="@+id/sortByDate" 
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:appcompat="http://schemas.android.com/apk/res-auto" >
+	<item android:id="@+id/sortByToggle" 
 		  android:title="@string/sort_by_date"
-		  android:icon="@android:drawable/ic_menu_day"/>
-	<item android:id="@+id/sortByBibleBook" 
-		  android:title="@string/sort_by_bible_book"
-		  android:icon="@android:drawable/ic_menu_sort_by_size"/>
+		  android:icon="@android:drawable/ic_menu_sort_by_size"
+		  appcompat:showAsAction="always"/>
 </menu>
