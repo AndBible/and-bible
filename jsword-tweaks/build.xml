@@ -35,7 +35,20 @@
 	<target name="mergeCode" depends="init">
 		<copy todir="${build.src}">
 			<fileset dir="${jsword.src}"/>
-			<fileset dir="${jsword.resources}"/>
+			<fileset dir="${jsword.resources}">
+				<exclude name="org/crosswire/jsword/versification/**" />
+			</fileset>
+		</copy>
+		<copy todir="${build.src}" filtering="yes">
+			<fileset dir="${jsword.resources}">
+				<include name="org/crosswire/jsword/versification/**" />
+			</fileset>
+			<!-- zerosUnmapped causes exceptions and does not map verse 0 so comment it out -->
+		    <filterchain>
+		        <tokenfilter>
+		            <replaceregex pattern="!zerosUnmapped" replace="#!zerosUnmapped // commented out"/>
+		        </tokenfilter>
+		    </filterchain>
 		</copy>
 
 		<!-- switch the Chinese localisation defaults around so default CN is simplified and TW is Traditional-->
