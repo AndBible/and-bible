@@ -7,6 +7,7 @@ import net.bible.android.activity.R;
 import net.bible.android.activity.StartupActivity;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
+import net.bible.android.control.download.DownloadControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
@@ -39,6 +40,8 @@ public class MenuCommandHandler {
 
 	private LongPressControl longPressControl = new LongPressControl();
 	
+	private DownloadControl downloadControl = ControlFactory.getInstance().getDownloadControl();
+
 	private static final String TAG = "MainMenuCommandHandler";
 	
 	public static class IntentHolder {
@@ -49,8 +52,8 @@ public class MenuCommandHandler {
 	private MainBibleActivity callingActivity;
 	
 	// request codes passed to and returned from sub-activities
-	static final int REFRESH_DISPLAY_ON_FINISH = 2;
-	static final int UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH = 3;
+	public static final int REFRESH_DISPLAY_ON_FINISH = 2;
+	public static final int UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH = 3;
 
 	private String mPrevLocalePref = "";
 	
@@ -111,11 +114,7 @@ public class MenuCommandHandler {
 	        	}
 	        	break;
 	        case R.id.downloadButton:
-	        	if (CommonUtils.getSDCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
-	            	Dialogs.getInstance().showErrorMsg(R.string.storage_space_warning);
-	        	} else if (!CommonUtils.isInternetAvailable()) {
-	            	Dialogs.getInstance().showErrorMsg(R.string.no_internet_connection);
-	        	} else {
+	        	if (downloadControl.checkDownloadOkay()) {
 	        		handlerIntent = new Intent(callingActivity, Download.class);
 	        		requestCode = UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH;
 	        	}

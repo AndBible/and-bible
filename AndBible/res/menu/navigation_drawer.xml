@@ -28,9 +28,9 @@
 			android:title="@string/history"
 			android:icon="@android:drawable/ic_menu_recent_history"/>
 
-		<item android:id="@+id/downloadButton"
+	<item android:id="@+id/downloadButton"
 		  android:title="@string/download"
-		  android:icon="@drawable/ic_menu_goto"/>
+		  android:icon="@drawable/ic_action_download"/>
 
 	<item android:id="@+id/settingsButton"
 		  android:title="@string/settings"

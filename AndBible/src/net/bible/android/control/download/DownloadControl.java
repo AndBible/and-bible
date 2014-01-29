@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import net.bible.android.SharedConstants;
+import net.bible.android.activity.R;
+import net.bible.android.view.activity.base.Dialogs;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.download.XiphosRepo;
 import net.bible.service.font.FontControl;
 import net.bible.service.sword.SwordDocumentFacade;
@@ -30,6 +34,22 @@ public class DownloadControl {
 	private FontControl fontControl = FontControl.getInstance();
 
 	private static final String TAG = "DownloadControl";
+	
+	/** pre-download document checks
+	 */
+	public boolean checkDownloadOkay() {
+		boolean okay = true;
+		
+    	if (CommonUtils.getSDCardMegsFree()<SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
+        	Dialogs.getInstance().showErrorMsg(R.string.storage_space_warning);
+        	okay = false;
+    	} else if (!CommonUtils.isInternetAvailable()) {
+        	Dialogs.getInstance().showErrorMsg(R.string.no_internet_connection);
+        	okay = false;
+    	}
+    	
+		return okay;
+	}
 	
 	/** return a list of all available docs that have not already been downloaded, have no lang, or don't work
 	 * 
