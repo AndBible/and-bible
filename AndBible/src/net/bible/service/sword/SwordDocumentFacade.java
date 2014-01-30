@@ -164,25 +164,30 @@ public class SwordDocumentFacade {
 	/** prefer the Real alternatives to the default versions because they contain the native Greek Hebrew words
 	 */
 	public Book getDefaultStrongsGreekDictionary() {
-		// default to StrongsRealGreek
-		Book strongs = Books.installed().getBook("StrongsRealGreek");
-		if (strongs!=null) {
-			return strongs;
+		// default to StrongsRealGreek or StrongsGreek
+		String[] preferredBooks = {"StrongsRealGreek", "StrongsGreek"};
+		for (String prefBook : preferredBooks) {
+			Book strongs = Books.installed().getBook(prefBook);
+			if (strongs!=null) {
+				return strongs;
+			}
 		}
 
-		strongs = Defaults.getGreekDefinitions();
+		Book strongs = Defaults.getGreekDefinitions();
 		return strongs; 
 	}
 
 	public Book getDefaultStrongsHebrewDictionary() {
-		// default to StrongsRealHebrew
-		Book strongs = Books.installed().getBook("StrongsRealHebrew");
-		if (strongs!=null) {
-			return strongs;
+		// default to StrongsRealHebrew or StrongsHebrew
+		String[] preferredBooks = {"StrongsRealHebrew", "StrongsHebrew"};
+		for (String prefBook : preferredBooks) {
+			Book strongs = Books.installed().getBook(prefBook);
+			if (strongs!=null) {
+				return strongs;
+			}
 		}
 
-		// Should Defaults prefer BDB to StrongsHebrew - well it does
-		strongs = Defaults.getHebrewDefinitions();
+		Book strongs = Defaults.getHebrewDefinitions();
 		return strongs; 
 	}
 

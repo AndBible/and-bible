@@ -23,7 +23,6 @@ public class VersificationConverter {
 	/** Return the verse in the required versification, mapping if necessary
 	 */
 	public Verse convert(Verse verse, Versification toVersification) {
-		Log.d("TAG", "Converting "+verse.getName()+":"+verse.getVersification()+" To "+toVersification.getName());
 
 		try {
 			Key key = versificationsMapper.mapVerse(verse, toVersification);
