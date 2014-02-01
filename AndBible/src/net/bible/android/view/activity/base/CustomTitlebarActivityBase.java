@@ -27,6 +27,10 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 		this(new DefaultActionBarManager(), 0);
 	}
 
+	public CustomTitlebarActivityBase(int optionsMenuId) {
+		this(new DefaultActionBarManager(), optionsMenuId);
+	}
+	
 	public CustomTitlebarActivityBase(ActionBarManager actionBarManager, int optionsMenuId) {
 		this.actionBarManager = actionBarManager;
 		this.optionsMenuId = optionsMenuId;

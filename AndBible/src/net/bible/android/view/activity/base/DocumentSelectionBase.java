@@ -92,7 +92,16 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     
     abstract protected void handleDocumentSelection(Book selectedDocument);
     
-    /** Called when the activity is first created. */
+    
+    public DocumentSelectionBase() {
+		super();
+	}
+
+	public DocumentSelectionBase(int optionsMenuId) {
+		super(optionsMenuId);
+	}
+
+	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

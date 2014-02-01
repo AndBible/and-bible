@@ -17,8 +17,6 @@ import org.crosswire.jsword.book.Book;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 
 /**
@@ -35,7 +33,12 @@ public class ChooseDocument extends DocumentSelectionBase {
 	
 	private DownloadControl downloadControl = ControlFactory.getInstance().getDownloadControl();
 	
-    /** Called when the activity is first created. */
+	
+    public ChooseDocument() {
+		super(R.menu.choose_document_menu);
+	}
+
+	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	setInstallStatusIconsShown(false);
@@ -73,14 +76,6 @@ public class ChooseDocument extends DocumentSelectionBase {
     	setSelectedBookCategory(documentControl.getCurrentCategory());
     }
     
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-    	super.onCreateOptionsMenu(menu);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.choose_document_menu, menu);
-        return true;
-    }
-
 	/** 
      * on Click handlers
      */

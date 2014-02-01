@@ -5,7 +5,6 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.speak.SpeakControl;
 import net.bible.service.common.CommonUtils;
 import android.support.v4.view.MenuItemCompat;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;

@@ -35,6 +35,16 @@ public class ListActivityBase extends CustomTitlebarActivityBase {
 	
 	private static final String TAG = "ActionBarListActivity";
 
+	
+	
+	public ListActivityBase() {
+		super();
+	}
+
+	public ListActivityBase(int optionsMenuId) {
+		super(optionsMenuId);
+	}
+
 	protected void notifyDataSetChanged() {
 		ListAdapter listAdapter = getListAdapter();
     	if (listAdapter!=null && listAdapter instanceof ArrayAdapter) {

@@ -289,8 +289,10 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
      */
     @Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
+    	// construct the options menu
 		super.onPrepareOptionsMenu(menu);
 		
+		// disable some options depending on document type
 		CurrentPageManager.getInstance().getCurrentPage().updateOptionsMenu(menu);
 		
 		// if there is no backup file then disable the restore menu item
