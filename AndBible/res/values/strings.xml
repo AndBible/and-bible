@@ -127,8 +127,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="all_hebrew_occurrences">Find all occurrences</string>
     <string name="no_indexed_bible_with_strongs_ref">You must download a Bible containing Strong\'s numbers and download its index via Search</string>
     <string name="morph_robinson_not_installed">Please download \'Robinson\'s Morphological Analysis Codes\' dictionary</string>
-    <string name="strongs_toggle_button_on">3483</string>
-    <string name="strongs_toggle_button_off">3756</string>
+    <string name="strongs_toggle_button_on">nnnn</string>
+    <string name="strongs_toggle_button_off">nnnn</string>
 
     <!-- Module download -->
     <string name="download">Download Documents</string>
@@ -258,7 +258,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="no">No</string>
     <string name="save">Save</string>
     <string name="error">Error</string>
-    <string name="more">More...</string>
+    <string name="more">More</string>
+    <string name="more_dotted">More...</string>
     <string name="retry">Try Again</string>
     <string name="please_wait">Please wait...</string>
     <string name="all">All</string>
