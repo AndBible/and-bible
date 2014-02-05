@@ -39,5 +39,9 @@
 	<!-- Navigation Drawer -->
 	<dimen name="list_preferred_item_height_small">48dip</dimen>
 	
+	<dimen name="action_button_min_width">56dip</dimen>
+    <integer name="action_button_max_chars">4</integer>
+	
+	
 		
 </resources>

@@ -11,12 +11,14 @@
     <style name="AppThemeDay" parent="@style/Theme.AppCompat.Light.DarkActionBar">
         <item name="android:actionBarStyle">@style/ActionBar.Solid.Custom.Day</item>
 		<item name="android:actionMenuTextAppearance">@style/ActionBar.Custom.Button.Appearance</item>
+		<item name="android:actionButtonStyle">@style/MyActionButtonStyle</item>
     </style>
     
     <style name="AppThemeNight" parent="@style/Theme.AppCompat">
         <item name="android:actionBarStyle">@style/ActionBar.Solid.Custom.Night</item>
 		<item name="android:actionMenuTextAppearance">@style/ActionBar.Custom.Button.Appearance</item>
-    </style>
+		<item name="android:actionButtonStyle">@style/MyActionButtonStyle</item>
+	</style>
     
     <!-- Bar -->
     <style name="ActionBar.Solid.Custom.Day" parent="@style/ActionBar.Solid.Custom">
@@ -32,7 +34,6 @@
 	</style>
     	
     <!-- Text -->
-
 	<style name="ActionBar.Solid.Custom.Title">
         <item name="android:textColor">@color/actionbar_text</item>
     </style>
@@ -41,5 +42,9 @@
         <item name="android:textStyle">normal</item>
 		<item name="android:textSize">14sp</item>
     </style>
- 
+
+	<!-- Button -->
+	<style name="MyActionButtonStyle" parent="@android:style/Widget.Holo.ActionButton">
+	    <item name="android:minWidth">@dimen/action_button_min_width</item> <!-- default is 56dip increasing to 64dip for values-sw600dp-->
+	</style>
 </resources>

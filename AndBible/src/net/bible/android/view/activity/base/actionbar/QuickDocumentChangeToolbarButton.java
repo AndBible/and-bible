@@ -1,6 +1,8 @@
 package net.bible.android.view.activity.base.actionbar;
 
+import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.service.common.CommonUtils;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
@@ -14,6 +16,8 @@ abstract public class QuickDocumentChangeToolbarButton extends QuickActionButton
 	private Book mSuggestedDocument;
 
 	protected abstract Book getSuggestedDocument();
+	
+	private static int ACTION_BUTTON_MAX_CHARS = CommonUtils.getResourceInteger(R.integer.action_button_max_chars);
 	
 	/**
 	 * SHOW_AS_ACTION_ALWAYS is overriden by setVisible which depends on canShow() below
@@ -46,7 +50,7 @@ abstract public class QuickDocumentChangeToolbarButton extends QuickActionButton
 	@Override
 	protected String getTitle() {
 		if (mSuggestedDocument!=null) {
-			return StringUtils.left(mSuggestedDocument.getInitials(), 4);
+			return StringUtils.left(mSuggestedDocument.getInitials(), ACTION_BUTTON_MAX_CHARS);
 		} else {
 			return "";
 		}
