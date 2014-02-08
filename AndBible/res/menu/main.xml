@@ -43,7 +43,7 @@
 		  android:icon="@drawable/ic_action_volume_on"/>
 
 	<item android:id="@+id/moreSubMenu"
-		  android:title="@string/more">
+		  android:title="@string/more_dotted">
 		  
 	    <menu >
 		
