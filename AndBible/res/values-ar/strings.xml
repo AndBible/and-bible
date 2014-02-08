@@ -7,7 +7,7 @@
   <string name="help_text_long"><b>الذهاب</b>\nاذهب إلى القادم أو السابق باستخدام كرة الذهاب الدي باد أو تحريك اصبعك على الشاشة\n    \nاضغط ضغطا مزدوجا لتفعيل أو إيقاف خاصية الشاشة الكاملة.\n    \n\n<b>القائمة</b>\n    \nاضغط على زر القائمة للوصول إلى الاجراءات المتاحة.\n    \n\nلتنزيل المزيد من المستندات اضغط القائمة/المزيد/تنزيل المستندات\n    \n\n<b>Speech</b>\nPress Speak to access a dialog to start or stop reading\n    \n\n<b>My Note</b>\nNotes can be added via the My Note menu item on the verse context menu.  The list of existing notes can be accessed via the main menu.\n    \n\n<b>Bookmarks</b>\nBookmarks can be added via the verse context menu.  The Bookmark Manager is accessed via the main menu.  The Bookmark Manager context menu allows bookmarks to be grouped using labels.\n    \n\n<b>Search</b>\nSearch text can include special characters like *, ?, AND, OR, NOT (see \"Apache Lucene - Query Parser Syntax\" for more details)\n    \n\n<b>Context Menus</b>\n    \nLong press on the Bible view to open the context menu for actions affecting the current verse.\n    \nLong press on a document in the document selector to delete it or view information.\n    \nLong press the Back button to access the History list\n    </string>
   <string name="version_text">إصدار %s</string>
   <string name="no_sdcard_error">برجاء وضع شريحة الذاكرة و إعادة تشغيل البرنامج</string>
-  <!--main menu-->
+  <!--Main menu-->
   <string name="chooseBook">إختار المستند</string>
   <string name="selectPassage">مرور</string>
   <string name="search">إبحث</string>

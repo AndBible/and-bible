@@ -7,7 +7,7 @@
   <string name="help_text_long"><b>Gezinti Komutları</b>\nBölüm değiştirmek için ekranda parmağınızı kaydırın, iztopunu çevirin veya yön düğmelerine basın. Sonraki bölüm için sağa gidiniz. Önceki bölüm için sola gidiniz. \nÇift vuruş tam ekran modunu açıp kapatır. \n\n<b>Menü</b> \nİşlemler içın MENÜ düğmesine basın. \n\nKutsal Kitap çevirisi, yorum veya sözlük gibi ek belgeler indirmek için Menü/Daha Fazla/Belge İndir\'e basın \n\n<b>Sesli Okuma</b>\nSeçili belgenin sesli okumasını başlatmak ve durdurmak için Sesli Oku öğesini seçiniz. \n\n<b>Notlarım</b>\nAyet içerik menüsüde bulunan Notlarıma ekle öğesi aracılığıyla not ekleyebilirsiniz. Var olan notlara Menü\'den erişilebilirsiniz. \n\n<b>Yer İmleri</b>\nYer imilerini, ayet içerik menüsü kullanarak ekleyebilirsniz. Yer imi yöneticisine ana menüden erişilebilirsiniz. Yer imleri görüntülediğinizde sıralarını belirlediğiniz etiketlere göre değiştirmek için içerik menüsünü kullanabilirsiniz. \n\n<b>Arama</b>\nArama metninde *, ?, AND (ve), OR (veya), NOT (değil) gibi özel karakterler ve ifadeler kullanılabilir. (daha fazla bilgi için \"Apache Lucene - Query Parser Syntax\" başlıklı makaleyi okuyun) \n\n<b>İçerik Menüleri</b> \nKutsal Kitap okuma modunda seçili ayet üzerinde işlem yapmak için içerik menüsünü kullanabilirsiniz. Menüyü açmak için ayete uzun basınız. \nBelge seçme modunda belgeyi silmek veya belge hakkında bilgi görüntülemek için, belgeye uzun basınız. \nGeçmişteki hareketlerinizin listesini görütülemek için Geri düğmesine uzun basınız.</string>
   <string name="version_text">Sürüm %s</string>
   <string name="no_sdcard_error">Lütfen hafıza (SD) kartını takıp And Bible uygulamasını yeniden başlatın.</string>
-  <!--main menu-->
+  <!--Main menu-->
   <string name="chooseBook">Belge</string>
   <string name="selectPassage">Kısım</string>
   <string name="search">Ara</string>
@@ -15,6 +15,7 @@
   <string name="history">Geçmiş</string>
   <string name="speak">Sesli Oku</string>
   <string name="help">Yardım</string>
+  <string name="verse">Ayet</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kitabı Seç</string>
   <string name="choosePassageChapterName">Bölümü Seç</string>
@@ -149,7 +150,7 @@
   <string name="bookmark_labels">Yer İmi Etiketleri</string>
   <string name="assign_labels">Etiketle</string>
   <string name="new_label">Yeni Etiket</string>
-  <string name="label_name_prompt">Etiket Başlığı</string>
+  <string name="label_name_prompt">Etiket</string>
   <string name="label_unlabelled">Etiketlenmemiş</string>
   <string name="rename">Yeniden Adlandır</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -214,6 +215,7 @@
   <string name="save">Kaydet</string>
   <string name="error">Hata</string>
   <string name="more">Daha Fazla</string>
+  <string name="more_dotted">Daha...</string>
   <string name="retry">Tekrar Deneyin</string>
   <string name="please_wait">Lütfen bekleyin...</string>
   <string name="all">Hepsi</string>

@@ -7,7 +7,7 @@
   <string name="help_text_long"><b>Navigacija</b>\nKeiskite skyrius naudodami ratuką, D-pad arba braukdami pirštu per ekraną. \nDvigubas ekrano palietimas įjungia ir išjungia viso ekrano veikseną.\n\n<b>MENIU </b>\nĮvairiems veiksmams atlikti spauskite Meniu mygtuką.\n\nNorėdami parsisiųsti daugiau dokumentų spauskite Meniu/Daugiau/Parsiųsti dokumentus \n\n<b>Mano pastabos</b>\nPastabas galima pridėti per „Mano pastabų“ meniu, kuris pasiekiamas iš Rašto eilutės kontekstinio meniu. Visų pastabų sąrašas pasiekiamas per pagrindinį meniu. \n\n<b>Klausymas</b>\nSpauskite „Klausyti“, norėdami pasiekti dialogą skaitymo pradėjimui ar sustabdymui.\n\n<b>Žymės</b>\nŽymės gali būti pridėtos per eilučių kontekstinį meniu. Žymių tvarkyklė pasiekiama per pagrindinį meniu. Žymių tvarkyklės kontekstinis meniu leidžia grupuoti žymes naudojant korteles.\n\n<b>Paieška</b>\nIeškomas tekstas gali turėti spacialius simbolius *, ?, AND, OR, NOT (norint išsamiau, žiūrėkite \"Apache Lucene - Query Parser Syntax\")\n\n<b>Kontekstinis meniu</b>\nNorėdami atverti kontekstinį meniu pasirinktai eilutei, palaikykite paspaudę ekraną pirštu. \nNorėdami gauti dokumento informaciją arba jį pašalinti, palaikykite paspaudę ant dokumento pirštu. \nNorėdami pasiekti atliktų veiksmų sąrašą, paspauskite ir palaikykite mygtuką „Atgal“.\n\n</string>
   <string name="version_text">Versija %s</string>
   <string name="no_sdcard_error">Prašome įdėti SD kortelę ir iš naujo paleisti And Bible.</string>
-  <!--main menu-->
+  <!--Main menu-->
   <string name="chooseBook">Dokumentas</string>
   <string name="selectPassage">Tekstas</string>
   <string name="search">Paieška</string>
@@ -15,6 +15,7 @@
   <string name="history">Istorija</string>
   <string name="speak">Klausytis</string>
   <string name="help">Pagalba</string>
+  <string name="verse">Eilutė</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Rinkitės knygą</string>
   <string name="choosePassageChapterName">Rinkitės skyrių</string>
@@ -214,6 +215,7 @@
   <string name="save">Išsaugoti</string>
   <string name="error">Klaida</string>
   <string name="more">Daugiau</string>
+  <string name="more_dotted">Daugiau...</string>
   <string name="retry">Bandyti dar</string>
   <string name="please_wait">Prašome palaukti...</string>
   <string name="all">Viskas</string>

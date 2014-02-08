@@ -5,7 +5,7 @@
   <string name="splash_top_text">\"そのとき、神が「光よ.あれ.」と仰せられた。すると光ができた。\n創世記１：３</string>
   <string name="version_text">%s版</string>
   <string name="no_sdcard_error">SDカードを差し入れてからまたエンドバイブルを初めてください。</string>
-  <!--main menu-->
+  <!--Main menu-->
   <string name="chooseBook">文書</string>
   <string name="selectPassage">節</string>
   <string name="search">探し\n</string>

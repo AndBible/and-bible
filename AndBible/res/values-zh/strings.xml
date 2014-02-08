@@ -7,7 +7,7 @@
   <string name="help_text_long"><b>导航</b>\n到前一章或者后一章： 使用轨迹球，D-pad或用手指在屏幕上左右滑动\n全屏模式打开或关闭： 双击屏幕\n\n<b>菜单</b>\n按MENU菜单键来开启动作菜单\n\n欲下载更多的圣经或者文档， 按 菜单／更多／下载文档\n\n<b>朗读</b>\n按朗读启动开关朗读功能的对话框\n\n<b>我的笔记</b>\n按弹出菜单中的我的笔记菜单项可以添加笔记。现有笔记列表通过主菜单访问\n\n<b>书签</b>\n在弹出菜单中可以给对应小节添加书签。 书签管理通过主菜单访问。 书签管理的弹出菜单提供书签分组功能，而且可以使用标签。\n\n<b>查询</b>\n查询文本可以包括的特殊字符有 *，?，AND，OR，NOT (请参考 \"Apache Lucene - Query Parser Syntax\" 获得更多的信息)\n\n<b>弹出菜单</b>\n长按圣经文本显示针对当前小节的有效动作菜单\n长按文档选择列表中某项来删除文档或者查看文档的信息\n长按BACK返回按钮查看历史记录</string>
   <string name="version_text"> %s 版本 </string>
   <string name="no_sdcard_error">请插入并装载SD存储卡，然后再次启动本程序</string>
-  <!--main menu-->
+  <!--Main menu-->
   <string name="chooseBook">选择文档</string>
   <string name="selectPassage">圣经段落</string>
   <string name="search">查找</string>

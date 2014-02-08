@@ -7,7 +7,7 @@
   <string name="help_text_long"><b>Navigointi</b>\nSiirry seuraavaan tai edelliseen lukuun pallo- tai D-ohjainta käyttäen tai \'pyyhkäisemällä\' näyttöä sormella.\nNapauta näytön alareunaa vierittääksesi tekstiä alas.\nKaksoisnapautus vaihtaa kokonäyttötilaan tai pois siitä.\n\n<b>Valikko</b>\nSiirry VALIKKO näppäimellä valikon toimintoihin\n\nLataa lisää teoksia siirtymällä Valikkossa kohtaan Lisää / Lataa teoksia\n\n<b>Puhe</b>\nPaina Puhu kuunnellaksi luvun puhuttuna tai keskeyttääksesi puheen.\n\n<b>Oma kommentti</b>\nVoit tallentaa omia kommentteja tekstiin \'Omat kommentit\' -kohdasta pikavalikossa. Luetteloon lisätyistä kommenteista pääsee päävalikon kohdasta.\n<b>Kirjanmerkit</b>\nKirjanmerkkejä voi lisätä pikavalikon kautta. Kirjanmerkkien hallintaan voi siirtyä päävalikon kautta, missä voit ryhmitellä kirjanmerkkejä omiin ryhmiinsä.\n\n<b>Etsi</b>\nTekstin etsimisessä voi käyttää jokerimerkkejä kuten *, ?, AND, OR, NOT (ks. \"Apache Lucene - Query Parser Syntax\" merkityksistä)\n\n<b>Pikavalikot</b>\nPitämällä sormea pitkään Raamatun tekstin päällä avautuu tekstivalikko liittyen ylätunnisteessa mainittuun aktiiviseen jakeeseen.\nPitämällä sormea pitkään teosvalitsimella, voit poistaa teoksen tai tarkastella sen tietoja. \nPitämällä sormea pitkään takaisin painikkeella, avatuu historiatiedot luetusta</string>
   <string name="version_text">Versio %s</string>
   <string name="no_sdcard_error">Ole hyvä ja aseta SD kortti sekä käynnistä And Bible uudelleen.</string>
-  <!--main menu-->
+  <!--Main menu-->
   <string name="chooseBook">Teos</string>
   <string name="selectPassage">Siirry</string>
   <string name="search">Etsi</string>
@@ -15,6 +15,7 @@
   <string name="history">Historia</string>
   <string name="speak">Puhu</string>
   <string name="help">Ohje</string>
+  <string name="verse">Jae</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Valitse kirja</string>
   <string name="choosePassageChapterName">Valitse luku</string>
@@ -214,6 +215,7 @@
   <string name="save">Tallenna</string>
   <string name="error">Virhe</string>
   <string name="more">Lisää</string>
+  <string name="more_dotted">Lisää...</string>
   <string name="retry">Yritä uudelleen</string>
   <string name="please_wait">Odota hetki...</string>
   <string name="all">Kaikki</string>

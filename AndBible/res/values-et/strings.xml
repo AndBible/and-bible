@@ -7,7 +7,7 @@
   <string name="help_text_long"><b>Navigeerimine</b>\nMine järgmisele või eelmisele peatükkidele kasutades juhtkuuli, noole nuppe või viibates ekraanil sõrmega\n    \nTopeltvajutus lülitav sisse/välja täisekraani vaate.\n    \n\n<b>Menüü</b>\n    \nVajuta tegevuste jaoks MENÜÜ nuppu\n    \n\nRohkemate dokumentide allalaadimiseks vajuta Menüü/Veel/Lae dokumente alla\n    \n\n<b>Kõne</b>\nVajuta Loe ette, et näha lugemise alustamise või lõpetamise dialoogi\n    \n\n<b>Minu märkmed</b>\nMärkmeid võib lisada läbi Minu märkmete menüü või salmi kontekstimenüüst.  Olemasolevaid märkmetele saab ligi läbi peamenüü.\n    \n\n<b>Järjehoidjad</b>\nJärjehoidjaid saab lisada läbi salmi kontekstimenüü. Järjehoidjate haldajale saab ligi läbi peamenüü. Järjehoidjate haldaja kontekstimenüü võimaldab järjehoidjaid grupeerida kasutades silte.\n    \n\n<b>Otsi</b>\nOtsingus võivad olla ka erimärgid nagu *, ?, AND, OR, NOT (vaata lisainfot \"Apache Lucene - Query Parser Syntax\")\n    \n\n<b>Kontektimenüüd</b>\n    \nPikk vajutus Piibli vaates avab kontekstimenüü konkreetse salmiga seotud tegevustega.\n    \nPikk vajutus dokumendil, et kustutada või vaadata selle infot.\n    \nPikk vajutus tagasi nupul viib ajaloo nimekirja\n    </string>
   <string name="version_text">Versioon %s</string>
   <string name="no_sdcard_error">Palun sisesta SD-kaart ja käivita AND Bible uuesti.</string>
-  <!--main menu-->
+  <!--Main menu-->
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Tekstiosa</string>
   <string name="search">Leia</string>
@@ -15,6 +15,7 @@
   <string name="history">Ajalugu</string>
   <string name="speak">Loe ette</string>
   <string name="help">Abiinfo</string>
+  <string name="verse">Salm</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Vali raamat</string>
   <string name="choosePassageChapterName">Vali peatükk</string>
@@ -151,7 +152,10 @@
   <string name="new_label">Uus silt</string>
   <string name="label_name_prompt">Nimi</string>
   <string name="label_unlabelled">Sildistamata</string>
+  <string name="rename">Nimeta ümber</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">Kuupäeva järgi</string>
+  <string name="sort_by_bible_book">Piibli järjekord</string>
   <!--Dictionary-->
   <string name="dictionary">Sõnaraamat</string>
   <string name="search_dictionary_hint">Otsi sõnaraamatust</string>
@@ -194,6 +198,7 @@
   <string name="restore_success">Märkmed ja järjehoidjad on taastatud SD-kaardilt: %s</string>
   <!--About-->
   <string name="about_version">Versioon: %s</string>
+  <string name="about_versification">Salmideks jagamine: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Piibel</string>
   <string name="doc_type_commentary">Kommentaar</string>
@@ -210,6 +215,7 @@
   <string name="save">Salvesta</string>
   <string name="error">Viga </string>
   <string name="more">Veel</string>
+  <string name="more_dotted">Veel...</string>
   <string name="retry">Proovi uuesti</string>
   <string name="please_wait">Palun oota...</string>
   <string name="all">Kõik</string>

@@ -7,7 +7,7 @@
   <string name="help_text_long"><b>Navigáció</b>\nElőző / következő fejezethez használd a trackballt, D-padot vagy húzza végig az ujját a képernyőn.\n\nDupla-tappintással lehet ki/bekapcsolni a teljes képernyőt.\n\n\n<b>Menu</b>\nNyomd MENU gombot további lehetőségekért \n\nTovábbi dokumentumok letöltéséhez nyomd meg a Menü / Egyebek / Dokumentumok letöltése opciót.\n\n\n<b>Felolvasás</b>\nNyomd a \"Felolvasás\" gombot a fejezet felolvasásához, a felolvasás leállításához\n\n\n<b>Jegyzeteim</b>\nAz aktuális vershez kapcsolód lehetőségekért nyomd hosszan a szöveget, amire megnyílik a helyi menü \nJegyzeteket lehet rögzíteni a versekhez a \"Jegyzeteim\" helyi menü opcióval. A meglévő jegyeztek elérhetőek a főmenün keresztül.\n\n\n<b>Könyvjelzők</b>\nKönyvjelzőt a vers helyi menüjében hozhatsz létre. A könyvjelző kezelő a főmenüben érhető el. A könyvjelző kezelőben csoportosíthatod azokat címkék segítségével.\n\n\n<b>Keresés</b>\nA kereső kifejezés tartalmazhat vezérlő karaktereket u.m. *, ?, AND, OR, NOT (további lehetőségeket lásd az \"Apache Lucene - Query Parser Syntax\" oldalain)\n\n\n<b>Helyi menük</b>\nHosszan nyomva egy verset további akciókat érhetsz el.\n\nHosszan nyomva egy dokumentumot a dokumentum kezelőben törölheted azt vagy további információkat érhetsz el.\n\nHosszan nyomva a Vissza gombot elérheted az Olvasás történetet.</string>
   <string name="version_text">Verzió: %s</string>
   <string name="no_sdcard_error">Tegyél be egy SD kártyát, és indítsd újra az alkalmazást.</string>
-  <!--main menu-->
+  <!--Main menu-->
   <string name="chooseBook">Dokumentum</string>
   <string name="selectPassage">Igehely</string>
   <string name="search">Keres</string>

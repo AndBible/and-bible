@@ -7,7 +7,7 @@
   <string name="help_text_long"><b>नेविगेशन</b>\nअगले या पिछले अध्याय के लिए स्क्रीन पर उंगली से बाएं/दाहिने जाओ।    \n\'फुल-स्क्रीन\' के लिये \'डबल-टैप\' कीजिए।\n   \n\n<b>मेनू</b>\nअध्ययन/कार्य के लिये \'मेनू\' दबाएँ।    \n    \nअन्य किताबें/बाइबिल के लिए: मेनू&gt;और&gt;\'अन्य किताबें डाउनलोड करें\'।\n\n<b>\'संदर्भ मेनू\'</b>\n    \nवर्तमान छंद संबंधित कार्य - छंद या वाक्य, लंबे समय तक दबाएँ।\n\nकिताब संबंधित - मेनू&gt;किताबें, फिर किताब के नाम पर लंबे समय तक दबाएँ।    \n\nअध्ययन-इतिहास संबंधित - \'बैक बटन\', लंबे समय तक दबाएँ। \n\n    \n<b>अध्याय सुनिए</b>\nअध्याय सुनिए - एक या अधिक अध्याय जोर से सुनिए (+ विराम, दोहराना)।\n    \n\n<b>मेरे टिप्पणीयां</b>\nटिप्पणी लिखने के लिए, छंद की \'संदर्भ मेनू\' चुनिए। \nटिप्पणी सूची के लिए मुख्य \'मेनू\' दबाएँ।\n    \n\n<b>पुस्तक-चिन्ह</b>\nपुस्तक-चिन्ह जोड़ने के लिए, छंद की \'संदर्भ मेनू\' चुनिए। \n\'पुस्तक-चिन्ह मैनेजर\' के लिए मुख्य \'मेनू\' दबाएँ। पुस्तक-चिन्ह वर्गीकृत करने के लिए \'लेबल\' का उपयोग करें (\'पुस्तक-चिन्ह मैनेजर\' के \'संदर्भ मेनू\' में)।  \n\n\n<b>खोज</b>\nखोज शब्दों में आप यह अक्षर भी शामिल कर सकते हैं: *, ?, AND, OR, NOT (अधिक विवरण के लिए \"Apache Lucene - Query Parser Syntax\" गूगल में ढूंढ़ना)।</string>
   <string name="version_text">संस्करण %s</string>
   <string name="no_sdcard_error">एक एस-डी कार्ड डालें और बाइबिल फिर से शुरू करें ।</string>
-  <!--main menu-->
+  <!--Main menu-->
   <string name="chooseBook">किताबें</string>
   <string name="selectPassage">पुस्तक/अध्याय</string>
   <string name="search">खोज</string>
@@ -15,6 +15,7 @@
   <string name="history">अध्ययन इतिहास</string>
   <string name="speak">अध्याय सुनिए</string>
   <string name="help">मदद</string>
+  <string name="verse">छंद</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">पुस्तक चुनें</string>
   <string name="choosePassageChapterName">अध्याय चुनें</string>
@@ -151,7 +152,10 @@
   <string name="new_label">नया लेबल</string>
   <string name="label_name_prompt">नाम</string>
   <string name="label_unlabelled">कोई लेबल नही</string>
+  <string name="rename">नया नाम देना</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">\t\nदिनांक अनुक्रम</string>
+  <string name="sort_by_bible_book">बाइबिल का अनुक्रम</string>
   <!--Dictionary-->
   <string name="dictionary">बाइबिल शब्दकोश</string>
   <string name="search_dictionary_hint">शब्दकोश में खोजें</string>
@@ -211,6 +215,7 @@
   <string name="save">सुरक्षित</string>
   <string name="error">त्रुटि</string>
   <string name="more">और</string>
+  <string name="more_dotted">और...</string>
   <string name="retry">फिर कोशिश करें</string>
   <string name="please_wait"> कृपया प्रतीक्षा करें...</string>
   <string name="all">संपूर्ण</string>

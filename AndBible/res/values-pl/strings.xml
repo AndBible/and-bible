@@ -7,7 +7,7 @@
   <string name="help_text_long"><b>Nawigacja</b>\nAby przejść do następnego lub poprzedniego rozdziału użyj trackball\'a \nlub przesuń palcem po ekranie odpowiednio w prawo lub lewo. \n\n<b>Menu</b>\nNaciśnij przycisk MENU aby przejść do menu głównego.\nAby pobrać więcej dokumentów naciśnij Menu / Więcej / Pobierz Dokumenty\n\n<b>Odsłuchiwanie</b>\nAby odsłuchać dany fragment użyj opcji Odsłuchaj\nAby wyłączyć odsłuchiwanie wybierz ponownie opcję Odsłuchaj.\nTa opcja nie jest dostępna dla wszystkich wersji językowych.\n\nDłuższe przyciśnięcie wersetu spowoduje wyświetlenie menu kontekstowego dla wersetów.\nDłuższe przyciśnięcie danego dokumentu spowoduje wyświetlenie menu kontekstowego dla dokumentów. \n\n<b>Wyszukiwanie</b>\nSzukana fraza może zawierać znaki specjalne takich jak *,?, AND, OR, NOT (patrz \"Apache Lucene - Query Parser Syntax\")\n\n<b>Moje notatki</b>\nNotatki mogą być tworzone ya pomocą opcji \"Moje notatki\" w menu kontekstowym wersetu. List istniejących notatek dostępna jest w menu głównym.\n\n<b>Ulubione</b>\nWersety można dodawać do ulubionych używając menu kontekstowego dla wersetów. Zarządzanie Ulubionymi odbywa się z menu głównego. Wersety dodane do ulubionych można grupować używając etykiet. \nDłuższe przyciśniecie danego wersetu w sekcji Ulubione spowoduje wyświetlenie menu kontekstowego.</string>
   <string name="version_text">Wersja %s</string>
   <string name="no_sdcard_error">Proszę włożyć kartę SD i ponownie uruchomić And Bible.</string>
-  <!--main menu-->
+  <!--Main menu-->
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Fragment</string>
   <string name="search">Znajdź</string>
@@ -33,10 +33,10 @@
   <string name="no_tasks_running">Obecnie żadne zadanie nie jest wykonywane.</string>
   <!--Search-->
   <string name="search_results">Znajdź wyniki</string>
-  <string name="search_words_group_prompt">Znajdź werset</string>
-  <string name="search_all_words">Znajdź wszystkie</string>
-  <string name="search_any_word">Znajdź dowolne</string>
-  <string name="search_phrase">Fraza</string>
+  <string name="search_words_group_prompt">Znajdź wersety zawierające</string>
+  <string name="search_all_words">wszystkie słowa</string>
+  <string name="search_any_word">dowolne słowo</string>
+  <string name="search_phrase">frazę</string>
   <string name="search_result_count">%d znalezionych</string>
   <string name="search_showing_first">Zbyt dużo wyników. Zobacz pierwsze %d</string>
   <string name="search_bible_section_group_prompt">Szukaj w</string>

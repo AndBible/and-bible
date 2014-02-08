@@ -7,7 +7,7 @@
   <string name="help_text_long">Lietošana\nPārvietojieties no vienas nodaļas uz otru izmantojot track-ball, D-pad vai uzsitot uz ekrāna ar pirkstu\n\nLai piekļūtu darbībām nospiediet MENU taustiņu \n\nLai lejuplādētu vairāk dokumentus nospiediet Menu/More/Lejuplādēt Dokumentus \n\nUzspiediet uz ekrāna un paturiet, Bībeles skatā, lai piekļūtu papildus darbībām ar aktīvo pantu. \nDokumentu sarakstā uzspiediet uz dokumenta un paturiet, lai dzēstu vai apskatītu papildinformāciju. \n\nBalss\nNospiediet Balss, lai piekļūtu izvēlnei un sāktu vai apturētu lasīšanu balsī.\n\nGrāmatzīmes\nGrāmatzīmes var pievienot izmantojot panta papildus darbības. Grāmatzīmju pārvaldniekam var piekļūt no pamatizvēlnes. Grāmatzīmju pārvaldnieka papildus darbības ļauj grupēt grāmatzīmes izmantojot atzīmes.</string>
   <string name="version_text">Versija %s</string>
   <string name="no_sdcard_error">Lūdzu, ievietojiet SD karti un startējiet And Bible vēlreiz.</string>
-  <!--main menu-->
+  <!--Main menu-->
   <string name="chooseBook">Dokuments</string>
   <string name="selectPassage">Fragments</string>
   <string name="search">Atrast</string>
@@ -15,6 +15,7 @@
   <string name="history">Vēsture</string>
   <string name="speak">Balss</string>
   <string name="help">Palīdzība</string>
+  <string name="verse">Pants</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Izvēlaties Grāmatu</string>
   <string name="choosePassageChapterName">Izvēlaties Nodaļu</string>
@@ -153,8 +154,8 @@
   <string name="label_unlabelled">Nenosaukts</string>
   <string name="rename">Pārsaukt</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
-  <string name="sort_by_date">Pasūtīšanas datums</string>
-  <string name="sort_by_bible_book">Bibliska kārtība</string>
+  <string name="sort_by_date">Secībā pēc datuma</string>
+  <string name="sort_by_bible_book">Bibliskā secībā</string>
   <!--Dictionary-->
   <string name="dictionary">Vārdnīca</string>
   <string name="search_dictionary_hint">Meklēt vārdnīcā</string>
@@ -214,8 +215,9 @@
   <string name="save">Saglabāt</string>
   <string name="error">Kļūda</string>
   <string name="more">Vairāk</string>
+  <string name="more_dotted">Vairāk...</string>
   <string name="retry">Mēģināt vēlreiz</string>
-  <string name="please_wait">Lūdzu, uzgaidiet ...</string>
+  <string name="please_wait">Lūdzu uzgaidiet ...</string>
   <string name="all">Viss</string>
   <string name="default_value">@string/lang_default</string>
   <!--Errors-->

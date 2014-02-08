@@ -7,7 +7,7 @@
   <string name="help_text_long"><b>Navigasie</b>\nGaan na die volgende of vorige hoofstuk met behulp van die spoor-bal, D-pad of beweeg oor die skerm met jou vinger\nDubbel druk verander Vol skerm aan/af.\n\n<b>Keurlys</b>\nDruk Menu sleutel vir meer aksies\n\nOm meer dokumente af te laai druk Menu/Meer/Laai Dokumente af.\n\n<b>Spraak</b>\nDruk op praat om \'n dialoog te begin of om op te hou lees.\n\n<b>My Notas</b>\nNotas kan bygevoeg word via My Note keurlys item op die vers konteks kieslys.\nDie lys van bestaande notas kan verkry word via die hoof keurlys\n\n\n<b>Boekmerke</b>\nBoekmerke kan toegevoeg word deur middel van die inhoud keurlys. Die Boekmerk Bestuurder kan deur middel van die hoof keurlys bereik word.\nDie Boekmerk Bestuurder inhoud keurlys laat boekmerke gegroepeer word deur om etikette te gebruik.\n\n<b>Soek</b>\nSoek teks kan spesiale karakters insluit soos *, ?, AND, OR, Not (sien \"Apache Lucene - Qury Parser Syntax\" vir meer inligting)\n\n<b>Inhoud Keurlys</b>\nDruk lank op die Bybel uitsig om die inhoud keurlys oop te maak vir aksies wat die huidige vers affekteer\nDruk lank op \'n dokument in die dokument kieser, om dit uit te wis of om sy informasie te sien\nDruk lank op die Terug knoppie om toegang tot die Geskiedenis lys te kry</string>
   <string name="version_text">Weergawe %s</string>
   <string name="no_sdcard_error">Plaas asseblief \'n SD kaart in en begin And Bible weer.</string>
-  <!--main menu-->
+  <!--Main menu-->
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Teks</string>
   <string name="search">Vind</string>
@@ -15,6 +15,7 @@
   <string name="history">Geskiedenis</string>
   <string name="speak">Praat</string>
   <string name="help">Help</string>
+  <string name="verse">Vers</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kies \'n Boek</string>
   <string name="choosePassageChapterName">Kies \'n Hoofstuk</string>
@@ -214,6 +215,7 @@
   <string name="save">Berg</string>
   <string name="error">Fout</string>
   <string name="more">Meer</string>
+  <string name="more_dotted">Meer...</string>
   <string name="retry">Probeer weer</string>
   <string name="please_wait">Wag asseblief ...</string>
   <string name="all">Alles</string>

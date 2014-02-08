@@ -7,7 +7,7 @@
   <string name="help_text_long"><b>導航</b>\n到前一章或者后一章： 使用軌跡球，D-pad或用手指在屏幕上左右滑動\n全屏模式打開或關閉： 雙擊屏幕\n\n<b>菜單</b>\n按MENU菜單鍵來開啟動作菜單\n\n欲下載更多的聖經或者文檔， 按 菜單／更多／下載文檔\n\n<b>朗讀</b>\n按朗讀啟動開關朗讀功能的對話框\n\n<b>我的筆記</b>\n按彈出菜單中的我的筆記菜單項可以添加筆記。現有筆記列表通過主菜單訪問\n\n<b>書簽</b>\n在彈出菜單中可以給對應小節添加書簽。 書簽管理通過主菜單訪問。 書簽管理的彈出菜單提供書簽分組功能，而且可以使用標簽。\n\n<b>查詢</b>\n查詢文本可以包括的特殊字符有 *，?，AND，OR，NOT (請參考 \"Apache Lucene - Query Parser Syntax\" 獲得更多的信息)\n\n<b>彈出菜單</b>\n長按聖經文本顯示針對當前小節的有效動作菜單\n長按文檔選擇列表中某項來刪除文檔或者查看文檔的信息\n長按BACK返回按鈕查看歷史記錄</string>
   <string name="version_text"> %s 版本 </string>
   <string name="no_sdcard_error">請插入並裝載SD存儲卡，然后再次啟動本程序</string>
-  <!--main menu-->
+  <!--Main menu-->
   <string name="chooseBook">選擇文檔</string>
   <string name="selectPassage">聖經段落</string>
   <string name="search">查找</string>

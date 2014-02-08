@@ -7,7 +7,7 @@
   <string name="help_text_long"><b>Navigacija</b>\nNa naslednje ali prejšnje poglavje se pride z uporabo sledilne kroglice, D-pada ali pomikom prsta preko ekrana v desno ali levo.\n    \nDvakratni pritisk vklopi/izklopi celoten ekran.\n    \n\n<b>Menu</b>  \nZa dejanja pritisni gumb MENU.\n\n    \nZa prenos več dokumentov pritisni Menu/Več/Prenos Dokumentov\n    \n\n<b>Govor</b>\nPritisnite Govor, da pridete do okna za pričetek in zaustavitev branja.\n    \n\n<b>Moja Opomba</b>\nOpombe se lahko dodajo preko menuja Dodaj Mojo opombo, ki se prikaže ob daljšem pritisku na vrstico.  Do seznama obstoječih opomb se lahko dostopa prek glavnega menuja.\n    \n\n<b>Zaznamki</b>\nZaznamke se lahko dodaja prek menuja, ki se prikaže ob daljšem pritisku na vrstico.  Upravljalec zaznamkov je dostopen preko glavnega menuja.  Podmenu Upravljalca zaznamkov dovoljuje razvrščanje zaznamkov glede na oznako.\n    \n\n<b>Iskanje</b>\nIskanje besedila lahko vsebuje tudi posebne znake kot so: *, ?, AND, OR, NOT (za več podrobnosti glej \"Apache Lucene - Query Parser Syntax\")\n    \n\n<b>Vrstični menuji</b>\n    \nDaljši pritisk na biblične vrstice odpre ustrezen menu za dejanja, ki se nanašajo na trenutno vrstico.\n    \nDaljši pritisk na biblijo ali dokument, pri izbiranju biblije ali dokumenta, ga lahko izbriše ali pa pokaže informacije o njem.\n    \nDaljši pritisk na gumb Nazaj prikaže seznam zgodovine. \n</string>
   <string name="version_text">Verzija %s</string>
   <string name="no_sdcard_error">Prosim vstavite SD kartico in ponovno poženite And Biblijo.</string>
-  <!--main menu-->
+  <!--Main menu-->
   <string name="chooseBook">Dokument</string>
   <string name="selectPassage">Knjiga</string>
   <string name="search">Išči</string>
@@ -15,6 +15,7 @@
   <string name="history">Zgodovina</string>
   <string name="speak">Govor</string>
   <string name="help">Pomoč</string>
+  <string name="verse">Vrstica</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Izberi knjigo</string>
   <string name="choosePassageChapterName">Izberi poglavje</string>
@@ -214,6 +215,7 @@
   <string name="save">Shrani</string>
   <string name="error">Napaka</string>
   <string name="more">Več</string>
+  <string name="more_dotted">Več...</string>
   <string name="retry">Poskusi ponovno</string>
   <string name="please_wait">Prosim počakaj...</string>
   <string name="all">Vse</string>

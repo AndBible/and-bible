@@ -7,7 +7,7 @@
   <string name="help_text_long"><b>Navigering</b>\nDu skifter til neste eller forrige kapittel ved å bruke rulleballen, retningsknappene eller ved å dra fingeren vannrett over skjermen\nDobbeltrykk på skjermen å slå fullskjermmodus av/på.\n\n<b>Meny</b>\nTrykk menyknappen for å vise tilgjengelige valg\n\nFor å laste ned flere moduler, trykk menyknappen-&gt;Mer-&gt;Last ned bibler\n\n<b>Høytlesing</b>\nTrykk på høytlesing for å vise skjermbildet for å starte og stoppe høytlesing\n\n<b>Mine notater</b>\nNotater kan du legge til fra menyvalget Mine notater på menyen for bibelvers. En liste over eksisterende notater kan du vise fra hovedmenyen.\n\n<b>Bokmerker</b>\nDu kan legge til bokmerker fra menyen for bibelvers. Bokmerkehåndtereren åpner du fra hovedmenyen. Bokmerkehåndtereren lar deg gruppere bokmerker.\n\n<b>Søk</b>\nSøkefunksjonen lar deg bruke spesialtegn som *, ?, AND, OR, NOT (se \"Apache Lucene – Query Parser Syntax\" for flere detaljer).\n\n<b>Kontekstmenyer</b>\nTrykk lenge på et bibelvers for å vise tilgjengelige valg for valgte bibelvers.\nTrykk lenge på en modul i modullisten for å slette eller vise informasjon om den.\nTrykk lenge på tilbakeknappen for å vise historikk.</string>
   <string name="version_text">Versjon %s</string>
   <string name="no_sdcard_error">Sett inn ett minnekort og start And Bible på nytt.</string>
-  <!--main menu-->
+  <!--Main menu-->
   <string name="chooseBook">Moduler</string>
   <string name="selectPassage">Bibelvers</string>
   <string name="search">Søk</string>
@@ -15,6 +15,7 @@
   <string name="history">Historikk</string>
   <string name="speak">Høytlesing</string>
   <string name="help">Hjelp</string>
+  <string name="verse">Vers</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Velg bok</string>
   <string name="choosePassageChapterName">Velg kapittel</string>
@@ -214,6 +215,7 @@
   <string name="save">Lagre</string>
   <string name="error">Feil</string>
   <string name="more">Mer</string>
+  <string name="more_dotted">Mer...</string>
   <string name="retry">Prøv igjen</string>
   <string name="please_wait">Vennligst vent...</string>
   <string name="all">Alle</string>

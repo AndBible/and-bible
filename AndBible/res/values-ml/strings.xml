@@ -7,7 +7,7 @@
   <string name="help_text_long"><b>Navigation</b>\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger\n    \nDouble-tap toggles Fullscreen on/off.\n    \n\n<b>Menu</b>\n    \nPress the MENU key for actions\n    \n\nTo download more documents press Menu/More/Download Documents\n    \n\n<b>Speech</b>\nPress Speak to access a dialog to start or stop reading\n    \n\n<b>My Note</b>\nNotes can be added via the My Note menu item on the verse context menu.  The list of existing notes can be accessed via the main menu.\n    \n\n<b>Bookmarks</b>\nBookmarks can be added via the verse context menu.  The Bookmark Manager is accessed via the main menu.  The Bookmark Manager context menu allows bookmarks to be grouped using labels.\n    \n\n<b>Search</b>\nSearch text can include special characters like *, ?, AND, OR, NOT (see \"Apache Lucene - Query Parser Syntax\" for more details)\n    \n\n<b>Context Menus</b>\n    \nLong press on the bible view to open the context menu for actions affecting the current verse.\n    \nLong press on a document in the document selector to delete it or view information.\n    \nLong press the Back button to access the History list\n    </string>
   <string name="version_text">വേർഷൻ %s</string>
   <string name="no_sdcard_error">SD കാർഡ്‌ ഉള്ളിൽ ഇട്ടശേഷം And Bible വീണ്ടും തുടങ്ങുക.</string>
-  <!--main menu-->
+  <!--Main menu-->
   <string name="chooseBook">ഡോക്കുമെന്റ്</string>
   <string name="selectPassage">ഭാഗം</string>
   <string name="search">കണ്ടുപിടിക്കുക</string>

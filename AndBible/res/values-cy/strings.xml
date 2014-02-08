@@ -7,7 +7,7 @@
   <string name="help_text_long"><b>Llywio</b> \nEwch i\'r bennod nesaf neu\'r flaenorol drwy ddefnyddio\'r trac-bel, D-pad neu drwy lusgo\'ch bys ar y sgrîn. \nMae tap dwbl yn toglo\'r Sgrîn Lawn i ffwrdd ac ymlaen.\n\n<b>Dewislen</b> \nGwasgwch y DDEWISLEN i weithredu.\n\nI lawrlwytho mwy o ddogfennau gwasgwch Dewislen/Mwy/Lawrlwytho Dogfennau \n\n<b>Siarad</b> \nGwasgu \'Siarad\' i fynd i ddeialog dechrau neu stopio darllen\n\n<b>Fy Nodyn</b> Gellir ychwanegu nodiadau drwy Fy Nodyn ar y ddewislen cyd-destun adnod. Gellir mynd i\'r rhestr lawn o nodiadau o\'r brif ddewislen.\n\n<b>Nodau Llyfr</b>\nGellir ychwanegu Nodau Llyfr drwy\'r ddewislen cyd-destun adnod. Gellir mynd i\'r Rheolwr Nodau Llyfr o\'r brif ddewislen. Mae dewislen cyd-destun y Rheolwr Nodau Llyfr yn caniatau i nodau llyfr gael eu grwpio dan labeli.\n\n<b>Chwilio</b> \nGall chwilio\'r testun gynnwys nodau fel *, ?, A, NEU, DIM (gw. \"Apache Lucene - Query Parser Syntax\" am fwy o fanylion) \n\n<b>Dewislen Cyd-destun</b>\nGwasgiad hir ar \'gweld Beibl\' i agor y ddewislen weithredu ar gyfer yr adnod gyfredol. \nGwasgiad hir ar ddogfen yn y dewisydd dogfen i\'w dileu neu weld gwybodaeth. \nGwasgiad hir ar y botwm \'yn ol\' i fynd i mewn i\'r Hanes\n</string>
   <string name="version_text">Fersiwn %s</string>
   <string name="no_sdcard_error">Rhowch gerdyn SD yn eich ffôn a dechrau And Bible eto.</string>
-  <!--main menu-->
+  <!--Main menu-->
   <string name="chooseBook">Dogfen</string>
   <string name="selectPassage">Adran</string>
   <string name="search">Dod o hyd i</string>
@@ -15,6 +15,7 @@
   <string name="history">Hanes</string>
   <string name="speak">Siarad</string>
   <string name="help">Cymorth</string>
+  <string name="verse">Adnod</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Dewis Llyfr</string>
   <string name="choosePassageChapterName">Dewis Pennod</string>
@@ -214,6 +215,7 @@
   <string name="save">Cadw</string>
   <string name="error">Gwall</string>
   <string name="more">Mwy</string>
+  <string name="more_dotted">Mwy...</string>
   <string name="retry">Ceisiwch eto</string>
   <string name="please_wait">Arhoswch ...</string>
   <string name="all">Y Cwbl</string>

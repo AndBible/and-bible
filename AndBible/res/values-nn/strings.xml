@@ -7,7 +7,7 @@
   <string name="help_text_long"><b>Navigasjon</b>\nNaviger til neste eller førre kapittel ved å nytte rulleballen, pilknappane eller dra fingeren vannrett over skjermen.\nDobbeltrykk slår av/på fullskjermmodus.\n\n<b>Meny</b> \nTrykk menyknappen for å sjå tilgjengelege val\n\nFor å laste ned fleire modular, trykk menyknappen-&gt;Meir-&gt;Last ned modular\n\n<b>Høgtlesing</b>\nTrykk menyknappen-&gt;Meir-&gt;Høgtlesing for å lytte til/stanse høgtlesing\n\n<b>Mine notat</b>\nNotat kan leggjast til versmenyen-&gt;Legg til notat. Ei liste over notat kan synast via hovudmenyen-&gt;Mine notat.\n\n<b>Bokmerke</b>\nBokmerke kan opprettast frå bibelversmenyen. Du når bokmerkehandteraren frå hovudmenyen. Bokmerkehandteraren let deg gruppere bokmerker.\n\n<b>Søk</b>\nI søkjestrengen kan du nytte særteikn som *, ?, AND, OR, NOT (sjå \"Apache Lucene - Query Parser Syntax\" for fleire detaljar).\n\n<b>Bibelversmenyen</b> \nTrykk lenge i bibelverssyning for å opne meny for gjeldande vers.\nTrykk lenge på ein modul i modulhandteraren for å slette eller vise informasjon om den.\nTrykk lenge på tilbakeknappen for å syne historikk.\n</string>
   <string name="version_text">Versjon %s</string>
   <string name="no_sdcard_error">Vennlegst koble til eit minnekort og start And Bible opp att.</string>
-  <!--main menu-->
+  <!--Main menu-->
   <string name="chooseBook">Modular</string>
   <string name="selectPassage">Oppslag</string>
   <string name="search">Søk</string>
@@ -15,6 +15,7 @@
   <string name="history">Historikk</string>
   <string name="speak">Høgtlesing</string>
   <string name="help">Hjelp</string>
+  <string name="verse">Vers</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Vel bok</string>
   <string name="choosePassageChapterName">Vel kapittel</string>
@@ -214,6 +215,7 @@
   <string name="save">Lagre</string>
   <string name="error">Feil</string>
   <string name="more">Meir</string>
+  <string name="more_dotted">Meir...</string>
   <string name="retry">Prøv om att</string>
   <string name="please_wait">Vennlegst vent...</string>
   <string name="all">Alle</string>
