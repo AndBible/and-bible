@@ -38,6 +38,10 @@
 		  android:icon="@android:drawable/ic_menu_search"
 		  appcompat:showAsAction="ifRoom"/>
 
+	<item 	android:id="@+id/historyButton" 
+			android:title="@string/history"
+			android:icon="@android:drawable/ic_menu_recent_history"/>
+	
 	<item android:id="@+id/speakButton"
 		  android:title="@string/speak"
 		  android:icon="@drawable/ic_action_volume_on"/>
@@ -50,10 +54,6 @@
 			<item android:id="@+id/dailyReadingPlanButton"
 				  android:title="@string/rdg_plan_title"
 				  android:icon="@android:drawable/ic_menu_month"/>
-		
-			<item 	android:id="@+id/historyButton" 
-					android:title="@string/history"
-					android:icon="@android:drawable/ic_menu_recent_history"/>
 		
 			<item android:id="@+id/downloadButton"
 				  android:title="@string/download"
