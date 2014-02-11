@@ -3,21 +3,34 @@ package net.bible.android.view.activity.speak.actionbarbuttons;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.document.DocumentControl;
+import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
+import android.util.Log;
 import android.view.MenuItem;
 
 /** 
  * Toggle Strongs numbers on/off
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class SpeakActionBarButton extends SpeakActionBarButtonBase {
 
 	private DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
 
+	private static final String TAG = "SpeakActionBarButtonBase";
+
 	@Override
 	public boolean onMenuItemClick(MenuItem menuItem) {
-		getSpeakControl().speakToggleCurrentPage();
-		
-		update(menuItem);
+		try {
+			getSpeakControl().speakToggleCurrentPage();
+			
+			update(menuItem);
+		} catch (Exception e) {
+			Log.e(TAG, "Error toggling speech", e);
+			Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+		}
 		return true;
 	}
 

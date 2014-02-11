@@ -13,7 +13,14 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
+import org.crosswire.jsword.versification.system.SystemKJV;
+import org.crosswire.jsword.versification.system.Versifications;
 
+/**
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class NavigationControl {
 	
 	private PageControl pageControl;
@@ -48,7 +55,7 @@ public class NavigationControl {
 	}
 
 	/**
-	 * @return
+	 * @return v11n of current document
 	 */
 	public Versification getVersification() {
 		CurrentPageManager currentPageManager = pageControl.getCurrentPageManager();
@@ -60,8 +67,13 @@ public class NavigationControl {
 			doc = currentPageManager.getCurrentBible().getCurrentDocument();
 		}
 		
-		Versification versification = ((AbstractPassageBook)doc).getVersification();
-		return versification;
+		// this should always be true
+		if (doc!=null && doc instanceof AbstractPassageBook) {
+			return ((AbstractPassageBook)doc).getVersification();
+		} else {
+			// but safety first
+			return Versifications.instance().getVersification(SystemKJV.V11N_NAME);
+		}
 	}
 	
 	

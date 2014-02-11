@@ -351,6 +351,9 @@ public class SplitScreenControl {
 		splitScreenEventManager.splitScreenSizeChange(isMoveFinished, getScreenVerseMap());
 	}
 
+	/**
+	 * Weight reflects the relative size of each screen
+	 */
 	public float getScreen1Weight() {
 		return screen1Weight;
 	}
@@ -359,14 +362,18 @@ public class SplitScreenControl {
 	}
 
 	/**
-	 * @return
+	 * Get current verse for each screen displaying a Bible
+	 * 
+	 * @return Map of screen num to verse num
 	 */
 	private Map<Screen, Integer> getScreenVerseMap() {
 		// get page offsets to maintain for each screen
 		Map<Screen,Integer> screenVerseMap = new HashMap<Screen,Integer>();
 		for (Screen screen : Screen.values()) {
-			if (BookCategory.BIBLE == getCurrentPage(screen).getCurrentDocument().getBookCategory()) {
-				int verse = KeyUtil.getVerse(getCurrentPage(screen).getSingleKey()).getVerse();
+			CurrentPage currentPage = getCurrentPage(screen);
+			if (currentPage!=null &&
+				BookCategory.BIBLE == currentPage.getCurrentDocument().getBookCategory()) {
+				int verse = KeyUtil.getVerse(currentPage.getSingleKey()).getVerse();
 				screenVerseMap.put(screen, verse);
 				Log.d(TAG, screen+"* registered verse no:"+verse);
 			}
@@ -374,6 +381,8 @@ public class SplitScreenControl {
 		return screenVerseMap;
 	}
 	
+	/** Get Page info for each Screen 
+	 */
 	private CurrentPage getCurrentPage(Screen screenNo) {
 		return CurrentPageManager.getInstance(screenNo).getCurrentPage();
 	}
