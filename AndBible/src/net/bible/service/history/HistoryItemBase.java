@@ -4,6 +4,11 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 
+/**
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public abstract class HistoryItemBase implements HistoryItem {
 
 	private Screen screen;

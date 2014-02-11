@@ -3,6 +3,10 @@ package net.bible.android.view.util;
 import android.view.View;
 
 /** primarily to prevent long-touch being handled while dragging a separator on v slow mobiles
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class TouchOwner {
 

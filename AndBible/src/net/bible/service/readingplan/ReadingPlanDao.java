@@ -21,6 +21,11 @@ import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.util.Log;
 
+/**
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class ReadingPlanDao {
 
 	private String cachedPlanCode = "";

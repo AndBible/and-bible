@@ -9,6 +9,12 @@ import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
 
+/**Parameters passed into the Osis to HTML converter
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class OsisToHtmlParameters {
     private String languageCode = "en";
     private boolean isLeftToRight = true;

@@ -7,8 +7,9 @@ import net.bible.service.common.CommonUtils;
 /** maintain a list of languages that are knwn to be supported by the installed TTS engine
  * this list will be updated on success/failure of TTS init
  * 
- * @author denha1m
- *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class TTSLanguageSupport {
 

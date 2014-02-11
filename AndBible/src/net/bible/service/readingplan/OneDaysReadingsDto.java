@@ -17,6 +17,11 @@ import org.crosswire.jsword.versification.system.Versifications;
 
 import android.util.Log;
 
+/**
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class OneDaysReadingsDto implements Comparable<OneDaysReadingsDto> {
 	private ReadingPlanInfoDto mReadingPlanInfoDto;
 	private int mDay;

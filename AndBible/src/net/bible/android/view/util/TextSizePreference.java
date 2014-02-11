@@ -5,6 +5,11 @@ import net.bible.service.common.CommonUtils;
 import android.content.Context;
 import android.util.AttributeSet;
 
+/**
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class TextSizePreference extends SeekBarPreference {
 
 	// do not allow text smaller than 6sp;

@@ -6,6 +6,11 @@ import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
+/**
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class BibleJavascriptInterface {
 
 	private boolean notificationsEnabled = false;

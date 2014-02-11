@@ -11,6 +11,11 @@ import android.support.v4.view.MenuItemCompat;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 
+/**
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 abstract public class QuickDocumentChangeToolbarButton extends QuickActionButton implements OnMenuItemClickListener {
 	
 	private Book mSuggestedDocument;

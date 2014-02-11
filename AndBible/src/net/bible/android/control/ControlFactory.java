@@ -23,8 +23,9 @@ import net.bible.android.control.speak.SpeakControl;
 //TODO replace with ioc (maybe)
 /** allow access to control layer
  *
- * @author denha1m
- *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class ControlFactory {
 	//TODO move instance creation here

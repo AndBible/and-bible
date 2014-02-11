@@ -5,7 +5,11 @@ import net.bible.android.view.activity.base.actionbar.QuickDocumentChangeToolbar
 
 import org.crosswire.jsword.book.Book;
 
-// does not inherit from button - see: http://stackoverflow.com/questions/8369504/why-so-complex-to-set-style-from-code-in-android
+/**
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class CommentaryActionBarButton extends QuickDocumentChangeToolbarButton {
 
 	@Override

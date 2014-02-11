@@ -12,8 +12,10 @@ import android.widget.TwoLineListItem;
 
 /**
  * Retain similar style to TwoLineListView but for single TextView on each line
- * @author denha1m
- *
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class DailyReadingItemAdapter extends ArrayAdapter<OneDaysReadingsDto> {
 

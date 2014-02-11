@@ -28,6 +28,12 @@ import android.content.SharedPreferences;
 import android.text.ClipboardManager;
 import android.util.Log;
 
+/**
+ * SesionFacade for CurrentPage used by View classes
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class PageControl {
 	
 	private static final String TAG = "PageControl";

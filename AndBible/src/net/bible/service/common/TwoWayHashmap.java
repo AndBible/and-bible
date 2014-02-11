@@ -7,6 +7,10 @@ import java.util.Map;
  * Simple implementation of BiMap without requiring Guava library
  * 
  * @see http://stackoverflow.com/questions/3430170/how-to-create-a-2-way-map-in-java
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class TwoWayHashmap<K extends Object, V extends Object> {
 

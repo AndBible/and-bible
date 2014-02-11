@@ -7,8 +7,9 @@ import android.view.KeyEvent;
 /** KeyEvent.KEYCODE_DPAD_LEFT was being swallowed by the BibleView after scrolling down (it gained focus)
  * so this class implements common key handling both for BibleView and MainBibleActivity
  *   
- * @author denha1m
- *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class BibleKeyHandler {
 	

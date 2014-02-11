@@ -4,6 +4,11 @@ import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.actionbar.QuickDocumentChangeToolbarButton;
 import android.view.MenuItem;
 
+/**
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public abstract class ReadingPlanQuickDocumentChangeButton extends QuickDocumentChangeToolbarButton {
 
 	@Override

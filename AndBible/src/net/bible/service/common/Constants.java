@@ -1,5 +1,12 @@
 package net.bible.service.common;
-// see http://www.crosswire.org/wiki/Frontends:URI_Standard
+
+/**
+ * see http://www.crosswire.org/wiki/Frontends:URI_Standard
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class Constants {
     // Strings for URL protocols/URI schemes
     public static final String SWORD_PROTOCOL = "sword"; //$NON-NLS-1$

@@ -12,6 +12,11 @@ import org.crosswire.jsword.passage.Key;
 
 import android.util.Log;
 
+/**
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 abstract public class CachedKeyPage extends CurrentPageBase  {
 
 	private List<Key> mCachedGlobalKeyList;

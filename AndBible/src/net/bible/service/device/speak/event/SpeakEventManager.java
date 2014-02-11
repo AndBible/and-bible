@@ -5,8 +5,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 /** Notify clients when speak state changes between speaking, paused, quiet
  * 
- * @author denha1m
- *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class SpeakEventManager {
 

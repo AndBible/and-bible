@@ -17,6 +17,9 @@ import android.widget.ListView;
  *
  * ListActivity does not extend ActionBarActivity so when implementing ActionBar functionality I created this, which does.
  * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class ListActivityBase extends CustomTitlebarActivityBase {
 	/**

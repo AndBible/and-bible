@@ -6,8 +6,9 @@ import net.bible.service.device.ScreenSettings;
 
 /** prepare an error message for display in a WebView
  * 
- * @author denha1m
- *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class HtmlMessageFormatter {
 

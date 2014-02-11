@@ -3,6 +3,13 @@ package net.bible.service.device.speak;
 import net.bible.service.common.CommonUtils;
 import android.util.Log;
 
+/**
+ * The speed and progress of TTS Speech
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class SpeakTiming {
 	
 	private String lastUtteranceId;

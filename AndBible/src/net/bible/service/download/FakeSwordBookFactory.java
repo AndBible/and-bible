@@ -10,8 +10,9 @@ import org.crosswire.jsword.book.sword.SwordBookMetaData;
 
 /** Create dummy sword Books used to download from Xiphos Repo that has unusual download file case
  *  
- * @author denha1m
- *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class FakeSwordBookFactory {
 

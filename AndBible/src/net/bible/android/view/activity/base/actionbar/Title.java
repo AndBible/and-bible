@@ -11,6 +11,10 @@ import android.widget.TextView;
 
 /** 
  * Show current verse/key and document on left of actionBar
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public abstract class Title {
 

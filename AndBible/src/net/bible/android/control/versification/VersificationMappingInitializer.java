@@ -1,12 +1,5 @@
 package net.bible.android.control.versification;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import net.bible.service.sword.SwordDocumentFacade;
-
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.BooksEvent;
@@ -17,6 +10,11 @@ import org.crosswire.jsword.versification.VersificationsMapper;
 
 import android.util.Log;
 
+/**
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class VersificationMappingInitializer {
 	
 	private static final String TAG = "VersificationMappingInitializer";

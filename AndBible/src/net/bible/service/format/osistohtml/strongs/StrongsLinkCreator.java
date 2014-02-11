@@ -7,8 +7,9 @@ import net.bible.service.format.osistohtml.preprocessor.TextPreprocessor;
 
 /** Used with StrongsGreek and StrongsHebrew to find text like 'see HEBREW for 0433' and 'see GREEK for 1223' and converts to links
  * 
- * @author denha1m
- *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class StrongsLinkCreator implements TextPreprocessor {
 	

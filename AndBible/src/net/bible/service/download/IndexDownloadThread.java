@@ -10,6 +10,11 @@ import org.crosswire.jsword.util.IndexDownloader;
 
 import android.util.Log;
 
+/**
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class IndexDownloadThread {
 
 	private static final String TAG = "IndexDownloadThread";

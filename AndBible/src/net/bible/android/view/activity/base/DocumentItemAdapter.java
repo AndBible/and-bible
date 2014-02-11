@@ -19,8 +19,10 @@ import android.widget.ArrayAdapter;
 
 /**
  * nice example here: http://shri.blog.kraya.co.uk/2010/04/19/android-multi-line-select-list/
- * @author denha1m
- *
+ * 
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class DocumentItemAdapter extends ArrayAdapter<Book> {
 

@@ -3,6 +3,11 @@ package net.bible.service.format.osistohtml.preprocessor;
 import net.bible.service.common.CommonUtils;
 import android.os.Build;
 
+/**
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
+ */
 public class HebrewCharacterPreprocessor implements TextPreprocessor {
 
 	// the following characters are not handled well in Android 2.2 & 2.3 and
