@@ -15,6 +15,7 @@
   <string name="history">내가 본 페이지</string>
   <string name="speak">말하기</string>
   <string name="help">도움말</string>
+  <string name="verse">개의 구절</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">번역본 선택</string>
   <string name="choosePassageChapterName">장 선택</string>
@@ -151,7 +152,10 @@
   <string name="new_label">새 분류</string>
   <string name="label_name_prompt">이름</string>
   <string name="label_unlabelled">분류되지 않은</string>
+  <string name="rename">이름 바꾸기</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">날짜 순서</string>
+  <string name="sort_by_bible_book">성경의 순서</string>
   <!--Dictionary-->
   <string name="dictionary">사전</string>
   <string name="search_dictionary_hint">사전 검색</string>
@@ -194,6 +198,7 @@
   <string name="restore_success">SD 카드에 %s 에서 복원한 내 참고들 및 즐겨찾기</string>
   <!--About-->
   <string name="about_version">버전의 %s</string>
+  <string name="about_versification">시형: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">성경</string>
   <string name="doc_type_commentary">논평</string>
@@ -210,6 +215,7 @@
   <string name="save">저장</string>
   <string name="error">오류</string>
   <string name="more">기타</string>
+  <string name="more_dotted">기타...</string>
   <string name="retry">다시 시도</string>
   <string name="please_wait">기다려주십시오 ...</string>
   <string name="all">전체</string>

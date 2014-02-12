@@ -15,6 +15,7 @@
   <string name="history">Historique</string>
   <string name="speak">Écouter</string>
   <string name="help">Aide</string>
+  <string name="verse">Verset</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Sélectionner un livre</string>
   <string name="choosePassageChapterName">Sélectionner un chapitre</string>
@@ -214,6 +215,7 @@
   <string name="save">Enregistrer</string>
   <string name="error">Erreur </string>
   <string name="more">Plus</string>
+  <string name="more_dotted">Plus...</string>
   <string name="retry">Recommencer</string>
   <string name="please_wait">Attendez svp...</string>
   <string name="all">Tout</string>
