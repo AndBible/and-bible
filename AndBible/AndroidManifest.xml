@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.bible.android.activity"
       android:installLocation="auto"
-      android:versionName="20140208" android:versionCode="126">
+      android:versionName="20140212" android:versionCode="127">
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="19"/>
     <application android:icon="@drawable/ichthys" android:label="@string/app_name" android:name="net.bible.android.BibleApplication" android:theme="@style/AppThemeNight" android:allowBackup="true">
         <!-- deprecated but necessary to prevent old shortcut breaking -->
