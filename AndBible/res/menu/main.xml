@@ -42,10 +42,6 @@
 			android:title="@string/history"
 			android:icon="@android:drawable/ic_menu_recent_history"/>
 	
-	<item android:id="@+id/speakButton"
-		  android:title="@string/speak"
-		  android:icon="@drawable/ic_action_volume_on"/>
-
 	<item android:id="@+id/moreSubMenu"
 		  android:title="@string/more_dotted">
 		  
@@ -55,6 +51,10 @@
 				  android:title="@string/rdg_plan_title"
 				  android:icon="@android:drawable/ic_menu_month"/>
 		
+			<item android:id="@+id/speakButton"
+				  android:title="@string/speak"
+				  android:icon="@drawable/ic_action_volume_on"/>
+
 			<item android:id="@+id/downloadButton"
 				  android:title="@string/download"
 				  android:icon="@drawable/ic_action_download"/>
