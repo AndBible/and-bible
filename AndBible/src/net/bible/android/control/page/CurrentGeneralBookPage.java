@@ -72,12 +72,7 @@ public class CurrentGeneralBookPage extends CachedKeyPage implements CurrentPage
 	public void updateOptionsMenu(Menu menu) {
 		super.updateOptionsMenu(menu);
 		
-		MenuItem menuItem = menu.findItem(R.id.selectPassageButton);
-		if (menuItem!=null) {
-			menuItem.setTitle(R.string.general_book_contents);
-		}
-		
-		menuItem = menu.findItem(R.id.bookmarksButton);
+		MenuItem menuItem = menu.findItem(R.id.bookmarksButton);
 		if (menuItem!=null) {
 			menuItem.setEnabled(false);
 		}

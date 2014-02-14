@@ -189,11 +189,7 @@ abstract class CurrentPageBase implements CurrentPage {
 	@Override
 	public void updateOptionsMenu(Menu menu) {
 		// these are fine for Bible and commentary
-		MenuItem menuItem = menu.findItem(R.id.selectPassageButton);
-		if (menuItem!=null) {
-			menuItem.setTitle(R.string.selectPassage);
-		}
-		menuItem = menu.findItem(R.id.searchButton);
+		MenuItem menuItem = menu.findItem(R.id.searchButton);
 		if (menuItem!=null) {
 			menuItem.setEnabled(isSearchable());
 		}

@@ -8,18 +8,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:appcompat="http://schemas.android.com/apk/res-auto" >
 
-    <!-- TODO: delete -->
-    <item android:id="@+id/selectPassageButton" 
-		  android:title="@string/selectPassage"
-		  android:icon="@android:drawable/ic_menu_today"
-		  android:visible="false"/>
-
-    <!-- TODO: delete -->
-    <item android:id="@+id/chooseBookButton" 
-		  android:title="@string/chooseBook"
-		  android:icon="@android:drawable/ic_menu_save"
-		  android:visible="false"/>
-
     <item android:id="@+id/bibleVerseButton" 
 		  android:title="@string/verse"
 		  android:icon="@android:drawable/ic_menu_day"/>
