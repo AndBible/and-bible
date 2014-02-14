@@ -110,7 +110,6 @@ public class PageControl {
 	 * @return
 	 */
 	public String getCurrentDocumentTitle() {
-		boolean isPortrait = CommonUtils.isPortrait();
 	
 		StringBuilder title = new StringBuilder();
 		CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();

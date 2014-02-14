@@ -38,7 +38,7 @@ public class StrongsActionBarButton extends QuickActionButton {
 	}
 
 	private boolean isStrongsVisible() {
-		return CommonUtils.getSharedPreferences().getBoolean("show_strongs_pref", false);
+		return CommonUtils.getSharedPreferences().getBoolean("show_strongs_pref", true);
 	}
 
 	@Override
