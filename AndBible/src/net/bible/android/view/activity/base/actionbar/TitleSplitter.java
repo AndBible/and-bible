@@ -17,11 +17,12 @@ public class TitleSplitter {
 		// only split if in portrait because landscape actionBar has more width but less height
 		if (CommonUtils.isPortrait()) {
 			// this is normally used for verses e.g. '1Cor 2:1' -> '1Cor','2:1'
+			// Explained: there must be at least 3 chars before a space to split
 			parts = text.split("(?<=... )");
 			
 			// this is normally used for module names e.g. 'GodsWord' -> 'Gods','Word'
 			if (parts.length==1) {
-				parts = text.split("(?<=[a-z])(?=[A-Z])");
+				parts = text.split("(?<=[a-z])(?=[A-Z0-9])");
 			}
 		} else {
 			parts = new String[1];
