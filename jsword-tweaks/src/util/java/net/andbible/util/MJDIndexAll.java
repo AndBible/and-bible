@@ -35,18 +35,18 @@ public class MJDIndexAll {
 	private static final String REPOSITORY_XIPHOS = "Xiphos";
 	private static final String REPOSITORY_CROSSWIRE_BETA = "Crosswire Beta";
 	// Default repo used below
-	private static final String REPOSITORY = REPOSITORY_CROSSWIRE_AV;
+	private static final String REPOSITORY = REPOSITORY_CROSSWIRE;
 	
 //	private static final BookFilter BOOK_FILTER = BookFilters.getDictionaries();
 	private static final BookFilter BOOK_FILTER = BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries());
 
-	private static final String SWORD_BOOK_PATH = "C:/Sword/Books";
+	private static final String SWORD_BOOK_PATH = "/Sword/Books";
 	
 	//TODO this is awful but I need to figure out how to set it appropriately 
-	private static final String LUCENE_INDEX_DIR = "C:/Users/Martin/Application Data/JSword/lucene/Sword";
+	private static final String LUCENE_INDEX_DIR = "/home/martin/.jsword/lucene/Sword";
 	private static final File LUCENE_INDEX_DIR_FILE = new File(LUCENE_INDEX_DIR);
 	
-	private static final String LUCENE_ZIP_DIR = "C:/Sword/JSwordLuceneZips";
+	private static final String LUCENE_ZIP_DIR = "/Sword/JSwordLuceneZips";
 	private static final File LUCENE_ZIP_DIR_FILE = new File(LUCENE_ZIP_DIR);
 	
     private static final int JAR_BUFFER_SIZE = 2048;
@@ -76,9 +76,9 @@ public class MJDIndexAll {
 	//    	indexAll.installSingleBook("StrongsGreek");
 	//    	indexAll.installSingleBook("BDBGlosses_Strongs");
 	//    	indexAll.installRepoBooks();
-			boolean installAndIndex = false;
-			indexAll.checkAllBooksInstalled(installAndIndex);
-	//    	indexAll.manageCreateIndexes();
+//			boolean installAndIndex = false;
+//			indexAll.checkAllBooksInstalled(installAndIndex);
+	    	indexAll.manageCreateIndexes();
 	//    	indexAll.indexSingleBook("KJV");
 	    	
 	    	// 22/4/11 updates
@@ -283,6 +283,7 @@ public class MJDIndexAll {
 			//CW
 //			indexAll.installAndIndexSingleBook("KJV");
 //			indexAll.installAndIndexSingleBook("AB");
+//			indexAll.installAndIndexSingleBook("GerNeUe");
 			
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -647,6 +648,7 @@ public class MJDIndexAll {
     }
 
     private void createZipFile(File jarFile, File sourceDir) {
+		System.out.println("Zipping dir:"+sourceDir+" to jar:"+jarFile);
         try {
             BufferedInputStream origin = null;
             FileOutputStream dest = new FileOutputStream(jarFile);
