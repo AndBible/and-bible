@@ -118,7 +118,7 @@ public class DownloadManager {
         Book installedBook = Books.installed().getBook(bookInitials);
         if (installedBook!= null) {
         	// installedBook may differ by case of initials if Xiphos so delete installedBook rather than book
-            deleteBook(installedBook);
+            unregisterBook(installedBook);
         }
 
         // Now install it in the background
@@ -162,21 +162,28 @@ public class DownloadManager {
     }
 
     /**
-     * Uninstall a book.
+     * Unregister a book from Sword registry.
+     * 
+     * This used to delete the book but there is an mysterious bug in deletion (see below). 
      * 
      * @param book
      *            the book to delete
      * @throws BookException
      */
-    public void deleteBook(Book book) throws BookException {
-// removeBook(book) is called at the end of delete(book) so do not call it here or an error can occur.
-    	// Make the book unavailable.
-        // This is normally done via listeners.
-//        Books.installed().removeBook(book);
+    public void unregisterBook(Book book) throws BookException {
+    	// this just seems to work so leave it here
+    	// I used to think that the next delete was better - what a mess
+    	// see this for potential problem: http://stackoverflow.com/questions/20437626/file-exists-returns-false-for-existing-file-in-android
+    	// does file.exists return an incorrect value?
+    	// To see the problem, reverse the commented lines below, and try downloading 2 or more Bibles that are already installed
+        Books.installed().removeBook(book);
 
+        // Avoid deleting all dir and files because "Java is known not to delete files immediately, so mkdir may fail sometimes"
+        // http://stackoverflow.com/questions/617414/create-a-temporary-directory-in-java
+        //
         // Actually do the delete
         // This should be a call on installer.
-        book.getDriver().delete(book);
+        //book.getDriver().delete(book);
     }
 
     /**
