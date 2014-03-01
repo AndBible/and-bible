@@ -49,7 +49,7 @@ public class BibleContentManager {
 		if (!forceUpdate && 
 				document!=null && document.equals(previousDocument) && 
 				key!=null && key.equals(previousVerse)) {
-			Log.w(TAG, "Duplicated screen update. Doc:"+document.getInitials()+" Key:"+key);
+			Log.w(TAG, "Duplicated screen update. Doc:"+document.getInitials()+" Key:"+key.getOsisID());
 		} else {
 			previousDocument = document;
 			previousVerse = key;

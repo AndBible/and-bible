@@ -259,8 +259,15 @@ public class PageTiltScrollControl {
 		sm.registerListener(myOrientationListener, oSensor, SensorManager.SENSOR_DELAY_UI);
 	}
     private void disconnectListeners() {
-		SensorManager sm = (SensorManager) BibleApplication.getApplication().getSystemService(Context.SENSOR_SERVICE);
-    	sm.unregisterListener(myOrientationListener);
+    	try {
+			SensorManager sm = (SensorManager) BibleApplication.getApplication().getSystemService(Context.SENSOR_SERVICE);
+	    	sm.unregisterListener(myOrientationListener);
+    	} catch (IllegalArgumentException e) {
+    		// Prevent occasional: IllegalArgumentException: Receiver not registered: android.hardware.SystemSensorManager
+    		// If not registered then there is no need to unregister
+    		Log.w(TAG, "Error disconnecting sensor listener", e);
+    		
+    	}
     }
 
 	final SensorEventListener myOrientationListener = new SensorEventListener() {

@@ -387,6 +387,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     //http://developer.motorola.com/docstools/library/The_Widget_Pack_Part_3_Swipe/
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent motionEvent) {
+		//TODO: should only call super if below returns false, but this code has been as follows for a long time
 		this.gestureDetector.onTouchEvent(motionEvent);
 		return super.dispatchTouchEvent(motionEvent);
 	}

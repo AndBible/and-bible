@@ -30,7 +30,7 @@ public class VersificationConverter {
 			return KeyUtil.getVerse(key);
 		} catch (Exception e) {
 			// mapper chokes on unmapped verse 0 so try to cope with that with temporary hack
-			Log.e(TAG, "JSword Versification mapper failed to map "+verse+" from "+verse.getVersification().getName()+" to "+toVersification.getName(), e);
+			Log.e(TAG, "JSword Versification mapper failed to map "+verse.getOsisID()+" from "+verse.getVersification().getName()+" to "+toVersification.getName(), e);
 			return new Verse(toVersification, verse.getBook(), verse.getChapter(), verse.getVerse());
 		}
 	}
