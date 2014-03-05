@@ -44,7 +44,7 @@ public class SharedConstants {
      */
     static private File getModuleDir() {
     	// see here: http://developer.android.com/guide/topics/data/data-storage.html#filesExternal
-    	// On api level >=8 this is just Environment.getExternalFilesDir()
+    	// On api level >=8 this is Context.getExternalFilesDir(null)
     	//
     	// If you're using API Level 7 or lower, use getExternalStorageDirectory(), to open a File representing the root of the external storage. 
     	// You should then write your data in the following directory:
