@@ -1,0 +1,7 @@
+Error when updating KJV
+
+02-18 20:14:14.612: W/o*.c*.j*.b*.i*.s*.AndB*(6145): The URL /storage/emulated/0/Android/data/net.bible.android.activity/files/modules/texts/ztext/kjv could not be created as a directory.
+02-18 20:14:14.612: W/o*.c*.j*.b*.i*.s*.AndB*(6145): java.net.MalformedURLException: The URL /storage/emulated/0/Android/data/net.bible.android.activity/files/modules/texts/ztext/kjv could not be created as a directory.
+02-18 20:14:14.612: W/o*.c*.j*.b*.i*.s*.AndB*(6145): 	at org.crosswire.common.util.IOUtil.unpackZip(IOUtil.java:79)
+02-18 20:14:14.612: W/o*.c*.j*.b*.i*.s*.AndB*(6145): 	at org.crosswire.jsword.book.install.sword.AbstractSwordInstaller.install(AbstractSwordInstaller.java:224)
+02-18 20:14:14.612: W/o*.c*.j*.b*.i*.s*.AndB*(6145): 	at net.bible.service.download.DownloadManager$1.run(DownloadManager.java:135)
