@@ -15,6 +15,7 @@
   <string name="history">阅读历史</string>
   <string name="speak">朗读</string>
   <string name="help">帮助</string>
+  <string name="verse">经文</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">选择书卷</string>
   <string name="choosePassageChapterName">选择章节</string>
@@ -214,6 +215,7 @@
   <string name="save">保存</string>
   <string name="error">错误</string>
   <string name="more">更多</string>
+  <string name="more_dotted">更多...</string>
   <string name="retry">再试</string>
   <string name="please_wait">请等待...</string>
   <string name="all">全部</string>

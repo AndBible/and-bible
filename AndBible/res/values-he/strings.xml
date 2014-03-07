@@ -15,6 +15,7 @@
   <string name="history">היסטוריה</string>
   <string name="speak">הקראה</string>
   <string name="help">עזרה</string>
+  <string name="verse">פסוק</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">בחר ספר</string>
   <string name="choosePassageChapterName">בחר פרק</string>
@@ -151,7 +152,10 @@
   <string name="new_label">תווית חדשה</string>
   <string name="label_name_prompt">שם</string>
   <string name="label_unlabelled">לא מתויג</string>
+  <string name="rename">שנה שם</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">סדר תאריכים</string>
+  <string name="sort_by_bible_book">סדר הספרים</string>
   <!--Dictionary-->
   <string name="dictionary">מילון</string>
   <string name="search_dictionary_hint">חיפוש במילון</string>
@@ -193,6 +197,8 @@
   <string name="restore_confirmation">האם להחליף את ההערות והסימניות הקיימות ?</string>
   <string name="restore_success">ההערות והסימניות שוחזרו מ %s בכרטיס הזכרון</string>
   <!--About-->
+  <string name="about_version">גרסה: %s</string>
+  <string name="about_versification">חריזה: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">תנ\"ך</string>
   <string name="doc_type_commentary">פרשנות</string>
@@ -209,6 +215,7 @@
   <string name="save">שמירה</string>
   <string name="error">שגיאה</string>
   <string name="more">עוד</string>
+  <string name="more_dotted">עוד...</string>
   <string name="retry">נסה שנית</string>
   <string name="please_wait">אנא המתן...</string>
   <string name="all">הכל</string>
