@@ -1,9 +1,6 @@
 package net.bible.android.view.activity.base;
 
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
+import net.bible.android.control.event.apptobackground.AppToBackgroundEventManager;
 import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
 import android.app.Activity;
 import android.util.Log;
@@ -24,7 +21,7 @@ public class CurrentActivityHolder {
 	
 	private static final String TAG = "CurrentActivityHolder";
 	
-	private List<AppToBackgroundListener> appToBackgroundListeners = new CopyOnWriteArrayList<AppToBackgroundListener>();
+	private AppToBackgroundEventManager appToBackgroundEventManager = AppToBackgroundEventManager.getInstance();
 	
 	public static CurrentActivityHolder getInstance() {
 		return singleton;
@@ -55,11 +52,11 @@ public class CurrentActivityHolder {
 	
 	public void addAppToBackgroundListener(AppToBackgroundListener listener) 
 	{
-	     appToBackgroundListeners.add(listener);
+	     appToBackgroundEventManager.addAppToBackgroundListener(listener);
 	}
 	public void removeAppToBackgroundListener(AppToBackgroundListener listener) 
 	{
-	     appToBackgroundListeners.remove(listener);
+	     appToBackgroundEventManager.removeAppToBackgroundListener(listener);
 	}
 	
 	/** really need to check for app being restored after an exit
@@ -68,21 +65,12 @@ public class CurrentActivityHolder {
 		if (!appIsInForeground) {
 			Log.d(TAG, "AppIsInForeground firing event");
 			appIsInForeground = true;
-			fireAppToBackground(false);
+			appToBackgroundEventManager.appNowInBackground(false);
 		}
 	}
 	
 	protected void fireAppToBackground(boolean isNowBackGround) {
-		AppToBackgroundEvent event = new AppToBackgroundEvent();
-		// loop through each listener and pass on the event if needed
-		for (AppToBackgroundListener listener : appToBackgroundListeners) {
-			// pass the event to the listeners event dispatch method
-			if (isNowBackGround) {
-				listener.applicationNowInBackground(event);
-			} else {
-				listener.applicationReturnedFromBackground(event);
-			}
-		}
+		appToBackgroundEventManager.appNowInBackground(isNowBackGround);
 	}
 
 	/** convenience task with error checking

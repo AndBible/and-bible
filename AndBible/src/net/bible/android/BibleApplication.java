@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Locale;
 
 import net.bible.android.activity.R;
+import net.bible.android.control.event.apptobackground.PhoneCallMonitor;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ProgressNotificationManager;
@@ -72,7 +73,9 @@ public class BibleApplication extends Application{
 		Locale locale = Locale.getDefault();
 		Log.i(TAG, "Locale language:"+locale.getLanguage()+" Variant:"+locale.getDisplayName());
 
-		screenTimeoutSettings.overrideScreenTimeout();	
+		screenTimeoutSettings.overrideScreenTimeout();
+		
+		new PhoneCallMonitor().startMonitoring();
 	}
 
 	/** Allow user interface locale override by changing Settings

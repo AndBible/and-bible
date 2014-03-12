@@ -77,6 +77,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 	private List<Book> displayedDocuments;
 
 	private boolean isDeletePossible;
+	// We only show installed ticks beside documents if in Document Downloads screen
 	private boolean isInstallStatusIconsShown;
 	
 	private DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
