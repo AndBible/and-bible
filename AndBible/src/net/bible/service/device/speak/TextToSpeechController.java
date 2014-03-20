@@ -5,18 +5,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.lang.StringUtils;
-
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
-import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
-import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
-import net.bible.android.view.activity.base.CurrentActivityHolder;
+import net.bible.android.control.event.phonecall.PhoneCallEventManager;
+import net.bible.android.control.event.phonecall.PhoneCallListener;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.speak.event.SpeakEvent;
-import net.bible.service.device.speak.event.SpeakEventManager;
 import net.bible.service.device.speak.event.SpeakEvent.SpeakState;
+import net.bible.service.device.speak.event.SpeakEventManager;
+
+import org.apache.commons.lang.StringUtils;
+
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
@@ -41,7 +41,7 @@ import android.util.Log;
  *      The copyright to this program is held by it's author.
 
  */
-public class TextToSpeechController implements TextToSpeech.OnInitListener, TextToSpeech.OnUtteranceCompletedListener, AppToBackgroundListener {
+public class TextToSpeechController implements TextToSpeech.OnInitListener, TextToSpeech.OnUtteranceCompletedListener, PhoneCallListener {
 
 	private static final String TAG = "Speak";
 
@@ -77,7 +77,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     private TextToSpeechController() {
     	Log.d(TAG, "Creating TextToSpeechController");
     	context = BibleApplication.getApplication().getApplicationContext();
-    	CurrentActivityHolder.getInstance().addAppToBackgroundListener(this);
+    	PhoneCallEventManager.getInstance().addPhoneCallListener(this);
     	mSpeakTextProvider = new SpeakTextProvider();
     	mSpeakTiming = new SpeakTiming();
     	restorePauseState();
@@ -405,7 +405,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 	}
 
 	@Override
-	public void applicationNowInBackground(AppToBackgroundEvent e) {
+	public void phoneCallStarted() {
 		if (isSpeaking()) {
 			pause();
 		}
@@ -413,18 +413,13 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 		if (isPaused()) {
 			persistPauseState();
 		} else {
-			// ensure a previous does not hang around and be restored incorrectly
+			// ensure a previous pause does not hang around and be restored incorrectly
 			clearPauseState();
 		}
 		
 		shutdownTtsEngine();
 	}
 
-	@Override
-	public void applicationReturnedFromBackground(AppToBackgroundEvent e) {
-		restorePauseState();
-	}
-	
 	/** persist and restore pause state to allow pauses to continue over an app exit
 	 */
 	private void persistPauseState() {

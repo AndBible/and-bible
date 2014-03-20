@@ -1,4 +1,4 @@
-package net.bible.android.control.event.apptobackground;
+package net.bible.android.control.event.phonecall;
 
 import net.bible.android.BibleApplication;
 import android.content.Context;
@@ -14,15 +14,24 @@ import android.telephony.TelephonyManager;
  */
 public class PhoneCallMonitor {
 	
+	private static boolean isMonitoring = false;
+	
+	public static void ensureMonitoringStarted() {
+		if (!isMonitoring) {
+			isMonitoring = true;
+			new PhoneCallMonitor().startMonitoring();
+		}
+	}
+	
 	/** If phone rings then notify all appToBackground listeners.
 	 * This was attempted in CurrentActivityHolder but failed if device was on stand-by and speaking and Android 4.4 (I think it worked on earlier versions of Android)
 	 */
-	public void startMonitoring() {
+	private void startMonitoring() {
 		getTelephonyManager().listen(new PhoneStateListener() {
 			@Override
 			public void onCallStateChanged(int state, String incomingNumber) {
 				if (state==TelephonyManager.CALL_STATE_RINGING || state==TelephonyManager.CALL_STATE_OFFHOOK) {
-					AppToBackgroundEventManager.getInstance().appNowInBackground(true);
+					PhoneCallEventManager.getInstance().phoneCallStarted();
 				}
 			}
 			
