@@ -32,6 +32,10 @@ public class Scripture {
 		return SCRIPTURAL_V11N.containsBook(bibleBook) && !INTROS.contains(bibleBook);
 	}
 
+	static public boolean isIntro(BibleBook bibleBook) {
+		return INTROS.contains(bibleBook);
+	}
+
 	/** Get next Scriptural Verse
 	 */
 	static public Verse getNextVerse(Verse verse) {

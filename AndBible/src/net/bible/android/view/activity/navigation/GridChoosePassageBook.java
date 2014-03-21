@@ -3,6 +3,7 @@ package net.bible.android.view.activity.navigation;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.navigation.NavigationControl;
 import net.bible.android.control.page.CurrentPageManager;
@@ -22,6 +23,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MenuItem;
 
 /**
  * Choose a bible book e.g. Psalms
@@ -32,6 +34,9 @@ import android.util.Log;
  */
 public class GridChoosePassageBook extends CustomTitlebarActivityBase implements OnButtonGridActionListener {
 
+	private boolean isScriptureBookScreenCurrent = true;
+	private ButtonGrid buttonGrid;
+	
 	private NavigationControl navigationControl = ControlFactory.getInstance().getNavigationControl();
 	
 	static final String BOOK_NO = "BOOK_NO";
@@ -52,6 +57,10 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
 
 	private static final String TAG = "GridChoosePassageBook";
 
+    public GridChoosePassageBook() {
+		super(R.menu.choose_passage_book_menu);
+	}
+    
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -59,15 +68,39 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
     	setAllowThemeChange(false);
         super.onCreate(savedInstanceState);
 
-        ButtonGrid grid = new ButtonGrid(this);
+        buttonGrid = new ButtonGrid(this);
         
-        grid.setOnButtonGridActionListener( this );
+        buttonGrid.setOnButtonGridActionListener( this );
         
-        grid.addButtons(getBibleBookButtonInfo());
+        buttonGrid.addButtons(getBibleBookButtonInfo());
         
-        setContentView(grid);
+        setContentView(buttonGrid);
     }
     
+	/** 
+     * on Click handlers for ActionBar - toggle Scripture/Apocrypha screens
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        boolean isHandled = false;
+        
+        switch (item.getItemId()) {
+        // Change sort order
+		case (R.id.nextAction):
+			isHandled = true;
+    		isScriptureBookScreenCurrent = !isScriptureBookScreenCurrent;
+
+    		buttonGrid.clear();
+            buttonGrid.addButtons(getBibleBookButtonInfo());
+        }
+        
+		if (!isHandled) {
+            isHandled = super.onOptionsItemSelected(item);
+        }
+        
+     	return isHandled;
+    }
+
 	@Override
 	public void buttonPressed(ButtonInfo buttonInfo) {
 		Log.d(TAG, "Book:"+buttonInfo.id+" "+buttonInfo.name);
@@ -81,7 +114,7 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
         	BibleBook book = BibleBook.values()[bibleBookNo];
         	Versification v11n = getVersification();
     		// if there is only 1 chapter then no need to select chapter, but may need to select verse still
-    		if (v11n.getLastChapter(book)==1) {
+    		if (!navigationControl.hasChapters(book)) {
     			if (!GridChoosePassageChapter.navigateToVerse()) {
     				CurrentPageManager.getInstance().getCurrentBible().setKey(new Verse(v11n, book, 1, 1));
     				returnToPreviousScreen();
@@ -114,7 +147,7 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
     	boolean isShortBookNamesAvailable = isShortBookNames();
     	BibleBook currentBibleBook = KeyUtil.getVerse(CurrentPageManager.getInstance().getCurrentBible().getKey()).getBook();
     	    	
-    	List<BibleBook> bibleBookList = navigationControl.getScripturalBibleBooks();
+    	List<BibleBook> bibleBookList = navigationControl.getBibleBooks(isScriptureBookScreenCurrent);
     	List<ButtonInfo> keys = new ArrayList<ButtonInfo>(bibleBookList.size());
     	for (BibleBook book : bibleBookList) {
     		ButtonInfo buttonInfo = new ButtonInfo();

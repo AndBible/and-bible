@@ -74,8 +74,16 @@ public class ButtonGrid extends TableLayout {
         this.mContext = context;
 
         // use generic ViewGroup LayoutParams for Table because we don't know what the parent is
-		setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
+		setLayoutParams(new ViewGroup.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
 		setStretchAllColumns(true);
+    }
+    
+    public void clear() {
+    	removeAllViews();
+    	buttonInfoList = null;
+    	mRowColLayout = null;
+    	mPressed = null;
+    	isInitialised = false;
     }
     
     /** Called during initialisation to add the list of buttons to be laid out on the screen
@@ -90,8 +98,8 @@ public class ButtonGrid extends TableLayout {
     	// calculate the number of rows and columns so that the grid looks nice
     	mRowColLayout = new LayoutDesigner().calculateLayout(buttonInfoList); 
 		
-    	TableLayout.LayoutParams rowInTableLp = new TableLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1.0f);
-		TableRow.LayoutParams cellInRowLp = new TableRow.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT, 1.0f);
+    	TableLayout.LayoutParams rowInTableLp = new TableLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1.0f);
+		TableRow.LayoutParams cellInRowLp = new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1.0f);
 
 		int iCellNo = 0;
 		for (int iRow=0; iRow<mRowColLayout.rows; iRow++) {

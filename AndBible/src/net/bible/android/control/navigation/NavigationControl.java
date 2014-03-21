@@ -2,7 +2,6 @@ package net.bible.android.control.navigation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import net.bible.android.control.page.CurrentPageManager;
@@ -25,16 +24,18 @@ public class NavigationControl {
 	
 	private PageControl pageControl;
 	
+	private DocumentBibleBooksFactory documentBibleBooksFactory = new DocumentBibleBooksFactory();
+	
 	/** 
-	 * get books from current Versification that are scriptural
+	 * Get books in current Document - either all Scripture books or all non-Scripture books
 	 */
-	public List<BibleBook> getScripturalBibleBooks() {
-		
+	public List<BibleBook> getBibleBooks(boolean scripture) {
 		List<BibleBook> books = new ArrayList<BibleBook>();
-		Iterator<BibleBook> bookIter = getVersification().getBookIterator();
-		while (bookIter.hasNext()) {
-			BibleBook bibleBook = bookIter.next();
-    		if (Scripture.isScripture(bibleBook)) {
+
+		List<BibleBook> documentBookList = documentBibleBooksFactory.getBooksFor(getCurrentPassageDocument());
+
+		for (BibleBook bibleBook : documentBookList) {
+    		if (scripture == Scripture.isScripture(bibleBook)) { //&& !Scripture.isIntro(bibleBook)
     			books.add(bibleBook);
     		}
 		}
@@ -42,6 +43,10 @@ public class NavigationControl {
 		return books;
 	}
 
+	public boolean hasChapters(BibleBook book) {
+		return getVersification().getLastChapter(book)>1;
+	}
+	
 	/** default book for use when jumping into the middle of passage selection
 	 */
 	public int getDefaultBibleBookNo() {
@@ -58,14 +63,7 @@ public class NavigationControl {
 	 * @return v11n of current document
 	 */
 	public Versification getVersification() {
-		CurrentPageManager currentPageManager = pageControl.getCurrentPageManager();
-		Book doc;
-		if (currentPageManager.isBibleShown() || currentPageManager.isCommentaryShown()) {
-			doc = currentPageManager.getCurrentPage().getCurrentDocument();
-		} else {
-			// should not reach here
-			doc = currentPageManager.getCurrentBible().getCurrentDocument();
-		}
+		Book doc = getCurrentPassageDocument();
 		
 		// this should always be true
 		if (doc!=null && doc instanceof AbstractPassageBook) {
@@ -76,7 +74,20 @@ public class NavigationControl {
 		}
 	}
 	
-	
+	/** 
+	 * When navigating books and chapters there should always be a current Passage based book
+	 */
+	private AbstractPassageBook getCurrentPassageDocument() {
+		CurrentPageManager currentPageManager = pageControl.getCurrentPageManager();
+		Book doc;
+		if (currentPageManager.isBibleShown() || currentPageManager.isCommentaryShown()) {
+			doc = currentPageManager.getCurrentPage().getCurrentDocument();
+		} else {
+			// should not reach here
+			doc = currentPageManager.getCurrentBible().getCurrentDocument();
+		}
+		return (AbstractPassageBook)doc;
+	}
 
 	public void setPageControl(PageControl pageControl) {
 		this.pageControl = pageControl;
