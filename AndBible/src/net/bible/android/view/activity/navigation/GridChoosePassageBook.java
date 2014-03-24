@@ -8,6 +8,8 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.navigation.NavigationControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
+import net.bible.android.view.activity.navigation.biblebookactionbar.BibleBookActionBarManager;
+import net.bible.android.view.activity.navigation.biblebookactionbar.ScriptureToggleEventHandler;
 import net.bible.android.view.util.buttongrid.ButtonGrid;
 import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo;
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener;
@@ -23,7 +25,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 
 /**
  * Choose a bible book e.g. Psalms
@@ -34,7 +35,6 @@ import android.view.MenuItem;
  */
 public class GridChoosePassageBook extends CustomTitlebarActivityBase implements OnButtonGridActionListener {
 
-	private boolean isScriptureBookScreenCurrent = true;
 	private ButtonGrid buttonGrid;
 	
 	private NavigationControl navigationControl = ControlFactory.getInstance().getNavigationControl();
@@ -55,10 +55,15 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
 	private static final int REVELATION_COLOR = Color.rgb(0xFE, 0x33, 0xFF);
 	private static final int OTHER_COLOR = ACTS_COLOR;
 
+	private static BibleBookActionBarManager bibleBookActionBarManager = new BibleBookActionBarManager();
+	
+	
 	private static final String TAG = "GridChoosePassageBook";
 
     public GridChoosePassageBook() {
-		super(R.menu.choose_passage_book_menu);
+		super(bibleBookActionBarManager, R.menu.choose_passage_book_menu);
+		
+		bibleBookActionBarManager.registerScriptureToggleEventHandler(scriptureToggleEventHandler);
 	}
     
     /** Called when the activity is first created. */
@@ -77,30 +82,6 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
         setContentView(buttonGrid);
     }
     
-	/** 
-     * on Click handlers for ActionBar - toggle Scripture/Apocrypha screens
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        boolean isHandled = false;
-        
-        switch (item.getItemId()) {
-        // Change sort order
-		case (R.id.nextAction):
-			isHandled = true;
-    		isScriptureBookScreenCurrent = !isScriptureBookScreenCurrent;
-
-    		buttonGrid.clear();
-            buttonGrid.addButtons(getBibleBookButtonInfo());
-        }
-        
-		if (!isHandled) {
-            isHandled = super.onOptionsItemSelected(item);
-        }
-        
-     	return isHandled;
-    }
-
 	@Override
 	public void buttonPressed(ButtonInfo buttonInfo) {
 		Log.d(TAG, "Book:"+buttonInfo.id+" "+buttonInfo.name);
@@ -147,7 +128,7 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
     	boolean isShortBookNamesAvailable = isShortBookNames();
     	BibleBook currentBibleBook = KeyUtil.getVerse(CurrentPageManager.getInstance().getCurrentBible().getKey()).getBook();
     	    	
-    	List<BibleBook> bibleBookList = navigationControl.getBibleBooks(isScriptureBookScreenCurrent);
+    	List<BibleBook> bibleBookList = navigationControl.getBibleBooks(navigationControl.isCurrentlyShowingScripture());
     	List<ButtonInfo> keys = new ArrayList<ButtonInfo>(bibleBookList.size());
     	for (BibleBook book : bibleBookList) {
     		ButtonInfo buttonInfo = new ButtonInfo();
@@ -242,4 +223,16 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
     private Versification getVersification() {
     	return navigationControl.getVersification();
     }
+
+    /**
+     * Handle scripture/Appendix toggle
+     */
+    private ScriptureToggleEventHandler scriptureToggleEventHandler = new ScriptureToggleEventHandler( ) {
+		
+		@Override
+		public void onChange(boolean showScripture) {
+    		buttonGrid.clear();
+            buttonGrid.addButtons(getBibleBookButtonInfo());
+		}
+	};
 }

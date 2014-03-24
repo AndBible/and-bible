@@ -22,6 +22,8 @@ import org.crosswire.jsword.versification.system.Versifications;
  */
 public class NavigationControl {
 	
+	private boolean isBibleBookSelectorShowingScripture = true;
+	
 	private PageControl pageControl;
 	
 	private DocumentBibleBooksFactory documentBibleBooksFactory = new DocumentBibleBooksFactory();
@@ -43,6 +45,23 @@ public class NavigationControl {
 		return books;
 	}
 
+	public boolean currentDocumentContainsNonScripture() {
+		return getBibleBooks(false).size()>0;
+	}
+	
+	public boolean isCurrentlyShowingScripture() {
+		return isBibleBookSelectorShowingScripture || !currentDocumentContainsNonScripture();  
+	}
+	
+	public void toggleBibleBookSelectorScriptureDisplay() {
+		isBibleBookSelectorShowingScripture = !isBibleBookSelectorShowingScripture;  
+	}
+
+	/** Is this book of the bible not a single chapter book
+	 * 
+	 * @param book to check
+	 * @return true if multi-chapter book
+	 */
 	public boolean hasChapters(BibleBook book) {
 		return getVersification().getLastChapter(book)>1;
 	}
