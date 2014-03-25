@@ -101,15 +101,15 @@ public class ButtonGrid extends TableLayout {
     	TableLayout.LayoutParams rowInTableLp = new TableLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1.0f);
 		TableRow.LayoutParams cellInRowLp = new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1.0f);
 
-		int iCellNo = 0;
 		for (int iRow=0; iRow<mRowColLayout.rows; iRow++) {
 			TableRow row = new TableRow(mContext);
 			addView(row, rowInTableLp);
 
 			for (int iCol=0; iCol<mRowColLayout.cols; iCol++) {
-				if (iCellNo<numButtons) {
+				int buttonInfoIndex = getButtonInfoIndex(iRow, iCol);
+				if (buttonInfoIndex<numButtons) {
 					// create a graphical Button View object to show on the screen and link it to the ButtonInfo object
-					ButtonInfo buttonInfo = buttonInfoList.get(iCellNo);
+					ButtonInfo buttonInfo = buttonInfoList.get(buttonInfoIndex);
 					Button button = new Button(mContext);
 					button.setText(buttonInfo.name);
 					if (buttonInfo.highlight) {
@@ -132,7 +132,6 @@ public class ButtonGrid extends TableLayout {
 					TextView spacer = new TextView(mContext);
 					row.addView(spacer, cellInRowLp);
 				}
-				iCellNo++;
 			}
 		}
 
@@ -149,6 +148,19 @@ public class ButtonGrid extends TableLayout {
         mPreviewHeight = (int)(PREVIEW_HEIGHT_DIP*scale);
 	}
 
+    /** Ensure longer runs by populating in longest direction ie columns if portrait and rows if landscape
+     * 
+     * @param row
+     * @param col
+     * @return
+     */
+    private int getButtonInfoIndex(int row, int col) {
+    	if (mRowColLayout.columnOrder) {
+    		return col*mRowColLayout.rows + row;
+    	} else {
+    		return row*mRowColLayout.cols + col;
+    	}
+    }
     
 	/* (non-Javadoc)
 	 * @see android.view.ViewGroup#onInterceptTouchEvent(android.view.MotionEvent)

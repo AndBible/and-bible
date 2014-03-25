@@ -17,12 +17,15 @@ import android.util.Log;
  */
 public class LayoutDesigner {
 
-	private static int MIN_ROWS = 8;
-	private static int MIN_ROWS_LAND = 5;
+	private static int MIN_COLS = 5;
+	private static int MIN_COLS_LAND = 8;
 
 	static class RowColLayout {
 		int rows;
 		int cols;
+		
+		/** column order if portrait mode to provide longer 'runs' */ 
+		boolean columnOrder;
 	}
 
 	private static final String TAG = "LayoutDesigner";
@@ -53,25 +56,28 @@ public class LayoutDesigner {
 			// a list of chapters or verses
 			if (numButtons<=50) {
 				if (isPortrait()) {
-					rowColLayout.cols = 5;
+					rowColLayout.rows = 10;
 				} else {
-					rowColLayout.cols = 10;
+					rowColLayout.rows = 5;
 				}
 			} else if (numButtons<=100){
-				rowColLayout.cols = 10;
+				rowColLayout.rows = 10;
 			} else {
 				if (isPortrait()) {
-					rowColLayout.cols = 10;
+					rowColLayout.rows = 15;
 				} else {
-					rowColLayout.cols = 15;
+					rowColLayout.rows = 10;
 				}
 			}
-			rowColLayout.rows = (int)Math.ceil(((float)numButtons)/rowColLayout.cols);
+			rowColLayout.cols = (int)Math.ceil(((float)numButtons)/rowColLayout.rows);
 			
 			// if there are too few buttons/rows you just see a couple of large buttons on the screen so ensure there are enough rows to look nice 
-			int minRows = isPortrait() ? MIN_ROWS : MIN_ROWS_LAND;
-			rowColLayout.rows = Math.max(minRows, rowColLayout.rows);
+			int minCols = isPortrait() ? MIN_COLS : MIN_COLS_LAND;
+			rowColLayout.cols = Math.max(minCols, rowColLayout.cols);
 		}
+
+		rowColLayout.columnOrder = isPortrait();
+		
 		Log.d(TAG, "Rows:"+rowColLayout.rows+" Cols:"+rowColLayout.cols);
 		return rowColLayout;		
 	}
