@@ -13,11 +13,9 @@ import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.page.screen.PageTiltScroller;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
-import android.graphics.Picture;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -81,39 +79,6 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 		
 		addJavascriptInterface(mJavascriptInterface, "jsInterface");
 
-		//TODO: rework to remove deprecation see: http://stackoverflow.com/questions/4065134/is-there-a-listener-for-when-the-webview-displays-its-content
-		setPictureListener(new PictureListener() {
-			/** this is called after the WebView page has finished loading and a new "picture" is on the webview.
-			 */
-			@Override
-		    public void onNewPicture(WebView view, Picture arg1) {
-				if (mIsVersePositionRecalcRequired) {
-					mIsVersePositionRecalcRequired = false;
-					loadUrl("javascript:registerVersePositions()");
-				}
-				
-				mJavascriptInterface.setNotificationsEnabled(splitScreenControl.isCurrentActiveScreen(splitScreenNo));
-
-				// screen is changing shape/size so constantly maintain the current verse position
-				// main difference from jumpToVerse is that this is not cleared after jump
-				if (maintainMovingVerse>0) {
-					scrollOrJumpToVerse(maintainMovingVerse);
-				}
-
-				// go to any specified verse or offset
-				if (mJumpToVerse > 0) {
-					scrollOrJumpToVerse(mJumpToVerse);
-	    		} else if (mJumpToYOffsetRatio>0) {
-		            int contentHeight = view.getContentHeight(); 
-		            int y = (int) ((float)contentHeight*mJumpToYOffsetRatio);
-		    		view.scrollTo(0, y);
-	    		}
-	    	    // must zero mJumpToVerse because setting location causes another onPageFinished
-	    	    mJumpToVerse = NO_JUMP; 
-	    		mJumpToYOffsetRatio = NO_JUMP;
-		    }    
-		});
-		
 		/* WebViewClient must be set BEFORE calling loadUrl! */  
 		setWebViewClient(new WebViewClient() {
 			@Override
@@ -161,6 +126,47 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 		splitScreenControl.addSplitScreenEventListener(this);
 		// initialise split state related code - always screen1 is selected first
 		currentSplitScreenChanged(splitScreenControl.getCurrentActiveScreen());
+	}
+
+	/**
+	 * Position screen at required verse or offset
+	 * see: http://stackoverflow.com/questions/4065134/is-there-a-listener-for-when-the-webview-displays-its-content
+	 */
+	@Override
+	public void invalidate() {
+	    super.invalidate();
+
+	    if (getContentHeight() > 0) {
+			if (mIsVersePositionRecalcRequired) {
+				mIsVersePositionRecalcRequired = false;
+				loadUrl("javascript:registerVersePositions()");
+			}
+			
+			mJavascriptInterface.setNotificationsEnabled(splitScreenControl.isCurrentActiveScreen(splitScreenNo));
+
+			// screen is changing shape/size so constantly maintain the current verse position
+			// main difference from jumpToVerse is that this is not cleared after jump
+			if (maintainMovingVerse>0) {
+				scrollOrJumpToVerse(maintainMovingVerse);
+			}
+
+			// go to any specified verse or offset
+			if (mJumpToVerse > 0) {
+			    // must zero mJumpToVerse because setting location causes another onPageFinished
+			    mJumpToVerse = NO_JUMP;
+			    
+				scrollOrJumpToVerse(mJumpToVerse);
+				
+			} else if (mJumpToYOffsetRatio>0) {
+	            int contentHeight = getContentHeight(); 
+	            final int y = (int) ((float)contentHeight*mJumpToYOffsetRatio);
+
+	            // must zero mJumpToVerse because setting location causes another onPageFinished
+				mJumpToYOffsetRatio = NO_JUMP;
+				
+		        scrollTo(0, y);
+			}
+	    }
 	}
 	
 	@Override
