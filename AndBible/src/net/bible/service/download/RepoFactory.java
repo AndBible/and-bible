@@ -18,6 +18,8 @@ public class RepoFactory {
 
 	private IBTRepo ibtRepo = new IBTRepo();
 	
+	private WycliffeRepo wycliffeRepo = new WycliffeRepo();
+
 	private static RepoFactory instance = new RepoFactory();
 	private RepoFactory() {}
 	public static RepoFactory getInstance() {
@@ -39,6 +41,8 @@ public class RepoFactory {
 			repoForBook = betaRepo;
 		} else if (ibtRepo.getRepoName().equals(repoName)) {
 			repoForBook = ibtRepo;
+		} else if (wycliffeRepo.getRepoName().equals(repoName)) {
+			repoForBook = wycliffeRepo;
 		} else {
 			repoForBook = crosswireRepo;
 		}
@@ -58,5 +62,8 @@ public class RepoFactory {
 	}
 	public IBTRepo getIBTRepo() {
 		return ibtRepo;
+	}
+	public WycliffeRepo getWycliffeRepo() {
+		return wycliffeRepo;
 	}
 }

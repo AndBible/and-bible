@@ -225,6 +225,8 @@ public class SwordDocumentFacade {
 
         allBooks.addAll(repoFactory.getXiphosRepo().getRepoBooks(refresh));
 
+        allBooks.addAll(repoFactory.getWycliffeRepo().getRepoBooks(refresh));
+
         allBooks.addAll(repoFactory.getBetaRepo().getRepoBooks(refresh));
 
         // get them in the correct order
