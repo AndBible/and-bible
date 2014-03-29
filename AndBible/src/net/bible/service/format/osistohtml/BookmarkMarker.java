@@ -24,6 +24,8 @@ public class BookmarkMarker {
 	
 	private HtmlTextWriter writer;
 	
+	private boolean bookmarkOpenTagWritten = false;
+	
 	@SuppressWarnings("unused")
 	private static final Logger log = new Logger("BookmarkMarker");
 
@@ -52,10 +54,16 @@ public class BookmarkMarker {
 		if (bookmarkedVerses!=null && parameters.isShowBookmarks()) {
 			if (bookmarkedVerses.contains(verseInfo.currentVerseNo)) {
 				writer.write("<img src='file:///android_asset/images/GoldStar16x16.png' class='myNoteImg'/>");
+//				writer.write("<span class='bookmark'>");
+				bookmarkOpenTagWritten = true;
 			}
 		}
 	}
 
 	public void end() {
+		if (bookmarkOpenTagWritten) {
+//			writer.write("</span>");
+			bookmarkOpenTagWritten = false;
+		}
 	}
 }

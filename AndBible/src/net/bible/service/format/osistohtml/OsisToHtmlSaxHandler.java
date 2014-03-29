@@ -267,6 +267,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		if (name.equals(OSISUtil.OSIS_ELEMENT_TITLE)) {
 			titleHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
+			myNoteMarker.end();
+			bookmarkMarker.end();
 			verseHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {
 			noteHandler.endNote();

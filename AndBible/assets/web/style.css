@@ -110,3 +110,7 @@ h1 a, .heading2, .heading3, .heading4 {
 /*	-webkit-rtl-ordering: logical; */
 }
 
+.bookmark {
+	/* yellow */
+	background-color: #C0C000;
+}
