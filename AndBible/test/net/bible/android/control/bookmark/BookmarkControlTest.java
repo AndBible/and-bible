@@ -184,7 +184,8 @@ public class BookmarkControlTest {
 		
 		LabelDto label = new LabelDto();
 		label.setName(currentTestLabel);
-		LabelDto newDto = bookmarkControl.addLabel(label);
+		
+		LabelDto newDto = bookmarkControl.saveOrUpdateLabel(label);
 		return newDto;
 	}
 
