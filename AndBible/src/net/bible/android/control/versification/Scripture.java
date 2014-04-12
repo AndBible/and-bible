@@ -19,7 +19,7 @@ public class Scripture {
 	/** define Scripture */
 	private static final Versification SCRIPTURAL_V11N = Versifications.instance().getVersification("KJV");
 	
-	private static List<BibleBook> INTROS = new ArrayList<BibleBook>();
+	private final static List<BibleBook> INTROS = new ArrayList<BibleBook>();
 	static {
 		INTROS.add(BibleBook.INTRO_BIBLE);
 		INTROS.add(BibleBook.INTRO_OT);
@@ -36,7 +36,7 @@ public class Scripture {
 		return INTROS.contains(bibleBook);
 	}
 
-	/** Get next Scriptural Verse
+	/** Get next Scriptural Verse with same scriptural status
 	 */
 	static public Verse getNextVerse(Verse verse) {
 		Versification v11n = verse.getVersification();
@@ -51,7 +51,7 @@ public class Scripture {
 		}
 	}
 
-	/** Get previous Scriptural Verse
+	/** Get previous Verse with same scriptural status
 	 */
 	static public Verse getPrevVerse(Verse verse) {
 		Versification v11n = verse.getVersification();
@@ -71,7 +71,7 @@ public class Scripture {
 		return new Verse(v11n, book, chapter, verseNo);
 	}
 
-	/** Get next Scriptural chapter
+	/** Get next chapter consistent with current verses scriptural status ie don't hop between book with differenr scriptural states
 	 */
 	static public Verse getNextChapter(Verse verse) {
 		Versification v11n = verse.getVersification();
@@ -81,7 +81,7 @@ public class Scripture {
 		if (chapter<v11n.getLastChapter(book)) {
 			chapter += 1;
 		} else {
-			BibleBook nextBook = getNextScriptureBook(v11n, book);
+			BibleBook nextBook = getNextBook(v11n, book);
 			// if there was a next book then go to it's first chapter
 			if (nextBook!=null) {
 				book = nextBook;
@@ -91,7 +91,7 @@ public class Scripture {
 		return new Verse(v11n, book, chapter, 1);
 	}
 	
-	/** Get previous Scriptural chapter
+	/** Get previous chapter consistent with current verses scriptural status ie don't hop between book with differenr scriptural states
 	 */
 	static public Verse getPrevChapter(Verse verse) {
 		Versification v11n = verse.getVersification();
@@ -101,7 +101,7 @@ public class Scripture {
 		if (chapter>1) {
 			chapter -= 1;
 		} else {
-			BibleBook prevBook = getPrevScriptureBook(v11n, book);
+			BibleBook prevBook = getPrevBook(v11n, book);
 			// if there was a next book then go to it's first chapter
 			if (prevBook!=null) {
 				book = prevBook;
@@ -111,18 +111,27 @@ public class Scripture {
 		return new Verse(v11n, book, chapter, 1);
 	}
 
-	private static BibleBook getNextScriptureBook(Versification v11n, BibleBook book) {
+	/** 
+	 * Get next book but separate scripture from other books to prevent unintentional jumping between Scripture and other
+	 */
+	private static BibleBook getNextBook(Versification v11n, BibleBook book) {
+		boolean isCurrentlyScripture = isScripture(book);
 		BibleBook nextBook = book;
 		do {
 			nextBook = v11n.getNextBook(nextBook);
-		} while (nextBook!=null && !isScripture(nextBook));
+		} while (nextBook!=null && 
+				(	isScripture(nextBook)!=isCurrentlyScripture ||
+					isIntro(nextBook)));
 		return nextBook;
 	}
-	private static BibleBook getPrevScriptureBook(Versification v11n, BibleBook book) {
+	private static BibleBook getPrevBook(Versification v11n, BibleBook book) {
+		boolean isCurrentlyScripture = isScripture(book);
 		BibleBook prevBook = book;
 		do {
 			prevBook = v11n.getPreviousBook(prevBook);
-		} while (prevBook!=null && !isScripture(prevBook));
+		} while (prevBook!=null &&
+				(	isScripture(prevBook)!=isCurrentlyScripture ||
+					isIntro(prevBook)));
 		return prevBook;
 	}
 }
