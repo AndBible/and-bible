@@ -2,7 +2,6 @@ package net.bible.android.control.page;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.versification.Scripture;
 import net.bible.android.view.activity.navigation.GridChoosePassageBook;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordDocumentFacade;
@@ -61,7 +60,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 
 		Versification versification = getVersification();
 		Verse verse = getCurrentBibleVerse().getVerseSelected(versification);
-		getCurrentBibleVerse().setVerseSelected(versification, Scripture.getPrevVerse(verse));
+		getCurrentBibleVerse().setVerseSelected(versification, getBibleTraverser().getPrevVerse(getCurrentPassageBook(), verse));
 	}
 	
 	/* go to next verse quietly without updates
@@ -70,7 +69,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 		Log.d(TAG, "Next verse");
 		Versification versification = getVersification();
 		Verse verse = getCurrentBibleVerse().getVerseSelected(versification);
-		getCurrentBibleVerse().setVerseSelected(versification, Scripture.getNextVerse(verse));
+		getCurrentBibleVerse().setVerseSelected(versification, getBibleTraverser().getNextVerse(getCurrentPassageBook(), verse));
 	}
 	
 	/* (non-Javadoc)
@@ -100,14 +99,14 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 			if (num>=0) {
 				// move to next book if required
 				for (int i=0; i<num; i++) {
-					nextVer = Scripture.getNextChapter(nextVer);
+					nextVer = getBibleTraverser().getNextChapter(getCurrentPassageBook(), nextVer);
 				}
 			} else {
 				// move to prev book if required
 				// allow standard loop structure by changing num to positive
 				num = -num;
 				for (int i=0; i<num; i++) {
-					nextVer = Scripture.getPrevChapter(nextVer);
+					nextVer = getBibleTraverser().getPrevChapter(getCurrentPassageBook(), nextVer);
 				}
 			}
 		

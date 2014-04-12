@@ -79,7 +79,9 @@ public class CurrentPageManager {
 		
 		currentBibleVerse = new CurrentBibleVerse();
 		currentBiblePage = new CurrentBiblePage(currentBibleVerse);
+		currentBiblePage.setBibleTraverser(ControlFactory.getInstance().getBibleTraverser());
 		currentCommentaryPage = new CurrentCommentaryPage(currentBibleVerse);
+		currentCommentaryPage.setBibleTraverser(ControlFactory.getInstance().getBibleTraverser());
 		currentMyNotePage = new CurrentMyNotePage(currentBibleVerse);
 		
 		currentDictionaryPage = new CurrentDictionaryPage();

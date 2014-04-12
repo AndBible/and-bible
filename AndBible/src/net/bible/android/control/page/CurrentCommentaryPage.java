@@ -2,7 +2,6 @@ package net.bible.android.control.page;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.versification.Scripture;
 import net.bible.android.view.activity.navigation.GridChoosePassageBook;
 
 import org.crosswire.jsword.book.BookCategory;
@@ -73,14 +72,14 @@ public class CurrentCommentaryPage extends VersePage implements CurrentPage {
 			if (num>=0) {
 				// move to next book or chapter if required
 				for (int i=0; i<num; i++) {
-					nextVer = Scripture.getNextVerse(nextVer);
+					nextVer = getBibleTraverser().getNextVerse(getCurrentPassageBook(), nextVer);
 				}
 			} else {
 				// move to next book if required
 				// allow standard loop structure by changing num to positive
 				num = -num;
 				for (int i=0; i<num; i++) {
-					nextVer = Scripture.getPrevVerse(nextVer);
+					nextVer = getBibleTraverser().getPrevVerse(getCurrentPassageBook(), nextVer);
 				}
 			}
 		

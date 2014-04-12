@@ -10,6 +10,7 @@ import net.bible.android.control.footnoteandref.FootnoteAndRefControl;
 import net.bible.android.control.link.LinkControl;
 import net.bible.android.control.mynote.MyNote;
 import net.bible.android.control.mynote.MyNoteControl;
+import net.bible.android.control.navigation.DocumentBibleBooksFactory;
 import net.bible.android.control.navigation.NavigationControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
@@ -19,6 +20,7 @@ import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.control.readingplan.ReadingPlanControl;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.speak.SpeakControl;
+import net.bible.android.control.versification.BibleTraverser;
 
 //TODO replace with ioc (maybe)
 /** allow access to control layer
@@ -29,6 +31,8 @@ import net.bible.android.control.speak.SpeakControl;
  */
 public class ControlFactory {
 	//TODO move instance creation here
+	private DocumentBibleBooksFactory documentBibleBooksFactory = new DocumentBibleBooksFactory();
+	private BibleTraverser bibleTraverser = new BibleTraverser();
 	private DocumentControl documentControl = new DocumentControl();
 	private PageControl pageControl = new PageControl();
 	private SplitScreenControl splitScreenControl = new SplitScreenControl();
@@ -56,11 +60,21 @@ public class ControlFactory {
 	private ControlFactory() {
 		// inject dependencies
 		readingPlanControl.setSpeakControl(this.speakControl);
+		
 		navigationControl.setPageControl(this.pageControl);
+		navigationControl.setDocumentBibleBooksFactory(documentBibleBooksFactory);
+		
+		bibleTraverser.setDocumentBibleBooksFactory(documentBibleBooksFactory);
+		navigationControl.setBibleTraverser(bibleTraverser);
+		searchControl.setBibleTraverser(bibleTraverser);
 	}
 	
 	public DocumentControl getDocumentControl() {
 		return documentControl;		
+	}
+
+	public DocumentBibleBooksFactory getDocumentBibleBooksFactory() {
+		return documentBibleBooksFactory;
 	}
 
 	public PageControl getPageControl() {
@@ -128,5 +142,9 @@ public class ControlFactory {
 
 	public NavigationControl getNavigationControl() {
 		return navigationControl;
+	}
+
+	public BibleTraverser getBibleTraverser() {
+		return bibleTraverser;
 	}
 }

@@ -6,7 +6,7 @@ import java.util.List;
 
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
-import net.bible.android.control.versification.Scripture;
+import net.bible.android.control.versification.BibleTraverser;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
@@ -28,18 +28,20 @@ public class NavigationControl {
 	
 	private PageControl pageControl;
 	
-	private DocumentBibleBooksFactory documentBibleBooksFactory = new DocumentBibleBooksFactory();
+	private DocumentBibleBooksFactory documentBibleBooksFactory;
+	
+	private BibleTraverser bibleTraverser;
 	
 	/** 
 	 * Get books in current Document - either all Scripture books or all non-Scripture books
 	 */
-	public List<BibleBook> getBibleBooks(boolean scripture) {
+	public List<BibleBook> getBibleBooks(boolean isScriptureRequired) {
 		List<BibleBook> books = new ArrayList<BibleBook>();
 
 		List<BibleBook> documentBookList = documentBibleBooksFactory.getBooksFor(getCurrentPassageDocument());
 
 		for (BibleBook bibleBook : documentBookList) {
-    		if (scripture == Scripture.isScripture(bibleBook)) { //&& !Scripture.isIntro(bibleBook)
+    		if (isScriptureRequired == bibleTraverser.isScripture(bibleBook)) { //&& !Scripture.isIntro(bibleBook)
     			books.add(bibleBook);
     		}
 		}
@@ -112,5 +114,13 @@ public class NavigationControl {
 
 	public void setPageControl(PageControl pageControl) {
 		this.pageControl = pageControl;
+	}
+
+	public void setDocumentBibleBooksFactory(DocumentBibleBooksFactory documentBibleBooksFactory) {
+		this.documentBibleBooksFactory = documentBibleBooksFactory;
+	}
+
+	public void setBibleTraverser(BibleTraverser bibleTraverser) {
+		this.bibleTraverser = bibleTraverser;
 	}
 }

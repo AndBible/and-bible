@@ -7,7 +7,7 @@ import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.versification.Scripture;
+import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.search.Search;
@@ -40,6 +40,8 @@ import android.util.Log;
  */
 public class SearchControl {
 
+	private BibleTraverser bibleTraverser;
+	
 	public static enum SearchBibleSection {
 		OT,
 		NT,
@@ -133,7 +135,7 @@ public class SearchControl {
         	boolean isBibleOrCommentary = book instanceof AbstractPassageBook;
     		for (int i=0; i<Math.min(resNum, MAX_SEARCH_RESULTS+1); i++) {
     			Key key = result.get(i);
-    			if (!isBibleOrCommentary || Scripture.isScripture(((Verse)key).getBook())) {
+    			if (!isBibleOrCommentary || bibleTraverser.isScripture(((Verse)key).getBook())) {
     				resultKeys.add(key);
     			}
     		}
@@ -242,4 +244,7 @@ public class SearchControl {
     	return ok;
 	}
 
+	public void setBibleTraverser(BibleTraverser bibleTraverser) {
+		this.bibleTraverser = bibleTraverser;
+	}
 }

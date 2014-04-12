@@ -1,5 +1,7 @@
 package net.bible.android.control.page;
 
+import net.bible.android.control.versification.BibleTraverser;
+
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Verse;
@@ -18,6 +20,8 @@ import android.util.Log;
 public abstract class VersePage extends CurrentPageBase {
 
 	private CurrentBibleVerse currentBibleVerse;
+	
+	private BibleTraverser bibleTraverser;
 
 	private static final String TAG = "CurrentPageBase";
 	
@@ -37,8 +41,20 @@ public abstract class VersePage extends CurrentPageBase {
 		}
 	}
 
+	public AbstractPassageBook getCurrentPassageBook() {
+		return (AbstractPassageBook)getCurrentDocument();
+	}
+	
 	protected CurrentBibleVerse getCurrentBibleVerse() {
 		return currentBibleVerse;
+	}
+	
+	public void setBibleTraverser(BibleTraverser bibleTraverser) {
+		this.bibleTraverser = bibleTraverser;
+	}
+
+	protected BibleTraverser getBibleTraverser() {
+		return bibleTraverser;
 	}
 
 	@Override
