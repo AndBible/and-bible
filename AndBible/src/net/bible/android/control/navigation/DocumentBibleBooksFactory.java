@@ -2,12 +2,16 @@ package net.bible.android.control.navigation;
 
 import java.util.List;
 
+import org.crosswire.jsword.book.Books;
+import org.crosswire.jsword.book.BooksEvent;
+import org.crosswire.jsword.book.BooksListener;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.versification.BibleBook;
 
+import android.support.v4.util.LruCache;
+
 /**
- * Factory for {@link DocumentBibleBooks}.
- * Should eventually cache {@link DocumentBibleBooks}
+ * Caching factory for {@link DocumentBibleBooks}.
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
@@ -15,11 +19,46 @@ import org.crosswire.jsword.versification.BibleBook;
  */
 public class DocumentBibleBooksFactory {
 	
+	private LruCache<AbstractPassageBook, DocumentBibleBooks> cache; 
+	
+	private static final int CACHE_SIZE = 10;
+	
+	public DocumentBibleBooksFactory() {
+		// initialise the DocumentBibleBooks factory
+		cache = new LruCache<AbstractPassageBook, DocumentBibleBooks>(CACHE_SIZE) {
+
+			/** If entry for this Book not found in cache then create one
+			 */
+			@Override
+			protected DocumentBibleBooks create(AbstractPassageBook document) {
+				return new DocumentBibleBooks(document);
+			}
+		};
+
+		flushCacheIfBooksChange();
+	}
+	
 	public DocumentBibleBooks getDocumentBibleBooksFor(AbstractPassageBook document) {
-		return new DocumentBibleBooks(document);
+		return cache.get(document);
 	}
 
 	public List<BibleBook> getBooksFor(AbstractPassageBook document) {
 		return getDocumentBibleBooksFor(document).getBookList();
+	}
+
+	/**
+	 * Different versions of a Book may contain different Bible books so flush cache if a Book may have been updated
+	 */
+	private void flushCacheIfBooksChange() {
+		Books.installed().addBooksListener(new BooksListener() {
+			@Override
+			public void bookAdded(BooksEvent ev) {
+				cache.evictAll();
+			}
+			@Override
+			public void bookRemoved(BooksEvent ev) {
+				cache.evictAll();
+			}
+		});
 	}
 }
