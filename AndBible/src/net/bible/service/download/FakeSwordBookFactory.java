@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookDriver;
+import org.crosswire.jsword.book.sword.NullBackend;
 import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.book.sword.SwordBookDriver;
 import org.crosswire.jsword.book.sword.SwordBookMetaData;
@@ -21,7 +22,7 @@ public class FakeSwordBookFactory {
 	public static Book createFakeRepoBook(String module, String conf, String repo) throws IOException {
 		SwordBookMetaData sbmd = createRepoSBMD(module, conf);
 		sbmd.putProperty(DownloadManager.REPOSITORY_KEY, repo);
-		Book extraBook = new SwordBook(sbmd, null);
+		Book extraBook = new SwordBook(sbmd, new NullBackend());
 		return extraBook;
 	}
 

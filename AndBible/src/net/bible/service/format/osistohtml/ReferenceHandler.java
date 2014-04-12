@@ -12,6 +12,7 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.Passage;
 import org.crosswire.jsword.passage.PassageKeyFactory;
 import org.crosswire.jsword.passage.RestrictionType;
+import org.crosswire.jsword.passage.VerseRange;
 import org.xml.sax.Attributes;
 
 /**
@@ -125,7 +126,7 @@ public class ReferenceHandler {
 		        Passage ref = (Passage) PassageKeyFactory.instance().getKey(parameters.getDocumentVersification(), reference);
 		        boolean isSingleVerse = ref.countVerses()==1;
 		        boolean isSimpleContent = content.length()<3 && content.length()>0;
-		        Iterator<Key> it = ref.rangeIterator(RestrictionType.CHAPTER);
+		        Iterator<VerseRange> it = ref.rangeIterator(RestrictionType.CHAPTER);
 		        
 		        if (isSingleVerse && isSimpleContent) {
 			        // simple verse no e.g. 1 or 2 preceding the actual verse in TSK

@@ -8,6 +8,6 @@
 	<classpathentry kind="lib" path="libs/slf4j-jdk14-1.7.2.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/AndBible"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry kind="lib" path="C:/Development/tools/android-sdk/platforms/android-8/android.jar"/>
+	<classpathentry kind="lib" path="/opt/android-sdk-linux/platforms/android-8/android.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
