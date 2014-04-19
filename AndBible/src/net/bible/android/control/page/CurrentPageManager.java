@@ -134,16 +134,22 @@ public class CurrentPageManager {
 	 * When navigating books and chapters there should always be a current Passage based book
 	 */
 	public AbstractPassageBook getCurrentPassageDocument() {
-		Book doc;
-		if (isBibleShown() || isCommentaryShown()) {
-			doc = getCurrentPage().getCurrentDocument();
-		} else {
-			// should not reach here
-			doc = getCurrentBible().getCurrentDocument();
-		}
-		return (AbstractPassageBook)doc;
+		return getCurrentVersePage().getCurrentPassageBook();
 	}
 	
+	/** 
+	 * Get current Passage based page or just return the Bible page
+	 */
+	public VersePage getCurrentVersePage() {
+		VersePage page;
+		if (isBibleShown() || isCommentaryShown()) {
+			page = (VersePage)getCurrentPage();
+		} else {
+			page = getCurrentBible();
+		}
+		return page;
+	}
+
 	/** display a new Document and return the new Page
 	 */
 	public CurrentPage setCurrentDocument(Book nextDocument) {

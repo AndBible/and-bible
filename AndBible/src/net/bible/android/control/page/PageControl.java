@@ -211,9 +211,9 @@ public class PageControl {
 	 * Return false if current page is not scripture, but only if the page is valid
 	 */
 	public boolean isCurrentPageScripture() {
-		CurrentBiblePage currentBiblePage = getCurrentPageManager().getCurrentBible();
-		Versification currentVersification = currentBiblePage.getVersification();
-		BibleBook currentBibleBook = currentBiblePage.getCurrentBibleVerse().getCurrentBibleBook();
+		VersePage currentVersePage = getCurrentPageManager().getCurrentVersePage();
+		Versification currentVersification = currentVersePage.getVersification();
+		BibleBook currentBibleBook = currentVersePage.getCurrentBibleVerse().getCurrentBibleBook();
 		boolean isCurrentBibleBookScripture = Scripture.isScripture(currentBibleBook);
 
 		// Non-scriptural pages are not so safe.  They may be synched with the other screen but not support the current dc book 
