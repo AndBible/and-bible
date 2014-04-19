@@ -6,6 +6,7 @@ import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
+import net.bible.android.control.versification.Scripture;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
@@ -204,6 +205,20 @@ public class PageControl {
 	/** return true if Strongs are relevant to this doc & screen */
 	public boolean isStrongsRelevant() {
 		return ControlFactory.getInstance().getDocumentControl().isStrongsInBook();
+	}
+
+	/**
+	 * Return false if current page is not scripture, but only if the page is valid
+	 */
+	public boolean isCurrentPageScripture() {
+		CurrentBiblePage currentBiblePage = getCurrentPageManager().getCurrentBible();
+		Versification currentVersification = currentBiblePage.getVersification();
+		BibleBook currentBibleBook = currentBiblePage.getCurrentBibleVerse().getCurrentBibleBook();
+		boolean isCurrentBibleBookScripture = Scripture.isScripture(currentBibleBook);
+
+		// Non-scriptural pages are not so safe.  They may be synched with the other screen but not support the current dc book 
+		return isCurrentBibleBookScripture ||
+				!currentVersification.containsBook(currentBibleBook);
 	}
 	
 	private String shorten(String title, int maxLength) {

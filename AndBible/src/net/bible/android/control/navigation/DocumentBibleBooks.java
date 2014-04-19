@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import net.bible.android.control.versification.Scripture;
+
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.basic.AbstractBook;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
@@ -26,6 +28,7 @@ public class DocumentBibleBooks {
 
 	private List<BibleBook> bookList;
 	private AbstractPassageBook document;
+	private boolean onlyScripture = true;
 	
 	private Boolean isProbablyIBT = null;
 	private static final int IBT_EMPTY_VERSE_STUB_MIN_LENGTH = "<chapter eID=\"gen4\" osisID=\"Gen.1\"/>".length();
@@ -33,6 +36,8 @@ public class DocumentBibleBooks {
 	private static final int IBT_1_CHAPTER_BOOK_EMPTY_VERSE_STUB_MIN_LENGTH = "<chapter eID=\"gen955\" osisID=\"Obad.1\"/> <div eID=\"gen954\" osisID=\"Obad\" type=\"book\"/> <div eID=\"gen953\" type=\"x-Synodal-empty\"/>".length();
 	private static final int IBT_1_CHAPTER_BOOK_EMPTY_VERSE_STUB_MAX_LENGTH = "<chapter eID=\"gen1136\" osisID=\"EpJer.1\"/> <div eID=\"gen1135\" osisID=\"EpJer\" type=\"book\"/> <div eID=\"gen1134\" type=\"x-Synodal-non-canonical\"/>".length();
 	
+	private static Scripture scripture = new Scripture();
+
 	@SuppressWarnings("unused")
 	private static final String TAG = "DocumentBibleBooks";
 	
@@ -57,6 +62,8 @@ public class DocumentBibleBooks {
 			if (isVerseInBook(document, documentVersification, bibleBook, 1, 1) || 
 				isVerseInBook(document, documentVersification, bibleBook, 1, 2)) {
 				bookList.add(bibleBook);
+				
+				onlyScripture &= scripture.isScripture(bibleBook);
 			}
 		}
 		
@@ -69,6 +76,14 @@ public class DocumentBibleBooks {
 	
 	public List<BibleBook> getBookList() {
 		return Collections.unmodifiableList(bookList);
+	}
+
+	public boolean isOnlyScripture() {
+		return onlyScripture;
+	}
+
+	public void setContainsOnlyScripture(boolean containsOnlyScripture) {
+		this.onlyScripture = containsOnlyScripture;
 	}
 
 	private boolean isVerseInBook(Book document, Versification v11n, BibleBook bibleBook, int chapter, int verseNo ) {

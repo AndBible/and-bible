@@ -23,15 +23,21 @@ public class VersificationConverter {
 	/** Return the verse in the required versification, mapping if necessary
 	 */
 	public Verse convert(Verse verse, Versification toVersification) {
-
 		try {
-			Key key = versificationsMapper.mapVerse(verse, toVersification);
-			
-			return KeyUtil.getVerse(key);
+			if (canConvert(verse, toVersification)) {
+				Key key = versificationsMapper.mapVerse(verse, toVersification);
+				
+				return KeyUtil.getVerse(key);
+			}
 		} catch (Exception e) {
-			// mapper chokes on unmapped verse 0 so try to cope with that with temporary hack
+			// unexpected problem during mapping
 			Log.e(TAG, "JSword Versification mapper failed to map "+verse.getOsisID()+" from "+verse.getVersification().getName()+" to "+toVersification.getName(), e);
-			return new Verse(toVersification, verse.getBook(), verse.getChapter(), verse.getVerse());
 		}
+		// just try to retain information by forcing creation of a similar verse with the new v11n 
+		return new Verse(toVersification, verse.getBook(), verse.getChapter(), verse.getVerse());
+	}
+	
+	private boolean canConvert(Verse verse, Versification toV11n) {
+		return toV11n.containsBook(verse.getBook());
 	}
 }

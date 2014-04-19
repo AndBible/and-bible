@@ -4,9 +4,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
-import net.bible.android.control.versification.BibleTraverser;
+import net.bible.android.control.versification.Scripture;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
@@ -24,14 +23,12 @@ import org.crosswire.jsword.versification.system.Versifications;
  */
 public class NavigationControl {
 	
-	private boolean isBibleBookSelectorShowingScripture = true;
-	
 	private PageControl pageControl;
 	
 	private DocumentBibleBooksFactory documentBibleBooksFactory;
 	
-	private BibleTraverser bibleTraverser;
-	
+	private static Scripture scripture = new Scripture();
+
 	/** 
 	 * Get books in current Document - either all Scripture books or all non-Scripture books
 	 */
@@ -41,7 +38,7 @@ public class NavigationControl {
 		List<BibleBook> documentBookList = documentBibleBooksFactory.getBooksFor(getCurrentPassageDocument());
 
 		for (BibleBook bibleBook : documentBookList) {
-    		if (isScriptureRequired == bibleTraverser.isScripture(bibleBook)) { //&& !Scripture.isIntro(bibleBook)
+    		if (isScriptureRequired == scripture.isScripture(bibleBook)) {
     			books.add(bibleBook);
     		}
 		}
@@ -50,17 +47,13 @@ public class NavigationControl {
 	}
 
 	public boolean currentDocumentContainsNonScripture() {
-		return getBibleBooks(false).size()>0;
+		return !documentBibleBooksFactory.getDocumentBibleBooksFor(getCurrentPassageDocument()).isOnlyScripture();
 	}
 	
-	public boolean isCurrentlyShowingScripture() {
-		return isBibleBookSelectorShowingScripture || !currentDocumentContainsNonScripture();  
+	public boolean isCurrentDefaultScripture() {
+		return pageControl.isCurrentPageScripture();
 	}
 	
-	public void toggleBibleBookSelectorScriptureDisplay() {
-		isBibleBookSelectorShowingScripture = !isBibleBookSelectorShowingScripture;  
-	}
-
 	/** Is this book of the bible not a single chapter book
 	 * 
 	 * @param book to check
@@ -101,15 +94,7 @@ public class NavigationControl {
 	 * When navigating books and chapters there should always be a current Passage based book
 	 */
 	private AbstractPassageBook getCurrentPassageDocument() {
-		CurrentPageManager currentPageManager = pageControl.getCurrentPageManager();
-		Book doc;
-		if (currentPageManager.isBibleShown() || currentPageManager.isCommentaryShown()) {
-			doc = currentPageManager.getCurrentPage().getCurrentDocument();
-		} else {
-			// should not reach here
-			doc = currentPageManager.getCurrentBible().getCurrentDocument();
-		}
-		return (AbstractPassageBook)doc;
+		return pageControl.getCurrentPageManager().getCurrentPassageDocument();
 	}
 
 	public void setPageControl(PageControl pageControl) {
@@ -118,9 +103,5 @@ public class NavigationControl {
 
 	public void setDocumentBibleBooksFactory(DocumentBibleBooksFactory documentBibleBooksFactory) {
 		this.documentBibleBooksFactory = documentBibleBooksFactory;
-	}
-
-	public void setBibleTraverser(BibleTraverser bibleTraverser) {
-		this.bibleTraverser = bibleTraverser;
 	}
 }

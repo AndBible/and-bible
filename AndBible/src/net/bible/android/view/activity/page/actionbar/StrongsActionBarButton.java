@@ -7,7 +7,6 @@ import net.bible.android.control.document.DocumentControl;
 import net.bible.android.view.activity.base.actionbar.QuickActionButton;
 import net.bible.service.common.CommonUtils;
 import android.support.v4.view.MenuItemCompat;
-import android.view.Menu;
 import android.view.MenuItem;
 
 /** 

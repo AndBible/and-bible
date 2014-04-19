@@ -1,13 +1,12 @@
 package net.bible.android.control.search;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
+import net.bible.android.control.navigation.DocumentBibleBooksFactory;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.versification.BibleTraverser;
+import net.bible.android.control.versification.Scripture;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.search.Search;
@@ -40,7 +39,7 @@ import android.util.Log;
  */
 public class SearchControl {
 
-	private BibleTraverser bibleTraverser;
+	private boolean isSearchShowingScripture = true;
 	
 	public static enum SearchBibleSection {
 		OT,
@@ -60,6 +59,8 @@ public class SearchControl {
 	
 	public static final int MAX_SEARCH_RESULTS = 1000;
 
+	private DocumentBibleBooksFactory documentBibleBooksFactory;
+	
 	private static final String TAG = "SearchControl";
 	
 	/** if current document is indexed then go to search else go to download index page
@@ -120,9 +121,9 @@ public class SearchControl {
     /** do the search query and prepare results in lists ready for display
      * 
      */
-    public List<Key> getSearchResults(String document, String searchText) throws BookException {
+    public SearchResultsDto getSearchResults(String document, String searchText) throws BookException {
     	Log.d(TAG, "Preparing search results");
-    	List<Key> resultKeys = new ArrayList<Key>();
+    	SearchResultsDto searchResults = new SearchResultsDto();
     	
     	// search the current book
         Book book = SwordDocumentFacade.getInstance().getDocumentByInitials(document);
@@ -135,13 +136,12 @@ public class SearchControl {
         	boolean isBibleOrCommentary = book instanceof AbstractPassageBook;
     		for (int i=0; i<Math.min(resNum, MAX_SEARCH_RESULTS+1); i++) {
     			Key key = result.get(i);
-    			if (!isBibleOrCommentary || bibleTraverser.isScripture(((Verse)key).getBook())) {
-    				resultKeys.add(key);
-    			}
+    			boolean isMain = (!isBibleOrCommentary || Scripture.isScripture(((Verse)key).getBook()));
+   				searchResults.add(key, isMain);
     		}
     	}
     	
-    	return resultKeys;
+    	return searchResults;
     }
 
     /** get the verse for a search result
@@ -244,7 +244,27 @@ public class SearchControl {
     	return ok;
 	}
 
-	public void setBibleTraverser(BibleTraverser bibleTraverser) {
-		this.bibleTraverser = bibleTraverser;
+	/** 
+	 * When navigating books and chapters there should always be a current Passage based book
+	 */
+	private AbstractPassageBook getCurrentPassageDocument() {
+		return CurrentPageManager.getInstance().getCurrentPassageDocument();
 	}
+
+	public boolean isCurrentDefaultScripture() {
+		return ControlFactory.getInstance().getPageControl().isCurrentPageScripture();
+	}
+	
+	public boolean currentDocumentContainsNonScripture() {
+		return !documentBibleBooksFactory.getDocumentBibleBooksFor(getCurrentPassageDocument()).isOnlyScripture();
+	}
+	
+	public boolean isCurrentlyShowingScripture() {
+		return isSearchShowingScripture || !currentDocumentContainsNonScripture();  
+	}
+
+	public void setDocumentBibleBooksFactory(DocumentBibleBooksFactory documentBibleBooksFactory) {
+		this.documentBibleBooksFactory = documentBibleBooksFactory;
+	}
+
 }

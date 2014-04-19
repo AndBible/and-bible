@@ -12,6 +12,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder;
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
+import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Key;
 
 import android.content.Context;
@@ -129,6 +130,20 @@ public class CurrentPageManager {
 		return currentMyNotePage;
 	}
 
+	/** 
+	 * When navigating books and chapters there should always be a current Passage based book
+	 */
+	public AbstractPassageBook getCurrentPassageDocument() {
+		Book doc;
+		if (isBibleShown() || isCommentaryShown()) {
+			doc = getCurrentPage().getCurrentDocument();
+		} else {
+			// should not reach here
+			doc = getCurrentBible().getCurrentDocument();
+		}
+		return (AbstractPassageBook)doc;
+	}
+	
 	/** display a new Document and return the new Page
 	 */
 	public CurrentPage setCurrentDocument(Book nextDocument) {

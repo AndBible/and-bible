@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.navigation.biblebookactionbar;
+package net.bible.android.view.activity.search.searchresultsactionbar;
 
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.actionbar.ActionBarManager;
@@ -13,11 +13,11 @@ import android.view.View.OnClickListener;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class BibleBookActionBarManager extends DefaultActionBarManager implements ActionBarManager {
+public class SearchResultsActionBarManager extends DefaultActionBarManager implements ActionBarManager {
 
 	private ScriptureToggleActionBarButton scriptureToggleActionBarButton;
 	
-	public BibleBookActionBarManager() {
+	public SearchResultsActionBarManager() {
 		scriptureToggleActionBarButton = new ScriptureToggleActionBarButton();
 	}
 	

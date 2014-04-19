@@ -1,6 +1,7 @@
 package net.bible.android.view.activity.base;
 
 import net.bible.android.activity.R;
+import net.bible.android.view.activity.base.actionbar.ActionBarManager;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -48,6 +49,10 @@ public class ListActivityBase extends CustomTitlebarActivityBase {
 		super(optionsMenuId);
 	}
 
+	public ListActivityBase(ActionBarManager actionBarManager, int optionsMenuId) {
+		super(actionBarManager, optionsMenuId);
+	}
+	
 	protected void notifyDataSetChanged() {
 		ListAdapter listAdapter = getListAdapter();
     	if (listAdapter!=null && listAdapter instanceof ArrayAdapter) {

@@ -1,5 +1,7 @@
 package net.bible.android.view.activity.base.actionbar;
 
+import java.lang.ref.WeakReference;
+
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.speak.SpeakControl;
@@ -8,6 +10,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
+import android.view.View.OnClickListener;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -18,6 +21,9 @@ abstract public class QuickActionButton implements OnMenuItemClickListener {
 	
 	private MenuItem menuItem;
 	private int showAsActionFlags;
+	
+	// weak to prevent ref from this (normally static) menu preventing gc of book selector
+	private WeakReference<OnClickListener> weakOnClickListener;
 	
 	abstract protected String getTitle();
 	abstract protected boolean canShow();
@@ -58,6 +64,27 @@ abstract public class QuickActionButton implements OnMenuItemClickListener {
         	menuItem.setIcon(iconResId);
         }
 	}
+
+	/**
+	 * Provide the possibility of handling clicks outside of the button e.g. in Activity 
+	 */
+	public void registerClickListener(OnClickListener onClickListener) {
+		this.weakOnClickListener = new WeakReference<OnClickListener>(onClickListener);
+	}
+
+	/**
+	 * This is sometimes overridden but can be used to handle clicks in the Activity 
+	 */
+	@Override
+	public boolean onMenuItemClick(MenuItem item) {
+		OnClickListener onClickListener = weakOnClickListener.get();
+		if (onClickListener!=null) {
+			onClickListener.onClick(null);
+		}
+		update();
+		return true;
+	}
+
 	
 	protected int getIcon() {
 		return NO_ICON;

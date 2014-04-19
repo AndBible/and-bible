@@ -9,7 +9,6 @@ import net.bible.android.control.navigation.NavigationControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.navigation.biblebookactionbar.BibleBookActionBarManager;
-import net.bible.android.view.activity.navigation.biblebookactionbar.ScriptureToggleEventHandler;
 import net.bible.android.view.util.buttongrid.ButtonGrid;
 import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo;
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener;
@@ -25,6 +24,8 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 
 /**
  * Choose a bible book e.g. Psalms
@@ -37,6 +38,8 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
 
 	private ButtonGrid buttonGrid;
 	
+    private boolean isCurrentlyShowingScripture = true;
+    
 	private NavigationControl navigationControl = ControlFactory.getInstance().getNavigationControl();
 	
 	static final String BOOK_NO = "BOOK_NO";
@@ -57,13 +60,12 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
 
 	private static BibleBookActionBarManager bibleBookActionBarManager = new BibleBookActionBarManager();
 	
-	
 	private static final String TAG = "GridChoosePassageBook";
 
     public GridChoosePassageBook() {
 		super(bibleBookActionBarManager, R.menu.choose_passage_book_menu);
 		
-		bibleBookActionBarManager.registerScriptureToggleEventHandler(scriptureToggleEventHandler);
+		bibleBookActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener);
 	}
     
     /** Called when the activity is first created. */
@@ -72,6 +74,9 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
     	// background goes white in some circumstances if theme changes so prevent theme change
     	setAllowThemeChange(false);
         super.onCreate(savedInstanceState);
+        
+        isCurrentlyShowingScripture = navigationControl.isCurrentDefaultScripture();
+        bibleBookActionBarManager.setScriptureShown(isCurrentlyShowingScripture);
 
         buttonGrid = new ButtonGrid(this);
         
@@ -128,7 +133,7 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
     	boolean isShortBookNamesAvailable = isShortBookNames();
     	BibleBook currentBibleBook = KeyUtil.getVerse(CurrentPageManager.getInstance().getCurrentBible().getKey()).getBook();
     	    	
-    	List<BibleBook> bibleBookList = navigationControl.getBibleBooks(navigationControl.isCurrentlyShowingScripture());
+    	List<BibleBook> bibleBookList = navigationControl.getBibleBooks(isCurrentlyShowingScripture);
     	List<ButtonInfo> keys = new ArrayList<ButtonInfo>(bibleBookList.size());
     	for (BibleBook book : bibleBookList) {
     		ButtonInfo buttonInfo = new ButtonInfo();
@@ -227,12 +232,16 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
     /**
      * Handle scripture/Appendix toggle
      */
-    private ScriptureToggleEventHandler scriptureToggleEventHandler = new ScriptureToggleEventHandler( ) {
+    private OnClickListener scriptureToggleClickListener = new OnClickListener( ) {
 		
 		@Override
-		public void onChange(boolean showScripture) {
+		public void onClick(View view) {
+			isCurrentlyShowingScripture = !isCurrentlyShowingScripture;
+
     		buttonGrid.clear();
             buttonGrid.addButtons(getBibleBookButtonInfo());
+
+            bibleBookActionBarManager.setScriptureShown(isCurrentlyShowingScripture);
 		}
 	};
 }

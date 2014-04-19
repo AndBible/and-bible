@@ -175,7 +175,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 		if (verse!=null) {
 			Key key;
 			if (!requireSingleKey) {
-				// display whole page of bible so return whole chapter key - not just teh single verse even if a single verse was set in verseKey
+				// display whole page of bible so return whole chapter key - not just the single verse even if a single verse was set in verseKey
 				// if verseNo is required too then use getVerse()
 		        key = CommonUtils.getWholeChapter(verse);
 			} else {
@@ -183,6 +183,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 			}
 			return key;
 		} else {
+			Log.w(TAG, "No verse, returning default verse Gen 1.1");
 			return new Verse(getVersification(), BibleBook.GEN,1,1, true);
 		}
     }

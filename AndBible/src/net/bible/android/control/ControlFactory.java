@@ -63,10 +63,9 @@ public class ControlFactory {
 		
 		navigationControl.setPageControl(this.pageControl);
 		navigationControl.setDocumentBibleBooksFactory(documentBibleBooksFactory);
+		searchControl.setDocumentBibleBooksFactory(documentBibleBooksFactory);
 		
 		bibleTraverser.setDocumentBibleBooksFactory(documentBibleBooksFactory);
-		navigationControl.setBibleTraverser(bibleTraverser);
-		searchControl.setBibleTraverser(bibleTraverser);
 	}
 	
 	public DocumentControl getDocumentControl() {
