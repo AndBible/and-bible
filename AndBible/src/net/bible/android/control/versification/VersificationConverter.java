@@ -24,10 +24,11 @@ public class VersificationConverter {
 	 */
 	public Verse convert(Verse verse, Versification toVersification) {
 		try {
-			if (canConvert(verse, toVersification)) {
-				Key key = versificationsMapper.mapVerse(verse, toVersification);
-				
-				return KeyUtil.getVerse(key);
+			Key key = versificationsMapper.mapVerse(verse, toVersification);
+			Verse mappedVerse = KeyUtil.getVerse(key);
+			// If target v11n does not contain mapped verse then an exception normally occurs and the ordinal is set to 0 
+			if (mappedVerse.getOrdinal()>0) {
+				return mappedVerse;
 			}
 		} catch (Exception e) {
 			// unexpected problem during mapping
@@ -35,9 +36,5 @@ public class VersificationConverter {
 		}
 		// just try to retain information by forcing creation of a similar verse with the new v11n 
 		return new Verse(toVersification, verse.getBook(), verse.getChapter(), verse.getVerse());
-	}
-	
-	private boolean canConvert(Verse verse, Versification toV11n) {
-		return toV11n.containsBook(verse.getBook());
 	}
 }
