@@ -191,6 +191,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!--  Sort orders used for Bookmarks and MyNotes -->
     <string name="sort_by_date">Date order</string>
     <string name="sort_by_bible_book">Biblical order</string>
+    <string name="sort_by_alphabetical">Alphabetical order</string>
     
     <!-- Dictionary -->
     <string name="dictionary">Dictionary</string>

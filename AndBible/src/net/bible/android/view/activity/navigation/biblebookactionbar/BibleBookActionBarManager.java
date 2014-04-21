@@ -16,9 +16,11 @@ import android.view.View.OnClickListener;
 public class BibleBookActionBarManager extends DefaultActionBarManager implements ActionBarManager {
 
 	private ScriptureToggleActionBarButton scriptureToggleActionBarButton;
+	private SortActionBarButton sortActionBarButton;
 	
 	public BibleBookActionBarManager() {
 		scriptureToggleActionBarButton = new ScriptureToggleActionBarButton();
+		sortActionBarButton = new SortActionBarButton();
 	}
 	
 	public void registerScriptureToggleClickListener(OnClickListener scriptureToggleClickListener) {
@@ -29,6 +31,10 @@ public class BibleBookActionBarManager extends DefaultActionBarManager implement
 		scriptureToggleActionBarButton.setOn(isScripture);
 	}
 	
+	public SortActionBarButton getSortButton() {
+		return sortActionBarButton;
+	}
+
 	/* (non-Javadoc)
 	 * @see net.bible.android.view.activity.page.actionbar.ActionBarManager#prepareOptionsMenu(android.app.Activity, android.view.Menu, android.support.v7.app.ActionBar, net.bible.android.view.activity.page.MenuCommandHandler)
 	 */
@@ -37,6 +43,7 @@ public class BibleBookActionBarManager extends DefaultActionBarManager implement
 		super.prepareOptionsMenu(activity, menu, actionBar);
 		
 		scriptureToggleActionBarButton.addToMenu(menu);
+		sortActionBarButton.addToMenu(menu);
 	}
 	
 	/* (non-Javadoc)
@@ -51,6 +58,7 @@ public class BibleBookActionBarManager extends DefaultActionBarManager implement
 			@Override
 			public void run() {
 				scriptureToggleActionBarButton.update();
+				sortActionBarButton.update();
 		    }
 		});
 	}

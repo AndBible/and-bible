@@ -66,6 +66,7 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
 		super(bibleBookActionBarManager, R.menu.choose_passage_book_menu);
 		
 		bibleBookActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener);
+		bibleBookActionBarManager.getSortButton().registerClickListener(sortOrderClickListener);
 	}
     
     /** Called when the activity is first created. */
@@ -242,6 +243,20 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
             buttonGrid.addButtons(getBibleBookButtonInfo());
 
             bibleBookActionBarManager.setScriptureShown(isCurrentlyShowingScripture);
+		}
+	};
+
+	/**
+     * Handle scripture/Appendix toggle
+     */
+    private OnClickListener sortOrderClickListener = new OnClickListener( ) {
+		
+		@Override
+		public void onClick(View view) {
+			navigationControl.changeBibleBookSortOrder();
+
+    		buttonGrid.clear();
+            buttonGrid.addButtons(getBibleBookButtonInfo());
 		}
 	};
 }

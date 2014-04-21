@@ -2,10 +2,13 @@ package net.bible.android.control.navigation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+import net.bible.android.activity.R;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.versification.Scripture;
+import net.bible.service.common.CommonUtils;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
@@ -27,7 +30,7 @@ public class NavigationControl {
 	
 	private DocumentBibleBooksFactory documentBibleBooksFactory;
 	
-	private static Scripture scripture = new Scripture();
+	private static final String BIBLE_BOOK_SORT_ORDER = "BibleBookSortOrder";
 
 	/** 
 	 * Get books in current Document - either all Scripture books or all non-Scripture books
@@ -35,13 +38,16 @@ public class NavigationControl {
 	public List<BibleBook> getBibleBooks(boolean isScriptureRequired) {
 		List<BibleBook> books = new ArrayList<BibleBook>();
 
-		List<BibleBook> documentBookList = documentBibleBooksFactory.getBooksFor(getCurrentPassageDocument());
+		AbstractPassageBook currentPassageDocument = getCurrentPassageDocument();
+		List<BibleBook> documentBookList = documentBibleBooksFactory.getBooksFor(currentPassageDocument);
 
 		for (BibleBook bibleBook : documentBookList) {
-    		if (isScriptureRequired == scripture.isScripture(bibleBook)) {
+    		if (isScriptureRequired == Scripture.isScripture(bibleBook)) {
     			books.add(bibleBook);
     		}
 		}
+		
+		books = getSortedBibleBooks(books, currentPassageDocument.getVersification());
 
 		return books;
 	}
@@ -90,6 +96,38 @@ public class NavigationControl {
 		}
 	}
 	
+	private List<BibleBook> getSortedBibleBooks(List<BibleBook> bibleBookList, Versification versification) {
+		if (getBibleBookSortOrder()==BibleBookSortOrder.ALPHABETICAL) {
+			Collections.sort(bibleBookList, new BibleBookAlphabeticalComparator(versification));
+		}
+		return bibleBookList;
+	}
+
+	public void changeBibleBookSortOrder() {
+		if (getBibleBookSortOrder().equals(BibleBookSortOrder.BIBLE_BOOK)) {
+			setBibleBookSortOrder(BibleBookSortOrder.ALPHABETICAL);
+		} else {
+			setBibleBookSortOrder(BibleBookSortOrder.BIBLE_BOOK);
+		}
+	}
+	
+	public BibleBookSortOrder getBibleBookSortOrder() {
+		String bibleBookSortOrderStr = CommonUtils.getSharedPreference(BIBLE_BOOK_SORT_ORDER, BibleBookSortOrder.BIBLE_BOOK.toString());
+		return BibleBookSortOrder.valueOf(bibleBookSortOrderStr);
+	}
+	
+	public void setBibleBookSortOrder(BibleBookSortOrder bibleBookSortOrder) {
+		CommonUtils.saveSharedPreference(BIBLE_BOOK_SORT_ORDER, bibleBookSortOrder.toString());
+	}
+
+	public String getBibleBookSortOrderDescription() {
+		if (BibleBookSortOrder.BIBLE_BOOK.equals(getBibleBookSortOrder())) {
+			return CommonUtils.getResourceString(R.string.sort_by_bible_book);
+		} else {
+			return CommonUtils.getResourceString(R.string.sort_by_alphabetical);
+		}
+	}
+	
 	/** 
 	 * When navigating books and chapters there should always be a current Passage based book
 	 */
@@ -104,4 +142,5 @@ public class NavigationControl {
 	public void setDocumentBibleBooksFactory(DocumentBibleBooksFactory documentBibleBooksFactory) {
 		this.documentBibleBooksFactory = documentBibleBooksFactory;
 	}
+	
 }
