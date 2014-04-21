@@ -14,6 +14,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
 
+import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
@@ -217,10 +218,20 @@ public class SplitScreenControl {
 		}
 	}
 
-	/** only Bibles and commentaries have the same sort of key and can be synchronized
+	/** Only Bibles and commentaries have the same sort of key and can be synchronized
 	 */
 	private boolean isSynchronizableVerseKey(CurrentPage page) {
-		return BookCategory.BIBLE.equals(page.getCurrentDocument().getBookCategory()) || BookCategory.COMMENTARY.equals(page.getCurrentDocument().getBookCategory()); 
+		boolean result = false;
+		// various null checks then the test
+		if (page!=null) {
+			Book document = page.getCurrentDocument();
+			if (document!=null) {
+				BookCategory bookCategory = document.getBookCategory();
+				// The important part
+				result = BookCategory.BIBLE.equals(bookCategory) || BookCategory.COMMENTARY.equals(bookCategory); 
+			}
+		}
+		return result; 
 	}
 
     private class UpdateInactiveScreenTextTask extends UpdateTextTask {
