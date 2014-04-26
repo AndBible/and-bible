@@ -153,9 +153,10 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 			// go to any specified verse or offset
 			if (mJumpToVerse > 0) {
 			    // must zero mJumpToVerse because setting location causes another onPageFinished
+				int jumpToVerse = mJumpToVerse;
 			    mJumpToVerse = NO_JUMP;
 			    
-				scrollOrJumpToVerse(mJumpToVerse);
+				scrollOrJumpToVerse(jumpToVerse);
 				
 			} else if (mJumpToYOffsetRatio>0) {
 	            int contentHeight = getContentHeight(); 
@@ -465,7 +466,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 		// when move finished the verse positions will have changed if in Landscape so recalc positions
 		if (isMoveFinished && isScreenVerse) {
 			final int verse = screenVerseMap.get(splitScreenNo);
-			jumpToVerse(verse);
+			setJumpToVerse(verse);
 			
 			if (getHandler()!=null) {
 				getHandler().postDelayed(new Runnable() {
@@ -502,7 +503,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	@Override
 	public void numberOfScreensChanged(Map<Screen, Integer> screenVerseMap) {
 		if (getVisibility()==View.VISIBLE && screenVerseMap.containsKey(splitScreenNo)) {
-			jumpToVerse(screenVerseMap.get(splitScreenNo));
+			setJumpToVerse(screenVerseMap.get(splitScreenNo));
 		}
 	}
 
@@ -514,7 +515,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 		this.mIsVersePositionRecalcRequired = mIsVersePositionRecalcRequired;
 	}
 	
-	public void jumpToVerse(int verseNo) {
+	public void setJumpToVerse(int verseNo) {
 		this.mJumpToVerse = verseNo;
 //		loadUrl("javascript:location.href='#"+verseNo+"'");
 	}
