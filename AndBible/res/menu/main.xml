@@ -26,6 +26,22 @@
 		  android:icon="@android:drawable/ic_menu_search"
 		  appcompat:showAsAction="ifRoom"/>
 
+	<item android:id="@+id/splitSubMenu"
+		  android:title="@string/prefs_split_screen_title">
+		<menu>
+			<item android:id="@+id/splitNew"
+				  android:title="@string/new_item"/>
+			<item android:id="@+id/splitClose"
+				  android:title="@string/close"/>
+			<item android:id="@+id/splitSwap"
+				  android:title="@string/splitSwap"/>
+			<item android:id="@+id/splitLink"
+				  android:title="@string/prefs_split_screen_linked"/>
+			<item android:id="@+id/splitUnlink"
+				  android:title="@string/prefs_split_screen_not_linked"/>
+		</menu>
+	</item>
+	
 	<item 	android:id="@+id/historyButton" 
 			android:title="@string/history"
 			android:icon="@android:drawable/ic_menu_recent_history"/>
