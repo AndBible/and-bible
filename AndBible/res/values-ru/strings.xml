@@ -192,10 +192,10 @@
   <string name="mynote_saved">Сохранено</string>
   <!--Backup and restore-->
   <string name="backup">Бэкап</string>
-  <string name="backup_success">Заметки и закладки сохранены на %s на SD карте</string>
+  <string name="backup_success">Заметки и закладки сохранены в %s на SD карте</string>
   <string name="restore">Восстановить</string>
   <string name="restore_confirmation">Заменить заметки и закладки?</string>
-  <string name="restore_success">Заметки и закладки восставлены из SD карты на %s</string>
+  <string name="restore_success">Заметки и закладки восставлены из %s на SD карте</string>
   <!--About-->
   <string name="about_version">Версия: %s</string>
   <string name="about_versification">Версификация: %s</string>
