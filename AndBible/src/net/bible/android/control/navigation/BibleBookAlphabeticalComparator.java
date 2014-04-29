@@ -17,8 +17,8 @@ public class BibleBookAlphabeticalComparator implements Comparator<BibleBook> {
 	
 	private Versification versification;
 	
-	private static final Pattern REMOVE_NUMBERS_PATTERN = Pattern.compile("[^a-z]");
-	private static final Pattern REMOVE_CHARS_PATTERN = Pattern.compile("[^0-9]");
+	private static final Pattern NUMBERS_PATTERN = Pattern.compile("[0-9]");
+	private static final Pattern NOT_NUMBERS_PATTERN = Pattern.compile("[^0-9]");
 
 	public BibleBookAlphabeticalComparator(Versification versification) {
 		this.versification = versification;
@@ -31,8 +31,8 @@ public class BibleBookAlphabeticalComparator implements Comparator<BibleBook> {
 	private String getSortableBoookName(BibleBook bibleBook) {
 		String name = versification.getShortName(bibleBook).toLowerCase(LocaleProviderManager.getLocale());
 		// get the character name at the start eg '1 cor' -> 'cor1' so that books with a number at the start do not float to the top
-		String bookName = REMOVE_NUMBERS_PATTERN.matcher(name).replaceAll("");
-		String bookNumbers = REMOVE_CHARS_PATTERN.matcher(name).replaceAll("");
+		String bookName = NUMBERS_PATTERN.matcher(name).replaceAll("");
+		String bookNumbers = NOT_NUMBERS_PATTERN.matcher(name).replaceAll("");
 		return bookName+bookNumbers;
 	}
 };
