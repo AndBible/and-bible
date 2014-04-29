@@ -35,7 +35,8 @@ public class DocumentBibleBooksFactory {
 			}
 		};
 
-		flushCacheIfBooksChange();
+//TODO:	this causes errors on restart e.g. after changing language, due to attempt to init sword before settings so call it some time after initialisation 		
+//		flushCacheIfBooksChange();
 	}
 	
 	public DocumentBibleBooks getDocumentBibleBooksFor(AbstractPassageBook document) {
