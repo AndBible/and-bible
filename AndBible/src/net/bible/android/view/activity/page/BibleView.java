@@ -3,6 +3,7 @@ package net.bible.android.view.activity.page;
 import java.lang.reflect.Method;
 import java.util.Map;
 
+import net.bible.android.SharedConstants;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
 import net.bible.android.control.page.CurrentPageManager;
@@ -39,9 +40,9 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	
 	private VerseCalculator mVerseCalculator;
 
-	private int mJumpToVerse = 0;
-	private float mJumpToYOffsetRatio = 0;
-	private static final int NO_JUMP = -1;
+	private int mJumpToVerse = SharedConstants.NO_VALUE;
+	private float mJumpToYOffsetRatio = SharedConstants.NO_VALUE;
+
 	private boolean mIsVersePositionRecalcRequired = true;
 	
 	private PageTiltScroller mPageTiltScroller;
@@ -154,7 +155,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 			if (mJumpToVerse > 0) {
 			    // must zero mJumpToVerse because setting location causes another onPageFinished
 				int jumpToVerse = mJumpToVerse;
-			    mJumpToVerse = NO_JUMP;
+			    mJumpToVerse = SharedConstants.NO_VALUE;
 			    
 				scrollOrJumpToVerse(jumpToVerse);
 				
@@ -163,7 +164,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	            final int y = (int) ((float)contentHeight*mJumpToYOffsetRatio);
 
 	            // must zero mJumpToVerse because setting location causes another onPageFinished
-				mJumpToYOffsetRatio = NO_JUMP;
+				mJumpToYOffsetRatio = SharedConstants.NO_VALUE;
 				
 		        scrollTo(0, y);
 			}
@@ -224,7 +225,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 		// call this from here because some documents may require an adjusted font size e.g. those using Greek font
 		applyFontSize();
 		
-		mJumpToVerse = jumpToVerse;
+		setJumpToVerse(jumpToVerse);
 		mJumpToYOffsetRatio = jumpToYOffsetRatio;
 		
 		// allow zooming if map
@@ -443,7 +444,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	public void updateSecondaryScreen(Screen updateScreen, String html, int verseNo) {
 		if (splitScreenNo == updateScreen) {
 			changeBackgroundColour();
-			show(html, verseNo, 0);
+			show(html, verseNo, SharedConstants.NO_VALUE);
 		}		
 	}
 
@@ -473,7 +474,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 					@Override
 					public void run() {
 						// clear jump value if still set
-						BibleView.this.maintainMovingVerse = NO_JUMP;
+						BibleView.this.maintainMovingVerse = SharedConstants.NO_VALUE;
 						
 						// ensure we are in the correct place after screen settles
 						scrollOrJumpToVerse(verse);

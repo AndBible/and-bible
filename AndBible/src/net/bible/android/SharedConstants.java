@@ -38,6 +38,8 @@ public class SharedConstants {
     // insist on 50 free megs before downloading 
     public static final long REQUIRED_MEGS_FOR_DOWNLOADS = 50; 
 
+    public static final int NO_VALUE = -1;
+    
     /** a directory that will be deleted when the application is uninstalled (only on Android 2.2+)
      * 
      * @return

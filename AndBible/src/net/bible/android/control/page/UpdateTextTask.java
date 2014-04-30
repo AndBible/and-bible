@@ -1,5 +1,6 @@
 package net.bible.android.control.page;
 
+import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.service.format.HtmlMessageFormatter;
@@ -18,8 +19,8 @@ import android.util.Log;
 abstract public class UpdateTextTask extends AsyncTask<Screen, Integer, String> {
 
 	private Screen screen;
-	private int verseNo;
-	private float yScreenOffsetRatio;
+	private int verseNo = SharedConstants.NO_VALUE;
+	private float yScreenOffsetRatio = SharedConstants.NO_VALUE;
 	
 	private static final String TAG = "UpdateTextTask";
 	
@@ -44,8 +45,9 @@ abstract public class UpdateTextTask extends AsyncTask<Screen, Integer, String> 
     		// but allow for jump to specific verse e.g. after search result
     		if (currentPage instanceof CurrentBiblePage) {
     			verseNo = ((CurrentBiblePage)currentPage).getCurrentVerseNo();
+    		} else {
+    			yScreenOffsetRatio = currentPage.getCurrentYOffsetRatio();
     		}
-    		yScreenOffsetRatio = currentPage.getCurrentYOffsetRatio();
 
             Log.d(TAG, "Loading document:"+document.getInitials()+" key:"+key.getOsisRef());
             
