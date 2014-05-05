@@ -129,48 +129,6 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 		currentSplitScreenChanged(splitScreenControl.getCurrentActiveScreen());
 	}
 
-	/**
-	 * Position screen at required verse or offset
-	 * see: http://stackoverflow.com/questions/4065134/is-there-a-listener-for-when-the-webview-displays-its-content
-	 */
-	@Override
-	public void invalidate() {
-	    super.invalidate();
-
-	    if (getContentHeight() > 0) {
-			if (mIsVersePositionRecalcRequired) {
-				mIsVersePositionRecalcRequired = false;
-				loadUrl("javascript:registerVersePositions()");
-			}
-			
-			mJavascriptInterface.setNotificationsEnabled(splitScreenControl.isCurrentActiveScreen(splitScreenNo));
-
-			// screen is changing shape/size so constantly maintain the current verse position
-			// main difference from jumpToVerse is that this is not cleared after jump
-			if (maintainMovingVerse>0) {
-				scrollOrJumpToVerse(maintainMovingVerse);
-			}
-
-			// go to any specified verse or offset
-			if (mJumpToVerse > 0) {
-			    // must zero mJumpToVerse because setting location causes another onPageFinished
-				int jumpToVerse = mJumpToVerse;
-			    mJumpToVerse = SharedConstants.NO_VALUE;
-			    
-				scrollOrJumpToVerse(jumpToVerse);
-				
-			} else if (mJumpToYOffsetRatio>0) {
-	            int contentHeight = getContentHeight(); 
-	            final int y = (int) ((float)contentHeight*mJumpToYOffsetRatio);
-
-	            // must zero mJumpToVerse because setting location causes another onPageFinished
-				mJumpToYOffsetRatio = SharedConstants.NO_VALUE;
-				
-		        scrollTo(0, y);
-			}
-	    }
-	}
-	
 	@Override
 	protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
@@ -236,6 +194,73 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 		getSettings().setUseWideViewPort(isMap);
 		
 		loadDataWithBaseURL("file:///android_asset/", html, "text/html", "UTF-8", "http://historyUrl");
+		
+		// ensure jumpToOffset is eventually called during initialisation.  It will normally be called automatically but sometimes is not i.e. after jump to verse 1 at top of screen then press back.
+		// don't set this value too low or it may trigger before a proper upcoming computeVerticalScrollEvent
+		// 100 was good for my Nexus 4 but 500 for my G1 - it would be good to get a reflection of processor speed and adjust appropriately
+		invokeJumpToOffsetIfRequired(500);
+	}
+
+	/**
+	 * This is called fairly late in initialisation so override to invoke jump to offset position
+	 */
+	@Override
+	protected int computeVerticalScrollExtent() {
+	    int result = super.computeVerticalScrollExtent();
+
+	    // trigger jump to appropriate verse or offset into a book or commentary page...
+		invokeJumpToOffsetIfRequired(0);
+
+		return result;
+	}
+
+	/** 
+	 * Trigger jump to correct offset
+	 */
+	private void invokeJumpToOffsetIfRequired(long delay) {
+		if (mJumpToVerse!=SharedConstants.NO_VALUE || mJumpToYOffsetRatio!=SharedConstants.NO_VALUE) {
+			postDelayed(new Runnable() {
+				@Override
+				public void run() {
+				    jumpToOffset();
+				}
+			}, delay);
+		}
+	}
+	
+	private void jumpToOffset() {
+		if (getContentHeight() > 0) {
+			if (mIsVersePositionRecalcRequired) {
+				mIsVersePositionRecalcRequired = false;
+				loadUrl("javascript:registerVersePositions()");
+			}
+			
+			mJavascriptInterface.setNotificationsEnabled(splitScreenControl.isCurrentActiveScreen(splitScreenNo));
+
+			// screen is changing shape/size so constantly maintain the current verse position
+			// main difference from jumpToVerse is that this is not cleared after jump
+			if (maintainMovingVerse>0) {
+				scrollOrJumpToVerse(maintainMovingVerse);
+			}
+
+			// go to any specified verse or offset
+			if (mJumpToVerse!=SharedConstants.NO_VALUE) {
+			    // must clear mJumpToVerse because setting location causes another onPageFinished
+				int jumpToVerse = mJumpToVerse;
+			    mJumpToVerse = SharedConstants.NO_VALUE;
+			    
+				scrollOrJumpToVerse(jumpToVerse);
+				
+			} else if (mJumpToYOffsetRatio!=SharedConstants.NO_VALUE) {
+	            int contentHeight = getContentHeight(); 
+	            int y = (int) ((float)contentHeight*mJumpToYOffsetRatio);
+	            
+	            // must zero mJumpToVerse because setting location causes another onPageFinished
+				mJumpToYOffsetRatio = SharedConstants.NO_VALUE;
+				
+		        scrollTo(0, y);
+			}
+	    }
 	}
 
 	/** prevent swipe right if the user is scrolling the page right */

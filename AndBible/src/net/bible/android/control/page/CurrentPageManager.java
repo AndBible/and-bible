@@ -1,6 +1,7 @@
 package net.bible.android.control.page;
 
 import net.bible.android.BibleApplication;
+import net.bible.android.SharedConstants;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
@@ -198,7 +199,7 @@ public class CurrentPageManager {
 	}
 
 	public CurrentPage setCurrentDocumentAndKey(Book currentBook, Key key) {
-		return setCurrentDocumentAndKeyAndOffset(currentBook, key, 0);
+		return setCurrentDocumentAndKeyAndOffset(currentBook, key, SharedConstants.NO_VALUE);
 	}
 	public CurrentPage setCurrentDocumentAndKeyAndOffset(Book currentBook, Key key, float yOffsetRatio) {
 		PassageChangeMediator.getInstance().onBeforeCurrentPageChanged();
