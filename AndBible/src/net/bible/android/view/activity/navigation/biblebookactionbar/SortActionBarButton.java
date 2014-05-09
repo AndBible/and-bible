@@ -31,7 +31,7 @@ public class SortActionBarButton extends QuickActionButton {
 
 	@Override
 	protected String getTitle() {
-		return navigationControl.getBibleBookSortOrderDescription();
+		return navigationControl.getBibleBookSortOrderButtonDescription();
 	}
 
 	/** 

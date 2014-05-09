@@ -120,11 +120,14 @@ public class NavigationControl {
 		CommonUtils.saveSharedPreference(BIBLE_BOOK_SORT_ORDER, bibleBookSortOrder.toString());
 	}
 
-	public String getBibleBookSortOrderDescription() {
+	/**
+	 * The description is the opposite of the current state because the button text describes what will happen if you press it.
+	 */
+	public String getBibleBookSortOrderButtonDescription() {
 		if (BibleBookSortOrder.BIBLE_BOOK.equals(getBibleBookSortOrder())) {
-			return CommonUtils.getResourceString(R.string.sort_by_bible_book);
-		} else {
 			return CommonUtils.getResourceString(R.string.sort_by_alphabetical);
+		} else {
+			return CommonUtils.getResourceString(R.string.sort_by_bible_book);
 		}
 	}
 	

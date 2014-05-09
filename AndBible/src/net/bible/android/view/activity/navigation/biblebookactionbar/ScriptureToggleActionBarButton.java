@@ -4,9 +4,9 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.navigation.NavigationControl;
 import net.bible.android.view.activity.base.actionbar.ToggleActionBarButton;
-import android.support.v4.view.MenuItemCompat;
+import net.bible.service.common.CommonUtils;
 
-/** Quick change bible toolbar button
+/** Toggle between 66 Bible books and deuterocanonical books
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
@@ -17,8 +17,16 @@ public class ScriptureToggleActionBarButton extends ToggleActionBarButton {
 	private NavigationControl navigationControl = ControlFactory.getInstance().getNavigationControl();
 	
 	public ScriptureToggleActionBarButton() {
-		// overridden by canShow
 		super(R.drawable.ic_action_new, R.drawable.ic_action_undo);
+	}
+
+	@Override
+	protected String getTitle() {
+		if (isOn()) {
+			return CommonUtils.getResourceString(R.string.deuterocanonical); 
+		} else {
+			return CommonUtils.getResourceString(R.string.bible); 
+		}
 	}
 
 	@Override

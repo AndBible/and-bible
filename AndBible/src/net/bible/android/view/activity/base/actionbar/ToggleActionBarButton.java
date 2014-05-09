@@ -30,12 +30,6 @@ public abstract class ToggleActionBarButton extends QuickActionButton {
 		return isOn() ? onIcon : offIcon;
 	}
 	
-	@Override
-	protected String getTitle() {
-		// TODO Auto-generated method stub
-		return "";
-	}
-
 	public boolean isOn() {
 		return isOn;
 	}

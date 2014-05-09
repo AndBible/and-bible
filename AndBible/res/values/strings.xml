@@ -43,6 +43,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="choosePassageBookName">Choose Book</string>
     <string name="choosePassageChapterName">Choose Chapter</string>
     <string name="choosePassageVerseName">Choose Verse</string>
+    <string name="bible">Bible</string>
+    <string name="deuterocanonical">Deuterocanonical</string>
 
     <!--  Search -->
     <string name="search_index">Search Index</string>
