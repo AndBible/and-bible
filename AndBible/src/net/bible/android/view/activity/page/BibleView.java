@@ -56,6 +56,9 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	private int maintainMovingVerse = -1;
 	private static SplitScreenControl splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
 	
+	// never go to 0 because a bug in Android prevents invalidate after loadDataWithBaseURL so no scrollOrJumpToVerse will occur 
+	private static final int TOP_OF_SCREEN = 1;
+	
 	private static final String TAG = "BibleView";
 	
 	// remember current background colour so we know when it changes
@@ -194,11 +197,11 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 		getSettings().setUseWideViewPort(isMap);
 		
 		loadDataWithBaseURL("file:///android_asset/", html, "text/html", "UTF-8", "http://historyUrl");
-		
+
 		// ensure jumpToOffset is eventually called during initialisation.  It will normally be called automatically but sometimes is not i.e. after jump to verse 1 at top of screen then press back.
 		// don't set this value too low or it may trigger before a proper upcoming computeVerticalScrollEvent
 		// 100 was good for my Nexus 4 but 500 for my G1 - it would be good to get a reflection of processor speed and adjust appropriately
-		invokeJumpToOffsetIfRequired(500);
+		invokeJumpToOffsetIfRequired(CommonUtils.isSlowDevice()? 500 : 250);
 	}
 
 	/**
@@ -258,7 +261,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	            // must zero mJumpToVerse because setting location causes another onPageFinished
 				mJumpToYOffsetRatio = SharedConstants.NO_VALUE;
 				
-		        scrollTo(0, y);
+		        scrollTo(0, Math.max(y, TOP_OF_SCREEN));
 			}
 	    }
 	}
@@ -411,7 +414,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 				}
 			} else {
 				// scroll up/backward if not at top
-				if (getScrollY() > 0) {
+				if (getScrollY() > TOP_OF_SCREEN) {
 					// scroll up/back
 					scrollBy(0, -1);
 					ok = true;
@@ -562,7 +565,7 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	private void scrollOrJumpToVerse(final int verse) {
 		if (verse<=1) {
 			// use scroll to because difficult to place a tag exactly at the top
-			scrollTo(0,0);
+			scrollTo(0, TOP_OF_SCREEN);
 		} else {
 			// required format changed in 4.2 http://stackoverflow.com/questions/14771970/how-to-call-javascript-in-android-4-2
 			loadUrl("javascript:(function() { " +  

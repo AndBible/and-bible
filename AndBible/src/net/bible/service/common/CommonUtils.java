@@ -442,4 +442,10 @@ public class CommonUtils {
 		// convert to full chapter before returning because bible view is for a full chapter
 		return new VerseRange(versification, targetChapterFirstVerse, targetChapterLastVerse);
 	}
+	
+	/** enable performance adjustments for slow devices
+	 */
+	public static boolean isSlowDevice() {
+		return Runtime.getRuntime().availableProcessors()==1;
+	}
 }
