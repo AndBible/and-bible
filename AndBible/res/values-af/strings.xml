@@ -14,12 +14,14 @@
   <string name="settings">Stellings</string>
   <string name="history">Geskiedenis</string>
   <string name="speak">Praat</string>
-  <string name="help">Help</string>
+  <string name="help">Hulp</string>
   <string name="verse">Vers</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kies \'n Boek</string>
   <string name="choosePassageChapterName">Kies \'n Hoofstuk</string>
   <string name="choosePassageVerseName">Kies \'n Vers</string>
+  <string name="bible">Bybel</string>
+  <string name="deuterocanonical">Deuterokanonieke</string>
   <!--Search-->
   <string name="search_index">Soek Indeks</string>
   <string name="index_creation_required">\'n Indeks word benodig om te soek. \n\nIndekse kan van die internet afgelaai of plaaslik geskep word.\n\nAflaai is baie vinniger, en afgelaaide indekse het meer soek funksies.\n\n \'n Internet aansluiting is nodig om indekse af te laai.</string>
@@ -156,6 +158,7 @@
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datum volgorde</string>
   <string name="sort_by_bible_book">Bybelse volgorde</string>
+  <string name="sort_by_alphabetical">Alfabetiese volgorde</string>
   <!--Dictionary-->
   <string name="dictionary">Woordeboek</string>
   <string name="search_dictionary_hint">Soek woordeboek</string>

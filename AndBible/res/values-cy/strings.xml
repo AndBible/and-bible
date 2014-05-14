@@ -20,6 +20,8 @@
   <string name="choosePassageBookName">Dewis Llyfr</string>
   <string name="choosePassageChapterName">Dewis Pennod</string>
   <string name="choosePassageVerseName">Dewis adnod</string>
+  <string name="bible">Beibl</string>
+  <string name="deuterocanonical">Dewteroganonaidd</string>
   <!--Search-->
   <string name="search_index">Chwilio Mynegai</string>
   <string name="index_creation_required">Mae angen mynegai i chwilio. \n\nGellir lawrlwytho Mynegeion oddi ar y rhyngrwyd neu eu creu.\n\nMae lawrlwytho yn llawer cyflymach ac mae\'r mynegeion hynny yn fwy hyblyg wrth chwilio.\n\nMae angen cysylltiad rhyngrwyd i lawrlwytho Mynegeion.</string>
@@ -156,6 +158,7 @@
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Trefn dyddiad</string>
   <string name="sort_by_bible_book">Trefn beiblaidd</string>
+  <string name="sort_by_alphabetical">Trefn yr Wyddor</string>
   <!--Dictionary-->
   <string name="dictionary">Geiriadur</string>
   <string name="search_dictionary_hint">Chwilio geiriadur</string>

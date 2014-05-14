@@ -20,6 +20,8 @@
   <string name="choosePassageBookName">Izberi knjigo</string>
   <string name="choosePassageChapterName">Izberi poglavje</string>
   <string name="choosePassageVerseName">Izberi vrstico</string>
+  <string name="bible">Biblija</string>
+  <string name="deuterocanonical">Devterokanonične ali apokrifne knjige</string>
   <!--Search-->
   <string name="search_index">Preišči indeks</string>
   <string name="index_creation_required">Za iskanje je potreben indeks.\n\nIndeksi se lahko prenesejo iz interneta ali pa se jih ustvari lokalno.\n\nPrenos iz interneta je mnogo hitrejši in preneseni indeksi imajo več iskalnih značilnosti.\n\nZa prenos indeksov je potrebna internetna povezava.\n</string>
@@ -156,6 +158,7 @@
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Urejeno po datumu</string>
   <string name="sort_by_bible_book">Urejeno po bibliji</string>
+  <string name="sort_by_alphabetical">Abecedni vrstni red</string>
   <!--Dictionary-->
   <string name="dictionary">Slovar</string>
   <string name="search_dictionary_hint">Išči po slovarju</string>

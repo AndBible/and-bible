@@ -20,6 +20,8 @@
   <string name="choosePassageBookName">Выбрать книгу</string>
   <string name="choosePassageChapterName">Выбрать главу</string>
   <string name="choosePassageVerseName">Выбрать стих</string>
+  <string name="bible">Библия</string>
+  <string name="deuterocanonical">Второканонические</string>
   <!--Search-->
   <string name="search_index">Поисковой индекс</string>
   <string name="index_creation_required">Для поиска требуется индекс.\nИндексы можно скачать с Интернета или создать.\nСкачать будет быстрее, а также скачанные индексы имееют больше функций поиска.\nДля того, чтобы скачать индексы, подключитесь к Интернету.\n</string>
@@ -156,6 +158,7 @@
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">По датам</string>
   <string name="sort_by_bible_book">Библейский порядок</string>
+  <string name="sort_by_alphabetical">Сортировка по алфавиту</string>
   <!--Dictionary-->
   <string name="dictionary">Словарь</string>
   <string name="search_dictionary_hint">Найти словарь</string>

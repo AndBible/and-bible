@@ -20,6 +20,8 @@
   <string name="choosePassageBookName">Válasszon könyvet</string>
   <string name="choosePassageChapterName">Válasszon fejezetet</string>
   <string name="choosePassageVerseName">Válasszon verset</string>
+  <string name="bible">Biblia</string>
+  <string name="deuterocanonical">Deuterokanonikus</string>
   <!--Search-->
   <string name="search_index">Keresési index létrehozása</string>
   <string name="index_creation_required">A kereséshez index szükséges.\n\nAz indexek letölthetőek, vagy helyben is készíthető.\n\nA letöltés előnyösebb, mert a helyi generálás nagyon időigényes. A letöltéshez internet kapcsolat szükséges.\n</string>
@@ -156,6 +158,7 @@
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Kronológiai sorrend</string>
   <string name="sort_by_bible_book">Bibliai sorrend</string>
+  <string name="sort_by_alphabetical">Abc sorrend</string>
   <!--Dictionary-->
   <string name="dictionary">Szótár</string>
   <string name="search_dictionary_hint">Szótár keresése</string>

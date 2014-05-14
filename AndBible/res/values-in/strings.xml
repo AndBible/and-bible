@@ -20,6 +20,8 @@
   <string name="choosePassageBookName">Pilih Buku</string>
   <string name="choosePassageChapterName">Pilih Bab</string>
   <string name="choosePassageVerseName">Pilih Ayat</string>
+  <string name="bible">Alkitab</string>
+  <string name="deuterocanonical">Deuterokanonika</string>
   <!--Search-->
   <string name="search_index">Cari Indeks</string>
   <string name="index_creation_required">Untuk mencari informasi, indeks diperlukan.\n\nIndeks bisa di-download dari internet atau dibuat secara lokal.\n\nIndeks yg di-download dari internet jauh lebih cepat dan mempunyai lebih banyak fitur.\n\nKoneksi internet diperlukan untuk download indeks.\n</string>
@@ -156,6 +158,7 @@
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Urutan tanggal</string>
   <string name="sort_by_bible_book">Urutan Alkitab</string>
+  <string name="sort_by_alphabetical">Urutan abjad</string>
   <!--Dictionary-->
   <string name="dictionary">Kamus</string>
   <string name="search_dictionary_hint">Cari kamus</string>

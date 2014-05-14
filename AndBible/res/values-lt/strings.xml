@@ -20,6 +20,7 @@
   <string name="choosePassageBookName">Rinkitės knygą</string>
   <string name="choosePassageChapterName">Rinkitės skyrių</string>
   <string name="choosePassageVerseName">Rinktis eilutę</string>
+  <string name="bible">Biblija</string>
   <!--Search-->
   <string name="search_index">Paieškos indeksas</string>
   <string name="index_creation_required">Paieškai reikia indekso.\n\nIndeksai gali būti parsiųsti iš interneto arba sukurti vietoje.\n\nParsiuntimas yra žymiai greitesnis, o ir parsiųsti indeksai turi daugiau savybių, reikalingų paieškai.\n\nIndeksų parsiuntimui reikia interneto ryšio.\n</string>
@@ -156,6 +157,7 @@
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Rūšiavimas pagal datą</string>
   <string name="sort_by_bible_book">Rūšiavimas pagal Bibliją</string>
+  <string name="sort_by_alphabetical">Abėcėlinė tvarka</string>
   <!--Dictionary-->
   <string name="dictionary">Žodynas</string>
   <string name="search_dictionary_hint">Ieškoti žodyne</string>

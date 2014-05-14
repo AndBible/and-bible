@@ -20,6 +20,8 @@
   <string name="choosePassageBookName">Valitse kirja</string>
   <string name="choosePassageChapterName">Valitse luku</string>
   <string name="choosePassageVerseName">Valitse jae</string>
+  <string name="bible">Raamattu</string>
+  <string name="deuterocanonical">Deuterokanoninen</string>
   <!--Search-->
   <string name="search_index">Hakuindeksi</string>
   <string name="index_creation_required">Etsiminen vaatii indeksin.\n\nIndeksit voidaan ladata netistä tai luoda paikallisesti.\n\nLataaminen on huomattavasti nopeampaa, minkä lisäksi ladatuissa indekseissä on enemmän ominaisuuksia.\n\nInternetyhteys tarvitaan indeksin lataamiseksi.\n</string>
@@ -156,6 +158,7 @@
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Aikajärjestys</string>
   <string name="sort_by_bible_book">Kirjajärjestys</string>
+  <string name="sort_by_alphabetical">Aakkosjärjestys</string>
   <!--Dictionary-->
   <string name="dictionary">Sanakirja</string>
   <string name="search_dictionary_hint">Etsi sanakirjasta</string>

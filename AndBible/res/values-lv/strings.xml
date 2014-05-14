@@ -20,6 +20,8 @@
   <string name="choosePassageBookName">Izvēlaties Grāmatu</string>
   <string name="choosePassageChapterName">Izvēlaties Nodaļu</string>
   <string name="choosePassageVerseName">Izvēlaties Pantu</string>
+  <string name="bible">Bībele</string>
+  <string name="deuterocanonical">Duetoroniskās</string>
   <!--Search-->
   <string name="search_index">Meklēt Saturā</string>
   <string name="index_creation_required">Meklēšanai ir nepieciešams indekss.\n\nIndeksus var lejuplādēt no interneta, vai izveidot lokāli.\n\nLejuplādēšana ir ātrāka un lejuplādētie Indeksi satur vairāk meklēšanas iespēju.\n\nLai lejuplādētu indeksus, nepieciešams interneta pieslēgums.\n</string>
@@ -156,6 +158,7 @@
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Secībā pēc datuma</string>
   <string name="sort_by_bible_book">Bibliskā secībā</string>
+  <string name="sort_by_alphabetical">Alfabētiskā kārtībā</string>
   <!--Dictionary-->
   <string name="dictionary">Vārdnīca</string>
   <string name="search_dictionary_hint">Meklēt vārdnīcā</string>

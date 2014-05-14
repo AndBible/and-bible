@@ -20,6 +20,8 @@
   <string name="choosePassageBookName">Vybrat knihu</string>
   <string name="choosePassageChapterName">Vybrat kapitolu</string>
   <string name="choosePassageVerseName">Vybrat verš</string>
+  <string name="bible">Bible</string>
+  <string name="deuterocanonical">Deuterokanonické</string>
   <!--Search-->
   <string name="search_index">Vyhledávací index</string>
   <string name="index_creation_required">Pro hledání je nutný index.\n\nIndexy lze stáhnout z Internetu nebo vytvořit lokálně.\n\nStáhnutí je mnohem rychlejší a stáhnuté indexy obsahují více vyhledávacích vlastností.\n\nKe stáhnutí indexů je vyžadováno internetové připojení.\n</string>
@@ -156,6 +158,7 @@
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Řazení dle data</string>
   <string name="sort_by_bible_book">Biblické pořadí</string>
+  <string name="sort_by_alphabetical">Abecední pořadí</string>
   <!--Dictionary-->
   <string name="dictionary">Slovník</string>
   <string name="search_dictionary_hint">Vyhledávací slovník</string>
