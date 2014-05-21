@@ -63,6 +63,7 @@ public class Bookmarks extends ListActivityBase {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, false);
         setContentView(R.layout.bookmarks);
+        setIntegrateWithHistoryManager(true);
 
         bookmarkControl = ControlFactory.getInstance().getBookmarkControl();
         
