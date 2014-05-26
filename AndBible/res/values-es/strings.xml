@@ -20,6 +20,8 @@
   <string name="choosePassageBookName">Elige Libro</string>
   <string name="choosePassageChapterName">Elige Capítulo</string>
   <string name="choosePassageVerseName">Elige Verso</string>
+  <string name="bible">Biblia</string>
+  <string name="deuterocanonical">Deuterocanónico</string>
   <!--Search-->
   <string name="search_index">Indice de búsqueda</string>
   <string name="index_creation_required">Se requiere un índice para buscar.\n\nLos índices se pueden descargar de internet o crearse localmente.\n\nDescargarlos es mucho más rápido y los índices descargados tienen más características de búsqueda.\n\nSe necesita una conexión a internet para descargar índices.\n</string>
@@ -156,6 +158,7 @@
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Orden de fecha</string>
   <string name="sort_by_bible_book">Orden bíblico</string>
+  <string name="sort_by_alphabetical">Orden alfabético</string>
   <!--Dictionary-->
   <string name="dictionary">Diccionario</string>
   <string name="search_dictionary_hint">Buscar diccionario</string>

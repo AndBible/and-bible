@@ -20,6 +20,8 @@
   <string name="choosePassageBookName">Кітапті Таңдау</string>
   <string name="choosePassageChapterName">Тарауды Таңдау</string>
   <string name="choosePassageVerseName">Аятты Таңдау</string>
+  <string name="bible">Киелі Кітап</string>
+  <string name="deuterocanonical">Екінші Жинақ Ережелері</string>
   <!--Search-->
   <string name="search_index">Индекс Іздеу</string>
   <string name="index_creation_required">Индекс іздеуді талап етеді.⏎\n⏎\nИндекстер интернет арқылы жүктелуі мүмкін немесе жергілікті орында жасалынады.⏎\n⏎\nЖүктелуі жылдамрақ және жүктелген индекстердің іздеу ерекшеліктері көбірек болады.⏎\n⏎\nИнтернет косылуы индекстердің жүктелуін талап етеді.⏎</string>
@@ -156,6 +158,7 @@
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Күн реті</string>
   <string name="sort_by_bible_book">Киелі кітап реті</string>
+  <string name="sort_by_alphabetical">Әліппе реті бойынша</string>
   <!--Dictionary-->
   <string name="dictionary">Сөздік</string>
   <string name="search_dictionary_hint">Сөздікті іздеу</string>
