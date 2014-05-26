@@ -112,18 +112,15 @@ public class PageControl {
 	 */
 	public String getCurrentDocumentTitle() {
 	
-		StringBuilder title = new StringBuilder();
+		String title = "";
 		CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
 		if (currentPage!=null) {
 			if (currentPage.getCurrentDocument()!=null) {
-				title.append(currentPage.getCurrentDocument()).append(" ");
+				title = currentPage.getCurrentDocument().getInitials();
 			}
 		}
-		// ActionBar truncates very long text automatically
-		int maxLength = 12; //isPortrait ? 8 : 12;
-		String retVal = shorten(title.toString(), maxLength);
 
-		return retVal;
+		return title;
 	}
 
 	/** get page title including info about key/verse
@@ -133,10 +130,8 @@ public class PageControl {
 	public String getCurrentPageTitle() {
 		boolean fullBookNameSave = BookName.isFullBookName();
 		
-		boolean isPortrait = CommonUtils.isPortrait();
-		
 		// show short book name to save space if Portrait
-		BookName.setFullBookName(!isPortrait);
+		BookName.setFullBookName(false); //!isPortrait);
 		String retVal="";
 		try {
 			StringBuilder title = new StringBuilder();
@@ -147,13 +142,12 @@ public class PageControl {
 				}
 			}
 			
-			int maxLength = isPortrait ? 11 : 26;
-			retVal = shorten(title.toString(), maxLength);
+			retVal = title.toString();
 			// favour correct capitalisation because it looks better and is narrower so more fits in
 			if (ABStringUtils.isAllUpperCaseWherePossible(retVal)) {
 				// Books like INSTITUTES need corrected capitalisation
 				retVal = WordUtils.capitalizeFully(retVal);
-			}		
+			}
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting page title", e);
 		} finally {
@@ -161,20 +155,6 @@ public class PageControl {
 			BookName.setFullBookName(fullBookNameSave);
 		}
 		return retVal;
-	}
-
-	public String getCurrentBibleBookName() {
-		CurrentBiblePage page = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible();
-		Verse verse = page.getSingleKey();
-		BibleBook book = verse.getBook();
-		
-		String name;
-//		if (CommonUtils.isPortrait()) {
-			name = page.getVersification().getShortName(book);
-//		} else {
-//			name = page.getVersification().getLongName(book);
-//		}
-		return name;
 	}
 
 	public Verse getCurrentBibleVerse() {
@@ -219,16 +199,6 @@ public class PageControl {
 		// Non-scriptural pages are not so safe.  They may be synched with the other screen but not support the current dc book 
 		return isCurrentBibleBookScripture ||
 				!currentVersification.containsBook(currentBibleBook);
-	}
-	
-	private String shorten(String title, int maxLength) {
-		String retVal = null;
-		if (title.length()>maxLength) {
-			retVal = title.substring(0, maxLength);
-		} else {
-			retVal = title;
-		}
-		return retVal;
 	}
 	
 	public CurrentPageManager getCurrentPageManager() {
