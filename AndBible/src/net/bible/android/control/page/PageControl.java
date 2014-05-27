@@ -10,17 +10,19 @@ import net.bible.android.control.versification.Scripture;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
+import net.bible.service.common.TitleSplitter;
 import net.bible.service.font.FontControl;
 import net.bible.service.sword.SwordContentFacade;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang.ABStringUtils;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.WordUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
-import org.crosswire.jsword.versification.BookName;
 import org.crosswire.jsword.versification.Versification;
 
 import android.app.Activity;
@@ -39,6 +41,8 @@ public class PageControl {
 	
 	private static final String TAG = "PageControl";
 	
+	private static final TitleSplitter titleSplitter = new TitleSplitter();
+
 	/** paste the current verse to the system clipboard
 	 */
 	public void copyToClipboard() {
@@ -106,11 +110,13 @@ public class PageControl {
 			Log.e(TAG, "Verse error");
 		}
 	}
-	/** get page title including info about current doc
+	/** 
+	 * Get page title including info about current doc
+	 * Return it in 1 or 2 parts allowing it to be split over 2 lines
 	 * 
 	 * @return
 	 */
-	public String getCurrentDocumentTitle() {
+	public String[] getCurrentDocumentTitleParts() {
 	
 		String title = "";
 		CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
@@ -119,40 +125,57 @@ public class PageControl {
 				title = currentPage.getCurrentDocument().getInitials();
 			}
 		}
+		
+		String[] parts = titleSplitter.split(title);
+		if (parts.length>2) {
+			// skip first element which is often the language or book type e.g. GerNeUe, StrongsRealGreek
+			parts = ArrayUtils.subarray(parts, 1, 3);
+		}
 
-		return title;
+		return parts;
 	}
 
-	/** get page title including info about key/verse
+	/** 
+	 * Get page title including info about key/verse
+	 * Return it in 1 or 2 parts allowing it to be split over 2 lines
 	 * 
 	 * @return
 	 */
-	public String getCurrentPageTitle() {
-		boolean fullBookNameSave = BookName.isFullBookName();
-		
-		// show short book name to save space if Portrait
-		BookName.setFullBookName(false); //!isPortrait);
-		String retVal="";
+	public String[] getCurrentPageTitleParts() {
+		String[] retVal=new String[2];
 		try {
-			StringBuilder title = new StringBuilder();
 			CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
 			if (currentPage!=null) {
 				if (currentPage.getSingleKey()!=null) {
-					title.append(CommonUtils.getKeyDescription(currentPage.getSingleKey()));
+					Key key = currentPage.getSingleKey();
+					// verses are special - show book at top and verse below
+					if (key instanceof Verse) {
+						Verse verse = (Verse)key;
+						Versification v11n = verse.getVersification();
+						retVal[0] = StringUtils.left(v11n.getShortName(verse.getBook()), 6);
+						
+						StringBuilder verseText = new StringBuilder();
+						verseText.append(verse.getChapter());
+						int verseNo = verse.getVerse();
+						if (verseNo>0) {
+							verseText.append(":").append(verseNo);
+						}
+						retVal[1] = verseText.toString();
+					} else {
+						// handle all non verse keys in a generic way
+						String title = key.getName();
+						// favour correct capitalisation because it looks better and is narrower so more fits in
+						if (ABStringUtils.isAllUpperCaseWherePossible(title)) {
+							// Books like INSTITUTES need corrected capitalisation
+							title = WordUtils.capitalizeFully(title);
+						}
+						String[] parts = titleSplitter.split(title);
+						retVal = ArrayUtils.subarray(parts, 0, 2);
+					}
 				}
-			}
-			
-			retVal = title.toString();
-			// favour correct capitalisation because it looks better and is narrower so more fits in
-			if (ABStringUtils.isAllUpperCaseWherePossible(retVal)) {
-				// Books like INSTITUTES need corrected capitalisation
-				retVal = WordUtils.capitalizeFully(retVal);
 			}
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting page title", e);
-		} finally {
-			// restore full book name setting
-			BookName.setFullBookName(fullBookNameSave);
 		}
 		return retVal;
 	}

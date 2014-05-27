@@ -37,13 +37,13 @@ public class HomeTitle extends Title {
 	}
 	
 	@Override
-	protected String getDocumentTitle() {
-		return pageControl.getCurrentDocumentTitle();
+	protected String[] getDocumentTitleParts() {
+		return pageControl.getCurrentDocumentTitleParts();
 	}
 
 	@Override
-	protected String getPageTitle() {
-		return pageControl.getCurrentPageTitle();
+	protected String[] getPageTitleParts() {
+		return pageControl.getCurrentPageTitleParts();
 	}
 
 	@Override

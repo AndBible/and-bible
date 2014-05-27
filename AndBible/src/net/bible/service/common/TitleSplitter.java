@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.base.actionbar;
+package net.bible.service.common;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -11,6 +11,9 @@ public class TitleSplitter {
 	
 	private static final int MAX_PART_LENGTH = 6;
 
+	/**
+	 * Split text to enable 2 parts to be shown as title on left of action bar
+	 */
 	public String[] split(String text) {
 		if (text==null) {
 			return new String[0];
