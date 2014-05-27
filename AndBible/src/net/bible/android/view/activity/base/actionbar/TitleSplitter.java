@@ -30,6 +30,14 @@ public class TitleSplitter {
 		return parts;
 	}
 
+	/**
+	 * Shorten camel case words uniformly e.g. StrongsRealGreek -> StReGr
+	 * Used to create short action bar text for document names
+	 * 
+	 * @param text		Text to shorten
+	 * @param maxLength	Max length of final string
+	 * @return			Shortened text
+	 */
 	public String shorten(String text, int maxLength) {
 		if (text==null) {
 			return "";
