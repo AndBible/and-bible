@@ -36,4 +36,7 @@ public class CurrentBibleVerse {
 	public int getVerseNo() {
 		return verseVersificationSelected.getVerseNo();
 	}
+	public Versification getVersificationOfLastSelectedVerse() {
+		return verseVersificationSelected.getVerse().getVersification();
+	}
 }
