@@ -16,6 +16,10 @@ import net.bible.service.common.AndRuntimeException;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.util.IOUtil;
+import org.crosswire.jsword.versification.Versification;
+import org.crosswire.jsword.versification.system.SystemKJV;
+import org.crosswire.jsword.versification.system.SystemNRSVA;
+import org.crosswire.jsword.versification.system.Versifications;
 
 import android.content.res.AssetManager;
 import android.content.res.Resources;
@@ -34,6 +38,10 @@ public class ReadingPlanDao {
 	private static final String READING_PLAN_FOLDER = SharedConstants.READINGPLAN_DIR_NAME;
 	private static final File USER_READING_PLAN_FOLDER = SharedConstants.MANUAL_READINGPLAN_DIR;
 	private static final String DOT_PROPERTIES = ".properties";
+	private static final String VERSIFICATION = "Versification";
+	private static final String DEFAULT_VERSIFICATION = SystemKJV.V11N_NAME;
+	private static final String INCLUSIVE_VERSIFICATION = SystemNRSVA.V11N_NAME;
+	
 	private static final String TAG = "ReadingPlanDao";
 
 	public List<ReadingPlanInfoDto> getReadingPlanList() {
@@ -104,6 +112,24 @@ public class ReadingPlanDao {
 		return maxDayNo;
 	}
 
+	/** 
+	 * Get versification specified in properties file e.g. 'Versification=Vulg'
+	 * Default to KJV.
+	 * If specified Versification is not found then use NRSVA because it includes most books possible 
+	 */
+	private Versification getReadingPlanVersification(String planCode) {
+		Versification versification = null;
+		try {
+			String versificationName = getPlanProperties(planCode).getProperty(VERSIFICATION, DEFAULT_VERSIFICATION);
+			versification = Versifications.instance().getVersification(versificationName);
+		} catch (Exception e) {
+			Log.e(TAG, "Error loading versification from Reading plan:"+planCode);
+			versification = Versifications.instance().getVersification(INCLUSIVE_VERSIFICATION);
+		}
+			
+		return versification;
+	}
+
 	private ReadingPlanInfoDto getReadingPlanInfoDto(String planCode) {
 		Log.d(TAG, "Get reading plan info:"+planCode);
 		ReadingPlanInfoDto info = new ReadingPlanInfoDto(planCode);
@@ -115,6 +141,8 @@ public class ReadingPlanDao {
 		info.setTitle(desc);
 		
 		info.setNumberOfPlanDays(getNumberOfPlanDays(planCode));
+		info.setVersification(getReadingPlanVersification(planCode));
+		
 		return info;
 	}
 
