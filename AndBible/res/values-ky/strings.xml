@@ -21,7 +21,7 @@
   <string name="choosePassageChapterName">Бөлүмдү тандоо</string>
   <string name="choosePassageVerseName">Аят тандоо</string>
   <string name="bible">Ыйык китеп</string>
-  <string name="deuterocanonical">Канондук эмес китептер</string>
+  <string name="deuterocanonical">Канонго кошумча китептер</string>
   <!--Search-->
   <string name="search_index">Издөө индекси</string>
   <string name="index_creation_required">Издөө үчүн индекс керек \nИндексти Интернеттен жүктөп алууга же колдо түзүп алууга болот.\nЖүктөп алуу ылдам болот, ошондой эле жүктөп алынган индекстердин издөө иштеми көбүрөөк болот. \nИндекстерди жүктөп алуу үчүн, Интернетке кошулуңуз.</string>
