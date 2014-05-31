@@ -4,7 +4,6 @@
   <!--Startup & Help-->
   <string name="splash_top_text">\nTu povedal Boh: \"Buď svetlo!\" a bolo svetlo.</string>
   <string name="help_text">Stlač kláves MENU pre viaceré možnosti. Ťahom po obrazovke vľavo alebo vpravo sa rýchlo prepneš medzi kapitolami. (alebo track-ballom(</string>
-  <string name="help_text_long"><b>Navigácia</b>...</string>
   <string name="version_text">Verzia %s</string>
   <string name="no_sdcard_error">Prosím, vložte SD kartu a spustite And Bible ešte raz.</string>
   <!--Main menu-->
