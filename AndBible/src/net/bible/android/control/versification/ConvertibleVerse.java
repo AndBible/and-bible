@@ -83,8 +83,16 @@ public class ConvertibleVerse implements Comparable<ConvertibleVerse> {
 	}
 	
 	@Override
-	public int compareTo(ConvertibleVerse another) {
-		assert another!=null;
-		return mainVerse.compareTo(another.getVerse(mainVerse.getVersification()));
+	public int compareTo(ConvertibleVerse other) {
+		if (other==null) {
+			return 1;
+		}
+	    if (this.mainVerse == null) {
+	        return other.mainVerse == null ? 0 : -1;
+	    }
+	    if (other.mainVerse == null){
+	        return 1;
+	    }
+		return mainVerse.compareTo(other.getVerse(mainVerse.getVersification()));
 	}
 }

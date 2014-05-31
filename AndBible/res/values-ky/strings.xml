@@ -15,10 +15,13 @@
   <string name="history">Ишбаян</string>
   <string name="speak">Угуу</string>
   <string name="help">Жардам</string>
+  <string name="verse">Аят</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Китепти тандоо</string>
   <string name="choosePassageChapterName">Бөлүмдү тандоо</string>
   <string name="choosePassageVerseName">Аят тандоо</string>
+  <string name="bible">Ыйык китеп</string>
+  <string name="deuterocanonical">Канонго кошумча китептер</string>
   <!--Search-->
   <string name="search_index">Издөө индекси</string>
   <string name="index_creation_required">Издөө үчүн индекс керек \nИндексти Интернеттен жүктөп алууга же колдо түзүп алууга болот.\nЖүктөп алуу ылдам болот, ошондой эле жүктөп алынган индекстердин издөө иштеми көбүрөөк болот. \nИндекстерди жүктөп алуу үчүн, Интернетке кошулуңуз.</string>
@@ -155,6 +158,7 @@
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Дата боюнча</string>
   <string name="sort_by_bible_book">Библиялык китептердин ирээти боюнча</string>
+  <string name="sort_by_alphabetical">алфавит тартиби менен</string>
   <!--Dictionary-->
   <string name="dictionary">Сөздүк</string>
   <string name="search_dictionary_hint">Сөздүктөн издөө</string>
@@ -214,6 +218,7 @@
   <string name="save">Сактоо</string>
   <string name="error">Ката кетти</string>
   <string name="more">Дагы</string>
+  <string name="more_dotted">Дагы...</string>
   <string name="retry">Кайрадан аракет кылыңыз</string>
   <string name="please_wait">Күтө туруңуз...</string>
   <string name="all">Баары</string>

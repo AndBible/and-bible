@@ -17,20 +17,21 @@ import android.support.v7.app.ActionBar;
  */
 public class ReadingPlanTitle extends Title {
 
-	
 	public void addToBar(ActionBar actionBar, final Activity activity) {
 		super.addToBar(actionBar, activity);
 
 	}
 
 	@Override
-	protected String getDocumentTitle() {
-		return ControlFactory.getInstance().getReadingPlanControl().getShortTitle();
+	protected String[] getDocumentTitleParts() {
+		String title = ControlFactory.getInstance().getReadingPlanControl().getShortTitle();
+		return getTwoTitleParts(title, false);
 	}
 
 	@Override
-	protected String getPageTitle() {
-		return ControlFactory.getInstance().getReadingPlanControl().getCurrentDayDescription();
+	protected String[] getPageTitleParts() {
+		String planDayDesc = ControlFactory.getInstance().getReadingPlanControl().getCurrentDayDescription();
+		return getTwoTitleParts(planDayDesc, true);
 	}
 
 	@Override

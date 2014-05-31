@@ -9,6 +9,7 @@ import net.bible.service.download.FakeSwordBookFactory;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
+import org.crosswire.jsword.versification.Versification;
 
 import android.util.Log;
 import android.view.Menu;
@@ -21,19 +22,15 @@ import android.view.Menu;
  */
 public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentPage {
 
+	private static final String MY_NOTE_DUMMY_CONF = "[MyNote]\nDescription=My Note\nCategory=OTHER\nModDrv=zCom\nBlockType=CHAPTER\nLang=en\nEncoding=UTF-8\nLCSH=Bible--Commentaries.\nDataPath=./modules/comments/zcom/mynote/\nAbout=\nVersification=";
 	// just one fake book for every note
 	private Book fakeMyNoteBook;
+	private Versification fakeMyNoteBookVersification;
 	
 	private static final String TAG = "CurrentMyNotePage";
 	
 	/* default */ CurrentMyNotePage(CurrentBibleVerse currentVerse) {
 		super(currentVerse);
-		
-		try {
-			fakeMyNoteBook = FakeSwordBookFactory.createFakeRepoBook("My Note", "[MyNote]\nDescription=My Note\nCategory=OTHER\nModDrv=zCom\nBlockType=CHAPTER\nLang=en\nEncoding=UTF-8\nLCSH=Bible--Commentaries.\nDataPath=./modules/comments/zcom/mynote/\nAbout=", "");
-		} catch (IOException e) {
-			Log.e(TAG, "Error creating fake MyNote book", e);
-		}
 	}
 
 	@Override
@@ -54,6 +51,15 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 	
 	@Override
 	public Book getCurrentDocument() {
+		try {
+			if (fakeMyNoteBook==null || fakeMyNoteBookVersification==null || fakeMyNoteBookVersification!=getCurrentVersification()) {
+				Versification v11n = getCurrentVersification();
+				fakeMyNoteBook = FakeSwordBookFactory.createFakeRepoBook("My Note", MY_NOTE_DUMMY_CONF+v11n.getName(), "");
+				fakeMyNoteBookVersification = v11n;
+			}
+		} catch (IOException e) {
+			Log.e(TAG, "Error creating fake MyNote book", e);
+		}
 		return fakeMyNoteBook; 
 	}
 
@@ -74,5 +80,9 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 
 	public BookCategory getBookCategory() {
 		return BookCategory.OTHER;
+	}
+	
+	private Versification getCurrentVersification() {
+		return getCurrentBibleVerse().getVersificationOfLastSelectedVerse();		
 	}
 }

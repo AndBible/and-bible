@@ -1,7 +1,12 @@
 package net.bible.android.view.activity.base.actionbar;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
+import net.bible.service.common.CommonUtils;
+import net.bible.service.common.TitleSplitter;
 import android.app.Activity;
 import android.support.v7.app.ActionBar;
 import android.view.View;
@@ -28,8 +33,8 @@ public abstract class Title {
 	
 	private static final TitleSplitter titleSplitter = new TitleSplitter();
 
-	abstract protected String getDocumentTitle();
-	abstract protected String getPageTitle();
+	abstract protected String[] getDocumentTitleParts();
+	abstract protected String[] getPageTitleParts();
 	abstract protected void onDocumentTitleClick();
 	abstract protected void onPageTitleClick();
 	
@@ -75,22 +80,20 @@ public abstract class Title {
 		update(true);
 	}
 	
-
 	protected void update(final boolean everything) {
 		CurrentActivityHolder.getInstance().runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				if (actionBar!=null) {
 					// always update verse number
-					String[] pageParts = getPageTitleParts();
+					String[] pageParts = getTwoPageTitleParts();
 					if (pageParts.length>0) pageTitle.setText(pageParts[0]);
-					if (pageParts.length>1) {
-						pageSubtitle.setText(pageParts[1]);
-					}
+					if (pageParts.length>1) pageSubtitle.setText(pageParts[1]);
 					pageSubtitle.setVisibility(pageParts.length>1? View.VISIBLE : View.GONE);
+					
 					// don't always need to redisplay document name
 					if (everything) {
-						String[] documentParts = getDocumentTitleParts();
+						String[] documentParts = getTwoDocumentTitleParts();
 						if (documentParts.length>0) documentTitle.setText(documentParts[0]);
 						if (documentParts.length>1) documentSubtitle.setText(documentParts[1]);
 						documentSubtitle.setVisibility(documentParts.length>1? View.VISIBLE : View.GONE);
@@ -104,11 +107,36 @@ public abstract class Title {
 		return activity;
 	}
 	
-	private String[] getPageTitleParts() {
-		return titleSplitter.split(getPageTitle());
+	private String[] getTwoPageTitleParts() {
+		return unsplitIfLandscape(getPageTitleParts());
 	}
 
-	private String[] getDocumentTitleParts() {
-		return titleSplitter.split(getDocumentTitle());
+	private String[] getTwoDocumentTitleParts() {
+		return unsplitIfLandscape(getDocumentTitleParts());
 	}
+
+	protected String[] getTwoTitleParts(String title, boolean lastAreMoreSignificant) {
+		String[] parts = titleSplitter.split(title);
+		parts = reduceTo2Parts(parts, lastAreMoreSignificant);
+		return parts;
+	}
+	
+	private String[] reduceTo2Parts(String[] parts, boolean lastAreMoreSignificant) {
+		// return the last 2 parts as only show 2 and last are normally most significant
+		if (lastAreMoreSignificant) {
+			parts = ArrayUtils.subarray(parts, parts.length-2, parts.length);
+		} else {
+			parts = ArrayUtils.subarray(parts, 0, 2);
+		}
+		return parts;
+	}
+	
+	private String[] unsplitIfLandscape(String[] parts) {
+		// un-split if in landscape because landscape actionBar has more width but less height
+		if (!CommonUtils.isPortrait()) {
+			parts = new String[] { StringUtils.join(parts, " ") };
+		}
+		return parts;
+	}
+
 }

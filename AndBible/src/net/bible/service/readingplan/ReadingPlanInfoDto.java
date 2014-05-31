@@ -3,9 +3,10 @@ package net.bible.service.readingplan;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.apache.commons.lang.time.DateUtils;
-
 import net.bible.service.common.CommonUtils;
+
+import org.apache.commons.lang.time.DateUtils;
+import org.crosswire.jsword.versification.Versification;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -16,6 +17,7 @@ public class ReadingPlanInfoDto {
 
 	private String code;
 	private String description;
+	private Versification versification;
 	private int numberOfPlanDays;
 
 	public static final String READING_PLAN_START_EXT = "_start";
@@ -96,5 +98,12 @@ public class ReadingPlanInfoDto {
 	}
 	public void setNumberOfPlanDays(int numberOfPlanDays) {
 		this.numberOfPlanDays = numberOfPlanDays;
+	}
+
+	public Versification getVersification() {
+		return versification;
+	}
+	public void setVersification(Versification versification) {
+		this.versification = versification;
 	}
 }

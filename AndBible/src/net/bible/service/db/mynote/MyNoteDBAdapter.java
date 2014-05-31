@@ -217,11 +217,20 @@ public class MyNoteDBAdapter {
 				}
 			}
 			if (v11n==null) {
+				Log.d(TAG, "Using default Versification");
 				// use default v11n
 				v11n = Versifications.instance().getVersification(Versifications.DEFAULT_V11N);
 			}
 			Log.d(TAG, "Versification found:"+v11n);
-			dto.setVerse(VerseFactory.fromString(v11n, key));
+			try {
+				dto.setVerse(VerseFactory.fromString(v11n, key));
+			} catch (Exception e) {
+				Log.e(TAG, "Note saved with incorrect versification", e);
+				// fix problem where KJV was always the v11n even for dc books
+				// NRSVA should contain most dc books and allow verse to be fetched
+				Versification v11nWithDC = Versifications.instance().getVersification("NRSVA");
+				dto.setVerse(VerseFactory.fromString(v11nWithDC, key));
+			}
 
 			//Note
 			String mynote = c.getString(MyNoteQuery.MYNOTE);
