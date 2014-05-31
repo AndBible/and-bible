@@ -19,19 +19,22 @@ import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
 import org.crosswire.jsword.book.Books;
+import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.book.sword.SwordBookPath;
 import org.crosswire.jsword.bridge.BookIndexer;
 import org.crosswire.jsword.bridge.BookInstaller;
 import org.crosswire.jsword.index.IndexManager;
 import org.crosswire.jsword.index.IndexManagerFactory;
 import org.crosswire.jsword.index.IndexStatus;
+import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.versification.BibleBook;
 //import org.apache.lucene.LucenePackage;
 
 public class MJDIndexAll {
 
 	private static final String REPOSITORY_CROSSWIRE = "CrossWire";
-	private static final String REPOSITORY_CROSSWIRE_AV = "CrossWire AV";
 	private static final String REPOSITORY_IBT = "IBT";
+	private static final String REPOSITORY_WYCLIFFE = "Wycliffe";
 	private static final String REPOSITORY_XIPHOS = "Xiphos";
 	private static final String REPOSITORY_CROSSWIRE_BETA = "Crosswire Beta";
 	// Default repo used below
@@ -76,9 +79,11 @@ public class MJDIndexAll {
 	//    	indexAll.installSingleBook("StrongsGreek");
 	//    	indexAll.installSingleBook("BDBGlosses_Strongs");
 	//    	indexAll.installRepoBooks();
-//			boolean installAndIndex = false;
-//			indexAll.checkAllBooksInstalled(installAndIndex);
-	    	indexAll.manageCreateIndexes();
+
+	    	boolean installAndIndex = false;
+			indexAll.checkAllBooksInstalled(installAndIndex);
+//	    	indexAll.manageCreateIndexes();
+	    	
 	//    	indexAll.indexSingleBook("KJV");
 	    	
 	    	// 22/4/11 updates
@@ -285,6 +290,9 @@ public class MJDIndexAll {
 //			indexAll.installAndIndexSingleBook("AB");
 //			indexAll.installAndIndexSingleBook("GerNeUe");
 			
+//			indexAll.installAndIndexSingleBook("KAZ");
+//			indexAll.installSingleBook("KYLSC");
+//			indexAll.installAndIndexSingleBook("KJV");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
