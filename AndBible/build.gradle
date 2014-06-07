@@ -1,0 +1,54 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.11+'
+    }
+}
+
+apply plugin: 'android'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+    compile files('libs/android-support-v4.jar')
+    compile 'com.android.support:appcompat-v7:19.0.+'
+    compile fileTree(dir: 'libs', include: '*.jar')
+    
+    compile 'org.apache.lucene:lucene-core:3.0.3'
+    compile 'org.apache.lucene:lucene-snowball:3.0.3'
+    compile 'org.apache.lucene:lucene-analyzers:3.0.3'
+
+    compile group: 'org.jdom', name: 'jdom2', version: '2.0.5'
+}
+
+android {
+    buildToolsVersion "19.1"
+    compileSdkVersion 19
+    
+     sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
+
+		packagingOptions {
+	    	exclude 'META-INF/LICENSE.txt'
+	    	exclude 'META-INF/NOTICE.txt'
+	  	}
+	  	lintOptions {
+			abortOnError false
+      	}
+	  	
+//        instrumentTest.setRoot('tests')
+    }
+}

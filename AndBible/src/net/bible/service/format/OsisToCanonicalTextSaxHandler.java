@@ -44,7 +44,11 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
     public void endDocument() {
     	// pop initial value
     	writeContentStack.pop();
-    	assert(writeContentStack.isEmpty());
+    	
+    	// assert
+    	if (!writeContentStack.isEmpty()) {
+    		log.warn("OsisToCanonicalTextSaxHandler context stack should now be empty");
+    	}
     }
 
     /*
