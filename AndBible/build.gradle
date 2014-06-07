@@ -12,6 +12,9 @@ apply plugin: 'android'
 
 repositories {
 	mavenCentral()
+	maven {
+        url "/opt/android-sdk-linux/extras/android/m2repository"
+	}
 }
 
 dependencies {
@@ -52,3 +55,20 @@ android {
 //        instrumentTest.setRoot('tests')
     }
 }
+
+task copyJarDependencies(type: Copy) {
+    description = 'Used for Eclipse. Copies all dependencies to the libs directory. If there are any AAR files it will extract the classes.jar and rename it the same as the AAR file but with a .jar on the end.'
+    libDir = new File(project.projectDir, '/libs')
+    println libDir
+    println 'Adding dependencies from compile configuration'
+    configurations.compile.filter {it.name.endsWith 'jar'}.each { File file -> moveJarIntoLibs(file)}
+}
+
+void moveJarIntoLibs(File file){
+    println 'Added jar ' + file
+        copy{
+            from file
+            into 'libs-src'
+        }
+}
+
