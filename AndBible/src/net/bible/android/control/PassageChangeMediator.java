@@ -1,13 +1,13 @@
 package net.bible.android.control;
 
-import net.bible.android.control.event.passage.PassageEventManager;
+import net.bible.android.control.event.passage.CurrentVerseChangedEvent;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.service.device.ScreenSettings;
 import net.bible.service.history.HistoryManager;
-
 import android.util.Log;
+import de.greenrobot.event.EventBus;
 
 /** when a bible passage is changed there are lots o things to update and they should be done in a helpful order
  * This helps to control screen updates after a passage change
@@ -23,9 +23,6 @@ public class PassageChangeMediator {
 	private SplitScreenControl mSplitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
 	private boolean isPageChanging = false;
 
-	// slowly moving toward events but not there yet
-	private PassageEventManager passageEventManager = PassageEventManager.getInstance();
-	
 	private static final String TAG = "PassageChangeMediator";
 	
 	private static final PassageChangeMediator singleton = new PassageChangeMediator();
@@ -68,8 +65,9 @@ public class PassageChangeMediator {
 
 	/** this is triggered on scroll
 	 */
-	public void onCurrentPageDetailChanged() {
-		passageEventManager.passageDetailChanged();
+	public void onCurrentVerseChanged() {
+		EventBus.getDefault().post(new CurrentVerseChangedEvent());
+		
 		mSplitScreenControl.synchronizeScreens();
 	}
 

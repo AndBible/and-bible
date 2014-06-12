@@ -122,7 +122,7 @@ public class CurrentCommentaryPage extends VersePage implements CurrentPage {
 	}
 	public void setCurrentVerse(int verse) {
 		getCurrentBibleVerse().setVerseNo(verse);
-		pageDetailChange();
+		onVerseChange();
 	}
 	
 	/** can we enable the main menu search button 

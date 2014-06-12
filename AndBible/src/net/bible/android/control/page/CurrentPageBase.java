@@ -67,15 +67,6 @@ abstract class CurrentPageBase implements CurrentPage {
 		}
 	}
 
-	/** notify mediator that a detail - normally just verse no - has changed and the title need to update itself
-	 */
-	protected void pageDetailChange() {
-		if (!isInhibitChangeNotifications()) {
-			PassageChangeMediator.getInstance().onCurrentPageDetailChanged();
-		}
-	}
-
-	
 	@Override
 	public Key getSingleKey() {
 		// by default do not handle single key requirement - it is really just for bibles

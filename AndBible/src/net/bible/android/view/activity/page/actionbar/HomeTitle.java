@@ -1,9 +1,8 @@
 package net.bible.android.view.activity.page.actionbar;
 
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.event.passage.PassageEvent;
-import net.bible.android.control.event.passage.PassageEventListener;
-import net.bible.android.control.event.passage.PassageEventManager;
+import net.bible.android.control.event.ABEventBus;
+import net.bible.android.control.event.passage.CurrentVerseChangedEvent;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.view.activity.base.ActivityBase;
@@ -28,12 +27,14 @@ public class HomeTitle extends Title {
 		super.addToBar(actionBar, activity);
 
 		// listen for verse change events
-        PassageEventManager.getInstance().addPassageEventListener(new PassageEventListener() {
-			@Override
-			public void pageDetailChange(PassageEvent event) {
-				update(false);
-			}
-		});
+		ABEventBus.getDefault().safelyRegister(this);
+	}
+	
+	/**
+	 * Receive verse change events
+	 */
+	public void onEvent(CurrentVerseChangedEvent passageEvent) {
+		update(false);
 	}
 	
 	@Override

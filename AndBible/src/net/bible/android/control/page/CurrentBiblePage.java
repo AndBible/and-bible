@@ -198,7 +198,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 	}
 	public void setCurrentVerseNo(int verse) {
 		getCurrentBibleVerse().setVerseNo(verse);
-		pageDetailChange();
+		onVerseChange();
 	}
 
 	/** called during app close down to save state

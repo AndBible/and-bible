@@ -1,5 +1,6 @@
 package net.bible.android.control.page;
 
+import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.versification.BibleTraverser;
 
 import org.crosswire.jsword.book.Book;
@@ -66,5 +67,13 @@ public abstract class VersePage extends CurrentPageBase {
 		super.localSetCurrentDocument(doc);
 
 		doSetKey(newVerse);
+	}
+	
+	/** notify mediator that a detail - normally just verse no - has changed and the title need to update itself
+	 */
+	protected void onVerseChange() {
+		if (!isInhibitChangeNotifications()) {
+			PassageChangeMediator.getInstance().onCurrentVerseChanged();
+		}
 	}
 }
