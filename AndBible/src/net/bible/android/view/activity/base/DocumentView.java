@@ -39,7 +39,4 @@ public interface DocumentView {
     
     /** same as this but of type View */
     public View asView();
-    
-    /** give document an opportunity to save any data entered */
-    public void save();
 }

@@ -1,11 +1,10 @@
 package net.bible.android.control;
 
+import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.service.device.ScreenSettings;
-import net.bible.service.history.HistoryManager;
 import android.util.Log;
 import de.greenrobot.event.EventBus;
 
@@ -35,14 +34,10 @@ public class PassageChangeMediator {
 	 */
 	public void onBeforeCurrentPageChanged() {
 		isPageChanging = true;
-		
-		// save screen offset for current doc before change occurs
-		if (mMainBibleActivity!=null && CurrentPageManager.getInstance().getCurrentPage()!=null) {
-			mMainBibleActivity.onBeforePageChange();
-		}
 
-		HistoryManager.getInstance().beforePageChange();
+		EventBus.getDefault().post(new BeforeCurrentPageChangeEvent());
 	}
+	
 	/** the document has changed so ask the view to refresh itself
 	 */
 	public void onCurrentPageChanged() {

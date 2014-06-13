@@ -8,7 +8,9 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
+import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
+import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
@@ -31,6 +33,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import de.greenrobot.event.EventBus;
 
 /** The main activity screen showing Bible text
  * 
@@ -89,6 +92,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	
         PassageChangeMediator.getInstance().setMainBibleActivity(MainBibleActivity.this);
 
+        // register for passage change events
+        EventBus.getDefault().register(this);
+
         // force the screen to be populated
 		PassageChangeMediator.getInstance().forcePageUpdate();
 
@@ -131,7 +137,13 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		});
     }
 
-    /** called if the app is re-entered after returning from another app.
+    @Override
+	protected void onDestroy() {
+		super.onDestroy();
+		EventBus.getDefault().unregister(this);
+	}
+
+	/** called if the app is re-entered after returning from another app.
      * Trigger redisplay in case mobile has gone from light to dark or vice-versa
      */
     @Override
@@ -241,12 +253,13 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     
     /** allow current page to save any settings or data before being changed
      */
-    public void onBeforePageChange() {
-    	// save current scroll position so history can return to correct place in document
-		float screenPosn = getCurrentPosition();
-		CurrentPageManager.getInstance().getCurrentPage().setCurrentYOffsetRatio(screenPosn);
-		
-		documentViewManager.getDocumentView().save();
+    public void onEvent(BeforeCurrentPageChangeEvent event) {
+    	CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
+    	if (currentPage!=null) {
+	    	// save current scroll position so history can return to correct place in document
+			float screenPosn = getCurrentPosition();
+			currentPage.setCurrentYOffsetRatio(screenPosn);
+    	}
     }
     
     /** called just before starting work to change the current passage

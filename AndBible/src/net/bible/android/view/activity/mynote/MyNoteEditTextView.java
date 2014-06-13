@@ -1,7 +1,10 @@
 package net.bible.android.view.activity.mynote;
 
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.mynote.MyNote;
+import net.bible.android.control.page.CurrentPage;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.page.LongPressControl;
 import net.bible.service.common.CommonUtils;
@@ -14,6 +17,7 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import de.greenrobot.event.EventBus;
 
 /**
  * Show a User Note and allow view/edit
@@ -38,9 +42,31 @@ public class MyNoteEditTextView extends EditText implements DocumentView {
 		
 		applyPreferenceSettings();
 	}
+	
+	@Override
+	protected void onAttachedToWindow() {
+		super.onAttachedToWindow();
+
+		// register for passage change events
+        EventBus.getDefault().register(this);
+	}
 
 	@Override
-	public void save() {
+	protected void onDetachedFromWindow() {
+		super.onDetachedFromWindow();
+
+		// register for passage change events
+        EventBus.getDefault().unregister(this);
+	}
+
+    /** allow current page to save any settings or data before being changed
+     */
+    public void onEvent(BeforeCurrentPageChangeEvent event) {
+		// force MyNote.save if in MyNote and suddenly change to another view 
+		save();
+    }
+    
+	private void save() {
 		myNoteControl.saveMyNoteText(getText().toString());		
 	}
 

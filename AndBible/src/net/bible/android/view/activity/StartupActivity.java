@@ -3,6 +3,8 @@ package net.bible.android.view.activity;
 import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
+import net.bible.android.control.document.DocumentControl;
 import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
@@ -29,6 +31,8 @@ import android.widget.TextView;
 public class StartupActivity extends CustomTitlebarActivityBase {
 
 	private static final int CAN_DOWNLOAD_DLG = 10;
+	
+	private DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
 	
 	private static final String TAG = "StartupActivity";
 
@@ -82,8 +86,7 @@ public class StartupActivity extends CustomTitlebarActivityBase {
         new Thread() {
         	public void run() {
         		try {
-	                // force Sword to initialise itself
-	                SwordDocumentFacade.getInstance().getBibles();
+	                documentControl.initialiseAppServices();
         		} finally {
         			// switch back to ui thread to continue
         			uiHandler.post(uiThreadRunnable);

@@ -6,6 +6,7 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.versification.ConvertibleVerse;
+import net.bible.service.history.HistoryManager;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.common.util.Filter;
@@ -29,6 +30,19 @@ public class DocumentControl {
 	
 	private static final String TAG = "DocumentControl";
 
+	public void initialiseAppServices() {
+        // force Sword to initialise itself
+        SwordDocumentFacade.getInstance().getBibles();
+        
+        // Now initialise other system features
+        
+        // initialisation occurs in constructor
+        HistoryManager.getInstance();
+        
+        // needs to register a listener
+        ControlFactory.getInstance().getDocumentBibleBooksFactory().initialise();
+	}
+	
 	/** user wants to change to a different document/module
 	 * 
 	 * @param newDocument

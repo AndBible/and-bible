@@ -34,9 +34,12 @@ public class DocumentBibleBooksFactory {
 				return new DocumentBibleBooks(document);
 			}
 		};
-
-//TODO:	this causes errors on restart e.g. after changing language, due to attempt to init sword before settings so call it some time after initialisation 		
-//		flushCacheIfBooksChange();
+	}
+	
+	public void initialise() {
+		// this used to cause errors on restart e.g. after changing language, due to attempt to init sword before settings so call it some time after initialisation
+		// hopefully now sorted by delayed initialisation
+		flushCacheIfBooksChange();
 	}
 	
 	public DocumentBibleBooks getDocumentBibleBooksFor(AbstractPassageBook document) {

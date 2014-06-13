@@ -453,11 +453,6 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 	}
 
 	@Override
-	public void save() {
-		//NOOP
-	}
-
-	@Override
 	public void currentSplitScreenChanged(Screen activeScreen) {
 		if (splitScreenNo == activeScreen) {
 			mJavascriptInterface.setNotificationsEnabled(true);

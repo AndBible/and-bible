@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Stack;
 
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
@@ -16,6 +17,7 @@ import net.bible.android.view.activity.page.MainBibleActivity;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
+import de.greenrobot.event.EventBus;
 import android.app.Activity;
 import android.util.Log;
 
@@ -43,6 +45,17 @@ public class HistoryManager {
 	public static HistoryManager getInstance() {
 		return singleton;
 	}
+	
+	private HistoryManager() {
+		// register for BeforePageCangeEvent
+		EventBus.getDefault().register(this);
+	}
+	
+    /** allow current page to save any settings or data before being changed
+     */
+    public void onEvent(BeforeCurrentPageChangeEvent event) {
+    	beforePageChange();
+    }
 	
 	public boolean canGoBack() {
 		return getHistoryStack().size()>0;
