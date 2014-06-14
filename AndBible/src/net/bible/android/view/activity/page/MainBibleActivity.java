@@ -92,8 +92,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 
     	mainMenuCommandHandler = new MenuCommandHandler(this);
     	
-        PassageChangeMediator.getInstance().setMainBibleActivity(MainBibleActivity.this);
-
         // register for passage change events
         EventBus.getDefault().register(this);
 

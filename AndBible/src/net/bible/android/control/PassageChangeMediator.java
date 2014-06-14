@@ -5,7 +5,6 @@ import net.bible.android.control.event.passage.CurrentVerseChangedEvent;
 import net.bible.android.control.event.passage.PassageChangeStartedEvent;
 import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
-import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.service.device.ScreenSettings;
 import android.util.Log;
 import de.greenrobot.event.EventBus;
@@ -19,7 +18,6 @@ import de.greenrobot.event.EventBus;
  */
 public class PassageChangeMediator {
 
-	private MainBibleActivity mMainBibleActivity;
 	private BibleContentManager mBibleContentManager;
 	private SplitScreenControl mSplitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
 	private boolean isPageChanging = false;
@@ -92,11 +90,5 @@ public class PassageChangeMediator {
 
 	public void setBibleContentManager(BibleContentManager bibleContentManager) {
 		this.mBibleContentManager = bibleContentManager;
-	}
-
-	public void setMainBibleActivity(MainBibleActivity mainBibleActivity) {
-		Log.i(TAG, "setMainBibleActivity in PassageChangeMediator.  Previous mainBibleActivity="+mMainBibleActivity);
-
-		this.mMainBibleActivity = mainBibleActivity;
 	}
 }
