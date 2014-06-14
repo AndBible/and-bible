@@ -1,5 +1,4 @@
 package net.bible.android.control.event.passage;
 
-public class BeforeCurrentPageChangeEvent {
-
+public class PassageChangedEvent {
 }

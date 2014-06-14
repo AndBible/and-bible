@@ -2,6 +2,8 @@ package net.bible.android.control;
 
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent;
+import net.bible.android.control.event.passage.PassageChangeStartedEvent;
+import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.service.device.ScreenSettings;
@@ -74,21 +76,12 @@ public class PassageChangeMediator {
 		// only update occasionally otherwise black-on-black or w-on-w may occur in variable light conditions
 		ScreenSettings.isNightModeChanged();
 
-		if (mMainBibleActivity!=null) {
-			mMainBibleActivity.onPassageChangeStarted();
-		} else {
-			Log.w(TAG, "Bible activity not yet registered");
-		}
+		EventBus.getDefault().post(new PassageChangeStartedEvent());
 	}
 	/** finished fetching html so should hide hourglass
 	 */
 	public void contentChangeFinished() {
-		if (mMainBibleActivity!=null) {
-			mMainBibleActivity.onPassageChanged();
-			mSplitScreenControl.synchronizeScreens();
-		} else {
-			Log.w(TAG, "Bible activity not yet registered");
-		}
+		EventBus.getDefault().post(new PassageChangedEvent());
 
 		isPageChanging = false;
 	}

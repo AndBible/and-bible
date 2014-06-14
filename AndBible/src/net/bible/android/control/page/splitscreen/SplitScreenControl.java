@@ -5,6 +5,7 @@ import java.util.Map;
 
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
+import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
 import net.bible.android.control.event.splitscreen.SplitScreenEventManager;
 import net.bible.android.control.page.CurrentPage;
@@ -24,6 +25,7 @@ import org.crosswire.jsword.versification.Versification;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.util.Log;
+import de.greenrobot.event.EventBus;
 
 /**
  * Central control of Split screens especially synchronization
@@ -98,6 +100,9 @@ public class SplitScreenControl {
 		});
 		// the listener needs to be a class variable because it is held in a WeakHashMap by SharedPreferences
 		CommonUtils.getSharedPreferences().registerOnSharedPreferenceChangeListener(onSettingsChangeListener);
+		
+		// register for passage change events
+		EventBus.getDefault().register(this);
 	}
 	
 	public boolean isFirstScreenActive() {
@@ -131,6 +136,10 @@ public class SplitScreenControl {
 		// causes BibleViews to be created and laid out
 		splitScreenEventManager.numberOfScreensChanged(getScreenVerseMap());
 	}
+	
+    public void onEvent(PassageChangedEvent event) {
+    	synchronizeScreens();
+    }
 	
 	/** Synchronise the inactive key and inactive screen with the active key and screen if required
 	 */

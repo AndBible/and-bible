@@ -9,6 +9,8 @@ import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
+import net.bible.android.control.event.passage.PassageChangeStartedEvent;
+import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
@@ -264,29 +266,18 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     
     /** called just before starting work to change the current passage
      */
-    public void onPassageChangeStarted() {
-    	runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				documentViewManager.buildView();
-				
-				setProgressBar(true);
-			}
-		});
+    public void onEventMainThread(PassageChangeStartedEvent event) {
+		documentViewManager.buildView();
+		setProgressBar(true);
     }
     
     /** called by PassageChangeMediator after a new passage has been changed and displayed
      */
-    public void onPassageChanged() {
-    	runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-		    	setProgressBar(false);
-		    	updateActionBarButtons();
-		    	// don't sense taps at bottom of screen if Strongs numbers link might be there or Map zoom control might be there
-				gestureListener.setSensePageDownTap(!isStrongsShown() && !CurrentPageManager.getInstance().isMapShown());
-			}
-		});
+    public void onEventMainThread(PassageChangedEvent event) {
+    	setProgressBar(false);
+    	updateActionBarButtons();
+    	// don't sense taps at bottom of screen if Strongs numbers link might be there or Map zoom control might be there
+		gestureListener.setSensePageDownTap(!isStrongsShown() && !CurrentPageManager.getInstance().isMapShown());
     }
 
     @Override
