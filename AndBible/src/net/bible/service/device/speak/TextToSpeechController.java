@@ -7,8 +7,9 @@ import java.util.Locale;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
-import net.bible.android.control.event.phonecall.PhoneCallEventManager;
-import net.bible.android.control.event.phonecall.PhoneCallListener;
+import net.bible.android.control.event.ABEventBus;
+import net.bible.android.control.event.phonecall.PhoneCallMonitor;
+import net.bible.android.control.event.phonecall.PhoneCallStarted;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.speak.event.SpeakEvent;
@@ -20,6 +21,7 @@ import org.apache.commons.lang.StringUtils;
 import android.content.Context;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
+import de.greenrobot.event.EventBus;
 
 /**
  * <p>text-to-speech (TTS). Please note the following steps:</p>
@@ -41,7 +43,7 @@ import android.util.Log;
  *      The copyright to this program is held by it's author.
 
  */
-public class TextToSpeechController implements TextToSpeech.OnInitListener, TextToSpeech.OnUtteranceCompletedListener, PhoneCallListener {
+public class TextToSpeechController implements TextToSpeech.OnInitListener, TextToSpeech.OnUtteranceCompletedListener {
 
 	private static final String TAG = "Speak";
 
@@ -77,7 +79,6 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     private TextToSpeechController() {
     	Log.d(TAG, "Creating TextToSpeechController");
     	context = BibleApplication.getApplication().getApplicationContext();
-    	PhoneCallEventManager.getInstance().addPhoneCallListener(this);
     	mSpeakTextProvider = new SpeakTextProvider();
     	mSpeakTiming = new SpeakTiming();
     	restorePauseState();
@@ -163,6 +164,9 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
             		isOk = true;
                 	// say the text
                		startSpeaking();
+               		
+               		// add event listener to stop on call
+               		stopIfPhoneCall();
             	}
             }
         } else {
@@ -175,6 +179,17 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
         	shutdown();
         }
     }
+
+    /**
+     * Add event listener to stop on call
+     */
+	protected void stopIfPhoneCall() {
+		
+		PhoneCallMonitor.ensureMonitoringStarted();
+		
+		// listen for phone call in order to pause speak
+		ABEventBus.getDefault().safelyRegister(this);
+	}
     
     public synchronized void rewind() {
     	Log.d(TAG, "Rewind TTS");
@@ -377,6 +392,9 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 	        		Log.e(TAG, "Error stopping Tts engine", e);
 	        	}
 	            mTts.shutdown();
+	            
+	            // de-register from EventBus
+	            EventBus.getDefault().unregister(this);
 	        }
 		} catch (Exception e) {
 			Log.e(TAG, "Error shutting down Tts engine", e);
@@ -404,8 +422,10 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 		return isPaused;
 	}
 
-	@Override
-	public void phoneCallStarted() {
+	/**
+	 * Pause speak if phone call starts
+	 */
+	public void onEvent(PhoneCallStarted event) {
 		if (isSpeaking()) {
 			pause();
 		}

@@ -4,6 +4,7 @@ import net.bible.android.BibleApplication;
 import android.content.Context;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
+import de.greenrobot.event.EventBus;
 
 /**
  * Monitor phone calls to stop speech, etc 
@@ -31,7 +32,7 @@ public class PhoneCallMonitor {
 			@Override
 			public void onCallStateChanged(int state, String incomingNumber) {
 				if (state==TelephonyManager.CALL_STATE_RINGING || state==TelephonyManager.CALL_STATE_OFFHOOK) {
-					PhoneCallEventManager.getInstance().phoneCallStarted();
+					EventBus.getDefault().post(new PhoneCallStarted());
 				}
 			}
 			
