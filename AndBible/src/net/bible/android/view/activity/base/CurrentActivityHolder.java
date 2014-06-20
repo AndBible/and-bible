@@ -1,9 +1,10 @@
 package net.bible.android.view.activity.base;
 
-import net.bible.android.control.event.apptobackground.AppToBackgroundEventManager;
-import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
+import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
+import net.bible.android.control.event.apptobackground.AppToBackgroundEvent.Position;
 import android.app.Activity;
 import android.util.Log;
+import de.greenrobot.event.EventBus;
 
 /** Allow operations form middle tier that require a reference to the current Activity
  * 
@@ -20,8 +21,6 @@ public class CurrentActivityHolder {
 	private static final CurrentActivityHolder singleton = new CurrentActivityHolder();
 	
 	private static final String TAG = "CurrentActivityHolder";
-	
-	private AppToBackgroundEventManager appToBackgroundEventManager = AppToBackgroundEventManager.getInstance();
 	
 	public static CurrentActivityHolder getInstance() {
 		return singleton;
@@ -45,18 +44,9 @@ public class CurrentActivityHolder {
 			currentActivity = null;
 			if (appIsInForeground) {
 				appIsInForeground = false;
-				fireAppToBackground(true);
+				EventBus.getDefault().post(new AppToBackgroundEvent(Position.BACKGROUND));
 			}
 		}
-	}
-	
-	public void addAppToBackgroundListener(AppToBackgroundListener listener) 
-	{
-	     appToBackgroundEventManager.addAppToBackgroundListener(listener);
-	}
-	public void removeAppToBackgroundListener(AppToBackgroundListener listener) 
-	{
-	     appToBackgroundEventManager.removeAppToBackgroundListener(listener);
 	}
 	
 	/** really need to check for app being restored after an exit
@@ -65,14 +55,10 @@ public class CurrentActivityHolder {
 		if (!appIsInForeground) {
 			Log.d(TAG, "AppIsInForeground firing event");
 			appIsInForeground = true;
-			appToBackgroundEventManager.appNowInBackground(false);
+			EventBus.getDefault().post(new AppToBackgroundEvent(Position.FOREGROUND));
 		}
 	}
 	
-	protected void fireAppToBackground(boolean isNowBackGround) {
-		appToBackgroundEventManager.appNowInBackground(isNowBackGround);
-	}
-
 	/** convenience task with error checking
 	 */
 	public void runOnUiThread(Runnable runnable) {

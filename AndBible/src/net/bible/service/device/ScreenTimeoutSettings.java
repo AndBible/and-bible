@@ -1,18 +1,18 @@
 package net.bible.service.device;
 
-import org.apache.commons.lang.StringUtils;
-
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
-import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
-import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.CommonUtils;
+
+import org.apache.commons.lang.StringUtils;
+
 import android.content.ContentResolver;
 import android.content.SharedPreferences;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
+import de.greenrobot.event.EventBus;
 
 /**
  * Manage local Screen timeout (Sleep) time which is different to the default/system Sleep time
@@ -39,36 +39,39 @@ public class ScreenTimeoutSettings {
 	
 	private static final String TAG = "BibleApplication";
 
+	/**
+	 * Add fore/background event hook to manage screen timeout setting
+	 */
 	public void overrideScreenTimeout() {
 		
-    	// set/reset app/standard screen timeout values
-    	CurrentActivityHolder.getInstance().addAppToBackgroundListener(new AppToBackgroundListener() {
-			@Override
-			public void applicationNowInBackground(AppToBackgroundEvent event) {
-				try {
-					restoreSystemTimeout();
-				} catch (Exception e) {
-					// Avoid occasional exception in setScreenTimeout when restoring system timeout:
-					// java.lang.SecurityException: Permission Denial: writing com.android.providers.settings.OverlaySettingsProvider uri content://settings/system from pid=9176, uid=10076 requires android.permission.WRITE_SETTINGS
-					// Bad, but cannot allow app to crash on exit - system timeout may not be set if crash occurs in above method
-					// It only occurred twice among thousands of users in first few days of release
-					Log.e(TAG, "Error restoring system timeout", e);
-				}
-					
-			}
-
-			@Override
-			public void applicationReturnedFromBackground(AppToBackgroundEvent event) {
-				// save the, possibly changed, system timeout
-				saveSystemTimeout();
-				
-				// set And Bible screen timeout
-				setScreenTimeout();
-			}
-		});
+		// listen for app to come and go to override screen timeout value
+		EventBus.getDefault().register(this);
 	}
-	
 
+	/**
+	 * Set/reset app/standard screen timeout values
+	 */
+	public void onEvent(AppToBackgroundEvent event) {
+		if (event.isMovedToBackground()) {
+			try {
+				restoreSystemTimeout();
+			} catch (Exception e) {
+				// Avoid occasional exception in setScreenTimeout when restoring system timeout:
+				// java.lang.SecurityException: Permission Denial: writing com.android.providers.settings.OverlaySettingsProvider uri content://settings/system from pid=9176, uid=10076 requires android.permission.WRITE_SETTINGS
+				// Bad, but cannot allow app to crash on exit - system timeout may not be set if crash occurs in above method
+				// It only occurred twice among thousands of users in first few days of release
+				Log.e(TAG, "Error restoring system timeout", e);
+			}
+		} else {
+			// Now in foreground
+			
+			// save the, possibly changed, system timeout
+			saveSystemTimeout();
+			
+			// set And Bible screen timeout
+			setScreenTimeout();
+		}
+	}
 	
 	/**
 	 * Default, 2, 10, 30 minutes

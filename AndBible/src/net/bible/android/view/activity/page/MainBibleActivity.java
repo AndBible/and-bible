@@ -7,7 +7,6 @@ import net.bible.android.control.BibleContentManager;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
-import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.event.passage.PassageChangeStartedEvent;
 import net.bible.android.control.event.passage.PassageChangedEvent;
@@ -16,7 +15,6 @@ import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
-import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.page.actionbar.BibleActionBarManager;
 import net.bible.android.view.activity.page.screen.DocumentViewManager;
@@ -92,25 +90,12 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 
     	mainMenuCommandHandler = new MenuCommandHandler(this);
     	
-        // register for passage change events
+        // register for passage change and appToBackground events
         EventBus.getDefault().register(this);
 
         // force the screen to be populated
 		PassageChangeMediator.getInstance().forcePageUpdate();
 
-    	// need to know when app is returned to foreground to check the screen colours
-    	CurrentActivityHolder.getInstance().addAppToBackgroundListener(new AppToBackgroundListener() {
-			@Override
-			public void applicationNowInBackground(AppToBackgroundEvent e) {
-				mWholeAppWasInBackground = true;
-			}
-
-			@Override
-			public void applicationReturnedFromBackground(AppToBackgroundEvent e) {
-				//NOOP
-			}
-		});
-    	
 		ControlFactory.getInstance().getSplitScreenControl().addSplitScreenEventListener(new SplitScreenEventListener() {
 			
 			@Override
@@ -153,6 +138,15 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	if (mWholeAppWasInBackground) {
 			mWholeAppWasInBackground = false;
 			refreshIfNightModeChange();
+    	}
+    }
+
+	/**
+	 *  Need to know when app is returned to foreground to check the screen colours
+	 */
+    public void onEvent(AppToBackgroundEvent event) {
+    	if (event.isMovedToBackground()) {
+    		mWholeAppWasInBackground = true;
     	}
     }
 

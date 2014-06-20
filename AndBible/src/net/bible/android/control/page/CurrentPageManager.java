@@ -5,7 +5,6 @@ import net.bible.android.SharedConstants;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
-import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
@@ -20,6 +19,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
+import de.greenrobot.event.EventBus;
 
 /** Control singletons of the different current document page types
  * 
@@ -94,19 +94,9 @@ public class CurrentPageManager {
 		
 		// restore state from previous invocation
     	restoreState();
-    	
-		// register to save state when moved to background
-    	CurrentActivityHolder.getInstance().addAppToBackgroundListener(new AppToBackgroundListener() {
-			@Override
-			public void applicationNowInBackground(AppToBackgroundEvent e) {
-				saveState();
-			}
 
-			@Override
-			public void applicationReturnedFromBackground(AppToBackgroundEvent e) {
-				//NOOP
-			}
-		});
+		// listen for AppToBackgroundEvent to save state when moved to background
+    	EventBus.getDefault().register(this);
 	}
 	
 	public CurrentPage getCurrentPage() {
@@ -276,6 +266,16 @@ public class CurrentPageManager {
 		PassageChangeMediator.getInstance().onCurrentPageChanged();
 	}
 
+	/** 
+	 * If app moves to background then save current state to allow continuation after return
+	 * 
+	 * @param appToBackgroundEvent Event info
+	 */
+	public void onEvent(AppToBackgroundEvent appToBackgroundEvent) {
+		if (appToBackgroundEvent.isMovedToBackground()) {
+			saveState();
+		}
+	}
     /** save current page and document state */
 	protected void saveState() {
     	Log.i(TAG, "Save instance state for screen "+splitScreenNo);

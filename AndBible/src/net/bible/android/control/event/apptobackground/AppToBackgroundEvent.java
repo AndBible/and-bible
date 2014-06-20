@@ -7,5 +7,23 @@ package net.bible.android.control.event.apptobackground;
  *      The copyright to this program is held by it's author.
  */
 public class AppToBackgroundEvent {
+	public enum Position {
+		FOREGROUND,
+		BACKGROUND
+	}
+	
+	private Position newPosition;
 
+	public AppToBackgroundEvent(Position newPosition) {
+		super();
+		this.newPosition = newPosition;
+	}
+
+	public Position getNewPosition() {
+		return newPosition;
+	}
+	
+	public boolean isMovedToBackground() {
+		return newPosition == Position.BACKGROUND;
+	}
 }

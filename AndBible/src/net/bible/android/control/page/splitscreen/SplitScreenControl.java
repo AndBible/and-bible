@@ -4,14 +4,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
-import net.bible.android.control.event.apptobackground.AppToBackgroundListener;
 import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
 import net.bible.android.control.event.splitscreen.SplitScreenEventManager;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.UpdateTextTask;
-import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
 
@@ -84,27 +82,13 @@ public class SplitScreenControl {
 		restoreNonPreferenceState();
 		restoreFromSettings();
 		
-		CurrentActivityHolder.getInstance().addAppToBackgroundListener(new AppToBackgroundListener() {
-			@Override
-			public void applicationNowInBackground(AppToBackgroundEvent e) {
-				saveNonPreferenceState();
-				// ensure nonactive screen is initialised when returning from background
-				lastSynchdInactiveScreenKey = null;
-			}
-
-			@Override
-			public void applicationReturnedFromBackground(AppToBackgroundEvent e) {
-				lastSynchdInactiveScreenKey = null;
-				restoreNonPreferenceState();
-			}
-		});
 		// the listener needs to be a class variable because it is held in a WeakHashMap by SharedPreferences
 		CommonUtils.getSharedPreferences().registerOnSharedPreferenceChangeListener(onSettingsChangeListener);
 		
-		// register for passage change events
+		// register for passage change and fore/background events
 		EventBus.getDefault().register(this);
 	}
-	
+
 	public boolean isFirstScreenActive() {
 		return currentActiveScreen==Screen.SCREEN_1;
 	}
@@ -276,6 +260,20 @@ public class SplitScreenControl {
 			isSplitScreensLinked = false;
 			isScreen2Minimized = false;
 			screen1Weight = 0.5f;
+		}
+	}
+	
+	/**
+	 * Save/restore dynamic state that is not automatically saved as Preferences
+	 */
+	public void onEvent(AppToBackgroundEvent event) {
+		if (event.isMovedToBackground()) {
+			saveNonPreferenceState();
+			// ensure nonactive screen is initialised when returning from background
+			lastSynchdInactiveScreenKey = null;
+		} else {
+			lastSynchdInactiveScreenKey = null;
+			restoreNonPreferenceState();
 		}
 	}
 	
