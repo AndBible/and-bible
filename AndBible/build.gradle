@@ -56,14 +56,3 @@ android {
     }
 }
 
-/**
- * gradle does not know how to start the app automatically after an install so call adb to start app after installs
- */
-task appStart(type: Exec, dependsOn: ':installDebug') {
-    // linux 
-    commandLine 'adb', 'shell', 'am', 'start', '-n', 'net.bible.android.activity/.StartupActivity'
-
-    // windows
-    // commandLine 'cmd', '/c', 'adb', 'shell', 'am', 'start', '-n', 'com.example/.MyActivity'      
-}
-
