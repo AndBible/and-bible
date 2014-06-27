@@ -12,9 +12,6 @@ apply plugin: 'android'
 
 repositories {
 	mavenCentral()
-	maven {
-        url "/opt/android-sdk-linux/extras/android/m2repository"
-	}
 }
 
 dependencies {
