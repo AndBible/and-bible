@@ -16,7 +16,7 @@ repositories {
 
 dependencies {
     compile files('libs/android-support-v4.jar')
-    compile 'com.android.support:appcompat-v7:19.0.+'
+    compile 'com.android.support:appcompat-v7:19.+'
     compile files('libs/mmseg4j-all-1.8.4.jar')
     compile files('libs/jsword.jar')
 
