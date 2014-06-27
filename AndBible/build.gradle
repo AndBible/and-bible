@@ -71,34 +71,3 @@ task appStart(type: Exec, dependsOn: ':installDebug') {
     // commandLine 'cmd', '/c', 'adb', 'shell', 'am', 'start', '-n', 'com.example/.MyActivity'      
 }
 
-/**
- * Support normal builds within eclipse by copying jars to libs folder
- *
- * see: https://github.com/Nodeclipse/nodeclipse-1/tree/master/org.nodeclipse.enide.editors.gradle
- */
-task copyJarDependencies(type: Copy) {
-	description = 'Used for Eclipse. Copies all dependencies to the libs directory which is automatically scanned by eclipse.'
-	
-	// prepare special eclipse libs folder
-	File libsDir = new File(project.projectDir, '/libs')
-	if( !libsDir.exists() ) {
-		libsDir.mkdirs()
-	}
-	
-	// copy required jars to libs folder, but exclude android-support-v4.jar and similar support jars
-	println 'Adding dependencies from compile configuration to eclipse libs dir'
-	configurations.compile.filter {it.name.endsWith('jar') && !(it.name=~/support/)}.each { File file -> moveJarIntoDir(file, libsDir)}
-}
-
-void moveJarIntoDir(File file, File dir){
-	File targetFile = new File(dir, file.name)
-	if (!(targetFile.exists())) {
-		println 'Copying jar ' + file + ' to ' +dir
-		copy{
-			from file
-			into dir
-		}
-	}
-}
-
-
