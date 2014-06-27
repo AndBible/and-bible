@@ -16,8 +16,7 @@ repositories {
 
 dependencies {
     compile 'com.android.support:appcompat-v7:19.+'
-    compile files('libs/mmseg4j-all-1.8.4.jar')
-    compile files('libs/jsword.jar')
+    compile fileTree(dir: 'libs', include: '*.jar')
 
     compile 'org.apache.lucene:lucene-core:3.0.3'
     compile 'org.apache.lucene:lucene-snowball:3.0.3'
