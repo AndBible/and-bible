@@ -12,17 +12,12 @@ apply plugin: 'android'
 
 repositories {
 	mavenCentral()
-	maven {
-        url "/opt/android-sdk-linux/extras/android/m2repository"
-	}
 }
 
 dependencies {
-    compile files('libs/android-support-v4.jar')
-    compile 'com.android.support:appcompat-v7:19.0.+'
-    compile files('libs/mmseg4j-all-1.8.4.jar')
-    compile files('libs/jsword.jar')
-    
+    compile 'com.android.support:appcompat-v7:19.+'
+    compile fileTree(dir: 'libs', include: '*.jar')
+
     compile 'org.apache.lucene:lucene-core:3.0.3'
     compile 'org.apache.lucene:lucene-snowball:3.0.3'
     compile 'org.apache.lucene:lucene-analyzers:3.0.3'
@@ -36,7 +31,7 @@ dependencies {
 android {
     buildToolsVersion "19.1"
     compileSdkVersion 19
-    
+
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -55,50 +50,8 @@ android {
 	  	lintOptions {
 			abortOnError false
       	}
-	  	
+
 //        instrumentTest.setRoot('tests')
     }
 }
-
-/**
- * gradle does not know how to start the app automatically after an install so call adb to start app after installs
- */
-task appStart(type: Exec, dependsOn: ':installDebug') {
-    // linux 
-    commandLine 'adb', 'shell', 'am', 'start', '-n', 'net.bible.android.activity/.StartupActivity'
-
-    // windows
-    // commandLine 'cmd', '/c', 'adb', 'shell', 'am', 'start', '-n', 'com.example/.MyActivity'      
-}
-
-/**
- * Support normal builds within eclipse by copying jars to libs folder
- *
- * see: https://github.com/Nodeclipse/nodeclipse-1/tree/master/org.nodeclipse.enide.editors.gradle
- */
-task copyJarDependencies(type: Copy) {
-	description = 'Used for Eclipse. Copies all dependencies to the libs directory which is automatically scanned by eclipse.'
-	
-	// prepare special eclipse libs folder
-	File libsDir = new File(project.projectDir, '/libs')
-	if( !libsDir.exists() ) {
-		libsDir.mkdirs()
-	}
-	
-	// copy required jars to libs folder, but exclude android-support-v4.jar and similar support jars
-	println 'Adding dependencies from compile configuration to eclipse libs dir'
-	configurations.compile.filter {it.name.endsWith('jar') && !(it.name=~/support/)}.each { File file -> moveJarIntoDir(file, libsDir)}
-}
-
-void moveJarIntoDir(File file, File dir){
-	File targetFile = new File(dir, file.name)
-	if (!(targetFile.exists())) {
-		println 'Copying jar ' + file + ' to ' +dir
-		copy{
-			from file
-			into dir
-		}
-	}
-}
-
 
