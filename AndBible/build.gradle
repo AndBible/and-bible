@@ -12,25 +12,25 @@ apply plugin: 'android'
 
 repositories {
 	mavenCentral()
-	maven {
-        url "/opt/android-sdk-linux/extras/android/m2repository"
-	}
+	maven { url "${System.env.ANDROID_HOME}/extras/android/m2repository" }
 }
 
+
 dependencies {
-    compile files('libs/android-support-v4.jar')
-    compile 'com.android.support:appcompat-v7:19.0.+'
-    compile files('libs/mmseg4j-all-1.8.4.jar')
+    compile 'com.android.support:appcompat-v7:19.+'
+
     compile files('libs/jsword.jar')
-    
+
+	compile 'de.greenrobot:eventbus:2.2.1'
+	compile files('libs/mmseg4j-all-1.8.4.jar')
+	compile 'org.jdom:jdom2:2.0.5'
+	compile 'org.apache.httpcomponents:httpclient-android:4.3.3'
+	compile 'org.apache.commons:commons-compress:1.7'
+	compile 'org.slf4j:slf4j-android:1.7.7'
+
     compile 'org.apache.lucene:lucene-core:3.0.3'
     compile 'org.apache.lucene:lucene-snowball:3.0.3'
     compile 'org.apache.lucene:lucene-analyzers:3.0.3'
-
-    compile 'org.jdom:jdom2:2.0.5'
-    compile 'org.apache.httpcomponents:httpclient-android:4.3.3'
-    compile 'org.apache.commons:commons-compress:1.7'
-    compile 'org.slf4j:slf4j-android:1.7.7'
 }
 
 android {
@@ -100,5 +100,3 @@ void moveJarIntoDir(File file, File dir){
 		}
 	}
 }
-
-
