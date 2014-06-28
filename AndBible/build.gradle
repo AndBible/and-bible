@@ -12,14 +12,12 @@ apply plugin: 'android'
 
 repositories {
 	mavenCentral()
-	maven {
-        url "/opt/android-sdk-linux/extras/android/m2repository"
-	}
+	maven { url "${System.env.ANDROID_HOME}/extras/android/m2repository" }
 }
 
+
 dependencies {
-    compile files('libs/android-support-v4.jar')
-    compile 'com.android.support:appcompat-v7:19.0.+'
+    compile 'com.android.support:appcompat-v7:19.+'
 
     compile files('libs/jsword.jar')
 
@@ -102,5 +100,3 @@ void moveJarIntoDir(File file, File dir){
 		}
 	}
 }
-
-
