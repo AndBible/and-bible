@@ -1,11 +1,14 @@
 package net.bible.android.view.activity.page;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 
 import net.bible.android.SharedConstants;
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
+import net.bible.android.control.event.splitscreen.CurrentSplitScreenChangedEvent;
+import net.bible.android.control.event.splitscreen.NumberOfScreensChangedEvent;
+import net.bible.android.control.event.splitscreen.ScrollSecondaryScreenEvent;
+import net.bible.android.control.event.splitscreen.SplitScreenSizeChangedEvent;
+import net.bible.android.control.event.splitscreen.UpdateSecondaryScreenEvent;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
@@ -25,6 +28,7 @@ import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import de.greenrobot.event.EventBus;
 
 /** The WebView component that shows the main bible and commentary text
  * 
@@ -32,7 +36,7 @@ import android.webkit.WebViewClient;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class BibleView extends WebView implements DocumentView, SplitScreenEventListener {
+public class BibleView extends WebView implements DocumentView {
 	
 	private Screen splitScreenNo;
 	
@@ -127,9 +131,10 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 		mPageTiltScroller.enableTiltScroll(true);
 
 		// if this webview becomes (in)active then must start/stop auto-scroll
-		splitScreenControl.addSplitScreenEventListener(this);
+		EventBus.getDefault().register(this);
+		
 		// initialise split state related code - always screen1 is selected first
-		currentSplitScreenChanged(splitScreenControl.getCurrentActiveScreen());
+		onEvent(new CurrentSplitScreenChangedEvent(splitScreenControl.getCurrentActiveScreen()));
 	}
 
 	@Override
@@ -452,9 +457,8 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 		return this;
 	}
 
-	@Override
-	public void currentSplitScreenChanged(Screen activeScreen) {
-		if (splitScreenNo == activeScreen) {
+	public void onEvent(CurrentSplitScreenChangedEvent event) {
+		if (splitScreenNo == event.getActiveScreen()) {
 			mJavascriptInterface.setNotificationsEnabled(true);
 			resumeTiltScroll();
 		} else {
@@ -463,33 +467,30 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 		}
 	}
 
-	@Override
-	public void updateSecondaryScreen(Screen updateScreen, String html, int verseNo) {
-		if (splitScreenNo == updateScreen) {
+	public void onEvent(UpdateSecondaryScreenEvent event) {
+		if (splitScreenNo == event.getUpdateScreen()) {
 			changeBackgroundColour();
-			show(html, verseNo, SharedConstants.NO_VALUE);
+			show(event.getHtml(), event.getVerseNo(), SharedConstants.NO_VALUE);
 		}		
 	}
 
-
-	@Override
-	public void scrollSecondaryScreen(Screen updateScreen, final int verseNo) {
-		if (splitScreenNo == updateScreen && getHandler()!=null) {
-			scrollOrJumpToVerseOnUIThread(verseNo);
+	public void onEvent(ScrollSecondaryScreenEvent event) {
+		if (splitScreenNo == event.getScreen() && getHandler()!=null) {
+			scrollOrJumpToVerseOnUIThread(event.getVerseNo());
 		}
 	}
 	
-	@Override
-	public void splitScreenSizeChange(boolean isMoveFinished, Map<Screen, Integer> screenVerseMap) {
+	public void onEvent(SplitScreenSizeChangedEvent event) {
 		Log.d(TAG, "split screen size changed");
-		boolean isScreenVerse = screenVerseMap.containsKey(splitScreenNo);
+		boolean isScreenVerse = event.isVerseNoSet(splitScreenNo);
 		if (isScreenVerse) {
-			this.maintainMovingVerse = screenVerseMap.get(splitScreenNo);
+			this.maintainMovingVerse = event.getVerseNo(splitScreenNo);
 		}
 
 		// when move finished the verse positions will have changed if in Landscape so recalc positions
+		boolean isMoveFinished = event.isFinished();
 		if (isMoveFinished && isScreenVerse) {
-			final int verse = screenVerseMap.get(splitScreenNo);
+			final int verse = event.getVerseNo(splitScreenNo);
 			setJumpToVerse(verse);
 			
 			if (getHandler()!=null) {
@@ -524,10 +525,9 @@ public class BibleView extends WebView implements DocumentView, SplitScreenEvent
 		resumeTiltScroll();
 	}
 
-	@Override
-	public void numberOfScreensChanged(Map<Screen, Integer> screenVerseMap) {
-		if (getVisibility()==View.VISIBLE && screenVerseMap.containsKey(splitScreenNo)) {
-			setJumpToVerse(screenVerseMap.get(splitScreenNo));
+	public void onEvent(NumberOfScreensChangedEvent event) {
+		if (getVisibility()==View.VISIBLE && event.isVerseNoSet(splitScreenNo)) {
+			setJumpToVerse(event.getVerseNo(splitScreenNo));
 		}
 	}
 

@@ -5,8 +5,11 @@ import java.util.Map;
 
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.passage.PassageChangedEvent;
-import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
-import net.bible.android.control.event.splitscreen.SplitScreenEventManager;
+import net.bible.android.control.event.splitscreen.CurrentSplitScreenChangedEvent;
+import net.bible.android.control.event.splitscreen.NumberOfScreensChangedEvent;
+import net.bible.android.control.event.splitscreen.ScrollSecondaryScreenEvent;
+import net.bible.android.control.event.splitscreen.SplitScreenSizeChangedEvent;
+import net.bible.android.control.event.splitscreen.UpdateSecondaryScreenEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.UpdateTextTask;
@@ -51,8 +54,6 @@ public class SplitScreenControl {
 	
 	private Key lastSynchdInactiveScreenKey;
 	private boolean lastSynchWasInNightMode;
-	
-	private SplitScreenEventManager splitScreenEventManager = new SplitScreenEventManager();
 	
 	public static int SCREEN_SETTLE_TIME_MILLIS = 1000;
 	
@@ -102,7 +103,7 @@ public class SplitScreenControl {
 		// calling sCAS will cause events to be dispatched to set active screen so auto-scroll works
 		setCurrentActiveScreen(Screen.SCREEN_1);
 		// redisplay the current page
-		splitScreenEventManager.numberOfScreensChanged(getScreenVerseMap());
+		EventBus.getDefault().post(new NumberOfScreensChangedEvent(getScreenVerseMap()));
 	}
 
 	public void restoreScreen2() {
@@ -110,7 +111,7 @@ public class SplitScreenControl {
 		currentActiveScreen = Screen.SCREEN_1;
 		isSplit = true;
 		// causes BibleViews to be created and laid out
-		splitScreenEventManager.numberOfScreensChanged(getScreenVerseMap());
+		EventBus.getDefault().post(new NumberOfScreensChangedEvent(getScreenVerseMap()));
 		
 		synchronizeScreens();
 	}
@@ -118,7 +119,7 @@ public class SplitScreenControl {
 	/** screen orientation has changed */
 	public void orientationChange() {
 		// causes BibleViews to be created and laid out
-		splitScreenEventManager.numberOfScreensChanged(getScreenVerseMap());
+		EventBus.getDefault().post(new NumberOfScreensChangedEvent(getScreenVerseMap()));
 	}
 	
     public void onEvent(PassageChangedEvent event) {
@@ -204,7 +205,7 @@ public class SplitScreenControl {
 			if (!forceRefresh && 
 					BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && 
 					currentVerse!=null && targetVerse!=null && targetV11n.isSameChapter(targetVerse, currentVerse)) {
-				splitScreenEventManager.scrollSecondaryScreen(inactiveScreen, targetVerse.getVerse());
+				EventBus.getDefault().post(new ScrollSecondaryScreenEvent(inactiveScreen, targetVerse.getVerse()));
 			} else {
 				new UpdateInactiveScreenTextTask().execute(inactiveScreen);
 			}
@@ -231,7 +232,7 @@ public class SplitScreenControl {
         /** callback from base class when result is ready */
     	@Override
     	protected void showText(String text, Screen screen, int verseNo, float yOffsetRatio) {
-    		splitScreenEventManager.updateSecondaryScreen(screen, text, verseNo);
+    		EventBus.getDefault().post(new UpdateSecondaryScreenEvent(screen, text, verseNo));
         }
     }
 
@@ -317,7 +318,7 @@ public class SplitScreenControl {
 	public void setCurrentActiveScreen(Screen currentActiveScreen) {
 		if (currentActiveScreen != this.currentActiveScreen) {
 			this.currentActiveScreen = currentActiveScreen;
-			splitScreenEventManager.splitScreenDetailChanged(this.currentActiveScreen);
+			EventBus.getDefault().post(new CurrentSplitScreenChangedEvent(this.currentActiveScreen));
 		}
 	}
 
@@ -330,16 +331,6 @@ public class SplitScreenControl {
 	
 	public boolean isScreen2Minimized() {
 		return isScreen2Minimized;
-	}
-
-	// Event listener management code
-	public void addSplitScreenEventListener(SplitScreenEventListener listener) 
-	{
-	     splitScreenEventManager.addSplitScreenEventListener(listener);
-	}
-	public void removeSplitScreenEventListener(SplitScreenEventListener listener) 
-	{
-		splitScreenEventManager.removeSplitScreenEventListener(listener);
 	}
 
 	public boolean isSeparatorMoving() {
@@ -366,7 +357,7 @@ public class SplitScreenControl {
 			resynchRequired = true;
 		}
 		
-		splitScreenEventManager.splitScreenSizeChange(isMoveFinished, getScreenVerseMap());
+		EventBus.getDefault().post(new SplitScreenSizeChangedEvent(isMoveFinished, getScreenVerseMap()));
 	}
 
 	/**

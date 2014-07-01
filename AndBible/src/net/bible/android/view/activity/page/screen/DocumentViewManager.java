@@ -1,17 +1,15 @@
 package net.bible.android.view.activity.page.screen;
 
-import java.util.Map;
-
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.event.splitscreen.SplitScreenEventListener;
+import net.bible.android.control.event.splitscreen.NumberOfScreensChangedEvent;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.mynote.MyNoteViewBuilder;
-
 import android.app.Activity;
 import android.widget.LinearLayout;
+import de.greenrobot.event.EventBus;
 /**
  * Create Views for displaying documents
  * 
@@ -34,36 +32,14 @@ public class DocumentViewManager {
 		myNoteViewBuilder = new MyNoteViewBuilder(this.mainActivity);
 		this.parent = (LinearLayout)mainActivity.findViewById(R.id.mainBibleView);
 		splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
-		
-		splitScreenControl.addSplitScreenEventListener(new SplitScreenEventListener() {
-			
-			@Override
-			public void numberOfScreensChanged(Map<Screen, Integer> screenVerseMap) {
-				buildView();
-			}
-			
-			@Override
-			public void updateSecondaryScreen(Screen updateScreen, String html,	int verseNo) {
-				// Noop				
-			}
-			
-			@Override
-			public void scrollSecondaryScreen(Screen screen, int verseNo) {
-				// Noop
-			}
-			
-			@Override
-			public void currentSplitScreenChanged(Screen activeScreen) {
-				// Noop
-			}
 
-			@Override
-			public void splitScreenSizeChange(boolean isMoveFinished, Map<Screen, Integer> screenVerseMap) {
-				// Noop
-			}
-		});		
+		EventBus.getDefault().register(this);
 	}
 	
+	public void onEvent(NumberOfScreensChangedEvent event) {
+		buildView();
+	}
+
 	public void buildView() {
     	if (myNoteViewBuilder.isMyNoteViewType()) {
     		documentWebViewBuilder.removeWebView(parent);
