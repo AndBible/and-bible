@@ -393,7 +393,6 @@ public class SplitScreenControl {
 				BookCategory.BIBLE == currentPage.getCurrentDocument().getBookCategory()) {
 				int verse = KeyUtil.getVerse(currentPage.getSingleKey()).getVerse();
 				screenVerseMap.put(screen, verse);
-				Log.d(TAG, screen+"* registered verse no:"+verse);
 			}
 		}
 		return screenVerseMap;
