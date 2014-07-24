@@ -20,6 +20,8 @@
   <string name="choosePassageBookName">選擇書卷</string>
   <string name="choosePassageChapterName">選擇章節</string>
   <string name="choosePassageVerseName">選擇經節</string>
+  <string name="bible">聖經</string>
+  <string name="deuterocanonical">次經</string>
   <!--Search-->
   <string name="search_index">查詢索引</string>
   <string name="index_creation_required">查詢功能需要可用的查詢索引。索引可以在手機上創建或從網上下載。從網上下載更快，而下載來得索引功能更多。下載索引需要網絡鏈接。\n</string>
@@ -156,6 +158,7 @@
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">日期順序</string>
   <string name="sort_by_bible_book">聖經書序</string>
+  <string name="sort_by_alphabetical">字母順序排列</string>
   <!--Dictionary-->
   <string name="dictionary">字典</string>
   <string name="search_dictionary_hint">查詢字典</string>
