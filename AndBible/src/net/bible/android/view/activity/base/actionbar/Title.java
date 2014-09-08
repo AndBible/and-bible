@@ -1,14 +1,16 @@
 package net.bible.android.view.activity.base.actionbar;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
-
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.TitleSplitter;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+
 import android.app.Activity;
 import android.support.v7.app.ActionBar;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -37,6 +39,8 @@ public abstract class Title {
 	abstract protected String[] getPageTitleParts();
 	abstract protected void onDocumentTitleClick();
 	abstract protected void onPageTitleClick();
+	
+	private static final String TAG = "Title";
 	
 	public void addToBar(ActionBar actionBar, final Activity activity) {
 		this.actionBar = actionBar;
@@ -108,11 +112,22 @@ public abstract class Title {
 	}
 	
 	private String[] getTwoPageTitleParts() {
-		return unsplitIfLandscape(getPageTitleParts());
+		try {
+			return unsplitIfLandscape(getPageTitleParts());
+		} catch (Exception e) {
+			Log.e(TAG,  "Error getting reading plan title", e);
+			return new String[] {"", ""};
+		}
 	}
 
 	private String[] getTwoDocumentTitleParts() {
-		return unsplitIfLandscape(getDocumentTitleParts());
+		try {
+			return unsplitIfLandscape(getDocumentTitleParts());
+		} catch (Exception e) {
+			Log.e(TAG,  "Error getting reading plan title", e);
+			return new String[] {"", ""};
+		}
+
 	}
 
 	protected String[] getTwoTitleParts(String title, boolean lastAreMoreSignificant) {

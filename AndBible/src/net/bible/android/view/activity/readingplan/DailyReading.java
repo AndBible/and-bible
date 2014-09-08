@@ -20,8 +20,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -112,7 +110,8 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	            
 	            // Passage description
 	            TextView rdgText = (TextView)child.findViewById(R.id.passage);
-	            rdgText.setText(mReadings.getReadingKey(readingNo).getName());
+	            Key key = mReadings.getReadingKey(readingNo);
+	            rdgText.setText(key.getName());
 
 	            // handle read button clicks
 	            Button readBtn = (Button)child.findViewById(R.id.readButton);

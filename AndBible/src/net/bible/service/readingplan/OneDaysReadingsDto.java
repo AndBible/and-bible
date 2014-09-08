@@ -11,9 +11,6 @@ import net.bible.android.activity.R;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.passage.Key;
-import org.crosswire.jsword.passage.NoSuchKeyException;
-
-import android.util.Log;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -91,12 +88,8 @@ public class OneDaysReadingsDto implements Comparable<OneDaysReadingsDto> {
 				PassageReader passageReader = new PassageReader(mReadingPlanInfoDto.getVersification(), mReadingPlanInfoDto.getPassageReferenceType());
 				String[] readingArray = mReadings.split(",");
 				for (String reading : readingArray) {
-					try {
-						//use the v11n specified in the reading plan (default is KJV) 
-						readingKeyList.add(passageReader.getKey(reading));
-					} catch (NoSuchKeyException nsk) {
-						Log.e(TAG, "Error getting daily reading passage", nsk);
-					}
+					//use the v11n specified in the reading plan (default is KJV) 
+					readingKeyList.add(passageReader.getKey(reading));
 				}
 			}			
 			mReadingKeys = readingKeyList;

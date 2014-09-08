@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.speak.SpeakControl;
+import net.bible.android.control.versification.VersificationConverter;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.history.HistoryManager;
 import net.bible.service.readingplan.OneDaysReadingsDto;
@@ -14,7 +15,9 @@ import net.bible.service.readingplan.ReadingPlanInfoDto;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.versification.Versification;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -225,12 +228,20 @@ public class ReadingPlanControl {
     	}
 	}
 
-	/** speak 1 reading and mark as read
+	/** 
+	 * Speak 1 reading and mark as read.  Also convert from ReadingPlan v11n type to v11n type of current Bible.
 	 */
 	public void speak(int day, int readingNo, Key readingKey) {
+		AbstractPassageBook bible = CurrentPageManager.getInstance().getCurrentBible().getCurrentPassageBook();
+		Versification documentV11n = bible.getVersification();
+		
+		VersificationConverter v11nConverter = new VersificationConverter();
+		Key convertedPassage =  v11nConverter.convert(readingKey, documentV11n);
+		
 		List<Key> keyList = new ArrayList<Key>();
-		keyList.add(readingKey);
-		mSpeakControl.speak(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), keyList, true, false);
+		keyList.add(convertedPassage);
+
+		mSpeakControl.speak(bible, keyList, true, false);
 		
 		getReadingStatus(day).setRead(readingNo);
 	}

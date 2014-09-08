@@ -108,7 +108,9 @@ public class ReadingPlanDao {
 				int dayNo = Integer.parseInt(dayNoStr);
 				maxDayNo = Math.max(maxDayNo, dayNo);
 			} else {
-				Log.e(TAG, "Invalid day number:"+dayNoStr);
+				if (!VERSIFICATION.equalsIgnoreCase(dayNoStr) && !PASSAGE_REFERENCE_TYPE.equalsIgnoreCase(dayNoStr)) {
+					Log.e(TAG, "Invalid day number:"+dayNoStr);
+				}
 			}
 		}
 		
@@ -142,7 +144,7 @@ public class ReadingPlanDao {
 		String passageReferenceTypeString = DEFAULT_PASSAGE_REFERENCE_TYPE;
 		passageReferenceTypeString = getPlanProperties(planCode).getProperty(PASSAGE_REFERENCE_TYPE, DEFAULT_PASSAGE_REFERENCE_TYPE);
 
-		return "OSIS".equalsIgnoreCase(passageReferenceTypeString) ? PassageReferenceType.OSIS : PassageReferenceType.TEXT;
+		return PassageReader.PASSAGE_REFERENCE_TYPE_OSIS.equalsIgnoreCase(passageReferenceTypeString) ? PassageReferenceType.OSIS : PassageReferenceType.TEXT;
 	}
 	
 	private ReadingPlanInfoDto getReadingPlanInfoDto(String planCode) {
