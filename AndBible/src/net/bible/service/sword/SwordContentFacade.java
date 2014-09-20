@@ -91,7 +91,7 @@ public class SwordContentFacade {
 	 * @throws URISyntaxException
 	 * @throws ParserConfigurationException
 	 */
-	public synchronized String readHtmlText(Book book, Key key) throws ParseException
+	public String readHtmlText(Book book, Key key) throws ParseException
 	{
 		String retVal = "";
 		if (book==null || key==null) {
