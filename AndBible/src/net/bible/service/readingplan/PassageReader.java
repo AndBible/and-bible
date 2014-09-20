@@ -1,8 +1,8 @@
 package net.bible.service.readingplan;
 
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.OsisParser;
 import org.crosswire.jsword.passage.PassageKeyFactory;
-import org.crosswire.jsword.passage.SimpleOsisParser;
 import org.crosswire.jsword.versification.Versification;
 
 import android.util.Log;
@@ -16,6 +16,8 @@ public class PassageReader {
 	
 	private PassageReferenceType passageReferenceType;
 	private Versification v11n;
+	
+	private OsisParser osisParser = new OsisParser();
 	
 	private static final String TAG = "PassageReader";
 	
@@ -34,7 +36,7 @@ public class PassageReader {
 		try {
 			// If expecting OSIS then use OSIS parser
 			if (PassageReferenceType.OSIS.equals(passageReferenceType)) {
-				key = SimpleOsisParser.parseOsisRef(v11n, passage); 
+				key = osisParser.parseOsisRef(v11n, passage); 
 			}
 			
 			// OSIS parser is strict so try treating as normal ref if osis parser fails or if not expecting OSIS
