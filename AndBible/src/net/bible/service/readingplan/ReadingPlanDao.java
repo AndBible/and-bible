@@ -13,7 +13,6 @@ import java.util.Properties;
 import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.service.common.AndRuntimeException;
-import net.bible.service.readingplan.PassageReader.PassageReferenceType;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.util.IOUtil;
@@ -42,8 +41,6 @@ public class ReadingPlanDao {
 	private static final String VERSIFICATION = "Versification";
 	private static final String DEFAULT_VERSIFICATION = SystemKJV.V11N_NAME;
 	private static final String INCLUSIVE_VERSIFICATION = SystemNRSVA.V11N_NAME;
-	private static final String PASSAGE_REFERENCE_TYPE = "PassageReferenceType";
-	private static final String DEFAULT_PASSAGE_REFERENCE_TYPE = "Text";
 	
 	private static final String TAG = "ReadingPlanDao";
 
@@ -108,7 +105,7 @@ public class ReadingPlanDao {
 				int dayNo = Integer.parseInt(dayNoStr);
 				maxDayNo = Math.max(maxDayNo, dayNo);
 			} else {
-				if (!VERSIFICATION.equalsIgnoreCase(dayNoStr) && !PASSAGE_REFERENCE_TYPE.equalsIgnoreCase(dayNoStr)) {
+				if (!VERSIFICATION.equalsIgnoreCase(dayNoStr)) {
 					Log.e(TAG, "Invalid day number:"+dayNoStr);
 				}
 			}
@@ -135,18 +132,6 @@ public class ReadingPlanDao {
 		return versification;
 	}
 	
-	/** 
-	 * All future reading plans should use OSIS references and contain:
-	 * PassageReferenceType=OSIS 
-	 */
-	private PassageReferenceType getReadingPlanPassageReferenceType(String planCode) {
-		// historically all plans were simple text so must default to TEXT
-		String passageReferenceTypeString = DEFAULT_PASSAGE_REFERENCE_TYPE;
-		passageReferenceTypeString = getPlanProperties(planCode).getProperty(PASSAGE_REFERENCE_TYPE, DEFAULT_PASSAGE_REFERENCE_TYPE);
-
-		return PassageReader.PASSAGE_REFERENCE_TYPE_OSIS.equalsIgnoreCase(passageReferenceTypeString) ? PassageReferenceType.OSIS : PassageReferenceType.TEXT;
-	}
-	
 	private ReadingPlanInfoDto getReadingPlanInfoDto(String planCode) {
 		Log.d(TAG, "Get reading plan info:"+planCode);
 		ReadingPlanInfoDto info = new ReadingPlanInfoDto(planCode);
@@ -159,7 +144,6 @@ public class ReadingPlanDao {
 		
 		info.setNumberOfPlanDays(getNumberOfPlanDays(planCode));
 		info.setVersification(getReadingPlanVersification(planCode));
-		info.setPassageReferenceType(getReadingPlanPassageReferenceType(planCode));
 		
 		return info;
 	}

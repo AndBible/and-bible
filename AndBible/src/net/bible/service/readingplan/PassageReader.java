@@ -11,19 +11,15 @@ import android.util.Log;
  * Get a Key from either a simple reference or an OSIS reference
  */
 public class PassageReader {
-	public static final String PASSAGE_REFERENCE_TYPE_OSIS = "OSIS";
-	public enum PassageReferenceType {TEXT, OSIS};
-	
-	private PassageReferenceType passageReferenceType;
+
 	private Versification v11n;
 	
 	private OsisParser osisParser = new OsisParser();
 	
 	private static final String TAG = "PassageReader";
 	
-	PassageReader(Versification v11n, PassageReferenceType passageReferenceType) {
+	PassageReader(Versification v11n) {
 		this.v11n = v11n;
-		this.passageReferenceType = passageReferenceType;
 	}
 
 	/**
@@ -34,13 +30,15 @@ public class PassageReader {
 	public Key getKey(String passage) {
 		Key key = null;
 		try {
-			// If expecting OSIS then use OSIS parser
-			if (PassageReferenceType.OSIS.equals(passageReferenceType)) {
-				key = osisParser.parseOsisRef(v11n, passage); 
-			}
+			// spaces confuse the osis parser
+			passage = passage.trim();
 			
-			// OSIS parser is strict so try treating as normal ref if osis parser fails or if not expecting OSIS
+			// If expecting OSIS then use OSIS parser
+			key = osisParser.parseOsisRef(v11n, passage);
+			
+			// OSIS parser is strict so try treating as normal ref if osis parser fails
 			if (key==null) {
+				Log.d(TAG, "Non OSIS Reading plan passage:"+passage);
 				key = PassageKeyFactory.instance().getKey(v11n, passage);
 			}
 		} catch (Exception e) {

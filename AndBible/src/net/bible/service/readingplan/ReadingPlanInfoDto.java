@@ -4,7 +4,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import net.bible.service.common.CommonUtils;
-import net.bible.service.readingplan.PassageReader.PassageReferenceType;
 
 import org.apache.commons.lang.time.DateUtils;
 import org.crosswire.jsword.versification.Versification;
@@ -21,8 +20,6 @@ public class ReadingPlanInfoDto {
 	private Versification versification;
 	private int numberOfPlanDays;
 	
-	private PassageReferenceType passageReferenceType;
-
 	public static final String READING_PLAN_START_EXT = "_start";
 
 	public ReadingPlanInfoDto(String code) {
@@ -108,12 +105,5 @@ public class ReadingPlanInfoDto {
 	}
 	public void setVersification(Versification versification) {
 		this.versification = versification;
-	}
-
-	public PassageReferenceType getPassageReferenceType() {
-		return passageReferenceType;
-	}
-	public void setPassageReferenceType(PassageReferenceType passageReferenceType) {
-		this.passageReferenceType = passageReferenceType;
 	}
 }

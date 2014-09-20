@@ -23,8 +23,6 @@ public class OneDaysReadingsDto implements Comparable<OneDaysReadingsDto> {
 	private String mReadings;
 	private List<Key> mReadingKeys;
 	
-	private static final String TAG = "OneDaysReadingsDto";
-	
 	public OneDaysReadingsDto(int day, String readings, ReadingPlanInfoDto readingPlanInfo) {
 		mDay = day;
 		mReadings = readings;
@@ -85,7 +83,7 @@ public class OneDaysReadingsDto implements Comparable<OneDaysReadingsDto> {
 			List<Key> readingKeyList = new ArrayList<Key>();
 			
 			if (StringUtils.isNotEmpty(mReadings)) {
-				PassageReader passageReader = new PassageReader(mReadingPlanInfoDto.getVersification(), mReadingPlanInfoDto.getPassageReferenceType());
+				PassageReader passageReader = new PassageReader(mReadingPlanInfoDto.getVersification());
 				String[] readingArray = mReadings.split(",");
 				for (String reading : readingArray) {
 					//use the v11n specified in the reading plan (default is KJV) 
