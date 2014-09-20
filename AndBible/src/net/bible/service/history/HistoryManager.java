@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Stack;
 
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
@@ -17,7 +18,6 @@ import net.bible.android.view.activity.page.MainBibleActivity;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
-import de.greenrobot.event.EventBus;
 import android.app.Activity;
 import android.util.Log;
 
@@ -46,9 +46,12 @@ public class HistoryManager {
 		return singleton;
 	}
 	
-	private HistoryManager() {
+	private HistoryManager() {}
+	
+	public void initialise() {
+		Log.i(TAG, "Registering HistoryManager with EventBus");
 		// register for BeforePageCangeEvent
-		EventBus.getDefault().register(this);
+		ABEventBus.getDefault().safelyRegister(this);
 	}
 	
     /** allow current page to save any settings or data before being changed

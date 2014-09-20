@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Locale;
 
 import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ProgressNotificationManager;
@@ -73,6 +74,12 @@ public class BibleApplication extends Application{
 		Log.i(TAG, "Locale language:"+locale.getLanguage()+" Variant:"+locale.getDisplayName());
 
 		screenTimeoutSettings.overrideScreenTimeout();
+		
+		// force early initialisation of Control factory to prevent circular dependencies
+		ControlFactory.getInstance();
+		
+		// various initialisations required every time at app startup
+		ControlFactory.getInstance().getDocumentControl().initialiseAppServices();
 	}
 
 	/** Allow user interface locale override by changing Settings

@@ -73,26 +73,12 @@ public class StartupActivity extends CustomTitlebarActivityBase {
 
     
         // allow call back and continuation in the ui thread after JSword has been initialised
-        final Handler uiHandler = new Handler();
-        final Runnable uiThreadRunnable = new Runnable() {
+        runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 			    postBasicInitialisationControl();
 			}
-        };
-
-        // initialise JSword in another thread (takes a long time) then call main ui thread Handler to continue
-        // this allows the splash screen to be displayed and an hourglass to run
-        new Thread() {
-        	public void run() {
-        		try {
-	                documentControl.initialiseAppServices();
-        		} finally {
-        			// switch back to ui thread to continue
-        			uiHandler.post(uiThreadRunnable);
-        		}
-        	}
-        }.start();
+        });
     }
     
     private void postBasicInitialisationControl() {

@@ -36,8 +36,8 @@ public class DocumentControl {
         
         // Now initialise other system features
         
-        // initialisation occurs in constructor
-        HistoryManager.getInstance();
+        // Initialise HistoryManager
+        HistoryManager.getInstance().initialise();
         
         // needs to register a listener
         ControlFactory.getInstance().getDocumentBibleBooksFactory().initialise();
