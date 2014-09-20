@@ -14,7 +14,6 @@ import net.bible.service.readingplan.ReadingPlanDao;
 import net.bible.service.readingplan.ReadingPlanInfoDto;
 
 import org.apache.commons.lang.StringUtils;
-import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.versification.Versification;
@@ -223,9 +222,14 @@ public class ReadingPlanControl {
     		EventBus.getDefault().post(new BeforeCurrentPageChangeEvent());;
 
 			// show the current bible
-    		Book doc = CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument();
+    		AbstractPassageBook bible = CurrentPageManager.getInstance().getCurrentBible().getCurrentPassageBook();
+    		
+    		// convert the verse to the v11n of the current bible
+    		List<Key> keyList = convertReadingVersification(readingKey, bible);
+    		Key firstKey = keyList.get(0);
+
     		// go to correct passage
-    		CurrentPageManager.getInstance().setCurrentDocumentAndKey(doc, readingKey);
+    		CurrentPageManager.getInstance().setCurrentDocumentAndKey(bible, firstKey);
     	}
 	}
 
@@ -234,24 +238,24 @@ public class ReadingPlanControl {
 	 */
 	public void speak(int day, int readingNo, Key readingKey) {
 		AbstractPassageBook bible = CurrentPageManager.getInstance().getCurrentBible().getCurrentPassageBook();
-		Versification documentV11n = bible.getVersification();
-		
-		VersificationConverter v11nConverter = new VersificationConverter();
-		Key convertedPassage =  v11nConverter.convert(readingKey, documentV11n);
-		
-		List<Key> keyList = new ArrayList<Key>();
-		keyList.add(convertedPassage);
+		List<Key> keyList = convertReadingVersification(readingKey, bible);
 
 		mSpeakControl.speak(bible, keyList, true, false);
 		
 		getReadingStatus(day).setRead(readingNo);
 	}
-	
+
 	/** User wants all passages from the daily reading spoken using TTS
 	 * Also mark passages as read
 	 */
 	public void speak(int day, List<Key> allReadings) {
-		mSpeakControl.speak(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), allReadings, true, false);
+		AbstractPassageBook bible = CurrentPageManager.getInstance().getCurrentBible().getCurrentPassageBook();
+		List<Key> allReadingsWithCorrectV11n = new ArrayList<Key>();
+		for (Key key : allReadings) {
+			List<Key> keyList = convertReadingVersification(key, bible);
+			allReadingsWithCorrectV11n.addAll(keyList);
+		}
+		mSpeakControl.speak(bible, allReadingsWithCorrectV11n, true, false);
 
 		// mark all readings as read
 		for (int i=0; i<allReadings.size(); i++) {
@@ -294,6 +298,17 @@ public class ReadingPlanControl {
 		} else {
 			return "";
 		}
+	}
+	
+	protected List<Key> convertReadingVersification(Key readingKey, AbstractPassageBook bibleToBeUsed) {
+		Versification documentV11n = bibleToBeUsed.getVersification();
+		
+		VersificationConverter v11nConverter = new VersificationConverter();
+		Key convertedPassage =  v11nConverter.convert(readingKey, documentV11n);
+		
+		List<Key> keyList = new ArrayList<Key>();
+		keyList.add(convertedPassage);
+		return keyList;
 	}
 	
 	/** keep track of which plan the user has currently.  This can be safely changed and reverted to without losing track
