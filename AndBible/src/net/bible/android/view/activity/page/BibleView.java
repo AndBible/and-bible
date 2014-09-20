@@ -558,7 +558,10 @@ public class BibleView extends WebView implements DocumentView {
 	/** move the view so the selected verse is at the top or at least visible
 	 */
 	private void scrollOrJumpToVerse(final int verse) {
-		if (verse<=1) {
+		Log.d(TAG, "Scroll or jump to:"+verse);
+		if (verse==SharedConstants.NO_VALUE) {
+			// NOOP
+		} else if (verse<=1) {
 			// use scroll to because difficult to place a tag exactly at the top
 			scrollTo(0, TOP_OF_SCREEN);
 		} else {

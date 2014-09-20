@@ -5,9 +5,9 @@ import net.bible.android.control.BibleContentManager;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
-import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.event.passage.PassageChangeStartedEvent;
 import net.bible.android.control.event.passage.PassageChangedEvent;
+import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent;
 import net.bible.android.control.event.splitscreen.CurrentSplitScreenChangedEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
@@ -219,7 +219,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     
     /** allow current page to save any settings or data before being changed
      */
-    public void onEvent(BeforeCurrentPageChangeEvent event) {
+    public void onEvent(PreBeforeCurrentPageChangeEvent event) {
     	CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
     	if (currentPage!=null) {
 	    	// save current scroll position so history can return to correct place in document

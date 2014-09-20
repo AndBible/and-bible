@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.control.versification.VersificationConverter;
 import net.bible.service.common.CommonUtils;
-import net.bible.service.history.HistoryManager;
 import net.bible.service.readingplan.OneDaysReadingsDto;
 import net.bible.service.readingplan.ReadingPlanDao;
 import net.bible.service.readingplan.ReadingPlanInfoDto;
@@ -22,6 +22,7 @@ import org.crosswire.jsword.versification.Versification;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.util.Log;
+import de.greenrobot.event.EventBus;
 
 /** Control status of reading plans
  * 
@@ -219,7 +220,7 @@ public class ReadingPlanControl {
     		// mark reading as 'read'
     		getReadingStatus(day).setRead(readingNo);
 
-			HistoryManager.getInstance().beforePageChange();
+    		EventBus.getDefault().post(new BeforeCurrentPageChangeEvent());;
 
 			// show the current bible
     		Book doc = CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument();

@@ -4,6 +4,7 @@ import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent;
 import net.bible.android.control.event.passage.PassageChangeStartedEvent;
 import net.bible.android.control.event.passage.PassageChangedEvent;
+import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.service.device.ScreenSettings;
 import android.util.Log;
@@ -35,6 +36,7 @@ public class PassageChangeMediator {
 	public void onBeforeCurrentPageChanged() {
 		isPageChanging = true;
 
+		EventBus.getDefault().post(new PreBeforeCurrentPageChangeEvent());
 		EventBus.getDefault().post(new BeforeCurrentPageChangeEvent());
 	}
 	

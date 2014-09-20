@@ -1,7 +1,9 @@
 package net.bible.android.view.activity.base;
 
-import android.util.Log;
+import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.service.history.HistoryManager;
+import android.util.Log;
+import de.greenrobot.event.EventBus;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -23,7 +25,7 @@ public class HistoryTraversal {
      */
 	protected void beforeStartActivity() {
 		if (integrateWithHistoryManager) {
-			HistoryManager.getInstance().beforePageChange();
+			EventBus.getDefault().post(new BeforeCurrentPageChangeEvent());
 		}
 	}
 
