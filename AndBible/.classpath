@@ -6,12 +6,12 @@
 	<classpathentry exported="true" kind="lib" path="libs/mmseg4j-all-1.8.4.jar"/>
 	<classpathentry kind="lib" path="libs/httpclient-android-4.3.3.jar"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry kind="lib" path="/home/martin/dev/eclipse-workspaces/abws/and-bible/AndBible/libs/jdom2-2.0.5.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/lucene-analyzers-3.0.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/lucene-core-3.0.3.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/lucene-snowball-3.0.3.jar"/>
-	<classpathentry kind="lib" path="/home/martin/dev/eclipse-workspaces/abws/and-bible/AndBible/libs/slf4j-android-1.7.7.jar"/>
 	<classpathentry exported="true" kind="lib" path="libs/jsword.jar" sourcepath="libs-src/jsword-src.jar"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
+	<classpathentry kind="lib" path="libs/jdom2-2.0.5.jar"/>
+	<classpathentry kind="lib" path="libs/slf4j-android-1.7.7.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
