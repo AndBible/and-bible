@@ -212,7 +212,7 @@ public class LinkControl {
     	
     	// The below uses ANY_WORDS because that does not add anything to the search string
     	//String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
-    	String searchText = ControlFactory.getInstance().getSearchControl().decorateSearchString("strong:"+refPrefix+ref, SearchType.ANY_WORDS, biblesection);
+    	String searchText = ControlFactory.getInstance().getSearchControl().decorateSearchString("strong:"+refPrefix+ref, SearchType.ANY_WORDS, biblesection, null);
     	Log.d(TAG, "Search text:"+searchText);
 
     	Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();

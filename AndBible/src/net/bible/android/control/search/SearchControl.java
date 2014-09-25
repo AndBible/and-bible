@@ -85,7 +85,7 @@ public class SearchControl {
     	return document.getIndexStatus().equals(IndexStatus.DONE);
     }
     
-    public String getCurrentBookDescription() {
+    public String getCurrentBookName() {
     	try {
     		CurrentBiblePage currentBiblePage = CurrentPageManager.getInstance().getCurrentBible();
     		Versification v11n = ((SwordBook) currentBiblePage.getCurrentDocument()).getVersification();
@@ -104,7 +104,7 @@ public class SearchControl {
     	}
     }
     
-    public String decorateSearchString(String searchString, SearchType searchType, SearchBibleSection bibleSection) {
+    public String decorateSearchString(String searchString, SearchType searchType, SearchBibleSection bibleSection, String currentBookName) {
     	String cleanSearchString = cleanSearchString(searchString);
     	
     	String decorated;
@@ -113,7 +113,7 @@ public class SearchControl {
     	decorated = searchType.decorate(cleanSearchString);
 
     	// add bible section limitation to search text
-    	decorated = getBibleSectionTerm(bibleSection)+" "+decorated;
+    	decorated = getBibleSectionTerm(bibleSection, currentBookName)+" "+decorated;
     	
     	return decorated;
     }
@@ -176,7 +176,7 @@ public class SearchControl {
      * 
      * @return
      */
-    private String getBibleSectionTerm(SearchBibleSection bibleSection) {
+    private String getBibleSectionTerm(SearchBibleSection bibleSection, String currentBookName) {
     	switch (bibleSection) {
     	case ALL:
     		return "";
@@ -185,7 +185,10 @@ public class SearchControl {
     	case NT:
             return SEARCH_NEW_TESTAMENT;
     	case CURRENT_BOOK:
-            return "+["+getCurrentBookDescription()+"]";
+    		if (currentBookName==null) {
+    			currentBookName = getCurrentBookName();
+    		}
+            return "+[" + currentBookName + "]";
         default:
         	Log.e(TAG, "Unexpected radio selection");
             return "";

@@ -32,14 +32,21 @@ import android.widget.RadioGroup.OnCheckedChangeListener;
  */
 public class Search extends CustomTitlebarActivityBase {
 	
-	private static final String TAG = "Search";
-	
 	private EditText mSearchTextInput;
 	
 	private int wordsRadioSelection = R.id.allWords;
 	private int sectionRadioSelection = R.id.searchAllBible;
 	
+	private String currentBookName;
+	
 	private SearchControl searchControl = ControlFactory.getInstance().getSearchControl();
+	
+	private static final String SEARCH_TEXT_SAVE = "Search";
+	private static final String WORDS_SELECTION_SAVE = "Words";
+	private static final String SECTION_SELECTION_SAVE = "Selection";
+	private static final String CURRENT_BIBLE_BOOK_SAVE = "BibleBook";
+	
+	private static final String TAG = "Search";
 	
     /** Called when the activity is first created. */
     @Override
@@ -74,7 +81,7 @@ public class Search extends CustomTitlebarActivityBase {
         // pre-load search string if passed in
         Bundle extras = getIntent().getExtras();
         if (extras!=null) {
-			String searchText = extras.getString(SearchControl.SEARCH_TEXT);
+			String searchText = extras.getString(SEARCH_TEXT_SAVE);
 			if (StringUtils.isNotEmpty(searchText)) {
 				mSearchTextInput.setText(searchText);
 			}
@@ -87,7 +94,13 @@ public class Search extends CustomTitlebarActivityBase {
 				wordsRadioSelection = checkedId;
 			}
 		});        
-
+        if (extras!=null) {
+			int wordsSelection = extras.getInt(WORDS_SELECTION_SAVE, -1);
+			if (wordsSelection!=-1) {
+				wordsRadioGroup.check(wordsSelection);
+			}
+        }
+        
         RadioGroup sectionRadioGroup = (RadioGroup)findViewById(R.id.bibleSectionGroup);
         sectionRadioGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
@@ -95,10 +108,25 @@ public class Search extends CustomTitlebarActivityBase {
 				sectionRadioSelection = checkedId;
 			}
 		});        
+        if (extras!=null) {
+			int sectionSelection = extras.getInt(SECTION_SELECTION_SAVE, -1);
+			if (sectionSelection!=-1) {
+				sectionRadioGroup.check(sectionSelection);
+			}
+        }
         
         // set text for current bible book on appropriate radio button
 		RadioButton currentBookRadioButton = (RadioButton)findViewById(R.id.searchCurrentBook);
-		currentBookRadioButton.setText(searchControl.getCurrentBookDescription());
+
+		// set current book to default and allow override if saved - implies returning via Back button
+		currentBookName = searchControl.getCurrentBookName();
+		if (extras!=null) {
+			String currentBibleBookSaved = extras.getString(CURRENT_BIBLE_BOOK_SAVE);
+			if (currentBibleBookSaved!=null) {
+				currentBookName = currentBibleBookSaved;
+			}
+        }
+		currentBookRadioButton.setText(currentBookName);
 		
         Log.d(TAG, "Finished displaying Search view");
     }
@@ -110,7 +138,10 @@ public class Search extends CustomTitlebarActivityBase {
 
     		// update current intent so search is restored if we return here via history/back
     		// the current intent is saved by HistoryManager
-    		getIntent().putExtra(SearchControl.SEARCH_TEXT, searchText);
+    		getIntent().putExtra(SEARCH_TEXT_SAVE, searchText);
+    		getIntent().putExtra(WORDS_SELECTION_SAVE, wordsRadioSelection);
+    		getIntent().putExtra(SECTION_SELECTION_SAVE, sectionRadioSelection);
+    		getIntent().putExtra(CURRENT_BIBLE_BOOK_SAVE, currentBookName);
     		
         	searchText = decorateSearchString(searchText);
         	Log.d(TAG, "Search text:"+searchText);
@@ -134,7 +165,7 @@ public class Search extends CustomTitlebarActivityBase {
     }
     
     private String decorateSearchString(String searchString) {
-    	return searchControl.decorateSearchString(searchString, getSearchType(), getBibleSection());
+    	return searchControl.decorateSearchString(searchString, getSearchType(), getBibleSection(), currentBookName);
     }
 
     /** get all, any, phrase query limitation
