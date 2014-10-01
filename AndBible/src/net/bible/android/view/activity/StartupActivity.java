@@ -3,8 +3,7 @@ package net.bible.android.view.activity;
 import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.document.DocumentControl;
+import net.bible.android.control.Initialisation;
 import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
@@ -31,8 +30,6 @@ import android.widget.TextView;
 public class StartupActivity extends CustomTitlebarActivityBase {
 
 	private static final int CAN_DOWNLOAD_DLG = 10;
-	
-	private DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
 	
 	private static final String TAG = "StartupActivity";
 
@@ -70,15 +67,32 @@ public class StartupActivity extends CustomTitlebarActivityBase {
         	// this aborts further initialisation but leaves blue splashscreen activity
         	return;
         }
-
     
         // allow call back and continuation in the ui thread after JSword has been initialised
-        runOnUiThread(new Runnable() {
+        final Handler uiHandler = new Handler();
+        final Runnable uiThreadRunnable = new Runnable() {
 			@Override
 			public void run() {
 			    postBasicInitialisationControl();
 			}
-        });
+        };
+
+        // initialise JSword in another thread (takes a long time) then call main ui thread Handler to continue
+        // this allows the splash screen to be displayed and an hourglass to run
+        new Thread() {
+        	public void run() {
+        		try {
+        			// allow the splash screen to be displayed immediately
+        			CommonUtils.pauseMillis(1);
+        			
+	                // force Sword to initialise itself
+	                Initialisation.getInstance().initialiseNow();
+        		} finally {
+        			// switch back to ui thread to continue
+        			uiHandler.post(uiThreadRunnable);
+        		}
+        	}
+        }.start();
     }
     
     private void postBasicInitialisationControl() {

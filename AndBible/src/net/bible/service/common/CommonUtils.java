@@ -271,10 +271,13 @@ public class CommonUtils {
 	}
 	
     public static void pause(int seconds) {
+   		pauseMillis(seconds*1000);
+    }
+    public static void pauseMillis(int millis) {
     	try {
-    		Thread.sleep(seconds*1000);
+    		Thread.sleep(millis);
     	} catch (Exception e) {
-    		Log.e(TAG, "error sleeping", e);
+    		Log.e(TAG, "Error sleeping", e);
     	}
     }
     
