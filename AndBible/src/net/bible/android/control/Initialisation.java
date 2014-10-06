@@ -13,7 +13,7 @@ public class Initialisation {
 
 	private boolean isInitialised = false;
 	
-	private static final long INITIALISE_DELAY = 20000000;
+	private static final long INITIALISE_DELAY = 3000;
 	
 	private static Initialisation singleton = new Initialisation();
 	
