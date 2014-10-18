@@ -20,6 +20,8 @@
   <string name="choosePassageBookName">Vel bok</string>
   <string name="choosePassageChapterName">Vel kapittel</string>
   <string name="choosePassageVerseName">Vel vers</string>
+  <string name="bible">Bibel</string>
+  <string name="deuterocanonical">Apokryfiske bøker</string>
   <!--Search-->
   <string name="search_index">Søkjeregister</string>
   <string name="index_creation_required">Eit søkjeregister er påkrevd for å søkje.\n\nSøkjeregistre kan lastast ned frå internett eller byggjast lokalt.\n\nNedlasting er mykje kjappare og desse registra gir betre søkjeeigenskapar. Om du byggjer lokalt, kan det ta opp imot 10 minutt på f.eks. ein HTC Desire.\n\nEi internettilkobling er påkrevd for å laste ned søkjeregister.\n</string>
@@ -156,6 +158,7 @@
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datorekkefølgje</string>
   <string name="sort_by_bible_book">Bibelsk rekkefølgje</string>
+  <string name="sort_by_alphabetical">Alfabetisk rekkefølgje</string>
   <!--Dictionary-->
   <string name="dictionary">Bibelordbøker</string>
   <string name="search_dictionary_hint">Søk i ordboka</string>
