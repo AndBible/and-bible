@@ -1,6 +1,7 @@
 package net.bible.service.download;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -8,6 +9,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Logger;
 import net.bible.service.sword.AcceptableBookTypeFilter;
 
@@ -33,6 +35,8 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 
 	// see here for info ftp://ftp.xiphos.org/mods.d/
 	private static final String XIPHOS_REPOSITORY = "Xiphos";
+	
+	private static final String TEST_URL = "http://ftp.xiphos.org/sword"; 
 
 	static final String lineSeparator = System.getProperty ( "line.separator" );
 	
@@ -102,11 +106,15 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 	/** get a list of books that are available in Xiphos repo and seem to work in And Bible
 	 */
 	public List<Book> getRepoBooks(boolean refresh) throws InstallException {
-		List<Book> booksInRepo = getBookList(SUPPORTED_DOCUMENTS, refresh);
+		List<Book> booksInRepo = new ArrayList<Book>();
 
-		storeRepoNameInMetaData(booksInRepo);
+		// Xiphos has gone off line a couple of times so specifically test if it is available to avoid hang
+		if (CommonUtils.isHttpUrlAvailable(TEST_URL)) {
+			booksInRepo = getBookList(SUPPORTED_DOCUMENTS, refresh);
+			storeRepoNameInMetaData(booksInRepo);
+		}
 		
-		return booksInRepo;		
+		return booksInRepo;
 	}
 	
 	@Override
