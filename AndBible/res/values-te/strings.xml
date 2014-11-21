@@ -15,10 +15,13 @@
   <string name="history">చరిత్ర</string>
   <string name="speak">మాట్లాడు</string>
   <string name="help">సహాయం</string>
+  <string name="verse">వచనం</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">పుస్తకాన్ని ఎన్నుకోవడం</string>
   <string name="choosePassageChapterName">అధ్యాయాన్ని ఎన్నుకోవడం</string>
   <string name="choosePassageVerseName">వచనాన్ని ఎన్నుకోవడం</string>
+  <string name="bible">బైబిలు</string>
+  <string name="deuterocanonical">బైబిల్‌ గ్రంథమందలి ప్రక్షిప్త భాగములు</string>
   <!--Search-->
   <string name="search_index">విషయాన్ని వెతుకు</string>
   <string name="index_creation_required">వెతకడానికి విషయ సూచిక అవసరం.\n\nవిషయ సూచిక ఇంటర్నెట్ నుండి డౌవ్న్‌లోడ్ చేసుకోవచ్చు లేదా ప్రాంతీయంగా తయారు చేసుకోవచ్చు.\n\nడౌవ్న్‌లోడ్ చేయడం చాలా త్వరగ అవుతుంది మరియు డౌవ్న్‌లోడ్ చేసుకొన్న విషయ సూచికలో చాలా పీచర్స్ ఇమిడి వుంటాయి.\n\nవిషయ సూచికను డౌవ్న్‌లోడ్ చేసుకోవడానికి ఇంటర్నెట్ అవసరం.\n</string>
@@ -151,7 +154,11 @@
   <string name="new_label">క్రొత్త గుర్తు</string>
   <string name="label_name_prompt">పేరు</string>
   <string name="label_unlabelled">గుర్తించనిది</string>
+  <string name="rename">మరొక పేరు పెట్టడం</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">తేది క్రమం</string>
+  <string name="sort_by_bible_book">గ్రంథాల క్రమం</string>
+  <string name="sort_by_alphabetical">వర్ణమాల క్రమం</string>
   <!--Dictionary-->
   <string name="dictionary">నిఘంటువు</string>
   <string name="search_dictionary_hint">నిఘంటువులో వెతకుట</string>
@@ -211,6 +218,7 @@
   <string name="save">బధ్ర పరచు</string>
   <string name="error">తప్పయింది</string>
   <string name="more">మరిన్ని</string>
+  <string name="more_dotted">ఇంకా</string>
   <string name="retry">మళ్లీ చేయండి</string>
   <string name="please_wait">దయచేసి ఆగండి</string>
   <string name="all">అన్ని</string>

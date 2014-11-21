@@ -20,6 +20,8 @@
   <string name="choosePassageBookName">Vali raamat</string>
   <string name="choosePassageChapterName">Vali peatükk</string>
   <string name="choosePassageVerseName">Vali salm</string>
+  <string name="bible">Piibel</string>
+  <string name="deuterocanonical">Apokriiva</string>
   <!--Search-->
   <string name="search_index">Otsinguindeks</string>
   <string name="index_creation_required">Otsimiseks on vajalik indeks.\n\nIndekseid võib alla laadida internetist või luua otse seadmes.\n\nAllalaadimine on palju kiirem ja allalaetud indeksitel on palju rohkem funktsioone.\n\nIndeksite allalaadimiseks on vajalik internetiühendus.\n</string>
@@ -58,7 +60,7 @@
   <string name="prefs_show_notes_title">Allmärkused ja ristviited</string>
   <string name="prefs_show_notes_summary">Näita allmärkusi ja ristviiteid</string>
   <string name="prefs_show_strongs_title">Näita Strongi numbreid</string>
-  <string name="prefs_show_strongs_summary">Lingid Kreeka ja Heebra definitsioonidele</string>
+  <string name="prefs_show_strongs_summary">Lingid Kreeka ja Heebrea definitsioonidele</string>
   <string name="prefs_show_morphology_title">Morfoloogilised koodid</string>
   <string name="prefs_show_morphology_summary">Näita Robinsoni kreeka morfoloogiat</string>
   <string name="prefs_section_title_title">Sektsiooni pealkirjad</string>
@@ -90,7 +92,7 @@
   <string name="no_chapter_notes">Selles peatükis märkmeid pole</string>
   <string name="no_verse_notes">Selles salmis märkmeid pole</string>
   <string name="previous">Eelmine</string>
-  <string name="next">ärgmine</string>
+  <string name="next">Järgmine</string>
   <!--Strongs-->
   <string name="strongs">Strongi Sõnaraamat</string>
   <string name="strongs_not_installed">Palun lae alla Strongi heebrea ja kreeka sõnaraamat</string>
@@ -156,6 +158,7 @@
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Kuupäeva järgi</string>
   <string name="sort_by_bible_book">Piibli järjekord</string>
+  <string name="sort_by_alphabetical">Tähestiku järjekorras</string>
   <!--Dictionary-->
   <string name="dictionary">Sõnaraamat</string>
   <string name="search_dictionary_hint">Otsi sõnaraamatust</string>
@@ -194,7 +197,7 @@
   <string name="backup">Varukoopia</string>
   <string name="backup_success">Märkmed ja järjehoidjad on salvestatud SD-kaardile: %s</string>
   <string name="restore">Taasta</string>
-  <string name="restore_confirmation">Taasta</string>
+  <string name="restore_confirmation">Kirjutada üle minu märkmed ja järjehoidjad?</string>
   <string name="restore_success">Märkmed ja järjehoidjad on taastatud SD-kaardilt: %s</string>
   <!--About-->
   <string name="about_version">Versioon: %s</string>
