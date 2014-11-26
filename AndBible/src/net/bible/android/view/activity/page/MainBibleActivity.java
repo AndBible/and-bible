@@ -244,8 +244,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     public void onEventMainThread(PassageChangedEvent event) {
     	setProgressBar(false);
     	updateActionBarButtons();
-    	// don't sense taps at bottom of screen if Strongs numbers link might be there or Map zoom control might be there
-		gestureListener.setSensePageDownTap(!isStrongsShown() && !CurrentPageManager.getInstance().isMapShown());
     }
 
     @Override
@@ -359,9 +357,12 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     //http://developer.motorola.com/docstools/library/The_Widget_Pack_Part_3_Swipe/
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent motionEvent) {
-		//TODO: should only call super if below returns false, but this code has been as follows for a long time
-		this.gestureDetector.onTouchEvent(motionEvent);
-		return super.dispatchTouchEvent(motionEvent);
+		// should only call super if below returns false
+		if (this.gestureDetector.onTouchEvent(motionEvent)) {
+			return true;
+		} else {
+			return super.dispatchTouchEvent(motionEvent);
+		}
 	}
 
 	protected DocumentViewManager getDocumentViewManager() {

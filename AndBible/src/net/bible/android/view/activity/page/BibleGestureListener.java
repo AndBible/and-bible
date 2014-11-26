@@ -2,7 +2,6 @@ package net.bible.android.view.activity.page;
 
 import net.bible.android.view.util.TouchOwner;
 import net.bible.service.common.CommonUtils;
-
 import android.util.Log;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
@@ -24,8 +23,6 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 	
 	private int minScaledVelocity;
 	private MainBibleActivity mainBibleActivity;
-	
-//	private boolean sensePageDownTap;
 	
 	private static final String TAG = "BibleGestureListener";
 	
@@ -88,37 +85,8 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 	@Override
 	public boolean onDoubleTap(MotionEvent e) {
 		Log.d(TAG, "onDoubleTap");
+		
 		mainBibleActivity.toggleFullScreen();
 		return true;
-	}
-
-// conflicts with maximize button in split screens - could add && !split.isSplit && !split.isMinimized 
-//	but I don't think many people use this so remove in next release if no grumbles
-//	@Override
-//	public boolean onSingleTapConfirmed(MotionEvent e) {
-//		boolean handled=false;
-//		if (sensePageDownTap) {
-//			Log.d(TAG, "onSingleTapConfirmed ");
-//		    WindowManager window = (WindowManager)BibleApplication.getApplication().getSystemService(Context.WINDOW_SERVICE); 
-//		    Display display = window.getDefaultDisplay();
-//		    int height = display.getHeight();
-//		    
-//		    if (e.getY()>height*0.93) {
-//				Log.d(TAG, "scrolling down");
-//				mainBibleActivity.scrollScreenDown();
-//				handled = true;
-//		    }
-//			Log.d(TAG, "finished onSingleTapConfirmed ");
-//		}
-//		if (!handled) {
-//	    	handled = super.onSingleTapConfirmed(e);
-//
-//		}
-//	    return handled;
-//	}
-
-	public void setSensePageDownTap(boolean sensePageDownTap) {
-// disable pagedown tap during split screen development due to complexity and lack of importance - may remove later if nobody comments		
-//		this.sensePageDownTap = sensePageDownTap;
 	}
 }
