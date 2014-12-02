@@ -88,6 +88,6 @@ abstract public class CachedKeyPage extends CurrentPageBase  {
 	/** find index of key in cached key list but cater for TreeKeys too
 	 */
 	protected int findIndexOf(Key key) {
-		return TreeKeyHelper.findIndexOf(key, getCachedGlobalKeyList());
+		return getCachedGlobalKeyList().indexOf(key);
 	}
 }

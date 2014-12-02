@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.page.TreeKeyHelper;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.android.view.activity.page.MainBibleActivity;
 
@@ -53,7 +52,7 @@ public abstract class ChooseKeyBase extends ListActivityBase {
         // if an item was selected previously then try to scroll to it
         Key currentKey = getCurrentKey();
         if (currentKey!=null && mKeyList.contains(currentKey)) {
-        	setSelection(TreeKeyHelper.findIndexOf(currentKey, mKeyList));
+        	setSelection(mKeyList.indexOf(currentKey));
         }
         
         Log.d(TAG, "Finished displaying Search view");
