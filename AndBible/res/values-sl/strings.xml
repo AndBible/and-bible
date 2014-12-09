@@ -130,6 +130,7 @@
   <string name="rdg_plan_y1ot1nt1_OTandNT">Biblija v enem letu - SZ in NZ</string>
   <string name="rdg_plan_y1ot1nt1_OTthenNT">Biblija v enem letu - SZ in potem NZ</string>
   <string name="rdg_plan_y1ot1nt2_mcheyne">Biblija v enem letu - (M\'Cheyne)</string>
+  <string name="rdg_plan_y2ot1ntps2">2 letni načrt - SZ enkrat, NZ in Psalmi dvakrat</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Izbriši</string>

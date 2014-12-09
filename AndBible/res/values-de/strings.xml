@@ -129,6 +129,7 @@
   <string name="rdg_plan_y1ot1nt1_OTandNT">In einem Jahr durch AT und NT</string>
   <string name="rdg_plan_y1ot1nt1_OTthenNT">In einem Jahr durch die Bibel - zuerst AT, dann NT</string>
   <string name="rdg_plan_y1ot1nt2_mcheyne">M\'Cheynes Ein-Jahr - Bibelleseplan</string>
+  <string name="rdg_plan_y2ot1ntps2">2-Jahres - Plan: AT ein Mal, NT &amp; PS zwei Mal</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Löschen</string>

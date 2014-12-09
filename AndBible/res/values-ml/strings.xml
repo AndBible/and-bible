@@ -15,10 +15,13 @@
   <string name="history">പഴയ ഭാഗങ്ങൾ</string>
   <string name="speak">വായിക്കുക</string>
   <string name="help">സഹായം</string>
+  <string name="verse">വാക്യം</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">പുസ്തകം തിരഞ്ഞെടുക്കുക</string>
   <string name="choosePassageChapterName">അദ്ധ്യായം തിരഞ്ഞെടുക്കുക</string>
   <string name="choosePassageVerseName">വാക്യം തിരഞ്ഞെടുക്കുക</string>
+  <string name="bible">വേദപുസ്തകം </string>
+  <string name="deuterocanonical">അപ്രമാണിക</string>
   <!--Search-->
   <string name="search_index">തിരെച്ചിൽ പട്ടിക</string>
   <string name="index_creation_required">An index is required to search.\n\nIndexes may be downloaded from the internet or created locally.\n\nDownloading is much quicker and downloaded indexes have more search features.\n\nAn internet connection is required to download indexes.\n</string>
@@ -126,6 +129,7 @@
   <string name="rdg_plan_y1ot1nt1_OTandNT">വേദപുസ്തകത്തിൽ കൂടി ഒരു വർഷം OT and NT</string>
   <string name="rdg_plan_y1ot1nt1_OTthenNT">വേദപുസ്തകത്തിൽ കൂടി ഒരു വർഷം OT പിന്നീട് NT</string>
   <string name="rdg_plan_y1ot1nt2_mcheyne">വേദപുസ്തകത്തിൽ കൂടി ഒരു വർഷം (M\'Cheyne)</string>
+  <string name="rdg_plan_y2ot1ntps2">2 വര്‍ഷ പദ്ധതി - പഴയനിയമം ഒരിക്കല്‍, പുതിയ നിയമവും സങ്കീര്‍ത്തനങ്ങളും രണ്ട് തവണ</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">നീക്കി കളയുക</string>
@@ -151,7 +155,11 @@
   <string name="new_label">പുതിയ ശീർഷകം </string>
   <string name="label_name_prompt">പേര്</string>
   <string name="label_unlabelled">ശീർഷകം ഇല്ലാത്തത്</string>
+  <string name="rename">പേര് മാറ്റുക</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">തീയതി ക്രമത്തിൽ</string>
+  <string name="sort_by_bible_book">ബൈബിള്‍ പുസ്തക ക്രമത്തിൽ</string>
+  <string name="sort_by_alphabetical">അക്ഷരമാല ക്രമത്തിൽ</string>
   <!--Dictionary-->
   <string name="dictionary">നിഘണ്ടു</string>
   <string name="search_dictionary_hint">നിഘണ്ടുവിൽ തിരയുക</string>
@@ -193,6 +201,8 @@
   <string name="restore_confirmation"> എന്റെ കുറിപ്പുകളും സൂചകങ്ങളും വീണ്ടും ഒന്നുകൂടി എഴുതുണമോ?</string>
   <string name="restore_success">എന്റെ കുറിപ്പുകളും സൂചകങ്ങളും SD കാർഡിൽ %s -ൽ നിന്നും പുനഃരുദ്ധരിച്ചു</string>
   <!--About-->
+  <string name="about_version">പതിപ്പ്: %s</string>
+  <string name="about_versification">വാക്യം ക്രമീകരണം: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">വേദപുസ്തകം </string>
   <string name="doc_type_commentary">പാഠ്യപുസ്തകം </string>
@@ -209,6 +219,7 @@
   <string name="save">സൂക്ഷിക്കു</string>
   <string name="error">തെറ്റ്</string>
   <string name="more">കൂടുതൽ</string>
+  <string name="more_dotted">കൂടുതൽ</string>
   <string name="retry">വീണ്ടും ശ്രമിക്കു</string>
   <string name="please_wait">ദയവായി അല്പം കാക്കു</string>
   <string name="all">എല്ലാം</string>

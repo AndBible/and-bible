@@ -87,7 +87,7 @@
   <string name="prefs_split_screen_summary">Jakaminen &amp; linkitys</string>
   <string name="prefs_split_screen_single">Yhdessä näytössä</string>
   <string name="prefs_split_screen_linked">Linkitetty</string>
-  <string name="prefs_split_screen_not_linked">Ei linkitystä</string>
+  <string name="prefs_split_screen_not_linked">Ei linkitetty</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Tähän lukuun ei liity alaviitteitä</string>
   <string name="no_verse_notes">Tähän jakeeseen ei liity alaviitteitä</string>
@@ -98,23 +98,23 @@
   <string name="strongs_not_installed">Ole hyvä ja lataa ensin Strongin heprean- ja kreikankielen sanakirjat</string>
   <string name="all_greek_occurrences">Etsi kaikki esiintymät</string>
   <string name="all_hebrew_occurrences">Etsi kaikki esiintymät</string>
-  <string name="no_indexed_bible_with_strongs_ref">Sinun pitää ladata Raamattu, joka sisältää Strongin numerot ja ladata myös sen indeksi.</string>
+  <string name="no_indexed_bible_with_strongs_ref">Lataa ensin Raamattu, joka sisältää Strongin numeroinnin ja ladata myös sen indeksi Haku-toiminnossa</string>
   <string name="morph_robinson_not_installed">Lataa \'Robinsonin muoto-opilliset koodit\' -sanakirja</string>
   <string name="strongs_toggle_button_on">nnnn</string>
   <string name="strongs_toggle_button_off">nnnn</string>
   <!--Module download-->
   <string name="download">Lataa teoksia</string>
   <string name="download_confirmation">Lataa teos internetistä?</string>
-  <string name="download_source_message">Teokset voi ladata osoitteesta \nhttp://www.crosswire.org\n&amp; http://xiphos.org</string>
+  <string name="download_source_message">Teokset ladataan osoitteesta\nhttp://www.crosswire.org\nhttp://ibt.org.ru\n&amp; &amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">Lataa</string>
   <string name="download_refreshing_book_list">Päivitetään luettelo käytettävistä teoksista</string>
   <string name="download_refresh_book_list_menu_item">Päivitä</string>
   <string name="error_downloading">Virhe ladattaessa teosta. Ole hyvä ja tarkista yhteyden toimivuus.</string>
   <string name="no_internet_connection">Ei saada yhteyttä internettiin</string>
   <string name="storage_space_warning">Liian vähän tallennustilaa teoksen tallentamiseen.</string>
-  <string name="wait_for_bible">Ole hyvä ja odota, että teos on ladattu kokonaan. Latauksen jälkeen ohjelma siirtyy takaisin tekstinäkymään.</string>
+  <string name="wait_for_bible">Ole hyvä ja odota, että teos on ladattu kokonaan. Latauksen jälkeen ohjelma palaa tekstinäkymään.\n\nLataa lisää teoksia myöhemmin navigoimalla Valikko/Lisää/Lataa teoksia.</string>
   <string name="wait_for_bible_not_yet">Ole hyvä ja odota hetki. Teoksen asennus ei ole vielä valmis.</string>
-  <string name="download_complete_no_bibles">Teosta ei onnistuttu asennetamaan. Siirry takaisin ja yritä uudelleen.</string>
+  <string name="download_complete_no_bibles">Teosta ei ole asennettu. Siirry takaisin ja yritä uudelleen.</string>
   <string name="too_many_jobs">Liian monta tehtävää samaan aikaan tekeillä. Odota, että tehtävät valmistuvat ja yritä uudelleen.</string>
   <string name="document_not_installed">Ole hyvä ja lataa \'%s\'</string>
   <!--Daily Reading Plan-->
@@ -123,12 +123,13 @@
   <string name="rdg_plan_day">Päivä %s</string>
   <string name="rdg_plan_set_start_jan1">Aloita vuoden alusta</string>
   <string name="done">Valmis</string>
-  <string name="reset">Nollaa</string>
+  <string name="reset">Tyhjennä</string>
   <string name="rdg_plan_y1ntpspr">Uusi testamentti, Psalmit ja Sananlaskut vuodessa</string>
-  <string name="rdg_plan_y1ot1nt1_chronological">Koko Raamattu aikajärjestyksessä vuoden aikana</string>
+  <string name="rdg_plan_y1ot1nt1_chronological">Koko Raamattu aikajärjestyksessä vuodessa</string>
   <string name="rdg_plan_y1ot1nt1_OTandNT">Koko Raamattu vuodessa - VT ja sitten UT</string>
   <string name="rdg_plan_y1ot1nt1_OTthenNT">Koko Raamattu vuodessa - VT ja sitten UT</string>
   <string name="rdg_plan_y1ot1nt2_mcheyne">Koko Raamattu vuodessa (M\'Cheyne)</string>
+  <string name="rdg_plan_y2ot1ntps2">2 vuotinen - VT kerran, UT ja psalmit kahdesti</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Poista</string>
@@ -138,11 +139,11 @@
   <string name="delete_search_index_doc">Poista %s indeksi?</string>
   <!--Verse context menu-->
   <string name="select_text">Valitse teksti</string>
-  <string name="select_text_help">Valitse teksti maalaamalle se hitaasti.\nKopioidaksesi tekstin, kosketa valintaa maalaamisen jälkeen.</string>
+  <string name="select_text_help">Valitse teksti maalaamalla.\nKopioi teksti koskettamalla valintaa sen jälkeen.</string>
   <string name="notes">Alaviitteet ja rinnakkaisviitteet</string>
   <string name="copy">Kopioi jae</string>
   <string name="share_verse">Jaa aktiivinen jae ...</string>
-  <string name="share_verse_subject">Raamatun jae on jaettu käyttäen And Bible -sovellusta.</string>
+  <string name="share_verse_subject">Raamatun jae on lähetetty And Bible -sovelluksella</string>
   <string name="compare_translations">Vertaile käännöksiä</string>
   <!--Bookmarks-->
   <string name="bookmarks">Kirjanmerkit</string>
@@ -154,7 +155,7 @@
   <string name="new_label">Uusi ryhmä</string>
   <string name="label_name_prompt">Nimi</string>
   <string name="label_unlabelled">Nimetön</string>
-  <string name="rename">Uudelleennimeä</string>
+  <string name="rename">Nimeä</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Aikajärjestys</string>
   <string name="sort_by_bible_book">Kirjajärjestys</string>

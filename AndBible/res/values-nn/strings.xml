@@ -129,6 +129,7 @@
   <string name="rdg_plan_y1ot1nt1_OTandNT">Heile Bibelen på eit år (GT og NT parallelt)</string>
   <string name="rdg_plan_y1ot1nt1_OTthenNT">Heile Bibelen på eitt år (GT og deretter NT)</string>
   <string name="rdg_plan_y1ot1nt2_mcheyne">Heile Bibelen på eitt år (M\'Cheyne)</string>
+  <string name="rdg_plan_y2ot1ntps2">2-årsplan - GT ein gong, NT og salmane to gonger</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Slett</string>

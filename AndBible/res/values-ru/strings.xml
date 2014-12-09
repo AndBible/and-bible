@@ -129,6 +129,7 @@
   <string name="rdg_plan_y1ot1nt1_OTandNT">Вся Библия за год - ВЗ и НЗ</string>
   <string name="rdg_plan_y1ot1nt1_OTthenNT">Вся Библия за год - ВЗ потом НЗ</string>
   <string name="rdg_plan_y1ot1nt2_mcheyne">Вся Библия за год (по МакЧейну)</string>
+  <string name="rdg_plan_y2ot1ntps2">План на 2 года: ВЗ - один раз, НЗ и Псалтирь - два раза</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Удалить</string>

@@ -129,6 +129,7 @@
   <string name="rdg_plan_y1ot1nt1_OTandNT">Lalui Alkitab dalam setahun - PL dan PB</string>
   <string name="rdg_plan_y1ot1nt1_OTthenNT">Lalui Alkitab dalam setahun - PL kemudian PB</string>
   <string name="rdg_plan_y1ot1nt2_mcheyne">Lalui Alkitab dalam setahun (M\'Cheyne)</string>
+  <string name="rdg_plan_y2ot1ntps2">Rencana 2 tahun - PL satu kali, PB Mazmur dua kali</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Hapus</string>
