@@ -2,8 +2,6 @@ package net.bible.service.format.osistohtml;
 
 import java.util.Stack;
 
-import net.bible.android.activity.R;
-import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Constants.HTML;
 import net.bible.service.common.Logger;
 
@@ -39,7 +37,7 @@ public class LHandler {
 	public LHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
 		this.parameters = parameters;
 		this.writer = writer;
-		int indentCharCount = CommonUtils.getResourceInteger(R.integer.poetry_indent_chars);
+		int indentCharCount = parameters.getIndentDepth();
 		indent_html = StringUtils.repeat(HTML.NBSP, indentCharCount);
 	}
 	

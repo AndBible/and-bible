@@ -79,7 +79,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 	// internal logic
 	private VerseInfo verseInfo = new VerseInfo();
-	class VerseInfo {
+	public static class VerseInfo {
 		int currentVerseNo;
 		int positionToInsertBeforeVerse;
 		boolean isTextSinceVerse = false;

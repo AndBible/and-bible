@@ -424,7 +424,10 @@ public class SwordContentFacade {
 				
 				// which font, if any
 				osisToHtmlParameters.setFont(FontControl.getInstance().getFontForBook(book));				
-				osisToHtmlParameters.setCssClassForCustomFont(FontControl.getInstance().getCssClassForCustomFont(book));				
+				osisToHtmlParameters.setCssClassForCustomFont(FontControl.getInstance().getCssClassForCustomFont(book));
+				
+				// indent depth - larger screens have a greater indent
+				osisToHtmlParameters.setIndentDepth(CommonUtils.getResourceInteger(R.integer.poetry_indent_chars));
 			}
 		}
 		OsisToHtmlSaxHandler osisToHtml = new OsisToHtmlSaxHandler(osisToHtmlParameters);

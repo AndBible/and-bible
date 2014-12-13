@@ -40,6 +40,7 @@ public class OsisToHtmlParameters {
     private List<Verse> versesWithNotes;
     private List<Verse> versesWithBookmarks;
     private URI moduleBasePath;
+    private int indentDepth = 2;
 
 	public String getLanguageCode() {
 		return languageCode;
@@ -177,5 +178,12 @@ public class OsisToHtmlParameters {
 	}
 	public void setDocumentVersification(Versification documentVersification) {
 		this.documentVersification = documentVersification;
+	}
+	
+	public void setIndentDepth(int indentDepth) {
+		this.indentDepth = indentDepth;
+	}
+	public int getIndentDepth() {
+		return indentDepth; 
 	}
 }
