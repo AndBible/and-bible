@@ -15,6 +15,8 @@ import org.xml.sax.Attributes;
  * 
  * Apparently quotation marks are not supposed to appear in the KJV (https://sites.google.com/site/kjvtoday/home/Features-of-the-KJV/quotation-marks)
  * 
+ * http://www.crosswire.org/wiki/List_of_eXtensions_to_OSIS_used_in_SWORD
+ * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author. 
@@ -54,7 +56,11 @@ public class LHandler {
 		int numIndents = Math.max(0, level-1);
 		
 		LType ltype = LType.IGNORE;
-		if (StringUtils.isNotEmpty(type)) {
+		if (TagHandlerHelper.isAttr(OSISUtil.OSIS_ATTR_EID, attrs)) {
+			// e.g. Isaiah 40:12
+			writer.write(HTML.BR);
+			ltype = LType.BR;
+		} else if (StringUtils.isNotEmpty(type)) {
 			if (type.contains("indent")) {
 				// this tag is specifically for indenting so ensure there is an indent
 				numIndents = numIndents+1;
@@ -70,10 +76,6 @@ public class LHandler {
 		} else if (TagHandlerHelper.isAttr(OSISUtil.OSIS_ATTR_SID, attrs)) {
 			writer.write(StringUtils.repeat(indent_html, numIndents));
 			ltype = LType.IGNORE;
-		} else if (TagHandlerHelper.isAttr(OSISUtil.OSIS_ATTR_EID, attrs)) {
-			// e.g. Isaiah 40:12
-			writer.write(HTML.BR);
-			ltype = LType.BR;
 		} else {
 			//simple <l>
 			writer.write(StringUtils.repeat(indent_html, numIndents));
