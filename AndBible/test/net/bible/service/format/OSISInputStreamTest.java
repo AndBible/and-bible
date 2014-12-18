@@ -3,13 +3,16 @@
  */
 package net.bible.service.format;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 
-import junit.framework.TestCase;
 import net.bible.service.common.ParseException;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler;
@@ -27,6 +30,9 @@ import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.PassageKeyFactory;
 import org.crosswire.jsword.versification.system.Versifications;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.xml.sax.ContentHandler;
 
 
@@ -34,17 +40,14 @@ import org.xml.sax.ContentHandler;
  * @author denha1m
  *
  */
-public class OSISInputStreamTest extends TestCase {
+public class OSISInputStreamTest {
 
 	private Book[] books;
 	private Book netBook;
 	private Book webBook;
 	
-	/* (non-Javadoc)
-	 * @see junit.framework.TestCase#setUp()
-	 */
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
         SwordBookDriver swordBookDriver = new SwordBookDriver();
         books = swordBookDriver.getBooks();
 		for (Book book : books) {
@@ -62,8 +65,8 @@ public class OSISInputStreamTest extends TestCase {
 	/* (non-Javadoc)
 	 * @see junit.framework.TestCase#tearDown()
 	 */
-	protected void tearDown() throws Exception {
-		super.tearDown();
+	@After
+	public void tearDown() throws Exception {
 	}
 
 	/**
@@ -73,15 +76,29 @@ ning</w> <w lemma="strong:H0430">God</w> <w lemma="strong:H0853 strong:H01254" m
 rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H0776">the earth</w>.
 </div>
 	 */
+	@Test
 	public void testReadKJV() throws Exception {
 		Book kjv = getBook("KJV");
 
 //		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Is 40:11"));
 //		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Mt 4:14"));
-		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Ps 67:1"));
+		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Ps 117"));
 		String chapter = convertStreamToString(osisInputStream);
-//		int numOpeningDivs = count(chapter, "<div>");
-//		int numClosingDivs = count(chapter, "</div>");
+		int numOpeningDivs = count(chapter, "<div>");
+		int numClosingDivs = count(chapter, "</div>");
+		assertThat("wrong number of divs", numOpeningDivs, equalTo(numClosingDivs));
+		System.out.println(chapter);
+	}
+
+	@Test
+	public void testReadRuCarsPoetry() throws Exception {
+		Book book = getBook("RusCARS");
+
+		OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Ps 116"));
+		String chapter = convertStreamToString(osisInputStream);
+		int numOpeningDivs = count(chapter, "<div>");
+		int numClosingDivs = count(chapter, "</div>");
+		assertThat("wrong number of divs", numOpeningDivs, equalTo(numClosingDivs));
 		System.out.println(chapter);
 	}
 
@@ -133,8 +150,9 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		int numOpeningDivs = count(chapter, "<div>");
 		int numClosingDivs = count(chapter, "</div>");
 		System.out.println(chapter);
-		assertEquals("wrong number of divs", numOpeningDivs, numClosingDivs);
+		assertThat("wrong number of divs", numOpeningDivs, equalTo(numClosingDivs));
 	}
+	
 	public void testReadLastChapter() throws Exception {
 		for (Book book: books) {
 			if (book.getBookCategory().equals(BookCategory.BIBLE)) {
@@ -144,7 +162,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 				int numOpeningDivs = count(chapter, "<div>");
 				int numClosingDivs = count(chapter, "</div>");
 	//			System.out.println(chapter);
-				assertEquals("wrong number of divs in "+book, numOpeningDivs, numClosingDivs);
+				assertThat("wrong number of divs in "+book, numOpeningDivs, equalTo(numClosingDivs));
 			}
 		}
 	}
@@ -176,7 +194,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		int numOpeningDivs = count(chapter, "<div>");
 		int numClosingDivs = count(chapter, "</div>");
 		System.out.println(chapter);
-		assertEquals("wrong number of divs", numOpeningDivs, numClosingDivs);
+		assertThat("wrong number of divs", numOpeningDivs, equalTo(numClosingDivs));
 	}
 	
 	/**
@@ -189,7 +207,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		int numOpeningDivs = count(chapter, "<div>");
 		int numClosingDivs = count(chapter, "</div>");
 		System.out.println(chapter);
-		assertEquals("wrong number of divs", numOpeningDivs, numClosingDivs);
+		assertThat("wrong number of divs", numOpeningDivs, equalTo(numClosingDivs));
 	}
 
 	public void testTrickyWebChapters() throws Exception {
@@ -199,7 +217,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 			int numOpeningLs = count(chapter, "<l>") + count(chapter, "<l ");
 			int numClosingLs = count(chapter, "</l>");
 			System.out.println(chapter);
-			assertEquals("wrong number of Ls", numOpeningLs, numClosingLs);
+			assertThat("wrong number of Ls", numOpeningLs, equalTo(numClosingLs));
 		}
 		{
 			OSISInputStream osisInputStream = new OSISInputStream(webBook, PassageKeyFactory.instance().getKey(Versifications.instance().getVersification("KJV"), "Gen 49"));
@@ -207,7 +225,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 			int numOpeningLs = count(chapter, "<l>") + count(chapter, "<l ");
 			int numClosingLs = count(chapter, "</l>");
 			System.out.println(chapter);
-			assertEquals("wrong number of Ls", numOpeningLs, numClosingLs);
+			assertThat("wrong number of Ls", numOpeningLs, equalTo(numClosingLs));
 
 		}
 	}
@@ -219,7 +237,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		int numOpeningDivs = count(chapter, "<div>");
 		int numClosingDivs = count(chapter, "</div>");
 		System.out.println(chapter);
-		assertEquals("wrong number of divs", numOpeningDivs, numClosingDivs);
+		assertThat("wrong number of divs", numOpeningDivs, equalTo(numClosingDivs));
 	}
 	
 	public void testReadRST() throws Exception {
@@ -268,14 +286,15 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 //		System.out.println(chapter);
 	}
 
-	public void testReadESVAndBibeMethod() throws Exception {
+	@Test
+	public void testReadESVAndBibleMethod() throws Exception {
 		Book book = getBook("ESV");
 		OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Phil 1:3"));
 		String chapter = convertStreamToString(osisInputStream);
 		int numOpeningDivs = count(chapter, "<div>");
 		int numClosingDivs = count(chapter, "</div>");
 		System.out.println("START"+chapter+"END");
-		assertEquals("wrong number of divs", numOpeningDivs, numClosingDivs);
+		assertThat("wrong number of divs", numOpeningDivs, equalTo(numClosingDivs));
 	}
 
 	public void testReadESVJSwordMethod() throws Exception {
@@ -324,18 +343,18 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 //		System.out.println(chapter);
 	}
 
+	@Test
 	public void testReadCommentaries() throws Exception {
 		for (Book book: books) {
-			System.out.println("?Book:"+book);
 			if (book.getBookCategory().equals(BookCategory.COMMENTARY) && !book.getInitials().equals("Personal")) {
 //			if (book.getInitials().equals("JFB")) {
 				System.out.println("Book:"+book.getInitials());
-				OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("1 Cor 1:1"));
+				OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("John 1:1"));
 				String chapter = convertStreamToString(osisInputStream);
 				int numOpeningDivs = count(chapter, "<div>");
 				int numClosingDivs = count(chapter, "</div>");
 				System.out.println(chapter);
-				assertEquals("wrong number of divs in "+book, numOpeningDivs, numClosingDivs);
+				assertThat("wrong number of divs in "+book, numOpeningDivs, equalTo(numClosingDivs));
 			}
 		}
 	}
@@ -347,13 +366,14 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		int numOpeningDivs = count(chapter, "<div>");
 		int numClosingDivs = count(chapter, "</div>");
 		System.out.println(chapter);
-		assertEquals("wrong number of divs", numOpeningDivs, numClosingDivs);
+		assertThat("wrong number of divs", numOpeningDivs, equalTo(numClosingDivs));
 		System.out.println(chapter);
 	}
 
+	@Test
 	public void testReadStrongs() throws Exception {
 		Book book = Defaults.getHebrewDefinitions();
-		assertEquals(book.getInitials(), "StrongsHebrew");
+		assertThat(book.getInitials(), equalTo("StrongsHebrew"));
 		Key key = book.getKey("00430");
 		
 		OSISInputStream osisInputStream = new OSISInputStream(book, key);
@@ -361,7 +381,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		int numOpeningDivs = count(chapter, "<div>");
 		int numClosingDivs = count(chapter, "</div>");
 		System.out.println(chapter);
-		assertEquals("wrong number of divs", numOpeningDivs, numClosingDivs);
+		assertThat("wrong number of divs", numOpeningDivs, equalTo(numClosingDivs));
 		System.out.println(chapter);
 	}
 
