@@ -100,8 +100,8 @@
   <string name="all_hebrew_occurrences">Alle Ergebnisse anzeigen</string>
   <string name="no_indexed_bible_with_strongs_ref">Sie müssen zuerst ein Bibelmodul mit Strongs Nummer sowie den Suchindex dazu herunterladen</string>
   <string name="morph_robinson_not_installed">Laden Sie bitte das Modul \'Robinson\'s Morphological Analysis Codes\' herunter</string>
-  <string name="strongs_toggle_button_on">Strongs anzeigen</string>
-  <string name="strongs_toggle_button_off">Strongs ausblenden</string>
+  <string name="strongs_toggle_button_on">Strongs</string>
+  <string name="strongs_toggle_button_off">Strongs</string>
   <!--Module download-->
   <string name="download">Module herunterladen</string>
   <string name="download_confirmation">Möchten Sie Module aus dem Internet herunterladen?</string>
@@ -129,7 +129,7 @@
   <string name="rdg_plan_y1ot1nt1_OTandNT">In einem Jahr durch AT und NT</string>
   <string name="rdg_plan_y1ot1nt1_OTthenNT">In einem Jahr durch die Bibel - zuerst AT, dann NT</string>
   <string name="rdg_plan_y1ot1nt2_mcheyne">M\'Cheynes Ein-Jahr - Bibelleseplan</string>
-  <string name="rdg_plan_y2ot1ntps2">2-Jahres - Plan: AT ein Mal, NT &amp; PS zwei Mal</string>
+  <string name="rdg_plan_y2ot1ntps2">2-Jahres - Plan: AT ein Mal, NT &amp; Psalmen zwei Mal</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Löschen</string>

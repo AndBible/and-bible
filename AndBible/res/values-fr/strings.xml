@@ -129,6 +129,7 @@
   <string name="rdg_plan_y1ot1nt1_OTandNT">La Bible en 1 an - AT et NT</string>
   <string name="rdg_plan_y1ot1nt1_OTthenNT">La Bible en 1an - AT ensuite NT</string>
   <string name="rdg_plan_y1ot1nt2_mcheyne">La Bible en 1 an (M\'Cheyne)</string>
+  <string name="rdg_plan_y2ot1ntps2">Plan sur 2 ans - AT : 1 fois, NT et Psaumes : 2 fois</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Supprimer</string>

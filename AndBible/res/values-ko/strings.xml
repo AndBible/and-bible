@@ -20,6 +20,7 @@
   <string name="choosePassageBookName">번역본 선택</string>
   <string name="choosePassageChapterName">장 선택</string>
   <string name="choosePassageVerseName">구절 선택</string>
+  <string name="bible">성경</string>
   <!--Search-->
   <string name="search_index">검색 색인</string>
   <string name="index_creation_required">색인을 검색 할 필요합니다.\n\n색인은 인터넷에서 다운로드 또는 로컬 만들 수 있습니다.\n\n다운로드가 훨씬 빠르고 다운로드 인덱스가 더 검색 기능을 가지고 있습니다.\n\n인터넷 연결이 인덱스를 다운로드해야합니다.\n</string>
@@ -127,6 +128,7 @@
   <string name="rdg_plan_y1ot1nt1_OTandNT">성경전체 일년통독 - 구약,신약 동시에</string>
   <string name="rdg_plan_y1ot1nt1_OTthenNT">성경전체 일년통독 - 구약부터 순서대로</string>
   <string name="rdg_plan_y1ot1nt2_mcheyne">성경전체 일년통독 - M\'Cheyne</string>
+  <string name="rdg_plan_y2ot1ntps2">2 년 계획 - 구약 1번, 신약 및 시편 2번</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">삭제</string>
@@ -156,6 +158,7 @@
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">날짜 순서</string>
   <string name="sort_by_bible_book">성경의 순서</string>
+  <string name="sort_by_alphabetical">알파벳 순서</string>
   <!--Dictionary-->
   <string name="dictionary">사전</string>
   <string name="search_dictionary_hint">사전 검색</string>
