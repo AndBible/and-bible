@@ -24,8 +24,8 @@
   <string name="deuterocanonical">Deuterokanonické</string>
   <!--Search-->
   <string name="search_index">Vyhledávací index</string>
-  <string name="index_creation_required">Pro hledání je nutný index.\n\nIndexy lze stáhnout z Internetu nebo vytvořit lokálně.\n\nStáhnutí je mnohem rychlejší a stáhnuté indexy obsahují více vyhledávacích vlastností.\n\nKe stáhnutí indexů je vyžadováno internetové připojení.\n</string>
-  <string name="indexing_wait_msg">Až bude indexace dokončena tak se zobrazí obrazovka pro hledání.</string>
+  <string name="index_creation_required">Pro hledání jsou nutné indexy.\n\nIndexy lze stáhnout z Internetu nebo vytvořit lokálně.\n\nStáhnutí je mnohem rychlejší a stáhnuté indexy obsahují více vyhledávacích možností.\n\nKe stáhnutí indexů je vyžadováno internetové připojení.\n</string>
+  <string name="indexing_wait_msg">Až bude indexace dokončena tak se zobrazí obrazovka Hledat.</string>
   <string name="index">Index</string>
   <string name="index_download">Stáhnout</string>
   <string name="index_not_available_for_download">Tento index není dostupný ke stažení</string>
@@ -98,7 +98,7 @@
   <string name="strongs_not_installed">Prosím stáhněte Strongův hebrejský a řecký slovník</string>
   <string name="all_greek_occurrences">Najít všechny výskyty</string>
   <string name="all_hebrew_occurrences">Najít všechny výskyty</string>
-  <string name="no_indexed_bible_with_strongs_ref">Je potřeba stáhnout Bibli, obsahující Strongova čísla a také stáhnout k této Bibli index pro vyhledávání</string>
+  <string name="no_indexed_bible_with_strongs_ref">Je potřeba stáhnout Bibli, obsahující Strongova čísla a také stáhnout k této Bibli index přes Hledat</string>
   <string name="morph_robinson_not_installed">Stáhněte prosím slovník \'Robinson\'s Morphological Analysis Codes\'</string>
   <string name="strongs_toggle_button_on">nnnn</string>
   <string name="strongs_toggle_button_off">nnnn</string>
@@ -112,7 +112,7 @@
   <string name="error_downloading">Vznikla chyba při stahování. Prosím prověřte internetové spojení.</string>
   <string name="no_internet_connection">Nelze se připojit k Internetu</string>
   <string name="storage_space_warning">Nedostatek místa k uložení dat.</string>
-  <string name="wait_for_bible">Prosím vyčkejte na dokončení stahování Bible. Potom bude zobrazena hlavní obrazovka.</string>
+  <string name="wait_for_bible">Prosím vyčkejte na dokončení stahování Bible. Potom bude zobrazena hlavní obrazovka.\n\nVíce dokumentů lze stáhnout později přes tlačítko Menu/Více.../Stáhnout dokumenty.</string>
   <string name="wait_for_bible_not_yet">Prosím vyčkejte. Instalace Bible ještě nebyla dokončena.</string>
   <string name="download_complete_no_bibles">Žádná Bible nebyla instalována. Stiskněte Zpět a zkuste to znovu.</string>
   <string name="too_many_jobs">Spuštěno příliš mnoho úloh. Prosím vyčkejte na dokončení některé úlohy a zkuste to znovu.</string>
@@ -129,6 +129,7 @@
   <string name="rdg_plan_y1ot1nt1_OTandNT">Celá Bible za rok - SZ a NZ</string>
   <string name="rdg_plan_y1ot1nt1_OTthenNT">Celá Bible za rok - SZ pak NZ</string>
   <string name="rdg_plan_y1ot1nt2_mcheyne">Celá Bible za rok (M\'Cheyne)</string>
+  <string name="rdg_plan_y2ot1ntps2">Plán na 2 roky - SZ jednou, NZ a Žalmy dvakrát</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Smazat</string>
@@ -140,8 +141,8 @@
   <string name="select_text">Vybrat text</string>
   <string name="select_text_help">Pro výběr pomalu táhnout.\nPak pro kopírování dotknout se výběru.</string>
   <string name="notes">Poznámky a odkazy</string>
-  <string name="copy">Kopírovat stávající verš</string>
-  <string name="share_verse">Sdílet stávající verš ...</string>
+  <string name="copy">Kopírovat současný verš</string>
+  <string name="share_verse">Sdílet současný verš ...</string>
   <string name="share_verse_subject">Biblický verš zaslán z aplikace And Bible</string>
   <string name="compare_translations">Porovnat překlady</string>
   <!--Bookmarks-->
@@ -156,12 +157,12 @@
   <string name="label_unlabelled">Neoznačený</string>
   <string name="rename">Přejmenovat</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
-  <string name="sort_by_date">Řazení dle data</string>
+  <string name="sort_by_date">Řadit dle data</string>
   <string name="sort_by_bible_book">Biblické pořadí</string>
   <string name="sort_by_alphabetical">Abecední pořadí</string>
   <!--Dictionary-->
   <string name="dictionary">Slovník</string>
-  <string name="search_dictionary_hint">Vyhledávací slovník</string>
+  <string name="search_dictionary_hint">Hledat ve slovníku</string>
   <string name="dictionary_contents">Obsah</string>
   <!--General Book-->
   <string name="general_book">Kniha</string>
@@ -220,7 +221,7 @@
   <string name="more">Více</string>
   <string name="more_dotted">Více...</string>
   <string name="retry">Zkusit znovu</string>
-  <string name="please_wait">Čekejte prosím ...</string>
+  <string name="please_wait">Čekejte prosím...</string>
   <string name="all">Vše</string>
   <string name="default_value">@string/lang_default</string>
   <!--Errors-->
