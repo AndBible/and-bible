@@ -16,6 +16,7 @@ import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.page.actionbar.BibleActionBarManager;
 import net.bible.android.view.activity.page.screen.DocumentViewManager;
 import net.bible.android.view.util.TouchOwner;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -60,6 +61,10 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	private boolean mWholeAppWasInBackground = false;
 	
 	private long lastContextMenuCreateTimeMillis;
+
+	// swipe fails on older versions of Android (2.2, 2.3, but not 3.0+) if event not passed to parent - don't know why
+	// scroll occurs on later versions after double-tap maximize
+    private boolean alwaysDispatchTouchEventToSuper = !CommonUtils.isHoneycombPlus();
 
 	public MainBibleActivity() {
 		super(bibleActionBarManager, R.menu.main);
@@ -349,7 +354,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	}
     }
 
-
 	// handle swipe left and right
     // http://android-journey.blogspot.com/2010_01_01_archive.html
     //http://android-journey.blogspot.com/2010/01/android-gestures.html
@@ -358,7 +362,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent motionEvent) {
 		// should only call super if below returns false
-		if (this.gestureDetector.onTouchEvent(motionEvent)) {
+		if (this.gestureDetector.onTouchEvent(motionEvent) && !alwaysDispatchTouchEventToSuper) {
 			return true;
 		} else {
 			return super.dispatchTouchEvent(motionEvent);
