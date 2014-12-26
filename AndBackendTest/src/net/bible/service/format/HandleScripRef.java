@@ -14,6 +14,7 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.Passage;
 import org.crosswire.jsword.passage.PassageKeyFactory;
 import org.crosswire.jsword.passage.RestrictionType;
+import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.system.Versifications;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -119,7 +120,7 @@ basis is the current verse to use in case of no book or chapter
 			System.out.println("count ranges"+ref.countRanges(RestrictionType.CHAPTER));
 			System.out.println("count"+ref.getCardinality());
 
-			Iterator<Key> it = ref.rangeIterator(RestrictionType.CHAPTER);
+			Iterator<VerseRange> it = ref.rangeIterator(RestrictionType.CHAPTER);
 			while (it.hasNext()) {
 				Key key = it.next();
 				System.out.println("Range (show this):"+key);
@@ -138,7 +139,7 @@ basis is the current verse to use in case of no book or chapter
 	}
 	
 	public void testNote() throws Exception {
-		Book esv = TestUtil.getBook("ESV");
+		Book esv = TestUtil.getBook("KJV");
 		Key gen11 = esv.getKey("Gen 1:1");
 		String text = esv.getRawText(gen11);
 		System.out.println(text);
@@ -161,4 +162,12 @@ basis is the current verse to use in case of no book or chapter
 		}
 	}
 
+	public void testRusCarsRefNote() throws Exception  {
+		Book book = TestUtil.getBook("RusCARS");
+		Key key = book.getKey("Ezek 40:5");
+				
+		String html = book.getRawText(key); //TestUtil.getHtml(book, key, 100);
+		System.out.println(html);
+//		assertTrue("Link to bible not found", html.contains("<a href='bible:M"));
+	}
 }

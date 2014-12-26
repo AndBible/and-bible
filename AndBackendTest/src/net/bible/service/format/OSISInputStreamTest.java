@@ -278,6 +278,16 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		assertEquals("wrong number of divs", numOpeningDivs, numClosingDivs);
 	}
 
+	public void testReadESVPs117() throws Exception {
+		Book book = getBook("ESV");
+		OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Psalms 117"));
+		String chapter = convertStreamToString(osisInputStream);
+		int numOpeningDivs = count(chapter, "<div>");
+		int numClosingDivs = count(chapter, "</div>");
+		System.out.println("START"+chapter+"END");
+		assertEquals("wrong number of divs", numOpeningDivs, numClosingDivs);
+	}
+
 	public void testReadESVJSwordMethod() throws Exception {
 		Book esv = getBook("ESV");
 		BookData data = new BookData(esv, esv.getKey("Phil 1:3"));

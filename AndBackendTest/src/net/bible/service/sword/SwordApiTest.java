@@ -19,7 +19,8 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.PassageKeyFactory;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
-import org.crosswire.jsword.versification.BibleInfo;
+import org.crosswire.jsword.versification.Versification;
+import org.crosswire.jsword.versification.system.Versifications;
 
 public class SwordApiTest extends TestCase {
 
@@ -64,9 +65,9 @@ public class SwordApiTest extends TestCase {
 		System.out.println(html);
 	}
 
-	public void testReadPsalm119() throws Exception {
+	public void testReadPsalm117() throws Exception {
 		Book esv = getBook("ESV");
-		Key key = PassageKeyFactory.instance().getKey(((SwordBook)esv).getVersification(), "Ps 119");
+		Key key = PassageKeyFactory.instance().getKey(((SwordBook)esv).getVersification(), "Ps 117");
 		
 		String html = getHtml(esv, key, 200);
 		System.out.println(html);
@@ -324,12 +325,13 @@ public class SwordApiTest extends TestCase {
 	
 	public void testCheckISVVersesExist() {
 		Book isv = Books.installed().getBook("ISV");
+		Versification v11n = Versifications.instance().getVersification("KJV");
     	for (BibleBook book: EnumSet.range(BibleBook.GEN, BibleBook.REV)) {
     		System.out.println(book);
     		try {
-	    		for (int chap=1; chap<=BibleInfo.chaptersInBook(book); chap++ ) {
-	    			for (int verse=1; verse <= BibleInfo.versesInChapter(book, chap); verse++) {
-				        Key key = isv.getKey(new Verse(book, chap, verse).getOsisID());
+	    		for (int chap=1; chap<=v11n.getLastChapter(book); chap++ ) {
+	    			for (int verse=1; verse <= v11n.getLastVerse(book, chap); verse++) {
+				        Key key = isv.getKey(new Verse(v11n, book, chap, verse).getOsisID());
 				        BookData data = new BookData(isv, key);
 				        String plainText = OSISUtil.getCanonicalText(data.getOsisFragment());
 				        if (plainText.isEmpty()) {
@@ -340,9 +342,6 @@ public class SwordApiTest extends TestCase {
     		} catch (Exception e) {
     			System.out.println("missing verse");
     		}
-    		
     	}
-
 	}
-
 }
