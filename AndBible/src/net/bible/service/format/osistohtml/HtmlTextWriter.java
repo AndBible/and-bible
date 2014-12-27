@@ -1,6 +1,7 @@
 package net.bible.service.format.osistohtml;
 
 import net.bible.service.common.Logger;
+import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler.VerseInfo;
 
 /**
  * Write characters out to a StringBuilder - used while creating html for display
@@ -37,6 +38,19 @@ public class HtmlTextWriter {
         	tempStore.append(htmlText); 
         }
     }
+    
+	/** allow line breaks and titles to be moved before verse number
+	 */
+	protected void writeOptionallyBeforeVerse(String s, VerseInfo verseInfo) {
+		boolean writeBeforeVerse = !verseInfo.isTextSinceVerse;
+		if (writeBeforeVerse) {
+			beginInsertAt(verseInfo.positionToInsertBeforeVerse);
+		}
+		write(s);
+		if (writeBeforeVerse) {
+			finishInserting();
+		}
+	}
     
     /** allow pre-verse headings
      */

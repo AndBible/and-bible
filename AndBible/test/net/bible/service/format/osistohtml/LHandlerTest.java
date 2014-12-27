@@ -38,71 +38,7 @@ public class LHandlerTest {
 		
 		assertThat(htmlTextWriter.getHtml(), equalTo("Single line<br />"));
 	}
-	/**
-	<ps117>
-	<verse osisID='Ps.117.0'>
-		<lg sID="w222" />
-	</verse>
-	<verse osisID='Ps.117.1'>
-		<title subType="x-preverse" type="section">
-			The
-			<divineName>Lord</divineName>
-			's Faithfulness Endures Forever
-		</title>
-		<l sID="x7681" />
-		<note n="c" osisID="Ps.117.1!crossReference.c" osisRef="Ps.117.1"
-			type="crossReference">
-			Cited
-			<reference osisRef="Rom.15.11">Rom. 15:11</reference>
-		</note>
-		Praise the
-		<divineName>Lord</divineName>
-		, all nations!
-		<l eID="x7681" type="x-br" />
-		<l sID="x7682" type="x-indent" />
-		Extol him, all peoples!
-		<l eID="x7682" type="x-br" />
-	</verse>
-	<verse osisID='Ps.117.2'>
-		<l sID="x7683" />
-		For
-		<note n="d" osisID="Ps.117.2!crossReference.d" osisRef="Ps.117.2"
-			type="crossReference">
-			<reference osisRef="Ps.103.11">Ps. 103:11</reference>
-			; [
-			<reference osisRef="Ps.116.5">Ps. 116:5</reference>
-			]
-		</note>
-		great is his steadfast love toward us,
-		<l eID="x7683" type="x-br" />
-		<l sID="x7684" type="x-indent" />
-		and
-		<note n="e" osisID="Ps.117.2!crossReference.e" osisRef="Ps.117.2"
-			type="crossReference">
-			[
-			<reference osisRef="Ps.100.5">Ps. 100:5</reference>
-			]
-		</note>
-		the faithfulness of the
-		<divineName>Lord</divineName>
-		endures forever.
-		<l eID="x7684" type="x-br" />
-		<l sID="x7685" />
-		<note n="b" osisID="Ps.117.2!crossReference.b" osisRef="Ps.117.2"
-			type="crossReference">
-			[See
-			<reference osisRef="Ps.116.19">Ps. 116:19</reference>
-			above]
-		</note>
-		Praise the
-		<divineName>Lord</divineName>
-		!
-		<l eID="x7685" />
-		<lg eID="w222" />
-	</verse>
 
-</ps117>
-**/
 	/**
 	 * ESV Ps 117:
 	 <h1 class='heading1'>The Lord's Faithfulness Endures Forever</h1> <span class='verse' id='1'/>&#x200b;</span>Praise the Lord, all nations!<br />&#160;&#160;Extol him, all peoples!<br /> <span class='verse' id='2'/>&#x200b;</span>For great is his steadfast love toward us,<br />&#160;&#160;and the faithfulness of the Lord endures forever.<br />Praise the Lord!<br />
