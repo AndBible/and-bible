@@ -23,7 +23,7 @@ import org.xml.sax.Attributes;
  */
 public class LHandler {
 
-	enum LType {INDENT, BR, END_BR, IGNORE};
+	private enum LType {INDENT, BR, END_BR, IGNORE};
 
 	private HtmlTextWriter writer;
 	

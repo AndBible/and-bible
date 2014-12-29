@@ -74,6 +74,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	private PronHandler pronHandler;
 	private StrongsHandler strongsHandler;
 	private FigureHandler figureHandler;
+	private DivHandler divHandler;
 	
 	// processor for the tag content
 	private TextPreprocessor textPreprocessor;
@@ -114,14 +115,14 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		lHandler = new LHandler(parameters, getWriter());
 		strongsHandler = new StrongsHandler(parameters, getWriter());
 		figureHandler = new FigureHandler(parameters, getWriter());
-		
+		divHandler = new DivHandler(parameters, passageInfo, getWriter());
+
 		//TODO at the moment we can only have a single TextPreprocesor, need to chain them and maybe make the writer a TextPreprocessor and put it at the end of the chain
 		if (HEBREW_LANGUAGE_CODE.equals(parameters.getLanguageCode())) {
 			textPreprocessor = new HebrewCharacterPreprocessor();
 		} else if (parameters.isConvertStrongsRefsToLinks()) {
 			textPreprocessor = new StrongsLinkCreator();
 		}
-
 	}
 
 	@Override
@@ -217,15 +218,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			lgHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
 			lHandler.startL(attrs);
-		} else if (name.equals("div")) {
-			String type = attrs.getValue("type");
-			if ("paragraph".equals(type)) {
-				// ignore sID start paragraph sID because it often comes after the verse no and causes a gap between verse no verse text
-				String eID = attrs.getValue("eID");
-				if (eID!=null && passageInfo.isAnyTextWritten) {
-					write("<p />");
-				}
-			}
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_DIV)) {
+			divHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_P)) {
 			write("<p>");
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {
@@ -277,6 +271,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			lgHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
 			lHandler.endL();
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_DIV)) {
+			divHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_P)) {
 			write("</p>");
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {

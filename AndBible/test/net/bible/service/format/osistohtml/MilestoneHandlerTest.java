@@ -50,7 +50,9 @@ public class MilestoneHandlerTest {
 		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "cQuote");		
 		milestoneHandler.start(attrs);
 		milestoneHandler.end();
+
 		writer.write("For God ... eternal life.");
+		passageInfo.isAnyTextWritten = true;
 		
 		assertThat(writer.getHtml(), equalTo("“For God ... eternal life."));
 	}
