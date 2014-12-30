@@ -17,13 +17,20 @@ public class TestUtils {
 	public static boolean isAndroid() {
 		if (!isAndroidCheckDone) {
 			try {
-				Class.forName("android.util.Log");
-				isAndroid = true;
-			} catch (ClassNotFoundException cnfe) {
+				Class.forName("net.bible.test.TestEnvironmentFlag");
 				isAndroid = false;
+				System.out.println("Running as test");
+			} catch (ClassNotFoundException cnfe) {
+				isAndroid = true;
+				System.out.println("Running on Android");
 			}
 			isAndroidCheckDone = true;
 		}
 		return isAndroid;
+	}
+	
+	public static void setTestMode() {
+		isAndroid = false;
+		isAndroidCheckDone = true;
 	}
 }

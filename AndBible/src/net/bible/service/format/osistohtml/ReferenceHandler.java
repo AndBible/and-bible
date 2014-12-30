@@ -141,6 +141,7 @@ public class ReferenceHandler {
 						if (!isFirst) {
 							result.append(" ");
 						}
+						// we just references the first verse in each range because that is the verse you would jump to.  It might be more correct to reference the while range i.e. key.getOsisRef() 
 						result.append("<a href='").append(Constants.BIBLE_PROTOCOL).append(":").append(key.iterator().next().getOsisRef()).append("'>");
 						result.append(key);
 						result.append("</a>");
