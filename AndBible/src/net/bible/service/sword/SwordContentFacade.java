@@ -154,6 +154,10 @@ public class SwordContentFacade {
 		
 	}
 	
+	/**
+	 * Use OSISInputStream which loads a single verse at a time as required.
+	 * This reduces memory requirements compared to standard JDom SaxEventProvider 
+	 */
 	private String readHtmlTextOptimizedZTextOsis(Book book, Key key) throws ParseException
 	{
 		log.debug("Using fast method to fetch document data");

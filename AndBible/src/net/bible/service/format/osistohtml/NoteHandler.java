@@ -15,17 +15,13 @@ import org.xml.sax.Attributes;
 /**
  * Convert OSIS tags into html tags
  * 
- *  Example OSIS tags from KJV Ps 119 v1 showing title, w, note
-<title canonical="true" subType="x-preverse" type="section">
-	<foreign n="?">ALEPH.</foreign>
-</title>
-<w lemma="strong:H0835">Blessed</w> <transChange type="added">are</transChange> <w lemma="strong:H08549">the undefiled</w>
-...  <w lemma="strong:H01980" morph="strongMorph:TH8802">who walk</w> 
-... <w lemma="strong:H03068">of the <seg><divineName>Lord</divineName></seg></w>.
-<note type="study">undefiled: or, perfect, or, sincere</note>
-
-Example of notes cross references from ESV 
-In the <note n="a" osisID="Gen.1.1!crossReference.a" osisRef="Gen.1.1" type="crossReference"><reference osisRef="Job.38.4-Job.38.7">Job 38:4-7</reference>; <reference osisRef="Ps.33.6">Ps. 33:6</reference>; <reference osisRef="Ps.136.5">136:5</reference>; <reference osisRef="Isa.42.5">Isa. 42:5</reference>; <reference osisRef="Isa.45.18">45:18</reference>; <reference osisRef="John.1.1-John.1.3">John 1:1-3</reference>; <reference osisRef="Acts.14.15">Acts 14:15</reference>; <reference osisRef="Acts.17.24">17:24</reference>; <reference osisRef="Col.1.16-Col.1.17">Col. 1:16, 17</reference>; <reference osisRef="Heb.1.10">Heb. 1:10</reference>; <reference osisRef="Heb.11.3">11:3</reference>; <reference osisRef="Rev.4.11">Rev. 4:11</reference></note>beginning
+ * Currently text and x-ref are mutually exclusive because of the clearing of tempstore 
+ *
+ * Study note
+ * <note type="study">undefiled: or, perfect, or, sincere</note>
+ *
+ * Cross-reference note
+ * In the <note n="a" osisID="Gen.1.1!crossReference.a" osisRef="Gen.1.1" type="crossReference"><reference osisRef="Job.38.4-Job.38.7">Job 38:4-7</reference>; <reference osisRef="Ps.33.6">Ps. 33:6</reference>; <reference osisRef="Ps.136.5">136:5</reference>; <reference osisRef="Isa.42.5">Isa. 42:5</reference>; <reference osisRef="Isa.45.18">45:18</reference>; <reference osisRef="John.1.1-John.1.3">John 1:1-3</reference>; <reference osisRef="Acts.14.15">Acts 14:15</reference>; <reference osisRef="Acts.17.24">17:24</reference>; <reference osisRef="Col.1.16-Col.1.17">Col. 1:16, 17</reference>; <reference osisRef="Heb.1.10">Heb. 1:10</reference>; <reference osisRef="Heb.11.3">11:3</reference>; <reference osisRef="Rev.4.11">Rev. 4:11</reference></note>beginning
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
@@ -54,7 +50,7 @@ public class NoteHandler {
         this.writer = theWriter;
     }
 
-    public void startNote(Attributes attrs) {
+    public void start(Attributes attrs) {
 		isInNote = true;
 		currentNoteRef = getNoteRef(attrs);
 		writeNoteRef(currentNoteRef);
@@ -67,10 +63,10 @@ public class NoteHandler {
      * Called when the Ending of the current Element is reached. For example in the
      * above explanation, this method is called when </Title> tag is reached
     */
-    public void endNote() {
+    public void end() {
 		String noteText = writer.getTempStoreString();
 		if (noteText.length()>0) {
-			if (!StringUtils.containsOnly(noteText, "[];().,")) {
+			if (!StringUtils.containsOnly(noteText, "[];()., ")) {
 				Note note = new Note(verseInfo.currentVerseNo, currentNoteRef, noteText, NoteType.TYPE_GENERAL, null);
 				notesList.add(note);
 			}

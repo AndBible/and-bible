@@ -14,7 +14,7 @@ import org.crosswire.jsword.passage.Key;
 
 /** Read through the raw OSIS input from a bible, add verse tags if required, remove any extra div tags,
  * and pipe back as in InputStream ready to be fed to the SAXParser for html formatting.
- * This is more efficient than using JDom to create a DOM and then streaming teh DOM into a SAX parser  
+ * This is more efficient than using JDom to create a DOM and then streaming the DOM into a SAX parser  
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.

@@ -23,7 +23,6 @@ import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookData;
 import org.crosswire.jsword.book.BookFilters;
 import org.crosswire.jsword.book.Books;
-import org.crosswire.jsword.book.Defaults;
 import org.crosswire.jsword.book.FeatureType;
 import org.crosswire.jsword.book.sword.SwordBookDriver;
 import org.crosswire.jsword.index.IndexStatus;
@@ -43,19 +42,27 @@ import org.xml.sax.ContentHandler;
 public class OSISInputStreamTest {
 
 	private Book[] books;
+	private Book kjvBook;
 	private Book netBook;
 	private Book webBook;
+	private Book tskBook;
 	
 	@Before
 	public void setUp() throws Exception {
         SwordBookDriver swordBookDriver = new SwordBookDriver();
         books = swordBookDriver.getBooks();
 		for (Book book : books) {
+			if (book.getInitials().startsWith("KJV")) {
+				this.kjvBook = book;
+			}
 			if (book.getInitials().startsWith("NET")) {
 				this.netBook = book;
 			}
 			if (book.getInitials().startsWith("WEB")) {
 				this.webBook = book;
+			}
+			if (book.getInitials().startsWith("TSK")) {
+				this.tskBook = book;
 			}
 //			System.out.println(book.getOsisID());
 		}
@@ -91,6 +98,19 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 	}
 
 	@Test
+	public void testReadHunUjReference() throws Exception {
+		//JFB and many other commentaries are THML.  Abbott is OSIS
+		Book book = getBook("HunUj");
+
+		OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Jam 1:1"));
+		String chapter = convertStreamToString(osisInputStream);
+		int numOpeningDivs = count(chapter, "<div>");
+		int numClosingDivs = count(chapter, "</div>");
+		assertThat("wrong number of divs", numOpeningDivs, equalTo(numClosingDivs));
+		System.out.println(chapter);
+	}
+
+	@Test
 	public void testReadRuCarsPoetry() throws Exception {
 		Book book = getBook("RusCARS");
 
@@ -102,20 +122,27 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		System.out.println(chapter);
 	}
 
-	public void testReadNETText() throws Exception {
-		Book book = getBook("NETtext");
+	@Test
+	public void testRead() throws Exception {
+		Book book = getBook("ESV");
 
-//		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Is 40:11"));
-//		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Mt 4:14"));
-		System.out.println(netBook.getInitials());
-		OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Gal 6:17"));
+		OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Rev 20:2"));
 		String chapter = convertStreamToString(osisInputStream);
-		System.out.println(chapter);
-		osisInputStream = new OSISInputStream(book, book.getKey("Gal 6:18"));
-		chapter = convertStreamToString(osisInputStream);
 		System.out.println(chapter);
 	}
 
+	@Test
+	public void testReadTSK() throws Exception {
+		Book book = getBook("TSK");
+
+//		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Is 40:11"));
+//		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Mt 4:14"));
+		OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Ps 118:2"));
+		String chapter = convertStreamToString(osisInputStream);
+		System.out.println(chapter);
+	}
+
+	@Test
 	public void testReadTitle() throws Exception {
 		Book book = getBook("WEB");
 
@@ -372,8 +399,8 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 
 	@Test
 	public void testReadStrongs() throws Exception {
-		Book book = Defaults.getHebrewDefinitions();
-		assertThat(book.getInitials(), equalTo("StrongsHebrew"));
+		Book book = getBook("StrongsRealHebrew"); //Defaults.getHebrewDefinitions();
+		assertThat(book.getInitials(), equalTo("StrongsRealHebrew"));
 		Key key = book.getKey("00430");
 		
 		OSISInputStream osisInputStream = new OSISInputStream(book, key);
@@ -382,7 +409,6 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		int numClosingDivs = count(chapter, "</div>");
 		System.out.println(chapter);
 		assertThat("wrong number of divs", numOpeningDivs, equalTo(numClosingDivs));
-		System.out.println(chapter);
 	}
 
 	public void testFindAllStrongsRef() throws Exception {

@@ -205,7 +205,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_TITLE)) {
 			titleHandler.start(attrs);		
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {
-			noteHandler.startNote(attrs);
+			noteHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
 			referenceHandler.start(attrs);
 		} else if (name.equals(TEIUtil.TEI_ELEMENT_REF)) {
@@ -262,7 +262,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			bookmarkMarker.end();
 			verseHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {
-			noteHandler.endNote();
+			noteHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
 			referenceHandler.end();
 		} else if (name.equals(TEIUtil.TEI_ELEMENT_REF)) {
