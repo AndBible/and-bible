@@ -5,7 +5,7 @@ import java.util.Stack;
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
 
-/** This can either signify a quote or Red Letter
+/** This can either signify a quote or Red Letter.  Red letter is not implemented in milestone form because it maps onto opening and closing tags around text.
  * Example from ESV 
  * 		But he answered them, <q marker="" who="Jesus"><q level="1" marker="�" sID="40024002.1"/>You see all these
  * Example from KJV
