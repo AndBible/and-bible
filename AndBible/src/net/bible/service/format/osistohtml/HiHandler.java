@@ -18,7 +18,6 @@ import java.util.List;
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
 
-
 /** Handle hi element e.g. <hi type="italic">the child with his mother Mary</hi>
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
