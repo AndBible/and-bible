@@ -387,6 +387,7 @@ public class SwordContentFacade {
 			if (preferences!=null) {
 				// prefs applying to any doc type
 				osisToHtmlParameters.setShowNotes(preferences.getBoolean("show_notes_pref", true));
+				osisToHtmlParameters.setRedLetter(preferences.getBoolean("red_letter_pref", false));
 
 				// show verse numbers if user has selected to show verse numbers AND the book is a bible (so don't even try to show verses in a Dictionary)
 				if (BookCategory.BIBLE.equals(bookCategory)) {
@@ -395,7 +396,6 @@ public class SwordContentFacade {
 					osisToHtmlParameters.setShowMyNotes(preferences.getBoolean("show_mynotes_pref", true));
 					osisToHtmlParameters.setShowBookmarks(preferences.getBoolean("show_bookmarks_pref", true));
 					osisToHtmlParameters.setShowTitles(preferences.getBoolean("section_title_pref", true));
-					osisToHtmlParameters.setRedLetter(preferences.getBoolean("red_letter_pref", false));
 					osisToHtmlParameters.setVersesWithNotes(ControlFactory.getInstance().getMyNoteControl().getVersesWithNotesInPassage(key));
 					osisToHtmlParameters.setVersesWithBookmarks(ControlFactory.getInstance().getBookmarkControl().getVersesWithBookmarksInPassage(key));
 
