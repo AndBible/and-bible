@@ -4,7 +4,6 @@ import java.util.List;
 
 import net.bible.android.activity.R;
 import net.bible.android.view.util.buttongrid.LayoutDesigner.RowColLayout;
-
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -319,8 +318,10 @@ public class ButtonGrid extends TableLayout {
 		}
 		
 		// calculate offset of 2 button heights so users can see the buttons surrounding the current button pressed
-		ButtonInfo but1 = buttonInfoList.get(0);
-		mPreviewOffset = but1.top - but1.bottom;
+		if (buttonInfoList.size()>0) {
+			ButtonInfo but1 = buttonInfoList.get(0);
+			mPreviewOffset = but1.top - but1.bottom;
+		}
     }
 	/**
 	 * @param onButtonGridActionListener the onButtonGridActionListener to set
