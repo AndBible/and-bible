@@ -67,7 +67,7 @@ public class NoteHandler {
 		String noteText = writer.getTempStoreString();
 		if (noteText.length()>0) {
 			if (!StringUtils.containsOnly(noteText, "[];()., ")) {
-				Note note = new Note(verseInfo.currentVerseNo, currentNoteRef, noteText, NoteType.TYPE_GENERAL, null);
+				Note note = new Note(verseInfo.currentVerseNo, currentNoteRef, noteText, NoteType.TYPE_GENERAL, null, null);
 				notesList.add(note);
 			}
 			// and clear the buffer
@@ -90,7 +90,7 @@ public class NoteHandler {
 
 		// record the note information to show if user requests to see notes for this verse
 		if (isInNote || parameters.isAutoWrapUnwrappedRefsInNote()) {
-			Note note = new Note(verseInfo.currentVerseNo, currentNoteRef, refText, NoteType.TYPE_REFERENCE, osisRef);
+			Note note = new Note(verseInfo.currentVerseNo, currentNoteRef, refText, NoteType.TYPE_REFERENCE, osisRef, parameters.getDocumentVersification());
 			notesList.add(note);
 		}
     }

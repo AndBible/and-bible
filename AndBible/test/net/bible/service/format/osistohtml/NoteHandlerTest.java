@@ -114,7 +114,8 @@ public class NoteHandlerTest {
 		List<Note> notesList = noteHandler.getNotesList();
 		assertThat(notesList.size(), equalTo(2));
 		Note note1 = notesList.get(0);
-		assertThat(note1.getNoteText(), equalTo("Mt 13:55"));
+		// do not use note text for refs but use ref key becasue ref text is often not set
+		assertThat(note1.getNoteText(), equalTo("Matthew 13:55"));
 		assertThat(note1.getNoteRef(), equalTo("a"));
 		assertThat(note1.getVerseNo(), equalTo(1));
 		assertThat(note1.isNavigable(), equalTo(true));
@@ -154,7 +155,7 @@ public class NoteHandlerTest {
 		List<Note> notesList = noteHandler.getNotesList();
 		assertThat(notesList.size(), equalTo(1));
 		Note note = noteHandler.getNotesList().get(0);
-		assertThat(note.getNoteText(), equalTo("ch. 12:9"));
+		assertThat(note.getNoteText(), equalTo("Revelation of John 12:9"));
 		assertThat(note.getNoteRef(), equalTo("p"));
 		assertThat(note.getVerseNo(), equalTo(2));
 		assertThat(note.isNavigable(), equalTo(true));

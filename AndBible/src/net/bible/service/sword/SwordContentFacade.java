@@ -38,6 +38,7 @@ import org.crosswire.jsword.book.BookMetaData;
 import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.FeatureType;
 import org.crosswire.jsword.book.OSISUtil;
+import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.Passage;
@@ -377,6 +378,7 @@ public class SwordContentFacade {
 		// If Bible or Commentary then set Basis for partial references to current Key/Verse 
 		if (BookCategory.BIBLE.equals(bookCategory) || BookCategory.COMMENTARY.equals(bookCategory)) {
 			osisToHtmlParameters.setBasisRef(key);
+			osisToHtmlParameters.setDocumentVersification(((AbstractPassageBook)book).getVersification());
 		}
 		
 		if (isAndroid) {

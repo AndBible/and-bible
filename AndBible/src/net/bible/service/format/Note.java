@@ -2,11 +2,13 @@ package net.bible.service.format;
 
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.service.common.CommonUtils;
+import net.bible.service.common.Logger;
 import net.bible.service.sword.SwordContentFacade;
 
 import org.apache.commons.lang.StringUtils;
-
-import android.util.Log;
+import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.PassageKeyFactory;
+import org.crosswire.jsword.versification.Versification;
 
 
 /** Info on a note or cross reference
@@ -21,22 +23,24 @@ public class Note {
 	
 	private int verseNo;
 	private String noteRef;
-	private String osisRef;
 	private String noteText;
 	private NoteType noteType;
+	private String osisRef;
+	private Versification v11n;
 
 	public static final String SUMMARY = "summary";
 	public static final String DETAIL = "detail";
 	
-	private static final String TAG = "Note";
+	private static final Logger log = new Logger("Note");
 	
-	public Note(int verseNo, String noteRef, String noteText, NoteType noteType, String osisRef) {
+	public Note(int verseNo, String noteRef, String noteText, NoteType noteType, String osisRef, Versification v11n) {
 		super();
 		this.verseNo = verseNo;
 		this.noteRef = noteRef;
 		this.noteText = noteText;
 		this.noteType = noteType;
 		this.osisRef = osisRef;
+		this.v11n = v11n;
 	}
 
 	public String getSummary() {
@@ -52,7 +56,7 @@ public class Note {
 				retval = CommonUtils.limitTextLength(retval);
 			}
 		} catch (Exception e) {
-			Log.e(TAG, "Error getting search result", e);
+			log.error("Error getting note detail for osisRef "+osisRef, e);
 		}
 		return retval;
 	}
@@ -87,7 +91,34 @@ public class Note {
 	public String getNoteRef() {
 		return noteRef;
 	}
+	/**
+	 * If note is reference specific then return the reference otherwise return the text within the note
+	 */
 	public String getNoteText() {
-		return noteText;
+		String text=null;
+		if (noteType.equals(NoteType.TYPE_REFERENCE)) {
+			Key key = getReferenceKey();
+			if (key!=null) {
+				text = key.getName();
+			}
+		}
+		// if not a reference or if reference was invalid return the notes text content
+		if (text==null) {
+			text = noteText;
+		}
+		return text;
+	}
+	
+	private Key getReferenceKey() {
+		Key key=null;
+		try {
+			if (noteType.equals(NoteType.TYPE_REFERENCE)) {
+				String reference = StringUtils.isNotEmpty(osisRef) ? osisRef : noteText;
+				key = PassageKeyFactory.instance().getValidKey(v11n, reference);
+			}
+		} catch (Exception e) {
+			log.warn("Error getting note reference for osisRef "+osisRef, e);
+		}
+		return key;
 	}
 }
