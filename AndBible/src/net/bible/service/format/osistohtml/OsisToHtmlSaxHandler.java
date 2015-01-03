@@ -76,6 +76,10 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	private FigureHandler figureHandler;
 	private DivHandler divHandler;
 	
+	private TableHandler tableHandler;
+	private TableRowHandler tableRowHandler;
+	private TableCellHandler tableCellHandler;
+	
 	// processor for the tag content
 	private TextPreprocessor textPreprocessor;
 
@@ -116,6 +120,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		strongsHandler = new StrongsHandler(parameters, getWriter());
 		figureHandler = new FigureHandler(parameters, getWriter());
 		divHandler = new DivHandler(parameters, passageInfo, getWriter());
+		tableHandler = new TableHandler(getWriter());
+		tableRowHandler = new TableRowHandler(getWriter());
+		tableCellHandler = new TableCellHandler(getWriter());
 
 		//TODO at the moment we can only have a single TextPreprocesor, need to chain them and maybe make the writer a TextPreprocessor and put it at the end of the chain
 		if (HEBREW_LANGUAGE_CODE.equals(parameters.getLanguageCode())) {
@@ -236,6 +243,12 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			write("<span class='transChange'>");
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_W)) {
 			strongsHandler.start(attrs);
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_TABLE)) {
+			tableHandler.start(attrs);
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_ROW)) {
+			tableRowHandler.start(attrs);
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_CELL)) {
+			tableCellHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_FIGURE)) {
 			figureHandler.start(attrs);
 		} else {
@@ -289,6 +302,12 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			write("</span>");
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_W)) {
 			strongsHandler.end();
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_TABLE)) {
+			tableHandler.end();
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_ROW)) {
+			tableRowHandler.end();
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_CELL)) {
+			tableCellHandler.end();
 		}
 	}
 
