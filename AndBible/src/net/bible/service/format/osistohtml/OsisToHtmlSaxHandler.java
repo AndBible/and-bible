@@ -79,6 +79,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	private TableHandler tableHandler;
 	private TableRowHandler tableRowHandler;
 	private TableCellHandler tableCellHandler;
+
+	private ListHandler listHandler;
+	private ListItemHandler listItemHandler;
 	
 	// processor for the tag content
 	private TextPreprocessor textPreprocessor;
@@ -123,6 +126,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		tableHandler = new TableHandler(getWriter());
 		tableRowHandler = new TableRowHandler(getWriter());
 		tableCellHandler = new TableCellHandler(getWriter());
+		listHandler = new ListHandler(getWriter());
+		listItemHandler = new ListItemHandler(getWriter());
 
 		//TODO at the moment we can only have a single TextPreprocesor, need to chain them and maybe make the writer a TextPreprocessor and put it at the end of the chain
 		if (HEBREW_LANGUAGE_CODE.equals(parameters.getLanguageCode())) {
@@ -249,6 +254,10 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			tableRowHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_CELL)) {
 			tableCellHandler.start(attrs);
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LIST)) {
+			listHandler.start(attrs);
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_ITEM)) {
+			listItemHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_FIGURE)) {
 			figureHandler.start(attrs);
 		} else {
@@ -308,6 +317,10 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			tableRowHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_CELL)) {
 			tableCellHandler.end();
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LIST)) {
+			listHandler.end();
+		} else if (name.equals(OSISUtil.OSIS_ELEMENT_ITEM)) {
+			listItemHandler.end();
 		}
 	}
 
