@@ -14,7 +14,7 @@ import org.xml.sax.Attributes;
  *      The copyright to this program is held by it's author. 
  */
 @SuppressWarnings("unused")
-public class LGHandler {
+public class LgHandler {
 
 	enum LGType {DIV, IGNORE};
 
@@ -26,7 +26,7 @@ public class LGHandler {
 	
 	private static final Logger log = new Logger("LGHandler");
 
-	public LGHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
+	public LgHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
 		this.parameters = parameters;
 		this.writer = writer;
 	}

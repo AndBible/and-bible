@@ -2,7 +2,6 @@ package net.bible.service.format.osistohtml;
 
 import java.util.List;
 
-import net.bible.service.common.Constants.HTML;
 import net.bible.service.common.Logger;
 import net.bible.service.device.ScreenSettings;
 import net.bible.service.font.FontControl;
@@ -67,9 +66,12 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	private TitleHandler titleHandler;
 	private QHandler qHandler;
 	private MilestoneHandler milestoneHandler;
-	private LGHandler lgHandler;
+	private LbHandler lbHandler;
+	private LgHandler lgHandler;
 	private LHandler lHandler;
+	private PHandler pHandler;
 	private HiHandler hiHandler;
+	private TransChangeHandler transChangeHandler;
 	private OrthHandler orthHandler;
 	private PronHandler pronHandler;
 	private StrongsHandler strongsHandler;
@@ -106,9 +108,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	public OsisToHtmlSaxHandler(OsisToHtmlParameters parameters) {
 		super();
 		this.parameters = parameters;
-		verseHandler = new VerseHandler(parameters, verseInfo, getWriter());
-		myNoteMarker = new MyNoteMarker(parameters, verseInfo, getWriter());
 		bookmarkMarker = new BookmarkMarker(parameters, verseInfo, getWriter());
+		myNoteMarker = new MyNoteMarker(parameters, verseInfo, getWriter());
+		verseHandler = new VerseHandler(parameters, verseInfo, bookmarkMarker, myNoteMarker, getWriter());
 		noteHandler = new NoteHandler(parameters, verseInfo, getWriter());
 		referenceHandler = new ReferenceHandler(parameters, noteHandler, getWriter());
 		refHandler = new RefHandler(parameters, noteHandler, getWriter());
@@ -116,10 +118,13 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		qHandler = new QHandler(parameters, getWriter());
 		milestoneHandler = new MilestoneHandler(parameters, passageInfo, verseInfo, getWriter());
 		hiHandler = new HiHandler(parameters, getWriter());
+		transChangeHandler = new TransChangeHandler(parameters, getWriter());
 		orthHandler = new OrthHandler(parameters, getWriter());
 		pronHandler = new PronHandler(parameters, getWriter());
-		lgHandler = new LGHandler(parameters, getWriter());
+		lbHandler = new LbHandler(parameters, passageInfo, getWriter());
+		lgHandler = new LgHandler(parameters, getWriter());
 		lHandler = new LHandler(parameters, getWriter());
+		pHandler = new PHandler(parameters, getWriter());
 		strongsHandler = new StrongsHandler(parameters, getWriter());
 		figureHandler = new FigureHandler(parameters, getWriter());
 		divHandler = new DivHandler(parameters, passageInfo, getWriter());
@@ -210,10 +215,6 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 		if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
 			verseHandler.startAndUpdateVerse(attrs);
-			bookmarkMarker.start();
-			myNoteMarker.start();
-			// record that we are into a new verse
-			verseInfo.isTextSinceVerse = false;
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_TITLE)) {
 			titleHandler.start(attrs);		
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {
@@ -223,9 +224,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		} else if (name.equals(TEIUtil.TEI_ELEMENT_REF)) {
 			refHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LB)) {
-			if (passageInfo.isAnyTextWritten) {
-				write(HTML.BR);
-			}
+			lbHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LG)) {
 			lgHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
@@ -233,7 +232,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_DIV)) {
 			divHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_P)) {
-			write("<p>");
+			pHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {
 			qHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_HI)) {
@@ -245,7 +244,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		} else if (name.equals(OSISUtil2.OSIS_ELEMENT_MILESTONE)) {
 			milestoneHandler.start(attrs);
 		} else if (name.equals("transChange")) {
-			write("<span class='transChange'>");
+			transChangeHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_W)) {
 			strongsHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_TABLE)) {
@@ -280,8 +279,6 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		if (name.equals(OSISUtil.OSIS_ELEMENT_TITLE)) {
 			titleHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
-			myNoteMarker.end();
-			bookmarkMarker.end();
 			verseHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {
 			noteHandler.end();
@@ -296,7 +293,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_DIV)) {
 			divHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_P)) {
-			write("</p>");
+			pHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {
 			// end quotation, but <q /> tag is a marker and contains no content
 			// so <q /> will appear at beginning and end of speech
@@ -308,7 +305,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		} else if (name.equals(TEIUtil.TEI_ELEMENT_PRON)) {
 			pronHandler.end();
 		} else if (name.equals("transChange")) {
-			write("</span>");
+			transChangeHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_W)) {
 			strongsHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_TABLE)) {

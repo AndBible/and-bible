@@ -16,6 +16,10 @@ import org.xml.sax.Attributes;
  */
 public class VerseHandler {
 
+	private BookmarkMarker bookmarkMarker;
+	
+	private MyNoteMarker myNoteMarker;
+	
 	private OsisToHtmlParameters parameters;
 	
 	private VerseInfo verseInfo; 
@@ -27,9 +31,11 @@ public class VerseHandler {
 	@SuppressWarnings("unused")
 	private static final Logger log = new Logger("VerseHandler");
 
-	public VerseHandler(OsisToHtmlParameters parameters, VerseInfo verseInfo, HtmlTextWriter writer) {
+	public VerseHandler(OsisToHtmlParameters parameters, VerseInfo verseInfo, BookmarkMarker bookmarkMarker, MyNoteMarker myNoteMarker, HtmlTextWriter writer) {
 		this.parameters = parameters;
 		this.verseInfo = verseInfo;
+		this.bookmarkMarker = bookmarkMarker;
+		this.myNoteMarker = myNoteMarker;
 		this.writer = writer;
 	}
 	
@@ -57,9 +63,20 @@ public class VerseHandler {
 		}
 
 		writeVerse(verseInfo.currentVerseNo);
+
+		// initialise other related handlers that write content at start of verse
+		bookmarkMarker.start();
+		myNoteMarker.start();
+		
+		// record that we are into a new verse
+		verseInfo.isTextSinceVerse = false;
 	}
 
 	public void end() {
+		// these related handlers currently do nothing on end
+		myNoteMarker.end();
+		bookmarkMarker.end();
+
 		if (!verseInfo.isTextSinceVerse) {
 			writer.removeAfter(writerRollbackPosition);
 		}
