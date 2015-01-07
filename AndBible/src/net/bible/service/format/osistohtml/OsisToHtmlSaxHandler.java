@@ -1,6 +1,9 @@
 package net.bible.service.format.osistohtml;
 
+import java.security.InvalidParameterException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.bible.service.common.Logger;
 import net.bible.service.device.ScreenSettings;
@@ -14,10 +17,8 @@ import net.bible.service.format.osistohtml.strongs.StrongsLinkCreator;
 import net.bible.service.format.osistohtml.tei.OrthHandler;
 import net.bible.service.format.osistohtml.tei.PronHandler;
 import net.bible.service.format.osistohtml.tei.RefHandler;
-import net.bible.service.format.osistohtml.tei.TEIUtil;
 
 import org.apache.commons.lang.StringUtils;
-import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
 
 /**
@@ -57,33 +58,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	private OsisToHtmlParameters parameters;
 
 	// tag handlers for the different OSIS tags
-	private VerseHandler verseHandler;
-	private MyNoteMarker myNoteMarker;
-	private BookmarkMarker bookmarkMarker;
-	private NoteHandler noteHandler;
-	private ReferenceHandler referenceHandler;
-	private RefHandler refHandler;
-	private TitleHandler titleHandler;
-	private QHandler qHandler;
-	private MilestoneHandler milestoneHandler;
-	private LbHandler lbHandler;
-	private LgHandler lgHandler;
-	private LHandler lHandler;
-	private PHandler pHandler;
-	private HiHandler hiHandler;
-	private TransChangeHandler transChangeHandler;
-	private OrthHandler orthHandler;
-	private PronHandler pronHandler;
-	private StrongsHandler strongsHandler;
-	private FigureHandler figureHandler;
-	private DivHandler divHandler;
+	private Map<String, OsisTagHandler> osisTagHandlers;
 	
-	private TableHandler tableHandler;
-	private TableRowHandler tableRowHandler;
-	private TableCellHandler tableCellHandler;
-
-	private ListHandler listHandler;
-	private ListItemHandler listItemHandler;
+	private NoteHandler noteHandler;
 	
 	// processor for the tag content
 	private TextPreprocessor textPreprocessor;
@@ -108,37 +85,49 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	public OsisToHtmlSaxHandler(OsisToHtmlParameters parameters) {
 		super();
 		this.parameters = parameters;
-		bookmarkMarker = new BookmarkMarker(parameters, verseInfo, getWriter());
-		myNoteMarker = new MyNoteMarker(parameters, verseInfo, getWriter());
-		verseHandler = new VerseHandler(parameters, verseInfo, bookmarkMarker, myNoteMarker, getWriter());
+		
+		osisTagHandlers = new HashMap<>();
+		
+		BookmarkMarker bookmarkMarker = new BookmarkMarker(parameters, verseInfo, getWriter());
+		MyNoteMarker myNoteMarker = new MyNoteMarker(parameters, verseInfo, getWriter());
+		registerHandler( new VerseHandler(parameters, verseInfo, bookmarkMarker, myNoteMarker, getWriter()) );
+		
 		noteHandler = new NoteHandler(parameters, verseInfo, getWriter());
-		referenceHandler = new ReferenceHandler(parameters, noteHandler, getWriter());
-		refHandler = new RefHandler(parameters, noteHandler, getWriter());
-		titleHandler = new TitleHandler(parameters, verseInfo, getWriter());
-		qHandler = new QHandler(parameters, getWriter());
-		milestoneHandler = new MilestoneHandler(parameters, passageInfo, verseInfo, getWriter());
-		hiHandler = new HiHandler(parameters, getWriter());
-		transChangeHandler = new TransChangeHandler(parameters, getWriter());
-		orthHandler = new OrthHandler(parameters, getWriter());
-		pronHandler = new PronHandler(parameters, getWriter());
-		lbHandler = new LbHandler(parameters, passageInfo, getWriter());
-		lgHandler = new LgHandler(parameters, getWriter());
-		lHandler = new LHandler(parameters, getWriter());
-		pHandler = new PHandler(parameters, getWriter());
-		strongsHandler = new StrongsHandler(parameters, getWriter());
-		figureHandler = new FigureHandler(parameters, getWriter());
-		divHandler = new DivHandler(parameters, passageInfo, getWriter());
-		tableHandler = new TableHandler(getWriter());
-		tableRowHandler = new TableRowHandler(getWriter());
-		tableCellHandler = new TableCellHandler(getWriter());
-		listHandler = new ListHandler(getWriter());
-		listItemHandler = new ListItemHandler(getWriter());
+		registerHandler( noteHandler  );
+		registerHandler( new ReferenceHandler(parameters, noteHandler, getWriter()) );
+		registerHandler( new RefHandler(parameters, noteHandler, getWriter()) );
+		
+		registerHandler( new TitleHandler(parameters, verseInfo, getWriter()) );
+		registerHandler( new QHandler(parameters, getWriter()) );
+		registerHandler( new MilestoneHandler(parameters, passageInfo, verseInfo, getWriter()) );
+		registerHandler( new HiHandler(parameters, getWriter()) );
+		registerHandler( new TransChangeHandler(parameters, getWriter()) );
+		registerHandler( new OrthHandler(parameters, getWriter()) );
+		registerHandler( new PronHandler(parameters, getWriter()) );
+		registerHandler( new LbHandler(parameters, passageInfo, getWriter()) );
+		registerHandler( new LgHandler(parameters, getWriter()) );
+		registerHandler( new LHandler(parameters, getWriter()) );
+		registerHandler( new PHandler(parameters, getWriter()) );
+		registerHandler( new StrongsHandler(parameters, getWriter()) );
+		registerHandler( new FigureHandler(parameters, getWriter()) );
+		registerHandler( new DivHandler(parameters, passageInfo, getWriter()) );
+		registerHandler( new TableHandler(getWriter()) );
+		registerHandler( new TableRowHandler(getWriter()) );
+		registerHandler( new TableCellHandler(getWriter()) );
+		registerHandler( new ListHandler(getWriter()) );
+		registerHandler( new ListItemHandler(getWriter()) );
 
 		//TODO at the moment we can only have a single TextPreprocesor, need to chain them and maybe make the writer a TextPreprocessor and put it at the end of the chain
 		if (HEBREW_LANGUAGE_CODE.equals(parameters.getLanguageCode())) {
 			textPreprocessor = new HebrewCharacterPreprocessor();
 		} else if (parameters.isConvertStrongsRefsToLinks()) {
 			textPreprocessor = new StrongsLinkCreator();
+		}
+	}
+	
+	private void registerHandler(OsisTagHandler handler) {
+		if (osisTagHandlers.put(handler.getTagName(), handler)!=null) {
+			throw new InvalidParameterException("Duplicate handlers for tag "+handler.getTagName());
 		}
 	}
 
@@ -213,52 +202,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 		debug(name, attrs, true);
 
-		if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
-			verseHandler.start(attrs);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_TITLE)) {
-			titleHandler.start(attrs);		
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {
-			noteHandler.start(attrs);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
-			referenceHandler.start(attrs);
-		} else if (name.equals(TEIUtil.TEI_ELEMENT_REF)) {
-			refHandler.start(attrs);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LB)) {
-			lbHandler.start(attrs);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LG)) {
-			lgHandler.start(attrs);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
-			lHandler.start(attrs);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_DIV)) {
-			divHandler.start(attrs);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_P)) {
-			pHandler.start(attrs);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {
-			qHandler.start(attrs);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_HI)) {
-			hiHandler.start(attrs);
-		} else if (name.equals(TEIUtil.TEI_ELEMENT_ORTH)) {
-			orthHandler.start(attrs);
-		} else if (name.equals(TEIUtil.TEI_ELEMENT_PRON)) {
-			pronHandler.start(attrs);
-		} else if (name.equals(OSISUtil2.OSIS_ELEMENT_MILESTONE)) {
-			milestoneHandler.start(attrs);
-		} else if (name.equals(OSISUtil2.OSIS_ELEMENT_TRANSCHANGE)) {
-			transChangeHandler.start(attrs);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_W)) {
-			strongsHandler.start(attrs);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_TABLE)) {
-			tableHandler.start(attrs);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_ROW)) {
-			tableRowHandler.start(attrs);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_CELL)) {
-			tableCellHandler.start(attrs);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LIST)) {
-			listHandler.start(attrs);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_ITEM)) {
-			listItemHandler.start(attrs);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_FIGURE)) {
-			figureHandler.start(attrs);
+		OsisTagHandler tagHandler = osisTagHandlers.get(name);
+		if (tagHandler!=null) {
+			tagHandler.start(attrs);
 		} else {
 			log.info("Verse "+verseInfo.currentVerseNo+" unsupported OSIS tag:"+name);
 		}
@@ -276,46 +222,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 		debug(name, null, false);
 
-		if (name.equals(OSISUtil.OSIS_ELEMENT_TITLE)) {
-			titleHandler.end();
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
-			verseHandler.end();
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {
-			noteHandler.end();
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
-			referenceHandler.end();
-		} else if (name.equals(TEIUtil.TEI_ELEMENT_REF)) {
-			refHandler.end();
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LG)) {
-			lgHandler.end();
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
-			lHandler.end();
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_DIV)) {
-			divHandler.end();
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_P)) {
-			pHandler.end();
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {
-			qHandler.end();
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_HI)) {
-			hiHandler.end();
-		} else if (name.equals(TEIUtil.TEI_ELEMENT_ORTH)) {
-			orthHandler.end();
-		} else if (name.equals(TEIUtil.TEI_ELEMENT_PRON)) {
-			pronHandler.end();
-		} else if (name.equals(OSISUtil2.OSIS_ELEMENT_TRANSCHANGE)) {
-			transChangeHandler.end();
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_W)) {
-			strongsHandler.end();
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_TABLE)) {
-			tableHandler.end();
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_ROW)) {
-			tableRowHandler.end();
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_CELL)) {
-			tableCellHandler.end();
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LIST)) {
-			listHandler.end();
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_ITEM)) {
-			listItemHandler.end();
+		OsisTagHandler tagHandler = osisTagHandlers.get(name);
+		if (tagHandler!=null) {
+			tagHandler.end();
 		}
 	}
 
