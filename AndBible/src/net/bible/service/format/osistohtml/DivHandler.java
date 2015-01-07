@@ -5,6 +5,7 @@ import java.util.Stack;
 import net.bible.service.common.Logger;
 import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler.PassageInfo;
 
+import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
 
 /** This can either signify a quote or Red Letter
@@ -19,7 +20,7 @@ import org.xml.sax.Attributes;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author. 
  */
-public class DivHandler {
+public class DivHandler implements OsisTagHandler {
 
 	private enum DivType {PARAGRAPH, IGNORE};
 
@@ -41,11 +42,12 @@ public class DivHandler {
 		this.writer = writer;
 	}
 	
-	
+	@Override
 	public String getTagName() {
-        return "div";
+        return OSISUtil.OSIS_ELEMENT_DIV;
     }
 
+	@Override
 	public void start(Attributes attrs) {
 		DivType divType = DivType.IGNORE;
 		String type = attrs.getValue("type");
@@ -60,6 +62,7 @@ public class DivHandler {
 		stack.push(divType);
 	}
 
+	@Override
 	public void end() {
 		DivType type = stack.pop();
 		if (DivType.PARAGRAPH.equals(type) && passageInfo.isAnyTextWritten) {

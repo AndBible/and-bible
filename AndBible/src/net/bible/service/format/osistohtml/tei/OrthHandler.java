@@ -23,10 +23,12 @@ public class OrthHandler extends HiHandler {
 		super(parameters, writer);
 	}
 	
+	@Override
 	public String getTagName() {
-        return "orth";
+        return TEIUtil.TEI_ELEMENT_ORTH;
     }
 
+	@Override
 	public void start(Attributes attrs) {
 		String rend = attrs.getValue(TEIUtil.TEI_ATTR_REND);
 		start(rend, DEFAULT);

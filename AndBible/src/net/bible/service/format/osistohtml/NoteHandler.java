@@ -10,6 +10,7 @@ import net.bible.service.format.Note.NoteType;
 import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler.VerseInfo;
 
 import org.apache.commons.lang.StringUtils;
+import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
 
 /**
@@ -27,7 +28,7 @@ import org.xml.sax.Attributes;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class NoteHandler {
+public class NoteHandler implements OsisTagHandler {
 
     private OsisToHtmlParameters parameters;
     private VerseInfo verseInfo;
@@ -50,7 +51,13 @@ public class NoteHandler {
         this.writer = theWriter;
     }
 
-    public void start(Attributes attrs) {
+	@Override
+	public String getTagName() {
+		return OSISUtil.OSIS_ELEMENT_NOTE;
+	}
+
+	@Override
+	public void start(Attributes attrs) {
 		isInNote = true;
 		currentNoteRef = getNoteRef(attrs);
 		writeNoteRef(currentNoteRef);
@@ -63,6 +70,7 @@ public class NoteHandler {
      * Called when the Ending of the current Element is reached. For example in the
      * above explanation, this method is called when </Title> tag is reached
     */
+	@Override
     public void end() {
 		String noteText = writer.getTempStoreString();
 		if (noteText.length()>0) {

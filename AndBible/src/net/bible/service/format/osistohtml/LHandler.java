@@ -21,7 +21,7 @@ import org.xml.sax.Attributes;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author. 
  */
-public class LHandler {
+public class LHandler implements OsisTagHandler {
 
 	private enum LType {INDENT, BR, END_BR, IGNORE};
 
@@ -44,11 +44,19 @@ public class LHandler {
 	}
 	
 	
+	/* (non-Javadoc)
+	 * @see net.bible.service.format.osistohtml.Handler#getTagName()
+	 */
+	@Override
 	public String getTagName() {
-        return "l";
+        return OSISUtil.OSIS_ELEMENT_L;
     }
 
-	public void startL(Attributes attrs) {
+	/* (non-Javadoc)
+	 * @see net.bible.service.format.osistohtml.Handler#start(org.xml.sax.Attributes)
+	 */
+	@Override
+	public void start(Attributes attrs) {
 		// Refer to Gen 3:14 in ESV for example use of type=x-indent
 		String type = attrs.getValue(OSISUtil.OSIS_ATTR_TYPE);
 		int level = TagHandlerHelper.getAttribute(OSISUtil.OSIS_ATTR_LEVEL, attrs, 1);
@@ -84,7 +92,11 @@ public class LHandler {
 		stack.push(ltype);
 	}
 
-	public void endL() {
+	/* (non-Javadoc)
+	 * @see net.bible.service.format.osistohtml.Handler#end()
+	 */
+	@Override
+	public void end() {
 		LType type = stack.pop();
 		if (LType.END_BR.equals(type)) {
 			writer.write(HTML.BR);

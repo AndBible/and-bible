@@ -24,7 +24,7 @@ import org.xml.sax.Attributes;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author. 
  */
-public class HiHandler {
+public class HiHandler implements OsisTagHandler {
 
 	// possible values of type attribute
 	private static final List<String> HI_TYPE_LIST = Arrays.asList(new String[]{HI_ACROSTIC, HI_BOLD, HI_EMPHASIS, HI_ILLUMINATED, HI_ITALIC, HI_LINETHROUGH, HI_NORMAL, HI_SMALL_CAPS, HI_SUB, HI_SUPER, HI_UNDERLINE});
@@ -37,16 +37,21 @@ public class HiHandler {
 		this.writer = writer;
 	}
 	
+	@Override
 	public String getTagName() {
-        return "hi";
+        return OSISUtil.OSIS_ELEMENT_HI;
     }
 
+	@Override
 	public void start(Attributes attrs) {
 		String type = attrs.getValue(OSISUtil.OSIS_ATTR_TYPE);
 		start(type, DEFAULT);
 	}
 
-	public void start(String style, String defaultStyle) {
+	/**
+	 * Used by TEI handlers
+	 */
+	protected void start(String style, String defaultStyle) {
 		if (style==null || !HI_TYPE_LIST.contains(style)) {
 			style = defaultStyle;
 		}
@@ -58,6 +63,7 @@ public class HiHandler {
 		writer.write("<span class=\'"+cssClasses+"\'>");
 	}
 
+	@Override
 	public void end() {
 		writer.write("</span>");
 	}

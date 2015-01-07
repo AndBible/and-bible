@@ -12,7 +12,7 @@ import org.xml.sax.Attributes;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author. 
  */
-public class FigureHandler {
+public class FigureHandler implements OsisTagHandler {
 
 	private HtmlTextWriter writer;
 	
@@ -26,10 +26,12 @@ public class FigureHandler {
 		this.writer = writer;
 	}
 	
+	@Override
 	public String getTagName() {
-        return "figure";
+        return OSISUtil.OSIS_ELEMENT_FIGURE;
     }
 
+	@Override
 	public void start(Attributes attrs) {
 		// Refer to Gen 3:14 in ESV for example use of type=x-indent
 		String src = attrs.getValue(OSISUtil.ATTRIBUTE_FIGURE_SRC);
@@ -39,6 +41,7 @@ public class FigureHandler {
 		}
 	}
 
+	@Override
 	public void end() {
 	}
 }

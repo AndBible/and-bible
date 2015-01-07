@@ -14,7 +14,7 @@ import org.xml.sax.Attributes;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author. 
  */
-public class VerseHandler {
+public class VerseHandler implements OsisTagHandler {
 
 	private BookmarkMarker bookmarkMarker;
 	
@@ -40,11 +40,13 @@ public class VerseHandler {
 	}
 	
 	
+	@Override
 	public String getTagName() {
         return OSISUtil.OSIS_ELEMENT_VERSE;
     }
 
-	public void startAndUpdateVerse(Attributes attrs) {
+	@Override
+	public void start(Attributes attrs) {
 		writerRollbackPosition = writer.getPosition();
 		
 		if (attrs!=null) {
@@ -65,13 +67,14 @@ public class VerseHandler {
 		writeVerse(verseInfo.currentVerseNo);
 
 		// initialise other related handlers that write content at start of verse
-		bookmarkMarker.start();
-		myNoteMarker.start();
+		bookmarkMarker.start(attrs);
+		myNoteMarker.start(attrs);
 		
 		// record that we are into a new verse
 		verseInfo.isTextSinceVerse = false;
 	}
 
+	@Override
 	public void end() {
 		// these related handlers currently do nothing on end
 		myNoteMarker.end();

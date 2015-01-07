@@ -1,5 +1,6 @@
 package net.bible.service.format.osistohtml;
 
+import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
 
 /**
@@ -20,7 +21,7 @@ import org.xml.sax.Attributes;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author. 
  */
-public class ListHandler {
+public class ListHandler implements OsisTagHandler {
 
 	private HtmlTextWriter writer;
 	
@@ -28,15 +29,17 @@ public class ListHandler {
 		this.writer = writer;
 	}
 	
-	
+	@Override
 	public String getTagName() {
-        return "list";
+        return OSISUtil.OSIS_ELEMENT_LIST;
     }
 
+	@Override
 	public void start(Attributes attrs) {
 		writer.write("<ul>");
 	}
 
+	@Override
 	public void end() {
 		writer.write("</ul>");
 	}

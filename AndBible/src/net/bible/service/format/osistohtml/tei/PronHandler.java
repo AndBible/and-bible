@@ -23,10 +23,12 @@ public class PronHandler extends HiHandler {
 		super(parameters, writer);
 	}
 	
+	@Override
 	public String getTagName() {
-        return "pron";
+        return TEIUtil.TEI_ELEMENT_PRON;
     }
 
+	@Override
 	public void start(Attributes attrs) {
 		String rend = attrs.getValue(TEIUtil.TEI_ATTR_REND);
 		start(rend, DEFAULT);

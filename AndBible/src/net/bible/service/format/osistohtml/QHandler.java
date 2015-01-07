@@ -17,7 +17,7 @@ import org.xml.sax.Attributes;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author. 
  */
-public class QHandler {
+public class QHandler implements OsisTagHandler {
 
 	private HtmlTextWriter writer;
 	
@@ -36,10 +36,12 @@ public class QHandler {
 	}
 	
 	
+	@Override
 	public String getTagName() {
-        return "q";
+        return OSISUtil.OSIS_ELEMENT_Q;
     }
 
+	@Override
 	public void start(Attributes attrs) {
 		QuoteInfo quoteInfo = new QuoteInfo();
 
@@ -63,6 +65,7 @@ public class QHandler {
 		stack.push(quoteInfo);
 	}
 
+	@Override
 	public void end() {
 		QuoteInfo quoteInfo = stack.pop();
 		

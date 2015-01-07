@@ -2,6 +2,7 @@ package net.bible.service.format.osistohtml;
 
 import net.bible.service.common.Logger;
 
+import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
 
 /** Paragraph <p>...</p>
@@ -10,7 +11,7 @@ import org.xml.sax.Attributes;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author. 
  */
-public class PHandler {
+public class PHandler implements OsisTagHandler {
 
 	private HtmlTextWriter writer;
 	
@@ -25,14 +26,17 @@ public class PHandler {
 		this.writer = writer;
 	}
 	
+	@Override
 	public String getTagName() {
-        return "p";
+        return OSISUtil.OSIS_ELEMENT_P;
     }
 
+	@Override
 	public void start(Attributes attrs) {
 		writer.write("<p>");
 	}
 
+	@Override
 	public void end() {
 		writer.write("</p>");
 	}

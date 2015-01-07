@@ -34,7 +34,7 @@ In the <note n="a" osisID="Gen.1.1!crossReference.a" osisRef="Gen.1.1" type="cro
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class ReferenceHandler {
+public class ReferenceHandler implements OsisTagHandler {
 
     private OsisToHtmlParameters parameters;
 
@@ -51,6 +51,11 @@ public class ReferenceHandler {
         this.noteHandler = noteHandler;
         this.writer = theWriter;
     }
+
+	@Override
+	public String getTagName() {
+		return OSISUtil.OSIS_ELEMENT_REFERENCE;
+	}
 
     public void start(Attributes attrs) {
 		// store the osisRef attribute for use with the note

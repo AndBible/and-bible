@@ -4,6 +4,7 @@ import net.bible.service.common.Constants.HTML;
 import net.bible.service.common.Logger;
 import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler.PassageInfo;
 
+import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
 
 /** Line break
@@ -12,7 +13,7 @@ import org.xml.sax.Attributes;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author. 
  */
-public class LbHandler {
+public class LbHandler implements OsisTagHandler {
 
 	private PassageInfo passageInfo;
 	
@@ -30,16 +31,19 @@ public class LbHandler {
 		this.writer = writer;
 	}
 	
+	@Override
 	public String getTagName() {
-        return "lb";
+        return OSISUtil.OSIS_ELEMENT_LB;
     }
 
+	@Override
 	public void start(Attributes attrs) {
 		if (passageInfo.isAnyTextWritten) {
 			writer.write(HTML.BR);
 		}
 	}
 
-	public void endL() {
+	@Override
+	public void end() {
 	}
 }

@@ -4,6 +4,7 @@ import java.util.Stack;
 
 import net.bible.service.common.Logger;
 
+import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
 
 /** The lg or "line group" element is used to contain any group of poetic lines.  Poetic lines are handled at the line level by And Bible, not line group 
@@ -14,7 +15,7 @@ import org.xml.sax.Attributes;
  *      The copyright to this program is held by it's author. 
  */
 @SuppressWarnings("unused")
-public class LgHandler {
+public class LgHandler implements OsisTagHandler {
 
 	enum LGType {DIV, IGNORE};
 
@@ -30,11 +31,13 @@ public class LgHandler {
 		this.parameters = parameters;
 		this.writer = writer;
 	}
-	
+
+	@Override
 	public String getTagName() {
-        return "lg";
+        return OSISUtil.OSIS_ELEMENT_LG;
     }
 
+	@Override
 	public void start(Attributes attrs) {
 // ignore this for now because it is untested
 //		LGType lgtype = LGType.IGNORE;
@@ -49,6 +52,7 @@ public class LgHandler {
 //		stack.push(lgtype);
 	}
 
+	@Override
 	public void end() {
 //		LGType lgtype = stack.pop();
 //		if (LGType.DIV.equals(lgtype)) {

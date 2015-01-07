@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.bible.service.common.Constants.HTML;
+import net.bible.service.format.osistohtml.OsisTagHandler;
 import net.bible.service.format.osistohtml.HtmlTextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.TagHandlerHelper;
@@ -14,14 +15,24 @@ import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
 
 /** 
+ * Strongs tags are 'w' tags.
+ * E.g.
+ * 	<verse osisID='Gen.1.1'>
+ *		<w lemma="strong:H07225">In the beginning</w>
+ *		<w lemma="strong:H0430">God</w>
+ *		<w lemma="strong:H0853 strong:H01254" morph="strongMorph:TH8804">created</w>
+ *		<w lemma="strong:H08064">the heaven</w>
+ *		<w lemma="strong:H0853">and</w>
+ *		<w lemma="strong:H0776">the earth</w>
+ *		.
+ *	</verse>
+ *
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author. 
  */
-public class StrongsHandler {
-
-	enum QType {quote, redLetter};
+public class StrongsHandler implements OsisTagHandler {
 
 	private HtmlTextWriter writer;
 	
@@ -34,11 +45,12 @@ public class StrongsHandler {
 		this.writer = writer;
 	}
 	
-	
+	@Override
 	public String getTagName() {
-        return "q";
+        return OSISUtil.OSIS_ELEMENT_W;
     }
 
+	@Override
 	public void start(Attributes attrs) {
 		if ((parameters.isShowStrongs() || parameters.isShowMorphology()) && TagHandlerHelper.isAttr(OSISUtil.ATTRIBUTE_W_LEMMA, attrs)) {
 			// Strongs & morphology references
@@ -52,6 +64,7 @@ public class StrongsHandler {
 		}
 	}
 	
+	@Override
 	public void end() {
 		if ((parameters.isShowStrongs() || parameters.isShowMorphology())) {
 			if (pendingStrongsAndMorphTags != null) {

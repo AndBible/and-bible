@@ -37,7 +37,7 @@ import org.xml.sax.Attributes;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author. 
  */
-public class MilestoneHandler {
+public class MilestoneHandler implements OsisTagHandler {
 
 	private HtmlTextWriter writer;
 
@@ -58,10 +58,12 @@ public class MilestoneHandler {
 		this.writer = writer;
 	}
 	
+	@Override
 	public String getTagName() {
-        return "milestone";
+        return OSISUtil2.OSIS_ELEMENT_MILESTONE;
     }
 
+	@Override
 	public void start(Attributes attrs) {
 		String type = attrs.getValue(OSISUtil.OSIS_ATTR_TYPE);
 		if (StringUtils.isNotEmpty(type)) {
@@ -84,6 +86,7 @@ public class MilestoneHandler {
 		}
 	}
 
+	@Override
 	public void end() {
 	}
 }

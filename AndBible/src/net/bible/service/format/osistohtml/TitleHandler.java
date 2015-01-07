@@ -19,7 +19,7 @@ import org.xml.sax.Attributes;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author. 
  */
-public class TitleHandler {
+public class TitleHandler implements OsisTagHandler {
 
 	private HtmlTextWriter writer;
 	
@@ -41,11 +41,12 @@ public class TitleHandler {
 		this.writer = writer;
 	}
 	
-	
+	@Override
 	public String getTagName() {
         return OSISUtil.OSIS_ELEMENT_TITLE;
     }
 
+	@Override
 	public void start(Attributes attrs) {
 		//JSword adds the chapter no at the top but hide this because the chapter is in the And Bible header
 		boolean addedByJSword = attrs.getLength()==1 && OSISUtil.GENERATED_CONTENT.equals(attrs.getValue(OSISUtil.OSIS_ATTR_TYPE));
@@ -72,6 +73,7 @@ public class TitleHandler {
 		}
 	}
 
+	@Override
 	public void end() {
 		if (isShowTitle) {
 			writer.write("</h1>");

@@ -7,6 +7,7 @@ import net.bible.service.common.Logger;
 import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler.VerseInfo;
 
 import org.crosswire.jsword.passage.Verse;
+import org.xml.sax.Attributes;
 
 /** Display an img if the current verse has MyNote
  * 
@@ -14,7 +15,7 @@ import org.crosswire.jsword.passage.Verse;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author. 
  */
-public class BookmarkMarker {
+public class BookmarkMarker implements OsisTagHandler {
 
 	private Set<Integer> bookmarkedVerses= new HashSet<Integer>();
 	
@@ -50,7 +51,7 @@ public class BookmarkMarker {
 
 	/** just after verse start tag
 	 */
-	public void start() {
+	public void start(Attributes attrs) {
 		if (bookmarkedVerses!=null && parameters.isShowBookmarks()) {
 			if (bookmarkedVerses.contains(verseInfo.currentVerseNo)) {
 				writer.write("<img src='file:///android_asset/images/GoldStar16x16.png' class='myNoteImg'/>");

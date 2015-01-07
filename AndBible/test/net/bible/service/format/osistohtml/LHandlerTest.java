@@ -32,9 +32,9 @@ public class LHandlerTest {
 	@Test
 	public void testSimpleL() {
 		Attributes attr = new AttributesImpl();
-		lHandler.startL(attr);
+		lHandler.start(attr);
 		htmlTextWriter.write("Single line");
-		lHandler.endL();
+		lHandler.end();
 		
 		assertThat(htmlTextWriter.getHtml(), equalTo("Single line<br />"));
 	}
@@ -51,16 +51,16 @@ public class LHandlerTest {
 	public void testLsIDeIDBr() {
 		AttributesImpl attrs = new AttributesImpl();
 		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_SID, null, "x7681");
-		lHandler.startL(attrs);
-		lHandler.endL();
+		lHandler.start(attrs);
+		lHandler.end();
 		
 		htmlTextWriter.write("Praise the Lord, all nations!");
 		
 		AttributesImpl attrs2 = new AttributesImpl();
 		attrs2.addAttribute(null, null, OSISUtil.OSIS_ATTR_EID, null, "x7681");
 		attrs2.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "x-br");
-		lHandler.startL(attrs2);
-		lHandler.endL();
+		lHandler.start(attrs2);
+		lHandler.end();
 		
 		assertThat(htmlTextWriter.getHtml(), equalTo("Praise the Lord, all nations!<br />"));
 	}
@@ -73,16 +73,16 @@ public class LHandlerTest {
 		AttributesImpl attrs = new AttributesImpl();
 		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_SID, null, "x7682");
 		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "x-indent");
-		lHandler.startL(attrs);
-		lHandler.endL();
+		lHandler.start(attrs);
+		lHandler.end();
 		
 		htmlTextWriter.write("Extol him, all peoples!");
 		
 		AttributesImpl attrs2 = new AttributesImpl();
 		attrs2.addAttribute(null, null, OSISUtil.OSIS_ATTR_EID, null, "x7682");
 		attrs2.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "x-br");
-		lHandler.startL(attrs2);
-		lHandler.endL();
+		lHandler.start(attrs2);
+		lHandler.end();
 		
 		assertThat(htmlTextWriter.getHtml(), equalTo("&#160;&#160;Extol him, all peoples!<br />"));
 	}
@@ -94,15 +94,15 @@ public class LHandlerTest {
 	public void testLsIDeID() {
 		AttributesImpl attrs = new AttributesImpl();
 		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_SID, null, "x7685");
-		lHandler.startL(attrs);
-		lHandler.endL();
+		lHandler.start(attrs);
+		lHandler.end();
 		
 		htmlTextWriter.write("Praise the Lord!");
 		
 		AttributesImpl attrs2 = new AttributesImpl();
 		attrs2.addAttribute(null, null, OSISUtil.OSIS_ATTR_EID, null, "x7685");
-		lHandler.startL(attrs2);
-		lHandler.endL();
+		lHandler.start(attrs2);
+		lHandler.end();
 		
 		assertThat(htmlTextWriter.getHtml(), equalTo("Praise the Lord!<br />"));
 	}
@@ -121,8 +121,8 @@ public class LHandlerTest {
 		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_SID, null, "gen18394");
 		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_SUBTYPE, null, "x-to-next-level");
 		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "x-indent-1");
-		lHandler.startL(attrs);
-		lHandler.endL();
+		lHandler.start(attrs);
+		lHandler.end();
 		
 		htmlTextWriter.write("Славьте Вечного, все народы,");
 		
@@ -131,8 +131,8 @@ public class LHandlerTest {
 		attrs2.addAttribute(null, null, OSISUtil.OSIS_ATTR_LEVEL, null, "1");
 		attrs2.addAttribute(null, null, OSISUtil.OSIS_ATTR_SUBTYPE, null, "x-to-next-level");
 		attrs2.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "x-indent-1");
-		lHandler.startL(attrs2);
-		lHandler.endL();
+		lHandler.start(attrs2);
+		lHandler.end();
 		
 		assertThat(htmlTextWriter.getHtml(), equalTo("&#160;&#160;Славьте Вечного, все народы,<br />"));
 	}

@@ -214,7 +214,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		debug(name, attrs, true);
 
 		if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
-			verseHandler.startAndUpdateVerse(attrs);
+			verseHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_TITLE)) {
 			titleHandler.start(attrs);		
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {
@@ -228,7 +228,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LG)) {
 			lgHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
-			lHandler.startL(attrs);
+			lHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_DIV)) {
 			divHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_P)) {
@@ -243,7 +243,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			pronHandler.start(attrs);
 		} else if (name.equals(OSISUtil2.OSIS_ELEMENT_MILESTONE)) {
 			milestoneHandler.start(attrs);
-		} else if (name.equals("transChange")) {
+		} else if (name.equals(OSISUtil2.OSIS_ELEMENT_TRANSCHANGE)) {
 			transChangeHandler.start(attrs);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_W)) {
 			strongsHandler.start(attrs);
@@ -289,14 +289,12 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_LG)) {
 			lgHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_L)) {
-			lHandler.endL();
+			lHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_DIV)) {
 			divHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_P)) {
 			pHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_Q)) {
-			// end quotation, but <q /> tag is a marker and contains no content
-			// so <q /> will appear at beginning and end of speech
 			qHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_HI)) {
 			hiHandler.end();
@@ -304,7 +302,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			orthHandler.end();
 		} else if (name.equals(TEIUtil.TEI_ELEMENT_PRON)) {
 			pronHandler.end();
-		} else if (name.equals("transChange")) {
+		} else if (name.equals(OSISUtil2.OSIS_ELEMENT_TRANSCHANGE)) {
 			transChangeHandler.end();
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_W)) {
 			strongsHandler.end();

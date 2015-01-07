@@ -17,8 +17,14 @@ public class RefHandler extends ReferenceHandler {
     public RefHandler(OsisToHtmlParameters osisToHtmlParameters, NoteHandler noteHandler, HtmlTextWriter theWriter) {
         super(osisToHtmlParameters, noteHandler, theWriter);
     }
+    
+    @Override
+	public String getTagName() {
+		return TEIUtil.TEI_ELEMENT_REF;
+	}
 
-    public void start(Attributes attrs) {
+    @Override
+	public void start(Attributes attrs) {
 		String target = attrs.getValue(TEIUtil.TEI_ATTR_TARGET);
 		start(target);
 	}

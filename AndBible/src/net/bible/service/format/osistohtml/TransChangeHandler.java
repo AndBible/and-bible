@@ -10,7 +10,7 @@ import org.xml.sax.Attributes;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author. 
  */
-public class TransChangeHandler {
+public class TransChangeHandler implements OsisTagHandler {
 
 	private HtmlTextWriter writer;
 	
@@ -25,14 +25,17 @@ public class TransChangeHandler {
 		this.writer = writer;
 	}
 	
+	@Override
 	public String getTagName() {
-        return "transChange";
+        return OSISUtil2.OSIS_ELEMENT_TRANSCHANGE;
     }
 
+	@Override
 	public void start(Attributes attrs) {
 		writer.write("<span class='transChange'>");
 	}
 
+	@Override
 	public void end() {
 		writer.write("</span>");
 	}
