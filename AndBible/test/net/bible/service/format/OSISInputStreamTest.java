@@ -124,9 +124,9 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 
 	@Test
 	public void testRead() throws Exception {
-		Book book = getBook("Clarke");
+		Book book = getBook("ISV");
 
-		OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Gen 3:1"));
+		OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Mat 5:1-5:3"));
 		String chapter = convertStreamToString(osisInputStream);
 		System.out.println(chapter);
 	}

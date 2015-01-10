@@ -1,9 +1,12 @@
 package net.bible.service.format.osistohtml;
 
 import java.security.InvalidParameterException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import net.bible.service.common.Logger;
 import net.bible.service.device.ScreenSettings;
@@ -19,6 +22,7 @@ import net.bible.service.format.osistohtml.tei.PronHandler;
 import net.bible.service.format.osistohtml.tei.RefHandler;
 
 import org.apache.commons.lang.StringUtils;
+import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
 
 /**
@@ -79,6 +83,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	}
 	
 	private static final String HEBREW_LANGUAGE_CODE = "he";
+	
+	private static final Set<String> IGNORED_TAGS = new HashSet<>(Arrays.asList(OSISUtil.OSIS_ELEMENT_CHAPTER));
 
 	private static final Logger log = new Logger("OsisToHtmlSaxHandler");
 
@@ -97,6 +103,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		registerHandler( new ReferenceHandler(parameters, noteHandler, getWriter()) );
 		registerHandler( new RefHandler(parameters, noteHandler, getWriter()) );
 		
+		registerHandler( new DivineNameHandler(getWriter()) );
 		registerHandler( new TitleHandler(parameters, verseInfo, getWriter()) );
 		registerHandler( new QHandler(parameters, getWriter()) );
 		registerHandler( new MilestoneHandler(parameters, passageInfo, verseInfo, getWriter()) );
@@ -206,7 +213,9 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		if (tagHandler!=null) {
 			tagHandler.start(attrs);
 		} else {
-			log.info("Verse "+verseInfo.currentVerseNo+" unsupported OSIS tag:"+name);
+			if (!IGNORED_TAGS.contains(name)) {
+				log.info("Verse "+verseInfo.currentVerseNo+" unsupported OSIS tag:"+name);
+			}
 		}
 	}
 

@@ -34,6 +34,10 @@ h1 a, .heading2, .heading3, .heading4 {
 	text-decoration: none
 }
 
+.divineName {
+	font-variant: small-caps;
+}
+
 .verse {
 	color: Gray;
 	vertical-align: top;
