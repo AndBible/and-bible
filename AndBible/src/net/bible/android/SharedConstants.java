@@ -31,8 +31,14 @@ public class SharedConstants {
     public static final File MANUAL_READINGPLAN_DIR = new File(MANUAL_INSTALL_DIR, READINGPLAN_DIR_NAME);
 
     public static final int APPLICATION_THEME =  android.R.style.Theme_Light;
+	public static final String DEFAULT_STYLESHEET = "style.css";
 	public static final String NIGHT_MODE_STYLESHEET = "night_mode.css";
     
+    private static final String CSS_SUBDIR_NAME = "css";
+    public static final File MANUAL_CSS_DIR = new File(MANUAL_INSTALL_DIR, CSS_SUBDIR_NAME);
+    public static final File MANUAL_CSS_STYLESHEET = new File(MANUAL_CSS_DIR, DEFAULT_STYLESHEET);
+    public static final File MANUAL_CSS_NIGHT_MODE_STYLESHEET = new File(MANUAL_CSS_DIR, NIGHT_MODE_STYLESHEET);
+
     public static final String LINE_SEPARATOR = System.getProperty ( "line.separator" ); 
     
     // insist on 50 free megs before downloading 

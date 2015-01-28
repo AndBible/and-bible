@@ -141,17 +141,11 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	@Override
 	public void startDocument()  {
 		String jsTag = "\n<script type='text/javascript' src='file:///android_asset/web/script.js'></script>\n";
-		String styleSheetTag = "<link href='file:///android_asset/web/style.css' rel='stylesheet' type='text/css'/>";
-		String extraStyleSheetTag = "";
-		if (parameters.getExtraStylesheet() != null) {
-			extraStyleSheetTag = "<link href='file:///android_asset/web/"
-					+ parameters.getExtraStylesheet()
-					+ "' rel='stylesheet' type='text/css'/>";
-		}
+		String styleSheetTags = parameters.getCssStylesheets();
 		String customFontStyle = FontControl.getInstance().getHtmlFontStyle(parameters.getFont(), parameters.getCssClassForCustomFont());
 		write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"> "
 				+ "<html xmlns='http://www.w3.org/1999/xhtml' dir='" + getDirection() + "'><head>"
-				+ styleSheetTag + extraStyleSheetTag+"\n"
+				+ styleSheetTags+"\n"
 				+ customFontStyle
 				+ jsTag
 				+ "<meta charset='utf-8'/>"

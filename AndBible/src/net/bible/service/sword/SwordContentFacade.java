@@ -12,14 +12,13 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import net.bible.android.BibleApplication;
-import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Constants;
 import net.bible.service.common.Logger;
 import net.bible.service.common.ParseException;
-import net.bible.service.device.ScreenSettings;
+import net.bible.service.css.CssControl;
 import net.bible.service.font.FontControl;
 import net.bible.service.format.HtmlMessageFormatter;
 import net.bible.service.format.Note;
@@ -57,9 +56,11 @@ public class SwordContentFacade {
 	
 	private DocumentParseMethod documentParseMethod = new DocumentParseMethod();
 	
+	private CssControl cssControl = new CssControl();
+	
 	private static final String TAG = "SwordContentFacade";
 	private static SwordContentFacade singleton;
-
+	
 	// set to false for testing
 	public static boolean isAndroid = true; //CommonUtils.isAndroid();
 	
@@ -390,6 +391,7 @@ public class SwordContentFacade {
 				// prefs applying to any doc type
 				osisToHtmlParameters.setShowNotes(preferences.getBoolean("show_notes_pref", true));
 				osisToHtmlParameters.setRedLetter(preferences.getBoolean("red_letter_pref", false));
+				osisToHtmlParameters.setCssStylesheetList( cssControl.getAllStylesheetLinks() );
 
 				// show verse numbers if user has selected to show verse numbers AND the book is a bible (so don't even try to show verses in a Dictionary)
 				if (BookCategory.BIBLE.equals(bookCategory)) {
@@ -407,9 +409,6 @@ public class SwordContentFacade {
 					osisToHtmlParameters.setShowMorphology(showStrongs && preferences.getBoolean("show_morphology_pref", false));
 				}
 				
-				if (ScreenSettings.isNightMode()) {
-					osisToHtmlParameters.setExtraStylesheet(SharedConstants.NIGHT_MODE_STYLESHEET);
-				}
 				if (BookCategory.DICTIONARY.equals(bookCategory)) {
 					if (book.hasFeature(FeatureType.HEBREW_DEFINITIONS)) {
 						//add allHebrew refs link

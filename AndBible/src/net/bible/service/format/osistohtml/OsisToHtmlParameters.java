@@ -34,13 +34,21 @@ public class OsisToHtmlParameters {
     private boolean isShowStrongs = false;
     private boolean isShowMorphology = false;
     private boolean isRedLetter = false;
-    private String extraStylesheet;
+    private List<String> cssStylesheetList;
     private String extraFooter;
     private boolean convertStrongsRefsToLinks;
     private List<Verse> versesWithNotes;
     private List<Verse> versesWithBookmarks;
     private URI moduleBasePath;
     private int indentDepth = 2;
+
+	public String getCssStylesheets() {
+		StringBuilder builder = new StringBuilder();
+		for (String styleSheet : cssStylesheetList) {
+			builder.append(styleSheet);
+		}
+		return builder.toString();
+	}
 
 	public String getLanguageCode() {
 		return languageCode;
@@ -108,11 +116,11 @@ public class OsisToHtmlParameters {
 	public void setShowMorphology(boolean isShowMorphology) {
 		this.isShowMorphology = isShowMorphology;
 	}
-	public String getExtraStylesheet() {
-		return extraStylesheet;
+	public List<String> getCssStylesheetList() {
+		return cssStylesheetList;
 	}
-	public void setExtraStylesheet(String extraStylesheet) {
-		this.extraStylesheet = extraStylesheet;
+	public void setCssStylesheetList(List<String> cssStylesheetList) {
+		this.cssStylesheetList = cssStylesheetList;
 	}
 	public String getExtraFooter() {
 		return extraFooter;
