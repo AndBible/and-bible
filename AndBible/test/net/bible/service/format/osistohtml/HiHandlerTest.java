@@ -41,6 +41,7 @@ public class HiHandlerTest {
 		assertThat(writer.getHtml(), equalTo("<span class='hi hi_super'>text</span>"));
 	}
 
+	@Test
 	public void testSub() {
 		AttributesImpl attrs = new AttributesImpl();
 		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "sub");
@@ -51,5 +52,18 @@ public class HiHandlerTest {
 		hiHandler.end();
 		
 		assertThat(writer.getHtml(), equalTo("<span class='hi hi_sub'>text</span>"));
+	}
+
+	@Test
+	public void testExtension() {
+		AttributesImpl attrs = new AttributesImpl();
+		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "x-custom");
+		hiHandler.start(attrs);
+
+		writer.write("text");
+		
+		hiHandler.end();
+		
+		assertThat(writer.getHtml(), equalTo("<span class='hi hi_x-custom'>text</span>"));
 	}
 }

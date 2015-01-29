@@ -52,7 +52,9 @@ public class HiHandler implements OsisTagHandler {
 	 * Used by TEI handlers
 	 */
 	protected void start(String style, String defaultStyle) {
-		if (style==null || !HI_TYPE_LIST.contains(style)) {
+		// if not a standard style or begins with 'x-' then use default style
+		if (style==null || 
+			!(HI_TYPE_LIST.contains(style) || style.startsWith("x-"))) {
 			style = defaultStyle;
 		}
 
