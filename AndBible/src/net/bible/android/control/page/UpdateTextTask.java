@@ -2,7 +2,7 @@ package net.bible.android.control.page;
 
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
-import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
+import net.bible.android.control.page.splitscreen.Screen;
 import net.bible.service.format.HtmlMessageFormatter;
 
 import org.crosswire.jsword.book.Book;

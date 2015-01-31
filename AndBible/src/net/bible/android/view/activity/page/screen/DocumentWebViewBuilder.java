@@ -1,12 +1,15 @@
 package net.bible.android.view.activity.page.screen;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.splitscreen.Screen;
 import net.bible.android.control.page.splitscreen.Separator;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
-import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.page.BibleView;
 import net.bible.service.common.CommonUtils;
@@ -64,11 +67,11 @@ public class DocumentWebViewBuilder {
 		this.mainActivity = mainActivity;
 		
 		splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
-		
-        bibleWebView = new BibleView(this.mainActivity, Screen.SCREEN_1);
+
+        bibleWebView = new BibleView(this.mainActivity, splitScreenControl.getScreen(1));
         bibleWebView.setId(BIBLE_WEB_VIEW_ID);
 
-        bibleWebView2 = new BibleView(this.mainActivity, Screen.SCREEN_2);
+        bibleWebView2 = new BibleView(this.mainActivity, splitScreenControl.getScreen(2));
         bibleWebView2.setId(BIBLE_WEB_VIEW2_ID);
         
         Resources res = BibleApplication.getApplication().getResources();
@@ -88,7 +91,7 @@ public class DocumentWebViewBuilder {
         minimiseScreen2Button = createTextButton("━━", new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				splitScreenControl.minimiseScreen2();				
+				splitScreenControl.minimiseScreen(splitScreenControl.getScreen(2));				
 			}
 		});
 
@@ -96,7 +99,7 @@ public class DocumentWebViewBuilder {
         restoreScreen2Button = createTextButton("\u2588\u2588", new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				splitScreenControl.restoreScreen2();				
+				splitScreenControl.restoreScreen(splitScreenControl.getScreen(2));				
 			}
 		});
 	}
@@ -185,6 +188,7 @@ public class DocumentWebViewBuilder {
 	}
 
 	public void removeWebView(ViewGroup parent) {
+		//TODO use multiple splits
 		if (splitFrameLayout1!=null) {
 			splitFrameLayout1.removeAllViews();
 		}
@@ -197,7 +201,8 @@ public class DocumentWebViewBuilder {
 	}
 	
 	public DocumentView getView(Screen screen) {
-		if (Screen.SCREEN_1 == screen) {
+		//TODO use map
+		if (1 == screen.getScreenNo()) {
 			return bibleWebView;
 		} else {
 			return bibleWebView2;

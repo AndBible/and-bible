@@ -1,12 +1,15 @@
 package net.bible.android.control.page;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
+import net.bible.android.control.page.splitscreen.Screen;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
-import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 
 import org.apache.commons.lang.StringUtils;
@@ -43,8 +46,7 @@ public class CurrentPageManager {
 	
 	private static SplitScreenControl splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
 	// For split screen need 2 CurrentPageManagers
-	private static CurrentPageManager screen1PageManager;
-	private static CurrentPageManager screen2PageManager;
+	private static Map<Screen, CurrentPageManager> screenPageManagerMap = new HashMap<>();
 	
 	// this was moved from the MainBibleActivity and has always been called this
 	private static final String saveStateTag = "MainBibleActivity";
@@ -52,28 +54,20 @@ public class CurrentPageManager {
 	private static final String TAG = "CurrentPageManager";
 	
 	static public CurrentPageManager getInstance() {
-		if (splitScreenControl.getCurrentActiveScreen()==Screen.SCREEN_1) {
-			return getInstance(Screen.SCREEN_1);
-		} else {
-			return getInstance(Screen.SCREEN_2);
-		}
+		return getInstance(splitScreenControl.getCurrentActiveScreen());
 	}
 	static public CurrentPageManager getInstance(Screen splitScreenNo) {
-		if (screen1PageManager==null || screen2PageManager==null) {
+		CurrentPageManager splitScreenPageManager = screenPageManagerMap.get(splitScreenNo);
+		if (splitScreenPageManager==null) {
 			synchronized(CurrentPageManager.class)  {
-				if (screen1PageManager==null) {
-					screen1PageManager = new CurrentPageManager(Screen.SCREEN_1);
-				}
-				if (screen2PageManager==null) {
-					screen2PageManager = new CurrentPageManager(Screen.SCREEN_2);
+				splitScreenPageManager = screenPageManagerMap.get(splitScreenNo);
+				if (splitScreenPageManager==null) {
+					splitScreenPageManager = new CurrentPageManager(splitScreenNo);
+					screenPageManagerMap.put(splitScreenNo, splitScreenPageManager);
 				}
 			}
 		}
-		if (Screen.SCREEN_1 == splitScreenNo) {
-			return screen1PageManager;
-		} else {
-			return screen2PageManager;
-		}
+		return splitScreenPageManager;
 	}
 
 	private CurrentPageManager(Screen splitScreenNo) {
@@ -334,7 +328,11 @@ public class CurrentPageManager {
 	
 	private String getScreenIdForState() {
 		// need to have empty screenId for screen 1 so as to use pre-splitScreen state
-		return Screen.SCREEN_1==splitScreenNo? "" : "_SCREEN2";
+		if (splitScreenNo.getScreenNo()==1) {
+			return "";
+		} else {
+			return "_SCREEN"+splitScreenNo.getScreenNo();
+		}
 	}
 	
     private SharedPreferences getAppStateSharedPreferences() {

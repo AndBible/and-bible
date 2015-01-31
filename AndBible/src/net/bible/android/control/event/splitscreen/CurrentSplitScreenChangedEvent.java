@@ -1,6 +1,6 @@
 package net.bible.android.control.event.splitscreen;
 
-import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
+import net.bible.android.control.page.splitscreen.Screen;
 
 /**
  * Focus has been changed

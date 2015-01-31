@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
+import net.bible.android.control.page.splitscreen.Screen;
 
 /** Automatically find current verse at top of display to aid quick movement to Commentary.
  * todo: ensure last verse is selectable 

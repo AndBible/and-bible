@@ -1,6 +1,6 @@
 package net.bible.android.control.event.splitscreen;
 
-import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
+import net.bible.android.control.page.splitscreen.Screen;
 
 /**
  * Correct bible page is shown but need to scroll to a different verse

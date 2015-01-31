@@ -13,6 +13,7 @@ import net.bible.android.control.event.splitscreen.UpdateSecondaryScreenEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.UpdateTextTask;
+import net.bible.android.control.page.splitscreen.Screen.ScreenState;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
 
@@ -36,11 +37,9 @@ import de.greenrobot.event.EventBus;
  *      The copyright to this program is held by it's author.
  */
 public class SplitScreenControl {
-	public enum Screen {SCREEN_1, SCREEN_2};
-	
+
+	//TODO remove both
 	private boolean isSplit;
-	private boolean isScreen2Minimized;
-	
 	private boolean isSplitScreensLinked;
 	
 	private boolean isSeparatorMoving = false;
@@ -50,7 +49,7 @@ public class SplitScreenControl {
 	private boolean resynchRequired = false;
 	private boolean screenPreferencesChanged = false;
 	
-	private Screen currentActiveScreen = Screen.SCREEN_1;
+	private ScreenManager screenManager = new ScreenManager();
 	
 	private Key lastSynchdInactiveScreenKey;
 	private boolean lastSynchWasInNightMode;
@@ -90,25 +89,30 @@ public class SplitScreenControl {
 		EventBus.getDefault().register(this);
 	}
 
-	public boolean isFirstScreenActive() {
-		return currentActiveScreen==Screen.SCREEN_1;
+	public Screen getScreen(int screenNo) {
+		return screenManager.getScreen(screenNo);
+	}
+	public Screen getActiveScreen() {
+		return screenManager.getCurrentActiveScreen();
 	}
 	public boolean isCurrentActiveScreen(Screen currentActiveScreen) {
-		return currentActiveScreen == this.currentActiveScreen;
+		return currentActiveScreen == screenManager.getCurrentActiveScreen();
 	}
 	
-	public void minimiseScreen2() {
+	public void minimiseScreen(Screen screen) {
+		//TODO may have to maximise another screen if there is only 1 screen unminimised
 		setSplit(false);
-		isScreen2Minimized = true;
+		
+		screen.setState(ScreenState.MINIMISED);
 		// calling sCAS will cause events to be dispatched to set active screen so auto-scroll works
-		setCurrentActiveScreen(Screen.SCREEN_1);
+		screenManager.setDefaultActiveScreen();
 		// redisplay the current page
 		EventBus.getDefault().post(new NumberOfScreensChangedEvent(getScreenVerseMap()));
 	}
 
-	public void restoreScreen2() {
-		isScreen2Minimized = false;
-		currentActiveScreen = Screen.SCREEN_1;
+	public void restoreScreen(Screen screen) {
+		screen.setState(ScreenState.SPLIT);
+		screenManager.setDefaultActiveScreen();
 		isSplit = true;
 		// causes BibleViews to be created and laid out
 		EventBus.getDefault().post(new NumberOfScreensChangedEvent(getScreenVerseMap()));
@@ -247,19 +251,29 @@ public class SplitScreenControl {
 		if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_SINGLE)) {
 			isSplit = false;
 			isSplitScreensLinked = false;
-			isScreen2Minimized = false;
+			screenManager.getScreen(1).setState(ScreenState.MAXIMISED);
+			screenManager.getScreen(1).setSynchronised(false);
 			screen1Weight = 0.5f;
 		} else if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_LINKED)) {
-			isSplit = !isScreen2Minimized;
+			screenManager.getScreen(1).setState(ScreenState.SPLIT);
+			screenManager.getScreen(2).setState(ScreenState.SPLIT);
+			screenManager.getScreen(1).setSynchronised(true);
+			screenManager.getScreen(2).setSynchronised(true);
+			isSplit = true;
 			isSplitScreensLinked = true;
 		} else if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_NOT_LINKED)) {
-			isSplit = !isScreen2Minimized;
+			screenManager.getScreen(1).setState(ScreenState.SPLIT);
+			screenManager.getScreen(2).setState(ScreenState.SPLIT);
+			screenManager.getScreen(1).setSynchronised(false);
+			screenManager.getScreen(2).setSynchronised(false);
+			isSplit = true;
 			isSplitScreensLinked = false;
 		} else {
 			// unexpected value so default to no split
 			isSplit = false;
 			isSplitScreensLinked = false;
-			isScreen2Minimized = false;
+			screenManager.getScreen(1).setState(ScreenState.MAXIMISED);
+			screenManager.getScreen(1).setSynchronised(false);
 			screen1Weight = 0.5f;
 		}
 	}
@@ -283,7 +297,11 @@ public class SplitScreenControl {
 		SharedPreferences preferences = CommonUtils.getSharedPreferences();
 		if (preferences!=null) {
 			screen1Weight = preferences.getFloat(SPLIT_SCREEN1_WEIGHT, 0.5f);
-			isScreen2Minimized = preferences.getBoolean(SPLIT_SCREEN2_MINIMIZED, false);
+			if (preferences.getBoolean(SPLIT_SCREEN2_MINIMIZED, false)) {
+				screenManager.getScreen(2).setState(ScreenState.MINIMISED);
+			} else {
+				screenManager.getScreen(2).setState(ScreenState.SPLIT);
+			}
 		}
 	}
 	
@@ -291,7 +309,7 @@ public class SplitScreenControl {
 		Log.d(TAG, "Save split non pref state");
 		CommonUtils.getSharedPreferences().edit()
 										.putFloat(SPLIT_SCREEN1_WEIGHT, screen1Weight)
-										.putBoolean(SPLIT_SCREEN2_MINIMIZED, isScreen2Minimized)
+										.putBoolean(SPLIT_SCREEN2_MINIMIZED, ScreenState.MINIMISED==screenManager.getScreen(2).getState())
 										.commit();
 	}
 
@@ -302,7 +320,7 @@ public class SplitScreenControl {
 		if (this.isSplit!=isSplit) {
 			this.isSplit = isSplit;
 			// if split is false or true then it can no longer be minimised
-			isScreen2Minimized = false;
+			screenManager.getScreen(2).setState(ScreenState.SPLIT);
 			if (isSplit) {
 				synchronizeScreens();
 			}
@@ -310,15 +328,20 @@ public class SplitScreenControl {
 	}
 
 	public Screen getNonActiveScreen() {
-		return currentActiveScreen==Screen.SCREEN_1? Screen.SCREEN_2 : Screen.SCREEN_1;
+		if (screenManager.getCurrentActiveScreen().getScreenNo()==1) {
+			return screenManager.getScreen(2);
+		} else {
+			return screenManager.getScreen(1);
+		}
 	}
 	public Screen getCurrentActiveScreen() {
-		return currentActiveScreen;
+		return screenManager.getCurrentActiveScreen();
 	}
 	public void setCurrentActiveScreen(Screen currentActiveScreen) {
-		if (currentActiveScreen != this.currentActiveScreen) {
-			this.currentActiveScreen = currentActiveScreen;
-			EventBus.getDefault().post(new CurrentSplitScreenChangedEvent(this.currentActiveScreen));
+		Log.d(TAG, "setCurrentActiveScreen:"+currentActiveScreen);
+		if (currentActiveScreen != screenManager.getCurrentActiveScreen()) {
+			screenManager.setCurrentActiveScreen(currentActiveScreen);
+			EventBus.getDefault().post(new CurrentSplitScreenChangedEvent(currentActiveScreen));
 		}
 	}
 
@@ -330,7 +353,7 @@ public class SplitScreenControl {
 	}
 	
 	public boolean isScreen2Minimized() {
-		return isScreen2Minimized;
+		return screenManager.getScreen(2).getState()==ScreenState.MINIMISED;
 	}
 
 	public boolean isSeparatorMoving() {
@@ -378,7 +401,7 @@ public class SplitScreenControl {
 	private Map<Screen, Integer> getScreenVerseMap() {
 		// get page offsets to maintain for each screen
 		Map<Screen,Integer> screenVerseMap = new HashMap<Screen,Integer>();
-		for (Screen screen : Screen.values()) {
+		for (Screen screen : screenManager.getScreens()) {
 			CurrentPage currentPage = getCurrentPage(screen);
 			if (currentPage!=null &&
 				BookCategory.BIBLE == currentPage.getCurrentDocument().getBookCategory()) {

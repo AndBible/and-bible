@@ -6,7 +6,6 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.PageTiltScrollControl;
 import net.bible.android.control.page.PageTiltScrollControl.TiltScrollInfo;
 import net.bible.android.view.activity.page.BibleView;
-
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;

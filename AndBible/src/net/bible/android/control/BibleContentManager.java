@@ -3,7 +3,7 @@ package net.bible.android.control;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.UpdateTextTask;
-import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
+import net.bible.android.control.page.splitscreen.Screen;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.page.screen.DocumentViewManager;
 import net.bible.service.common.CommonUtils;

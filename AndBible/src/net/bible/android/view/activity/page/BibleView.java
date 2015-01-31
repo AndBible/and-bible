@@ -11,8 +11,8 @@ import net.bible.android.control.event.splitscreen.SplitScreenSizeChangedEvent;
 import net.bible.android.control.event.splitscreen.UpdateSecondaryScreenEvent;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
+import net.bible.android.control.page.splitscreen.Screen;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
-import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.page.screen.PageTiltScroller;
 import net.bible.service.common.CommonUtils;
@@ -339,6 +339,7 @@ public class BibleView extends WebView implements DocumentView {
     
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
+		Log.d(TAG, "onTouchEvent screen:"+splitScreenNo);
 		boolean handled = super.onTouchEvent(ev);
 		
 		splitScreenControl.setCurrentActiveScreen(splitScreenNo);

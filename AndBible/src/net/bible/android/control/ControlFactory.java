@@ -1,5 +1,8 @@
 package net.bible.android.control;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import net.bible.android.control.backup.BackupControl;
 import net.bible.android.control.bookmark.Bookmark;
 import net.bible.android.control.bookmark.BookmarkControl;
@@ -15,8 +18,8 @@ import net.bible.android.control.navigation.NavigationControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.page.PageTiltScrollControl;
+import net.bible.android.control.page.splitscreen.Screen;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
-import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
 import net.bible.android.control.readingplan.ReadingPlanControl;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.speak.SpeakControl;
@@ -36,8 +39,7 @@ public class ControlFactory {
 	private DocumentControl documentControl = new DocumentControl();
 	private PageControl pageControl = new PageControl();
 	private SplitScreenControl splitScreenControl = new SplitScreenControl();
-	private PageTiltScrollControl pageTiltScrollControlSplitScreen1 = new PageTiltScrollControl();
-	private PageTiltScrollControl pageTiltScrollControlSplitScreen2 = new PageTiltScrollControl();
+	private Map<Screen, PageTiltScrollControl> screenPageTiltScrollControlMap = new HashMap<>();
 	private LinkControl linkControl = new LinkControl();
 	private SearchControl searchControl = new SearchControl();
 	private Bookmark bookmarkControl = new BookmarkControl();
@@ -85,11 +87,17 @@ public class ControlFactory {
 	}
 
 	public PageTiltScrollControl getPageTiltScrollControl(Screen screen) {
-		if (Screen.SCREEN_1==screen) {
-			return pageTiltScrollControlSplitScreen1;
-		} else {
-			return pageTiltScrollControlSplitScreen2;
+		PageTiltScrollControl pageTiltScrollControl = screenPageTiltScrollControlMap.get(screen);
+		if (pageTiltScrollControl==null) {
+			synchronized(screenPageTiltScrollControlMap) {
+				pageTiltScrollControl = screenPageTiltScrollControlMap.get(screen);
+				if (pageTiltScrollControl==null) {
+					pageTiltScrollControl = new PageTiltScrollControl();
+					screenPageTiltScrollControlMap.put(screen, pageTiltScrollControl);
+				}
+			}
 		}
+		return pageTiltScrollControl;
 	}
 
 	public SearchControl getSearchControl() {

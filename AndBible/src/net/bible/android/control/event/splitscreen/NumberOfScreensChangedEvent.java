@@ -2,7 +2,7 @@ package net.bible.android.control.event.splitscreen;
 
 import java.util.Map;
 
-import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
+import net.bible.android.control.page.splitscreen.Screen;
 
 /**
  * 	Split screen has been minimized/restored/removed/added

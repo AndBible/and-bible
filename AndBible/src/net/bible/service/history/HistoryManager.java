@@ -2,7 +2,9 @@ package net.bible.service.history;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import net.bible.android.control.ControlFactory;
@@ -10,6 +12,7 @@ import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.splitscreen.Screen;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.view.activity.base.AndBibleActivity;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
@@ -31,8 +34,8 @@ import android.util.Log;
 public class HistoryManager {
 
 	private static int MAX_HISTORY = 80;
-	private Stack<HistoryItem> historyScreen1 = new Stack<HistoryItem>();
-	private Stack<HistoryItem> historyScreen2 = new Stack<HistoryItem>();
+	
+	private Map<Screen, Stack<HistoryItem>> screenHistoryStackMap = new HashMap<>();
 
 	private static HistoryManager singleton = new HistoryManager();
 
@@ -151,10 +154,17 @@ public class HistoryManager {
 	}
 	
 	private Stack<HistoryItem> getHistoryStack() {
-		if (splitScreenControl.isFirstScreenActive()) {
-			return historyScreen1;
-		} else {
-			return historyScreen2;
+		Screen screen = splitScreenControl.getCurrentActiveScreen();
+		Stack<HistoryItem> historyStack = screenHistoryStackMap.get(screen);
+		if (historyStack==null) {
+			synchronized(screenHistoryStackMap) {
+				historyStack = screenHistoryStackMap.get(screen);
+				if (historyStack==null) {
+					historyStack = new Stack<HistoryItem>();
+					screenHistoryStackMap.put(screen, historyStack);
+				}
+			}
 		}
+		return historyStack;
 	}
 }

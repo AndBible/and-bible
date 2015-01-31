@@ -11,7 +11,7 @@ import java.util.Properties;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.page.splitscreen.SplitScreenControl.Screen;
+import net.bible.android.control.page.splitscreen.Screen;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
