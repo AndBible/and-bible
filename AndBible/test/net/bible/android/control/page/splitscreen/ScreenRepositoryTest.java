@@ -7,12 +7,12 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public class ScreenManagerTest {
-	private ScreenManager screenManager;
+public class ScreenRepositoryTest {
+	private ScreenRepository screenRepository;
 
 	@Before
 	public void setUp() throws Exception {
-		screenManager = new ScreenManager();
+		screenRepository = new ScreenRepository();
 	}
 
 	@After
@@ -21,19 +21,19 @@ public class ScreenManagerTest {
 
 	@Test
 	public void testGetScreen() throws Exception {
-		assertThat(screenManager.getScreen(1).getScreenNo(), equalTo(1));
+		assertThat(screenRepository.getScreen(1).getScreenNo(), equalTo(1));
 	}
 
 	@Test
 	public void testGetCurrentActiveScreen() throws Exception {
-		assertThat(screenManager.getCurrentActiveScreen().getScreenNo(), equalTo(0));
+		assertThat(screenRepository.getCurrentActiveScreen().getScreenNo(), equalTo(0));
 	}
 
 	@Test
 	public void testSetCurrentActiveScreen() throws Exception {
-		Screen screen2 = screenManager.getScreen(2);
-		screenManager.setCurrentActiveScreen(screen2);
-		assertThat(screenManager.getCurrentActiveScreen().getScreenNo(), equalTo(2));
+		Screen screen2 = screenRepository.getScreen(2);
+		screenRepository.setCurrentActiveScreen(screen2);
+		assertThat(screenRepository.getCurrentActiveScreen().getScreenNo(), equalTo(2));
 	}
 
 }

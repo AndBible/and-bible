@@ -4,25 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
-import net.bible.android.control.event.passage.PassageChangedEvent;
-import net.bible.android.control.event.splitscreen.CurrentSplitScreenChangedEvent;
 import net.bible.android.control.event.splitscreen.NumberOfScreensChangedEvent;
-import net.bible.android.control.event.splitscreen.ScrollSecondaryScreenEvent;
 import net.bible.android.control.event.splitscreen.SplitScreenSizeChangedEvent;
-import net.bible.android.control.event.splitscreen.UpdateSecondaryScreenEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.page.UpdateTextTask;
 import net.bible.android.control.page.splitscreen.Screen.ScreenState;
 import net.bible.service.common.CommonUtils;
-import net.bible.service.device.ScreenSettings;
 
-import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
-import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
-import org.crosswire.jsword.passage.Verse;
-import org.crosswire.jsword.versification.Versification;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -38,21 +28,11 @@ import de.greenrobot.event.EventBus;
  */
 public class SplitScreenControl {
 
-	//TODO remove both
-	private boolean isSplit;
-	private boolean isSplitScreensLinked;
-	
 	private boolean isSeparatorMoving = false;
 	private long stoppedMovingTime = 0;
-	private float screen1Weight = 0.5f;
 
-	private boolean resynchRequired = false;
-	private boolean screenPreferencesChanged = false;
-	
-	private ScreenManager screenManager = new ScreenManager();
-	
-	private Key lastSynchdInactiveScreenKey;
-	private boolean lastSynchWasInNightMode;
+	private ScreenRepository screenRepository = new ScreenRepository();
+	private SplitScreenSync splitScreenSync = new SplitScreenSync(screenRepository);
 	
 	public static int SCREEN_SETTLE_TIME_MILLIS = 1000;
 	
@@ -72,7 +52,7 @@ public class SplitScreenControl {
 				restoreFromSettings();
 			} else {
 				Log.d(TAG, "screen preferences changed so inactive screen needs to be refreshed");
-				screenPreferencesChanged = true;
+				splitScreenSync.setScreenPreferencesChanged(true);
 			}
 			
 		}
@@ -90,34 +70,43 @@ public class SplitScreenControl {
 	}
 
 	public Screen getScreen(int screenNo) {
-		return screenManager.getScreen(screenNo);
+		return screenRepository.getScreen(screenNo);
 	}
 	public Screen getActiveScreen() {
-		return screenManager.getCurrentActiveScreen();
+		return screenRepository.getCurrentActiveScreen();
 	}
 	public boolean isCurrentActiveScreen(Screen currentActiveScreen) {
-		return currentActiveScreen == screenManager.getCurrentActiveScreen();
+		return currentActiveScreen == screenRepository.getCurrentActiveScreen();
 	}
 	
+	public void addNewScreen() {
+		Screen newScreen = screenRepository.addNewScreen();
+
+		// redisplay the current page
+		EventBus.getDefault().post(new NumberOfScreensChangedEvent(getScreenVerseMap()));
+	}
+
 	public void minimiseScreen(Screen screen) {
+		screenRepository.minimise(screen);
+
 		//TODO may have to maximise another screen if there is only 1 screen unminimised
-		setSplit(false);
-		
-		screen.setState(ScreenState.MINIMISED);
-		// calling sCAS will cause events to be dispatched to set active screen so auto-scroll works
-		screenManager.setDefaultActiveScreen();
+
 		// redisplay the current page
 		EventBus.getDefault().post(new NumberOfScreensChangedEvent(getScreenVerseMap()));
 	}
 
 	public void restoreScreen(Screen screen) {
 		screen.setState(ScreenState.SPLIT);
-		screenManager.setDefaultActiveScreen();
-		isSplit = true;
+		
+		// any maximised screen must be normalised
+		for (Screen maxScreen :screenRepository.getMaximisedScreens()) {
+			maxScreen.setState(ScreenState.SPLIT);
+		}
+		
 		// causes BibleViews to be created and laid out
 		EventBus.getDefault().post(new NumberOfScreensChangedEvent(getScreenVerseMap()));
 		
-		synchronizeScreens();
+		splitScreenSync.synchronizeScreens();
 	}
 
 	/** screen orientation has changed */
@@ -126,120 +115,10 @@ public class SplitScreenControl {
 		EventBus.getDefault().post(new NumberOfScreensChangedEvent(getScreenVerseMap()));
 	}
 	
-    public void onEvent(PassageChangedEvent event) {
-    	synchronizeScreens();
-    }
-	
-	/** Synchronise the inactive key and inactive screen with the active key and screen if required
-	 */
 	public void synchronizeScreens() {
-		Screen activeScreen = getCurrentActiveScreen();
-		Screen inactiveScreen = getNonActiveScreen();
-		CurrentPage activePage = CurrentPageManager.getInstance(activeScreen).getCurrentPage();
-		CurrentPage inactivePage = CurrentPageManager.getInstance(inactiveScreen).getCurrentPage();
-		Key targetActiveScreenKey = activePage.getSingleKey();
-		Key inactiveScreenKey = inactivePage.getSingleKey();
-		boolean isFirstTimeInit = (lastSynchdInactiveScreenKey==null);
-		boolean inactiveUpdated = false;
-		boolean isTotalRefreshRequired = isFirstTimeInit ||	lastSynchWasInNightMode!=ScreenSettings.isNightMode() || screenPreferencesChanged;
-
-		if (isSplitScreensLinked()) {
-			if ((isSplit() || isScreen2Minimized()) ) {
-				// inactive screen may not be displayed but if switched to the key must be correct
-				if (isSynchronizableVerseKey(activePage)) {
-					// Only Bible and cmtry are synch'd and they share a Verse key
-					updateInactiveBibleKey(inactiveScreen, targetActiveScreenKey);
-					// re-get as it may have been mapped to the correct v11n
-					targetActiveScreenKey = inactivePage.getSingleKey();
-				}
-			}
-
-			if (isSplit() && !isScreen2Minimized()) {
-				// prevent infinite loop as each screen update causes a synchronise by comparing last key
-				// only update pages if empty or synchronised
-				if (isFirstTimeInit || resynchRequired || 
-				   (isSynchronizableVerseKey(activePage) && isSynchronizableVerseKey(inactivePage) && !targetActiveScreenKey.equals(lastSynchdInactiveScreenKey)) ) {
-					updateInactiveScreen(inactiveScreen, inactivePage, targetActiveScreenKey, lastSynchdInactiveScreenKey, isTotalRefreshRequired);
-					lastSynchdInactiveScreenKey = targetActiveScreenKey;
-					inactiveUpdated = true;
-				} 
-			}
-		}
-			
-		// force inactive screen to display something otherwise it may be initially blank
-		// or if nightMode has changed then force an update
-		if (!inactiveUpdated && isTotalRefreshRequired) {
-			// force an update of the inactive page to prevent blank screen
-			updateInactiveScreen(inactiveScreen, inactivePage, inactiveScreenKey, inactiveScreenKey, isTotalRefreshRequired);
-			lastSynchdInactiveScreenKey = inactiveScreenKey;
-			inactiveUpdated = true;
-		}
-		
-		lastSynchWasInNightMode = ScreenSettings.isNightMode();
-		screenPreferencesChanged = false;
-		resynchRequired = false;
+		splitScreenSync.synchronizeScreens();
 	}
 	
-	/** Only call if screens are synchronised.  Update synch'd keys even if inactive page not shown so if it is shown then it is correct
-	 */
-	private void updateInactiveBibleKey(Screen inactiveScreen, Key activeScreenKey) {
-		CurrentPageManager.getInstance(inactiveScreen).getCurrentBible().doSetKey(activeScreenKey);
-	}
-	
-	/** refresh/synch inactive screen if required
-	 */
-	private void updateInactiveScreen(Screen inactiveScreen, CurrentPage inactivePage,	Key targetScreenKey, Key inactiveScreenKey, boolean forceRefresh) {
-		// standard null checks
-		if (targetScreenKey!=null && inactivePage!=null) {
-			// Not just bibles and commentaries get this far so NOT always fine to convert key to verse
-			Verse targetVerse = null;
-			Versification targetV11n = null;
-			if (targetScreenKey instanceof Verse) {
-				targetVerse = KeyUtil.getVerse(targetScreenKey);
-				targetV11n = targetVerse.getVersification();
-			}
-			
-			Verse currentVerse = null;
-			if (inactiveScreenKey!=null && inactiveScreenKey instanceof Verse) {
-				currentVerse = KeyUtil.getVerse(inactiveScreenKey);
-			}
-			
-			// update split screen as smoothly as possible i.e. just jump/scroll if verse is on current page
-			//TODO av11n
-			if (!forceRefresh && 
-					BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && 
-					currentVerse!=null && targetVerse!=null && targetV11n.isSameChapter(targetVerse, currentVerse)) {
-				EventBus.getDefault().post(new ScrollSecondaryScreenEvent(inactiveScreen, targetVerse.getVerse()));
-			} else {
-				new UpdateInactiveScreenTextTask().execute(inactiveScreen);
-			}
-		}
-	}
-
-	/** Only Bibles and commentaries have the same sort of key and can be synchronized
-	 */
-	private boolean isSynchronizableVerseKey(CurrentPage page) {
-		boolean result = false;
-		// various null checks then the test
-		if (page!=null) {
-			Book document = page.getCurrentDocument();
-			if (document!=null) {
-				BookCategory bookCategory = document.getBookCategory();
-				// The important part
-				result = BookCategory.BIBLE.equals(bookCategory) || BookCategory.COMMENTARY.equals(bookCategory); 
-			}
-		}
-		return result; 
-	}
-
-    private class UpdateInactiveScreenTextTask extends UpdateTextTask {
-        /** callback from base class when result is ready */
-    	@Override
-    	protected void showText(String text, Screen screen, int verseNo, float yOffsetRatio) {
-    		EventBus.getDefault().post(new UpdateSecondaryScreenEvent(screen, text, verseNo));
-        }
-    }
-
 	private void restoreFromSettings() {
 		Log.d(TAG, "Refresh split screen settings");
 		String splitScreenPreference = PREFS_SPLIT_SCREEN_SINGLE;
@@ -249,32 +128,24 @@ public class SplitScreenControl {
 		}
 		
 		if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_SINGLE)) {
-			isSplit = false;
-			isSplitScreensLinked = false;
-			screenManager.getScreen(1).setState(ScreenState.MAXIMISED);
-			screenManager.getScreen(1).setSynchronised(false);
-			screen1Weight = 0.5f;
+			screenRepository.getScreen(1).setState(ScreenState.MAXIMISED);
+			screenRepository.getScreen(1).setSynchronised(false);
+			screenRepository.getScreen(1).setWeight(0.5f);
 		} else if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_LINKED)) {
-			screenManager.getScreen(1).setState(ScreenState.SPLIT);
-			screenManager.getScreen(2).setState(ScreenState.SPLIT);
-			screenManager.getScreen(1).setSynchronised(true);
-			screenManager.getScreen(2).setSynchronised(true);
-			isSplit = true;
-			isSplitScreensLinked = true;
+			screenRepository.getScreen(1).setState(ScreenState.SPLIT);
+			screenRepository.getScreen(2).setState(ScreenState.SPLIT);
+			screenRepository.getScreen(1).setSynchronised(true);
+			screenRepository.getScreen(2).setSynchronised(true);
 		} else if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_NOT_LINKED)) {
-			screenManager.getScreen(1).setState(ScreenState.SPLIT);
-			screenManager.getScreen(2).setState(ScreenState.SPLIT);
-			screenManager.getScreen(1).setSynchronised(false);
-			screenManager.getScreen(2).setSynchronised(false);
-			isSplit = true;
-			isSplitScreensLinked = false;
+			screenRepository.getScreen(1).setState(ScreenState.SPLIT);
+			screenRepository.getScreen(2).setState(ScreenState.SPLIT);
+			screenRepository.getScreen(1).setSynchronised(false);
+			screenRepository.getScreen(2).setSynchronised(false);
 		} else {
 			// unexpected value so default to no split
-			isSplit = false;
-			isSplitScreensLinked = false;
-			screenManager.getScreen(1).setState(ScreenState.MAXIMISED);
-			screenManager.getScreen(1).setSynchronised(false);
-			screen1Weight = 0.5f;
+			screenRepository.getScreen(1).setState(ScreenState.MAXIMISED);
+			screenRepository.getScreen(1).setSynchronised(false);
+			screenRepository.getScreen(1).setWeight(0.5f);
 		}
 	}
 	
@@ -284,10 +155,7 @@ public class SplitScreenControl {
 	public void onEvent(AppToBackgroundEvent event) {
 		if (event.isMovedToBackground()) {
 			saveNonPreferenceState();
-			// ensure nonactive screen is initialised when returning from background
-			lastSynchdInactiveScreenKey = null;
 		} else {
-			lastSynchdInactiveScreenKey = null;
 			restoreNonPreferenceState();
 		}
 	}
@@ -296,11 +164,11 @@ public class SplitScreenControl {
 		Log.d(TAG, "Refresh split non pref state");
 		SharedPreferences preferences = CommonUtils.getSharedPreferences();
 		if (preferences!=null) {
-			screen1Weight = preferences.getFloat(SPLIT_SCREEN1_WEIGHT, 0.5f);
+			screenRepository.getScreen(1).setWeight(preferences.getFloat(SPLIT_SCREEN1_WEIGHT, 0.5f));
 			if (preferences.getBoolean(SPLIT_SCREEN2_MINIMIZED, false)) {
-				screenManager.getScreen(2).setState(ScreenState.MINIMISED);
+				screenRepository.getScreen(2).setState(ScreenState.MINIMISED);
 			} else {
-				screenManager.getScreen(2).setState(ScreenState.SPLIT);
+				screenRepository.getScreen(2).setState(ScreenState.SPLIT);
 			}
 		}
 	}
@@ -308,52 +176,31 @@ public class SplitScreenControl {
 	private void saveNonPreferenceState() {
 		Log.d(TAG, "Save split non pref state");
 		CommonUtils.getSharedPreferences().edit()
-										.putFloat(SPLIT_SCREEN1_WEIGHT, screen1Weight)
-										.putBoolean(SPLIT_SCREEN2_MINIMIZED, ScreenState.MINIMISED==screenManager.getScreen(2).getState())
+										.putFloat(SPLIT_SCREEN1_WEIGHT, screenRepository.getScreen(1).getWeight())
+										.putBoolean(SPLIT_SCREEN2_MINIMIZED, ScreenState.MINIMISED==screenRepository.getScreen(2).getState())
 										.commit();
 	}
 
 	public boolean isSplit() {
-		return isSplit;
-	}
-	public void setSplit(boolean isSplit) {
-		if (this.isSplit!=isSplit) {
-			this.isSplit = isSplit;
-			// if split is false or true then it can no longer be minimised
-			screenManager.getScreen(2).setState(ScreenState.SPLIT);
-			if (isSplit) {
-				synchronizeScreens();
-			}
-		}
+		return screenRepository.isSplit();
 	}
 
 	public Screen getNonActiveScreen() {
-		if (screenManager.getCurrentActiveScreen().getScreenNo()==1) {
-			return screenManager.getScreen(2);
+		if (screenRepository.getCurrentActiveScreen().getScreenNo()==1) {
+			return screenRepository.getScreen(2);
 		} else {
-			return screenManager.getScreen(1);
+			return screenRepository.getScreen(1);
 		}
 	}
 	public Screen getCurrentActiveScreen() {
-		return screenManager.getCurrentActiveScreen();
+		return screenRepository.getCurrentActiveScreen();
 	}
 	public void setCurrentActiveScreen(Screen currentActiveScreen) {
-		Log.d(TAG, "setCurrentActiveScreen:"+currentActiveScreen);
-		if (currentActiveScreen != screenManager.getCurrentActiveScreen()) {
-			screenManager.setCurrentActiveScreen(currentActiveScreen);
-			EventBus.getDefault().post(new CurrentSplitScreenChangedEvent(currentActiveScreen));
-		}
+		screenRepository.setCurrentActiveScreen(currentActiveScreen);
 	}
 
-	public boolean isSplitScreensLinked() {
-		return isSplitScreensLinked;
-	}
-	public void setSplitScreensLinked(boolean isSplitScreensLinked) {
-		this.isSplitScreensLinked = isSplitScreensLinked;
-	}
-	
 	public boolean isScreen2Minimized() {
-		return screenManager.getScreen(2).getState()==ScreenState.MINIMISED;
+		return screenRepository.getScreen(2).getState()==ScreenState.MINIMISED;
 	}
 
 	public boolean isSeparatorMoving() {
@@ -377,20 +224,14 @@ public class SplitScreenControl {
 		
 		boolean isMoveFinished = !isSeparatorMoving;
 		if (isMoveFinished) {
-			resynchRequired = true;
+			splitScreenSync.setResynchRequired(true);
 		}
 		
 		EventBus.getDefault().post(new SplitScreenSizeChangedEvent(isMoveFinished, getScreenVerseMap()));
 	}
 
-	/**
-	 * Weight reflects the relative size of each screen
-	 */
-	public float getScreen1Weight() {
-		return screen1Weight;
-	}
-	public void setScreen1Weight(float screen1Weight) {
-		this.screen1Weight = screen1Weight;
+	public ScreenRepository getScreenManager() {
+		return screenRepository;
 	}
 
 	/**
@@ -401,7 +242,7 @@ public class SplitScreenControl {
 	private Map<Screen, Integer> getScreenVerseMap() {
 		// get page offsets to maintain for each screen
 		Map<Screen,Integer> screenVerseMap = new HashMap<Screen,Integer>();
-		for (Screen screen : screenManager.getScreens()) {
+		for (Screen screen : screenRepository.getScreens()) {
 			CurrentPage currentPage = getCurrentPage(screen);
 			if (currentPage!=null &&
 				BookCategory.BIBLE == currentPage.getCurrentDocument().getBookCategory()) {

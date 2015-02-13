@@ -5,7 +5,6 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.view.util.TouchDelegateView;
 import net.bible.android.view.util.TouchOwner;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.util.Log;
@@ -86,7 +85,7 @@ public class Separator extends View {
 	    case MotionEvent.ACTION_POINTER_UP:
 	    	Log.d(TAG, "Up x:"+event.getX()+" y:"+event.getY());
 	        setBackgroundColor(SEPARATOR_COLOUR);
-	    	splitScreenControl.setScreen1Weight(view1LayoutParams.weight);
+//TODO	    	splitScreenControl.setScreen1Weight(view1LayoutParams.weight);
 	    	splitScreenControl.setSeparatorMoving(false);
 	    	touchOwner.releaseOwnership(this);
 	        break;

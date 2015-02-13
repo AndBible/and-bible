@@ -339,7 +339,6 @@ public class BibleView extends WebView implements DocumentView {
     
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
-		Log.d(TAG, "onTouchEvent screen:"+splitScreenNo);
 		boolean handled = super.onTouchEvent(ev);
 		
 		splitScreenControl.setCurrentActiveScreen(splitScreenNo);

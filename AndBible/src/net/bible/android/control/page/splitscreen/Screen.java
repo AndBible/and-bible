@@ -11,6 +11,8 @@ public class Screen {
 	
 	private boolean isSynchronised = true;
 	
+	private float weight = 0.5f;
+	
 	public Screen(int screenNo, ScreenState screenState) {
 		this.screenNo = screenNo;
 		this.state = screenState;
@@ -36,6 +38,14 @@ public class Screen {
 		this.state = state;
 	}
 	
+	public float getWeight() {
+		return weight;
+	}
+
+	public void setWeight(float weight) {
+		this.weight = weight;
+	}
+
 	@Override
 	public String toString() {
 		return "Screen [screenNo=" + screenNo + ", state=" + state
