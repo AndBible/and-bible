@@ -195,11 +195,7 @@ public class BibleView extends WebView implements DocumentView {
 		mJumpToYOffsetRatio = jumpToYOffsetRatio;
 		
 		// allow zooming if map
-		boolean isMap = CurrentPageManager.getInstance().isMapShown();
-		getSettings().setBuiltInZoomControls(isMap);
-		// http://stackoverflow.com/questions/3808532/how-to-set-the-initial-zoom-width-for-a-webview
-		getSettings().setLoadWithOverviewMode(isMap);
-		getSettings().setUseWideViewPort(isMap);
+		enableZoomForMap(CurrentPageManager.getInstance().isMapShown());
 		
 		loadDataWithBaseURL("file:///android_asset/", html, "text/html", "UTF-8", "http://historyUrl");
 
@@ -207,6 +203,22 @@ public class BibleView extends WebView implements DocumentView {
 		// don't set this value too low or it may trigger before a proper upcoming computeVerticalScrollEvent
 		// 100 was good for my Nexus 4 but 500 for my G1 - it would be good to get a reflection of processor speed and adjust appropriately
 		invokeJumpToOffsetIfRequired(CommonUtils.isSlowDevice()? 500 : 250);
+	}
+
+	/**
+	 * Enable or disable zoom controls depending on whether map is currently shown
+	 */
+	@SuppressLint("NewApi")
+	protected void enableZoomForMap(boolean isMap) {
+		getSettings().setBuiltInZoomControls(true);
+		getSettings().setSupportZoom(isMap);
+		if (CommonUtils.isHoneycombPlus()) {
+			// Could not totally remove the zoom controls after returning to a Bible view so never display them
+			getSettings().setDisplayZoomControls(false);
+		}
+		// http://stackoverflow.com/questions/3808532/how-to-set-the-initial-zoom-width-for-a-webview
+		getSettings().setLoadWithOverviewMode(isMap);
+		getSettings().setUseWideViewPort(isMap);
 	}
 
 	/**
