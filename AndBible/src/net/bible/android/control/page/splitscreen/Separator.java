@@ -58,6 +58,7 @@ public class Separator extends View {
 		SEPARATOR_COLOUR = res.getColor(R.color.split_separator_colour);
 		SEPARATOR_DRAG_COLOUR = res.getColor(R.color.split_separator_drag_colour);
         setBackgroundColor(SEPARATOR_COLOUR);
+
         touchDelegateView1 = new TouchDelegateView(context, this);
         touchDelegateView2 = new TouchDelegateView(context, this);
         SEPARATOR_WIDTH = width;

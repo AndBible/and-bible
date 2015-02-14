@@ -111,27 +111,12 @@ public class DocumentWebViewBuilder {
     		
     		parent.setOrientation(isPortrait? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
     		ViewGroup currentSplitScreenLayout = null;
-
+    		Separator previousSeparator = null;
+    		
     		for (int i=0; i<screens.size(); i++) {
     			final Screen screen = screens.get(i);
     			
     			currentSplitScreenLayout = new FrameLayout(this.mainActivity);
-    			
-				// Add screen separator
-				if (i>0) {
-			    	Separator separator = new Separator(this.mainActivity, SPLIT_SEPARATOR_WIDTH_PX);
-					separator.setParentLayout(parentLayout);
-		    		separator.setPortrait(isPortrait);
-			        
-	    			// add separator touch delegate to framelayout which extends the touch area, otherwise it is difficult to select the separator to move it
-	    			FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate = isPortrait? 	new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, Gravity.BOTTOM) :
-	    																						new FrameLayout.LayoutParams(SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, LayoutParams.FILL_PARENT, Gravity.RIGHT);
-	    			currentSplitScreenLayout.addView(separator.getTouchDelegateView1(), frameLayoutParamsSeparatorDelegate);
-	    			
-	    			// line dividing the split screens
-	    			parent.addView(separator, isPortrait ? 	new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, SPLIT_SEPARATOR_WIDTH_PX, 0) :
-	    													new LinearLayout.LayoutParams(SPLIT_SEPARATOR_WIDTH_PX, LayoutParams.FILL_PARENT, 0));
-				}
     			
     			BibleView bibleView = getView(screen);
         		// trigger recalc of verse positions in case width changes e.g. minimize/restore web view
@@ -141,15 +126,34 @@ public class DocumentWebViewBuilder {
     			LinearLayout.LayoutParams lp = isPortrait?	new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, 0, screenWeight) :
     														new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, screenWeight);
 
-				// add top view whether split or not
-				//AddTop FrameLayout, then webview, [then separatorTouchExtender(beside separator)]
-				// add a FrameLayout
 	    		parent.addView(currentSplitScreenLayout, lp);
 
 				// add bible to framelayout
 				LayoutParams frameLayoutParamsBibleWebView = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
 				currentSplitScreenLayout.addView(bibleView, frameLayoutParamsBibleWebView);
-				
+
+				if (i>0) {
+					Separator separator = previousSeparator;
+					
+					// extend touch area of separator
+					addTopOrLeftSeparatorExtension(isPortrait, currentSplitScreenLayout, lp, separator);
+				}
+
+				// Add screen separator
+				Separator separator = null;
+				if (i<screens.size()-1) {
+					separator = createSeparator(parent, isPortrait);
+					
+					// extend touch area of separator
+					addBottomOrRightSeparatorExtension(isPortrait, currentSplitScreenLayout, lp, separator);
+
+					// Add actual separator line dividing the split screens
+					parent.addView(separator, isPortrait ? 	new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, SPLIT_SEPARATOR_WIDTH_PX, 0) :
+															new LinearLayout.LayoutParams(SPLIT_SEPARATOR_WIDTH_PX, LayoutParams.FILL_PARENT, 0));
+					// allow extension to be added in next screen
+					previousSeparator = separator;
+				}
+
 				if (i>0) {
 			        // minimise button
 			        Button minimiseScreenButton = createMinimiseButton(screen);
@@ -160,18 +164,6 @@ public class DocumentWebViewBuilder {
 	    			currentSplitScreenLayout.addView(newScreenButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP|Gravity.RIGHT));
 				}
 
-/********************				
-        		
-    			// add separator handle touch delegate to framelayout
-    			FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate2 = isPortrait ?	new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, Gravity.TOP) :
-    																						new FrameLayout.LayoutParams(SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, LayoutParams.FILL_PARENT, Gravity.LEFT);
-    			splitFrameLayout2.addView(separator.getTouchDelegateView2(), frameLayoutParamsSeparatorDelegate2);
-
-    			// separator will adjust layouts when dragged
-    			separator.setView1LayoutParams(lp);
-    			separator.setView2LayoutParams(lp2);
-
-*/
     			mainActivity.registerForContextMenu(bibleView);
     		}
     		
@@ -193,6 +185,36 @@ public class DocumentWebViewBuilder {
     		isLaidOutForPortrait = isPortrait;
     		isSplitScreenConfigurationChanged = false;
     	}
+	}
+
+	protected void addTopOrLeftSeparatorExtension(boolean isPortrait,
+			ViewGroup currentSplitScreenLayout, LinearLayout.LayoutParams lp,
+			Separator separator) {
+		// add separator handle touch delegate to framelayout
+		FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate2 = isPortrait ?	new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, Gravity.TOP) :
+																					new FrameLayout.LayoutParams(SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, LayoutParams.FILL_PARENT, Gravity.LEFT);
+		currentSplitScreenLayout.addView(separator.getTouchDelegateView2(), frameLayoutParamsSeparatorDelegate2);
+
+		// separator will adjust layouts when dragged
+		separator.setView2LayoutParams(lp);
+	}
+
+	protected void addBottomOrRightSeparatorExtension(boolean isPortrait,
+			ViewGroup previousSplitScreenLayout,
+			LinearLayout.LayoutParams previousLp, Separator separator) {
+		// add first touch delegate to framelayout which extends the touch area, otherwise it is difficult to select the separator to move it
+		FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate = isPortrait? 	new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, Gravity.BOTTOM) :
+																					new FrameLayout.LayoutParams(SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, LayoutParams.FILL_PARENT, Gravity.RIGHT);
+		previousSplitScreenLayout.addView(separator.getTouchDelegateView1(), frameLayoutParamsSeparatorDelegate);
+		// separator will adjust layouts when dragged
+		separator.setView1LayoutParams(previousLp);
+	}
+
+	protected Separator createSeparator(LinearLayout parent, boolean isPortrait) {
+		Separator separator = new Separator(this.mainActivity, SPLIT_SEPARATOR_WIDTH_PX);
+		separator.setParentLayout(parent);
+		separator.setPortrait(isPortrait);
+		return separator;
 	}
 
 	/**
