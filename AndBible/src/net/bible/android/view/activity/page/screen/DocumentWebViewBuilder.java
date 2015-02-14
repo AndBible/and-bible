@@ -171,8 +171,8 @@ public class DocumentWebViewBuilder {
     			separator.setView1LayoutParams(lp);
     			separator.setView2LayoutParams(lp2);
 
-    			mainActivity.registerForContextMenu(bibleWebView2);
 */
+    			mainActivity.registerForContextMenu(bibleView);
     		}
     		
     		// Display minimised screens
