@@ -20,6 +20,11 @@ import android.widget.LinearLayout;
 public class Separator extends View {
 
 	private View parentLayout;
+	private Screen screen1;
+	private Screen screen2;
+	private int numSplitScreens;
+	
+	private long aveScreenSize;
 	
 	// offset absolute points from top of layout to enable correct calculation of screen weights in layout
 	private float parentStartRawPx;
@@ -50,7 +55,7 @@ public class Separator extends View {
 
 	private static final String TAG = "Separator";
 	
-	public Separator(Context context, int width) {
+	public Separator(Context context, int width, View parentLayout, Screen screen, Screen nextScreen, int numSplitScreens, boolean isPortrait) {
 		super(context);
 		splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
 		
@@ -62,6 +67,11 @@ public class Separator extends View {
         touchDelegateView1 = new TouchDelegateView(context, this);
         touchDelegateView2 = new TouchDelegateView(context, this);
         SEPARATOR_WIDTH = width;
+        this.parentLayout = parentLayout;
+        this.screen1 = screen;
+        this.screen2 = nextScreen;
+        this.numSplitScreens = numSplitScreens;
+        this.isPortrait = isPortrait;
 	}
 	
 	/** Must use rawY below because this view is moving and getY would give the position relative to a moving component.
@@ -75,10 +85,12 @@ public class Separator extends View {
 	    	Log.d(TAG, " y:"+event.getRawY());
 	    	touchOwner.setTouchOwner(this);
 	    	splitScreenControl.setSeparatorMoving(true);
+	        setBackgroundColor(SEPARATOR_DRAG_COLOUR);
+	    	
 	    	int[] rawParentLocation = new int[2]; 
 	    	parentLayout.getLocationOnScreen(rawParentLocation);
 	    	parentStartRawPx = isPortrait? rawParentLocation[1] : rawParentLocation[0];
-	        setBackgroundColor(SEPARATOR_DRAG_COLOUR);
+	    	
 	        touchOffsetPx = isPortrait?	(int)event.getRawY()-getCentreY() : 
 	        							(int)event.getRawX()-getCentreX();
 	        break;
@@ -94,6 +106,7 @@ public class Separator extends View {
 	    	if (System.currentTimeMillis()>lastTouchMoveEvent+DRAG_TOUCH_MOVE_FREQUENCY_MILLIS) {
 		    	Log.d(TAG, "Touch move accepted");
 		    	int parentDimensionPx = getParentDimensionPx();
+		    	Log.d(TAG, "*** split parent dim:"+parentDimensionPx);
 		    	// calculate y offset in pixels from top of parent layout
 		    	float offsetFromEdgePx = (isPortrait? event.getRawY() : event.getRawX())
 		    								-parentStartRawPx-touchOffsetPx;
@@ -102,9 +115,10 @@ public class Separator extends View {
 			    	// change the weights of both bible views to effectively move the separator
 			    	// min prevents the separator going off screen at the bottom
 					float separatorPercentOfScreen = SEPARATOR_WIDTH/getParentDimensionPx();
+			    	Log.d(TAG, "*** split parent dim:"+parentDimensionPx+" offsetFromEdgepx:"+offsetFromEdgePx+" spe width:"+SEPARATOR_WIDTH+" sep perc of screen:"+separatorPercentOfScreen);
 			    	view1LayoutParams.weight = Math.min(offsetFromEdgePx/parentDimensionPx, 1-separatorPercentOfScreen);
 			    	view2LayoutParams.weight = 1-view1LayoutParams.weight;
-			    	Log.d(TAG, "request layout weight 1:"+view1LayoutParams.weight+" weight 2:"+view2LayoutParams.weight+" offset:"+offsetFromEdgePx);
+			    	Log.d(TAG, "split request layout weight 1:"+view1LayoutParams.weight+" weight 2:"+view2LayoutParams.weight+" offset:"+offsetFromEdgePx);
 			    	parentLayout.requestLayout();
 			    	lastOffsetFromEdgePx = (int)offsetFromEdgePx;
 		    	}
@@ -117,6 +131,10 @@ public class Separator extends View {
 		return true; //super.onTouchEvent(event);
 	}
 
+	private int getAveScreenSize() {
+		return getParentDimensionPx()/numSplitScreens;
+	}
+	
 	private int getParentDimensionPx() {
 		return isPortrait? parentLayout.getHeight() : parentLayout.getWidth();
 	}
@@ -140,13 +158,5 @@ public class Separator extends View {
 	}
 	public TouchDelegateView getTouchDelegateView2() {
 		return touchDelegateView2;
-	}
-
-	public void setPortrait(boolean isPortrait) {
-		this.isPortrait = isPortrait;
-	}
-
-	public void setParentLayout(View parentLayout) {
-		this.parentLayout = parentLayout;
 	}
 }

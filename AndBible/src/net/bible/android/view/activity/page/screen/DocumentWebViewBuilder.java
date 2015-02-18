@@ -14,6 +14,7 @@ import net.bible.android.control.page.splitscreen.Separator;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.view.activity.page.BibleView;
 import net.bible.service.common.CommonUtils;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Typeface;
@@ -142,7 +143,8 @@ public class DocumentWebViewBuilder {
 				// Add screen separator
 				Separator separator = null;
 				if (i<screens.size()-1) {
-					separator = createSeparator(parent, isPortrait);
+					Screen nextScreen = screens.get(i+1);
+					separator = createSeparator(parent, screen, nextScreen, isPortrait, screens.size());
 					
 					// extend touch area of separator
 					addBottomOrRightSeparatorExtension(isPortrait, currentSplitScreenLayout, lp, separator);
@@ -187,13 +189,15 @@ public class DocumentWebViewBuilder {
     	}
 	}
 
+	@SuppressLint("RtlHardcoded")
 	protected void addTopOrLeftSeparatorExtension(boolean isPortrait,
-			ViewGroup currentSplitScreenLayout, LinearLayout.LayoutParams lp,
+			ViewGroup currentSplitScreenLayout, 
+			LinearLayout.LayoutParams lp,
 			Separator separator) {
 		// add separator handle touch delegate to framelayout
-		FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate2 = isPortrait ?	new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, Gravity.TOP) :
-																					new FrameLayout.LayoutParams(SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, LayoutParams.FILL_PARENT, Gravity.LEFT);
-		currentSplitScreenLayout.addView(separator.getTouchDelegateView2(), frameLayoutParamsSeparatorDelegate2);
+		FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate = isPortrait ?	new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, Gravity.TOP) :
+																					new FrameLayout.LayoutParams(SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, LayoutParams.MATCH_PARENT, Gravity.LEFT);
+		currentSplitScreenLayout.addView(separator.getTouchDelegateView2(), frameLayoutParamsSeparatorDelegate);
 
 		// separator will adjust layouts when dragged
 		separator.setView2LayoutParams(lp);
@@ -201,19 +205,18 @@ public class DocumentWebViewBuilder {
 
 	protected void addBottomOrRightSeparatorExtension(boolean isPortrait,
 			ViewGroup previousSplitScreenLayout,
-			LinearLayout.LayoutParams previousLp, Separator separator) {
+			LinearLayout.LayoutParams previousLp, 
+			Separator separator) {
 		// add first touch delegate to framelayout which extends the touch area, otherwise it is difficult to select the separator to move it
-		FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate = isPortrait? 	new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, Gravity.BOTTOM) :
-																					new FrameLayout.LayoutParams(SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, LayoutParams.FILL_PARENT, Gravity.RIGHT);
+		FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate = isPortrait? 	new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, Gravity.BOTTOM) :
+																					new FrameLayout.LayoutParams(SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, LayoutParams.MATCH_PARENT, Gravity.RIGHT);
 		previousSplitScreenLayout.addView(separator.getTouchDelegateView1(), frameLayoutParamsSeparatorDelegate);
 		// separator will adjust layouts when dragged
 		separator.setView1LayoutParams(previousLp);
 	}
 
-	protected Separator createSeparator(LinearLayout parent, boolean isPortrait) {
-		Separator separator = new Separator(this.mainActivity, SPLIT_SEPARATOR_WIDTH_PX);
-		separator.setParentLayout(parent);
-		separator.setPortrait(isPortrait);
+	protected Separator createSeparator(LinearLayout parent, Screen screen, Screen nextScreen, boolean isPortrait, int numSplitScreens) {
+		Separator separator = new Separator(this.mainActivity, SPLIT_SEPARATOR_WIDTH_PX, parent, screen, nextScreen, numSplitScreens, isPortrait);
 		return separator;
 	}
 

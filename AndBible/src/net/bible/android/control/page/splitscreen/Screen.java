@@ -11,7 +11,7 @@ public class Screen {
 	
 	private boolean isSynchronised = true;
 	
-	private float weight = 0.5f;
+	private float weight = 1.0f;
 	
 	public Screen(int screenNo, ScreenState screenState) {
 		this.screenNo = screenNo;
