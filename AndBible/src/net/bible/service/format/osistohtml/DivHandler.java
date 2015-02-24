@@ -1,5 +1,7 @@
 package net.bible.service.format.osistohtml;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Stack;
 
 import net.bible.service.common.Logger;
@@ -33,6 +35,8 @@ public class DivHandler implements OsisTagHandler {
 	
 	private Stack<DivType> stack = new Stack<DivType>();
 	
+	private static List<String> PARAGRAPH_TYPE_LIST = Arrays.asList("paragraph", "x-p", "x-end-paragraph");
+	
 	@SuppressWarnings("unused")
 	private static final Logger log = new Logger("DivHandler");
 
@@ -51,7 +55,7 @@ public class DivHandler implements OsisTagHandler {
 	public void start(Attributes attrs) {
 		DivType divType = DivType.IGNORE;
 		String type = attrs.getValue("type");
-		if ("paragraph".equals(type)) {
+		if (PARAGRAPH_TYPE_LIST.contains(type)) {
 			// ignore sID start paragraph sID because it often comes after the verse no and causes a gap between verse no verse text
 			// could enhance this to use writeOptionallyBeforeVerse('<p>') and then write </p> in end() if there is no sID or eID 
 			String sID = attrs.getValue("sID");

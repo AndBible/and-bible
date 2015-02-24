@@ -70,4 +70,31 @@ public class DivHandlerTest {
 
 		assertThat(htmlTextWriter.getHtml(), equalTo("Some text<p />"));
 	}
+
+	/**
+	 * Osis2mod has started using type="x-p" for paragraphs, see JS-292
+	 * <div type='x-p' sID='xyz'/>
+	 * Some text
+	 * <div type='x-p' eID='xyz'/>
+	 */
+	@Test
+	public void testNewFreJndParagraphs() {
+		AttributesImpl attrs = new AttributesImpl();
+		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_SID, null, "x7681");
+		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "x-p");
+		divHandler.start(attrs);
+		divHandler.end();
+
+		htmlTextWriter.write("Some text");
+		passageInfo.isAnyTextWritten = true;
+		
+		AttributesImpl attrs2 = new AttributesImpl();
+		attrs2.addAttribute(null, null, OSISUtil.OSIS_ATTR_EID, null, "x7681");
+		attrs2.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "x-p");
+		divHandler.start(attrs2);
+		divHandler.end();
+
+		assertThat(htmlTextWriter.getHtml(), equalTo("Some text<p />"));
+	}
+
 }
