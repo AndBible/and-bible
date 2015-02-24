@@ -32,7 +32,9 @@ public class Separator extends View {
 	private boolean isPortrait = true;
 
 	// the offset of the touch from the centre of the separator - to prevent initial jerk of separator to touch point
-	private int touchOffsetPx;
+	private int startTouchPx;
+	private float startWeight1 = 1.0f;
+	private float startWeight2 = 1.0f;
 	
 	private int lastOffsetFromEdgePx;
 
@@ -91,8 +93,9 @@ public class Separator extends View {
 	    	parentLayout.getLocationOnScreen(rawParentLocation);
 	    	parentStartRawPx = isPortrait? rawParentLocation[1] : rawParentLocation[0];
 	    	
-	        touchOffsetPx = isPortrait?	(int)event.getRawY()-getCentreY() : 
-	        							(int)event.getRawX()-getCentreX();
+	        startTouchPx = isPortrait? (int)event.getRawY() : (int)event.getRawX();
+	        startWeight1 = view1LayoutParams.weight; //screen1.getWeight();
+	        startWeight2 = view2LayoutParams.weight; //screen2.getWeight();
 	        break;
 	    case MotionEvent.ACTION_UP:
 	    case MotionEvent.ACTION_POINTER_UP:
@@ -108,16 +111,19 @@ public class Separator extends View {
 		    	int parentDimensionPx = getParentDimensionPx();
 		    	Log.d(TAG, "*** split parent dim:"+parentDimensionPx);
 		    	// calculate y offset in pixels from top of parent layout
-		    	float offsetFromEdgePx = (isPortrait? event.getRawY() : event.getRawX())
-		    								-parentStartRawPx-touchOffsetPx;
+		    	float offsetFromEdgePx = (isPortrait? event.getRawY() : event.getRawX()) - parentStartRawPx;
 		    	// if position has moved at least one px then redraw separator
 		    	if ((int)offsetFromEdgePx != lastOffsetFromEdgePx) {
+		    		int changePx = (int)offsetFromEdgePx-startTouchPx;
+		    		float aveScreenSize = getAveScreenSize();
+		    		float variationPercent = changePx/aveScreenSize; 
+		    		
 			    	// change the weights of both bible views to effectively move the separator
 			    	// min prevents the separator going off screen at the bottom
-					float separatorPercentOfScreen = SEPARATOR_WIDTH/getParentDimensionPx();
-			    	Log.d(TAG, "*** split parent dim:"+parentDimensionPx+" offsetFromEdgepx:"+offsetFromEdgePx+" spe width:"+SEPARATOR_WIDTH+" sep perc of screen:"+separatorPercentOfScreen);
-			    	view1LayoutParams.weight = Math.min(offsetFromEdgePx/parentDimensionPx, 1-separatorPercentOfScreen);
-			    	view2LayoutParams.weight = 1-view1LayoutParams.weight;
+//					float separatorPercentOfScreen = SEPARATOR_WIDTH/getParentDimensionPx();
+			    	Log.d(TAG, "*** split parent dim:"+parentDimensionPx+" start px:"+startTouchPx+" offsetFromEdgepx:"+offsetFromEdgePx+" spe width:"+SEPARATOR_WIDTH+" var perc of screen:"+variationPercent);
+			    	view1LayoutParams.weight = startWeight1+variationPercent;//Math.min(offsetFromEdgePx/parentDimensionPx, 1-separatorPercentOfScreen);
+			    	view2LayoutParams.weight = startWeight2-variationPercent;
 			    	Log.d(TAG, "split request layout weight 1:"+view1LayoutParams.weight+" weight 2:"+view2LayoutParams.weight+" offset:"+offsetFromEdgePx);
 			    	parentLayout.requestLayout();
 			    	lastOffsetFromEdgePx = (int)offsetFromEdgePx;
