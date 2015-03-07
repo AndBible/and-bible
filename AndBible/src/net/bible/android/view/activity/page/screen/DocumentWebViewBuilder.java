@@ -49,8 +49,6 @@ public class DocumentWebViewBuilder {
 
 	private static SplitScreenControl splitScreenControl;
 
-	private ViewGroup parentLayout;
-
 	private boolean isLaidOutForPortrait;
 	private Activity mainActivity;
 	
@@ -95,7 +93,6 @@ public class DocumentWebViewBuilder {
 	}
 	
 	public void addWebView(LinearLayout parent) {
-		this.parentLayout = parent;
 		// TODO dodgy
     	boolean isWebView = parent.findViewById(BIBLE_WEB_VIEW_ID_BASE+1)!=null;
     	boolean isPortrait = CommonUtils.isPortrait();
@@ -178,12 +175,6 @@ public class DocumentWebViewBuilder {
     			minimisedWindowsFrameContainer.addView(restoreButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.BOTTOM|Gravity.RIGHT));
     		}    		
     		
-//    		} else if (splitScreenControl.isScreen2Minimized()) {
-//    			Log.d(TAG,  "Show restore button");
-//    			splitFrameLayout1.addView(restoreScreen2Button, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.BOTTOM|Gravity.RIGHT));
-//    		}
-    		
-//    		mainActivity.registerForContextMenu(bibleWebView);
     		isLaidOutForPortrait = isPortrait;
     		isSplitScreenConfigurationChanged = false;
     	}
