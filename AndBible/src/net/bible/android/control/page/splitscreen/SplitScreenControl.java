@@ -119,6 +119,7 @@ public class SplitScreenControl {
 		splitScreenSync.synchronizeScreens();
 	}
 	
+//TODO save all screen settings - but save it somewhere screen specific not in this control
 	private void restoreFromSettings() {
 		Log.d(TAG, "Refresh split screen settings");
 		String splitScreenPreference = PREFS_SPLIT_SCREEN_SINGLE;
@@ -130,7 +131,7 @@ public class SplitScreenControl {
 		if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_SINGLE)) {
 			screenRepository.getScreen(1).setState(ScreenState.MAXIMISED);
 			screenRepository.getScreen(1).setSynchronised(false);
-			screenRepository.getScreen(1).setWeight(0.5f);
+			screenRepository.getScreen(1).setWeight(1f);
 		} else if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_LINKED)) {
 			screenRepository.getScreen(1).setState(ScreenState.SPLIT);
 			screenRepository.getScreen(2).setState(ScreenState.SPLIT);
@@ -145,7 +146,7 @@ public class SplitScreenControl {
 			// unexpected value so default to no split
 			screenRepository.getScreen(1).setState(ScreenState.MAXIMISED);
 			screenRepository.getScreen(1).setSynchronised(false);
-			screenRepository.getScreen(1).setWeight(0.5f);
+			screenRepository.getScreen(1).setWeight(1f);
 		}
 	}
 	
@@ -164,7 +165,7 @@ public class SplitScreenControl {
 		Log.d(TAG, "Refresh split non pref state");
 		SharedPreferences preferences = CommonUtils.getSharedPreferences();
 		if (preferences!=null) {
-			screenRepository.getScreen(1).setWeight(preferences.getFloat(SPLIT_SCREEN1_WEIGHT, 0.5f));
+			screenRepository.getScreen(1).setWeight(preferences.getFloat(SPLIT_SCREEN1_WEIGHT, 1f));
 			if (preferences.getBoolean(SPLIT_SCREEN2_MINIMIZED, false)) {
 				screenRepository.getScreen(2).setState(ScreenState.MINIMISED);
 			} else {

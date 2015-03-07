@@ -182,6 +182,12 @@ public class BibleApplication extends Application{
 				}
 			}
 
+			// clear old split screen config because it has changed a lot
+			if (prevInstalledVersion < 149) {
+				 editor.remove("screen1_weight");
+				 editor.remove("screen2_minimized");
+			}
+			
 			editor.putInt("version", CommonUtils.getApplicationVersionNumber());
 			editor.commit();
 			Log.d(TAG, "Finished all Upgrading");
