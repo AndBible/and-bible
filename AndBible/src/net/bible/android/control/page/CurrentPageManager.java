@@ -48,9 +48,6 @@ public class CurrentPageManager {
 	// For split screen need 2 CurrentPageManagers
 	private static Map<Screen, CurrentPageManager> screenPageManagerMap = new HashMap<>();
 	
-	// this was moved from the MainBibleActivity and has always been called this
-	private static final String saveStateTag = "MainBibleActivity";
-
 	private static final String TAG = "CurrentPageManager";
 	
 	static public CurrentPageManager getInstance() {
@@ -273,7 +270,7 @@ public class CurrentPageManager {
     /** save current page and document state */
 	protected void saveState() {
     	Log.i(TAG, "Save instance state for screen "+splitScreenNo);
-    	SharedPreferences settings = getAppStateSharedPreferences();
+    	SharedPreferences settings = BibleApplication.getApplication().getAppStateSharedPreferences();
 		saveState(settings);
 	}
 
@@ -281,7 +278,7 @@ public class CurrentPageManager {
     private void restoreState() {
     	try {
         	Log.i(TAG, "Restore instance state for screen "+splitScreenNo);
-        	SharedPreferences settings = getAppStateSharedPreferences();
+        	SharedPreferences settings = BibleApplication.getApplication().getAppStateSharedPreferences();
     		restoreState(settings);
     	} catch (Exception e) {
     		Log.e(TAG, "Restore error", e);
@@ -334,8 +331,4 @@ public class CurrentPageManager {
 			return "_SCREEN"+splitScreenNo.getScreenNo();
 		}
 	}
-	
-    private SharedPreferences getAppStateSharedPreferences() {
-    	return BibleApplication.getApplication().getSharedPreferences(saveStateTag, 0);
-    }
 }

@@ -42,7 +42,7 @@ public class DocumentViewManager {
 
 	public void buildView() {
     	if (myNoteViewBuilder.isMyNoteViewType()) {
-    		documentWebViewBuilder.removeWebView(parent);
+    		documentWebViewBuilder.removeChildViews(parent);
     		myNoteViewBuilder.addMyNoteView(parent);
     	} else {
     		myNoteViewBuilder.removeMyNoteView(parent);

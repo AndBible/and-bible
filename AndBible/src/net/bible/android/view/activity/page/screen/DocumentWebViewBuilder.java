@@ -58,6 +58,8 @@ public class DocumentWebViewBuilder {
 	private int SPLIT_BUTTON_BACKGROUND_COLOUR;
 	private int BUTTON_SIZE_PX;
 
+	private LinearLayout previousParent;
+	
 	private static final String TAG="DocumentWebViewBuilder";
 
 	public DocumentWebViewBuilder(Activity mainActivity) {
@@ -105,7 +107,7 @@ public class DocumentWebViewBuilder {
     		List<Screen> screens = splitScreenControl.getScreenManager().getVisibleScreens();
     		
     		// ensure we have a known starting point - could be none, 1, or 2 webviews present
-    		removeWebView(parent);
+    		removeChildViews(previousParent);
     		
     		parent.setOrientation(isPortrait? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
     		ViewGroup currentSplitScreenLayout = null;
@@ -113,10 +115,12 @@ public class DocumentWebViewBuilder {
     		
     		for (int i=0; i<screens.size(); i++) {
     			final Screen screen = screens.get(i);
+    			Log.d(TAG, "Layout screen "+screen.getScreenNo() + " of "+screens.size());
     			
     			currentSplitScreenLayout = new FrameLayout(this.mainActivity);
     			
     			BibleView bibleView = getView(screen);
+
         		// trigger recalc of verse positions in case width changes e.g. minimize/restore web view
         		bibleView.setVersePositionRecalcRequired(true);
 
@@ -175,6 +179,7 @@ public class DocumentWebViewBuilder {
     			minimisedWindowsFrameContainer.addView(restoreButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.BOTTOM|Gravity.RIGHT));
     		}    		
     		
+    		previousParent = parent;
     		isLaidOutForPortrait = isPortrait;
     		isSplitScreenConfigurationChanged = false;
     	}
@@ -216,16 +221,16 @@ public class DocumentWebViewBuilder {
 	 * Frame contains BibleView
 	 * @param parent
 	 */
-	public void removeWebView(ViewGroup parent) {
-		for (int i=0; i<parent.getChildCount(); i++) {
-			View view = parent.getChildAt(i);
-			if (view instanceof ViewGroup) {
-				// this detaches the BibleView from it's containing Frame
-				((ViewGroup) view).removeAllViews();
-			}
-		}
-
+	public void removeChildViews(ViewGroup parent) {
 		if (parent!=null) {
+			for (int i=0; i<parent.getChildCount(); i++) {
+				View view = parent.getChildAt(i);
+				if (view instanceof ViewGroup) {
+					// this detaches the BibleView from it's containing Frame
+					removeChildViews((ViewGroup)view);
+				}
+			}
+
 			parent.removeAllViews();
 		}
 	}
@@ -254,7 +259,8 @@ public class DocumentWebViewBuilder {
 		return createTextButton("━━", new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				splitScreenControl.minimiseScreen(screen);				
+				//TODO was minimise
+				splitScreenControl.removeScreen(screen);				
 			}
 		});
 	}

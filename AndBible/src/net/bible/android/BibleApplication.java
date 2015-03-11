@@ -42,7 +42,11 @@ public class BibleApplication extends Application{
 	
 	private ScreenTimeoutSettings screenTimeoutSettings = new ScreenTimeoutSettings();
 	
+	// this was moved from the MainBibleActivity and has always been called this
+	private static final String saveStateTag = "MainBibleActivity";
+
 	private static BibleApplication singleton;
+
 	private static final String TAG = "BibleApplication";
 	
 	@Override
@@ -252,4 +256,8 @@ public class BibleApplication extends Application{
 	public int getErrorDuringStartup() {
 		return errorDuringStartup;
 	}
+	
+    public SharedPreferences getAppStateSharedPreferences() {
+    	return getSharedPreferences(saveStateTag, 0);
+    }
 }

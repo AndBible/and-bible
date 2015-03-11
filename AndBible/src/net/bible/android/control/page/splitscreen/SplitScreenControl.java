@@ -3,7 +3,6 @@ package net.bible.android.control.page.splitscreen;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.splitscreen.NumberOfScreensChangedEvent;
 import net.bible.android.control.event.splitscreen.SplitScreenSizeChangedEvent;
 import net.bible.android.control.page.CurrentPage;
@@ -40,8 +39,6 @@ public class SplitScreenControl {
 	private static final String PREFS_SPLIT_SCREEN_SINGLE = "single";
 	private static final String PREFS_SPLIT_SCREEN_LINKED = "linked";
 	private static final String PREFS_SPLIT_SCREEN_NOT_LINKED = "not_linked";
-	private static final String SPLIT_SCREEN1_WEIGHT = "screen1_weight";
-	private static final String SPLIT_SCREEN2_MINIMIZED = "screen2_minimized";
 	
 	private static final String TAG = "SplitScreenControl";
 	
@@ -49,7 +46,7 @@ public class SplitScreenControl {
 		@Override
 		public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,	String key) {
 			if (SPLIT_SCREEN_PREF.equals(key)) {
-				restoreFromSettings();
+				splitScreenPreferenceChanged();
 			} else {
 				Log.d(TAG, "screen preferences changed so inactive screen needs to be refreshed");
 				splitScreenSync.setScreenPreferencesChanged(true);
@@ -59,14 +56,8 @@ public class SplitScreenControl {
 	};
 	
 	public SplitScreenControl() {
-		restoreNonPreferenceState();
-		restoreFromSettings();
-		
 		// the listener needs to be a class variable because it is held in a WeakHashMap by SharedPreferences
 		CommonUtils.getSharedPreferences().registerOnSharedPreferenceChangeListener(onSettingsChangeListener);
-		
-		// register for passage change and fore/background events
-		EventBus.getDefault().register(this);
 	}
 
 	public Screen getScreen(int screenNo) {
@@ -80,7 +71,8 @@ public class SplitScreenControl {
 	}
 	
 	public void addNewScreen() {
-		Screen newScreen = screenRepository.addNewScreen();
+		//Screen newScreen = 
+		screenRepository.addNewScreen();
 
 		// redisplay the current page
 		EventBus.getDefault().post(new NumberOfScreensChangedEvent(getScreenVerseMap()));
@@ -95,13 +87,22 @@ public class SplitScreenControl {
 		EventBus.getDefault().post(new NumberOfScreensChangedEvent(getScreenVerseMap()));
 	}
 
+	public void removeScreen(Screen screen) {
+		screenRepository.remove(screen);
+
+		//TODO may have to maximise another screen if there is only 1 screen unminimised
+
+		// redisplay the current page
+		EventBus.getDefault().post(new NumberOfScreensChangedEvent(getScreenVerseMap()));
+	}
+
 	public void restoreScreen(Screen screen) {
 		screen.setState(ScreenState.SPLIT);
 		
 		// any maximised screen must be normalised
-		for (Screen maxScreen :screenRepository.getMaximisedScreens()) {
-			maxScreen.setState(ScreenState.SPLIT);
-		}
+//		for (Screen maxScreen :screenRepository.getMaximisedScreens()) {
+//			maxScreen.setState(ScreenState.SPLIT);
+//		}
 		
 		// causes BibleViews to be created and laid out
 		EventBus.getDefault().post(new NumberOfScreensChangedEvent(getScreenVerseMap()));
@@ -120,7 +121,7 @@ public class SplitScreenControl {
 	}
 	
 //TODO save all screen settings - but save it somewhere screen specific not in this control
-	private void restoreFromSettings() {
+	private void splitScreenPreferenceChanged() {
 		Log.d(TAG, "Refresh split screen settings");
 		String splitScreenPreference = PREFS_SPLIT_SCREEN_SINGLE;
 		SharedPreferences preferences = CommonUtils.getSharedPreferences();
@@ -129,7 +130,7 @@ public class SplitScreenControl {
 		}
 		
 		if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_SINGLE)) {
-			screenRepository.getScreen(1).setState(ScreenState.MAXIMISED);
+			screenRepository.getScreen(1).setState(ScreenState.SPLIT); //Was MAXIMIZED
 			screenRepository.getScreen(1).setSynchronised(false);
 			screenRepository.getScreen(1).setWeight(1f);
 		} else if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_LINKED)) {
@@ -137,71 +138,24 @@ public class SplitScreenControl {
 			screenRepository.getScreen(2).setState(ScreenState.SPLIT);
 			screenRepository.getScreen(1).setSynchronised(true);
 			screenRepository.getScreen(2).setSynchronised(true);
+			//TODO should the other screens also be synchronised?
 		} else if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_NOT_LINKED)) {
 			screenRepository.getScreen(1).setState(ScreenState.SPLIT);
 			screenRepository.getScreen(2).setState(ScreenState.SPLIT);
 			screenRepository.getScreen(1).setSynchronised(false);
 			screenRepository.getScreen(2).setSynchronised(false);
-		} else {
-			// unexpected value so default to no split
-			screenRepository.getScreen(1).setState(ScreenState.MAXIMISED);
-			screenRepository.getScreen(1).setSynchronised(false);
-			screenRepository.getScreen(1).setWeight(1f);
 		}
 	}
 	
-	/**
-	 * Save/restore dynamic state that is not automatically saved as Preferences
-	 */
-	public void onEvent(AppToBackgroundEvent event) {
-		if (event.isMovedToBackground()) {
-			saveNonPreferenceState();
-		} else {
-			restoreNonPreferenceState();
-		}
-	}
-	
-	private void restoreNonPreferenceState() {
-		Log.d(TAG, "Refresh split non pref state");
-		SharedPreferences preferences = CommonUtils.getSharedPreferences();
-		if (preferences!=null) {
-			screenRepository.getScreen(1).setWeight(preferences.getFloat(SPLIT_SCREEN1_WEIGHT, 1f));
-			if (preferences.getBoolean(SPLIT_SCREEN2_MINIMIZED, false)) {
-				screenRepository.getScreen(2).setState(ScreenState.MINIMISED);
-			} else {
-				screenRepository.getScreen(2).setState(ScreenState.SPLIT);
-			}
-		}
-	}
-	
-	private void saveNonPreferenceState() {
-		Log.d(TAG, "Save split non pref state");
-		CommonUtils.getSharedPreferences().edit()
-										.putFloat(SPLIT_SCREEN1_WEIGHT, screenRepository.getScreen(1).getWeight())
-										.putBoolean(SPLIT_SCREEN2_MINIMIZED, ScreenState.MINIMISED==screenRepository.getScreen(2).getState())
-										.commit();
-	}
-
 	public boolean isSplit() {
-		return screenRepository.isSplit();
+		return screenRepository.isMultiScreen();
 	}
 
-	public Screen getNonActiveScreen() {
-		if (screenRepository.getCurrentActiveScreen().getScreenNo()==1) {
-			return screenRepository.getScreen(2);
-		} else {
-			return screenRepository.getScreen(1);
-		}
-	}
 	public Screen getCurrentActiveScreen() {
 		return screenRepository.getCurrentActiveScreen();
 	}
 	public void setCurrentActiveScreen(Screen currentActiveScreen) {
 		screenRepository.setCurrentActiveScreen(currentActiveScreen);
-	}
-
-	public boolean isScreen2Minimized() {
-		return screenRepository.getScreen(2).getState()==ScreenState.MINIMISED;
 	}
 
 	public boolean isSeparatorMoving() {

@@ -1,21 +1,28 @@
 package net.bible.android.control.page.splitscreen;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 public class Screen {
 
-	public enum ScreenState {MINIMISED, MAXIMISED, SPLIT} 
+	public enum ScreenState {MINIMISED, SPLIT} 
 
 	// 1 based screen no
 	private int screenNo;
 	
-	private ScreenState state = ScreenState.MAXIMISED;
+	private ScreenState state = ScreenState.SPLIT;
 	
 	private boolean isSynchronised = true;
 	
 	private float weight = 1.0f;
 	
+	private static final String TAG = "Screen";
+	
 	public Screen(int screenNo, ScreenState screenState) {
 		this.screenNo = screenNo;
 		this.state = screenState;
+	}
+	public Screen() {
 	}
 
 	public int getScreenNo() {
@@ -46,6 +53,22 @@ public class Screen {
 		this.weight = weight;
 	}
 
+	public JSONObject getStateJson() throws JSONException {
+		JSONObject object = new JSONObject();
+		object.put("screenNo", screenNo)
+			 .put("state", state)
+			 .put("isSynchronised", isSynchronised)
+			 .put("weight", weight);
+		return object;
+	}
+
+	public void restoreState(JSONObject jsonObject) throws JSONException {
+		this.screenNo = jsonObject.getInt("screenNo");
+		this.state = ScreenState.valueOf(jsonObject.getString("state"));
+		this.isSynchronised = jsonObject.getBoolean("isSynchronised");
+		this.weight = (float)jsonObject.getDouble("weight");
+	}
+	
 	@Override
 	public String toString() {
 		return "Screen [screenNo=" + screenNo + ", state=" + state
