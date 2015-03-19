@@ -9,7 +9,6 @@ import net.bible.android.control.event.splitscreen.UpdateSecondaryScreenEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.UpdateTextTask;
-import net.bible.android.control.page.splitscreen.Screen.ScreenState;
 import net.bible.service.device.ScreenSettings;
 
 import org.crosswire.jsword.book.Book;
@@ -62,7 +61,7 @@ public class SplitScreenSync {
 		CurrentPage activePage = CurrentPageManager.getInstance(activeScreen).getCurrentPage();
 		
 		// exit if main screen is not synchronised
-		if (!activeScreen.isSynchronised() || !isSynchronizableVerseKey(activePage)) {
+		if (!activeScreen.getWindowLayout().isSynchronised() || !isSynchronizableVerseKey(activePage)) {
 			return;
 		}
 
@@ -75,12 +74,12 @@ public class SplitScreenSync {
 			boolean inactiveUpdated = false;
 			boolean isTotalRefreshRequired = isFirstTimeInit ||	lastSynchWasInNightMode!=ScreenSettings.isNightMode() || screenPreferencesChanged;
 	
-			if (inactiveScreen.isSynchronised()) {
+			if (inactiveScreen.getWindowLayout().isSynchronised()) {
 				// inactive screen may not be displayed (e.g. if viewing a dict) but if switched to the key must be correct
 				// Only Bible and cmtry are synch'd and they share a Verse key
 				updateInactiveBibleKey(inactiveScreen, targetActiveScreenKey);
 				
-				if (isSynchronizableVerseKey(inactivePage) && !inactiveScreen.getState().equals(ScreenState.MINIMISED)) {
+				if (isSynchronizableVerseKey(inactivePage) && inactiveScreen.isVisible()) {
 					// re-get as it may have been mapped to the correct v11n
 					targetActiveScreenKey = inactivePage.getSingleKey();
 					

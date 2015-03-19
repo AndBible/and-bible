@@ -6,7 +6,8 @@ import java.util.List;
 import net.bible.android.BibleApplication;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.splitscreen.CurrentSplitScreenChangedEvent;
-import net.bible.android.control.page.splitscreen.Screen.ScreenState;
+import net.bible.android.control.page.splitscreen.WindowLayout.WindowState;
+import net.bible.service.common.Logger;
 
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
@@ -14,7 +15,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.content.SharedPreferences;
-import android.util.Log;
 import de.greenrobot.event.EventBus;
 
 public class ScreenRepository {
@@ -24,7 +24,7 @@ public class ScreenRepository {
 	
 	private List<Screen> screenList;
 	
-	private static final String TAG="ScreenRepository";
+	private final Logger logger = new Logger(this.getClass().getName());
 	
 	public ScreenRepository() {
 		screenList = new ArrayList<Screen>();
@@ -42,33 +42,27 @@ public class ScreenRepository {
 	}
 
 	public List<Screen> getVisibleScreens() {
-		List<Screen> screens = new ArrayList<>();
-		for (Screen screen : screenList) {
 			// only 1 screen can be maximised
-//			if (screen.getState() == ScreenState.MAXIMISED) {
+//			if (screen.getState() == WindowState.MAXIMISED) {
 //				screens.clear();
 //				screens.add(screen);
 //				return screens;
 //			} else 
-			if (screen.getState()==ScreenState.SPLIT) {
-				screens.add(screen);
-			}
-		}
-		return screens;
+		return getScreens(WindowState.SPLIT);
 	}
 
 	public List<Screen> getMinimisedScreens() {
-		return getScreens(ScreenState.MINIMISED);
+		return getScreens(WindowState.MINIMISED);
 	}
 
 //	public List<Screen> getMaximisedScreens() {
-//		return getScreens(ScreenState.MAXIMISED);
+//		return getScreens(WindowState.MAXIMISED);
 //	}
 
-	private List<Screen> getScreens(ScreenState state) {
+	private List<Screen> getScreens(WindowState state) {
 		List<Screen> screens = new ArrayList<>();
 		for (Screen screen : screenList) {
-			if (screen.getState() == state) {
+			if (screen.getWindowLayout().getState() == state) {
 				screens.add(screen);
 			}
 		}
@@ -86,7 +80,7 @@ public class ScreenRepository {
 
 	public Screen addNewScreen() {
 		// ensure main screen is not maximized
-		getCurrentActiveScreen().setState(ScreenState.SPLIT);
+		getCurrentActiveScreen().getWindowLayout().setState(WindowState.SPLIT);
 
 		return addNewScreen(screenList.size()+1);
 	}
@@ -99,23 +93,23 @@ public class ScreenRepository {
 	
 	public boolean isMultiScreen() {
 		List<Screen> screens = getVisibleScreens();
-		return screens.size()>1 && screens.get(0).getState()==ScreenState.SPLIT;
+		return screens.size()>1;
 	}
 	
 	public void setDefaultActiveScreen() {
 		for (Screen screen : screenList) {
-			if (screen.getState() != ScreenState.MINIMISED) {
+			if (screen.isVisible()) {
 				currentActiveScreen = screen;
 			}
 		}
 	}
 	
-	private Screen.ScreenState getDefaultState() {
+	private WindowLayout.WindowState getDefaultState() {
 		//TODO 
 //		if (screenList.size()==0) {
-//			return ScreenState.MAXIMISED;
+//			return WindowState.MAXIMISED;
 //		} else {
-			return ScreenState.SPLIT;
+			return WindowState.SPLIT;
 //		}
 	}
 
@@ -137,17 +131,17 @@ public class ScreenRepository {
 	}
 	
 	public void minimise(Screen screen) {
-		screen.setState(ScreenState.MINIMISED);
+		screen.getWindowLayout().setState(WindowState.MINIMISED);
 
 		// adjustments
 		List<Screen> visibleScreens = getVisibleScreens();
 		// I don't think we need this
 //		switch (visibleScreens.size()) {
 //		case 0:
-//			screen.setState(ScreenState.MAXIMISED);
+//			screen.setState(WindowState.MAXIMISED);
 //			break;
 //		case 1:
-//			visibleScreens.get(0).setState(ScreenState.MAXIMISED);
+//			visibleScreens.get(0).setState(WindowState.MAXIMISED);
 //			break;
 //		default:
 //			break;
@@ -184,7 +178,7 @@ public class ScreenRepository {
 	}
     /** save current page and document state */
 	protected void saveState() {
-    	Log.i(TAG, "Save instance state for screens");
+    	logger.info("Save instance state for screens");
     	SharedPreferences settings = BibleApplication.getApplication().getAppStateSharedPreferences();
 		saveState(settings);
 	}
@@ -192,11 +186,11 @@ public class ScreenRepository {
 	/** restore current page and document state */
     private void restoreState() {
     	try {
-        	Log.i(TAG, "Restore instance state for screens");
+        	logger.info("Restore instance state for screens");
         	SharedPreferences settings = BibleApplication.getApplication().getAppStateSharedPreferences();
     		restoreState(settings);
     	} catch (Exception e) {
-    		Log.e(TAG, "Restore error", e);
+    		logger.error("Restore error", e);
     	}
     }
 	/** called during app close down to save state
@@ -204,14 +198,14 @@ public class ScreenRepository {
 	 * @param outState
 	 */
 	private void saveState(SharedPreferences outState) {
-		Log.i(TAG, "save state");
+		logger.info("save state");
 
 		JSONArray allScreenState = new JSONArray();
 		for (Screen screen : screenList) {
 			try {
 				allScreenState.put(screen.getStateJson());
 			} catch (JSONException je) {
-				Log.e(TAG, "Error saving screen state", je);
+				logger.error("Error saving screen state", je);
 			}
 		}
 		
@@ -225,7 +219,7 @@ public class ScreenRepository {
 	 * @param inState
 	 */
 	private void restoreState(SharedPreferences inState) {
-		Log.i(TAG, "restore state");
+		logger.info("restore state");
 		String allScreenStateString = inState.getString("screenStateArray", null);
 		if (StringUtils.isNotEmpty(allScreenStateString)) {
 			try {
@@ -244,11 +238,11 @@ public class ScreenRepository {
 							screenList.add(screen);
 						}
 					} catch (JSONException je) {
-						Log.e(TAG, "Error restoring screen state", je);
+						logger.error("Error restoring screen state", je);
 					}
 				}
 			} catch (JSONException je) {
-				Log.e(TAG, "Error restoring screen state", je);
+				logger.error("Error restoring screen state", je);
 			}
 		}
 	}

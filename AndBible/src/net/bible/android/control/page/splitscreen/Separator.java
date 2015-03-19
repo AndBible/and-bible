@@ -101,8 +101,8 @@ public class Separator extends View {
 	    case MotionEvent.ACTION_POINTER_UP:
 	    	Log.d(TAG, "Up x:"+event.getX()+" y:"+event.getY());
 	        setBackgroundColor(SEPARATOR_COLOUR);
-	    	screen1.setWeight(view1LayoutParams.weight);
-	    	screen2.setWeight(view2LayoutParams.weight);
+	    	screen1.getWindowLayout().setWeight(view1LayoutParams.weight);
+	    	screen2.getWindowLayout().setWeight(view2LayoutParams.weight);
 	    	splitScreenControl.setSeparatorMoving(false);
 	    	touchOwner.releaseOwnership(this);
 	        break;

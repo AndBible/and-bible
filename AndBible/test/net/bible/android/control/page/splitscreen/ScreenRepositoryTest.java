@@ -6,7 +6,10 @@ import static org.junit.Assert.assertThat;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
+@RunWith(RobolectricTestRunner.class)
 public class ScreenRepositoryTest {
 	private ScreenRepository screenRepository;
 
@@ -26,7 +29,7 @@ public class ScreenRepositoryTest {
 
 	@Test
 	public void testGetCurrentActiveScreen() throws Exception {
-		assertThat(screenRepository.getCurrentActiveScreen().getScreenNo(), equalTo(0));
+		assertThat(screenRepository.getCurrentActiveScreen().getScreenNo(), equalTo(1));
 	}
 
 	@Test

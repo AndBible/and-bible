@@ -2,7 +2,7 @@ package net.bible.android.control.page.splitscreen;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
-import net.bible.android.control.page.splitscreen.Screen.ScreenState;
+import net.bible.android.control.page.splitscreen.WindowLayout.WindowState;
 
 import org.json.JSONObject;
 import org.junit.After;
@@ -24,17 +24,18 @@ public class ScreenTest {
 
 	@Test
 	public void testGetRestoreStateJson() throws Exception {
-		Screen screen = new Screen(2, ScreenState.MINIMISED);
-		screen.setSynchronised(true);
-		screen.setWeight(1.23456f);
+		Screen screen = new Screen(2, WindowState.MINIMISED);
+		WindowLayout layout = screen.getWindowLayout();
+		layout.setSynchronised(true);
+		layout.setWeight(1.23456f);
 		JSONObject json = screen.getStateJson();
 		System.out.println(json);
 		screen = new Screen();
 		screen.restoreState(json);
+		layout = screen.getWindowLayout();
 		assertThat(screen.getScreenNo(), equalTo(2));
-		assertThat(screen.getState(), equalTo(ScreenState.MINIMISED));
-		assertThat(screen.isSynchronised(), equalTo(true));
-		assertThat(screen.getWeight(), equalTo(1.23456f));
+		assertThat(layout.getState(), equalTo(WindowState.MINIMISED));
+		assertThat(layout.isSynchronised(), equalTo(true));
+		assertThat(layout.getWeight(), equalTo(1.23456f));
 	}
-
 }

@@ -1,78 +1,60 @@
 package net.bible.android.control.page.splitscreen;
 
+import net.bible.android.control.page.splitscreen.WindowLayout.WindowState;
+import net.bible.service.common.Logger;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Screen {
 
-	public enum ScreenState {MINIMISED, SPLIT} 
-
+	private WindowLayout windowLayout;
+	
 	// 1 based screen no
 	private int screenNo;
 	
-	private ScreenState state = ScreenState.SPLIT;
-	
-	private boolean isSynchronised = true;
-	
-	private float weight = 1.0f;
+	private final Logger logger = new Logger(this.getClass().getName());
 	
 	private static final String TAG = "Screen";
 	
-	public Screen(int screenNo, ScreenState screenState) {
+	public Screen(int screenNo, WindowState windowState) {
 		this.screenNo = screenNo;
-		this.state = screenState;
+		this.windowLayout = new WindowLayout( windowState );
 	}
 	public Screen() {
+		this.windowLayout = new WindowLayout(WindowState.SPLIT);
 	}
 
 	public int getScreenNo() {
 		return screenNo;
 	}
-	
-	public ScreenState getState() {
-		return state;
-	}
-	
-	public boolean isSynchronised() {
-		return isSynchronised;
-	}
-	
-	public void setSynchronised(boolean isSynchronised) {
-		this.isSynchronised = isSynchronised;
-	}
 
-	public void setState(ScreenState state) {
-		this.state = state;
+	public boolean isVisible() {
+		return getWindowLayout().getState()!=WindowState.MINIMISED;
 	}
 	
-	public float getWeight() {
-		return weight;
-	}
-
-	public void setWeight(float weight) {
-		this.weight = weight;
-	}
-
 	public JSONObject getStateJson() throws JSONException {
 		JSONObject object = new JSONObject();
 		object.put("screenNo", screenNo)
-			 .put("state", state)
-			 .put("isSynchronised", isSynchronised)
-			 .put("weight", weight);
+			 .put("windowLayout", windowLayout.getStateJson());
 		return object;
 	}
 
 	public void restoreState(JSONObject jsonObject) throws JSONException {
-		this.screenNo = jsonObject.getInt("screenNo");
-		this.state = ScreenState.valueOf(jsonObject.getString("state"));
-		this.isSynchronised = jsonObject.getBoolean("isSynchronised");
-		this.weight = (float)jsonObject.getDouble("weight");
+		try {
+			this.screenNo = jsonObject.getInt("screenNo");
+			this.windowLayout.restoreState(jsonObject.getJSONObject("windowLayout"));
+		} catch (Exception e) {
+			logger.warn("Screen state restore error");
+		}
 	}
-	
+
+	public WindowLayout getWindowLayout() {
+		return windowLayout;
+	}
 	@Override
 	public String toString() {
-		return "Screen [screenNo=" + screenNo + ", state=" + state
-				+ ", isSynchronised=" + isSynchronised + "]";
+		return "Screen [screenNo=" + screenNo + "]";
 	}
 
 	@Override

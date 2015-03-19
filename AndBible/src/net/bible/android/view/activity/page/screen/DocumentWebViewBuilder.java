@@ -124,7 +124,7 @@ public class DocumentWebViewBuilder {
         		// trigger recalc of verse positions in case width changes e.g. minimize/restore web view
         		bibleView.setVersePositionRecalcRequired(true);
 
-    			float screenWeight = screen.getWeight();
+    			float screenWeight = screen.getWindowLayout().getWeight();
     			LinearLayout.LayoutParams lp = isPortrait?	new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, 0, screenWeight) :
     														new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, screenWeight);
 

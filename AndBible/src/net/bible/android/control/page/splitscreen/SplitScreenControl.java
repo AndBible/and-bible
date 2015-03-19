@@ -7,7 +7,7 @@ import net.bible.android.control.event.splitscreen.NumberOfScreensChangedEvent;
 import net.bible.android.control.event.splitscreen.SplitScreenSizeChangedEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.page.splitscreen.Screen.ScreenState;
+import net.bible.android.control.page.splitscreen.WindowLayout.WindowState;
 import net.bible.service.common.CommonUtils;
 
 import org.crosswire.jsword.book.BookCategory;
@@ -97,11 +97,11 @@ public class SplitScreenControl {
 	}
 
 	public void restoreScreen(Screen screen) {
-		screen.setState(ScreenState.SPLIT);
+		screen.getWindowLayout().setState(WindowState.SPLIT);
 		
 		// any maximised screen must be normalised
 //		for (Screen maxScreen :screenRepository.getMaximisedScreens()) {
-//			maxScreen.setState(ScreenState.SPLIT);
+//			maxScreen.setState(WindowState.SPLIT);
 //		}
 		
 		// causes BibleViews to be created and laid out
@@ -130,20 +130,20 @@ public class SplitScreenControl {
 		}
 		
 		if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_SINGLE)) {
-			screenRepository.getScreen(1).setState(ScreenState.SPLIT); //Was MAXIMIZED
-			screenRepository.getScreen(1).setSynchronised(false);
-			screenRepository.getScreen(1).setWeight(1f);
+			screenRepository.getScreen(1).getWindowLayout().setState(WindowState.SPLIT); //Was MAXIMIZED
+			screenRepository.getScreen(1).getWindowLayout().setSynchronised(false);
+			screenRepository.getScreen(1).getWindowLayout().setWeight(1f);
 		} else if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_LINKED)) {
-			screenRepository.getScreen(1).setState(ScreenState.SPLIT);
-			screenRepository.getScreen(2).setState(ScreenState.SPLIT);
-			screenRepository.getScreen(1).setSynchronised(true);
-			screenRepository.getScreen(2).setSynchronised(true);
+			screenRepository.getScreen(1).getWindowLayout().setState(WindowState.SPLIT);
+			screenRepository.getScreen(2).getWindowLayout().setState(WindowState.SPLIT);
+			screenRepository.getScreen(1).getWindowLayout().setSynchronised(true);
+			screenRepository.getScreen(2).getWindowLayout().setSynchronised(true);
 			//TODO should the other screens also be synchronised?
 		} else if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_NOT_LINKED)) {
-			screenRepository.getScreen(1).setState(ScreenState.SPLIT);
-			screenRepository.getScreen(2).setState(ScreenState.SPLIT);
-			screenRepository.getScreen(1).setSynchronised(false);
-			screenRepository.getScreen(2).setSynchronised(false);
+			screenRepository.getScreen(1).getWindowLayout().setState(WindowState.SPLIT);
+			screenRepository.getScreen(2).getWindowLayout().setState(WindowState.SPLIT);
+			screenRepository.getScreen(1).getWindowLayout().setSynchronised(false);
+			screenRepository.getScreen(2).getWindowLayout().setSynchronised(false);
 		}
 	}
 	
