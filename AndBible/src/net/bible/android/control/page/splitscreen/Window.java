@@ -6,7 +6,7 @@ import net.bible.service.common.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class Screen {
+public class Window {
 
 	private WindowLayout windowLayout;
 	
@@ -15,13 +15,13 @@ public class Screen {
 	
 	private final Logger logger = new Logger(this.getClass().getName());
 	
-	private static final String TAG = "Screen";
+	private static final String TAG = "Window";
 	
-	public Screen(int screenNo, WindowState windowState) {
+	public Window(int screenNo, WindowState windowState) {
 		this.screenNo = screenNo;
 		this.windowLayout = new WindowLayout( windowState );
 	}
-	public Screen() {
+	public Window() {
 		this.windowLayout = new WindowLayout(WindowState.SPLIT);
 	}
 
@@ -45,7 +45,7 @@ public class Screen {
 			this.screenNo = jsonObject.getInt("screenNo");
 			this.windowLayout.restoreState(jsonObject.getJSONObject("windowLayout"));
 		} catch (Exception e) {
-			logger.warn("Screen state restore error");
+			logger.warn("Window state restore error");
 		}
 	}
 
@@ -54,7 +54,7 @@ public class Screen {
 	}
 	@Override
 	public String toString() {
-		return "Screen [screenNo=" + screenNo + "]";
+		return "Window [screenNo=" + screenNo + "]";
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public class Screen {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		Screen other = (Screen) obj;
+		Window other = (Window) obj;
 		if (screenNo != other.screenNo)
 			return false;
 		return true;

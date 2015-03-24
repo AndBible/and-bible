@@ -18,7 +18,7 @@ import net.bible.android.control.navigation.NavigationControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.page.PageTiltScrollControl;
-import net.bible.android.control.page.splitscreen.Screen;
+import net.bible.android.control.page.splitscreen.Window;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.control.readingplan.ReadingPlanControl;
 import net.bible.android.control.search.SearchControl;
@@ -39,7 +39,7 @@ public class ControlFactory {
 	private DocumentControl documentControl = new DocumentControl();
 	private PageControl pageControl = new PageControl();
 	private SplitScreenControl splitScreenControl = new SplitScreenControl();
-	private Map<Screen, PageTiltScrollControl> screenPageTiltScrollControlMap = new HashMap<>();
+	private Map<Window, PageTiltScrollControl> screenPageTiltScrollControlMap = new HashMap<>();
 	private LinkControl linkControl = new LinkControl();
 	private SearchControl searchControl = new SearchControl();
 	private Bookmark bookmarkControl = new BookmarkControl();
@@ -86,14 +86,14 @@ public class ControlFactory {
 		return splitScreenControl;
 	}
 
-	public PageTiltScrollControl getPageTiltScrollControl(Screen screen) {
-		PageTiltScrollControl pageTiltScrollControl = screenPageTiltScrollControlMap.get(screen);
+	public PageTiltScrollControl getPageTiltScrollControl(Window window) {
+		PageTiltScrollControl pageTiltScrollControl = screenPageTiltScrollControlMap.get(window);
 		if (pageTiltScrollControl==null) {
 			synchronized(screenPageTiltScrollControlMap) {
-				pageTiltScrollControl = screenPageTiltScrollControlMap.get(screen);
+				pageTiltScrollControl = screenPageTiltScrollControlMap.get(window);
 				if (pageTiltScrollControl==null) {
 					pageTiltScrollControl = new PageTiltScrollControl();
-					screenPageTiltScrollControlMap.put(screen, pageTiltScrollControl);
+					screenPageTiltScrollControlMap.put(window, pageTiltScrollControl);
 				}
 			}
 		}

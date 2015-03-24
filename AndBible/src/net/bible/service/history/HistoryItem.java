@@ -1,6 +1,6 @@
 package net.bible.service.history;
 
-import net.bible.android.control.page.splitscreen.Screen;
+import net.bible.android.control.page.splitscreen.Window;
 
 /**
  * An item in the History List
@@ -13,7 +13,7 @@ public interface HistoryItem {
 
 	public CharSequence getDescription();
 	
-	public Screen getScreen();
+	public Window getScreen();
 	
 	// do back to the state at this point
 	public abstract void revertTo();

@@ -29,10 +29,10 @@ public class SplitScreenSync {
 	private Key lastSynchdInactiveScreenKey;
 	private boolean lastSynchWasInNightMode;
 	
-	private ScreenRepository screenRepository;
+	private WindowRepository windowRepository;
 	
-	public SplitScreenSync(ScreenRepository screenRepository) {
-		this.screenRepository = screenRepository;
+	public SplitScreenSync(WindowRepository windowRepository) {
+		this.windowRepository = windowRepository;
 		
 		// register for passage change and fore/background events
 		EventBus.getDefault().register(this);
@@ -57,7 +57,7 @@ public class SplitScreenSync {
 	/** Synchronise the inactive key and inactive screen with the active key and screen if required
 	 */
 	public void synchronizeScreens() {
-		Screen activeScreen = screenRepository.getCurrentActiveScreen();
+		Window activeScreen = windowRepository.getCurrentActiveWindow();
 		CurrentPage activePage = CurrentPageManager.getInstance(activeScreen).getCurrentPage();
 		
 		// exit if main screen is not synchronised
@@ -67,8 +67,8 @@ public class SplitScreenSync {
 
 		Key targetActiveScreenKey = activePage.getSingleKey();
 
-		List<Screen> inactiveScreenList = screenRepository.getNonActiveScreenList();
-		for (Screen inactiveScreen : inactiveScreenList) {
+		List<Window> inactiveScreenList = windowRepository.getNonActiveScreenList();
+		for (Window inactiveScreen : inactiveScreenList) {
 			CurrentPage inactivePage = CurrentPageManager.getInstance(inactiveScreen).getCurrentPage();
 			Key inactiveScreenKey = inactivePage.getSingleKey();
 			boolean inactiveUpdated = false;
@@ -111,13 +111,13 @@ public class SplitScreenSync {
 	
 	/** Only call if screens are synchronised.  Update synch'd keys even if inactive page not shown so if it is shown then it is correct
 	 */
-	private void updateInactiveBibleKey(Screen inactiveScreen, Key activeScreenKey) {
+	private void updateInactiveBibleKey(Window inactiveScreen, Key activeScreenKey) {
 		CurrentPageManager.getInstance(inactiveScreen).getCurrentBible().doSetKey(activeScreenKey);
 	}
 	
 	/** refresh/synch inactive screen if required
 	 */
-	private void updateInactiveScreen(Screen inactiveScreen, CurrentPage inactivePage,	Key targetScreenKey, Key inactiveScreenKey, boolean forceRefresh) {
+	private void updateInactiveScreen(Window inactiveScreen, CurrentPage inactivePage,	Key targetScreenKey, Key inactiveScreenKey, boolean forceRefresh) {
 		// standard null checks
 		if (targetScreenKey!=null && inactivePage!=null) {
 			// Not just bibles and commentaries get this far so NOT always fine to convert key to verse
@@ -163,8 +163,8 @@ public class SplitScreenSync {
     private class UpdateInactiveScreenTextTask extends UpdateTextTask {
         /** callback from base class when result is ready */
     	@Override
-    	protected void showText(String text, Screen screen, int verseNo, float yOffsetRatio) {
-    		EventBus.getDefault().post(new UpdateSecondaryScreenEvent(screen, text, verseNo));
+    	protected void showText(String text, Window window, int verseNo, float yOffsetRatio) {
+    		EventBus.getDefault().post(new UpdateSecondaryScreenEvent(window, text, verseNo));
         }
     }
 

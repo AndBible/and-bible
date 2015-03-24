@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.page.splitscreen.Screen;
+import net.bible.android.control.page.splitscreen.Window;
 
 /** Automatically find current verse at top of display to aid quick movement to Commentary.
  * todo: ensure last verse is selectable 
@@ -20,14 +20,14 @@ public class VerseCalculator {
 	private int prevCurrentVerse = -1;
 
 	// used in logging, but none currently done
-//	private Screen screen;
+//	private Window screen;
 	
 	// going to a verse pushes the offset a couple of pixels past the verse position on large screens i.e. going to Judg 5:11 will show Judg 5:12
 	private static final int SLACK_FOR_JUMP_TO_VERSE = 5;
 	@SuppressWarnings("unused")
 	private static final String TAG = "VerseCalculator";
 
-	public VerseCalculator(Screen screen) {
+	public VerseCalculator(Window window) {
 		super();
 //		this.screen = screen;
 	}

@@ -2,7 +2,7 @@ package net.bible.android.control.page;
 
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
-import net.bible.android.control.page.splitscreen.Screen;
+import net.bible.android.control.page.splitscreen.Window;
 import net.bible.service.format.HtmlMessageFormatter;
 
 import org.crosswire.jsword.book.Book;
@@ -16,16 +16,16 @@ import android.util.Log;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-abstract public class UpdateTextTask extends AsyncTask<Screen, Integer, String> {
+abstract public class UpdateTextTask extends AsyncTask<Window, Integer, String> {
 
-	private Screen screen;
+	private Window window;
 	private int verseNo = SharedConstants.NO_VALUE;
 	private float yScreenOffsetRatio = SharedConstants.NO_VALUE;
 	
 	private static final String TAG = "UpdateTextTask";
 	
     /** callbacks from base class when result is ready */
-	abstract protected void showText(String text, Screen screenToUpdate, int verseNo, float yOffsetRatio);
+	abstract protected void showText(String text, Window screenToUpdate, int verseNo, float yOffsetRatio);
 	
 	@Override
 	protected void onPreExecute() {
@@ -33,12 +33,12 @@ abstract public class UpdateTextTask extends AsyncTask<Screen, Integer, String> 
 	}
 	
 	@Override
-    protected String doInBackground(Screen... splitScreen) {
+    protected String doInBackground(Window... splitScreen) {
         Log.d(TAG, "Loading html in background");
     	String text = "Error";
     	try {
-    		screen = splitScreen[0];
-    		CurrentPage currentPage = CurrentPageManager.getInstance(screen).getCurrentPage(); 
+    		window = splitScreen[0];
+    		CurrentPage currentPage = CurrentPageManager.getInstance(window).getCurrentPage(); 
     		Book document = currentPage.getCurrentDocument();
     		// if bible show whole chapter
     		Key key = currentPage.getKey();
@@ -67,6 +67,6 @@ abstract public class UpdateTextTask extends AsyncTask<Screen, Integer, String> 
 
     protected void onPostExecute(String htmlFromDoInBackground) {
         Log.d(TAG, "Got html length "+htmlFromDoInBackground.length());
-        showText(htmlFromDoInBackground, screen, verseNo, yScreenOffsetRatio);
+        showText(htmlFromDoInBackground, window, verseNo, yScreenOffsetRatio);
     }
 }

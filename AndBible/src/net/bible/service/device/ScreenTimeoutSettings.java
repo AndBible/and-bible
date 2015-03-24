@@ -15,7 +15,7 @@ import android.util.Log;
 import de.greenrobot.event.EventBus;
 
 /**
- * Manage local Screen timeout (Sleep) time which is different to the default/system Sleep time
+ * Manage local Window timeout (Sleep) time which is different to the default/system Sleep time
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
@@ -115,7 +115,7 @@ public class ScreenTimeoutSettings {
 							.commit();
 			}
 		} catch (SettingNotFoundException snfe) {
-			Log.e(TAG, "Error setting Screen timeout", snfe);
+			Log.e(TAG, "Error setting Window timeout", snfe);
 		}
 	}
 	

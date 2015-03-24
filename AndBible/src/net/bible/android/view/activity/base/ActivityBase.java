@@ -229,12 +229,12 @@ public class ActivityBase extends ActionBarActivity implements AndBibleActivity 
 	}
 	
 	protected void onScreenTurnedOff() {
-		Log.d(TAG, "Screen turned off");
+		Log.d(TAG, "Window turned off");
 		isScreenOn = false;
 	}
 
 	protected void onScreenTurnedOn() {
-		Log.d(TAG, "Screen turned on");
+		Log.d(TAG, "Window turned on");
 		isScreenOn = true;
 	}
 

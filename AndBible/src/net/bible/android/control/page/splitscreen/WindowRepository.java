@@ -17,18 +17,18 @@ import org.json.JSONObject;
 import android.content.SharedPreferences;
 import de.greenrobot.event.EventBus;
 
-public class ScreenRepository {
+public class WindowRepository {
 
 	// 1 based screen no
-	private Screen currentActiveScreen;
+	private Window currentActiveScreen;
 	
-	private List<Screen> screenList;
+	private List<Window> screenList;
 	
 	private final Logger logger = new Logger(this.getClass().getName());
 	
-	public ScreenRepository() {
-		screenList = new ArrayList<Screen>();
-		currentActiveScreen = getScreen(1);
+	public WindowRepository() {
+		screenList = new ArrayList<Window>();
+		currentActiveScreen = getWindow(1);
 		
 		// restore state from previous invocation
     	restoreState();
@@ -37,11 +37,11 @@ public class ScreenRepository {
     	EventBus.getDefault().register(this);
 	}
 	
-	public List<Screen> getScreens() {
+	public List<Window> getWindows() {
 		return screenList;
 	}
 
-	public List<Screen> getVisibleScreens() {
+	public List<Window> getVisibleScreens() {
 			// only 1 screen can be maximised
 //			if (screen.getState() == WindowState.MAXIMISED) {
 //				screens.clear();
@@ -51,55 +51,55 @@ public class ScreenRepository {
 		return getScreens(WindowState.SPLIT);
 	}
 
-	public List<Screen> getMinimisedScreens() {
+	public List<Window> getMinimisedScreens() {
 		return getScreens(WindowState.MINIMISED);
 	}
 
-//	public List<Screen> getMaximisedScreens() {
+//	public List<Window> getMaximisedScreens() {
 //		return getScreens(WindowState.MAXIMISED);
 //	}
 
-	private List<Screen> getScreens(WindowState state) {
-		List<Screen> screens = new ArrayList<>();
-		for (Screen screen : screenList) {
-			if (screen.getWindowLayout().getState() == state) {
-				screens.add(screen);
+	private List<Window> getScreens(WindowState state) {
+		List<Window> windows = new ArrayList<>();
+		for (Window window : screenList) {
+			if (window.getWindowLayout().getState() == state) {
+				windows.add(window);
 			}
 		}
-		return screens;
+		return windows;
 	}
 
-	public Screen getScreen(int screenNo) {
-		for (Screen screen : screenList) {
-			if (screen.getScreenNo()==screenNo) {
-				return screen;
+	public Window getWindow(int screenNo) {
+		for (Window window : screenList) {
+			if (window.getScreenNo()==screenNo) {
+				return window;
 			}
 		}
 		return addNewScreen(screenNo);
 	}
 
-	public Screen addNewScreen() {
+	public Window addNewWindow() {
 		// ensure main screen is not maximized
-		getCurrentActiveScreen().getWindowLayout().setState(WindowState.SPLIT);
+		getCurrentActiveWindow().getWindowLayout().setState(WindowState.SPLIT);
 
 		return addNewScreen(screenList.size()+1);
 	}
 	
-	private Screen addNewScreen(int screenNo) {
-		Screen newScreen = new Screen(screenNo, getDefaultState());
+	private Window addNewScreen(int screenNo) {
+		Window newScreen = new Window(screenNo, getDefaultState());
 		screenList.add(newScreen);
 		return newScreen;
 	}
 	
-	public boolean isMultiScreen() {
-		List<Screen> screens = getVisibleScreens();
-		return screens.size()>1;
+	public boolean isMultiWindow() {
+		List<Window> windows = getVisibleScreens();
+		return windows.size()>1;
 	}
 	
 	public void setDefaultActiveScreen() {
-		for (Screen screen : screenList) {
-			if (screen.isVisible()) {
-				currentActiveScreen = screen;
+		for (Window window : screenList) {
+			if (window.isVisible()) {
+				currentActiveScreen = window;
 			}
 		}
 	}
@@ -113,28 +113,28 @@ public class ScreenRepository {
 //		}
 	}
 
-	public Screen getCurrentActiveScreen() {
+	public Window getCurrentActiveWindow() {
 		return currentActiveScreen;
 	}
 
-	public void setCurrentActiveScreen(Screen newActiveScreen) {
+	public void setCurrentActiveWindow(Window newActiveScreen) {
 		if (currentActiveScreen != newActiveScreen) {
 			this.currentActiveScreen = newActiveScreen;
 			EventBus.getDefault().post(new CurrentSplitScreenChangedEvent(currentActiveScreen));
 		}
 	}
 	
-	public List<Screen> getNonActiveScreenList() {
-		List<Screen> screens = getVisibleScreens();
-		screens.remove(getCurrentActiveScreen());
-		return screens;
+	public List<Window> getNonActiveScreenList() {
+		List<Window> windows = getVisibleScreens();
+		windows.remove(getCurrentActiveWindow());
+		return windows;
 	}
 	
-	public void minimise(Screen screen) {
-		screen.getWindowLayout().setState(WindowState.MINIMISED);
+	public void minimise(Window window) {
+		window.getWindowLayout().setState(WindowState.MINIMISED);
 
 		// adjustments
-		List<Screen> visibleScreens = getVisibleScreens();
+		List<Window> visibleScreens = getVisibleScreens();
 		// I don't think we need this
 //		switch (visibleScreens.size()) {
 //		case 0:
@@ -148,20 +148,20 @@ public class ScreenRepository {
 //		}
 
 		// has the active screen been minimised?
-		if (getCurrentActiveScreen().equals(screen) && visibleScreens.size()>0) {
-			setCurrentActiveScreen(visibleScreens.get(0));
+		if (getCurrentActiveWindow().equals(window) && visibleScreens.size()>0) {
+			setCurrentActiveWindow(visibleScreens.get(0));
 		}
 	}
 
-	public void remove(Screen screen) {
-		screenList.remove(screen);
+	public void remove(Window window) {
+		screenList.remove(window);
 
 		// adjustments
-		List<Screen> visibleScreens = getVisibleScreens();
+		List<Window> visibleScreens = getVisibleScreens();
 
 		// has the active screen been minimised?
-		if (getCurrentActiveScreen().equals(screen) && visibleScreens.size()>0) {
-			setCurrentActiveScreen(visibleScreens.get(0));
+		if (getCurrentActiveWindow().equals(window) && visibleScreens.size()>0) {
+			setCurrentActiveWindow(visibleScreens.get(0));
 		}
 
 	}
@@ -201,9 +201,9 @@ public class ScreenRepository {
 		logger.info("save state");
 
 		JSONArray allScreenState = new JSONArray();
-		for (Screen screen : screenList) {
+		for (Window window : screenList) {
 			try {
-				allScreenState.put(screen.getStateJson());
+				allScreenState.put(window.getStateJson());
 			} catch (JSONException je) {
 				logger.error("Error saving screen state", je);
 			}
@@ -230,12 +230,12 @@ public class ScreenRepository {
 				for (int i=0; i<allScreenState.length(); i++) {
 					try {
 						JSONObject screenState = allScreenState.getJSONObject(i);
-						Screen screen = new Screen();
-						screen.restoreState(screenState);
+						Window window = new Window();
+						window.restoreState(screenState);
 						
 						// prevent rubbish
-						if (screen.getScreenNo()==i+1) {
-							screenList.add(screen);
+						if (window.getScreenNo()==i+1) {
+							screenList.add(window);
 						}
 					} catch (JSONException je) {
 						logger.error("Error restoring screen state", je);

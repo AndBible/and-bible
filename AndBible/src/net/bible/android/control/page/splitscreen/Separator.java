@@ -20,8 +20,8 @@ import android.widget.LinearLayout;
 public class Separator extends View {
 
 	private View parentLayout;
-	private Screen screen1;
-	private Screen screen2;
+	private Window screen1;
+	private Window screen2;
 	private int numSplitScreens;
 	
 	private long aveScreenSize;
@@ -57,7 +57,7 @@ public class Separator extends View {
 
 	private static final String TAG = "Separator";
 	
-	public Separator(Context context, int width, View parentLayout, Screen screen, Screen nextScreen, int numSplitScreens, boolean isPortrait) {
+	public Separator(Context context, int width, View parentLayout, Window window, Window nextScreen, int numSplitScreens, boolean isPortrait) {
 		super(context);
 		splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
 		
@@ -70,7 +70,7 @@ public class Separator extends View {
         touchDelegateView2 = new TouchDelegateView(context, this);
         SEPARATOR_WIDTH = width;
         this.parentLayout = parentLayout;
-        this.screen1 = screen;
+        this.screen1 = window;
         this.screen2 = nextScreen;
         this.numSplitScreens = numSplitScreens;
         this.isPortrait = isPortrait;

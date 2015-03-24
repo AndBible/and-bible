@@ -7,9 +7,9 @@ import java.util.Map;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.event.splitscreen.NumberOfScreensChangedEvent;
+import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.page.splitscreen.Screen;
+import net.bible.android.control.page.splitscreen.Window;
 import net.bible.android.control.page.splitscreen.Separator;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.view.activity.page.BibleView;
@@ -44,7 +44,7 @@ public class DocumentWebViewBuilder {
 
 	private boolean isSplitScreenConfigurationChanged = true;
 
-	private Map<Screen, BibleView> screenBibleViewMap;
+	private Map<Window, BibleView> screenBibleViewMap;
 	private static final int BIBLE_WEB_VIEW_ID_BASE = 990;
 
 	private static SplitScreenControl splitScreenControl;
@@ -84,7 +84,7 @@ public class DocumentWebViewBuilder {
 	/**
 	 * Record changes to scplit screen config so can redraw screen from scratch.
 	 */
-	public void onEvent(NumberOfScreensChangedEvent event) {
+	public void onEvent(NumberOfWindowsChangedEvent event) {
 		isSplitScreenConfigurationChanged = true;
 	}
 	
@@ -104,7 +104,7 @@ public class DocumentWebViewBuilder {
     			isPortrait!=isLaidOutForPortrait) {
     		Log.d(TAG, "Layout web view");
     		
-    		List<Screen> screens = splitScreenControl.getScreenManager().getVisibleScreens();
+    		List<Window> windows = splitScreenControl.getWindowManager().getVisibleScreens();
     		
     		// ensure we have a known starting point - could be none, 1, or 2 webviews present
     		removeChildViews(previousParent);
@@ -113,18 +113,18 @@ public class DocumentWebViewBuilder {
     		ViewGroup currentSplitScreenLayout = null;
     		Separator previousSeparator = null;
     		
-    		for (int i=0; i<screens.size(); i++) {
-    			final Screen screen = screens.get(i);
-    			Log.d(TAG, "Layout screen "+screen.getScreenNo() + " of "+screens.size());
+    		for (int i=0; i<windows.size(); i++) {
+    			final Window window = windows.get(i);
+    			Log.d(TAG, "Layout screen "+window.getScreenNo() + " of "+windows.size());
     			
     			currentSplitScreenLayout = new FrameLayout(this.mainActivity);
     			
-    			BibleView bibleView = getView(screen);
+    			BibleView bibleView = getView(window);
 
         		// trigger recalc of verse positions in case width changes e.g. minimize/restore web view
         		bibleView.setVersePositionRecalcRequired(true);
 
-    			float screenWeight = screen.getWindowLayout().getWeight();
+    			float screenWeight = window.getWindowLayout().getWeight();
     			LinearLayout.LayoutParams lp = isPortrait?	new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, 0, screenWeight) :
     														new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, screenWeight);
 
@@ -143,9 +143,9 @@ public class DocumentWebViewBuilder {
 
 				// Add screen separator
 				Separator separator = null;
-				if (i<screens.size()-1) {
-					Screen nextScreen = screens.get(i+1);
-					separator = createSeparator(parent, screen, nextScreen, isPortrait, screens.size());
+				if (i<windows.size()-1) {
+					Window nextScreen = windows.get(i+1);
+					separator = createSeparator(parent, window, nextScreen, isPortrait, windows.size());
 					
 					// extend touch area of separator
 					addBottomOrRightSeparatorExtension(isPortrait, currentSplitScreenLayout, lp, separator);
@@ -159,10 +159,10 @@ public class DocumentWebViewBuilder {
 
 				if (i>0) {
 			        // minimise button
-			        Button minimiseScreenButton = createMinimiseButton(screen);
+			        Button minimiseScreenButton = createMinimiseButton(window);
 	    			currentSplitScreenLayout.addView(minimiseScreenButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP|Gravity.RIGHT));
 				} else {
-	    			// new Screen button
+	    			// new Window button
 			        Button newScreenButton = createNewScreenButton();
 	    			currentSplitScreenLayout.addView(newScreenButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP|Gravity.RIGHT));
 				}
@@ -172,7 +172,7 @@ public class DocumentWebViewBuilder {
     		
     		// Display minimised screens
     		ViewGroup minimisedWindowsFrameContainer = currentSplitScreenLayout;
-    		List<Screen> minimisedScreens = splitScreenControl.getScreenManager().getMinimisedScreens();
+    		List<Window> minimisedScreens = splitScreenControl.getWindowManager().getMinimisedScreens();
     		for (int i=0; i<minimisedScreens.size(); i++) {
     			Log.d(TAG,  "Show restore button");
     			Button restoreButton = createRestoreButton(minimisedScreens.get(i));
@@ -211,8 +211,8 @@ public class DocumentWebViewBuilder {
 		separator.setView1LayoutParams(previousLp);
 	}
 
-	protected Separator createSeparator(LinearLayout parent, Screen screen, Screen nextScreen, boolean isPortrait, int numSplitScreens) {
-		Separator separator = new Separator(this.mainActivity, SPLIT_SEPARATOR_WIDTH_PX, parent, screen, nextScreen, numSplitScreens, isPortrait);
+	protected Separator createSeparator(LinearLayout parent, Window window, Window nextScreen, boolean isPortrait, int numSplitScreens) {
+		Separator separator = new Separator(this.mainActivity, SPLIT_SEPARATOR_WIDTH_PX, parent, window, nextScreen, numSplitScreens, isPortrait);
 		return separator;
 	}
 
@@ -235,13 +235,13 @@ public class DocumentWebViewBuilder {
 		}
 	}
 	
-	public BibleView getView(Screen screen) {
-		BibleView bibleView = screenBibleViewMap.get(screen);
+	public BibleView getView(Window window) {
+		BibleView bibleView = screenBibleViewMap.get(window);
 		if (bibleView==null) {
-			bibleView = new BibleView(this.mainActivity, screen);
-	        bibleView.setId(BIBLE_WEB_VIEW_ID_BASE+screen.getScreenNo());
+			bibleView = new BibleView(this.mainActivity, window);
+	        bibleView.setId(BIBLE_WEB_VIEW_ID_BASE+window.getScreenNo());
 	        
-	        screenBibleViewMap.put(screen, bibleView);
+	        screenBibleViewMap.put(window, bibleView);
 		}
 		return bibleView;
 	}
@@ -250,27 +250,27 @@ public class DocumentWebViewBuilder {
 		return createTextButton("+", new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				splitScreenControl.addNewScreen();				
+				splitScreenControl.addNewWindow();				
 			}
 		});
 	}
 
-	private Button createMinimiseButton(final Screen screen) {
+	private Button createMinimiseButton(final Window window) {
 		return createTextButton("━━", new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				//TODO was minimise
-				splitScreenControl.removeScreen(screen);				
+				splitScreenControl.removeWindow(window);				
 			}
 		});
 	}
 
-	private Button createRestoreButton(final Screen screen) {
+	private Button createRestoreButton(final Window window) {
         // restore button
-        return createTextButton("\u2588"+screen.getScreenNo()+"\u2588", new OnClickListener() {
+        return createTextButton("\u2588"+window.getScreenNo()+"\u2588", new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				splitScreenControl.restoreScreen(screen);				
+				splitScreenControl.restoreWindow(window);				
 			}
 		});
 

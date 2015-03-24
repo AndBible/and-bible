@@ -8,7 +8,7 @@ import net.bible.android.SharedConstants;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
-import net.bible.android.control.page.splitscreen.Screen;
+import net.bible.android.control.page.splitscreen.Window;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 
@@ -42,18 +42,18 @@ public class CurrentPageManager {
 	
 	private CurrentPage currentDisplayedPage;
 	
-	private Screen splitScreenNo;
+	private Window splitScreenNo;
 	
 	private static SplitScreenControl splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
 	// For split screen need 2 CurrentPageManagers
-	private static Map<Screen, CurrentPageManager> screenPageManagerMap = new HashMap<>();
+	private static Map<Window, CurrentPageManager> screenPageManagerMap = new HashMap<>();
 	
 	private static final String TAG = "CurrentPageManager";
 	
 	static public CurrentPageManager getInstance() {
-		return getInstance(splitScreenControl.getCurrentActiveScreen());
+		return getInstance(splitScreenControl.getCurrentActiveWindow());
 	}
-	static public CurrentPageManager getInstance(Screen splitScreenNo) {
+	static public CurrentPageManager getInstance(Window splitScreenNo) {
 		CurrentPageManager splitScreenPageManager = screenPageManagerMap.get(splitScreenNo);
 		if (splitScreenPageManager==null) {
 			synchronized(CurrentPageManager.class)  {
@@ -67,7 +67,7 @@ public class CurrentPageManager {
 		return splitScreenPageManager;
 	}
 
-	private CurrentPageManager(Screen splitScreenNo) {
+	private CurrentPageManager(Window splitScreenNo) {
 		this.splitScreenNo = splitScreenNo;
 		
 		currentBibleVerse = new CurrentBibleVerse();

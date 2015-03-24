@@ -3,7 +3,7 @@ package net.bible.android.control.page.splitscreen;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.bible.android.control.event.splitscreen.NumberOfScreensChangedEvent;
+import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
 import net.bible.android.control.event.splitscreen.SplitScreenSizeChangedEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
@@ -30,8 +30,8 @@ public class SplitScreenControl {
 	private boolean isSeparatorMoving = false;
 	private long stoppedMovingTime = 0;
 
-	private ScreenRepository screenRepository = new ScreenRepository();
-	private SplitScreenSync splitScreenSync = new SplitScreenSync(screenRepository);
+	private WindowRepository windowRepository = new WindowRepository();
+	private SplitScreenSync splitScreenSync = new SplitScreenSync(windowRepository);
 	
 	public static int SCREEN_SETTLE_TIME_MILLIS = 1000;
 	
@@ -60,52 +60,52 @@ public class SplitScreenControl {
 		CommonUtils.getSharedPreferences().registerOnSharedPreferenceChangeListener(onSettingsChangeListener);
 	}
 
-	public Screen getScreen(int screenNo) {
-		return screenRepository.getScreen(screenNo);
+	public Window getWindow(int windowNo) {
+		return windowRepository.getWindow(windowNo);
 	}
-	public Screen getActiveScreen() {
-		return screenRepository.getCurrentActiveScreen();
+	public Window getActiveWindow() {
+		return windowRepository.getCurrentActiveWindow();
 	}
-	public boolean isCurrentActiveScreen(Screen currentActiveScreen) {
-		return currentActiveScreen == screenRepository.getCurrentActiveScreen();
+	public boolean isCurrentActiveWindow(Window currentActiveWindow) {
+		return currentActiveWindow == windowRepository.getCurrentActiveWindow();
 	}
 	
-	public void addNewScreen() {
-		//Screen newScreen = 
-		screenRepository.addNewScreen();
+	public void addNewWindow() {
+		//Window newScreen = 
+		windowRepository.addNewWindow();
 
 		// redisplay the current page
-		EventBus.getDefault().post(new NumberOfScreensChangedEvent(getScreenVerseMap()));
+		EventBus.getDefault().post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
 	}
 
-	public void minimiseScreen(Screen screen) {
-		screenRepository.minimise(screen);
+	public void minimiseWindow(Window window) {
+		windowRepository.minimise(window);
 
 		//TODO may have to maximise another screen if there is only 1 screen unminimised
 
 		// redisplay the current page
-		EventBus.getDefault().post(new NumberOfScreensChangedEvent(getScreenVerseMap()));
+		EventBus.getDefault().post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
 	}
 
-	public void removeScreen(Screen screen) {
-		screenRepository.remove(screen);
+	public void removeWindow(Window window) {
+		windowRepository.remove(window);
 
 		//TODO may have to maximise another screen if there is only 1 screen unminimised
 
 		// redisplay the current page
-		EventBus.getDefault().post(new NumberOfScreensChangedEvent(getScreenVerseMap()));
+		EventBus.getDefault().post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
 	}
 
-	public void restoreScreen(Screen screen) {
-		screen.getWindowLayout().setState(WindowState.SPLIT);
+	public void restoreWindow(Window window) {
+		window.getWindowLayout().setState(WindowState.SPLIT);
 		
 		// any maximised screen must be normalised
-//		for (Screen maxScreen :screenRepository.getMaximisedScreens()) {
+//		for (Window maxScreen :windowRepository.getMaximisedScreens()) {
 //			maxScreen.setState(WindowState.SPLIT);
 //		}
 		
 		// causes BibleViews to be created and laid out
-		EventBus.getDefault().post(new NumberOfScreensChangedEvent(getScreenVerseMap()));
+		EventBus.getDefault().post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
 		
 		splitScreenSync.synchronizeScreens();
 	}
@@ -113,7 +113,7 @@ public class SplitScreenControl {
 	/** screen orientation has changed */
 	public void orientationChange() {
 		// causes BibleViews to be created and laid out
-		EventBus.getDefault().post(new NumberOfScreensChangedEvent(getScreenVerseMap()));
+		EventBus.getDefault().post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
 	}
 	
 	public void synchronizeScreens() {
@@ -130,32 +130,32 @@ public class SplitScreenControl {
 		}
 		
 		if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_SINGLE)) {
-			screenRepository.getScreen(1).getWindowLayout().setState(WindowState.SPLIT); //Was MAXIMIZED
-			screenRepository.getScreen(1).getWindowLayout().setSynchronised(false);
-			screenRepository.getScreen(1).getWindowLayout().setWeight(1f);
+			windowRepository.getWindow(1).getWindowLayout().setState(WindowState.SPLIT); //Was MAXIMIZED
+			windowRepository.getWindow(1).getWindowLayout().setSynchronised(false);
+			windowRepository.getWindow(1).getWindowLayout().setWeight(1f);
 		} else if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_LINKED)) {
-			screenRepository.getScreen(1).getWindowLayout().setState(WindowState.SPLIT);
-			screenRepository.getScreen(2).getWindowLayout().setState(WindowState.SPLIT);
-			screenRepository.getScreen(1).getWindowLayout().setSynchronised(true);
-			screenRepository.getScreen(2).getWindowLayout().setSynchronised(true);
+			windowRepository.getWindow(1).getWindowLayout().setState(WindowState.SPLIT);
+			windowRepository.getWindow(2).getWindowLayout().setState(WindowState.SPLIT);
+			windowRepository.getWindow(1).getWindowLayout().setSynchronised(true);
+			windowRepository.getWindow(2).getWindowLayout().setSynchronised(true);
 			//TODO should the other screens also be synchronised?
 		} else if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_NOT_LINKED)) {
-			screenRepository.getScreen(1).getWindowLayout().setState(WindowState.SPLIT);
-			screenRepository.getScreen(2).getWindowLayout().setState(WindowState.SPLIT);
-			screenRepository.getScreen(1).getWindowLayout().setSynchronised(false);
-			screenRepository.getScreen(2).getWindowLayout().setSynchronised(false);
+			windowRepository.getWindow(1).getWindowLayout().setState(WindowState.SPLIT);
+			windowRepository.getWindow(2).getWindowLayout().setState(WindowState.SPLIT);
+			windowRepository.getWindow(1).getWindowLayout().setSynchronised(false);
+			windowRepository.getWindow(2).getWindowLayout().setSynchronised(false);
 		}
 	}
 	
 	public boolean isSplit() {
-		return screenRepository.isMultiScreen();
+		return windowRepository.isMultiWindow();
 	}
 
-	public Screen getCurrentActiveScreen() {
-		return screenRepository.getCurrentActiveScreen();
+	public Window getCurrentActiveWindow() {
+		return windowRepository.getCurrentActiveWindow();
 	}
-	public void setCurrentActiveScreen(Screen currentActiveScreen) {
-		screenRepository.setCurrentActiveScreen(currentActiveScreen);
+	public void setCurrentActiveWindow(Window currentActiveWindow) {
+		windowRepository.setCurrentActiveWindow(currentActiveWindow);
 	}
 
 	public boolean isSeparatorMoving() {
@@ -182,35 +182,35 @@ public class SplitScreenControl {
 			splitScreenSync.setResynchRequired(true);
 		}
 		
-		EventBus.getDefault().post(new SplitScreenSizeChangedEvent(isMoveFinished, getScreenVerseMap()));
+		EventBus.getDefault().post(new SplitScreenSizeChangedEvent(isMoveFinished, getWindowVerseMap()));
 	}
 
-	public ScreenRepository getScreenManager() {
-		return screenRepository;
+	public WindowRepository getWindowManager() {
+		return windowRepository;
 	}
 
 	/**
-	 * Get current verse for each screen displaying a Bible
+	 * Get current verse for each window displaying a Bible
 	 * 
-	 * @return Map of screen num to verse num
+	 * @return Map of window num to verse num
 	 */
-	private Map<Screen, Integer> getScreenVerseMap() {
-		// get page offsets to maintain for each screen
-		Map<Screen,Integer> screenVerseMap = new HashMap<Screen,Integer>();
-		for (Screen screen : screenRepository.getScreens()) {
-			CurrentPage currentPage = getCurrentPage(screen);
+	private Map<Window, Integer> getWindowVerseMap() {
+		// get page offsets to maintain for each window
+		Map<Window,Integer> windowVerseMap = new HashMap<Window,Integer>();
+		for (Window window : windowRepository.getWindows()) {
+			CurrentPage currentPage = getCurrentPage(window);
 			if (currentPage!=null &&
 				BookCategory.BIBLE == currentPage.getCurrentDocument().getBookCategory()) {
 				int verse = KeyUtil.getVerse(currentPage.getSingleKey()).getVerse();
-				screenVerseMap.put(screen, verse);
+				windowVerseMap.put(window, verse);
 			}
 		}
-		return screenVerseMap;
+		return windowVerseMap;
 	}
 	
-	/** Get Page info for each Screen 
+	/** Get Page info for each Window 
 	 */
-	private CurrentPage getCurrentPage(Screen screenNo) {
-		return CurrentPageManager.getInstance(screenNo).getCurrentPage();
+	private CurrentPage getCurrentPage(Window windowNo) {
+		return CurrentPageManager.getInstance(windowNo).getCurrentPage();
 	}
 }

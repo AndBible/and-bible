@@ -1,19 +1,19 @@
 package net.bible.android.control.event.splitscreen;
 
-import net.bible.android.control.page.splitscreen.Screen;
+import net.bible.android.control.page.splitscreen.Window;
 
 /**
  * Focus has been changed
  */
 public class CurrentSplitScreenChangedEvent implements SplitScreenEvent {
 
-	private Screen activeScreen;
+	private Window activeScreen;
 	
-	public CurrentSplitScreenChangedEvent(Screen activeScreen) {
+	public CurrentSplitScreenChangedEvent(Window activeScreen) {
 		this.activeScreen = activeScreen;
 	}
 
-	public Screen getActiveScreen() {
+	public Window getActiveScreen() {
 		return activeScreen;
 	}
 }
