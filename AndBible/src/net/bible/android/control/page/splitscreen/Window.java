@@ -11,6 +11,8 @@ public class Window {
 
 	private WindowLayout windowLayout;
 	
+	private CurrentPageManager currentPageManager;
+	
 	// 1 based screen no
 	private int screenNo;
 	
@@ -27,7 +29,12 @@ public class Window {
 	}
 
 	public CurrentPageManager getPageManager() {
-		return CurrentPageManager.getInstance(this);
+		//TODO use a factory
+		// for now lazily create to prevent NPE on start up due to circular dependency
+		if (currentPageManager==null) {
+			this.currentPageManager = new CurrentPageManager(this);
+		}
+		return currentPageManager;
 	}
 	
 	public int getScreenNo() {

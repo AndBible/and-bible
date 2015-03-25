@@ -18,8 +18,9 @@ import net.bible.android.control.navigation.NavigationControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.page.PageTiltScrollControl;
-import net.bible.android.control.page.splitscreen.Window;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
+import net.bible.android.control.page.splitscreen.Window;
+import net.bible.android.control.page.splitscreen.WindowRepository;
 import net.bible.android.control.readingplan.ReadingPlanControl;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.speak.SpeakControl;
@@ -34,11 +35,12 @@ import net.bible.android.control.versification.BibleTraverser;
  */
 public class ControlFactory {
 	//TODO move instance creation here
+	private WindowRepository windowRepository;
 	private DocumentBibleBooksFactory documentBibleBooksFactory = new DocumentBibleBooksFactory();
 	private BibleTraverser bibleTraverser = new BibleTraverser();
 	private DocumentControl documentControl = new DocumentControl();
 	private PageControl pageControl = new PageControl();
-	private SplitScreenControl splitScreenControl = new SplitScreenControl();
+	private SplitScreenControl splitScreenControl;
 	private Map<Window, PageTiltScrollControl> screenPageTiltScrollControlMap = new HashMap<>();
 	private LinkControl linkControl = new LinkControl();
 	private SearchControl searchControl = new SearchControl();
@@ -68,6 +70,9 @@ public class ControlFactory {
 		searchControl.setDocumentBibleBooksFactory(documentBibleBooksFactory);
 		
 		bibleTraverser.setDocumentBibleBooksFactory(documentBibleBooksFactory);
+
+		windowRepository = new WindowRepository();
+		splitScreenControl = new SplitScreenControl(windowRepository);
 	}
 	
 	public DocumentControl getDocumentControl() {

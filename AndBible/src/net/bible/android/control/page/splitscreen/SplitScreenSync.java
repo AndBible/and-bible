@@ -7,7 +7,6 @@ import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.splitscreen.ScrollSecondaryScreenEvent;
 import net.bible.android.control.event.splitscreen.UpdateSecondaryScreenEvent;
 import net.bible.android.control.page.CurrentPage;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.UpdateTextTask;
 import net.bible.service.device.ScreenSettings;
 
@@ -69,7 +68,7 @@ public class SplitScreenSync {
 
 		List<Window> inactiveWindowList = windowRepository.getNonActiveScreenList();
 		for (Window inactiveWindow : inactiveWindowList) {
-			CurrentPage inactivePage = CurrentPageManager.getInstance(inactiveWindow).getCurrentPage();
+			CurrentPage inactivePage = inactiveWindow.getPageManager().getCurrentPage();
 			Key inactiveScreenKey = inactivePage.getSingleKey();
 			boolean inactiveUpdated = false;
 			boolean isTotalRefreshRequired = isFirstTimeInit ||	lastSynchWasInNightMode!=ScreenSettings.isNightMode() || screenPreferencesChanged;

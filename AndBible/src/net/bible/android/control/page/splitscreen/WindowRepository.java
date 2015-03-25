@@ -6,6 +6,7 @@ import java.util.List;
 import net.bible.android.BibleApplication;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.splitscreen.CurrentSplitScreenChangedEvent;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.splitscreen.WindowLayout.WindowState;
 import net.bible.service.common.Logger;
 
@@ -94,6 +95,10 @@ public class WindowRepository {
 	public boolean isMultiWindow() {
 		List<Window> windows = getVisibleScreens();
 		return windows.size()>1;
+	}
+	
+	public CurrentPageManager getCurrentPageManager() {
+		return getCurrentActiveWindow().getPageManager();
 	}
 	
 	public void setDefaultActiveScreen() {

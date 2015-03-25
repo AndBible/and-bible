@@ -29,8 +29,8 @@ public class SplitScreenControl {
 	private boolean isSeparatorMoving = false;
 	private long stoppedMovingTime = 0;
 
-	private WindowRepository windowRepository = new WindowRepository();
-	private SplitScreenSync splitScreenSync = new SplitScreenSync(windowRepository);
+	private WindowRepository windowRepository;
+	private SplitScreenSync splitScreenSync;
 	
 	public static int SCREEN_SETTLE_TIME_MILLIS = 1000;
 	
@@ -54,7 +54,10 @@ public class SplitScreenControl {
 		}
 	};
 	
-	public SplitScreenControl() {
+	public SplitScreenControl(WindowRepository windowRepository) {
+		this.windowRepository = windowRepository;
+		splitScreenSync = new SplitScreenSync(windowRepository);
+		
 		// the listener needs to be a class variable because it is held in a WeakHashMap by SharedPreferences
 		CommonUtils.getSharedPreferences().registerOnSharedPreferenceChangeListener(onSettingsChangeListener);
 	}

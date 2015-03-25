@@ -1,15 +1,11 @@
 package net.bible.android.control.page;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.page.splitscreen.Window;
-import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 
 import org.apache.commons.lang.StringUtils;
@@ -42,33 +38,17 @@ public class CurrentPageManager {
 	
 	private CurrentPage currentDisplayedPage;
 	
-	private Window splitScreenNo;
-	
-	private static SplitScreenControl splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
-	// For split screen need 2 CurrentPageManagers
-	private static Map<Window, CurrentPageManager> screenPageManagerMap = new HashMap<>();
+	private Window window;
 	
 	private static final String TAG = "CurrentPageManager";
 	
 	static public CurrentPageManager getInstance() {
-		return getInstance(splitScreenControl.getCurrentActiveWindow());
-	}
-	static public CurrentPageManager getInstance(Window splitScreenNo) {
-		CurrentPageManager splitScreenPageManager = screenPageManagerMap.get(splitScreenNo);
-		if (splitScreenPageManager==null) {
-			synchronized(CurrentPageManager.class)  {
-				splitScreenPageManager = screenPageManagerMap.get(splitScreenNo);
-				if (splitScreenPageManager==null) {
-					splitScreenPageManager = new CurrentPageManager(splitScreenNo);
-					screenPageManagerMap.put(splitScreenNo, splitScreenPageManager);
-				}
-			}
-		}
-		return splitScreenPageManager;
+		
+		return ControlFactory.getInstance().getSplitScreenControl().getCurrentActiveWindow().getPageManager();
 	}
 
-	private CurrentPageManager(Window splitScreenNo) {
-		this.splitScreenNo = splitScreenNo;
+	public CurrentPageManager(Window window) {
+		this.window = window;
 		
 		currentBibleVerse = new CurrentBibleVerse();
 		currentBiblePage = new CurrentBiblePage(currentBibleVerse);
@@ -269,7 +249,7 @@ public class CurrentPageManager {
 	}
     /** save current page and document state */
 	protected void saveState() {
-    	Log.i(TAG, "Save instance state for screen "+splitScreenNo);
+    	Log.i(TAG, "Save instance state for screen "+window);
     	SharedPreferences settings = BibleApplication.getApplication().getAppStateSharedPreferences();
 		saveState(settings);
 	}
@@ -277,7 +257,7 @@ public class CurrentPageManager {
 	/** restore current page and document state */
     private void restoreState() {
     	try {
-        	Log.i(TAG, "Restore instance state for screen "+splitScreenNo);
+        	Log.i(TAG, "Restore instance state for screen "+window);
         	SharedPreferences settings = BibleApplication.getApplication().getAppStateSharedPreferences();
     		restoreState(settings);
     	} catch (Exception e) {
@@ -325,10 +305,10 @@ public class CurrentPageManager {
 	
 	private String getScreenIdForState() {
 		// need to have empty screenId for screen 1 so as to use pre-splitScreen state
-		if (splitScreenNo.getScreenNo()==1) {
+		if (window.getScreenNo()==1) {
 			return "";
 		} else {
-			return "_SCREEN"+splitScreenNo.getScreenNo();
+			return "_SCREEN"+window.getScreenNo();
 		}
 	}
 }
