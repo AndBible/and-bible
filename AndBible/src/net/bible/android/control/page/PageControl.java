@@ -186,13 +186,13 @@ public class PageControl {
 	
 	/** font size may be adjusted for certain fonts e.g. SBLGNT
 	 */
-	public int getDocumentFontSize(Window splitScreenNo) {
+	public int getDocumentFontSize(Window window) {
 		// get base font size
 		SharedPreferences preferences = CommonUtils.getSharedPreferences();
 		int fontSize = preferences.getInt("text_size_pref", 16);
 
 		// if book has a special font it may require an adjusted font size
-		Book book = CurrentPageManager.getInstance(splitScreenNo).getCurrentPage().getCurrentDocument();
+		Book book = window.getPageManager().getCurrentPage().getCurrentDocument();
 		String font = FontControl.getInstance().getFontForBook(book);
 		int fontSizeAdjustment = FontControl.getInstance().getFontSizeAdjustment(font, book);
 		

@@ -1,5 +1,6 @@
 package net.bible.android.control.page.splitscreen;
 
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.splitscreen.WindowLayout.WindowState;
 import net.bible.service.common.Logger;
 
@@ -25,6 +26,10 @@ public class Window {
 		this.windowLayout = new WindowLayout(WindowState.SPLIT);
 	}
 
+	public CurrentPageManager getPageManager() {
+		return CurrentPageManager.getInstance(this);
+	}
+	
 	public int getScreenNo() {
 		return screenNo;
 	}

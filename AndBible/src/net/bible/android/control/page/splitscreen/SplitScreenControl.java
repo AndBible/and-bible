@@ -6,7 +6,6 @@ import java.util.Map;
 import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
 import net.bible.android.control.event.splitscreen.SplitScreenSizeChangedEvent;
 import net.bible.android.control.page.CurrentPage;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.splitscreen.WindowLayout.WindowState;
 import net.bible.service.common.CommonUtils;
 
@@ -210,7 +209,7 @@ public class SplitScreenControl {
 	
 	/** Get Page info for each Window 
 	 */
-	private CurrentPage getCurrentPage(Window windowNo) {
-		return CurrentPageManager.getInstance(windowNo).getCurrentPage();
+	private CurrentPage getCurrentPage(Window window) {
+		return window.getPageManager().getCurrentPage();
 	}
 }

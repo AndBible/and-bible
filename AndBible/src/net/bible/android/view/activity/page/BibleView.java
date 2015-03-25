@@ -11,8 +11,8 @@ import net.bible.android.control.event.splitscreen.SplitScreenSizeChangedEvent;
 import net.bible.android.control.event.splitscreen.UpdateSecondaryScreenEvent;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
-import net.bible.android.control.page.splitscreen.Window;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
+import net.bible.android.control.page.splitscreen.Window;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.page.screen.PageTiltScroller;
 import net.bible.service.common.CommonUtils;
@@ -38,7 +38,7 @@ import de.greenrobot.event.EventBus;
  */
 public class BibleView extends WebView implements DocumentView {
 	
-	private Window splitScreenNo;
+	private Window window;
 	
 	private BibleJavascriptInterface mJavascriptInterface;
 	
@@ -76,13 +76,13 @@ public class BibleView extends WebView implements DocumentView {
      */
 	public BibleView(Context context, Window splitScreenNo) {
 		super(context);
-		this.splitScreenNo = splitScreenNo;
+		this.window = splitScreenNo;
 		initialise();
 	}
 
 	@SuppressLint("SetJavaScriptEnabled")
 	private void initialise() {
-		mVerseCalculator = new VerseCalculator(splitScreenNo);
+		mVerseCalculator = new VerseCalculator(window);
 		mJavascriptInterface = new BibleJavascriptInterface(mVerseCalculator);
 		
 		addJavascriptInterface(mJavascriptInterface, "jsInterface");
@@ -156,7 +156,7 @@ public class BibleView extends WebView implements DocumentView {
 	}
 
 	private void applyFontSize() {
-		int fontSize = mPageControl.getDocumentFontSize(splitScreenNo);
+		int fontSize = mPageControl.getDocumentFontSize(window);
 		getSettings().setDefaultFontSize(fontSize);
 
 		// 1.6 is taken from css - line-height: 1.6em;
@@ -184,7 +184,7 @@ public class BibleView extends WebView implements DocumentView {
 	 */
 	@Override
 	public void show(String html, int jumpToVerse, float jumpToYOffsetRatio) {
-		Log.d(TAG, "Show(html,"+jumpToVerse+","+jumpToYOffsetRatio+") screen:"+splitScreenNo);
+		Log.d(TAG, "Show(html,"+jumpToVerse+","+jumpToYOffsetRatio+") screen:"+window);
 		// set background colour if necessary
 		changeBackgroundColour();
 		
@@ -255,7 +255,7 @@ public class BibleView extends WebView implements DocumentView {
 				loadUrl("javascript:registerVersePositions()");
 			}
 			
-			mJavascriptInterface.setNotificationsEnabled(splitScreenControl.isCurrentActiveWindow(splitScreenNo));
+			mJavascriptInterface.setNotificationsEnabled(splitScreenControl.isCurrentActiveWindow(window));
 
 			// screen is changing shape/size so constantly maintain the current verse position
 			// main difference from jumpToVerse is that this is not cleared after jump
@@ -286,7 +286,7 @@ public class BibleView extends WebView implements DocumentView {
 	/** prevent swipe right if the user is scrolling the page right */
 	public boolean isPageNextOkay() {
 		boolean isOkay = true;
-		if (CurrentPageManager.getInstance(splitScreenNo).isMapShown()) {
+		if (window.getPageManager().isMapShown()) {
 			// allow swipe right if at right side of map
 			boolean isAtRightEdge = (getScrollX() >= getMaxHorizontalScroll());
 
@@ -301,7 +301,7 @@ public class BibleView extends WebView implements DocumentView {
 	/** prevent swipe left if the user is scrolling the page left */
 	public boolean isPagePreviousOkay() {
 		boolean isOkay = true;
-		if (CurrentPageManager.getInstance(splitScreenNo).isMapShown()) {
+		if (window.getPageManager().isMapShown()) {
 			// allow swipe left if at left edge of map
 			boolean isAtLeftEdge = (getScrollX() == 0);
 
@@ -325,14 +325,14 @@ public class BibleView extends WebView implements DocumentView {
 	}
 	
     private void pauseTiltScroll() {
-		Log.d(TAG, "Pausing tilt to scroll "+splitScreenNo);
+		Log.d(TAG, "Pausing tilt to scroll "+window);
         mPageTiltScroller.enableTiltScroll(false);
     }
     
     private void resumeTiltScroll() {
     	// but if split screen then only if the current active split
-    	if (splitScreenControl.isCurrentActiveWindow(splitScreenNo)) {
-			Log.d(TAG, "Resuming tilt to scroll "+splitScreenNo);
+    	if (splitScreenControl.isCurrentActiveWindow(window)) {
+			Log.d(TAG, "Resuming tilt to scroll "+window);
 	        mPageTiltScroller.enableTiltScroll(true);
     	}
     }
@@ -341,7 +341,7 @@ public class BibleView extends WebView implements DocumentView {
 	public boolean onTouchEvent(MotionEvent ev) {
 		boolean handled = super.onTouchEvent(ev);
 		
-		splitScreenControl.setCurrentActiveWindow(splitScreenNo);
+		splitScreenControl.setCurrentActiveWindow(window);
 		
 		// Allow user to redefine viewing angle by touching screen
 		mPageTiltScroller.recalculateViewingPosition();
@@ -470,7 +470,7 @@ public class BibleView extends WebView implements DocumentView {
 	}
 
 	public void onEvent(CurrentSplitScreenChangedEvent event) {
-		if (splitScreenNo == event.getActiveScreen()) {
+		if (window == event.getActiveScreen()) {
 			mJavascriptInterface.setNotificationsEnabled(true);
 			resumeTiltScroll();
 		} else {
@@ -480,29 +480,29 @@ public class BibleView extends WebView implements DocumentView {
 	}
 
 	public void onEvent(UpdateSecondaryScreenEvent event) {
-		if (splitScreenNo == event.getUpdateScreen()) {
+		if (window == event.getUpdateScreen()) {
 			changeBackgroundColour();
 			show(event.getHtml(), event.getVerseNo(), SharedConstants.NO_VALUE);
 		}		
 	}
 
 	public void onEvent(ScrollSecondaryScreenEvent event) {
-		if (splitScreenNo == event.getScreen() && getHandler()!=null) {
+		if (window == event.getScreen() && getHandler()!=null) {
 			scrollOrJumpToVerseOnUIThread(event.getVerseNo());
 		}
 	}
 	
 	public void onEvent(SplitScreenSizeChangedEvent event) {
 		Log.d(TAG, "split screen size changed");
-		boolean isScreenVerse = event.isVerseNoSet(splitScreenNo);
+		boolean isScreenVerse = event.isVerseNoSet(window);
 		if (isScreenVerse) {
-			this.maintainMovingVerse = event.getVerseNo(splitScreenNo);
+			this.maintainMovingVerse = event.getVerseNo(window);
 		}
 
 		// when move finished the verse positions will have changed if in Landscape so recalc positions
 		boolean isMoveFinished = event.isFinished();
 		if (isMoveFinished && isScreenVerse) {
-			final int verse = event.getVerseNo(splitScreenNo);
+			final int verse = event.getVerseNo(window);
 			setJumpToVerse(verse);
 			
 			if (getHandler()!=null) {
@@ -538,13 +538,13 @@ public class BibleView extends WebView implements DocumentView {
 	}
 
 	public void onEvent(NumberOfWindowsChangedEvent event) {
-		if (getVisibility()==View.VISIBLE && event.isVerseNoSet(splitScreenNo)) {
-			setJumpToVerse(event.getVerseNo(splitScreenNo));
+		if (getVisibility()==View.VISIBLE && event.isVerseNoSet(window)) {
+			setJumpToVerse(event.getVerseNo(window));
 		}
 	}
 
 	public Window getSplitScreenNo() {
-		return splitScreenNo;
+		return window;
 	}
 
 	public void setVersePositionRecalcRequired(boolean mIsVersePositionRecalcRequired) {

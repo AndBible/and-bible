@@ -1,7 +1,6 @@
 package net.bible.android.control;
 
 import net.bible.android.control.page.CurrentPage;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.UpdateTextTask;
 import net.bible.android.control.page.splitscreen.Window;
 import net.bible.android.view.activity.base.DocumentView;
@@ -41,7 +40,7 @@ public class BibleContentManager {
     
     /* package */ void updateText(boolean forceUpdate) {
     	Window window = CommonUtils.getActiveSplitScreen();
-    	CurrentPage currentPage = CurrentPageManager.getInstance(window).getCurrentPage();
+    	CurrentPage currentPage = window.getPageManager().getCurrentPage();
 		Book document = currentPage.getCurrentDocument();
 		Key key = currentPage.getKey();
 

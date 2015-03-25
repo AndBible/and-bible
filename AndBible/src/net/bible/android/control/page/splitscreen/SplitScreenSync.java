@@ -57,29 +57,29 @@ public class SplitScreenSync {
 	/** Synchronise the inactive key and inactive screen with the active key and screen if required
 	 */
 	public void synchronizeScreens() {
-		Window activeScreen = windowRepository.getCurrentActiveWindow();
-		CurrentPage activePage = CurrentPageManager.getInstance(activeScreen).getCurrentPage();
+		Window activeWindow = windowRepository.getCurrentActiveWindow();
+		CurrentPage activePage = activeWindow.getPageManager().getCurrentPage();
 		
 		// exit if main screen is not synchronised
-		if (!activeScreen.getWindowLayout().isSynchronised() || !isSynchronizableVerseKey(activePage)) {
+		if (!activeWindow.getWindowLayout().isSynchronised() || !isSynchronizableVerseKey(activePage)) {
 			return;
 		}
 
 		Key targetActiveScreenKey = activePage.getSingleKey();
 
-		List<Window> inactiveScreenList = windowRepository.getNonActiveScreenList();
-		for (Window inactiveScreen : inactiveScreenList) {
-			CurrentPage inactivePage = CurrentPageManager.getInstance(inactiveScreen).getCurrentPage();
+		List<Window> inactiveWindowList = windowRepository.getNonActiveScreenList();
+		for (Window inactiveWindow : inactiveWindowList) {
+			CurrentPage inactivePage = CurrentPageManager.getInstance(inactiveWindow).getCurrentPage();
 			Key inactiveScreenKey = inactivePage.getSingleKey();
 			boolean inactiveUpdated = false;
 			boolean isTotalRefreshRequired = isFirstTimeInit ||	lastSynchWasInNightMode!=ScreenSettings.isNightMode() || screenPreferencesChanged;
 	
-			if (inactiveScreen.getWindowLayout().isSynchronised()) {
+			if (inactiveWindow.getWindowLayout().isSynchronised()) {
 				// inactive screen may not be displayed (e.g. if viewing a dict) but if switched to the key must be correct
 				// Only Bible and cmtry are synch'd and they share a Verse key
-				updateInactiveBibleKey(inactiveScreen, targetActiveScreenKey);
+				updateInactiveBibleKey(inactiveWindow, targetActiveScreenKey);
 				
-				if (isSynchronizableVerseKey(inactivePage) && inactiveScreen.isVisible()) {
+				if (isSynchronizableVerseKey(inactivePage) && inactiveWindow.isVisible()) {
 					// re-get as it may have been mapped to the correct v11n
 					targetActiveScreenKey = inactivePage.getSingleKey();
 					
@@ -87,7 +87,7 @@ public class SplitScreenSync {
 					// only update pages if empty or synchronised
 					if (isFirstTimeInit || resynchRequired || 
 					   (!targetActiveScreenKey.equals(lastSynchdInactiveScreenKey)) ) {
-						updateInactiveScreen(inactiveScreen, inactivePage, targetActiveScreenKey, lastSynchdInactiveScreenKey, isTotalRefreshRequired);
+						updateInactiveScreen(inactiveWindow, inactivePage, targetActiveScreenKey, lastSynchdInactiveScreenKey, isTotalRefreshRequired);
 						inactiveUpdated = true;
 					} 
 				}
@@ -97,7 +97,7 @@ public class SplitScreenSync {
 			// or if nightMode has changed then force an update
 			if (!inactiveUpdated && isTotalRefreshRequired) {
 				// force an update of the inactive page to prevent blank screen
-				updateInactiveScreen(inactiveScreen, inactivePage, inactiveScreenKey, inactiveScreenKey, isTotalRefreshRequired);
+				updateInactiveScreen(inactiveWindow, inactivePage, inactiveScreenKey, inactiveScreenKey, isTotalRefreshRequired);
 				inactiveUpdated = true;
 			}
 			
@@ -111,8 +111,8 @@ public class SplitScreenSync {
 	
 	/** Only call if screens are synchronised.  Update synch'd keys even if inactive page not shown so if it is shown then it is correct
 	 */
-	private void updateInactiveBibleKey(Window inactiveScreen, Key activeScreenKey) {
-		CurrentPageManager.getInstance(inactiveScreen).getCurrentBible().doSetKey(activeScreenKey);
+	private void updateInactiveBibleKey(Window inactiveWindow, Key activeWindowKey) {
+		inactiveWindow.getPageManager().getCurrentBible().doSetKey(activeWindowKey);
 	}
 	
 	/** refresh/synch inactive screen if required

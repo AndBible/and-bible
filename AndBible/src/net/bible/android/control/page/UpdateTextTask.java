@@ -38,7 +38,7 @@ abstract public class UpdateTextTask extends AsyncTask<Window, Integer, String> 
     	String text = "Error";
     	try {
     		window = splitScreen[0];
-    		CurrentPage currentPage = CurrentPageManager.getInstance(window).getCurrentPage(); 
+    		CurrentPage currentPage = window.getPageManager().getCurrentPage(); 
     		Book document = currentPage.getCurrentDocument();
     		// if bible show whole chapter
     		Key key = currentPage.getKey();
