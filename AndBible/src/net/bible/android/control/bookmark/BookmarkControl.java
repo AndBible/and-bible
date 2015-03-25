@@ -9,6 +9,8 @@ import java.util.Set;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
+import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
@@ -52,8 +54,9 @@ public class BookmarkControl implements Bookmark {
 	@Override
 	public boolean bookmarkCurrentVerse() {
 		boolean bOk = false;
-		if (CurrentPageManager.getInstance().isBibleShown() || CurrentPageManager.getInstance().isCommentaryShown()) {
-			Verse currentVerse = CurrentPageManager.getInstance().getCurrentBible().getSingleKey();
+		CurrentPageManager currentPageControl = ControlFactory.getInstance().getCurrentPageControl();
+		if (currentPageControl.isBibleShown() || currentPageControl.isCommentaryShown()) {
+			Verse currentVerse = currentPageControl.getCurrentBible().getSingleKey();
 			
 			if (getBookmarkByKey(currentVerse)!=null) {
 				// bookmark for this verse already exists
@@ -80,7 +83,7 @@ public class BookmarkControl implements Bookmark {
 	public String getBookmarkVerseKey(BookmarkDto bookmark) {
 		String keyText = "";
 		try {
-			Versification versification = CurrentPageManager.getInstance().getCurrentBible().getVersification();
+			Versification versification = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getVersification();
 			keyText = bookmark.getVerse(versification).getName();
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);
@@ -92,8 +95,9 @@ public class BookmarkControl implements Bookmark {
 	public String getBookmarkVerseText(BookmarkDto bookmark) {
 		String verseText = "";
 		try {
-			Versification versification = CurrentPageManager.getInstance().getCurrentBible().getVersification();
-			verseText = SwordContentFacade.getInstance().getPlainText(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), bookmark.getVerse(versification), 1);
+			CurrentBiblePage currentBible = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible();
+			Versification versification = currentBible.getVersification();
+			verseText = SwordContentFacade.getInstance().getPlainText(currentBible.getCurrentDocument(), bookmark.getVerse(versification), 1);
 			verseText = CommonUtils.limitTextLength(verseText);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);

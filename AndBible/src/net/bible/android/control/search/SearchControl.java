@@ -5,7 +5,6 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.navigation.DocumentBibleBooksFactory;
 import net.bible.android.control.page.CurrentBiblePage;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.versification.Scripture;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
@@ -87,7 +86,7 @@ public class SearchControl {
     
     public String getCurrentBookName() {
     	try {
-    		CurrentBiblePage currentBiblePage = CurrentPageManager.getInstance().getCurrentBible();
+    		CurrentBiblePage currentBiblePage = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible();
     		Versification v11n = ((SwordBook) currentBiblePage.getCurrentDocument()).getVersification();
         	BibleBook book = currentBiblePage.getSingleKey().getBook();
         	
@@ -150,7 +149,7 @@ public class SearchControl {
 		// There is similar functionality in BookmarkControl
 		String verseText = "";
 		try {
-			verseText = SwordContentFacade.getInstance().getPlainText(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), key, 1);
+			verseText = SwordContentFacade.getInstance().getPlainText(ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getCurrentDocument(), key, 1);
 			verseText = CommonUtils.limitTextLength(verseText);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);
@@ -251,7 +250,7 @@ public class SearchControl {
 	 * When navigating books and chapters there should always be a current Passage based book
 	 */
 	private AbstractPassageBook getCurrentPassageDocument() {
-		return CurrentPageManager.getInstance().getCurrentPassageDocument();
+		return ControlFactory.getInstance().getCurrentPageControl().getCurrentPassageDocument();
 	}
 
 	public boolean isCurrentDefaultScripture() {

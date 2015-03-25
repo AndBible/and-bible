@@ -2,7 +2,6 @@ package net.bible.android.view.activity.search;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.service.sword.SwordDocumentFacade;
@@ -73,7 +72,7 @@ public class SearchIndex extends CustomTitlebarActivityBase {
         if (StringUtils.isNotEmpty(documentInitials)) {
         	documentToIndex = SwordDocumentFacade.getInstance().getDocumentByInitials(documentInitials);
         } else {
-        	documentToIndex = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument();
+        	documentToIndex = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument();
         }
 
         return documentToIndex;

@@ -8,7 +8,6 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.comparetranslations.CompareTranslationsControl;
 import net.bible.android.control.comparetranslations.TranslationDto;
 import net.bible.android.control.page.CurrentBiblePage;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.android.view.util.swipe.SwipeGestureEventHandler;
 import net.bible.android.view.util.swipe.SwipeGestureListener;
@@ -59,7 +58,7 @@ public class CompareTranslations extends ListActivityBase implements SwipeGestur
 		try {
 			if (extras != null) {
 				if (extras.containsKey(VERSE)) {
-					CurrentBiblePage currentDoc = CurrentPageManager.getInstance().getCurrentBible();
+					CurrentBiblePage currentDoc = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible();
 					Versification currentV11n = ((SwordBook) currentDoc.getCurrentDocument()).getVersification();
 					Verse verse = VerseFactory.fromString(currentV11n, extras.getString(VERSE));
 					compareTranslationsControl.setVerse(verse);

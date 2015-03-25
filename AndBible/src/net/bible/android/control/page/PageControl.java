@@ -119,7 +119,7 @@ public class PageControl {
 	public String[] getCurrentDocumentTitleParts() {
 	
 		String title = "";
-		CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
+		CurrentPage currentPage = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage();
 		if (currentPage!=null) {
 			if (currentPage.getCurrentDocument()!=null) {
 				title = currentPage.getCurrentDocument().getInitials();
@@ -144,7 +144,7 @@ public class PageControl {
 	public String[] getCurrentPageTitleParts() {
 		String[] retVal=new String[2];
 		try {
-			CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
+			CurrentPage currentPage = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage();
 			if (currentPage!=null) {
 				if (currentPage.getSingleKey()!=null) {
 					Key key = currentPage.getSingleKey();
@@ -225,6 +225,6 @@ public class PageControl {
 	}
 	
 	public CurrentPageManager getCurrentPageManager() {
-		return CurrentPageManager.getInstance();
+		return ControlFactory.getInstance().getCurrentPageControl();
 	}
 }

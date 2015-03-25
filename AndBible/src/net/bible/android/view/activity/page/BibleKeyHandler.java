@@ -1,6 +1,6 @@
 package net.bible.android.view.activity.page;
 
-import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.ControlFactory;
 import android.util.Log;
 import android.view.KeyEvent;
 
@@ -33,9 +33,9 @@ public class BibleKeyHandler {
 			// prevent too may scroll events causing multi-page changes
 			if (event.getEventTime()-lastHandledDpadEventTime>1000) {
 				if (keyCode==KeyEvent.KEYCODE_DPAD_RIGHT) {
-					CurrentPageManager.getInstance().getCurrentPage().next();
+					ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().next();
 				} else {
-					CurrentPageManager.getInstance().getCurrentPage().previous();
+					ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().previous();
 				}
 				lastHandledDpadEventTime = event.getEventTime();
 				return true;

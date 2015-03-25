@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.format.Note;
@@ -25,7 +26,7 @@ public class FootnoteAndRefControl {
 
 	public List<Note> getCurrentPageFootnotesAndReferences() {
 		try {
-			return CurrentPageManager.getInstance().getCurrentPage().getCurrentPageFootnotesAndReferences();
+			return ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentPageFootnotesAndReferences();
 		} catch (Exception e) {
 			Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
 			return new ArrayList<Note>();
@@ -68,6 +69,6 @@ public class FootnoteAndRefControl {
 	}
 	
 	public CurrentPageManager getCurrentPageManager() {
-		return CurrentPageManager.getInstance();
+		return ControlFactory.getInstance().getCurrentPageControl();
 	}
 }

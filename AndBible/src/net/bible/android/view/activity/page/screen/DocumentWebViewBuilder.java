@@ -8,10 +8,9 @@ import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
-import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.page.splitscreen.Window;
 import net.bible.android.control.page.splitscreen.Separator;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
+import net.bible.android.control.page.splitscreen.Window;
 import net.bible.android.view.activity.page.BibleView;
 import net.bible.service.common.CommonUtils;
 import android.annotation.SuppressLint;
@@ -91,7 +90,7 @@ public class DocumentWebViewBuilder {
 	/** return true if the current page should show a NyNote
 	 */
 	public boolean isWebViewType() {
-		return !CurrentPageManager.getInstance().isMyNoteShown();
+		return !ControlFactory.getInstance().getCurrentPageControl().isMyNoteShown();
 	}
 	
 	public void addWebView(LinearLayout parent) {

@@ -1,6 +1,6 @@
 package net.bible.service.history;
 
-import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.ControlFactory;
 import net.bible.service.common.CommonUtils;
 
 import org.crosswire.jsword.book.Book;
@@ -34,7 +34,7 @@ public class KeyHistoryItem extends HistoryItemBase {
 	 */
 	@Override
 	public void revertTo() {
-		CurrentPageManager.getInstance().setCurrentDocumentAndKeyAndOffset(document, key, yOffsetRatio);
+		ControlFactory.getInstance().getCurrentPageControl().setCurrentDocumentAndKeyAndOffset(document, key, yOffsetRatio);
 	}
 
 	

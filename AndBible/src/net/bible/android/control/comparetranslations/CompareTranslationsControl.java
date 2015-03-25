@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.versification.ConvertibleVerse;
 import net.bible.service.common.CommonUtils;
@@ -107,6 +108,6 @@ public class CompareTranslationsControl {
 
 	/** IOC */
 	public CurrentPageManager getCurrentPageManager() {
-		return CurrentPageManager.getInstance();
+		return ControlFactory.getInstance().getCurrentPageControl();
 	}
 }

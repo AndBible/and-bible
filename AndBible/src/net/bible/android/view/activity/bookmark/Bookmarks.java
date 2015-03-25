@@ -6,7 +6,6 @@ import java.util.List;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.Bookmark;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.bookmark.BookmarkDto;
@@ -229,7 +228,7 @@ public class Bookmarks extends ListActivityBase {
     	Log.d(TAG, "Bookmark selected:"+bookmark.getVerse());
     	try {
         	if (bookmark!=null) {
-        		CurrentPageManager.getInstance().getCurrentPage().setKey(bookmark.getVerse());
+        		ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().setKey(bookmark.getVerse());
         		doFinish();
         	}
     	} catch (Exception e) {

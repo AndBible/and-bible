@@ -11,9 +11,8 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.page.CurrentPage;
-import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.page.splitscreen.Window;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
+import net.bible.android.control.page.splitscreen.Window;
 import net.bible.android.view.activity.base.AndBibleActivity;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.page.MainBibleActivity;
@@ -82,7 +81,7 @@ public class HistoryManager {
 		
 		Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
 		if (currentActivity instanceof MainBibleActivity) {
-			CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
+			CurrentPage currentPage = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage();
 			Book doc = currentPage.getCurrentDocument();
 			if (currentPage.getKey()==null) {
 				return null;

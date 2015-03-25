@@ -5,7 +5,6 @@ import java.util.List;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.search.SearchResultsDto;
 import net.bible.android.view.activity.base.Callback;
@@ -151,7 +150,7 @@ public class SearchResults extends ListActivityBase {
 			}
 			Book targetBook = SwordDocumentFacade.getInstance().getDocumentByInitials(targetDocInitials); 
     		
-    		CurrentPageManager.getInstance().setCurrentDocumentAndKey(targetBook, key);
+    		ControlFactory.getInstance().getCurrentPageControl().setCurrentDocumentAndKey(targetBook, key);
     		
     		// this also calls finish() on this Activity.  If a user re-selects from HistoryList then a new Activity is created
     		returnToPreviousScreen();

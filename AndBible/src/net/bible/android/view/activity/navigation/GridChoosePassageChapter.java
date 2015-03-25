@@ -86,8 +86,9 @@ public class GridChoosePassageChapter extends CustomTitlebarActivityBase impleme
 		int chapter = buttonInfo.id;
 		Log.d(TAG, "Chapter selected:"+chapter);
 		try {
-			if (!navigateToVerse() && !CurrentPageManager.getInstance().getCurrentPage().isSingleKey()) {
-				CurrentPageManager.getInstance().getCurrentPage().setKey(new Verse(navigationControl.getVersification(), mBibleBook, chapter, 1));
+			CurrentPageManager currentPageControl = ControlFactory.getInstance().getCurrentPageControl();
+			if (!navigateToVerse() && !currentPageControl.getCurrentPage().isSingleKey()) {
+				currentPageControl.getCurrentPage().setKey(new Verse(navigationControl.getVersification(), mBibleBook, chapter, 1));
 				onSave(null);
 			} else {
     			// select verse

@@ -5,7 +5,6 @@ import net.bible.android.activity.StartupActivity;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.download.DownloadControl;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.bookmark.Bookmarks;
 import net.bible.android.view.activity.comparetranslations.CompareTranslations;
@@ -82,7 +81,7 @@ public class MenuCommandHandler {
 	        	handlerIntent = new Intent(callingActivity, ChooseDocument.class);
 	        	break;
 	        case R.id.searchButton:
-	        	handlerIntent = ControlFactory.getInstance().getSearchControl().getSearchIntent(CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument());
+	        	handlerIntent = ControlFactory.getInstance().getSearchControl().getSearchIntent(ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument());
 	        	break;
 	        case R.id.settingsButton:
 	        	handlerIntent = new Intent(callingActivity, SettingsActivity.class);
@@ -150,7 +149,7 @@ public class MenuCommandHandler {
 				isHandled = true;
 	        	break;
 	        case R.id.myNoteAddEdit:
-	        	CurrentPageManager.getInstance().showMyNote();
+	        	ControlFactory.getInstance().getCurrentPageControl().showMyNote();
 				isHandled = true;
 	        	break;
 			case R.id.copy:

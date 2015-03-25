@@ -42,11 +42,6 @@ public class CurrentPageManager {
 	
 	private static final String TAG = "CurrentPageManager";
 	
-	static public CurrentPageManager getInstance() {
-		
-		return ControlFactory.getInstance().getSplitScreenControl().getCurrentActiveWindow().getPageManager();
-	}
-
 	public CurrentPageManager(Window window) {
 		this.window = window;
 		

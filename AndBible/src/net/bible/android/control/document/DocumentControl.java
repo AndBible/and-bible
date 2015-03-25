@@ -34,7 +34,7 @@ public class DocumentControl {
 	 * @param newDocument
 	 */
 	public void changeDocument(Book newDocument) {
-		CurrentPageManager.getInstance().setCurrentDocument( newDocument );
+		ControlFactory.getInstance().getCurrentPageControl().setCurrentDocument( newDocument );
 	}
 	
 	/** Book is deletable according to the driver if it is in the download dir i.e. not sdcard\jsword
@@ -43,11 +43,12 @@ public class DocumentControl {
 	 * @return
 	 */
 	public boolean canDelete(Book document) {
+		CurrentPageManager currentPageControl = ControlFactory.getInstance().getCurrentPageControl();
 		return 	document != null && 
 				document.getDriver().isDeletable(document) &&
-				!document.equals(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument()) &&
-				!document.equals(CurrentPageManager.getInstance().getCurrentCommentary().getCurrentDocument()) &&
-				!document.equals(CurrentPageManager.getInstance().getCurrentDictionary().getCurrentDocument());
+				!document.equals(currentPageControl.getCurrentBible().getCurrentDocument()) &&
+				!document.equals(currentPageControl.getCurrentCommentary().getCurrentDocument()) &&
+				!document.equals(currentPageControl.getCurrentDictionary().getCurrentDocument());
 	}
 	
 	/** delete selected document, even of current doc (Map and Gen Book only currently) and tidy up CurrentPage

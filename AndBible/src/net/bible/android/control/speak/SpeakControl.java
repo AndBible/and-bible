@@ -6,8 +6,8 @@ import java.util.Locale;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPage;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
@@ -62,7 +62,7 @@ public class SpeakControl {
 	public NumPagesToSpeakDefinition[] getNumPagesToSpeakDefinitions() {
 		NumPagesToSpeakDefinition[] definitions = null;
 		
-		CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
+		CurrentPage currentPage = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage();
 		BookCategory bookCategory = currentPage.getCurrentDocument().getBookCategory();
 		if (BookCategory.BIBLE.equals(bookCategory)) {
 			Versification v11n = ((SwordBook) currentPage.getCurrentDocument()).getVersification();
@@ -106,7 +106,7 @@ public class SpeakControl {
         // Start Speak
 		} else {
 			try {
-				CurrentPage page = CurrentPageManager.getInstance().getCurrentPage();
+				CurrentPage page = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage();
 				Book fromBook = page.getCurrentDocument();
 		    	// first find keys to Speak
 				List<Key> keyList = new ArrayList<Key>();
@@ -125,7 +125,7 @@ public class SpeakControl {
 	public boolean isCurrentDocSpeakAvailable() {
 		boolean isAvailable = false;
 		try {
-			String docLangCode = CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument().getLanguage().getCode();
+			String docLangCode = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument().getLanguage().getCode();
 			isAvailable = TextToSpeechController.getInstance().isLanguageAvailable(docLangCode);
 		} catch (Exception e) {
 			Log.e(TAG, "Error checking TTS lang available");
@@ -152,7 +152,7 @@ public class SpeakControl {
 			stop();
 		}
 		
-		CurrentPage page = CurrentPageManager.getInstance().getCurrentPage();
+		CurrentPage page = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage();
 		Book fromBook = page.getCurrentDocument()
 				;
     	// first find keys to Speak

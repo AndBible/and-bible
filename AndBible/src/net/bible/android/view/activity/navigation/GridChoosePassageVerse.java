@@ -5,7 +5,6 @@ import java.util.List;
 
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.navigation.NavigationControl;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.util.buttongrid.ButtonGrid;
 import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo;
@@ -89,7 +88,7 @@ public class GridChoosePassageVerse extends CustomTitlebarActivityBase implement
 		int verse = buttonInfo.id;
 		Log.d(TAG, "Verse selected:"+verse);
 		try {
-			CurrentPageManager.getInstance().getCurrentPage().setKey(new Verse(navigationControl.getVersification(), mBibleBook, mBibleChapterNo, verse));
+			ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().setKey(new Verse(navigationControl.getVersification(), mBibleBook, mBibleChapterNo, verse));
 			onSave(null);
 
 		} catch (Exception e) {

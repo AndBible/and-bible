@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.control.versification.VersificationConverter;
 import net.bible.service.common.CommonUtils;
@@ -222,14 +222,14 @@ public class ReadingPlanControl {
     		EventBus.getDefault().post(new BeforeCurrentPageChangeEvent());;
 
 			// show the current bible
-    		AbstractPassageBook bible = CurrentPageManager.getInstance().getCurrentBible().getCurrentPassageBook();
+    		AbstractPassageBook bible = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getCurrentPassageBook();
     		
     		// convert the verse to the v11n of the current bible
     		List<Key> keyList = convertReadingVersification(readingKey, bible);
     		Key firstKey = keyList.get(0);
 
     		// go to correct passage
-    		CurrentPageManager.getInstance().setCurrentDocumentAndKey(bible, firstKey);
+    		ControlFactory.getInstance().getCurrentPageControl().setCurrentDocumentAndKey(bible, firstKey);
     	}
 	}
 
@@ -237,7 +237,7 @@ public class ReadingPlanControl {
 	 * Speak 1 reading and mark as read.  Also convert from ReadingPlan v11n type to v11n type of current Bible.
 	 */
 	public void speak(int day, int readingNo, Key readingKey) {
-		AbstractPassageBook bible = CurrentPageManager.getInstance().getCurrentBible().getCurrentPassageBook();
+		AbstractPassageBook bible = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getCurrentPassageBook();
 		List<Key> keyList = convertReadingVersification(readingKey, bible);
 
 		mSpeakControl.speak(bible, keyList, true, false);
@@ -249,7 +249,7 @@ public class ReadingPlanControl {
 	 * Also mark passages as read
 	 */
 	public void speak(int day, List<Key> allReadings) {
-		AbstractPassageBook bible = CurrentPageManager.getInstance().getCurrentBible().getCurrentPassageBook();
+		AbstractPassageBook bible = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getCurrentPassageBook();
 		List<Key> allReadingsWithCorrectV11n = new ArrayList<Key>();
 		for (Key key : allReadings) {
 			List<Key> keyList = convertReadingVersification(key, bible);

@@ -6,7 +6,6 @@ import java.util.List;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.navigation.NavigationControl;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.navigation.biblebookactionbar.BibleBookActionBarManager;
 import net.bible.android.view.util.buttongrid.ButtonGrid;
@@ -103,7 +102,7 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
     		// if there is only 1 chapter then no need to select chapter, but may need to select verse still
     		if (!navigationControl.hasChapters(book)) {
     			if (!GridChoosePassageChapter.navigateToVerse()) {
-    				CurrentPageManager.getInstance().getCurrentBible().setKey(new Verse(v11n, book, 1, 1));
+    				ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().setKey(new Verse(v11n, book, 1, 1));
     				returnToPreviousScreen();
     			} else {
         			// select verse (only 1 chapter)
@@ -132,7 +131,7 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
 
     private List<ButtonInfo> getBibleBookButtonInfo() {
     	boolean isShortBookNamesAvailable = isShortBookNames();
-    	BibleBook currentBibleBook = KeyUtil.getVerse(CurrentPageManager.getInstance().getCurrentBible().getKey()).getBook();
+    	BibleBook currentBibleBook = KeyUtil.getVerse(ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getKey()).getBook();
     	    	
     	List<BibleBook> bibleBookList = navigationControl.getBibleBooks(isCurrentlyShowingScripture);
     	List<ButtonInfo> keys = new ArrayList<ButtonInfo>(bibleBookList.size());

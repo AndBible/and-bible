@@ -9,7 +9,6 @@ import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
 import net.bible.android.control.event.splitscreen.ScrollSecondaryScreenEvent;
 import net.bible.android.control.event.splitscreen.SplitScreenSizeChangedEvent;
 import net.bible.android.control.event.splitscreen.UpdateSecondaryScreenEvent;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.control.page.splitscreen.Window;
@@ -195,7 +194,7 @@ public class BibleView extends WebView implements DocumentView {
 		mJumpToYOffsetRatio = jumpToYOffsetRatio;
 		
 		// allow zooming if map
-		enableZoomForMap(CurrentPageManager.getInstance().isMapShown());
+		enableZoomForMap(ControlFactory.getInstance().getCurrentPageControl().isMapShown());
 		
 		loadDataWithBaseURL("file:///android_asset/", html, "text/html", "UTF-8", "http://historyUrl");
 

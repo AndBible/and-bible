@@ -1,7 +1,7 @@
 package net.bible.android.view.activity.base.actionbar;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.ControlFactory;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.TitleSplitter;
 
@@ -45,7 +45,7 @@ abstract public class QuickDocumentChangeToolbarButton extends QuickActionButton
 
 	@Override
 	public boolean onMenuItemClick(MenuItem arg0) {
-    	CurrentPageManager.getInstance().setCurrentDocument(mSuggestedDocument);
+    	ControlFactory.getInstance().getCurrentPageControl().setCurrentDocument(mSuggestedDocument);
     	return true;
 	}
 

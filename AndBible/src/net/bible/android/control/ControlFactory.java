@@ -110,7 +110,7 @@ public class ControlFactory {
 	}
 
 	public CurrentPageManager getCurrentPageControl() {
-		return CurrentPageManager.getInstance();		
+		return windowRepository.getCurrentPageManager();		
 	}
 
 	public LinkControl getLinkControl() {

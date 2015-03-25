@@ -11,7 +11,6 @@ import java.util.List;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.db.mynote.MyNoteDBAdapter;
 import net.bible.service.db.mynote.MyNoteDto;
@@ -42,7 +41,7 @@ public class MyNoteControl implements MyNote {
 
 	public int getAddEditMenuText() {
 		// current note is linked to current bible verse
-		Key currentVerse = CurrentPageManager.getInstance().getCurrentBible().getSingleKey();
+		Key currentVerse = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getSingleKey();
 
 		MyNoteDto myNote = getMyNoteByKey(currentVerse);
 		
@@ -63,7 +62,7 @@ public class MyNoteControl implements MyNote {
 	public String getMyNoteVerseKey(MyNoteDto myNote) {
 		String keyText = "";
 		try {
-			Versification versification = CurrentPageManager.getInstance().getCurrentBible().getVersification();
+			Versification versification = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getVersification();
 			keyText = myNote.getVerse(versification).getName();
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);

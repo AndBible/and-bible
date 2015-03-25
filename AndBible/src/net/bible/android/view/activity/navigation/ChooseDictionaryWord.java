@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
 
@@ -45,7 +45,7 @@ public class ChooseDictionaryWord extends ListActivityBase {
         setContentView(R.layout.choose_dictionary_page);
 
         // ensure there is actually a dictionary
-        if (CurrentPageManager.getInstance().getCurrentDictionary().getCurrentDocument()==null) {
+        if (ControlFactory.getInstance().getCurrentPageControl().getCurrentDictionary().getCurrentDocument()==null) {
         	Log.e(TAG, "No Dictionary");
         	finish();
         	return;
@@ -95,7 +95,7 @@ public class ChooseDictionaryWord extends ListActivityBase {
 					//TODO need to optimise this using binary search of globalkeylist without caching
 					
 			    	//already checked a dictionary exists
-			    	mDictionaryGlobalList = CurrentPageManager.getInstance().getCurrentDictionary().getCachedGlobalKeyList(); 
+			    	mDictionaryGlobalList = ControlFactory.getInstance().getCurrentPageControl().getCurrentDictionary().getCachedGlobalKeyList(); 
 			    	
 			    	Log.d(TAG, "Finished Initialising");
 				} catch (Throwable t) {
@@ -153,7 +153,7 @@ public class ChooseDictionaryWord extends ListActivityBase {
     	try {
     		if (selectedKey!=null) {
 		    	Log.i(TAG, "chose:"+selectedKey);
-		    	CurrentPageManager.getInstance().getCurrentDictionary().setKey(selectedKey);
+		    	ControlFactory.getInstance().getCurrentPageControl().getCurrentDictionary().setKey(selectedKey);
 		    	doFinish();
     		}
     	} catch (Exception e) {

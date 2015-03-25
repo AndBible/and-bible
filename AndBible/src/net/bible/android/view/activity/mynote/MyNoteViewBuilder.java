@@ -1,6 +1,6 @@
 package net.bible.android.view.activity.mynote;
 
-import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.base.DocumentView;
 import android.app.Activity;
 import android.view.ViewGroup;
@@ -30,7 +30,7 @@ public class MyNoteViewBuilder {
 	/** return true if the current page should show a NyNote
 	 */
 	public boolean isMyNoteViewType() {
-		return CurrentPageManager.getInstance().isMyNoteShown();
+		return ControlFactory.getInstance().getCurrentPageControl().isMyNoteShown();
 	}
 	
 	public void addMyNoteView(ViewGroup parent) {

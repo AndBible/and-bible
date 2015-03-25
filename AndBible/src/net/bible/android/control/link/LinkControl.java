@@ -109,11 +109,11 @@ public class LinkControl {
 				ref = replaceIBTSpecialCharacters(ref);
 				
 				Key bookKey = document.getKey(ref);
-				CurrentPageManager.getInstance().setCurrentDocumentAndKey(document, bookKey);
+				getCurrentPageManager().setCurrentDocumentAndKey(document, bookKey);
 			}
 		}
 	}
-	
+
 	/**
 	 * IBT use _nn_ for punctuation chars in references to dictionaries e.g. _32_ represents a space so 'Holy_32_Spirit' should be converted to 'Holy Spirit'
 	 * @param ref Key e.g. dictionary key
@@ -133,8 +133,8 @@ public class LinkControl {
 	/** user has selected a Bible verse link
 	 */
 	private void showBible(String keyText) throws NoSuchKeyException {
-		CurrentPageManager pageManager = CurrentPageManager.getInstance();
-		Book bible = CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument();
+		CurrentPageManager pageManager = getCurrentPageManager();
+		Book bible = pageManager.getCurrentBible().getCurrentDocument();
 
 		// get source versification
 		Versification sourceDocumentVersification;
@@ -150,7 +150,7 @@ public class LinkControl {
 		// create Passage with correct source Versification 
         Key key = PassageKeyFactory.instance().getKey(sourceDocumentVersification, keyText);
         
-   		CurrentPageManager.getInstance().setCurrentDocumentAndKey(bible, key);
+   		pageManager.setCurrentDocumentAndKey(bible, key);
 		
 		return;
 	}
@@ -167,7 +167,7 @@ public class LinkControl {
         }
 
         Key strongsNumberKey = book.getKey(key); 
-   		CurrentPageManager.getInstance().setCurrentDocumentAndKey(book, strongsNumberKey);
+   		getCurrentPageManager().setCurrentDocumentAndKey(book, strongsNumberKey);
 		
 		return;
 	}
@@ -184,13 +184,13 @@ public class LinkControl {
         }
 
         Key robinsonNumberKey = robinson.getKey(key); 
-   		CurrentPageManager.getInstance().setCurrentDocumentAndKey(robinson, robinsonNumberKey);
+   		getCurrentPageManager().setCurrentDocumentAndKey(robinson, robinsonNumberKey);
 		
 		return;
 	}
 
 	private void showAllOccurrences(String ref, SearchBibleSection biblesection, String refPrefix) {
-    	Book currentBible = CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument();
+    	Book currentBible = getCurrentPageManager().getCurrentBible().getCurrentDocument();
     	Book strongsBible = null;
 
     	// if current bible has no Strongs refs then try to find one that has
@@ -247,5 +247,9 @@ public class LinkControl {
 			Log.e(TAG, "Error checking strongs numbers", be);
 			return false;
 		}
+	}
+
+	private CurrentPageManager getCurrentPageManager() {
+		return ControlFactory.getInstance().getCurrentPageControl();
 	}
 }

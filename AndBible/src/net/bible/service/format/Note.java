@@ -1,5 +1,6 @@
 package net.bible.service.format;
 
+import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Logger;
@@ -52,7 +53,7 @@ public class Note {
 		try {
 			if (noteType.equals(NoteType.TYPE_REFERENCE)) {
 				String verse = StringUtils.isNotEmpty(osisRef) ? osisRef : noteText; 
-				retval = SwordContentFacade.getInstance().getPlainText(CurrentPageManager.getInstance().getCurrentBible().getCurrentDocument(), verse, 1);
+				retval = SwordContentFacade.getInstance().getPlainText(ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getCurrentDocument(), verse, 1);
 				retval = CommonUtils.limitTextLength(retval);
 			}
 		} catch (Exception e) {
@@ -76,8 +77,9 @@ public class Note {
 			ref = noteText;
 		}
 
-		CurrentPageManager.getInstance().getCurrentBible().setKey(ref);
-		CurrentPageManager.getInstance().showBible();
+		CurrentPageManager currentPageControl = ControlFactory.getInstance().getCurrentPageControl();
+		currentPageControl.getCurrentBible().setKey(ref);
+		currentPageControl.showBible();
 	}
 
 	@Override

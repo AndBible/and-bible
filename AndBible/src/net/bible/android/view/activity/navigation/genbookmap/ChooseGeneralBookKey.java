@@ -4,7 +4,6 @@ import java.util.List;
 
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentGeneralBookPage;
-import net.bible.android.control.page.CurrentPageManager;
 
 import org.crosswire.jsword.passage.Key;
 
@@ -34,7 +33,7 @@ public class ChooseGeneralBookKey extends ChooseKeyBase {
 	@Override
     protected void itemSelected(Key key) {
     	try {
-    		CurrentPageManager.getInstance().getCurrentGeneralBook().setKey(key);
+    		ControlFactory.getInstance().getCurrentPageControl().getCurrentGeneralBook().setKey(key);
     	} catch (Exception e) {
     		Log.e(TAG, "error on select of gen book key", e);
     	}

@@ -10,7 +10,6 @@ import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent;
 import net.bible.android.control.event.splitscreen.CurrentSplitScreenChangedEvent;
 import net.bible.android.control.page.CurrentPage;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.page.actionbar.BibleActionBarManager;
@@ -176,8 +175,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		// common key handling i.e. KEYCODE_DPAD_RIGHT & KEYCODE_DPAD_LEFT
 		if (BibleKeyHandler.getInstance().onKeyUp(keyCode, event)) {
 			return true;
-		} else if ((keyCode == KeyEvent.KEYCODE_SEARCH && CurrentPageManager.getInstance().getCurrentPage().isSearchable())) {
-			Intent intent = ControlFactory.getInstance().getSearchControl().getSearchIntent(CurrentPageManager.getInstance().getCurrentPage().getCurrentDocument());
+		} else if ((keyCode == KeyEvent.KEYCODE_SEARCH && ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().isSearchable())) {
+			Intent intent = ControlFactory.getInstance().getSearchControl().getSearchIntent(ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument());
 			if (intent!=null) {
 				startActivityForResult(intent, STD_REQUEST_CODE);
 			}
@@ -225,7 +224,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     /** allow current page to save any settings or data before being changed
      */
     public void onEvent(PreBeforeCurrentPageChangeEvent event) {
-    	CurrentPage currentPage = CurrentPageManager.getInstance().getCurrentPage();
+    	CurrentPage currentPage = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage();
     	if (currentPage!=null) {
 	    	// save current scroll position so history can return to correct place in document
 			float screenPosn = getCurrentPosition();
@@ -268,7 +267,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		super.onPrepareOptionsMenu(menu);
 		
 		// disable some options depending on document type
-		CurrentPageManager.getInstance().getCurrentPage().updateOptionsMenu(menu);
+		ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().updateOptionsMenu(menu);
 		
 		// if there is no backup file then disable the restore menu item
 		ControlFactory.getInstance().getBackupControl().updateOptionsMenu(menu);
@@ -319,7 +318,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 			inflater.inflate(R.menu.document_viewer_context_menu, menu);
 	
 			// allow current page type to add, delete or disable menu items
-			CurrentPageManager.getInstance().getCurrentPage().updateContextMenu(menu);
+			ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().updateContextMenu(menu);
 		}
 	}
 
@@ -343,14 +342,14 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     /** user swiped right */
     public void next() {
     	if (getDocumentViewManager().getDocumentView().isPageNextOkay()) {
-    		CurrentPageManager.getInstance().getCurrentPage().next();
+    		ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().next();
     	}		
     }
     
     /** user swiped left */
     public void previous() {
     	if (getDocumentViewManager().getDocumentView().isPagePreviousOkay()) {
-    		CurrentPageManager.getInstance().getCurrentPage().previous();
+    		ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().previous();
     	}
     }
 
