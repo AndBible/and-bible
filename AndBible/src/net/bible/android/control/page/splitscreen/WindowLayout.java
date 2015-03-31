@@ -9,8 +9,6 @@ public class WindowLayout {
 	
 	private WindowState state = WindowState.SPLIT;
 	
-	private boolean isSynchronised = true;
-	
 	private float weight = 1.0f;
 	
 
@@ -22,14 +20,6 @@ public class WindowLayout {
 		return state;
 	}
 	
-	public boolean isSynchronised() {
-		return isSynchronised;
-	}
-	
-	public void setSynchronised(boolean isSynchronised) {
-		this.isSynchronised = isSynchronised;
-	}
-
 	public void setState(WindowState state) {
 		this.state = state;
 	}
@@ -46,14 +36,12 @@ public class WindowLayout {
 	public JSONObject getStateJson() throws JSONException {
 		JSONObject object = new JSONObject();
 		object.put("state", state)
-			 .put("isSynchronised", isSynchronised)
 			 .put("weight", weight);
 		return object;
 	}
 
 	public void restoreState(JSONObject jsonObject) throws JSONException {
 		this.state = WindowState.valueOf(jsonObject.getString("state"));
-		this.isSynchronised = jsonObject.getBoolean("isSynchronised");
 		this.weight = (float)jsonObject.getDouble("weight");
 	}
 }

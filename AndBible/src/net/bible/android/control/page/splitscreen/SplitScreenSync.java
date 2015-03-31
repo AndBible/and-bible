@@ -60,7 +60,7 @@ public class SplitScreenSync {
 		CurrentPage activePage = activeWindow.getPageManager().getCurrentPage();
 		
 		// exit if main screen is not synchronised
-		if (!activeWindow.getWindowLayout().isSynchronised() || !isSynchronizableVerseKey(activePage)) {
+		if (!activeWindow.isSynchronised() || !isSynchronizableVerseKey(activePage)) {
 			return;
 		}
 
@@ -73,7 +73,7 @@ public class SplitScreenSync {
 			boolean inactiveUpdated = false;
 			boolean isTotalRefreshRequired = isFirstTimeInit ||	lastSynchWasInNightMode!=ScreenSettings.isNightMode() || screenPreferencesChanged;
 	
-			if (inactiveWindow.getWindowLayout().isSynchronised()) {
+			if (inactiveWindow.isSynchronised()) {
 				// inactive screen may not be displayed (e.g. if viewing a dict) but if switched to the key must be correct
 				// Only Bible and cmtry are synch'd and they share a Verse key
 				updateInactiveBibleKey(inactiveWindow, targetActiveScreenKey);

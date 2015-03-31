@@ -1,6 +1,7 @@
 package net.bible.android.control.page.splitscreen;
 
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.CurrentPageManagerFactory;
 import net.bible.android.control.page.splitscreen.WindowLayout.WindowState;
 import net.bible.service.common.Logger;
 
@@ -9,9 +10,13 @@ import org.json.JSONObject;
 
 public class Window {
 
+	private boolean isSynchronised = true;
+	
 	private WindowLayout windowLayout;
 	
 	private CurrentPageManager currentPageManager;
+	
+	private static CurrentPageManagerFactory currentPageManagerFactory = new CurrentPageManagerFactory();
 	
 	// 1 based screen no
 	private int screenNo;
@@ -32,13 +37,21 @@ public class Window {
 		//TODO use a factory
 		// for now lazily create to prevent NPE on start up due to circular dependency
 		if (currentPageManager==null) {
-			this.currentPageManager = new CurrentPageManager(this);
+			this.currentPageManager = currentPageManagerFactory.createCurrentPageManager(this);
 		}
 		return currentPageManager;
 	}
 	
 	public int getScreenNo() {
 		return screenNo;
+	}
+
+	public boolean isSynchronised() {
+		return isSynchronised;
+	}
+	
+	public void setSynchronised(boolean isSynchronised) {
+		this.isSynchronised = isSynchronised;
 	}
 
 	public boolean isVisible() {
@@ -48,13 +61,15 @@ public class Window {
 	public JSONObject getStateJson() throws JSONException {
 		JSONObject object = new JSONObject();
 		object.put("screenNo", screenNo)
-			 .put("windowLayout", windowLayout.getStateJson());
+			.put("isSynchronised", isSynchronised)
+			.put("windowLayout", windowLayout.getStateJson());
 		return object;
 	}
 
 	public void restoreState(JSONObject jsonObject) throws JSONException {
 		try {
 			this.screenNo = jsonObject.getInt("screenNo");
+			this.isSynchronised = jsonObject.getBoolean("isSynchronised");
 			this.windowLayout.restoreState(jsonObject.getJSONObject("windowLayout"));
 		} catch (Exception e) {
 			logger.warn("Window state restore error");

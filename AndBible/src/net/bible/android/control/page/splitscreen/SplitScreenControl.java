@@ -78,6 +78,8 @@ public class SplitScreenControl {
 
 		// redisplay the current page
 		EventBus.getDefault().post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+		
+		splitScreenSync.synchronizeScreens();
 	}
 
 	public void minimiseWindow(Window window) {
@@ -133,19 +135,19 @@ public class SplitScreenControl {
 		
 		if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_SINGLE)) {
 			windowRepository.getWindow(1).getWindowLayout().setState(WindowState.SPLIT); //Was MAXIMIZED
-			windowRepository.getWindow(1).getWindowLayout().setSynchronised(false);
+			windowRepository.getWindow(1).setSynchronised(false);
 			windowRepository.getWindow(1).getWindowLayout().setWeight(1f);
 		} else if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_LINKED)) {
 			windowRepository.getWindow(1).getWindowLayout().setState(WindowState.SPLIT);
 			windowRepository.getWindow(2).getWindowLayout().setState(WindowState.SPLIT);
-			windowRepository.getWindow(1).getWindowLayout().setSynchronised(true);
-			windowRepository.getWindow(2).getWindowLayout().setSynchronised(true);
+			windowRepository.getWindow(1).setSynchronised(true);
+			windowRepository.getWindow(2).setSynchronised(true);
 			//TODO should the other screens also be synchronised?
 		} else if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_NOT_LINKED)) {
 			windowRepository.getWindow(1).getWindowLayout().setState(WindowState.SPLIT);
 			windowRepository.getWindow(2).getWindowLayout().setState(WindowState.SPLIT);
-			windowRepository.getWindow(1).getWindowLayout().setSynchronised(false);
-			windowRepository.getWindow(2).getWindowLayout().setSynchronised(false);
+			windowRepository.getWindow(1).setSynchronised(false);
+			windowRepository.getWindow(2).setSynchronised(false);
 		}
 	}
 	

@@ -5,7 +5,6 @@ import net.bible.android.SharedConstants;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
-import net.bible.android.control.page.splitscreen.Window;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 
 import org.apache.commons.lang.StringUtils;
@@ -38,12 +37,12 @@ public class CurrentPageManager {
 	
 	private CurrentPage currentDisplayedPage;
 	
-	private Window window;
+	private String id;
 	
 	private static final String TAG = "CurrentPageManager";
 	
-	public CurrentPageManager(Window window) {
-		this.window = window;
+	public CurrentPageManager(String id) {
+		this.id = id;
 		
 		currentBibleVerse = new CurrentBibleVerse();
 		currentBiblePage = new CurrentBiblePage(currentBibleVerse);
@@ -244,7 +243,7 @@ public class CurrentPageManager {
 	}
     /** save current page and document state */
 	protected void saveState() {
-    	Log.i(TAG, "Save instance state for screen "+window);
+    	Log.i(TAG, "Save instance state for CurrentPageManager "+id);
     	SharedPreferences settings = BibleApplication.getApplication().getAppStateSharedPreferences();
 		saveState(settings);
 	}
@@ -252,7 +251,7 @@ public class CurrentPageManager {
 	/** restore current page and document state */
     private void restoreState() {
     	try {
-        	Log.i(TAG, "Restore instance state for screen "+window);
+        	Log.i(TAG, "Restore instance state for CurrentPageManager "+id);
         	SharedPreferences settings = BibleApplication.getApplication().getAppStateSharedPreferences();
     		restoreState(settings);
     	} catch (Exception e) {
@@ -265,7 +264,7 @@ public class CurrentPageManager {
 	 */
 	private void saveState(SharedPreferences outState) {
 		Log.i(TAG, "save state");
-		String screenId = getScreenIdForState();
+		String screenId = getIdForState();
 
 		currentBiblePage.saveState(outState, screenId);
 		currentCommentaryPage.saveState(outState, screenId);
@@ -283,7 +282,7 @@ public class CurrentPageManager {
 	 */
 	private void restoreState(SharedPreferences inState) {
 		Log.i(TAG, "restore state");
-		String screenId = getScreenIdForState();
+		String screenId = getIdForState();
 
 		currentBiblePage.restoreState(inState, screenId);
 		currentCommentaryPage.restoreState(inState, screenId);
@@ -298,12 +297,12 @@ public class CurrentPageManager {
 		}
 	}
 	
-	private String getScreenIdForState() {
+	private String getIdForState() {
 		// need to have empty screenId for screen 1 so as to use pre-splitScreen state
-		if (window.getScreenNo()==1) {
+		if (id.equals("1")) {
 			return "";
 		} else {
-			return "_SCREEN"+window.getScreenNo();
+			return "_SCREEN"+id;
 		}
 	}
 }

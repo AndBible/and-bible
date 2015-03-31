@@ -26,7 +26,7 @@ public class WindowTest {
 	public void testGetRestoreStateJson() throws Exception {
 		Window window = new Window(2, WindowState.MINIMISED);
 		WindowLayout layout = window.getWindowLayout();
-		layout.setSynchronised(true);
+		window.setSynchronised(true);
 		layout.setWeight(1.23456f);
 		JSONObject json = window.getStateJson();
 		System.out.println(json);
@@ -35,7 +35,7 @@ public class WindowTest {
 		layout = window.getWindowLayout();
 		assertThat(window.getScreenNo(), equalTo(2));
 		assertThat(layout.getState(), equalTo(WindowState.MINIMISED));
-		assertThat(layout.isSynchronised(), equalTo(true));
+		assertThat(window.isSynchronised(), equalTo(true));
 		assertThat(layout.getWeight(), equalTo(1.23456f));
 	}
 }
