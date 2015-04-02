@@ -36,7 +36,8 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 	// see here for info ftp://ftp.xiphos.org/mods.d/
 	private static final String XIPHOS_REPOSITORY = "Xiphos";
 	
-	private static final String TEST_URL = "http://ftp.xiphos.org/sword"; 
+	private static final String TEST_URL = "http://ftp.xiphos.org/sword/";
+	private boolean testedOkay = false;
 
 	static final String lineSeparator = System.getProperty ( "line.separator" );
 	
@@ -109,7 +110,10 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 		List<Book> booksInRepo = new ArrayList<Book>();
 
 		// Xiphos has gone off line a couple of times so specifically test if it is available to avoid hang
-		if (CommonUtils.isHttpUrlAvailable(TEST_URL)) {
+		if (testedOkay || CommonUtils.isHttpUrlAvailable(TEST_URL)) {
+			// tested access to Xiphos repo so don't need to do it again
+			testedOkay = true;
+			
 			booksInRepo = getBookList(SUPPORTED_DOCUMENTS, refresh);
 			storeRepoNameInMetaData(booksInRepo);
 		}

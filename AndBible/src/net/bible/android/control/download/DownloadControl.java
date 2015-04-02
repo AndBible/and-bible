@@ -8,6 +8,7 @@ import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
+import net.bible.service.download.RepoFactory;
 import net.bible.service.download.XiphosRepo;
 import net.bible.service.font.FontControl;
 import net.bible.service.sword.SwordDocumentFacade;
@@ -29,11 +30,16 @@ public class DownloadControl {
 
 	public enum BookInstallStatus {INSTALLED, NOT_INSTALLED, BEING_INSTALLED, UPGRADE_AVAILABLE};
 
-	private XiphosRepo xiphosRepo = new XiphosRepo();
+	private XiphosRepo xiphosRepo;
 	
-	private FontControl fontControl = FontControl.getInstance();
+	private FontControl fontControl;
 
 	private static final String TAG = "DownloadControl";
+	
+	public DownloadControl() {
+		this.xiphosRepo = RepoFactory.getInstance().getXiphosRepo();
+		this.fontControl = FontControl.getInstance();
+	}
 	
 	/** pre-download document checks
 	 */
