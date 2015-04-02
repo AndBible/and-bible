@@ -125,7 +125,7 @@ public class MilestoneHandlerTest {
 		writer.write("passage start");
 		passageInfo.isAnyTextWritten = true;
 		verseInfo.positionToInsertBeforeVerse = writer.getPosition();
-		writer.write("<span class='verse' id='1'>1</span>");
+		writer.write("<span class='verseNo' id='1'>1</span>");
 		verseInfo.isTextSinceVerse = false;
 		
 		AttributesImpl attrs = new AttributesImpl();
@@ -135,6 +135,6 @@ public class MilestoneHandlerTest {
 		milestoneHandler.end();
 		writer.write("And God");
 		
-		assertThat(writer.getHtml(), equalTo("passage start<br /><span class='verse' id='1'>1</span>And God"));
+		assertThat(writer.getHtml(), equalTo("passage start<br /><span class='verseNo' id='1'>1</span>And God"));
 	}
 }

@@ -92,12 +92,12 @@ public class VerseHandler implements OsisTagHandler {
 		// Do not show verse 0
 		StringBuilder verseHtml = new StringBuilder();
 		if (parameters.isShowVerseNumbers() && verseNo!=0) {
-			verseHtml.append(" <span class='verse' id='").append(verseNo).append("'>").append(verseNo).append("</span>").append(HTML.NBSP);
+			verseHtml.append(" <span class='verseNo' id='").append(verseNo).append("'>").append(verseNo).append("</span>").append(HTML.NBSP);
 		} else {
 			// we really want an empty span but that is illegal and causes problems such as incorrect verse calculation in Psalms
 			// so use something that will hopefully interfere as little as possible - a zero-width-space
 			// also put a space before it to allow a separation from the last word of previous verse or to be ignored if start of line
-			verseHtml.append(" <span class='verse' id='").append(verseNo).append("'/>&#x200b;</span>");
+			verseHtml.append(" <span class='verseNo' id='").append(verseNo).append("'/>&#x200b;</span>");
 		}
 		writer.write(verseHtml.toString());
 	}
