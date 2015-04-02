@@ -129,6 +129,7 @@
   <string name="rdg_plan_y1ot1nt1_OTandNT">A través de la biblia en un año - AT y NT</string>
   <string name="rdg_plan_y1ot1nt1_OTthenNT">A través de la biblia en un año - AT y luego NT</string>
   <string name="rdg_plan_y1ot1nt2_mcheyne">A través de la biblia en un año (M\'Cheyne)</string>
+  <string name="rdg_plan_y2ot1ntps2">Plan de 2 años - AT una vez, NT y Salmos dos veces</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Borrar</string>
