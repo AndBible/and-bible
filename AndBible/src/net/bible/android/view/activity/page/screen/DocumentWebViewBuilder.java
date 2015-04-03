@@ -259,7 +259,7 @@ public class DocumentWebViewBuilder {
 			@Override
 			public void onClick(View v) {
 				//TODO was minimise
-				splitScreenControl.removeWindow(window);				
+				splitScreenControl.minimiseWindow(window);				
 			}
 		});
 	}
