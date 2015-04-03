@@ -22,7 +22,7 @@ function registerVersePositions() {
 }
 
 function getVerseElements() {
-	return getElementsByClass("verse", document.body, "span")
+	return getElementsByClass("verseNo", document.body, "span")
 }
 
 function getElementsByClass( searchClass, domNode, tagName) { 

@@ -41,7 +41,7 @@ public class LHandlerTest {
 
 	/**
 	 * ESV Ps 117:
-	 <h1 class='heading1'>The Lord's Faithfulness Endures Forever</h1> <span class='verseNo' id='1'/>&#x200b;</span>Praise the Lord, all nations!<br />&#160;&#160;Extol him, all peoples!<br /> <span class='verse' id='2'/>&#x200b;</span>For great is his steadfast love toward us,<br />&#160;&#160;and the faithfulness of the Lord endures forever.<br />Praise the Lord!<br />
+	 <h1 class='heading1'>The Lord's Faithfulness Endures Forever</h1> <span class='verseNo' id='1'/>&#x200b;</span>Praise the Lord, all nations!<br />&#160;&#160;Extol him, all peoples!<br /> <span class='verseNo' id='2'/>&#x200b;</span>For great is his steadfast love toward us,<br />&#160;&#160;and the faithfulness of the Lord endures forever.<br />Praise the Lord!<br />
 	 */
 	
 	/** ESV Ps.117.1
