@@ -78,7 +78,8 @@ public class SplitScreenControl {
 
 		// redisplay the current page
 		EventBus.getDefault().post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
-		
+
+		splitScreenSync.setResynchRequired(true);
 		splitScreenSync.synchronizeScreens();
 	}
 
@@ -111,6 +112,7 @@ public class SplitScreenControl {
 		// causes BibleViews to be created and laid out
 		EventBus.getDefault().post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
 		
+		splitScreenSync.setResynchRequired(true);
 		splitScreenSync.synchronizeScreens();
 	}
 

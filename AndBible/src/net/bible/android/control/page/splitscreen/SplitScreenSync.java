@@ -71,7 +71,7 @@ public class SplitScreenSync {
 			CurrentPage inactivePage = inactiveWindow.getPageManager().getCurrentPage();
 			Key inactiveScreenKey = inactivePage.getSingleKey();
 			boolean inactiveUpdated = false;
-			boolean isTotalRefreshRequired = isFirstTimeInit ||	lastSynchWasInNightMode!=ScreenSettings.isNightMode() || screenPreferencesChanged;
+			boolean isTotalRefreshRequired = isFirstTimeInit ||	lastSynchWasInNightMode!=ScreenSettings.isNightMode() || screenPreferencesChanged || resynchRequired;
 	
 			if (inactiveWindow.isSynchronised()) {
 				// inactive screen may not be displayed (e.g. if viewing a dict) but if switched to the key must be correct
