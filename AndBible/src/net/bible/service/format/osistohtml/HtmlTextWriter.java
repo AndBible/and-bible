@@ -19,6 +19,8 @@ public class HtmlTextWriter {
     private int writeTempStoreRequestCount = 0;
     private StringBuilder tempStore = new StringBuilder();
 
+    private boolean insertingPreverseText = false;
+    
     // allow insert at a certain position
     private String overwrittenString = "";
     
@@ -42,7 +44,7 @@ public class HtmlTextWriter {
 	/** allow line breaks and titles to be moved before verse number
 	 */
 	protected void writeOptionallyBeforeVerse(String s, VerseInfo verseInfo) {
-		boolean writeBeforeVerse = !verseInfo.isTextSinceVerse;
+		boolean writeBeforeVerse = !isInsertingPreverse() && !verseInfo.isTextSinceVerse;
 		if (writeBeforeVerse) {
 			beginInsertAt(verseInfo.positionToInsertBeforeVerse);
 		}
@@ -55,6 +57,7 @@ public class HtmlTextWriter {
     /** allow pre-verse headings
      */
     public void beginInsertAt(int insertOffset) {
+    	insertingPreverseText = true;
     	overwrittenString = writer.substring(insertOffset);
     	writer.delete(insertOffset, writer.length());
     }
@@ -63,6 +66,14 @@ public class HtmlTextWriter {
     public void finishInserting() {
     	writer.append(overwrittenString);
     	overwrittenString = "";
+    	insertingPreverseText = false;
+    }
+    
+    /**
+     * Allow prevention of multiple conflicting preverse attempts
+     */
+    public boolean isInsertingPreverse() {
+    	return insertingPreverseText;
     }
     
     public int getPosition() {

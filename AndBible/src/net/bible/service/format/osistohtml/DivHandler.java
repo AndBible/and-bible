@@ -6,6 +6,7 @@ import java.util.Stack;
 
 import net.bible.service.common.Logger;
 import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler.PassageInfo;
+import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler.VerseInfo;
 
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
@@ -24,13 +25,14 @@ import org.xml.sax.Attributes;
  */
 public class DivHandler implements OsisTagHandler {
 
-	private enum DivType {PARAGRAPH, IGNORE};
+	private enum DivType {PARAGRAPH, PREVERSE, PREVERSE_START_MILESTONE, PREVERSE_END_MILESTONE, IGNORE};
 
 	private HtmlTextWriter writer;
 	
 	@SuppressWarnings("unused")
 	private OsisToHtmlParameters parameters;
 	
+	private VerseInfo verseInfo;
 	private PassageInfo passageInfo;
 	
 	private Stack<DivType> stack = new Stack<DivType>();
@@ -40,8 +42,9 @@ public class DivHandler implements OsisTagHandler {
 	@SuppressWarnings("unused")
 	private static final Logger log = new Logger("DivHandler");
 
-	public DivHandler(OsisToHtmlParameters parameters, PassageInfo passageInfo, HtmlTextWriter writer) {
+	public DivHandler(OsisToHtmlParameters parameters, VerseInfo verseInfo, PassageInfo passageInfo, HtmlTextWriter writer) {
 		this.parameters = parameters;
+		this.verseInfo = verseInfo;
 		this.passageInfo = passageInfo;
 		this.writer = writer;
 	}
@@ -62,6 +65,19 @@ public class DivHandler implements OsisTagHandler {
 			if (sID==null) {
 				divType = DivType.PARAGRAPH;
 			}
+		} else if (TagHandlerHelper.contains(OSISUtil.OSIS_ATTR_SUBTYPE, attrs, "preverse")) {
+			if (TagHandlerHelper.isAttr(OSISUtil.OSIS_ATTR_SID, attrs)) {
+				divType = DivType.PREVERSE_START_MILESTONE;
+				writer.beginInsertAt(verseInfo.positionToInsertBeforeVerse);
+				
+			} else if (TagHandlerHelper.isAttr(OSISUtil.OSIS_ATTR_EID, attrs)) {
+				divType = DivType.PREVERSE_END_MILESTONE;
+				writer.finishInserting();
+				
+			} else {
+				divType = DivType.PREVERSE;
+				writer.beginInsertAt(verseInfo.positionToInsertBeforeVerse);
+			}
 		}
 		stack.push(divType);
 	}
@@ -71,6 +87,8 @@ public class DivHandler implements OsisTagHandler {
 		DivType type = stack.pop();
 		if (DivType.PARAGRAPH.equals(type) && passageInfo.isAnyTextWritten) {
 			writer.write("<p />");
+		} else if (DivType.PREVERSE.equals(type)) {
+			writer.finishInserting();
 		}
 	}
 }

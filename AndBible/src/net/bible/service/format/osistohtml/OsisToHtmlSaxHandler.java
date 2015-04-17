@@ -117,7 +117,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		registerHandler( new PHandler(parameters, getWriter()) );
 		registerHandler( new StrongsHandler(parameters, getWriter()) );
 		registerHandler( new FigureHandler(parameters, getWriter()) );
-		registerHandler( new DivHandler(parameters, passageInfo, getWriter()) );
+		registerHandler( new DivHandler(parameters, verseInfo, passageInfo, getWriter()) );
 		registerHandler( new TableHandler(getWriter()) );
 		registerHandler( new TableRowHandler(getWriter()) );
 		registerHandler( new TableCellHandler(getWriter()) );

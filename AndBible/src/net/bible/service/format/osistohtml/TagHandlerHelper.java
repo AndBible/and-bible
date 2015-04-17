@@ -40,6 +40,17 @@ public class TagHandlerHelper {
 		return retval;
 	}
 
+	/** Return true if attribute contains the desiredValue in any case
+	 */
+	public static boolean contains(String attributeName, Attributes attrs, String desiredValue) {
+		boolean attribContainsExpectedValue = false;
+		String attrValue = attrs.getValue(attributeName);
+		if (attrValue != null) {
+			attribContainsExpectedValue = StringUtils.containsIgnoreCase(attrValue, desiredValue);
+		}
+		return attribContainsExpectedValue;
+	}
+
 	/**
 	 * see if an attribute exists and has a value
 	 * 

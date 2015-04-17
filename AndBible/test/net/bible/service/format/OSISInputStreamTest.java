@@ -113,13 +113,14 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 	@Test
 	public void testReadRuCarsPoetry() throws Exception {
 		Book book = getBook("RusCARS");
-
-		OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Ps 116"));
-		String chapter = convertStreamToString(osisInputStream);
-		int numOpeningDivs = count(chapter, "<div>");
-		int numClosingDivs = count(chapter, "</div>");
-		assertThat("wrong number of divs", numOpeningDivs, equalTo(numClosingDivs));
-		System.out.println(chapter);
+		if (book!=null) {
+			OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Ps 116"));
+			String chapter = convertStreamToString(osisInputStream);
+			int numOpeningDivs = count(chapter, "<div>");
+			int numClosingDivs = count(chapter, "</div>");
+			assertThat("wrong number of divs", numOpeningDivs, equalTo(numClosingDivs));
+			System.out.println(chapter);
+		}
 	}
 
 	@Test
@@ -144,18 +145,15 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 
 	@Test
 	public void testReadTitle() throws Exception {
-		Book book = getBook("WEB");
+		Book book = getBook("ESVS");
 
 		OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Hosea 1:2"));
 		String verse = convertStreamToString(osisInputStream);
 		System.out.println(verse);
 		
-		osisInputStream = new OSISInputStream(book, book.getKey("Psalm 36:1"));
+		osisInputStream = new OSISInputStream(book, book.getKey("Psalm 25:1"));
 		verse = convertStreamToString(osisInputStream);
 		System.out.println(verse);
-		
-		
-		
 	}
 
 	public void testReadABPGRKJn1() throws Exception {

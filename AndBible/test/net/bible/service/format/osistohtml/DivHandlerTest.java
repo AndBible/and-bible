@@ -3,6 +3,7 @@ package net.bible.service.format.osistohtml;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler.PassageInfo;
+import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler.VerseInfo;
 
 import org.crosswire.jsword.book.OSISUtil;
 import org.junit.Before;
@@ -13,6 +14,7 @@ public class DivHandlerTest {
 
 	private OsisToHtmlParameters osisToHtmlParameters;
 	private PassageInfo passageInfo;
+	private VerseInfo verseInfo;
 	private HtmlTextWriter htmlTextWriter;
 	
 	private DivHandler divHandler;
@@ -21,9 +23,10 @@ public class DivHandlerTest {
 	public void setUp() throws Exception {
 		osisToHtmlParameters = new OsisToHtmlParameters();
 		passageInfo = new PassageInfo();
+		verseInfo = new VerseInfo();
 		htmlTextWriter = new HtmlTextWriter();
 		
-		divHandler = new DivHandler(osisToHtmlParameters, passageInfo, htmlTextWriter);
+		divHandler = new DivHandler(osisToHtmlParameters, verseInfo, passageInfo, htmlTextWriter);
 	}
 
 	/**
@@ -96,5 +99,38 @@ public class DivHandlerTest {
 
 		assertThat(htmlTextWriter.getHtml(), equalTo("Some text<p />"));
 	}
+	
+	/**
+	 * Some pre-verse titles are not marked as pre-verse directly but are wrapped in a div marked as pre-verse
+	 * E.g. ESVS Ps 25:	 * 
+	 * <div><verse osisID='Ps.25.1'><div type="x-milestone" subType="x-preverse" sID="pv2905"/> <title>Teach Me Your Paths</title> <title canonical="true" type="psalm"> Of David.</title> <div type="x-milestone" subType="x-preverse" eID="pv2905"/>
+	 */
+	@Test
+	public void testEsvsTitleInPreVerseDiv() {
+		// verse comes first
+		htmlTextWriter.write("v1");
+		verseInfo.currentVerseNo = 1;
+		verseInfo.positionToInsertBeforeVerse = 0;
+		verseInfo.isTextSinceVerse = false;
 
+		// then a div with a pre-verse attribute
+		AttributesImpl attrsSidOpen = new AttributesImpl();
+		attrsSidOpen.addAttribute(null, null, OSISUtil.OSIS_ATTR_SUBTYPE, null, "x-preverse");
+		attrsSidOpen.addAttribute(null, null, OSISUtil.OSIS_ATTR_SID, null, "pv2905");
+		divHandler.start(attrsSidOpen);
+		divHandler.end();
+
+		htmlTextWriter.write("Preverse text");
+		passageInfo.isAnyTextWritten = true;
+		
+		AttributesImpl attrsEidOpen = new AttributesImpl();
+		attrsEidOpen.addAttribute(null, null, OSISUtil.OSIS_ATTR_SUBTYPE, null, "x-preverse");
+		attrsEidOpen.addAttribute(null, null, OSISUtil.OSIS_ATTR_EID, null, "pv2905");
+		divHandler.start(attrsEidOpen);
+		divHandler.end();
+
+		htmlTextWriter.write("Verse content");
+
+		assertThat(htmlTextWriter.getHtml(), equalTo("Preverse textv1Verse content"));
+	}
 }
