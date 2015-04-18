@@ -67,7 +67,7 @@ public class BookmarkDBAdapter {
 		String v11nName="";
 		if (key instanceof VerseKey) {
 			// must save a VerseKey's versification along with the key!
-			v11nName = ((VerseKey) key).getVersification().getName();
+			v11nName = ((VerseKey<?>) key).getVersification().getName();
 		}
 		
 		// Gets the current system time in milliseconds

@@ -23,7 +23,6 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
     private Stack<CONTENT_STATE> writeContentStack = new Stack<CONTENT_STATE>(); 
 	private enum CONTENT_STATE {WRITE, IGNORE};
     
-    @SuppressWarnings("unused")
 	private static final Logger log = new Logger("OsisToCanonicalTextSaxHandler");
     
     public OsisToCanonicalTextSaxHandler() {
