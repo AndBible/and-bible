@@ -19,7 +19,8 @@ public class HtmlTextWriter {
     private int writeTempStoreRequestCount = 0;
     private StringBuilder tempStore = new StringBuilder();
 
-    private boolean insertingPreverseText = false;
+    // Prevent multiple conflicting preverse attempts
+    private int insertionRequestCount = 0;
     
     // allow insert at a certain position
     private String overwrittenString = "";
@@ -44,7 +45,7 @@ public class HtmlTextWriter {
 	/** allow line breaks and titles to be moved before verse number
 	 */
 	protected void writeOptionallyBeforeVerse(String s, VerseInfo verseInfo) {
-		boolean writeBeforeVerse = !isInsertingPreverse() && !verseInfo.isTextSinceVerse;
+		boolean writeBeforeVerse = !verseInfo.isTextSinceVerse;
 		if (writeBeforeVerse) {
 			beginInsertAt(verseInfo.positionToInsertBeforeVerse);
 		}
@@ -57,25 +58,22 @@ public class HtmlTextWriter {
     /** allow pre-verse headings
      */
     public void beginInsertAt(int insertOffset) {
-    	insertingPreverseText = true;
-    	overwrittenString = writer.substring(insertOffset);
-    	writer.delete(insertOffset, writer.length());
+		insertionRequestCount++;
+    	if (insertionRequestCount==1) {
+	    	overwrittenString = writer.substring(insertOffset);
+	    	writer.delete(insertOffset, writer.length());
+    	}
     }
     /** finish inserting and restore overwritten tail of string
      */
     public void finishInserting() {
-    	writer.append(overwrittenString);
-    	overwrittenString = "";
-    	insertingPreverseText = false;
+    	if (insertionRequestCount==1) {
+	    	writer.append(overwrittenString);
+	    	overwrittenString = "";
+    	}
+    	insertionRequestCount--;
     }
-    
-    /**
-     * Allow prevention of multiple conflicting preverse attempts
-     */
-    public boolean isInsertingPreverse() {
-    	return insertingPreverseText;
-    }
-    
+
     public int getPosition() {
     	return writer.length();
     }
