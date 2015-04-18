@@ -19,15 +19,12 @@ import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
 import org.crosswire.jsword.book.Books;
-import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.book.sword.SwordBookPath;
 import org.crosswire.jsword.bridge.BookIndexer;
 import org.crosswire.jsword.bridge.BookInstaller;
 import org.crosswire.jsword.index.IndexManager;
 import org.crosswire.jsword.index.IndexManagerFactory;
 import org.crosswire.jsword.index.IndexStatus;
-import org.crosswire.jsword.passage.Verse;
-import org.crosswire.jsword.versification.BibleBook;
 //import org.apache.lucene.LucenePackage;
 
 public class MJDIndexAll {
@@ -38,7 +35,7 @@ public class MJDIndexAll {
 	private static final String REPOSITORY_XIPHOS = "Xiphos";
 	private static final String REPOSITORY_CROSSWIRE_BETA = "Crosswire Beta";
 	// Default repo used below
-	private static final String REPOSITORY = REPOSITORY_CROSSWIRE;
+	private static final String REPOSITORY = REPOSITORY_CROSSWIRE_BETA;
 	
 //	private static final BookFilter BOOK_FILTER = BookFilters.getDictionaries();
 	private static final BookFilter BOOK_FILTER = BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries());
@@ -82,10 +79,12 @@ public class MJDIndexAll {
 
 	    	boolean installAndIndex = false;
 			indexAll.checkAllBooksInstalled(installAndIndex);
-//	    	indexAll.manageCreateIndexes();
+
+	//	    	indexAll.manageCreateIndexes();
 	    	
 	//    	indexAll.indexSingleBook("KJV");
-	    	
+
+  	
 	    	// 22/4/11 updates
 	//    	indexAll.installAndIndexSingleBook("Clarke"); // somehow deleted
 	//    	// new
@@ -296,6 +295,12 @@ public class MJDIndexAll {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+    }
+    
+    // need to manually download first due to Xiphos naming oddities
+    private void checkXiphosBooks() {
+    	checkBookInstalled(true, "Gill");
+    	checkBookInstalled(true, "PolBibTysia");
     }
     
 	public void validateAllIndexes() {
@@ -516,33 +521,42 @@ public class MJDIndexAll {
         List<Book> books = (List<Book>)bookInstaller.getRepositoryBooks(REPOSITORY, BOOK_FILTER);
         
         for (Book book : books) {
-            try {
-				boolean isOkay = false;
-            	Book installedBook = bookInstaller.getInstalledBook(book.getInitials());
-            	if (installedBook==null) {
-            		System.out.println("Not installed:"+book.getInitials()+" Name:"+book.getName());
-            	} else {
-            		Version versionObj = (Version)book.getProperty("Version");
-           			String version = versionObj==null ? "No version" : versionObj.toString();
-           			
-           			Version installedVersionObj = (Version)installedBook.getBookMetaData().getProperty("Version");
-            		String installedVersion = installedVersionObj==null ? "No version" : installedVersionObj.toString();
-            		if (!version.equals(installedVersion)) {
-                		System.out.println("Incorrect version of "+book.getInitials()+" installed:"+installedVersion+" Repo:"+version);
-            		} else {
-            			System.out.println("Okay:"+book.getInitials()+" "+version);
-						isOkay = true;
-            		}
-					if (installAndIndex && !isOkay) {
-						installAndIndexSingleBook(book.getInitials());
-					}
-            	}
-            } catch (Exception e) {
-            	System.out.println("Error installing:"+book.getInitials());
-            	e.printStackTrace();
-            }
+            checkBookInstalled(installAndIndex, bookInstaller, book);
         }
     }
+	private void checkBookInstalled(boolean installAndIndex, String initials) {
+    	BookInstaller bookInstaller = new BookInstaller();
+        Book repoBook = bookInstaller.getRepositoryBook(REPOSITORY, initials);
+		checkBookInstalled(installAndIndex, bookInstaller, repoBook);
+	}
+
+	private void checkBookInstalled(boolean installAndIndex, BookInstaller bookInstaller, Book book) {
+		try {
+			boolean isOkay = false;
+			Book installedBook = bookInstaller.getInstalledBook(book.getInitials());
+			if (installedBook==null) {
+				System.out.println("Not installed:"+book.getInitials()+" Name:"+book.getName());
+			} else {
+				Version versionObj = (Version)book.getProperty("Version");
+				String version = versionObj==null ? "No version" : versionObj.toString();
+				
+				Version installedVersionObj = (Version)installedBook.getBookMetaData().getProperty("Version");
+				String installedVersion = installedVersionObj==null ? "No version" : installedVersionObj.toString();
+				if (!version.equals(installedVersion)) {
+		    		System.out.println("Incorrect version of "+book.getInitials()+" installed:"+installedVersion+" Repo:"+version);
+				} else {
+					System.out.println("Okay:"+book.getInitials()+" "+version);
+					isOkay = true;
+				}
+			}
+			if (installAndIndex && !isOkay) {
+				installAndIndexSingleBook(book.getInitials());
+			}
+		} catch (Exception e) {
+			System.out.println("Error installing:"+book.getInitials());
+			e.printStackTrace();
+		}
+	}
 
     private void indexAllBooks() {
         List<Book> books = (List<Book>)BookInstaller.getInstalledBooks();
