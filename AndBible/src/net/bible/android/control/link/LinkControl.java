@@ -174,9 +174,7 @@ public class LinkControl {
         }
 
         Key strongsNumberKey = book.getKey(key); 
-   		getCurrentPageManager().setCurrentDocumentAndKey(book, strongsNumberKey);
-		
-		return;
+        splitScreenControl.showLink(book, strongsNumberKey);
 	}
 
 	/** user has selected a morphology link so show morphology page for key in link
@@ -191,9 +189,7 @@ public class LinkControl {
         }
 
         Key robinsonNumberKey = robinson.getKey(key); 
-   		getCurrentPageManager().setCurrentDocumentAndKey(robinson, robinsonNumberKey);
-		
-		return;
+        splitScreenControl.showLink(robinson, robinsonNumberKey);
 	}
 
 	private void showAllOccurrences(String ref, SearchBibleSection biblesection, String refPrefix) {

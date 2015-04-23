@@ -11,6 +11,7 @@ import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
 import net.bible.android.control.page.splitscreen.Separator;
 import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.control.page.splitscreen.Window;
+import net.bible.android.control.page.splitscreen.Window.WindowOperation;
 import net.bible.android.view.activity.page.BibleView;
 import net.bible.service.common.CommonUtils;
 import android.annotation.SuppressLint;
@@ -158,13 +159,15 @@ public class DocumentWebViewBuilder {
 				}
 
 				if (windowNo>0) {
-			        // minimise button
-			        Button minimiseScreenButton = createMinimiseButton(window);
-	    			currentSplitScreenLayout.addView(minimiseScreenButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP|Gravity.RIGHT));
-				} else {
-	    			// new Window button
-			        Button newScreenButton = createNewScreenButton();
-	    			currentSplitScreenLayout.addView(newScreenButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP|Gravity.RIGHT));
+					Button defaultWindowActionButton;
+					if (window.getDefaultOperation().equals(WindowOperation.DELETE)) {
+				        // minimise button
+				        defaultWindowActionButton = createRemoveButton(window);
+					} else {
+				        // minimise button
+				        defaultWindowActionButton = createMinimiseButton(window);
+					}
+	    			currentSplitScreenLayout.addView(defaultWindowActionButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP|Gravity.RIGHT));
 				}
 
     			mainActivity.registerForContextMenu(bibleView);
@@ -257,11 +260,19 @@ public class DocumentWebViewBuilder {
 		});
 	}
 
+	private Button createRemoveButton(final Window window) {
+		return createTextButton("X", new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				splitScreenControl.removeWindow(window);				
+			}
+		});
+	}
+
 	private Button createMinimiseButton(final Window window) {
 		return createTextButton("━━", new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				//TODO was minimise
 				splitScreenControl.minimiseWindow(window);				
 			}
 		});

@@ -76,6 +76,7 @@ public class SplitScreenControl {
 	
 	public void showLink(Book document, Key key) {
         Window linksWindow = windowRepository.getDedicatedLinksWindow();
+        boolean linksWindowWasVisible = linksWindow.isVisible();
         
         //TODO do not set links window active -  currently need to set links window to active window otherwise BibleContentMediator logic does not refresh that window
         windowRepository.setCurrentActiveWindow(linksWindow);
@@ -83,7 +84,7 @@ public class SplitScreenControl {
         linksWindow.getPageManager().setCurrentDocumentAndKey(document, key);
         
 		// redisplay the current page
-        if (!linksWindow.isVisible()) {
+        if (!linksWindowWasVisible) {
         	linksWindow.getWindowLayout().setState(WindowState.SPLIT);
         	EventBus.getDefault().post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
         }

@@ -7,6 +7,7 @@ import net.bible.android.BibleApplication;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.splitscreen.CurrentSplitScreenChangedEvent;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.splitscreen.Window.WindowOperation;
 import net.bible.android.control.page.splitscreen.WindowLayout.WindowState;
 import net.bible.service.common.Logger;
 
@@ -27,11 +28,14 @@ public class WindowRepository {
 	
 	private Window dedicatedLinksWindow;
 	
+	private static final int DEDICATED_LINK_WINDOW_SCREEN_NO = 999;
+
 	private final Logger logger = new Logger(this.getClass().getName());
 	
 	public WindowRepository() {
-		dedicatedLinksWindow = new Window(999, WindowState.SPLIT);
+		dedicatedLinksWindow = new Window(DEDICATED_LINK_WINDOW_SCREEN_NO, WindowState.REMOVED);
 		dedicatedLinksWindow.setSynchronised(false);
+		dedicatedLinksWindow.setDefaultOperation(WindowOperation.DELETE);
 
 		windowList = new ArrayList<Window>();
 		currentActiveScreen = getWindow(1);
@@ -172,6 +176,7 @@ public class WindowRepository {
 	}
 
 	public void remove(Window window) {
+		window.getWindowLayout().setState(WindowState.REMOVED);
 		windowList.remove(window);
 
 		// adjustments

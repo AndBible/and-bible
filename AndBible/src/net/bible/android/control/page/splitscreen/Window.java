@@ -9,7 +9,13 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class Window {
+	
+	public enum WindowOperation {
+		MAXIMISE, MINIMISE, RESTORE, DELETE 
+	}
 
+	private WindowOperation defaultOperation;
+	
 	private boolean isSynchronised = true;
 	
 	private WindowLayout windowLayout;
@@ -23,14 +29,19 @@ public class Window {
 	
 	private final Logger logger = new Logger(this.getClass().getName());
 	
-	private static final String TAG = "Window";
-	
 	public Window(int screenNo, WindowState windowState) {
 		this.screenNo = screenNo;
 		this.windowLayout = new WindowLayout( windowState );
+		
+		this.defaultOperation = WindowOperation.MINIMISE;
 	}
+
+	/**
+	 * Used when restoring state
+	 */
 	public Window() {
 		this.windowLayout = new WindowLayout(WindowState.SPLIT);
+		this.defaultOperation = WindowOperation.MINIMISE;
 	}
 
 	public CurrentPageManager getPageManager() {
@@ -41,7 +52,7 @@ public class Window {
 		}
 		return currentPageManager;
 	}
-	
+
 	public int getScreenNo() {
 		return screenNo;
 	}
@@ -55,9 +66,18 @@ public class Window {
 	}
 
 	public boolean isVisible() {
-		return getWindowLayout().getState()!=WindowState.MINIMISED;
+		return 	getWindowLayout().getState()!=WindowState.MINIMISED &&
+				getWindowLayout().getState()!=WindowState.REMOVED;
 	}
+
 	
+	public WindowOperation getDefaultOperation() {
+		return defaultOperation;
+	}
+	public void setDefaultOperation(WindowOperation defaultOperation) {
+		this.defaultOperation = defaultOperation;
+	}
+
 	public JSONObject getStateJson() throws JSONException {
 		JSONObject object = new JSONObject();
 		object.put("screenNo", screenNo)
