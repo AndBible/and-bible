@@ -35,7 +35,7 @@ public class WindowLayout {
 	
 	public JSONObject getStateJson() throws JSONException {
 		JSONObject object = new JSONObject();
-		object.put("state", state)
+		object.put("state", state.toString())
 			 .put("weight", weight);
 		return object;
 	}

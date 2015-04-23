@@ -112,8 +112,9 @@ public class DocumentWebViewBuilder {
     		ViewGroup currentSplitScreenLayout = null;
     		Separator previousSeparator = null;
     		
-    		for (int i=0; i<windows.size(); i++) {
-    			final Window window = windows.get(i);
+    		int windowNo = 0;
+    		
+    		for (Window window : windows) {
     			Log.d(TAG, "Layout screen "+window.getScreenNo() + " of "+windows.size());
     			
     			currentSplitScreenLayout = new FrameLayout(this.mainActivity);
@@ -133,7 +134,7 @@ public class DocumentWebViewBuilder {
 				LayoutParams frameLayoutParamsBibleWebView = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
 				currentSplitScreenLayout.addView(bibleView, frameLayoutParamsBibleWebView);
 
-				if (i>0) {
+				if (windowNo>0) {
 					Separator separator = previousSeparator;
 					
 					// extend touch area of separator
@@ -142,8 +143,8 @@ public class DocumentWebViewBuilder {
 
 				// Add screen separator
 				Separator separator = null;
-				if (i<windows.size()-1) {
-					Window nextScreen = windows.get(i+1);
+				if (windowNo<windows.size()-1) {
+					Window nextScreen = windows.get(windowNo+1);
 					separator = createSeparator(parent, window, nextScreen, isPortrait, windows.size());
 					
 					// extend touch area of separator
@@ -156,7 +157,7 @@ public class DocumentWebViewBuilder {
 					previousSeparator = separator;
 				}
 
-				if (i>0) {
+				if (windowNo>0) {
 			        // minimise button
 			        Button minimiseScreenButton = createMinimiseButton(window);
 	    			currentSplitScreenLayout.addView(minimiseScreenButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP|Gravity.RIGHT));
@@ -167,6 +168,8 @@ public class DocumentWebViewBuilder {
 				}
 
     			mainActivity.registerForContextMenu(bibleView);
+    			
+    			windowNo++;
     		}
     		
     		// Display minimised screens

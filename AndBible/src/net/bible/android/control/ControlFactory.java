@@ -42,7 +42,7 @@ public class ControlFactory {
 	private PageControl pageControl = new PageControl();
 	private SplitScreenControl splitScreenControl;
 	private Map<Window, PageTiltScrollControl> screenPageTiltScrollControlMap = new HashMap<>();
-	private LinkControl linkControl = new LinkControl();
+	private LinkControl linkControl;
 	private SearchControl searchControl = new SearchControl();
 	private Bookmark bookmarkControl = new BookmarkControl();
 	private MyNote mynoteControl = new MyNoteControl();
@@ -73,6 +73,8 @@ public class ControlFactory {
 
 		windowRepository = new WindowRepository();
 		splitScreenControl = new SplitScreenControl(windowRepository);
+		
+		linkControl = new LinkControl(splitScreenControl);
 	}
 	
 	public DocumentControl getDocumentControl() {

@@ -9,7 +9,9 @@ import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.splitscreen.WindowLayout.WindowState;
 import net.bible.service.common.CommonUtils;
 
+import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
+import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 
 import android.content.SharedPreferences;
@@ -72,6 +74,21 @@ public class SplitScreenControl {
 		return currentActiveWindow == windowRepository.getCurrentActiveWindow();
 	}
 	
+	public void showLink(Book document, Key key) {
+        Window linksWindow = windowRepository.getDedicatedLinksWindow();
+        
+        //TODO do not set links window active -  currently need to set links window to active window otherwise BibleContentMediator logic does not refresh that window
+        windowRepository.setCurrentActiveWindow(linksWindow);
+        
+        linksWindow.getPageManager().setCurrentDocumentAndKey(document, key);
+        
+		// redisplay the current page
+        if (!linksWindow.isVisible()) {
+        	linksWindow.getWindowLayout().setState(WindowState.SPLIT);
+        	EventBus.getDefault().post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+        }
+	}
+
 	public void addNewWindow() {
 		//Window newScreen = 
 		windowRepository.addNewWindow();

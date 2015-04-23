@@ -23,14 +23,19 @@ public class WindowRepository {
 	// 1 based screen no
 	private Window currentActiveScreen;
 	
-	private List<Window> screenList;
+	private List<Window> windowList;
+	
+	private Window dedicatedLinksWindow;
 	
 	private final Logger logger = new Logger(this.getClass().getName());
 	
 	public WindowRepository() {
-		screenList = new ArrayList<Window>();
+		dedicatedLinksWindow = new Window(999, WindowState.SPLIT);
+		dedicatedLinksWindow.setSynchronised(false);
+
+		windowList = new ArrayList<Window>();
 		currentActiveScreen = getWindow(1);
-		
+
 		// restore state from previous invocation
     	restoreState();
     	
@@ -39,7 +44,11 @@ public class WindowRepository {
 	}
 	
 	public List<Window> getWindows() {
-		return screenList;
+		List<Window> windows = new ArrayList<>(windowList);
+		if (dedicatedLinksWindow.isVisible()) {
+			windows.add(dedicatedLinksWindow);
+		}
+		return windows;
 	}
 
 	public List<Window> getVisibleScreens() {
@@ -49,20 +58,20 @@ public class WindowRepository {
 //				screens.add(screen);
 //				return screens;
 //			} else 
-		return getScreens(WindowState.SPLIT);
+		return getWindows(WindowState.SPLIT);
 	}
 
 	public List<Window> getMinimisedScreens() {
-		return getScreens(WindowState.MINIMISED);
+		return getWindows(WindowState.MINIMISED);
 	}
 
 //	public List<Window> getMaximisedScreens() {
 //		return getScreens(WindowState.MAXIMISED);
 //	}
 
-	private List<Window> getScreens(WindowState state) {
+	private List<Window> getWindows(WindowState state) {
 		List<Window> windows = new ArrayList<>();
-		for (Window window : screenList) {
+		for (Window window : getWindows()) {
 			if (window.getWindowLayout().getState() == state) {
 				windows.add(window);
 			}
@@ -71,24 +80,28 @@ public class WindowRepository {
 	}
 
 	public Window getWindow(int screenNo) {
-		for (Window window : screenList) {
+		for (Window window : getWindows()) {
 			if (window.getScreenNo()==screenNo) {
 				return window;
 			}
 		}
 		return addNewScreen(screenNo);
 	}
+	
+	public Window getDedicatedLinksWindow() {
+		return dedicatedLinksWindow;
+	}
 
 	public Window addNewWindow() {
 		// ensure main screen is not maximized
 		getCurrentActiveWindow().getWindowLayout().setState(WindowState.SPLIT);
 
-		return addNewScreen(screenList.size()+1);
+		return addNewScreen(windowList.size()+1);
 	}
 	
 	private Window addNewScreen(int screenNo) {
 		Window newScreen = new Window(screenNo, getDefaultState());
-		screenList.add(newScreen);
+		windowList.add(newScreen);
 		return newScreen;
 	}
 	
@@ -102,7 +115,7 @@ public class WindowRepository {
 	}
 	
 	public void setDefaultActiveScreen() {
-		for (Window window : screenList) {
+		for (Window window : getWindows()) {
 			if (window.isVisible()) {
 				currentActiveScreen = window;
 			}
@@ -111,7 +124,7 @@ public class WindowRepository {
 	
 	private WindowLayout.WindowState getDefaultState() {
 		//TODO 
-//		if (screenList.size()==0) {
+//		if (getWindows().size()==0) {
 //			return WindowState.MAXIMISED;
 //		} else {
 			return WindowState.SPLIT;
@@ -159,7 +172,7 @@ public class WindowRepository {
 	}
 
 	public void remove(Window window) {
-		screenList.remove(window);
+		windowList.remove(window);
 
 		// adjustments
 		List<Window> visibleScreens = getVisibleScreens();
@@ -206,7 +219,7 @@ public class WindowRepository {
 		logger.info("save state");
 
 		JSONArray allScreenState = new JSONArray();
-		for (Window window : screenList) {
+		for (Window window : windowList) {
 			try {
 				allScreenState.put(window.getStateJson());
 			} catch (JSONException je) {
@@ -229,7 +242,7 @@ public class WindowRepository {
 		if (StringUtils.isNotEmpty(allScreenStateString)) {
 			try {
 				// remove current (default) state before restoring
-				screenList.clear();
+				windowList.clear();
 				
 				JSONArray allScreenState = new JSONArray(allScreenStateString);
 				for (int i=0; i<allScreenState.length(); i++) {
@@ -240,7 +253,7 @@ public class WindowRepository {
 						
 						// prevent rubbish
 						if (window.getScreenNo()==i+1) {
-							screenList.add(window);
+							windowList.add(window);
 						}
 					} catch (JSONException je) {
 						logger.error("Error restoring screen state", je);

@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.search.SearchControl.SearchBibleSection;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
@@ -40,10 +41,16 @@ import android.util.Log;
  */
 public class LinkControl {
 
+	private SplitScreenControl splitScreenControl;
+	
 	private static final Pattern IBT_SPECIAL_CHAR_RE = Pattern.compile("_(\\d+)_");
 
 	private static final String TAG = "LinkControl";
 	
+	public LinkControl(SplitScreenControl splitScreenControl) {
+		this.splitScreenControl = splitScreenControl;
+	}
+
 	/** Currently the only uris handled are for Strongs refs
 	 * see OSISToHtmlSaxHandler.getStrongsUrl for format of uri
 	 * 
@@ -109,7 +116,7 @@ public class LinkControl {
 				ref = replaceIBTSpecialCharacters(ref);
 				
 				Key bookKey = document.getKey(ref);
-				getCurrentPageManager().setCurrentDocumentAndKey(document, bookKey);
+		        splitScreenControl.showLink(document, bookKey);
 			}
 		}
 	}
@@ -150,7 +157,7 @@ public class LinkControl {
 		// create Passage with correct source Versification 
         Key key = PassageKeyFactory.instance().getKey(sourceDocumentVersification, keyText);
         
-   		pageManager.setCurrentDocumentAndKey(bible, key);
+        splitScreenControl.showLink(bible, key);
 		
 		return;
 	}
