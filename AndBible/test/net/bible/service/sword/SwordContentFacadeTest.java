@@ -1,9 +1,8 @@
 package net.bible.service.sword;
 
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
-import junit.framework.TestCase;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.Books;
@@ -17,7 +16,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 @RunWith(RobolectricTestRunner.class)
-public class SwordContentFacadeTest extends TestCase {
+public class SwordContentFacadeTest {
 
 	private SwordContentFacade swordContentFacade;
 

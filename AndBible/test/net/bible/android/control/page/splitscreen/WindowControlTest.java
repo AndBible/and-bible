@@ -1,16 +1,18 @@
 package net.bible.android.control.page.splitscreen;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.isA;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.isA;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
 
@@ -42,6 +44,7 @@ public class WindowControlTest {
 		eventManager = mock(EventManager.class);
 		windowRepository = new WindowRepository(eventManager);
 		windowControl = new WindowControl(windowRepository, eventManager);
+		reset(eventManager);
 	}
 
 	@Test
@@ -70,7 +73,7 @@ public class WindowControlTest {
 	@Test
 	public void testAddNewWindow() throws Exception {
 		Window newWindow = windowControl.addNewWindow();
-		assertThat(windowControl.getWindowRepository().getWindows(), hasItem(newWindow));
+		assertThat(windowRepository.getWindows(), hasItem(newWindow));
 
 		verify(eventManager, times(1)).post(argThat(isA(NumberOfWindowsChangedEvent.class)));
 	}
@@ -81,17 +84,51 @@ public class WindowControlTest {
 		reset(eventManager);
 
 		windowControl.minimiseWindow(newWindow);
-		assertThat(windowControl.getWindowRepository().getVisibleWindows(), not(hasItem(newWindow)));
+		assertThat(windowRepository.getVisibleWindows(), not(hasItem(newWindow)));
 		
 		verify(eventManager, times(1)).post(argThat(isA(NumberOfWindowsChangedEvent.class)));
 	}
 
 	@Test
+	public void testMinimiseOnlyWindowPrevented() throws Exception {
+		Window onlyWindow = windowControl.getActiveWindow();
+		windowControl.minimiseWindow(onlyWindow);
+		assertThat(windowRepository.getVisibleWindows(), hasItem(onlyWindow));
+		
+		verifyZeroInteractions(eventManager);
+	}
+
+	@Test
 	public void testRemoveWindow() throws Exception {
+		Window newWindow = windowControl.addNewWindow();
+		reset(eventManager);
+
+		windowControl.removeWindow(newWindow);
+		assertThat(windowRepository.getWindows(), not(hasItem(newWindow)));
+		
+		verify(eventManager, times(1)).post(argThat(isA(NumberOfWindowsChangedEvent.class)));
+	}
+
+	@Test
+	public void testRemoveOnlyWindowPrevented() throws Exception {
+		Window onlyWindow = windowRepository.getCurrentActiveWindow(); 
+		windowControl.removeWindow(onlyWindow);
+		assertThat(windowRepository.getWindows(), hasItem(onlyWindow));
+		
+		verifyZeroInteractions(eventManager);
 	}
 
 	@Test
 	public void testRestoreWindow() throws Exception {
+		Window newWindow = windowControl.addNewWindow();
+		windowControl.minimiseWindow(newWindow);
+		assertThat(windowRepository.getVisibleWindows(), hasSize(1));
+		reset(eventManager);
+
+		windowControl.restoreWindow(newWindow);
+		assertThat(windowRepository.getWindows(), hasSize(2));
+		
+		verify(eventManager, times(1)).post(argThat(isA(NumberOfWindowsChangedEvent.class)));
 	}
 
 	@Test

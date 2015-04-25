@@ -2,14 +2,16 @@ package net.bible.service.format.osistohtml;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
-import junit.framework.TestCase;
 import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler.VerseInfo;
 
 import org.crosswire.jsword.book.OSISUtil;
+import org.junit.Before;
+import org.junit.Test;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.AttributesImpl;
 
-public class TitleHandlerTest extends TestCase {
+
+public class TitleHandlerTest {
 
 	private OsisToHtmlParameters osisToHtmlParameters;
 	private VerseInfo verseInfo;
@@ -17,7 +19,8 @@ public class TitleHandlerTest extends TestCase {
 	
 	private TitleHandler titleHandler;
 	
-	protected void setUp() throws Exception {
+	@Before
+	public void setUp() throws Exception {
 		osisToHtmlParameters = new OsisToHtmlParameters();
 		verseInfo = new VerseInfo();
 		htmlTextWriter = new HtmlTextWriter();
@@ -30,6 +33,7 @@ public class TitleHandlerTest extends TestCase {
 	 * 
 	 * <title>The creation</title>
 	 */
+	@Test
 	public void testSimpleTitle() {
 		Attributes attr = new AttributesImpl();
 		titleHandler.start(attr);
@@ -47,6 +51,7 @@ public class TitleHandlerTest extends TestCase {
 				's Faithfulness Endures Forever
 			</title>
 	 */
+	@Test
 	public void testESVTitle() {
 		AttributesImpl attrs = new AttributesImpl();
 		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_SUBTYPE, null, "preverse");
