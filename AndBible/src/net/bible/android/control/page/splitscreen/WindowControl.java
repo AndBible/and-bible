@@ -106,22 +106,29 @@ public class WindowControl {
 		return window;
 	}
 
+	/**
+	 * Minimise window if possible
+	 */
 	public void minimiseWindow(Window window) {
-		windowRepository.minimise(window);
-
-		//TODO may have to maximise another screen if there is only 1 screen unminimised
-
-		// redisplay the current page
-		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+		if (windowRepository.getVisibleWindows().size()>1) {
+			windowRepository.minimise(window);
+	
+			//TODO may have to maximise another screen if there is only 1 screen unminimised
+	
+			// redisplay the current page
+			eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+		}
 	}
 
 	public void removeWindow(Window window) {
-		windowRepository.remove(window);
-
-		//TODO may have to maximise another screen if there is only 1 screen unminimised
-
-		// redisplay the current page
-		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+		if (windowRepository.getVisibleWindows().size()>1 || !window.isVisible()) {
+			windowRepository.remove(window);
+	
+			//TODO may have to maximise another screen if there is only 1 screen unminimised
+	
+			// redisplay the current page
+			eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+		}
 	}
 
 	public void restoreWindow(Window window) {
