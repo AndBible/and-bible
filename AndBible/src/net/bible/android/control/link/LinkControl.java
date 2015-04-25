@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.page.splitscreen.SplitScreenControl;
+import net.bible.android.control.page.splitscreen.WindowControl;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.search.SearchControl.SearchBibleSection;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
@@ -41,14 +41,14 @@ import android.util.Log;
  */
 public class LinkControl {
 
-	private SplitScreenControl splitScreenControl;
+	private WindowControl windowControl;
 	
 	private static final Pattern IBT_SPECIAL_CHAR_RE = Pattern.compile("_(\\d+)_");
 
 	private static final String TAG = "LinkControl";
 	
-	public LinkControl(SplitScreenControl splitScreenControl) {
-		this.splitScreenControl = splitScreenControl;
+	public LinkControl(WindowControl windowControl) {
+		this.windowControl = windowControl;
 	}
 
 	/** Currently the only uris handled are for Strongs refs
@@ -116,7 +116,7 @@ public class LinkControl {
 				ref = replaceIBTSpecialCharacters(ref);
 				
 				Key bookKey = document.getKey(ref);
-		        splitScreenControl.showLink(document, bookKey);
+		        windowControl.showLink(document, bookKey);
 			}
 		}
 	}
@@ -157,7 +157,7 @@ public class LinkControl {
 		// create Passage with correct source Versification 
         Key key = PassageKeyFactory.instance().getKey(sourceDocumentVersification, keyText);
         
-        splitScreenControl.showLink(bible, key);
+        windowControl.showLink(bible, key);
 		
 		return;
 	}
@@ -174,7 +174,7 @@ public class LinkControl {
         }
 
         Key strongsNumberKey = book.getKey(key); 
-        splitScreenControl.showLink(book, strongsNumberKey);
+        windowControl.showLink(book, strongsNumberKey);
 	}
 
 	/** user has selected a morphology link so show morphology page for key in link
@@ -189,7 +189,7 @@ public class LinkControl {
         }
 
         Key robinsonNumberKey = robinson.getKey(key); 
-        splitScreenControl.showLink(robinson, robinsonNumberKey);
+        windowControl.showLink(robinson, robinsonNumberKey);
 	}
 
 	private void showAllOccurrences(String ref, SearchBibleSection biblesection, String refPrefix) {

@@ -9,6 +9,7 @@ import java.util.Set;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
+import net.bible.android.common.resource.ResourceProvider;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
@@ -36,20 +37,23 @@ import android.widget.Toast;
  */
 public class BookmarkControl implements Bookmark {
 
-	public static final LabelDto LABEL_ALL;
-	public static final LabelDto LABEL_UNLABELLED;
+	public LabelDto LABEL_ALL;
+	public LabelDto LABEL_UNLABELLED;
 	static {
-		LABEL_ALL = new LabelDto();
-		LABEL_ALL.setName(BibleApplication.getApplication().getString(R.string.all));
-		LABEL_ALL.setId(Long.valueOf(-999));
-		LABEL_UNLABELLED = new LabelDto();
-		LABEL_UNLABELLED.setName(BibleApplication.getApplication().getString(R.string.label_unlabelled));
-		LABEL_UNLABELLED.setId(Long.valueOf(-998));
 	}
 	
 	private static final String BOOKMARK_SORT_ORDER = "BookmarkSortOrder";
 
 	private static final String TAG = "BookmarkControl";
+	
+	public BookmarkControl(ResourceProvider resourceProvider) {
+		LABEL_ALL = new LabelDto();
+		LABEL_ALL.setName(resourceProvider.getString(R.string.all));
+		LABEL_ALL.setId(Long.valueOf(-999));
+		LABEL_UNLABELLED = new LabelDto();
+		LABEL_UNLABELLED.setName(resourceProvider.getString(R.string.label_unlabelled));
+		LABEL_UNLABELLED.setId(Long.valueOf(-998));
+	}
 	
 	@Override
 	public boolean bookmarkCurrentVerse() {

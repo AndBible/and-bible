@@ -5,6 +5,7 @@ import net.bible.android.SharedConstants;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
+import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 
 import org.apache.commons.lang.StringUtils;
@@ -46,9 +47,11 @@ public class CurrentPageManager {
 		
 		currentBibleVerse = new CurrentBibleVerse();
 		currentBiblePage = new CurrentBiblePage(currentBibleVerse);
-		currentBiblePage.setBibleTraverser(ControlFactory.getInstance().getBibleTraverser());
+		ControlFactory controlFactory = ControlFactory.getInstance();
+		BibleTraverser bibleTraverser = controlFactory.getBibleTraverser();
+		currentBiblePage.setBibleTraverser(bibleTraverser);
 		currentCommentaryPage = new CurrentCommentaryPage(currentBibleVerse);
-		currentCommentaryPage.setBibleTraverser(ControlFactory.getInstance().getBibleTraverser());
+		currentCommentaryPage.setBibleTraverser(bibleTraverser);
 		currentMyNotePage = new CurrentMyNotePage(currentBibleVerse);
 		
 		currentDictionaryPage = new CurrentDictionaryPage();

@@ -4,7 +4,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
 import net.bible.android.control.page.splitscreen.Window;
-import net.bible.android.control.page.splitscreen.SplitScreenControl;
+import net.bible.android.control.page.splitscreen.WindowControl;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.mynote.MyNoteViewBuilder;
 import android.app.Activity;
@@ -24,14 +24,14 @@ public class DocumentViewManager {
 	private Activity mainActivity;
 	private LinearLayout parent;
 	
-	private SplitScreenControl splitScreenControl;
+	private WindowControl windowControl;
 	
 	public DocumentViewManager(Activity mainActivity) {
 		this.mainActivity = mainActivity;
 		documentWebViewBuilder = new DocumentWebViewBuilder(this.mainActivity);
 		myNoteViewBuilder = new MyNoteViewBuilder(this.mainActivity);
 		this.parent = (LinearLayout)mainActivity.findViewById(R.id.mainBibleView);
-		splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
+		windowControl = ControlFactory.getInstance().getSplitScreenControl();
 
 		EventBus.getDefault().register(this);
 	}
@@ -51,7 +51,7 @@ public class DocumentViewManager {
 	}
 
 	public DocumentView getDocumentView() {
-		return getDocumentView(splitScreenControl.getCurrentActiveWindow());
+		return getDocumentView(windowControl.getCurrentActiveWindow());
 	}
 	public DocumentView getDocumentView(Window window) {
 		if (myNoteViewBuilder.isMyNoteViewType()) {

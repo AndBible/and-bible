@@ -3,12 +3,16 @@ package net.bible.android.control;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.bible.android.common.resource.AndroidResourceProvider;
+import net.bible.android.common.resource.ResourceProvider;
 import net.bible.android.control.backup.BackupControl;
 import net.bible.android.control.bookmark.Bookmark;
 import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.comparetranslations.CompareTranslationsControl;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.download.DownloadControl;
+import net.bible.android.control.event.ABEventBus;
+import net.bible.android.control.event.EventManager;
 import net.bible.android.control.footnoteandref.FootnoteAndRefControl;
 import net.bible.android.control.link.LinkControl;
 import net.bible.android.control.mynote.MyNote;
@@ -18,8 +22,8 @@ import net.bible.android.control.navigation.NavigationControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.page.PageTiltScrollControl;
-import net.bible.android.control.page.splitscreen.SplitScreenControl;
 import net.bible.android.control.page.splitscreen.Window;
+import net.bible.android.control.page.splitscreen.WindowControl;
 import net.bible.android.control.page.splitscreen.WindowRepository;
 import net.bible.android.control.readingplan.ReadingPlanControl;
 import net.bible.android.control.search.SearchControl;
@@ -34,17 +38,18 @@ import net.bible.android.control.versification.BibleTraverser;
  *      The copyright to this program is held by it's author.
  */
 public class ControlFactory {
-	//TODO move instance creation here
+	private ResourceProvider resourceProvider;
+	private EventManager eventManager;
+	
 	private WindowRepository windowRepository;
 	private DocumentBibleBooksFactory documentBibleBooksFactory = new DocumentBibleBooksFactory();
 	private BibleTraverser bibleTraverser = new BibleTraverser();
 	private DocumentControl documentControl = new DocumentControl();
 	private PageControl pageControl = new PageControl();
-	private SplitScreenControl splitScreenControl;
+	private WindowControl windowControl;
 	private Map<Window, PageTiltScrollControl> screenPageTiltScrollControlMap = new HashMap<>();
 	private LinkControl linkControl;
 	private SearchControl searchControl = new SearchControl();
-	private Bookmark bookmarkControl = new BookmarkControl();
 	private MyNote mynoteControl = new MyNoteControl();
 	private DownloadControl downloadControl = new DownloadControl();
 	private SpeakControl speakControl = new SpeakControl();
@@ -52,6 +57,7 @@ public class ControlFactory {
 	private CompareTranslationsControl compareTranslationsControl = new CompareTranslationsControl();
 	private FootnoteAndRefControl footnoteAndRefControl = new FootnoteAndRefControl();
 	private BackupControl backupControl = new BackupControl();
+	private Bookmark bookmarkControl;
 
 	private NavigationControl navigationControl = new NavigationControl();
 	
@@ -62,6 +68,11 @@ public class ControlFactory {
 	}
 	
 	private ControlFactory() {
+		resourceProvider = new AndroidResourceProvider();
+		eventManager = ABEventBus.getDefault();
+		
+		bookmarkControl = new BookmarkControl(resourceProvider);
+		
 		// inject dependencies
 		readingPlanControl.setSpeakControl(this.speakControl);
 		
@@ -71,10 +82,10 @@ public class ControlFactory {
 		
 		bibleTraverser.setDocumentBibleBooksFactory(documentBibleBooksFactory);
 
-		windowRepository = new WindowRepository();
-		splitScreenControl = new SplitScreenControl(windowRepository);
+		windowRepository = new WindowRepository(eventManager);
+		windowControl = new WindowControl(windowRepository, eventManager);
 		
-		linkControl = new LinkControl(splitScreenControl);
+		linkControl = new LinkControl(windowControl);
 	}
 	
 	public DocumentControl getDocumentControl() {
@@ -89,8 +100,8 @@ public class ControlFactory {
 		return pageControl;		
 	}
 
-	public SplitScreenControl getSplitScreenControl() {
-		return splitScreenControl;
+	public WindowControl getSplitScreenControl() {
+		return windowControl;
 	}
 
 	public PageTiltScrollControl getPageTiltScrollControl(Window window) {

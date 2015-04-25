@@ -2,7 +2,7 @@ package net.bible.service.history;
 
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.splitscreen.Window;
-import net.bible.android.control.page.splitscreen.SplitScreenControl;
+import net.bible.android.control.page.splitscreen.WindowControl;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -13,11 +13,11 @@ public abstract class HistoryItemBase implements HistoryItem {
 
 	private Window window;
 	
-	private static SplitScreenControl splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
+	private static WindowControl windowControl = ControlFactory.getInstance().getSplitScreenControl();
 
 	public HistoryItemBase() {
 		super();
-		this.window = splitScreenControl.getCurrentActiveWindow();
+		this.window = windowControl.getCurrentActiveWindow();
 	}
 
 	@Override

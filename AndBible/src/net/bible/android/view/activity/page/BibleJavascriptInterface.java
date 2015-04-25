@@ -2,7 +2,7 @@ package net.bible.android.view.activity.page;
 
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
-import net.bible.android.control.page.splitscreen.SplitScreenControl;
+import net.bible.android.control.page.splitscreen.WindowControl;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
@@ -17,7 +17,7 @@ public class BibleJavascriptInterface {
 	
 	private VerseCalculator verseCalculator;
 	
-	private SplitScreenControl splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
+	private WindowControl windowControl = ControlFactory.getInstance().getSplitScreenControl();
 	
 	private static final String TAG = "BibleJavascriptInterface";
 	
@@ -33,7 +33,7 @@ public class BibleJavascriptInterface {
 	@JavascriptInterface
 	public void onScroll(int newYPos) {
 		// do not try to change verse while the page is changing - can cause all sorts of errors e.g. selected verse may not be valid in new chapter and cause chapter jumps
-		if (notificationsEnabled && !PassageChangeMediator.getInstance().isPageChanging() && !splitScreenControl.isSeparatorMoving()) {
+		if (notificationsEnabled && !PassageChangeMediator.getInstance().isPageChanging() && !windowControl.isSeparatorMoving()) {
 			verseCalculator.newPosition(newYPos);
 		}
 	}

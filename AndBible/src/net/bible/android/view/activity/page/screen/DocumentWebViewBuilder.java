@@ -9,7 +9,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
 import net.bible.android.control.page.splitscreen.Separator;
-import net.bible.android.control.page.splitscreen.SplitScreenControl;
+import net.bible.android.control.page.splitscreen.WindowControl;
 import net.bible.android.control.page.splitscreen.Window;
 import net.bible.android.control.page.splitscreen.Window.WindowOperation;
 import net.bible.android.view.activity.page.BibleView;
@@ -47,7 +47,7 @@ public class DocumentWebViewBuilder {
 	private Map<Window, BibleView> screenBibleViewMap;
 	private static final int BIBLE_WEB_VIEW_ID_BASE = 990;
 
-	private static SplitScreenControl splitScreenControl;
+	private static WindowControl windowControl;
 
 	private boolean isLaidOutForPortrait;
 	private Activity mainActivity;
@@ -65,7 +65,7 @@ public class DocumentWebViewBuilder {
 	public DocumentWebViewBuilder(Activity mainActivity) {
 		this.mainActivity = mainActivity;
 		
-		splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
+		windowControl = ControlFactory.getInstance().getSplitScreenControl();
 		
 		screenBibleViewMap = new HashMap<>();
 
@@ -104,7 +104,7 @@ public class DocumentWebViewBuilder {
     			isPortrait!=isLaidOutForPortrait) {
     		Log.d(TAG, "Layout web view");
     		
-    		List<Window> windows = splitScreenControl.getWindowManager().getVisibleScreens();
+    		List<Window> windows = windowControl.getWindowRepository().getVisibleWindows();
     		
     		// ensure we have a known starting point - could be none, 1, or 2 webviews present
     		removeChildViews(previousParent);
@@ -177,7 +177,7 @@ public class DocumentWebViewBuilder {
     		
     		// Display minimised screens
     		ViewGroup minimisedWindowsFrameContainer = currentSplitScreenLayout;
-    		List<Window> minimisedScreens = splitScreenControl.getWindowManager().getMinimisedScreens();
+    		List<Window> minimisedScreens = windowControl.getWindowRepository().getMinimisedScreens();
     		for (int i=0; i<minimisedScreens.size(); i++) {
     			Log.d(TAG,  "Show restore button");
     			Button restoreButton = createRestoreButton(minimisedScreens.get(i));
@@ -255,7 +255,7 @@ public class DocumentWebViewBuilder {
 		return createTextButton("+", new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				splitScreenControl.addNewWindow();				
+				windowControl.addNewWindow();				
 			}
 		});
 	}
@@ -264,7 +264,7 @@ public class DocumentWebViewBuilder {
 		return createTextButton("X", new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				splitScreenControl.removeWindow(window);				
+				windowControl.removeWindow(window);				
 			}
 		});
 	}
@@ -273,7 +273,7 @@ public class DocumentWebViewBuilder {
 		return createTextButton("━━", new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				splitScreenControl.minimiseWindow(window);				
+				windowControl.minimiseWindow(window);				
 			}
 		});
 	}
@@ -283,7 +283,7 @@ public class DocumentWebViewBuilder {
         return createTextButton("\u2588"+window.getScreenNo()+"\u2588", new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				splitScreenControl.restoreWindow(window);				
+				windowControl.restoreWindow(window);				
 			}
 		});
 

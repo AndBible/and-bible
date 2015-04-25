@@ -11,7 +11,7 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.page.CurrentPage;
-import net.bible.android.control.page.splitscreen.SplitScreenControl;
+import net.bible.android.control.page.splitscreen.WindowControl;
 import net.bible.android.control.page.splitscreen.Window;
 import net.bible.android.view.activity.base.AndBibleActivity;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
@@ -40,7 +40,7 @@ public class HistoryManager {
 
 	private boolean isGoingBack = false;
 	
-	private static SplitScreenControl splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
+	private static WindowControl windowControl = ControlFactory.getInstance().getSplitScreenControl();
 	
 	private static final String TAG = "HistoryManager";
 	
@@ -153,7 +153,7 @@ public class HistoryManager {
 	}
 	
 	private Stack<HistoryItem> getHistoryStack() {
-		Window window = splitScreenControl.getCurrentActiveWindow();
+		Window window = windowControl.getCurrentActiveWindow();
 		Stack<HistoryItem> historyStack = screenHistoryStackMap.get(window);
 		if (historyStack==null) {
 			synchronized(screenHistoryStackMap) {

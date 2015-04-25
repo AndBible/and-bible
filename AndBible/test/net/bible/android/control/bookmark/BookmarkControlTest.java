@@ -8,6 +8,7 @@ import static org.junit.Assert.fail;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.bible.android.common.resource.AndroidResourceProvider;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
 
@@ -37,7 +38,7 @@ public class BookmarkControlTest {
 	
     @Before
     public void setUp() throws Exception {
-		bookmarkControl = new BookmarkControl();
+		bookmarkControl = new BookmarkControl(new AndroidResourceProvider());
 	}
 
 	@After

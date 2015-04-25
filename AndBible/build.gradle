@@ -21,7 +21,7 @@ dependencies {
 
     compile files('libs/jsword.jar')
 
-	compile 'de.greenrobot:eventbus:2.2.1'
+	compile 'de.greenrobot:eventbus:2.4.0'
 	compile files('libs/mmseg4j-all-1.8.4.jar')
 	compile 'org.jdom:jdom2:2.0.5'
 	compile 'org.apache.httpcomponents:httpclient-android:4.3.3'

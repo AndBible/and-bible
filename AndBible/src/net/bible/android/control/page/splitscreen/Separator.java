@@ -53,13 +53,13 @@ public class Separator extends View {
 	private int SEPARATOR_DRAG_COLOUR;
 	
 	private TouchOwner touchOwner = TouchOwner.getInstance();
-	private SplitScreenControl splitScreenControl;
+	private WindowControl windowControl;
 
 	private static final String TAG = "Separator";
 	
 	public Separator(Context context, int width, View parentLayout, Window window, Window nextScreen, int numSplitScreens, boolean isPortrait) {
 		super(context);
-		splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
+		windowControl = ControlFactory.getInstance().getSplitScreenControl();
 		
 		Resources res = BibleApplication.getApplication().getResources();
 		SEPARATOR_COLOUR = res.getColor(R.color.split_separator_colour);
@@ -86,7 +86,7 @@ public class Separator extends View {
 	    case MotionEvent.ACTION_DOWN:
 	    	Log.d(TAG, " y:"+event.getRawY());
 	    	touchOwner.setTouchOwner(this);
-	    	splitScreenControl.setSeparatorMoving(true);
+	    	windowControl.setSeparatorMoving(true);
 	        setBackgroundColor(SEPARATOR_DRAG_COLOUR);
 	    	
 	    	int[] rawParentLocation = new int[2]; 
@@ -103,7 +103,7 @@ public class Separator extends View {
 	        setBackgroundColor(SEPARATOR_COLOUR);
 	    	screen1.getWindowLayout().setWeight(view1LayoutParams.weight);
 	    	screen2.getWindowLayout().setWeight(view2LayoutParams.weight);
-	    	splitScreenControl.setSeparatorMoving(false);
+	    	windowControl.setSeparatorMoving(false);
 	    	touchOwner.releaseOwnership(this);
 	        break;
 	    case MotionEvent.ACTION_MOVE:

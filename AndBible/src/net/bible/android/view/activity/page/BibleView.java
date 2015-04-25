@@ -10,7 +10,7 @@ import net.bible.android.control.event.splitscreen.ScrollSecondaryScreenEvent;
 import net.bible.android.control.event.splitscreen.SplitScreenSizeChangedEvent;
 import net.bible.android.control.event.splitscreen.UpdateSecondaryScreenEvent;
 import net.bible.android.control.page.PageControl;
-import net.bible.android.control.page.splitscreen.SplitScreenControl;
+import net.bible.android.control.page.splitscreen.WindowControl;
 import net.bible.android.control.page.splitscreen.Window;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.page.screen.PageTiltScroller;
@@ -57,7 +57,7 @@ public class BibleView extends WebView implements DocumentView {
 	private PageControl mPageControl = ControlFactory.getInstance().getPageControl();
 	
 	private int maintainMovingVerse = -1;
-	private static SplitScreenControl splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
+	private static WindowControl windowControl = ControlFactory.getInstance().getSplitScreenControl();
 	
 	// never go to 0 because a bug in Android prevents invalidate after loadDataWithBaseURL so no scrollOrJumpToVerse will occur 
 	private static final int TOP_OF_SCREEN = 1;
@@ -133,7 +133,7 @@ public class BibleView extends WebView implements DocumentView {
 		EventBus.getDefault().register(this);
 		
 		// initialise split state related code - always screen1 is selected first
-		onEvent(new CurrentSplitScreenChangedEvent(splitScreenControl.getCurrentActiveWindow()));
+		onEvent(new CurrentSplitScreenChangedEvent(windowControl.getCurrentActiveWindow()));
 	}
 
 	@Override
@@ -254,7 +254,7 @@ public class BibleView extends WebView implements DocumentView {
 				loadUrl("javascript:registerVersePositions()");
 			}
 			
-			mJavascriptInterface.setNotificationsEnabled(splitScreenControl.isCurrentActiveWindow(window));
+			mJavascriptInterface.setNotificationsEnabled(windowControl.isCurrentActiveWindow(window));
 
 			// screen is changing shape/size so constantly maintain the current verse position
 			// main difference from jumpToVerse is that this is not cleared after jump
@@ -330,7 +330,7 @@ public class BibleView extends WebView implements DocumentView {
     
     private void resumeTiltScroll() {
     	// but if split screen then only if the current active split
-    	if (splitScreenControl.isCurrentActiveWindow(window)) {
+    	if (windowControl.isCurrentActiveWindow(window)) {
 			Log.d(TAG, "Resuming tilt to scroll "+window);
 	        mPageTiltScroller.enableTiltScroll(true);
     	}
@@ -340,7 +340,7 @@ public class BibleView extends WebView implements DocumentView {
 	public boolean onTouchEvent(MotionEvent ev) {
 		boolean handled = super.onTouchEvent(ev);
 		
-		splitScreenControl.setCurrentActiveWindow(window);
+		windowControl.setCurrentActiveWindow(window);
 		
 		// Allow user to redefine viewing angle by touching screen
 		mPageTiltScroller.recalculateViewingPosition();
@@ -515,7 +515,7 @@ public class BibleView extends WebView implements DocumentView {
 						scrollOrJumpToVerse(verse);
 						loadUrl("javascript:registerVersePositions()");
 					}
-				} , SplitScreenControl.SCREEN_SETTLE_TIME_MILLIS/2);
+				} , WindowControl.SCREEN_SETTLE_TIME_MILLIS/2);
 			}
 		}		
 	}

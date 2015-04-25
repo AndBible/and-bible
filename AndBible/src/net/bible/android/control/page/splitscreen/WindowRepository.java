@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.bible.android.BibleApplication;
+import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.splitscreen.CurrentSplitScreenChangedEvent;
 import net.bible.android.control.page.CurrentPageManager;
@@ -32,19 +33,19 @@ public class WindowRepository {
 
 	private final Logger logger = new Logger(this.getClass().getName());
 	
-	public WindowRepository() {
+	public WindowRepository(EventManager eventManager) {
 		dedicatedLinksWindow = new Window(DEDICATED_LINK_WINDOW_SCREEN_NO, WindowState.REMOVED);
 		dedicatedLinksWindow.setSynchronised(false);
 		dedicatedLinksWindow.setDefaultOperation(WindowOperation.DELETE);
 
 		windowList = new ArrayList<Window>();
-		currentActiveScreen = getWindow(1);
+		currentActiveScreen = addNewWindow(1);
 
 		// restore state from previous invocation
     	restoreState();
     	
 		// listen for AppToBackgroundEvent to save state when moved to background
-    	EventBus.getDefault().register(this);
+    	eventManager.register(this);
 	}
 	
 	public List<Window> getWindows() {
@@ -55,7 +56,7 @@ public class WindowRepository {
 		return windows;
 	}
 
-	public List<Window> getVisibleScreens() {
+	public List<Window> getVisibleWindows() {
 			// only 1 screen can be maximised
 //			if (screen.getState() == WindowState.MAXIMISED) {
 //				screens.clear();
@@ -89,7 +90,7 @@ public class WindowRepository {
 				return window;
 			}
 		}
-		return addNewScreen(screenNo);
+		return null;
 	}
 	
 	public Window getDedicatedLinksWindow() {
@@ -100,17 +101,11 @@ public class WindowRepository {
 		// ensure main screen is not maximized
 		getCurrentActiveWindow().getWindowLayout().setState(WindowState.SPLIT);
 
-		return addNewScreen(windowList.size()+1);
+		return addNewWindow(getNextWindowNo());
 	}
-	
-	private Window addNewScreen(int screenNo) {
-		Window newScreen = new Window(screenNo, getDefaultState());
-		windowList.add(newScreen);
-		return newScreen;
-	}
-	
+
 	public boolean isMultiWindow() {
-		List<Window> windows = getVisibleScreens();
+		List<Window> windows = getVisibleWindows();
 		return windows.size()>1;
 	}
 	
@@ -147,7 +142,7 @@ public class WindowRepository {
 	}
 	
 	public List<Window> getNonActiveScreenList() {
-		List<Window> windows = getVisibleScreens();
+		List<Window> windows = getVisibleWindows();
 		windows.remove(getCurrentActiveWindow());
 		return windows;
 	}
@@ -156,7 +151,7 @@ public class WindowRepository {
 		window.getWindowLayout().setState(WindowState.MINIMISED);
 
 		// adjustments
-		List<Window> visibleScreens = getVisibleScreens();
+		List<Window> visibleScreens = getVisibleWindows();
 		// I don't think we need this
 //		switch (visibleScreens.size()) {
 //		case 0:
@@ -180,7 +175,7 @@ public class WindowRepository {
 		windowList.remove(window);
 
 		// adjustments
-		List<Window> visibleScreens = getVisibleScreens();
+		List<Window> visibleScreens = getVisibleWindows();
 
 		// has the active screen been minimised?
 		if (getCurrentActiveWindow().equals(window) && visibleScreens.size()>0) {
@@ -189,6 +184,21 @@ public class WindowRepository {
 
 	}
 
+	private int getNextWindowNo() {
+		for (int i=1; i<100; i++) {
+			if (getWindow(i)==null) {
+				return i;
+			}
+		}
+		throw new RuntimeException("Window number could not be allocated");
+	}
+	
+	private Window addNewWindow(int screenNo) {
+		Window newScreen = new Window(screenNo, getDefaultState());
+		windowList.add(newScreen);
+		return newScreen;
+	}
+	
 	/** 
 	 * If app moves to background then save current state to allow continuation after return
 	 * 
@@ -210,7 +220,8 @@ public class WindowRepository {
     private void restoreState() {
     	try {
         	logger.info("Restore instance state for screens");
-        	SharedPreferences settings = BibleApplication.getApplication().getAppStateSharedPreferences();
+        	BibleApplication application = BibleApplication.getApplication();
+			SharedPreferences settings = application.getAppStateSharedPreferences();
     		restoreState(settings);
     	} catch (Exception e) {
     		logger.error("Restore error", e);

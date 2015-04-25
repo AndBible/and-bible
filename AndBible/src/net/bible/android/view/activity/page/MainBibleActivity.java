@@ -10,7 +10,7 @@ import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent;
 import net.bible.android.control.event.splitscreen.CurrentSplitScreenChangedEvent;
 import net.bible.android.control.page.CurrentPage;
-import net.bible.android.control.page.splitscreen.SplitScreenControl;
+import net.bible.android.control.page.splitscreen.WindowControl;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.page.actionbar.BibleActionBarManager;
 import net.bible.android.view.activity.page.screen.DocumentViewManager;
@@ -44,7 +44,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	
 	private BibleContentManager bibleContentManager;
 	
-	private SplitScreenControl splitScreenControl;
+	private WindowControl windowControl;
 	
 	private static final String TAG = "MainBibleActivity";
 
@@ -82,7 +82,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
         gestureListener = new BibleGestureListener(MainBibleActivity.this);
         gestureDetector = new GestureDetector( gestureListener );
 
-        splitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
+        windowControl = ControlFactory.getInstance().getSplitScreenControl();
         
         documentViewManager = new DocumentViewManager(this);
         documentViewManager.buildView();
@@ -163,9 +163,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		if (!ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().isSingleKey()) {
 			// force a recalculation of verse offsets
 			PassageChangeMediator.getInstance().forcePageUpdate();
-		} else if (splitScreenControl.isSplit()) {
+		} else if (windowControl.isSplit()) {
 			// need to layout split screens differently
-			splitScreenControl.orientationChange();
+			windowControl.orientationChange();
 		}
 	}
 
