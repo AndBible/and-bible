@@ -66,8 +66,15 @@ public class ControlFactory {
 	public static ControlFactory getInstance() {
 		return singleton;
 	}
+	public static void setInstance(ControlFactory controlFactory) {
+		singleton = controlFactory;
+	}
 	
-	private ControlFactory() {
+	protected ControlFactory() {
+		createAll();
+	}
+	
+	protected void createAll() {
 		resourceProvider = new AndroidResourceProvider();
 		eventManager = ABEventBus.getDefault();
 		
@@ -100,7 +107,7 @@ public class ControlFactory {
 		return pageControl;		
 	}
 
-	public WindowControl getSplitScreenControl() {
+	public WindowControl getWindowControl() {
 		return windowControl;
 	}
 

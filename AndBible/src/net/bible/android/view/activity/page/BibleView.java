@@ -57,7 +57,7 @@ public class BibleView extends WebView implements DocumentView {
 	private PageControl mPageControl = ControlFactory.getInstance().getPageControl();
 	
 	private int maintainMovingVerse = -1;
-	private static WindowControl windowControl = ControlFactory.getInstance().getSplitScreenControl();
+	private static WindowControl windowControl = ControlFactory.getInstance().getWindowControl();
 	
 	// never go to 0 because a bug in Android prevents invalidate after loadDataWithBaseURL so no scrollOrJumpToVerse will occur 
 	private static final int TOP_OF_SCREEN = 1;

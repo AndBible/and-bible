@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import net.bible.android.control.event.EventManager;
+import net.bible.android.control.event.passage.CurrentVerseChangedEvent;
 import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
 import net.bible.android.control.event.splitscreen.SplitScreenSizeChangedEvent;
 import net.bible.android.control.page.CurrentPage;
@@ -68,6 +69,8 @@ public class WindowControl {
 			// the listener needs to be a class variable because it is held in a WeakHashMap by SharedPreferences
 			CommonUtils.getSharedPreferences().registerOnSharedPreferenceChangeListener(onSettingsChangeListener);
 		}
+		
+		eventManager.register(this);
 	}
 
 	public Window getActiveWindow() {
@@ -152,7 +155,7 @@ public class WindowControl {
 		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
 	}
 	
-	public void synchronizeScreens() {
+	public void onEvent(CurrentVerseChangedEvent event) {
 		splitScreenSync.synchronizeScreens();
 	}
 	

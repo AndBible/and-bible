@@ -133,14 +133,17 @@ public class WindowControlTest {
 
 	@Test
 	public void testOrientationChange() throws Exception {
-	}
-
-	@Test
-	public void testSynchronizeScreens() throws Exception {
+		windowControl.orientationChange();
+		verify(eventManager, times(1)).post(argThat(isA(NumberOfWindowsChangedEvent.class)));
 	}
 
 	@Test
 	public void testIsSplit() throws Exception {
+		assertThat(windowControl.isSplit(), equalTo(false));
+		Window newWindow = windowControl.addNewWindow();
+		assertThat(windowControl.isSplit(), equalTo(true));
+		windowControl.removeWindow(newWindow);
+		assertThat(windowControl.isSplit(), equalTo(false));
 	}
 
 	@Test

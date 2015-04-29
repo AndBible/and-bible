@@ -40,7 +40,7 @@ public class HistoryManager {
 
 	private boolean isGoingBack = false;
 	
-	private static WindowControl windowControl = ControlFactory.getInstance().getSplitScreenControl();
+	private static WindowControl windowControl = ControlFactory.getInstance().getWindowControl();
 	
 	private static final String TAG = "HistoryManager";
 	

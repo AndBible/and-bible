@@ -31,7 +31,7 @@ public class DocumentViewManager {
 		documentWebViewBuilder = new DocumentWebViewBuilder(this.mainActivity);
 		myNoteViewBuilder = new MyNoteViewBuilder(this.mainActivity);
 		this.parent = (LinearLayout)mainActivity.findViewById(R.id.mainBibleView);
-		windowControl = ControlFactory.getInstance().getSplitScreenControl();
+		windowControl = ControlFactory.getInstance().getWindowControl();
 
 		EventBus.getDefault().register(this);
 	}

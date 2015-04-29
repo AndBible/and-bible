@@ -65,7 +65,7 @@ public class DocumentWebViewBuilder {
 	public DocumentWebViewBuilder(Activity mainActivity) {
 		this.mainActivity = mainActivity;
 		
-		windowControl = ControlFactory.getInstance().getSplitScreenControl();
+		windowControl = ControlFactory.getInstance().getWindowControl();
 		
 		screenBibleViewMap = new HashMap<>();
 

@@ -20,7 +20,7 @@ import de.greenrobot.event.EventBus;
 public class PassageChangeMediator {
 
 	private BibleContentManager mBibleContentManager;
-	private WindowControl mSplitScreenControl = ControlFactory.getInstance().getSplitScreenControl();
+	private WindowControl mSplitScreenControl = ControlFactory.getInstance().getWindowControl();
 	private boolean isPageChanging = false;
 
 	private static final String TAG = "PassageChangeMediator";
@@ -64,8 +64,6 @@ public class PassageChangeMediator {
 	 */
 	public void onCurrentVerseChanged() {
 		EventBus.getDefault().post(new CurrentVerseChangedEvent());
-		
-		mSplitScreenControl.synchronizeScreens();
 	}
 
 	/** The thread which fetches the new page html has started

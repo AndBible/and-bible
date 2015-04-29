@@ -17,7 +17,7 @@ public class BibleJavascriptInterface {
 	
 	private VerseCalculator verseCalculator;
 	
-	private WindowControl windowControl = ControlFactory.getInstance().getSplitScreenControl();
+	private WindowControl windowControl = ControlFactory.getInstance().getWindowControl();
 	
 	private static final String TAG = "BibleJavascriptInterface";
 	

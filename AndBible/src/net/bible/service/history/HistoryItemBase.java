@@ -13,7 +13,7 @@ public abstract class HistoryItemBase implements HistoryItem {
 
 	private Window window;
 	
-	private static WindowControl windowControl = ControlFactory.getInstance().getSplitScreenControl();
+	private static WindowControl windowControl = ControlFactory.getInstance().getWindowControl();
 
 	public HistoryItemBase() {
 		super();

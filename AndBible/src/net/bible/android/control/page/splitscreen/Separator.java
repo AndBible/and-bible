@@ -59,7 +59,7 @@ public class Separator extends View {
 	
 	public Separator(Context context, int width, View parentLayout, Window window, Window nextScreen, int numSplitScreens, boolean isPortrait) {
 		super(context);
-		windowControl = ControlFactory.getInstance().getSplitScreenControl();
+		windowControl = ControlFactory.getInstance().getWindowControl();
 		
 		Resources res = BibleApplication.getApplication().getResources();
 		SEPARATOR_COLOUR = res.getColor(R.color.split_separator_colour);

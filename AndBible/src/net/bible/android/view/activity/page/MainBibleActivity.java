@@ -82,7 +82,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
         gestureListener = new BibleGestureListener(MainBibleActivity.this);
         gestureDetector = new GestureDetector( gestureListener );
 
-        windowControl = ControlFactory.getInstance().getSplitScreenControl();
+        windowControl = ControlFactory.getInstance().getWindowControl();
         
         documentViewManager = new DocumentViewManager(this);
         documentViewManager.buildView();
