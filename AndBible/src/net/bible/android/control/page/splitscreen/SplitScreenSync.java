@@ -56,7 +56,7 @@ public class SplitScreenSync {
 	/** Synchronise the inactive key and inactive screen with the active key and screen if required
 	 */
 	public void synchronizeScreens() {
-		Window activeWindow = windowRepository.getCurrentActiveWindow();
+		Window activeWindow = windowRepository.getActiveWindow();
 		CurrentPage activePage = activeWindow.getPageManager().getCurrentPage();
 		
 		// exit if main screen is not synchronised

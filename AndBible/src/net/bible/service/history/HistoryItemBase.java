@@ -17,7 +17,7 @@ public abstract class HistoryItemBase implements HistoryItem {
 
 	public HistoryItemBase() {
 		super();
-		this.window = windowControl.getCurrentActiveWindow();
+		this.window = windowControl.getActiveWindow();
 	}
 
 	@Override

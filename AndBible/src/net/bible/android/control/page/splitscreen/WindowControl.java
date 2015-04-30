@@ -73,11 +73,8 @@ public class WindowControl {
 		eventManager.register(this);
 	}
 
-	public Window getActiveWindow() {
-		return windowRepository.getCurrentActiveWindow();
-	}
-	public boolean isCurrentActiveWindow(Window currentActiveWindow) {
-		return currentActiveWindow == windowRepository.getCurrentActiveWindow();
+	public boolean isActiveWindow(Window window) {
+		return window == windowRepository.getActiveWindow();
 	}
 	
 	public void showLink(Book document, Key key) {
@@ -85,7 +82,7 @@ public class WindowControl {
         boolean linksWindowWasVisible = linksWindow.isVisible();
         
         //TODO do not set links window active -  currently need to set links window to active window otherwise BibleContentMediator logic does not refresh that window
-        windowRepository.setCurrentActiveWindow(linksWindow);
+        windowRepository.setActiveWindow(linksWindow);
         
         linksWindow.getPageManager().setCurrentDocumentAndKey(document, key);
         
@@ -169,9 +166,9 @@ public class WindowControl {
 		}
 		
 		if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_SINGLE)) {
-			windowRepository.getCurrentActiveWindow().getWindowLayout().setState(WindowState.SPLIT); //Was MAXIMIZED
-			windowRepository.getCurrentActiveWindow().setSynchronised(false);
-			windowRepository.getCurrentActiveWindow().getWindowLayout().setWeight(1f);
+			windowRepository.getActiveWindow().getWindowLayout().setState(WindowState.SPLIT); //Was MAXIMIZED
+			windowRepository.getActiveWindow().setSynchronised(false);
+			windowRepository.getActiveWindow().getWindowLayout().setWeight(1f);
 		} else if (splitScreenPreference.equals(PREFS_SPLIT_SCREEN_LINKED)) {
 			for (Window window : windowRepository.getWindows()) {
 				window.getWindowLayout().setState(WindowState.SPLIT);
@@ -189,11 +186,11 @@ public class WindowControl {
 		return windowRepository.isMultiWindow();
 	}
 
-	public Window getCurrentActiveWindow() {
-		return windowRepository.getCurrentActiveWindow();
+	public Window getActiveWindow() {
+		return windowRepository.getActiveWindow();
 	}
-	public void setCurrentActiveWindow(Window currentActiveWindow) {
-		windowRepository.setCurrentActiveWindow(currentActiveWindow);
+	public void setActiveWindow(Window currentActiveWindow) {
+		windowRepository.setActiveWindow(currentActiveWindow);
 	}
 
 	public boolean isSeparatorMoving() {

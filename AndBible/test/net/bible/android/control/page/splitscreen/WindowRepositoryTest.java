@@ -27,16 +27,16 @@ public class WindowRepositoryTest {
 	}
 
 	@Test
-	public void testGetCurrentActiveWindow() throws Exception {
-		assertThat(windowRepository.getCurrentActiveWindow().getScreenNo(), equalTo(1));
-	}
+		public void testGetActiveWindow() throws Exception {
+			assertThat(windowRepository.getActiveWindow().getScreenNo(), equalTo(1));
+		}
 
 	@Test
-	public void testSetCurrentActiveWindow() throws Exception {
-		Window newWindow = windowRepository.addNewWindow();
-		assertThat(windowRepository.getCurrentActiveWindow().getScreenNo(), not(equalTo(newWindow.getScreenNo())));
-		windowRepository.setCurrentActiveWindow(newWindow);
-		assertThat(windowRepository.getCurrentActiveWindow().getScreenNo(), equalTo(newWindow.getScreenNo()));
-	}
+		public void testSetActiveWindow() throws Exception {
+			Window newWindow = windowRepository.addNewWindow();
+			assertThat(windowRepository.getActiveWindow().getScreenNo(), not(equalTo(newWindow.getScreenNo())));
+			windowRepository.setActiveWindow(newWindow);
+			assertThat(windowRepository.getActiveWindow().getScreenNo(), equalTo(newWindow.getScreenNo()));
+		}
 
 }

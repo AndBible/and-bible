@@ -54,9 +54,20 @@ public class WindowControlTest {
 	}
 
 	@Test
+	public void testSetActiveWindow() throws Exception {
+		Window window1 = windowControl.getActiveWindow();
+		
+		Window newWindow = windowControl.addNewWindow();
+		assertThat(window1, equalTo(windowControl.getActiveWindow()));
+		
+		windowControl.setActiveWindow(newWindow);
+		assertThat(newWindow, equalTo(windowControl.getActiveWindow()));
+	}
+
+	@Test
 	public void testIsCurrentActiveWindow() throws Exception {
 		Window activeWindow = windowControl.getActiveWindow();
-		assertThat(windowControl.isCurrentActiveWindow(activeWindow), is(true));
+		assertThat(windowControl.isActiveWindow(activeWindow), is(true));
 	}
 
 	@Test
@@ -111,11 +122,21 @@ public class WindowControlTest {
 
 	@Test
 	public void testRemoveOnlyWindowPrevented() throws Exception {
-		Window onlyWindow = windowRepository.getCurrentActiveWindow(); 
+		Window onlyWindow = windowRepository.getActiveWindow(); 
 		windowControl.removeWindow(onlyWindow);
 		assertThat(windowRepository.getWindows(), hasItem(onlyWindow));
 		
 		verifyZeroInteractions(eventManager);
+	}
+
+	@Test
+	public void testRemoveActiveWindow() throws Exception {
+		Window activeWindow = windowControl.getActiveWindow();
+		Window newWindow = windowControl.addNewWindow();
+		reset(eventManager);
+
+		windowControl.removeWindow(activeWindow);
+		assertThat(windowRepository.getActiveWindow(), equalTo(newWindow));
 	}
 
 	@Test
@@ -144,14 +165,6 @@ public class WindowControlTest {
 		assertThat(windowControl.isSplit(), equalTo(true));
 		windowControl.removeWindow(newWindow);
 		assertThat(windowControl.isSplit(), equalTo(false));
-	}
-
-	@Test
-	public void testGetCurrentActiveWindow() throws Exception {
-	}
-
-	@Test
-	public void testSetCurrentActiveWindow() throws Exception {
 	}
 
 }

@@ -5,7 +5,6 @@ import net.bible.android.control.event.passage.CurrentVerseChangedEvent;
 import net.bible.android.control.event.passage.PassageChangeStartedEvent;
 import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent;
-import net.bible.android.control.page.splitscreen.WindowControl;
 import net.bible.service.device.ScreenSettings;
 import android.util.Log;
 import de.greenrobot.event.EventBus;
@@ -20,7 +19,7 @@ import de.greenrobot.event.EventBus;
 public class PassageChangeMediator {
 
 	private BibleContentManager mBibleContentManager;
-	private WindowControl mSplitScreenControl = ControlFactory.getInstance().getWindowControl();
+
 	private boolean isPageChanging = false;
 
 	private static final String TAG = "PassageChangeMediator";

@@ -51,7 +51,7 @@ public class DocumentViewManager {
 	}
 
 	public DocumentView getDocumentView() {
-		return getDocumentView(windowControl.getCurrentActiveWindow());
+		return getDocumentView(windowControl.getActiveWindow());
 	}
 	public DocumentView getDocumentView(Window window) {
 		if (myNoteViewBuilder.isMyNoteViewType()) {

@@ -23,7 +23,7 @@ import de.greenrobot.event.EventBus;
 public class WindowRepository {
 
 	// 1 based screen no
-	private Window currentActiveScreen;
+	private Window activeWindow;
 	
 	private List<Window> windowList;
 	
@@ -39,7 +39,7 @@ public class WindowRepository {
 		dedicatedLinksWindow.setDefaultOperation(WindowOperation.DELETE);
 
 		windowList = new ArrayList<Window>();
-		currentActiveScreen = addNewWindow(1);
+		activeWindow = addNewWindow(1);
 
 		// restore state from previous invocation
     	restoreState();
@@ -99,7 +99,7 @@ public class WindowRepository {
 
 	public Window addNewWindow() {
 		// ensure main screen is not maximized
-		getCurrentActiveWindow().getWindowLayout().setState(WindowState.SPLIT);
+		getActiveWindow().getWindowLayout().setState(WindowState.SPLIT);
 
 		return addNewWindow(getNextWindowNo());
 	}
@@ -110,13 +110,13 @@ public class WindowRepository {
 	}
 	
 	public CurrentPageManager getCurrentPageManager() {
-		return getCurrentActiveWindow().getPageManager();
+		return getActiveWindow().getPageManager();
 	}
 	
-	public void setDefaultActiveScreen() {
+	public void setDefaultActiveWindow() {
 		for (Window window : getWindows()) {
 			if (window.isVisible()) {
-				currentActiveScreen = window;
+				activeWindow = window;
 			}
 		}
 	}
@@ -130,20 +130,20 @@ public class WindowRepository {
 //		}
 	}
 
-	public Window getCurrentActiveWindow() {
-		return currentActiveScreen;
+	public Window getActiveWindow() {
+		return activeWindow;
 	}
 
-	public void setCurrentActiveWindow(Window newActiveScreen) {
-		if (currentActiveScreen != newActiveScreen) {
-			this.currentActiveScreen = newActiveScreen;
-			EventBus.getDefault().post(new CurrentSplitScreenChangedEvent(currentActiveScreen));
+	public void setActiveWindow(Window newActiveWindow) {
+		if (this.activeWindow != newActiveWindow) {
+			this.activeWindow = newActiveWindow;
+			EventBus.getDefault().post(new CurrentSplitScreenChangedEvent(activeWindow));
 		}
 	}
 	
 	public List<Window> getNonActiveScreenList() {
 		List<Window> windows = getVisibleWindows();
-		windows.remove(getCurrentActiveWindow());
+		windows.remove(getActiveWindow());
 		return windows;
 	}
 	
@@ -151,8 +151,8 @@ public class WindowRepository {
 		window.getWindowLayout().setState(WindowState.MINIMISED);
 
 		// adjustments
-		List<Window> visibleScreens = getVisibleWindows();
 		// I don't think we need this
+//		List<Window> visibleScreens = getVisibleWindows();
 //		switch (visibleScreens.size()) {
 //		case 0:
 //			screen.setState(WindowState.MAXIMISED);
@@ -165,8 +165,8 @@ public class WindowRepository {
 //		}
 
 		// has the active screen been minimised?
-		if (getCurrentActiveWindow().equals(window) && visibleScreens.size()>0) {
-			setCurrentActiveWindow(visibleScreens.get(0));
+		if (getActiveWindow().equals(window)) {
+			setDefaultActiveWindow();
 		}
 	}
 
@@ -174,12 +174,9 @@ public class WindowRepository {
 		window.getWindowLayout().setState(WindowState.REMOVED);
 		windowList.remove(window);
 
-		// adjustments
-		List<Window> visibleScreens = getVisibleWindows();
-
 		// has the active screen been minimised?
-		if (getCurrentActiveWindow().equals(window) && visibleScreens.size()>0) {
-			setCurrentActiveWindow(visibleScreens.get(0));
+		if (getActiveWindow().equals(window)) {
+			setDefaultActiveWindow();
 		}
 
 	}

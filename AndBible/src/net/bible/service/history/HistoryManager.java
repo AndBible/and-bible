@@ -153,7 +153,7 @@ public class HistoryManager {
 	}
 	
 	private Stack<HistoryItem> getHistoryStack() {
-		Window window = windowControl.getCurrentActiveWindow();
+		Window window = windowControl.getActiveWindow();
 		Stack<HistoryItem> historyStack = screenHistoryStackMap.get(window);
 		if (historyStack==null) {
 			synchronized(screenHistoryStackMap) {

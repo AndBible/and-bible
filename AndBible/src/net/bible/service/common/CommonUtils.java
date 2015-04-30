@@ -409,7 +409,7 @@ public class CommonUtils {
 	}
 	
 	public static Window getActiveSplitScreen() {
-		return ControlFactory.getInstance().getWindowControl().getCurrentActiveWindow();
+		return ControlFactory.getInstance().getWindowControl().getActiveWindow();
 	}
 	
 	public static String getKeyDescription(Key key) {
