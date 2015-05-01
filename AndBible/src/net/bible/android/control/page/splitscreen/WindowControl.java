@@ -120,6 +120,9 @@ public class WindowControl {
 		}
 	}
 
+	public void removeCurrentWindow() {
+		windowRepository.remove(getActiveWindow());
+	}
 	public void removeWindow(Window window) {
 		if (windowRepository.getVisibleWindows().size()>1 || !window.isVisible()) {
 			windowRepository.remove(window);
@@ -146,6 +149,17 @@ public class WindowControl {
 		splitScreenSync.synchronizeScreens();
 	}
 
+	public void synchroniseCurrentWindow() {
+		getActiveWindow().setSynchronised(true);
+
+		splitScreenSync.setResynchRequired(true);
+		splitScreenSync.synchronizeScreens();
+	}
+	
+	public void unsynchroniseCurrentWindow() {
+		getActiveWindow().setSynchronised(false);
+	}
+	
 	/** screen orientation has changed */
 	public void orientationChange() {
 		// causes BibleViews to be created and laid out

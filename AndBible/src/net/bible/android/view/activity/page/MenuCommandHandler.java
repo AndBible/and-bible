@@ -5,6 +5,7 @@ import net.bible.android.activity.StartupActivity;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.download.DownloadControl;
+import net.bible.android.control.page.splitscreen.WindowControl;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.bookmark.Bookmarks;
 import net.bible.android.view.activity.comparetranslations.CompareTranslations;
@@ -37,9 +38,11 @@ import android.widget.Toast;
  */
 public class MenuCommandHandler {
 
-	private LongPressControl longPressControl = new LongPressControl();
+	private LongPressControl longPressControl;
 	
-	private DownloadControl downloadControl = ControlFactory.getInstance().getDownloadControl();
+	private DownloadControl downloadControl;
+	
+	private WindowControl windowControl;
 
 	private static final String TAG = "MainMenuCommandHandler";
 	
@@ -59,6 +62,11 @@ public class MenuCommandHandler {
 	public MenuCommandHandler(MainBibleActivity activity) {
 		super();
 		this.callingActivity = activity;
+		
+		longPressControl = new LongPressControl();
+		ControlFactory controlFactory = ControlFactory.getInstance();
+		downloadControl = controlFactory.getDownloadControl();
+		windowControl = controlFactory.getWindowControl();
 	}
 	
 	public boolean isIgnoreLongPress() {
@@ -166,6 +174,22 @@ public class MenuCommandHandler {
 	        		Toast.makeText(callingActivity, R.string.select_text_help, Toast.LENGTH_LONG).show();
 	        	}
 	        	callingActivity.getDocumentViewManager().getDocumentView().selectAndCopyText(longPressControl);
+				isHandled = true;
+	        	break;
+			case R.id.splitNew:
+				windowControl.addNewWindow();
+				isHandled = true;
+	        	break;
+			case R.id.splitClose:
+				windowControl.removeCurrentWindow();
+				isHandled = true;
+	        	break;
+			case R.id.splitLink:
+				windowControl.synchroniseCurrentWindow();
+				isHandled = true;
+	        	break;
+			case R.id.splitUnlink:
+				windowControl.unsynchroniseCurrentWindow();
 				isHandled = true;
 	        	break;
 	        }

@@ -27,12 +27,15 @@
 		  appcompat:showAsAction="ifRoom"/>
 
 	<item android:id="@+id/splitSubMenu"
-		  android:title="@string/prefs_split_screen_title">
+		  android:title="@string/prefs_split_screen_title"
+		  android:icon="@android:drawable/ic_menu_slideshow">
 		<menu>
 			<item android:id="@+id/splitNew"
-				  android:title="@string/new_item"/>
+				  android:title="@string/new_item"
+				  android:icon="@android:drawable/ic_menu_add"/>
 			<item android:id="@+id/splitClose"
-				  android:title="@string/close"/>
+				  android:title="@string/close"
+				  android:icon="@android:drawable/ic_menu_close_clear_cancel"/>
 			<item android:id="@+id/splitSwap"
 				  android:title="@string/splitSwap"/>
 			<item android:id="@+id/splitLink"
