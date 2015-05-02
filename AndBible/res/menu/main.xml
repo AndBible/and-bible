@@ -36,8 +36,8 @@
 			<item android:id="@+id/splitDelete"
 				  android:title="@string/delete"
 				  android:icon="@android:drawable/ic_menu_close_clear_cancel"/>
-			<item android:id="@+id/splitSwap"
-				  android:title="@string/splitSwap"/>
+			<item android:id="@+id/splitPromote"
+				  android:title="@string/splitPromote"/>
 			<item android:id="@+id/splitLink"
 				  android:title="@string/prefs_split_screen_linked"/>
 			<item android:id="@+id/splitUnlink"

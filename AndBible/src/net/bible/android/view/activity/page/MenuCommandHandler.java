@@ -184,6 +184,10 @@ public class MenuCommandHandler {
 				windowControl.removeCurrentWindow();
 				isHandled = true;
 	        	break;
+			case R.id.splitPromote:
+				windowControl.promoteCurrentWindow();
+				isHandled = true;
+	        	break;
 			case R.id.splitLink:
 				windowControl.synchroniseCurrentWindow();
 				isHandled = true;

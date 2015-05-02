@@ -161,6 +161,19 @@ public class WindowControl {
 		getActiveWindow().setSynchronised(false);
 	}
 	
+	/*
+	 * Move the current window to first 
+	 */
+	public void promoteCurrentWindow() {
+		Window window = getActiveWindow();
+
+		windowRepository.moveWindowToPosition(window, 0);
+	
+		// redisplay the current page
+		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+	}
+
+
 	/** screen orientation has changed */
 	public void orientationChange() {
 		// causes BibleViews to be created and laid out

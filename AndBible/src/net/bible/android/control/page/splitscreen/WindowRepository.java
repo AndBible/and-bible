@@ -182,6 +182,23 @@ public class WindowRepository {
 		}
 
 	}
+	
+	public void moveWindowToPosition(Window window, int position) {
+		int originalWindowIndex = windowList.indexOf(window);
+		
+		if (originalWindowIndex==-1) {
+			logger.warn("Attempt to move missing window");
+			return;
+		}
+		if (position>windowList.size()) {
+			logger.warn("Attempt to move window beyond end of window list");
+			return;
+		}
+
+		windowList.remove(originalWindowIndex);
+
+		windowList.add(position, window);
+	}
 
 	private int getNextWindowNo() {
 		for (int i=1; i<100; i++) {
