@@ -97,12 +97,12 @@ public class WindowControl {
 		//Window newScreen = 
 		Window window = windowRepository.addNewWindow();
 
-		// redisplay the current page
-		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
-
 		splitScreenSync.setResynchRequired(true);
 		splitScreenSync.synchronizeScreens();
 		
+		// redisplay the current page
+		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+
 		return window;
 	}
 
@@ -248,7 +248,7 @@ public class WindowControl {
 		// get page offsets to maintain for each window
 		Map<Window,Integer> windowVerseMap = new HashMap<Window,Integer>();
 		for (Window window : windowRepository.getWindows()) {
-			CurrentPage currentPage = getCurrentPage(window);
+			CurrentPage currentPage = window.getPageManager().getCurrentPage();
 			if (currentPage!=null &&
 				BookCategory.BIBLE == currentPage.getCurrentDocument().getBookCategory()) {
 				int verse = KeyUtil.getVerse(currentPage.getSingleKey()).getVerse();
@@ -256,11 +256,5 @@ public class WindowControl {
 			}
 		}
 		return windowVerseMap;
-	}
-	
-	/** Get Page info for each Window 
-	 */
-	private CurrentPage getCurrentPage(Window window) {
-		return window.getPageManager().getCurrentPage();
 	}
 }
