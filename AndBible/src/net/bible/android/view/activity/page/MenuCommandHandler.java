@@ -180,7 +180,7 @@ public class MenuCommandHandler {
 				windowControl.addNewWindow();
 				isHandled = true;
 	        	break;
-			case R.id.splitClose:
+			case R.id.splitDelete:
 				windowControl.removeCurrentWindow();
 				isHandled = true;
 	        	break;

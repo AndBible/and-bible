@@ -172,7 +172,9 @@ public class WindowRepository {
 
 	public void remove(Window window) {
 		window.getWindowLayout().setState(WindowState.REMOVED);
-		windowList.remove(window);
+		if (!windowList.remove(window)) {
+			logger.debug("Failed to remove window "+window.getScreenNo());
+		}
 
 		// has the active screen been minimised?
 		if (getActiveWindow().equals(window)) {

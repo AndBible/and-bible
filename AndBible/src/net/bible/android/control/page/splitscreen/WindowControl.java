@@ -10,6 +10,7 @@ import net.bible.android.control.event.splitscreen.SplitScreenSizeChangedEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.splitscreen.WindowLayout.WindowState;
 import net.bible.service.common.CommonUtils;
+import net.bible.service.common.Logger;
 import net.bible.service.common.TestUtils;
 
 import org.crosswire.jsword.book.Book;
@@ -19,7 +20,6 @@ import org.crosswire.jsword.passage.KeyUtil;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.util.Log;
 
 /**
  * Central control of Split screens especially synchronization
@@ -45,7 +45,7 @@ public class WindowControl {
 	private static final String PREFS_SPLIT_SCREEN_LINKED = "linked";
 	private static final String PREFS_SPLIT_SCREEN_NOT_LINKED = "not_linked";
 	
-	private static final String TAG = "WindowControl";
+	private final Logger logger = new Logger(this.getClass().getName());
 	
 	private OnSharedPreferenceChangeListener onSettingsChangeListener = new OnSharedPreferenceChangeListener() {
 		@Override
@@ -53,7 +53,7 @@ public class WindowControl {
 			if (SPLIT_SCREEN_PREF.equals(key)) {
 				splitScreenPreferenceChanged();
 			} else {
-				Log.d(TAG, "screen preferences changed so inactive screen needs to be refreshed");
+				logger.debug("screen preferences changed so inactive screen needs to be refreshed");
 				splitScreenSync.setScreenPreferencesChanged(true);
 			}
 			
@@ -121,10 +121,11 @@ public class WindowControl {
 	}
 
 	public void removeCurrentWindow() {
-		windowRepository.remove(getActiveWindow());
+		removeWindow(getActiveWindow());
 	}
 	public void removeWindow(Window window) {
 		if (windowRepository.getVisibleWindows().size()>1 || !window.isVisible()) {
+			logger.debug("Removing window "+window.getScreenNo());
 			windowRepository.remove(window);
 	
 			//TODO may have to maximise another screen if there is only 1 screen unminimised
@@ -172,7 +173,7 @@ public class WindowControl {
 	
 //TODO save all screen settings - but save it somewhere screen specific not in this control
 	private void splitScreenPreferenceChanged() {
-		Log.d(TAG, "Refresh split screen settings");
+		logger.debug("Refresh split screen settings");
 		String splitScreenPreference = PREFS_SPLIT_SCREEN_SINGLE;
 		SharedPreferences preferences = CommonUtils.getSharedPreferences();
 		if (preferences!=null) {
