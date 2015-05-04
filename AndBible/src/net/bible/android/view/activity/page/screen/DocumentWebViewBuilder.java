@@ -9,9 +9,9 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
 import net.bible.android.control.page.splitscreen.Separator;
-import net.bible.android.control.page.splitscreen.WindowControl;
 import net.bible.android.control.page.splitscreen.Window;
 import net.bible.android.control.page.splitscreen.Window.WindowOperation;
+import net.bible.android.control.page.splitscreen.WindowControl;
 import net.bible.android.view.activity.page.BibleView;
 import net.bible.service.common.CommonUtils;
 import android.annotation.SuppressLint;
@@ -126,13 +126,13 @@ public class DocumentWebViewBuilder {
         		bibleView.setVersePositionRecalcRequired(true);
 
     			float screenWeight = window.getWindowLayout().getWeight();
-    			LinearLayout.LayoutParams lp = isPortrait?	new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, 0, screenWeight) :
-    														new LinearLayout.LayoutParams(0, LayoutParams.FILL_PARENT, screenWeight);
+    			LinearLayout.LayoutParams lp = isPortrait?	new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 0, screenWeight) :
+    														new LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, screenWeight);
 
 	    		parent.addView(currentSplitScreenLayout, lp);
 
 				// add bible to framelayout
-				LayoutParams frameLayoutParamsBibleWebView = new FrameLayout.LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+				LayoutParams frameLayoutParamsBibleWebView = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
 				currentSplitScreenLayout.addView(bibleView, frameLayoutParamsBibleWebView);
 
 				if (windowNo>0) {
@@ -152,8 +152,8 @@ public class DocumentWebViewBuilder {
 					addBottomOrRightSeparatorExtension(isPortrait, currentSplitScreenLayout, lp, separator);
 
 					// Add actual separator line dividing the split screens
-					parent.addView(separator, isPortrait ? 	new LinearLayout.LayoutParams(LayoutParams.FILL_PARENT, SPLIT_SEPARATOR_WIDTH_PX, 0) :
-															new LinearLayout.LayoutParams(SPLIT_SEPARATOR_WIDTH_PX, LayoutParams.FILL_PARENT, 0));
+					parent.addView(separator, isPortrait ? 	new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, SPLIT_SEPARATOR_WIDTH_PX, 0) :
+															new LinearLayout.LayoutParams(SPLIT_SEPARATOR_WIDTH_PX, LayoutParams.MATCH_PARENT, 0));
 					// allow extension to be added in next screen
 					previousSeparator = separator;
 				}

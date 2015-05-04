@@ -112,7 +112,7 @@ public class Separator extends View {
 		    	int parentDimensionPx = getParentDimensionPx();
 		    	Log.d(TAG, "*** split parent dim:"+parentDimensionPx);
 		    	// calculate y offset in pixels from top of parent layout
-		    	float offsetFromEdgePx = (isPortrait? event.getRawY() : event.getRawX()) - parentStartRawPx;
+		    	float offsetFromEdgePx = (isPortrait? event.getRawY() : event.getRawX());
 		    	// if position has moved at least one px then redraw separator
 		    	if ((int)offsetFromEdgePx != lastOffsetFromEdgePx) {
 		    		int changePx = (int)offsetFromEdgePx-startTouchPx;
@@ -123,7 +123,7 @@ public class Separator extends View {
 			    	// min prevents the separator going off screen at the bottom
 //					float separatorPercentOfScreen = SEPARATOR_WIDTH/getParentDimensionPx();
 			    	Log.d(TAG, "*** split parent dim:"+parentDimensionPx+" start px:"+startTouchPx+" offsetFromEdgepx:"+offsetFromEdgePx+" spe width:"+SEPARATOR_WIDTH+" var perc of screen:"+variationPercent);
-			    	view1LayoutParams.weight = startWeight1+variationPercent;//Math.min(offsetFromEdgePx/parentDimensionPx, 1-separatorPercentOfScreen);
+			    	view1LayoutParams.weight = startWeight1+variationPercent;
 			    	view2LayoutParams.weight = startWeight2-variationPercent;
 			    	Log.d(TAG, "split request layout weight 1:"+view1LayoutParams.weight+" weight 2:"+view2LayoutParams.weight+" offset:"+offsetFromEdgePx);
 			    	parentLayout.requestLayout();
@@ -146,10 +146,10 @@ public class Separator extends View {
 		return isPortrait? parentLayout.getHeight() : parentLayout.getWidth();
 	}
 
-	private int getCentreY() {
+	private int getStartingOffsetY() {
 		return +(int)parentStartRawPx + ((getTop()+getBottom())/2);
 	}
-	private int getCentreX() {
+	private int getStartingOffsetX() {
 		return +(int)parentStartRawPx + ((getLeft()+getRight())/2);
 	}
 	public void setView1LayoutParams(LinearLayout.LayoutParams view1LayoutParams) {
