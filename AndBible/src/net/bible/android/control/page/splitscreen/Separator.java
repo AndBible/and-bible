@@ -110,9 +110,13 @@ public class Separator extends View {
 	    	if (System.currentTimeMillis()>lastTouchMoveEvent+DRAG_TOUCH_MOVE_FREQUENCY_MILLIS) {
 		    	Log.d(TAG, "Touch move accepted");
 		    	int parentDimensionPx = getParentDimensionPx();
-		    	Log.d(TAG, "*** split parent dim:"+parentDimensionPx);
+
 		    	// calculate y offset in pixels from top of parent layout
 		    	float offsetFromEdgePx = (isPortrait? event.getRawY() : event.getRawX());
+		    	
+		    	// prevent going irretrievably off bottom or right edge
+	    		offsetFromEdgePx = Math.min(offsetFromEdgePx, parentDimensionPx-SEPARATOR_WIDTH);
+		    	
 		    	// if position has moved at least one px then redraw separator
 		    	if ((int)offsetFromEdgePx != lastOffsetFromEdgePx) {
 		    		int changePx = (int)offsetFromEdgePx-startTouchPx;
@@ -120,12 +124,8 @@ public class Separator extends View {
 		    		float variationPercent = changePx/aveScreenSize; 
 		    		
 			    	// change the weights of both bible views to effectively move the separator
-			    	// min prevents the separator going off screen at the bottom
-//					float separatorPercentOfScreen = SEPARATOR_WIDTH/getParentDimensionPx();
-			    	Log.d(TAG, "*** split parent dim:"+parentDimensionPx+" start px:"+startTouchPx+" offsetFromEdgepx:"+offsetFromEdgePx+" spe width:"+SEPARATOR_WIDTH+" var perc of screen:"+variationPercent);
 			    	view1LayoutParams.weight = startWeight1+variationPercent;
 			    	view2LayoutParams.weight = startWeight2-variationPercent;
-			    	Log.d(TAG, "split request layout weight 1:"+view1LayoutParams.weight+" weight 2:"+view2LayoutParams.weight+" offset:"+offsetFromEdgePx);
 			    	parentLayout.requestLayout();
 			    	lastOffsetFromEdgePx = (int)offsetFromEdgePx;
 		    	}
