@@ -3,6 +3,7 @@ package net.bible.android.control.page.splitscreen;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.bible.android.activity.R;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent;
 import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
@@ -20,6 +21,8 @@ import org.crosswire.jsword.passage.KeyUtil;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.view.Menu;
+import android.view.MenuItem;
 
 /**
  * Central control of Split screens especially synchronization
@@ -73,6 +76,13 @@ public class WindowControl {
 		eventManager.register(this);
 	}
 
+	public void updateOptionsMenu(Menu menu) {
+		MenuItem synchronisedMenuItem = menu.findItem(R.id.splitLink);
+		if (synchronisedMenuItem!=null) {
+			synchronisedMenuItem.setChecked(getActiveWindow().isSynchronised());
+		}
+	}
+	
 	public boolean isActiveWindow(Window window) {
 		return window == windowRepository.getActiveWindow();
 	}

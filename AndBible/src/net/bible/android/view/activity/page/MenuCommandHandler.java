@@ -28,6 +28,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.Toast;
 
 /** Handle requests from the main menu
@@ -76,7 +77,7 @@ public class MenuCommandHandler {
 	/** 
      * on Click handlers
      */
-    public boolean handleMenuRequest(int menuItemId) {
+    public boolean handleMenuRequest(MenuItem menuItem) {
         boolean isHandled = false;
         int requestCode = ActivityBase.STD_REQUEST_CODE;
         
@@ -84,118 +85,120 @@ public class MenuCommandHandler {
     	{
     		Intent handlerIntent = null;
 	        // Handle item selection
-	        switch (menuItemId) {
-	        case R.id.chooseBookButton:
-	        	handlerIntent = new Intent(callingActivity, ChooseDocument.class);
-	        	break;
-	        case R.id.searchButton:
-	        	handlerIntent = ControlFactory.getInstance().getSearchControl().getSearchIntent(ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument());
-	        	break;
-	        case R.id.settingsButton:
-	        	handlerIntent = new Intent(callingActivity, SettingsActivity.class);
-	        	// force the bible view to be refreshed after returning from settings screen because notes, verses, etc. may be switched on or off
-	        	mPrevLocalePref = CommonUtils.getLocalePref();
-	        	requestCode = REFRESH_DISPLAY_ON_FINISH;
-	        	break;
-	        case R.id.historyButton:
-	        	handlerIntent = new Intent(callingActivity, History.class);
-	        	break;
-	        case R.id.bookmarksButton:
-	        	handlerIntent = new Intent(callingActivity, Bookmarks.class);
-	        	break;
-	        case R.id.mynotesButton:
-	        	handlerIntent = new Intent(callingActivity, MyNotes.class);
-	        	break;
-			case R.id.speakButton:
-	        	handlerIntent = new Intent(callingActivity, Speak.class);
-	        	break;
-	        case R.id.dailyReadingPlanButton:
-	        	// show todays plan or allow plan selection
-	        	if (ControlFactory.getInstance().getReadingPlanControl().isReadingPlanSelected()) {
-	        		handlerIntent = new Intent(callingActivity, DailyReading.class);
-	        	} else {
-	        		handlerIntent = new Intent(callingActivity, ReadingPlanSelectorList.class);
-	        	}
-	        	break;
-	        case R.id.downloadButton:
-	        	if (downloadControl.checkDownloadOkay()) {
-	        		handlerIntent = new Intent(callingActivity, Download.class);
-	        		requestCode = UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH;
-	        	}
-	        	break;
-	        case R.id.helpButton:
-	        	handlerIntent = new Intent(callingActivity, Help.class);
-	        	break;
-	        case R.id.backup:
-				ControlFactory.getInstance().getBackupControl().backupDatabase();
-				isHandled = true;
-	        	break;
-	        case R.id.restore:
-				ControlFactory.getInstance().getBackupControl().restoreDatabase();
-				isHandled = true;
-	        	break;
-
-	        /** Pop-up options menu starts here */
-	        case R.id.bibleVerseButton:
-	    		if (callingActivity instanceof MainBibleActivity) {
-	    			if (BookCategory.BIBLE.equals(ControlFactory.getInstance().getDocumentControl().getCurrentCategory())) {
-	    				// if bible then show verse context menu
-	    				((MainBibleActivity)callingActivity).openContextMenu();
-	    			}
-	    		}
-	    		break;
-			case R.id.compareTranslations:
-	        	handlerIntent = new Intent(callingActivity, CompareTranslations.class);
-	        	break;
-	        case R.id.notes:
-	        	handlerIntent = new Intent(callingActivity, FootnoteAndRefActivity.class);
-	        	break;
-	        case R.id.add_bookmark:
-				ControlFactory.getInstance().getBookmarkControl().bookmarkCurrentVerse();
-				// refresh view to show new bookmark icon
-				PassageChangeMediator.getInstance().forcePageUpdate();
-				isHandled = true;
-	        	break;
-	        case R.id.myNoteAddEdit:
-	        	ControlFactory.getInstance().getCurrentPageControl().showMyNote();
-				isHandled = true;
-	        	break;
-			case R.id.copy:
-				ControlFactory.getInstance().getPageControl().copyToClipboard();
-				isHandled = true;
-	        	break;
-			case R.id.shareVerse:
-				ControlFactory.getInstance().getPageControl().shareVerse();
-				isHandled = true;
-	        	break;
-	        case R.id.selectText:
-	        	// ICS+ have their own ui prompts for copy/paste
-	        	if (!CommonUtils.isIceCreamSandwichPlus()) {
-	        		Toast.makeText(callingActivity, R.string.select_text_help, Toast.LENGTH_LONG).show();
-	        	}
-	        	callingActivity.getDocumentViewManager().getDocumentView().selectAndCopyText(longPressControl);
-				isHandled = true;
-	        	break;
-			case R.id.splitNew:
-				windowControl.addNewWindow();
-				isHandled = true;
-	        	break;
-			case R.id.splitDelete:
-				windowControl.removeCurrentWindow();
-				isHandled = true;
-	        	break;
-			case R.id.splitPromote:
-				windowControl.promoteCurrentWindow();
-				isHandled = true;
-	        	break;
-			case R.id.splitLink:
-				windowControl.synchroniseCurrentWindow();
-				isHandled = true;
-	        	break;
-			case R.id.splitUnlink:
-				windowControl.unsynchroniseCurrentWindow();
-				isHandled = true;
-	        	break;
+	        switch (menuItem.getItemId()) {
+		        case R.id.chooseBookButton:
+		        	handlerIntent = new Intent(callingActivity, ChooseDocument.class);
+		        	break;
+		        case R.id.searchButton:
+		        	handlerIntent = ControlFactory.getInstance().getSearchControl().getSearchIntent(ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument());
+		        	break;
+		        case R.id.settingsButton:
+		        	handlerIntent = new Intent(callingActivity, SettingsActivity.class);
+		        	// force the bible view to be refreshed after returning from settings screen because notes, verses, etc. may be switched on or off
+		        	mPrevLocalePref = CommonUtils.getLocalePref();
+		        	requestCode = REFRESH_DISPLAY_ON_FINISH;
+		        	break;
+		        case R.id.historyButton:
+		        	handlerIntent = new Intent(callingActivity, History.class);
+		        	break;
+		        case R.id.bookmarksButton:
+		        	handlerIntent = new Intent(callingActivity, Bookmarks.class);
+		        	break;
+		        case R.id.mynotesButton:
+		        	handlerIntent = new Intent(callingActivity, MyNotes.class);
+		        	break;
+				case R.id.speakButton:
+		        	handlerIntent = new Intent(callingActivity, Speak.class);
+		        	break;
+		        case R.id.dailyReadingPlanButton:
+		        	// show todays plan or allow plan selection
+		        	if (ControlFactory.getInstance().getReadingPlanControl().isReadingPlanSelected()) {
+		        		handlerIntent = new Intent(callingActivity, DailyReading.class);
+		        	} else {
+		        		handlerIntent = new Intent(callingActivity, ReadingPlanSelectorList.class);
+		        	}
+		        	break;
+		        case R.id.downloadButton:
+		        	if (downloadControl.checkDownloadOkay()) {
+		        		handlerIntent = new Intent(callingActivity, Download.class);
+		        		requestCode = UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH;
+		        	}
+		        	break;
+		        case R.id.helpButton:
+		        	handlerIntent = new Intent(callingActivity, Help.class);
+		        	break;
+		        case R.id.backup:
+					ControlFactory.getInstance().getBackupControl().backupDatabase();
+					isHandled = true;
+		        	break;
+		        case R.id.restore:
+					ControlFactory.getInstance().getBackupControl().restoreDatabase();
+					isHandled = true;
+		        	break;
+	
+		        /** Pop-up options menu starts here */
+		        case R.id.bibleVerseButton:
+		    		if (callingActivity instanceof MainBibleActivity) {
+		    			if (BookCategory.BIBLE.equals(ControlFactory.getInstance().getDocumentControl().getCurrentCategory())) {
+		    				// if bible then show verse context menu
+		    				((MainBibleActivity)callingActivity).openContextMenu();
+		    			}
+		    		}
+		    		break;
+				case R.id.compareTranslations:
+		        	handlerIntent = new Intent(callingActivity, CompareTranslations.class);
+		        	break;
+		        case R.id.notes:
+		        	handlerIntent = new Intent(callingActivity, FootnoteAndRefActivity.class);
+		        	break;
+		        case R.id.add_bookmark:
+					ControlFactory.getInstance().getBookmarkControl().bookmarkCurrentVerse();
+					// refresh view to show new bookmark icon
+					PassageChangeMediator.getInstance().forcePageUpdate();
+					isHandled = true;
+		        	break;
+		        case R.id.myNoteAddEdit:
+		        	ControlFactory.getInstance().getCurrentPageControl().showMyNote();
+					isHandled = true;
+		        	break;
+				case R.id.copy:
+					ControlFactory.getInstance().getPageControl().copyToClipboard();
+					isHandled = true;
+		        	break;
+				case R.id.shareVerse:
+					ControlFactory.getInstance().getPageControl().shareVerse();
+					isHandled = true;
+		        	break;
+		        case R.id.selectText:
+		        	// ICS+ have their own ui prompts for copy/paste
+		        	if (!CommonUtils.isIceCreamSandwichPlus()) {
+		        		Toast.makeText(callingActivity, R.string.select_text_help, Toast.LENGTH_LONG).show();
+		        	}
+		        	callingActivity.getDocumentViewManager().getDocumentView().selectAndCopyText(longPressControl);
+					isHandled = true;
+		        	break;
+				case R.id.splitNew:
+					windowControl.addNewWindow();
+					isHandled = true;
+		        	break;
+				case R.id.splitDelete:
+					windowControl.removeCurrentWindow();
+					isHandled = true;
+		        	break;
+				case R.id.splitPromote:
+					windowControl.promoteCurrentWindow();
+					isHandled = true;
+		        	break;
+				case R.id.splitLink:
+					if (windowControl.getActiveWindow().isSynchronised()) {
+						windowControl.unsynchroniseCurrentWindow();
+						menuItem.setChecked(false);
+					} else {
+						windowControl.synchroniseCurrentWindow();
+						menuItem.setChecked(true);
+					}
+					isHandled = true;
+		        	break;
 	        }
 	        
 	        if (handlerIntent!=null) {

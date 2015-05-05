@@ -197,7 +197,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
      */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        return mainMenuCommandHandler.handleMenuRequest(item.getItemId()) ||
+        return mainMenuCommandHandler.handleMenuRequest(item) ||
                super.onOptionsItemSelected(item);
     }
 
@@ -272,6 +272,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		// if there is no backup file then disable the restore menu item
 		ControlFactory.getInstance().getBackupControl().updateOptionsMenu(menu);
 
+		// set Synchronised checkbox correctly
+		ControlFactory.getInstance().getWindowControl().updateOptionsMenu(menu);
+
 		// must return true for menu to be displayed
 		return true;
 	}
@@ -324,7 +327,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 
     @Override
 	public boolean onContextItemSelected(MenuItem item) {
-        boolean isHandled = mainMenuCommandHandler.handleMenuRequest(item.getItemId());
+        boolean isHandled = mainMenuCommandHandler.handleMenuRequest(item);
         
      	if (!isHandled) {
             isHandled = super.onContextItemSelected(item);
