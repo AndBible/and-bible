@@ -13,6 +13,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import net.bible.android.activity.R;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
 
@@ -25,7 +26,13 @@ import org.crosswire.jsword.versification.system.Versifications;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
+
+import android.support.v7.internal.view.menu.MenuBuilder;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 @RunWith(RobolectricTestRunner.class)
 public class WindowControlTest {
@@ -167,4 +174,33 @@ public class WindowControlTest {
 		assertThat(windowControl.isSplit(), equalTo(false));
 	}
 
+	@Test
+	public void testUpdateSynchronisedMenuItem() {
+		Menu menu = new MenuBuilder(Robolectric.application);
+		new MenuInflater(Robolectric.application).inflate(R.menu.main, menu);
+		MenuItem synchronisedMenuItem = menu.findItem(R.id.splitLink);
+
+		assertThat(synchronisedMenuItem.isChecked(), equalTo(false));
+		windowControl.updateOptionsMenu(menu);
+		assertThat(synchronisedMenuItem.isChecked(), equalTo(true));
+		
+		windowControl.getActiveWindow().setSynchronised(false);
+		windowControl.updateOptionsMenu(menu);
+		assertThat(synchronisedMenuItem.isChecked(), equalTo(false));
+	}
+
+	@Test
+	public void testDisablemenuItemsIfLinksWindowActive() {
+		Menu menu = new MenuBuilder(Robolectric.application);
+		new MenuInflater(Robolectric.application).inflate(R.menu.main, menu);
+		MenuItem synchronisedMenuItem = menu.findItem(R.id.splitLink);
+		MenuItem promoteMenuItem = menu.findItem(R.id.splitPromote);
+
+		assertThat(synchronisedMenuItem.isEnabled(), equalTo(true));
+        Window linksWindow = windowRepository.getDedicatedLinksWindow();
+        windowControl.setActiveWindow(linksWindow);
+		windowControl.updateOptionsMenu(menu);
+		assertThat(synchronisedMenuItem.isEnabled(), equalTo(false));
+		assertThat(promoteMenuItem.isEnabled(), equalTo(false));
+	}
 }

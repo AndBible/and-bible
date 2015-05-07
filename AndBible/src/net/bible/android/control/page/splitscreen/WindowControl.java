@@ -51,12 +51,21 @@ public class WindowControl {
 
 	/**
 	 * Set the synchronised checkbox in the app menu before displayed
+	 * Disable various menu items if links window selected
 	 */
 	public void updateOptionsMenu(Menu menu) {
 		MenuItem synchronisedMenuItem = menu.findItem(R.id.splitLink);
-		if (synchronisedMenuItem!=null) {
+		MenuItem promoteMenuItem = menu.findItem(R.id.splitPromote);
+		if (synchronisedMenuItem!=null && promoteMenuItem!=null) {
+			// set synchronised checkbox state
 			synchronisedMenuItem.setChecked(getActiveWindow().isSynchronised());
-		}
+		
+			// the dedicated links window cannot be treated as a normal window
+			if (isActiveWindow(windowRepository.getDedicatedLinksWindow())) {
+				synchronisedMenuItem.setEnabled(false);
+				promoteMenuItem.setEnabled(false);
+			}
+		}		
 	}
 	
 	public boolean isActiveWindow(Window window) {
