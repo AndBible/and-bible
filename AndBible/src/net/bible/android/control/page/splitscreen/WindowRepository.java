@@ -116,7 +116,8 @@ public class WindowRepository {
 	public void setDefaultActiveWindow() {
 		for (Window window : getWindows()) {
 			if (window.isVisible()) {
-				activeWindow = window;
+				setActiveWindow(window);
+				return;
 			}
 		}
 	}
