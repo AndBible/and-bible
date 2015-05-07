@@ -280,7 +280,7 @@ public class DocumentWebViewBuilder {
 
 	private Button createRestoreButton(final Window window) {
         // restore button
-        return createTextButton("\u2588"+window.getScreenNo()+"\u2588", new OnClickListener() {
+        return createTextButton("\u2588"+"\u2588", new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				windowControl.restoreWindow(window);				
