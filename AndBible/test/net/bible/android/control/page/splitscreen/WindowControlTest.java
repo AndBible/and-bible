@@ -191,6 +191,8 @@ public class WindowControlTest {
 
 	@Test
 	public void testDisablemenuItemsIfLinksWindowActive() {
+		Window normalWindow = windowControl.getActiveWindow();
+		
 		Menu menu = new MenuBuilder(Robolectric.application);
 		new MenuInflater(Robolectric.application).inflate(R.menu.main, menu);
 		MenuItem synchronisedMenuItem = menu.findItem(R.id.splitLink);
@@ -202,5 +204,11 @@ public class WindowControlTest {
 		windowControl.updateOptionsMenu(menu);
 		assertThat(synchronisedMenuItem.isEnabled(), equalTo(false));
 		assertThat(promoteMenuItem.isEnabled(), equalTo(false));
+		
+		// check menu items are re-enabled when a normal window becomes active
+		windowControl.setActiveWindow(normalWindow);
+		windowControl.updateOptionsMenu(menu);
+		assertThat(synchronisedMenuItem.isEnabled(), equalTo(true));
+		assertThat(promoteMenuItem.isEnabled(), equalTo(true));
 	}
 }

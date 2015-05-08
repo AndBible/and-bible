@@ -61,10 +61,9 @@ public class WindowControl {
 			synchronisedMenuItem.setChecked(getActiveWindow().isSynchronised());
 		
 			// the dedicated links window cannot be treated as a normal window
-			if (isActiveWindow(windowRepository.getDedicatedLinksWindow())) {
-				synchronisedMenuItem.setEnabled(false);
-				promoteMenuItem.setEnabled(false);
-			}
+			boolean isDedicatedLinksWindowActive = isActiveWindow(windowRepository.getDedicatedLinksWindow());
+			synchronisedMenuItem.setEnabled(!isDedicatedLinksWindowActive);
+			promoteMenuItem.setEnabled(!isDedicatedLinksWindowActive);
 		}		
 	}
 	
