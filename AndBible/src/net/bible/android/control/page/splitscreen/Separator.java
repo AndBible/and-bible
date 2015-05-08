@@ -20,9 +20,9 @@ import android.widget.LinearLayout;
 public class Separator extends View {
 
 	private View parentLayout;
-	private Window screen1;
-	private Window screen2;
-	private int numSplitScreens;
+	private Window window1;
+	private Window window2;
+	private int numWindows;
 	
 	// offset absolute points from top of layout to enable correct calculation of screen weights in layout
 	private float parentStartRawPx;
@@ -55,7 +55,7 @@ public class Separator extends View {
 
 	private static final String TAG = "Separator";
 	
-	public Separator(Context context, int width, View parentLayout, Window window, Window nextScreen, int numSplitScreens, boolean isPortrait) {
+	public Separator(Context context, int width, View parentLayout, Window window, Window nextWindow, int numWindows, boolean isPortrait) {
 		super(context);
 		windowControl = ControlFactory.getInstance().getWindowControl();
 		
@@ -68,9 +68,9 @@ public class Separator extends View {
         touchDelegateView2 = new TouchDelegateView(context, this);
         SEPARATOR_WIDTH = width;
         this.parentLayout = parentLayout;
-        this.screen1 = window;
-        this.screen2 = nextScreen;
-        this.numSplitScreens = numSplitScreens;
+        this.window1 = window;
+        this.window2 = nextWindow;
+        this.numWindows = numWindows;
         this.isPortrait = isPortrait;
 	}
 	
@@ -92,15 +92,15 @@ public class Separator extends View {
 	    	parentStartRawPx = isPortrait? rawParentLocation[1] : rawParentLocation[0];
 	    	
 	        startTouchPx = isPortrait? (int)event.getRawY() : (int)event.getRawX();
-	        startWeight1 = view1LayoutParams.weight; //screen1.getWeight();
-	        startWeight2 = view2LayoutParams.weight; //screen2.getWeight();
+	        startWeight1 = view1LayoutParams.weight; //window1.getWeight();
+	        startWeight2 = view2LayoutParams.weight; //window2.getWeight();
 	        break;
 	    case MotionEvent.ACTION_UP:
 	    case MotionEvent.ACTION_POINTER_UP:
 	    	Log.d(TAG, "Up x:"+event.getX()+" y:"+event.getY());
 	        setBackgroundColor(SEPARATOR_COLOUR);
-	    	screen1.getWindowLayout().setWeight(view1LayoutParams.weight);
-	    	screen2.getWindowLayout().setWeight(view2LayoutParams.weight);
+	    	window1.getWindowLayout().setWeight(view1LayoutParams.weight);
+	    	window2.getWindowLayout().setWeight(view2LayoutParams.weight);
 	    	windowControl.setSeparatorMoving(false);
 	    	touchOwner.releaseOwnership(this);
 	        break;
@@ -137,7 +137,7 @@ public class Separator extends View {
 	}
 
 	private int getAveScreenSize() {
-		return getParentDimensionPx()/numSplitScreens;
+		return getParentDimensionPx()/numWindows;
 	}
 	
 	private int getParentDimensionPx() {
