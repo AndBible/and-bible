@@ -16,6 +16,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import net.bible.android.activity.R;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
+import net.bible.android.control.page.splitscreen.WindowLayout.WindowState;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.Books;
@@ -137,6 +138,16 @@ public class WindowControlTest {
 	}
 
 	@Test
+	public void testRemoveWindowPreventedIfOnlyOtherIsLinks() throws Exception {
+		windowRepository.getDedicatedLinksWindow().getWindowLayout().setState(WindowState.SPLIT);
+		Window onlyNormalWindow = windowRepository.getActiveWindow();
+		windowControl.removeWindow(onlyNormalWindow);
+		assertThat(windowRepository.getWindows(), hasItem(onlyNormalWindow));
+		
+		verifyZeroInteractions(eventManager);
+	}
+
+	@Test
 	public void testRemoveActiveWindow() throws Exception {
 		Window activeWindow = windowControl.getActiveWindow();
 		Window newWindow = windowControl.addNewWindow();
@@ -209,6 +220,17 @@ public class WindowControlTest {
 		windowControl.setActiveWindow(normalWindow);
 		windowControl.updateOptionsMenu(menu);
 		assertThat(synchronisedMenuItem.isEnabled(), equalTo(true));
-		assertThat(promoteMenuItem.isEnabled(), equalTo(true));
+	}
+
+	@Test
+	public void testCannotPromoteFirstWindow() {
+		windowControl.addNewWindow();
+		
+		Menu menu = new MenuBuilder(Robolectric.application);
+		new MenuInflater(Robolectric.application).inflate(R.menu.main, menu);
+		MenuItem promoteMenuItem = menu.findItem(R.id.splitPromote);
+
+		windowControl.updateOptionsMenu(menu);
+		assertThat(promoteMenuItem.isEnabled(), equalTo(false));
 	}
 }

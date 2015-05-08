@@ -99,6 +99,11 @@ public class Window {
 	public WindowLayout getWindowLayout() {
 		return windowLayout;
 	}
+	
+	public boolean isLinksWindow() {
+		return getScreenNo() == WindowRepository.DEDICATED_LINK_WINDOW_SCREEN_NO;
+	}
+	
 	@Override
 	public String toString() {
 		return "Window [screenNo=" + screenNo + "]";

@@ -29,7 +29,7 @@ public class WindowRepository {
 	
 	private Window dedicatedLinksWindow;
 	
-	private static final int DEDICATED_LINK_WINDOW_SCREEN_NO = 999;
+	protected static final int DEDICATED_LINK_WINDOW_SCREEN_NO = 999;
 
 	private final Logger logger = new Logger(this.getClass().getName());
 	

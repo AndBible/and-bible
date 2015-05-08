@@ -1,6 +1,7 @@
 package net.bible.android.control.page.splitscreen;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import net.bible.android.activity.R;
@@ -56,14 +57,26 @@ public class WindowControl {
 	public void updateOptionsMenu(Menu menu) {
 		MenuItem synchronisedMenuItem = menu.findItem(R.id.splitLink);
 		MenuItem promoteMenuItem = menu.findItem(R.id.splitPromote);
+		MenuItem removeMenuItem = menu.findItem(R.id.splitDelete);
+		Window window = getActiveWindow();
+
 		if (synchronisedMenuItem!=null && promoteMenuItem!=null) {
 			// set synchronised checkbox state
-			synchronisedMenuItem.setChecked(getActiveWindow().isSynchronised());
+			synchronisedMenuItem.setChecked(window.isSynchronised());
 		
 			// the dedicated links window cannot be treated as a normal window
 			boolean isDedicatedLinksWindowActive = isActiveWindow(windowRepository.getDedicatedLinksWindow());
 			synchronisedMenuItem.setEnabled(!isDedicatedLinksWindowActive);
 			promoteMenuItem.setEnabled(!isDedicatedLinksWindowActive);
+			
+			// cannot remove last normal window
+			removeMenuItem.setEnabled(isWindowRemovable(window));
+
+			// if window is already first then cannot promote
+			List<Window> visibleWindows = windowRepository.getVisibleWindows();
+			if (visibleWindows.size()>0 && window.equals(visibleWindows.get(0))) {
+				promoteMenuItem.setEnabled(false);
+			}
 		}		
 	}
 	
@@ -118,24 +131,27 @@ public class WindowControl {
 		removeWindow(getActiveWindow());
 	}
 	public void removeWindow(Window window) {
-		if (windowRepository.getVisibleWindows().size()>1 || !window.isVisible()) {
+		
+		if (isWindowRemovable(getActiveWindow())) {
 			logger.debug("Removing window "+window.getScreenNo());
 			windowRepository.remove(window);
-	
-			//TODO may have to maximise another screen if there is only 1 screen unminimised
 	
 			// redisplay the current page
 			eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
 		}
 	}
+	
+	public boolean isWindowRemovable(Window window) {
+		int normalWindows = windowRepository.getVisibleWindows().size();
+		if (windowRepository.getDedicatedLinksWindow().isVisible()) {
+			normalWindows--;
+		}
+		
+		return window.isLinksWindow() || normalWindows>1 || !window.isVisible();
+	}
 
 	public void restoreWindow(Window window) {
 		window.getWindowLayout().setState(WindowState.SPLIT);
-		
-		// any maximised screen must be normalised
-//		for (Window maxScreen :windowRepository.getMaximisedScreens()) {
-//			maxScreen.setState(WindowState.SPLIT);
-//		}
 		
 		// causes BibleViews to be created and laid out
 		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
