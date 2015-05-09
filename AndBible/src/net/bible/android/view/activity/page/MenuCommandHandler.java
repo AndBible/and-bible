@@ -185,8 +185,8 @@ public class MenuCommandHandler {
 					windowControl.removeCurrentWindow();
 					isHandled = true;
 		        	break;
-				case R.id.splitPromote:
-					windowControl.promoteCurrentWindow();
+				case R.id.splitMoveFirst:
+					windowControl.moveCurrentWindowToFirst();
 					isHandled = true;
 		        	break;
 				case R.id.splitLink:

@@ -74,8 +74,8 @@ public class Separator extends View {
         this.isPortrait = isPortrait;
 	}
 	
-	/** Must use rawY below because this view is moving and getY would give the position relative to a moving component.
-	 * 
+	/** 
+	 * Must use rawY below because this view is moving and getY would give the position relative to a moving component.
 	 */
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {

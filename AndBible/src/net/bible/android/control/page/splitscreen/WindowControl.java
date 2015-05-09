@@ -56,18 +56,18 @@ public class WindowControl {
 	 */
 	public void updateOptionsMenu(Menu menu) {
 		MenuItem synchronisedMenuItem = menu.findItem(R.id.splitLink);
-		MenuItem promoteMenuItem = menu.findItem(R.id.splitPromote);
+		MenuItem moveFirstMenuItem = menu.findItem(R.id.splitMoveFirst);
 		MenuItem removeMenuItem = menu.findItem(R.id.splitDelete);
 		Window window = getActiveWindow();
 
-		if (synchronisedMenuItem!=null && promoteMenuItem!=null) {
+		if (synchronisedMenuItem!=null && moveFirstMenuItem!=null) {
 			// set synchronised checkbox state
 			synchronisedMenuItem.setChecked(window.isSynchronised());
 		
 			// the dedicated links window cannot be treated as a normal window
 			boolean isDedicatedLinksWindowActive = isActiveWindow(windowRepository.getDedicatedLinksWindow());
 			synchronisedMenuItem.setEnabled(!isDedicatedLinksWindowActive);
-			promoteMenuItem.setEnabled(!isDedicatedLinksWindowActive);
+			moveFirstMenuItem.setEnabled(!isDedicatedLinksWindowActive);
 			
 			// cannot remove last normal window
 			removeMenuItem.setEnabled(isWindowRemovable(window));
@@ -75,7 +75,7 @@ public class WindowControl {
 			// if window is already first then cannot promote
 			List<Window> visibleWindows = windowRepository.getVisibleWindows();
 			if (visibleWindows.size()>0 && window.equals(visibleWindows.get(0))) {
-				promoteMenuItem.setEnabled(false);
+				moveFirstMenuItem.setEnabled(false);
 			}
 		}		
 	}
@@ -174,7 +174,7 @@ public class WindowControl {
 	/*
 	 * Move the current window to first 
 	 */
-	public void promoteCurrentWindow() {
+	public void moveCurrentWindowToFirst() {
 		Window window = getActiveWindow();
 
 		windowRepository.moveWindowToPosition(window, 0);

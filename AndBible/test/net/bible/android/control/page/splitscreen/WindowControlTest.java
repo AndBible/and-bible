@@ -207,14 +207,14 @@ public class WindowControlTest {
 		Menu menu = new MenuBuilder(Robolectric.application);
 		new MenuInflater(Robolectric.application).inflate(R.menu.main, menu);
 		MenuItem synchronisedMenuItem = menu.findItem(R.id.splitLink);
-		MenuItem promoteMenuItem = menu.findItem(R.id.splitPromote);
+		MenuItem moveFirstMenuItem = menu.findItem(R.id.splitMoveFirst);
 
 		assertThat(synchronisedMenuItem.isEnabled(), equalTo(true));
         Window linksWindow = windowRepository.getDedicatedLinksWindow();
         windowControl.setActiveWindow(linksWindow);
 		windowControl.updateOptionsMenu(menu);
 		assertThat(synchronisedMenuItem.isEnabled(), equalTo(false));
-		assertThat(promoteMenuItem.isEnabled(), equalTo(false));
+		assertThat(moveFirstMenuItem.isEnabled(), equalTo(false));
 		
 		// check menu items are re-enabled when a normal window becomes active
 		windowControl.setActiveWindow(normalWindow);
@@ -223,14 +223,14 @@ public class WindowControlTest {
 	}
 
 	@Test
-	public void testCannotPromoteFirstWindow() {
+	public void testCannotMoveFirstWindowFirst() {
 		windowControl.addNewWindow();
 		
 		Menu menu = new MenuBuilder(Robolectric.application);
 		new MenuInflater(Robolectric.application).inflate(R.menu.main, menu);
-		MenuItem promoteMenuItem = menu.findItem(R.id.splitPromote);
+		MenuItem moveFirstMenuItem = menu.findItem(R.id.splitMoveFirst);
 
 		windowControl.updateOptionsMenu(menu);
-		assertThat(promoteMenuItem.isEnabled(), equalTo(false));
+		assertThat(moveFirstMenuItem.isEnabled(), equalTo(false));
 	}
 }

@@ -40,8 +40,8 @@
 				  android:title="@string/prefs_split_screen_linked"
 				  android:checkable="true"
 				  android:checked="true"/>
-			<item android:id="@+id/splitPromote"
-				  android:title="@string/splitPromote"/>
+			<item android:id="@+id/splitMoveFirst"
+				  android:title="@string/splitMoveFirst"/>
 		</menu>
 	</item>
 	
