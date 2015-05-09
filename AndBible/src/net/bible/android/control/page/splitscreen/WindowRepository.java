@@ -274,22 +274,22 @@ public class WindowRepository {
 		String allScreenStateString = inState.getString("screenStateArray", null);
 		if (StringUtils.isNotEmpty(allScreenStateString)) {
 			try {
-				// remove current (default) state before restoring
-				windowList.clear();
-				
 				JSONArray allScreenState = new JSONArray(allScreenStateString);
-				for (int i=0; i<allScreenState.length(); i++) {
-					try {
-						JSONObject screenState = allScreenState.getJSONObject(i);
-						Window window = new Window();
-						window.restoreState(screenState);
-						
-						// prevent rubbish
-						if (window.getScreenNo()==i+1) {
+				if (allScreenState.length()>0) {
+
+					// remove current (default) state before restoring
+					windowList.clear();
+					
+					for (int i=0; i<allScreenState.length(); i++) {
+						try {
+							JSONObject screenState = allScreenState.getJSONObject(i);
+							Window window = new Window();
+							window.restoreState(screenState);
+							
 							windowList.add(window);
+						} catch (JSONException je) {
+							logger.error("Error restoring screen state", je);
 						}
-					} catch (JSONException je) {
-						logger.error("Error restoring screen state", je);
 					}
 				}
 			} catch (JSONException je) {
