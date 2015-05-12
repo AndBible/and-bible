@@ -130,7 +130,7 @@ public class ControlFactory {
 	}
 
 	public CurrentPageManager getCurrentPageControl() {
-		return windowRepository.getCurrentPageManager();		
+		return windowControl.getActiveWindow().getPageManager();		
 	}
 
 	public LinkControl getLinkControl() {

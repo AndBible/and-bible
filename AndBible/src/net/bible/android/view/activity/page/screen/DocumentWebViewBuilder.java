@@ -3,10 +3,12 @@ package net.bible.android.view.activity.page.screen;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.event.splitscreen.CurrentSplitScreenChangedEvent;
 import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
 import net.bible.android.control.page.splitscreen.Separator;
 import net.bible.android.control.page.splitscreen.Window;
@@ -60,6 +62,8 @@ public class DocumentWebViewBuilder {
 
 	private static WindowControl windowControl;
 
+	private Map<Window, Button> defaultWindowActionButtons;
+	
 	private boolean isLaidOutForPortrait;
 	private Activity mainActivity;
 	
@@ -79,6 +83,8 @@ public class DocumentWebViewBuilder {
 		windowControl = ControlFactory.getInstance().getWindowControl();
 		
 		screenBibleViewMap = new HashMap<>();
+		
+		defaultWindowActionButtons = new HashMap<>();
 
         Resources res = BibleApplication.getApplication().getResources();
         SPLIT_SEPARATOR_WIDTH_PX = res.getDimensionPixelSize(R.dimen.split_screen_separator_width);
@@ -99,6 +105,10 @@ public class DocumentWebViewBuilder {
 		isSplitScreenConfigurationChanged = true;
 	}
 	
+	public void onEvent(CurrentSplitScreenChangedEvent event) {
+		updateWindowActionButtons(event.getActiveWindow());				
+	}
+
 	/** return true if the current page should show a NyNote
 	 */
 	public boolean isWebViewType() {
@@ -120,6 +130,7 @@ public class DocumentWebViewBuilder {
     		
     		// ensure we have a known starting point - could be none, 1, or 2 webviews present
     		removeChildViews(previousParent);
+    		defaultWindowActionButtons.clear();
     		
     		parent.setOrientation(isPortrait? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
     		ViewGroup currentSplitScreenFrameLayout = null;
@@ -170,17 +181,10 @@ public class DocumentWebViewBuilder {
 					previousSeparator = separator;
 				}
 
-				if (windowNo>0) {
-					Button defaultWindowActionButton;
-					if (window.getDefaultOperation().equals(WindowOperation.DELETE)) {
-				        // minimise button
-				        defaultWindowActionButton = createRemoveButton(window);
-					} else {
-				        // minimise button
-				        defaultWindowActionButton = createMinimiseButton(window);
-					}
-	    			currentSplitScreenFrameLayout.addView(defaultWindowActionButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP|Gravity.RIGHT));
-				}
+				// create default action button for top right of each window
+				Button defaultWindowActionButton = createDefaultWindowActionButton(window);
+				defaultWindowActionButtons.put(window, defaultWindowActionButton);
+    			currentSplitScreenFrameLayout.addView(defaultWindowActionButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP|Gravity.RIGHT));
 
     			mainActivity.registerForContextMenu(bibleView);
     			
@@ -196,10 +200,34 @@ public class DocumentWebViewBuilder {
     			minimisedWindowsFrameContainer.addView(restoreButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.BOTTOM|Gravity.RIGHT));
     		}    		
     		
+    		updateWindowActionButtons(windowControl.getActiveWindow());
+    		
     		previousParent = parent;
     		isLaidOutForPortrait = isPortrait;
     		isSplitScreenConfigurationChanged = false;
     	}
+	}
+
+	private void updateWindowActionButtons(Window activeWindow) {
+		for (Entry<Window, Button> winButEntry: defaultWindowActionButtons.entrySet()) {
+			if (winButEntry.getKey().equals(activeWindow)) {
+				winButEntry.getValue().setVisibility(View.GONE);
+			} else {
+				winButEntry.getValue().setVisibility(View.VISIBLE);
+			}
+		}
+	}
+
+	private Button createDefaultWindowActionButton(Window window) {
+		Button defaultWindowActionButton;
+		if (window.getDefaultOperation().equals(WindowOperation.DELETE)) {
+		    // minimise button
+		    defaultWindowActionButton = createRemoveButton(window);
+		} else {
+		    // minimise button
+		    defaultWindowActionButton = createMinimiseButton(window);
+		}
+		return defaultWindowActionButton;
 	}
 
 	/**

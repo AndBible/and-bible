@@ -52,7 +52,7 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 	@Override
 	public Book getCurrentDocument() {
 		try {
-			if (fakeMyNoteBook==null || fakeMyNoteBookVersification==null || fakeMyNoteBookVersification!=getCurrentVersification()) {
+			if (fakeMyNoteBook==null || fakeMyNoteBookVersification==null || !fakeMyNoteBookVersification.equals(getCurrentVersification())) {
 				Versification v11n = getCurrentVersification();
 				fakeMyNoteBook = FakeSwordBookFactory.createFakeRepoBook("My Note", MY_NOTE_DUMMY_CONF+v11n.getName(), "");
 				fakeMyNoteBookVersification = v11n;

@@ -10,8 +10,8 @@ import net.bible.android.control.event.splitscreen.ScrollSecondaryScreenEvent;
 import net.bible.android.control.event.splitscreen.SplitScreenSizeChangedEvent;
 import net.bible.android.control.event.splitscreen.UpdateSecondaryScreenEvent;
 import net.bible.android.control.page.PageControl;
-import net.bible.android.control.page.splitscreen.WindowControl;
 import net.bible.android.control.page.splitscreen.Window;
+import net.bible.android.control.page.splitscreen.WindowControl;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.page.screen.PageTiltScroller;
 import net.bible.service.common.CommonUtils;
@@ -73,9 +73,9 @@ public class BibleView extends WebView implements DocumentView {
      * the object manually (not from a layout XML file).
      * @param context
      */
-	public BibleView(Context context, Window splitScreenNo) {
+	public BibleView(Context context, Window window) {
 		super(context);
-		this.window = splitScreenNo;
+		this.window = window;
 		initialise();
 	}
 
@@ -183,7 +183,7 @@ public class BibleView extends WebView implements DocumentView {
 	 */
 	@Override
 	public void show(String html, int jumpToVerse, float jumpToYOffsetRatio) {
-		Log.d(TAG, "Show(html,"+jumpToVerse+","+jumpToYOffsetRatio+") screen:"+window);
+		Log.d(TAG, "Show(html,"+jumpToVerse+","+jumpToYOffsetRatio+") Window:"+window);
 		// set background colour if necessary
 		changeBackgroundColour();
 		
@@ -469,7 +469,7 @@ public class BibleView extends WebView implements DocumentView {
 	}
 
 	public void onEvent(CurrentSplitScreenChangedEvent event) {
-		if (window == event.getActiveScreen()) {
+		if (window.equals(event.getActiveWindow())) {
 			mJavascriptInterface.setNotificationsEnabled(true);
 			resumeTiltScroll();
 		} else {
@@ -479,14 +479,14 @@ public class BibleView extends WebView implements DocumentView {
 	}
 
 	public void onEvent(UpdateSecondaryScreenEvent event) {
-		if (window == event.getUpdateScreen()) {
+		if (window.equals(event.getUpdateScreen())) {
 			changeBackgroundColour();
 			show(event.getHtml(), event.getVerseNo(), SharedConstants.NO_VALUE);
 		}		
 	}
 
 	public void onEvent(ScrollSecondaryScreenEvent event) {
-		if (window == event.getScreen() && getHandler()!=null) {
+		if (window.equals(event.getWindow()) && getHandler()!=null) {
 			scrollOrJumpToVerseOnUIThread(event.getVerseNo());
 		}
 	}

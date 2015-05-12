@@ -81,7 +81,7 @@ public class WindowControl {
 	}
 	
 	public boolean isActiveWindow(Window window) {
-		return window == windowRepository.getActiveWindow();
+		return window.equals(windowRepository.getActiveWindow());
 	}
 	
 	public void showLink(Book document, Key key) {

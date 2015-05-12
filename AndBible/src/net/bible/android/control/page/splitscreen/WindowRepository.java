@@ -7,7 +7,6 @@ import net.bible.android.BibleApplication;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.splitscreen.CurrentSplitScreenChangedEvent;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.splitscreen.Window.WindowOperation;
 import net.bible.android.control.page.splitscreen.WindowLayout.WindowState;
 import net.bible.service.common.Logger;
@@ -39,10 +38,10 @@ public class WindowRepository {
 		dedicatedLinksWindow.setDefaultOperation(WindowOperation.DELETE);
 
 		windowList = new ArrayList<Window>();
-		activeWindow = addNewWindow(1);
 
 		// restore state from previous invocation
     	restoreState();
+    	setDefaultActiveWindow();
     	
 		// listen for AppToBackgroundEvent to save state when moved to background
     	eventManager.register(this);
@@ -109,10 +108,6 @@ public class WindowRepository {
 		return windows.size()>1;
 	}
 	
-	public CurrentPageManager getCurrentPageManager() {
-		return getActiveWindow().getPageManager();
-	}
-	
 	public void setDefaultActiveWindow() {
 		for (Window window : getWindows()) {
 			if (window.isVisible()) {
@@ -120,6 +115,9 @@ public class WindowRepository {
 				return;
 			}
 		}
+		
+		// no suitable window found so add one and make it default
+		setActiveWindow(addNewWindow(getNextWindowNo()));
 	}
 	
 	private WindowLayout.WindowState getDefaultState() {
@@ -136,7 +134,7 @@ public class WindowRepository {
 	}
 
 	public void setActiveWindow(Window newActiveWindow) {
-		if (this.activeWindow != newActiveWindow) {
+		if (!newActiveWindow.equals(this.activeWindow)) {
 			this.activeWindow = newActiveWindow;
 			EventBus.getDefault().post(new CurrentSplitScreenChangedEvent(activeWindow));
 		}
@@ -174,7 +172,7 @@ public class WindowRepository {
 	public void remove(Window window) {
 		window.getWindowLayout().setState(WindowState.REMOVED);
 		if (!windowList.remove(window)) {
-			logger.debug("Failed to remove window "+window.getScreenNo());
+			logger.error("Failed to remove window "+window.getScreenNo());
 		}
 
 		// has the active screen been minimised?
@@ -254,7 +252,9 @@ public class WindowRepository {
 		JSONArray allScreenState = new JSONArray();
 		for (Window window : windowList) {
 			try {
-				allScreenState.put(window.getStateJson());
+				if (window.getWindowLayout().getState() != WindowState.REMOVED) {
+					allScreenState.put(window.getStateJson());
+				}
 			} catch (JSONException je) {
 				logger.error("Error saving screen state", je);
 			}

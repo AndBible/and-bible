@@ -15,7 +15,7 @@ public class ScrollSecondaryScreenEvent implements SplitScreenEvent {
 		this.verseNo = verseNo;
 	}
 
-	public Window getScreen() {
+	public Window getWindow() {
 		return window;
 	}
 

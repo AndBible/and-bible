@@ -7,13 +7,13 @@ import net.bible.android.control.page.splitscreen.Window;
  */
 public class CurrentSplitScreenChangedEvent implements SplitScreenEvent {
 
-	private Window activeScreen;
+	private Window activeWindow;
 	
-	public CurrentSplitScreenChangedEvent(Window activeScreen) {
-		this.activeScreen = activeScreen;
+	public CurrentSplitScreenChangedEvent(Window activeWindow) {
+		this.activeWindow = activeWindow;
 	}
 
-	public Window getActiveScreen() {
-		return activeScreen;
+	public Window getActiveWindow() {
+		return activeWindow;
 	}
 }
