@@ -188,12 +188,13 @@ public class DocumentWebViewBuilder {
     		}
     		
     		// Display minimised screens
-    		ViewGroup minimisedWindowsFrameContainer = currentSplitScreenFrameLayout;
+    		ViewGroup minimisedWindowsFrameContainer = new LinearLayout(mainActivity);
+    		currentSplitScreenFrameLayout.addView(minimisedWindowsFrameContainer, new FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, BUTTON_SIZE_PX, Gravity.BOTTOM|Gravity.RIGHT));
     		List<Window> minimisedScreens = windowControl.getWindowRepository().getMinimisedScreens();
     		for (int i=0; i<minimisedScreens.size(); i++) {
     			Log.d(TAG,  "Show restore button");
     			Button restoreButton = createRestoreButton(minimisedScreens.get(i));
-    			minimisedWindowsFrameContainer.addView(restoreButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.BOTTOM|Gravity.RIGHT));
+    			minimisedWindowsFrameContainer.addView(restoreButton, new LinearLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX));
     		}    		
     		
     		previousParent = parent;
