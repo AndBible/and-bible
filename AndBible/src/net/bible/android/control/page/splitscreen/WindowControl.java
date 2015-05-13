@@ -116,6 +116,9 @@ public class WindowControl {
 	/**
 	 * Minimise window if possible
 	 */
+	public void minimiseCurrentWindow() {
+		minimiseWindow(getActiveWindow());
+	}
 	public void minimiseWindow(Window window) {
 		if (windowRepository.getVisibleWindows().size()>1) {
 			windowRepository.minimise(window);

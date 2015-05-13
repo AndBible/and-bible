@@ -117,6 +117,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_split_screen_not_linked">Not linked</string>
 
     <!-- Split screen -->
+    <string name="splitMinimise">Minimise</string>
     <string name="splitMoveFirst">Move first</string>
     
     <!-- Notes screen -->

@@ -33,6 +33,8 @@
 			<item android:id="@+id/splitNew"
 				  android:title="@string/new_item"
 				  android:icon="@android:drawable/ic_menu_add"/>
+			<item android:id="@+id/splitMinimise"
+		  		  android:title="@string/splitMinimise"/>
 			<item android:id="@+id/splitDelete"
 				  android:title="@string/delete"
 				  android:icon="@android:drawable/ic_menu_close_clear_cancel"/>

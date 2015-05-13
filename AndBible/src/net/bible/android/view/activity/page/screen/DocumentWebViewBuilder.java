@@ -3,12 +3,10 @@ package net.bible.android.view.activity.page.screen;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.event.splitscreen.CurrentSplitScreenChangedEvent;
 import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
 import net.bible.android.control.page.splitscreen.Separator;
 import net.bible.android.control.page.splitscreen.Window;
@@ -20,10 +18,15 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Typeface;
+import android.support.v7.widget.PopupMenu;
+import android.support.v7.widget.PopupMenu.OnMenuItemClickListener;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
@@ -62,8 +65,6 @@ public class DocumentWebViewBuilder {
 
 	private static WindowControl windowControl;
 
-	private Map<Window, Button> defaultWindowActionButtons;
-	
 	private boolean isLaidOutForPortrait;
 	private Activity mainActivity;
 	
@@ -84,8 +85,6 @@ public class DocumentWebViewBuilder {
 		
 		screenBibleViewMap = new HashMap<>();
 		
-		defaultWindowActionButtons = new HashMap<>();
-
         Resources res = BibleApplication.getApplication().getResources();
         SPLIT_SEPARATOR_WIDTH_PX = res.getDimensionPixelSize(R.dimen.split_screen_separator_width);
         SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX = res.getDimensionPixelSize(R.dimen.split_screen_separator_touch_expansion_width);
@@ -103,10 +102,6 @@ public class DocumentWebViewBuilder {
 	 */
 	public void onEvent(NumberOfWindowsChangedEvent event) {
 		isSplitScreenConfigurationChanged = true;
-	}
-	
-	public void onEvent(CurrentSplitScreenChangedEvent event) {
-		updateWindowActionButtons(event.getActiveWindow());				
 	}
 
 	/** return true if the current page should show a NyNote
@@ -130,7 +125,6 @@ public class DocumentWebViewBuilder {
     		
     		// ensure we have a known starting point - could be none, 1, or 2 webviews present
     		removeChildViews(previousParent);
-    		defaultWindowActionButtons.clear();
     		
     		parent.setOrientation(isPortrait? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
     		ViewGroup currentSplitScreenFrameLayout = null;
@@ -181,11 +175,13 @@ public class DocumentWebViewBuilder {
 					previousSeparator = separator;
 				}
 
-				// create default action button for top right of each window
-				Button defaultWindowActionButton = createDefaultWindowActionButton(window);
-				defaultWindowActionButtons.put(window, defaultWindowActionButton);
-    			currentSplitScreenFrameLayout.addView(defaultWindowActionButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP|Gravity.RIGHT));
-
+				// leave main window clear of distracting minimise button
+				if (windowNo!=0) {
+					// create default action button for top right of each window
+					Button defaultWindowActionButton = createDefaultWindowActionButton(window);
+	    			currentSplitScreenFrameLayout.addView(defaultWindowActionButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP|Gravity.RIGHT));
+				}
+				
     			mainActivity.registerForContextMenu(bibleView);
     			
     			windowNo++;
@@ -200,22 +196,10 @@ public class DocumentWebViewBuilder {
     			minimisedWindowsFrameContainer.addView(restoreButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.BOTTOM|Gravity.RIGHT));
     		}    		
     		
-    		updateWindowActionButtons(windowControl.getActiveWindow());
-    		
     		previousParent = parent;
     		isLaidOutForPortrait = isPortrait;
     		isSplitScreenConfigurationChanged = false;
     	}
-	}
-
-	private void updateWindowActionButtons(Window activeWindow) {
-		for (Entry<Window, Button> winButEntry: defaultWindowActionButtons.entrySet()) {
-			if (winButEntry.getKey().equals(activeWindow)) {
-				winButEntry.getValue().setVisibility(View.GONE);
-			} else {
-				winButEntry.getValue().setVisibility(View.VISIBLE);
-			}
-		}
 	}
 
 	private Button createDefaultWindowActionButton(Window window) {
@@ -304,7 +288,9 @@ public class DocumentWebViewBuilder {
 			public void onClick(View v) {
 				windowControl.removeWindow(window);				
 			}
-		});
+			
+		},
+		new WindowButtonLongClickListener(window));
 	}
 
 	private Button createMinimiseButton(final Window window) {
@@ -313,7 +299,8 @@ public class DocumentWebViewBuilder {
 			public void onClick(View v) {
 				windowControl.minimiseWindow(window);				
 			}
-		});
+		},
+		new WindowButtonLongClickListener(window));
 	}
 
 	private Button createRestoreButton(final Window window) {
@@ -323,8 +310,8 @@ public class DocumentWebViewBuilder {
 			public void onClick(View v) {
 				windowControl.restoreWindow(window);				
 			}
-		});
-
+		},
+		new WindowButtonLongClickListener(window));
 	}
 
 	/** 
@@ -338,7 +325,7 @@ public class DocumentWebViewBuilder {
 		}
 	}
 	
-	private Button createTextButton(String text, OnClickListener onClickListener) {
+	private Button createTextButton(String text, OnClickListener onClickListener, OnLongClickListener onLongClickListener) {
 		Button button = new Button(this.mainActivity);
         button.setText(text);
         button.setWidth(BUTTON_SIZE_PX);
@@ -348,7 +335,41 @@ public class DocumentWebViewBuilder {
         button.setTypeface(null, Typeface.BOLD);
         button.setSingleLine(true);
         button.setOnClickListener(onClickListener);
+        button.setOnLongClickListener(onLongClickListener);
         return button;
 	}
-	
+
+	private class WindowButtonLongClickListener implements OnLongClickListener {
+		private Window window;
+		
+		public WindowButtonLongClickListener(Window window) {
+			this.window = window;
+		}
+
+		@Override
+		public boolean onLongClick(View v) {
+			// ensure actions affect the right window
+			windowControl.setActiveWindow(window);
+			
+		    PopupMenu popup = new PopupMenu(mainActivity, v);
+		    popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+				private WindowMenuCommandHandler menuCommandHandler = new WindowMenuCommandHandler();
+				
+				@Override
+				public boolean onMenuItemClick(MenuItem menuItem) {
+					return menuCommandHandler.handleMenuRequest(menuItem);
+				}
+			});
+		    
+		    MenuInflater inflater = popup.getMenuInflater();
+		    inflater.inflate(R.menu.window_popup_menu, popup.getMenu());
+		    
+		    // enable/disable and set synchronised checkbox
+		    windowControl.updateOptionsMenu(popup.getMenu());
+		    
+		    popup.show();
+			return true;
+		}
+	};
+
 }

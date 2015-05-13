@@ -5,7 +5,6 @@ import net.bible.android.activity.StartupActivity;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.download.DownloadControl;
-import net.bible.android.control.page.splitscreen.WindowControl;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.bookmark.Bookmarks;
 import net.bible.android.view.activity.comparetranslations.CompareTranslations;
@@ -15,6 +14,7 @@ import net.bible.android.view.activity.help.Help;
 import net.bible.android.view.activity.mynote.MyNotes;
 import net.bible.android.view.activity.navigation.ChooseDocument;
 import net.bible.android.view.activity.navigation.History;
+import net.bible.android.view.activity.page.screen.WindowMenuCommandHandler;
 import net.bible.android.view.activity.readingplan.DailyReading;
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;
 import net.bible.android.view.activity.settings.SettingsActivity;
@@ -43,8 +43,6 @@ public class MenuCommandHandler {
 	
 	private DownloadControl downloadControl;
 	
-	private WindowControl windowControl;
-
 	private static final String TAG = "MainMenuCommandHandler";
 	
 	public static class IntentHolder {
@@ -53,6 +51,8 @@ public class MenuCommandHandler {
 	}
 	
 	private MainBibleActivity callingActivity;
+	
+	private WindowMenuCommandHandler windowMenuCommandHandler;
 	
 	// request codes passed to and returned from sub-activities
 	public static final int REFRESH_DISPLAY_ON_FINISH = 2;
@@ -63,11 +63,11 @@ public class MenuCommandHandler {
 	public MenuCommandHandler(MainBibleActivity activity) {
 		super();
 		this.callingActivity = activity;
+		this.windowMenuCommandHandler = new WindowMenuCommandHandler();
 		
 		longPressControl = new LongPressControl();
 		ControlFactory controlFactory = ControlFactory.getInstance();
 		downloadControl = controlFactory.getDownloadControl();
-		windowControl = controlFactory.getWindowControl();
 	}
 	
 	public boolean isIgnoreLongPress() {
@@ -177,28 +177,10 @@ public class MenuCommandHandler {
 		        	callingActivity.getDocumentViewManager().getDocumentView().selectAndCopyText(longPressControl);
 					isHandled = true;
 		        	break;
-				case R.id.splitNew:
-					windowControl.addNewWindow();
-					isHandled = true;
-		        	break;
-				case R.id.splitDelete:
-					windowControl.removeCurrentWindow();
-					isHandled = true;
-		        	break;
-				case R.id.splitMoveFirst:
-					windowControl.moveCurrentWindowToFirst();
-					isHandled = true;
-		        	break;
-				case R.id.splitLink:
-					if (windowControl.getActiveWindow().isSynchronised()) {
-						windowControl.unsynchroniseCurrentWindow();
-						menuItem.setChecked(false);
-					} else {
-						windowControl.synchroniseCurrentWindow();
-						menuItem.setChecked(true);
-					}
-					isHandled = true;
-		        	break;
+	        }
+	        
+	        if (!isHandled) {
+	        	isHandled = windowMenuCommandHandler.handleMenuRequest(menuItem);
 	        }
 	        
 	        if (handlerIntent!=null) {
