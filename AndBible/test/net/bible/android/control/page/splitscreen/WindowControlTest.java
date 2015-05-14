@@ -113,7 +113,12 @@ public class WindowControlTest {
 		Window onlyWindow = windowControl.getActiveWindow();
 		windowControl.minimiseWindow(onlyWindow);
 		assertThat(windowRepository.getVisibleWindows(), hasItem(onlyWindow));
-		
+		verifyZeroInteractions(eventManager);
+
+		// test still prevented if links window is visible
+		windowRepository.getDedicatedLinksWindow().getWindowLayout().setState(WindowState.SPLIT);
+		windowControl.minimiseWindow(onlyWindow);
+		assertThat(windowRepository.getVisibleWindows(), hasItem(onlyWindow));
 		verifyZeroInteractions(eventManager);
 	}
 
@@ -201,13 +206,15 @@ public class WindowControlTest {
 	}
 
 	@Test
-	public void testDisablemenuItemsIfLinksWindowActive() {
+	public void testDisableMenuItemsIfLinksWindowActive() {
 		Window normalWindow = windowControl.getActiveWindow();
+		windowControl.addNewWindow();
 		
 		Menu menu = new MenuBuilder(Robolectric.application);
 		new MenuInflater(Robolectric.application).inflate(R.menu.main, menu);
 		MenuItem synchronisedMenuItem = menu.findItem(R.id.splitLink);
 		MenuItem moveFirstMenuItem = menu.findItem(R.id.splitMoveFirst);
+		MenuItem minimiseMenuItem = menu.findItem(R.id.splitMinimise);
 
 		assertThat(synchronisedMenuItem.isEnabled(), equalTo(true));
         Window linksWindow = windowRepository.getDedicatedLinksWindow();
@@ -215,11 +222,27 @@ public class WindowControlTest {
 		windowControl.updateOptionsMenu(menu);
 		assertThat(synchronisedMenuItem.isEnabled(), equalTo(false));
 		assertThat(moveFirstMenuItem.isEnabled(), equalTo(false));
+		assertThat(minimiseMenuItem.isEnabled(), equalTo(false));
 		
 		// check menu items are re-enabled when a normal window becomes active
 		windowControl.setActiveWindow(normalWindow);
 		windowControl.updateOptionsMenu(menu);
 		assertThat(synchronisedMenuItem.isEnabled(), equalTo(true));
+	}
+
+	@Test
+	public void testDisableMenuItemsIfOnlyOneWindow() {
+		// the links window should not allow minimise or delete to work if only 1 other window
+		windowRepository.getDedicatedLinksWindow().getWindowLayout().setState(WindowState.SPLIT);
+		
+		Menu menu = new MenuBuilder(Robolectric.application);
+		new MenuInflater(Robolectric.application).inflate(R.menu.main, menu);
+		MenuItem minimiseMenuItem = menu.findItem(R.id.splitMinimise);
+		MenuItem removeMenuItem = menu.findItem(R.id.splitDelete);
+
+		windowControl.updateOptionsMenu(menu);
+		assertThat(minimiseMenuItem.isEnabled(), equalTo(false));
+		assertThat(removeMenuItem.isEnabled(), equalTo(false));
 	}
 
 	@Test

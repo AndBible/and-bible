@@ -58,6 +58,7 @@ public class WindowControl {
 		MenuItem synchronisedMenuItem = menu.findItem(R.id.splitLink);
 		MenuItem moveFirstMenuItem = menu.findItem(R.id.splitMoveFirst);
 		MenuItem removeMenuItem = menu.findItem(R.id.splitDelete);
+		MenuItem minimiseMenuItem = menu.findItem(R.id.splitMinimise);
 		Window window = getActiveWindow();
 
 		if (synchronisedMenuItem!=null && moveFirstMenuItem!=null) {
@@ -71,6 +72,7 @@ public class WindowControl {
 			
 			// cannot remove last normal window
 			removeMenuItem.setEnabled(isWindowRemovable(window));
+			minimiseMenuItem.setEnabled(isWindowMinimisable(window));
 
 			// if window is already first then cannot promote
 			List<Window> visibleWindows = windowRepository.getVisibleWindows();
@@ -120,10 +122,8 @@ public class WindowControl {
 		minimiseWindow(getActiveWindow());
 	}
 	public void minimiseWindow(Window window) {
-		if (windowRepository.getVisibleWindows().size()>1) {
+		if (isWindowMinimisable(window)) {
 			windowRepository.minimise(window);
-	
-			//TODO may have to maximise another screen if there is only 1 screen unminimised
 	
 			// redisplay the current page
 			eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
@@ -144,6 +144,9 @@ public class WindowControl {
 		}
 	}
 	
+	public boolean isWindowMinimisable(Window window) {
+		return isWindowRemovable(window) && !window.isLinksWindow();
+	}
 	public boolean isWindowRemovable(Window window) {
 		int normalWindows = windowRepository.getVisibleWindows().size();
 		if (windowRepository.getDedicatedLinksWindow().isVisible()) {
