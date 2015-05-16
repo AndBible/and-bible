@@ -1,6 +1,1 @@
-DONE screen.getCurrentPage instead of CurrentPageManager.getInstance(Screen)
-????? instead of CurrentPageManager.getInstance()....
-sum of screen weights should equal screen number
-save all screen settings - but save it somewhere screen specific not in this control
-save restore all screens, not just 2
 New actionbar icon if split to open menu with screen actions

@@ -194,10 +194,9 @@ public class WindowControlTest {
 	public void testUpdateSynchronisedMenuItem() {
 		Menu menu = new MenuBuilder(Robolectric.application);
 		new MenuInflater(Robolectric.application).inflate(R.menu.main, menu);
-		MenuItem synchronisedMenuItem = menu.findItem(R.id.splitLink);
 
-		assertThat(synchronisedMenuItem.isChecked(), equalTo(false));
 		windowControl.updateOptionsMenu(menu);
+		MenuItem synchronisedMenuItem = menu.findItem(R.id.windowSynchronised);
 		assertThat(synchronisedMenuItem.isChecked(), equalTo(true));
 		
 		windowControl.getActiveWindow().setSynchronised(false);
@@ -212,9 +211,10 @@ public class WindowControlTest {
 		
 		Menu menu = new MenuBuilder(Robolectric.application);
 		new MenuInflater(Robolectric.application).inflate(R.menu.main, menu);
-		MenuItem synchronisedMenuItem = menu.findItem(R.id.splitLink);
-		MenuItem moveFirstMenuItem = menu.findItem(R.id.splitMoveFirst);
-		MenuItem minimiseMenuItem = menu.findItem(R.id.splitMinimise);
+		windowControl.updateOptionsMenu(menu);
+		MenuItem synchronisedMenuItem = menu.findItem(R.id.windowSynchronised);
+		MenuItem moveFirstMenuItem = menu.findItem(R.id.windowMoveFirst);
+		MenuItem minimiseMenuItem = menu.findItem(R.id.windowMinimise);
 
 		assertThat(synchronisedMenuItem.isEnabled(), equalTo(true));
         Window linksWindow = windowRepository.getDedicatedLinksWindow();
@@ -237,10 +237,10 @@ public class WindowControlTest {
 		
 		Menu menu = new MenuBuilder(Robolectric.application);
 		new MenuInflater(Robolectric.application).inflate(R.menu.main, menu);
-		MenuItem minimiseMenuItem = menu.findItem(R.id.splitMinimise);
-		MenuItem removeMenuItem = menu.findItem(R.id.splitDelete);
 
 		windowControl.updateOptionsMenu(menu);
+		MenuItem minimiseMenuItem = menu.findItem(R.id.windowMinimise);
+		MenuItem removeMenuItem = menu.findItem(R.id.windowClose);
 		assertThat(minimiseMenuItem.isEnabled(), equalTo(false));
 		assertThat(removeMenuItem.isEnabled(), equalTo(false));
 	}
@@ -251,9 +251,9 @@ public class WindowControlTest {
 		
 		Menu menu = new MenuBuilder(Robolectric.application);
 		new MenuInflater(Robolectric.application).inflate(R.menu.main, menu);
-		MenuItem moveFirstMenuItem = menu.findItem(R.id.splitMoveFirst);
 
 		windowControl.updateOptionsMenu(menu);
+		MenuItem moveFirstMenuItem = menu.findItem(R.id.windowMoveFirst);
 		assertThat(moveFirstMenuItem.isEnabled(), equalTo(false));
 	}
 }

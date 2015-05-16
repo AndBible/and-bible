@@ -26,24 +26,11 @@
 		  android:icon="@android:drawable/ic_menu_search"
 		  appcompat:showAsAction="ifRoom"/>
 
-	<item android:id="@+id/splitSubMenu"
-		  android:title="@string/prefs_split_screen_title"
+	<item android:id="@+id/windowSubMenu"
+		  android:title="@string/window"
 		  android:icon="@android:drawable/ic_menu_slideshow">
 		<menu>
-			<item android:id="@+id/splitNew"
-				  android:title="@string/new_item"
-				  android:icon="@android:drawable/ic_menu_add"/>
-			<item android:id="@+id/splitMinimise"
-		  		  android:title="@string/splitMinimise"/>
-			<item android:id="@+id/splitDelete"
-				  android:title="@string/delete"
-				  android:icon="@android:drawable/ic_menu_close_clear_cancel"/>
-			<item android:id="@+id/splitLink"
-				  android:title="@string/prefs_split_screen_linked"
-				  android:checkable="true"
-				  android:checked="true"/>
-			<item android:id="@+id/splitMoveFirst"
-				  android:title="@string/splitMoveFirst"/>
+		    <!-- window_popup_menu.xml is programatically included here -->
 		</menu>
 	</item>
 	

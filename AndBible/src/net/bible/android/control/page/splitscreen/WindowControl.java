@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent;
@@ -19,6 +20,7 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 /**
@@ -45,20 +47,32 @@ public class WindowControl {
 	public WindowControl(WindowRepository windowRepository, EventManager eventManager) {
 		this.eventManager = eventManager;
 		this.windowRepository = windowRepository;
+		
 		splitScreenSync = new SplitScreenSync(windowRepository);
 		
 		eventManager.register(this);
 	}
 
 	/**
+	 * Add the Window sub-menu resource which is not included in the main.xml for the main menu
 	 * Set the synchronised checkbox in the app menu before displayed
 	 * Disable various menu items if links window selected
 	 */
 	public void updateOptionsMenu(Menu menu) {
-		MenuItem synchronisedMenuItem = menu.findItem(R.id.splitLink);
-		MenuItem moveFirstMenuItem = menu.findItem(R.id.splitMoveFirst);
-		MenuItem removeMenuItem = menu.findItem(R.id.splitDelete);
-		MenuItem minimiseMenuItem = menu.findItem(R.id.splitMinimise);
+		// when updating main menu rather than Window options menu
+		MenuItem windowSubmenuItemPosition = menu.findItem(R.id.windowSubMenu);
+		if (windowSubmenuItemPosition!=null) {
+			// check the Window sub-menu has been added
+			Menu subMenuToPopulate = windowSubmenuItemPosition.getSubMenu();
+			if (subMenuToPopulate.findItem(R.id.windowNew)==null) {
+				new MenuInflater(BibleApplication.getApplication()).inflate(R.menu.window_popup_menu, subMenuToPopulate);
+			}
+		}
+		
+		MenuItem synchronisedMenuItem = menu.findItem(R.id.windowSynchronised);
+		MenuItem moveFirstMenuItem = menu.findItem(R.id.windowMoveFirst);
+		MenuItem removeMenuItem = menu.findItem(R.id.windowClose);
+		MenuItem minimiseMenuItem = menu.findItem(R.id.windowMinimise);
 		Window window = getActiveWindow();
 
 		if (synchronisedMenuItem!=null && moveFirstMenuItem!=null) {

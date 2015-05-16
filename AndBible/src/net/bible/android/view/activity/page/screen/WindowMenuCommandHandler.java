@@ -21,23 +21,23 @@ public class WindowMenuCommandHandler {
         
         // Handle item selection
         switch (menuItem.getItemId()) {
-		case R.id.splitNew:
+		case R.id.windowNew:
 			windowControl.addNewWindow();
 			isHandled = true;
 			break;
-		case R.id.splitMinimise:
+		case R.id.windowMinimise:
 			windowControl.minimiseCurrentWindow();
 			isHandled = true;
 			break;
-		case R.id.splitDelete:
+		case R.id.windowClose:
 			windowControl.removeCurrentWindow();
 			isHandled = true;
 			break;
-		case R.id.splitMoveFirst:
+		case R.id.windowMoveFirst:
 			windowControl.moveCurrentWindowToFirst();
 			isHandled = true;
 			break;
-		case R.id.splitLink:
+		case R.id.windowSynchronised:
 			if (windowControl.getActiveWindow().isSynchronised()) {
 				windowControl.unsynchroniseCurrentWindow();
 				menuItem.setChecked(false);
