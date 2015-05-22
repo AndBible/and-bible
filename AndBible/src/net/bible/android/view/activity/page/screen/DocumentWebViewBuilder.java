@@ -205,9 +205,9 @@ public class DocumentWebViewBuilder {
 
 	private Button createDefaultWindowActionButton(Window window) {
 		Button defaultWindowActionButton;
-		if (window.getDefaultOperation().equals(WindowOperation.DELETE)) {
+		if (window.getDefaultOperation().equals(WindowOperation.CLOSE)) {
 		    // minimise button
-		    defaultWindowActionButton = createRemoveButton(window);
+		    defaultWindowActionButton = createCloseButton(window);
 		} else {
 		    // minimise button
 		    defaultWindowActionButton = createMinimiseButton(window);
@@ -283,11 +283,11 @@ public class DocumentWebViewBuilder {
 		return bibleView;
 	}
 
-	private Button createRemoveButton(final Window window) {
+	private Button createCloseButton(final Window window) {
 		return createTextButton("X", new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				windowControl.removeWindow(window);				
+				windowControl.closeWindow(window);				
 			}
 			
 		},

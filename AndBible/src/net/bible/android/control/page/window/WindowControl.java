@@ -71,7 +71,7 @@ public class WindowControl {
 		
 		MenuItem synchronisedMenuItem = menu.findItem(R.id.windowSynchronised);
 		MenuItem moveFirstMenuItem = menu.findItem(R.id.windowMoveFirst);
-		MenuItem removeMenuItem = menu.findItem(R.id.windowClose);
+		MenuItem closeMenuItem = menu.findItem(R.id.windowClose);
 		MenuItem minimiseMenuItem = menu.findItem(R.id.windowMinimise);
 		Window window = getActiveWindow();
 
@@ -84,8 +84,8 @@ public class WindowControl {
 			synchronisedMenuItem.setEnabled(!isDedicatedLinksWindowActive);
 			moveFirstMenuItem.setEnabled(!isDedicatedLinksWindowActive);
 			
-			// cannot remove last normal window
-			removeMenuItem.setEnabled(isWindowRemovable(window));
+			// cannot close last normal window
+			closeMenuItem.setEnabled(isWindowRemovable(window));
 			minimiseMenuItem.setEnabled(isWindowMinimisable(window));
 
 			// if window is already first then cannot promote
@@ -144,14 +144,14 @@ public class WindowControl {
 		}
 	}
 
-	public void removeCurrentWindow() {
-		removeWindow(getActiveWindow());
+	public void closeCurrentWindow() {
+		closeWindow(getActiveWindow());
 	}
-	public void removeWindow(Window window) {
+	public void closeWindow(Window window) {
 		
 		if (isWindowRemovable(getActiveWindow())) {
-			logger.debug("Removing window "+window.getScreenNo());
-			windowRepository.remove(window);
+			logger.debug("Closing window "+window.getScreenNo());
+			windowRepository.close(window);
 	
 			// redisplay the current page
 			eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));

@@ -66,7 +66,7 @@ public class WindowRepositoryTest {
 		Window originalWindow = windowRepository.getActiveWindow();
 		Window newWindow = windowRepository.addNewWindow();
 
-		windowRepository.remove(newWindow);
+		windowRepository.close(newWindow);
 		
 		windowRepository.moveWindowToPosition(newWindow, 0);
 		assertThat(windowRepository.getWindows(), contains(originalWindow));

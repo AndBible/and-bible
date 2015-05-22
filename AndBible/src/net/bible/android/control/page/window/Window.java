@@ -11,7 +11,7 @@ import org.json.JSONObject;
 public class Window {
 	
 	public enum WindowOperation {
-		MAXIMISE, MINIMISE, RESTORE, DELETE 
+		MAXIMISE, MINIMISE, RESTORE, CLOSE 
 	}
 
 	private WindowOperation defaultOperation;
@@ -67,7 +67,7 @@ public class Window {
 
 	public boolean isVisible() {
 		return 	getWindowLayout().getState()!=WindowState.MINIMISED &&
-				getWindowLayout().getState()!=WindowState.REMOVED;
+				getWindowLayout().getState()!=WindowState.CLOSED;
 	}
 
 	

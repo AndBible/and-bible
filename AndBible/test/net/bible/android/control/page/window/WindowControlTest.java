@@ -123,42 +123,42 @@ public class WindowControlTest {
 	}
 
 	@Test
-	public void testRemoveWindow() throws Exception {
-		Window newWindow = windowControl.addNewWindow();
-		reset(eventManager);
-
-		windowControl.removeWindow(newWindow);
-		assertThat(windowRepository.getWindows(), not(hasItem(newWindow)));
-		
-		verify(eventManager, times(1)).post(argThat(isA(NumberOfWindowsChangedEvent.class)));
-	}
+		public void testCloseWindow() throws Exception {
+			Window newWindow = windowControl.addNewWindow();
+			reset(eventManager);
+	
+			windowControl.closeWindow(newWindow);
+			assertThat(windowRepository.getWindows(), not(hasItem(newWindow)));
+			
+			verify(eventManager, times(1)).post(argThat(isA(NumberOfWindowsChangedEvent.class)));
+		}
 
 	@Test
-	public void testRemoveOnlyWindowPrevented() throws Exception {
+	public void testCloseOnlyWindowPrevented() throws Exception {
 		Window onlyWindow = windowRepository.getActiveWindow(); 
-		windowControl.removeWindow(onlyWindow);
+		windowControl.closeWindow(onlyWindow);
 		assertThat(windowRepository.getWindows(), hasItem(onlyWindow));
 		
 		verifyZeroInteractions(eventManager);
 	}
 
 	@Test
-	public void testRemoveWindowPreventedIfOnlyOtherIsLinks() throws Exception {
-		windowRepository.getDedicatedLinksWindow().getWindowLayout().setState(WindowState.SPLIT);
-		Window onlyNormalWindow = windowRepository.getActiveWindow();
-		windowControl.removeWindow(onlyNormalWindow);
-		assertThat(windowRepository.getWindows(), hasItem(onlyNormalWindow));
-		
-		verifyZeroInteractions(eventManager);
-	}
+		public void testCloseWindowPreventedIfOnlyOtherIsLinks() throws Exception {
+			windowRepository.getDedicatedLinksWindow().getWindowLayout().setState(WindowState.SPLIT);
+			Window onlyNormalWindow = windowRepository.getActiveWindow();
+			windowControl.closeWindow(onlyNormalWindow);
+			assertThat(windowRepository.getWindows(), hasItem(onlyNormalWindow));
+			
+			verifyZeroInteractions(eventManager);
+		}
 
 	@Test
-	public void testRemoveActiveWindow() throws Exception {
+	public void testCloseActiveWindow() throws Exception {
 		Window activeWindow = windowControl.getActiveWindow();
 		Window newWindow = windowControl.addNewWindow();
 		reset(eventManager);
 
-		windowControl.removeWindow(activeWindow);
+		windowControl.closeWindow(activeWindow);
 		assertThat(windowRepository.getActiveWindow(), equalTo(newWindow));
 	}
 
@@ -186,7 +186,7 @@ public class WindowControlTest {
 			assertThat(windowControl.isMultiWindow(), equalTo(false));
 			Window newWindow = windowControl.addNewWindow();
 			assertThat(windowControl.isMultiWindow(), equalTo(true));
-			windowControl.removeWindow(newWindow);
+			windowControl.closeWindow(newWindow);
 			assertThat(windowControl.isMultiWindow(), equalTo(false));
 		}
 
@@ -232,7 +232,7 @@ public class WindowControlTest {
 
 	@Test
 	public void testDisableMenuItemsIfOnlyOneWindow() {
-		// the links window should not allow minimise or delete to work if only 1 other window
+		// the links window should not allow minimise or close to work if only 1 other window
 		windowRepository.getDedicatedLinksWindow().getWindowLayout().setState(WindowState.SPLIT);
 		
 		Menu menu = new MenuBuilder(Robolectric.application);
@@ -240,9 +240,9 @@ public class WindowControlTest {
 
 		windowControl.updateOptionsMenu(menu);
 		MenuItem minimiseMenuItem = menu.findItem(R.id.windowMinimise);
-		MenuItem removeMenuItem = menu.findItem(R.id.windowClose);
+		MenuItem closeMenuItem = menu.findItem(R.id.windowClose);
 		assertThat(minimiseMenuItem.isEnabled(), equalTo(false));
-		assertThat(removeMenuItem.isEnabled(), equalTo(false));
+		assertThat(closeMenuItem.isEnabled(), equalTo(false));
 	}
 
 	@Test

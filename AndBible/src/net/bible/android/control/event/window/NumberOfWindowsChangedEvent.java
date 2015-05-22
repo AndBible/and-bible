@@ -5,7 +5,7 @@ import java.util.Map;
 import net.bible.android.control.page.window.Window;
 
 /**
- * 	Window has been minimized/restored/removed/added
+ * 	Window has been minimized/restored/closed/added
  */
 public class NumberOfWindowsChangedEvent implements WindowEvent {
 	

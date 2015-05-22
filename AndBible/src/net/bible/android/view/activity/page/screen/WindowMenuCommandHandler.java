@@ -30,7 +30,7 @@ public class WindowMenuCommandHandler {
 			isHandled = true;
 			break;
 		case R.id.windowClose:
-			windowControl.removeCurrentWindow();
+			windowControl.closeCurrentWindow();
 			isHandled = true;
 			break;
 		case R.id.windowMoveFirst:

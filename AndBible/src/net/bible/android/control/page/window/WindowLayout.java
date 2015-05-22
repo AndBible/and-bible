@@ -5,7 +5,7 @@ import org.json.JSONObject;
 
 public class WindowLayout {
 
-	public enum WindowState {MINIMISED, SPLIT, REMOVED} 
+	public enum WindowState {MINIMISED, SPLIT, CLOSED} 
 	
 	private WindowState state = WindowState.SPLIT;
 	

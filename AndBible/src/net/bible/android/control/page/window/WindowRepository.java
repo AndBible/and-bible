@@ -33,9 +33,9 @@ public class WindowRepository {
 	private final Logger logger = new Logger(this.getClass().getName());
 	
 	public WindowRepository(EventManager eventManager) {
-		dedicatedLinksWindow = new Window(DEDICATED_LINK_WINDOW_SCREEN_NO, WindowState.REMOVED);
+		dedicatedLinksWindow = new Window(DEDICATED_LINK_WINDOW_SCREEN_NO, WindowState.CLOSED);
 		dedicatedLinksWindow.setSynchronised(false);
-		dedicatedLinksWindow.setDefaultOperation(WindowOperation.DELETE);
+		dedicatedLinksWindow.setDefaultOperation(WindowOperation.CLOSE);
 
 		windowList = new ArrayList<Window>();
 
@@ -169,10 +169,10 @@ public class WindowRepository {
 		}
 	}
 
-	public void remove(Window window) {
-		window.getWindowLayout().setState(WindowState.REMOVED);
+	public void close(Window window) {
+		window.getWindowLayout().setState(WindowState.CLOSED);
 		if (!windowList.remove(window)) {
-			logger.error("Failed to remove window "+window.getScreenNo());
+			logger.error("Failed to close window "+window.getScreenNo());
 		}
 
 		// has the active screen been minimised?
@@ -252,7 +252,7 @@ public class WindowRepository {
 		JSONArray allScreenState = new JSONArray();
 		for (Window window : windowList) {
 			try {
-				if (window.getWindowLayout().getState() != WindowState.REMOVED) {
+				if (window.getWindowLayout().getState() != WindowState.CLOSED) {
 					allScreenState.put(window.getStateJson());
 				}
 			} catch (JSONException je) {
