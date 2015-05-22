@@ -1,4 +1,4 @@
-package net.bible.android.control.page.splitscreen;
+package net.bible.android.control.page.window;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;

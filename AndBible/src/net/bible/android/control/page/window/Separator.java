@@ -1,4 +1,4 @@
-package net.bible.android.control.page.splitscreen;
+package net.bible.android.control.page.window;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
@@ -60,8 +60,8 @@ public class Separator extends View {
 		windowControl = ControlFactory.getInstance().getWindowControl();
 		
 		Resources res = BibleApplication.getApplication().getResources();
-		SEPARATOR_COLOUR = res.getColor(R.color.split_separator_colour);
-		SEPARATOR_DRAG_COLOUR = res.getColor(R.color.split_separator_drag_colour);
+		SEPARATOR_COLOUR = res.getColor(R.color.window_separator_colour);
+		SEPARATOR_DRAG_COLOUR = res.getColor(R.color.window_separator_drag_colour);
         setBackgroundColor(SEPARATOR_COLOUR);
 
         touchDelegateView1 = new TouchDelegateView(context, this);

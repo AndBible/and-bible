@@ -35,7 +35,7 @@ public class PageTiltScroller {
 	
 	public PageTiltScroller(BibleView webView) {
 		this.mWebView = webView;
-		mPageTiltScrollControl = ControlFactory.getInstance().getPageTiltScrollControl(webView.getSplitScreenNo());
+		mPageTiltScrollControl = ControlFactory.getInstance().getPageTiltScrollControl(webView.getWindowNo());
 	}
 	
 	/** start or stop tilt to scroll functionality

@@ -1,16 +1,16 @@
-package net.bible.android.control.event.splitscreen;
+package net.bible.android.control.event.window;
 
-import net.bible.android.control.page.splitscreen.Window;
+import net.bible.android.control.page.window.Window;
 
 /**
  * Correct bible page is shown but need to scroll to a different verse
  */
-public class ScrollSecondaryScreenEvent implements SplitScreenEvent {
+public class ScrollSecondaryWindowEvent implements WindowEvent {
 
 	private final Window window;
 	private final int verseNo;
 	
-	public ScrollSecondaryScreenEvent(Window window, int verseNo) {
+	public ScrollSecondaryWindowEvent(Window window, int verseNo) {
 		this.window = window;
 		this.verseNo = verseNo;
 	}

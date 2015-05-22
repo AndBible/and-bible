@@ -1,4 +1,4 @@
-package net.bible.android.control.page.splitscreen;
+package net.bible.android.control.page.window;
 
 import java.util.HashMap;
 import java.util.List;
@@ -8,10 +8,10 @@ import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent;
-import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
-import net.bible.android.control.event.splitscreen.SplitScreenSizeChangedEvent;
+import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
+import net.bible.android.control.event.window.WindowSizeChangedEvent;
 import net.bible.android.control.page.CurrentPage;
-import net.bible.android.control.page.splitscreen.WindowLayout.WindowState;
+import net.bible.android.control.page.window.WindowLayout.WindowState;
 import net.bible.service.common.Logger;
 
 import org.crosswire.jsword.book.Book;
@@ -24,7 +24,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 /**
- * Central control of Split screens especially synchronization
+ * Central control of windows especially synchronization
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
@@ -36,7 +36,7 @@ public class WindowControl {
 	private long stoppedMovingTime = 0;
 
 	private WindowRepository windowRepository;
-	private SplitScreenSync splitScreenSync;
+	private WindowSync windowSync;
 
 	private EventManager eventManager;
 	
@@ -48,7 +48,7 @@ public class WindowControl {
 		this.eventManager = eventManager;
 		this.windowRepository = windowRepository;
 		
-		splitScreenSync = new SplitScreenSync(windowRepository);
+		windowSync = new WindowSync(windowRepository);
 		
 		eventManager.register(this);
 	}
@@ -120,8 +120,8 @@ public class WindowControl {
 		//Window newScreen = 
 		Window window = windowRepository.addNewWindow();
 
-		splitScreenSync.setResynchRequired(true);
-		splitScreenSync.synchronizeScreens();
+		windowSync.setResynchRequired(true);
+		windowSync.synchronizeScreens();
 		
 		// redisplay the current page
 		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
@@ -176,15 +176,15 @@ public class WindowControl {
 		// causes BibleViews to be created and laid out
 		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
 		
-		splitScreenSync.setResynchRequired(true);
-		splitScreenSync.synchronizeScreens();
+		windowSync.setResynchRequired(true);
+		windowSync.synchronizeScreens();
 	}
 
 	public void synchroniseCurrentWindow() {
 		getActiveWindow().setSynchronised(true);
 
-		splitScreenSync.setResynchRequired(true);
-		splitScreenSync.synchronizeScreens();
+		windowSync.setResynchRequired(true);
+		windowSync.synchronizeScreens();
 	}
 	
 	public void unsynchroniseCurrentWindow() {
@@ -211,10 +211,10 @@ public class WindowControl {
 	}
 	
 	public void onEvent(CurrentVerseChangedEvent event) {
-		splitScreenSync.synchronizeScreens();
+		windowSync.synchronizeScreens();
 	}
 	
-	public boolean isSplit() {
+	public boolean isMultiWindow() {
 		return windowRepository.isMultiWindow();
 	}
 
@@ -226,7 +226,7 @@ public class WindowControl {
 	}
 
 	public boolean isSeparatorMoving() {
-		// allow 1 sec for screen to settle after splitscreen drag
+		// allow 1 sec for screen to settle after window separator drag
 		if (stoppedMovingTime>0) {
 			// allow a second after stopping for screen to settle
 			if (stoppedMovingTime+SCREEN_SETTLE_TIME_MILLIS>System.currentTimeMillis()) {
@@ -246,10 +246,10 @@ public class WindowControl {
 		
 		boolean isMoveFinished = !isSeparatorMoving;
 		if (isMoveFinished) {
-			splitScreenSync.setResynchRequired(true);
+			windowSync.setResynchRequired(true);
 		}
 		
-		eventManager.post(new SplitScreenSizeChangedEvent(isMoveFinished, getWindowVerseMap()));
+		eventManager.post(new WindowSizeChangedEvent(isMoveFinished, getWindowVerseMap()));
 	}
 
 	public WindowRepository getWindowRepository() {

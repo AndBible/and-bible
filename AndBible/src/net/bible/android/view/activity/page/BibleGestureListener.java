@@ -53,7 +53,7 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 
 	@Override
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
-		// prevent interference with splitter drag - fast drags were causing a fling
+		// prevent interference with window separator drag - fast drags were causing a fling
 		if (!TouchOwner.getInstance().isTouchOwned()) {
 
 			// get distance between points of the fling

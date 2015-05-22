@@ -1,6 +1,6 @@
 package net.bible.service.history;
 
-import net.bible.android.control.page.splitscreen.Window;
+import net.bible.android.control.page.window.Window;
 
 /**
  * An item in the History List

@@ -7,11 +7,11 @@ import java.util.Map;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
-import net.bible.android.control.page.splitscreen.Separator;
-import net.bible.android.control.page.splitscreen.Window;
-import net.bible.android.control.page.splitscreen.Window.WindowOperation;
-import net.bible.android.control.page.splitscreen.WindowControl;
+import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
+import net.bible.android.control.page.window.Separator;
+import net.bible.android.control.page.window.Window;
+import net.bible.android.control.page.window.Window.WindowOperation;
+import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.view.activity.page.BibleView;
 import net.bible.service.common.CommonUtils;
 import android.annotation.SuppressLint;
@@ -43,11 +43,11 @@ import de.greenrobot.event.EventBus;
  * 
  * Structure of the layout:
  * 	parent
- * 		splitScreenFrameLayout
+ * 		windowFrameLayout
  * 			bibleView
  * 			separatorExtension (touch delegate for next separator)
  * 		separator
- * 		splitScreenFrameLayout
+ * 		windowFrameLayout
  * 			bibleView
  * 			separatorExtension (touch delegate for previous separator)
  * 			minimiseButton
@@ -58,7 +58,7 @@ import de.greenrobot.event.EventBus;
  */
 public class DocumentWebViewBuilder {
 
-	private boolean isSplitScreenConfigurationChanged = true;
+	private boolean isWindowConfigurationChanged = true;
 
 	private Map<Window, BibleView> screenBibleViewMap;
 	private static final int BIBLE_WEB_VIEW_ID_BASE = 990;
@@ -68,11 +68,11 @@ public class DocumentWebViewBuilder {
 	private boolean isLaidOutForPortrait;
 	private Activity mainActivity;
 	
-	private int SPLIT_SEPARATOR_WIDTH_PX;
-	private int SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX;
-	private int SPLIT_BUTTON_TEXT_COLOUR;
-	private int SPLIT_BUTTON_BACKGROUND_COLOUR;
-	private int BUTTON_SIZE_PX;
+	final private int WINDOW_SEPARATOR_WIDTH_PX;
+	final private int WINDOW_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX;
+	final private int WINDOW_BUTTON_TEXT_COLOUR;
+	final private int WINDOW_BUTTON_BACKGROUND_COLOUR;
+	final private int BUTTON_SIZE_PX;
 
 	private LinearLayout previousParent;
 	
@@ -86,14 +86,14 @@ public class DocumentWebViewBuilder {
 		screenBibleViewMap = new HashMap<>();
 		
         Resources res = BibleApplication.getApplication().getResources();
-        SPLIT_SEPARATOR_WIDTH_PX = res.getDimensionPixelSize(R.dimen.split_screen_separator_width);
-        SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX = res.getDimensionPixelSize(R.dimen.split_screen_separator_touch_expansion_width);
-        SPLIT_BUTTON_TEXT_COLOUR = res.getColor(R.color.split_button_text_colour);
-        SPLIT_BUTTON_BACKGROUND_COLOUR = res.getColor(R.color.split_button_background_colour);
+        WINDOW_SEPARATOR_WIDTH_PX = res.getDimensionPixelSize(R.dimen.window_separator_width);
+        WINDOW_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX = res.getDimensionPixelSize(R.dimen.window_separator_touch_expansion_width);
+        WINDOW_BUTTON_TEXT_COLOUR = res.getColor(R.color.window_button_text_colour);
+        WINDOW_BUTTON_BACKGROUND_COLOUR = res.getColor(R.color.window_button_background_colour);
         
         BUTTON_SIZE_PX = res.getDimensionPixelSize(R.dimen.minimise_restore_button_size);
         
-		// Be notified of any changes to split-screen config
+		// Be notified of any changes to window config
 		EventBus.getDefault().register(this);
 	}
 	
@@ -101,7 +101,7 @@ public class DocumentWebViewBuilder {
 	 * Record changes to scplit screen config so can redraw screen from scratch.
 	 */
 	public void onEvent(NumberOfWindowsChangedEvent event) {
-		isSplitScreenConfigurationChanged = true;
+		isWindowConfigurationChanged = true;
 	}
 
 	/** return true if the current page should show a NyNote
@@ -117,7 +117,7 @@ public class DocumentWebViewBuilder {
     	boolean isPortrait = CommonUtils.isPortrait();
 
     	if (!isWebView || 
-    			isSplitScreenConfigurationChanged ||
+    			isWindowConfigurationChanged ||
     			isPortrait!=isLaidOutForPortrait) {
     		Log.d(TAG, "Layout web view");
     		
@@ -127,7 +127,7 @@ public class DocumentWebViewBuilder {
     		removeChildViews(previousParent);
     		
     		parent.setOrientation(isPortrait? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
-    		ViewGroup currentSplitScreenFrameLayout = null;
+    		ViewGroup currentWindowFrameLayout = null;
     		Separator previousSeparator = null;
     		
     		int windowNo = 0;
@@ -135,28 +135,28 @@ public class DocumentWebViewBuilder {
     		for (Window window : windows) {
     			Log.d(TAG, "Layout screen "+window.getScreenNo() + " of "+windows.size());
     			
-    			currentSplitScreenFrameLayout = new FrameLayout(this.mainActivity);
+    			currentWindowFrameLayout = new FrameLayout(this.mainActivity);
     			
     			BibleView bibleView = getView(window);
 
         		// trigger recalc of verse positions in case width changes e.g. minimize/restore web view
         		bibleView.setVersePositionRecalcRequired(true);
 
-    			float screenWeight = window.getWindowLayout().getWeight();
-    			LinearLayout.LayoutParams lp = isPortrait?	new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 0, screenWeight) :
-    														new LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, screenWeight);
+    			float windowWeight = window.getWindowLayout().getWeight();
+    			LinearLayout.LayoutParams lp = isPortrait?	new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 0, windowWeight) :
+    														new LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, windowWeight);
 
-	    		parent.addView(currentSplitScreenFrameLayout, lp);
+	    		parent.addView(currentWindowFrameLayout, lp);
 
 				// add bible to framelayout
 				LayoutParams frameLayoutParamsBibleWebView = new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
-				currentSplitScreenFrameLayout.addView(bibleView, frameLayoutParamsBibleWebView);
+				currentWindowFrameLayout.addView(bibleView, frameLayoutParamsBibleWebView);
 
 				if (windowNo>0) {
 					Separator separator = previousSeparator;
 					
 					// extend touch area of separator
-					addTopOrLeftSeparatorExtension(isPortrait, currentSplitScreenFrameLayout, lp, separator);
+					addTopOrLeftSeparatorExtension(isPortrait, currentWindowFrameLayout, lp, separator);
 				}
 
 				// Add screen separator
@@ -166,11 +166,11 @@ public class DocumentWebViewBuilder {
 					separator = createSeparator(parent, window, nextWindow, isPortrait, windows.size());
 					
 					// extend touch area of separator
-					addBottomOrRightSeparatorExtension(isPortrait, currentSplitScreenFrameLayout, lp, separator);
+					addBottomOrRightSeparatorExtension(isPortrait, currentWindowFrameLayout, lp, separator);
 
-					// Add actual separator line dividing the split screens
-					parent.addView(separator, isPortrait ? 	new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, SPLIT_SEPARATOR_WIDTH_PX, 0) :
-															new LinearLayout.LayoutParams(SPLIT_SEPARATOR_WIDTH_PX, LayoutParams.MATCH_PARENT, 0));
+					// Add actual separator line dividing two windows
+					parent.addView(separator, isPortrait ? 	new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, WINDOW_SEPARATOR_WIDTH_PX, 0) :
+															new LinearLayout.LayoutParams(WINDOW_SEPARATOR_WIDTH_PX, LayoutParams.MATCH_PARENT, 0));
 					// allow extension to be added in next screen
 					previousSeparator = separator;
 				}
@@ -179,7 +179,7 @@ public class DocumentWebViewBuilder {
 				if (windowNo!=0) {
 					// create default action button for top right of each window
 					Button defaultWindowActionButton = createDefaultWindowActionButton(window);
-	    			currentSplitScreenFrameLayout.addView(defaultWindowActionButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP|Gravity.RIGHT));
+	    			currentWindowFrameLayout.addView(defaultWindowActionButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP|Gravity.RIGHT));
 				}
 				
     			mainActivity.registerForContextMenu(bibleView);
@@ -189,7 +189,7 @@ public class DocumentWebViewBuilder {
     		
     		// Display minimised screens
     		ViewGroup minimisedWindowsFrameContainer = new LinearLayout(mainActivity);
-    		currentSplitScreenFrameLayout.addView(minimisedWindowsFrameContainer, new FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, BUTTON_SIZE_PX, Gravity.BOTTOM|Gravity.RIGHT));
+    		currentWindowFrameLayout.addView(minimisedWindowsFrameContainer, new FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, BUTTON_SIZE_PX, Gravity.BOTTOM|Gravity.RIGHT));
     		List<Window> minimisedScreens = windowControl.getWindowRepository().getMinimisedScreens();
     		for (int i=0; i<minimisedScreens.size(); i++) {
     			Log.d(TAG,  "Show restore button");
@@ -199,7 +199,7 @@ public class DocumentWebViewBuilder {
     		
     		previousParent = parent;
     		isLaidOutForPortrait = isPortrait;
-    		isSplitScreenConfigurationChanged = false;
+    		isWindowConfigurationChanged = false;
     	}
 	}
 
@@ -220,13 +220,13 @@ public class DocumentWebViewBuilder {
 	 */
 	@SuppressLint("RtlHardcoded")
 	private void addBottomOrRightSeparatorExtension(boolean isPortrait,
-			ViewGroup previousSplitScreenLayout,
+			ViewGroup previousWindowLayout,
 			LinearLayout.LayoutParams previousLp, 
 			Separator separator) {
 		// add first touch delegate to framelayout which extends the touch area, otherwise it is difficult to select the separator to move it
-		FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate = isPortrait? 	new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, Gravity.BOTTOM) :
-																					new FrameLayout.LayoutParams(SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, LayoutParams.MATCH_PARENT, Gravity.RIGHT);
-		previousSplitScreenLayout.addView(separator.getTouchDelegateView1(), frameLayoutParamsSeparatorDelegate);
+		FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate = isPortrait? 	new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, WINDOW_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, Gravity.BOTTOM) :
+																					new FrameLayout.LayoutParams(WINDOW_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, LayoutParams.MATCH_PARENT, Gravity.RIGHT);
+		previousWindowLayout.addView(separator.getTouchDelegateView1(), frameLayoutParamsSeparatorDelegate);
 		// separator will adjust layouts when dragged
 		separator.setView1LayoutParams(previousLp);
 	}
@@ -236,20 +236,20 @@ public class DocumentWebViewBuilder {
 	 */
 	@SuppressLint("RtlHardcoded")
 	private void addTopOrLeftSeparatorExtension(boolean isPortrait,
-			ViewGroup currentSplitScreenLayout, 
+			ViewGroup currentWindowLayout, 
 			LinearLayout.LayoutParams lp,
 			Separator separator) {
 		// add separator handle touch delegate to framelayout
-		FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate = isPortrait ?	new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, Gravity.TOP) :
-																					new FrameLayout.LayoutParams(SPLIT_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, LayoutParams.MATCH_PARENT, Gravity.LEFT);
-		currentSplitScreenLayout.addView(separator.getTouchDelegateView2(), frameLayoutParamsSeparatorDelegate);
+		FrameLayout.LayoutParams frameLayoutParamsSeparatorDelegate = isPortrait ?	new FrameLayout.LayoutParams(LayoutParams.MATCH_PARENT, WINDOW_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, Gravity.TOP) :
+																					new FrameLayout.LayoutParams(WINDOW_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX, LayoutParams.MATCH_PARENT, Gravity.LEFT);
+		currentWindowLayout.addView(separator.getTouchDelegateView2(), frameLayoutParamsSeparatorDelegate);
 
 		// separator will adjust layouts when dragged
 		separator.setView2LayoutParams(lp);
 	}
 
-	protected Separator createSeparator(LinearLayout parent, Window window, Window nextScreen, boolean isPortrait, int numSplitScreens) {
-		Separator separator = new Separator(this.mainActivity, SPLIT_SEPARATOR_WIDTH_PX, parent, window, nextScreen, numSplitScreens, isPortrait);
+	protected Separator createSeparator(LinearLayout parent, Window window, Window nextScreen, boolean isPortrait, int numWindows) {
+		Separator separator = new Separator(this.mainActivity, WINDOW_SEPARATOR_WIDTH_PX, parent, window, nextScreen, numWindows, isPortrait);
 		return separator;
 	}
 
@@ -331,8 +331,8 @@ public class DocumentWebViewBuilder {
         button.setText(text);
         button.setWidth(BUTTON_SIZE_PX);
         button.setHeight(BUTTON_SIZE_PX);
-        button.setBackgroundColor(SPLIT_BUTTON_BACKGROUND_COLOUR);
-        button.setTextColor(SPLIT_BUTTON_TEXT_COLOUR);
+        button.setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR);
+        button.setTextColor(WINDOW_BUTTON_TEXT_COLOUR);
         button.setTypeface(null, Typeface.BOLD);
         button.setSingleLine(true);
         button.setOnClickListener(onClickListener);

@@ -23,7 +23,6 @@
 	<dimen name="title_bar_height">28dip</dimen>
 	
 	<!--  number and size of buttons varies depending on screen size and orientation -->
-	<bool name="split_passage_selector_buttons">false</bool>
 	<integer name="number_of_quick_buttons">3</integer>
 	<dimen name="size_of_quick_buttons">60dip</dimen>
 	<dimen name="size_of_small_quick_buttons">45dip</dimen>
@@ -32,8 +31,8 @@
 	
 	<integer name="poetry_indent_chars">2</integer>
 	
-	<dimen name="split_screen_separator_width">4dip</dimen>
-	<dimen name="split_screen_separator_touch_expansion_width">10dip</dimen>
+	<dimen name="window_separator_width">4dip</dimen>
+	<dimen name="window_separator_touch_expansion_width">10dip</dimen>
 	<dimen name="minimise_restore_button_size">40dip</dimen>
 	
 	<!-- Navigation Drawer -->

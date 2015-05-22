@@ -1,8 +1,8 @@
 package net.bible.service.history;
 
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.page.splitscreen.Window;
-import net.bible.android.control.page.splitscreen.WindowControl;
+import net.bible.android.control.page.window.Window;
+import net.bible.android.control.page.window.WindowControl;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]

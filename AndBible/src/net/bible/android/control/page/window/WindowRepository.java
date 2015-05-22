@@ -1,4 +1,4 @@
-package net.bible.android.control.page.splitscreen;
+package net.bible.android.control.page.window;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,9 +6,9 @@ import java.util.List;
 import net.bible.android.BibleApplication;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
-import net.bible.android.control.event.splitscreen.CurrentSplitScreenChangedEvent;
-import net.bible.android.control.page.splitscreen.Window.WindowOperation;
-import net.bible.android.control.page.splitscreen.WindowLayout.WindowState;
+import net.bible.android.control.event.window.CurrentWindowChangedEvent;
+import net.bible.android.control.page.window.Window.WindowOperation;
+import net.bible.android.control.page.window.WindowLayout.WindowState;
 import net.bible.service.common.Logger;
 
 import org.apache.commons.lang.StringUtils;
@@ -136,7 +136,7 @@ public class WindowRepository {
 	public void setActiveWindow(Window newActiveWindow) {
 		if (!newActiveWindow.equals(this.activeWindow)) {
 			this.activeWindow = newActiveWindow;
-			EventBus.getDefault().post(new CurrentSplitScreenChangedEvent(activeWindow));
+			EventBus.getDefault().post(new CurrentWindowChangedEvent(activeWindow));
 		}
 	}
 	

@@ -1,4 +1,4 @@
-package net.bible.android.control.page.splitscreen;
+package net.bible.android.control.page.window;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -15,8 +15,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import net.bible.android.activity.R;
 import net.bible.android.control.event.EventManager;
-import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
-import net.bible.android.control.page.splitscreen.WindowLayout.WindowState;
+import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
+import net.bible.android.control.page.window.WindowLayout.WindowState;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.Books;
@@ -182,13 +182,13 @@ public class WindowControlTest {
 	}
 
 	@Test
-	public void testIsSplit() throws Exception {
-		assertThat(windowControl.isSplit(), equalTo(false));
-		Window newWindow = windowControl.addNewWindow();
-		assertThat(windowControl.isSplit(), equalTo(true));
-		windowControl.removeWindow(newWindow);
-		assertThat(windowControl.isSplit(), equalTo(false));
-	}
+		public void testIsMultiWindow() throws Exception {
+			assertThat(windowControl.isMultiWindow(), equalTo(false));
+			Window newWindow = windowControl.addNewWindow();
+			assertThat(windowControl.isMultiWindow(), equalTo(true));
+			windowControl.removeWindow(newWindow);
+			assertThat(windowControl.isMultiWindow(), equalTo(false));
+		}
 
 	@Test
 	public void testUpdateSynchronisedMenuItem() {

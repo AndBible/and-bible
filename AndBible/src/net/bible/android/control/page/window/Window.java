@@ -1,8 +1,8 @@
-package net.bible.android.control.page.splitscreen;
+package net.bible.android.control.page.window;
 
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.CurrentPageManagerFactory;
-import net.bible.android.control.page.splitscreen.WindowLayout.WindowState;
+import net.bible.android.control.page.window.WindowLayout.WindowState;
 import net.bible.service.common.Logger;
 
 import org.json.JSONException;

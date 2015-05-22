@@ -2,7 +2,7 @@ package net.bible.android.control.page;
 
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
-import net.bible.android.control.page.splitscreen.Window;
+import net.bible.android.control.page.window.Window;
 import net.bible.service.format.HtmlMessageFormatter;
 
 import org.crosswire.jsword.book.Book;
@@ -33,11 +33,11 @@ abstract public class UpdateTextTask extends AsyncTask<Window, Integer, String> 
 	}
 	
 	@Override
-    protected String doInBackground(Window... splitScreen) {
+    protected String doInBackground(Window... windows) {
         Log.d(TAG, "Loading html in background");
     	String text = "Error";
     	try {
-    		window = splitScreen[0];
+    		window = windows[0];
     		CurrentPage currentPage = window.getPageManager().getCurrentPage(); 
     		Book document = currentPage.getCurrentDocument();
     		// if bible show whole chapter

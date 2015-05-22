@@ -1,4 +1,4 @@
-package net.bible.android.control.page.splitscreen;
+package net.bible.android.control.page.window;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
@@ -6,6 +6,8 @@ import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.EventManagerStub;
+import net.bible.android.control.page.window.Window;
+import net.bible.android.control.page.window.WindowRepository;
 
 import org.junit.Before;
 import org.junit.Test;

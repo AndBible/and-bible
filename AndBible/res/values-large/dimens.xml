@@ -8,7 +8,6 @@
 	<integer name="poetry_indent_chars">5</integer>
 
 	<!--  number of buttons varies depending on screen size and orientation -->
-	<bool name="split_passage_selector_buttons">true</bool>
 	<integer name="number_of_quick_buttons">8</integer>
 	<dimen name="size_of_quick_buttons">70dip</dimen>
 	<dimen name="size_of_small_quick_buttons">70dip</dimen>

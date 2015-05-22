@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.page.splitscreen.WindowControl;
+import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.search.SearchControl.SearchBibleSection;
 import net.bible.android.view.activity.base.CurrentActivityHolder;

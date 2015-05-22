@@ -1,11 +1,11 @@
-package net.bible.android.control.page.splitscreen;
+package net.bible.android.control.page.window;
 
 import java.util.List;
 
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.passage.PassageChangedEvent;
-import net.bible.android.control.event.splitscreen.ScrollSecondaryScreenEvent;
-import net.bible.android.control.event.splitscreen.UpdateSecondaryScreenEvent;
+import net.bible.android.control.event.window.ScrollSecondaryWindowEvent;
+import net.bible.android.control.event.window.UpdateSecondaryWindowEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.UpdateTextTask;
 import net.bible.service.device.ScreenSettings;
@@ -19,7 +19,7 @@ import org.crosswire.jsword.versification.Versification;
 
 import de.greenrobot.event.EventBus;
 
-public class SplitScreenSync {
+public class WindowSync {
 
 	private boolean isFirstTimeInit = true;
 	private boolean resynchRequired = false;
@@ -30,7 +30,7 @@ public class SplitScreenSync {
 	
 	private WindowRepository windowRepository;
 	
-	public SplitScreenSync(WindowRepository windowRepository) {
+	public WindowSync(WindowRepository windowRepository) {
 		this.windowRepository = windowRepository;
 		
 		// register for passage change and fore/background events
@@ -132,11 +132,11 @@ public class SplitScreenSync {
 				currentVerse = KeyUtil.getVerse(inactiveScreenKey);
 			}
 			
-			// update split screen as smoothly as possible i.e. just jump/scroll if verse is on current page
+			// update inactive screens as smoothly as possible i.e. just jump/scroll if verse is on current page
 			if (!forceRefresh && 
 					BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && 
 					currentVerse!=null && targetVerse!=null && targetV11n.isSameChapter(targetVerse, currentVerse)) {
-				EventBus.getDefault().post(new ScrollSecondaryScreenEvent(inactiveScreen, targetVerse.getVerse()));
+				EventBus.getDefault().post(new ScrollSecondaryWindowEvent(inactiveScreen, targetVerse.getVerse()));
 			} else {
 				new UpdateInactiveScreenTextTask().execute(inactiveScreen);
 			}
@@ -163,7 +163,7 @@ public class SplitScreenSync {
         /** callback from base class when result is ready */
     	@Override
     	protected void showText(String text, Window window, int verseNo, float yOffsetRatio) {
-    		EventBus.getDefault().post(new UpdateSecondaryScreenEvent(window, text, verseNo));
+    		EventBus.getDefault().post(new UpdateSecondaryWindowEvent(window, text, verseNo));
         }
     }
 

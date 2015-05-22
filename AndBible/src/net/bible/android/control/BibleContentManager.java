@@ -2,7 +2,7 @@ package net.bible.android.control;
 
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.UpdateTextTask;
-import net.bible.android.control.page.splitscreen.Window;
+import net.bible.android.control.page.window.Window;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.page.screen.DocumentViewManager;
 import net.bible.service.common.CommonUtils;
@@ -39,7 +39,7 @@ public class BibleContentManager {
     }
     
     /* package */ void updateText(boolean forceUpdate) {
-    	Window window = CommonUtils.getActiveSplitScreen();
+    	Window window = CommonUtils.getActiveWindow();
     	CurrentPage currentPage = window.getPageManager().getCurrentPage();
 		Book document = currentPage.getCurrentDocument();
 		Key key = currentPage.getKey();

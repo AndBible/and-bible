@@ -1,8 +1,8 @@
-package net.bible.android.control.page.splitscreen;
+package net.bible.android.control.page.window;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
-import net.bible.android.control.page.splitscreen.WindowLayout.WindowState;
+import net.bible.android.control.page.window.WindowLayout.WindowState;
 
 import org.json.JSONObject;
 import org.junit.After;

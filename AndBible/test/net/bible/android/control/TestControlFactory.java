@@ -1,6 +1,6 @@
 package net.bible.android.control;
 
-import net.bible.android.control.page.splitscreen.WindowControl;
+import net.bible.android.control.page.window.WindowControl;
 
 public class TestControlFactory extends ControlFactory {
 

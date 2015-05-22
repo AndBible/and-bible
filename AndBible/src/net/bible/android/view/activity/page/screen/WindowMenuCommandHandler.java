@@ -2,7 +2,7 @@ package net.bible.android.view.activity.page.screen;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.page.splitscreen.WindowControl;
+import net.bible.android.control.page.window.WindowControl;
 import android.view.MenuItem;
 
 public class WindowMenuCommandHandler {

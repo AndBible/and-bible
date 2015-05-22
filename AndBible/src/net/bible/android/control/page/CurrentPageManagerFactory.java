@@ -1,6 +1,6 @@
 package net.bible.android.control.page;
 
-import net.bible.android.control.page.splitscreen.Window;
+import net.bible.android.control.page.window.Window;
 
 
 public class CurrentPageManagerFactory {

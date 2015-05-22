@@ -11,7 +11,7 @@ import java.util.Properties;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.page.splitscreen.Window;
+import net.bible.android.control.page.window.Window;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -408,7 +408,7 @@ public class CommonUtils {
 		return hms.toString();
 	}
 	
-	public static Window getActiveSplitScreen() {
+	public static Window getActiveWindow() {
 		return ControlFactory.getInstance().getWindowControl().getActiveWindow();
 	}
 	

@@ -2,9 +2,9 @@ package net.bible.android.view.activity.page.screen;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
-import net.bible.android.control.page.splitscreen.Window;
-import net.bible.android.control.page.splitscreen.WindowControl;
+import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
+import net.bible.android.control.page.window.Window;
+import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.mynote.MyNoteViewBuilder;
 import android.app.Activity;

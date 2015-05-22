@@ -1,13 +1,13 @@
-package net.bible.android.control.event.splitscreen;
+package net.bible.android.control.event.window;
 
 import java.util.Map;
 
-import net.bible.android.control.page.splitscreen.Window;
+import net.bible.android.control.page.window.Window;
 
 /**
- * 	Split screen has been minimized/restored/removed/added
+ * 	Window has been minimized/restored/removed/added
  */
-public class NumberOfWindowsChangedEvent implements SplitScreenEvent {
+public class NumberOfWindowsChangedEvent implements WindowEvent {
 	
 	private Map<Window, Integer> screenVerseMap;
 

@@ -1,18 +1,18 @@
-package net.bible.android.control.event.splitscreen;
+package net.bible.android.control.event.window;
 
 import java.util.Map;
 
-import net.bible.android.control.page.splitscreen.Window;
+import net.bible.android.control.page.window.Window;
 
 /**
- * Split screen size changed - often due to separator being moved
+ * Window size changed - often due to separator being moved
  */
-public class SplitScreenSizeChangedEvent implements SplitScreenEvent {
+public class WindowSizeChangedEvent implements WindowEvent {
 
 	private boolean isFinished;
 	private Map<Window, Integer> screenVerseMap;
 	
-	public SplitScreenSizeChangedEvent(boolean isFinished, Map<Window, Integer> screenVerseMap) {
+	public WindowSizeChangedEvent(boolean isFinished, Map<Window, Integer> screenVerseMap) {
 		this.isFinished = isFinished;
 		this.screenVerseMap = screenVerseMap;
 	}

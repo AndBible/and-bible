@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 
 import net.bible.service.common.Constants.HTML;
-import net.bible.service.format.osistohtml.OsisTagHandler;
 import net.bible.service.format.osistohtml.HtmlTextWriter;
+import net.bible.service.format.osistohtml.OsisTagHandler;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.TagHandlerHelper;
 
@@ -86,7 +86,7 @@ public class StrongsHandler implements OsisTagHandler {
 	 */
 	private List<String> getStrongsAndMorphTags(String strongsLemma,
 			String morphology) {
-		// there may occasionally be more than on ref so split them into a list
+		// there may occasionally be more than one ref so split them into a list
 		// of single refs
 		List<String> strongsTags = getStrongsTags(strongsLemma);
 		List<String> morphTags = getMorphTags(morphology);

@@ -4,14 +4,14 @@ import java.lang.reflect.Method;
 
 import net.bible.android.SharedConstants;
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.event.splitscreen.CurrentSplitScreenChangedEvent;
-import net.bible.android.control.event.splitscreen.NumberOfWindowsChangedEvent;
-import net.bible.android.control.event.splitscreen.ScrollSecondaryScreenEvent;
-import net.bible.android.control.event.splitscreen.SplitScreenSizeChangedEvent;
-import net.bible.android.control.event.splitscreen.UpdateSecondaryScreenEvent;
+import net.bible.android.control.event.window.CurrentWindowChangedEvent;
+import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
+import net.bible.android.control.event.window.ScrollSecondaryWindowEvent;
+import net.bible.android.control.event.window.UpdateSecondaryWindowEvent;
+import net.bible.android.control.event.window.WindowSizeChangedEvent;
 import net.bible.android.control.page.PageControl;
-import net.bible.android.control.page.splitscreen.Window;
-import net.bible.android.control.page.splitscreen.WindowControl;
+import net.bible.android.control.page.window.Window;
+import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.page.screen.PageTiltScroller;
 import net.bible.service.common.CommonUtils;
@@ -133,7 +133,7 @@ public class BibleView extends WebView implements DocumentView {
 		EventBus.getDefault().register(this);
 		
 		// initialise split state related code - always screen1 is selected first
-		onEvent(new CurrentSplitScreenChangedEvent(windowControl.getActiveWindow()));
+		onEvent(new CurrentWindowChangedEvent(windowControl.getActiveWindow()));
 	}
 
 	@Override
@@ -329,7 +329,7 @@ public class BibleView extends WebView implements DocumentView {
     }
     
     private void resumeTiltScroll() {
-    	// but if split screen then only if the current active split
+    	// but if multiple windows then only if the current active window
     	if (windowControl.isActiveWindow(window)) {
 			Log.d(TAG, "Resuming tilt to scroll "+window);
 	        mPageTiltScroller.enableTiltScroll(true);
@@ -468,7 +468,7 @@ public class BibleView extends WebView implements DocumentView {
 		return this;
 	}
 
-	public void onEvent(CurrentSplitScreenChangedEvent event) {
+	public void onEvent(CurrentWindowChangedEvent event) {
 		if (window.equals(event.getActiveWindow())) {
 			mJavascriptInterface.setNotificationsEnabled(true);
 			resumeTiltScroll();
@@ -478,21 +478,21 @@ public class BibleView extends WebView implements DocumentView {
 		}
 	}
 
-	public void onEvent(UpdateSecondaryScreenEvent event) {
+	public void onEvent(UpdateSecondaryWindowEvent event) {
 		if (window.equals(event.getUpdateScreen())) {
 			changeBackgroundColour();
 			show(event.getHtml(), event.getVerseNo(), SharedConstants.NO_VALUE);
 		}		
 	}
 
-	public void onEvent(ScrollSecondaryScreenEvent event) {
+	public void onEvent(ScrollSecondaryWindowEvent event) {
 		if (window.equals(event.getWindow()) && getHandler()!=null) {
 			scrollOrJumpToVerseOnUIThread(event.getVerseNo());
 		}
 	}
 	
-	public void onEvent(SplitScreenSizeChangedEvent event) {
-		Log.d(TAG, "split screen size changed");
+	public void onEvent(WindowSizeChangedEvent event) {
+		Log.d(TAG, "window size changed");
 		boolean isScreenVerse = event.isVerseNoSet(window);
 		if (isScreenVerse) {
 			this.maintainMovingVerse = event.getVerseNo(window);
@@ -524,7 +524,7 @@ public class BibleView extends WebView implements DocumentView {
 	protected void onDetachedFromWindow() {
 		super.onDetachedFromWindow();
 		Log.d(TAG, "Detached from window");
-		// prevent random verse changes while layout is being rebuild because of split screen changes
+		// prevent random verse changes while layout is being rebuild because of window changes
 		mJavascriptInterface.setNotificationsEnabled(false);
 	}
 	
@@ -542,7 +542,7 @@ public class BibleView extends WebView implements DocumentView {
 		}
 	}
 
-	public Window getSplitScreenNo() {
+	public Window getWindowNo() {
 		return window;
 	}
 

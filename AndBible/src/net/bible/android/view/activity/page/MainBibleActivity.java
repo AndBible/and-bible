@@ -8,9 +8,9 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.passage.PassageChangeStartedEvent;
 import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent;
-import net.bible.android.control.event.splitscreen.CurrentSplitScreenChangedEvent;
+import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.page.CurrentPage;
-import net.bible.android.control.page.splitscreen.WindowControl;
+import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.page.actionbar.BibleActionBarManager;
 import net.bible.android.view.activity.page.screen.DocumentViewManager;
@@ -163,8 +163,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		if (!ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().isSingleKey()) {
 			// force a recalculation of verse offsets
 			PassageChangeMediator.getInstance().forcePageUpdate();
-		} else if (windowControl.isSplit()) {
-			// need to layout split screens differently
+		} else if (windowControl.isMultiWindow()) {
+			// need to layout multiple windows differently
 			windowControl.orientationChange();
 		}
 	}
@@ -232,7 +232,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     	}
     }
     
-	public void onEvent(CurrentSplitScreenChangedEvent event) {
+	public void onEvent(CurrentWindowChangedEvent event) {
 		MainBibleActivity.this.updateActionBarButtons();				
 	}
 
