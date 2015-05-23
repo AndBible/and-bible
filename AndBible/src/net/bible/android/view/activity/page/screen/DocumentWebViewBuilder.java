@@ -368,6 +368,8 @@ public class DocumentWebViewBuilder {
 		    // enable/disable and set synchronised checkbox
 		    windowControl.updateOptionsMenu(popup.getMenu());
 		    
+		    CommonUtils.forcePopupMenuToShowIcons(popup);
+		    
 		    popup.show();
 			return true;
 		}

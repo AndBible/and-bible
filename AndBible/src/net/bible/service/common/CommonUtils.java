@@ -3,6 +3,8 @@ package net.bible.service.common;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Calendar;
@@ -31,6 +33,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
+import android.support.v7.widget.PopupMenu;
 import android.util.Log;
 
 /**
@@ -450,5 +453,27 @@ public class CommonUtils {
 	 */
 	public static boolean isSlowDevice() {
 		return Runtime.getRuntime().availableProcessors()==1;
+	}
+	
+	/**
+	 * By default popup menus do not show icons, but see the trick below
+	 * http://stackoverflow.com/questions/6805756/is-it-possible-to-display-icons-in-a-popupmenu
+	 */
+	public static void forcePopupMenuToShowIcons(PopupMenu popup) {
+		try {
+		    Field[] fields = popup.getClass().getDeclaredFields();
+		    for (Field field : fields) {
+		        if ("mPopup".equals(field.getName())) {
+		            field.setAccessible(true);
+		            Object menuPopupHelper = field.get(popup);
+		            Class<?> classPopupHelper = Class.forName(menuPopupHelper.getClass().getName());
+		            Method setForceIcons = classPopupHelper.getMethod("setForceShowIcon", boolean.class);
+		            setForceIcons.invoke(menuPopupHelper, true);
+		            break;
+		        }
+		    }
+		} catch (Exception e) {
+		    e.printStackTrace();
+		}
 	}
 }

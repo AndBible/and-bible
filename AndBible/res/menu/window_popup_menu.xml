@@ -12,14 +12,17 @@
 		  android:title="@string/new_item"
 		  android:icon="@android:drawable/ic_menu_add"/>
 	<item android:id="@+id/windowMinimise"
-		  android:title="@string/windowMinimise"/>
+		  android:title="@string/windowMinimise"
+		  android:icon="@drawable/ic_menu_minimise"/>
 	<item android:id="@+id/windowClose"
 		  android:title="@string/windowClose"
 		  android:icon="@android:drawable/ic_menu_close_clear_cancel"/>
 	<item android:id="@+id/windowSynchronised"
 		  android:title="@string/windowSynchronised"
+		  android:icon="@android:drawable/ic_media_pause"
 		  android:checkable="true"
 		  android:checked="true"/>
 	<item android:id="@+id/windowMoveFirst"
-		  android:title="@string/windowMoveFirst"/>
+		  android:title="@string/windowMoveFirst"
+		  android:icon="@android:drawable/arrow_up_float"/>
 </menu>
