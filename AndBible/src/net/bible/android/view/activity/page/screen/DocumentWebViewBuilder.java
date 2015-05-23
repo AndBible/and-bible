@@ -312,7 +312,7 @@ public class DocumentWebViewBuilder {
 				windowControl.restoreWindow(window);				
 			}
 		},
-		new WindowButtonLongClickListener(window));
+		null);
 	}
 
 	/** 
@@ -349,29 +349,34 @@ public class DocumentWebViewBuilder {
 
 		@Override
 		public boolean onLongClick(View v) {
-			// ensure actions affect the right window
-			windowControl.setActiveWindow(window);
-			
-		    PopupMenu popup = new PopupMenu(mainActivity, v);
-		    popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-				private WindowMenuCommandHandler menuCommandHandler = new WindowMenuCommandHandler();
+			// Android 2.3 has various errors around popup menus so just support this shortcut for the primary user base which is on Android 4.0+ 
+			if (CommonUtils.isIceCreamSandwichPlus()) {
+				// ensure actions affect the right window
+				windowControl.setActiveWindow(window);
 				
-				@Override
-				public boolean onMenuItemClick(MenuItem menuItem) {
-					return menuCommandHandler.handleMenuRequest(menuItem);
-				}
-			});
-		    
-		    MenuInflater inflater = popup.getMenuInflater();
-		    inflater.inflate(R.menu.window_popup_menu, popup.getMenu());
-		    
-		    // enable/disable and set synchronised checkbox
-		    windowControl.updateOptionsMenu(popup.getMenu());
-		    
-		    CommonUtils.forcePopupMenuToShowIcons(popup);
-		    
-		    popup.show();
-			return true;
+			    PopupMenu popup = new PopupMenu(mainActivity, v);
+			    popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+					private WindowMenuCommandHandler menuCommandHandler = new WindowMenuCommandHandler();
+					
+					@Override
+					public boolean onMenuItemClick(MenuItem menuItem) {
+						return menuCommandHandler.handleMenuRequest(menuItem);
+					}
+				});
+			    
+			    MenuInflater inflater = popup.getMenuInflater();
+			    inflater.inflate(R.menu.window_popup_menu, popup.getMenu());
+			    
+			    // enable/disable and set synchronised checkbox
+			    windowControl.updateOptionsMenu(popup.getMenu());
+			    
+			    CommonUtils.forcePopupMenuToShowIcons(popup);
+			    
+			    popup.show();
+				return true;
+			} else {
+				return false;
+			}
 		}
 	};
 
