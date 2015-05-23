@@ -107,6 +107,11 @@ public class WindowControl {
         //TODO do not set links window active -  currently need to set links window to active window otherwise BibleContentMediator logic does not refresh that window
         windowRepository.setActiveWindow(linksWindow);
         
+        // retain whichever Bible version is currently selected in the Links window
+        if (document.getBookCategory().equals(BookCategory.BIBLE)) {
+        	document = linksWindow.getPageManager().getCurrentBible().getCurrentDocument();
+        }
+        
         linksWindow.getPageManager().setCurrentDocumentAndKey(document, key);
         
 		// redisplay the current page
