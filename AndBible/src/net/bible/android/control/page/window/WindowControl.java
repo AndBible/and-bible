@@ -100,17 +100,20 @@ public class WindowControl {
 		return window.equals(windowRepository.getActiveWindow());
 	}
 	
+	/** 
+	 * Show link using whatever is the current Bible in the Links window
+	 */
+	public void showLinkUsingDefaultBible(Key key) {
+		Book defaultBible = windowRepository.getDedicatedLinksWindow().getPageManager().getCurrentBible().getCurrentDocument();
+		showLink(defaultBible, key);
+	}
+	
 	public void showLink(Book document, Key key) {
         Window linksWindow = windowRepository.getDedicatedLinksWindow();
         boolean linksWindowWasVisible = linksWindow.isVisible();
         
         //TODO do not set links window active -  currently need to set links window to active window otherwise BibleContentMediator logic does not refresh that window
         windowRepository.setActiveWindow(linksWindow);
-        
-        // retain whichever Bible version is currently selected in the Links window
-        if (document.getBookCategory().equals(BookCategory.BIBLE)) {
-        	document = linksWindow.getPageManager().getCurrentBible().getCurrentDocument();
-        }
         
         linksWindow.getPageManager().setCurrentDocumentAndKey(document, key);
         

@@ -157,7 +157,8 @@ public class LinkControl {
 		// create Passage with correct source Versification 
         Key key = PassageKeyFactory.instance().getKey(sourceDocumentVersification, keyText);
         
-        windowControl.showLink(bible, key);
+        // Bible not specified so use the default Bible version
+        windowControl.showLinkUsingDefaultBible(key);
 		
 		return;
 	}
