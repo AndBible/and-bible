@@ -69,7 +69,7 @@ public class WindowControl {
 			}
 		}
 		
-		MenuItem synchronisedMenuItem = menu.findItem(R.id.windowSynchronised);
+		MenuItem synchronisedMenuItem = menu.findItem(R.id.windowSynchronise);
 		MenuItem moveFirstMenuItem = menu.findItem(R.id.windowMoveFirst);
 		MenuItem closeMenuItem = menu.findItem(R.id.windowClose);
 		MenuItem minimiseMenuItem = menu.findItem(R.id.windowMinimise);
@@ -152,6 +152,23 @@ public class WindowControl {
 		}
 	}
 
+	public void maximiseWindow(Window window) {
+		window.setMaximised(true);
+		
+		// also remove the links window because it may possibly displayed even though a window is maximised if a link is pressed
+		windowRepository.getDedicatedLinksWindow().getWindowLayout().setState(WindowState.CLOSED);
+
+		// redisplay the current page
+		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+	}
+	
+	public void unmaximiseWindow(Window window) {
+		window.setMaximised(false);
+
+		// redisplay the current page
+		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+	}
+	
 	public void closeCurrentWindow() {
 		closeWindow(getActiveWindow());
 	}

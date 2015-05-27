@@ -2,6 +2,7 @@ package net.bible.android.view.activity.page.screen;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowControl;
 import android.view.MenuItem;
 
@@ -20,9 +21,20 @@ public class WindowMenuCommandHandler {
         boolean isHandled = false;
         
         // Handle item selection
-        switch (menuItem.getItemId()) {
+        Window activeWindow = windowControl.getActiveWindow();
+		switch (menuItem.getItemId()) {
 		case R.id.windowNew:
 			windowControl.addNewWindow();
+			isHandled = true;
+			break;
+		case R.id.windowMaximise:
+			if (activeWindow.isMaximised()) {
+				windowControl.unmaximiseWindow(activeWindow);
+				menuItem.setChecked(false);
+			} else {
+				windowControl.maximiseWindow(activeWindow);
+				menuItem.setChecked(true);
+			}
 			isHandled = true;
 			break;
 		case R.id.windowMinimise:
@@ -37,8 +49,8 @@ public class WindowMenuCommandHandler {
 			windowControl.moveCurrentWindowToFirst();
 			isHandled = true;
 			break;
-		case R.id.windowSynchronised:
-			if (windowControl.getActiveWindow().isSynchronised()) {
+		case R.id.windowSynchronise:
+			if (activeWindow.isSynchronised()) {
 				windowControl.unsynchroniseCurrentWindow();
 				menuItem.setChecked(false);
 			} else {

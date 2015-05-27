@@ -114,8 +114,9 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!-- Window -->
     <string name="window">Window</string>
     <string name="windowClose">Close</string>
+    <string name="windowMaximise">Maximise</string>
     <string name="windowMinimise">Minimise</string>
-    <string name="windowSynchronised">Synchronised</string>
+    <string name="windowSynchronise">Synchronise</string>
     <string name="windowMoveFirst">Move first</string>
     
     <!-- Notes screen -->

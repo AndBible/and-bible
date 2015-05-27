@@ -47,31 +47,34 @@ public class WindowRepository {
     	eventManager.register(this);
 	}
 	
+	//TODO if user presses a link then should also show links window
 	public List<Window> getWindows() {
 		List<Window> windows = new ArrayList<>(windowList);
-		if (dedicatedLinksWindow.isVisible()) {
-			windows.add(dedicatedLinksWindow);
-		}
+		addLinksWindowIfVisible(windows);
 		return windows;
 	}
 
+	private void addLinksWindowIfVisible(List<Window> windows) {
+		if (dedicatedLinksWindow.isVisible()) {
+			windows.add(dedicatedLinksWindow);
+		}
+	}
+
 	public List<Window> getVisibleWindows() {
-			// only 1 screen can be maximised
-//			if (screen.getState() == WindowState.MAXIMISED) {
-//				screens.clear();
-//				screens.add(screen);
-//				return screens;
-//			} else 
-		return getWindows(WindowState.SPLIT);
+		List<Window> maximisedWindows = getWindows(WindowState.MAXIMISED);
+		if (!maximisedWindows.isEmpty()) {
+			// links window is still displayable in maximised mode but does not have the requested MAXIMIZED state
+			addLinksWindowIfVisible(maximisedWindows);
+			// should only ever be one maximised window
+			return maximisedWindows;
+		} else {
+			return getWindows(WindowState.SPLIT);
+		}
 	}
 
 	public List<Window> getMinimisedScreens() {
 		return getWindows(WindowState.MINIMISED);
 	}
-
-//	public List<Window> getMaximisedScreens() {
-//		return getScreens(WindowState.MAXIMISED);
-//	}
 
 	private List<Window> getWindows(WindowState state) {
 		List<Window> windows = new ArrayList<>();
@@ -121,12 +124,7 @@ public class WindowRepository {
 	}
 	
 	private WindowLayout.WindowState getDefaultState() {
-		//TODO 
-//		if (getWindows().size()==0) {
-//			return WindowState.MAXIMISED;
-//		} else {
-			return WindowState.SPLIT;
-//		}
+		return WindowState.SPLIT;
 	}
 
 	public Window getActiveWindow() {
@@ -148,20 +146,6 @@ public class WindowRepository {
 	
 	public void minimise(Window window) {
 		window.getWindowLayout().setState(WindowState.MINIMISED);
-
-		// adjustments
-		// I don't think we need this
-//		List<Window> visibleScreens = getVisibleWindows();
-//		switch (visibleScreens.size()) {
-//		case 0:
-//			screen.setState(WindowState.MAXIMISED);
-//			break;
-//		case 1:
-//			visibleScreens.get(0).setState(WindowState.MAXIMISED);
-//			break;
-//		default:
-//			break;
-//		}
 
 		// has the active screen been minimised?
 		if (getActiveWindow().equals(window)) {

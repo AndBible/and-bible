@@ -57,6 +57,20 @@ public class Window {
 		return screenNo;
 	}
 
+	public boolean isMaximised() {
+		return getWindowLayout().getState().equals(WindowState.MAXIMISED);
+	}
+	
+	public void setMaximised(boolean maximise) {
+		if (maximise) {
+			getWindowLayout().setState(WindowState.MAXIMISED);
+		} else {
+			getWindowLayout().setState(WindowState.SPLIT);
+		}
+	}
+
+
+	
 	public boolean isSynchronised() {
 		return isSynchronised;
 	}

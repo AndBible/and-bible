@@ -3,6 +3,7 @@ package net.bible.android.control.page.window;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.isA;
@@ -123,6 +124,37 @@ public class WindowControlTest {
 	}
 
 	@Test
+	public void testMaximiseWindow() throws Exception {
+		Window newWindow = windowControl.addNewWindow();
+		windowControl.setActiveWindow(newWindow);
+		reset(eventManager);
+
+		windowControl.maximiseWindow(newWindow);
+		assertThat(windowRepository.getVisibleWindows(), hasItem(newWindow));
+		assertThat(windowRepository.getVisibleWindows(), hasSize(1));
+		
+		verify(eventManager, times(1)).post(argThat(isA(NumberOfWindowsChangedEvent.class)));
+	}
+
+	@Test
+	public void testMaximiseWindowClosesLinksWindow() throws Exception {
+		Window activeWindow = windowControl.getActiveWindow();
+		windowControl.addNewWindow(); // add an extra window for good measure
+		windowControl.showLinkUsingDefaultBible(PS_139_3);
+		windowControl.setActiveWindow(activeWindow);
+		assertThat(windowRepository.getVisibleWindows(), hasSize(3));
+		reset(eventManager);
+
+		// making window active should remove links window
+		windowControl.maximiseWindow(activeWindow);
+		assertThat(windowRepository.getVisibleWindows(), contains(activeWindow));
+
+		// showing link should re-display links window despite window being maximised
+		windowControl.showLinkUsingDefaultBible(PS_139_3);
+		assertThat(windowRepository.getVisibleWindows(), contains(activeWindow, windowRepository.getDedicatedLinksWindow()));
+	}
+
+	@Test
 		public void testCloseWindow() throws Exception {
 			Window newWindow = windowControl.addNewWindow();
 			reset(eventManager);
@@ -196,7 +228,7 @@ public class WindowControlTest {
 		new MenuInflater(Robolectric.application).inflate(R.menu.main, menu);
 
 		windowControl.updateOptionsMenu(menu);
-		MenuItem synchronisedMenuItem = menu.findItem(R.id.windowSynchronised);
+		MenuItem synchronisedMenuItem = menu.findItem(R.id.windowSynchronise);
 		assertThat(synchronisedMenuItem.isChecked(), equalTo(true));
 		
 		windowControl.getActiveWindow().setSynchronised(false);
@@ -212,7 +244,7 @@ public class WindowControlTest {
 		Menu menu = new MenuBuilder(Robolectric.application);
 		new MenuInflater(Robolectric.application).inflate(R.menu.main, menu);
 		windowControl.updateOptionsMenu(menu);
-		MenuItem synchronisedMenuItem = menu.findItem(R.id.windowSynchronised);
+		MenuItem synchronisedMenuItem = menu.findItem(R.id.windowSynchronise);
 		MenuItem moveFirstMenuItem = menu.findItem(R.id.windowMoveFirst);
 		MenuItem minimiseMenuItem = menu.findItem(R.id.windowMinimise);
 
