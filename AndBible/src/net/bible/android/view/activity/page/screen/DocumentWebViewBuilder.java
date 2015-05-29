@@ -298,7 +298,7 @@ public class DocumentWebViewBuilder {
 	}
 
 	private Button createMaximiseToggleButton(final Window window) {
-		return createImageButton(R.drawable.ic_menu_maximise, new OnClickListener() {
+		return createImageButton(R.drawable.ic_menu_unmaximise, new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				windowControl.unmaximiseWindow(window);				

@@ -137,7 +137,7 @@ public class WindowControlTest {
 	}
 
 	@Test
-	public void testMaximiseWindowClosesLinksWindow() throws Exception {
+	public void testMaximiseAndLinksWindow() throws Exception {
 		Window activeWindow = windowControl.getActiveWindow();
 		windowControl.addNewWindow(); // add an extra window for good measure
 		windowControl.showLinkUsingDefaultBible(PS_139_3);
@@ -152,6 +152,11 @@ public class WindowControlTest {
 		// showing link should re-display links window despite window being maximised
 		windowControl.showLinkUsingDefaultBible(PS_139_3);
 		assertThat(windowRepository.getVisibleWindows(), contains(activeWindow, windowRepository.getDedicatedLinksWindow()));
+
+		// maximise links window should be possible
+		Window linksWindow = windowRepository.getDedicatedLinksWindow();
+		windowControl.maximiseWindow(linksWindow);
+		assertThat(windowRepository.getVisibleWindows(), contains(linksWindow));
 	}
 
 	@Test

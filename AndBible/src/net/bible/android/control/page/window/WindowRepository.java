@@ -62,7 +62,9 @@ public class WindowRepository {
 		List<Window> maximisedWindows = getWindows(WindowState.MAXIMISED);
 		if (!maximisedWindows.isEmpty()) {
 			// links window is still displayable in maximised mode but does not have the requested MAXIMIZED state
-			addLinksWindowIfVisible(maximisedWindows);
+			if (!maximisedWindows.contains(dedicatedLinksWindow)) {
+				addLinksWindowIfVisible(maximisedWindows);
+			}
 			// should only ever be one maximised window
 			return maximisedWindows;
 		} else {
@@ -70,6 +72,10 @@ public class WindowRepository {
 		}
 	}
 
+	public List<Window> getMaximisedScreens() {
+		return getWindows(WindowState.MAXIMISED);
+	}
+	
 	public List<Window> getMinimisedScreens() {
 		return getWindows(WindowState.MINIMISED);
 	}

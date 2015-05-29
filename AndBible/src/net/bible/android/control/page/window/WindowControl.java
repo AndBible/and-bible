@@ -155,10 +155,17 @@ public class WindowControl {
 	}
 
 	public void maximiseWindow(Window window) {
+		// there can only be one maximised window at a time so if there is another unmaximise it
+		for (Window w : windowRepository.getMaximisedScreens() ) {
+			w.setMaximised(false);
+		}
+		
 		window.setMaximised(true);
 		
 		// also remove the links window because it may possibly displayed even though a window is maximised if a link is pressed
-		windowRepository.getDedicatedLinksWindow().getWindowLayout().setState(WindowState.CLOSED);
+		if (!window.isLinksWindow()) {
+			windowRepository.getDedicatedLinksWindow().getWindowLayout().setState(WindowState.CLOSED);
+		}
 
 		// redisplay the current page
 		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));

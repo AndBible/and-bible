@@ -13,4 +13,16 @@
 			<size android:width="50dp" android:height="50dp" />
         </shape>
     </item>
+
+    <!-- Then put a dividing line through it -->
+    <item android:left="8dp"
+          android:right="8dp"
+          android:top="8dp"
+          android:bottom="8dp">
+
+        <shape android:shape="line">
+		    <stroke android:width="2dp" android:color="@color/window_button_text_colour" />
+			<size android:width="50dp" android:height="50dp" />
+        </shape>
+    </item>
 </layer-list>
