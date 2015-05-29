@@ -14,7 +14,8 @@
 	<item android:id="@+id/windowMaximise"
 		  android:title="@string/windowMaximise"
 		  android:checkable="true"
-		  android:checked="false"/>
+		  android:checked="false"
+		  android:icon="@drawable/ic_menu_maximise"/>
 	<item android:id="@+id/windowMinimise"
 		  android:title="@string/windowMinimise"
 		  android:icon="@drawable/ic_menu_minimise"/>

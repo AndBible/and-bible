@@ -73,12 +73,14 @@ public class WindowControl {
 		MenuItem moveFirstMenuItem = menu.findItem(R.id.windowMoveFirst);
 		MenuItem closeMenuItem = menu.findItem(R.id.windowClose);
 		MenuItem minimiseMenuItem = menu.findItem(R.id.windowMinimise);
+		MenuItem maximiseMenuItem = menu.findItem(R.id.windowMaximise);
 		Window window = getActiveWindow();
 
 		if (synchronisedMenuItem!=null && moveFirstMenuItem!=null) {
-			// set synchronised checkbox state
+			// set synchronised & maximised checkbox state
 			synchronisedMenuItem.setChecked(window.isSynchronised());
-		
+			maximiseMenuItem.setChecked(window.isMaximised());
+			
 			// the dedicated links window cannot be treated as a normal window
 			boolean isDedicatedLinksWindowActive = isActiveWindow(windowRepository.getDedicatedLinksWindow());
 			synchronisedMenuItem.setEnabled(!isDedicatedLinksWindowActive);

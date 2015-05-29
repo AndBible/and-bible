@@ -175,10 +175,10 @@ public class DocumentWebViewBuilder {
 					previousSeparator = separator;
 				}
 
-				// leave main window clear of distracting minimise button
-				if (windowNo!=0) {
+				// leave main window clear of distracting minimise button, but simplify unmaximise
+				if (windowNo!=0 || window.isMaximised()) {
 					// create default action button for top right of each window
-					Button defaultWindowActionButton = createDefaultWindowActionButton(window);
+					View defaultWindowActionButton = createDefaultWindowActionButton(window);
 	    			currentWindowFrameLayout.addView(defaultWindowActionButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP|Gravity.RIGHT));
 				}
 				
@@ -203,11 +203,14 @@ public class DocumentWebViewBuilder {
     	}
 	}
 
-	private Button createDefaultWindowActionButton(Window window) {
-		Button defaultWindowActionButton;
+	private View createDefaultWindowActionButton(Window window) {
+		View defaultWindowActionButton;
 		if (window.getDefaultOperation().equals(WindowOperation.CLOSE)) {
 		    // minimise button
 		    defaultWindowActionButton = createCloseButton(window);
+		} else if (window.getDefaultOperation().equals(WindowOperation.MAXIMISE)) {
+		    // minimise button
+		    defaultWindowActionButton = createMaximiseToggleButton(window);
 		} else {
 		    // minimise button
 		    defaultWindowActionButton = createMinimiseButton(window);
@@ -294,6 +297,16 @@ public class DocumentWebViewBuilder {
 		new WindowButtonLongClickListener(window));
 	}
 
+	private Button createMaximiseToggleButton(final Window window) {
+		return createImageButton(R.drawable.ic_menu_maximise, new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				windowControl.unmaximiseWindow(window);				
+			}
+		},
+		new WindowButtonLongClickListener(window));
+	}
+
 	private Button createMinimiseButton(final Window window) {
 		return createTextButton("━━", new OnClickListener() {
 			@Override
@@ -328,13 +341,24 @@ public class DocumentWebViewBuilder {
 	
 	private Button createTextButton(String text, OnClickListener onClickListener, OnLongClickListener onLongClickListener) {
 		Button button = new Button(this.mainActivity);
-        button.setText(text);
+		button.setText(text);
+		button.setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR);
         button.setWidth(BUTTON_SIZE_PX);
         button.setHeight(BUTTON_SIZE_PX);
-        button.setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR);
         button.setTextColor(WINDOW_BUTTON_TEXT_COLOUR);
         button.setTypeface(null, Typeface.BOLD);
         button.setSingleLine(true);
+        button.setOnClickListener(onClickListener);
+        button.setOnLongClickListener(onLongClickListener);
+        return button;
+	}
+
+	private Button createImageButton(int drawableId, OnClickListener onClickListener, OnLongClickListener onLongClickListener) {
+		Button button = new Button(this.mainActivity);
+		button.setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR);
+		button.setBackgroundResource(drawableId);
+        button.setWidth(BUTTON_SIZE_PX);
+        button.setHeight(BUTTON_SIZE_PX);
         button.setOnClickListener(onClickListener);
         button.setOnLongClickListener(onLongClickListener);
         return button;

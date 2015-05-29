@@ -14,8 +14,6 @@ public class Window {
 		MAXIMISE, MINIMISE, RESTORE, CLOSE 
 	}
 
-	private WindowOperation defaultOperation;
-	
 	private boolean isSynchronised = true;
 	
 	private WindowLayout windowLayout;
@@ -32,8 +30,6 @@ public class Window {
 	public Window(int screenNo, WindowState windowState) {
 		this.screenNo = screenNo;
 		this.windowLayout = new WindowLayout( windowState );
-		
-		this.defaultOperation = WindowOperation.MINIMISE;
 	}
 
 	/**
@@ -41,7 +37,6 @@ public class Window {
 	 */
 	public Window() {
 		this.windowLayout = new WindowLayout(WindowState.SPLIT);
-		this.defaultOperation = WindowOperation.MINIMISE;
 	}
 
 	public CurrentPageManager getPageManager() {
@@ -86,10 +81,14 @@ public class Window {
 
 	
 	public WindowOperation getDefaultOperation() {
-		return defaultOperation;
-	}
-	public void setDefaultOperation(WindowOperation defaultOperation) {
-		this.defaultOperation = defaultOperation;
+		// if window is maximised then default operation is always to unmaximise
+		if (isMaximised()) {
+			return WindowOperation.MAXIMISE;
+		} else if (isLinksWindow()) {
+			return WindowOperation.CLOSE;
+		} else {
+			return WindowOperation.MINIMISE;
+		}
 	}
 
 	public JSONObject getStateJson() throws JSONException {

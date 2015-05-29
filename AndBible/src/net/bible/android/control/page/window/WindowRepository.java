@@ -7,7 +7,6 @@ import net.bible.android.BibleApplication;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
-import net.bible.android.control.page.window.Window.WindowOperation;
 import net.bible.android.control.page.window.WindowLayout.WindowState;
 import net.bible.service.common.Logger;
 
@@ -35,7 +34,6 @@ public class WindowRepository {
 	public WindowRepository(EventManager eventManager) {
 		dedicatedLinksWindow = new Window(DEDICATED_LINK_WINDOW_SCREEN_NO, WindowState.CLOSED);
 		dedicatedLinksWindow.setSynchronised(false);
-		dedicatedLinksWindow.setDefaultOperation(WindowOperation.CLOSE);
 
 		windowList = new ArrayList<Window>();
 
