@@ -73,6 +73,10 @@
                         android:title="@string/prefs_verse_menu_button_title"
                         android:summary="@string/prefs_verse_menu_button_summary"
                         android:defaultValue="false"/ -->
+	<CheckBoxPreference android:key="open_links_in_special_window_pref" 
+				android:title="@string/prefs_open_links_in_special_window_title"
+				android:summary="@string/prefs_open_links_in_special_window_summary"
+				android:defaultValue="true"/>
 	<ListPreference android:key="screen_timeout_pref"
 				android:title="@string/prefs_screen_timeout_title"
 				android:summary="@string/prefs_screen_timeout_summary"

@@ -14,6 +14,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.search.SearchIndex;
 import net.bible.android.view.activity.search.SearchResults;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang.StringUtils;
@@ -116,7 +117,7 @@ public class LinkControl {
 				ref = replaceIBTSpecialCharacters(ref);
 				
 				Key bookKey = document.getKey(ref);
-		        windowControl.showLink(document, bookKey);
+		        showLink(document, bookKey);
 			}
 		}
 	}
@@ -158,7 +159,7 @@ public class LinkControl {
         Key key = PassageKeyFactory.instance().getKey(sourceDocumentVersification, keyText);
         
         // Bible not specified so use the default Bible version
-        windowControl.showLinkUsingDefaultBible(key);
+        showLink(null, key);
 		
 		return;
 	}
@@ -175,7 +176,7 @@ public class LinkControl {
         }
 
         Key strongsNumberKey = book.getKey(key); 
-        windowControl.showLink(book, strongsNumberKey);
+        showLink(book, strongsNumberKey);
 	}
 
 	/** user has selected a morphology link so show morphology page for key in link
@@ -251,6 +252,28 @@ public class LinkControl {
 			Log.e(TAG, "Error checking strongs numbers", be);
 			return false;
 		}
+	}
+
+	private void showLink(Book document, Key key) {
+		// ask window controller to open link in dedicated Links window
+		if (openLinksInDedicatedWindow()) {
+			if (document==null) {
+				windowControl.showLinkUsingDefaultBible(key);
+			} else {
+				windowControl.showLink(document, key);
+			}
+		} else {
+			// old style - open links in current window
+			if (document==null) {
+				CurrentPageManager currentPageManager = getCurrentPageManager();
+				document = currentPageManager.getCurrentBible().getCurrentDocument();
+				currentPageManager.setCurrentDocumentAndKey(document, key);
+			}
+		}
+	}
+	
+	private boolean openLinksInDedicatedWindow() {
+		return CommonUtils.getSharedPreferences().getBoolean("open_links_in_special_window_pref", true);
 	}
 
 	private CurrentPageManager getCurrentPageManager() {

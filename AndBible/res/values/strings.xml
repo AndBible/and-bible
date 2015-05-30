@@ -101,6 +101,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_night_mode_automatic">Automatic</string>
     <string name="prefs_navigate_to_verse_title">Navigate to verse</string>
     <string name="prefs_navigate_to_verse_summary">Choose verse (and chapter) when selecting a passage</string>
+    <string name="prefs_open_links_in_special_window_title">Open links in special window</string>
+    <string name="prefs_open_links_in_special_window_summary">For quicker display of cross-references and Strongs</string>
     <string name="prefs_text_size_title">Text size</string>
     <string name="prefs_text_size_summary">See more or see more clearly</string>
     <string name="prefs_text_size_sample_text">Sample text</string>
