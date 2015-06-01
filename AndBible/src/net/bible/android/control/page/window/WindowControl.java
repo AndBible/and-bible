@@ -176,6 +176,9 @@ public class WindowControl {
 
 		// redisplay the current page
 		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+		
+		windowSync.setResynchRequired(true);
+		windowSync.synchronizeScreens();
 	}
 	
 	public void closeCurrentWindow() {

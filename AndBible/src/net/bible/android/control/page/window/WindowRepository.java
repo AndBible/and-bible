@@ -142,7 +142,7 @@ public class WindowRepository {
 		}
 	}
 	
-	public List<Window> getNonActiveScreenList() {
+	public List<Window> getWindowsToSynchronise() {
 		List<Window> windows = getVisibleWindows();
 		windows.remove(getActiveWindow());
 		return windows;

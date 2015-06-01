@@ -66,7 +66,7 @@ public class WindowSync {
 
 		Key targetActiveScreenKey = activePage.getSingleKey();
 
-		List<Window> inactiveWindowList = windowRepository.getNonActiveScreenList();
+		List<Window> inactiveWindowList = windowRepository.getWindowsToSynchronise();
 		for (Window inactiveWindow : inactiveWindowList) {
 			CurrentPage inactivePage = inactiveWindow.getPageManager().getCurrentPage();
 			Key inactiveScreenKey = inactivePage.getSingleKey();
