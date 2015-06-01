@@ -264,11 +264,11 @@ public class LinkControl {
 			}
 		} else {
 			// old style - open links in current window
+			CurrentPageManager currentPageManager = getCurrentPageManager();
 			if (document==null) {
-				CurrentPageManager currentPageManager = getCurrentPageManager();
 				document = currentPageManager.getCurrentBible().getCurrentDocument();
-				currentPageManager.setCurrentDocumentAndKey(document, key);
 			}
+			currentPageManager.setCurrentDocumentAndKey(document, key);
 		}
 	}
 	
