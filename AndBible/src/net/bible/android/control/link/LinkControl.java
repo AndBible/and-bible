@@ -191,7 +191,7 @@ public class LinkControl {
         }
 
         Key robinsonNumberKey = robinson.getKey(key); 
-        windowControl.showLink(robinson, robinsonNumberKey);
+        showLink(robinson, robinsonNumberKey);
 	}
 
 	private void showAllOccurrences(String ref, SearchBibleSection biblesection, String refPrefix) {
