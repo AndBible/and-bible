@@ -109,6 +109,8 @@ Yüklənmiş indeksinin quraşdırılması daha sürətli olur. Və yüklənmiş
   <string name="prefs_night_mode_automatic">Avtomatik</string>
   <string name="prefs_navigate_to_verse_title">Ayə seçimi</string>
   <string name="prefs_navigate_to_verse_summary">Hissə seçəndən sonra ayə də seçilir</string>
+  <string name="prefs_open_links_in_special_window_title">Əlagələr yeni pəncərədə aç</string>
+  <string name="prefs_open_links_in_special_window_summary">Əlagələr və \"Strong\" nişanlar daha tez göstər</string>
   <string name="prefs_text_size_title">Mətin boyu</string>
   <string name="prefs_text_size_summary">Hərflər böyüsün, göstərilən mətn çoxalsın</string>
   <string name="prefs_text_size_sample_text">Mətn nümunəsi</string>
@@ -118,11 +120,13 @@ Yüklənmiş indeksinin quraşdırılması daha sürətli olur. Və yüklənmiş
   <string name="prefs_interface_locale_title">Proqram dili</string>
   <string name="prefs_interface_locale_summary">Fərqli bir proqram dilini seç</string>
   <string name="locale_change_warning">İnterfeysi təzə dildə istifadə edə bilmək üçün əməliyyat yenidən başladılacaq</string>
-  <string name="prefs_split_screen_title">Bölünmüş ekran</string>
-  <string name="prefs_split_screen_summary">Ekran bölünməsi əlaqəsi</string>
-  <string name="prefs_split_screen_single">Bütöv ekran</string>
-  <string name="prefs_split_screen_linked">Əlaqə yaradıldı</string>
-  <string name="prefs_split_screen_not_linked">Əlaqə yaradılmadı</string>
+  <!--Window-->
+  <string name="window">Pəncərə</string>
+  <string name="windowClose">Bağla</string>
+  <string name="windowMaximise">Böyüt</string>
+  <string name="windowMinimise">Kiçilt</string>
+  <string name="windowSynchronise">Sinxronlaşdır</string>
+  <string name="windowMoveFirst">Birinci ol</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Bu hissəyə aid qeyd tapılmadı</string>
   <string name="no_verse_notes">Bu ayəyə aid qeyd tapılmadı</string>
@@ -169,6 +173,7 @@ Daha çox sənəd yükləmək üçün Menyu düyməsi DAHA-Sənəd yükləmə el
   <string name="rdg_plan_y1ot1nt1_OTandNT">Bir illik bütöv Müqəddəs Kitab - Əhdi-Ətiq və Əhdi-Cədid birlikdə</string>
   <string name="rdg_plan_y1ot1nt1_OTthenNT">Bir illik bütöv Müqəddəs Kitab - əvvəlcə Əhdi-Ətiq, sonra Əhdi-Cədid</string>
   <string name="rdg_plan_y1ot1nt2_mcheyne">Bir illik bütöv Müqəddəs Kitab (M\'Cheyne)</string>
+  <string name="rdg_plan_y2ot1ntps2">2 il planı - ƏC 1x, ƏƏ və Zəbur 2x</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Sil</string>
@@ -264,6 +269,8 @@ Seçdikdən sonra kopyalamaq üçün seçimə toxunun.</string>
   <string name="please_wait">Zəhmət olmazsa gözləyin...</string>
   <string name="all">Hamısı</string>
   <string name="default_value">@string/lang_default</string>
+  <string name="new_item">Yeni</string>
+  <string name="close">Bağla</string>
   <!--Errors-->
   <string name="error_occurred">Bir xəta oldu</string>
   <string name="error_no_content">Seçilən ayə üçün məzmun yoxdur</string>

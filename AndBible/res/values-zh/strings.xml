@@ -83,11 +83,7 @@
   <string name="prefs_interface_locale_title">程式用戶界面语言</string>
   <string name="prefs_interface_locale_summary">选择用户界面语言</string>
   <string name="locale_change_warning">应用程序将重新启动切换到新的界面语言</string>
-  <string name="prefs_split_screen_title">分屏布局</string>
-  <string name="prefs_split_screen_summary">分屏&amp;链接</string>
-  <string name="prefs_split_screen_single">单屏布局</string>
-  <string name="prefs_split_screen_linked">链接</string>
-  <string name="prefs_split_screen_not_linked">解除链接</string>
+  <!--Window-->
   <!--Notes screen-->
   <string name="no_chapter_notes">本章没有备注</string>
   <string name="no_verse_notes">本节没有备注</string>

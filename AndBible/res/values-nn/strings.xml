@@ -74,6 +74,8 @@
   <string name="prefs_night_mode_automatic">Automatisk</string>
   <string name="prefs_navigate_to_verse_title">Naviger til vers</string>
   <string name="prefs_navigate_to_verse_summary">Vel vers (og kapittel) når du navigerer til ein bibelstad</string>
+  <string name="prefs_open_links_in_special_window_title">Åpne lenker i eige vindauge</string>
+  <string name="prefs_open_links_in_special_window_summary">For kjapp vising av kryssreferansar og Strongs ordbok</string>
   <string name="prefs_text_size_title">Tekststorleik</string>
   <string name="prefs_text_size_summary">Endre tekststorleiken </string>
   <string name="prefs_text_size_sample_text">Eksempeltekst</string>
@@ -83,11 +85,13 @@
   <string name="prefs_interface_locale_title">Vel språk</string>
   <string name="prefs_interface_locale_summary">Vel språk for programvaren</string>
   <string name="locale_change_warning">Applikasjonen vil starte opp att for å endre til det nye språket</string>
-  <string name="prefs_split_screen_title">Delt skjerm</string>
-  <string name="prefs_split_screen_summary">Deling og synkronisering</string>
-  <string name="prefs_split_screen_single">Enkeltskjerm</string>
-  <string name="prefs_split_screen_linked">Delt og synkronisert</string>
-  <string name="prefs_split_screen_not_linked">Delt og ikkje-synkronisert</string>
+  <!--Window-->
+  <string name="window">Vinduage</string>
+  <string name="windowClose">Lukk</string>
+  <string name="windowMaximise">Maksimer</string>
+  <string name="windowMinimise">Minimer</string>
+  <string name="windowSynchronise">Synkroniser</string>
+  <string name="windowMoveFirst">Flytt fyrst</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Det finst ikkje notat til dette kapitlet</string>
   <string name="no_verse_notes">Det finst ikkje notat for dette verset</string>
@@ -224,6 +228,8 @@
   <string name="please_wait">Vennlegst vent...</string>
   <string name="all">Alle</string>
   <string name="default_value">@string/lang_default</string>
+  <string name="new_item">Nytt</string>
+  <string name="close">Lukk</string>
   <!--Errors-->
   <string name="error_occurred">Ein feil oppstod</string>
   <string name="error_no_content">Ikkje noko innhald i verset</string>

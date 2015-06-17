@@ -62,10 +62,7 @@
   <string name="x_minutes">%d分</string>
   <string name="prefs_interface_locale_title">応用言語</string>
   <string name="prefs_interface_locale_summary">カスタム言語を選択</string>
-  <string name="prefs_split_screen_title">分割表示</string>
-  <string name="prefs_split_screen_single">単画面表示</string>
-  <string name="prefs_split_screen_linked">連結された</string>
-  <string name="prefs_split_screen_not_linked">連結されていません</string>
+  <!--Window-->
   <!--Notes screen-->
   <string name="previous">先へ</string>
   <string name="next">次へ</string>

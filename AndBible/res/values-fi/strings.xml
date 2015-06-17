@@ -74,6 +74,8 @@
   <string name="prefs_night_mode_automatic">Automaattinen</string>
   <string name="prefs_navigate_to_verse_title">Navigoi jakeeseen</string>
   <string name="prefs_navigate_to_verse_summary">Valitse jae (ja luku) kohtaa valitsessa</string>
+  <string name="prefs_open_links_in_special_window_title">Avaa linkit omaan ikkunaansa</string>
+  <string name="prefs_open_links_in_special_window_summary">Rinnakkaispaikkojen ja Strongin numeroinnin nopeammaksi näyttämiseksi</string>
   <string name="prefs_text_size_title">Tekstin koko</string>
   <string name="prefs_text_size_summary">Näe enemmän tai näe selvemmin</string>
   <string name="prefs_text_size_sample_text">Esimerkkiteksti</string>
@@ -83,11 +85,13 @@
   <string name="prefs_interface_locale_title">Sovelluksen kieli</string>
   <string name="prefs_interface_locale_summary">Valitse käyttöliittymän kieli</string>
   <string name="locale_change_warning">Sovellus pitää käynnistää uudelleen uuden käyttöliittymän kielen ottamiseksi käyttöön.</string>
-  <string name="prefs_split_screen_title">Jaettu ruutu</string>
-  <string name="prefs_split_screen_summary">Jakaminen &amp; linkitys</string>
-  <string name="prefs_split_screen_single">Yhdessä näytössä</string>
-  <string name="prefs_split_screen_linked">Linkitetty</string>
-  <string name="prefs_split_screen_not_linked">Ei linkitetty</string>
+  <!--Window-->
+  <string name="window">Ikkuna</string>
+  <string name="windowClose">Sulje</string>
+  <string name="windowMaximise">Suurenna</string>
+  <string name="windowMinimise">Pienennä</string>
+  <string name="windowSynchronise">Synkronoi</string>
+  <string name="windowMoveFirst">Siirrä ensimmäiseksi</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Tähän lukuun ei liity alaviitteitä</string>
   <string name="no_verse_notes">Tähän jakeeseen ei liity alaviitteitä</string>
@@ -224,6 +228,8 @@
   <string name="please_wait">Odota hetki...</string>
   <string name="all">Kaikki</string>
   <string name="default_value">@string/lang_default</string>
+  <string name="new_item">Uusi</string>
+  <string name="close">Sulje</string>
   <!--Errors-->
   <string name="error_occurred">Tapahtui virhe</string>
   <string name="error_no_content">Ei sisältöä valitulle jakeelle</string>

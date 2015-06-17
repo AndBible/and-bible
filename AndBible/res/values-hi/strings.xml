@@ -81,11 +81,7 @@
   <string name="prefs_interface_locale_title">आन्ड बाइबिल, नई भाषा में</string>
   <string name="prefs_interface_locale_summary">आन्ड बाइबिल की भाषा चुनिए</string>
   <string name="locale_change_warning">आपकी चुनी भाषा में, आन्ड बाइबिल पुनः आरंभ हो रहा है</string>
-  <string name="prefs_split_screen_title">एक/दो स्क्रीन</string>
-  <string name="prefs_split_screen_summary">एक/दो स्क्रीन में पढ़िये</string>
-  <string name="prefs_split_screen_single">एक स्क्रीन</string>
-  <string name="prefs_split_screen_linked">दो स्क्रीन (जुड़े हुए)</string>
-  <string name="prefs_split_screen_not_linked">दो स्क्रीन (अलग)</string>
+  <!--Window-->
   <!--Notes screen-->
   <string name="no_chapter_notes">कोई नोट इस अध्याय में मौजूद नहीं</string>
   <string name="no_verse_notes">कोई टिप्पणी इस छंद में मौजूद नहीं</string>

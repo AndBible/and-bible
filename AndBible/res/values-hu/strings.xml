@@ -96,11 +96,7 @@
   <string name="prefs_interface_locale_title">Alkalmazás nyelve</string>
   <string name="prefs_interface_locale_summary">Egyéni nyelv kiválasztása</string>
   <string name="locale_change_warning">Az alkalmazás újra fog indulni, hogy az új nyelvi beállítás érvénybe lépjen.</string>
-  <string name="prefs_split_screen_title">Képernyő felezés</string>
-  <string name="prefs_split_screen_summary">Felezés és összekapcsolás</string>
-  <string name="prefs_split_screen_single">Egy képernyő</string>
-  <string name="prefs_split_screen_linked">Összekapcsolt</string>
-  <string name="prefs_split_screen_not_linked">Nem összekapcsolt</string>
+  <!--Window-->
   <!--Notes screen-->
   <string name="no_chapter_notes">Ebben a fejezetben nincs jegyzet.</string>
   <string name="no_verse_notes">Ebben a versben nincs jegyzet.</string>

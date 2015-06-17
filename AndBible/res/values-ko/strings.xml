@@ -82,11 +82,7 @@
   <string name="prefs_interface_locale_title">어플리케이션 언어</string>
   <string name="prefs_interface_locale_summary">사용자 인터페이스 언어 설정</string>
   <string name="locale_change_warning">인터페이스 언어 전환을 위해 어플리케이션을 재시작합니다</string>
-  <string name="prefs_split_screen_title">분할 화면</string>
-  <string name="prefs_split_screen_summary">분리 및 연결</string>
-  <string name="prefs_split_screen_single">한 화면</string>
-  <string name="prefs_split_screen_linked">연결</string>
-  <string name="prefs_split_screen_not_linked">연결되지 않은</string>
+  <!--Window-->
   <!--Notes screen-->
   <string name="no_chapter_notes">이 장에 저장된 노트가 없습니다</string>
   <string name="no_verse_notes">이 절에 저장된 노트가 없습니다.</string>

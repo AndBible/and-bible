@@ -75,6 +75,8 @@
   <string name="prefs_night_mode_automatic">Avtomatsko</string>
   <string name="prefs_navigate_to_verse_title">Usmeri do vrstice</string>
   <string name="prefs_navigate_to_verse_summary">Za izbiro odlomka izberi vrstico (in poglavje)</string>
+  <string name="prefs_open_links_in_special_window_title">Povezave odpri v posebnem oknu</string>
+  <string name="prefs_open_links_in_special_window_summary">Za hitrejši prikaz sklicev in Strong-ovih števil</string>
   <string name="prefs_text_size_title">Velikost besedila</string>
   <string name="prefs_text_size_summary">Vidi več ali vidi bolj jasno</string>
   <string name="prefs_text_size_sample_text">Primer besedila</string>
@@ -84,18 +86,20 @@
   <string name="prefs_interface_locale_title">Jezik aplikacije</string>
   <string name="prefs_interface_locale_summary">Izbira jezika uporabniškega vmesnika</string>
   <string name="locale_change_warning">Aplikacija bo ponovno zagnana, da lahko preklopi na drug jezika uporabniškega vmesnika</string>
-  <string name="prefs_split_screen_title">Razdelitev ekrana</string>
-  <string name="prefs_split_screen_summary">Razdelitev &amp; medsebojna povezava ekranov</string>
-  <string name="prefs_split_screen_single">Enojen ekran</string>
-  <string name="prefs_split_screen_linked">Ekrana med seboj povezana</string>
-  <string name="prefs_split_screen_not_linked">Ekrana med seboj nepovezana</string>
+  <!--Window-->
+  <string name="window">Okno</string>
+  <string name="windowClose">Zapri</string>
+  <string name="windowMaximise">Maksimiraj</string>
+  <string name="windowMinimise">Minimiraj</string>
+  <string name="windowSynchronise">Sinhroniziraj</string>
+  <string name="windowMoveFirst">Premakni na prvo</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">V tem poglavju ni opomb</string>
   <string name="no_verse_notes">V tej vrstici ni opomb</string>
   <string name="previous">Prejšnji</string>
   <string name="next">Naslednji</string>
   <!--Strongs-->
-  <string name="strongs">Slovar Strong-ovih besed</string>
+  <string name="strongs">Slovar Strong-ovih števil</string>
   <string name="strongs_not_installed">Prosim prenesi Strong-ove hebrejske in grške slovarje</string>
   <string name="all_greek_occurrences">Najdi vse pojavitve</string>
   <string name="all_hebrew_occurrences">Najdi vse pojavitve</string>
@@ -225,6 +229,8 @@
   <string name="please_wait">Prosim počakaj...</string>
   <string name="all">Vse</string>
   <string name="default_value">@string/lang_default</string>
+  <string name="new_item">Novo</string>
+  <string name="close">Zapri</string>
   <!--Errors-->
   <string name="error_occurred">Zgodila se je napaka</string>
   <string name="error_no_content">Izbrana vrstica je brez vsebine</string>

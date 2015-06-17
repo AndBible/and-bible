@@ -80,11 +80,7 @@
   <string name="prefs_interface_locale_title">Γλώσσα εφαρμογής</string>
   <string name="prefs_interface_locale_summary">Επιλογή προσαρμοσμένης γλώσσας διεπαφής χρήστη</string>
   <string name="locale_change_warning">Η εφαρμογή θα πρέπει να επανεκκινηθεί ώστε να γινει η μετάβαση στην νέα γλώσσα</string>
-  <string name="prefs_split_screen_title">Διαίρεση της οθόνης</string>
-  <string name="prefs_split_screen_summary">Διάσπαση &amp; σύνδεση</string>
-  <string name="prefs_split_screen_single">Ενιαία οθόνη</string>
-  <string name="prefs_split_screen_linked">Συνδέεται</string>
-  <string name="prefs_split_screen_not_linked">Δεν συνδέεται</string>
+  <!--Window-->
   <!--Notes screen-->
   <string name="no_chapter_notes">Δεν υπάρχουν σημειώσεις σε αυτό το κεφάλαιο</string>
   <string name="no_verse_notes">Δεν υπάρχουν σημειώσεις σε αυτόν τον στίχο</string>

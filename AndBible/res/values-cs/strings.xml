@@ -83,11 +83,7 @@
   <string name="prefs_interface_locale_title">Jazyk aplikace</string>
   <string name="prefs_interface_locale_summary">Vybrat jiný jazyk uživatelského rozhraní</string>
   <string name="locale_change_warning">Aplikace bude restartována, aby došlo ke změně jazyka</string>
-  <string name="prefs_split_screen_title">Rozdělení obrazovky</string>
-  <string name="prefs_split_screen_summary">Rozdělení a propojení</string>
-  <string name="prefs_split_screen_single">Jedna obrazovka</string>
-  <string name="prefs_split_screen_linked">Propojené</string>
-  <string name="prefs_split_screen_not_linked">Nepropojené</string>
+  <!--Window-->
   <!--Notes screen-->
   <string name="no_chapter_notes">Kapitola neobsahuje poznámky</string>
   <string name="no_verse_notes">Verš neobsahuje poznámky</string>

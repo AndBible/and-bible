@@ -83,11 +83,7 @@
   <string name="prefs_interface_locale_title">అప్లికేషన్ భాష</string>
   <string name="prefs_interface_locale_summary">వాడుకదారుడు ఎంపిక చేయడానికి సమన్వయ భాష</string>
   <string name="locale_change_warning">ప్రోగ్రాము క్లోజ్ అయ్యి క్రోత్త భాషలో మొదలవుతుంది</string>
-  <string name="prefs_split_screen_title">తెరను భాగాలుగా చెయ్యి</string>
-  <string name="prefs_split_screen_summary">భాగాలుగా &amp; అనుబంధంగా</string>
-  <string name="prefs_split_screen_single">ఒక తెర</string>
-  <string name="prefs_split_screen_linked">అనుబంధం</string>
-  <string name="prefs_split_screen_not_linked">అనుబంధము లేకుండా</string>
+  <!--Window-->
   <!--Notes screen-->
   <string name="no_chapter_notes">ఈ అధ్యాయంలో ఎలాంటి నోట్సు లేవు</string>
   <string name="no_verse_notes">ఈ వచనంలో నోట్సు లేవు</string>

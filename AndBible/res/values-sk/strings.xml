@@ -4,6 +4,16 @@
   <!--Startup & Help-->
   <string name="splash_top_text">\nTu povedal Boh: \"Buď svetlo!\" a bolo svetlo.</string>
   <string name="help_text">Stlač kláves MENU pre viaceré možnosti. Ťahom po obrazovke vľavo alebo vpravo sa rýchlo prepneš medzi kapitolami. (alebo track-ballom(</string>
+  <string name="help_text_long"><b>Navigácia</b>Ťahom zľava doprava alebo naopak môžeš prejsť na ďalšiu alebo predošlú kapitolu. Túto akciu možno vykonávať aj pomocou track-ballu alebo D-padu. 
+Dvojdotykom sa prepneš do režimu celej obrazovky a späť. Pre viacero možností stlač klávesu<b>Menu</b>.
+Z internetu je možné stiahnuť ďalšie preklady a dokumenty - položka Stiahni dokumenty. 
+Tlačidlom <b>Hovoriť</b> môžeš nastaviť čítanie daného textu androidom. Ku každému veršu môžeš pridávať poznámky alebo záložky, ktoré si potom môžeš triediť do skupín. Ich pridanie urobíš cez kontextové menu - dlhšie podržanie palca na zvolenom texte. Správca poznámok je v hlavnej ponuke. Takisto aj správca záložiek. Zatriedené skupiny môžu mať vlastné názvy. 
+<b>Hľadanie</b>
+Text vyhľadávania môže obsahovať špeciálne znaky ako *, ?, AND, OR, NOT (Podrobné vysvetlenie: \"Apache Lucene - Query Parser Syntax)
+
+ <b>Kontektové menu</b>
+Dlhším podržaním prsta na zvolenom verši vyvolá kontextovú ponuku ovplyvňujúcu daný verš. Dlhším podržaním prsta pri výbere dokumentov je možné dokument priamo zmazať alebo zobraziť jeho podrobnejšie informácie. 
+Dlhším stiskom tlačidla Späť sa dostaneš k histórii prezerania.</string>
   <string name="version_text">Verzia %s</string>
   <string name="no_sdcard_error">Prosím, vložte SD kartu a spustite And Bible ešte raz.</string>
   <!--Main menu-->
@@ -73,6 +83,8 @@
   <string name="prefs_night_mode_automatic">Automaticky</string>
   <string name="prefs_navigate_to_verse_title">Prejsť na verš</string>
   <string name="prefs_navigate_to_verse_summary">Pri výbere knihy/kapitoly zadávať aj verš</string>
+  <string name="prefs_open_links_in_special_window_title">Otvor odkazy v špeciálnom okne</string>
+  <string name="prefs_open_links_in_special_window_summary">Pre rýchlejšie zobrazenie odkazov a Stronových značiek</string>
   <string name="prefs_text_size_title">Veľkosť textu</string>
   <string name="prefs_text_size_summary">Videť viac  alebo vidieť zreteľnejšie</string>
   <string name="prefs_text_size_sample_text">Príklad textu</string>
@@ -82,11 +94,13 @@
   <string name="prefs_interface_locale_title">Jazyk programu</string>
   <string name="prefs_interface_locale_summary">Vybrať jazyk prostredia programu a názvov kníh</string>
   <string name="locale_change_warning">Program sa reštartne pre prepnutie jazyka</string>
-  <string name="prefs_split_screen_title">Rozdeliť obrazovku</string>
-  <string name="prefs_split_screen_summary">Súbežné zobrazenie dvoch prekladov naraz predelením obrazovky</string>
-  <string name="prefs_split_screen_single">Jedna obrazovka</string>
-  <string name="prefs_split_screen_linked">Dve - Prepojené</string>
-  <string name="prefs_split_screen_not_linked">Dve - neprepojené</string>
+  <!--Window-->
+  <string name="window">Okno</string>
+  <string name="windowClose">Zatvor</string>
+  <string name="windowMaximise">Maximalizuj</string>
+  <string name="windowMinimise">Skry</string>
+  <string name="windowSynchronise">Synchronizuj</string>
+  <string name="windowMoveFirst">Presuň navrch</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Kapitola neobsahuje poznámky</string>
   <string name="no_verse_notes">Verš neobsahuje poznámky</string>
@@ -128,6 +142,7 @@
   <string name="rdg_plan_y1ot1nt1_OTandNT">Celá Biblia za rok - SZ a NZ</string>
   <string name="rdg_plan_y1ot1nt1_OTthenNT">Celá Biblia za rok - SZ a potom NZ</string>
   <string name="rdg_plan_y1ot1nt2_mcheyne">Celá Biblia za rok (M\'Cheyne)</string>
+  <string name="rdg_plan_y2ot1ntps2">Dvojročný plán - SZ 1x, NZ a Žalmy 2x</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Vymazať</string>
@@ -222,6 +237,8 @@
   <string name="please_wait">Prosím čakajte...</string>
   <string name="all">Všetko</string>
   <string name="default_value">@string/lang_default</string>
+  <string name="new_item">Nový</string>
+  <string name="close">Zatvor</string>
   <!--Errors-->
   <string name="error_occurred">Stala sa chyba</string>
   <string name="error_no_content">Žiadny obsah pre vybraný verš</string>
