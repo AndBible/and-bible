@@ -18,6 +18,8 @@ public class MyNoteViewBuilder {
 	private static final int MYNOTE_TEXT_ID = 992;
 	
 	private Activity mainActivity;
+	
+	private static final String TAG = "MyNoteViewBuilder";
 
 	public MyNoteViewBuilder(Activity mainActivity) {
 		this.mainActivity = mainActivity;
@@ -34,7 +36,8 @@ public class MyNoteViewBuilder {
 	}
 	
 	public void addMyNoteView(ViewGroup parent) {
-    	boolean isMynoteTextEdit = parent.findViewById(MYNOTE_TEXT_ID)!=null;
+    	boolean isMynoteTextEdit = isMyNoteViewShowing(parent);
+    	parent.setTag(TAG);
 
     	if (!isMynoteTextEdit) {
     		parent.addView(myNoteText);
@@ -43,14 +46,21 @@ public class MyNoteViewBuilder {
 	}
 
 	public void removeMyNoteView(ViewGroup parent) {
-    	boolean isMynoteTextEdit = parent.findViewById(MYNOTE_TEXT_ID)!=null;
+    	boolean isMynoteTextEdit = isMyNoteViewShowing(parent);
+    	parent.setTag("");
+    	
     	if (isMynoteTextEdit) {
     		parent.removeView(myNoteText);
     		mainActivity.unregisterForContextMenu(myNoteText);
     	}
 	}
-	
+
 	public DocumentView getView() {
 		return myNoteText;
+	}
+
+	private boolean isMyNoteViewShowing(ViewGroup parent) {
+		Object tag = parent.getTag();
+		return tag!=null && tag.equals(TAG);
 	}
 }

@@ -27,7 +27,10 @@ public class WindowRepository {
 	
 	private Window dedicatedLinksWindow;
 	
-	protected static final int DEDICATED_LINK_WINDOW_SCREEN_NO = 999;
+	private int maxWindowNoUsed = 0;
+	
+	// must be -ve so as not to interfere with incrementing window number sequence
+	protected static final int DEDICATED_LINK_WINDOW_SCREEN_NO = -999;
 
 	private final Logger logger = new Logger(this.getClass().getName());
 	
@@ -187,17 +190,16 @@ public class WindowRepository {
 		windowList.add(position, window);
 	}
 
+	/**
+	 * Return window no larger than any windows created during this session and larger than 0
+	 */
 	private int getNextWindowNo() {
-		for (int i=1; i<100; i++) {
-			if (getWindow(i)==null) {
-				return i;
-			}
-		}
-		throw new RuntimeException("Window number could not be allocated");
+		return maxWindowNoUsed+1;
 	}
 	
 	private Window addNewWindow(int screenNo) {
 		Window newScreen = new Window(screenNo, getDefaultState());
+		maxWindowNoUsed = Math.max(maxWindowNoUsed, screenNo);
 		windowList.add(newScreen);
 		return newScreen;
 	}
@@ -273,6 +275,8 @@ public class WindowRepository {
 							JSONObject screenState = allScreenState.getJSONObject(i);
 							Window window = new Window();
 							window.restoreState(screenState);
+
+							maxWindowNoUsed = Math.max(maxWindowNoUsed, window.getScreenNo());
 							
 							windowList.add(window);
 						} catch (JSONException je) {

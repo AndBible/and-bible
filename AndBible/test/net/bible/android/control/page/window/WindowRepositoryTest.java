@@ -6,8 +6,6 @@ import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertThat;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.EventManagerStub;
-import net.bible.android.control.page.window.Window;
-import net.bible.android.control.page.window.WindowRepository;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -70,5 +68,14 @@ public class WindowRepositoryTest {
 		
 		windowRepository.moveWindowToPosition(newWindow, 0);
 		assertThat(windowRepository.getWindows(), contains(originalWindow));
+	}
+	
+	@Test
+	public void testAddAfterDeletedWindowsDifferent() {
+		Window newWindow = windowRepository.addNewWindow();
+		windowRepository.close(newWindow);
+		Window newWindow2 = windowRepository.addNewWindow();
+		assertThat(newWindow.equals(newWindow2), not(true));
+		assertThat(newWindow.hashCode()==newWindow2.hashCode(), not(true));
 	}
 }

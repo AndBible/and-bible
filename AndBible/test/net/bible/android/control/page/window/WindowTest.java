@@ -24,12 +24,17 @@ public class WindowTest {
 
 	@Test
 	public void testGetRestoreStateJson() throws Exception {
+		// initialise Window
 		Window window = new Window(2, WindowState.MINIMISED);
 		WindowLayout layout = window.getWindowLayout();
 		window.setSynchronised(true);
 		layout.setWeight(1.23456f);
+		
+		// serialize state
 		JSONObject json = window.getStateJson();
 		System.out.println(json);
+		
+		// recreate window from saved state
 		window = new Window();
 		window.restoreState(json);
 		layout = window.getWindowLayout();

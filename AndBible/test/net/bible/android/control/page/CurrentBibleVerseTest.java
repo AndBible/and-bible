@@ -53,21 +53,4 @@ public class CurrentBibleVerseTest {
 		assertThat(currentBibleVerse.getVerseSelected(synodalV11n), equalTo(synodalPs9v22));
 		assertThat(currentBibleVerse.getVerseSelected(kjvV11n), equalTo(kjvPs10v1));
 	}
-
-	@Test
-	public void testSetVerseSelected() throws Exception {
-	}
-
-	@Test
-	public void testSetVerseNo() throws Exception {
-	}
-
-	@Test
-	public void testGetVerseNo() throws Exception {
-	}
-
-	@Test
-	public void testGetVersificationOfLastSelectedVerse() throws Exception {
-	}
-
 }

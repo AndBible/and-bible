@@ -1,8 +1,8 @@
 package net.bible.android.view.activity.page.screen;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
@@ -83,7 +83,7 @@ public class DocumentWebViewBuilder {
 		
 		windowControl = ControlFactory.getInstance().getWindowControl();
 		
-		screenBibleViewMap = new HashMap<>();
+		screenBibleViewMap = new WeakHashMap<>();
 		
         Resources res = BibleApplication.getApplication().getResources();
         WINDOW_SEPARATOR_WIDTH_PX = res.getDimensionPixelSize(R.dimen.window_separator_width);
@@ -110,11 +110,23 @@ public class DocumentWebViewBuilder {
 		return !ControlFactory.getInstance().getCurrentPageControl().isMyNoteShown();
 	}
 	
+	/**
+	 * Enable switch from Bible WebView to MyNote view
+	 */
+	public void removeWebView(ViewGroup parent) {
+    	boolean isWebView = isWebViewShowing(parent);
+    	parent.setTag("");
+    	
+    	if (isWebView) {
+    		removeChildViews(parent);
+    	}
+	}
+	
 	@SuppressLint("RtlHardcoded")
 	public void addWebView(LinearLayout parent) {
-		// TODO dodgy
-    	boolean isWebView = parent.findViewById(BIBLE_WEB_VIEW_ID_BASE+1)!=null;
     	boolean isPortrait = CommonUtils.isPortrait();
+    	boolean isWebView = isWebViewShowing(parent);
+    	parent.setTag(TAG);
 
     	if (!isWebView || 
     			isWindowConfigurationChanged ||
@@ -261,7 +273,7 @@ public class DocumentWebViewBuilder {
 	 * Frame contains BibleView
 	 * @param parent
 	 */
-	public void removeChildViews(ViewGroup parent) {
+	private void removeChildViews(ViewGroup parent) {
 		if (parent!=null) {
 			for (int i=0; i<parent.getChildCount(); i++) {
 				View view = parent.getChildAt(i);
@@ -404,4 +416,8 @@ public class DocumentWebViewBuilder {
 		}
 	};
 
+	private boolean isWebViewShowing(ViewGroup parent) {
+		Object tag = parent.getTag();
+		return tag!=null && tag.equals(TAG);
+	}
 }
