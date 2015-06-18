@@ -6,6 +6,8 @@ import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -38,5 +40,13 @@ public class CurrentBibleVerse {
 	}
 	public Versification getVersificationOfLastSelectedVerse() {
 		return verseVersificationSelected.getVerse().getVersification();
+	}
+
+	public JSONObject getStateJson() throws JSONException {
+		return verseVersificationSelected.getStateJson();
+	}
+	
+	public void restoreState(JSONObject jsonObject) throws JSONException {
+		verseVersificationSelected.restoreState(jsonObject);
 	}
 }

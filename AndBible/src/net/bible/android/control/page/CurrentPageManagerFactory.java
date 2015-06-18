@@ -11,7 +11,7 @@ public class CurrentPageManagerFactory {
 	public CurrentPageManager createCurrentPageManager(Window window) {
 		CurrentPageManager cpm;
 		
-		cpm = new CurrentPageManager(Integer.toString(window.getScreenNo()));
+		cpm = new CurrentPageManager();
 		
 		return cpm;
 	}

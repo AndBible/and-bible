@@ -19,7 +19,8 @@ public class WindowRepositoryTest {
 	@Before
 	public void setUp() throws Exception {
 		EventManager eventManager = new EventManagerStub();
-		windowRepository = new WindowRepository(eventManager);
+		windowRepository = new WindowRepository();
+		windowRepository.initialise(eventManager);
 	}
 
 	@Test

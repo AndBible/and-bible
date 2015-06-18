@@ -4,6 +4,8 @@ import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /** Store a main verse and return it in requested versification after mapping (if map available)
  * 
@@ -94,5 +96,27 @@ public class ConvertibleVerse implements Comparable<ConvertibleVerse> {
 	        return 1;
 	    }
 		return mainVerse.compareTo(other.getVerse(mainVerse.getVersification()));
+	}
+
+	public JSONObject getStateJson() throws JSONException {
+		JSONObject object = new JSONObject();
+		object.put("versification", mainVerse.getVersification().getName());
+		object.put("bibleBook", mainVerse.getBook().ordinal());
+		object.put("chapter", mainVerse.getChapter());
+		object.put("verseNo", mainVerse.getVerse());
+		return object;
+	}
+	
+	public void restoreState(JSONObject jsonObject) throws JSONException {
+		if (jsonObject!=null) {
+			if (jsonObject.has("versification") && jsonObject.has("bibleBook")) {
+				Versification v11n = Versifications.instance().getVersification(jsonObject.getString("versification"));
+				int bibleBookNo =  jsonObject.getInt("bibleBook");
+				int chapterNo = jsonObject.getInt("chapter");
+				int verseNo = jsonObject.getInt("verseNo");
+	
+				mainVerse = new Verse(v11n, BibleBook.values()[bibleBookNo], chapterNo, verseNo, true);
+			}
+		}
 	}
 }

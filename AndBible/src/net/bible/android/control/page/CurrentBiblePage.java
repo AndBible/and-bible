@@ -15,9 +15,10 @@ import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -206,49 +207,39 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 	 * @param outState
 	 */
 	@Override
-	public void saveState(SharedPreferences outState, String screenId) {
+	public JSONObject getStateJson() throws JSONException {
+		JSONObject object = new JSONObject();
 		if (getCurrentDocument()!=null && getCurrentBibleVerse()!=null && getCurrentBibleVerse().getVerseSelected(getVersification())!=null) {
-			Log.d(TAG, "Saving state, screenId:"+screenId);
-			SharedPreferences.Editor editor = outState.edit();
-			editor.putString("document"+screenId, getCurrentDocument().getInitials());
-			// dec/inc bibleBook on save/restore because the book no used to be 1 based, unlike now
-			editor.putInt("bible-book"+screenId, getCurrentBibleVerse().getCurrentBibleBookNo()+1);
-			editor.putInt("chapter"+screenId, getCurrentBibleVerse().getVerseSelected(getVersification()).getChapter());
-			editor.putInt("verse"+screenId, getCurrentBibleVerse().getVerseNo());
-			editor.commit();
+			Log.d(TAG, "Saving Bible state for 1 window");
+			object.put("document", getCurrentDocument().getInitials());
+			object.put("verse", getCurrentBibleVerse().getStateJson());
 		}
+		return object;
 	}
+	
 	/** called during app start-up to restore previous state
 	 * 
 	 * @param inState
 	 */
 	@Override
-	public void restoreState(SharedPreferences inState, String screenId) {
-		if (inState!=null) {
-			Log.d(TAG, "Restore state, screenId:"+screenId);
-			String document = inState.getString("document"+screenId, null);
-			if (StringUtils.isNotEmpty(document)) {
-				Log.d(TAG, "State document:"+document);
-				Book book = SwordDocumentFacade.getInstance().getDocumentByInitials(document);
-				if (book!=null) {
-					// bypass setter to avoid automatic notifications
-					localSetCurrentDocument(book);
+	public void restoreState(JSONObject jsonObject) throws JSONException {
+		if (jsonObject!=null) {
+			Log.d(TAG, "Restoring Bible page state");
+			if (jsonObject.has("document")) {
+				String document = jsonObject.getString("document");
+				if (StringUtils.isNotEmpty(document)) {
+					Log.d(TAG, "State document:"+document);
+					Book book = SwordDocumentFacade.getInstance().getDocumentByInitials(document);
+					if (book!=null) {
+						Log.d(TAG, "Restored document:"+book.getName());
+						// bypass setter to avoid automatic notifications
+						localSetCurrentDocument(book);
+						
+						getCurrentBibleVerse().restoreState(jsonObject.getJSONObject("verse"));
+					}
 				}
 			}
-
-			// bypass setter to avoid automatic notifications
-			int bibleBookNo =  inState.getInt("bible-book"+screenId, -1);
-			int chapterNo = inState.getInt("chapter"+screenId, 1);
-			int verseNo = inState.getInt("verse"+screenId, 1);
-			if (bibleBookNo>0) {
-				Log.d(TAG, "Restored verse:"+bibleBookNo+"."+chapterNo+"."+verseNo);
-				// dec/inc bibleBook on save/restore because the book no used to be 1 based, unlike now
-				//TODO av11n - this is done now
-				Verse verse = new Verse(getVersification(), BibleBook.values()[bibleBookNo-1], chapterNo, verseNo, true);
-				getCurrentBibleVerse().setVerseSelected(getVersification(), verse);
-			}
-			Log.d(TAG, "Current passage:"+toString());
-		} 
+		}
 	}
 
 	/** can we enable the main menu search button 

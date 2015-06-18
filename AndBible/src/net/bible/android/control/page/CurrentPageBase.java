@@ -15,8 +15,9 @@ import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.activate.Activator;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -227,28 +228,31 @@ abstract class CurrentPageBase implements CurrentPage {
 		this.inhibitChangeNotifications = inhibitChangeNotifications;
 	}
 
-
 	@Override
-	public void restoreState(SharedPreferences inState, String screenId) {
-		if (inState!=null) {
-			Log.d(TAG, "State not null");
-			String document = inState.getString(getBookCategory().getName()+"_document"+screenId, null);
-			if (StringUtils.isNotEmpty(document)) {
-				Log.d(TAG, "State document:"+document);
-				Book book = SwordDocumentFacade.getInstance().getDocumentByInitials(document);
-				if (book!=null) {
-					Log.d(TAG, "Restored document:"+book.getName());
-					// bypass setter to avoid automatic notifications
-					localSetCurrentDocument(book);
-					
-					try {
-						String keyName = inState.getString(getBookCategory().getName()+"_key"+screenId, null);
-						if (StringUtils.isNotEmpty(keyName)) {
-							doSetKey(book.getKey(keyName));
-							Log.d(TAG, "Restored key:"+keyName);
+	public void restoreState(JSONObject jsonObject) throws JSONException {
+		if (jsonObject!=null) {
+			Log.d(TAG, "Restoring page state");
+			if (jsonObject.has("document")) {
+				String document = jsonObject.getString("document");
+				if (StringUtils.isNotEmpty(document)) {
+					Log.d(TAG, "State document:"+document);
+					Book book = SwordDocumentFacade.getInstance().getDocumentByInitials(document);
+					if (book!=null) {
+						Log.d(TAG, "Restored document:"+book.getName());
+						// bypass setter to avoid automatic notifications
+						localSetCurrentDocument(book);
+						
+						try {
+							if (jsonObject.has("key")) {
+								String keyName = jsonObject.getString("key");
+								if (StringUtils.isNotEmpty(keyName)) {
+									doSetKey(book.getKey(keyName));
+									Log.d(TAG, "Restored key:"+keyName);
+								}
+							}
+						} catch (Exception e) {
+							Log.e(TAG, "Error restoring key for document category:"+getBookCategory().getName());
 						}
-					} catch (Exception e) {
-						Log.e(TAG, "Error restoring key for document category:"+getBookCategory().getName());
 					}
 				}
 			}
@@ -260,18 +264,18 @@ abstract class CurrentPageBase implements CurrentPage {
 	 * @param outState
 	 */
 	@Override
-	public void saveState(SharedPreferences outState, String screenId) {
+	public JSONObject getStateJson() throws JSONException {
+		JSONObject object = new JSONObject();
 		if (currentDocument!=null) {
-			SharedPreferences.Editor editor = outState.edit();
-			Log.d(TAG, "Saving state for "+getBookCategory().getName());
-			editor.putString(getBookCategory().getName()+"_document"+screenId, getCurrentDocument().getInitials());
+			Log.d(TAG, "Getting json state for "+getBookCategory().getName());
+			object.put("document", getCurrentDocument().getInitials());
+			
 			if (this.getKey()!=null) {
-				editor.putString(getBookCategory().getName()+"_key"+screenId, getKey().getName());
+				object.put("key", getKey().getName());
 			}
-			editor.commit();
 		}
+		return object;
 	}
-
 
 	public boolean isShareKeyBetweenDocs() {
 		return shareKeyBetweenDocs;

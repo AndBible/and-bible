@@ -1,24 +1,21 @@
 package net.bible.android.control.page;
 
-import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
-import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
+import net.bible.service.common.Logger;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Key;
+import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.util.Log;
-import de.greenrobot.event.EventBus;
 
 /** Control singletons of the different current document page types
  * 
@@ -38,13 +35,9 @@ public class CurrentPageManager {
 	
 	private CurrentPage currentDisplayedPage;
 	
-	private String id;
+	private final Logger logger = new Logger(this.getClass().getName());
 	
-	private static final String TAG = "CurrentPageManager";
-	
-	public CurrentPageManager(String id) {
-		this.id = id;
-		
+	public CurrentPageManager() {
 		currentBibleVerse = new CurrentBibleVerse();
 		currentBiblePage = new CurrentBiblePage(currentBibleVerse);
 		ControlFactory controlFactory = ControlFactory.getInstance();
@@ -59,12 +52,6 @@ public class CurrentPageManager {
 		currentMapPage = new CurrentMapPage();
 		
 		currentDisplayedPage = currentBiblePage;
-		
-		// restore state from previous invocation
-    	restoreState();
-
-		// listen for AppToBackgroundEvent to save state when moved to background
-    	EventBus.getDefault().register(this);
 	}
 	
 	public CurrentPage getCurrentPage() {
@@ -234,78 +221,36 @@ public class CurrentPageManager {
 		PassageChangeMediator.getInstance().onCurrentPageChanged();
 	}
 
-	/** 
-	 * If app moves to background then save current state to allow continuation after return
-	 * 
-	 * @param appToBackgroundEvent Event info
-	 */
-	public void onEvent(AppToBackgroundEvent appToBackgroundEvent) {
-		if (appToBackgroundEvent.isMovedToBackground()) {
-			saveState();
+	public JSONObject getStateJson() {
+		JSONObject object = new JSONObject();
+		try {
+			object.put("biblePage", currentBiblePage.getStateJson())
+				.put("commentaryPage", currentCommentaryPage.getStateJson())
+				.put("dictionaryPage", currentDictionaryPage.getStateJson())
+				.put("generalBookPage", currentGeneralBookPage.getStateJson())
+				.put("mapPage", currentMapPage.getStateJson())
+				.put("currentPageCategory", currentDisplayedPage.getBookCategory().getName());
+		} catch (Exception e) {
+			logger.warn("Page manager get state error");
 		}
-	}
-    /** save current page and document state */
-	protected void saveState() {
-    	Log.i(TAG, "Save instance state for CurrentPageManager "+id);
-    	SharedPreferences settings = BibleApplication.getApplication().getAppStateSharedPreferences();
-		saveState(settings);
+		return object;
 	}
 
-	/** restore current page and document state */
-    private void restoreState() {
-    	try {
-        	Log.i(TAG, "Restore instance state for CurrentPageManager "+id);
-        	SharedPreferences settings = BibleApplication.getApplication().getAppStateSharedPreferences();
-    		restoreState(settings);
-    	} catch (Exception e) {
-    		Log.e(TAG, "Restore error", e);
-    	}
-    }
-	/** called during app close down to save state
-	 * 
-	 * @param outState
-	 */
-	private void saveState(SharedPreferences outState) {
-		Log.i(TAG, "save state");
-		String screenId = getIdForState();
+	public void restoreState(JSONObject jsonObject) {
+		try {
+			currentBiblePage.restoreState(jsonObject.getJSONObject("biblePage"));
+			currentCommentaryPage.restoreState(jsonObject.getJSONObject("commentaryPage"));
+			currentDictionaryPage.restoreState(jsonObject.getJSONObject("dictionaryPage"));
+			currentGeneralBookPage.restoreState(jsonObject.getJSONObject("generalBookPage"));
+			currentMapPage.restoreState(jsonObject.getJSONObject("mapPage"));
 
-		currentBiblePage.saveState(outState, screenId);
-		currentCommentaryPage.saveState(outState, screenId);
-		currentDictionaryPage.saveState(outState, screenId);
-		currentGeneralBookPage.saveState(outState, screenId);
-		currentMapPage.saveState(outState, screenId);
-		
-		SharedPreferences.Editor editor = outState.edit();
-		editor.putString("currentPageCategory"+screenId, currentDisplayedPage.getBookCategory().getName());
-		editor.commit();
-	}
-	/** called during app start-up to restore previous state
-	 * 
-	 * @param inState
-	 */
-	private void restoreState(SharedPreferences inState) {
-		Log.i(TAG, "restore state");
-		String screenId = getIdForState();
-
-		currentBiblePage.restoreState(inState, screenId);
-		currentCommentaryPage.restoreState(inState, screenId);
-		currentDictionaryPage.restoreState(inState, screenId);
-		currentGeneralBookPage.restoreState(inState, screenId);
-		currentMapPage.restoreState(inState, screenId);
-		
-		String restoredPageCategoryName = inState.getString("currentPageCategory"+screenId, null);
-		if (StringUtils.isNotEmpty(restoredPageCategoryName)) {
-			BookCategory restoredBookCategory = BookCategory.fromString(restoredPageCategoryName);
-			currentDisplayedPage = getBookPage(restoredBookCategory);
-		}
-	}
-	
-	private String getIdForState() {
-		// need to have empty screenId for screen 1 so as to use pre-splitScreen state
-		if (id.equals("1")) {
-			return "";
-		} else {
-			return "_SCREEN"+id;
+			String restoredPageCategoryName = jsonObject.getString("currentPageCategory");
+			if (StringUtils.isNotEmpty(restoredPageCategoryName)) {
+				BookCategory restoredBookCategory = BookCategory.fromString(restoredPageCategoryName);
+				currentDisplayedPage = getBookPage(restoredBookCategory);
+			}
+		} catch (Exception e) {
+			logger.warn("Page manager state restore error");
 		}
 	}
 }

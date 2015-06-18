@@ -61,6 +61,8 @@ public class ControlFactory {
 
 	private NavigationControl navigationControl = new NavigationControl();
 	
+	private boolean initialised = false;
+	
 	private static ControlFactory singleton = new ControlFactory();
 	
 	public static ControlFactory getInstance() {
@@ -89,13 +91,22 @@ public class ControlFactory {
 		
 		bibleTraverser.setDocumentBibleBooksFactory(documentBibleBooksFactory);
 
-		windowRepository = new WindowRepository(eventManager);
+		windowRepository = new WindowRepository();
 		windowControl = new WindowControl(windowRepository, eventManager);
 		
 		linkControl = new LinkControl(windowControl);
 	}
 	
+	private void ensureAllInitialised() {
+		if (!initialised) {
+			windowRepository.initialise(eventManager);
+			initialised = true;
+		}
+	}
+	
 	public DocumentControl getDocumentControl() {
+		ensureAllInitialised();
+
 		return documentControl;		
 	}
 
@@ -104,10 +115,12 @@ public class ControlFactory {
 	}
 
 	public PageControl getPageControl() {
+		ensureAllInitialised();
 		return pageControl;		
 	}
 
 	public WindowControl getWindowControl() {
+		ensureAllInitialised();
 		return windowControl;
 	}
 

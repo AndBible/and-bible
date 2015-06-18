@@ -2,8 +2,13 @@ package net.bible.android.control.page.window;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
+import net.bible.android.control.page.CurrentBiblePage;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.WindowLayout.WindowState;
 
+import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.Books;
+import org.crosswire.jsword.passage.Key;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
@@ -30,6 +35,12 @@ public class WindowTest {
 		window.setSynchronised(true);
 		layout.setWeight(1.23456f);
 		
+		CurrentPageManager pageManager = window.getPageManager();
+		CurrentBiblePage biblePage = pageManager.getCurrentBible();
+		Book esv = Books.installed().getBook("ESV");
+		Key ps139v2 = esv.getKey("Ps.139.2");
+		biblePage.setCurrentDocumentAndKey(esv, ps139v2);
+		
 		// serialize state
 		JSONObject json = window.getStateJson();
 		System.out.println(json);
@@ -42,5 +53,10 @@ public class WindowTest {
 		assertThat(layout.getState(), equalTo(WindowState.MINIMISED));
 		assertThat(window.isSynchronised(), equalTo(true));
 		assertThat(layout.getWeight(), equalTo(1.23456f));
+
+		pageManager = window.getPageManager();
+		biblePage = pageManager.getCurrentBible();
+		assertThat(biblePage.getCurrentDocument(), equalTo(esv));
+		assertThat(biblePage.getSingleKey().getName(), equalTo(ps139v2.getName()));
 	}
 }

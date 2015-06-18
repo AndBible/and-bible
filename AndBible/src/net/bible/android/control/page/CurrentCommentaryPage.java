@@ -3,12 +3,17 @@ package net.bible.android.control.page;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.navigation.GridChoosePassageBook;
+import net.bible.service.sword.SwordDocumentFacade;
 
+import org.apache.commons.lang.StringUtils;
+import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.Versification;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import android.app.Activity;
 import android.util.Log;
@@ -139,5 +144,44 @@ public class CurrentCommentaryPage extends VersePage implements CurrentPage {
 		MenuItem myNotesMenuItem = menu.findItem(R.id.myNoteAddEdit);
 		myNotesMenuItem.setVisible(true);
 		myNotesMenuItem.setTitle(ControlFactory.getInstance().getMyNoteControl().getAddEditMenuText());
+	}
+	
+	/** called during app close down to save state
+	 * 
+	 * @param outState
+	 */
+	@Override
+	public JSONObject getStateJson() throws JSONException {
+		JSONObject object = new JSONObject();
+		if (getCurrentDocument()!=null && getCurrentBibleVerse()!=null && getCurrentBibleVerse().getVerseSelected(getVersification())!=null) {
+			Log.d(TAG, "Saving Commentary state for 1 window");
+			object.put("document", getCurrentDocument().getInitials());
+			// allow Bible page to save shared verse
+		}
+		return object;
+	}
+	
+	/** called during app start-up to restore previous state
+	 * 
+	 * @param inState
+	 */
+	@Override
+	public void restoreState(JSONObject jsonObject) throws JSONException {
+		if (jsonObject!=null) {
+			Log.d(TAG, "Restoring Commentary page state");
+			if (jsonObject.has("document")) {
+				String document = jsonObject.getString("document");
+				if (StringUtils.isNotEmpty(document)) {
+					Book book = SwordDocumentFacade.getInstance().getDocumentByInitials(document);
+					if (book!=null) {
+						Log.d(TAG, "Restored document:"+book.getName());
+						// bypass setter to avoid automatic notifications
+						localSetCurrentDocument(book);
+	
+						// allow Bible page to restore shared verse
+					}
+				}
+			}
+		}
 	}
 }

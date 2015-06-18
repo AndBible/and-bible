@@ -51,7 +51,8 @@ public class WindowControlTest {
 	@Before
 	public void setUp() throws Exception {
 		eventManager = mock(EventManager.class);
-		windowRepository = new WindowRepository(eventManager);
+		windowRepository = new WindowRepository();
+		windowRepository.initialise(eventManager);
 		windowControl = new WindowControl(windowRepository, eventManager);
 		reset(eventManager);
 	}

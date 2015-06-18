@@ -40,10 +40,9 @@ public class Window {
 	}
 
 	public CurrentPageManager getPageManager() {
-		//TODO use a factory
 		// for now lazily create to prevent NPE on start up due to circular dependency
 		if (currentPageManager==null) {
-			this.currentPageManager = currentPageManagerFactory.createCurrentPageManager(this);
+			this.currentPageManager = new CurrentPageManager();
 		}
 		return currentPageManager;
 	}
@@ -95,7 +94,8 @@ public class Window {
 		JSONObject object = new JSONObject();
 		object.put("screenNo", screenNo)
 			.put("isSynchronised", isSynchronised)
-			.put("windowLayout", windowLayout.getStateJson());
+			.put("windowLayout", windowLayout.getStateJson())
+			.put("pageManager", getPageManager().getStateJson());
 		return object;
 	}
 
@@ -104,8 +104,9 @@ public class Window {
 			this.screenNo = jsonObject.getInt("screenNo");
 			this.isSynchronised = jsonObject.getBoolean("isSynchronised");
 			this.windowLayout.restoreState(jsonObject.getJSONObject("windowLayout"));
+			this.getPageManager().restoreState(jsonObject.getJSONObject("pageManager"));
 		} catch (Exception e) {
-			logger.warn("Window state restore error");
+			logger.warn("Window state restore error:"+e.getMessage(), e);
 		}
 	}
 

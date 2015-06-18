@@ -24,7 +24,8 @@ public class WindowSynchronisationTest {
 	@Before
 	public void setUp() throws Exception {
 		eventManager = ABEventBus.getDefault();
-		windowRepository = new WindowRepository(eventManager);
+		windowRepository = new WindowRepository();
+		windowRepository.initialise(eventManager);
 		windowControl = new WindowControl(windowRepository, eventManager);
 		
 		TestControlFactory testControlFactory = new TestControlFactory();

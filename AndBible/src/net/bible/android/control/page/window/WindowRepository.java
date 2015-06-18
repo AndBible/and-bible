@@ -34,7 +34,7 @@ public class WindowRepository {
 
 	private final Logger logger = new Logger(this.getClass().getName());
 	
-	public WindowRepository(EventManager eventManager) {
+	public void initialise(EventManager eventManager) {
 		dedicatedLinksWindow = new Window(DEDICATED_LINK_WINDOW_SCREEN_NO, WindowState.CLOSED);
 		dedicatedLinksWindow.setSynchronised(false);
 
