@@ -162,8 +162,13 @@ public class WindowRepository {
 
 	public void close(Window window) {
 		window.getWindowLayout().setState(WindowState.CLOSED);
-		if (!windowList.remove(window)) {
-			logger.error("Failed to close window "+window.getScreenNo());
+		
+		// links window is just closed not deleted
+		if (!window.isLinksWindow()) {
+			
+			if (!windowList.remove(window)) {
+				logger.error("Failed to close window "+window.getScreenNo());
+			}
 		}
 
 		// has the active screen been minimised?
@@ -238,21 +243,27 @@ public class WindowRepository {
 	 */
 	private void saveState(SharedPreferences outState) {
 		logger.info("save state");
-
-		JSONArray allScreenState = new JSONArray();
-		for (Window window : windowList) {
-			try {
-				if (window.getWindowLayout().getState() != WindowState.CLOSED) {
-					allScreenState.put(window.getStateJson());
+		try {
+	
+			JSONObject windowRepositoryStateObj = new JSONObject();
+			JSONArray windowStateArray = new JSONArray();
+			for (Window window : windowList) {
+				try {
+					if (window.getWindowLayout().getState() != WindowState.CLOSED) {
+						windowStateArray.put(window.getStateJson());
+					}
+				} catch (JSONException je) {
+					logger.error("Error saving screen state", je);
 				}
-			} catch (JSONException je) {
-				logger.error("Error saving screen state", je);
 			}
+			windowRepositoryStateObj.put("windowState", windowStateArray);
+			
+			SharedPreferences.Editor editor = outState.edit();
+			editor.putString("windowRepositoryState", windowRepositoryStateObj.toString());
+			editor.commit();
+		} catch (JSONException je) {
+			logger.error("Saving window state", je);
 		}
-		
-		SharedPreferences.Editor editor = outState.edit();
-		editor.putString("screenStateArray", allScreenState.toString());
-		editor.commit();
 	}
 	
 	/** called during app start-up to restore previous state
@@ -261,18 +272,19 @@ public class WindowRepository {
 	 */
 	private void restoreState(SharedPreferences inState) {
 		logger.info("restore state");
-		String allScreenStateString = inState.getString("screenStateArray", null);
-		if (StringUtils.isNotEmpty(allScreenStateString)) {
+		String windowRepositoryStateString = inState.getString("windowRepositoryState", null);
+		if (StringUtils.isNotEmpty(windowRepositoryStateString)) {
 			try {
-				JSONArray allScreenState = new JSONArray(allScreenStateString);
-				if (allScreenState.length()>0) {
+				JSONObject windowRepositoryState = new JSONObject(windowRepositoryStateString);
+				JSONArray windowState = windowRepositoryState.getJSONArray("windowState");
+				if (windowState.length()>0) {
 
 					// remove current (default) state before restoring
 					windowList.clear();
 					
-					for (int i=0; i<allScreenState.length(); i++) {
+					for (int i=0; i<windowState.length(); i++) {
 						try {
-							JSONObject screenState = allScreenState.getJSONObject(i);
+							JSONObject screenState = windowState.getJSONObject(i);
 							Window window = new Window();
 							window.restoreState(screenState);
 

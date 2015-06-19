@@ -18,6 +18,7 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
+import org.json.JSONObject;
 
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -106,13 +107,28 @@ public class WindowControl {
 	 * Show link using whatever is the current Bible in the Links window
 	 */
 	public void showLinkUsingDefaultBible(Key key) {
-		Book defaultBible = windowRepository.getDedicatedLinksWindow().getPageManager().getCurrentBible().getCurrentDocument();
+        Window linksWindow = windowRepository.getDedicatedLinksWindow();
+
+        // default either to links window bible or if closed then active window bible 
+		Book defaultBible;
+        if (!linksWindow.getWindowLayout().getState().equals(WindowState.CLOSED)) {
+    		defaultBible = linksWindow.getPageManager().getCurrentBible().getCurrentDocument();
+        } else {
+    		defaultBible = getActiveWindow().getPageManager().getCurrentBible().getCurrentDocument();
+        }
+        
 		showLink(defaultBible, key);
 	}
 	
 	public void showLink(Book document, Key key) {
         Window linksWindow = windowRepository.getDedicatedLinksWindow();
         boolean linksWindowWasVisible = linksWindow.isVisible();
+        
+        // set links window state from active window if it was closed 
+		if (linksWindow.getWindowLayout().getState().equals(WindowState.CLOSED) && !isActiveWindow(linksWindow)) {
+			// initialise links window documents from active window
+			linksWindow.getPageManager().restoreState(getActiveWindow().getPageManager().getStateJson());
+		}
         
         //TODO do not set links window active -  currently need to set links window to active window otherwise BibleContentMediator logic does not refresh that window
         windowRepository.setActiveWindow(linksWindow);
@@ -129,6 +145,12 @@ public class WindowControl {
 	public Window addNewWindow() {
 		//Window newScreen = 
 		Window window = windowRepository.addNewWindow();
+		
+		// default state to active window
+		if (!isActiveWindow(window)) {
+			JSONObject activeWindowPageState = getActiveWindow().getPageManager().getStateJson();
+			window.getPageManager().restoreState(activeWindowPageState);
+		}
 
 		windowSync.setResynchRequired(true);
 		windowSync.synchronizeScreens();

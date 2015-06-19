@@ -17,7 +17,9 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import net.bible.android.activity.R;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
+import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.window.WindowLayout.WindowState;
+import net.bible.test.PassageTestData;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.Books;
@@ -85,16 +87,46 @@ public class WindowControlTest {
 		windowControl.showLink(BOOK_KJV, PS_139_3);
 		
 		Window linksWindow = windowRepository.getDedicatedLinksWindow();
-		assertThat(linksWindow.getPageManager().getCurrentBible().getSingleKey(), equalTo((Key)PS_139_3));
+		assertThat(linksWindow.getPageManager().getCurrentBible().getCurrentDocument(), equalTo(BOOK_KJV));
 		assertThat(linksWindow.getPageManager().getCurrentBible().getSingleKey(), equalTo((Key)PS_139_3));
 		assertThat(linksWindow.getWindowLayout().getState(), equalTo(WindowLayout.WindowState.SPLIT));
 		assertThat(windowRepository.isMultiWindow(), is(true));
 	}
 
 	@Test
+	public void testShowLinkUsingDefaultBible() throws Exception {
+		Window window1 = windowRepository.getActiveWindow();
+		window1.getPageManager().setCurrentDocument(BOOK_KJV);
+
+		windowControl.showLinkUsingDefaultBible(PS_139_3);
+		
+		Window linksWindow = windowRepository.getDedicatedLinksWindow();
+		assertThat(linksWindow.getPageManager().getCurrentBible().getCurrentDocument(), equalTo(BOOK_KJV));
+		assertThat(linksWindow.getPageManager().getCurrentBible().getSingleKey(), equalTo((Key)PS_139_3));
+		assertThat(linksWindow.getWindowLayout().getState(), equalTo(WindowLayout.WindowState.SPLIT));
+		assertThat(windowRepository.isMultiWindow(), is(true));
+		assertThat(windowControl.isActiveWindow(linksWindow), is(true));
+
+		windowControl.setActiveWindow(window1);
+		window1.getPageManager().setCurrentDocument(PassageTestData.ESV);
+
+		windowControl.showLinkUsingDefaultBible(PS_139_3);
+
+		// since links window has not been closed the Bible should not be changed
+		assertThat(linksWindow.getPageManager().getCurrentBible().getCurrentDocument(), equalTo(BOOK_KJV));
+	}
+
+	@Test
 	public void testAddNewWindow() throws Exception {
+		Window activeWindow = windowControl.getActiveWindow();
+		activeWindow.getPageManager().getCurrentBible().setCurrentDocumentAndKey(PassageTestData.ESV, PassageTestData.PS_139_2);
+		
 		Window newWindow = windowControl.addNewWindow();
 		assertThat(windowRepository.getWindows(), hasItem(newWindow));
+		// documents should be defaulted from active window
+		CurrentBiblePage biblePage = newWindow.getPageManager().getCurrentBible();
+		assertThat(biblePage.getCurrentDocument(), equalTo(PassageTestData.ESV));
+		assertThat(biblePage.getSingleKey().getName(), equalTo(PassageTestData.PS_139_2.getName()));
 
 		verify(eventManager, times(1)).post(argThat(isA(NumberOfWindowsChangedEvent.class)));
 	}
