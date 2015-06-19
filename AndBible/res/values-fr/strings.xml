@@ -74,6 +74,8 @@
   <string name="prefs_night_mode_automatic">Automatique</string>
   <string name="prefs_navigate_to_verse_title">Aller au verset</string>
   <string name="prefs_navigate_to_verse_summary">Choisissez le verset (et le chapitre) lors de la sélection d\'un passage</string>
+  <string name="prefs_open_links_in_special_window_title">Ouvrir les liens dans une fenêtre spéciale</string>
+  <string name="prefs_open_links_in_special_window_summary">Pour un affichage rapide des références croisées et Strong</string>
   <string name="prefs_text_size_title">Taille du texte</string>
   <string name="prefs_text_size_summary">Voir plus ou voir plus clair</string>
   <string name="prefs_text_size_sample_text">Exemple de texte</string>
@@ -84,6 +86,12 @@
   <string name="prefs_interface_locale_summary">Choisir une langue personnalisée dans l\'interface utilisateur</string>
   <string name="locale_change_warning">L\'application sera redémarrée pour prendre en compte la nouvelle langue d\'interface</string>
   <!--Window-->
+  <string name="window">Fenêtre</string>
+  <string name="windowClose">Fermer</string>
+  <string name="windowMaximise">Maximiser</string>
+  <string name="windowMinimise">Minimiser</string>
+  <string name="windowSynchronise">Synchroniser</string>
+  <string name="windowMoveFirst">Déplacer en premier</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Aucune note dans ce chapitre</string>
   <string name="no_verse_notes">Aucune note dans ce verset</string>
@@ -220,6 +228,8 @@
   <string name="please_wait">Attendez svp...</string>
   <string name="all">Tout</string>
   <string name="default_value">@string/lang_default</string>
+  <string name="new_item">Nouveau</string>
+  <string name="close">Fermer</string>
   <!--Errors-->
   <string name="error_occurred">Une erreur s\'est produite</string>
   <string name="error_no_content">Aucun contenu pour le verset sélectionné</string>

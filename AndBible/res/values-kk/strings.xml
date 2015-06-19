@@ -74,6 +74,8 @@
   <string name="prefs_night_mode_automatic">Автоматты</string>
   <string name="prefs_navigate_to_verse_title">Аятқа навигация жүргізу</string>
   <string name="prefs_navigate_to_verse_summary">Үзіндіні белгілегенде аятты таңдаңыз (әрі тарауды)</string>
+  <string name="prefs_open_links_in_special_window_title">Линктерді айрықша терезеде ашу</string>
+  <string name="prefs_open_links_in_special_window_summary">Айқасқан нұсқауларды және Strongs шапшаң көрсету үшін</string>
   <string name="prefs_text_size_title">Мәтін көлемі</string>
   <string name="prefs_text_size_summary">Тағыда көру немесе анықтап көру</string>
   <string name="prefs_text_size_sample_text">Мысалы мәтін</string>
@@ -84,6 +86,12 @@
   <string name="prefs_interface_locale_summary">Пайдаланушы интерфейс тілін таңдау</string>
   <string name="locale_change_warning">Жаңа интерфейс тіліне ауысу үшін қолданылатын тапсырма қайта басталады</string>
   <!--Window-->
+  <string name="window">Терезе</string>
+  <string name="windowClose">Жабу</string>
+  <string name="windowMaximise">Шегіне дейін ұлғайту</string>
+  <string name="windowMinimise">Шегіне дейін азайту</string>
+  <string name="windowSynchronise">Үйлестіру</string>
+  <string name="windowMoveFirst">Алдымен көшіру</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Бұл тарауда ешқандай мәлімет жоқ</string>
   <string name="no_verse_notes">Бұл аятта ешқандай мәлімет жоқ</string>
@@ -125,6 +133,7 @@
   <string name="rdg_plan_y1ot1nt1_OTandNT">Жылына Киелі Кітап арқылы - ЕӨ және ЖӨ</string>
   <string name="rdg_plan_y1ot1nt1_OTthenNT">Жылына Киелі Кітап арқылы - ЕӨ және ЖӨ</string>
   <string name="rdg_plan_y1ot1nt2_mcheyne">Жылына Киелі Кітап арқылы (M\'Cheyne)</string>
+  <string name="rdg_plan_y2ot1ntps2">2 жылдық жоспар - Бір рет Көне өсиет, Жаңа Өсиет және Забур жырлары екі рет</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Жою</string>
@@ -219,6 +228,8 @@
   <string name="please_wait">Кұте тұрыңыз...</string>
   <string name="all">Бәрі</string>
   <string name="default_value">@string/lang_default</string>
+  <string name="new_item">Жаңа</string>
+  <string name="close">Жабу</string>
   <!--Errors-->
   <string name="error_occurred">Қате пайда болды</string>
   <string name="error_no_content">Таңдалған аятқа мазмұн жоқ</string>
