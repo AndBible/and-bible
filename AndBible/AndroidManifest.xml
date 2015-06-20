@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
       package="net.bible.android.activity"
       android:installLocation="auto"
-      android:versionName="20150601" android:versionCode="156">
+      android:versionName="20150620" android:versionCode="157">
     <uses-sdk android:minSdkVersion="8" android:targetSdkVersion="19"/>
     
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
