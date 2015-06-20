@@ -107,28 +107,19 @@ public class WindowControl {
 	 * Show link using whatever is the current Bible in the Links window
 	 */
 	public void showLinkUsingDefaultBible(Key key) {
-        Window linksWindow = windowRepository.getDedicatedLinksWindow();
+        LinksWindow linksWindow = windowRepository.getDedicatedLinksWindow();
 
         // default either to links window bible or if closed then active window bible 
-		Book defaultBible;
-        if (!linksWindow.getWindowLayout().getState().equals(WindowState.CLOSED)) {
-    		defaultBible = linksWindow.getPageManager().getCurrentBible().getCurrentDocument();
-        } else {
-    		defaultBible = getActiveWindow().getPageManager().getCurrentBible().getCurrentDocument();
-        }
+		Book defaultBible = linksWindow.getDefaultBible(getActiveWindow());
         
 		showLink(defaultBible, key);
 	}
-	
+
 	public void showLink(Book document, Key key) {
-        Window linksWindow = windowRepository.getDedicatedLinksWindow();
+        LinksWindow linksWindow = windowRepository.getDedicatedLinksWindow();
         boolean linksWindowWasVisible = linksWindow.isVisible();
-        
-        // set links window state from active window if it was closed 
-		if (linksWindow.getWindowLayout().getState().equals(WindowState.CLOSED) && !isActiveWindow(linksWindow)) {
-			// initialise links window documents from active window
-			linksWindow.getPageManager().restoreState(getActiveWindow().getPageManager().getStateJson());
-		}
+
+        linksWindow.initialisePageStateIfClosed(linksWindow);
         
         //TODO do not set links window active -  currently need to set links window to active window otherwise BibleContentMediator logic does not refresh that window
         windowRepository.setActiveWindow(linksWindow);
@@ -141,6 +132,7 @@ public class WindowControl {
         	eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
         }
 	}
+
 
 	public Window addNewWindow() {
 		//Window newScreen = 

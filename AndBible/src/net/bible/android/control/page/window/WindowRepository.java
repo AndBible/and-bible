@@ -25,18 +25,14 @@ public class WindowRepository {
 	
 	private List<Window> windowList;
 	
-	private Window dedicatedLinksWindow;
+	private LinksWindow dedicatedLinksWindow;
 	
 	private int maxWindowNoUsed = 0;
 	
-	// must be -ve so as not to interfere with incrementing window number sequence
-	protected static final int DEDICATED_LINK_WINDOW_SCREEN_NO = -999;
-
 	private final Logger logger = new Logger(this.getClass().getName());
 	
 	public void initialise(EventManager eventManager) {
-		dedicatedLinksWindow = new Window(DEDICATED_LINK_WINDOW_SCREEN_NO, WindowState.CLOSED);
-		dedicatedLinksWindow.setSynchronised(false);
+		dedicatedLinksWindow = new LinksWindow(WindowState.CLOSED);
 
 		windowList = new ArrayList<Window>();
 
@@ -102,7 +98,7 @@ public class WindowRepository {
 		return null;
 	}
 	
-	public Window getDedicatedLinksWindow() {
+	public LinksWindow getDedicatedLinksWindow() {
 		return dedicatedLinksWindow;
 	}
 

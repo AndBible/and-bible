@@ -1,7 +1,6 @@
 package net.bible.android.control.page.window;
 
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.page.CurrentPageManagerFactory;
 import net.bible.android.control.page.window.WindowLayout.WindowState;
 import net.bible.service.common.Logger;
 
@@ -19,8 +18,6 @@ public class Window {
 	private WindowLayout windowLayout;
 	
 	private CurrentPageManager currentPageManager;
-	
-	private static CurrentPageManagerFactory currentPageManagerFactory = new CurrentPageManagerFactory();
 	
 	// 1 based screen no
 	private int screenNo;
@@ -51,6 +48,10 @@ public class Window {
 		return screenNo;
 	}
 
+	public boolean isClosed() {
+		return getWindowLayout().getState().equals(WindowState.CLOSED);
+	}
+	
 	public boolean isMaximised() {
 		return getWindowLayout().getState().equals(WindowState.MAXIMISED);
 	}
@@ -62,8 +63,6 @@ public class Window {
 			getWindowLayout().setState(WindowState.SPLIT);
 		}
 	}
-
-
 	
 	public boolean isSynchronised() {
 		return isSynchronised;
@@ -115,7 +114,7 @@ public class Window {
 	}
 	
 	public boolean isLinksWindow() {
-		return getScreenNo() == WindowRepository.DEDICATED_LINK_WINDOW_SCREEN_NO;
+		return false;
 	}
 	
 	@Override
