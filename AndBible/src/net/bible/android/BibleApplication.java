@@ -193,6 +193,19 @@ public class BibleApplication extends Application{
 				 editor.remove("split_screen_pref");
 			}
 			
+			// clear setting temporarily used for window state
+			if (prevInstalledVersion < 157) {
+				SharedPreferences appPrefs = getAppStateSharedPreferences();
+				if (appPrefs.contains("screenStateArray")) {
+					Log.d(TAG, "Removing screenStateArray");
+					appPrefs.edit()
+							.remove("screenStateArray")
+							.commit();
+				}
+			}
+			
+			
+			
 			editor.putInt("version", CommonUtils.getApplicationVersionNumber());
 			editor.commit();
 			Log.d(TAG, "Finished all Upgrading");
