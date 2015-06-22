@@ -323,6 +323,11 @@ public class SwordContentFacade {
 			osisToHtmlParameters.setDocumentVersification(((AbstractPassageBook)book).getVersification());
 		}
 		
+		// If Bible, do not show reference content. In commentaries and genbooks they need to be shown
+		if (BookCategory.BIBLE.equals(bookCategory)){
+			osisToHtmlParameters.setShowReferenceContent(false);
+		}
+		
 		if (isAndroid) {
 	    	// HunUj has an error in that refs are not wrapped so automatically add notes around refs
 	    	osisToHtmlParameters.setAutoWrapUnwrappedRefsInNote("HunUj".equals(book.getInitials()));

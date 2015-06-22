@@ -135,7 +135,8 @@ public class ReferenceHandler implements OsisTagHandler {
 		        boolean isSimpleContent = content.length()<3 && content.length()>0;
 		        Iterator<VerseRange> it = ref.rangeIterator(RestrictionType.CHAPTER);
 		        
-		        if (isSingleVerse && isSimpleContent) {
+		        // For commentaries and general books, it is necessary to show always reference content. 
+		        if (parameters.isShowReferenceContent() || (isSingleVerse && isSimpleContent)) { // single verse range or single verse
 			        // simple verse no e.g. 1 or 2 preceding the actual verse in TSK
 					result.append("<a href='").append(Constants.BIBLE_PROTOCOL).append(":").append(it.next().getOsisRef()).append("'>");
 					result.append(content);
