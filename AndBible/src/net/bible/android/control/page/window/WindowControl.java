@@ -119,7 +119,7 @@ public class WindowControl {
         LinksWindow linksWindow = windowRepository.getDedicatedLinksWindow();
         boolean linksWindowWasVisible = linksWindow.isVisible();
 
-        linksWindow.initialisePageStateIfClosed(linksWindow);
+        linksWindow.initialisePageStateIfClosed(getActiveWindow());
         
         //TODO do not set links window active -  currently need to set links window to active window otherwise BibleContentMediator logic does not refresh that window
         windowRepository.setActiveWindow(linksWindow);
