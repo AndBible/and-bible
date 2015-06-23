@@ -15,11 +15,13 @@
   <string name="history">Historia</string>
   <string name="speak">Odsłuchaj</string>
   <string name="help">Pomoc</string>
-  <string name="verse">Manu wersetu</string>
+  <string name="verse">Menu wersetu</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Wybierz księgę</string>
   <string name="choosePassageChapterName">Wybierz rozdział</string>
   <string name="choosePassageVerseName">Wybierz werset</string>
+  <string name="bible">Biblia</string>
+  <string name="deuterocanonical">Deuterokanoniczny</string>
   <!--Search-->
   <string name="search_index">Indeks wyszukiwania</string>
   <string name="index_creation_required">Aby przeprowadzić wyszukiwanie wymagane jest stworzenie indeksu.\n\nIndeks może zostać pobrany z Internetu lub stworzony lokalnie.\n\nZaleca się pobranie indeksu z sieci.\n\nAby pobrać indeks wymagane jest połaczenie z Internetem.</string>
@@ -72,6 +74,8 @@
   <string name="prefs_night_mode_automatic">Automatycznie</string>
   <string name="prefs_navigate_to_verse_title">Przejdź do wersetu</string>
   <string name="prefs_navigate_to_verse_summary">Wybierz werset podczas zaznaczania fragmentu</string>
+  <string name="prefs_open_links_in_special_window_title">Otwórz link w specjalnym oknie</string>
+  <string name="prefs_open_links_in_special_window_summary">Szybsze wyświetlanie odnośników</string>
   <string name="prefs_text_size_title">Rozmiar czcionki</string>
   <string name="prefs_text_size_summary">Powiększ/pomniejsz rozmiar czcionki</string>
   <string name="prefs_text_size_sample_text">Zwykły tekst</string>
@@ -82,6 +86,11 @@
   <string name="prefs_interface_locale_summary">Wybierz język</string>
   <string name="locale_change_warning">Aplikacja zostanie ponownie uruchomiona, aby przełączyć się na nowy język interfejsu</string>
   <!--Window-->
+  <string name="window">Menu okna</string>
+  <string name="windowClose">Zamknij</string>
+  <string name="windowMaximise">Maksymalizuj</string>
+  <string name="windowMinimise">Minimalizuj</string>
+  <string name="windowSynchronise">Synchronizuj</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Brak przypisów dla tego rozdziału</string>
   <string name="no_verse_notes">Brak przypisów dla tego wersetu</string>
@@ -123,6 +132,7 @@
   <string name="rdg_plan_y1ot1nt1_OTandNT">Przeczytaj Biblię w ciągu roku - ST i NT</string>
   <string name="rdg_plan_y1ot1nt1_OTthenNT">Przeczytaj Biblię w ciągu roku - najpierw ST potem NT</string>
   <string name="rdg_plan_y1ot1nt2_mcheyne">Przeczytaj Biblię w ciągu roku (M\'Cheyne)</string>
+  <string name="rdg_plan_y2ot1ntps2">Plan 2-letni - ST raz, NT i Psalmy dwa razy</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Usuń</string>
@@ -152,6 +162,7 @@
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Porządek chronologiczny</string>
   <string name="sort_by_bible_book">Porządek biblijny</string>
+  <string name="sort_by_alphabetical">Porządek alfabetyczny</string>
   <!--Dictionary-->
   <string name="dictionary">Słownik</string>
   <string name="search_dictionary_hint">Znajdź w słowniku</string>
@@ -216,6 +227,8 @@
   <string name="please_wait">Proszę czekać...</string>
   <string name="all">Wszystkie</string>
   <string name="default_value">Domyślny język</string>
+  <string name="new_item">Nowy</string>
+  <string name="close">Zamknij</string>
   <!--Errors-->
   <string name="error_occurred">Wystąpił błąd</string>
   <string name="error_no_content">Brak zawartości dla wybranego wiersza</string>

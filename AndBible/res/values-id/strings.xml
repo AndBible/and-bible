@@ -29,7 +29,7 @@
   <string name="index">Indeks</string>
   <string name="index_download">Download</string>
   <string name="index_not_available_for_download">Indeks ini tidak bisa di-download</string>
-  <string name="index_create">Membuat</string>
+  <string name="index_create">Buat</string>
   <!--Tasks-->
   <string name="progress_status">Kemajuan</string>
   <string name="task_kill_warning">Hubungan akan terputus kalau anda berpindah ke aplikasi lain sebelum tugas khusus selesai</string>
@@ -74,6 +74,8 @@
   <string name="prefs_night_mode_automatic">Otomatis</string>
   <string name="prefs_navigate_to_verse_title">Arahkan ke ayat</string>
   <string name="prefs_navigate_to_verse_summary">Pilih ayat (dan bab) ketika memilih sebuah bagian</string>
+  <string name="prefs_open_links_in_special_window_title">Buka link di jendela khusus</string>
+  <string name="prefs_open_links_in_special_window_summary">Tampilan referensi silang dan Strong lebih cepat</string>
   <string name="prefs_text_size_title">Ukuran huruf</string>
   <string name="prefs_text_size_summary">Lihat lebih lanjut atau lihat lebih jelas</string>
   <string name="prefs_text_size_sample_text">Contoh teks</string>
@@ -84,6 +86,12 @@
   <string name="prefs_interface_locale_summary">Pilih bahasa perantara pengguna </string>
   <string name="locale_change_warning">Aplikasi akan dijalankan ulang untuk beralih ke bahasa perantara</string>
   <!--Window-->
+  <string name="window">Jendela</string>
+  <string name="windowClose">Tutup</string>
+  <string name="windowMaximise">kasi besar</string>
+  <string name="windowMinimise">kasi kecil</string>
+  <string name="windowSynchronise">Sinkronkan</string>
+  <string name="windowMoveFirst">Pinda dulu</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Tidak ada catatan dalam bab ini</string>
   <string name="no_verse_notes">Tidak ada catatan dalam ayat ini</string>
@@ -147,7 +155,7 @@
   <string name="bookmark_added">Bookmark ditambahkan</string>
   <string name="bookmark_exists">Bookmark sudah ada</string>
   <string name="bookmark_labels">Label Bookmark</string>
-  <string name="assign_labels">Menetapkan label</string>
+  <string name="assign_labels">Tetapkan label</string>
   <string name="new_label">Label Baru</string>
   <string name="label_name_prompt">Nama</string>
   <string name="label_unlabelled">Tanpa label</string>
@@ -178,7 +186,7 @@
   <string name="some_pages">%d halaman-halaman</string>
   <!--Speak - Common-->
   <string name="stop">Stop</string>
-  <string name="pause">Sebentar</string>
+  <string name="pause">Selaan</string>
   <string name="rewind">Mundur</string>
   <string name="forward">Maju</string>
   <string name="tts_lang_not_available">Bahasa tidak tersedia.</string>
@@ -213,13 +221,15 @@
   <string name="yes">Iya</string>
   <string name="no">Tidak</string>
   <string name="save">Simpan</string>
-  <string name="error">Kesalahan</string>
+  <string name="error">Eror</string>
   <string name="more">Lebih</string>
   <string name="more_dotted">Lebih lanjut...</string>
   <string name="retry">Coba lagi</string>
   <string name="please_wait">Silakan tunggu ...</string>
   <string name="all">Semua</string>
   <string name="default_value">@string/lang_default</string>
+  <string name="new_item">Baru</string>
+  <string name="close">Tutup</string>
   <!--Errors-->
   <string name="error_occurred">Sebuah kesalahan telah terjadi</string>
   <string name="error_no_content">Ayat yang dipilih, tidak ada isi </string>

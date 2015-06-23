@@ -74,6 +74,8 @@
   <string name="prefs_night_mode_automatic">Automatisch</string>
   <string name="prefs_navigate_to_verse_title">Versauswahl</string>
   <string name="prefs_navigate_to_verse_summary">Bis zu einem bestimmten Vers navigieren</string>
+  <string name="prefs_open_links_in_special_window_title">Verknüpfungen in eigenem Fenster öffnen</string>
+  <string name="prefs_open_links_in_special_window_summary">Für die schnellere Anzeige von Querverweisen und Lexikoneinträgen</string>
   <string name="prefs_text_size_title">Zeichengröße</string>
   <string name="prefs_text_size_summary">Text größer/kleiner anzeigen</string>
   <string name="prefs_text_size_sample_text">Beispieltext</string>
@@ -84,6 +86,12 @@
   <string name="prefs_interface_locale_summary">Umschalten der Sprache der Benutzerführung</string>
   <string name="locale_change_warning">AndBible wird zur Sprachumstellung neu gestartet</string>
   <!--Window-->
+  <string name="window">Fenster</string>
+  <string name="windowClose">Schließen</string>
+  <string name="windowMaximise">Maximiere</string>
+  <string name="windowMinimise">Minimiere</string>
+  <string name="windowSynchronise">Synchronisierung</string>
+  <string name="windowMoveFirst">Als Hauptfenster festlegen</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Keine Anmerkungen in diesem Kapitel</string>
   <string name="no_verse_notes">Keine Anmerkungen zu diesem Vers</string>
@@ -220,6 +228,8 @@
   <string name="please_wait">Bitte warten...</string>
   <string name="all">Alles</string>
   <string name="default_value">@string/lang_default</string>
+  <string name="new_item">Neu</string>
+  <string name="close">Schließen</string>
   <!--Errors-->
   <string name="error_occurred">Ein Fehler ist aufgetreten!</string>
   <string name="error_no_content">Kein Inhalt für diesen Vers</string>
