@@ -218,13 +218,13 @@ public class DocumentWebViewBuilder {
 	private View createDefaultWindowActionButton(Window window) {
 		View defaultWindowActionButton;
 		if (window.getDefaultOperation().equals(WindowOperation.CLOSE)) {
-		    // minimise button
+		    // close button for the links window
 		    defaultWindowActionButton = createCloseButton(window);
 		} else if (window.getDefaultOperation().equals(WindowOperation.MAXIMISE)) {
-		    // minimise button
+		    // normalise button for maximised window
 		    defaultWindowActionButton = createMaximiseToggleButton(window);
 		} else {
-		    // minimise button
+		    // minimise button for normal window
 		    defaultWindowActionButton = createMinimiseButton(window);
 		}
 		return defaultWindowActionButton;

@@ -4,6 +4,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.isA;
@@ -132,6 +133,21 @@ public class WindowControlTest {
 	}
 
 	@Test
+	public void testGetMinimisedWindows() throws Exception {
+		Window activeWindow = windowControl.getActiveWindow();
+		Window newWindow1 = windowControl.addNewWindow();
+		Window newWindow2 = windowControl.addNewWindow();
+
+		// simple state - just 1 window is minimised
+		windowControl.minimiseWindow(newWindow2);
+		assertThat(windowRepository.getMinimisedScreens(), contains(newWindow2));
+
+		// 1 window is minimised, but because a window is maximised normal windows should also be returned
+		windowControl.maximiseWindow(activeWindow);
+		assertThat(windowRepository.getMinimisedScreens(), containsInAnyOrder(newWindow1, newWindow2));
+	}
+
+	@Test
 	public void testMinimiseWindow() throws Exception {
 		Window newWindow = windowControl.addNewWindow();
 		reset(eventManager);
@@ -234,15 +250,35 @@ public class WindowControlTest {
 
 	@Test
 	public void testRestoreWindow() throws Exception {
+		Window activeWindow = windowControl.getActiveWindow();
 		Window newWindow = windowControl.addNewWindow();
 		windowControl.minimiseWindow(newWindow);
-		assertThat(windowRepository.getVisibleWindows(), hasSize(1));
+		assertThat(windowRepository.getVisibleWindows(), contains(activeWindow));
 		reset(eventManager);
 
 		windowControl.restoreWindow(newWindow);
-		assertThat(windowRepository.getWindows(), hasSize(2));
+		assertThat(windowRepository.getVisibleWindows(), containsInAnyOrder(activeWindow, newWindow));
 		
 		verify(eventManager, times(1)).post(argThat(isA(NumberOfWindowsChangedEvent.class)));
+		
+		// test restore switches with maximised if there is one
+		
+	}
+
+	/**
+	 * test restore switches with maximised if there is one
+	 */
+	@Test
+	public void testRestoreWindowWhenMaximized() throws Exception {
+		Window activeWindow = windowControl.getActiveWindow();
+		Window newWindow = windowControl.addNewWindow();
+		windowControl.minimiseWindow(newWindow);
+
+		windowControl.maximiseWindow(activeWindow);
+		windowControl.restoreWindow(newWindow);
+		assertThat(newWindow.isMaximised(), is(true));
+		assertThat(windowRepository.getActiveWindow(), equalTo(newWindow));
+		assertThat(windowRepository.getVisibleWindows(), containsInAnyOrder(newWindow));
 	}
 
 	@Test

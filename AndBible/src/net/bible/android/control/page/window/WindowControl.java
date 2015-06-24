@@ -175,6 +175,7 @@ public class WindowControl {
 		}
 		
 		window.setMaximised(true);
+		setActiveWindow(window);
 		
 		// also remove the links window because it may possibly displayed even though a window is maximised if a link is pressed
 		if (!window.isLinksWindow()) {
@@ -222,7 +223,12 @@ public class WindowControl {
 	}
 
 	public void restoreWindow(Window window) {
-		window.getWindowLayout().setState(WindowState.SPLIT);
+		// switch maximised window with window to restore if single maximised window showing
+		if (windowRepository.isMaximisedState()) {
+			maximiseWindow(window);
+		} else {
+			window.getWindowLayout().setState(WindowState.SPLIT);
+		}
 		
 		// causes BibleViews to be created and laid out
 		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
