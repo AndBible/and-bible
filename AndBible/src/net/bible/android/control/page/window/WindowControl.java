@@ -223,12 +223,7 @@ public class WindowControl {
 	}
 
 	public void restoreWindow(Window window) {
-		// switch maximised window with window to restore if single maximised window showing
-		if (windowRepository.isMaximisedState()) {
-			maximiseWindow(window);
-		} else {
-			window.getWindowLayout().setState(WindowState.SPLIT);
-		}
+		window.getWindowLayout().setState(WindowState.SPLIT);
 		
 		// causes BibleViews to be created and laid out
 		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));

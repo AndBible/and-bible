@@ -142,9 +142,9 @@ public class WindowControlTest {
 		windowControl.minimiseWindow(newWindow2);
 		assertThat(windowRepository.getMinimisedScreens(), contains(newWindow2));
 
-		// 1 window is minimised, but because a window is maximised normal windows should also be returned
+		// 1 window is minimised, but because a window is maximised no windows should be returned
 		windowControl.maximiseWindow(activeWindow);
-		assertThat(windowRepository.getMinimisedScreens(), containsInAnyOrder(newWindow1, newWindow2));
+		assertThat(windowRepository.getMinimisedScreens(), containsInAnyOrder());
 	}
 
 	@Test
@@ -260,25 +260,6 @@ public class WindowControlTest {
 		assertThat(windowRepository.getVisibleWindows(), containsInAnyOrder(activeWindow, newWindow));
 		
 		verify(eventManager, times(1)).post(argThat(isA(NumberOfWindowsChangedEvent.class)));
-		
-		// test restore switches with maximised if there is one
-		
-	}
-
-	/**
-	 * test restore switches with maximised if there is one
-	 */
-	@Test
-	public void testRestoreWindowWhenMaximized() throws Exception {
-		Window activeWindow = windowControl.getActiveWindow();
-		Window newWindow = windowControl.addNewWindow();
-		windowControl.minimiseWindow(newWindow);
-
-		windowControl.maximiseWindow(activeWindow);
-		windowControl.restoreWindow(newWindow);
-		assertThat(newWindow.isMaximised(), is(true));
-		assertThat(windowRepository.getActiveWindow(), equalTo(newWindow));
-		assertThat(windowRepository.getVisibleWindows(), containsInAnyOrder(newWindow));
 	}
 
 	@Test

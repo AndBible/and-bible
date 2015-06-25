@@ -77,15 +77,12 @@ public class WindowRepository {
 	
 
 	public List<Window> getMinimisedScreens() {
-		List<Window> minimisedWindows = getWindows(WindowState.MINIMISED);
-		
 		if (isMaximisedState()) {
-			minimisedWindows.addAll(getWindows(WindowState.SPLIT));
-			// but ensure the possibly visible links window is not returned as it may also be shown
-			minimisedWindows.remove(dedicatedLinksWindow);
+			// if a window is maximised then show no minimised windows
+			return new ArrayList<>();
+		} else {
+			return getWindows(WindowState.MINIMISED);
 		}
-		
-		return minimisedWindows;
 	}
 
 	protected boolean isMaximisedState() {
@@ -162,11 +159,6 @@ public class WindowRepository {
 	public List<Window> getWindowsToSynchronise() {
 		List<Window> windows = getVisibleWindows();
 		windows.remove(getActiveWindow());
-		
-		// if maximised state then keep minimised windows sync'd so we can swap them in on restore
-		if (isMaximisedState()) {
-			windows.addAll(getMinimisedScreens());
-		}
 		
 		return windows;
 	}
