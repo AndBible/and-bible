@@ -233,7 +233,13 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     }
     
 	public void onEvent(CurrentWindowChangedEvent event) {
-		MainBibleActivity.this.updateActionBarButtons();				
+		MainBibleActivity.this.updateActionBarButtons();
+		
+    	// onPrepareOptionsMenu only called once on Android 2.2, 2.3, 3.0: http://stackoverflow.com/questions/29925104/onprepareoptionsmenu-only-called-once-on-android-2-3
+    	// so forcefully invalidate it on old versions
+    	if (!CommonUtils.isIceCreamSandwichPlus()) {
+    		supportInvalidateOptionsMenu();
+    	}
 	}
 
     /** called just before starting work to change the current passage
