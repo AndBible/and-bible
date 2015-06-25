@@ -154,5 +154,9 @@
 		<meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_W" android:value="632.0dip" />
 		<meta-data android:name="com.sec.android.multiwindow.MINIMUM_SIZE_H" android:value="598.0dip" />
         
+        <activity
+            android:name="net.bible.android.view.activity.install_zip.InstallZip"
+            android:label="@string/install_zip" >
+        </activity>
 	</application>
 </manifest> 

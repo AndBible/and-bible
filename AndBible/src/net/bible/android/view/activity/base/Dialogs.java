@@ -41,6 +41,9 @@ public class Dialogs {
     public void showMsg(int msgId, boolean isCancelable, final Callback okayCallback) {
     	showMsg(BibleApplication.getApplication().getString(msgId), isCancelable, okayCallback);
     }
+    public void showMsg(int msgId) {
+    	showErrorMsg(BibleApplication.getApplication().getString(msgId));
+    }
     public void showErrorMsg(int msgId) {
     	showErrorMsg(BibleApplication.getApplication().getString(msgId));
     }
