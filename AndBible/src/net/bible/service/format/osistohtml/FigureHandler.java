@@ -37,7 +37,7 @@ public class FigureHandler implements OsisTagHandler {
 		String src = attrs.getValue(OSISUtil.ATTRIBUTE_FIGURE_SRC);
 		
 		if (StringUtils.isNotEmpty(src)) {
-			writer.write("<img src='"+parameters.getModuleBasePath()+"/"+src+"'/>");
+			writer.write("<img class='sword' src='"+parameters.getModuleBasePath()+"/"+src+"'/>");
 		}
 	}
 
