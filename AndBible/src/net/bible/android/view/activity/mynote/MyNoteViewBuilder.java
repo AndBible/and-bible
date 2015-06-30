@@ -47,9 +47,9 @@ public class MyNoteViewBuilder {
 
 	public void removeMyNoteView(ViewGroup parent) {
     	boolean isMynoteTextEdit = isMyNoteViewShowing(parent);
-    	parent.setTag("");
     	
     	if (isMynoteTextEdit) {
+        	parent.setTag("");
     		parent.removeView(myNoteText);
     		mainActivity.unregisterForContextMenu(myNoteText);
     	}

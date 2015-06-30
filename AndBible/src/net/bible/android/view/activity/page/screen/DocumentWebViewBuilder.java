@@ -115,9 +115,9 @@ public class DocumentWebViewBuilder {
 	 */
 	public void removeWebView(ViewGroup parent) {
     	boolean isWebView = isWebViewShowing(parent);
-    	parent.setTag("");
     	
     	if (isWebView) {
+        	parent.setTag("");
     		removeChildViews(parent);
     	}
 	}
