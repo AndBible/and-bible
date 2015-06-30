@@ -76,6 +76,7 @@ class ZipHandler extends AsyncTask<Void, Integer, Integer> {
 			if (name.startsWith(SwordConstants.DIR_CONF + "/")
 					&& name.endsWith(SwordConstants.EXTENSION_CONF))
 				mods_d_found = true;
+			else if (name.startsWith(SwordConstants.DIR_CONF + "/")){}
 			else if (name.startsWith(SwordConstants.DIR_DATA + "/"))
 				modules_found = true;
 			else {
