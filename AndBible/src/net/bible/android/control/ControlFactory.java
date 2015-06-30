@@ -99,8 +99,12 @@ public class ControlFactory {
 	
 	private void ensureAllInitialised() {
 		if (!initialised) {
-			windowRepository.initialise(eventManager);
-			initialised = true;
+			synchronized(this) {
+				if (!initialised) {
+					windowRepository.initialise(eventManager);
+					initialised = true;
+				}
+			}
 		}
 	}
 	
