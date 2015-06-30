@@ -72,7 +72,10 @@ class ZipHandler extends AsyncTask<Void, Integer, Integer> {
 			String name = entry.getName();
 			File targetFile = new File(targetDirectory, name);
 			if (!entry.isDirectory() && targetFile.exists())
+			{
+				zin.close();
 				throw new ModuleExists();
+			}
 			if (name.startsWith(SwordConstants.DIR_CONF + "/")
 					&& name.endsWith(SwordConstants.EXTENSION_CONF))
 				mods_d_found = true;
@@ -80,18 +83,24 @@ class ZipHandler extends AsyncTask<Void, Integer, Integer> {
 			else if (name.startsWith(SwordConstants.DIR_DATA + "/"))
 				modules_found = true;
 			else {
-				throw new InvalidModule();
+				{
+					zin.close();
+					throw new InvalidModule();
+				}
 			}
 		}
 
 		if (!(mods_d_found && modules_found))
+		{	
+			zin.close();
 			throw new InvalidModule();
+		}
 
 		zin.close();
 	}
 
 	private void installZipFile() throws IOException, BookException {
-		ZipInputStream zis = new ZipInputStream(parent.getContentResolver()
+		ZipInputStream zin = new ZipInputStream(parent.getContentResolver()
 				.openInputStream(uri));
 
 		ArrayList<File> confFiles = new ArrayList<File>();
@@ -101,7 +110,7 @@ class ZipHandler extends AsyncTask<Void, Integer, Integer> {
 			int count;
 			int entry_num = 0;
 			byte[] buffer = new byte[8192];
-			while ((ze = zis.getNextEntry()) != null) {
+			while ((ze = zin.getNextEntry()) != null) {
 
 				String name = ze.getName();
 
@@ -119,7 +128,7 @@ class ZipHandler extends AsyncTask<Void, Integer, Integer> {
 					continue;
 				FileOutputStream fout = new FileOutputStream(file);
 				try {
-					while ((count = zis.read(buffer)) != -1)
+					while ((count = zin.read(buffer)) != -1)
 						fout.write(buffer, 0, count);
 				} finally {
 					fout.close();
@@ -127,7 +136,7 @@ class ZipHandler extends AsyncTask<Void, Integer, Integer> {
 				publishProgress(++entry_num);
 			}
 		} finally {
-			zis.close();
+			zin.close();
 		}
 		// Load configuration files & register books
 		BookDriver book_driver = SwordBookDriver.instance();
