@@ -61,6 +61,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	
 	private long lastContextMenuCreateTimeMillis;
 
+	private boolean isContextMenuOpenedFromMainMenu = false;
+
 	// swipe fails on older versions of Android (2.2, 2.3, but not 3.0+) if event not passed to parent - don't know why
 	// scroll occurs on later versions after double-tap maximize
     private boolean alwaysDispatchTouchEventToSuper = !CommonUtils.isHoneycombPlus();
@@ -292,6 +294,16 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		super.openContextMenu(documentViewManager.getDocumentView().asView());
     }
 
+    /** called from Main menu
+     */
+    public void openContextMenuFromMainMenu() {
+		Log.d(TAG,  "openContextMenuFromMainMenu");
+		// this is reset after context menu is displayed
+		isContextMenuOpenedFromMainMenu = true;
+		
+		super.openContextMenu(documentViewManager.getDocumentView().asView());
+    }
+
 
     /** Attempt to prevent two context menus being created one on top of the other
      * 
@@ -323,12 +335,20 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	    		return;
 	    	}
 	
-			MenuInflater inflater = getMenuInflater();
+			// for some reason going twice to MyNote via popup crashes on Android 2.3 but only if called via long-press
+	    	if (!CommonUtils.isIceCreamSandwichPlus() && !isContextMenuOpenedFromMainMenu) {
+	    		return;
+	    	}
+
+	    	MenuInflater inflater = getMenuInflater();
 			inflater.inflate(R.menu.document_viewer_context_menu, menu);
 	
 			// allow current page type to add, delete or disable menu items
 			ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().updateContextMenu(menu);
 		}
+		
+		// reset this flag required to disable crashing action in Android 2.3
+		isContextMenuOpenedFromMainMenu = false;
 	}
 
     @Override

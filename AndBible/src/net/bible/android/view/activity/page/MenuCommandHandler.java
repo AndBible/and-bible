@@ -141,7 +141,7 @@ public class MenuCommandHandler {
 		    		if (callingActivity instanceof MainBibleActivity) {
 		    			if (BookCategory.BIBLE.equals(ControlFactory.getInstance().getDocumentControl().getCurrentCategory())) {
 		    				// if bible then show verse context menu
-		    				((MainBibleActivity)callingActivity).openContextMenu();
+		    				((MainBibleActivity)callingActivity).openContextMenuFromMainMenu();
 		    			}
 		    		}
 		    		break;
