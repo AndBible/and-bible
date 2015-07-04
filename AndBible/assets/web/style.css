@@ -26,7 +26,7 @@ span[id="0"].verseNo + h1:after {
 }
 
 img.sword {
-	width: 100%;
+	max-width: 100%;
 }
 
 h1 a, .heading2, .heading3, .heading4 {
