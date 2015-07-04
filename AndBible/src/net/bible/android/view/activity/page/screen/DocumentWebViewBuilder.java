@@ -29,6 +29,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
+import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -149,7 +150,7 @@ public class DocumentWebViewBuilder {
     			
     			currentWindowFrameLayout = new FrameLayout(this.mainActivity);
     			
-    			BibleView bibleView = getView(window);
+    			BibleView bibleView = getCleanView(window);
 
         		// trigger recalc of verse positions in case width changes e.g. minimize/restore web view
         		bibleView.setVersePositionRecalcRequired(true);
@@ -286,7 +287,20 @@ public class DocumentWebViewBuilder {
 			parent.removeAllViews();
 		}
 	}
-	
+
+	/**
+	 * Attempt to fix occasional error: "The specified child already has a parent. You must call removeView() on the child's parent first."
+	 */
+	public BibleView getCleanView(Window window) {
+		BibleView bibleView = getView(window);
+		ViewParent parent = bibleView.getParent();
+		if (parent!=null && parent instanceof ViewGroup) {
+			ViewGroup viewGroupParent = (ViewGroup)parent;
+			viewGroupParent.removeView(bibleView);
+		}
+		return bibleView;
+	}
+
 	public BibleView getView(Window window) {
 		BibleView bibleView = screenBibleViewMap.get(window);
 		if (bibleView==null) {
