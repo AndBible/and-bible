@@ -147,7 +147,9 @@ public class ControlFactory {
 	}
 
 	public CurrentPageManager getCurrentPageControl() {
-		return windowControl.getActiveWindow().getPageManager();		
+		ensureAllInitialised();
+		Window activeWindow = windowControl.getActiveWindow();
+		return activeWindow.getPageManager();		
 	}
 
 	public LinkControl getLinkControl() {
