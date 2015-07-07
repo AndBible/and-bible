@@ -140,8 +140,10 @@ public class WindowControl {
 		
 		// default state to active window
 		if (!isActiveWindow(window)) {
-			JSONObject activeWindowPageState = getActiveWindow().getPageManager().getStateJson();
+			Window activeWindow = getActiveWindow();
+			JSONObject activeWindowPageState = activeWindow.getPageManager().getStateJson();
 			window.getPageManager().restoreState(activeWindowPageState);
+			window.setSynchronised(activeWindow.isSynchronised());
 		}
 
 		windowSync.setResynchRequired(true);
