@@ -73,6 +73,8 @@
   <string name="prefs_night_mode_automatic">자동</string>
   <string name="prefs_navigate_to_verse_title">구절 선택할 때</string>
   <string name="prefs_navigate_to_verse_summary">구절 선택할 때</string>
+  <string name="prefs_open_links_in_special_window_title">별도의 창 에서 링크 열기</string>
+  <string name="prefs_open_links_in_special_window_summary">상호 참조 스트롱 의 빠른 표시를위한</string>
   <string name="prefs_text_size_title">텍스트 크기</string>
   <string name="prefs_text_size_summary">자세한 내용을 참조하거나 더 명확하게보기</string>
   <string name="prefs_text_size_sample_text">샘플 텍스트</string>
@@ -83,6 +85,12 @@
   <string name="prefs_interface_locale_summary">사용자 인터페이스 언어 설정</string>
   <string name="locale_change_warning">인터페이스 언어 전환을 위해 어플리케이션을 재시작합니다</string>
   <!--Window-->
+  <string name="window">창문</string>
+  <string name="windowClose">닫기</string>
+  <string name="windowMaximise">극대화</string>
+  <string name="windowMinimise">최소화</string>
+  <string name="windowSynchronise">동기화</string>
+  <string name="windowMoveFirst">처음으로 이동</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">이 장에 저장된 노트가 없습니다</string>
   <string name="no_verse_notes">이 절에 저장된 노트가 없습니다.</string>
@@ -219,6 +227,8 @@
   <string name="please_wait">기다려주십시오 ...</string>
   <string name="all">전체</string>
   <string name="default_value">@string/lang_default</string>
+  <string name="new_item">새로운</string>
+  <string name="close">닫기</string>
   <!--Errors-->
   <string name="error_occurred">오류가 발생했습니다</string>
   <string name="error_no_content">선택된 구절에 대한 내용 없음</string>
