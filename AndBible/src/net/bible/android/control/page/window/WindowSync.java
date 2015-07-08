@@ -67,7 +67,7 @@ public class WindowSync {
 			boolean inactiveUpdated = false;
 			boolean isTotalRefreshRequired = isFirstTimeInit ||	lastSynchWasInNightMode!=ScreenSettings.isNightMode() || screenPreferencesChanged || resynchRequired;
 	
-			if (activeWindow.isSynchronised() && inactiveWindow.isSynchronised()) {
+			if (isSynchronizableVerseKey(activePage) && activeWindow.isSynchronised() && inactiveWindow.isSynchronised()) {
 				// inactive screen may not be displayed (e.g. if viewing a dict) but if switched to the key must be correct
 				// Only Bible and cmtry are synch'd and they share a Verse key
 				updateInactiveBibleKey(inactiveWindow, targetActiveScreenKey);
