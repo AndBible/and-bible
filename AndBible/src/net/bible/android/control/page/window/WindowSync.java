@@ -25,7 +25,7 @@ public class WindowSync {
 	private boolean resynchRequired = false;
 	private boolean screenPreferencesChanged = false;
 	
-	private Key lastSynchdInactiveScreenKey;
+	private Key lastSynchdInactiveWindowKey;
 	private boolean lastSynchWasInNightMode;
 	
 	private WindowRepository windowRepository;
@@ -47,9 +47,9 @@ public class WindowSync {
 	public void onEvent(AppToBackgroundEvent event) {
 		if (event.isMovedToBackground()) {
 			// ensure nonactive screen is initialised when returning from background
-			lastSynchdInactiveScreenKey = null;
+			lastSynchdInactiveWindowKey = null;
 		} else {
-			lastSynchdInactiveScreenKey = null;
+			lastSynchdInactiveWindowKey = null;
 		}
 	}
 
@@ -58,29 +58,30 @@ public class WindowSync {
 	public void synchronizeScreens() {
 		Window activeWindow = windowRepository.getActiveWindow();
 		CurrentPage activePage = activeWindow.getPageManager().getCurrentPage();
-		Key targetActiveScreenKey = activePage.getSingleKey();
+		Key targetActiveWindowKey = activePage.getSingleKey();
 
 		List<Window> inactiveWindowList = windowRepository.getWindowsToSynchronise();
 		for (Window inactiveWindow : inactiveWindowList) {
 			CurrentPage inactivePage = inactiveWindow.getPageManager().getCurrentPage();
-			Key inactiveScreenKey = inactivePage.getSingleKey();
+			Key inactiveWindowKey = inactivePage.getSingleKey();
 			boolean inactiveUpdated = false;
 			boolean isTotalRefreshRequired = isFirstTimeInit ||	lastSynchWasInNightMode!=ScreenSettings.isNightMode() || screenPreferencesChanged || resynchRequired;
 	
 			if (isSynchronizableVerseKey(activePage) && activeWindow.isSynchronised() && inactiveWindow.isSynchronised()) {
 				// inactive screen may not be displayed (e.g. if viewing a dict) but if switched to the key must be correct
 				// Only Bible and cmtry are synch'd and they share a Verse key
-				updateInactiveBibleKey(inactiveWindow, targetActiveScreenKey);
+				updateInactiveBibleKey(inactiveWindow, targetActiveWindowKey);
 				
 				if (isSynchronizableVerseKey(inactivePage) && inactiveWindow.isVisible()) {
 					// re-get as it may have been mapped to the correct v11n
-					targetActiveScreenKey = inactivePage.getSingleKey();
+					// this looks odd but the inactivePage key has already been updated to the activeScreenKey 
+					targetActiveWindowKey = inactivePage.getSingleKey();
 					
 					// prevent infinite loop as each screen update causes a synchronise by comparing last key
 					// only update pages if empty or synchronised
 					if (isFirstTimeInit || resynchRequired || 
-					   (!targetActiveScreenKey.equals(lastSynchdInactiveScreenKey)) ) {
-						updateInactiveScreen(inactiveWindow, inactivePage, targetActiveScreenKey, lastSynchdInactiveScreenKey, isTotalRefreshRequired);
+					   (!targetActiveWindowKey.equals(lastSynchdInactiveWindowKey)) ) {
+						updateInactiveWindow(inactiveWindow, inactivePage, targetActiveWindowKey, lastSynchdInactiveWindowKey, isTotalRefreshRequired);
 						inactiveUpdated = true;
 					} 
 				}
@@ -90,12 +91,12 @@ public class WindowSync {
 			// or if nightMode has changed then force an update
 			if (!inactiveUpdated && isTotalRefreshRequired) {
 				// force an update of the inactive page to prevent blank screen
-				updateInactiveScreen(inactiveWindow, inactivePage, inactiveScreenKey, inactiveScreenKey, isTotalRefreshRequired);
+				updateInactiveWindow(inactiveWindow, inactivePage, inactiveWindowKey, inactiveWindowKey, isTotalRefreshRequired);
 				inactiveUpdated = true;
 			}
 			
 		}
-		lastSynchdInactiveScreenKey = targetActiveScreenKey;
+		lastSynchdInactiveWindowKey = targetActiveWindowKey;
 		lastSynchWasInNightMode = ScreenSettings.isNightMode();
 		screenPreferencesChanged = false;
 		resynchRequired = false;
@@ -110,29 +111,29 @@ public class WindowSync {
 	
 	/** refresh/synch inactive screen if required
 	 */
-	private void updateInactiveScreen(Window inactiveScreen, CurrentPage inactivePage,	Key targetScreenKey, Key inactiveScreenKey, boolean forceRefresh) {
+	private void updateInactiveWindow(Window inactiveWindow, CurrentPage inactivePage,	Key targetKey, Key inactiveWindowKey, boolean forceRefresh) {
 		// standard null checks
-		if (targetScreenKey!=null && inactivePage!=null) {
+		if (targetKey!=null && inactivePage!=null) {
 			// Not just bibles and commentaries get this far so NOT always fine to convert key to verse
 			Verse targetVerse = null;
 			Versification targetV11n = null;
-			if (targetScreenKey instanceof Verse) {
-				targetVerse = KeyUtil.getVerse(targetScreenKey);
+			if (targetKey instanceof Verse) {
+				targetVerse = KeyUtil.getVerse(targetKey);
 				targetV11n = targetVerse.getVersification();
 			}
 			
 			Verse currentVerse = null;
-			if (inactiveScreenKey!=null && inactiveScreenKey instanceof Verse) {
-				currentVerse = KeyUtil.getVerse(inactiveScreenKey);
+			if (inactiveWindowKey!=null && inactiveWindowKey instanceof Verse) {
+				currentVerse = KeyUtil.getVerse(inactiveWindowKey);
 			}
 			
 			// update inactive screens as smoothly as possible i.e. just jump/scroll if verse is on current page
 			if (!forceRefresh && 
 					BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && 
 					currentVerse!=null && targetVerse!=null && targetV11n.isSameChapter(targetVerse, currentVerse)) {
-				EventBus.getDefault().post(new ScrollSecondaryWindowEvent(inactiveScreen, targetVerse.getVerse()));
+				EventBus.getDefault().post(new ScrollSecondaryWindowEvent(inactiveWindow, targetVerse.getVerse()));
 			} else {
-				new UpdateInactiveScreenTextTask().execute(inactiveScreen);
+				new UpdateInactiveScreenTextTask().execute(inactiveWindow);
 			}
 		}
 	}
