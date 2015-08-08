@@ -61,6 +61,9 @@ public class LinkControl {
 	public boolean loadApplicationUrl(String uri) {
 		try {
 			Log.d(TAG, "Loading: "+uri);
+			
+			// Prevent occasional class loading errors on Samsung devices
+			Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 
 			UriAnalyzer uriAnalyzer = new UriAnalyzer(); 
 			if (uriAnalyzer.analyze(uri)) {
