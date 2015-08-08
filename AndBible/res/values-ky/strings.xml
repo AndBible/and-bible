@@ -74,6 +74,8 @@
   <string name="prefs_night_mode_automatic">Автоматтык түрдө</string>
   <string name="prefs_navigate_to_verse_title">Аятка өтүү </string>
   <string name="prefs_navigate_to_verse_summary">Карап чыгууда аяттын денгээлине өтүү </string>
+  <string name="prefs_open_links_in_special_window_title">Атайын терезеде шилтеме ачуу</string>
+  <string name="prefs_open_links_in_special_window_summary">Шилтемелер менен стронг номурду ылдамыраак көрсөтүү үчүн</string>
   <string name="prefs_text_size_title">Ариптин көлөмү</string>
   <string name="prefs_text_size_summary">Текстти чоң тамгалар менен көрсөтүү.</string>
   <string name="prefs_text_size_sample_text">Тексттин үлгүсү</string>
@@ -84,6 +86,12 @@
   <string name="prefs_interface_locale_summary">Интерфейстин тилин тандоо.</string>
   <string name="locale_change_warning">Интерфейстин жаңы тилине өтүү үчүн кайрадан жүктөө тиркемеси.</string>
   <!--Window-->
+  <string name="window">Терезе</string>
+  <string name="windowClose">Жабуу</string>
+  <string name="windowMaximise">Толук ачуу</string>
+  <string name="windowMinimise">Жыйнап коюу</string>
+  <string name="windowSynchronise">Шайкеш кылуу</string>
+  <string name="windowMoveFirst">1 - терезе кылуу</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Бул бөлүмгө түшүрмө жок.</string>
   <string name="no_verse_notes">Бул аятта түшүрмө жок.</string>
@@ -220,6 +228,8 @@
   <string name="please_wait">Күтө туруңуз...</string>
   <string name="all">Баары</string>
   <string name="default_value">Жалпы туралоо боюнча </string>
+  <string name="new_item">Кошуу</string>
+  <string name="close">Жабуу</string>
   <!--Errors-->
   <string name="error_occurred">Ката кетти</string>
   <string name="error_no_content">Тандалган аяттарда маалымат жок.</string>
