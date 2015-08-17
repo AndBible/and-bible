@@ -229,6 +229,8 @@ public class SwordDocumentFacade {
 
         allBooks.addAll(repoFactory.getBetaRepo().getRepoBooks(refresh));
 
+        allBooks.addAll(repoFactory.getEBibleRepo().getRepoBooks(refresh));
+        
         // get them in the correct order
         List<Book> bookList = new ArrayList<Book>(allBooks);
         Collections.sort(bookList);
