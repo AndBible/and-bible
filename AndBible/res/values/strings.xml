@@ -155,9 +155,11 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     
     <!--  Install zip file -->
     <string name="install_zip">Install Documents from a Zip File</string>
-    <string name="install_zip_successfull">Module was installed succesfully</string>
+    <string name="install_zip_successfull">Module was installed successfully</string>
     <string name="extracting_zip_file">Extracting Zip file now...</string>
     <string name="checking_zip_file">Checking given file...</string>
+    <string name="invalid_module">File does not contain a valid SWORD module</string>
+    <string name="module_already_installed">File contains a module that is already installed</string>
     
     <!-- Daily Reading Plan -->
     <string name="rdg_plan_title">Reading Plan</string>
@@ -288,6 +290,4 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="error_page_too_large">Page is too large to be loaded</string>
     <string name="error_key_not_in_document">Not found in document</string>
     <string name="empty_list">No items to display</string>
-    <string name="invalid_module">File does not contain a valid SWORD module</string>
-    <string name="module_already_installed">File contains a module that is already installed</string>
 </resources>
