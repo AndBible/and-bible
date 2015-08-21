@@ -38,7 +38,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak">Speak</string>
     <string name="help">Help</string>
     <string name="verse">Verse</string>
-
+    <string name="administration">Administration</string>
+    
     <!-- Passage navigation -->
     <string name="choosePassageBookName">Choose Book</string>
     <string name="choosePassageChapterName">Choose Chapter</string>
