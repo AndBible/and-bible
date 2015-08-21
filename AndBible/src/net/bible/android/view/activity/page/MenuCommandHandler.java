@@ -11,7 +11,7 @@ import net.bible.android.view.activity.comparetranslations.CompareTranslations;
 import net.bible.android.view.activity.download.Download;
 import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity;
 import net.bible.android.view.activity.help.Help;
-import net.bible.android.view.activity.install_zip.InstallZip;
+import net.bible.android.view.activity.installzip.InstallZip;
 import net.bible.android.view.activity.mynote.MyNotes;
 import net.bible.android.view.activity.navigation.ChooseDocument;
 import net.bible.android.view.activity.navigation.History;

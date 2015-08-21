@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.install_zip;
+package net.bible.android.view.activity.installzip;
 
 import java.io.File;
 import java.io.FileOutputStream;
