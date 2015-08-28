@@ -25,6 +25,10 @@ span[id="0"].verseNo + h1:after {
 	white-space: pre; 
 }
 
+img.sword {
+	max-width: 100%;
+}
+
 h1 a, .heading2, .heading3, .heading4 {
 	color: navy;
 	text-align: left;
