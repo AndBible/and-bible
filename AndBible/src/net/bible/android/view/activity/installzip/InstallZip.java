@@ -69,7 +69,7 @@ class ZipHandler extends AsyncTask<Void, Integer, Integer> {
 
 		while ((entry = zin.getNextEntry()) != null) {
 			total_entries++;
-			String name = entry.getName();
+			String name = entry.getName().replace('\\', '/');
 			File targetFile = new File(targetDirectory, name);
 			if (!entry.isDirectory() && targetFile.exists())
 			{
@@ -112,7 +112,7 @@ class ZipHandler extends AsyncTask<Void, Integer, Integer> {
 			byte[] buffer = new byte[8192];
 			while ((ze = zin.getNextEntry()) != null) {
 
-				String name = ze.getName();
+				String name = ze.getName().replace('\\','/');
 
 				File file = new File(targetDirectory, name);
 				if (name.startsWith(SwordConstants.DIR_CONF)
