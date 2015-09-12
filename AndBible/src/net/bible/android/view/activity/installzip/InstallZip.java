@@ -141,11 +141,7 @@ class ZipHandler extends AsyncTask<Void, Integer, Integer> {
 		// Load configuration files & register books
 		BookDriver book_driver = SwordBookDriver.instance();
 		for (File confFile : confFiles) {
-			String internal = confFile.getName();
-			if (internal.endsWith(SwordConstants.EXTENSION_CONF))
-				internal = internal.substring(0, internal.length() - 5);
-			SwordBookMetaData me = new SwordBookMetaData(confFile, internal,
-					NetUtil.getURI(targetDirectory));
+			SwordBookMetaData me = new SwordBookMetaData(confFile, NetUtil.getURI(targetDirectory));
 			me.setDriver(book_driver);
 			SwordBookDriver.registerNewBook(me);
 		}

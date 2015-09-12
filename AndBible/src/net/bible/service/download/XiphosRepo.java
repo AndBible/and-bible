@@ -22,7 +22,6 @@ import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.BooksEvent;
 import org.crosswire.jsword.book.BooksListener;
 import org.crosswire.jsword.book.install.InstallException;
-import org.crosswire.jsword.book.sword.ConfigEntryType;
 import org.crosswire.jsword.book.sword.SwordBookMetaData;
 
 /** some books need renaming after download due to problems with Xiphos module case
@@ -157,31 +156,30 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 	private String getConfString(Book book, String initials) {
 		StringBuffer buff = new StringBuffer();
 		SwordBookMetaData metaData = (SwordBookMetaData)book.getBookMetaData();
-		Map<String, Object> props = metaData.getProperties();
 
 		buff.append("[").append(initials).append("]\n");
 		
-		buff.append(getConfEntry(props, ConfigEntryType.DATA_PATH));
-		buff.append(getConfEntry(props, ConfigEntryType.MOD_DRV));
-		buff.append(getConfEntry(ConfigEntryType.LANG.toString(), book.getLanguage().getCode()));
-		buff.append(getConfEntry(props, ConfigEntryType.ENCODING));
-		buff.append(getConfEntry(props, ConfigEntryType.SOURCE_TYPE));
-		buff.append(getConfEntry(props, ConfigEntryType.DESCRIPTION));
-		buff.append(getConfEntry(props, ConfigEntryType.ABOUT));
-		buff.append(getConfEntry(props, ConfigEntryType.GLOBAL_OPTION_FILTER));
-		buff.append(getConfEntry(props, ConfigEntryType.VERSION));
-		buff.append(getConfEntry(props, ConfigEntryType.CATEGORY));
-		buff.append(getConfEntry(props, ConfigEntryType.COMPRESS_TYPE));
-		buff.append(getConfEntry(props, ConfigEntryType.COPYRIGHT));
-		buff.append(getConfEntry(props, ConfigEntryType.VERSIFICATION));
+		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_DATA_PATH));
+		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_MOD_DRV));
+		buff.append(getConfEntry(SwordBookMetaData.KEY_LANG, book.getLanguage().getCode()));
+		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_ENCODING));
+		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_SOURCE_TYPE));
+		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_DESCRIPTION));
+		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_ABOUT));
+		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_GLOBAL_OPTION_FILTER));
+		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_VERSION));
+		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_CATEGORY));
+		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_COMPRESS_TYPE));
+		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_COPYRIGHT));
+		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_VERSIFICATION));
 
 		return buff.toString();
 	}
 	
 	/** reverse engineer one .conf file property
 	 */
-	private String getConfEntry(Map<String, Object> props, Enum<ConfigEntryType> entryType) {
-		return getConfEntry(entryType.toString(), props.get(entryType.toString()));
+	private String getConfEntry(SwordBookMetaData metaData, String key) {
+		return getConfEntry(key, metaData.getProperty(key));
 	}
 	private String getConfEntry(String property, Object value) {
 		StringBuilder buff = new StringBuilder();

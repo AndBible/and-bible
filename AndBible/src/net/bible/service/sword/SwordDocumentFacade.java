@@ -246,7 +246,7 @@ public class SwordDocumentFacade {
 
 	public boolean isIndexDownloadAvailable(Book document) throws InstallException, BookException {
 		// not sure how to integrate reuse this in JSword index download
-		Version versionObj = (Version)document.getBookMetaData().getProperty("Version");
+		Version versionObj = new Version(document.getBookMetaData().getProperty("Version"));
         String version = versionObj==null ? null : versionObj.toString();
         String versionSuffix = version!=null ? "-"+version : "";
 

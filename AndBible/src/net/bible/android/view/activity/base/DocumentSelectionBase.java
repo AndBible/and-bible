@@ -6,7 +6,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 import net.bible.android.BibleApplication;
@@ -436,8 +435,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 	protected void showAbout(Book document) {
 		
 		//get about text
-		Map<String,Object> props = document.getBookMetaData().getProperties();
-		String about = (String)props.get("About");
+		String about = document.getBookMetaData().getProperty("About");
 		if (about!=null) {
 			// either process the odd formatting chars in about 
 			about = about.replace("\\par", "\n");
@@ -447,7 +445,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 		}
 
 		// add version
-		Version versionObj = (Version)document.getBookMetaData().getProperty("Version");
+		Version versionObj = new Version(document.getBookMetaData().getProperty("Version"));
 		if (versionObj!=null) {
 	        String versionMsg = BibleApplication.getApplication().getString(R.string.about_version, versionObj.toString());
 			about += "\n\n"+versionMsg;

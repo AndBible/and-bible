@@ -124,8 +124,8 @@ public class DownloadControl {
 		if (installedBook!=null) {
 			// see if the new book is a later version
 			try {
-	    		Version newVersionObj = (Version)book.getBookMetaData().getProperty("Version");
-	    		Version installedVersionObj = (Version)installedBook.getBookMetaData().getProperty("Version");
+	    		Version newVersionObj = new Version(book.getBookMetaData().getProperty("Version"));
+	    		Version installedVersionObj = new Version(installedBook.getBookMetaData().getProperty("Version"));
 	    		if (newVersionObj!=null && installedVersionObj!=null && 
 	    			newVersionObj.compareTo(installedVersionObj)>0) {
 	    			return BookInstallStatus.UPGRADE_AVAILABLE;
