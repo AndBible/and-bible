@@ -537,10 +537,10 @@ public class MJDIndexAll {
 			if (installedBook==null) {
 				System.out.println("Not installed:"+book.getInitials()+" Name:"+book.getName());
 			} else {
-				Version versionObj = (Version)book.getProperty("Version");
+				Version versionObj = new Version(book.getProperty("Version"));
 				String version = versionObj==null ? "No version" : versionObj.toString();
 				
-				Version installedVersionObj = (Version)installedBook.getBookMetaData().getProperty("Version");
+				Version installedVersionObj = new Version(installedBook.getBookMetaData().getProperty("Version"));
 				String installedVersion = installedVersionObj==null ? "No version" : installedVersionObj.toString();
 				if (!version.equals(installedVersion)) {
 		    		System.out.println("Incorrect version of "+book.getInitials()+" installed:"+installedVersion+" Repo:"+version);

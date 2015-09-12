@@ -28,7 +28,7 @@ public class AndBibleHttpSwordInstaller extends HttpSwordInstaller {
         //use and-bible index location
         String indexLocation = "/and-bible/indices/v1";
         try {
-            Version versionObj = (Version)book.getBookMetaData().getProperty("Version");
+            Version versionObj = new Version(book.getBookMetaData().getProperty("Version"));
             // if a module has no version then default version is blank
             String versionSuffix = "";
             if (versionObj!=null && versionObj.toString()!=null) {
