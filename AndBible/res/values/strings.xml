@@ -155,7 +155,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="document_not_installed">Please download \'%s\'</string>
     
     <!--  Install zip file -->
-    <string name="install_zip">Load Document from Zip</string>
+    <string name="install_zip">Load Document From Zip</string>
     <string name="install_zip_successfull">Module was installed successfully</string>
     <string name="extracting_zip_file">Extracting Zip file now...</string>
     <string name="checking_zip_file">Checking given file...</string>
