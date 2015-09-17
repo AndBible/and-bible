@@ -210,7 +210,7 @@ public class SwordDocumentFacade {
 	}
 	
 	public List<Book> getDownloadableDocuments(boolean refresh) throws InstallException {
-		log.debug("Getting downloadable documents");
+		log.debug("Getting downloadable documents.  Refresh:"+refresh);
 		RepoFactory repoFactory = RepoFactory.getInstance();
 		
 		// store books in a Set to ensure only one of each type and allow override from AndBible repo if necessary
@@ -229,7 +229,7 @@ public class SwordDocumentFacade {
 
         allBooks.addAll(repoFactory.getBetaRepo().getRepoBooks(refresh));
 
-        allBooks.addAll(repoFactory.getEBibleRepo().getRepoBooks(refresh));
+//        allBooks.addAll(repoFactory.getEBibleRepo().getRepoBooks(refresh));
         
         // get them in the correct order
         List<Book> bookList = new ArrayList<Book>(allBooks);
@@ -240,6 +240,7 @@ public class SwordDocumentFacade {
 
 	public void downloadDocument(Book document) throws InstallException, BookException {
 		RepoBase repo = RepoFactory.getInstance().getRepoForBook(document);
+		log.info("Downloading "+document.getInitials()+" from repo "+repo.getRepoName());
 
 		repo.downloadDocument(document);
 	}
