@@ -16,6 +16,7 @@
   <string name="speak">Praat</string>
   <string name="help">Hulp</string>
   <string name="verse">Vers</string>
+  <string name="administration">Administrasie</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kies \'n Boek</string>
   <string name="choosePassageChapterName">Kies \'n Hoofstuk</string>
@@ -121,6 +122,13 @@
   <string name="download_complete_no_bibles">Geen Bybel is geïnstalleer. Druk terug en probeer weer.</string>
   <string name="too_many_jobs">Te veel take oop. Wag vir \'n paar om te voltooi en probeer dan weer.</string>
   <string name="document_not_installed">Laai \'%s\' asseblief af</string>
+  <!--Install zip file-->
+  <string name="install_zip">Laai dokument van Zip </string>
+  <string name="install_zip_successfull">Module is suksesvol geïnstalleer</string>
+  <string name="extracting_zip_file">Onttrek Zip lêer nou ...</string>
+  <string name="checking_zip_file">Nagaan van gegewe lêer ...</string>
+  <string name="invalid_module">Lêer nie \'n geldige SWORD module nie</string>
+  <string name="module_already_installed">Lêer bevat \'n module wat reeds geïnstalleer is</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Lees Plan</string>
   <string name="rdg_plan_selector_title">Kies \'n lees plan</string>

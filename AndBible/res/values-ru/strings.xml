@@ -16,6 +16,7 @@
   <string name="speak">Прослушать вслух</string>
   <string name="help">Помощь</string>
   <string name="verse">Стих</string>
+  <string name="administration">Управление</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Выбрать книгу</string>
   <string name="choosePassageChapterName">Выбрать главу</string>
@@ -121,6 +122,13 @@
   <string name="download_complete_no_bibles">Библия не установилась. Нажмите Назад и попытайтесь снова.</string>
   <string name="too_many_jobs">Выполняется слишком много заданий. Подождите немного и попытайтесь снова.</string>
   <string name="document_not_installed">Пожалуйста скачайте \'%s\'</string>
+  <!--Install zip file-->
+  <string name="install_zip">Установить из zip-архива</string>
+  <string name="install_zip_successfull">Модуль установлен успешно</string>
+  <string name="extracting_zip_file">Совершается извлечение файлов...</string>
+  <string name="checking_zip_file">Проверка данного файл...</string>
+  <string name="invalid_module">Файл не содержит правильный SWORD-модуль </string>
+  <string name="module_already_installed">Файл содержит модуль, который уже установлен</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">План чтения</string>
   <string name="rdg_plan_selector_title">Выбрать план чтения</string>

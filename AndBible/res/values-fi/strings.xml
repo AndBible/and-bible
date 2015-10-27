@@ -16,6 +16,7 @@
   <string name="speak">Puhu</string>
   <string name="help">Ohje</string>
   <string name="verse">Jae</string>
+  <string name="administration">Ylläpito</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Valitse kirja</string>
   <string name="choosePassageChapterName">Valitse luku</string>
@@ -121,6 +122,13 @@
   <string name="download_complete_no_bibles">Teosta ei ole asennettu. Siirry takaisin ja yritä uudelleen.</string>
   <string name="too_many_jobs">Liian monta tehtävää samaan aikaan tekeillä. Odota, että tehtävät valmistuvat ja yritä uudelleen.</string>
   <string name="document_not_installed">Ole hyvä ja lataa \'%s\'</string>
+  <!--Install zip file-->
+  <string name="install_zip">Lataa teos Zip-tiedostosta</string>
+  <string name="install_zip_successfull">Moduuli asennettiin onnistuneesti</string>
+  <string name="extracting_zip_file">Puretaan Zip tiedostoa...</string>
+  <string name="checking_zip_file">Tarkastetaan tiedostoa...</string>
+  <string name="invalid_module">Tiedostossa ei ole kelvollista SWORD moduulia</string>
+  <string name="module_already_installed">Tiedoston sisältämä moduuli on jo asennettu</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Lukusuunnitelma</string>
   <string name="rdg_plan_selector_title">Valitse lukusuunnitelma</string>

@@ -16,6 +16,7 @@
   <string name="speak">Écouter</string>
   <string name="help">Aide</string>
   <string name="verse">Verset</string>
+  <string name="administration">Administration</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Sélectionner un livre</string>
   <string name="choosePassageChapterName">Sélectionner un chapitre</string>
@@ -121,6 +122,13 @@
   <string name="download_complete_no_bibles">Aucune bible n\'a été installée. Appuyer sur Retour et essayez à nouveau.</string>
   <string name="too_many_jobs">Trop nombreuses tâches d\'exécution en cours. Veuillez attendre la fin de quelques-unes pour essayer à nouveau.</string>
   <string name="document_not_installed">Veuillez télécharger \'%s\'</string>
+  <!--Install zip file-->
+  <string name="install_zip">Charger le module du fichier Zip</string>
+  <string name="install_zip_successfull">Le module a été installé avec succès</string>
+  <string name="extracting_zip_file">Extraction du fichier Zip...</string>
+  <string name="checking_zip_file">Vérification du fichier...</string>
+  <string name="invalid_module">Le fichier ne contient pas un module Sword valide</string>
+  <string name="module_already_installed">Le fichier contient un module qui est déjà installé</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plan de lecture</string>
   <string name="rdg_plan_selector_title">Choisissez un plan de lecture</string>

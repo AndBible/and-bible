@@ -16,6 +16,7 @@
   <string name="speak">Угуу</string>
   <string name="help">Жардам</string>
   <string name="verse">Аят</string>
+  <string name="administration">Жөндөө</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Китепти тандоо</string>
   <string name="choosePassageChapterName">Бөлүмдү тандоо</string>
@@ -121,6 +122,13 @@
   <string name="download_complete_no_bibles">Библия орнотулбай калды. Артка дегенди басып, кайрадан аракеттенип көрүңүз.</string>
   <string name="too_many_jobs">Өтө эле көп тапшырма аткарылып жатат. Бир аз күтө туруп, анан кайрадан аракеттенип көрүңүз.</string>
   <string name="document_not_installed">\'%s\' жүктөп алыңыз.</string>
+  <!--Install zip file-->
+  <string name="install_zip">Zip файлды орнот</string>
+  <string name="install_zip_successfull">Модул орнотулду</string>
+  <string name="extracting_zip_file">Zip файл окулуп жатат</string>
+  <string name="checking_zip_file">Файл текшерилип жатат</string>
+  <string name="invalid_module">SWORD модул табылган жок</string>
+  <string name="module_already_installed">Файлдагы модул мурда орнотулган</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Окуу планы</string>
   <string name="rdg_plan_selector_title">Окуу планын тандоо</string>

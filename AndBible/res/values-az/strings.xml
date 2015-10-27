@@ -44,6 +44,7 @@ Keçmişdəki hərəkətlərinizin siyahısını görmək üçün Əvvələ düy
   <string name="speak">Səsli oxu</string>
   <string name="help">Kömək</string>
   <string name="verse">Ayə</string>
+  <string name="administration">Mudiriyyət</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kitabı seç</string>
   <string name="choosePassageChapterName">Hissəni seç</string>
@@ -161,6 +162,13 @@ Daha çox sənəd yükləmək üçün Menyu düyməsi DAHA-Sənəd yükləmə el
   <string name="download_complete_no_bibles">Çevirici yüklənmədi. Zəhmət olmazsa Geri düyməsinə basıb təzədən yoxlayın.</string>
   <string name="too_many_jobs">İndi daha çox iş görülür. Birinin qurtarmasını gözləyib təkrar yoxlayın.</string>
   <string name="document_not_installed">Zəhmət olmazsa \'%s\' sənədini yükləyin</string>
+  <!--Install zip file-->
+  <string name="install_zip">Sənədi ZIP arxivdən yüklə</string>
+  <string name="install_zip_successfull">Sənət uğurlu yüklənib</string>
+  <string name="extracting_zip_file">ZIP arxivi açıram...</string>
+  <string name="checking_zip_file">Yoxlayıram sənədi...</string>
+  <string name="invalid_module">Faylda həqiqi SWORD-sənədi yoxdur</string>
+  <string name="module_already_installed">Arxivdə olan sənəd artıq var</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Oxumaq planı</string>
   <string name="rdg_plan_selector_title">Oxumaq planını seçin</string>

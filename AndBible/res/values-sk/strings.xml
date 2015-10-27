@@ -25,6 +25,7 @@ Dlhším stiskom tlačidla Späť sa dostaneš k histórii prezerania.</string>
   <string name="speak">Hovoriť</string>
   <string name="help">Pomoc</string>
   <string name="verse">Verš</string>
+  <string name="administration">Administrácia</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Vyber knihu</string>
   <string name="choosePassageChapterName">Vyber kapitolu</string>
@@ -130,6 +131,13 @@ Dlhším stiskom tlačidla Späť sa dostaneš k histórii prezerania.</string>
   <string name="download_complete_no_bibles">Nebol stiahnutý žiadny dokument. Prosím, skúste to znova.</string>
   <string name="too_many_jobs">Príliš veľa úloh naraz. Prosím, počkajte kým sa niektoré ukončia.</string>
   <string name="document_not_installed">Prosím, stiahnete \'%s</string>
+  <!--Install zip file-->
+  <string name="install_zip">Načítať Dokument z archívu ZIP</string>
+  <string name="install_zip_successfull">Modul bol úspešne inštalovaný</string>
+  <string name="extracting_zip_file">Rozbaľujem ZIP súbor...</string>
+  <string name="checking_zip_file">Prebieha kontrola súboru...</string>
+  <string name="invalid_module">Súbor neobsahuje platný SWORD modul</string>
+  <string name="module_already_installed">Súbor obsahuje modul, ktorý je už nainštalovaný</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plán čítania</string>
   <string name="rdg_plan_selector_title">Vybrať plán čitania</string>

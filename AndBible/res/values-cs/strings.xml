@@ -16,6 +16,7 @@
   <string name="speak">Mluvení</string>
   <string name="help">Nápověda</string>
   <string name="verse">Verš</string>
+  <string name="administration">Správa</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Vybrat knihu</string>
   <string name="choosePassageChapterName">Vybrat kapitolu</string>
@@ -55,7 +56,7 @@
   <string name="prefs_verse_per_line_summary">Zobrazit každý verš na jiném řádku</string>
   <string name="prefs_show_bookmarks_title">Zobrazit ikony záložek</string>
   <string name="prefs_show_bookmarks_summary">Zobrazit ikony u veršů ze záložek</string>
-  <string name="prefs_show_mynotes_title">Show ikony poznámek</string>
+  <string name="prefs_show_mynotes_title">Zobrazit ikony poznámek</string>
   <string name="prefs_show_mynotes_summary">Zobrazit ikony u veršů s poznámkami</string>
   <string name="prefs_show_notes_title">Poznámky a odkazy</string>
   <string name="prefs_show_notes_summary">Zobrazit poznámky pod čarou a křížové odkazy</string>
@@ -121,6 +122,13 @@
   <string name="download_complete_no_bibles">Žádná Bible nebyla instalována. Stiskněte Zpět a zkuste to znovu.</string>
   <string name="too_many_jobs">Spuštěno příliš mnoho úloh. Prosím vyčkejte na dokončení některé úlohy a zkuste to znovu.</string>
   <string name="document_not_installed">Prosím stáhněte \'%s\'</string>
+  <!--Install zip file-->
+  <string name="install_zip">Načíst dokument ze Zip</string>
+  <string name="install_zip_successfull">Modul byl úspěšně nainstalován</string>
+  <string name="extracting_zip_file">Rozbaluji Zip soubor...</string>
+  <string name="checking_zip_file">Ověřuji zadaný soubor...</string>
+  <string name="invalid_module">Soubor neobsahuje platný modul SWORD</string>
+  <string name="module_already_installed">Soubor obsahuje modul, který je již nainstalován</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plán čtení</string>
   <string name="rdg_plan_selector_title">Vybrat plán čtení</string>

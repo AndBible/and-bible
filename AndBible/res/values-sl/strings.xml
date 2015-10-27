@@ -3,7 +3,7 @@
   <string name="app_name">And Biblija</string>
   <!--Startup & Help-->
   <string name="splash_top_text">
-\n\"In Bog je rekel: \'Naj bo luč;\' in tam je bila luč.\"\nGeneza 1:3</string>
+\n\"In Bog je rekel: \'Naj bo luč;\' in bila je luč.\"\nGeneza 1:3</string>
   <string name="help_text">Za aktiviranje pritisni tipko MENU\n\nNa naslednje ali prejšnje poglavje se pride z uporabo sledilne kroglice, trackpada ali pomikom prsta preko ekrana</string>
   <string name="help_text_long"><b>Navigacija</b>\nNa naslednje ali prejšnje poglavje se pride z uporabo sledilne kroglice, D-pada ali pomikom prsta preko ekrana v desno ali levo.\n    \nDvakraten pritisk vklopi/izklopi celoten ekran.\n    \n\n<b>Menu</b>  \nZa dejanja pritisni gumb MENU.\n\n    \nZa prenos več dokumentov pritisni Menu/Več/Prenos Dokumentov\n    \n\n<b>Govor</b>\nPritisnite Govor, da pridete do okna za pričetek in zaustavitev branja.\n    \n\n<b>Moja Opomba</b>\nOpombe se lahko dodajajo preko menuja Dodaj Mojo opombo, ki se prikaže ob daljšem pritisku na vrstico.  Do seznama obstoječih opomb se lahko dostopa prek glavnega menuja.\n    \n\n<b>Zaznamki</b>\nZaznamke se lahko dodaja prek menuja, ki se prikaže ob daljšem pritisku na vrstico.  Upravljalec zaznamkov je dostopen preko glavnega menuja. Podmenu Upravljalca zaznamkov dovoljuje razvrščanje zaznamkov glede na oznako.\n    \n\n<b>Iskanje</b>\nIskanje besedila lahko vsebuje tudi posebne znake kot so: *, ?, AND, OR, NOT (za več podrobnosti glej \"Apache Lucene - Query Parser Syntax\")\n    \n\n<b>Vrstični menuji</b>\n    \nDaljši pritisk na biblične vrstice odpre ustrezen menu za dejanja, ki se nanašajo na trenutno vrstico.\n    \nDaljši pritisk na biblijo ali dokument, pri izbiranju biblije ali dokumenta, ga lahko izbriše ali pa pokaže informacije o njem.\n    \nDaljši pritisk na gumb Nazaj prikaže seznam zgodovine.</string>
   <string name="version_text">Verzija %s</string>
@@ -17,6 +17,7 @@
   <string name="speak">Govor</string>
   <string name="help">Pomoč</string>
   <string name="verse">Vrstica</string>
+  <string name="administration">Upravljanje</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Izberi knjigo</string>
   <string name="choosePassageChapterName">Izberi poglavje</string>
@@ -122,6 +123,13 @@
   <string name="download_complete_no_bibles">Nameščena ni bila nobena biblija.  Prosim pritisnite Nazaj in ponovno poskusite.</string>
   <string name="too_many_jobs">Izvaja se preveč opravil.  Prosim počakajte, da se jih nekaj dokonča in ponovno poskusite.</string>
   <string name="document_not_installed">Prosim prenesite \'%s\'</string>
+  <!--Install zip file-->
+  <string name="install_zip">Dokumente naloži iz zip datoteke.</string>
+  <string name="install_zip_successfull">Modul je bil uspešno nameščen</string>
+  <string name="extracting_zip_file">Odpakiranje zip datoteke...</string>
+  <string name="checking_zip_file">Preverjanje datoteke...</string>
+  <string name="invalid_module">Datoteka ne vsebuje veljavnega SWORD modula</string>
+  <string name="module_already_installed">Datoteke vsebuje modul, ki je že nameščen</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Načrt branja</string>
   <string name="rdg_plan_selector_title">Izberite Načrt branja</string>

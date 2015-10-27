@@ -16,6 +16,7 @@
   <string name="speak">Høgtlesing</string>
   <string name="help">Hjelp</string>
   <string name="verse">Vers</string>
+  <string name="administration">Administrasjon</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Vel bok</string>
   <string name="choosePassageChapterName">Vel kapittel</string>
@@ -121,6 +122,13 @@
   <string name="download_complete_no_bibles">Ingen biblar vart installert. Vennlegst gå attende og prøv på ny.</string>
   <string name="too_many_jobs">For mange jobbar på ein gong. Vennlegst vent på at nokre fullfører før du prøver om att.</string>
   <string name="document_not_installed">Vennlegst last ned \'%s\'</string>
+  <!--Install zip file-->
+  <string name="install_zip">Last dokument fra ZIP</string>
+  <string name="install_zip_successfull">Modulen vart installert</string>
+  <string name="extracting_zip_file">Pakkar ut fra ZIP-fil...</string>
+  <string name="checking_zip_file">Saumfarar fila...</string>
+  <string name="invalid_module">Fila inneheld ikkje ein gyldig SWORD-modul</string>
+  <string name="module_already_installed">Fila inneheld ein modul som allereie er installert</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Leseplan</string>
   <string name="rdg_plan_selector_title">Vel leseplan</string>

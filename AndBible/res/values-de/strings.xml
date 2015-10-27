@@ -16,6 +16,7 @@
   <string name="speak">Vorlesen</string>
   <string name="help">Hilfe</string>
   <string name="verse">Vers</string>
+  <string name="administration">Verwaltung</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Buchauswahl</string>
   <string name="choosePassageChapterName">Kapitelauswahl</string>
@@ -121,6 +122,13 @@
   <string name="download_complete_no_bibles">Kein Modul installiert. Bitte noch einmal probieren</string>
   <string name="too_many_jobs">Zu viele aktive Aufgaben. Bitte warten Sie...</string>
   <string name="document_not_installed">Bitte \'%s\' herunterladen</string>
+  <!--Install zip file-->
+  <string name="install_zip">Lade Dokument aus Zip-Datei</string>
+  <string name="install_zip_successfull">Modul wurde erfolgreich installiert</string>
+  <string name="extracting_zip_file">Zip-Datei wird entpackt...</string>
+  <string name="checking_zip_file">Datei wird überprüft...</string>
+  <string name="invalid_module">Datei enthält kein SWORD Modul</string>
+  <string name="module_already_installed">Datei enthält ein bereits installiertes Modul</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Leseplan</string>
   <string name="rdg_plan_selector_title">Leseplan auswählen</string>

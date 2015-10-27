@@ -16,6 +16,7 @@
   <string name="speak">Klausytis</string>
   <string name="help">Pagalba</string>
   <string name="verse">Eilutė</string>
+  <string name="administration">Valdymas</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Rinkitės knygą</string>
   <string name="choosePassageChapterName">Rinkitės skyrių</string>
@@ -91,6 +92,7 @@
   <string name="windowMaximise">Išdidinti</string>
   <string name="windowMinimise">Sumažinti</string>
   <string name="windowSynchronise">Sinchronizuoti</string>
+  <string name="windowMoveFirst">Padaryti pagrindiniu</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Šiame skyriuje nėra pastabų</string>
   <string name="no_verse_notes">Šioje eilutėje nėra pastabų</string>
@@ -120,6 +122,13 @@
   <string name="download_complete_no_bibles">Nėra įdiegtų Biblijų. Spauskite „Atgal“ ir bandykite vėl.</string>
   <string name="too_many_jobs">Per daug vykdomų veiksmų. Prašome palaukti, kol kai kurie baigsis ir tuomet bandykite vėl.</string>
   <string name="document_not_installed">Prašome atsisiųsti \'%s\'</string>
+  <!--Install zip file-->
+  <string name="install_zip">Įkelti dokumentą iš zip</string>
+  <string name="install_zip_successfull">Modulis sėkmingai įdiegtas</string>
+  <string name="extracting_zip_file">Išgaunami duomenys iš zip...</string>
+  <string name="checking_zip_file">Tikrinamas pateiktas failas...</string>
+  <string name="invalid_module">Faile nėra SWORD modulio</string>
+  <string name="module_already_installed">Faile esantis SWORD modulis jau yra įdiegtas</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Skaitomas planas</string>
   <string name="rdg_plan_selector_title">Pasirinkite „Skaitomą planą“</string>

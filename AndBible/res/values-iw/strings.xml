@@ -16,6 +16,7 @@
   <string name="speak">הקראה</string>
   <string name="help">עזרה</string>
   <string name="verse">פסוק</string>
+  <string name="administration">ניהול</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">בחר ספר</string>
   <string name="choosePassageChapterName">בחר פרק</string>
@@ -65,7 +66,7 @@
   <string name="prefs_show_morphology_summary">הצג את המילון המורפולוגי של רובינסון</string>
   <string name="prefs_section_title_title">כותרות משנה</string>
   <string name="prefs_section_title_summary">הצג כותרות משנה שאינן קאנוניות</string>
-  <string name="prefs_red_letter_title">אות אדומה</string>
+  <string name="prefs_red_letter_title">צבע אדום</string>
   <string name="prefs_red_letter_summary">הצג באדום את דברי ישוע</string>
   <string name="prefs_tilt_to_scroll_title">הטה כדי לגלול</string>
   <string name="prefs_tilt_to_scroll_summary">הטה את המכשיר כדי לגלול למעלה ולמטה</string>
@@ -121,6 +122,13 @@
   <string name="download_complete_no_bibles">אין טקסטים מותקנים. אנא לחץ על כפתור החזרה ונסה שנית.</string>
   <string name="too_many_jobs">יותר מדי משימות פועלות יחד כרגע. אנא המתן שחלקן יסתיימו, ונסה שוב.</string>
   <string name="document_not_installed">אנא הורד \'%s\'</string>
+  <!--Install zip file-->
+  <string name="install_zip">טען מסמך מקובץ ZIP</string>
+  <string name="install_zip_successfull">המודול הותקן בהצלחה</string>
+  <string name="extracting_zip_file">מחלץ קובץ ZIP...</string>
+  <string name="checking_zip_file">בודק את הקובץ...</string>
+  <string name="invalid_module">הקובץ אינו מכיל מודול SWORD תקין</string>
+  <string name="module_already_installed">הקובץ מכיל מודול שכבר מותקן</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">תוכנית קריאה</string>
   <string name="rdg_plan_selector_title">בחר תוכנית קריאה</string>

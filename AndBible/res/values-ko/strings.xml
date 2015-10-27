@@ -16,6 +16,7 @@
   <string name="speak">말하기</string>
   <string name="help">도움말</string>
   <string name="verse">개의 구절</string>
+  <string name="administration">관리</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">번역본 선택</string>
   <string name="choosePassageChapterName">장 선택</string>
@@ -120,6 +121,13 @@
   <string name="download_complete_no_bibles">성경이 설치되지 않았습니다. 다시 시도 하십시오</string>
   <string name="too_many_jobs">너무 많은 작업이 실행되고 있습니다. </string>
   <string name="document_not_installed">다운로드 \'%s\' 을하세요</string>
+  <!--Install zip file-->
+  <string name="install_zip">Zip 파일에서 문서를 설치</string>
+  <string name="install_zip_successfull">문서가 성공적으로 설치</string>
+  <string name="extracting_zip_file">지금 Zip 파일을 추출 ...</string>
+  <string name="checking_zip_file">주어진 파일을 확인 중 ...</string>
+  <string name="invalid_module">파일이 올바른 Sword 모듈 아니다</string>
+  <string name="module_already_installed">파일이 이미 설치되어있다</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">읽기 계획</string>
   <string name="rdg_plan_selector_title">읽기 계획을 선택</string>

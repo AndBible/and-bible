@@ -16,6 +16,7 @@
   <string name="speak">Berbicara</string>
   <string name="help">Bantuan</string>
   <string name="verse">Ayat</string>
+  <string name="administration">Administrasi</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Pilih Buku</string>
   <string name="choosePassageChapterName">Pilih Bab</string>
@@ -121,6 +122,13 @@
   <string name="download_complete_no_bibles">Tidak ada Alkitab yang dipasang. Silahkan tekan Kembali dan coba lagi.</string>
   <string name="too_many_jobs">Terlalu banyak tugas yang sedang berjalan. Silahkan tunggu sampai menyelesaikan dan coba lagi.</string>
   <string name="document_not_installed">Silahkan download \'%s\'</string>
+  <!--Install zip file-->
+  <string name="install_zip">Buka Dokumen dari Zip</string>
+  <string name="install_zip_successfull">Modul telah berhasil diinstal</string>
+  <string name="extracting_zip_file">Keluarkan file dari Zip sekarang...</string>
+  <string name="checking_zip_file">Sedang periksa file yang diberikan</string>
+  <string name="invalid_module">File tidak berisi modul SWORD yang berlaku</string>
+  <string name="module_already_installed">File berisi modul yang sudah diinstal</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Rencana Bacaan</string>
   <string name="rdg_plan_selector_title">Pilih Rencana Bacaan</string>

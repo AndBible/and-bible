@@ -29,6 +29,7 @@
   <string name="speak">Felolvasás</string>
   <string name="help">Súgó</string>
   <string name="verse">Vers</string>
+  <string name="administration">Adminisztráció</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Könyv kiválasztása</string>
   <string name="choosePassageChapterName">Fejezet kiválasztása</string>
@@ -87,6 +88,8 @@
   <string name="prefs_night_mode_automatic">Automatikus</string>
   <string name="prefs_navigate_to_verse_title">Vershez ugrás</string>
   <string name="prefs_navigate_to_verse_summary">Vers (és fejezet) kiválasztása navigálásnál</string>
+  <string name="prefs_open_links_in_special_window_title">A hivatkozások megnyitása különleges ablakban. </string>
+  <string name="prefs_open_links_in_special_window_summary">A kereszthivatkozások és Strongs számok gyorsabb megnyitása érdekében.</string>
   <string name="prefs_text_size_title">Szövegméret</string>
   <string name="prefs_text_size_summary">Betűméret megváltoztatása</string>
   <string name="prefs_text_size_sample_text">Minta szöveg</string>
@@ -97,6 +100,12 @@
   <string name="prefs_interface_locale_summary">Egyéni nyelv kiválasztása</string>
   <string name="locale_change_warning">Az alkalmazás újra fog indulni, hogy az új nyelvi beállítás érvénybe lépjen.</string>
   <!--Window-->
+  <string name="window">Ablak</string>
+  <string name="windowClose">Bezárás</string>
+  <string name="windowMaximise">Teljes képernyő</string>
+  <string name="windowMinimise">Minimalizálás</string>
+  <string name="windowSynchronise">Szinkronizálás</string>
+  <string name="windowMoveFirst">Az első mozgatása</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Ebben a fejezetben nincs jegyzet.</string>
   <string name="no_verse_notes">Ebben a versben nincs jegyzet.</string>
@@ -126,6 +135,13 @@
   <string name="download_complete_no_bibles">Nincs Biblia telepítve. Nyomd meg a Vissza gombot, és próbáld újra.</string>
   <string name="too_many_jobs">Túl sok feladat fut. Kérlek várj, amíg valamelyik befejeződik és próbáld újra.</string>
   <string name="document_not_installed">Kérlek töltsd le ezt: \'%s\'</string>
+  <!--Install zip file-->
+  <string name="install_zip">Dokumentum betöltése Zip fájlból</string>
+  <string name="install_zip_successfull">A mudul telepítése sikeres</string>
+  <string name="extracting_zip_file">Zip fájl kicsomagolása folyamatban...</string>
+  <string name="checking_zip_file">A fájl ellenőrzése...</string>
+  <string name="invalid_module">A fájl nem tartalmaz érvényes SWORD modult</string>
+  <string name="module_already_installed">A fájl egy olyam modult tartalmaz, ami már telepítve van</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Olvasási terv</string>
   <string name="rdg_plan_selector_title">Olvasási terv kiválasztása</string>
@@ -233,6 +249,8 @@
   <string name="please_wait">Kérlek várj...</string>
   <string name="all">Mind</string>
   <string name="default_value">@string/lang_default</string>
+  <string name="new_item">Új</string>
+  <string name="close">Bezárás</string>
   <!--Errors-->
   <string name="error_occurred">Hiba történt.</string>
   <string name="error_no_content">A kiválasztott vershez nem tartozik tartalom.</string>
