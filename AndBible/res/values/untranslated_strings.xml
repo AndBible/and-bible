@@ -50,6 +50,7 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
 	<string name="lang_thai">th: ไทย</string>
 	<string name="lang_turkish">tr: Türkçe</string>
 	<string name="lang_ukrainian">uk: Українська</string>
+	<string name="lang_uzbek">uz: Oʻzbek</string>
 	<string name="lang_vietnamese">vi: Tiếng Việt</string>
 	<string name="lang_chinese">zh: 中文</string>
 	<!-- following 2 strings are currently unused, should be used in the future for Simplified/Traditional selection -->
