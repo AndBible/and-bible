@@ -16,7 +16,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     \nDouble-tap toggles Fullscreen on/off.
     \n\n<b>Menu</b>
     \nPress the MENU button for actions
-    \n\nTo download more documents press Menu/More/Download Documents
+    \n\nTo download more documents press Menu/Administration/Download Documents
     \n\n<b>Speech</b>\nPress Speak to access a dialog to start or stop reading
     \n\n<b>My Note</b>\nNotes can be added via the My Note menu item on the verse context menu.  The list of existing notes can be accessed via the main menu.
     \n\n<b>Bookmarks</b>\nBookmarks can be added via the verse context menu.  The Bookmark Manager is accessed via the main menu.  The Bookmark Manager context menu allows bookmarks to be grouped using labels.
@@ -148,7 +148,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="error_downloading">An error occurred downloading.  Please check your internet connection.</string>
     <string name="no_internet_connection">Could not connect to the internet</string>
     <string name="storage_space_warning">Insufficient local storage space.</string>
-    <string name="wait_for_bible">Please wait for the Bible to finish downloading.  You will then be taken to the main screen.\n\nDownload more documents later by navigating to Menu button/More/Download documents.</string>
+    <string name="wait_for_bible">Please wait for the Bible to finish downloading.  You will then be taken to the main screen.\n\nDownload more documents later by navigating to Menu button/Administration/Download documents.</string>
     <string name="wait_for_bible_not_yet">Please wait.  A bible has not yet completed installation.</string>
     <string name="download_complete_no_bibles">No bible was installed.  Please press Back and try again.</string>
     <string name="too_many_jobs">Too many tasks executing.  Please wait for some to finish and try again.</string>
