@@ -4,7 +4,7 @@
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Και ο Θεός είπε,« Γενηθήτω φως, και υπήρχε φως. \"\nΓένεσις 1:03</string>
   <string name="help_text">Πιέστε το πλήκτρο ΜΕΝΟΥ για δράσεις\n\nΜετάβαση στο επόμενο ή στο προηγούμενο κεφάλαιο με τη χρήση της γραμμής-μπάλα, D-pad ή περνώντας την οθόνη με το δάχτυλό σας</string>
-  <string name="help_text_long"><b>Navigation</b>\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger\n    \nDouble-tap toggles Fullscreen on/off.\n    \n\n<b>Menu</b>\n    \nPress the MENU button for actions\n    \n\nTo download more documents press Menu/More/Download Documents\n    \n\n<b>Speech</b>\nPress Speak to access a dialog to start or stop reading\n    \n\n<b>My Note</b>\nNotes can be added via the My Note menu item on the verse context menu.  The list of existing notes can be accessed via the main menu.\n    \n\n<b>Bookmarks</b>\nBookmarks can be added via the verse context menu.  The Bookmark Manager is accessed via the main menu.  The Bookmark Manager context menu allows bookmarks to be grouped using labels.\n    \n\n<b>Search</b>\nSearch text can include special characters like *, ?, AND, OR, NOT (see \"Apache Lucene - Query Parser Syntax\" for more details)\n    \n\n<b>Context Menus</b>\n    \nLong press on the Bible view to open the context menu for actions affecting the current verse.\n    \nLong press on a document in the document selector to delete it or view information.\n    \nLong press the Back button to access the History list\n    </string>
+  <string name="help_text_long"><b>Navigation</b>\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger\n \nDouble-tap toggles Fullscreen on/off.\n \n\n<b>Menu</b>\n \nPress the MENU button for actions\n \n\nTo download more documents press Menu/Download Documents\n \n\n<b>Speech</b>\nPress Speak to access a dialog to start or stop reading\n \n\n<b>My Note</b>\nNotes can be added via the My Note menu item on the verse context menu. The list of existing notes can be accessed via the main menu.\n \n\n<b>Bookmarks</b>\nBookmarks can be added via the verse context menu. The Bookmark Manager is accessed via the main menu. The Bookmark Manager context menu allows bookmarks to be grouped using labels.\n \n\n<b>Search</b>\nSearch text can include special characters like *, ?, AND, OR, NOT (see \"Apache Lucene - Query Parser Syntax\" for more details)\n \n\n<b>Context Menus</b>\n \nLong press on the Bible view to open the context menu for actions affecting the current verse.\n \nLong press on a document in the document selector to delete it or view information.\n \nLong press the Back button to access the History list\n</string>
   <string name="version_text">Έκδοση %s</string>
   <string name="no_sdcard_error">Παρακαλώ εισάγετε μια κάρτα SD για να αρχίσει και πάλι το And Bible.</string>
   <!--Main menu-->
@@ -105,11 +105,12 @@
   <string name="error_downloading">Παρουσιάστηκε σφάλμα κατά τη λήψη. Παρακαλώ ελέγξτε την σύνδεση διαδικτύου σας.</string>
   <string name="no_internet_connection">Δεν ήταν δυνατή η σύνδεση με το διαδίκτυο</string>
   <string name="storage_space_warning">Ανεπαρκής τοπικός χώρος αποθήκευσης.</string>
-  <string name="wait_for_bible">Παρακαλώ περιμένετε την Αγία Γραφή να τελειώσει το κατέβασμα. Στη συνέχεια, θα ληφθούν μέτρα για την κύρια οθόνη.\n\nΛήψη περισσοτέρων εγγράφων αργότερα με την πλοήγηση στο μενού Κουμπί / Περισσότερα / Λήψη εγγράφων.</string>
+  <string name="wait_for_bible">Παρακαλώ περιμένετε την Αγία Γραφή να τελειώσει το κατέβασμα. Στη συνέχεια, θα ληφθούν μέτρα για την κύρια οθόνη.\n\nΛήψη περισσοτέρων εγγράφων αργότερα με την πλοήγηση στο μενού Κουμπί / Λήψη εγγράφων.</string>
   <string name="wait_for_bible_not_yet">Παρακαλώ περιμένετε. Η Αγία Γραφή δεν έχει ακόμη ολοκληρώσει την εγκατάσταση.</string>
   <string name="download_complete_no_bibles">Καμία Αγία Γραφή εγκαταστάθηκε. Παρακαλούμε πατήστε Πίσω και δοκιμάστε ξανά.</string>
   <string name="too_many_jobs">Υπερβολικά πολλές εργασίες εκτέλεσης. Περιμένετε να τελειώσει κάποια και προσπαθήστε ξανά.</string>
   <string name="document_not_installed">Παρακαλώ κατεβάστε το \'%s\'</string>
+  <!--Install zip file-->
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Σχέδιο ανάγνωσης</string>
   <string name="rdg_plan_selector_title">Επιλέξτε ένα σχέδιο ανάγνωσης</string>

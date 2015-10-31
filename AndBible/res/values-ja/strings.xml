@@ -81,6 +81,7 @@
   <string name="wait_for_bible_not_yet">しばらくお待ちください。聖書がインストールを完了していません。</string>
   <string name="download_complete_no_bibles">聖書文書はインストールされていません。[BACK ボタン]を押して、もう一度試してください。</string>
   <string name="document_not_installed">「%s」をダウンロードして下さい</string>
+  <!--Install zip file-->
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">読書計画</string>
   <string name="rdg_plan_selector_title">読書計画を選択</string>

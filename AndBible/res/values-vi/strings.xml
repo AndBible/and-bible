@@ -4,7 +4,7 @@
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Đức Chúa Trời phán rằng: Phải có sự sáng; thì có sự sáng.\"\nSáng thế ký 1:3</string>
   <string name="help_text">Nhấn phím MENU cho các lựa chọn\n\nTới chương kế tiếp hoặc trước đó bằng cách sử dụng track-ball, D-pad hoặc trượt ngang màn hình bằng ngón tay.</string>
-  <string name="help_text_long"><b>Navigation</b>\nTới chương tiếp theo và chương trước đó bằng cách sử dụng track-ball, D-pad hoặc vuốt ngang màn hình bằng tay.\nChạm 2 lần liên tiếp để mở hoặc tắt chế độ toàn màn hình.\n<b>Menu</b> \nBấm MENU để có nhiều lựa chọn\n\nĐể tải về nhiều Kinh Thánh chọn Menu/More/Download Documents \n\n<b>Đọc</b>\nNhấn Speak để truy cập vào hộp thoại để bắt đầu hoặc ngừng đọc.\n\n<b>Ghi chú</b>\nCác ghi chú có thể được thêm vào bằng cách chạm và giữ vài giây vào màn hình, sau đó chọn Ghi chú của tôi. Danh sách các ghi chú đang tồn tại có thể truy cập thông qua Menu chính.\n<b>Đánh dấu</b>\nĐánh dấu có thể được thêm vào bằng cách chạm và giữ lâu vào màn hình, sau đó chọn Thêm đánh dấu. Quản lý các đánh dấu có thể truy cập từ menu chính. \n\n<b>Tìm kiếm</b>\nViệc tìm kiếm có thể có các kí tự đặc biệt như *,?,AND,OR,NOT (xem chi tiết tại \"Apache Lucene - Query Parser Syntax\")\n\n<b>Context Menus</b> \nNhấm lâu vào màn hình Kinh Thánh để mở context Menu.\nNhấm lâu vào Kinh Thánh để xóa hoặc xem thông tin.\nNhấn lâu nút Back để truy cập vào Lịch sử.</string>
+  <string name="help_text_long"><b>Navigation</b>\nTới chương tiếp theo và chương trước đó bằng cách sử dụng track-ball, D-pad hoặc vuốt ngang màn hình bằng tay.\nChạm 2 lần liên tiếp để mở hoặc tắt chế độ toàn màn hình.\n<b>Menu</b> \nBấm MENU để có nhiều lựa chọn\n\nĐể tải về nhiều Kinh Thánh chọn Menu/Download Documents \n\n<b>Đọc</b>\nNhấn Speak để truy cập vào hộp thoại để bắt đầu hoặc ngừng đọc.\n\n<b>Ghi chú</b>\nCác ghi chú có thể được thêm vào bằng cách chạm và giữ vài giây vào màn hình, sau đó chọn Ghi chú của tôi. Danh sách các ghi chú đang tồn tại có thể truy cập thông qua Menu chính.\n<b>Đánh dấu</b>\nĐánh dấu có thể được thêm vào bằng cách chạm và giữ lâu vào màn hình, sau đó chọn Thêm đánh dấu. Quản lý các đánh dấu có thể truy cập từ menu chính. \n\n<b>Tìm kiếm</b>\nViệc tìm kiếm có thể có các kí tự đặc biệt như *,?,AND,OR,NOT (xem chi tiết tại \"Apache Lucene - Query Parser Syntax\")\n\n<b>Context Menus</b> \nNhấm lâu vào màn hình Kinh Thánh để mở context Menu.\nNhấm lâu vào Kinh Thánh để xóa hoặc xem thông tin.\nNhấn lâu nút Back để truy cập vào Lịch sử.</string>
   <string name="version_text">Phiên bản %s</string>
   <string name="no_sdcard_error">Gắn thẻ nhớ vào sau đó khởi động lại chương trình.</string>
   <!--Main menu-->
@@ -107,6 +107,7 @@
   <string name="download_complete_no_bibles">Không có Kinh Thánh nào được cài đặt. Hãy nhấn nút Back và thử lại lần nữa.</string>
   <string name="too_many_jobs">Có quá nhiều công việc đang thực thi. Xin vui lòng chờ một số việc hoàn thành và thử lại lần nữa.</string>
   <string name="document_not_installed">Hãy tải về \'%s\'</string>
+  <!--Install zip file-->
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Kế hoạch đọc Kinh Thánh</string>
   <string name="rdg_plan_selector_title">Hãy chọn một kế hoạch</string>

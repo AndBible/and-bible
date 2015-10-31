@@ -4,7 +4,6 @@
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"വെളിച്ചം ഉണ്ടാകട്ടെ എന്നു ദൈവം കല്പിച്ചു; വെളിച്ചം ഉണ്ടായി.\"\nഉല്പത്തി 1:3</string>
   <string name="help_text">Press the MENU key for actions\n\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger</string>
-  <string name="help_text_long"><b>Navigation</b>\nGo to the next or previous chapter by using the track-ball, D-pad or swiping the screen with your finger\n    \nDouble-tap toggles Fullscreen on/off.\n    \n\n<b>Menu</b>\n    \nPress the MENU key for actions\n    \n\nTo download more documents press Menu/More/Download Documents\n    \n\n<b>Speech</b>\nPress Speak to access a dialog to start or stop reading\n    \n\n<b>My Note</b>\nNotes can be added via the My Note menu item on the verse context menu.  The list of existing notes can be accessed via the main menu.\n    \n\n<b>Bookmarks</b>\nBookmarks can be added via the verse context menu.  The Bookmark Manager is accessed via the main menu.  The Bookmark Manager context menu allows bookmarks to be grouped using labels.\n    \n\n<b>Search</b>\nSearch text can include special characters like *, ?, AND, OR, NOT (see \"Apache Lucene - Query Parser Syntax\" for more details)\n    \n\n<b>Context Menus</b>\n    \nLong press on the bible view to open the context menu for actions affecting the current verse.\n    \nLong press on a document in the document selector to delete it or view information.\n    \nLong press the Back button to access the History list\n    </string>
   <string name="version_text">വേർഷൻ %s</string>
   <string name="no_sdcard_error">SD കാർഡ്‌ ഉള്ളിൽ ഇട്ടശേഷം And Bible വീണ്ടും തുടങ്ങുക.</string>
   <!--Main menu-->
@@ -113,6 +112,7 @@
   <string name="download_complete_no_bibles">ബൈബിൾ ഇൻസ്റ്റാൾ ആയില്ല...ദയവായി വീണ്ടും ശ്രമിക്കുക</string>
   <string name="too_many_jobs">പല കാര്യങ്ങൾ പ്രവർത്തിക്കുന്നതുകൊണ്ട്, ദയവായി അത് പൂർത്തിയായ ശേഷം വീണ്ടും ശ്രമിക്കുക</string>
   <string name="document_not_installed">ദയവായി ഡൌൺലോഡ് ചെയ്യുക  \'%s\'</string>
+  <!--Install zip file-->
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">വായന പദ്ധതി</string>
   <string name="rdg_plan_selector_title">ഒരു വായന പദ്ധതി തിരഞ്ഞെടുക്കുക</string>

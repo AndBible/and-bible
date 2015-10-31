@@ -5,19 +5,7 @@
   <string name="splash_top_text">
 \n\"Xudo: “Yorug‘lik bo‘lsin”, deb amr bergan edi, yorug‘lik paydo bo‘ldi.\nIbtido 1:3</string>
   <string name="help_text">MENYU tugmasini bosing\n\nKeyingi yoki oldingi bobga o\'tish uchun barmoqni ekran bo\'ylab o\'tkazing</string>
-  <string name="help_text_long"><b>Navigatsiya</b>\nKeyingi yoki oldingi bobga o\'tish uchun barmoqni ekran bo\'ylab o\'tkazing
-\nTo\'liq ekranni yoqish/o\'chirish uchun barmoq bilan ekranni ikki marta bosing.
-\n\n<b>Menyu</b>
-\nNastroykalarga o\'tish uchun MENYU tugmasini bosing
-\n\nBoshqa fayllarni yuklab olish uchun Menu/More/Download Documents boring
-\n\n<b>Nutq</b>\nO\'qishni boshlash yoki to\'xtatish uchun Gapir tugmasini bosing
-\n\n<b>Eslatmalarim</b>\nEslatmalar oyat menyusidagi Eslatmalarim orqali kiritiladi. Mavjud Eslatmalar ro\'yxatini ko\'rish uchun Menyuga boring.
-\n\n<b>Xatcho\'plar</b>\nXatcho\'plar oyat menyusi orqali qo\'yiladi. Mavjud Xatcho\'plar ro\'yxatini ko\'rish uchun Menyuga boring. Menyuda Yorliqlar yordamida Xatcho\'plarni guruhlarga bo\'lish mumkin.
-\n\n<b>Qidir</b>\nQidirish matni quyudagi belgilarni o\'zi ichiga olishi mumkin *, ?, AND, OR, NOT (tafsilotlar uchun \"Apache Lucene - Query Parser Syntax\" ga qarang)
-\n\n<b>Kontekst Menyular</b>
-\nOyatga tegishli Kontekst Menyuni ochish uchun Muqaddas Kitob belgisini uzoq bosing.
-\nFaylni o\'chirish yoki u haqida ma\'lumotni ko\'rish fayl ustiga uzoq bosing.
-\nOldingi faoliyat ro\'yxatini ko\'rish uchun Orqaga tugmasini uzoq bosing</string>
+  <string name="help_text_long"><b>Navigatsiya</b>\nKeyingi yoki oldingi bobga o\'tish uchun barmoqni ekran bo\'ylab o\'tkazing \nTo\'liq ekranni yoqish/o\'chirish uchun barmoq bilan ekranni ikki marta bosing. \n\n<b>Menyu</b> \nNastroykalarga o\'tish uchun MENYU tugmasini bosing \n\nBoshqa fayllarni yuklab olish uchun Menu/Download Documents boring \n\n<b>Nutq</b>\nO\'qishni boshlash yoki to\'xtatish uchun Gapir tugmasini bosing \n\n<b>Eslatmalarim</b>\nEslatmalar oyat menyusidagi Eslatmalarim orqali kiritiladi. Mavjud Eslatmalar ro\'yxatini ko\'rish uchun Menyuga boring. \n\n<b>Xatcho\'plar</b>\nXatcho\'plar oyat menyusi orqali qo\'yiladi. Mavjud Xatcho\'plar ro\'yxatini ko\'rish uchun Menyuga boring. Menyuda Yorliqlar yordamida Xatcho\'plarni guruhlarga bo\'lish mumkin. \n\n<b>Qidir</b>\nQidirish matni quyudagi belgilarni o\'zi ichiga olishi mumkin *, ?, AND, OR, NOT (tafsilotlar uchun \"Apache Lucene - Query Parser Syntax\" ga qarang) \n\n<b>Kontekst Menyular</b> \nOyatga tegishli Kontekst Menyuni ochish uchun Muqaddas Kitob belgisini uzoq bosing. \nFaylni o\'chirish yoki u haqida ma\'lumotni ko\'rish fayl ustiga uzoq bosing. \nOldingi faoliyat ro\'yxatini ko\'rish uchun Orqaga tugmasini uzoq bosing</string>
   <string name="version_text">Versiya %s</string>
   <string name="no_sdcard_error">Fleshkani soling va And Bibleni qayta boshlang</string>
   <!--Main menu-->
@@ -29,6 +17,7 @@
   <string name="speak">Gapir</string>
   <string name="help">Yordam</string>
   <string name="verse">Oyat</string>
+  <string name="administration">Sozlamalar</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kitobni tanlang</string>
   <string name="choosePassageChapterName">Bobni tanlang</string>
@@ -87,6 +76,8 @@
   <string name="prefs_night_mode_automatic">Avtomatik</string>
   <string name="prefs_navigate_to_verse_title">Oyatga borish</string>
   <string name="prefs_navigate_to_verse_summary">Matnni tanlaganda oyatni (va bobni) tanlash</string>
+  <string name="prefs_open_links_in_special_window_title">Maxsus oynada ochish ishoratlar</string>
+  <string name="prefs_open_links_in_special_window_summary">Tez ekranda uchun</string>
   <string name="prefs_text_size_title">Shrift hajmi</string>
   <string name="prefs_text_size_summary">Ko\'proq ko\'rish yoki aniqroq ko\'rish</string>
   <string name="prefs_text_size_sample_text">Namuna matn</string>
@@ -97,6 +88,12 @@
   <string name="prefs_interface_locale_summary">Applikatsiya tilini tanglang</string>
   <string name="locale_change_warning">Yangi tilga o\'tish uchun applikatsiya qayta boshlanadi</string>
   <!--Window-->
+  <string name="window">Oyna</string>
+  <string name="windowClose">Yoping</string>
+  <string name="windowMaximise">Maksimallashtirmoq</string>
+  <string name="windowMinimise">Kamaytirish</string>
+  <string name="windowSynchronise">Sinxronlashtiring</string>
+  <string name="windowMoveFirst">Birinchi ko\'chirish</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Bu bobda eslatmalar mavjud emas</string>
   <string name="no_verse_notes">Bu oyatda eslatmalar mavjud emas</string>
@@ -121,11 +118,18 @@
   <string name="error_downloading">Yuklash jarayonida xato sodir bo\'ldi. Iltimos, tarmoq aloqasini tekshirib ko\'ring.</string>
   <string name="no_internet_connection">Tarmoq bilan aloqa yo\'q</string>
   <string name="storage_space_warning">Xotirada yetarli joy qo\'q.</string>
-  <string name="wait_for_bible">Iltimos Muqaddas Kitob yuklab olinishi tugashini kuting. Keyin asosiy ekranga borasiz. \n\nKeyin, boshqa fayllarni quyidagi manzildan yuklab oling Menyu tugmasi/Ko\'proq/Fayllarini yuklab oling</string>
+  <string name="wait_for_bible">Iltimos Muqaddas Kitob yuklab olinishi tugashini kuting. Keyin asosiy ekranga borasiz. \n\nKeyin, boshqa fayllarni quyidagi manzildan yuklab oling Menyu tugmasi/Fayllarini yuklab oling</string>
   <string name="wait_for_bible_not_yet">Iltimos kuting. Muqaddas Kitob hali to\'liq o\'rnatilgani yo\'q.</string>
   <string name="download_complete_no_bibles">Biror Muqaddas Kitob o\'rnatilgani yo\'q. Iltimos, \'Orqaga\' tugmasini bosib, qayta qilib ko\'ring.</string>
   <string name="too_many_jobs">Ko\'p vasifalar bajarilmoqda. Iltimos, ba\'zilarining tugashini kuting va qayta qilib ko\'ring.</string>
   <string name="document_not_installed">Iltimos, \'%s\' yuklab oling</string>
+  <!--Install zip file-->
+  <string name="install_zip">ZIP o\'qish</string>
+  <string name="install_zip_successfull">Module muvaffaqiyatli o\'rnatildi</string>
+  <string name="extracting_zip_file">ZIP o\'qishyapti</string>
+  <string name="checking_zip_file">Faylni tekshirish</string>
+  <string name="invalid_module">Fayl bir amaliy SWORD moduli o\'z ichiga olmaydi</string>
+  <string name="module_already_installed">Fayl allaqachon o\'rnatilgan bir modul o\'z ichiga oladi</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">O\'qish Rejasi</string>
   <string name="rdg_plan_selector_title">O\'qish Rejasini tanlang</string>

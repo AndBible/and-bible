@@ -4,7 +4,7 @@
   <!--Startup & Help-->
   <string name="splash_top_text">\"Dwedodd Duw,\'Dw i eisiau golau!\' a daeth golau i fod.\" Genesis 1:3</string>
   <string name="help_text">Gwasgwch y DDEWISLEN i weithredu \n\nEwch i\'r bennod nesaf neu\'r flaenorol drwy ddefnyddio\'r trac-bel, D-pad neu drwy lusgo\'ch bys ar y sgrîn.</string>
-  <string name="help_text_long"><b>Llywio</b> \nEwch i\'r bennod nesaf neu\'r flaenorol drwy ddefnyddio\'r trac-bel, D-pad neu drwy lusgo\'ch bys ar y sgrîn. \nMae tap dwbl yn toglo\'r Sgrîn Lawn i ffwrdd ac ymlaen.\n\n<b>Dewislen</b> \nGwasgwch y DDEWISLEN i weithredu.\n\nI lawrlwytho mwy o ddogfennau gwasgwch Dewislen/Mwy/Lawrlwytho Dogfennau \n\n<b>Siarad</b> \nGwasgu \'Siarad\' i fynd i ddeialog dechrau neu stopio darllen\n\n<b>Fy Nodyn</b> Gellir ychwanegu nodiadau drwy Fy Nodyn ar y ddewislen cyd-destun adnod. Gellir mynd i\'r rhestr lawn o nodiadau o\'r brif ddewislen.\n\n<b>Nodau Llyfr</b>\nGellir ychwanegu Nodau Llyfr drwy\'r ddewislen cyd-destun adnod. Gellir mynd i\'r Rheolwr Nodau Llyfr o\'r brif ddewislen. Mae dewislen cyd-destun y Rheolwr Nodau Llyfr yn caniatau i nodau llyfr gael eu grwpio dan labeli.\n\n<b>Chwilio</b> \nGall chwilio\'r testun gynnwys nodau fel *, ?, A, NEU, DIM (gw. \"Apache Lucene - Query Parser Syntax\" am fwy o fanylion) \n\n<b>Dewislen Cyd-destun</b>\nGwasgiad hir ar \'gweld Beibl\' i agor y ddewislen weithredu ar gyfer yr adnod gyfredol. \nGwasgiad hir ar ddogfen yn y dewisydd dogfen i\'w dileu neu weld gwybodaeth. \nGwasgiad hir ar y botwm \'yn ol\' i fynd i mewn i\'r Hanes\n</string>
+  <string name="help_text_long"><b>Llywio</b> \nEwch i\'r bennod nesaf neu\'r flaenorol drwy ddefnyddio\'r trac-bel, D-pad neu drwy lusgo\'ch bys ar y sgrîn. \nMae tap dwbl yn toglo\'r Sgrîn Lawn i ffwrdd ac ymlaen.\n\n<b>Dewislen</b> \nGwasgwch y DDEWISLEN i weithredu.\n\nI lawrlwytho mwy o ddogfennau gwasgwch Dewislen/Lawrlwytho Dogfennau \n\n<b>Siarad</b> \nGwasgu \'Siarad\' i fynd i ddeialog dechrau neu stopio darllen\n\n<b>Fy Nodyn</b> Gellir ychwanegu nodiadau drwy Fy Nodyn ar y ddewislen cyd-destun adnod. Gellir mynd i\'r rhestr lawn o nodiadau o\'r brif ddewislen.\n\n<b>Nodau Llyfr</b>\nGellir ychwanegu Nodau Llyfr drwy\'r ddewislen cyd-destun adnod. Gellir mynd i\'r Rheolwr Nodau Llyfr o\'r brif ddewislen. Mae dewislen cyd-destun y Rheolwr Nodau Llyfr yn caniatau i nodau llyfr gael eu grwpio dan labeli.\n\n<b>Chwilio</b> \nGall chwilio\'r testun gynnwys nodau fel *, ?, A, NEU, DIM (gw. \"Apache Lucene - Query Parser Syntax\" am fwy o fanylion) \n\n<b>Dewislen Cyd-destun</b>\nGwasgiad hir ar \'gweld Beibl\' i agor y ddewislen weithredu ar gyfer yr adnod gyfredol. \nGwasgiad hir ar ddogfen yn y dewisydd dogfen i\'w dileu neu weld gwybodaeth. \nGwasgiad hir ar y botwm \'yn ol\' i fynd i mewn i\'r Hanes\n</string>
   <string name="version_text">Fersiwn %s</string>
   <string name="no_sdcard_error">Rhowch gerdyn SD yn eich ffôn a dechrau And Bible eto.</string>
   <!--Main menu-->
@@ -108,11 +108,12 @@
   <string name="error_downloading">Gwall wrth lawrlwytho. Ydy\'ch cysylltiad rhyngrwyd yn gweithio?</string>
   <string name="no_internet_connection">Methu cysylltu â\'r rhyngrwyd</string>
   <string name="storage_space_warning">Dim digon o le i\'w storio.</string>
-  <string name="wait_for_bible">Arhoswch i\'r Beibl orffen lawrlwytho. Eir a chi wedyn i\'r brif sgrin.\n\nLawrlwythwch fwy o ddogfennau yn nes ymlaen drwy lywio i\'r botwm Mynegai/Mwy/Lawrlwytho dogfennau</string>
+  <string name="wait_for_bible">Arhoswch i\'r Beibl orffen lawrlwytho. Eir a chi wedyn i\'r brif sgrin.\n\nLawrlwythwch fwy o ddogfennau yn nes ymlaen drwy lywio i\'r botwm Mynegai/Lawrlwytho dogfennau</string>
   <string name="wait_for_bible_not_yet">Arhoswch. Nid yw\'r Beibl wedi cwblhau ei osod.</string>
   <string name="download_complete_no_bibles">Dim Beibl wedi ei osod. Pwyswch \'yn ôl\' a cheisio eto.</string>
   <string name="too_many_jobs">Mae gormod o dasgau\'n gweithredu. Arhoswch i rai i orffen a cheisiwch eto.</string>
   <string name="document_not_installed">Lawrlwythwch \'%s\'</string>
+  <!--Install zip file-->
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Cynllun Darllen</string>
   <string name="rdg_plan_selector_title">Dewiswch Gynllun Darllen</string>

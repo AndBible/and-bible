@@ -4,19 +4,7 @@
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Och Gud sade:\'Varde ljus,\'och det vart ljus.\"\nMos 1:3</string>
   <string name="help_text">Tryck på Meny-knappen för alternativ\n\nBläddra till nästa och föregående kapitel genom att swipa åt höger och vänster med fingret eller rulla med styrkulan.</string>
-  <string name="help_text_long"><b>Navigation</b>\nGå till nästa och föregående kapitel genom att swipa åt höger och vänster med fingret eller rulla med styrkulan.
-\nDubbelklicka för att slå på eller av helskärmsvisning.
-\n\n<b>Meny</b>
-\nTryck på Meny-knappen för alternativ
-\n\nFör att ladda ner fler böcker, väj Meny / Mer... / Hämta böcker.
-\n\n<b>Läs upp</b>\nVälj Meny / Mer... / Läs upp för att komma till sidan som styr uppläsning
-\n\n<b>Anteckningar</b>\nAnteckningar kan läggas till direkt i versens snabbmeny. Listan med sparade anteckningar finns i Meny / Anteckningar.
-\n\n<b>Bokmärken</b>\nBokmärken kan läggas till direkt i versens snabbmeny. Listan med sparade bokmärken finns under bokmärkesikonen i menylisten. Där kan du även gruppera dina bokmärken med hjälp av etiketter.
-\n\n<b>Sök</b>\nSöktermer kan innehålla specialtecken som *, ?, AND, OR, NOT (sök på \"Apache Lucene - Query Parser Syntax\" för fler detaljer)
-\n\n<b>Snabbmenyer</b>
-\nTryck länge på en vers för att öppna en snabbmeny med alternativ för aktuell vers.
-\nTryck länge på en bok i bokväljaren för att radera den eller se mer information.
-\nTryck länge på bakåtknappen för att visa historiken.</string>
+  <string name="help_text_long"><b>Navigation</b>\nGå till nästa och föregående kapitel genom att swipa åt höger och vänster med fingret eller rulla med styrkulan. \nDubbelklicka för att slå på eller av helskärmsvisning. \n\n<b>Meny</b> \nTryck på Meny-knappen för alternativ \n\nFör att ladda ner fler böcker, väj Meny / Hämta böcker. \n\n<b>Läs upp</b>\nVälj Meny / Mer... / Läs upp för att komma till sidan som styr uppläsning \n\n<b>Anteckningar</b>\nAnteckningar kan läggas till direkt i versens snabbmeny. Listan med sparade anteckningar finns i Meny / Anteckningar. \n\n<b>Bokmärken</b>\nBokmärken kan läggas till direkt i versens snabbmeny. Listan med sparade bokmärken finns under bokmärkesikonen i menylisten. Där kan du även gruppera dina bokmärken med hjälp av etiketter. \n\n<b>Sök</b>\nSöktermer kan innehålla specialtecken som *, ?, AND, OR, NOT (sök på \"Apache Lucene - Query Parser Syntax\" för fler detaljer) \n\n<b>Snabbmenyer</b> \nTryck länge på en vers för att öppna en snabbmeny med alternativ för aktuell vers. \nTryck länge på en bok i bokväljaren för att radera den eller se mer information. \nTryck länge på bakåtknappen för att visa historiken.</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Vänligen mata in ett SD-kort och starta om And Bible.</string>
   <!--Main menu-->
@@ -128,11 +116,12 @@
   <string name="error_downloading">Ett fel uppstod vid nedladdning. Kontrollera din Internet-anslutning.</string>
   <string name="no_internet_connection">Kunde inte ansluta till Internet</string>
   <string name="storage_space_warning">Minnet på enheten är för litet.</string>
-  <string name="wait_for_bible">Vänligen vänta medans Bibeln laddas ner. Du kommer sedan att tas till huvudskärmen.\n\nLadda ner fler böcker senare genom att gå till Menyknappen / Mer / Hämta böcker.</string>
+  <string name="wait_for_bible">Vänligen vänta medans Bibeln laddas ner. Du kommer sedan att tas till huvudskärmen.\n\nLadda ner fler böcker senare genom att gå till Menyknappen / Hämta böcker.</string>
   <string name="wait_for_bible_not_yet">Vänligen vänta. En Bibel är inte färdig med sin installation än.</string>
   <string name="download_complete_no_bibles">Ingen Bibel installerades. Vänligen tryck Bakåt och försök igen.</string>
   <string name="too_many_jobs">För många aktiviteter körs. Vänligen vänta tills några är klara och försök igen.</string>
   <string name="document_not_installed">Vänligen ladda ner \'%s\'</string>
+  <!--Install zip file-->
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Läsningsplan</string>
   <string name="rdg_plan_selector_title">Välj en läsningsplan</string>

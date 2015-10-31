@@ -108,11 +108,12 @@
   <string name="error_downloading">下载时发生错误。请检查您的互联网连接。</string>
   <string name="no_internet_connection">无法连接网络</string>
   <string name="storage_space_warning">SD存储卡存储空间不足</string>
-  <string name="wait_for_bible">请等待下载完成。当下载完成，程序会转到程式主页面。您可以浏览至MENU菜单/MORE更多/下载文件，下载更多文档。</string>
+  <string name="wait_for_bible">请等待下载完成。当下载完成，程序会转到程式主页面。您可以浏览至MENU菜单/下载文件，下载更多文档。</string>
   <string name="wait_for_bible_not_yet">请等待，正在安装已下载的圣经数据包</string>
   <string name="download_complete_no_bibles">没有安装圣经数据包。请后退，并再重新下载。</string>
   <string name="too_many_jobs">太多的任务同时执行中， 请等一些任务完成后再试。</string>
   <string name="document_not_installed">请下载 \"%s\"</string>
+  <!--Install zip file-->
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">阅读计划</string>
   <string name="rdg_plan_selector_title">请选择阅读计划</string>

@@ -4,27 +4,14 @@
   <!--Startup & Help-->
   <string name="splash_top_text">
 \n\"И Бог каза: \'Да бъде светлина.\' И стана светлина. \"\nБитие 1:3</string>
-  <string name="help_text">За достъп към настройки и функции отворете МЕНЮ.\n За да преминете към предишна или следваща глава, плъзнете с пръста надясно или наляво (или хардуерните копчета за курсора)</string>
-  <string name="help_text_long"><b>Навигация</b>\nПлъзнете с пръста надясно или наляво, за да преминете към  предишната или следващата глава
-    \nДвойното почукване отваря/затваря изгледа на цял екран
-    \n\n<b>Меню</b>
-    \nНатиснете МЕНЮ за повече функции
-    \n\nЗа да изтеглите книги, натиснете МЕНЮ/още/Изтегляне  
-  \n
-    \n\n<b>Мои бележки</b>\nМожете да добавяте записки/бележки чрез \"Бележка\" в контекстното меню за даден стих. Списъкът с бележки можете да видите в основното меню.
-    \n\n<b>Показалец</b>\nМожете да добавите показалец към стиха чрез контекстното меню на стиха. Списъкът с показалци се намира в основното меню. Там стиховете могат да бъдат групирани чрез етикети. 
-    \n\n<b>Търсене</b>\nВ полето за търсене можете да ползвате специални параметри като *, ?, AND, OR, NOT (повече детайли в \"Apache Lucene - Query Parser Syntax\")
-    \n\n<b>Контекстните менюта</b>
-    \nДългото натискане върху изгледа на Библията, отваря контекстното меню за даден стих.
-    \nДългото натискане върху документа в списъка дава възможност да се види повече информация относно документа и да се изтрие, ако се налага.
-    \nДългото натискане на копчето \"Назад\" отваря хронологията на отворените стихове. 
-    </string>
+  <string name="help_text">За достъпа до настройките и функциите отворете МЕНЮ.\n За да преминете към предишната или следващата глава, плъзнете с пръста надясно или наляво (или хардуерните копчета за курсора).</string>
+  <string name="help_text_long"><b>Навигация</b>\nПлъзнете с пръста надясно или наляво, за да преминете към предишната или следващата глава. \nДвойното почукване на екрана отваря/затваря изгледа на целия екран. \n\n<b>Меню</b> \nНатиснете МЕНЮ за повече функции. \n\nЗа да изтеглите книга, натиснете МЕНЮ/Изтегляне \n\n <b>Реч</b>\n Натиснете \"Реч\" за управление на автоматичното прочитане на текста. \n\n<b>Моите бележки</b>\nМожете да добавяте записки/бележки чрез \"Бележка\" в контекстното меню на даден стих. Списъкът с бележки можете да видите в основното меню. \n\n<b>Отметки</b>\nМожете да добавите отметка към стиха чрез контекстното меню на стиха. Списъкът с отметки се намира в основното меню. Там стиховете могат да бъдат групирани чрез етикети. \n\n<b>Търсене</b>\nВ полето за търсене можете да ползвате специални параметри като *, ?, AND, OR, NOT (повече детайли в \"Apache Lucene - Query Parser Syntax\") \n\n<b>Контекстните менюта</b> \nПродължителното натискане върху изгледа на Библията, отваря контекстното меню за даден стих. \nПродължителното натискане върху документа в списъка дава възможност да се види повече информация относно документа и да се изтрие, ако се налага. \nПродължителното натискане на копчето \"Назад\" отваря хронологията на отворените стихове.</string>
   <string name="version_text">Версия %s</string>
-  <string name="no_sdcard_error">Вкарайте SD карта и отворете отново А Библия</string>
+  <string name="no_sdcard_error">Вкарайте SD карта и отворете отново And Bible.</string>
   <!--Main menu-->
   <string name="chooseBook">Ресурси</string>
   <string name="selectPassage">Пасаж</string>
-  <string name="search">Търси</string>
+  <string name="search">Търсене</string>
   <string name="settings">Настройки</string>
   <string name="history">История</string>
   <string name="speak">Реч</string>
@@ -38,23 +25,23 @@
   <string name="deuterocanonical">Неканонични</string>
   <!--Search-->
   <string name="search_index">Индексация за търсене</string>
-  <string name="index_creation_required">Търсенето изисква индексация.\nИндексите мога да бъдат изтеглени от интернет или създадени.\nИзтеглените индекси имат повече функции и отнемат по-малко време.\nЗа да изтеглите индекс, трябва да имате връзка с интернет.\n</string>
+  <string name="index_creation_required">Търсенето изисква индексация.\nИндексите мога да бъдат изтеглени от интернет или да бъдат създадени.\nИзтеглените индекси имат повече функции и отнемат по-малко време.\nЗа да изтеглите индекс, трябва да имате връзка с интернет.\n</string>
   <string name="indexing_wait_msg">Екранът за търсене ще се покаже, след като индексирането приключи.</string>
   <string name="index">Индекс</string>
   <string name="index_download">Изтегли</string>
-  <string name="index_not_available_for_download">Този ресурс не е достъпен за изтегляне</string>
+  <string name="index_not_available_for_download">Този ресурс не е достъпен за изтегляне.</string>
   <string name="index_create">Създай</string>
   <!--Tasks-->
   <string name="progress_status">Прогрес</string>
   <string name="task_kill_warning">Тези дълги задачи могат да бъдат прекъснати, ако затворите And Bible преди те да са приключили.</string>
-  <string name="no_tasks_running">Няма други задачи</string>
+  <string name="no_tasks_running">Няма други задачи.</string>
   <!--Search-->
-  <string name="search_results">Покажи резултатите</string>
-  <string name="search_words_group_prompt">Намери стиховете</string>
-  <string name="search_all_words">Всички думи</string>
-  <string name="search_any_word">Която и да е от думите</string>
+  <string name="search_results">Покажи резултатите.</string>
+  <string name="search_words_group_prompt">Намери стиховете.</string>
+  <string name="search_all_words">Всички думи.</string>
+  <string name="search_any_word">Която и да е от думите.</string>
   <string name="search_phrase">Фраза</string>
-  <string name="search_result_count">Намерени %d съвпадения</string>
+  <string name="search_result_count">Намерени %d съвпадения.</string>
   <string name="search_showing_first">Твърде много резултати. Показани първите %d</string>
   <string name="search_bible_section_group_prompt">Търси в</string>
   <string name="search_all_bible">Цялата Библия</string>
@@ -63,11 +50,11 @@
   <string name="search_current_book">Текуща книга</string>
   <string name="error_executing_search">Невалидно търсене</string>
   <!--Preferences-->
-  <string name="prefs_show_verseno_title">Номера на стиха</string>
-  <string name="prefs_show_verseno_summary">Покажи номерата на стихове</string>
+  <string name="prefs_show_verseno_title">Номерът на стиха</string>
+  <string name="prefs_show_verseno_summary">Покажи номерата на стиховете.</string>
   <string name="prefs_verse_per_line_title">По един стих на ред</string>
   <string name="prefs_verse_per_line_summary">Всеки стих да бъде написан на отделен ред</string>
-  <string name="prefs_show_bookmarks_title">Покажи показалци</string>
+  <string name="prefs_show_bookmarks_title">Покажи отметките.</string>
   <string name="prefs_show_bookmarks_summary">Покажи иконка в маркираните стихове</string>
   <string name="prefs_show_mynotes_title">Покажи моите коментари</string>
   <string name="prefs_show_mynotes_summary">Покажи иконки в стихове с моите коментари</string>
@@ -81,7 +68,7 @@
   <string name="prefs_section_title_summary">Покажи заглавия на раздели в текста</string>
   <string name="prefs_red_letter_title">Червен шрифт</string>
   <string name="prefs_red_letter_summary">Покажи думите на Иисус в червено</string>
-  <string name="prefs_tilt_to_scroll_title">Превъртване</string>
+  <string name="prefs_tilt_to_scroll_title">Превъртване чрез накланяне</string>
   <string name="prefs_tilt_to_scroll_summary">Наклонете устройството за превъртване на страници</string>
   <string name="prefs_night_mode_title">Нощен режим</string>
   <string name="prefs_night_mode_summary">За по-лесно четене в тъмно</string>
@@ -130,11 +117,12 @@
   <string name="error_downloading">Грешка. Моля проверете достъпа до интернет.</string>
   <string name="no_internet_connection">Няма връзка с интернет.</string>
   <string name="storage_space_warning">Недотатъчно пространство на устройството.</string>
-  <string name="wait_for_bible">Моля изчакайте Библия да се изтегли. Ще бъдете прехвърляни към главният екран.\n\nИзтеглете още документи по-късно през Меню/Още/Изтегляне</string>
+  <string name="wait_for_bible">Моля изчакайте Библия да се изтегли. Ще бъдете прехвърляни към главният екран.\n\nИзтеглете още документи по-късно през Меню/Изтегляне</string>
   <string name="wait_for_bible_not_yet">Моля изчакайте. Една от библиите още не се е инсталирала</string>
   <string name="download_complete_no_bibles">Неуспешно инсталиране. Моля натиснете \'назад\' и опитайте пак.</string>
   <string name="too_many_jobs">Се изпълняват твърде много задачи. Моля изчакайте и опитайте пак.</string>
   <string name="document_not_installed">Моля, изтеглете \'%s\'</string>
+  <!--Install zip file-->
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">План за четене</string>
   <string name="rdg_plan_selector_title">Избери план за четене</string>
@@ -160,8 +148,8 @@
   <string name="select_text_help">Бавно дърпайте с пръста за да се избере текст.\nНатиснете избраното за да се копира.</string>
   <string name="notes">Бележки и препратки</string>
   <string name="copy">Копирай стиха</string>
-  <string name="share_verse">Изпрати стих чрез...</string>
-  <string name="share_verse_subject">Стих за вас споделян чрез приложение \"А Библия\"</string>
+  <string name="share_verse">Сподели ...</string>
+  <string name="share_verse_subject">Стих от Библия споделян чрез приложение \"AndBible\"</string>
   <string name="compare_translations">Сравни преводи</string>
   <!--Bookmarks-->
   <string name="bookmarks">Показалци</string>
@@ -172,7 +160,7 @@
   <string name="assign_labels">Задай етикет</string>
   <string name="new_label">Нов етикет</string>
   <string name="label_name_prompt">Име</string>
-  <string name="label_unlabelled">Етикетът е изтрит </string>
+  <string name="label_unlabelled">Етикетът е махнат</string>
   <string name="rename">Преименуване</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">По дата</string>

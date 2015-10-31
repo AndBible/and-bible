@@ -4,7 +4,7 @@
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Ja Jumal ütles: \'Saagu valgus\' ja valgus sai.\"\n1. Moosese 1:3</string>
   <string name="help_text">Vajuta tegevuste jaoks MENÜÜ nuppu\n\nMine järgmisele või eelmisele peatükkidele kasutades juhtkuuli, noole nuppe või viibates ekraanil sõrmega</string>
-  <string name="help_text_long"><b>Navigeerimine</b>\nMine järgmisele või eelmisele peatükkidele kasutades juhtkuuli, noole nuppe või viibates ekraanil sõrmega\n    \nTopeltvajutus lülitav sisse/välja täisekraani vaate.\n    \n\n<b>Menüü</b>\n    \nVajuta tegevuste jaoks MENÜÜ nuppu\n    \n\nRohkemate dokumentide allalaadimiseks vajuta Menüü/Veel/Lae dokumente alla\n    \n\n<b>Kõne</b>\nVajuta Loe ette, et näha lugemise alustamise või lõpetamise dialoogi\n    \n\n<b>Minu märkmed</b>\nMärkmeid võib lisada läbi Minu märkmete menüü või salmi kontekstimenüüst.  Olemasolevaid märkmetele saab ligi läbi peamenüü.\n    \n\n<b>Järjehoidjad</b>\nJärjehoidjaid saab lisada läbi salmi kontekstimenüü. Järjehoidjate haldajale saab ligi läbi peamenüü. Järjehoidjate haldaja kontekstimenüü võimaldab järjehoidjaid grupeerida kasutades silte.\n    \n\n<b>Otsi</b>\nOtsingus võivad olla ka erimärgid nagu *, ?, AND, OR, NOT (vaata lisainfot \"Apache Lucene - Query Parser Syntax\")\n    \n\n<b>Kontektimenüüd</b>\n    \nPikk vajutus Piibli vaates avab kontekstimenüü konkreetse salmiga seotud tegevustega.\n    \nPikk vajutus dokumendil, et kustutada või vaadata selle infot.\n    \nPikk vajutus tagasi nupul viib ajaloo nimekirja\n    </string>
+  <string name="help_text_long"><b>Navigeerimine</b>\nMine järgmisele või eelmisele peatükkidele kasutades juhtkuuli, noole nuppe või viibates ekraanil sõrmega\n \nTopeltvajutus lülitav sisse/välja täisekraani vaate.\n \n\n<b>Menüü</b>\n \nVajuta tegevuste jaoks MENÜÜ nuppu\n \n\nRohkemate dokumentide allalaadimiseks vajuta Menüü/Lae dokumente alla\n \n\n<b>Kõne</b>\nVajuta Loe ette, et näha lugemise alustamise või lõpetamise dialoogi\n \n\n<b>Minu märkmed</b>\nMärkmeid võib lisada läbi Minu märkmete menüü või salmi kontekstimenüüst. Olemasolevaid märkmetele saab ligi läbi peamenüü.\n \n\n<b>Järjehoidjad</b>\nJärjehoidjaid saab lisada läbi salmi kontekstimenüü. Järjehoidjate haldajale saab ligi läbi peamenüü. Järjehoidjate haldaja kontekstimenüü võimaldab järjehoidjaid grupeerida kasutades silte.\n \n\n<b>Otsi</b>\nOtsingus võivad olla ka erimärgid nagu *, ?, AND, OR, NOT (vaata lisainfot \"Apache Lucene - Query Parser Syntax\")\n \n\n<b>Kontektimenüüd</b>\n \nPikk vajutus Piibli vaates avab kontekstimenüü konkreetse salmiga seotud tegevustega.\n \nPikk vajutus dokumendil, et kustutada või vaadata selle infot.\n \nPikk vajutus tagasi nupul viib ajaloo nimekirja</string>
   <string name="version_text">Versioon %s</string>
   <string name="no_sdcard_error">Palun sisesta SD-kaart ja käivita AND Bible uuesti.</string>
   <!--Main menu-->
@@ -108,11 +108,12 @@
   <string name="error_downloading">Allalaadimisel tekkis tõrge.  Palun kontrolli oma internetiühendust.</string>
   <string name="no_internet_connection">Internetti ühendumine ebaõnnestus</string>
   <string name="storage_space_warning">Pole piisavalt ruumi.</string>
-  <string name="wait_for_bible">Palun oota, kuni Piibli allalaadimine lõpetatakse.  Sind viiakse seejärel avaekraanile.</string>
+  <string name="wait_for_bible">Palun oota, kuni Piibli allalaadimine lõpetatakse. Sind viiakse seejärel avaekraanile.</string>
   <string name="wait_for_bible_not_yet">Palun oota.  Piibli paigaldamine pole veel lõpetatud.</string>
   <string name="download_complete_no_bibles">Ühtegi Piiblit ei paigaldatud.  Palun vajuta Tagasi ja proovi uuesti.</string>
   <string name="too_many_jobs">Käimas on liiga palju ülesandeid.  Palun oota kuni mõned lõpetatakse ja proovi uuesti.</string>
   <string name="document_not_installed">Palun lae alla \'%s\'</string>
+  <!--Install zip file-->
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Lugemiskava</string>
   <string name="rdg_plan_selector_title">Vali lugemiskava</string>
