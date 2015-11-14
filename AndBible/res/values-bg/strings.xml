@@ -17,6 +17,7 @@
   <string name="speak">Реч</string>
   <string name="help">Помощ</string>
   <string name="verse">Стих</string>
+  <string name="administration">Управление...</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Избери книга</string>
   <string name="choosePassageChapterName">Избери глава</string>
@@ -123,6 +124,12 @@
   <string name="too_many_jobs">Се изпълняват твърде много задачи. Моля изчакайте и опитайте пак.</string>
   <string name="document_not_installed">Моля, изтеглете \'%s\'</string>
   <!--Install zip file-->
+  <string name="install_zip">Зареди документ от ZIP архив</string>
+  <string name="install_zip_successfull">Успешна инсталация на модула</string>
+  <string name="extracting_zip_file">Разаривиране...</string>
+  <string name="checking_zip_file">Проверка на файла...</string>
+  <string name="invalid_module">Файлът не съдържа валиден SWORD модул</string>
+  <string name="module_already_installed">Файлът съдържа вече инсталиран модул</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">План за четене</string>
   <string name="rdg_plan_selector_title">Избери план за четене</string>
@@ -144,7 +151,7 @@
   <string name="delete_doc">Изтрий %s?</string>
   <string name="delete_search_index_doc">Изтриване на индекса  %s?</string>
   <!--Verse context menu-->
-  <string name="select_text">Избери откъс от текста</string>
+  <string name="select_text">Копирай текст</string>
   <string name="select_text_help">Бавно дърпайте с пръста за да се избере текст.\nНатиснете избраното за да се копира.</string>
   <string name="notes">Бележки и препратки</string>
   <string name="copy">Копирай стиха</string>
@@ -234,7 +241,7 @@
   <string name="close">Затвори</string>
   <!--Errors-->
   <string name="error_occurred">Грешка</string>
-  <string name="error_no_content">Избранните стихове нямат съдържание</string>
+  <string name="error_no_content">Избранният стих няма съдържание</string>
   <string name="error_page_too_large">Страницата е твърде голяма за да бъде отворена</string>
   <string name="error_key_not_in_document">Не се намира в зададения ресурс</string>
   <string name="empty_list">Нищо за показване</string>

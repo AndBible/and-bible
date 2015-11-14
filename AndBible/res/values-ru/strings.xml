@@ -166,7 +166,7 @@
   <string name="assign_labels">Прикрепить ярлык</string>
   <string name="new_label">Новый ярлык</string>
   <string name="label_name_prompt">Название</string>
-  <string name="label_unlabelled">Ярлык удален</string>
+  <string name="label_unlabelled">Без ярлыка</string>
   <string name="rename">Переименовать</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">По датам</string>
