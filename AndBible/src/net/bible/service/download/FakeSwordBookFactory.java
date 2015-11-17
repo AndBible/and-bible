@@ -2,12 +2,13 @@ package net.bible.service.download;
 
 import java.io.IOException;
 
-import org.crosswire.jsword.book.Book;
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.BookDriver;
 import org.crosswire.jsword.book.sword.NullBackend;
 import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.book.sword.SwordBookDriver;
 import org.crosswire.jsword.book.sword.SwordBookMetaData;
+import org.crosswire.jsword.book.sword.SwordMetaDataLocator;
 
 /** Create dummy sword Books used to download from Xiphos Repo that has unusual download file case
  *  
@@ -19,10 +20,12 @@ public class FakeSwordBookFactory {
 
 	/** create dummy Book object for file available for download from repo
 	 */
-	public static Book createFakeRepoBook(String module, String conf, String repo) throws IOException {
+	public static SwordBook createFakeRepoBook(String module, String conf, String repo) throws IOException {
 		SwordBookMetaData sbmd = createRepoSBMD(module, conf);
-		sbmd.putProperty(DownloadManager.REPOSITORY_KEY, repo);
-		Book extraBook = new SwordBook(sbmd, new NullBackend());
+		if (StringUtils.isNotEmpty(repo)) {
+			sbmd.putProperty(DownloadManager.REPOSITORY_KEY, repo, SwordMetaDataLocator.TRANSIENT);
+		}
+		SwordBook extraBook = new SwordBook(sbmd, new NullBackend());
 		return extraBook;
 	}
 

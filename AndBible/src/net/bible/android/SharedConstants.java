@@ -20,7 +20,10 @@ public class SharedConstants {
     public static final File MANUAL_INSTALL_DIR = getManualInstallDir();
 	private static final String MANUAL_INSTALL_SUBDIR = "jsword";
 	
-    private static final String FONT_SUBDIR_NAME = "fonts";
+    public static final String FRONTEND_NAME = "and-bible";
+    public static final File FRONTEND_DATA_DIR = new File(MODULE_DIR, FRONTEND_NAME);
+
+	private static final String FONT_SUBDIR_NAME = "fonts";
     public static final File FONT_DIR = new File(MODULE_DIR, FONT_SUBDIR_NAME);
     public static final File MANUAL_FONT_DIR = new File(MANUAL_INSTALL_DIR, FONT_SUBDIR_NAME);
 

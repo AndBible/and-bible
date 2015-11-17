@@ -39,8 +39,6 @@ import org.crosswire.jsword.book.install.InstallException;
 import org.crosswire.jsword.book.install.InstallManager;
 import org.crosswire.jsword.book.install.Installer;
 
-import android.util.Log;
-
 /**
  * Originally copied from BookInstaller it calls Sword routines related to installation and removal of books and indexes
  * 

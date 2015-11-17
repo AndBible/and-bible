@@ -22,7 +22,9 @@ import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.BooksEvent;
 import org.crosswire.jsword.book.BooksListener;
 import org.crosswire.jsword.book.install.InstallException;
+import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.book.sword.SwordBookMetaData;
+import org.crosswire.jsword.book.sword.SwordMetaDataLocator;
 
 /** some books need renaming after download due to problems with Xiphos module case
  * 
@@ -126,8 +128,8 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 			// all the zip files incorrectly have lower case names and other alterations e.g. 'added '-' so change initials until after download
 			String alteredConf = getConfString(book, getZipFileName(book.getInitials()));
 			
-	        Book alteredBook = FakeSwordBookFactory.createFakeRepoBook(book.getInitials(), alteredConf, XIPHOS_REPOSITORY);
-	    	alteredBook.getBookMetaData().putProperty(REAL_INITIALS, book.getInitials());
+	        SwordBook alteredBook = FakeSwordBookFactory.createFakeRepoBook(book.getInitials(), alteredConf, XIPHOS_REPOSITORY);
+	    	((SwordBookMetaData)alteredBook.getBookMetaData()).putProperty(REAL_INITIALS, book.getInitials(), SwordMetaDataLocator.TRANSIENT);
 	
 			super.downloadDocument(alteredBook);
 		} catch (IOException ioe) {

@@ -6,6 +6,9 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.install.InstallException;
+import org.crosswire.jsword.book.sword.SwordBook;
+import org.crosswire.jsword.book.sword.SwordBookMetaData;
+import org.crosswire.jsword.book.sword.SwordMetaDataLocator;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -29,7 +32,13 @@ public abstract class RepoBase {
 
 	public void storeRepoNameInMetaData(List<Book> bookList) {
 		for (Book book : bookList) {
-        	book.getBookMetaData().putProperty(DownloadManager.REPOSITORY_KEY, getRepoName());
+			// SwordBookMetaData must not persist these properties because many downloadable books may have the same name, 
+			// and we set the props every time so they do not need to be persisted
+			if (book instanceof SwordBook) {
+				((SwordBookMetaData)book.getBookMetaData()).putProperty(DownloadManager.REPOSITORY_KEY, getRepoName(), SwordMetaDataLocator.TRANSIENT);
+			} else {
+				book.getBookMetaData().putProperty(DownloadManager.REPOSITORY_KEY, getRepoName());
+			}
         }
 	}
 	
