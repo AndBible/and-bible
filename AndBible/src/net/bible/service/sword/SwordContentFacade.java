@@ -23,10 +23,10 @@ import net.bible.service.font.FontControl;
 import net.bible.service.format.HtmlMessageFormatter;
 import net.bible.service.format.Note;
 import net.bible.service.format.OSISInputStream;
-import net.bible.service.format.OsisToCanonicalTextSaxHandler;
-import net.bible.service.format.OsisToSpeakTextSaxHandler;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
-import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler;
+import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler;
+import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler;
+import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler;
 
 import org.crosswire.common.xml.SAXEventProvider;
 import org.crosswire.jsword.book.Book;

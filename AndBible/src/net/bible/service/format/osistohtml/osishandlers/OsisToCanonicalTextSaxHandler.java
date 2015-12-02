@@ -1,4 +1,4 @@
-package net.bible.service.format;
+package net.bible.service.format.osistohtml.osishandlers;
 
 
 import java.util.Stack;
@@ -79,7 +79,8 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_TITLE)) {
 			writeContentStack.push(CONTENT_STATE.IGNORE);
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
-			writeContentStack.push(CONTENT_STATE.IGNORE);
+			// text content of top level references should be output but in notes it should not
+			writeContentStack.push(writeContentStack.peek());
 
 		} else if (	name.equals(OSISUtil.OSIS_ELEMENT_L) ||
 					name.equals(OSISUtil.OSIS_ELEMENT_LB) ||

@@ -3,6 +3,7 @@
  */
 package net.bible.service.format;
 
+import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler;
 import junit.framework.TestCase;
 
 /**
@@ -28,7 +29,7 @@ public class OsisToCanonicalTextSaxHandlerTest extends TestCase {
 	}
 
 	/**
-	 * Test method for {@link net.scripture.service.format.OsisToCanonicalTextSaxHandler#startDocument()}.
+	 * Test method for {@link net.bible.service.format.osistohtml.osishandlers.scripture.service.format.OsisToCanonicalTextSaxHandler#startDocument()}.
 	 */
 	public void testStartDocument() throws Exception {
 		String testString = "this is the test"; 
@@ -40,7 +41,7 @@ public class OsisToCanonicalTextSaxHandlerTest extends TestCase {
 	}
 
 	/**
-	 * Test method for {@link net.scripture.service.format.OsisToCanonicalTextSaxHandler#startElement(java.lang.String, java.lang.String, java.lang.String, org.xml.sax.Attributes)}.
+	 * Test method for {@link net.bible.service.format.osistohtml.osishandlers.scripture.service.format.OsisToCanonicalTextSaxHandler#startElement(java.lang.String, java.lang.String, java.lang.String, org.xml.sax.Attributes)}.
 	 */
 	public void testStartElementStringStringStringAttributes() throws Exception {
 		char[] written = "written text".toCharArray();

@@ -1,7 +1,7 @@
 package net.bible.service.format.osistohtml;
 
 import net.bible.service.common.Logger;
-import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler.VerseInfo;
+import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.VerseInfo;
 
 /**
  * Write characters out to a StringBuilder - used while creating html for display

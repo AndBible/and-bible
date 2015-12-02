@@ -3,7 +3,7 @@ package net.bible.service.format;
 import junit.framework.TestCase;
 import net.bible.service.format.osistohtml.HtmlTextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
-import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler;
+import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler;
 
 import org.xml.sax.helpers.AttributesImpl;
 
@@ -28,7 +28,7 @@ public class OsisToHtmlSaxHandlerTest extends TestCase {
 	}
 
 	/**
-	 * Test method for {@link net.scripture.service.format.OsisToCanonicalTextSaxHandler#startElement(java.lang.String, java.lang.String, java.lang.String, org.xml.sax.Attributes)}.
+	 * Test method for {@link net.bible.service.format.osistohtml.osishandlers.scripture.service.format.OsisToCanonicalTextSaxHandler#startElement(java.lang.String, java.lang.String, java.lang.String, org.xml.sax.Attributes)}.
 	 */
 	public void testStartElementStringStringStringAttributes() throws Exception {
 		char[] written = "written text".toCharArray();

@@ -1,4 +1,4 @@
-package net.bible.service.format;
+package net.bible.service.format.osistohtml.osishandlers;
 
 
 import net.bible.service.common.Logger;

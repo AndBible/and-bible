@@ -1,4 +1,4 @@
-package net.bible.service.format.osistohtml;
+package net.bible.service.format.osistohtml.osishandlers;
 
 import java.security.InvalidParameterException;
 import java.util.Arrays;
@@ -12,7 +12,7 @@ import net.bible.service.common.Logger;
 import net.bible.service.device.ScreenSettings;
 import net.bible.service.font.FontControl;
 import net.bible.service.format.Note;
-import net.bible.service.format.OsisSaxHandler;
+import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.preprocessor.HebrewCharacterPreprocessor;
 import net.bible.service.format.osistohtml.preprocessor.TextPreprocessor;
 import net.bible.service.format.osistohtml.strongs.StrongsHandler;

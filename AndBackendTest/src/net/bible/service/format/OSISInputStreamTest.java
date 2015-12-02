@@ -12,7 +12,8 @@ import java.util.List;
 import junit.framework.TestCase;
 import net.bible.service.common.ParseException;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
-import net.bible.service.format.osistohtml.OsisToHtmlSaxHandler;
+import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler;
+import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler;
 
 import org.crosswire.common.xml.SAXEventProvider;
 import org.crosswire.jsword.book.Book;

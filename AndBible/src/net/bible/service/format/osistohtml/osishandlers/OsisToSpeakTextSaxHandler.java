@@ -1,4 +1,4 @@
-package net.bible.service.format;
+package net.bible.service.format.osistohtml.osishandlers;
 
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
@@ -25,7 +25,6 @@ public class OsisToSpeakTextSaxHandler extends OsisToCanonicalTextSaxHandler {
 
 		debug(name, attrs, true);
 
-		// if encountering either a verse tag or if the current tag is marked as being canonical then turn on writing
 		if (sayReferences && name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
 			writeContent(true);
 			writingRef = true;
@@ -47,7 +46,6 @@ public class OsisToSpeakTextSaxHandler extends OsisToCanonicalTextSaxHandler {
 		String name = getName(sName, qName);
 		debug(name, null, false);
 		if (sayReferences && name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
-			writeContent(false);
 			// A space is needed to separate one verse from the next, otherwise the 2 verses butt up against each other
 			// which looks bad and confuses TTS
 			writingRef = false;
