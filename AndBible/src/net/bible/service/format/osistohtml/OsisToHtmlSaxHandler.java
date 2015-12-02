@@ -17,6 +17,29 @@ import net.bible.service.format.osistohtml.preprocessor.HebrewCharacterPreproces
 import net.bible.service.format.osistohtml.preprocessor.TextPreprocessor;
 import net.bible.service.format.osistohtml.strongs.StrongsHandler;
 import net.bible.service.format.osistohtml.strongs.StrongsLinkCreator;
+import net.bible.service.format.osistohtml.taghandler.BookmarkMarker;
+import net.bible.service.format.osistohtml.taghandler.DivHandler;
+import net.bible.service.format.osistohtml.taghandler.DivineNameHandler;
+import net.bible.service.format.osistohtml.taghandler.FigureHandler;
+import net.bible.service.format.osistohtml.taghandler.HiHandler;
+import net.bible.service.format.osistohtml.taghandler.LHandler;
+import net.bible.service.format.osistohtml.taghandler.LbHandler;
+import net.bible.service.format.osistohtml.taghandler.LgHandler;
+import net.bible.service.format.osistohtml.taghandler.ListHandler;
+import net.bible.service.format.osistohtml.taghandler.ListItemHandler;
+import net.bible.service.format.osistohtml.taghandler.MilestoneHandler;
+import net.bible.service.format.osistohtml.taghandler.MyNoteMarker;
+import net.bible.service.format.osistohtml.taghandler.NoteHandler;
+import net.bible.service.format.osistohtml.taghandler.OsisTagHandler;
+import net.bible.service.format.osistohtml.taghandler.PHandler;
+import net.bible.service.format.osistohtml.taghandler.QHandler;
+import net.bible.service.format.osistohtml.taghandler.ReferenceHandler;
+import net.bible.service.format.osistohtml.taghandler.TableCellHandler;
+import net.bible.service.format.osistohtml.taghandler.TableHandler;
+import net.bible.service.format.osistohtml.taghandler.TableRowHandler;
+import net.bible.service.format.osistohtml.taghandler.TitleHandler;
+import net.bible.service.format.osistohtml.taghandler.TransChangeHandler;
+import net.bible.service.format.osistohtml.taghandler.VerseHandler;
 import net.bible.service.format.osistohtml.tei.OrthHandler;
 import net.bible.service.format.osistohtml.tei.PronHandler;
 import net.bible.service.format.osistohtml.tei.RefHandler;
@@ -72,14 +95,14 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	// internal logic
 	private VerseInfo verseInfo = new VerseInfo();
 	public static class VerseInfo {
-		int currentVerseNo;
-		int positionToInsertBeforeVerse;
-		boolean isTextSinceVerse = false;
+		public int currentVerseNo;
+		public int positionToInsertBeforeVerse;
+		public boolean isTextSinceVerse = false;
 	}
 	
 	private PassageInfo passageInfo = new PassageInfo();
 	public static class PassageInfo {
-		boolean isAnyTextWritten = false;
+		public boolean isAnyTextWritten = false;
 	}
 	
 	private static final String HEBREW_LANGUAGE_CODE = "he";

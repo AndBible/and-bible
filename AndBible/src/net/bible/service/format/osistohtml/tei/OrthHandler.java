@@ -1,8 +1,8 @@
 package net.bible.service.format.osistohtml.tei;
 
-import net.bible.service.format.osistohtml.HiHandler;
 import net.bible.service.format.osistohtml.HtmlTextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
+import net.bible.service.format.osistohtml.taghandler.HiHandler;
 
 import org.xml.sax.Attributes;
 

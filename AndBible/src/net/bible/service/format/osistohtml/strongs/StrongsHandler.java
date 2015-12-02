@@ -6,9 +6,9 @@ import java.util.List;
 
 import net.bible.service.common.Constants.HTML;
 import net.bible.service.format.osistohtml.HtmlTextWriter;
-import net.bible.service.format.osistohtml.OsisTagHandler;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
-import net.bible.service.format.osistohtml.TagHandlerHelper;
+import net.bible.service.format.osistohtml.taghandler.OsisTagHandler;
+import net.bible.service.format.osistohtml.taghandler.TagHandlerHelper;
 
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;

@@ -1,9 +1,9 @@
 package net.bible.service.format.osistohtml.tei;
 
 import net.bible.service.format.osistohtml.HtmlTextWriter;
-import net.bible.service.format.osistohtml.NoteHandler;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
-import net.bible.service.format.osistohtml.ReferenceHandler;
+import net.bible.service.format.osistohtml.taghandler.NoteHandler;
+import net.bible.service.format.osistohtml.taghandler.ReferenceHandler;
 
 import org.xml.sax.Attributes;
 

@@ -44,7 +44,7 @@ public class HtmlTextWriter {
     
 	/** allow line breaks and titles to be moved before verse number
 	 */
-	protected void writeOptionallyBeforeVerse(String s, VerseInfo verseInfo) {
+	public void writeOptionallyBeforeVerse(String s, VerseInfo verseInfo) {
 		boolean writeBeforeVerse = !verseInfo.isTextSinceVerse;
 		if (writeBeforeVerse) {
 			beginInsertAt(verseInfo.positionToInsertBeforeVerse);
