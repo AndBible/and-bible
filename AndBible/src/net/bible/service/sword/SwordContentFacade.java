@@ -36,7 +36,6 @@ import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.BookMetaData;
 import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.FeatureType;
-import org.crosswire.jsword.book.OSISUtil;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
@@ -341,8 +340,7 @@ public class SwordContentFacade {
     	String plainText = "";
     	try {
     		if (book != null) {
-		        BookData data = new BookData(book, key);
-		        plainText = OSISUtil.getCanonicalText(data.getOsisFragment());
+		        plainText = getCanonicalText(book, key);
     		}
     	} catch (Exception e) {
     		Log.e(TAG, "Error getting plain text", e);
