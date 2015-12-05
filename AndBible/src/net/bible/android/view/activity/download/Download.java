@@ -106,7 +106,7 @@ public class Download extends DocumentSelectionBase {
     
     @Override
     protected List<Book> getDocumentsFromSource(boolean refresh) {
-    	return downloadControl.getDownloadableDocuments(refresh);
+    	return downloadControl.getDownloadableDocuments(refresh, true);
     }
     
     /** user selected a document so download it
