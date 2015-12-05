@@ -256,6 +256,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="restore_success">My Notes and Bookmarks restored from %s on the SD card</string>    
 
     <!-- About -->
+    <string name="about_copyright">Copyright: %s</string>
     <string name="about_version">Version: %s</string>
     <string name="about_versification">Versification: %s</string>
     

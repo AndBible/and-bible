@@ -14,6 +14,7 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.service.sword.SwordDocumentFacade;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.common.util.Language;
 import org.crosswire.common.util.Version;
 import org.crosswire.jsword.book.Book;
@@ -21,6 +22,7 @@ import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
 import org.crosswire.jsword.book.sword.SwordBook;
+import org.crosswire.jsword.book.sword.SwordBookMetaData;
 import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.versification.Versification;
 
@@ -444,6 +446,24 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 			about = document.getName();
 		}
 
+		// Copyright and distribution information
+		String shortCopyright = document.getBookMetaData().getProperty(SwordBookMetaData.KEY_SHORT_COPYRIGHT);
+		String copyright = document.getBookMetaData().getProperty(SwordBookMetaData.KEY_COPYRIGHT);
+		String distributionLicense = document.getBookMetaData().getProperty(SwordBookMetaData.KEY_DISTRIBUTION_LICENSE);
+		String copyrightMerged = "";
+		if (StringUtils.isNotBlank(shortCopyright)) {
+			copyrightMerged += shortCopyright+"\n";
+		} else if (StringUtils.isNotBlank(copyright)) {
+			copyrightMerged += copyright+"\n";
+		}
+		if (StringUtils.isNotBlank(distributionLicense)) {
+			copyrightMerged += distributionLicense+"\n";
+		}
+		if (StringUtils.isNotBlank(copyrightMerged)) {
+	        String copyrightMsg = BibleApplication.getApplication().getString(R.string.about_copyright, copyrightMerged);
+			about += "\n\n"+copyrightMsg;
+		}
+		
 		// add version
 		Version versionObj = new Version(document.getBookMetaData().getProperty("Version"));
 		if (versionObj!=null) {
