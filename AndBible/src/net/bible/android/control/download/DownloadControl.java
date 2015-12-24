@@ -14,12 +14,9 @@ import net.bible.service.font.FontControl;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang.StringUtils;
-import org.crosswire.common.util.CollectionUtil;
 import org.crosswire.common.util.LucidException;
 import org.crosswire.common.util.Version;
 import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.book.BookFilterIterator;
-import org.crosswire.jsword.book.Books;
 
 import android.util.Log;
 
@@ -64,7 +61,7 @@ public class DownloadControl {
 	 * 
 	 * @return
 	 */
-	public List<Book> getDownloadableDocuments(boolean refresh, boolean onlyMostRelevantLanguages) {
+	public List<Book> getDownloadableDocuments(boolean refresh) {
 		List<Book> availableDocs = null;
 		try {
 			availableDocs = SwordDocumentFacade.getInstance().getDownloadableDocuments(refresh);
@@ -91,12 +88,6 @@ public class DownloadControl {
         			Log.d(TAG, "Ignoring "+doc.getInitials()+" because it is too big and crashes dictionary code");
         			iter.remove();
         		}
-        	}
-
-        	// since there are noy over 700 languages we filter out most that are probably not relevant
-        	if (onlyMostRelevantLanguages) {
-				RelevantDocumentLanguageFilter relevantDocumentLanguageFilter = new RelevantDocumentLanguageFilter(Books.installed().getBooks());
-				availableDocs = CollectionUtil.createList(new BookFilterIterator(availableDocs, relevantDocumentLanguageFilter));
         	}
         	
         	// get fonts.properties at the same time as repo list, or if not yet downloaded
