@@ -109,7 +109,6 @@ public class SwordDocumentFacade {
 				// because the above line causes initialisation set the is initialised flag here
 				isSwordLoaded = true;
 				
-				
 				new VersificationMappingInitializer().startListening();
 
 				log.debug(("Sword paths:"+getPaths()));
@@ -234,7 +233,7 @@ public class SwordDocumentFacade {
 
         allBooks.addAll(repoFactory.getBetaRepo().getRepoBooks(refresh));
 
-//        allBooks.addAll(repoFactory.getEBibleRepo().getRepoBooks(refresh));
+        allBooks.addAll(repoFactory.getEBibleRepo().getRepoBooks(refresh));
         
         // get them in the correct order
         List<Book> bookList = new ArrayList<Book>(allBooks);
