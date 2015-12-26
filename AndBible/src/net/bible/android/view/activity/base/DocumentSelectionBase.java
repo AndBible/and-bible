@@ -1,6 +1,7 @@
 package net.bible.android.view.activity.base;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -94,6 +95,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     
     abstract protected void handleDocumentSelection(Book selectedDocument);
     
+    abstract protected List<Language> sortLanguages(Collection<Language> languages);
     
     public DocumentSelectionBase() {
 		super();
@@ -330,11 +332,10 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 	        		langSet.add(doc.getLanguage());
 	        	}
 	        	
+	        	List<Language> sortedLanguages = sortLanguages(langSet);
+	        	
 	        	languageList.clear();
-	        	languageList.addAll(langSet);
-
-	        	// sort languages alphabetically
-	        	Collections.sort(languageList);
+	        	languageList.addAll(sortedLanguages);
 
 	        	langArrayAdapter.notifyDataSetChanged();
     		}

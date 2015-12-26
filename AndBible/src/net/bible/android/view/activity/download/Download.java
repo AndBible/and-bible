@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.download;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.common.progress.JobManager;
+import org.crosswire.common.util.Language;
 import org.crosswire.jsword.book.Book;
 
 import android.app.AlertDialog;
@@ -108,6 +110,14 @@ public class Download extends DocumentSelectionBase {
     protected List<Book> getDocumentsFromSource(boolean refresh) {
     	return downloadControl.getDownloadableDocuments(refresh);
     }
+    
+    /** 
+     * Get normally sorted list of languages for the language selection spinner 
+     */
+    @Override
+	protected List<Language> sortLanguages(Collection<Language> languages) {
+    	return downloadControl.sortLanguages(languages);
+	}
     
     /** user selected a document so download it
      * 

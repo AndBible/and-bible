@@ -1,5 +1,8 @@
 package net.bible.android.view.activity.navigation;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 import net.bible.android.activity.R;
@@ -12,6 +15,7 @@ import net.bible.android.view.activity.download.Download;
 import net.bible.android.view.activity.page.MenuCommandHandler;
 import net.bible.service.sword.SwordDocumentFacade;
 
+import org.crosswire.common.util.Language;
 import org.crosswire.jsword.book.Book;
 
 import android.content.Intent;
@@ -58,6 +62,22 @@ public class ChooseDocument extends DocumentSelectionBase {
 		return SwordDocumentFacade.getInstance().getDocuments();
 	}
 
+    /** 
+     * Get normally sorted list of languages for the language selection spinner 
+     */
+    @Override
+	protected List<Language> sortLanguages(Collection<Language> languages) {
+		List<Language> languageList = new ArrayList<>();
+
+		if (languages!=null) {
+			languageList.addAll(languages);
+			
+			// sort languages alphabetically
+        	Collections.sort(languageList);
+		}
+		return languageList;
+	}
+    
     @Override
     protected void handleDocumentSelection(Book selectedBook) {
     	Log.d(TAG, "Book selected:"+selectedBook.getInitials());

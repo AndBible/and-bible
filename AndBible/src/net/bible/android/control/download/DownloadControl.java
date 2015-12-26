@@ -1,6 +1,8 @@
 package net.bible.android.control.download;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -14,9 +16,11 @@ import net.bible.service.font.FontControl;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang.StringUtils;
+import org.crosswire.common.util.Language;
 import org.crosswire.common.util.LucidException;
 import org.crosswire.common.util.Version;
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.Books;
 
 import android.util.Log;
 
@@ -94,11 +98,26 @@ public class DownloadControl {
        		// the download happens in another thread
        		fontControl.checkFontPropertiesFile(refresh);
        		
+       		Collections.sort(availableDocs);
+       		
 		} catch (Exception e) {
 			Log.e(TAG, "Error downloading document list", e);
 			availableDocs = new ArrayList<Book>();
 		}
 		return availableDocs;
+	}
+
+	public List<Language> sortLanguages(Collection<Language> languages) {
+		List<Language> languageList = new ArrayList<>();
+
+		if (languages!=null) {
+			languageList.addAll(languages);
+
+			// sort languages alphabetically
+        	Collections.sort(languageList, new RelevantLanguageSorter(Books.installed().getBooks()));
+		}
+		return languageList;
+
 	}
 	
 	public void downloadDocument(Book document) throws LucidException {
