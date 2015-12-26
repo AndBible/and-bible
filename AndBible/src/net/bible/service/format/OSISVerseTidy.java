@@ -58,7 +58,7 @@ public class OSISVerseTidy {
         // encoded module.
 		
         //TODO NET appears to open <div> before the verse start and the closing </div> is after the verse start - need to sort later 
-        if (book.getInitials().startsWith("NET") ) //$NON-NLS-1$ //$NON-NLS-2$
+        if (book.getAbbreviation().startsWith("NET") ) //$NON-NLS-1$ //$NON-NLS-2$
         {
         	if (verseText.contains("</div>") && !(verseText.contains("<div ") || verseText.contains("<div>")) ) {
         		log.debug("Fixing up NET div");
@@ -76,7 +76,7 @@ public class OSISVerseTidy {
 //        <l type="x-secondary">nor sit in the seat of scoffers;</l>
 //       </lg>
 
-        if (book.getInitials().startsWith("WEB") && key instanceof Verse ) //$NON-NLS-1$ //$NON-NLS-2$
+        if (book.getAbbreviation().startsWith("WEB") && key instanceof Verse ) //$NON-NLS-1$ //$NON-NLS-2$
         {
         	if (((Verse)key).getVerse()==1) {
         		log.debug("start of WEB chapter");

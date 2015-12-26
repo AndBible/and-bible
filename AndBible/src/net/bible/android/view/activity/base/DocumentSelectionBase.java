@@ -307,7 +307,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 	        	// sort by initials because that is field 1
 	        	Collections.sort(displayedDocuments, new Comparator<Book>() {
 	                public int compare(Book o1, Book o2) {
-	                    return o1.getInitials().compareToIgnoreCase(o2.getInitials());
+	                    return o1.getAbbreviation().compareToIgnoreCase(o2.getAbbreviation());
 	                }
                 });	        		
 	        	

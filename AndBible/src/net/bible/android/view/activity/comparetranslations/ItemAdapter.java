@@ -49,7 +49,7 @@ public class ItemAdapter extends ArrayAdapter<TranslationDto> {
 		TextView textView1 = view.getText1();
 		if (textView1!=null) {
 			Book book = translationDto.getBook();
-			textView1.setText(book.getInitials());
+			textView1.setText(book.getAbbreviation());
 		}
 
 		// set value for the second text field

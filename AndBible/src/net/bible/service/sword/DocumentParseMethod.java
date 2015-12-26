@@ -78,7 +78,7 @@ public class DocumentParseMethod {
 		return isFastParseOkay;
 	}
 
-	/** a document has bad xml structure so record the fact so the default fault tolerant parser isd used in the future
+	/** a document has bad xml structure so record the fact so the default fault tolerant parser is used in the future
 	 * many books have extra tags in first and/or last chapters hence the graded level of failures
 	 */
 	public void failedToParse(Book document, Key key) {

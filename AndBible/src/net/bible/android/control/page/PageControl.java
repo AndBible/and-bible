@@ -122,7 +122,7 @@ public class PageControl {
 		CurrentPage currentPage = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage();
 		if (currentPage!=null) {
 			if (currentPage.getCurrentDocument()!=null) {
-				title = currentPage.getCurrentDocument().getInitials();
+				title = currentPage.getCurrentDocument().getAbbreviation();
 			}
 		}
 		

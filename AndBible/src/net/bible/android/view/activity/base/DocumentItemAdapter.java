@@ -75,7 +75,9 @@ public class DocumentItemAdapter extends ArrayAdapter<Book> {
 		
 		// Set value for the first text field
 		if (view.getText1() != null) {
-			String initials = item.getInitials();
+			// eBible repo uses abbreviation for initials and initials now contains the repo name!!!
+			// but helpfully JSword uses initials if abbreviation does not exist, as will be the case for all other repos.
+			String initials = item.getAbbreviation();
 			view.getText1().setText(initials);
 		}
 

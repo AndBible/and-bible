@@ -57,7 +57,7 @@ abstract public class QuickDocumentChangeToolbarButton extends QuickActionButton
 	@Override
 	protected String getTitle() {
 		if (mSuggestedDocument!=null) {
-			return titleSplitter.shorten(mSuggestedDocument.getInitials(), ACTION_BUTTON_MAX_CHARS);
+			return titleSplitter.shorten(mSuggestedDocument.getAbbreviation(), ACTION_BUTTON_MAX_CHARS);
 		} else {
 			return "";
 		}

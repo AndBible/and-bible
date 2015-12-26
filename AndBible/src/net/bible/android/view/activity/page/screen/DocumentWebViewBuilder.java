@@ -359,7 +359,7 @@ public class DocumentWebViewBuilder {
 	 */
 	protected String getDocumentInitial(final Window window) {
 		try {
-			return window.getPageManager().getCurrentPage().getCurrentDocument().getInitials().substring(0,  1);
+			return window.getPageManager().getCurrentPage().getCurrentDocument().getAbbreviation().substring(0,  1);
 		} catch (Exception e) {
 			return " ";
 		}
