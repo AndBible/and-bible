@@ -1,11 +1,8 @@
 package net.bible.service.sword;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import net.bible.android.SharedConstants;
 import net.bible.android.control.versification.VersificationMappingInitializer;
@@ -13,6 +10,7 @@ import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Logger;
 import net.bible.service.download.DownloadManager;
 import net.bible.service.download.RepoBase;
+import net.bible.service.download.RepoBookDeduplicator;
 import net.bible.service.download.RepoFactory;
 import net.bible.service.sword.index.IndexCreator;
 
@@ -216,28 +214,28 @@ public class SwordDocumentFacade {
 	public List<Book> getDownloadableDocuments(boolean refresh) throws InstallException {
 		log.debug("Getting downloadable documents.  Refresh:"+refresh);
 		RepoFactory repoFactory = RepoFactory.getInstance();
+
+		RepoBookDeduplicator repoBookDeduplicator = new RepoBookDeduplicator();
 		
-		// store books in a Set to ensure only one of each type and allow override from AndBible repo if necessary
-		// First added to set gets priority so AB > IBT > CWAV > CW > X > CWBeta
-        Set<Book> allBooks = new HashSet<Book>();
-
-        allBooks.addAll(repoFactory.getAndBibleRepo().getRepoBooks(refresh));
+		repoBookDeduplicator.addAll(repoFactory.getAndBibleRepo().getRepoBooks(refresh));
         
-        allBooks.addAll(repoFactory.getIBTRepo().getRepoBooks(refresh));
+		repoBookDeduplicator.addAll(repoFactory.getIBTRepo().getRepoBooks(refresh));
 
-        allBooks.addAll(repoFactory.getCrosswireRepo().getRepoBooks(refresh));
+		repoBookDeduplicator.addAll(repoFactory.getCrosswireRepo().getRepoBooks(refresh));
 
-        allBooks.addAll(repoFactory.getXiphosRepo().getRepoBooks(refresh));
+		repoBookDeduplicator.addAll(repoFactory.getXiphosRepo().getRepoBooks(refresh));
 
         // Wycliffe books are probably all in the eBible repo and they eventually plan to remove the Wycliffe repo
         // allBooks.addAll(repoFactory.getWycliffeRepo().getRepoBooks(refresh));
 
-        allBooks.addAll(repoFactory.getEBibleRepo().getRepoBooks(refresh));
+		repoBookDeduplicator.addAll(repoFactory.getEBibleRepo().getRepoBooks(refresh));
         
-        allBooks.addAll(repoFactory.getBetaRepo().getRepoBooks(refresh));
+		// beta repo must never override live books especially if later version so use addIfNotExists
+		repoBookDeduplicator.addIfNotExists(repoFactory.getBetaRepo().getRepoBooks(refresh));
+
+        List<Book> bookList = repoBookDeduplicator.getBooks();
 
         // get them in the correct order
-        List<Book> bookList = new ArrayList<Book>(allBooks);
         Collections.sort(bookList);
 
 		return bookList;	
