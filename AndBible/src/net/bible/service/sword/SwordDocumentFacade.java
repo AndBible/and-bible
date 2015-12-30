@@ -218,7 +218,7 @@ public class SwordDocumentFacade {
 		RepoFactory repoFactory = RepoFactory.getInstance();
 		
 		// store books in a Set to ensure only one of each type and allow override from AndBible repo if necessary
-		// First added to set gets priority so AB > IBT > CWAV > CW > X > CWB
+		// First added to set gets priority so AB > IBT > CWAV > CW > X > CWBeta
         Set<Book> allBooks = new HashSet<Book>();
 
         allBooks.addAll(repoFactory.getAndBibleRepo().getRepoBooks(refresh));
@@ -229,12 +229,13 @@ public class SwordDocumentFacade {
 
         allBooks.addAll(repoFactory.getXiphosRepo().getRepoBooks(refresh));
 
-        allBooks.addAll(repoFactory.getWycliffeRepo().getRepoBooks(refresh));
-
-        allBooks.addAll(repoFactory.getBetaRepo().getRepoBooks(refresh));
+        // Wycliffe books are probably all in the eBible repo and they eventually plan to remove the Wycliffe repo
+        // allBooks.addAll(repoFactory.getWycliffeRepo().getRepoBooks(refresh));
 
         allBooks.addAll(repoFactory.getEBibleRepo().getRepoBooks(refresh));
         
+        allBooks.addAll(repoFactory.getBetaRepo().getRepoBooks(refresh));
+
         // get them in the correct order
         List<Book> bookList = new ArrayList<Book>(allBooks);
         Collections.sort(bookList);
