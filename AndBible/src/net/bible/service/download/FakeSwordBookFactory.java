@@ -8,7 +8,6 @@ import org.crosswire.jsword.book.sword.NullBackend;
 import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.book.sword.SwordBookDriver;
 import org.crosswire.jsword.book.sword.SwordBookMetaData;
-import org.crosswire.jsword.book.sword.SwordMetaDataLocator;
 
 /** Create dummy sword Books used to download from Xiphos Repo that has unusual download file case
  *  
@@ -23,7 +22,7 @@ public class FakeSwordBookFactory {
 	public static SwordBook createFakeRepoBook(String module, String conf, String repo) throws IOException {
 		SwordBookMetaData sbmd = createRepoSBMD(module, conf);
 		if (StringUtils.isNotEmpty(repo)) {
-			sbmd.putProperty(DownloadManager.REPOSITORY_KEY, repo, SwordMetaDataLocator.TRANSIENT);
+			sbmd.setProperty(DownloadManager.REPOSITORY_KEY, repo);
 		}
 		SwordBook extraBook = new SwordBook(sbmd, new NullBackend());
 		return extraBook;

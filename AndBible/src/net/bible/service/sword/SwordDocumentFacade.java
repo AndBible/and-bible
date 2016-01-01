@@ -92,7 +92,7 @@ public class SwordDocumentFacade {
 				
 				// the following are required to set the read and write dirs for module properties, initialised during the following call to setHome
 				System.setProperty("jsword.home", moduleDir.getAbsolutePath());
-				CommonUtils.ensureDirExists(new File(SharedConstants.FRONTEND_DATA_DIR, SwordConstants.DIR_CONF_OVERRIDE));
+				CommonUtils.ensureDirExists(new File(SharedConstants.FRONTEND_DATA_DIR, "jsword-mods.d")); //MetaDataLocator.DIR_CONF_OVERRIDE));
 				CWProject.instance().setFrontendName("and-bible");
 
 				// the second value below is the one which is used in effectively all circumstances

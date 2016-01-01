@@ -24,7 +24,6 @@ import org.crosswire.jsword.book.BooksListener;
 import org.crosswire.jsword.book.install.InstallException;
 import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.book.sword.SwordBookMetaData;
-import org.crosswire.jsword.book.sword.SwordMetaDataLocator;
 
 /** some books need renaming after download due to problems with Xiphos module case
  * 
@@ -129,7 +128,7 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 			String alteredConf = getConfString(book, getZipFileName(book.getInitials()));
 			
 	        SwordBook alteredBook = FakeSwordBookFactory.createFakeRepoBook(book.getInitials(), alteredConf, XIPHOS_REPOSITORY);
-	    	((SwordBookMetaData)alteredBook.getBookMetaData()).putProperty(REAL_INITIALS, book.getInitials(), SwordMetaDataLocator.TRANSIENT);
+	    	((SwordBookMetaData)alteredBook.getBookMetaData()).setProperty(REAL_INITIALS, book.getInitials());
 	
 			super.downloadDocument(alteredBook);
 		} catch (IOException ioe) {
