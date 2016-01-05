@@ -16,6 +16,7 @@
   <string name="speak">Сөйлеңіз</string>
   <string name="help">Көмек</string>
   <string name="verse">Аят</string>
+  <string name="administration">Басқару</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Кітапті Таңдау</string>
   <string name="choosePassageChapterName">Тарауды Таңдау</string>
@@ -122,6 +123,12 @@
   <string name="too_many_jobs">Тым көп тапсырма орындалуда. Кейбіреулері біткенше күтіңіз және жаңадан тырысып көріңіз. </string>
   <string name="document_not_installed">Жүктеңіз \'%s\'</string>
   <!--Install zip file-->
+  <string name="install_zip">Нығыздалған файлдан құжатты жүктеу</string>
+  <string name="install_zip_successfull">Модуль сәтті орнатылды</string>
+  <string name="extracting_zip_file">Нығыздалған файл мұрағатталуда...</string>
+  <string name="checking_zip_file">Осы файл тексерілу барысында...</string>
+  <string name="invalid_module">Файлдың мазмұнында жарамды SWORD модулі жоқ</string>
+  <string name="module_already_installed">Файлдың мазмұнында орнатылып қойылған модуль бар</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Оқу Жоспары</string>
   <string name="rdg_plan_selector_title">Оқу Жоспарын Таңдаңыз</string>
