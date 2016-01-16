@@ -52,7 +52,7 @@ public class DownloadManager {
 	public static final String REPOSITORY_KEY = "repository";
 
     private static final Logger log = new Logger(DownloadManager.class.getName());
-	
+    
     public DownloadManager() {
         installManager = new InstallManager();
     }
@@ -65,9 +65,10 @@ public class DownloadManager {
 
 		List<Book> documents = new ArrayList<Book>();
 		
+		Installer installer = null;
 		try {
 	        // If we know the name of the installer we can get it directly
-	        Installer installer = installManager.getInstaller(repo);
+	        installer = installManager.getInstaller(repo);
 	        
 	        if (installer==null) {
 				log.error("Error getting installer for repo "+repo);
@@ -76,7 +77,7 @@ public class DownloadManager {
 	        } else {
 		        // Now we can get the list of books
 		    	log.debug("getting downloadable books");
-		    	if (installer.getBooks().size()==0 || refresh) {
+		    	if (refresh || installer.getBooks().size()==0) {
 		    		//todo should warn user of implications of downloading book list e.g. from persecuted country
 		    		log.warn("Reloading book list");
 		    		installer.reloadBookList();
@@ -86,13 +87,18 @@ public class DownloadManager {
 		        documents = installer.getBooks(filter); //$NON-NLS-1$
 	        }
 	
+		} catch (Exception e) {
+			// ignore error because some minor repos are unreliable
+			log.error("Fatal error downloading books from "+repo);
+		} catch (OutOfMemoryError oom) {
+			// eBible repo throws OOM errors on smaller devices
+			log.error("Out of memory error downloading books from "+repo);
+		} finally {
 	        //free memory
 	        if (installer!=null) {
 	        	installer.close();
 	        }
-		} catch (Exception e) {
-			// ignore error because some minor repos are unreliable
-			log.error("Fatal error downloading books from "+repo);
+	        System.gc();
 		}
     	log.info("number of documents available:"+documents.size());
 		return documents;

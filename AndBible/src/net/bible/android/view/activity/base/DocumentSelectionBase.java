@@ -20,6 +20,7 @@ import org.crosswire.common.util.Language;
 import org.crosswire.common.util.Version;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
+import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
 import org.crosswire.jsword.book.sword.SwordBook;
@@ -377,7 +378,13 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 		if (document!=null) {
 			switch (item.getItemId()) {
 			case (R.id.about):
-				showAbout(document);
+				try {
+					((SwordBookMetaData)document.getBookMetaData()).reload();
+					showAbout(document);
+				} catch (BookException e) {
+					Log.e(TAG, "Error expanding SwordBookMetaData for " + document, e);
+					Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+				}
 				return true;
 			case (R.id.delete):
 				handleDelete(document);

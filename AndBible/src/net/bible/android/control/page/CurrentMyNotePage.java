@@ -9,6 +9,7 @@ import net.bible.service.download.FakeSwordBookFactory;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
+import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.versification.Versification;
 
 import android.util.Log;
@@ -57,7 +58,7 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 				fakeMyNoteBook = FakeSwordBookFactory.createFakeRepoBook("My Note", MY_NOTE_DUMMY_CONF+v11n.getName(), "");
 				fakeMyNoteBookVersification = v11n;
 			}
-		} catch (IOException e) {
+		} catch (IOException | BookException e) {
 			Log.e(TAG, "Error creating fake MyNote book", e);
 		}
 		return fakeMyNoteBook; 

@@ -92,7 +92,6 @@ public class SwordDocumentFacade {
 				
 				// the following are required to set the read and write dirs for module properties, initialised during the following call to setHome
 				System.setProperty("jsword.home", moduleDir.getAbsolutePath());
-				CommonUtils.ensureDirExists(new File(SharedConstants.FRONTEND_DATA_DIR, "jsword-mods.d")); //MetaDataLocator.DIR_CONF_OVERRIDE));
 				CWProject.instance().setFrontendName("and-bible");
 
 				// the second value below is the one which is used in effectively all circumstances
@@ -216,7 +215,7 @@ public class SwordDocumentFacade {
 		RepoFactory repoFactory = RepoFactory.getInstance();
 
 		RepoBookDeduplicator repoBookDeduplicator = new RepoBookDeduplicator();
-		
+
 		repoBookDeduplicator.addAll(repoFactory.getAndBibleRepo().getRepoBooks(refresh));
         
 		repoBookDeduplicator.addAll(repoFactory.getIBTRepo().getRepoBooks(refresh));
@@ -224,9 +223,6 @@ public class SwordDocumentFacade {
 		repoBookDeduplicator.addAll(repoFactory.getCrosswireRepo().getRepoBooks(refresh));
 
 		repoBookDeduplicator.addAll(repoFactory.getXiphosRepo().getRepoBooks(refresh));
-
-        // Wycliffe books are probably all in the eBible repo and they eventually plan to remove the Wycliffe repo
-        // allBooks.addAll(repoFactory.getWycliffeRepo().getRepoBooks(refresh));
 
 		repoBookDeduplicator.addAll(repoFactory.getEBibleRepo().getRepoBooks(refresh));
         
