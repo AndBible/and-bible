@@ -203,6 +203,8 @@ public class CommonUtils {
 	    		 	    Log.d(TAG, "Opening test connection");
 	    		 	    connection = (HttpURLConnection)url.openConnection();
 	    		 	    connection.setConnectTimeout(TIMEOUT_MILLIS);
+	    		 	    connection.setReadTimeout(TIMEOUT_MILLIS);
+	    		 	    connection.setRequestMethod("HEAD");
 	    		 	    Log.d(TAG, "Connecting to test internet connection");
 	    		 	    connection.connect();
 	    		 	    checkUrlSuccess = (connection.getResponseCode() == HttpURLConnection.HTTP_OK);
