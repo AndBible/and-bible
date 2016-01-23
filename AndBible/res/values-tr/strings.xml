@@ -16,10 +16,13 @@
   <string name="speak">Sesli Oku</string>
   <string name="help">Yardım</string>
   <string name="verse">Ayet</string>
+  <string name="administration">Yönetici</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Kitabı Seç</string>
   <string name="choosePassageChapterName">Bölümü Seç</string>
   <string name="choosePassageVerseName">Ayeti Seç</string>
+  <string name="bible">Kutsal Kitap</string>
+  <string name="deuterocanonical">Döterokanonik</string>
   <!--Search-->
   <string name="search_index">Arama Dizini</string>
   <string name="index_creation_required">Arama yapabilmek için bu belgenin bir dizini olması şarttır.\n\nDizinleri internetten indirebilir veya cihazınızda oluşturabilirsiniz.\nİndirilmiş dizinin kurulumu çok daha hızlı olur. Ayrıca indirilmiş dizinlerde ek fonksyonlar bulunur.\nDizin indirmek için İnternet bağlantınız olması gerekir.\n</string>
@@ -72,6 +75,8 @@
   <string name="prefs_night_mode_automatic">Otomatik</string>
   <string name="prefs_navigate_to_verse_title">Ayet seçimi</string>
   <string name="prefs_navigate_to_verse_summary">Kısım seçerken bölümden sonra ayet de seçilir</string>
+  <string name="prefs_open_links_in_special_window_title">Linkler özel pencerede açılsın</string>
+  <string name="prefs_open_links_in_special_window_summary">Strongs numaralar ve dipnotların daha hızlı gösterilmesi için</string>
   <string name="prefs_text_size_title">Metin boyu</string>
   <string name="prefs_text_size_summary">Harfler büyüsün. Görüntülenen metin çoğalsın.</string>
   <string name="prefs_text_size_sample_text">Metin örneği</string>
@@ -82,6 +87,12 @@
   <string name="prefs_interface_locale_summary">Farklı bir arayüz dilini seç</string>
   <string name="locale_change_warning">Arayüzü yeni dilde kullanabilmek için uygulama yeniden başlatılacaktır.</string>
   <!--Window-->
+  <string name="window">Pencere</string>
+  <string name="windowClose">Kapat</string>
+  <string name="windowMaximise">Büyüt</string>
+  <string name="windowMinimise">Küçült</string>
+  <string name="windowSynchronise">Senkronize et</string>
+  <string name="windowMoveFirst">Öne al</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Bu bölüme ait not bulunmadı</string>
   <string name="no_verse_notes">Bu ayete ait not bulunmadı</string>
@@ -112,6 +123,12 @@
   <string name="too_many_jobs">Şu anda çok fazla görev işleniyor. Birinin bitmesini bekleyip tekrar deneyin.</string>
   <string name="document_not_installed">Lütfen \'%s\' dosyasını indirin</string>
   <!--Install zip file-->
+  <string name="install_zip">Zip\'ten Dökumanı Aç</string>
+  <string name="install_zip_successfull">Modül başarıyla yüklenmiştir</string>
+  <string name="extracting_zip_file">Zip dosyasından çekiliyor...</string>
+  <string name="checking_zip_file">Verilen dosya kötrol ediliyor...</string>
+  <string name="invalid_module">Dosya geçerli SWORD modülü içermiyor</string>
+  <string name="module_already_installed">Dosya zaten yüklenmiş bir modül içeriyor</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Okuma Planı</string>
   <string name="rdg_plan_selector_title">Okuma Planını Seçin</string>
@@ -124,6 +141,7 @@
   <string name="rdg_plan_y1ot1nt1_OTandNT">Bir senelik tüm Kutsal Kitap - Eski ve Yeni Antlaşma birlikte</string>
   <string name="rdg_plan_y1ot1nt1_OTthenNT">Bir senelik tüm Kutsal Kitap - Önce Eski sonra Yeni Antlaşma</string>
   <string name="rdg_plan_y1ot1nt2_mcheyne">Bir senelik tüm Kutsal Kitap (M\'Cheyne)</string>
+  <string name="rdg_plan_y2ot1ntps2">2 senelik plan - EA bir kere, YA ve Mezmurlar iki kere</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Sil</string>
@@ -153,6 +171,7 @@
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Tarih Sırası</string>
   <string name="sort_by_bible_book">Kutsal Kitap Sırası</string>
+  <string name="sort_by_alphabetical">Alfabetik sıralama</string>
   <!--Dictionary-->
   <string name="dictionary">Sözlük</string>
   <string name="search_dictionary_hint">Sözlükte bul</string>
@@ -217,6 +236,8 @@
   <string name="please_wait">Lütfen bekleyin...</string>
   <string name="all">Hepsi</string>
   <string name="default_value">@string/lang_default</string>
+  <string name="new_item">Yeni</string>
+  <string name="close">Kapat</string>
   <!--Errors-->
   <string name="error_occurred">Bir hata oldu</string>
   <string name="error_no_content">Seçilen ayeti için içerik yok</string>

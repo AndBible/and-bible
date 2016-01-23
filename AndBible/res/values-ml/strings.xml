@@ -15,6 +15,7 @@
   <string name="speak">വായിക്കുക</string>
   <string name="help">സഹായം</string>
   <string name="verse">വാക്യം</string>
+  <string name="administration">കാര്യനിര്‍വഹണം</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">പുസ്തകം തിരഞ്ഞെടുക്കുക</string>
   <string name="choosePassageChapterName">അദ്ധ്യായം തിരഞ്ഞെടുക്കുക</string>
@@ -73,6 +74,8 @@
   <string name="prefs_night_mode_automatic">ഓട്ടോമാറ്റിക്ക്</string>
   <string name="prefs_navigate_to_verse_title">വാക്യത്തിലേക്കു പോകു</string>
   <string name="prefs_navigate_to_verse_summary">ഒരു ഭാഗം എടുക്കാൻ വാക്യ (അധ്യായ)ങ്ങൾ  തിരയുക</string>
+  <string name="prefs_open_links_in_special_window_title">കണ്ണി പ്രത്യേക വിന്‍ഡോയില്‍ തുറക്കുക</string>
+  <string name="prefs_open_links_in_special_window_summary">ക്രോസ് റെഫറന്‍സും സ്ട്രോങ്ങും പെട്ടെന്ന് കാണാന്‍</string>
   <string name="prefs_text_size_title">അക്ഷര വലിപ്പം</string>
   <string name="prefs_text_size_summary">കൂടുതലായി അല്ലെങ്കിൽ വ്യക്തമായി കാണുവാൻ</string>
   <string name="prefs_text_size_sample_text">സാമ്പിൾ വാചകം</string>
@@ -83,6 +86,12 @@
   <string name="prefs_interface_locale_summary">ഉപയോഗ ഭാഷ തിരഞ്ഞെടുക്കുക</string>
   <string name="locale_change_warning"> തിരഞ്ഞെടുത്ത ഭാഷയിലേക്ക് ആപ്ലിക്കേഷൻ പുനഃരാരംഭിക്കും</string>
   <!--Window-->
+  <string name="window">വിന്‍ഡോ</string>
+  <string name="windowClose">അടക്കുക</string>
+  <string name="windowMaximise">വലുതാക്കുക</string>
+  <string name="windowMinimise">ചെറുതാക്കുക</string>
+  <string name="windowSynchronise">ഒരുപോലെയാക്കുക</string>
+  <string name="windowMoveFirst">തുടക്കത്തിലേക്ക് നീക്കുക</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">ഈ അധ്യായത്തിൽ കുറിപ്പുകൾ ഒന്നും ഇല്ല</string>
   <string name="no_verse_notes">ഈ വാക്യത്തിൽ കുറിപ്പുകൾ ഒന്നും ഇല്ല</string>
@@ -113,6 +122,12 @@
   <string name="too_many_jobs">പല കാര്യങ്ങൾ പ്രവർത്തിക്കുന്നതുകൊണ്ട്, ദയവായി അത് പൂർത്തിയായ ശേഷം വീണ്ടും ശ്രമിക്കുക</string>
   <string name="document_not_installed">ദയവായി ഡൌൺലോഡ് ചെയ്യുക  \'%s\'</string>
   <!--Install zip file-->
+  <string name="install_zip">സിപ്പ് ഫയലില്‍ നിന്നും ഡോക്യമെന്റ് ലോഡ് ചെയ്യുക</string>
+  <string name="install_zip_successfull">മൊഡ്യൂള്‍ ഇന്‍സ്റ്റാള്‍ ചെയ്തു</string>
+  <string name="extracting_zip_file">സിപ്പ് ഫയല്‍ അഴിച്ചുകൊണ്ടിരിക്കുന്നു...</string>
+  <string name="checking_zip_file">തന്ന ഫയല്‍ പരിശോധിക്കുന്നു...</string>
+  <string name="invalid_module">ഫയലില്‍ ഉപയൊഗപ്രദമായ മോഡ്യൂള്‍ ലഭ്യമല്ല</string>
+  <string name="module_already_installed">ഫയലില്‍ മുന്‍പ് ഇന്‍സ്റ്റാള്‍ ചെയ്ത മോഡ്യുള്‍ അടങ്ങിയിരിക്കുന്നു</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">വായന പദ്ധതി</string>
   <string name="rdg_plan_selector_title">ഒരു വായന പദ്ധതി തിരഞ്ഞെടുക്കുക</string>
@@ -220,6 +235,8 @@
   <string name="please_wait">ദയവായി അല്പം കാക്കു</string>
   <string name="all">എല്ലാം</string>
   <string name="default_value">@string/lang_default</string>
+  <string name="new_item">പുതിയ</string>
+  <string name="close">അടക്കുക</string>
   <!--Errors-->
   <string name="error_occurred">ഒരു തെറ്റ് പറ്റിയിരിക്കുന്നു</string>
   <string name="error_no_content">തിരഞ്ഞ ഈ വാക്യം ശുന്യമാണു</string>
