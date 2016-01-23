@@ -26,6 +26,7 @@ import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.Defaults;
 import org.crosswire.jsword.book.FeatureType;
 import org.crosswire.jsword.book.install.InstallException;
+import org.crosswire.jsword.book.sword.SwordBookMetaData;
 import org.crosswire.jsword.book.sword.SwordBookPath;
 import org.crosswire.jsword.book.sword.SwordConstants;
 import org.crosswire.jsword.index.IndexManager;
@@ -212,29 +213,37 @@ public class SwordDocumentFacade {
 	
 	public List<Book> getDownloadableDocuments(boolean refresh) throws InstallException {
 		log.debug("Getting downloadable documents.  Refresh:"+refresh);
-		RepoFactory repoFactory = RepoFactory.getInstance();
-
-		RepoBookDeduplicator repoBookDeduplicator = new RepoBookDeduplicator();
-
-		repoBookDeduplicator.addAll(repoFactory.getAndBibleRepo().getRepoBooks(refresh));
-        
-		repoBookDeduplicator.addAll(repoFactory.getIBTRepo().getRepoBooks(refresh));
-
-		repoBookDeduplicator.addAll(repoFactory.getCrosswireRepo().getRepoBooks(refresh));
-
-		repoBookDeduplicator.addAll(repoFactory.getXiphosRepo().getRepoBooks(refresh));
-
-		repoBookDeduplicator.addAll(repoFactory.getEBibleRepo().getRepoBooks(refresh));
-        
-		// beta repo must never override live books especially if later version so use addIfNotExists
-		repoBookDeduplicator.addIfNotExists(repoFactory.getBetaRepo().getRepoBooks(refresh));
-
-        List<Book> bookList = repoBookDeduplicator.getBooks();
-
-        // get them in the correct order
-        Collections.sort(bookList);
-
-		return bookList;	
+		try {
+			// there are so many sbmd's to load that we can only load what is required for the display list.  
+			// If About is selected or a document is downloaded the sbmd is then loaded fully.
+			SwordBookMetaData.setPartialLoading(true);
+			
+			RepoFactory repoFactory = RepoFactory.getInstance();
+	
+			RepoBookDeduplicator repoBookDeduplicator = new RepoBookDeduplicator();
+	
+			repoBookDeduplicator.addAll(repoFactory.getAndBibleRepo().getRepoBooks(refresh));
+	        
+			repoBookDeduplicator.addAll(repoFactory.getIBTRepo().getRepoBooks(refresh));
+	
+			repoBookDeduplicator.addAll(repoFactory.getCrosswireRepo().getRepoBooks(refresh));
+	
+			repoBookDeduplicator.addAll(repoFactory.getXiphosRepo().getRepoBooks(refresh));
+	
+			repoBookDeduplicator.addAll(repoFactory.getEBibleRepo().getRepoBooks(refresh));
+	        
+			// beta repo must never override live books especially if later version so use addIfNotExists
+			repoBookDeduplicator.addIfNotExists(repoFactory.getBetaRepo().getRepoBooks(refresh));
+	
+	        List<Book> bookList = repoBookDeduplicator.getBooks();
+	
+	        // get them in the correct order
+	        Collections.sort(bookList);
+	
+			return bookList;
+		} finally {
+			SwordBookMetaData.setPartialLoading(false);
+		}
 	}
 
 	public void downloadDocument(Book document) throws InstallException, BookException {

@@ -20,7 +20,9 @@ import org.crosswire.common.util.Language;
 import org.crosswire.common.util.LucidException;
 import org.crosswire.common.util.Version;
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.BookMetaData;
 import org.crosswire.jsword.book.Books;
+import org.crosswire.jsword.book.sword.SwordBookMetaData;
 
 import android.util.Log;
 
@@ -122,6 +124,13 @@ public class DownloadControl {
 	
 	public void downloadDocument(Book document) throws LucidException {
     	Log.d(TAG, "Download requested");
+    	
+    	// ensure SBMD is fully, not just partially, loaded
+    	BookMetaData bmd = document.getBookMetaData();
+    	if (bmd!=null && bmd instanceof SwordBookMetaData) {
+    		((SwordBookMetaData)bmd).reload();
+    	}
+    	
     	if (xiphosRepo.needsPostDownloadAction(document)) {
     		xiphosRepo.addHandler(document);
     	}
