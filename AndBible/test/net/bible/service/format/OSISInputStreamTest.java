@@ -152,7 +152,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		String verse = convertStreamToString(osisInputStream);
 		System.out.println(verse);
 		
-		osisInputStream = new OSISInputStream(book, book.getKey("Psalm 25:1"));
+		osisInputStream = new OSISInputStream(book, book.getKey("Ps 25:1"));
 		verse = convertStreamToString(osisInputStream);
 		System.out.println(verse);
 	}
