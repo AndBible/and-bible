@@ -238,54 +238,59 @@ public class ButtonGrid extends TableLayout {
 	}
 
 	private void showPreview(ButtonInfo buttonInfo) {
-		if (!buttonInfo.equals(mCurrentPreview)) {
-			Log.d(TAG, "Previewing "+buttonInfo.name);
-			mCurrentPreview = buttonInfo;
-			mPreviewText.setText(buttonInfo.name);
-
-            int popupHeight = mPreviewHeight;
-            mPreviewText.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
-            int popupWidth = Math.max(mPreviewText.getMeasuredWidth(), buttonInfo.button.getWidth() + mPreviewText.getPaddingLeft() + mPreviewText.getPaddingRight());
-
-            ViewGroup.LayoutParams lp = mPreviewText.getLayoutParams();
-            if (lp != null) {
-                lp.width = popupWidth;
-                lp.height = popupHeight;
-            }
-
-            // where to place the popup
-            int popupPreviewX;
-            int popupPreviewY;
-            if (buttonInfo.rowNo<2) {
-        		int horizontalOffset = (2*buttonInfo.button.getWidth());
-    			// if in top 2 rows then show off to right/left to avoid popup going off the screen
-            	if (buttonInfo.colNo<mRowColLayout.cols/2.0) {
-            		// key is on left so show to right of key
-        			popupPreviewX = buttonInfo.left - mPreviewText.getPaddingLeft() + horizontalOffset;
-            	} else {
-            		// key is on right so show to right of key
-        			popupPreviewX = buttonInfo.left - mPreviewText.getPaddingLeft() - horizontalOffset;
-            	}
-                popupPreviewY = buttonInfo.bottom;
-            } else {
-            	// show above the key above the one currently pressed 
-    			popupPreviewX = buttonInfo.left - mPreviewText.getPaddingLeft();
-                popupPreviewY = buttonInfo.top /*- popupHeight*/+ mPreviewOffset;
-            }
-			
-            if (mPreviewPopup.isShowing()) {
-                mPreviewPopup.update(popupPreviewX, popupPreviewY, popupWidth, popupHeight);
-            } else {
-            	mPreviewPopup.setWidth(popupWidth);
-                mPreviewPopup.setHeight(popupHeight);
-                mPreviewPopup.showAtLocation(this, Gravity.NO_GRAVITY, popupPreviewX, popupPreviewY);
-            }
-            mPreviewText.setVisibility(VISIBLE);
-		} else {
-			// could be returning to this view via Back or Finish and the user represses same button 
-			if (mPreviewText.getVisibility()!=VISIBLE) { 
-				mPreviewText.setVisibility(VISIBLE);
+		try {
+			if (!buttonInfo.equals(mCurrentPreview)) {
+				Log.d(TAG, "Previewing "+buttonInfo.name);
+				mCurrentPreview = buttonInfo;
+				mPreviewText.setText(buttonInfo.name);
+	
+	            int popupHeight = mPreviewHeight;
+	            mPreviewText.measure(MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED), MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED));
+	            int popupWidth = Math.max(mPreviewText.getMeasuredWidth(), buttonInfo.button.getWidth() + mPreviewText.getPaddingLeft() + mPreviewText.getPaddingRight());
+	
+	            ViewGroup.LayoutParams lp = mPreviewText.getLayoutParams();
+	            if (lp != null) {
+	                lp.width = popupWidth;
+	                lp.height = popupHeight;
+	            }
+	
+	            // where to place the popup
+	            int popupPreviewX;
+	            int popupPreviewY;
+	            if (buttonInfo.rowNo<2) {
+	        		int horizontalOffset = (2*buttonInfo.button.getWidth());
+	    			// if in top 2 rows then show off to right/left to avoid popup going off the screen
+	            	if (buttonInfo.colNo<mRowColLayout.cols/2.0) {
+	            		// key is on left so show to right of key
+	        			popupPreviewX = buttonInfo.left - mPreviewText.getPaddingLeft() + horizontalOffset;
+	            	} else {
+	            		// key is on right so show to right of key
+	        			popupPreviewX = buttonInfo.left - mPreviewText.getPaddingLeft() - horizontalOffset;
+	            	}
+	                popupPreviewY = buttonInfo.bottom;
+	            } else {
+	            	// show above the key above the one currently pressed 
+	    			popupPreviewX = buttonInfo.left - mPreviewText.getPaddingLeft();
+	                popupPreviewY = buttonInfo.top /*- popupHeight*/+ mPreviewOffset;
+	            }
+				
+	            if (mPreviewPopup.isShowing()) {
+	                mPreviewPopup.update(popupPreviewX, popupPreviewY, popupWidth, popupHeight);
+	            } else {
+	            	mPreviewPopup.setWidth(popupWidth);
+	                mPreviewPopup.setHeight(popupHeight);
+	                mPreviewPopup.showAtLocation(this, Gravity.NO_GRAVITY, popupPreviewX, popupPreviewY);
+	            }
+	            mPreviewText.setVisibility(VISIBLE);
+			} else {
+				// could be returning to this view via Back or Finish and the user represses same button 
+				if (mPreviewText.getVisibility()!=VISIBLE) { 
+					mPreviewText.setVisibility(VISIBLE);
+				}
 			}
+		} catch (Exception e) {
+			// avoid very occasional NPE deep in Android code by catching and ignoring because showing preview is optional
+			Log.e(TAG, "Error showing button grid preview", e);
 		}
 	}
 	
