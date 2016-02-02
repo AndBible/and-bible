@@ -10,6 +10,7 @@ import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
+import net.bible.service.download.DownloadManager;
 import net.bible.service.download.RepoFactory;
 import net.bible.service.download.XiphosRepo;
 import net.bible.service.font.FontControl;
@@ -128,7 +129,10 @@ public class DownloadControl {
     	// ensure SBMD is fully, not just partially, loaded
     	BookMetaData bmd = document.getBookMetaData();
     	if (bmd!=null && bmd instanceof SwordBookMetaData) {
+    		// load full bmd but must retain repo key 
+    		String repoKey = bmd.getProperty(DownloadManager.REPOSITORY_KEY);
     		((SwordBookMetaData)bmd).reload();
+    		bmd.setProperty(DownloadManager.REPOSITORY_KEY, repoKey);
     	}
     	
     	if (xiphosRepo.needsPostDownloadAction(document)) {
