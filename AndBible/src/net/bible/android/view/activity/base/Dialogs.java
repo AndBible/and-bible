@@ -2,8 +2,9 @@ package net.bible.android.view.activity.base;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
+import net.bible.android.control.report.ErrorReportControl;
 import net.bible.android.view.util.Hourglass;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -19,10 +20,19 @@ import android.widget.Toast;
  */
 public class Dialogs {
 
+	private ErrorReportControl errorReportControl = ControlFactory.getInstance().getErrorReportControl();
+	
 	public static final int TOO_MANY_JOBS = 121;
 
 	private Hourglass hourglass = new Hourglass();
-	
+
+	private Callback doNothingCallback = new Callback() {
+		@Override
+		public void okay() {
+			// by default do nothing when user clicks okay
+		}
+	};
+
 	private static final String TAG = "Dialogs";
 
 	private static final Dialogs singleton = new Dialogs();
@@ -39,7 +49,7 @@ public class Dialogs {
     	showErrorMsg(BibleApplication.getApplication().getString(msgId, param));
     }
     public void showMsg(int msgId, boolean isCancelable, final Callback okayCallback) {
-    	showMsg(BibleApplication.getApplication().getString(msgId), isCancelable, okayCallback);
+    	showMsg(BibleApplication.getApplication().getString(msgId), isCancelable, okayCallback, null);
     }
     public void showMsg(int msgId) {
     	showErrorMsg(BibleApplication.getApplication().getString(msgId));
@@ -51,23 +61,32 @@ public class Dialogs {
     	showErrorMsg(BibleApplication.getApplication().getString(msgId, param));
     }
     public void showErrorMsg(String msg) {
-    	showErrorMsg(msg, new Callback() {
-			@Override
-			public void okay() {
-				// by default do nothing when user clicks okay
-			}
-		});
+		showErrorMsg(msg, doNothingCallback);
     }
 
     public void showErrorMsg(int msgId, final Callback okayCallback) {
     	showErrorMsg(BibleApplication.getApplication().getString(msgId), okayCallback);
     }
 
-    public void showErrorMsg(final String msg, final Callback okayCallback) {
-    	showMsg(msg, false, okayCallback);
+    /**
+     * Show error message and allow reporting of exception via e-mail to and-bible
+     */
+    public void showErrorMsg(int msgId, final Exception e) {
+    	Callback reportCallback = new Callback() {
+    		@Override
+    		public void okay() {
+    			errorReportControl.sendErrorReportEmail(e);
+    		}
+    	};
+
+    	showMsg(BibleApplication.getApplication().getString(msgId), false, doNothingCallback, reportCallback);
     }
     
-    public void showMsg(final String msg, final boolean isCancelable, final Callback okayCallback) {
+    public void showErrorMsg(final String msg, final Callback okayCallback) {
+    	showMsg(msg, false, okayCallback, null);
+    }
+    
+    public void showMsg(final String msg, final boolean isCancelable, final Callback okayCallback, final Callback reportCallback) {
     	Log.d(TAG, "showErrorMesage message:"+msg);
     	try {
 			final Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
@@ -94,6 +113,15 @@ public class Dialogs {
 						       });
 				    	}
 				    	
+				    	// enable report to andbible errors email list
+				    	if (reportCallback!=null) {
+					    	dlgBuilder.setNeutralButton(R.string.report_error, new DialogInterface.OnClickListener() {
+						           public void onClick(DialogInterface dialog, int buttonId) {
+						        	   reportCallback.okay();
+						           }
+						       });
+				    	}
+
 				    	dlgBuilder.show();
 					}
 				});
@@ -112,5 +140,4 @@ public class Dialogs {
     public void dismissHourglass() {
     	hourglass.dismiss();
     }
-
 }
