@@ -35,7 +35,7 @@ public class MJDIndexAll {
 	private static final String REPOSITORY_XIPHOS = "Xiphos";
 	private static final String REPOSITORY_CROSSWIRE_BETA = "Crosswire Beta";
 	// Default repo used below
-	private static final String REPOSITORY = REPOSITORY_CROSSWIRE_BETA;
+	private static final String REPOSITORY = REPOSITORY_CROSSWIRE;
 	
 //	private static final BookFilter BOOK_FILTER = BookFilters.getDictionaries();
 	private static final BookFilter BOOK_FILTER = BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries());
@@ -77,7 +77,7 @@ public class MJDIndexAll {
 	//    	indexAll.installSingleBook("BDBGlosses_Strongs");
 	//    	indexAll.installRepoBooks();
 
-	    	boolean installAndIndex = false;
+	    	boolean installAndIndex = true;
 			indexAll.checkAllBooksInstalled(installAndIndex);
 
 	//	    	indexAll.manageCreateIndexes();
