@@ -1,4 +1,4 @@
-package net.bible.android.control.report;
+package net.bible.android.control.email;
 
 public interface Emailer {
 

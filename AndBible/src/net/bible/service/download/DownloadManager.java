@@ -138,7 +138,7 @@ public class DownloadManager {
 
                     installer.install(book);
                 } catch (InstallException ex) {
-                    Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+                    Dialogs.getInstance().showErrorMsg(R.string.error_occurred, ex);
                 }
             }
         };

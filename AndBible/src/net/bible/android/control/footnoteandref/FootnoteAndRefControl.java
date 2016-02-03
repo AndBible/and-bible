@@ -28,7 +28,7 @@ public class FootnoteAndRefControl {
 		try {
 			return ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentPageFootnotesAndReferences();
 		} catch (Exception e) {
-			Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 			return new ArrayList<Note>();
 		}
 	}

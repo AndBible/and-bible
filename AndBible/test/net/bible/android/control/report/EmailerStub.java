@@ -1,5 +1,7 @@
 package net.bible.android.control.report;
 
+import net.bible.android.control.email.Emailer;
+
 public class EmailerStub implements Emailer {
 
 	private String emailDialogTitle;

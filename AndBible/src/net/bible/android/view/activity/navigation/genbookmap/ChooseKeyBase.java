@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.bible.android.activity.R;
+import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.android.view.activity.page.MainBibleActivity;
 
@@ -87,7 +88,7 @@ public abstract class ChooseKeyBase extends ListActivityBase {
     		returnToMainScreen();
 		} catch (Exception e) {
 			Log.e(TAG, "Selection error", e);
-			showErrorMsg(R.string.error_occurred);
+			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 		}
 	}
     

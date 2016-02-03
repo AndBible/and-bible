@@ -62,21 +62,21 @@ public class Speak extends CustomTitlebarActivityBase {
     	try {
 	    	speakControl.rewind();
     	} catch (Exception e) {
-    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
     	}
     }
     public void onStop(View v) {
     	try {
     		speakControl.stop();
     	} catch (Exception e) {
-    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
     	}
     }
     public void onPause(View v) {
     	try {
     		speakControl.pause();
     	} catch (Exception e) {
-    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
     	}
     }
     public void onSpeak(View v) {
@@ -87,14 +87,14 @@ public class Speak extends CustomTitlebarActivityBase {
     			speakControl.speak(getSelectedNumPagesToSpeak(), isQueue(), isRepeat());
     		}
     	} catch (Exception e) {
-    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
     	}
     }
     public void onForward(View v) {
     	try {
     		speakControl.forward();
     	} catch (Exception e) {
-    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
     	}
     }
     

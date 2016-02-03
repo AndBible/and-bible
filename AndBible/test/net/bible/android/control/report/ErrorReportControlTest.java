@@ -1,6 +1,8 @@
 package net.bible.android.control.report;
 
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.startsWith;
 import static org.junit.Assert.assertThat;
 
 import org.junit.After;
@@ -29,9 +31,9 @@ public class ErrorReportControlTest {
 	public void testSendErrorReportEmail() throws Exception {
 		errorReportControl.sendErrorReportEmail(new Exception("Something happened"));
 		assertThat(emailer.getEmailDialogTitle(), equalTo("Report"));
+		assertThat(emailer.getSubject(), startsWith("Something happened:net.bible.android.control.report.ErrorReportControlTest.testSendErrorReportEmail:"));
 		System.out.println(emailer.getText());
-		assertThat(emailer.getText(), equalTo("yyy"));
-		assertThat(emailer.getRecipient(), equalTo("zzz"));
+		assertThat(emailer.getText(), containsString("Something happened"));
+		assertThat(emailer.getRecipient(), equalTo("errors.andbible@gmail.com"));
 	}
-
 }

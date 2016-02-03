@@ -64,7 +64,7 @@ abstract public class CachedKeyPage extends CurrentPageBase  {
 				mCachedGlobalKeyList = null;
 				System.gc();
 				Log.e(TAG, "Error getting keys for "+getCurrentDocument(), e);
-				Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+				Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 			}
 			Log.d(TAG, "Finished creating cached key list len:"+mCachedGlobalKeyList.size());
 		}

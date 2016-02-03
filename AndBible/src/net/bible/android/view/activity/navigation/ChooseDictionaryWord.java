@@ -98,9 +98,9 @@ public class ChooseDictionaryWord extends ListActivityBase {
 			    	mDictionaryGlobalList = ControlFactory.getInstance().getCurrentPageControl().getCurrentDictionary().getCachedGlobalKeyList(); 
 			    	
 			    	Log.d(TAG, "Finished Initialising");
-				} catch (Throwable t) {
+				} catch (Exception e) {
 					Log.e(TAG, "Error creating dictionary key list");
-					showErrorMsg(R.string.error_occurred);
+					Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 				} finally {
 			    	// must dismiss hourglass in ui thread
 			    	uiHandler.post(new Runnable() {
@@ -138,9 +138,9 @@ public class ChooseDictionaryWord extends ListActivityBase {
 			} else {
 				Log.d(TAG, "Cached global key list is null");
 			}
-		} catch (Throwable e) {
+		} catch (Exception e) {
 			Log.e(TAG, "Error finding matching keys", e);
-			showErrorMsg(R.string.error_occurred);
+			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 		}
     }
     
@@ -158,7 +158,7 @@ public class ChooseDictionaryWord extends ListActivityBase {
     		}
     	} catch (Exception e) {
     		Log.e(TAG, "Key not found", e);
-			showErrorMsg(R.string.error_occurred);
+    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
     	}
     }
 

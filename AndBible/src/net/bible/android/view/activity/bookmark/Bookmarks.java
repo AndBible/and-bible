@@ -263,7 +263,7 @@ public class Bookmarks extends ListActivityBase {
 	    		loadBookmarkList();
 	        } catch (Exception e) {
 	        	Log.e(TAG, "Error sorting bookmarks", e);
-	        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+	        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 	        }
 
 			break;

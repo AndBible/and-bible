@@ -4,6 +4,7 @@ package net.bible.android.view.activity.navigation;
 import java.util.List;
 
 import net.bible.android.activity.R;
+import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.history.HistoryItem;
 import net.bible.service.history.HistoryManager;
@@ -65,7 +66,7 @@ public class History extends ListActivityBase {
     		historyItemSelected(mHistoryItemList.get(position));
 		} catch (Exception e) {
 			Log.e(TAG, "Selection error", e);
-			showErrorMsg(R.string.error_occurred);
+			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 		}
 	}
     
