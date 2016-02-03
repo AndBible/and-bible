@@ -13,6 +13,7 @@ import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.document.DocumentControl;
+import net.bible.service.download.DownloadManager;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang.StringUtils;
@@ -379,7 +380,12 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 			switch (item.getItemId()) {
 			case (R.id.about):
 				try {
-					((SwordBookMetaData)document.getBookMetaData()).reload();
+					// ensure repo key is retained but reload sbmd to ensure About text is loaded
+					SwordBookMetaData sbmd = (SwordBookMetaData)document.getBookMetaData();
+		    		String repoKey = sbmd.getProperty(DownloadManager.REPOSITORY_KEY);
+					sbmd.reload();
+		    		sbmd.setProperty(DownloadManager.REPOSITORY_KEY, repoKey);
+		    		
 					showAbout(document);
 				} catch (BookException e) {
 					Log.e(TAG, "Error expanding SwordBookMetaData for " + document, e);
