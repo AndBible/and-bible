@@ -72,6 +72,13 @@ public class Dialogs {
      * Show error message and allow reporting of exception via e-mail to and-bible
      */
     public void showErrorMsg(int msgId, final Exception e) {
+    	showErrorMsg(BibleApplication.getApplication().getString(msgId), e);
+    }
+    
+    /**
+     * Show error message and allow reporting of exception via e-mail to and-bible
+     */
+    public void showErrorMsg(String message, final Exception e) {
     	Callback reportCallback = new Callback() {
     		@Override
     		public void okay() {
@@ -79,9 +86,9 @@ public class Dialogs {
     		}
     	};
 
-    	showMsg(BibleApplication.getApplication().getString(msgId), false, doNothingCallback, reportCallback);
+    	showMsg(message, false, doNothingCallback, reportCallback);
     }
-    
+
     public void showErrorMsg(final String msg, final Callback okayCallback) {
     	showMsg(msg, false, okayCallback, null);
     }

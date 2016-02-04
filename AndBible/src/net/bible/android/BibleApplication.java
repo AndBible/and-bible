@@ -255,7 +255,16 @@ public class BibleApplication extends Application{
 					msg = getString(R.string.error_occurred);
 				}
 				
-				Dialogs.getInstance().showErrorMsg(msg);
+				// convert Throwable to Exception for Dialogs
+				Exception e;
+				if (ev!=null) {
+					Throwable th = ev.getException();
+					e = th instanceof Exception ? (Exception)th : new Exception("Jsword Exception", th);
+				} else {
+					e = new Exception("JSword Exception");
+				}
+				
+				Dialogs.getInstance().showErrorMsg(msg, e);
 			}
         });
     }

@@ -72,7 +72,7 @@ public class DownloadManager {
 	        
 	        if (installer==null) {
 				log.error("Error getting installer for repo "+repo);
-				Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+				Dialogs.getInstance().showErrorMsg(R.string.error_occurred, new Exception("Error getting installer for repo "+repo));
 				documents = Collections.emptyList();
 	        } else {
 		        // Now we can get the list of books
