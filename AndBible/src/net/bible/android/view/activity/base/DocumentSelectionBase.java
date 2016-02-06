@@ -260,7 +260,10 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 			@Override
 	        protected Void doInBackground(Void... noparam) {
 				try {
-    	        	allDocuments = getDocumentsFromSource(refresh);
+					// Prevent occasional class loading errors on Samsung devices
+					Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
+
+					allDocuments = getDocumentsFromSource(refresh);
     	        	Log.i(TAG, "number of documents:"+allDocuments.size());
 				} catch (Exception e) {
 					Log.e(TAG, "Error getting documents", e);
