@@ -75,7 +75,7 @@ public class MyNotes extends ListActivityBase {
     		finish();
     	} catch (Exception e) {
     		Log.e(TAG, "document selection error", e);
-    		showErrorMsg(R.string.error_occurred);
+    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
     	}
 	}
 
@@ -128,7 +128,7 @@ public class MyNotes extends ListActivityBase {
 	    		loadUserNoteList();
 	        } catch (Exception e) {
 	        	Log.e(TAG, "Error sorting notes", e);
-	        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+	        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 	        }
 			break;
         }
@@ -164,7 +164,7 @@ public class MyNotes extends ListActivityBase {
         	}
     	} catch (Exception e) {
     		Log.e(TAG, "Error on attempt to show note", e);
-    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
     	}
     }
 }

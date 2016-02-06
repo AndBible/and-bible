@@ -8,6 +8,7 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.comparetranslations.CompareTranslationsControl;
 import net.bible.android.control.comparetranslations.TranslationDto;
 import net.bible.android.control.page.CurrentBiblePage;
+import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.android.view.util.swipe.SwipeGestureEventHandler;
 import net.bible.android.view.util.swipe.SwipeGestureListener;
@@ -115,7 +116,7 @@ public class CompareTranslations extends ListActivityBase implements SwipeGestur
 	    	translationSelected(mTranslations.get(position));
 		} catch (Exception e) {
 			Log.e(TAG, "Selection error", e);
-			showErrorMsg(R.string.error_occurred);
+			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 		}
 	}
     

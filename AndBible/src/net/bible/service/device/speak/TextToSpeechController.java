@@ -118,7 +118,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 		            );
 	    	} catch (Exception e) {
 	    		Log.e(TAG,  "Error initialising Tts", e);
-	    		showError(R.string.error_occurred);
+	    		showError(R.string.error_occurred, e);
 	    	}
     	} else {
    			startSpeaking();
@@ -152,7 +152,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     	    	Log.e(TAG, "TTS missing or not supported");
                // Language data is missing or the language is not supported.
     	    	ttsLanguageSupport.addUnsupportedLocale(locale);
-                showError(R.string.tts_lang_not_available);
+                showError(R.string.tts_lang_not_available, new Exception("Tts missing or not supported"));
             } else {
                 // The TTS engine has been successfully initialized.
     	    	ttsLanguageSupport.addSupportedLocale(locale);
@@ -172,7 +172,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
         } else {
         	Log.d(TAG, "Tts initialisation failed");
             // Initialization failed.
-            showError(R.string.error_occurred);
+            showError(R.string.error_occurred, new Exception("Tts Initialisation failed"));
         }
         
         if (!isOk) {
@@ -364,7 +364,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
         isSpeaking = false;
 	}
 
-    private void showError(int msgId) {
+    private void showError(int msgId, Exception e) {
     	Dialogs.getInstance().showErrorMsg(msgId);
     }
 	

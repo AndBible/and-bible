@@ -5,6 +5,7 @@ import java.util.List;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.readingplan.ReadingPlanControl;
+import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.readingplan.OneDaysReadingsDto;
 import android.content.Intent;
@@ -62,7 +63,7 @@ public class DailyReadingList extends ListActivityBase {
     		itemSelected(mReadingsList.get(position));
 		} catch (Exception e) {
 			Log.e(TAG, "Selection error", e);
-			showErrorMsg(R.string.error_occurred);
+			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 		}
 	}
     

@@ -2,6 +2,7 @@ package net.bible.android.view.activity.search;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.search.SearchControl;
+import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ProgressActivityBase;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordDocumentFacade;
@@ -70,7 +71,7 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 			
 			if (isAllJobsFinished()) {
 				Log.e(TAG, "Index finished but document's index is invalid");
-				showErrorMsg(R.string.error_occurred);
+				Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
 			}
 		}
 	}

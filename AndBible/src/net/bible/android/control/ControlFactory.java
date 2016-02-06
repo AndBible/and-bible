@@ -11,6 +11,8 @@ import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.comparetranslations.CompareTranslationsControl;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.download.DownloadControl;
+import net.bible.android.control.email.Emailer;
+import net.bible.android.control.email.EmailerImpl;
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.footnoteandref.FootnoteAndRefControl;
@@ -26,6 +28,7 @@ import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.control.page.window.WindowRepository;
 import net.bible.android.control.readingplan.ReadingPlanControl;
+import net.bible.android.control.report.ErrorReportControl;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.control.versification.BibleTraverser;
@@ -59,6 +62,9 @@ public class ControlFactory {
 	private BackupControl backupControl = new BackupControl();
 	private Bookmark bookmarkControl;
 
+	private Emailer emailer;
+	private ErrorReportControl errorReportControl;
+
 	private NavigationControl navigationControl = new NavigationControl();
 	
 	private boolean initialised = false;
@@ -79,7 +85,10 @@ public class ControlFactory {
 	protected void createAll() {
 		resourceProvider = new AndroidResourceProvider();
 		eventManager = ABEventBus.getDefault();
-		
+
+		emailer = new EmailerImpl();
+		errorReportControl = new ErrorReportControl(emailer); 
+
 		bookmarkControl = new BookmarkControl(resourceProvider);
 		
 		// inject dependencies
@@ -197,5 +206,9 @@ public class ControlFactory {
 
 	public BibleTraverser getBibleTraverser() {
 		return bibleTraverser;
+	}
+	
+	public ErrorReportControl getErrorReportControl() {
+		return errorReportControl;
 	}
 }

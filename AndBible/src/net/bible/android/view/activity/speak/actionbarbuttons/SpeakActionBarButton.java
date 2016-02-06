@@ -29,7 +29,7 @@ public class SpeakActionBarButton extends SpeakActionBarButtonBase {
 			update(menuItem);
 		} catch (Exception e) {
 			Log.e(TAG, "Error toggling speech", e);
-			Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 		}
 		return true;
 	}

@@ -169,7 +169,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	        Log.d(TAG, "Finished displaying Reading view");
         } catch (Exception e) {
         	Log.e(TAG, "Error showing daily readings", e);
-        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
         }
     }
     
@@ -240,7 +240,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	    	setIntegrateWithHistoryManager(true);
         } catch (Exception e) {
         	Log.e(TAG, "Error when Done daily reading", e);
-        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
         }
     }
     
@@ -328,7 +328,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
 		    	updateTicksAndDone();
 	        } catch (Exception e) {
 	        	Log.e(TAG, "Error when Done daily reading", e);
-	        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+	        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 	        }
 
 			break;

@@ -51,7 +51,7 @@ public class ReadingPlanSelectorList extends ListActivityBase {
 	    	registerForContextMenu(getListView());
         } catch (Exception e) {
         	Log.e(TAG, "Error occurred analysing reading lists", e);
-        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
         	finish();
         }
     	Log.d(TAG, "Finished displaying Reading Plan list");
@@ -69,7 +69,7 @@ public class ReadingPlanSelectorList extends ListActivityBase {
 			finish();
 		} catch (Exception e) {
 			Log.e(TAG, "Plan selection error", e);
-			showErrorMsg(R.string.error_occurred);
+			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 		}
 	}
     

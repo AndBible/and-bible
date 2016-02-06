@@ -136,7 +136,7 @@ public class SearchResults extends ListActivityBase {
 	    	verseSelected(mCurrentlyDisplayedSearchResults.get(position));
 		} catch (Exception e) {
 			Log.e(TAG, "Selection error", e);
-			showErrorMsg(R.string.error_occurred);
+			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 		}
 	}
     
