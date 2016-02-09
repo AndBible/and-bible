@@ -287,7 +287,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="close">Close</string>
     
     <!-- Errors -->
-    <string name="report_error">Report</string>
+    <string name="report_error">Send Report</string>
     <string name="error_occurred">An error has occurred</string>
     <string name="error_no_content">No content for selected verse</string>
     <string name="error_page_too_large">Page is too large to be loaded</string>
