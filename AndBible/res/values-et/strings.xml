@@ -16,6 +16,7 @@
   <string name="speak">Loe ette</string>
   <string name="help">Abiinfo</string>
   <string name="verse">Salm</string>
+  <string name="administration">Haldamine</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Vali raamat</string>
   <string name="choosePassageChapterName">Vali peatükk</string>
@@ -74,6 +75,8 @@
   <string name="prefs_night_mode_automatic">Automaatne</string>
   <string name="prefs_navigate_to_verse_title">Salmi juurde liikumine</string>
   <string name="prefs_navigate_to_verse_summary">Tekstiosa valides vali salm (ja peatükk)</string>
+  <string name="prefs_open_links_in_special_window_title">Ava lingid eraldi aknas</string>
+  <string name="prefs_open_links_in_special_window_summary">Ristviidete ja vidiete kiiremaks näitamiseks</string>
   <string name="prefs_text_size_title">Teksti suurus</string>
   <string name="prefs_text_size_summary">Näe rohkem ja selgemalt</string>
   <string name="prefs_text_size_sample_text">Näidistekst</string>
@@ -84,6 +87,12 @@
   <string name="prefs_interface_locale_summary">Vali rakenduse keel</string>
   <string name="locale_change_warning">Rakendus käivitatakse, et näidata uut kasutajaliidese keelt</string>
   <!--Window-->
+  <string name="window">Aken</string>
+  <string name="windowClose">Sulge</string>
+  <string name="windowMaximise">Maksimeeri</string>
+  <string name="windowMinimise">Minimeeri</string>
+  <string name="windowSynchronise">Sünkrooni</string>
+  <string name="windowMoveFirst">Liiguta esmalt</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Selles peatükis märkmeid pole</string>
   <string name="no_verse_notes">Selles salmis märkmeid pole</string>
@@ -114,6 +123,12 @@
   <string name="too_many_jobs">Käimas on liiga palju ülesandeid.  Palun oota kuni mõned lõpetatakse ja proovi uuesti.</string>
   <string name="document_not_installed">Palun lae alla \'%s\'</string>
   <!--Install zip file-->
+  <string name="install_zip">Laadi dokument ZIP-failist</string>
+  <string name="install_zip_successfull">Moodul on paigaldatud</string>
+  <string name="extracting_zip_file">ZIP-faili lahtipakkimine...</string>
+  <string name="checking_zip_file">Faili kontrollimine...</string>
+  <string name="invalid_module">Failis pole korrektset SWORD moodulit</string>
+  <string name="module_already_installed">Failis on moodul, mis on juba paigaldatud</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Lugemiskava</string>
   <string name="rdg_plan_selector_title">Vali lugemiskava</string>
@@ -197,6 +212,7 @@
   <string name="restore_confirmation">Kirjutada üle minu märkmed ja järjehoidjad?</string>
   <string name="restore_success">Märkmed ja järjehoidjad on taastatud SD-kaardilt: %s</string>
   <!--About-->
+  <string name="about_copyright">Autoriõigused: %s</string>
   <string name="about_version">Versioon: %s</string>
   <string name="about_versification">Salmideks jagamine: %s</string>
   <!--Document types-->
@@ -220,7 +236,10 @@
   <string name="please_wait">Palun oota...</string>
   <string name="all">Kõik</string>
   <string name="default_value">@string/lang_default</string>
+  <string name="new_item">Uus</string>
+  <string name="close">SulgeSulge</string>
   <!--Errors-->
+  <string name="report_error">Saada veaaruanne</string>
   <string name="error_occurred">Tekkis viga</string>
   <string name="error_no_content">Valitud salmi jaoks sisu pole</string>
   <string name="error_page_too_large">Lehekülg on laadimiseks liiga suur</string>

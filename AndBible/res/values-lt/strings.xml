@@ -213,6 +213,7 @@
   <string name="restore_confirmation">Perrašyti mano pastabas bei žymes?</string>
   <string name="restore_success">Mano pastabos ir žymės atstatytos iš %s SD kortelėje</string>
   <!--About-->
+  <string name="about_copyright">Autorinės teisės: %s</string>
   <string name="about_version">Versija: %s</string>
   <string name="about_versification">Versijavimas: %s</string>
   <!--Document types-->
@@ -239,6 +240,7 @@
   <string name="new_item">Naujas</string>
   <string name="close">Užverti</string>
   <!--Errors-->
+  <string name="report_error">Siųsti ataskaitą</string>
   <string name="error_occurred">Įvyko klaida</string>
   <string name="error_no_content">Šiai eilutei nėra teksto</string>
   <string name="error_page_too_large">Puslapis per didelis, kad būtų įkeltas</string>

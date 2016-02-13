@@ -213,6 +213,7 @@
   <string name="restore_confirmation">Notizen und Lesezeichen überschreiben?</string>
   <string name="restore_success">Notizen und Lesezeichen wurden von %s auf der SD-Karte wiederhergestellt</string>
   <!--About-->
+  <string name="about_copyright">Copyright: %s</string>
   <string name="about_version">Version %s</string>
   <string name="about_versification">Versnummerierung: %s</string>
   <!--Document types-->
@@ -239,6 +240,7 @@
   <string name="new_item">Neu</string>
   <string name="close">Schließen</string>
   <!--Errors-->
+  <string name="report_error">Fehlerbericht senden</string>
   <string name="error_occurred">Ein Fehler ist aufgetreten!</string>
   <string name="error_no_content">Kein Inhalt für diesen Vers</string>
   <string name="error_page_too_large">Seite zu groß zum Laden</string>

@@ -213,6 +213,7 @@
   <string name="restore_confirmation">Заменить заметки и закладки?</string>
   <string name="restore_success">Заметки и закладки восставлены из %s на SD карте</string>
   <!--About-->
+  <string name="about_copyright">Авторское право: %s</string>
   <string name="about_version">Версия: %s</string>
   <string name="about_versification">Версификация: %s</string>
   <!--Document types-->
@@ -239,6 +240,7 @@
   <string name="new_item">Новое</string>
   <string name="close">Закрыть</string>
   <!--Errors-->
+  <string name="report_error">Отправить отчет</string>
   <string name="error_occurred">Произошла ошибка</string>
   <string name="error_no_content">В выбранных стихах нет содержания</string>
   <string name="error_page_too_large">Слишком большая страница для загрузки</string>

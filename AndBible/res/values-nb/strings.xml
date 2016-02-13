@@ -213,6 +213,7 @@
   <string name="restore_confirmation">Overskrive notater og bokmerker?</string>
   <string name="restore_success">Notater og bokmerker er gjenopprettet fra %s på minnekortet</string>
   <!--About-->
+  <string name="about_copyright">Opphavsrett: %s</string>
   <string name="about_version">Versjon: %s</string>
   <string name="about_versification">Versifisering: %s</string>
   <!--Document types-->
@@ -239,6 +240,7 @@
   <string name="new_item">Nytt</string>
   <string name="close">Lukk</string>
   <!--Errors-->
+  <string name="report_error">Send feilrapport</string>
   <string name="error_occurred">En feil har oppstått</string>
   <string name="error_no_content">Ikke noe innhold i dette verset</string>
   <string name="error_page_too_large">Siden er for stor til å laste inn</string>

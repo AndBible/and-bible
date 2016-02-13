@@ -213,6 +213,7 @@
   <string name="restore_confirmation">Vervang My Notas en Boekmerke?</string>
   <string name="restore_success">My Notas en Boekmerke is herstel van %s op die SD-kaart</string>
   <!--About-->
+  <string name="about_copyright">Kopiereg : %s</string>
   <string name="about_version">Weergawe: %s</string>
   <string name="about_versification">Beryming: %s</string>
   <!--Document types-->
@@ -239,6 +240,7 @@
   <string name="new_item">Nuut</string>
   <string name="close">Maak toe</string>
   <!--Errors-->
+  <string name="report_error">Stuur verslag</string>
   <string name="error_occurred">\'n Fout het ontstaan</string>
   <string name="error_no_content">Geen inhoud vir geselekteerde vers</string>
   <string name="error_page_too_large">Bladsy te groot om gelaai te word</string>

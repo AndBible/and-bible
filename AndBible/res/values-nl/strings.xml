@@ -215,6 +215,7 @@
   <string name="restore_confirmation">Mijn Notities en Bladwijzers overschrijven?</string>
   <string name="restore_success">Mijn Notities en Bladwijzers hersteld van %s op de SD-kaart</string>
   <!--About-->
+  <string name="about_copyright">Copyright: %s</string>
   <string name="about_version">Versie: %s</string>
   <string name="about_versification">Versificatie: %s</string>
   <!--Document types-->
@@ -241,6 +242,7 @@
   <string name="new_item">Nieuw</string>
   <string name="close">Sluiten</string>
   <!--Errors-->
+  <string name="report_error">Rapport versturen</string>
   <string name="error_occurred">Er is een fout opgetreden</string>
   <string name="error_no_content">Geen inhoud voor het geselecteerde vers</string>
   <string name="error_page_too_large">De pagina is te groot om te worden geladen</string>

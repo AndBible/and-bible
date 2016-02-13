@@ -213,6 +213,7 @@
   <string name="restore_confirmation">Palauta muistiinpanot ja kirjanmerkit nykyisten päälle?</string>
   <string name="restore_success">Muistiinpanot ja kirjanmerkit on palautettu %s muistikortilta</string>
   <!--About-->
+  <string name="about_copyright">Tekijäinoikeudet: %s</string>
   <string name="about_version">Käännös: %s</string>
   <string name="about_versification">Jaejako: %s</string>
   <!--Document types-->
@@ -239,6 +240,7 @@
   <string name="new_item">Uusi</string>
   <string name="close">Sulje</string>
   <!--Errors-->
+  <string name="report_error">Raportoi virheestä</string>
   <string name="error_occurred">Tapahtui virhe</string>
   <string name="error_no_content">Ei sisältöä valitulle jakeelle</string>
   <string name="error_page_too_large">Sivu on liian suuri ladattavaksi</string>
