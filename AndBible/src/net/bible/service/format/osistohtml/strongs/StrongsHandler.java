@@ -52,15 +52,20 @@ public class StrongsHandler implements OsisTagHandler {
 
 	@Override
 	public void start(Attributes attrs) {
-		if ((parameters.isShowStrongs() || parameters.isShowMorphology()) && TagHandlerHelper.isAttr(OSISUtil.ATTRIBUTE_W_LEMMA, attrs)) {
-			// Strongs & morphology references
-			// example of strongs refs: <w lemma="strong:H0430">God</w> <w lemma="strong:H0853 strong:H01254" morph="strongMorph:TH8804">created</w>
-			// better example, because we just use Robinson: <w lemma="strong:G652" morph="robinson:N-NSM" src="2">an apostle</w>
-			String strongsLemma = attrs.getValue(OSISUtil.ATTRIBUTE_W_LEMMA);
-			if (strongsLemma.startsWith(OSISUtil.LEMMA_STRONGS)) {
-				String morphology = attrs.getValue(OSISUtil.ATTRIBUTE_W_MORPH);
-				pendingStrongsAndMorphTags = getStrongsAndMorphTags(strongsLemma, morphology);
-			}
+		// Strongs references
+		// example of strongs refs: <w lemma="strong:H0430">God</w> <w lemma="strong:H0853 strong:H01254" morph="strongMorph:TH8804">created</w>
+		// better example, because we just use Robinson: <w lemma="strong:G652" morph="robinson:N-NSM" src="2">an apostle</w>
+		String strongsLemma = "";
+		if (parameters.isShowStrongs() && TagHandlerHelper.isAttr(OSISUtil.ATTRIBUTE_W_LEMMA, attrs)) {
+			strongsLemma = attrs.getValue(OSISUtil.ATTRIBUTE_W_LEMMA);
+		}
+		String morphology = "";
+		if (parameters.isShowMorphology() && TagHandlerHelper.isAttr(OSISUtil.ATTRIBUTE_W_MORPH, attrs)) {
+			morphology = attrs.getValue(OSISUtil.ATTRIBUTE_W_MORPH);
+		}
+		
+		if (StringUtils.isNotBlank(strongsLemma) || StringUtils.isNotBlank(morphology)) {
+			pendingStrongsAndMorphTags = getStrongsAndMorphTags(strongsLemma, morphology);
 		}
 	}
 	
@@ -84,8 +89,7 @@ public class StrongsHandler implements OsisTagHandler {
 	 * 
 	 * @return a single char to use as a note ref
 	 */
-	private List<String> getStrongsAndMorphTags(String strongsLemma,
-			String morphology) {
+	private List<String> getStrongsAndMorphTags(String strongsLemma, String morphology) {
 		// there may occasionally be more than one ref so split them into a list
 		// of single refs
 		List<String> strongsTags = getStrongsTags(strongsLemma);
@@ -167,8 +171,7 @@ public class StrongsHandler implements OsisTagHandler {
 							&& ref.length() > OSISUtil.MORPH_ROBINSONS.length() + 2) {
 						// reduce ref like "robinson:N-NSM" to "N-NSM" for
 						// display
-						String display = ref.substring(OSISUtil.MORPH_ROBINSONS
-								.length());
+						String display = ref.substring(OSISUtil.MORPH_ROBINSONS.length());
 
 						StringBuilder tag = new StringBuilder();
 						tag.append("<a href='").append(ref).append(
