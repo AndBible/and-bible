@@ -213,6 +213,7 @@
   <string name="restore_confirmation">Жеке байкоолор менен чөпкаттарды алмаштырасызбы?</string>
   <string name="restore_success">Жеке байкоолор менен чөпкаттарды SD картадагы %s баштыктан калыбына келтирилди.</string>
   <!--About-->
+  <string name="about_copyright">Автордук укук %s</string>
   <string name="about_version">Версия: %s</string>
   <string name="about_versification">Аятка бөлүү: %s</string>
   <!--Document types-->
@@ -239,6 +240,7 @@
   <string name="new_item">Кошуу</string>
   <string name="close">Жабуу</string>
   <!--Errors-->
+  <string name="report_error">Кабар жөнөтүү</string>
   <string name="error_occurred">Ката кетти</string>
   <string name="error_no_content">Тандалган аяттарда маалымат жок.</string>
   <string name="error_page_too_large">Жүктөө үчүн беттин көлөмү өтө чоң.</string>

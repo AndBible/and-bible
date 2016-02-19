@@ -213,6 +213,7 @@
   <string name="restore_confirmation">Přepsat poznámky a záložky?</string>
   <string name="restore_success">Poznámky a záložky obnoveny z SD karty ze souboru %s</string>
   <!--About-->
+  <string name="about_copyright">Autorská práva: %s</string>
   <string name="about_version">Verze: %s</string>
   <string name="about_versification">Veršování: %s</string>
   <!--Document types-->
@@ -239,6 +240,7 @@
   <string name="new_item">Nový</string>
   <string name="close">Zavřít</string>
   <!--Errors-->
+  <string name="report_error">Zaslat hlášení</string>
   <string name="error_occurred">Vznikla chyba</string>
   <string name="error_no_content">Žádný obsah pro vybraný verš</string>
   <string name="error_page_too_large">Strana je pro načtení příliš velká</string>
