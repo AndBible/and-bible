@@ -1,20 +1,11 @@
 package net.bible.android.control.page.window;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.contains;
-import static org.hamcrest.Matchers.containsInAnyOrder;
-import static org.hamcrest.Matchers.hasItem;
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.isA;
-import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import android.support.v7.internal.view.menu.MenuBuilder;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+
+import net.bible.android.activity.BuildConfig;
 import net.bible.android.activity.R;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
@@ -31,15 +22,28 @@ import org.crosswire.jsword.versification.system.Versifications;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RuntimeEnvironment;
+import org.robolectric.annotation.Config;
 
-import android.support.v7.internal.view.menu.MenuBuilder;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.containsInAnyOrder;
+import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.isA;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(RobolectricGradleTestRunner.class)
+@Config(constants = BuildConfig.class)
 public class WindowControlTest {
 
 	private static final Book BOOK_KJV = Books.installed().getBook("KJV");
@@ -269,18 +273,18 @@ public class WindowControlTest {
 	}
 
 	@Test
-		public void testIsMultiWindow() throws Exception {
-			assertThat(windowControl.isMultiWindow(), equalTo(false));
-			Window newWindow = windowControl.addNewWindow();
-			assertThat(windowControl.isMultiWindow(), equalTo(true));
-			windowControl.closeWindow(newWindow);
-			assertThat(windowControl.isMultiWindow(), equalTo(false));
-		}
+	public void testIsMultiWindow() throws Exception {
+		assertThat(windowControl.isMultiWindow(), equalTo(false));
+		Window newWindow = windowControl.addNewWindow();
+		assertThat(windowControl.isMultiWindow(), equalTo(true));
+		windowControl.closeWindow(newWindow);
+		assertThat(windowControl.isMultiWindow(), equalTo(false));
+	}
 
 	@Test
 	public void testUpdateSynchronisedMenuItem() {
-		Menu menu = new MenuBuilder(Robolectric.application);
-		new MenuInflater(Robolectric.application).inflate(R.menu.main, menu);
+		Menu menu = new MenuBuilder(RuntimeEnvironment.application);
+		new MenuInflater(RuntimeEnvironment.application).inflate(R.menu.main, menu);
 
 		windowControl.updateOptionsMenu(menu);
 		MenuItem synchronisedMenuItem = menu.findItem(R.id.windowSynchronise);
@@ -295,10 +299,11 @@ public class WindowControlTest {
 	public void testDisableMenuItemsIfLinksWindowActive() {
 		Window normalWindow = windowControl.getActiveWindow();
 		windowControl.addNewWindow();
-		
-		Menu menu = new MenuBuilder(Robolectric.application);
-		new MenuInflater(Robolectric.application).inflate(R.menu.main, menu);
+
+		Menu menu = new MenuBuilder(RuntimeEnvironment.application);
+		new MenuInflater(RuntimeEnvironment.application).inflate(R.menu.main, menu);
 		windowControl.updateOptionsMenu(menu);
+
 		MenuItem synchronisedMenuItem = menu.findItem(R.id.windowSynchronise);
 		MenuItem moveFirstMenuItem = menu.findItem(R.id.windowMoveFirst);
 		MenuItem minimiseMenuItem = menu.findItem(R.id.windowMinimise);
@@ -322,8 +327,8 @@ public class WindowControlTest {
 		// the links window should not allow minimise or close to work if only 1 other window
 		windowRepository.getDedicatedLinksWindow().getWindowLayout().setState(WindowState.SPLIT);
 		
-		Menu menu = new MenuBuilder(Robolectric.application);
-		new MenuInflater(Robolectric.application).inflate(R.menu.main, menu);
+		Menu menu = new MenuBuilder(RuntimeEnvironment.application);
+		new MenuInflater(RuntimeEnvironment.application).inflate(R.menu.main, menu);
 
 		windowControl.updateOptionsMenu(menu);
 		MenuItem minimiseMenuItem = menu.findItem(R.id.windowMinimise);
@@ -336,8 +341,8 @@ public class WindowControlTest {
 	public void testCannotMoveFirstWindowFirst() {
 		windowControl.addNewWindow();
 		
-		Menu menu = new MenuBuilder(Robolectric.application);
-		new MenuInflater(Robolectric.application).inflate(R.menu.main, menu);
+		Menu menu = new MenuBuilder(RuntimeEnvironment.application);
+		new MenuInflater(RuntimeEnvironment.application).inflate(R.menu.main, menu);
 
 		windowControl.updateOptionsMenu(menu);
 		MenuItem moveFirstMenuItem = menu.findItem(R.id.windowMoveFirst);

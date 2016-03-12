@@ -1,8 +1,6 @@
 package net.bible.android.control.page.window;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.junit.Assert.assertThat;
+import net.bible.android.activity.BuildConfig;
 import net.bible.android.control.TestControlFactory;
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.EventManager;
@@ -10,9 +8,15 @@ import net.bible.android.control.event.EventManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.annotation.Config;
 
-@RunWith(RobolectricTestRunner.class)
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assert.assertThat;
+
+@RunWith(RobolectricGradleTestRunner.class)
+@Config(constants = BuildConfig.class)
 public class WindowSynchronisationTest {
 
 	private EventManager eventManager;

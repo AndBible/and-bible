@@ -1,5 +1,7 @@
 package net.bible.service.sword;
 
+import net.bible.android.activity.BuildConfig;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
@@ -9,13 +11,14 @@ import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.PassageKeyFactory;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
+import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.annotation.Config;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(RobolectricGradleTestRunner.class)
+@Config(constants = BuildConfig.class)
 public class SwordContentFacadeTest {
 
 	private SwordContentFacade swordContentFacade;
@@ -23,10 +26,6 @@ public class SwordContentFacadeTest {
 	@Before
 	public void setUp() throws Exception {
 		swordContentFacade = SwordContentFacade.getInstance();
-	}
-
-	@After
-	public void tearDown() throws Exception {
 	}
 
 	@Test
@@ -37,7 +36,6 @@ public class SwordContentFacadeTest {
 		String html = getHtml(esv, key, 100);
 		assertThat(html, containsString("What man of you, having a hundred sheep,"));
 	}
-
 
 	@Test
 	public void testReadCanonicalText() throws Exception {

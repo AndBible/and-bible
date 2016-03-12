@@ -12,12 +12,30 @@ import net.bible.service.download.FakeSwordBookFactory;
 
 import org.crosswire.common.util.Language;
 import org.crosswire.jsword.book.Book;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 
+@RunWith(RobolectricTestRunner.class)
 public class RelevantLanguageSorterTest {
 
 	private RelevantLanguageSorter relevantLanguageSorter;
-	
+
+	private Locale originalLocale;
+
+	@Before
+	public void createErrorReportControl() throws Exception {
+		originalLocale = Locale.getDefault();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		// the test changes the Locale so ensure the correct default locale is restored
+		Locale.setDefault(originalLocale);
+	}
+
 	@Test
 	public void testCompare() throws Exception {
 		Locale.setDefault(Locale.KOREAN);
