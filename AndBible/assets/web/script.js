@@ -43,14 +43,18 @@ function getElementsByClass( searchClass, domNode, tagName) {
 }
 
 function scrollTo(toId) {
-	window.jsInterface.log("scrollTo called id:"+toId)
 	var toElement = document.getElementById(toId);
 	if (toElement != null) {
 		toPosition = toElement.offsetTop;
-		doScrollTo(document.body, document.body.scrollTop, toPosition);
+		doScrollToFast(document.body, toPosition);
 	}
 }
-function doScrollTo(element, elementPosition, to) {
+
+function doScrollToFast(element, to) {
+    element.scrollTop = to;
+}
+
+function doScrollToSlowly(element, elementPosition, to) {
 	// 25 pixels/100ms is the standard speed
 	var speed = 25; 
     var difference = to - elementPosition;

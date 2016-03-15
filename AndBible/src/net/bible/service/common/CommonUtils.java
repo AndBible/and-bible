@@ -128,6 +128,9 @@ public class CommonUtils {
 	public static boolean isJellyBeanPlus() {
 		return Build.VERSION.SDK_INT >= 16;
 	}
+	public static boolean isKitKatPlus() {
+		return Build.VERSION.SDK_INT >= 19;
+	}
 
 	public static long getSDCardMegsFree() {
 		long bytesAvailable = getFreeSpace(Environment.getExternalStorageDirectory().getPath());

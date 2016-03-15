@@ -59,6 +59,8 @@ public class BibleView extends WebView implements DocumentView {
 	private int maintainMovingVerse = -1;
 	private static WindowControl windowControl = ControlFactory.getInstance().getWindowControl();
 	
+	private boolean kitKatPlus = CommonUtils.isKitKatPlus();;
+	
 	// never go to 0 because a bug in Android prevents invalidate after loadDataWithBaseURL so no scrollOrJumpToVerse will occur 
 	private static final int TOP_OF_SCREEN = 1;
 	
@@ -576,10 +578,14 @@ public class BibleView extends WebView implements DocumentView {
 			// use scroll to because difficult to place a tag exactly at the top
 			scrollTo(0, TOP_OF_SCREEN);
 		} else {
-			// required format changed in 4.2 http://stackoverflow.com/questions/14771970/how-to-call-javascript-in-android-4-2
-			loadUrl("javascript:(function() { " +  
-	                "document.location = '#"+verse+"'" +  
-	                "})()");
+			// jump to correct verse
+			// but scrollTop does not work on Android 3.0-4.0 and changing document location does not work on latest WebView  
+			if (kitKatPlus) {
+				// required format changed in 4.2 http://stackoverflow.com/questions/14771970/how-to-call-javascript-in-android-4-2
+				loadUrl("javascript:(scrollTo('"+verse+"'))");
+			} else {
+				loadUrl("javascript:(function() { document.location = '#"+verse+"' })()");
+			}
 		}
 	}
 }
