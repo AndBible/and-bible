@@ -1,0 +1,55 @@
+apply plugin: 'com.android.application'
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        applicationId "net.bible.android.activity"
+        minSdkVersion 8
+        targetSdkVersion 19
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    testOptions {
+        // prevent logger errors
+        unitTests.returnDefaultValues = true
+    }
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
+}
+
+dependencies {
+    testCompile 'org.hamcrest:hamcrest-library:1.3'
+    testCompile 'org.mockito:mockito-core:1.10.19'
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.robolectric:robolectric:3.0'
+    compile 'com.android.support:appcompat-v7:19.+'
+
+    compile files('libs/jsword.jar')
+    compile files('libs/mmseg4j-all-1.8.4.jar')
+    compile 'de.greenrobot:eventbus:2.4.0'
+    compile 'org.jdom:jdom2:2.0.5'
+    compile 'org.apache.httpcomponents:httpclient-android:4.3.3'
+    compile 'org.apache.commons:commons-compress:1.7'
+    compile 'de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.4'
+
+    compile 'org.apache.lucene:lucene-core:3.0.3'
+    compile 'org.apache.lucene:lucene-snowball:3.0.3'
+    compile 'org.apache.lucene:lucene-analyzers:3.0.3'
+}
