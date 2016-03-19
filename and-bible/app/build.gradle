@@ -4,18 +4,22 @@ android {
     compileSdkVersion 19
     buildToolsVersion "23.0.2"
 
+    /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
     defaultConfig {
         applicationId "net.bible.android.activity"
         minSdkVersion 8
         targetSdkVersion 19
-        versionCode 1
-        versionName "1.0"
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
+    }
+
+    lintOptions {
+        disable 'MissingTranslation'
+        disable 'ExtraTranslation'
     }
 
     compileOptions {
