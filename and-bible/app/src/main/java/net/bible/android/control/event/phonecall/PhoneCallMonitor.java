@@ -36,7 +36,7 @@ public class PhoneCallMonitor {
 				}
 			}
 			
-		}, PhoneStateListener.LISTEN_CALL_STATE);;
+		}, PhoneStateListener.LISTEN_CALL_STATE);
 	}
 	
 	private TelephonyManager getTelephonyManager() {

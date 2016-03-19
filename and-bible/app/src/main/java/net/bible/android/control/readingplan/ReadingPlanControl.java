@@ -219,7 +219,7 @@ public class ReadingPlanControl {
     		// mark reading as 'read'
     		getReadingStatus(day).setRead(readingNo);
 
-    		EventBus.getDefault().post(new BeforeCurrentPageChangeEvent());;
+    		EventBus.getDefault().post(new BeforeCurrentPageChangeEvent());
 
 			// show the current bible
     		AbstractPassageBook bible = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getCurrentPassageBook();
