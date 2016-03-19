@@ -238,6 +238,7 @@
   <string name="new_item">새로운</string>
   <string name="close">닫기</string>
   <!--Errors-->
+  <string name="report_error">보고서 를 보내기</string>
   <string name="error_occurred">오류가 발생했습니다</string>
   <string name="error_no_content">선택된 구절에 대한 내용 없음</string>
   <string name="error_page_too_large">페이지가 커서 불러올 수 없습니다.</string>
