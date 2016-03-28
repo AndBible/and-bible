@@ -8,6 +8,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import net.bible.android.activity.R;
+import net.bible.android.view.activity.download.Download;
 
 import org.crosswire.common.util.NetUtil;
 import org.crosswire.jsword.book.BookDriver;
@@ -64,8 +65,7 @@ class ZipHandler extends AsyncTask<Void, Integer, Integer> {
 
 		File targetDirectory = SwordBookPath.getSwordDownloadDir();
 
-		ZipInputStream zin = new ZipInputStream(parent.getContentResolver()
-				.openInputStream(uri));
+		ZipInputStream zin = new ZipInputStream(parent.getContentResolver().openInputStream(uri));
 
 		while ((entry = zin.getNextEntry()) != null) {
 			total_entries++;
@@ -100,8 +100,7 @@ class ZipHandler extends AsyncTask<Void, Integer, Integer> {
 	}
 
 	private void installZipFile() throws IOException, BookException {
-		ZipInputStream zin = new ZipInputStream(parent.getContentResolver()
-				.openInputStream(uri));
+		ZipInputStream zin = new ZipInputStream(parent.getContentResolver().openInputStream(uri));
 
 		ArrayList<File> confFiles = new ArrayList<File>();
 		File targetDirectory = SwordBookPath.getSwordDownloadDir();
@@ -166,24 +165,24 @@ class ZipHandler extends AsyncTask<Void, Integer, Integer> {
 
 	@Override
 	protected void onPostExecute(Integer result) {
+		int finishResult = Download.RESULT_CANCELED;
 		switch (result) {
 		case R_ERROR:
-			Toast.makeText(this.parent, R.string.error_occurred,
-					Toast.LENGTH_SHORT).show();
+			Toast.makeText(this.parent, R.string.error_occurred, Toast.LENGTH_SHORT).show();
 			break;
 		case R_INVALID_MODULE:
-			Toast.makeText(this.parent, R.string.invalid_module,
-					Toast.LENGTH_SHORT).show();
+			Toast.makeText(this.parent, R.string.invalid_module, Toast.LENGTH_SHORT).show();
 			break;
 		case R_MODULE_EXISTS:
-			Toast.makeText(this.parent, R.string.module_already_installed,
-					Toast.LENGTH_SHORT).show();
+			Toast.makeText(this.parent, R.string.module_already_installed, Toast.LENGTH_SHORT).show();
 			break;
 		case R_OK:
-			Toast.makeText(this.parent, R.string.install_zip_successfull,
-					Toast.LENGTH_SHORT).show();
+			Toast.makeText(this.parent, R.string.install_zip_successfull, Toast.LENGTH_SHORT).show();
+			finishResult = Download.RESULT_OK;
 			break;
 		}
+
+		parent.setResult(finishResult);
 		parent.finish();
 	}
 
@@ -207,6 +206,7 @@ public class InstallZip extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		Log.i(TAG, "Install from Zip starting");
 		setContentView(R.layout.activity_install_zip);
 		progressBar = (ProgressBar) findViewById(R.id.progressBar);
 		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
