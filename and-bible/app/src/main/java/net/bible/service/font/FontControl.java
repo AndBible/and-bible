@@ -47,16 +47,18 @@ public class FontControl {
 	public String getFontForBook(Book book) {
 		String font = null;
 		try {
-			// sometimes an error occurs on following line - maybe due to missing language info in book metadata
-			String langCode = book.getBookMetaData().getLanguage().getCode();
-			// is there a font for the book
-			font = fontProperties.getProperty(book.getInitials());
-			// is there a font for the language code
-			if (StringUtils.isEmpty(font)) {
-				font = fontProperties.getProperty(langCode);
+			if (book!=null) {
+				// sometimes an error occurs on following line - maybe due to missing language info in book metadata
+				String langCode = book.getBookMetaData().getLanguage().getCode();
+				// is there a font for the book
+				font = fontProperties.getProperty(book.getInitials());
+				// is there a font for the language code
+				if (StringUtils.isEmpty(font)) {
+					font = fontProperties.getProperty(langCode);
+				}
+
+				log.debug("Book:" + book.getInitials() + " Language code:" + langCode + " Font:" + font);
 			}
-			
-			log.debug("Book:"+book.getInitials()+" Language code:"+langCode+" Font:"+font);
 		} catch (Exception e) {
 			// sometimes get here if a book has no initials - so do not attempt to print a books initials in the error 
 			log.warn("Problem getting font for book", e);

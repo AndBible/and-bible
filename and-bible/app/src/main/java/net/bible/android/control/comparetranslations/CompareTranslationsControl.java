@@ -30,7 +30,7 @@ import android.util.Log;
  */
 public class CompareTranslationsControl {
 	
-	private static final String TAG = "CompareTranslationsControl";
+	private static final String TAG = "CompareTranslationsCtrl";
 
 	private SwordDocumentFacade swordDocumentFacade = SwordDocumentFacade.getInstance();
 	private SwordContentFacade swordContentFacade = SwordContentFacade.getInstance();
@@ -73,7 +73,7 @@ public class CompareTranslationsControl {
 	/** return the list of verses to be displayed
 	 */
 	public List<TranslationDto> getAllTranslations() {
-		List<TranslationDto> retval = new ArrayList<TranslationDto>();
+		List<TranslationDto> retval = new ArrayList<>();
 		List<Book> books = swordDocumentFacade.getBibles();
 		FontControl fontControl = FontControl.getInstance();
 		

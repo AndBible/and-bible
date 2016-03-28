@@ -131,22 +131,14 @@ public class SwordDocumentFacade {
 	}
 
 	public List<Book> getBooks(final BookCategory bookCategory) {
-		log.debug("Getting commentaries");
+		log.debug("Getting books of type "+bookCategory.getName());
 		List<Book> documents = Books.installed().getBooks(new BookFilter() {
 			@Override
 	        public boolean test(Book book) {
 	            return book.getBookCategory().equals(bookCategory) && !book.isLocked();
-	        }
+			}
 		});
 		log.debug("Got books, Num="+documents.size());
-		isSwordLoaded = true;
-		return documents;
-	}
-
-	public List<Book> getDictionaries() {
-		log.debug("Getting dictionaries");
-		List<Book> documents = Books.installed().getBooks(BookFilters.getDictionaries());
-		log.debug("Got dictionaries, Num="+documents.size());
 		isSwordLoaded = true;
 		return documents;
 	}
@@ -175,8 +167,7 @@ public class SwordDocumentFacade {
 			}
 		}
 
-		Book strongs = Defaults.getGreekDefinitions();
-		return strongs; 
+		return Defaults.getGreekDefinitions();
 	}
 
 	public Book getDefaultStrongsHebrewDictionary() {
@@ -189,8 +180,7 @@ public class SwordDocumentFacade {
 			}
 		}
 
-		Book strongs = Defaults.getHebrewDefinitions();
-		return strongs; 
+		return Defaults.getHebrewDefinitions();
 	}
 
 	public Book getDefaultBibleWithStrongs() {
@@ -255,9 +245,9 @@ public class SwordDocumentFacade {
 
 	public boolean isIndexDownloadAvailable(Book document) throws InstallException, BookException {
 		// not sure how to integrate reuse this in JSword index download
-		Version versionObj = new Version(document.getBookMetaData().getProperty("Version"));
-        String version = versionObj==null ? null : versionObj.toString();
-        String versionSuffix = version!=null ? "-"+version : "";
+		String version = document.getBookMetaData().getProperty("Version");
+
+        String versionSuffix = version!=null ? "-" + new Version(version).toString() : "";
 
 		String url = "http://www.crosswire.org/and-bible/indices/v1/"+document.getInitials()+versionSuffix+".zip";
 		return CommonUtils.isHttpUrlAvailable(url);
@@ -299,9 +289,6 @@ public class SwordDocumentFacade {
 
 	/** this custom index creation has been optimised for slow, low memory devices
 	 * If an index is in progress then nothing will happen
-	 * 
-	 * @param book
-	 * @throws BookException
 	 */
 	public void ensureIndexCreation(Book book) throws BookException {
     	log.debug("ensureIndexCreation");
@@ -339,8 +326,6 @@ public class SwordDocumentFacade {
 	}
 
 	/** needs to be static because otherwise the constructor triggers initialisation
-	 * 
-	 * @return
 	 */
 	static public boolean isSwordLoaded() {
 		return isSwordLoaded;
