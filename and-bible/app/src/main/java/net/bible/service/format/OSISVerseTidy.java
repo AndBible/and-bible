@@ -106,9 +106,9 @@ public class OSISVerseTidy {
     private String addVerseTag(Key verse, String plain) {
     	String ret = plain;
     	if (!plain.contains("<"+OSISUtil.OSIS_ELEMENT_VERSE)) {
-    		StringBuffer buff = new StringBuffer();
-    		buff.append(VERSE_OPENING_TAG_START).append(verse.getOsisID()).append(VERSE_OPENING_TAG_END).append(plain).append(VERSE_CLOSING_TAG);
-    		ret = buff.toString();
+    		StringBuilder bldr = new StringBuilder();
+    		bldr.append(VERSE_OPENING_TAG_START).append(verse.getOsisID()).append(VERSE_OPENING_TAG_END).append(plain).append(VERSE_CLOSING_TAG);
+    		ret = bldr.toString();
     	}
     	return ret;
     }
