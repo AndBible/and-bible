@@ -16,6 +16,7 @@
   <string name="speak">Con voz</string>
   <string name="help">Ayuda</string>
   <string name="verse">Verso</string>
+  <string name="administration">Administración</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Elige Libro</string>
   <string name="choosePassageChapterName">Elige Capítulo</string>
@@ -74,6 +75,8 @@
   <string name="prefs_night_mode_automatic">Automático</string>
   <string name="prefs_navigate_to_verse_title">Navegar al versículo</string>
   <string name="prefs_navigate_to_verse_summary">Escoger versículo (y capítulo) al seleccionar un pasaje</string>
+  <string name="prefs_open_links_in_special_window_title">Abrir enlaces en ventana especial</string>
+  <string name="prefs_open_links_in_special_window_summary">Para mostrar más rápido las referencias cruzadas o negritas</string>
   <string name="prefs_text_size_title">Tamaño del texto</string>
   <string name="prefs_text_size_summary">Ver más o más claramente</string>
   <string name="prefs_text_size_sample_text">Texto de ejemplo</string>
@@ -84,6 +87,12 @@
   <string name="prefs_interface_locale_summary">Selecciona lenguaje de interfaz personalizado</string>
   <string name="locale_change_warning">La aplicación será reiniciada para cambiar al nuevo lenguaje de interfaz</string>
   <!--Window-->
+  <string name="window">Ventana</string>
+  <string name="windowClose">Cerrar</string>
+  <string name="windowMaximise">Maximizar</string>
+  <string name="windowMinimise">Minimizar</string>
+  <string name="windowSynchronise">Sincronizar</string>
+  <string name="windowMoveFirst">Mover al prinicipio</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">No existen notas en este capítulo</string>
   <string name="no_verse_notes">No existen notas en este verso</string>
@@ -114,6 +123,12 @@
   <string name="too_many_jobs">Demasiadas tareas en ejecución.  Por favor espere que algunas terminen e intente nuevamente.</string>
   <string name="document_not_installed">Por favor descarga \'%s\'</string>
   <!--Install zip file-->
+  <string name="install_zip">Cargar documento desde zip</string>
+  <string name="install_zip_successfull">El módulo se ha instalado correctamente</string>
+  <string name="extracting_zip_file">Extrayendo Zip...</string>
+  <string name="checking_zip_file">Comprobando el archivo...</string>
+  <string name="invalid_module">El archivo no contiene un módulo SWORD válido</string>
+  <string name="module_already_installed">El archivo contiene un módulo que ya está instalado</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plan de lectura</string>
   <string name="rdg_plan_selector_title">Elige plan de lectura</string>
@@ -198,6 +213,7 @@
   <string name="restore_confirmation">¿Sobreescribir Mis Notas y Marcadores?</string>
   <string name="restore_success">Se han restaurado Mis Notas y Marcadores desde %s en la tarjeta SD</string>
   <!--About-->
+  <string name="about_copyright">Copyright: %s</string>
   <string name="about_version">Versión: %s</string>
   <string name="about_versification">Versificación: %s</string>
   <!--Document types-->
@@ -221,7 +237,10 @@
   <string name="please_wait">Por favor espere...</string>
   <string name="all">Todo</string>
   <string name="default_value">@string/lang_default</string>
+  <string name="new_item">Nuevo</string>
+  <string name="close">Cerrar</string>
   <!--Errors-->
+  <string name="report_error">Enviar informe</string>
   <string name="error_occurred">A ocurrido un error.</string>
   <string name="error_no_content">No hay contenido para el verso seleccionado</string>
   <string name="error_page_too_large">La página es muy grande como para ser cargada</string>
