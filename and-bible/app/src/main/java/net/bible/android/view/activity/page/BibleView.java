@@ -17,8 +17,10 @@ import net.bible.android.view.activity.page.screen.PageTiltScroller;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Build;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -63,7 +65,7 @@ public class BibleView extends WebView implements DocumentView {
 	
 	// never go to 0 because a bug in Android prevents invalidate after loadDataWithBaseURL so no scrollOrJumpToVerse will occur 
 	private static final int TOP_OF_SCREEN = 1;
-	
+
 	private static final String TAG = "BibleView";
 	
 	// remember current background colour so we know when it changes
@@ -115,12 +117,12 @@ public class BibleView extends WebView implements DocumentView {
 
 		// handle alerts
 		setWebChromeClient(new WebChromeClient() {
-		    @Override
-	        public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
-	            Log.d(TAG, message);
-	            result.confirm();
-	            return true;
-	        }
+			@Override
+			public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+				Log.d(TAG, message);
+				result.confirm();
+				return true;
+			}
 		});
 
 		// need javascript to enable jump to anchors/verses
@@ -161,7 +163,7 @@ public class BibleView extends WebView implements DocumentView {
 		getSettings().setDefaultFontSize(fontSize);
 
 		// 1.6 is taken from css - line-height: 1.6em;
-		ScreenSettings.setLineHeightDips((int)(1.6*fontSize));
+		ScreenSettings.setLineHeightDips((int) (1.6 * fontSize));
 	}
 	
 	/** may need updating depending on environmental brightness
@@ -185,7 +187,7 @@ public class BibleView extends WebView implements DocumentView {
 	 */
 	@Override
 	public void show(String html, int jumpToVerse, float jumpToYOffsetRatio) {
-		Log.d(TAG, "Show(html,"+jumpToVerse+","+jumpToYOffsetRatio+") Window:"+window);
+		Log.d(TAG, "Show(html," + jumpToVerse + "," + jumpToYOffsetRatio + ") Window:" + window);
 		// set background colour if necessary
 		changeBackgroundColour();
 		
@@ -203,7 +205,7 @@ public class BibleView extends WebView implements DocumentView {
 		// ensure jumpToOffset is eventually called during initialisation.  It will normally be called automatically but sometimes is not i.e. after jump to verse 1 at top of screen then press back.
 		// don't set this value too low or it may trigger before a proper upcoming computeVerticalScrollEvent
 		// 100 was good for my Nexus 4 but 500 for my G1 - it would be good to get a reflection of processor speed and adjust appropriately
-		invokeJumpToOffsetIfRequired(CommonUtils.isSlowDevice()? 500 : 250);
+		invokeJumpToOffsetIfRequired(CommonUtils.isSlowDevice() ? 500 : 250);
 	}
 
 	/**
@@ -253,7 +255,7 @@ public class BibleView extends WebView implements DocumentView {
 		if (getContentHeight() > 0) {
 			if (mIsVersePositionRecalcRequired) {
 				mIsVersePositionRecalcRequired = false;
-				loadUrl("javascript:registerVersePositions()");
+				executeJavascript("registerVersePositions()");
 			}
 			
 			mJavascriptInterface.setNotificationsEnabled(windowControl.isActiveWindow(window));
@@ -326,7 +328,7 @@ public class BibleView extends WebView implements DocumentView {
 	}
 	
     private void pauseTiltScroll() {
-		Log.d(TAG, "Pausing tilt to scroll "+window);
+		Log.d(TAG, "Pausing tilt to scroll " + window);
         mPageTiltScroller.enableTiltScroll(false);
     }
     
@@ -341,12 +343,12 @@ public class BibleView extends WebView implements DocumentView {
 	@Override
 	public boolean onTouchEvent(MotionEvent ev) {
 		boolean handled = super.onTouchEvent(ev);
-		
+
 		windowControl.setActiveWindow(window);
-		
+
 		// Allow user to redefine viewing angle by touching screen
 		mPageTiltScroller.recalculateViewingPosition();
-		
+
 		return handled;
 	}
 
@@ -366,16 +368,16 @@ public class BibleView extends WebView implements DocumentView {
 	@Override
 	public void selectAndCopyText(LongPressControl longPressControl) {
 		Log.d(TAG, "enter text selection mode");
-		
+
 		// JellyBean
-		if (CommonUtils.isJellyBeanPlus()) {	
+		if (CommonUtils.isJellyBeanPlus()) {
 			Log.d(TAG, "keycode Enter for JB+");
 			// retrigger a long-press but allow it to be handled by WebView
 	        KeyEvent enterEvent = new KeyEvent(0,0,KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_ENTER,0,0);
 	        longPressControl.ignoreNextLongPress();
 	        enterEvent.dispatch(this);
 		} else {
-			    
+
 			try {
 				Log.d(TAG, "selectText for ICS");
 				// ICS
@@ -394,7 +396,7 @@ public class BibleView extends WebView implements DocumentView {
 	        }
 		}
 	}
-	
+
 	@Override
     public float getCurrentPosition() {
     	// see http://stackoverflow.com/questions/1086283/getting-document-position-in-a-webview
@@ -445,7 +447,6 @@ public class BibleView extends WebView implements DocumentView {
 
 	/** Used to prevent scroll off bottom using auto-scroll
 	 * see http://stackoverflow.com/questions/5069765/android-webview-how-to-autoscroll-a-page
-	 * @return
 	 */
     private int getMaxVerticalScroll() {
     	//TODO get these once, they probably won't change 
@@ -515,7 +516,7 @@ public class BibleView extends WebView implements DocumentView {
 						
 						// ensure we are in the correct place after screen settles
 						scrollOrJumpToVerse(verse);
-						loadUrl("javascript:registerVersePositions()");
+						executeJavascript("registerVersePositions()");
 					}
 				} , WindowControl.SCREEN_SETTLE_TIME_MILLIS/2);
 			}
@@ -554,7 +555,6 @@ public class BibleView extends WebView implements DocumentView {
 	
 	public void setJumpToVerse(int verseNo) {
 		this.mJumpToVerse = verseNo;
-//		loadUrl("javascript:location.href='#"+verseNo+"'");
 	}
 
 	/** move the view so the selected verse is at the top or at least visible
@@ -571,7 +571,7 @@ public class BibleView extends WebView implements DocumentView {
 	/** move the view so the selected verse is at the top or at least visible
 	 */
 	private void scrollOrJumpToVerse(final int verse) {
-		Log.d(TAG, "Scroll or jump to:"+verse);
+		Log.d(TAG, "Scroll or jump to:" + verse);
 		if (verse==SharedConstants.NO_VALUE) {
 			// NOOP
 		} else if (verse<=1) {
@@ -582,10 +582,19 @@ public class BibleView extends WebView implements DocumentView {
 			// but scrollTop does not work on Android 3.0-4.0 and changing document location does not work on latest WebView  
 			if (kitKatPlus) {
 				// required format changed in 4.2 http://stackoverflow.com/questions/14771970/how-to-call-javascript-in-android-4-2
-				loadUrl("javascript:(scrollTo('"+verse+"'))");
+				executeJavascript("scrollTo('" + verse + "')");
 			} else {
-				loadUrl("javascript:(function() { document.location = '#"+verse+"' })()");
+				executeJavascript("(function() { document.location = '#" + verse+"' })()");
 			}
+		}
+	}
+
+	@TargetApi(Build.VERSION_CODES.KITKAT)
+	private void executeJavascript(String javascript) {
+		if (kitKatPlus) {
+			evaluateJavascript(javascript+";", null);
+		} else {
+			loadUrl("javascript:"+javascript+";");
 		}
 	}
 }
