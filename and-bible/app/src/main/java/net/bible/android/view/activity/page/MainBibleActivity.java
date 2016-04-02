@@ -8,6 +8,7 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.passage.PassageChangeStartedEvent;
 import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent;
+import net.bible.android.control.event.touch.ShowContextMenuEvent;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.window.WindowControl;
@@ -57,7 +58,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	
 	// detect swipe left/right
 	private GestureDetectorCompat gestureDetector;
-	private BibleGestureListener gestureListener;
 
 	private boolean mWholeAppWasInBackground = false;
 	
@@ -83,7 +83,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
         setContentView(R.layout.main_bible_view);
 
         // create related objects
-        gestureListener = new BibleGestureListener(MainBibleActivity.this);
+		BibleGestureListener gestureListener = new BibleGestureListener(MainBibleActivity.this);
         gestureDetector = new GestureDetectorCompat(this, gestureListener );
 
         windowControl = ControlFactory.getInstance().getWindowControl();
@@ -175,7 +175,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 
 	@Override
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		Log.d(TAG, "Keycode:"+keyCode);
+		Log.d(TAG, "Keycode:" + keyCode);
 		// common key handling i.e. KEYCODE_DPAD_RIGHT & KEYCODE_DPAD_LEFT
 		if (BibleKeyHandler.getInstance().onKeyUp(keyCode, event)) {
 			return true;
@@ -288,11 +288,12 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 		// must return true for menu to be displayed
 		return true;
 	}
-    
-    /** called from gesture listener if the context menu is not displayed automatically
-     */
-    public void openContextMenu(float x, float y) {
-		Log.d(TAG, "openContextMenu");
+
+	/**
+	 * Event raised by javascript as a result of longtap
+	 */
+	public void onEventMainThread(ShowContextMenuEvent event) {
+		Log.d(TAG, "showActionModeMenu");
 		//TODO newVerseSelect
 		startSupportActionMode(new ActionMode.Callback() {
 			@Override
@@ -323,7 +324,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 				// Allows you to be notified when the action mode is dismissed
 			}
 		});
-		this.documentViewManager.getDocumentView().selectAt(x, y);
 
 		//TODO newVerseSelect
 //		super.openContextMenu(documentViewManager.getDocumentView().asView());

@@ -71,11 +71,8 @@ public class MyNoteEditTextView extends EditText implements DocumentView {
 		myNoteControl.saveMyNoteText(getText().toString());		
 	}
 
-	@Override
-	public void selectAt(float x, float y) {
-		Log.d(TAG, "MyNote Select at");
-	}
-//	@Override
+//TODO newVerseSelect
+// 	@Override
 //	public void selectAndCopyText(LongPressControl longPressControl) {
 //	}
 

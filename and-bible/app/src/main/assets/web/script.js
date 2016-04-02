@@ -72,13 +72,12 @@ function doScrollToSlowly(element, elementPosition, to) {
 function selectAt(x, y) {
 	window.jsInterface.log("JS select at: "+x+", "+y+" WebView dimensions:"+window.innerWidth+","+window.innerHeight);
 
-//	x *= (window.innerWidth / width);
-//	y *= (window.innerHeight / height);
-
 	var elem = document.elementFromPoint(x, y);
 
 	window.jsInterface.log("Found element: "+elem);
 	if (elem.className == "verse") {
-		window.jsInterface.log("Found verse with id: "+elem.id);
+		var verse = parseInt(elem.id);
+		window.jsInterface.log("Found verse with id: "+verse);
+		window.jsInterface.verseSelected(verse);
 	}
 }

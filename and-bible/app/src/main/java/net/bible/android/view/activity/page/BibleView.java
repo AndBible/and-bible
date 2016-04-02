@@ -21,6 +21,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
+import android.support.v4.view.GestureDetectorCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -66,12 +67,14 @@ public class BibleView extends WebView implements DocumentView {
 	// never go to 0 because a bug in Android prevents invalidate after loadDataWithBaseURL so no scrollOrJumpToVerse will occur 
 	private static final int TOP_OF_SCREEN = 1;
 
-	private static final String TAG = "BibleView";
-	
 	// remember current background colour so we know when it changes
 	// -123 is not equal to WHITE or BLACK forcing first setting to be actioned
 	private int mCurrentBackgroundColour = -123;
-	
+
+	private GestureDetectorCompat gestureDetector;
+
+	private static final String TAG = "BibleView";
+
 	/**
      * Constructor.  This version is only needed if you will be instantiating
      * the object manually (not from a layout XML file).
@@ -141,6 +144,11 @@ public class BibleView extends WebView implements DocumentView {
 			}
 		});
 		setLongClickable(false);
+
+		// create related objects
+		BibleViewGestureListener gestureListener = new BibleViewGestureListener(this);
+		gestureDetector = new GestureDetectorCompat(this.getContext(), gestureListener );
+
 
 		// if this webview becomes (in)active then must start/stop auto-scroll
 		EventBus.getDefault().register(this);
@@ -349,18 +357,6 @@ public class BibleView extends WebView implements DocumentView {
     	}
     }
     
-	@Override
-	public boolean onTouchEvent(MotionEvent ev) {
-		boolean handled = super.onTouchEvent(ev);
-
-		windowControl.setActiveWindow(window);
-
-		// Allow user to redefine viewing angle by touching screen
-		mPageTiltScroller.recalculateViewingPosition();
-
-		return handled;
-	}
-
 	/** ensure auto-scroll does not continue when screen is powered off
 	 */
 	@Override
@@ -373,14 +369,31 @@ public class BibleView extends WebView implements DocumentView {
 	}
 
 	@Override
-	public void selectAt(float x, float y) {
+	public boolean onTouchEvent(MotionEvent event) {
+		Log.d(TAG, "BibleView onTouchEvent");
+		windowControl.setActiveWindow(window);
+
+		boolean handled = gestureDetector.onTouchEvent(event);
+		handled |= super.onTouchEvent(event);
+
+		// Allow user to redefine viewing angle by touching screen
+		mPageTiltScroller.recalculateViewingPosition();
+
+		return handled;
+	}
+
+	/**
+	 * Called by GestureDetector to start long-press chain of events
+	 */
+	public void onLongPress(float x, float y) {
 		Log.d(TAG, "Select at:"+x+","+y);
 
 		// or maybe getLocationInWindow
-		int[] posn = new int[2];
-		getLocationOnScreen(posn);
-		x -= posn[0];
-		y -= posn[1];
+		// following works if coords passed from MainBibleActivity gesture detector
+//		int[] posn = new int[2];
+//		getLocationOnScreen(posn);
+//		x -= posn[0];
+//		y -= posn[1];
 
 		x = CommonUtils.convertPxToDips((int)x);
 		y = CommonUtils.convertPxToDips((int)y);

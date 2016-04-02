@@ -2,9 +2,12 @@ package net.bible.android.view.activity.page;
 
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
+import net.bible.android.control.event.touch.ShowContextMenuEvent;
 import net.bible.android.control.page.window.WindowControl;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -19,7 +22,7 @@ public class BibleJavascriptInterface {
 	
 	private WindowControl windowControl = ControlFactory.getInstance().getWindowControl();
 	
-	private static final String TAG = "BibleJavascriptInterface";
+	private static final String TAG = "BibleJavascriptIntrfc";
 	
 	public BibleJavascriptInterface(VerseCalculator verseCalculator) {
 		this.verseCalculator = verseCalculator;
@@ -48,7 +51,13 @@ public class BibleJavascriptInterface {
 	public void registerVersePosition(String verseId, int offset) {
 		verseCalculator.registerVersePosition(Integer.valueOf(verseId), offset);
 	}
-	
+
+	@JavascriptInterface
+	public void verseSelected(int verse) {
+		Log.d(TAG, "Verse selected event:"+verse);
+		EventBus.getDefault().post(new ShowContextMenuEvent());
+	}
+
 	@JavascriptInterface
 	public void log(String msg) {
 		Log.d(TAG, msg);

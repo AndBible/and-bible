@@ -13,8 +13,6 @@ import android.view.View;
  */
 public interface DocumentView {
 
-	public abstract void selectAt(float x, float y);
-
 	public abstract void show(String html, int jumpToVerse, float jumpToYOffsetRatio);
 
 	public abstract void applyPreferenceSettings();
