@@ -133,6 +133,15 @@ public class BibleView extends WebView implements DocumentView {
 		mPageTiltScroller = new PageTiltScroller(this);
 		mPageTiltScroller.enableTiltScroll(true);
 
+		// handle long click ourselves and prevent webview showing text selection automatically
+		setOnLongClickListener(new OnLongClickListener() {
+			@Override
+			public boolean onLongClick(View v) {
+				return true;
+			}
+		});
+		setLongClickable(false);
+
 		// if this webview becomes (in)active then must start/stop auto-scroll
 		EventBus.getDefault().register(this);
 		
@@ -363,38 +372,20 @@ public class BibleView extends WebView implements DocumentView {
 		pauseTiltScroll();
 	}
 
-	/** enter text selection mode
-	 */
 	@Override
-	public void selectAndCopyText(LongPressControl longPressControl) {
-		Log.d(TAG, "enter text selection mode");
+	public void selectAt(float x, float y) {
+		Log.d(TAG, "Select at:"+x+","+y);
 
-		// JellyBean
-		if (CommonUtils.isJellyBeanPlus()) {
-			Log.d(TAG, "keycode Enter for JB+");
-			// retrigger a long-press but allow it to be handled by WebView
-	        KeyEvent enterEvent = new KeyEvent(0,0,KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_ENTER,0,0);
-	        longPressControl.ignoreNextLongPress();
-	        enterEvent.dispatch(this);
-		} else {
+		// or maybe getLocationInWindow
+		int[] posn = new int[2];
+		getLocationOnScreen(posn);
+		x -= posn[0];
+		y -= posn[1];
 
-			try {
-				Log.d(TAG, "selectText for ICS");
-				// ICS
-	            WebView.class.getMethod("selectText").invoke(this);
-	        } catch (Exception e1) {
-			    try {
-					Log.d(TAG, "emulateShiftHeld");
-			        Method m = WebView.class.getMethod("emulateShiftHeld", (Class[])null);
-			        m.invoke(this, (Object[])null);
-			    } catch (Exception e2) {
-					Log.d(TAG, "shiftPressEvent");
-			        // fallback
-			        KeyEvent shiftPressEvent = new KeyEvent(0,0,KeyEvent.ACTION_DOWN,KeyEvent.KEYCODE_SHIFT_LEFT,0,0);
-			        shiftPressEvent.dispatch(this);
-			    }
-	        }
-		}
+		x = CommonUtils.convertPxToDips((int)x);
+		y = CommonUtils.convertPxToDips((int)y);
+
+		executeJavascript("selectAt(" + x + "," + y + ")");
 	}
 
 	@Override

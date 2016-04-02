@@ -12,6 +12,7 @@ import net.bible.service.device.ScreenSettings;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
@@ -71,8 +72,12 @@ public class MyNoteEditTextView extends EditText implements DocumentView {
 	}
 
 	@Override
-	public void selectAndCopyText(LongPressControl longPressControl) {
+	public void selectAt(float x, float y) {
+		Log.d(TAG, "MyNote Select at");
 	}
+//	@Override
+//	public void selectAndCopyText(LongPressControl longPressControl) {
+//	}
 
 	@Override
 	public void show(String html, int jumpToVerse, float jumpToYOffsetRatio) {

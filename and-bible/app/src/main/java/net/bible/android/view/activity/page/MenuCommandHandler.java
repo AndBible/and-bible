@@ -142,14 +142,15 @@ public class MenuCommandHandler {
 		        	break;
 	
 		        /** Pop-up options menu starts here */
-		        case R.id.bibleVerseButton:
-		    		if (callingActivity instanceof MainBibleActivity) {
-		    			if (BookCategory.BIBLE.equals(ControlFactory.getInstance().getDocumentControl().getCurrentCategory())) {
-		    				// if bible then show verse context menu
-		    				((MainBibleActivity)callingActivity).openContextMenuFromMainMenu();
-		    			}
-		    		}
-		    		break;
+				//TODO newVerseSelect
+//		        case R.id.bibleVerseButton:
+//		    		if (callingActivity instanceof MainBibleActivity) {
+//		    			if (BookCategory.BIBLE.equals(ControlFactory.getInstance().getDocumentControl().getCurrentCategory())) {
+//		    				// if bible then show verse context menu
+//		    				((MainBibleActivity)callingActivity).openContextMenuFromMainMenu();
+//		    			}
+//		    		}
+//		    		break;
 				case R.id.compareTranslations:
 		        	handlerIntent = new Intent(callingActivity, CompareTranslations.class);
 		        	break;
@@ -174,14 +175,15 @@ public class MenuCommandHandler {
 					ControlFactory.getInstance().getPageControl().shareVerse();
 					isHandled = true;
 		        	break;
-		        case R.id.selectText:
-		        	// ICS+ have their own ui prompts for copy/paste
-		        	if (!CommonUtils.isIceCreamSandwichPlus()) {
-		        		Toast.makeText(callingActivity, R.string.select_text_help, Toast.LENGTH_LONG).show();
-		        	}
-		        	callingActivity.getDocumentViewManager().getDocumentView().selectAndCopyText(longPressControl);
-					isHandled = true;
-		        	break;
+				//TODO newVerseSelect
+//		        case R.id.selectText:
+//		        	// ICS+ have their own ui prompts for copy/paste
+//		        	if (!CommonUtils.isIceCreamSandwichPlus()) {
+//		        		Toast.makeText(callingActivity, R.string.select_text_help, Toast.LENGTH_LONG).show();
+//		        	}
+//		        	callingActivity.getDocumentViewManager().getDocumentView().selectAndCopyText(longPressControl);
+//					isHandled = true;
+//		        	break;
 	        }
 	        
 	        if (!isHandled) {
@@ -210,7 +212,8 @@ public class MenuCommandHandler {
     			} else {
 	    			//works on 2.1 but scroll errors on 4.x
 	    			Intent startupIntent = new  Intent(callingActivity.getBaseContext(), StartupActivity.class);
-	    			pendingIntent = PendingIntent.getActivity(callingActivity.getBaseContext(), 0, startupIntent, callingActivity.getIntent().getFlags());
+					//noinspection ResourceType
+					pendingIntent = PendingIntent.getActivity(callingActivity.getBaseContext(), 0, startupIntent, callingActivity.getIntent().getFlags());
     			}
     			AlarmManager mgr = (AlarmManager)callingActivity.getSystemService(Context.ALARM_SERVICE);
     			mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent);
