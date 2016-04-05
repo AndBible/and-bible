@@ -30,3 +30,7 @@ a {
 .redLetter {
 	color: #DD4422;
 }
+
+.selected {
+	color: #000000;
+}

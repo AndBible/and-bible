@@ -76,6 +76,7 @@ function selectAt(x, y) {
 
 	window.jsInterface.log("Found element: "+elem);
 	if (elem.className == "verse") {
+		elem.classList.add("selected")
 		var verse = parseInt(elem.id);
 		window.jsInterface.log("Found verse with id: "+verse);
 		window.jsInterface.verseSelected(verse);

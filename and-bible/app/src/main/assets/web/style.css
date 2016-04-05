@@ -123,3 +123,7 @@ h1 a, .heading2, .heading3, .heading4 {
 	/* yellow */
 	background-color: #C0C000;
 }
+
+.selected {
+	background-color: #7ecce8;
+}
