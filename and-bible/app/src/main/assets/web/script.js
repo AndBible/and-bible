@@ -1,7 +1,10 @@
-function jsonload() {
-	window.jsInterface.onLoad();
-	registerVersePositions();
-}
+$(window).load(
+	function() {
+		window.jsInterface.onLoad();
+		registerVersePositions();
+		bindTapTouchEvents();
+	}
+)
 
 function jsonscroll() {
 	window.jsInterface.onScroll(window.pageYOffset);
@@ -74,6 +77,22 @@ function selectAt(x, y) {
 
 	var elem = document.elementFromPoint(x, y);
 
+	selected(elem);
+}
+
+
+/*--- taphold start --*/
+function bindTapTouchEvents() {
+	window.jsInterface.log("Binding tap Hold");
+	$( ".verse" ).bind( "taphold", tapholdHandler );
+
+	function tapholdHandler( event ){
+		window.jsInterface.log("Tap Hold");
+		selected(event.target)
+	}
+}
+
+function selected(elem) {
 	window.jsInterface.log("Found element: "+elem);
 	if (elem.className == "verse") {
 		elem.classList.add("selected")

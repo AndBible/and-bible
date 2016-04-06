@@ -163,6 +163,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 	@Override
 	public void startDocument()  {
+		String jQueryjs = "\n<script type='text/javascript' src='file:///android_asset/web/jquery-2.2.3.js'></script>\n"+
+				"<script type='text/javascript' src='file:///android_asset/web/jquery.mobile.1.4.5.only-touch.js'></script>\n";
 		String jsTag = "\n<script type='text/javascript' src='file:///android_asset/web/script.js'></script>\n";
 		String styleSheetTags = parameters.getCssStylesheets();
 		String customFontStyle = FontControl.getInstance().getHtmlFontStyle(parameters.getFont(), parameters.getCssClassForCustomFont());
@@ -170,10 +172,11 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 				+ "<html xmlns='http://www.w3.org/1999/xhtml' dir='" + getDirection() + "'><head>"
 				+ styleSheetTags+"\n"
 				+ customFontStyle
+				+ jQueryjs
 				+ jsTag
 				+ "<meta charset='utf-8'/>"
 				+ "</head>"
-				+ "<body onscroll='jsonscroll()' onload='jsonload()' >");
+				+ "<body onscroll='jsonscroll()' >");
 
 		// force rtl for rtl languages - rtl support on Android is poor but
 		// forcing it seems to help occasionally
