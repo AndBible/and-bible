@@ -87,9 +87,6 @@ public class MenuCommandHandler {
     		Intent handlerIntent = null;
 	        // Handle item selection
 	        switch (menuItem.getItemId()) {
-		        case R.id.chooseBookButton:
-		        	handlerIntent = new Intent(callingActivity, ChooseDocument.class);
-		        	break;
 		        case R.id.searchButton:
 		        	handlerIntent = ControlFactory.getInstance().getSearchControl().getSearchIntent(ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument());
 		        	break;

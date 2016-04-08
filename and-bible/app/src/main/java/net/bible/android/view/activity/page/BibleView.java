@@ -71,8 +71,6 @@ public class BibleView extends WebView implements DocumentView {
 	// -123 is not equal to WHITE or BLACK forcing first setting to be actioned
 	private int mCurrentBackgroundColour = -123;
 
-	private GestureDetectorCompat gestureDetector;
-
 	private static final String TAG = "BibleView";
 
 	/**
@@ -144,11 +142,6 @@ public class BibleView extends WebView implements DocumentView {
 			}
 		});
 		setLongClickable(false);
-
-		// create related objects
-		BibleViewGestureListener gestureListener = new BibleViewGestureListener(this);
-		gestureDetector = new GestureDetectorCompat(this.getContext(), gestureListener );
-
 
 		// if this webview becomes (in)active then must start/stop auto-scroll
 		EventBus.getDefault().register(this);
@@ -373,32 +366,12 @@ public class BibleView extends WebView implements DocumentView {
 		Log.d(TAG, "BibleView onTouchEvent");
 		windowControl.setActiveWindow(window);
 
-		boolean handled = gestureDetector.onTouchEvent(event);
-		handled |= super.onTouchEvent(event);
+		boolean handled = super.onTouchEvent(event);
 
 		// Allow user to redefine viewing angle by touching screen
 		mPageTiltScroller.recalculateViewingPosition();
 
 		return handled;
-	}
-
-	/**
-	 * Called by GestureDetector to start long-press chain of events
-	 */
-	public void onLongPress(float x, float y) {
-		Log.d(TAG, "Select at:"+x+","+y);
-
-		// or maybe getLocationInWindow
-		// following works if coords passed from MainBibleActivity gesture detector
-//		int[] posn = new int[2];
-//		getLocationOnScreen(posn);
-//		x -= posn[0];
-//		y -= posn[1];
-
-		x = CommonUtils.convertPxToDips((int)x);
-		y = CommonUtils.convertPxToDips((int)y);
-
-		executeJavascript("selectAt(" + x + "," + y + ")");
 	}
 
 	@Override
