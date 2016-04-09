@@ -18,6 +18,8 @@ import net.bible.android.view.activity.page.screen.DocumentViewManager;
 import net.bible.android.view.util.TouchOwner;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
+
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -41,7 +43,7 @@ import de.greenrobot.event.EventBus;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class MainBibleActivity extends CustomTitlebarActivityBase {
+public class MainBibleActivity extends CustomTitlebarActivityBase implements VerseActionModeMediator.ActionModeMenuDisplay {
 
 	private DocumentViewManager documentViewManager;
 	
@@ -74,13 +76,15 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	}
 	
     /** Called when the activity is first created. */
-    @Override
+    @SuppressLint("MissingSuperCall")
+	@Override
     public void onCreate(Bundle savedInstanceState) {
 		Log.i(TAG, "Creating MainBibleActivity");
-
         super.onCreate(savedInstanceState, true);
         
         setContentView(R.layout.main_bible_view);
+
+		ControlFactory.getInstance().provide(this);
 
         // create related objects
 		BibleGestureListener gestureListener = new BibleGestureListener(MainBibleActivity.this);
@@ -264,7 +268,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
     protected void onResume() {
     	super.onResume();
 
-    	// allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume 
+    	// allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
 		documentViewManager.getDocumentView().asView().requestFocus();
     }
 
@@ -292,42 +296,54 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	/**
 	 * Event raised by javascript as a result of longtap
 	 */
-	public void onEventMainThread(ShowContextMenuEvent event) {
-		Log.d(TAG, "showActionModeMenu");
-		//TODO newVerseSelect
-		startSupportActionMode(new ActionMode.Callback() {
+	@Override
+	public void showVerseActionModeMenu(final ActionMode.Callback actionModeCallbackHandler) {
+		Log.d(TAG, "showVerseActionModeMenu");
+
+		runOnUiThread(new Runnable() {
 			@Override
-			public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-				// Inflate our menu from a resource file
-				actionMode.getMenuInflater().inflate(R.menu.document_viewer_context_menu, menu);
-
-				// Return true so that the action mode is shown
-				return true;
-			}
-
-			@Override
-			public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-				// As we do not need to modify the menu before displayed, we return false.
-				return false;
-			}
-
-			@Override
-			public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-				// Similar to menu handling in Activity.onOptionsItemSelected()
-				mainMenuCommandHandler.handleMenuRequest(menuItem);
-
-				return false;
-			}
-
-			@Override
-			public void onDestroyActionMode(ActionMode actionMode) {
-				// Allows you to be notified when the action mode is dismissed
+			public void run() {
+				startSupportActionMode(actionModeCallbackHandler);
 			}
 		});
+	}
 
+//	public void onEventMainThread(ShowContextMenuEvent event) {
+//		Log.d(TAG, "showActionModeMenu");
+//		//TODO newVerseSelect
+//		startSupportActionMode(new ActionMode.Callback() {
+//			@Override
+//			public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+//				// Inflate our menu from a resource file
+//				actionMode.getMenuInflater().inflate(R.menu.document_viewer_context_menu, menu);
+//
+//				// Return true so that the action mode is shown
+//				return true;
+//			}
+//
+//			@Override
+//			public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+//				// As we do not need to modify the menu before displayed, we return false.
+//				return false;
+//			}
+//
+//			@Override
+//			public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+//				// Similar to menu handling in Activity.onOptionsItemSelected()
+//				mainMenuCommandHandler.handleMenuRequest(menuItem);
+//
+//				return false;
+//			}
+//
+//			@Override
+//			public void onDestroyActionMode(ActionMode actionMode) {
+//				// Allows you to be notified when the action mode is dismissed
+//			}
+//		});
+//
 		//TODO newVerseSelect
 //		super.openContextMenu(documentViewManager.getDocumentView().asView());
-    }
+//    }
 
 	//TODO newVerseSelect
 //    /** called from Main menu
@@ -441,4 +457,4 @@ public class MainBibleActivity extends CustomTitlebarActivityBase {
 	protected BibleContentManager getBibleContentManager() {
 		return bibleContentManager;
 	}
- }
+}

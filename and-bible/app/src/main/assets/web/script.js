@@ -1,5 +1,6 @@
 $(window).load(
 	function() {
+		window.jsInterface.log("JS onload");
 		window.jsInterface.onLoad();
 		registerVersePositions();
 		bindTapTouchEvents();
@@ -98,6 +99,6 @@ function selected(elem) {
 		elem.classList.add("selected")
 		var verse = parseInt(elem.id);
 		window.jsInterface.log("Found verse with id: "+verse);
-		window.jsInterface.verseSelected(verse);
+		window.jsInterface.verseLongPress(verse);
 	}
 }

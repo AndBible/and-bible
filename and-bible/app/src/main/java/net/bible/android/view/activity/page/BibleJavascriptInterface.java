@@ -19,16 +19,27 @@ public class BibleJavascriptInterface {
 	private boolean notificationsEnabled = false;
 	
 	private VerseCalculator verseCalculator;
+
+	private VerseActionModeMediator verseActionModeMediator;
 	
 	private WindowControl windowControl = ControlFactory.getInstance().getWindowControl();
 	
 	private static final String TAG = "BibleJavascriptIntrfc";
 	
-	public BibleJavascriptInterface(VerseCalculator verseCalculator) {
+	public BibleJavascriptInterface() {
+		ControlFactory.getInstance().provide(this);
+		ControlFactory.getInstance().inject(this);
+	}
+
+	public void setVerseCalculator(VerseCalculator verseCalculator) {
 		this.verseCalculator = verseCalculator;
 	}
-	
-	@JavascriptInterface 
+
+	public void setVerseActionModeMediator(VerseActionModeMediator verseActionModeMediator) {
+		this.verseActionModeMediator = verseActionModeMediator;
+	}
+
+	@JavascriptInterface
 	public void onLoad() {
 		Log.d(TAG, "onLoad from js");
 	}
@@ -53,9 +64,9 @@ public class BibleJavascriptInterface {
 	}
 
 	@JavascriptInterface
-	public void verseSelected(int verse) {
+	public void verseLongPress(int verse) {
 		Log.d(TAG, "Verse selected event:"+verse);
-		EventBus.getDefault().post(new ShowContextMenuEvent());
+		verseActionModeMediator.verseLongPress(verse);
 	}
 
 	@JavascriptInterface

@@ -32,6 +32,11 @@ import net.bible.android.control.report.ErrorReportControl;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.control.versification.BibleTraverser;
+import net.bible.android.view.activity.page.BibleJavascriptInterface;
+import net.bible.android.view.activity.page.BibleView;
+import net.bible.android.view.activity.page.MainBibleActivity;
+import net.bible.android.view.activity.page.VerseActionModeMediator;
+import net.bible.android.view.activity.page.VerseCalculator;
 
 //TODO replace with ioc (maybe)
 /** allow access to control layer
@@ -41,6 +46,7 @@ import net.bible.android.control.versification.BibleTraverser;
  *      The copyright to this program is held by it's author.
  */
 public class ControlFactory {
+	private MainBibleActivity mainBibleActivity;
 	private ResourceProvider resourceProvider;
 	private EventManager eventManager;
 	
@@ -149,6 +155,27 @@ public class ControlFactory {
 			}
 		}
 		return pageTiltScrollControl;
+	}
+
+	public void provide(MainBibleActivity mainBibleActivity) {
+		this.mainBibleActivity = mainBibleActivity;
+	}
+
+	public void provide(BibleView bibleView) {}
+
+	public void inject(BibleView bibleView) {
+		bibleView.setBibleJavascriptInterface(new BibleJavascriptInterface());
+	}
+
+	public void provide(BibleJavascriptInterface bibleJavascriptInterface) {}
+
+	public void inject(BibleJavascriptInterface bibleJavascriptInterface) {
+		bibleJavascriptInterface.setVerseCalculator(new VerseCalculator());
+		bibleJavascriptInterface.setVerseActionModeMediator(new VerseActionModeMediator());
+	}
+
+	public void inject(VerseActionModeMediator verseActionModeMediator) {
+		verseActionModeMediator.setMainBibleActivity(mainBibleActivity);
 	}
 
 	public SearchControl getSearchControl() {

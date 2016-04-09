@@ -44,8 +44,6 @@ public class BibleView extends WebView implements DocumentView {
 	
 	private BibleJavascriptInterface mJavascriptInterface;
 	
-	private VerseCalculator mVerseCalculator;
-
 	private int mJumpToVerse = SharedConstants.NO_VALUE;
 	private float mJumpToYOffsetRatio = SharedConstants.NO_VALUE;
 
@@ -81,15 +79,20 @@ public class BibleView extends WebView implements DocumentView {
 	public BibleView(Context context, Window window) {
 		super(context);
 		this.window = window;
+
+		ControlFactory.getInstance().provide(this);
+		ControlFactory.getInstance().inject(this);
+
 		initialise();
+	}
+
+	public void setBibleJavascriptInterface(BibleJavascriptInterface bibleJavascriptInterface) {
+		this.mJavascriptInterface = bibleJavascriptInterface;
+		addJavascriptInterface(mJavascriptInterface, "jsInterface");
 	}
 
 	@SuppressLint("SetJavaScriptEnabled")
 	private void initialise() {
-		mVerseCalculator = new VerseCalculator(window);
-		mJavascriptInterface = new BibleJavascriptInterface(mVerseCalculator);
-		
-		addJavascriptInterface(mJavascriptInterface, "jsInterface");
 
 		/* WebViewClient must be set BEFORE calling loadUrl! */  
 		setWebViewClient(new WebViewClient() {
@@ -363,7 +366,7 @@ public class BibleView extends WebView implements DocumentView {
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		Log.d(TAG, "BibleView onTouchEvent");
+		//Log.d(TAG, "BibleView onTouchEvent");
 		windowControl.setActiveWindow(window);
 
 		boolean handled = super.onTouchEvent(event);

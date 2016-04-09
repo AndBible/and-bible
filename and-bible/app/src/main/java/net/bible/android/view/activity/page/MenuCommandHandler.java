@@ -150,9 +150,11 @@ public class MenuCommandHandler {
 //		    		break;
 				case R.id.compareTranslations:
 		        	handlerIntent = new Intent(callingActivity, CompareTranslations.class);
+					isHandled = true;
 		        	break;
 		        case R.id.notes:
 		        	handlerIntent = new Intent(callingActivity, FootnoteAndRefActivity.class);
+					isHandled = true;
 		        	break;
 		        case R.id.add_bookmark:
 					ControlFactory.getInstance().getBookmarkControl().bookmarkCurrentVerse();
