@@ -68,10 +68,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 
 	private boolean mWholeAppWasInBackground = false;
 	
-	private long lastContextMenuCreateTimeMillis;
-
-	private boolean isContextMenuOpenedFromMainMenu = false;
-
 	// swipe fails on older versions of Android (2.2, 2.3, but not 3.0+) if event not passed to parent - don't know why
 	// scroll occurs on later versions after double-tap maximize
     private boolean alwaysDispatchTouchEventToSuper = !CommonUtils.isHoneycombPlus();
@@ -324,113 +320,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 			return null;
 		}
 	}
-
-//	public void onEventMainThread(ShowContextMenuEvent event) {
-//		Log.d(TAG, "showActionModeMenu");
-//		//TODO newVerseSelect
-//		startSupportActionMode(new ActionMode.Callback() {
-//			@Override
-//			public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-//				// Inflate our menu from a resource file
-//				actionMode.getMenuInflater().inflate(R.menu.document_viewer_context_menu, menu);
-//
-//				// Return true so that the action mode is shown
-//				return true;
-//			}
-//
-//			@Override
-//			public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-//				// As we do not need to modify the menu before displayed, we return false.
-//				return false;
-//			}
-//
-//			@Override
-//			public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-//				// Similar to menu handling in Activity.onOptionsItemSelected()
-//				mainMenuCommandHandler.handleMenuRequest(menuItem);
-//
-//				return false;
-//			}
-//
-//			@Override
-//			public void onDestroyActionMode(ActionMode actionMode) {
-//				// Allows you to be notified when the action mode is dismissed
-//			}
-//		});
-//
-		//TODO newVerseSelect
-//		super.openContextMenu(documentViewManager.getDocumentView().asView());
-//    }
-
-	//TODO newVerseSelect
-//    /** called from Main menu
-//     */
-//    public void openContextMenuFromMainMenu() {
-//		Log.d(TAG,  "openContextMenuFromMainMenu");
-//		// this is reset after context menu is displayed
-//		isContextMenuOpenedFromMainMenu = true;
-//
-//		super.openContextMenu(documentViewManager.getDocumentView().asView());
-//    }
-
-
-//    /** Attempt to prevent two context menus being created one on top of the other
-//     *
-//     *  The MyNote triggers it's own context menu which causes 2 to be displayed
-//     *  I have also seen 2 displayed in normal view
-//     *  Avoid 2 by preventing display twice within 1.5 seconds
-//     */
-//    private boolean isLastContextMenuRecentlyCreated() {
-//		boolean isRecent = (System.currentTimeMillis()-lastContextMenuCreateTimeMillis)<1500;
-//		lastContextMenuCreateTimeMillis = System.currentTimeMillis();
-//
-//		return isRecent;
-//	}
-
-//	@Override
-//	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-//		super.onCreateContextMenu(menu, v, menuInfo);
-//		Thread.dumpStack();
-//
-//		if (!TouchOwner.getInstance().isTouchOwned()) {
-//			if (mainMenuCommandHandler.isIgnoreLongPress()) {
-//				Log.d(TAG, "Ignoring long press to allow it to pass thro to WebView handler");
-//				return;
-//			}
-//	    	Log.d(TAG, "onCreateContextMenu");
-//
-//	    	// keep track of timing here because sometimes a child openContextMenu is called rather than the one in this activity,
-//	    	// but the activities onCreateContextMenu always seems to be called
-//	    	if (isLastContextMenuRecentlyCreated()) {
-//	    		return;
-//	    	}
-//
-//			// for some reason going twice to MyNote via popup crashes on Android 2.3 but only if called via long-press
-//	    	if (!CommonUtils.isIceCreamSandwichPlus() && !isContextMenuOpenedFromMainMenu) {
-//	    		return;
-//	    	}
-//
-//	    	MenuInflater inflater = getMenuInflater();
-//			inflater.inflate(R.menu.document_viewer_context_menu, menu);
-//
-//			// allow current page type to add, delete or disable menu items
-//			ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().updateContextMenu(menu);
-//		}
-//
-//		// reset this flag required to disable crashing action in Android 2.3
-//		isContextMenuOpenedFromMainMenu = false;
-//	}
-
-//    @Override
-//	public boolean onContextItemSelected(MenuItem item) {
-//        boolean isHandled = mainMenuCommandHandler.handleMenuRequest(item);
-//
-//     	if (!isHandled) {
-//            isHandled = super.onContextItemSelected(item);
-//        }
-//
-//     	return isHandled;
-//	}
 
     /** return percentage scrolled down page
      */
