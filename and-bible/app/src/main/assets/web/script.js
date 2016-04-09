@@ -96,7 +96,7 @@ function bindTapTouchEvents() {
 function selected(elem) {
 	window.jsInterface.log("Found element: "+elem);
 	if (elem.className == "verse") {
-		elem.classList.add("selected")
+		$(elem).addClass("selected")
 		var verse = parseInt(elem.id);
 		window.jsInterface.log("Found verse with id: "+verse);
 		window.jsInterface.verseLongPress(verse);
