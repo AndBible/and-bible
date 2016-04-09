@@ -137,52 +137,6 @@ public class MenuCommandHandler {
 					ControlFactory.getInstance().getBackupControl().restoreDatabase();
 					isHandled = true;
 		        	break;
-	
-		        /** Pop-up options menu starts here */
-				//TODO newVerseSelect
-//		        case R.id.bibleVerseButton:
-//		    		if (callingActivity instanceof MainBibleActivity) {
-//		    			if (BookCategory.BIBLE.equals(ControlFactory.getInstance().getDocumentControl().getCurrentCategory())) {
-//		    				// if bible then show verse context menu
-//		    				((MainBibleActivity)callingActivity).openContextMenuFromMainMenu();
-//		    			}
-//		    		}
-//		    		break;
-				case R.id.compareTranslations:
-		        	handlerIntent = new Intent(callingActivity, CompareTranslations.class);
-					isHandled = true;
-		        	break;
-		        case R.id.notes:
-		        	handlerIntent = new Intent(callingActivity, FootnoteAndRefActivity.class);
-					isHandled = true;
-		        	break;
-		        case R.id.add_bookmark:
-					ControlFactory.getInstance().getBookmarkControl().bookmarkCurrentVerse();
-					// refresh view to show new bookmark icon
-					PassageChangeMediator.getInstance().forcePageUpdate();
-					isHandled = true;
-		        	break;
-		        case R.id.myNoteAddEdit:
-		        	ControlFactory.getInstance().getCurrentPageControl().showMyNote();
-					isHandled = true;
-		        	break;
-				case R.id.copy:
-					ControlFactory.getInstance().getPageControl().copyToClipboard();
-					isHandled = true;
-		        	break;
-				case R.id.shareVerse:
-					ControlFactory.getInstance().getPageControl().shareVerse();
-					isHandled = true;
-		        	break;
-				//TODO newVerseSelect
-//		        case R.id.selectText:
-//		        	// ICS+ have their own ui prompts for copy/paste
-//		        	if (!CommonUtils.isIceCreamSandwichPlus()) {
-//		        		Toast.makeText(callingActivity, R.string.select_text_help, Toast.LENGTH_LONG).show();
-//		        	}
-//		        	callingActivity.getDocumentViewManager().getDocumentView().selectAndCopyText(longPressControl);
-//					isHandled = true;
-//		        	break;
 	        }
 	        
 	        if (!isHandled) {

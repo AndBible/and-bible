@@ -8,10 +8,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:appcompat="http://schemas.android.com/apk/res-auto" >
 
-    <item android:id="@+id/bibleVerseButton" 
-		  android:title="@string/verse"
-		  android:icon="@android:drawable/ic_menu_day"/>
-   	
    	<item android:id="@+id/bookmarksButton"
 		  android:title="@string/bookmarks" 
 		  android:icon="@drawable/ic_menu_bookmarks"

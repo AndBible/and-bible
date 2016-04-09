@@ -63,7 +63,7 @@ public class ControlFactory {
 	private DownloadControl downloadControl = new DownloadControl();
 	private SpeakControl speakControl = new SpeakControl();
 	private ReadingPlanControl readingPlanControl = new ReadingPlanControl();
-	private CompareTranslationsControl compareTranslationsControl = new CompareTranslationsControl();
+	private CompareTranslationsControl compareTranslationsControl = new CompareTranslationsControl(bibleTraverser);
 	private FootnoteAndRefControl footnoteAndRefControl = new FootnoteAndRefControl();
 	private BackupControl backupControl = new BackupControl();
 	private Bookmark bookmarkControl;
@@ -176,6 +176,7 @@ public class ControlFactory {
 
 	public void inject(VerseActionModeMediator verseActionModeMediator) {
 		verseActionModeMediator.setMainBibleActivity(mainBibleActivity);
+		verseActionModeMediator.setCurrentPageManager(getCurrentPageControl());
 	}
 
 	public SearchControl getSearchControl() {

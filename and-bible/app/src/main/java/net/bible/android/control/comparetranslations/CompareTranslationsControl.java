@@ -8,6 +8,7 @@ import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.control.versification.ConvertibleVerse;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.font.FontControl;
@@ -30,19 +31,25 @@ import android.util.Log;
  */
 public class CompareTranslationsControl {
 	
-	private static final String TAG = "CompareTranslationsCtrl";
-
 	private SwordDocumentFacade swordDocumentFacade = SwordDocumentFacade.getInstance();
 	private SwordContentFacade swordContentFacade = SwordContentFacade.getInstance();
-	
-	public String getTitle() {
+
+	private BibleTraverser bibleTraverser;
+
+	private static final String TAG = "CompareTranslationsCtrl";
+
+	public CompareTranslationsControl(BibleTraverser bibleTraverser) {
+		this.bibleTraverser = bibleTraverser;
+	}
+
+	public String getTitle(Verse verse) {
 		StringBuilder stringBuilder = new StringBuilder();
 		boolean wasFullBookname = BookName.isFullBookName();
 		BookName.setFullBookName(false);
 
 		stringBuilder.append(BibleApplication.getApplication().getString(R.string.compare_translations))
 					 .append(": ")
-					 .append(CommonUtils.getKeyDescription(getVerse()));
+					 .append(CommonUtils.getKeyDescription(verse));
 
 		BookName.setFullBookName(wasFullBookname);
 		return stringBuilder.toString();
@@ -52,32 +59,30 @@ public class CompareTranslationsControl {
 		getCurrentPageManager().getCurrentBible().doSetKey(verse);
 	}
 
-	public Verse getVerse() {
+	public Verse getDefaultVerse() {
 		return getCurrentPageManager().getCurrentBible().getSingleKey();
 	}
-	
-	/** go to previous verse
+
+	/** Calculate next verse
 	 */
-	public Verse next() {
-		 getCurrentPageManager().getCurrentBible().doNextVerse();
-		 return getVerse();
+	public Verse getNextVerse(Verse verse) {
+		 return bibleTraverser.getNextVerse(getCurrentPageManager().getCurrentPassageDocument(), verse);
 	}
-	
-	/** go to next verse
+
+	/** Calculate next verse
 	 */
-	public Verse previous() {
-		 getCurrentPageManager().getCurrentBible().doPreviousVerse();
-		 return getVerse();
+	public Verse getPreviousVerse(Verse verse) {
+		return bibleTraverser.getPrevVerse(getCurrentPageManager().getCurrentPassageDocument(), verse);
 	}
-	
+
 	/** return the list of verses to be displayed
 	 */
-	public List<TranslationDto> getAllTranslations() {
+	public List<TranslationDto> getAllTranslations(Verse verse) {
 		List<TranslationDto> retval = new ArrayList<>();
 		List<Book> books = swordDocumentFacade.getBibles();
 		FontControl fontControl = FontControl.getInstance();
 		
-		ConvertibleVerse convertibleVerse = new ConvertibleVerse(getVerse());
+		ConvertibleVerse convertibleVerse = new ConvertibleVerse(verse);
 		
 		for (Book book : books) {
 			try {
@@ -95,18 +100,17 @@ public class CompareTranslationsControl {
 					retval.add(new TranslationDto(book, text, fontFile));
 				}
 			} catch (Exception nske) {
-				Log.d(TAG, getVerse()+" not in "+book);
+				Log.d(TAG, verse+" not in "+book);
 			}
 		}
 
 		return retval;		
 	}
 	
-	public void showTranslation(TranslationDto translationDto) {
-		getCurrentPageManager().setCurrentDocument(translationDto.getBook());
+	public void showTranslationForVerse(TranslationDto translationDto, Verse verse) {
+		getCurrentPageManager().setCurrentDocumentAndKey(translationDto.getBook(), verse);
 	}
 
-	/** IOC */
 	public CurrentPageManager getCurrentPageManager() {
 		return ControlFactory.getInstance().getCurrentPageControl();
 	}

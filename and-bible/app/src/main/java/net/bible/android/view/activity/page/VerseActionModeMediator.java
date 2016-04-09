@@ -10,9 +10,13 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.event.touch.ShowContextMenuEvent;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.comparetranslations.CompareTranslations;
 import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity;
+
+import org.crosswire.jsword.passage.Passage;
+import org.crosswire.jsword.passage.Verse;
 
 import de.greenrobot.event.EventBus;
 
@@ -27,7 +31,13 @@ public class VerseActionModeMediator {
 
 	private MainBibleActivity mainBibleActivity;
 
+	private Verse verse;
+
     boolean isVerseActionMode;
+
+	private ActionMode actionMode;
+
+	private CurrentPageManager currentPageManager;
 
     private static final String TAG = "VerseActionModeMediator";
 
@@ -39,88 +49,106 @@ public class VerseActionModeMediator {
 		this.mainBibleActivity = mainBibleActivity;
 	}
 
+	public void setCurrentPageManager(CurrentPageManager currentPageManager) {
+		this.currentPageManager = currentPageManager;
+	}
+
 	public void verseLongPress(int verse) {
         Log.d(TAG, "Verse selected event:"+verse);
-        startVerseActionMode();
+        startVerseActionMode(verse);
     }
 
-    private void startVerseActionMode() {
-        showActionModeMenu();
+    private void startVerseActionMode(int verse) {
+		isVerseActionMode = true;
+		this.verse = getSelectedVerse(verse);
+		actionMode = mainBibleActivity.showVerseActionModeMenu(actionModeCallbackHandler);
     }
 
-    private void showActionModeMenu() {
+	/**
+	 * Ensure all state is left tidy
+	 */
+	private void endVerseActionMode() {
+		Log.d(TAG, "Ending action mode");
+		isVerseActionMode = false;
+		verse = null;
+		// prevent endless loop by onDestroyActionMode calling this calling onDestroyActionMode etc.
+		if (actionMode!=null) {
+			ActionMode finishingActionMode = this.actionMode;
+			actionMode = null;
+			finishingActionMode.finish();
+		}
+	}
 
-		mainBibleActivity.showVerseActionModeMenu(
-			new ActionMode.Callback() {
-				@Override
-				public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-					// Inflate our menu from a resource file
-					actionMode.getMenuInflater().inflate(R.menu.document_viewer_context_menu, menu);
+	private Verse getSelectedVerse(int verseNo) {
+		Verse mainVerse = currentPageManager.getCurrentBible().getSingleKey();
+		return new Verse(mainVerse.getVersification(), mainVerse.getBook(), mainVerse.getChapter(), verseNo);
+	}
 
-					// Return true so that the action mode is shown
-					return true;
-				}
+	private ActionMode.Callback actionModeCallbackHandler = new ActionMode.Callback() {
+		@Override
+		public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+			// Inflate our menu from a resource file
+			actionMode.getMenuInflater().inflate(R.menu.document_viewer_context_menu, menu);
 
-				@Override
-				public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-					// As we do not need to modify the menu before displayed, we return false.
-					return false;
-				}
+			// Return true so that the action mode is shown
+			return true;
+		}
 
-				@Override
-				public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-					// Similar to menu handling in Activity.onOptionsItemSelected()
-					Intent handlerIntent = null;
-					boolean isHandled = false;
-					int requestCode = ActivityBase.STD_REQUEST_CODE;
+		@Override
+		public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+			// As we do not need to modify the menu before displayed, we return false.
+			return false;
+		}
 
-					// Handle item selection
-					switch (menuItem.getItemId()) {
-						case R.id.compareTranslations:
-							handlerIntent = new Intent(mainBibleActivity, CompareTranslations.class);
-							isHandled = true;
-							break;
-						case R.id.notes:
-							handlerIntent = new Intent(mainBibleActivity, FootnoteAndRefActivity.class);
-							isHandled = true;
-							break;
-						case R.id.add_bookmark:
-							ControlFactory.getInstance().getBookmarkControl().bookmarkCurrentVerse();
-							// refresh view to show new bookmark icon
-							PassageChangeMediator.getInstance().forcePageUpdate();
-							isHandled = true;
-							break;
-						case R.id.myNoteAddEdit:
-							ControlFactory.getInstance().getCurrentPageControl().showMyNote();
-							isHandled = true;
-							break;
-						case R.id.copy:
-							ControlFactory.getInstance().getPageControl().copyToClipboard();
-							isHandled = true;
-							break;
-						case R.id.shareVerse:
-							ControlFactory.getInstance().getPageControl().shareVerse();
-							isHandled = true;
-							break;
-					}
+		@Override
+		public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+			// Similar to menu handling in Activity.onOptionsItemSelected()
+			Intent handlerIntent = null;
+			int requestCode = ActivityBase.STD_REQUEST_CODE;
 
-					if (handlerIntent!=null) {
-						mainBibleActivity.startActivityForResult(handlerIntent, requestCode);
-						isHandled = true;
-					}
+			// Handle item selection
+			switch (menuItem.getItemId()) {
+				case R.id.compareTranslations:
+					handlerIntent = new Intent(mainBibleActivity, CompareTranslations.class);
+					break;
+				case R.id.notes:
+					handlerIntent = new Intent(mainBibleActivity, FootnoteAndRefActivity.class);
+					break;
+				case R.id.add_bookmark:
+					ControlFactory.getInstance().getBookmarkControl().bookmarkCurrentVerse();
+					// refresh view to show new bookmark icon
+					PassageChangeMediator.getInstance().forcePageUpdate();
+					break;
+				case R.id.myNoteAddEdit:
+					ControlFactory.getInstance().getCurrentPageControl().showMyNote();
+					break;
+				case R.id.copy:
+					ControlFactory.getInstance().getPageControl().copyToClipboard();
+					break;
+				case R.id.shareVerse:
+					ControlFactory.getInstance().getPageControl().shareVerse();
+					break;
+			}
 
-					// handle all
-					return true;
-				}
+			if (handlerIntent!=null) {
+				handlerIntent.putExtra(CompareTranslations.VERSE, verse.getOsisID());
+				mainBibleActivity.startActivityForResult(handlerIntent, requestCode);
+			}
 
-				@Override
-				public void onDestroyActionMode(ActionMode actionMode) {
-					// Allows you to be notified when the action mode is dismissed
-				}
-			});
-    }
+			endVerseActionMode();
+
+			// handle all
+			return true;
+		}
+
+		@Override
+		public void onDestroyActionMode(ActionMode actionMode) {
+			endVerseActionMode();
+		}
+	};
 
 	public interface ActionModeMenuDisplay {
-		void showVerseActionModeMenu(ActionMode.Callback actionModeCallbackHandler);
+		ActionMode showVerseActionModeMenu(ActionMode.Callback actionModeCallbackHandler);
 	}
+
 }

@@ -19,8 +19,6 @@ public class BibleTraverser {
 	
 	private DocumentBibleBooksFactory documentBibleBooksFactory;
 	
-	private static Scripture scripture = new Scripture();
-	
 	/** Get next Scriptural Verse with same scriptural status
 	 */
 	public Verse getNextVerse(AbstractPassageBook document, Verse verse) {
@@ -56,7 +54,7 @@ public class BibleTraverser {
 		return new Verse(v11n, book, chapter, verseNo);
 	}
 
-	/** Get next chapter consistent with current verses scriptural status ie don't hop between book with differenr scriptural states
+	/** Get next chapter consistent with current verses scriptural status ie don't hop between book with different scriptural states
 	 */
 	public Verse getNextChapter(AbstractPassageBook document, Verse verse) {
 		Versification v11n = verse.getVersification();
@@ -76,7 +74,7 @@ public class BibleTraverser {
 		return new Verse(v11n, book, chapter, 1);
 	}
 	
-	/** Get previous chapter consistent with current verses scriptural status ie don't hop between book with differenr scriptural states
+	/** Get previous chapter consistent with current verses scriptural status ie don't hop between book with different scriptural states
 	 */
 	public Verse getPrevChapter(AbstractPassageBook document, Verse verse) {
 		Versification v11n = verse.getVersification();
@@ -100,28 +98,28 @@ public class BibleTraverser {
 	 * Get next book but separate scripture from other books to prevent unintentional jumping between Scripture and other
 	 */
 	private BibleBook getNextBook(AbstractPassageBook document, Versification v11n, BibleBook book) {
-		boolean isCurrentlyScripture = scripture.isScripture(book);
+		boolean isCurrentlyScripture = Scripture.isScripture(book);
 		DocumentBibleBooks documentBibleBooks = documentBibleBooksFactory.getDocumentBibleBooksFor(document);   
 		BibleBook nextBook = book;
 		do {
 			nextBook = v11n.getNextBook(nextBook);
 		} while (nextBook!=null && 
-					(	scripture.isScripture(nextBook)!=isCurrentlyScripture ||
-							scripture.isIntro(nextBook) ||
+					(	Scripture.isScripture(nextBook)!=isCurrentlyScripture ||
+							Scripture.isIntro(nextBook) ||
 						!documentBibleBooks.contains(nextBook)
 					)
 				);
 		return nextBook;
 	}
 	private BibleBook getPrevBook(AbstractPassageBook document, Versification v11n, BibleBook book) {
-		boolean isCurrentlyScripture = scripture.isScripture(book);
+		boolean isCurrentlyScripture = Scripture.isScripture(book);
 		DocumentBibleBooks documentBibleBooks = documentBibleBooksFactory.getDocumentBibleBooksFor(document);   
 		BibleBook prevBook = book;
 		do {
 			prevBook = v11n.getPreviousBook(prevBook);
 		} while (prevBook!=null &&
-				(	scripture.isScripture(prevBook)!=isCurrentlyScripture ||
-						scripture.isIntro(prevBook) ||
+				(	Scripture.isScripture(prevBook)!=isCurrentlyScripture ||
+						Scripture.isIntro(prevBook) ||
 					!documentBibleBooks.contains(prevBook)
 				)
 			);
