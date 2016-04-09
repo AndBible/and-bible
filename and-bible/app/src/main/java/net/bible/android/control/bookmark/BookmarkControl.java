@@ -56,18 +56,22 @@ public class BookmarkControl implements Bookmark {
 	}
 	
 	@Override
-	public boolean bookmarkCurrentVerse() {
+	public boolean toggleBookmarkForVerse(Verse verse) {
 		boolean bOk = false;
 		CurrentPageManager currentPageControl = ControlFactory.getInstance().getCurrentPageControl();
 		if (currentPageControl.isBibleShown() || currentPageControl.isCommentaryShown()) {
-			Verse currentVerse = currentPageControl.getCurrentBible().getSingleKey();
-			
-			if (getBookmarkByKey(currentVerse)!=null) {
-				// bookmark for this verse already exists
-				Toast.makeText(BibleApplication.getApplication().getApplicationContext(), R.string.bookmark_exists, Toast.LENGTH_SHORT).show();
+			Verse currentVerse = verse;
+
+			BookmarkDto bookmarkDto = getBookmarkByKey(currentVerse);
+			if (bookmarkDto !=null) {
+				if (deleteBookmark(bookmarkDto)) {
+					Toast.makeText(BibleApplication.getApplication().getApplicationContext(), R.string.bookmark_deleted, Toast.LENGTH_SHORT).show();
+				} else {
+					Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+				}
 			} else {
 				// prepare new bookmark and add to db
-				BookmarkDto bookmarkDto = new BookmarkDto();
+				bookmarkDto = new BookmarkDto();
 				bookmarkDto.setVerse(currentVerse);
 				BookmarkDto newBookmark = addBookmark(bookmarkDto);
 				
@@ -153,8 +157,13 @@ public class BookmarkControl implements Bookmark {
 		return bookmark;
 	}
 
+	@Override
+	public boolean isBookmarkForKey(Key key) {
+		return getBookmarkByKey(key)!=null;
+	}
+
 	/** get bookmark with this key if it exists or return null */
-	public BookmarkDto getBookmarkByKey(Key key) {
+	private BookmarkDto getBookmarkByKey(Key key) {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		BookmarkDto bookmark = null;
 		try {
@@ -168,6 +177,7 @@ public class BookmarkControl implements Bookmark {
 	}
 
 	/** delete this bookmark (and any links to labels) */
+	@Override
 	public boolean deleteBookmark(BookmarkDto bookmark) {
 		boolean bOk = false;
 		if (bookmark!=null && bookmark.getId()!=null) {

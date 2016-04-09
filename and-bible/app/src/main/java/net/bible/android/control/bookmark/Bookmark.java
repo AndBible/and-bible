@@ -16,8 +16,9 @@ import org.crosswire.jsword.passage.Verse;
 public interface Bookmark {
 
 	/** business method */
-	boolean bookmarkCurrentVerse();
-	
+	boolean toggleBookmarkForVerse(Verse verse);
+	boolean isBookmarkForKey(Key key);
+
 	/** text for item list */
 	String getBookmarkVerseKey(BookmarkDto bookmark);
 	String getBookmarkVerseText(BookmarkDto bookmark);
@@ -48,7 +49,7 @@ public interface Bookmark {
 	boolean deleteLabel(LabelDto label);
 
 	/** create or update label name */ 
-	public LabelDto saveOrUpdateLabel(LabelDto label);
+	LabelDto saveOrUpdateLabel(LabelDto label);
 
 	/** get bookmarks with the given label */
 	List<BookmarkDto> getBookmarksWithLabel(LabelDto label);
@@ -63,9 +64,9 @@ public interface Bookmark {
 	List<Verse> getVersesWithBookmarksInPassage(Key passage);
 
 	/** toggle order between date and Bibical */
-	public void changeBookmarkSortOrder();
+	void changeBookmarkSortOrder();
 
-	public void setBookmarkSortOrder(BookmarkSortOrder bookmarkSortOrder);
+	void setBookmarkSortOrder(BookmarkSortOrder bookmarkSortOrder);
 
-	public String getBookmarkSortOrderDescription();
+	String getBookmarkSortOrderDescription();
 }

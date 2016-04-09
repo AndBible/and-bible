@@ -96,8 +96,12 @@ public class VerseActionModeMediator {
 
 		@Override
 		public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-			// As we do not need to modify the menu before displayed, we return false.
-			return false;
+			boolean isVerseBookmarked = ControlFactory.getInstance().getBookmarkControl().isBookmarkForKey(verse);
+			menu.findItem(R.id.add_bookmark).setVisible(!isVerseBookmarked);
+			menu.findItem(R.id.delete_bookmark).setVisible(isVerseBookmarked);
+
+			// must return true if menu changed
+			return true;
 		}
 
 		@Override
@@ -115,7 +119,8 @@ public class VerseActionModeMediator {
 					handlerIntent = new Intent(mainBibleActivity, FootnoteAndRefActivity.class);
 					break;
 				case R.id.add_bookmark:
-					ControlFactory.getInstance().getBookmarkControl().bookmarkCurrentVerse();
+				case R.id.delete_bookmark:
+					ControlFactory.getInstance().getBookmarkControl().toggleBookmarkForVerse(verse);
 					// refresh view to show new bookmark icon
 					PassageChangeMediator.getInstance().forcePageUpdate();
 					break;

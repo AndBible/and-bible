@@ -13,8 +13,13 @@
 		  android:icon="@drawable/ic_menu_usernotes"
 		  appcompat:showAsAction="always"/>
 
+	<!-- Either add or delete bookmark will be hidden -->
 	<item android:id="@+id/add_bookmark"
 		  android:title="@string/add_bookmark"
+		  android:icon="@drawable/ic_menu_bookmarks"
+		  appcompat:showAsAction="always"/>
+	<item android:id="@+id/delete_bookmark"
+		  android:title="@string/delete_bookmark"
 		  android:icon="@drawable/ic_menu_bookmarks"
 		  appcompat:showAsAction="always"/>
 

@@ -8,14 +8,12 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.passage.PassageChangeStartedEvent;
 import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent;
-import net.bible.android.control.event.touch.ShowContextMenuEvent;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.page.actionbar.BibleActionBarManager;
 import net.bible.android.view.activity.page.screen.DocumentViewManager;
-import net.bible.android.view.util.TouchOwner;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
 
@@ -26,15 +24,10 @@ import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.view.ActionMode;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.View;
 
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -195,13 +188,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		return super.onKeyUp(keyCode, event);
 	}
     
-	/** user tapped bottom of screen
-	 */
-    public void scrollScreenDown() {
-    	documentViewManager.getDocumentView().pageDown(false);
-    }
-
-	/** 
+	/**
      * on Click handlers.  Go through each handler until one returns true
      */
     @Override
@@ -304,7 +291,13 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		FutureTask<ActionMode> futureResult = new FutureTask<ActionMode>(new Callable<ActionMode>() {
 			@Override
 			public ActionMode call() throws Exception {
-				return startSupportActionMode(actionModeCallbackHandler);
+				ActionMode actionMode = startSupportActionMode(actionModeCallbackHandler);
+
+				// Fix for onPrepareActionMode not being called: https://code.google.com/p/android/issues/detail?id=159527
+				if (actionMode != null) {
+					actionMode.invalidate();
+				}
+				return actionMode;
 			}
 		});
 
