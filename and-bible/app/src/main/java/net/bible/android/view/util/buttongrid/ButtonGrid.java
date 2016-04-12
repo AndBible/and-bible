@@ -290,7 +290,7 @@ public class ButtonGrid extends TableLayout {
 			}
 		} catch (Exception e) {
 			// avoid very occasional NPE deep in Android code by catching and ignoring because showing preview is optional
-			Log.e(TAG, "Error showing button grid preview", e);
+			Log.w(TAG, "Error showing button grid preview", e);
 		}
 	}
 	
@@ -302,9 +302,14 @@ public class ButtonGrid extends TableLayout {
 	}
     
     private void close() {
-    	if (mPreviewPopup.isShowing()) {
-    		mPreviewPopup.dismiss();
-    	}
+		// avoid errors on Lenovo tablet in dismiss
+		try {
+			if (mPreviewPopup.isShowing()) {
+				mPreviewPopup.dismiss();
+			}
+		} catch (Exception e) {
+			Log.w(TAG, "Error closing ButtonGrid preview");
+		}
     }
     
 	/** calculate button position relative to this table because MotionEvents are relative to this table
