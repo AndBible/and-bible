@@ -193,13 +193,18 @@ public class BibleView extends WebView implements DocumentView {
 		
 		// call this from here because some documents may require an adjusted font size e.g. those using Greek font
 		applyFontSize();
-		
-		setJumpToVerse(jumpToVerse);
+
+		// scrollTo is used on kitkatplus but sometimes the later scrollTo was not working
+		if (kitKatPlus && jumpToVerse>0) {
+			html += "<script>scrollTo('" + jumpToVerse + "');</script>";
+		} else {
+			setJumpToVerse(jumpToVerse);
+		}
 		mJumpToYOffsetRatio = jumpToYOffsetRatio;
-		
+
 		// allow zooming if map
 		enableZoomForMap(ControlFactory.getInstance().getCurrentPageControl().isMapShown());
-		
+
 		loadDataWithBaseURL("file:///android_asset/", html, "text/html", "UTF-8", "http://historyUrl");
 
 		// ensure jumpToOffset is eventually called during initialisation.  It will normally be called automatically but sometimes is not i.e. after jump to verse 1 at top of screen then press back.
@@ -591,6 +596,7 @@ public class BibleView extends WebView implements DocumentView {
 
 	@TargetApi(Build.VERSION_CODES.KITKAT)
 	private void executeJavascript(String javascript) {
+		Log.d(TAG, "Executing JS:"+javascript);
 		if (kitKatPlus) {
 			evaluateJavascript(javascript+";", null);
 		} else {
