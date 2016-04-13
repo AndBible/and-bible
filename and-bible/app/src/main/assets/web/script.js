@@ -3,7 +3,7 @@ $(window).load(
 		window.jsInterface.log("JS onload");
 		window.jsInterface.onLoad();
 		registerVersePositions();
-		bindTapTouchEvents();
+//		bindTapTouchEvents();
 	}
 )
 
@@ -81,23 +81,45 @@ function selectAt(x, y) {
 	selected(elem);
 }
 
-
+/** Long-press - taphold handler */
 /*--- taphold start --*/
-function bindTapTouchEvents() {
-	window.jsInterface.log("Binding tap Hold");
-	$( ".verse" ).bind( "taphold", tapholdHandler );
+//function bindTapTouchEvents() {
+//	window.jsInterface.log("Binding tap Hold");
+//	$( ".verse" ).bind( "taphold", tapholdHandler );
+//
+//	function tapholdHandler( event ){
+//		window.jsInterface.log("Tap Hold");
+//		selected($(event.target))
+//	}
+//}
 
-	function tapholdHandler( event ){
-		window.jsInterface.log("Tap Hold");
-		selected(event.target)
-	}
+$(document).on('taphold', function(e){
+	var point = {'x': holdCords.holdX, 'y': holdCords.holdY};
+	var $elemSet = $('.verse');
+    var $closestToPoint = $.nearest(point, $elemSet).filter(":first");
+    window.jsInterface.log("Closest element: "+$closestToPoint);
+
+    selected($closestToPoint)
+});
+
+/**
+ * Unfortunately taphold does not pass the location of the touch so have to workaround as mentioned in:
+ * http://stackoverflow.com/questions/14980886/jquery-mobile-clientx-and-clienty-and-the-taphold-event
+ */
+$(document).on('vmousedown', function(event){
+    holdCords.holdX = event.pageX;
+    holdCords.holdY = event.pageY;
+});
+
+var holdCords = {
+    holdX : 0,
+    holdY : 0
 }
 
-function selected(elem) {
-	window.jsInterface.log("Found element: "+elem);
-	if (elem.className == "verse") {
-		$(elem).addClass("selected")
-		var verse = parseInt(elem.id);
+function selected($elem) {
+	if ($elem.hasClass("verse")) {
+		$elem.addClass("selected")
+		var verse = parseInt($elem.attr('id'));
 		window.jsInterface.log("Found verse with id: "+verse);
 		window.jsInterface.verseLongPress(verse);
 	}

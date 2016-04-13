@@ -59,6 +59,12 @@ public class VerseActionModeMediator {
     }
 
     private void startVerseActionMode(int verse) {
+		if (isVerseActionMode) {
+			Log.i(TAG, "Action mode already started so ignoring restart.");
+			return;
+		}
+
+		Log.i(TAG, "Start verse action mode. verse no:"+verse);
 		isVerseActionMode = true;
 		this.verse = getSelectedVerse(verse);
 		actionMode = mainBibleActivity.showVerseActionModeMenu(actionModeCallbackHandler);
@@ -96,7 +102,7 @@ public class VerseActionModeMediator {
 
 		@Override
 		public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-			boolean isVerseBookmarked = ControlFactory.getInstance().getBookmarkControl().isBookmarkForKey(verse);
+			boolean isVerseBookmarked = verse!=null && ControlFactory.getInstance().getBookmarkControl().isBookmarkForKey(verse);
 			menu.findItem(R.id.add_bookmark).setVisible(!isVerseBookmarked);
 			menu.findItem(R.id.delete_bookmark).setVisible(isVerseBookmarked);
 
@@ -106,6 +112,7 @@ public class VerseActionModeMediator {
 
 		@Override
 		public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+			Log.i(TAG, "Action menu item clicked: " + menuItem);
 			// Similar to menu handling in Activity.onOptionsItemSelected()
 			Intent handlerIntent = null;
 			int requestCode = ActivityBase.STD_REQUEST_CODE;
@@ -148,6 +155,8 @@ public class VerseActionModeMediator {
 
 		@Override
 		public void onDestroyActionMode(ActionMode actionMode) {
+			Log.i(TAG, "On destroy action mode");
+			VerseActionModeMediator.this.actionMode = null;
 			endVerseActionMode();
 		}
 	};

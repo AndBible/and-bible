@@ -164,7 +164,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	@Override
 	public void startDocument()  {
 		String jQueryjs = "\n<script type='text/javascript' src='file:///android_asset/web/jquery-2.2.3.js'></script>\n"+
-				"<script type='text/javascript' src='file:///android_asset/web/jquery.mobile.1.4.5.only-touch.js'></script>\n";
+				"<script type='text/javascript' src='file:///android_asset/web/jquery.mobile.1.4.5.only-touch.js'></script>\n"+
+				"<script type='text/javascript' src='file:///android_asset/web/jquery.nearest.min.1.4.0.js'></script>\n";
 		String jsTag = "\n<script type='text/javascript' src='file:///android_asset/web/script.js'></script>\n";
 		String styleSheetTags = parameters.getCssStylesheets();
 		String customFontStyle = FontControl.getInstance().getHtmlFontStyle(parameters.getFont(), parameters.getCssClassForCustomFont());

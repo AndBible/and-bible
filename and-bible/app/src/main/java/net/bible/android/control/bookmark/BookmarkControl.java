@@ -159,7 +159,7 @@ public class BookmarkControl implements Bookmark {
 
 	@Override
 	public boolean isBookmarkForKey(Key key) {
-		return getBookmarkByKey(key)!=null;
+		return key!=null && getBookmarkByKey(key)!=null;
 	}
 
 	/** get bookmark with this key if it exists or return null */
