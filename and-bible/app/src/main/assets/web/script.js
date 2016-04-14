@@ -93,28 +93,37 @@ function selectAt(x, y) {
 //	}
 //}
 
-$(document).on('taphold', function(e){
-	var point = {'x': holdCords.holdX, 'y': holdCords.holdY};
-	var $elemSet = $('.verse');
-    var $closestToPoint = $.nearest(point, $elemSet).filter(":first");
-    window.jsInterface.log("Closest element: "+$closestToPoint);
+$(function(){
+  $( ".verse" ).bind( "taphold", tapholdHandler );
 
-    selected($closestToPoint)
+  function tapholdHandler( event ){
+		window.jsInterface.log("Tap Hold");
+		selected($(event.target))
+  }
 });
 
-/**
- * Unfortunately taphold does not pass the location of the touch so have to workaround as mentioned in:
- * http://stackoverflow.com/questions/14980886/jquery-mobile-clientx-and-clienty-and-the-taphold-event
- */
-$(document).on('vmousedown', function(event){
-    holdCords.holdX = event.pageX;
-    holdCords.holdY = event.pageY;
-});
-
-var holdCords = {
-    holdX : 0,
-    holdY : 0
-}
+//$(document).on('taphold', function(e){
+//	var point = {'x': holdCords.holdX, 'y': holdCords.holdY};
+//	var $elemSet = $('.verse');
+//    var $closestToPoint = $.nearest(point, $elemSet).filter(":first");
+//    window.jsInterface.log("Closest element: "+$closestToPoint);
+//
+//    selected($closestToPoint)
+//});
+//
+///**
+// * Unfortunately taphold does not pass the location of the touch so have to workaround as mentioned in:
+// * http://stackoverflow.com/questions/14980886/jquery-mobile-clientx-and-clienty-and-the-taphold-event
+// */
+//$(document).on('vmousedown', function(event){
+//    holdCords.holdX = event.pageX;
+//    holdCords.holdY = event.pageY;
+//});
+//
+//var holdCords = {
+//    holdX : 0,
+//    holdY : 0
+//}
 
 function selected($elem) {
 	if ($elem.hasClass("verse")) {
