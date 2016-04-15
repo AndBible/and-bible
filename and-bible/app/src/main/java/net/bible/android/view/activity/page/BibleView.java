@@ -38,7 +38,7 @@ import de.greenrobot.event.EventBus;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class BibleView extends WebView implements DocumentView {
+public class BibleView extends WebView implements DocumentView, VerseActionModeMediator.VerseHighlightControl {
 	
 	private Window window;
 	

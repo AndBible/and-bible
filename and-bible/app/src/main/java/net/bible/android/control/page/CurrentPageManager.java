@@ -133,12 +133,8 @@ public class CurrentPageManager {
 
 	/** My Note is different to all other pages.  It has no documents etc but I attempt to make it look a bit like a Commentary page
 	 * 
-	 * @param showing
+	 * @param verse Verse to add not to
 	 */
-	public void showMyNote() {
-		showMyNote(currentMyNotePage.getKey());
-	}
-	
 	public void showMyNote(Key verse) {
 		setCurrentDocumentAndKey(currentMyNotePage.getCurrentDocument(), verse);
 	}

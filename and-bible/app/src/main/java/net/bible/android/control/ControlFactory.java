@@ -75,9 +75,16 @@ public class ControlFactory {
 	
 	private boolean initialised = false;
 	
-	private static ControlFactory singleton = new ControlFactory();
+	private static ControlFactory singleton;
 	
 	public static ControlFactory getInstance() {
+		if (singleton==null) {
+			synchronized(ControlFactory.class) {
+				if (singleton==null) {
+					singleton = new ControlFactory();
+				}
+			}
+		}
 		return singleton;
 	}
 	public static void setInstance(ControlFactory controlFactory) {

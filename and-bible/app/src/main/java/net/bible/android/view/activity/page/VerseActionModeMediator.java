@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.page;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.view.ActionMode;
 import android.util.Log;
@@ -9,16 +10,11 @@ import android.view.MenuItem;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
-import net.bible.android.control.event.touch.ShowContextMenuEvent;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.comparetranslations.CompareTranslations;
 import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity;
 
-import org.crosswire.jsword.passage.Passage;
 import org.crosswire.jsword.passage.Verse;
-
-import de.greenrobot.event.EventBus;
 
 /**
  * Control the verse selection action mode
@@ -29,9 +25,9 @@ import de.greenrobot.event.EventBus;
  */
 public class VerseActionModeMediator {
 
-	private MainBibleActivity mainBibleActivity;
+	private ActionModeMenuDisplay mainBibleActivity;
 
-	private BibleView bibleView;
+	private VerseHighlightControl bibleView;
 
 	private Verse verse;
 
@@ -41,7 +37,7 @@ public class VerseActionModeMediator {
 
     private static final String TAG = "VerseActionModeMediator";
 
-	public VerseActionModeMediator(MainBibleActivity mainBibleActivity, BibleView bibleView) {
+	public VerseActionModeMediator(ActionModeMenuDisplay mainBibleActivity, VerseHighlightControl bibleView) {
 		this.mainBibleActivity = mainBibleActivity;
 		this.bibleView = bibleView;
 	}
@@ -114,10 +110,10 @@ public class VerseActionModeMediator {
 			// Handle item selection
 			switch (menuItem.getItemId()) {
 				case R.id.compareTranslations:
-					handlerIntent = new Intent(mainBibleActivity, CompareTranslations.class);
+					handlerIntent = new Intent((Activity)mainBibleActivity, CompareTranslations.class);
 					break;
 				case R.id.notes:
-					handlerIntent = new Intent(mainBibleActivity, FootnoteAndRefActivity.class);
+					handlerIntent = new Intent((Activity)mainBibleActivity, FootnoteAndRefActivity.class);
 					break;
 				case R.id.add_bookmark:
 				case R.id.delete_bookmark:
@@ -126,7 +122,7 @@ public class VerseActionModeMediator {
 					PassageChangeMediator.getInstance().forcePageUpdate();
 					break;
 				case R.id.myNoteAddEdit:
-					ControlFactory.getInstance().getCurrentPageControl().showMyNote();
+					ControlFactory.getInstance().getCurrentPageControl().showMyNote(verse);
 					break;
 				case R.id.copy:
 					ControlFactory.getInstance().getPageControl().copyToClipboard();
@@ -157,6 +153,11 @@ public class VerseActionModeMediator {
 
 	public interface ActionModeMenuDisplay {
 		ActionMode showVerseActionModeMenu(ActionMode.Callback actionModeCallbackHandler);
+
+		void startActivityForResult(Intent intent, int requestCode);
 	}
 
+	public interface VerseHighlightControl {
+		void highlightVerse(int verse);
+	}
 }

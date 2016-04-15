@@ -105,11 +105,11 @@ public class MyNoteEditTextView extends EditText implements DocumentView {
 	}
 
 	public boolean isPageNextOkay() {
-		return true;
+		return false;
 	}
 	
 	public boolean isPagePreviousOkay() {
-		return true;
+		return false;
 	}
 
 	@Override
