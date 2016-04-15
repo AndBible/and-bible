@@ -80,7 +80,6 @@ public class BibleView extends WebView implements DocumentView {
 		super(context);
 		this.window = window;
 
-		ControlFactory.getInstance().provide(this);
 		ControlFactory.getInstance().inject(this);
 
 		initialise();
@@ -572,6 +571,15 @@ public class BibleView extends WebView implements DocumentView {
 				executeJavascript("(function() { document.location = '#" + verse+"' })()");
 			}
 		}
+	}
+
+	public void highlightVerse(final int verseNo) {
+		getHandler().post(new Runnable() {
+			@Override
+			public void run() {
+				executeJavascript("highlightVerse("+verseNo+")");
+			}
+		});
 	}
 
 	@TargetApi(Build.VERSION_CODES.KITKAT)

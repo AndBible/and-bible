@@ -31,26 +31,19 @@ public class VerseActionModeMediator {
 
 	private MainBibleActivity mainBibleActivity;
 
+	private BibleView bibleView;
+
 	private Verse verse;
 
     boolean isVerseActionMode;
 
 	private ActionMode actionMode;
 
-	private CurrentPageManager currentPageManager;
-
     private static final String TAG = "VerseActionModeMediator";
 
-	public VerseActionModeMediator() {
-		ControlFactory.getInstance().inject(this);
-	}
-
-	public void setMainBibleActivity(MainBibleActivity mainBibleActivity) {
+	public VerseActionModeMediator(MainBibleActivity mainBibleActivity, BibleView bibleView) {
 		this.mainBibleActivity = mainBibleActivity;
-	}
-
-	public void setCurrentPageManager(CurrentPageManager currentPageManager) {
-		this.currentPageManager = currentPageManager;
+		this.bibleView = bibleView;
 	}
 
 	public void verseLongPress(int verse) {
@@ -66,6 +59,7 @@ public class VerseActionModeMediator {
 
 		Log.i(TAG, "Start verse action mode. verse no:"+verse);
 		isVerseActionMode = true;
+		bibleView.highlightVerse(verse);
 		this.verse = getSelectedVerse(verse);
 		actionMode = mainBibleActivity.showVerseActionModeMenu(actionModeCallbackHandler);
     }
@@ -86,7 +80,7 @@ public class VerseActionModeMediator {
 	}
 
 	private Verse getSelectedVerse(int verseNo) {
-		Verse mainVerse = currentPageManager.getCurrentBible().getSingleKey();
+		Verse mainVerse = ControlFactory.getInstance().getPageControl().getCurrentBibleVerse();
 		return new Verse(mainVerse.getVersification(), mainVerse.getBook(), mainVerse.getChapter(), verseNo);
 	}
 

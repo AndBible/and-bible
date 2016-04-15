@@ -161,22 +161,16 @@ public class ControlFactory {
 		this.mainBibleActivity = mainBibleActivity;
 	}
 
-	public void provide(BibleView bibleView) {}
-
 	public void inject(BibleView bibleView) {
-		bibleView.setBibleJavascriptInterface(new BibleJavascriptInterface());
-	}
+		VerseActionModeMediator bibleViewVerseActionModeMediator = new VerseActionModeMediator(mainBibleActivity, bibleView);
 
-	public void provide(BibleJavascriptInterface bibleJavascriptInterface) {}
+		BibleJavascriptInterface bibleJavascriptInterface = new BibleJavascriptInterface(bibleViewVerseActionModeMediator);
+
+		bibleView.setBibleJavascriptInterface(bibleJavascriptInterface);
+	}
 
 	public void inject(BibleJavascriptInterface bibleJavascriptInterface) {
 		bibleJavascriptInterface.setVerseCalculator(new VerseCalculator());
-		bibleJavascriptInterface.setVerseActionModeMediator(new VerseActionModeMediator());
-	}
-
-	public void inject(VerseActionModeMediator verseActionModeMediator) {
-		verseActionModeMediator.setMainBibleActivity(mainBibleActivity);
-		verseActionModeMediator.setCurrentPageManager(getCurrentPageControl());
 	}
 
 	public SearchControl getSearchControl() {
@@ -193,9 +187,6 @@ public class ControlFactory {
 		return linkControl;
 	}
 
-	/**
-	 * @return the bookmarkControl
-	 */
 	public Bookmark getBookmarkControl() {
 		return bookmarkControl;
 	}

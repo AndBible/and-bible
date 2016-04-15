@@ -26,17 +26,13 @@ public class BibleJavascriptInterface {
 	
 	private static final String TAG = "BibleJavascriptIntrfc";
 	
-	public BibleJavascriptInterface() {
-		ControlFactory.getInstance().provide(this);
+	public BibleJavascriptInterface(VerseActionModeMediator verseActionModeMediator) {
+		this.verseActionModeMediator = verseActionModeMediator;
 		ControlFactory.getInstance().inject(this);
 	}
 
 	public void setVerseCalculator(VerseCalculator verseCalculator) {
 		this.verseCalculator = verseCalculator;
-	}
-
-	public void setVerseActionModeMediator(VerseActionModeMediator verseActionModeMediator) {
-		this.verseActionModeMediator = verseActionModeMediator;
 	}
 
 	@JavascriptInterface

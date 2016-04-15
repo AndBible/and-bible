@@ -127,9 +127,13 @@ $(function(){
 
 function selected($elem) {
 	if ($elem.hasClass("verse")) {
-		$elem.addClass("selected")
 		var verse = parseInt($elem.attr('id'));
 		window.jsInterface.log("Found verse with id: "+verse);
 		window.jsInterface.verseLongPress(verse);
 	}
+}
+
+function highlightVerse(verseNo) {
+	var $verseSpan = $('#'+verseNo)
+	$verseSpan.addClass("selected")
 }
