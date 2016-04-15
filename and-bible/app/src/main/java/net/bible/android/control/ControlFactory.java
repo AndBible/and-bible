@@ -64,7 +64,7 @@ public class ControlFactory {
 	private SpeakControl speakControl = new SpeakControl();
 	private ReadingPlanControl readingPlanControl = new ReadingPlanControl();
 	private CompareTranslationsControl compareTranslationsControl = new CompareTranslationsControl(bibleTraverser);
-	private FootnoteAndRefControl footnoteAndRefControl = new FootnoteAndRefControl();
+	private FootnoteAndRefControl footnoteAndRefControl = new FootnoteAndRefControl(bibleTraverser);
 	private BackupControl backupControl = new BackupControl();
 	private Bookmark bookmarkControl;
 
