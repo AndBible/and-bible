@@ -9,7 +9,8 @@ import net.bible.android.control.comparetranslations.CompareTranslationsControl;
 import net.bible.android.control.comparetranslations.TranslationDto;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.view.activity.base.Dialogs;
-import net.bible.android.view.activity.base.ListActivityBase;
+ import net.bible.android.view.activity.base.IntentHelper;
+ import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.android.view.util.swipe.SwipeGestureEventHandler;
 import net.bible.android.view.util.swipe.SwipeGestureListener;
 
@@ -35,8 +36,7 @@ import android.widget.ListView;
  *      The copyright to this program is held by it's author.
  */
 public class CompareTranslations extends ListActivityBase implements SwipeGestureEventHandler {
-	private static final String TAG = "CompareTranslations";
-	
+
     private List<TranslationDto> mTranslations = new ArrayList<TranslationDto>();
     private ArrayAdapter<TranslationDto> mKeyArrayAdapter;
 
@@ -47,8 +47,11 @@ public class CompareTranslations extends ListActivityBase implements SwipeGestur
 
 	private CompareTranslationsControl compareTranslationsControl = ControlFactory.getInstance().getCompareTranslationsControl();
 
-    public static final String VERSE = "net.bible.android.view.activity.comparetranslations.Verse";
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
+
+	private IntentHelper intentHelper = new IntentHelper();
+
+	private static final String TAG = "CompareTranslations";
 
     /** Called when the activity is first created. */
     @SuppressLint("MissingSuperCall")
@@ -59,18 +62,7 @@ public class CompareTranslations extends ListActivityBase implements SwipeGestur
         setContentView(R.layout.list);
         
         //fetch verse from intent if set - so that goto via History works nicely
-		Bundle extras = getIntent().getExtras();
-		try {
-			if (extras != null && extras.containsKey(VERSE)) {
-				CurrentBiblePage currentDoc = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible();
-				Versification currentV11n = ((SwordBook) currentDoc.getCurrentDocument()).getVersification();
-				currentVerse = VerseFactory.fromString(currentV11n, extras.getString(VERSE));
-			} else {
-				currentVerse = compareTranslationsControl.getDefaultVerse();
-			}
-		} catch (Exception e) {
-			Log.e(TAG, "Error getting compare verse, using default");
-		}
+		currentVerse = intentHelper.getIntentVerseOrDefault(getIntent());
 
 		prepareScreenData();
 
@@ -139,8 +131,8 @@ public class CompareTranslations extends ListActivityBase implements SwipeGestur
 	@Override
 	public Intent getIntentForHistoryList() {
 		Intent intent = getIntent();
-		
-		intent.putExtra(VERSE, currentVerse.getOsisID());
+
+		intentHelper.updateIntentWithVerse(getIntent(), currentVerse);
 
 		return intent;
 	}

@@ -11,6 +11,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.view.activity.base.ActivityBase;
+import net.bible.android.view.activity.base.IntentHelper;
 import net.bible.android.view.activity.comparetranslations.CompareTranslations;
 import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity;
 
@@ -34,6 +35,8 @@ public class VerseActionModeMediator {
     boolean isVerseActionMode;
 
 	private ActionMode actionMode;
+
+	private IntentHelper intentHelper = new IntentHelper();
 
     private static final String TAG = "VerseActionModeMediator";
 
@@ -133,7 +136,7 @@ public class VerseActionModeMediator {
 			}
 
 			if (handlerIntent!=null) {
-				handlerIntent.putExtra(CompareTranslations.VERSE, verse.getOsisID());
+				intentHelper.updateIntentWithVerse(handlerIntent, verse);
 				mainBibleActivity.startActivityForResult(handlerIntent, requestCode);
 			}
 
