@@ -139,6 +139,8 @@ public class VerseActionModeMediator {
 
 			endVerseActionMode();
 
+			bibleView.clearVerseHighlight();
+
 			// handle all
 			return true;
 		}
@@ -159,5 +161,6 @@ public class VerseActionModeMediator {
 
 	public interface VerseHighlightControl {
 		void highlightVerse(int verse);
+		void clearVerseHighlight();
 	}
 }

@@ -93,6 +93,9 @@ function selectAt(x, y) {
 //	}
 //}
 
+/**
+ * Monitor verse selection via long press
+ */
 $(function(){
   $( ".verse" ).bind( "taphold", tapholdHandler );
 
@@ -102,29 +105,6 @@ $(function(){
   }
 });
 
-//$(document).on('taphold', function(e){
-//	var point = {'x': holdCords.holdX, 'y': holdCords.holdY};
-//	var $elemSet = $('.verse');
-//    var $closestToPoint = $.nearest(point, $elemSet).filter(":first");
-//    window.jsInterface.log("Closest element: "+$closestToPoint);
-//
-//    selected($closestToPoint)
-//});
-//
-///**
-// * Unfortunately taphold does not pass the location of the touch so have to workaround as mentioned in:
-// * http://stackoverflow.com/questions/14980886/jquery-mobile-clientx-and-clienty-and-the-taphold-event
-// */
-//$(document).on('vmousedown', function(event){
-//    holdCords.holdX = event.pageX;
-//    holdCords.holdY = event.pageY;
-//});
-//
-//var holdCords = {
-//    holdX : 0,
-//    holdY : 0
-//}
-
 function selected($elem) {
 	if ($elem.hasClass("verse")) {
 		var verse = parseInt($elem.attr('id'));
@@ -133,7 +113,18 @@ function selected($elem) {
 	}
 }
 
+/**
+ * Called by VerseActionModelMediator to highlight a verse
+ */
 function highlightVerse(verseNo) {
 	var $verseSpan = $('#'+verseNo)
 	$verseSpan.addClass("selected")
+}
+
+/**
+ * Called by VerseActionModelMediator to unhighlight a verse
+ */
+function clearVerseHighlight() {
+	var $verseSpan = $('.selected')
+	$verseSpan.removeClass("selected")
 }

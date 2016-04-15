@@ -573,11 +573,22 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		}
 	}
 
+	@Override
 	public void highlightVerse(final int verseNo) {
 		getHandler().post(new Runnable() {
 			@Override
 			public void run() {
 				executeJavascript("highlightVerse("+verseNo+")");
+			}
+		});
+	}
+
+	@Override
+	public void clearVerseHighlight() {
+		getHandler().post(new Runnable() {
+			@Override
+			public void run() {
+				executeJavascript("clearVerseHighlight()");
 			}
 		});
 	}
