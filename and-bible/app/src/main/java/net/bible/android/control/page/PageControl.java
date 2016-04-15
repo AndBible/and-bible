@@ -59,16 +59,13 @@ public class PageControl {
 		}
 	}
 
-	/** send the current verse via SMS
-	 */
 	/** send the current verse via social applications installed on user's device
 	 */
-	public void shareVerse() {
+	public void shareVerse(Verse verse) {
 		try {
 			Book book = getCurrentPageManager().getCurrentPage().getCurrentDocument();
-			Key key = getCurrentPageManager().getCurrentPage().getSingleKey();
-			
-			String text = key.getName()+"\n"+SwordContentFacade.getInstance().getCanonicalText(book, key);
+
+			String text = verse.getName()+"\n"+SwordContentFacade.getInstance().getCanonicalText(book, verse);
 			
 			Intent sendIntent  = new Intent(Intent.ACTION_SEND);
 			sendIntent.setType("text/plain");

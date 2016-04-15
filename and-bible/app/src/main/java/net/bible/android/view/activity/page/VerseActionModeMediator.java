@@ -128,7 +128,7 @@ public class VerseActionModeMediator {
 					ControlFactory.getInstance().getPageControl().copyToClipboard();
 					break;
 				case R.id.shareVerse:
-					ControlFactory.getInstance().getPageControl().shareVerse();
+					ControlFactory.getInstance().getPageControl().shareVerse(verse);
 					break;
 			}
 

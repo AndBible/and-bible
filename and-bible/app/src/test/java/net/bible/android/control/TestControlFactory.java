@@ -9,7 +9,7 @@ public class TestControlFactory extends ControlFactory {
 	public TestControlFactory() {
 		setInstance(this);
 	}
-	
+
 	public void setWindowControl(WindowControl windowControl) {
 		overrideWindowControl = windowControl;
 	}
