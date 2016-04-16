@@ -1,6 +1,7 @@
 package net.bible.android.control.page;
 
-import java.io.IOException;
+import android.util.Log;
+import android.view.Menu;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
@@ -12,8 +13,7 @@ import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.versification.Versification;
 
-import android.util.Log;
-import android.view.Menu;
+import java.io.IOException;
 
 /** Provide information for My Note page
  * 
@@ -47,7 +47,6 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 		menu.findItem(R.id.add_bookmark).setVisible(false);	
 		menu.findItem(R.id.copy).setVisible(false);	
 		menu.findItem(R.id.shareVerse).setVisible(false);	
-		menu.findItem(R.id.selectText).setVisible(false);	
 	}
 	
 	@Override

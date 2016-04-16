@@ -1,6 +1,19 @@
 package net.bible.android.view.activity.page;
 
-import java.lang.reflect.Method;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.graphics.Color;
+import android.os.Build;
+import android.os.Handler;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.View;
+import android.webkit.JsResult;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import net.bible.android.SharedConstants;
 import net.bible.android.control.ControlFactory;
@@ -16,20 +29,7 @@ import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.page.screen.PageTiltScroller;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.graphics.Color;
-import android.os.Build;
-import android.support.v4.view.GestureDetectorCompat;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.View;
-import android.webkit.JsResult;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+
 import de.greenrobot.event.EventBus;
 
 /** The WebView component that shows the main bible and commentary text
@@ -490,9 +490,10 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		if (isMoveFinished && isScreenVerse) {
 			final int verse = event.getVerseNo(window);
 			setJumpToVerse(verse);
-			
-			if (getHandler()!=null) {
-				getHandler().postDelayed(new Runnable() {
+
+			final Handler handler = getHandler();
+			if (handler !=null) {
+				handler.postDelayed(new Runnable() {
 					@Override
 					public void run() {
 						// clear jump value if still set
@@ -544,8 +545,8 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	/** move the view so the selected verse is at the top or at least visible
 	 */
 	private void scrollOrJumpToVerseOnUIThread(final int verse) {
-		getHandler().post(new Runnable() {
-			
+
+		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				scrollOrJumpToVerse(verse);
@@ -575,7 +576,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 
 	@Override
 	public void highlightVerse(final int verseNo) {
-		getHandler().post(new Runnable() {
+		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				executeJavascript("highlightVerse("+verseNo+")");
@@ -585,12 +586,19 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 
 	@Override
 	public void clearVerseHighlight() {
-		getHandler().post(new Runnable() {
+		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
 				executeJavascript("clearVerseHighlight()");
 			}
 		});
+	}
+
+	private void runOnUiThread(Runnable runnable) {
+		final Handler handler = getHandler();
+		if (handler !=null) {
+			handler.post(runnable);
+		}
 	}
 
 	@TargetApi(Build.VERSION_CODES.KITKAT)

@@ -97,7 +97,7 @@ public class VerseActionModeMediator {
 		@Override
 		public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
 			// Inflate our menu from a resource file
-			actionMode.getMenuInflater().inflate(R.menu.document_viewer_context_menu, menu);
+			actionMode.getMenuInflater().inflate(R.menu.verse_action_mode_menu, menu);
 
 			// Return true so that the action mode is shown
 			return true;
