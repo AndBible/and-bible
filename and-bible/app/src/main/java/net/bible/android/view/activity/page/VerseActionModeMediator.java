@@ -10,12 +10,16 @@ import android.view.MenuItem;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
+import net.bible.android.control.event.window.CurrentWindowChangedEvent;
+import net.bible.android.control.page.PageControl;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.base.IntentHelper;
 import net.bible.android.view.activity.comparetranslations.CompareTranslations;
 import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity;
 
 import org.crosswire.jsword.passage.Verse;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * Control the verse selection action mode
@@ -26,9 +30,11 @@ import org.crosswire.jsword.passage.Verse;
  */
 public class VerseActionModeMediator {
 
-	private ActionModeMenuDisplay mainBibleActivity;
+	private final ActionModeMenuDisplay mainBibleActivity;
 
-	private VerseHighlightControl bibleView;
+	private final VerseHighlightControl bibleView;
+
+	private final PageControl pageControl;
 
 	private Verse verse;
 
@@ -40,9 +46,13 @@ public class VerseActionModeMediator {
 
     private static final String TAG = "VerseActionModeMediator";
 
-	public VerseActionModeMediator(ActionModeMenuDisplay mainBibleActivity, VerseHighlightControl bibleView) {
+	public VerseActionModeMediator(ActionModeMenuDisplay mainBibleActivity, VerseHighlightControl bibleView, PageControl pageControl) {
 		this.mainBibleActivity = mainBibleActivity;
 		this.bibleView = bibleView;
+		this.pageControl = pageControl;
+
+		// Be notified if the associated window loses focus
+		EventBus.getDefault().register(this);
 	}
 
 	public void verseLongPress(int verse) {
@@ -67,19 +77,21 @@ public class VerseActionModeMediator {
 	 * Ensure all state is left tidy
 	 */
 	private void endVerseActionMode() {
-		Log.d(TAG, "Ending action mode");
-		isVerseActionMode = false;
-		verse = null;
-		// prevent endless loop by onDestroyActionMode calling this calling onDestroyActionMode etc.
-		if (actionMode!=null) {
-			ActionMode finishingActionMode = this.actionMode;
-			actionMode = null;
-			finishingActionMode.finish();
+		if (isVerseActionMode) {
+			isVerseActionMode = false;
+			bibleView.clearVerseHighlight();
+			verse = null;
+			// prevent endless loop by onDestroyActionMode calling this calling onDestroyActionMode etc.
+			if (actionMode != null) {
+				ActionMode finishingActionMode = this.actionMode;
+				actionMode = null;
+				finishingActionMode.finish();
+			}
 		}
 	}
 
 	private Verse getSelectedVerse(int verseNo) {
-		Verse mainVerse = ControlFactory.getInstance().getPageControl().getCurrentBibleVerse();
+		Verse mainVerse = pageControl.getCurrentBibleVerse();
 		return new Verse(mainVerse.getVersification(), mainVerse.getBook(), mainVerse.getChapter(), verseNo);
 	}
 
@@ -142,8 +154,6 @@ public class VerseActionModeMediator {
 
 			endVerseActionMode();
 
-			bibleView.clearVerseHighlight();
-
 			// handle all
 			return true;
 		}
@@ -165,5 +175,9 @@ public class VerseActionModeMediator {
 	public interface VerseHighlightControl {
 		void highlightVerse(int verse);
 		void clearVerseHighlight();
+	}
+
+	public void onEvent(CurrentWindowChangedEvent event) {
+		endVerseActionMode();
 	}
 }

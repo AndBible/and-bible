@@ -82,6 +82,7 @@ public class ControlFactory {
 			synchronized(ControlFactory.class) {
 				if (singleton==null) {
 					singleton = new ControlFactory();
+					singleton.createAll();
 				}
 			}
 		}
@@ -92,7 +93,6 @@ public class ControlFactory {
 	}
 	
 	protected ControlFactory() {
-		createAll();
 	}
 	
 	protected void createAll() {
@@ -119,7 +119,7 @@ public class ControlFactory {
 		linkControl = new LinkControl(windowControl);
 	}
 	
-	private void ensureAllInitialised() {
+	protected void ensureAllInitialised() {
 		if (!initialised) {
 			synchronized(this) {
 				if (!initialised) {
@@ -169,7 +169,7 @@ public class ControlFactory {
 	}
 
 	public void inject(BibleView bibleView) {
-		VerseActionModeMediator bibleViewVerseActionModeMediator = new VerseActionModeMediator(mainBibleActivity, bibleView);
+		VerseActionModeMediator bibleViewVerseActionModeMediator = new VerseActionModeMediator(mainBibleActivity, bibleView, getPageControl());
 
 		BibleJavascriptInterface bibleJavascriptInterface = new BibleJavascriptInterface(bibleViewVerseActionModeMediator);
 

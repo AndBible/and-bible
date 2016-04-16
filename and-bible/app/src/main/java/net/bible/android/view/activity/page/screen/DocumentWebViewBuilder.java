@@ -291,7 +291,7 @@ public class DocumentWebViewBuilder {
 	/**
 	 * Attempt to fix occasional error: "The specified child already has a parent. You must call removeView() on the child's parent first."
 	 */
-	public BibleView getCleanView(Window window) {
+	private BibleView getCleanView(Window window) {
 		BibleView bibleView = getView(window);
 		ViewParent parent = bibleView.getParent();
 		if (parent!=null && parent instanceof ViewGroup) {
