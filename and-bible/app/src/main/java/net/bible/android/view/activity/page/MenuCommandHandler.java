@@ -1,19 +1,22 @@
 package net.bible.android.view.activity.page;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.util.Log;
+import android.view.MenuItem;
+
 import net.bible.android.activity.R;
 import net.bible.android.activity.StartupActivity;
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.bookmark.Bookmarks;
-import net.bible.android.view.activity.comparetranslations.CompareTranslations;
 import net.bible.android.view.activity.download.Download;
-import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity;
 import net.bible.android.view.activity.help.Help;
 import net.bible.android.view.activity.installzip.InstallZip;
 import net.bible.android.view.activity.mynote.MyNotes;
-import net.bible.android.view.activity.navigation.ChooseDocument;
 import net.bible.android.view.activity.navigation.History;
 import net.bible.android.view.activity.page.screen.WindowMenuCommandHandler;
 import net.bible.android.view.activity.readingplan.DailyReading;
@@ -21,16 +24,6 @@ import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;
 import net.bible.android.view.activity.settings.SettingsActivity;
 import net.bible.android.view.activity.speak.Speak;
 import net.bible.service.common.CommonUtils;
-
-import org.crosswire.jsword.book.BookCategory;
-
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
-import android.content.Intent;
-import android.util.Log;
-import android.view.MenuItem;
-import android.widget.Toast;
 
 /** Handle requests from the main menu
  * 
@@ -40,16 +33,9 @@ import android.widget.Toast;
  */
 public class MenuCommandHandler {
 
-	private LongPressControl longPressControl;
-	
 	private DownloadControl downloadControl;
 	
 	private static final String TAG = "MainMenuCommandHandler";
-	
-	public static class IntentHolder {
-		Intent intent;
-		int requestCode;
-	}
 	
 	private MainBibleActivity callingActivity;
 	
@@ -66,25 +52,20 @@ public class MenuCommandHandler {
 		this.callingActivity = activity;
 		this.windowMenuCommandHandler = new WindowMenuCommandHandler();
 		
-		longPressControl = new LongPressControl();
 		ControlFactory controlFactory = ControlFactory.getInstance();
 		downloadControl = controlFactory.getDownloadControl();
 	}
 	
-	public boolean isIgnoreLongPress() {
-		return longPressControl.isIgnoreLongPress();
-	}
-
-	/** 
+	/**
      * on Click handlers
      */
     public boolean handleMenuRequest(MenuItem menuItem) {
         boolean isHandled = false;
-        int requestCode = ActivityBase.STD_REQUEST_CODE;
-        
+
     	// Activities
     	{
     		Intent handlerIntent = null;
+			int requestCode = ActivityBase.STD_REQUEST_CODE;
 	        // Handle item selection
 	        switch (menuItem.getItemId()) {
 		        case R.id.searchButton:

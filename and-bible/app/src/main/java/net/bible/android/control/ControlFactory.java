@@ -1,8 +1,5 @@
 package net.bible.android.control;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import net.bible.android.common.resource.AndroidResourceProvider;
 import net.bible.android.common.resource.ResourceProvider;
 import net.bible.android.control.backup.BackupControl;
@@ -37,6 +34,10 @@ import net.bible.android.view.activity.page.BibleView;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.android.view.activity.page.VerseActionModeMediator;
 import net.bible.android.view.activity.page.VerseCalculator;
+import net.bible.android.view.activity.page.VerseMenuCommandHandler;
+
+import java.util.HashMap;
+import java.util.Map;
 
 //TODO replace with ioc (maybe)
 /** allow access to control layer
@@ -169,7 +170,7 @@ public class ControlFactory {
 	}
 
 	public void inject(BibleView bibleView) {
-		VerseActionModeMediator bibleViewVerseActionModeMediator = new VerseActionModeMediator(mainBibleActivity, bibleView, getPageControl());
+		VerseActionModeMediator bibleViewVerseActionModeMediator = new VerseActionModeMediator(mainBibleActivity, bibleView, getPageControl(), new VerseMenuCommandHandler(mainBibleActivity, getPageControl()));
 
 		BibleJavascriptInterface bibleJavascriptInterface = new BibleJavascriptInterface(bibleViewVerseActionModeMediator);
 

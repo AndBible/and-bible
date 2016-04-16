@@ -21,7 +21,12 @@ import org.crosswire.jsword.versification.Versification;
  */
 public class IntentHelper {
 
-	public static final String VERSE = "net.bible.android.view.activity.comparetranslations.Verse";
+	// request codes passed to and returned from sub-activities
+	public static final int REFRESH_DISPLAY_ON_FINISH = 2;
+
+	public static final int UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH = 3;
+
+	private static final String VERSE = "net.bible.android.view.activity.comparetranslations.Verse";
 
 	private static final String TAG = "IntentHelper";
 

@@ -1,6 +1,5 @@
 package net.bible.android.view.activity.page;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.view.ActionMode;
 import android.util.Log;
@@ -9,13 +8,9 @@ import android.view.MenuItem;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.page.PageControl;
-import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.base.IntentHelper;
-import net.bible.android.view.activity.comparetranslations.CompareTranslations;
-import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity;
 
 import org.crosswire.jsword.passage.Verse;
 
@@ -36,6 +31,8 @@ public class VerseActionModeMediator {
 
 	private final PageControl pageControl;
 
+	private final VerseMenuCommandHandler verseMenuCommandHandler;
+
 	private Verse verse;
 
     boolean isVerseActionMode;
@@ -46,10 +43,11 @@ public class VerseActionModeMediator {
 
     private static final String TAG = "VerseActionModeMediator";
 
-	public VerseActionModeMediator(ActionModeMenuDisplay mainBibleActivity, VerseHighlightControl bibleView, PageControl pageControl) {
+	public VerseActionModeMediator(ActionModeMenuDisplay mainBibleActivity, VerseHighlightControl bibleView, PageControl pageControl, VerseMenuCommandHandler verseMenuCommandHandler) {
 		this.mainBibleActivity = mainBibleActivity;
 		this.bibleView = bibleView;
 		this.pageControl = pageControl;
+		this.verseMenuCommandHandler = verseMenuCommandHandler;
 
 		// Be notified if the associated window loses focus
 		EventBus.getDefault().register(this);
@@ -119,38 +117,8 @@ public class VerseActionModeMediator {
 		public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
 			Log.i(TAG, "Action menu item clicked: " + menuItem);
 			// Similar to menu handling in Activity.onOptionsItemSelected()
-			Intent handlerIntent = null;
-			int requestCode = ActivityBase.STD_REQUEST_CODE;
 
-			// Handle item selection
-			switch (menuItem.getItemId()) {
-				case R.id.compareTranslations:
-					handlerIntent = new Intent((Activity)mainBibleActivity, CompareTranslations.class);
-					break;
-				case R.id.notes:
-					handlerIntent = new Intent((Activity)mainBibleActivity, FootnoteAndRefActivity.class);
-					break;
-				case R.id.add_bookmark:
-				case R.id.delete_bookmark:
-					ControlFactory.getInstance().getBookmarkControl().toggleBookmarkForVerse(verse);
-					// refresh view to show new bookmark icon
-					PassageChangeMediator.getInstance().forcePageUpdate();
-					break;
-				case R.id.myNoteAddEdit:
-					ControlFactory.getInstance().getCurrentPageControl().showMyNote(verse);
-					break;
-				case R.id.copy:
-					ControlFactory.getInstance().getPageControl().copyToClipboard();
-					break;
-				case R.id.shareVerse:
-					ControlFactory.getInstance().getPageControl().shareVerse(verse);
-					break;
-			}
-
-			if (handlerIntent!=null) {
-				intentHelper.updateIntentWithVerse(handlerIntent, verse);
-				mainBibleActivity.startActivityForResult(handlerIntent, requestCode);
-			}
+			verseMenuCommandHandler.handleMenuRequest(menuItem.getItemId(), verse);
 
 			endVerseActionMode();
 
