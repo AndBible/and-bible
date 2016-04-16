@@ -136,15 +136,6 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		mPageTiltScroller = new PageTiltScroller(this);
 		mPageTiltScroller.enableTiltScroll(true);
 
-		// handle long click ourselves and prevent webview showing text selection automatically
-		setOnLongClickListener(new OnLongClickListener() {
-			@Override
-			public boolean onLongClick(View v) {
-				return true;
-			}
-		});
-		setLongClickable(false);
-
 		// if this webview becomes (in)active then must start/stop auto-scroll
 		EventBus.getDefault().register(this);
 		
@@ -213,6 +204,9 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 			setJumpToVerse(jumpToVerse);
 		}
 		mJumpToYOffsetRatio = jumpToYOffsetRatio;
+
+		// either enable verse selection or the default text selection
+		html = enableSelection(html);
 
 		// allow zooming if map
 		enableZoomForMap(ControlFactory.getInstance().getCurrentPageControl().isMapShown());
@@ -574,27 +568,51 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		}
 	}
 
+	/**
+	 * 	Either enable verse selection or the default text selection
+	 */
+	private String enableSelection(String html) {
+		if (window.getPageManager().isBibleShown()) {
+			// handle long click ourselves and prevent webview showing text selection automatically
+			setOnLongClickListener(new OnLongClickListener() {
+				@Override
+				public boolean onLongClick(View v) {
+					return true;
+				}
+			});
+			setLongClickable(false);
+
+			// need to enable verse selection after page load, but not always so can't use onload
+			html += "<script>enableVerseSelection();</script>";
+
+		} else {
+			// reset handling of long press
+			setOnLongClickListener(null);
+		}
+
+		return html;
+	}
+
 	@Override
 	public void highlightVerse(final int verseNo) {
-		runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				executeJavascript("highlightVerse("+verseNo+")");
-			}
-		});
+		executeJavascriptOnUiThread("highlightVerse("+verseNo+")");
 	}
 
 	@Override
 	public void clearVerseHighlight() {
+		executeJavascriptOnUiThread("clearVerseHighlight()");
+	}
+
+	private void executeJavascriptOnUiThread(final String javascript) {
 		runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				executeJavascript("clearVerseHighlight()");
+				executeJavascript(javascript);
 			}
 		});
 	}
 
-	private void runOnUiThread(Runnable runnable) {
+	private void runOnUiThread(final Runnable runnable) {
 		final Handler handler = getHandler();
 		if (handler !=null) {
 			handler.post(runnable);

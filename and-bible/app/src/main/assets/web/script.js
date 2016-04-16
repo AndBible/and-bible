@@ -3,7 +3,6 @@ $(window).load(
 		window.jsInterface.log("JS onload");
 		window.jsInterface.onLoad();
 		registerVersePositions();
-//		bindTapTouchEvents();
 	}
 )
 
@@ -96,14 +95,16 @@ function selectAt(x, y) {
 /**
  * Monitor verse selection via long press
  */
-$(function(){
-  $( ".verse" ).bind( "taphold", tapholdHandler );
+function enableVerseSelection() {
+	window.jsInterface.log("Enabling verse selection");
+	// Enable special selection for Bibles
+	$( ".verse" ).bind( "taphold", tapholdHandler );
 
-  function tapholdHandler( event ){
+	function tapholdHandler( event ){
 		window.jsInterface.log("Tap Hold");
 		selected($(event.target))
-  }
-});
+	}
+}
 
 function selected($elem) {
 	if ($elem.hasClass("verse")) {
