@@ -1,6 +1,18 @@
 package net.bible.android.view.activity.page;
 
-import java.lang.reflect.Method;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.graphics.Color;
+import android.os.Build;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
+import android.view.View;
+import android.webkit.JsResult;
+import android.webkit.WebChromeClient;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 
 import net.bible.android.SharedConstants;
 import net.bible.android.control.ControlFactory;
@@ -16,19 +28,9 @@ import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.page.screen.PageTiltScroller;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
-import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
-import android.content.Context;
-import android.graphics.Color;
-import android.os.Build;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.MotionEvent;
-import android.view.View;
-import android.webkit.JsResult;
-import android.webkit.WebChromeClient;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
+
+import java.lang.reflect.Method;
+
 import de.greenrobot.event.EventBus;
 
 /** The WebView component that shows the main bible and commentary text
@@ -534,14 +536,19 @@ public class BibleView extends WebView implements DocumentView {
 		Log.d(TAG, "Detached from window");
 		// prevent random verse changes while layout is being rebuild because of window changes
 		mJavascriptInterface.setNotificationsEnabled(false);
+		pauseTiltScroll();
 	}
 	
 	@Override
 	protected void onAttachedToWindow() {
 		super.onAttachedToWindow();
 		Log.d(TAG, "Attached to window");
-		// may have returned from MyNote view
-		resumeTiltScroll();
+		if (windowControl.isActiveWindow(window)) {
+			mJavascriptInterface.setNotificationsEnabled(true);
+
+			// may have returned from MyNote view
+			resumeTiltScroll();
+		}
 	}
 
 	public void onEvent(NumberOfWindowsChangedEvent event) {
