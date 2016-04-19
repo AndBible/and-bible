@@ -44,7 +44,7 @@ dependencies {
     compile files('libs/jsword.jar')
     compile files('libs/mmseg4j-all-1.8.4.jar')
     compile 'de.greenrobot:eventbus:2.4.0'
-    compile 'org.jdom:jdom2:2.0.5'
+    compile 'org.jdom:jdom2:2.0.6'
     compile 'org.apache.httpcomponents:httpclient-android:4.3.3'
     compile 'org.apache.commons:commons-compress:1.7'
     compile 'de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.4'
