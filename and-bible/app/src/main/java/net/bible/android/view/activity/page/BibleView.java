@@ -43,7 +43,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	private Window window;
 	
 	private BibleJavascriptInterface mJavascriptInterface;
-	
+
 	private int mJumpToVerse = SharedConstants.NO_VALUE;
 	private float mJumpToYOffsetRatio = SharedConstants.NO_VALUE;
 
@@ -350,7 +350,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	        mPageTiltScroller.enableTiltScroll(true);
     	}
     }
-    
+
 	/** ensure auto-scroll does not continue when screen is powered off
 	 */
 	@Override
@@ -508,14 +508,19 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		Log.d(TAG, "Detached from window");
 		// prevent random verse changes while layout is being rebuild because of window changes
 		mJavascriptInterface.setNotificationsEnabled(false);
+		pauseTiltScroll();
 	}
 	
 	@Override
 	protected void onAttachedToWindow() {
 		super.onAttachedToWindow();
 		Log.d(TAG, "Attached to window");
-		// may have returned from MyNote view
-		resumeTiltScroll();
+		if (windowControl.isActiveWindow(window)) {
+			mJavascriptInterface.setNotificationsEnabled(true);
+
+			// may have returned from MyNote view
+			resumeTiltScroll();
+		}
 	}
 
 	public void onEvent(NumberOfWindowsChangedEvent event) {
