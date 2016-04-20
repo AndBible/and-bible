@@ -20,6 +20,17 @@ public class KeyHistoryItem extends HistoryItemBase {
 	private Key key;
 	private float yOffsetRatio;
 
+	@Override
+	public boolean isFromPersistentHistory() {
+		return fromPersistent;
+	}
+
+	public void setFromPersistent(boolean fromPersistent) {
+		this.fromPersistent = fromPersistent;
+	}
+
+	private boolean fromPersistent;
+
 	private static final String TAG = "KeyHistoryItem"; 
 
 	public KeyHistoryItem(Book doc, Key verse, float yOffsetRatio) {
@@ -93,5 +104,9 @@ public class KeyHistoryItem extends HistoryItemBase {
 		} else if (!key.equals(other.key))
 			return false;
 		return true;
+	}
+
+	public Book getDoc() {
+		return document;
 	}
 }

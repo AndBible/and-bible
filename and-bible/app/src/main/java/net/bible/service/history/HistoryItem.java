@@ -18,4 +18,7 @@ public interface HistoryItem {
 	// do back to the state at this point
 	public abstract void revertTo();
 
+	// if this Item came from SharedPreferences, we shouldn't go to it at Back key pressed
+	public abstract boolean isFromPersistentHistory();
+
 }

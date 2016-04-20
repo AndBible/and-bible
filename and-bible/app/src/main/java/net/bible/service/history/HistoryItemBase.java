@@ -24,4 +24,10 @@ public abstract class HistoryItemBase implements HistoryItem {
 	public Window getScreen() {
 		return window;
 	}
+
+	// only KeyHistoryItem can be serialized/deserialized to SharedPrefs, so return false for all other childs
+	@Override
+	public boolean isFromPersistentHistory() {
+		return false;
+	}
 }
