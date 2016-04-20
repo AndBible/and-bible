@@ -70,7 +70,7 @@ public class VerseMenuCommandHandler {
 					isHandled = true;
 					break;
 				case R.id.copy:
-					pageControl.copyToClipboard();
+					pageControl.copyToClipboard(currentVerse);
 					isHandled = true;
 					break;
 				case R.id.shareVerse:

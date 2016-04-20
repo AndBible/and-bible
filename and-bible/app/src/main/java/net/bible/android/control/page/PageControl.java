@@ -1,6 +1,10 @@
 package net.bible.android.control.page;
 
-import java.util.List;
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.text.ClipboardManager;
+import android.util.Log;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
@@ -25,11 +29,7 @@ import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.text.ClipboardManager;
-import android.util.Log;
+import java.util.List;
 
 /**
  * SesionFacade for CurrentPage used by View classes
@@ -43,14 +43,13 @@ public class PageControl {
 	
 	private static final TitleSplitter titleSplitter = new TitleSplitter();
 
-	/** paste the current verse to the system clipboard
+	/** Paste the current verse to the system clipboard
 	 */
-	public void copyToClipboard() {
+	public void copyToClipboard(Verse verse) {
 		try {
 			Book book = getCurrentPageManager().getCurrentPage().getCurrentDocument();
-			Key key = getCurrentPageManager().getCurrentPage().getSingleKey();
-			
-			String text = key.getName()+"\n"+SwordContentFacade.getInstance().getCanonicalText(book, key);
+
+			String text = verse.getName()+"\n"+SwordContentFacade.getInstance().getCanonicalText(book, verse);
 			ClipboardManager clipboard = (ClipboardManager)BibleApplication.getApplication().getSystemService(Activity.CLIPBOARD_SERVICE);
 			clipboard.setText(text);
 		} catch (Exception e) {
