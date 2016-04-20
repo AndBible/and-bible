@@ -2,6 +2,8 @@
  * Longpress is a jQuery plugin that makes it easy to support long press
  * events on mobile devices and desktop borwsers.
  *
+ * Customised to add pageX and pageY to event.
+ *
  * @name longpress
  * @version 0.1.2
  * @requires jQuery v1.2.3+
@@ -29,6 +31,11 @@
 
             // mousedown or touchstart callback
             function mousedown_callback(e) {
+            	// Save pageX and pageY
+            	var touch = e.originalEvent.touches[0] || e.originalEvent.changedTouches[0];
+            	e.pageX = touch.pageX;
+            	e.pageY = touch.pageY;
+
                 mouse_down_time = new Date().getTime();
                 var context = $(this);
 
@@ -64,11 +71,6 @@
             function move_callback(e) {
                 clearTimeout(timeout);
             }
-
-            // Browser Support
-            $this.on('mousedown', mousedown_callback);
-            $this.on('mouseup', mouseup_callback);
-            $this.on('mousemove', move_callback);
 
             // Mobile Support
             $this.on('touchstart', mousedown_callback);

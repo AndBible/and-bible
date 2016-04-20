@@ -72,44 +72,26 @@ function doScrollToSlowly(element, elementPosition, to) {
     }, 100);
 }
 
-function selectAt(x, y) {
-	window.jsInterface.log("JS select at: "+x+", "+y+" WebView dimensions:"+window.innerWidth+","+window.innerHeight);
-
-	var elem = document.elementFromPoint(x, y);
-
-	selected(elem);
-}
-
-/** Long-press - taphold handler */
-/*--- taphold start --*/
-//function bindTapTouchEvents() {
-//	window.jsInterface.log("Binding tap Hold");
-//	$( ".verse" ).bind( "taphold", tapholdHandler );
-//
-//	function tapholdHandler( event ){
-//		window.jsInterface.log("Tap Hold");
-//		selected($(event.target))
-//	}
-//}
-
 /**
  * Monitor verse selection via long press
  */
 function enableVerseSelection() {
 	window.jsInterface.log("Enabling verse selection");
 	// Enable special selection for Bibles
-	$( ".verse" ).bind( "taphold", tapholdHandler );
+	$(document).longpress( tapholdHandler );
 
 	function tapholdHandler( event ){
-		window.jsInterface.log("Tap Hold");
-		selected($(event.target))
+		var point = {'x': event.pageX, 'y': event.pageY};
+		var $elemSet = $('.verse');
+		var $closestToPoint = $.nearest(point, $elemSet).filter(":first");
+
+		selected($closestToPoint)
 	}
 }
 
 function selected($elem) {
 	if ($elem.hasClass("verse")) {
 		var verse = parseInt($elem.attr('id'));
-		window.jsInterface.log("Found verse with id: "+verse);
 		window.jsInterface.verseLongPress(verse);
 	}
 }

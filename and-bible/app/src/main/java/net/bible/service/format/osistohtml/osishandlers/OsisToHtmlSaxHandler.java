@@ -1,13 +1,5 @@
 package net.bible.service.format.osistohtml.osishandlers;
 
-import java.security.InvalidParameterException;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import net.bible.service.common.Logger;
 import net.bible.service.device.ScreenSettings;
 import net.bible.service.font.FontControl;
@@ -47,6 +39,14 @@ import net.bible.service.format.osistohtml.tei.RefHandler;
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
+
+import java.security.InvalidParameterException;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Convert OSIS tags into html tags
@@ -164,7 +164,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	@Override
 	public void startDocument()  {
 		String jQueryjs = "\n<script type='text/javascript' src='file:///android_asset/web/jquery-2.2.3.js'></script>\n"+
-				"<script type='text/javascript' src='file:///android_asset/web/jquery.mobile.1.4.5.only-touch.js'></script>\n"+
+				"<script type='text/javascript' src='file:///android_asset/web/jquery.longpress.js'></script>\n"+
 				"<script type='text/javascript' src='file:///android_asset/web/jquery.nearest.min.1.4.0.js'></script>\n";
 		String jsTag = "\n<script type='text/javascript' src='file:///android_asset/web/script.js'></script>\n";
 		String styleSheetTags = parameters.getCssStylesheets();
