@@ -81,11 +81,16 @@ function enableVerseSelection() {
 	$(document).longpress( tapholdHandler );
 
 	function tapholdHandler( event ){
-		var point = {'x': event.pageX, 'y': event.pageY};
-		var $elemSet = $('.verse');
-		var $closestToPoint = $.nearest(point, $elemSet).filter(":first");
+		var $target = $(event.target);
+		if ($target.hasClass("verse")) {
+			selected($target);
+		} else {
+			var point = {'x': event.pageX, 'y': event.pageY};
+			var $elemSet = $('.verse');
+			var $closestToPoint = $.nearest(point, $elemSet).filter(":first");
 
-		selected($closestToPoint)
+			selected($closestToPoint)
+		}
 	}
 }
 
