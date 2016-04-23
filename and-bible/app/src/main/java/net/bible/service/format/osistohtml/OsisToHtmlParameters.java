@@ -1,13 +1,13 @@
 package net.bible.service.format.osistohtml;
 
-import java.net.URI;
-import java.util.List;
-
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
+
+import java.net.URI;
+import java.util.List;
 
 /**Parameters passed into the Osis to HTML converter
  * 
@@ -44,8 +44,10 @@ public class OsisToHtmlParameters {
 
 	public String getCssStylesheets() {
 		StringBuilder builder = new StringBuilder();
-		for (String styleSheet : cssStylesheetList) {
-			builder.append(styleSheet);
+		if (cssStylesheetList!=null) {
+			for (String styleSheet : cssStylesheetList) {
+				builder.append(styleSheet);
+			}
 		}
 		return builder.toString();
 	}

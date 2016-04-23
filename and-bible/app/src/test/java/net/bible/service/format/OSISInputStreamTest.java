@@ -14,6 +14,7 @@ import java.io.InputStreamReader;
 import java.util.List;
 
 import net.bible.service.common.ParseException;
+import net.bible.service.device.ScreenSettings;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler;
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler;
@@ -33,6 +34,8 @@ import org.crosswire.jsword.versification.system.Versifications;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
 import org.xml.sax.ContentHandler;
 
 
@@ -40,6 +43,7 @@ import org.xml.sax.ContentHandler;
  * @author denha1m
  *
  */
+@RunWith(RobolectricTestRunner.class)
 public class OSISInputStreamTest {
 
 	private Book[] books;
@@ -47,7 +51,8 @@ public class OSISInputStreamTest {
 	private Book netBook;
 	private Book webBook;
 	private Book tskBook;
-	
+	private Book esvsBook;
+
 	@Before
 	public void setUp() throws Exception {
         SwordBookDriver swordBookDriver = new SwordBookDriver();
@@ -64,6 +69,9 @@ public class OSISInputStreamTest {
 			}
 			if (book.getInitials().startsWith("TSK")) {
 				this.tskBook = book;
+			}
+			if (book.getInitials().startsWith("ESVS")) {
+				this.esvsBook = book;
 			}
 //			System.out.println(book.getOsisID());
 		}
@@ -436,6 +444,40 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		}
 	}
 
+
+	public void testHighlight() throws Exception {
+		Book esvs = getBook("ESVS");
+
+		OSISInputStream osisInputStream = new OSISInputStream(esvs, esvs.getKey("1 Tim 6:10, 11"));
+		String verse = convertStreamToString(osisInputStream);
+		System.out.println(verse);
+
+		BookData data = new BookData(esvs, esvs.getKey("1 Tim 6:9-11"));
+		SAXEventProvider osissep = data.getSAXEventProvider();
+
+		// canonical
+		try {
+			ScreenSettings.setContentViewHeightPx(300);
+
+			if (osissep != null) {
+				OsisToHtmlParameters params = new OsisToHtmlParameters();
+				params.setShowTitles(true);
+				OsisToHtmlSaxHandler osisToHtml = new OsisToHtmlSaxHandler(params);
+//				ContentHandler osisToHtml = new OsisToCanonicalTextSaxHandler();
+
+				osissep.provideSAXEvents(osisToHtml);
+
+				String chapter = osisToHtml.toString();
+				System.out.println("START"+chapter+"END");
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail("Parsing error");
+			throw new ParseException("Parsing error", e);
+		}
+	}
+
+
 	private Book getKJV() {
 		return getBook("KJV");
 	}
@@ -449,7 +491,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		return null;
 	}
 	
-	
+
 //	/**
 //	 * Test method for {@link org.crosswire.jsword.book.sword.OSISInputStream#OSISInputStream(org.crosswire.jsword.book.Book, org.crosswire.jsword.passage.Key)}.
 //	 */

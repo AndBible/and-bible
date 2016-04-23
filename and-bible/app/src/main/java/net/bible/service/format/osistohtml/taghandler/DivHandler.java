@@ -1,9 +1,5 @@
 package net.bible.service.format.osistohtml.taghandler;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Stack;
-
 import net.bible.service.common.Logger;
 import net.bible.service.format.osistohtml.HtmlTextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
@@ -12,6 +8,10 @@ import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.Ver
 
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Stack;
 
 /** This can either signify a quote or Red Letter
  * Example from ESV Prov 19:1
@@ -88,7 +88,7 @@ public class DivHandler implements OsisTagHandler {
 	public void end() {
 		DivType type = stack.pop();
 		if (DivType.PARAGRAPH.equals(type) && passageInfo.isAnyTextWritten) {
-			writer.write("<p />");
+			writer.write("<br />");
 		} else if (DivType.PREVERSE.equals(type)) {
 			writer.finishInserting();
 		}

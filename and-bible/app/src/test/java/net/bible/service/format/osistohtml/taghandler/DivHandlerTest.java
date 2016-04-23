@@ -1,7 +1,5 @@
 package net.bible.service.format.osistohtml.taghandler;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
 import net.bible.service.format.osistohtml.HtmlTextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.PassageInfo;
@@ -11,6 +9,9 @@ import org.crosswire.jsword.book.OSISUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.helpers.AttributesImpl;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 public class DivHandlerTest {
 
@@ -54,7 +55,7 @@ public class DivHandlerTest {
 		divHandler.start(attrs2);
 		divHandler.end();
 
-		assertThat(htmlTextWriter.getHtml(), equalTo("Some text<p />"));
+		assertThat(htmlTextWriter.getHtml(), equalTo("Some text<br />"));
 	}
 
 	/**
@@ -73,7 +74,7 @@ public class DivHandlerTest {
 		
 		divHandler.end();
 
-		assertThat(htmlTextWriter.getHtml(), equalTo("Some text<p />"));
+		assertThat(htmlTextWriter.getHtml(), equalTo("Some text<br />"));
 	}
 
 	/**
@@ -99,7 +100,7 @@ public class DivHandlerTest {
 		divHandler.start(attrs2);
 		divHandler.end();
 
-		assertThat(htmlTextWriter.getHtml(), equalTo("Some text<p />"));
+		assertThat(htmlTextWriter.getHtml(), equalTo("Some text<br />"));
 	}
 	
 	/**

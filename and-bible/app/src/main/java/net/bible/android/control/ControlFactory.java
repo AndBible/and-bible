@@ -64,8 +64,8 @@ public class ControlFactory {
 	private DownloadControl downloadControl = new DownloadControl();
 	private SpeakControl speakControl = new SpeakControl();
 	private ReadingPlanControl readingPlanControl = new ReadingPlanControl();
-	private CompareTranslationsControl compareTranslationsControl = new CompareTranslationsControl(bibleTraverser);
-	private FootnoteAndRefControl footnoteAndRefControl = new FootnoteAndRefControl(bibleTraverser);
+	private CompareTranslationsControl compareTranslationsControl;
+	private FootnoteAndRefControl footnoteAndRefControl;
 	private BackupControl backupControl = new BackupControl();
 	private Bookmark bookmarkControl;
 
@@ -113,6 +113,9 @@ public class ControlFactory {
 		searchControl.setDocumentBibleBooksFactory(documentBibleBooksFactory);
 		
 		bibleTraverser.setDocumentBibleBooksFactory(documentBibleBooksFactory);
+
+		compareTranslationsControl = new CompareTranslationsControl(bibleTraverser);
+		footnoteAndRefControl = new FootnoteAndRefControl(bibleTraverser);
 
 		windowRepository = new WindowRepository();
 		windowControl = new WindowControl(windowRepository, eventManager);
