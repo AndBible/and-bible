@@ -10,12 +10,12 @@
 
    	<item android:id="@+id/bookmarksButton"
 		  android:title="@string/bookmarks" 
-		  android:icon="@drawable/ic_menu_bookmarks"
+		  android:icon="@drawable/ic_collections_bookmark_24dp"
 		  appcompat:showAsAction="ifRoom"/>
    	
 	<item android:id="@+id/mynotesButton"
-		  android:title="@string/mynotes" 
-		  android:icon="@drawable/ic_menu_usernotes"/>
+		  android:title="@string/mynotes"
+		  android:icon="@drawable/ic_pen_24dp"/>
     
 	<item android:id="@+id/searchButton"
 		  android:title="@string/search"

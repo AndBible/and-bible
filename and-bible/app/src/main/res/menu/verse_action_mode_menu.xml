@@ -10,27 +10,28 @@
 
    	<item android:id="@+id/myNoteAddEdit"
 		  android:title="@string/mynote_add"
-		  android:icon="@drawable/ic_menu_usernotes"
+		  android:icon="@drawable/ic_pen_24dp"
 		  appcompat:showAsAction="always"/>
 
 	<!-- Either add or delete bookmark will be hidden -->
 	<item android:id="@+id/add_bookmark"
 		  android:title="@string/add_bookmark"
-		  android:icon="@drawable/ic_menu_bookmarks"
+		  android:icon="@drawable/ic_bookmark_24dp"
 		  appcompat:showAsAction="always"/>
+
 	<item android:id="@+id/delete_bookmark"
 		  android:title="@string/delete_bookmark"
-		  android:icon="@drawable/ic_menu_bookmarks"
+		  android:icon="@drawable/ic_bookmark_delete_24dp"
 		  appcompat:showAsAction="always"/>
 
 	<item android:id="@+id/compareTranslations"
 		  android:title="@string/compare_translations"
-		  android:icon="@android:drawable/ic_dialog_map"
+		  android:icon="@drawable/ic_compare_24dp"
 		  appcompat:showAsAction="always"/>
 
 	<item android:id="@+id/shareVerse"
 		  android:title="@string/share_verse"
-		  android:icon="@android:drawable/ic_menu_share"
+		  android:icon="@drawable/ic_share_24dp"
 		  appcompat:showAsAction="ifRoom"/>
 
 	<!-- Footnotes and references -->

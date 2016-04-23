@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 19
+    compileSdkVersion 23
     buildToolsVersion "23.0.2"
 
     /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
@@ -9,7 +9,9 @@ android {
         applicationId "net.bible.android.activity"
         minSdkVersion 8
         targetSdkVersion 19
+		vectorDrawables.useSupportLibrary = true
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -39,7 +41,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:19.+'
+    compile 'com.android.support:appcompat-v7:23.3.0'
 
     compile files('libs/jsword.jar')
     compile files('libs/mmseg4j-all-1.8.4.jar')
