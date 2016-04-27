@@ -26,6 +26,7 @@ import org.apache.commons.lang.WordUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 
@@ -45,11 +46,11 @@ public class PageControl {
 
 	/** Paste the current verse to the system clipboard
 	 */
-	public void copyToClipboard(Verse verse) {
+	public void copyToClipboard(VerseRange verseRange) {
 		try {
 			Book book = getCurrentPageManager().getCurrentPage().getCurrentDocument();
 
-			String text = verse.getName()+"\n"+SwordContentFacade.getInstance().getCanonicalText(book, verse);
+			String text = verseRange.getName()+"\n"+SwordContentFacade.getInstance().getCanonicalText(book, verseRange);
 			ClipboardManager clipboard = (ClipboardManager)BibleApplication.getApplication().getSystemService(Activity.CLIPBOARD_SERVICE);
 			clipboard.setText(text);
 		} catch (Exception e) {
@@ -60,11 +61,11 @@ public class PageControl {
 
 	/** send the current verse via social applications installed on user's device
 	 */
-	public void shareVerse(Verse verse) {
+	public void shareVerse(VerseRange verseRange) {
 		try {
 			Book book = getCurrentPageManager().getCurrentPage().getCurrentDocument();
 
-			String text = verse.getName()+"\n"+SwordContentFacade.getInstance().getCanonicalText(book, verse);
+			String text = verseRange.getName()+"\n"+SwordContentFacade.getInstance().getCanonicalText(book, verseRange);
 			
 			Intent sendIntent  = new Intent(Intent.ACTION_SEND);
 			sendIntent.setType("text/plain");

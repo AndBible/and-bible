@@ -1,15 +1,7 @@
 package net.bible.service.sword;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
+import android.content.SharedPreferences;
+import android.util.Log;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
@@ -42,8 +34,16 @@ import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.Passage;
 import org.xml.sax.ContentHandler;
 
-import android.content.SharedPreferences;
-import android.util.Log;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 
 /** JSword facade
  * 
@@ -84,7 +84,6 @@ public class SwordContentFacade {
 	 * 
 	 * @param book
 	 * @param key
-	 * @param maxKeyCount
 	 * @return
 	 * @throws NoSuchKeyException
 	 * @throws BookException
@@ -211,14 +210,14 @@ public class SwordContentFacade {
 	 * Obtain a SAX event provider for the OSIS document representation of one
 	 * or more book entries.
 	 * 
-	 * @param bookInitials
+	 * @param book
 	 *            the book to use
 	 * @param reference
 	 *            a reference, appropriate for the book, of one or more entries
 	 */
 	public SAXEventProvider getOSIS(Book book, String reference, int maxKeyCount)
 			throws BookException, NoSuchKeyException {
-		Key key = null;
+		Key key;
 		if (BookCategory.BIBLE.equals(book.getBookCategory())) {
 			key = book.getKey(reference);
 			((Passage) key).trimVerses(maxKeyCount);
@@ -243,9 +242,9 @@ public class SwordContentFacade {
      * Get just the canonical text of one or more book entries without any
      * markup.
      * 
-     * @param bookInitials
+     * @param book
      *            the book to use
-     * @param reference
+     * @param key
      *            a reference, appropriate for the book, of one or more entries
      */
     public String getCanonicalText(Book book, Key key) throws NoSuchKeyException, BookException, ParseException {
@@ -267,9 +266,9 @@ public class SwordContentFacade {
     /**
      * Get text to be spoken without any markup.
      * 
-     * @param bookInitials
+     * @param book
      *            the book to use
-     * @param reference
+     * @param key
      *            a reference, appropriate for the book, of one or more entries
      */
     public String getTextToSpeak(Book book, Key key) throws NoSuchKeyException, BookException, ParseException {
@@ -309,7 +308,7 @@ public class SwordContentFacade {
      * Get just the canonical text of one or more book entries without any
      * markup.
      * 
-     * @param bookInitials
+     * @param book
      *            the book to use
      * @param reference
      *            a reference, appropriate for the book, of one or more entries
@@ -331,9 +330,9 @@ public class SwordContentFacade {
      * Get just the canonical text of one or more book entries without any
      * markup.
      * 
-     * @param bookInitials
+     * @param book
      *            the book to use
-     * @param reference
+     * @param key
      *            a reference, appropriate for the book, of one or more entries
      */
     public String getPlainText(Book book, Key key, int maxKeyCount) throws BookException, NoSuchKeyException {
@@ -433,9 +432,7 @@ public class SwordContentFacade {
 				osisToHtmlParameters.setIndentDepth(CommonUtils.getResourceInteger(R.integer.poetry_indent_chars));
 			}
 		}
-		OsisToHtmlSaxHandler osisToHtml = new OsisToHtmlSaxHandler(osisToHtmlParameters);
-		
-		return osisToHtml;
+		return new OsisToHtmlSaxHandler(osisToHtmlParameters);
 	}
 	
 	public static void setAndroid(boolean isAndroid) {

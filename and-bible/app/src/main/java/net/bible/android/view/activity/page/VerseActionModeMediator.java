@@ -10,7 +10,6 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.page.PageControl;
-import net.bible.android.view.activity.base.IntentHelper;
 
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
@@ -42,8 +41,6 @@ public class VerseActionModeMediator {
     boolean isVerseActionMode;
 
 	private ActionMode actionMode;
-
-	private IntentHelper intentHelper = new IntentHelper();
 
     private static final String TAG = "VerseActionModeMediator";
 
@@ -161,7 +158,7 @@ public class VerseActionModeMediator {
 			Log.i(TAG, "Action menu item clicked: " + menuItem);
 			// Similar to menu handling in Activity.onOptionsItemSelected()
 
-			verseMenuCommandHandler.handleMenuRequest(menuItem.getItemId(), getStartVerse() /*getVerseRange()*/);
+			verseMenuCommandHandler.handleMenuRequest(menuItem.getItemId(), getVerseRange());
 
 			endVerseActionMode();
 
