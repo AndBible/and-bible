@@ -1,7 +1,5 @@
 package net.bible.android.view.activity.base;
 
-import net.bible.android.view.activity.page.LongPressControl;
-
 import android.view.View;
 
 /**

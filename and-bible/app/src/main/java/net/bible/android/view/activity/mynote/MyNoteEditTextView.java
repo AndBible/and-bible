@@ -1,23 +1,21 @@
 package net.bible.android.view.activity.mynote;
 
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
-import net.bible.android.control.mynote.MyNote;
-import net.bible.android.control.page.CurrentPage;
-import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.view.activity.base.DocumentView;
-import net.bible.android.view.activity.page.LongPressControl;
-import net.bible.service.common.CommonUtils;
-import net.bible.service.device.ScreenSettings;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+
+import net.bible.android.control.ControlFactory;
+import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
+import net.bible.android.control.mynote.MyNote;
+import net.bible.android.view.activity.base.DocumentView;
+import net.bible.service.common.CommonUtils;
+import net.bible.service.device.ScreenSettings;
+
 import de.greenrobot.event.EventBus;
 
 /**
@@ -70,11 +68,6 @@ public class MyNoteEditTextView extends EditText implements DocumentView {
 	private void save() {
 		myNoteControl.saveMyNoteText(getText().toString());		
 	}
-
-//TODO newVerseSelect
-// 	@Override
-//	public void selectAndCopyText(LongPressControl longPressControl) {
-//	}
 
 	@Override
 	public void show(String html, int jumpToVerse, float jumpToYOffsetRatio) {

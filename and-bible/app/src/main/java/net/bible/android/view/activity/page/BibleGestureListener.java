@@ -1,11 +1,12 @@
 package net.bible.android.view.activity.page;
 
-import net.bible.android.view.util.TouchOwner;
-import net.bible.service.common.CommonUtils;
 import android.util.Log;
 import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.MotionEvent;
 import android.view.ViewConfiguration;
+
+import net.bible.android.view.util.TouchOwner;
+import net.bible.service.common.CommonUtils;
 
 /** Listen for side swipes to change chapter.  This listener class seems to work better that subclassing WebView.
  * 
@@ -34,23 +35,6 @@ public class BibleGestureListener extends SimpleOnGestureListener {
     	// make it easier to swipe
     	minScaledVelocity = (int)(minScaledVelocity*0.66);
 	}
-
-	/** WebView does not handle long presses automatically via onCreateContextMenu so do it here
-	 */
-//	@Override
-//	public void onLongPress(MotionEvent e) {
-//		Log.d(TAG, "onLongPress");
-//		//TODO newVerseSelect
-//		super.onLongPress(e);
-//
-//		// This seems to be required for Android 2.1 because the context menu of a WebView is not automatically displayed for 2.1
-//		// also do for 2.2 but not for 2.3+ as I can test that version
-//		// A user on 2.3.6 complained the context menu was no longer shown.  However, a user on '2.3.4 on an HTC EVO Shift' says it works great now
-//		// so it does not seem that we can simply use android version to determine if this forwarding is required
-//		if (!CommonUtils.isGingerBreadPlus()) {
-//			mainBibleActivity.openContextMenu(e.getX(), e.getY());
-//		}
-//	}
 
 	@Override
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
