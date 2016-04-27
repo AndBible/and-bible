@@ -70,6 +70,7 @@ public class VerseActionModeMediatorTest {
 
 		verify(mainBibleActivity).showVerseActionModeMenu(any(ActionMode.Callback.class));
 		verify(bibleView).highlightVerse(TestData.SELECTED_VERSE_NO);
+		verify(bibleView).enableVerseTouchSelection();
 	}
 
 	@Test
@@ -83,6 +84,7 @@ public class VerseActionModeMediatorTest {
 		// call destroy actionmode and check verse is unhighlighted
 		callback.getValue().onDestroyActionMode(null);
 		verify(bibleView).clearVerseHighlight();
+		verify(bibleView).disableVerseTouchSelection();
 	}
 
 	@Test
@@ -112,6 +114,18 @@ public class VerseActionModeMediatorTest {
 		callback.getValue().onActionItemClicked(null, menuItem);
 
 		verify(verseMenuCommandHandler).handleMenuRequest(R.id.compareTranslations, TestData.SELECTED_VERSE);
+	}
+
+	@Test
+	public void testExpandToNextVerse() throws Exception {
+
+		// setup action mode and get callback
+		verseActionModeMediator.verseLongPress(TestData.SELECTED_VERSE_NO);
+		verify(bibleView).highlightVerse(TestData.SELECTED_VERSE_NO);
+		verify(bibleView).enableVerseTouchSelection();
+
+		verseActionModeMediator.verseTouch(TestData.SELECTED_VERSE_NO+1);
+		verify(bibleView).highlightVerse(TestData.SELECTED_VERSE_NO+1);
 	}
 
 	private interface TestData {

@@ -1,15 +1,15 @@
 package net.bible.android.view.activity.page;
 
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.PassageChangeMediator;
-import net.bible.android.control.event.touch.ShowContextMenuEvent;
-import net.bible.android.control.page.window.WindowControl;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
-import de.greenrobot.event.EventBus;
+import net.bible.android.control.ControlFactory;
+import net.bible.android.control.PassageChangeMediator;
+import net.bible.android.control.page.window.WindowControl;
 
 /**
+ * Interface allowing javascript to call java methods in app
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
@@ -63,6 +63,12 @@ public class BibleJavascriptInterface {
 	public void verseLongPress(int verse) {
 		Log.d(TAG, "Verse selected event:"+verse);
 		verseActionModeMediator.verseLongPress(verse);
+	}
+
+	@JavascriptInterface
+	public void verseTouch(int verse) {
+		Log.d(TAG, "Verse touched event:"+verse);
+		verseActionModeMediator.verseTouch(verse);
 	}
 
 	@JavascriptInterface

@@ -22,19 +22,17 @@ import org.crosswire.jsword.passage.Verse;
  */
 public class VerseMenuCommandHandler {
 
-	private static final String TAG = "VerseMenuCommandHandler";
-
-	private final MainBibleActivity mainBibleActivity;
+	private final Activity mainActivity;
 
 	private final PageControl pageControl;
 
 	private final IntentHelper intentHelper = new IntentHelper();
 
-	private String mPrevLocalePref = "";
+	private static final String TAG = "VerseMenuCommandHandler";
 
-	public VerseMenuCommandHandler(MainBibleActivity mainBibleActivity, PageControl pageControl) {
+	public VerseMenuCommandHandler(Activity mainActivity, PageControl pageControl) {
 		super();
-		this.mainBibleActivity = mainBibleActivity;
+		this.mainActivity = mainActivity;
 		this.pageControl = pageControl;
 	}
 	
@@ -51,11 +49,11 @@ public class VerseMenuCommandHandler {
 			// Handle item selection
 			switch (menuItemId) {
 				case R.id.compareTranslations:
-					handlerIntent = new Intent((Activity)mainBibleActivity, CompareTranslations.class);
+					handlerIntent = new Intent(mainActivity, CompareTranslations.class);
 					isHandled = true;
 					break;
 				case R.id.notes:
-					handlerIntent = new Intent((Activity)mainBibleActivity, FootnoteAndRefActivity.class);
+					handlerIntent = new Intent(mainActivity, FootnoteAndRefActivity.class);
 					isHandled = true;
 					break;
 				case R.id.add_bookmark:
@@ -81,7 +79,7 @@ public class VerseMenuCommandHandler {
 
 			if (handlerIntent!=null) {
 				intentHelper.updateIntentWithVerse(handlerIntent, currentVerse);
-				mainBibleActivity.startActivityForResult(handlerIntent, requestCode);
+				mainActivity.startActivityForResult(handlerIntent, requestCode);
 			}
     	}
 

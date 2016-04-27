@@ -13,6 +13,10 @@ import net.bible.android.control.page.PageControl;
 import net.bible.android.view.activity.base.IntentHelper;
 
 import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.passage.VerseRange;
+import org.crosswire.jsword.versification.Versification;
+
+import java.util.Set;
 
 import de.greenrobot.event.EventBus;
 
@@ -33,7 +37,7 @@ public class VerseActionModeMediator {
 
 	private final VerseMenuCommandHandler verseMenuCommandHandler;
 
-	private Verse verse;
+	private VerseNoRange verseNoRange;
 
     boolean isVerseActionMode;
 
@@ -58,6 +62,25 @@ public class VerseActionModeMediator {
         startVerseActionMode(verse);
     }
 
+	/**
+	 * Handle selection and deselection of extra verses after initial verse
+	 */
+	public void verseTouch(int verse) {
+		Log.d(TAG, "Verse touched event:"+verse);
+		VerseNoRange origRange = verseNoRange.clone();
+		verseNoRange.alter(verse);
+
+		Set<Integer> toSelect = origRange.getExtrasIn(verseNoRange);
+		Set<Integer> toDeselect = verseNoRange.getExtrasIn(origRange);
+
+		for (Integer verseNo: toSelect) {
+			bibleView.highlightVerse(verseNo);
+		}
+		for (Integer verseNo: toDeselect) {
+			bibleView.unhighlightVerse(verseNo);
+		}
+	}
+
     private void startVerseActionMode(int verse) {
 		if (isVerseActionMode) {
 			Log.i(TAG, "Action mode already started so ignoring restart.");
@@ -67,8 +90,9 @@ public class VerseActionModeMediator {
 		Log.i(TAG, "Start verse action mode. verse no:"+verse);
 		isVerseActionMode = true;
 		bibleView.highlightVerse(verse);
-		this.verse = getSelectedVerse(verse);
+		this.verseNoRange = new VerseNoRange(verse);
 		actionMode = mainBibleActivity.showVerseActionModeMenu(actionModeCallbackHandler);
+		bibleView.enableVerseTouchSelection();
     }
 
 	/**
@@ -78,7 +102,9 @@ public class VerseActionModeMediator {
 		if (isVerseActionMode) {
 			isVerseActionMode = false;
 			bibleView.clearVerseHighlight();
-			verse = null;
+			bibleView.disableVerseTouchSelection();
+			verseNoRange = null;
+
 			// prevent endless loop by onDestroyActionMode calling this calling onDestroyActionMode etc.
 			if (actionMode != null) {
 				ActionMode finishingActionMode = this.actionMode;
@@ -88,9 +114,24 @@ public class VerseActionModeMediator {
 		}
 	}
 
-	private Verse getSelectedVerse(int verseNo) {
-		Verse mainVerse = pageControl.getCurrentBibleVerse();
-		return new Verse(mainVerse.getVersification(), mainVerse.getBook(), mainVerse.getChapter(), verseNo);
+	private Verse getStartVerse() {
+		if (verseNoRange==null) {
+			return null;
+		} else {
+			Verse mainVerse = pageControl.getCurrentBibleVerse();
+			return new Verse(mainVerse.getVersification(), mainVerse.getBook(), mainVerse.getChapter(), verseNoRange.getStartVerseNo());
+		}
+	}
+
+	private VerseRange getVerseRange() {
+		Verse startVerse = getStartVerse();
+		if (startVerse==null) {
+			return null;
+		} else {
+			Versification v11n = startVerse.getVersification();
+			Verse endVerse = new Verse(v11n, startVerse.getBook(), startVerse.getChapter(), verseNoRange.getEndVerseNo());
+			return new VerseRange(v11n, startVerse, endVerse);
+		}
 	}
 
 	private ActionMode.Callback actionModeCallbackHandler = new ActionMode.Callback() {
@@ -105,7 +146,9 @@ public class VerseActionModeMediator {
 
 		@Override
 		public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-			boolean isVerseBookmarked = verse!=null && ControlFactory.getInstance().getBookmarkControl().isBookmarkForKey(verse);
+			// if start verse already bookmarked then enable Delete Bookmark menu item else Add Bookmark
+			Verse startVerse = getStartVerse();
+			boolean isVerseBookmarked = startVerse!=null && ControlFactory.getInstance().getBookmarkControl().isBookmarkForKey(getStartVerse());
 			menu.findItem(R.id.add_bookmark).setVisible(!isVerseBookmarked);
 			menu.findItem(R.id.delete_bookmark).setVisible(isVerseBookmarked);
 
@@ -118,7 +161,7 @@ public class VerseActionModeMediator {
 			Log.i(TAG, "Action menu item clicked: " + menuItem);
 			// Similar to menu handling in Activity.onOptionsItemSelected()
 
-			verseMenuCommandHandler.handleMenuRequest(menuItem.getItemId(), verse);
+			verseMenuCommandHandler.handleMenuRequest(menuItem.getItemId(), getStartVerse() /*getVerseRange()*/);
 
 			endVerseActionMode();
 
@@ -141,7 +184,10 @@ public class VerseActionModeMediator {
 	}
 
 	public interface VerseHighlightControl {
+		void enableVerseTouchSelection();
+		void disableVerseTouchSelection();
 		void highlightVerse(int verse);
+		void unhighlightVerse(int verse);
 		void clearVerseHighlight();
 	}
 

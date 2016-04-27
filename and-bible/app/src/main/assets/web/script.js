@@ -75,24 +75,54 @@ function doScrollToSlowly(element, elementPosition, to) {
 /**
  * Monitor verse selection via long press
  */
-function enableVerseSelection() {
-	window.jsInterface.log("Enabling verse selection");
+function enableVerseLongTouchSelectionMode() {
+	window.jsInterface.log("Enabling verse long touch selection mode");
 	// Enable special selection for Bibles
 	$(document).longpress( tapholdHandler );
+}
 
-	function tapholdHandler( event ){
-		var $target = $(event.target);
-		if ($target.hasClass("verse")) {
-			selected($target);
-		} else {
-			var point = {'x': event.pageX, 'y': event.pageY};
-			var $elemSet = $('.verse');
-			var $closestToPoint = $.nearest(point, $elemSet).filter(":first");
+function enableVerseTouchSelection() {
+	window.jsInterface.log("Enabling verse touch selection");
+	// Enable special selection for Bibles
+	$(document).bind("touchstart", touchHandler );
 
-			selected($closestToPoint)
-		}
+}
+
+function disableVerseTouchSelection() {
+	window.jsInterface.log("Disabling verse touch selection");
+
+	$(document).unbind("touchstart", touchHandler );
+}
+
+/** Handle taphold to start verse selection */
+tapholdHandler = function(event) {
+	var $target = $(event.target);
+	if ($target.hasClass("verse")) {
+		selected($target);
+	} else {
+		var point = {'x': event.pageX, 'y': event.pageY};
+		var $elemSet = $('.verse');
+		var $closestToPoint = $.nearest(point, $elemSet).filter(":first");
+
+		selected($closestToPoint)
 	}
 }
+
+/** Handle touch to extend verse selection */
+var touchHandler = function(event) {
+	var $target = $(event.target);
+	if (!$target.hasClass("verse")) {
+		var point = {'x': event.pageX, 'y': event.pageY};
+		var $elemSet = $('.verse');
+		var $closestToPoint = $.nearest(point, $elemSet).filter(":first");
+
+		$target = $closestToPoint
+	}
+
+	var verse = parseInt($target.attr('id'));
+	window.jsInterface.verseTouch(verse);
+}
+
 
 function selected($elem) {
 	if ($elem.hasClass("verse")) {
@@ -107,6 +137,14 @@ function selected($elem) {
 function highlightVerse(verseNo) {
 	var $verseSpan = $('#'+verseNo)
 	$verseSpan.addClass("selected")
+}
+
+/**
+ * Called by VerseActionModelMediator to unhighlight a verse
+ */
+function unhighlightVerse(verseNo) {
+	var $verseSpan = $('#'+verseNo)
+	$verseSpan.removeClass("selected")
 }
 
 /**

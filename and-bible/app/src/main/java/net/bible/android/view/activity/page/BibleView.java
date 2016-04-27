@@ -588,7 +588,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 			setLongClickable(false);
 
 			// need to enable verse selection after page load, but not always so can't use onload
-			html += "<script>enableVerseSelection();</script>";
+			html += "<script>enableVerseLongTouchSelectionMode();</script>";
 
 		} else {
 			// reset handling of long press
@@ -599,8 +599,23 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	}
 
 	@Override
+	public void enableVerseTouchSelection() {
+		executeJavascriptOnUiThread("enableVerseTouchSelection()");
+	}
+
+	@Override
+	public void disableVerseTouchSelection() {
+		executeJavascriptOnUiThread("disableVerseTouchSelection()");
+	}
+
+	@Override
 	public void highlightVerse(final int verseNo) {
 		executeJavascriptOnUiThread("highlightVerse("+verseNo+")");
+	}
+
+	@Override
+	public void unhighlightVerse(final int verseNo) {
+		executeJavascriptOnUiThread("unhighlightVerse("+verseNo+")");
 	}
 
 	@Override
