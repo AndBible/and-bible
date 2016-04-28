@@ -1,5 +1,10 @@
 package net.bible.android.control.page;
 
+import android.app.Activity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.navigation.GridChoosePassageBook;
@@ -17,11 +22,6 @@ import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import android.app.Activity;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 
 /** Reference to current passage shown by viewer
  * 
@@ -177,7 +177,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 			Key key;
 			if (!requireSingleKey) {
 				// display whole page of bible so return whole chapter key - not just the single verse even if a single verse was set in verseKey
-				// if verseNo is required too then use getVerse()
+				// if verseNo is required too then use getVerseRange()
 		        key = CommonUtils.getWholeChapter(verse);
 			} else {
 				key = verse;
@@ -203,8 +203,6 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 	}
 
 	/** called during app close down to save state
-	 * 
-	 * @param outState
 	 */
 	@Override
 	public JSONObject getStateJson() throws JSONException {
@@ -218,8 +216,6 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 	}
 	
 	/** called during app start-up to restore previous state
-	 * 
-	 * @param inState
 	 */
 	@Override
 	public void restoreState(JSONObject jsonObject) throws JSONException {

@@ -12,6 +12,7 @@ import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowLayout;
 
 import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.system.Versifications;
 import org.junit.Before;
@@ -113,7 +114,7 @@ public class VerseActionModeMediatorTest {
 
 		callback.getValue().onActionItemClicked(null, menuItem);
 
-		verify(verseMenuCommandHandler).handleMenuRequest(R.id.compareTranslations, TestData.SELECTED_VERSE);
+		verify(verseMenuCommandHandler).handleMenuRequest(R.id.compareTranslations, new VerseRange(TestData.SELECTED_VERSE.getVersification(), TestData.SELECTED_VERSE));
 	}
 
 	@Test

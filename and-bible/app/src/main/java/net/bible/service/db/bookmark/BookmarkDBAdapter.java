@@ -1,8 +1,12 @@
 package net.bible.service.db.bookmark;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import net.bible.service.db.CommonDatabaseHelper;
 import net.bible.service.db.SQLHelper;
@@ -14,19 +18,15 @@ import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.Table;
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
-import org.crosswire.jsword.passage.VerseFactory;
 import org.crosswire.jsword.passage.VerseKey;
+import org.crosswire.jsword.passage.VerseRangeFactory;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -63,7 +63,7 @@ public class BookmarkDBAdapter {
 	public BookmarkDto insertBookmark(BookmarkDto bookmark) {
 		// Create a new row of values to insert.
 		ContentValues newValues = new ContentValues();
-		Key key = bookmark.getVerse();
+		Key key = bookmark.getVerseRange();
 		String v11nName="";
 		if (key instanceof VerseKey) {
 			// must save a VerseKey's versification along with the key!
@@ -73,7 +73,7 @@ public class BookmarkDBAdapter {
 		// Gets the current system time in milliseconds
         Long now = Long.valueOf(System.currentTimeMillis());
         
-		newValues.put(BookmarkColumn.KEY, key.getOsisID());
+		newValues.put(BookmarkColumn.KEY, key.getOsisRef());
 		newValues.put(BookmarkColumn.VERSIFICATION, v11nName);
 		newValues.put(BookmarkColumn.CREATED_ON, now);
 
@@ -83,7 +83,7 @@ public class BookmarkDBAdapter {
 	}
 
 	public boolean removeBookmark(BookmarkDto bookmark) {
-		Log.d(TAG, "Removing bookmark:"+bookmark.getVerse());
+		Log.d(TAG, "Removing bookmark:"+bookmark.getVerseRange());
 		return db.delete(Table.BOOKMARK, BookmarkColumn._ID + "=" + bookmark.getId(), null) > 0;
 	}
 
@@ -271,14 +271,24 @@ public class BookmarkDBAdapter {
 		return bookmark;
 	}
 
-	public BookmarkDto getBookmarkByKey(String key) {
+	/**
+	 * Find bookmark starting at the location specified by key.
+	 * If it starts there then the initial part of the key should match.
+	 */
+	public BookmarkDto getBookmarkByStartKey(String key) {
 		BookmarkDto bookmark = null;
-		
-		Cursor c = db.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn.KEY+"=?", new String[] {key}, null, null, null);
+		Cursor c=null;
 		try {
-			if (c.moveToFirst()) {
-				bookmark = getBookmarkDto(c);
+			// exact match
+			c = db.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn.KEY+"=?", new String[] {key}, null, null, null);
+			if (!c.moveToFirst()) {
+				// start of verse range
+				c = db.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn.KEY + " LIKE ?", new String[]{key + "-%"}, null, null, null);
+				if (!c.moveToFirst()) {
+					return null;
+				}
 			}
+			bookmark = getBookmarkDto(c);
 		} finally {
 			c.close();
 		}
@@ -311,7 +321,7 @@ public class BookmarkDBAdapter {
 				// use default v11n
 				v11n = Versifications.instance().getVersification(Versifications.DEFAULT_V11N);
 			}
-			dto.setVerse(VerseFactory.fromString(v11n, key));
+			dto.setVerseRange(VerseRangeFactory.fromString(v11n, key));
 
 			//Created date
 			long created = c.getLong(BookmarkQuery.CREATED_ON);

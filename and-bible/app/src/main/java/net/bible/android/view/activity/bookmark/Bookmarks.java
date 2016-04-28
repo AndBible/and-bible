@@ -220,15 +220,11 @@ public class Bookmarks extends ListActivityBase {
     	}
     }
 
-    /** user selected a document so download it
-     * 
-     * @param document
-     */
     private void bookmarkSelected(BookmarkDto bookmark) {
-    	Log.d(TAG, "Bookmark selected:"+bookmark.getVerse());
+    	Log.d(TAG, "Bookmark selected:"+bookmark.getVerseRange());
     	try {
         	if (bookmark!=null) {
-        		ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().setKey(bookmark.getVerse());
+        		ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().setKey(bookmark.getVerseRange());
         		doFinish();
         	}
     	} catch (Exception e) {

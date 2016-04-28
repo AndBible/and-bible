@@ -1,12 +1,12 @@
 package net.bible.service.db.bookmark;
 
+import net.bible.android.control.versification.ConvertibleVerseRange;
+
+import org.crosswire.jsword.passage.VerseRange;
+import org.crosswire.jsword.versification.Versification;
+
 import java.util.Comparator;
 import java.util.Date;
-
-import net.bible.android.control.versification.ConvertibleVerse;
-
-import org.crosswire.jsword.passage.Verse;
-import org.crosswire.jsword.versification.Versification;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -15,7 +15,7 @@ import org.crosswire.jsword.versification.Versification;
  */
 public class BookmarkDto implements Comparable<BookmarkDto> {
 	private Long id;
-	private ConvertibleVerse convertibleVerse;
+	private ConvertibleVerseRange convertibleVerseRange;
 	private Date createdOn;
 
 	public Long getId() {
@@ -24,14 +24,14 @@ public class BookmarkDto implements Comparable<BookmarkDto> {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public Verse getVerse() {
-		return convertibleVerse.getVerse();
+	public VerseRange getVerseRange() {
+		return convertibleVerseRange.getVerseRange();
 	}
-	public Verse getVerse(Versification versification) {
-		return convertibleVerse.getVerse(versification);
+	public VerseRange getVerseRange(Versification versification) {
+		return convertibleVerseRange.getVerseRange(versification);
 	}
-	public void setVerse(Verse verse) {
-		this.convertibleVerse = new ConvertibleVerse(verse);
+	public void setVerseRange(VerseRange verseRange) {
+		this.convertibleVerseRange = new ConvertibleVerseRange(verseRange);
 	}
 	public Date getCreatedOn() {
 		return createdOn;
@@ -47,11 +47,11 @@ public class BookmarkDto implements Comparable<BookmarkDto> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		if (convertibleVerse==null || convertibleVerse.getVerse()==null) {
+		if (convertibleVerseRange ==null || convertibleVerseRange.getVerseRange()==null) {
 			result = prime * result;
 		} else {
-			Verse verse = convertibleVerse.getVerse();
-			result = prime * result + verse.hashCode();
+			VerseRange verseRange = convertibleVerseRange.getVerseRange();
+			result = prime * result + verseRange.hashCode();
 		}
 		return result;
 	}
@@ -72,10 +72,10 @@ public class BookmarkDto implements Comparable<BookmarkDto> {
 				return false;
 		} else if (!id.equals(other.id))
 			return false;
-		if (convertibleVerse == null) {
-			if (other.convertibleVerse != null)
+		if (convertibleVerseRange == null) {
+			if (other.convertibleVerseRange != null)
 				return false;
-		} else if (!convertibleVerse.equals(other.convertibleVerse))
+		} else if (!convertibleVerseRange.equals(other.convertibleVerseRange))
 			return false;
 		return true;
 	}
@@ -90,7 +90,7 @@ public class BookmarkDto implements Comparable<BookmarkDto> {
 
 		public int compare(BookmarkDto bookmark1, BookmarkDto bookmark2) {
 			// ascending order
-			return bookmark1.convertibleVerse.compareTo(bookmark2.convertibleVerse);
+			return bookmark1.convertibleVerseRange.compareTo(bookmark2.convertibleVerseRange);
 		}
 	};
 	/** Compare by Create date - most recent first */

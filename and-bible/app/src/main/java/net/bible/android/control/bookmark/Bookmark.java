@@ -1,12 +1,13 @@
 package net.bible.android.control.bookmark;
 
-import java.util.List;
-
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
 
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.passage.VerseRange;
+
+import java.util.List;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -16,7 +17,7 @@ import org.crosswire.jsword.passage.Verse;
 public interface Bookmark {
 
 	/** business method */
-	boolean toggleBookmarkForVerse(Verse verse);
+	boolean toggleBookmarkForVerseRange(VerseRange verseRange);
 	boolean isBookmarkForKey(Key key);
 
 	/** text for item list */

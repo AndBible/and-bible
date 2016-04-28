@@ -58,7 +58,7 @@ public class VerseMenuCommandHandler {
 					break;
 				case R.id.add_bookmark:
 				case R.id.delete_bookmark:
-					ControlFactory.getInstance().getBookmarkControl().toggleBookmarkForVerse(verseRange.getStart());
+					ControlFactory.getInstance().getBookmarkControl().toggleBookmarkForVerseRange(verseRange);
 					// refresh view to show new bookmark icon
 					PassageChangeMediator.getInstance().forcePageUpdate();
 					isHandled = true;

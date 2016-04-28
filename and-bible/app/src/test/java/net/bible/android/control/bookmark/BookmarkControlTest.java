@@ -5,7 +5,11 @@ import net.bible.android.common.resource.AndroidResourceProvider;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
 
-import org.crosswire.jsword.passage.VerseFactory;
+import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.passage.VerseRange;
+import org.crosswire.jsword.passage.VerseRangeFactory;
+import org.crosswire.jsword.versification.BibleBook;
+import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
 import org.junit.After;
 import org.junit.Before;
@@ -18,8 +22,10 @@ import org.robolectric.annotation.Config;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -29,6 +35,7 @@ public class BookmarkControlTest {
 
 	// keep changing the test verse
 	private static final String TEST_VERSE_START = "Psalms 119:";
+	private static final Versification KJV_VERSIFICATION = Versifications.instance().getVersification("KJV");
 	private int testVerseCounter;
 	private String currentTestVerse;
 	
@@ -64,7 +71,7 @@ public class BookmarkControlTest {
 	public void testAddBookmark() {
 		try {
 			BookmarkDto newDto = addTestVerse();
-			assertEquals("New Bookmark key incorrect.  Test:"+currentTestVerse+" was:"+newDto.getVerse().getName(), newDto.getVerse().getName(), currentTestVerse);
+			assertEquals("New Bookmark key incorrect.  Test:"+currentTestVerse+" was:"+newDto.getVerseRange().getName(), newDto.getVerseRange().getName(), currentTestVerse);
 			assertTrue("New Bookmark id incorrect", newDto.getId()>-1);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -81,7 +88,7 @@ public class BookmarkControlTest {
 			
 			List<BookmarkDto> bookmarks = bookmarkControl.getAllBookmarks();
 			for (BookmarkDto dto : bookmarks) {
-				System.out.println(dto.getId()+" "+dto.getVerse().getName());
+				System.out.println(dto.getId()+" "+dto.getVerseRange().getName());
 			}
 			assertTrue( bookmarks.size()==3);
 		} catch (Exception e) {
@@ -163,16 +170,41 @@ public class BookmarkControlTest {
 		assertEquals(bookmark, list1.get(0));
 	}
 
+	@Test
+	public void testVerseRange() {
+		BookmarkDto newBookmarkDto = new BookmarkDto();
+		final VerseRange verseRange = new VerseRange(KJV_VERSIFICATION, new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 2), new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 5));
+		newBookmarkDto.setVerseRange(verseRange);
 
-	/**
-	 * @return
-	 */
+		BookmarkDto newDto = bookmarkControl.addBookmark(newBookmarkDto);
+
+		assertThat(newDto.getVerseRange(), equalTo(verseRange));
+
+		assertThat(bookmarkControl.isBookmarkForKey(verseRange.getStart()), equalTo(true));
+	}
+
+	@Test
+	public void testIsBookmarkForAnyVerseRangeWithSameStart() {
+		BookmarkDto newBookmarkDto = new BookmarkDto();
+		final VerseRange verseRange = new VerseRange(KJV_VERSIFICATION, new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10));
+		newBookmarkDto.setVerseRange(verseRange);
+
+		BookmarkDto newDto = bookmarkControl.addBookmark(newBookmarkDto);
+
+		Verse startVerse = new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10);
+		assertThat(bookmarkControl.isBookmarkForKey(startVerse), equalTo(true));
+
+		// 1 has the same start as 10 but is not the same
+		Verse verseWithSameStart = new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 1);
+		assertThat(bookmarkControl.isBookmarkForKey(verseWithSameStart), equalTo(false));
+	}
+
 	private BookmarkDto addTestVerse() {
 		try {
 			currentTestVerse = getNextTestVerse();
 			
 			BookmarkDto bookmark = new BookmarkDto();
-			bookmark.setVerse(VerseFactory.fromString(Versifications.instance().getVersification("KJV"), currentTestVerse));
+			bookmark.setVerseRange(VerseRangeFactory.fromString(KJV_VERSIFICATION, currentTestVerse));
 			BookmarkDto newDto = bookmarkControl.addBookmark(bookmark);
 			return newDto;
 		} catch (Exception e) {

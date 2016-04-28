@@ -1,11 +1,7 @@
 package net.bible.android.control.bookmark;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import android.util.Log;
+import android.widget.Toast;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
@@ -27,8 +23,12 @@ import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 
-import android.util.Log;
-import android.widget.Toast;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -39,9 +39,7 @@ public class BookmarkControl implements Bookmark {
 
 	public LabelDto LABEL_ALL;
 	public LabelDto LABEL_UNLABELLED;
-	static {
-	}
-	
+
 	private static final String BOOKMARK_SORT_ORDER = "BookmarkSortOrder";
 
 	private static final String TAG = "BookmarkControl";
@@ -56,13 +54,12 @@ public class BookmarkControl implements Bookmark {
 	}
 	
 	@Override
-	public boolean toggleBookmarkForVerse(Verse verse) {
+	public boolean toggleBookmarkForVerseRange(VerseRange verseRange) {
 		boolean bOk = false;
 		CurrentPageManager currentPageControl = ControlFactory.getInstance().getCurrentPageControl();
 		if (currentPageControl.isBibleShown() || currentPageControl.isCommentaryShown()) {
-			Verse currentVerse = verse;
 
-			BookmarkDto bookmarkDto = getBookmarkByKey(currentVerse);
+			BookmarkDto bookmarkDto = getBookmarkByKey(verseRange);
 			if (bookmarkDto !=null) {
 				if (deleteBookmark(bookmarkDto)) {
 					Toast.makeText(BibleApplication.getApplication().getApplicationContext(), R.string.bookmark_deleted, Toast.LENGTH_SHORT).show();
@@ -72,7 +69,7 @@ public class BookmarkControl implements Bookmark {
 			} else {
 				// prepare new bookmark and add to db
 				bookmarkDto = new BookmarkDto();
-				bookmarkDto.setVerse(currentVerse);
+				bookmarkDto.setVerseRange(verseRange);
 				BookmarkDto newBookmark = addBookmark(bookmarkDto);
 				
 				if (newBookmark!=null) {
@@ -92,7 +89,7 @@ public class BookmarkControl implements Bookmark {
 		String keyText = "";
 		try {
 			Versification versification = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getVersification();
-			keyText = bookmark.getVerse(versification).getName();
+			keyText = bookmark.getVerseRange(versification).getName();
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);
 		}
@@ -105,7 +102,7 @@ public class BookmarkControl implements Bookmark {
 		try {
 			CurrentBiblePage currentBible = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible();
 			Versification versification = currentBible.getVersification();
-			verseText = SwordContentFacade.getInstance().getPlainText(currentBible.getCurrentDocument(), bookmark.getVerse(versification), 1);
+			verseText = SwordContentFacade.getInstance().getPlainText(currentBible.getCurrentDocument(), bookmark.getVerseRange(versification), 1);
 			verseText = CommonUtils.limitTextLength(verseText);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);
@@ -162,13 +159,13 @@ public class BookmarkControl implements Bookmark {
 		return key!=null && getBookmarkByKey(key)!=null;
 	}
 
-	/** get bookmark with this key if it exists or return null */
+	/** get bookmark with the same start verse as this key if it exists or return null */
 	private BookmarkDto getBookmarkByKey(Key key) {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		BookmarkDto bookmark = null;
 		try {
 			db.open();
-			bookmark = db.getBookmarkByKey(key.getOsisID());
+			bookmark = db.getBookmarkByStartKey(key.getOsisRef());
 		} finally {
 			db.close();
 		}
@@ -343,7 +340,7 @@ public class BookmarkControl implements Bookmark {
 			boolean isVerseRange = passage instanceof VerseRange;
 			Versification requiredVersification = firstVerse.getVersification();
 			for (BookmarkDto bookmarkDto : bookmarkList) {
-				Verse verse = bookmarkDto.getVerse(requiredVersification);
+				Verse verse = bookmarkDto.getVerseRange(requiredVersification).getStart();
 				//TODO should not require VerseRange cast but bug in JSword
 				if (isVerseRange) {
 					if (((VerseRange)passage).contains(verse)) {
