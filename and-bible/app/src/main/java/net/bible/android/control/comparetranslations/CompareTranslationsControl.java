@@ -1,15 +1,13 @@
 package net.bible.android.control.comparetranslations;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import android.util.Log;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.versification.BibleTraverser;
-import net.bible.android.control.versification.ConvertibleVerse;
+import net.bible.android.control.versification.ConvertibleVerseRange;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.font.FontControl;
 import net.bible.service.sword.SwordContentFacade;
@@ -19,9 +17,12 @@ import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BookName;
 
-import android.util.Log;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Support the Compare Translations screen
  * 
@@ -42,14 +43,14 @@ public class CompareTranslationsControl {
 		this.bibleTraverser = bibleTraverser;
 	}
 
-	public String getTitle(Verse verse) {
+	public String getTitle(VerseRange verseRange) {
 		StringBuilder stringBuilder = new StringBuilder();
 		boolean wasFullBookname = BookName.isFullBookName();
 		BookName.setFullBookName(false);
 
 		stringBuilder.append(BibleApplication.getApplication().getString(R.string.compare_translations))
 					 .append(": ")
-					 .append(CommonUtils.getKeyDescription(verse));
+					 .append(CommonUtils.getKeyDescription(verseRange));
 
 		BookName.setFullBookName(wasFullBookname);
 		return stringBuilder.toString();
@@ -65,28 +66,28 @@ public class CompareTranslationsControl {
 
 	/** Calculate next verse
 	 */
-	public Verse getNextVerse(Verse verse) {
-		 return bibleTraverser.getNextVerse(getCurrentPageManager().getCurrentPassageDocument(), verse);
+	public VerseRange getNextVerseRange(VerseRange verseRange) {
+		 return bibleTraverser.getNextVerseRange(getCurrentPageManager().getCurrentPassageDocument(), verseRange);
 	}
 
 	/** Calculate next verse
 	 */
-	public Verse getPreviousVerse(Verse verse) {
-		return bibleTraverser.getPrevVerse(getCurrentPageManager().getCurrentPassageDocument(), verse);
+	public VerseRange getPreviousVerseRange(VerseRange verseRange) {
+		return bibleTraverser.getPreviousVerseRange(getCurrentPageManager().getCurrentPassageDocument(), verseRange);
 	}
 
 	/** return the list of verses to be displayed
 	 */
-	public List<TranslationDto> getAllTranslations(Verse verse) {
+	public List<TranslationDto> getAllTranslations(VerseRange verseRange) {
 		List<TranslationDto> retval = new ArrayList<>();
 		List<Book> books = swordDocumentFacade.getBibles();
 		FontControl fontControl = FontControl.getInstance();
 		
-		ConvertibleVerse convertibleVerse = new ConvertibleVerse(verse);
+		ConvertibleVerseRange convertibleVerseRange = new ConvertibleVerseRange(verseRange);
 		
 		for (Book book : books) {
 			try {
-				String text = swordContentFacade.getPlainText(book, convertibleVerse.getVerse(((AbstractPassageBook)book).getVersification()), 1);
+				String text = swordContentFacade.getPlainText(book, convertibleVerseRange.getVerseRange(((AbstractPassageBook)book).getVersification()), 1);
 				if (text.length()>0) {
 					
 					// does this book require a custom font to display it
@@ -100,15 +101,15 @@ public class CompareTranslationsControl {
 					retval.add(new TranslationDto(book, text, fontFile));
 				}
 			} catch (Exception nske) {
-				Log.d(TAG, verse+" not in "+book);
+				Log.d(TAG, verseRange+" not in "+book);
 			}
 		}
 
 		return retval;		
 	}
 	
-	public void showTranslationForVerse(TranslationDto translationDto, Verse verse) {
-		getCurrentPageManager().setCurrentDocumentAndKey(translationDto.getBook(), verse);
+	public void showTranslationForVerseRange(TranslationDto translationDto, VerseRange verseRange) {
+		getCurrentPageManager().setCurrentDocumentAndKey(translationDto.getBook(), verseRange.getStart());
 	}
 
 	public CurrentPageManager getCurrentPageManager() {

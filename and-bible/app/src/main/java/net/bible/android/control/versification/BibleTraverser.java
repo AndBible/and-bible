@@ -5,6 +5,7 @@ import net.bible.android.control.navigation.DocumentBibleBooksFactory;
 
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 
@@ -41,7 +42,7 @@ public class BibleTraverser {
 		BibleBook book = verse.getBook();
 		int chapter = verse.getChapter();
 		int verseNo = verse.getVerse();
-		if (verseNo>0) {
+		if (verseNo>1) {
 			verseNo -= 1;
 		} else {
 			Verse prevChap = getPrevChapter(document, verse);
@@ -52,6 +53,36 @@ public class BibleTraverser {
 			}
 		}
 		return new Verse(v11n, book, chapter, verseNo);
+	}
+
+	public VerseRange getNextVerseRange(AbstractPassageBook document, VerseRange verseRange) {
+		Versification v11n = verseRange.getVersification();
+		int verseCount = verseRange.getCardinality();
+
+		// shuffle forward
+		Verse start = verseRange.getStart();
+		Verse end = verseRange.getEnd();
+		for (int i=0; i<verseCount; i++) {
+			start = getNextVerse(document, start);
+			end = getNextVerse(document, end);
+		}
+
+		return new VerseRange(v11n, start, end);
+	}
+
+	public VerseRange getPreviousVerseRange(AbstractPassageBook document, VerseRange verseRange) {
+		Versification v11n = verseRange.getVersification();
+		int verseCount = verseRange.getCardinality();
+
+		// shuffle backward
+		Verse start = verseRange.getStart();
+		Verse end = verseRange.getEnd();
+		for (int i=0; i<verseCount; i++) {
+			start = getPrevVerse(document, start);
+			end = getPrevVerse(document, end);
+		}
+
+		return new VerseRange(v11n, start, end);
 	}
 
 	/** Get next chapter consistent with current verses scriptural status ie don't hop between book with different scriptural states

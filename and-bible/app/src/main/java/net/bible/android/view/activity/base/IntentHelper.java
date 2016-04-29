@@ -7,13 +7,13 @@ import android.util.Log;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentBiblePage;
 
-import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.passage.Verse;
-import org.crosswire.jsword.passage.VerseFactory;
+import org.crosswire.jsword.passage.VerseRange;
+import org.crosswire.jsword.passage.VerseRangeFactory;
 import org.crosswire.jsword.versification.Versification;
 
 /**
- * Save and fetch a verse from/to intent extras and othr intent fucntionality
+ * Save and fetch a verse range from/to intent extras and othr intent fucntionality
  *
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
@@ -26,30 +26,31 @@ public class IntentHelper {
 
 	public static final int UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH = 3;
 
-	private static final String VERSE = "net.bible.android.view.activity.comparetranslations.Verse";
+	private static final String VERSE_RANGE = "net.bible.android.view.activity.comparetranslations.VerseRange";
 
 	private static final String TAG = "IntentHelper";
 
-	public Verse getIntentVerseOrDefault(Intent intent) {
+	public VerseRange getIntentVerseRangeOrDefault(Intent intent) {
 		//fetch verse from intent if set
 		CurrentBiblePage currentDoc = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible();
+		Versification currentV11n = currentDoc.getCurrentPassageBook().getVersification();
 
 		try {
 			Bundle extras = intent.getExtras();
-			if (extras != null && extras.containsKey(VERSE)) {
-				Versification currentV11n = ((SwordBook) currentDoc.getCurrentDocument()).getVersification();
-				return VerseFactory.fromString(currentV11n, extras.getString(VERSE));
+			if (extras != null && extras.containsKey(VERSE_RANGE)) {
+				return VerseRangeFactory.fromString(currentV11n, extras.getString(VERSE_RANGE));
 			}
 		} catch (Exception e) {
-			Log.e(TAG, "Error getting verse from intent, using default");
+			Log.e(TAG, "Error getting Verse Range from intent, using default");
 		}
 
 		// if we got this far there was no verse in the intent
-		return currentDoc.getSingleKey();
+		final Verse defaultVerse = currentDoc.getSingleKey();
+		return new VerseRange(currentV11n, defaultVerse);
 	}
 
-	public Intent updateIntentWithVerse(Intent intent, Verse verse) {
-		intent.putExtra(VERSE, verse.getOsisID());
+	public Intent updateIntentWithVerseRange(Intent intent, VerseRange verseRange) {
+		intent.putExtra(VERSE_RANGE, verseRange.getOsisRef());
 
 		return intent;
 	}

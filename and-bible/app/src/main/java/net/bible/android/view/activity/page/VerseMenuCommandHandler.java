@@ -78,7 +78,7 @@ public class VerseMenuCommandHandler {
 			}
 
 			if (handlerIntent!=null) {
-				intentHelper.updateIntentWithVerse(handlerIntent, verseRange.getStart());
+				intentHelper.updateIntentWithVerseRange(handlerIntent, verseRange);
 				mainActivity.startActivityForResult(handlerIntent, requestCode);
 			}
     	}

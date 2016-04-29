@@ -1,7 +1,15 @@
 package net.bible.android.view.activity.footnoteandref;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
@@ -15,16 +23,8 @@ import net.bible.service.format.Note;
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.passage.Verse;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
-import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
+import java.util.ArrayList;
+import java.util.List;
 
 /** Show Notes and Cross references for the current verse
  * 
@@ -63,7 +63,7 @@ public class FootnoteAndRefActivity extends ListActivityBase implements SwipeGes
         setContentView(R.layout.notes);
 
 		//fetch verse from intent if set - so that goto via History works nicely
-		currentVerse = intentHelper.getIntentVerseOrDefault(getIntent());
+		currentVerse = intentHelper.getIntentVerseRangeOrDefault(getIntent()).getStart();
 
         mWarning =  (TextView)findViewById(R.id.warningText);
         
