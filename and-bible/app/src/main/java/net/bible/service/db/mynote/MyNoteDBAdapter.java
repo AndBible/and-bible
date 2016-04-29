@@ -3,9 +3,13 @@
  */
 package net.bible.service.db.mynote;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
+import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import net.bible.service.db.CommonDatabaseHelper;
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.BookmarkColumn;
@@ -22,13 +26,9 @@ import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
 
-import android.content.ContentValues;
-import android.database.Cursor;
-import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.util.Log;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * MyNote database update methods
@@ -76,7 +76,7 @@ public class MyNoteDBAdapter {
         Long now = Long.valueOf(System.currentTimeMillis());
 
 		ContentValues newValues = new ContentValues();
-		newValues.put(MyNoteColumn.KEY, verse.getOsisID());
+		newValues.put(MyNoteColumn.KEY, verse.getOsisRef());
 		newValues.put(MyNoteColumn.VERSIFICATION, v11nName);
 		newValues.put(MyNoteColumn.MYNOTE, mynote.getNoteText());
 		newValues.put(MyNoteColumn.LAST_UPDATED_ON, now);
@@ -109,7 +109,7 @@ public class MyNoteDBAdapter {
         Long now = Long.valueOf(System.currentTimeMillis());
 
 		ContentValues newValues = new ContentValues();
-		newValues.put(MyNoteColumn.KEY, verse.getOsisID());
+		newValues.put(MyNoteColumn.KEY, verse.getOsisRef());
 		newValues.put(MyNoteColumn.VERSIFICATION, v11nName);
 		newValues.put(MyNoteColumn.MYNOTE, mynote.getNoteText());
 		newValues.put(MyNoteColumn.LAST_UPDATED_ON, now);

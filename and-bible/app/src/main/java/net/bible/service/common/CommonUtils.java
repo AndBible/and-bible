@@ -1,15 +1,16 @@
 package net.bible.service.common;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Properties;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Configuration;
+import android.os.Build;
+import android.os.Environment;
+import android.os.StatFs;
+import android.preference.PreferenceManager;
+import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.control.ControlFactory;
@@ -24,17 +25,16 @@ import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 
-import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.res.Configuration;
-import android.os.Build;
-import android.os.Environment;
-import android.os.StatFs;
-import android.preference.PreferenceManager;
-import android.support.v7.widget.PopupMenu;
-import android.util.Log;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Properties;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -389,7 +389,7 @@ public class CommonUtils {
 	
 	/** format seconds duration as h:m:s
 	 * 
-	 * @param milliSecs duration
+	 * @param secs duration
 	 * @return h:m:s
 	 */
 	public static String getHoursMinsSecs(long secs) {
@@ -436,7 +436,7 @@ public class CommonUtils {
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting key name - could that Versification does not contain book");
 			// but this normally works
-			name = key.getOsisID().replace('.', ' ');
+			name = key.getOsisRef().replace('.', ' ');
 		}
 		return name;
 	}

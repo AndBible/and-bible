@@ -3,10 +3,8 @@
  */
 package net.bible.android.control.mynote;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import android.util.Log;
+import android.widget.Toast;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
@@ -22,8 +20,10 @@ import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 
-import android.util.Log;
-import android.widget.Toast;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * User Note controller methods
@@ -190,7 +190,7 @@ public class MyNoteControl implements MyNote {
 		MyNoteDto myNote = null;
 		try {
 			db.open();
-			myNote = db.getMyNoteByKey(key.getOsisID());
+			myNote = db.getMyNoteByKey(key.getOsisRef());
 		} finally {
 			db.close();
 		}
