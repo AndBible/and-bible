@@ -12,4 +12,25 @@
 	<color name="actionbar_background_day">#ff444444</color>
 	
 	<color name="actionbar_text">#ffffffff</color>
+
+	<color name="accent">@color/grey_900</color>
+	<color name="secondary">@color/grey_800</color>
+
+	<!-- see
+	colours: https://www.google.com/design/spec/style/color.html#color-color-palette
+	numbers: https://gist.github.com/cypressious/90355ac3e92c65908441 -->
+	<color name="indigo_500">#3f51b5</color>
+	<color name="indigo_700">#303f9f</color>
+
+	<color name="blue_700">#455ede</color>
+	<color name="blue_900">#2a36b1</color>
+
+	<color name="grey_500">#9e9e9e</color>
+	<color name="grey_600">#757575</color>
+	<color name="grey_700">#616161</color>
+	<color name="grey_800">#424242</color>
+	<color name="grey_900">#212121</color>
+	<color name="grey_1000b">#000000</color>
+	<color name="grey_1000w">#ffffff</color>
+
 </resources>

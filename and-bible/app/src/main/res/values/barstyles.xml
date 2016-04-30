@@ -7,66 +7,55 @@
 -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     
-    <!-- Application theme.  Also see styles-v14 for  
-    	ActionBar background color is also set in code to facilitate day/night mode switching. 
+    <!-- Application theme.
+    	ActionBar background colour also set in DefaultActionBarManager.java
     -->
-    
-    <style name="AppThemeDay" parent="@style/Theme.AppCompat.Light.DarkActionBar">
-        <item name="actionBarStyle">@style/ActionBar.Solid.Custom.Day</item>
-		<item name="actionMenuTextAppearance">@style/ActionBar.Custom.Button.Appearance</item>
-		<item name="actionButtonStyle">@style/MyActionButtonStyle</item>
+    <style name="AppThemeDay" parent="@style/AppTheme">
+		<item name="actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
+		<item name="colorPrimary">@color/actionbar_background_day</item>
 	</style>
-    
-    <style name="AppThemeNight" parent="@style/Theme.AppCompat">
-        <item name="actionBarStyle">@style/ActionBar.Solid.Custom.Night</item>
-		<item name="actionMenuTextAppearance">@style/ActionBar.Custom.Button.Appearance</item>
-		<item name="actionButtonStyle">@style/MyActionButtonStyle</item>
+
+	<style name="AppThemeNight" parent="@style/AppTheme">
+		<item name="colorPrimary">@color/actionbar_background_night</item>
 	</style>
-    
-    <!-- Bar -->
-    <style name="ActionBar.Solid.Custom.Day" parent="@style/ActionBar.Solid.Custom">
-        <item name="background">@color/actionbar_background_day</item>
+
+	<style name="AppTheme" parent="@style/Theme.AppCompat.DayNight.DarkActionBar">
+		<item name="actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
+		<item name="colorAccent">@color/accent</item>
+		<item name="android:textColorSecondary">@color/secondary</item>
+		<!-- To prevent button text being capitalised in activities
+		<item name="textAllCaps">false</item>
+		 Default material color is grey, which seems hard to see, so change it to white
+		<item name="android:textColorPrimaryNoDisable">@color/actionbar_text</item>
+		 -->
 	</style>
-    <style name="ActionBar.Solid.Custom.Night" parent="@style/ActionBar.Solid.Custom">
-        <item name="background">@color/actionbar_background_night</item>
-	</style>
-	<!-- All bars -->
-	<style name="ActionBar.Solid.Custom" parent="@style/Widget.AppCompat.ActionBar.Solid">
-    	<item name="android:textColor">@color/actionbar_text</item>
-        <item name="titleTextStyle">@style/ActionBar.Solid.Custom.Title</item>
-	</style>
-    	
-    <!-- Text -->
-	<style name="ActionBar.Solid.Custom.Title">
-        <item name="android:textColor">@color/actionbar_text</item>
-    </style>
-	<style name="ActionBar.Custom.Button.Appearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Menu">
-        <item name="textAllCaps">false</item> <!-- This does not appear to correctly change text to mixed case.  see http://stackoverflow.com/questions/18742214/what-is-the-alternative-tag-to-item-name-androidtextallcapsfalse-item-for# -->
-        <item name="android:textStyle">normal</item>
+
+	<style name="MyMenuTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Menu">
+		<item name="textAllCaps">false</item>
+		<item name="android:textStyle">normal</item>
 		<item name="android:textSize">14sp</item>
-    </style>
-	
-	
-    <!-- Custom left title text -->
-    <style name="ActionBarTitle1" parent="ActionBarTitle">
-        <item name="android:gravity">center</item>
-    </style>
-    <style name="ActionBarTitle2" parent="ActionBarTitle">
-        <item name="android:gravity">center_horizontal|top</item>
-    </style>
-    <style name="ActionBarTitle">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">0dp</item>
-        <item name="android:layout_weight">1</item>
-        <item name="android:minWidth">@dimen/size_of_quick_buttons</item>
-        <item name="android:singleLine">true</item>
-        <item name="android:textColor">@android:color/white</item>
-        <item name="android:textSize">15sp</item>
-    </style>
-    
-    <!-- Button -->
-	<style name="MyActionButtonStyle" parent="@style/Widget.AppCompat.ActionButton">
-	    <item name="android:minWidth">@dimen/action_button_min_width</item> <!-- default is 56dip increasing to 64dip for values-sw600dp-->
 	</style>
- 
+
+	<!-- Custom left title text -->
+	<style name="ActionBarTitle1" parent="ActionBarTitle">
+		<item name="android:gravity">center</item>
+	</style>
+	<style name="ActionBarTitle2" parent="ActionBarTitle">
+		<item name="android:gravity">center_horizontal|top</item>
+	</style>
+	<style name="ActionBarTitle">
+		<item name="android:layout_width">wrap_content</item>
+		<item name="android:layout_height">0dp</item>
+		<item name="android:layout_weight">1</item>
+		<item name="android:minWidth">@dimen/size_of_quick_buttons</item>
+		<item name="android:singleLine">true</item>
+		<item name="android:textColor">@android:color/white</item>
+		<item name="android:textSize">15sp</item>
+	</style>
+
+	<!-- Button -->
+	<style name="MyActionButtonStyle" parent="@style/Widget.AppCompat.ActionButton">
+		<item name="android:minWidth">@dimen/action_button_min_width</item> <!-- default is 56dip increasing to 64dip for values-sw600dp-->
+	</style>
+
 </resources>
