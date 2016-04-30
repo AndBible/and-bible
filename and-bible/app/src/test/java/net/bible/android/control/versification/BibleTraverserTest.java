@@ -53,6 +53,11 @@ public class BibleTraverserTest {
 		assertThat(bibleTraverser.getPreviousVerseRange(testBook, TestData.KJV_PS_14).getEnd(), equalTo(new Verse(TestData.KJV, BibleBook.PS, 13, 6)));
 	}
 
+	@Test
+	public void testGetNextVerseRangeCanStopBeforeNextChapter() throws Exception {
+		assertThat(bibleTraverser.getNextVerseRange(testBook, TestData.KJV_PS_14, false), equalTo(TestData.KJV_PS_14));
+	}
+
 	interface TestData {
 		Versification KJV = Versifications.instance().getVersification(SystemKJV.V11N_NAME);
 

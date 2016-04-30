@@ -56,13 +56,18 @@ public class BibleTraverser {
 	}
 
 	public VerseRange getNextVerseRange(AbstractPassageBook document, VerseRange verseRange) {
+		return getNextVerseRange(document, verseRange, true);
+	}
+
+	public VerseRange getNextVerseRange(AbstractPassageBook document, VerseRange verseRange, boolean continueToNextChapter) {
 		Versification v11n = verseRange.getVersification();
 		int verseCount = verseRange.getCardinality();
 
 		// shuffle forward
 		Verse start = verseRange.getStart();
 		Verse end = verseRange.getEnd();
-		for (int i=0; i<verseCount; i++) {
+		int i=0;
+		while (i++<verseCount && (continueToNextChapter || !v11n.isEndOfChapter(end))) {
 			start = getNextVerse(document, start);
 			end = getNextVerse(document, end);
 		}
@@ -71,13 +76,18 @@ public class BibleTraverser {
 	}
 
 	public VerseRange getPreviousVerseRange(AbstractPassageBook document, VerseRange verseRange) {
+		return getPreviousVerseRange(document, verseRange, true);
+	}
+
+	public VerseRange getPreviousVerseRange(AbstractPassageBook document, VerseRange verseRange, boolean continueToPreviousChapter) {
 		Versification v11n = verseRange.getVersification();
 		int verseCount = verseRange.getCardinality();
 
 		// shuffle backward
 		Verse start = verseRange.getStart();
 		Verse end = verseRange.getEnd();
-		for (int i=0; i<verseCount; i++) {
+		int i=0;
+		while (i++<verseCount && (continueToPreviousChapter || !v11n.isStartOfChapter(start))) {
 			start = getPrevVerse(document, start);
 			end = getPrevVerse(document, end);
 		}

@@ -1,8 +1,5 @@
 package net.bible.android.control.footnoteandref;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
@@ -11,8 +8,11 @@ import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.format.Note;
 
-import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BookName;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /** Support the Compare Translations screen
  * 
@@ -40,37 +40,29 @@ public class FootnoteAndRefControl {
 		}
 	}
 	
-	public String getTitle(Verse verse) {
+	public String getTitle(VerseRange verseRange) {
 		StringBuilder stringBuilder = new StringBuilder();
 		boolean wasFullBookname = BookName.isFullBookName();
 		BookName.setFullBookName(false);
 		
 		stringBuilder.append(BibleApplication.getApplication().getString(R.string.notes))
 					 .append(": ")
-					 .append(verse.getName());
+					 .append(verseRange.getName());
 		
 		BookName.setFullBookName(wasFullBookname);
 		return stringBuilder.toString();
 	}
 	
-	/** go to previous verse
+	/** Shuffle verseRange forward but stay in same chapter because those are the only notes fetched
 	 */
-	public Verse next(Verse verse) {
-		if (verse.getVersification().isEndOfChapter(verse)) {
-			return verse;
-		} else {
-			return bibleTraverser.getNextVerse(getCurrentPageManager().getCurrentPassageDocument(), verse);
-		}
+	public VerseRange next(VerseRange verseRange) {
+		return bibleTraverser.getNextVerseRange(getCurrentPageManager().getCurrentPassageDocument(), verseRange, false);
 	}
-	
-	/** go to next verse
+
+	/** Shuffle verseRange backward but stay in same chapter because those are the only notes fetched
 	 */
-	public Verse previous(Verse verse) {
-		if (verse.getVersification().isStartOfChapter(verse)) {
-			return verse;
-		} else {
-			return bibleTraverser.getPrevVerse(getCurrentPageManager().getCurrentPassageDocument(), verse);
-		}
+	public VerseRange previous(VerseRange verseRange) {
+		return bibleTraverser.getPreviousVerseRange(getCurrentPageManager().getCurrentPassageDocument(), verseRange, false);
 	}
 	
 	public CurrentPageManager getCurrentPageManager() {

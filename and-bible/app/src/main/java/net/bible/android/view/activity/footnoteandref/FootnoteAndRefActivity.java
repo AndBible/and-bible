@@ -21,7 +21,7 @@ import net.bible.android.view.util.swipe.SwipeGestureListener;
 import net.bible.service.format.Note;
 
 import org.apache.commons.lang.StringUtils;
-import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.passage.VerseRange;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +40,7 @@ public class FootnoteAndRefActivity extends ListActivityBase implements SwipeGes
     static final protected String LIST_ITEM_LINE1 = "line1";
     static final protected String LIST_ITEM_LINE2 = "line2";
 
-	private Verse currentVerse;
+	private VerseRange currentVerseRange;
 
 	private List<Note> mChapterNotesList;
     private List<Note> mVerseNotesList;
@@ -63,7 +63,7 @@ public class FootnoteAndRefActivity extends ListActivityBase implements SwipeGes
         setContentView(R.layout.notes);
 
 		//fetch verse from intent if set - so that goto via History works nicely
-		currentVerse = intentHelper.getIntentVerseRangeOrDefault(getIntent()).getStart();
+		currentVerseRange = intentHelper.getIntentVerseRangeOrDefault(getIntent());
 
         mWarning =  (TextView)findViewById(R.id.warningText);
         
@@ -95,7 +95,7 @@ public class FootnoteAndRefActivity extends ListActivityBase implements SwipeGes
      */
     public void onNext() {
     	Log.d(TAG, "Next");
-    	currentVerse = footnoteAndRefControl.next(currentVerse);
+    	currentVerseRange = footnoteAndRefControl.next(currentVerseRange);
     	onVerseChanged();
     }
 
@@ -103,7 +103,7 @@ public class FootnoteAndRefActivity extends ListActivityBase implements SwipeGes
      */
     public void onPrevious() {
     	Log.d(TAG, "Previous");
-    	currentVerse = footnoteAndRefControl.previous(currentVerse);
+    	currentVerseRange = footnoteAndRefControl.previous(currentVerseRange);
     	onVerseChanged();
     }
 
@@ -116,10 +116,12 @@ public class FootnoteAndRefActivity extends ListActivityBase implements SwipeGes
     
     private void populateVerseNotesList() {
     	mVerseNotesList.clear();
-    	int verseNo = currentVerse.getVerse();
+    	int startVerseNo = currentVerseRange.getStart().getVerse();
+		int endVerseNo = currentVerseRange.getEnd().getVerse();
     	if (mChapterNotesList!=null) {
 			for (Note note : mChapterNotesList) {
-				if (note.getVerseNo() == verseNo) {
+				final int noteVerseNo = note.getVerseNo();
+				if (noteVerseNo >= startVerseNo && noteVerseNo <=endVerseNo) {
 					mVerseNotesList.add(note);
 				}
 			}
@@ -145,7 +147,7 @@ public class FootnoteAndRefActivity extends ListActivityBase implements SwipeGes
     }
 
     private void showCurrentVerse() {
-    	setTitle(footnoteAndRefControl.getTitle(currentVerse));
+    	setTitle(footnoteAndRefControl.getTitle(currentVerseRange));
     }
     
     private void noteSelected(Note note) {
