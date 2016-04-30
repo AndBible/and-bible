@@ -20,7 +20,8 @@ public class DefaultActionBarManager implements ActionBarManager {
 		this.actionBar = actionBar;
 		
 		UiUtils.setActionBarColor(actionBar);
-		
+
+		// remove space on left reserved for home and up icons
 		actionBar.setDisplayShowHomeEnabled(false);
 	}
 

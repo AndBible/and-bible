@@ -1,5 +1,15 @@
 package net.bible.android.view.activity.base.actionbar;
 
+import android.app.Activity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.widget.TextView;
+
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.CommonUtils;
@@ -7,14 +17,6 @@ import net.bible.service.common.TitleSplitter;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-
-import android.app.Activity;
-import android.support.v7.app.ActionBar;
-import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
 /** 
  * Show current verse/key and document on left of actionBar
@@ -47,7 +49,7 @@ public abstract class Title {
 		this.activity = activity;
 
 		actionBar.setCustomView(R.layout.title);
-		
+
 	    documentTitle = (TextView) actionBar.getCustomView().findViewById(R.id.documentTitle);
 	    documentSubtitle = (TextView) actionBar.getCustomView().findViewById(R.id.documentSubtitle);
 	    pageTitle = (TextView) actionBar.getCustomView().findViewById(R.id.pageTitle);
@@ -77,6 +79,12 @@ public abstract class Title {
 		
 		// do not display the app icon in the actionbar
 		actionBar.setDisplayShowHomeEnabled(false);
+
+		// remove a small amount of extra padding at the left of the actionbar see: http://stackoverflow.com/questions/27354812/android-remove-left-margin-from-actionbars-custom-layout
+		ViewParent toolbar = actionBar.getCustomView().getParent();
+		if (toolbar!=null && toolbar instanceof Toolbar) {
+			((Toolbar) toolbar).setContentInsetsAbsolute(0, 0);
+		}
 	}
 	
 	public void update() {

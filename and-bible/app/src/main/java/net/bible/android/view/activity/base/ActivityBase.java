@@ -1,19 +1,20 @@
 package net.bible.android.view.activity.base;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.WindowManager;
+
 import net.bible.android.view.activity.navigation.History;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.android.view.util.UiUtils;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.View;
-import android.view.WindowManager;
 
 /** Base class for activities
  * 
@@ -21,7 +22,7 @@ import android.view.WindowManager;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class ActivityBase extends ActionBarActivity implements AndBibleActivity {
+public class ActivityBase extends AppCompatActivity implements AndBibleActivity {
 
 	// standard request code for startActivityForResult
 	public static final int STD_REQUEST_CODE = 1;
@@ -143,7 +144,7 @@ public class ActivityBase extends ActionBarActivity implements AndBibleActivity 
 			return true;
 		}
 		
-		//TODO make Long press work for screens other than main window e.g. does not work from search screen because wrong window is displayed 
+		//TODO make Long press Back work for screens other than main window e.g. does not work from search screen because wrong window is displayed
 	    if (keyCode == KeyEvent.KEYCODE_BACK && this instanceof MainBibleActivity) {
 			Log.d(TAG, "Back Long");
 	        // a long press of the back key. do our work, returning true to consume it.  by returning true, the framework knows an action has

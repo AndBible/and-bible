@@ -9,27 +9,27 @@
     
     <!-- Application theme.
     	ActionBar background colour also set in DefaultActionBarManager.java
+    	For basic override description see http://developer.android.com/training/material/theme.html#ColorPalette
     -->
-    <style name="AppThemeDay" parent="@style/AppTheme">
+    <style name="AppThemeDay" parent="@style/Theme.AppCompat.Light.DarkActionBar">
 		<item name="actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
-		<item name="colorPrimary">@color/actionbar_background_day</item>
+		<item name="colorAccent">@color/accent_day</item>
 	</style>
 
-	<style name="AppThemeNight" parent="@style/AppTheme">
+	<style name="AppThemeNight" parent="@style/Theme.AppCompat">
+		<item name="actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
+		<item name="colorAccent">@color/accent_night</item>
 		<item name="colorPrimary">@color/actionbar_background_night</item>
 	</style>
-
+<!--
 	<style name="AppTheme" parent="@style/Theme.AppCompat.DayNight.DarkActionBar">
-		<item name="actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
-		<item name="colorAccent">@color/accent</item>
-		<item name="android:textColorSecondary">@color/secondary</item>
-		<!-- To prevent button text being capitalised in activities
+		< To prevent button text being capitalised in activities
 		<item name="textAllCaps">false</item>
 		 Default material color is grey, which seems hard to see, so change it to white
 		<item name="android:textColorPrimaryNoDisable">@color/actionbar_text</item>
-		 -->
-	</style>
 
+	</style>
+-->
 	<style name="MyMenuTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Menu">
 		<item name="textAllCaps">false</item>
 		<item name="android:textStyle">normal</item>

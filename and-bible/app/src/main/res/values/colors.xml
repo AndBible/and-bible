@@ -13,8 +13,8 @@
 	
 	<color name="actionbar_text">#ffffffff</color>
 
-	<color name="accent">@color/grey_900</color>
-	<color name="secondary">@color/grey_800</color>
+	<color name="accent_day">@color/blue_grey_900</color>
+	<color name="accent_night">@color/blue_grey_300</color>
 
 	<!-- see
 	colours: https://www.google.com/design/spec/style/color.html#color-color-palette
@@ -32,5 +32,16 @@
 	<color name="grey_900">#212121</color>
 	<color name="grey_1000b">#000000</color>
 	<color name="grey_1000w">#ffffff</color>
+
+	<color name="blue_grey_50">#eceff1</color>
+	<color name="blue_grey_100">#cfd8dc</color>
+	<color name="blue_grey_200">#b0bec5</color>
+	<color name="blue_grey_300">#90a4ae</color>
+	<color name="blue_grey_400">#78909c</color>
+	<color name="blue_grey_500">#607d8b</color>
+	<color name="blue_grey_600">#546e7a</color>
+	<color name="blue_grey_700">#455a64</color>
+	<color name="blue_grey_800">#37474f</color>
+	<color name="blue_grey_900">#263238</color>
 
 </resources>
