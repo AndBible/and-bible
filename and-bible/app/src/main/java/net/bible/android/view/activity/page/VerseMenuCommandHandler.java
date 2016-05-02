@@ -64,7 +64,7 @@ public class VerseMenuCommandHandler {
 					isHandled = true;
 					break;
 				case R.id.myNoteAddEdit:
-					ControlFactory.getInstance().getCurrentPageControl().showMyNote(verseRange);
+					ControlFactory.getInstance().getMyNoteControl().showMyNote(verseRange);
 					isHandled = true;
 					break;
 				case R.id.copy:

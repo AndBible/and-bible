@@ -39,6 +39,21 @@ public class MyNoteControl implements MyNote {
 
 	private static final String TAG = "MyNoteControl";
 
+	/**
+	 * Start chain of actions to switch to MyNote view
+	 * @param verseRange
+	 */
+	@Override
+	public void showMyNote(VerseRange verseRange) {
+		// if existing MyNote exists with same start verse then adjust range to match the note that will be edited
+		final MyNoteDto existingMyNoteWithSameStartVerse = getMyNoteByStartVerse(verseRange);
+		if (existingMyNoteWithSameStartVerse!=null) {
+			verseRange = existingMyNoteWithSameStartVerse.getVerseRange(verseRange.getVersification());
+		}
+
+		ControlFactory.getInstance().getCurrentPageControl().showMyNote(verseRange);
+	}
+
 	@Override
 	public void showNoteView(MyNoteDto noteDto) {
 		ControlFactory.getInstance().getCurrentPageControl().showMyNote(noteDto.getVerseRange());
@@ -314,5 +329,4 @@ public class MyNoteControl implements MyNote {
 			return CommonUtils.getResourceString(R.string.sort_by_date);
 		}
 	}
-
 }

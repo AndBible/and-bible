@@ -7,6 +7,7 @@ import net.bible.service.db.mynote.MyNoteDto;
 
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.passage.VerseRange;
 
 import java.util.List;
 
@@ -57,4 +58,6 @@ public interface MyNote {
 	public void changeSortOrder();
 	
 	public String getSortOrderDescription();
+
+	void showMyNote(VerseRange verseRange);
 }
