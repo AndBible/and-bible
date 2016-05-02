@@ -1,7 +1,9 @@
 package net.bible.android.control.page;
 
 
-import java.util.List;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.PassageChangeMediator;
@@ -18,10 +20,7 @@ import org.crosswire.jsword.passage.Key;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.util.Log;
-import android.view.ContextMenu;
-import android.view.Menu;
-import android.view.MenuItem;
+import java.util.List;
 
 /** Common functionality for different document page types
  * 
@@ -237,8 +236,6 @@ abstract class CurrentPageBase implements CurrentPage {
 	}
 
 	/** called during app close down to save state
-	 * 
-	 * @param outState
 	 */
 	@Override
 	public JSONObject getStateJson() throws JSONException {
