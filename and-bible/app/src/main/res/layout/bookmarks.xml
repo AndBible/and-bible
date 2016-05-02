@@ -13,6 +13,7 @@
    	<Spinner android:id="@+id/labelSpinner"
    		android:layout_width="fill_parent"
     	android:layout_height="wrap_content"
+	    android:padding="10dip"
     />
 	<ListView android:id="@android:id/list" 
 		android:layout_width="fill_parent" 
