@@ -157,7 +157,7 @@ public class MyNotes extends ListActivityBase {
      * @param document
      */
     private void myNoteSelected(MyNoteDto myNote) {
-    	Log.d(TAG, "User Note selected:"+myNote.getVerse());
+    	Log.d(TAG, "User Note selected:"+myNote.getVerseRange());
     	try {
         	if (myNote!=null) {
         		myNoteControl.showNoteView(myNote);

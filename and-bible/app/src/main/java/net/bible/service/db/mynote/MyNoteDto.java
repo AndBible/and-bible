@@ -3,14 +3,14 @@
  */
 package net.bible.service.db.mynote;
 
-import java.util.Comparator;
-import java.util.Date;
-
-import net.bible.android.control.versification.ConvertibleVerse;
+import net.bible.android.control.versification.ConvertibleVerseRange;
 
 import org.apache.commons.lang.StringUtils;
-import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.Versification;
+
+import java.util.Comparator;
+import java.util.Date;
 
 /**
  * DTO for MyNote
@@ -22,7 +22,7 @@ import org.crosswire.jsword.versification.Versification;
  */
 public class MyNoteDto implements Comparable<MyNoteDto> {
 	private Long id;
-	private ConvertibleVerse convertibleVerse;
+	private ConvertibleVerseRange convertibleVerseRange;
 	private String noteText;
 	private Date lastUpdatedOn;
 	private Date createdOn;
@@ -43,14 +43,14 @@ public class MyNoteDto implements Comparable<MyNoteDto> {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	public Verse getVerse() {
-		return convertibleVerse.getVerse();
+	public VerseRange getVerseRange() {
+		return convertibleVerseRange.getVerseRange();
 	}
-	public Verse getVerse(Versification versification) {
-		return convertibleVerse.getVerse(versification);
+	public VerseRange getVerseRange(Versification versification) {
+		return convertibleVerseRange.getVerseRange(versification);
 	}
-	public void setVerse(Verse verse) {
-		this.convertibleVerse = new ConvertibleVerse(verse);
+	public void setVerseRange(VerseRange verseRange) {
+		this.convertibleVerseRange = new ConvertibleVerseRange(verseRange);
 	}
 
 	public void setNoteText(String newText) {
@@ -80,11 +80,11 @@ public class MyNoteDto implements Comparable<MyNoteDto> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		if (convertibleVerse==null || convertibleVerse.getVerse()==null) {
+		if (convertibleVerseRange ==null || convertibleVerseRange.getVerseRange()==null) {
 			result = prime * result;
 		} else {
-			Verse verse = convertibleVerse.getVerse();
-			result = prime * result + verse.hashCode();
+			VerseRange verseRange = convertibleVerseRange.getVerseRange();
+			result = prime * result + verseRange.hashCode();
 		}
 		return result;
 	}
@@ -105,10 +105,10 @@ public class MyNoteDto implements Comparable<MyNoteDto> {
 				return false;
 		} else if (!id.equals(other.id))
 			return false;
-		if (convertibleVerse == null) {
-			if (other.convertibleVerse != null)
+		if (convertibleVerseRange == null) {
+			if (other.convertibleVerseRange != null)
 				return false;
-		} else if (!convertibleVerse.equals(other.convertibleVerse))
+		} else if (!convertibleVerseRange.equals(other.convertibleVerseRange))
 			return false;
 		if (noteText == null) {
 			if (other.noteText != null)
@@ -129,7 +129,7 @@ public class MyNoteDto implements Comparable<MyNoteDto> {
 
 		public int compare(MyNoteDto myNote1, MyNoteDto myNote2) {
 			// ascending order
-			return myNote1.convertibleVerse.compareTo(myNote2.convertibleVerse);
+			return myNote1.convertibleVerseRange.compareTo(myNote2.convertibleVerseRange);
 		}
 	};
 	/** Compare by Create date - most recent first */

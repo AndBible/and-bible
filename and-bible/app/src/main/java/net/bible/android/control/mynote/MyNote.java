@@ -3,12 +3,12 @@
  */
 package net.bible.android.control.mynote;
 
-import java.util.List;
-
 import net.bible.service.db.mynote.MyNoteDto;
 
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.Verse;
+
+import java.util.List;
 
 /**
  * Control MyNote functionality
@@ -22,9 +22,6 @@ public interface MyNote {
 
 	/** get a list of Keys which have notes in the passage (normally a chapter) */
 	List<Verse> getVersesWithNotesInPassage(Key passage);
-	
-	/** show add or edit depending on existence of note */
-	public int getAddEditMenuText();
 	
 	/** go to MyNote edit screen and show this note */
 	public void showNoteView(MyNoteDto noteDto);
@@ -48,7 +45,7 @@ public interface MyNote {
 	List<MyNoteDto> getAllMyNotes();
 	
 	/** look up an existing mynote */
-	public MyNoteDto getMyNoteByKey(Key key);
+	public MyNoteDto getMyNoteByStartVerse(Key key);
 
 	/** delete this user note (and any links to labels) */
 	boolean deleteMyNote(MyNoteDto usernote);

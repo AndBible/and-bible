@@ -1,5 +1,8 @@
 package net.bible.android.control.page;
 
+import android.content.Context;
+import android.content.Intent;
+
 import net.bible.android.SharedConstants;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
@@ -13,9 +16,6 @@ import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Key;
 import org.json.JSONObject;
-
-import android.content.Context;
-import android.content.Intent;
 
 /** Control singletons of the different current document page types
  * 
@@ -133,10 +133,10 @@ public class CurrentPageManager {
 
 	/** My Note is different to all other pages.  It has no documents etc but I attempt to make it look a bit like a Commentary page
 	 * 
-	 * @param verse Verse to add not to
+	 * @param verseRange VerseRange to add note to, start verse is the significant key searched for but range is stored
 	 */
-	public void showMyNote(Key verse) {
-		setCurrentDocumentAndKey(currentMyNotePage.getCurrentDocument(), verse);
+	public void showMyNote(Key verseRange) {
+		setCurrentDocumentAndKey(currentMyNotePage.getCurrentDocument(), verseRange);
 	}
 
 	public CurrentPage setCurrentDocumentAndKey(Book currentBook, Key key) {

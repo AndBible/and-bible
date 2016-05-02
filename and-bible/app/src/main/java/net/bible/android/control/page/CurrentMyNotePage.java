@@ -3,12 +3,17 @@ package net.bible.android.control.page;
 import android.util.Log;
 
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.versification.ConvertibleVerseRange;
 import net.bible.service.common.ParseException;
 import net.bible.service.download.FakeSwordBookFactory;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookException;
+import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.KeyUtil;
+import org.crosswire.jsword.passage.Verse;
+import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.Versification;
 
 import java.io.IOException;
@@ -20,6 +25,8 @@ import java.io.IOException;
  *      The copyright to this program is held by it's author.
  */
 public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentPage {
+
+	private ConvertibleVerseRange currentNoteVerseRange;
 
 	private static final String MY_NOTE_DUMMY_CONF = "[MyNote]\nDescription=My Note\nCategory=OTHER\nModDrv=zCom\nBlockType=CHAPTER\nLang=en\nEncoding=UTF-8\nLCSH=Bible--Commentaries.\nDataPath=./modules/comments/zcom/mynote/\nAbout=\nVersification=";
 	// just one fake book for every note
@@ -71,6 +78,48 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 	}
 	
 	private Versification getCurrentVersification() {
-		return getCurrentBibleVerse().getVersificationOfLastSelectedVerse();		
+		return getCurrentBibleVerse().getVersificationOfLastSelectedVerse();
 	}
+
+	/** set key without notification
+	 *
+	 * @param key
+	 */
+	public void doSetKey(Key key) {
+		if (key!=null) {
+			Verse verse = KeyUtil.getVerse(key);
+
+			VerseRange verseRange;
+			if (key instanceof VerseRange) {
+				verseRange = (VerseRange)key;
+			} else {
+				verseRange = new VerseRange(verse.getVersification(), verse);
+			}
+			currentNoteVerseRange = new ConvertibleVerseRange(verseRange);
+
+			getCurrentBibleVerse().setVerseSelected(getVersification(), verse);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see net.bible.android.control.CurrentPage#getKey()
+	 */
+	@Override
+	public Key getKey() {
+		if (currentNoteVerseRange!=null) {
+			return currentNoteVerseRange.getVerseRange(getVersification());
+		} else {
+			return getCurrentBibleVerse().getVerseSelected(getVersification());
+		}
+	}
+
+	public int getNumberOfVersesDisplayed() {
+		return currentNoteVerseRange!=null? currentNoteVerseRange.getVerseRange().getCardinality() : 1;
+	}
+
+	@Override
+	public boolean isSingleKey() {
+		return currentNoteVerseRange==null || currentNoteVerseRange.getVerseRange().getCardinality()==1;
+	}
+
 }

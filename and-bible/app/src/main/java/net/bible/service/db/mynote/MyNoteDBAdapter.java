@@ -19,9 +19,9 @@ import net.bible.service.db.mynote.MyNoteDatabaseDefinition.Table;
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
-import org.crosswire.jsword.passage.Verse;
-import org.crosswire.jsword.passage.VerseFactory;
 import org.crosswire.jsword.passage.VerseKey;
+import org.crosswire.jsword.passage.VerseRange;
+import org.crosswire.jsword.passage.VerseRangeFactory;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
@@ -69,14 +69,14 @@ public class MyNoteDBAdapter {
 
 	public MyNoteDto insertMyNote(MyNoteDto mynote) {
 		// Create a new row of values to insert.
-		Log.d(TAG, "about to insertMyNote: " + mynote.getVerse());
-		Verse verse = mynote.getVerse();
-		String v11nName = getVersification(verse);
+		Log.d(TAG, "about to insertMyNote: " + mynote.getVerseRange());
+		VerseRange verseRange = mynote.getVerseRange();
+		String v11nName = getVersification(verseRange);
         // Gets the current system time in milliseconds
         Long now = Long.valueOf(System.currentTimeMillis());
 
 		ContentValues newValues = new ContentValues();
-		newValues.put(MyNoteColumn.KEY, verse.getOsisRef());
+		newValues.put(MyNoteColumn.KEY, verseRange.getOsisRef());
 		newValues.put(MyNoteColumn.VERSIFICATION, v11nName);
 		newValues.put(MyNoteColumn.MYNOTE, mynote.getNoteText());
 		newValues.put(MyNoteColumn.LAST_UPDATED_ON, now);
@@ -102,14 +102,14 @@ public class MyNoteDBAdapter {
 
 	public MyNoteDto updateMyNote(MyNoteDto mynote) {
 		// Create a new row of values to insert.
-		Log.d(TAG, "about to updateMyNote: " + mynote.getVerse());
-		Verse verse = mynote.getVerse();
-		String v11nName = getVersification(verse);
+		Log.d(TAG, "about to updateMyNote: " + mynote.getVerseRange());
+		VerseRange verserange = mynote.getVerseRange();
+		String v11nName = getVersification(verserange);
         // Gets the current system time in milliseconds
         Long now = Long.valueOf(System.currentTimeMillis());
 
 		ContentValues newValues = new ContentValues();
-		newValues.put(MyNoteColumn.KEY, verse.getOsisRef());
+		newValues.put(MyNoteColumn.KEY, verserange.getOsisRef());
 		newValues.put(MyNoteColumn.VERSIFICATION, v11nName);
 		newValues.put(MyNoteColumn.MYNOTE, mynote.getNoteText());
 		newValues.put(MyNoteColumn.LAST_UPDATED_ON, now);
@@ -121,7 +121,7 @@ public class MyNoteDBAdapter {
 	}
 
 	public boolean removeMyNote(MyNoteDto mynote) {
-		Log.d(TAG, "Removing my note:" + mynote.getVerse());
+		Log.d(TAG, "Removing my note:" + mynote.getVerseRange());
 		return db.delete(Table.MYNOTE, MyNoteColumn._ID + "=" + mynote.getId(), null) > 0;
 	}
 
@@ -180,21 +180,31 @@ public class MyNoteDBAdapter {
 		return mynote;
 	}
 
-	public MyNoteDto getMyNoteByKey(String key) {
+	/**
+	 * Find bookmark starting at the location specified by key.
+	 * If it starts there then the initial part of the key should match.
+	 */
+	public MyNoteDto getMyNoteByStartVerse(String startVerse) {
 		MyNoteDto mynote = null;
-		
-		Cursor c = db.query(MyNoteQuery.TABLE, MyNoteQuery.COLUMNS, MyNoteColumn.KEY+"=?", new String[] {key}, null, null, null);
+		Cursor c=null;
 		try {
-			if (c.moveToFirst()) {
-				mynote = getMyNoteDto(c);
+			// exact match
+			c = db.query(MyNoteQuery.TABLE, MyNoteQuery.COLUMNS, MyNoteColumn.KEY+"=?", new String[] {startVerse}, null, null, null);
+			if (!c.moveToFirst()) {
+				// start of verse range
+				c = db.query(MyNoteQuery.TABLE, MyNoteQuery.COLUMNS, MyNoteColumn.KEY + " LIKE ?", new String[]{startVerse + "-%"}, null, null, null);
+				if (!c.moveToFirst()) {
+					return null;
+				}
 			}
+			mynote = getMyNoteDto(c);
 		} finally {
 			c.close();
 		}
-		
+
 		return mynote;
 	}
-	
+
 	/** return Dto from current cursor position or null
 	 * @param c
 	 * @return
@@ -223,13 +233,13 @@ public class MyNoteDBAdapter {
 			}
 			Log.d(TAG, "Versification found:"+v11n);
 			try {
-				dto.setVerse(VerseFactory.fromString(v11n, key));
+				dto.setVerseRange(VerseRangeFactory.fromString(v11n, key));
 			} catch (Exception e) {
 				Log.e(TAG, "Note saved with incorrect versification", e);
 				// fix problem where KJV was always the v11n even for dc books
 				// NRSVA should contain most dc books and allow verse to be fetched
 				Versification v11nWithDC = Versifications.instance().getVersification("NRSVA");
-				dto.setVerse(VerseFactory.fromString(v11nWithDC, key));
+				dto.setVerseRange(VerseRangeFactory.fromString(v11nWithDC, key));
 			}
 
 			//Note

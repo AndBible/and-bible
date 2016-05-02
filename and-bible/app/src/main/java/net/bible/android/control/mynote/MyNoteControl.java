@@ -34,36 +34,22 @@ import java.util.List;
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 public class MyNoteControl implements MyNote {
-	
-	private static final String TAG = "MyNoteControl";
 
 	private static final String MYNOTE_SORT_ORDER = "MyNoteSortOrder";
 
-	public int getAddEditMenuText() {
-		// current note is linked to current bible verse
-		Key currentVerse = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getSingleKey();
-
-		MyNoteDto myNote = getMyNoteByKey(currentVerse);
-		
-		if (myNote!=null) {
-			return R.string.mynote_view_edit;
-		} else {
-			return R.string.mynote_add;
-		}
-	}
+	private static final String TAG = "MyNoteControl";
 
 	@Override
 	public void showNoteView(MyNoteDto noteDto) {
-		ControlFactory.getInstance().getCurrentPageControl().showMyNote(noteDto.getVerse());
+		ControlFactory.getInstance().getCurrentPageControl().showMyNote(noteDto.getVerseRange());
 	}
-	
 
 	@Override
 	public String getMyNoteVerseKey(MyNoteDto myNote) {
 		String keyText = "";
 		try {
 			Versification versification = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getVersification();
-			keyText = myNote.getVerse(versification).getName();
+			keyText = myNote.getVerseRange(versification).getName();
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);
 		}
@@ -71,9 +57,9 @@ public class MyNoteControl implements MyNote {
 	}
 
 	@Override
-	public String getMyNoteTextByKey(Key verse) {
+	public String getMyNoteTextByKey(Key verseRange) {
 		// get a dto
-		MyNoteDto myNote = getMyNoteByKey(verse);
+		MyNoteDto myNote = getMyNoteByStartVerse(verseRange);
 		
 		// return an empty note dto
 		String noteText = "";
@@ -93,16 +79,24 @@ public class MyNoteControl implements MyNote {
 
 	@Override
 	public MyNoteDto getCurrentMyNoteDto() {
+		//
 		Key key = ControlFactory.getInstance().getCurrentPageControl().getCurrentMyNotePage().getKey();
-		Verse verse = KeyUtil.getVerse(key);
+		VerseRange verseRange;
+		// The key should be a VerseRange
+		if (key instanceof VerseRange) {
+			verseRange = (VerseRange)key;
+		} else {
+			Verse verse = KeyUtil.getVerse(key);
+			verseRange = new VerseRange(verse.getVersification(), verse);
+		}
 		
 		// get a dto
-		MyNoteDto myNote = getMyNoteByKey(verse);
+		MyNoteDto myNote = getMyNoteByStartVerse(verseRange);
 		
 		// return an empty note dto
 		if (myNote==null) {
 			myNote = new MyNoteDto();
-			myNote.setVerse(verse);
+			myNote.setVerseRange(verseRange);
 		}
 
 		return myNote;
@@ -121,7 +115,7 @@ public class MyNoteControl implements MyNote {
 				isSaved = true;
 			}
 		} else {
-			MyNoteDto oldNote = getMyNoteByKey(myNoteDto.getVerse());
+			MyNoteDto oldNote = getMyNoteByStartVerse(myNoteDto.getVerseRange());
 			// delete empty notes
 			if (myNoteDto.isEmpty()) {
 				deleteMyNote(myNoteDto);
@@ -185,12 +179,14 @@ public class MyNoteControl implements MyNote {
 	}
 
 	/** get user note with this key if it exists or return null */
-	public MyNoteDto getMyNoteByKey(Key key) {
+	public MyNoteDto getMyNoteByStartVerse(Key key) {
+		Verse startVerse = KeyUtil.getVerse(key);
+
 		MyNoteDBAdapter db = new MyNoteDBAdapter();
 		MyNoteDto myNote = null;
 		try {
 			db.open();
-			myNote = db.getMyNoteByKey(key.getOsisRef());
+			myNote = db.getMyNoteByStartVerse(startVerse.getOsisRef());
 		} finally {
 			db.close();
 		}
@@ -260,15 +256,15 @@ public class MyNoteControl implements MyNote {
 			boolean isVerseRange = passage instanceof VerseRange;
 			Versification requiredVersification = firstVerse.getVersification();
 			for (MyNoteDto myNoteDto : myNoteList) {
-				Verse verse = myNoteDto.getVerse(requiredVersification);
+				VerseRange verseRange = myNoteDto.getVerseRange(requiredVersification);
 				//TODO should not require VerseRange cast but bug in JSword
 				if (isVerseRange) {
-					if (((VerseRange)passage).contains(verse)) {
-						versesInPassage.add(verse);
+					if (((VerseRange)passage).contains(verseRange.getStart())) {
+						versesInPassage.add(verseRange.getStart());
 					}
 				} else {
-					if (passage.contains(verse)) {
-						versesInPassage.add(verse);
+					if (passage.contains(verseRange)) {
+						versesInPassage.add(verseRange.getStart());
 					}
 				}
 			}
