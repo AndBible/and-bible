@@ -21,8 +21,8 @@
     android:layout_width="wrap_content" 
     android:layout_height="40dip"
     android:textSize="18sp"
-    android:textColor="?android:attr/textColorPrimaryInverse"
+    android:textColor="@color/buttongrid_button_feedback_text"
     android:minWidth="32dip"
     android:gravity="center"
-    android:background="@drawable/buttongrid_button_feedback"
-    /> 
+    android:background="@drawable/buttongrid_button_feedback_background"
+    />

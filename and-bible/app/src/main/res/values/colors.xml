@@ -16,6 +16,7 @@
 	<color name="accent_day">@color/blue_grey_900</color>
 	<color name="accent_night">@color/blue_grey_300</color>
 
+	<color name="buttongrid_button_feedback_text">@color/grey_1000b</color>
 	<!-- see
 	colours: https://www.google.com/design/spec/style/color.html#color-color-palette
 	numbers: https://gist.github.com/cypressious/90355ac3e92c65908441 -->
