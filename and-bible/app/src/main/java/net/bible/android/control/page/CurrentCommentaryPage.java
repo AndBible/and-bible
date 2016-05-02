@@ -137,15 +137,6 @@ public class CurrentCommentaryPage extends VersePage implements CurrentPage {
 		return true;
 	}
 
-	@Override
-	public void updateContextMenu(Menu menu) {
-		super.updateContextMenu(menu);
-		// by default disable notes but bible and commentary will enable
-		MenuItem myNotesMenuItem = menu.findItem(R.id.myNoteAddEdit);
-		myNotesMenuItem.setVisible(true);
-		myNotesMenuItem.setTitle(ControlFactory.getInstance().getMyNoteControl().getAddEditMenuText());
-	}
-	
 	/** called during app close down to save state
 	 * 
 	 * @param outState

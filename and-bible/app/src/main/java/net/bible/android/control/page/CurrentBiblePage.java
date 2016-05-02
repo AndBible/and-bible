@@ -2,11 +2,7 @@ package net.bible.android.control.page;
 
 import android.app.Activity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 
-import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.view.activity.navigation.GridChoosePassageBook;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordDocumentFacade;
@@ -250,20 +246,4 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 			return true;
 		}
 	}
-
-	@Override
-	public void updateContextMenu(Menu menu) {
-		super.updateContextMenu(menu);
-		// by default disable notes but bible will enable
-		menu.findItem(R.id.notes).setVisible(true);
-		
-		// by default disable mynotes but bible and commentary will enable
-		MenuItem myNotesMenuItem = menu.findItem(R.id.myNoteAddEdit);
-		myNotesMenuItem.setVisible(true);
-		myNotesMenuItem.setTitle(ControlFactory.getInstance().getMyNoteControl().getAddEditMenuText());
-
-		// by default disable compare translation except for Bibles
-		menu.findItem(R.id.compareTranslations).setVisible(true);
-	}
-
 }

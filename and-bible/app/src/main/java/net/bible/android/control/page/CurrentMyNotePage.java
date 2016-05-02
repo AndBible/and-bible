@@ -1,9 +1,7 @@
 package net.bible.android.control.page;
 
 import android.util.Log;
-import android.view.Menu;
 
-import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.service.common.ParseException;
 import net.bible.service.download.FakeSwordBookFactory;
@@ -37,16 +35,6 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 	@Override
 	public String getCurrentPageContent() throws ParseException {
         return ControlFactory.getInstance().getMyNoteControl().getMyNoteTextByKey(getKey());
-	}
-	
-	@Override
-	public void updateContextMenu(Menu menu) {
-		super.updateContextMenu(menu);
-
-		menu.findItem(R.id.myNoteAddEdit).setVisible(false);
-		menu.findItem(R.id.add_bookmark).setVisible(false);	
-		menu.findItem(R.id.copy).setVisible(false);	
-		menu.findItem(R.id.shareVerse).setVisible(false);	
 	}
 	
 	@Override

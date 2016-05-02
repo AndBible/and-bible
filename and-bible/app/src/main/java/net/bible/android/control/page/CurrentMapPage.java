@@ -1,14 +1,14 @@
 package net.bible.android.control.page;
 
+import android.app.Activity;
+import android.view.Menu;
+import android.view.MenuItem;
+
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey;
 
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
-
-import android.app.Activity;
-import android.view.Menu;
-import android.view.MenuItem;
 
 /** Reference to current Map shown by viewer
  * 
@@ -79,14 +79,6 @@ public class CurrentMapPage extends CachedKeyPage implements CurrentPage {
 
 	}
 	
-	@Override
-	public void updateContextMenu(Menu menu) {
-		super.updateContextMenu(menu);
-		// by default disable notes but bible will enable
-		menu.findItem(R.id.add_bookmark).setVisible(false);
-	}
-
-
 	@Override
 	public boolean isSingleKey() {
 		return true;

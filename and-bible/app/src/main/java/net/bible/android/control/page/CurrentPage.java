@@ -1,6 +1,7 @@
 package net.bible.android.control.page;
 
-import java.util.List;
+import android.app.Activity;
+import android.view.Menu;
 
 import net.bible.service.common.ParseException;
 import net.bible.service.format.Note;
@@ -11,8 +12,7 @@ import org.crosswire.jsword.passage.Key;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
-import android.view.Menu;
+import java.util.List;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -73,7 +73,6 @@ public interface CurrentPage {
 	public List<Note> getCurrentPageFootnotesAndReferences() throws ParseException;
 
 	public abstract void updateOptionsMenu(Menu menu);
-	public abstract void updateContextMenu(Menu menu);
 
 	public abstract void restoreState(JSONObject state) throws JSONException;
 

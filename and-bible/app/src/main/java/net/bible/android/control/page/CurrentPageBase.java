@@ -196,29 +196,6 @@ abstract class CurrentPageBase implements CurrentPage {
 	}
 	
 	@Override
-	public void updateContextMenu(Menu menu) {
-		// by default disable notes but bible will enable
-		menu.findItem(R.id.notes).setVisible(false);	
-		menu.findItem(R.id.myNoteAddEdit).setVisible(false);	
-		
-		// dictionary will disable
-		menu.findItem(R.id.add_bookmark).setVisible(true);
-		
-		// by default disable compare translation except for Bibles
-		menu.findItem(R.id.compareTranslations).setVisible(false);
-
-		//set title - can only be set when cast to a ContextMenu
-		if (getSingleKey()!=null) {
-			ContextMenu contextMenu = (ContextMenu)menu;
-			contextMenu.setHeaderTitle(getSingleKey().getName());
-		}
-		
-//		if (CommonUtils.isJellyBeanPlus()) {
-//			menu.findItem(R.id.selectText).setVisible(false);
-//		}
-	}
-	
-	@Override
 	public boolean isInhibitChangeNotifications() {
 		return inhibitChangeNotifications;
 	}
