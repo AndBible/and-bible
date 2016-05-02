@@ -1,7 +1,10 @@
 package net.bible.android.control.page;
 
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
+import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.versification.ConvertibleVerseRange;
 import net.bible.service.common.ParseException;
@@ -122,4 +125,13 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 		return currentNoteVerseRange==null || currentNoteVerseRange.getVerseRange().getCardinality()==1;
 	}
 
+	@Override
+	public void updateOptionsMenu(Menu menu) {
+		super.updateOptionsMenu(menu);
+
+		MenuItem menuItem = menu.findItem(R.id.windowSubMenu);
+		if (menuItem!=null) {
+			menuItem.setEnabled(false);
+		}
+	}
 }
