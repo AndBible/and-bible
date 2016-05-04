@@ -3,7 +3,6 @@ package net.bible.android.view.activity.page;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
@@ -27,6 +26,7 @@ import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.page.screen.PageTiltScroller;
+import net.bible.android.view.util.UiUtils;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
 
@@ -66,8 +66,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	private static final int TOP_OF_SCREEN = 1;
 
 	// remember current background colour so we know when it changes
-	// -123 is not equal to WHITE or BLACK forcing first setting to be actioned
-	private int mCurrentBackgroundColour = -123;
+	private Boolean wasNightMode;
 
 	private static final String TAG = "BibleView";
 
@@ -174,12 +173,11 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	@Override
 	public boolean changeBackgroundColour() {
 		// if night mode then set dark background colour
-		int newBackgroundColour = ScreenSettings.isNightMode() ? Color.BLACK : Color.WHITE;
-		boolean changed = mCurrentBackgroundColour != newBackgroundColour;
-		
+		final Boolean nightMode = ScreenSettings.isNightMode();
+		final boolean changed = !nightMode.equals(this.wasNightMode);
 		if (changed) {
-			setBackgroundColor(newBackgroundColour);
-			mCurrentBackgroundColour = newBackgroundColour;
+			UiUtils.setBibleViewBackgroundColour(this, nightMode);
+			this.wasNightMode = nightMode;
 		}
 		return changed;
 	}

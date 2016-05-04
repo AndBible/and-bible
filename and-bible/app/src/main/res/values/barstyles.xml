@@ -27,6 +27,8 @@
 		<item name="textAllCaps">false</item>
 		 Default material color is grey, which seems hard to see, so change it to white
 		<item name="android:textColorPrimaryNoDisable">@color/actionbar_text</item>
+		 Change actionbar text colour
+		<item name="android:colorForeground">@color/accent</item>
 
 	</style>
 -->

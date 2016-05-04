@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.ActionBar;
+import android.view.View;
 
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
@@ -20,6 +21,8 @@ public class UiUtils {
 	private static final int night = CommonUtils.getResourceColor(R.color.actionbar_background_night);
 	private static final int day = CommonUtils.getResourceColor(R.color.actionbar_background_day);
 
+	private static final int BIBLEVIEW_BACKGROUND_NIGHT = CommonUtils.getResourceColor(R.color.bible_background_night);
+	private static final int BIBLEVIEW_BACKGROUND_DAY = CommonUtils.getResourceColor(R.color.bible_background_day);
 
     public static void applyTheme(Activity activity) {
     	ScreenSettings.isNightModeChanged();
@@ -47,4 +50,7 @@ public class UiUtils {
 		}
 	}
 
+	public static void setBibleViewBackgroundColour(View bibleView, boolean nightMode) {
+		bibleView.setBackgroundColor(nightMode ? BIBLEVIEW_BACKGROUND_NIGHT : BIBLEVIEW_BACKGROUND_DAY);
+	}
 }
