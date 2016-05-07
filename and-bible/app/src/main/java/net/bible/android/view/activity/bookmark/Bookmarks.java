@@ -1,7 +1,19 @@
 package net.bible.android.view.activity.bookmark;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.Toast;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
@@ -10,23 +22,9 @@ import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Choose Document (Book) to download
@@ -38,9 +36,7 @@ import android.widget.Toast;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class Bookmarks extends ListActivityBase {
-	private static final String TAG = "Bookmarks";
-
+public class Bookmarks extends ListActivityBase implements ListActionModeHelper.ActionModeActivity {
 	static final String BOOKMARK_ID_EXTRA = "bookmarkId";
 	static final String LABEL_NO_EXTRA = "labelNo";
 
@@ -48,15 +44,18 @@ public class Bookmarks extends ListActivityBase {
 	
 	// language spinner
 	private Spinner labelSpinner;
-	private List<LabelDto> labelList = new ArrayList<LabelDto>();
+	private List<LabelDto> labelList = new ArrayList<>();
 	private int selectedLabelNo = 0;
 	private ArrayAdapter<LabelDto> labelArrayAdapter; 
 	
 	// the document list
-	private List<BookmarkDto> bookmarkList = new ArrayList<BookmarkDto>();
+	private final List<BookmarkDto> bookmarkList = new ArrayList<>();
 
-	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
-	
+	private ListActionModeHelper listActionModeHelper;
+
+	private static final int LIST_ITEM_TYPE = R.layout.list_item_2_highlighted;
+	private static final String TAG = "Bookmarks";
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -84,7 +83,7 @@ public class Bookmarks extends ListActivityBase {
     	
     	//prepare the Label spinner
     	loadLabelList();
-    	labelArrayAdapter = new ArrayAdapter<LabelDto>(this, android.R.layout.simple_spinner_item, labelList);
+    	labelArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, labelList);
     	labelArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     	labelSpinner = (Spinner)findViewById(R.id.labelSpinner);
     	labelSpinner.setAdapter(labelArrayAdapter);
@@ -110,16 +109,26 @@ public class Bookmarks extends ListActivityBase {
     	loadBookmarkList();
     	
     	// prepare the document list view
-    	ArrayAdapter<BookmarkDto> bookmarkArrayAdapter = new BookmarkItemAdapter(this, LIST_ITEM_TYPE, bookmarkList);
+		ArrayAdapter<BookmarkDto> bookmarkArrayAdapter = new BookmarkItemAdapter(this, LIST_ITEM_TYPE, bookmarkList);
     	setListAdapter(bookmarkArrayAdapter);
-    	
-    	registerForContextMenu(getListView());
-    }
 
-    @Override
+		listActionModeHelper =  new ListActionModeHelper(getListView(), bookmarkArrayAdapter);
+
+		getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+				return listActionModeHelper.startActionMode(Bookmarks.this, position);
+			}
+		});
+	}
+
+	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
     	try {
-    		bookmarkSelected(bookmarkList.get(position));
+			// check to see if Action Mode is in operation
+			if (!listActionModeHelper.isInActionMode()) {
+				bookmarkSelected(bookmarkList.get(position));
+			}
     	} catch (Exception e) {
     		Log.e(TAG, "document selection error", e);
     		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
@@ -127,31 +136,6 @@ public class Bookmarks extends ListActivityBase {
 	}
 
     @Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.bookmark_context_menu, menu);
-	}
-
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		super.onContextItemSelected(item);
-        AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
-		BookmarkDto bookmark = bookmarkList.get(menuInfo.position);
-		if (bookmark!=null) {
-			switch (item.getItemId()) {
-			case (R.id.assign_labels):
-				assignLabels(bookmark);
-				return true;
-			case (R.id.delete):
-				delete(bookmark);
-				return true;
-			}
-		}
-		return false; 
-	}
-
-    @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.d(TAG, "Restoring state after return from label editing");
     	// the bookmarkLabels activity may have added/deleted labels or changed the bookmarks with the current label
@@ -186,14 +170,16 @@ public class Bookmarks extends ListActivityBase {
 	}
 
     
-    private void assignLabels(BookmarkDto bookmark) {
+    private void assignLabels(List<BookmarkDto> bookmarks) {
 		Intent intent = new Intent(this, BookmarkLabels.class);
-		intent.putExtra(BOOKMARK_ID_EXTRA, bookmark.getId());
+		intent.putExtra(BOOKMARK_ID_EXTRA, bookmarks.get(0).getId());
 		startActivityForResult(intent, 1);
 	}
 
-	private void delete(BookmarkDto bookmark) {
-		bookmarkControl.deleteBookmark(bookmark);
+	private void delete(List<BookmarkDto> bookmarks) {
+		for (BookmarkDto bookmark : bookmarks) {
+			bookmarkControl.deleteBookmark(bookmark);
+		}
 		loadBookmarkList();
 	}
     
@@ -277,4 +263,30 @@ public class Bookmarks extends ListActivityBase {
     	setResult(Activity.RESULT_OK, resultIntent);
     	finish();    
     }
+
+
+	@Override
+	public boolean onActionItemClicked(MenuItem item, List<Integer> selectedItemPositions) {
+		List<BookmarkDto> selectedBookmarks = getSelectedBookmarks(selectedItemPositions);
+		switch (item.getItemId()) {
+			case (R.id.assign_labels):
+				assignLabels(selectedBookmarks);
+				break;
+			case (R.id.delete):
+				delete(selectedBookmarks);
+				break;
+		}
+		return true;
+	}
+
+	private List<BookmarkDto> getSelectedBookmarks(List<Integer> selectedItemPositions) {
+		List<BookmarkDto> selectedBookmarks = new ArrayList<>();
+
+		for (int position : selectedItemPositions) {
+			selectedBookmarks.add(bookmarkList.get(position));
+		}
+
+		return selectedBookmarks;
+	}
+
 }

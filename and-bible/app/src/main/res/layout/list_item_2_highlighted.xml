@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<net.bible.android.view.util.widget.TwoLineListItem xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minHeight="84dp"
+    android:mode="twoLine"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:background="@drawable/selectable">
+
+    <TextView android:id="@+id/text1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textAppearance="?attr/textAppearanceListItem" />
+
+    <TextView android:id="@+id/text2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text1"
+        android:layout_alignLeft="@id/text1"
+        android:textAppearance="?android:textAppearanceSmall" />
+
+</net.bible.android.view.util.widget.TwoLineListItem>
