@@ -64,7 +64,7 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
         setIntegrateWithHistoryManager(true);
 
         bookmarkControl = ControlFactory.getInstance().getBookmarkControl();
-        
+
         // if coming Back using History then the LabelNo will be in the intent allowing the correct label to be pre-selected
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
@@ -109,7 +109,7 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
     	loadBookmarkList();
     	
     	// prepare the document list view
-		ArrayAdapter<BookmarkDto> bookmarkArrayAdapter = new BookmarkItemAdapter(this, LIST_ITEM_TYPE, bookmarkList);
+		ArrayAdapter<BookmarkDto> bookmarkArrayAdapter = new BookmarkItemAdapter(this, LIST_ITEM_TYPE, bookmarkList, this);
     	setListAdapter(bookmarkArrayAdapter);
 
 		listActionModeHelper =  new ListActionModeHelper(getListView(), bookmarkArrayAdapter);
@@ -277,6 +277,11 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 				break;
 		}
 		return true;
+	}
+
+	@Override
+	public boolean isItemChecked(int position) {
+		return getListView().isItemChecked(position);
 	}
 
 	private List<BookmarkDto> getSelectedBookmarks(List<Integer> selectedItemPositions) {

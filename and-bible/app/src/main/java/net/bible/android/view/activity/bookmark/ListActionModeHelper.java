@@ -112,5 +112,6 @@ public class ListActionModeHelper {
 		ActionMode startSupportActionMode(ActionMode.Callback callback);
 		boolean onActionItemClicked(MenuItem item, List<Integer> selectedItemPositions);
 		ListView getListView();
+		boolean isItemChecked(int position);
 	}
 }

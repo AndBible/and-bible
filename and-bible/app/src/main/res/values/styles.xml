@@ -12,7 +12,7 @@
         <item name="android:height">100dp</item>
     </style>
     <style name="HelpFont" parent="@android:style/TextAppearance.Large">
-        <item name="android:textColor">#FFCC73</item>
+        <item name="android:textColor">@color/yellow_500</item>
         <item name="android:textSize">16sp</item>
         <item name="android:typeface">sans</item>
     </style>
@@ -22,12 +22,12 @@
     </style>
     		
     <style name="SplashTitleFont" parent="@android:style/TextAppearance.Large">
-        <item name="android:textColor">#FFCC73</item>
+        <item name="android:textColor">@color/yellow_500</item>
         <item name="android:textSize">20sp</item>
         <item name="android:typeface">serif</item>
     </style>
     <style name="SplashTopFont" parent="@android:style/TextAppearance.Large">
-        <item name="android:textColor">#FFCC73</item>
+        <item name="android:textColor">@color/yellow_500</item>
         <item name="android:textSize">16sp</item>
         <item name="android:typeface">serif</item>
     </style>

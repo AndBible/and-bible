@@ -1,15 +1,19 @@
 package net.bible.android.view.activity.bookmark;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
+import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.Bookmark;
 import net.bible.android.view.util.widget.TwoLineListItem;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.db.bookmark.BookmarkDto;
 
 import java.util.List;
@@ -24,14 +28,18 @@ import java.util.List;
 public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 
 	private int resource;
+	private final ListActionModeHelper.ActionModeActivity actionModeActivity;
 	private Bookmark bookmarkControl;
+
+	private static int ACTIVATED_COLOUR = CommonUtils.getResourceColor(R.color.list_item_activated);
 	
 	private static final String TAG = "BookmarkItemAdapter";
 
-	public BookmarkItemAdapter(Context _context, int _resource, List<BookmarkDto> _items) {
+	public BookmarkItemAdapter(Context _context, int _resource, List<BookmarkDto> _items, ListActionModeHelper.ActionModeActivity actionModeActivity) {
 		super(_context, _resource, _items);
 		resource = _resource;
 		bookmarkControl = ControlFactory.getInstance().getBookmarkControl();
+		this.actionModeActivity = actionModeActivity;
 	}
 
 	@Override
@@ -62,6 +70,14 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 			} catch (Exception e) {
 				Log.e(TAG, "Error loading label verse text", e);
 				view.getText2().setText("");
+			}
+		}
+
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			if (actionModeActivity.isItemChecked(position)) {
+				view.setBackgroundColor(ACTIVATED_COLOUR);
+			} else {
+				view.setBackgroundColor(Color.TRANSPARENT);
 			}
 		}
 

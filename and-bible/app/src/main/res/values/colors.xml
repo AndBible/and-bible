@@ -4,7 +4,7 @@
 	<color name="bible_background_night">#000000</color>
 
 	<color name="window_separator_colour">#FF6B6B6B</color>
-	<color name="window_separator_drag_colour">#FF00FF00</color>
+	<color name="window_separator_drag_colour">@color/yellow_500</color>
 
 	<color name="window_button_text_colour">#66FFFFFF</color>
 	<color name="window_button_background_colour">#666B6B6B</color>
@@ -20,6 +20,10 @@
 	<color name="accent_night">@color/blue_grey_300</color>
 
 	<color name="buttongrid_button_feedback_text">@color/grey_1000b</color>
+
+	<color name="list_item_pressed">@color/yellow_100</color>
+	<color name="list_item_activated">@color/yellow_300</color>
+
 	<!-- see
 	colours: https://www.google.com/design/spec/style/color.html#color-color-palette
 	numbers: https://gist.github.com/cypressious/90355ac3e92c65908441 -->
@@ -47,5 +51,22 @@
 	<color name="blue_grey_700">#455a64</color>
 	<color name="blue_grey_800">#37474f</color>
 	<color name="blue_grey_900">#263238</color>
+
+	<!-- #59 is 35% opacity
+	http://stackoverflow.com/questions/15852122/hex-transparency-in-colors -->
+	<color name="yellow_50">#59fffde7</color>
+	<color name="yellow_100">#59fff9c4</color>
+	<color name="yellow_200">#59fff59d</color>
+	<color name="yellow_300">#59fff176</color>
+	<color name="yellow_400">#59ffee58</color>
+	<color name="yellow_500">#ffeb3b</color>
+	<color name="yellow_600">#fdd835</color>
+	<color name="yellow_700">#fbc02d</color>
+	<color name="yellow_800">#f9a825</color>
+	<color name="yellow_900">#f57f17</color>
+	<color name="yellow_A100">#ffff8d</color>
+	<color name="yellow_A200">#ffff00</color>
+	<color name="yellow_A400">#ffea00</color>
+	<color name="yellow_A700">#ffd600</color>
 
 </resources>
