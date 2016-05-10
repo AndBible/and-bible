@@ -1,5 +1,17 @@
 package net.bible.android.view.activity.page;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.content.res.Configuration;
+import android.os.Bundle;
+import android.support.v4.view.GestureDetectorCompat;
+import android.support.v7.view.ActionMode;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+
 import net.bible.android.activity.R;
 import net.bible.android.control.BibleContentManager;
 import net.bible.android.control.ControlFactory;
@@ -17,20 +29,7 @@ import net.bible.android.view.activity.page.screen.DocumentViewManager;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
 
-import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.content.res.Configuration;
-import android.os.Bundle;
-import android.support.v4.view.GestureDetectorCompat;
-import android.support.v7.view.ActionMode;
-import android.util.Log;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 
 import de.greenrobot.event.EventBus;
@@ -312,6 +311,15 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 			Log.e("Error", "Call has thrown an exception", cause);
 			return null;
 		}
+	}
+
+	public void clearVerseActionMode(final ActionMode actionMode) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				actionMode.finish();
+			}
+		});
 	}
 
     /** return percentage scrolled down page

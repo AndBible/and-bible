@@ -39,7 +39,8 @@ public class VerseNoRange {
 		} else if (verse>startVerseNo) {
 			endVerseNo = verse-1;
 		} else if (verse==startVerseNo && startVerseNo==endVerseNo) {
-			//NOOP; - prevent deselection of single remaining selected verse
+			startVerseNo = NO_SELECTION;
+			endVerseNo = NO_SELECTION;
 		} else if (verse==startVerseNo) {
 			startVerseNo++;
 		}
@@ -95,5 +96,9 @@ public class VerseNoRange {
 
 	public int getEndVerseNo() {
 		return endVerseNo;
+	}
+
+	public boolean isEmpty() {
+		return startVerseNo==-1 || endVerseNo==-1;
 	}
 }

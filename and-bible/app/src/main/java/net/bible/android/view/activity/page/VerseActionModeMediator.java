@@ -67,14 +67,18 @@ public class VerseActionModeMediator {
 		VerseNoRange origRange = verseNoRange.clone();
 		verseNoRange.alter(verse);
 
-		Set<Integer> toSelect = origRange.getExtrasIn(verseNoRange);
-		Set<Integer> toDeselect = verseNoRange.getExtrasIn(origRange);
+		if (verseNoRange.isEmpty()) {
+			endVerseActionMode();
+		} else {
+			Set<Integer> toSelect = origRange.getExtrasIn(verseNoRange);
+			Set<Integer> toDeselect = verseNoRange.getExtrasIn(origRange);
 
-		for (Integer verseNo: toSelect) {
-			bibleView.highlightVerse(verseNo);
-		}
-		for (Integer verseNo: toDeselect) {
-			bibleView.unhighlightVerse(verseNo);
+			for (Integer verseNo : toSelect) {
+				bibleView.highlightVerse(verseNo);
+			}
+			for (Integer verseNo : toDeselect) {
+				bibleView.unhighlightVerse(verseNo);
+			}
 		}
 	}
 
@@ -106,7 +110,7 @@ public class VerseActionModeMediator {
 			if (actionMode != null) {
 				ActionMode finishingActionMode = this.actionMode;
 				actionMode = null;
-				finishingActionMode.finish();
+				mainBibleActivity.clearVerseActionMode(finishingActionMode);
 			}
 		}
 	}
@@ -176,6 +180,7 @@ public class VerseActionModeMediator {
 
 	public interface ActionModeMenuDisplay {
 		ActionMode showVerseActionModeMenu(ActionMode.Callback actionModeCallbackHandler);
+		void clearVerseActionMode(ActionMode actionMode);
 
 		void startActivityForResult(Intent intent, int requestCode);
 	}

@@ -60,11 +60,12 @@ public class VerseNoRangeTest {
 	}
 
 	@Test
-	public void testAttemptToReduceToZero() throws Exception {
+	public void testReduceToZero() throws Exception {
 		verseNoRange = new VerseNoRange(3, 3);
 		verseNoRange.alter(3);
-		assertThat(verseNoRange.getStartVerseNo(), equalTo(3));
-		assertThat(verseNoRange.getEndVerseNo(), equalTo(3));
+		assertThat(verseNoRange.isEmpty(), equalTo(true));
+		assertThat(verseNoRange.getStartVerseNo(), equalTo(-1));
+		assertThat(verseNoRange.getEndVerseNo(), equalTo(-1));
 	}
 
 	@Test
