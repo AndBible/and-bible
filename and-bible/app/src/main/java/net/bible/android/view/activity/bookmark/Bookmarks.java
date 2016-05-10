@@ -37,7 +37,7 @@ import java.util.List;
  *      The copyright to this program is held by it's author.
  */
 public class Bookmarks extends ListActivityBase implements ListActionModeHelper.ActionModeActivity {
-	static final String BOOKMARK_ID_EXTRA = "bookmarkId";
+	static final String BOOKMARK_IDS_EXTRA = "bookmarkIds";
 	static final String LABEL_NO_EXTRA = "labelNo";
 
 	private Bookmark bookmarkControl;
@@ -171,8 +171,13 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 
     
     private void assignLabels(List<BookmarkDto> bookmarks) {
+		long[] bookmarkIds = new long[bookmarks.size()];
+		for (int i=0; i<bookmarks.size(); i++) {
+			bookmarkIds[i] = bookmarks.get(i).getId();
+		}
+
 		Intent intent = new Intent(this, BookmarkLabels.class);
-		intent.putExtra(BOOKMARK_ID_EXTRA, bookmarks.get(0).getId());
+		intent.putExtra(BOOKMARK_IDS_EXTRA, bookmarkIds);
 		startActivityForResult(intent, 1);
 	}
 

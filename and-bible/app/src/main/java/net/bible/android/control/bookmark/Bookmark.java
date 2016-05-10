@@ -30,8 +30,8 @@ public interface Bookmark {
 	/** get labels that can be assigned to a bookmark */
 	List<LabelDto> getAssignableLabels();
 
-	/** get bookmarks with the given label */
-	BookmarkDto getBookmarkById(Long id);
+	/** get bookmarks with the given ids */
+	List<BookmarkDto> getBookmarksById(long[] ids);
 
 	// pure bookmark methods
 	

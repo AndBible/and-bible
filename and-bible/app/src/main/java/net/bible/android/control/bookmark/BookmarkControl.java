@@ -47,10 +47,10 @@ public class BookmarkControl implements Bookmark {
 	public BookmarkControl(ResourceProvider resourceProvider) {
 		LABEL_ALL = new LabelDto();
 		LABEL_ALL.setName(resourceProvider.getString(R.string.all));
-		LABEL_ALL.setId(Long.valueOf(-999));
+		LABEL_ALL.setId(-999L);
 		LABEL_UNLABELLED = new LabelDto();
 		LABEL_UNLABELLED.setName(resourceProvider.getString(R.string.label_unlabelled));
-		LABEL_UNLABELLED.setId(Long.valueOf(-998));
+		LABEL_UNLABELLED.setId(-998L);
 	}
 	
 	@Override
@@ -141,17 +141,22 @@ public class BookmarkControl implements Bookmark {
 	}
 
 	/** get all bookmarks */
-	public BookmarkDto getBookmarkById(Long id) {
+	public List<BookmarkDto> getBookmarksById(long[] ids) {
+		List<BookmarkDto> bookmarks = new ArrayList<>();
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
-		BookmarkDto bookmark = null;
 		try {
 			db.open();
-			bookmark = db.getBookmarkDto(id);
+			for (long id : ids) {
+				BookmarkDto bookmark = db.getBookmarkDto(id);
+				if (bookmark != null) {
+					bookmarks.add(bookmark);
+				}
+			}
 		} finally {
 			db.close();
 		}
 
-		return bookmark;
+		return bookmarks;
 	}
 
 	@Override
@@ -240,14 +245,14 @@ public class BookmarkControl implements Bookmark {
 			List<LabelDto> prevLabels = db.getBookmarkLabels(bookmark);
 			
 			//find those which have been deleted and remove them
-			Set<LabelDto> deleted = new HashSet<LabelDto>(prevLabels);
+			Set<LabelDto> deleted = new HashSet<>(prevLabels);
 			deleted.removeAll(labels);
 			for (LabelDto label : deleted) {
 				db.removeBookmarkLabelJoin(bookmark, label);
 			}
 			
 			//find those which are new and persist them
-			Set<LabelDto> added = new HashSet<LabelDto>(labels);
+			Set<LabelDto> added = new HashSet<>(labels);
 			added.removeAll(prevLabels);
 			for (LabelDto label : added) {
 				db.insertBookmarkLabelJoin(bookmark, label);
@@ -292,9 +297,7 @@ public class BookmarkControl implements Bookmark {
 
 	@Override
 	public List<LabelDto> getAllLabels() {
-		List<LabelDto> labelList = new ArrayList<LabelDto>();
-
-		labelList = getAssignableLabels();
+		List<LabelDto> labelList = getAssignableLabels();
 		Collections.sort(labelList);
 		
 		// add special label that is automatically associated with all-bookmarks
@@ -307,7 +310,7 @@ public class BookmarkControl implements Bookmark {
 	@Override
 	public List<LabelDto> getAssignableLabels() {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
-		List<LabelDto> labelList = new ArrayList<LabelDto>();
+		List<LabelDto> labelList = new ArrayList<>();
 		try {
 			db.open();
 			labelList.addAll(db.getAllLabels());
@@ -335,7 +338,7 @@ public class BookmarkControl implements Bookmark {
 		}
 		
 		// convert to required versification and check verse is in passage
-		List<Verse> versesInPassage = new ArrayList<Verse>();
+		List<Verse> versesInPassage = new ArrayList<>();
 		if (bookmarkList!=null) {
 			boolean isVerseRange = passage instanceof VerseRange;
 			Versification requiredVersification = firstVerse.getVersification();
@@ -358,7 +361,7 @@ public class BookmarkControl implements Bookmark {
 	}
 	
 	private List<BookmarkDto> getSortedBookmarks(List<BookmarkDto> bookmarkList) {
-		Comparator<BookmarkDto> comparator = null;
+		Comparator<BookmarkDto> comparator;
 		switch (getBookmarkSortOrder()) {
 			case DATE_CREATED:
 				comparator = BookmarkDto.BOOKMARK_CREATION_DATE_COMPARATOR;

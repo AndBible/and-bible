@@ -1,15 +1,5 @@
 package net.bible.android.view.activity.bookmark;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.bookmark.Bookmark;
-import net.bible.android.view.activity.base.ListActivityBase;
-import net.bible.service.db.bookmark.BookmarkDto;
-import net.bible.service.db.bookmark.LabelDto;
-
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -24,6 +14,19 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
+import net.bible.android.control.bookmark.Bookmark;
+import net.bible.android.view.activity.base.ListActivityBase;
+import net.bible.service.db.bookmark.BookmarkDto;
+import net.bible.service.db.bookmark.LabelDto;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * Choose a bible or commentary to use
  * 
@@ -33,14 +36,16 @@ import android.widget.ListView;
  */
 public class BookmarkLabels extends ListActivityBase {
 
-	private BookmarkDto bookmark;
+	private List<BookmarkDto> bookmarks;
 
 	private Bookmark bookmarkControl;
 
 	private static final String TAG = "BookmarkLabels";
 	
-	private List<LabelDto> labels = new ArrayList<LabelDto>();
-	
+	private List<LabelDto> labels = new ArrayList<>();
+
+
+
 	// this resource returns a CheckedTextView which has setChecked(..), isChecked(), and toggle() methods
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_multiple_choice; 
 	
@@ -52,8 +57,8 @@ public class BookmarkLabels extends ListActivityBase {
 
         bookmarkControl = ControlFactory.getInstance().getBookmarkControl();
         
-        long bookmarkId = getIntent().getLongExtra(Bookmarks.BOOKMARK_ID_EXTRA, -1);
-        bookmark = bookmarkControl.getBookmarkById(bookmarkId);
+        long[] bookmarkIds = getIntent().getLongArrayExtra(Bookmarks.BOOKMARK_IDS_EXTRA);
+        bookmarks = bookmarkControl.getBookmarksById(bookmarkIds);
 
         initialiseView();
     }
@@ -63,12 +68,12 @@ public class BookmarkLabels extends ListActivityBase {
 
     	loadLabelList();
     	
-    	ArrayAdapter<LabelDto> listArrayAdapter = new ArrayAdapter<LabelDto>(this,
+    	ArrayAdapter<LabelDto> listArrayAdapter = new ArrayAdapter<>(this,
     	        LIST_ITEM_TYPE,
     	        labels);
     	setListAdapter(listArrayAdapter);
     	
-		updateCheckedLabels();
+		initialiseCheckedLabels(bookmarks);
 
     	registerForContextMenu(getListView());
     }
@@ -85,7 +90,7 @@ public class BookmarkLabels extends ListActivityBase {
 		super.onContextItemSelected(item);
         AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
 		LabelDto label = labels.get(menuInfo.position);
-		if (bookmark!=null) {
+		if (label!=null) {
 			switch (item.getItemId()) {
 			case (R.id.delete):
 				delete(label);
@@ -106,9 +111,11 @@ public class BookmarkLabels extends ListActivityBase {
     	Log.i(TAG, "Okay clicked");
     	// get the labels that are currently checked
     	List<LabelDto> selectedLabels = getCheckedLabels();
-    	
-    	//associate labels with bookmark that was passed in    	
-    	bookmarkControl.setBookmarkLabels(bookmark, selectedLabels);
+
+    	//associate labels with bookmarks that were passed in
+		for (BookmarkDto bookmark : bookmarks) {
+			bookmarkControl.setBookmarkLabels(bookmark, selectedLabels);
+		}
        	finish();
     }
 
@@ -189,21 +196,22 @@ public class BookmarkLabels extends ListActivityBase {
 
 	/** check labels associated with the bookmark
 	 */
-	private void updateCheckedLabels() {
-    	
-    	// pre-tick any labels currently associated with the bookmark
-    	List<LabelDto> bookmarkLabels = bookmarkControl.getBookmarkLabels(bookmark);
-    	setCheckedLabels(bookmarkLabels);
+	private void initialiseCheckedLabels(List<BookmarkDto> bookmarks) {
+		Set<LabelDto> allCheckedLabels = new HashSet<>();
+    	for (BookmarkDto bookmark : bookmarks) {
+			// pre-tick any labels currently associated with the bookmark
+			allCheckedLabels.addAll(bookmarkControl.getBookmarkLabels(bookmark));
+		}
+		setCheckedLabels(allCheckedLabels);
 	}
 
-	/** get checked status of all labels
-	 * 
-	 * @param labelsToCheck
+	/**
+	 * get checked status of all labels
 	 */
 	private List<LabelDto> getCheckedLabels() {
 		// get selected labels
     	ListView listView = getListView();
-    	List<LabelDto> checkedLabels = new ArrayList<LabelDto>();
+    	List<LabelDto> checkedLabels = new ArrayList<>();
     	for (int i=0; i<labels.size(); i++) {
     		if (listView.isItemChecked(i)) {
     			LabelDto label = labels.get(i);
@@ -218,7 +226,7 @@ public class BookmarkLabels extends ListActivityBase {
 	 * 
 	 * @param labelsToCheck
 	 */
-	private void setCheckedLabels(List<LabelDto> labelsToCheck) {
+	private void setCheckedLabels(Collection<LabelDto> labelsToCheck) {
 		for (int i=0; i<labels.size(); i++) {
     		Log.d(TAG, "Is label "+i+" associated with bookmark");
     		if (labelsToCheck.contains(labels.get(i))) {
