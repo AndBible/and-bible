@@ -6,7 +6,9 @@ import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -30,6 +32,8 @@ public class ListActionModeHelper {
 	private ListView list;
 
 	private ArrayAdapter arrayAdapter;
+
+	private AdapterView.OnItemClickListener previousOnItemClickListener;
 
 	private static final String TAG = "ActionModeHelper";
 	private boolean inActionMode = false;
@@ -66,7 +70,7 @@ public class ListActionModeHelper {
 
 			@Override
 			public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-				List<Integer> selectedItemPositions = getSelecteditemPositions(list.getCheckedItemPositions());
+				List<Integer> selectedItemPositions = getSelecteditemPositions();
 
 				activity.onActionItemClicked(item, selectedItemPositions);
 
@@ -83,10 +87,28 @@ public class ListActionModeHelper {
 					actionMode = null;
 					list.setLongClickable(true);
 
+					// remove clicklistener added at start of action mode
+					list.setOnItemClickListener(previousOnItemClickListener);
+					previousOnItemClickListener = null;
+
 					list.clearChoices();
 					list.requestLayout();
 
-					list.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
+					list.setChoiceMode(AbsListView.CHOICE_MODE_NONE);
+				}
+			}
+		});
+
+		// going to overwrite the previous listener, save it so it can be restored when action mode ends.
+		previousOnItemClickListener = list.getOnItemClickListener();
+		list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				// double check Action Mode is in operation
+				if (isInActionMode()) {
+					if (getSelecteditemPositions().size() == 0) {
+						actionMode.finish();
+					}
 				}
 			}
 		});
@@ -94,7 +116,8 @@ public class ListActionModeHelper {
 		return(true);
 	}
 
-	private List<Integer> getSelecteditemPositions(SparseBooleanArray positionStates) {
+	private List<Integer> getSelecteditemPositions() {
+		SparseBooleanArray positionStates = list.getCheckedItemPositions();
 		List<Integer> selectedItemPositions = new ArrayList<>();
 
 		for (int i=0; i<positionStates.size(); i++) {
@@ -106,7 +129,6 @@ public class ListActionModeHelper {
 
 		return selectedItemPositions;
 	}
-
 
 	public interface ActionModeActivity {
 		ActionMode startSupportActionMode(ActionMode.Callback callback);
