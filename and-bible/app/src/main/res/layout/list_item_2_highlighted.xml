@@ -2,7 +2,7 @@
 <net.bible.android.view.util.widget.TwoLineListItem xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:minHeight="84dp"
+    android:minHeight="60dp"
     android:mode="twoLine"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
