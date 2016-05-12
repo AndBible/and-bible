@@ -228,12 +228,9 @@ public class BookmarkLabels extends ListActivityBase {
 	 */
 	private void setCheckedLabels(Collection<LabelDto> labelsToCheck) {
 		for (int i=0; i<labels.size(); i++) {
-    		Log.d(TAG, "Is label "+i+" associated with bookmark");
     		if (labelsToCheck.contains(labels.get(i))) {
-        		Log.d(TAG, "Yes");
     			getListView().setItemChecked(i, true);
     		} else {
-        		Log.d(TAG, "No");
     			getListView().setItemChecked(i, false);
     		}
     	}

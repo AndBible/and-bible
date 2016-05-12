@@ -1,13 +1,11 @@
 package net.bible.android.view.activity.bookmark;
 
 import android.support.v7.view.ActionMode;
-import android.util.Log;
 import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -72,17 +70,15 @@ public class ListActionModeHelper {
 			public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
 				List<Integer> selectedItemPositions = getSelecteditemPositions();
 
+				actionMode.finish();
 				activity.onActionItemClicked(item, selectedItemPositions);
 
-				actionMode.finish();
 				return true;
 			}
 
 			@Override
 			public void onDestroyActionMode(ActionMode mode) {
-				Log.d(TAG, "onDeestroy");
 				if (actionMode!=null) {
-					Log.d(TAG, "onDeestroy not null");
 					inActionMode = false;
 					actionMode = null;
 					list.setLongClickable(true);
@@ -94,7 +90,14 @@ public class ListActionModeHelper {
 					list.clearChoices();
 					list.requestLayout();
 
-					list.setChoiceMode(AbsListView.CHOICE_MODE_NONE);
+					// Need to delay reset of choicemode otherwise clearChoices is optimised out.
+					// see: http://stackoverflow.com/questions/9754170/listview-selection-remains-persistent-after-exiting-choice-mode
+					list.post(new Runnable() {
+						@Override
+						public void run() {
+							list.setChoiceMode(ListView.CHOICE_MODE_NONE);
+						}
+					});
 				}
 			}
 		});
