@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.Bookmark;
+import net.bible.android.view.activity.base.ListActionModeHelper;
 import net.bible.android.view.util.widget.TwoLineListItem;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.db.bookmark.BookmarkDto;

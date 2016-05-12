@@ -19,6 +19,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.Bookmark;
 import net.bible.android.view.activity.base.Dialogs;
+import net.bible.android.view.activity.base.ListActionModeHelper;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
@@ -112,7 +113,7 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 		ArrayAdapter<BookmarkDto> bookmarkArrayAdapter = new BookmarkItemAdapter(this, LIST_ITEM_TYPE, bookmarkList, this);
     	setListAdapter(bookmarkArrayAdapter);
 
-		listActionModeHelper =  new ListActionModeHelper(getListView(), bookmarkArrayAdapter);
+		listActionModeHelper =  new ListActionModeHelper(getListView());
 
 		getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 			@Override

@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.bookmark;
+package net.bible.android.view.activity.base;
 
 import android.support.v7.view.ActionMode;
 import android.util.SparseBooleanArray;
@@ -7,11 +7,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import net.bible.android.activity.R;
-import net.bible.service.db.bookmark.BookmarkDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,18 +25,15 @@ public class ListActionModeHelper {
 
 	private ActionMode actionMode;
 
-	private ListView list;
-
-	private ArrayAdapter arrayAdapter;
+	private final ListView list;
 
 	private AdapterView.OnItemClickListener previousOnItemClickListener;
 
 	private static final String TAG = "ActionModeHelper";
 	private boolean inActionMode = false;
 
-	public ListActionModeHelper(ListView list, ArrayAdapter<BookmarkDto> bookmarkArrayAdapter) {
+	public ListActionModeHelper(ListView list) {
 		this.list = list;
-		this.arrayAdapter = bookmarkArrayAdapter;
 	}
 
 	public boolean isInActionMode() {
@@ -71,9 +66,7 @@ public class ListActionModeHelper {
 				List<Integer> selectedItemPositions = getSelecteditemPositions();
 
 				actionMode.finish();
-				activity.onActionItemClicked(item, selectedItemPositions);
-
-				return true;
+				return activity.onActionItemClicked(item, selectedItemPositions);
 			}
 
 			@Override
@@ -136,7 +129,6 @@ public class ListActionModeHelper {
 	public interface ActionModeActivity {
 		ActionMode startSupportActionMode(ActionMode.Callback callback);
 		boolean onActionItemClicked(MenuItem item, List<Integer> selectedItemPositions);
-		ListView getListView();
 		boolean isItemChecked(int position);
 	}
 }
