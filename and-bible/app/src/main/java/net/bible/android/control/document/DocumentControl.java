@@ -1,6 +1,6 @@
 package net.bible.android.control.document;
 
-import java.util.List;
+import android.util.Log;
 
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPage;
@@ -17,7 +17,7 @@ import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 
-import android.util.Log;
+import java.util.List;
 
 /** Control use of different documents/books/modules - used by front end
  * 
@@ -43,12 +43,15 @@ public class DocumentControl {
 	 * @return
 	 */
 	public boolean canDelete(Book document) {
-		CurrentPageManager currentPageControl = ControlFactory.getInstance().getCurrentPageControl();
-		return 	document != null && 
-				document.getDriver().isDeletable(document) &&
-				!document.equals(currentPageControl.getCurrentBible().getCurrentDocument()) &&
-				!document.equals(currentPageControl.getCurrentCommentary().getCurrentDocument()) &&
-				!document.equals(currentPageControl.getCurrentDictionary().getCurrentDocument());
+		if (document==null) {
+			return false;
+		}
+
+		boolean lastBible = BookCategory.BIBLE.equals(document.getBookCategory()) &&
+							SwordDocumentFacade.getInstance().getBibles().size()==1;
+
+		return !lastBible &&
+				document.getDriver().isDeletable(document);
 	}
 	
 	/** delete selected document, even of current doc (Map and Gen Book only currently) and tidy up CurrentPage

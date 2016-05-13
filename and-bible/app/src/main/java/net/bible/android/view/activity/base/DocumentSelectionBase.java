@@ -351,106 +351,97 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
     	}
     }
 
-//    @Override
-//	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-//		super.onCreateContextMenu(menu, v, menuInfo);
-//		MenuInflater inflater = getMenuInflater();
-//		inflater.inflate(R.menu.document_context_menu, menu);
-//
-//		Book document = getDisplayedDocuments().get( ((AdapterContextMenuInfo)menuInfo).position);
-//		Log.d(TAG, "Context selected "+document.getInitials());
-//
-//		// delete document
-//		MenuItem deleteItem = menu.findItem(R.id.delete);
-//		deleteItem.setVisible(isDeletePossible);
-//		if (isDeletePossible) {
-//			boolean canDeleteCurrentDocument = documentControl.canDelete(document);
-//			deleteItem.setEnabled(canDeleteCurrentDocument);
-//		}
-//
-//		// delete index
-//		MenuItem deleteIndexItem = menu.findItem(R.id.delete_index);
-//		deleteIndexItem.setVisible(isDeletePossible && document.getIndexStatus().equals(IndexStatus.DONE));
-//	}
-//
-
 	@Override
 	public boolean onActionItemClicked(MenuItem item, List<Integer> selectedItemPositions) {
-		Book document = getDisplayedDocuments().get(selectedItemPositions.get(0));
-		Log.d(TAG, "Selected "+document.getInitials());
-		if (document!=null) {
+		List<Book> documents = new ArrayList<>();
+		for (int posn : selectedItemPositions) {
+			documents.add(getDisplayedDocuments().get(posn));
+		}
+
+		if (!documents.isEmpty()) {
 			switch (item.getItemId()) {
 				case (R.id.about):
-					try {
-						// ensure repo key is retained but reload sbmd to ensure About text is loaded
-						SwordBookMetaData sbmd = (SwordBookMetaData)document.getBookMetaData();
-						String repoKey = sbmd.getProperty(DownloadManager.REPOSITORY_KEY);
-						sbmd.reload();
-						sbmd.setProperty(DownloadManager.REPOSITORY_KEY, repoKey);
-
-						showAbout(document);
-					} catch (BookException e) {
-						Log.e(TAG, "Error expanding SwordBookMetaData for " + document, e);
-						Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
-					}
+					handleAbout(documents);
 					return true;
 				case (R.id.delete):
-					handleDelete(document);
+					handleDelete(documents);
 					return true;
 				case (R.id.delete_index):
-					handleDeleteIndex(document);
+					handleDeleteIndex(documents);
 					return true;
 			}
 		}
 		return false;
 	}
 
+	private void handleAbout(List<Book> documents) {
+		Book document = documents.get(0);
+		try {
+			// ensure repo key is retained but reload sbmd to ensure About text is loaded
+			SwordBookMetaData sbmd = (SwordBookMetaData)document.getBookMetaData();
+			String repoKey = sbmd.getProperty(DownloadManager.REPOSITORY_KEY);
+			sbmd.reload();
+			sbmd.setProperty(DownloadManager.REPOSITORY_KEY, repoKey);
+
+			showAbout(document);
+		} catch (BookException e) {
+			Log.e(TAG, "Error expanding SwordBookMetaData for " + document, e);
+			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+		}
+	}
+
+	protected void handleDelete(final List<Book> documents) {
+		for (final Book document : documents) {
+			if (documentControl.canDelete(document)) {
+				CharSequence msg = getString(R.string.delete_doc, document.getName());
+				new AlertDialog.Builder(this)
+						.setMessage(msg).setCancelable(true)
+						.setPositiveButton(R.string.okay,
+								new DialogInterface.OnClickListener() {
+									public void onClick(DialogInterface dialog, int buttonId) {
+										try {
+											Log.d(TAG, "Deleting:" + document);
+											documentControl.deleteDocument(document);
+
+											// the doc list should now change
+											reloadDocuments();
+										} catch (Exception e) {
+											Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+										}
+									}
+								}
+						)
+						.create()
+						.show();
+			}
+		}
+	}
+	
+	protected void handleDeleteIndex(final List<Book> documents) {
+		for (final Book document : documents) {
+			CharSequence msg = getString(R.string.delete_search_index_doc, document.getName());
+			new AlertDialog.Builder(this)
+					.setMessage(msg).setCancelable(true)
+					.setPositiveButton(R.string.okay,
+							new DialogInterface.OnClickListener() {
+								public void onClick(DialogInterface dialog, int buttonId) {
+									try {
+										Log.d(TAG, "Deleting index:" + document);
+										SwordDocumentFacade.getInstance().deleteDocumentIndex(document);
+									} catch (Exception e) {
+										Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+									}
+								}
+							}
+					)
+					.create()
+					.show();
+		}
+	}
+
 	@Override
 	public boolean isItemChecked(int position) {
 		return getListView().isItemChecked(position);
-	}
-
-	protected void handleDelete(final Book document) {
-		CharSequence msg = getString(R.string.delete_doc, document.getName());
-		new AlertDialog.Builder(this)
-			.setMessage(msg).setCancelable(true)
-			.setPositiveButton(R.string.okay,
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog,	int buttonId) {
-						try {
-							Log.d(TAG, "Deleting:"+document);
-							documentControl.deleteDocument(document);
-							
-							// the doc list should now change
-							reloadDocuments();
-						} catch (Exception e) {
-							Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
-						}
-					}
-				}
-			)
-			.create()
-			.show();
-	}
-	
-	protected void handleDeleteIndex(final Book document) {
-		CharSequence msg = getString(R.string.delete_search_index_doc, document.getName());
-		new AlertDialog.Builder(this)
-			.setMessage(msg).setCancelable(true)
-			.setPositiveButton(R.string.okay,
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog,	int buttonId) {
-						try {
-							Log.d(TAG, "Deleting index:"+document);
-							SwordDocumentFacade.getInstance().deleteDocumentIndex(document);
-						} catch (Exception e) {
-							Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
-						}
-					}
-				}
-			)
-			.create()
-			.show();
 	}
 
 	/** about display is generic so handle it here
