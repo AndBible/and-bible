@@ -1,8 +1,14 @@
 package net.bible.android.view.activity.download;
 
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.widget.Toast;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
@@ -17,15 +23,9 @@ import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.util.Language;
 import org.crosswire.jsword.book.Book;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.widget.Toast;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
 
 /**
  * Choose Document (Book) to download
@@ -51,8 +51,12 @@ public class Download extends DocumentSelectionBase {
 	
 	public static final int DOWNLOAD_MORE_RESULT = 10;
 	public static final int DOWNLOAD_FINISH = 1;
-	
-    /** Called when the activity is first created. */
+
+	public Download() {
+		super(NO_OPTIONS_MENU, R.menu.document_context_menu);
+	}
+
+	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         forceBasicFlow = SwordDocumentFacade.getInstance().getBibles().size()==0;

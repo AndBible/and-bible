@@ -1,9 +1,9 @@
 package net.bible.android.view.activity.navigation;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.MenuItem;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
@@ -18,10 +18,10 @@ import net.bible.service.sword.SwordDocumentFacade;
 import org.crosswire.common.util.Language;
 import org.crosswire.jsword.book.Book;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.MenuItem;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Choose a bible or commentary to use
@@ -39,7 +39,7 @@ public class ChooseDocument extends DocumentSelectionBase {
 	
 	
     public ChooseDocument() {
-		super(R.menu.choose_document_menu);
+		super(R.menu.choose_document_menu, R.menu.document_context_menu);
 	}
 
 	/** Called when the activity is first created. */

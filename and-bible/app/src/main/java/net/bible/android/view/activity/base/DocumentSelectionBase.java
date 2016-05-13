@@ -1,13 +1,18 @@
 package net.bible.android.view.activity.base;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.Toast;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
@@ -26,26 +31,16 @@ import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.BookFilters;
 import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.book.sword.SwordBookMetaData;
-import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.versification.Versification;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.AdapterView.OnItemSelectedListener;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.Spinner;
-import android.widget.Toast;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 /**
  * Choose Document (Book)
@@ -57,7 +52,7 @@ import android.widget.Toast;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-abstract public class DocumentSelectionBase extends ListActivityBase {
+abstract public class DocumentSelectionBase extends ListActivityBase implements ListActionModeHelper.ActionModeActivity {
 
 	// document type spinner
 	private Spinner documentTypeSpinner;
@@ -88,6 +83,9 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 	
 	private static final int LIST_ITEM_TYPE = R.layout.list_item_2_image;
 
+	private ListActionModeHelper listActionModeHelper;
+
+	private final int actionModeMenuId;
 
     private static final String TAG = "DocumentSelectionBase";
 
@@ -98,13 +96,10 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     abstract protected void handleDocumentSelection(Book selectedDocument);
     
     abstract protected List<Language> sortLanguages(Collection<Language> languages);
-    
-    public DocumentSelectionBase() {
-		super();
-	}
 
-	public DocumentSelectionBase(int optionsMenuId) {
+	public DocumentSelectionBase(int optionsMenuId, int actionModeMenuId) {
 		super(optionsMenuId);
+		this.actionModeMenuId = actionModeMenuId;
 	}
 
 	/** Called when the activity is first created. */
@@ -114,8 +109,6 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
         setContentView(R.layout.document_selection);
 
        	initialiseView();
-       	
-    	registerForContextMenu(getListView());
     }
 
     private void initialiseView() {
@@ -124,7 +117,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     	
     	ArrayAdapter<Book> listArrayAdapter = new DocumentItemAdapter(this, LIST_ITEM_TYPE, displayedDocuments, isInstallStatusIconsShown);
     	setListAdapter(listArrayAdapter);
-    	
+
     	//prepare the documentType spinner
     	documentTypeSpinner = (Spinner)findViewById(R.id.documentTypeSpinner);
     	setInitialDocumentType();
@@ -162,9 +155,18 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
 	    	langArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	    	langSpinner.setAdapter(langArrayAdapter);
     	}
+
+		// prepare action mode
+		listActionModeHelper =  new ListActionModeHelper(getListView(), actionModeMenuId);
+		// trigger action mode on long press
+		getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+			return listActionModeHelper.startActionMode(DocumentSelectionBase.this, position);
+			}
+		});
     }
 
-    
     @Override
 	protected void onRestart() {
 		super.onRestart();
@@ -349,60 +351,63 @@ abstract public class DocumentSelectionBase extends ListActivityBase {
     	}
     }
 
-    @Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.document_context_menu, menu);
-		
-		Book document = getDisplayedDocuments().get( ((AdapterContextMenuInfo)menuInfo).position);
-		Log.d(TAG, "Context selected "+document.getInitials());
-		
-		// delete document
-		MenuItem deleteItem = menu.findItem(R.id.delete);
-		deleteItem.setVisible(isDeletePossible);
-		if (isDeletePossible) {
-			boolean canDeleteCurrentDocument = documentControl.canDelete(document);
-			deleteItem.setEnabled(canDeleteCurrentDocument);
-		}
-
-		// delete index
-		MenuItem deleteIndexItem = menu.findItem(R.id.delete_index);
-		deleteIndexItem.setVisible(isDeletePossible && document.getIndexStatus().equals(IndexStatus.DONE));
-	}
-
+//    @Override
+//	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+//		super.onCreateContextMenu(menu, v, menuInfo);
+//		MenuInflater inflater = getMenuInflater();
+//		inflater.inflate(R.menu.document_context_menu, menu);
+//
+//		Book document = getDisplayedDocuments().get( ((AdapterContextMenuInfo)menuInfo).position);
+//		Log.d(TAG, "Context selected "+document.getInitials());
+//
+//		// delete document
+//		MenuItem deleteItem = menu.findItem(R.id.delete);
+//		deleteItem.setVisible(isDeletePossible);
+//		if (isDeletePossible) {
+//			boolean canDeleteCurrentDocument = documentControl.canDelete(document);
+//			deleteItem.setEnabled(canDeleteCurrentDocument);
+//		}
+//
+//		// delete index
+//		MenuItem deleteIndexItem = menu.findItem(R.id.delete_index);
+//		deleteIndexItem.setVisible(isDeletePossible && document.getIndexStatus().equals(IndexStatus.DONE));
+//	}
+//
 
 	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		super.onContextItemSelected(item);
-        AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
-		Book document = getDisplayedDocuments().get(menuInfo.position);
+	public boolean onActionItemClicked(MenuItem item, List<Integer> selectedItemPositions) {
+		Book document = getDisplayedDocuments().get(selectedItemPositions.get(0));
 		Log.d(TAG, "Selected "+document.getInitials());
 		if (document!=null) {
 			switch (item.getItemId()) {
-			case (R.id.about):
-				try {
-					// ensure repo key is retained but reload sbmd to ensure About text is loaded
-					SwordBookMetaData sbmd = (SwordBookMetaData)document.getBookMetaData();
-		    		String repoKey = sbmd.getProperty(DownloadManager.REPOSITORY_KEY);
-					sbmd.reload();
-		    		sbmd.setProperty(DownloadManager.REPOSITORY_KEY, repoKey);
-		    		
-					showAbout(document);
-				} catch (BookException e) {
-					Log.e(TAG, "Error expanding SwordBookMetaData for " + document, e);
-					Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
-				}
-				return true;
-			case (R.id.delete):
-				handleDelete(document);
-				return true;
-			case (R.id.delete_index):
-				handleDeleteIndex(document);
-				return true;
+				case (R.id.about):
+					try {
+						// ensure repo key is retained but reload sbmd to ensure About text is loaded
+						SwordBookMetaData sbmd = (SwordBookMetaData)document.getBookMetaData();
+						String repoKey = sbmd.getProperty(DownloadManager.REPOSITORY_KEY);
+						sbmd.reload();
+						sbmd.setProperty(DownloadManager.REPOSITORY_KEY, repoKey);
+
+						showAbout(document);
+					} catch (BookException e) {
+						Log.e(TAG, "Error expanding SwordBookMetaData for " + document, e);
+						Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+					}
+					return true;
+				case (R.id.delete):
+					handleDelete(document);
+					return true;
+				case (R.id.delete_index):
+					handleDeleteIndex(document);
+					return true;
 			}
 		}
-		return false; 
+		return false;
+	}
+
+	@Override
+	public boolean isItemChecked(int position) {
+		return getListView().isItemChecked(position);
 	}
 
 	protected void handleDelete(final Book document) {

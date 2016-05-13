@@ -9,8 +9,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import net.bible.android.activity.R;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,14 +24,16 @@ public class ListActionModeHelper {
 	private ActionMode actionMode;
 
 	private final ListView list;
+	private final int actionModeMenuResource;
 
 	private AdapterView.OnItemClickListener previousOnItemClickListener;
 
 	private static final String TAG = "ActionModeHelper";
 	private boolean inActionMode = false;
 
-	public ListActionModeHelper(ListView list) {
+	public ListActionModeHelper(ListView list, int actionModeMenuResource) {
 		this.list = list;
+		this.actionModeMenuResource = actionModeMenuResource;
 	}
 
 	public boolean isInActionMode() {
@@ -51,7 +51,7 @@ public class ListActionModeHelper {
 			public boolean onCreateActionMode(ActionMode mode, Menu menu) {
 				MenuInflater inflater = mode.getMenuInflater();
 				if (inflater != null) {
-					inflater.inflate(R.menu.bookmark_context_menu, menu);
+					inflater.inflate(actionModeMenuResource, menu);
 				}
 				return true;
 			}

@@ -17,14 +17,17 @@ import android.view.Menu;
 public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	
 	private ActionBarManager actionBarManager;
+
 	private int optionsMenuId;
-	
+
+	protected static final int NO_OPTIONS_MENU = 0;
+
 //TODO hourglass	private ProgressBar mProgressBarIndeterminate;
 
 	private static final String TAG = "CustomTitlebarActivityBase";
 
 	public CustomTitlebarActivityBase() {
-		this(new DefaultActionBarManager(), 0);
+		this(new DefaultActionBarManager(), NO_OPTIONS_MENU);
 	}
 
 	public CustomTitlebarActivityBase(int optionsMenuId) {
@@ -51,7 +54,7 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-    	if (optionsMenuId!=0) {
+    	if (optionsMenuId!=NO_OPTIONS_MENU) {
 	    	// Inflate the menu
 	        getMenuInflater().inflate(optionsMenuId, menu);
     	}

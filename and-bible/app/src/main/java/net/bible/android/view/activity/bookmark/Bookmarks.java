@@ -113,7 +113,7 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 		ArrayAdapter<BookmarkDto> bookmarkArrayAdapter = new BookmarkItemAdapter(this, LIST_ITEM_TYPE, bookmarkList, this);
     	setListAdapter(bookmarkArrayAdapter);
 
-		listActionModeHelper =  new ListActionModeHelper(getListView());
+		listActionModeHelper =  new ListActionModeHelper(getListView(), R.menu.bookmark_context_menu);
 
 		getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 			@Override
@@ -299,5 +299,4 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 
 		return selectedBookmarks;
 	}
-
 }
