@@ -112,6 +112,16 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
     }
 
     private void initialiseView() {
+		// prepare action mode
+		listActionModeHelper =  new ListActionModeHelper(getListView(), actionModeMenuId);
+		// trigger action mode on long press
+		getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+			return listActionModeHelper.startActionMode(DocumentSelectionBase.this, position);
+			}
+		});
+
     	languageList = new ArrayList<Language>();
     	displayedDocuments = new ArrayList<Book>();
     	
@@ -155,16 +165,6 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 	    	langArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	    	langSpinner.setAdapter(langArrayAdapter);
     	}
-
-		// prepare action mode
-		listActionModeHelper =  new ListActionModeHelper(getListView(), actionModeMenuId);
-		// trigger action mode on long press
-		getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-			@Override
-			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-			return listActionModeHelper.startActionMode(DocumentSelectionBase.this, position);
-			}
-		});
     }
 
     @Override
@@ -299,7 +299,11 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
      */
     private void filterDocuments() {
     	try {
-    		if (allDocuments!=null && allDocuments.size()>0) {
+			// documents list has changed so force action mode to exit, if displayed, because selections are invalidated
+			listActionModeHelper.exitActionMode();
+
+			// re-filter documents
+			if (allDocuments!=null && allDocuments.size()>0) {
    	        	Log.d(TAG, "filtering documents");
 	        	displayedDocuments.clear();
 	        	Language lang = getSelectedLanguage();

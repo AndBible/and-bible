@@ -81,7 +81,15 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
     }
 
     private void initialiseView() {
-    	
+		listActionModeHelper =  new ListActionModeHelper(getListView(), R.menu.bookmark_context_menu);
+
+		getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+			return listActionModeHelper.startActionMode(Bookmarks.this, position);
+			}
+		});
+
     	//prepare the Label spinner
     	loadLabelList();
     	labelArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, labelList);
@@ -112,15 +120,6 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
     	// prepare the document list view
 		ArrayAdapter<BookmarkDto> bookmarkArrayAdapter = new BookmarkItemAdapter(this, LIST_ITEM_TYPE, bookmarkList, this);
     	setListAdapter(bookmarkArrayAdapter);
-
-		listActionModeHelper =  new ListActionModeHelper(getListView(), R.menu.bookmark_context_menu);
-
-		getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-			@Override
-			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-				return listActionModeHelper.startActionMode(Bookmarks.this, position);
-			}
-		});
 	}
 
 	@Override
@@ -205,6 +204,9 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
    	        	bookmarkList.addAll( bookmarkControl.getBookmarksWithLabel(selectedLabel) );
    	        	
         		notifyDataSetChanged();
+
+				// if in action mode then must exit because the data has changed, invalidating selections
+				listActionModeHelper.exitActionMode();
     		}
     	} catch (Exception e) {
     		Log.e(TAG, "Error initialising view", e);

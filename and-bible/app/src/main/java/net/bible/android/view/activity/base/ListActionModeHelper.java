@@ -112,6 +112,15 @@ public class ListActionModeHelper {
 		return(true);
 	}
 
+	/**
+	 * Force action mode to exit e.g. due to list view change
+	 */
+	public void exitActionMode() {
+		if (isInActionMode()) {
+			actionMode.finish();
+		}
+	}
+
 	private List<Integer> getSelecteditemPositions() {
 		SparseBooleanArray positionStates = list.getCheckedItemPositions();
 		List<Integer> selectedItemPositions = new ArrayList<>();
