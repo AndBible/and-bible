@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:minHeight="?android:attr/listPreferredItemHeight"
     android:mode="twoLine"
-	android:background="@drawable/selectable">
+	android:background="@drawable/selectable_background">
     
     <ImageView android:id="@+id/icon"
 	    android:layout_width="wrap_content"

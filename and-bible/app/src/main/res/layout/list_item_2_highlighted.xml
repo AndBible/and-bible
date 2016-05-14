@@ -6,7 +6,7 @@
     android:mode="twoLine"
     android:paddingLeft="16dp"
     android:paddingRight="16dp"
-    android:background="@drawable/selectable">
+    android:background="@drawable/selectable_background">
 
     <TextView android:id="@+id/text1"
         android:layout_width="match_parent"
