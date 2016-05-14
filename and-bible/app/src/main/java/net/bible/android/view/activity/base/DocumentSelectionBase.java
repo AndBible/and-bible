@@ -125,7 +125,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
     	languageList = new ArrayList<Language>();
     	displayedDocuments = new ArrayList<Book>();
     	
-    	ArrayAdapter<Book> listArrayAdapter = new DocumentItemAdapter(this, LIST_ITEM_TYPE, displayedDocuments, isInstallStatusIconsShown);
+    	ArrayAdapter<Book> listArrayAdapter = new DocumentItemAdapter(this, LIST_ITEM_TYPE, displayedDocuments, isInstallStatusIconsShown, this);
     	setListAdapter(listArrayAdapter);
 
     	//prepare the documentType spinner

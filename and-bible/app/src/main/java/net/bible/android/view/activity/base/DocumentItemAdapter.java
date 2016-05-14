@@ -1,21 +1,24 @@
 package net.bible.android.view.activity.base;
 
-import java.util.List;
+import android.content.Context;
+import android.graphics.Color;
+import android.os.Build;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.view.util.widget.TwoLineListItemWithImage;
+import net.bible.service.common.CommonUtils;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.versification.system.SystemKJV;
 
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import java.util.List;
 
 /**
  * nice example here: http://shri.blog.kraya.co.uk/2010/04/19/android-multi-line-select-list/
@@ -32,10 +35,15 @@ public class DocumentItemAdapter extends ArrayAdapter<Book> {
 	
 	private DownloadControl downloadControl = ControlFactory.getInstance().getDownloadControl();
 
-	public DocumentItemAdapter(Context _context, int _resource, List<Book> _items, boolean isInstallStatusItemsShown) {
+	private final ListActionModeHelper.ActionModeActivity actionModeActivity;
+
+	private static int ACTIVATED_COLOUR = CommonUtils.getResourceColor(R.color.list_item_activated);
+
+	public DocumentItemAdapter(Context _context, int _resource, List<Book> _items, boolean isInstallStatusItemsShown, ListActionModeHelper.ActionModeActivity actionModeActivity) {
 		super(_context, _resource, _items);
 		resource = _resource;
 		this.isInstallStatusItemsShown = isInstallStatusItemsShown;
+		this.actionModeActivity = actionModeActivity;
 	}
 
 	@Override
@@ -92,6 +100,14 @@ public class DocumentItemAdapter extends ArrayAdapter<Book> {
 				}
 			}
 			view.getText2().setText(name);
+		}
+
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			if (actionModeActivity.isItemChecked(position)) {
+				view.setBackgroundColor(ACTIVATED_COLOUR);
+			} else {
+				view.setBackgroundColor(Color.TRANSPARENT);
+			}
 		}
 
 		return view;

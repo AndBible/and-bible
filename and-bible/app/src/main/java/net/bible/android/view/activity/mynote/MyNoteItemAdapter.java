@@ -82,6 +82,7 @@ public class MyNoteItemAdapter extends ArrayAdapter<MyNoteDto> {
 				view.setBackgroundColor(Color.TRANSPARENT);
 			}
 		}
+
 		return view;
 	}
 }
