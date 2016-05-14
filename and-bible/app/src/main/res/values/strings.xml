@@ -185,11 +185,9 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="delete_search_index_doc">Delete index of %s?</string>
 
     <!-- Verse context menu -->
-    <string name="select_text">Select text</string>
-    <string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string>
     <string name="notes">Footnotes and references</string>
-    <string name="copy">Copy current verse</string>
-    <string name="share_verse">Share current verse ...</string>
+    <string name="copy">Copy</string>
+    <string name="share_verse">Share ...</string>
     <string name="share_verse_subject">A Bible verse has been shared with you using And Bible</string>
     <string name="compare_translations">Compare translations</string>
     
