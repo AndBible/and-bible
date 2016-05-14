@@ -39,9 +39,9 @@
 	<color name="grey_1000w">#ffffff</color>
 
 	<color name="blue_50">#e7e9fd</color>
-	<color name="blue_100">#d0d9ff</color>
+	<color name="blue_100">#59d0d9ff</color>
 	<color name="blue_200">#afbfff</color>
-	<color name="blue_300">#91a7ff</color>
+	<color name="blue_300">#5991a7ff</color>
 	<color name="blue_400">#738ffe</color>
 	<color name="blue_500">#5677fc</color>
 	<color name="blue_600">#4e6cef</color>
