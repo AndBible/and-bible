@@ -3,27 +3,27 @@
  */
 package net.bible.android.view.activity.mynote;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.mynote.MyNote;
 import net.bible.android.view.activity.base.Dialogs;
+import net.bible.android.view.activity.base.ListActionModeHelper;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.mynote.MyNoteDto;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView.AdapterContextMenuInfo;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Show a list of existing User Notes and allow view/edit/delete
@@ -33,7 +33,7 @@ import android.widget.Toast;
  * @author John D. Lewis [balinjdl at gmail dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class MyNotes extends ListActivityBase {
+public class MyNotes extends ListActivityBase implements ListActionModeHelper.ActionModeActivity {
 	private static final String TAG = "UserNotes";
 
 	private MyNote myNoteControl;
@@ -41,7 +41,9 @@ public class MyNotes extends ListActivityBase {
 	// the document list
 	private List<MyNoteDto> myNoteList = new ArrayList<MyNoteDto>();
 
-	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
+	private ListActionModeHelper listActionModeHelper;
+
+	private static final int LIST_ITEM_TYPE = R.layout.list_item_2_highlighted;
 	
     /** Called when the activity is first created. */
     @Override
@@ -57,10 +59,19 @@ public class MyNotes extends ListActivityBase {
     }
 
     private void initialiseView() {
-    	loadUserNoteList();
+		listActionModeHelper =  new ListActionModeHelper(getListView(), R.menu.usernote_context_menu);
+
+		getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+				return listActionModeHelper.startActionMode(MyNotes.this, position);
+			}
+		});
+
+		loadUserNoteList();
     	
     	// prepare the document list view
-    	ArrayAdapter<MyNoteDto> myNoteArrayAdapter = new MyNoteItemAdapter(this, LIST_ITEM_TYPE, myNoteList);
+    	ArrayAdapter<MyNoteDto> myNoteArrayAdapter = new MyNoteItemAdapter(this, LIST_ITEM_TYPE, myNoteList, this);
     	setListAdapter(myNoteArrayAdapter);
     	
     	registerForContextMenu(getListView());
@@ -69,36 +80,45 @@ public class MyNotes extends ListActivityBase {
     @Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
     	try {
-    		myNoteSelected(myNoteList.get(position));
-    		
-    		// HistoryManager will create a new Activity on Back
-    		finish();
+			// check to see if Action Mode is in operation
+			if (!listActionModeHelper.isInActionMode()) {
+				myNoteSelected(myNoteList.get(position));
+
+				// HistoryManager will create a new Activity on Back
+				finish();
+			}
     	} catch (Exception e) {
     		Log.e(TAG, "document selection error", e);
     		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
     	}
 	}
 
-    @Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.usernote_context_menu, menu);
-	} 
-
 	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		super.onContextItemSelected(item);
-        AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
-        MyNoteDto myNote = myNoteList.get(menuInfo.position);
-		if (myNote!=null) {
+	public boolean onActionItemClicked(MenuItem item, List<Integer> selectedItemPositions) {
+		List<MyNoteDto> selectedNotes = getSelectedMyNotes(selectedItemPositions);
+		if (!selectedNotes.isEmpty()) {
 			switch (item.getItemId()) {
-			case (R.id.delete):
-				delete(myNote);
-				return true;
+				case (R.id.delete):
+					delete(selectedNotes);
+					return true;
 			}
 		}
-		return false; 
+		return false;
+	}
+
+	@Override
+	public boolean isItemChecked(int position) {
+		return getListView().isItemChecked(position);
+	}
+
+	private List<MyNoteDto> getSelectedMyNotes(List<Integer> selectedItemPositions) {
+		List<MyNoteDto> selectedNotes = new ArrayList<>();
+
+		for (int position : selectedItemPositions) {
+			selectedNotes.add(myNoteList.get(position));
+		}
+
+		return selectedNotes;
 	}
 
     @Override
@@ -140,21 +160,27 @@ public class MyNotes extends ListActivityBase {
      	return isHandled;
     }
 
-    private void delete(MyNoteDto myNote) {
-		myNoteControl.deleteMyNote(myNote);
+    private void delete(List<MyNoteDto> myNotes) {
+		for (MyNoteDto myNote : myNotes) {
+			myNoteControl.deleteMyNote(myNote);
+		}
 		loadUserNoteList();
 	}
 
 	private void loadUserNoteList() {
+		// item positions will all change so exit any action mode
+		listActionModeHelper.exitActionMode();
+
     	myNoteList.clear();
     	myNoteList.addAll( myNoteControl.getAllMyNotes() );
     	
     	notifyDataSetChanged();
     }
 
-    /** user selected a document so download it
+    /**
+	 * User selected a MyNote so download it
      * 
-     * @param document
+     * @param myNote
      */
     private void myNoteSelected(MyNoteDto myNote) {
     	Log.d(TAG, "User Note selected:"+myNote.getVerseRange());

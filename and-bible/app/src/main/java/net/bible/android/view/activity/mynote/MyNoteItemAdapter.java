@@ -1,18 +1,23 @@
 package net.bible.android.view.activity.mynote;
 
-import java.util.List;
-
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.mynote.MyNote;
-import net.bible.service.db.mynote.MyNoteDto;
-
 import android.content.Context;
+import android.graphics.Color;
+import android.os.Build;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.TwoLineListItem;
+
+import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
+import net.bible.android.control.mynote.MyNote;
+import net.bible.android.view.activity.base.ListActionModeHelper;
+import net.bible.android.view.util.widget.TwoLineListItem;
+import net.bible.service.common.CommonUtils;
+import net.bible.service.db.mynote.MyNoteDto;
+
+import java.util.List;
 
 /**
  * Display a single Note in a list row
@@ -25,13 +30,18 @@ import android.widget.TwoLineListItem;
 public class MyNoteItemAdapter extends ArrayAdapter<MyNoteDto> {
 	private int resource;
 	private MyNote usernoteControl;
-	
+
+	private final ListActionModeHelper.ActionModeActivity actionModeActivity;
+
+	private static int ACTIVATED_COLOUR = CommonUtils.getResourceColor(R.color.list_item_activated);
+
 	private static final String TAG = "UserNoteItemAdapter";
 
-	public MyNoteItemAdapter(Context _context, int _resource, List<MyNoteDto> _items) {
+	public MyNoteItemAdapter(Context _context, int _resource, List<MyNoteDto> _items, ListActionModeHelper.ActionModeActivity actionModeActivity) {
 		super(_context, _resource, _items);
 		resource = _resource;
 		usernoteControl = ControlFactory.getInstance().getMyNoteControl();
+		this.actionModeActivity = actionModeActivity;
 	}
 
 	@Override
@@ -65,6 +75,13 @@ public class MyNoteItemAdapter extends ArrayAdapter<MyNoteDto> {
 			}
 		}
 
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+			if (actionModeActivity.isItemChecked(position)) {
+				view.setBackgroundColor(ACTIVATED_COLOUR);
+			} else {
+				view.setBackgroundColor(Color.TRANSPARENT);
+			}
+		}
 		return view;
 	}
 }
