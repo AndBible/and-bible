@@ -1,6 +1,8 @@
 package net.bible.android.view.activity.page;
 
 import android.support.v7.view.ActionMode;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import net.bible.android.activity.R;
@@ -25,6 +27,8 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import de.greenrobot.event.EventBus;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -61,7 +65,8 @@ public class VerseActionModeMediatorTest {
 		ControlFactory.setInstance(new MockitoTestControlFactory());
 
 		when(pageControl.getCurrentBibleVerse()).thenReturn(TestData.DEFAULT_VERSE);
-		when(mainBibleActivity.showVerseActionModeMenu(any(ActionMode.Callback.class))).thenReturn(actionMode);
+
+		when(actionMode.getMenuInflater()).thenReturn(mock(MenuInflater.class));
 	}
 
 	@Test
@@ -81,6 +86,7 @@ public class VerseActionModeMediatorTest {
 		verseActionModeMediator.verseLongPress(TestData.SELECTED_VERSE_NO);
 		ArgumentCaptor<ActionMode.Callback> callback = ArgumentCaptor.forClass(ActionMode.Callback.class);
 		verify(mainBibleActivity).showVerseActionModeMenu(callback.capture());
+		callback.getValue().onCreateActionMode(actionMode, mock(Menu.class));
 
 		// call destroy actionmode and check verse is unhighlighted
 		callback.getValue().onDestroyActionMode(null);
@@ -97,7 +103,7 @@ public class VerseActionModeMediatorTest {
 		// publish window change event
 		EventBus.getDefault().post(new CurrentWindowChangedEvent(new Window(3, WindowLayout.WindowState.MAXIMISED)));
 
-		verify(actionMode).finish();
+		assertThat(verseActionModeMediator.isActionMode(), is(false));
 	}
 
 	@Test

@@ -29,9 +29,6 @@ import net.bible.android.view.activity.page.screen.DocumentViewManager;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.FutureTask;
-
 import de.greenrobot.event.EventBus;
 
 /** The main activity screen showing Bible text
@@ -284,33 +281,20 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	 * Event raised by javascript as a result of longtap
 	 */
 	@Override
-	public ActionMode showVerseActionModeMenu(final ActionMode.Callback actionModeCallbackHandler) {
+	public void showVerseActionModeMenu(final ActionMode.Callback actionModeCallbackHandler) {
 		Log.d(TAG, "showVerseActionModeMenu");
 
-		FutureTask<ActionMode> futureResult = new FutureTask<ActionMode>(new Callable<ActionMode>() {
+		runOnUiThread(new Runnable() {
 			@Override
-			public ActionMode call() throws Exception {
+			public void run() {
 				ActionMode actionMode = startSupportActionMode(actionModeCallbackHandler);
 
 				// Fix for onPrepareActionMode not being called: https://code.google.com/p/android/issues/detail?id=159527
 				if (actionMode != null) {
 					actionMode.invalidate();
 				}
-				return actionMode;
 			}
 		});
-
-		runOnUiThread(futureResult);
-
-		try {
-			// this block until the result is calculated!
-			ActionMode returnValue = futureResult.get();
-			return returnValue;
-		} catch (Exception wrappedException) {
-			Throwable cause = wrappedException.getCause();
-			Log.e("Error", "Call has thrown an exception", cause);
-			return null;
-		}
 	}
 
 	public void clearVerseActionMode(final ActionMode actionMode) {

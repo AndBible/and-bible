@@ -8,6 +8,7 @@ import android.view.MenuItem;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.page.PageControl;
 
@@ -37,8 +38,6 @@ public class VerseActionModeMediator {
 	private final VerseMenuCommandHandler verseMenuCommandHandler;
 
 	private VerseNoRange verseNoRange;
-
-    boolean isVerseActionMode;
 
 	private ActionMode actionMode;
 
@@ -82,17 +81,27 @@ public class VerseActionModeMediator {
 		}
 	}
 
-    private void startVerseActionMode(int verse) {
-		if (isVerseActionMode) {
+	public void onEvent(CurrentWindowChangedEvent event) {
+		endVerseActionMode();
+	}
+	public void onEvent(PassageChangedEvent event) {
+		endVerseActionMode();
+	}
+
+	public boolean isActionMode() {
+		return actionMode!=null;
+	}
+
+	private void startVerseActionMode(int verse) {
+		if (actionMode!=null) {
 			Log.i(TAG, "Action mode already started so ignoring restart.");
 			return;
 		}
 
 		Log.i(TAG, "Start verse action mode. verse no:"+verse);
-		isVerseActionMode = true;
 		bibleView.highlightVerse(verse);
 		this.verseNoRange = new VerseNoRange(verse);
-		actionMode = mainBibleActivity.showVerseActionModeMenu(actionModeCallbackHandler);
+		mainBibleActivity.showVerseActionModeMenu(actionModeCallbackHandler);
 		bibleView.enableVerseTouchSelection();
     }
 
@@ -100,18 +109,18 @@ public class VerseActionModeMediator {
 	 * Ensure all state is left tidy
 	 */
 	private void endVerseActionMode() {
-		if (isVerseActionMode) {
-			isVerseActionMode = false;
+		Log.d("TTT", "endverseam");
+		// prevent endless loop by onDestroyActionMode calling this calling onDestroyActionMode etc.
+		if (actionMode != null) {
+			Log.d("TTT", "endverseam inif");
+			ActionMode finishingActionMode = this.actionMode;
+			actionMode = null;
+
 			bibleView.clearVerseHighlight();
 			bibleView.disableVerseTouchSelection();
 			verseNoRange = null;
 
-			// prevent endless loop by onDestroyActionMode calling this calling onDestroyActionMode etc.
-			if (actionMode != null) {
-				ActionMode finishingActionMode = this.actionMode;
-				actionMode = null;
-				mainBibleActivity.clearVerseActionMode(finishingActionMode);
-			}
+			mainBibleActivity.clearVerseActionMode(finishingActionMode);
 		}
 	}
 
@@ -138,6 +147,8 @@ public class VerseActionModeMediator {
 	private ActionMode.Callback actionModeCallbackHandler = new ActionMode.Callback() {
 		@Override
 		public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+			VerseActionModeMediator.this.actionMode = actionMode;
+
 			// Inflate our menu from a resource file
 			actionMode.getMenuInflater().inflate(R.menu.verse_action_mode_menu, menu);
 
@@ -160,8 +171,8 @@ public class VerseActionModeMediator {
 		@Override
 		public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
 			Log.i(TAG, "Action menu item clicked: " + menuItem);
-			// Similar to menu handling in Activity.onOptionsItemSelected()
 
+			// Similar to menu handling in Activity.onOptionsItemSelected()
 			verseMenuCommandHandler.handleMenuRequest(menuItem.getItemId(), getVerseRange());
 
 			endVerseActionMode();
@@ -173,13 +184,12 @@ public class VerseActionModeMediator {
 		@Override
 		public void onDestroyActionMode(ActionMode actionMode) {
 			Log.i(TAG, "On destroy action mode");
-			VerseActionModeMediator.this.actionMode = null;
 			endVerseActionMode();
 		}
 	};
 
 	public interface ActionModeMenuDisplay {
-		ActionMode showVerseActionModeMenu(ActionMode.Callback actionModeCallbackHandler);
+		void showVerseActionModeMenu(ActionMode.Callback actionModeCallbackHandler);
 		void clearVerseActionMode(ActionMode actionMode);
 
 		void startActivityForResult(Intent intent, int requestCode);
@@ -191,9 +201,5 @@ public class VerseActionModeMediator {
 		void highlightVerse(int verse);
 		void unhighlightVerse(int verse);
 		void clearVerseHighlight();
-	}
-
-	public void onEvent(CurrentWindowChangedEvent event) {
-		endVerseActionMode();
 	}
 }
