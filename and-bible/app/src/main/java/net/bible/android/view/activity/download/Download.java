@@ -53,7 +53,7 @@ public class Download extends DocumentSelectionBase {
 	public static final int DOWNLOAD_FINISH = 1;
 
 	public Download() {
-		super(NO_OPTIONS_MENU, R.menu.document_context_menu);
+		super(NO_OPTIONS_MENU, R.menu.download_documents_context_menu);
 	}
 
 	/** Called when the activity is first created. */
