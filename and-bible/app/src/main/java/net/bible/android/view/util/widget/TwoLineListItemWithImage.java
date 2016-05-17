@@ -1,10 +1,10 @@
 package net.bible.android.view.util.widget;
 
-import net.bible.android.activity.R;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ImageView;
-import android.widget.TwoLineListItem;
+
+import net.bible.android.activity.R;
 
 /** Add an image to the normal 2 line list item
  * 
@@ -15,8 +15,6 @@ import android.widget.TwoLineListItem;
 public class TwoLineListItemWithImage extends TwoLineListItem {
 
 	private ImageView mIcon;
-	
-//	private static final String TAG = "TwoLineListItemWithImage";
 	
 	public TwoLineListItemWithImage(Context context) {
 		super(context);
