@@ -36,7 +36,7 @@
 
 	<item android:id="@+id/speakButton"
 		  android:title="@string/speak"
-		  android:icon="@drawable/ic_action_volume_on"/>
+		  android:icon="@drawable/ic_voice_24dp"/>
 
 	<item 	android:id="@+id/historyButton" 
 			android:title="@string/history"

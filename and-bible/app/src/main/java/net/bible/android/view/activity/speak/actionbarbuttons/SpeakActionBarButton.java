@@ -1,12 +1,13 @@
 package net.bible.android.view.activity.speak.actionbarbuttons;
 
+import android.util.Log;
+import android.view.MenuItem;
+
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
-import android.util.Log;
-import android.view.MenuItem;
 
 /** 
  * Toggle Strongs numbers on/off
@@ -19,7 +20,7 @@ public class SpeakActionBarButton extends SpeakActionBarButtonBase {
 
 	private DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
 
-	private static final String TAG = "SpeakActionBarButtonBase";
+	private static final String TAG = "SpeakActionBarButtonBas";
 
 	@Override
 	public boolean onMenuItemClick(MenuItem menuItem) {
@@ -46,7 +47,7 @@ public class SpeakActionBarButton extends SpeakActionBarButtonBase {
 		} else if (getSpeakControl().isPaused()) {
 			return android.R.drawable.ic_media_play;
 		} else {
-			return R.drawable.ic_action_volume_on;
+			return R.drawable.ic_voice_24dp;
 		}
 	}
 
