@@ -1,14 +1,15 @@
 package net.bible.service.device;
 
-import java.util.List;
-
-import net.bible.android.BibleApplication;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.util.Log;
+
+import net.bible.android.BibleApplication;
+
+import java.util.List;
 
 /** Light Sensor interface 
  * 
@@ -73,7 +74,6 @@ public class LightSensor {
 		Log.d(TAG, "check for a light sensor");
 
     	boolean isLightSensor = false;
-		Log.d(TAG, "getSystemService - hangs on 2.2 emulator");
    		SensorManager sm = (SensorManager) BibleApplication.getApplication().getSystemService(Context.SENSOR_SERVICE);
         if (sm != null) {
             List<Sensor> sensors = sm.getSensorList(Sensor.TYPE_LIGHT);
