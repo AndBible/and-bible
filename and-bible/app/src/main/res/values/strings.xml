@@ -187,7 +187,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!-- Verse context menu -->
     <string name="notes">Footnotes and references</string>
     <string name="copy">Copy</string>
-    <string name="share_verse">Share ...</string>
+    <string name="share_verse">Share …</string>
     <string name="share_verse_subject">A Bible verse has been shared with you using And Bible</string>
     <string name="compare_translations">Compare translations</string>
     
