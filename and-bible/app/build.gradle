@@ -41,7 +41,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:23.3.0'
+    compile 'com.android.support:appcompat-v7:23.4.0'
 
     compile files('libs/jsword.jar')
     compile files('libs/mmseg4j-all-1.8.4.jar')
