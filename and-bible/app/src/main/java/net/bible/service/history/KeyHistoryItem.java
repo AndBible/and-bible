@@ -30,8 +30,17 @@ public class KeyHistoryItem extends HistoryItemBase {
 	}
 
 	private boolean fromPersistent;
+	private boolean savedToPersistent = false;
 
-	private static final String TAG = "KeyHistoryItem"; 
+	public boolean isSavedToPersistent() {
+		return savedToPersistent;
+	}
+
+	public void setSavedToPersistent(boolean savedToPersistent) {
+		this.savedToPersistent = savedToPersistent;
+	}
+
+	private static final String TAG = "KeyHistoryItem";
 
 	public KeyHistoryItem(Book doc, Key verse, float yOffsetRatio) {
 		super();

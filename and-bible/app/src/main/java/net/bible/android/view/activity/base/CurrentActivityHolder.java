@@ -40,12 +40,12 @@ public class CurrentActivityHolder {
 	public void iAmNoLongerCurrent(Activity activity) {
 		// if the next activity has not already overwritten my registration 
 		if (currentActivity!=null && currentActivity.equals(activity)) {
-			Log.w(TAG, "Temporarily null current ativity");
-			currentActivity = null;
 			if (appIsInForeground) {
 				appIsInForeground = false;
 				EventBus.getDefault().post(new AppToBackgroundEvent(Position.BACKGROUND));
 			}
+			Log.w(TAG, "Temporarily null current ativity");
+			currentActivity = null;
 		}
 	}
 	

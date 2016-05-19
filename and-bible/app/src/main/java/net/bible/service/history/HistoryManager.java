@@ -9,6 +9,7 @@ import java.util.Stack;
 
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.ABEventBus;
+import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.window.Window;
@@ -70,6 +71,23 @@ public class HistoryManager {
     public void onEvent(BeforeCurrentPageChangeEvent event) {
     	beforePageChange();
     }
+
+	public void onEvent(AppToBackgroundEvent event){
+		if (event.isMovedToBackground()){
+			// save history here
+			for (HistoryItem item: getHistoryStack()){
+				if (item instanceof KeyHistoryItem){
+					KeyHistoryItem keyItem = (KeyHistoryItem) item;
+					// We should ckeck that item not already saved.
+					// It possible when item alredy saved during this session or originally came from persistent.
+					if (!keyItem.isFromPersistentHistory() && !keyItem.isSavedToPersistent()) {
+						saveHistoryToPersistent(keyItem);
+						keyItem.setSavedToPersistent(true);
+					}
+				}
+			}
+		}
+	}
 	
 	public boolean canGoBack() {
 		if(getHistoryStack().size()>0)
@@ -98,8 +116,6 @@ public class HistoryManager {
 		if (!isGoingBack) {
 			HistoryItem item = createHistoryItem();
 			add(getHistoryStack(), item);
-			if (item instanceof KeyHistoryItem)
-				saveHistoryToPersistent((KeyHistoryItem) item); // save to SharedPreferences
 		}
 	}
 	private HistoryItem createHistoryItem() {
