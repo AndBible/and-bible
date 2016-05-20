@@ -4,6 +4,8 @@
 body {
 	line-height: 1.6em; /* repeat this in .verse ; also hard-coded in BibleView*/
 	font-size: 1.1em;
+	margin-left: 2vw; /* vw - Equal to 1% of the width of the initial containing block. */
+	margin-right: 2vw
 }
 
 h1, .heading1 {
