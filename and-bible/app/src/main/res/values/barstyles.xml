@@ -14,12 +14,14 @@
     <style name="AppThemeDay" parent="@style/Theme.AppCompat.Light.DarkActionBar">
 		<item name="actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
 		<item name="colorAccent">@color/accent_day</item>
+		<item name="actionButtonStyle">@style/MyActionButtonStyle</item>
 	</style>
 
 	<style name="AppThemeNight" parent="@style/Theme.AppCompat">
 		<item name="actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
 		<item name="colorAccent">@color/accent_night</item>
 		<item name="colorPrimary">@color/actionbar_background_night</item>
+		<item name="actionButtonStyle">@style/MyActionButtonStyle</item>
 	</style>
 <!--
 	<style name="AppTheme" parent="@style/Theme.AppCompat.DayNight.DarkActionBar">
