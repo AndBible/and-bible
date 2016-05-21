@@ -1,12 +1,9 @@
 package net.bible.android.view.util.buttongrid;
 
-import java.util.List;
-
-import net.bible.android.activity.R;
-import net.bible.android.view.util.buttongrid.LayoutDesigner.RowColLayout;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -19,6 +16,11 @@ import android.widget.PopupWindow;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
+
+import net.bible.android.activity.R;
+import net.bible.android.view.util.buttongrid.LayoutDesigner.RowColLayout;
+
+import java.util.List;
 
 /** Show a grid of buttons to allow selection for navigation
  * 
@@ -97,7 +99,7 @@ public class ButtonGrid extends TableLayout {
     	// calculate the number of rows and columns so that the grid looks nice
     	mRowColLayout = new LayoutDesigner().calculateLayout(buttonInfoList); 
 		
-    	TableLayout.LayoutParams rowInTableLp = new TableLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1.0f);
+    	LayoutParams rowInTableLp = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1.0f);
 		TableRow.LayoutParams cellInRowLp = new TableRow.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, 1.0f);
 
 		for (int iRow=0; iRow<mRowColLayout.rows; iRow++) {
@@ -121,7 +123,11 @@ public class ButtonGrid extends TableLayout {
 					button.setTextColor(buttonInfo.textColor);
 					// set pad to 0 prevents text being pushed off the bottom of buttons on small screens
 					button.setPadding(0, 0, 0, 0);
-					
+
+					if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+						button.setAllCaps(false);
+					}
+
 					buttonInfo.button = button;
 					buttonInfo.rowNo = iRow;
 					buttonInfo.colNo = iCol;

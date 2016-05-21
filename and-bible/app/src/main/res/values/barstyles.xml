@@ -62,4 +62,8 @@
 		<item name="android:minWidth">@dimen/action_button_min_width</item> <!-- default is 56dip increasing to 64dip for values-sw600dp-->
 	</style>
 
+	<!--Make sure the passage chooser grids have a dark background -->
+	<style name="GridChoosePassageTheme" parent="AppThemeNight">
+	</style>
+
 </resources>
