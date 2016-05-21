@@ -340,7 +340,10 @@ public class SwordContentFacade {
     	try {
     		if (book != null) {
 		        plainText = getCanonicalText(book, key);
-    		}
+
+				// trim any preceeding spaces that make the final output look uneven
+				plainText = plainText.trim();
+			}
     	} catch (Exception e) {
     		Log.e(TAG, "Error getting plain text", e);
     	}

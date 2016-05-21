@@ -60,10 +60,6 @@ public class CompareTranslationsControl {
 		getCurrentPageManager().getCurrentBible().doSetKey(verse);
 	}
 
-	public Verse getDefaultVerse() {
-		return getCurrentPageManager().getCurrentBible().getSingleKey();
-	}
-
 	/** Calculate next verse
 	 */
 	public VerseRange getNextVerseRange(VerseRange verseRange) {
@@ -89,7 +85,7 @@ public class CompareTranslationsControl {
 			try {
 				String text = swordContentFacade.getPlainText(book, convertibleVerseRange.getVerseRange(((AbstractPassageBook)book).getVersification()), 1);
 				if (text.length()>0) {
-					
+
 					// does this book require a custom font to display it
 					File fontFile = null;
 					String fontForBook = fontControl.getFontForBook(book);
