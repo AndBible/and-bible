@@ -155,26 +155,26 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 	/** reverse engineer the .conf file properties from a Book
 	 */
 	private String getConfString(Book book, String initials) {
-		StringBuffer buff = new StringBuffer();
+		StringBuilder bldr = new StringBuilder();
 		SwordBookMetaData metaData = (SwordBookMetaData)book.getBookMetaData();
 
-		buff.append("[").append(initials).append("]\n");
+		bldr.append("[").append(initials).append("]\n");
 		
-		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_DATA_PATH));
-		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_MOD_DRV));
-		buff.append(getConfEntry(SwordBookMetaData.KEY_LANG, book.getLanguage().getCode()));
-		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_ENCODING));
-		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_SOURCE_TYPE));
-		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_DESCRIPTION));
-		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_ABOUT));
-		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_GLOBAL_OPTION_FILTER));
-		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_VERSION));
-		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_CATEGORY));
-		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_COMPRESS_TYPE));
-		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_COPYRIGHT));
-		buff.append(getConfEntry(metaData, SwordBookMetaData.KEY_VERSIFICATION));
+		bldr.append(getConfEntry(metaData, SwordBookMetaData.KEY_DATA_PATH));
+		bldr.append(getConfEntry(metaData, SwordBookMetaData.KEY_MOD_DRV));
+		bldr.append(getConfEntry(SwordBookMetaData.KEY_LANG, book.getLanguage().getCode()));
+		bldr.append(getConfEntry(metaData, SwordBookMetaData.KEY_ENCODING));
+		bldr.append(getConfEntry(metaData, SwordBookMetaData.KEY_SOURCE_TYPE));
+		bldr.append(getConfEntry(metaData, SwordBookMetaData.KEY_DESCRIPTION));
+		bldr.append(getConfEntry(metaData, SwordBookMetaData.KEY_ABOUT));
+		bldr.append(getConfEntry(metaData, SwordBookMetaData.KEY_GLOBAL_OPTION_FILTER));
+		bldr.append(getConfEntry(metaData, SwordBookMetaData.KEY_VERSION));
+		bldr.append(getConfEntry(metaData, SwordBookMetaData.KEY_CATEGORY));
+		bldr.append(getConfEntry(metaData, SwordBookMetaData.KEY_COMPRESS_TYPE));
+		bldr.append(getConfEntry(metaData, SwordBookMetaData.KEY_COPYRIGHT));
+		bldr.append(getConfEntry(metaData, SwordBookMetaData.KEY_VERSIFICATION));
 
-		return buff.toString();
+		return bldr.toString();
 	}
 	
 	/** reverse engineer one .conf file property

@@ -14,6 +14,7 @@ import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordContentFacade;
 import net.bible.service.sword.SwordDocumentFacade;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
@@ -91,7 +92,7 @@ public class SearchControl {
         	BibleBook book = currentBiblePage.getSingleKey().getBook();
         	
         	String longName = v11n.getLongName(book);
-        	if (longName != "" && longName.length() < 14) {
+        	if (StringUtils.isNotBlank(longName) && longName.length() < 14) {
 	    		return longName;
 	    	} else {
 	    		return v11n.getShortName(book);

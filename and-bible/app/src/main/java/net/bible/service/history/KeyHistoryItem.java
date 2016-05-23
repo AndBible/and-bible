@@ -60,7 +60,7 @@ public class KeyHistoryItem extends HistoryItemBase {
 	
 	@Override
 	public String getDescription() {
-		StringBuffer desc = new StringBuffer();
+		StringBuilder desc = new StringBuilder();
 		try {
 			String verseDesc = CommonUtils.getKeyDescription(key);
 			desc.append(document.getAbbreviation()).append(" ").append(verseDesc);

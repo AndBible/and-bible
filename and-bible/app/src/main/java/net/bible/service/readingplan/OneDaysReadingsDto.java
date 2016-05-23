@@ -59,14 +59,14 @@ public class OneDaysReadingsDto implements Comparable<OneDaysReadingsDto> {
 	
 	public String getReadingsDesc() {
 		checkKeysGenerated();
-		StringBuffer readingsBuff = new StringBuffer();
+		StringBuilder readingsBldr = new StringBuilder();
 		for (int i=0; i<mReadingKeys.size(); i++) {
 			if (i>0) {
-				readingsBuff.append(", ");
+				readingsBldr.append(", ");
 			}
-			readingsBuff.append(mReadingKeys.get(i).getName());
+			readingsBldr.append(mReadingKeys.get(i).getName());
 		}
-		return readingsBuff.toString(); 
+		return readingsBldr.toString();
 	}
 
 	public Key getReadingKey(int no) {

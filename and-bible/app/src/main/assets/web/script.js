@@ -22,7 +22,7 @@ function registerVersePositions() {
 }
 
 function getVerseElements() {
-	return getElementsByClass("verseNo", document.body, "span")
+	return getElementsByClass("verse", document.body, "span")
 }
 
 function getElementsByClass( searchClass, domNode, tagName) { 
@@ -67,4 +67,18 @@ function doScrollToSlowly(element, elementPosition, to) {
         element.scrollTop = newElementScrollTop;
         doScrollTo(element, newElementScrollTop, to);
     }, 100);
+}
+
+function selectAt(x, y) {
+	window.jsInterface.log("JS select at: "+x+", "+y+" WebView dimensions:"+window.innerWidth+","+window.innerHeight);
+
+//	x *= (window.innerWidth / width);
+//	y *= (window.innerHeight / height);
+
+	var elem = document.elementFromPoint(x, y);
+
+	window.jsInterface.log("Found element: "+elem);
+	if (elem.className == "verse") {
+		window.jsInterface.log("Found verse with id: "+elem.id);
+	}
 }
