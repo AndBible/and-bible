@@ -150,11 +150,8 @@
   <string name="delete_doc">%s silinsin mi?</string>
   <string name="delete_search_index_doc">%s\'in dizini silinsin mi?</string>
   <!--Verse context menu-->
-  <string name="select_text">Metni seç</string>
-  <string name="select_text_help">Seçmek için yavaşça sürükleyin.\nSeçtikten sonra kopyalamak için seçime dokun.</string>
   <string name="notes">Dipnotlar ve iç göndermeler</string>
-  <string name="copy">Seçili ayeti kopyala</string>
-  <string name="share_verse">Şeçili ayeti paylaş ...</string>
+  <string name="copy">Kopyala</string>
   <string name="share_verse_subject">And Bible uygulamasını kullanarak sizinle Kutsal Kitap\'tan bir ayet paylaştım.</string>
   <string name="compare_translations">Çevirileri karşılaştır</string>
   <!--Bookmarks-->

@@ -151,11 +151,8 @@
   <string name="delete_doc">O\'chir %s</string>
   <string name="delete_search_index_doc">%s indeksini o\'chir</string>
   <!--Verse context menu-->
-  <string name="select_text">Tekstni belgila</string>
-  <string name="select_text_help">Tanlash uchun sekin tortin.\nKeyin nusxa olish uchun teligiling.</string>
   <string name="notes">Snoska va Ssilkalar</string>
-  <string name="copy">Shu oyatdan nusxa ol</string>
-  <string name="share_verse">Shu oyatni bo\'shqalar bilan bo\'lish...</string>
+  <string name="copy">Nusxa</string>
   <string name="share_verse_subject">And Bible orqali Muqaddas Kitob oyatini siz bilan bo\'lishdi</string>
   <string name="compare_translations">Tarjimalarni taqqosla</string>
   <!--Bookmarks-->

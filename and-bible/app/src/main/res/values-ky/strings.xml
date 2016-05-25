@@ -150,11 +150,9 @@
   <string name="delete_doc">%s өчүрөсүзбү?</string>
   <string name="delete_search_index_doc">%s индексти өчүрөсүзбү?</string>
   <!--Verse context menu-->
-  <string name="select_text">Тексттен үзүндүнү тандоо</string>
-  <string name="select_text_help">Тексттин үстүнөн бармагыңызды жылдырыңыз.</string>
   <string name="notes">Түшүрмөлөр, шилтемелер</string>
-  <string name="copy">Ушул аятты көчүрүңүз</string>
-  <string name="share_verse">Жөнөтүү...</string>
+  <string name="copy">көчүрүңүз</string>
+  <string name="share_verse">Жөнөтүү …</string>
   <string name="share_verse_subject">AND BIBLE дан сиз үчүн маалымат.</string>
   <string name="compare_translations">Ар котормолордо</string>
   <!--Bookmarks-->

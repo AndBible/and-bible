@@ -150,18 +150,18 @@
   <string name="delete_doc">Slett %s?</string>
   <string name="delete_search_index_doc">Slett søkjeregister for %s?</string>
   <!--Verse context menu-->
-  <string name="select_text">Vel tekst</string>
-  <string name="select_text_help">Dra langsamt for å merke teksten,\ntrykk deretter på merka tekst for å kopiere.</string>
   <string name="notes">Fotnotar og referansar</string>
-  <string name="copy">Kopier dette verset</string>
-  <string name="share_verse">Del dette verset...</string>
+  <string name="copy">Kopier</string>
+  <string name="share_verse">Del...</string>
   <string name="share_verse_subject">Eit bibelvers er delt med deg via And Bible</string>
   <string name="compare_translations">Sammenlign oversettingar</string>
   <!--Bookmarks-->
   <string name="bookmarks">Bokmerker</string>
   <string name="add_bookmark">Legg til bokmerke</string>
+  <string name="delete_bookmark">Slett bokmerke</string>
   <string name="bookmark_added">Bokmerke lagt til</string>
   <string name="bookmark_exists">Bokmerke finst allereie</string>
+  <string name="bookmark_deleted">Bokmerke sletta</string>
   <string name="bookmark_labels">Bokmerkegrupper</string>
   <string name="assign_labels">Legg til grupper</string>
   <string name="new_label">Ny gruppe</string>

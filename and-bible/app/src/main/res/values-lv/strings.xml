@@ -150,11 +150,9 @@
   <string name="delete_doc">Dzēst %s?</string>
   <string name="delete_search_index_doc">Dzēst %s indeksu?</string>
   <!--Verse context menu-->
-  <string name="select_text">iezīmēt tekstu</string>
-  <string name="select_text_help">Vilkt lēnām lai atzīmētu. \n Tad pieskarties atzīmētajam lai nokopētu.</string>
   <string name="notes">Zemsvītras piezīmes un atsauces</string>
-  <string name="copy">Kopēt šo pantu</string>
-  <string name="share_verse">Dalīties ar šo pantu ...</string>
+  <string name="copy">Kopēt</string>
+  <string name="share_verse">Dalīties …</string>
   <string name="share_verse_subject">Šo Bībeles pants Jums nosūtīts izmantojot And Bible</string>
   <string name="compare_translations">Salīdzināt tulkojumus</string>
   <!--Bookmarks-->

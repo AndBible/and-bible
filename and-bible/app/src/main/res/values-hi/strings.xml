@@ -132,11 +132,7 @@
   <string name="delete_doc">%s किताब मिटाओ</string>
   <string name="delete_search_index_doc">%s किताब की खोज सूचकांक मिटाओ</string>
   <!--Verse context menu-->
-  <string name="select_text">वाक्य चुनिए</string>
-  <string name="select_text_help">वाक्य चुनने के लिए धीरे खींचें,\nफिर \'कापी\' करें</string>
   <string name="notes">पाद टिप्पणी और संबंधित संदर्भ</string>
-  <string name="copy">वर्तमान छंद, \'कापी\' करें</string>
-  <string name="share_verse">वर्तमान छंद, दूसरों के साथ बाँटना</string>
   <string name="share_verse_subject">एक पवित्र वाक्य आपके लिए, आन्ड बाइबिल (AndBible) के जरीए</string>
   <string name="compare_translations">अन्य अनुवादों से तुलना</string>
   <!--Bookmarks-->

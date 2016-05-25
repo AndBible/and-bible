@@ -142,11 +142,9 @@
   <string name="delete_doc">Czy chcesz usunąć %s?</string>
   <string name="delete_search_index_doc">Czy usunąć indeks dla %s ?</string>
   <!--Verse context menu-->
-  <string name="select_text">Zaznacz tekst</string>
-  <string name="select_text_help">Przeciągnij powoli, aby wybrać. Następnie dotknij wybór aby skopiować.</string>
   <string name="notes">Przypisy i odnośniki</string>
-  <string name="copy">Skopiuj werset</string>
-  <string name="share_verse">Udostępnij werset ...</string>
+  <string name="copy">Skopiuj</string>
+  <string name="share_verse">Udostępnij …</string>
   <string name="share_verse_subject">Ten werset został przesłany z programu And Bible</string>
   <string name="compare_translations">Porównaj tłumaczenia</string>
   <!--Bookmarks-->

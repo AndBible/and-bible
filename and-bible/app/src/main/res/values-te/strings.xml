@@ -134,11 +134,9 @@
   <string name="delete_doc">%s? తొలగించు</string>
   <string name="delete_search_index_doc">%s విషయ సూచికను తొలగించాలి?</string>
   <!--Verse context menu-->
-  <string name="select_text">విషయ ఎంపిక</string>
-  <string name="select_text_help">మెల్లిగా లాగుతూ రావాలి.\nఅప్పుడు కాపి చేయదలచినది ఎంపిక చేసుకోవాలి.</string>
   <string name="notes">పుట్ నోట్స్ మరియు రెపరెన్సులు</string>
-  <string name="copy">ప్రస్తుత వచనాన్ని కాపి చేయడం</string>
-  <string name="share_verse">ప్రస్తుత వచనాన్ని పంచుకోవడం…</string>
+  <string name="copy">కాపి</string>
+  <string name="share_verse">పంచుకోవడం …</string>
   <string name="share_verse_subject">ఆండ్ బైబిల్ ద్వారా మీతో ఈ బైబిల్ వచనం పంచుకొబడ్డది</string>
   <string name="compare_translations">తర్జుమాలతో పోల్చి చూడండి</string>
   <!--Bookmarks-->

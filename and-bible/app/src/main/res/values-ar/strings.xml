@@ -131,11 +131,9 @@
   <string name="delete_doc">حذف %s ؟</string>
   <string name="delete_search_index_doc">حذف فهرس من %s ؟</string>
   <!--Verse context menu-->
-  <string name="select_text">اختار كتابة</string>
-  <string name="select_text_help">حرك الختيان على الكتابة لاختيارها ثم اضغط عليها لنسخها</string>
   <string name="notes">التذييل و المراجع</string>
-  <string name="copy">نسخ الآية الحالية</string>
-  <string name="share_verse">مشاركة الآية الحالية</string>
+  <string name="copy">نسخ</string>
+  <string name="share_verse">مشاركة</string>
   <string name="share_verse_subject">تم مشاركتك بآية من الكتاب المقدس من خلال آند بايبل</string>
   <string name="compare_translations">مقارنة الترجمات</string>
   <!--Bookmarks-->

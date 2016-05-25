@@ -150,11 +150,9 @@
   <string name="delete_doc">¿Borrar %s?</string>
   <string name="delete_search_index_doc">¿Borrar índice de %s?</string>
   <!--Verse context menu-->
-  <string name="select_text">Seleccionar texto</string>
-  <string name="select_text_help">Arrastre despacio para seleccionar.\nEntoces toque la selección para copiar.</string>
   <string name="notes">Pies de página y referencias</string>
-  <string name="copy">Copiar versículo actual</string>
-  <string name="share_verse">Compartir versículo actual...</string>
+  <string name="copy">Copiar</string>
+  <string name="share_verse">Compartir …</string>
   <string name="share_verse_subject">Un versículo de Biblia ha sido compartido contigo usando And Bible</string>
   <string name="compare_translations">Compara traducciones</string>
   <!--Bookmarks-->

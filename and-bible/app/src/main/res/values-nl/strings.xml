@@ -152,18 +152,18 @@
   <string name="delete_doc">%s verwijderen?</string>
   <string name="delete_search_index_doc">Index van %s verwijderen?</string>
   <!--Verse context menu-->
-  <string name="select_text">Selecteer tekst</string>
-  <string name="select_text_help">Sleep langzaam om te selecteren. \nRaak vervolgens de selectie aan om te kopiëren</string>
   <string name="notes">Voetnoten en verwijzingen</string>
-  <string name="copy">Kopieer het huidige vers</string>
-  <string name="share_verse">Huidig vers delen ...</string>
+  <string name="copy">Kopiëren</string>
+  <string name="share_verse">Delen ...</string>
   <string name="share_verse_subject">Een bijbelvers is met u gedeeld tijdens het gebruik van And Bible</string>
   <string name="compare_translations">Vertalingen vergelijken</string>
   <!--Bookmarks-->
   <string name="bookmarks">Bladwijzers</string>
   <string name="add_bookmark">Bladwijzer toevoegen</string>
+  <string name="delete_bookmark">Bladwijzer verwijderen</string>
   <string name="bookmark_added">Bladwijzer toegevoegd</string>
   <string name="bookmark_exists">Blawijzer bestaat al</string>
+  <string name="bookmark_deleted">Bladwijzer is verwijderd</string>
   <string name="bookmark_labels">Bladwijzerlabels</string>
   <string name="assign_labels">Labels toewijzen</string>
   <string name="new_label">Nieuw label</string>

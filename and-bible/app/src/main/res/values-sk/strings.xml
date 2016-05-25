@@ -150,11 +150,9 @@
   <string name="delete_doc">Vymazať %s?</string>
   <string name="delete_search_index_doc">Vymazať index pre %s?</string>
   <!--Verse context menu-->
-  <string name="select_text">Vybrať text</string>
-  <string name="select_text_help">Pre výber textu pomaly potiahnite po ňom. Potom dotykom skopírujete výber.</string>
   <string name="notes">Poznámky pod čiarou a odkazy</string>
-  <string name="copy">Kopírovať vybraný verš</string>
-  <string name="share_verse">Zdieľať vybraný verš</string>
+  <string name="copy">Kopírovať</string>
+  <string name="share_verse">Zdieľať</string>
   <string name="share_verse_subject">Verš z Biblie (pomocou programu And Bible) je s vami zdieľaný...</string>
   <string name="compare_translations">Porovnať preklady</string>
   <!--Bookmarks-->

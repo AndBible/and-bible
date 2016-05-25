@@ -150,11 +150,9 @@
   <string name="delete_doc">Smazat %s?</string>
   <string name="delete_search_index_doc">Smazat index k %s?</string>
   <!--Verse context menu-->
-  <string name="select_text">Vybrat text</string>
-  <string name="select_text_help">Pro výběr pomalu táhnout.\nPak pro kopírování dotknout se výběru.</string>
   <string name="notes">Poznámky a odkazy</string>
-  <string name="copy">Kopírovat současný verš</string>
-  <string name="share_verse">Sdílet současný verš ...</string>
+  <string name="copy">Kopírovat</string>
+  <string name="share_verse">Sdílet …</string>
   <string name="share_verse_subject">Biblický verš zaslán z aplikace And Bible</string>
   <string name="compare_translations">Porovnat překlady</string>
   <!--Bookmarks-->

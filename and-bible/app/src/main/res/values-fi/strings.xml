@@ -150,18 +150,18 @@
   <string name="delete_doc">Poista %s?</string>
   <string name="delete_search_index_doc">Poista %s indeksi?</string>
   <!--Verse context menu-->
-  <string name="select_text">Valitse teksti</string>
-  <string name="select_text_help">Valitse teksti maalaamalla.\nKopioi teksti koskettamalla valintaa sen jälkeen.</string>
   <string name="notes">Alaviitteet ja rinnakkaisviitteet</string>
-  <string name="copy">Kopioi jae</string>
-  <string name="share_verse">Jaa aktiivinen jae ...</string>
+  <string name="copy">Kopioi</string>
+  <string name="share_verse">Jaa ...</string>
   <string name="share_verse_subject">Raamatun jae on lähetetty And Bible -sovelluksella</string>
   <string name="compare_translations">Vertaile käännöksiä</string>
   <!--Bookmarks-->
   <string name="bookmarks">Kirjanmerkit</string>
   <string name="add_bookmark">Lisää kirjanmerkit</string>
+  <string name="delete_bookmark">Poista kirjanmerkki</string>
   <string name="bookmark_added">Kirjanmerkki lisätty</string>
   <string name="bookmark_exists">Kirjanmerkki on jo olemassa</string>
+  <string name="bookmark_deleted">Kirjanmerkki poistettu</string>
   <string name="bookmark_labels">Kirjanmerkkien ryhmät</string>
   <string name="assign_labels">Sijoita ryhmään</string>
   <string name="new_label">Uusi ryhmä</string>

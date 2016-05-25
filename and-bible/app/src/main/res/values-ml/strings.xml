@@ -149,11 +149,7 @@
   <string name="delete_doc">നീക്കി കളയുക %s?</string>
   <string name="delete_search_index_doc">പട്ടിക നീക്കി കളയുക %s?</string>
   <!--Verse context menu-->
-  <string name="select_text">വേദപുസ്തകവാക്യങ്ങള്‍ തിരഞ്ഞെടുക്കുക</string>
-  <string name="select_text_help">Drag slowly to select.\nThen touch selection to copy.</string>
   <string name="notes">അടിക്കുറിപ്പും സൂചനകളും</string>
-  <string name="copy">ഇപ്പോഴത്തെ വാക്യം പകർത്തു</string>
-  <string name="share_verse">ഇപ്പോഴത്തെ വാക്യം പങ്കുവെക്കു ...</string>
   <string name="share_verse_subject">And Bible ഉപയ്യോഗിച്ചാണു ഈ വേദവാക്യം നിങ്ങളുമായി പങ്കുവെച്ചതു</string>
   <string name="compare_translations">പരിഭാഷ താരതമ്യം ചെയ്യുക</string>
   <!--Bookmarks-->

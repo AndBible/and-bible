@@ -150,18 +150,18 @@
   <string name="delete_doc">Supprimer %s?</string>
   <string name="delete_search_index_doc">Supprimer l\'index de %s?</string>
   <!--Verse context menu-->
-  <string name="select_text">Sélectionner le texte</string>
-  <string name="select_text_help">Faites glisser lentement pour sélectionner. Ensuite, touchez la sélection à copier.</string>
   <string name="notes">Notes et références croisées</string>
-  <string name="copy">Copier le verset courant</string>
-  <string name="share_verse">Partager le verset en cours ...</string>
+  <string name="copy">Copier</string>
+  <string name="share_verse">Partager ...</string>
   <string name="share_verse_subject">Un verset de Bible a été partagé avec vous en utilisant And Bible</string>
   <string name="compare_translations">Comparer les traductions</string>
   <!--Bookmarks-->
   <string name="bookmarks">Signets</string>
   <string name="add_bookmark">Ajouter un signet</string>
+  <string name="delete_bookmark">Effacer le signet</string>
   <string name="bookmark_added">Signet ajouté</string>
   <string name="bookmark_exists">Ce signet existe déjà</string>
+  <string name="bookmark_deleted">Signet effacé</string>
   <string name="bookmark_labels">Étiquettes de signets</string>
   <string name="assign_labels">Attribuer des étiquettes</string>
   <string name="new_label">Nouvelle étiquette</string>
@@ -213,6 +213,7 @@
   <string name="restore_confirmation">Écraser mes notes et signets?</string>
   <string name="restore_success">Mes notes et signets restaurés de %s sur la carte SD</string>
   <!--About-->
+  <string name="about_copyright">Droits d\'auteur: %s</string>
   <string name="about_version">Version: %s</string>
   <string name="about_versification">Versification: %s</string>
   <!--Document types-->
@@ -239,6 +240,7 @@
   <string name="new_item">Nouveau</string>
   <string name="close">Fermer</string>
   <!--Errors-->
+  <string name="report_error">Envoyer un rapport </string>
   <string name="error_occurred">Une erreur s\'est produite</string>
   <string name="error_no_content">Aucun contenu pour le verset sélectionné</string>
   <string name="error_page_too_large">La page est trop grande pour être chargé</string>

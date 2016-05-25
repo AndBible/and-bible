@@ -151,11 +151,9 @@
   <string name="delete_doc">Törlöd ezt: %s?</string>
   <string name="delete_search_index_doc">Törlöd %s indexét?</string>
   <!--Verse context menu-->
-  <string name="select_text">Szöveg kijelölése</string>
-  <string name="select_text_help">Lassan húzd a kijelöléshez.\nMajd egy érintéssel a vágólapra másolhatod.</string>
   <string name="notes">Lábjegyzetek és hivatkozások</string>
-  <string name="copy">Vers másolása</string>
-  <string name="share_verse">Vers megosztása...</string>
+  <string name="copy">Másolása</string>
+  <string name="share_verse">Megosztása …</string>
   <string name="share_verse_subject">A Biblia egy versét megosztották veled az And Bible programon keresztül</string>
   <string name="compare_translations">Fordítások összehasonlítása</string>
   <!--Bookmarks-->

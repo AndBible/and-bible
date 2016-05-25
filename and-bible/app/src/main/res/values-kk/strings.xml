@@ -150,11 +150,9 @@
   <string name="delete_doc">Жою %s?</string>
   <string name="delete_search_index_doc">%s? индексін жою</string>
   <!--Verse context menu-->
-  <string name="select_text">Мәтінді таңдау</string>
-  <string name="select_text_help">Таңдау үшін жәймен жүргізіңіз.⏎\nСодан кейін көшірме жасау үшін таңдауды басыңыз.</string>
   <string name="notes">Нұсқаулар мен сілтемелер</string>
-  <string name="copy">Осы аятты көшіріңіз</string>
-  <string name="share_verse">Осы аятпен бөлісу ...</string>
+  <string name="copy">көшіріңіз</string>
+  <string name="share_verse">бөлісу …</string>
   <string name="share_verse_subject">Киелі Кітап аяты Андроид бағдарламасы арқылы сізбен бөлісілді</string>
   <string name="compare_translations">Аудармаларды салыстыру</string>
   <!--Bookmarks-->

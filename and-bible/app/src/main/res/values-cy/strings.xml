@@ -151,18 +151,18 @@
   <string name="delete_doc">Dileu %s?</string>
   <string name="delete_search_index_doc">Dileu mynegai %s?</string>
   <!--Verse context menu-->
-  <string name="select_text">Dewis testun</string>
-  <string name="select_text_help">Llusgwch yn araf i ddewis.\nYna cyffwrdd y dewis i gopio.</string>
   <string name="notes">Troednodiadau a chyfeiriadau</string>
-  <string name="copy">Copïo’r adnod hon</string>
-  <string name="share_verse">Rhannu\'r adnod hon ...</string>
+  <string name="copy">Copïo</string>
+  <string name="share_verse">Rhannu</string>
   <string name="share_verse_subject">Mae adnod o\'r Beibl wedi ei rhannu gyda chi drwy AndBible</string>
   <string name="compare_translations">Cymharu Cyfieithiadau</string>
   <!--Bookmarks-->
   <string name="bookmarks">Nodau Llyfr</string>
   <string name="add_bookmark">Gosod Nod Llyfr</string>
+  <string name="delete_bookmark">Dileu Nod Llyfr</string>
   <string name="bookmark_added">Ychwanegwyd Nod Llyfr</string>
   <string name="bookmark_exists">Nod Llyfr yn bodoli eisoes</string>
+  <string name="bookmark_deleted">Dilewyd y Nod Llyfr</string>
   <string name="bookmark_labels">Labeli Llyfrnodi</string>
   <string name="assign_labels">Pennu labeli</string>
   <string name="new_label">Label newydd</string>

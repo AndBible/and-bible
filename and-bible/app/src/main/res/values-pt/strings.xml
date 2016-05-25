@@ -15,10 +15,14 @@
   <string name="history">Histórico</string>
   <string name="speak">Falar</string>
   <string name="help">Ajuda</string>
+  <string name="verse">Verso</string>
+  <string name="administration">Administração</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Escolha o livro</string>
   <string name="choosePassageChapterName">Escolha o capítulo</string>
   <string name="choosePassageVerseName">Escolher versículo</string>
+  <string name="bible">Bíblia</string>
+  <string name="deuterocanonical">Deuterocanonical</string>
   <!--Search-->
   <string name="search_index">Índice da pesquisa</string>
   <string name="index_creation_required">É preciso ter um índice para pesquisar.\n\nÍndices podem ser baixados na internet ou criados localmente.\n\nBaixar os índices é uma maneira mais prática e os índices baixados possuem mais recursos de busca.\n\nÉ necessário possuir uma conexão com a internet para baixar os índices.\n</string>
@@ -71,6 +75,8 @@
   <string name="prefs_night_mode_automatic">Automático</string>
   <string name="prefs_navigate_to_verse_title">Navegue até o versículo</string>
   <string name="prefs_navigate_to_verse_summary">Escolher o versículo (e capítulo) quando selecionando uma passagem</string>
+  <string name="prefs_open_links_in_special_window_title">Abrir links em uma janela especial</string>
+  <string name="prefs_open_links_in_special_window_summary">Para rápida exibição de referências cruzadas e Fortes</string>
   <string name="prefs_text_size_title">Tamanho do texto</string>
   <string name="prefs_text_size_summary">Para ver mais texto, ou enxergar com mais clareza</string>
   <string name="prefs_text_size_sample_text">Texto de exemplo</string>
@@ -81,6 +87,12 @@
   <string name="prefs_interface_locale_summary">Selecione o idioma de preferencia para a interface do usuário</string>
   <string name="locale_change_warning">O aplicativo será reiniciado para trocar o idioma da nova interface.</string>
   <!--Window-->
+  <string name="window">Janela</string>
+  <string name="windowClose">Fechar</string>
+  <string name="windowMaximise">Maximizar</string>
+  <string name="windowMinimise">Minimizar</string>
+  <string name="windowSynchronise">Sincronizar</string>
+  <string name="windowMoveFirst">Mover primeiro</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Não existem notas neste capítulo</string>
   <string name="no_verse_notes">Não existem notas para este versículo</string>
@@ -111,6 +123,12 @@
   <string name="too_many_jobs">Existem muitas tarefas sendo executadas. Por favor aguarde que algumas sejam concluídas e tente novamente.</string>
   <string name="document_not_installed">Por favor baixe: \'%s\'</string>
   <!--Install zip file-->
+  <string name="install_zip">Carregar Documento de Arquivo ZIP</string>
+  <string name="install_zip_successfull">Módulo instalado com sucesso</string>
+  <string name="extracting_zip_file">Extraindo arquivo ZIP agora...</string>
+  <string name="checking_zip_file">Checando arquivo dado</string>
+  <string name="invalid_module">Este arquivo não contém um módulo SWORD válido</string>
+  <string name="module_already_installed">Este arquivo contém um módulo que já foi instalado</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plano de leitura</string>
   <string name="rdg_plan_selector_title">Escolha um plano de leitura</string>
@@ -131,11 +149,9 @@
   <string name="delete_doc">Excluir %s?</string>
   <string name="delete_search_index_doc">Excluir índice de %s?</string>
   <!--Verse context menu-->
-  <string name="select_text">Texto selecionado</string>
-  <string name="select_text_help">Arraste lentamente para selecionar.\nEntão toque a seleção para copiar.</string>
   <string name="notes">Referências e notas de rodapé</string>
-  <string name="copy">Copiar versículo</string>
-  <string name="share_verse">Compartilhar este versículo...</string>
+  <string name="copy">Copiar</string>
+  <string name="share_verse">Compartilhar …</string>
   <string name="share_verse_subject">Um versículo da Bíblia foi enviado para você pelo And Bible</string>
   <string name="compare_translations">Compare as traduções</string>
   <!--Bookmarks-->
@@ -148,7 +164,11 @@
   <string name="new_label">Novo marcador</string>
   <string name="label_name_prompt">Nome</string>
   <string name="label_unlabelled">Sem marcadores</string>
+  <string name="rename">Renomear</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
+  <string name="sort_by_date">Ordem de data</string>
+  <string name="sort_by_bible_book">Ordem bíblica</string>
+  <string name="sort_by_alphabetical">Ordem alfabética</string>
   <!--Dictionary-->
   <string name="dictionary">Dicionário</string>
   <string name="search_dictionary_hint">Procurar dicionário</string>
@@ -190,6 +210,9 @@
   <string name="restore_confirmation">Sobrescrever as Anotações e os Favoritos?</string>
   <string name="restore_success">As Anotações e os Favoritos foram restaurados de %s do cartão de memória SD</string>
   <!--About-->
+  <string name="about_copyright">Copyright: %s</string>
+  <string name="about_version">Versão: %s</string>
+  <string name="about_versification">Versificação: %s</string>
   <!--Document types-->
   <string name="doc_type_bible">Bíblia</string>
   <string name="doc_type_commentary">Comentário</string>
@@ -206,11 +229,15 @@
   <string name="save">Salvar</string>
   <string name="error">Erro</string>
   <string name="more">Mais</string>
+  <string name="more_dotted">Mais...</string>
   <string name="retry">Tente novamente</string>
   <string name="please_wait">Por favor, aguarde...</string>
   <string name="all">Todos</string>
   <string name="default_value">@string/lang_default</string>
+  <string name="new_item">Novo</string>
+  <string name="close">Fechar</string>
   <!--Errors-->
+  <string name="report_error">Enviar Relatório</string>
   <string name="error_occurred">Ocorreu um erro</string>
   <string name="error_no_content">Nenhum conteúdo para o versículo selecionado</string>
   <string name="error_page_too_large">Página grande demais para ser carregada</string>

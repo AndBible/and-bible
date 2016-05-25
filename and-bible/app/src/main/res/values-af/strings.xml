@@ -150,18 +150,18 @@
   <string name="delete_doc">Skrap %s?</string>
   <string name="delete_search_index_doc">Skrap indeks van %s?</string>
   <!--Verse context menu-->
-  <string name="select_text">Kies teks</string>
-  <string name="select_text_help">Beweeg stadig om te kies.\nDan raak seleksie aan om te kopieer.</string>
   <string name="notes">Voetnotas en verwysings</string>
-  <string name="copy">Kopieer huidige vers</string>
-  <string name="share_verse">Deel huidige vers ...</string>
+  <string name="copy">kopieër</string>
+  <string name="share_verse">Deel …</string>
   <string name="share_verse_subject">\'n Bybelvers is gedeel met jou met And Bible Program</string>
   <string name="compare_translations">Vergelyk vertalings</string>
   <!--Bookmarks-->
   <string name="bookmarks">Boekmerke</string>
   <string name="add_bookmark">Voeg boekmerk by</string>
+  <string name="delete_bookmark">Verwyder Boekmerk</string>
   <string name="bookmark_added">Boekmerk bygevoeg</string>
   <string name="bookmark_exists">Boekmerk bestaan ​​alreeds</string>
+  <string name="bookmark_deleted">Boekmerk is verwyder</string>
   <string name="bookmark_labels">Boekmerk etikette</string>
   <string name="assign_labels">Ken etikette toe</string>
   <string name="new_label">Nuwe etiket</string>

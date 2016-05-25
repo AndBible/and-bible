@@ -128,11 +128,9 @@
   <string name="delete_doc">Xóa %s?</string>
   <string name="delete_search_index_doc">Xóa chỉ mục của %s?</string>
   <!--Verse context menu-->
-  <string name="select_text">Chọn văn bản</string>
-  <string name="select_text_help">Kéo từ từ để chọn. \nSau đó chạm vào lựa chọn để sao chép.</string>
   <string name="notes">Chú thích và tham chiếu</string>
-  <string name="copy">Sao chép câu hiện tại</string>
-  <string name="share_verse">Chia sẻ câu hiện tại ...</string>
+  <string name="copy">Sao chép</string>
+  <string name="share_verse">Chia sẻ …</string>
   <string name="share_verse_subject">Một câu Kinh Thánh đã được chia sẻ với bạn đang sử dụng And Bible</string>
   <string name="compare_translations">So sánh các bản dịch</string>
   <!--Bookmarks-->

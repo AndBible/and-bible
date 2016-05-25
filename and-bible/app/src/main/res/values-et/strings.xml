@@ -76,7 +76,7 @@
   <string name="prefs_navigate_to_verse_title">Salmi juurde liikumine</string>
   <string name="prefs_navigate_to_verse_summary">Tekstiosa valides vali salm (ja peatükk)</string>
   <string name="prefs_open_links_in_special_window_title">Ava lingid eraldi aknas</string>
-  <string name="prefs_open_links_in_special_window_summary">Ristviidete ja vidiete kiiremaks näitamiseks</string>
+  <string name="prefs_open_links_in_special_window_summary">Ristviidete ja viidete kiiremaks näitamiseks</string>
   <string name="prefs_text_size_title">Teksti suurus</string>
   <string name="prefs_text_size_summary">Näe rohkem ja selgemalt</string>
   <string name="prefs_text_size_sample_text">Näidistekst</string>
@@ -117,7 +117,7 @@
   <string name="error_downloading">Allalaadimisel tekkis tõrge.  Palun kontrolli oma internetiühendust.</string>
   <string name="no_internet_connection">Internetti ühendumine ebaõnnestus</string>
   <string name="storage_space_warning">Pole piisavalt ruumi.</string>
-  <string name="wait_for_bible">Palun oota, kuni Piibli allalaadimine lõpetatakse. Sind viiakse seejärel avaekraanile.</string>
+  <string name="wait_for_bible">Palun oota, kuni Piibli allalaadimine lõpetatakse. Sind viiakse seejärel avaekraanile.\n\nSa saad hiljem rohkem dokumente alla laadida valides menüüst Haldamine &gt; Lae dokumente alla.</string>
   <string name="wait_for_bible_not_yet">Palun oota.  Piibli paigaldamine pole veel lõpetatud.</string>
   <string name="download_complete_no_bibles">Ühtegi Piiblit ei paigaldatud.  Palun vajuta Tagasi ja proovi uuesti.</string>
   <string name="too_many_jobs">Käimas on liiga palju ülesandeid.  Palun oota kuni mõned lõpetatakse ja proovi uuesti.</string>
@@ -141,6 +141,7 @@
   <string name="rdg_plan_y1ot1nt1_OTandNT">Terve Piibel aastaga - VT ja UT</string>
   <string name="rdg_plan_y1ot1nt1_OTthenNT">Terve Piibel aastaga - VT ja siis UT</string>
   <string name="rdg_plan_y1ot1nt2_mcheyne">Aastaga Piibel läbi (M\'Cheyene)</string>
+  <string name="rdg_plan_y2ot1ntps2">2 aastane kava - VT üks kord, UT ja laulud kaks korda läbi</string>
   <!--string name="rdg_plan_m1gospels">Through the Gospels in a month</string-->
   <!--Document context menu-->
   <string name="delete">Kustuta</string>
@@ -149,11 +150,9 @@
   <string name="delete_doc">Kustutada %s?</string>
   <string name="delete_search_index_doc">Kustutada %s indeks?</string>
   <!--Verse context menu-->
-  <string name="select_text">Vali tekst</string>
-  <string name="select_text_help">Valimiseks lohista aeglaselt.\nSeejärel vajuta kopeerimiseks valikul.</string>
   <string name="notes">Allmärkused ja viited</string>
-  <string name="copy">Kopeeri praegune salm</string>
-  <string name="share_verse">Jaga praegust salmi ...</string>
+  <string name="copy">Kopeeri</string>
+  <string name="share_verse">Jaga …</string>
   <string name="share_verse_subject">Sinuga on jagatud piiblisalmi kasutades And Bible\'t</string>
   <string name="compare_translations">Võrdle tõlkeid</string>
   <!--Bookmarks-->
@@ -237,7 +236,7 @@
   <string name="all">Kõik</string>
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Uus</string>
-  <string name="close">SulgeSulge</string>
+  <string name="close">Sulge</string>
   <!--Errors-->
   <string name="report_error">Saada veaaruanne</string>
   <string name="error_occurred">Tekkis viga</string>

@@ -97,7 +97,6 @@
   <string name="delete_doc">%s を削除しますか？</string>
   <string name="delete_search_index_doc">%sの索引消す？</string>
   <!--Verse context menu-->
-  <string name="select_text">テキストを選択します</string>
   <string name="share_verse">現在の節を共有する</string>
   <string name="compare_translations">翻訳比較</string>
   <!--Bookmarks-->

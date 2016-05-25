@@ -150,18 +150,18 @@
   <string name="delete_doc">%s löschen?</string>
   <string name="delete_search_index_doc">Index von %s löschen?</string>
   <!--Verse context menu-->
-  <string name="select_text">Text markieren</string>
-  <string name="select_text_help">Langsam ziehen um Text zu markieren,\ndann markierten Bereich berühren, um zu kopieren.</string>
   <string name="notes">Fußnoten und Querverweise</string>
-  <string name="copy">Vers kopieren</string>
-  <string name="share_verse">Vers teilen...</string>
+  <string name="copy">Kopiere</string>
+  <string name="share_verse">Teile...</string>
   <string name="share_verse_subject">Ein Bibelvers wurde dir mit Hilfe von AndBible geschickt</string>
   <string name="compare_translations">Vergleiche Übersetzungen</string>
   <!--Bookmarks-->
   <string name="bookmarks">Lesezeichen</string>
   <string name="add_bookmark">Lesezeichen hinzufügen</string>
+  <string name="delete_bookmark">Lösche Lesezeichen</string>
   <string name="bookmark_added">Lesezeichen hinzugefügt</string>
   <string name="bookmark_exists">Lesezeichen existiert schon!</string>
+  <string name="bookmark_deleted">Lesezeichen gelöscht</string>
   <string name="bookmark_labels">Gruppen</string>
   <string name="assign_labels">Gruppennamen auswählen</string>
   <string name="new_label">Neue Gruppe</string>

@@ -151,18 +151,18 @@
   <string name="delete_doc">Izbriši %s?</string>
   <string name="delete_search_index_doc">Izbriše indeks %s?</string>
   <!--Verse context menu-->
-  <string name="select_text">Izberi besedilo</string>
-  <string name="select_text_help">Počasi potegni, da izbereš.\nPotem se dotakni izbire, da kopiraš.</string>
   <string name="notes">Opombe pod črto in sklici</string>
-  <string name="copy">Kopiraj trenutno vrstico</string>
-  <string name="share_verse">Pošlji trenutno vrstico ...</string>
+  <string name="copy">Kopiraj</string>
+  <string name="share_verse">Izmenjaj ...</string>
   <string name="share_verse_subject">Biblijska vrstica vam je bila poslana z uporabo And Biblije</string>
   <string name="compare_translations">Primerjaj prevode</string>
   <!--Bookmarks-->
   <string name="bookmarks">Zaznamki</string>
   <string name="add_bookmark">Dodaj zaznamek</string>
+  <string name="delete_bookmark">Zaznamek izbriši</string>
   <string name="bookmark_added">Zaznamek dodan</string>
   <string name="bookmark_exists">Zaznamek že obstaja</string>
+  <string name="bookmark_deleted">Zaznamek pobrisan</string>
   <string name="bookmark_labels">Oznake zaznamkov</string>
   <string name="assign_labels">Dodaj oznake</string>
   <string name="new_label">Nova oznaka</string>

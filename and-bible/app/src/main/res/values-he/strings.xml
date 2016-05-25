@@ -150,11 +150,9 @@
   <string name="delete_doc">האם למחוק %s?</string>
   <string name="delete_search_index_doc">האם למחוק את האינדקס של %s ?</string>
   <!--Verse context menu-->
-  <string name="select_text">סמן טקסט</string>
-  <string name="select_text_help">גרור בעדינות כדי לסמן.\nואז לחץ על הסימון כדי להעתיק.</string>
   <string name="notes">הערות שוליים ומראי מקום</string>
-  <string name="copy">העתק פסוק זה</string>
-  <string name="share_verse">שתף פסוק זה ...</string>
+  <string name="copy">העתק</string>
+  <string name="share_verse">שתף …</string>
   <string name="share_verse_subject">הפסוק הזה נשלח אליך באמצעות And Bible</string>
   <string name="compare_translations">השוואת תרגומים</string>
   <!--Bookmarks-->

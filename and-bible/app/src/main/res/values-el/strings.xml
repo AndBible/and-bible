@@ -131,11 +131,9 @@
   <string name="delete_doc">Διαγραφή του %s?</string>
   <string name="delete_search_index_doc">Διαγραφή ευρετήριου του %s?</string>
   <!--Verse context menu-->
-  <string name="select_text">Επιλογή κειμένου</string>
-  <string name="select_text_help">Σύρετε αργά για να επιλέξετε.\nΣτη συνέχεια, αγγίξτε την επιλογή για να την αντιγράψετε.</string>
   <string name="notes">Υποσημειώσεις και παραπομπές</string>
-  <string name="copy">Αντιγραφή τρέχον στίχου</string>
-  <string name="share_verse">Κοινή χρήση τρέχον στίχου ...</string>
+  <string name="copy">Αντιγραφή</string>
+  <string name="share_verse">Κοινή χρήση …</string>
   <string name="share_verse_subject">Ένας στίχος της αγία γραφής έχει μοιραστεί μαζί σας χρησιμοποιώντας και τη Βίβλο</string>
   <string name="compare_translations">Σύγκριση μεταφράσεων</string>
   <!--Bookmarks-->

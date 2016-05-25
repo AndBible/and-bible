@@ -118,7 +118,7 @@
   <string name="error_downloading">Грешка. Моля проверете достъпа до интернет.</string>
   <string name="no_internet_connection">Няма връзка с интернет.</string>
   <string name="storage_space_warning">Недотатъчно пространство на устройството.</string>
-  <string name="wait_for_bible">Моля изчакайте Библия да се изтегли. Ще бъдете прехвърляни към главният екран.\n\nИзтеглете още документи по-късно през Меню/Изтегляне</string>
+  <string name="wait_for_bible">Моля изчакайте Библията да се изтегли. Ще бъдете прехвърляни към главният екран.\n\nИзтеглете още документи по-късно през Меню/Управление/Изтегляне</string>
   <string name="wait_for_bible_not_yet">Моля изчакайте. Една от библиите още не се е инсталирала</string>
   <string name="download_complete_no_bibles">Неуспешно инсталиране. Моля натиснете \'назад\' и опитайте пак.</string>
   <string name="too_many_jobs">Се изпълняват твърде много задачи. Моля изчакайте и опитайте пак.</string>
@@ -151,18 +151,18 @@
   <string name="delete_doc">Изтрий %s?</string>
   <string name="delete_search_index_doc">Изтриване на индекса  %s?</string>
   <!--Verse context menu-->
-  <string name="select_text">Копирай текст</string>
-  <string name="select_text_help">Бавно дърпайте с пръста за да се избере текст.\nНатиснете избраното за да се копира.</string>
   <string name="notes">Бележки и препратки</string>
-  <string name="copy">Копирай стиха</string>
-  <string name="share_verse">Сподели ...</string>
+  <string name="copy">Копирай</string>
+  <string name="share_verse">Сподели...</string>
   <string name="share_verse_subject">Стих от Библия споделян чрез приложение \"AndBible\"</string>
   <string name="compare_translations">Сравни преводи</string>
   <!--Bookmarks-->
   <string name="bookmarks">Показалци</string>
   <string name="add_bookmark">Добави показалец</string>
+  <string name="delete_bookmark">Премахни показалец</string>
   <string name="bookmark_added">Показалецът е опреснен</string>
   <string name="bookmark_exists">Вече има такъв показалец</string>
+  <string name="bookmark_deleted">Показалецът е премахнат</string>
   <string name="bookmark_labels">Етикети</string>
   <string name="assign_labels">Задай етикет</string>
   <string name="new_label">Нов етикет</string>
@@ -214,6 +214,7 @@
   <string name="restore_confirmation">Презаписване на бележките и показалците?</string>
   <string name="restore_success">Бележките и показалците са възстановени от %s на SD картата</string>
   <!--About-->
+  <string name="about_copyright">Авторско право: %s</string>
   <string name="about_version">Версия:  %s</string>
   <string name="about_versification">Версификация: %s</string>
   <!--Document types-->
@@ -240,6 +241,7 @@
   <string name="new_item">Ново</string>
   <string name="close">Затвори</string>
   <!--Errors-->
+  <string name="report_error">Изпрати отчет</string>
   <string name="error_occurred">Грешка</string>
   <string name="error_no_content">Избранният стих няма съдържание</string>
   <string name="error_page_too_large">Страницата е твърде голяма за да бъде отворена</string>

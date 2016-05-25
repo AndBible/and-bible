@@ -150,18 +150,18 @@
   <string name="delete_doc">Hapus %s?</string>
   <string name="delete_search_index_doc">Hapus indeks dari %s?</string>
   <!--Verse context menu-->
-  <string name="select_text">Pilih teks</string>
-  <string name="select_text_help">Tarik perlahan untuk memilih. \nKemudian sentuh seleksi untuk mengkopy.</string>
   <string name="notes">Catatan kaki dan referensi</string>
-  <string name="copy">Kopy ayat aktif</string>
-  <string name="share_verse">Berbagi ayat aktif ...</string>
+  <string name="copy">Salin</string>
+  <string name="share_verse">Share</string>
   <string name="share_verse_subject">Sebuah ayat Alkitab telah dibagikan dengan anda menggunakan And Alkitab</string>
   <string name="compare_translations">Terjemahan bandingkan </string>
   <!--Bookmarks-->
   <string name="bookmarks">Bookmarks</string>
   <string name="add_bookmark">Tambahkan bookmark</string>
+  <string name="delete_bookmark">Hapus bookmark</string>
   <string name="bookmark_added">Bookmark ditambahkan</string>
   <string name="bookmark_exists">Bookmark sudah ada</string>
+  <string name="bookmark_deleted">bookmark telah dihapus</string>
   <string name="bookmark_labels">Label Bookmark</string>
   <string name="assign_labels">Tetapkan label</string>
   <string name="new_label">Label Baru</string>
@@ -213,6 +213,7 @@
   <string name="restore_confirmation">Tulis lagi di atas Catatan-catatan Saya dan Bookmarks?</string>
   <string name="restore_success">Catatan-catatan Saya dan Bookmarks disimpan kembali %s ke Kartu SD</string>
   <!--About-->
+  <string name="about_copyright">Hak cipta %s</string>
   <string name="about_version">Versi: %s</string>
   <string name="about_versification">Versification: %s</string>
   <!--Document types-->
@@ -239,6 +240,7 @@
   <string name="new_item">Baru</string>
   <string name="close">Tutup</string>
   <!--Errors-->
+  <string name="report_error">Kirim laporan</string>
   <string name="error_occurred">Sebuah kesalahan telah terjadi</string>
   <string name="error_no_content">Ayat yang dipilih, tidak ada isi </string>
   <string name="error_page_too_large">Halaman terlalu besar untuk dimuat</string>

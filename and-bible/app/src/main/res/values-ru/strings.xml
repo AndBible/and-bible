@@ -150,18 +150,18 @@
   <string name="delete_doc">Удалить %s?</string>
   <string name="delete_search_index_doc">Удалить индекс %s?</string>
   <!--Verse context menu-->
-  <string name="select_text">Выбрать отрывок из текста</string>
-  <string name="select_text_help">Для того, чтобы выбрать отрывок из текста медленно проведите по нему пальцем.\nЗатем прикоснитесь к выбранному, чтобы скопировать.</string>
   <string name="notes">Заметки и ссылки</string>
-  <string name="copy">Скопировать этот стих</string>
-  <string name="share_verse">Отправить стих через...</string>
+  <string name="copy">Копировать</string>
+  <string name="share_verse">Поделиться …</string>
   <string name="share_verse_subject">Стих отправлен для Вас от And Bible</string>
   <string name="compare_translations">Сравнить переводы</string>
   <!--Bookmarks-->
   <string name="bookmarks">Закладки</string>
   <string name="add_bookmark">Добавить закладку</string>
+  <string name="delete_bookmark">Удалить закладку</string>
   <string name="bookmark_added">Закладка добавлена</string>
   <string name="bookmark_exists">Закладка уже существует</string>
+  <string name="bookmark_deleted">Закладка удалена</string>
   <string name="bookmark_labels">Ярлыки</string>
   <string name="assign_labels">Прикрепить ярлык</string>
   <string name="new_label">Новый ярлык</string>

@@ -164,12 +164,9 @@ səhifələrdən yüklənilir</string>
   <string name="delete_doc">%s silinsin?</string>
   <string name="delete_search_index_doc">%s\'in indeksini silinsin?</string>
   <!--Verse context menu-->
-  <string name="select_text">Mətni seç</string>
-  <string name="select_text_help">Seçmək üçün yavaşca sürüşdürün.\n
-Seçdikdən sonra kopyalamaq üçün seçimə toxunun.</string>
   <string name="notes">Haşiyələr və daxili göndərmələr</string>
-  <string name="copy">Seçilmiş ayəni kopyala</string>
-  <string name="share_verse">Seçilmiş ayəni paylaş</string>
+  <string name="copy">Kopyala</string>
+  <string name="share_verse">Paylaş …</string>
   <string name="share_verse_subject">And Bible tətbiq edəndə sizinlə Müqəddəs Kitabdan bir ayə paylaşdım</string>
   <string name="compare_translations">Tərcümələri qarşılaşdır</string>
   <!--Bookmarks-->

@@ -149,11 +149,9 @@
   <string name="delete_doc">%s 을 (를) 삭제하시겠습니까?</string>
   <string name="delete_search_index_doc">%s 의 색인을 삭제하시겠습니까?</string>
   <!--Verse context menu-->
-  <string name="select_text">텍스트를 선택합니다</string>
-  <string name="select_text_help">선택 천천히 드래그합니다. 다음 복사 선택을 터치.</string>
   <string name="notes">각주 및 참고 문헌</string>
-  <string name="copy">복사 현재 구절</string>
-  <string name="share_verse">공유 전류 구절 ...</string>
+  <string name="copy">복사</string>
+  <string name="share_verse">공유 …</string>
   <string name="share_verse_subject">성경 구절은 당신이 사용하고 And 성경을 공유했습니다</string>
   <string name="compare_translations">번역을 비교</string>
   <!--Bookmarks-->

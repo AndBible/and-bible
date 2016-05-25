@@ -128,11 +128,7 @@
   <string name="delete_doc">ลบ %s หรือไม่?</string>
   <string name="delete_search_index_doc">ลบดัชนีของ %s หรือไม่?</string>
   <!--Verse context menu-->
-  <string name="select_text">เลือกเพื่อคัดลอก</string>
-  <string name="select_text_help">ลากช้าๆ เพื่อเลือก\nแล้วสัมผัสส่วนที่เลือกเพื่อคัดลอก</string>
   <string name="notes">เชิงอรรถและข้ออ้างโยง</string>
-  <string name="copy">คัดลอกข้อพระคัมภีร์นี้</string>
-  <string name="share_verse">แบ่งปันข้อพระคัมภีร์นี้...</string>
   <string name="share_verse_subject">แบ่งปันข้อพระคัมภีร์จาก And Bible</string>
   <string name="compare_translations">เปรียบเทียบ</string>
   <!--Bookmarks-->

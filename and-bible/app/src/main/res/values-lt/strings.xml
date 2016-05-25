@@ -150,18 +150,18 @@
   <string name="delete_doc">Pašalinti %s?</string>
   <string name="delete_search_index_doc">Pašalinti %s indeksą?</string>
   <!--Verse context menu-->
-  <string name="select_text">Pažymėti tekstą</string>
-  <string name="select_text_help">Norėdami pažymėti, lėtai traukite.\nTuomet palieskite pažymėtą tekstą, kad jis būtų nukopijuotas.</string>
   <string name="notes">Išnašos ir nuorodos</string>
-  <string name="copy">Kopijuoti einamąją eilutę</string>
-  <string name="share_verse">Dalintis pasirinkta eilute ...</string>
+  <string name="copy">Kopijuoti</string>
+  <string name="share_verse">Dalintis</string>
   <string name="share_verse_subject">Su jumis pasidalinta Biblijos eilute per programą And Bible</string>
   <string name="compare_translations">Lyginti vertimus</string>
   <!--Bookmarks-->
   <string name="bookmarks">Žymės</string>
   <string name="add_bookmark">Pridėti žymę</string>
+  <string name="delete_bookmark">Pašalinti žymę</string>
   <string name="bookmark_added">Žymė pridėta</string>
   <string name="bookmark_exists">Žymė jau egzistuoja</string>
+  <string name="bookmark_deleted">Žymė pašalinta</string>
   <string name="bookmark_labels">Žymės kortelės</string>
   <string name="assign_labels">Priskirti korteles</string>
   <string name="new_label">Nauja kortelė</string>
