@@ -5,6 +5,7 @@ import net.bible.android.common.resource.AndroidResourceProvider;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
 
+import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.passage.VerseRangeFactory;
@@ -87,9 +88,6 @@ public class BookmarkControlTest {
 			addTestVerse();
 			
 			List<BookmarkDto> bookmarks = bookmarkControl.getAllBookmarks();
-			for (BookmarkDto dto : bookmarks) {
-				System.out.println(dto.getId()+" "+dto.getVerseRange().getName());
-			}
 			assertTrue( bookmarks.size()==3);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -199,19 +197,44 @@ public class BookmarkControlTest {
 		assertThat(bookmarkControl.isBookmarkForKey(verseWithSameStart), equalTo(false));
 	}
 
+	@Test
+	public void testGetVersesWithBookmarksInPassage() throws Exception {
+		final VerseRange passage = new VerseRange(KJV_VERSIFICATION, new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 1), new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10));
+
+		// add bookmark in range
+		addBookmark("ps.17.1-ps.17.2");
+		addBookmark("ps.17.10");
+
+		// add bookmark out of range
+		addBookmark("ps.17.0");
+		addBookmark("ps.17.11");
+
+		// check only bookmark in range is returned
+		final List<Verse> versesWithBookmarksInPassage = bookmarkControl.getVersesWithBookmarksInPassage(passage);
+		assertThat(versesWithBookmarksInPassage.size(), equalTo(3));
+		assertThat(versesWithBookmarksInPassage.get(0).getVerse(), equalTo(1));
+		assertThat(versesWithBookmarksInPassage.get(1).getVerse(), equalTo(2));
+		assertThat(versesWithBookmarksInPassage.get(2).getVerse(), equalTo(10));
+	}
+
 	private BookmarkDto addTestVerse() {
 		try {
 			currentTestVerse = getNextTestVerse();
-			
-			BookmarkDto bookmark = new BookmarkDto();
-			bookmark.setVerseRange(VerseRangeFactory.fromString(KJV_VERSIFICATION, currentTestVerse));
-			BookmarkDto newDto = bookmarkControl.addBookmark(bookmark);
-			return newDto;
+
+			return addBookmark(currentTestVerse);
 		} catch (Exception e) {
 			fail("Error in verse:"+currentTestVerse);
 		}
 		return null;
 	}
+
+	private BookmarkDto addBookmark(String verse) throws NoSuchVerseException {
+		BookmarkDto bookmark = new BookmarkDto();
+		bookmark.setVerseRange(VerseRangeFactory.fromString(KJV_VERSIFICATION, verse));
+		BookmarkDto newDto = bookmarkControl.addBookmark(bookmark);
+		return newDto;
+	}
+
 	/**
 	 * @return
 	 */

@@ -340,18 +340,20 @@ public class BookmarkControl implements Bookmark {
 		// convert to required versification and check verse is in passage
 		List<Verse> versesInPassage = new ArrayList<>();
 		if (bookmarkList!=null) {
-			boolean isVerseRange = passage instanceof VerseRange;
+			boolean isPassageAVerseRange = passage instanceof VerseRange;
 			Versification requiredVersification = firstVerse.getVersification();
 			for (BookmarkDto bookmarkDto : bookmarkList) {
-				Verse verse = bookmarkDto.getVerseRange(requiredVersification).getStart();
-				//TODO should not require VerseRange cast but bug in JSword
-				if (isVerseRange) {
-					if (((VerseRange)passage).contains(verse)) {
-						versesInPassage.add(verse);
-					}
-				} else {
-					if (passage.contains(verse)) {
-						versesInPassage.add(verse);
+				VerseRange verseRange = bookmarkDto.getVerseRange(requiredVersification);
+				for (Verse verse : verseRange.toVerseArray()) {
+					//TODO should not require VerseRange cast but bug in JSword
+					if (isPassageAVerseRange) {
+						if (((VerseRange)passage).contains(verse)) {
+							versesInPassage.add(verse);
+						}
+					} else {
+						if (passage.contains(verse)) {
+							versesInPassage.add(verse);
+						}
 					}
 				}
 			}
