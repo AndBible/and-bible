@@ -121,9 +121,21 @@ h1 a, .heading2, .heading3, .heading4 {
 /*	-webkit-rtl-ordering: logical; */
 }
 
-.bookmark {
+.YELLOW_HIGHLIGHT {
 	/* yellow */
-	background-color: #C0C000;
+	background-color: rgba(255, 255, 0, 0.25);
+}
+.RED_HIGHLIGHT {
+	/* green */
+	background-color: rgba(255, 0, 0, 0.25);
+}
+.GREEN_HIGHLIGHT {
+	/* green */
+	background-color: rgba(0, 255, 0, 0.25);
+}
+.BLUE_HIGHLIGHT {
+	/* blue */
+	background-color: rgba(0, 0, 255, 0.25);
 }
 
 .selected {

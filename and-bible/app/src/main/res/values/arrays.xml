@@ -27,7 +27,24 @@
 		<item>true</item>
 		<item>automatic</item>
 	</string-array>
-	
+
+
+	<!-- Screen colors: automatic night mode, day, night -->
+	<string-array name="prefs_bookmark_style_descriptions">
+		<item>@string/yellow_star</item>
+		<item>@string/red_highlight</item>
+		<item>@string/yellow_highlight</item>
+		<item>@string/green_highlight</item>
+		<item>@string/blue_highlight</item>
+	</string-array>
+	<string-array name="prefs_bookmark_style_values">
+		<item>YELLOW_STAR</item>
+		<item>RED_HIGHLIGHT</item>
+		<item>YELLOW_HIGHLIGHT</item>
+		<item>GREEN_HIGHLIGHT</item>
+		<item>BLUE_HIGHLIGHT</item>
+	</string-array>
+
 	<!-- These languages must be in the same order as the language codes below -->
 	<string-array name="prefs_interface_locale_descriptions">
 		<item>@string/lang_default</item>

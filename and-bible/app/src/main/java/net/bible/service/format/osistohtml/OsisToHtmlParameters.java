@@ -1,5 +1,7 @@
 package net.bible.service.format.osistohtml;
 
+import net.bible.android.control.bookmark.BookmarkStyle;
+
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
@@ -23,6 +25,7 @@ public class OsisToHtmlParameters {
     private boolean isVersePerline = false;
     private boolean isShowMyNotes = false;
     private boolean isShowBookmarks = false;
+	private BookmarkStyle defaultBookmarkStyle = BookmarkStyle.YELLOW_STAR;
     private boolean isShowNotes = false;
     private boolean isAutoWrapUnwrappedRefsInNote = false;
     // used as a basis if a reference has only chapter and no book
@@ -94,6 +97,14 @@ public class OsisToHtmlParameters {
 	public void setShowBookmarks(boolean isShowBookmarks) {
 		this.isShowBookmarks = isShowBookmarks;
 	}
+
+	public BookmarkStyle getDefaultBookmarkStyle() {
+		return defaultBookmarkStyle;
+	}
+	public void setDefaultBookmarkStyle(BookmarkStyle defaultBookmarkStyle) {
+		this.defaultBookmarkStyle = defaultBookmarkStyle;
+	}
+
 	public boolean isShowNotes() {
 		return isShowNotes;
 	}

@@ -117,7 +117,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		
 		osisTagHandlers = new HashMap<>();
 		
-		BookmarkMarker bookmarkMarker = new BookmarkMarker(parameters, verseInfo, getWriter());
+		BookmarkMarker bookmarkMarker = new BookmarkMarker(parameters, verseInfo);
 		MyNoteMarker myNoteMarker = new MyNoteMarker(parameters, verseInfo, getWriter());
 		registerHandler( new VerseHandler(parameters, verseInfo, bookmarkMarker, myNoteMarker, getWriter()) );
 		

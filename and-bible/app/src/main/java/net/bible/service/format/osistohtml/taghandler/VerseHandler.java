@@ -10,6 +10,9 @@ import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Surround whole verse with
  *    <span class='verse' id='N'><span class='verseNo'>N</span>verse text here</span>
@@ -66,22 +69,23 @@ public class VerseHandler implements OsisTagHandler {
 			writer.write("<div>");
 		}
 
-		writeVerseStart(verseInfo.currentVerseNo);
+		List<String> classes = new ArrayList<>(1);
+		classes.add("verse");
+		classes.addAll(	bookmarkMarker.getBookmarkClasses() );
+
+		writeVerseStart(verseNo, classes);
 
 		// initialise other related handlers that write content at start of verse
-		bookmarkMarker.start(attrs);
 		myNoteMarker.start(attrs);
 
 		// record that we are into a new verse
 		verseInfo.isTextSinceVerse = false;
 	}
 
-
 	@Override
 	public void end() {
 		// these related handlers currently do nothing on end
 		myNoteMarker.end();
-		bookmarkMarker.end();
 
 		if (verseInfo.isTextSinceVerse) {
 			writeVerseEnd();
@@ -104,13 +108,15 @@ public class VerseHandler implements OsisTagHandler {
 		return verseNo;
 	}
 
-	private void writeVerseStart(int verseNo) {
+	private void writeVerseStart(int verseNo, List<String> classList) {
 		verseInfo.positionToInsertBeforeVerse = writer.getPosition();
+
+		String cssClasses = StringUtils.join(classList, " ");
 
 		// The id is used to 'jump to' the verse using javascript so always need the verse tag with an id
 		// Do not show verse 0
 		StringBuilder verseHtml = new StringBuilder();
-		verseHtml.append(" <span class='verse' id='").append(verseNo).append("'>").append(getVerseNumberHtml(verseNo));
+		verseHtml.append(" <span class='").append(cssClasses).append("' id='").append(verseNo).append("'>").append(getVerseNumberHtml(verseNo));
 		writer.write(verseHtml.toString());
 	}
 

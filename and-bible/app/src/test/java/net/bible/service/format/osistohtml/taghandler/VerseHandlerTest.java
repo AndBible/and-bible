@@ -1,8 +1,5 @@
 package net.bible.service.format.osistohtml.taghandler;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-
 import net.bible.service.format.osistohtml.HtmlTextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.VerseInfo;
@@ -11,6 +8,9 @@ import org.crosswire.jsword.book.OSISUtil;
 import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.helpers.AttributesImpl;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 public class VerseHandlerTest {
 	private OsisToHtmlParameters osisToHtmlParameters;
@@ -25,7 +25,7 @@ public class VerseHandlerTest {
 	public void setUp() throws Exception {
 		osisToHtmlParameters = new OsisToHtmlParameters();
 		verseInfo = new VerseInfo();
-		bookmarkMarker = new BookmarkMarker(osisToHtmlParameters, verseInfo, htmlTextWriter);
+		bookmarkMarker = new BookmarkMarker(osisToHtmlParameters, verseInfo);
 		myNoteMarker = new MyNoteMarker(osisToHtmlParameters, verseInfo, htmlTextWriter);
 		htmlTextWriter = new HtmlTextWriter();
 		

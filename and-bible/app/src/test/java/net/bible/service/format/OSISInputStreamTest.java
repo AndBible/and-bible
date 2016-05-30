@@ -3,16 +3,6 @@
  */
 package net.bible.service.format;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.List;
-
 import net.bible.service.common.ParseException;
 import net.bible.service.device.ScreenSettings;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
@@ -37,6 +27,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.xml.sax.ContentHandler;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 
 
 /**
@@ -86,7 +86,7 @@ public class OSISInputStreamTest {
 	}
 
 	/**
-	 * Test method for {@link net.bible.service.format.scripture.service.sword.OSISInputStream#read()}.
+	 * Test method for {@link net.bible.service.format.OSISInputStream#read()}.
 	 * <!DOCTYPE div [<!ENTITY nbsp "&#160;"><!ENTITY copy "&#169;">]><div><verse osisID='Gen.1.1'/><w lemma="strong:H07225">In the begin
 ning</w> <w lemma="strong:H0430">God</w> <w lemma="strong:H0853 strong:H01254" morph="strongMorph:TH8804">created</w> <w lemma="st
 rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H0776">the earth</w>.
@@ -144,12 +144,11 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 	@Test
 	public void testReadTSK() throws Exception {
 		Book book = getBook("TSK");
-
-//		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Is 40:11"));
-//		OSISInputStream osisInputStream = new OSISInputStream(kjv, kjv.getKey("Mt 4:14"));
-		OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Ps 118:2"));
-		String chapter = convertStreamToString(osisInputStream);
-		System.out.println(chapter);
+		if (book != null) {
+			OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Ps 118:2"));
+			String chapter = convertStreamToString(osisInputStream);
+			System.out.println(chapter);
+		}
 	}
 
 	@Test
@@ -176,7 +175,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 	}
 
 	/**
-	 * Test method for {@link net.bible.service.format.scripture.service.sword.OSISInputStream#read()}.
+	 * Test method for {@link net.bible.service.format.OSISInputStream#read()}.
 	 */
 	public void testReadNetBible() throws Exception {
 		OSISInputStream osisInputStream = new OSISInputStream(netBook, netBook.getKey("Gen 4"));
@@ -220,7 +219,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 		System.out.println(chapter);
 	}
 	/**
-	 * Test method for {@link net.bible.service.format.scripture.service.sword.OSISInputStream#read()}.
+	 * Test method for {@link net.bible.service.format.OSISInputStream#read()}.
 	 */
 	public void testReadSingleChapterBook() throws Exception {
 		OSISInputStream osisInputStream = new OSISInputStream(netBook, netBook.getKey("3 John"));
@@ -232,7 +231,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 	}
 	
 	/**
-	 * Test method for {@link net.bible.service.format.scripture.service.sword.OSISInputStream#read()}.
+	 * Test method for {@link net.bible.service.format.OSISInputStream#read()}.
 	 */
 	public void testReadVeryLongBook() throws Exception {
 		Book esv = getBook("ESV");
