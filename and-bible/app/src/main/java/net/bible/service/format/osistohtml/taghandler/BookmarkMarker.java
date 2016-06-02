@@ -44,7 +44,6 @@ public class BookmarkMarker {
 		if (bookmarkedVerses!=null && parameters.isShowBookmarks()) {
 			if (bookmarkedVerses.contains(verseInfo.currentVerseNo)) {
 				return Arrays.asList(parameters.getDefaultBookmarkStyle().name());
-//				writer.write("<img src='file:///android_asset/images/GoldStar16x16.png' class='myNoteImg'/>");
 			}
 		}
 		return Collections.emptyList();

@@ -123,19 +123,25 @@ h1 a, .heading2, .heading3, .heading4 {
 
 .YELLOW_HIGHLIGHT {
 	/* yellow */
-	background-color: rgba(255, 255, 0, 0.25);
+	background-color: rgba(255, 255, 0, 0.33);
 }
 .RED_HIGHLIGHT {
 	/* green */
-	background-color: rgba(255, 0, 0, 0.25);
+	background-color: rgba(213, 0, 0, 0.28);
 }
 .GREEN_HIGHLIGHT {
 	/* green */
-	background-color: rgba(0, 255, 0, 0.25);
+	background-color: rgba(0, 255, 0, 0.33);
 }
 .BLUE_HIGHLIGHT {
-	/* blue */
-	background-color: rgba(0, 0, 255, 0.25);
+	/* blue #91a7ff*/
+	background-color: rgba(145, 167, 255, 0.33);
+}
+
+.YELLOW_STAR>.verseNo:after {
+   content:url(file:///android_asset/images/GoldStar16x16.png);
+   vertical-align: 10%;
+   padding: 0 0 0 3px;
 }
 
 .selected {
