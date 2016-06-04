@@ -32,7 +32,7 @@
 				android:title="@string/prefs_show_bookmarks_title"
 				android:summary="@string/prefs_show_bookmarks_summary"
 				android:defaultValue="true"/>
-	<ListPreference android:key="default_bookmark_style_pref"
+	<net.bible.android.view.util.ColourPreference android:key="default_bookmark_style_pref"
 					android:title="@string/prefs_default_bookmark_style_title"
 					android:summary="@string/prefs_default_bookmark_style_summary"
 					android:entries="@array/prefs_bookmark_style_descriptions"
