@@ -195,6 +195,8 @@ public class HistoryManager {
 	}
 
 	private void loadHistoryFromPersitent(Stack<HistoryItem> historyStack){
+		if(windowControl.isMultiWindow())
+			return;
 		final Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
 		SharedPreferences history = currentActivity.getSharedPreferences(HISTORY_STR, Context.MODE_PRIVATE);
 		int originalI = history.getInt(TOP_STR, -1);
