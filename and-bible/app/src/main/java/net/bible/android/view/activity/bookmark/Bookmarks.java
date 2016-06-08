@@ -18,6 +18,7 @@ import android.widget.Toast;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.Bookmark;
+import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActionModeHelper;
 import net.bible.android.view.activity.base.ListActivityBase;
@@ -38,9 +39,6 @@ import java.util.List;
  *      The copyright to this program is held by it's author.
  */
 public class Bookmarks extends ListActivityBase implements ListActionModeHelper.ActionModeActivity {
-	static final String BOOKMARK_IDS_EXTRA = "bookmarkIds";
-	static final String LABEL_NO_EXTRA = "labelNo";
-
 	private Bookmark bookmarkControl;
 	
 	// language spinner
@@ -69,8 +67,8 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
         // if coming Back using History then the LabelNo will be in the intent allowing the correct label to be pre-selected
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
-			if (extras.containsKey(LABEL_NO_EXTRA)) {
-				int labelNo = extras.getInt(LABEL_NO_EXTRA);
+			if (extras.containsKey(BookmarkControl.LABEL_NO_EXTRA)) {
+				int labelNo = extras.getInt(BookmarkControl.LABEL_NO_EXTRA);
 				if (labelNo>=0) {
 					selectedLabelNo = labelNo;
 				}
@@ -164,7 +162,7 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 		Log.d(TAG, "Saving label no in History Intent");
 		Intent intent = getIntent();
 		
-		intent.putExtra(LABEL_NO_EXTRA, selectedLabelNo);
+		intent.putExtra(BookmarkControl.LABEL_NO_EXTRA, selectedLabelNo);
 
 		return intent;
 	}
@@ -177,7 +175,7 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 		}
 
 		Intent intent = new Intent(this, BookmarkLabels.class);
-		intent.putExtra(BOOKMARK_IDS_EXTRA, bookmarkIds);
+		intent.putExtra(BookmarkControl.BOOKMARK_IDS_EXTRA, bookmarkIds);
 		startActivityForResult(intent, 1);
 	}
 

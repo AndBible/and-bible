@@ -17,6 +17,7 @@ import android.widget.ListView;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.Bookmark;
+import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
@@ -57,7 +58,7 @@ public class BookmarkLabels extends ListActivityBase {
 
         bookmarkControl = ControlFactory.getInstance().getBookmarkControl();
         
-        long[] bookmarkIds = getIntent().getLongArrayExtra(Bookmarks.BOOKMARK_IDS_EXTRA);
+        long[] bookmarkIds = getIntent().getLongArrayExtra(BookmarkControl.BOOKMARK_IDS_EXTRA);
         bookmarks = bookmarkControl.getBookmarksById(bookmarkIds);
 
         initialiseView();

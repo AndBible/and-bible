@@ -1,15 +1,19 @@
 package net.bible.android.control.bookmark;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.support.design.widget.Snackbar;
 import android.util.Log;
-import android.widget.Toast;
+import android.view.View;
 
-import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.common.resource.ResourceProvider;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
+import net.bible.android.view.activity.bookmark.BookmarkLabels;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.db.bookmark.BookmarkDBAdapter;
 import net.bible.service.db.bookmark.BookmarkDto;
@@ -37,6 +41,9 @@ import java.util.Set;
  */
 public class BookmarkControl implements Bookmark {
 
+	public static final String BOOKMARK_IDS_EXTRA = "bookmarkIds";
+	public static final String LABEL_NO_EXTRA = "labelNo";
+
 	public LabelDto LABEL_ALL;
 	public LabelDto LABEL_UNLABELLED;
 
@@ -60,9 +67,11 @@ public class BookmarkControl implements Bookmark {
 		if (currentPageControl.isBibleShown() || currentPageControl.isCommentaryShown()) {
 
 			BookmarkDto bookmarkDto = getBookmarkByKey(verseRange);
+			final Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
+			final View currentView = currentActivity.findViewById(android.R.id.content);
 			if (bookmarkDto !=null) {
 				if (deleteBookmark(bookmarkDto)) {
-					Toast.makeText(BibleApplication.getApplication().getApplicationContext(), R.string.bookmark_deleted, Toast.LENGTH_SHORT).show();
+					Snackbar.make(currentView, R.string.bookmark_deleted, Snackbar.LENGTH_SHORT).show();
 				} else {
 					Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
 				}
@@ -70,11 +79,19 @@ public class BookmarkControl implements Bookmark {
 				// prepare new bookmark and add to db
 				bookmarkDto = new BookmarkDto();
 				bookmarkDto.setVerseRange(verseRange);
-				BookmarkDto newBookmark = addBookmark(bookmarkDto);
+				final BookmarkDto newBookmark = addBookmark(bookmarkDto);
 				
 				if (newBookmark!=null) {
 					// success
-					Toast.makeText(BibleApplication.getApplication().getApplicationContext(), R.string.bookmark_added, Toast.LENGTH_SHORT).show();
+					Snackbar.make(currentView, R.string.bookmark_added, Snackbar.LENGTH_SHORT).setAction(R.string.assign_labels, new View.OnClickListener() {
+						@Override
+						public void onClick(View v) {
+							// Show label view for new bookmark
+							final Intent intent = new Intent(currentActivity, BookmarkLabels.class);
+							intent.putExtra(BOOKMARK_IDS_EXTRA, new long[] {newBookmark.getId()});
+							currentActivity.startActivity(intent);
+						}
+					}).show();
 					bOk = true;
 				} else {
 					Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
