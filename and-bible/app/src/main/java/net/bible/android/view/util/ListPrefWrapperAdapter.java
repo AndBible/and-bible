@@ -1,17 +1,35 @@
 package net.bible.android.view.util;
 
+import android.content.Context;
 import android.database.DataSetObserver;
 import android.graphics.Color;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
+import android.widget.TextView;
 import android.widget.WrapperListAdapter;
 
-class ListPrefWrapperAdapter implements WrapperListAdapter {
-    private ListAdapter mOrigAdapter;
+import net.bible.android.activity.R;
+import net.bible.android.view.util.widget.CheckedTextViewWithImages;
+import net.bible.service.common.CommonUtils;
 
-    public ListPrefWrapperAdapter(ListAdapter origAdapter) {
-        mOrigAdapter = origAdapter;
+/**
+ * Allow selection of default Bookmark colour preference.
+ *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ * The copyright to this program is held by it's author.
+ */
+class ListPrefWrapperAdapter implements WrapperListAdapter {
+	private Context context;
+	private ListAdapter mOrigAdapter;
+
+	private String sampleText = CommonUtils.getResourceString(R.string.prefs_text_size_sample_text);
+
+    public ListPrefWrapperAdapter(Context context, ListAdapter origAdapter) {
+		this.context = context;
+		mOrigAdapter = origAdapter;
     }
 
     @Override
@@ -61,10 +79,35 @@ class ListPrefWrapperAdapter implements WrapperListAdapter {
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        if (position==2) {
-            convertView.setBackgroundColor(Color.BLUE);
+        TextView view = new CheckedTextViewWithImages(context);
+		String text = sampleText;
+		int backgroundColor = Color.WHITE;
+
+        switch (position) {
+            case 0:
+                backgroundColor = Color.WHITE;
+				text = "[img src=goldstar16x16/]"+text;
+				break;
+            case 1:
+                backgroundColor = Color.RED;
+				break;
+            case 2:
+				backgroundColor = Color.YELLOW;
+				break;
+            case 3:
+				backgroundColor = Color.GREEN;
+				break;
+            case 4:
+				backgroundColor = Color.BLUE;
+				break;
         }
-        return getWrappedAdapter().getView(position, convertView, parent);
+		view.setBackgroundColor(backgroundColor);
+		view.setText(text);
+
+		view.setTextColor(Color.BLACK);
+		view.setGravity(Gravity.CENTER);
+		view.setHeight(CommonUtils.convertDipsToPx(30));
+        return view;
     }
 
     @Override

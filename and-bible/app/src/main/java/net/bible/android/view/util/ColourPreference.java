@@ -9,6 +9,8 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 
 /**
+ * Allow selection of default Bookmark colour preference.
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  * The copyright to this program is held by it's author.
@@ -23,21 +25,6 @@ public class ColourPreference extends ListPreference {
 		super(context);
 	}
 
-//	@Override protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
-//		super.onPrepareDialogBuilder(builder);
-//		// do something with builder and make a nice cute dialogue, for example, like this
-//		builder.setSingleChoiceItems(new CustomListPreferenceAdapter, 0, new DialogInterface.OnClickListener() {
-//			public void onClick(DialogInterface dialog, int which) {
-////				mClickedDialogEntryIndex = which;
-//
-//				/*
-//				 * Clicking on an item simulates the positive button
-//				 * click, and dismisses the dialog.
-//				 */
-//				ColourPreference.this.onClick(dialog, DialogInterface.BUTTON_POSITIVE);
-//				dialog.dismiss();
-//			});
-//	}
 	@Override
 	protected void showDialog(Bundle state) {
 		super.showDialog(state);
@@ -56,6 +43,6 @@ public class ColourPreference extends ListPreference {
 	}
 
 	protected ListPrefWrapperAdapter createWrapperAdapter(ListAdapter origAdapter) {
-		return new ListPrefWrapperAdapter(origAdapter);
+		return new ListPrefWrapperAdapter(getContext(), origAdapter);
 	}
 }
