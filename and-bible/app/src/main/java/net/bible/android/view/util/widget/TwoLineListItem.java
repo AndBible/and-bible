@@ -34,7 +34,10 @@ import net.bible.android.activity.R;
  * {@link android.R.layout#two_line_list_item standard layout resource for TwoLineListView} 
  * (which does not include a selected item icon), but you can design your own custom XML
  * layout for this object.
- * 
+ *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br>
+ *      The copyright to this program is held by it's author.
  */
 public class TwoLineListItem extends RelativeLayout {
 
