@@ -1,17 +1,12 @@
-package net.bible.android.view.util;
+package net.bible.android.view.util.widget;
 
-import android.content.Context;
 import android.database.DataSetObserver;
-import android.graphics.Color;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListAdapter;
-import android.widget.TextView;
 import android.widget.WrapperListAdapter;
 
 import net.bible.android.activity.R;
-import net.bible.android.view.util.widget.CheckedTextViewWithImages;
 import net.bible.service.common.CommonUtils;
 
 /**
@@ -21,18 +16,16 @@ import net.bible.service.common.CommonUtils;
  * @see gnu.lgpl.License for license details.<br>
  * The copyright to this program is held by it's author.
  */
-class ListPrefWrapperAdapter implements WrapperListAdapter {
-	private Context context;
+public class ListPrefWrapperAdapter implements WrapperListAdapter {
 	private ListAdapter mOrigAdapter;
 
 	private String sampleText = CommonUtils.getResourceString(R.string.prefs_text_size_sample_text);
 
-    public ListPrefWrapperAdapter(Context context, ListAdapter origAdapter) {
-		this.context = context;
+    public ListPrefWrapperAdapter(ListAdapter origAdapter) {
 		mOrigAdapter = origAdapter;
     }
 
-    @Override
+	@Override
     public ListAdapter getWrappedAdapter() {
         return mOrigAdapter;
     }
@@ -62,7 +55,12 @@ class ListPrefWrapperAdapter implements WrapperListAdapter {
         return getWrappedAdapter().getCount();
     }
 
-    @Override
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		return getWrappedAdapter().getView(position, convertView, parent);
+	}
+
+	@Override
     public Object getItem(int position) {
         return getWrappedAdapter().getItem(position);
     }
@@ -75,39 +73,6 @@ class ListPrefWrapperAdapter implements WrapperListAdapter {
     @Override
     public boolean hasStableIds() {
         return getWrappedAdapter().hasStableIds();
-    }
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        TextView view = new CheckedTextViewWithImages(context);
-		String text = sampleText;
-		int backgroundColor = Color.WHITE;
-
-        switch (position) {
-            case 0:
-                backgroundColor = Color.WHITE;
-				text = "[img src=goldstar16x16/]"+text;
-				break;
-            case 1:
-                backgroundColor = Color.RED;
-				break;
-            case 2:
-				backgroundColor = Color.YELLOW;
-				break;
-            case 3:
-				backgroundColor = Color.GREEN;
-				break;
-            case 4:
-				backgroundColor = Color.BLUE;
-				break;
-        }
-		view.setBackgroundColor(backgroundColor);
-		view.setText(text);
-
-		view.setTextColor(Color.BLACK);
-		view.setGravity(Gravity.CENTER);
-		view.setHeight(CommonUtils.convertDipsToPx(30));
-        return view;
     }
 
     @Override

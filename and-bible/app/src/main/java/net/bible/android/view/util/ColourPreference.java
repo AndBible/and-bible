@@ -31,7 +31,7 @@ public class ColourPreference extends ListPreference {
 		AlertDialog dialog = (AlertDialog) getDialog();
 		ListView listView = dialog.getListView();
 		ListAdapter adapter = listView.getAdapter();
-		final ListPrefWrapperAdapter fontTypeAdapter = createWrapperAdapter(adapter);
+		final BookmarkColourListPrefWrapperAdapter fontTypeAdapter = createWrapperAdapter(adapter);
 
 		// Adjust the selection because resetting the adapter loses the selection.
 		int selectedPosition = findIndexOfValue(getValue());
@@ -42,7 +42,7 @@ public class ColourPreference extends ListPreference {
 		}
 	}
 
-	protected ListPrefWrapperAdapter createWrapperAdapter(ListAdapter origAdapter) {
-		return new ListPrefWrapperAdapter(getContext(), origAdapter);
+	protected BookmarkColourListPrefWrapperAdapter createWrapperAdapter(ListAdapter origAdapter) {
+		return new BookmarkColourListPrefWrapperAdapter(getContext(), origAdapter);
 	}
 }
