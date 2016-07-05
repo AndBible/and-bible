@@ -32,12 +32,13 @@
 				android:title="@string/prefs_show_bookmarks_title"
 				android:summary="@string/prefs_show_bookmarks_summary"
 				android:defaultValue="true"/>
-	<net.bible.android.view.util.ColourPreference android:key="default_bookmark_style_pref"
-					android:title="@string/prefs_default_bookmark_style_title"
-					android:summary="@string/prefs_default_bookmark_style_summary"
-					android:entries="@array/prefs_bookmark_style_descriptions"
-					android:entryValues="@array/prefs_bookmark_style_values"
-					android:defaultValue="YELLOW_STAR"/>
+	<net.bible.android.view.util.BookmarkColourPreference
+		android:key="default_bookmark_style_pref"
+		android:title="@string/prefs_default_bookmark_style_title"
+		android:summary="@string/prefs_default_bookmark_style_summary"
+		android:entries="@array/prefs_bookmark_style_descriptions"
+		android:entryValues="@array/prefs_bookmark_style_values"
+		android:defaultValue="YELLOW_STAR"/>
    	<CheckBoxPreference android:key="show_mynotes_pref"
 				android:title="@string/prefs_show_mynotes_title"
 				android:summary="@string/prefs_show_mynotes_summary"

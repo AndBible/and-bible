@@ -15,13 +15,13 @@ import android.widget.ListView;
  * @see gnu.lgpl.License for license details.<br>
  * The copyright to this program is held by it's author.
  */
-public class ColourPreference extends ListPreference {
+public class BookmarkColourPreference extends ListPreference {
 
-	public ColourPreference(Context context, AttributeSet attrs) {
+	public BookmarkColourPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
 
-	public ColourPreference(Context context) {
+	public BookmarkColourPreference(Context context) {
 		super(context);
 	}
 
