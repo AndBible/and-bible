@@ -83,7 +83,7 @@ public class BookmarkControl implements Bookmark {
 				
 				if (newBookmark!=null) {
 					// success
-					Snackbar.make(currentView, R.string.bookmark_added, Snackbar.LENGTH_SHORT).setAction(R.string.assign_labels, new View.OnClickListener() {
+					Snackbar.make(currentView, R.string.bookmark_added, Snackbar.LENGTH_LONG).setAction(R.string.assign_labels, new View.OnClickListener() {
 						@Override
 						public void onClick(View v) {
 							// Show label view for new bookmark
