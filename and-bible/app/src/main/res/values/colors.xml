@@ -3,6 +3,10 @@
 	<color name="bible_background_day">#ffffff</color>
 	<color name="bible_background_night">#000000</color>
 
+	<!-- not used much - this value is really in css -->
+	<color name="bible_text_day">#000000</color>
+	<color name="bible_text_night">#b0b0b0</color>
+
 	<color name="window_separator_colour">#FF6B6B6B</color>
 	<color name="window_separator_drag_colour">@color/yellow_500</color>
 

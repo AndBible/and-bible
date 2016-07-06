@@ -18,11 +18,15 @@ import net.bible.service.device.ScreenSettings;
  */
 public class UiUtils {
 
-	private static final int night = CommonUtils.getResourceColor(R.color.actionbar_background_night);
-	private static final int day = CommonUtils.getResourceColor(R.color.actionbar_background_day);
+	private static final int ACTIONBAR_BACKGROUND_NIGHT = CommonUtils.getResourceColor(R.color.actionbar_background_night);
+	private static final int ACTIONBAR_BACKGROUND_DAY = CommonUtils.getResourceColor(R.color.actionbar_background_day);
 
 	private static final int BIBLEVIEW_BACKGROUND_NIGHT = CommonUtils.getResourceColor(R.color.bible_background_night);
 	private static final int BIBLEVIEW_BACKGROUND_DAY = CommonUtils.getResourceColor(R.color.bible_background_day);
+
+	// taken from css
+	private static final int BIBLEVIEW_TEXT_NIGHT = CommonUtils.getResourceColor(R.color.bible_text_night);
+	private static final int BIBLEVIEW_TEXT_DAY = CommonUtils.getResourceColor(R.color.bible_text_day);
 
     public static void applyTheme(Activity activity) {
     	ScreenSettings.isNightModeChanged();
@@ -36,7 +40,7 @@ public class UiUtils {
 	/** Change actionBar colour according to day/night state
 	 */
 	public static void setActionBarColor(final ActionBar actionBar) {
-		final int newColor = ScreenSettings.isNightMode() ? night : day;
+		final int newColor = ScreenSettings.isNightMode() ? ACTIONBAR_BACKGROUND_NIGHT : ACTIONBAR_BACKGROUND_DAY;
 
 		if (actionBar!=null) {
 			CurrentActivityHolder.getInstance().runOnUiThread(new Runnable() {
@@ -52,5 +56,12 @@ public class UiUtils {
 
 	public static void setBibleViewBackgroundColour(View bibleView, boolean nightMode) {
 		bibleView.setBackgroundColor(nightMode ? BIBLEVIEW_BACKGROUND_NIGHT : BIBLEVIEW_BACKGROUND_DAY);
+	}
+
+	public static int getBackgroundColour() {
+		return ScreenSettings.isNightMode() ? BIBLEVIEW_BACKGROUND_NIGHT : BIBLEVIEW_BACKGROUND_DAY;
+	}
+	public static int getTextColour() {
+		return ScreenSettings.isNightMode() ? BIBLEVIEW_TEXT_NIGHT : BIBLEVIEW_TEXT_DAY;
 	}
 }

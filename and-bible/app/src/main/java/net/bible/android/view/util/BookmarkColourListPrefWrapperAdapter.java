@@ -40,7 +40,7 @@ class BookmarkColourListPrefWrapperAdapter extends ListPrefWrapperAdapter {
 
 		switch (BookmarkStyle.values()[position]) {
 			case YELLOW_STAR:
-				backgroundColor = BookmarkStyle.YELLOW_STAR.getBackgroundColor();
+				backgroundColor = UiUtils.getBackgroundColour();
 				CharSequence imgText = addImageAtStart("* "+sampleText, R.drawable.goldstar16x16);
 				view.setText(imgText, TextView.BufferType.SPANNABLE);
 				break;
@@ -63,7 +63,7 @@ class BookmarkColourListPrefWrapperAdapter extends ListPrefWrapperAdapter {
 		}
 		view.setBackgroundColor(backgroundColor);
 
-		view.setTextColor(Color.BLACK);
+		view.setTextColor(UiUtils.getTextColour());
 		view.setGravity(Gravity.CENTER);
 		view.setHeight(CommonUtils.convertDipsToPx(30));
 		return view;
