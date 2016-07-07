@@ -134,8 +134,8 @@ h1 a, .heading2, .heading3, .heading4 {
 	background-color: rgba(0, 255, 0, 0.33);
 }
 .BLUE_HIGHLIGHT {
-	/* blue #91a7ff*/
-	background-color: rgba(145, 167, 255, 0.33);
+	/* blue A100 */
+	background-color: rgba(128, 216, 255, 0.33);
 }
 
 .YELLOW_STAR>.verseNo:after {
