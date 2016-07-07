@@ -84,7 +84,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_show_bookmarks_title">Show bookmark icons</string>
     <string name="prefs_show_bookmarks_summary">Show icon in bookmarked verses</string>
     <string name="prefs_default_bookmark_style_title">Default bookmark style</string>
-    <string name="prefs_default_bookmark_style_summary">Icon or highlight colour</string>
+    <string name="prefs_default_bookmark_style_summary">Highlight colour or icon</string>
     <string name="prefs_show_mynotes_title">Show My Note icons</string>
     <string name="prefs_show_mynotes_summary">Show icon in verses with My Note</string>
     <string name="prefs_show_notes_title">Footnotes and x-refs</string>
@@ -206,14 +206,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="label_name_prompt">Name</string>
     <string name="label_unlabelled">Unlabelled</string>
     <string name="rename">Rename</string>
-
-    <!--Bookmark types and highlight colour -->
-    <string name="yellow_star">Yellow star</string>
-    <string name="red_highlight">Red highlight</string>
-    <string name="yellow_highlight">Yellow highlight</string>
-    <string name="green_highlight">Green highlight</string>
-    <string name="blue_highlight">Blue highlight</string>
-
 
     <!--  Sort orders used for Bookmarks and MyNotes -->
     <string name="sort_by_date">Date order</string>

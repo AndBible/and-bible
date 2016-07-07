@@ -8,6 +8,8 @@ import android.util.AttributeSet;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import net.bible.android.control.bookmark.BookmarkStyle;
+
 /**
  * Allow selection of default Bookmark colour preference.
  *
@@ -19,10 +21,24 @@ public class BookmarkColourPreference extends ListPreference {
 
 	public BookmarkColourPreference(Context context, AttributeSet attrs) {
 		super(context, attrs);
+		initialise();
 	}
 
 	public BookmarkColourPreference(Context context) {
 		super(context);
+		initialise();
+	}
+
+	private void initialise() {
+		final int numValues = BookmarkStyle.values().length;
+		CharSequence[] styles = new CharSequence[numValues];
+		for (int i=0; i<numValues; i++) {
+			BookmarkStyle bookmarkStyle = BookmarkStyle.values()[i];
+			styles[i] = bookmarkStyle.name();
+		}
+		setEntries(styles);
+		setEntryValues(styles);
+		setDefaultValue(styles[0]);
 	}
 
 	@Override
