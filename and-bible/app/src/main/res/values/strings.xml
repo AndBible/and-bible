@@ -81,8 +81,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_show_verseno_summary">Show verse numbers</string>
     <string name="prefs_verse_per_line_title">One verse per line</string>
     <string name="prefs_verse_per_line_summary">Show each verse on a different line</string>
-    <string name="prefs_show_bookmarks_title">Show bookmark icons</string>
-    <string name="prefs_show_bookmarks_summary">Show icon in bookmarked verses</string>
+    <string name="prefs_show_bookmarks_title">Show bookmarks</string>
+    <string name="prefs_show_bookmarks_summary">Untick to hide all bookmarks</string>
     <string name="prefs_default_bookmark_style_title">Default bookmark style</string>
     <string name="prefs_default_bookmark_style_summary">Highlight colour or icon</string>
     <string name="prefs_show_mynotes_title">Show My Note icons</string>
