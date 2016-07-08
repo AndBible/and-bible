@@ -14,7 +14,6 @@ import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
@@ -76,7 +75,7 @@ public class BookmarkControlTest {
 			assertTrue("New Bookmark id incorrect", newDto.getId()>-1);
 		} catch (Exception e) {
 			e.printStackTrace();
-			fail("exeption:"+e.getMessage());
+			fail("Exception:"+e.getMessage());
 		}
 	}
 
@@ -91,7 +90,7 @@ public class BookmarkControlTest {
 			assertTrue( bookmarks.size()==3);
 		} catch (Exception e) {
 			e.printStackTrace();
-			fail("exeption:"+e.getMessage());
+			fail("Exception:"+e.getMessage());
 		}
 	}
 
@@ -100,12 +99,12 @@ public class BookmarkControlTest {
 	public void testDeleteBookmark() {
 		addTestVerse();
 		List<BookmarkDto> bookmarks = bookmarkControl.getAllBookmarks();
-		BookmarkDto todelete = bookmarks.get(0);
-		bookmarkControl.deleteBookmark(todelete);
+		BookmarkDto toDelete = bookmarks.get(0);
+		bookmarkControl.deleteBookmark(toDelete);
 		
 		bookmarks = bookmarkControl.getAllBookmarks();
 		for (BookmarkDto bookmark : bookmarks) {
-			assertFalse("delete failed", bookmark.getId().equals(todelete.getId()));
+			assertFalse("delete failed", bookmark.getId().equals(toDelete.getId()));
 		}
 		
 	}
@@ -118,16 +117,16 @@ public class BookmarkControlTest {
 			assertTrue("New Label id incorrect", newDto.getId()>-1);
 		} catch (Exception e) {
 			e.printStackTrace();
-			fail("exeption:"+e.getMessage());
+			fail("Exception:"+e.getMessage());
 		}
 	}
 
-	@Ignore // fails due to failing isOpen in rawQuery
+	@Test
 	public void testSetBookmarkLabels() {
 		BookmarkDto bookmark = addTestVerse();
 		LabelDto label1 = addTestLabel();
 		LabelDto label2 = addTestLabel();
-		List<LabelDto> labelList = new ArrayList<LabelDto>();
+		List<LabelDto> labelList = new ArrayList<>();
 		labelList.add(label1);
 		labelList.add(label2);
 
@@ -143,7 +142,7 @@ public class BookmarkControlTest {
 		assertEquals(bookmark, list2.get(0));
 
 		// check 1 label is deleted if it is not linked
-		List<LabelDto> labelList2 = new ArrayList<LabelDto>();
+		List<LabelDto> labelList2 = new ArrayList<>();
 		labelList2.add(label1);
 		bookmarkControl.setBookmarkLabels(bookmark, labelList2);
 	
@@ -153,11 +152,11 @@ public class BookmarkControlTest {
 		assertEquals(0, list4.size());
 	}
 
-	@Ignore // fails due to failing isOpen in rawQuery
+	@Test
 	public void testGetBookmarksWithLabel() {
 		BookmarkDto bookmark = addTestVerse();
 		LabelDto label1 = addTestLabel();
-		List<LabelDto> labelList = new ArrayList<LabelDto>();
+		List<LabelDto> labelList = new ArrayList<>();
 		labelList.add(label1);
 		
 		// add 2 labels and check they are saved
@@ -187,7 +186,7 @@ public class BookmarkControlTest {
 		final VerseRange verseRange = new VerseRange(KJV_VERSIFICATION, new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10));
 		newBookmarkDto.setVerseRange(verseRange);
 
-		BookmarkDto newDto = bookmarkControl.addBookmark(newBookmarkDto);
+		bookmarkControl.addBookmark(newBookmarkDto);
 
 		Verse startVerse = new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10);
 		assertThat(bookmarkControl.isBookmarkForKey(startVerse), equalTo(true));
@@ -231,27 +230,22 @@ public class BookmarkControlTest {
 	private BookmarkDto addBookmark(String verse) throws NoSuchVerseException {
 		BookmarkDto bookmark = new BookmarkDto();
 		bookmark.setVerseRange(VerseRangeFactory.fromString(KJV_VERSIFICATION, verse));
-		BookmarkDto newDto = bookmarkControl.addBookmark(bookmark);
-		return newDto;
+		return bookmarkControl.addBookmark(bookmark);
 	}
 
-	/**
-	 * @return
-	 */
 	private LabelDto addTestLabel() {
 		currentTestLabel = getNextTestLabel();
 		
 		LabelDto label = new LabelDto();
 		label.setName(currentTestLabel);
 		
-		LabelDto newDto = bookmarkControl.saveOrUpdateLabel(label);
-		return newDto;
+		return bookmarkControl.saveOrUpdateLabel(label);
 	}
 
 	private String getNextTestVerse() {
-		return this.TEST_VERSE_START+(++testVerseCounter);
+		return TEST_VERSE_START+(++testVerseCounter);
 	}
 	private String getNextTestLabel() {
-		return this.TEST_LABEL_START+(++testLabelCounter);
+		return TEST_LABEL_START+(++testLabelCounter);
 	}
 }
