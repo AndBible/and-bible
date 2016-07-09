@@ -4,10 +4,10 @@ import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
 
 import org.crosswire.jsword.passage.Key;
-import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -61,8 +61,8 @@ public interface Bookmark {
 	/** label the bookmark with these and only these labels */
 	void setBookmarkLabels(BookmarkDto bookmark, List<LabelDto> labels);
 	
-	/** get a list of Verses which have bookmarks in the passage (normally a chapter) */
-	List<Verse> getVersesWithBookmarksInPassage(Key passage);
+	/** get a map of BookmarkedVerse->BookmarkStyles in the passage (normally a chapter) */
+	Map<Integer, List<BookmarkStyle>> getVerseBookmarkStylesInPassage(Key passage);
 
 	/** toggle order between date and Bibical */
 	void changeBookmarkSortOrder();

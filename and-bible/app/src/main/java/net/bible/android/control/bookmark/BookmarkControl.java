@@ -30,9 +30,12 @@ import org.crosswire.jsword.versification.Versification;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -339,46 +342,67 @@ public class BookmarkControl implements Bookmark {
 	}
 
 	@Override
-	public List<Verse> getVersesWithBookmarksInPassage(Key passage) {
+	public Map<Integer, List<BookmarkStyle>> getVerseBookmarkStylesInPassage(Key passage) {
 		// assumes the passage only covers one book, which always happens to be the case here
 		Verse firstVerse = KeyUtil.getVerse(passage);
 		BibleBook book = firstVerse.getBook();
 		
 		// get all Bookmarks in containing book to include variations due to differing versifications
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
-		List<BookmarkDto> bookmarkList = null;
+		List<BookmarkDto> bookmarkList;
+		Map<Integer, List<BookmarkStyle>> bookmarkStylesByVerseNoInPassage = new HashMap<>();
 		try {
 			db.open();
 			bookmarkList = db.getBookmarksInBook(book);
-		} finally {
-			db.close();
-		}
-		
-		// convert to required versification and check verse is in passage
-		List<Verse> versesInPassage = new ArrayList<>();
-		if (bookmarkList!=null) {
-			boolean isPassageAVerseRange = passage instanceof VerseRange;
-			Versification requiredVersification = firstVerse.getVersification();
-			for (BookmarkDto bookmarkDto : bookmarkList) {
-				VerseRange verseRange = bookmarkDto.getVerseRange(requiredVersification);
-				for (Verse verse : verseRange.toVerseArray()) {
-					//TODO should not require VerseRange cast but bug in JSword
-					if (isPassageAVerseRange) {
-						if (((VerseRange)passage).contains(verse)) {
-							versesInPassage.add(verse);
-						}
-					} else {
-						if (passage.contains(verse)) {
-							versesInPassage.add(verse);
+
+			// convert to required versification and check verse is in passage
+			if (bookmarkList!=null) {
+				Versification requiredVersification = firstVerse.getVersification();
+				for (BookmarkDto bookmarkDto : bookmarkList) {
+					VerseRange bookmarkVerseRange = bookmarkDto.getVerseRange(requiredVersification);
+					if (passage.contains(bookmarkVerseRange.getStart())) {
+						final List<LabelDto> bookmarkLabels = db.getBookmarkLabels(bookmarkDto);
+						final List<BookmarkStyle> bookmarkStyles = getBookmarkStyles(bookmarkLabels);
+
+						for (Verse verse : bookmarkVerseRange.toVerseArray()) {
+							bookmarkStylesByVerseNoInPassage.put(verse.getVerse(), bookmarkStyles);
 						}
 					}
 				}
 			}
-		}
 
-		return versesInPassage;
+		} finally {
+			db.close();
+		}
+		return bookmarkStylesByVerseNoInPassage;
 	}
-	
+
+	/**
+	 * Get distinct styles in enum order
+	 */
+	private List<BookmarkStyle> getBookmarkStyles(List<LabelDto> bookmarkLabels) {
+		Set<BookmarkStyle> bookmarkStyles = new TreeSet<>();
+		for (LabelDto label : bookmarkLabels) {
+			BookmarkStyle style = null;
+			if (label.getName().toLowerCase().contains("s")) {
+				style = BookmarkStyle.YELLOW_STAR;
+			} else if (label.getName().toLowerCase().contains("y")) {
+				style = BookmarkStyle.YELLOW_HIGHLIGHT;
+			} else if (label.getName().toLowerCase().contains("g")) {
+				style = BookmarkStyle.GREEN_HIGHLIGHT;
+			} else if (label.getName().toLowerCase().contains("r")) {
+				style = BookmarkStyle.RED_HIGHLIGHT;
+			} else if (label.getName().toLowerCase().contains("b")) {
+				style = BookmarkStyle.BLUE_HIGHLIGHT;
+			}
+
+			if (style!=null) {
+				bookmarkStyles.add(style);
+			}
+		}
+		return new ArrayList<>(bookmarkStyles);
+	}
+
 	private List<BookmarkDto> getSortedBookmarks(List<BookmarkDto> bookmarkList) {
 		Comparator<BookmarkDto> comparator;
 		switch (getBookmarkSortOrder()) {

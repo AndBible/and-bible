@@ -1,15 +1,14 @@
 package net.bible.service.format.osistohtml.taghandler;
 
+import net.bible.android.control.bookmark.BookmarkStyle;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.VerseInfo;
 
-import org.crosswire.jsword.passage.Verse;
-
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 /** Display an img if the current verse has MyNote
  * 
@@ -19,33 +18,44 @@ import java.util.Set;
  */
 public class BookmarkMarker {
 
-	private Set<Integer> bookmarkedVerses= new HashSet<>();
+	private Map<Integer, List<BookmarkStyle>> bookmarkStylesByBookmarkedVerse = new HashMap<>();
 	
 	private OsisToHtmlParameters parameters;
 	
 	private VerseInfo verseInfo;
-	
+
 	public BookmarkMarker(OsisToHtmlParameters parameters, VerseInfo verseInfo) {
 		this.parameters = parameters;
 		this.verseInfo = verseInfo;
 
 		// create hashset of verses to optimise verse note lookup
-		bookmarkedVerses.clear();
-		if (parameters.getVersesWithBookmarks()!=null) {
-			for (Verse verse : parameters.getVersesWithBookmarks()) {
-				bookmarkedVerses.add(verse.getVerse());
-			}
+		bookmarkStylesByBookmarkedVerse.clear();
+		if (parameters.getBookmarkStylesByBookmarkedVerse()!=null) {
+			bookmarkStylesByBookmarkedVerse = parameters.getBookmarkStylesByBookmarkedVerse();
 		}
 	}
 	
 	/** Get any bookmark classes for current verse
 	 */
 	public List<String> getBookmarkClasses() {
-		if (bookmarkedVerses!=null && parameters.isShowBookmarks()) {
-			if (bookmarkedVerses.contains(verseInfo.currentVerseNo)) {
-				return Arrays.asList(parameters.getDefaultBookmarkStyle().name());
+		if (bookmarkStylesByBookmarkedVerse !=null && parameters.isShowBookmarks()) {
+			if (bookmarkStylesByBookmarkedVerse.containsKey(verseInfo.currentVerseNo)) {
+				final List<BookmarkStyle> bookmarkStyles = bookmarkStylesByBookmarkedVerse.get(verseInfo.currentVerseNo);
+				if (bookmarkStyles==null || bookmarkStyles.isEmpty()) {
+					return Collections.singletonList(parameters.getDefaultBookmarkStyle().name());
+				} else {
+					return getStyleNames(bookmarkStyles);
+				}
 			}
 		}
 		return Collections.emptyList();
+	}
+
+	private List<String> getStyleNames(List<BookmarkStyle> bookmarkStyles) {
+		List<String> styleNames = new ArrayList<>();
+		for (BookmarkStyle bookmarkStyle : bookmarkStyles) {
+			styleNames.add(bookmarkStyle.name());
+		}
+		return styleNames;
 	}
 }

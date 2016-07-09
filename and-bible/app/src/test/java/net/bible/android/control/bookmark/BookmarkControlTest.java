@@ -12,6 +12,7 @@ import org.crosswire.jsword.passage.VerseRangeFactory;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,8 +21,11 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
+import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -201,7 +205,12 @@ public class BookmarkControlTest {
 		final VerseRange passage = new VerseRange(KJV_VERSIFICATION, new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 1), new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10));
 
 		// add bookmark in range
-		addBookmark("ps.17.1-ps.17.2");
+		final BookmarkDto bookmarkDto = addBookmark("ps.17.1-ps.17.2");
+		LabelDto greenAndRedLabelDto = new LabelDto();
+		greenAndRedLabelDto.setName("G");
+		greenAndRedLabelDto = bookmarkControl.saveOrUpdateLabel(greenAndRedLabelDto);
+		bookmarkControl.setBookmarkLabels(bookmarkDto, Collections.singletonList(greenAndRedLabelDto));
+
 		addBookmark("ps.17.10");
 
 		// add bookmark out of range
@@ -209,11 +218,12 @@ public class BookmarkControlTest {
 		addBookmark("ps.17.11");
 
 		// check only bookmark in range is returned
-		final List<Verse> versesWithBookmarksInPassage = bookmarkControl.getVersesWithBookmarksInPassage(passage);
+		final Map<Integer, List<BookmarkStyle>> versesWithBookmarksInPassage = bookmarkControl.getVerseBookmarkStylesInPassage(passage);
+
 		assertThat(versesWithBookmarksInPassage.size(), equalTo(3));
-		assertThat(versesWithBookmarksInPassage.get(0).getVerse(), equalTo(1));
-		assertThat(versesWithBookmarksInPassage.get(1).getVerse(), equalTo(2));
-		assertThat(versesWithBookmarksInPassage.get(2).getVerse(), equalTo(10));
+		assertThat(versesWithBookmarksInPassage.get(1), contains(BookmarkStyle.GREEN_HIGHLIGHT));
+		assertThat(versesWithBookmarksInPassage.get(2), contains(BookmarkStyle.GREEN_HIGHLIGHT));
+		assertThat(versesWithBookmarksInPassage.get(10), Matchers.<BookmarkStyle>empty());
 	}
 
 	private BookmarkDto addTestVerse() {

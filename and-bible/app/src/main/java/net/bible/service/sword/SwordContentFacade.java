@@ -35,14 +35,11 @@ import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.Passage;
 import org.xml.sax.ContentHandler;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -70,8 +67,7 @@ public class SwordContentFacade {
 		if (singleton==null) {
 			synchronized(SwordContentFacade.class)  {
 				if (singleton==null) {
-					SwordContentFacade instance = new SwordContentFacade();
-					singleton = instance;
+					singleton = new SwordContentFacade();
 				}
 			}
 		}
@@ -82,15 +78,6 @@ public class SwordContentFacade {
 	}
 	
 	/** top level method to fetch html from the raw document data
-	 * 
-	 * @param book
-	 * @param key
-	 * @return
-	 * @throws NoSuchKeyException
-	 * @throws BookException
-	 * @throws IOException
-	 * @throws URISyntaxException
-	 * @throws ParserConfigurationException
 	 */
 	public String readHtmlText(Book book, Key key) throws ParseException
 	{
@@ -133,7 +120,7 @@ public class SwordContentFacade {
 	/** Get Footnotes and references from specified document page
 	 */
 	public List<Note> readFootnotesAndReferences(Book book, Key key) throws ParseException {
-		List<Note> retVal = new ArrayList<Note>();
+		List<Note> retVal = new ArrayList<>();
 		try {
 			// based on standard JSword SAX handling method because few performance gains would be gained for the extra complexity of Streaming
 			BookData data = new BookData(book, key);		
@@ -403,7 +390,7 @@ public class SwordContentFacade {
 					osisToHtmlParameters.setDefaultBookmarkStyle(BookmarkStyle.valueOf(preferences.getString("default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name())));
 					osisToHtmlParameters.setShowTitles(preferences.getBoolean("section_title_pref", true));
 					osisToHtmlParameters.setVersesWithNotes(ControlFactory.getInstance().getMyNoteControl().getVersesWithNotesInPassage(key));
-					osisToHtmlParameters.setVersesWithBookmarks(ControlFactory.getInstance().getBookmarkControl().getVersesWithBookmarksInPassage(key));
+					osisToHtmlParameters.setBookmarkStylesByBookmarkedVerse(ControlFactory.getInstance().getBookmarkControl().getVerseBookmarkStylesInPassage(key));
 
 					// showMorphology depends on showStrongs to allow the toolbar toggle button to affect both strongs and morphology
 					boolean showStrongs = preferences.getBoolean("show_strongs_pref", true);
@@ -453,13 +440,12 @@ public class SwordContentFacade {
         if (book.contains(key)) {
             return true;
         }
-        
-        Iterator<Key> iter = key.iterator();
-        while (iter.hasNext()) {
-            if (book.contains(iter.next())) {
-                return true;
-            }
-        }
+
+		for (Key aKey : key) {
+			if (book.contains(aKey)) {
+				return true;
+			}
+		}
         
         return false;
     }
