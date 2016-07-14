@@ -1,14 +1,14 @@
 package net.bible.service.db;
 
-import net.bible.android.BibleApplication;
-import net.bible.service.db.bookmark.BookmarkDatabaseDefinition;
-import net.bible.service.db.mynote.MyNoteDatabaseDefinition;
-
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import net.bible.android.BibleApplication;
+import net.bible.service.db.bookmark.BookmarkDatabaseDefinition;
+import net.bible.service.db.mynote.MyNoteDatabaseDefinition;
 
 /**
  * Oversee database creation and upgrade based on version
@@ -20,7 +20,7 @@ import android.util.Log;
  */
 public class CommonDatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = "CommonDatabaseHelper";
-	static final int DATABASE_VERSION = 3;
+	static final int DATABASE_VERSION = 4;
 	public static final String DATABASE_NAME = "andBibleDatabase.db";
 
 	private static CommonDatabaseHelper sSingleton = null;
@@ -34,7 +34,7 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
 
     /**
      * Private constructor, callers except unit tests should obtain an instance through
-     * {@link #getInstance(android.content.Context)} instead.
+     * {@link #getInstance()} instead.
      */
     CommonDatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -51,8 +51,7 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
 	
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		Log.i(TAG, "Upgrading DB from version " + oldVersion + " to "
-				+ newVersion);
+		Log.i(TAG, "Upgrading DB from version " + oldVersion + " to " + newVersion);
 		try {
 			if (oldVersion < 1) {
 				BookmarkDatabaseDefinition.getInstance().onCreate(db);
@@ -67,13 +66,16 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
 				MyNoteDatabaseDefinition.getInstance().upgradeToVersion3(db);
 				oldVersion += 1;
 			}
+			if (oldVersion == 3) {
+				BookmarkDatabaseDefinition.getInstance().upgradeToVersion4(db);
+				oldVersion += 1;
+			}
 		} catch (SQLiteException e) {
 			Log.e(TAG, "onUpgrade: SQLiteException. " + e);
 //TODO allow complete recreation if error - too scared to do this!
 //			Log.e(TAG, "onUpgrade: SQLiteException, recreating db. " + e);
 //			dropTables(db);
 //			bootstrapDB(db);
-			return; // this was lossy
 		}
 	}
 

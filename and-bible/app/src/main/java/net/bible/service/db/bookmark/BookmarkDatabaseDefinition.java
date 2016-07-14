@@ -12,20 +12,20 @@ import android.util.Log;
  */
 public class BookmarkDatabaseDefinition {
 	
-	private static final String TAG = "BookmarkDatabaseDefinition";
+	private static final String TAG = "BookmarkDatabaseDefn";
 
 	public interface Table {
-		public static final String BOOKMARK = "bookmark";
+		String BOOKMARK = "bookmark";
 		
 		// many-to-many cross-reference/join table between bookmark and label
-		public static final String BOOKMARK_LABEL = "bookmark_label";
+		String BOOKMARK_LABEL = "bookmark_label";
 		
-		public static final String LABEL = "label";
+		String LABEL = "label";
 	}
 
 	public interface Join {
 		// http://stackoverflow.com/questions/973790/sql-multiple-join-on-many-to-many-tables-comma-separation
-		public static final String BOOKMARK_JOIN_LABEL = "bookmark "
+		String BOOKMARK_JOIN_LABEL = "bookmark "
 				+ "JOIN bookmark_label ON (groups.package_id = packages._id)";
 
 	}
@@ -37,21 +37,21 @@ public class BookmarkDatabaseDefinition {
 	}
 
 	public interface BookmarkColumn {
-		public static final String _ID = BaseColumns._ID;
-		public static final String KEY = "key";
-		public static final String VERSIFICATION = "versification";
-		public static final String CREATED_ON = "created_on";
+		String _ID = BaseColumns._ID;
+		String KEY = "key";
+		String VERSIFICATION = "versification";
+		String CREATED_ON = "created_on";
 	}
 
 	public interface BookmarkLabelColumn {
-		public static final String BOOKMARK_ID = "bookmark_id";
-		public static final String LABEL_ID = "label_id";
+		String BOOKMARK_ID = "bookmark_id";
+		String LABEL_ID = "label_id";
 	}
 	
 	public interface LabelColumn {
-		public static final String _ID = BaseColumns._ID;
-		public static final String NAME = "name";
-
+		String _ID = BaseColumns._ID;
+		String NAME = "name";
+		String BOOKMARK_STYLE = "bookmark_style";
 	}
 
 	private static BookmarkDatabaseDefinition sSingleton = null;
@@ -70,7 +70,12 @@ public class BookmarkDatabaseDefinition {
 	public void onCreate(SQLiteDatabase db) {
 		bootstrapDB(db);
 	}
-	
+
+	public void upgradeToVersion4(SQLiteDatabase db) {
+		Log.i(TAG, "Upgrading Bookmark db to version 4");
+		db.execSQL("ALTER TABLE " + Table.LABEL + " ADD COLUMN " + LabelColumn.BOOKMARK_STYLE + " TEXT;");
+	}
+
 	public void upgradeToVersion3(SQLiteDatabase db) {
 		Log.i(TAG, "Upgrading Bookmark db to version 3");
 		db.execSQL("ALTER TABLE " + Table.BOOKMARK + " ADD COLUMN " + BookmarkColumn.VERSIFICATION + " TEXT;");
@@ -95,7 +100,8 @@ public class BookmarkDatabaseDefinition {
 
         db.execSQL("CREATE TABLE " + Table.LABEL + " (" +
                 LabelColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                LabelColumn.NAME + " TEXT NOT NULL" +
+                LabelColumn.NAME + " TEXT NOT NULL," +
+				LabelColumn.BOOKMARK_STYLE + " TEXT" +
         ");");
 		
         // SQLite version in android 1.6 is 3.5.9 which doesn't support foreign keys so use a trigger

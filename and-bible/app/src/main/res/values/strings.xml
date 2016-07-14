@@ -201,11 +201,13 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="bookmark_exists">Bookmark already exists</string>
     <string name="bookmark_deleted">Bookmark deleted</string>
     <string name="bookmark_labels">Bookmark Labels</string>
+    <string name="manage_labels">Manage labels</string>
     <string name="assign_labels">Assign labels</string>
     <string name="new_label">New Label</string>
     <string name="label_name_prompt">Name</string>
     <string name="label_unlabelled">Unlabelled</string>
     <string name="rename">Rename</string>
+    <string name="style">Style</string>
 
     <!--  Sort orders used for Bookmarks and MyNotes -->
     <string name="sort_by_date">Date order</string>
@@ -287,7 +289,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="default_value">@string/lang_default</string>
     <string name="new_item">New</string>
     <string name="close">Close</string>
-    
+    <string name="edit">Edit</string>
+
     <!-- Errors -->
     <string name="report_error">Send Report</string>
     <string name="error_occurred">An error has occurred</string>

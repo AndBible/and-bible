@@ -28,6 +28,8 @@ import java.util.Date;
 import java.util.List;
 
 /**
+ * DAO for bookmark, bookmark_label and label tables
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
@@ -91,6 +93,7 @@ public class BookmarkDBAdapter {
 		// Create a new row of values to insert.
 		ContentValues newValues = new ContentValues();
 		newValues.put(LabelColumn.NAME, label.getName());
+		newValues.put(LabelColumn.BOOKMARK_STYLE, label.getBookmarkStyleAsString());
 
 		long newId = db.insert(Table.LABEL, null, newValues);
 		return getLabelDto(newId);
@@ -100,6 +103,7 @@ public class BookmarkDBAdapter {
 		// Create a new row of values to insert.
 		ContentValues newValues = new ContentValues();
 		newValues.put(LabelColumn.NAME, label.getName());
+		newValues.put(LabelColumn.BOOKMARK_STYLE, label.getBookmarkStyleAsString());
 
 		long newId = db.update(Table.LABEL, newValues, "_id=?", new String []{String.valueOf(label.getId())});
 		return getLabelDto(newId);
@@ -214,7 +218,7 @@ public class BookmarkDBAdapter {
 	}
 
 	public List<LabelDto> getBookmarkLabels(BookmarkDto bookmark) {
-		String sql = "SELECT label._id, label.name "+
+		String sql = "SELECT label._id, label.name, label.bookmark_style "+
 					 "FROM label "+
 					 "JOIN bookmark_label ON (label._id = bookmark_label.label_id) "+
 					 "JOIN bookmark ON (bookmark_label.bookmark_id = bookmark._id) "+
@@ -348,7 +352,10 @@ public class BookmarkDBAdapter {
 		
 		String name = c.getString(LabelQuery.NAME);
 		dto.setName(name);
-		
+
+		String style = c.getString(LabelQuery.BOOKMARK_STYLE);
+		dto.setBookmarkStyleFromString(style);
+
 		return dto;
 	}
 	
@@ -365,9 +372,10 @@ public class BookmarkDBAdapter {
 	private interface LabelQuery {
         String TABLE = Table.LABEL;
 
-		String[] COLUMNS = new String[] {LabelColumn._ID, LabelColumn.NAME};
+		String[] COLUMNS = new String[] {LabelColumn._ID, LabelColumn.NAME, LabelColumn.BOOKMARK_STYLE};
 
         int ID = 0;
         int NAME = 1;
+		int BOOKMARK_STYLE = 2;
     }
 }

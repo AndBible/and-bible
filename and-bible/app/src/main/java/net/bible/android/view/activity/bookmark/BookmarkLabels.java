@@ -45,8 +45,6 @@ public class BookmarkLabels extends ListActivityBase {
 	
 	private List<LabelDto> labels = new ArrayList<>();
 
-
-
 	// this resource returns a CheckedTextView which has setChecked(..), isChecked(), and toggle() methods
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_multiple_choice; 
 	
@@ -105,8 +103,6 @@ public class BookmarkLabels extends ListActivityBase {
 	}
 	
     /** Finished selecting labels
-     *  
-     * @param v
      */
     public void onOkay(View v) {
     	Log.i(TAG, "Okay clicked");

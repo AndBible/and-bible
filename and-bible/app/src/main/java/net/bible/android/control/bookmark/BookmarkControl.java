@@ -383,18 +383,7 @@ public class BookmarkControl implements Bookmark {
 	private List<BookmarkStyle> getBookmarkStyles(List<LabelDto> bookmarkLabels) {
 		Set<BookmarkStyle> bookmarkStyles = new TreeSet<>();
 		for (LabelDto label : bookmarkLabels) {
-			BookmarkStyle style = null;
-			if (label.getName().toLowerCase().contains("s")) {
-				style = BookmarkStyle.YELLOW_STAR;
-			} else if (label.getName().toLowerCase().contains("y")) {
-				style = BookmarkStyle.YELLOW_HIGHLIGHT;
-			} else if (label.getName().toLowerCase().contains("g")) {
-				style = BookmarkStyle.GREEN_HIGHLIGHT;
-			} else if (label.getName().toLowerCase().contains("r")) {
-				style = BookmarkStyle.RED_HIGHLIGHT;
-			} else if (label.getName().toLowerCase().contains("b")) {
-				style = BookmarkStyle.BLUE_HIGHLIGHT;
-			}
+			BookmarkStyle style = label.getBookmarkStyle();
 
 			if (style!=null) {
 				bookmarkStyles.add(style);

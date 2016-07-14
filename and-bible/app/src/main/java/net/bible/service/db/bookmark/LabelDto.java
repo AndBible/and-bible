@@ -1,6 +1,10 @@
 package net.bible.service.db.bookmark;
 
 
+import net.bible.android.control.bookmark.BookmarkStyle;
+
+import org.apache.commons.lang.StringUtils;
+
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
@@ -9,8 +13,8 @@ package net.bible.service.db.bookmark;
 public class LabelDto implements Comparable<LabelDto> {
 	private Long id;
 	private String name;
+	private BookmarkStyle bookmarkStyle;
 
-	
 	@Override
 	public String toString() {
 		return getName();
@@ -58,6 +62,30 @@ public class LabelDto implements Comparable<LabelDto> {
 	}
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public BookmarkStyle getBookmarkStyle() {
+		return bookmarkStyle;
+	}
+
+	public void setBookmarkStyle(BookmarkStyle bookmarkStyle) {
+		this.bookmarkStyle = bookmarkStyle;
+	}
+
+	public String getBookmarkStyleAsString() {
+		if (bookmarkStyle==null) {
+			return null;
+		} else {
+			return bookmarkStyle.name();
+		}
+	}
+
+	public void setBookmarkStyleFromString(String bookmarkStyle) {
+		if (StringUtils.isEmpty(bookmarkStyle)) {
+			this.bookmarkStyle = null;
+		} else {
+			this.bookmarkStyle = BookmarkStyle.valueOf(bookmarkStyle);
+		}
 	}
 
 	@Override

@@ -229,40 +229,45 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
     public boolean onCreateOptionsMenu(Menu menu) {
     	super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.bookmark_mynote_sort_menu, menu);
+        inflater.inflate(R.menu.bookmark_actionbar_menu, menu);
         return true;
     }
 
 	/** 
      * on Click handlers
      */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        boolean isHandled = false;
-        
-        switch (item.getItemId()) {
-        // Change sort order
-		case (R.id.sortByToggle):
-			isHandled = true;
-	    	try {
-	    		bookmarkControl.changeBookmarkSortOrder();
-	    		String sortDesc = bookmarkControl.getBookmarkSortOrderDescription();
-				Toast.makeText(this, sortDesc, Toast.LENGTH_SHORT).show();
-	    		loadBookmarkList();
-	        } catch (Exception e) {
-	        	Log.e(TAG, "Error sorting bookmarks", e);
-	        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
-	        }
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		boolean isHandled = false;
 
-			break;
-        }
-        
+		switch (item.getItemId()) {
+			// Change sort order
+			case (R.id.sortByToggle):
+				isHandled = true;
+				try {
+					bookmarkControl.changeBookmarkSortOrder();
+					String sortDesc = bookmarkControl.getBookmarkSortOrderDescription();
+					Toast.makeText(this, sortDesc, Toast.LENGTH_SHORT).show();
+					loadBookmarkList();
+				} catch (Exception e) {
+					Log.e(TAG, "Error sorting bookmarks", e);
+					Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+				}
+
+				break;
+			case (R.id.manageLabels):
+				isHandled = true;
+				Intent intent = new Intent(this, ManageLabels.class);
+				startActivityForResult(intent, 1);
+				break;
+		}
+
 		if (!isHandled) {
-            isHandled = super.onOptionsItemSelected(item);
-        }
-        
-     	return isHandled;
-    }
+			isHandled = super.onOptionsItemSelected(item);
+		}
+
+		return isHandled;
+	}
 
     private void doFinish() {
     	Intent resultIntent = new Intent();

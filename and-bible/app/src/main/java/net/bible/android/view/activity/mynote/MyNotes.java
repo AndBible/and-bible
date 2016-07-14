@@ -39,7 +39,7 @@ public class MyNotes extends ListActivityBase implements ListActionModeHelper.Ac
 	private MyNote myNoteControl;
 	
 	// the document list
-	private List<MyNoteDto> myNoteList = new ArrayList<MyNoteDto>();
+	private List<MyNoteDto> myNoteList = new ArrayList<>();
 
 	private ListActionModeHelper listActionModeHelper;
 
@@ -125,7 +125,7 @@ public class MyNotes extends ListActivityBase implements ListActionModeHelper.Ac
     public boolean onCreateOptionsMenu(Menu menu) {
     	super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.bookmark_mynote_sort_menu, menu);
+        inflater.inflate(R.menu.bookmark_actionbar_menu, menu);
         return true;
     }
 
