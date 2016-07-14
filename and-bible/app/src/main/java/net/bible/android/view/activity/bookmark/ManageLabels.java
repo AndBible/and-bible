@@ -15,10 +15,10 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.Bookmark;
 import net.bible.android.control.bookmark.BookmarkStyle;
 import net.bible.android.view.activity.base.ListActivityBase;
-import net.bible.service.common.CommonUtils;
 import net.bible.service.db.bookmark.LabelDto;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -30,7 +30,6 @@ import java.util.List;
  */
 public class ManageLabels extends ListActivityBase {
 
-	private static final String DEFAULT_TEXT = CommonUtils.getResourceString(R.string.default_value);
 	private List<LabelDto> labels = new ArrayList<>();
 
 	private Bookmark bookmarkControl;
@@ -97,10 +96,10 @@ public class ManageLabels extends ListActivityBase {
 		final EditText labelName = (EditText)view.findViewById(R.id.labelName);
 		labelName.setText(label.getName());
 
-		final ArrayAdapter<String> adp = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, getBookmarkStyles());
+		final BookmarkStyleAdapter adp = new BookmarkStyleAdapter(this, android.R.layout.simple_spinner_item);
 		final Spinner labelStyle = (Spinner)view.findViewById(R.id.labelStyle);
 		labelStyle.setAdapter(adp);
-		labelStyle.setSelection(getBookmarkStyleOffset(label.getBookmarkStyle()));
+		labelStyle.setSelection(adp.getBookmarkStyleOffset(label.getBookmarkStyle()));
 
     	AlertDialog.Builder alert = new AlertDialog.Builder(this)
 										.setTitle(titleId)
@@ -110,7 +109,7 @@ public class ManageLabels extends ListActivityBase {
 		    	public void onClick(DialogInterface dialog, int whichButton) {
 					String name = labelName.getText().toString();
 					label.setName(name);
-					label.setBookmarkStyle(getBookmarkStyleForOffset(labelStyle.getSelectedItemPosition()));
+					label.setBookmarkStyle(adp.getBookmarkStyleForOffset(labelStyle.getSelectedItemPosition()));
 					bookmarkControl.saveOrUpdateLabel(label);
 
 					loadLabelList();
@@ -126,30 +125,6 @@ public class ManageLabels extends ListActivityBase {
 		AlertDialog dialog = alert.show();
 	}
 
-	private List<String> getBookmarkStyles() {
-		List<String> styles = new ArrayList<>();
-		styles.add(DEFAULT_TEXT);
-		for (BookmarkStyle style : BookmarkStyle.values()) {
-			styles.add(style.name());
-		}
-		return styles;
-	}
-
-	private int getBookmarkStyleOffset(BookmarkStyle style) {
-		if (style==null) {
-			return 0;
-		}
-
-		return style.ordinal()+1;
-	}
-
-	private BookmarkStyle getBookmarkStyleForOffset(int offset) {
-		if (offset==0) {
-			return null;
-		}
-
-		return BookmarkStyle.values()[offset-1];
-	}
 	/** Finished editing labels
 	 */
 	public void onOkay(View v) {
