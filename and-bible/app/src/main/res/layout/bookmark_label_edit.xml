@@ -16,24 +16,20 @@
 				  android:layout_height="match_parent"
 				  android:padding="20dp">
 
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceMedium"
-			android:text="@string/label_name_prompt"
-			android:id="@+id/labelNamePrompt"/>
-
 		<EditText
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
+			android:textAppearance="?android:attr/textAppearanceMedium"
+			android:hint="@string/label_name_prompt"
 			android:id="@+id/labelName"/>
 
 		<TextView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceMedium"
-			android:paddingTop="10dp"
+			android:textAppearance="?android:attr/textAppearanceSmall"
+			android:paddingTop="15dp"
 			android:text="@string/style"
+			android:layout_marginLeft="5dp"
 			android:id="@+id/labelStylePrompt"/>
 
 		<Spinner
