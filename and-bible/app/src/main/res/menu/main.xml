@@ -58,7 +58,11 @@
 		    <item android:id="@+id/settingsButton"
 				  android:title="@string/settings"
 				  android:icon="@android:drawable/ic_menu_preferences"/>
-			
+
+			<item android:id="@+id/manageLabels"
+				  android:title="@string/manage_labels"
+				  android:icon="@drawable/ic_label_multiple_24dp"/>
+
 			<item android:id="@+id/backupMainMenu"
 				  android:title="@string/backup"
 				  android:icon="@android:drawable/ic_menu_save">

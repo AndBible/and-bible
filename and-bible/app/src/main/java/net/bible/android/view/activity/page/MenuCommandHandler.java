@@ -13,6 +13,7 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.bookmark.Bookmarks;
+import net.bible.android.view.activity.bookmark.ManageLabels;
 import net.bible.android.view.activity.download.Download;
 import net.bible.android.view.activity.help.Help;
 import net.bible.android.view.activity.installzip.InstallZip;
@@ -83,6 +84,10 @@ public class MenuCommandHandler {
 		        case R.id.bookmarksButton:
 		        	handlerIntent = new Intent(callingActivity, Bookmarks.class);
 		        	break;
+				case (R.id.manageLabels):
+					handlerIntent = new Intent(callingActivity, ManageLabels.class);
+					requestCode = REFRESH_DISPLAY_ON_FINISH;
+					break;
 		        case R.id.mynotesButton:
 		        	handlerIntent = new Intent(callingActivity, MyNotes.class);
 		        	break;

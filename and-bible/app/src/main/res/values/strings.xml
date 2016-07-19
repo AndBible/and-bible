@@ -201,7 +201,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="bookmark_exists">Bookmark already exists</string>
     <string name="bookmark_deleted">Bookmark deleted</string>
     <string name="bookmark_labels">Bookmark Labels</string>
-    <string name="manage_labels">Manage labels</string>
+    <string name="manage_labels">Manage Bookmark Labels</string>
     <string name="assign_labels">Assign labels</string>
     <string name="new_label">New Label</string>
     <string name="label_name_prompt">Name</string>
