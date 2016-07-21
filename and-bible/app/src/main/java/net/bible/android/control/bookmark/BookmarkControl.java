@@ -13,6 +13,7 @@ import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
+import net.bible.android.view.activity.base.IntentHelper;
 import net.bible.android.view.activity.bookmark.BookmarkLabels;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.db.bookmark.BookmarkDBAdapter;
@@ -92,7 +93,7 @@ public class BookmarkControl implements Bookmark {
 							// Show label view for new bookmark
 							final Intent intent = new Intent(currentActivity, BookmarkLabels.class);
 							intent.putExtra(BOOKMARK_IDS_EXTRA, new long[] {newBookmark.getId()});
-							currentActivity.startActivity(intent);
+							currentActivity.startActivityForResult(intent, IntentHelper.REFRESH_DISPLAY_ON_FINISH);
 						}
 					}).show();
 					bOk = true;
