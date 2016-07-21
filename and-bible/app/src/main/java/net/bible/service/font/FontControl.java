@@ -1,10 +1,5 @@
 package net.bible.service.font;
 
-import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Properties;
-
 import net.bible.android.SharedConstants;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Logger;
@@ -13,6 +8,11 @@ import net.bible.service.download.GenericFileDownloader;
 import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.install.InstallException;
+
+import java.io.File;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Properties;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -51,13 +51,14 @@ public class FontControl {
 				// sometimes an error occurs on following line - maybe due to missing language info in book metadata
 				String langCode = book.getBookMetaData().getLanguage().getCode();
 				// is there a font for the book
-				font = fontProperties.getProperty(book.getInitials());
+				final String abbreviation = book.getAbbreviation();
+				font = fontProperties.getProperty(abbreviation);
 				// is there a font for the language code
 				if (StringUtils.isEmpty(font)) {
 					font = fontProperties.getProperty(langCode);
 				}
 
-				log.debug("Book:" + book.getInitials() + " Language code:" + langCode + " Font:" + font);
+				log.debug("Book:" + abbreviation + " Language code:" + langCode + " Font:" + font);
 			}
 		} catch (Exception e) {
 			// sometimes get here if a book has no initials - so do not attempt to print a books initials in the error 
@@ -88,7 +89,7 @@ public class FontControl {
 	}
 
 	public String getCssClassForCustomFont(Book book) {
-		return fontProperties.getProperty(book.getInitials()+CSS_CLASS, "");
+		return fontProperties.getProperty(book.getAbbreviation()+CSS_CLASS, "");
 	}
 	
 
@@ -118,7 +119,7 @@ public class FontControl {
 
 	public void downloadFont(String font) throws InstallException {
 		log.debug("Download font "+font);
-		URI source = null;
+		URI source;
 		try {
 			source = new URI(FONT_DOWNLOAD_URL+font);
 		} catch (URISyntaxException use) {
@@ -136,7 +137,7 @@ public class FontControl {
 	public void checkFontPropertiesFile(boolean refresh) throws InstallException {
 		if (refresh || !(new File(SharedConstants.FONT_DIR, FONT_PROPERTIES_FILENAME).exists())) {
 			log.debug("Downloading "+FONT_PROPERTIES_FILENAME);
-			URI source = null;
+			URI source;
 			try {
 				source = new URI(FONT_DOWNLOAD_URL+FONT_PROPERTIES_FILENAME);
 			} catch (URISyntaxException use) {
