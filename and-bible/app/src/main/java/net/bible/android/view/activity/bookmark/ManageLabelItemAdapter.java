@@ -5,12 +5,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.bookmark.Bookmark;
+import net.bible.android.view.util.widget.BookmarkStyleAdapterHelper;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.db.bookmark.LabelDto;
 
 import java.util.List;
@@ -25,15 +24,17 @@ import java.util.List;
 public class ManageLabelItemAdapter extends ArrayAdapter<LabelDto> {
 
 	private int resource;
-	private Bookmark bookmarkControl;
 	private ManageLabels manageLabels;
+
+	private BookmarkStyleAdapterHelper bookmarkStyleAdapterHelper = new BookmarkStyleAdapterHelper();
+
+	private static final int DIALOG_BACKGROUND_NIGHT = CommonUtils.getResourceColor(R.color.night_dialog_background);
 
 	private static final String TAG = "LabelItemAdapter";
 
-	public ManageLabelItemAdapter(Context _context, int resource, List<LabelDto> items, ManageLabels manageLabels) {
-		super(_context, resource, items);
+	public ManageLabelItemAdapter(Context context, int resource, List<LabelDto> items, ManageLabels manageLabels) {
+		super(context, resource, items);
 		this.resource = resource;
-		this.bookmarkControl = ControlFactory.getInstance().getBookmarkControl();
 		this.manageLabels = manageLabels;
 	}
 
@@ -51,12 +52,25 @@ public class ManageLabelItemAdapter extends ArrayAdapter<LabelDto> {
 		}
 		TextView nameView = (TextView) rowView.findViewById(R.id.labelName);
 		nameView.setText(labelDto.getName());
+		if (labelDto.getBookmarkStyle()==null) {
+			nameView.setBackgroundColor(DIALOG_BACKGROUND_NIGHT);
+		} else {
+			bookmarkStyleAdapterHelper.styleView(nameView, labelDto.getBookmarkStyle(), getContext(), false, false);
+		}
 
-		ImageButton editButton = (ImageButton) rowView.findViewById(R.id.editLabel);
+		View editButton = rowView.findViewById(R.id.editLabel);
 		editButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				manageLabels.edit(R.string.edit, labelDto);
+			}
+		});
+
+		View deleteButton = rowView.findViewById(R.id.deleteLabel);
+		deleteButton.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				manageLabels.delete(labelDto);
 			}
 		});
 

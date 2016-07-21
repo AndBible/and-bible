@@ -8,8 +8,6 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.bookmark.Bookmark;
 import net.bible.android.control.bookmark.BookmarkStyle;
 import net.bible.android.view.util.widget.BookmarkStyleAdapterHelper;
 import net.bible.service.common.CommonUtils;
@@ -27,9 +25,7 @@ import java.util.List;
  */
 public class BookmarkStyleAdapter extends ArrayAdapter<String> {
 
-	private Bookmark bookmarkControl;
-
-	private BookmarkStyleAdapterHelper bookmarkStyleAdapterHelper;
+	private BookmarkStyleAdapterHelper bookmarkStyleAdapterHelper = new BookmarkStyleAdapterHelper();
 
 	private Context context;
 
@@ -40,20 +36,18 @@ public class BookmarkStyleAdapter extends ArrayAdapter<String> {
 	public BookmarkStyleAdapter(Context context, int resource) {
 		super(context, resource, getBookmarkStylesList());
 		this.context = context;
-		this.bookmarkControl = ControlFactory.getInstance().getBookmarkControl();
-		this.bookmarkStyleAdapterHelper = new BookmarkStyleAdapterHelper();
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		TextView view = (TextView)super.getView(position, convertView, parent);
+		TextView view = (TextView) super.getView(position, convertView, parent);
 
 		return styleView(position, view);
 	}
 
 	@Override
 	public View getDropDownView(int position, View convertView, ViewGroup parent) {
-		TextView view = (TextView)super.getDropDownView(position, convertView, parent);
+		TextView view = (TextView) super.getDropDownView(position, convertView, parent);
 
 		return styleView(position, view);
 	}
@@ -62,11 +56,11 @@ public class BookmarkStyleAdapter extends ArrayAdapter<String> {
 		// textAppearanceMedium represents 18sp
 		view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
 
-		if (position==0) {
+		if (position == 0) {
 			view.setText(DEFAULT_TEXT);
 		} else {
-			final BookmarkStyle bookmarkStyle = BookmarkStyle.values()[position-1];
-			bookmarkStyleAdapterHelper.styleView(view, bookmarkStyle, context);
+			final BookmarkStyle bookmarkStyle = BookmarkStyle.values()[position - 1];
+			bookmarkStyleAdapterHelper.styleView(view, bookmarkStyle, context, true, false);
 		}
 
 		return view;
@@ -82,19 +76,18 @@ public class BookmarkStyleAdapter extends ArrayAdapter<String> {
 	}
 
 	public int getBookmarkStyleOffset(BookmarkStyle style) {
-		if (style==null) {
+		if (style == null) {
 			return 0;
 		}
 
-		return style.ordinal()+1;
+		return style.ordinal() + 1;
 	}
 
 	public BookmarkStyle getBookmarkStyleForOffset(int offset) {
-		if (offset==0) {
+		if (offset == 0) {
 			return null;
 		}
 
-		return BookmarkStyle.values()[offset-1];
+		return BookmarkStyle.values()[offset - 1];
 	}
-
 }

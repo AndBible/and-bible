@@ -82,6 +82,7 @@
         </activity>
 		<activity android:name="net.bible.android.view.activity.bookmark.ManageLabels"
 				  android:label="@string/manage_labels"
+				  android:theme="@style/AppThemeNight"
 				  android:configChanges="keyboardHidden|orientation|screenSize|locale">
 		</activity>
         <activity android:name="net.bible.android.view.activity.bookmark.BookmarkLabels"

@@ -38,6 +38,7 @@ class BookmarkColourListPrefWrapperAdapter extends ListPrefWrapperAdapter {
 		TextView view = (TextView)super.getView(position, convertView, parent);
 		final BookmarkStyle bookmarkStyle = BookmarkStyle.values()[position];
 
-		return bookmarkStyleAdapterHelper.styleView(view, bookmarkStyle, context);
+		bookmarkStyleAdapterHelper.styleView(view, bookmarkStyle, context, true, true);
+		return view;
 	}
 }

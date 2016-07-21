@@ -5,13 +5,14 @@ import android.graphics.Color;
 import android.text.SpannableString;
 import android.text.style.ImageSpan;
 import android.view.Gravity;
-import android.view.View;
 import android.widget.TextView;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.bookmark.BookmarkStyle;
 import net.bible.android.view.util.UiUtils;
 import net.bible.service.common.CommonUtils;
+
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Set each list view item to represent background colour of icon of the relevant bookmark style.
@@ -24,38 +25,50 @@ public class BookmarkStyleAdapterHelper {
 
 	private String sampleText = CommonUtils.getResourceString(R.string.prefs_text_size_sample_text);
 
-	public View styleView(TextView view, BookmarkStyle bookmarkStyle, Context context) {
+	public void styleView(TextView view, BookmarkStyle bookmarkStyle, Context context, boolean overrideText, boolean centreText) {
+
+		// prepare text to be shown
+		String baseText;
+		if (overrideText) {
+			baseText = sampleText;
+		} else {
+			baseText = view.getText().toString();
+			// avoid multiple *'s
+			if (baseText.startsWith("*")) {
+				StringUtils.strip(baseText, "*");
+			}
+		}
 
 		int backgroundColor = Color.WHITE;
 		switch (bookmarkStyle) {
 			case YELLOW_STAR:
 				backgroundColor = UiUtils.getBackgroundColour();
-				CharSequence imgText = addImageAtStart("* "+sampleText, R.drawable.goldstar16x16, context);
+				view.setTextColor(UiUtils.getTextColour());
+				CharSequence imgText = addImageAtStart("* "+baseText, R.drawable.goldstar16x16, context);
 				view.setText(imgText, TextView.BufferType.SPANNABLE);
 				break;
 			case RED_HIGHLIGHT:
 				backgroundColor = BookmarkStyle.RED_HIGHLIGHT.getBackgroundColor();
-				view.setText(sampleText);
+				view.setText(baseText);
 				break;
 			case YELLOW_HIGHLIGHT:
 				backgroundColor = BookmarkStyle.YELLOW_HIGHLIGHT.getBackgroundColor();
-				view.setText(sampleText);
+				view.setText(baseText);
 				break;
 			case GREEN_HIGHLIGHT:
 				backgroundColor = BookmarkStyle.GREEN_HIGHLIGHT.getBackgroundColor();
-				view.setText(sampleText);
+				view.setText(baseText);
 				break;
 			case BLUE_HIGHLIGHT:
 				backgroundColor = BookmarkStyle.BLUE_HIGHLIGHT.getBackgroundColor();
-				view.setText(sampleText);
+				view.setText(baseText);
 				break;
 		}
 		view.setBackgroundColor(backgroundColor);
-
-		view.setTextColor(UiUtils.getTextColour());
-		view.setGravity(Gravity.CENTER);
 		view.setHeight(CommonUtils.convertDipsToPx(30));
-		return view;
+		if (centreText) {
+			view.setGravity(Gravity.CENTER);
+		}
 	}
 
 	/**

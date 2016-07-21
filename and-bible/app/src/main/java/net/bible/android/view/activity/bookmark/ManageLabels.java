@@ -13,12 +13,10 @@ import android.widget.Spinner;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.Bookmark;
-import net.bible.android.control.bookmark.BookmarkStyle;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.bookmark.LabelDto;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -42,6 +40,8 @@ public class ManageLabels extends ListActivityBase {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+		setAllowThemeChange(false);
+
         super.onCreate(savedInstanceState, false);
         setContentView(R.layout.manage_labels);
 
@@ -60,18 +60,7 @@ public class ManageLabels extends ListActivityBase {
     	setListAdapter(listArrayAdapter);
     }
 
-//	public boolean onClickDelete(View v) {
-//		LabelDto label = labels.get(menuInfo.position);
-//		if (label!=null) {
-//			delete(label);
-//			return true;
-//		}
-//		return false;
-//	}
-//
-
-
-	private void delete(LabelDto label) {
+	public void delete(LabelDto label) {
 		// delete label from db
 		bookmarkControl.deleteLabel(label);
 		
