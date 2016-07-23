@@ -1,17 +1,9 @@
 package net.bible.android.view.activity.bookmark;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ListView;
 
 import net.bible.android.activity.R;
@@ -73,35 +65,8 @@ public class BookmarkLabels extends ListActivityBase {
     	setListAdapter(listArrayAdapter);
     	
 		initialiseCheckedLabels(bookmarks);
-
-    	registerForContextMenu(getListView());
     }
 
-    @Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.bookmark_labels_context_menu, menu);
-	}
-
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		super.onContextItemSelected(item);
-        AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
-		LabelDto label = labels.get(menuInfo.position);
-		if (label!=null) {
-			switch (item.getItemId()) {
-			case (R.id.delete):
-				delete(label);
-				return true;
-			case (R.id.rename):
-				edit(R.string.rename, label);
-				return true;
-			}
-		}
-		return false; 
-	}
-	
     /** Finished selecting labels
      */
     public void onOkay(View v) {
@@ -116,67 +81,6 @@ public class BookmarkLabels extends ListActivityBase {
        	finish();
     }
 
-	private void delete(LabelDto label) {
-		// remember which labels were checked
-		List<LabelDto> checkedLabels = getCheckedLabels();
-		checkedLabels.remove(label);
-		
-		// delete label from db
-		bookmarkControl.deleteLabel(label);
-		
-		// now refetch the list of labels
-		loadLabelList();
-		
-		// restore check status of remaining labels
-		setCheckedLabels(checkedLabels);
-	}
-
-    /** 
-     * New Label requested
-     */
-    public void onNewLabel(View v) {
-    	Log.i(TAG, "New label clicked");
-
-    	LabelDto newLabel = new LabelDto();
-    	edit(R.string.new_label, newLabel);
-    }
-    
-	private void edit(int titleId, final LabelDto label) {
-    	Log.i(TAG, "Rename label clicked");
-
-    	// Set an EditText view to get user input   
-    	final EditText labelInput = new EditText(this);
-    	labelInput.setText(label.getName());
-
-    	AlertDialog.Builder alert = new AlertDialog.Builder(this)
-										.setTitle(titleId)
-										.setMessage(R.string.label_name_prompt)
-										.setView(labelInput);
-    	
-    	alert.setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {  
-		    	public void onClick(DialogInterface dialog, int whichButton) {  
-					String name = labelInput.getText().toString();
-					label.setName(name);
-					bookmarkControl.saveOrUpdateLabel(label);
-					List<LabelDto> selectedLabels = getCheckedLabels();
-					Log.d(TAG, "Num labels checked pre reload:"+selectedLabels.size());
-					
-					loadLabelList();
-					
-					setCheckedLabels(selectedLabels);
-					Log.d(TAG, "Num labels checked finally:"+selectedLabels.size());
-				}  
-	    	});  
-    	  
-    	alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {  
-    	  public void onClick(DialogInterface dialog, int whichButton) {  
-    	    // Canceled.  
-    	  }  
-    	});  
-    	  
-    	alert.show();  
-	}
-	
 	/** load list of docs to display
 	 * 
 	 */
@@ -219,9 +123,8 @@ public class BookmarkLabels extends ListActivityBase {
 		return checkedLabels;
 	}
 
-	/** set checked status of all labels
-	 * 
-	 * @param labelsToCheck
+	/**
+	 * set checked status of all labels
 	 */
 	private void setCheckedLabels(Collection<LabelDto> labelsToCheck) {
 		for (int i=0; i<labels.size(); i++) {
