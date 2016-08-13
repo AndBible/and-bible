@@ -51,8 +51,6 @@
   <string name="prefs_show_verseno_summary">छंद संख्या दिखाना</string>
   <string name="prefs_verse_per_line_title">हर छंद, नई पंक्ति में</string>
   <string name="prefs_verse_per_line_summary">हर एक छंद, नई पंक्ति में पढ़िये</string>
-  <string name="prefs_show_bookmarks_title">पुस्तक-चिन्ह-चित्र दिखाना</string>
-  <string name="prefs_show_bookmarks_summary">आपकी इकट्ठा की पुस्तक-चिन्ह छंद में चित्र दिखाना</string>
   <string name="prefs_show_mynotes_title">मेरे टिप्पणी-चित्र दिखाना</string>
   <string name="prefs_show_mynotes_summary">मेरे टिप्पणी वाले छंद में चित्र दिखाना</string>
   <string name="prefs_show_notes_title">पाद टिप्पणी और संबंधित संदर्भ</string>

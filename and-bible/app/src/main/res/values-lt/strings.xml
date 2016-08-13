@@ -54,8 +54,6 @@
   <string name="prefs_show_verseno_summary">Rodyti eilučių numerius</string>
   <string name="prefs_verse_per_line_title">Vienas posmas eilutėje</string>
   <string name="prefs_verse_per_line_summary">Rodyti kiekvieną Biblijos eilutę atskiroje eilutėje</string>
-  <string name="prefs_show_bookmarks_title">Rodyti žymių piktogramas</string>
-  <string name="prefs_show_bookmarks_summary">Eilutėse su priskirtomis žymėmis rodyti piktogramas</string>
   <string name="prefs_show_mynotes_title">Rodyti Mano pastabos piktogramas</string>
   <string name="prefs_show_mynotes_summary">Su Mano pastaba rodyti piktogramas eilutėse</string>
   <string name="prefs_show_notes_title">Išnašos ir x-nuor.</string>

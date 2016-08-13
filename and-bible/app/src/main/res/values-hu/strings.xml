@@ -55,8 +55,6 @@
   <string name="prefs_show_verseno_summary">Versszámok megjelenítése</string>
   <string name="prefs_verse_per_line_title">Soronként egy vers</string>
   <string name="prefs_verse_per_line_summary">A verseket külön sorba tegye</string>
-  <string name="prefs_show_bookmarks_title">Könyvjelző ikonok</string>
-  <string name="prefs_show_bookmarks_summary">Ikon megjelenítése a könyvjelzőzött verseknél</string>
   <string name="prefs_show_mynotes_title">Jegyzeteim ikonok</string>
   <string name="prefs_show_mynotes_summary">Ikon megjelenítése, ha egy vershez jegyzet tartozik</string>
   <string name="prefs_show_notes_title">Lábjegyzetek és hivatkozások</string>

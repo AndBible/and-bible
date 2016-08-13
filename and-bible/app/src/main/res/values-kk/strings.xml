@@ -54,8 +54,6 @@
   <string name="prefs_show_verseno_summary">Аят нөмірлерін көрсет</string>
   <string name="prefs_verse_per_line_title">Әр жолға бір аят</string>
   <string name="prefs_verse_per_line_summary">Әр аятты басқа жолда көрсет</string>
-  <string name="prefs_show_bookmarks_title">Бетбелгінің таңбаларын көрсет</string>
-  <string name="prefs_show_bookmarks_summary">Бетбелгісі бар аяттардағы таңбаны көрсет</string>
   <string name="prefs_show_mynotes_title">Менің Жазбаларым таңбасын көрсет</string>
   <string name="prefs_show_mynotes_summary">Аяттардағы таңбаны Менің Жазбаларымен бірге көрсет</string>
   <string name="prefs_show_notes_title">Ескертпелер мен айқасқан сілтемелер</string>

@@ -54,8 +54,6 @@
   <string name="prefs_show_verseno_summary">Rādīt pantu numerāciju</string>
   <string name="prefs_verse_per_line_title">Katrā rindā viens pants</string>
   <string name="prefs_verse_per_line_summary">Rādīt katru pantu savā rindā</string>
-  <string name="prefs_show_bookmarks_title">Rādīt grāmatzīmju ikonas</string>
-  <string name="prefs_show_bookmarks_summary">rādīt ikonu pantiem ar grāmatzīmi</string>
   <string name="prefs_show_mynotes_title">Rādīt Manu Piezīmju Ikonu</string>
   <string name="prefs_show_mynotes_summary">Rādīt Ikonu Pantiem ar Manu Piezīmi</string>
   <string name="prefs_show_notes_title">Piezīmes un x-saistītie</string>

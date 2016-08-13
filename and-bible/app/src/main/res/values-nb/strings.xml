@@ -54,8 +54,10 @@
   <string name="prefs_show_verseno_summary">Vis versnummer</string>
   <string name="prefs_verse_per_line_title">Ett vers per linje</string>
   <string name="prefs_verse_per_line_summary">Vis hvert bibelvers på egen linje</string>
-  <string name="prefs_show_bookmarks_title">Vis bokmerkeikon</string>
-  <string name="prefs_show_bookmarks_summary">Vis ikon i bokmerkede vers</string>
+  <string name="prefs_show_bookmarks_title">Vis bokmerker</string>
+  <string name="prefs_show_bookmarks_summary">Fjern for å skjule alle bokmerker</string>
+  <string name="prefs_default_bookmark_style_title">Standard bokmerkestil</string>
+  <string name="prefs_default_bookmark_style_summary">Standardfarge eller ikon</string>
   <string name="prefs_show_mynotes_title">Vis notatikoner</string>
   <string name="prefs_show_mynotes_summary">Vis ikon i vers du har skrevet notater</string>
   <string name="prefs_show_notes_title">Fotnoter og kryssreferanser</string>
@@ -163,11 +165,13 @@
   <string name="bookmark_exists">Bokmerket finnes allerede</string>
   <string name="bookmark_deleted">Bokmerket slettet</string>
   <string name="bookmark_labels">Bokmerkegrupper</string>
+  <string name="manage_labels">Administrer bokmerketitler</string>
   <string name="assign_labels">Legg til i grupper</string>
   <string name="new_label">Ny gruppe</string>
   <string name="label_name_prompt">Navn</string>
   <string name="label_unlabelled">Umerket</string>
   <string name="rename">Endre navn</string>
+  <string name="style">Stil</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datorekkefølge</string>
   <string name="sort_by_bible_book">Bibelsk rekkefølge</string>
@@ -239,6 +243,7 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Nytt</string>
   <string name="close">Lukk</string>
+  <string name="edit">Rediger</string>
   <!--Errors-->
   <string name="report_error">Send feilrapport</string>
   <string name="error_occurred">En feil har oppstått</string>

@@ -54,8 +54,10 @@
   <string name="prefs_show_verseno_summary">Zeige Versnummern</string>
   <string name="prefs_verse_per_line_title">Zeilenumbruch nach Vers</string>
   <string name="prefs_verse_per_line_summary">Jeden Vers auf einer neuen Zeile anzeigen</string>
-  <string name="prefs_show_bookmarks_title">Lesezeichensymbole anzeigen</string>
-  <string name="prefs_show_bookmarks_summary">Markiere gespeicherte Verse</string>
+  <string name="prefs_show_bookmarks_title">Lesezeichen anzeigen</string>
+  <string name="prefs_show_bookmarks_summary">Abwählen, um alle Lesezeichen zu verbergen</string>
+  <string name="prefs_default_bookmark_style_title">Voreingestellter Lesezeichenstil</string>
+  <string name="prefs_default_bookmark_style_summary">Farbe oder Symbol für Hervorhebung</string>
   <string name="prefs_show_mynotes_title">Eigene Notizen</string>
   <string name="prefs_show_mynotes_summary">Markiere Verse mit eigenen Notizen</string>
   <string name="prefs_show_notes_title">Fußnoten &amp; Querverweise</string>
@@ -163,11 +165,13 @@
   <string name="bookmark_exists">Lesezeichen existiert schon!</string>
   <string name="bookmark_deleted">Lesezeichen gelöscht</string>
   <string name="bookmark_labels">Gruppen</string>
+  <string name="manage_labels">Lesezeichengruppen verwalten</string>
   <string name="assign_labels">Gruppennamen auswählen</string>
   <string name="new_label">Neue Gruppe</string>
   <string name="label_name_prompt">Name</string>
   <string name="label_unlabelled">Nicht kategorisiert</string>
   <string name="rename">Umbenennen</string>
+  <string name="style">Stil</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Sortieren nach Datum</string>
   <string name="sort_by_bible_book">Sortieren nach Buch</string>
@@ -239,6 +243,7 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Neu</string>
   <string name="close">Schließen</string>
+  <string name="edit">Bearbeiten</string>
   <!--Errors-->
   <string name="report_error">Fehlerbericht senden</string>
   <string name="error_occurred">Ein Fehler ist aufgetreten!</string>

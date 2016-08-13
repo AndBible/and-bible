@@ -55,8 +55,6 @@
   <string name="prefs_show_verseno_summary">Покажи номерата на стиховете.</string>
   <string name="prefs_verse_per_line_title">По един стих на ред</string>
   <string name="prefs_verse_per_line_summary">Всеки стих да бъде написан на отделен ред</string>
-  <string name="prefs_show_bookmarks_title">Покажи отметките.</string>
-  <string name="prefs_show_bookmarks_summary">Покажи иконка в маркираните стихове</string>
   <string name="prefs_show_mynotes_title">Покажи моите коментари</string>
   <string name="prefs_show_mynotes_summary">Покажи иконки в стихове с моите коментари</string>
   <string name="prefs_show_notes_title">Бележки и препратки</string>

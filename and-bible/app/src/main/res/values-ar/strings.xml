@@ -51,8 +51,6 @@ Press Speak to access a dialog to start or stop reading\n \n\n<b>My Note</b>\nNo
   <string name="prefs_show_verseno_summary">أظهر رقم الآية</string>
   <string name="prefs_verse_per_line_title">آية واحدة في السطر</string>
   <string name="prefs_verse_per_line_summary">أظهر كل آية في سطر مختلف</string>
-  <string name="prefs_show_bookmarks_title">أظهر أيقونة شارات الرجوع</string>
-  <string name="prefs_show_bookmarks_summary">أظهر أيقونة في آيات شارات الرجوع</string>
   <string name="prefs_show_mynotes_title">إظهار علامة ملاحظاتي</string>
   <string name="prefs_show_mynotes_summary">إظهار علامة ملاحظاتي في الآيات </string>
   <string name="prefs_show_notes_title">التذييل و x-ref</string>

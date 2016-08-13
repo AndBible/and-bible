@@ -55,8 +55,10 @@
   <string name="prefs_show_verseno_summary">Dangos rhifau adnodau</string>
   <string name="prefs_verse_per_line_title">Un adnod i bob llinell</string>
   <string name="prefs_verse_per_line_summary">Dangos pob adnod ar linell wahanol</string>
-  <string name="prefs_show_bookmarks_title">Dangos eicon Nod Llyfr</string>
-  <string name="prefs_show_bookmarks_summary">Dangos eicon yn yr adnodau gyda Nod Llyfr</string>
+  <string name="prefs_show_bookmarks_title">Dangos Nodau llyfr</string>
+  <string name="prefs_show_bookmarks_summary">Dad-dicio i guddio pob nod llyfr</string>
+  <string name="prefs_default_bookmark_style_title">Arddull nod llyfr diofyn</string>
+  <string name="prefs_default_bookmark_style_summary">Lliw neu eicon aroleuo</string>
   <string name="prefs_show_mynotes_title">Dangos eiconau Fy Nodyn</string>
   <string name="prefs_show_mynotes_summary">Dangos eicon yn adnodau gyda Fy Nodyn</string>
   <string name="prefs_show_notes_title">Troednodiadau a chroesgyfeiriadau</string>
@@ -164,11 +166,13 @@
   <string name="bookmark_exists">Nod Llyfr yn bodoli eisoes</string>
   <string name="bookmark_deleted">Dilewyd y Nod Llyfr</string>
   <string name="bookmark_labels">Labeli Llyfrnodi</string>
+  <string name="manage_labels">Rheoli Labeli Nod Llyfr</string>
   <string name="assign_labels">Pennu labeli</string>
   <string name="new_label">Label newydd</string>
   <string name="label_name_prompt">Enw</string>
   <string name="label_unlabelled">Heb label</string>
   <string name="rename">Ailenwi</string>
+  <string name="style">Arddull</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Trefn dyddiad</string>
   <string name="sort_by_bible_book">Trefn beiblaidd</string>
@@ -240,6 +244,7 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Newydd</string>
   <string name="close">Cau</string>
+  <string name="edit">Golygu</string>
   <!--Errors-->
   <string name="report_error">Anfon Adroddiad</string>
   <string name="error_occurred">Mae gwall wedi digwydd</string>

@@ -54,8 +54,6 @@
   <string name="prefs_show_verseno_summary">Näita salminumbreid</string>
   <string name="prefs_verse_per_line_title">Üks salm rea kohta</string>
   <string name="prefs_verse_per_line_summary">Näita igat salmi eraldi real</string>
-  <string name="prefs_show_bookmarks_title">Näita järjehoidjate ikoone</string>
-  <string name="prefs_show_bookmarks_summary">Näita järjehoidjaga märgitud salmide juures ikoone</string>
   <string name="prefs_show_mynotes_title">Näita minu märkmete ikooni</string>
   <string name="prefs_show_mynotes_summary">Näita ikoone salmides, mille juures on märkmed</string>
   <string name="prefs_show_notes_title">Allmärkused ja ristviited</string>

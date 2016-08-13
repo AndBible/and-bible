@@ -54,8 +54,10 @@
   <string name="prefs_show_verseno_summary">הצג מספרי פסוקים</string>
   <string name="prefs_verse_per_line_title">כל פסוק בשורה נפרדת</string>
   <string name="prefs_verse_per_line_summary">כל פסוק יוצג בשורה נפרדת</string>
-  <string name="prefs_show_bookmarks_title">הצג אייקונים לסימניה</string>
-  <string name="prefs_show_bookmarks_summary">הצג אייקון בפסוקים בעלי סימניה</string>
+  <string name="prefs_show_bookmarks_title">הצג סימניות</string>
+  <string name="prefs_show_bookmarks_summary">הסר סימון כדי להסתיר את כל הסימניות</string>
+  <string name="prefs_default_bookmark_style_title">עיצוב ברירת מחדל לסימניה</string>
+  <string name="prefs_default_bookmark_style_summary">צבע הדגשה או אייקון</string>
   <string name="prefs_show_mynotes_title">הצג אייקון של הערות</string>
   <string name="prefs_show_mynotes_summary">הצג אייקון בפסוקים עם הערה</string>
   <string name="prefs_show_notes_title">הערות</string>
@@ -158,14 +160,18 @@
   <!--Bookmarks-->
   <string name="bookmarks">סימניות</string>
   <string name="add_bookmark">הוסף סימניה</string>
+  <string name="delete_bookmark">מחיקת סימניה</string>
   <string name="bookmark_added">הסימניה נוספה</string>
   <string name="bookmark_exists">הסימניה כבר קיימת</string>
+  <string name="bookmark_deleted">הסימניה נמחקה</string>
   <string name="bookmark_labels">תוויות לסימניות</string>
+  <string name="manage_labels">ניהול תגיות סימניות</string>
   <string name="assign_labels">הוסף תוויות</string>
   <string name="new_label">תווית חדשה</string>
   <string name="label_name_prompt">שם</string>
   <string name="label_unlabelled">לא מתויג</string>
   <string name="rename">שנה שם</string>
+  <string name="style">עיצוב</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">סדר תאריכים</string>
   <string name="sort_by_bible_book">סדר הספרים</string>
@@ -211,6 +217,7 @@
   <string name="restore_confirmation">האם להחליף את ההערות והסימניות הקיימות ?</string>
   <string name="restore_success">ההערות והסימניות שוחזרו מ %s בכרטיס הזכרון</string>
   <!--About-->
+  <string name="about_copyright">זכויות יוצרים: %s</string>
   <string name="about_version">גרסה: %s</string>
   <string name="about_versification">חריזה: %s</string>
   <!--Document types-->
@@ -236,7 +243,9 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">חדש</string>
   <string name="close">סגור</string>
+  <string name="edit">עריכה</string>
   <!--Errors-->
+  <string name="report_error">שלח דוון</string>
   <string name="error_occurred">אירעה שגיאה</string>
   <string name="error_no_content">אין תוכן עבור הפסוק הנבחר</string>
   <string name="error_page_too_large">העמוד גדול מדי ולא ניתן לטעון אותו</string>

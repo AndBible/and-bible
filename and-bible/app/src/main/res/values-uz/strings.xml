@@ -55,8 +55,6 @@
   <string name="prefs_show_verseno_summary">Oyat raqamlarini ko\'rsatish</string>
   <string name="prefs_verse_per_line_title">Bir qatorda bir oyat</string>
   <string name="prefs_verse_per_line_summary">Har bir oyatni boshqa qatorda ko\'rsatish</string>
-  <string name="prefs_show_bookmarks_title">Xatcho\'p belgisini ko\'rsat</string>
-  <string name="prefs_show_bookmarks_summary">Xatcho\'p qo\'yilgan oyatlarda belgini ko\'rsat</string>
   <string name="prefs_show_mynotes_title">Eslatmam belgisini ko\'rsat</string>
   <string name="prefs_show_mynotes_summary">Eslatma bor oyatlarda belgini ko\'rsat</string>
   <string name="prefs_show_notes_title">Snoska va ssilkalar</string>

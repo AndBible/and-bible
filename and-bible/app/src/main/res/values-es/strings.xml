@@ -54,8 +54,6 @@
   <string name="prefs_show_verseno_summary">Mostrar numers de verso</string>
   <string name="prefs_verse_per_line_title">Un verso por linea</string>
   <string name="prefs_verse_per_line_summary">Muestra cada verso en una linea diferente</string>
-  <string name="prefs_show_bookmarks_title">Mostrar iconos de marcadores</string>
-  <string name="prefs_show_bookmarks_summary">Mostrar icono en los versículos marcados</string>
   <string name="prefs_show_mynotes_title">Mostrar iconos de Mis Notas</string>
   <string name="prefs_show_mynotes_summary">Mostrar icono en versículos con Mi Nota</string>
   <string name="prefs_show_notes_title">Pies de página y x-refs</string>

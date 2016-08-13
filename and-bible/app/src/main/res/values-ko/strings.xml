@@ -53,8 +53,6 @@
   <string name="prefs_show_verseno_summary">구절 번호 보기</string>
   <string name="prefs_verse_per_line_title">한 줄에 한 구절</string>
   <string name="prefs_verse_per_line_summary">다른 줄에있는 각 구절보기</string>
-  <string name="prefs_show_bookmarks_title">즐겨찾기 아이콘 보기</string>
-  <string name="prefs_show_bookmarks_summary"> 즐겨찾기 구절에 아이콘 표시</string>
   <string name="prefs_show_mynotes_title">내 노트 아이콘 표시</string>
   <string name="prefs_show_mynotes_summary">내 참고 구절에 아이콘 표시</string>
   <string name="prefs_show_notes_title">각주와 상호 참조</string>

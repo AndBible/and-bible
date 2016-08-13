@@ -65,8 +65,6 @@ Yüklənmiş indeksinin quraşdırılması daha sürətli olur. Və yüklənmiş
   <string name="prefs_show_verseno_summary">Ayə nömrələri göstərilir</string>
   <string name="prefs_verse_per_line_title">Sətir başına tək ayə</string>
   <string name="prefs_verse_per_line_summary">Hər ayə təzə bir sətirdə göstərilir</string>
-  <string name="prefs_show_bookmarks_title">Nişanlı yerlər göstər</string>
-  <string name="prefs_show_bookmarks_summary">Yer Seçilmiş ayələri nişanla/əlfəcinlər</string>
   <string name="prefs_show_mynotes_title">Qeydlərin nişanlarını göstər</string>
   <string name="prefs_show_mynotes_summary">Haqqında qeyd yazdığım ayələri nişanlarla müəyyən et</string>
   <string name="prefs_show_notes_title">Haşiyə</string>

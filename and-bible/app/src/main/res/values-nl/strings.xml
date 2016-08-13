@@ -56,8 +56,6 @@
   <string name="prefs_show_verseno_summary">Versnummers weergeven</string>
   <string name="prefs_verse_per_line_title">Eén vers per regel</string>
   <string name="prefs_verse_per_line_summary">Elk vers op een andere regel weergeven</string>
-  <string name="prefs_show_bookmarks_title">Bladwijzerpictogrammen weergeven</string>
-  <string name="prefs_show_bookmarks_summary">Pictogram weergeven in gebladwijzerde verzen</string>
   <string name="prefs_show_mynotes_title">Mijn notitie-pictogrammen weergeven</string>
   <string name="prefs_show_mynotes_summary">Pictogram weergeven in verzen met Mijn notitie</string>
   <string name="prefs_show_notes_title">Voetnoten en kruisverwijzingen</string>

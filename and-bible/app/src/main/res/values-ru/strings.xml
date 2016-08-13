@@ -54,8 +54,10 @@
   <string name="prefs_show_verseno_summary">Отображать нумерацию стихов</string>
   <string name="prefs_verse_per_line_title">Стих с новой строки</string>
   <string name="prefs_verse_per_line_summary">Расположить каждый стих с новой строки</string>
-  <string name="prefs_show_bookmarks_title">Показать иконки с закладками</string>
-  <string name="prefs_show_bookmarks_summary">Показать иконку в стихах с закладками</string>
+  <string name="prefs_show_bookmarks_title">Показать закладки</string>
+  <string name="prefs_show_bookmarks_summary">Убрать галочку, чтобы скрыть все закладки</string>
+  <string name="prefs_default_bookmark_style_title">Стиль закладки по умолчанию</string>
+  <string name="prefs_default_bookmark_style_summary">Цвет подсветки или иконка</string>
   <string name="prefs_show_mynotes_title">Показать ярлык с моей заметкой в стихе</string>
   <string name="prefs_show_mynotes_summary">Показать значки в стихах с моими заметками</string>
   <string name="prefs_show_notes_title">Заметки</string>
@@ -163,11 +165,13 @@
   <string name="bookmark_exists">Закладка уже существует</string>
   <string name="bookmark_deleted">Закладка удалена</string>
   <string name="bookmark_labels">Ярлыки</string>
+  <string name="manage_labels">Управление метками закладок</string>
   <string name="assign_labels">Прикрепить ярлык</string>
   <string name="new_label">Новый ярлык</string>
   <string name="label_name_prompt">Название</string>
   <string name="label_unlabelled">Без ярлыка</string>
   <string name="rename">Переименовать</string>
+  <string name="style">Стиль</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">По датам</string>
   <string name="sort_by_bible_book">Библейский порядок</string>
@@ -239,6 +243,7 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Новое</string>
   <string name="close">Закрыть</string>
+  <string name="edit">Правка</string>
   <!--Errors-->
   <string name="report_error">Отправить отчет</string>
   <string name="error_occurred">Произошла ошибка</string>

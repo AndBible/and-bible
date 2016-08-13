@@ -53,8 +53,6 @@
   <string name="prefs_show_verseno_summary">小节序号显示</string>
   <string name="prefs_verse_per_line_title">每行一节</string>
   <string name="prefs_verse_per_line_summary">每行一小节圣经</string>
-  <string name="prefs_show_bookmarks_title">显示书签图标</string>
-  <string name="prefs_show_bookmarks_summary">为已保存书签的经文显示书签图标</string>
   <string name="prefs_show_mynotes_title">显示图标</string>
   <string name="prefs_show_mynotes_summary">在经文中显示笔记图标</string>
   <string name="prefs_show_notes_title">显示备注</string>

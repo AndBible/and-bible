@@ -54,8 +54,10 @@
   <string name="prefs_show_verseno_summary">Wys vers nommers</string>
   <string name="prefs_verse_per_line_title">Een vers per lyn</string>
   <string name="prefs_verse_per_line_summary">Wys elke vers op \'n nuwe lyn</string>
-  <string name="prefs_show_bookmarks_title">Wys boekmerk ikone</string>
-  <string name="prefs_show_bookmarks_summary">Wys ikoon in boekmerk verse</string>
+  <string name="prefs_show_bookmarks_title">Wys Boekmerke</string>
+  <string name="prefs_show_bookmarks_summary">Ontmerk om alle boekmerke te versteek</string>
+  <string name="prefs_default_bookmark_style_title">Standaard boekmerk styl</string>
+  <string name="prefs_default_bookmark_style_summary">Hoogtepunt kleur of simbool</string>
   <string name="prefs_show_mynotes_title">Wys My Nota ikone</string>
   <string name="prefs_show_mynotes_summary">Wys ikoon in verse met My Nota</string>
   <string name="prefs_show_notes_title">Voetnotas en kruis-verwysings</string>
@@ -163,11 +165,13 @@
   <string name="bookmark_exists">Boekmerk bestaan ​​alreeds</string>
   <string name="bookmark_deleted">Boekmerk is verwyder</string>
   <string name="bookmark_labels">Boekmerk etikette</string>
+  <string name="manage_labels">Bestuur Bookmark Byskrifte</string>
   <string name="assign_labels">Ken etikette toe</string>
   <string name="new_label">Nuwe etiket</string>
   <string name="label_name_prompt">Naam</string>
   <string name="label_unlabelled">Die etiket is verwyder</string>
   <string name="rename">Hernoem</string>
+  <string name="style">Styl</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datum volgorde</string>
   <string name="sort_by_bible_book">Bybelse volgorde</string>
@@ -239,6 +243,7 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Nuut</string>
   <string name="close">Maak toe</string>
+  <string name="edit">Wysig</string>
   <!--Errors-->
   <string name="report_error">Stuur verslag</string>
   <string name="error_occurred">\'n Fout het ontstaan</string>

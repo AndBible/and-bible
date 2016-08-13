@@ -55,8 +55,6 @@
   <string name="prefs_show_verseno_summary">Visa versnummer</string>
   <string name="prefs_verse_per_line_title">En vers per rad</string>
   <string name="prefs_verse_per_line_summary">Visa varje vers på en egen rad</string>
-  <string name="prefs_show_bookmarks_title">Visa bokmärkesikoner</string>
-  <string name="prefs_show_bookmarks_summary">Visa en ikon i bokmärkta verser</string>
   <string name="prefs_show_mynotes_title">Visa anteckningsikoner</string>
   <string name="prefs_show_mynotes_summary">Visa en ikon i verser med anteckningar</string>
   <string name="prefs_show_notes_title">Fotnoter och referenser</string>

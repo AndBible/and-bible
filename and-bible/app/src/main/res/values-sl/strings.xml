@@ -55,10 +55,12 @@
   <string name="prefs_show_verseno_summary">Prikaži številke vrstic</string>
   <string name="prefs_verse_per_line_title">Vsaka vrstica v svojo vrsto</string>
   <string name="prefs_verse_per_line_summary">Prikaži vsako vrstico v drugi vrsti</string>
-  <string name="prefs_show_bookmarks_title">Prikaži ikone zaznamkov</string>
-  <string name="prefs_show_bookmarks_summary">Prikaži ikone v vrsticah, ki so zaznamovane</string>
-  <string name="prefs_show_mynotes_title">Prikaži ikone Mojih opomb</string>
-  <string name="prefs_show_mynotes_summary">Prikaži ikono v vrsticah z Mojimi opombami</string>
+  <string name="prefs_show_bookmarks_title">Prikaži zaznamke</string>
+  <string name="prefs_show_bookmarks_summary">Odznači, da se skrijejo vsi zaznamki</string>
+  <string name="prefs_default_bookmark_style_title">Privzet stil zaznamkov</string>
+  <string name="prefs_default_bookmark_style_summary">Poudari barvo ali ikono</string>
+  <string name="prefs_show_mynotes_title">Prikaži ikone mojih opomb</string>
+  <string name="prefs_show_mynotes_summary">Prikaži ikono v vrsticah z mojimi opombami</string>
   <string name="prefs_show_notes_title">Zaznamki in sklici</string>
   <string name="prefs_show_notes_summary">Prikaži zaznamke in sklice</string>
   <string name="prefs_show_strongs_title">Prikaži Strong-ova števila</string>
@@ -153,8 +155,8 @@
   <!--Verse context menu-->
   <string name="notes">Opombe pod črto in sklici</string>
   <string name="copy">Kopiraj</string>
-  <string name="share_verse">Izmenjaj ...</string>
-  <string name="share_verse_subject">Biblijska vrstica vam je bila poslana z uporabo And Biblije</string>
+  <string name="share_verse">Deli ...</string>
+  <string name="share_verse_subject">Biblijska vrstica vam je bila poslana s pomočjo aplikacije And Bible</string>
   <string name="compare_translations">Primerjaj prevode</string>
   <!--Bookmarks-->
   <string name="bookmarks">Zaznamki</string>
@@ -164,11 +166,13 @@
   <string name="bookmark_exists">Zaznamek že obstaja</string>
   <string name="bookmark_deleted">Zaznamek pobrisan</string>
   <string name="bookmark_labels">Oznake zaznamkov</string>
+  <string name="manage_labels">Upravljaj oznake zaznamkov</string>
   <string name="assign_labels">Dodaj oznake</string>
   <string name="new_label">Nova oznaka</string>
   <string name="label_name_prompt">Poimenuj</string>
   <string name="label_unlabelled">Neoznačeno</string>
   <string name="rename">Preimenuj</string>
+  <string name="style">Stil</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Urejeno po datumu</string>
   <string name="sort_by_bible_book">Urejeno po bibliji</string>
@@ -240,6 +244,7 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Novo</string>
   <string name="close">Zapri</string>
+  <string name="edit">Uredi</string>
   <!--Errors-->
   <string name="report_error">Pošlji poročilo</string>
   <string name="error_occurred">Zgodila se je napaka</string>

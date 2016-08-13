@@ -53,8 +53,6 @@
   <string name="prefs_show_verseno_summary">Pokaż numer wersetu</string>
   <string name="prefs_verse_per_line_title">Jeden werset na linię</string>
   <string name="prefs_verse_per_line_summary">Pokaż każdy werset w osobnej linii</string>
-  <string name="prefs_show_bookmarks_title">Pokaż ikony ulubionych</string>
-  <string name="prefs_show_bookmarks_summary">Pokaż ikony dla ulbionych wersetów</string>
   <string name="prefs_show_mynotes_title">Pokaż ikony notatek</string>
   <string name="prefs_show_mynotes_summary">Wersety z moich notatek oznacz ikoną</string>
   <string name="prefs_show_notes_title">Przypisy i odsyłacze</string>

@@ -54,8 +54,10 @@
   <string name="prefs_show_verseno_summary">Syn versnummer</string>
   <string name="prefs_verse_per_line_title">Syn eitt vers per line</string>
   <string name="prefs_verse_per_line_summary">Syn bibelvers på kvar si line</string>
-  <string name="prefs_show_bookmarks_title">Syn bokmerkeikon</string>
-  <string name="prefs_show_bookmarks_summary">Syn ikon i bokmerka vers</string>
+  <string name="prefs_show_bookmarks_title">Vis bokmerke</string>
+  <string name="prefs_show_bookmarks_summary">Fjern for å skjule alle bokmerka</string>
+  <string name="prefs_default_bookmark_style_title">Standard bokmerkestil</string>
+  <string name="prefs_default_bookmark_style_summary">Standardfarge eller ikon</string>
   <string name="prefs_show_mynotes_title">Syn notatikon</string>
   <string name="prefs_show_mynotes_summary">Syn ikon i vers med notat</string>
   <string name="prefs_show_notes_title">Fotnotar og kryssreferansar</string>
@@ -163,11 +165,13 @@
   <string name="bookmark_exists">Bokmerke finst allereie</string>
   <string name="bookmark_deleted">Bokmerke sletta</string>
   <string name="bookmark_labels">Bokmerkegrupper</string>
+  <string name="manage_labels">Handter bokmerketitlar</string>
   <string name="assign_labels">Legg til grupper</string>
   <string name="new_label">Ny gruppe</string>
   <string name="label_name_prompt">Namn</string>
   <string name="label_unlabelled">Umerka</string>
   <string name="rename">Endre namn</string>
+  <string name="style">Stil</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Datorekkefølgje</string>
   <string name="sort_by_bible_book">Bibelsk rekkefølgje</string>
@@ -239,6 +243,7 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Nytt</string>
   <string name="close">Lukk</string>
+  <string name="edit">Endre</string>
   <!--Errors-->
   <string name="report_error">Send feilrapport</string>
   <string name="error_occurred">Ein feil oppstod</string>

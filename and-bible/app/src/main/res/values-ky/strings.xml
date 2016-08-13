@@ -54,8 +54,6 @@
   <string name="prefs_show_verseno_summary">Аяттардын номерделишин көрсөтүү.</string>
   <string name="prefs_verse_per_line_title">Абзацсыз көрсөтүү</string>
   <string name="prefs_verse_per_line_summary">Ар бир аятты жаңы сапка жайгаштыруу.</string>
-  <string name="prefs_show_bookmarks_title">Чөпкат белги көрсөтүү</string>
-  <string name="prefs_show_bookmarks_summary">Чөпкаты бар аяттардан белгини көрсөтүү.</string>
   <string name="prefs_show_mynotes_title">Жеке байкоомдун жарлыгы</string>
   <string name="prefs_show_mynotes_summary">Аяттарга карата жеке байкоолорумдун белгилери.</string>
   <string name="prefs_show_notes_title">Түшүрмө</string>

@@ -54,8 +54,10 @@
   <string name="prefs_show_verseno_summary">Afficher les numéros de versets</string>
   <string name="prefs_verse_per_line_title">Un verset par ligne</string>
   <string name="prefs_verse_per_line_summary">Afficher un verset par ligne</string>
-  <string name="prefs_show_bookmarks_title">Afficher les icônes des signets</string>
-  <string name="prefs_show_bookmarks_summary">Afficher l\'icône dans les versets mis en signet</string>
+  <string name="prefs_show_bookmarks_title">Afficher les signets</string>
+  <string name="prefs_show_bookmarks_summary">Décocher pour cacher tous les signets</string>
+  <string name="prefs_default_bookmark_style_title">Style par défaut des signets</string>
+  <string name="prefs_default_bookmark_style_summary">Mettre en surbrillance la couleur ou l’icône</string>
   <string name="prefs_show_mynotes_title">Afficher les icônes de mon carnet de notes</string>
   <string name="prefs_show_mynotes_summary">Afficher les icônes dans les versets avec Mon carnet de notes</string>
   <string name="prefs_show_notes_title">Notes de page et références croisées</string>
@@ -163,11 +165,13 @@
   <string name="bookmark_exists">Ce signet existe déjà</string>
   <string name="bookmark_deleted">Signet effacé</string>
   <string name="bookmark_labels">Étiquettes de signets</string>
+  <string name="manage_labels">Gérer les étiquettes des signets</string>
   <string name="assign_labels">Attribuer des étiquettes</string>
   <string name="new_label">Nouvelle étiquette</string>
   <string name="label_name_prompt">Nommer</string>
   <string name="label_unlabelled">Unlabelled</string>
   <string name="rename">Renommer</string>
+  <string name="style">Style</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Ordre chronologique</string>
   <string name="sort_by_bible_book">Ordre biblique</string>
@@ -239,6 +243,7 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Nouveau</string>
   <string name="close">Fermer</string>
+  <string name="edit">Éditer</string>
   <!--Errors-->
   <string name="report_error">Envoyer un rapport </string>
   <string name="error_occurred">Une erreur s\'est produite</string>

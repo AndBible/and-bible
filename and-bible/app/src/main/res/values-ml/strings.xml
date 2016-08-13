@@ -53,8 +53,6 @@
   <string name="prefs_show_verseno_summary">വാക്യങ്ങളുടെ അക്കങ്ങൾ കാണിക്കുക</string>
   <string name="prefs_verse_per_line_title">ഒരു വരിയിൽ ഒരു വാക്യം വീതം</string>
   <string name="prefs_verse_per_line_summary">ഒരോ വാക്യങ്ങളും വ്യത്യസ്ത വരികളിൽ കാണിക്കുക</string>
-  <string name="prefs_show_bookmarks_title">പുസ്തകസൂചിക ഐക്കോണുകൾ കാണിക്കുക</string>
-  <string name="prefs_show_bookmarks_summary">പുസ്തകസൂചികയുള്ള വാക്യങ്ങളിൽ ഐക്കോൺ കാണിക്കുക</string>
   <string name="prefs_show_mynotes_title">എന്റെ കുറിപ്പ് ഐക്കോൺ കാണിക്കുക</string>
   <string name="prefs_show_mynotes_summary">എന്റെ കുറിപ്പിൽ വാക്യത്തോടൊപ്പം ഐക്കോൺ കാണിക്കുക</string>
   <string name="prefs_show_notes_title">അടിക്കുറിപ്പും മറ്റു ഫലകങ്ങളും</string>

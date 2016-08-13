@@ -50,8 +50,6 @@
   <string name="prefs_show_verseno_summary">Hiển thị số câu</string>
   <string name="prefs_verse_per_line_title">Một câu trên một dòng</string>
   <string name="prefs_verse_per_line_summary">Hiển thị mỗi câu trên một dòng khác nhau</string>
-  <string name="prefs_show_bookmarks_title">Hiện biểu tượng đánh dấu</string>
-  <string name="prefs_show_bookmarks_summary">Hiện biểu tượng cho những câu được đánh dấu</string>
   <string name="prefs_show_mynotes_title">Hiện biểu tượng Ghi chú</string>
   <string name="prefs_show_mynotes_summary">Hiện biểu tượng trong các câu với Ghi chú</string>
   <string name="prefs_show_notes_title">Chú thích và tham khảo</string>

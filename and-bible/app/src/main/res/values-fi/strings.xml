@@ -55,7 +55,9 @@
   <string name="prefs_verse_per_line_title">Jokainen jae omalla rivillään</string>
   <string name="prefs_verse_per_line_summary">Näytä kukin jae omalla rivillään</string>
   <string name="prefs_show_bookmarks_title">Näytä kirjanmerkit</string>
-  <string name="prefs_show_bookmarks_summary">Näytä kuvake jakeissa, joissa on kirjanmerkki</string>
+  <string name="prefs_show_bookmarks_summary">Piilota kirjanmerkit</string>
+  <string name="prefs_default_bookmark_style_title">Oletus kirjanmerkkityyli</string>
+  <string name="prefs_default_bookmark_style_summary">Korostusväri tai kuvake</string>
   <string name="prefs_show_mynotes_title">Näytä oman kommentin kuvake</string>
   <string name="prefs_show_mynotes_summary">Näytä tekstissä kuvake ja kommentti</string>
   <string name="prefs_show_notes_title">Ala- ja rinnakkaisviitteet</string>
@@ -162,12 +164,14 @@
   <string name="bookmark_added">Kirjanmerkki lisätty</string>
   <string name="bookmark_exists">Kirjanmerkki on jo olemassa</string>
   <string name="bookmark_deleted">Kirjanmerkki poistettu</string>
-  <string name="bookmark_labels">Kirjanmerkkien ryhmät</string>
+  <string name="bookmark_labels">Kirjanmerkkiryhmät</string>
+  <string name="manage_labels">Muokkaa kirjanmerkkiryhmiä</string>
   <string name="assign_labels">Sijoita ryhmään</string>
   <string name="new_label">Uusi ryhmä</string>
   <string name="label_name_prompt">Nimi</string>
   <string name="label_unlabelled">Nimetön</string>
   <string name="rename">Nimeä</string>
+  <string name="style">Tyyli</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Aikajärjestys</string>
   <string name="sort_by_bible_book">Kirjajärjestys</string>
@@ -239,6 +243,7 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Uusi</string>
   <string name="close">Sulje</string>
+  <string name="edit">Muokkaa</string>
   <!--Errors-->
   <string name="report_error">Raportoi virheestä</string>
   <string name="error_occurred">Tapahtui virhe</string>

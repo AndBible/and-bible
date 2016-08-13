@@ -54,8 +54,6 @@
   <string name="prefs_show_verseno_summary">Zobraziť čísla veršov</string>
   <string name="prefs_verse_per_line_title">Čo riadok, to verš</string>
   <string name="prefs_verse_per_line_summary">Zobraziť každý verš v samostatnom riadku.</string>
-  <string name="prefs_show_bookmarks_title">Ikonka záložiek</string>
-  <string name="prefs_show_bookmarks_summary">Zobraziť obrázok mojich vložených záložiek.</string>
   <string name="prefs_show_mynotes_title">Ikonka Mojich poznámok</string>
   <string name="prefs_show_mynotes_summary">Zobraziť obrázok Mojich vložených poznámok.</string>
   <string name="prefs_show_notes_title">Poznámky pod čiarou</string>

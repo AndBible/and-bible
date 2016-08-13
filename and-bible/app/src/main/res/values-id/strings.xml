@@ -54,8 +54,10 @@
   <string name="prefs_show_verseno_summary">Tampilkan nomor ayat</string>
   <string name="prefs_verse_per_line_title">Satu ayat satu baris</string>
   <string name="prefs_verse_per_line_summary">Tunjukan setiap ayat di baris yang berbeda</string>
-  <string name="prefs_show_bookmarks_title">Tampilkan ikon bookmark</string>
-  <string name="prefs_show_bookmarks_summary">Tampilkan ikon di ayat-ayat yg di-bookmark</string>
+  <string name="prefs_show_bookmarks_title">Tampilkan bookmark2</string>
+  <string name="prefs_show_bookmarks_summary">Hapus tanda klik untuk menyembunyikan semua bookmark</string>
+  <string name="prefs_default_bookmark_style_title">Gaya bookmark biasa</string>
+  <string name="prefs_default_bookmark_style_summary">Warna highlight atau ikon</string>
   <string name="prefs_show_mynotes_title">Tampilkan ikon Catatan Saya</string>
   <string name="prefs_show_mynotes_summary">Tampilkan ikon di ayat-ayat dengan Catatan Saya</string>
   <string name="prefs_show_notes_title">Catatan kaki dan x-referensi</string>
@@ -163,11 +165,13 @@
   <string name="bookmark_exists">Bookmark sudah ada</string>
   <string name="bookmark_deleted">bookmark telah dihapus</string>
   <string name="bookmark_labels">Label Bookmark</string>
+  <string name="manage_labels">Atur Lebel Bookmark</string>
   <string name="assign_labels">Tetapkan label</string>
   <string name="new_label">Label Baru</string>
   <string name="label_name_prompt">Nama</string>
   <string name="label_unlabelled">Tanpa label</string>
   <string name="rename">Ganti nama</string>
+  <string name="style">Model</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Urutan tanggal</string>
   <string name="sort_by_bible_book">Urutan Alkitab</string>
@@ -239,6 +243,7 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Baru</string>
   <string name="close">Tutup</string>
+  <string name="edit">Edit</string>
   <!--Errors-->
   <string name="report_error">Kirim laporan</string>
   <string name="error_occurred">Sebuah kesalahan telah terjadi</string>

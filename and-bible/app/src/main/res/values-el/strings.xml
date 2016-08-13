@@ -50,8 +50,6 @@
   <string name="prefs_show_verseno_summary">Εμφάνιση αριθμών στίχου</string>
   <string name="prefs_verse_per_line_title">Ένας στίχος ανά γραμμή</string>
   <string name="prefs_verse_per_line_summary">Εμφάνιση κάθε στίχου σε μια διαφορετική γραμμή</string>
-  <string name="prefs_show_bookmarks_title">Εμφάνιση εικονιδίων σελιδοδείκτη</string>
-  <string name="prefs_show_bookmarks_summary">Εμφάνιση εικονίδιου σελιδοδείκτη στίχων</string>
   <string name="prefs_show_mynotes_title">Εμφάνιση εικονιδίων των σημείωσεων μου</string>
   <string name="prefs_show_mynotes_summary">Εμφάνιση εικονιδίου στίχων με τη σημείωση μου</string>
   <string name="prefs_show_notes_title">Υποσημειώσεις και x-διαιτητές</string>

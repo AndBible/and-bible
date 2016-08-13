@@ -54,8 +54,6 @@
   <string name="prefs_show_verseno_summary">Ayet numaraları gösterilir</string>
   <string name="prefs_verse_per_line_title">Satır başına tek ayet</string>
   <string name="prefs_verse_per_line_summary">Her ayet yeni bir satırda gösterilir</string>
-  <string name="prefs_show_bookmarks_title">Yer imi simgelerini göster</string>
-  <string name="prefs_show_bookmarks_summary">Yer imi olarak kaydedilen ayetleri simgele</string>
   <string name="prefs_show_mynotes_title">Notlarım simgelerini göster</string>
   <string name="prefs_show_mynotes_summary">Hakkında not yazdığım ayetleri simge ile belirle</string>
   <string name="prefs_show_notes_title">Dipnotlar</string>

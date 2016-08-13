@@ -54,8 +54,8 @@
   <string name="prefs_show_verseno_summary">Mostrar números dos versículos</string>
   <string name="prefs_verse_per_line_title">Um versículo por linha</string>
   <string name="prefs_verse_per_line_summary">Mostrar cada versículo em uma linha diferente</string>
-  <string name="prefs_show_bookmarks_title">Mostrar ícones dos favoritos.</string>
-  <string name="prefs_show_bookmarks_summary">Mostrar ícone nos versículos favoritos</string>
+  <string name="prefs_show_bookmarks_title">Mostrar dos favoritos.</string>
+  <string name="prefs_show_bookmarks_summary">Mostrar nos versículos favoritos</string>
   <string name="prefs_show_mynotes_title">Mostrar ícones das minhas Anotações</string>
   <string name="prefs_show_mynotes_summary">Mostrar ícone nos versículos com Anotações</string>
   <string name="prefs_show_notes_title">Notas de rodapé e referências cruzadas</string>
