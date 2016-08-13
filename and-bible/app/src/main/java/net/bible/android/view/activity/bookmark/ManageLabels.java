@@ -1,18 +1,15 @@
 package net.bible.android.view.activity.bookmark;
 
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Spinner;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.Bookmark;
+import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.bookmark.LabelDto;
 
@@ -75,43 +72,26 @@ public class ManageLabels extends ListActivityBase {
     	Log.i(TAG, "New label clicked");
 
     	LabelDto newLabel = new LabelDto();
-    	edit(R.string.new_label, newLabel);
-    }
-    
-	protected void edit(int titleId, final LabelDto label) {
-    	Log.i(TAG, "Edit label clicked");
+		new LabelDialogs().createLabel(this, newLabel, new Callback() {
+			@Override
+			public void okay() {
+				loadLabelList();
+			}
+		});
+	}
 
-		View view = getLayoutInflater().inflate(R.layout.bookmark_label_edit, null);
-		final EditText labelName = (EditText)view.findViewById(R.id.labelName);
-		labelName.setText(label.getName());
+	/**
+	 * New Label requested
+	 */
+	public void editLabel(LabelDto label) {
+		Log.i(TAG, "Edit label clicked");
 
-		final BookmarkStyleAdapter adp = new BookmarkStyleAdapter(this, android.R.layout.simple_spinner_item);
-		final Spinner labelStyle = (Spinner)view.findViewById(R.id.labelStyle);
-		labelStyle.setAdapter(adp);
-		labelStyle.setSelection(adp.getBookmarkStyleOffset(label.getBookmarkStyle()));
-
-    	AlertDialog.Builder alert = new AlertDialog.Builder(this)
-										.setTitle(titleId)
-										.setView(view);
-
-    	alert.setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-		    	public void onClick(DialogInterface dialog, int whichButton) {
-					String name = labelName.getText().toString();
-					label.setName(name);
-					label.setBookmarkStyle(adp.getBookmarkStyleForOffset(labelStyle.getSelectedItemPosition()));
-					bookmarkControl.saveOrUpdateLabel(label);
-
-					loadLabelList();
-				}
-			    	});
-
-    	alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-    	  public void onClick(DialogInterface dialog, int whichButton) {
-    	    // Canceled.
-    	  }
-    	});
-
-		AlertDialog dialog = alert.show();
+		new LabelDialogs().editLabel(this, label, new Callback() {
+			@Override
+			public void okay() {
+				loadLabelList();
+			}
+		});
 	}
 
 	/** Finished editing labels

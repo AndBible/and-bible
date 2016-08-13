@@ -62,7 +62,7 @@ public class ManageLabelItemAdapter extends ArrayAdapter<LabelDto> {
 		editButton.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				manageLabels.edit(R.string.edit, labelDto);
+				manageLabels.editLabel(labelDto);
 			}
 		});
 

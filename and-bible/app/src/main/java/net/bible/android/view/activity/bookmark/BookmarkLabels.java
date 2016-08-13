@@ -10,6 +10,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.Bookmark;
 import net.bible.android.control.bookmark.BookmarkControl;
+import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
@@ -80,6 +81,26 @@ public class BookmarkLabels extends ListActivityBase {
 		}
        	finish();
     }
+
+	/**
+	 * New Label requested
+	 */
+	public void onNewLabel(View v) {
+		Log.i(TAG, "New label clicked");
+
+		LabelDto newLabel = new LabelDto();
+		new LabelDialogs().createLabel(this, newLabel, new Callback() {
+			@Override
+			public void okay() {
+				List<LabelDto> selectedLabels = getCheckedLabels();
+				Log.d(TAG, "Num labels checked pre reload:"+selectedLabels.size());
+
+				loadLabelList();
+
+				setCheckedLabels(selectedLabels);
+				Log.d(TAG, "Num labels checked finally:"+selectedLabels.size());			}
+		});
+	}
 
 	/** load list of docs to display
 	 * 
