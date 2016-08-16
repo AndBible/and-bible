@@ -1,9 +1,11 @@
 package net.bible.android.view.util;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v7.app.ActionBar;
+import android.util.TypedValue;
 import android.view.View;
 
 import net.bible.android.activity.R;
@@ -63,5 +65,31 @@ public class UiUtils {
 	}
 	public static int getTextColour() {
 		return ScreenSettings.isNightMode() ? BIBLEVIEW_TEXT_NIGHT : BIBLEVIEW_TEXT_DAY;
+	}
+
+	public static int getThemeBackgroundColour(Context context) {
+		TypedValue a = new TypedValue();
+		context.getTheme().resolveAttribute(android.R.attr.windowBackground, a, true);
+
+		if (a.type >= TypedValue.TYPE_FIRST_COLOR_INT && a.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+			// windowBackground is a color
+			return a.data;
+		} else {
+			// windowBackground is not a color, probably a drawable so just guess a colour, but hopefully theme backgrounds are always colors anyway
+			return getBackgroundColour();
+		}
+	}
+
+	public static int getThemeTextColour(Context context) {
+		TypedValue a = new TypedValue();
+		context.getTheme().resolveAttribute(android.R.attr.textColor, a, true);
+
+		if (a.type >= TypedValue.TYPE_FIRST_COLOR_INT && a.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+			// textColor is a color
+			return a.data;
+		} else {
+			// textColor is not a color, probably a drawable so just guess a colour, but hopefully theme backgrounds are always colors anyway
+			return getTextColour();
+		}
 	}
 }

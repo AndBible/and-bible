@@ -2,14 +2,15 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 			  android:orientation="vertical"
 			  android:layout_width="match_parent"
-			  android:layout_height="match_parent">
+			  android:layout_height="match_parent"
+			  android:background="?android:colorBackground">
 
-<View android:id="@+id/titleDivider"
-	  android:layout_width="match_parent"
-	  android:layout_height="2dip"
-	  android:background="@color/blue_900"
-	  android:layout_marginLeft="20dp"
-	  android:layout_marginRight="20dp"/>
+	<View android:id="@+id/titleDivider"
+		  android:layout_width="match_parent"
+		  android:layout_height="2dip"
+		  android:background="@color/blue_900"
+		  android:layout_marginLeft="20dp"
+		  android:layout_marginRight="20dp"/>
 
 	<LinearLayout android:orientation="vertical"
 				  android:layout_width="match_parent"

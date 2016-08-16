@@ -37,8 +37,6 @@ public class ManageLabels extends ListActivityBase {
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-		setAllowThemeChange(false);
-
         super.onCreate(savedInstanceState, false);
         setContentView(R.layout.manage_labels);
 

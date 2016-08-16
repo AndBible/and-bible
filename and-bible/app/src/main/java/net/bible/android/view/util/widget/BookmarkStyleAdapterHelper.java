@@ -42,8 +42,8 @@ public class BookmarkStyleAdapterHelper {
 		int backgroundColor = Color.WHITE;
 		switch (bookmarkStyle) {
 			case YELLOW_STAR:
-				backgroundColor = UiUtils.getBackgroundColour();
-				view.setTextColor(UiUtils.getTextColour());
+				backgroundColor = UiUtils.getThemeBackgroundColour(context);
+				view.setTextColor(UiUtils.getThemeTextColour(context));
 				CharSequence imgText = addImageAtStart("* "+baseText, R.drawable.goldstar16x16, context);
 				view.setText(imgText, TextView.BufferType.SPANNABLE);
 				break;
