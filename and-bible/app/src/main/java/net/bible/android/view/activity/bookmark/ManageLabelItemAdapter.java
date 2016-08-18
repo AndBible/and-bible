@@ -84,4 +84,16 @@ public class ManageLabelItemAdapter extends ArrayAdapter<LabelDto> {
 
 		return rowView;
 	}
+
+	/**
+	 * Prevent list item rows being highlighted when pressing the delete or edit button
+	 */
+	@Override
+	public boolean areAllItemsEnabled() {
+		return false;
+	}
+	@Override
+	public boolean isEnabled(int position) {
+		return false;
+	}
 }
