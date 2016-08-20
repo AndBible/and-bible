@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<!-- clear value for stretching bookmark style dialog to ensure spinner values are all visible
+	     because it is not required after Android 2.3 -->
+	<dimen name="bookmark_label_style_dialog_min_height">0dip</dimen>
+</resources>
