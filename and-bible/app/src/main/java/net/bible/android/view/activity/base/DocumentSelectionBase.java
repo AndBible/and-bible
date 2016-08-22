@@ -358,8 +358,11 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 	@Override
 	public boolean onActionItemClicked(MenuItem item, List<Integer> selectedItemPositions) {
 		List<Book> documents = new ArrayList<>();
+		final List<Book> displayedDocuments = getDisplayedDocuments();
 		for (int posn : selectedItemPositions) {
-			documents.add(getDisplayedDocuments().get(posn));
+			if (posn < displayedDocuments.size()) {
+				documents.add(displayedDocuments.get(posn));
+			}
 		}
 
 		if (!documents.isEmpty()) {
