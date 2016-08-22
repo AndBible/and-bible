@@ -54,6 +54,10 @@
   <string name="prefs_show_verseno_summary">Rodyti eilučių numerius</string>
   <string name="prefs_verse_per_line_title">Vienas posmas eilutėje</string>
   <string name="prefs_verse_per_line_summary">Rodyti kiekvieną Biblijos eilutę atskiroje eilutėje</string>
+  <string name="prefs_show_bookmarks_title">Rodyti žymes</string>
+  <string name="prefs_show_bookmarks_summary">Atžymėti norint paslėpti visas žymes</string>
+  <string name="prefs_default_bookmark_style_title">Įprastas žymių stilius</string>
+  <string name="prefs_default_bookmark_style_summary">Išryškinti spalvą arba piktogramą</string>
   <string name="prefs_show_mynotes_title">Rodyti Mano pastabos piktogramas</string>
   <string name="prefs_show_mynotes_summary">Su Mano pastaba rodyti piktogramas eilutėse</string>
   <string name="prefs_show_notes_title">Išnašos ir x-nuor.</string>
@@ -161,11 +165,13 @@
   <string name="bookmark_exists">Žymė jau egzistuoja</string>
   <string name="bookmark_deleted">Žymė pašalinta</string>
   <string name="bookmark_labels">Žymės kortelės</string>
+  <string name="manage_labels">Tvarkyti žymių korteles</string>
   <string name="assign_labels">Priskirti korteles</string>
   <string name="new_label">Nauja kortelė</string>
   <string name="label_name_prompt">Pavadinimas</string>
   <string name="label_unlabelled">Nėra kortelės</string>
   <string name="rename">Pervadinti</string>
+  <string name="style">Stilius</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Rūšiavimas pagal datą</string>
   <string name="sort_by_bible_book">Rūšiavimas pagal Bibliją</string>
@@ -237,6 +243,7 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Naujas</string>
   <string name="close">Užverti</string>
+  <string name="edit">Keisti</string>
   <!--Errors-->
   <string name="report_error">Siųsti ataskaitą</string>
   <string name="error_occurred">Įvyko klaida</string>
