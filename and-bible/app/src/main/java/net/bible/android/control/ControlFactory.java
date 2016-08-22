@@ -82,8 +82,9 @@ public class ControlFactory {
 		if (singleton==null) {
 			synchronized(ControlFactory.class) {
 				if (singleton==null) {
-					singleton = new ControlFactory();
-					singleton.createAll();
+					final ControlFactory controlFactory = new ControlFactory();
+					controlFactory.createAll();
+					singleton = controlFactory;
 				}
 			}
 		}
