@@ -206,10 +206,11 @@ public class BookmarkControlTest {
 
 		// add bookmark in range
 		final BookmarkDto bookmarkDto = addBookmark("ps.17.1-ps.17.2");
-		LabelDto greenAndRedLabelDto = new LabelDto();
-		greenAndRedLabelDto.setName("G");
-		greenAndRedLabelDto = bookmarkControl.saveOrUpdateLabel(greenAndRedLabelDto);
-		bookmarkControl.setBookmarkLabels(bookmarkDto, Collections.singletonList(greenAndRedLabelDto));
+		LabelDto greenLabelDto = new LabelDto();
+		greenLabelDto.setName("G");
+		greenLabelDto.setBookmarkStyle(BookmarkStyle.GREEN_HIGHLIGHT);
+		greenLabelDto = bookmarkControl.saveOrUpdateLabel(greenLabelDto);
+		bookmarkControl.setBookmarkLabels(bookmarkDto, Collections.singletonList(greenLabelDto));
 
 		addBookmark("ps.17.10");
 
