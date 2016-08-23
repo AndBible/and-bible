@@ -58,9 +58,8 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState, false);
+        super.onCreate(savedInstanceState, true);
         setContentView(R.layout.bookmarks);
-        setIntegrateWithHistoryManager(true);
 
         bookmarkControl = ControlFactory.getInstance().getBookmarkControl();
 
