@@ -1,7 +1,11 @@
 package net.bible.android.view.activity.bookmark;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -11,6 +15,7 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.Bookmark;
 import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.view.activity.base.Callback;
+import net.bible.android.view.activity.base.IntentHelper;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
@@ -156,5 +161,51 @@ public class BookmarkLabels extends ListActivityBase {
 
     	// ensure ui is updated
 		notifyDataSetChanged();
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.bookmark_labels_actionbar_menu, menu);
+		return true;
+	}
+
+	/**
+	 * on Click handlers
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		boolean isHandled = false;
+
+		switch (item.getItemId()) {
+			case (R.id.manageLabels):
+				isHandled = true;
+				Intent intent = new Intent(this, ManageLabels.class);
+				startActivityForResult(intent, IntentHelper.REFRESH_DISPLAY_ON_FINISH);
+				break;
+		}
+
+		if (!isHandled) {
+			isHandled = super.onOptionsItemSelected(item);
+		}
+
+		return isHandled;
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Log.d(TAG, "Restoring state after return from label editing");
+
+		if (requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH) {
+			// find checked labels prior to refresh
+			List<LabelDto> selectedLabels = getCheckedLabels();
+
+			// reload labels with new and/or amended labels
+			loadLabelList();
+
+			// re-check labels as they were before leaving this screen
+			setCheckedLabels(selectedLabels);
+		}
 	}
 }
