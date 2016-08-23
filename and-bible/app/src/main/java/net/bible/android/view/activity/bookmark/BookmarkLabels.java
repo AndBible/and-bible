@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Choose a bible or commentary to use
+ * Choose which labels to associate with a bookmark
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
@@ -59,10 +59,8 @@ public class BookmarkLabels extends ListActivityBase {
     	getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
     	loadLabelList();
-    	
-    	ArrayAdapter<LabelDto> listArrayAdapter = new ArrayAdapter<>(this,
-    	        LIST_ITEM_TYPE,
-    	        labels);
+
+    	ArrayAdapter<LabelDto> listArrayAdapter = new BookmarkLabelItemAdapter(this, LIST_ITEM_TYPE, labels);
     	setListAdapter(listArrayAdapter);
     	
 		initialiseCheckedLabels(bookmarks);

@@ -30,7 +30,7 @@ public class ManageLabelItemAdapter extends ArrayAdapter<LabelDto> {
 
 	private BookmarkStyleAdapterHelper bookmarkStyleAdapterHelper = new BookmarkStyleAdapterHelper();
 
-	private static final String TAG = "LabelItemAdapter";
+	private static final String TAG = "ManageLabelItemAdapter";
 
 	public ManageLabelItemAdapter(Context context, int resource, List<LabelDto> items, ManageLabels manageLabels) {
 		super(context, resource, items);
