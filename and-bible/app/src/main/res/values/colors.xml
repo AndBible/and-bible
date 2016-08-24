@@ -29,6 +29,9 @@
 	<color name="list_item_activated">@color/blue_300_35pcntOpacity</color>
 
 	<color name="night_dialog_background">#303030</color>
+
+	<color name="snackbar_action_text">@color/blue_500</color>
+
 	<!-- see
 	colours: https://www.google.com/design/spec/style/color.html#color-color-palette
 	numbers: https://gist.github.com/cypressious/90355ac3e92c65908441 -->

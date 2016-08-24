@@ -87,7 +87,8 @@ public class BookmarkControl implements Bookmark {
 				
 				if (newBookmark!=null) {
 					// success
-					Snackbar.make(currentView, R.string.bookmark_added, Snackbar.LENGTH_LONG).setAction(R.string.assign_labels, new View.OnClickListener() {
+					int actionTextColor = CommonUtils.getResourceColor(R.color.snackbar_action_text);
+					Snackbar.make(currentView, R.string.bookmark_added, Snackbar.LENGTH_LONG).setActionTextColor(actionTextColor).setAction(R.string.assign_labels, new View.OnClickListener() {
 						@Override
 						public void onClick(View v) {
 							// Show label view for new bookmark
