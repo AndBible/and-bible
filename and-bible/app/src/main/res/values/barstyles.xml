@@ -15,6 +15,8 @@
 		<item name="actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
 		<item name="colorAccent">@color/accent_day</item>
 		<item name="actionButtonStyle">@style/MyActionButtonStyle</item>
+		<!-- Prevent sub menu items (e.g. Admin sub-menu) appearing as 'white on white' on Android 2.3 -->
+		<item name="actionBarWidgetTheme">@style/Theme.AppCompat.Light</item>
 	</style>
 
 	<style name="AppThemeNight" parent="@style/Theme.AppCompat">
@@ -23,17 +25,7 @@
 		<item name="colorPrimary">@color/actionbar_background_night</item>
 		<item name="actionButtonStyle">@style/MyActionButtonStyle</item>
 	</style>
-<!--
-	<style name="AppTheme" parent="@style/Theme.AppCompat.DayNight.DarkActionBar">
-		< To prevent button text being capitalised in activities
-		<item name="textAllCaps">false</item>
-		 Default material color is grey, which seems hard to see, so change it to white
-		<item name="android:textColorPrimaryNoDisable">@color/actionbar_text</item>
-		 Change actionbar text colour
-		<item name="android:colorForeground">@color/accent</item>
 
-	</style>
--->
 	<style name="MyMenuTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Menu">
 		<item name="textAllCaps">false</item>
 		<item name="android:textStyle">normal</item>
