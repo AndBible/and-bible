@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="app_name">And Bible</string>
+  <string name="app_name">And İncil\'i</string>
   <!--Startup & Help-->
   <string name="splash_top_text">\n\'Tanrı, \"Işık olsun\" diye buyurdu ve ışık oldu.\'\nYaratılış 1:3</string>
   <string name="help_text">İşlemler için MENÜ düğmesine basınız.\n\nÖnceki veya sonraki bölüme geçmek için ekranda parmağınızı kaydırın, iztopunu çevirin veya yön düğmelerine basın.</string>
@@ -54,6 +54,10 @@
   <string name="prefs_show_verseno_summary">Ayet numaraları gösterilir</string>
   <string name="prefs_verse_per_line_title">Satır başına tek ayet</string>
   <string name="prefs_verse_per_line_summary">Her ayet yeni bir satırda gösterilir</string>
+  <string name="prefs_show_bookmarks_title">Yer imleri göster</string>
+  <string name="prefs_show_bookmarks_summary">Yer imleri gösterilsin mi?</string>
+  <string name="prefs_default_bookmark_style_title">Yer imleri için ön tanımlı biçim</string>
+  <string name="prefs_default_bookmark_style_summary">İşaretlemek için Renk veya Simge</string>
   <string name="prefs_show_mynotes_title">Notlarım simgelerini göster</string>
   <string name="prefs_show_mynotes_summary">Hakkında not yazdığım ayetleri simge ile belirle</string>
   <string name="prefs_show_notes_title">Dipnotlar</string>
@@ -150,19 +154,24 @@
   <!--Verse context menu-->
   <string name="notes">Dipnotlar ve iç göndermeler</string>
   <string name="copy">Kopyala</string>
+  <string name="share_verse">Paylaş ...</string>
   <string name="share_verse_subject">And Bible uygulamasını kullanarak sizinle Kutsal Kitap\'tan bir ayet paylaştım.</string>
   <string name="compare_translations">Çevirileri karşılaştır</string>
   <!--Bookmarks-->
   <string name="bookmarks">Yer İmleri</string>
   <string name="add_bookmark">Yer İmlerine ekle</string>
+  <string name="delete_bookmark">Yer imi sil</string>
   <string name="bookmark_added">Yer imi eklendi</string>
   <string name="bookmark_exists">Yer imi zaten mevcut</string>
+  <string name="bookmark_deleted">Yer imi silindi</string>
   <string name="bookmark_labels">Yer İmi Etiketleri</string>
+  <string name="manage_labels">Yer İmi Etiketleri Yönet</string>
   <string name="assign_labels">Etiketle</string>
   <string name="new_label">Yeni Etiket</string>
   <string name="label_name_prompt">Etiket</string>
   <string name="label_unlabelled">Etiketlenmemiş</string>
   <string name="rename">Yeniden Adlandır</string>
+  <string name="style">Biçim</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Tarih Sırası</string>
   <string name="sort_by_bible_book">Kutsal Kitap Sırası</string>
@@ -208,6 +217,7 @@
   <string name="restore_confirmation">Var olan Not ve Yer İmilerin üstüne yazılsın mı?</string>
   <string name="restore_success">Not ve Yer İmileri hafiz karttan %s klasöründen geri yüklendi.</string>
   <!--About-->
+  <string name="about_copyright">Telif Hakkı: %s</string>
   <string name="about_version">Sürüm: %s</string>
   <string name="about_versification">Ayetleme: %s</string>
   <!--Document types-->
@@ -233,7 +243,9 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Yeni</string>
   <string name="close">Kapat</string>
+  <string name="edit">Düzelt</string>
   <!--Errors-->
+  <string name="report_error">Bildiri Gönder</string>
   <string name="error_occurred">Bir hata oldu</string>
   <string name="error_no_content">Seçilen ayeti için içerik yok</string>
   <string name="error_page_too_large">Sayfa yüklenmek için fazla büyük</string>
