@@ -125,7 +125,7 @@ public class MyNotes extends ListActivityBase implements ListActionModeHelper.Ac
     public boolean onCreateOptionsMenu(Menu menu) {
     	super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.bookmark_actionbar_menu, menu);
+        inflater.inflate(R.menu.mynote_actionbar_menu, menu);
         return true;
     }
 
