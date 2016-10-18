@@ -1,13 +1,14 @@
 package net.bible.service.format.osistohtml.osishandlers;
 
 
-import java.util.Stack;
-
 import net.bible.service.common.Logger;
 import net.bible.service.format.osistohtml.taghandler.TagHandlerHelper;
 
+import org.apache.commons.lang.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
+
+import java.util.Stack;
 /**
  * Convert OSIS input into Canonical text (used when creating search index)
  * 
@@ -20,8 +21,11 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
     @SuppressWarnings("unused")
 	private int currentVerseNo;
 
-    private Stack<CONTENT_STATE> writeContentStack = new Stack<CONTENT_STATE>(); 
-	private enum CONTENT_STATE {WRITE, IGNORE};
+    private Stack<CONTENT_STATE> writeContentStack = new Stack<>();
+	private enum CONTENT_STATE {WRITE, IGNORE}
+
+	// Avoid space at the start and, extra space between words
+	private boolean spaceJustWritten = true;
     
 	private static final Logger log = new Logger("OsisToCanonicalTextSaxHandler");
     
@@ -81,7 +85,6 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
 		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
 			// text content of top level references should be output but in notes it should not
 			writeContentStack.push(writeContentStack.peek());
-
 		} else if (	name.equals(OSISUtil.OSIS_ELEMENT_L) ||
 					name.equals(OSISUtil.OSIS_ELEMENT_LB) ||
 					name.equals(OSISUtil.OSIS_ELEMENT_P) ) {
@@ -125,12 +128,23 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
     public void characters (char buf[], int offset, int len) {
         if (CONTENT_STATE.WRITE.equals(writeContentStack.peek())) {
         	String s = new String(buf, offset, len);
-        	
             write(s);
         }
     }
 
-    protected void writeContent(boolean writeContent) {
+	@Override
+	protected void write(String s) {
+		// reduce amount of whitespace becasue a lot of space was occurring between verses in ESVS and several other books
+		if (!StringUtils.isWhitespace(s)) {
+			super.write(s);
+			spaceJustWritten = false;
+		} else if (!spaceJustWritten) {
+			super.write(" ");
+			spaceJustWritten = true;
+		}
+	}
+
+	protected void writeContent(boolean writeContent) {
     	if (writeContent) {
     		writeContentStack.push(CONTENT_STATE.WRITE);    		
     	} else {
