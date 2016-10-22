@@ -129,10 +129,10 @@ public class VerseHandler implements OsisTagHandler {
 		if (parameters.isShowVerseNumbers() && verseNo!=0) {
 			verseNoSB.append("<span class='verseNo'>").append(verseNo).append("</span>").append(HTML.NBSP);
 		} else {
-			// we really want an empty span but that is illegal and causes problems such as incorrect verse calculation in Psalms
-			// so use something that will hopefully interfere as little as possible - a zero-width-space
-			// also put a space before it to allow a separation from the last word of previous verse or to be ignored if start of line
-			verseNoSB.append("&#x200b;");
+			// We really want an empty span but that is illegal and causes problems such as incorrect verse calculation in Psalms
+			// So use something that will hopefully interfere as little as possible - a zero-width-space
+			// The verseNo class is required here because the default yellow-star positions itself after verseNo
+			verseNoSB.append("<span class='verseNo'>").append("&#x200b;").append("</span>");
 		}
 		return verseNoSB.toString();
 	}
