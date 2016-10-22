@@ -22,6 +22,7 @@
   <string name="choosePassageChapterName">장 선택</string>
   <string name="choosePassageVerseName">구절 선택</string>
   <string name="bible">성경</string>
+  <string name="deuterocanonical">외경</string>
   <!--Search-->
   <string name="search_index">검색 색인</string>
   <string name="index_creation_required">색인을 검색 할 필요합니다.\n\n색인은 인터넷에서 다운로드 또는 로컬 만들 수 있습니다.\n\n다운로드가 훨씬 빠르고 다운로드 인덱스가 더 검색 기능을 가지고 있습니다.\n\n인터넷 연결이 인덱스를 다운로드해야합니다.\n</string>
@@ -53,11 +54,15 @@
   <string name="prefs_show_verseno_summary">구절 번호 보기</string>
   <string name="prefs_verse_per_line_title">한 줄에 한 구절</string>
   <string name="prefs_verse_per_line_summary">다른 줄에있는 각 구절보기</string>
-  <string name="prefs_show_mynotes_title">내 노트 아이콘 표시</string>
-  <string name="prefs_show_mynotes_summary">내 참고 구절에 아이콘 표시</string>
+  <string name="prefs_show_bookmarks_title">즐겨찾기 보기</string>
+  <string name="prefs_show_bookmarks_summary">선택한 모든 책갈피를 숨기기</string>
+  <string name="prefs_default_bookmark_style_title">기본 책갈피 스타일</string>
+  <string name="prefs_default_bookmark_style_summary">강조 색 또는 아이콘</string>
+  <string name="prefs_show_mynotes_title">내 노트 아이콘 보기</string>
+  <string name="prefs_show_mynotes_summary">내 참고 구절에 아이콘 보기</string>
   <string name="prefs_show_notes_title">각주와 상호 참조</string>
-  <string name="prefs_show_notes_summary">표시 각주와 상호 참조</string>
-  <string name="prefs_show_strongs_title">보기 스트롱 번호</string>
+  <string name="prefs_show_notes_summary">각주와 상호 참조 보기</string>
+  <string name="prefs_show_strongs_title">스트롱 번호 보기</string>
   <string name="prefs_show_strongs_summary">링크 - 그리스어 및 히브리어 정의</string>
   <string name="prefs_show_morphology_title">형태학의 코드</string>
   <string name="prefs_show_morphology_summary">\"Robinson\'s Greek Morphology\" 보기</string>
@@ -155,14 +160,18 @@
   <!--Bookmarks-->
   <string name="bookmarks">즐겨찾기</string>
   <string name="add_bookmark">즐겨찾기 추가</string>
+  <string name="delete_bookmark">북마크 삭제</string>
   <string name="bookmark_added">추가된 즐겨찾기</string>
   <string name="bookmark_exists">즐겨찾기가 이미 존재합니다</string>
+  <string name="bookmark_deleted">삭제된 책갈피</string>
   <string name="bookmark_labels">즐겨찾기 꼬리표</string>
+  <string name="manage_labels">북마크 꼬리표 관리</string>
   <string name="assign_labels">할당 레이블</string>
   <string name="new_label">새 분류</string>
   <string name="label_name_prompt">이름</string>
   <string name="label_unlabelled">분류되지 않은</string>
   <string name="rename">이름 바꾸기</string>
+  <string name="style">스타일</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">날짜 순서</string>
   <string name="sort_by_bible_book">성경의 순서</string>
@@ -208,6 +217,7 @@
   <string name="restore_confirmation">내 참고들 및 즐겨찾기를 덮어 쓰시겠습니까?</string>
   <string name="restore_success">SD 카드에 %s 에서 복원한 내 참고들 및 즐겨찾기</string>
   <!--About-->
+  <string name="about_copyright">저작권: %s</string>
   <string name="about_version">버전의 %s</string>
   <string name="about_versification">시형: %s</string>
   <!--Document types-->
@@ -233,6 +243,7 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">새로운</string>
   <string name="close">닫기</string>
+  <string name="edit">편집하다</string>
   <!--Errors-->
   <string name="report_error">보고서 를 보내기</string>
   <string name="error_occurred">오류가 발생했습니다</string>
