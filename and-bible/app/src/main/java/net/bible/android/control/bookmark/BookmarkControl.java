@@ -48,8 +48,8 @@ public class BookmarkControl implements Bookmark {
 	public static final String BOOKMARK_IDS_EXTRA = "bookmarkIds";
 	public static final String LABEL_NO_EXTRA = "labelNo";
 
-	public LabelDto LABEL_ALL;
-	public LabelDto LABEL_UNLABELLED;
+	private LabelDto LABEL_ALL;
+	private LabelDto LABEL_UNLABELLED;
 
 	private static final String BOOKMARK_SORT_ORDER = "BookmarkSortOrder";
 
@@ -320,8 +320,7 @@ public class BookmarkControl implements Bookmark {
 	@Override
 	public List<LabelDto> getAllLabels() {
 		List<LabelDto> labelList = getAssignableLabels();
-		Collections.sort(labelList);
-		
+
 		// add special label that is automatically associated with all-bookmarks
 		labelList.add(0, LABEL_UNLABELLED);
 		labelList.add(0, LABEL_ALL);
@@ -340,6 +339,7 @@ public class BookmarkControl implements Bookmark {
 			db.close();
 		}
 
+		Collections.sort(labelList);
 		return labelList;
 	}
 
