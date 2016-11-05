@@ -78,7 +78,9 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 	private boolean isDeletePossible;
 	// We only show installed ticks beside documents if in Document Downloads screen
 	private boolean isInstallStatusIconsShown;
-	
+	// We only show progress bar if on Download documents screen
+	private boolean isProgressBarShown;
+
 	private DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
 	
 	private static final int LIST_ITEM_TYPE = R.layout.list_item_2_image;
@@ -122,10 +124,10 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 			}
 		});
 
-    	languageList = new ArrayList<Language>();
-    	displayedDocuments = new ArrayList<Book>();
+    	languageList = new ArrayList<>();
+    	displayedDocuments = new ArrayList<>();
     	
-    	ArrayAdapter<Book> listArrayAdapter = new DocumentItemAdapter(this, LIST_ITEM_TYPE, displayedDocuments, isInstallStatusIconsShown, this);
+    	ArrayAdapter<Book> listArrayAdapter = new DocumentItemAdapter(this, LIST_ITEM_TYPE, displayedDocuments, isInstallStatusIconsShown, isProgressBarShown, this);
     	setListAdapter(listArrayAdapter);
 
     	//prepare the documentType spinner
@@ -161,7 +163,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 				public void onNothingSelected(AdapterView<?> arg0) {
 				}
 			});
-	    	langArrayAdapter = new ArrayAdapter<Language>(this, android.R.layout.simple_spinner_item, languageList);
+	    	langArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, languageList);
 	    	langArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 	    	langSpinner.setAdapter(langArrayAdapter);
     	}
@@ -177,7 +179,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 
 	private void setDefaultLanguage() {
     	if (selectedLanguageNo==-1) {
-    		Language lang = null;
+    		Language lang;
     		// make selected language sticky
     		if (lastSelectedLanguage!=null && languageList.contains(lastSelectedLanguage)) {
     			lang = lastSelectedLanguage;
@@ -266,7 +268,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 					Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 
 					allDocuments = getDocumentsFromSource(refresh);
-    	        	Log.i(TAG, "number of documents:"+allDocuments.size());
+    	        	Log.i(TAG, "Number of documents:"+allDocuments.size());
 				} catch (Exception e) {
 					Log.e(TAG, "Error getting documents", e);
 		    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
@@ -334,7 +336,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
     private void populateLanguageList() {
     	try {
     		// temporary Set to remove duplicate Languages
-    		Set<Language> langSet = new HashSet<Language>();
+    		Set<Language> langSet = new HashSet<>();
 
     		if (allDocuments!=null && allDocuments.size()>0) {
    	        	Log.d(TAG, "initialising language list");
@@ -484,8 +486,9 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 		}
 		
 		// add version
-		Version versionObj = new Version(document.getBookMetaData().getProperty("Version"));
-		if (versionObj!=null) {
+		final String version = document.getBookMetaData().getProperty("Version");
+		if (version!=null) {
+			Version versionObj = new Version(version);
 	        String versionMsg = BibleApplication.getApplication().getString(R.string.about_version, versionObj.toString());
 			about += "\n\n"+versionMsg;
 		}
@@ -531,6 +534,10 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 
 	public void setInstallStatusIconsShown(boolean isInstallStatusIconsShown) {
 		this.isInstallStatusIconsShown = isInstallStatusIconsShown;
+	}
+
+	public void setProgressBarShown(boolean progressBarShown) {
+		isProgressBarShown = progressBarShown;
 	}
 
 	public Spinner getDocumentTypeSpinner() {

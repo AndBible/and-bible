@@ -24,8 +24,7 @@
         android:layout_marginLeft="6dip"
         android:layout_marginTop="6dip"
         android:layout_toRightOf="@+id/icon"
-		android:textAppearance="?android:attr/textAppearanceLarge"
-	/>
+		android:textAppearance="?android:attr/textAppearanceLarge"/>
 		
 	<TextView android:id="@+id/text2"
 		android:layout_width="match_parent"
@@ -33,5 +32,13 @@
 		android:layout_below="@id/text1"
         android:layout_alignLeft="@id/text1"
         android:textAppearance="?android:textAppearanceSmall" />
+
+	<ProgressBar android:id="@+id/progressBar"
+		style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_alignParentLeft="true"
+		android:layout_below="@id/text2"
+		android:visibility="gone"/>
 
 </net.bible.android.view.util.widget.TwoLineListItemWithImage>

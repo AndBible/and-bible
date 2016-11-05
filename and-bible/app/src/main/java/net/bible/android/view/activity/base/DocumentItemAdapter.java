@@ -3,6 +3,8 @@ package net.bible.android.view.activity.base;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Build;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,22 +34,25 @@ public class DocumentItemAdapter extends ArrayAdapter<Book> {
 	private int resource;
 	
 	private boolean isInstallStatusItemsShown;
-	
+
+	private final boolean isProgressBarShown;
+
 	private DownloadControl downloadControl = ControlFactory.getInstance().getDownloadControl();
 
 	private final ListActionModeHelper.ActionModeActivity actionModeActivity;
 
 	private static int ACTIVATED_COLOUR = CommonUtils.getResourceColor(R.color.list_item_activated);
 
-	public DocumentItemAdapter(Context _context, int _resource, List<Book> _items, boolean isInstallStatusItemsShown, ListActionModeHelper.ActionModeActivity actionModeActivity) {
+	public DocumentItemAdapter(Context _context, int _resource, List<Book> _items, boolean isInstallStatusItemsShown, boolean isProgressBarShown, ListActionModeHelper.ActionModeActivity actionModeActivity) {
 		super(_context, _resource, _items);
 		resource = _resource;
 		this.isInstallStatusItemsShown = isInstallStatusItemsShown;
+		this.isProgressBarShown = isProgressBarShown;
 		this.actionModeActivity = actionModeActivity;
 	}
 
 	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+	public @NonNull View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
 		Book item = getItem(position);
 
@@ -61,6 +66,9 @@ public class DocumentItemAdapter extends ArrayAdapter<Book> {
 		}
 
 		if (view.getIcon() != null) {
+			// Only Download screen shows progress bar
+			view.getProgressBar().setVisibility(isProgressBarShown? View.VISIBLE : View.GONE);
+
 			if (isInstallStatusItemsShown) {
 				switch (downloadControl.getBookInstallStatus(item)) {
 				case INSTALLED:

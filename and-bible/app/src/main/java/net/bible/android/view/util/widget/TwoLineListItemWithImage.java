@@ -3,6 +3,7 @@ package net.bible.android.view.util.widget;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import net.bible.android.activity.R;
 
@@ -15,6 +16,8 @@ import net.bible.android.activity.R;
 public class TwoLineListItemWithImage extends TwoLineListItem {
 
 	private ImageView mIcon;
+
+	private ProgressBar progressBar;
 	
 	public TwoLineListItemWithImage(Context context) {
 		super(context);
@@ -33,6 +36,7 @@ public class TwoLineListItemWithImage extends TwoLineListItem {
     protected void onFinishInflate() {
         super.onFinishInflate();
         mIcon = (ImageView) findViewById(R.id.icon);
+		progressBar = (ProgressBar) findViewById(R.id.progressBar);
     }
 
 	public ImageView getIcon() {
@@ -43,4 +47,7 @@ public class TwoLineListItemWithImage extends TwoLineListItem {
 		mIcon = icon;
 	}
 
+	public ProgressBar getProgressBar() {
+		return progressBar;
+	}
 }
