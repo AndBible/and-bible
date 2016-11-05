@@ -13,7 +13,6 @@ import android.widget.Toast;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.download.DownloadControl;
-import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.DocumentSelectionBase;
 import net.bible.service.common.CommonUtils;
@@ -59,19 +58,19 @@ public class Download extends DocumentSelectionBase {
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        forceBasicFlow = SwordDocumentFacade.getInstance().getBibles().size()==0;
-    	setInstallStatusIconsShown(!forceBasicFlow);
-        setDeletePossible(!forceBasicFlow);
-    	
+    	setInstallStatusIconsShown(true);
+		setProgressBarShown(true);
+        setDeletePossible(false);
         super.onCreate(savedInstanceState);
 
         downloadControl = ControlFactory.getInstance().getDownloadControl();
         
     	// in the basic flow we force the user to download a bible
-    	getDocumentTypeSpinner().setEnabled(!forceBasicFlow);
-       	
+    	getDocumentTypeSpinner().setEnabled(true);
+
+		boolean firstTime = SwordDocumentFacade.getInstance().getBibles().size()==0;
        	// if first time
-       	if (forceBasicFlow) {
+       	if (firstTime) {
         	// prepare the document list view - done in another thread
         	populateMasterDocumentList(false);
         	updateLastRepoRefreshDate();
@@ -144,17 +143,7 @@ public class Download extends DocumentSelectionBase {
 
 	private void showTooManyJobsDialog() {
 		Log.i(TAG, "Too many jobs:"+JobManager.getJobCount());
-		Dialogs.getInstance().showErrorMsg(R.string.too_many_jobs, new Callback() {
-			@Override
-			public void okay() {
-				showDownloadStatus();
-			}
-		});
-	}
-
-	public void showDownloadStatus() {
-		Intent intent = new Intent(this, DownloadStatus.class);
-		startActivityForResult(intent, 1);
+		Dialogs.getInstance().showErrorMsg(R.string.too_many_jobs);
 	}
 
     protected void manageDownload(final Book documentToDownload) {
@@ -179,16 +168,6 @@ public class Download extends DocumentSelectionBase {
 			// the download happens in another thread
 			downloadControl.downloadDocument(document);
 	    	
-	    	Intent intent;
-	    	if (forceBasicFlow) {
-	    		intent = new Intent(this, EnsureBibleDownloaded.class);
-	    		// finish this so when EnsureDalogDownload finishes we go straight back to StartupActivity which will start MainBibleActivity
-	    		finish();
-	    	} else {
-	    		intent = new Intent(this, DownloadStatus.class);
-	    	}
-        	startActivityForResult(intent, 1);
-
     	} catch (Exception e) {
     		Log.e(TAG, "Error on attempt to download", e);
     		Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show();
