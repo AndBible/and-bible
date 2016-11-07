@@ -7,6 +7,8 @@ import android.widget.ProgressBar;
 
 import net.bible.android.activity.R;
 
+import org.crosswire.jsword.book.Book;
+
 /** Add an image to the normal 2 line list item
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -14,6 +16,9 @@ import net.bible.android.activity.R;
  *      The copyright to this program is held by it's author.
  */
 public class TwoLineListItemWithImage extends TwoLineListItem {
+
+	/** document being shown */
+	private Book document;
 
 	private ImageView mIcon;
 
@@ -49,5 +54,13 @@ public class TwoLineListItemWithImage extends TwoLineListItem {
 
 	public ProgressBar getProgressBar() {
 		return progressBar;
+	}
+
+	public Book getDocument() {
+		return document;
+	}
+
+	public void setDocument(Book document) {
+		this.document = document;
 	}
 }
