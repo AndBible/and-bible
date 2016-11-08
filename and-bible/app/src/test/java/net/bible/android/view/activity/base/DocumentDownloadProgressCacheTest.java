@@ -2,6 +2,7 @@ package net.bible.android.view.activity.base;
 
 import android.app.Activity;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.ProgressBar;
 
 import net.bible.android.activity.BuildConfig;
@@ -44,11 +45,14 @@ public class DocumentDownloadProgressCacheTest {
 	@Test
 	public void updateProgress() throws Exception {
 
+		// prepare an item
 		documentDownloadProgressCache.documentShown(testData.document, testData.progressBar);
 
+		// update progress and check
 		documentDownloadProgressCache.updateProgress(testData.progress);
 		assertThat(testData.progressBar.getProgress(), equalTo(33));
 
+		// update progress again and recheck
 		testData.progress.setWork(100);
 		documentDownloadProgressCache.updateProgress(testData.progress);
 		assertThat(testData.progressBar.getProgress(), equalTo(100));
@@ -56,12 +60,25 @@ public class DocumentDownloadProgressCacheTest {
 
 	@Test
 	public void documentHidden() throws Exception {
+		// prepare an item
+		documentDownloadProgressCache.documentShown(testData.document, testData.progressBar);
+		documentDownloadProgressCache.updateProgress(testData.progress);
 
+
+		// Hide item and check there is no associated progressBar
+		documentDownloadProgressCache.documentHidden(testData.document);
+
+		//TODO check progressBar disassociated e.g. by adding isProgressBar(Book)
 	}
 
 	@Test
 	public void documentShown() throws Exception {
+		assertThat(testData.progressBar.getVisibility(), equalTo(View.GONE));
 
+		// prepare an item
+		documentDownloadProgressCache.documentShown(testData.document, testData.progressBar);
+		// for shown items the progress bar is not visible until percent is set
+		assertThat(testData.progressBar.getVisibility(), equalTo(View.GONE));
 	}
 
 	private class TestData {
