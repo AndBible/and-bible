@@ -83,7 +83,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 
 	private DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
 	
-	private static final int LIST_ITEM_TYPE = R.layout.list_item_2_image;
+	private static final int LIST_ITEM_TYPE = R.layout.document_list_item;
 
 	private ListActionModeHelper listActionModeHelper;
 

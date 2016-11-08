@@ -13,7 +13,7 @@ import android.widget.ArrayAdapter;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.download.DownloadControl;
-import net.bible.android.view.util.widget.TwoLineListItemWithImage;
+import net.bible.android.view.util.widget.DocumentListItem;
 import net.bible.service.common.CommonUtils;
 
 import org.crosswire.common.progress.JobManager;
@@ -86,12 +86,12 @@ public class DocumentItemAdapter extends ArrayAdapter<Book> {
 		Book document = getItem(position);
 
 		// Pick up the TwoLineListItem defined in the xml file
-		TwoLineListItemWithImage view;
+		DocumentListItem view;
 		if (convertView == null) {
 			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			view = (TwoLineListItemWithImage) inflater.inflate(resource, parent, false);
+			view = (DocumentListItem) inflater.inflate(resource, parent, false);
 		} else {
-			view = (TwoLineListItemWithImage) convertView;
+			view = (DocumentListItem) convertView;
 			if (isProgressBarShown) {
 				//  Get previous convertView doc to uncache
 				documentDownloadProgressCache.documentHidden(view.getDocument());

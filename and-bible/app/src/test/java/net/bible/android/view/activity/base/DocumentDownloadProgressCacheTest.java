@@ -7,7 +7,7 @@ import android.widget.ProgressBar;
 
 import net.bible.android.activity.BuildConfig;
 import net.bible.android.activity.R;
-import net.bible.android.view.util.widget.TwoLineListItemWithImage;
+import net.bible.android.view.util.widget.DocumentListItem;
 import net.bible.service.download.FakeSwordBookFactory;
 
 import org.crosswire.common.progress.JobManager;
@@ -86,7 +86,7 @@ public class DocumentDownloadProgressCacheTest {
 		String initials = "KJV";
 		Book document;
 		Progress progress = JobManager.createJob("INSTALL_BOOK-"+initials, "Installing King James Version", null);
-		TwoLineListItemWithImage twoLineListItemWithImage;
+		DocumentListItem documentListItem;
 		ProgressBar progressBar;
 
 		{
@@ -96,8 +96,8 @@ public class DocumentDownloadProgressCacheTest {
 				progress.setWork(33);
 
 				Activity activity = Robolectric.buildActivity(Activity.class).create().get();
-				twoLineListItemWithImage = (TwoLineListItemWithImage) LayoutInflater.from(activity).inflate(R.layout.list_item_2_image, null);
-				progressBar = twoLineListItemWithImage.getProgressBar();
+				documentListItem = (DocumentListItem) LayoutInflater.from(activity).inflate(R.layout.document_list_item, null);
+				progressBar = documentListItem.getProgressBar();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
