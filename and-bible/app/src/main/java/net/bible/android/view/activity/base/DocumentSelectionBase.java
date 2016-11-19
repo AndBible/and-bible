@@ -82,7 +82,9 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 	private boolean isProgressBarShown;
 
 	private DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
-	
+
+	private DocumentItemAdapter documentItemAdapter;
+
 	private static final int LIST_ITEM_TYPE = R.layout.document_list_item;
 
 	private ListActionModeHelper listActionModeHelper;
@@ -127,8 +129,8 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
     	languageList = new ArrayList<>();
     	displayedDocuments = new ArrayList<>();
     	
-    	ArrayAdapter<Book> listArrayAdapter = new DocumentItemAdapter(this, LIST_ITEM_TYPE, displayedDocuments, isInstallStatusIconsShown, isProgressBarShown, this);
-    	setListAdapter(listArrayAdapter);
+    	documentItemAdapter = new DocumentItemAdapter(this, LIST_ITEM_TYPE, displayedDocuments, isInstallStatusIconsShown, isProgressBarShown, this);
+    	setListAdapter(documentItemAdapter);
 
     	//prepare the documentType spinner
     	documentTypeSpinner = (Spinner)findViewById(R.id.documentTypeSpinner);
@@ -169,12 +171,22 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
     	}
     }
 
-    @Override
-	protected void onRestart() {
-		super.onRestart();
+	@Override
+	protected void onStart() {
+		super.onStart();
 
-		// if downloading documents then ensure the correct ticks are checked after user presses More to return here
-		notifyDataSetChanged();
+		if (isProgressBarShown) {
+			documentItemAdapter.startMonitoringDownloads();
+		}
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+
+		if (isProgressBarShown) {
+			documentItemAdapter.stopMonitoringDownloads();
+		}
 	}
 
 	private void setDefaultLanguage() {
@@ -235,6 +247,9 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
         			Log.d(TAG, "Selected "+selectedBook.getInitials());
         			handleDocumentSelection(selectedBook);
         		}
+
+				// prevent the item remaining highlighted.  Unfortunately the highlight is cleared before the selection is handled.
+				getListView().setItemChecked(position, false);
     		}
     	} catch (Exception e) {
     		Log.e(TAG, "document selection error", e);

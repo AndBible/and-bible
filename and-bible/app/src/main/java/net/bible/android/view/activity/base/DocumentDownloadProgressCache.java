@@ -25,7 +25,7 @@ public class DocumentDownloadProgressCache {
 	private static final String INSTALL_BOOK_JOB_NAME = "INSTALL_BOOK-";
 
 	/**
-	 * Download has progressed and teh ui needs updating if this file item is visible
+	 * Download has progressed and the ui needs updating if this file item is visible
 	 */
 	public void updateProgress(Progress progress) {
 		final String jobID = progress.getJobID();

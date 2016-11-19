@@ -17,7 +17,6 @@ import net.bible.android.view.util.widget.DocumentListItem;
 import net.bible.service.common.CommonUtils;
 
 import org.crosswire.common.progress.JobManager;
-import org.crosswire.common.progress.Progress;
 import org.crosswire.common.progress.WorkEvent;
 import org.crosswire.common.progress.WorkListener;
 import org.crosswire.jsword.book.Book;
@@ -45,6 +44,8 @@ public class DocumentItemAdapter extends ArrayAdapter<Book> {
 
 	private DocumentDownloadProgressCache documentDownloadProgressCache;
 
+	private WorkListener progressUpdater;
+
 	private final ListActionModeHelper.ActionModeActivity actionModeActivity;
 
 	private static int ACTIVATED_COLOUR = CommonUtils.getResourceColor(R.color.list_item_activated);
@@ -56,27 +57,32 @@ public class DocumentItemAdapter extends ArrayAdapter<Book> {
 		this.isProgressBarShown = isProgressBarShown;
 		this.actionModeActivity = actionModeActivity;
 
+		// Listen for Progress changes and update the ui
 		if (isProgressBarShown) {
 			documentDownloadProgressCache = new DocumentDownloadProgressCache();
 
-			//TODO must unregister when view ends
-			// listen for Progress changes and call the above Runnable to update the ui
-			JobManager.addWorkListener( new WorkListener() {
+			progressUpdater = new WorkListener() {
 				@Override
 				public void workProgressed(WorkEvent ev) {
-					updateProgress(ev);
+					documentDownloadProgressCache.updateProgress(ev.getJob());
 				}
 
 				@Override
 				public void workStateChanged(WorkEvent ev) {
-					updateProgress(ev);
 				}
+			};
+		}
+	}
 
-				private void updateProgress(WorkEvent ev) {
-					Progress prog = ev.getJob();
-					documentDownloadProgressCache.updateProgress(prog);
-				}
-			});
+	public void startMonitoringDownloads() {
+		if (isProgressBarShown) {
+			JobManager.addWorkListener(progressUpdater);
+		}
+	}
+
+	public void stopMonitoringDownloads() {
+		if (progressUpdater!=null) {
+			JobManager.removeWorkListener(progressUpdater);
 		}
 	}
 
