@@ -94,20 +94,17 @@ public class DocumentItemAdapter extends ArrayAdapter<Book> {
 			view = (DocumentListItem) convertView;
 			if (isProgressBarShown) {
 				//  Get previous convertView doc to uncache
-				documentDownloadProgressCache.documentHidden(view.getDocument());
+				documentDownloadProgressCache.documentListItemHidden(view.getDocument());
 			}
 		}
 
 		// remember which item is being shown
 		view.setDocument(document);
 		if (isProgressBarShown) {
-			documentDownloadProgressCache.documentShown(document, view.getProgressBar());
+			documentDownloadProgressCache.documentListItemShown(document, view);
 		}
 
 		if (view.getIcon() != null) {
-			// Only Download screen shows progress bar
-			view.getProgressBar().setVisibility(isProgressBarShown? View.VISIBLE : View.GONE);
-
 			if (isInstallStatusItemsShown) {
 				switch (downloadControl.getBookInstallStatus(document)) {
 				case INSTALLED:

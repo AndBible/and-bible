@@ -46,7 +46,7 @@ public class DocumentDownloadProgressCacheTest {
 	public void updateProgress() throws Exception {
 
 		// prepare an item
-		documentDownloadProgressCache.documentShown(testData.document, testData.progressBar);
+		documentDownloadProgressCache.documentListItemShown(testData.document, testData.documentListItem);
 
 		// update progress and check
 		documentDownloadProgressCache.updateProgress(testData.progress);
@@ -59,26 +59,30 @@ public class DocumentDownloadProgressCacheTest {
 	}
 
 	@Test
-	public void documentHidden() throws Exception {
+	public void documentListItemHidden() throws Exception {
 		// prepare an item
-		documentDownloadProgressCache.documentShown(testData.document, testData.progressBar);
+		documentDownloadProgressCache.documentListItemShown(testData.document, testData.documentListItem);
 		documentDownloadProgressCache.updateProgress(testData.progress);
 
 
 		// Hide item and check there is no associated progressBar
-		documentDownloadProgressCache.documentHidden(testData.document);
+		documentDownloadProgressCache.documentListItemHidden(testData.document);
 
 		//TODO check progressBar disassociated e.g. by adding isProgressBar(Book)
 	}
 
 	@Test
-	public void documentShown() throws Exception {
+	public void documentListItemShown() throws Exception {
 		assertThat(testData.progressBar.getVisibility(), equalTo(View.GONE));
 
 		// prepare an item
-		documentDownloadProgressCache.documentShown(testData.document, testData.progressBar);
+		documentDownloadProgressCache.documentListItemShown(testData.document, testData.documentListItem);
 		// for shown items the progress bar is not visible until percent is set
 		assertThat(testData.progressBar.getVisibility(), equalTo(View.GONE));
+
+		// so set the percent progress and check it is now visible
+		documentDownloadProgressCache.updateProgress(testData.progress);
+		assertThat(testData.progressBar.getVisibility(), equalTo(View.VISIBLE));
 	}
 
 	private class TestData {

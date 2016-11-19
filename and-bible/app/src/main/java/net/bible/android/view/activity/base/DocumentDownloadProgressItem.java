@@ -4,33 +4,39 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import net.bible.android.view.util.Threadutils;
+import net.bible.android.view.util.widget.DocumentListItem;
+
 public class DocumentDownloadProgressItem {
 		private int percentDone;
-		private @Nullable ProgressBar progressBar;
+		private @Nullable DocumentListItem documentListItem;
 
 		public synchronized void setPercentDone(int percentDone) {
 			this.percentDone = percentDone;
 		}
 
-		public synchronized void setProgressBar(@Nullable ProgressBar progressBar) {
-			this.progressBar = progressBar;
+		public synchronized void setDocumentListItem(@Nullable DocumentListItem documentListItem) {
+			this.documentListItem = documentListItem;
 		}
 
-		public synchronized void updateProgressBar() {
-			updateProgressBar(percentDone);
+		public synchronized void updateListItemDisplay() {
+			updateListItemDisplay(percentDone);
 		}
 
-		private void updateProgressBar(final int percentDone) {
-			if (progressBar!=null && progressBar.getParent()!=null) {
-				progressBar.post(
-						new Runnable() {
-							@Override
-							public void run() {
-								progressBar.setProgress(percentDone);
-								progressBar.setVisibility(percentDone>0? View.VISIBLE : View.GONE);
+		private void updateListItemDisplay(final int percentDone) {
+			if (documentListItem!=null) {
+				final ProgressBar progressBar = documentListItem.getProgressBar();
+				if (progressBar != null && progressBar.getParent() != null) {
+					Threadutils.runOnUiThread(
+							new Runnable() {
+								@Override
+								public void run() {
+									progressBar.setProgress(percentDone);
+									progressBar.setVisibility(percentDone > 0 ? View.VISIBLE : View.GONE);
+								}
 							}
-						}
-				);
+					);
+				}
 			}
 		}
 	}

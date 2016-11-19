@@ -1,7 +1,8 @@
 package net.bible.android.view.activity.base;
 
 import android.support.annotation.NonNull;
-import android.widget.ProgressBar;
+
+import net.bible.android.view.util.widget.DocumentListItem;
 
 import org.crosswire.common.progress.Progress;
 import org.crosswire.jsword.book.Book;
@@ -34,29 +35,29 @@ public class DocumentDownloadProgressCache {
 			DocumentDownloadProgressItem documentDownloadProgressItem = getOrCreateBookProgressInfo(initials);
 
 			documentDownloadProgressItem.setPercentDone(progress.getWork());
-			documentDownloadProgressItem.updateProgressBar();
+			documentDownloadProgressItem.updateListItemDisplay();
 		}
 	}
 
 	/**
-	 * This progressBar is no longer visible and should not be updated
+	 * This document list item is no longer visible and should not be updated
 	 */
-	public void documentHidden(Book document) {
+	public void documentListItemHidden(Book document) {
 		if (document!=null) {
 			DocumentDownloadProgressItem documentDownloadProgressItem = getOrCreateBookProgressInfo(document.getInitials());
-			documentDownloadProgressItem.setProgressBar(null);
+			documentDownloadProgressItem.setDocumentListItem(null);
 		}
 	}
 
 	/**
-	 * This progressBar is now visible visible but the document may not be being downloaded
+	 * This document list item is now visible visible but the document may not be being downloaded
 	 */
-	public void documentShown(Book document, final ProgressBar progressBar) {
-		if (document!=null && progressBar!=null) {
+	public void documentListItemShown(Book document, final DocumentListItem documentListItem) {
+		if (document!=null && documentListItem!=null) {
 			final DocumentDownloadProgressItem documentDownloadProgressItem = getOrCreateBookProgressInfo(document.getInitials());
-			documentDownloadProgressItem.setProgressBar(progressBar);
+			documentDownloadProgressItem.setDocumentListItem(documentListItem);
 
-			documentDownloadProgressItem.updateProgressBar();
+			documentDownloadProgressItem.updateListItemDisplay();
 		}
 	}
 
