@@ -27,10 +27,12 @@ public class RepoFactory {
 	public static RepoFactory getInstance() {
 		return instance;
 	}
-	
 
 	public RepoBase getRepoForBook(Book document) {
-		String repoName = (String)document.getProperty(DownloadManager.REPOSITORY_KEY);
+		return getRepo(document.getProperty(DownloadManager.REPOSITORY_KEY));
+	}
+
+	private RepoBase getRepo(String repoName) {
 
 		RepoBase repoForBook;
 		if (crosswireRepo.getRepoName().equals(repoName)) {
@@ -52,6 +54,7 @@ public class RepoFactory {
 		}
 		return repoForBook;
 	}
+
 	public CrosswireRepo getCrosswireRepo() {
 		return crosswireRepo;
 	}

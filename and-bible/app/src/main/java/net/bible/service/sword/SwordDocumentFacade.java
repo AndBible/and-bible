@@ -1,15 +1,10 @@
 package net.bible.service.sword;
 
-import java.io.File;
-import java.util.Collections;
-import java.util.List;
-
 import net.bible.android.SharedConstants;
 import net.bible.android.control.versification.VersificationMappingInitializer;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Logger;
 import net.bible.service.download.DownloadManager;
-import net.bible.service.download.RepoBase;
 import net.bible.service.download.RepoBookDeduplicator;
 import net.bible.service.download.RepoFactory;
 import net.bible.service.sword.index.IndexCreator;
@@ -34,6 +29,10 @@ import org.crosswire.jsword.index.IndexManagerFactory;
 import org.crosswire.jsword.index.IndexStatus;
 import org.crosswire.jsword.passage.PassageKeyFactory;
 import org.crosswire.jsword.passage.PassageType;
+
+import java.io.File;
+import java.util.Collections;
+import java.util.List;
 
 /** JSword facade
  * 
@@ -234,13 +233,6 @@ public class SwordDocumentFacade {
 		} finally {
 			SwordBookMetaData.setPartialLoading(false);
 		}
-	}
-
-	public void downloadDocument(Book document) throws InstallException, BookException {
-		RepoBase repo = RepoFactory.getInstance().getRepoForBook(document);
-		log.info("Downloading "+document.getInitials()+" from repo "+repo.getRepoName());
-
-		repo.downloadDocument(document);
 	}
 
 	public boolean isIndexDownloadAvailable(Book document) throws InstallException, BookException {

@@ -8,6 +8,7 @@ import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.comparetranslations.CompareTranslationsControl;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.download.DownloadControl;
+import net.bible.android.control.download.DownloadQueue;
 import net.bible.android.control.email.Emailer;
 import net.bible.android.control.email.EmailerImpl;
 import net.bible.android.control.event.ABEventBus;
@@ -35,9 +36,13 @@ import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.android.view.activity.page.VerseActionModeMediator;
 import net.bible.android.view.activity.page.VerseCalculator;
 import net.bible.android.view.activity.page.VerseMenuCommandHandler;
+import net.bible.service.download.RepoFactory;
+import net.bible.service.font.FontControl;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 //TODO replace with ioc (maybe)
 /** allow access to control layer
@@ -57,11 +62,11 @@ public class ControlFactory {
 	private DocumentControl documentControl = new DocumentControl();
 	private PageControl pageControl = new PageControl();
 	private WindowControl windowControl;
-	private Map<Window, PageTiltScrollControl> screenPageTiltScrollControlMap = new HashMap<>();
+	private final Map<Window, PageTiltScrollControl> screenPageTiltScrollControlMap = new HashMap<>();
 	private LinkControl linkControl;
 	private SearchControl searchControl = new SearchControl();
 	private MyNote mynoteControl = new MyNoteControl();
-	private DownloadControl downloadControl = new DownloadControl();
+	private DownloadControl downloadControl;
 	private SpeakControl speakControl = new SpeakControl();
 	private ReadingPlanControl readingPlanControl = new ReadingPlanControl();
 	private CompareTranslationsControl compareTranslationsControl;
@@ -122,6 +127,9 @@ public class ControlFactory {
 		windowControl = new WindowControl(windowRepository, eventManager);
 		
 		linkControl = new LinkControl(windowControl);
+
+		final ExecutorService downloadExecutorService = Executors.newSingleThreadExecutor();
+		downloadControl = new DownloadControl(new DownloadQueue(downloadExecutorService), RepoFactory.getInstance().getXiphosRepo(), FontControl.getInstance());
 	}
 	
 	protected void ensureAllInitialised() {

@@ -1,16 +1,13 @@
 package net.bible.android.control.download;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import android.util.Log;
 
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.download.DownloadManager;
+import net.bible.service.download.RepoBase;
 import net.bible.service.download.RepoFactory;
 import net.bible.service.download.XiphosRepo;
 import net.bible.service.font.FontControl;
@@ -25,7 +22,11 @@ import org.crosswire.jsword.book.BookMetaData;
 import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.sword.SwordBookMetaData;
 
-import android.util.Log;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
 /** Support the download screen
  * 
@@ -35,17 +36,20 @@ import android.util.Log;
  */
 public class DownloadControl {
 
-	public enum BookInstallStatus {INSTALLED, NOT_INSTALLED, BEING_INSTALLED, UPGRADE_AVAILABLE};
+	public enum BookInstallStatus {INSTALLED, NOT_INSTALLED, BEING_INSTALLED, UPGRADE_AVAILABLE}
 
-	private XiphosRepo xiphosRepo;
+	private final DownloadQueue downloadQueue;
+
+	private final XiphosRepo xiphosRepo;
 	
-	private FontControl fontControl;
+	private final FontControl fontControl;
 
 	private static final String TAG = "DownloadControl";
 	
-	public DownloadControl() {
-		this.xiphosRepo = RepoFactory.getInstance().getXiphosRepo();
-		this.fontControl = FontControl.getInstance();
+	public DownloadControl(DownloadQueue downloadQueue, XiphosRepo xiphosRepo, FontControl fontControl) {
+		this.downloadQueue = downloadQueue;
+		this.xiphosRepo = xiphosRepo;
+		this.fontControl = fontControl;
 	}
 	
 	/** pre-download document checks
@@ -64,12 +68,10 @@ public class DownloadControl {
 		return okay;
 	}
 	
-	/** return a list of all available docs that have not already been downloaded, have no lang, or don't work
-	 * 
-	 * @return
+	/** @return a list of all available docs that have not already been downloaded, have no lang, or don't work
 	 */
 	public List<Book> getDownloadableDocuments(boolean refresh) {
-		List<Book> availableDocs = null;
+		List<Book> availableDocs;
 		try {
 			availableDocs = SwordDocumentFacade.getInstance().getDownloadableDocuments(refresh);
 			
@@ -105,7 +107,7 @@ public class DownloadControl {
        		
 		} catch (Exception e) {
 			Log.e(TAG, "Error downloading document list", e);
-			availableDocs = new ArrayList<Book>();
+			availableDocs = new ArrayList<>();
 		}
 		return availableDocs;
 	}
@@ -140,7 +142,8 @@ public class DownloadControl {
     	}
     	
 		// the download happens in another thread
-		SwordDocumentFacade.getInstance().downloadDocument(document);
+		RepoBase repo = RepoFactory.getInstance().getRepoForBook(document);
+		downloadQueue.addDocumentToDownloadQueue(document, repo);
 
 		// if a font is required then download that too
 		String font = fontControl.getFontForBook(document);
@@ -158,8 +161,7 @@ public class DownloadControl {
 			try {
 	    		Version newVersionObj = new Version(book.getBookMetaData().getProperty("Version"));
 	    		Version installedVersionObj = new Version(installedBook.getBookMetaData().getProperty("Version"));
-	    		if (newVersionObj!=null && installedVersionObj!=null && 
-	    			newVersionObj.compareTo(installedVersionObj)>0) {
+	    		if (newVersionObj.compareTo(installedVersionObj)>0) {
 	    			return BookInstallStatus.UPGRADE_AVAILABLE;
 	    		}
 			} catch (Exception e) {
