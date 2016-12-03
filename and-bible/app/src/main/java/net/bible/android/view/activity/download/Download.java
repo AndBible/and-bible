@@ -50,6 +50,7 @@ public class Download extends DocumentSelectionBase {
 	
 	public static final int DOWNLOAD_MORE_RESULT = 10;
 	public static final int DOWNLOAD_FINISH = 1;
+	private boolean downloadConfirmationShown = false;
 
 	public Download() {
 		super(NO_OPTIONS_MENU, R.menu.download_documents_context_menu);
@@ -148,18 +149,23 @@ public class Download extends DocumentSelectionBase {
 
     protected void manageDownload(final Book documentToDownload) {
     	if (documentToDownload!=null) {
-        	new AlertDialog.Builder(this)
-    		   .setMessage(getText(R.string.download_document_confirm_prefix)+" "+documentToDownload.getName())
-    	       .setCancelable(false)
-    	       .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-    	           public void onClick(DialogInterface dialog, int id) {
-    	        	   doDownload(documentToDownload);
-    	           }
-    	       })
-    	       .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-    	           public void onClick(DialogInterface dialog, int id) {
-    	           }
-    	       }).create().show();
+			if (downloadConfirmationShown) {
+				doDownload(documentToDownload);
+			} else {
+				new AlertDialog.Builder(this)
+						.setMessage(getText(R.string.download_document_confirm_prefix) + " " + documentToDownload.getName())
+						.setCancelable(false)
+						.setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+								downloadConfirmationShown = true;
+								doDownload(documentToDownload);
+							}
+						})
+						.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int id) {
+							}
+						}).create().show();
+			}
     	}
     }
 
