@@ -22,6 +22,7 @@ import org.robolectric.annotation.Config;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.hamcrest.core.IsNot.not;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -64,11 +65,13 @@ public class DocumentDownloadProgressCacheTest {
 		documentDownloadProgressCache.documentListItemShown(testData.document, testData.documentListItem);
 		documentDownloadProgressCache.updateProgress(testData.progress);
 
-
 		// Hide item and check there is no associated progressBar
-		documentDownloadProgressCache.documentListItemHidden(testData.document);
+		documentDownloadProgressCache.documentListItemReallocated(testData.documentListItem);
 
-		//TODO check progressBar disassociated e.g. by adding isProgressBar(Book)
+		// progress bar now detached from item
+		testData.progress.setWork(100);
+		documentDownloadProgressCache.updateProgress(testData.progress);
+		assertThat(testData.progressBar.getProgress(), not(equalTo(100)));
 	}
 
 	@Test
@@ -101,6 +104,7 @@ public class DocumentDownloadProgressCacheTest {
 
 				Activity activity = Robolectric.buildActivity(Activity.class).create().get();
 				documentListItem = (DocumentListItem) LayoutInflater.from(activity).inflate(R.layout.document_list_item, null);
+				documentListItem.setDocument(document);
 				progressBar = documentListItem.getProgressBar();
 			} catch (Exception e) {
 				e.printStackTrace();

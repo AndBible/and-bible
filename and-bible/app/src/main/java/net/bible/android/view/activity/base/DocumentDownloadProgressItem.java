@@ -8,35 +8,44 @@ import net.bible.android.view.util.Threadutils;
 import net.bible.android.view.util.widget.DocumentListItem;
 
 public class DocumentDownloadProgressItem {
-		private int percentDone;
-		private @Nullable DocumentListItem documentListItem;
+	private int percentDone;
+	private @Nullable DocumentListItem documentListItem;
 
-		public synchronized void setPercentDone(int percentDone) {
-			this.percentDone = percentDone;
+	public synchronized void setPercentDone(int percentDone) {
+		this.percentDone = percentDone;
+	}
+
+	public synchronized void setDocumentListItem(@Nullable DocumentListItem documentListItem) {
+		this.documentListItem = documentListItem;
+	}
+
+	public synchronized void updateListItemDisplay() {
+		updateListItemDisplay(percentDone);
+	}
+
+	/**
+	 * If this document is still using the reallocated list item then clear this item's reference to prevent update for the wrong document.
+	 */
+	public synchronized void documentListItemReallocated(DocumentListItem documentListItem) {
+		if (documentListItem == this.documentListItem) {
+			setDocumentListItem(null);
 		}
+	}
 
-		public synchronized void setDocumentListItem(@Nullable DocumentListItem documentListItem) {
-			this.documentListItem = documentListItem;
-		}
-
-		public synchronized void updateListItemDisplay() {
-			updateListItemDisplay(percentDone);
-		}
-
-		private void updateListItemDisplay(final int percentDone) {
-			if (documentListItem!=null) {
-				final ProgressBar progressBar = documentListItem.getProgressBar();
+	private void updateListItemDisplay(final int percentDone) {
+		if (documentListItem!=null) {
+			final ProgressBar progressBar = documentListItem.getProgressBar();
 				if (progressBar != null && progressBar.getParent() != null) {
-					Threadutils.runOnUiThread(
-							new Runnable() {
-								@Override
-								public void run() {
-									progressBar.setProgress(percentDone);
+				Threadutils.runOnUiThread(
+						new Runnable() {
+							@Override
+							public void run() {
+								progressBar.setProgress(percentDone);
 									progressBar.setVisibility(percentDone > 0 ? View.VISIBLE : View.GONE);
-								}
 							}
-					);
-				}
+						}
+				);
 			}
 		}
 	}
+}

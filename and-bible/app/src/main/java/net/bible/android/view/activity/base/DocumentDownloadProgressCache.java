@@ -42,10 +42,11 @@ public class DocumentDownloadProgressCache {
 	/**
 	 * This document list item is no longer visible and should not be updated
 	 */
-	public void documentListItemHidden(Book document) {
+	public void documentListItemReallocated(DocumentListItem documentListItem) {
+		Book document = documentListItem.getDocument();
 		if (document!=null) {
 			DocumentDownloadProgressItem documentDownloadProgressItem = getOrCreateBookProgressInfo(document.getInitials());
-			documentDownloadProgressItem.setDocumentListItem(null);
+			documentDownloadProgressItem.documentListItemReallocated(documentListItem);
 		}
 	}
 

@@ -100,7 +100,7 @@ public class DocumentItemAdapter extends ArrayAdapter<Book> {
 			view = (DocumentListItem) convertView;
 			if (isProgressBarShown) {
 				//  Get previous convertView doc to uncache
-				documentDownloadProgressCache.documentListItemHidden(view.getDocument());
+				documentDownloadProgressCache.documentListItemReallocated(view);
 			}
 		}
 
