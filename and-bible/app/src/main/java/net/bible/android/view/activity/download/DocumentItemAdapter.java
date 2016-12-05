@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.base;
+package net.bible.android.view.activity.download;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.download.DownloadControl;
+import net.bible.android.view.activity.base.ListActionModeHelper;
 import net.bible.android.view.util.widget.DocumentListItem;
 import net.bible.service.common.CommonUtils;
 

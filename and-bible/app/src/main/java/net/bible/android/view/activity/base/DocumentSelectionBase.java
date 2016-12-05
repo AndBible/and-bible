@@ -75,17 +75,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 	//TODO just use displayedDocuments with a model giving 2 lines in list
 	private List<Book> displayedDocuments;
 
-	private boolean isDeletePossible;
-	// We only show installed ticks beside documents if in Document Downloads screen
-	private boolean isInstallStatusIconsShown;
-	// We only show progress bar if on Download documents screen
-	private boolean isProgressBarShown;
-
 	private DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
-
-	private DocumentItemAdapter documentItemAdapter;
-
-	private static final int LIST_ITEM_TYPE = R.layout.document_list_item;
 
 	private ListActionModeHelper listActionModeHelper;
 
@@ -129,9 +119,6 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
     	languageList = new ArrayList<>();
     	displayedDocuments = new ArrayList<>();
     	
-    	documentItemAdapter = new DocumentItemAdapter(this, LIST_ITEM_TYPE, displayedDocuments, isInstallStatusIconsShown, isProgressBarShown, this);
-    	setListAdapter(documentItemAdapter);
-
     	//prepare the documentType spinner
     	documentTypeSpinner = (Spinner)findViewById(R.id.documentTypeSpinner);
     	setInitialDocumentType();
@@ -171,23 +158,6 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
     	}
     }
 
-	@Override
-	protected void onStart() {
-		super.onStart();
-
-		if (isProgressBarShown) {
-			documentItemAdapter.startMonitoringDownloads();
-		}
-	}
-
-	@Override
-	protected void onStop() {
-		super.onStop();
-
-		if (isProgressBarShown) {
-			documentItemAdapter.stopMonitoringDownloads();
-		}
-	}
 
 	private void setDefaultLanguage() {
     	if (selectedLanguageNo==-1) {
@@ -543,18 +513,6 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 		return languageList.get(selectedLanguageNo);
 	}
 	
-	public void setDeletePossible(boolean isDeletePossible) {
-		this.isDeletePossible = isDeletePossible;
-	}
-
-	public void setInstallStatusIconsShown(boolean isInstallStatusIconsShown) {
-		this.isInstallStatusIconsShown = isInstallStatusIconsShown;
-	}
-
-	public void setProgressBarShown(boolean progressBarShown) {
-		isProgressBarShown = progressBarShown;
-	}
-
 	public Spinner getDocumentTypeSpinner() {
 		return documentTypeSpinner;
 	}

@@ -1,16 +1,16 @@
 package net.bible.android.view.activity.download;
 
- import net.bible.android.activity.R;
-import net.bible.android.view.activity.base.ProgressActivityBase;
-
-import org.crosswire.common.progress.Progress;
-
-import android.content.Intent;
+ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import net.bible.android.activity.R;
+import net.bible.android.view.activity.base.ProgressActivityBase;
+
+import org.crosswire.common.progress.Progress;
 
 /**Show all Progress status
  * see BibleDesktop JobsProgressBar for example use
@@ -72,13 +72,6 @@ public class DownloadStatus extends ProgressActivityBase {
     	((TextView)findViewById(R.id.progressStatusMessage)).setText(text);
     }
     
-    public void onMore(View v) {
-    	Log.i(TAG, "CLICKED onMore");
-    	Intent resultIntent = new Intent(this, DownloadStatus.class);
-    	setResult(Download.DOWNLOAD_MORE_RESULT, resultIntent);
-    	finish();    
-    }
-
     public void onOkay(View v) {
     	Log.i(TAG, "CLICKED");
     	Intent resultIntent = new Intent(this, DownloadStatus.class);

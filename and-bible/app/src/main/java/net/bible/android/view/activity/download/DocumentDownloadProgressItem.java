@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.base;
+package net.bible.android.view.activity.download;
 
 import android.support.annotation.Nullable;
 import android.view.View;

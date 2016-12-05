@@ -32,11 +32,12 @@ import java.util.List;
  */
 public class ChooseDocument extends DocumentSelectionBase {
 	private static final String TAG = "ChooseDocument";
-	
+
+	private static final int LIST_ITEM_TYPE = R.layout.list_item_2_highlighted;
+
 	private DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
 	
 	private DownloadControl downloadControl = ControlFactory.getInstance().getDownloadControl();
-	
 	
     public ChooseDocument() {
 		super(R.menu.choose_document_menu, R.menu.document_context_menu);
@@ -45,12 +46,12 @@ public class ChooseDocument extends DocumentSelectionBase {
 	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	setInstallStatusIconsShown(false);
-    	
         super.onCreate(savedInstanceState);
-        
-        setDeletePossible(true);
-    	populateMasterDocumentList(false);
+
+		DocumentItemAdapter documentItemAdapter = new DocumentItemAdapter(this, LIST_ITEM_TYPE, getDisplayedDocuments(), this);
+		setListAdapter(documentItemAdapter);
+
+		populateMasterDocumentList(false);
     }
 
 	/** load list of docs to display
