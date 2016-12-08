@@ -9,6 +9,9 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.install.InstallException;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -22,6 +25,8 @@ public class DownloadQueue {
 
 	private final ExecutorService executorService;
 
+	private Set<String> beingQueued = Collections.synchronizedSet(new HashSet<String>());
+
 	private Logger log = new Logger(this.getClass().getSimpleName());
 
 	public DownloadQueue(ExecutorService executorService) {
@@ -29,16 +34,26 @@ public class DownloadQueue {
 	}
 
 	public void addDocumentToDownloadQueue(final Book document, final RepoBase repo) {
-		executorService.submit(new Runnable() {
-			@Override
-			public void run() {
-				log.info("Downloading "+document.getInitials()+" from repo "+repo.getRepoName());
-				try {
-					repo.downloadDocument(document);
-				} catch (InstallException | BookException e) {
-					Dialogs.getInstance().showErrorMsg(R.string.error_downloading);
+		if (!beingQueued.contains(document.getInitials())) {
+			beingQueued.add(document.getInitials());
+			executorService.submit(new Runnable() {
+				@Override
+				public void run() {
+					log.info("Downloading " + document.getInitials() + " from repo " + repo.getRepoName());
+
+					try {
+						repo.downloadDocument(document);
+					} catch (InstallException | BookException e) {
+						Dialogs.getInstance().showErrorMsg(R.string.error_downloading);
+					} finally {
+						beingQueued.remove(document.getInitials());
+					}
 				}
-			}
-		});
+			});
+		}
+	}
+
+	public boolean isInQueue(Book document) {
+		return beingQueued.contains(document.getInitials());
 	}
 }

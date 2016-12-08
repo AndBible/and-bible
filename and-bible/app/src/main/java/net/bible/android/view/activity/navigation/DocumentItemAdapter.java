@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.download;
+package net.bible.android.view.activity.navigation;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -11,15 +11,10 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.download.DownloadControl;
 import net.bible.android.view.activity.base.ListActionModeHelper;
-import net.bible.android.view.util.widget.DocumentListItem;
+import net.bible.android.view.util.widget.TwoLineListItem;
 import net.bible.service.common.CommonUtils;
 
-import org.crosswire.common.progress.JobManager;
-import org.crosswire.common.progress.WorkEvent;
-import org.crosswire.common.progress.WorkListener;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.versification.system.SystemKJV;
@@ -37,47 +32,14 @@ public class DocumentItemAdapter extends ArrayAdapter<Book> {
 
 	private int resource;
 	
-	private boolean isInstallStatusItemsShown;
-
-	private DownloadControl downloadControl = ControlFactory.getInstance().getDownloadControl();
-
-	private DocumentDownloadProgressCache documentDownloadProgressCache;
-
-	private WorkListener progressUpdater;
-
 	private final ListActionModeHelper.ActionModeActivity actionModeActivity;
 
 	private static int ACTIVATED_COLOUR = CommonUtils.getResourceColor(R.color.list_item_activated);
 
-	public DocumentItemAdapter(Context _context, int _resource, List<Book> _items, boolean isInstallStatusItemsShown, ListActionModeHelper.ActionModeActivity actionModeActivity) {
+	public DocumentItemAdapter(Context _context, int _resource, List<Book> _items, ListActionModeHelper.ActionModeActivity actionModeActivity) {
 		super(_context, _resource, _items);
 		resource = _resource;
-		this.isInstallStatusItemsShown = isInstallStatusItemsShown;
 		this.actionModeActivity = actionModeActivity;
-
-		// Listen for Progress changes and update the ui
-		documentDownloadProgressCache = new DocumentDownloadProgressCache();
-
-		progressUpdater = new WorkListener() {
-			@Override
-			public void workProgressed(WorkEvent ev) {
-				documentDownloadProgressCache.updateProgress(ev.getJob());
-			}
-
-			@Override
-			public void workStateChanged(WorkEvent ev) {
-			}
-		};
-	}
-
-	public void startMonitoringDownloads() {
-		JobManager.addWorkListener(progressUpdater);
-	}
-
-	public void stopMonitoringDownloads() {
-		if (progressUpdater!=null) {
-			JobManager.removeWorkListener(progressUpdater);
-		}
 	}
 
 	@Override
@@ -86,41 +48,14 @@ public class DocumentItemAdapter extends ArrayAdapter<Book> {
 		Book document = getItem(position);
 
 		// Pick up the TwoLineListItem defined in the xml file
-		DocumentListItem view;
+		TwoLineListItem view;
 		if (convertView == null) {
 			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			view = (DocumentListItem) inflater.inflate(resource, parent, false);
+			view = (TwoLineListItem) inflater.inflate(resource, parent, false);
 		} else {
-			view = (DocumentListItem) convertView;
-			//  Get previous convertView doc to uncache
-			documentDownloadProgressCache.documentListItemReallocated(view);
+			view = (TwoLineListItem) convertView;
 		}
 
-		// remember which item is being shown
-		view.setDocument(document);
-		documentDownloadProgressCache.documentListItemShown(document, view);
-
-		if (view.getIcon() != null) {
-			if (isInstallStatusItemsShown) {
-				switch (downloadControl.getBookInstallStatus(document)) {
-				case INSTALLED:
-					view.getIcon().setImageResource(R.drawable.btn_check_buttonless_on);
-					break;
-				case NOT_INSTALLED:
-					view.getIcon().setImageResource(R.drawable.btn_check_buttonless_off);
-					break;
-				case BEING_INSTALLED:
-					view.getIcon().setImageResource(R.drawable.ic_arrow_down_green_24);
-					break;
-				case UPGRADE_AVAILABLE:
-					view.getIcon().setImageResource(R.drawable.amber_up_arrow);
-					break;
-				}
-			} else {
-				view.getIcon().setVisibility(View.GONE);
-			}
-		}
-		
 		// Set value for the first text field
 		if (view.getText1() != null) {
 			// eBible repo uses abbreviation for initials and initials now contains the repo name!!!

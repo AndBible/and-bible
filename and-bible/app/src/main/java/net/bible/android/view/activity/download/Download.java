@@ -62,7 +62,7 @@ public class Download extends DocumentSelectionBase {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-		documentItemAdapter = new DocumentItemAdapter(this, LIST_ITEM_TYPE, getDisplayedDocuments(), true, true, this);
+		documentItemAdapter = new DocumentItemAdapter(this, LIST_ITEM_TYPE, getDisplayedDocuments(), true, this);
 		setListAdapter(documentItemAdapter);
 
 		downloadControl = ControlFactory.getInstance().getDownloadControl();

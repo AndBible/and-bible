@@ -154,12 +154,16 @@ public class DownloadControl {
 	}
 
 	/** return install status - installed, not inst, or upgrade **/
-	public BookInstallStatus getBookInstallStatus(Book book) {
-		Book installedBook = SwordDocumentFacade.getInstance().getDocumentByInitials(book.getInitials());
+	public BookInstallStatus getBookInstallStatus(Book document) {
+		if (downloadQueue.isInQueue(document)) {
+			return BookInstallStatus.BEING_INSTALLED;
+		}
+
+		Book installedBook = SwordDocumentFacade.getInstance().getDocumentByInitials(document.getInitials());
 		if (installedBook!=null) {
-			// see if the new book is a later version
+			// see if the new document is a later version
 			try {
-	    		Version newVersionObj = new Version(book.getBookMetaData().getProperty("Version"));
+	    		Version newVersionObj = new Version(document.getBookMetaData().getProperty("Version"));
 	    		Version installedVersionObj = new Version(installedBook.getBookMetaData().getProperty("Version"));
 	    		if (newVersionObj.compareTo(installedVersionObj)>0) {
 	    			return BookInstallStatus.UPGRADE_AVAILABLE;
@@ -169,7 +173,7 @@ public class DownloadControl {
 				// probably not the same version if an error occurred comparing
     			return BookInstallStatus.UPGRADE_AVAILABLE;
 			}
-			// otherwise same book is already installed
+			// otherwise same document is already installed
 			return BookInstallStatus.INSTALLED;
 		} else {
 			return BookInstallStatus.NOT_INSTALLED;
