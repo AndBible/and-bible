@@ -38,9 +38,9 @@ import java.util.List;
  */
 public class Download extends DocumentSelectionBase {
 
-	private DocumentItemAdapter documentItemAdapter;
+	private DocumentDownloadItemAdapter documentDownloadItemAdapter;
 
-	private static final int LIST_ITEM_TYPE = R.layout.document_list_item;
+	private static final int LIST_ITEM_TYPE = R.layout.document_download_list_item;
 
 	private DownloadControl downloadControl;
 
@@ -62,8 +62,8 @@ public class Download extends DocumentSelectionBase {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-		documentItemAdapter = new DocumentItemAdapter(this, LIST_ITEM_TYPE, getDisplayedDocuments(), true, this);
-		setListAdapter(documentItemAdapter);
+		documentDownloadItemAdapter = new DocumentDownloadItemAdapter(this, LIST_ITEM_TYPE, getDisplayedDocuments(), this);
+		setListAdapter(documentDownloadItemAdapter);
 
 		downloadControl = ControlFactory.getInstance().getDownloadControl();
         
@@ -122,14 +122,14 @@ public class Download extends DocumentSelectionBase {
 	protected void onStart() {
 		super.onStart();
 
-		documentItemAdapter.startMonitoringDownloads();
+		documentDownloadItemAdapter.startMonitoringDownloads();
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
 
-		documentItemAdapter.stopMonitoringDownloads();
+		documentDownloadItemAdapter.stopMonitoringDownloads();
 	}
 
     /** 
@@ -190,7 +190,10 @@ public class Download extends DocumentSelectionBase {
     	try {
 			// the download happens in another thread
 			downloadControl.downloadDocument(document);
-	    	
+
+			// update screen so the icon to the left of the book changes
+			notifyDataSetChanged();
+
     	} catch (Exception e) {
     		Log.e(TAG, "Error on attempt to download", e);
     		Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show();

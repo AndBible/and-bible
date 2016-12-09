@@ -2,8 +2,6 @@ package net.bible.android.view.activity.download;
 
 import android.support.annotation.NonNull;
 
-import net.bible.android.view.util.widget.DocumentListItem;
-
 import org.crosswire.common.progress.Progress;
 import org.crosswire.jsword.book.Book;
 
@@ -42,21 +40,21 @@ public class DocumentDownloadProgressCache {
 	/**
 	 * This document list item is no longer visible and should not be updated
 	 */
-	public void documentListItemReallocated(DocumentListItem documentListItem) {
-		Book document = documentListItem.getDocument();
+	public void documentListItemReallocated(DocumentDownloadListItem documentDownloadListItem) {
+		Book document = documentDownloadListItem.getDocument();
 		if (document!=null) {
 			DocumentDownloadProgressItem documentDownloadProgressItem = getOrCreateBookProgressInfo(document.getInitials());
-			documentDownloadProgressItem.documentListItemReallocated(documentListItem);
+			documentDownloadProgressItem.documentListItemReallocated(documentDownloadListItem);
 		}
 	}
 
 	/**
 	 * This document list item is now visible visible but the document may not be being downloaded
 	 */
-	public void documentListItemShown(Book document, final DocumentListItem documentListItem) {
-		if (document!=null && documentListItem!=null) {
+	public void documentListItemShown(Book document, final DocumentDownloadListItem documentDownloadListItem) {
+		if (document!=null && documentDownloadListItem !=null) {
 			final DocumentDownloadProgressItem documentDownloadProgressItem = getOrCreateBookProgressInfo(document.getInitials());
-			documentDownloadProgressItem.setDocumentListItem(documentListItem);
+			documentDownloadProgressItem.setDocumentDownloadListItem(documentDownloadListItem);
 
 			documentDownloadProgressItem.updateListItemDisplay();
 		}

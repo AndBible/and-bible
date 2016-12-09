@@ -14,7 +14,6 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.view.activity.base.ListActionModeHelper;
-import net.bible.android.view.util.widget.DocumentListItem;
 import net.bible.service.common.CommonUtils;
 
 import org.crosswire.common.progress.JobManager;
@@ -33,12 +32,10 @@ import java.util.List;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class DocumentItemAdapter extends ArrayAdapter<Book> {
+public class DocumentDownloadItemAdapter extends ArrayAdapter<Book> {
 
 	private int resource;
 	
-	private boolean isInstallStatusItemsShown;
-
 	private DownloadControl downloadControl = ControlFactory.getInstance().getDownloadControl();
 
 	private DocumentDownloadProgressCache documentDownloadProgressCache;
@@ -49,10 +46,9 @@ public class DocumentItemAdapter extends ArrayAdapter<Book> {
 
 	private static int ACTIVATED_COLOUR = CommonUtils.getResourceColor(R.color.list_item_activated);
 
-	public DocumentItemAdapter(Context _context, int _resource, List<Book> _items, boolean isInstallStatusItemsShown, ListActionModeHelper.ActionModeActivity actionModeActivity) {
+	public DocumentDownloadItemAdapter(Context _context, int _resource, List<Book> _items, ListActionModeHelper.ActionModeActivity actionModeActivity) {
 		super(_context, _resource, _items);
 		resource = _resource;
-		this.isInstallStatusItemsShown = isInstallStatusItemsShown;
 		this.actionModeActivity = actionModeActivity;
 
 		// Listen for Progress changes and update the ui
@@ -86,12 +82,12 @@ public class DocumentItemAdapter extends ArrayAdapter<Book> {
 		Book document = getItem(position);
 
 		// Pick up the TwoLineListItem defined in the xml file
-		DocumentListItem view;
+		DocumentDownloadListItem view;
 		if (convertView == null) {
 			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			view = (DocumentListItem) inflater.inflate(resource, parent, false);
+			view = (DocumentDownloadListItem) inflater.inflate(resource, parent, false);
 		} else {
-			view = (DocumentListItem) convertView;
+			view = (DocumentDownloadListItem) convertView;
 			//  Get previous convertView doc to uncache
 			documentDownloadProgressCache.documentListItemReallocated(view);
 		}
@@ -100,27 +96,8 @@ public class DocumentItemAdapter extends ArrayAdapter<Book> {
 		view.setDocument(document);
 		documentDownloadProgressCache.documentListItemShown(document, view);
 
-		if (view.getIcon() != null) {
-			if (isInstallStatusItemsShown) {
-				switch (downloadControl.getBookInstallStatus(document)) {
-				case INSTALLED:
-					view.getIcon().setImageResource(R.drawable.btn_check_buttonless_on);
-					break;
-				case NOT_INSTALLED:
-					view.getIcon().setImageResource(R.drawable.btn_check_buttonless_off);
-					break;
-				case BEING_INSTALLED:
-					view.getIcon().setImageResource(R.drawable.ic_arrow_down_green_24);
-					break;
-				case UPGRADE_AVAILABLE:
-					view.getIcon().setImageResource(R.drawable.amber_up_arrow);
-					break;
-				}
-			} else {
-				view.getIcon().setVisibility(View.GONE);
-			}
-		}
-		
+		view.updateControlState(downloadControl.getBookInstallStatus(document));
+
 		// Set value for the first text field
 		if (view.getText1() != null) {
 			// eBible repo uses abbreviation for initials and initials now contains the repo name!!!

@@ -8,7 +8,7 @@ import android.widget.ProgressBar;
 import net.bible.android.activity.BuildConfig;
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.download.DocumentDownloadProgressCache;
-import net.bible.android.view.util.widget.DocumentListItem;
+import net.bible.android.view.activity.download.DocumentDownloadListItem;
 import net.bible.service.download.FakeSwordBookFactory;
 
 import org.crosswire.common.progress.JobManager;
@@ -48,7 +48,7 @@ public class DocumentDownloadProgressCacheTest {
 	public void updateProgress() throws Exception {
 
 		// prepare an item
-		documentDownloadProgressCache.documentListItemShown(testData.document, testData.documentListItem);
+		documentDownloadProgressCache.documentListItemShown(testData.document, testData.documentDownloadListItem);
 
 		// update progress and check
 		documentDownloadProgressCache.updateProgress(testData.progress);
@@ -63,11 +63,11 @@ public class DocumentDownloadProgressCacheTest {
 	@Test
 	public void documentListItemHidden() throws Exception {
 		// prepare an item
-		documentDownloadProgressCache.documentListItemShown(testData.document, testData.documentListItem);
+		documentDownloadProgressCache.documentListItemShown(testData.document, testData.documentDownloadListItem);
 		documentDownloadProgressCache.updateProgress(testData.progress);
 
 		// Hide item and check there is no associated progressBar
-		documentDownloadProgressCache.documentListItemReallocated(testData.documentListItem);
+		documentDownloadProgressCache.documentListItemReallocated(testData.documentDownloadListItem);
 
 		// progress bar now detached from item
 		testData.progress.setWork(100);
@@ -80,7 +80,7 @@ public class DocumentDownloadProgressCacheTest {
 		assertThat(testData.progressBar.getVisibility(), equalTo(View.GONE));
 
 		// prepare an item
-		documentDownloadProgressCache.documentListItemShown(testData.document, testData.documentListItem);
+		documentDownloadProgressCache.documentListItemShown(testData.document, testData.documentDownloadListItem);
 		// for shown items the progress bar is not visible until percent is set
 		assertThat(testData.progressBar.getVisibility(), equalTo(View.GONE));
 
@@ -94,7 +94,7 @@ public class DocumentDownloadProgressCacheTest {
 		String initials = "KJV";
 		Book document;
 		Progress progress = JobManager.createJob("INSTALL_BOOK-"+initials, "Installing King James Version", null);
-		DocumentListItem documentListItem;
+		DocumentDownloadListItem documentDownloadListItem;
 		ProgressBar progressBar;
 
 		{
@@ -104,9 +104,9 @@ public class DocumentDownloadProgressCacheTest {
 				progress.setWork(33);
 
 				Activity activity = Robolectric.buildActivity(Activity.class).create().get();
-				documentListItem = (DocumentListItem) LayoutInflater.from(activity).inflate(R.layout.document_list_item, null);
-				documentListItem.setDocument(document);
-				progressBar = documentListItem.getProgressBar();
+				documentDownloadListItem = (DocumentDownloadListItem) LayoutInflater.from(activity).inflate(R.layout.document_download_list_item, null);
+				documentDownloadListItem.setDocument(document);
+				progressBar = documentDownloadListItem.getProgressBar();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
