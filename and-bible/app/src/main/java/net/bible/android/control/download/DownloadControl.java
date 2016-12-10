@@ -136,21 +136,29 @@ public class DownloadControl {
     		((SwordBookMetaData)bmd).reload();
     		bmd.setProperty(DownloadManager.REPOSITORY_KEY, repoKey);
     	}
-    	
-    	if (xiphosRepo.needsPostDownloadAction(document)) {
-    		xiphosRepo.addHandler(document);
-    	}
-    	
-		// the download happens in another thread
-		RepoBase repo = RepoFactory.getInstance().getRepoForBook(document);
-		downloadQueue.addDocumentToDownloadQueue(document, repo);
 
-		// if a font is required then download that too
-		String font = fontControl.getFontForBook(document);
-    	if (!StringUtils.isEmpty(font) && !fontControl.exists(font)) {
-    		// the download happens in another thread
-    		fontControl.downloadFont(font);
-    	}
+		if (!downloadQueue.isInQueue(document)) {
+
+			if (xiphosRepo.needsPostDownloadAction(document)) {
+				xiphosRepo.addHandler(document);
+			}
+
+			// the download happens in another thread
+			RepoBase repo = RepoFactory.getInstance().getRepoForBook(document);
+			downloadQueue.addDocumentToDownloadQueue(document, repo);
+
+			// download index too if available
+			if (SwordDocumentFacade.getInstance().isIndexDownloadAvailable(document)) {
+				downloadQueue.addDocumentIndexToDownloadQueue(document);
+			}
+
+			// if a font is required then download that too
+			String font = fontControl.getFontForBook(document);
+			if (!StringUtils.isEmpty(font) && !fontControl.exists(font)) {
+				// the download happens in another thread
+				fontControl.downloadFont(font);
+			}
+		}
 	}
 
 	/** return install status - installed, not inst, or upgrade **/

@@ -3,7 +3,9 @@ package net.bible.android.control.download;
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.Logger;
+import net.bible.service.download.AndBibleRepo;
 import net.bible.service.download.RepoBase;
+import net.bible.service.download.RepoFactory;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
@@ -40,7 +42,6 @@ public class DownloadQueue {
 				@Override
 				public void run() {
 					log.info("Downloading " + document.getInitials() + " from repo " + repo.getRepoName());
-
 					try {
 						repo.downloadDocument(document);
 					} catch (InstallException | BookException e) {
@@ -51,6 +52,21 @@ public class DownloadQueue {
 				}
 			});
 		}
+	}
+
+	public void addDocumentIndexToDownloadQueue(final Book document) {
+		executorService.submit(new Runnable() {
+			@Override
+			public void run() {
+				log.info("Downloading index of " + document.getInitials() + " from AndBible repo");
+				try {
+					final AndBibleRepo andBibleRepo = RepoFactory.getInstance().getAndBibleRepo();
+					andBibleRepo.downloadIndex(document);
+				} catch (InstallException | BookException e) {
+					Dialogs.getInstance().showErrorMsg(R.string.error_downloading);
+				}
+			}
+		});
 	}
 
 	public boolean isInQueue(Book document) {

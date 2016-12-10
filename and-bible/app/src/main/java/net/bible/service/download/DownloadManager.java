@@ -64,7 +64,7 @@ public class DownloadManager {
 	 */
 	public List<Book> getDownloadableBooks(BookFilter filter, String repo, boolean refresh) throws InstallException {
 
-		List<Book> documents = new ArrayList<Book>();
+		List<Book> documents = new ArrayList<>();
 		
 		Installer installer = null;
 		try {
@@ -137,22 +137,40 @@ public class DownloadManager {
 	}
 
     /**
-     * Install a book, overwriting it if the book to be installed is newer.
+     * Install a book's index, overwriting it if it exists
      * 
      * @param repositoryName
-     *            the name of the repository from which to get the book
+     *            the name of the repository from which to get the index
      * @param book
-     *            the book to get
+     *            the book to get the index for
      * @throws BookException
      * @throws InstallException
      */
-    public void installIndex(String repositoryName, Book book) throws BookException, InstallException {
+    public void installIndexInNewThread(String repositoryName, Book book) throws BookException, InstallException {
     	// An installer knows how to install indexes
-        log.debug("installIndex");
+        log.debug("Install index in new thread");
         Installer installer = installManager.getInstaller(repositoryName);
-    	IndexDownloadThread idt = new IndexDownloadThread();
-    	idt.downloadIndex(installer, book);
+    	IndexDownloader idt = new IndexDownloader();
+    	idt.downloadIndexInNewThread(installer, book);
     }
+
+	/**
+	 * Install a book's index, overwriting it if it exists
+	 *
+	 * @param repositoryName
+	 *            the name of the repository from which to get the index
+	 * @param book
+	 *            the book to get the index for
+	 * @throws BookException
+	 * @throws InstallException
+	 */
+	public void installIndex(String repositoryName, Book book) throws BookException, InstallException {
+		// An installer knows how to install indexes
+		log.debug("Install index for "+book.getInitials());
+		Installer installer = installManager.getInstaller(repositoryName);
+		IndexDownloader idt = new IndexDownloader();
+		idt.downloadIndex(installer, book);
+	}
 
     /**
      * Unregister a book from Sword registry.

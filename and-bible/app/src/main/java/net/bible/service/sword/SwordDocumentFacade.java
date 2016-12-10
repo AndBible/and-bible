@@ -247,7 +247,7 @@ public class SwordDocumentFacade {
 
 	public void downloadIndex(Book document) throws InstallException, BookException {
 		DownloadManager downloadManager = new DownloadManager();
-		downloadManager.installIndex(RepoFactory.getInstance().getAndBibleRepo().getRepoName(), document);
+		downloadManager.installIndexInNewThread(RepoFactory.getInstance().getAndBibleRepo().getRepoName(), document);
 	}
 	
 	public void deleteDocument(Book document) throws BookException {
