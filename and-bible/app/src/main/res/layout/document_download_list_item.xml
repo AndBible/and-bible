@@ -11,7 +11,7 @@
 																   android:background="@drawable/selectable_background">
     
     <ImageView android:id="@+id/icon"
-	    android:layout_width="wrap_content"
+	    android:layout_width="24dp"
 	    android:layout_height="wrap_content"
 	    android:layout_gravity="center_vertical"
 	    android:layout_marginLeft="2dip"
@@ -25,7 +25,7 @@
         android:layout_marginLeft="6dip"
         android:layout_marginTop="6dip"
         android:layout_toRightOf="@+id/icon"
-		android:textAppearance="?android:attr/textAppearanceLarge"/>
+		android:textAppearance="?attr/textAppearanceListItem"/>
 		
 	<TextView android:id="@+id/text2"
 		android:layout_width="match_parent"

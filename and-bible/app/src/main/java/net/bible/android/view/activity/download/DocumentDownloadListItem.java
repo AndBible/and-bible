@@ -63,15 +63,15 @@ public class DocumentDownloadListItem extends TwoLineListItem {
 		if (getIcon()!=null && getProgressBar()!=null) {
 			switch (bookInstallStatus) {
 				case INSTALLED:
-					getIcon().setImageResource(R.drawable.btn_check_buttonless_on);
+					getIcon().setImageResource(R.drawable.ic_check_green_24dp);
 					progressBar.setVisibility(View.INVISIBLE);
 					break;
 				case NOT_INSTALLED:
-					getIcon().setImageResource(R.drawable.btn_check_buttonless_off);
+					getIcon().setImageDrawable(null);
 					progressBar.setVisibility(View.INVISIBLE);
 					break;
 				case BEING_INSTALLED:
-					getIcon().setImageResource(R.drawable.ic_arrow_down_green_24);
+					getIcon().setImageResource(R.drawable.ic_arrow_downward_green_24dp);
 					progressBar.setVisibility(View.VISIBLE);
 					break;
 				case UPGRADE_AVAILABLE:

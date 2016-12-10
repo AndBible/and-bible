@@ -15,9 +15,8 @@
     	android:layout_height="wrap_content"
     	android:paddingTop="5dip"
 		android:paddingBottom="5dip"
-		android:paddingLeft="16dp"
-		android:paddingRight="16dp"
-		>
+		android:paddingLeft="8dp"
+		android:paddingRight="8dp">
     	<Spinner android:id="@+id/languageSpinner"
     		android:layout_width="fill_parent"
 	    	android:layout_height="wrap_content"
@@ -26,12 +25,11 @@
     		android:entries="@array/documentTypes"
     		android:layout_width="fill_parent"
 	    	android:layout_height="wrap_content"
-	    	android:layout_weight="50"/>
+			android:layout_weight="50"/>
     </LinearLayout>
 	<ListView android:id="@android:id/list" 
 		android:layout_width="fill_parent" 
 		android:layout_height="fill_parent"
 		android:choiceMode="singleChoice"
-		android:visibility="visible"
-		/>
+		android:visibility="visible"/>
 </LinearLayout>
