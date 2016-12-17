@@ -18,8 +18,8 @@ public class DocumentDownloadProgressItem {
 		this.documentDownloadListItem = documentDownloadListItem;
 	}
 
-	public synchronized void updateListItemDisplay() {
-		updateListItemDisplay(percentDone);
+	public synchronized void updateListItemDisplay(String initials) {
+		updateListItemDisplay(initials, percentDone);
 	}
 
 	/**
@@ -31,14 +31,14 @@ public class DocumentDownloadProgressItem {
 		}
 	}
 
-	private void updateListItemDisplay(final int percentDone) {
+	private void updateListItemDisplay(final String initials, final int percentDone) {
 		final DocumentDownloadListItem listItem = this.documentDownloadListItem;
 		if (listItem !=null) {
 			Threadutils.runOnUiThread(
 					new Runnable() {
 						@Override
 						public void run() {
-							listItem.setProgressPercent(percentDone);
+							listItem.setProgressPercent(initials, percentDone);
 						}
 					}
 			);

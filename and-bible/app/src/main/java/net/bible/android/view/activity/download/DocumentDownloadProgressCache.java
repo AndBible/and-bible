@@ -33,7 +33,7 @@ public class DocumentDownloadProgressCache {
 			DocumentDownloadProgressItem documentDownloadProgressItem = getOrCreateBookProgressInfo(initials);
 
 			documentDownloadProgressItem.setPercentDone(progress.getWork());
-			documentDownloadProgressItem.updateListItemDisplay();
+			documentDownloadProgressItem.updateListItemDisplay(initials);
 		}
 	}
 
@@ -56,7 +56,7 @@ public class DocumentDownloadProgressCache {
 			final DocumentDownloadProgressItem documentDownloadProgressItem = getOrCreateBookProgressInfo(document.getInitials());
 			documentDownloadProgressItem.setDocumentDownloadListItem(documentDownloadListItem);
 
-			documentDownloadProgressItem.updateListItemDisplay();
+			documentDownloadProgressItem.updateListItemDisplay(document.getInitials());
 		}
 	}
 

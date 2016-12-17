@@ -47,12 +47,15 @@ public class DocumentDownloadListItem extends TwoLineListItem {
 		progressBar = (ProgressBar) findViewById(R.id.progressBar);
     }
 
-	public void setProgressPercent(int percentDone) {
-		if (progressBar != null && progressBar.getParent() != null) {
+	/**
+	 * Should not need to check the initials but other items were being updated and I don't know why
+	 */
+	public void setProgressPercent(String initials, int percentDone) {
+		if (progressBar != null && progressBar.getParent() != null && initials.equals(document.getInitials())) {
 			progressBar.setProgress(percentDone);
 			if (percentDone > 0 && percentDone < 100) {
 				updateControlState(DownloadControl.BookInstallStatus.BEING_INSTALLED);
-			} if (percentDone==100) {
+			} else if (percentDone==100) {
 				// final percent update during install automatically hides progress bar and changes icon to tick
 				updateControlState(DownloadControl.BookInstallStatus.INSTALLED);
 			}
