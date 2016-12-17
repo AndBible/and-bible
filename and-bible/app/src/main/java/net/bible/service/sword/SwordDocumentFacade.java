@@ -195,8 +195,6 @@ public class SwordDocumentFacade {
 	}
 	
 	public Book getDocumentByInitials(String initials) {
-		log.debug("Getting book:"+initials);
-
 		return Books.installed().getBook(initials);
 	}
 	

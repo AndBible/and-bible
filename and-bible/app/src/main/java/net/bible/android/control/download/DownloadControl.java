@@ -147,11 +147,6 @@ public class DownloadControl {
 			RepoBase repo = RepoFactory.getInstance().getRepoForBook(document);
 			downloadQueue.addDocumentToDownloadQueue(document, repo);
 
-			// download index too if available
-			if (SwordDocumentFacade.getInstance().isIndexDownloadAvailable(document)) {
-				downloadQueue.addDocumentIndexToDownloadQueue(document);
-			}
-
 			// if a font is required then download that too
 			String font = fontControl.getFontForBook(document);
 			if (!StringUtils.isEmpty(font) && !fontControl.exists(font)) {
