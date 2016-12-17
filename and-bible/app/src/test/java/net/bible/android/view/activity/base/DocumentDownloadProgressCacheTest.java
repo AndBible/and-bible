@@ -77,7 +77,7 @@ public class DocumentDownloadProgressCacheTest {
 
 	@Test
 	public void documentListItemShown() throws Exception {
-		assertThat(testData.progressBar.getVisibility(), equalTo(View.GONE));
+		testData.progressBar.setVisibility(View.GONE);
 
 		// prepare an item
 		documentDownloadProgressCache.documentListItemShown(testData.document, testData.documentDownloadListItem);
