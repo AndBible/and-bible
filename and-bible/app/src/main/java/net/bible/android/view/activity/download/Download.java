@@ -148,11 +148,7 @@ public class Download extends DocumentSelectionBase {
     protected void handleDocumentSelection(Book document) {
     	Log.d(TAG, "Document selected:"+document.getInitials());
     	try {
-    		if (JobManager.getJobCount()>=2) {
-    			showTooManyJobsDialog();
-    		} else {
-    			manageDownload(document);
-    		}
+   			manageDownload(document);
     	} catch (Exception e) {
     		Log.e(TAG, "Error on attempt to download", e);
     		Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show();
