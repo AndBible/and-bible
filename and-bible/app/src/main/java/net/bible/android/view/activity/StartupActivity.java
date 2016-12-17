@@ -1,17 +1,5 @@
 package net.bible.android.view.activity;
 
-import net.bible.android.BibleApplication;
-import net.bible.android.SharedConstants;
-import net.bible.android.activity.R;
-import net.bible.android.control.Initialisation;
-import net.bible.android.view.activity.base.Callback;
-import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
-import net.bible.android.view.activity.base.Dialogs;
-import net.bible.android.view.activity.download.Download;
-import net.bible.android.view.activity.installzip.InstallZip;
-import net.bible.android.view.activity.page.MainBibleActivity;
-import net.bible.service.common.CommonUtils;
-import net.bible.service.sword.SwordDocumentFacade;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -21,6 +9,20 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+
+import net.bible.android.BibleApplication;
+import net.bible.android.SharedConstants;
+import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
+import net.bible.android.control.Initialisation;
+import net.bible.android.view.activity.base.Callback;
+import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
+import net.bible.android.view.activity.base.Dialogs;
+import net.bible.android.view.activity.download.Download;
+import net.bible.android.view.activity.installzip.InstallZip;
+import net.bible.android.view.activity.page.MainBibleActivity;
+import net.bible.service.common.CommonUtils;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -177,6 +179,9 @@ public class StartupActivity extends CustomTitlebarActivityBase {
     		Log.i(TAG, "Returned from Download");
     		if (SwordDocumentFacade.getInstance().getBibles().size()>0) {
         		Log.i(TAG, "Bibles now exist so go to main bible view");
+				// select appropriate default verse e.g. John 3.16 if NT only
+				ControlFactory.getInstance().getPageControl().setFirstUseDefaultVerse();
+
     			gotoMainBibleActivity();
     		} else {
         		Log.i(TAG, "No Bibles exist so exit");
