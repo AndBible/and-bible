@@ -1,6 +1,8 @@
-package net.bible.android.view.activity.download;
+package net.bible.android.view.activity.download.progress;
 
 import android.support.annotation.NonNull;
+
+import net.bible.android.view.activity.download.DocumentDownloadListItem;
 
 import org.crosswire.common.progress.Progress;
 import org.crosswire.jsword.book.Book;

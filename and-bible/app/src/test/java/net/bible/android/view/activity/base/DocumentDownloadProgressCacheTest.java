@@ -7,7 +7,7 @@ import android.widget.ProgressBar;
 
 import net.bible.android.activity.BuildConfig;
 import net.bible.android.activity.R;
-import net.bible.android.view.activity.download.DocumentDownloadProgressCache;
+import net.bible.android.view.activity.download.progress.DocumentDownloadProgressCache;
 import net.bible.android.view.activity.download.DocumentDownloadListItem;
 import net.bible.service.download.FakeSwordBookFactory;
 

@@ -1,7 +1,8 @@
-package net.bible.android.view.activity.download;
+package net.bible.android.view.activity.download.progress;
 
 import android.support.annotation.Nullable;
 
+import net.bible.android.view.activity.download.DocumentDownloadListItem;
 import net.bible.android.view.util.Threadutils;
 
 public class DocumentDownloadProgressItem {

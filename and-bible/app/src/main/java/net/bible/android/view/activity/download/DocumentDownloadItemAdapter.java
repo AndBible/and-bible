@@ -14,6 +14,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.view.activity.base.ListActionModeHelper;
+import net.bible.android.view.activity.download.progress.DocumentDownloadProgressCache;
 import net.bible.service.common.CommonUtils;
 
 import org.crosswire.common.progress.JobManager;
