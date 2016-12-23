@@ -89,9 +89,10 @@ public class PageControl {
 	public void setFirstUseDefaultVerse() {
 		try {
 			Versification versification = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getVersification();
-			Verse[] defaultVerses = new Verse[] { new Verse(versification, BibleBook.GEN,1,1),
-												  new Verse(versification, BibleBook.JOHN,3,16),
-												  new Verse(versification, BibleBook.PS,1,1)};
+			Verse[] defaultVerses = new Verse[] {
+					new Verse(versification, BibleBook.JOHN,3,16),
+					new Verse(versification, BibleBook.GEN,1,1),
+					new Verse(versification, BibleBook.PS,1,1)};
 	    	List<Book> bibles = SwordDocumentFacade.getInstance().getBibles();
 	        if (bibles.size()==1) {
 	        	Book bible = bibles.get(0);
