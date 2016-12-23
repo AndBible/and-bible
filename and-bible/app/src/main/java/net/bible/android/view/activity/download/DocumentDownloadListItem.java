@@ -46,12 +46,13 @@ public class DocumentDownloadListItem extends TwoLineListItem {
 
     @Override
     protected void onFinishInflate() {
-        super.onFinishInflate();
+		super.onFinishInflate();
+
         mIcon = (ImageView) findViewById(R.id.icon);
 		progressBar = (ProgressBar) findViewById(R.id.progressBar);
 
-		ABEventBus.getDefault().safelyRegister(this);
-    }
+		ensureRegisteredForDownloadEvents();
+	}
 
 	@Override
 	protected void onDetachedFromWindow() {
@@ -126,5 +127,15 @@ public class DocumentDownloadListItem extends TwoLineListItem {
 
 	public void setDocument(Book document) {
 		this.document = document;
+
+		ensureRegisteredForDownloadEvents();
+	}
+
+	/**
+	 * Items are detached more often than inflated so always have to check the item is registered for download events.
+	 * https://code.google.com/p/android/issues/detail?id=65617
+	 */
+	private void ensureRegisteredForDownloadEvents() {
+		ABEventBus.getDefault().safelyRegister(this);
 	}
 }
