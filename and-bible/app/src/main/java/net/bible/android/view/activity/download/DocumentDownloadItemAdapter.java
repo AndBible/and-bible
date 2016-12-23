@@ -14,12 +14,8 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.view.activity.base.ListActionModeHelper;
-import net.bible.android.view.activity.download.progress.DocumentDownloadProgressCache;
 import net.bible.service.common.CommonUtils;
 
-import org.crosswire.common.progress.JobManager;
-import org.crosswire.common.progress.WorkEvent;
-import org.crosswire.common.progress.WorkListener;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.versification.system.SystemKJV;
@@ -39,10 +35,6 @@ public class DocumentDownloadItemAdapter extends ArrayAdapter<Book> {
 	
 	private DownloadControl downloadControl = ControlFactory.getInstance().getDownloadControl();
 
-	private DocumentDownloadProgressCache documentDownloadProgressCache;
-
-	private WorkListener progressUpdater;
-
 	private final ListActionModeHelper.ActionModeActivity actionModeActivity;
 
 	private static int ACTIVATED_COLOUR = CommonUtils.getResourceColor(R.color.list_item_activated);
@@ -51,30 +43,6 @@ public class DocumentDownloadItemAdapter extends ArrayAdapter<Book> {
 		super(_context, _resource, _items);
 		resource = _resource;
 		this.actionModeActivity = actionModeActivity;
-
-		// Listen for Progress changes and update the ui
-		documentDownloadProgressCache = new DocumentDownloadProgressCache();
-
-		progressUpdater = new WorkListener() {
-			@Override
-			public void workProgressed(WorkEvent ev) {
-				documentDownloadProgressCache.updateProgress(ev.getJob());
-			}
-
-			@Override
-			public void workStateChanged(WorkEvent ev) {
-			}
-		};
-	}
-
-	public void startMonitoringDownloads() {
-		JobManager.addWorkListener(progressUpdater);
-	}
-
-	public void stopMonitoringDownloads() {
-		if (progressUpdater!=null) {
-			JobManager.removeWorkListener(progressUpdater);
-		}
 	}
 
 	@Override
@@ -89,15 +57,12 @@ public class DocumentDownloadItemAdapter extends ArrayAdapter<Book> {
 			view = (DocumentDownloadListItem) inflater.inflate(resource, parent, false);
 		} else {
 			view = (DocumentDownloadListItem) convertView;
-			//  Get previous convertView doc to uncache
-			documentDownloadProgressCache.documentListItemReallocated(view);
 		}
 
 		// remember which item is being shown
 		view.setDocument(document);
-		documentDownloadProgressCache.documentListItemShown(document, view);
 
-		view.updateControlState(downloadControl.getBookInstallStatus(document));
+		view.updateControlState(downloadControl.getDocumentStatus(document));
 
 		// Set value for the first text field
 		if (view.getText1() != null) {

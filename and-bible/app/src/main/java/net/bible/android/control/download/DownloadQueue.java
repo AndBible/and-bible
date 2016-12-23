@@ -1,6 +1,8 @@
 package net.bible.android.control.download;
 
 import net.bible.android.activity.R;
+import net.bible.android.control.event.ABEventBus;
+import net.bible.android.control.event.documentdownload.DocumentDownloadEvent;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.Logger;
 import net.bible.service.download.AndBibleRepo;
@@ -29,6 +31,8 @@ public class DownloadQueue {
 
 	private Set<String> beingQueued = Collections.synchronizedSet(new HashSet<String>());
 
+	private Set<String> downloadError = Collections.synchronizedSet(new HashSet<String>());
+
 	private Logger log = new Logger(this.getClass().getSimpleName());
 
 	public DownloadQueue(ExecutorService executorService) {
@@ -38,20 +42,30 @@ public class DownloadQueue {
 	public void addDocumentToDownloadQueue(final Book document, final RepoBase repo) {
 		if (!beingQueued.contains(document.getInitials())) {
 			beingQueued.add(document.getInitials());
+			downloadError.remove(document.getInitials());
+
 			executorService.submit(new Runnable() {
 				@Override
 				public void run() {
 					log.info("Downloading " + document.getInitials() + " from repo " + repo.getRepoName());
 					try {
 						repo.downloadDocument(document);
-					} catch (InstallException | BookException e) {
-						Dialogs.getInstance().showErrorMsg(R.string.error_downloading);
+						ABEventBus.getDefault().post(new DocumentDownloadEvent(document.getInitials(), DocumentStatus.DocumentInstallStatus.INSTALLED, 100));
+					} catch (Exception e) {
+						log.error("Error downloading "+document, e);
+						handleDownloadError(document);
 					} finally {
 						beingQueued.remove(document.getInitials());
 					}
 				}
 			});
 		}
+	}
+
+	public void handleDownloadError(Book document) {
+		ABEventBus.getDefault().post(new DocumentDownloadEvent(document.getInitials(), DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0));
+		downloadError.add(document.getInitials());
+		Dialogs.getInstance().showErrorMsg(R.string.error_downloading);
 	}
 
 	public void addDocumentIndexToDownloadQueue(final Book document) {
@@ -71,5 +85,9 @@ public class DownloadQueue {
 
 	public boolean isInQueue(Book document) {
 		return beingQueued.contains(document.getInitials());
+	}
+
+	public boolean isErrorDownloading(Book document) {
+		return downloadError.contains(document.getInitials());
 	}
 }

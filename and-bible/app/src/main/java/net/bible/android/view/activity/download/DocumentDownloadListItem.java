@@ -7,10 +7,14 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.download.DownloadControl;
+import net.bible.android.control.download.DocumentStatus;
+import net.bible.android.control.event.ABEventBus;
+import net.bible.android.control.event.documentdownload.DocumentDownloadEvent;
 import net.bible.android.view.util.widget.TwoLineListItem;
 
 import org.crosswire.jsword.book.Book;
+
+import de.greenrobot.event.EventBus;
 
 /** Add an image to the normal 2 line list item
  * 
@@ -45,26 +49,31 @@ public class DocumentDownloadListItem extends TwoLineListItem {
         super.onFinishInflate();
         mIcon = (ImageView) findViewById(R.id.icon);
 		progressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+		ABEventBus.getDefault().safelyRegister(this);
     }
 
+	@Override
+	protected void onDetachedFromWindow() {
+		super.onDetachedFromWindow();
+
+		// View is now detached, and about to be destroyed.
+		// de-register from EventBus
+		EventBus.getDefault().unregister(this);
+	}
+
 	/**
-	 * Should not need to check the initials but other items were being updated and I don't know why
+	 * Download progress event
 	 */
-	public void setProgressPercent(String initials, int percentDone) {
-		if (progressBar != null && progressBar.getParent() != null && initials.equals(document.getInitials())) {
-			progressBar.setProgress(percentDone);
-			if (percentDone > 0 && percentDone < 100) {
-				updateControlState(DownloadControl.BookInstallStatus.BEING_INSTALLED);
-			} else if (percentDone==100) {
-				// final percent update during install automatically hides progress bar and changes icon to tick
-				updateControlState(DownloadControl.BookInstallStatus.INSTALLED);
-			}
+	public void onEventMainThread(DocumentDownloadEvent event) {
+		if (document!=null && event.getInitials().equals(document.getInitials())) {
+			updateControlState(event.getDocumentStatus());
 		}
 	}
 
-	public void updateControlState(DownloadControl.BookInstallStatus bookInstallStatus) {
+	public void updateControlState(DocumentStatus documentStatus) {
 		if (getIcon()!=null && getProgressBar()!=null) {
-			switch (bookInstallStatus) {
+			switch (documentStatus.getDocumentInstallStatus()) {
 				case INSTALLED:
 					getIcon().setImageResource(R.drawable.ic_check_green_24dp);
 					progressBar.setVisibility(View.INVISIBLE);
@@ -75,13 +84,27 @@ public class DocumentDownloadListItem extends TwoLineListItem {
 					break;
 				case BEING_INSTALLED:
 					getIcon().setImageResource(R.drawable.ic_arrow_downward_green_24dp);
+					setProgressPercent(documentStatus.getPercentDone());
 					progressBar.setVisibility(View.VISIBLE);
 					break;
 				case UPGRADE_AVAILABLE:
-					getIcon().setImageResource(R.drawable.amber_up_arrow);
+					getIcon().setImageResource(R.drawable.ic_arrow_upward_amber_24dp);
+					progressBar.setVisibility(View.INVISIBLE);
+					break;
+				case ERROR_DOWNLOADING:
+					getIcon().setImageResource(R.drawable.ic_warning_red_24dp);
 					progressBar.setVisibility(View.INVISIBLE);
 					break;
 			}
+		}
+	}
+
+	/**
+	 * Should not need to check the initials but other items were being updated and I don't know why
+	 */
+	private void setProgressPercent(int percentDone) {
+		if (progressBar != null) {
+			progressBar.setProgress(percentDone);
 		}
 	}
 

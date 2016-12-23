@@ -122,14 +122,14 @@ public class Download extends DocumentSelectionBase {
 	protected void onStart() {
 		super.onStart();
 
-		documentDownloadItemAdapter.startMonitoringDownloads();
+		downloadControl.startMonitoringDownloads();
 	}
 
 	@Override
 	protected void onStop() {
 		super.onStop();
 
-		documentDownloadItemAdapter.stopMonitoringDownloads();
+		downloadControl.stopMonitoringDownloads();
 	}
 
     /** 

@@ -28,6 +28,12 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import static net.bible.android.control.download.DocumentStatus.DocumentInstallStatus.BEING_INSTALLED;
+import static net.bible.android.control.download.DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING;
+import static net.bible.android.control.download.DocumentStatus.DocumentInstallStatus.INSTALLED;
+import static net.bible.android.control.download.DocumentStatus.DocumentInstallStatus.NOT_INSTALLED;
+import static net.bible.android.control.download.DocumentStatus.DocumentInstallStatus.UPGRADE_AVAILABLE;
+
 /** Support the download screen
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -36,7 +42,7 @@ import java.util.List;
  */
 public class DownloadControl {
 
-	public enum BookInstallStatus {INSTALLED, NOT_INSTALLED, BEING_INSTALLED, UPGRADE_AVAILABLE}
+	private DocumentDownloadProgressCache documentDownloadProgressCache;
 
 	private final DownloadQueue downloadQueue;
 
@@ -50,6 +56,9 @@ public class DownloadControl {
 		this.downloadQueue = downloadQueue;
 		this.xiphosRepo = xiphosRepo;
 		this.fontControl = fontControl;
+
+		// Listen for Progress changes and update the ui
+		documentDownloadProgressCache = new DocumentDownloadProgressCache();
 	}
 	
 	/** pre-download document checks
@@ -157,9 +166,13 @@ public class DownloadControl {
 	}
 
 	/** return install status - installed, not inst, or upgrade **/
-	public BookInstallStatus getBookInstallStatus(Book document) {
+	public DocumentStatus getDocumentStatus(Book document) {
+		String initials = document.getInitials();
 		if (downloadQueue.isInQueue(document)) {
-			return BookInstallStatus.BEING_INSTALLED;
+			return new DocumentStatus(initials, BEING_INSTALLED, documentDownloadProgressCache.getPercentDone(document));
+		}
+		if (downloadQueue.isErrorDownloading(document)) {
+			return new DocumentStatus(initials, ERROR_DOWNLOADING, 0);
 		}
 
 		Book installedBook = SwordDocumentFacade.getInstance().getDocumentByInitials(document.getInitials());
@@ -169,17 +182,25 @@ public class DownloadControl {
 	    		Version newVersionObj = new Version(document.getBookMetaData().getProperty("Version"));
 	    		Version installedVersionObj = new Version(installedBook.getBookMetaData().getProperty("Version"));
 	    		if (newVersionObj.compareTo(installedVersionObj)>0) {
-	    			return BookInstallStatus.UPGRADE_AVAILABLE;
+	    			return new DocumentStatus(initials, UPGRADE_AVAILABLE, 100);
 	    		}
 			} catch (Exception e) {
 				Log.e(TAG,  "Error comparing versions", e);
 				// probably not the same version if an error occurred comparing
-    			return BookInstallStatus.UPGRADE_AVAILABLE;
+				return new DocumentStatus(initials, UPGRADE_AVAILABLE, 100);
 			}
 			// otherwise same document is already installed
-			return BookInstallStatus.INSTALLED;
+			return new DocumentStatus(initials, INSTALLED, 100);
 		} else {
-			return BookInstallStatus.NOT_INSTALLED;
+			return new DocumentStatus(initials, NOT_INSTALLED, 0);
 		}
+	}
+
+	public void startMonitoringDownloads() {
+		documentDownloadProgressCache.startMonitoringDownloads();
+	}
+
+	public void stopMonitoringDownloads() {
+		documentDownloadProgressCache.stopMonitoringDownloads();
 	}
 }
