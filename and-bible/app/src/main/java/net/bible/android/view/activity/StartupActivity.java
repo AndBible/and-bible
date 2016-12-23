@@ -18,7 +18,7 @@ import net.bible.android.control.Initialisation;
 import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
-import net.bible.android.view.activity.download.Download;
+import net.bible.android.view.activity.download.FirstDownload;
 import net.bible.android.view.activity.installzip.InstallZip;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.service.common.CommonUtils;
@@ -138,7 +138,7 @@ public class StartupActivity extends CustomTitlebarActivityBase {
     	}
     	
     	if (StringUtils.isBlank(errorMessage)) {
-	       	Intent handlerIntent = new Intent(this, Download.class);
+	       	Intent handlerIntent = new Intent(this, FirstDownload.class);
 	    	startActivityForResult(handlerIntent, DOWNLOAD_DOCUMENT_REQUEST);
 		} else {
 			Dialogs.getInstance().showErrorMsg(errorMessage, new Callback() {

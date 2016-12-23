@@ -132,6 +132,10 @@
                   android:label="@string/speak"
                   android:configChanges="keyboardHidden|orientation|screenSize|locale">
         </activity>
+		<activity android:name="net.bible.android.view.activity.download.FirstDownload"
+				  android:label="@string/download"
+				  android:configChanges="keyboardHidden|orientation|screenSize|locale">
+		</activity>
         <activity android:name="net.bible.android.view.activity.download.Download"
                   android:label="@string/download"
                   android:configChanges="keyboardHidden|orientation|screenSize|locale">

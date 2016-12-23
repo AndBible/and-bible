@@ -81,6 +81,8 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 
 	private final int actionModeMenuId;
 
+	private int layoutResource = R.layout.document_selection;
+
     private static final String TAG = "DocumentSelectionBase";
 
 	/** ask subclass for documents to be displayed
@@ -100,7 +102,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.document_selection);
+        setContentView(layoutResource);
 
        	initialiseView();
     }
@@ -542,5 +544,9 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 			case MAPS:				selectedDocumentFilterNo = 4;  		break;
 			default:				selectedDocumentFilterNo = 0;  		break;
     	}
+	}
+
+	public void setLayoutResource(int layoutResource) {
+		this.layoutResource = layoutResource;
 	}
 }
