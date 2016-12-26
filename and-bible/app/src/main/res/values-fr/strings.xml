@@ -4,9 +4,9 @@
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Dieu dit : « Qu\'il y ait de la lumière! », et il y eut de la lumière.\" Genèse 1.3</string>
   <string name="help_text">Appuyer sur la touche MENU pour toute action\n\nAller au chapitre suivant ou précédent en utilisant le track-ball, le D-pad ou en balayant l\'écran avec votre doigt</string>
-  <string name="help_text_long"><b>Navigation</b>\nPour aller au chapitre suivant ou précédent, utilisez le track-ball, D-pad ou en balayez l\'écran avec votre doigt \nDouble-tapotement pour basculer en mode plein écran\n\n<b>Menu</b>\nAppuyer sur la touche MENU pour les actions\n\nPour télécharger plus de documents, pressez Menu/Administration/Télécharger documents\n\n<b>Synthèse vocale</b>\nCliquer sur Écouter pour entendre le chapitre en cours\nCliquer encore sur Écouter pour arrêter la lecture\n\n<b>Mon carnet de notes</b>\nDes notes peuvent être ajoutées via le menu Mon carnet de notes dans le verset courant. La liste des notes existantes sont accessibles via le menu principal.\n\n<b>Signets</b>\nLes signets peuvent être ajoutées via le menu contextuel verset. Le gestionnaire de signets est accessible via le menu principal. Le menu contextuel du gestionnaire de signets permet de grouper les signets en utilisant des étiquettes.\n\n<b>Recherche</b>\nRecherche de texte peut inclure des caractères spéciaux tels que *, ?, AND (et), OR (ou), NOT (n\'est pas) (voir \"Apache Lucene - Syntaxe Query Parser\" pour plus de détails)\n\n<b>Menu contextuel</b>\nAppui long sur la vue biblique pour ouvrir le menu contextuel pour des actions qui affectent le verset en cours.\nAppui long sur un document dans le sélecteur de documents pour le supprimer ou afficher les informations. \nAppuyez longuement sur le bouton Retour pour accéder à la liste Historique.</string>
+  <string name="help_text_long"><b>Navigation</b>\nPour aller au chapitre suivant ou au précédent, utiliser le track-ball, le D-pad ou balayer l\'écran avec le doigt \nUn Double-Tapotement permet de basculer en mode plein écran et inversement.\n\n<b>Menu</b>\nPresser la touche MENU pour toute action.\n\nPour télécharger plus de documents, sélectionner le menu Gérer/Télécharger des documents.\n\n<b>Synthèse vocale</b>\nSélectionner le menu Écouter pour écouter le chapitre en cours.\nSélectionner encore Écouter pour arrêter la lecture.\n\n<b>Mes notes</b>\nDes notes peuvent être ajoutées au verset en cours via le menu contextuel du verset (voir plus bas). La liste des notes existantes est atteinte via le menu Mes Notes.\n\n<b>Signets</b>\nUn signet peut être ajouté au verset en cours via le menu contextuel du verset (voir plus bas). Le gestionnaire de signets est accessible via le menu Signets. Le menu contextuel des signets permet de regrouper les signets en utilisant des étiquettes.\n\n<b>Recherche</b>\nLa recherche de texte peut inclure des caractères spéciaux tels que *, ?, AND (et), OR (ou), NOT (n\'est pas) (voir \"Apache Lucene - Syntaxe Query Parser\" pour plus de détails)\n\n<b>Menu contextuel</b>\nUn Appui Long sur un verset dans le texte biblique ouvre un menu contextuel permettant des actions relatives à ce verset.\nUn Appui Long sur un document dans le sélecteur de documents affiche un menu contextuel permettant d\'obtenir les informations relatives à ce document ou de le supprimer.\nUn Appui Long sur le bouton Retour ouvre l\'Historique de consultation.</string>
   <string name="version_text">Version %s</string>
-  <string name="no_sdcard_error">Insérez une carte SD et redémarrez And Bible.</string>
+  <string name="no_sdcard_error">Merci d\'insérer une carte SD et de redémarrer And Bible.</string>
   <!--Main menu-->
   <string name="chooseBook">Document</string>
   <string name="selectPassage">Passage</string>
@@ -16,7 +16,7 @@
   <string name="speak">Écouter</string>
   <string name="help">Aide</string>
   <string name="verse">Verset</string>
-  <string name="administration">Administration</string>
+  <string name="administration">Gérer</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Sélectionner un livre</string>
   <string name="choosePassageChapterName">Sélectionner un chapitre</string>
@@ -25,15 +25,15 @@
   <string name="deuterocanonical">Deutérocanonique</string>
   <!--Search-->
   <string name="search_index">Recherche dans l\'index</string>
-  <string name="index_creation_required">Un index de recherche est nécessaire.\n\nLes index peuvent être téléchargés à partir d\'Internet ou créés localement.\n\nLe téléchargement est beaucoup plus rapide et les index téléchargés offrent plus de fonctionnalités.\n\nUne connexion internet est requise pour télécharger les index.</string>
-  <string name="indexing_wait_msg">Quand l\'indexation sera terminée, vous retrouverez l\'écran de recherche</string>
+  <string name="index_creation_required">Un index est requis pour exécuter cette recherche.\n\nLes index peuvent être téléchargés par Internet ou créés localement.\n\nLe téléchargement est beaucoup plus rapide et les index téléchargés offrent plus de fonctionnalités.\n\nUne connexion internet est requise pour pouvoir télécharger les index.</string>
+  <string name="indexing_wait_msg">Quand l\'indexation sera terminée, vous serez redirigés sur la page de recherche</string>
   <string name="index">Index</string>
   <string name="index_download">Télécharger</string>
   <string name="index_not_available_for_download">Cet index n\'est pas disponible en téléchargement</string>
   <string name="index_create">Créer</string>
   <!--Tasks-->
   <string name="progress_status">Progression</string>
-  <string name="task_kill_warning">Ces tâches en cours d\'exécution risquent d\'être terminées si vous passez à une autre application avant d\'avoir fini.</string>
+  <string name="task_kill_warning">Merci de patienter. Ne pas basculer vers une autre application, ces tâches risqueraient d\'être interrompues.</string>
   <string name="no_tasks_running">Il n\'y a pas de tâches en cours d\'exécution.</string>
   <!--Search-->
   <string name="search_results">Résultats de la recherche</string>
@@ -51,91 +51,91 @@
   <string name="error_executing_search">Requête invalide</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Numéros de versets</string>
-  <string name="prefs_show_verseno_summary">Afficher les numéros de versets</string>
+  <string name="prefs_show_verseno_summary">Affiche les numéros de versets</string>
   <string name="prefs_verse_per_line_title">Un verset par ligne</string>
-  <string name="prefs_verse_per_line_summary">Afficher un verset par ligne</string>
+  <string name="prefs_verse_per_line_summary">Affiche les versets ligne par ligne</string>
   <string name="prefs_show_bookmarks_title">Afficher les signets</string>
-  <string name="prefs_show_bookmarks_summary">Décocher pour cacher tous les signets</string>
-  <string name="prefs_default_bookmark_style_title">Style par défaut des signets</string>
-  <string name="prefs_default_bookmark_style_summary">Mettre en surbrillance la couleur ou l’icône</string>
-  <string name="prefs_show_mynotes_title">Afficher les icônes de mon carnet de notes</string>
-  <string name="prefs_show_mynotes_summary">Afficher les icônes dans les versets avec Mon carnet de notes</string>
-  <string name="prefs_show_notes_title">Notes de page et références croisées</string>
-  <string name="prefs_show_notes_summary">Afficher les notes de page et les références croisées</string>
-  <string name="prefs_show_strongs_title">Afficher les numéros Strong</string>
-  <string name="prefs_show_strongs_summary">Liens vers les définitions grec &amp; hébreu</string>
+  <string name="prefs_show_bookmarks_summary">Applique un style différent aux versets marqués par un signet</string>
+  <string name="prefs_default_bookmark_style_title">Style des signets</string>
+  <string name="prefs_default_bookmark_style_summary">Sélectionne le style d\'affichage général des versets marqués d\'un signet</string>
+  <string name="prefs_show_mynotes_title">Afficher Mes Notes</string>
+  <string name="prefs_show_mynotes_summary">Ajoute une icône aux versets commentés dans Mes Notes</string>
+  <string name="prefs_show_notes_title">Notes et références croisées</string>
+  <string name="prefs_show_notes_summary">Affiche les notes de bas de page et les références croisées</string>
+  <string name="prefs_show_strongs_title">Codes de Strong</string>
+  <string name="prefs_show_strongs_summary">Affiche les liens vers les définitions des lexiques Hébreu/Araméen &amp; Grec de la concordance Strong</string>
   <string name="prefs_show_morphology_title">Codes morphologiques</string>
-  <string name="prefs_show_morphology_summary">Afficher la morphologie grecque de Robinson</string>
+  <string name="prefs_show_morphology_summary">Affiche la morphologie grecque de Robinson</string>
   <string name="prefs_section_title_title">Titres de section</string>
-  <string name="prefs_section_title_summary">Voir les titres de section non-canonique</string>
-  <string name="prefs_red_letter_title">Lettre rouge</string>
-  <string name="prefs_red_letter_summary">Afficher les mots du Christ en rouge</string>
-  <string name="prefs_tilt_to_scroll_title">Inclinez pour faire défiler</string>
-  <string name="prefs_tilt_to_scroll_summary">Inclinez l\'appareil pour faire défiler la page vers le haut/bas</string>
+  <string name="prefs_section_title_summary">Affiche les titres de section non-canonique</string>
+  <string name="prefs_red_letter_title">Paroles de Christ</string>
+  <string name="prefs_red_letter_summary">Affiche les paroles de Christ en rouge</string>
+  <string name="prefs_tilt_to_scroll_title">Défilement par inclinaison</string>
+  <string name="prefs_tilt_to_scroll_summary">L\'inclinaison de l\'appareil fait défiler la page vers le bas</string>
   <string name="prefs_night_mode_title">Mode nuit</string>
-  <string name="prefs_night_mode_summary">Pour une lecture plus facile dans le noir</string>
+  <string name="prefs_night_mode_summary">Facilite la lecture dans la pénombre</string>
   <string name="prefs_night_mode_automatic">Automatique</string>
   <string name="prefs_navigate_to_verse_title">Aller au verset</string>
-  <string name="prefs_navigate_to_verse_summary">Choisissez le verset (et le chapitre) lors de la sélection d\'un passage</string>
+  <string name="prefs_navigate_to_verse_summary">Sélectionne aussi le verset (après le chapitre) lors du choix d\'un passage</string>
   <string name="prefs_open_links_in_special_window_title">Ouvrir les liens dans une fenêtre spéciale</string>
-  <string name="prefs_open_links_in_special_window_summary">Pour un affichage rapide des références croisées et Strong</string>
+  <string name="prefs_open_links_in_special_window_summary">Permet d\'afficher plus rapidement les références croisées et codes de Strong</string>
   <string name="prefs_text_size_title">Taille du texte</string>
-  <string name="prefs_text_size_summary">Voir plus ou voir plus clair</string>
+  <string name="prefs_text_size_summary">Sélectionne la taille du texte</string>
   <string name="prefs_text_size_sample_text">Exemple de texte</string>
   <string name="prefs_screen_timeout_title">Veille</string>
   <string name="prefs_screen_timeout_summary">Durée d\'inactivité avant la désactivation de l\'écran</string>
   <string name="x_minutes">%d minutes</string>
   <string name="prefs_interface_locale_title">Langue de l\'application</string>
-  <string name="prefs_interface_locale_summary">Choisir une langue personnalisée dans l\'interface utilisateur</string>
+  <string name="prefs_interface_locale_summary">Sélection d\'une langue d\'interface utilisateur personnalisée </string>
   <string name="locale_change_warning">L\'application sera redémarrée pour prendre en compte la nouvelle langue d\'interface</string>
   <!--Window-->
-  <string name="window">Fenêtre</string>
+  <string name="window">Fenêtres</string>
   <string name="windowClose">Fermer</string>
   <string name="windowMaximise">Maximiser</string>
   <string name="windowMinimise">Minimiser</string>
   <string name="windowSynchronise">Synchroniser</string>
-  <string name="windowMoveFirst">Déplacer en premier</string>
+  <string name="windowMoveFirst">Placer en premier</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Aucune note dans ce chapitre</string>
-  <string name="no_verse_notes">Aucune note dans ce verset</string>
+  <string name="no_verse_notes">Aucune note pour ce verset</string>
   <string name="previous">Précédent</string>
   <string name="next">Suivant</string>
   <!--Strongs-->
   <string name="strongs">Dictionnaire Strong</string>
-  <string name="strongs_not_installed">Téléchargez un dictionnaire Strong\'s Hébreu et Grec</string>
+  <string name="strongs_not_installed">Merci de télécharger un lexique Hébreu/Araméen et Grec de Strong</string>
   <string name="all_greek_occurrences">Trouver toutes les occurrences</string>
   <string name="all_hebrew_occurrences">Trouver toutes les occurrences</string>
-  <string name="no_indexed_bible_with_strongs_ref">Vous devez télécharger une bible contenant les numéros Strong et télécharger son index via Rechercher</string>
-  <string name="morph_robinson_not_installed">Veuillez télécharger le dictionnaire « Robinson analyse morphologique Codes »</string>
+  <string name="no_indexed_bible_with_strongs_ref">Merci de télécharger une bible contenant les codes de Strong,  puis de télécharger son index via la page Rechercher</string>
+  <string name="morph_robinson_not_installed">Merci de télécharger le lexique « Robinson\'s Morphological Analysis Codes »</string>
   <string name="strongs_toggle_button_on">nnnn</string>
   <string name="strongs_toggle_button_off">nnnn</string>
   <!--Module download-->
-  <string name="download">Télécharger documents</string>
-  <string name="download_confirmation">Télécharger des documents à partir d\'Internet?</string>
-  <string name="download_source_message">Les documents sont téléchargés à partir de \nhttp://www.crosswire.org\n&amp; http://ibt.org.ru\n&amp; http://xiphos.org</string>
+  <string name="download">Télécharger des documents</string>
+  <string name="download_confirmation">Télécharger une Bible par Internet?</string>
+  <string name="download_source_message">Les documents sont téléchargés à partir de ;\nhttp://www.crosswire.org\nhttp://ibt.org.ru\nhttp://xiphos.org</string>
   <string name="download_document_confirm_prefix">Télécharger </string>
-  <string name="download_refreshing_book_list">Rafraîchir la liste des documents disponibles</string>
+  <string name="download_refreshing_book_list">Mise à jour de la liste des documents disponibles</string>
   <string name="download_refresh_book_list_menu_item">Rafraîchir</string>
-  <string name="error_downloading">Une erreur est apparue pendant le téléchargement. Vérifiez votre connexion internet.</string>
+  <string name="error_downloading">Une erreur est apparue pendant le téléchargement. Merci de vérifier votre connexion internet.</string>
   <string name="no_internet_connection">Impossible de se connecter à internet</string>
   <string name="storage_space_warning">Espace de stockage local insuffisant.</string>
-  <string name="wait_for_bible">Veuillez attendre la fin du téléchargement. Vous serez alors redirigé vers la page principale</string>
-  <string name="wait_for_bible_not_yet">Veuillez attendre. L\'installation n\'est pas terminée.</string>
-  <string name="download_complete_no_bibles">Aucune bible n\'a été installée. Appuyer sur Retour et essayez à nouveau.</string>
-  <string name="too_many_jobs">Trop nombreuses tâches d\'exécution en cours. Veuillez attendre la fin de quelques-unes pour essayer à nouveau.</string>
-  <string name="document_not_installed">Veuillez télécharger \'%s\'</string>
+  <string name="wait_for_bible">Merci d\'attendre la fin du téléchargement. Vous serez alors redirigé vers la page principale.\n\nLe téléchargement d\'autres documents sera ensuite activé par le menu Gérer/Télécharger des documents.</string>
+  <string name="wait_for_bible_not_yet">Merci de patienter. L\'installation n\'est pas terminée.</string>
+  <string name="download_complete_no_bibles">Aucune bible n\'a été installée. Merci d\'appuyer sur Retour et essayer à nouveau.</string>
+  <string name="too_many_jobs">De trop nombreuses tâches sont en cours d\'exécution. Merci d\'attendre la fin de quelques-unes puis d\'essayer à nouveau.</string>
+  <string name="document_not_installed">Merci de télécharger \'%s\'</string>
   <!--Install zip file-->
-  <string name="install_zip">Charger le module du fichier Zip</string>
+  <string name="install_zip">Charger depuis un fichier Zip</string>
   <string name="install_zip_successfull">Le module a été installé avec succès</string>
   <string name="extracting_zip_file">Extraction du fichier Zip...</string>
   <string name="checking_zip_file">Vérification du fichier...</string>
-  <string name="invalid_module">Le fichier ne contient pas un module Sword valide</string>
+  <string name="invalid_module">Le fichier ne contient pas de module Sword valide</string>
   <string name="module_already_installed">Le fichier contient un module qui est déjà installé</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plan de lecture</string>
-  <string name="rdg_plan_selector_title">Choisissez un plan de lecture</string>
+  <string name="rdg_plan_selector_title">Choix d\'un plan de lecture</string>
   <string name="rdg_plan_day">Jour %s</string>
-  <string name="rdg_plan_set_start_jan1">Commence 1 Jan</string>
+  <string name="rdg_plan_set_start_jan1">Commence le 1 Jan</string>
   <string name="done">Fait</string>
   <string name="reset">Réinitialiser</string>
   <string name="rdg_plan_y1ntpspr">Nouveau Testament, Psaumes et Proverbes en 1 an</string>
@@ -155,7 +155,7 @@
   <string name="notes">Notes et références croisées</string>
   <string name="copy">Copier</string>
   <string name="share_verse">Partager ...</string>
-  <string name="share_verse_subject">Un verset de Bible a été partagé avec vous en utilisant And Bible</string>
+  <string name="share_verse_subject">Un autre utilisateur de And Bible vous partage un verset de la Bible </string>
   <string name="compare_translations">Comparer les traductions</string>
   <!--Bookmarks-->
   <string name="bookmarks">Signets</string>
@@ -164,12 +164,12 @@
   <string name="bookmark_added">Signet ajouté</string>
   <string name="bookmark_exists">Ce signet existe déjà</string>
   <string name="bookmark_deleted">Signet effacé</string>
-  <string name="bookmark_labels">Étiquettes de signets</string>
+  <string name="bookmark_labels">Étiquettes des signets</string>
   <string name="manage_labels">Gérer les étiquettes des signets</string>
   <string name="assign_labels">Attribuer des étiquettes</string>
   <string name="new_label">Nouvelle étiquette</string>
-  <string name="label_name_prompt">Nommer</string>
-  <string name="label_unlabelled">Unlabelled</string>
+  <string name="label_name_prompt">Nom de l\'étiquette</string>
+  <string name="label_unlabelled">Indéfini</string>
   <string name="rename">Renommer</string>
   <string name="style">Style</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
@@ -187,7 +187,7 @@
   <!--plurals tags referencing the below have been moved to untranslated_strings.xml-->
   <!--Speak - Bible-->
   <string name="one_chapter">%d chapitre</string>
-  <string name="some_chapters">%d chaptitres</string>
+  <string name="some_chapters">%d chapitres</string>
   <string name="rest_of_book">À la fin du livre</string>
   <!--Speak - Commentary-->
   <string name="one_verse">%d verset</string>
@@ -206,16 +206,16 @@
   <string name="speak_repeat">Répéter</string>
   <!--User Notes-->
   <string name="mynotes">Mes notes</string>
-  <string name="mynote">Mon carnet de notes</string>
-  <string name="mynote_add">Ajouter à mon carnet de notes</string>
-  <string name="mynote_view_edit">Mon carnet de notes</string>
-  <string name="mynote_saved">Sauvegarde de mon carnet de notes</string>
+  <string name="mynote">Ma note</string>
+  <string name="mynote_add">Ajouter ma note</string>
+  <string name="mynote_view_edit">Ma note</string>
+  <string name="mynote_saved">Ma note a été enregistrée</string>
   <!--Backup and restore-->
-  <string name="backup">Sauvegarder</string>
-  <string name="backup_success">Mes notes et signets sauvegardés dans %s sur la carte SD</string>
+  <string name="backup">Sauvegardes</string>
+  <string name="backup_success">Mes Notes et Signets ont été sauvegardés dans %s sur la carte SD</string>
   <string name="restore">Restaurer</string>
-  <string name="restore_confirmation">Écraser mes notes et signets?</string>
-  <string name="restore_success">Mes notes et signets restaurés de %s sur la carte SD</string>
+  <string name="restore_confirmation">Écraser Mes Notes et Signets?</string>
+  <string name="restore_success">Mes Notes et Signets ont été restaurés de la carte SD depuis %s</string>
   <!--About-->
   <string name="about_copyright">Droits d\'auteur: %s</string>
   <string name="about_version">Version: %s</string>
@@ -241,14 +241,14 @@
   <string name="please_wait">Attendez svp...</string>
   <string name="all">Tout</string>
   <string name="default_value">@string/lang_default</string>
-  <string name="new_item">Nouveau</string>
+  <string name="new_item">Nouvelle</string>
   <string name="close">Fermer</string>
   <string name="edit">Éditer</string>
   <!--Errors-->
   <string name="report_error">Envoyer un rapport </string>
   <string name="error_occurred">Une erreur s\'est produite</string>
   <string name="error_no_content">Aucun contenu pour le verset sélectionné</string>
-  <string name="error_page_too_large">La page est trop grande pour être chargé</string>
+  <string name="error_page_too_large">La page est trop lourde pour être chargée</string>
   <string name="error_key_not_in_document">Aucune correspondance dans le document</string>
   <string name="empty_list">Aucun élément à afficher</string>
 </resources>
