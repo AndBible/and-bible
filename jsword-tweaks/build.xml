@@ -1,6 +1,9 @@
-<project name="buildJswordTweakedJar" default="copyJarsToAndBible" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="buildJswordTweakedJar"
+		 default="copyJarsToAndBible"
+		 basedir="."
+		 xmlns:ivy="antlib:org.apache.ivy.ant">
 	
-	<property name="jsword.project" location="../../jsword-git/jsword"/>
+	<property name="jsword.project" location="../../jsword"/>
 	<property name="jsword.src" location="${jsword.project}/src/main/java"/>
 	<property name="jsword.resources" location="${jsword.project}/src/main/resources"/>
 	<property name="tweaks.jsword.src" location="src/main/java/jsword"/>
@@ -9,10 +12,9 @@
 	<property name="build.src" location="build/src" />
 	<property name="build.class" location="build/class" />
 	<property name="distribution" location="distribution" />
-	<property name="andbible" location="../AndBible" />
+	<property name="andbible" location="../and-bible" />
 	
-	<dirname property="core.basedir"		file="${ant.file.core}" />
-	<property name="jsword-tweaks.home"			location="${core.basedir}" />
+	<property name="jsword-tweaks.home"			location="${basedir}" />
 	
 	<path id="classpath">
 		<fileset dir="${jsword-tweaks.home}/lib/jars" includes="*.jar"/>
@@ -82,7 +84,7 @@
 	</target>
 
 	<target name="copyJarsToAndBible" depends="jar" description="Copy generated jars to And Bible for use">
-		<copy todir="${andbible}/libs">
+		<copy todir="${andbible}/app/libs">
 			<fileset dir="${distribution}" includes="*.jar" excludes="*-src.jar"/>
 		</copy>
 		<copy todir="${andbible}/libs-src">
