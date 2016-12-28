@@ -34,6 +34,7 @@
 		<item>@string/lang_afrikaans</item>
 		<item>@string/lang_arabic</item>
 		<item>@string/lang_azerbaijani</item>
+		<item>@string/lang_belarusian</item>
 		<item>@string/lang_bulgarian</item>
 		<item>@string/lang_czech</item>
 		<item>@string/lang_welsh</item>
@@ -83,6 +84,7 @@
 		<item>af</item>
 		<item>ar</item>
 		<item>az</item>
+		<item>be</item>
 		<item>bg</item>
 		<item>cs</item>
 		<item>cy</item>
