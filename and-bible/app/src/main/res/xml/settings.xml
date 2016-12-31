@@ -43,7 +43,7 @@
 	<CheckBoxPreference android:key="show_notes_pref" 
 				android:title="@string/prefs_show_notes_title"
 				android:summary="@string/prefs_show_notes_summary"
-				android:defaultValue="true"/> 
+				android:defaultValue="false"/>
 	<CheckBoxPreference android:key="show_strongs_pref" 
 				android:title="@string/prefs_show_strongs_title"
 				android:summary="@string/prefs_show_strongs_summary"

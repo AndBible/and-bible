@@ -377,7 +377,7 @@ public class SwordContentFacade {
 			SharedPreferences preferences = CommonUtils.getSharedPreferences();
 			if (preferences!=null) {
 				// prefs applying to any doc type
-				osisToHtmlParameters.setShowNotes(preferences.getBoolean("show_notes_pref", true));
+				osisToHtmlParameters.setShowNotes(preferences.getBoolean("show_notes_pref", false));
 				osisToHtmlParameters.setRedLetter(preferences.getBoolean("red_letter_pref", false));
 				osisToHtmlParameters.setCssStylesheetList( cssControl.getAllStylesheetLinks() );
 
