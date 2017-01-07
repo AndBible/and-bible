@@ -15,7 +15,7 @@ import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.BookmarkLabelCol
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.LabelColumn;
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.Table;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.passage.VerseRangeFactory;

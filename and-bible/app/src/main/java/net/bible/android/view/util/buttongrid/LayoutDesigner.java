@@ -1,13 +1,13 @@
 package net.bible.android.view.util.buttongrid;
 
-import java.util.List;
+import android.util.Log;
 
 import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo;
 import net.bible.service.common.CommonUtils;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
-import android.util.Log;
+import java.util.List;
 
 /** Calculate the number of columns and rows to be used to layout a grid of bible books, numbers, or whatever
  * 

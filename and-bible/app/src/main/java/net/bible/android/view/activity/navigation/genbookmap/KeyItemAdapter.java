@@ -1,17 +1,19 @@
 package net.bible.android.view.activity.navigation.genbookmap;
 
-import java.util.List;
-
-import org.apache.commons.lang.ABStringUtils;
-import org.apache.commons.lang.WordUtils;
-import org.crosswire.jsword.passage.Key;
-
 import android.content.Context;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import net.bible.service.common.ABStringUtils;
+
+import org.apache.commons.lang3.text.WordUtils;
+import org.crosswire.jsword.passage.Key;
+
+import java.util.List;
 
 /**
  * Retain similar style to TwoLineListView but for single TextView on each line
@@ -27,6 +29,7 @@ public class KeyItemAdapter extends ArrayAdapter<Key> {
 		resource = _resource;
 	}
 
+	@Nullable
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
 

@@ -16,7 +16,7 @@ import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.BookmarkColumn;
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition.MyNoteColumn;
 import net.bible.service.db.mynote.MyNoteDatabaseDefinition.Table;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.VerseKey;
@@ -262,15 +262,15 @@ public class MyNoteDBAdapter {
 	}
 	
 	private interface MyNoteQuery {
-        final String TABLE = Table.MYNOTE;
+        String TABLE = Table.MYNOTE;
 
-		final String[] COLUMNS = new String[] {MyNoteColumn._ID, MyNoteColumn.KEY, BookmarkColumn.VERSIFICATION, MyNoteColumn.MYNOTE, MyNoteColumn.LAST_UPDATED_ON, MyNoteColumn.CREATED_ON};
+		String[] COLUMNS = new String[] {MyNoteColumn._ID, MyNoteColumn.KEY, BookmarkColumn.VERSIFICATION, MyNoteColumn.MYNOTE, MyNoteColumn.LAST_UPDATED_ON, MyNoteColumn.CREATED_ON};
 
-        final int ID = 0;
-        final int KEY = 1;
-        final int VERSIFICATION = 2;
-        final int MYNOTE = 3;
-        final int LAST_UPDATED_ON = 4;
-        final int CREATED_ON = 5;
+        int ID = 0;
+        int KEY = 1;
+        int VERSIFICATION = 2;
+        int MYNOTE = 3;
+        int LAST_UPDATED_ON = 4;
+        int CREATED_ON = 5;
     }	
 }

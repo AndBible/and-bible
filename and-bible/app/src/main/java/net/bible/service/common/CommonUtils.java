@@ -16,8 +16,8 @@ import net.bible.android.BibleApplication;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.window.Window;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.crosswire.common.util.IOUtil;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.Verse;
@@ -221,7 +221,7 @@ public class CommonUtils {
 			    		}
 			    	}
 				}
-			};
+			}
 			
 			CheckUrlThread checkThread = new CheckUrlThread();
 			checkThread.start();

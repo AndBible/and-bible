@@ -1,16 +1,16 @@
 package net.bible.service.format;
 
+import net.bible.service.common.Logger;
+
+import org.apache.commons.lang3.StringUtils;
+import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.BookException;
+import org.crosswire.jsword.passage.Key;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Iterator;
-
-import net.bible.service.common.Logger;
-
-import org.apache.commons.lang.StringUtils;
-import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.book.BookException;
-import org.crosswire.jsword.passage.Key;
 
 /** Read through the raw OSIS input from a bible, add verse tags if required, remove any extra div tags,
  * and pipe back as in InputStream ready to be fed to the SAXParser for html formatting.

@@ -1,17 +1,5 @@
 package net.bible.android.view.activity.search;
 
-import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.search.SearchControl;
-import net.bible.android.control.search.SearchControl.SearchBibleSection;
-import net.bible.android.view.activity.base.Callback;
-import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
-import net.bible.android.view.activity.base.Dialogs;
-
-import org.apache.commons.lang.StringUtils;
-import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.index.search.SearchType;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,6 +11,18 @@ import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
+
+import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
+import net.bible.android.control.search.SearchControl;
+import net.bible.android.control.search.SearchControl.SearchBibleSection;
+import net.bible.android.view.activity.base.Callback;
+import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
+import net.bible.android.view.activity.base.Dialogs;
+
+import org.apache.commons.lang3.StringUtils;
+import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.index.search.SearchType;
 
 /** Allow user to enter search criteria
  * 

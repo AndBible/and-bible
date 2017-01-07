@@ -20,7 +20,7 @@ import net.bible.android.view.util.swipe.SwipeGestureEventHandler;
 import net.bible.android.view.util.swipe.SwipeGestureListener;
 import net.bible.service.format.Note;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.passage.VerseRange;
 
 import java.util.ArrayList;

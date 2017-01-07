@@ -6,7 +6,7 @@ import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Logger;
 import net.bible.service.sword.SwordContentFacade;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.PassageKeyFactory;
 import org.crosswire.jsword.versification.Versification;
@@ -20,7 +20,7 @@ import org.crosswire.jsword.versification.Versification;
  */
 public class Note {
 
-	public enum NoteType {TYPE_GENERAL, TYPE_REFERENCE};
+	public enum NoteType {TYPE_GENERAL, TYPE_REFERENCE}
 	
 	private int verseNo;
 	private String noteRef;
@@ -70,7 +70,7 @@ public class Note {
 	 * if the osisRef is available then use that becsue sometimes the noteText itself misses out the book o fthe bible
 	 */
 	public void navigateTo() {
-		String ref = "";
+		String ref;
 		if (StringUtils.isNotEmpty(osisRef)) {
 			ref = osisRef;
 		} else {

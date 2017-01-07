@@ -1,5 +1,20 @@
 package net.bible.service.readingplan;
 
+import android.content.res.AssetManager;
+import android.content.res.Resources;
+import android.util.Log;
+
+import net.bible.android.BibleApplication;
+import net.bible.android.SharedConstants;
+import net.bible.service.common.AndRuntimeException;
+
+import org.apache.commons.lang3.StringUtils;
+import org.crosswire.common.util.IOUtil;
+import org.crosswire.jsword.versification.Versification;
+import org.crosswire.jsword.versification.system.SystemKJV;
+import org.crosswire.jsword.versification.system.SystemNRSVA;
+import org.crosswire.jsword.versification.system.Versifications;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -9,21 +24,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Properties;
-
-import net.bible.android.BibleApplication;
-import net.bible.android.SharedConstants;
-import net.bible.service.common.AndRuntimeException;
-
-import org.apache.commons.lang.StringUtils;
-import org.crosswire.common.util.IOUtil;
-import org.crosswire.jsword.versification.Versification;
-import org.crosswire.jsword.versification.system.SystemKJV;
-import org.crosswire.jsword.versification.system.SystemNRSVA;
-import org.crosswire.jsword.versification.system.Versifications;
-
-import android.content.res.AssetManager;
-import android.content.res.Resources;
-import android.util.Log;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -48,7 +48,7 @@ public class ReadingPlanDao {
 		try {
 			List<String> codes = getAllReadingPlanCodes();
 			
-			List<ReadingPlanInfoDto> planInfoList = new ArrayList<ReadingPlanInfoDto>();
+			List<ReadingPlanInfoDto> planInfoList = new ArrayList<>();
 			for (String code : codes) {
 				planInfoList.add(getReadingPlanInfoDto(code));
 			}
@@ -69,7 +69,7 @@ public class ReadingPlanDao {
 		
 		Properties properties = getPlanProperties(planName);
 		
-		List<OneDaysReadingsDto> list = new ArrayList<OneDaysReadingsDto>();
+		List<OneDaysReadingsDto> list = new ArrayList<>();
 		for (Entry<Object,Object> entry : properties.entrySet()) {
 			String key = (String)entry.getKey();
 			String value = (String)entry.getValue();
@@ -120,7 +120,7 @@ public class ReadingPlanDao {
 	 * If specified Versification is not found then use NRSVA because it includes most books possible 
 	 */
 	private Versification getReadingPlanVersification(String planCode) {
-		Versification versification = null;
+		Versification versification;
 		try {
 			String versificationName = getPlanProperties(planCode).getProperty(VERSIFICATION, DEFAULT_VERSIFICATION);
 			versification = Versifications.instance().getVersification(versificationName);
@@ -155,7 +155,7 @@ public class ReadingPlanDao {
 		Resources resources = BibleApplication.getApplication().getResources();
 		AssetManager assetManager = resources.getAssets();
 
-		List<String> allCodes = new ArrayList<String>();
+		List<String> allCodes = new ArrayList<>();
 		
 		String[] internalPlans = assetManager.list(READING_PLAN_FOLDER);
 		allCodes.addAll(getReadingPlanCodes(internalPlans));
@@ -167,7 +167,7 @@ public class ReadingPlanDao {
 	}
 
 	private List<String> getReadingPlanCodes(String[] files) {
-		List<String> codes = new ArrayList<String>();
+		List<String> codes = new ArrayList<>();
 		if (files!=null) {
 			for (String file : files) {
 				// this if statement ensures we only deal with .properties files - not folders or anything else

@@ -1,16 +1,16 @@
 package net.bible.android.control.page;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.util.Log;
 
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.Dialogs;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
-import android.util.Log;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]

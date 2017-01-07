@@ -1,18 +1,18 @@
 package net.bible.android.view.activity.search;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.service.sword.SwordDocumentFacade;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
 
 /** Create a Lucene search index
  * 

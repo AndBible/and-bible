@@ -15,8 +15,8 @@ import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.TitleSplitter;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /** 
  * Show current verse/key and document on left of actionBar

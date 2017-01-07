@@ -1,7 +1,12 @@
 package net.bible.android.view.activity.search;
 
- import java.util.ArrayList;
-import java.util.List;
+ import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Toast;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
@@ -13,17 +18,12 @@ import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager;
 import net.bible.service.sword.SwordDocumentFacade;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.Toast;
+import java.util.ArrayList;
+import java.util.List;
 
 /** do the search and show the search results
  * 
@@ -36,7 +36,7 @@ public class SearchResults extends ListActivityBase {
 	
     private SearchResultsDto mSearchResultsHolder;
     
-    private List<Key> mCurrentlyDisplayedSearchResults = new ArrayList<Key>();
+    private List<Key> mCurrentlyDisplayedSearchResults = new ArrayList<>();
     private ArrayAdapter<Key> mKeyArrayAdapter;
 
     private boolean isScriptureResultsCurrentlyShown = true;
@@ -76,7 +76,7 @@ public class SearchResults extends ListActivityBase {
      */
     private boolean fetchSearchResults() {
     	Log.d(TAG, "Preparing search results");
-    	boolean isOk = false;
+    	boolean isOk;
 
     	try {
     		// get search string - passed in using extras so extras cannot be null

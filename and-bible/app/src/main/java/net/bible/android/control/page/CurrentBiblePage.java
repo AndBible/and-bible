@@ -7,7 +7,7 @@ import net.bible.android.view.activity.navigation.GridChoosePassageBook;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordDocumentFacade;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;

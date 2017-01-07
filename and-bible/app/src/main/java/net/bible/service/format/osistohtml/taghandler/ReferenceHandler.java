@@ -1,14 +1,12 @@
 package net.bible.service.format.osistohtml.taghandler;
 
 
-import java.util.Iterator;
-
 import net.bible.service.common.Constants;
 import net.bible.service.common.Logger;
 import net.bible.service.format.osistohtml.HtmlTextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.Passage;
@@ -16,6 +14,8 @@ import org.crosswire.jsword.passage.PassageKeyFactory;
 import org.crosswire.jsword.passage.RestrictionType;
 import org.crosswire.jsword.passage.VerseRange;
 import org.xml.sax.Attributes;
+
+import java.util.Iterator;
 
 /**
  * Convert OSIS tags into html tags

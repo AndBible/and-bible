@@ -1,18 +1,18 @@
 package net.bible.service.format.osistohtml.strongs;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import net.bible.service.common.Constants.HTML;
 import net.bible.service.format.osistohtml.HtmlTextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.taghandler.OsisTagHandler;
 import net.bible.service.format.osistohtml.taghandler.TagHandlerHelper;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /** 
  * Strongs tags are 'w' tags.
@@ -38,7 +38,7 @@ public class StrongsHandler implements OsisTagHandler {
 	
 	private OsisToHtmlParameters parameters;
 	
-	List<String> pendingStrongsAndMorphTags;
+	private List<String> pendingStrongsAndMorphTags;
 
 	public StrongsHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
 		this.parameters = parameters;
@@ -174,8 +174,10 @@ public class StrongsHandler implements OsisTagHandler {
 						String display = ref.substring(OSISUtil.MORPH_ROBINSONS.length());
 
 						StringBuilder tag = new StringBuilder();
-						tag.append("<a href='").append(ref).append(
-								"' class='morphology'>").append(display)
+						tag.append("<a href='")
+								.append(ref)
+								.append("' class='morphology'>")
+								.append(display)
 								.append("</a>");
 
 						morphTags.add(tag.toString());

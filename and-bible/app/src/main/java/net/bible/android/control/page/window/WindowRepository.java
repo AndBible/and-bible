@@ -1,7 +1,6 @@
 package net.bible.android.control.page.window;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.content.SharedPreferences;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.control.event.EventManager;
@@ -10,12 +9,14 @@ import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.page.window.WindowLayout.WindowState;
 import net.bible.service.common.Logger;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.content.SharedPreferences;
+import java.util.ArrayList;
+import java.util.List;
+
 import de.greenrobot.event.EventBus;
 
 public class WindowRepository {
@@ -34,7 +35,7 @@ public class WindowRepository {
 	public void initialise(EventManager eventManager) {
 		dedicatedLinksWindow = new LinksWindow(WindowState.CLOSED);
 
-		windowList = new ArrayList<Window>();
+		windowList = new ArrayList<>();
 
 		// restore state from previous invocation
     	restoreState();

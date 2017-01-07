@@ -1,9 +1,8 @@
 package net.bible.service.device.speak;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
+import android.content.Context;
+import android.speech.tts.TextToSpeech;
+import android.util.Log;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
@@ -16,11 +15,13 @@ import net.bible.service.device.speak.event.SpeakEvent;
 import net.bible.service.device.speak.event.SpeakEvent.SpeakState;
 import net.bible.service.device.speak.event.SpeakEventManager;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
-import android.content.Context;
-import android.speech.tts.TextToSpeech;
-import android.util.Log;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+
 import de.greenrobot.event.EventBus;
 
 /**
@@ -333,7 +334,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 			Log.e(TAG, "Error: attempt to speak when tts is null.  Text:"+text);
 		} else {
 	    	// Always set the UtteranceId (or else OnUtteranceCompleted will not be called)
-	        HashMap<String, String> dummyTTSParams = new HashMap<String, String>();
+	        HashMap<String, String> dummyTTSParams = new HashMap<>();
 	        String utteranceId = UTTERANCE_PREFIX+uniqueUtteranceNo++;
 	        dummyTTSParams.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId);
 	

@@ -1,5 +1,9 @@
 package net.bible.android.control.search;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.util.Log;
+
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
@@ -14,7 +18,7 @@ import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordContentFacade;
 import net.bible.service.sword.SwordDocumentFacade;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
@@ -27,10 +31,6 @@ import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.util.Log;
-
 /** Support for the document search functionality
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -41,7 +41,7 @@ public class SearchControl {
 
 	private boolean isSearchShowingScripture = true;
 	
-	public static enum SearchBibleSection {
+	public enum SearchBibleSection {
 		OT,
 		NT,
 		CURRENT_BOOK,

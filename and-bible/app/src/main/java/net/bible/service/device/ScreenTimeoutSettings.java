@@ -1,17 +1,18 @@
 package net.bible.service.device;
 
-import net.bible.android.BibleApplication;
-import net.bible.android.activity.R;
-import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
-import net.bible.service.common.CommonUtils;
-
-import org.apache.commons.lang.StringUtils;
-
 import android.content.ContentResolver;
 import android.content.SharedPreferences;
 import android.provider.Settings;
 import android.provider.Settings.SettingNotFoundException;
 import android.util.Log;
+
+import net.bible.android.BibleApplication;
+import net.bible.android.activity.R;
+import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
+import net.bible.service.common.CommonUtils;
+
+import org.apache.commons.lang3.StringUtils;
+
 import de.greenrobot.event.EventBus;
 
 /**

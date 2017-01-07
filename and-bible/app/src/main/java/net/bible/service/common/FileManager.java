@@ -1,5 +1,13 @@
 package net.bible.service.common;
 
+import android.content.res.AssetManager;
+import android.content.res.Resources;
+
+import net.bible.android.BibleApplication;
+
+import org.apache.commons.lang3.StringUtils;
+import org.crosswire.common.util.IOUtil;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -7,14 +15,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.util.Properties;
-
-import net.bible.android.BibleApplication;
-
-import org.apache.commons.lang.StringUtils;
-import org.crosswire.common.util.IOUtil;
-
-import android.content.res.AssetManager;
-import android.content.res.Resources;
 
 /**
  * File related utility methods
@@ -31,7 +31,7 @@ public class FileManager {
 
 	public static boolean copyFile(String filename, File fromDir, File toDir) {
 		log.debug("Copying:"+filename);
-		boolean ok = false;
+		boolean ok;
 
         File fromFile = new File(fromDir, filename);
         File targetFile = new File(toDir, filename);

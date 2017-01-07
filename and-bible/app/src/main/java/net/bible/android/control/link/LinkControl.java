@@ -1,8 +1,9 @@
 package net.bible.android.control.link;
 
-import java.net.URLDecoder;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
@@ -17,7 +18,7 @@ import net.bible.android.view.activity.search.SearchResults;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordDocumentFacade;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.FeatureType;
@@ -29,10 +30,9 @@ import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.crosswire.jsword.passage.PassageKeyFactory;
 import org.crosswire.jsword.versification.Versification;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
+import java.net.URLDecoder;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /** Control traversal via links pressed by user in a browser e.g. to Strongs
  * 
@@ -55,7 +55,7 @@ public class LinkControl {
 	/** Currently the only uris handled are for Strongs refs
 	 * see OSISToHtmlSaxHandler.getStrongsUrl for format of uri
 	 * 
-	 * @param url
+	 * @param uri
 	 * @return true if successfully changed to Strongs ref
 	 */
 	public boolean loadApplicationUrl(String uri) {

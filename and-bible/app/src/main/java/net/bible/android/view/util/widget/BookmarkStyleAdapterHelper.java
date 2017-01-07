@@ -12,7 +12,7 @@ import net.bible.android.control.bookmark.BookmarkStyle;
 import net.bible.android.view.util.UiUtils;
 import net.bible.service.common.CommonUtils;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Set each list view item to represent background colour of icon of the relevant bookmark style.

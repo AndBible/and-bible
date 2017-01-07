@@ -4,7 +4,7 @@ package net.bible.service.format.osistohtml.osishandlers;
 import net.bible.service.common.Logger;
 import net.bible.service.format.osistohtml.taghandler.TagHandlerHelper;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
 

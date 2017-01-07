@@ -2,7 +2,7 @@ package net.bible.service.format.osistohtml.taghandler;
 
 import net.bible.service.common.Logger;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.Attributes;
 
 /**
@@ -65,7 +65,7 @@ public class TagHandlerHelper {
 
     /** return verse from osis id of format book.chap.verse
      * 
-     * @param ososID osis Id
+     * @param osisID osis Id
      * @return verse number
      */
     public static int osisIdToVerseNum(String osisID) {

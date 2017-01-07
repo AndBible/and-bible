@@ -1,18 +1,18 @@
 package net.bible.service.device.speak;
 
+import android.content.SharedPreferences;
+import android.util.Log;
+
+import net.bible.service.common.CommonUtils;
+
+import org.apache.commons.lang3.StringUtils;
+
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.apache.commons.lang.StringUtils;
-
-import net.bible.service.common.CommonUtils;
-
-import android.content.SharedPreferences;
-import android.util.Log;
 
 /** Keep track of a list of chunks of text being fed to TTS
  * 
@@ -296,7 +296,7 @@ public class SpeakTextProvider {
 		//
 		// first try to split text nicely at the end of sentences
 		//
-		List<String> chunks1 = new ArrayList<String>();
+		List<String> chunks1 = new ArrayList<>();
 		
 		// is the text short enough to use as is
 		if (text.length()<MAX_SPEECH_ITEM_CHAR_LENGTH) {
@@ -322,7 +322,7 @@ public class SpeakTextProvider {
 		// If any text is still too long because the regexp was not matched then forcefully split it up
 		// All chunks are probably now less than 4000 chars as required by tts but go through again for languages that don't have '. ' at the end of sentences
 		//
-		List<String> chunks2 = new ArrayList<String>();
+		List<String> chunks2 = new ArrayList<>();
 		for (String chunk : chunks1) {
 			if (chunk.length()<MAX_SPEECH_ITEM_CHAR_LENGTH) {
 				chunks2.add(chunk);
@@ -337,7 +337,7 @@ public class SpeakTextProvider {
 	
 	private List<String> splitEqually(String text, int size) {
 	    // Give the list the right capacity to start with. You could use an array instead if you wanted.
-	    List<String> ret = new ArrayList<String>((text.length() + size - 1) / size);
+	    List<String> ret = new ArrayList<>((text.length() + size - 1) / size);
 
 	    for (int start = 0; start < text.length(); start += size) {
 	        ret.add(text.substring(start, Math.min(text.length(), start + size)));

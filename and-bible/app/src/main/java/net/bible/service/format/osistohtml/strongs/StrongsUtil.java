@@ -2,7 +2,7 @@ package net.bible.service.format.osistohtml.strongs;
 
 import net.bible.service.common.Constants;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]

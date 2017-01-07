@@ -4,7 +4,7 @@ import net.bible.service.common.Logger;
 import net.bible.service.format.osistohtml.HtmlTextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
 

@@ -1,15 +1,15 @@
 package net.bible.service.format.osistohtml.taghandler;
 
-import java.util.Stack;
-
 import net.bible.service.common.Constants.HTML;
 import net.bible.service.common.Logger;
 import net.bible.service.format.osistohtml.HtmlTextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
+
+import java.util.Stack;
 
 /** This can either signify a quote or Red Letter
  * Example from ESV Prov 19:1
@@ -25,14 +25,14 @@ import org.xml.sax.Attributes;
  */
 public class LHandler implements OsisTagHandler {
 
-	private enum LType {INDENT, BR, END_BR, IGNORE};
+	private enum LType {INDENT, BR, END_BR, IGNORE}
 
 	private HtmlTextWriter writer;
 	
 	@SuppressWarnings("unused")
 	private OsisToHtmlParameters parameters;
 	
-	private Stack<LType> stack = new Stack<LType>();
+	private Stack<LType> stack = new Stack<>();
 	
 	private static String indent_html = HTML.NBSP+HTML.NBSP;
 	
@@ -65,7 +65,7 @@ public class LHandler implements OsisTagHandler {
 		// make numIndents default to zero
 		int numIndents = Math.max(0, level-1);
 		
-		LType ltype = LType.IGNORE;
+		LType ltype;
 		if (TagHandlerHelper.isAttr(OSISUtil.OSIS_ATTR_EID, attrs)) {
 			// e.g. Isaiah 40:12
 			writer.write(HTML.BR);

@@ -3,7 +3,7 @@ package net.bible.service.db.bookmark;
 
 import net.bible.android.control.bookmark.BookmarkStyle;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]

@@ -1,19 +1,10 @@
 package net.bible.service.download;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Logger;
 import net.bible.service.sword.AcceptableBookTypeFilter;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.BookFilter;
@@ -24,6 +15,15 @@ import org.crosswire.jsword.book.BooksListener;
 import org.crosswire.jsword.book.install.InstallException;
 import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.book.sword.SwordBookMetaData;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 /** some books need renaming after download due to problems with Xiphos module case
  * 
@@ -39,7 +39,7 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 	private static final String TEST_URL = "http://ftp.xiphos.org/sword/";
 	private boolean testedOkay = false;
 
-	static final String lineSeparator = System.getProperty ( "line.separator" );
+	private static final String lineSeparator = System.getProperty ( "line.separator" );
 	
 	private static final String REAL_INITIALS = "RealInitials";
 
@@ -47,7 +47,7 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 
 	private static BookFilter SUPPORTED_DOCUMENTS = new XiphosBookFilter();
 	
-	private static Map<String, String> nameToZipMap = new HashMap<String, String>();
+	private static Map<String, String> nameToZipMap = new HashMap<>();
 	static {
 // gave up with this approach because of problems with deletion... moved and renamed the following 3 archives to AndBible repo
 // 1. copy zip from xiphos 2. rename zip to same as Initials 3. open zip and rename module conf to same as initials but lowercase
@@ -57,7 +57,7 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 	}
 	
 	private static class XiphosBookFilter extends AcceptableBookTypeFilter {
-		private static Set<String> acceptableInitials = new HashSet<String>();
+		private static Set<String> acceptableInitials = new HashSet<>();
 		static {
 			acceptableInitials.add("Gill");
 			acceptableInitials.add("Augustine");
@@ -107,7 +107,7 @@ public class XiphosRepo extends RepoBase implements BooksListener {
 	/** get a list of books that are available in Xiphos repo and seem to work in And Bible
 	 */
 	public List<Book> getRepoBooks(boolean refresh) throws InstallException {
-		List<Book> booksInRepo = new ArrayList<Book>();
+		List<Book> booksInRepo = new ArrayList<>();
 
 		// Xiphos has gone off line a couple of times so specifically test if it is available to avoid hang
 		if (testedOkay || CommonUtils.isHttpUrlAvailable(TEST_URL)) {

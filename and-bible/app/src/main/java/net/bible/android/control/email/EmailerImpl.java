@@ -1,12 +1,12 @@
 package net.bible.android.control.email;
 
-import net.bible.android.view.activity.base.CurrentActivityHolder;
-
-import org.apache.commons.lang.StringUtils;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+
+import net.bible.android.view.activity.base.CurrentActivityHolder;
+
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Jump straight to email program with subject, body, recipient, etc

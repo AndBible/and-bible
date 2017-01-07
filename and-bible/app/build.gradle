@@ -55,6 +55,7 @@ dependencies {
     compile 'de.greenrobot:eventbus:2.4.0'
     compile 'org.jdom:jdom2:2.0.6'
     compile 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
+    compile 'org.apache.commons:commons-lang3:3.5'
     compile 'org.apache.commons:commons-compress:1.12'
     compile 'de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5'
 

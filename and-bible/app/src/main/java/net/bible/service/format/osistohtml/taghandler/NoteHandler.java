@@ -1,9 +1,6 @@
 package net.bible.service.format.osistohtml.taghandler;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.bible.service.common.Logger;
 import net.bible.service.format.Note;
 import net.bible.service.format.Note.NoteType;
@@ -11,9 +8,12 @@ import net.bible.service.format.osistohtml.HtmlTextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.VerseInfo;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Convert OSIS tags into html tags
@@ -38,7 +38,7 @@ public class NoteHandler implements OsisTagHandler {
     private int noteCount = 0;
 
     //todo temporarily use a string but later switch to Map<int,String> of verse->note
-    private List<Note> notesList = new ArrayList<Note>();
+    private List<Note> notesList = new ArrayList<>();
     private boolean isInNote = false;
     private String currentNoteRef;
 

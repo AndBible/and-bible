@@ -1,19 +1,5 @@
 package net.bible.service.device;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import net.bible.android.BibleApplication;
-import net.bible.android.SharedConstants;
-import net.bible.android.activity.R;
-import net.bible.android.view.activity.download.ProgressStatus;
-
-import org.apache.commons.lang.StringUtils;
-import org.crosswire.common.progress.JobManager;
-import org.crosswire.common.progress.Progress;
-import org.crosswire.common.progress.WorkEvent;
-import org.crosswire.common.progress.WorkListener;
-
 import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -21,6 +7,20 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.util.Log;
 import android.widget.RemoteViews;
+
+import net.bible.android.BibleApplication;
+import net.bible.android.SharedConstants;
+import net.bible.android.activity.R;
+import net.bible.android.view.activity.download.ProgressStatus;
+
+import org.apache.commons.lang3.StringUtils;
+import org.crosswire.common.progress.JobManager;
+import org.crosswire.common.progress.Progress;
+import org.crosswire.common.progress.WorkEvent;
+import org.crosswire.common.progress.WorkListener;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**Show all Progress status
  * see BibleDesktop JobsProgressBar for example use
@@ -30,7 +30,7 @@ import android.widget.RemoteViews;
  *      The copyright to this program is held by it's author.
  */
 public class ProgressNotificationManager {
-	private static final String TAG = "ProgressNotificationManager";
+	private static final String TAG = "ProgressNotificatnMngr";
 	
 	Map<Progress, Notification> progressMap = new HashMap<Progress, Notification>();
 	

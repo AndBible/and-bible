@@ -36,7 +36,7 @@ import net.bible.service.format.osistohtml.tei.OrthHandler;
 import net.bible.service.format.osistohtml.tei.PronHandler;
 import net.bible.service.format.osistohtml.tei.RefHandler;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
 

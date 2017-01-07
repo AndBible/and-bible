@@ -10,7 +10,7 @@ import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.Logger;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;

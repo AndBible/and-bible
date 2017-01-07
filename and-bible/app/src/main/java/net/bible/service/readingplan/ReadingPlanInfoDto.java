@@ -1,12 +1,12 @@
 package net.bible.service.readingplan;
 
-import java.util.Calendar;
-import java.util.Date;
-
 import net.bible.service.common.CommonUtils;
 
-import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.crosswire.jsword.versification.Versification;
+
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]

@@ -1,5 +1,9 @@
 package net.bible.android.view.activity.search;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+
 import net.bible.android.activity.R;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.view.activity.base.Dialogs;
@@ -7,14 +11,10 @@ import net.bible.android.view.activity.base.ProgressActivityBase;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordDocumentFacade;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.common.progress.Progress;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.index.IndexStatus;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -25,7 +25,7 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 
 	private Book documentBeingIndexed;
 	
-	private static final String TAG = "SearchIndexProgressStatus";
+	private static final String TAG = "SearchIndexProgressStat";
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -55,7 +55,7 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 		// if index is fine then goto search
 		if (IndexStatus.DONE.equals(documentBeingIndexed.getIndexStatus())) {
 			Log.i(TAG, "Index created");
-			Intent intent = null;
+			Intent intent;
 			if (StringUtils.isNotEmpty( getIntent().getStringExtra(SearchControl.SEARCH_TEXT) )) {
 				// the search string was passed in so execute it directly
 				intent = new Intent(this, SearchResults.class);

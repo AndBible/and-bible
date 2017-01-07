@@ -1,16 +1,16 @@
 package net.bible.service.readingplan;
 
+import net.bible.android.BibleApplication;
+import net.bible.android.activity.R;
+
+import org.apache.commons.lang3.StringUtils;
+import org.crosswire.jsword.passage.Key;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-
-import net.bible.android.BibleApplication;
-import net.bible.android.activity.R;
-
-import org.apache.commons.lang.StringUtils;
-import org.crosswire.jsword.passage.Key;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -40,7 +40,7 @@ public class OneDaysReadingsDto implements Comparable<OneDaysReadingsDto> {
 	}
 	
 	public String getDayDesc() {
-		return BibleApplication.getApplication().getString(R.string.rdg_plan_day, mDay);
+		return BibleApplication.getApplication().getString(R.string.rdg_plan_day, Integer.toString(mDay));
 	}
 
 	/** get a string representing the date this reading is planned for
@@ -80,7 +80,7 @@ public class OneDaysReadingsDto implements Comparable<OneDaysReadingsDto> {
 	
 	private synchronized void checkKeysGenerated() {
 		if (mReadingKeys==null) {
-			List<Key> readingKeyList = new ArrayList<Key>();
+			List<Key> readingKeyList = new ArrayList<>();
 			
 			if (StringUtils.isNotEmpty(mReadings)) {
 				PassageReader passageReader = new PassageReader(mReadingPlanInfoDto.getVersification());

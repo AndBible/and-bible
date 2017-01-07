@@ -1,7 +1,10 @@
 package net.bible.android;
 
-import java.util.List;
-import java.util.Locale;
+import android.app.Application;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.content.res.Configuration;
+import android.util.Log;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.Initialisation;
@@ -12,7 +15,7 @@ import net.bible.service.device.ScreenSettings;
 import net.bible.service.device.ScreenTimeoutSettings;
 import net.bible.service.sword.SwordDocumentFacade;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.common.util.Language;
 import org.crosswire.common.util.Reporter;
 import org.crosswire.common.util.ReporterEvent;
@@ -20,11 +23,8 @@ import org.crosswire.common.util.ReporterListener;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.bridge.BookIndexer;
 
-import android.app.Application;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.content.res.Configuration;
-import android.util.Log;
+import java.util.List;
+import java.util.Locale;
 
 /** Main And Bible application singleton object
  * 

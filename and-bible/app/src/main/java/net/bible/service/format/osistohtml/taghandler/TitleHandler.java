@@ -1,15 +1,15 @@
 package net.bible.service.format.osistohtml.taghandler;
 
-import java.util.Locale;
-
 import net.bible.service.common.Logger;
 import net.bible.service.format.osistohtml.HtmlTextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.VerseInfo;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.OSISUtil;
 import org.xml.sax.Attributes;
+
+import java.util.Locale;
 
 /** This can either signify a quote or Red Letter
  * Example 

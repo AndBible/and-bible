@@ -13,7 +13,7 @@ import net.bible.service.format.Note;
 import net.bible.service.sword.SwordContentFacade;
 import net.bible.service.sword.SwordDocumentFacade;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.common.activate.Activator;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;

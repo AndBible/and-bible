@@ -13,7 +13,7 @@ import net.bible.service.download.XiphosRepo;
 import net.bible.service.font.FontControl;
 import net.bible.service.sword.SwordDocumentFacade;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.common.util.Language;
 import org.crosswire.common.util.LucidException;
 import org.crosswire.common.util.Version;

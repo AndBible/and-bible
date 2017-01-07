@@ -2,7 +2,7 @@ package net.bible.android.control.link;
 
 import net.bible.service.common.Constants;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /** Analyse typical standard Sword uri: sword://module/key
  *  e.g. sword://StrongsRealGreek/01909

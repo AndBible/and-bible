@@ -1,21 +1,5 @@
 package net.bible.android.view.activity.base;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import net.bible.android.SharedConstants;
-import net.bible.android.activity.R;
-import net.bible.android.view.util.UiUtils;
-
-import org.apache.commons.lang.StringUtils;
-import org.crosswire.common.progress.JobManager;
-import org.crosswire.common.progress.Progress;
-import org.crosswire.common.progress.WorkEvent;
-import org.crosswire.common.progress.WorkListener;
-
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -23,6 +7,22 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
+import net.bible.android.SharedConstants;
+import net.bible.android.activity.R;
+import net.bible.android.view.util.UiUtils;
+
+import org.apache.commons.lang3.StringUtils;
+import org.crosswire.common.progress.JobManager;
+import org.crosswire.common.progress.Progress;
+import org.crosswire.common.progress.WorkEvent;
+import org.crosswire.common.progress.WorkListener;
+
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 /** 
  * Base class for any screen that shows job progress indicators
  * 
@@ -32,7 +32,7 @@ import android.widget.TextView;
  */
 public class ProgressActivityBase extends CustomTitlebarActivityBase {
 
-	private Map<Progress, ProgressUIControl> progressMap = new HashMap<Progress, ProgressUIControl>();
+	private Map<Progress, ProgressUIControl> progressMap = new HashMap<>();
 	private LinearLayout progressControlContainer;
 
 	private WorkListener workListener;

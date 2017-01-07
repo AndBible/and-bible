@@ -1,15 +1,15 @@
 package net.bible.android.control.download;
 
+import org.apache.commons.lang3.ObjectUtils;
+import org.crosswire.common.util.Language;
+import org.crosswire.jsword.book.Book;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.crosswire.common.util.Language;
-import org.crosswire.jsword.book.Book;
 
 public class RelevantLanguageSorter implements Comparator<Language> {
 	

@@ -24,7 +24,7 @@ import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordDocumentFacade;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /** Called first to show download screen if no documents exist
  * 

@@ -21,7 +21,7 @@ import net.bible.android.control.document.DocumentControl;
 import net.bible.service.download.DownloadManager;
 import net.bible.service.sword.SwordDocumentFacade;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.common.util.Language;
 import org.crosswire.common.util.Version;
 import org.crosswire.jsword.book.Book;

@@ -1,8 +1,8 @@
 package net.bible.android.control.readingplan;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.util.Log;
 
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
@@ -13,14 +13,15 @@ import net.bible.service.readingplan.OneDaysReadingsDto;
 import net.bible.service.readingplan.ReadingPlanDao;
 import net.bible.service.readingplan.ReadingPlanInfoDto;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.versification.Versification;
 
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
-import android.util.Log;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import de.greenrobot.event.EventBus;
 
 /** Control status of reading plans

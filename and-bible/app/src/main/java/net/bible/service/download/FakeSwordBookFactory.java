@@ -1,14 +1,14 @@
 package net.bible.service.download;
 
-import java.io.IOException;
-
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.BookDriver;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.sword.NullBackend;
 import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.book.sword.SwordBookDriver;
 import org.crosswire.jsword.book.sword.SwordBookMetaData;
+
+import java.io.IOException;
 
 /** Create dummy sword Books used to download from Xiphos Repo that has unusual download file case
  *  
