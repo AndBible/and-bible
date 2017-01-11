@@ -52,8 +52,7 @@ public class MenuCommandHandler {
 
 	private String mPrevLocalePref = "";
 
-	@Inject
-	BackupControl backupControl;
+	private BackupControl backupControl;
 	
 	public MenuCommandHandler(MainBibleActivity activity) {
 		super();
@@ -180,4 +179,8 @@ public class MenuCommandHandler {
     	return requestCode == MenuCommandHandler.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH;
     }
 
+	@Inject
+	void setBackupControl(BackupControl backupControl) {
+		this.backupControl = backupControl;
+	}
 }

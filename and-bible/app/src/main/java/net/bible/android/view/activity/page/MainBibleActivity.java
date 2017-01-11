@@ -60,17 +60,16 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	private GestureDetectorCompat gestureDetector;
 
 	private boolean mWholeAppWasInBackground = false;
-	
+
 	// swipe fails on older versions of Android (2.2, 2.3, but not 3.0+) if event not passed to parent - don't know why
 	// scroll occurs on later versions after double-tap maximize
     private boolean alwaysDispatchTouchEventToSuper = !CommonUtils.isHoneycombPlus();
 
+	private BackupControl backupControl;
+
 	public MainBibleActivity() {
 		super(bibleActionBarManager, R.menu.main);
 	}
-
-	@Inject
-	BackupControl backupControl;
 
     /** Called when the activity is first created. */
     @SuppressLint("MissingSuperCall")
@@ -356,5 +355,10 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 
 	protected BibleContentManager getBibleContentManager() {
 		return bibleContentManager;
+	}
+
+	@Inject
+	void setBackupControl(BackupControl backupControl) {
+		this.backupControl = backupControl;
 	}
 }
