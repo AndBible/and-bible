@@ -10,7 +10,9 @@ import android.view.MenuItem;
 import net.bible.android.activity.R;
 import net.bible.android.activity.StartupActivity;
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.backup.BackupControl;
 import net.bible.android.control.download.DownloadControl;
+import net.bible.android.view.activity.DaggerActivityComponent;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.bookmark.Bookmarks;
 import net.bible.android.view.activity.bookmark.ManageLabels;
@@ -25,6 +27,8 @@ import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;
 import net.bible.android.view.activity.settings.SettingsActivity;
 import net.bible.android.view.activity.speak.Speak;
 import net.bible.service.common.CommonUtils;
+
+import javax.inject.Inject;
 
 /** Handle requests from the main menu
  * 
@@ -47,6 +51,9 @@ public class MenuCommandHandler {
 	public static final int UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH = 3;
 
 	private String mPrevLocalePref = "";
+
+	@Inject
+	BackupControl backupControl;
 	
 	public MenuCommandHandler(MainBibleActivity activity) {
 		super();
@@ -55,6 +62,8 @@ public class MenuCommandHandler {
 		
 		ControlFactory controlFactory = ControlFactory.getInstance();
 		downloadControl = controlFactory.getDownloadControl();
+
+		DaggerActivityComponent.builder().build().inject(this);
 	}
 	
 	/**
@@ -116,11 +125,11 @@ public class MenuCommandHandler {
 		        	handlerIntent = new Intent(callingActivity, Help.class);
 		        	break;
 		        case R.id.backup:
-					ControlFactory.getInstance().getBackupControl().backupDatabase();
+					backupControl.backupDatabase();
 					isHandled = true;
 		        	break;
 		        case R.id.restore:
-					ControlFactory.getInstance().getBackupControl().restoreDatabase();
+					backupControl.restoreDatabase();
 					isHandled = true;
 		        	break;
 	        }

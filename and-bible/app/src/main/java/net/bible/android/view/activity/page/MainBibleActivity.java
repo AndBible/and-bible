@@ -16,6 +16,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.BibleContentManager;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
+import net.bible.android.control.backup.BackupControl;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.passage.PassageChangeStartedEvent;
 import net.bible.android.control.event.passage.PassageChangedEvent;
@@ -23,11 +24,14 @@ import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.window.WindowControl;
+import net.bible.android.view.activity.DaggerActivityComponent;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.page.actionbar.BibleActionBarManager;
 import net.bible.android.view.activity.page.screen.DocumentViewManager;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
+
+import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
@@ -64,7 +68,10 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	public MainBibleActivity() {
 		super(bibleActionBarManager, R.menu.main);
 	}
-	
+
+	@Inject
+	BackupControl backupControl;
+
     /** Called when the activity is first created. */
     @SuppressLint("MissingSuperCall")
 	@Override
@@ -73,6 +80,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
         super.onCreate(savedInstanceState, true);
         
         setContentView(R.layout.main_bible_view);
+
+		DaggerActivityComponent.builder().build().inject(this);
 
 		ControlFactory.getInstance().provide(this);
 
@@ -268,7 +277,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().updateOptionsMenu(menu);
 		
 		// if there is no backup file then disable the restore menu item
-		ControlFactory.getInstance().getBackupControl().updateOptionsMenu(menu);
+		backupControl.updateOptionsMenu(menu);
 
 		// set Synchronised checkbox correctly
 		ControlFactory.getInstance().getWindowControl().updateOptionsMenu(menu);

@@ -2,7 +2,6 @@ package net.bible.android.control;
 
 import net.bible.android.common.resource.AndroidResourceProvider;
 import net.bible.android.common.resource.ResourceProvider;
-import net.bible.android.control.backup.BackupControl;
 import net.bible.android.control.bookmark.Bookmark;
 import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.comparetranslations.CompareTranslationsControl;
@@ -71,7 +70,6 @@ public class ControlFactory {
 	private ReadingPlanControl readingPlanControl = new ReadingPlanControl();
 	private CompareTranslationsControl compareTranslationsControl;
 	private FootnoteAndRefControl footnoteAndRefControl;
-	private BackupControl backupControl = new BackupControl();
 	private Bookmark bookmarkControl;
 
 	private Emailer emailer;
@@ -233,10 +231,6 @@ public class ControlFactory {
 
 	public FootnoteAndRefControl getFootnoteAndRefControl() {
 		return footnoteAndRefControl;
-	}
-
-	public BackupControl getBackupControl() {
-		return backupControl;
 	}
 
 	public NavigationControl getNavigationControl() {
