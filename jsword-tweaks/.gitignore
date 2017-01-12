@@ -3,3 +3,5 @@
 /bin
 /lib
 /tools
+/.idea
+*.iml
