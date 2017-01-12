@@ -11,7 +11,6 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.DocumentSelectionBase;
@@ -25,6 +24,8 @@ import org.crosswire.jsword.book.Book;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+
+import javax.inject.Inject;
 
 /**
  * Choose Document (Book) to download
@@ -62,11 +63,11 @@ public class Download extends DocumentSelectionBase {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-		documentDownloadItemAdapter = new DocumentDownloadItemAdapter(this, LIST_ITEM_TYPE, getDisplayedDocuments(), this);
+		buildActivityComponent().inject(this);
+
+		documentDownloadItemAdapter = new DocumentDownloadItemAdapter(this, downloadControl, LIST_ITEM_TYPE, getDisplayedDocuments(), this);
 		setListAdapter(documentDownloadItemAdapter);
 
-		downloadControl = ControlFactory.getInstance().getDownloadControl();
-        
     	// in the basic flow we force the user to download a bible
     	getDocumentTypeSpinner().setEnabled(true);
 
@@ -246,4 +247,9 @@ public class Download extends DocumentSelectionBase {
         
      	return isHandled;
     }
+
+	@Inject
+	void setDownloadControl(DownloadControl downloadControl) {
+		this.downloadControl = downloadControl;
+	}
 }

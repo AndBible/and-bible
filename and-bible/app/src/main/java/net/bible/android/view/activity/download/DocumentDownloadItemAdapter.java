@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.view.activity.base.ListActionModeHelper;
 import net.bible.service.common.CommonUtils;
@@ -33,15 +32,16 @@ public class DocumentDownloadItemAdapter extends ArrayAdapter<Book> {
 
 	private int resource;
 	
-	private DownloadControl downloadControl = ControlFactory.getInstance().getDownloadControl();
+	private DownloadControl downloadControl;
 
 	private final ListActionModeHelper.ActionModeActivity actionModeActivity;
 
 	private static int ACTIVATED_COLOUR = CommonUtils.getResourceColor(R.color.list_item_activated);
 
-	public DocumentDownloadItemAdapter(Context _context, int _resource, List<Book> _items, ListActionModeHelper.ActionModeActivity actionModeActivity) {
-		super(_context, _resource, _items);
-		resource = _resource;
+	public DocumentDownloadItemAdapter(Context _context, DownloadControl downloadControl, int resource, List<Book> items, ListActionModeHelper.ActionModeActivity actionModeActivity) {
+		super(_context, resource, items);
+		this.downloadControl = downloadControl;
+		this.resource = resource;
 		this.actionModeActivity = actionModeActivity;
 	}
 

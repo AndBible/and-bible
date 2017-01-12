@@ -24,7 +24,6 @@ import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.window.WindowControl;
-import net.bible.android.view.activity.DaggerActivityComponent;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.page.actionbar.BibleActionBarManager;
 import net.bible.android.view.activity.page.screen.DocumentViewManager;
@@ -80,7 +79,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
         
         setContentView(R.layout.main_bible_view);
 
-		DaggerActivityComponent.builder().build().inject(this);
+		buildActivityComponent().inject(this);
 
 		ControlFactory.getInstance().provide(this);
 

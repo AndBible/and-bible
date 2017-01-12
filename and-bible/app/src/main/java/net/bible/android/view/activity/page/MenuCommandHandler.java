@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.MenuItem;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.activity.StartupActivity;
 import net.bible.android.control.ControlFactory;
@@ -39,9 +40,9 @@ import javax.inject.Inject;
 public class MenuCommandHandler {
 
 	private DownloadControl downloadControl;
-	
-	private static final String TAG = "MainMenuCommandHandler";
-	
+
+	private BackupControl backupControl;
+
 	private MainBibleActivity callingActivity;
 	
 	private WindowMenuCommandHandler windowMenuCommandHandler;
@@ -52,17 +53,17 @@ public class MenuCommandHandler {
 
 	private String mPrevLocalePref = "";
 
-	private BackupControl backupControl;
-	
+	private static final String TAG = "MainMenuCommandHandler";
+
 	public MenuCommandHandler(MainBibleActivity activity) {
 		super();
 		this.callingActivity = activity;
 		this.windowMenuCommandHandler = new WindowMenuCommandHandler();
 		
-		ControlFactory controlFactory = ControlFactory.getInstance();
-		downloadControl = controlFactory.getDownloadControl();
-
-		DaggerActivityComponent.builder().build().inject(this);
+		DaggerActivityComponent.builder()
+				.controllerComponent(BibleApplication.getApplication().getControllerComponent())
+				.build()
+				.inject(this);
 	}
 	
 	/**
@@ -182,5 +183,10 @@ public class MenuCommandHandler {
 	@Inject
 	void setBackupControl(BackupControl backupControl) {
 		this.backupControl = backupControl;
+	}
+
+	@Inject
+	void setDownloadControl(DownloadControl downloadControl) {
+		this.downloadControl = downloadControl;
 	}
 }

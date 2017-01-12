@@ -7,6 +7,8 @@ import android.content.res.Configuration;
 import android.util.Log;
 
 import net.bible.android.activity.R;
+import net.bible.android.control.ControllerComponent;
+import net.bible.android.control.DaggerControllerComponent;
 import net.bible.android.control.Initialisation;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
@@ -37,6 +39,8 @@ public class BibleApplication extends Application{
 	private Locale overrideLocale;
 	
 	private int errorDuringStartup = 0;
+
+	private ControllerComponent controllerComponent;
 	
 	private static final String TEXT_SIZE_PREF = "text_size_pref";
 	
@@ -67,6 +71,8 @@ public class BibleApplication extends Application{
         
 		installJSwordErrorReportListener();
 
+		initializeInjector();
+
 		// some changes may be required for different versions
 		upgradePersistentData();
 		
@@ -81,6 +87,14 @@ public class BibleApplication extends Application{
 		
 		// various initialisations required every time at app startup
 		Initialisation.getInstance().initialiseEventually();
+	}
+
+	public ControllerComponent getControllerComponent() {
+		return controllerComponent;
+	}
+
+	private void initializeInjector() {
+		controllerComponent = DaggerControllerComponent.builder().build();
 	}
 
 	/** Allow user interface locale override by changing Settings

@@ -23,6 +23,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import javax.inject.Inject;
+
 /**
  * Choose a bible or commentary to use
  * 
@@ -36,8 +38,8 @@ public class ChooseDocument extends DocumentSelectionBase {
 	private static final int LIST_ITEM_TYPE = R.layout.list_item_2_highlighted;
 
 	private DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
-	
-	private DownloadControl downloadControl = ControlFactory.getInstance().getDownloadControl();
+
+	private DownloadControl downloadControl;
 	
     public ChooseDocument() {
 		super(R.menu.choose_document_menu, R.menu.document_context_menu);
@@ -48,10 +50,14 @@ public class ChooseDocument extends DocumentSelectionBase {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+		buildActivityComponent().inject(this);
+
 		DocumentItemAdapter documentItemAdapter = new DocumentItemAdapter(this, LIST_ITEM_TYPE, getDisplayedDocuments(), this);
 		setListAdapter(documentItemAdapter);
 
 		populateMasterDocumentList(false);
+
+		Log.i(TAG, "ChooseDocument downloadControl:"+downloadControl);
     }
 
 	/** load list of docs to display
@@ -105,7 +111,7 @@ public class ChooseDocument extends DocumentSelectionBase {
         boolean isHandled = false;
         
         switch (item.getItemId()) {
-        // Change sort order
+        // Jump to Download documents screen
 		case (R.id.downloadButton):
 			isHandled = true;
 	    	try {
@@ -131,4 +137,9 @@ public class ChooseDocument extends DocumentSelectionBase {
         
      	return isHandled;
     }
+
+	@Inject
+	void setDownloadControl(DownloadControl downloadControl) {
+		this.downloadControl = downloadControl;
+	}
 }
