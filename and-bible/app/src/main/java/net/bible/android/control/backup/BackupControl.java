@@ -1,30 +1,41 @@
 package net.bible.android.control.backup;
 
-import java.io.File;
-
-import net.bible.android.SharedConstants;
-import net.bible.android.activity.R;
-import net.bible.android.view.activity.base.Callback;
-import net.bible.android.view.activity.base.Dialogs;
-import net.bible.service.common.FileManager;
-import net.bible.service.db.CommonDatabaseHelper;
 import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import net.bible.android.SharedConstants;
+import net.bible.android.activity.R;
+import net.bible.android.control.ApplicationScope;
+import net.bible.android.view.activity.base.Callback;
+import net.bible.android.view.activity.base.Dialogs;
+import net.bible.service.common.FileManager;
+import net.bible.service.db.CommonDatabaseHelper;
+
+import java.io.File;
+
+import javax.inject.Inject;
+
 /**
+ * Support backup and restore of the And bible database which contains bookmarks and notes.
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class BackupControl {
 	
 	// this is now unused because And Bible databases are held on the SD card to facilitate easier backup by file copy
 	private static final File internalDbDir = new File(Environment.getDataDirectory(), "/data/"+SharedConstants.PACKAGE_NAME+"/databases/");
 
 	private static final String TAG = "BackupControl";
-	
+
+	@Inject
+	public BackupControl() {
+	}
+
 	public void updateOptionsMenu(Menu menu) {
 		MenuItem restoreMenuItem = menu.findItem(R.id.restore);
 		if (restoreMenuItem!=null) {

@@ -1,6 +1,5 @@
 package net.bible.android.control;
 
-import net.bible.android.control.backup.BackupControl;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.control.download.DownloadQueue;
 import net.bible.service.download.RepoFactory;
@@ -21,12 +20,6 @@ import dagger.Provides;
 @ApplicationScope
 @Module
 public class ControllerModule {
-
-	@Provides
-	@ApplicationScope
-	public BackupControl provideBackupControl() {
-		return new BackupControl();
-	}
 
 	@Provides
 	@ApplicationScope
