@@ -11,15 +11,12 @@ import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.page.PageControl;
-import net.bible.android.view.activity.BibleViewScope;
 
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.Versification;
 
 import java.util.Set;
-
-import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
@@ -30,7 +27,6 @@ import de.greenrobot.event.EventBus;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-@BibleViewScope
 public class VerseActionModeMediator {
 
 	private final ActionModeMenuDisplay mainBibleActivity;
@@ -49,7 +45,6 @@ public class VerseActionModeMediator {
 
     private static final String TAG = "VerseActionModeMediator";
 
-	@Inject
 	public VerseActionModeMediator(ActionModeMenuDisplay mainBibleActivity, VerseHighlightControl bibleView, PageControl pageControl, VerseMenuCommandHandler verseMenuCommandHandler, BookmarkControl bookmarkControl) {
 		this.mainBibleActivity = mainBibleActivity;
 		this.bibleView = bibleView;
