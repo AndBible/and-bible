@@ -10,9 +10,11 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
+import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.view.activity.base.Callback;
 import net.bible.service.db.bookmark.LabelDto;
+
+import javax.inject.Inject;
 
 /**
  * Label dialogs - edit or create label.  Used in a couple of places so extracted.
@@ -23,7 +25,14 @@ import net.bible.service.db.bookmark.LabelDto;
  */
 public class LabelDialogs {
 
+	private final BookmarkControl bookmarkControl;
+
 	private static final String TAG = "LabelDialogs";
+
+	@Inject
+	public LabelDialogs(BookmarkControl bookmarkControl) {
+		this.bookmarkControl = bookmarkControl;
+	}
 
 	public void createLabel(Context context, final LabelDto label, final Callback onCreateCallback) {
 		showDialog(context, R.string.new_label, label, onCreateCallback);
@@ -55,7 +64,7 @@ public class LabelDialogs {
 				String name = labelName.getText().toString();
 				label.setName(name);
 				label.setBookmarkStyle(adp.getBookmarkStyleForOffset(labelStyle.getSelectedItemPosition()));
-				ControlFactory.getInstance().getBookmarkControl().saveOrUpdateLabel(label);
+				bookmarkControl.saveOrUpdateLabel(label);
 
 				onCreateCallback.okay();
 			}

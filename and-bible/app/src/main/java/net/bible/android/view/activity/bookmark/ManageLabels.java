@@ -7,14 +7,15 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.bookmark.Bookmark;
+import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.bookmark.LabelDto;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 /**
  * Choose a bible or commentary to use
@@ -27,7 +28,9 @@ public class ManageLabels extends ListActivityBase {
 
 	private List<LabelDto> labels = new ArrayList<>();
 
-	private Bookmark bookmarkControl;
+	private BookmarkControl bookmarkControl;
+
+	private LabelDialogs labelDialogs;
 
 	private static final String TAG = "BookmarkLabels";
 	
@@ -40,8 +43,8 @@ public class ManageLabels extends ListActivityBase {
         super.onCreate(savedInstanceState, false);
         setContentView(R.layout.manage_labels);
 
-        bookmarkControl = ControlFactory.getInstance().getBookmarkControl();
-        
+		super.buildActivityComponent().inject(this);
+
         initialiseView();
     }
 
@@ -70,7 +73,7 @@ public class ManageLabels extends ListActivityBase {
     	Log.i(TAG, "New label clicked");
 
     	LabelDto newLabel = new LabelDto();
-		new LabelDialogs().createLabel(this, newLabel, new Callback() {
+		labelDialogs.createLabel(this, newLabel, new Callback() {
 			@Override
 			public void okay() {
 				loadLabelList();
@@ -84,7 +87,7 @@ public class ManageLabels extends ListActivityBase {
 	public void editLabel(LabelDto label) {
 		Log.i(TAG, "Edit label clicked");
 
-		new LabelDialogs().editLabel(this, label, new Callback() {
+		labelDialogs.editLabel(this, label, new Callback() {
 			@Override
 			public void okay() {
 				loadLabelList();
@@ -110,5 +113,15 @@ public class ManageLabels extends ListActivityBase {
 
     	// ensure ui is updated
 		notifyDataSetChanged();
+	}
+
+	@Inject
+	void setBookmarkControl(BookmarkControl bookmarkControl) {
+		this.bookmarkControl = bookmarkControl;
+	}
+
+	@Inject
+	public void setLabelDialogs(LabelDialogs labelDialogs) {
+		this.labelDialogs = labelDialogs;
 	}
 }

@@ -10,8 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.bookmark.Bookmark;
+import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.view.activity.base.ListActionModeHelper;
 import net.bible.android.view.util.widget.TwoLineListItem;
 import net.bible.service.common.CommonUtils;
@@ -30,16 +29,16 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 
 	private int resource;
 	private final ListActionModeHelper.ActionModeActivity actionModeActivity;
-	private Bookmark bookmarkControl;
+	private BookmarkControl bookmarkControl;
 
 	private static int ACTIVATED_COLOUR = CommonUtils.getResourceColor(R.color.list_item_activated);
 	
 	private static final String TAG = "BookmarkItemAdapter";
 
-	public BookmarkItemAdapter(Context _context, int _resource, List<BookmarkDto> _items, ListActionModeHelper.ActionModeActivity actionModeActivity) {
+	public BookmarkItemAdapter(Context _context, int _resource, List<BookmarkDto> _items, ListActionModeHelper.ActionModeActivity actionModeActivity, BookmarkControl bookmarkControl) {
 		super(_context, _resource, _items);
 		resource = _resource;
-		bookmarkControl = ControlFactory.getInstance().getBookmarkControl();
+		this.bookmarkControl = bookmarkControl;
 		this.actionModeActivity = actionModeActivity;
 	}
 

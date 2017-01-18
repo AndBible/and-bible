@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.BibleContentManager;
 import net.bible.android.control.ControlFactory;
@@ -24,6 +25,8 @@ import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.window.WindowControl;
+import net.bible.android.view.activity.DaggerMainBibleActivityComponent;
+import net.bible.android.view.activity.MainBibleActivityModule;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.page.actionbar.BibleActionBarManager;
 import net.bible.android.view.activity.page.screen.DocumentViewManager;
@@ -43,18 +46,18 @@ import de.greenrobot.event.EventBus;
 public class MainBibleActivity extends CustomTitlebarActivityBase implements VerseActionModeMediator.ActionModeMenuDisplay {
 
 	private DocumentViewManager documentViewManager;
-	
+
 	private BibleContentManager bibleContentManager;
-	
+
 	private WindowControl windowControl;
-	
+
 	private static final String TAG = "MainBibleActivity";
 
 	// handle requests from main menu
 	private MenuCommandHandler mainMenuCommandHandler;
-	
+
 	private static BibleActionBarManager bibleActionBarManager = new BibleActionBarManager();
-	
+
 	// detect swipe left/right
 	private GestureDetectorCompat gestureDetector;
 
@@ -62,7 +65,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 
 	// swipe fails on older versions of Android (2.2, 2.3, but not 3.0+) if event not passed to parent - don't know why
 	// scroll occurs on later versions after double-tap maximize
-    private boolean alwaysDispatchTouchEventToSuper = !CommonUtils.isHoneycombPlus();
+	private boolean alwaysDispatchTouchEventToSuper = !CommonUtils.isHoneycombPlus();
 
 	private BackupControl backupControl;
 
@@ -70,96 +73,100 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		super(bibleActionBarManager, R.menu.main);
 	}
 
-    /** Called when the activity is first created. */
-    @SuppressLint("MissingSuperCall")
+	/**
+	 * Called when the activity is first created.
+	 */
+	@SuppressLint("MissingSuperCall")
 	@Override
-    public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(Bundle savedInstanceState) {
 		Log.i(TAG, "Creating MainBibleActivity");
-        super.onCreate(savedInstanceState, true);
-        
-        setContentView(R.layout.main_bible_view);
+		super.onCreate(savedInstanceState, true);
 
-		buildActivityComponent().inject(this);
+		setContentView(R.layout.main_bible_view);
 
-		ControlFactory.getInstance().provide(this);
+		DaggerMainBibleActivityComponent.builder()
+				.controllerComponent(BibleApplication.getApplication().getControllerComponent())
+				.mainBibleActivityModule(new MainBibleActivityModule(this))
+				.build()
+				.inject(this);
 
-        // create related objects
+		// create related objects
 		BibleGestureListener gestureListener = new BibleGestureListener(MainBibleActivity.this);
-        gestureDetector = new GestureDetectorCompat(this, gestureListener );
+		gestureDetector = new GestureDetectorCompat(this, gestureListener);
 
-        windowControl = ControlFactory.getInstance().getWindowControl();
-        
-        documentViewManager = new DocumentViewManager(this);
-        documentViewManager.buildView();
+		windowControl = ControlFactory.getInstance().getWindowControl();
 
-    	bibleContentManager = new BibleContentManager(documentViewManager);
+		documentViewManager.buildView();
 
-    	mainMenuCommandHandler = new MenuCommandHandler(this);
-    	
-        // register for passage change and appToBackground events
-        EventBus.getDefault().register(this);
+		bibleContentManager = new BibleContentManager(documentViewManager);
 
-        // force the screen to be populated
+		// register for passage change and appToBackground events
+		EventBus.getDefault().register(this);
+
+		// force the screen to be populated
 		PassageChangeMediator.getInstance().forcePageUpdate();
-    }
+	}
 
-    @Override
+	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 		EventBus.getDefault().unregister(this);
 	}
 
-	/** called if the app is re-entered after returning from another app.
-     * Trigger redisplay in case mobile has gone from light to dark or vice-versa
-     */
-    @Override
-    protected void onRestart() {
-    	super.onRestart();
+	/**
+	 * called if the app is re-entered after returning from another app.
+	 * Trigger redisplay in case mobile has gone from light to dark or vice-versa
+	 */
+	@Override
+	protected void onRestart() {
+		super.onRestart();
 
-    	if (mWholeAppWasInBackground) {
+		if (mWholeAppWasInBackground) {
 			mWholeAppWasInBackground = false;
 			refreshIfNightModeChange();
-    	}
-    }
+		}
+	}
 
 	/**
-	 *  Need to know when app is returned to foreground to check the screen colours
+	 * Need to know when app is returned to foreground to check the screen colours
 	 */
-    public void onEvent(AppToBackgroundEvent event) {
-    	if (event.isMovedToBackground()) {
-    		mWholeAppWasInBackground = true;
-    	}
-    }
+	public void onEvent(AppToBackgroundEvent event) {
+		if (event.isMovedToBackground()) {
+			mWholeAppWasInBackground = true;
+		}
+	}
 
-    @Override
+	@Override
 	protected void onScreenTurnedOff() {
 		super.onScreenTurnedOff();
 		documentViewManager.getDocumentView().onScreenTurnedOff();
 	}
 
-    @Override
+	@Override
 	protected void onScreenTurnedOn() {
 		super.onScreenTurnedOn();
 		refreshIfNightModeChange();
 		documentViewManager.getDocumentView().onScreenTurnedOn();
 	}
 
-    /** if using auto night mode then may need to refresh
-     */
-    private void refreshIfNightModeChange() {
-    	// colour may need to change which affects View colour and html
+	/**
+	 * if using auto night mode then may need to refresh
+	 */
+	private void refreshIfNightModeChange() {
+		// colour may need to change which affects View colour and html
 		// first refresh the night mode setting using light meter if appropriate
 		if (ScreenSettings.isNightModeChanged()) {
 			// then update text if colour changed
 			documentViewManager.getDocumentView().changeBackgroundColour();
 			PassageChangeMediator.getInstance().forcePageUpdate();
-    	}
+		}
 
-    }
-    
-	/** adding android:configChanges to manifest causes this method to be called on flip, etc instead of a new instance and onCreate, which would cause a new observer -> duplicated threads
-     */
-    @Override
+	}
+
+	/**
+	 * adding android:configChanges to manifest causes this method to be called on flip, etc instead of a new instance and onCreate, which would cause a new observer -> duplicated threads
+	 */
+	@Override
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 
@@ -182,7 +189,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 			return true;
 		} else if ((keyCode == KeyEvent.KEYCODE_SEARCH && ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().isSearchable())) {
 			Intent intent = ControlFactory.getInstance().getSearchControl().getSearchIntent(ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument());
-			if (intent!=null) {
+			if (intent != null) {
 				startActivityForResult(intent, STD_REQUEST_CODE);
 			}
 			return true;
@@ -190,90 +197,93 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 
 		return super.onKeyUp(keyCode, event);
 	}
-    
+
 	/**
-     * on Click handlers.  Go through each handler until one returns true
-     */
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        return mainMenuCommandHandler.handleMenuRequest(item) ||
-               super.onOptionsItemSelected(item);
-    }
-
-    @Override 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) { 
-    	Log.d(TAG, "Activity result:"+resultCode);
-    	super.onActivityResult(requestCode, resultCode, data);
-    	
-    	if (mainMenuCommandHandler.restartIfRequiredOnReturn(requestCode)) {
-    		// restart done in above
-    	} else if (mainMenuCommandHandler.isDisplayRefreshRequired(requestCode)) {
-    		preferenceSettingsChanged();
-    	} else if (mainMenuCommandHandler.isDocumentChanged(requestCode)) {
-    		updateActionBarButtons();
-    	}
-    }
-
-    @Override
-    protected void preferenceSettingsChanged() {
-    	documentViewManager.getDocumentView().applyPreferenceSettings();
-		PassageChangeMediator.getInstance().forcePageUpdate();
-    }
-    
-    /** allow current page to save any settings or data before being changed
-     */
-    public void onEvent(PreBeforeCurrentPageChangeEvent event) {
-    	CurrentPage currentPage = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage();
-    	if (currentPage!=null) {
-	    	// save current scroll position so history can return to correct place in document
-			float screenPosn = getCurrentPosition();
-			currentPage.setCurrentYOffsetRatio(screenPosn);
-    	}
-    }
-    
-	public void onEvent(CurrentWindowChangedEvent event) {
-		MainBibleActivity.this.updateActionBarButtons();
-		
-    	// onPrepareOptionsMenu only called once on Android 2.2, 2.3, 3.0: http://stackoverflow.com/questions/29925104/onprepareoptionsmenu-only-called-once-on-android-2-3
-    	// so forcefully invalidate it on old versions
-    	if (!CommonUtils.isIceCreamSandwichPlus()) {
-    		supportInvalidateOptionsMenu();
-    	}
+	 * on Click handlers.  Go through each handler until one returns true
+	 */
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		return mainMenuCommandHandler.handleMenuRequest(item) ||
+				super.onOptionsItemSelected(item);
 	}
 
-    /** called just before starting work to change the current passage
-     */
-    public void onEventMainThread(PassageChangeStartedEvent event) {
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Log.d(TAG, "Activity result:" + resultCode);
+		super.onActivityResult(requestCode, resultCode, data);
+
+		if (mainMenuCommandHandler.restartIfRequiredOnReturn(requestCode)) {
+			// restart done in above
+		} else if (mainMenuCommandHandler.isDisplayRefreshRequired(requestCode)) {
+			preferenceSettingsChanged();
+		} else if (mainMenuCommandHandler.isDocumentChanged(requestCode)) {
+			updateActionBarButtons();
+		}
+	}
+
+	@Override
+	protected void preferenceSettingsChanged() {
+		documentViewManager.getDocumentView().applyPreferenceSettings();
+		PassageChangeMediator.getInstance().forcePageUpdate();
+	}
+
+	/**
+	 * allow current page to save any settings or data before being changed
+	 */
+	public void onEvent(PreBeforeCurrentPageChangeEvent event) {
+		CurrentPage currentPage = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage();
+		if (currentPage != null) {
+			// save current scroll position so history can return to correct place in document
+			float screenPosn = getCurrentPosition();
+			currentPage.setCurrentYOffsetRatio(screenPosn);
+		}
+	}
+
+	public void onEvent(CurrentWindowChangedEvent event) {
+		MainBibleActivity.this.updateActionBarButtons();
+
+		// onPrepareOptionsMenu only called once on Android 2.2, 2.3, 3.0: http://stackoverflow.com/questions/29925104/onprepareoptionsmenu-only-called-once-on-android-2-3
+		// so forcefully invalidate it on old versions
+		if (!CommonUtils.isIceCreamSandwichPlus()) {
+			supportInvalidateOptionsMenu();
+		}
+	}
+
+	/**
+	 * called just before starting work to change the current passage
+	 */
+	public void onEventMainThread(PassageChangeStartedEvent event) {
 		documentViewManager.buildView();
 		setProgressBar(true);
-    }
-    
-    /** called by PassageChangeMediator after a new passage has been changed and displayed
-     */
-    public void onEventMainThread(PassageChangedEvent event) {
-    	setProgressBar(false);
-    	updateActionBarButtons();
-    }
+	}
 
-    @Override
-    protected void onResume() {
-    	super.onResume();
+	/**
+	 * called by PassageChangeMediator after a new passage has been changed and displayed
+	 */
+	public void onEventMainThread(PassageChangedEvent event) {
+		setProgressBar(false);
+		updateActionBarButtons();
+	}
 
-    	// allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		// allow webView to start monitoring tilt by setting focus which causes tilt-scroll to resume
 		documentViewManager.getDocumentView().asView().requestFocus();
-    }
+	}
 
-    /**
-     * Some menu items must be hidden for certain document types
-     */
-    @Override
+	/**
+	 * Some menu items must be hidden for certain document types
+	 */
+	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-    	// construct the options menu
+		// construct the options menu
 		super.onPrepareOptionsMenu(menu);
-		
+
 		// disable some options depending on document type
 		ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().updateOptionsMenu(menu);
-		
+
 		// if there is no backup file then disable the restore menu item
 		backupControl.updateOptionsMenu(menu);
 
@@ -313,31 +323,36 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		});
 	}
 
-    /** return percentage scrolled down page
-     */
-    public float getCurrentPosition() {
-    	return documentViewManager.getDocumentView().getCurrentPosition();
-    }
-    
-    /** user swiped right */
-    public void next() {
-    	if (getDocumentViewManager().getDocumentView().isPageNextOkay()) {
-    		ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().next();
-    	}		
-    }
-    
-    /** user swiped left */
-    public void previous() {
-    	if (getDocumentViewManager().getDocumentView().isPagePreviousOkay()) {
-    		ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().previous();
-    	}
-    }
+	/**
+	 * return percentage scrolled down page
+	 */
+	public float getCurrentPosition() {
+		return documentViewManager.getDocumentView().getCurrentPosition();
+	}
+
+	/**
+	 * user swiped right
+	 */
+	public void next() {
+		if (getDocumentViewManager().getDocumentView().isPageNextOkay()) {
+			ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().next();
+		}
+	}
+
+	/**
+	 * user swiped left
+	 */
+	public void previous() {
+		if (getDocumentViewManager().getDocumentView().isPagePreviousOkay()) {
+			ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().previous();
+		}
+	}
 
 	// handle swipe left and right
-    // http://android-journey.blogspot.com/2010_01_01_archive.html
-    //http://android-journey.blogspot.com/2010/01/android-gestures.html
-    // above dropped in favour of simpler method below
-    //http://developer.motorola.com/docstools/library/The_Widget_Pack_Part_3_Swipe/
+	// http://android-journey.blogspot.com/2010_01_01_archive.html
+	//http://android-journey.blogspot.com/2010/01/android-gestures.html
+	// above dropped in favour of simpler method below
+	//http://developer.motorola.com/docstools/library/The_Widget_Pack_Part_3_Swipe/
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent motionEvent) {
 		// should only call super if below returns false
@@ -360,4 +375,15 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	void setBackupControl(BackupControl backupControl) {
 		this.backupControl = backupControl;
 	}
+
+	@Inject
+	void setDocumentViewManager(DocumentViewManager documentViewManager) {
+		this.documentViewManager = documentViewManager;
+	}
+
+	@Inject
+	void setMainMenuCommandHandler(MenuCommandHandler mainMenuCommandHandler) {
+		this.mainMenuCommandHandler = mainMenuCommandHandler;
+	}
 }
+

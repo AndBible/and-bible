@@ -7,13 +7,12 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.MenuItem;
 
-import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.activity.StartupActivity;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.backup.BackupControl;
 import net.bible.android.control.download.DownloadControl;
-import net.bible.android.view.activity.DaggerActivityComponent;
+import net.bible.android.view.activity.MainBibleActivityScope;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.bookmark.Bookmarks;
 import net.bible.android.view.activity.bookmark.ManageLabels;
@@ -37,6 +36,7 @@ import javax.inject.Inject;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@MainBibleActivityScope
 public class MenuCommandHandler {
 
 	private DownloadControl downloadControl;
@@ -55,15 +55,11 @@ public class MenuCommandHandler {
 
 	private static final String TAG = "MainMenuCommandHandler";
 
+	@Inject
 	public MenuCommandHandler(MainBibleActivity activity) {
 		super();
 		this.callingActivity = activity;
 		this.windowMenuCommandHandler = new WindowMenuCommandHandler();
-		
-		DaggerActivityComponent.builder()
-				.controllerComponent(BibleApplication.getApplication().getControllerComponent())
-				.build()
-				.inject(this);
 	}
 	
 	/**

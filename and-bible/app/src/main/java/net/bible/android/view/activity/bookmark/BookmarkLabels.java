@@ -11,8 +11,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.bookmark.Bookmark;
 import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.IntentHelper;
@@ -26,6 +24,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import javax.inject.Inject;
+
 /**
  * Choose which labels to associate with a bookmark
  * 
@@ -37,11 +37,13 @@ public class BookmarkLabels extends ListActivityBase {
 
 	private List<BookmarkDto> bookmarks;
 
-	private Bookmark bookmarkControl;
+	private BookmarkControl bookmarkControl;
 
 	private static final String TAG = "BookmarkLabels";
 	
 	private List<LabelDto> labels = new ArrayList<>();
+
+	private LabelDialogs labelDialogs;
 
 	// this resource returns a CheckedTextView which has setChecked(..), isChecked(), and toggle() methods
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_multiple_choice; 
@@ -52,8 +54,8 @@ public class BookmarkLabels extends ListActivityBase {
         super.onCreate(savedInstanceState, false);
         setContentView(R.layout.bookmark_labels);
 
-        bookmarkControl = ControlFactory.getInstance().getBookmarkControl();
-        
+		buildActivityComponent().inject(this);
+
         long[] bookmarkIds = getIntent().getLongArrayExtra(BookmarkControl.BOOKMARK_IDS_EXTRA);
         bookmarks = bookmarkControl.getBookmarksById(bookmarkIds);
 
@@ -92,7 +94,7 @@ public class BookmarkLabels extends ListActivityBase {
 		Log.i(TAG, "New label clicked");
 
 		LabelDto newLabel = new LabelDto();
-		new LabelDialogs().createLabel(this, newLabel, new Callback() {
+		labelDialogs.createLabel(this, newLabel, new Callback() {
 			@Override
 			public void okay() {
 				List<LabelDto> selectedLabels = getCheckedLabels();
@@ -207,5 +209,15 @@ public class BookmarkLabels extends ListActivityBase {
 			// re-check labels as they were before leaving this screen
 			setCheckedLabels(selectedLabels);
 		}
+	}
+
+	@Inject
+	void setBookmarkControl(BookmarkControl bookmarkControl) {
+		this.bookmarkControl = bookmarkControl;
+	}
+
+	@Inject
+	public void setLabelDialogs(LabelDialogs labelDialogs) {
+		this.labelDialogs = labelDialogs;
 	}
 }

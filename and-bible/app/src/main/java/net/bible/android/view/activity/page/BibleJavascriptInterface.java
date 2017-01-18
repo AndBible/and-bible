@@ -7,6 +7,8 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.page.window.WindowControl;
 
+import javax.inject.Inject;
+
 /**
  * Interface allowing javascript to call java methods in app
  *
@@ -18,21 +20,17 @@ public class BibleJavascriptInterface {
 
 	private boolean notificationsEnabled = false;
 	
-	private VerseCalculator verseCalculator;
+	private VerseCalculator verseCalculator = new VerseCalculator();
 
 	private VerseActionModeMediator verseActionModeMediator;
 	
 	private WindowControl windowControl = ControlFactory.getInstance().getWindowControl();
 	
 	private static final String TAG = "BibleJavascriptIntrfc";
-	
+
+	@Inject
 	public BibleJavascriptInterface(VerseActionModeMediator verseActionModeMediator) {
 		this.verseActionModeMediator = verseActionModeMediator;
-		ControlFactory.getInstance().inject(this);
-	}
-
-	public void setVerseCalculator(VerseCalculator verseCalculator) {
-		this.verseCalculator = verseCalculator;
 	}
 
 	@JavascriptInterface

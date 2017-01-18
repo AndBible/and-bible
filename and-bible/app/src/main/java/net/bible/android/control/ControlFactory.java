@@ -1,8 +1,6 @@
 package net.bible.android.control;
 
 import net.bible.android.common.resource.AndroidResourceProvider;
-import net.bible.android.common.resource.ResourceProvider;
-import net.bible.android.control.bookmark.Bookmark;
 import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.comparetranslations.CompareTranslationsControl;
 import net.bible.android.control.document.DocumentControl;
@@ -27,17 +25,10 @@ import net.bible.android.control.report.ErrorReportControl;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.control.versification.BibleTraverser;
-import net.bible.android.view.activity.page.BibleJavascriptInterface;
-import net.bible.android.view.activity.page.BibleView;
-import net.bible.android.view.activity.page.MainBibleActivity;
-import net.bible.android.view.activity.page.VerseActionModeMediator;
-import net.bible.android.view.activity.page.VerseCalculator;
-import net.bible.android.view.activity.page.VerseMenuCommandHandler;
 
 import java.util.HashMap;
 import java.util.Map;
 
-//TODO replace with ioc (maybe)
 /** allow access to control layer
  *
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -45,15 +36,17 @@ import java.util.Map;
  *      The copyright to this program is held by it's author.
  */
 public class ControlFactory {
-	private MainBibleActivity mainBibleActivity;
-	private ResourceProvider resourceProvider;
 	private EventManager eventManager;
 	
 	private WindowRepository windowRepository;
 	private DocumentBibleBooksFactory documentBibleBooksFactory = new DocumentBibleBooksFactory();
 	private BibleTraverser bibleTraverser = new BibleTraverser();
 	private DocumentControl documentControl = new DocumentControl();
+
+	//TODO delete because already injected
 	private PageControl pageControl = new PageControl();
+	private BookmarkControl bookmarkControl = new BookmarkControl(new AndroidResourceProvider());
+
 	private WindowControl windowControl;
 	private final Map<Window, PageTiltScrollControl> screenPageTiltScrollControlMap = new HashMap<>();
 	private LinkControl linkControl;
@@ -63,7 +56,6 @@ public class ControlFactory {
 	private ReadingPlanControl readingPlanControl = new ReadingPlanControl();
 	private CompareTranslationsControl compareTranslationsControl;
 	private FootnoteAndRefControl footnoteAndRefControl;
-	private Bookmark bookmarkControl;
 
 	private Emailer emailer;
 	private ErrorReportControl errorReportControl;
@@ -94,14 +86,11 @@ public class ControlFactory {
 	}
 	
 	protected void createAll() {
-		resourceProvider = new AndroidResourceProvider();
 		eventManager = ABEventBus.getDefault();
 
 		emailer = new EmailerImpl();
 		errorReportControl = new ErrorReportControl(emailer); 
 
-		bookmarkControl = new BookmarkControl(resourceProvider);
-		
 		// inject dependencies
 		readingPlanControl.setSpeakControl(this.speakControl);
 		
@@ -165,22 +154,6 @@ public class ControlFactory {
 		return pageTiltScrollControl;
 	}
 
-	public void provide(MainBibleActivity mainBibleActivity) {
-		this.mainBibleActivity = mainBibleActivity;
-	}
-
-	public void inject(BibleView bibleView) {
-		VerseActionModeMediator bibleViewVerseActionModeMediator = new VerseActionModeMediator(mainBibleActivity, bibleView, getPageControl(), new VerseMenuCommandHandler(mainBibleActivity, getPageControl()));
-
-		BibleJavascriptInterface bibleJavascriptInterface = new BibleJavascriptInterface(bibleViewVerseActionModeMediator);
-
-		bibleView.setBibleJavascriptInterface(bibleJavascriptInterface);
-	}
-
-	public void inject(BibleJavascriptInterface bibleJavascriptInterface) {
-		bibleJavascriptInterface.setVerseCalculator(new VerseCalculator());
-	}
-
 	public SearchControl getSearchControl() {
 		return searchControl;		
 	}
@@ -195,10 +168,6 @@ public class ControlFactory {
 		return linkControl;
 	}
 
-	public Bookmark getBookmarkControl() {
-		return bookmarkControl;
-	}
-	
 	public MyNote getMyNoteControl() {
 		return mynoteControl;
 	}
@@ -229,5 +198,9 @@ public class ControlFactory {
 	
 	public ErrorReportControl getErrorReportControl() {
 		return errorReportControl;
+	}
+
+	public BookmarkControl getBookmarkControl() {
+		return bookmarkControl;
 	}
 }

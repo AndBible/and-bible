@@ -1,21 +1,6 @@
 package net.bible.android.view.activity.page.screen;
 
-import java.util.List;
-import java.util.Map;
-import java.util.WeakHashMap;
-
-import net.bible.android.BibleApplication;
-import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
-import net.bible.android.control.page.window.Separator;
-import net.bible.android.control.page.window.Window;
-import net.bible.android.control.page.window.Window.WindowOperation;
-import net.bible.android.control.page.window.WindowControl;
-import net.bible.android.view.activity.page.BibleView;
-import net.bible.service.common.CommonUtils;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.support.v7.widget.PopupMenu;
@@ -33,6 +18,25 @@ import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+
+import net.bible.android.BibleApplication;
+import net.bible.android.activity.R;
+import net.bible.android.control.ControlFactory;
+import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
+import net.bible.android.control.page.window.Separator;
+import net.bible.android.control.page.window.Window;
+import net.bible.android.control.page.window.Window.WindowOperation;
+import net.bible.android.control.page.window.WindowControl;
+import net.bible.android.view.activity.MainBibleActivityScope;
+import net.bible.android.view.activity.page.BibleView;
+import net.bible.android.view.activity.page.BibleViewFactory;
+import net.bible.android.view.activity.page.MainBibleActivity;
+import net.bible.service.common.CommonUtils;
+
+import java.util.List;
+
+import javax.inject.Inject;
+
 import de.greenrobot.event.EventBus;
 
 /**
@@ -57,17 +61,17 @@ import de.greenrobot.event.EventBus;
  *      The copyright to this program is held by it's authors.
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+@MainBibleActivityScope
 public class DocumentWebViewBuilder {
 
 	private boolean isWindowConfigurationChanged = true;
 
-	private Map<Window, BibleView> screenBibleViewMap;
-	private static final int BIBLE_WEB_VIEW_ID_BASE = 990;
-
 	private static WindowControl windowControl;
 
 	private boolean isLaidOutForPortrait;
-	private Activity mainActivity;
+	private MainBibleActivity mainBibleActivity;
+
+	private BibleViewFactory bibleViewFactory;
 	
 	final private int WINDOW_SEPARATOR_WIDTH_PX;
 	final private int WINDOW_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX;
@@ -79,12 +83,12 @@ public class DocumentWebViewBuilder {
 	
 	private static final String TAG="DocumentWebViewBuilder";
 
-	public DocumentWebViewBuilder(Activity mainActivity) {
-		this.mainActivity = mainActivity;
-		
+	@Inject
+	public DocumentWebViewBuilder(MainBibleActivity mainBibleActivity, BibleViewFactory bibleViewFactory) {
+		this.mainBibleActivity = mainBibleActivity;
+		this.bibleViewFactory = bibleViewFactory;
+
 		windowControl = ControlFactory.getInstance().getWindowControl();
-		
-		screenBibleViewMap = new WeakHashMap<>();
 		
         Resources res = BibleApplication.getApplication().getResources();
         WINDOW_SEPARATOR_WIDTH_PX = res.getDimensionPixelSize(R.dimen.window_separator_width);
@@ -148,7 +152,7 @@ public class DocumentWebViewBuilder {
     		for (Window window : windows) {
     			Log.d(TAG, "Layout screen "+window.getScreenNo() + " of "+windows.size());
     			
-    			currentWindowFrameLayout = new FrameLayout(this.mainActivity);
+    			currentWindowFrameLayout = new FrameLayout(this.mainBibleActivity);
     			
     			BibleView bibleView = getCleanView(window);
 
@@ -194,14 +198,12 @@ public class DocumentWebViewBuilder {
 					View defaultWindowActionButton = createDefaultWindowActionButton(window);
 	    			currentWindowFrameLayout.addView(defaultWindowActionButton, new FrameLayout.LayoutParams(BUTTON_SIZE_PX, BUTTON_SIZE_PX, Gravity.TOP|Gravity.RIGHT));
 				}
-				
-    			mainActivity.registerForContextMenu(bibleView);
-    			
+
     			windowNo++;
     		}
     		
     		// Display minimised screens
-    		ViewGroup minimisedWindowsFrameContainer = new LinearLayout(mainActivity);
+    		ViewGroup minimisedWindowsFrameContainer = new LinearLayout(mainBibleActivity);
     		currentWindowFrameLayout.addView(minimisedWindowsFrameContainer, new FrameLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, BUTTON_SIZE_PX, Gravity.BOTTOM|Gravity.RIGHT));
     		List<Window> minimisedScreens = windowControl.getWindowRepository().getMinimisedScreens();
     		for (int i=0; i<minimisedScreens.size(); i++) {
@@ -265,7 +267,7 @@ public class DocumentWebViewBuilder {
 	}
 
 	protected Separator createSeparator(LinearLayout parent, Window window, Window nextScreen, boolean isPortrait, int numWindows) {
-		Separator separator = new Separator(this.mainActivity, WINDOW_SEPARATOR_WIDTH_PX, parent, window, nextScreen, numWindows, isPortrait);
+		Separator separator = new Separator(this.mainBibleActivity, WINDOW_SEPARATOR_WIDTH_PX, parent, window, nextScreen, numWindows, isPortrait);
 		return separator;
 	}
 
@@ -302,14 +304,7 @@ public class DocumentWebViewBuilder {
 	}
 
 	public BibleView getView(Window window) {
-		BibleView bibleView = screenBibleViewMap.get(window);
-		if (bibleView==null) {
-			bibleView = new BibleView(this.mainActivity, window);
-	        bibleView.setId(BIBLE_WEB_VIEW_ID_BASE+window.getScreenNo());
-	        
-	        screenBibleViewMap.put(window, bibleView);
-		}
-		return bibleView;
+		return bibleViewFactory.createBibleView(window);
 	}
 
 	private Button createCloseButton(final Window window) {
@@ -366,7 +361,7 @@ public class DocumentWebViewBuilder {
 	}
 	
 	private Button createTextButton(String text, OnClickListener onClickListener, OnLongClickListener onLongClickListener) {
-		Button button = new Button(this.mainActivity);
+		Button button = new Button(this.mainBibleActivity);
 		button.setText(text);
 		button.setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR);
         button.setWidth(BUTTON_SIZE_PX);
@@ -380,7 +375,7 @@ public class DocumentWebViewBuilder {
 	}
 
 	private Button createImageButton(int drawableId, OnClickListener onClickListener, OnLongClickListener onLongClickListener) {
-		Button button = new Button(this.mainActivity);
+		Button button = new Button(this.mainBibleActivity);
 		button.setBackgroundColor(WINDOW_BUTTON_BACKGROUND_COLOUR);
 		button.setBackgroundResource(drawableId);
         button.setWidth(BUTTON_SIZE_PX);
@@ -404,7 +399,7 @@ public class DocumentWebViewBuilder {
 				// ensure actions affect the right window
 				windowControl.setActiveWindow(window);
 				
-			    PopupMenu popup = new PopupMenu(mainActivity, v);
+			    PopupMenu popup = new PopupMenu(mainBibleActivity, v);
 			    popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 					private WindowMenuCommandHandler menuCommandHandler = new WindowMenuCommandHandler();
 					
@@ -428,7 +423,7 @@ public class DocumentWebViewBuilder {
 				return false;
 			}
 		}
-	};
+	}
 
 	private boolean isWebViewShowing(ViewGroup parent) {
 		Object tag = parent.getTag();

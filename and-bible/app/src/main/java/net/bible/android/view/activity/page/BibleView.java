@@ -42,7 +42,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	
 	private Window window;
 	
-	private BibleJavascriptInterface mJavascriptInterface;
+	private BibleJavascriptInterface bibleJavascriptInterface;
 
 	private int mJumpToVerse = SharedConstants.NO_VALUE;
 	private float mJumpToYOffsetRatio = SharedConstants.NO_VALUE;
@@ -78,19 +78,18 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	public BibleView(Context context, Window window) {
 		super(context);
 		this.window = window;
-
-		ControlFactory.getInstance().inject(this);
-
-		initialise();
 	}
 
+	/**
+	 * This is not passed into the constructor due to a cyclic dependency. bjsi ->
+	 */
 	public void setBibleJavascriptInterface(BibleJavascriptInterface bibleJavascriptInterface) {
-		this.mJavascriptInterface = bibleJavascriptInterface;
-		addJavascriptInterface(mJavascriptInterface, "jsInterface");
+		this.bibleJavascriptInterface = bibleJavascriptInterface;
+		addJavascriptInterface(bibleJavascriptInterface, "jsInterface");
 	}
 
 	@SuppressLint("SetJavaScriptEnabled")
-	private void initialise() {
+	public void initialise() {
 
 		/* WebViewClient must be set BEFORE calling loadUrl! */  
 		setWebViewClient(new WebViewClient() {
@@ -267,7 +266,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 				executeJavascript("registerVersePositions()");
 			}
 			
-			mJavascriptInterface.setNotificationsEnabled(windowControl.isActiveWindow(window));
+			bibleJavascriptInterface.setNotificationsEnabled(windowControl.isActiveWindow(window));
 
 			// screen is changing shape/size so constantly maintain the current verse position
 			// main difference from jumpToVerse is that this is not cleared after jump
@@ -449,10 +448,10 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 
 	public void onEvent(CurrentWindowChangedEvent event) {
 		if (window.equals(event.getActiveWindow())) {
-			mJavascriptInterface.setNotificationsEnabled(true);
+			bibleJavascriptInterface.setNotificationsEnabled(true);
 			resumeTiltScroll();
 		} else {
-			mJavascriptInterface.setNotificationsEnabled(false);
+			bibleJavascriptInterface.setNotificationsEnabled(false);
 			pauseTiltScroll();
 		}
 	}
@@ -505,7 +504,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		super.onDetachedFromWindow();
 		Log.d(TAG, "Detached from window");
 		// prevent random verse changes while layout is being rebuild because of window changes
-		mJavascriptInterface.setNotificationsEnabled(false);
+		bibleJavascriptInterface.setNotificationsEnabled(false);
 		pauseTiltScroll();
 	}
 	
@@ -514,7 +513,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		super.onAttachedToWindow();
 		Log.d(TAG, "Attached to window");
 		if (windowControl.isActiveWindow(window)) {
-			mJavascriptInterface.setNotificationsEnabled(true);
+			bibleJavascriptInterface.setNotificationsEnabled(true);
 
 			// may have returned from MyNote view
 			resumeTiltScroll();

@@ -1,7 +1,9 @@
 package net.bible.android.control;
 
 import net.bible.android.control.backup.BackupControl;
+import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.download.DownloadControl;
+import net.bible.android.control.page.PageControl;
 
 import dagger.Component;
 
@@ -18,6 +20,8 @@ public interface ControllerComponent {
 
 	//Exposed to sub-graphs.
 	BackupControl backupControl();
+	BookmarkControl bookmarkControl();
 	DownloadControl downloadControl();
+	PageControl pageControl();
 
 }

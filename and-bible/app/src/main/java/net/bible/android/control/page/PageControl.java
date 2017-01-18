@@ -8,6 +8,7 @@ import android.util.Log;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
+import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.control.versification.Scripture;
@@ -32,17 +33,24 @@ import org.crosswire.jsword.versification.Versification;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 /**
  * SesionFacade for CurrentPage used by View classes
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class PageControl {
 	
 	private static final String TAG = "PageControl";
 	
 	private static final TitleSplitter titleSplitter = new TitleSplitter();
+
+	@Inject
+	public PageControl() {
+	}
 
 	/** Paste the current verse to the system clipboard
 	 */

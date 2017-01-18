@@ -8,6 +8,7 @@ import android.view.View;
 
 import net.bible.android.activity.R;
 import net.bible.android.common.resource.ResourceProvider;
+import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
@@ -38,12 +39,15 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.inject.Inject;
+
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class BookmarkControl implements Bookmark {
+@ApplicationScope
+public class BookmarkControl {
 
 	public static final String BOOKMARK_IDS_EXTRA = "bookmarkIds";
 	public static final String LABEL_NO_EXTRA = "labelNo";
@@ -54,7 +58,8 @@ public class BookmarkControl implements Bookmark {
 	private static final String BOOKMARK_SORT_ORDER = "BookmarkSortOrder";
 
 	private static final String TAG = "BookmarkControl";
-	
+
+	@Inject
 	public BookmarkControl(ResourceProvider resourceProvider) {
 		LABEL_ALL = new LabelDto();
 		LABEL_ALL.setName(resourceProvider.getString(R.string.all));
@@ -64,7 +69,6 @@ public class BookmarkControl implements Bookmark {
 		LABEL_UNLABELLED.setId(-998L);
 	}
 	
-	@Override
 	public boolean toggleBookmarkForVerseRange(VerseRange verseRange) {
 		boolean bOk = false;
 		CurrentPageManager currentPageControl = ControlFactory.getInstance().getCurrentPageControl();
@@ -106,7 +110,6 @@ public class BookmarkControl implements Bookmark {
 		return bOk;
 	}
 
-	@Override
 	public String getBookmarkVerseKey(BookmarkDto bookmark) {
 		String keyText = "";
 		try {
@@ -118,7 +121,6 @@ public class BookmarkControl implements Bookmark {
 		return keyText;
 	}
 
-	@Override
 	public String getBookmarkVerseText(BookmarkDto bookmark) {
 		String verseText = "";
 		try {
@@ -181,7 +183,6 @@ public class BookmarkControl implements Bookmark {
 		return bookmarks;
 	}
 
-	@Override
 	public boolean isBookmarkForKey(Key key) {
 		return key!=null && getBookmarkByKey(key)!=null;
 	}
@@ -201,7 +202,6 @@ public class BookmarkControl implements Bookmark {
 	}
 
 	/** delete this bookmark (and any links to labels) */
-	@Override
 	public boolean deleteBookmark(BookmarkDto bookmark) {
 		boolean bOk = false;
 		if (bookmark!=null && bookmark.getId()!=null) {
@@ -285,7 +285,6 @@ public class BookmarkControl implements Bookmark {
 		}
 	}
 	
-	@Override
 	public LabelDto saveOrUpdateLabel(LabelDto label) {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		LabelDto retLabel = null;
@@ -317,7 +316,6 @@ public class BookmarkControl implements Bookmark {
 		return bOk;
 	}
 
-	@Override
 	public List<LabelDto> getAllLabels() {
 		List<LabelDto> labelList = getAssignableLabels();
 
@@ -328,7 +326,6 @@ public class BookmarkControl implements Bookmark {
 		return labelList;
 	}
 
-	@Override
 	public List<LabelDto> getAssignableLabels() {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		List<LabelDto> labelList = new ArrayList<>();
@@ -343,7 +340,6 @@ public class BookmarkControl implements Bookmark {
 		return labelList;
 	}
 
-	@Override
 	public Map<Integer, List<BookmarkStyle>> getVerseBookmarkStylesInPassage(Key passage) {
 		// assumes the passage only covers one book, which always happens to be the case here
 		Verse firstVerse = KeyUtil.getVerse(passage);
@@ -423,12 +419,10 @@ public class BookmarkControl implements Bookmark {
 		return BookmarkSortOrder.valueOf(bookmarkSortOrderStr);
 	}
 	
-	@Override
 	public void setBookmarkSortOrder(BookmarkSortOrder bookmarkSortOrder) {
 		CommonUtils.saveSharedPreference(BOOKMARK_SORT_ORDER, bookmarkSortOrder.toString());
 	}
 
-	@Override
 	public String getBookmarkSortOrderDescription() {
 		if (BookmarkSortOrder.BIBLE_BOOK.equals(getBookmarkSortOrder())) {
 			return CommonUtils.getResourceString(R.string.sort_by_bible_book);

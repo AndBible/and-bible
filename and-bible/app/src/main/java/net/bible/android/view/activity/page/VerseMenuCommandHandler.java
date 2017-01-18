@@ -6,7 +6,9 @@ import android.content.Intent;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
+import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.page.PageControl;
+import net.bible.android.view.activity.MainBibleActivityScope;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.base.IntentHelper;
 import net.bible.android.view.activity.comparetranslations.CompareTranslations;
@@ -20,20 +22,24 @@ import org.crosswire.jsword.passage.VerseRange;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@MainBibleActivityScope
 public class VerseMenuCommandHandler {
 
 	private final Activity mainActivity;
 
 	private final PageControl pageControl;
 
+	private final BookmarkControl bookmarkControl;
+
 	private final IntentHelper intentHelper = new IntentHelper();
 
 	private static final String TAG = "VerseMenuCommandHandler";
 
-	public VerseMenuCommandHandler(Activity mainActivity, PageControl pageControl) {
+	public VerseMenuCommandHandler(Activity mainActivity, PageControl pageControl, BookmarkControl bookmarkControl) {
 		super();
 		this.mainActivity = mainActivity;
 		this.pageControl = pageControl;
+		this.bookmarkControl = bookmarkControl;
 	}
 	
 	/**
@@ -58,7 +64,7 @@ public class VerseMenuCommandHandler {
 					break;
 				case R.id.add_bookmark:
 				case R.id.delete_bookmark:
-					ControlFactory.getInstance().getBookmarkControl().toggleBookmarkForVerseRange(verseRange);
+					bookmarkControl.toggleBookmarkForVerseRange(verseRange);
 					// refresh view to show new bookmark icon
 					PassageChangeMediator.getInstance().forcePageUpdate();
 					isHandled = true;

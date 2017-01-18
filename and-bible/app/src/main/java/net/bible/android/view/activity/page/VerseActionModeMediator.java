@@ -7,16 +7,19 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
+import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.page.PageControl;
+import net.bible.android.view.activity.BibleViewScope;
 
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.Versification;
 
 import java.util.Set;
+
+import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
@@ -27,6 +30,7 @@ import de.greenrobot.event.EventBus;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@BibleViewScope
 public class VerseActionModeMediator {
 
 	private final ActionModeMenuDisplay mainBibleActivity;
@@ -37,17 +41,21 @@ public class VerseActionModeMediator {
 
 	private final VerseMenuCommandHandler verseMenuCommandHandler;
 
+	private final BookmarkControl bookmarkControl;
+
 	private VerseNoRange verseNoRange;
 
 	private ActionMode actionMode;
 
     private static final String TAG = "VerseActionModeMediator";
 
-	public VerseActionModeMediator(ActionModeMenuDisplay mainBibleActivity, VerseHighlightControl bibleView, PageControl pageControl, VerseMenuCommandHandler verseMenuCommandHandler) {
+	@Inject
+	public VerseActionModeMediator(ActionModeMenuDisplay mainBibleActivity, VerseHighlightControl bibleView, PageControl pageControl, VerseMenuCommandHandler verseMenuCommandHandler, BookmarkControl bookmarkControl) {
 		this.mainBibleActivity = mainBibleActivity;
 		this.bibleView = bibleView;
 		this.pageControl = pageControl;
 		this.verseMenuCommandHandler = verseMenuCommandHandler;
+		this.bookmarkControl = bookmarkControl;
 
 		// Be notified if the associated window loses focus
 		EventBus.getDefault().register(this);
@@ -160,7 +168,7 @@ public class VerseActionModeMediator {
 		public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
 			// if start verse already bookmarked then enable Delete Bookmark menu item else Add Bookmark
 			Verse startVerse = getStartVerse();
-			boolean isVerseBookmarked = startVerse!=null && ControlFactory.getInstance().getBookmarkControl().isBookmarkForKey(getStartVerse());
+			boolean isVerseBookmarked = startVerse!=null && bookmarkControl.isBookmarkForKey(getStartVerse());
 			menu.findItem(R.id.add_bookmark).setVisible(!isVerseBookmarked);
 			menu.findItem(R.id.delete_bookmark).setVisible(isVerseBookmarked);
 

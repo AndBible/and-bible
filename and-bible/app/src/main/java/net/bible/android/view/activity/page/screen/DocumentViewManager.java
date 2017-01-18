@@ -1,14 +1,20 @@
 package net.bible.android.view.activity.page.screen;
 
+import android.app.Activity;
+import android.widget.LinearLayout;
+
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowControl;
+import net.bible.android.view.activity.MainBibleActivityScope;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.mynote.MyNoteViewBuilder;
-import android.app.Activity;
-import android.widget.LinearLayout;
+import net.bible.android.view.activity.page.MainBibleActivity;
+
+import javax.inject.Inject;
+
 import de.greenrobot.event.EventBus;
 /**
  * Create Views for displaying documents
@@ -17,20 +23,22 @@ import de.greenrobot.event.EventBus;
  *      The copyright to this program is held by it's authors.
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+@MainBibleActivityScope
 public class DocumentViewManager {
 
 	private DocumentWebViewBuilder documentWebViewBuilder;
 	private MyNoteViewBuilder myNoteViewBuilder;
-	private Activity mainActivity;
+	private Activity mainBibleActivity;
 	private LinearLayout parent;
 	
 	private WindowControl windowControl;
-	
-	public DocumentViewManager(Activity mainActivity) {
-		this.mainActivity = mainActivity;
-		documentWebViewBuilder = new DocumentWebViewBuilder(this.mainActivity);
-		myNoteViewBuilder = new MyNoteViewBuilder(this.mainActivity);
-		this.parent = (LinearLayout)mainActivity.findViewById(R.id.mainBibleView);
+
+	@Inject
+	public DocumentViewManager(MainBibleActivity mainBibleActivity, DocumentWebViewBuilder documentWebViewBuilder) {
+		this.mainBibleActivity = mainBibleActivity;
+		this.documentWebViewBuilder = documentWebViewBuilder;
+		myNoteViewBuilder = new MyNoteViewBuilder(this.mainBibleActivity);
+		this.parent = (LinearLayout)mainBibleActivity.findViewById(R.id.mainBibleView);
 		windowControl = ControlFactory.getInstance().getWindowControl();
 
 		EventBus.getDefault().register(this);

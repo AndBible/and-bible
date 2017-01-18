@@ -17,7 +17,6 @@ import android.widget.Toast;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
-import net.bible.android.control.bookmark.Bookmark;
 import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActionModeHelper;
@@ -27,6 +26,8 @@ import net.bible.service.db.bookmark.LabelDto;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 /**
  * Choose Document (Book) to download
@@ -39,7 +40,7 @@ import java.util.List;
  *      The copyright to this program is held by it's author.
  */
 public class Bookmarks extends ListActivityBase implements ListActionModeHelper.ActionModeActivity {
-	private Bookmark bookmarkControl;
+	private BookmarkControl bookmarkControl;
 	
 	// language spinner
 	private Spinner labelSpinner;
@@ -61,7 +62,7 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
         super.onCreate(savedInstanceState, true);
         setContentView(R.layout.bookmarks);
 
-        bookmarkControl = ControlFactory.getInstance().getBookmarkControl();
+		buildActivityComponent().inject(this);
 
         // if coming Back using History then the LabelNo will be in the intent allowing the correct label to be pre-selected
 		Bundle extras = getIntent().getExtras();
@@ -115,7 +116,7 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
     	loadBookmarkList();
     	
     	// prepare the document list view
-		ArrayAdapter<BookmarkDto> bookmarkArrayAdapter = new BookmarkItemAdapter(this, LIST_ITEM_TYPE, bookmarkList, this);
+		ArrayAdapter<BookmarkDto> bookmarkArrayAdapter = new BookmarkItemAdapter(this, LIST_ITEM_TYPE, bookmarkList, this, bookmarkControl);
     	setListAdapter(bookmarkArrayAdapter);
 	}
 
@@ -302,5 +303,10 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 		}
 
 		return selectedBookmarks;
+	}
+
+	@Inject
+	void setBookmarkControl(BookmarkControl bookmarkControl) {
+		this.bookmarkControl = bookmarkControl;
 	}
 }

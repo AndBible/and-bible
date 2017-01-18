@@ -1,5 +1,7 @@
 package net.bible.android.control;
 
+import net.bible.android.common.resource.AndroidResourceProvider;
+import net.bible.android.common.resource.ResourceProvider;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.control.download.DownloadQueue;
 import net.bible.service.download.RepoFactory;
@@ -17,7 +19,6 @@ import dagger.Provides;
  * @see gnu.lgpl.License for license details.<br>
  * The copyright to this program is held by it's author.
  */
-@ApplicationScope
 @Module
 public class ControllerModule {
 
@@ -26,4 +27,10 @@ public class ControllerModule {
 	public DownloadControl provideDownloadControl() {
 		return new DownloadControl(new DownloadQueue(Executors.newSingleThreadExecutor()), RepoFactory.getInstance().getXiphosRepo(), FontControl.getInstance());
 	}
+
+	@Provides
+	@ApplicationScope
+	public ResourceProvider provideResourceProvider(AndroidResourceProvider androidResourceProvider) {
+		return androidResourceProvider;
+	};
 }
