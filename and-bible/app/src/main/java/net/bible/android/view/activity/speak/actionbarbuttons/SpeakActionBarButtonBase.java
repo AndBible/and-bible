@@ -1,9 +1,9 @@
 package net.bible.android.view.activity.speak.actionbarbuttons;
 
-import net.bible.android.control.ControlFactory;
+import android.support.v4.view.MenuItemCompat;
+
 import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.view.activity.base.actionbar.QuickActionButton;
-import android.support.v4.view.MenuItemCompat;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -12,16 +12,14 @@ import android.support.v4.view.MenuItemCompat;
  */
 public abstract class SpeakActionBarButtonBase extends QuickActionButton {
 
-	private SpeakControl speakControl = ControlFactory.getInstance().getSpeakControl();
+	private SpeakControl speakControl;
 	
 	protected static final int SPEAK_START_PRIORITY = 10;
 
-	@SuppressWarnings("unused")
-	private static final String TAG = "Speak";
-
-	public SpeakActionBarButtonBase() {
+	public SpeakActionBarButtonBase(SpeakControl speakControl) {
 		// overridden by canShow
 		super(MenuItemCompat.SHOW_AS_ACTION_ALWAYS);
+		this.speakControl = speakControl;
 	}
 
 	/**  return true if Speak button can be shown */

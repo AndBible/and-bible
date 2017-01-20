@@ -48,7 +48,7 @@ public class SearchResults extends ListActivityBase {
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
 
     public SearchResults() {
-		super(searchResultsActionBarManager, R.menu.empty_menu);
+		super(R.menu.empty_menu);
 		
 		searchResultsActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener);
 	}
@@ -59,6 +59,8 @@ public class SearchResults extends ListActivityBase {
         super.onCreate(savedInstanceState, true);
         Log.i(TAG, "Displaying Search results view");
         setContentView(R.layout.list);
+
+		setActionBarManager(searchResultsActionBarManager);
 
         isScriptureResultsCurrentlyShown = searchControl.isCurrentDefaultScripture();
 

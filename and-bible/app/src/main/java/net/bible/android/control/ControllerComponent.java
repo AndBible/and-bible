@@ -4,6 +4,11 @@ import net.bible.android.control.backup.BackupControl;
 import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.control.page.PageControl;
+import net.bible.android.control.readingplan.ReadingPlanControl;
+import net.bible.android.control.speak.SpeakControl;
+import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager;
+import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton;
+import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton;
 
 import dagger.Component;
 
@@ -23,5 +28,11 @@ public interface ControllerComponent {
 	BookmarkControl bookmarkControl();
 	DownloadControl downloadControl();
 	PageControl pageControl();
+	ReadingPlanControl readingPlanControl();
 
+	SpeakControl speakControl();
+
+	SpeakActionBarButton speakActionBarButton();
+	SpeakStopActionBarButton speakStopActionBarButton();
+	ReadingPlanActionBarManager readingPlanActionBarManager();
 }

@@ -1,12 +1,16 @@
 package net.bible.android.view.activity.readingplan.actionbar;
 
-import net.bible.android.control.ControlFactory;
-import net.bible.android.view.activity.base.actionbar.Title;
-import net.bible.android.view.activity.readingplan.DailyReadingList;
-import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;
 import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.ActionBar;
+
+import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.readingplan.ReadingPlanControl;
+import net.bible.android.view.activity.base.actionbar.Title;
+import net.bible.android.view.activity.readingplan.DailyReadingList;
+import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;
+
+import javax.inject.Inject;
 
 /** 
  * Show current verse/key and document on left of actionBar
@@ -15,7 +19,15 @@ import android.support.v7.app.ActionBar;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class ReadingPlanTitle extends Title {
+
+	private final ReadingPlanControl readingPlanControl;
+
+	@Inject
+	public ReadingPlanTitle(ReadingPlanControl readingPlanControl) {
+		this.readingPlanControl = readingPlanControl;
+	}
 
 	public void addToBar(ActionBar actionBar, final Activity activity) {
 		super.addToBar(actionBar, activity);
@@ -24,13 +36,13 @@ public class ReadingPlanTitle extends Title {
 
 	@Override
 	protected String[] getDocumentTitleParts() {
-		String title = ControlFactory.getInstance().getReadingPlanControl().getShortTitle();
+		String title = readingPlanControl.getShortTitle();
 		return getTwoTitleParts(title, false);
 	}
 
 	@Override
 	protected String[] getPageTitleParts() {
-		String planDayDesc = ControlFactory.getInstance().getReadingPlanControl().getCurrentDayDescription();
+		String planDayDesc = readingPlanControl.getCurrentDayDescription();
 		return getTwoTitleParts(planDayDesc, true);
 	}
 

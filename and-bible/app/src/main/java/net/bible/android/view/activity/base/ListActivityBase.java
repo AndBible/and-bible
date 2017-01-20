@@ -1,7 +1,5 @@
 package net.bible.android.view.activity.base;
 
-import net.bible.android.activity.R;
-import net.bible.android.view.activity.base.actionbar.ActionBarManager;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
@@ -11,6 +9,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+
+import net.bible.android.activity.R;
 
 /** 
  * Base class for List activities.  Copied from Android source.  
@@ -47,10 +47,6 @@ public class ListActivityBase extends CustomTitlebarActivityBase {
 
 	public ListActivityBase(int optionsMenuId) {
 		super(optionsMenuId);
-	}
-
-	public ListActivityBase(ActionBarManager actionBarManager, int optionsMenuId) {
-		super(actionBarManager, optionsMenuId);
 	}
 	
 	protected void notifyDataSetChanged() {

@@ -1,16 +1,17 @@
 package net.bible.android.view.activity.base.actionbar;
 
-import java.lang.ref.WeakReference;
-
-import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.speak.SpeakControl;
-import net.bible.service.common.CommonUtils;
 import android.support.v4.view.MenuItemCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View.OnClickListener;
+
+import net.bible.android.BibleApplication;
+import net.bible.android.activity.R;
+import net.bible.android.control.speak.SpeakControl;
+import net.bible.service.common.CommonUtils;
+
+import java.lang.ref.WeakReference;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -33,10 +34,13 @@ abstract public class QuickActionButton implements OnMenuItemClickListener {
 	
 	private static final int NO_ICON = 0;
 	
-	private SpeakControl speakControl = ControlFactory.getInstance().getSpeakControl();
+	private SpeakControl speakControl;
 
 	public QuickActionButton(int showAsActionFlags) {
 		this.showAsActionFlags = showAsActionFlags;
+
+		//TODO inject all buttons and inject speakControl
+		speakControl = BibleApplication.getApplication().getControllerComponent().speakControl();
 	}
 
 	public void addToMenu(Menu menu) {
@@ -69,7 +73,7 @@ abstract public class QuickActionButton implements OnMenuItemClickListener {
 	 * Provide the possibility of handling clicks outside of the button e.g. in Activity 
 	 */
 	public void registerClickListener(OnClickListener onClickListener) {
-		this.weakOnClickListener = new WeakReference<OnClickListener>(onClickListener);
+		this.weakOnClickListener = new WeakReference<>(onClickListener);
 	}
 
 	/**

@@ -12,6 +12,7 @@ import net.bible.android.activity.StartupActivity;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.backup.BackupControl;
 import net.bible.android.control.download.DownloadControl;
+import net.bible.android.control.readingplan.ReadingPlanControl;
 import net.bible.android.view.activity.MainBibleActivityScope;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.bookmark.Bookmarks;
@@ -44,7 +45,9 @@ public class MenuCommandHandler {
 	private BackupControl backupControl;
 
 	private MainBibleActivity callingActivity;
-	
+
+	private final ReadingPlanControl readingPlanControl;
+
 	private WindowMenuCommandHandler windowMenuCommandHandler;
 	
 	// request codes passed to and returned from sub-activities
@@ -56,9 +59,10 @@ public class MenuCommandHandler {
 	private static final String TAG = "MainMenuCommandHandler";
 
 	@Inject
-	public MenuCommandHandler(MainBibleActivity activity) {
+	public MenuCommandHandler(MainBibleActivity activity, ReadingPlanControl readingPlanControl) {
 		super();
 		this.callingActivity = activity;
+		this.readingPlanControl = readingPlanControl;
 		this.windowMenuCommandHandler = new WindowMenuCommandHandler();
 	}
 	
@@ -101,7 +105,7 @@ public class MenuCommandHandler {
 		        	break;
 		        case R.id.dailyReadingPlanButton:
 		        	// show todays plan or allow plan selection
-		        	if (ControlFactory.getInstance().getReadingPlanControl().isReadingPlanSelected()) {
+		        	if (readingPlanControl.isReadingPlanSelected()) {
 		        		handlerIntent = new Intent(callingActivity, DailyReading.class);
 		        	} else {
 		        		handlerIntent = new Intent(callingActivity, ReadingPlanSelectorList.class);

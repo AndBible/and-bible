@@ -1,21 +1,5 @@
 package net.bible.android.view.activity.readingplan;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.readingplan.ReadingPlanControl;
-import net.bible.android.control.readingplan.ReadingStatus;
-import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
-import net.bible.android.view.activity.base.Dialogs;
-import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager;
-import net.bible.service.common.CommonUtils;
-import net.bible.service.readingplan.OneDaysReadingsDto;
-
-import org.crosswire.jsword.passage.Key;
-import org.crosswire.jsword.versification.BookName;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -27,6 +11,23 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TableLayout;
 import android.widget.TextView;
+
+import net.bible.android.activity.R;
+import net.bible.android.control.readingplan.ReadingPlanControl;
+import net.bible.android.control.readingplan.ReadingStatus;
+import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
+import net.bible.android.view.activity.base.Dialogs;
+import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager;
+import net.bible.service.common.CommonUtils;
+import net.bible.service.readingplan.OneDaysReadingsDto;
+
+import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.versification.BookName;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
 
 /** Allow user to enter search criteria
  * 
@@ -51,12 +52,12 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	
 	private OneDaysReadingsDto mReadings;
 
-	private ReadingPlanControl mReadingPlanControl = ControlFactory.getInstance().getReadingPlanControl();
+	private ReadingPlanControl readingPlanControl;
 	
-	private static ReadingPlanActionBarManager readingPlanActionBarManager = new ReadingPlanActionBarManager();
+	private ReadingPlanActionBarManager readingPlanActionBarManager;
 	
 	public DailyReading() {
-		super(readingPlanActionBarManager, R.menu.reading_plan);
+		super(R.menu.reading_plan);
 	}
 
     /** Called when the activity is first created. */
@@ -65,14 +66,17 @@ public class DailyReading extends CustomTitlebarActivityBase {
         super.onCreate(savedInstanceState, true);
         Log.i(TAG, "Displaying one day reading plan");
         setContentView(R.layout.reading_plan_one_day);
-        
+
+		super.buildActivityComponent().inject(this);
+		super.setActionBarManager(readingPlanActionBarManager);
+
         try {
 			// may not be for current day if user presses forward or backward
-	        mDay = mReadingPlanControl.getCurrentPlanDay();
+	        mDay = readingPlanControl.getCurrentPlanDay();
 			Bundle extras = getIntent().getExtras();
 			if (extras != null) {
 				if (extras.containsKey(PLAN)) {
-					mReadingPlanControl.setReadingPlan(extras.getString(PLAN));
+					readingPlanControl.setReadingPlan(extras.getString(PLAN));
 				}
 				if (extras.containsKey(DAY)) {
 					mDay = extras.getInt(DAY, mDay);
@@ -80,7 +84,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
 			}
 
 			// get readings for chosen day
-	        mReadings = mReadingPlanControl.getDaysReading(mDay);
+	        mReadings = readingPlanControl.getDaysReading(mDay);
 	        
 	        // Populate view
 	        mDescriptionView =  (TextView)findViewById(R.id.description);
@@ -94,7 +98,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	
 	        mDoneButton = (Button)findViewById(R.id.doneButton);
 	        
-	        mImageTickList = new ArrayList<ImageView>();
+	        mImageTickList = new ArrayList<>();
 
 	        // show short book name to save space if Portrait
 			boolean fullBookNameSave = BookName.isFullBookName();
@@ -178,7 +182,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
     public void onRead(int readingNo) {
     	Log.i(TAG, "Read "+readingNo);
     	Key readingKey = mReadings.getReadingKey(readingNo);
-    	mReadingPlanControl.read(mDay, readingNo, readingKey);
+    	readingPlanControl.read(mDay, readingNo, readingKey);
     	
     	finish();
     }
@@ -188,7 +192,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
     public void onSpeak(int readingNo) {
     	Log.i(TAG, "Speak "+readingNo);
     	Key readingKey = mReadings.getReadingKey(readingNo);
-    	mReadingPlanControl.speak(mDay, readingNo, readingKey);
+    	readingPlanControl.speak(mDay, readingNo, readingKey);
     	
     	updateTicksAndDone();
     }
@@ -196,7 +200,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	 */
     public void onSpeakAll(View view) {
     	Log.i(TAG, "Speak all");
-    	mReadingPlanControl.speak(mDay, mReadings.getReadingKeys());
+    	readingPlanControl.speak(mDay, mReadings.getReadingKeys());
     	
     	updateTicksAndDone();
     }
@@ -226,7 +230,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
 	    	setIntegrateWithHistoryManager(false);
 	    	
 	    	// all readings must be ticked for this to be enabled
-	    	int nextDayToShow = mReadingPlanControl.done(mReadings.getReadingPlanInfo(), mDay, false);
+	    	int nextDayToShow = readingPlanControl.done(mReadings.getReadingPlanInfo(), mDay, false);
 	    	
 	    	//if user is behind then go to next days readings
 	    	if (nextDayToShow>0) {
@@ -273,7 +277,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
     }
 
 	private void updateTicksAndDone() {
-		ReadingStatus status = mReadingPlanControl.getReadingStatus(mDay);
+		ReadingStatus status = readingPlanControl.getReadingStatus(mDay);
 		
 		for (int i=0; i<mImageTickList.size(); i++) {
 			ImageView imageTick = mImageTickList.get(i);
@@ -324,7 +328,7 @@ public class DailyReading extends CustomTitlebarActivityBase {
 		case (R.id.done):
 	    	Log.i(TAG, "Force Done");
 	    	try {
-		    	mReadingPlanControl.done(mReadings.getReadingPlanInfo(), mDay, true);
+		    	readingPlanControl.done(mReadings.getReadingPlanInfo(), mDay, true);
 		    	updateTicksAndDone();
 	        } catch (Exception e) {
 	        	Log.e(TAG, "Error when Done daily reading", e);
@@ -333,15 +337,15 @@ public class DailyReading extends CustomTitlebarActivityBase {
 
 			break;
 		case (R.id.reset):
-			mReadingPlanControl.reset(mReadings.getReadingPlanInfo());
+			readingPlanControl.reset(mReadings.getReadingPlanInfo());
 			finish();
 			isHandled = true;
 			break;
 		case (R.id.setStartToJan1):
-			mReadingPlanControl.setStartToJan1(mReadings.getReadingPlanInfo());
+			readingPlanControl.setStartToJan1(mReadings.getReadingPlanInfo());
 		
 			// refetch readings for chosen day
-	        mReadings = mReadingPlanControl.getDaysReading(mDay);
+	        mReadings = readingPlanControl.getDaysReading(mDay);
 	        
 	        // update date and day no
 	        mDateView.setText(mReadings.getReadingDateString());
@@ -357,4 +361,14 @@ public class DailyReading extends CustomTitlebarActivityBase {
         
      	return isHandled;
     }
+
+	@Inject
+	void setReadingPlanControl(ReadingPlanControl readingPlanControl) {
+		this.readingPlanControl = readingPlanControl;
+	}
+
+	@Inject
+	void setReadingPlanActionBarManager(ReadingPlanActionBarManager readingPlanActionBarManager) {
+		this.readingPlanActionBarManager = readingPlanActionBarManager;
+	}
 }

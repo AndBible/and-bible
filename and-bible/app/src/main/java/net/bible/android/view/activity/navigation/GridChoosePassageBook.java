@@ -1,7 +1,12 @@
 package net.bible.android.view.activity.navigation;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
@@ -18,13 +23,8 @@ import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.graphics.Color;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Choose a bible book e.g. Psalms
@@ -62,7 +62,7 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
 	private static final String TAG = "GridChoosePassageBook";
 
     public GridChoosePassageBook() {
-		super(bibleBookActionBarManager, R.menu.choose_passage_book_menu);
+		super(R.menu.choose_passage_book_menu);
 		
 		bibleBookActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener);
 		bibleBookActionBarManager.getSortButton().registerClickListener(sortOrderClickListener);
@@ -74,7 +74,9 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
     	// background goes white in some circumstances if theme changes so prevent theme change
     	setAllowThemeChange(false);
         super.onCreate(savedInstanceState);
-        
+
+		setActionBarManager(bibleBookActionBarManager);
+
         isCurrentlyShowingScripture = navigationControl.isCurrentDefaultScripture();
         bibleBookActionBarManager.setScriptureShown(isCurrentlyShowingScripture);
 
@@ -134,7 +136,7 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
     	BibleBook currentBibleBook = KeyUtil.getVerse(ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getKey()).getBook();
     	    	
     	List<BibleBook> bibleBookList = navigationControl.getBibleBooks(isCurrentlyShowingScripture);
-    	List<ButtonInfo> keys = new ArrayList<ButtonInfo>(bibleBookList.size());
+    	List<ButtonInfo> keys = new ArrayList<>(bibleBookList.size());
     	for (BibleBook book : bibleBookList) {
     		ButtonInfo buttonInfo = new ButtonInfo();
     		try {
@@ -151,10 +153,6 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
     	return keys;
     }
 
-	/**
-	 * @return
-	 * @throws NoSuchVerseException
-	 */
 	private boolean isShortBookNames() {
 		try {
 			return !getVersification().getShortName(BibleBook.GEN).equals(getVersification().getLongName(BibleBook.GEN));

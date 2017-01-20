@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.util.Log;
 
+import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.speak.SpeakControl;
@@ -22,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import de.greenrobot.event.EventBus;
 
 /** Control status of reading plans
@@ -30,10 +33,11 @@ import de.greenrobot.event.EventBus;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class ReadingPlanControl {
 
 	private ReadingPlanDao readingPlanDao = new ReadingPlanDao();
-	private SpeakControl mSpeakControl;
+	private SpeakControl speakControl;
 	
 	private static final String READING_PLAN = "reading_plan";
 	private static final String READING_PLAN_DAY_EXT = "_day";
@@ -41,7 +45,12 @@ public class ReadingPlanControl {
 	private static final String TAG = "ReadingPlanControl";
 	
 	private ReadingStatus readingStatus;
-	
+
+	@Inject
+	public ReadingPlanControl(SpeakControl speakControl) {
+		this.speakControl = speakControl;
+	}
+
 	/** allow front end to determine if a plan needs has been selected
 	 */
 	public boolean isReadingPlanSelected() {
@@ -241,7 +250,7 @@ public class ReadingPlanControl {
 		AbstractPassageBook bible = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getCurrentPassageBook();
 		List<Key> keyList = convertReadingVersification(readingKey, bible);
 
-		mSpeakControl.speak(bible, keyList, true, false);
+		speakControl.speak(bible, keyList, true, false);
 		
 		getReadingStatus(day).setRead(readingNo);
 	}
@@ -256,7 +265,7 @@ public class ReadingPlanControl {
 			List<Key> keyList = convertReadingVersification(key, bible);
 			allReadingsWithCorrectV11n.addAll(keyList);
 		}
-		mSpeakControl.speak(bible, allReadingsWithCorrectV11n, true, false);
+		speakControl.speak(bible, allReadingsWithCorrectV11n, true, false);
 
 		// mark all readings as read
 		for (int i=0; i<allReadings.size(); i++) {
@@ -267,7 +276,7 @@ public class ReadingPlanControl {
 	/** IOC
 	 */
 	public void setSpeakControl(SpeakControl speakControl) {
-		this.mSpeakControl = speakControl;
+		this.speakControl = speakControl;
 	}
 	
 	/** User has chosen to start a plan
@@ -307,7 +316,7 @@ public class ReadingPlanControl {
 		VersificationConverter v11nConverter = new VersificationConverter();
 		Key convertedPassage =  v11nConverter.convert(readingKey, documentV11n);
 		
-		List<Key> keyList = new ArrayList<Key>();
+		List<Key> keyList = new ArrayList<>();
 		keyList.add(convertedPassage);
 		return keyList;
 	}

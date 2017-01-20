@@ -1,11 +1,12 @@
 package net.bible.android.view.activity.base;
 
-import net.bible.android.control.ControlFactory;
-import net.bible.android.view.activity.base.actionbar.ActionBarManager;
-import net.bible.android.view.activity.base.actionbar.DefaultActionBarManager;
 import android.content.res.Configuration;
 import android.util.Log;
 import android.view.Menu;
+
+import net.bible.android.control.ControlFactory;
+import net.bible.android.view.activity.base.actionbar.ActionBarManager;
+import net.bible.android.view.activity.base.actionbar.DefaultActionBarManager;
 
 /**
  * Base class for activities with a custom title bar
@@ -16,7 +17,7 @@ import android.view.Menu;
  */
 public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	
-	private ActionBarManager actionBarManager;
+	private ActionBarManager actionBarManager = new DefaultActionBarManager();
 
 	private int optionsMenuId;
 
@@ -24,18 +25,13 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 
 //TODO hourglass	private ProgressBar mProgressBarIndeterminate;
 
-	private static final String TAG = "CustomTitlebarActivityBase";
+	private static final String TAG = "CustomTitlebrActvtyBase";
 
 	public CustomTitlebarActivityBase() {
-		this(new DefaultActionBarManager(), NO_OPTIONS_MENU);
+		this(NO_OPTIONS_MENU);
 	}
 
 	public CustomTitlebarActivityBase(int optionsMenuId) {
-		this(new DefaultActionBarManager(), optionsMenuId);
-	}
-	
-	public CustomTitlebarActivityBase(ActionBarManager actionBarManager, int optionsMenuId) {
-		this.actionBarManager = actionBarManager;
 		this.optionsMenuId = optionsMenuId;
 	}
 	
@@ -122,5 +118,9 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 
 	public void setProgressBar(boolean on) {
 //TODO hourglass		mProgressBarIndeterminate.setVisibility(on ? View.VISIBLE : View.GONE);
+	}
+
+	protected void setActionBarManager(ActionBarManager actionBarManager) {
+		this.actionBarManager = actionBarManager;
 	}
 }

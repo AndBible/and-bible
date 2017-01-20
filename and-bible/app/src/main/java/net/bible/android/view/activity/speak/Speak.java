@@ -1,17 +1,19 @@
 package net.bible.android.view.activity.speak;
 
-import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.speak.NumPagesToSpeakDefinition;
-import net.bible.android.control.speak.SpeakControl;
-import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
-import net.bible.android.view.activity.base.Dialogs;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+
+import net.bible.android.activity.R;
+import net.bible.android.control.speak.NumPagesToSpeakDefinition;
+import net.bible.android.control.speak.SpeakControl;
+import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
+import net.bible.android.view.activity.base.Dialogs;
+
+import javax.inject.Inject;
 
 /** Allow user to enter search criteria
  * 
@@ -37,7 +39,7 @@ public class Speak extends CustomTitlebarActivityBase {
         Log.i(TAG, "Displaying Search view");
         setContentView(R.layout.speak);
         
-        speakControl = ControlFactory.getInstance().getSpeakControl();
+        super.buildActivityComponent().inject(this);
         
         // set title of chapter/verse/page selection
         numPagesToSpeakDefinitions = speakControl.getNumPagesToSpeakDefinitions();
@@ -118,4 +120,9 @@ public class Speak extends CustomTitlebarActivityBase {
     private boolean isRepeat() {
     	return mRepeatCheckBox.isChecked();
     }
+
+	@Inject
+	void setSpeakControl(SpeakControl speakControl) {
+		this.speakControl = speakControl;
+	}
 }

@@ -56,7 +56,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	// handle requests from main menu
 	private MenuCommandHandler mainMenuCommandHandler;
 
-	private static BibleActionBarManager bibleActionBarManager = new BibleActionBarManager();
+	private BibleActionBarManager bibleActionBarManager;
 
 	// detect swipe left/right
 	private GestureDetectorCompat gestureDetector;
@@ -70,7 +70,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	private BackupControl backupControl;
 
 	public MainBibleActivity() {
-		super(bibleActionBarManager, R.menu.main);
+		super(R.menu.main);
 	}
 
 	/**
@@ -89,6 +89,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 				.mainBibleActivityModule(new MainBibleActivityModule(this))
 				.build()
 				.inject(this);
+
+		super.setActionBarManager(bibleActionBarManager);
 
 		// create related objects
 		BibleGestureListener gestureListener = new BibleGestureListener(MainBibleActivity.this);
@@ -384,6 +386,11 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	@Inject
 	void setMainMenuCommandHandler(MenuCommandHandler mainMenuCommandHandler) {
 		this.mainMenuCommandHandler = mainMenuCommandHandler;
+	}
+
+	@Inject
+	void setBibleActionBarManager(BibleActionBarManager bibleActionBarManager) {
+		this.bibleActionBarManager = bibleActionBarManager;
 	}
 }
 

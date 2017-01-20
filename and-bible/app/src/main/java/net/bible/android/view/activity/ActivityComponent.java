@@ -6,6 +6,10 @@ import net.bible.android.view.activity.bookmark.Bookmarks;
 import net.bible.android.view.activity.bookmark.ManageLabels;
 import net.bible.android.view.activity.download.Download;
 import net.bible.android.view.activity.navigation.ChooseDocument;
+import net.bible.android.view.activity.readingplan.DailyReading;
+import net.bible.android.view.activity.readingplan.DailyReadingList;
+import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;
+import net.bible.android.view.activity.speak.Speak;
 
 import dagger.Component;
 
@@ -17,7 +21,7 @@ import dagger.Component;
  * The copyright to this program is held by it's author.
  */
 @ActivityScope
-@Component(dependencies = ControllerComponent.class)
+@Component(dependencies = {ControllerComponent.class} )
 public interface ActivityComponent {
 	// Activities that are permitted to be injected
 
@@ -27,4 +31,9 @@ public interface ActivityComponent {
 
 	void inject(ChooseDocument chooseDocument);
 	void inject(Download download);
+
+	void inject(Speak speak);
+	void inject(DailyReading dailyReading);
+	void inject(DailyReadingList dailyReadingList);
+	void inject(ReadingPlanSelectorList readingPlanSelectorList);
 }

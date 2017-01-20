@@ -1,8 +1,13 @@
 package net.bible.android.view.activity.speak.actionbarbuttons;
 
-import net.bible.android.activity.R;
-import net.bible.service.common.CommonUtils;
 import android.view.MenuItem;
+
+import net.bible.android.activity.R;
+import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.speak.SpeakControl;
+import net.bible.service.common.CommonUtils;
+
+import javax.inject.Inject;
 
 /** 
  * Stop Speaking
@@ -11,7 +16,13 @@ import android.view.MenuItem;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class SpeakStopActionBarButton extends SpeakActionBarButtonBase {
+
+	@Inject
+	public SpeakStopActionBarButton(SpeakControl speakControl) {
+		super(speakControl);
+	}
 
 	@Override
 	public boolean onMenuItemClick(MenuItem menuItem) {

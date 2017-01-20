@@ -1,5 +1,10 @@
 package net.bible.android.view.activity.page.actionbar;
 
+import android.app.Activity;
+import android.support.v7.app.ActionBar;
+import android.view.Menu;
+
+import net.bible.android.view.activity.MainBibleActivityScope;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.actionbar.ActionBarManager;
 import net.bible.android.view.activity.base.actionbar.DefaultActionBarManager;
@@ -8,28 +13,33 @@ import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBar
 import net.bible.service.device.speak.event.SpeakEvent;
 import net.bible.service.device.speak.event.SpeakEventListener;
 import net.bible.service.device.speak.event.SpeakEventManager;
-import android.app.Activity;
-import android.support.v7.app.ActionBar;
-import android.view.Menu;
+
+import javax.inject.Inject;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@MainBibleActivityScope
 public class BibleActionBarManager extends DefaultActionBarManager implements ActionBarManager {
 
-	private HomeTitle homeTitle = new HomeTitle();
+	private final HomeTitle homeTitle;
 
 	private BibleActionBarButton bibleActionBarButton = new BibleActionBarButton();
 	private CommentaryActionBarButton commentaryActionBarButton = new CommentaryActionBarButton();
 	private DictionaryActionBarButton dictionaryActionBarButton = new DictionaryActionBarButton();
 	private StrongsActionBarButton strongsActionBarButton = new StrongsActionBarButton();
 	
-	private SpeakActionBarButton speakActionBarButton = new SpeakActionBarButton();
-	private SpeakStopActionBarButton stopActionBarButton = new SpeakStopActionBarButton();
-	
-	public BibleActionBarManager() {
+	private final SpeakActionBarButton speakActionBarButton;
+	private final SpeakStopActionBarButton stopActionBarButton;
+
+	@Inject
+	public BibleActionBarManager(HomeTitle homeTitle, SpeakActionBarButton speakActionBarButton, SpeakStopActionBarButton stopActionBarButton) {
+		this.homeTitle = homeTitle;
+		this.speakActionBarButton = speakActionBarButton;
+		this.stopActionBarButton = stopActionBarButton;
+
 		// the manager will also instantly fire a catch-up event to ensure state is current
         SpeakEventManager.getInstance().addSpeakEventListener(new SpeakEventListener() {
 			@Override

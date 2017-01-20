@@ -20,10 +20,8 @@ import net.bible.android.control.page.PageTiltScrollControl;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.control.page.window.WindowRepository;
-import net.bible.android.control.readingplan.ReadingPlanControl;
 import net.bible.android.control.report.ErrorReportControl;
 import net.bible.android.control.search.SearchControl;
-import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.control.versification.BibleTraverser;
 
 import java.util.HashMap;
@@ -52,8 +50,6 @@ public class ControlFactory {
 	private LinkControl linkControl;
 	private SearchControl searchControl = new SearchControl();
 	private MyNote mynoteControl = new MyNoteControl();
-	private SpeakControl speakControl = new SpeakControl();
-	private ReadingPlanControl readingPlanControl = new ReadingPlanControl();
 	private CompareTranslationsControl compareTranslationsControl;
 	private FootnoteAndRefControl footnoteAndRefControl;
 
@@ -92,8 +88,7 @@ public class ControlFactory {
 		errorReportControl = new ErrorReportControl(emailer); 
 
 		// inject dependencies
-		readingPlanControl.setSpeakControl(this.speakControl);
-		
+
 		navigationControl.setPageControl(this.pageControl);
 		navigationControl.setDocumentBibleBooksFactory(documentBibleBooksFactory);
 		searchControl.setDocumentBibleBooksFactory(documentBibleBooksFactory);
@@ -170,14 +165,6 @@ public class ControlFactory {
 
 	public MyNote getMyNoteControl() {
 		return mynoteControl;
-	}
-
-	public SpeakControl getSpeakControl() {
-		return speakControl;
-	}
-
-	public ReadingPlanControl getReadingPlanControl() {
-		return readingPlanControl;
 	}
 
 	public CompareTranslationsControl getCompareTranslationsControl() {

@@ -1,11 +1,12 @@
 package net.bible.android.control.speak;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import android.media.AudioManager;
+import android.util.Log;
+import android.widget.Toast;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
+import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
@@ -22,15 +23,18 @@ import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.Versification;
 
-import android.media.AudioManager;
-import android.util.Log;
-import android.widget.Toast;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import javax.inject.Inject;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class SpeakControl {
 
 	private static final int NUM_LEFT_IDX = 3;
@@ -56,6 +60,10 @@ public class SpeakControl {
 	};
 
 	private static final String TAG = "SpeakControl";
+
+	@Inject
+	public SpeakControl() {
+	}
 
 	/** return a list of prompt ids for the speak screen associated with the current document type
 	 */
@@ -109,7 +117,7 @@ public class SpeakControl {
 				CurrentPage page = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage();
 				Book fromBook = page.getCurrentDocument();
 		    	// first find keys to Speak
-				List<Key> keyList = new ArrayList<Key>();
+				List<Key> keyList = new ArrayList<>();
 				keyList.add(page.getKey());
 			
 				speak(fromBook, keyList, true, false);
@@ -156,7 +164,7 @@ public class SpeakControl {
 		Book fromBook = page.getCurrentDocument()
 				;
     	// first find keys to Speak
-		List<Key> keyList = new ArrayList<Key>();
+		List<Key> keyList = new ArrayList<>();
 		try {
 			for (int i=0; i<numPagesDefn.getNumPages(); i++) {
 				Key key = page.getPagePlus(i);
@@ -175,7 +183,7 @@ public class SpeakControl {
 	public void speak(Book book, List<Key> keyList, boolean queue, boolean repeat) {
 		Log.d(TAG, "Keys:"+keyList.size());
 		// build a string containing the text to be spoken
-		List<String> textToSpeak = new ArrayList<String>();
+		List<String> textToSpeak = new ArrayList<>();
 		
     	// first concatenate the number of required chapters
 		try {
@@ -279,7 +287,7 @@ public class SpeakControl {
     	String bookLanguageCode = fromBook.getLanguage().getCode();
     	Log.d(TAG, "Book has language code:"+bookLanguageCode);
 
-    	List<Locale> localePreferenceList = new ArrayList<Locale>();
+    	List<Locale> localePreferenceList = new ArrayList<>();
     	if (bookLanguageCode.equals(Locale.getDefault().getLanguage())) {
     		// for people in UK the UK accent is preferable to the US accent
     		localePreferenceList.add( Locale.getDefault() );

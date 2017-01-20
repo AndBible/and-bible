@@ -1,14 +1,6 @@
 package net.bible.android.view.activity.readingplan;
 
- import java.util.List;
-
-import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.readingplan.ReadingPlanControl;
-import net.bible.android.view.activity.base.Dialogs;
-import net.bible.android.view.activity.base.ListActivityBase;
-import net.bible.service.readingplan.ReadingPlanInfoDto;
-import android.content.Intent;
+ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -19,6 +11,16 @@ import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import net.bible.android.activity.R;
+import net.bible.android.control.readingplan.ReadingPlanControl;
+import net.bible.android.view.activity.base.Dialogs;
+import net.bible.android.view.activity.base.ListActivityBase;
+import net.bible.service.readingplan.ReadingPlanInfoDto;
+
+import java.util.List;
+
+ import javax.inject.Inject;
 
 /** do the search and show the search results
  * 
@@ -32,7 +34,7 @@ public class ReadingPlanSelectorList extends ListActivityBase {
     private List<ReadingPlanInfoDto> mReadingPlanList;
     private ArrayAdapter<ReadingPlanInfoDto> mPlanArrayAdapter;
 
-	private ReadingPlanControl mReadingPlanControl = ControlFactory.getInstance().getReadingPlanControl();
+	private ReadingPlanControl readingPlanControl;
 
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
 
@@ -42,8 +44,10 @@ public class ReadingPlanSelectorList extends ListActivityBase {
         super.onCreate(savedInstanceState, true);
         Log.i(TAG, "Displaying Reading Plan List");
         setContentView(R.layout.list);
+
+		buildActivityComponent().inject(this);
         try {
-	        mReadingPlanList = mReadingPlanControl.getReadingPlanList();
+	        mReadingPlanList = readingPlanControl.getReadingPlanList();
 	
 	       	mPlanArrayAdapter = new ReadingPlanItemAdapter(this, LIST_ITEM_TYPE, mReadingPlanList);
 	        setListAdapter(mPlanArrayAdapter);
@@ -62,7 +66,7 @@ public class ReadingPlanSelectorList extends ListActivityBase {
     @Override
 	protected void onListItemClick(ListView l, View v, final int position, long id) {
     	try {
-			mReadingPlanControl.startReadingPlan(mReadingPlanList.get(position));
+			readingPlanControl.startReadingPlan(mReadingPlanList.get(position));
 			
 			Intent intent = new Intent(ReadingPlanSelectorList.this, DailyReading.class);
 			startActivity(intent);
@@ -90,10 +94,15 @@ public class ReadingPlanSelectorList extends ListActivityBase {
 		if (plan!=null) {
 			switch (item.getItemId()) {
 			case (R.id.reset):
-				mReadingPlanControl.reset(plan);
+				readingPlanControl.reset(plan);
 				return true;
 			}
 		}
 		return false; 
+	}
+
+	@Inject
+	void setReadingPlanControl(ReadingPlanControl readingPlanControl) {
+		this.readingPlanControl = readingPlanControl;
 	}
 }

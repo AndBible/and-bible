@@ -4,10 +4,14 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import net.bible.android.activity.R;
+import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.document.DocumentControl;
+import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
+
+import javax.inject.Inject;
 
 /** 
  * Toggle Strongs numbers on/off
@@ -16,11 +20,17 @@ import net.bible.service.common.CommonUtils;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class SpeakActionBarButton extends SpeakActionBarButtonBase {
 
 	private DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
 
 	private static final String TAG = "SpeakActionBarButtonBas";
+
+	@Inject
+	public SpeakActionBarButton(SpeakControl speakControl) {
+		super(speakControl);
+	}
 
 	@Override
 	public boolean onMenuItemClick(MenuItem menuItem) {
