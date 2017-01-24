@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.util.Log;
 
 import net.bible.android.view.activity.navigation.GridChoosePassageBook;
+import net.bible.service.sword.SwordContentFacade;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang3.StringUtils;
@@ -26,8 +27,8 @@ public class CurrentCommentaryPage extends VersePage implements CurrentPage {
 	
 	private static final String TAG = "CurrentCommentaryPage";
 	
-	/* default */ CurrentCommentaryPage(CurrentBibleVerse currentBibleVerse) {
-		super(true, currentBibleVerse);
+	/* default */ CurrentCommentaryPage(CurrentBibleVerse currentBibleVerse, SwordContentFacade swordContentFacade) {
+		super(true, currentBibleVerse, swordContentFacade);
 	}
 
 	public BookCategory getBookCategory() {

@@ -1,18 +1,17 @@
 package net.bible.android.view.activity.search;
 
-import java.util.List;
-
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.search.SearchControl;
-
-import org.crosswire.jsword.passage.Key;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TwoLineListItem;
+
+import net.bible.android.control.search.SearchControl;
+
+import org.crosswire.jsword.passage.Key;
+
+import java.util.List;
 
 /**
  * nice example here: http://shri.blog.kraya.co.uk/2010/04/19/android-multi-line-select-list/
@@ -26,10 +25,10 @@ public class SearchItemAdapter extends ArrayAdapter<Key> {
 	private int resource;
 	private SearchControl searchControl;
 
-	public SearchItemAdapter(Context _context, int _resource, List<Key> _items) {
+	public SearchItemAdapter(Context _context, int _resource, List<Key> _items, SearchControl searchControl) {
 		super(_context, _resource, _items);
-		resource = _resource;
-		searchControl = ControlFactory.getInstance().getSearchControl();
+		this.resource = _resource;
+		this.searchControl = searchControl;
 	}
 
 	@Override

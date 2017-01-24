@@ -3,9 +3,11 @@ package net.bible.android.control.page.window;
 import android.content.SharedPreferences;
 
 import net.bible.android.BibleApplication;
-import net.bible.android.control.event.EventManager;
+import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.WindowLayout.WindowState;
 import net.bible.service.common.Logger;
 
@@ -17,8 +19,11 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import de.greenrobot.event.EventBus;
 
+@ApplicationScope
 public class WindowRepository {
 
 	// 1 based screen no
@@ -29,11 +34,20 @@ public class WindowRepository {
 	private LinksWindow dedicatedLinksWindow;
 	
 	private int maxWindowNoUsed = 0;
+
+	private final CurrentPageManager currentPageManager;
 	
 	private final Logger logger = new Logger(this.getClass().getName());
-	
-	public void initialise(EventManager eventManager) {
-		dedicatedLinksWindow = new LinksWindow(WindowState.CLOSED);
+
+	@Inject
+	public WindowRepository(CurrentPageManager currentPageManager) {
+		this.currentPageManager = currentPageManager;
+
+		initialise();
+	}
+
+	public void initialise() {
+		dedicatedLinksWindow = new LinksWindow(WindowState.CLOSED, currentPageManager);
 
 		windowList = new ArrayList<>();
 
@@ -42,7 +56,7 @@ public class WindowRepository {
     	setDefaultActiveWindow();
     	
 		// listen for AppToBackgroundEvent to save state when moved to background
-    	eventManager.register(this);
+    	ABEventBus.getDefault().register(this);
 	}
 	
 	//TODO if user presses a link then should also show links window
@@ -216,7 +230,7 @@ public class WindowRepository {
 	}
 	
 	private Window addNewWindow(int screenNo) {
-		Window newScreen = new Window(screenNo, getDefaultState());
+		Window newScreen = new Window(screenNo, getDefaultState(), currentPageManager);
 		maxWindowNoUsed = Math.max(maxWindowNoUsed, screenNo);
 		windowList.add(newScreen);
 		return newScreen;
@@ -298,7 +312,7 @@ public class WindowRepository {
 					for (int i=0; i<windowState.length(); i++) {
 						try {
 							JSONObject screenState = windowState.getJSONObject(i);
-							Window window = new Window();
+							Window window = new Window(currentPageManager);
 							window.restoreState(screenState);
 
 							maxWindowNoUsed = Math.max(maxWindowNoUsed, window.getScreenNo());

@@ -24,6 +24,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.index.search.SearchType;
 
+import javax.inject.Inject;
+
 /** Allow user to enter search criteria
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -39,7 +41,7 @@ public class Search extends CustomTitlebarActivityBase {
 	
 	private String currentBookName;
 	
-	private SearchControl searchControl = ControlFactory.getInstance().getSearchControl();
+	private SearchControl searchControl;
 	
 	private static final String SEARCH_TEXT_SAVE = "Search";
 	private static final String WORDS_SELECTION_SAVE = "Words";
@@ -54,6 +56,8 @@ public class Search extends CustomTitlebarActivityBase {
         super.onCreate(savedInstanceState, true);
         Log.i(TAG, "Displaying Search view");
         setContentView(R.layout.search);
+
+		buildActivityComponent().inject(this);
    
         if (!searchControl.validateIndex(getDocumentToSearch())) {
     		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, new Callback() {
@@ -213,4 +217,9 @@ public class Search extends CustomTitlebarActivityBase {
     		returnToPreviousScreen();
     	}
     }
+
+	@Inject
+	void setSearchControl(SearchControl searchControl) {
+		this.searchControl = searchControl;
+	}
 }

@@ -1,11 +1,7 @@
 package net.bible.android.control.navigation;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import net.bible.android.activity.R;
+import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.versification.Scripture;
 import net.bible.service.common.CommonUtils;
@@ -17,6 +13,13 @@ import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.SystemKJV;
 import org.crosswire.jsword.versification.system.Versifications;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
+import javax.inject.Inject;
+
 /**
  * Used by Passage navigation ui
  * 
@@ -24,13 +27,20 @@ import org.crosswire.jsword.versification.system.Versifications;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class NavigationControl {
 	
-	private PageControl pageControl;
+	private final PageControl pageControl;
 	
-	private DocumentBibleBooksFactory documentBibleBooksFactory;
+	private final DocumentBibleBooksFactory documentBibleBooksFactory;
 	
 	private static final String BIBLE_BOOK_SORT_ORDER = "BibleBookSortOrder";
+
+	@Inject
+	public NavigationControl(PageControl pageControl, DocumentBibleBooksFactory documentBibleBooksFactory) {
+		this.pageControl = pageControl;
+		this.documentBibleBooksFactory = documentBibleBooksFactory;
+	}
 
 	/** 
 	 * Get books in current Document - either all Scripture books or all non-Scripture books
@@ -137,13 +147,4 @@ public class NavigationControl {
 	private AbstractPassageBook getCurrentPassageDocument() {
 		return pageControl.getCurrentPageManager().getCurrentPassageDocument();
 	}
-
-	public void setPageControl(PageControl pageControl) {
-		this.pageControl = pageControl;
-	}
-
-	public void setDocumentBibleBooksFactory(DocumentBibleBooksFactory documentBibleBooksFactory) {
-		this.documentBibleBooksFactory = documentBibleBooksFactory;
-	}
-	
 }

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import net.bible.android.activity.R;
+import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.WindowControl;
@@ -34,22 +35,29 @@ import java.net.URLDecoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.inject.Inject;
+
 /** Control traversal via links pressed by user in a browser e.g. to Strongs
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class LinkControl {
 
 	private WindowControl windowControl;
-	
+
+	private final SearchControl searchControl;
+
 	private static final Pattern IBT_SPECIAL_CHAR_RE = Pattern.compile("_(\\d+)_");
 
 	private static final String TAG = "LinkControl";
-	
-	public LinkControl(WindowControl windowControl) {
+
+	@Inject
+	public LinkControl(WindowControl windowControl, SearchControl searchControl) {
 		this.windowControl = windowControl;
+		this.searchControl = searchControl;
 	}
 
 	/** Currently the only uris handled are for Strongs refs
@@ -220,7 +228,7 @@ public class LinkControl {
     	
     	// The below uses ANY_WORDS because that does not add anything to the search string
     	//String noLeadingZeroRef = StringUtils.stripStart(ref, "0");
-    	String searchText = ControlFactory.getInstance().getSearchControl().decorateSearchString("strong:"+refPrefix+ref, SearchType.ANY_WORDS, biblesection, null);
+    	String searchText = searchControl.decorateSearchString("strong:"+refPrefix+ref, SearchType.ANY_WORDS, biblesection, null);
     	Log.d(TAG, "Search text:"+searchText);
 
     	Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
@@ -239,8 +247,6 @@ public class LinkControl {
     	
     	intent.putExtras(searchParams);
 		activity.startActivity(intent);
-
-		return;
 	}
 	
 	/** ensure a book is indexed and the index contains typical Greek or Hebrew Strongs Numbers

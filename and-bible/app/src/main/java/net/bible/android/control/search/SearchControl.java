@@ -6,9 +6,11 @@ import android.util.Log;
 
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
+import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.navigation.DocumentBibleBooksFactory;
 import net.bible.android.control.page.CurrentBiblePage;
+import net.bible.android.control.page.PageControl;
 import net.bible.android.control.versification.Scripture;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
@@ -31,16 +33,21 @@ import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 
+import javax.inject.Inject;
+
 /** Support for the document search functionality
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class SearchControl {
 
 	private boolean isSearchShowingScripture = true;
-	
+
+	private final SwordContentFacade swordContentFacade;
+
 	public enum SearchBibleSection {
 		OT,
 		NT,
@@ -53,18 +60,28 @@ public class SearchControl {
 	public static final String SEARCH_TEXT = "SearchText";
 	public static final String SEARCH_DOCUMENT = "SearchDocument";
 	public static final String TARGET_DOCUMENT = "TargetDocument";
-	
+
 	private static final String STRONG_COLON_STRING = LuceneIndex.FIELD_STRONG+":";
 	private static final String STRONG_COLON_STRING_PLACE_HOLDER = LuceneIndex.FIELD_STRONG+"COLON";
-	
+
 	public static final int MAX_SEARCH_RESULTS = 1000;
 
-	private DocumentBibleBooksFactory documentBibleBooksFactory;
-	
+	private final DocumentBibleBooksFactory documentBibleBooksFactory;
+
+	private final PageControl pageControl;
+
 	private static final String TAG = "SearchControl";
-	
+
+	@Inject
+	public SearchControl(SwordContentFacade swordContentFacade, DocumentBibleBooksFactory documentBibleBooksFactory, PageControl pageControl) {
+		this.swordContentFacade = swordContentFacade;
+		this.documentBibleBooksFactory = documentBibleBooksFactory;
+		this.pageControl = pageControl;
+	}
+
+
 	/** if current document is indexed then go to search else go to download index page
-	 * 
+	 *
 	 * @return required Intent
 	 */
     public Intent getSearchIntent(Book document) {
@@ -127,7 +144,7 @@ public class SearchControl {
     	
     	// search the current book
         Book book = SwordDocumentFacade.getInstance().getDocumentByInitials(document);
-    	Key result = SwordContentFacade.getInstance().search(book, searchText);
+    	Key result = swordContentFacade.search(book, searchText);
     	if (result!=null) {
     		int resNum = result.getCardinality();
         	Log.d(TAG, "Number of results:"+resNum);
@@ -150,7 +167,7 @@ public class SearchControl {
 		// There is similar functionality in BookmarkControl
 		String verseText = "";
 		try {
-			verseText = SwordContentFacade.getInstance().getPlainText(ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getCurrentDocument(), key, 1);
+			verseText = swordContentFacade.getPlainText(ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getCurrentDocument(), key, 1);
 			verseText = CommonUtils.limitTextLength(verseText);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);
@@ -255,7 +272,7 @@ public class SearchControl {
 	}
 
 	public boolean isCurrentDefaultScripture() {
-		return ControlFactory.getInstance().getPageControl().isCurrentPageScripture();
+		return pageControl.isCurrentPageScripture();
 	}
 	
 	public boolean currentDocumentContainsNonScripture() {
@@ -265,9 +282,4 @@ public class SearchControl {
 	public boolean isCurrentlyShowingScripture() {
 		return isSearchShowingScripture || !currentDocumentContainsNonScripture();  
 	}
-
-	public void setDocumentBibleBooksFactory(DocumentBibleBooksFactory documentBibleBooksFactory) {
-		this.documentBibleBooksFactory = documentBibleBooksFactory;
-	}
-
 }

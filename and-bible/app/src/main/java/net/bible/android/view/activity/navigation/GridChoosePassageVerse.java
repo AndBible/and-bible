@@ -1,7 +1,10 @@
 package net.bible.android.view.activity.navigation;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.navigation.NavigationControl;
@@ -13,11 +16,10 @@ import net.bible.android.view.util.buttongrid.OnButtonGridActionListener;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
 
 /**
  * Choose a chapter to view
@@ -28,12 +30,12 @@ import android.view.View;
  */
 public class GridChoosePassageVerse extends CustomTitlebarActivityBase implements OnButtonGridActionListener {
 	
-	private static final String TAG = "GridChoosePassageChapter";
+	private static final String TAG = "GridChoosePassageChaptr";
 	
 	private BibleBook mBibleBook=BibleBook.GEN;
 	private int mBibleChapterNo=1;
 
-	private NavigationControl navigationControl = ControlFactory.getInstance().getNavigationControl();
+	private NavigationControl navigationControl;
 
     /** Called when the activity is first created. */
     @Override
@@ -41,6 +43,8 @@ public class GridChoosePassageVerse extends CustomTitlebarActivityBase implement
     	// background goes white in some circumstances if theme changes so prevent theme change
     	setAllowThemeChange(false);
         super.onCreate(savedInstanceState);
+
+		buildActivityComponent().inject(this);
 
         int bibleBookNo = getIntent().getIntExtra(GridChoosePassageBook.BOOK_NO, navigationControl.getDefaultBibleBookNo());
         //TODO av11n - this is done now
@@ -102,4 +106,9 @@ public class GridChoosePassageVerse extends CustomTitlebarActivityBase implement
     	setResult(Activity.RESULT_OK, resultIntent);
     	finish();    
     }
+
+	@Inject
+	void setNavigationControl(NavigationControl navigationControl) {
+		this.navigationControl = navigationControl;
+	}
 }

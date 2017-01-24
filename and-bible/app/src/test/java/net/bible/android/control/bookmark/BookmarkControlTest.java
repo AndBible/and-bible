@@ -2,8 +2,10 @@ package net.bible.android.control.bookmark;
 
 import net.bible.android.activity.BuildConfig;
 import net.bible.android.common.resource.AndroidResourceProvider;
+import net.bible.android.view.activity.bookmark.BookmarkFormatSupport;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
+import net.bible.service.sword.SwordContentFacade;
 
 import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.Verse;
@@ -12,6 +14,7 @@ import org.crosswire.jsword.passage.VerseRangeFactory;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
+import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Before;
@@ -49,10 +52,13 @@ public class BookmarkControlTest {
 	private String currentTestLabel;
 
 	private BookmarkControl bookmarkControl;
-	
+
+	private BookmarkFormatSupport bookmarkFormatSupport;
+
     @Before
     public void setUp() throws Exception {
-		bookmarkControl = new BookmarkControl(new AndroidResourceProvider());
+		bookmarkControl = new BookmarkControl(new SwordContentFacade(new BookmarkFormatSupport()), new AndroidResourceProvider());
+		bookmarkFormatSupport = new BookmarkFormatSupport();
 	}
 
 	@After
@@ -219,13 +225,14 @@ public class BookmarkControlTest {
 		addBookmark("ps.17.11");
 
 		// check only bookmark in range is returned
-		final Map<Integer, List<BookmarkStyle>> versesWithBookmarksInPassage = bookmarkControl.getVerseBookmarkStylesInPassage(passage);
+		final Map<Integer, List<BookmarkStyle>> versesWithBookmarksInPassage = bookmarkFormatSupport.getVerseBookmarkStylesInPassage(passage);
 
-		assertThat(versesWithBookmarksInPassage.size(), equalTo(3));
-		assertThat(versesWithBookmarksInPassage.get(1), contains(BookmarkStyle.GREEN_HIGHLIGHT));
-		assertThat(versesWithBookmarksInPassage.get(2), contains(BookmarkStyle.GREEN_HIGHLIGHT));
-		assertThat(versesWithBookmarksInPassage.get(10), Matchers.<BookmarkStyle>empty());
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.size(), equalTo(3));
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(1), contains(BookmarkStyle.GREEN_HIGHLIGHT));
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(2), contains(BookmarkStyle.GREEN_HIGHLIGHT));
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(10), Matchers.<BookmarkStyle>empty());
 	}
+
 
 	private BookmarkDto addTestVerse() {
 		try {

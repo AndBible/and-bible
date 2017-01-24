@@ -25,6 +25,8 @@ import org.crosswire.jsword.passage.Key;
 import java.util.ArrayList;
 import java.util.List;
 
+ import javax.inject.Inject;
+
 /** do the search and show the search results
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -41,16 +43,15 @@ public class SearchResults extends ListActivityBase {
 
     private boolean isScriptureResultsCurrentlyShown = true;
     
-	private static SearchResultsActionBarManager searchResultsActionBarManager = new SearchResultsActionBarManager();
+	private SearchResultsActionBarManager searchResultsActionBarManager;
 	
-	private static final SearchControl searchControl = ControlFactory.getInstance().getSearchControl();
+	private SearchControl searchControl;
 
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
 
     public SearchResults() {
 		super(R.menu.empty_menu);
 		
-		searchResultsActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener);
 	}
 	
     /** Called when the activity is first created. */
@@ -60,13 +61,16 @@ public class SearchResults extends ListActivityBase {
         Log.i(TAG, "Displaying Search results view");
         setContentView(R.layout.list);
 
+		buildActivityComponent().inject(this);
+
+		searchResultsActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener);
 		setActionBarManager(searchResultsActionBarManager);
 
         isScriptureResultsCurrentlyShown = searchControl.isCurrentDefaultScripture();
 
         if (fetchSearchResults()) {
             // initialise adapters before result population - easier when updating due to later Scripture toggle 
-        	mKeyArrayAdapter = new SearchItemAdapter(this, LIST_ITEM_TYPE, mCurrentlyDisplayedSearchResults);
+        	mKeyArrayAdapter = new SearchItemAdapter(this, LIST_ITEM_TYPE, mCurrentlyDisplayedSearchResults, searchControl);
             setListAdapter(mKeyArrayAdapter);
 
 			populateViewResultsAdapter();
@@ -173,4 +177,14 @@ public class SearchResults extends ListActivityBase {
 			searchResultsActionBarManager.setScriptureShown(isScriptureResultsCurrentlyShown);
 		}
 	};
+
+	@Inject
+	void setSearchControl(SearchControl searchControl) {
+		this.searchControl = searchControl;
+	}
+
+	@Inject
+	void setSearchResultsActionBarManager(SearchResultsActionBarManager searchResultsActionBarManager) {
+		searchResultsActionBarManager = searchResultsActionBarManager;
+	}
 }

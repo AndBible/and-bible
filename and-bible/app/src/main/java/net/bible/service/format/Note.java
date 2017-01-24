@@ -1,10 +1,11 @@
 package net.bible.service.format;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.ControllerComponent;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Logger;
-import net.bible.service.sword.SwordContentFacade;
 
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.passage.Key;
@@ -52,8 +53,9 @@ public class Note {
 		String retval = "";
 		try {
 			if (noteType.equals(NoteType.TYPE_REFERENCE)) {
-				String verse = StringUtils.isNotEmpty(osisRef) ? osisRef : noteText; 
-				retval = SwordContentFacade.getInstance().getPlainText(ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getCurrentDocument(), verse, 1);
+				String verse = StringUtils.isNotEmpty(osisRef) ? osisRef : noteText;
+				final ControllerComponent controllerComponent = BibleApplication.getApplication().getControllerComponent();
+				retval = controllerComponent.swordContentFacade().getPlainText(ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getCurrentDocument(), verse, 1);
 				retval = CommonUtils.limitTextLength(retval);
 			}
 		} catch (Exception e) {

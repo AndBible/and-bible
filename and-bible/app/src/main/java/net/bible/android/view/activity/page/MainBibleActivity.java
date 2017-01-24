@@ -25,6 +25,7 @@ import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.window.WindowControl;
+import net.bible.android.control.search.SearchControl;
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent;
 import net.bible.android.view.activity.MainBibleActivityModule;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
@@ -51,7 +52,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 
 	private WindowControl windowControl;
 
-	private static final String TAG = "MainBibleActivity";
 
 	// handle requests from main menu
 	private MenuCommandHandler mainMenuCommandHandler;
@@ -68,6 +68,10 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	private boolean alwaysDispatchTouchEventToSuper = !CommonUtils.isHoneycombPlus();
 
 	private BackupControl backupControl;
+
+	private SearchControl searchControl;
+
+	private static final String TAG = "MainBibleActivity";
 
 	public MainBibleActivity() {
 		super(R.menu.main);
@@ -190,7 +194,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		if (BibleKeyHandler.getInstance().onKeyUp(keyCode, event)) {
 			return true;
 		} else if ((keyCode == KeyEvent.KEYCODE_SEARCH && ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().isSearchable())) {
-			Intent intent = ControlFactory.getInstance().getSearchControl().getSearchIntent(ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument());
+			Intent intent = searchControl.getSearchIntent(ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument());
 			if (intent != null) {
 				startActivityForResult(intent, STD_REQUEST_CODE);
 			}
@@ -391,6 +395,11 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	@Inject
 	void setBibleActionBarManager(BibleActionBarManager bibleActionBarManager) {
 		this.bibleActionBarManager = bibleActionBarManager;
+	}
+
+	@Inject
+	void setSearchControl(SearchControl searchControl) {
+		this.searchControl = searchControl;
 	}
 }
 

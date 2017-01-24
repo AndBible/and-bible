@@ -4,6 +4,7 @@ import android.util.Log;
 
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.Dialogs;
+import net.bible.service.sword.SwordContentFacade;
 
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
@@ -23,8 +24,8 @@ abstract public class CachedKeyPage extends CurrentPageBase  {
 
 	private static String TAG = "CachedKeyPage";
 	
-	CachedKeyPage(boolean shareKeyBetweenDocs) {
-		super(shareKeyBetweenDocs);
+	CachedKeyPage(boolean shareKeyBetweenDocs, SwordContentFacade swordContentFacade) {
+		super(shareKeyBetweenDocs, swordContentFacade);
 	}
 
 	@Override
@@ -46,7 +47,7 @@ abstract public class CachedKeyPage extends CurrentPageBase  {
 			try {
 				Log.d(TAG, "Start to create cached key list for "+getCurrentDocument());
 				// this cache is cleared in setCurrentDoc
-		    	mCachedGlobalKeyList = new ArrayList<Key>();
+		    	mCachedGlobalKeyList = new ArrayList<>();
 
 		    	for (Key key : getCurrentDocument().getGlobalKeyList()) {
 		    		// root key has no name and can be ignored but also check for any other keys with no name

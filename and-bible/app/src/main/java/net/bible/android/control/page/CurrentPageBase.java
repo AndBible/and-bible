@@ -42,13 +42,15 @@ abstract class CurrentPageBase implements CurrentPage {
 
 	// all bibles and commentaries share the same key
 	private boolean shareKeyBetweenDocs = false;
+
+	private final SwordContentFacade swordContentFacade;
 	
 	public abstract void doSetKey(Key key);
 	
-	
-	protected CurrentPageBase(boolean shareKeyBetweenDocs) {
+	protected CurrentPageBase(boolean shareKeyBetweenDocs, SwordContentFacade swordContentFacade) {
 		super();
 		this.shareKeyBetweenDocs = shareKeyBetweenDocs;
+		this.swordContentFacade = swordContentFacade;
 	}
 
 
@@ -103,7 +105,7 @@ abstract class CurrentPageBase implements CurrentPage {
 
 	@Override
 	public String getCurrentPageContent() throws ParseException {
-        String htmlText = SwordContentFacade.getInstance().readHtmlText(getCurrentDocument(), getKey());
+        String htmlText = swordContentFacade.readHtmlText(getCurrentDocument(), getKey());
                 
         if (StringUtils.isEmpty(htmlText)) {
         	htmlText = HtmlMessageFormatter.format(R.string.error_no_content);
@@ -114,7 +116,7 @@ abstract class CurrentPageBase implements CurrentPage {
 	
 	@Override
 	public List<Note> getCurrentPageFootnotesAndReferences() throws ParseException {
-        List<Note> footnotes = SwordContentFacade.getInstance().readFootnotesAndReferences(getCurrentDocument(), getKey());
+        List<Note> footnotes = swordContentFacade.readFootnotesAndReferences(getCurrentDocument(), getKey());
         
         return footnotes;	
 	}

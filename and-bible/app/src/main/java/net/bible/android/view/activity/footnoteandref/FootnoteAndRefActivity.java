@@ -12,7 +12,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.footnoteandref.FootnoteAndRefControl;
 import net.bible.android.view.activity.base.IntentHelper;
 import net.bible.android.view.activity.base.ListActivityBase;
@@ -25,6 +24,8 @@ import org.crosswire.jsword.passage.VerseRange;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 /** Show Notes and Cross references for the current verse
  * 
@@ -51,7 +52,7 @@ public class FootnoteAndRefActivity extends ListActivityBase implements SwipeGes
 	// detect swipe left/right
 	private GestureDetector gestureDetector;
 
-	private FootnoteAndRefControl footnoteAndRefControl = ControlFactory.getInstance().getFootnoteAndRefControl();
+	private FootnoteAndRefControl footnoteAndRefControl;
 
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
 
@@ -62,6 +63,7 @@ public class FootnoteAndRefActivity extends ListActivityBase implements SwipeGes
         Log.i(TAG, "Displaying notes");
         setContentView(R.layout.notes);
 
+		buildActivityComponent().inject(this);
 		//fetch verse from intent if set - so that goto via History works nicely
 		currentVerseRange = intentHelper.getIntentVerseRangeOrDefault(getIntent());
 
@@ -76,7 +78,7 @@ public class FootnoteAndRefActivity extends ListActivityBase implements SwipeGes
     }
 
     private void initialiseView() {
-    	mVerseNotesList = new ArrayList<Note>();
+    	mVerseNotesList = new ArrayList<>();
     	
     	showCurrentVerse();
     	populateVerseNotesList();
@@ -172,5 +174,10 @@ public class FootnoteAndRefActivity extends ListActivityBase implements SwipeGes
 	public boolean dispatchTouchEvent(MotionEvent motionEvent) {
 		this.gestureDetector.onTouchEvent(motionEvent);
 		return super.dispatchTouchEvent(motionEvent);
+	}
+
+	@Inject
+	void setFootnoteAndRefControl(FootnoteAndRefControl footnoteAndRefControl) {
+		this.footnoteAndRefControl = footnoteAndRefControl;
 	}
 }

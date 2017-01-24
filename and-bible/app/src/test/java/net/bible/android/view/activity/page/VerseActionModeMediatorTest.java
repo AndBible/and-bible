@@ -9,6 +9,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.MockitoTestControlFactory;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowLayout;
@@ -58,6 +59,9 @@ public class VerseActionModeMediatorTest {
 	private VerseActionModeMediator verseActionModeMediator;
 
 	@Mock
+	private CurrentPageManager currentPageManager;
+
+	@Mock
 	private ActionMode actionMode;
 
 	@Before
@@ -101,7 +105,7 @@ public class VerseActionModeMediatorTest {
 		verseActionModeMediator.verseLongPress(TestData.SELECTED_VERSE_NO);
 
 		// publish window change event
-		EventBus.getDefault().post(new CurrentWindowChangedEvent(new Window(3, WindowLayout.WindowState.MAXIMISED)));
+		EventBus.getDefault().post(new CurrentWindowChangedEvent(new Window(3, WindowLayout.WindowState.MAXIMISED, currentPageManager)));
 
 		assertThat(verseActionModeMediator.isActionMode(), is(false));
 	}

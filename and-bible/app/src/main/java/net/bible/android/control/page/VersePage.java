@@ -1,15 +1,16 @@
 package net.bible.android.control.page;
 
+import android.util.Log;
+
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.versification.BibleTraverser;
+import net.bible.service.sword.SwordContentFacade;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
-
-import android.util.Log;
 
 
 /** Common functionality for Bible and commentary document page types
@@ -26,8 +27,8 @@ public abstract class VersePage extends CurrentPageBase {
 
 	private static final String TAG = "CurrentPageBase";
 	
-	protected VersePage(boolean shareKeyBetweenDocs, CurrentBibleVerse currentVerse) {
-		super(shareKeyBetweenDocs);
+	protected VersePage(boolean shareKeyBetweenDocs, CurrentBibleVerse currentVerse, SwordContentFacade swordContentFacade) {
+		super(shareKeyBetweenDocs, swordContentFacade);
 		// share the verse holder between the CurrentBiblePage & CurrentCommentaryPage
 		this.currentBibleVerse = currentVerse;
 	}

@@ -5,8 +5,10 @@ import android.util.Log;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
+import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.BookmarkStyle;
+import net.bible.android.view.activity.bookmark.BookmarkFormatSupport;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Constants;
 import net.bible.service.common.Logger;
@@ -40,6 +42,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
@@ -49,10 +52,13 @@ import javax.xml.parsers.SAXParserFactory;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class SwordContentFacade {
-	
+
 	private DocumentParseMethod documentParseMethod = new DocumentParseMethod();
-	
+
+	private final BookmarkFormatSupport bookmarkFormatSupport;
+
 	private CssControl cssControl = new CssControl();
 	
 	private static final String TAG = "SwordContentFacade";
@@ -61,20 +67,11 @@ public class SwordContentFacade {
 	// set to false for testing
 	public static boolean isAndroid = true; //CommonUtils.isAndroid();
 	
-    private static final Logger log = new Logger(SwordContentFacade.class.getName()); 
+    private static final Logger log = new Logger(SwordContentFacade.class.getName());
 
-	public static SwordContentFacade getInstance() {
-		if (singleton==null) {
-			synchronized(SwordContentFacade.class)  {
-				if (singleton==null) {
-					singleton = new SwordContentFacade();
-				}
-			}
-		}
-		return singleton;
-	}
-
-	private SwordContentFacade() {
+	@Inject
+	public SwordContentFacade(BookmarkFormatSupport bookmarkFormatSupport) {
+		this.bookmarkFormatSupport = bookmarkFormatSupport;
 	}
 	
 	/** top level method to fetch html from the raw document data
@@ -390,7 +387,7 @@ public class SwordContentFacade {
 					osisToHtmlParameters.setDefaultBookmarkStyle(BookmarkStyle.valueOf(preferences.getString("default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name())));
 					osisToHtmlParameters.setShowTitles(preferences.getBoolean("section_title_pref", true));
 					osisToHtmlParameters.setVersesWithNotes(ControlFactory.getInstance().getMyNoteControl().getVersesWithNotesInPassage(key));
-					osisToHtmlParameters.setBookmarkStylesByBookmarkedVerse(ControlFactory.getInstance().getBookmarkControl().getVerseBookmarkStylesInPassage(key));
+					osisToHtmlParameters.setBookmarkStylesByBookmarkedVerse(bookmarkFormatSupport.getVerseBookmarkStylesInPassage(key));
 
 					// showMorphology depends on showStrongs to allow the toolbar toggle button to affect both strongs and morphology
 					boolean showStrongs = preferences.getBoolean("show_strongs_pref", true);

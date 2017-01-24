@@ -10,6 +10,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.page.CurrentBiblePage;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.WindowLayout.WindowState;
 import net.bible.test.PassageTestData;
 
@@ -54,13 +55,16 @@ public class WindowControlTest {
 	private WindowRepository windowRepository;
 	
 	private WindowControl windowControl;
-	
+
+	private CurrentPageManager mockCurrentPageManager;
+
 	@Before
 	public void setUp() throws Exception {
 		eventManager = mock(EventManager.class);
-		windowRepository = new WindowRepository();
-		windowRepository.initialise(eventManager);
-		windowControl = new WindowControl(windowRepository, eventManager);
+		mockCurrentPageManager = mock(CurrentPageManager.class);
+		windowRepository = new WindowRepository(mockCurrentPageManager);
+		windowRepository.initialise();
+		windowControl = new WindowControl(windowRepository);
 		reset(eventManager);
 	}
 

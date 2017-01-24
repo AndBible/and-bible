@@ -4,11 +4,19 @@ import net.bible.android.control.ControllerComponent;
 import net.bible.android.view.activity.bookmark.BookmarkLabels;
 import net.bible.android.view.activity.bookmark.Bookmarks;
 import net.bible.android.view.activity.bookmark.ManageLabels;
+import net.bible.android.view.activity.comparetranslations.CompareTranslations;
 import net.bible.android.view.activity.download.Download;
+import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity;
 import net.bible.android.view.activity.navigation.ChooseDocument;
+import net.bible.android.view.activity.navigation.GridChoosePassageBook;
+import net.bible.android.view.activity.navigation.GridChoosePassageChapter;
+import net.bible.android.view.activity.navigation.GridChoosePassageVerse;
 import net.bible.android.view.activity.readingplan.DailyReading;
 import net.bible.android.view.activity.readingplan.DailyReadingList;
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;
+import net.bible.android.view.activity.search.Search;
+import net.bible.android.view.activity.search.SearchIndex;
+import net.bible.android.view.activity.search.SearchResults;
 import net.bible.android.view.activity.speak.Speak;
 
 import dagger.Component;
@@ -25,9 +33,15 @@ import dagger.Component;
 public interface ActivityComponent {
 	// Activities that are permitted to be injected
 
+	void inject(StartupActivity startupActivity);
+
 	void inject(Bookmarks bookmarks);
 	void inject(BookmarkLabels bookmarkLabels);
 	void inject(ManageLabels manageLabels);
+
+	void inject(GridChoosePassageBook gridChoosePassageBook);
+	void inject(GridChoosePassageChapter gridChoosePassageChapter);
+	void inject(GridChoosePassageVerse gridChoosePassageVerse);
 
 	void inject(ChooseDocument chooseDocument);
 	void inject(Download download);
@@ -36,4 +50,9 @@ public interface ActivityComponent {
 	void inject(DailyReading dailyReading);
 	void inject(DailyReadingList dailyReadingList);
 	void inject(ReadingPlanSelectorList readingPlanSelectorList);
+	void inject(SearchIndex searchIndex);
+	void inject(Search search);
+	void inject(SearchResults searchResults);
+	void inject(CompareTranslations compareTranslations);
+	void inject(FootnoteAndRefActivity footnoteAndRefActivity);
 }

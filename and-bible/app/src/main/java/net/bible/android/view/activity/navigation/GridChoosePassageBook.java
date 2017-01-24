@@ -26,6 +26,8 @@ import org.crosswire.jsword.versification.Versification;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 /**
  * Choose a bible book e.g. Psalms
  * 
@@ -39,7 +41,7 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
 	
     private boolean isCurrentlyShowingScripture = true;
     
-	private NavigationControl navigationControl = ControlFactory.getInstance().getNavigationControl();
+	private NavigationControl navigationControl;
 	
 	static final String BOOK_NO = "BOOK_NO";
 	static final String CHAPTER_NO = "CHAPTER_NO";
@@ -57,15 +59,13 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
 	private static final int REVELATION_COLOR = Color.rgb(0xFE, 0x33, 0xFF);
 	private static final int OTHER_COLOR = ACTS_COLOR;
 
-	private static BibleBookActionBarManager bibleBookActionBarManager = new BibleBookActionBarManager();
+	private BibleBookActionBarManager bibleBookActionBarManager;
 	
 	private static final String TAG = "GridChoosePassageBook";
 
     public GridChoosePassageBook() {
 		super(R.menu.choose_passage_book_menu);
 		
-		bibleBookActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener);
-		bibleBookActionBarManager.getSortButton().registerClickListener(sortOrderClickListener);
 	}
     
     /** Called when the activity is first created. */
@@ -74,6 +74,11 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
     	// background goes white in some circumstances if theme changes so prevent theme change
     	setAllowThemeChange(false);
         super.onCreate(savedInstanceState);
+
+		buildActivityComponent().inject(this);
+
+		bibleBookActionBarManager.registerScriptureToggleClickListener(scriptureToggleClickListener);
+		bibleBookActionBarManager.getSortButton().registerClickListener(sortOrderClickListener);
 
 		setActionBarManager(bibleBookActionBarManager);
 
@@ -256,4 +261,14 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
             buttonGrid.addButtons(getBibleBookButtonInfo());
 		}
 	};
+
+	@Inject
+	void setBibleBookActionBarManager(BibleBookActionBarManager bibleBookActionBarManager) {
+		this.bibleBookActionBarManager = bibleBookActionBarManager;
+	}
+
+	@Inject
+	void setNavigationControl(NavigationControl navigationControl) {
+		this.navigationControl = navigationControl;
+	}
 }

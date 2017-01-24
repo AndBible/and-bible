@@ -1,7 +1,10 @@
 package net.bible.android.view.activity.navigation;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
 
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.navigation.NavigationControl;
@@ -15,11 +18,10 @@ import net.bible.service.common.CommonUtils;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
 
 /**
  * Choose a chapter to view
@@ -29,12 +31,12 @@ import android.view.View;
  *      The copyright to this program is held by it's author.
  */
 public class GridChoosePassageChapter extends CustomTitlebarActivityBase implements OnButtonGridActionListener {
-	
-	private static final String TAG = "GridChoosePassageChapter";
-	
+
 	private BibleBook mBibleBook=BibleBook.GEN;
-	
-	private NavigationControl navigationControl = ControlFactory.getInstance().getNavigationControl();
+
+	private NavigationControl navigationControl;
+
+	private static final String TAG = "GridChoosePassageChaptr";
 
     /** Called when the activity is first created. */
     @Override
@@ -43,6 +45,7 @@ public class GridChoosePassageChapter extends CustomTitlebarActivityBase impleme
     	setAllowThemeChange(false);
         super.onCreate(savedInstanceState);
 
+		buildActivityComponent().inject(this);
         int bibleBookNo = getIntent().getIntExtra(GridChoosePassageBook.BOOK_NO, navigationControl.getDefaultBibleBookNo());
         //TODO av11n - this is done now
         mBibleBook = BibleBook.values()[bibleBookNo];
@@ -119,4 +122,9 @@ public class GridChoosePassageChapter extends CustomTitlebarActivityBase impleme
     		returnToPreviousScreen();
     	}
     }
+
+	@Inject
+	void setNavigationControl(NavigationControl navigationControl) {
+		this.navigationControl = navigationControl;
+	}
 }

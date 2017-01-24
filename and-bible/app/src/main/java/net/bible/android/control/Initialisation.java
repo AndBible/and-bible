@@ -1,26 +1,29 @@
 package net.bible.android.control;
 
+import net.bible.android.control.navigation.DocumentBibleBooksFactory;
+import net.bible.service.history.HistoryManager;
+import net.bible.service.sword.SwordDocumentFacade;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
-import net.bible.service.history.HistoryManager;
-import net.bible.service.sword.SwordDocumentFacade;
+import javax.inject.Inject;
 
 /**
  * Support initialisation as i) do it now or ii) do this eventually
  */
+@ApplicationScope
 public class Initialisation {
+
+	private final DocumentBibleBooksFactory documentBibleBooksFactory;
 
 	private boolean isInitialised = false;
 	
 	private static final long INITIALISE_DELAY = 3000;
 	
-	private static Initialisation singleton = new Initialisation();
-	
-	public static Initialisation getInstance() {
-		return singleton;
-	}
-	private Initialisation() {
+	@Inject
+	public Initialisation(DocumentBibleBooksFactory documentBibleBooksFactory) {
+		this.documentBibleBooksFactory = documentBibleBooksFactory;
 	}
 
 	/**
@@ -44,19 +47,19 @@ public class Initialisation {
 		if (!isInitialised) {
 			// force early initialisation of Control factory to prevent circular dependencies
 			ControlFactory.getInstance();
-	
+
 	        // force Sword to initialise itself
 	        SwordDocumentFacade.getInstance().getBibles();
-	        
+
 	        // Now initialise other system features
-	        
+
 	        // Initialise HistoryManager
 	        HistoryManager.getInstance().initialise();
-	        
+
 	        // needs to register a listener
-	        ControlFactory.getInstance().getDocumentBibleBooksFactory().initialise();
+	        documentBibleBooksFactory.initialise();
 	        
 	        isInitialised = true;
 		}
-	};
+	}
 }

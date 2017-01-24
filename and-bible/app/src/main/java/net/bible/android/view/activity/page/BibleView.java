@@ -21,6 +21,7 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent;
 import net.bible.android.control.event.window.UpdateSecondaryWindowEvent;
 import net.bible.android.control.event.window.WindowSizeChangedEvent;
+import net.bible.android.control.link.LinkControl;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowControl;
@@ -40,23 +41,26 @@ import de.greenrobot.event.EventBus;
  */
 public class BibleView extends WebView implements DocumentView, VerseActionModeMediator.VerseHighlightControl {
 	
-	private Window window;
-	
+	private final Window window;
+
+
 	private BibleJavascriptInterface bibleJavascriptInterface;
 
 	private int mJumpToVerse = SharedConstants.NO_VALUE;
 	private float mJumpToYOffsetRatio = SharedConstants.NO_VALUE;
 
 	private boolean mIsVersePositionRecalcRequired = true;
-	
+
 	private PageTiltScroller mPageTiltScroller;
 	private boolean hideScrollBar;
-	
+
 	private boolean wasAtRightEdge;
 	private boolean wasAtLeftEdge;
 
-	private PageControl mPageControl = ControlFactory.getInstance().getPageControl();
-	
+	private final PageControl pageControl;
+
+	private final LinkControl linkControl;
+
 	private int maintainMovingVerse = -1;
 	private static WindowControl windowControl = ControlFactory.getInstance().getWindowControl();
 	
@@ -73,11 +77,15 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	/**
      * Constructor.  This version is only needed if you will be instantiating
      * the object manually (not from a layout XML file).
-     * @param context
-     */
-	public BibleView(Context context, Window window) {
+	 * @param context
+	 * @param pageControl
+	 * @param linkControl
+	 */
+	public BibleView(Context context, Window window, PageControl pageControl, LinkControl linkControl) {
 		super(context);
 		this.window = window;
+		this.pageControl = pageControl;
+		this.linkControl = linkControl;
 	}
 
 	/**
@@ -96,7 +104,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String url) {
 				// load Strongs refs when a user clicks on a link
-				if (ControlFactory.getInstance().getLinkControl().loadApplicationUrl(url)) {
+				if (linkControl.loadApplicationUrl(url)) {
 					return true;
 				} else {
 					return super.shouldOverrideUrlLoading(view, url);
@@ -160,7 +168,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	}
 
 	private void applyFontSize() {
-		int fontSize = mPageControl.getDocumentFontSize(window);
+		int fontSize = pageControl.getDocumentFontSize(window);
 		getSettings().setDefaultFontSize(fontSize);
 
 		// 1.6 is taken from css - line-height: 1.6em;
@@ -181,9 +189,8 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		return changed;
 	}
 	
-	/** show a page from bible commentary
-	 * 
-	 * @param html
+	/**
+	 * show a page from bible commentary
 	 */
 	@Override
 	public void show(String html, int jumpToVerse, float jumpToYOffsetRatio) {

@@ -59,7 +59,6 @@ public class SwordDocumentFacade {
 			synchronized(SwordDocumentFacade.class)  {
 				if (singleton==null) {
 					SwordDocumentFacade instance = new SwordDocumentFacade();
-					instance.initialise();
 					singleton = instance;
 				}
 			}
@@ -70,7 +69,7 @@ public class SwordDocumentFacade {
 	private SwordDocumentFacade() {
 	}
 	
-	private void initialise() {
+	public static void initialiseJSwordFolders() {
 		try {
 			if (isAndroid) {
 				// ensure required module directories exist and register them with jsword
@@ -108,7 +107,7 @@ public class SwordDocumentFacade {
 				
 				new VersificationMappingInitializer().startListening();
 
-				log.debug(("Sword paths:"+getPaths()));
+				log.debug(("Main JSword path:"+CWProject.instance().getWritableProjectDir()));
 			}
 			
 		} catch (Exception e) {
@@ -214,11 +213,11 @@ public class SwordDocumentFacade {
 			repoBookDeduplicator.addAll(repoFactory.getIBTRepo().getRepoBooks(refresh));
 	
 			repoBookDeduplicator.addAll(repoFactory.getCrosswireRepo().getRepoBooks(refresh));
-	
+
 			repoBookDeduplicator.addAll(repoFactory.getXiphosRepo().getRepoBooks(refresh));
-	
+
 			repoBookDeduplicator.addAll(repoFactory.getEBibleRepo().getRepoBooks(refresh));
-	        
+
 			// beta repo must never override live books especially if later version so use addIfNotExists
 			repoBookDeduplicator.addIfNotExists(repoFactory.getBetaRepo().getRepoBooks(refresh));
 	

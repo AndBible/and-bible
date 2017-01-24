@@ -6,6 +6,7 @@ import android.view.MenuItem;
 
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.navigation.genbookmap.ChooseMapKey;
+import net.bible.service.sword.SwordContentFacade;
 
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
@@ -23,8 +24,8 @@ public class CurrentMapPage extends CachedKeyPage implements CurrentPage {
 	@SuppressWarnings("unused")
 	private static final String TAG = "CurrentMapPage";
 	
-	/* default */ CurrentMapPage() {
-		super(false);
+	/* default */ CurrentMapPage(SwordContentFacade swordContentFacade) {
+		super(false, swordContentFacade);
 	}
 	
 	public BookCategory getBookCategory() {

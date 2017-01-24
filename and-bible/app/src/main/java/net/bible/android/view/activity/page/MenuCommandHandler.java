@@ -13,6 +13,7 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.backup.BackupControl;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.control.readingplan.ReadingPlanControl;
+import net.bible.android.control.search.SearchControl;
 import net.bible.android.view.activity.MainBibleActivityScope;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.bookmark.Bookmarks;
@@ -48,6 +49,8 @@ public class MenuCommandHandler {
 
 	private final ReadingPlanControl readingPlanControl;
 
+	private final SearchControl searchControl;
+
 	private WindowMenuCommandHandler windowMenuCommandHandler;
 	
 	// request codes passed to and returned from sub-activities
@@ -59,10 +62,11 @@ public class MenuCommandHandler {
 	private static final String TAG = "MainMenuCommandHandler";
 
 	@Inject
-	public MenuCommandHandler(MainBibleActivity activity, ReadingPlanControl readingPlanControl) {
+	public MenuCommandHandler(MainBibleActivity activity, ReadingPlanControl readingPlanControl, SearchControl searchControl) {
 		super();
 		this.callingActivity = activity;
 		this.readingPlanControl = readingPlanControl;
+		this.searchControl = searchControl;
 		this.windowMenuCommandHandler = new WindowMenuCommandHandler();
 	}
 	
@@ -79,7 +83,7 @@ public class MenuCommandHandler {
 	        // Handle item selection
 	        switch (menuItem.getItemId()) {
 		        case R.id.searchButton:
-		        	handlerIntent = ControlFactory.getInstance().getSearchControl().getSearchIntent(ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument());
+		        	handlerIntent = searchControl.getSearchIntent(ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument());
 		        	break;
 		        case R.id.settingsButton:
 		        	handlerIntent = new Intent(callingActivity, SettingsActivity.class);

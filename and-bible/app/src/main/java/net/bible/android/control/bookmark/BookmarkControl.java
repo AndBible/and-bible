@@ -23,21 +23,15 @@ import net.bible.service.db.bookmark.LabelDto;
 import net.bible.service.sword.SwordContentFacade;
 
 import org.crosswire.jsword.passage.Key;
-import org.crosswire.jsword.passage.KeyUtil;
-import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
-import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 
 import javax.inject.Inject;
 
@@ -57,10 +51,13 @@ public class BookmarkControl {
 
 	private static final String BOOKMARK_SORT_ORDER = "BookmarkSortOrder";
 
+	private final SwordContentFacade swordContentFacade;
+
 	private static final String TAG = "BookmarkControl";
 
 	@Inject
-	public BookmarkControl(ResourceProvider resourceProvider) {
+	public BookmarkControl(SwordContentFacade swordContentFacade, ResourceProvider resourceProvider) {
+		this.swordContentFacade = swordContentFacade;
 		LABEL_ALL = new LabelDto();
 		LABEL_ALL.setName(resourceProvider.getString(R.string.all));
 		LABEL_ALL.setId(-999L);
@@ -126,7 +123,7 @@ public class BookmarkControl {
 		try {
 			CurrentBiblePage currentBible = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible();
 			Versification versification = currentBible.getVersification();
-			verseText = SwordContentFacade.getInstance().getPlainText(currentBible.getCurrentDocument(), bookmark.getVerseRange(versification), 1);
+			verseText = swordContentFacade.getPlainText(currentBible.getCurrentDocument(), bookmark.getVerseRange(versification), 1);
 			verseText = CommonUtils.limitTextLength(verseText);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);
@@ -338,56 +335,6 @@ public class BookmarkControl {
 
 		Collections.sort(labelList);
 		return labelList;
-	}
-
-	public Map<Integer, List<BookmarkStyle>> getVerseBookmarkStylesInPassage(Key passage) {
-		// assumes the passage only covers one book, which always happens to be the case here
-		Verse firstVerse = KeyUtil.getVerse(passage);
-		BibleBook book = firstVerse.getBook();
-		
-		// get all Bookmarks in containing book to include variations due to differing versifications
-		BookmarkDBAdapter db = new BookmarkDBAdapter();
-		List<BookmarkDto> bookmarkList;
-		Map<Integer, List<BookmarkStyle>> bookmarkStylesByVerseNoInPassage = new HashMap<>();
-		try {
-			db.open();
-			bookmarkList = db.getBookmarksInBook(book);
-
-			// convert to required versification and check verse is in passage
-			if (bookmarkList!=null) {
-				Versification requiredVersification = firstVerse.getVersification();
-				for (BookmarkDto bookmarkDto : bookmarkList) {
-					VerseRange bookmarkVerseRange = bookmarkDto.getVerseRange(requiredVersification);
-					if (passage.contains(bookmarkVerseRange.getStart())) {
-						final List<LabelDto> bookmarkLabels = db.getBookmarkLabels(bookmarkDto);
-						final List<BookmarkStyle> bookmarkStyles = getBookmarkStyles(bookmarkLabels);
-
-						for (Verse verse : bookmarkVerseRange.toVerseArray()) {
-							bookmarkStylesByVerseNoInPassage.put(verse.getVerse(), bookmarkStyles);
-						}
-					}
-				}
-			}
-
-		} finally {
-			db.close();
-		}
-		return bookmarkStylesByVerseNoInPassage;
-	}
-
-	/**
-	 * Get distinct styles in enum order
-	 */
-	private List<BookmarkStyle> getBookmarkStyles(List<LabelDto> bookmarkLabels) {
-		Set<BookmarkStyle> bookmarkStyles = new TreeSet<>();
-		for (LabelDto label : bookmarkLabels) {
-			BookmarkStyle style = label.getBookmarkStyle();
-
-			if (style!=null) {
-				bookmarkStyles.add(style);
-			}
-		}
-		return new ArrayList<>(bookmarkStyles);
 	}
 
 	private List<BookmarkDto> getSortedBookmarks(List<BookmarkDto> bookmarkList) {

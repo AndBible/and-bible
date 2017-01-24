@@ -1,5 +1,7 @@
 package net.bible.android.control.versification;
 
+import net.bible.android.control.navigation.DocumentBibleBooksFactory;
+
 import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Verse;
@@ -13,6 +15,7 @@ import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
+import static org.mockito.Mockito.mock;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -27,7 +30,9 @@ public class BibleTraverserTest {
 
 	@Before
 	public void setup() {
-		bibleTraverser = new BibleTraverser();
+		DocumentBibleBooksFactory mockDocumentBibleBooksFactory = mock(DocumentBibleBooksFactory.class);
+
+		bibleTraverser = new BibleTraverser(mockDocumentBibleBooksFactory);
 		testBook = (AbstractPassageBook) Books.installed().getBook("ESV");
 	}
 

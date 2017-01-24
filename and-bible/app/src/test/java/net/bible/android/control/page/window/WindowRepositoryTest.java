@@ -1,26 +1,33 @@
 package net.bible.android.control.page.window;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.EventManagerStub;
+import net.bible.android.control.page.CurrentPageManager;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.not;
+import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
+
 @RunWith(RobolectricTestRunner.class)
 public class WindowRepositoryTest {
 	private WindowRepository windowRepository;
 
+	private CurrentPageManager mockCurrentPageManager;
+
 	@Before
 	public void setUp() throws Exception {
 		EventManager eventManager = new EventManagerStub();
-		windowRepository = new WindowRepository();
-		windowRepository.initialise(eventManager);
+		mockCurrentPageManager = mock(CurrentPageManager.class);
+
+		windowRepository = new WindowRepository(mockCurrentPageManager);
+		windowRepository.initialise();
 	}
 
 	@Test

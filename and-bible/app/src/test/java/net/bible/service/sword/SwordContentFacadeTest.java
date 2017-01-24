@@ -1,10 +1,7 @@
 package net.bible.service.sword;
 
 import net.bible.android.activity.BuildConfig;
-
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertThat;
+import net.bible.android.view.activity.bookmark.BookmarkFormatSupport;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.Books;
@@ -17,6 +14,10 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.annotation.Config;
 
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.Assert.assertThat;
+
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
 public class SwordContentFacadeTest {
@@ -25,7 +26,7 @@ public class SwordContentFacadeTest {
 
 	@Before
 	public void setUp() throws Exception {
-		swordContentFacade = SwordContentFacade.getInstance();
+		swordContentFacade = new SwordContentFacade(new BookmarkFormatSupport());
 	}
 
 	@Test

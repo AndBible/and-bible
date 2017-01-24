@@ -9,6 +9,7 @@ import net.bible.android.control.ControlFactory;
 import net.bible.android.control.versification.ConvertibleVerseRange;
 import net.bible.service.common.ParseException;
 import net.bible.service.download.FakeSwordBookFactory;
+import net.bible.service.sword.SwordContentFacade;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
@@ -38,8 +39,8 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 	
 	private static final String TAG = "CurrentMyNotePage";
 	
-	/* default */ CurrentMyNotePage(CurrentBibleVerse currentVerse) {
-		super(currentVerse);
+	/* default */ CurrentMyNotePage(CurrentBibleVerse currentVerse, SwordContentFacade swordContentFacade) {
+		super(currentVerse, swordContentFacade);
 	}
 
 	@Override

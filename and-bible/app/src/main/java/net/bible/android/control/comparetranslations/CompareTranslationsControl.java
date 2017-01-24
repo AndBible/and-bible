@@ -4,6 +4,7 @@ import android.util.Log;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
+import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.versification.BibleTraverser;
@@ -24,23 +25,28 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 /** Support the Compare Translations screen
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class CompareTranslationsControl {
-	
-	private SwordDocumentFacade swordDocumentFacade = SwordDocumentFacade.getInstance();
-	private SwordContentFacade swordContentFacade = SwordContentFacade.getInstance();
 
-	private BibleTraverser bibleTraverser;
+	private final BibleTraverser bibleTraverser;
+
+	private SwordDocumentFacade swordDocumentFacade = SwordDocumentFacade.getInstance();
+	private final SwordContentFacade swordContentFacade;
 
 	private static final String TAG = "CompareTranslationsCtrl";
 
-	public CompareTranslationsControl(BibleTraverser bibleTraverser) {
+	@Inject
+	public CompareTranslationsControl(BibleTraverser bibleTraverser, SwordContentFacade swordContentFacade) {
 		this.bibleTraverser = bibleTraverser;
+		this.swordContentFacade = swordContentFacade;
 	}
 
 	public String getTitle(VerseRange verseRange) {

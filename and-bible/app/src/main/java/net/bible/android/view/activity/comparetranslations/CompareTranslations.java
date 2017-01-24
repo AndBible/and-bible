@@ -11,7 +11,6 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.comparetranslations.CompareTranslationsControl;
 import net.bible.android.control.comparetranslations.TranslationDto;
 import net.bible.android.view.activity.base.Dialogs;
@@ -24,6 +23,8 @@ import org.crosswire.jsword.passage.VerseRange;
 
 import java.util.ArrayList;
 import java.util.List;
+
+ import javax.inject.Inject;
 
 /** do the search and show the search results
  * 
@@ -41,7 +42,7 @@ public class CompareTranslations extends ListActivityBase implements SwipeGestur
 	// detect swipe left/right
 	private GestureDetector gestureDetector;
 
-	private CompareTranslationsControl compareTranslationsControl = ControlFactory.getInstance().getCompareTranslationsControl();
+	private CompareTranslationsControl compareTranslationsControl;
 
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
 
@@ -56,7 +57,9 @@ public class CompareTranslations extends ListActivityBase implements SwipeGestur
         super.onCreate(savedInstanceState, true);
         Log.i(TAG, "Displaying Compare Translations view");
         setContentView(R.layout.list);
-        
+
+		buildActivityComponent().inject(this);
+
         //fetch verse from intent if set - so that goto via History works nicely
 		currentVerseRange = intentHelper.getIntentVerseRangeOrDefault(getIntent());
 
@@ -138,5 +141,10 @@ public class CompareTranslations extends ListActivityBase implements SwipeGestur
 	public boolean dispatchTouchEvent(MotionEvent motionEvent) {
 		this.gestureDetector.onTouchEvent(motionEvent);
 		return super.dispatchTouchEvent(motionEvent);
+	}
+
+	@Inject
+	void setCompareTranslationsControl(CompareTranslationsControl compareTranslationsControl) {
+		this.compareTranslationsControl = compareTranslationsControl;
 	}
 }

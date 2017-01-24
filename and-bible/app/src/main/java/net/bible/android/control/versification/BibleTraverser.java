@@ -1,5 +1,6 @@
 package net.bible.android.control.versification;
 
+import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.navigation.DocumentBibleBooks;
 import net.bible.android.control.navigation.DocumentBibleBooksFactory;
 
@@ -9,6 +10,8 @@ import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 
+import javax.inject.Inject;
+
 /** 
  * Enable separation of Scripture books 
  * 
@@ -16,10 +19,16 @@ import org.crosswire.jsword.versification.Versification;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class BibleTraverser {
 	
-	private DocumentBibleBooksFactory documentBibleBooksFactory;
-	
+	private final DocumentBibleBooksFactory documentBibleBooksFactory;
+
+	@Inject
+	public BibleTraverser(DocumentBibleBooksFactory documentBibleBooksFactory) {
+		this.documentBibleBooksFactory = documentBibleBooksFactory;
+	}
+
 	/** Get next Scriptural Verse with same scriptural status
 	 */
 	public Verse getNextVerse(AbstractPassageBook document, Verse verse) {
@@ -165,10 +174,5 @@ public class BibleTraverser {
 				)
 			);
 		return prevBook;
-	}
-
-	public void setDocumentBibleBooksFactory(
-			DocumentBibleBooksFactory documentBibleBooksFactory) {
-		this.documentBibleBooksFactory = documentBibleBooksFactory;
 	}
 }

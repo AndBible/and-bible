@@ -2,6 +2,7 @@ package net.bible.android.control.footnoteandref;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
+import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.versification.BibleTraverser;
@@ -14,12 +15,15 @@ import org.crosswire.jsword.versification.BookName;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 /** Support the Compare Translations screen
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class FootnoteAndRefControl {
 
 	private BibleTraverser bibleTraverser;
@@ -27,6 +31,7 @@ public class FootnoteAndRefControl {
 	@SuppressWarnings("unused")
 	private static final String TAG = "FootnoteAndRefControl";
 
+	@Inject
 	public FootnoteAndRefControl(BibleTraverser bibleTraverser) {
 		this.bibleTraverser = bibleTraverser;
 	}
@@ -36,7 +41,7 @@ public class FootnoteAndRefControl {
 			return ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentPageFootnotesAndReferences();
 		} catch (Exception e) {
 			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
-			return new ArrayList<Note>();
+			return new ArrayList<>();
 		}
 	}
 	

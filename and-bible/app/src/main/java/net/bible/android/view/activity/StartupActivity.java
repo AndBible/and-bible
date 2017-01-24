@@ -13,7 +13,6 @@ import android.widget.TextView;
 import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.Initialisation;
 import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
@@ -26,6 +25,8 @@ import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang3.StringUtils;
 
+import javax.inject.Inject;
+
 /** Called first to show download screen if no documents exist
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -33,6 +34,8 @@ import org.apache.commons.lang3.StringUtils;
  *      The copyright to this program is held by it's author.
  */
 public class StartupActivity extends CustomTitlebarActivityBase {
+
+	private Initialisation initialisation;
 
 	private static final String TAG = "StartupActivity";
 
@@ -43,6 +46,8 @@ public class StartupActivity extends CustomTitlebarActivityBase {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.startup_view);
+
+		buildActivityComponent().inject(this);
 
         // do not show an actionBar/title on the splash screen
         getSupportActionBar().hide();
@@ -91,7 +96,7 @@ public class StartupActivity extends CustomTitlebarActivityBase {
         			CommonUtils.pauseMillis(1);
         			
 	                // force Sword to initialise itself
-	                Initialisation.getInstance().initialiseNow();
+	                initialisation.initialiseNow();
         		} finally {
         			// switch back to ui thread to continue
         			uiHandler.post(uiThreadRunnable);
@@ -180,7 +185,7 @@ public class StartupActivity extends CustomTitlebarActivityBase {
     		if (SwordDocumentFacade.getInstance().getBibles().size()>0) {
         		Log.i(TAG, "Bibles now exist so go to main bible view");
 				// select appropriate default verse e.g. John 3.16 if NT only
-				ControlFactory.getInstance().getPageControl().setFirstUseDefaultVerse();
+				getPageControl().setFirstUseDefaultVerse();
 
     			gotoMainBibleActivity();
     		} else {
@@ -189,4 +194,9 @@ public class StartupActivity extends CustomTitlebarActivityBase {
     		}
     	}
     }
+
+	@Inject
+	void setInitialisation(Initialisation initialisation) {
+		this.initialisation = initialisation;
+	}
 }

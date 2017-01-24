@@ -3,12 +3,15 @@ package net.bible.android.control.page;
 import android.content.Context;
 import android.content.Intent;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
+import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.Logger;
+import net.bible.service.sword.SwordContentFacade;
 
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
@@ -17,12 +20,15 @@ import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Key;
 import org.json.JSONObject;
 
+import javax.inject.Inject;
+
 /** Control singletons of the different current document page types
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class CurrentPageManager {
 	// use the same verse in the commentary and bible to keep them in sync
 	private CurrentBibleVerse currentBibleVerse;
@@ -36,20 +42,21 @@ public class CurrentPageManager {
 	private CurrentPage currentDisplayedPage;
 	
 	private final Logger logger = new Logger(this.getClass().getName());
-	
-	public CurrentPageManager() {
+
+	@Inject
+	public CurrentPageManager(SwordContentFacade swordContentFacade) {
 		currentBibleVerse = new CurrentBibleVerse();
-		currentBiblePage = new CurrentBiblePage(currentBibleVerse);
+		currentBiblePage = new CurrentBiblePage(currentBibleVerse, swordContentFacade);
 		ControlFactory controlFactory = ControlFactory.getInstance();
-		BibleTraverser bibleTraverser = controlFactory.getBibleTraverser();
+		BibleTraverser bibleTraverser = BibleApplication.getApplication().getControllerComponent().bibleTraverser();
 		currentBiblePage.setBibleTraverser(bibleTraverser);
-		currentCommentaryPage = new CurrentCommentaryPage(currentBibleVerse);
+		currentCommentaryPage = new CurrentCommentaryPage(currentBibleVerse, swordContentFacade);
 		currentCommentaryPage.setBibleTraverser(bibleTraverser);
-		currentMyNotePage = new CurrentMyNotePage(currentBibleVerse);
+		currentMyNotePage = new CurrentMyNotePage(currentBibleVerse, swordContentFacade);
 		
-		currentDictionaryPage = new CurrentDictionaryPage();
-		currentGeneralBookPage = new CurrentGeneralBookPage();
-		currentMapPage = new CurrentMapPage();
+		currentDictionaryPage = new CurrentDictionaryPage(swordContentFacade);
+		currentGeneralBookPage = new CurrentGeneralBookPage(swordContentFacade);
+		currentMapPage = new CurrentMapPage(swordContentFacade);
 		
 		currentDisplayedPage = currentBiblePage;
 	}

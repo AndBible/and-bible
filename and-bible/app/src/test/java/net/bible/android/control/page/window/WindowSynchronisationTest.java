@@ -4,6 +4,7 @@ import net.bible.android.activity.BuildConfig;
 import net.bible.android.control.TestControlFactory;
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.EventManager;
+import net.bible.android.control.page.CurrentPageManager;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +15,7 @@ import org.robolectric.annotation.Config;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
@@ -24,13 +26,16 @@ public class WindowSynchronisationTest {
 	private WindowRepository windowRepository;
 	
 	private WindowControl windowControl;
-	
+
+	private CurrentPageManager mockCurrentPageManager;
+
 	@Before
 	public void setUp() throws Exception {
 		eventManager = ABEventBus.getDefault();
-		windowRepository = new WindowRepository();
-		windowRepository.initialise(eventManager);
-		windowControl = new WindowControl(windowRepository, eventManager);
+		mockCurrentPageManager = mock(CurrentPageManager.class);
+		windowRepository = new WindowRepository(mockCurrentPageManager);
+		windowRepository.initialise();
+		windowControl = new WindowControl(windowRepository);
 		
 		TestControlFactory testControlFactory = new TestControlFactory();
 		testControlFactory.setWindowControl(windowControl);

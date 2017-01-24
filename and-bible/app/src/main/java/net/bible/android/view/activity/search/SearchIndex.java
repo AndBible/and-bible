@@ -14,6 +14,8 @@ import net.bible.service.sword.SwordDocumentFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
 
+import javax.inject.Inject;
+
 /** Create a Lucene search index
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -21,6 +23,9 @@ import org.crosswire.jsword.book.Book;
  *      The copyright to this program is held by it's author.
  */
 public class SearchIndex extends CustomTitlebarActivityBase {
+
+	private SearchControl searchControl;
+
 	private static final String TAG = "SearchIndex";
 	
     /** Called when the activity is first created. */
@@ -29,6 +34,8 @@ public class SearchIndex extends CustomTitlebarActivityBase {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "Displaying SearchIndex view");
         setContentView(R.layout.search_index);
+
+		buildActivityComponent().inject(this);
     
         Log.d(TAG, "Finished displaying Search Index view");
     }
@@ -39,7 +46,7 @@ public class SearchIndex extends CustomTitlebarActivityBase {
      */
     public void onDownload(View v) {
     	Log.i(TAG, "CLICKED");
-    	boolean bOk = ControlFactory.getInstance().getSearchControl().downloadIndex(getDocumentToIndex());
+    	boolean bOk = searchControl.downloadIndex(getDocumentToIndex());
 
     	if (bOk) {
         	monitorProgress();
@@ -54,7 +61,7 @@ public class SearchIndex extends CustomTitlebarActivityBase {
     	Log.i(TAG, "CLICKED");
     	try {
     		// start background thread to create index
-        	boolean bOk = ControlFactory.getInstance().getSearchControl().createIndex(getDocumentToIndex());
+        	boolean bOk = searchControl.createIndex(getDocumentToIndex());
 
         	if (bOk) {
 	        	monitorProgress();
@@ -98,5 +105,10 @@ public class SearchIndex extends CustomTitlebarActivityBase {
 		
 		startActivity(intent);
 		finish();
+	}
+
+	@Inject
+	void setSearchControl(SearchControl searchControl) {
+		this.searchControl = searchControl;
 	}
 }

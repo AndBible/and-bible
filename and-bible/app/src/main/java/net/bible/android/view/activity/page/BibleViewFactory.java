@@ -1,6 +1,7 @@
 package net.bible.android.view.activity.page;
 
 import net.bible.android.control.bookmark.BookmarkControl;
+import net.bible.android.control.link.LinkControl;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.view.activity.MainBibleActivityScope;
@@ -24,6 +25,8 @@ public class BibleViewFactory {
 
 	private final PageControl pageControl;
 
+	private final LinkControl linkControl;
+
 	private final BookmarkControl bookmarkControl;
 
 	private Map<Window, BibleView> screenBibleViewMap;
@@ -31,9 +34,10 @@ public class BibleViewFactory {
 	private static final int BIBLE_WEB_VIEW_ID_BASE = 990;
 
 	@Inject
-	public BibleViewFactory(MainBibleActivity mainBibleActivity, PageControl pageControl, BookmarkControl bookmarkControl) {
+	public BibleViewFactory(MainBibleActivity mainBibleActivity, PageControl pageControl, LinkControl linkControl, BookmarkControl bookmarkControl) {
 		this.mainBibleActivity = mainBibleActivity;
 		this.pageControl = pageControl;
+		this.linkControl = linkControl;
 		this.bookmarkControl = bookmarkControl;
 
 		screenBibleViewMap = new WeakHashMap<>();
@@ -42,7 +46,7 @@ public class BibleViewFactory {
 	public BibleView createBibleView(Window window) {
 		BibleView bibleView = screenBibleViewMap.get(window);
 		if (bibleView==null) {
-			bibleView = new BibleView(this.mainBibleActivity, window);
+			bibleView = new BibleView(this.mainBibleActivity, window, pageControl, linkControl);
 
 			VerseActionModeMediator bibleViewVerseActionModeMediator = new VerseActionModeMediator(mainBibleActivity, bibleView, pageControl, new VerseMenuCommandHandler(mainBibleActivity, pageControl, bookmarkControl), bookmarkControl);
 			BibleJavascriptInterface bibleJavascriptInterface = new BibleJavascriptInterface(bibleViewVerseActionModeMediator);

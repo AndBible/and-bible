@@ -9,7 +9,6 @@ import android.util.Log;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControllerComponent;
 import net.bible.android.control.DaggerControllerComponent;
-import net.bible.android.control.Initialisation;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ProgressNotificationManager;
@@ -71,6 +70,9 @@ public class BibleApplication extends Application{
         
 		installJSwordErrorReportListener();
 
+		// This must be done before accessing JSword to prevent default folders being used
+		SwordDocumentFacade.initialiseJSwordFolders();
+
 		initializeInjector();
 
 		// some changes may be required for different versions
@@ -86,7 +88,7 @@ public class BibleApplication extends Application{
 		screenTimeoutSettings.overrideScreenTimeout();
 		
 		// various initialisations required every time at app startup
-		Initialisation.getInstance().initialiseEventually();
+		getControllerComponent().initialisation().initialiseEventually();
 	}
 
 	public ControllerComponent getControllerComponent() {

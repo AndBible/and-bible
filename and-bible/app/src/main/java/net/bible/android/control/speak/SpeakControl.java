@@ -37,6 +37,8 @@ import javax.inject.Inject;
 @ApplicationScope
 public class SpeakControl {
 
+	private final SwordContentFacade swordContentFacade;
+
 	private static final int NUM_LEFT_IDX = 3;
 	private static final NumPagesToSpeakDefinition[] BIBLE_PAGES_TO_SPEAK_DEFNS = new NumPagesToSpeakDefinition[] {
 			new NumPagesToSpeakDefinition(1, R.plurals.num_chapters, true, R.id.numChapters1),
@@ -62,7 +64,8 @@ public class SpeakControl {
 	private static final String TAG = "SpeakControl";
 
 	@Inject
-	public SpeakControl() {
+	public SpeakControl(SwordContentFacade swordContentFacade) {
+		this.swordContentFacade = swordContentFacade;
 	}
 
 	/** return a list of prompt ids for the speak screen associated with the current document type
@@ -193,7 +196,7 @@ public class SpeakControl {
 //				textToSpeak.add("\n");
 				
 				// content
-				textToSpeak.add( SwordContentFacade.getInstance().getTextToSpeak(book, key));
+				textToSpeak.add( swordContentFacade.getTextToSpeak(book, key));
 
 				// add a pause at end to separate passages
 				textToSpeak.add("\n");

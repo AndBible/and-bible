@@ -48,8 +48,11 @@ public class PageControl {
 	
 	private static final TitleSplitter titleSplitter = new TitleSplitter();
 
+	private final SwordContentFacade swordContentFacade;
+
 	@Inject
-	public PageControl() {
+	public PageControl(SwordContentFacade swordContentFacade) {
+		this.swordContentFacade = swordContentFacade;
 	}
 
 	/** Paste the current verse to the system clipboard
@@ -58,7 +61,7 @@ public class PageControl {
 		try {
 			Book book = getCurrentPageManager().getCurrentPage().getCurrentDocument();
 
-			String text = verseRange.getName()+"\n"+SwordContentFacade.getInstance().getCanonicalText(book, verseRange);
+			String text = verseRange.getName()+"\n"+swordContentFacade.getCanonicalText(book, verseRange);
 			ClipboardManager clipboard = (ClipboardManager)BibleApplication.getApplication().getSystemService(Activity.CLIPBOARD_SERVICE);
 			clipboard.setText(text);
 		} catch (Exception e) {
@@ -73,7 +76,7 @@ public class PageControl {
 		try {
 			Book book = getCurrentPageManager().getCurrentPage().getCurrentDocument();
 
-			String text = verseRange.getName()+"\n"+SwordContentFacade.getInstance().getCanonicalText(book, verseRange);
+			String text = verseRange.getName()+"\n"+swordContentFacade.getCanonicalText(book, verseRange);
 			
 			Intent sendIntent  = new Intent(Intent.ACTION_SEND);
 			sendIntent.setType("text/plain");

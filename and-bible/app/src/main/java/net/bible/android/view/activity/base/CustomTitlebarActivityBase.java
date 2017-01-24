@@ -4,9 +4,11 @@ import android.content.res.Configuration;
 import android.util.Log;
 import android.view.Menu;
 
-import net.bible.android.control.ControlFactory;
+import net.bible.android.control.page.PageControl;
 import net.bible.android.view.activity.base.actionbar.ActionBarManager;
 import net.bible.android.view.activity.base.actionbar.DefaultActionBarManager;
+
+import javax.inject.Inject;
 
 /**
  * Base class for activities with a custom title bar
@@ -22,6 +24,8 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
 	private int optionsMenuId;
 
 	protected static final int NO_OPTIONS_MENU = 0;
+
+	private PageControl pageControl;
 
 //TODO hourglass	private ProgressBar mProgressBarIndeterminate;
 
@@ -110,17 +114,20 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
         actionBarManager.updateButtons();
     }
 
-    //TODO move this somewhere appropriate or call PageControl directly
-	/** return true if Strongs numbers are shown */
-	public boolean isStrongsShown() {
-		return ControlFactory.getInstance().getPageControl().isStrongsShown();
-	}
-
 	public void setProgressBar(boolean on) {
 //TODO hourglass		mProgressBarIndeterminate.setVisibility(on ? View.VISIBLE : View.GONE);
 	}
 
 	protected void setActionBarManager(ActionBarManager actionBarManager) {
 		this.actionBarManager = actionBarManager;
+	}
+
+	public PageControl getPageControl() {
+		return pageControl;
+	}
+
+	@Inject
+	public void setPageControl(PageControl pageControl) {
+		this.pageControl = pageControl;
 	}
 }

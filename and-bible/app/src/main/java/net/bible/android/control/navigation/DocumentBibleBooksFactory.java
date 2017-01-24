@@ -1,6 +1,8 @@
 package net.bible.android.control.navigation;
 
-import java.util.List;
+import android.support.v4.util.LruCache;
+
+import net.bible.android.control.ApplicationScope;
 
 import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.BooksEvent;
@@ -8,7 +10,9 @@ import org.crosswire.jsword.book.BooksListener;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.versification.BibleBook;
 
-import android.support.v4.util.LruCache;
+import java.util.List;
+
+import javax.inject.Inject;
 
 /**
  * Caching factory for {@link DocumentBibleBooks}.
@@ -17,12 +21,14 @@ import android.support.v4.util.LruCache;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class DocumentBibleBooksFactory {
 	
 	private LruCache<AbstractPassageBook, DocumentBibleBooks> cache; 
 	
 	private static final int CACHE_SIZE = 10;
-	
+
+	@Inject
 	public DocumentBibleBooksFactory() {
 		// initialise the DocumentBibleBooks factory
 		cache = new LruCache<AbstractPassageBook, DocumentBibleBooks>(CACHE_SIZE) {
@@ -34,6 +40,8 @@ public class DocumentBibleBooksFactory {
 				return new DocumentBibleBooks(document);
 			}
 		};
+
+		initialise();
 	}
 	
 	public void initialise() {

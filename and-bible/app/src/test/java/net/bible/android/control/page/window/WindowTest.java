@@ -16,6 +16,7 @@ import org.robolectric.annotation.Config;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
@@ -31,8 +32,10 @@ public class WindowTest {
 
 	@Test
 	public void testGetRestoreStateJson() throws Exception {
+		CurrentPageManager mockCurrentPageManager = mock(CurrentPageManager.class);
+
 		// initialise Window
-		Window window = new Window(2, WindowState.MINIMISED);
+		Window window = new Window(2, WindowState.MINIMISED, mockCurrentPageManager);
 		WindowLayout layout = window.getWindowLayout();
 		window.setSynchronised(true);
 		layout.setWeight(1.23456f);
@@ -46,7 +49,7 @@ public class WindowTest {
 		System.out.println(json);
 		
 		// recreate window from saved state
-		window = new Window();
+		window = new Window(mockCurrentPageManager);
 		window.restoreState(json);
 		layout = window.getWindowLayout();
 		assertThat(window.getScreenNo(), equalTo(2));

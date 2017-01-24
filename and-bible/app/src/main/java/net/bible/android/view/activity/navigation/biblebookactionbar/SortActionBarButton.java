@@ -1,9 +1,12 @@
 package net.bible.android.view.activity.navigation.biblebookactionbar;
 
-import net.bible.android.control.ControlFactory;
+import android.support.v4.view.MenuItemCompat;
+
+import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.navigation.NavigationControl;
 import net.bible.android.view.activity.base.actionbar.QuickActionButton;
-import android.support.v4.view.MenuItemCompat;
+
+import javax.inject.Inject;
 
 /** 
  * Toggle sort of Bible books by name or canonically
@@ -12,14 +15,18 @@ import android.support.v4.view.MenuItemCompat;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class SortActionBarButton extends QuickActionButton {
 
-	private NavigationControl navigationControl = ControlFactory.getInstance().getNavigationControl();
-	
-	public SortActionBarButton() {
+	private final NavigationControl navigationControl;
+
+	@Inject
+	public SortActionBarButton(NavigationControl navigationControl) {
 		// SHOW_AS_ACTION_ALWAYS is overriden by setVisible which depends on canShow() below
 		// because when visible this button is ALWAYS on the Actionbar
 		super(MenuItemCompat.SHOW_AS_ACTION_ALWAYS);
+
+		this.navigationControl = navigationControl;
 	}
 
 	

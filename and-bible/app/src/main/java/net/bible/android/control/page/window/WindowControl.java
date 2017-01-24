@@ -1,11 +1,13 @@
 package net.bible.android.control.page.window;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
+import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
@@ -20,9 +22,11 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.json.JSONObject;
 
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.inject.Inject;
 
 /**
  * Central control of windows especially synchronization
@@ -31,6 +35,7 @@ import android.view.MenuItem;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class WindowControl {
 
 	private boolean isSeparatorMoving = false;
@@ -40,17 +45,18 @@ public class WindowControl {
 	private WindowSync windowSync;
 
 	private EventManager eventManager;
-	
+
 	public static int SCREEN_SETTLE_TIME_MILLIS = 1000;
 	
 	private final Logger logger = new Logger(this.getClass().getName());
-	
-	public WindowControl(WindowRepository windowRepository, EventManager eventManager) {
-		this.eventManager = eventManager;
+
+	@Inject
+	public WindowControl(WindowRepository windowRepository) {
 		this.windowRepository = windowRepository;
 		
 		windowSync = new WindowSync(windowRepository);
-		
+
+		eventManager = ABEventBus.getDefault();
 		eventManager.register(this);
 	}
 

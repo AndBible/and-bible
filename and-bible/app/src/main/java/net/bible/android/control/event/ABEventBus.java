@@ -5,7 +5,7 @@ import de.greenrobot.event.EventBus;
 public class ABEventBus implements EventManager {
 
 	private static EventManager defaultInstance;
-	
+
     public static EventManager getDefault() {
         if (defaultInstance == null) {
             synchronized (ABEventBus.class) {
@@ -16,7 +16,7 @@ public class ABEventBus implements EventManager {
         }
         return defaultInstance;
     }
-	
+
 	private ABEventBus() {
 	}
 

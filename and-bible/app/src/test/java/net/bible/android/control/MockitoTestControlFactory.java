@@ -21,10 +21,10 @@ public class MockitoTestControlFactory extends ControlFactory {
 		}
 	}
 
-	@Override
-	protected void ensureAllInitialised() {
-		if (enableDefaults) {
-			super.ensureAllInitialised();
-		}
-	}
+//	@Override
+//	protected void ensureAllInitialised() {
+//		if (enableDefaults) {
+//			super.ensureAllInitialised();
+//		}
+//	}
 }

@@ -90,7 +90,7 @@ public class DownloadManager {
 	
 		} catch (Exception e) {
 			// ignore error because some minor repos are unreliable
-			log.error("Fatal error downloading books from "+repo);
+			log.error("Fatal error downloading books from "+repo, e);
 		} catch (OutOfMemoryError oom) {
 			// eBible repo throws OOM errors on smaller devices
 			log.error("Out of memory error downloading books from "+repo);

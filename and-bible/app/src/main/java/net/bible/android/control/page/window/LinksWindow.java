@@ -1,5 +1,6 @@
 package net.bible.android.control.page.window;
 
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.WindowLayout.WindowState;
 
 import org.crosswire.jsword.book.Book;
@@ -12,13 +13,8 @@ public class LinksWindow extends Window {
 	// must be -ve so as not to interfere with incrementing window number sequence
 	protected static final int DEDICATED_LINK_WINDOW_SCREEN_NO = -999;
 
-	public LinksWindow(WindowState windowState) {
-		super(DEDICATED_LINK_WINDOW_SCREEN_NO, windowState);
-		setSynchronised(false);
-	}
-
-	public LinksWindow() {
-		super();
+	public LinksWindow(WindowState windowState, CurrentPageManager currentPageManager) {
+		super(DEDICATED_LINK_WINDOW_SCREEN_NO, windowState, currentPageManager);
 		setSynchronised(false);
 	}
 

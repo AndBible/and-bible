@@ -24,23 +24,21 @@ public class Window {
 	
 	private final Logger logger = new Logger(this.getClass().getName());
 	
-	public Window(int screenNo, WindowState windowState) {
+	public Window(int screenNo, WindowState windowState, CurrentPageManager currentPageManager) {
 		this.screenNo = screenNo;
 		this.windowLayout = new WindowLayout( windowState );
+		this.currentPageManager = currentPageManager;
 	}
 
 	/**
 	 * Used when restoring state
 	 */
-	public Window() {
+	public Window(CurrentPageManager currentPageManager) {
 		this.windowLayout = new WindowLayout(WindowState.SPLIT);
+		this.currentPageManager = currentPageManager;
 	}
 
 	public CurrentPageManager getPageManager() {
-		// for now lazily create to prevent NPE on start up due to circular dependency
-		if (currentPageManager==null) {
-			this.currentPageManager = new CurrentPageManager();
-		}
 		return currentPageManager;
 	}
 
