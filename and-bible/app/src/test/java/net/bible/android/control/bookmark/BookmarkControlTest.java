@@ -2,9 +2,10 @@ package net.bible.android.control.bookmark;
 
 import net.bible.android.activity.BuildConfig;
 import net.bible.android.common.resource.AndroidResourceProvider;
-import net.bible.android.view.activity.bookmark.BookmarkFormatSupport;
+import net.bible.service.format.usermarks.BookmarkFormatSupport;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
+import net.bible.service.format.usermarks.MyNoteFormatSupport;
 import net.bible.service.sword.SwordContentFacade;
 
 import org.crosswire.jsword.passage.NoSuchVerseException;
@@ -57,7 +58,7 @@ public class BookmarkControlTest {
 
     @Before
     public void setUp() throws Exception {
-		bookmarkControl = new BookmarkControl(new SwordContentFacade(new BookmarkFormatSupport()), new AndroidResourceProvider());
+		bookmarkControl = new BookmarkControl(new SwordContentFacade(new BookmarkFormatSupport(), new MyNoteFormatSupport()), new AndroidResourceProvider());
 		bookmarkFormatSupport = new BookmarkFormatSupport();
 	}
 

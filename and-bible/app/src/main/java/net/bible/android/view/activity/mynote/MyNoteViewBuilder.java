@@ -1,9 +1,11 @@
 package net.bible.android.view.activity.mynote;
 
-import net.bible.android.control.ControlFactory;
-import net.bible.android.view.activity.base.DocumentView;
 import android.app.Activity;
 import android.view.ViewGroup;
+
+import net.bible.android.control.ControlFactory;
+import net.bible.android.control.mynote.MyNoteControl;
+import net.bible.android.view.activity.base.DocumentView;
 
 /**
  * Build a MyNote TextView for viewing or editing notes
@@ -21,12 +23,13 @@ public class MyNoteViewBuilder {
 	
 	private static final String TAG = "MyNoteViewBuilder";
 
-	public MyNoteViewBuilder(Activity mainActivity) {
+	public MyNoteViewBuilder(Activity mainActivity, MyNoteControl myNoteControl) {
 		this.mainActivity = mainActivity;
 		
-        myNoteText = new MyNoteEditTextView(this.mainActivity);
-        
-        myNoteText.setId(MYNOTE_TEXT_ID);
+        myNoteText = new MyNoteEditTextView(this.mainActivity, myNoteControl);
+
+		//noinspection ResourceType
+		myNoteText.setId(MYNOTE_TEXT_ID);
 	}
 	
 	/** return true if the current page should show a NyNote

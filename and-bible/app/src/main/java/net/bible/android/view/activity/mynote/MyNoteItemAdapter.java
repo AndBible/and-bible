@@ -10,8 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.mynote.MyNote;
+import net.bible.android.control.mynote.MyNoteControl;
 import net.bible.android.view.activity.base.ListActionModeHelper;
 import net.bible.android.view.util.widget.TwoLineListItem;
 import net.bible.service.common.CommonUtils;
@@ -29,7 +28,7 @@ import java.util.List;
  */
 public class MyNoteItemAdapter extends ArrayAdapter<MyNoteDto> {
 	private int resource;
-	private MyNote usernoteControl;
+	private MyNoteControl myNoteControl;
 
 	private final ListActionModeHelper.ActionModeActivity actionModeActivity;
 
@@ -37,10 +36,10 @@ public class MyNoteItemAdapter extends ArrayAdapter<MyNoteDto> {
 
 	private static final String TAG = "UserNoteItemAdapter";
 
-	public MyNoteItemAdapter(Context _context, int _resource, List<MyNoteDto> _items, ListActionModeHelper.ActionModeActivity actionModeActivity) {
+	public MyNoteItemAdapter(Context _context, int _resource, List<MyNoteDto> _items, ListActionModeHelper.ActionModeActivity actionModeActivity, MyNoteControl myNoteControl) {
 		super(_context, _resource, _items);
 		resource = _resource;
-		usernoteControl = ControlFactory.getInstance().getMyNoteControl();
+		this.myNoteControl = myNoteControl;
 		this.actionModeActivity = actionModeActivity;
 	}
 
@@ -60,14 +59,14 @@ public class MyNoteItemAdapter extends ArrayAdapter<MyNoteDto> {
 
 		// Set value for the first text field
 		if (view.getText1() != null) {
-			String key = usernoteControl.getMyNoteVerseKey(item);
+			String key = myNoteControl.getMyNoteVerseKey(item);
 			view.getText1().setText(key);
 		}
 
 		// set value for the second text field
 		if (view.getText2() != null) {
 			try {
-				String noteText = usernoteControl.getMyNoteText(item, true);
+				String noteText = myNoteControl.getMyNoteText(item, true);
 				view.getText2().setText(noteText);
 			} catch (Exception e) {
 				Log.e(TAG, "Error loading label verse text", e);

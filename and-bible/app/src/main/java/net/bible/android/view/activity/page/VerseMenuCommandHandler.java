@@ -4,11 +4,10 @@ import android.app.Activity;
 import android.content.Intent;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.bookmark.BookmarkControl;
+import net.bible.android.control.mynote.MyNoteControl;
 import net.bible.android.control.page.PageControl;
-import net.bible.android.view.activity.MainBibleActivityScope;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.base.IntentHelper;
 import net.bible.android.view.activity.comparetranslations.CompareTranslations;
@@ -22,7 +21,6 @@ import org.crosswire.jsword.passage.VerseRange;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-@MainBibleActivityScope
 public class VerseMenuCommandHandler {
 
 	private final Activity mainActivity;
@@ -31,24 +29,27 @@ public class VerseMenuCommandHandler {
 
 	private final BookmarkControl bookmarkControl;
 
+	private final MyNoteControl myNoteControl;
+
 	private final IntentHelper intentHelper = new IntentHelper();
 
 	private static final String TAG = "VerseMenuCommandHandler";
 
-	public VerseMenuCommandHandler(Activity mainActivity, PageControl pageControl, BookmarkControl bookmarkControl) {
+	public VerseMenuCommandHandler(Activity mainActivity, PageControl pageControl, BookmarkControl bookmarkControl, MyNoteControl myNoteControl) {
 		super();
 		this.mainActivity = mainActivity;
 		this.pageControl = pageControl;
 		this.bookmarkControl = bookmarkControl;
+		this.myNoteControl = myNoteControl;
 	}
 	
 	/**
-     * on Click handler for Selected verse menu
-     */
-    public boolean handleMenuRequest(int menuItemId, VerseRange verseRange) {
-        boolean isHandled = false;
+	 * on Click handler for Selected verse menu
+	 */
+	public boolean handleMenuRequest(int menuItemId, VerseRange verseRange) {
+		boolean isHandled = false;
 
-    	{
+		{
 			Intent handlerIntent = null;
 			int requestCode = ActivityBase.STD_REQUEST_CODE;
 
@@ -70,7 +71,7 @@ public class VerseMenuCommandHandler {
 					isHandled = true;
 					break;
 				case R.id.myNoteAddEdit:
-					ControlFactory.getInstance().getMyNoteControl().showMyNote(verseRange);
+					myNoteControl.showMyNote(verseRange);
 					isHandled = true;
 					break;
 				case R.id.copy:
@@ -87,8 +88,8 @@ public class VerseMenuCommandHandler {
 				intentHelper.updateIntentWithVerseRange(handlerIntent, verseRange);
 				mainActivity.startActivityForResult(handlerIntent, requestCode);
 			}
-    	}
+		}
 
-        return isHandled;
-    }
- }
+		return isHandled;
+	}
+}

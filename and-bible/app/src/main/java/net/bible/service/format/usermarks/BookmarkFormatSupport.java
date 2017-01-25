@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.bookmark;
+package net.bible.service.format.usermarks;
 
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.bookmark.BookmarkStyle;

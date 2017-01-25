@@ -1,7 +1,8 @@
 package net.bible.service.sword;
 
 import net.bible.android.activity.BuildConfig;
-import net.bible.android.view.activity.bookmark.BookmarkFormatSupport;
+import net.bible.service.format.usermarks.BookmarkFormatSupport;
+import net.bible.service.format.usermarks.MyNoteFormatSupport;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.Books;
@@ -26,7 +27,7 @@ public class SwordContentFacadeTest {
 
 	@Before
 	public void setUp() throws Exception {
-		swordContentFacade = new SwordContentFacade(new BookmarkFormatSupport());
+		swordContentFacade = new SwordContentFacade(new BookmarkFormatSupport(), new MyNoteFormatSupport());
 	}
 
 	@Test

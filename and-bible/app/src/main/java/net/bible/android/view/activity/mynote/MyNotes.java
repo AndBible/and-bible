@@ -15,8 +15,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.mynote.MyNote;
+import net.bible.android.control.mynote.MyNoteControl;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActionModeHelper;
 import net.bible.android.view.activity.base.ListActivityBase;
@@ -24,6 +23,8 @@ import net.bible.service.db.mynote.MyNoteDto;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 /**
  * Show a list of existing User Notes and allow view/edit/delete
@@ -34,17 +35,18 @@ import java.util.List;
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 public class MyNotes extends ListActivityBase implements ListActionModeHelper.ActionModeActivity {
-	private static final String TAG = "UserNotes";
 
-	private MyNote myNoteControl;
-	
+	private MyNoteControl myNoteControl;
+
 	// the document list
 	private List<MyNoteDto> myNoteList = new ArrayList<>();
 
 	private ListActionModeHelper listActionModeHelper;
 
 	private static final int LIST_ITEM_TYPE = R.layout.list_item_2_highlighted;
-	
+
+	private static final String TAG = "UserNotes";
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -53,8 +55,8 @@ public class MyNotes extends ListActivityBase implements ListActionModeHelper.Ac
 
         setContentView(R.layout.list);
 
-        myNoteControl = ControlFactory.getInstance().getMyNoteControl();
-        
+		buildActivityComponent().inject(this);
+
        	initialiseView();
     }
 
@@ -71,7 +73,7 @@ public class MyNotes extends ListActivityBase implements ListActionModeHelper.Ac
 		loadUserNoteList();
     	
     	// prepare the document list view
-    	ArrayAdapter<MyNoteDto> myNoteArrayAdapter = new MyNoteItemAdapter(this, LIST_ITEM_TYPE, myNoteList, this);
+    	ArrayAdapter<MyNoteDto> myNoteArrayAdapter = new MyNoteItemAdapter(this, LIST_ITEM_TYPE, myNoteList, this, myNoteControl);
     	setListAdapter(myNoteArrayAdapter);
     	
     	registerForContextMenu(getListView());
@@ -193,4 +195,9 @@ public class MyNotes extends ListActivityBase implements ListActionModeHelper.Ac
     		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
     	}
     }
+
+	@Inject
+	void setMyNoteControl(MyNoteControl myNoteControl) {
+		this.myNoteControl = myNoteControl;
+	}
 }

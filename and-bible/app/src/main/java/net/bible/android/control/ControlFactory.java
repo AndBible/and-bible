@@ -5,8 +5,6 @@ import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.email.Emailer;
 import net.bible.android.control.email.EmailerImpl;
 import net.bible.android.control.event.EventManager;
-import net.bible.android.control.mynote.MyNote;
-import net.bible.android.control.mynote.MyNoteControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageTiltScrollControl;
 import net.bible.android.control.page.window.Window;
@@ -28,7 +26,6 @@ public class ControlFactory {
 	private DocumentControl documentControl = new DocumentControl();
 
 	private final Map<Window, PageTiltScrollControl> screenPageTiltScrollControlMap = new HashMap<>();
-	private MyNote mynoteControl = new MyNoteControl();
 
 	private Emailer emailer;
 	private ErrorReportControl errorReportControl;
@@ -115,11 +112,6 @@ public class ControlFactory {
 //		ensureAllInitialised();
 		Window activeWindow = getWindowControl().getActiveWindow();
 		return activeWindow.getPageManager();
-	}
-
-
-	public MyNote getMyNoteControl() {
-		return mynoteControl;
 	}
 
 	public ErrorReportControl getErrorReportControl() {

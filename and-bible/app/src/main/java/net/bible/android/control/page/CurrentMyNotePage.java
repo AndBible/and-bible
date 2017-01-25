@@ -4,8 +4,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.versification.ConvertibleVerseRange;
 import net.bible.service.common.ParseException;
 import net.bible.service.download.FakeSwordBookFactory;
@@ -45,7 +45,7 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 
 	@Override
 	public String getCurrentPageContent() throws ParseException {
-        return ControlFactory.getInstance().getMyNoteControl().getMyNoteTextByKey(getKey());
+        return BibleApplication.getApplication().getControllerComponent().myNoteControl().getMyNoteTextByKey(getKey());
 	}
 	
 	@Override

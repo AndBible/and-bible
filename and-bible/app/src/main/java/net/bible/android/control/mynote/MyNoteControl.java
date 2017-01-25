@@ -8,7 +8,8 @@ import android.widget.Toast;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
+import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.db.mynote.MyNoteDBAdapter;
 import net.bible.service.db.mynote.MyNoteDto;
@@ -17,13 +18,13 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
-import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import javax.inject.Inject;
 
 /**
  * User Note controller methods
@@ -33,17 +34,24 @@ import java.util.List;
  * @author John D. Lewis [balinjdl at gmail dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class MyNoteControl implements MyNote {
+@ApplicationScope
+public class MyNoteControl {
+
+	private final CurrentPageManager currentPageManager;
 
 	private static final String MYNOTE_SORT_ORDER = "MyNoteSortOrder";
 
 	private static final String TAG = "MyNoteControl";
 
+	@Inject
+	public MyNoteControl(CurrentPageManager currentPageManager) {
+		this.currentPageManager = currentPageManager;
+	}
+
 	/**
 	 * Start chain of actions to switch to MyNote view
 	 * @param verseRange
 	 */
-	@Override
 	public void showMyNote(VerseRange verseRange) {
 		// if existing MyNote exists with same start verse then adjust range to match the note that will be edited
 		final MyNoteDto existingMyNoteWithSameStartVerse = getMyNoteByStartVerse(verseRange);
@@ -51,19 +59,17 @@ public class MyNoteControl implements MyNote {
 			verseRange = existingMyNoteWithSameStartVerse.getVerseRange(verseRange.getVersification());
 		}
 
-		ControlFactory.getInstance().getCurrentPageControl().showMyNote(verseRange);
+		currentPageManager.showMyNote(verseRange);
 	}
 
-	@Override
 	public void showNoteView(MyNoteDto noteDto) {
-		ControlFactory.getInstance().getCurrentPageControl().showMyNote(noteDto.getVerseRange());
+		currentPageManager.showMyNote(noteDto.getVerseRange());
 	}
 
-	@Override
 	public String getMyNoteVerseKey(MyNoteDto myNote) {
 		String keyText = "";
 		try {
-			Versification versification = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getVersification();
+			Versification versification = currentPageManager.getCurrentBible().getVersification();
 			keyText = myNote.getVerseRange(versification).getName();
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);
@@ -71,7 +77,6 @@ public class MyNoteControl implements MyNote {
 		return keyText;
 	}
 
-	@Override
 	public String getMyNoteTextByKey(Key verseRange) {
 		// get a dto
 		MyNoteDto myNote = getMyNoteByStartVerse(verseRange);
@@ -85,17 +90,15 @@ public class MyNoteControl implements MyNote {
 		return noteText;
 	}
 
-	@Override
 	public boolean saveMyNoteText(String myNote) {
 		MyNoteDto dto = getCurrentMyNoteDto();
 		dto.setNoteText(myNote);
 		return saveMyNote(dto);
 	}
 
-	@Override
 	public MyNoteDto getCurrentMyNoteDto() {
 		//
-		Key key = ControlFactory.getInstance().getCurrentPageControl().getCurrentMyNotePage().getKey();
+		Key key = currentPageManager.getCurrentMyNotePage().getKey();
 		VerseRange verseRange;
 		// The key should be a VerseRange
 		if (key instanceof VerseRange) {
@@ -119,7 +122,6 @@ public class MyNoteControl implements MyNote {
 
 	/** save the note to the database if it is new or has been updated
 	 */
-	@Override
 	public boolean saveMyNote(MyNoteDto myNoteDto) {
 		Log.d(TAG, "saveMyNote started...");
 		boolean isSaved = false;
@@ -146,7 +148,6 @@ public class MyNoteControl implements MyNote {
 		return isSaved;
 	}
 
-	@Override
 	public String getMyNoteText(MyNoteDto myNote, boolean abbreviated) {
 		String text = "";
 		try {
@@ -250,44 +251,6 @@ public class MyNoteControl implements MyNote {
 		return updatedMyNote;
 	}
 
-	@Override
-	public List<Verse> getVersesWithNotesInPassage(Key passage) {
-		// assumes the passage only covers one book, which always happens to be the case here
-		Verse firstVerse = KeyUtil.getVerse(passage);
-		BibleBook book = firstVerse.getBook();
-
-		MyNoteDBAdapter db = new MyNoteDBAdapter();
-		List<MyNoteDto> myNoteList = null;
-		try {
-			db.open();
-			myNoteList = db.getMyNotesInBook(book);
-		} finally {
-			db.close();
-		}
-
-		// convert to required versification and check verse is in passage
-		List<Verse> versesInPassage = new ArrayList<Verse>();
-		if (myNoteList!=null) {
-			boolean isVerseRange = passage instanceof VerseRange;
-			Versification requiredVersification = firstVerse.getVersification();
-			for (MyNoteDto myNoteDto : myNoteList) {
-				VerseRange verseRange = myNoteDto.getVerseRange(requiredVersification);
-				//TODO should not require VerseRange cast but bug in JSword
-				if (isVerseRange) {
-					if (((VerseRange)passage).contains(verseRange.getStart())) {
-						versesInPassage.add(verseRange.getStart());
-					}
-				} else {
-					if (passage.contains(verseRange)) {
-						versesInPassage.add(verseRange.getStart());
-					}
-				}
-			}
-		}
-
-		return versesInPassage;
-	}
-	
 	private List<MyNoteDto> getSortedMyNotes(List<MyNoteDto> myNoteList) {
 		Comparator<MyNoteDto> comparator = null;
 		switch (getSortOrder()) {
@@ -321,7 +284,6 @@ public class MyNoteControl implements MyNote {
 		CommonUtils.saveSharedPreference(MYNOTE_SORT_ORDER, sortOrder.toString());
 	}
 
-	@Override
 	public String getSortOrderDescription() {
 		if (MyNoteSortOrder.BIBLE_BOOK.equals(getSortOrder())) {
 			return CommonUtils.getResourceString(R.string.sort_by_bible_book);

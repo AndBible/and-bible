@@ -2,6 +2,7 @@ package net.bible.android.view.activity.page;
 
 import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.link.LinkControl;
+import net.bible.android.control.mynote.MyNoteControl;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.view.activity.MainBibleActivityScope;
@@ -29,16 +30,19 @@ public class BibleViewFactory {
 
 	private final BookmarkControl bookmarkControl;
 
+	private final MyNoteControl myNoteControl;
+
 	private Map<Window, BibleView> screenBibleViewMap;
 
 	private static final int BIBLE_WEB_VIEW_ID_BASE = 990;
 
 	@Inject
-	public BibleViewFactory(MainBibleActivity mainBibleActivity, PageControl pageControl, LinkControl linkControl, BookmarkControl bookmarkControl) {
+	public BibleViewFactory(MainBibleActivity mainBibleActivity, PageControl pageControl, LinkControl linkControl, BookmarkControl bookmarkControl, MyNoteControl myNoteControl) {
 		this.mainBibleActivity = mainBibleActivity;
 		this.pageControl = pageControl;
 		this.linkControl = linkControl;
 		this.bookmarkControl = bookmarkControl;
+		this.myNoteControl = myNoteControl;
 
 		screenBibleViewMap = new WeakHashMap<>();
 	}
@@ -48,7 +52,7 @@ public class BibleViewFactory {
 		if (bibleView==null) {
 			bibleView = new BibleView(this.mainBibleActivity, window, pageControl, linkControl);
 
-			VerseActionModeMediator bibleViewVerseActionModeMediator = new VerseActionModeMediator(mainBibleActivity, bibleView, pageControl, new VerseMenuCommandHandler(mainBibleActivity, pageControl, bookmarkControl), bookmarkControl);
+			VerseActionModeMediator bibleViewVerseActionModeMediator = new VerseActionModeMediator(mainBibleActivity, bibleView, pageControl, new VerseMenuCommandHandler(mainBibleActivity, pageControl, bookmarkControl, myNoteControl), bookmarkControl);
 			BibleJavascriptInterface bibleJavascriptInterface = new BibleJavascriptInterface(bibleViewVerseActionModeMediator);
 			bibleView.setBibleJavascriptInterface(bibleJavascriptInterface);
 			bibleView.setId(BIBLE_WEB_VIEW_ID_BASE+window.getScreenNo());

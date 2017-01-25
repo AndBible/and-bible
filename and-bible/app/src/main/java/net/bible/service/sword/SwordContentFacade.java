@@ -6,9 +6,7 @@ import android.util.Log;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.BookmarkStyle;
-import net.bible.android.view.activity.bookmark.BookmarkFormatSupport;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Constants;
 import net.bible.service.common.Logger;
@@ -22,6 +20,8 @@ import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler;
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler;
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler;
+import net.bible.service.format.usermarks.BookmarkFormatSupport;
+import net.bible.service.format.usermarks.MyNoteFormatSupport;
 
 import org.crosswire.common.xml.SAXEventProvider;
 import org.crosswire.jsword.book.Book;
@@ -59,6 +59,8 @@ public class SwordContentFacade {
 
 	private final BookmarkFormatSupport bookmarkFormatSupport;
 
+	private final MyNoteFormatSupport myNoteFormatSupport;
+
 	private CssControl cssControl = new CssControl();
 	
 	private static final String TAG = "SwordContentFacade";
@@ -70,8 +72,9 @@ public class SwordContentFacade {
     private static final Logger log = new Logger(SwordContentFacade.class.getName());
 
 	@Inject
-	public SwordContentFacade(BookmarkFormatSupport bookmarkFormatSupport) {
+	public SwordContentFacade(BookmarkFormatSupport bookmarkFormatSupport, MyNoteFormatSupport myNoteFormatSupport) {
 		this.bookmarkFormatSupport = bookmarkFormatSupport;
+		this.myNoteFormatSupport = myNoteFormatSupport;
 	}
 	
 	/** top level method to fetch html from the raw document data
@@ -386,7 +389,7 @@ public class SwordContentFacade {
 					osisToHtmlParameters.setShowBookmarks(preferences.getBoolean("show_bookmarks_pref", true));
 					osisToHtmlParameters.setDefaultBookmarkStyle(BookmarkStyle.valueOf(preferences.getString("default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name())));
 					osisToHtmlParameters.setShowTitles(preferences.getBoolean("section_title_pref", true));
-					osisToHtmlParameters.setVersesWithNotes(ControlFactory.getInstance().getMyNoteControl().getVersesWithNotesInPassage(key));
+					osisToHtmlParameters.setVersesWithNotes(myNoteFormatSupport.getVersesWithNotesInPassage(key));
 					osisToHtmlParameters.setBookmarkStylesByBookmarkedVerse(bookmarkFormatSupport.getVerseBookmarkStylesInPassage(key));
 
 					// showMorphology depends on showStrongs to allow the toolbar toggle button to affect both strongs and morphology

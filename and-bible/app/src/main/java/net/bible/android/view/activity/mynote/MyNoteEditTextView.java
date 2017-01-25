@@ -9,9 +9,8 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
-import net.bible.android.control.mynote.MyNote;
+import net.bible.android.control.mynote.MyNoteControl;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
@@ -27,13 +26,15 @@ import de.greenrobot.event.EventBus;
  */
 public class MyNoteEditTextView extends EditText implements DocumentView {
 
-	private MyNote myNoteControl = ControlFactory.getInstance().getMyNoteControl();
+	private final MyNoteControl myNoteControl;
 
 	@SuppressWarnings("unused")
 	private static final String TAG = "MyNoteEditTextView";
 	
-	public MyNoteEditTextView(Context context) {
+	public MyNoteEditTextView(Context context, MyNoteControl myNoteControl) {
 		super(context);
+		this.myNoteControl = myNoteControl;
+
 		setSingleLine(false);
 		LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
 		setLayoutParams(layoutParams);

@@ -7,6 +7,7 @@ import net.bible.android.view.activity.bookmark.ManageLabels;
 import net.bible.android.view.activity.comparetranslations.CompareTranslations;
 import net.bible.android.view.activity.download.Download;
 import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity;
+import net.bible.android.view.activity.mynote.MyNotes;
 import net.bible.android.view.activity.navigation.ChooseDocument;
 import net.bible.android.view.activity.navigation.GridChoosePassageBook;
 import net.bible.android.view.activity.navigation.GridChoosePassageChapter;
@@ -55,4 +56,5 @@ public interface ActivityComponent {
 	void inject(SearchResults searchResults);
 	void inject(CompareTranslations compareTranslations);
 	void inject(FootnoteAndRefActivity footnoteAndRefActivity);
+	void inject(MyNotes myNotes);
 }
