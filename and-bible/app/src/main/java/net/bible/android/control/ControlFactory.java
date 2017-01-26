@@ -6,13 +6,9 @@ import net.bible.android.control.email.Emailer;
 import net.bible.android.control.email.EmailerImpl;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.page.PageTiltScrollControl;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.control.report.ErrorReportControl;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /** allow access to control layer
  *
@@ -24,8 +20,6 @@ public class ControlFactory {
 	private EventManager eventManager;
 	
 	private DocumentControl documentControl = new DocumentControl();
-
-	private final Map<Window, PageTiltScrollControl> screenPageTiltScrollControlMap = new HashMap<>();
 
 	private Emailer emailer;
 	private ErrorReportControl errorReportControl;
@@ -91,21 +85,6 @@ public class ControlFactory {
 	public WindowControl getWindowControl() {
 //		ensureAllInitialised();
 		return BibleApplication.getApplication().getControllerComponent().windowControl();
-	}
-
-
-	public PageTiltScrollControl getPageTiltScrollControl(Window window) {
-		PageTiltScrollControl pageTiltScrollControl = screenPageTiltScrollControlMap.get(window);
-		if (pageTiltScrollControl==null) {
-			synchronized(screenPageTiltScrollControlMap) {
-				pageTiltScrollControl = screenPageTiltScrollControlMap.get(window);
-				if (pageTiltScrollControl==null) {
-					pageTiltScrollControl = new PageTiltScrollControl();
-					screenPageTiltScrollControlMap.put(window, pageTiltScrollControl);
-				}
-			}
-		}
-		return pageTiltScrollControl;
 	}
 
 	public CurrentPageManager getCurrentPageControl() {

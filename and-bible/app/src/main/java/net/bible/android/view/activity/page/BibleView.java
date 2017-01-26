@@ -23,6 +23,7 @@ import net.bible.android.control.event.window.UpdateSecondaryWindowEvent;
 import net.bible.android.control.event.window.WindowSizeChangedEvent;
 import net.bible.android.control.link.LinkControl;
 import net.bible.android.control.page.PageControl;
+import net.bible.android.control.page.PageTiltScrollControl;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.view.activity.base.DocumentView;
@@ -59,6 +60,8 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 
 	private final PageControl pageControl;
 
+	private final PageTiltScrollControl pageTiltScrollControl;
+
 	private final LinkControl linkControl;
 
 	private int maintainMovingVerse = -1;
@@ -79,12 +82,14 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
      * the object manually (not from a layout XML file).
 	 * @param context
 	 * @param pageControl
+	 * @param pageTiltScrollControl
 	 * @param linkControl
 	 */
-	public BibleView(Context context, Window window, PageControl pageControl, LinkControl linkControl) {
+	public BibleView(Context context, Window window, PageControl pageControl, PageTiltScrollControl pageTiltScrollControl, LinkControl linkControl) {
 		super(context);
 		this.window = window;
 		this.pageControl = pageControl;
+		this.pageTiltScrollControl = pageTiltScrollControl;
 		this.linkControl = linkControl;
 	}
 
@@ -139,7 +144,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		
 		applyPreferenceSettings();
 		
-		mPageTiltScroller = new PageTiltScroller(this);
+		mPageTiltScroller = new PageTiltScroller(this, pageTiltScrollControl);
 		mPageTiltScroller.enableTiltScroll(true);
 
 		// if this webview becomes (in)active then must start/stop auto-scroll

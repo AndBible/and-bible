@@ -10,6 +10,7 @@ import net.bible.android.control.mynote.MyNoteControl;
 import net.bible.android.control.navigation.DocumentBibleBooksFactory;
 import net.bible.android.control.navigation.NavigationControl;
 import net.bible.android.control.page.PageControl;
+import net.bible.android.control.page.PageTiltScrollControlFactory;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.control.readingplan.ReadingPlanControl;
 import net.bible.android.control.search.SearchControl;
@@ -46,6 +47,7 @@ public interface ControllerComponent {
 	DocumentBibleBooksFactory documentBibleBooksFactory();
 	WindowControl windowControl();
 	LinkControl linkControl();
+	PageTiltScrollControlFactory pageTiltScrollControlFactory();
 
 	BackupControl backupControl();
 	BookmarkControl bookmarkControl();

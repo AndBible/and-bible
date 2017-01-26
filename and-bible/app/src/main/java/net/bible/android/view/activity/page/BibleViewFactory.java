@@ -4,6 +4,8 @@ import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.link.LinkControl;
 import net.bible.android.control.mynote.MyNoteControl;
 import net.bible.android.control.page.PageControl;
+import net.bible.android.control.page.PageTiltScrollControl;
+import net.bible.android.control.page.PageTiltScrollControlFactory;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.view.activity.MainBibleActivityScope;
 
@@ -26,6 +28,8 @@ public class BibleViewFactory {
 
 	private final PageControl pageControl;
 
+	private final PageTiltScrollControlFactory pageTiltScrollControlFactory;
+
 	private final LinkControl linkControl;
 
 	private final BookmarkControl bookmarkControl;
@@ -37,9 +41,10 @@ public class BibleViewFactory {
 	private static final int BIBLE_WEB_VIEW_ID_BASE = 990;
 
 	@Inject
-	public BibleViewFactory(MainBibleActivity mainBibleActivity, PageControl pageControl, LinkControl linkControl, BookmarkControl bookmarkControl, MyNoteControl myNoteControl) {
+	public BibleViewFactory(MainBibleActivity mainBibleActivity, PageControl pageControl, PageTiltScrollControlFactory pageTiltScrollControlFactory, LinkControl linkControl, BookmarkControl bookmarkControl, MyNoteControl myNoteControl) {
 		this.mainBibleActivity = mainBibleActivity;
 		this.pageControl = pageControl;
+		this.pageTiltScrollControlFactory = pageTiltScrollControlFactory;
 		this.linkControl = linkControl;
 		this.bookmarkControl = bookmarkControl;
 		this.myNoteControl = myNoteControl;
@@ -50,7 +55,8 @@ public class BibleViewFactory {
 	public BibleView createBibleView(Window window) {
 		BibleView bibleView = screenBibleViewMap.get(window);
 		if (bibleView==null) {
-			bibleView = new BibleView(this.mainBibleActivity, window, pageControl, linkControl);
+			final PageTiltScrollControl pageTiltScrollControl = pageTiltScrollControlFactory.getPageTiltScrollControl(window);
+			bibleView = new BibleView(this.mainBibleActivity, window, pageControl, pageTiltScrollControl, linkControl);
 
 			VerseActionModeMediator bibleViewVerseActionModeMediator = new VerseActionModeMediator(mainBibleActivity, bibleView, pageControl, new VerseMenuCommandHandler(mainBibleActivity, pageControl, bookmarkControl, myNoteControl), bookmarkControl);
 			BibleJavascriptInterface bibleJavascriptInterface = new BibleJavascriptInterface(bibleViewVerseActionModeMediator);
