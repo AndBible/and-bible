@@ -1,15 +1,15 @@
 package net.bible.android.view.activity.base;
 
-import net.bible.android.BibleApplication;
-import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.report.ErrorReportControl;
-import net.bible.android.view.util.Hourglass;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.util.Log;
 import android.widget.Toast;
+
+import net.bible.android.BibleApplication;
+import net.bible.android.activity.R;
+import net.bible.android.control.report.ErrorReportControl;
+import net.bible.android.view.util.Hourglass;
 
 /**
  * Class to manage the display of various dialogs
@@ -20,10 +20,8 @@ import android.widget.Toast;
  */
 public class Dialogs {
 
-	private ErrorReportControl errorReportControl = ControlFactory.getInstance().getErrorReportControl();
+	private ErrorReportControl errorReportControl;
 	
-	public static final int TOO_MANY_JOBS = 121;
-
 	private Hourglass hourglass = new Hourglass();
 
 	private Callback doNothingCallback = new Callback() {
@@ -43,6 +41,7 @@ public class Dialogs {
 	
 	private Dialogs() {
 		super();
+		errorReportControl = BibleApplication.getApplication().getControllerComponent().errorReportControl();
 	}
 
     public void showMsg(int msgId, String param) {
@@ -93,7 +92,7 @@ public class Dialogs {
     	showMsg(msg, false, okayCallback, null);
     }
     
-    public void showMsg(final String msg, final boolean isCancelable, final Callback okayCallback, final Callback reportCallback) {
+    private void showMsg(final String msg, final boolean isCancelable, final Callback okayCallback, final Callback reportCallback) {
     	Log.d(TAG, "showErrorMesage message:"+msg);
     	try {
 			final Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();

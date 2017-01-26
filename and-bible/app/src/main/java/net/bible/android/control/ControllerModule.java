@@ -4,6 +4,8 @@ import net.bible.android.common.resource.AndroidResourceProvider;
 import net.bible.android.common.resource.ResourceProvider;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.control.download.DownloadQueue;
+import net.bible.android.control.email.Emailer;
+import net.bible.android.control.email.EmailerImpl;
 import net.bible.service.download.RepoFactory;
 import net.bible.service.font.FontControl;
 
@@ -32,5 +34,11 @@ public class ControllerModule {
 	@ApplicationScope
 	public ResourceProvider provideResourceProvider(AndroidResourceProvider androidResourceProvider) {
 		return androidResourceProvider;
-	};
+	}
+
+	@Provides
+	@ApplicationScope
+	public Emailer emailer(EmailerImpl emailerImpl) {
+		return emailerImpl;
+	}
 }

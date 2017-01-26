@@ -4,18 +4,26 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 
+import net.bible.android.control.ApplicationScope;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 
 import org.apache.commons.lang3.StringUtils;
 
+import javax.inject.Inject;
+
 /**
  * Jump straight to email program with subject, body, recipient, etc
  */
+@ApplicationScope
 public class EmailerImpl implements Emailer {
 
+	@Inject
+	public EmailerImpl() {
+	}
+
 	/* (non-Javadoc)
-	 * @see net.bible.android.control.report.Email#send(java.lang.String, java.lang.String, java.lang.String)
-	 */
+		 * @see net.bible.android.control.report.Email#send(java.lang.String, java.lang.String, java.lang.String)
+		 */
 	@Override
 	public void send(String emailDialogTitle, String subject, String text) {
 		send(emailDialogTitle, null, subject, text);

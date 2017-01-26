@@ -68,12 +68,14 @@ public class BibleApplication extends Application{
         // this affected jsword dynamic classloading
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
         
-		installJSwordErrorReportListener();
-
 		// This must be done before accessing JSword to prevent default folders being used
 		SwordDocumentFacade.initialiseJSwordFolders();
 
-		initializeInjector();
+		// Initialize the Dagger injector ApplicationScope objects
+		controllerComponent = DaggerControllerComponent.builder().build();
+
+		// ideally this would be installed before initialiseJSwordFolders but the listener depends on controllerComponent
+		installJSwordErrorReportListener();
 
 		// some changes may be required for different versions
 		upgradePersistentData();
@@ -93,10 +95,6 @@ public class BibleApplication extends Application{
 
 	public ControllerComponent getControllerComponent() {
 		return controllerComponent;
-	}
-
-	private void initializeInjector() {
-		controllerComponent = DaggerControllerComponent.builder().build();
 	}
 
 	/** Allow user interface locale override by changing Settings

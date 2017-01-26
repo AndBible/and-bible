@@ -2,13 +2,10 @@ package net.bible.android.control;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.control.document.DocumentControl;
-import net.bible.android.control.email.Emailer;
-import net.bible.android.control.email.EmailerImpl;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowControl;
-import net.bible.android.control.report.ErrorReportControl;
 
 /** allow access to control layer
  *
@@ -20,9 +17,6 @@ public class ControlFactory {
 	private EventManager eventManager;
 	
 	private DocumentControl documentControl = new DocumentControl();
-
-	private Emailer emailer;
-	private ErrorReportControl errorReportControl;
 
 	private boolean initialised = false;
 	
@@ -49,9 +43,6 @@ public class ControlFactory {
 	
 	protected void createAll() {
 //		eventManager = ABEventBus.getDefault();
-
-		emailer = new EmailerImpl();
-		errorReportControl = new ErrorReportControl(emailer); 
 
 		// inject dependencies
 
@@ -91,9 +82,5 @@ public class ControlFactory {
 //		ensureAllInitialised();
 		Window activeWindow = getWindowControl().getActiveWindow();
 		return activeWindow.getPageManager();
-	}
-
-	public ErrorReportControl getErrorReportControl() {
-		return errorReportControl;
 	}
 }

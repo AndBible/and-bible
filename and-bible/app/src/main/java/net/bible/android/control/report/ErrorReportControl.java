@@ -1,18 +1,24 @@
 package net.bible.android.control.report;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import android.os.Build;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
+import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.email.Emailer;
 import net.bible.service.common.CommonUtils;
-import android.os.Build;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+import javax.inject.Inject;
+
+@ApplicationScope
 public class ErrorReportControl {
 	
 	private Emailer emailer;
-	
+
+	@Inject
 	public ErrorReportControl(Emailer emailer) {
 		this.emailer = emailer;
 	}

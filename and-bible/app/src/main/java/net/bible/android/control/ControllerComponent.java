@@ -13,6 +13,7 @@ import net.bible.android.control.page.PageControl;
 import net.bible.android.control.page.PageTiltScrollControlFactory;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.control.readingplan.ReadingPlanControl;
+import net.bible.android.control.report.ErrorReportControl;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.control.versification.BibleTraverser;
@@ -40,6 +41,7 @@ public interface ControllerComponent {
 
 	//Exposed to sub-graphs.
 	Initialisation initialisation();
+	ErrorReportControl errorReportControl();
 
 	SwordContentFacade swordContentFacade();
 	BibleTraverser bibleTraverser();
