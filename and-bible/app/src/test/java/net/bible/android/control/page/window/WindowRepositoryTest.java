@@ -9,6 +9,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
+import javax.inject.Provider;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.contains;
@@ -19,14 +21,14 @@ import static org.mockito.Mockito.mock;
 public class WindowRepositoryTest {
 	private WindowRepository windowRepository;
 
-	private CurrentPageManager mockCurrentPageManager;
+	private Provider<CurrentPageManager> mockCurrentPageManagerProvider;
 
 	@Before
 	public void setUp() throws Exception {
 		EventManager eventManager = new EventManagerStub();
-		mockCurrentPageManager = mock(CurrentPageManager.class);
+		mockCurrentPageManagerProvider = mock(Provider.class);
 
-		windowRepository = new WindowRepository(mockCurrentPageManager);
+		windowRepository = new WindowRepository(mockCurrentPageManagerProvider);
 		windowRepository.initialise();
 	}
 

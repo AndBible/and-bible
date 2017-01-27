@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.widget.LinearLayout;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.mynote.MyNoteControl;
 import net.bible.android.control.page.window.Window;
@@ -35,12 +34,12 @@ public class DocumentViewManager {
 	private WindowControl windowControl;
 
 	@Inject
-	public DocumentViewManager(MainBibleActivity mainBibleActivity, DocumentWebViewBuilder documentWebViewBuilder, MyNoteControl myNoteControl) {
+	public DocumentViewManager(MainBibleActivity mainBibleActivity, DocumentWebViewBuilder documentWebViewBuilder, MyNoteControl myNoteControl, WindowControl windowControl) {
 		this.mainBibleActivity = mainBibleActivity;
 		this.documentWebViewBuilder = documentWebViewBuilder;
 		myNoteViewBuilder = new MyNoteViewBuilder(this.mainBibleActivity, myNoteControl);
 		this.parent = (LinearLayout)mainBibleActivity.findViewById(R.id.mainBibleView);
-		windowControl = ControlFactory.getInstance().getWindowControl();
+		this.windowControl = windowControl;
 
 		EventBus.getDefault().register(this);
 	}

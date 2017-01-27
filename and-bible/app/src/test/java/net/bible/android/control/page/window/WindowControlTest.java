@@ -27,6 +27,8 @@ import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 
+import javax.inject.Provider;
+
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
@@ -56,13 +58,13 @@ public class WindowControlTest {
 	
 	private WindowControl windowControl;
 
-	private CurrentPageManager mockCurrentPageManager;
+	private Provider<CurrentPageManager> mockCurrentPageManagerProvider;
 
 	@Before
 	public void setUp() throws Exception {
 		eventManager = mock(EventManager.class);
-		mockCurrentPageManager = mock(CurrentPageManager.class);
-		windowRepository = new WindowRepository(mockCurrentPageManager);
+		mockCurrentPageManagerProvider = mock(Provider.class);
+		windowRepository = new WindowRepository(mockCurrentPageManagerProvider);
 		windowRepository.initialise();
 		windowControl = new WindowControl(windowRepository);
 		reset(eventManager);

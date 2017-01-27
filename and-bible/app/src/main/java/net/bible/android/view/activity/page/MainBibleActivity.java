@@ -52,7 +52,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 
 	private WindowControl windowControl;
 
-
 	// handle requests from main menu
 	private MenuCommandHandler mainMenuCommandHandler;
 
@@ -99,8 +98,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		// create related objects
 		BibleGestureListener gestureListener = new BibleGestureListener(MainBibleActivity.this);
 		gestureDetector = new GestureDetectorCompat(this, gestureListener);
-
-		windowControl = ControlFactory.getInstance().getWindowControl();
 
 		documentViewManager.buildView();
 
@@ -294,7 +291,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		backupControl.updateOptionsMenu(menu);
 
 		// set Synchronised checkbox correctly
-		ControlFactory.getInstance().getWindowControl().updateOptionsMenu(menu);
+		windowControl.updateOptionsMenu(menu);
 
 		// must return true for menu to be displayed
 		return true;
@@ -400,6 +397,11 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	@Inject
 	void setSearchControl(SearchControl searchControl) {
 		this.searchControl = searchControl;
+	}
+
+	@Inject
+	void setWindowControl(WindowControl windowControl) {
+		this.windowControl = windowControl;
 	}
 }
 

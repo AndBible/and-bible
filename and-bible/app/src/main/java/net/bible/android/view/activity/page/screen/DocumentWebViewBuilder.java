@@ -66,7 +66,7 @@ public class DocumentWebViewBuilder {
 
 	private boolean isWindowConfigurationChanged = true;
 
-	private static WindowControl windowControl;
+	private final WindowControl windowControl;
 
 	private boolean isLaidOutForPortrait;
 	private final MainBibleActivity mainBibleActivity;
@@ -86,13 +86,12 @@ public class DocumentWebViewBuilder {
 	private static final String TAG="DocumentWebViewBuilder";
 
 	@Inject
-	public DocumentWebViewBuilder(MainBibleActivity mainBibleActivity, BibleViewFactory bibleViewFactory, WindowMenuCommandHandler windowMenuCommandHandler) {
+	public DocumentWebViewBuilder(WindowControl windowControl, MainBibleActivity mainBibleActivity, BibleViewFactory bibleViewFactory, WindowMenuCommandHandler windowMenuCommandHandler) {
+		this.windowControl = windowControl;
 		this.mainBibleActivity = mainBibleActivity;
 		this.bibleViewFactory = bibleViewFactory;
 		this.windowMenuCommandHandler = windowMenuCommandHandler;
 
-		windowControl = ControlFactory.getInstance().getWindowControl();
-		
         Resources res = BibleApplication.getApplication().getResources();
         WINDOW_SEPARATOR_WIDTH_PX = res.getDimensionPixelSize(R.dimen.window_separator_width);
         WINDOW_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX = res.getDimensionPixelSize(R.dimen.window_separator_touch_expansion_width);

@@ -44,6 +44,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	
 	private final Window window;
 
+	private WindowControl windowControl;
 
 	private BibleJavascriptInterface bibleJavascriptInterface;
 
@@ -65,8 +66,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	private final LinkControl linkControl;
 
 	private int maintainMovingVerse = -1;
-	private static WindowControl windowControl = ControlFactory.getInstance().getWindowControl();
-	
+
 	private boolean kitKatPlus = CommonUtils.isKitKatPlus();
 	
 	// never go to 0 because a bug in Android prevents invalidate after loadDataWithBaseURL so no scrollOrJumpToVerse will occur 
@@ -81,13 +81,15 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
      * Constructor.  This version is only needed if you will be instantiating
      * the object manually (not from a layout XML file).
 	 * @param context
+	 * @param windowControl
 	 * @param pageControl
 	 * @param pageTiltScrollControl
 	 * @param linkControl
 	 */
-	public BibleView(Context context, Window window, PageControl pageControl, PageTiltScrollControl pageTiltScrollControl, LinkControl linkControl) {
+	public BibleView(Context context, Window window, WindowControl windowControl, PageControl pageControl, PageTiltScrollControl pageTiltScrollControl, LinkControl linkControl) {
 		super(context);
 		this.window = window;
+		this.windowControl = windowControl;
 		this.pageControl = pageControl;
 		this.pageTiltScrollControl = pageTiltScrollControl;
 		this.linkControl = linkControl;

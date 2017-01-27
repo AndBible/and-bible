@@ -3,11 +3,8 @@ package net.bible.android.view.activity.page;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.page.window.WindowControl;
-
-import javax.inject.Inject;
 
 /**
  * Interface allowing javascript to call java methods in app
@@ -22,15 +19,15 @@ public class BibleJavascriptInterface {
 	
 	private VerseCalculator verseCalculator = new VerseCalculator();
 
-	private VerseActionModeMediator verseActionModeMediator;
+	private final VerseActionModeMediator verseActionModeMediator;
 	
-	private WindowControl windowControl = ControlFactory.getInstance().getWindowControl();
+	private final WindowControl windowControl;
 	
 	private static final String TAG = "BibleJavascriptIntrfc";
 
-	@Inject
-	public BibleJavascriptInterface(VerseActionModeMediator verseActionModeMediator) {
+	public BibleJavascriptInterface(VerseActionModeMediator verseActionModeMediator, WindowControl windowControl) {
 		this.verseActionModeMediator = verseActionModeMediator;
+		this.windowControl = windowControl;
 	}
 
 	@JavascriptInterface
