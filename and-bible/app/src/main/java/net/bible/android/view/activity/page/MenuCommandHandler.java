@@ -51,7 +51,7 @@ public class MenuCommandHandler {
 
 	private final SearchControl searchControl;
 
-	private WindowMenuCommandHandler windowMenuCommandHandler;
+	private final WindowMenuCommandHandler windowMenuCommandHandler;
 	
 	// request codes passed to and returned from sub-activities
 	public static final int REFRESH_DISPLAY_ON_FINISH = 2;
@@ -62,12 +62,12 @@ public class MenuCommandHandler {
 	private static final String TAG = "MainMenuCommandHandler";
 
 	@Inject
-	public MenuCommandHandler(MainBibleActivity activity, ReadingPlanControl readingPlanControl, SearchControl searchControl) {
+	public MenuCommandHandler(MainBibleActivity activity, ReadingPlanControl readingPlanControl, SearchControl searchControl, WindowMenuCommandHandler windowMenuCommandHandler) {
 		super();
 		this.callingActivity = activity;
 		this.readingPlanControl = readingPlanControl;
 		this.searchControl = searchControl;
-		this.windowMenuCommandHandler = new WindowMenuCommandHandler();
+		this.windowMenuCommandHandler = windowMenuCommandHandler;
 	}
 	
 	/**

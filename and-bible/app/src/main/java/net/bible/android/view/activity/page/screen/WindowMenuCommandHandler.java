@@ -1,17 +1,22 @@
 package net.bible.android.view.activity.page.screen;
 
-import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.page.window.Window;
-import net.bible.android.control.page.window.WindowControl;
 import android.view.MenuItem;
 
+import net.bible.android.activity.R;
+import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.page.window.Window;
+import net.bible.android.control.page.window.WindowControl;
+
+import javax.inject.Inject;
+
+@ApplicationScope
 public class WindowMenuCommandHandler {
 	
-	private WindowControl windowControl;
+	private final WindowControl windowControl;
 
-	public WindowMenuCommandHandler() {
-		windowControl = ControlFactory.getInstance().getWindowControl();
+	@Inject
+	public WindowMenuCommandHandler(WindowControl windowControl) {
+		this.windowControl = windowControl;
 	}
 	
 	/** 

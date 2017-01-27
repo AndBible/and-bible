@@ -2,7 +2,6 @@ package net.bible.android.control;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.control.document.DocumentControl;
-import net.bible.android.control.event.EventManager;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowControl;
@@ -14,12 +13,10 @@ import net.bible.android.control.page.window.WindowControl;
  *      The copyright to this program is held by it's author.
  */
 public class ControlFactory {
-	private EventManager eventManager;
-	
+
 	private DocumentControl documentControl = new DocumentControl();
 
-	private boolean initialised = false;
-	
+
 	private static ControlFactory singleton;
 	
 	public static ControlFactory getInstance() {

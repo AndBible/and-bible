@@ -69,10 +69,12 @@ public class DocumentWebViewBuilder {
 	private static WindowControl windowControl;
 
 	private boolean isLaidOutForPortrait;
-	private MainBibleActivity mainBibleActivity;
+	private final MainBibleActivity mainBibleActivity;
 
-	private BibleViewFactory bibleViewFactory;
-	
+	private final BibleViewFactory bibleViewFactory;
+
+	private final WindowMenuCommandHandler windowMenuCommandHandler;
+
 	final private int WINDOW_SEPARATOR_WIDTH_PX;
 	final private int WINDOW_SEPARATOR_TOUCH_EXPANSION_WIDTH_PX;
 	final private int WINDOW_BUTTON_TEXT_COLOUR;
@@ -84,9 +86,10 @@ public class DocumentWebViewBuilder {
 	private static final String TAG="DocumentWebViewBuilder";
 
 	@Inject
-	public DocumentWebViewBuilder(MainBibleActivity mainBibleActivity, BibleViewFactory bibleViewFactory) {
+	public DocumentWebViewBuilder(MainBibleActivity mainBibleActivity, BibleViewFactory bibleViewFactory, WindowMenuCommandHandler windowMenuCommandHandler) {
 		this.mainBibleActivity = mainBibleActivity;
 		this.bibleViewFactory = bibleViewFactory;
+		this.windowMenuCommandHandler = windowMenuCommandHandler;
 
 		windowControl = ControlFactory.getInstance().getWindowControl();
 		
@@ -401,11 +404,10 @@ public class DocumentWebViewBuilder {
 				
 			    PopupMenu popup = new PopupMenu(mainBibleActivity, v);
 			    popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
-					private WindowMenuCommandHandler menuCommandHandler = new WindowMenuCommandHandler();
-					
+
 					@Override
 					public boolean onMenuItemClick(MenuItem menuItem) {
-						return menuCommandHandler.handleMenuRequest(menuItem);
+						return windowMenuCommandHandler.handleMenuRequest(menuItem);
 					}
 				});
 			    
