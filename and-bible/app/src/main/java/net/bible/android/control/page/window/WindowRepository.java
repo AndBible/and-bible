@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.inject.Provider;
 
 import de.greenrobot.event.EventBus;
 
@@ -35,19 +36,20 @@ public class WindowRepository {
 	
 	private int maxWindowNoUsed = 0;
 
-	private final CurrentPageManager currentPageManager;
+	// Each window has its own currentPageManagerProvider to store the different state e.g. different current Bible module, so must create new cpm for each window
+	private final Provider<CurrentPageManager> currentPageManagerProvider;
 	
 	private final Logger logger = new Logger(this.getClass().getName());
 
 	@Inject
-	public WindowRepository(CurrentPageManager currentPageManager) {
-		this.currentPageManager = currentPageManager;
+	public WindowRepository(Provider<CurrentPageManager> currentPageManagerProvider) {
+		this.currentPageManagerProvider = currentPageManagerProvider;
 
 		initialise();
 	}
 
 	public void initialise() {
-		dedicatedLinksWindow = new LinksWindow(WindowState.CLOSED, currentPageManager);
+		dedicatedLinksWindow = new LinksWindow(WindowState.CLOSED, currentPageManagerProvider.get());
 
 		windowList = new ArrayList<>();
 
@@ -230,7 +232,7 @@ public class WindowRepository {
 	}
 	
 	private Window addNewWindow(int screenNo) {
-		Window newScreen = new Window(screenNo, getDefaultState(), currentPageManager);
+		Window newScreen = new Window(screenNo, getDefaultState(), currentPageManagerProvider.get());
 		maxWindowNoUsed = Math.max(maxWindowNoUsed, screenNo);
 		windowList.add(newScreen);
 		return newScreen;
@@ -312,7 +314,7 @@ public class WindowRepository {
 					for (int i=0; i<windowState.length(); i++) {
 						try {
 							JSONObject screenState = windowState.getJSONObject(i);
-							Window window = new Window(currentPageManager);
+							Window window = new Window(currentPageManagerProvider.get());
 							window.restoreState(screenState);
 
 							maxWindowNoUsed = Math.max(maxWindowNoUsed, window.getScreenNo());

@@ -5,7 +5,6 @@ import android.content.Intent;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
-import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.versification.BibleTraverser;
@@ -23,12 +22,12 @@ import org.json.JSONObject;
 import javax.inject.Inject;
 
 /** Control singletons of the different current document page types
+ * Each Window has its own instance of CurrentPageManager, so it is not a singleton.
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-@ApplicationScope
 public class CurrentPageManager {
 	// use the same verse in the commentary and bible to keep them in sync
 	private CurrentBibleVerse currentBibleVerse;
