@@ -25,6 +25,8 @@ import net.bible.android.view.activity.search.searchresultsactionbar.ScriptureTo
 import net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager;
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton;
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton;
+import net.bible.service.history.HistoryManager;
+import net.bible.service.history.HistoryTraversalFactory;
 import net.bible.service.sword.SwordContentFacade;
 
 import dagger.Component;
@@ -51,6 +53,8 @@ public interface ControllerComponent {
 	WindowControl windowControl();
 	LinkControl linkControl();
 	PageTiltScrollControlFactory pageTiltScrollControlFactory();
+	HistoryManager historyManager();
+	HistoryTraversalFactory historyTraversalFactory();
 
 	BackupControl backupControl();
 	BookmarkControl bookmarkControl();

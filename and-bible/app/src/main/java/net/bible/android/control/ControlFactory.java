@@ -24,7 +24,6 @@ public class ControlFactory {
 			synchronized(ControlFactory.class) {
 				if (singleton==null) {
 					final ControlFactory controlFactory = new ControlFactory();
-					controlFactory.createAll();
 					singleton = controlFactory;
 				}
 			}
@@ -37,26 +36,6 @@ public class ControlFactory {
 	
 	protected ControlFactory() {
 	}
-	
-	protected void createAll() {
-//		eventManager = ABEventBus.getDefault();
-
-		// inject dependencies
-
-		//TODO already added Inject
-		//linkControl = new LinkControl(windowControl, searchControl);
-	}
-	
-//	protected void ensureAllInitialised() {
-//		if (!initialised) {
-//			synchronized(this) {
-//				if (!initialised) {
-//					windowRepository.initialise(eventManager);
-//					initialised = true;
-//				}
-//			}
-//		}
-//	}
 	
 	public DocumentControl getDocumentControl() {
 //		ensureAllInitialised();

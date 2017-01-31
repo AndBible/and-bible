@@ -1,12 +1,9 @@
 package net.bible.service.history;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
+import android.app.Activity;
+import android.util.Log;
 
+import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
@@ -20,39 +17,42 @@ import net.bible.android.view.activity.page.MainBibleActivity;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
-import android.app.Activity;
-import android.util.Log;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+
+import javax.inject.Inject;
 
 /**
- * Application managed History List
+ * Application managed History List.
+ * The HistoryManager keeps a different history list for each window.
  * 
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's authors.
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+@ApplicationScope
 public class HistoryManager {
 
 	private static int MAX_HISTORY = 80;
 	
 	private Map<Window, Stack<HistoryItem>> screenHistoryStackMap = new HashMap<>();
 
-	private static HistoryManager singleton = new HistoryManager();
-
 	private boolean isGoingBack = false;
 	
-	private static WindowControl windowControl = ControlFactory.getInstance().getWindowControl();
+	private final WindowControl windowControl;
 	
 	private static final String TAG = "HistoryManager";
 	
-	public static HistoryManager getInstance() {
-		return singleton;
-	}
-	
-	private HistoryManager() {}
-	
-	public void initialise() {
+	@Inject
+	public HistoryManager(WindowControl windowControl) {
+		this.windowControl = windowControl;
+
+		// register for BeforePageChangeEvent
 		Log.i(TAG, "Registering HistoryManager with EventBus");
-		// register for BeforePageCangeEvent
 		ABEventBus.getDefault().safelyRegister(this);
 	}
 	
@@ -76,6 +76,7 @@ public class HistoryManager {
 			add(getHistoryStack(), item);
 		}
 	}
+
 	private HistoryItem createHistoryItem() {
 		HistoryItem historyItem = null;
 		
@@ -125,7 +126,7 @@ public class HistoryManager {
 	}
 	
 	public List<HistoryItem> getHistory() {
-		List<HistoryItem> allHistory = new ArrayList<HistoryItem>(getHistoryStack());
+		List<HistoryItem> allHistory = new ArrayList<>(getHistoryStack());
 		// reverse so most recent items are at top rather than end
 		Collections.reverse(allHistory);
 		return allHistory;

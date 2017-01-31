@@ -1,6 +1,7 @@
 package net.bible.android.view.activity;
 
 import net.bible.android.control.ControllerComponent;
+import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.bookmark.BookmarkLabels;
 import net.bible.android.view.activity.bookmark.Bookmarks;
 import net.bible.android.view.activity.bookmark.ManageLabels;
@@ -12,6 +13,7 @@ import net.bible.android.view.activity.navigation.ChooseDocument;
 import net.bible.android.view.activity.navigation.GridChoosePassageBook;
 import net.bible.android.view.activity.navigation.GridChoosePassageChapter;
 import net.bible.android.view.activity.navigation.GridChoosePassageVerse;
+import net.bible.android.view.activity.navigation.History;
 import net.bible.android.view.activity.readingplan.DailyReading;
 import net.bible.android.view.activity.readingplan.DailyReadingList;
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;
@@ -33,6 +35,9 @@ import dagger.Component;
 @Component(dependencies = {ControllerComponent.class} )
 public interface ActivityComponent {
 	// Activities that are permitted to be injected
+
+	// don't like this but inject is called from ActivityBase and the subclasses
+	void inject(ActivityBase activityBase);
 
 	void inject(StartupActivity startupActivity);
 
@@ -57,4 +62,5 @@ public interface ActivityComponent {
 	void inject(CompareTranslations compareTranslations);
 	void inject(FootnoteAndRefActivity footnoteAndRefActivity);
 	void inject(MyNotes myNotes);
+	void inject(History history);
 }

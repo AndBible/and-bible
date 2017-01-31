@@ -1,14 +1,6 @@
 package net.bible.android.view.activity.navigation;
 
- import java.util.ArrayList;
-import java.util.List;
-
-import net.bible.android.activity.R;
-import net.bible.android.view.activity.base.Dialogs;
-import net.bible.android.view.activity.base.ListActivityBase;
-import net.bible.service.history.HistoryItem;
-import net.bible.service.history.HistoryManager;
-import android.app.Activity;
+ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,6 +8,17 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+
+import net.bible.android.activity.R;
+import net.bible.android.view.activity.base.Dialogs;
+import net.bible.android.view.activity.base.ListActivityBase;
+import net.bible.service.history.HistoryItem;
+import net.bible.service.history.HistoryManager;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
 
 /** show a history list and allow to go to history item
  * 
@@ -27,16 +30,20 @@ public class History extends ListActivityBase {
 	private static final String TAG = "History";
 	
 	private List<HistoryItem> mHistoryItemList;
-	
-	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1; 
 
-    /** Called when the activity is first created. */
+	private HistoryManager historyManager;
+	
+	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1;
+
+	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "Displaying History view");
         setContentView(R.layout.history);
-    
+
+		buildActivityComponent().inject(this);
+
         setListAdapter(createAdapter());
         
         Log.d(TAG, "Finished displaying Search view");
@@ -48,14 +55,13 @@ public class History extends ListActivityBase {
      */
     protected ListAdapter createAdapter()
     {
-    	
-    	mHistoryItemList = HistoryManager.getInstance().getHistory();
-    	List<CharSequence> historyTextList = new ArrayList<CharSequence>();
+    	mHistoryItemList = historyManager.getHistory();
+    	List<CharSequence> historyTextList = new ArrayList<>();
     	for (HistoryItem item : mHistoryItemList) {
     		historyTextList.add(item.getDescription());
     	}
     	
-    	return new ArrayAdapter<CharSequence>(this,
+    	return new ArrayAdapter<>(this,
     	        LIST_ITEM_TYPE,
     	        historyTextList);
     }
@@ -81,4 +87,9 @@ public class History extends ListActivityBase {
     	setResult(Activity.RESULT_OK, resultIntent);
     	finish();    
     }
+
+	@Inject
+	void setHistoryManager(HistoryManager historyManager) {
+		this.historyManager = historyManager;
+	}
 }

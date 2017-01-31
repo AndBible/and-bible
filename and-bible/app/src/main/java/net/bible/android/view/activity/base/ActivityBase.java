@@ -18,6 +18,10 @@ import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.android.view.util.UiUtils;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
+import net.bible.service.history.HistoryTraversal;
+import net.bible.service.history.HistoryTraversalFactory;
+
+import javax.inject.Inject;
 
 /** Base class for activities
  * 
@@ -41,8 +45,8 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 	private boolean allowThemeChange = true;
 	
 	private View mContentView;
-	
-	private HistoryTraversal historyTraversal = new HistoryTraversal();
+
+	private HistoryTraversal historyTraversal;
 	
 	private static final String TAG = "ActivityBase";
 	
@@ -61,7 +65,8 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 		super.onCreate(savedInstanceState);
     	
         Log.i(getLocalClassName(), "onCreate:"+this);
-        
+
+		buildActivityComponent().inject(this);
         // Register current activity in onCreate and onResume
         CurrentActivityHolder.getInstance().setCurrentActivity(this);
 
@@ -290,6 +295,16 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 	public View getContentView() {
 		return mContentView;
 	}
-    
 
+	/**
+	 * Each activity instance needs its own HistoryTraversal object
+	 * @param historyTraversalFactory
+	 */
+	@Inject
+	public void setNewHistoryTraversal(HistoryTraversalFactory historyTraversalFactory) {
+		// Unfortunately base class injection occurs and then subclass injection, so ensure we don't end up overwriting the initialised class from the subclass
+		if (historyTraversal==null) {
+			this.historyTraversal = historyTraversalFactory.createHistoryTraversal();
+		}
+	}
 }

@@ -1,7 +1,6 @@
 package net.bible.android.control;
 
 import net.bible.android.control.navigation.DocumentBibleBooksFactory;
-import net.bible.service.history.HistoryManager;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import java.util.Timer;
@@ -45,16 +44,10 @@ public class Initialisation {
 	 */
 	public synchronized void initialiseNow() {
 		if (!isInitialised) {
-			// force early initialisation of Control factory to prevent circular dependencies
-			ControlFactory.getInstance();
-
 	        // force Sword to initialise itself
 	        SwordDocumentFacade.getInstance().getBibles();
 
 	        // Now initialise other system features
-
-	        // Initialise HistoryManager
-	        HistoryManager.getInstance().initialise();
 
 	        // needs to register a listener
 	        documentBibleBooksFactory.initialise();
