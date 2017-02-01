@@ -47,6 +47,8 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 	private View mContentView;
 
 	private HistoryTraversal historyTraversal;
+
+	private boolean integrateWithHistoryManagerInitialValue;
 	
 	private static final String TAG = "ActivityBase";
 	
@@ -66,7 +68,8 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
     	
         Log.i(getLocalClassName(), "onCreate:"+this);
 
-		buildActivityComponent().inject(this);
+		this.integrateWithHistoryManagerInitialValue = integrateWithHistoryManager;
+
         // Register current activity in onCreate and onResume
         CurrentActivityHolder.getInstance().setCurrentActivity(this);
 
@@ -75,8 +78,6 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
 		
         setFullScreen(isFullScreen());
-
-		historyTraversal.setIntegrateWithHistoryManager(integrateWithHistoryManager);
     }
 
 	protected ActivityComponent buildActivityComponent() {
@@ -302,9 +303,9 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 	 */
 	@Inject
 	public void setNewHistoryTraversal(HistoryTraversalFactory historyTraversalFactory) {
-		// Unfortunately base class injection occurs and then subclass injection, so ensure we don't end up overwriting the initialised class from the subclass
+		// Ensure we don't end up overwriting the initialised class
 		if (historyTraversal==null) {
-			this.historyTraversal = historyTraversalFactory.createHistoryTraversal();
+			this.historyTraversal = historyTraversalFactory.createHistoryTraversal(integrateWithHistoryManagerInitialValue);
 		}
 	}
 }

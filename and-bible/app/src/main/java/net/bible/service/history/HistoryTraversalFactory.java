@@ -21,7 +21,7 @@ public class HistoryTraversalFactory {
 		this.historyManager = historyManager;
 	}
 
-	public HistoryTraversal createHistoryTraversal() {
-		return new HistoryTraversal(historyManager);
+	public HistoryTraversal createHistoryTraversal(boolean integrateWithHistoryManager) {
+		return new HistoryTraversal(historyManager, integrateWithHistoryManager);
 	}
 }

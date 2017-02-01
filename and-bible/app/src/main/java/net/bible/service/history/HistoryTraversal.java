@@ -23,8 +23,9 @@ public class HistoryTraversal {
 
 	private static String TAG = "HistoryTraversal";
 
-	public HistoryTraversal(HistoryManager historyManager) {
+	public HistoryTraversal(HistoryManager historyManager, boolean integrateWithHistoryManager) {
 		this.historyManager = historyManager;
+		this.integrateWithHistoryManager = integrateWithHistoryManager;
 	}
 
 	/**
