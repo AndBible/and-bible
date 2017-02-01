@@ -54,6 +54,10 @@
   <string name="prefs_show_verseno_summary">Zobraziť čísla veršov</string>
   <string name="prefs_verse_per_line_title">Čo riadok, to verš</string>
   <string name="prefs_verse_per_line_summary">Zobraziť každý verš v samostatnom riadku.</string>
+  <string name="prefs_show_bookmarks_title">Ukaž záložky</string>
+  <string name="prefs_show_bookmarks_summary">Zaškrtni pre skrytie záložiek</string>
+  <string name="prefs_default_bookmark_style_title">Predvolený štýl záložiek</string>
+  <string name="prefs_default_bookmark_style_summary">Farba zvýraznenia alebo ikonky</string>
   <string name="prefs_show_mynotes_title">Ikonka Mojich poznámok</string>
   <string name="prefs_show_mynotes_summary">Zobraziť obrázok Mojich vložených poznámok.</string>
   <string name="prefs_show_notes_title">Poznámky pod čiarou</string>
@@ -156,14 +160,18 @@
   <!--Bookmarks-->
   <string name="bookmarks">Záložky</string>
   <string name="add_bookmark">Pridať záložku</string>
+  <string name="delete_bookmark">Zmaž záložku</string>
   <string name="bookmark_added">Záložka pridaná</string>
   <string name="bookmark_exists">Záložka už existuje</string>
+  <string name="bookmark_deleted">Záložka zmazaná</string>
   <string name="bookmark_labels">Názvy záložiek</string>
+  <string name="manage_labels">Správa nadpisov záložiek</string>
   <string name="assign_labels">Pridať názov</string>
   <string name="new_label">Nový názov</string>
   <string name="label_name_prompt">Názov</string>
   <string name="label_unlabelled">Nepomenovaný</string>
   <string name="rename">Premenovať</string>
+  <string name="style">Štýl</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Zoradiť podľa dátumu</string>
   <string name="sort_by_bible_book">Zoradiť podľa kníh Biblie</string>
@@ -209,6 +217,7 @@
   <string name="restore_confirmation">Prepísať aktuálne poznámky a záložky</string>
   <string name="restore_success">Vaše poznámky a záložky boli úspešne nahrané z %s na SD karte</string>
   <!--About-->
+  <string name="about_copyright">Copyright: %s</string>
   <string name="about_version">Verzia: %s</string>
   <string name="about_versification">Virzifikácia: %s</string>
   <!--Document types-->
@@ -234,7 +243,9 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Nový</string>
   <string name="close">Zatvor</string>
+  <string name="edit">Upraviť</string>
   <!--Errors-->
+  <string name="report_error">Poslať report</string>
   <string name="error_occurred">Stala sa chyba</string>
   <string name="error_no_content">Žiadny obsah pre vybraný verš</string>
   <string name="error_page_too_large">Stránka je príliš veľká</string>
