@@ -41,6 +41,7 @@
 		<item>@string/lang_german</item>
 		<item>@string/lang_greek</item>
 		<item>@string/lang_english</item>
+		<item>@string/lang_esperanto</item>
 		<item>@string/lang_spanish</item>
 		<item>@string/lang_estonian</item>
 		<item>@string/lang_finnish</item>
@@ -91,6 +92,7 @@
 		<item>de</item>
 		<item>el</item>
 		<item>en</item>
+		<item>eo</item>
 		<item>es</item>
 		<item>et</item>
 		<item>fi</item>
