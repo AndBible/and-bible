@@ -16,7 +16,6 @@ import android.widget.Toast;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.service.download.DownloadManager;
 import net.bible.service.sword.SwordDocumentFacade;
@@ -41,6 +40,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+
+import javax.inject.Inject;
 
 /**
  * Choose Document (Book)
@@ -75,7 +76,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 	//TODO just use displayedDocuments with a model giving 2 lines in list
 	private List<Book> displayedDocuments;
 
-	private DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
+	private DocumentControl documentControl;
 
 	private ListActionModeHelper listActionModeHelper;
 
@@ -103,11 +104,9 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(layoutResource);
-
-       	initialiseView();
     }
 
-    private void initialiseView() {
+    protected void initialiseView() {
 		// prepare action mode
 		listActionModeHelper =  new ListActionModeHelper(getListView(), actionModeMenuId);
 		// trigger action mode on long press
@@ -548,5 +547,14 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 
 	public void setLayoutResource(int layoutResource) {
 		this.layoutResource = layoutResource;
+	}
+
+	protected DocumentControl getDocumentControl() {
+		return documentControl;
+	}
+
+	@Inject
+	void setDocumentControl(DocumentControl documentControl) {
+		this.documentControl = documentControl;
 	}
 }

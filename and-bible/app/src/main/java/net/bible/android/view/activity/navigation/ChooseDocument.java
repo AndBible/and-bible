@@ -6,8 +6,6 @@ import android.util.Log;
 import android.view.MenuItem;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.DocumentSelectionBase;
@@ -37,8 +35,6 @@ public class ChooseDocument extends DocumentSelectionBase {
 
 	private static final int LIST_ITEM_TYPE = R.layout.list_item_2_highlighted;
 
-	private DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
-
 	private DownloadControl downloadControl;
 	
     public ChooseDocument() {
@@ -51,6 +47,8 @@ public class ChooseDocument extends DocumentSelectionBase {
         super.onCreate(savedInstanceState);
 
 		buildActivityComponent().inject(this);
+
+		initialiseView();
 
 		DocumentItemAdapter documentItemAdapter = new DocumentItemAdapter(this, LIST_ITEM_TYPE, getDisplayedDocuments(), this);
 		setListAdapter(documentItemAdapter);
@@ -89,7 +87,7 @@ public class ChooseDocument extends DocumentSelectionBase {
     protected void handleDocumentSelection(Book selectedBook) {
     	Log.d(TAG, "Book selected:"+selectedBook.getInitials());
     	try {
-    		documentControl.changeDocument(selectedBook);
+    		getDocumentControl().changeDocument(selectedBook);
 
     		// if key is valid then the new doc will have been shown already
 			returnToPreviousScreen();
@@ -100,7 +98,7 @@ public class ChooseDocument extends DocumentSelectionBase {
 
     @Override
     protected void setInitialDocumentType() {
-    	setSelectedBookCategory(documentControl.getCurrentCategory());
+    	setSelectedBookCategory(getDocumentControl().getCurrentCategory());
     }
     
 	/** 

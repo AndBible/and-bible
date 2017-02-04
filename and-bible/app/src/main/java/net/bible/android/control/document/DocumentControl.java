@@ -2,6 +2,7 @@ package net.bible.android.control.document;
 
 import android.util.Log;
 
+import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
@@ -19,15 +20,22 @@ import org.crosswire.jsword.versification.BibleBook;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
 /** Control use of different documents/books/modules - used by front end
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class DocumentControl {
 	
 	private static final String TAG = "DocumentControl";
+
+	@Inject
+	public DocumentControl() {
+	}
 
 	/** user wants to change to a different document/module
 	 * 

@@ -65,6 +65,8 @@ public class Download extends DocumentSelectionBase {
 
 		buildActivityComponent().inject(this);
 
+		initialiseView();
+
 		documentDownloadItemAdapter = new DocumentDownloadItemAdapter(this, downloadControl, LIST_ITEM_TYPE, getDisplayedDocuments(), this);
 		setListAdapter(documentDownloadItemAdapter);
 

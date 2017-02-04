@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.support.v7.app.ActionBar;
 import android.view.Menu;
 
+import net.bible.android.control.document.DocumentControl;
 import net.bible.android.view.activity.MainBibleActivityScope;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.actionbar.ActionBarManager;
@@ -26,7 +27,7 @@ public class BibleActionBarManager extends DefaultActionBarManager implements Ac
 
 	private final HomeTitle homeTitle;
 
-	private BibleActionBarButton bibleActionBarButton = new BibleActionBarButton();
+	private final BibleActionBarButton bibleActionBarButton;
 	private CommentaryActionBarButton commentaryActionBarButton = new CommentaryActionBarButton();
 	private DictionaryActionBarButton dictionaryActionBarButton = new DictionaryActionBarButton();
 	private StrongsActionBarButton strongsActionBarButton = new StrongsActionBarButton();
@@ -35,10 +36,11 @@ public class BibleActionBarManager extends DefaultActionBarManager implements Ac
 	private final SpeakStopActionBarButton stopActionBarButton;
 
 	@Inject
-	public BibleActionBarManager(HomeTitle homeTitle, SpeakActionBarButton speakActionBarButton, SpeakStopActionBarButton stopActionBarButton) {
+	public BibleActionBarManager(HomeTitle homeTitle, SpeakActionBarButton speakActionBarButton, SpeakStopActionBarButton stopActionBarButton, DocumentControl documentControl) {
 		this.homeTitle = homeTitle;
 		this.speakActionBarButton = speakActionBarButton;
 		this.stopActionBarButton = stopActionBarButton;
+		this.bibleActionBarButton= new BibleActionBarButton(documentControl);
 
 		// the manager will also instantly fire a catch-up event to ensure state is current
         SpeakEventManager.getInstance().addSpeakEventListener(new SpeakEventListener() {
