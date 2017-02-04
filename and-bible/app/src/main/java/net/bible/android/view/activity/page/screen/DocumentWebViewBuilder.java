@@ -23,7 +23,6 @@ import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
-import net.bible.android.control.page.window.Separator;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.Window.WindowOperation;
 import net.bible.android.control.page.window.WindowControl;
@@ -179,10 +178,9 @@ public class DocumentWebViewBuilder {
 				}
 
 				// Add screen separator
-				Separator separator = null;
 				if (windowNo<windows.size()-1) {
 					Window nextWindow = windows.get(windowNo+1);
-					separator = createSeparator(parent, window, nextWindow, isPortrait, windows.size());
+					Separator separator = createSeparator(parent, window, nextWindow, isPortrait, windows.size());
 					
 					// extend touch area of separator
 					addBottomOrRightSeparatorExtension(isPortrait, currentWindowFrameLayout, lp, separator);
@@ -269,8 +267,7 @@ public class DocumentWebViewBuilder {
 	}
 
 	protected Separator createSeparator(LinearLayout parent, Window window, Window nextScreen, boolean isPortrait, int numWindows) {
-		Separator separator = new Separator(this.mainBibleActivity, WINDOW_SEPARATOR_WIDTH_PX, parent, window, nextScreen, numWindows, isPortrait);
-		return separator;
+		return new Separator(this.mainBibleActivity, WINDOW_SEPARATOR_WIDTH_PX, parent, window, nextScreen, numWindows, isPortrait, windowControl);
 	}
 
 	/**

@@ -40,7 +40,8 @@ public class WindowSynchronisationTest {
 		windowControl = new WindowControl(windowRepository);
 		
 		TestControlFactory testControlFactory = new TestControlFactory();
-		testControlFactory.setWindowControl(windowControl);
+		//TODO removed during Dagger migration
+		// testControlFactory.setWindowControl(windowControl);
 	}
 
 	@Test

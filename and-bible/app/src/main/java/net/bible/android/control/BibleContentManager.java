@@ -1,16 +1,19 @@
 package net.bible.android.control;
 
+import android.util.Log;
+
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.UpdateTextTask;
 import net.bible.android.control.page.window.Window;
+import net.bible.android.control.page.window.WindowControl;
+import net.bible.android.view.activity.MainBibleActivityScope;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.android.view.activity.page.screen.DocumentViewManager;
-import net.bible.service.common.CommonUtils;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
-import android.util.Log;
+import javax.inject.Inject;
 
 /** Control content of main view screen
  * 
@@ -18,19 +21,24 @@ import android.util.Log;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@MainBibleActivityScope
 public class BibleContentManager {
 
-	private DocumentViewManager documentViewManager;
+	private final DocumentViewManager documentViewManager;
+
+	private final WindowControl windowControl;
 	
 	// previous document and verse (currently displayed on the screen)
 	private Book previousDocument;
 	private Key previousVerse;
 	
 	private static final String TAG = "BibleContentManager";
-	
-	public BibleContentManager(DocumentViewManager documentViewManager) {
+
+	@Inject
+	public BibleContentManager(DocumentViewManager documentViewManager, WindowControl windowControl) {
 		this.documentViewManager = documentViewManager;
-		
+		this.windowControl = windowControl;
+
 		PassageChangeMediator.getInstance().setBibleContentManager(this);
 	}
 	
@@ -39,7 +47,7 @@ public class BibleContentManager {
     }
     
     /* package */ void updateText(boolean forceUpdate) {
-    	Window window = CommonUtils.getActiveWindow();
+    	Window window = windowControl.getActiveWindow();
     	CurrentPage currentPage = window.getPageManager().getCurrentPage();
 		Book document = currentPage.getCurrentDocument();
 		Key key = currentPage.getKey();

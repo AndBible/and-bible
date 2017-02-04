@@ -1,8 +1,6 @@
 package net.bible.service.history;
 
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.window.Window;
-import net.bible.android.control.page.window.WindowControl;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -11,13 +9,11 @@ import net.bible.android.control.page.window.WindowControl;
  */
 public abstract class HistoryItemBase implements HistoryItem {
 
-	private Window window;
+	private final Window window;
 	
-	private static WindowControl windowControl = ControlFactory.getInstance().getWindowControl();
-
-	public HistoryItemBase() {
+	public HistoryItemBase(Window window) {
 		super();
-		this.window = windowControl.getActiveWindow();
+		this.window = window;
 	}
 
 	@Override

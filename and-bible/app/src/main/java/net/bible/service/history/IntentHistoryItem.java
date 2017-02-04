@@ -1,11 +1,11 @@
 package net.bible.service.history;
 
-import net.bible.android.view.activity.base.CurrentActivityHolder;
-import net.bible.service.common.CommonUtils;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
+
+import net.bible.android.control.page.window.Window;
+import net.bible.android.view.activity.base.CurrentActivityHolder;
 
 /**
  * Any item in the History list that is not related to the main bible activity view e.g. search results etc
@@ -21,8 +21,8 @@ public class IntentHistoryItem extends HistoryItemBase {
 	
 	private static final String TAG = "IntentHistoryItem"; 
 	
-	public IntentHistoryItem(CharSequence description, Intent intent) {
-		super();
+	public IntentHistoryItem(CharSequence description, Intent intent, Window window) {
+		super(window);
 		this.description = description;
 		this.intent = intent;
 		
@@ -30,10 +30,6 @@ public class IntentHistoryItem extends HistoryItemBase {
 //		intent.putExtra(HISTORY_INTENT, true);
 	}
 
-	public IntentHistoryItem(int descriptionId, Intent intent) {
-		this(CommonUtils.getResourceString(descriptionId), intent);
-	}
-	
 	@Override
 	public boolean equals(Object o) {
 		if (o==null || !(o instanceof IntentHistoryItem)) {

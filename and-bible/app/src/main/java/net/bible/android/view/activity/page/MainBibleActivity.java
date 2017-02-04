@@ -101,8 +101,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 
 		documentViewManager.buildView();
 
-		bibleContentManager = new BibleContentManager(documentViewManager);
-
 		// register for passage change and appToBackground events
 		EventBus.getDefault().register(this);
 
@@ -402,6 +400,11 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	@Inject
 	void setWindowControl(WindowControl windowControl) {
 		this.windowControl = windowControl;
+	}
+
+	@Inject
+	void setBibleContentManager(BibleContentManager bibleContentManager) {
+		this.bibleContentManager = bibleContentManager;
 	}
 }
 

@@ -1,12 +1,13 @@
 package net.bible.service.history;
 
+import android.util.Log;
+
 import net.bible.android.control.ControlFactory;
+import net.bible.android.control.page.window.Window;
 import net.bible.service.common.CommonUtils;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
-
-import android.util.Log;
 
 /**
  * A normal item in the history list that relates to a document being shown in the main activity view 
@@ -22,8 +23,8 @@ public class KeyHistoryItem extends HistoryItemBase {
 
 	private static final String TAG = "KeyHistoryItem"; 
 
-	public KeyHistoryItem(Book doc, Key verse, float yOffsetRatio) {
-		super();
+	public KeyHistoryItem(Book doc, Key verse, float yOffsetRatio, Window window) {
+		super(window);
 		this.document = doc;
 		this.key = verse;
 		this.yOffsetRatio = yOffsetRatio;

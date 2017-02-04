@@ -4,7 +4,6 @@ import net.bible.android.BibleApplication;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.Window;
-import net.bible.android.control.page.window.WindowControl;
 
 /** allow access to control layer
  *
@@ -43,20 +42,10 @@ public class ControlFactory {
 		return documentControl;		
 	}
 
-	//TODO check initialisation
-//	public PageControl getPageControl() {
-//		ensureAllInitialised();
-//		return pageControl;
-//	}
-
-	public WindowControl getWindowControl() {
-//		ensureAllInitialised();
-		return BibleApplication.getApplication().getControllerComponent().windowControl();
-	}
 
 	public CurrentPageManager getCurrentPageControl() {
 //		ensureAllInitialised();
-		Window activeWindow = getWindowControl().getActiveWindow();
+		Window activeWindow = BibleApplication.getApplication().getControllerComponent().windowControl().getActiveWindow();
 		return activeWindow.getPageManager();
 	}
 }

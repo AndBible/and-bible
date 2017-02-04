@@ -13,8 +13,6 @@ import android.support.v7.widget.PopupMenu;
 import android.util.Log;
 
 import net.bible.android.BibleApplication;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.page.window.Window;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -414,10 +412,6 @@ public class CommonUtils {
 		}
 		hms.append(s);
 		return hms.toString();
-	}
-	
-	public static Window getActiveWindow() {
-		return ControlFactory.getInstance().getWindowControl().getActiveWindow();
 	}
 	
 	public static String getKeyDescription(Key key) {

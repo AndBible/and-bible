@@ -90,11 +90,11 @@ public class HistoryManager {
 			
 			Key key = currentPage.getSingleKey();
 			float yOffsetRatio = currentPage.getCurrentYOffsetRatio();
-			historyItem = new KeyHistoryItem(doc, key, yOffsetRatio);
+			historyItem = new KeyHistoryItem(doc, key, yOffsetRatio, windowControl.getActiveWindow());
 		} else if (currentActivity instanceof AndBibleActivity) {
 			AndBibleActivity andBibleActivity = (AndBibleActivity)currentActivity;
 			if (andBibleActivity.isIntegrateWithHistoryManager()) {
-				historyItem = new IntentHistoryItem(currentActivity.getTitle(), ((AndBibleActivity) currentActivity).getIntentForHistoryList());
+				historyItem = new IntentHistoryItem(currentActivity.getTitle(), ((AndBibleActivity) currentActivity).getIntentForHistoryList(), windowControl.getActiveWindow());
 			}
 		}
 		return historyItem;
