@@ -19,6 +19,7 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
 	<string name="lang_german">de: Deutsch</string>
 	<string name="lang_greek">el: Ελληνικά</string>
 	<string name="lang_english">en: English</string>
+	<string name="lang_esperanto">eo: Esperanto</string>
 	<string name="lang_spanish">es: Español</string>
 	<string name="lang_estonian">et: Eesti</string>
 	<string name="lang_finnish">fi: Suomi</string>

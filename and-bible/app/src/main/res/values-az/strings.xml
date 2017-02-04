@@ -65,6 +65,10 @@ Yüklənmiş indeksinin quraşdırılması daha sürətli olur. Və yüklənmiş
   <string name="prefs_show_verseno_summary">Ayə nömrələri göstərilir</string>
   <string name="prefs_verse_per_line_title">Sətir başına tək ayə</string>
   <string name="prefs_verse_per_line_summary">Hər ayə təzə bir sətirdə göstərilir</string>
+  <string name="prefs_show_bookmarks_title">Nişanlı yerləri göstər</string>
+  <string name="prefs_show_bookmarks_summary">Bütün əlfəcinləri qizlət</string>
+  <string name="prefs_default_bookmark_style_title">Ümumi əlfəcinlərin stili</string>
+  <string name="prefs_default_bookmark_style_summary">Seçilmişlərin rəngi</string>
   <string name="prefs_show_mynotes_title">Qeydlərin nişanlarını göstər</string>
   <string name="prefs_show_mynotes_summary">Haqqında qeyd yazdığım ayələri nişanlarla müəyyən et</string>
   <string name="prefs_show_notes_title">Haşiyə</string>
@@ -170,14 +174,18 @@ səhifələrdən yüklənilir</string>
   <!--Bookmarks-->
   <string name="bookmarks">Nişanlı yerlər (Əlfəcinlər)</string>
   <string name="add_bookmark">Seçilmiş ayəni nişanla (əlfəcin)</string>
+  <string name="delete_bookmark">əlfəcini sil</string>
   <string name="bookmark_added">Əlfəcini yükləndi</string>
   <string name="bookmark_exists">Əlfəcini artıq var</string>
+  <string name="bookmark_deleted">əlfəcin silinib</string>
   <string name="bookmark_labels">Əlfəcinlərin etiketləri</string>
+  <string name="manage_labels">əlfəcinlərin adları</string>
   <string name="assign_labels">Etiketlə</string>
   <string name="new_label">Təzə etiket</string>
   <string name="label_name_prompt">Etiket</string>
   <string name="label_unlabelled">Etiketlənməmiş</string>
   <string name="rename">Yenidən adlandır</string>
+  <string name="style">Stil</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Tarix sıralaması</string>
   <string name="sort_by_bible_book">Müqəddəs Kitab sıralaması</string>
@@ -223,6 +231,7 @@ səhifələrdən yüklənilir</string>
   <string name="restore_confirmation">Mövcud olan Qeyd və Əlfəcinlərin üzərinə yazılsın?</string>
   <string name="restore_success">Qeydlər və Əlfəcinlər yaddaş kartından (%s) ger yükləndi.</string>
   <!--About-->
+  <string name="about_copyright">Copyright %s</string>
   <string name="about_version">Versiya: %s</string>
   <string name="about_versification">Ayələmə: %s</string>
   <!--Document types-->
@@ -234,7 +243,7 @@ səhifələrdən yüklənilir</string>
   <!--Languages-->
   <string name="lang_default">İlkin təyin olunan</string>
   <!--General-->
-  <string name="okay">Tamam</string>
+  <string name="okay">Bəli</string>
   <string name="cancel">Ləğv</string>
   <string name="yes">Bəli</string>
   <string name="no">Xeyr</string>
@@ -248,7 +257,9 @@ səhifələrdən yüklənilir</string>
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Yeni</string>
   <string name="close">Bağla</string>
+  <string name="edit">Düzəliş edin</string>
   <!--Errors-->
+  <string name="report_error">Reportu göndərin</string>
   <string name="error_occurred">Bir xəta oldu</string>
   <string name="error_no_content">Seçilən ayə üçün məzmun yoxdur</string>
   <string name="error_page_too_large">Səhifə yükləmək üçün çox böyükdür</string>
