@@ -36,13 +36,6 @@ public class ControlFactory {
 	protected ControlFactory() {
 	}
 	
-	public DocumentControl getDocumentControl() {
-//		ensureAllInitialised();
-
-		return documentControl;		
-	}
-
-
 	public CurrentPageManager getCurrentPageControl() {
 //		ensureAllInitialised();
 		Window activeWindow = BibleApplication.getApplication().getControllerComponent().windowControl().getActiveWindow();

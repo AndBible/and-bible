@@ -1,6 +1,7 @@
 package net.bible.android.view.activity.readingplan.actionbar;
 
 import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton;
 
@@ -15,8 +16,8 @@ import javax.inject.Inject;
 public class PauseActionBarButton extends SpeakActionBarButton {
 
 	@Inject
-	public PauseActionBarButton(SpeakControl speakControl) {
-		super(speakControl);
+	public PauseActionBarButton(SpeakControl speakControl, DocumentControl documentControl) {
+		super(speakControl, documentControl);
 	}
 
 	/**

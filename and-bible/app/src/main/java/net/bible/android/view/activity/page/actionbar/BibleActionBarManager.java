@@ -28,9 +28,9 @@ public class BibleActionBarManager extends DefaultActionBarManager implements Ac
 	private final HomeTitle homeTitle;
 
 	private final BibleActionBarButton bibleActionBarButton;
-	private CommentaryActionBarButton commentaryActionBarButton = new CommentaryActionBarButton();
-	private DictionaryActionBarButton dictionaryActionBarButton = new DictionaryActionBarButton();
-	private StrongsActionBarButton strongsActionBarButton = new StrongsActionBarButton();
+	private final CommentaryActionBarButton commentaryActionBarButton;
+	private final DictionaryActionBarButton dictionaryActionBarButton;
+	private final StrongsActionBarButton strongsActionBarButton;
 	
 	private final SpeakActionBarButton speakActionBarButton;
 	private final SpeakStopActionBarButton stopActionBarButton;
@@ -41,6 +41,9 @@ public class BibleActionBarManager extends DefaultActionBarManager implements Ac
 		this.speakActionBarButton = speakActionBarButton;
 		this.stopActionBarButton = stopActionBarButton;
 		this.bibleActionBarButton= new BibleActionBarButton(documentControl);
+		this.commentaryActionBarButton = new CommentaryActionBarButton(documentControl);
+		this.dictionaryActionBarButton = new DictionaryActionBarButton(documentControl);
+		this.strongsActionBarButton = new StrongsActionBarButton(documentControl);
 
 		// the manager will also instantly fire a catch-up event to ensure state is current
         SpeakEventManager.getInstance().addSpeakEventListener(new SpeakEventListener() {

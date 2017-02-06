@@ -5,7 +5,6 @@ import android.view.MenuItem;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.view.activity.base.Dialogs;
@@ -23,13 +22,14 @@ import javax.inject.Inject;
 @ApplicationScope
 public class SpeakActionBarButton extends SpeakActionBarButtonBase {
 
-	private DocumentControl documentControl = ControlFactory.getInstance().getDocumentControl();
+	private final DocumentControl documentControl;
 
 	private static final String TAG = "SpeakActionBarButtonBas";
 
 	@Inject
-	public SpeakActionBarButton(SpeakControl speakControl) {
+	public SpeakActionBarButton(SpeakControl speakControl, DocumentControl documentControl) {
 		super(speakControl);
+		this.documentControl = documentControl;
 	}
 
 	@Override
