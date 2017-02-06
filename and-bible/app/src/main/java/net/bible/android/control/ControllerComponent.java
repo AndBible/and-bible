@@ -20,6 +20,7 @@ import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.navigation.biblebookactionbar.BibleBookActionBarManager;
 import net.bible.android.view.activity.navigation.biblebookactionbar.SortActionBarButton;
+import net.bible.android.view.activity.page.actionbar.StrongsActionBarButton;
 import net.bible.android.view.activity.page.screen.WindowMenuCommandHandler;
 import net.bible.android.view.activity.readingplan.actionbar.ReadingPlanActionBarManager;
 import net.bible.android.view.activity.search.searchresultsactionbar.ScriptureToggleActionBarButton;
@@ -70,6 +71,7 @@ public interface ControllerComponent {
 
 	SpeakControl speakControl();
 
+	StrongsActionBarButton strongsActionBarButton();
 	SortActionBarButton sortActionBarButton();
 	SpeakActionBarButton speakActionBarButton();
 	SpeakStopActionBarButton speakStopActionBarButton();
