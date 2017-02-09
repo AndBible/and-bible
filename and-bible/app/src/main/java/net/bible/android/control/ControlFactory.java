@@ -1,7 +1,6 @@
 package net.bible.android.control;
 
 import net.bible.android.BibleApplication;
-import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.Window;
 
@@ -12,9 +11,6 @@ import net.bible.android.control.page.window.Window;
  *      The copyright to this program is held by it's author.
  */
 public class ControlFactory {
-
-	private DocumentControl documentControl = new DocumentControl();
-
 
 	private static ControlFactory singleton;
 	

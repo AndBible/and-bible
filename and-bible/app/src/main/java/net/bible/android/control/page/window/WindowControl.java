@@ -13,6 +13,7 @@ import net.bible.android.control.event.passage.CurrentVerseChangedEvent;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.event.window.WindowSizeChangedEvent;
 import net.bible.android.control.page.CurrentPage;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.WindowLayout.WindowState;
 import net.bible.service.common.Logger;
 
@@ -278,6 +279,10 @@ public class WindowControl {
 		return windowRepository.isMultiWindow();
 	}
 
+	public CurrentPageManager getActiveWindowPageManager() {
+		return getActiveWindow().getPageManager();
+	}
+
 	public Window getActiveWindow() {
 		return windowRepository.getActiveWindow();
 	}
@@ -323,7 +328,7 @@ public class WindowControl {
 	 */
 	private Map<Window, Integer> getWindowVerseMap() {
 		// get page offsets to maintain for each window
-		Map<Window,Integer> windowVerseMap = new HashMap<Window,Integer>();
+		Map<Window,Integer> windowVerseMap = new HashMap<>();
 		for (Window window : windowRepository.getWindows()) {
 			CurrentPage currentPage = window.getPageManager().getCurrentPage();
 			if (currentPage!=null &&
