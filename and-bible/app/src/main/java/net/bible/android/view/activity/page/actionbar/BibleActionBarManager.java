@@ -36,13 +36,13 @@ public class BibleActionBarManager extends DefaultActionBarManager implements Ac
 	private final SpeakStopActionBarButton stopActionBarButton;
 
 	@Inject
-	public BibleActionBarManager(HomeTitle homeTitle, BibleActionBarButton bibleActionBarButton, SpeakActionBarButton speakActionBarButton, SpeakStopActionBarButton stopActionBarButton, StrongsActionBarButton strongsActionBarButton, DocumentControl documentControl) {
+	public BibleActionBarManager(HomeTitle homeTitle, BibleActionBarButton bibleActionBarButton, CommentaryActionBarButton commentaryActionBarButton, DictionaryActionBarButton dictionaryActionBarButton, SpeakActionBarButton speakActionBarButton, SpeakStopActionBarButton stopActionBarButton, StrongsActionBarButton strongsActionBarButton, DocumentControl documentControl) {
 		this.homeTitle = homeTitle;
 		this.bibleActionBarButton = bibleActionBarButton;
 		this.speakActionBarButton = speakActionBarButton;
 		this.stopActionBarButton = stopActionBarButton;
-		this.commentaryActionBarButton = new CommentaryActionBarButton(documentControl);
-		this.dictionaryActionBarButton = new DictionaryActionBarButton(documentControl);
+		this.commentaryActionBarButton = commentaryActionBarButton;
+		this.dictionaryActionBarButton = dictionaryActionBarButton;
 		this.strongsActionBarButton = strongsActionBarButton;
 
 		// the manager will also instantly fire a catch-up event to ensure state is current
