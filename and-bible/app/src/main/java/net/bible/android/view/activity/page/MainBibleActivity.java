@@ -232,7 +232,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	 * allow current page to save any settings or data before being changed
 	 */
 	public void onEvent(PreBeforeCurrentPageChangeEvent event) {
-		CurrentPage currentPage = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage();
+		CurrentPage currentPage = windowControl.getActiveWindowPageManager().getCurrentPage();
 		if (currentPage != null) {
 			// save current scroll position so history can return to correct place in document
 			float screenPosn = getCurrentPosition();
@@ -283,7 +283,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		super.onPrepareOptionsMenu(menu);
 
 		// disable some options depending on document type
-		ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().updateOptionsMenu(menu);
+		windowControl.getActiveWindowPageManager().getCurrentPage().updateOptionsMenu(menu);
 
 		// if there is no backup file then disable the restore menu item
 		backupControl.updateOptionsMenu(menu);
@@ -336,7 +336,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	 */
 	public void next() {
 		if (getDocumentViewManager().getDocumentView().isPageNextOkay()) {
-			ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().next();
+			windowControl.getActiveWindowPageManager().getCurrentPage().next();
 		}
 	}
 
@@ -345,7 +345,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	 */
 	public void previous() {
 		if (getDocumentViewManager().getDocumentView().isPagePreviousOkay()) {
-			ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().previous();
+			windowControl.getActiveWindowPageManager().getCurrentPage().previous();
 		}
 	}
 

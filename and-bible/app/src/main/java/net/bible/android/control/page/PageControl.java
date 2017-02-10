@@ -12,6 +12,7 @@ import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.page.window.Window;
+import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.control.versification.Scripture;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
@@ -53,10 +54,13 @@ public class PageControl {
 
 	private final DocumentControl documentControl;
 
+	private final WindowControl windowControl;
+
 	@Inject
-	public PageControl(SwordContentFacade swordContentFacade, DocumentControl documentControl) {
+	public PageControl(SwordContentFacade swordContentFacade, DocumentControl documentControl, WindowControl windowControl) {
 		this.swordContentFacade = swordContentFacade;
 		this.documentControl = documentControl;
+		this.windowControl = windowControl;
 	}
 
 	/** Paste the current verse to the system clipboard
@@ -103,7 +107,7 @@ public class PageControl {
 	 */
 	public void setFirstUseDefaultVerse() {
 		try {
-			Versification versification = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getVersification();
+			Versification versification = windowControl.getActiveWindowPageManager().getCurrentBible().getVersification();
 			Verse[] defaultVerses = new Verse[] {
 					new Verse(versification, BibleBook.JOHN,3,16),
 					new Verse(versification, BibleBook.GEN,1,1),
@@ -113,7 +117,7 @@ public class PageControl {
 	        	Book bible = bibles.get(0);
 	        	for (Verse verse : defaultVerses) {
 		        	if (bible.contains(verse)) {
-		        		ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().setKey(verse);
+		        		windowControl.getActiveWindowPageManager().getCurrentBible().setKey(verse);
 		        		return;
 		        	}
 	        	}
@@ -126,13 +130,11 @@ public class PageControl {
 	/** 
 	 * Get page title including info about current doc
 	 * Return it in 1 or 2 parts allowing it to be split over 2 lines
-	 * 
-	 * @return
 	 */
 	public String[] getCurrentDocumentTitleParts() {
 	
 		String title = "";
-		CurrentPage currentPage = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage();
+		CurrentPage currentPage = windowControl.getActiveWindowPageManager().getCurrentPage();
 		if (currentPage!=null) {
 			if (currentPage.getCurrentDocument()!=null) {
 				title = currentPage.getCurrentDocument().getAbbreviation();
@@ -151,13 +153,11 @@ public class PageControl {
 	/** 
 	 * Get page title including info about key/verse
 	 * Return it in 1 or 2 parts allowing it to be split over 2 lines
-	 * 
-	 * @return
 	 */
 	public String[] getCurrentPageTitleParts() {
 		String[] retVal=new String[2];
 		try {
-			CurrentPage currentPage = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage();
+			CurrentPage currentPage = windowControl.getActiveWindowPageManager().getCurrentPage();
 			if (currentPage!=null) {
 				if (currentPage.getSingleKey()!=null) {
 					Key key = currentPage.getSingleKey();
@@ -194,7 +194,7 @@ public class PageControl {
 	}
 
 	public Verse getCurrentBibleVerse() {
-		return ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getSingleKey();
+		return windowControl.getActiveWindowPageManager().getCurrentBible().getSingleKey();
 	}
 	
 	/** font size may be adjusted for certain fonts e.g. SBLGNT
@@ -214,10 +214,10 @@ public class PageControl {
 	
 	/** return true if Strongs numbers are shown */
 	public boolean isStrongsShown() {
-		return isStrongsRelevant() && 
+		return isStrongsRelevant() &&
 			   CommonUtils.getSharedPreferences().getBoolean("show_strongs_pref", true);
 	}
-	
+
 	/** return true if Strongs are relevant to this doc & screen */
 	public boolean isStrongsRelevant() {
 		return documentControl.isStrongsInBook();

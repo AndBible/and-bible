@@ -2,9 +2,10 @@ package net.bible.android.control.bookmark;
 
 import net.bible.android.activity.BuildConfig;
 import net.bible.android.common.resource.AndroidResourceProvider;
-import net.bible.service.format.usermarks.BookmarkFormatSupport;
+import net.bible.android.control.page.window.WindowControl;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
+import net.bible.service.format.usermarks.BookmarkFormatSupport;
 import net.bible.service.format.usermarks.MyNoteFormatSupport;
 import net.bible.service.sword.SwordContentFacade;
 
@@ -36,6 +37,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
@@ -58,7 +60,7 @@ public class BookmarkControlTest {
 
     @Before
     public void setUp() throws Exception {
-		bookmarkControl = new BookmarkControl(new SwordContentFacade(new BookmarkFormatSupport(), new MyNoteFormatSupport()), new AndroidResourceProvider());
+		bookmarkControl = new BookmarkControl(new SwordContentFacade(new BookmarkFormatSupport(), new MyNoteFormatSupport()), mock(WindowControl.class), new AndroidResourceProvider());
 		bookmarkFormatSupport = new BookmarkFormatSupport();
 	}
 

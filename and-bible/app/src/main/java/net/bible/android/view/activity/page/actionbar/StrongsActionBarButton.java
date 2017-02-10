@@ -7,6 +7,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.document.DocumentControl;
+import net.bible.android.control.page.PageControl;
 import net.bible.android.view.activity.base.actionbar.QuickActionButton;
 import net.bible.service.common.CommonUtils;
 
@@ -24,12 +25,15 @@ public class StrongsActionBarButton extends QuickActionButton {
 
 	private final DocumentControl documentControl;
 
+	private final PageControl pageControl;
+
 	@Inject
-	public StrongsActionBarButton(DocumentControl documentControl) {
+	public StrongsActionBarButton(DocumentControl documentControl, PageControl pageControl) {
 		// SHOW_AS_ACTION_ALWAYS is overriden by setVisible which depends on canShow() below
 		// because when visible this button is ALWAYS on the Actionbar
 		super(MenuItemCompat.SHOW_AS_ACTION_ALWAYS|MenuItemCompat.SHOW_AS_ACTION_WITH_TEXT);
 		this.documentControl = documentControl;
+		this.pageControl = pageControl;
 	}
 	
 	@Override
@@ -43,7 +47,7 @@ public class StrongsActionBarButton extends QuickActionButton {
 	}
 
 	private boolean isStrongsVisible() {
-		return CommonUtils.getSharedPreferences().getBoolean("show_strongs_pref", true);
+		return pageControl.isStrongsShown();
 	}
 
 	@Override
