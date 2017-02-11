@@ -5,6 +5,7 @@ import android.support.v7.app.ActionBar;
 import android.view.Menu;
 
 import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.document.DocumentControl;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.actionbar.ActionBarManager;
 import net.bible.android.view.activity.base.actionbar.DefaultActionBarManager;
@@ -24,18 +25,21 @@ import javax.inject.Inject;
 public class ReadingPlanActionBarManager extends DefaultActionBarManager implements ActionBarManager {
 
 	private final ReadingPlanTitle readingPlanTitle;
-	private BibleActionBarButton bibleActionBarButton = new BibleActionBarButton();
-	private CommentaryActionBarButton commentaryActionBarButton = new CommentaryActionBarButton();
-	private DictionaryActionBarButton dictionaryActionBarButton = new DictionaryActionBarButton();
+	private final ReadingPlanBibleActionBarButton bibleActionBarButton;
+	private final ReadingPlanCommentaryActionBarButton commentaryActionBarButton;
+	private final ReadingPlanDictionaryActionBarButton dictionaryActionBarButton;
 
 	private final PauseActionBarButton pauseActionBarButton;
 	private final SpeakStopActionBarButton speakStopActionBarButton;
 
 	@Inject
-	public ReadingPlanActionBarManager(ReadingPlanTitle readingPlanTitle, PauseActionBarButton pauseActionBarButton, SpeakStopActionBarButton speakStopActionBarButton) {
+	public ReadingPlanActionBarManager(ReadingPlanTitle readingPlanTitle, PauseActionBarButton pauseActionBarButton, SpeakStopActionBarButton speakStopActionBarButton, ReadingPlanBibleActionBarButton bibleActionBarButton, ReadingPlanCommentaryActionBarButton commentaryActionBarButton, ReadingPlanDictionaryActionBarButton dictionaryActionBarButton, DocumentControl documentControl) {
 		this.readingPlanTitle = readingPlanTitle;
 		this.pauseActionBarButton = pauseActionBarButton;
 		this.speakStopActionBarButton = speakStopActionBarButton;
+		this.bibleActionBarButton = bibleActionBarButton;
+		this.commentaryActionBarButton = commentaryActionBarButton;
+		this.dictionaryActionBarButton = dictionaryActionBarButton;
 
 		// the manager will also instantly fire a catch-up event to ensure state is current
         SpeakEventManager.getInstance().addSpeakEventListener(new SpeakEventListener() {

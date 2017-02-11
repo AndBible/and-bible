@@ -1,15 +1,18 @@
 package net.bible.android.view.activity.base.actionbar;
 
+import android.support.v4.view.MenuItemCompat;
+import android.view.MenuItem;
+import android.view.MenuItem.OnMenuItemClickListener;
+
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
+import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.TitleSplitter;
 
 import org.crosswire.jsword.book.Book;
 
-import android.support.v4.view.MenuItemCompat;
-import android.view.MenuItem;
-import android.view.MenuItem.OnMenuItemClickListener;
+import javax.inject.Inject;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -17,7 +20,9 @@ import android.view.MenuItem.OnMenuItemClickListener;
  *      The copyright to this program is held by it's author.
  */
 abstract public class QuickDocumentChangeToolbarButton extends QuickActionButton implements OnMenuItemClickListener {
-	
+
+	private ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
+
 	private Book mSuggestedDocument;
 
 	protected abstract Book getSuggestedDocument();
@@ -45,7 +50,7 @@ abstract public class QuickDocumentChangeToolbarButton extends QuickActionButton
 
 	@Override
 	public boolean onMenuItemClick(MenuItem arg0) {
-    	ControlFactory.getInstance().getCurrentPageControl().setCurrentDocument(mSuggestedDocument);
+    	getCurrentPageManager().setCurrentDocument(mSuggestedDocument);
     	return true;
 	}
 
@@ -61,5 +66,14 @@ abstract public class QuickDocumentChangeToolbarButton extends QuickActionButton
 		} else {
 			return "";
 		}
+	}
+
+	protected CurrentPageManager getCurrentPageManager() {
+		return activeWindowPageManagerProvider.getActiveWindowPageManager();
+	}
+
+	@Inject
+	void setActiveWindowPageManagerProvider(ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 	}
 }

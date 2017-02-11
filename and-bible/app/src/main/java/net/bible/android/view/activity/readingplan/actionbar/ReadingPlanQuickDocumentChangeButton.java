@@ -1,8 +1,9 @@
 package net.bible.android.view.activity.readingplan.actionbar;
 
+import android.view.MenuItem;
+
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.actionbar.QuickDocumentChangeToolbarButton;
-import android.view.MenuItem;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -19,7 +20,4 @@ public abstract class ReadingPlanQuickDocumentChangeButton extends QuickDocument
     	
     	return isHandled;
     }
-	
-	
-
 }
