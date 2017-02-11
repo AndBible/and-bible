@@ -7,8 +7,8 @@ import android.widget.Toast;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPage;
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
@@ -39,6 +39,8 @@ public class SpeakControl {
 
 	private final SwordContentFacade swordContentFacade;
 
+	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
+
 	private static final int NUM_LEFT_IDX = 3;
 	private static final NumPagesToSpeakDefinition[] BIBLE_PAGES_TO_SPEAK_DEFNS = new NumPagesToSpeakDefinition[] {
 			new NumPagesToSpeakDefinition(1, R.plurals.num_chapters, true, R.id.numChapters1),
@@ -64,16 +66,17 @@ public class SpeakControl {
 	private static final String TAG = "SpeakControl";
 
 	@Inject
-	public SpeakControl(SwordContentFacade swordContentFacade) {
+	public SpeakControl(SwordContentFacade swordContentFacade, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
 		this.swordContentFacade = swordContentFacade;
+		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 	}
 
 	/** return a list of prompt ids for the speak screen associated with the current document type
 	 */
 	public NumPagesToSpeakDefinition[] getNumPagesToSpeakDefinitions() {
-		NumPagesToSpeakDefinition[] definitions = null;
+		NumPagesToSpeakDefinition[] definitions;
 		
-		CurrentPage currentPage = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage();
+		CurrentPage currentPage = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
 		BookCategory bookCategory = currentPage.getCurrentDocument().getBookCategory();
 		if (BookCategory.BIBLE.equals(bookCategory)) {
 			Versification v11n = ((SwordBook) currentPage.getCurrentDocument()).getVersification();
@@ -117,7 +120,7 @@ public class SpeakControl {
         // Start Speak
 		} else {
 			try {
-				CurrentPage page = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage();
+				CurrentPage page = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
 				Book fromBook = page.getCurrentDocument();
 		    	// first find keys to Speak
 				List<Key> keyList = new ArrayList<>();
@@ -134,9 +137,9 @@ public class SpeakControl {
 	}
 	
 	public boolean isCurrentDocSpeakAvailable() {
-		boolean isAvailable = false;
+		boolean isAvailable;
 		try {
-			String docLangCode = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument().getLanguage().getCode();
+			String docLangCode = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().getCurrentDocument().getLanguage().getCode();
 			isAvailable = TextToSpeechController.getInstance().isLanguageAvailable(docLangCode);
 		} catch (Exception e) {
 			Log.e(TAG, "Error checking TTS lang available");
@@ -163,7 +166,7 @@ public class SpeakControl {
 			stop();
 		}
 		
-		CurrentPage page = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage();
+		CurrentPage page = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
 		Book fromBook = page.getCurrentDocument()
 				;
     	// first find keys to Speak

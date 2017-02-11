@@ -9,7 +9,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.search.SearchResultsDto;
 import net.bible.android.view.activity.base.Callback;
@@ -25,7 +25,7 @@ import org.crosswire.jsword.passage.Key;
 import java.util.ArrayList;
 import java.util.List;
 
- import javax.inject.Inject;
+import javax.inject.Inject;
 
 /** do the search and show the search results
  * 
@@ -46,6 +46,8 @@ public class SearchResults extends ListActivityBase {
 	private SearchResultsActionBarManager searchResultsActionBarManager;
 	
 	private SearchControl searchControl;
+
+	private ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
 
@@ -90,7 +92,7 @@ public class SearchResults extends ListActivityBase {
 			String searchText = extras.getString(SearchControl.SEARCH_TEXT);
 			String searchDocument = extras.getString(SearchControl.SEARCH_DOCUMENT);
 			if (StringUtils.isEmpty(searchDocument)) {
-				searchDocument = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument().getInitials();
+				searchDocument = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().getCurrentDocument().getInitials();
 			}
 			mSearchResultsHolder = searchControl.getSearchResults(searchDocument, searchText);
 			
@@ -152,11 +154,11 @@ public class SearchResults extends ListActivityBase {
     		// which doc do we show
 			String targetDocInitials = getIntent().getExtras().getString(SearchControl.TARGET_DOCUMENT);
 			if (StringUtils.isEmpty(targetDocInitials)) {
-				targetDocInitials = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument().getInitials();
+				targetDocInitials = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().getCurrentDocument().getInitials();
 			}
-			Book targetBook = SwordDocumentFacade.getInstance().getDocumentByInitials(targetDocInitials); 
-    		
-    		ControlFactory.getInstance().getCurrentPageControl().setCurrentDocumentAndKey(targetBook, key);
+			Book targetBook = SwordDocumentFacade.getInstance().getDocumentByInitials(targetDocInitials);
+
+			activeWindowPageManagerProvider.getActiveWindowPageManager().setCurrentDocumentAndKey(targetBook, key);
     		
     		// this also calls finish() on this Activity.  If a user re-selects from HistoryList then a new Activity is created
     		returnToPreviousScreen();
@@ -185,6 +187,11 @@ public class SearchResults extends ListActivityBase {
 
 	@Inject
 	void setSearchResultsActionBarManager(SearchResultsActionBarManager searchResultsActionBarManager) {
-		searchResultsActionBarManager = searchResultsActionBarManager;
+		this.searchResultsActionBarManager = searchResultsActionBarManager;
+	}
+
+	@Inject
+	void setActiveWindowPageManagerProvider(ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 	}
 }

@@ -6,9 +6,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.navigation.NavigationControl;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.util.buttongrid.ButtonGrid;
 import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo;
@@ -35,6 +35,8 @@ public class GridChoosePassageChapter extends CustomTitlebarActivityBase impleme
 	private BibleBook mBibleBook=BibleBook.GEN;
 
 	private NavigationControl navigationControl;
+
+	private ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
 	private static final String TAG = "GridChoosePassageChaptr";
 
@@ -66,14 +68,14 @@ public class GridChoosePassageChapter extends CustomTitlebarActivityBase impleme
     }
     
     private List<ButtonInfo> getBibleChaptersButtonInfo(BibleBook book) {
-    	int chapters = -1;
+    	int chapters;
     	try {
 	    	chapters = navigationControl.getVersification().getLastChapter(book);
 		} catch (Exception nsve) {
 			chapters = -1;
 		}
     	
-    	List<ButtonInfo> keys = new ArrayList<ButtonInfo>();
+    	List<ButtonInfo> keys = new ArrayList<>();
     	for (int i=1; i<=chapters; i++) {
     		ButtonInfo buttonInfo = new ButtonInfo();
 			// this is used for preview
@@ -89,7 +91,7 @@ public class GridChoosePassageChapter extends CustomTitlebarActivityBase impleme
 		int chapter = buttonInfo.id;
 		Log.d(TAG, "Chapter selected:"+chapter);
 		try {
-			CurrentPageManager currentPageControl = ControlFactory.getInstance().getCurrentPageControl();
+			CurrentPageManager currentPageControl = activeWindowPageManagerProvider.getActiveWindowPageManager();
 			if (!navigateToVerse() && !currentPageControl.getCurrentPage().isSingleKey()) {
 				currentPageControl.getCurrentPage().setKey(new Verse(navigationControl.getVersification(), mBibleBook, chapter, 1));
 				onSave(null);
@@ -126,5 +128,10 @@ public class GridChoosePassageChapter extends CustomTitlebarActivityBase impleme
 	@Inject
 	void setNavigationControl(NavigationControl navigationControl) {
 		this.navigationControl = navigationControl;
+	}
+
+	@Inject
+	void setActiveWindowPageManagerProvider(ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 	}
 }

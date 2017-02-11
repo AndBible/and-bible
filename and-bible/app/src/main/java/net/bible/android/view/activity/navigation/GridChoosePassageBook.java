@@ -9,8 +9,8 @@ import android.view.View;
 import android.view.View.OnClickListener;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.navigation.NavigationControl;
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.navigation.biblebookactionbar.BibleBookActionBarManager;
 import net.bible.android.view.util.buttongrid.ButtonGrid;
@@ -42,6 +42,8 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
     private boolean isCurrentlyShowingScripture = true;
     
 	private NavigationControl navigationControl;
+
+	private ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 	
 	static final String BOOK_NO = "BOOK_NO";
 	static final String CHAPTER_NO = "CHAPTER_NO";
@@ -109,7 +111,7 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
     		// if there is only 1 chapter then no need to select chapter, but may need to select verse still
     		if (!navigationControl.hasChapters(book)) {
     			if (!GridChoosePassageChapter.navigateToVerse()) {
-    				ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().setKey(new Verse(v11n, book, 1, 1));
+    				activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().setKey(new Verse(v11n, book, 1, 1));
     				returnToPreviousScreen();
     			} else {
         			// select verse (only 1 chapter)
@@ -138,7 +140,7 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
 
     private List<ButtonInfo> getBibleBookButtonInfo() {
     	boolean isShortBookNamesAvailable = isShortBookNames();
-    	BibleBook currentBibleBook = KeyUtil.getVerse(ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getKey()).getBook();
+    	BibleBook currentBibleBook = KeyUtil.getVerse(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getKey()).getBook();
     	    	
     	List<BibleBook> bibleBookList = navigationControl.getBibleBooks(isCurrentlyShowingScripture);
     	List<ButtonInfo> keys = new ArrayList<>(bibleBookList.size());
@@ -270,5 +272,10 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
 	@Inject
 	void setNavigationControl(NavigationControl navigationControl) {
 		this.navigationControl = navigationControl;
+	}
+
+	@Inject
+	void setActiveWindowPageManagerProvider(ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 	}
 }

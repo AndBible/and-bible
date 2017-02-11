@@ -6,8 +6,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.navigation.NavigationControl;
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.util.buttongrid.ButtonGrid;
 import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo;
@@ -30,14 +30,16 @@ import javax.inject.Inject;
  */
 public class GridChoosePassageVerse extends CustomTitlebarActivityBase implements OnButtonGridActionListener {
 	
-	private static final String TAG = "GridChoosePassageChaptr";
-	
 	private BibleBook mBibleBook=BibleBook.GEN;
 	private int mBibleChapterNo=1;
 
 	private NavigationControl navigationControl;
 
-    /** Called when the activity is first created. */
+	private ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
+
+	private static final String TAG = "GridChoosePassageChaptr";
+
+	/** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
     	// background goes white in some circumstances if theme changes so prevent theme change
@@ -68,7 +70,7 @@ public class GridChoosePassageVerse extends CustomTitlebarActivityBase implement
     }
     
     private List<ButtonInfo> getBibleVersesButtonInfo(BibleBook book, int chapterNo) {
-    	int verses = -1;
+    	int verses;
     	try {
 	    	verses = navigationControl.getVersification().getLastVerse(book, chapterNo);
 		} catch (Exception nsve) {
@@ -76,7 +78,7 @@ public class GridChoosePassageVerse extends CustomTitlebarActivityBase implement
 			verses = -1;
 		}
     	
-    	List<ButtonInfo> keys = new ArrayList<ButtonInfo>();
+    	List<ButtonInfo> keys = new ArrayList<>();
     	for (int i=1; i<=verses; i++) {
     		ButtonInfo buttonInfo = new ButtonInfo();
 			// this is used for preview
@@ -92,7 +94,7 @@ public class GridChoosePassageVerse extends CustomTitlebarActivityBase implement
 		int verse = buttonInfo.id;
 		Log.d(TAG, "Verse selected:"+verse);
 		try {
-			ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().setKey(new Verse(navigationControl.getVersification(), mBibleBook, mBibleChapterNo, verse));
+			activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().setKey(new Verse(navigationControl.getVersification(), mBibleBook, mBibleChapterNo, verse));
 			onSave(null);
 
 		} catch (Exception e) {
@@ -110,5 +112,10 @@ public class GridChoosePassageVerse extends CustomTitlebarActivityBase implement
 	@Inject
 	void setNavigationControl(NavigationControl navigationControl) {
 		this.navigationControl = navigationControl;
+	}
+
+	@Inject
+	void setActiveWindowPageManagerProvider(ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 	}
 }

@@ -9,7 +9,6 @@ import android.util.Log;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.control.page.window.Window;
@@ -107,7 +106,7 @@ public class PageControl {
 	 */
 	public void setFirstUseDefaultVerse() {
 		try {
-			Versification versification = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getVersification();
+			Versification versification = getCurrentPageManager().getCurrentBible().getVersification();
 			Verse[] defaultVerses = new Verse[] {
 					new Verse(versification, BibleBook.JOHN,3,16),
 					new Verse(versification, BibleBook.GEN,1,1),
@@ -117,7 +116,7 @@ public class PageControl {
 	        	Book bible = bibles.get(0);
 	        	for (Verse verse : defaultVerses) {
 		        	if (bible.contains(verse)) {
-		        		activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().setKey(verse);
+		        		getCurrentPageManager().getCurrentBible().setKey(verse);
 		        		return;
 		        	}
 	        	}
@@ -134,7 +133,7 @@ public class PageControl {
 	public String[] getCurrentDocumentTitleParts() {
 	
 		String title = "";
-		CurrentPage currentPage = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
+		CurrentPage currentPage = getCurrentPageManager().getCurrentPage();
 		if (currentPage!=null) {
 			if (currentPage.getCurrentDocument()!=null) {
 				title = currentPage.getCurrentDocument().getAbbreviation();
@@ -157,7 +156,7 @@ public class PageControl {
 	public String[] getCurrentPageTitleParts() {
 		String[] retVal=new String[2];
 		try {
-			CurrentPage currentPage = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
+			CurrentPage currentPage = getCurrentPageManager().getCurrentPage();
 			if (currentPage!=null) {
 				if (currentPage.getSingleKey()!=null) {
 					Key key = currentPage.getSingleKey();
@@ -194,7 +193,7 @@ public class PageControl {
 	}
 
 	public Verse getCurrentBibleVerse() {
-		return activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getSingleKey();
+		return getCurrentPageManager().getCurrentBible().getSingleKey();
 	}
 	
 	/** font size may be adjusted for certain fonts e.g. SBLGNT
@@ -239,6 +238,6 @@ public class PageControl {
 	}
 	
 	public CurrentPageManager getCurrentPageManager() {
-		return ControlFactory.getInstance().getCurrentPageControl();
+		return activeWindowPageManagerProvider.getActiveWindowPageManager();
 	}
 }

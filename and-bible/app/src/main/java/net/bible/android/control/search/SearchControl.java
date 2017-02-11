@@ -7,10 +7,10 @@ import android.util.Log;
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.navigation.DocumentBibleBooksFactory;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.PageControl;
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.control.versification.Scripture;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
@@ -70,13 +70,16 @@ public class SearchControl {
 
 	private final PageControl pageControl;
 
+	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
+
 	private static final String TAG = "SearchControl";
 
 	@Inject
-	public SearchControl(SwordContentFacade swordContentFacade, DocumentBibleBooksFactory documentBibleBooksFactory, PageControl pageControl) {
+	public SearchControl(SwordContentFacade swordContentFacade, DocumentBibleBooksFactory documentBibleBooksFactory, PageControl pageControl, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
 		this.swordContentFacade = swordContentFacade;
 		this.documentBibleBooksFactory = documentBibleBooksFactory;
 		this.pageControl = pageControl;
+		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 	}
 
 
@@ -104,7 +107,7 @@ public class SearchControl {
     
     public String getCurrentBookName() {
     	try {
-    		CurrentBiblePage currentBiblePage = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible();
+    		CurrentBiblePage currentBiblePage = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible();
     		Versification v11n = ((SwordBook) currentBiblePage.getCurrentDocument()).getVersification();
         	BibleBook book = currentBiblePage.getSingleKey().getBook();
         	
@@ -167,7 +170,7 @@ public class SearchControl {
 		// There is similar functionality in BookmarkControl
 		String verseText = "";
 		try {
-			verseText = swordContentFacade.getPlainText(ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getCurrentDocument(), key, 1);
+			verseText = swordContentFacade.getPlainText(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getCurrentDocument(), key, 1);
 			verseText = CommonUtils.limitTextLength(verseText);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);
@@ -176,9 +179,6 @@ public class SearchControl {
 	}
 
 	/** double spaces, :, and leading or trailing space cause lucene errors
-	 * 
-	 * @param search
-	 * @return
 	 */
 	private String cleanSearchString(String search) {
 		// remove colons but leave Strong lookups
@@ -190,8 +190,6 @@ public class SearchControl {
 		return search.replace("  ", " ").trim();
 	}
     /** get OT, NT, or all query limitation
-     * 
-     * @return
      */
     private String getBibleSectionTerm(SearchBibleSection bibleSection, String currentBookName) {
     	switch (bibleSection) {
@@ -268,7 +266,7 @@ public class SearchControl {
 	 * When navigating books and chapters there should always be a current Passage based book
 	 */
 	private AbstractPassageBook getCurrentPassageDocument() {
-		return ControlFactory.getInstance().getCurrentPageControl().getCurrentPassageDocument();
+		return activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPassageDocument();
 	}
 
 	public boolean isCurrentDefaultScripture() {
