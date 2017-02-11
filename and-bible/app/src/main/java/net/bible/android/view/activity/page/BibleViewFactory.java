@@ -33,6 +33,8 @@ public class BibleViewFactory {
 
 	private final WindowControl windowControl;
 
+	private final BibleKeyHandler bibleKeyHandler;
+
 	private final LinkControl linkControl;
 
 	private final BookmarkControl bookmarkControl;
@@ -44,11 +46,12 @@ public class BibleViewFactory {
 	private static final int BIBLE_WEB_VIEW_ID_BASE = 990;
 
 	@Inject
-	public BibleViewFactory(MainBibleActivity mainBibleActivity, PageControl pageControl, PageTiltScrollControlFactory pageTiltScrollControlFactory, WindowControl windowControl, LinkControl linkControl, BookmarkControl bookmarkControl, MyNoteControl myNoteControl) {
+	public BibleViewFactory(MainBibleActivity mainBibleActivity, PageControl pageControl, PageTiltScrollControlFactory pageTiltScrollControlFactory, WindowControl windowControl, BibleKeyHandler bibleKeyHandler, LinkControl linkControl, BookmarkControl bookmarkControl, MyNoteControl myNoteControl) {
 		this.mainBibleActivity = mainBibleActivity;
 		this.pageControl = pageControl;
 		this.pageTiltScrollControlFactory = pageTiltScrollControlFactory;
 		this.windowControl = windowControl;
+		this.bibleKeyHandler = bibleKeyHandler;
 		this.linkControl = linkControl;
 		this.bookmarkControl = bookmarkControl;
 		this.myNoteControl = myNoteControl;
@@ -60,7 +63,7 @@ public class BibleViewFactory {
 		BibleView bibleView = screenBibleViewMap.get(window);
 		if (bibleView==null) {
 			final PageTiltScrollControl pageTiltScrollControl = pageTiltScrollControlFactory.getPageTiltScrollControl(window);
-			bibleView = new BibleView(this.mainBibleActivity, window, windowControl, pageControl, pageTiltScrollControl, linkControl);
+			bibleView = new BibleView(this.mainBibleActivity, window, windowControl, bibleKeyHandler, pageControl, pageTiltScrollControl, linkControl);
 
 			VerseActionModeMediator bibleViewVerseActionModeMediator = new VerseActionModeMediator(mainBibleActivity, bibleView, pageControl, new VerseMenuCommandHandler(mainBibleActivity, pageControl, bookmarkControl, myNoteControl), bookmarkControl);
 			BibleJavascriptInterface bibleJavascriptInterface = new BibleJavascriptInterface(bibleViewVerseActionModeMediator, windowControl);

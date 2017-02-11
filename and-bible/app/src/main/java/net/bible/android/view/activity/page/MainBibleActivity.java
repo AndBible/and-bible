@@ -59,6 +59,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	// detect swipe left/right
 	private GestureDetectorCompat gestureDetector;
 
+	private BibleKeyHandler bibleKeyHandler;
+
 	private boolean mWholeAppWasInBackground = false;
 
 	// swipe fails on older versions of Android (2.2, 2.3, but not 3.0+) if event not passed to parent - don't know why
@@ -185,7 +187,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	public boolean onKeyUp(int keyCode, KeyEvent event) {
 		Log.d(TAG, "Keycode:" + keyCode);
 		// common key handling i.e. KEYCODE_DPAD_RIGHT & KEYCODE_DPAD_LEFT
-		if (BibleKeyHandler.getInstance().onKeyUp(keyCode, event)) {
+		if (bibleKeyHandler.onKeyUp(keyCode, event)) {
 			return true;
 		} else if ((keyCode == KeyEvent.KEYCODE_SEARCH && windowControl.getActiveWindowPageManager().getCurrentPage().isSearchable())) {
 			Intent intent = searchControl.getSearchIntent(windowControl.getActiveWindowPageManager().getCurrentPage().getCurrentDocument());
@@ -404,6 +406,11 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	@Inject
 	void setBibleContentManager(BibleContentManager bibleContentManager) {
 		this.bibleContentManager = bibleContentManager;
+	}
+
+	@Inject
+	void setBibleKeyHandler(BibleKeyHandler bibleKeyHandler) {
+		this.bibleKeyHandler = bibleKeyHandler;
 	}
 }
 

@@ -1,16 +1,5 @@
 package net.bible.android.view.activity.navigation;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
-import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.view.activity.base.Dialogs;
-import net.bible.android.view.activity.base.ListActivityBase;
-
-import org.crosswire.jsword.passage.Key;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,6 +12,19 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import net.bible.android.activity.R;
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
+import net.bible.android.view.activity.base.Dialogs;
+import net.bible.android.view.activity.base.ListActivityBase;
+
+import org.crosswire.jsword.passage.Key;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import javax.inject.Inject;
+
 /**
  * Choose a bible or commentary to use
  * 
@@ -31,21 +33,26 @@ import android.widget.ListView;
  *      The copyright to this program is held by it's author.
  */
 public class ChooseDictionaryWord extends ListActivityBase {
-	private static final String TAG = "ChooseDictionaryWord";
-	
+
 	private List<Key> mDictionaryGlobalList;
 	private List<Key> mMatchingKeyList;
-	
-	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1; 
-	
+
+	private ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
+
+	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1;
+
+	private static final String TAG = "ChooseDictionaryWord";
+
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.choose_dictionary_page);
 
+		buildActivityComponent().inject(this);
+
         // ensure there is actually a dictionary
-        if (ControlFactory.getInstance().getCurrentPageControl().getCurrentDictionary().getCurrentDocument()==null) {
+        if (activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentDictionary().getCurrentDocument()==null) {
         	Log.e(TAG, "No Dictionary");
         	finish();
         	return;
@@ -95,7 +102,7 @@ public class ChooseDictionaryWord extends ListActivityBase {
 					//TODO need to optimise this using binary search of globalkeylist without caching
 					
 			    	//already checked a dictionary exists
-			    	mDictionaryGlobalList = ControlFactory.getInstance().getCurrentPageControl().getCurrentDictionary().getCachedGlobalKeyList(); 
+			    	mDictionaryGlobalList = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentDictionary().getCachedGlobalKeyList();
 			    	
 			    	Log.d(TAG, "Finished Initialising");
 				} catch (Exception e) {
@@ -153,7 +160,7 @@ public class ChooseDictionaryWord extends ListActivityBase {
     	try {
     		if (selectedKey!=null) {
 		    	Log.i(TAG, "chose:"+selectedKey);
-		    	ControlFactory.getInstance().getCurrentPageControl().getCurrentDictionary().setKey(selectedKey);
+		    	activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentDictionary().setKey(selectedKey);
 		    	doFinish();
     		}
     	} catch (Exception e) {
@@ -167,5 +174,9 @@ public class ChooseDictionaryWord extends ListActivityBase {
     	setResult(Activity.RESULT_OK, resultIntent);
     	finish();    
     }
-    
+
+	@Inject
+	void setActiveWindowPageManagerProvider(ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
+	}
 }

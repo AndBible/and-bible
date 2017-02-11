@@ -21,6 +21,7 @@ import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.navigation.biblebookactionbar.BibleBookActionBarManager;
 import net.bible.android.view.activity.navigation.biblebookactionbar.SortActionBarButton;
+import net.bible.android.view.activity.page.BibleKeyHandler;
 import net.bible.android.view.activity.page.actionbar.BibleActionBarButton;
 import net.bible.android.view.activity.page.actionbar.CommentaryActionBarButton;
 import net.bible.android.view.activity.page.actionbar.DictionaryActionBarButton;
@@ -62,6 +63,7 @@ public interface ControllerComponent {
 	PageTiltScrollControlFactory pageTiltScrollControlFactory();
 	HistoryManager historyManager();
 	HistoryTraversalFactory historyTraversalFactory();
+	BibleKeyHandler bibleKeyHandler();
 
 	DocumentControl documentControl();
 	BackupControl backupControl();

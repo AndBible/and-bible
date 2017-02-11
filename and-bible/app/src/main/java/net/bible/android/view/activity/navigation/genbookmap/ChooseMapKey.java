@@ -1,13 +1,12 @@
 package net.bible.android.view.activity.navigation.genbookmap;
 
-import java.util.List;
+import android.util.Log;
 
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentMapPage;
 
 import org.crosswire.jsword.passage.Key;
 
-import android.util.Log;
+import java.util.List;
 
 /** show a key list and allow to select item
  * 
@@ -40,6 +39,6 @@ public class ChooseMapKey extends ChooseKeyBase {
     }
 
 	private CurrentMapPage getCurrentMapPage() {
-    	return ControlFactory.getInstance().getCurrentPageControl().getCurrentMap();
+    	return getActiveWindowPageManagerProvider().getActiveWindowPageManager().getCurrentMap();
     }
 }

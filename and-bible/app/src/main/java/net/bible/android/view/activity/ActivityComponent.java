@@ -9,11 +9,13 @@ import net.bible.android.view.activity.comparetranslations.CompareTranslations;
 import net.bible.android.view.activity.download.Download;
 import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity;
 import net.bible.android.view.activity.mynote.MyNotes;
+import net.bible.android.view.activity.navigation.ChooseDictionaryWord;
 import net.bible.android.view.activity.navigation.ChooseDocument;
 import net.bible.android.view.activity.navigation.GridChoosePassageBook;
 import net.bible.android.view.activity.navigation.GridChoosePassageChapter;
 import net.bible.android.view.activity.navigation.GridChoosePassageVerse;
 import net.bible.android.view.activity.navigation.History;
+import net.bible.android.view.activity.navigation.genbookmap.ChooseKeyBase;
 import net.bible.android.view.activity.readingplan.DailyReading;
 import net.bible.android.view.activity.readingplan.DailyReadingList;
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;
@@ -48,6 +50,8 @@ public interface ActivityComponent {
 	void inject(GridChoosePassageBook gridChoosePassageBook);
 	void inject(GridChoosePassageChapter gridChoosePassageChapter);
 	void inject(GridChoosePassageVerse gridChoosePassageVerse);
+	void inject(ChooseDictionaryWord chooseDictionaryWord);
+	void inject(ChooseKeyBase chooseKeyBase);
 
 	void inject(ChooseDocument chooseDocument);
 	void inject(Download download);

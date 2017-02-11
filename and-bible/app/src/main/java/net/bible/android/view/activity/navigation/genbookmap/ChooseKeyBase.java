@@ -1,21 +1,24 @@
 package net.bible.android.view.activity.navigation.genbookmap;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.bible.android.activity.R;
-import net.bible.android.view.activity.base.Dialogs;
-import net.bible.android.view.activity.base.ListActivityBase;
-import net.bible.android.view.activity.page.MainBibleActivity;
-
-import org.crosswire.jsword.passage.Key;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+
+import net.bible.android.activity.R;
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
+import net.bible.android.view.activity.base.Dialogs;
+import net.bible.android.view.activity.base.ListActivityBase;
+import net.bible.android.view.activity.page.MainBibleActivity;
+
+import org.crosswire.jsword.passage.Key;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
 
 /** show a list of keys and allow to select an item
  * 
@@ -32,6 +35,8 @@ public abstract class ChooseKeyBase extends ListActivityBase {
 	private List<Key> mKeyList;
     private ArrayAdapter<Key> mKeyArrayAdapter;
 
+	private ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
+
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1;
 
 	abstract Key getCurrentKey();
@@ -44,7 +49,9 @@ public abstract class ChooseKeyBase extends ListActivityBase {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "Displaying Key chooser");
         setContentView(R.layout.choose_general_book_key);
-    
+
+		buildActivityComponent().inject(this);
+
         prepareList();
 
         mKeyArrayAdapter = new KeyItemAdapter(this, LIST_ITEM_TYPE, mKeyList);
@@ -109,4 +116,13 @@ public abstract class ChooseKeyBase extends ListActivityBase {
     	setResult(FINISHED, resultIntent);
     	finish();    
     }
+
+	protected ActiveWindowPageManagerProvider getActiveWindowPageManagerProvider() {
+		return activeWindowPageManagerProvider;
+	}
+
+	@Inject
+	void setActiveWindowPageManagerProvider(ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
+	}
 }

@@ -44,7 +44,9 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	
 	private final Window window;
 
-	private WindowControl windowControl;
+	private final WindowControl windowControl;
+
+	private final BibleKeyHandler bibleKeyHandler;
 
 	private BibleJavascriptInterface bibleJavascriptInterface;
 
@@ -82,14 +84,16 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
      * the object manually (not from a layout XML file).
 	 * @param context
 	 * @param windowControl
+	 * @param bibleKeyHandler
 	 * @param pageControl
 	 * @param pageTiltScrollControl
 	 * @param linkControl
 	 */
-	public BibleView(Context context, Window window, WindowControl windowControl, PageControl pageControl, PageTiltScrollControl pageTiltScrollControl, LinkControl linkControl) {
+	public BibleView(Context context, Window window, WindowControl windowControl, BibleKeyHandler bibleKeyHandler, PageControl pageControl, PageTiltScrollControl pageTiltScrollControl, LinkControl linkControl) {
 		super(context);
 		this.window = window;
 		this.windowControl = windowControl;
+		this.bibleKeyHandler = bibleKeyHandler;
 		this.pageControl = pageControl;
 		this.pageTiltScrollControl = pageTiltScrollControl;
 		this.linkControl = linkControl;
@@ -403,7 +407,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		// vice-versa (webview second) means right & left can not be used to navigate between Strongs links
 
 		// common key handling i.e. KEYCODE_DPAD_RIGHT & KEYCODE_DPAD_LEFT to change chapter
-		if (BibleKeyHandler.getInstance().onKeyUp(keyCode, event)) {
+		if (bibleKeyHandler.onKeyUp(keyCode, event)) {
 			return true;
 		}
 		

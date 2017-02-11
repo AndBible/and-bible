@@ -1,13 +1,12 @@
 package net.bible.android.view.activity.navigation.genbookmap;
 
-import java.util.List;
+import android.util.Log;
 
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentGeneralBookPage;
 
 import org.crosswire.jsword.passage.Key;
 
-import android.util.Log;
+import java.util.List;
 
 /** show a list of keys and allow to select an item
  * 
@@ -33,13 +32,13 @@ public class ChooseGeneralBookKey extends ChooseKeyBase {
 	@Override
     protected void itemSelected(Key key) {
     	try {
-    		ControlFactory.getInstance().getCurrentPageControl().getCurrentGeneralBook().setKey(key);
+    		getCurrentGeneralBookPage().setKey(key);
     	} catch (Exception e) {
     		Log.e(TAG, "error on select of gen book key", e);
     	}
     }
 
 	private CurrentGeneralBookPage getCurrentGeneralBookPage() {
-    	return ControlFactory.getInstance().getCurrentPageControl().getCurrentGeneralBook();
+    	return getActiveWindowPageManagerProvider().getActiveWindowPageManager().getCurrentGeneralBook();
     }
 }
