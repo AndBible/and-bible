@@ -15,7 +15,6 @@ import android.view.MotionEvent;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.BibleContentManager;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.backup.BackupControl;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
@@ -173,7 +172,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 
 		// essentially if the current page is Bible then we need to recalculate verse offsets
 		// if not then don't redisplay because it would force the page to the top which would be annoying if you are half way down a gen book page
-		if (!ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().isSingleKey()) {
+		if (!windowControl.getActiveWindowPageManager().getCurrentPage().isSingleKey()) {
 			// force a recalculation of verse offsets
 			PassageChangeMediator.getInstance().forcePageUpdate();
 		} else if (windowControl.isMultiWindow()) {
@@ -188,8 +187,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		// common key handling i.e. KEYCODE_DPAD_RIGHT & KEYCODE_DPAD_LEFT
 		if (BibleKeyHandler.getInstance().onKeyUp(keyCode, event)) {
 			return true;
-		} else if ((keyCode == KeyEvent.KEYCODE_SEARCH && ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().isSearchable())) {
-			Intent intent = searchControl.getSearchIntent(ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument());
+		} else if ((keyCode == KeyEvent.KEYCODE_SEARCH && windowControl.getActiveWindowPageManager().getCurrentPage().isSearchable())) {
+			Intent intent = searchControl.getSearchIntent(windowControl.getActiveWindowPageManager().getCurrentPage().getCurrentDocument());
 			if (intent != null) {
 				startActivityForResult(intent, STD_REQUEST_CODE);
 			}

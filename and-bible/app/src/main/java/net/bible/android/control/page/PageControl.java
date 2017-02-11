@@ -220,6 +220,7 @@ public class PageControl {
 
 	/** return true if Strongs are relevant to this doc & screen */
 	public boolean isStrongsRelevant() {
+
 		return documentControl.isStrongsInBook();
 	}
 

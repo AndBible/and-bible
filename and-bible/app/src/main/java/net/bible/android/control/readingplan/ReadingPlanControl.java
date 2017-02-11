@@ -5,8 +5,9 @@ import android.content.SharedPreferences.Editor;
 import android.util.Log;
 
 import net.bible.android.control.ApplicationScope;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
+import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.control.versification.VersificationConverter;
 import net.bible.service.common.CommonUtils;
@@ -37,7 +38,10 @@ import de.greenrobot.event.EventBus;
 public class ReadingPlanControl {
 
 	private ReadingPlanDao readingPlanDao = new ReadingPlanDao();
-	private SpeakControl speakControl;
+
+	private final SpeakControl speakControl;
+
+	private final WindowControl windowControl;
 	
 	private static final String READING_PLAN = "reading_plan";
 	private static final String READING_PLAN_DAY_EXT = "_day";
@@ -47,8 +51,9 @@ public class ReadingPlanControl {
 	private ReadingStatus readingStatus;
 
 	@Inject
-	public ReadingPlanControl(SpeakControl speakControl) {
+	public ReadingPlanControl(SpeakControl speakControl, WindowControl windowControl) {
 		this.speakControl = speakControl;
+		this.windowControl = windowControl;
 	}
 
 	/** allow front end to determine if a plan needs has been selected
@@ -232,14 +237,15 @@ public class ReadingPlanControl {
     		EventBus.getDefault().post(new BeforeCurrentPageChangeEvent());
 
 			// show the current bible
-    		AbstractPassageBook bible = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getCurrentPassageBook();
+			final CurrentPageManager currentPageManager = getCurrentPageManager();
+			AbstractPassageBook bible = currentPageManager.getCurrentBible().getCurrentPassageBook();
     		
     		// convert the verse to the v11n of the current bible
     		List<Key> keyList = convertReadingVersification(readingKey, bible);
     		Key firstKey = keyList.get(0);
 
     		// go to correct passage
-    		ControlFactory.getInstance().getCurrentPageControl().setCurrentDocumentAndKey(bible, firstKey);
+    		currentPageManager.setCurrentDocumentAndKey(bible, firstKey);
     	}
 	}
 
@@ -247,7 +253,7 @@ public class ReadingPlanControl {
 	 * Speak 1 reading and mark as read.  Also convert from ReadingPlan v11n type to v11n type of current Bible.
 	 */
 	public void speak(int day, int readingNo, Key readingKey) {
-		AbstractPassageBook bible = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getCurrentPassageBook();
+		AbstractPassageBook bible = getCurrentPageManager().getCurrentBible().getCurrentPassageBook();
 		List<Key> keyList = convertReadingVersification(readingKey, bible);
 
 		speakControl.speak(bible, keyList, true, false);
@@ -259,8 +265,8 @@ public class ReadingPlanControl {
 	 * Also mark passages as read
 	 */
 	public void speak(int day, List<Key> allReadings) {
-		AbstractPassageBook bible = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getCurrentPassageBook();
-		List<Key> allReadingsWithCorrectV11n = new ArrayList<Key>();
+		AbstractPassageBook bible = getCurrentPageManager().getCurrentBible().getCurrentPassageBook();
+		List<Key> allReadingsWithCorrectV11n = new ArrayList<>();
 		for (Key key : allReadings) {
 			List<Key> keyList = convertReadingVersification(key, bible);
 			allReadingsWithCorrectV11n.addAll(keyList);
@@ -273,12 +279,6 @@ public class ReadingPlanControl {
 		}
 	}
 
-	/** IOC
-	 */
-	public void setSpeakControl(SpeakControl speakControl) {
-		this.speakControl = speakControl;
-	}
-	
 	/** User has chosen to start a plan
 	 */
 	public void reset(ReadingPlanInfoDto plan) {
@@ -328,4 +328,9 @@ public class ReadingPlanControl {
 		String currentPlan = prefs.getString(READING_PLAN, null);
 		return currentPlan;
 	}
+
+	public CurrentPageManager getCurrentPageManager() {
+		return windowControl.getActiveWindowPageManager();
+	}
+
 }

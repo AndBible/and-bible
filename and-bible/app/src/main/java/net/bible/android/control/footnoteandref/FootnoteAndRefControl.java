@@ -3,8 +3,8 @@ package net.bible.android.control.footnoteandref;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.format.Note;
@@ -26,19 +26,22 @@ import javax.inject.Inject;
 @ApplicationScope
 public class FootnoteAndRefControl {
 
-	private BibleTraverser bibleTraverser;
+	private final BibleTraverser bibleTraverser;
+
+	private final WindowControl windowControl;
 
 	@SuppressWarnings("unused")
 	private static final String TAG = "FootnoteAndRefControl";
 
 	@Inject
-	public FootnoteAndRefControl(BibleTraverser bibleTraverser) {
+	public FootnoteAndRefControl(BibleTraverser bibleTraverser, WindowControl windowControl) {
 		this.bibleTraverser = bibleTraverser;
+		this.windowControl = windowControl;
 	}
 
 	public List<Note> getCurrentPageFootnotesAndReferences() {
 		try {
-			return ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentPageFootnotesAndReferences();
+			return getCurrentPageManager().getCurrentPage().getCurrentPageFootnotesAndReferences();
 		} catch (Exception e) {
 			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 			return new ArrayList<>();
@@ -71,6 +74,6 @@ public class FootnoteAndRefControl {
 	}
 	
 	public CurrentPageManager getCurrentPageManager() {
-		return ControlFactory.getInstance().getCurrentPageControl();
+		return windowControl.getActiveWindowPageManager();
 	}
 }
