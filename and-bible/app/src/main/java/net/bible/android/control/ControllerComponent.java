@@ -12,6 +12,7 @@ import net.bible.android.control.navigation.DocumentBibleBooksFactory;
 import net.bible.android.control.navigation.NavigationControl;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.page.PageTiltScrollControlFactory;
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.control.readingplan.ReadingPlanControl;
 import net.bible.android.control.report.ErrorReportControl;
@@ -56,6 +57,7 @@ public interface ControllerComponent {
 	NavigationControl navigationControl();
 	DocumentBibleBooksFactory documentBibleBooksFactory();
 	WindowControl windowControl();
+	ActiveWindowPageManagerProvider activeWindowPageManagerProvider();
 	LinkControl linkControl();
 	PageTiltScrollControlFactory pageTiltScrollControlFactory();
 	HistoryManager historyManager();

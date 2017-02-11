@@ -11,7 +11,7 @@ import net.bible.android.common.resource.ResourceProvider;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.page.window.WindowControl;
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.IntentHelper;
@@ -53,14 +53,14 @@ public class BookmarkControl {
 
 	private final SwordContentFacade swordContentFacade;
 
-	private final WindowControl windowControl;
+	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
 	private static final String TAG = "BookmarkControl";
 
 	@Inject
-	public BookmarkControl(SwordContentFacade swordContentFacade, WindowControl windowControl, ResourceProvider resourceProvider) {
+	public BookmarkControl(SwordContentFacade swordContentFacade, ActiveWindowPageManagerProvider activeWindowPageManagerProvider, ResourceProvider resourceProvider) {
 		this.swordContentFacade = swordContentFacade;
-		this.windowControl = windowControl;
+		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 		LABEL_ALL = new LabelDto();
 		LABEL_ALL.setName(resourceProvider.getString(R.string.all));
 		LABEL_ALL.setId(-999L);
@@ -71,7 +71,7 @@ public class BookmarkControl {
 	
 	public boolean toggleBookmarkForVerseRange(VerseRange verseRange) {
 		boolean bOk = false;
-		CurrentPageManager currentPageControl = windowControl.getActiveWindowPageManager();
+		CurrentPageManager currentPageControl = activeWindowPageManagerProvider.getActiveWindowPageManager();
 		if (currentPageControl.isBibleShown() || currentPageControl.isCommentaryShown()) {
 
 			BookmarkDto bookmarkDto = getBookmarkByKey(verseRange);
@@ -113,7 +113,7 @@ public class BookmarkControl {
 	public String getBookmarkVerseKey(BookmarkDto bookmark) {
 		String keyText = "";
 		try {
-			Versification versification = windowControl.getActiveWindowPageManager().getCurrentBible().getVersification();
+			Versification versification = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getVersification();
 			keyText = bookmark.getVerseRange(versification).getName();
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);
@@ -124,7 +124,7 @@ public class BookmarkControl {
 	public String getBookmarkVerseText(BookmarkDto bookmark) {
 		String verseText = "";
 		try {
-			CurrentBiblePage currentBible = windowControl.getActiveWindowPageManager().getCurrentBible();
+			CurrentBiblePage currentBible = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible();
 			Versification versification = currentBible.getVersification();
 			verseText = swordContentFacade.getPlainText(currentBible.getCurrentDocument(), bookmark.getVerseRange(versification), 1);
 			verseText = CommonUtils.limitTextLength(verseText);

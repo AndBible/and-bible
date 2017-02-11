@@ -6,6 +6,8 @@ import net.bible.android.control.download.DownloadControl;
 import net.bible.android.control.download.DownloadQueue;
 import net.bible.android.control.email.Emailer;
 import net.bible.android.control.email.EmailerImpl;
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
+import net.bible.android.control.page.window.WindowControl;
 import net.bible.service.download.RepoFactory;
 import net.bible.service.font.FontControl;
 
@@ -28,6 +30,12 @@ public class ControllerModule {
 	@ApplicationScope
 	public DownloadControl provideDownloadControl() {
 		return new DownloadControl(new DownloadQueue(Executors.newSingleThreadExecutor()), RepoFactory.getInstance().getXiphosRepo(), FontControl.getInstance());
+	}
+
+	@Provides
+	@ApplicationScope
+	public ActiveWindowPageManagerProvider provideActiveWindowPageManagerProvider(WindowControl windowControl) {
+		return windowControl;
 	}
 
 	@Provides

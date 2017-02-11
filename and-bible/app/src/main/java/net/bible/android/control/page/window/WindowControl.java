@@ -37,7 +37,7 @@ import javax.inject.Inject;
  *      The copyright to this program is held by it's author.
  */
 @ApplicationScope
-public class WindowControl {
+public class WindowControl implements ActiveWindowPageManagerProvider {
 
 	private boolean isSeparatorMoving = false;
 	private long stoppedMovingTime = 0;
@@ -279,6 +279,7 @@ public class WindowControl {
 		return windowRepository.isMultiWindow();
 	}
 
+	@Override
 	public CurrentPageManager getActiveWindowPageManager() {
 		return getActiveWindow().getPageManager();
 	}

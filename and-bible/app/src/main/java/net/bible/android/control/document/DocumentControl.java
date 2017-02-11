@@ -5,7 +5,7 @@ import android.util.Log;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.page.window.WindowControl;
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.control.versification.ConvertibleVerse;
 import net.bible.service.sword.SwordDocumentFacade;
 
@@ -31,13 +31,13 @@ import javax.inject.Inject;
 @ApplicationScope
 public class DocumentControl {
 
-	private final WindowControl windowControl;
+	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
 	private static final String TAG = "DocumentControl";
 
 	@Inject
-	public DocumentControl(WindowControl windowControl) {
-		this.windowControl = windowControl;
+	public DocumentControl(ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 	}
 
 	/** user wants to change to a different document/module
@@ -45,7 +45,7 @@ public class DocumentControl {
 	 * @param newDocument
 	 */
 	public void changeDocument(Book newDocument) {
-		windowControl.getActiveWindowPageManager().setCurrentDocument( newDocument );
+		activeWindowPageManagerProvider.getActiveWindowPageManager().setCurrentDocument( newDocument );
 	}
 	
 	/** Book is deletable according to the driver if it is in the download dir i.e. not sdcard\jsword
@@ -70,7 +70,7 @@ public class DocumentControl {
 	public void deleteDocument(Book document) throws BookException {
 		SwordDocumentFacade.getInstance().deleteDocument(document);
 				
-		CurrentPage currentPage = windowControl.getActiveWindowPageManager().getBookPage(document);
+		CurrentPage currentPage = activeWindowPageManagerProvider.getActiveWindowPageManager().getBookPage(document);
 		if (currentPage!=null) {
 			currentPage.checkCurrentDocumentStillInstalled();
 		}
@@ -80,7 +80,7 @@ public class DocumentControl {
 	 */
 	public boolean isStrongsInBook() {
 		try {
-			Book currentBook = windowControl.getActiveWindowPageManager().getCurrentPage().getCurrentDocument();
+			Book currentBook = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().getCurrentDocument();
 			// very occasionally the below has thrown an Exception and I don't know why, so I wrap all this in a try/catch
 			return currentBook.getBookMetaData().hasFeature(FeatureType.STRONGS_NUMBERS);
 		} catch (Exception e) {
@@ -92,7 +92,7 @@ public class DocumentControl {
 	/** are we currently in Bible, Commentary, Dict, or Gen Book mode
 	 */
 	public BookCategory getCurrentCategory() {
-		return windowControl.getActiveWindowPageManager().getCurrentPage().getBookCategory();
+		return activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().getBookCategory();
 	}
 	
 	/** show split book/chap/verse buttons in toolbar for Bibles and Commentaries
@@ -109,7 +109,7 @@ public class DocumentControl {
 	 * @return
 	 */
 	public Book getSuggestedBible() {
-		CurrentPageManager currentPageManager = windowControl.getActiveWindowPageManager();
+		CurrentPageManager currentPageManager = activeWindowPageManagerProvider.getActiveWindowPageManager();
 		Book currentBible = currentPageManager.getCurrentBible().getCurrentDocument();
 		final ConvertibleVerse requiredVerseConverter = getRequiredVerseForSuggestions();
 		
@@ -127,7 +127,7 @@ public class DocumentControl {
 	/** Suggest an alternative commentary to view or return null
 	 */
 	public Book getSuggestedCommentary() {
-		CurrentPageManager currentPageManager = windowControl.getActiveWindowPageManager();
+		CurrentPageManager currentPageManager = activeWindowPageManagerProvider.getActiveWindowPageManager();
 		Book currentCommentary = currentPageManager.getCurrentCommentary().getCurrentDocument();
 		final ConvertibleVerse requiredVerseConverter = getRequiredVerseForSuggestions();
 		
@@ -154,7 +154,7 @@ public class DocumentControl {
 	/** Suggest an alternative dictionary to view or return null
 	 */
 	public Book getSuggestedDictionary() {
-		CurrentPageManager currentPageManager = windowControl.getActiveWindowPageManager();
+		CurrentPageManager currentPageManager = activeWindowPageManagerProvider.getActiveWindowPageManager();
 		Book currentDictionary = currentPageManager.getCurrentDictionary().getCurrentDocument();
 		return getSuggestedBook(SwordDocumentFacade.getInstance().getBooks(BookCategory.DICTIONARY), currentDictionary, null, currentPageManager.isDictionaryShown());
 	}
@@ -162,7 +162,7 @@ public class DocumentControl {
 	/** Suggest an alternative dictionary to view or return null
 	 */
 	public Book getSuggestedGenBook() {
-		CurrentPageManager currentPageManager = windowControl.getActiveWindowPageManager();
+		CurrentPageManager currentPageManager = activeWindowPageManagerProvider.getActiveWindowPageManager();
 		Book currentBook = currentPageManager.getCurrentGeneralBook().getCurrentDocument();
 		return getSuggestedBook(SwordDocumentFacade.getInstance().getBooks(BookCategory.GENERAL_BOOK), currentBook, null, currentPageManager.isGenBookShown());
 	}
@@ -170,7 +170,7 @@ public class DocumentControl {
 	/** Suggest an alternative map to view or return null
 	 */
 	public Book getSuggestedMap() {
-		CurrentPageManager currentPageManager = windowControl.getActiveWindowPageManager();
+		CurrentPageManager currentPageManager = activeWindowPageManagerProvider.getActiveWindowPageManager();
 		Book currentBook = currentPageManager.getCurrentMap().getCurrentDocument();
 		return getSuggestedBook(SwordDocumentFacade.getInstance().getBooks(BookCategory.MAPS), currentBook, null, currentPageManager.isMapShown());
 	}
@@ -178,7 +178,7 @@ public class DocumentControl {
 	/** possible books will often not include the current verse but most will include chap 1 verse 1
 	 */
 	private ConvertibleVerse getRequiredVerseForSuggestions() {
-		Verse currentVerse = windowControl.getActiveWindowPageManager().getCurrentBible().getSingleKey();
+		Verse currentVerse = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getSingleKey();
 		return new ConvertibleVerse(currentVerse.getBook(), 1, 1);
 	}
 

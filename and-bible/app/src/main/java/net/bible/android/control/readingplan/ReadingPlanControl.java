@@ -7,7 +7,7 @@ import android.util.Log;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.page.window.WindowControl;
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.control.versification.VersificationConverter;
 import net.bible.service.common.CommonUtils;
@@ -41,7 +41,7 @@ public class ReadingPlanControl {
 
 	private final SpeakControl speakControl;
 
-	private final WindowControl windowControl;
+	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 	
 	private static final String READING_PLAN = "reading_plan";
 	private static final String READING_PLAN_DAY_EXT = "_day";
@@ -51,9 +51,9 @@ public class ReadingPlanControl {
 	private ReadingStatus readingStatus;
 
 	@Inject
-	public ReadingPlanControl(SpeakControl speakControl, WindowControl windowControl) {
+	public ReadingPlanControl(SpeakControl speakControl, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
 		this.speakControl = speakControl;
-		this.windowControl = windowControl;
+		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 	}
 
 	/** allow front end to determine if a plan needs has been selected
@@ -330,7 +330,7 @@ public class ReadingPlanControl {
 	}
 
 	public CurrentPageManager getCurrentPageManager() {
-		return windowControl.getActiveWindowPageManager();
+		return activeWindowPageManagerProvider.getActiveWindowPageManager();
 	}
 
 }

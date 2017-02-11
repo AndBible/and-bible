@@ -11,8 +11,8 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.document.DocumentControl;
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.control.page.window.Window;
-import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.control.versification.Scripture;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
@@ -54,13 +54,13 @@ public class PageControl {
 
 	private final DocumentControl documentControl;
 
-	private final WindowControl windowControl;
+	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
 	@Inject
-	public PageControl(SwordContentFacade swordContentFacade, DocumentControl documentControl, WindowControl windowControl) {
+	public PageControl(SwordContentFacade swordContentFacade, DocumentControl documentControl, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
 		this.swordContentFacade = swordContentFacade;
 		this.documentControl = documentControl;
-		this.windowControl = windowControl;
+		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 	}
 
 	/** Paste the current verse to the system clipboard
@@ -107,7 +107,7 @@ public class PageControl {
 	 */
 	public void setFirstUseDefaultVerse() {
 		try {
-			Versification versification = windowControl.getActiveWindowPageManager().getCurrentBible().getVersification();
+			Versification versification = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getVersification();
 			Verse[] defaultVerses = new Verse[] {
 					new Verse(versification, BibleBook.JOHN,3,16),
 					new Verse(versification, BibleBook.GEN,1,1),
@@ -117,7 +117,7 @@ public class PageControl {
 	        	Book bible = bibles.get(0);
 	        	for (Verse verse : defaultVerses) {
 		        	if (bible.contains(verse)) {
-		        		windowControl.getActiveWindowPageManager().getCurrentBible().setKey(verse);
+		        		activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().setKey(verse);
 		        		return;
 		        	}
 	        	}
@@ -134,7 +134,7 @@ public class PageControl {
 	public String[] getCurrentDocumentTitleParts() {
 	
 		String title = "";
-		CurrentPage currentPage = windowControl.getActiveWindowPageManager().getCurrentPage();
+		CurrentPage currentPage = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
 		if (currentPage!=null) {
 			if (currentPage.getCurrentDocument()!=null) {
 				title = currentPage.getCurrentDocument().getAbbreviation();
@@ -157,7 +157,7 @@ public class PageControl {
 	public String[] getCurrentPageTitleParts() {
 		String[] retVal=new String[2];
 		try {
-			CurrentPage currentPage = windowControl.getActiveWindowPageManager().getCurrentPage();
+			CurrentPage currentPage = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
 			if (currentPage!=null) {
 				if (currentPage.getSingleKey()!=null) {
 					Key key = currentPage.getSingleKey();
@@ -194,7 +194,7 @@ public class PageControl {
 	}
 
 	public Verse getCurrentBibleVerse() {
-		return windowControl.getActiveWindowPageManager().getCurrentBible().getSingleKey();
+		return activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getSingleKey();
 	}
 	
 	/** font size may be adjusted for certain fonts e.g. SBLGNT

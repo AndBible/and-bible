@@ -4,7 +4,7 @@ import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.page.window.WindowControl;
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.format.Note;
@@ -28,15 +28,15 @@ public class FootnoteAndRefControl {
 
 	private final BibleTraverser bibleTraverser;
 
-	private final WindowControl windowControl;
+	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
 	@SuppressWarnings("unused")
 	private static final String TAG = "FootnoteAndRefControl";
 
 	@Inject
-	public FootnoteAndRefControl(BibleTraverser bibleTraverser, WindowControl windowControl) {
+	public FootnoteAndRefControl(BibleTraverser bibleTraverser, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
 		this.bibleTraverser = bibleTraverser;
-		this.windowControl = windowControl;
+		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 	}
 
 	public List<Note> getCurrentPageFootnotesAndReferences() {
@@ -74,6 +74,6 @@ public class FootnoteAndRefControl {
 	}
 	
 	public CurrentPageManager getCurrentPageManager() {
-		return windowControl.getActiveWindowPageManager();
+		return activeWindowPageManagerProvider.getActiveWindowPageManager();
 	}
 }
