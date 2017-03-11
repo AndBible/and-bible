@@ -29,14 +29,16 @@ public class WindowSynchronisationTest {
 	
 	private WindowControl windowControl;
 
-	private Provider<CurrentPageManager> mockCurrentPageManagerProvider;
-
 	@Before
 	public void setUp() throws Exception {
 		eventManager = ABEventBus.getDefault();
-		mockCurrentPageManagerProvider = mock(Provider.class);
+		Provider<CurrentPageManager> mockCurrentPageManagerProvider = new Provider<CurrentPageManager>() {
+			@Override
+			public CurrentPageManager get() {
+				return mock(CurrentPageManager.class);
+			}
+		};
 		windowRepository = new WindowRepository(mockCurrentPageManagerProvider);
-		windowRepository.initialise();
 		windowControl = new WindowControl(windowRepository);
 		
 		TestControlFactory testControlFactory = new TestControlFactory();

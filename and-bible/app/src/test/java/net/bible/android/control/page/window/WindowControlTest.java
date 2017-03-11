@@ -65,7 +65,6 @@ public class WindowControlTest {
 		eventManager = mock(EventManager.class);
 		mockCurrentPageManagerProvider = mock(Provider.class);
 		windowRepository = new WindowRepository(mockCurrentPageManagerProvider);
-		windowRepository.initialise();
 		windowControl = new WindowControl(windowRepository);
 		reset(eventManager);
 	}

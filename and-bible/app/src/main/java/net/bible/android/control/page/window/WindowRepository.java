@@ -48,7 +48,7 @@ public class WindowRepository {
 		initialise();
 	}
 
-	public void initialise() {
+	private void initialise() {
 		dedicatedLinksWindow = new LinksWindow(WindowState.CLOSED, currentPageManagerProvider.get());
 
 		windowList = new ArrayList<>();
@@ -58,7 +58,7 @@ public class WindowRepository {
     	setDefaultActiveWindow();
     	
 		// listen for AppToBackgroundEvent to save state when moved to background
-    	ABEventBus.getDefault().register(this);
+    	ABEventBus.getDefault().safelyRegister(this);
 	}
 	
 	//TODO if user presses a link then should also show links window

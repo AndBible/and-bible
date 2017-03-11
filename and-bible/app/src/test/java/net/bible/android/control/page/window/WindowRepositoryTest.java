@@ -21,15 +21,17 @@ import static org.mockito.Mockito.mock;
 public class WindowRepositoryTest {
 	private WindowRepository windowRepository;
 
-	private Provider<CurrentPageManager> mockCurrentPageManagerProvider;
-
 	@Before
 	public void setUp() throws Exception {
 		EventManager eventManager = new EventManagerStub();
-		mockCurrentPageManagerProvider = mock(Provider.class);
+		Provider<CurrentPageManager> mockCurrentPageManagerProvider = new Provider<CurrentPageManager>() {
+			@Override
+			public CurrentPageManager get() {
+				return mock(CurrentPageManager.class);
+			}
+		};
 
 		windowRepository = new WindowRepository(mockCurrentPageManagerProvider);
-		windowRepository.initialise();
 	}
 
 	@Test
