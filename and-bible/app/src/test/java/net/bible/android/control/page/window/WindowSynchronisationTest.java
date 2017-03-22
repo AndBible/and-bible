@@ -39,7 +39,7 @@ public class WindowSynchronisationTest {
 			}
 		};
 		windowRepository = new WindowRepository(mockCurrentPageManagerProvider);
-		windowControl = new WindowControl(windowRepository);
+		windowControl = new WindowControl(windowRepository, eventManager);
 		
 		TestControlFactory testControlFactory = new TestControlFactory();
 		//TODO removed during Dagger migration

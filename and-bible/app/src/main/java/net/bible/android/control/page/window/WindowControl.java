@@ -7,7 +7,6 @@ import android.view.MenuItem;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
-import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
@@ -52,12 +51,12 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 	private final Logger logger = new Logger(this.getClass().getName());
 
 	@Inject
-	public WindowControl(WindowRepository windowRepository) {
+	public WindowControl(WindowRepository windowRepository, EventManager eventManager) {
 		this.windowRepository = windowRepository;
 		
 		windowSync = new WindowSync(windowRepository);
 
-		eventManager = ABEventBus.getDefault();
+		this.eventManager = eventManager;
 		eventManager.register(this);
 	}
 

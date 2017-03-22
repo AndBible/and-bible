@@ -1,8 +1,7 @@
 package net.bible.android.control.page.window;
 
-import android.support.v7.view.menu.MenuBuilder;
+import android.support.annotation.NonNull;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import net.bible.android.activity.BuildConfig;
@@ -26,6 +25,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricGradleTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
+import org.robolectric.fakes.RoboMenu;
 
 import javax.inject.Provider;
 
@@ -46,7 +46,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 @RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class)
+//@Config(constants = BuildConfig.class)
+@Config(constants = BuildConfig.class, sdk = 23, manifest = "src/main/AndroidManifest.xml")
 public class WindowControlTest {
 
 	private static final Book BOOK_KJV = Books.installed().getBook("KJV");
@@ -58,14 +59,17 @@ public class WindowControlTest {
 	
 	private WindowControl windowControl;
 
-	private Provider<CurrentPageManager> mockCurrentPageManagerProvider;
-
 	@Before
 	public void setUp() throws Exception {
 		eventManager = mock(EventManager.class);
-		mockCurrentPageManagerProvider = mock(Provider.class);
+		Provider<CurrentPageManager> mockCurrentPageManagerProvider = new Provider<CurrentPageManager>() {
+			@Override
+			public CurrentPageManager get() {
+				return new CurrentPageManager(null);
+			}
+		};
 		windowRepository = new WindowRepository(mockCurrentPageManagerProvider);
-		windowControl = new WindowControl(windowRepository);
+		windowControl = new WindowControl(windowRepository, eventManager);
 		reset(eventManager);
 	}
 
@@ -238,14 +242,14 @@ public class WindowControlTest {
 	}
 
 	@Test
-		public void testCloseWindowPreventedIfOnlyOtherIsLinks() throws Exception {
-			windowRepository.getDedicatedLinksWindow().getWindowLayout().setState(WindowState.SPLIT);
-			Window onlyNormalWindow = windowRepository.getActiveWindow();
-			windowControl.closeWindow(onlyNormalWindow);
-			assertThat(windowRepository.getWindows(), hasItem(onlyNormalWindow));
-			
-			verifyZeroInteractions(eventManager);
-		}
+	public void testCloseWindowPreventedIfOnlyOtherIsLinks() throws Exception {
+		windowRepository.getDedicatedLinksWindow().getWindowLayout().setState(WindowState.SPLIT);
+		Window onlyNormalWindow = windowRepository.getActiveWindow();
+		windowControl.closeWindow(onlyNormalWindow);
+		assertThat(windowRepository.getWindows(), hasItem(onlyNormalWindow));
+
+		verifyZeroInteractions(eventManager);
+	}
 
 	@Test
 	public void testCloseActiveWindow() throws Exception {
@@ -288,8 +292,7 @@ public class WindowControlTest {
 
 	@Test
 	public void testUpdateSynchronisedMenuItem() {
-		Menu menu = new MenuBuilder(RuntimeEnvironment.application);
-		new MenuInflater(RuntimeEnvironment.application).inflate(R.menu.main, menu);
+		Menu menu = createWindowsMenu();
 
 		windowControl.updateOptionsMenu(menu);
 		MenuItem synchronisedMenuItem = menu.findItem(R.id.windowSynchronise);
@@ -305,8 +308,7 @@ public class WindowControlTest {
 		Window normalWindow = windowControl.getActiveWindow();
 		windowControl.addNewWindow();
 
-		Menu menu = new MenuBuilder(RuntimeEnvironment.application);
-		new MenuInflater(RuntimeEnvironment.application).inflate(R.menu.main, menu);
+		Menu menu = createWindowsMenu();
 		windowControl.updateOptionsMenu(menu);
 
 		MenuItem synchronisedMenuItem = menu.findItem(R.id.windowSynchronise);
@@ -315,8 +317,10 @@ public class WindowControlTest {
 
 		assertThat(synchronisedMenuItem.isEnabled(), equalTo(true));
         Window linksWindow = windowRepository.getDedicatedLinksWindow();
+
         windowControl.setActiveWindow(linksWindow);
 		windowControl.updateOptionsMenu(menu);
+
 		assertThat(synchronisedMenuItem.isEnabled(), equalTo(false));
 		assertThat(moveFirstMenuItem.isEnabled(), equalTo(false));
 		assertThat(minimiseMenuItem.isEnabled(), equalTo(false));
@@ -331,9 +335,8 @@ public class WindowControlTest {
 	public void testDisableMenuItemsIfOnlyOneWindow() {
 		// the links window should not allow minimise or close to work if only 1 other window
 		windowRepository.getDedicatedLinksWindow().getWindowLayout().setState(WindowState.SPLIT);
-		
-		Menu menu = new MenuBuilder(RuntimeEnvironment.application);
-		new MenuInflater(RuntimeEnvironment.application).inflate(R.menu.main, menu);
+
+		Menu menu = createWindowsMenu();
 
 		windowControl.updateOptionsMenu(menu);
 		MenuItem minimiseMenuItem = menu.findItem(R.id.windowMinimise);
@@ -345,12 +348,22 @@ public class WindowControlTest {
 	@Test
 	public void testCannotMoveFirstWindowFirst() {
 		windowControl.addNewWindow();
-		
-		Menu menu = new MenuBuilder(RuntimeEnvironment.application);
-		new MenuInflater(RuntimeEnvironment.application).inflate(R.menu.main, menu);
+
+		Menu menu = createWindowsMenu();
 
 		windowControl.updateOptionsMenu(menu);
 		MenuItem moveFirstMenuItem = menu.findItem(R.id.windowMoveFirst);
 		assertThat(moveFirstMenuItem.isEnabled(), equalTo(false));
+	}
+
+	@NonNull
+	public Menu createWindowsMenu() {
+		Menu menu = new RoboMenu(RuntimeEnvironment.application);
+		menu.add(0, R.id.windowSynchronise, 0, "Synchronise");
+		menu.add(0, R.id.windowMoveFirst, 0, "First");
+		menu.add(0, R.id.windowMinimise, 0, "Minimise");
+		menu.add(0, R.id.windowMaximise, 0, "Maximise");
+		menu.add(0, R.id.windowClose, 0, "Close");
+		return menu;
 	}
 }

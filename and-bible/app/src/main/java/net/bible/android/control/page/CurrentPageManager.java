@@ -5,7 +5,6 @@ import android.content.Intent;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
@@ -46,7 +45,6 @@ public class CurrentPageManager {
 	public CurrentPageManager(SwordContentFacade swordContentFacade) {
 		currentBibleVerse = new CurrentBibleVerse();
 		currentBiblePage = new CurrentBiblePage(currentBibleVerse, swordContentFacade);
-		ControlFactory controlFactory = ControlFactory.getInstance();
 		BibleTraverser bibleTraverser = BibleApplication.getApplication().getControllerComponent().bibleTraverser();
 		currentBiblePage.setBibleTraverser(bibleTraverser);
 		currentCommentaryPage = new CurrentCommentaryPage(currentBibleVerse, swordContentFacade);

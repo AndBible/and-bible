@@ -6,6 +6,8 @@ import net.bible.android.control.download.DownloadControl;
 import net.bible.android.control.download.DownloadQueue;
 import net.bible.android.control.email.Emailer;
 import net.bible.android.control.email.EmailerImpl;
+import net.bible.android.control.event.ABEventBus;
+import net.bible.android.control.event.EventManager;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.service.download.RepoFactory;
@@ -42,6 +44,12 @@ public class ControllerModule {
 	@ApplicationScope
 	public ResourceProvider provideResourceProvider(AndroidResourceProvider androidResourceProvider) {
 		return androidResourceProvider;
+	}
+
+	@Provides
+	@ApplicationScope
+	public EventManager eventManagerProvider() {
+		return ABEventBus.getDefault();
 	}
 
 	@Provides
