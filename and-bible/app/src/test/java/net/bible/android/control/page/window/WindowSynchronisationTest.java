@@ -17,7 +17,6 @@ import javax.inject.Provider;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
@@ -35,7 +34,7 @@ public class WindowSynchronisationTest {
 		Provider<CurrentPageManager> mockCurrentPageManagerProvider = new Provider<CurrentPageManager>() {
 			@Override
 			public CurrentPageManager get() {
-				return mock(CurrentPageManager.class);
+				return new CurrentPageManager(null);
 			}
 		};
 		windowRepository = new WindowRepository(mockCurrentPageManagerProvider);

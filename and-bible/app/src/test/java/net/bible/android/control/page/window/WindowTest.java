@@ -16,7 +16,6 @@ import org.robolectric.annotation.Config;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 @RunWith(RobolectricGradleTestRunner.class)
 @Config(constants = BuildConfig.class)
@@ -32,7 +31,7 @@ public class WindowTest {
 
 	@Test
 	public void testGetRestoreStateJson() throws Exception {
-		CurrentPageManager mockCurrentPageManager = mock(CurrentPageManager.class);
+		CurrentPageManager mockCurrentPageManager = new CurrentPageManager(null);
 
 		// initialise Window
 		Window window = new Window(2, WindowState.MINIMISED, mockCurrentPageManager);
