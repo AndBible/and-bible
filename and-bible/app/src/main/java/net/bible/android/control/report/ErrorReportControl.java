@@ -2,8 +2,8 @@ package net.bible.android.control.report;
 
 import android.os.Build;
 
-import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
+import net.bible.android.common.resource.ResourceProvider;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.email.Emailer;
 import net.bible.service.common.CommonUtils;
@@ -16,17 +16,20 @@ import javax.inject.Inject;
 @ApplicationScope
 public class ErrorReportControl {
 	
-	private Emailer emailer;
+	private final Emailer emailer;
+
+	private final ResourceProvider resourceProvider;
 
 	@Inject
-	public ErrorReportControl(Emailer emailer) {
+	public ErrorReportControl(Emailer emailer, ResourceProvider resourceProvider) {
 		this.emailer = emailer;
+		this.resourceProvider = resourceProvider;
 	}
 
 	public void sendErrorReportEmail(Exception e) {
 		String text = createErrorText(e);
 		
-		String title = BibleApplication.getApplication().getString(R.string.report_error);
+		String title = resourceProvider.getString(R.string.report_error);
 		String subject = getSubject(e, title);
 		
 		emailer.send(title, "errors.andbible@gmail.com", subject, text);

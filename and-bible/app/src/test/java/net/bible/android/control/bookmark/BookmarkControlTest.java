@@ -1,5 +1,6 @@
 package net.bible.android.control.bookmark;
 
+import net.bible.android.TestBibleApplication;
 import net.bible.android.activity.BuildConfig;
 import net.bible.android.common.resource.AndroidResourceProvider;
 import net.bible.android.control.page.window.WindowControl;
@@ -22,7 +23,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
@@ -39,8 +40,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
-@RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class)
+@RunWith(RobolectricTestRunner.class)
+@Config(constants = BuildConfig.class, application = TestBibleApplication.class)
 public class BookmarkControlTest {
 
 	// keep changing the test verse
@@ -60,7 +61,7 @@ public class BookmarkControlTest {
 
     @Before
     public void setUp() throws Exception {
-		bookmarkControl = new BookmarkControl(new SwordContentFacade(new BookmarkFormatSupport(), new MyNoteFormatSupport()), mock(WindowControl.class), new AndroidResourceProvider());
+		bookmarkControl = new BookmarkControl(new SwordContentFacade(new BookmarkFormatSupport(), new MyNoteFormatSupport()), mock(WindowControl.class), mock(AndroidResourceProvider.class));
 		bookmarkFormatSupport = new BookmarkFormatSupport();
 	}
 

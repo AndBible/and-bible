@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import net.bible.android.TestBibleApplication;
 import net.bible.android.activity.BuildConfig;
 import net.bible.android.activity.R;
 import net.bible.android.control.event.EventManager;
@@ -22,7 +23,7 @@ import org.crosswire.jsword.versification.system.Versifications;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
 import org.robolectric.annotation.Config;
 import org.robolectric.fakes.RoboMenu;
@@ -45,9 +46,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-@RunWith(RobolectricGradleTestRunner.class)
-//@Config(constants = BuildConfig.class)
-@Config(constants = BuildConfig.class, sdk = 23, manifest = "src/main/AndroidManifest.xml")
+@RunWith(RobolectricTestRunner.class)
+@Config(constants = BuildConfig.class, application = TestBibleApplication.class)
 public class WindowControlTest {
 
 	private static final Book BOOK_KJV = Books.installed().getBook("KJV");

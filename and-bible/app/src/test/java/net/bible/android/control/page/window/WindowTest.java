@@ -1,5 +1,6 @@
 package net.bible.android.control.page.window;
 
+import net.bible.android.TestBibleApplication;
 import net.bible.android.activity.BuildConfig;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
@@ -11,14 +12,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
-@RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class)
+@RunWith(RobolectricTestRunner.class)
+@Config(constants = BuildConfig.class, application = TestBibleApplication.class)
 public class WindowTest {
 
 	@Before

@@ -1,5 +1,6 @@
 package net.bible.service.sword;
 
+import net.bible.android.TestBibleApplication;
 import net.bible.android.activity.BuildConfig;
 import net.bible.service.format.usermarks.BookmarkFormatSupport;
 import net.bible.service.format.usermarks.MyNoteFormatSupport;
@@ -12,15 +13,15 @@ import org.crosswire.jsword.passage.PassageKeyFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricGradleTestRunner;
+import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertThat;
 
-@RunWith(RobolectricGradleTestRunner.class)
-@Config(constants = BuildConfig.class)
+@RunWith(RobolectricTestRunner.class)
+@Config(constants = BuildConfig.class, application = TestBibleApplication.class)
 public class SwordContentFacadeTest {
 
 	private SwordContentFacade swordContentFacade;
