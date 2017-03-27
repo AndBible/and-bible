@@ -32,6 +32,8 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 		super.onCreate(savedInstanceState);
         setContentView(R.layout.search_index_status);
 
+		super.buildActivityComponent().inject(this);
+
 		hideButtons();
 		setMainText(getString(R.string.indexing_wait_msg));
 		

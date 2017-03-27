@@ -8,6 +8,7 @@ import net.bible.android.view.activity.bookmark.ManageLabels;
 import net.bible.android.view.activity.comparetranslations.CompareTranslations;
 import net.bible.android.view.activity.download.Download;
 import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity;
+import net.bible.android.view.activity.help.Help;
 import net.bible.android.view.activity.mynote.MyNotes;
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord;
 import net.bible.android.view.activity.navigation.ChooseDocument;
@@ -21,6 +22,7 @@ import net.bible.android.view.activity.readingplan.DailyReadingList;
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;
 import net.bible.android.view.activity.search.Search;
 import net.bible.android.view.activity.search.SearchIndex;
+import net.bible.android.view.activity.search.SearchIndexProgressStatus;
 import net.bible.android.view.activity.search.SearchResults;
 import net.bible.android.view.activity.speak.Speak;
 
@@ -67,4 +69,6 @@ public interface ActivityComponent {
 	void inject(FootnoteAndRefActivity footnoteAndRefActivity);
 	void inject(MyNotes myNotes);
 	void inject(History history);
+	void inject(Help help);
+	void inject(SearchIndexProgressStatus searchIndexProgressStatus);
 }
