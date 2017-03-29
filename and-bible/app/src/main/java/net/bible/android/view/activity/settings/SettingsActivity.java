@@ -1,5 +1,14 @@
 package net.bible.android.view.activity.settings;
 
+import android.content.Context;
+import android.os.Bundle;
+import android.preference.ListPreference;
+import android.preference.Preference;
+import android.preference.Preference.OnPreferenceChangeListener;
+import android.preference.PreferenceActivity;
+import android.util.Log;
+
+import net.bible.android.LocaleHelper;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.PageTiltScrollControl;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
@@ -11,13 +20,6 @@ import net.bible.service.device.ScreenTimeoutSettings;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
-
-import android.os.Bundle;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.Preference.OnPreferenceChangeListener;
-import android.preference.PreferenceActivity;
-import android.util.Log;
 
 /** show settings
  * 
@@ -72,12 +74,23 @@ public class SettingsActivity extends PreferenceActivity {
 			
 			addScreenTimeoutSettings();
 
-	    } catch (Exception e) {
+			// if locale is overridden then have to force title to be translated here
+			LocaleHelper.translateTitle(this);
+
+		} catch (Exception e) {
 			Log.e(TAG, "Error preparing preference screen", e);
 			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 		}
 	}
-	
+
+	/**
+	 * Override locale.  If user has selected a different ui language to the devices default language
+	 */
+	@Override
+	protected void attachBaseContext(Context newBase) {
+		super.attachBaseContext(LocaleHelper.onAttach(newBase));
+	}
+
 	private void addScreenTimeoutSettings() {
         ListPreference timeoutPref = (ListPreference)getPreferenceScreen().findPreference(ScreenTimeoutSettings.SCREEN_TIMEOUT_PREF);
         
