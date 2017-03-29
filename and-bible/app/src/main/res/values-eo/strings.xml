@@ -108,7 +108,7 @@
   <string name="windowSynchronise">Samtempigi</string>
   <string name="windowMoveFirst">Suprigi</string>
   <!--Notes screen-->
-  <string name="no_chapter_notes">Neniuj notoj ekzistaj ĉe tiu ĉi ĉapitro</string>
+  <string name="no_chapter_notes">Neniuj notoj ekzistas ĉe tiu ĉi ĉapitro</string>
   <string name="no_verse_notes">Neniuj notoj ekzistas ĉe tiu ĉi verso</string>
   <string name="previous">Antaŭa</string>
   <string name="next">Sekva</string>
@@ -137,8 +137,8 @@
   <!--Install zip file-->
   <string name="install_zip">Ŝargi dokumenton el zip-dosiero</string>
   <string name="install_zip_successfull">Modulo instalita sukcese</string>
-  <string name="extracting_zip_file">Eltirado de zip-dosiero...</string>
-  <string name="checking_zip_file">Kontrolado de dosiero...</string>
+  <string name="extracting_zip_file">Eltirado de zip-dosiero…</string>
+  <string name="checking_zip_file">Kontrolado de dosiero…</string>
   <string name="invalid_module">Dosiero ne enhavas ĝustan SWORD-modulon</string>
   <string name="module_already_installed">Dosiero enhavas modulon, kiu estas jam instalita</string>
   <!--Daily Reading Plan-->
@@ -164,7 +164,7 @@
   <!--Verse context menu-->
   <string name="notes">Piednotoj kaj referencoj</string>
   <string name="copy">Kopii</string>
-  <string name="share_verse">Kunhavigi...</string>
+  <string name="share_verse">Kunhavigi…</string>
   <string name="share_verse_subject">Biblia verso kunhavigita per And Biblio.</string>
   <string name="compare_translations">Kompari tradukojn</string>
   <!--Bookmarks-->
@@ -246,9 +246,9 @@
   <string name="save">Konservi</string>
   <string name="error">Eraro</string>
   <string name="more">Pli</string>
-  <string name="more_dotted">Pli...</string>
+  <string name="more_dotted">Pli…</string>
   <string name="retry">Reprovi</string>
-  <string name="please_wait">Bonvolu atendi...</string>
+  <string name="please_wait">Bonvolu atendi…</string>
   <string name="all">Ĉiuj</string>
   <string name="default_value">Implicita</string>
   <string name="new_item">Nova</string>
@@ -257,7 +257,7 @@
   <!--Errors-->
   <string name="report_error">Sendi raporton</string>
   <string name="error_occurred">Eraro okazis</string>
-  <string name="error_no_content">Nenia enhavo por elektita verso</string>
+  <string name="error_no_content">Neniu enhavo por elektita verso</string>
   <string name="error_page_too_large">Paĝo estas tro granda por esti ŝargita</string>
   <string name="error_key_not_in_document">Ne trovita en dokumento</string>
   <string name="empty_list">Neniuj elementoj por montri</string>
