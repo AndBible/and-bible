@@ -11,7 +11,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 
-import net.bible.android.LocaleHelper;
+import net.bible.android.view.util.locale.LocaleHelper;
 import net.bible.android.view.activity.navigation.History;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.android.view.util.UiUtils;

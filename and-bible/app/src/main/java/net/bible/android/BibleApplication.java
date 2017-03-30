@@ -9,6 +9,7 @@ import android.util.Log;
 import net.bible.android.activity.R;
 import net.bible.android.control.Initialisation;
 import net.bible.android.view.activity.base.Dialogs;
+import net.bible.android.view.util.locale.LocaleHelper;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ProgressNotificationManager;
 import net.bible.service.device.ScreenSettings;

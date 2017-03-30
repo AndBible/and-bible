@@ -8,7 +8,7 @@ import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.util.Log;
 
-import net.bible.android.LocaleHelper;
+import net.bible.android.view.util.locale.LocaleHelper;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.PageTiltScrollControl;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
