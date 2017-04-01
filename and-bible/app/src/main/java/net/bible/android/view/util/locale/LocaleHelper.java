@@ -6,11 +6,11 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.preference.PreferenceManager;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * This class is used to change your application locale.
- * @see \http://gunhansancar.com/change-language-programmatically-in-android/
+ * @see <a href="http://gunhansancar.com/change-language-programmatically-in-android/">article</a>
  */
 public class LocaleHelper {
 
