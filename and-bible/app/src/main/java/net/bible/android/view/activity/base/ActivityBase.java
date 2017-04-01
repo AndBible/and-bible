@@ -2,6 +2,7 @@ package net.bible.android.view.activity.base;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -10,6 +11,7 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 
+import net.bible.android.view.util.locale.LocaleHelper;
 import net.bible.android.view.activity.navigation.History;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.android.view.util.UiUtils;
@@ -44,7 +46,8 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 	private static final String TAG = "ActivityBase";
 	
 	/** Called when the activity is first created. */
-    @Override
+    @SuppressLint("MissingSuperCall")
+	@Override
     public void onCreate(Bundle savedInstanceState) {
     	this.onCreate(savedInstanceState, false);
     }
@@ -69,9 +72,12 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
         setFullScreen(isFullScreen());
 
 		historyTraversal.setIntegrateWithHistoryManager(integrateWithHistoryManager);
-    }
-    
-    @Override
+
+		// if locale is overridden then have to force title to be translated here
+		LocaleHelper.translateTitle(this);
+	}
+
+	@Override
 	public void startActivity(Intent intent) {
     	historyTraversal.beforeStartActivity();
     	
@@ -82,6 +88,14 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
     	historyTraversal.beforeStartActivity();
 
     	super.startActivityForResult(intent, requestCode);
+	}
+
+	/**
+	 * Override locale.  If user has selected a different ui language to the devices default language
+	 */
+	@Override
+	protected void attachBaseContext(Context newBase) {
+		super.attachBaseContext(LocaleHelper.onAttach(newBase));
 	}
 
 	/**	This will be called automatically for you on 2.0 or later

@@ -4,7 +4,7 @@
   <!--Startup & Help-->
   <string name="splash_top_text">\n\"Dieu dit : « Qu\'il y ait de la lumière! », et il y eut de la lumière.\" Genèse 1.3</string>
   <string name="help_text">Appuyer sur la touche MENU pour toute action\n\nAller au chapitre suivant ou précédent en utilisant le track-ball, le D-pad ou en balayant l\'écran avec votre doigt</string>
-  <string name="help_text_long"><b>Navigation</b>\nPour aller au chapitre suivant ou au précédent, utiliser le track-ball, le D-pad ou balayer l\'écran avec le doigt \nUn Double-Tapotement permet de basculer en mode plein écran et inversement.\n\n<b>Menu</b>\nPresser la touche MENU pour toute action.\n\nPour télécharger plus de documents, sélectionner le menu Gérer/Télécharger des documents.\n\n<b>Synthèse vocale</b>\nSélectionner le menu Écouter pour écouter le chapitre en cours.\nSélectionner encore Écouter pour arrêter la lecture.\n\n<b>Mes notes</b>\nDes notes peuvent être ajoutées au verset en cours via le menu contextuel du verset (voir plus bas). La liste des notes existantes est atteinte via le menu Mes Notes.\n\n<b>Signets</b>\nUn signet peut être ajouté au verset en cours via le menu contextuel du verset (voir plus bas). Le gestionnaire de signets est accessible via le menu Signets. Le menu contextuel des signets permet de regrouper les signets en utilisant des étiquettes.\n\n<b>Recherche</b>\nLa recherche de texte peut inclure des caractères spéciaux tels que *, ?, AND (et), OR (ou), NOT (n\'est pas) (voir \"Apache Lucene - Syntaxe Query Parser\" pour plus de détails)\n\n<b>Menu contextuel</b>\nUn Appui Long sur un verset dans le texte biblique ouvre un menu contextuel permettant des actions relatives à ce verset.\nUn Appui Long sur un document dans le sélecteur de documents affiche un menu contextuel permettant d\'obtenir les informations relatives à ce document ou de le supprimer.\nUn Appui Long sur le bouton Retour ouvre l\'Historique de consultation.</string>
+  <string name="help_text_long"><b>Navigation</b>\nPour aller au chapitre suivant ou précédent, utiliser le track-ball, le D-pad ou balayer l\'écran avec le doigt \nUn Double-Tapotement permet de basculer en mode plein écran et inversement.\n\n<b>Menu</b>\nPresser la touche MENU pour les actions suivantes.\n\nPour télécharger plus de documents, sélectionner Menu/Gérer/Télécharger des documents.\n\n<b>Synthèse vocale</b>\nSélectionner le Menu/Écouter pour écouter le chapitre en cours.\nSélectionner encore Menu/Écouter pour arrêter la lecture.\n\n<b>Mes notes</b>\nDes notes peuvent être ajoutées au verset en cours via le menu contextuel du verset (voir plus bas). La liste des notes existantes s\'obtient par Menu/Mes Notes.\n\n<b>Signets</b>\nUn signet peut être ajouté au verset en cours via le menu contextuel du verset (voir plus bas). Le gestionnaire de signets est accessible par Menu/Signets. Le menu contextuel des signets permet de regrouper les signets en utilisant des étiquettes.\n\n<b>Recherche</b>\nLa recherche de texte peut inclure des caractères spéciaux tels que *, ?, AND (et), OR (ou), NOT (n\'est pas) (voir \"Apache Lucene - Syntaxe Query Parser\" pour plus de détails)\n\n<b>Menu contextuel</b>\nUn Appui Long sur un verset dans le texte biblique ouvre le menu contextuel des actions relatives à un verset.\nUn Appui Long sur un document dans le sélecteur de documents affiche un menu contextuel permettant soit d\'obtenir les informations relatives à ce document, soit de le supprimer.\nUn Appui Long sur le bouton Retour ouvre l\'Historique de consultation.</string>
   <string name="version_text">Version %s</string>
   <string name="no_sdcard_error">Merci d\'insérer une carte SD et de redémarrer And Bible.</string>
   <!--Main menu-->
@@ -55,9 +55,9 @@
   <string name="prefs_verse_per_line_title">Un verset par ligne</string>
   <string name="prefs_verse_per_line_summary">Affiche les versets ligne par ligne</string>
   <string name="prefs_show_bookmarks_title">Afficher les signets</string>
-  <string name="prefs_show_bookmarks_summary">Applique un style différent aux versets marqués par un signet</string>
+  <string name="prefs_show_bookmarks_summary">Applique un style spécial aux versets marqués d\'un signet</string>
   <string name="prefs_default_bookmark_style_title">Style des signets</string>
-  <string name="prefs_default_bookmark_style_summary">Sélectionne le style d\'affichage général des versets marqués d\'un signet</string>
+  <string name="prefs_default_bookmark_style_summary">Sélectionne le style spécial d\'affichage des versets marqués d\'un signet</string>
   <string name="prefs_show_mynotes_title">Afficher Mes Notes</string>
   <string name="prefs_show_mynotes_summary">Ajoute une icône aux versets commentés dans Mes Notes</string>
   <string name="prefs_show_notes_title">Notes et références croisées</string>
@@ -211,7 +211,7 @@
   <string name="mynote_view_edit">Ma note</string>
   <string name="mynote_saved">Ma note a été enregistrée</string>
   <!--Backup and restore-->
-  <string name="backup">Sauvegardes</string>
+  <string name="backup">Sauvegarder</string>
   <string name="backup_success">Mes Notes et Signets ont été sauvegardés dans %s sur la carte SD</string>
   <string name="restore">Restaurer</string>
   <string name="restore_confirmation">Écraser Mes Notes et Signets?</string>
