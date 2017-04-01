@@ -41,7 +41,7 @@
   <string name="search_result_count">%d परिणाम मिला</string>
   <string name="search_showing_first">बहुत सारे खोज परिणाम, पहले के %d</string>
   <string name="search_bible_section_group_prompt">खोज सीमा</string>
-  <string name="search_all_bible">﻿﻿﻿संपूर्ण बाइबल</string>
+  <string name="search_all_bible">संपूर्ण बाइबल</string>
   <string name="search_new_testament">नया नियम</string>
   <string name="search_old_testament">पुराना नियम</string>
   <string name="search_current_book">वर्तमान पुस्तक</string>
@@ -84,7 +84,7 @@
   <string name="no_chapter_notes">कोई नोट इस अध्याय में मौजूद नहीं</string>
   <string name="no_verse_notes">कोई टिप्पणी इस छंद में मौजूद नहीं</string>
   <string name="previous">पिछला</string>
-  <string name="next">﻿﻿﻿﻿अगला</string>
+  <string name="next">अगला</string>
   <!--Strongs-->
   <string name="strongs">\"र्स्टो्न्ग\" शब्दकोश</string>
   <string name="strongs_not_installed">\"र्स्टो्न्ग\" की हिब्रू और यूनानी शब्दकोश डाउनलोड करें</string>

@@ -127,8 +127,8 @@
   <!--Install zip file-->
   <string name="install_zip">Załaduj dokument z pliku zip</string>
   <string name="install_zip_successfull">Moduł został pomyślnie zainstalowany</string>
-  <string name="extracting_zip_file">Rozpakowywanie pliku zip...</string>
-  <string name="checking_zip_file">Sprawdzanie pliku...</string>
+  <string name="extracting_zip_file">Rozpakowywanie pliku zip…</string>
+  <string name="checking_zip_file">Sprawdzanie pliku…</string>
   <string name="invalid_module">Plik nie zawiera poprawnego modułu SWORD</string>
   <string name="module_already_installed">Plik zawiera moduł, który już został zainstalowany</string>
   <!--Daily Reading Plan-->
@@ -236,9 +236,9 @@
   <string name="save">Zapisz</string>
   <string name="error">Błąd</string>
   <string name="more">Więcej</string>
-  <string name="more_dotted">Więcej...</string>
+  <string name="more_dotted">Więcej…</string>
   <string name="retry">Ponów próbę</string>
-  <string name="please_wait">Proszę czekać...</string>
+  <string name="please_wait">Proszę czekać…</string>
   <string name="all">Wszystkie</string>
   <string name="default_value">Domyślny</string>
   <string name="new_item">Nowy</string>

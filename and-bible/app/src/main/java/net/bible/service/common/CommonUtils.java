@@ -129,6 +129,9 @@ public class CommonUtils {
 	public static boolean isKitKatPlus() {
 		return Build.VERSION.SDK_INT >= 19;
 	}
+	public static boolean isNougatPlus() {
+		return Build.VERSION.SDK_INT >= 24;
+	}
 
 	public static long getSDCardMegsFree() {
 		long bytesAvailable = getFreeSpace(Environment.getExternalStorageDirectory().getPath());

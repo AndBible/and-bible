@@ -1,15 +1,16 @@
 package net.bible.android;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.res.Configuration;
 import android.util.Log;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ControllerComponent;
 import net.bible.android.control.DaggerControllerComponent;
 import net.bible.android.view.activity.base.Dialogs;
+import net.bible.android.view.util.locale.LocaleHelper;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ProgressNotificationManager;
 import net.bible.service.device.ScreenSettings;
@@ -25,7 +26,6 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.bridge.BookIndexer;
 
 import java.util.List;
-import java.util.Locale;
 
 /** Main And Bible application singleton object
  * 
@@ -35,8 +35,6 @@ import java.util.Locale;
  */
 public class BibleApplication extends Application{
 
-	private Locale overrideLocale;
-	
 	private int errorDuringStartup = 0;
 
 	private ControllerComponent controllerComponent;
@@ -83,10 +81,6 @@ public class BibleApplication extends Application{
 		// initialise link to Android progress control display in Notification bar
 		ProgressNotificationManager.getInstance().initialise();
 
-		allowLocaleOverride();
-		Locale locale = Locale.getDefault();
-		Log.i(TAG, "Locale language:"+locale.getLanguage()+" Variant:"+locale.getDisplayName());
-
 		screenTimeoutSettings.overrideScreenTimeout();
 		
 		// various initialisations required every time at app startup
@@ -97,42 +91,17 @@ public class BibleApplication extends Application{
 		return controllerComponent;
 	}
 
-	/** Allow user interface locale override by changing Settings
+	/**
+	 * Override locale.  If user has selected a different ui language to the devices default language
 	 */
-	private void allowLocaleOverride() {
-		// Has the user selected a custom locale?
-		Configuration config = getBaseContext().getResources().getConfiguration();
-		String lang = CommonUtils.getLocalePref();
-		if (!"".equals(lang) && !config.locale.getLanguage().equals(lang)) {
-			overrideLocale = new Locale(lang);
-			Locale.setDefault(overrideLocale);
-			config.locale = overrideLocale;
-			getBaseContext().getResources().updateConfiguration(config,	getBaseContext().getResources().getDisplayMetrics());
-		}
+	@Override
+	protected void attachBaseContext(Context newBase) {
+		super.attachBaseContext(LocaleHelper.onAttach(newBase));
 	}
 
 	public static BibleApplication getApplication() {
 		return singleton;
 	}
-
-	/** If locale is overridden then need to set the locale again on any configuration change; see following link 
-	 * http://stackoverflow.com/questions/2264874/android-changing-locale-within-the-app-itself
-	 */
-    @Override
-    public void onConfigurationChanged(Configuration newConfig)
-    {
-        super.onConfigurationChanged(newConfig);
-        if (overrideLocale != null)
-        {
-        	if (!overrideLocale.getLanguage().equals(newConfig.locale.getLanguage())) {
-            	Log.d(TAG, "re-applying changed Locale");
-            	Locale.setDefault(overrideLocale);
-            	Configuration config = new Configuration();
-            	config.locale = overrideLocale;
-            	getResources().updateConfiguration(config, getResources().getDisplayMetrics());            	
-        	}
-        }
-    }
 
 	private void upgradePersistentData() {
 		SharedPreferences prefs = CommonUtils.getSharedPreferences();
@@ -258,7 +227,7 @@ public class BibleApplication extends Application{
 			}
 			
 			private void showMsg(ReporterEvent ev) {
-				String msg = null;
+				String msg;
 				if (ev==null) {
 					msg = getString(R.string.error_occurred);
 				} else if (!StringUtils.isEmpty(ev.getMessage())) {

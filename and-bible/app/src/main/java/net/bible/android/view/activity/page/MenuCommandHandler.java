@@ -99,6 +99,7 @@ public class MenuCommandHandler {
 		        	break;
 				case (R.id.manageLabels):
 					handlerIntent = new Intent(callingActivity, ManageLabels.class);
+					mPrevLocalePref = CommonUtils.getLocalePref();
 					requestCode = REFRESH_DISPLAY_ON_FINISH;
 					break;
 		        case R.id.mynotesButton:
