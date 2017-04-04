@@ -196,9 +196,11 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		applyFontSize();
 
 		// scrollTo is used on kitkatplus but sometimes the later scrollTo was not working
-		if (kitKatPlus && jumpToVerse>0) {
-			html += "<script>scrollTo('" + jumpToVerse + "');</script>";
-		} else {
+// In early 2017 a WebView update prevented the kitkatplus code working
+//		if (kitKatPlus && jumpToVerse>0) {
+//			html += "<script>scrollTo('" + jumpToVerse + "');</script>";
+//		} else {
+		if (jumpToVerse>0) {
 			setJumpToVerse(jumpToVerse);
 		}
 		mJumpToYOffsetRatio = jumpToYOffsetRatio;
