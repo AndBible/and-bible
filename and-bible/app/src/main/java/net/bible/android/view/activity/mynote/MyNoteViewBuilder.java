@@ -5,7 +5,11 @@ import android.view.ViewGroup;
 
 import net.bible.android.control.ControlFactory;
 import net.bible.android.control.mynote.MyNoteControl;
+import net.bible.android.view.activity.MainBibleActivityScope;
 import net.bible.android.view.activity.base.DocumentView;
+import net.bible.android.view.activity.page.MainBibleActivity;
+
+import javax.inject.Inject;
 
 /**
  * Build a MyNote TextView for viewing or editing notes
@@ -14,6 +18,7 @@ import net.bible.android.view.activity.base.DocumentView;
  *      The copyright to this program is held by it's authors.
  * @author Martin Denham [mjdenham at gmail dot com]
  */
+@MainBibleActivityScope
 public class MyNoteViewBuilder {
 
 	private MyNoteEditTextView myNoteText;
@@ -23,8 +28,9 @@ public class MyNoteViewBuilder {
 	
 	private static final String TAG = "MyNoteViewBuilder";
 
-	public MyNoteViewBuilder(Activity mainActivity, MyNoteControl myNoteControl) {
-		this.mainActivity = mainActivity;
+	@Inject
+	public MyNoteViewBuilder(MainBibleActivity mainBibleActivity, MyNoteControl myNoteControl) {
+		this.mainActivity = mainBibleActivity;
 		
         myNoteText = new MyNoteEditTextView(this.mainActivity, myNoteControl);
 

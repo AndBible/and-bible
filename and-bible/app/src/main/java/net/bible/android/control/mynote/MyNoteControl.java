@@ -10,6 +10,7 @@ import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.db.mynote.MyNoteDBAdapter;
 import net.bible.service.db.mynote.MyNoteDto;
@@ -37,15 +38,15 @@ import javax.inject.Inject;
 @ApplicationScope
 public class MyNoteControl {
 
-	private final CurrentPageManager currentPageManager;
+	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
 	private static final String MYNOTE_SORT_ORDER = "MyNoteSortOrder";
 
 	private static final String TAG = "MyNoteControl";
 
 	@Inject
-	public MyNoteControl(CurrentPageManager currentPageManager) {
-		this.currentPageManager = currentPageManager;
+	public MyNoteControl(ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 	}
 
 	/**
@@ -59,17 +60,17 @@ public class MyNoteControl {
 			verseRange = existingMyNoteWithSameStartVerse.getVerseRange(verseRange.getVersification());
 		}
 
-		currentPageManager.showMyNote(verseRange);
+		getCurrentPageManager().showMyNote(verseRange);
 	}
 
 	public void showNoteView(MyNoteDto noteDto) {
-		currentPageManager.showMyNote(noteDto.getVerseRange());
+		getCurrentPageManager().showMyNote(noteDto.getVerseRange());
 	}
 
 	public String getMyNoteVerseKey(MyNoteDto myNote) {
 		String keyText = "";
 		try {
-			Versification versification = currentPageManager.getCurrentBible().getVersification();
+			Versification versification = getCurrentPageManager().getCurrentBible().getVersification();
 			keyText = myNote.getVerseRange(versification).getName();
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);
@@ -98,7 +99,7 @@ public class MyNoteControl {
 
 	public MyNoteDto getCurrentMyNoteDto() {
 		//
-		Key key = currentPageManager.getCurrentMyNotePage().getKey();
+		Key key = getCurrentPageManager().getCurrentMyNotePage().getKey();
 		VerseRange verseRange;
 		// The key should be a VerseRange
 		if (key instanceof VerseRange) {
@@ -290,5 +291,9 @@ public class MyNoteControl {
 		} else {
 			return CommonUtils.getResourceString(R.string.sort_by_date);
 		}
+	}
+
+	public CurrentPageManager getCurrentPageManager() {
+		return activeWindowPageManagerProvider.getActiveWindowPageManager();
 	}
 }

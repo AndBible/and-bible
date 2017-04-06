@@ -1,11 +1,9 @@
 package net.bible.android.view.activity.page.screen;
 
-import android.app.Activity;
 import android.widget.LinearLayout;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
-import net.bible.android.control.mynote.MyNoteControl;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.view.activity.MainBibleActivityScope;
@@ -28,16 +26,14 @@ public class DocumentViewManager {
 
 	private DocumentWebViewBuilder documentWebViewBuilder;
 	private MyNoteViewBuilder myNoteViewBuilder;
-	private Activity mainBibleActivity;
 	private LinearLayout parent;
 	
 	private WindowControl windowControl;
 
 	@Inject
-	public DocumentViewManager(MainBibleActivity mainBibleActivity, DocumentWebViewBuilder documentWebViewBuilder, MyNoteControl myNoteControl, WindowControl windowControl) {
-		this.mainBibleActivity = mainBibleActivity;
+	public DocumentViewManager(MainBibleActivity mainBibleActivity, DocumentWebViewBuilder documentWebViewBuilder, MyNoteViewBuilder myNoteViewBuilder, WindowControl windowControl) {
 		this.documentWebViewBuilder = documentWebViewBuilder;
-		myNoteViewBuilder = new MyNoteViewBuilder(this.mainBibleActivity, myNoteControl);
+		this.myNoteViewBuilder = myNoteViewBuilder;
 		this.parent = (LinearLayout)mainBibleActivity.findViewById(R.id.mainBibleView);
 		this.windowControl = windowControl;
 
