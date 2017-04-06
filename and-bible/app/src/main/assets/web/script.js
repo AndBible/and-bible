@@ -45,7 +45,7 @@ function getElementsByClass( searchClass, domNode, tagName) {
 	return matches;
 }
 
-function scrollTo(toId) {
+function scrollToVerse(toId) {
 	var toElement = document.getElementById(toId);
 	if (toElement != null) {
 		toPosition = toElement.offsetTop;

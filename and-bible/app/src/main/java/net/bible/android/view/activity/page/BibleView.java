@@ -70,8 +70,11 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	private int maintainMovingVerse = -1;
 
 	private boolean kitKatPlus = CommonUtils.isKitKatPlus();
-	
-	// never go to 0 because a bug in Android prevents invalidate after loadDataWithBaseURL so no scrollOrJumpToVerse will occur 
+
+	// struggling to ensure correct initial positioning of pages, giving the page a unique history url seemed to help - maybe it then is sure each page is unique so resets everything
+	private static int historyUrlUniquify = 1;
+
+	// never go to 0 because a bug in Android prevents invalidate after loadDataWithBaseURL so no scrollOrJumpToVerse will occur
 	private static final int TOP_OF_SCREEN = 1;
 
 	// remember current background colour so we know when it changes
@@ -201,7 +204,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	}
 	
 	/**
-	 * show a page from bible commentary
+	 * Show a page from bible commentary
 	 */
 	@Override
 	public void show(String html, int jumpToVerse, float jumpToYOffsetRatio) {
@@ -213,8 +216,9 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		applyFontSize();
 
 		// scrollTo is used on kitkatplus but sometimes the later scrollTo was not working
-		if (kitKatPlus && jumpToVerse>0) {
-			html += "<script>scrollTo('" + jumpToVerse + "');</script>";
+		// If verse 1 then later code will jump to top of screen because it looks better than going to verse 1
+		if (kitKatPlus && jumpToVerse>1) {
+			html = html.replace("</body>", "<script>$(window).load(function() {scrollToVerse('" + jumpToVerse + "');})</script></body>");
 		} else {
 			setJumpToVerse(jumpToVerse);
 		}
@@ -226,12 +230,12 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		// allow zooming if map
 		enableZoomForMap(ControlFactory.getInstance().getCurrentPageControl().isMapShown());
 
-		loadDataWithBaseURL("file:///android_asset/", html, "text/html", "UTF-8", "http://historyUrl");
+		loadDataWithBaseURL("file:///android_asset/", html, "text/html", "UTF-8", "http://historyUrl"+historyUrlUniquify++);
 
 		// ensure jumpToOffset is eventually called during initialisation.  It will normally be called automatically but sometimes is not i.e. after jump to verse 1 at top of screen then press back.
 		// don't set this value too low or it may trigger before a proper upcoming computeVerticalScrollEvent
 		// 100 was good for my Nexus 4 but 500 for my G1 - it would be good to get a reflection of processor speed and adjust appropriately
-		invokeJumpToOffsetIfRequired(CommonUtils.isSlowDevice() ? 500 : 250);
+		invokeJumpToOffsetIfRequired(CommonUtils.isSlowDevice() ? 500 : 350);
 	}
 
 	/**
@@ -581,7 +585,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 			// but scrollTop does not work on Android 3.0-4.0 and changing document location does not work on latest WebView  
 			if (kitKatPlus) {
 				// required format changed in 4.2 http://stackoverflow.com/questions/14771970/how-to-call-javascript-in-android-4-2
-				executeJavascript("scrollTo('" + verse + "')");
+				executeJavascript("scrollToVerse('" + verse + "')");
 			} else {
 				executeJavascript("(function() { document.location = '#" + verse+"' })()");
 			}
