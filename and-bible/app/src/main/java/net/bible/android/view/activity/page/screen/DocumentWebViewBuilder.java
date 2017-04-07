@@ -21,7 +21,6 @@ import android.widget.LinearLayout;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.Window.WindowOperation;
@@ -110,12 +109,6 @@ public class DocumentWebViewBuilder {
 		isWindowConfigurationChanged = true;
 	}
 
-	/** return true if the current page should show a NyNote
-	 */
-	public boolean isWebViewType() {
-		return !ControlFactory.getInstance().getCurrentPageControl().isMyNoteShown();
-	}
-	
 	/**
 	 * Enable switch from Bible WebView to MyNote view
 	 */

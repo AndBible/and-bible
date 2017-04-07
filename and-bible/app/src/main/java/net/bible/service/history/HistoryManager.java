@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.util.Log;
 
 import net.bible.android.control.ApplicationScope;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.page.CurrentPage;
@@ -39,7 +38,7 @@ public class HistoryManager {
 
 	private static int MAX_HISTORY = 80;
 	
-	private Map<Window, Stack<HistoryItem>> screenHistoryStackMap = new HashMap<>();
+	private final Map<Window, Stack<HistoryItem>> screenHistoryStackMap = new HashMap<>();
 
 	private boolean isGoingBack = false;
 	
@@ -82,7 +81,7 @@ public class HistoryManager {
 		
 		Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
 		if (currentActivity instanceof MainBibleActivity) {
-			CurrentPage currentPage = ControlFactory.getInstance().getCurrentPageControl().getCurrentPage();
+			CurrentPage currentPage = windowControl.getActiveWindowPageManager().getCurrentPage();
 			Book doc = currentPage.getCurrentDocument();
 			if (currentPage.getKey()==null) {
 				return null;
@@ -132,10 +131,8 @@ public class HistoryManager {
 		return allHistory;
 	}
 	
-	/** add item and check size of stack
-	 * 
-	 * @param stack
-	 * @param item
+	/**
+	 * Add item and check size of stack
 	 */
 	private synchronized void add(Stack<HistoryItem> stack, HistoryItem item) {
 		if (item!=null) {
@@ -160,7 +157,7 @@ public class HistoryManager {
 			synchronized(screenHistoryStackMap) {
 				historyStack = screenHistoryStackMap.get(window);
 				if (historyStack==null) {
-					historyStack = new Stack<HistoryItem>();
+					historyStack = new Stack<>();
 					screenHistoryStackMap.put(window, historyStack);
 				}
 			}
