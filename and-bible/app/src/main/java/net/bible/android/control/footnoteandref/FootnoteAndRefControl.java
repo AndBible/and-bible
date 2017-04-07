@@ -9,6 +9,7 @@ import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.format.Note;
 
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BookName;
 
@@ -75,5 +76,22 @@ public class FootnoteAndRefControl {
 	
 	public CurrentPageManager getCurrentPageManager() {
 		return activeWindowPageManagerProvider.getActiveWindowPageManager();
+	}
+
+	/**
+	 * Jump to the verse in the ref
+	 * If the osisRef is available then use that because sometimes the noteText itself misses out the book of the bible
+	 */
+	public void navigateTo(Note note) {
+		String ref;
+		if (StringUtils.isNotEmpty(note.getOsisRef())) {
+			ref = note.getOsisRef();
+		} else {
+			ref = note.getNoteText();
+		}
+
+		CurrentPageManager currentPageControl = activeWindowPageManagerProvider.getActiveWindowPageManager();
+		currentPageControl.getCurrentBible().setKey(ref);
+		currentPageControl.showBible();
 	}
 }

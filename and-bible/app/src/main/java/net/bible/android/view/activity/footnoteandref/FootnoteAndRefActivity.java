@@ -155,7 +155,7 @@ public class FootnoteAndRefActivity extends ListActivityBase implements SwipeGes
     private void noteSelected(Note note) {
     	Log.i(TAG, "chose:"+note);
     	if (note.isNavigable()) {
-    		note.navigateTo();
+			footnoteAndRefControl.navigateTo(note);
     	}
     	doFinish();
     }

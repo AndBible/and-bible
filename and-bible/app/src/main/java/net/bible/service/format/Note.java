@@ -1,9 +1,7 @@
 package net.bible.service.format;
 
 import net.bible.android.BibleApplication;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.ControllerComponent;
-import net.bible.android.control.page.CurrentPageManager;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Logger;
 
@@ -55,7 +53,7 @@ public class Note {
 			if (noteType.equals(NoteType.TYPE_REFERENCE)) {
 				String verse = StringUtils.isNotEmpty(osisRef) ? osisRef : noteText;
 				final ControllerComponent controllerComponent = BibleApplication.getApplication().getControllerComponent();
-				retval = controllerComponent.swordContentFacade().getPlainText(ControlFactory.getInstance().getCurrentPageControl().getCurrentBible().getCurrentDocument(), verse, 1);
+				retval = controllerComponent.swordContentFacade().getPlainText(controllerComponent.activeWindowPageManagerProvider().getActiveWindowPageManager().getCurrentBible().getCurrentDocument(), verse, 1);
 				retval = CommonUtils.limitTextLength(retval);
 			}
 		} catch (Exception e) {
@@ -68,22 +66,6 @@ public class Note {
 		return noteType.equals(NoteType.TYPE_REFERENCE);
 	}
 	
-	/** Jump to the verse in the ref 
-	 * if the osisRef is available then use that becsue sometimes the noteText itself misses out the book o fthe bible
-	 */
-	public void navigateTo() {
-		String ref;
-		if (StringUtils.isNotEmpty(osisRef)) {
-			ref = osisRef;
-		} else {
-			ref = noteText;
-		}
-
-		CurrentPageManager currentPageControl = ControlFactory.getInstance().getCurrentPageControl();
-		currentPageControl.getCurrentBible().setKey(ref);
-		currentPageControl.showBible();
-	}
-
 	@Override
 	public String toString() {
 		return noteRef+":"+noteText;
@@ -124,5 +106,9 @@ public class Note {
 			log.warn("Error getting note reference for osisRef "+osisRef, e);
 		}
 		return key;
+	}
+
+	public String getOsisRef() {
+		return osisRef;
 	}
 }

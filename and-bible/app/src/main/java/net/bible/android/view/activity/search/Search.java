@@ -13,7 +13,6 @@ import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.search.SearchControl.SearchBibleSection;
 import net.bible.android.view.activity.base.Callback;
@@ -165,7 +164,7 @@ public class Search extends CustomTitlebarActivityBase {
     }
     
     private Book getDocumentToSearch() {
-    	return ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument();
+    	return getPageControl().getCurrentPageManager().getCurrentPage().getCurrentDocument();
     }
     
     private String decorateSearchString(String searchString) {
