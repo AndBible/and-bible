@@ -5,8 +5,8 @@ import android.util.Log;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.control.versification.ConvertibleVerseRange;
 import net.bible.service.common.CommonUtils;
@@ -41,12 +41,15 @@ public class CompareTranslationsControl {
 	private SwordDocumentFacade swordDocumentFacade = SwordDocumentFacade.getInstance();
 	private final SwordContentFacade swordContentFacade;
 
+	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
+
 	private static final String TAG = "CompareTranslationsCtrl";
 
 	@Inject
-	public CompareTranslationsControl(BibleTraverser bibleTraverser, SwordContentFacade swordContentFacade) {
+	public CompareTranslationsControl(BibleTraverser bibleTraverser, SwordContentFacade swordContentFacade, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
 		this.bibleTraverser = bibleTraverser;
 		this.swordContentFacade = swordContentFacade;
+		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 	}
 
 	public String getTitle(VerseRange verseRange) {
@@ -115,6 +118,6 @@ public class CompareTranslationsControl {
 	}
 
 	public CurrentPageManager getCurrentPageManager() {
-		return ControlFactory.getInstance().getCurrentPageControl();
+		return activeWindowPageManagerProvider.getActiveWindowPageManager();
 	}
 }

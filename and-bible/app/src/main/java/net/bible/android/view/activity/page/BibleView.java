@@ -15,7 +15,6 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import net.bible.android.SharedConstants;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent;
@@ -228,7 +227,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		html = enableSelection(html);
 
 		// allow zooming if map
-		enableZoomForMap(ControlFactory.getInstance().getCurrentPageControl().isMapShown());
+		enableZoomForMap(pageControl.getCurrentPageManager().isMapShown());
 
 		loadDataWithBaseURL("file:///android_asset/", html, "text/html", "UTF-8", "http://historyUrl"+historyUrlUniquify++);
 

@@ -16,7 +16,6 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActionModeHelper;
@@ -216,7 +215,7 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
     	Log.d(TAG, "Bookmark selected:"+bookmark.getVerseRange());
     	try {
         	if (bookmark!=null) {
-        		ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().setKey(bookmark.getVerseRange());
+				getPageControl().getCurrentPageManager().getCurrentPage().setKey(bookmark.getVerseRange());
         		doFinish();
         	}
     	} catch (Exception e) {
