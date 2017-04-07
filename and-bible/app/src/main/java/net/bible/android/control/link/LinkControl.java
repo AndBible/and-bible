@@ -7,7 +7,6 @@ import android.util.Log;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.control.search.SearchControl;
@@ -286,6 +285,6 @@ public class LinkControl {
 	}
 
 	private CurrentPageManager getCurrentPageManager() {
-		return ControlFactory.getInstance().getCurrentPageControl();
+		return windowControl.getActiveWindowPageManager();
 	}
 }
