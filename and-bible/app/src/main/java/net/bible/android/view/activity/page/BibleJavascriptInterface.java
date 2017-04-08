@@ -17,7 +17,7 @@ public class BibleJavascriptInterface {
 
 	private boolean notificationsEnabled = false;
 	
-	private VerseCalculator verseCalculator = new VerseCalculator();
+	private VerseCalculator verseCalculator;
 
 	private final VerseActionModeMediator verseActionModeMediator;
 	
@@ -25,9 +25,10 @@ public class BibleJavascriptInterface {
 	
 	private static final String TAG = "BibleJavascriptIntrfc";
 
-	public BibleJavascriptInterface(VerseActionModeMediator verseActionModeMediator, WindowControl windowControl) {
+	public BibleJavascriptInterface(VerseActionModeMediator verseActionModeMediator, WindowControl windowControl, VerseCalculator verseCalculator) {
 		this.verseActionModeMediator = verseActionModeMediator;
 		this.windowControl = windowControl;
+		this.verseCalculator = verseCalculator;
 	}
 
 	@JavascriptInterface
