@@ -7,8 +7,8 @@ import android.content.SharedPreferences.Editor;
 import android.util.Log;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControllerComponent;
-import net.bible.android.control.DaggerControllerComponent;
+import net.bible.android.control.ApplicationComponent;
+import net.bible.android.control.DaggerApplicationComponent;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.util.locale.LocaleHelper;
 import net.bible.service.common.CommonUtils;
@@ -37,7 +37,7 @@ public class BibleApplication extends Application{
 
 	private int errorDuringStartup = 0;
 
-	private ControllerComponent controllerComponent;
+	private ApplicationComponent applicationComponent;
 	
 	private static final String TEXT_SIZE_PREF = "text_size_pref";
 	
@@ -70,9 +70,9 @@ public class BibleApplication extends Application{
 		SwordDocumentFacade.initialiseJSwordFolders();
 
 		// Initialize the Dagger injector ApplicationScope objects
-		controllerComponent = DaggerControllerComponent.builder().build();
+		applicationComponent = DaggerApplicationComponent.builder().build();
 
-		// ideally this would be installed before initialiseJSwordFolders but the listener depends on controllerComponent
+		// ideally this would be installed before initialiseJSwordFolders but the listener depends on applicationComponent
 		installJSwordErrorReportListener();
 
 		// some changes may be required for different versions
@@ -84,11 +84,11 @@ public class BibleApplication extends Application{
 		screenTimeoutSettings.overrideScreenTimeout();
 		
 		// various initialisations required every time at app startup
-		getControllerComponent().initialisation().initialiseEventually();
+		getApplicationComponent().initialisation().initialiseEventually();
 	}
 
-	public ControllerComponent getControllerComponent() {
-		return controllerComponent;
+	public ApplicationComponent getApplicationComponent() {
+		return applicationComponent;
 	}
 
 	/**

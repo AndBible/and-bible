@@ -1,7 +1,7 @@
 package net.bible.service.format;
 
 import net.bible.android.BibleApplication;
-import net.bible.android.control.ControllerComponent;
+import net.bible.android.control.ApplicationComponent;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Logger;
 
@@ -52,8 +52,8 @@ public class Note {
 		try {
 			if (noteType.equals(NoteType.TYPE_REFERENCE)) {
 				String verse = StringUtils.isNotEmpty(osisRef) ? osisRef : noteText;
-				final ControllerComponent controllerComponent = BibleApplication.getApplication().getControllerComponent();
-				retval = controllerComponent.swordContentFacade().getPlainText(controllerComponent.activeWindowPageManagerProvider().getActiveWindowPageManager().getCurrentBible().getCurrentDocument(), verse, 1);
+				final ApplicationComponent applicationComponent = BibleApplication.getApplication().getApplicationComponent();
+				retval = applicationComponent.swordContentFacade().getPlainText(applicationComponent.activeWindowPageManagerProvider().getActiveWindowPageManager().getCurrentBible().getCurrentDocument(), verse, 1);
 				retval = CommonUtils.limitTextLength(retval);
 			}
 		} catch (Exception e) {

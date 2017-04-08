@@ -88,7 +88,7 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 
 	protected ActivityComponent buildActivityComponent() {
 		return DaggerActivityComponent.builder()
-				.controllerComponent(BibleApplication.getApplication().getControllerComponent())
+				.applicationComponent(BibleApplication.getApplication().getApplicationComponent())
 				.build();
 	}
 

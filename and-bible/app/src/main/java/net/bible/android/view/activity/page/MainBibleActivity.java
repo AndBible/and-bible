@@ -89,7 +89,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		setContentView(R.layout.main_bible_view);
 
 		DaggerMainBibleActivityComponent.builder()
-				.controllerComponent(BibleApplication.getApplication().getControllerComponent())
+				.applicationComponent(BibleApplication.getApplication().getApplicationComponent())
 				.mainBibleActivityModule(new MainBibleActivityModule(this))
 				.build()
 				.inject(this);

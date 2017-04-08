@@ -26,7 +26,7 @@ import dagger.Provides;
  * The copyright to this program is held by it's author.
  */
 @Module
-public class ControllerModule {
+public class ApplicationModule {
 
 	@Provides
 	@ApplicationScope

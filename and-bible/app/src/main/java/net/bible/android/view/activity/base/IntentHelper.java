@@ -32,7 +32,7 @@ public class IntentHelper {
 
 	public VerseRange getIntentVerseRangeOrDefault(Intent intent) {
 		//fetch verse from intent if set
-		CurrentBiblePage currentDoc = BibleApplication.getApplication().getControllerComponent().activeWindowPageManagerProvider().getActiveWindowPageManager().getCurrentBible();
+		CurrentBiblePage currentDoc = BibleApplication.getApplication().getApplicationComponent().activeWindowPageManagerProvider().getActiveWindowPageManager().getCurrentBible();
 		Versification currentV11n = currentDoc.getCurrentPassageBook().getVersification();
 
 		try {

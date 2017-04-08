@@ -46,8 +46,8 @@ import dagger.Component;
  * The copyright to this program is held by it's author.
  */
 @ApplicationScope
-@Component(modules=ControllerModule.class)
-public interface ControllerComponent {
+@Component(modules=ApplicationModule.class)
+public interface ApplicationComponent {
 
 	//Exposed to sub-graphs.
 	Initialisation initialisation();

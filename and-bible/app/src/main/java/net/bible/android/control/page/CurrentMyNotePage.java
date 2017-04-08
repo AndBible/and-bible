@@ -45,7 +45,7 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 
 	@Override
 	public String getCurrentPageContent() throws ParseException {
-        return BibleApplication.getApplication().getControllerComponent().myNoteControl().getMyNoteTextByKey(getKey());
+        return BibleApplication.getApplication().getApplicationComponent().myNoteControl().getMyNoteTextByKey(getKey());
 	}
 	
 	@Override

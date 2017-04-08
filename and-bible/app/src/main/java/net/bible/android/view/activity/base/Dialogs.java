@@ -41,7 +41,7 @@ public class Dialogs {
 	
 	private Dialogs() {
 		super();
-		errorReportControl = BibleApplication.getApplication().getControllerComponent().errorReportControl();
+		errorReportControl = BibleApplication.getApplication().getApplicationComponent().errorReportControl();
 	}
 
     public void showMsg(int msgId, String param) {

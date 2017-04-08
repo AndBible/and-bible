@@ -45,7 +45,7 @@ public class CurrentPageManager {
 	public CurrentPageManager(SwordContentFacade swordContentFacade) {
 		currentBibleVerse = new CurrentBibleVerse();
 		currentBiblePage = new CurrentBiblePage(currentBibleVerse, swordContentFacade);
-		BibleTraverser bibleTraverser = BibleApplication.getApplication().getControllerComponent().bibleTraverser();
+		BibleTraverser bibleTraverser = BibleApplication.getApplication().getApplicationComponent().bibleTraverser();
 		currentBiblePage.setBibleTraverser(bibleTraverser);
 		currentCommentaryPage = new CurrentCommentaryPage(currentBibleVerse, swordContentFacade);
 		currentCommentaryPage.setBibleTraverser(bibleTraverser);

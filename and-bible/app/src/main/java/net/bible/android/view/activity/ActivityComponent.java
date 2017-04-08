@@ -1,6 +1,6 @@
 package net.bible.android.view.activity;
 
-import net.bible.android.control.ControllerComponent;
+import net.bible.android.control.ApplicationComponent;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.bookmark.BookmarkLabels;
 import net.bible.android.view.activity.bookmark.Bookmarks;
@@ -36,7 +36,7 @@ import dagger.Component;
  * The copyright to this program is held by it's author.
  */
 @ActivityScope
-@Component(dependencies = {ControllerComponent.class} )
+@Component(dependencies = {ApplicationComponent.class} )
 public interface ActivityComponent {
 	// Activities that are permitted to be injected
 
