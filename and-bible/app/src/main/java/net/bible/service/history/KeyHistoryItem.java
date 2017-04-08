@@ -2,7 +2,6 @@ package net.bible.service.history;
 
 import android.util.Log;
 
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.page.window.Window;
 import net.bible.service.common.CommonUtils;
 
@@ -35,10 +34,9 @@ public class KeyHistoryItem extends HistoryItemBase {
 	 */
 	@Override
 	public void revertTo() {
-		ControlFactory.getInstance().getCurrentPageControl().setCurrentDocumentAndKeyAndOffset(document, key, yOffsetRatio);
+		getScreen().getPageManager().setCurrentDocumentAndKeyAndOffset(document, key, yOffsetRatio);
 	}
 
-	
 	@Override
 	public String getDescription() {
 		StringBuilder desc = new StringBuilder();

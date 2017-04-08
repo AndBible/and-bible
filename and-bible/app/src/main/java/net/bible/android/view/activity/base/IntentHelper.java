@@ -4,7 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-import net.bible.android.control.ControlFactory;
+import net.bible.android.BibleApplication;
 import net.bible.android.control.page.CurrentBiblePage;
 
 import org.crosswire.jsword.passage.Verse;
@@ -32,7 +32,7 @@ public class IntentHelper {
 
 	public VerseRange getIntentVerseRangeOrDefault(Intent intent) {
 		//fetch verse from intent if set
-		CurrentBiblePage currentDoc = ControlFactory.getInstance().getCurrentPageControl().getCurrentBible();
+		CurrentBiblePage currentDoc = BibleApplication.getApplication().getControllerComponent().activeWindowPageManagerProvider().getActiveWindowPageManager().getCurrentBible();
 		Versification currentV11n = currentDoc.getCurrentPassageBook().getVersification();
 
 		try {

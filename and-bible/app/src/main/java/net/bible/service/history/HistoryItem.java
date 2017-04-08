@@ -11,11 +11,11 @@ import net.bible.android.control.page.window.Window;
  */
 public interface HistoryItem {
 
-	public CharSequence getDescription();
+	CharSequence getDescription();
 	
-	public Window getScreen();
+	Window getScreen();
 	
 	// do back to the state at this point
-	public abstract void revertTo();
+	void revertTo();
 
 }
