@@ -9,8 +9,8 @@ import net.bible.android.activity.R;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.DocumentSelectionBase;
+import net.bible.android.view.activity.base.IntentHelper;
 import net.bible.android.view.activity.download.Download;
-import net.bible.android.view.activity.page.MenuCommandHandler;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.common.util.Language;
@@ -115,7 +115,7 @@ public class ChooseDocument extends DocumentSelectionBase {
 	    	try {
 	    		if (downloadControl.checkDownloadOkay()) {
 	        		Intent handlerIntent = new Intent(this, Download.class);
-	        		int requestCode = MenuCommandHandler.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH;
+	        		int requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH;
 	        		startActivityForResult(handlerIntent, requestCode);
 	        		
 	        		// do not return here after download

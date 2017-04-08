@@ -9,13 +9,14 @@ import android.view.MenuItem;
 
 import net.bible.android.activity.R;
 import net.bible.android.activity.StartupActivity;
-import net.bible.android.control.ControlFactory;
 import net.bible.android.control.backup.BackupControl;
 import net.bible.android.control.download.DownloadControl;
+import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.control.readingplan.ReadingPlanControl;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.view.activity.MainBibleActivityScope;
 import net.bible.android.view.activity.base.ActivityBase;
+import net.bible.android.view.activity.base.IntentHelper;
 import net.bible.android.view.activity.bookmark.Bookmarks;
 import net.bible.android.view.activity.bookmark.ManageLabels;
 import net.bible.android.view.activity.download.Download;
@@ -52,22 +53,21 @@ public class MenuCommandHandler {
 	private final SearchControl searchControl;
 
 	private final WindowMenuCommandHandler windowMenuCommandHandler;
-	
-	// request codes passed to and returned from sub-activities
-	public static final int REFRESH_DISPLAY_ON_FINISH = 2;
-	public static final int UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH = 3;
+
+	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
 	private String mPrevLocalePref = "";
 
 	private static final String TAG = "MainMenuCommandHandler";
 
 	@Inject
-	public MenuCommandHandler(MainBibleActivity activity, ReadingPlanControl readingPlanControl, SearchControl searchControl, WindowMenuCommandHandler windowMenuCommandHandler) {
+	public MenuCommandHandler(MainBibleActivity activity, ReadingPlanControl readingPlanControl, SearchControl searchControl, WindowMenuCommandHandler windowMenuCommandHandler, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
 		super();
 		this.callingActivity = activity;
 		this.readingPlanControl = readingPlanControl;
 		this.searchControl = searchControl;
 		this.windowMenuCommandHandler = windowMenuCommandHandler;
+		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 	}
 	
 	/**
@@ -83,13 +83,13 @@ public class MenuCommandHandler {
 	        // Handle item selection
 	        switch (menuItem.getItemId()) {
 		        case R.id.searchButton:
-		        	handlerIntent = searchControl.getSearchIntent(ControlFactory.getInstance().getCurrentPageControl().getCurrentPage().getCurrentDocument());
+		        	handlerIntent = searchControl.getSearchIntent(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().getCurrentDocument());
 		        	break;
 		        case R.id.settingsButton:
 		        	handlerIntent = new Intent(callingActivity, SettingsActivity.class);
 		        	// force the bible view to be refreshed after returning from settings screen because notes, verses, etc. may be switched on or off
 		        	mPrevLocalePref = CommonUtils.getLocalePref();
-		        	requestCode = REFRESH_DISPLAY_ON_FINISH;
+		        	requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH;
 		        	break;
 		        case R.id.historyButton:
 		        	handlerIntent = new Intent(callingActivity, History.class);
@@ -100,7 +100,7 @@ public class MenuCommandHandler {
 				case (R.id.manageLabels):
 					handlerIntent = new Intent(callingActivity, ManageLabels.class);
 					mPrevLocalePref = CommonUtils.getLocalePref();
-					requestCode = REFRESH_DISPLAY_ON_FINISH;
+					requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH;
 					break;
 		        case R.id.mynotesButton:
 		        	handlerIntent = new Intent(callingActivity, MyNotes.class);
@@ -119,7 +119,7 @@ public class MenuCommandHandler {
 		        case R.id.downloadButton:
 		        	if (downloadControl.checkDownloadOkay()) {
 		        		handlerIntent = new Intent(callingActivity, Download.class);
-		        		requestCode = UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH;
+		        		requestCode = IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH;
 		        	}
 		        	break;
 		        case R.id.installZipButton:
@@ -153,7 +153,7 @@ public class MenuCommandHandler {
     }
     
     public boolean restartIfRequiredOnReturn(int requestCode) {
-    	if (requestCode == MenuCommandHandler.REFRESH_DISPLAY_ON_FINISH) {
+    	if (requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH) {
     		Log.i(TAG, "Refresh on finish");
     		if (!CommonUtils.getLocalePref().equals(mPrevLocalePref)) {
     			// must restart to change locale
@@ -178,11 +178,11 @@ public class MenuCommandHandler {
     }
 
     public boolean isDisplayRefreshRequired(int requestCode) { 
-    	return requestCode == MenuCommandHandler.REFRESH_DISPLAY_ON_FINISH;
+    	return requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH;
 	}
     
     public boolean isDocumentChanged(int requestCode) { 
-    	return requestCode == MenuCommandHandler.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH;
+    	return requestCode == IntentHelper.UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH;
     }
 
 	@Inject
