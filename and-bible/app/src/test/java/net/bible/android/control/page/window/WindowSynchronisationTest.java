@@ -2,7 +2,6 @@ package net.bible.android.control.page.window;
 
 import net.bible.android.TestBibleApplication;
 import net.bible.android.activity.BuildConfig;
-import net.bible.android.control.TestControlFactory;
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.page.CurrentPageManager;
@@ -40,10 +39,6 @@ public class WindowSynchronisationTest {
 		};
 		windowRepository = new WindowRepository(mockCurrentPageManagerProvider);
 		windowControl = new WindowControl(windowRepository, eventManager);
-		
-		TestControlFactory testControlFactory = new TestControlFactory();
-		//TODO removed during Dagger migration
-		// testControlFactory.setWindowControl(windowControl);
 	}
 
 	@Test

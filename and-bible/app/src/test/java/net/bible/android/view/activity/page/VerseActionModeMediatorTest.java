@@ -6,8 +6,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import net.bible.android.activity.R;
-import net.bible.android.control.ControlFactory;
-import net.bible.android.control.MockitoTestControlFactory;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
@@ -66,8 +64,6 @@ public class VerseActionModeMediatorTest {
 
 	@Before
 	public void setup() {
-		ControlFactory.setInstance(new MockitoTestControlFactory());
-
 		when(pageControl.getCurrentBibleVerse()).thenReturn(TestData.DEFAULT_VERSE);
 
 		when(actionMode.getMenuInflater()).thenReturn(mock(MenuInflater.class));
