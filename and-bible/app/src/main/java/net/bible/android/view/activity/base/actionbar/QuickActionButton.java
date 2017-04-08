@@ -6,12 +6,13 @@ import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View.OnClickListener;
 
-import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.speak.SpeakControl;
 import net.bible.service.common.CommonUtils;
 
 import java.lang.ref.WeakReference;
+
+import javax.inject.Inject;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -38,9 +39,6 @@ abstract public class QuickActionButton implements OnMenuItemClickListener {
 
 	public QuickActionButton(int showAsActionFlags) {
 		this.showAsActionFlags = showAsActionFlags;
-
-		//TODO inject all buttons and inject speakControl
-		speakControl = BibleApplication.getApplication().getControllerComponent().speakControl();
 	}
 
 	public void addToMenu(Menu menu) {
@@ -100,5 +98,10 @@ abstract public class QuickActionButton implements OnMenuItemClickListener {
 	
 	protected boolean isSpeakMode() {
 		return speakControl.isSpeaking() || speakControl.isPaused();
+	}
+
+	@Inject
+	void setSpeakControl(SpeakControl speakControl) {
+		this.speakControl = speakControl;
 	}
 }
