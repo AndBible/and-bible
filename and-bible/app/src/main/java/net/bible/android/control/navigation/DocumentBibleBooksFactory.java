@@ -3,6 +3,7 @@ package net.bible.android.control.navigation;
 import android.support.v4.util.LruCache;
 
 import net.bible.android.control.ApplicationScope;
+import net.bible.service.common.Logger;
 
 import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.BooksEvent;
@@ -25,7 +26,9 @@ import javax.inject.Inject;
 public class DocumentBibleBooksFactory {
 	
 	private LruCache<AbstractPassageBook, DocumentBibleBooks> cache; 
-	
+
+	private Logger log = new Logger(this.getClass().getName());
+
 	private static final int CACHE_SIZE = 10;
 
 	@Inject
@@ -45,6 +48,8 @@ public class DocumentBibleBooksFactory {
 	}
 	
 	public void initialise() {
+		log.debug("Initialising DocumentBibleBooksFactory cache");
+
 		// this used to cause errors on restart e.g. after changing language, due to attempt to init sword before settings so call it some time after initialisation
 		// hopefully now sorted by delayed initialisation
 		flushCacheIfBooksChange();
@@ -56,6 +61,10 @@ public class DocumentBibleBooksFactory {
 
 	public List<BibleBook> getBooksFor(AbstractPassageBook document) {
 		return getDocumentBibleBooksFor(document).getBookList();
+	}
+
+	public int size() {
+		return cache.size();
 	}
 
 	/**

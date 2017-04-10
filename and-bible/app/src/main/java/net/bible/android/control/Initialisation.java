@@ -1,6 +1,5 @@
 package net.bible.android.control;
 
-import net.bible.android.control.navigation.DocumentBibleBooksFactory;
 import net.bible.service.sword.SwordDocumentFacade;
 
 import java.util.Timer;
@@ -14,15 +13,12 @@ import javax.inject.Inject;
 @ApplicationScope
 public class Initialisation {
 
-	private final DocumentBibleBooksFactory documentBibleBooksFactory;
-
 	private boolean isInitialised = false;
 	
 	private static final long INITIALISE_DELAY = 3000;
 	
 	@Inject
-	public Initialisation(DocumentBibleBooksFactory documentBibleBooksFactory) {
-		this.documentBibleBooksFactory = documentBibleBooksFactory;
+	public Initialisation() {
 	}
 
 	/**
@@ -47,11 +43,6 @@ public class Initialisation {
 	        // force Sword to initialise itself
 	        SwordDocumentFacade.getInstance().getBibles();
 
-	        // Now initialise other system features
-
-	        // needs to register a listener
-	        documentBibleBooksFactory.initialise();
-	        
 	        isInitialised = true;
 		}
 	}
