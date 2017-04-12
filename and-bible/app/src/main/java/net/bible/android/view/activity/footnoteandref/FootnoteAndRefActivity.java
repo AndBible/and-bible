@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.footnoteandref.FootnoteAndRefControl;
+import net.bible.android.control.footnoteandref.NoteDetailCreator;
 import net.bible.android.view.activity.base.IntentHelper;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.android.view.util.swipe.SwipeGestureEventHandler;
@@ -54,6 +55,8 @@ public class FootnoteAndRefActivity extends ListActivityBase implements SwipeGes
 
 	private FootnoteAndRefControl footnoteAndRefControl;
 
+	private NoteDetailCreator noteDetailCreator;
+
 	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
 
 	/** Called when the activity is first created. */
@@ -84,7 +87,7 @@ public class FootnoteAndRefActivity extends ListActivityBase implements SwipeGes
     	populateVerseNotesList();
     	prepareWarningMsg();
     	
-    	mNotesListAdapter = new ItemAdapter(this, LIST_ITEM_TYPE, mVerseNotesList);
+    	mNotesListAdapter = new ItemAdapter(this, LIST_ITEM_TYPE, mVerseNotesList, noteDetailCreator);
         setListAdapter(mNotesListAdapter);
     }
 
@@ -179,5 +182,10 @@ public class FootnoteAndRefActivity extends ListActivityBase implements SwipeGes
 	@Inject
 	void setFootnoteAndRefControl(FootnoteAndRefControl footnoteAndRefControl) {
 		this.footnoteAndRefControl = footnoteAndRefControl;
+	}
+
+	@Inject
+	void setNoteDetailCreator(NoteDetailCreator noteDetailCreator) {
+		this.noteDetailCreator = noteDetailCreator;
 	}
 }

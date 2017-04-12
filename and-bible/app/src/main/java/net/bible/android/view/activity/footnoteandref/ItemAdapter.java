@@ -1,8 +1,5 @@
 package net.bible.android.view.activity.footnoteandref;
 
-import java.util.List;
-
-import net.bible.service.format.Note;
 import android.content.Context;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -10,6 +7,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TwoLineListItem;
+
+import net.bible.android.control.footnoteandref.NoteDetailCreator;
+import net.bible.service.format.Note;
+
+import java.util.List;
 
 /**
  * nice example here: http://shri.blog.kraya.co.uk/2010/04/19/android-multi-line-select-list/
@@ -21,10 +23,12 @@ import android.widget.TwoLineListItem;
 public class ItemAdapter extends ArrayAdapter<Note> {
 
 	private int resource;
+	private final NoteDetailCreator noteDetailCreator;
 
-	public ItemAdapter(Context _context, int _resource, List<Note> _items) {
+	public ItemAdapter(Context _context, int _resource, List<Note> _items, NoteDetailCreator noteDetailCreator) {
 		super(_context, _resource, _items);
 		resource = _resource;
+		this.noteDetailCreator = noteDetailCreator;
 	}
 
 	@Override
@@ -49,7 +53,7 @@ public class ItemAdapter extends ArrayAdapter<Note> {
 
 		// set value for the second text field
 		if (view.getText2() != null) {
-			String detail = item.getDetail();
+			String detail = noteDetailCreator.getDetail(item);
 			view.getText2().setText(Html.fromHtml(detail));
 		}
 

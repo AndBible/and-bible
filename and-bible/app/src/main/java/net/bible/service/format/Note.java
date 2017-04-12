@@ -1,8 +1,5 @@
 package net.bible.service.format;
 
-import net.bible.android.BibleApplication;
-import net.bible.android.control.ApplicationComponent;
-import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Logger;
 
 import org.apache.commons.lang3.StringUtils;
@@ -47,21 +44,6 @@ public class Note {
 		return "Ref "+getNoteRef()+": "+getNoteText();
 	}
 
-	public String getDetail() {
-		String retval = "";
-		try {
-			if (noteType.equals(NoteType.TYPE_REFERENCE)) {
-				String verse = StringUtils.isNotEmpty(osisRef) ? osisRef : noteText;
-				final ApplicationComponent applicationComponent = BibleApplication.getApplication().getApplicationComponent();
-				retval = applicationComponent.swordContentFacade().getPlainText(applicationComponent.activeWindowPageManagerProvider().getActiveWindowPageManager().getCurrentBible().getCurrentDocument(), verse, 1);
-				retval = CommonUtils.limitTextLength(retval);
-			}
-		} catch (Exception e) {
-			log.error("Error getting note detail for osisRef "+osisRef, e);
-		}
-		return retval;
-	}
-	
 	public boolean isNavigable() {
 		return noteType.equals(NoteType.TYPE_REFERENCE);
 	}
@@ -110,5 +92,9 @@ public class Note {
 
 	public String getOsisRef() {
 		return osisRef;
+	}
+
+	public NoteType getNoteType() {
+		return noteType;
 	}
 }

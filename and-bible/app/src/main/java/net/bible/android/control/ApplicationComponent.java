@@ -6,6 +6,7 @@ import net.bible.android.control.comparetranslations.CompareTranslationsControl;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.control.footnoteandref.FootnoteAndRefControl;
+import net.bible.android.control.footnoteandref.NoteDetailCreator;
 import net.bible.android.control.link.LinkControl;
 import net.bible.android.control.mynote.MyNoteControl;
 import net.bible.android.control.navigation.DocumentBibleBooksFactory;
@@ -69,6 +70,7 @@ public interface ApplicationComponent {
 	BackupControl backupControl();
 	BookmarkControl bookmarkControl();
 	MyNoteControl myNoteControl();
+	NoteDetailCreator noteDetailCreator();
 	DownloadControl downloadControl();
 	PageControl pageControl();
 	ReadingPlanControl readingPlanControl();
