@@ -31,7 +31,9 @@ public class DownloadStatus extends ProgressActivityBase {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "Displaying "+TAG+" view");
         setContentView(R.layout.download_status);
-        
+
+		super.buildActivityComponent().inject(this);
+
 		mOkayButton = (Button)findViewById(R.id.okButton);
         enableOkay();
 

@@ -7,6 +7,8 @@ import net.bible.android.view.activity.bookmark.Bookmarks;
 import net.bible.android.view.activity.bookmark.ManageLabels;
 import net.bible.android.view.activity.comparetranslations.CompareTranslations;
 import net.bible.android.view.activity.download.Download;
+import net.bible.android.view.activity.download.DownloadStatus;
+import net.bible.android.view.activity.download.ProgressStatus;
 import net.bible.android.view.activity.footnoteandref.FootnoteAndRefActivity;
 import net.bible.android.view.activity.help.Help;
 import net.bible.android.view.activity.mynote.MyNotes;
@@ -70,5 +72,9 @@ public interface ActivityComponent {
 	void inject(MyNotes myNotes);
 	void inject(History history);
 	void inject(Help help);
+
+	// progress status screens
 	void inject(SearchIndexProgressStatus searchIndexProgressStatus);
+	void inject(DownloadStatus downloadStatus);
+	void inject(ProgressStatus progressStatus);
 }
