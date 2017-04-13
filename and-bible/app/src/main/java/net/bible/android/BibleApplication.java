@@ -16,6 +16,7 @@ import net.bible.service.device.ProgressNotificationManager;
 import net.bible.service.device.ScreenSettings;
 import net.bible.service.device.ScreenTimeoutSettings;
 import net.bible.service.sword.SwordDocumentFacade;
+import net.bible.service.sword.SwordEnvironmentInitialisation;
 
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.common.util.Language;
@@ -67,7 +68,7 @@ public class BibleApplication extends Application{
         Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
         
 		// This must be done before accessing JSword to prevent default folders being used
-		SwordDocumentFacade.initialiseJSwordFolders();
+		SwordEnvironmentInitialisation.initialiseJSwordFolders();
 
 		// Initialize the Dagger injector ApplicationScope objects
 		applicationComponent = DaggerApplicationComponent.builder().build();

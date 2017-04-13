@@ -36,6 +36,7 @@ import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBar
 import net.bible.service.history.HistoryManager;
 import net.bible.service.history.HistoryTraversalFactory;
 import net.bible.service.sword.SwordContentFacade;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import dagger.Component;
 
@@ -54,6 +55,7 @@ public interface ApplicationComponent {
 	Initialisation initialisation();
 	ErrorReportControl errorReportControl();
 
+	SwordDocumentFacade swordDocumentFacade();
 	SwordContentFacade swordContentFacade();
 	BibleTraverser bibleTraverser();
 	NavigationControl navigationControl();

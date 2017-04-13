@@ -1,5 +1,7 @@
 package net.bible.android.control.versification;
 
+import android.util.Log;
+
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.BooksEvent;
@@ -8,8 +10,6 @@ import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.VersificationsMapper;
 
-import android.util.Log;
-
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
@@ -17,7 +17,7 @@ import android.util.Log;
  */
 public class VersificationMappingInitializer {
 	
-	private static final String TAG = "VersificationMappingInitializer";
+	private static final String TAG = "VersificatnMappingInit";
 	
 	public void startListening() {
 		Books.installed().addBooksListener(new BooksListener() {
@@ -32,7 +32,6 @@ public class VersificationMappingInitializer {
 			public void bookRemoved(BooksEvent ev) {
 				//NOOP
 			}
-			
 		});
 	}
 	
@@ -51,7 +50,4 @@ public class VersificationMappingInitializer {
 			}).start();
 		}
 	}
-
-
-
 }

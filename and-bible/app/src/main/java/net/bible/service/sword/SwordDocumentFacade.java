@@ -1,7 +1,6 @@
 package net.bible.service.sword;
 
-import net.bible.android.SharedConstants;
-import net.bible.android.control.versification.VersificationMappingInitializer;
+import net.bible.android.BibleApplication;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Logger;
 import net.bible.service.download.DownloadManager;
@@ -9,9 +8,7 @@ import net.bible.service.download.RepoBookDeduplicator;
 import net.bible.service.download.RepoFactory;
 import net.bible.service.sword.index.IndexCreator;
 
-import org.crosswire.common.util.CWProject;
 import org.crosswire.common.util.Version;
-import org.crosswire.common.util.WebResource;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.BookException;
@@ -23,16 +20,15 @@ import org.crosswire.jsword.book.FeatureType;
 import org.crosswire.jsword.book.install.InstallException;
 import org.crosswire.jsword.book.sword.SwordBookMetaData;
 import org.crosswire.jsword.book.sword.SwordBookPath;
-import org.crosswire.jsword.book.sword.SwordConstants;
 import org.crosswire.jsword.index.IndexManager;
 import org.crosswire.jsword.index.IndexManagerFactory;
 import org.crosswire.jsword.index.IndexStatus;
-import org.crosswire.jsword.passage.PassageKeyFactory;
-import org.crosswire.jsword.passage.PassageType;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
+
+import javax.inject.Inject;
 
 /** JSword facade
  * 
@@ -41,90 +37,24 @@ import java.util.List;
  *      The copyright to this program is held by it's author.
  */
 public class SwordDocumentFacade {
-	private static SwordDocumentFacade singleton;
 
-	private static final String LUCENE_DIR = "lucene";
-	
 	private static BookFilter SUPPORTED_DOCUMENT_TYPES = new AcceptableBookTypeFilter();
 
-	private static boolean isSwordLoaded;
-	
-	// set to false for testing
-	public static boolean isAndroid = true; //CommonUtils.isAndroid();
-	
-	private static final Logger log = new Logger(SwordDocumentFacade.class.getName()); 
+	private static final Logger log = new Logger(SwordDocumentFacade.class.getName());
 
 	public static SwordDocumentFacade getInstance() {
-		if (singleton==null) {
-			synchronized(SwordDocumentFacade.class)  {
-				if (singleton==null) {
-					SwordDocumentFacade instance = new SwordDocumentFacade();
-					singleton = instance;
-				}
-			}
-		}
-		return singleton;
+		return BibleApplication.getApplication().getApplicationComponent().swordDocumentFacade();
 	}
 
-	private SwordDocumentFacade() {
+	@Inject
+	public SwordDocumentFacade() {
 	}
 	
-	public static void initialiseJSwordFolders() {
-		try {
-			if (isAndroid) {
-				// ensure required module directories exist and register them with jsword
-				File moduleDir = SharedConstants.MODULE_DIR;
 
-				// main module dir
-				CommonUtils.ensureDirExists(moduleDir);
-				// mods.d
-				CommonUtils.ensureDirExists(new File(moduleDir, SwordConstants.DIR_CONF));
-				// modules
-				CommonUtils.ensureDirExists(new File(moduleDir, SwordConstants.DIR_DATA));
-				// indexes
-				CommonUtils.ensureDirExists(new File(moduleDir, LUCENE_DIR));
-				//fonts
-				CommonUtils.ensureDirExists(SharedConstants.FONT_DIR);
-
-				// Optimize for less memory
-				PassageKeyFactory.setDefaultType(PassageType.MIX);
-				
-				// the following are required to set the read and write dirs for module properties, initialised during the following call to setHome
-				System.setProperty("jsword.home", moduleDir.getAbsolutePath());
-				CWProject.instance().setFrontendName("and-bible");
-
-				// the second value below is the one which is used in effectively all circumstances
-				CWProject.setHome("jsword.home", moduleDir.getAbsolutePath(), SharedConstants.MANUAL_INSTALL_DIR.getAbsolutePath());
-
-				// the following causes Sword to initialise itself and can take quite a few seconds
-				SwordBookPath.setAugmentPath(new File[] {SharedConstants.MANUAL_INSTALL_DIR});  // add manual install dir to this list
-				
-				// 10 sec is too low, 15 may do but put it at 20 secs
-				WebResource.setTimeout(20000);
-				
-				// because the above line causes initialisation set the is initialised flag here
-				isSwordLoaded = true;
-				
-				new VersificationMappingInitializer().startListening();
-
-				log.debug(("Main JSword path:"+CWProject.instance().getWritableProjectDir()));
-			}
-			
-		} catch (Exception e) {
-			log.error("Error initialising", e);
-		}
-	}
-
-	public void reset() {
-		singleton = null;
-		isSwordLoaded = false;
-	}
-	
 	public List<Book> getBibles() {
 		log.debug("Getting bibles");
 		List<Book> documents = Books.installed().getBooks(BookFilters.getBibles());
 		log.debug("Got bibles, Num="+documents.size());
-		isSwordLoaded = true;
 		return documents;
 	}
 
@@ -137,7 +67,6 @@ public class SwordDocumentFacade {
 			}
 		});
 		log.debug("Got books, Num="+documents.size());
-		isSwordLoaded = true;
 		return documents;
 	}
 
@@ -149,7 +78,6 @@ public class SwordDocumentFacade {
 		List<Book> allDocuments = Books.installed().getBooks(SUPPORTED_DOCUMENT_TYPES);
 		
 		log.debug("Got books, Num="+allDocuments.size());
-		isSwordLoaded = true;
 		return allDocuments;
 	}
 
@@ -308,15 +236,5 @@ public class SwordDocumentFacade {
 			text += e.getMessage();
 		}
 		return text;
-	}
-
-	public static void setAndroid(boolean isAndroid) {
-		SwordDocumentFacade.isAndroid = isAndroid;
-	}
-
-	/** needs to be static because otherwise the constructor triggers initialisation
-	 */
-	static public boolean isSwordLoaded() {
-		return isSwordLoaded;
 	}
 }
