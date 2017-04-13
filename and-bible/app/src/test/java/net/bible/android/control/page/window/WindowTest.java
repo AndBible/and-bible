@@ -5,6 +5,7 @@ import net.bible.android.activity.BuildConfig;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.WindowLayout.WindowState;
+import net.bible.service.sword.SwordDocumentFacade;
 import net.bible.test.PassageTestData;
 
 import org.json.JSONObject;
@@ -32,7 +33,7 @@ public class WindowTest {
 
 	@Test
 	public void testGetRestoreStateJson() throws Exception {
-		CurrentPageManager mockCurrentPageManager = new CurrentPageManager(null);
+		CurrentPageManager mockCurrentPageManager = new CurrentPageManager(null, new SwordDocumentFacade());
 
 		// initialise Window
 		Window window = new Window(2, WindowState.MINIMISED, mockCurrentPageManager);

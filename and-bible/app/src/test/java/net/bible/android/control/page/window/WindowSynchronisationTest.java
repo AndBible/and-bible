@@ -5,6 +5,7 @@ import net.bible.android.activity.BuildConfig;
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +35,7 @@ public class WindowSynchronisationTest {
 		Provider<CurrentPageManager> mockCurrentPageManagerProvider = new Provider<CurrentPageManager>() {
 			@Override
 			public CurrentPageManager get() {
-				return new CurrentPageManager(null);
+				return new CurrentPageManager(null, new SwordDocumentFacade());
 			}
 		};
 		windowRepository = new WindowRepository(mockCurrentPageManagerProvider);

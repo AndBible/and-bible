@@ -5,6 +5,7 @@ import android.util.Log;
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.sword.SwordContentFacade;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
@@ -24,8 +25,8 @@ abstract public class CachedKeyPage extends CurrentPageBase  {
 
 	private static String TAG = "CachedKeyPage";
 	
-	CachedKeyPage(boolean shareKeyBetweenDocs, SwordContentFacade swordContentFacade) {
-		super(shareKeyBetweenDocs, swordContentFacade);
+	CachedKeyPage(boolean shareKeyBetweenDocs, SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade) {
+		super(shareKeyBetweenDocs, swordContentFacade, swordDocumentFacade);
 	}
 
 	@Override

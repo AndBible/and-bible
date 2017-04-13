@@ -13,7 +13,6 @@ import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ProgressNotificationManager;
 import net.bible.service.device.ScreenSettings;
 import net.bible.service.device.ScreenTimeoutSettings;
-import net.bible.service.sword.SwordDocumentFacade;
 import net.bible.service.sword.SwordEnvironmentInitialisation;
 
 import org.crosswire.common.util.Language;
@@ -131,7 +130,7 @@ public class BibleApplication extends Application{
 				Log.d(TAG, "Deleting old Chinese indexes");
 				Language CHINESE = new Language("zh");
 
-				List<Book> books = SwordDocumentFacade.getInstance().getDocuments();
+				List<Book> books = applicationComponent.swordDocumentFacade().getDocuments();
 				for (Book book : books) {
 					if (CHINESE.equals(book.getLanguage())) {
 						try {

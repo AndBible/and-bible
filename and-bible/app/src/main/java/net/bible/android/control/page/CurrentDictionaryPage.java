@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.navigation.ChooseDictionaryWord;
 import net.bible.service.sword.SwordContentFacade;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
@@ -24,8 +25,8 @@ public class CurrentDictionaryPage extends CachedKeyPage implements CurrentPage 
 	@SuppressWarnings("unused")
 	private static final String TAG = "CurrentDictionaryPage";
 	
-	/* default */ CurrentDictionaryPage(SwordContentFacade swordContentFacade) {
-		super(false, swordContentFacade);
+	/* default */ CurrentDictionaryPage(SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade) {
+		super(false, swordContentFacade, swordDocumentFacade);
 	}
 	
 	public BookCategory getBookCategory() {

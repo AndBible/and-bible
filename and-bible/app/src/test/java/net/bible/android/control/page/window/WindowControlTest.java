@@ -12,6 +12,7 @@ import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.WindowLayout.WindowState;
+import net.bible.service.sword.SwordDocumentFacade;
 import net.bible.test.PassageTestData;
 
 import org.crosswire.jsword.book.Book;
@@ -65,7 +66,7 @@ public class WindowControlTest {
 		Provider<CurrentPageManager> mockCurrentPageManagerProvider = new Provider<CurrentPageManager>() {
 			@Override
 			public CurrentPageManager get() {
-				return new CurrentPageManager(null);
+				return new CurrentPageManager(null, new SwordDocumentFacade());
 			}
 		};
 		windowRepository = new WindowRepository(mockCurrentPageManagerProvider);

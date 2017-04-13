@@ -5,6 +5,7 @@ import android.util.Log;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.versification.BibleTraverser;
 import net.bible.service.sword.SwordContentFacade;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
@@ -27,8 +28,8 @@ public abstract class VersePage extends CurrentPageBase {
 
 	private static final String TAG = "CurrentPageBase";
 	
-	protected VersePage(boolean shareKeyBetweenDocs, CurrentBibleVerse currentVerse, SwordContentFacade swordContentFacade) {
-		super(shareKeyBetweenDocs, swordContentFacade);
+	protected VersePage(boolean shareKeyBetweenDocs, CurrentBibleVerse currentVerse, SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade) {
+		super(shareKeyBetweenDocs, swordContentFacade, swordDocumentFacade);
 		// share the verse holder between the CurrentBiblePage & CurrentCommentaryPage
 		this.currentBibleVerse = currentVerse;
 	}

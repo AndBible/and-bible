@@ -31,8 +31,8 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 	private static final String TAG = "CurrentBiblePage";
 	
 	
-	/* default */ CurrentBiblePage(CurrentBibleVerse currentBibleVerse, SwordContentFacade swordContentFacade) {
-		super(true, currentBibleVerse, swordContentFacade);
+	/* default */ CurrentBiblePage(CurrentBibleVerse currentBibleVerse, SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade) {
+		super(true, currentBibleVerse, swordContentFacade, swordDocumentFacade);
 	}
 
 	public BookCategory getBookCategory() {
@@ -222,7 +222,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 				String document = jsonObject.getString("document");
 				if (StringUtils.isNotEmpty(document)) {
 					Log.d(TAG, "State document:"+document);
-					Book book = SwordDocumentFacade.getInstance().getDocumentByInitials(document);
+					Book book = getSwordDocumentFacade().getDocumentByInitials(document);
 					if (book!=null) {
 						Log.d(TAG, "Restored document:"+book.getName());
 						// bypass setter to avoid automatic notifications

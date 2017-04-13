@@ -1,6 +1,7 @@
 package net.bible.service.sword;
 
 import net.bible.android.BibleApplication;
+import net.bible.android.control.ApplicationScope;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Logger;
 import net.bible.service.download.DownloadManager;
@@ -36,20 +37,24 @@ import javax.inject.Inject;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class SwordDocumentFacade {
 
 	private static BookFilter SUPPORTED_DOCUMENT_TYPES = new AcceptableBookTypeFilter();
 
 	private static final Logger log = new Logger(SwordDocumentFacade.class.getName());
 
-	public static SwordDocumentFacade getInstance() {
-		return BibleApplication.getApplication().getApplicationComponent().swordDocumentFacade();
-	}
-
 	@Inject
 	public SwordDocumentFacade() {
 	}
-	
+
+	/** Legacy method of managing singleton access
+	 *
+	 * @deprecated
+	 */
+	public static SwordDocumentFacade getInstance() {
+		return BibleApplication.getApplication().getApplicationComponent().swordDocumentFacade();
+	}
 
 	public List<Book> getBibles() {
 		log.debug("Getting bibles");

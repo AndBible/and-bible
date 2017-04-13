@@ -10,6 +10,7 @@ import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.Logger;
 import net.bible.service.sword.SwordContentFacade;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
@@ -42,18 +43,18 @@ public class CurrentPageManager {
 	private final Logger logger = new Logger(this.getClass().getName());
 
 	@Inject
-	public CurrentPageManager(SwordContentFacade swordContentFacade) {
+	public CurrentPageManager(SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade) {
 		currentBibleVerse = new CurrentBibleVerse();
-		currentBiblePage = new CurrentBiblePage(currentBibleVerse, swordContentFacade);
+		currentBiblePage = new CurrentBiblePage(currentBibleVerse, swordContentFacade, swordDocumentFacade);
 		BibleTraverser bibleTraverser = BibleApplication.getApplication().getApplicationComponent().bibleTraverser();
 		currentBiblePage.setBibleTraverser(bibleTraverser);
-		currentCommentaryPage = new CurrentCommentaryPage(currentBibleVerse, swordContentFacade);
+		currentCommentaryPage = new CurrentCommentaryPage(currentBibleVerse, swordContentFacade, swordDocumentFacade);
 		currentCommentaryPage.setBibleTraverser(bibleTraverser);
-		currentMyNotePage = new CurrentMyNotePage(currentBibleVerse, swordContentFacade);
+		currentMyNotePage = new CurrentMyNotePage(currentBibleVerse, swordContentFacade, swordDocumentFacade);
 		
-		currentDictionaryPage = new CurrentDictionaryPage(swordContentFacade);
-		currentGeneralBookPage = new CurrentGeneralBookPage(swordContentFacade);
-		currentMapPage = new CurrentMapPage(swordContentFacade);
+		currentDictionaryPage = new CurrentDictionaryPage(swordContentFacade, swordDocumentFacade);
+		currentGeneralBookPage = new CurrentGeneralBookPage(swordContentFacade, swordDocumentFacade);
+		currentMapPage = new CurrentMapPage(swordContentFacade, swordDocumentFacade);
 		
 		currentDisplayedPage = currentBiblePage;
 	}

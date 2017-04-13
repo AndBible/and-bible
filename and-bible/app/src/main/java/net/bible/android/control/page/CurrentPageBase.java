@@ -44,13 +44,16 @@ abstract class CurrentPageBase implements CurrentPage {
 	private boolean shareKeyBetweenDocs = false;
 
 	private final SwordContentFacade swordContentFacade;
-	
+
+	private SwordDocumentFacade swordDocumentFacade;
+
 	public abstract void doSetKey(Key key);
 	
-	protected CurrentPageBase(boolean shareKeyBetweenDocs, SwordContentFacade swordContentFacade) {
+	protected CurrentPageBase(boolean shareKeyBetweenDocs, SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade) {
 		super();
 		this.shareKeyBetweenDocs = shareKeyBetweenDocs;
 		this.swordContentFacade = swordContentFacade;
+		this.swordDocumentFacade = swordDocumentFacade;
 	}
 
 
@@ -126,7 +129,7 @@ abstract class CurrentPageBase implements CurrentPage {
 		if (currentDocument!=null) {
 			Log.d(TAG, "checkCurrentDocumentStillInstalled:"+currentDocument);
 			// this sets currentDoc to null if it does not exist
-			currentDocument = SwordDocumentFacade.getInstance().getDocumentByInitials(currentDocument.getInitials());
+			currentDocument = swordDocumentFacade.getDocumentByInitials(currentDocument.getInitials());
 		}
 		return currentDocument!=null;
 	}
@@ -137,7 +140,7 @@ abstract class CurrentPageBase implements CurrentPage {
 	@Override
 	public Book getCurrentDocument() {
 		if (currentDocument==null) {
-			List<Book> books = SwordDocumentFacade.getInstance().getBooks(getBookCategory());
+			List<Book> books = swordDocumentFacade.getBooks(getBookCategory());
 			if (books.size()>0) {
 				currentDocument = books.get(0);
 			}
@@ -214,7 +217,7 @@ abstract class CurrentPageBase implements CurrentPage {
 				String document = jsonObject.getString("document");
 				if (StringUtils.isNotEmpty(document)) {
 					Log.d(TAG, "State document:"+document);
-					Book book = SwordDocumentFacade.getInstance().getDocumentByInitials(document);
+					Book book = swordDocumentFacade.getDocumentByInitials(document);
 					if (book!=null) {
 						Log.d(TAG, "Restored document:"+book.getName());
 						// bypass setter to avoid automatic notifications
@@ -285,5 +288,9 @@ abstract class CurrentPageBase implements CurrentPage {
 		this.keyWhenYOffsetRatioSet = getKey();
 		
 		this.currentYOffsetRatio = currentYOffsetRatio;
+	}
+
+	public SwordDocumentFacade getSwordDocumentFacade() {
+		return swordDocumentFacade;
 	}
 }
