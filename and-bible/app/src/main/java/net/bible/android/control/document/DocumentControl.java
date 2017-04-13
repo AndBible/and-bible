@@ -32,26 +32,26 @@ import javax.inject.Inject;
 public class DocumentControl {
 
 	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
+	private SwordDocumentFacade swordDocumentFacade;
 
 	private static final String TAG = "DocumentControl";
 
 	@Inject
-	public DocumentControl(ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+	public DocumentControl(ActiveWindowPageManagerProvider activeWindowPageManagerProvider, SwordDocumentFacade swordDocumentFacade) {
 		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
+		this.swordDocumentFacade = swordDocumentFacade;
 	}
 
-	/** user wants to change to a different document/module
-	 * 
-	 * @param newDocument
+	/**
+	 * user wants to change to a different document/module
 	 */
 	public void changeDocument(Book newDocument) {
 		activeWindowPageManagerProvider.getActiveWindowPageManager().setCurrentDocument( newDocument );
 	}
 	
-	/** Book is deletable according to the driver if it is in the download dir i.e. not sdcard\jsword
+	/**
+	 * Book is deletable according to the driver if it is in the download dir i.e. not sdcard\jsword
 	 * and according to And Bible if it is not currently selected
-	 * @param document
-	 * @return
 	 */
 	public boolean canDelete(Book document) {
 		if (document==null) {
@@ -59,7 +59,7 @@ public class DocumentControl {
 		}
 
 		boolean lastBible = BookCategory.BIBLE.equals(document.getBookCategory()) &&
-							SwordDocumentFacade.getInstance().getBibles().size()==1;
+							swordDocumentFacade.getBibles().size()==1;
 
 		return !lastBible &&
 				document.getDriver().isDeletable(document);
@@ -68,7 +68,7 @@ public class DocumentControl {
 	/** delete selected document, even of current doc (Map and Gen Book only currently) and tidy up CurrentPage
 	 */
 	public void deleteDocument(Book document) throws BookException {
-		SwordDocumentFacade.getInstance().deleteDocument(document);
+		swordDocumentFacade.deleteDocument(document);
 				
 		CurrentPage currentPage = activeWindowPageManagerProvider.getActiveWindowPageManager().getBookPage(document);
 		if (currentPage!=null) {
@@ -76,7 +76,8 @@ public class DocumentControl {
 		}
 	}
 	
-	/** Suggest an alternative dictionary to view or return null
+	/**
+	 * Suggest an alternative dictionary to view or return null
 	 */
 	public boolean isStrongsInBook() {
 		try {
@@ -89,13 +90,15 @@ public class DocumentControl {
 		}
 	}
 
-	/** are we currently in Bible, Commentary, Dict, or Gen Book mode
+	/**
+	 * Are we currently in Bible, Commentary, Dict, or Gen Book mode
 	 */
 	public BookCategory getCurrentCategory() {
 		return activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().getBookCategory();
 	}
 	
-	/** show split book/chap/verse buttons in toolbar for Bibles and Commentaries
+	/**
+	 * Show split book/chap/verse buttons in toolbar for Bibles and Commentaries
 	 */
 	public boolean showSplitPassageSelectorButtons() {
 		BookCategory currentCategory = getCurrentCategory();
@@ -104,9 +107,8 @@ public class DocumentControl {
 				BookCategory.OTHER.equals(currentCategory));
 	}
 	
-	/** Suggest an alternative bible to view or return null
-	 * 
-	 * @return
+	/**
+	 * Suggest an alternative bible to view or return null
 	 */
 	public Book getSuggestedBible() {
 		CurrentPageManager currentPageManager = activeWindowPageManagerProvider.getActiveWindowPageManager();
@@ -121,7 +123,7 @@ public class DocumentControl {
 			}
 		};
 		
-		return getSuggestedBook(SwordDocumentFacade.getInstance().getBibles(), currentBible, bookFilter, currentPageManager.isBibleShown());
+		return getSuggestedBook(swordDocumentFacade.getBibles(), currentBible, bookFilter, currentPageManager.isBibleShown());
 	}
 
 	/** Suggest an alternative commentary to view or return null
@@ -148,7 +150,7 @@ public class DocumentControl {
 		};
 
 		
-		return getSuggestedBook(SwordDocumentFacade.getInstance().getBooks(BookCategory.COMMENTARY), currentCommentary, bookFilter, currentPageManager.isCommentaryShown());
+		return getSuggestedBook(swordDocumentFacade.getBooks(BookCategory.COMMENTARY), currentCommentary, bookFilter, currentPageManager.isCommentaryShown());
 	}
 
 	/** Suggest an alternative dictionary to view or return null
@@ -156,35 +158,19 @@ public class DocumentControl {
 	public Book getSuggestedDictionary() {
 		CurrentPageManager currentPageManager = activeWindowPageManagerProvider.getActiveWindowPageManager();
 		Book currentDictionary = currentPageManager.getCurrentDictionary().getCurrentDocument();
-		return getSuggestedBook(SwordDocumentFacade.getInstance().getBooks(BookCategory.DICTIONARY), currentDictionary, null, currentPageManager.isDictionaryShown());
+		return getSuggestedBook(swordDocumentFacade.getBooks(BookCategory.DICTIONARY), currentDictionary, null, currentPageManager.isDictionaryShown());
 	}
 	
-	/** Suggest an alternative dictionary to view or return null
-	 */
-	public Book getSuggestedGenBook() {
-		CurrentPageManager currentPageManager = activeWindowPageManagerProvider.getActiveWindowPageManager();
-		Book currentBook = currentPageManager.getCurrentGeneralBook().getCurrentDocument();
-		return getSuggestedBook(SwordDocumentFacade.getInstance().getBooks(BookCategory.GENERAL_BOOK), currentBook, null, currentPageManager.isGenBookShown());
-	}
-
-	/** Suggest an alternative map to view or return null
-	 */
-	public Book getSuggestedMap() {
-		CurrentPageManager currentPageManager = activeWindowPageManagerProvider.getActiveWindowPageManager();
-		Book currentBook = currentPageManager.getCurrentMap().getCurrentDocument();
-		return getSuggestedBook(SwordDocumentFacade.getInstance().getBooks(BookCategory.MAPS), currentBook, null, currentPageManager.isMapShown());
-	}
-
-	/** possible books will often not include the current verse but most will include chap 1 verse 1
+	/**
+	 * Possible books will often not include the current verse but most will include chap 1 verse 1
 	 */
 	private ConvertibleVerse getRequiredVerseForSuggestions() {
 		Verse currentVerse = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getSingleKey();
 		return new ConvertibleVerse(currentVerse.getBook(), 1, 1);
 	}
 
-	/** Suggest an alternative document to view or return null
-	 * 
-	 * @return
+	/**
+	 * Suggest an alternative document to view or return null
 	 */
 	private Book getSuggestedBook(List<Book> books, Book currentDocument, Filter<Book> filter, boolean isBookTypeShownNow) {
 		Book suggestion = null;

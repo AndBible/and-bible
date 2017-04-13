@@ -49,14 +49,17 @@ public class LinkControl {
 
 	private final SearchControl searchControl;
 
+	private SwordDocumentFacade swordDocumentFacade;
+
 	private static final Pattern IBT_SPECIAL_CHAR_RE = Pattern.compile("_(\\d+)_");
 
 	private static final String TAG = "LinkControl";
 
 	@Inject
-	public LinkControl(WindowControl windowControl, SearchControl searchControl) {
+	public LinkControl(WindowControl windowControl, SearchControl searchControl, SwordDocumentFacade swordDocumentFacade) {
 		this.windowControl = windowControl;
 		this.searchControl = searchControl;
+		this.swordDocumentFacade = swordDocumentFacade;
 	}
 
 	/** Currently the only uris handled are for Strongs refs
@@ -79,10 +82,10 @@ public class LinkControl {
 		        	showBible(uriAnalyzer.getKey());
 					break;
 				case GREEK_DIC:
-					showStrongs(SwordDocumentFacade.getInstance().getDefaultStrongsGreekDictionary(), uriAnalyzer.getKey());
+					showStrongs(swordDocumentFacade.getDefaultStrongsGreekDictionary(), uriAnalyzer.getKey());
 					break;
 				case HEBREW_DIC:
-					showStrongs(SwordDocumentFacade.getInstance().getDefaultStrongsHebrewDictionary(), uriAnalyzer.getKey());
+					showStrongs(swordDocumentFacade.getDefaultStrongsHebrewDictionary(), uriAnalyzer.getKey());
 					break;
 				case ROBINSON:
 					showRobinsonMorphology(uriAnalyzer.getKey());
@@ -113,7 +116,7 @@ public class LinkControl {
 		if (StringUtils.isEmpty(initials)) {
 			showBible(ref);
 		} else {
-			Book document = SwordDocumentFacade.getInstance().getDocumentByInitials(initials);
+			Book document = swordDocumentFacade.getDocumentByInitials(initials);
 			if (document==null) {
 	        	// tell user to install book
 	        	Dialogs.getInstance().showErrorMsg(R.string.document_not_installed, initials);
@@ -192,7 +195,7 @@ public class LinkControl {
 	/** user has selected a morphology link so show morphology page for key in link
 	 */
 	private void showRobinsonMorphology(String key) throws NoSuchKeyException {
-		Book robinson = SwordDocumentFacade.getInstance().getDocumentByInitials("robinson");
+		Book robinson = swordDocumentFacade.getDocumentByInitials("robinson");
         // valid Strongs uri but Strongs refs not installed
         if (robinson==null) {
         	Dialogs.getInstance().showErrorMsg(R.string.morph_robinson_not_installed);
@@ -212,7 +215,7 @@ public class LinkControl {
     	if (currentBible.hasFeature(FeatureType.STRONGS_NUMBERS)) {
     		strongsBible = currentBible;
     	} else {
-    		strongsBible = SwordDocumentFacade.getInstance().getDefaultBibleWithStrongs();
+    		strongsBible = swordDocumentFacade.getDefaultBibleWithStrongs();
     	}
     	
     	// possibly no Strong's bible or it has not been indexed
