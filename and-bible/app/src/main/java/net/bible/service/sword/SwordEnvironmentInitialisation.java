@@ -1,11 +1,17 @@
 package net.bible.service.sword;
 
 import net.bible.android.SharedConstants;
+import net.bible.android.activity.R;
 import net.bible.android.control.versification.VersificationMappingInitializer;
+import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Logger;
 
+import org.apache.commons.lang3.StringUtils;
 import org.crosswire.common.util.CWProject;
+import org.crosswire.common.util.Reporter;
+import org.crosswire.common.util.ReporterEvent;
+import org.crosswire.common.util.ReporterListener;
 import org.crosswire.common.util.WebResource;
 import org.crosswire.jsword.book.sword.SwordBookPath;
 import org.crosswire.jsword.book.sword.SwordConstants;
@@ -59,6 +65,8 @@ public class SwordEnvironmentInitialisation {
 				// the following causes Sword to initialise itself and can take quite a few seconds
 				SwordBookPath.setAugmentPath(new File[] {SharedConstants.MANUAL_INSTALL_DIR});  // add manual install dir to this list
 
+				log.debug(("Main JSword path:"+CWProject.instance().getWritableProjectDir()));
+
 				// 10 sec is too low, 15 may do but put it at 20 secs
 				WebResource.setTimeout(20000);
 
@@ -66,12 +74,53 @@ public class SwordEnvironmentInitialisation {
 				isSwordLoaded = true;
 
 				new VersificationMappingInitializer().startListening();
-
-				log.debug(("Main JSword path:"+CWProject.instance().getWritableProjectDir()));
 			}
 
 		} catch (Exception e) {
 			log.error("Error initialising", e);
 		}
 	}
+
+	/** JSword calls back to this listener in the event of some types of error
+	 *
+	 */
+	public static void installJSwordErrorReportListener() {
+		Reporter.addReporterListener(new ReporterListener() {
+			@Override
+			public void reportException(final ReporterEvent ev) {
+				showMsg(ev);
+			}
+
+			@Override
+			public void reportMessage(final ReporterEvent ev) {
+				showMsg(ev);
+			}
+
+			private void showMsg(ReporterEvent ev) {
+				String msg;
+				if (ev==null) {
+					msg = CommonUtils.getResourceString(R.string.error_occurred);
+				} else if (!StringUtils.isEmpty(ev.getMessage())) {
+					msg = ev.getMessage();
+				} else if (ev.getException()!=null && StringUtils.isEmpty(ev.getException().getMessage())) {
+					msg = ev.getException().getMessage();
+				} else {
+					msg = CommonUtils.getResourceString(R.string.error_occurred);
+				}
+
+				// convert Throwable to Exception for Dialogs
+				Exception e;
+				if (ev!=null) {
+					Throwable th = ev.getException();
+					e = th instanceof Exception ? (Exception)th : new Exception("Jsword Exception", th);
+				} else {
+					e = new Exception("JSword Exception");
+				}
+
+				Dialogs.getInstance().showErrorMsg(msg, e);
+			}
+		});
+	}
+
+
 }

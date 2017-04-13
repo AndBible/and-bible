@@ -6,10 +6,8 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.util.Log;
 
-import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationComponent;
 import net.bible.android.control.DaggerApplicationComponent;
-import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.util.locale.LocaleHelper;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ProgressNotificationManager;
@@ -18,11 +16,7 @@ import net.bible.service.device.ScreenTimeoutSettings;
 import net.bible.service.sword.SwordDocumentFacade;
 import net.bible.service.sword.SwordEnvironmentInitialisation;
 
-import org.apache.commons.lang3.StringUtils;
 import org.crosswire.common.util.Language;
-import org.crosswire.common.util.Reporter;
-import org.crosswire.common.util.ReporterEvent;
-import org.crosswire.common.util.ReporterListener;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.bridge.BookIndexer;
 
@@ -74,7 +68,7 @@ public class BibleApplication extends Application{
 		applicationComponent = DaggerApplicationComponent.builder().build();
 
 		// ideally this would be installed before initialiseJSwordFolders but the listener depends on applicationComponent
-		installJSwordErrorReportListener();
+		SwordEnvironmentInitialisation.installJSwordErrorReportListener();
 
 		// some changes may be required for different versions
 		upgradePersistentData();
@@ -197,9 +191,6 @@ public class BibleApplication extends Application{
 	}
 	
 	/** return false if old android and hebrew locale
-	 * 
-	 * @param locale
-	 * @return
 	 */
 //	private boolean isLocaleSupported(Locale locale) {
 //		String langCode = locale.getLanguage();
@@ -212,47 +203,6 @@ public class BibleApplication extends Application{
 //		}
 //	}
 	
-    /** JSword calls back to this listener in the event of some types of error
-     * 
-     */
-    private void installJSwordErrorReportListener() {
-        Reporter.addReporterListener(new ReporterListener() {
-			@Override
-			public void reportException(final ReporterEvent ev) {
-				showMsg(ev);
-			}
-
-			@Override
-			public void reportMessage(final ReporterEvent ev) {
-				showMsg(ev);
-			}
-			
-			private void showMsg(ReporterEvent ev) {
-				String msg;
-				if (ev==null) {
-					msg = getString(R.string.error_occurred);
-				} else if (!StringUtils.isEmpty(ev.getMessage())) {
-					msg = ev.getMessage();
-				} else if (ev.getException()!=null && StringUtils.isEmpty(ev.getException().getMessage())) {
-					msg = ev.getException().getMessage();
-				} else {
-					msg = getString(R.string.error_occurred);
-				}
-				
-				// convert Throwable to Exception for Dialogs
-				Exception e;
-				if (ev!=null) {
-					Throwable th = ev.getException();
-					e = th instanceof Exception ? (Exception)th : new Exception("Jsword Exception", th);
-				} else {
-					e = new Exception("JSword Exception");
-				}
-				
-				Dialogs.getInstance().showErrorMsg(msg, e);
-			}
-        });
-    }
-    
 	@Override
 	public void onTerminate() {
 		Log.i(TAG, "onTerminate");
