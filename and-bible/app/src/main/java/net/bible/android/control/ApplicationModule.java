@@ -12,6 +12,7 @@ import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.service.download.RepoFactory;
 import net.bible.service.font.FontControl;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import java.util.concurrent.Executors;
 
@@ -30,8 +31,8 @@ public class ApplicationModule {
 
 	@Provides
 	@ApplicationScope
-	public DownloadControl provideDownloadControl() {
-		return new DownloadControl(new DownloadQueue(Executors.newSingleThreadExecutor()), RepoFactory.getInstance().getXiphosRepo(), FontControl.getInstance());
+	public DownloadControl provideDownloadControl(SwordDocumentFacade swordDocumentFacade) {
+		return new DownloadControl(new DownloadQueue(Executors.newSingleThreadExecutor()), RepoFactory.getInstance().getXiphosRepo(), FontControl.getInstance(), swordDocumentFacade);
 	}
 
 	@Provides

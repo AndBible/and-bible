@@ -50,12 +50,15 @@ public class DownloadControl {
 	
 	private final FontControl fontControl;
 
+	private final SwordDocumentFacade swordDocumentFacade;
+
 	private static final String TAG = "DownloadControl";
 	
-	public DownloadControl(DownloadQueue downloadQueue, XiphosRepo xiphosRepo, FontControl fontControl) {
+	public DownloadControl(DownloadQueue downloadQueue, XiphosRepo xiphosRepo, FontControl fontControl, SwordDocumentFacade swordDocumentFacade) {
 		this.downloadQueue = downloadQueue;
 		this.xiphosRepo = xiphosRepo;
 		this.fontControl = fontControl;
+		this.swordDocumentFacade = swordDocumentFacade;
 
 		// Listen for Progress changes and update the ui
 		documentDownloadProgressCache = new DocumentDownloadProgressCache();
@@ -82,7 +85,7 @@ public class DownloadControl {
 	public List<Book> getDownloadableDocuments(boolean refresh) {
 		List<Book> availableDocs;
 		try {
-			availableDocs = SwordDocumentFacade.getInstance().getDownloadableDocuments(refresh);
+			availableDocs = swordDocumentFacade.getDownloadableDocuments(refresh);
 			
 			// there are a number of books we need to filter out of the download list for various reasons
         	for (Iterator<Book> iter=availableDocs.iterator(); iter.hasNext(); ) {
@@ -175,7 +178,7 @@ public class DownloadControl {
 			return new DocumentStatus(initials, ERROR_DOWNLOADING, 0);
 		}
 
-		Book installedBook = SwordDocumentFacade.getInstance().getDocumentByInitials(document.getInitials());
+		Book installedBook = swordDocumentFacade.getDocumentByInitials(document.getInitials());
 		if (installedBook!=null) {
 			// see if the new document is a later version
 			try {
