@@ -16,9 +16,12 @@ public class Initialisation {
 	private boolean isInitialised = false;
 	
 	private static final long INITIALISE_DELAY = 3000;
-	
+
+	private SwordDocumentFacade swordDocumentFacade;
+
 	@Inject
-	public Initialisation() {
+	public Initialisation(SwordDocumentFacade swordDocumentFacade) {
+		this.swordDocumentFacade = swordDocumentFacade;
 	}
 
 	/**
@@ -41,7 +44,7 @@ public class Initialisation {
 	public synchronized void initialiseNow() {
 		if (!isInitialised) {
 	        // force Sword to initialise itself
-	        SwordDocumentFacade.getInstance().getBibles();
+	        swordDocumentFacade.getBibles();
 
 	        isInitialised = true;
 		}
