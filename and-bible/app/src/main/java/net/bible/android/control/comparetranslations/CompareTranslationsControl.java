@@ -38,7 +38,7 @@ public class CompareTranslationsControl {
 
 	private final BibleTraverser bibleTraverser;
 
-	private SwordDocumentFacade swordDocumentFacade = SwordDocumentFacade.getInstance();
+	private final SwordDocumentFacade swordDocumentFacade;
 	private final SwordContentFacade swordContentFacade;
 
 	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
@@ -46,8 +46,9 @@ public class CompareTranslationsControl {
 	private static final String TAG = "CompareTranslationsCtrl";
 
 	@Inject
-	public CompareTranslationsControl(BibleTraverser bibleTraverser, SwordContentFacade swordContentFacade, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+	public CompareTranslationsControl(BibleTraverser bibleTraverser, SwordDocumentFacade swordDocumentFacade, SwordContentFacade swordContentFacade, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
 		this.bibleTraverser = bibleTraverser;
+		this.swordDocumentFacade = swordDocumentFacade;
 		this.swordContentFacade = swordContentFacade;
 		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 	}

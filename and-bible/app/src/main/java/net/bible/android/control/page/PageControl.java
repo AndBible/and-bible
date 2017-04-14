@@ -49,6 +49,7 @@ public class PageControl {
 	
 	private static final TitleSplitter titleSplitter = new TitleSplitter();
 
+	private final  SwordDocumentFacade swordDocumentFacade;
 	private final SwordContentFacade swordContentFacade;
 
 	private final DocumentControl documentControl;
@@ -56,7 +57,8 @@ public class PageControl {
 	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
 	@Inject
-	public PageControl(SwordContentFacade swordContentFacade, DocumentControl documentControl, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+	public PageControl(SwordDocumentFacade swordDocumentFacade, SwordContentFacade swordContentFacade, DocumentControl documentControl, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+		this.swordDocumentFacade = swordDocumentFacade;
 		this.swordContentFacade = swordContentFacade;
 		this.documentControl = documentControl;
 		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
@@ -111,7 +113,7 @@ public class PageControl {
 					new Verse(versification, BibleBook.JOHN,3,16),
 					new Verse(versification, BibleBook.GEN,1,1),
 					new Verse(versification, BibleBook.PS,1,1)};
-	    	List<Book> bibles = SwordDocumentFacade.getInstance().getBibles();
+	    	List<Book> bibles = swordDocumentFacade.getBibles();
 	        if (bibles.size()==1) {
 	        	Book bible = bibles.get(0);
 	        	for (Verse verse : defaultVerses) {
