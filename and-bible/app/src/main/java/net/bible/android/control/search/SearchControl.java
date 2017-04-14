@@ -46,6 +46,7 @@ public class SearchControl {
 
 	private boolean isSearchShowingScripture = true;
 
+	private final SwordDocumentFacade swordDocumentFacade;
 	private final SwordContentFacade swordContentFacade;
 
 	public enum SearchBibleSection {
@@ -75,7 +76,8 @@ public class SearchControl {
 	private static final String TAG = "SearchControl";
 
 	@Inject
-	public SearchControl(SwordContentFacade swordContentFacade, DocumentBibleBooksFactory documentBibleBooksFactory, PageControl pageControl, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+	public SearchControl(SwordDocumentFacade swordDocumentFacade, SwordContentFacade swordContentFacade, DocumentBibleBooksFactory documentBibleBooksFactory, PageControl pageControl, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+		this.swordDocumentFacade = swordDocumentFacade;
 		this.swordContentFacade = swordContentFacade;
 		this.documentBibleBooksFactory = documentBibleBooksFactory;
 		this.pageControl = pageControl;
@@ -146,7 +148,7 @@ public class SearchControl {
     	SearchResultsDto searchResults = new SearchResultsDto();
     	
     	// search the current book
-        Book book = SwordDocumentFacade.getInstance().getDocumentByInitials(document);
+        Book book = swordDocumentFacade.getDocumentByInitials(document);
     	Key result = swordContentFacade.search(book, searchText);
     	if (result!=null) {
     		int resNum = result.getCardinality();
@@ -224,10 +226,10 @@ public class SearchControl {
             	ok = false;
         	} else {
 		        
-		        if (SwordDocumentFacade.getInstance().isIndexDownloadAvailable(book)) {
+		        if (swordDocumentFacade.isIndexDownloadAvailable(book)) {
 			        // this starts a new thread to do the indexing and returns immediately
 			        // if index creation is already in progress then nothing will happen
-			        SwordDocumentFacade.getInstance().downloadIndex(book);
+			        swordDocumentFacade.downloadIndex(book);
 			        
 			        ok = true;
 		        } else {
@@ -252,7 +254,7 @@ public class SearchControl {
     	try {
 	        // this starts a new thread to do the indexing and returns immediately
 	        // if index creation is already in progress then nothing will happen
-	        SwordDocumentFacade.getInstance().ensureIndexCreation(book);
+	        swordDocumentFacade.ensureIndexCreation(book);
 	        
 	        ok = true;
     	} catch (Exception e) {
