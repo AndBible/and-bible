@@ -11,7 +11,6 @@ import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.DocumentSelectionBase;
 import net.bible.android.view.activity.base.IntentHelper;
 import net.bible.android.view.activity.download.Download;
-import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.common.util.Language;
 import org.crosswire.jsword.book.Book;
@@ -64,7 +63,7 @@ public class ChooseDocument extends DocumentSelectionBase {
     @Override
     protected List<Book> getDocumentsFromSource(boolean refresh) {
 		Log.d(TAG, "get document list from source");
-		return SwordDocumentFacade.getInstance().getDocuments();
+		return getSwordDocumentFacade().getDocuments();
 	}
 
     /** 

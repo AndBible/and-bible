@@ -6,7 +6,6 @@ import android.view.View;
 import android.widget.Button;
 
 import net.bible.android.activity.R;
-import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.progress.WorkEvent;
@@ -72,7 +71,7 @@ public class FirstDownload extends Download {
 
 	private void enableOkayButtonIfBibles() {
 		if (!okayButtonEnabled) {
-			final boolean enable = SwordDocumentFacade.getInstance().getBibles().size() > 0;
+			final boolean enable = getSwordDocumentFacade().getBibles().size() > 0;
 			okayButtonEnabled = enable;
 
 			runOnUiThread(

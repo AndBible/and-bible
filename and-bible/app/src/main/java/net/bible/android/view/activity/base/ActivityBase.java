@@ -22,6 +22,7 @@ import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
 import net.bible.service.history.HistoryTraversal;
 import net.bible.service.history.HistoryTraversalFactory;
+import net.bible.service.sword.SwordDocumentFacade;
 
 import javax.inject.Inject;
 
@@ -51,6 +52,8 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 	private HistoryTraversal historyTraversal;
 
 	private boolean integrateWithHistoryManagerInitialValue;
+
+	private SwordDocumentFacade swordDocumentFacade;
 	
 	private static final String TAG = "ActivityBase";
 	
@@ -316,10 +319,19 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 	 * @param historyTraversalFactory
 	 */
 	@Inject
-	public void setNewHistoryTraversal(HistoryTraversalFactory historyTraversalFactory) {
+	void setNewHistoryTraversal(HistoryTraversalFactory historyTraversalFactory) {
 		// Ensure we don't end up overwriting the initialised class
 		if (historyTraversal==null) {
 			this.historyTraversal = historyTraversalFactory.createHistoryTraversal(integrateWithHistoryManagerInitialValue);
 		}
+	}
+
+	@Inject
+	void setSwordDocumentFacade(SwordDocumentFacade swordDocumentFacade) {
+		this.swordDocumentFacade = swordDocumentFacade;
+	}
+
+	protected SwordDocumentFacade getSwordDocumentFacade() {
+		return swordDocumentFacade;
 	}
 }

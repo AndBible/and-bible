@@ -18,7 +18,6 @@ import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.service.download.DownloadManager;
-import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.common.util.Language;
@@ -422,7 +421,7 @@ abstract public class DocumentSelectionBase extends ListActivityBase implements 
 								public void onClick(DialogInterface dialog, int buttonId) {
 									try {
 										Log.d(TAG, "Deleting index:" + document);
-										SwordDocumentFacade.getInstance().deleteDocumentIndex(document);
+										getSwordDocumentFacade().deleteDocumentIndex(document);
 									} catch (Exception e) {
 										Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
 									}

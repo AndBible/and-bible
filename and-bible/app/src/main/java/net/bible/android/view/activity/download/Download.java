@@ -15,7 +15,6 @@ import net.bible.android.control.download.DownloadControl;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.DocumentSelectionBase;
 import net.bible.service.common.CommonUtils;
-import net.bible.service.sword.SwordDocumentFacade;
 
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.util.Language;
@@ -73,7 +72,7 @@ public class Download extends DocumentSelectionBase {
     	// in the basic flow we force the user to download a bible
     	getDocumentTypeSpinner().setEnabled(true);
 
-		boolean firstTime = SwordDocumentFacade.getInstance().getBibles().size()==0;
+		boolean firstTime = getSwordDocumentFacade().getBibles().size()==0;
        	// if first time
        	if (firstTime) {
         	// prepare the document list view - done in another thread
