@@ -8,7 +8,6 @@ import android.view.View;
 import net.bible.android.activity.R;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
-import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
@@ -74,9 +73,9 @@ public class SearchIndex extends CustomTitlebarActivityBase {
     private Book getDocumentToIndex() {
     	String documentInitials = getIntent().getStringExtra(SearchControl.SEARCH_DOCUMENT);
 
-    	Book documentToIndex = null;
+    	Book documentToIndex;
         if (StringUtils.isNotEmpty(documentInitials)) {
-        	documentToIndex = SwordDocumentFacade.getInstance().getDocumentByInitials(documentInitials);
+        	documentToIndex = getSwordDocumentFacade().getDocumentByInitials(documentInitials);
         } else {
         	documentToIndex = getPageControl().getCurrentPageManager().getCurrentPage().getCurrentDocument();
         }

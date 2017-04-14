@@ -21,7 +21,6 @@ import net.bible.android.view.activity.download.FirstDownload;
 import net.bible.android.view.activity.installzip.InstallZip;
 import net.bible.android.view.activity.page.MainBibleActivity;
 import net.bible.service.common.CommonUtils;
-import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -106,7 +105,7 @@ public class StartupActivity extends CustomTitlebarActivityBase {
     }
     
     private void postBasicInitialisationControl() {
-        if (SwordDocumentFacade.getInstance().getBibles().size()==0) {
+        if (getSwordDocumentFacade().getBibles().size()==0) {
         	Log.i(TAG, "Invoking download activity because no bibles exist");
         	askIfGotoDownloadActivity();
         } else {
@@ -182,7 +181,7 @@ public class StartupActivity extends CustomTitlebarActivityBase {
     	
     	if (requestCode == DOWNLOAD_DOCUMENT_REQUEST) {
     		Log.i(TAG, "Returned from Download");
-    		if (SwordDocumentFacade.getInstance().getBibles().size()>0) {
+    		if (getSwordDocumentFacade().getBibles().size()>0) {
         		Log.i(TAG, "Bibles now exist so go to main bible view");
 				// select appropriate default verse e.g. John 3.16 if NT only
 				getPageControl().setFirstUseDefaultVerse();

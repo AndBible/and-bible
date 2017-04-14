@@ -16,7 +16,6 @@ import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.android.view.activity.search.searchresultsactionbar.SearchResultsActionBarManager;
-import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
@@ -156,7 +155,7 @@ public class SearchResults extends ListActivityBase {
 			if (StringUtils.isEmpty(targetDocInitials)) {
 				targetDocInitials = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().getCurrentDocument().getInitials();
 			}
-			Book targetBook = SwordDocumentFacade.getInstance().getDocumentByInitials(targetDocInitials);
+			Book targetBook = getSwordDocumentFacade().getDocumentByInitials(targetDocInitials);
 
 			activeWindowPageManagerProvider.getActiveWindowPageManager().setCurrentDocumentAndKey(targetBook, key);
     		

@@ -9,7 +9,6 @@ import net.bible.android.control.search.SearchControl;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.ProgressActivityBase;
 import net.bible.service.common.CommonUtils;
-import net.bible.service.sword.SwordDocumentFacade;
 
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.common.progress.Progress;
@@ -38,7 +37,7 @@ public class SearchIndexProgressStatus extends ProgressActivityBase {
 		setMainText(getString(R.string.indexing_wait_msg));
 		
 		String docInitials = getIntent().getStringExtra(SearchControl.SEARCH_DOCUMENT);
-		documentBeingIndexed = SwordDocumentFacade.getInstance().getDocumentByInitials(docInitials);
+		documentBeingIndexed = getSwordDocumentFacade().getDocumentByInitials(docInitials);
 	}
 
 	/**

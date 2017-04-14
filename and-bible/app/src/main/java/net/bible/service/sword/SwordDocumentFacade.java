@@ -1,6 +1,5 @@
 package net.bible.service.sword;
 
-import net.bible.android.BibleApplication;
 import net.bible.android.control.ApplicationScope;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Logger;
@@ -46,14 +45,6 @@ public class SwordDocumentFacade {
 
 	@Inject
 	public SwordDocumentFacade() {
-	}
-
-	/** Legacy method of managing singleton access
-	 *
-	 * @deprecated
-	 */
-	public static SwordDocumentFacade getInstance() {
-		return BibleApplication.getApplication().getApplicationComponent().swordDocumentFacade();
 	}
 
 	public List<Book> getBibles() {
