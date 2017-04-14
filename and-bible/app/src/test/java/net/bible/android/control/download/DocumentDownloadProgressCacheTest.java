@@ -18,8 +18,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+
+import robolectric.MyRobolectricTestRunner;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -29,7 +30,7 @@ import static org.hamcrest.Matchers.is;
  * @see gnu.lgpl.License for license details.<br>
  * The copyright to this program is held by it's author.
  */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(MyRobolectricTestRunner.class)
 @Config(constants = BuildConfig.class)
 public class DocumentDownloadProgressCacheTest {
 

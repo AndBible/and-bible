@@ -10,16 +10,17 @@ import net.bible.service.sword.SwordDocumentFacade;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import javax.inject.Provider;
+
+import robolectric.MyRobolectricTestRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(MyRobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, application = TestBibleApplication.class)
 public class WindowSynchronisationTest {
 

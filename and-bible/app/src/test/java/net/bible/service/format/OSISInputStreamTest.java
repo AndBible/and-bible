@@ -25,7 +25,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 import org.xml.sax.ContentHandler;
 
 import java.io.BufferedReader;
@@ -33,6 +32,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
+
+import robolectric.MyRobolectricTestRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -43,7 +44,7 @@ import static org.junit.Assert.fail;
  * @author denha1m
  *
  */
-@RunWith(RobolectricTestRunner.class)
+@RunWith(MyRobolectricTestRunner.class)
 public class OSISInputStreamTest {
 
 	private Book[] books;

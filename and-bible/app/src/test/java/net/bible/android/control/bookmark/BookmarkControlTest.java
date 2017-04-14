@@ -1,7 +1,6 @@
 package net.bible.android.control.bookmark;
 
 import net.bible.android.TestBibleApplication;
-import net.bible.android.activity.BuildConfig;
 import net.bible.android.common.resource.AndroidResourceProvider;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.service.db.bookmark.BookmarkDto;
@@ -23,13 +22,14 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import robolectric.MyRobolectricTestRunner;
 
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.IsEqual.equalTo;
@@ -40,8 +40,8 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
-@RunWith(RobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, application = TestBibleApplication.class)
+@RunWith(MyRobolectricTestRunner.class)
+@Config(application = TestBibleApplication.class)
 public class BookmarkControlTest {
 
 	// keep changing the test verse

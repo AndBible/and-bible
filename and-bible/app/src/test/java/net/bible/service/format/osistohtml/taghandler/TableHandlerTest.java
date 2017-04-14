@@ -1,12 +1,13 @@
 package net.bible.service.format.osistohtml.taghandler;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
 import net.bible.service.format.osistohtml.HtmlTextWriter;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.helpers.AttributesImpl;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 public class TableHandlerTest {
 	private HtmlTextWriter writer;

@@ -1,8 +1,5 @@
 package net.bible.android.control.page;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
-
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
@@ -10,6 +7,9 @@ import org.crosswire.jsword.versification.system.Versifications;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 public class CurrentBibleVerseTest {
 

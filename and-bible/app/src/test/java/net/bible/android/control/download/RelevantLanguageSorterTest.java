@@ -1,13 +1,5 @@
 package net.bible.android.control.download;
 
-import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.Matchers.lessThan;
-import static org.junit.Assert.assertThat;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-
 import net.bible.service.download.FakeSwordBookFactory;
 
 import org.crosswire.common.util.Language;
@@ -16,9 +8,18 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 
-@RunWith(RobolectricTestRunner.class)
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import robolectric.MyRobolectricTestRunner;
+
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.lessThan;
+import static org.junit.Assert.assertThat;
+
+@RunWith(MyRobolectricTestRunner.class)
 public class RelevantLanguageSorterTest {
 
 	private RelevantLanguageSorter relevantLanguageSorter;

@@ -1,16 +1,16 @@
 package net.bible.service.download;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.Matchers.contains;
-import static org.junit.Assert.assertThat;
-
-import java.util.Arrays;
-import java.util.List;
-
 import org.crosswire.jsword.book.Book;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.Arrays;
+import java.util.List;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.Matchers.contains;
+import static org.junit.Assert.assertThat;
 
 public class RepoBookDeduplicatorTest {
 

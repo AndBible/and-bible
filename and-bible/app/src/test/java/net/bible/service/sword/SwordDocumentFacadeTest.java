@@ -8,13 +8,14 @@ import org.crosswire.jsword.book.Book;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
+
+import robolectric.MyRobolectricTestRunner;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsEqual.equalTo;
 
-@RunWith(RobolectricTestRunner.class)
+@RunWith(MyRobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, application = TestBibleApplication.class)
 public class SwordDocumentFacadeTest {
 
@@ -23,7 +24,7 @@ public class SwordDocumentFacadeTest {
 
 	@Before
 	public void setUp() throws Exception {
-		swordDocumentFacade = SwordDocumentFacade.getInstance();
+		swordDocumentFacade = new SwordDocumentFacade();
 	}
 
 	@Test

@@ -1,7 +1,5 @@
 package net.bible.service.format.osistohtml.taghandler;
 
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.assertThat;
 import net.bible.service.format.osistohtml.HtmlTextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.VerseInfo;
@@ -15,6 +13,9 @@ import org.crosswire.jsword.versification.system.Versifications;
 import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.helpers.AttributesImpl;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertThat;
 
 /**
  * Continuation quotation marks
