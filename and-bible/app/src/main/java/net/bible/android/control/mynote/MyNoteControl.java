@@ -12,7 +12,6 @@ import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.service.common.CommonUtils;
-import net.bible.service.db.mynote.MyNoteDBAdapter;
 import net.bible.service.db.mynote.MyNoteDto;
 
 import org.crosswire.jsword.passage.Key;
@@ -21,8 +20,6 @@ import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.Versification;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -42,11 +39,14 @@ public class MyNoteControl {
 
 	private static final String MYNOTE_SORT_ORDER = "MyNoteSortOrder";
 
+	private final MyNoteDAO myNoteDAO;
+
 	private static final String TAG = "MyNoteControl";
 
 	@Inject
-	public MyNoteControl(ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+	public MyNoteControl(ActiveWindowPageManagerProvider activeWindowPageManagerProvider, MyNoteDAO myNoteDAO) {
 		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
+		this.myNoteDAO = myNoteDAO;
 	}
 
 	/**
@@ -55,7 +55,7 @@ public class MyNoteControl {
 	 */
 	public void showMyNote(VerseRange verseRange) {
 		// if existing MyNote exists with same start verse then adjust range to match the note that will be edited
-		final MyNoteDto existingMyNoteWithSameStartVerse = getMyNoteByStartVerse(verseRange);
+		final MyNoteDto existingMyNoteWithSameStartVerse = myNoteDAO.getMyNoteByStartVerse(verseRange);
 		if (existingMyNoteWithSameStartVerse!=null) {
 			verseRange = existingMyNoteWithSameStartVerse.getVerseRange(verseRange.getVersification());
 		}
@@ -78,19 +78,6 @@ public class MyNoteControl {
 		return keyText;
 	}
 
-	public String getMyNoteTextByKey(Key verseRange) {
-		// get a dto
-		MyNoteDto myNote = getMyNoteByStartVerse(verseRange);
-		
-		// return an empty note dto
-		String noteText = "";
-		if (myNote!=null) {
-			noteText = myNote.getNoteText();
-		}
-
-		return noteText;
-	}
-
 	public boolean saveMyNoteText(String myNote) {
 		MyNoteDto dto = getCurrentMyNoteDto();
 		dto.setNoteText(myNote);
@@ -110,7 +97,7 @@ public class MyNoteControl {
 		}
 		
 		// get a dto
-		MyNoteDto myNote = getMyNoteByStartVerse(verseRange);
+		MyNoteDto myNote = myNoteDAO.getMyNoteByStartVerse(verseRange);
 		
 		// return an empty note dto
 		if (myNote==null) {
@@ -129,17 +116,17 @@ public class MyNoteControl {
 		
 		if (myNoteDto.isNew()) {
 			if (!myNoteDto.isEmpty()) {
-				myNoteDto = addMyNote(myNoteDto);
+				myNoteDAO.addMyNote(myNoteDto);
 				isSaved = true;
 			}
 		} else {
-			MyNoteDto oldNote = getMyNoteByStartVerse(myNoteDto.getVerseRange());
+			MyNoteDto oldNote = myNoteDAO.getMyNoteByStartVerse(myNoteDto.getVerseRange());
 			// delete empty notes
 			if (myNoteDto.isEmpty()) {
-				deleteMyNote(myNoteDto);
+				myNoteDAO.deleteMyNote(myNoteDto);
 			} else if (!myNoteDto.equals(oldNote)) {
 				// update changed notes
-				updateMyNote(myNoteDto);
+				myNoteDAO.updateMyNote(myNoteDto);
 				isSaved = true;
 			}
 		}
@@ -168,104 +155,13 @@ public class MyNoteControl {
 
 	/** get all myNotes */
 	public List<MyNoteDto> getAllMyNotes() {
-		MyNoteDBAdapter db = new MyNoteDBAdapter();
-		List<MyNoteDto> myNoteList = null;
-		try {
-			db.open();
-			myNoteList = db.getAllMyNotes();
-			myNoteList = getSortedMyNotes(myNoteList);
-		} finally {
-			db.close();
-		}
 
-		return myNoteList;
-	}
-
-	/** get all user notes */
-	public MyNoteDto getMyNoteById(Long id) {
-		MyNoteDBAdapter db = new MyNoteDBAdapter();
-		MyNoteDto myNote = null;
-		try {
-			db.open();
-			myNote = db.getMyNoteDto(id);
-		} finally {
-			db.close();
-		}
-
-		return myNote;
-	}
-
-	/** get user note with this key if it exists or return null */
-	public MyNoteDto getMyNoteByStartVerse(Key key) {
-		Verse startVerse = KeyUtil.getVerse(key);
-
-		MyNoteDBAdapter db = new MyNoteDBAdapter();
-		MyNoteDto myNote = null;
-		try {
-			db.open();
-			myNote = db.getMyNoteByStartVerse(startVerse.getOsisRef());
-		} finally {
-			db.close();
-		}
-
-		return myNote;
+		return myNoteDAO.getAllMyNotes(getSortOrder());
 	}
 
 	/** delete this user note (and any links to labels) */
 	public boolean deleteMyNote(MyNoteDto myNote) {
-		boolean bOk = false;
-		if (myNote!=null && myNote.getId()!=null) {
-			MyNoteDBAdapter db = new MyNoteDBAdapter();
-			try {
-				db.open();
-				bOk = db.removeMyNote(myNote);
-			} finally {
-				db.close();
-			}
-		}		
-		return bOk;
-	}
-
-	/** create a new myNote */
-	private MyNoteDto addMyNote(MyNoteDto myNote) {
-		MyNoteDBAdapter db = new MyNoteDBAdapter();
-		MyNoteDto newMyNote = null;
-		try {
-			db.open();
-			newMyNote = db.insertMyNote(myNote);
-		} finally {
-			db.close();
-		}
-		return newMyNote;
-	}
-
-	/** create a new myNote */
-	private MyNoteDto updateMyNote(MyNoteDto myNote) {
-		MyNoteDBAdapter db = new MyNoteDBAdapter();
-		MyNoteDto updatedMyNote = null;
-		try {
-			db.open();
-			updatedMyNote = db.updateMyNote(myNote);
-		} finally {
-			db.close();
-		}
-		return updatedMyNote;
-	}
-
-	private List<MyNoteDto> getSortedMyNotes(List<MyNoteDto> myNoteList) {
-		Comparator<MyNoteDto> comparator = null;
-		switch (getSortOrder()) {
-			case DATE_CREATED:
-				comparator = MyNoteDto.MYNOTE_CREATION_DATE_COMPARATOR;
-				break;
-			case BIBLE_BOOK:
-			default:
-				comparator = MyNoteDto.MYNOTE_BIBLE_ORDER_COMPARATOR;
-				break;
-			
-		}
-		Collections.sort(myNoteList, comparator);
-		return myNoteList;
+		return myNoteDAO.deleteMyNote(myNote);
 	}
 
 	public void changeSortOrder() {

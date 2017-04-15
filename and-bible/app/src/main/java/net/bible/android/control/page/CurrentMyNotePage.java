@@ -4,8 +4,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
+import net.bible.android.control.mynote.MyNoteDAO;
 import net.bible.android.control.versification.ConvertibleVerseRange;
 import net.bible.service.common.ParseException;
 import net.bible.service.download.FakeSwordBookFactory;
@@ -31,6 +31,8 @@ import java.io.IOException;
  */
 public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentPage {
 
+	private final MyNoteDAO myNoteDAO;
+
 	private ConvertibleVerseRange currentNoteVerseRange;
 
 	private static final String MY_NOTE_DUMMY_CONF = "[MyNote]\nDescription=My Note\nCategory=OTHER\nModDrv=zCom\nBlockType=CHAPTER\nLang=en\nEncoding=UTF-8\nLCSH=Bible--Commentaries.\nDataPath=./modules/comments/zcom/mynote/\nAbout=\nVersification=";
@@ -40,13 +42,14 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 	
 	private static final String TAG = "CurrentMyNotePage";
 	
-	/* default */ CurrentMyNotePage(CurrentBibleVerse currentVerse, SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade) {
+	/* default */ CurrentMyNotePage(CurrentBibleVerse currentVerse, SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade, MyNoteDAO myNoteDAO) {
 		super(currentVerse, swordContentFacade, swordDocumentFacade);
+		this.myNoteDAO = myNoteDAO;
 	}
 
 	@Override
 	public String getCurrentPageContent() throws ParseException {
-        return BibleApplication.getApplication().getApplicationComponent().myNoteControl().getMyNoteTextByKey(getKey());
+        return myNoteDAO.getMyNoteTextByKey(getKey());
 	}
 	
 	@Override

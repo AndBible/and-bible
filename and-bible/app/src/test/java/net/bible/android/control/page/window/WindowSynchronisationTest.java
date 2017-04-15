@@ -36,7 +36,7 @@ public class WindowSynchronisationTest {
 		Provider<CurrentPageManager> mockCurrentPageManagerProvider = new Provider<CurrentPageManager>() {
 			@Override
 			public CurrentPageManager get() {
-				return new CurrentPageManager(null, new SwordDocumentFacade());
+				return new CurrentPageManager(null, new SwordDocumentFacade(), null);
 			}
 		};
 		windowRepository = new WindowRepository(mockCurrentPageManagerProvider);

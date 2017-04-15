@@ -6,6 +6,7 @@ import android.content.Intent;
 import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.android.control.PassageChangeMediator;
+import net.bible.android.control.mynote.MyNoteDAO;
 import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.Logger;
@@ -43,14 +44,14 @@ public class CurrentPageManager {
 	private final Logger logger = new Logger(this.getClass().getName());
 
 	@Inject
-	public CurrentPageManager(SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade) {
+	public CurrentPageManager(SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade, MyNoteDAO myNoteDAO) {
 		currentBibleVerse = new CurrentBibleVerse();
 		currentBiblePage = new CurrentBiblePage(currentBibleVerse, swordContentFacade, swordDocumentFacade);
 		BibleTraverser bibleTraverser = BibleApplication.getApplication().getApplicationComponent().bibleTraverser();
 		currentBiblePage.setBibleTraverser(bibleTraverser);
 		currentCommentaryPage = new CurrentCommentaryPage(currentBibleVerse, swordContentFacade, swordDocumentFacade);
 		currentCommentaryPage.setBibleTraverser(bibleTraverser);
-		currentMyNotePage = new CurrentMyNotePage(currentBibleVerse, swordContentFacade, swordDocumentFacade);
+		currentMyNotePage = new CurrentMyNotePage(currentBibleVerse, swordContentFacade, swordDocumentFacade, myNoteDAO);
 		
 		currentDictionaryPage = new CurrentDictionaryPage(swordContentFacade, swordDocumentFacade);
 		currentGeneralBookPage = new CurrentGeneralBookPage(swordContentFacade, swordDocumentFacade);

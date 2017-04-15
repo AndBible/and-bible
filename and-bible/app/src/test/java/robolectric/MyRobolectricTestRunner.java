@@ -49,7 +49,9 @@ public class MyRobolectricTestRunner extends RobolectricTestRunner {
             assets = FileFsFile.from(BUILD_OUTPUT, "bundles", flavor, type, "assets");
         }
 
-        if (FileFsFile.from(BUILD_OUTPUT, "manifests").exists()) {
+        if (FileFsFile.from("src", "main", "AndroidManifest.xml").exists()) {
+            manifest = FileFsFile.from("src", "main", "AndroidManifest.xml");
+        } else if (FileFsFile.from(BUILD_OUTPUT, "manifests").exists()) {
             manifest = FileFsFile.from(BUILD_OUTPUT, "manifests", "full", flavor, type, "AndroidManifest.xml");
         } else {
             manifest = FileFsFile.from(BUILD_OUTPUT, "bundles", flavor, type, "AndroidManifest.xml");
@@ -57,7 +59,7 @@ public class MyRobolectricTestRunner extends RobolectricTestRunner {
 
         Logger.debug("Robolectric assets directory: " + assets.getPath());
         Logger.debug("   Robolectric res directory: " + res.getPath());
-        Logger.debug("   Robolectric manifest path: " + manifest.getPath());
+        Logger.debug("   Robolectric manifest path: " + manifest.getFile().getAbsolutePath());
         Logger.debug("    Robolectric package name: " + packageName);
         return new AndroidManifest(manifest, res, assets, packageName);
     }

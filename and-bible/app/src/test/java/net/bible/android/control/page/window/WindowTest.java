@@ -34,7 +34,7 @@ public class WindowTest {
 
 	@Test
 	public void testGetRestoreStateJson() throws Exception {
-		CurrentPageManager mockCurrentPageManager = new CurrentPageManager(null, new SwordDocumentFacade());
+		CurrentPageManager mockCurrentPageManager = new CurrentPageManager(null, new SwordDocumentFacade(), null);
 
 		// initialise Window
 		Window window = new Window(2, WindowState.MINIMISED, mockCurrentPageManager);
