@@ -25,6 +25,7 @@ import net.bible.android.activity.R;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.Logger;
 
+import org.crosswire.common.util.Filter;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.BookFilter;
@@ -32,6 +33,7 @@ import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.install.InstallException;
 import org.crosswire.jsword.book.install.InstallManager;
 import org.crosswire.jsword.book.install.Installer;
+import org.crosswire.jsword.book.sword.SwordBookMetaData;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -131,6 +133,15 @@ public class DownloadManager {
 			Installer installer = installManager.getInstaller(repositoryName);
 
 			installer.install(book);
+
+			// reload metadata to ensure the correct location is set, otherwise maps won't show
+			((SwordBookMetaData)book.getBookMetaData()).reload(new Filter() {
+				@Override
+				public boolean test(Object obj) {
+					return true;
+				}
+			});
+
 		} catch (InstallException ex) {
 			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, ex);
 		}
@@ -181,7 +192,7 @@ public class DownloadManager {
      *            the book to delete
      * @throws BookException
      */
-    public void unregisterBook(Book book) throws BookException {
+    private void unregisterBook(Book book) throws BookException {
     	// this just seems to work so leave it here
     	// I used to think that the next delete was better - what a mess
     	// see this for potential problem: http://stackoverflow.com/questions/20437626/file-exists-returns-false-for-existing-file-in-android
