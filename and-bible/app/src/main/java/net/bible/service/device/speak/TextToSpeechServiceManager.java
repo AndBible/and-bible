@@ -47,7 +47,7 @@ import de.greenrobot.event.EventBus;
 
  */
 @ApplicationScope
-public class TextToSpeechServiceManager implements TextToSpeech.OnInitListener, TextToSpeech.OnUtteranceCompletedListener {
+public class TextToSpeechServiceManager {
 
 	private static final String TAG = "Speak";
 
@@ -109,7 +109,7 @@ public class TextToSpeechServiceManager implements TextToSpeech.OnInitListener, 
 	    	try {
 		        // Initialize text-to-speech. This is an asynchronous operation.
 		        // The OnInitListener (second argument) (this class) is called after initialization completes.
-		        mTts = new TextToSpeech(BibleApplication.getApplication().getApplicationContext(), this);
+		        mTts = new TextToSpeech(BibleApplication.getApplication().getApplicationContext(), this.onInitListener);
 	    	} catch (Exception e) {
 	    		Log.e(TAG,  "Error initialising Tts", e);
 	    		showError(R.string.error_occurred, e);
@@ -118,60 +118,6 @@ public class TextToSpeechServiceManager implements TextToSpeech.OnInitListener, 
    			startSpeaking();
     	}
 	}
-
-    // Implements TextToSpeech.OnInitListener.
-    @Override
-    public void onInit(int status) {
-    	Log.d(TAG, "Tts initialised");
-    	boolean isOk = false;
-
-        // status can be either TextToSpeech.SUCCESS or TextToSpeech.ERROR.
-        if (mTts!=null && status == TextToSpeech.SUCCESS) {
-        	Log.d(TAG, "Tts initialisation succeeded");
-        	boolean localeOK = false;
-        	Locale locale = null;
-        	for (int i=0; i<localePreferenceList.size() && !localeOK; i++) {
-        		locale = localePreferenceList.get(i);
-        		Log.d(TAG, "Checking for locale:"+locale);
-        		int result = mTts.setLanguage(locale);
-        		localeOK = ((result != TextToSpeech.LANG_MISSING_DATA) && (result != TextToSpeech.LANG_NOT_SUPPORTED));
-        		if (localeOK) {
-        			Log.d(TAG, "Successful locale:"+locale);
-        			currentLocale = locale;
-        		}
-        	}
-        		
-            if (!localeOK) {
-    	    	Log.e(TAG, "TTS missing or not supported");
-               // Language data is missing or the language is not supported.
-    	    	ttsLanguageSupport.addUnsupportedLocale(locale);
-                showError(R.string.tts_lang_not_available, new Exception("Tts missing or not supported"));
-            } else {
-                // The TTS engine has been successfully initialized.
-    	    	ttsLanguageSupport.addSupportedLocale(locale);
-            	int ok = mTts.setOnUtteranceCompletedListener(this);
-            	if (ok==TextToSpeech.ERROR) {
-            		Log.e(TAG, "Error registering onUtteranceCompletedListener");
-            	} else {
-            		// everything seems to have succeeded if we get here
-            		isOk = true;
-                	// say the text
-               		startSpeaking();
-               		
-               		// add event listener to stop on call
-               		stopIfPhoneCall();
-            	}
-            }
-        } else {
-        	Log.d(TAG, "Tts initialisation failed");
-            // Initialization failed.
-            showError(R.string.error_occurred, new Exception("Tts Initialisation failed"));
-        }
-        
-        if (!isOk) {
-        	shutdown();
-        }
-    }
 
     /**
      * Add event listener to stop on call
@@ -290,29 +236,6 @@ public class TextToSpeechServiceManager implements TextToSpeech.OnInitListener, 
     	// should be able to clear this because we are now speaking
     	isPaused = false;
     }
-
-	@Override
-	public void onUtteranceCompleted(String utteranceId) {
-		Log.d(TAG, "onUtteranceCompleted:"+utteranceId);
-		// pause/rew/ff can sometimes allow old messages to complete so need to prevent move to next sentence if completed utterance is out of date 
-		if ((!isPaused && isSpeaking) && StringUtils.startsWith(utteranceId, UTTERANCE_PREFIX)) {
-			long utteranceNo = Long.valueOf(StringUtils.removeStart(utteranceId, UTTERANCE_PREFIX));
-			if (utteranceNo == uniqueUtteranceNo-1) {
-				mSpeakTextProvider.finishedUtterance(utteranceId);
-	
-				// estimate cps
-				mSpeakTiming.finished(utteranceId);
-				
-		        // ask TTs to say the text
-		    	if (mSpeakTextProvider.isMoreTextToSpeak()) {
-		    		speakNextChunk();
-		    	} else {
-					Log.d(TAG, "Shutting down TTS");
-					shutdown();
-				}
-			}
-		}
-	}
 
 	private void speakNextChunk() {
 		String text = mSpeakTextProvider.getNextTextToSpeak();
@@ -461,4 +384,85 @@ public class TextToSpeechServiceManager implements TextToSpeech.OnInitListener, 
 		mSpeakTextProvider.clearPersistedState();
 		CommonUtils.getSharedPreferences().edit().remove(PERSIST_LOCALE_KEY).commit();
 	}
+
+	// Implements TextToSpeech.OnInitListener.
+	private TextToSpeech.OnInitListener onInitListener = new TextToSpeech.OnInitListener() {
+
+		public void onInit ( int status){
+			Log.d(TAG, "Tts initialised");
+			boolean isOk = false;
+
+			// status can be either TextToSpeech.SUCCESS or TextToSpeech.ERROR.
+			if (mTts != null && status == TextToSpeech.SUCCESS) {
+				Log.d(TAG, "Tts initialisation succeeded");
+				boolean localeOK = false;
+				Locale locale = null;
+				for (int i = 0; i < localePreferenceList.size() && !localeOK; i++) {
+					locale = localePreferenceList.get(i);
+					Log.d(TAG, "Checking for locale:" + locale);
+					int result = mTts.setLanguage(locale);
+					localeOK = ((result != TextToSpeech.LANG_MISSING_DATA) && (result != TextToSpeech.LANG_NOT_SUPPORTED));
+					if (localeOK) {
+						Log.d(TAG, "Successful locale:" + locale);
+						currentLocale = locale;
+					}
+				}
+
+				if (!localeOK) {
+					Log.e(TAG, "TTS missing or not supported");
+					// Language data is missing or the language is not supported.
+					ttsLanguageSupport.addUnsupportedLocale(locale);
+					showError(R.string.tts_lang_not_available, new Exception("Tts missing or not supported"));
+				} else {
+					// The TTS engine has been successfully initialized.
+					ttsLanguageSupport.addSupportedLocale(locale);
+					int ok = mTts.setOnUtteranceCompletedListener(onUtteranceCompletedListener);
+					if (ok == TextToSpeech.ERROR) {
+						Log.e(TAG, "Error registering onUtteranceCompletedListener");
+					} else {
+						// everything seems to have succeeded if we get here
+						isOk = true;
+						// say the text
+						startSpeaking();
+
+						// add event listener to stop on call
+						stopIfPhoneCall();
+					}
+				}
+			} else {
+				Log.d(TAG, "Tts initialisation failed");
+				// Initialization failed.
+				showError(R.string.error_occurred, new Exception("Tts Initialisation failed"));
+			}
+
+			if (!isOk) {
+				shutdown();
+			}
+		}
+	};
+
+	private final TextToSpeech.OnUtteranceCompletedListener onUtteranceCompletedListener = new TextToSpeech.OnUtteranceCompletedListener() {
+		@Override
+		public void onUtteranceCompleted(String utteranceId) {
+			Log.d(TAG, "onUtteranceCompleted:"+utteranceId);
+			// pause/rew/ff can sometimes allow old messages to complete so need to prevent move to next sentence if completed utterance is out of date
+			if ((!isPaused && isSpeaking) && StringUtils.startsWith(utteranceId, UTTERANCE_PREFIX)) {
+				long utteranceNo = Long.valueOf(StringUtils.removeStart(utteranceId, UTTERANCE_PREFIX));
+				if (utteranceNo == uniqueUtteranceNo-1) {
+					mSpeakTextProvider.finishedUtterance(utteranceId);
+
+					// estimate cps
+					mSpeakTiming.finished(utteranceId);
+
+					// ask TTs to say the text
+					if (mSpeakTextProvider.isMoreTextToSpeak()) {
+						speakNextChunk();
+					} else {
+						Log.d(TAG, "Shutting down TTS");
+						shutdown();
+					}
+				}
+			}
+		}
+	};
 }
