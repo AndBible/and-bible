@@ -47,8 +47,8 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:appcompat-v7:25.3.0'
-    compile 'com.android.support:design:25.3.0'
+    compile 'com.android.support:appcompat-v7:25.3.1'
+    compile 'com.android.support:design:25.3.1'
 
     compile files('libs/jsword.jar')
     compile files('libs/mmseg4j-all-1.8.4.jar')
@@ -68,7 +68,7 @@ dependencies {
     compile 'org.apache.lucene:lucene-analyzers:3.0.3'
 
     // allow annotations like UIThread, StringRes see: https://developer.android.com/reference/android/support/annotation/package-summary.html
-    compile 'com.android.support:support-annotations:25.3.0'
+    compile 'com.android.support:support-annotations:25.3.1'
 
     testCompile 'org.hamcrest:hamcrest-library:1.3'
     testCompile 'org.mockito:mockito-core:1.10.19'
