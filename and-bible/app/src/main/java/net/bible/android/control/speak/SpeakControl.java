@@ -12,7 +12,7 @@ import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
-import net.bible.service.device.speak.TextToSpeechController;
+import net.bible.service.device.speak.TextToSpeechServiceManager;
 import net.bible.service.sword.SwordContentFacade;
 
 import org.crosswire.jsword.book.Book;
@@ -29,6 +29,8 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
+import dagger.Lazy;
+
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
@@ -37,6 +39,7 @@ import javax.inject.Inject;
 @ApplicationScope
 public class SpeakControl {
 
+	private Lazy<TextToSpeechServiceManager> textToSpeechServiceManager;
 	private final SwordContentFacade swordContentFacade;
 
 	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
@@ -66,7 +69,8 @@ public class SpeakControl {
 	private static final String TAG = "SpeakControl";
 
 	@Inject
-	public SpeakControl(SwordContentFacade swordContentFacade, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+	public SpeakControl(Lazy<TextToSpeechServiceManager> textToSpeechServiceManager, SwordContentFacade swordContentFacade, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+		this.textToSpeechServiceManager = textToSpeechServiceManager;
 		this.swordContentFacade = swordContentFacade;
 		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 	}
@@ -140,7 +144,7 @@ public class SpeakControl {
 		boolean isAvailable;
 		try {
 			String docLangCode = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().getCurrentDocument().getLanguage().getCode();
-			isAvailable = TextToSpeechController.getInstance().isLanguageAvailable(docLangCode);
+			isAvailable = textToSpeechServiceManager.get().isLanguageAvailable(docLangCode);
 		} catch (Exception e) {
 			Log.e(TAG, "Error checking TTS lang available");
 			isAvailable = false;
@@ -149,11 +153,11 @@ public class SpeakControl {
 	}
 
 	public boolean isSpeaking() {
-		return TextToSpeechController.getInstance().isSpeaking();
+		return textToSpeechServiceManager.get().isSpeaking();
 	}
 
 	public boolean isPaused() {
-		return TextToSpeechController.getInstance().isPaused();
+		return textToSpeechServiceManager.get().isPaused();
 	}
 
 	/** prepare to speak
@@ -227,16 +231,14 @@ public class SpeakControl {
 		preSpeak();
 		
 		// speak current chapter or stop speech if already speaking
-    	TextToSpeechController tts = TextToSpeechController.getInstance();
 		Log.d(TAG, "Tell TTS to speak");
-    	tts.speak(localePreferenceList, textsToSpeak, queue);
+		textToSpeechServiceManager.get().speak(localePreferenceList, textsToSpeak, queue);
 	}
 
 	public void rewind() {
 		if (isSpeaking() || isPaused()) {
 			Log.d(TAG, "Rewind TTS speaking");
-	    	TextToSpeechController tts = TextToSpeechController.getInstance();
-			tts.rewind();
+			textToSpeechServiceManager.get().rewind();
 	    	Toast.makeText(BibleApplication.getApplication(), R.string.rewind, Toast.LENGTH_SHORT).show();
 		}
 	}
@@ -244,8 +246,7 @@ public class SpeakControl {
 	public void forward() {
 		if (isSpeaking() || isPaused()) {
 			Log.d(TAG, "Forward TTS speaking");
-	    	TextToSpeechController tts = TextToSpeechController.getInstance();
-			tts.forward();
+			textToSpeechServiceManager.get().forward();
 	    	Toast.makeText(BibleApplication.getApplication(), R.string.forward, Toast.LENGTH_SHORT).show();
 		}
 	}
@@ -253,7 +254,7 @@ public class SpeakControl {
 	public void pause() {
 		if (isSpeaking() || isPaused()) {
 			Log.d(TAG, "Pause TTS speaking");
-	    	TextToSpeechController tts = TextToSpeechController.getInstance();
+	    	TextToSpeechServiceManager tts = textToSpeechServiceManager.get();
 			tts.pause();
 			String pause = CommonUtils.getResourceString(R.string.pause);
 			String timeProgress = CommonUtils.getHoursMinsSecs(tts.getPausedCompletedSeconds())+"/"+CommonUtils.getHoursMinsSecs(tts.getPausedTotalSeconds());
@@ -264,8 +265,7 @@ public class SpeakControl {
 	public void continueAfterPause() {
 		Log.d(TAG, "Continue TTS speaking after pause");
 		preSpeak();
-    	TextToSpeechController tts = TextToSpeechController.getInstance();
-		tts.continueAfterPause();
+		textToSpeechServiceManager.get().continueAfterPause();
     	Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
 	}
 	
@@ -276,8 +276,7 @@ public class SpeakControl {
 	}
 	
 	private void doStop() {
-    	TextToSpeechController tts = TextToSpeechController.getInstance();
-		tts.shutdown();
+		textToSpeechServiceManager.get().shutdown();
 	}
 
 	private void preSpeak() {

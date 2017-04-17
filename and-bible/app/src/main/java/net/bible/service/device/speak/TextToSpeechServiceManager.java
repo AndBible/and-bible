@@ -1,11 +1,11 @@
 package net.bible.service.device.speak;
 
-import android.content.Context;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
+import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.phonecall.PhoneCallMonitor;
 import net.bible.android.control.event.phonecall.PhoneCallStarted;
@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+
+import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
 
@@ -44,7 +46,8 @@ import de.greenrobot.event.EventBus;
  *      The copyright to this program is held by it's author.
 
  */
-public class TextToSpeechController implements TextToSpeech.OnInitListener, TextToSpeech.OnUtteranceCompletedListener {
+@ApplicationScope
+public class TextToSpeechServiceManager implements TextToSpeech.OnInitListener, TextToSpeech.OnUtteranceCompletedListener {
 
 	private static final String TAG = "Speak";
 
@@ -61,8 +64,6 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     
     private SpeakEventManager speakEventManager = SpeakEventManager.getInstance();
     
-    private Context context;
-
     private static final String UTTERANCE_PREFIX = "AND-BIBLE-";
     private long uniqueUtteranceNo = 0;
 
@@ -71,15 +72,9 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     
     private boolean isPaused = false;
     
-    private static final TextToSpeechController singleton = new TextToSpeechController();
-    
-    public static TextToSpeechController getInstance() {
-    	return singleton;
-    }
-    
-    private TextToSpeechController() {
-    	Log.d(TAG, "Creating TextToSpeechController");
-    	context = BibleApplication.getApplication().getApplicationContext();
+	@Inject
+    public TextToSpeechServiceManager() {
+    	Log.d(TAG, "Creating TextToSpeechServiceManager");
     	mSpeakTextProvider = new SpeakTextProvider();
     	mSpeakTiming = new SpeakTiming();
     	restorePauseState();
@@ -113,10 +108,8 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 
 	    	try {
 		        // Initialize text-to-speech. This is an asynchronous operation.
-		        // The OnInitListener (second argument) is called after initialization completes.
-		        mTts = new TextToSpeech(context,
-		            this  // TextToSpeech.OnInitListener
-		            );
+		        // The OnInitListener (second argument) (this class) is called after initialization completes.
+		        mTts = new TextToSpeech(BibleApplication.getApplication().getApplicationContext(), this);
 	    	} catch (Exception e) {
 	    		Log.e(TAG,  "Error initialising Tts", e);
 	    		showError(R.string.error_occurred, e);
@@ -126,7 +119,6 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
     	}
 	}
 
-    
     // Implements TextToSpeech.OnInitListener.
     @Override
     public void onInit(int status) {
@@ -460,7 +452,7 @@ public class TextToSpeechController implements TextToSpeech.OnInitListener, Text
 			
 			// restore locale information so tts knows which voice to load when it initialises
 			currentLocale = new Locale(CommonUtils.getSharedPreferences().getString(PERSIST_LOCALE_KEY, Locale.getDefault().toString()));
-			localePreferenceList = new ArrayList<Locale>();
+			localePreferenceList = new ArrayList<>();
 			localePreferenceList.add(currentLocale);
 		}
 	}
