@@ -13,7 +13,7 @@ import net.bible.service.common.CommonUtils;
 import javax.inject.Inject;
 
 /** 
- * Toggle Strongs numbers on/off
+ * Start speaking current page
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>

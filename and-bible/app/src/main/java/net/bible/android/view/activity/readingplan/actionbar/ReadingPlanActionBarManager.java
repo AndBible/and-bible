@@ -5,11 +5,9 @@ import android.support.v7.app.ActionBar;
 import android.view.Menu;
 
 import net.bible.android.control.ApplicationScope;
-import net.bible.android.control.document.DocumentControl;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.actionbar.ActionBarManager;
 import net.bible.android.view.activity.base.actionbar.DefaultActionBarManager;
-import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton;
 import net.bible.service.device.speak.event.SpeakEvent;
 import net.bible.service.device.speak.event.SpeakEventListener;
 import net.bible.service.device.speak.event.SpeakEventManager;
@@ -29,14 +27,14 @@ public class ReadingPlanActionBarManager extends DefaultActionBarManager impleme
 	private final ReadingPlanCommentaryActionBarButton commentaryActionBarButton;
 	private final ReadingPlanDictionaryActionBarButton dictionaryActionBarButton;
 
-	private final PauseActionBarButton pauseActionBarButton;
-	private final SpeakStopActionBarButton speakStopActionBarButton;
+	private final ReadingPlanPauseActionBarButton pauseActionBarButton;
+	private final ReadingPlanStopActionBarButton stopActionBarButton;
 
 	@Inject
-	public ReadingPlanActionBarManager(ReadingPlanTitle readingPlanTitle, PauseActionBarButton pauseActionBarButton, SpeakStopActionBarButton speakStopActionBarButton, ReadingPlanBibleActionBarButton bibleActionBarButton, ReadingPlanCommentaryActionBarButton commentaryActionBarButton, ReadingPlanDictionaryActionBarButton dictionaryActionBarButton, DocumentControl documentControl) {
+	public ReadingPlanActionBarManager(ReadingPlanTitle readingPlanTitle, ReadingPlanPauseActionBarButton pauseActionBarButton, ReadingPlanStopActionBarButton stopActionBarButton, ReadingPlanBibleActionBarButton bibleActionBarButton, ReadingPlanCommentaryActionBarButton commentaryActionBarButton, ReadingPlanDictionaryActionBarButton dictionaryActionBarButton) {
 		this.readingPlanTitle = readingPlanTitle;
 		this.pauseActionBarButton = pauseActionBarButton;
-		this.speakStopActionBarButton = speakStopActionBarButton;
+		this.stopActionBarButton = stopActionBarButton;
 		this.bibleActionBarButton = bibleActionBarButton;
 		this.commentaryActionBarButton = commentaryActionBarButton;
 		this.dictionaryActionBarButton = dictionaryActionBarButton;
@@ -56,7 +54,7 @@ public class ReadingPlanActionBarManager extends DefaultActionBarManager impleme
 		readingPlanTitle.addToBar(actionBar, activity);
 
 		// order is important to keep bible, cmtry, ... in same place on right
-		speakStopActionBarButton.addToMenu(menu);
+		stopActionBarButton.addToMenu(menu);
 		pauseActionBarButton.addToMenu(menu);
 
 		dictionaryActionBarButton.addToMenu(menu);
@@ -77,7 +75,7 @@ public class ReadingPlanActionBarManager extends DefaultActionBarManager impleme
 				dictionaryActionBarButton.update();
 				
 				pauseActionBarButton.update();
-				speakStopActionBarButton.update();
+				stopActionBarButton.update();
 			}
 		});
 	}
