@@ -67,7 +67,7 @@ public class WindowControlTest {
 		Provider<CurrentPageManager> mockCurrentPageManagerProvider = new Provider<CurrentPageManager>() {
 			@Override
 			public CurrentPageManager get() {
-				return new CurrentPageManager(null, new SwordDocumentFacade(), null);
+				return new CurrentPageManager(null, new SwordDocumentFacade(null), null);
 			}
 		};
 		windowRepository = new WindowRepository(mockCurrentPageManagerProvider);

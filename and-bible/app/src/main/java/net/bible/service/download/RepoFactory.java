@@ -1,12 +1,17 @@
 package net.bible.service.download;
 
+import net.bible.android.control.ApplicationScope;
+
 import org.crosswire.jsword.book.Book;
+
+import javax.inject.Inject;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
+@ApplicationScope
 public class RepoFactory {
 	private CrosswireRepo crosswireRepo = new CrosswireRepo();
 	
@@ -18,15 +23,10 @@ public class RepoFactory {
 
 	private IBTRepo ibtRepo = new IBTRepo();
 	
-	private WycliffeRepo wycliffeRepo = new WycliffeRepo();
-
 	private EBibleRepo eBibleRepo = new EBibleRepo();
 
-	private static RepoFactory instance = new RepoFactory();
-	private RepoFactory() {}
-	public static RepoFactory getInstance() {
-		return instance;
-	}
+	@Inject
+	public RepoFactory() {}
 
 	public RepoBase getRepoForBook(Book document) {
 		return getRepo(document.getProperty(DownloadManager.REPOSITORY_KEY));
@@ -45,8 +45,6 @@ public class RepoFactory {
 			repoForBook = betaRepo;
 		} else if (ibtRepo.getRepoName().equals(repoName)) {
 			repoForBook = ibtRepo;
-		} else if (wycliffeRepo.getRepoName().equals(repoName)) {
-			repoForBook = wycliffeRepo;
 		} else if (eBibleRepo.getRepoName().equals(repoName)) {
 			repoForBook = eBibleRepo;
 		} else {
@@ -69,9 +67,6 @@ public class RepoFactory {
 	}
 	public IBTRepo getIBTRepo() {
 		return ibtRepo;
-	}
-	public WycliffeRepo getWycliffeRepo() {
-		return wycliffeRepo;
 	}
 	public EBibleRepo getEBibleRepo() {
 		return eBibleRepo;

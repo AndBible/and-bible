@@ -46,17 +46,17 @@ public class DownloadControl {
 
 	private final DownloadQueue downloadQueue;
 
-	private final XiphosRepo xiphosRepo;
-	
+	private final RepoFactory repoFactory;
+
 	private final FontControl fontControl;
 
 	private final SwordDocumentFacade swordDocumentFacade;
 
 	private static final String TAG = "DownloadControl";
-	
-	public DownloadControl(DownloadQueue downloadQueue, XiphosRepo xiphosRepo, FontControl fontControl, SwordDocumentFacade swordDocumentFacade) {
+
+	public DownloadControl(DownloadQueue downloadQueue, RepoFactory repoFactory, FontControl fontControl, SwordDocumentFacade swordDocumentFacade) {
 		this.downloadQueue = downloadQueue;
-		this.xiphosRepo = xiphosRepo;
+		this.repoFactory = repoFactory;
 		this.fontControl = fontControl;
 		this.swordDocumentFacade = swordDocumentFacade;
 
@@ -151,12 +151,13 @@ public class DownloadControl {
 
 		if (!downloadQueue.isInQueue(document)) {
 
+			final XiphosRepo xiphosRepo = repoFactory.getXiphosRepo();
 			if (xiphosRepo.needsPostDownloadAction(document)) {
 				xiphosRepo.addHandler(document);
 			}
 
 			// the download happens in another thread
-			RepoBase repo = RepoFactory.getInstance().getRepoForBook(document);
+			RepoBase repo = repoFactory.getRepoForBook(document);
 			downloadQueue.addDocumentToDownloadQueue(document, repo);
 
 			// if a font is required then download that too

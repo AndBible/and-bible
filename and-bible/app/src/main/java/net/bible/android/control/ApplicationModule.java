@@ -31,8 +31,8 @@ public class ApplicationModule {
 
 	@Provides
 	@ApplicationScope
-	public DownloadControl provideDownloadControl(SwordDocumentFacade swordDocumentFacade) {
-		return new DownloadControl(new DownloadQueue(Executors.newSingleThreadExecutor()), RepoFactory.getInstance().getXiphosRepo(), FontControl.getInstance(), swordDocumentFacade);
+	public DownloadControl provideDownloadControl(SwordDocumentFacade swordDocumentFacade, RepoFactory repoFactory) {
+		return new DownloadControl(new DownloadQueue(Executors.newSingleThreadExecutor(), repoFactory), repoFactory, FontControl.getInstance(), swordDocumentFacade);
 	}
 
 	@Provides

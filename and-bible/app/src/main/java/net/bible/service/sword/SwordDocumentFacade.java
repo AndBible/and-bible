@@ -39,12 +39,14 @@ import javax.inject.Inject;
 @ApplicationScope
 public class SwordDocumentFacade {
 
-	private static BookFilter SUPPORTED_DOCUMENT_TYPES = new AcceptableBookTypeFilter();
+	private RepoFactory repoFactory;
 
+	private static BookFilter SUPPORTED_DOCUMENT_TYPES = new AcceptableBookTypeFilter();
 	private static final Logger log = new Logger(SwordDocumentFacade.class.getName());
 
 	@Inject
-	public SwordDocumentFacade() {
+	public SwordDocumentFacade(RepoFactory repoFactory) {
+		this.repoFactory = repoFactory;
 	}
 
 	public List<Book> getBibles() {
@@ -128,8 +130,6 @@ public class SwordDocumentFacade {
 			// If About is selected or a document is downloaded the sbmd is then loaded fully.
 			SwordBookMetaData.setPartialLoading(true);
 			
-			RepoFactory repoFactory = RepoFactory.getInstance();
-	
 			RepoBookDeduplicator repoBookDeduplicator = new RepoBookDeduplicator();
 	
 			repoBookDeduplicator.addAll(repoFactory.getAndBibleRepo().getRepoBooks(refresh));
@@ -168,7 +168,7 @@ public class SwordDocumentFacade {
 
 	public void downloadIndex(Book document) throws InstallException, BookException {
 		DownloadManager downloadManager = new DownloadManager();
-		downloadManager.installIndexInNewThread(RepoFactory.getInstance().getAndBibleRepo().getRepoName(), document);
+		downloadManager.installIndexInNewThread(repoFactory.getAndBibleRepo().getRepoName(), document);
 	}
 	
 	public void deleteDocument(Book document) throws BookException {

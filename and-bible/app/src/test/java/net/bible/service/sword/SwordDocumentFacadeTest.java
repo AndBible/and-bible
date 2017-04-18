@@ -24,7 +24,7 @@ public class SwordDocumentFacadeTest {
 
 	@Before
 	public void setUp() throws Exception {
-		swordDocumentFacade = new SwordDocumentFacade();
+		swordDocumentFacade = new SwordDocumentFacade(null);
 	}
 
 	@Test

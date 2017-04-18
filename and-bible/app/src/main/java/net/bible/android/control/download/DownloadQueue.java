@@ -28,6 +28,7 @@ import java.util.concurrent.ExecutorService;
 public class DownloadQueue {
 
 	private final ExecutorService executorService;
+	private final RepoFactory repoFactory;
 
 	private Set<String> beingQueued = Collections.synchronizedSet(new HashSet<String>());
 
@@ -35,8 +36,9 @@ public class DownloadQueue {
 
 	private Logger log = new Logger(this.getClass().getSimpleName());
 
-	public DownloadQueue(ExecutorService executorService) {
+	public DownloadQueue(ExecutorService executorService, RepoFactory repoFactory) {
 		this.executorService = executorService;
+		this.repoFactory = repoFactory;
 	}
 
 	public void addDocumentToDownloadQueue(final Book document, final RepoBase repo) {
@@ -62,7 +64,7 @@ public class DownloadQueue {
 		}
 	}
 
-	public void handleDownloadError(Book document) {
+	private void handleDownloadError(Book document) {
 		ABEventBus.getDefault().post(new DocumentDownloadEvent(document.getInitials(), DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0));
 		downloadError.add(document.getInitials());
 		Dialogs.getInstance().showErrorMsg(R.string.error_downloading);
@@ -74,7 +76,7 @@ public class DownloadQueue {
 			public void run() {
 				log.info("Downloading index of " + document.getInitials() + " from AndBible repo");
 				try {
-					final AndBibleRepo andBibleRepo = RepoFactory.getInstance().getAndBibleRepo();
+					final AndBibleRepo andBibleRepo = repoFactory.getAndBibleRepo();
 					andBibleRepo.downloadIndex(document);
 				} catch (InstallException | BookException e) {
 					Dialogs.getInstance().showErrorMsg(R.string.error_downloading);
