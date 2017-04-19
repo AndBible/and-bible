@@ -37,7 +37,9 @@ public class MyRobolectricTestRunner extends RobolectricTestRunner {
         final FileFsFile assets;
         final FileFsFile manifest;
 
-        if (FileFsFile.from(BUILD_OUTPUT, "res").exists()) {
+        if (FileFsFile.from("src", "main", "res").exists()) {
+            res = FileFsFile.from("src", "main", "res");
+        } else if (FileFsFile.from(BUILD_OUTPUT, "res").exists()) {
             res = FileFsFile.from(BUILD_OUTPUT, "res", flavor, type);
         } else {
             res = FileFsFile.from(BUILD_OUTPUT, "bundles", flavor, type, "res");
