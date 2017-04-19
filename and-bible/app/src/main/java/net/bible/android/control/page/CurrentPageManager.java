@@ -3,7 +3,6 @@ package net.bible.android.control.page;
 import android.content.Context;
 import android.content.Intent;
 
-import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.mynote.MyNoteDAO;
@@ -22,7 +21,7 @@ import org.json.JSONObject;
 
 import javax.inject.Inject;
 
-/** Control singletons of the different current document page types
+/** Control instances of the different current document page types
  * Each Window has its own instance of CurrentPageManager, so it is not a singleton.
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -44,14 +43,11 @@ public class CurrentPageManager {
 	private final Logger logger = new Logger(this.getClass().getName());
 
 	@Inject
-	public CurrentPageManager(SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade, MyNoteDAO myNoteDAO) {
+	public CurrentPageManager(SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade, BibleTraverser bibleTraverser, MyNoteDAO myNoteDAO) {
 		currentBibleVerse = new CurrentBibleVerse();
-		currentBiblePage = new CurrentBiblePage(currentBibleVerse, swordContentFacade, swordDocumentFacade);
-		BibleTraverser bibleTraverser = BibleApplication.getApplication().getApplicationComponent().bibleTraverser();
-		currentBiblePage.setBibleTraverser(bibleTraverser);
-		currentCommentaryPage = new CurrentCommentaryPage(currentBibleVerse, swordContentFacade, swordDocumentFacade);
-		currentCommentaryPage.setBibleTraverser(bibleTraverser);
-		currentMyNotePage = new CurrentMyNotePage(currentBibleVerse, swordContentFacade, swordDocumentFacade, myNoteDAO);
+		currentBiblePage = new CurrentBiblePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade);
+		currentCommentaryPage = new CurrentCommentaryPage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade);
+		currentMyNotePage = new CurrentMyNotePage(currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade, myNoteDAO);
 		
 		currentDictionaryPage = new CurrentDictionaryPage(swordContentFacade, swordDocumentFacade);
 		currentGeneralBookPage = new CurrentGeneralBookPage(swordContentFacade, swordDocumentFacade);

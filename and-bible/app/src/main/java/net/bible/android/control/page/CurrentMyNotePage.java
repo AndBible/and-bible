@@ -6,6 +6,7 @@ import android.view.MenuItem;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.mynote.MyNoteDAO;
+import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.control.versification.ConvertibleVerseRange;
 import net.bible.service.common.ParseException;
 import net.bible.service.download.FakeSwordBookFactory;
@@ -42,8 +43,8 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 	
 	private static final String TAG = "CurrentMyNotePage";
 	
-	/* default */ CurrentMyNotePage(CurrentBibleVerse currentVerse, SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade, MyNoteDAO myNoteDAO) {
-		super(currentVerse, swordContentFacade, swordDocumentFacade);
+	/* default */ CurrentMyNotePage(CurrentBibleVerse currentVerse, BibleTraverser bibleTraverser, SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade, MyNoteDAO myNoteDAO) {
+		super(currentVerse, bibleTraverser, swordContentFacade, swordDocumentFacade);
 		this.myNoteDAO = myNoteDAO;
 	}
 

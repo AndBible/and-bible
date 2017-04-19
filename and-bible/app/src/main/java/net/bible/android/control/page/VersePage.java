@@ -28,10 +28,11 @@ public abstract class VersePage extends CurrentPageBase {
 
 	private static final String TAG = "CurrentPageBase";
 	
-	protected VersePage(boolean shareKeyBetweenDocs, CurrentBibleVerse currentVerse, SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade) {
+	protected VersePage(boolean shareKeyBetweenDocs, CurrentBibleVerse currentVerse, BibleTraverser bibleTraverser, SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade) {
 		super(shareKeyBetweenDocs, swordContentFacade, swordDocumentFacade);
 		// share the verse holder between the CurrentBiblePage & CurrentCommentaryPage
 		this.currentBibleVerse = currentVerse;
+		this.bibleTraverser = bibleTraverser;
 	}
 
 	public Versification getVersification() {
@@ -52,10 +53,6 @@ public abstract class VersePage extends CurrentPageBase {
 		return currentBibleVerse;
 	}
 	
-	public void setBibleTraverser(BibleTraverser bibleTraverser) {
-		this.bibleTraverser = bibleTraverser;
-	}
-
 	protected BibleTraverser getBibleTraverser() {
 		return bibleTraverser;
 	}
