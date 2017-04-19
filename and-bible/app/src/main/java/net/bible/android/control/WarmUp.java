@@ -11,7 +11,7 @@ import javax.inject.Inject;
  * Support initialisation as i) do it now or ii) do this eventually
  */
 @ApplicationScope
-public class Initialisation {
+public class WarmUp {
 
 	private boolean isInitialised = false;
 	
@@ -20,17 +20,17 @@ public class Initialisation {
 	private SwordDocumentFacade swordDocumentFacade;
 
 	@Inject
-	public Initialisation(SwordDocumentFacade swordDocumentFacade) {
+	public WarmUp(SwordDocumentFacade swordDocumentFacade) {
 		this.swordDocumentFacade = swordDocumentFacade;
 	}
 
 	/**
 	 * Allow Splash screen to be displayed if starting from scratch, otherwise, if returning to an Activity then ensure all initialisation occurs eventually. 
 	 */
-	public void initialiseEventually() {
+	public void warmUpSwordEventually() {
 		TimerTask timerTask = new TimerTask() {
 			public void run() {
-				initialiseNow();
+				warmUpSwordNow();
 			}
 		};
 
@@ -41,7 +41,7 @@ public class Initialisation {
 	/**
 	 * Call any init routines that must be called at least once near the start of running the app e.g. start HistoryManager
 	 */
-	public synchronized void initialiseNow() {
+	public synchronized void warmUpSwordNow() {
 		if (!isInitialised) {
 	        // force Sword to initialise itself
 	        swordDocumentFacade.getBibles();

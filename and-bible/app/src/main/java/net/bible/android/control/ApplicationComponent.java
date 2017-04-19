@@ -52,7 +52,7 @@ import dagger.Component;
 public interface ApplicationComponent {
 
 	//Exposed to sub-graphs.
-	Initialisation initialisation();
+	WarmUp warmUp();
 	ErrorReportControl errorReportControl();
 
 	SwordDocumentFacade swordDocumentFacade();

@@ -50,8 +50,6 @@ public class DocumentBibleBooksFactory {
 	public void initialise() {
 		log.debug("Initialising DocumentBibleBooksFactory cache");
 
-		// this used to cause errors on restart e.g. after changing language, due to attempt to init sword before settings so call it some time after initialisation
-		// hopefully now sorted by delayed initialisation
 		flushCacheIfBooksChange();
 	}
 	

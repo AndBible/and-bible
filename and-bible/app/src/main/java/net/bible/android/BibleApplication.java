@@ -78,7 +78,7 @@ public class BibleApplication extends Application{
 		screenTimeoutSettings.overrideScreenTimeout();
 		
 		// various initialisations required every time at app startup
-		getApplicationComponent().initialisation().initialiseEventually();
+		getApplicationComponent().warmUp().warmUpSwordEventually();
 	}
 
 	public ApplicationComponent getApplicationComponent() {

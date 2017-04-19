@@ -13,7 +13,7 @@ import android.widget.TextView;
 import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
-import net.bible.android.control.Initialisation;
+import net.bible.android.control.WarmUp;
 import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.base.Dialogs;
@@ -34,7 +34,7 @@ import javax.inject.Inject;
  */
 public class StartupActivity extends CustomTitlebarActivityBase {
 
-	private Initialisation initialisation;
+	private WarmUp warmUp;
 
 	private static final String TAG = "StartupActivity";
 
@@ -55,7 +55,7 @@ public class StartupActivity extends CustomTitlebarActivityBase {
         String versionMsg = BibleApplication.getApplication().getString(R.string.version_text, CommonUtils.getApplicationVersionName());
         versionTextView.setText(versionMsg);
         
-        //See if any errors occurred during app initialisation, especially upgrade tasks
+        //See if any errors occurred during app warmUp, especially upgrade tasks
         int abortErrorMsgId = BibleApplication.getApplication().getErrorDuringStartup();
         
         // check for SD card 
@@ -73,7 +73,7 @@ public class StartupActivity extends CustomTitlebarActivityBase {
 					finish();					
 				}
 			});
-        	// this aborts further initialisation but leaves blue splashscreen activity
+        	// this aborts further warmUp but leaves blue splashscreen activity
         	return;
         }
     
@@ -95,7 +95,7 @@ public class StartupActivity extends CustomTitlebarActivityBase {
         			CommonUtils.pauseMillis(1);
         			
 	                // force Sword to initialise itself
-	                initialisation.initialiseNow();
+	                warmUp.warmUpSwordNow();
         		} finally {
         			// switch back to ui thread to continue
         			uiHandler.post(uiThreadRunnable);
@@ -195,7 +195,7 @@ public class StartupActivity extends CustomTitlebarActivityBase {
     }
 
 	@Inject
-	void setInitialisation(Initialisation initialisation) {
-		this.initialisation = initialisation;
+	void setWarmUp(WarmUp warmUp) {
+		this.warmUp = warmUp;
 	}
 }
