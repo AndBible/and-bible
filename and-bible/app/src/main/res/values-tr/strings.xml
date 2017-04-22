@@ -57,7 +57,7 @@
   <string name="prefs_show_bookmarks_title">Yer imleri göster</string>
   <string name="prefs_show_bookmarks_summary">Yer imleri gösterilsin mi?</string>
   <string name="prefs_default_bookmark_style_title">Yer imleri için ön tanımlı biçim</string>
-  <string name="prefs_default_bookmark_style_summary">İşaretlemek için Renk veya Simge</string>
+  <string name="prefs_default_bookmark_style_summary">İşaretlemek için renk veya simge</string>
   <string name="prefs_show_mynotes_title">Notlarım simgelerini göster</string>
   <string name="prefs_show_mynotes_summary">Hakkında not yazdığım ayetleri simge ile belirle</string>
   <string name="prefs_show_notes_title">Dipnotlar</string>

@@ -65,7 +65,7 @@
   <string name="prefs_show_verseno_title">Versaj numeroj</string>
   <string name="prefs_show_verseno_summary">Montras numerojn de versoj</string>
   <string name="prefs_verse_per_line_title">Po unu verso en linio</string>
-  <string name="prefs_verse_per_line_summary">Montras ĉiu verso en alia linio</string>
+  <string name="prefs_verse_per_line_summary">Montras ĉiun verson en alia linio</string>
   <string name="prefs_show_bookmarks_title">Montri legosignojn</string>
   <string name="prefs_show_bookmarks_summary">Malmarku por kaŝi ĉiujn legosignojn</string>
   <string name="prefs_default_bookmark_style_title">Ĉefa montrmaniero de legosignoj</string>

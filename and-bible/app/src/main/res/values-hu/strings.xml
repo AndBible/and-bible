@@ -55,6 +55,10 @@
   <string name="prefs_show_verseno_summary">Versszámok megjelenítése</string>
   <string name="prefs_verse_per_line_title">Soronként egy vers</string>
   <string name="prefs_verse_per_line_summary">A verseket külön sorba tegye</string>
+  <string name="prefs_show_bookmarks_title">Könyvjelzők megjelenítése</string>
+  <string name="prefs_show_bookmarks_summary">Kapcsold ki a könyvjelzők elrejtéséhez</string>
+  <string name="prefs_default_bookmark_style_title">Alapértelmezett könyvjelző stílus</string>
+  <string name="prefs_default_bookmark_style_summary">Kiemelés színe vagy ikonja</string>
   <string name="prefs_show_mynotes_title">Jegyzeteim ikonok</string>
   <string name="prefs_show_mynotes_summary">Ikon megjelenítése, ha egy vershez jegyzet tartozik</string>
   <string name="prefs_show_notes_title">Lábjegyzetek és hivatkozások</string>
@@ -102,7 +106,7 @@
   <string name="strongs_not_installed">Kérlek, töltsd le a Strong héber és görög szószedeteket</string>
   <string name="all_greek_occurrences">Összes előfordulás mutatása</string>
   <string name="all_hebrew_occurrences">Összes előfordulás mutatása</string>
-  <string name="no_indexed_bible_with_strongs_ref">Le kell töltened egy egy Strong számokat tartalmazó Bibliát és a hozzá tartozó indexet is a Keresés segítségével.</string>
+  <string name="no_indexed_bible_with_strongs_ref">Le kell töltened egy Strong számokat tartalmazó Bibliát és a hozzá tartozó indexet is a Keresés segítségével.</string>
   <string name="morph_robinson_not_installed">Kérlek, töltsd le Robinson morfológiai elemzés szótárát</string>
   <string name="strongs_toggle_button_on">nnnn</string>
   <string name="strongs_toggle_button_off">nnnn</string>
@@ -157,14 +161,18 @@
   <!--Bookmarks-->
   <string name="bookmarks">Könyvjelzők</string>
   <string name="add_bookmark">Könyvjelző hozzáadása</string>
+  <string name="delete_bookmark">Könyvjelző törlése</string>
   <string name="bookmark_added">Könyvjelző hozzáadva</string>
   <string name="bookmark_exists">A könyvjelző már létezik</string>
+  <string name="bookmark_deleted">Könyvjelző törölve</string>
   <string name="bookmark_labels">Könyvjelző címkék</string>
+  <string name="manage_labels">Könyvjelzőcímkék kezelése</string>
   <string name="assign_labels">Címke hozzárendelése</string>
   <string name="new_label">Új címke</string>
   <string name="label_name_prompt">Név</string>
   <string name="label_unlabelled">Címke nélküli</string>
   <string name="rename">Átnevezés</string>
+  <string name="style">Stílus</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Kronológiai sorrend</string>
   <string name="sort_by_bible_book">Bibliai sorrend</string>
@@ -210,6 +218,7 @@
   <string name="restore_confirmation">Felülírod a jegyzeteket és könyvjelzőket?</string>
   <string name="restore_success">A jegyzetek és a könyvjelzők vissza lettek állítva a SD-kártyáról innen: %s</string>
   <!--About-->
+  <string name="about_copyright">Copyright: %s</string>
   <string name="about_version">Verzió: %s</string>
   <string name="about_versification">Versezés: %s</string>
   <!--Document types-->
@@ -235,7 +244,9 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Új</string>
   <string name="close">Bezárás</string>
+  <string name="edit">Szerkesztés</string>
   <!--Errors-->
+  <string name="report_error">Jelentés küldése</string>
   <string name="error_occurred">Hiba történt.</string>
   <string name="error_no_content">A kiválasztott vershez nem tartozik tartalom.</string>
   <string name="error_page_too_large">Az oldal túl nagy a letöltéshez.</string>
