@@ -1,5 +1,7 @@
 package net.bible.android.control.versification;
 
+import android.support.annotation.NonNull;
+
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
@@ -30,7 +32,11 @@ public class ConvertibleVerse implements Comparable<ConvertibleVerse> {
 	public ConvertibleVerse(Versification versification, BibleBook book, int chapter, int verseNo) {
 		mainVerse = new Verse(versification, book, chapter, verseNo);
 	}
-	
+
+	public boolean isConvertibleTo(Versification v11n) {
+		return versificationConverter.isConvertibleTo(mainVerse, v11n);
+	}
+
 	public void setVerseNo(int verseNo) {
 		mainVerse = new Verse(mainVerse.getVersification(), mainVerse.getBook(), mainVerse.getChapter(), verseNo);
 	}
@@ -51,6 +57,7 @@ public class ConvertibleVerse implements Comparable<ConvertibleVerse> {
 	public Verse getVerse(Versification versification) {
 		return versificationConverter.convert(mainVerse, versification);
 	}
+
 
 	/** books should be the same as they are enums
 	 */
@@ -85,10 +92,7 @@ public class ConvertibleVerse implements Comparable<ConvertibleVerse> {
 	}
 	
 	@Override
-	public int compareTo(ConvertibleVerse other) {
-		if (other==null) {
-			return 1;
-		}
+	public int compareTo(@NonNull ConvertibleVerse other) {
 	    if (this.mainVerse == null) {
 	        return other.mainVerse == null ? 0 : -1;
 	    }

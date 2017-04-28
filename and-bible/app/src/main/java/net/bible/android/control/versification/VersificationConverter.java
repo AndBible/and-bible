@@ -1,6 +1,7 @@
 package net.bible.android.control.versification;
 
-import java.util.Iterator;
+import android.support.annotation.Nullable;
+import android.util.Log;
 
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
@@ -13,7 +14,7 @@ import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.VersificationsMapper;
 
-import android.util.Log;
+import java.util.Iterator;
 
 /** Manage conversion of verses to a specific versification
  * 
@@ -27,24 +28,6 @@ public class VersificationConverter {
 	
 	private VersificationsMapper versificationsMapper = VersificationsMapper.instance();
 
-	/** Return the verse in the required versification, mapping if necessary
-	 */
-	public Verse convert(Verse verse, Versification toVersification) {
-		try {
-			Key key = versificationsMapper.mapVerse(verse, toVersification);
-			Verse mappedVerse = KeyUtil.getVerse(key);
-			// If target v11n does not contain mapped verse then an exception normally occurs and the ordinal is set to 0 
-			if (mappedVerse.getOrdinal()>0) {
-				return mappedVerse;
-			}
-		} catch (Exception e) {
-			// unexpected problem during mapping
-			Log.e(TAG, "JSword Versification mapper failed to map "+verse.getOsisID()+" from "+verse.getVersification().getName()+" to "+toVersification.getName(), e);
-		}
-		// just try to retain information by forcing creation of a similar verse with the new v11n 
-		return new Verse(toVersification, verse.getBook(), verse.getChapter(), verse.getVerse());
-	}
-	
 	/**
 	 * Flexible converter for the generic Key base class.  
 	 * Return the key in the required versification, mapping if necessary
@@ -89,5 +72,37 @@ public class VersificationConverter {
 		Verse convertedEndVerse = convert(endVerse, toVersification);
 
 		return new VerseRange(toVersification, convertedStartVerse, convertedEndVerse);
-	} 
+	}
+
+	/** Return the verse in the required versification, mapping if necessary
+	 */
+	public Verse convert(Verse verse, Versification toVersification) {
+		Verse mappedVerse = convertVerseStrictly(verse, toVersification);
+		if (mappedVerse != null) return mappedVerse;
+		// just try to retain information by forcing creation of a similar verse with the new v11n
+		return new Verse(toVersification, verse.getBook(), verse.getChapter(), verse.getVerse());
+	}
+
+	public boolean isConvertibleTo(Verse verse, Versification v11n) {
+		return convertVerseStrictly(verse, v11n)!=null;
+	}
+
+	/**
+	 * Convert the verse correctly to the v11n or return null
+	 */
+	@Nullable
+	private Verse convertVerseStrictly(Verse verse, Versification toVersification) {
+		try {
+			Key key = versificationsMapper.mapVerse(verse, toVersification);
+			Verse mappedVerse = KeyUtil.getVerse(key);
+			// If target v11n does not contain mapped verse then an exception normally occurs and the ordinal is set to 0
+			if (mappedVerse.getOrdinal()>0) {
+				return mappedVerse;
+			}
+		} catch (Exception e) {
+			// unexpected problem during mapping
+			Log.e(TAG, "JSword Versification mapper failed to map "+verse.getOsisID()+" from "+verse.getVersification().getName()+" to "+toVersification.getName(), e);
+		}
+		return null;
+	}
 }

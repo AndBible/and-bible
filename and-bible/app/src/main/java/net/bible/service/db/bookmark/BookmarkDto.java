@@ -1,6 +1,9 @@
 package net.bible.service.db.bookmark;
 
+import android.support.annotation.NonNull;
+
 import net.bible.android.control.versification.ConvertibleVerseRange;
+import net.bible.android.control.versification.ConvertibleVerseRangeUser;
 
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.Versification;
@@ -13,7 +16,7 @@ import java.util.Date;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class BookmarkDto implements Comparable<BookmarkDto> {
+public class BookmarkDto implements Comparable<BookmarkDto>, ConvertibleVerseRangeUser {
 	private Long id;
 	private ConvertibleVerseRange convertibleVerseRange;
 	private Date createdOn;
@@ -40,9 +43,21 @@ public class BookmarkDto implements Comparable<BookmarkDto> {
 		this.createdOn = createdOn;
 	}
 
+	@Override
+	public ConvertibleVerseRange getConvertibleVerseRange() {
+		return convertibleVerseRange;
+	}
+
+	@Override
+	public String toString() {
+		return "BookmarkDto{" +
+				"convertibleVerseRange=" + convertibleVerseRange +
+				'}';
+	}
+
 	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
+			 * @see java.lang.Object#hashCode()
+			 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -81,14 +96,14 @@ public class BookmarkDto implements Comparable<BookmarkDto> {
 	}
 
 	@Override
-	public int compareTo(BookmarkDto another) {
+	public int compareTo(@NonNull BookmarkDto another) {
 		return BOOKMARK_BIBLE_ORDER_COMPARATOR.compare(this, another);
 	}
 
 	/** Compare by Bible order */
 	public static Comparator<BookmarkDto> BOOKMARK_BIBLE_ORDER_COMPARATOR = new Comparator<BookmarkDto>() {
 
-		public int compare(BookmarkDto bookmark1, BookmarkDto bookmark2) {
+		public int compare(@NonNull BookmarkDto bookmark1, @NonNull BookmarkDto bookmark2) {
 			// ascending order
 			return bookmark1.convertibleVerseRange.compareTo(bookmark2.convertibleVerseRange);
 		}
@@ -96,7 +111,7 @@ public class BookmarkDto implements Comparable<BookmarkDto> {
 	/** Compare by Create date - most recent first */
 	public static Comparator<BookmarkDto> BOOKMARK_CREATION_DATE_COMPARATOR = new Comparator<BookmarkDto>() {
 
-		public int compare(BookmarkDto bookmark1, BookmarkDto bookmark2) {
+		public int compare(@NonNull BookmarkDto bookmark1, @NonNull BookmarkDto bookmark2) {
 			// descending order
 			return bookmark2.createdOn.compareTo(bookmark1.createdOn);
 		}

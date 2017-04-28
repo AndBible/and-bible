@@ -341,6 +341,7 @@ public class BookmarkControl {
 	}
 
 	private List<BookmarkDto> getSortedBookmarks(List<BookmarkDto> bookmarkList) {
+
 		Comparator<BookmarkDto> comparator;
 		switch (getBookmarkSortOrder()) {
 			case DATE_CREATED:
@@ -348,9 +349,8 @@ public class BookmarkControl {
 				break;
 			case BIBLE_BOOK:
 			default:
-				comparator = BookmarkDto.BOOKMARK_BIBLE_ORDER_COMPARATOR;
+				comparator = new BookmarkDtoComparator(bookmarkList);
 				break;
-			
 		}
 		Collections.sort(bookmarkList, comparator);
 		return bookmarkList;

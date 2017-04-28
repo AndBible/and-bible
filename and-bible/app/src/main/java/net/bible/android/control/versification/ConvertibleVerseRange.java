@@ -1,5 +1,7 @@
 package net.bible.android.control.versification;
 
+import android.support.annotation.NonNull;
+
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.Versification;
 
@@ -32,6 +34,9 @@ public class ConvertibleVerseRange implements Comparable<ConvertibleVerseRange> 
 		return new VerseRange(v11n, startVerse.getVerse(v11n), endVerse.getVerse(v11n));
 	}
 
+	public boolean isConvertibleTo(Versification v11n) {
+		return startVerse.isConvertibleTo(v11n) && endVerse.isConvertibleTo(v11n);
+	}
 
 	@Override
 	public boolean equals(Object o) {
@@ -40,8 +45,14 @@ public class ConvertibleVerseRange implements Comparable<ConvertibleVerseRange> 
 
 		ConvertibleVerseRange that = (ConvertibleVerseRange) o;
 
-		return originalVerseRange.equals(that.originalVerseRange);
+		return originalVerseRange.equals(that.getVerseRange(originalVerseRange.getVersification()));
+	}
 
+	@Override
+	public String toString() {
+		return "ConvertibleVerseRange{" +
+				"originalVerseRange=" + originalVerseRange +
+				'}';
 	}
 
 	@Override
@@ -50,15 +61,27 @@ public class ConvertibleVerseRange implements Comparable<ConvertibleVerseRange> 
 	}
 
 	@Override
-	public int compareTo(ConvertibleVerseRange other) {
-		if (other==null) {
-			return 1;
-		}
+	public int compareTo(@NonNull ConvertibleVerseRange other) {
 		if (this.originalVerseRange == null) {
 			return other.originalVerseRange == null ? 0 : -1;
 		}
 		if (other.originalVerseRange == null){
 			return 1;
 		}
-		return originalVerseRange.compareTo(other.getVerseRange(originalVerseRange.getVersification()));	}
+		final VerseRange otherInThisV11n = other.getVerseRange(originalVerseRange.getVersification());
+		if (otherInThisV11n.getStart().getOrdinal()>0) {
+			return originalVerseRange.compareTo(otherInThisV11n);
+		}
+		final VerseRange thisInOtherV11n = getVerseRange(other.originalVerseRange.getVersification());
+		if (thisInOtherV11n.getStart().getOrdinal()>0) {
+			return thisInOtherV11n.compareTo(other.originalVerseRange);
+		}
+
+		// TODO cannot compare the verses!!!
+		return 0;
+	}
+
+	public Versification getOriginalVersification() {
+		return originalVerseRange.getVersification();
+	}
 }
