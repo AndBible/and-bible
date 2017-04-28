@@ -16,7 +16,7 @@ import java.util.Date;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class BookmarkDto implements Comparable<BookmarkDto>, ConvertibleVerseRangeUser {
+public class BookmarkDto implements ConvertibleVerseRangeUser {
 	private Long id;
 	private ConvertibleVerseRange convertibleVerseRange;
 	private Date createdOn;
@@ -95,19 +95,6 @@ public class BookmarkDto implements Comparable<BookmarkDto>, ConvertibleVerseRan
 		return true;
 	}
 
-	@Override
-	public int compareTo(@NonNull BookmarkDto another) {
-		return BOOKMARK_BIBLE_ORDER_COMPARATOR.compare(this, another);
-	}
-
-	/** Compare by Bible order */
-	public static Comparator<BookmarkDto> BOOKMARK_BIBLE_ORDER_COMPARATOR = new Comparator<BookmarkDto>() {
-
-		public int compare(@NonNull BookmarkDto bookmark1, @NonNull BookmarkDto bookmark2) {
-			// ascending order
-			return bookmark1.convertibleVerseRange.compareTo(bookmark2.convertibleVerseRange);
-		}
-	};
 	/** Compare by Create date - most recent first */
 	public static Comparator<BookmarkDto> BOOKMARK_CREATION_DATE_COMPARATOR = new Comparator<BookmarkDto>() {
 

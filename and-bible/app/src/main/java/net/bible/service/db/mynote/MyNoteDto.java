@@ -20,7 +20,7 @@ import java.util.Date;
  * @author John D. Lewis [balinjdl at gmail dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class MyNoteDto implements Comparable<MyNoteDto>, ConvertibleVerseRangeUser {
+public class MyNoteDto implements ConvertibleVerseRangeUser {
 	private Long id;
 	private ConvertibleVerseRange convertibleVerseRange;
 	private String noteText;
@@ -129,19 +129,6 @@ public class MyNoteDto implements Comparable<MyNoteDto>, ConvertibleVerseRangeUs
 		return true;
 	}
 	
-	@Override
-	public int compareTo(@NonNull MyNoteDto another) {
-		return MYNOTE_BIBLE_ORDER_COMPARATOR.compare(this, another);
-	}
-
-	/** Compare by Bible order */
-	public static Comparator<MyNoteDto> MYNOTE_BIBLE_ORDER_COMPARATOR = new Comparator<MyNoteDto>() {
-
-		public int compare(@NonNull MyNoteDto myNote1, @NonNull MyNoteDto myNote2) {
-			// ascending order
-			return myNote1.convertibleVerseRange.compareTo(myNote2.convertibleVerseRange);
-		}
-	};
 	/** Compare by Create date - most recent first */
 	public static Comparator<MyNoteDto> MYNOTE_CREATION_DATE_COMPARATOR = new Comparator<MyNoteDto>() {
 
