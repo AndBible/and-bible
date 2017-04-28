@@ -1,7 +1,5 @@
 package net.bible.android.control.versification;
 
-import android.support.annotation.NonNull;
-
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
@@ -15,7 +13,7 @@ import org.json.JSONObject;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class ConvertibleVerse implements Comparable<ConvertibleVerse> {
+public class ConvertibleVerse {
 	
 	private Verse mainVerse;
 
@@ -91,17 +89,6 @@ public class ConvertibleVerse implements Comparable<ConvertibleVerse> {
 		return true;
 	}
 	
-	@Override
-	public int compareTo(@NonNull ConvertibleVerse other) {
-	    if (this.mainVerse == null) {
-	        return other.mainVerse == null ? 0 : -1;
-	    }
-	    if (other.mainVerse == null){
-	        return 1;
-	    }
-		return mainVerse.compareTo(other.getVerse(mainVerse.getVersification()));
-	}
-
 	public JSONObject getStateJson() throws JSONException {
 		JSONObject object = new JSONObject();
 		object.put("versification", mainVerse.getVersification().getName());

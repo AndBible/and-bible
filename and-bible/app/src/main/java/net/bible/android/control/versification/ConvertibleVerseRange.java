@@ -1,7 +1,5 @@
 package net.bible.android.control.versification;
 
-import android.support.annotation.NonNull;
-
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.Versification;
 
@@ -12,7 +10,7 @@ import org.crosswire.jsword.versification.Versification;
  * @see gnu.lgpl.License for license details.<br>
  * The copyright to this program is held by it's author.
  */
-public class ConvertibleVerseRange implements Comparable<ConvertibleVerseRange> {
+public class ConvertibleVerseRange {
 
 	private VerseRange originalVerseRange;
 
@@ -58,27 +56,6 @@ public class ConvertibleVerseRange implements Comparable<ConvertibleVerseRange> 
 	@Override
 	public int hashCode() {
 		return originalVerseRange.hashCode();
-	}
-
-	@Override
-	public int compareTo(@NonNull ConvertibleVerseRange other) {
-		if (this.originalVerseRange == null) {
-			return other.originalVerseRange == null ? 0 : -1;
-		}
-		if (other.originalVerseRange == null){
-			return 1;
-		}
-		final VerseRange otherInThisV11n = other.getVerseRange(originalVerseRange.getVersification());
-		if (otherInThisV11n.getStart().getOrdinal()>0) {
-			return originalVerseRange.compareTo(otherInThisV11n);
-		}
-		final VerseRange thisInOtherV11n = getVerseRange(other.originalVerseRange.getVersification());
-		if (thisInOtherV11n.getStart().getOrdinal()>0) {
-			return thisInOtherV11n.compareTo(other.originalVerseRange);
-		}
-
-		// TODO cannot compare the verses!!!
-		return 0;
 	}
 
 	public Versification getOriginalVersification() {
