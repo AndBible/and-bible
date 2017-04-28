@@ -126,7 +126,7 @@ public class MyNoteDAO {
 		Comparator<MyNoteDto> comparator;
 		switch (sortOrder) {
 			case DATE_CREATED:
-				comparator = MyNoteDto.MYNOTE_CREATION_DATE_COMPARATOR;
+				comparator = new MyNoteCreationDateComparator();
 				break;
 			case BIBLE_BOOK:
 			default:

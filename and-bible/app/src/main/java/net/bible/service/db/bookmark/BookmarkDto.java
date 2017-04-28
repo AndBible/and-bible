@@ -1,14 +1,11 @@
 package net.bible.service.db.bookmark;
 
-import android.support.annotation.NonNull;
-
 import net.bible.android.control.versification.ConvertibleVerseRange;
 import net.bible.android.control.versification.ConvertibleVerseRangeUser;
 
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.Versification;
 
-import java.util.Comparator;
 import java.util.Date;
 
 /**
@@ -94,13 +91,4 @@ public class BookmarkDto implements ConvertibleVerseRangeUser {
 			return false;
 		return true;
 	}
-
-	/** Compare by Create date - most recent first */
-	public static Comparator<BookmarkDto> BOOKMARK_CREATION_DATE_COMPARATOR = new Comparator<BookmarkDto>() {
-
-		public int compare(@NonNull BookmarkDto bookmark1, @NonNull BookmarkDto bookmark2) {
-			// descending order
-			return bookmark2.createdOn.compareTo(bookmark1.createdOn);
-		}
-	};
 }

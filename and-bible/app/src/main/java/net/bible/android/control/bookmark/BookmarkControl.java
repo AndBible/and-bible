@@ -345,7 +345,7 @@ public class BookmarkControl {
 		Comparator<BookmarkDto> comparator;
 		switch (getBookmarkSortOrder()) {
 			case DATE_CREATED:
-				comparator = BookmarkDto.BOOKMARK_CREATION_DATE_COMPARATOR;
+				comparator = new BookmarkCreationDateComparator();
 				break;
 			case BIBLE_BOOK:
 			default:

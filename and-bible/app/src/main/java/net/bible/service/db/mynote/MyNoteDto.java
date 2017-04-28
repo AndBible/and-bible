@@ -1,7 +1,5 @@
 package net.bible.service.db.mynote;
 
-import android.support.annotation.NonNull;
-
 import net.bible.android.control.versification.ConvertibleVerseRange;
 import net.bible.android.control.versification.ConvertibleVerseRangeUser;
 
@@ -9,7 +7,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.Versification;
 
-import java.util.Comparator;
 import java.util.Date;
 
 /**
@@ -128,14 +125,4 @@ public class MyNoteDto implements ConvertibleVerseRangeUser {
 
 		return true;
 	}
-	
-	/** Compare by Create date - most recent first */
-	public static Comparator<MyNoteDto> MYNOTE_CREATION_DATE_COMPARATOR = new Comparator<MyNoteDto>() {
-
-		public int compare(@NonNull MyNoteDto myNote1, @NonNull MyNoteDto myNote2) {
-			// descending order
-			return myNote2.createdOn.compareTo(myNote1.createdOn);
-		}
-	};
-
 }
