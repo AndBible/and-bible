@@ -1,9 +1,9 @@
-/**
- * 
- */
 package net.bible.service.db.mynote;
 
+import android.support.annotation.NonNull;
+
 import net.bible.android.control.versification.ConvertibleVerseRange;
+import net.bible.android.control.versification.ConvertibleVerseRangeUser;
 
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.passage.VerseRange;
@@ -20,7 +20,7 @@ import java.util.Date;
  * @author John D. Lewis [balinjdl at gmail dot com]
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class MyNoteDto implements Comparable<MyNoteDto> {
+public class MyNoteDto implements Comparable<MyNoteDto>, ConvertibleVerseRangeUser {
 	private Long id;
 	private ConvertibleVerseRange convertibleVerseRange;
 	private String noteText;
@@ -53,6 +53,11 @@ public class MyNoteDto implements Comparable<MyNoteDto> {
 		this.convertibleVerseRange = new ConvertibleVerseRange(verseRange);
 	}
 
+	@Override
+	public ConvertibleVerseRange getConvertibleVerseRange() {
+		return convertibleVerseRange;
+	}
+
 	public void setNoteText(String newText) {
 		this.noteText = newText;
 	}
@@ -72,10 +77,15 @@ public class MyNoteDto implements Comparable<MyNoteDto> {
 	public void setCreatedOn(Date createdOn) {
 		this.createdOn = createdOn;
 	}
-	
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
+
+	@Override
+	public String toString() {
+		return "MyNoteDto{" +
+				"convertibleVerseRange=" + convertibleVerseRange +
+				", noteText='" + noteText + '\'' +
+				'}';
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -120,14 +130,14 @@ public class MyNoteDto implements Comparable<MyNoteDto> {
 	}
 	
 	@Override
-	public int compareTo(MyNoteDto another) {
+	public int compareTo(@NonNull MyNoteDto another) {
 		return MYNOTE_BIBLE_ORDER_COMPARATOR.compare(this, another);
 	}
 
 	/** Compare by Bible order */
 	public static Comparator<MyNoteDto> MYNOTE_BIBLE_ORDER_COMPARATOR = new Comparator<MyNoteDto>() {
 
-		public int compare(MyNoteDto myNote1, MyNoteDto myNote2) {
+		public int compare(@NonNull MyNoteDto myNote1, @NonNull MyNoteDto myNote2) {
 			// ascending order
 			return myNote1.convertibleVerseRange.compareTo(myNote2.convertibleVerseRange);
 		}
@@ -135,7 +145,7 @@ public class MyNoteDto implements Comparable<MyNoteDto> {
 	/** Compare by Create date - most recent first */
 	public static Comparator<MyNoteDto> MYNOTE_CREATION_DATE_COMPARATOR = new Comparator<MyNoteDto>() {
 
-		public int compare(MyNoteDto myNote1, MyNoteDto myNote2) {
+		public int compare(@NonNull MyNoteDto myNote1, @NonNull MyNoteDto myNote2) {
 			// descending order
 			return myNote2.createdOn.compareTo(myNote1.createdOn);
 		}

@@ -1,6 +1,7 @@
 package net.bible.android.control.versification;
 
 import net.bible.service.db.bookmark.BookmarkDto;
+import net.bible.service.db.mynote.MyNoteDto;
 
 import org.crosswire.jsword.versification.Versification;
 
@@ -59,6 +60,11 @@ public class ConvertibleVerseRangeComparator implements Comparator<ConvertibleVe
 
 		public Builder withBookmarks(List<BookmarkDto> bookmarks) {
 			prioritisedVersifications = new VersificationPrioritiser(bookmarks).getPrioritisedVersifications();
+			return this;
+		}
+
+		public Builder withMyNotes(List<MyNoteDto> myNoteDtos) {
+			prioritisedVersifications = new VersificationPrioritiser(myNoteDtos).getPrioritisedVersifications();
 			return this;
 		}
 

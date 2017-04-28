@@ -1,6 +1,6 @@
-package net.bible.android.control.bookmark;
+package net.bible.android.control.mynote;
 
-import net.bible.service.db.bookmark.BookmarkDto;
+import net.bible.service.db.mynote.MyNoteDto;
 
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
@@ -18,12 +18,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 
 /**
+ * This is almost identical to the similar BookmarkDtoBibleOrderComparatorTest
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  * The copyright to this program is held by it's author.
  */
-public class BookmarkDtoComparatorTest {
-
+public class MyNoteDtoBibleOrderComparatorTest {
 	private final Versification kjv = Versifications.instance().getVersification("KJV");
 	private final Versification nrsv = Versifications.instance().getVersification("NRSV");
 	private final Versification lxx = Versifications.instance().getVersification("LXX");
@@ -32,14 +33,14 @@ public class BookmarkDtoComparatorTest {
 
 	@Test
 	public void compare() throws Exception {
-		final BookmarkDto kjvPs17_2 = getBookmark(kjv, BibleBook.PS, 17, 2);
-		final BookmarkDto nrsvPs17_3 = getBookmark(nrsv, BibleBook.PS, 17, 3);
-		final BookmarkDto lxxPs17_4 = getBookmark(lxx, BibleBook.PS, 17, 4);
-		final BookmarkDto synodalPs17_5 = getBookmark(synodal, BibleBook.PS, 17, 5);
-		final BookmarkDto kjvPs17_6 = getBookmark(kjv, BibleBook.PS, 17, 6);
-		final BookmarkDto kjvPs17_7 = getBookmark(nrsv, BibleBook.PS, 17, 7);
-		final BookmarkDto segondPs17_8 = getBookmark(segond, BibleBook.PS, 17, 8);
-		final List<BookmarkDto> bookmarks = Arrays.asList(
+		final MyNoteDto kjvPs17_2 = getMyNote(kjv, BibleBook.PS, 17, 2);
+		final MyNoteDto nrsvPs17_3 = getMyNote(nrsv, BibleBook.PS, 17, 3);
+		final MyNoteDto lxxPs17_4 = getMyNote(lxx, BibleBook.PS, 17, 4);
+		final MyNoteDto synodalPs17_5 = getMyNote(synodal, BibleBook.PS, 17, 5);
+		final MyNoteDto kjvPs17_6 = getMyNote(kjv, BibleBook.PS, 17, 6);
+		final MyNoteDto kjvPs17_7 = getMyNote(nrsv, BibleBook.PS, 17, 7);
+		final MyNoteDto segondPs17_8 = getMyNote(segond, BibleBook.PS, 17, 8);
+		final List<MyNoteDto> myNotes = Arrays.asList(
 				kjvPs17_2,
 				nrsvPs17_3,
 				lxxPs17_4,
@@ -49,16 +50,18 @@ public class BookmarkDtoComparatorTest {
 				segondPs17_8
 		);
 
-		Collections.sort(bookmarks, new BookmarkDtoComparator(bookmarks));
+		Collections.sort(myNotes, new MyNoteDtoBibleOrderComparator(myNotes));
 
-		assertThat(bookmarks, contains(kjvPs17_2, nrsvPs17_3, lxxPs17_4, kjvPs17_6, kjvPs17_7, segondPs17_8, synodalPs17_5));
+		assertThat(myNotes, contains(kjvPs17_2, nrsvPs17_3, lxxPs17_4, kjvPs17_6, kjvPs17_7, segondPs17_8, synodalPs17_5));
 	}
 
-	private BookmarkDto getBookmark(Versification v11n, BibleBook book, int chapter, int verse) {
-		BookmarkDto newBookmarkDto = new BookmarkDto();
+	private MyNoteDto getMyNote(Versification v11n, BibleBook book, int chapter, int verse) {
+		MyNoteDto newMyNoteDto = new MyNoteDto();
 		final VerseRange verseRange = new VerseRange(v11n, new Verse(v11n, book, chapter, verse), new Verse(v11n, book, chapter, verse));
-		newBookmarkDto.setVerseRange(verseRange);
+		newMyNoteDto.setVerseRange(verseRange);
+		newMyNoteDto.setNoteText("Some test note text");
 
-		return newBookmarkDto;
+		return newMyNoteDto;
 	}
+
 }

@@ -1,7 +1,7 @@
-package net.bible.android.control.bookmark;
+package net.bible.android.control.mynote;
 
 import net.bible.android.control.versification.ConvertibleVerseRangeComparator;
-import net.bible.service.db.bookmark.BookmarkDto;
+import net.bible.service.db.mynote.MyNoteDto;
 
 import java.util.Comparator;
 import java.util.List;
@@ -14,15 +14,15 @@ import java.util.List;
  * The copyright to this program is held by it's author.
  */
 
-public class BookmarkDtoComparator implements Comparator<BookmarkDto> {
+public class MyNoteDtoBibleOrderComparator implements Comparator<MyNoteDto> {
 	private final ConvertibleVerseRangeComparator convertibleVerseRangeComparator;
 
-	public BookmarkDtoComparator(List<BookmarkDto> bookmarkDtos) {
-		this.convertibleVerseRangeComparator = new ConvertibleVerseRangeComparator.Builder().withBookmarks(bookmarkDtos).build();
+	public MyNoteDtoBibleOrderComparator(List<MyNoteDto> myNoteDtos) {
+		this.convertibleVerseRangeComparator = new ConvertibleVerseRangeComparator.Builder().withMyNotes(myNoteDtos).build();
 	}
 
 	@Override
-	public int compare(BookmarkDto o1, BookmarkDto o2) {
+	public int compare(MyNoteDto o1, MyNoteDto o2) {
 		return convertibleVerseRangeComparator.compare(o1, o2);
 	}
 }

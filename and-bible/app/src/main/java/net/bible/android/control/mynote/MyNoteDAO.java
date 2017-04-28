@@ -123,16 +123,15 @@ public class MyNoteDAO {
 	}
 
 	private List<MyNoteDto> getSortedMyNotes(List<MyNoteDto> myNoteList, MyNoteSortOrder sortOrder) {
-		Comparator<MyNoteDto> comparator = null;
+		Comparator<MyNoteDto> comparator;
 		switch (sortOrder) {
 			case DATE_CREATED:
 				comparator = MyNoteDto.MYNOTE_CREATION_DATE_COMPARATOR;
 				break;
 			case BIBLE_BOOK:
 			default:
-				comparator = MyNoteDto.MYNOTE_BIBLE_ORDER_COMPARATOR;
+				comparator = new MyNoteDtoBibleOrderComparator(myNoteList);
 				break;
-
 		}
 
 		// the new Java 7 sort is stricter and occasionally generates errors, so prevent total crash on listing notes

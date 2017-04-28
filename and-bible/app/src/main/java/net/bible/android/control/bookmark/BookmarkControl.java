@@ -349,10 +349,17 @@ public class BookmarkControl {
 				break;
 			case BIBLE_BOOK:
 			default:
-				comparator = new BookmarkDtoComparator(bookmarkList);
+				comparator = new BookmarkDtoBibleOrderComparator(bookmarkList);
 				break;
 		}
-		Collections.sort(bookmarkList, comparator);
+
+		// the new Java 7 sort is stricter and occasionally generates errors, so prevent total crash on listing bookmarks
+		try {
+			Collections.sort(bookmarkList, comparator);
+		} catch (Exception e) {
+			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+		}
+
 		return bookmarkList;
 	}
 
