@@ -4,12 +4,18 @@ import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
+import org.crosswire.jsword.versification.system.SystemGerman;
 import org.crosswire.jsword.versification.system.SystemKJV;
 import org.crosswire.jsword.versification.system.SystemKJVA;
 import org.crosswire.jsword.versification.system.SystemLXX;
+import org.crosswire.jsword.versification.system.SystemLeningrad;
+import org.crosswire.jsword.versification.system.SystemLuther;
+import org.crosswire.jsword.versification.system.SystemMT;
 import org.crosswire.jsword.versification.system.SystemNRSV;
 import org.crosswire.jsword.versification.system.SystemSegond;
+import org.crosswire.jsword.versification.system.SystemSynodal;
 import org.crosswire.jsword.versification.system.SystemSynodalProt;
+import org.crosswire.jsword.versification.system.SystemVulg;
 import org.crosswire.jsword.versification.system.Versifications;
 
 public interface TestData {
@@ -19,6 +25,12 @@ public interface TestData {
 	Versification NRSV = Versifications.instance().getVersification(SystemNRSV.V11N_NAME);
 	Versification LXX = Versifications.instance().getVersification(SystemLXX.V11N_NAME);
 	Versification SEGOND = Versifications.instance().getVersification(SystemSegond.V11N_NAME);
+	Versification MT = Versifications.instance().getVersification(SystemMT.V11N_NAME);
+	Versification GERMAN = Versifications.instance().getVersification(SystemGerman.V11N_NAME);
+	Versification LENINGRAD = Versifications.instance().getVersification(SystemLeningrad.V11N_NAME);
+	Versification LUTHER = Versifications.instance().getVersification(SystemLuther.V11N_NAME);
+	Versification SYNODAL = Versifications.instance().getVersification(SystemSynodal.V11N_NAME);
+	Versification VULGATE = Versifications.instance().getVersification(SystemVulg.V11N_NAME);
 
 	// these verses should be equivalent
 	Verse KJV_PS_14_2 = new Verse(KJV, BibleBook.PS, 14, 2);
