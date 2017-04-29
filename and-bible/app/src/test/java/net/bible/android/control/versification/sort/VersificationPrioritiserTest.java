@@ -1,4 +1,7 @@
-package net.bible.android.control.versification;
+package net.bible.android.control.versification.sort;
+
+import net.bible.android.control.versification.ConvertibleVerseRange;
+import net.bible.android.control.versification.TestData;
 
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;

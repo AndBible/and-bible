@@ -1,5 +1,7 @@
-package net.bible.android.control.versification;
+package net.bible.android.control.versification.sort;
 
+import net.bible.android.control.versification.ConvertibleVerseRange;
+import net.bible.android.control.versification.TestData;
 import net.bible.service.db.bookmark.BookmarkDto;
 
 import org.junit.Before;

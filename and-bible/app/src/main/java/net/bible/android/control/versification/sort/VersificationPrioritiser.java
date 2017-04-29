@@ -1,4 +1,4 @@
-package net.bible.android.control.versification;
+package net.bible.android.control.versification.sort;
 
 import org.crosswire.jsword.versification.Versification;
 
@@ -17,11 +17,11 @@ import java.util.Map;
  * The copyright to this program is held by it's author.
  */
 
-public class VersificationPrioritiser {
+class VersificationPrioritiser {
 
 	private List<Versification> prioritisedVersifications;
 
-	public VersificationPrioritiser(List<? extends ConvertibleVerseRangeUser> convertibleVerseRangeUsers) {
+	VersificationPrioritiser(List<? extends ConvertibleVerseRangeUser> convertibleVerseRangeUsers) {
 		this.prioritisedVersifications = prioritiseVersifications(getVersifications(convertibleVerseRangeUsers));
 	}
 
@@ -61,7 +61,7 @@ public class VersificationPrioritiser {
 		return sortedVersifications;
 	}
 
-	public List<Versification> getPrioritisedVersifications() {
+	List<Versification> getPrioritisedVersifications() {
 		return Collections.unmodifiableList(prioritisedVersifications);
 	}
 }

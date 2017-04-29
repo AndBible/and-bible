@@ -1,4 +1,6 @@
-package net.bible.android.control.versification;
+package net.bible.android.control.versification.sort;
+
+import net.bible.android.control.versification.ConvertibleVerseRange;
 
 /**
  * Something that uses/has a {@link ConvertibleVerseRange}

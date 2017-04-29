@@ -1,7 +1,7 @@
 package net.bible.service.db.mynote;
 
 import net.bible.android.control.versification.ConvertibleVerseRange;
-import net.bible.android.control.versification.ConvertibleVerseRangeUser;
+import net.bible.android.control.versification.sort.ConvertibleVerseRangeUser;
 
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.passage.VerseRange;

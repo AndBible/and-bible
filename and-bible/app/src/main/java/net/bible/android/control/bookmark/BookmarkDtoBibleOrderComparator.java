@@ -1,6 +1,6 @@
 package net.bible.android.control.bookmark;
 
-import net.bible.android.control.versification.ConvertibleVerseRangeComparator;
+import net.bible.android.control.versification.sort.ConvertibleVerseRangeComparator;
 import net.bible.service.db.bookmark.BookmarkDto;
 
 import java.util.Comparator;
