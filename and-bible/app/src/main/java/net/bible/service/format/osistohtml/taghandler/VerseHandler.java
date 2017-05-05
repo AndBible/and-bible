@@ -84,6 +84,9 @@ public class VerseHandler implements OsisTagHandler {
 
 	@Override
 	public void end() {
+		// ensure any unclosed pre-verse tags do not cause invisible verses
+		writer.abortAnyUnterminatedInsertion();
+
 		// these related handlers currently do nothing on end
 		myNoteMarker.end();
 

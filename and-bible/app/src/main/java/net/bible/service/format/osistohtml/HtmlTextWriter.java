@@ -74,6 +74,14 @@ public class HtmlTextWriter {
     	insertionRequestCount--;
     }
 
+    public void abortAnyUnterminatedInsertion() {
+		if (insertionRequestCount > 0) {
+			// force insertion to finish in the case a closing pre-verse tag was missing
+			insertionRequestCount = 1;
+			finishInserting();
+		}
+	}
+
     public int getPosition() {
     	return writer.length();
     }

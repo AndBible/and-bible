@@ -27,20 +27,20 @@ import java.util.Stack;
  */
 public class DivHandler implements OsisTagHandler {
 
-	private enum DivType {PARAGRAPH, PREVERSE, PREVERSE_START_MILESTONE, PREVERSE_END_MILESTONE, IGNORE};
+	private enum DivType {PARAGRAPH, PREVERSE, PREVERSE_START_MILESTONE, PREVERSE_END_MILESTONE, IGNORE}
 
 	private HtmlTextWriter writer;
-	
+
 	@SuppressWarnings("unused")
 	private OsisToHtmlParameters parameters;
-	
+
 	private VerseInfo verseInfo;
 	private PassageInfo passageInfo;
-	
-	private Stack<DivType> stack = new Stack<DivType>();
-	
+
+	private Stack<DivType> stack = new Stack<>();
+
 	private static List<String> PARAGRAPH_TYPE_LIST = Arrays.asList("paragraph", "x-p", "x-end-paragraph");
-	
+
 	@SuppressWarnings("unused")
 	private static final Logger log = new Logger("DivHandler");
 
@@ -50,7 +50,7 @@ public class DivHandler implements OsisTagHandler {
 		this.passageInfo = passageInfo;
 		this.writer = writer;
 	}
-	
+
 	@Override
 	public String getTagName() {
         return OSISUtil.OSIS_ELEMENT_DIV;
@@ -62,7 +62,7 @@ public class DivHandler implements OsisTagHandler {
 		String type = attrs.getValue("type");
 		if (PARAGRAPH_TYPE_LIST.contains(type)) {
 			// ignore sID start paragraph sID because it often comes after the verse no and causes a gap between verse no verse text
-			// could enhance this to use writeOptionallyBeforeVerse('<p>') and then write </p> in end() if there is no sID or eID 
+			// could enhance this to use writeOptionallyBeforeVerse('<p>') and then write </p> in end() if there is no sID or eID
 			String sID = attrs.getValue("sID");
 			if (sID==null) {
 				divType = DivType.PARAGRAPH;
@@ -71,11 +71,11 @@ public class DivHandler implements OsisTagHandler {
 			if (TagHandlerHelper.isAttr(OSISUtil.OSIS_ATTR_SID, attrs)) {
 				divType = DivType.PREVERSE_START_MILESTONE;
 				writer.beginInsertAt(verseInfo.positionToInsertBeforeVerse);
-				
+
 			} else if (TagHandlerHelper.isAttr(OSISUtil.OSIS_ATTR_EID, attrs)) {
 				divType = DivType.PREVERSE_END_MILESTONE;
 				writer.finishInserting();
-				
+
 			} else {
 				divType = DivType.PREVERSE;
 				writer.beginInsertAt(verseInfo.positionToInsertBeforeVerse);

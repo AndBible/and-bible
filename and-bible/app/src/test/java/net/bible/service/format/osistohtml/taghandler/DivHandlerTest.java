@@ -136,4 +136,35 @@ public class DivHandlerTest {
 
 		assertThat(htmlTextWriter.getHtml(), equalTo("Preverse textv1Verse content"));
 	}
+	/**
+	 * In ERV many verses at the end of chapters have a div with pre-verse and start-milestone attributes but there is no matching end-milestone div and the div does not appear to contain anything
+	 * E.g. ERV Psalm 2:12 and Psalm 3:8 but there are many more.
+	 *
+	 * <div type="x-milestone" subType="x-preverse" sID="pv6984"/>
+	 */
+	@Test
+	public void testErvUnMatchedFinalPreVerseDiv() {
+		// verse comes first
+		htmlTextWriter.write("v1");
+		verseInfo.currentVerseNo = 1;
+		verseInfo.positionToInsertBeforeVerse = 0;
+		verseInfo.isTextSinceVerse = false;
+
+		htmlTextWriter.write("Verse content");
+		verseInfo.isTextSinceVerse = true;
+
+		// then a div with a pre-verse attribute
+		AttributesImpl attrsSidOpen = new AttributesImpl();
+		attrsSidOpen.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "x-milestone");
+		attrsSidOpen.addAttribute(null, null, OSISUtil.OSIS_ATTR_SUBTYPE, null, "x-preverse");
+		attrsSidOpen.addAttribute(null, null, OSISUtil.OSIS_ATTR_SID, null, "pv2905");
+		divHandler.start(attrsSidOpen);
+		divHandler.end();
+
+		// no matching eid
+
+		htmlTextWriter.abortAnyUnterminatedInsertion();
+
+		assertThat(htmlTextWriter.getHtml(), equalTo("v1Verse content"));
+	}
 }
