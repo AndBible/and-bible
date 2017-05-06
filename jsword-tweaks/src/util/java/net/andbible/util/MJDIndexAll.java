@@ -1,37 +1,27 @@
 package net.andbible.util;
 
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.List;
-import java.util.Properties;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.util.Version;
-import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.book.BookException;
-import org.crosswire.jsword.book.BookFilter;
-import org.crosswire.jsword.book.BookFilters;
-import org.crosswire.jsword.book.Books;
+import org.crosswire.jsword.book.*;
 import org.crosswire.jsword.book.sword.SwordBookPath;
 import org.crosswire.jsword.bridge.BookIndexer;
 import org.crosswire.jsword.bridge.BookInstaller;
 import org.crosswire.jsword.index.IndexManager;
 import org.crosswire.jsword.index.IndexManagerFactory;
 import org.crosswire.jsword.index.IndexStatus;
+
+import java.io.*;
+import java.util.List;
+import java.util.Properties;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 //import org.apache.lucene.LucenePackage;
 
 public class MJDIndexAll {
 
 	private static final String REPOSITORY_CROSSWIRE = "CrossWire";
 	private static final String REPOSITORY_IBT = "IBT";
-	private static final String REPOSITORY_WYCLIFFE = "Wycliffe";
 	private static final String REPOSITORY_XIPHOS = "Xiphos";
 	private static final String REPOSITORY_CROSSWIRE_BETA = "Crosswire Beta";
 	// Default repo used below
@@ -77,8 +67,9 @@ public class MJDIndexAll {
 	//    	indexAll.installSingleBook("BDBGlosses_Strongs");
 	//    	indexAll.installRepoBooks();
 
-	    	boolean installAndIndex = true;
+	    	boolean installAndIndex = false;
 			indexAll.checkAllBooksInstalled(installAndIndex);
+//		    indexAll.checkXiphosBooks();
 
 	//	    	indexAll.manageCreateIndexes();
 	    	
