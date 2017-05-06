@@ -70,6 +70,10 @@ public class VerseMenuCommandHandler {
 					PassageChangeMediator.getInstance().forcePageUpdate();
 					isHandled = true;
 					break;
+				case R.id.edit_bookmark_labels:
+					bookmarkControl.editBookmarkLabelsForVerseRange(verseRange);
+					isHandled = true;
+					break;
 				case R.id.myNoteAddEdit:
 					myNoteControl.showMyNote(verseRange);
 					isHandled = true;

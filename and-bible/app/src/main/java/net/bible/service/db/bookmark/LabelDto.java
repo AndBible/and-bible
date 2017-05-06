@@ -1,6 +1,8 @@
 package net.bible.service.db.bookmark;
 
 
+import android.support.annotation.NonNull;
+
 import net.bible.android.control.bookmark.BookmarkStyle;
 
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +16,15 @@ public class LabelDto implements Comparable<LabelDto> {
 	private Long id;
 	private String name;
 	private BookmarkStyle bookmarkStyle;
+
+	public LabelDto() {
+	}
+
+	public LabelDto(Long id, String name, BookmarkStyle bookmarkStyle) {
+		this.id = id;
+		this.name = name;
+		this.bookmarkStyle = bookmarkStyle;
+	}
 
 	@Override
 	public String toString() {
@@ -89,8 +100,7 @@ public class LabelDto implements Comparable<LabelDto> {
 	}
 
 	@Override
-	public int compareTo(LabelDto another) {
-		assert another!=null;
+	public int compareTo(@NonNull LabelDto another) {
 		return name.compareToIgnoreCase(another.name);
 	}
 }

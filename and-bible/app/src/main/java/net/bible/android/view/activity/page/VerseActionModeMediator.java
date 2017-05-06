@@ -166,6 +166,7 @@ public class VerseActionModeMediator {
 			boolean isVerseBookmarked = startVerse!=null && bookmarkControl.isBookmarkForKey(getStartVerse());
 			menu.findItem(R.id.add_bookmark).setVisible(!isVerseBookmarked);
 			menu.findItem(R.id.delete_bookmark).setVisible(isVerseBookmarked);
+			menu.findItem(R.id.edit_bookmark_labels).setVisible(isVerseBookmarked);
 
 			// must return true if menu changed
 			return true;

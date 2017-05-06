@@ -34,6 +34,10 @@
 		  android:icon="@drawable/ic_share_24dp"
 		  appcompat:showAsAction="ifRoom"/>
 
+	<item android:id="@+id/edit_bookmark_labels"
+		  android:title="@string/bookmark_labels"
+		  android:icon="@drawable/ic_label_24dp"/>
+
 	<!-- Footnotes and references -->
 	<item android:id="@+id/notes"
 		  android:title="@string/notes"/>

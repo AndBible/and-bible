@@ -46,8 +46,8 @@ public class BookmarkControl {
 	public static final String BOOKMARK_IDS_EXTRA = "bookmarkIds";
 	public static final String LABEL_NO_EXTRA = "labelNo";
 
-	private LabelDto LABEL_ALL;
-	private LabelDto LABEL_UNLABELLED;
+	private final LabelDto LABEL_ALL;
+	private final LabelDto LABEL_UNLABELLED;
 
 	private static final String BOOKMARK_SORT_ORDER = "BookmarkSortOrder";
 
@@ -61,18 +61,13 @@ public class BookmarkControl {
 	public BookmarkControl(SwordContentFacade swordContentFacade, ActiveWindowPageManagerProvider activeWindowPageManagerProvider, ResourceProvider resourceProvider) {
 		this.swordContentFacade = swordContentFacade;
 		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
-		LABEL_ALL = new LabelDto();
-		LABEL_ALL.setName(resourceProvider.getString(R.string.all));
-		LABEL_ALL.setId(-999L);
-		LABEL_UNLABELLED = new LabelDto();
-		LABEL_UNLABELLED.setName(resourceProvider.getString(R.string.label_unlabelled));
-		LABEL_UNLABELLED.setId(-998L);
+		LABEL_ALL = new LabelDto(-999L, resourceProvider.getString(R.string.all), null);
+		LABEL_UNLABELLED = new LabelDto(-998L, resourceProvider.getString(R.string.label_unlabelled), null);
 	}
-	
+
 	public boolean toggleBookmarkForVerseRange(VerseRange verseRange) {
 		boolean bOk = false;
-		CurrentPageManager currentPageControl = activeWindowPageManagerProvider.getActiveWindowPageManager();
-		if (currentPageControl.isBibleShown() || currentPageControl.isCommentaryShown()) {
+		if (isCurrentDocumentBookmarkable()) {
 
 			BookmarkDto bookmarkDto = getBookmarkByKey(verseRange);
 			final Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
@@ -88,17 +83,14 @@ public class BookmarkControl {
 				bookmarkDto = new BookmarkDto();
 				bookmarkDto.setVerseRange(verseRange);
 				final BookmarkDto newBookmark = addBookmark(bookmarkDto);
-				
+
 				if (newBookmark!=null) {
 					// success
 					int actionTextColor = CommonUtils.getResourceColor(R.color.snackbar_action_text);
 					Snackbar.make(currentView, R.string.bookmark_added, Snackbar.LENGTH_LONG).setActionTextColor(actionTextColor).setAction(R.string.assign_labels, new View.OnClickListener() {
 						@Override
 						public void onClick(View v) {
-							// Show label view for new bookmark
-							final Intent intent = new Intent(currentActivity, BookmarkLabels.class);
-							intent.putExtra(BOOKMARK_IDS_EXTRA, new long[] {newBookmark.getId()});
-							currentActivity.startActivityForResult(intent, IntentHelper.REFRESH_DISPLAY_ON_FINISH);
+							showBookmarkLabelsActivity(currentActivity, newBookmark);
 						}
 					}).show();
 					bOk = true;
@@ -108,6 +100,18 @@ public class BookmarkControl {
 			}
 		}
 		return bOk;
+	}
+
+	// Label related methods
+	public void editBookmarkLabelsForVerseRange(VerseRange verseRange) {
+		if (isCurrentDocumentBookmarkable()) {
+			BookmarkDto bookmarkDto = getBookmarkByKey(verseRange);
+			final Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
+			if (bookmarkDto != null) {
+				// Show label view for new bookmark
+				showBookmarkLabelsActivity(currentActivity, bookmarkDto);
+			}
+		}
 	}
 
 	public String getBookmarkVerseKey(BookmarkDto bookmark) {
@@ -212,11 +216,10 @@ public class BookmarkControl {
 			} finally {
 				db.close();
 			}
-		}		
+		}
 		return bOk;
 	}
 
-	// Label related methods
 	/** get bookmarks with the given label */
 	public List<BookmarkDto> getBookmarksWithLabel(LabelDto label) {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
@@ -240,10 +243,11 @@ public class BookmarkControl {
 		return bookmarkList;
 	}
 
+
 	/** get bookmarks associated labels */
 	public List<LabelDto> getBookmarkLabels(BookmarkDto bookmark) {
 		List<LabelDto> labels;
-		
+
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		try {
 			db.open();
@@ -254,25 +258,24 @@ public class BookmarkControl {
 		return labels;
 	}
 
-
 	/** label the bookmark with these and only these labels */
 	public void setBookmarkLabels(BookmarkDto bookmark, List<LabelDto> labels) {
-		// never save LABEL_ALL 
+		// never save LABEL_ALL
 		labels.remove(LABEL_ALL);
 		labels.remove(LABEL_UNLABELLED);
-		
+
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		try {
 			db.open();
 			List<LabelDto> prevLabels = db.getBookmarkLabels(bookmark);
-			
+
 			//find those which have been deleted and remove them
 			Set<LabelDto> deleted = new HashSet<>(prevLabels);
 			deleted.removeAll(labels);
 			for (LabelDto label : deleted) {
 				db.removeBookmarkLabelJoin(bookmark, label);
 			}
-			
+
 			//find those which are new and persist them
 			Set<LabelDto> added = new HashSet<>(labels);
 			added.removeAll(prevLabels);
@@ -284,7 +287,7 @@ public class BookmarkControl {
 			db.close();
 		}
 	}
-	
+
 	public LabelDto saveOrUpdateLabel(LabelDto label) {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		LabelDto retLabel = null;
@@ -293,7 +296,7 @@ public class BookmarkControl {
 			if (label.getId()==null) {
 				retLabel = db.insertLabel(label);
 			} else {
-				retLabel = db.updateLabel(label);			
+				retLabel = db.updateLabel(label);
 			}
 		} finally {
 			db.close();
@@ -340,6 +343,30 @@ public class BookmarkControl {
 		return labelList;
 	}
 
+	public void changeBookmarkSortOrder() {
+		if (getBookmarkSortOrder().equals(BookmarkSortOrder.BIBLE_BOOK)) {
+			setBookmarkSortOrder(BookmarkSortOrder.DATE_CREATED);
+		} else {
+			setBookmarkSortOrder(BookmarkSortOrder.BIBLE_BOOK);
+		}
+	}
+
+	private BookmarkSortOrder getBookmarkSortOrder() {
+		String bookmarkSortOrderStr = CommonUtils.getSharedPreference(BOOKMARK_SORT_ORDER, BookmarkSortOrder.BIBLE_BOOK.toString());
+		return BookmarkSortOrder.valueOf(bookmarkSortOrderStr);
+	}
+	private void setBookmarkSortOrder(BookmarkSortOrder bookmarkSortOrder) {
+		CommonUtils.saveSharedPreference(BOOKMARK_SORT_ORDER, bookmarkSortOrder.toString());
+	}
+
+	public String getBookmarkSortOrderDescription() {
+		if (BookmarkSortOrder.BIBLE_BOOK.equals(getBookmarkSortOrder())) {
+			return CommonUtils.getResourceString(R.string.sort_by_bible_book);
+		} else {
+			return CommonUtils.getResourceString(R.string.sort_by_date);
+		}
+	}
+
 	private List<BookmarkDto> getSortedBookmarks(List<BookmarkDto> bookmarkList) {
 
 		Comparator<BookmarkDto> comparator;
@@ -363,28 +390,15 @@ public class BookmarkControl {
 		return bookmarkList;
 	}
 
-	public void changeBookmarkSortOrder() {
-		if (getBookmarkSortOrder().equals(BookmarkSortOrder.BIBLE_BOOK)) {
-			setBookmarkSortOrder(BookmarkSortOrder.DATE_CREATED);
-		} else {
-			setBookmarkSortOrder(BookmarkSortOrder.BIBLE_BOOK);
-		}
-	}
-	
-	public BookmarkSortOrder getBookmarkSortOrder() {
-		String bookmarkSortOrderStr = CommonUtils.getSharedPreference(BOOKMARK_SORT_ORDER, BookmarkSortOrder.BIBLE_BOOK.toString());
-		return BookmarkSortOrder.valueOf(bookmarkSortOrderStr);
-	}
-	
-	public void setBookmarkSortOrder(BookmarkSortOrder bookmarkSortOrder) {
-		CommonUtils.saveSharedPreference(BOOKMARK_SORT_ORDER, bookmarkSortOrder.toString());
+	private boolean isCurrentDocumentBookmarkable() {
+		CurrentPageManager currentPageControl = activeWindowPageManagerProvider.getActiveWindowPageManager();
+		return currentPageControl.isBibleShown() || currentPageControl.isCommentaryShown();
 	}
 
-	public String getBookmarkSortOrderDescription() {
-		if (BookmarkSortOrder.BIBLE_BOOK.equals(getBookmarkSortOrder())) {
-			return CommonUtils.getResourceString(R.string.sort_by_bible_book);
-		} else {
-			return CommonUtils.getResourceString(R.string.sort_by_date);
-		}
+	private void showBookmarkLabelsActivity(Activity currentActivity, BookmarkDto bookmarkDto) {
+		// Show label view for new bookmark
+		final Intent intent = new Intent(currentActivity, BookmarkLabels.class);
+		intent.putExtra(BOOKMARK_IDS_EXTRA, new long[] {bookmarkDto.getId()});
+		currentActivity.startActivityForResult(intent, IntentHelper.REFRESH_DISPLAY_ON_FINISH);
 	}
 }
