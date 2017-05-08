@@ -68,3 +68,5 @@
 -keep class org.apache.lucene.analysis.tokenattributes.**
 -keep class org.apache.lucene.**Attribute
 -keep class * implements org.apache.lucene.**Attribute
+# required for non-English searches
+-keep class * extends org.tartarus.snowball.SnowballProgram
