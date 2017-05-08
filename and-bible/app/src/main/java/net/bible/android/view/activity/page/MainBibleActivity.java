@@ -29,6 +29,7 @@ import net.bible.android.view.activity.DaggerMainBibleActivityComponent;
 import net.bible.android.view.activity.MainBibleActivityModule;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
 import net.bible.android.view.activity.page.actionbar.BibleActionBarManager;
+import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator;
 import net.bible.android.view.activity.page.screen.DocumentViewManager;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;

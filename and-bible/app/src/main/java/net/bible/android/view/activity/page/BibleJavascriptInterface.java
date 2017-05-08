@@ -5,6 +5,7 @@ import android.webkit.JavascriptInterface;
 
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.page.window.WindowControl;
+import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator;
 
 /**
  * Interface allowing javascript to call java methods in app

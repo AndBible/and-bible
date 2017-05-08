@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.page;
+package net.bible.android.view.activity.page.actionmode;
 
 import android.support.v7.view.ActionMode;
 import android.view.Menu;

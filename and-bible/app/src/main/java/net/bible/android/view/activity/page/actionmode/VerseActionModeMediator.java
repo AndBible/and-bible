@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.page;
+package net.bible.android.view.activity.page.actionmode;
 
 import android.content.Intent;
 import android.support.v7.view.ActionMode;
@@ -11,6 +11,7 @@ import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.page.PageControl;
+import net.bible.android.view.activity.page.VerseNoRange;
 
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;

@@ -10,6 +10,8 @@ import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.view.activity.MainBibleActivityScope;
+import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator;
+import net.bible.android.view.activity.page.actionmode.VerseMenuCommandHandler;
 
 import java.util.Map;
 import java.util.WeakHashMap;

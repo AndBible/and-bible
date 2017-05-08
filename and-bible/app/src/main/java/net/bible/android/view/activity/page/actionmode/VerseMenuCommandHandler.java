@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.page;
+package net.bible.android.view.activity.page.actionmode;
 
 import android.app.Activity;
 import android.content.Intent;

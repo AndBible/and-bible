@@ -26,6 +26,7 @@ import net.bible.android.control.page.PageTiltScrollControl;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.view.activity.base.DocumentView;
+import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator;
 import net.bible.android.view.activity.page.screen.PageTiltScroller;
 import net.bible.android.view.util.UiUtils;
 import net.bible.service.common.CommonUtils;
