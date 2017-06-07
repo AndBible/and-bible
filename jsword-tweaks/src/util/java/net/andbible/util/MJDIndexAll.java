@@ -26,7 +26,7 @@ public class MJDIndexAll {
 	private static final String REPOSITORY_CROSSWIRE_BETA = "Crosswire Beta";
 	private static final String REPOSITORY_EBIBLE = "eBible";
 	// Default repo used below
-	private static final String REPOSITORY = REPOSITORY_EBIBLE;
+	private static final String REPOSITORY = REPOSITORY_CROSSWIRE;
 	
 //	private static final BookFilter BOOK_FILTER = BookFilters.getDictionaries();
 	private static final BookFilter BOOK_FILTER = BookFilters.either(BookFilters.getBibles(), BookFilters.getCommentaries());
@@ -68,7 +68,7 @@ public class MJDIndexAll {
 	//    	indexAll.installSingleBook("BDBGlosses_Strongs");
 	//    	indexAll.installRepoBooks();
 
-	    	boolean installAndIndex = false;
+	    	boolean installAndIndex = true;
 			indexAll.checkAllBooksInstalled(installAndIndex);
 //		    indexAll.checkXiphosBooks();
 
@@ -287,7 +287,7 @@ public class MJDIndexAll {
 
 		    //eBible
 		    // f10
-			indexAll.installAndIndexSingleBook("fraLSG1910eb");
+//			indexAll.installAndIndexSingleBook("fraLSG1910eb");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
