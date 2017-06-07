@@ -13,7 +13,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.channels.FileChannel;
 import java.util.Properties;
 
 /**
@@ -40,7 +39,7 @@ public class FileManager {
 
         return ok;
 	}
-	
+
 	public static boolean copyFile(File fromFile, File toFile) {
 		boolean ok = false;
 		try {
@@ -54,21 +53,23 @@ public class FileManager {
 	        	log.debug("Source file length:"+fromFileSize);
 	        	if (fromFileSize > CommonUtils.getFreeSpace(toDir.getPath())) {
 	        		// not enough room on SDcard
-	        		ok = false;            		
+					log.error("Not enough room on SD card");
+	        		ok = false;
 	        	} else {
 	            	// move the file
-	        		FileInputStream srcStream = new FileInputStream(fromFile);
-	                FileChannel src = srcStream.getChannel();
-	                FileOutputStream dstStream = new FileOutputStream(toFile);
-	                FileChannel dst = dstStream.getChannel();
+	        		FileInputStream src = new FileInputStream(fromFile);
+	                FileOutputStream dest = new FileOutputStream(toFile, false);
 	            	try {
-	            		dst.transferFrom(src, 0, src.size());
+						// Transfer bytes from in to out
+						byte[] buf = new byte[1024];
+						int len;
+						while ((len = src.read(buf)) > 0) {
+							dest.write(buf, 0, len);
+						}
 		                ok = true;
 	            	} finally {
 		                src.close();
-		                dst.close();
-		                srcStream.close();
-		                dstStream.close();
+		                dest.close();
 	            	}
 	        	}
 	        } else {
@@ -76,11 +77,11 @@ public class FileManager {
 	        	ok = false;
 	        }
 	    } catch (Exception e) {
-	    	log.error("Error moving file to sd card", e);
-	    }
+			log.error("Error moving file", e);
+		}
 		return ok;
 	}
-	
+
 	/* Open a properties file from the assets folder
 	 */
 	public static Properties readPropertiesFile(String folder, String filename) {
