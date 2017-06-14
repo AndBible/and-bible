@@ -68,7 +68,7 @@
 	        android:layout_width="0dip"
 	        android:layout_height="wrap_content"
 	        android:layout_weight="1"
-			android:onClick="onRewind"/>
+			android:onClick="onButtonClick"/>
 	  	
 	    <ImageButton android:id="@+id/stopButton"
 	  	    android:src="@drawable/ic_media_stop"
@@ -76,7 +76,7 @@
 	        android:layout_width="0dip"
 	        android:layout_height="wrap_content"
 	        android:layout_weight="1"
-			android:onClick="onStop"/>
+			android:onClick="onButtonClick"/>
 	  	
 	    <ImageButton android:id="@+id/pauseButton"
 	  	    android:src="@android:drawable/ic_media_pause"
@@ -84,7 +84,7 @@
 	        android:layout_width="0dip"
 	        android:layout_height="wrap_content"
 	        android:layout_weight="1"
-			android:onClick="onPause"/>
+			android:onClick="onButtonClick"/>
 	    
 	    <ImageButton android:id="@+id/speakButton"
 	  	    android:src="@android:drawable/ic_media_play"
@@ -92,7 +92,7 @@
 	        android:layout_width="0dip"
 	        android:layout_height="wrap_content"
 	        android:layout_weight="1"
-   			android:onClick="onSpeak"/>
+   			android:onClick="onButtonClick"/>
 
 	    <ImageButton android:id="@+id/forwardButton"
 	  	    android:src="@android:drawable/ic_media_ff"
@@ -100,7 +100,7 @@
 	        android:layout_width="0dip"
 	        android:layout_height="wrap_content"
 	        android:layout_weight="1"
-   			android:onClick="onForward"/>
+   			android:onClick="onButtonClick"/>
 	    	    
 	</LinearLayout>
 

@@ -77,7 +77,7 @@ public class SpeakControl {
 
 	/** return a list of prompt ids for the speak screen associated with the current document type
 	 */
-	public NumPagesToSpeakDefinition[] getNumPagesToSpeakDefinitions() {
+	public NumPagesToSpeakDefinition[] calculateNumPagesToSpeakDefinitions() {
 		NumPagesToSpeakDefinition[] definitions;
 		
 		CurrentPage currentPage = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
