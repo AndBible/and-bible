@@ -39,7 +39,7 @@ class Speak : CustomTitlebarActivityBase() {
         // set a suitable prompt for the different numbers of chapters
         numPagesToSpeakDefinitions.forEach {
             val numChaptersCheckBox = findViewById(it.radioButtonId) as RadioButton
-            numChaptersCheckBox.text = it.prompt
+            numChaptersCheckBox.text = it.getPrompt()
         }
 
         // set defaults for Queue and Repeat
