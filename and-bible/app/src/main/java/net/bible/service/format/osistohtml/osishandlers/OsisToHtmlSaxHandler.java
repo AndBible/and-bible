@@ -184,6 +184,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		if (!parameters.isLeftToRight()) {
 			write("<span dir='rtl'>");
 		}
+
+		write("<div id='topOfBibleText'/>");
 	}
 
 	/*
@@ -208,6 +210,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		if (!parameters.isLeftToRight()) {
 			write("</span>");
 		}
+
+		write("<div id='bottomOfBibleText'/>");
 		// add padding at bottom to allow last verse to scroll to top of page
 		// and become current verse
 		write(getPaddingAtBottom() + "</body></html>");

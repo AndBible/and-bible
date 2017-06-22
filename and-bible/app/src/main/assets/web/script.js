@@ -154,3 +154,11 @@ function clearVerseHighlight() {
 	var $verseSpan = $('.selected')
 	$verseSpan.removeClass("selected")
 }
+
+function addContentAtTop(content) {
+	$( "topOfBibleText" ).insertAfter( "<p>inserted text</p>" );
+}
+
+function addContentAtbottom(content) {
+	$( "bottomOfBibleText" ).insertAfter( "<p>inserted text</p>" );
+}
