@@ -395,6 +395,10 @@ public class TextToSpeechServiceManager {
 			// status can be either TextToSpeech.SUCCESS or TextToSpeech.ERROR.
 			if (mTts != null && status == TextToSpeech.SUCCESS) {
 				Log.d(TAG, "Tts initialisation succeeded");
+
+				// set speech rate
+//				mTts.setSpeechRate(0.85F);
+
 				boolean localeOK = false;
 				Locale locale = null;
 				for (int i = 0; i < localePreferenceList.size() && !localeOK; i++) {
