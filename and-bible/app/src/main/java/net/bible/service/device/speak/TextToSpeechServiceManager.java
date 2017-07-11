@@ -71,7 +71,7 @@ public class TextToSpeechServiceManager {
     private boolean isSpeaking = false;
     
     private boolean isPaused = false;
-    
+
 	@Inject
     public TextToSpeechServiceManager() {
     	Log.d(TAG, "Creating TextToSpeechServiceManager");
@@ -397,7 +397,8 @@ public class TextToSpeechServiceManager {
 				Log.d(TAG, "Tts initialisation succeeded");
 
 				// set speech rate
-//				mTts.setSpeechRate(0.85F);
+                int speakSpeedPercentPref = CommonUtils.getSharedPreferences().getInt("speak_speed_percent_pref", 100);
+                mTts.setSpeechRate(speakSpeedPercentPref/100F);
 
 				boolean localeOK = false;
 				Locale locale = null;
