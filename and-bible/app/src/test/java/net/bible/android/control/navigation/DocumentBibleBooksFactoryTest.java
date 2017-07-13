@@ -26,7 +26,7 @@ public class DocumentBibleBooksFactoryTest {
 	@Before
 	public void setup() {
 		documentBibleBooksFactory = new DocumentBibleBooksFactory();
-		esv = (AbstractPassageBook) Books.installed().getBook("ESV");
+		esv = (AbstractPassageBook) Books.installed().getBook("ESV2011");
 	}
 
 	@After

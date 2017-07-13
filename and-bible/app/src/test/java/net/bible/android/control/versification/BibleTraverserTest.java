@@ -33,7 +33,7 @@ public class BibleTraverserTest {
 		DocumentBibleBooksFactory mockDocumentBibleBooksFactory = mock(DocumentBibleBooksFactory.class);
 
 		bibleTraverser = new BibleTraverser(mockDocumentBibleBooksFactory);
-		testBook = (AbstractPassageBook) Books.installed().getBook("ESV");
+		testBook = (AbstractPassageBook) Books.installed().getBook("ESV2011");
 	}
 
 	@Test

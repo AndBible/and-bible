@@ -154,7 +154,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 
 	@Test
 	public void testReadTitle() throws Exception {
-		Book book = getBook("ESVS");
+		Book book = getBook("ESV2011");
 
 		OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Hosea 1:2"));
 		String verse = convertStreamToString(osisInputStream);
@@ -202,7 +202,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 	}
 
 	public void testReadWordsOfChrist() throws Exception {
-		Book esv = getBook("ESV");
+		Book esv = getBook("ESV2011");
 
 		OSISInputStream osisInputStream = new OSISInputStream(esv, esv.getKey("Luke 14:3"));
 		String chapter = convertStreamToString(osisInputStream);
@@ -235,7 +235,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 	 * Test method for {@link net.bible.service.format.OSISInputStream#read()}.
 	 */
 	public void testReadVeryLongBook() throws Exception {
-		Book esv = getBook("ESV");
+		Book esv = getBook("ESV2011");
 		OSISInputStream osisInputStream = new OSISInputStream(esv, esv.getKey("Ps 119"));
 		String chapter = convertStreamToString(osisInputStream);
 		int numOpeningDivs = count(chapter, "<div>");
@@ -322,7 +322,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 
 	@Test
 	public void testReadESVAndBibleMethod() throws Exception {
-		Book book = getBook("ESV");
+		Book book = getBook("ESV2011");
 		OSISInputStream osisInputStream = new OSISInputStream(book, book.getKey("Phil 1:3"));
 		String chapter = convertStreamToString(osisInputStream);
 		int numOpeningDivs = count(chapter, "<div>");
@@ -332,7 +332,7 @@ rong:H08064">the heaven</w> <w lemma="strong:H0853">and</w> <w lemma="strong:H07
 	}
 
 	public void testReadESVJSwordMethod() throws Exception {
-		Book esv = getBook("ESV");
+		Book esv = getBook("ESV2011");
 		BookData data = new BookData(esv, esv.getKey("Phil 1:3"));
 		SAXEventProvider osissep = data.getSAXEventProvider();
 

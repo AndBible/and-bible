@@ -14,7 +14,7 @@ public class PassageTestData {
 	public static Verse PS_139_2;
 
 	static {
-		ESV = Books.installed().getBook("ESV");
+		ESV = Books.installed().getBook("ESV2011");
 		KJV_V11N = Versifications.instance().getVersification("KJV");
 		PS_139_2 = new Verse(KJV_V11N, BibleBook.PS, 139, 2);
 	}

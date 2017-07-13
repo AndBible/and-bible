@@ -18,9 +18,10 @@ import static junit.framework.Assert.assertTrue;
  */
 @RunWith(MyRobolectricTestRunner.class)
 public class FileManagerTest {
+	private final String folder = "app/src/test/resources/net/bible/service/common".replace("/", File.separator);
+
 	@Test
 	public void shouldCopyFile() throws Exception {
-		final String folder = "app/src/test/resources/net/bible/service/common";
 		// ensure Android thinks there is enough room
 		ShadowStatFs.registerStats(folder, 100, 20, 10);
 
@@ -35,7 +36,6 @@ public class FileManagerTest {
 
 	@Test
 	public void shouldOverwriteOnCopyIfTargetFileExists() throws Exception {
-		final String folder = "app/src/test/resources/net/bible/service/common";
 		// ensure Android thinks there is enough room
 		ShadowStatFs.registerStats(folder, 100, 20, 10);
 
