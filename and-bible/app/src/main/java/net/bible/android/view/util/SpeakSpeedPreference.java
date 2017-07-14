@@ -29,6 +29,14 @@ public class SpeakSpeedPreference extends SeekBarPreference {
     protected void updateScreenValue(int value) {
     	super.updateScreenValue(value);
 
-		setDialogMessage(value+"%");
+		int message;
+		if (value<98) {
+			message = R.string.speak_speed_slow;
+		} else if (value>102) {
+			message = R.string.speak_speed_fast;
+		} else {
+			message = R.string.speak_speed_normal;
+		}
+		getDialogMessageView().setText(message);
     }
 }

@@ -94,6 +94,7 @@
 	<net.bible.android.view.util.SpeakSpeedPreference android:key="speak_speed_percent_pref"
 													android:title="@string/prefs_speak_speed_title"
 													android:summary="@string/prefs_speak_speed_summary"
+													android:text="%"
 													android:defaultValue="100"
 													android:max="150"/>
 </PreferenceScreen>
