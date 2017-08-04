@@ -7,6 +7,8 @@ import net.bible.android.activity.R;
 import net.bible.service.common.CommonUtils;
 
 /**
+ * Allow adjustment of Speak speed.
+ *
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.

@@ -96,5 +96,5 @@
 													android:summary="@string/prefs_speak_speed_summary"
 													android:text="%"
 													android:defaultValue="100"
-													android:max="150"/>
+													android:max="200"/>
 </PreferenceScreen>
