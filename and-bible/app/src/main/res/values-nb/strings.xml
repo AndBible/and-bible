@@ -88,6 +88,11 @@
   <string name="prefs_interface_locale_title">Språk</string>
   <string name="prefs_interface_locale_summary">Velg ønsket språk for brukergrensesnittet</string>
   <string name="locale_change_warning">Applikasjonen vil omstarte for at det nye språket skal tre i kraft</string>
+  <string name="prefs_speak_speed_title">Lesehastighet</string>
+  <string name="prefs_speak_speed_summary">Endre lesehastighet</string>
+  <string name="speak_speed_slow">Sakte</string>
+  <string name="speak_speed_normal">Normal</string>
+  <string name="speak_speed_fast">Rask</string>
   <!--Window-->
   <string name="window">Vindu</string>
   <string name="windowClose">Lukk</string>

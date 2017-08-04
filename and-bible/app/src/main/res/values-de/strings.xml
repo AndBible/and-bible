@@ -88,6 +88,11 @@
   <string name="prefs_interface_locale_title">Sprache umschalten</string>
   <string name="prefs_interface_locale_summary">Umschalten der Sprache der Benutzerführung</string>
   <string name="locale_change_warning">AndBible wird zur Sprachumstellung neu gestartet</string>
+  <string name="prefs_speak_speed_title">Sprechgeschwindigkeit</string>
+  <string name="prefs_speak_speed_summary">Schneller oder langsamer vorlesen</string>
+  <string name="speak_speed_slow">Langsam</string>
+  <string name="speak_speed_normal">Normal</string>
+  <string name="speak_speed_fast">Schnell</string>
   <!--Window-->
   <string name="window">Fenster</string>
   <string name="windowClose">Schließen</string>

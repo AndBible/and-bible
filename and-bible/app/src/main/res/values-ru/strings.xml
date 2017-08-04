@@ -88,6 +88,11 @@
   <string name="prefs_interface_locale_title">Язык</string>
   <string name="prefs_interface_locale_summary">Выбрать язык интерфейса</string>
   <string name="locale_change_warning">Приложение перезагрузится для перехода интерфейса на новый язык.</string>
+  <string name="prefs_speak_speed_title">Скорость речи</string>
+  <string name="prefs_speak_speed_summary">Говорить медленнее или быстрее</string>
+  <string name="speak_speed_slow">Медленно</string>
+  <string name="speak_speed_normal">Обычно</string>
+  <string name="speak_speed_fast">Быстро</string>
   <!--Window-->
   <string name="window">Окно</string>
   <string name="windowClose">Закрыть</string>

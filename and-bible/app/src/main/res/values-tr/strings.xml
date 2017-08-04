@@ -88,6 +88,11 @@
   <string name="prefs_interface_locale_title">Arayüz dili</string>
   <string name="prefs_interface_locale_summary">Farklı bir arayüz dilini seç</string>
   <string name="locale_change_warning">Arayüzü yeni dilde kullanabilmek için uygulama yeniden başlatılacaktır.</string>
+  <string name="prefs_speak_speed_title">Sesli okuma hızı</string>
+  <string name="prefs_speak_speed_summary">Daha yavaş veya hızlı oku</string>
+  <string name="speak_speed_slow">Yavaş</string>
+  <string name="speak_speed_normal">Normal</string>
+  <string name="speak_speed_fast">Hızlı</string>
   <!--Window-->
   <string name="window">Pencere</string>
   <string name="windowClose">Kapat</string>

@@ -88,6 +88,11 @@
   <string name="prefs_interface_locale_title">Aplikasi bahasa</string>
   <string name="prefs_interface_locale_summary">Pilih bahasa perantara pengguna </string>
   <string name="locale_change_warning">Aplikasi akan dijalankan ulang untuk beralih ke bahasa perantara</string>
+  <string name="prefs_speak_speed_title">Kecepatan percakapan</string>
+  <string name="prefs_speak_speed_summary">Bicara lebih pelan atau lebih cepat</string>
+  <string name="speak_speed_slow">Pelan</string>
+  <string name="speak_speed_normal">Normal</string>
+  <string name="speak_speed_fast">Cepat</string>
   <!--Window-->
   <string name="window">Jendela</string>
   <string name="windowClose">Tutup</string>

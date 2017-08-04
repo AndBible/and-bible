@@ -88,6 +88,11 @@
   <string name="prefs_interface_locale_title">Język programu</string>
   <string name="prefs_interface_locale_summary">Wybierz język</string>
   <string name="locale_change_warning">Aplikacja zostanie ponownie uruchomiona, aby przełączyć się na nowy język interfejsu</string>
+  <string name="prefs_speak_speed_title">Tempo mowy</string>
+  <string name="prefs_speak_speed_summary">Mów szybciej lub wolniej</string>
+  <string name="speak_speed_slow">Powoli</string>
+  <string name="speak_speed_normal">Normalnie</string>
+  <string name="speak_speed_fast">Szybko</string>
   <!--Window-->
   <string name="window">Menu okna</string>
   <string name="windowClose">Zamknij</string>
