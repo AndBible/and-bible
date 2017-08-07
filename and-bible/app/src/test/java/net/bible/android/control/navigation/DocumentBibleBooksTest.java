@@ -12,7 +12,7 @@ public class DocumentBibleBooksTest {
 
 	@Test
 	public void testContains() {
-		AbstractPassageBook esv = (AbstractPassageBook)Books.installed().getBook("ESV");
+		AbstractPassageBook esv = (AbstractPassageBook)Books.installed().getBook("ESV2011");
 		DocumentBibleBooks esvBibleBooks = new DocumentBibleBooks(esv);
 		assertThat(true, is(esvBibleBooks.contains(BibleBook.GEN)));
 		assertThat(true, is(esvBibleBooks.contains(BibleBook.OBAD)));

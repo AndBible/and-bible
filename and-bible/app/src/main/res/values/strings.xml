@@ -115,6 +115,11 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_interface_locale_title">Application language</string>
     <string name="prefs_interface_locale_summary">Select custom user interface language</string>
     <string name="locale_change_warning">Application will be restarted to switch to the new interface language</string>
+    <string name="prefs_speak_speed_title">Speak speed</string>
+    <string name="prefs_speak_speed_summary">Speak slower or faster</string>
+    <string name="speak_speed_slow">Slow</string>
+    <string name="speak_speed_normal">Normal</string>
+    <string name="speak_speed_fast">Fast</string>
 
     <!-- Window -->
     <string name="window">Window</string>

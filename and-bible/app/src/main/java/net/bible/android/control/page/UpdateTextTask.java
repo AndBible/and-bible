@@ -1,5 +1,8 @@
 package net.bible.android.control.page;
 
+import android.os.AsyncTask;
+import android.util.Log;
+
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.page.window.Window;
@@ -7,9 +10,6 @@ import net.bible.service.format.HtmlMessageFormatter;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
-
-import android.os.AsyncTask;
-import android.util.Log;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -35,7 +35,7 @@ abstract public class UpdateTextTask extends AsyncTask<Window, Integer, String> 
 	@Override
     protected String doInBackground(Window... windows) {
         Log.d(TAG, "Loading html in background");
-    	String text = "Error";
+    	String text;
     	try {
     		window = windows[0];
     		CurrentPage currentPage = window.getPageManager().getCurrentPage(); 

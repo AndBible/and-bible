@@ -54,6 +54,10 @@
   <string name="prefs_show_verseno_summary">Mostrar numers de verso</string>
   <string name="prefs_verse_per_line_title">Un verso por linea</string>
   <string name="prefs_verse_per_line_summary">Muestra cada verso en una linea diferente</string>
+  <string name="prefs_show_bookmarks_title">Mostrar marcadores</string>
+  <string name="prefs_show_bookmarks_summary">Desmarcar para ocultar todos los marcadores</string>
+  <string name="prefs_default_bookmark_style_title">Estilo predeterminado del marcador</string>
+  <string name="prefs_default_bookmark_style_summary">Color de subrayado o icono</string>
   <string name="prefs_show_mynotes_title">Mostrar iconos de Mis Notas</string>
   <string name="prefs_show_mynotes_summary">Mostrar icono en versículos con Mi Nota</string>
   <string name="prefs_show_notes_title">Pies de página y x-refs</string>
@@ -84,6 +88,11 @@
   <string name="prefs_interface_locale_title">Idioma de la aplicación</string>
   <string name="prefs_interface_locale_summary">Selecciona lenguaje de interfaz personalizado</string>
   <string name="locale_change_warning">La aplicación será reiniciada para cambiar al nuevo lenguaje de interfaz</string>
+  <string name="prefs_speak_speed_title">Velocidad de locución</string>
+  <string name="prefs_speak_speed_summary">Locución más lenta o más rápida</string>
+  <string name="speak_speed_slow">Lenta</string>
+  <string name="speak_speed_normal">Normal</string>
+  <string name="speak_speed_fast">Rápida</string>
   <!--Window-->
   <string name="window">Ventana</string>
   <string name="windowClose">Cerrar</string>
@@ -161,11 +170,13 @@
   <string name="bookmark_exists">Ya existe el marcador</string>
   <string name="bookmark_deleted">Marcador eliminado</string>
   <string name="bookmark_labels">Etiquetas de marcador</string>
+  <string name="manage_labels">Gestionar etiquetas de marcadores</string>
   <string name="assign_labels">Asignar etiquetas</string>
   <string name="new_label">Nueva etiqueta</string>
   <string name="label_name_prompt">Nombre</string>
   <string name="label_unlabelled">Sin etiquetar</string>
   <string name="rename">Renombrar</string>
+  <string name="style">Estilo</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Orden de fecha</string>
   <string name="sort_by_bible_book">Orden bíblico</string>
@@ -237,6 +248,7 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Nuevo</string>
   <string name="close">Cerrar</string>
+  <string name="edit">Editar</string>
   <!--Errors-->
   <string name="report_error">Enviar informe</string>
   <string name="error_occurred">A ocurrido un error.</string>

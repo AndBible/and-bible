@@ -88,6 +88,11 @@
   <string name="prefs_interface_locale_title">Programos kalba</string>
   <string name="prefs_interface_locale_summary">Pasirinkite vartotojo sąsajos kalbą</string>
   <string name="locale_change_warning">Kad pasikeistų kalba, programa bus perkrauta</string>
+  <string name="prefs_speak_speed_title">Kalbėjimo greitis</string>
+  <string name="prefs_speak_speed_summary">Kalbėti lėčiau arba greičiau</string>
+  <string name="speak_speed_slow">Lėtai</string>
+  <string name="speak_speed_normal">Normaliai</string>
+  <string name="speak_speed_fast">Greitai</string>
   <!--Window-->
   <string name="window">Langas</string>
   <string name="windowClose">Užverti</string>

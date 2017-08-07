@@ -88,6 +88,11 @@
   <string name="prefs_interface_locale_title">Langue de l\'application</string>
   <string name="prefs_interface_locale_summary">Sélection d\'une langue d\'interface utilisateur personnalisée </string>
   <string name="locale_change_warning">L\'application sera redémarrée pour prendre en compte la nouvelle langue d\'interface</string>
+  <string name="prefs_speak_speed_title">Vitesse d\'écoute</string>
+  <string name="prefs_speak_speed_summary">Sélectionne la vitesse d\'écoute</string>
+  <string name="speak_speed_slow">Ralenti</string>
+  <string name="speak_speed_normal">Normal</string>
+  <string name="speak_speed_fast">Rapide</string>
   <!--Window-->
   <string name="window">Fenêtres</string>
   <string name="windowClose">Fermer</string>

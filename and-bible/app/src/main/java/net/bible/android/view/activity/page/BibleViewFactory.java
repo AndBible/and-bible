@@ -73,8 +73,8 @@ public class BibleViewFactory {
 
 			VerseActionModeMediator bibleViewVerseActionModeMediator = new VerseActionModeMediator(mainBibleActivity, bibleView, pageControl, new VerseMenuCommandHandler(mainBibleActivity, pageControl, bookmarkControl, myNoteControl), bookmarkControl);
 
-			VerseCalculator verseCalculator = new VerseCalculator(activeWindowPageManagerProvider);
-			BibleJavascriptInterface bibleJavascriptInterface = new BibleJavascriptInterface(bibleViewVerseActionModeMediator, windowControl, verseCalculator);
+			VerseCalculator verseCalculator = new VerseCalculator();
+			BibleJavascriptInterface bibleJavascriptInterface = new BibleJavascriptInterface(bibleViewVerseActionModeMediator, windowControl, verseCalculator, activeWindowPageManagerProvider);
 			bibleView.setBibleJavascriptInterface(bibleJavascriptInterface);
 			bibleView.setId(BIBLE_WEB_VIEW_ID_BASE+window.getScreenNo());
 			bibleView.initialise();

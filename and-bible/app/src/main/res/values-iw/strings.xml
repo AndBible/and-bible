@@ -88,6 +88,11 @@
   <string name="prefs_interface_locale_title">שפת התוכנה</string>
   <string name="prefs_interface_locale_summary">בחירת שפה עבור התוכנה</string>
   <string name="locale_change_warning">התוכנה תופעל מחדש כדי לשנות את השפה</string>
+  <string name="prefs_speak_speed_title">מהירות הקראה</string>
+  <string name="prefs_speak_speed_summary">הקראה מהירה או איטית יותר</string>
+  <string name="speak_speed_slow">לאט</string>
+  <string name="speak_speed_normal">רגיל</string>
+  <string name="speak_speed_fast">מהר</string>
   <!--Window-->
   <string name="window">חלון</string>
   <string name="windowClose">סגור</string>

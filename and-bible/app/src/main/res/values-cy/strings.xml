@@ -89,6 +89,11 @@
   <string name="prefs_interface_locale_title">Iaith y rhaglen</string>
   <string name="prefs_interface_locale_summary">Dewiswch iaith y rhyngwyneb i\'r defnyddiwr arferol</string>
   <string name="locale_change_warning">Bydd y rhaglen yn ailgychwyn i newid iaith y rhyngwyneb.</string>
+  <string name="prefs_speak_speed_title">Cyflymder siarad</string>
+  <string name="prefs_speak_speed_summary">Siarad yn arafach neu\'n gyflymach</string>
+  <string name="speak_speed_slow">Araf</string>
+  <string name="speak_speed_normal">Normal</string>
+  <string name="speak_speed_fast">Cyflym</string>
   <!--Window-->
   <string name="window">Ffenestr</string>
   <string name="windowClose">Cau</string>

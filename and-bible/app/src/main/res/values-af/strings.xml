@@ -88,6 +88,11 @@
   <string name="prefs_interface_locale_title">Applikasie taal</string>
   <string name="prefs_interface_locale_summary">Kies \'n persoonlike gebruikers taal</string>
   <string name="locale_change_warning">Applikasie sal sal stop en weer van voor af begin om oor te skakel na die nuwe taal</string>
+  <string name="prefs_speak_speed_title">Praat spoed</string>
+  <string name="prefs_speak_speed_summary">Praat stadiger of vinniger</string>
+  <string name="speak_speed_slow">Stadig</string>
+  <string name="speak_speed_normal">Normaal</string>
+  <string name="speak_speed_fast">Vinnig</string>
   <!--Window-->
   <string name="window">Venster</string>
   <string name="windowClose">Maak Toe</string>

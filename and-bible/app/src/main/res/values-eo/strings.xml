@@ -2,7 +2,7 @@
 <resources>
   <string name="app_name">And Biblio</string>
   <!--Startup & Help-->
-  <string name="splash_top_text">\n\"Kaj Dio diris: Estu lumo; kaj fariĝis lumo.\"\nGenezo 1:3</string>
+  <string name="splash_top_text">\n“Kaj Dio diris: Estu lumo; kaj fariĝis lumo.”\nGenezo 1:3</string>
   <string name="help_text">Premu la MENU-butonon por montri ĉefmenuon\n\nPor iri al sekva aŭ antaŭa ĉapitro, uzu stirglobon, D-stirilon aŭ fingrumu ekranon</string>
   <string name="help_text_long"><b>Navigado</b>\nPor iri al sekva aŭ antaŭa ĉapitro, uzu stirglobon, D-stirilon aŭ fingrumu ekranon
 \nDuobla tuŝeto eniras/eliras plenekranon.
@@ -10,9 +10,9 @@
 \nTuŝetu la MENU-butonon por montri ĉefmenuon
 \n\nPor elŝuti pli da dokumentoj, iru al Menuo/Mastrumado/Elŝuti dokumentojn
 \n\n<b>Parolo</b>\nPremu \'Paroli\' por montri butonojn por komenci/haltigi aŭskultadon
-\n\n<b>Miaj notoj</b>\nOni povas aldoni notojn per funkcio \'Miaj notoj\' en kunteksta menuo de verso. La listo de ekzistaj notoj estas disponebla en ĉefmenuo.
+\n\n<b>Miaj notoj</b>\nOni povas aldoni notojn per funkcio ‘Miaj notoj’ en kunteksta menuo de verso. La listo de ekzistaj notoj estas disponebla en ĉefmenuo.
 \n\n<b>Legosignoj</b>\nOni povas aldoni legosignojn en kunteksta menuo de verso. Legosigna mastrumilo estas disponebla en ĉefmenuo. Kunteksta menuo de legosigna mastrumilo ebligas grupigi legosignojn per etikedoj.
-\n\n<b>Serĉado</b>\nSerĉata teksto povas enhavi specialajn signojn kiel *, ?, AND, OR, NOT (vidu \"Apache Lucene - Query Parser Syntax\" por pli da detaloj).
+\n\n<b>Serĉado</b>\nSerĉata teksto povas enhavi specialajn signojn kiel *, ?, AND, OR, NOT (vidu “Apache Lucene - Query Parser Syntax” por pli da detaloj).
 \n\n<b>Kuntekstaj menuoj</b>
 \nPremtenu sur montro de Biblio por malfermi kuntekstan menuon por agoj rilataj al nuna verso.
 \nPremtenu sur dokumento en dokument-elekto por forigi ĝin aŭ montri informojn.
@@ -63,43 +63,48 @@
   <string name="error_executing_search">Erara serĉmendo</string>
   <!--Preferences-->
   <string name="prefs_show_verseno_title">Versaj numeroj</string>
-  <string name="prefs_show_verseno_summary">Montras numerojn de versoj</string>
+  <string name="prefs_show_verseno_summary">Montri numerojn de versoj</string>
   <string name="prefs_verse_per_line_title">Po unu verso en linio</string>
-  <string name="prefs_verse_per_line_summary">Montras ĉiun verson en alia linio</string>
+  <string name="prefs_verse_per_line_summary">Montri ĉiun verson en alia linio</string>
   <string name="prefs_show_bookmarks_title">Montri legosignojn</string>
   <string name="prefs_show_bookmarks_summary">Malmarku por kaŝi ĉiujn legosignojn</string>
-  <string name="prefs_default_bookmark_style_title">Ĉefa montrmaniero de legosignoj</string>
+  <string name="prefs_default_bookmark_style_title">Ĉefa stilo de legosignoj</string>
   <string name="prefs_default_bookmark_style_summary">Distinga koloro aŭ piktogramo</string>
   <string name="prefs_show_mynotes_title">Montri piktogramojn de miaj notoj</string>
-  <string name="prefs_show_mynotes_summary">Montras piktogramon ĉe verso en miaj notoj</string>
+  <string name="prefs_show_mynotes_summary">Montri piktogramon ĉe verso en miaj notoj</string>
   <string name="prefs_show_notes_title">Piednotoj kaj internaj referencoj</string>
-  <string name="prefs_show_notes_summary">Montras piednotojn kaj internajn referencojn</string>
+  <string name="prefs_show_notes_summary">Montri piednotojn kaj internajn referencojn</string>
   <string name="prefs_show_strongs_title">Montri numerojn de Strong</string>
   <string name="prefs_show_strongs_summary">Ligiloj al grekaj kaj hebreaj difinoj</string>
   <string name="prefs_show_morphology_title">Morfologiaj kodoj</string>
-  <string name="prefs_show_morphology_summary">Montras grekan morfologion de Robinson</string>
+  <string name="prefs_show_morphology_summary">Montri grekan morfologion de Robinson</string>
   <string name="prefs_section_title_title">Sekciaj titoloj</string>
-  <string name="prefs_section_title_summary">Montras nekanonajn titolojn de sekcioj</string>
+  <string name="prefs_section_title_summary">Montri nekanonajn titolojn de sekcioj</string>
   <string name="prefs_red_letter_title">Ruĝaj literoj</string>
-  <string name="prefs_red_letter_summary">Montras vortojn de Kristo ruĝe</string>
+  <string name="prefs_red_letter_summary">Montri vortojn de Kristo ruĝe</string>
   <string name="prefs_tilt_to_scroll_title">Skui por rulumi</string>
   <string name="prefs_tilt_to_scroll_summary">Skuu aparaton por rulumi paĝon malsupren</string>
   <string name="prefs_night_mode_title">Nokta reĝimo</string>
   <string name="prefs_night_mode_summary">Por pli facila legado mallume</string>
   <string name="prefs_night_mode_automatic">Aŭtomate</string>
   <string name="prefs_navigate_to_verse_title">Navigi al verso</string>
-  <string name="prefs_navigate_to_verse_summary">Montras elekton de verso (kaj ĉapitro) je elekto de alineo</string>
+  <string name="prefs_navigate_to_verse_summary">Montri elekton de verso (kaj ĉapitro) je elekto de alineo</string>
   <string name="prefs_open_links_in_special_window_title">Malfermi ligilojn en speciala fenestro</string>
   <string name="prefs_open_links_in_special_window_summary">Por pli rapida montrado de internaj referencoj kaj numeroj de Strong</string>
   <string name="prefs_text_size_title">Teksta grando</string>
-  <string name="prefs_text_size_summary">Vidu pli da teksto aŭ pli klare</string>
+  <string name="prefs_text_size_summary">Vidi pli da teksto aŭ pli klare</string>
   <string name="prefs_text_size_sample_text">Ekzempla teksto</string>
   <string name="prefs_screen_timeout_title">Dormeto</string>
   <string name="prefs_screen_timeout_summary">Senokupa tempo antaŭ ekrano malaktiviĝos</string>
   <string name="x_minutes">%d minutoj</string>
   <string name="prefs_interface_locale_title">Programa lingvo</string>
-  <string name="prefs_interface_locale_summary">Elektu propran fasadan lingvon</string>
+  <string name="prefs_interface_locale_summary">Elekti propran fasadan lingvon</string>
   <string name="locale_change_warning">Programo relanĉiĝos por ŝanĝiĝi al nova fasada lingvo</string>
+  <string name="prefs_speak_speed_title">Parol-rapido</string>
+  <string name="prefs_speak_speed_summary">Paroli pli rapide aŭ pli malrapide</string>
+  <string name="speak_speed_slow">Malrapide</string>
+  <string name="speak_speed_normal">Norme</string>
+  <string name="speak_speed_fast">Rapide</string>
   <!--Window-->
   <string name="window">Fenestro</string>
   <string name="windowClose">Fermi</string>
@@ -117,8 +122,8 @@
   <string name="strongs_not_installed">Bonvolu elŝuti grekan kaj hebrean vortarojn de Strong</string>
   <string name="all_greek_occurrences">Montri ĉiujn aperojn</string>
   <string name="all_hebrew_occurrences">Montri ĉiujn aperojn</string>
-  <string name="no_indexed_bible_with_strongs_ref">Vi devas elŝuti Biblion enhavantan numerojn de Strong kaj elŝuti ĝian indekson per \'Serĉi\'</string>
-  <string name="morph_robinson_not_installed">Bonvolu elŝuti vortaron \'Morfologiaj analizaj kodoj de Robinson\'</string>
+  <string name="no_indexed_bible_with_strongs_ref">Vi devas elŝuti Biblion enhavantan numerojn de Strong kaj elŝuti ĝian indekson per ‘Serĉi’</string>
+  <string name="morph_robinson_not_installed">Bonvolu elŝuti vortaron ‘Morfologiaj analizaj kodoj de Robinson’</string>
   <!--Module download-->
   <string name="download">Elŝuti dokumentojn</string>
   <string name="download_confirmation">Ĉu elŝuti Biblion el la Interreto?</string>
@@ -133,7 +138,7 @@
   <string name="wait_for_bible_not_yet">Bonvolu atendi. Biblio ne estas jam instalita komplete.</string>
   <string name="download_complete_no_bibles">Neniu Biblio instalita. Bonvolu premu reen-butonon kaj reprovu.</string>
   <string name="too_many_jobs">Tro multe da taskoj estas lanĉataj. Bonvolu atendi ĝis iajn finiĝos kaj reprovu.</string>
-  <string name="document_not_installed">Bonvolu elŝuti \'%s\'</string>
+  <string name="document_not_installed">Bonvolu elŝuti ‘%s’</string>
   <!--Install zip file-->
   <string name="install_zip">Ŝargi dokumenton el zip-dosiero</string>
   <string name="install_zip_successfull">Modulo instalita sukcese</string>
@@ -145,7 +150,7 @@
   <string name="rdg_plan_title">Legplano</string>
   <string name="rdg_plan_selector_title">Elektu planon de legado</string>
   <string name="rdg_plan_day">%s-a tago</string>
-  <string name="rdg_plan_set_start_jan1">Eki je Jan 1-a</string>
+  <string name="rdg_plan_set_start_jan1">Eki je jan 1-a</string>
   <string name="done">Farita</string>
   <string name="reset">Reagordi</string>
   <string name="rdg_plan_y1ntpspr">Nova Testamento, Psalmaro kaj Sentencoj de Salomono jare</string>
@@ -181,7 +186,7 @@
   <string name="label_name_prompt">Nomo</string>
   <string name="label_unlabelled">Senetikeda</string>
   <string name="rename">Alinomi</string>
-  <string name="style">Montrmaniero</string>
+  <string name="style">Stilo</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Laŭ tempa ordo</string>
   <string name="sort_by_bible_book">Laŭ biblia ordo</string>
