@@ -138,7 +138,8 @@ public class SwordDocumentFacade {
 	
 			repoBookDeduplicator.addAll(repoFactory.getCrosswireRepo().getRepoBooks(refresh));
 
-			repoBookDeduplicator.addAll(repoFactory.getXiphosRepo().getRepoBooks(refresh));
+			//TODO delete Xiphos
+//			repoBookDeduplicator.addAll(repoFactory.getXiphosRepo().getRepoBooks(refresh));
 
 			repoBookDeduplicator.addAll(repoFactory.getEBibleRepo().getRepoBooks(refresh));
 
