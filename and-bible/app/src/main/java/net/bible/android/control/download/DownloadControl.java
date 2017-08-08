@@ -151,10 +151,11 @@ public class DownloadControl {
 
 		if (!downloadQueue.isInQueue(document)) {
 
-			final XiphosRepo xiphosRepo = repoFactory.getXiphosRepo();
-			if (xiphosRepo.needsPostDownloadAction(document)) {
-				xiphosRepo.addHandler(document);
-			}
+			//TODO delete Xiphos
+//			final XiphosRepo xiphosRepo = repoFactory.getXiphosRepo();
+//			if (xiphosRepo.needsPostDownloadAction(document)) {
+//				xiphosRepo.addHandler(document);
+//			}
 
 			// the download happens in another thread
 			RepoBase repo = repoFactory.getRepoForBook(document);

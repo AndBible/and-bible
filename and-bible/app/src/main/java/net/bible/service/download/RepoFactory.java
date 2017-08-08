@@ -56,9 +56,10 @@ public class RepoFactory {
 	public CrosswireRepo getCrosswireRepo() {
 		return crosswireRepo;
 	}
-	public XiphosRepo getXiphosRepo() {
-		return xiphosRepo;
-	}
+	//TODO delete Xiphos
+//	public XiphosRepo getXiphosRepo() {
+//		return xiphosRepo;
+//	}
 	public BetaRepo getBetaRepo() {
 		return betaRepo;
 	}
