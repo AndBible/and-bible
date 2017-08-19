@@ -88,6 +88,11 @@
   <string name="prefs_interface_locale_title">Sovelluksen kieli</string>
   <string name="prefs_interface_locale_summary">Valitse käyttöliittymän kieli</string>
   <string name="locale_change_warning">Sovellus pitää käynnistää uudelleen uuden käyttöliittymän kielen ottamiseksi käyttöön.</string>
+  <string name="prefs_speak_speed_title">Puheen nopeus</string>
+  <string name="prefs_speak_speed_summary">Puhu hitaammin tai nopeammin</string>
+  <string name="speak_speed_slow">Hidas</string>
+  <string name="speak_speed_normal">Normaali</string>
+  <string name="speak_speed_fast">Nopea</string>
   <!--Window-->
   <string name="window">Ikkuna</string>
   <string name="windowClose">Sulje</string>

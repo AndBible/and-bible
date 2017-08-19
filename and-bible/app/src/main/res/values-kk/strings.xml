@@ -209,6 +209,7 @@
   <string name="restore_confirmation">Менің Жазбаларым мен Бетбелгілерін Үстінен Жазу?</string>
   <string name="restore_success">Менің Жазбаларым мен Бетбелгілерім %s дан бастап SD картада қалпына келтірілді</string>
   <!--About-->
+  <string name="about_copyright">Авторлық құқық: %s</string>
   <string name="about_version">Версия: %s</string>
   <string name="about_versification">Аят шығаруы: %s</string>
   <!--Document types-->
