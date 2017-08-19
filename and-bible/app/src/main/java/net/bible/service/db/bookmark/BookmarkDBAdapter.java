@@ -58,7 +58,9 @@ public class BookmarkDBAdapter {
 	}
 
 	public void close() {
-		db.close();
+		//TODO remove totally or call on app stop
+		// apparently we are now supposed to leave the database open and allow Android to close it when appropriate
+		// db.close();
 	}
 
 	public BookmarkDto insertBookmark(BookmarkDto bookmark) {
