@@ -40,28 +40,30 @@ public class BibleGestureListener extends SimpleOnGestureListener {
 	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
 		// prevent interference with window separator drag - fast drags were causing a fling
 		if (!TouchOwner.getInstance().isTouchOwned()) {
+			// avoid NPE on Samsung devices
+			if (e1!=null && e2!=null) {
+				// get distance between points of the fling
+				double vertical = Math.abs(e1.getY() - e2.getY());
+				double horizontal = Math.abs(e1.getX() - e2.getX());
 
-			// get distance between points of the fling
-			double vertical = Math.abs( e1.getY() - e2.getY() );
-			double horizontal = Math.abs( e1.getX() - e2.getX() );
-	
-			Log.d(TAG, "onFling vertical:"+vertical+" horizontal:"+horizontal+" VelocityX"+velocityX);
-			
-			// test vertical distance, make sure it's a swipe
-			if ( vertical > scaledMinimumDistance ) {
-				 return false;
-			}
-			// test horizontal distance and velocity
-			else if ( horizontal > scaledMinimumDistance && Math.abs(velocityX) > minScaledVelocity ) {
-				// right to left swipe - sometimes velocity seems to have wrong sign so use raw positions to determine direction  
-				if (e1.getX() > e2.getX()) {
-					mainBibleActivity.next();
+				Log.d(TAG, "onFling vertical:" + vertical + " horizontal:" + horizontal + " VelocityX" + velocityX);
+
+				// test vertical distance, make sure it's a swipe
+				if (vertical > scaledMinimumDistance) {
+					return false;
 				}
-				// left to right swipe
-				else {
-					mainBibleActivity.previous();
+				// test horizontal distance and velocity
+				else if (horizontal > scaledMinimumDistance && Math.abs(velocityX) > minScaledVelocity) {
+					// right to left swipe - sometimes velocity seems to have wrong sign so use raw positions to determine direction
+					if (e1.getX() > e2.getX()) {
+						mainBibleActivity.next();
+					}
+					// left to right swipe
+					else {
+						mainBibleActivity.previous();
+					}
+					return true;
 				}
-				return true;
 			}
 		}
 		return false;
