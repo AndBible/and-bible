@@ -46,26 +46,23 @@ public class NavigationControl {
 	 * Get books in current Document - either all Scripture books or all non-Scripture books
 	 */
 	public List<BibleBook> getBibleBooks(boolean isScriptureRequired) {
-		List<BibleBook> books = new ArrayList<BibleBook>();
+		List<BibleBook> books = new ArrayList<>();
 
 		AbstractPassageBook currentPassageDocument = getCurrentPassageDocument();
-		List<BibleBook> documentBookList = documentBibleBooksFactory.getBooksFor(currentPassageDocument);
+		if (currentPassageDocument!=null) {
+			List<BibleBook> documentBookList = documentBibleBooksFactory.getBooksFor(currentPassageDocument);
 
-		for (BibleBook bibleBook : documentBookList) {
-    		if (isScriptureRequired == Scripture.isScripture(bibleBook)) {
-    			books.add(bibleBook);
-    		}
+			for (BibleBook bibleBook : documentBookList) {
+				if (isScriptureRequired == Scripture.isScripture(bibleBook)) {
+					books.add(bibleBook);
+				}
+			}
+
+			books = getSortedBibleBooks(books, currentPassageDocument.getVersification());
 		}
-		
-		books = getSortedBibleBooks(books, currentPassageDocument.getVersification());
-
 		return books;
 	}
 
-	public boolean currentDocumentContainsNonScripture() {
-		return !documentBibleBooksFactory.getDocumentBibleBooksFor(getCurrentPassageDocument()).isOnlyScripture();
-	}
-	
 	public boolean isCurrentDefaultScripture() {
 		return pageControl.isCurrentPageScripture();
 	}
@@ -95,11 +92,11 @@ public class NavigationControl {
 	 * @return v11n of current document
 	 */
 	public Versification getVersification() {
-		Book doc = getCurrentPassageDocument();
+		AbstractPassageBook doc = getCurrentPassageDocument();
 		
 		// this should always be true
-		if (doc!=null && doc instanceof AbstractPassageBook) {
-			return ((AbstractPassageBook)doc).getVersification();
+		if (doc!=null) {
+			return doc.getVersification();
 		} else {
 			// but safety first
 			return Versifications.instance().getVersification(SystemKJV.V11N_NAME);
@@ -121,12 +118,12 @@ public class NavigationControl {
 		}
 	}
 	
-	public BibleBookSortOrder getBibleBookSortOrder() {
+	private BibleBookSortOrder getBibleBookSortOrder() {
 		String bibleBookSortOrderStr = CommonUtils.getSharedPreference(BIBLE_BOOK_SORT_ORDER, BibleBookSortOrder.BIBLE_BOOK.toString());
 		return BibleBookSortOrder.valueOf(bibleBookSortOrderStr);
 	}
 	
-	public void setBibleBookSortOrder(BibleBookSortOrder bibleBookSortOrder) {
+	private void setBibleBookSortOrder(BibleBookSortOrder bibleBookSortOrder) {
 		CommonUtils.saveSharedPreference(BIBLE_BOOK_SORT_ORDER, bibleBookSortOrder.toString());
 	}
 
