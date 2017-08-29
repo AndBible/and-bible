@@ -166,7 +166,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		String jQueryjs = "\n<script type='text/javascript' src='file:///android_asset/web/jquery-2.2.3.js'></script>\n"+
 				"<script type='text/javascript' src='file:///android_asset/web/jquery.longpress.js'></script>\n"+
 				"<script type='text/javascript' src='file:///android_asset/web/jquery.nearest.min.1.4.0.js'></script>\n";
-		String jsTag = "\n<script type='text/javascript' src='file:///android_asset/web/script.js'></script>\n";
+		String jsTag = "\n<script type='text/javascript' src='file:///android_asset/web/script.js'></script>\n"+
+						"<script type='text/javascript' src='file:///android_asset/web/infinite-scroll.js'></script>\n";
 		String styleSheetTags = parameters.getCssStylesheets();
 		String customFontStyle = FontControl.getInstance().getHtmlFontStyle(parameters.getFont(), parameters.getCssClassForCustomFont());
 		write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"> "
@@ -185,7 +186,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			write("<span dir='rtl'>");
 		}
 
-		write("<div id='topOfBibleText'/>");
+		write("<div id='topOfBibleText'></div>");
 	}
 
 	/*
@@ -211,7 +212,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			write("</span>");
 		}
 
-		write("<div id='bottomOfBibleText'/>");
+		write("<div id='bottomOfBibleText'></div>");
+
 		// add padding at bottom to allow last verse to scroll to top of page
 		// and become current verse
 		write(getPaddingAtBottom() + "</body></html>");
@@ -307,7 +309,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		// this is not very accurate.  Some books have a <br />s at the end making the padding too large
 		// also the user can toggle full screen after the last view height calculation
 		// 1.5 is a fudge factor to try to keep a little of the text on the screen for books that end in a <br /> 
-		int paddingHeightDips = (int)(ScreenSettings.getContentViewHeightDips()-(2*ScreenSettings.getLineHeightDips()));
+		int paddingHeightDips = ScreenSettings.getContentViewHeightDips()-(2*ScreenSettings.getLineHeightDips());
 		return "<img height='"+paddingHeightDips+"' width='1' border='0' vspace='0' style='display:block'/>"; 
 	}
 
