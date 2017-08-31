@@ -40,7 +40,7 @@ import de.greenrobot.event.EventBus;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class BibleView extends WebView implements DocumentView, VerseActionModeMediator.VerseHighlightControl {
+public class BibleView extends WebView implements DocumentView, VerseActionModeMediator.VerseHighlightControl, BibleViewTextInserter {
 	
 	private final Window window;
 
@@ -118,11 +118,8 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 			@Override
 			public boolean shouldOverrideUrlLoading(WebView view, String url) {
 				// load Strongs refs when a user clicks on a link
-				if (linkControl.loadApplicationUrl(url)) {
-					return true;
-				} else {
-					return super.shouldOverrideUrlLoading(view, url);
-				}
+				return linkControl.loadApplicationUrl(url) ||
+						super.shouldOverrideUrlLoading(view, url);
 			}
 
 			@Override
@@ -666,5 +663,15 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		} else {
 			loadUrl("javascript:"+javascript+";");
 		}
+	}
+
+	@Override
+	public void insertTextAtTop(String textId, String text) {
+		executeJavascriptOnUiThread("insertThisTextAtTop('"+textId+"','"+text+"')");
+	}
+
+	@Override
+	public void insertTextAtEnd(String textId, String text) {
+		executeJavascriptOnUiThread("insertThisTextAtEnd('"+textId+"','"+text+"')");
 	}
 }

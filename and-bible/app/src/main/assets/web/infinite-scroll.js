@@ -52,13 +52,24 @@
 })(jQuery);
 
 function loadTextAtTop(textId) {
-    var priorHeight = $('body').height();
-    $('#' + textId).html("<div><h1>Title</h1><p>Id= " + textId + "</p><p>The cat sat on the mat</p><p>The cat sat on the mat</p></div>");
-    var changeInHeight = $('body').height() - priorHeight;
-    $(window).scrollTop(changeInHeight);
-
+    window.jsInterface.log("js:loadTextAtTop");
+    window.jsInterface.requestMoreTextAtTop(textId);
 }
 
 function loadTextAtEnd(textId) {
-    $('#' + textId).html("<div><h1>Title</h1><p>Id= " + textId + "</p><p>The cat sat on the mat</p><p>The cat sat on the mat</p></div>");
+    window.jsInterface.log("js:loadTextAtEnd");
+    window.jsInterface.requestMoreTextAtEnd(textId);
+}
+
+//TODO combine these 2 functions - check if inserted posn (#textId) is at top or not
+function insertThisTextAtTop(textId, text) {
+    window.jsInterface.log("js:insertThisTextAtTop");
+    var priorHeight = $('body').height();
+    $('#' + textId).html(text);
+    var changeInHeight = $('body').height() - priorHeight;
+    $(window).scrollTop(changeInHeight);
+}
+function insertThisTextAtEnd(textId, text) {
+    window.jsInterface.log("js:insertThisTextAtEnd");
+    $('#' + textId).html(text);
 }

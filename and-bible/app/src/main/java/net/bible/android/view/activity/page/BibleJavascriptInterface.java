@@ -30,13 +30,16 @@ public class BibleJavascriptInterface {
 
 	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
+	private final BibleInfiniteScrollPopulator bibleInfiniteScrollPopulator;
+
 	private static final String TAG = "BibleJavascriptIntrfc";
 
-	public BibleJavascriptInterface(VerseActionModeMediator verseActionModeMediator, WindowControl windowControl, VerseCalculator verseCalculator, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+	public BibleJavascriptInterface(VerseActionModeMediator verseActionModeMediator, WindowControl windowControl, VerseCalculator verseCalculator, ActiveWindowPageManagerProvider activeWindowPageManagerProvider, BibleInfiniteScrollPopulator bibleInfiniteScrollPopulator) {
 		this.verseActionModeMediator = verseActionModeMediator;
 		this.windowControl = windowControl;
 		this.verseCalculator = verseCalculator;
 		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
+		this.bibleInfiniteScrollPopulator = bibleInfiniteScrollPopulator;
 	}
 
 	@JavascriptInterface
@@ -85,6 +88,18 @@ public class BibleJavascriptInterface {
 	public void verseTouch(int verse) {
 		Log.d(TAG, "Verse touched event:"+verse);
 		verseActionModeMediator.verseTouch(verse);
+	}
+
+	@JavascriptInterface
+	public void requestMoreTextAtTop(String textId) {
+		Log.d(TAG, "Request more text at top:"+textId);
+		bibleInfiniteScrollPopulator.requestMoreTextAtTop(textId);
+	}
+
+	@JavascriptInterface
+	public void requestMoreTextAtEnd(String textId) {
+		Log.d(TAG, "Request more text at end:"+textId);
+		bibleInfiniteScrollPopulator.requestMoreTextAtEnd(textId);
 	}
 
 	@JavascriptInterface
