@@ -19,6 +19,7 @@ import java.util.Map;
  *      The copyright to this program is held by it's author.
  */
 public class OsisToHtmlParameters {
+	private boolean asFragment = false;
     private String languageCode = "en";
     private boolean isLeftToRight = true;
     private boolean isShowTitles = true;
@@ -56,6 +57,12 @@ public class OsisToHtmlParameters {
 		return builder.toString();
 	}
 
+	public boolean isAsFragment() {
+		return asFragment;
+	}
+	public void setAsFragment(boolean asFragment) {
+		this.asFragment = asFragment;
+	}
 	public String getLanguageCode() {
 		return languageCode;
 	}

@@ -172,7 +172,7 @@ public class SearchControl {
 		// There is similar functionality in BookmarkControl
 		String verseText = "";
 		try {
-			verseText = swordContentFacade.getPlainText(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getCurrentDocument(), key, 1);
+			verseText = swordContentFacade.getPlainText(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getCurrentDocument(), key);
 			verseText = CommonUtils.limitTextLength(verseText);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);

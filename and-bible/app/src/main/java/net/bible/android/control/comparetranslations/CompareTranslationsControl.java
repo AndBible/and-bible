@@ -93,7 +93,7 @@ public class CompareTranslationsControl {
 		
 		for (Book book : books) {
 			try {
-				String text = swordContentFacade.getPlainText(book, convertibleVerseRange.getVerseRange(((AbstractPassageBook)book).getVersification()), 1);
+				String text = swordContentFacade.getPlainText(book, convertibleVerseRange.getVerseRange(((AbstractPassageBook)book).getVersification()));
 				if (text.length()>0) {
 
 					// does this book require a custom font to display it

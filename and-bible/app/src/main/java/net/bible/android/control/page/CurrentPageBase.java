@@ -107,21 +107,34 @@ abstract class CurrentPageBase implements CurrentPage {
 	}
 
 	@Override
-	public String getCurrentPageContent() throws ParseException {
-        String htmlText = swordContentFacade.readHtmlText(getCurrentDocument(), getKey());
-                
-        if (StringUtils.isEmpty(htmlText)) {
-        	htmlText = HtmlMessageFormatter.format(R.string.error_no_content);
-        }
-        
-        return htmlText;	
+	public String getPreviousPageFragment() throws ParseException {
+		return getPageContent(getPagePlus(-1), true);
 	}
-	
+
+	@Override
+	public String getCurrentPageContent() throws ParseException {
+		return getPageContent(getKey(), false);
+	}
+
+	@Override
+	public String getNextPageFragment() throws ParseException {
+		return getPageContent(getPagePlus(1), true);
+	}
+
+	private String getPageContent(Key key, boolean asFragment) throws ParseException {
+		String htmlText = swordContentFacade.readHtmlText(getCurrentDocument(), key, asFragment);
+
+		if (StringUtils.isEmpty(htmlText)) {
+			htmlText = HtmlMessageFormatter.format(R.string.error_no_content);
+		}
+
+		return htmlText;
+	}
+
+
 	@Override
 	public List<Note> getCurrentPageFootnotesAndReferences() throws ParseException {
-        List<Note> footnotes = swordContentFacade.readFootnotesAndReferences(getCurrentDocument(), getKey());
-        
-        return footnotes;	
+		return swordContentFacade.readFootnotesAndReferences(getCurrentDocument(), getKey());
 	}
 
 
