@@ -46,6 +46,7 @@
             var priorHeight = $('body').height();
             $afterComponent.after(text);
             var changeInHeight = $('body').height() - priorHeight;
+            var adjustedPosition = $(window).scrollTop() + changeInHeight;
             $(window).scrollTop(changeInHeight);
         }
     });
@@ -64,10 +65,11 @@ function loadTextAtEnd(textId) {
 //TODO combine these 2 functions - check if inserted posn (#textId) is at top or not
 function insertThisTextAtTop(textId, text) {
     window.jsInterface.log("js:insertThisTextAtTop");
-    var priorHeight = $('body').height();
+    var divToInsertInto = $('#' + textId);
+    var divPriorHeight = divToInsertInto.height();
     $('#' + textId).html(text);
-    var changeInHeight = $('body').height() - priorHeight;
-    $(window).scrollTop(changeInHeight);
+    var adjustedTop = $(window).scrollTop() - divPriorHeight + divToInsertInto.height();
+    $(window).scrollTop(adjustedTop);
 }
 function insertThisTextAtEnd(textId, text) {
     window.jsInterface.log("js:insertThisTextAtEnd");
