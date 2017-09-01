@@ -53,10 +53,6 @@ abstract public class UpdateTextTask extends AsyncTask<Window, Integer, String> 
             
             text = currentPage.getCurrentPageContent();
             
-    	} catch (Exception e) {
-    		Log.e(TAG, "Error getting bible text", e);
-    		//TODO use resource
-    		text = HtmlMessageFormatter.format("Error getting bible text: "+e.getMessage());
     	} catch (OutOfMemoryError oom) {
     		Log.e(TAG, "Out of memory error", oom);
     		System.gc();

@@ -49,7 +49,7 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 	}
 
 	@Override
-	public String getCurrentPageContent() throws ParseException {
+	public String getCurrentPageContent() {
         return myNoteDAO.getMyNoteTextByKey(getKey());
 	}
 	
@@ -90,9 +90,8 @@ public class CurrentMyNotePage extends CurrentCommentaryPage implements CurrentP
 		return getCurrentBibleVerse().getVersificationOfLastSelectedVerse();
 	}
 
-	/** set key without notification
-	 *
-	 * @param key
+	/**
+	 * Set key without notification
 	 */
 	public void doSetKey(Key key) {
 		if (key!=null) {

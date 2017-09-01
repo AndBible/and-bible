@@ -73,7 +73,7 @@ public class BibleViewFactory {
 
 			VerseActionModeMediator bibleViewVerseActionModeMediator = new VerseActionModeMediator(mainBibleActivity, bibleView, pageControl, new VerseMenuCommandHandler(mainBibleActivity, pageControl, bookmarkControl, myNoteControl), bookmarkControl);
 
-			BibleInfiniteScrollPopulator bibleInfiniteScrollPopulator = new BibleInfiniteScrollPopulator(bibleView);
+			BibleInfiniteScrollPopulator bibleInfiniteScrollPopulator = new BibleInfiniteScrollPopulator(bibleView, window.getPageManager());
 
 			VerseCalculator verseCalculator = new VerseCalculator();
 			BibleJavascriptInterface bibleJavascriptInterface = new BibleJavascriptInterface(bibleViewVerseActionModeMediator, windowControl, verseCalculator, activeWindowPageManagerProvider, bibleInfiniteScrollPopulator);

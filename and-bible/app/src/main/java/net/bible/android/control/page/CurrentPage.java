@@ -67,9 +67,9 @@ public interface CurrentPage {
 	boolean checkCurrentDocumentStillInstalled();
 
 	/** get a page to display */
-	String getPreviousPageFragment() throws ParseException;
-	String getCurrentPageContent() throws ParseException;
-	String getNextPageFragment() throws ParseException;
+	String getPreviousPageFragment();
+	String getCurrentPageContent();
+	String getNextPageFragment();
 
 	/** get footnotes */
 	List<Note> getCurrentPageFootnotesAndReferences() throws ParseException;

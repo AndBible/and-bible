@@ -2,6 +2,10 @@ package net.bible.android.view.activity.page;
 
 import android.util.Log;
 
+import net.bible.android.control.page.CurrentPageManager;
+
+import org.apache.commons.lang3.StringEscapeUtils;
+
 /**
  * Get next or previous page for insertion at the top or bottom of the current webview.
  *
@@ -12,24 +16,30 @@ import android.util.Log;
 public class BibleInfiniteScrollPopulator {
 
 	private final BibleViewTextInserter bibleViewtextInserter;
+	private final CurrentPageManager currentPageManager;
 
 	private static final String TAG = "BibleInfiniteScrollPop";
 
-	public BibleInfiniteScrollPopulator(BibleViewTextInserter bibleViewtextInserter) {
+	public BibleInfiniteScrollPopulator(BibleViewTextInserter bibleViewtextInserter, CurrentPageManager pageManager) {
 		this.bibleViewtextInserter = bibleViewtextInserter;
+		currentPageManager = pageManager;
 	}
 
 	public void requestMoreTextAtTop(String textId) {
 		Log.d(TAG, "requestMoreTextAtTop");
-		//TODO get page fragment
-		String fragment = "<h1>Top</h1><p>Top fragment</p>";
+		//TODO do in background thread
+		// get page fragment for previous chapter
+		String fragment = currentPageManager.getCurrentPage().getPreviousPageFragment();
+		fragment = StringEscapeUtils.escapeEcmaScript(fragment);
 		bibleViewtextInserter.insertTextAtTop(textId, fragment);
 	}
 
 	public void requestMoreTextAtEnd(String textId) {
 		Log.d(TAG, "requestMoreTextAtEnd");
-		//TODO get page fragment
-		String fragment = "<h1>End</h1><p>End fragment</p>";
+		//TODO do in background thread
+		// get page fragment for previous chapter
+		String fragment = currentPageManager.getCurrentPage().getNextPageFragment();
+		fragment = StringEscapeUtils.escapeEcmaScript(fragment);
 		bibleViewtextInserter.insertTextAtEnd(textId, fragment);
 	}
 }

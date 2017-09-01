@@ -107,28 +107,34 @@ abstract class CurrentPageBase implements CurrentPage {
 	}
 
 	@Override
-	public String getPreviousPageFragment() throws ParseException {
+	public String getPreviousPageFragment() {
 		return getPageContent(getPagePlus(-1), true);
 	}
 
 	@Override
-	public String getCurrentPageContent() throws ParseException {
+	public String getCurrentPageContent() {
 		return getPageContent(getKey(), false);
 	}
 
 	@Override
-	public String getNextPageFragment() throws ParseException {
+	public String getNextPageFragment() {
 		return getPageContent(getPagePlus(1), true);
 	}
 
-	private String getPageContent(Key key, boolean asFragment) throws ParseException {
-		String htmlText = swordContentFacade.readHtmlText(getCurrentDocument(), key, asFragment);
+	private String getPageContent(Key key, boolean asFragment) {
+		try {
+			String htmlText = swordContentFacade.readHtmlText(getCurrentDocument(), key, asFragment);
 
-		if (StringUtils.isEmpty(htmlText)) {
-			htmlText = HtmlMessageFormatter.format(R.string.error_no_content);
+			if (StringUtils.isEmpty(htmlText)) {
+				htmlText = HtmlMessageFormatter.format(R.string.error_no_content);
+			}
+
+			return htmlText;
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting bible text", e);
+			//TODO use resource
+			return HtmlMessageFormatter.format("Error getting bible text: " + e.getMessage());
 		}
-
-		return htmlText;
 	}
 
 
