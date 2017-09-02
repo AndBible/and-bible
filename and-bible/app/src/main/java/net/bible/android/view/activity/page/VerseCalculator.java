@@ -41,7 +41,7 @@ public class VerseCalculator {
 	public int calculateCurrentVerse(int scrollOffset) {
 		int adjustedScrollOffset = scrollOffset - SLACK_FOR_JUMP_TO_VERSE;
 		for (int verseIndex=0; verseIndex<versePositionList.size(); verseIndex++) {
-			if (versePositionList.get(verseIndex) >adjustedScrollOffset) {
+			if (versePositionList.get(verseIndex) > adjustedScrollOffset) {
 				return verseIndex;
 			}
 		}

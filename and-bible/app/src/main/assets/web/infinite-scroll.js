@@ -35,7 +35,7 @@
         function addMoreAtTop() {
             var textId = 'insertedText' + nextTextId++;
             // place marker for text which may take longer to load
-            var placeMarker = '<div id="' + textId + '" class="page_section"><p>Loading...</p></div>';
+            var placeMarker = '<div id="' + textId + '" class="page_section"><p>Please wait</p><p>Loading...</p></div>';
 
             insertAtTop($("#topOfBibleText"), placeMarker);
 
@@ -44,10 +44,11 @@
 
         function insertAtTop($afterComponent, text) {
             var priorHeight = $('body').height();
+            var originalPosition = $(window).scrollTop();
             $afterComponent.after(text);
             var changeInHeight = $('body').height() - priorHeight;
-            var adjustedPosition = $(window).scrollTop() + changeInHeight;
-            $(window).scrollTop(changeInHeight);
+            var adjustedPosition =  originalPosition + changeInHeight;
+            $(window).scrollTop(adjustedPosition);
         }
     });
 })(jQuery);
@@ -65,10 +66,11 @@ function loadTextAtEnd(textId) {
 //TODO combine these 2 functions - check if inserted posn (#textId) is at top or not
 function insertThisTextAtTop(textId, text) {
     window.jsInterface.log("js:insertThisTextAtTop");
-    var divToInsertInto = $('#' + textId);
-    var divPriorHeight = divToInsertInto.height();
-    $('#' + textId).html(text);
-    var adjustedTop = $(window).scrollTop() - divPriorHeight + divToInsertInto.height();
+    var originalPosition = $(window).scrollTop();
+    var $divToInsertInto = $('#' + textId);
+    var divPriorHeight = $divToInsertInto.height();
+    $divToInsertInto.html(text);
+    var adjustedTop = originalPosition - divPriorHeight + divToInsertInto.height();
     $(window).scrollTop(adjustedTop);
 }
 function insertThisTextAtEnd(textId, text) {
