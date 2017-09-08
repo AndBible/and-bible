@@ -1,5 +1,7 @@
 package net.bible.android.control.versification;
 
+import net.bible.android.control.page.ChapterVerse;
+
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
@@ -35,11 +37,11 @@ public class ConvertibleVerse {
 		return versificationConverter.isConvertibleTo(mainVerse, v11n);
 	}
 
-	public void setVerseNo(int verseNo) {
-		mainVerse = new Verse(mainVerse.getVersification(), mainVerse.getBook(), mainVerse.getChapter(), verseNo);
+	public void setChapterVerse(ChapterVerse chapterVerse) {
+		mainVerse = new Verse(mainVerse.getVersification(), mainVerse.getBook(), chapterVerse.getChapter(), chapterVerse.getVerse());
 	}
-	public int getVerseNo() {
-		return mainVerse.getVerse();
+	public ChapterVerse getChapterVerse() {
+		return new ChapterVerse(mainVerse.getChapter(), mainVerse.getVerse());
 	}
 
 	/** Set the verse, mapping to the required versification if necessary

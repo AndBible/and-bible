@@ -32,11 +32,11 @@ public class CurrentBibleVerse {
 	public void setVerseSelected(Versification versification, Verse verseSelected) {
 		verseVersificationSelected.setVerse(versification, verseSelected);
 	}
-	public void setVerseNo(int verseNo) {
-		verseVersificationSelected.setVerseNo(verseNo);
+	public void setChapterVerse(ChapterVerse chapterVerse) {
+		verseVersificationSelected.setChapterVerse(chapterVerse);
 	}
-	public int getVerseNo() {
-		return verseVersificationSelected.getVerseNo();
+	public ChapterVerse getChapterVerse() {
+		return verseVersificationSelected.getChapterVerse();
 	}
 	public Versification getVersificationOfLastSelectedVerse() {
 		return verseVersificationSelected.getVerse().getVersification();

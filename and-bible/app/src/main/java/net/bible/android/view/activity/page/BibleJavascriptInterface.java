@@ -4,8 +4,8 @@ import android.util.Log;
 import android.webkit.JavascriptInterface;
 
 import net.bible.android.control.PassageChangeMediator;
+import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.control.page.CurrentPageManager;
-import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator;
 
@@ -22,23 +22,23 @@ public class BibleJavascriptInterface {
 	
 	private VerseCalculator verseCalculator;
 
-	private int prevCurrentVerse = -1;
+	private ChapterVerse prevCurrentChapterVerse = new ChapterVerse(0,0);
 
 	private final VerseActionModeMediator verseActionModeMediator;
 	
 	private final WindowControl windowControl;
 
-	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
+	private final CurrentPageManager currentPageManager;
 
 	private final BibleInfiniteScrollPopulator bibleInfiniteScrollPopulator;
 
 	private static final String TAG = "BibleJavascriptIntrfc";
 
-	public BibleJavascriptInterface(VerseActionModeMediator verseActionModeMediator, WindowControl windowControl, VerseCalculator verseCalculator, ActiveWindowPageManagerProvider activeWindowPageManagerProvider, BibleInfiniteScrollPopulator bibleInfiniteScrollPopulator) {
+	public BibleJavascriptInterface(VerseActionModeMediator verseActionModeMediator, WindowControl windowControl, VerseCalculator verseCalculator, CurrentPageManager currentPageManager, BibleInfiniteScrollPopulator bibleInfiniteScrollPopulator) {
 		this.verseActionModeMediator = verseActionModeMediator;
 		this.windowControl = windowControl;
 		this.verseCalculator = verseCalculator;
-		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
+		this.currentPageManager = currentPageManager;
 		this.bibleInfiniteScrollPopulator = bibleInfiniteScrollPopulator;
 	}
 
@@ -51,13 +51,12 @@ public class BibleJavascriptInterface {
 	public void onScroll(int newYPos) {
 		// do not try to change verse while the page is changing - can cause all sorts of errors e.g. selected verse may not be valid in new chapter and cause chapter jumps
 		if (notificationsEnabled && !PassageChangeMediator.getInstance().isPageChanging() && !windowControl.isSeparatorMoving()) {
-			CurrentPageManager currentPageControl = activeWindowPageManagerProvider.getActiveWindowPageManager();
-			if (currentPageControl.isBibleShown()) {
+			if (currentPageManager.isBibleShown()) {
 				//TODO use chapter and verse to change chapter if necessary
-				int currentVerse = verseCalculator.calculateCurrentVerse(newYPos).getVerse();
-				if (currentVerse!=prevCurrentVerse) {
-					currentPageControl.getCurrentBible().setCurrentVerseNo(currentVerse);
-					prevCurrentVerse = currentVerse;
+				ChapterVerse currentChapterVerse = verseCalculator.calculateCurrentVerse(newYPos);
+				if (currentChapterVerse != prevCurrentChapterVerse) {
+					currentPageManager.getCurrentBible().setCurrentChapterVerse(currentChapterVerse);
+					prevCurrentChapterVerse = currentChapterVerse;
 				}
 			}
 		}

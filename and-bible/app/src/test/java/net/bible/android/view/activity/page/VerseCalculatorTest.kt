@@ -1,6 +1,7 @@
 package net.bible.android.view.activity.page
 
 import junit.framework.Assert.assertEquals
+import net.bible.android.control.page.ChapterVerse
 import org.junit.Before
 import org.junit.Test
 

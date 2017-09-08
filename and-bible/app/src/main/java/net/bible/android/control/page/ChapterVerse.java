@@ -1,4 +1,4 @@
-package net.bible.android.view.activity.page;
+package net.bible.android.control.page;
 
 /**
  * Represent a chapter and verse
@@ -20,6 +20,17 @@ public class ChapterVerse {
 		String[] strings = chapterDotVerse.split("\\.");
 		chapter = Integer.parseInt(strings[0]);
 		verse = Integer.parseInt(strings[1]);
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+
+		ChapterVerse that = (ChapterVerse) o;
+
+		if (chapter != that.chapter) return false;
+		return verse == that.verse;
 	}
 
 	public int getChapter() {

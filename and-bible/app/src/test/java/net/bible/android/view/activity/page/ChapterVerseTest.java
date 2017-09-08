@@ -1,5 +1,7 @@
 package net.bible.android.view.activity.page;
 
+import net.bible.android.control.page.ChapterVerse;
+
 import org.junit.Test;
 
 import static org.hamcrest.core.IsEqual.equalTo;

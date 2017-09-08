@@ -1,5 +1,7 @@
 package net.bible.android.view.activity.page;
 
+import net.bible.android.control.page.ChapterVerse;
+
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;

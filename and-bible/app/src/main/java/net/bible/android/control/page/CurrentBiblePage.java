@@ -192,11 +192,11 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 		return false;
 	}
 	
-	public int getCurrentVerseNo() {
-		return getCurrentBibleVerse().getVerseNo();
+	public ChapterVerse getCurrentChapterVerse() {
+		return getCurrentBibleVerse().getChapterVerse();
 	}
-	public void setCurrentVerseNo(int verse) {
-		getCurrentBibleVerse().setVerseNo(verse);
+	public void setCurrentChapterVerse(ChapterVerse chapterVerse) {
+		getCurrentBibleVerse().setChapterVerse(chapterVerse);
 		onVerseChange();
 	}
 

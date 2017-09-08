@@ -44,7 +44,7 @@ abstract public class UpdateTextTask extends AsyncTask<Window, Integer, String> 
     		Key key = currentPage.getKey();
     		// but allow for jump to specific verse e.g. after search result
     		if (currentPage instanceof CurrentBiblePage) {
-    			verseNo = ((CurrentBiblePage)currentPage).getCurrentVerseNo();
+    			verseNo = ((CurrentBiblePage)currentPage).getCurrentChapterVerse().getVerse();
     		} else {
     			yScreenOffsetRatio = currentPage.getCurrentYOffsetRatio();
     		}
