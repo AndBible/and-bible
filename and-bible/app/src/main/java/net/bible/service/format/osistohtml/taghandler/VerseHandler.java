@@ -119,7 +119,7 @@ public class VerseHandler implements OsisTagHandler {
 		// The id is used to 'jump to' the verse using javascript so always need the verse tag with an id
 		// Do not show verse 0
 		StringBuilder verseHtml = new StringBuilder();
-		verseHtml.append(" <span class='").append(cssClasses).append("' id='").append(verseNo).append("'>").append(getVerseNumberHtml(verseNo));
+		verseHtml.append(" <span class='").append(cssClasses).append("' id='").append(getVerseId(verseNo)).append("'>").append(getVerseNumberHtml(verseNo));
 		writer.write(verseHtml.toString());
 	}
 
@@ -138,5 +138,9 @@ public class VerseHandler implements OsisTagHandler {
 			verseNoSB.append("<span class='verseNo'>").append("&#x200b;").append("</span>");
 		}
 		return verseNoSB.toString();
+	}
+
+	private String getVerseId(int verseNo) {
+		return parameters.getVersePrefix()+verseNo;
 	}
 }

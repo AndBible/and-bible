@@ -65,15 +65,19 @@ function loadTextAtEnd(textId) {
 
 //TODO combine these 2 functions - check if inserted posn (#textId) is at top or not
 function insertThisTextAtTop(textId, text) {
-    window.jsInterface.log("js:insertThisTextAtTop");
+    window.jsInterface.log("js:insertThisTextAtTop into:"+textId);
     var originalPosition = $(window).scrollTop();
     var $divToInsertInto = $('#' + textId);
     var divPriorHeight = $divToInsertInto.height();
     $divToInsertInto.html(text);
-    var adjustedTop = originalPosition - divPriorHeight + divToInsertInto.height();
+    var adjustedTop = originalPosition - divPriorHeight + $divToInsertInto.height();
     $(window).scrollTop(adjustedTop);
+
+    registerVersePositions();
 }
 function insertThisTextAtEnd(textId, text) {
-    window.jsInterface.log("js:insertThisTextAtEnd");
+    window.jsInterface.log("js:insertThisTextAtEnd into:"+textId);
     $('#' + textId).html(text);
+
+    registerVersePositions();
 }

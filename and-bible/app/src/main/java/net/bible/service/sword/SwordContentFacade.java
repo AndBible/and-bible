@@ -33,6 +33,7 @@ import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.FeatureType;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.NoSuchKeyException;
 import org.xml.sax.ContentHandler;
 
@@ -68,7 +69,7 @@ public class SwordContentFacade {
 	private static SwordContentFacade singleton;
 	
 	// set to false for testing
-	public static boolean isAndroid = true; //CommonUtils.isAndroid();
+	private static boolean isAndroid = true; //CommonUtils.isAndroid();
 	
     private static final Logger log = new Logger(SwordContentFacade.class.getName());
 
@@ -325,6 +326,7 @@ public class SwordContentFacade {
 		OsisToHtmlParameters osisToHtmlParameters = new OsisToHtmlParameters();
 		BookCategory bookCategory = book.getBookCategory();
 		BookMetaData bmd = book.getBookMetaData();
+
 		osisToHtmlParameters.setAsFragment(asFragment);
 		osisToHtmlParameters.setLeftToRight(bmd.isLeftToRight());
 		osisToHtmlParameters.setLanguageCode(book.getLanguage().getCode());
@@ -334,6 +336,7 @@ public class SwordContentFacade {
 		if (BookCategory.BIBLE.equals(bookCategory) || BookCategory.COMMENTARY.equals(bookCategory)) {
 			osisToHtmlParameters.setBasisRef(key);
 			osisToHtmlParameters.setDocumentVersification(((AbstractPassageBook)book).getVersification());
+			osisToHtmlParameters.setVersePrefix(KeyUtil.getVerse(key).getChapter()+".");
 		}
 		
 		if (isAndroid) {

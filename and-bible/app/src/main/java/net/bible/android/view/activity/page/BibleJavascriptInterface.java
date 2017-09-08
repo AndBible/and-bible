@@ -53,14 +53,10 @@ public class BibleJavascriptInterface {
 		if (notificationsEnabled && !PassageChangeMediator.getInstance().isPageChanging() && !windowControl.isSeparatorMoving()) {
 			CurrentPageManager currentPageControl = activeWindowPageManagerProvider.getActiveWindowPageManager();
 			if (currentPageControl.isBibleShown()) {
-				int currentVerse = verseCalculator.calculateCurrentVerse(newYPos);
+				//TODO use chapter and verse to change chapter if necessary
+				int currentVerse = verseCalculator.calculateCurrentVerse(newYPos).getVerse();
 				if (currentVerse!=prevCurrentVerse) {
 					currentPageControl.getCurrentBible().setCurrentVerseNo(currentVerse);
-
-					if (verseCalculator.isLastVerse(currentVerse)) {
-						Log.d(TAG, "***is last verse");
-					}
-
 					prevCurrentVerse = currentVerse;
 				}
 			}
@@ -74,8 +70,8 @@ public class BibleJavascriptInterface {
 	}
 
 	@JavascriptInterface
-	public void registerVersePosition(String verseId, int offset) {
-		verseCalculator.registerVersePosition(Integer.valueOf(verseId), offset);
+	public void registerVersePosition(String chapterVerseId, int offset) {
+		verseCalculator.registerVersePosition(new ChapterVerse(chapterVerseId), offset);
 	}
 
 	@JavascriptInterface
