@@ -21,6 +21,7 @@ import net.bible.android.control.event.window.ScrollSecondaryWindowEvent;
 import net.bible.android.control.event.window.UpdateSecondaryWindowEvent;
 import net.bible.android.control.event.window.WindowSizeChangedEvent;
 import net.bible.android.control.link.LinkControl;
+import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.page.PageTiltScrollControl;
 import net.bible.android.control.page.window.Window;
@@ -50,7 +51,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 
 	private BibleJavascriptInterface bibleJavascriptInterface;
 
-	private int mJumpToVerse = SharedConstants.NO_VALUE;
+	private ChapterVerse mJumpToChapterVerse = ChapterVerse.NO_VALUE;
 	private float mJumpToYOffsetRatio = SharedConstants.NO_VALUE;
 
 	private boolean mIsVersePositionRecalcRequired = true;
@@ -67,7 +68,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 
 	private final LinkControl linkControl;
 
-	private int maintainMovingVerse = -1;
+	private ChapterVerse maintainMovingChapterVerse = ChapterVerse.NO_VALUE;
 
 	private boolean kitKatPlus = CommonUtils.isKitKatPlus();
 
@@ -85,12 +86,6 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	/**
      * Constructor.  This version is only needed if you will be instantiating
      * the object manually (not from a layout XML file).
-	 * @param context
-	 * @param windowControl
-	 * @param bibleKeyHandler
-	 * @param pageControl
-	 * @param pageTiltScrollControl
-	 * @param linkControl
 	 */
 	public BibleView(Context context, Window window, WindowControl windowControl, BibleKeyHandler bibleKeyHandler, PageControl pageControl, PageTiltScrollControl pageTiltScrollControl, LinkControl linkControl) {
 		super(context);
@@ -204,8 +199,8 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	 * Show a page from bible commentary
 	 */
 	@Override
-	public void show(String html, int jumpToVerse, float jumpToYOffsetRatio) {
-		Log.d(TAG, "Show(html," + jumpToVerse + "," + jumpToYOffsetRatio + ") Window:" + window);
+	public void show(String html, ChapterVerse chapterVerse, float jumpToYOffsetRatio) {
+		Log.d(TAG, "Show(html," + chapterVerse + "," + jumpToYOffsetRatio + ") Window:" + window);
 		// set background colour if necessary
 		changeBackgroundColour();
 		
@@ -214,10 +209,10 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 
 		// scrollTo is used on kitkatplus but sometimes the later scrollTo was not working
 		// If verse 1 then later code will jump to top of screen because it looks better than going to verse 1
-		if (kitKatPlus && jumpToVerse>1) {
-			html = html.replace("</body>", "<script>$(window).load(function() {scrollToVerse('" + jumpToVerse + "');})</script></body>");
+		if (kitKatPlus) {
+			html = html.replace("</body>", "<script>$(window).load(function() {scrollToVerse('" + chapterVerse.toHtmlId() + "');})</script></body>");
 		} else {
-			setJumpToVerse(jumpToVerse);
+			setJumpToVerse(chapterVerse);
 		}
 		mJumpToYOffsetRatio = jumpToYOffsetRatio;
 
@@ -268,7 +263,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	 * Trigger jump to correct offset
 	 */
 	private void invokeJumpToOffsetIfRequired(long delay) {
-		if (mJumpToVerse!=SharedConstants.NO_VALUE || mJumpToYOffsetRatio!=SharedConstants.NO_VALUE) {
+		if (!mJumpToChapterVerse.equals(ChapterVerse.NO_VALUE) || mJumpToYOffsetRatio!=SharedConstants.NO_VALUE) {
 			postDelayed(new Runnable() {
 				@Override
 				public void run() {
@@ -289,23 +284,23 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 
 			// screen is changing shape/size so constantly maintain the current verse position
 			// main difference from jumpToVerse is that this is not cleared after jump
-			if (maintainMovingVerse>0) {
-				scrollOrJumpToVerse(maintainMovingVerse);
+			if (!maintainMovingChapterVerse.equals(ChapterVerse.NO_VALUE)) {
+				scrollOrJumpToVerse(maintainMovingChapterVerse);
 			}
 
 			// go to any specified verse or offset
-			if (mJumpToVerse!=SharedConstants.NO_VALUE) {
-			    // must clear mJumpToVerse because setting location causes another onPageFinished
-				int jumpToVerse = mJumpToVerse;
-			    mJumpToVerse = SharedConstants.NO_VALUE;
+			if (!mJumpToChapterVerse.equals(ChapterVerse.NO_VALUE)) {
+			    // must clear mJumpToChapterVerse because setting location causes another onPageFinished
+				ChapterVerse jumpToChapterVerse = mJumpToChapterVerse;
+			    mJumpToChapterVerse = ChapterVerse.NO_VALUE;
 			    
-				scrollOrJumpToVerse(jumpToVerse);
+				scrollOrJumpToVerse(jumpToChapterVerse);
 				
-			} else if (mJumpToYOffsetRatio!=SharedConstants.NO_VALUE) {
+			} else if (mJumpToYOffsetRatio != SharedConstants.NO_VALUE) {
 	            int contentHeight = getContentHeight(); 
 	            int y = (int) ((float)contentHeight*mJumpToYOffsetRatio);
 	            
-	            // must zero mJumpToVerse because setting location causes another onPageFinished
+	            // must zero mJumpToYOffsetRatio because setting location causes another onPageFinished
 				mJumpToYOffsetRatio = SharedConstants.NO_VALUE;
 				
 		        scrollTo(0, Math.max(y, TOP_OF_SCREEN));
@@ -478,13 +473,13 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	public void onEvent(UpdateSecondaryWindowEvent event) {
 		if (window.equals(event.getUpdateScreen())) {
 			changeBackgroundColour();
-			show(event.getHtml(), event.getVerseNo(), SharedConstants.NO_VALUE);
+			show(event.getHtml(), event.getChapterVerse(), SharedConstants.NO_VALUE);
 		}		
 	}
 
 	public void onEvent(ScrollSecondaryWindowEvent event) {
 		if (window.equals(event.getWindow()) && getHandler()!=null) {
-			scrollOrJumpToVerseOnUIThread(event.getVerseNo());
+			scrollOrJumpToVerseOnUIThread(event.getChapterVerse());
 		}
 	}
 	
@@ -492,14 +487,14 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		Log.d(TAG, "window size changed");
 		boolean isScreenVerse = event.isVerseNoSet(window);
 		if (isScreenVerse) {
-			this.maintainMovingVerse = event.getVerseNo(window);
+			this.maintainMovingChapterVerse = event.getChapterVerse(window);
 		}
 
 		// when move finished the verse positions will have changed if in Landscape so recalc positions
 		boolean isMoveFinished = event.isFinished();
 		if (isMoveFinished && isScreenVerse) {
-			final int verse = event.getVerseNo(window);
-			setJumpToVerse(verse);
+			final ChapterVerse chapterVerse = event.getChapterVerse(window);
+			setJumpToVerse(chapterVerse);
 
 			final Handler handler = getHandler();
 			if (handler !=null) {
@@ -507,15 +502,15 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 					@Override
 					public void run() {
 						// clear jump value if still set
-						BibleView.this.maintainMovingVerse = SharedConstants.NO_VALUE;
+						BibleView.this.maintainMovingChapterVerse = ChapterVerse.NO_VALUE;
 						
 						// ensure we are in the correct place after screen settles
-						scrollOrJumpToVerse(verse);
+						scrollOrJumpToVerse(chapterVerse);
 						executeJavascript("registerVersePositions()");
 					}
 				} , WindowControl.SCREEN_SETTLE_TIME_MILLIS/2);
 			}
-		}		
+		}
 	}
 	
 	@Override
@@ -541,7 +536,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 
 	public void onEvent(NumberOfWindowsChangedEvent event) {
 		if (getVisibility()==View.VISIBLE && event.isVerseNoSet(window)) {
-			setJumpToVerse(event.getVerseNo(window));
+			setJumpToVerse(event.getChapterVerse(window));
 		}
 	}
 
@@ -553,13 +548,14 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		this.mIsVersePositionRecalcRequired = mIsVersePositionRecalcRequired;
 	}
 	
-	public void setJumpToVerse(int verseNo) {
-		this.mJumpToVerse = verseNo;
+	public void setJumpToVerse(ChapterVerse chapterVerse) {
+		this.mJumpToChapterVerse = chapterVerse;
 	}
 
 	/** move the view so the selected verse is at the top or at least visible
+	 * @param verse
 	 */
-	private void scrollOrJumpToVerseOnUIThread(final int verse) {
+	private void scrollOrJumpToVerseOnUIThread(final ChapterVerse verse) {
 
 		runOnUiThread(new Runnable() {
 			@Override
@@ -570,21 +566,16 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	}
 	/** move the view so the selected verse is at the top or at least visible
 	 */
-	private void scrollOrJumpToVerse(final int verse) {
-		Log.d(TAG, "Scroll or jump to:" + verse);
-		if (verse==SharedConstants.NO_VALUE) {
-			// NOOP
-		} else if (verse<=1) {
-			// use scroll to because difficult to place a tag exactly at the top
-			scrollTo(0, TOP_OF_SCREEN);
-		} else {
+	private void scrollOrJumpToVerse(final ChapterVerse chapterVerse) {
+		Log.d(TAG, "Scroll or jump to:" + chapterVerse);
+		if (!chapterVerse.equals(ChapterVerse.NO_VALUE)) {
 			// jump to correct verse
 			// but scrollTop does not work on Android 3.0-4.0 and changing document location does not work on latest WebView  
 			if (kitKatPlus) {
 				// required format changed in 4.2 http://stackoverflow.com/questions/14771970/how-to-call-javascript-in-android-4-2
-				executeJavascript("scrollToVerse('" + verse + "')");
+				executeJavascript("scrollToVerse('" + chapterVerse.toHtmlId() + "')");
 			} else {
-				executeJavascript("(function() { document.location = '#" + verse+"' })()");
+				executeJavascript("(function() { document.location = '#" + chapterVerse.toHtmlId() +"' })()");
 			}
 		}
 	}

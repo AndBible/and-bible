@@ -1,5 +1,9 @@
 package net.bible.android.control.page;
 
+import net.bible.android.SharedConstants;
+
+import org.crosswire.jsword.passage.Verse;
+
 /**
  * Represent a chapter and verse
  *
@@ -10,6 +14,8 @@ package net.bible.android.control.page;
 public class ChapterVerse {
 	private final int chapter;
 	private final int verse;
+
+	public static final ChapterVerse NO_VALUE = new ChapterVerse(SharedConstants.NO_VALUE, SharedConstants.NO_VALUE);
 
 	public ChapterVerse(int chapter, int verse) {
 		this.chapter = chapter;
@@ -22,15 +28,33 @@ public class ChapterVerse {
 		verse = Integer.parseInt(strings[1]);
 	}
 
+	public ChapterVerse(Verse pVerse) {
+		chapter = pVerse.getChapter();
+		verse = pVerse.getVerse();
+	}
+
+	/**
+	 * The format used for ids in html
+	 */
+	public String toHtmlId() {
+		return chapter + "." +verse;
+	}
+
+	@Override
+	public String toString() {
+		return "ChapterVerse{" +
+				"chapter=" + chapter +
+				", verse=" + verse +
+				'}';
+	}
+
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
 		ChapterVerse that = (ChapterVerse) o;
-
-		if (chapter != that.chapter) return false;
-		return verse == that.verse;
+		return chapter==that.chapter && verse==that.verse;
 	}
 
 	public int getChapter() {

@@ -2,6 +2,8 @@ package net.bible.android.view.activity.base;
 
 import android.view.View;
 
+import net.bible.android.control.page.ChapterVerse;
+
 /**
  * Base class for boble and My Note document views
  * 
@@ -11,28 +13,28 @@ import android.view.View;
  */
 public interface DocumentView {
 
-	public abstract void show(String html, int jumpToVerse, float jumpToYOffsetRatio);
+	void show(String html, ChapterVerse chapterVerse, float jumpToYOffsetRatio);
 
-	public abstract void applyPreferenceSettings();
+	void applyPreferenceSettings();
 
 	/** may need updating depending on environmental brightness
 	 */
-	public abstract boolean changeBackgroundColour();
+	boolean changeBackgroundColour();
 	
 	// allow stop/start of autoscroll
-	public abstract void onScreenTurnedOn();
-	public abstract void onScreenTurnedOff();
+	void onScreenTurnedOn();
+	void onScreenTurnedOff();
 	
-	public abstract boolean pageDown(boolean toBottom);
+	boolean pageDown(boolean toBottom);
 	
 	/** prevent swipe right if the user is scrolling the page right */
-	public boolean isPageNextOkay();
+	boolean isPageNextOkay();
 	
 	/** prevent swipe left if the user is scrolling the page left */
-	public boolean isPagePreviousOkay();
+	boolean isPagePreviousOkay();
 	
-    public float getCurrentPosition();
+    float getCurrentPosition();
     
     /** same as this but of type View */
-    public View asView();
+    View asView();
 }

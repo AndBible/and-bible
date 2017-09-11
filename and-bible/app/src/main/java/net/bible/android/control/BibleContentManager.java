@@ -2,6 +2,7 @@ package net.bible.android.control;
 
 import android.util.Log;
 
+import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.UpdateTextTask;
 import net.bible.android.control.page.window.Window;
@@ -78,10 +79,10 @@ public class BibleContentManager {
 
         /** callback from base class when result is ready */
     	@Override
-    	protected void showText(String text, Window window, int verseNo, float yOffsetRatio) {
+    	protected void showText(String text, Window window, ChapterVerse chapterVerse, float yOffsetRatio) {
     		if (documentViewManager!=null) {
     			DocumentView view = documentViewManager.getDocumentView(window);
-    			view.show(text, verseNo, yOffsetRatio);
+    			view.show(text, chapterVerse, yOffsetRatio);
     		} else {
     			Log.w(TAG, "Document view not yet registered");
     		}

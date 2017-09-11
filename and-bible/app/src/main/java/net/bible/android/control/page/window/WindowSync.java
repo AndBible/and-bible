@@ -6,6 +6,7 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent;
 import net.bible.android.control.event.window.UpdateSecondaryWindowEvent;
+import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.UpdateTextTask;
 import net.bible.service.device.ScreenSettings;
@@ -131,7 +132,7 @@ public class WindowSync {
 			if (!forceRefresh && 
 					BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && 
 					currentVerse!=null && targetVerse!=null && targetV11n.isSameChapter(targetVerse, currentVerse)) {
-				EventBus.getDefault().post(new ScrollSecondaryWindowEvent(inactiveWindow, targetVerse.getVerse()));
+				EventBus.getDefault().post(new ScrollSecondaryWindowEvent(inactiveWindow, new ChapterVerse(targetVerse)));
 			} else {
 				new UpdateInactiveScreenTextTask().execute(inactiveWindow);
 			}
@@ -157,8 +158,8 @@ public class WindowSync {
     private class UpdateInactiveScreenTextTask extends UpdateTextTask {
         /** callback from base class when result is ready */
     	@Override
-    	protected void showText(String text, Window window, int verseNo, float yOffsetRatio) {
-    		EventBus.getDefault().post(new UpdateSecondaryWindowEvent(window, text, verseNo));
+    	protected void showText(String text, Window window, ChapterVerse chapterVerse, float yOffsetRatio) {
+    		EventBus.getDefault().post(new UpdateSecondaryWindowEvent(window, text, chapterVerse));
         }
     }
 
