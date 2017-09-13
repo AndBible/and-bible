@@ -1,16 +1,12 @@
 (function($) {
-    $(document).ready(function() {
+    $.fn.infiniScroll = function(fnLoadTextAtTop, fnLoadTextAtEnd) {
         var TRIM = true;
         var MAX_PAGES = 5;
         var MARGIN = 10;
         var currentPos = scrollPosition();
         var nextTextId = 1;
 
-        $(window).scroll(function() {
-            onScroll();
-        });
-
-        function onScroll() {
+		var scrollHandler = function() {
             previousPos = currentPos;
             currentPos = scrollPosition();
             var scrollingUp = currentPos < previousPos;
@@ -23,23 +19,27 @@
             currentPos = scrollPosition();
         }
 
+		//TODO add start() and stop() methods
+		$(window).scroll(scrollHandler);
+		//$(window).unbind("scroll", scrollHandler);
+
         function addMoreAtEnd() {
             var textId = 'insertedText' + nextTextId++;
             // place marker for text which may take longer to load
             var placeMarker = '<div id="' + textId + '" class="page_section"><p>Loading...</p></div>'
             $("#bottomOfBibleText").before(placeMarker);
 
-            loadTextAtEnd(textId);
+            fnLoadTextAtEnd(textId);
         }
 
         function addMoreAtTop() {
             var textId = 'insertedText' + nextTextId++;
             // place marker for text which may take longer to load
-            var placeMarker = '<div id="' + textId + '" class="page_section"><p>Please wait</p><p>Loading...</p></div>';
+            var placeMarker = '<div id="' + textId + '" class="page_section"><div style="height:300px"></div><p>Loading...</p></div>';
 
             insertAtTop($("#topOfBibleText"), placeMarker);
 
-            loadTextAtTop(textId);
+            fnLoadTextAtTop(textId);
         }
 
         function insertAtTop($afterComponent, text) {
@@ -49,9 +49,24 @@
             var adjustedPosition =  currentPos + changeInHeight;
             setScrollPosition(adjustedPosition);
         }
-
-    });
+    };
 })(jQuery);
+
+$(document).ready(function() {
+	$.fn.infiniScroll(loadTextAtTop, loadTextAtEnd);
+});
+
+function bodyHeight() {
+    return document.body.height;
+}
+
+function scrollPosition() {
+    return window.pageYOffset;
+}
+
+function setScrollPosition(offset) {
+    return window.scrollTop = offset;
+}
 
 function loadTextAtTop(textId) {
     window.jsInterface.log("js:loadTextAtTop");
@@ -83,16 +98,4 @@ function insertThisTextAtEnd(textId, text) {
     $('#' + textId).html(text);
 
     registerVersePositions();
-}
-
-function bodyHeight() {
-    return document.body.height;
-}
-
-function scrollPosition() {
-    return window.pageYOffset;
-}
-
-function setScrollPosition(offset) {
-    return window.scrollTop = offset;
 }
