@@ -3,7 +3,7 @@
         var TRIM = true;
         var MAX_PAGES = 5;
         var MARGIN = 10;
-        var currentPos = $(window).scrollTop();
+        var currentPos = scrollPosition();
         var nextTextId = 1;
 
         $(window).scroll(function() {
@@ -12,7 +12,7 @@
 
         function onScroll() {
             previousPos = currentPos;
-            currentPos = $(window).scrollTop();
+            currentPos = scrollPosition();
             var scrollingUp = currentPos < previousPos;
             var scrollingDown = currentPos > previousPos;
             if (scrollingDown && currentPos >= ($('#bottomOfBibleText').offset().top - $(window).height()) - MARGIN) {
@@ -20,7 +20,7 @@
             } else if (scrollingUp && currentPos < MARGIN) {
                 addMoreAtTop();
             }
-            currentPos = $(window).scrollTop();
+            currentPos = scrollPosition();
         }
 
         function addMoreAtEnd() {
@@ -43,13 +43,13 @@
         }
 
         function insertAtTop($afterComponent, text) {
-            var priorHeight = $('body').height();
-            var originalPosition = $(window).scrollTop();
+            var priorHeight = bodyHeight();
             $afterComponent.after(text);
-            var changeInHeight = $('body').height() - priorHeight;
-            var adjustedPosition =  originalPosition + changeInHeight;
-            $(window).scrollTop(adjustedPosition);
+            var changeInHeight = bodyHeight() - priorHeight;
+            var adjustedPosition =  currentPos + changeInHeight;
+            setScrollPosition(adjustedPosition);
         }
+
     });
 })(jQuery);
 
@@ -66,12 +66,15 @@ function loadTextAtEnd(textId) {
 //TODO combine these 2 functions - check if inserted posn (#textId) is at top or not
 function insertThisTextAtTop(textId, text) {
     window.jsInterface.log("js:insertThisTextAtTop into:"+textId);
-    var originalPosition = $(window).scrollTop();
+    var priorHeight = bodyHeight();
+    var origPosition = scrollPosition();
+
     var $divToInsertInto = $('#' + textId);
-    var divPriorHeight = $divToInsertInto.height();
     $divToInsertInto.html(text);
-    var adjustedTop = originalPosition - divPriorHeight + $divToInsertInto.height();
-    $(window).scrollTop(adjustedTop);
+
+    var changeInHeight = bodyHeight() - priorHeight;
+    var adjustedPosition =  origPosition + changeInHeight;
+    setScrollPosition(adjustedPosition);
 
     registerVersePositions();
 }
@@ -80,4 +83,16 @@ function insertThisTextAtEnd(textId, text) {
     $('#' + textId).html(text);
 
     registerVersePositions();
+}
+
+function bodyHeight() {
+    return document.body.height;
+}
+
+function scrollPosition() {
+    return window.pageYOffset;
+}
+
+function setScrollPosition(offset) {
+    return window.scrollTop = offset;
 }
