@@ -2,7 +2,7 @@
     $.fn.infiniScroll = function(fnLoadTextAtTop, fnLoadTextAtEnd) {
         var TRIM = true;
         var MAX_PAGES = 5;
-        var MARGIN = 10;
+        var MARGIN = 50;
         var currentPos = scrollPosition();
         var nextTextId = 1;
 
