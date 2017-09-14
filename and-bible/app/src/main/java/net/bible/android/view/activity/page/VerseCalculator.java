@@ -27,7 +27,9 @@ public class VerseCalculator {
 	 * when a page is displayed js calls this function to recored the position of all verses to enable current verse calculation
 	 */
 	public void registerVersePosition(ChapterVerse chapterVerse, int offset) {
-		verseByOffset.put(offset, chapterVerse);
+		if (!verseByOffset.containsKey(offset)) {
+			verseByOffset.put(offset, chapterVerse);
+		}
 	}
 	
 	/** compare scrollOffset to the verseByOffset to find which verse is at the top of the screen

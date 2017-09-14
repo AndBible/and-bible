@@ -22,6 +22,9 @@ class VerseCalculatorTest {
         verseCalculator.registerVersePosition(ChapterVerse(1, 0), 2)
         verseCalculator.registerVersePosition(ChapterVerse(1, 1), 20)
         verseCalculator.registerVersePosition(ChapterVerse(1, 2), 40)
+        // verse 2 and 3 are on the same line
+        verseCalculator.registerVersePosition(ChapterVerse(1, 3), 40)
+
         verseCalculator.registerVersePosition(ChapterVerse(2, 0), 62)
         verseCalculator.registerVersePosition(ChapterVerse(2, 1), 80)
         verseCalculator.registerVersePosition(ChapterVerse(2, 2), 100)
