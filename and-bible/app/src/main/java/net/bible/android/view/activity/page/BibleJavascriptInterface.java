@@ -7,6 +7,7 @@ import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.WindowControl;
+import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator;
 
 /**
@@ -19,7 +20,9 @@ import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator;
 public class BibleJavascriptInterface {
 
 	private boolean notificationsEnabled = false;
-	
+
+	private boolean addingContentAtTop = false;
+
 	private VerseCalculator verseCalculator;
 
 	private ChapterVerse prevCurrentChapterVerse = new ChapterVerse(0,0);
@@ -50,7 +53,7 @@ public class BibleJavascriptInterface {
 	@JavascriptInterface
 	public void onScroll(int newYPos) {
 		// do not try to change verse while the page is changing - can cause all sorts of errors e.g. selected verse may not be valid in new chapter and cause chapter jumps
-		if (notificationsEnabled && !PassageChangeMediator.getInstance().isPageChanging() && !windowControl.isSeparatorMoving()) {
+		if (notificationsEnabled && !addingContentAtTop && !PassageChangeMediator.getInstance().isPageChanging() && !windowControl.isSeparatorMoving()) {
 			if (currentPageManager.isBibleShown()) {
 				//TODO use chapter and verse to change chapter if necessary
 				ChapterVerse currentChapterVerse = verseCalculator.calculateCurrentVerse(newYPos);
@@ -88,7 +91,13 @@ public class BibleJavascriptInterface {
 	@JavascriptInterface
 	public void requestMoreTextAtTop(String textId) {
 		Log.d(TAG, "Request more text at top:"+textId);
-		bibleInfiniteScrollPopulator.requestMoreTextAtTop(textId);
+		addingContentAtTop = true;
+		bibleInfiniteScrollPopulator.requestMoreTextAtTop(textId, new Callback() {
+			@Override
+			public void okay() {
+				addingContentAtTop = false;
+			}
+		});
 	}
 
 	@JavascriptInterface
