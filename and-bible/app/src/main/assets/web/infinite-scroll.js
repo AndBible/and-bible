@@ -2,11 +2,16 @@
     $.fn.infiniScroll = function(fnLoadTextAtTop, fnLoadTextAtEnd, initialId, minId, maxId) {
         var TRIM = true;
         var MAX_PAGES = 5;
-        var MARGIN = 10;
+        var MARGIN = 200;
         var currentPos = scrollPosition();
 
 		var topId = initialId;
 		var endId = initialId;
+
+        // adding at top during scroll is jerky so preload the previous chapter
+        if (currentPos<MARGIN) {
+            addMoreAtTop();
+        }
 
 		var scrollHandler = function() {
             previousPos = currentPos;
@@ -26,11 +31,11 @@
 		//$(window).unbind("scroll", scrollHandler);
 
         function addMoreAtEnd() {
-			if (endId<maxId) {
+			if (endId<maxId && document.getElementById("stillLoadingId")==null) {
 				var id = ++endId
 				var textId = 'insertedText' + id;
 				// place marker for text which may take longer to load
-				var placeMarker = '<div id="' + textId + '" class="page_section"><p>Loading...</p></div>'
+				var placeMarker = '<div id="' + textId + '" class="page_section"><p id="stillLoadingId">Loading...</p></div>'
 				$("#bottomOfBibleText").before(placeMarker);
 
 				fnLoadTextAtEnd(id, textId);
@@ -38,11 +43,11 @@
         }
 
         function addMoreAtTop() {
-			if (topId>minId) {
+			if (topId>minId && document.getElementById("stillLoadingId")==null) {
 				var id = --topId
 				var textId = 'insertedText' + id;
 				// place marker for text which may take longer to load
-				var placeMarker = '<div id="' + textId + '" class="page_section"><p style="height: 1000px"></p></div>';
+				var placeMarker = '<div id="' + textId + '" class="page_section"><p id="stillLoadingId" style="height: 100px">Please wait</p></div>';
 				insertAtTop($("#topOfBibleText"), placeMarker);
 
 				fnLoadTextAtTop(id, textId);
@@ -94,19 +99,18 @@ function loadTextAtEnd(chapter, textId) {
  * called from java after actual text has been retrieved to request text is inserted
  */
 function insertThisTextAtTop(textId, text) {
-    window.jsInterface.log("js:insertThisTextAtTop into:"+textId);
     var priorHeight = bodyHeight();
-    var origPosition = scrollPosition();
 
     var $divToInsertInto = $('#' + textId);
     $divToInsertInto.html(text);
 
     var changeInHeight = bodyHeight() - priorHeight;
-    var adjustedPosition =  origPosition + changeInHeight;
+    var adjustedPosition =  scrollPosition() + changeInHeight;
     setScrollPosition(adjustedPosition);
 
     registerVersePositions();
 }
+
 function insertThisTextAtEnd(textId, text) {
     window.jsInterface.log("js:insertThisTextAtEnd into:"+textId);
     $('#' + textId).html(text);
