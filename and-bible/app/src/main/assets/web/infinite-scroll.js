@@ -1,10 +1,12 @@
 (function($) {
-    $.fn.infiniScroll = function(fnLoadTextAtTop, fnLoadTextAtEnd) {
+    $.fn.infiniScroll = function(fnLoadTextAtTop, fnLoadTextAtEnd, initialId, minId, maxId) {
         var TRIM = true;
         var MAX_PAGES = 5;
-        var MARGIN = 50;
+        var MARGIN = 10;
         var currentPos = scrollPosition();
-        var nextTextId = 1;
+
+		var topId = initialId;
+		var endId = initialId;
 
 		var scrollHandler = function() {
             previousPos = currentPos;
@@ -24,22 +26,27 @@
 		//$(window).unbind("scroll", scrollHandler);
 
         function addMoreAtEnd() {
-            var textId = 'insertedText' + nextTextId++;
-            // place marker for text which may take longer to load
-            var placeMarker = '<div id="' + textId + '" class="page_section"><p>Loading...</p></div>'
-            $("#bottomOfBibleText").before(placeMarker);
+			if (endId<maxId) {
+				endId++
+				var textId = 'insertedText' + endId;
+				// place marker for text which may take longer to load
+				var placeMarker = '<div id="' + textId + '" class="page_section"><p>Loading...</p></div>'
+				$("#bottomOfBibleText").before(placeMarker);
 
-            fnLoadTextAtEnd(textId);
+				fnLoadTextAtEnd(textId);
+			}
         }
 
         function addMoreAtTop() {
-            var textId = 'insertedText' + nextTextId++;
-            // place marker for text which may take longer to load
-            var placeMarker = '<div id="' + textId + '" class="page_section"><div style="height:300px"></div><p>Loading...</p></div>';
+			if (topId>minId) {
+				topId--
+				var textId = 'insertedText' + topId;
+				// place marker for text which may take longer to load
+				var placeMarker = '<div id="' + textId + '" class="page_section"><p style="height: 1000px"></p></div>';
+				insertAtTop($("#topOfBibleText"), placeMarker);
 
-            insertAtTop($("#topOfBibleText"), placeMarker);
-
-            fnLoadTextAtTop(textId);
+				fnLoadTextAtTop(textId);
+			}
         }
 
         function insertAtTop($afterComponent, text) {
@@ -53,7 +60,8 @@
 })(jQuery);
 
 $(document).ready(function() {
-	$.fn.infiniScroll(loadTextAtTop, loadTextAtEnd);
+    var chapterInfo = JSON.parse(window.jsInterface.getChapterInfo());
+	$.fn.infiniScroll(loadTextAtTop, loadTextAtEnd, chapterInfo.chapter, chapterInfo.first_chapter, chapterInfo.last_chapter);
 });
 
 function bodyHeight() {

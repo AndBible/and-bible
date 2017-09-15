@@ -10,6 +10,10 @@ import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.view.activity.base.Callback;
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator;
 
+import org.crosswire.jsword.passage.Verse;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Interface allowing javascript to call java methods in app
  *
@@ -86,6 +90,22 @@ public class BibleJavascriptInterface {
 	public void verseTouch(int verse) {
 		Log.d(TAG, "Verse touched event:"+verse);
 		verseActionModeMediator.verseTouch(verse);
+	}
+
+	@JavascriptInterface
+	public String getChapterInfo() {
+		Verse verse = currentPageManager.getCurrentBible().getSingleKey();
+
+		JSONObject jsonObject = new JSONObject();
+		// Create Json Object using Facebook Data
+		try {
+			jsonObject.put("chapter", verse.getChapter());
+			jsonObject.put("first_chapter", 1);
+			jsonObject.put("last_chapter", verse.getVersification().getLastChapter(verse.getBook()));
+		} catch (JSONException e) {
+			Log.e(TAG, "JSON error fetching chapter info", e);
+		}
+		return jsonObject.toString();
 	}
 
 	@JavascriptInterface
