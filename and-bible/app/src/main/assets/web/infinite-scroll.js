@@ -27,25 +27,25 @@
 
         function addMoreAtEnd() {
 			if (endId<maxId) {
-				endId++
-				var textId = 'insertedText' + endId;
+				var id = ++endId
+				var textId = 'insertedText' + id;
 				// place marker for text which may take longer to load
 				var placeMarker = '<div id="' + textId + '" class="page_section"><p>Loading...</p></div>'
 				$("#bottomOfBibleText").before(placeMarker);
 
-				fnLoadTextAtEnd(textId);
+				fnLoadTextAtEnd(id, textId);
 			}
         }
 
         function addMoreAtTop() {
 			if (topId>minId) {
-				topId--
-				var textId = 'insertedText' + topId;
+				var id = --topId
+				var textId = 'insertedText' + id;
 				// place marker for text which may take longer to load
 				var placeMarker = '<div id="' + textId + '" class="page_section"><p style="height: 1000px"></p></div>';
 				insertAtTop($("#topOfBibleText"), placeMarker);
 
-				fnLoadTextAtTop(textId);
+				fnLoadTextAtTop(id, textId);
 			}
         }
 
@@ -76,17 +76,23 @@ function setScrollPosition(offset) {
     return window.scrollTop = offset;
 }
 
-function loadTextAtTop(textId) {
+/**
+ * Ask java to get more text to be loaded into page
+ */
+function loadTextAtTop(chapter, textId) {
     window.jsInterface.log("js:loadTextAtTop");
-    window.jsInterface.requestMoreTextAtTop(textId);
+    window.jsInterface.requestMoreTextAtTop(chapter, textId);
 }
 
-function loadTextAtEnd(textId) {
+function loadTextAtEnd(chapter, textId) {
     window.jsInterface.log("js:loadTextAtEnd");
-    window.jsInterface.requestMoreTextAtEnd(textId);
+    window.jsInterface.requestMoreTextAtEnd(chapter, textId);
 }
 
 //TODO combine these 2 functions - check if inserted posn (#textId) is at top or not
+/**
+ * called from java after actual text has been retrieved to request text is inserted
+ */
 function insertThisTextAtTop(textId, text) {
     window.jsInterface.log("js:insertThisTextAtTop into:"+textId);
     var priorHeight = bodyHeight();

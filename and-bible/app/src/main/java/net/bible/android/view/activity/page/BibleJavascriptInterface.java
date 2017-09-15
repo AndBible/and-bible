@@ -109,10 +109,10 @@ public class BibleJavascriptInterface {
 	}
 
 	@JavascriptInterface
-	public void requestMoreTextAtTop(String textId) {
+	public void requestMoreTextAtTop(int chapter, String textId) {
 		Log.d(TAG, "Request more text at top:"+textId);
 		addingContentAtTop = true;
-		bibleInfiniteScrollPopulator.requestMoreTextAtTop(textId, new Callback() {
+		bibleInfiniteScrollPopulator.requestMoreTextAtTop(chapter, textId, new Callback() {
 			@Override
 			public void okay() {
 				addingContentAtTop = false;
@@ -121,9 +121,9 @@ public class BibleJavascriptInterface {
 	}
 
 	@JavascriptInterface
-	public void requestMoreTextAtEnd(String textId) {
+	public void requestMoreTextAtEnd(int chapter, String textId) {
 		Log.d(TAG, "Request more text at end:"+textId);
-		bibleInfiniteScrollPopulator.requestMoreTextAtEnd(textId);
+		bibleInfiniteScrollPopulator.requestMoreTextAtEnd(chapter, textId);
 	}
 
 	@JavascriptInterface

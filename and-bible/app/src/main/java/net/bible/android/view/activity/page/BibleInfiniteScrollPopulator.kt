@@ -1,7 +1,6 @@
 package net.bible.android.view.activity.page
 
-import android.util.Log
-
+import net.bible.android.control.page.CurrentBiblePage
 import net.bible.android.control.page.CurrentPageManager
 import net.bible.android.view.activity.base.Callback
 
@@ -19,27 +18,33 @@ import org.jetbrains.anko.doAsync
  */
 class BibleInfiniteScrollPopulator(private val bibleViewtextInserter: BibleViewTextInserter, private val currentPageManager: CurrentPageManager) : AnkoLogger {
 
-    fun requestMoreTextAtTop(textId: String, callback: Callback) {
+    fun requestMoreTextAtTop(chapter: Int, textId: String, callback: Callback) {
         debug("requestMoreTextAtTop")
         // do in background thread
         doAsync {
             // get page fragment for previous chapter
-            var fragment = currentPageManager.currentPage.previousPageFragment
-            fragment = StringEscapeUtils.escapeEcmaScript(fragment)
-            bibleViewtextInserter.insertTextAtTop(textId, fragment)
+            val currentPage = currentPageManager.currentPage
+            if (currentPage is CurrentBiblePage) {
+                var fragment = currentPage.getFragmentForChapter(chapter)
+                fragment = StringEscapeUtils.escapeEcmaScript(fragment)
+                bibleViewtextInserter.insertTextAtTop(textId, fragment)
+            }
             // tell js interface that insert is complete
             callback.okay()
         }
     }
 
-    fun requestMoreTextAtEnd(textId: String) {
+    fun requestMoreTextAtEnd(chapter: Int, textId: String) {
         debug("requestMoreTextAtEnd")
         // do in background thread
         doAsync {
             // get page fragment for previous chapter
-            var fragment = currentPageManager.currentPage.nextPageFragment
-            fragment = StringEscapeUtils.escapeEcmaScript(fragment)
-            bibleViewtextInserter.insertTextAtEnd(textId, fragment)
+            val currentPage = currentPageManager.currentPage
+            if (currentPage is CurrentBiblePage) {
+                var fragment = currentPage.getFragmentForChapter(chapter)
+                fragment = StringEscapeUtils.escapeEcmaScript(fragment)
+                bibleViewtextInserter.insertTextAtEnd(textId, fragment)
+            }
         }
     }
 }

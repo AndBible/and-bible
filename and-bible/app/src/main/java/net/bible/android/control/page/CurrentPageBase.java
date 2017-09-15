@@ -107,21 +107,11 @@ abstract class CurrentPageBase implements CurrentPage {
 	}
 
 	@Override
-	public String getPreviousPageFragment() {
-		return getPageContent(getPagePlus(-1), true);
-	}
-
-	@Override
 	public String getCurrentPageContent() {
 		return getPageContent(getKey(), false);
 	}
 
-	@Override
-	public String getNextPageFragment() {
-		return getPageContent(getPagePlus(1), true);
-	}
-
-	private String getPageContent(Key key, boolean asFragment) {
+	protected String getPageContent(Key key, boolean asFragment) {
 		try {
 			String htmlText = swordContentFacade.readHtmlText(getCurrentDocument(), key, asFragment);
 
