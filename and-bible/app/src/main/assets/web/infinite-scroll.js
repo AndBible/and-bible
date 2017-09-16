@@ -66,7 +66,9 @@
 
 $(document).ready(function() {
     var chapterInfo = JSON.parse(window.jsInterface.getChapterInfo());
-	$.fn.infiniScroll(loadTextAtTop, loadTextAtEnd, chapterInfo.chapter, chapterInfo.first_chapter, chapterInfo.last_chapter);
+    if (chapterInfo.infinite_scroll) {
+    	$.fn.infiniScroll(loadTextAtTop, loadTextAtEnd, chapterInfo.chapter, chapterInfo.first_chapter, chapterInfo.last_chapter);
+    }
 });
 
 function bodyHeight() {

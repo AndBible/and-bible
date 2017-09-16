@@ -99,6 +99,7 @@ public class BibleJavascriptInterface {
 		JSONObject jsonObject = new JSONObject();
 		// Create Json Object using Facebook Data
 		try {
+			jsonObject.put("infinite_scroll", currentPageManager.isBibleShown());
 			jsonObject.put("chapter", verse.getChapter());
 			jsonObject.put("first_chapter", 1);
 			jsonObject.put("last_chapter", verse.getVersification().getLastChapter(verse.getBook()));
