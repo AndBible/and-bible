@@ -72,7 +72,7 @@ $(document).ready(function() {
 });
 
 function bodyHeight() {
-    return document.body.height;
+    return document.body.scrollHeight;
 }
 
 function scrollPosition() {
@@ -80,7 +80,8 @@ function scrollPosition() {
 }
 
 function setScrollPosition(offset) {
-    return window.scrollTop = offset;
+    // Android 6 fails with window.scrollTop = offset but jquery works
+    $(window).scrollTop(offset);
 }
 
 /**
@@ -102,13 +103,14 @@ function loadTextAtEnd(chapter, textId) {
  */
 function insertThisTextAtTop(textId, text) {
     var priorHeight = bodyHeight();
+	var origPosition = scrollPosition();
 
     var $divToInsertInto = $('#' + textId);
     $divToInsertInto.html(text);
 
-    var changeInHeight = bodyHeight() - priorHeight;
-    var adjustedPosition =  scrollPosition() + changeInHeight;
-    setScrollPosition(adjustedPosition);
+    // do no try to get scrollPosition here becasue it has not settled
+    var adjustedTop = origPosition - priorHeight + bodyHeight();
+    setScrollPosition(adjustedTop);
 
     registerVersePositions();
 }
