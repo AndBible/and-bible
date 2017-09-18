@@ -336,7 +336,7 @@ public class SwordContentFacade {
 		if (BookCategory.BIBLE.equals(bookCategory) || BookCategory.COMMENTARY.equals(bookCategory)) {
 			osisToHtmlParameters.setBasisRef(key);
 			osisToHtmlParameters.setDocumentVersification(((AbstractPassageBook)book).getVersification());
-			osisToHtmlParameters.setVersePrefix(KeyUtil.getVerse(key).getChapter()+".");
+			osisToHtmlParameters.setChapter(KeyUtil.getVerse(key).getChapter());
 		}
 		
 		if (isAndroid) {
