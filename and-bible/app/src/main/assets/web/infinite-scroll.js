@@ -8,11 +8,6 @@
 		var topId = initialId;
 		var endId = initialId;
 
-        // adding at top during scroll is jerky so preload the previous chapter
-        if (currentPos<MARGIN) {
-            addMoreAtTop();
-        }
-
 		var scrollHandler = function() {
             previousPos = currentPos;
             currentPos = scrollPosition();
