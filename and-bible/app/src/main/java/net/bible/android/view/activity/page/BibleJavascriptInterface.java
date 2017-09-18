@@ -77,19 +77,19 @@ public class BibleJavascriptInterface {
 
 	@JavascriptInterface
 	public void registerVersePosition(String chapterVerseId, int offset) {
-		verseCalculator.registerVersePosition(new ChapterVerse(chapterVerseId), offset);
+		verseCalculator.registerVersePosition(ChapterVerse.fromHtmlId(chapterVerseId), offset);
 	}
 
 	@JavascriptInterface
 	public void verseLongPress(String chapterVerse) {
 		Log.d(TAG, "Verse selected event:"+chapterVerse);
-		verseActionModeMediator.verseLongPress(new ChapterVerse(chapterVerse));
+		verseActionModeMediator.verseLongPress(ChapterVerse.fromHtmlId(chapterVerse));
 	}
 
 	@JavascriptInterface
 	public void verseTouch(String chapterVerse) {
 		Log.d(TAG, "Verse touched event:"+chapterVerse);
-		verseActionModeMediator.verseTouch(new ChapterVerse(chapterVerse));
+		verseActionModeMediator.verseTouch(ChapterVerse.fromHtmlId(chapterVerse));
 	}
 
 	@JavascriptInterface

@@ -334,7 +334,7 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 			CurrentPage currentPage = window.getPageManager().getCurrentPage();
 			if (currentPage!=null &&
 				BookCategory.BIBLE == currentPage.getCurrentDocument().getBookCategory()) {
-				ChapterVerse chapterVerse = new ChapterVerse(KeyUtil.getVerse(currentPage.getSingleKey()));
+				ChapterVerse chapterVerse = ChapterVerse.fromVerse(KeyUtil.getVerse(currentPage.getSingleKey()));
 				windowVerseMap.put(window, chapterVerse);
 			}
 		}

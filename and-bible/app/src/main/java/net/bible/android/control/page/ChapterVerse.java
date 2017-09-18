@@ -22,15 +22,17 @@ public class ChapterVerse {
 		this.verse = verse;
 	}
 
-	public ChapterVerse(String chapterDotVerse) {
+	public static ChapterVerse fromHtmlId(String chapterDotVerse) {
 		String[] strings = chapterDotVerse.split("\\.");
-		chapter = Integer.parseInt(strings[0]);
-		verse = Integer.parseInt(strings[1]);
+		int chapter = Integer.parseInt(strings[0]);
+		int verse = Integer.parseInt(strings[1]);
+		return new ChapterVerse(chapter, verse);
 	}
 
-	public ChapterVerse(Verse pVerse) {
-		chapter = pVerse.getChapter();
-		verse = pVerse.getVerse();
+	public static ChapterVerse fromVerse(Verse pVerse) {
+		int chapter = pVerse.getChapter();
+		int verse = pVerse.getVerse();
+		return new ChapterVerse(chapter, verse);
 	}
 
 	/**

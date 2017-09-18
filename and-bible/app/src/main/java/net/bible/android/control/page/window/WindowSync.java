@@ -132,7 +132,7 @@ public class WindowSync {
 			if (!forceRefresh && 
 					BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && 
 					currentVerse!=null && targetVerse!=null && targetV11n.isSameChapter(targetVerse, currentVerse)) {
-				EventBus.getDefault().post(new ScrollSecondaryWindowEvent(inactiveWindow, new ChapterVerse(targetVerse)));
+				EventBus.getDefault().post(new ScrollSecondaryWindowEvent(inactiveWindow, ChapterVerse.fromVerse(targetVerse)));
 			} else {
 				new UpdateInactiveScreenTextTask().execute(inactiveWindow);
 			}
