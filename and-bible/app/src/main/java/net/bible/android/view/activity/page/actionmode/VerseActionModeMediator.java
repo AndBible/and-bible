@@ -12,7 +12,7 @@ import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.control.page.PageControl;
-import net.bible.android.view.activity.page.VerseNoRange;
+import net.bible.android.view.activity.page.ChapterVerseRange;
 
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
@@ -41,7 +41,7 @@ public class VerseActionModeMediator {
 
 	private final BookmarkControl bookmarkControl;
 
-	private VerseNoRange verseNoRange;
+	private ChapterVerseRange chapterVerseRange;
 
 	private ActionMode actionMode;
 
@@ -68,14 +68,14 @@ public class VerseActionModeMediator {
 	 */
 	public void verseTouch(ChapterVerse verse) {
 		Log.d(TAG, "Verse touched event:"+verse);
-		VerseNoRange origRange = verseNoRange.clone();
-		verseNoRange.alter(verse);
+		ChapterVerseRange origRange = chapterVerseRange.clone();
+		chapterVerseRange.alter(verse);
 
-		if (verseNoRange.isEmpty()) {
+		if (chapterVerseRange.isEmpty()) {
 			endVerseActionMode();
 		} else {
-			Set<ChapterVerse> toSelect = origRange.getExtrasIn(verseNoRange);
-			Set<ChapterVerse> toDeselect = verseNoRange.getExtrasIn(origRange);
+			Set<ChapterVerse> toSelect = origRange.getExtrasIn(chapterVerseRange);
+			Set<ChapterVerse> toDeselect = chapterVerseRange.getExtrasIn(origRange);
 
 			for (ChapterVerse verseNo : toSelect) {
 				bibleView.highlightVerse(verseNo);
@@ -107,7 +107,7 @@ public class VerseActionModeMediator {
 		bibleView.highlightVerse(startChapterVerse);
 
 		Verse currentVerse = pageControl.getCurrentBibleVerse();
-		this.verseNoRange = new VerseNoRange(currentVerse.getVersification(), currentVerse.getBook(), startChapterVerse, startChapterVerse);
+		this.chapterVerseRange = new ChapterVerseRange(currentVerse.getVersification(), currentVerse.getBook(), startChapterVerse, startChapterVerse);
 
 		mainBibleActivity.showVerseActionModeMenu(actionModeCallbackHandler);
 		bibleView.enableVerseTouchSelection();
@@ -124,18 +124,18 @@ public class VerseActionModeMediator {
 
 			bibleView.clearVerseHighlight();
 			bibleView.disableVerseTouchSelection();
-			verseNoRange = null;
+			chapterVerseRange = null;
 
 			mainBibleActivity.clearVerseActionMode(finishingActionMode);
 		}
 	}
 
 	private Verse getStartVerse() {
-		if (verseNoRange==null) {
+		if (chapterVerseRange ==null) {
 			return null;
 		} else {
 			Verse mainVerse = pageControl.getCurrentBibleVerse();
-			ChapterVerse start = verseNoRange.getStart();
+			ChapterVerse start = chapterVerseRange.getStart();
 			return new Verse(mainVerse.getVersification(), mainVerse.getBook(), start.getChapter(), start.getVerse());
 		}
 	}
@@ -146,7 +146,7 @@ public class VerseActionModeMediator {
 			return null;
 		} else {
 			Versification v11n = startVerse.getVersification();
-			ChapterVerse end = verseNoRange.getEnd();
+			ChapterVerse end = chapterVerseRange.getEnd();
 			Verse endVerse = new Verse(v11n, startVerse.getBook(), end.getChapter(), end.getVerse());
 			return new VerseRange(v11n, startVerse, endVerse);
 		}

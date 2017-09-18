@@ -17,7 +17,7 @@ import java.util.Set;
  * @see gnu.lgpl.License for license details.<br>
  * The copyright to this program is held by it's author.
  */
-public class VerseNoRange {
+public class ChapterVerseRange {
 
 	private final Versification v11n;
 	private final BibleBook bibleBook;
@@ -26,15 +26,15 @@ public class VerseNoRange {
 
 	private static final ChapterVerse NO_SELECTION = ChapterVerse.NO_VALUE;
 
-	public VerseNoRange(Versification v11n, BibleBook bibleBook, ChapterVerse start, ChapterVerse end) {
+	public ChapterVerseRange(Versification v11n, BibleBook bibleBook, ChapterVerse start, ChapterVerse end) {
 		this.v11n = v11n;
 		this.bibleBook = bibleBook;
 		this.start = start;
 		this.end = end;
 	}
 
-	public VerseNoRange clone() {
-		return new VerseNoRange(v11n, bibleBook, getStart(), getEnd());
+	public ChapterVerseRange clone() {
+		return new ChapterVerseRange(v11n, bibleBook, getStart(), getEnd());
 	}
 
 	public void alter(ChapterVerse verse) {
@@ -61,7 +61,7 @@ public class VerseNoRange {
 		}
 	}
 
-	public Set<ChapterVerse> getExtrasIn(VerseNoRange other) {
+	public Set<ChapterVerse> getExtrasIn(ChapterVerseRange other) {
 		VerseRange verseRange = createVerseRange();
 		VerseRange otherVerseRange = other.createVerseRange();
 		Verse[] otherVerses = otherVerseRange.toVerseArray();
@@ -93,7 +93,7 @@ public class VerseNoRange {
 		if (this == o) return true;
 		if (o == null || getClass() != o.getClass()) return false;
 
-		VerseNoRange that = (VerseNoRange) o;
+		ChapterVerseRange that = (ChapterVerseRange) o;
 
 		return start.equals(that.start) && end.equals(that.end);
 	}
