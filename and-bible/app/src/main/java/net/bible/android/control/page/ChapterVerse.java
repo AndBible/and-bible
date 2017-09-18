@@ -40,6 +40,20 @@ public class ChapterVerse {
 		return chapter + "." +verse;
 	}
 
+	public boolean after(ChapterVerse other) {
+		return chapter>other.chapter ||
+				(chapter==other.chapter && verse>other.verse);
+	}
+
+	public boolean before(ChapterVerse other) {
+		return chapter<other.chapter ||
+				(chapter==other.chapter && verse<other.verse);
+	}
+
+	public boolean sameChapter(ChapterVerse other) {
+		return chapter==other.chapter;
+	}
+
 	@Override
 	public String toString() {
 		return "ChapterVerse{" +

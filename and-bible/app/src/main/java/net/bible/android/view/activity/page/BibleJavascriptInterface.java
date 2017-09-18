@@ -81,15 +81,15 @@ public class BibleJavascriptInterface {
 	}
 
 	@JavascriptInterface
-	public void verseLongPress(int verse) {
-		Log.d(TAG, "Verse selected event:"+verse);
-		verseActionModeMediator.verseLongPress(verse);
+	public void verseLongPress(String chapterVerse) {
+		Log.d(TAG, "Verse selected event:"+chapterVerse);
+		verseActionModeMediator.verseLongPress(new ChapterVerse(chapterVerse));
 	}
 
 	@JavascriptInterface
-	public void verseTouch(int verse) {
-		Log.d(TAG, "Verse touched event:"+verse);
-		verseActionModeMediator.verseTouch(verse);
+	public void verseTouch(String chapterVerse) {
+		Log.d(TAG, "Verse touched event:"+chapterVerse);
+		verseActionModeMediator.verseTouch(new ChapterVerse(chapterVerse));
 	}
 
 	@JavascriptInterface

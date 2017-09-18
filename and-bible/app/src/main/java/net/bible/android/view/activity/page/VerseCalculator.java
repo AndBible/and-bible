@@ -45,7 +45,7 @@ public class VerseCalculator {
 				return entry.getValue();
 			}
 		}
-		// maybe scrolled off botttom
+		// maybe scrolled off bottom
 		return verseByOffset.get(verseByOffset.lastKey());
 	}
 }

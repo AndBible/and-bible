@@ -616,13 +616,13 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	}
 
 	@Override
-	public void highlightVerse(final int verseNo) {
-		executeJavascriptOnUiThread("highlightVerse("+verseNo+")");
+	public void highlightVerse(final ChapterVerse chapterVerse) {
+		executeJavascriptOnUiThread("highlightVerse('"+chapterVerse.toHtmlId()+"')");
 	}
 
 	@Override
-	public void unhighlightVerse(final int verseNo) {
-		executeJavascriptOnUiThread("unhighlightVerse("+verseNo+")");
+	public void unhighlightVerse(final ChapterVerse chapterVerse) {
+		executeJavascriptOnUiThread("unhighlightVerse('"+chapterVerse.toHtmlId()+"')");
 	}
 
 	@Override

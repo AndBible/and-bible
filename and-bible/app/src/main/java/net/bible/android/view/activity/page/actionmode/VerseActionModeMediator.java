@@ -10,6 +10,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
+import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.view.activity.page.VerseNoRange;
 
@@ -57,7 +58,7 @@ public class VerseActionModeMediator {
 		EventBus.getDefault().register(this);
 	}
 
-	public void verseLongPress(int verse) {
+	public void verseLongPress(ChapterVerse verse) {
         Log.d(TAG, "Verse selected event:"+verse);
         startVerseActionMode(verse);
     }
@@ -65,7 +66,7 @@ public class VerseActionModeMediator {
 	/**
 	 * Handle selection and deselection of extra verses after initial verse
 	 */
-	public void verseTouch(int verse) {
+	public void verseTouch(ChapterVerse verse) {
 		Log.d(TAG, "Verse touched event:"+verse);
 		VerseNoRange origRange = verseNoRange.clone();
 		verseNoRange.alter(verse);
@@ -73,13 +74,13 @@ public class VerseActionModeMediator {
 		if (verseNoRange.isEmpty()) {
 			endVerseActionMode();
 		} else {
-			Set<Integer> toSelect = origRange.getExtrasIn(verseNoRange);
-			Set<Integer> toDeselect = verseNoRange.getExtrasIn(origRange);
+			Set<ChapterVerse> toSelect = origRange.getExtrasIn(verseNoRange);
+			Set<ChapterVerse> toDeselect = verseNoRange.getExtrasIn(origRange);
 
-			for (Integer verseNo : toSelect) {
+			for (ChapterVerse verseNo : toSelect) {
 				bibleView.highlightVerse(verseNo);
 			}
-			for (Integer verseNo : toDeselect) {
+			for (ChapterVerse verseNo : toDeselect) {
 				bibleView.unhighlightVerse(verseNo);
 			}
 		}
@@ -96,15 +97,18 @@ public class VerseActionModeMediator {
 		return actionMode!=null;
 	}
 
-	private void startVerseActionMode(int verse) {
+	private void startVerseActionMode(ChapterVerse startChapterVerse) {
 		if (actionMode!=null) {
 			Log.i(TAG, "Action mode already started so ignoring restart.");
 			return;
 		}
 
-		Log.i(TAG, "Start verse action mode. verse no:"+verse);
-		bibleView.highlightVerse(verse);
-		this.verseNoRange = new VerseNoRange(verse);
+		Log.i(TAG, "Start verse action mode. verse no:"+startChapterVerse);
+		bibleView.highlightVerse(startChapterVerse);
+
+		Verse currentVerse = pageControl.getCurrentBibleVerse();
+		this.verseNoRange = new VerseNoRange(currentVerse.getVersification(), currentVerse.getBook(), startChapterVerse, startChapterVerse);
+
 		mainBibleActivity.showVerseActionModeMenu(actionModeCallbackHandler);
 		bibleView.enableVerseTouchSelection();
     }
@@ -113,10 +117,8 @@ public class VerseActionModeMediator {
 	 * Ensure all state is left tidy
 	 */
 	private void endVerseActionMode() {
-		Log.d("TTT", "endverseam");
 		// prevent endless loop by onDestroyActionMode calling this calling onDestroyActionMode etc.
 		if (actionMode != null) {
-			Log.d("TTT", "endverseam inif");
 			ActionMode finishingActionMode = this.actionMode;
 			actionMode = null;
 
@@ -133,7 +135,8 @@ public class VerseActionModeMediator {
 			return null;
 		} else {
 			Verse mainVerse = pageControl.getCurrentBibleVerse();
-			return new Verse(mainVerse.getVersification(), mainVerse.getBook(), mainVerse.getChapter(), verseNoRange.getStartVerseNo());
+			ChapterVerse start = verseNoRange.getStart();
+			return new Verse(mainVerse.getVersification(), mainVerse.getBook(), start.getChapter(), start.getVerse());
 		}
 	}
 
@@ -143,7 +146,8 @@ public class VerseActionModeMediator {
 			return null;
 		} else {
 			Versification v11n = startVerse.getVersification();
-			Verse endVerse = new Verse(v11n, startVerse.getBook(), startVerse.getChapter(), verseNoRange.getEndVerseNo());
+			ChapterVerse end = verseNoRange.getEnd();
+			Verse endVerse = new Verse(v11n, startVerse.getBook(), end.getChapter(), end.getVerse());
 			return new VerseRange(v11n, startVerse, endVerse);
 		}
 	}
@@ -203,8 +207,8 @@ public class VerseActionModeMediator {
 	public interface VerseHighlightControl {
 		void enableVerseTouchSelection();
 		void disableVerseTouchSelection();
-		void highlightVerse(int verse);
-		void unhighlightVerse(int verse);
+		void highlightVerse(ChapterVerse chapterVerse);
+		void unhighlightVerse(ChapterVerse chapterVerse);
 		void clearVerseHighlight();
 	}
 }

@@ -119,31 +119,31 @@ var touchHandler = function(event) {
 		$target = $closestToPoint
 	}
 
-	var verse = parseInt($target.attr('id'));
-	window.jsInterface.verseTouch(verse);
+	var chapterVerse = $target.attr('id');
+	window.jsInterface.verseTouch(chapterVerse);
 }
 
 
 function selected($elem) {
 	if ($elem.hasClass("verse")) {
-		var verse = parseInt($elem.attr('id'));
-		window.jsInterface.verseLongPress(verse);
+		var chapterVerse = $elem.attr('id');
+		window.jsInterface.verseLongPress(chapterVerse);
 	}
 }
 
 /**
  * Called by VerseActionModelMediator to highlight a verse
  */
-function highlightVerse(verseNo) {
-	var $verseSpan = $('#'+verseNo)
+function highlightVerse(chapterVerse) {
+	var $verseSpan = $('#'+escapeSelector(chapterVerse))
 	$verseSpan.addClass("selected")
 }
 
 /**
  * Called by VerseActionModelMediator to unhighlight a verse
  */
-function unhighlightVerse(verseNo) {
-	var $verseSpan = $('#'+verseNo)
+function unhighlightVerse(chapterVerse) {
+	var $verseSpan = $('#'+escapeSelector(chapterVerse))
 	$verseSpan.removeClass("selected")
 }
 
@@ -153,4 +153,8 @@ function unhighlightVerse(verseNo) {
 function clearVerseHighlight() {
 	var $verseSpan = $('.selected')
 	$verseSpan.removeClass("selected")
+}
+
+function escapeSelector(selectr) {
+    return (selectr+"").replace(".", "\\.")
 }

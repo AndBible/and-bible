@@ -7,6 +7,7 @@ import android.view.MenuItem;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
+import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.PageControl;
 import net.bible.android.control.page.window.Window;
@@ -72,10 +73,10 @@ public class VerseActionModeMediatorTest {
 	@Test
 	public void testVerseLongPress() throws Exception {
 
-		verseActionModeMediator.verseLongPress(TestData.SELECTED_VERSE_NO);
+		verseActionModeMediator.verseLongPress(TestData.SELECTED_CHAPTER_VERSE);
 
 		verify(mainBibleActivity).showVerseActionModeMenu(any(ActionMode.Callback.class));
-		verify(bibleView).highlightVerse(TestData.SELECTED_VERSE_NO);
+		verify(bibleView).highlightVerse(TestData.SELECTED_CHAPTER_VERSE);
 		verify(bibleView).enableVerseTouchSelection();
 	}
 
@@ -83,7 +84,7 @@ public class VerseActionModeMediatorTest {
 	public void testUnselectVerseOnEndActionMode() throws Exception {
 
 		// setup action mode and get callback
-		verseActionModeMediator.verseLongPress(TestData.SELECTED_VERSE_NO);
+		verseActionModeMediator.verseLongPress(TestData.SELECTED_CHAPTER_VERSE);
 		ArgumentCaptor<ActionMode.Callback> callback = ArgumentCaptor.forClass(ActionMode.Callback.class);
 		verify(mainBibleActivity).showVerseActionModeMenu(callback.capture());
 		callback.getValue().onCreateActionMode(actionMode, mock(Menu.class));
@@ -98,7 +99,7 @@ public class VerseActionModeMediatorTest {
 	public void testChangeWindowClearsActionMode() throws Exception {
 
 		// setup actionmode
-		verseActionModeMediator.verseLongPress(TestData.SELECTED_VERSE_NO);
+		verseActionModeMediator.verseLongPress(TestData.SELECTED_CHAPTER_VERSE);
 
 		// publish window change event
 		EventBus.getDefault().post(new CurrentWindowChangedEvent(new Window(3, WindowLayout.WindowState.MAXIMISED, currentPageManager)));
@@ -110,7 +111,7 @@ public class VerseActionModeMediatorTest {
 	public void testActionIsCalled() throws Exception {
 
 		// setup action mode and get callback
-		verseActionModeMediator.verseLongPress(TestData.SELECTED_VERSE_NO);
+		verseActionModeMediator.verseLongPress(TestData.SELECTED_CHAPTER_VERSE);
 		ArgumentCaptor<ActionMode.Callback> callback = ArgumentCaptor.forClass(ActionMode.Callback.class);
 		verify(mainBibleActivity).showVerseActionModeMenu(callback.capture());
 
@@ -127,17 +128,18 @@ public class VerseActionModeMediatorTest {
 	public void testExpandToNextVerse() throws Exception {
 
 		// setup action mode and get callback
-		verseActionModeMediator.verseLongPress(TestData.SELECTED_VERSE_NO);
-		verify(bibleView).highlightVerse(TestData.SELECTED_VERSE_NO);
+		verseActionModeMediator.verseLongPress(TestData.SELECTED_CHAPTER_VERSE);
+		verify(bibleView).highlightVerse(TestData.SELECTED_CHAPTER_VERSE);
 		verify(bibleView).enableVerseTouchSelection();
 
-		verseActionModeMediator.verseTouch(TestData.SELECTED_VERSE_NO+1);
-		verify(bibleView).highlightVerse(TestData.SELECTED_VERSE_NO+1);
+		verseActionModeMediator.verseTouch(TestData.SELECTED_CHAPTER_VERSE_PLUS_1);
+		verify(bibleView).highlightVerse(TestData.SELECTED_CHAPTER_VERSE_PLUS_1);
 	}
 
 	private interface TestData {
 		Verse DEFAULT_VERSE = new Verse(Versifications.instance().getVersification("KJV"), BibleBook.JOHN, 3, 16);
-		int SELECTED_VERSE_NO = 3;
-		Verse SELECTED_VERSE = new Verse(Versifications.instance().getVersification("KJV"), BibleBook.JOHN, 3, SELECTED_VERSE_NO);
+		ChapterVerse SELECTED_CHAPTER_VERSE = new ChapterVerse(3, 3);
+		ChapterVerse SELECTED_CHAPTER_VERSE_PLUS_1 = new ChapterVerse(3, 4);
+		Verse SELECTED_VERSE = new Verse(Versifications.instance().getVersification("KJV"), BibleBook.JOHN, SELECTED_CHAPTER_VERSE.getChapter(), SELECTED_CHAPTER_VERSE.getVerse());
 	}
 }
