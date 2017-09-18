@@ -165,7 +165,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	public void startDocument()  {
 		// if not fragment add head section
 		if (!parameters.isAsFragment()) {
-			String jQueryjs = "\n<script type='text/javascript' src='file:///android_asset/web/jquery-2.2.3.js'></script>\n" +
+			String jQueryjs = "\n<script type='text/javascript' src='file:///android_asset/web/jquery-2.2.4.js'></script>\n" +
 					"<script type='text/javascript' src='file:///android_asset/web/jquery.longpress.js'></script>\n" +
 					"<script type='text/javascript' src='file:///android_asset/web/jquery.nearest.min.1.4.0.js'></script>\n";
 			String jsTag = "\n<script type='text/javascript' src='file:///android_asset/web/script.js'></script>\n" +
@@ -308,7 +308,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		// noop
 	}
 
-	public String getDirection() {
+	private String getDirection() {
 		return parameters.isLeftToRight() ? "ltr" : "rtl";
 	}
 
