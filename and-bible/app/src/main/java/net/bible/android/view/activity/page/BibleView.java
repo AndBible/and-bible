@@ -33,6 +33,8 @@ import net.bible.android.view.util.UiUtils;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
 
+import org.apache.commons.lang3.StringUtils;
+
 import de.greenrobot.event.EventBus;
 
 /** The WebView component that shows the main bible and commentary text
@@ -648,7 +650,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 
 	@TargetApi(Build.VERSION_CODES.KITKAT)
 	private void executeJavascript(String javascript) {
-		Log.d(TAG, "Executing JS:"+javascript);
+		Log.d(TAG, "Executing JS:"+ StringUtils.abbreviate(javascript, 100));
 		if (kitKatPlus) {
 			evaluateJavascript(javascript+";", null);
 		} else {
