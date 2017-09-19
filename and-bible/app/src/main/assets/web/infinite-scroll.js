@@ -49,7 +49,7 @@
 				var id = --topId
 				var textId = 'insertedText' + id;
 				// place marker for text which may take longer to load
-				var placeMarker = '<div id="' + textId + '" class="page_section"><p id="stillLoadingId" style="height: 100px">Please wait</p></div>';
+				var placeMarker = '<div id="' + textId + '" class="page_section"><p id="stillLoadingId" style="height: 100px">&nbsp;</p></div>';
 				insertAtTop($("#topOfBibleText"), placeMarker);
 
 				fnLoadTextAtTop(id, textId);
