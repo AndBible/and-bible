@@ -10,6 +10,7 @@ import net.bible.service.format.osistohtml.preprocessor.TextPreprocessor;
 import net.bible.service.format.osistohtml.strongs.StrongsHandler;
 import net.bible.service.format.osistohtml.strongs.StrongsLinkCreator;
 import net.bible.service.format.osistohtml.taghandler.BookmarkMarker;
+import net.bible.service.format.osistohtml.taghandler.ChapterMarker;
 import net.bible.service.format.osistohtml.taghandler.DivHandler;
 import net.bible.service.format.osistohtml.taghandler.DivineNameHandler;
 import net.bible.service.format.osistohtml.taghandler.FigureHandler;
@@ -88,6 +89,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	private Map<String, OsisTagHandler> osisTagHandlers;
 	
 	private NoteHandler noteHandler;
+
+	private ChapterMarker chapterMarker;
 	
 	// processor for the tag content
 	private TextPreprocessor textPreprocessor;
@@ -114,7 +117,10 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	public OsisToHtmlSaxHandler(OsisToHtmlParameters parameters) {
 		super();
 		this.parameters = parameters;
-		
+
+		// chapter marker is manually called at correct time
+		chapterMarker = new ChapterMarker(parameters, getWriter());
+
 		osisTagHandlers = new HashMap<>();
 		
 		BookmarkMarker bookmarkMarker = new BookmarkMarker(parameters, verseInfo);
@@ -163,7 +169,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 	@Override
 	public void startDocument()  {
-		// if not fragment add head section
+		// if not fragment then add head section
 		if (!parameters.isAsFragment()) {
 			String jQueryjs = "\n<script type='text/javascript' src='file:///android_asset/web/jquery-2.2.4.js'></script>\n" +
 					"<script type='text/javascript' src='file:///android_asset/web/jquery.longpress.js'></script>\n" +
@@ -193,6 +199,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		if (!parameters.isAsFragment()) {
 			write("<div id='topOfBibleText'></div>");
 		}
+
+		chapterMarker.start(null);
 	}
 
 	/*
