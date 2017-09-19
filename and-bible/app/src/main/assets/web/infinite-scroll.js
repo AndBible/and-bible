@@ -99,7 +99,6 @@ function loadTextAtEnd(chapter, textId) {
     window.jsInterface.requestMoreTextAtEnd(chapter, textId);
 }
 
-//TODO combine these 2 functions - check if inserted posn (#textId) is at top or not
 /**
  * called from java after actual text has been retrieved to request text is inserted
  */
