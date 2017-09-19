@@ -68,8 +68,8 @@ public class VerseActionModeMediator {
 	 */
 	public void verseTouch(ChapterVerse verse) {
 		Log.d(TAG, "Verse touched event:"+verse);
-		ChapterVerseRange origRange = chapterVerseRange.clone();
-		chapterVerseRange.alter(verse);
+		ChapterVerseRange origRange = chapterVerseRange;
+		chapterVerseRange = chapterVerseRange.toggleVerse(verse);
 
 		if (chapterVerseRange.isEmpty()) {
 			endVerseActionMode();

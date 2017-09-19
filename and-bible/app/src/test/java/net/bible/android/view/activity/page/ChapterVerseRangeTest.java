@@ -28,16 +28,9 @@ public class ChapterVerseRangeTest {
 	}
 
 	@Test
-	public void testClone() throws Exception {
-		ChapterVerseRange chapterVerseRange = getChapterVerseRange(4, 7);
-		ChapterVerseRange clone = chapterVerseRange.clone();
-		assertThat(clone, equalTo(chapterVerseRange));
-	}
-
-	@Test
 	public void testExpandDown() throws Exception {
 		chapterVerseRange = getChapterVerseRange(7, 7);
-		chapterVerseRange.alter(getChapterVerse(10));
+		chapterVerseRange = chapterVerseRange.toggleVerse(getChapterVerse(10));
 		assertThat(chapterVerseRange.getStart(), equalTo(getChapterVerse(7)));
 		assertThat(chapterVerseRange.getEnd(), equalTo(getChapterVerse(10)));
 	}
@@ -45,7 +38,7 @@ public class ChapterVerseRangeTest {
 	@Test
 	public void testExpandDown_differentChapter() throws Exception {
 		chapterVerseRange = getChapterVerseRange(7, 7);
-		chapterVerseRange.alter(getChapterVerse(8, 10));
+		chapterVerseRange = chapterVerseRange.toggleVerse(getChapterVerse(8, 10));
 		assertThat(chapterVerseRange.getStart(), equalTo(getChapterVerse(7)));
 		assertThat(chapterVerseRange.getEnd(), equalTo(getChapterVerse(8, 10)));
 	}
@@ -53,7 +46,7 @@ public class ChapterVerseRangeTest {
 	@Test
 	public void testExpandUp() throws Exception {
 		chapterVerseRange = getChapterVerseRange(7, 7);
-		chapterVerseRange.alter(getChapterVerse(3));
+		chapterVerseRange = chapterVerseRange.toggleVerse(getChapterVerse(3));
 		assertThat(chapterVerseRange.getStart(), equalTo(getChapterVerse(3)));
 		assertThat(chapterVerseRange.getEnd(), equalTo(getChapterVerse(7)));
 	}
@@ -61,7 +54,7 @@ public class ChapterVerseRangeTest {
 	@Test
 	public void testExpandUp_differentChapter() throws Exception {
 		chapterVerseRange = getChapterVerseRange(7, 7);
-		chapterVerseRange.alter(getChapterVerse(2, 13));
+		chapterVerseRange = chapterVerseRange.toggleVerse(getChapterVerse(2, 13));
 		assertThat(chapterVerseRange.getStart(), equalTo(getChapterVerse(2, 13)));
 		assertThat(chapterVerseRange.getEnd(), equalTo(getChapterVerse(7)));
 	}
@@ -69,7 +62,7 @@ public class ChapterVerseRangeTest {
 	@Test
 	public void testReduceUp() throws Exception {
 		chapterVerseRange = getChapterVerseRange(3, 7);
-		chapterVerseRange.alter(getChapterVerse(6));
+		chapterVerseRange = chapterVerseRange.toggleVerse(getChapterVerse(6));
 		assertThat(chapterVerseRange.getStart(), equalTo(getChapterVerse(3)));
 		assertThat(chapterVerseRange.getEnd(), equalTo(getChapterVerse(5)));
 	}
@@ -77,19 +70,19 @@ public class ChapterVerseRangeTest {
 	@Test
 	public void testReduceUp_differentChapter() throws Exception {
 		chapterVerseRange = getChapterVerseRange(3, 3, 4, 7);
-		chapterVerseRange.alter(getChapterVerse(3, 6));
+		chapterVerseRange = chapterVerseRange.toggleVerse(getChapterVerse(3, 6));
 		assertThat(chapterVerseRange.getStart(), equalTo(getChapterVerse(3)));
 		assertThat(chapterVerseRange.getEnd(), equalTo(getChapterVerse(5)));
 
-		chapterVerseRange.alter(getChapterVerse(4, 7));
-		chapterVerseRange.alter(getChapterVerse(4, 6));
+		chapterVerseRange = chapterVerseRange.toggleVerse(getChapterVerse(4, 7));
+		chapterVerseRange = chapterVerseRange.toggleVerse(getChapterVerse(4, 6));
 		assertThat(chapterVerseRange.getEnd(), equalTo(getChapterVerse(4, 5)));
 	}
 
 	@Test
 	public void testReduceDown() throws Exception {
 		chapterVerseRange = getChapterVerseRange(3, 7);
-		chapterVerseRange.alter(getChapterVerse(3));
+		chapterVerseRange = chapterVerseRange.toggleVerse(getChapterVerse(3));
 		assertThat(chapterVerseRange.getStart(), equalTo(getChapterVerse(4)));
 		assertThat(chapterVerseRange.getEnd(), equalTo(getChapterVerse(7)));
 	}
@@ -97,7 +90,7 @@ public class ChapterVerseRangeTest {
 	@Test
 	public void testReduceDown_differentChapter() throws Exception {
 		chapterVerseRange = getChapterVerseRange(3, 3, 4, 7);
-		chapterVerseRange.alter(getChapterVerse(3, 3));
+		chapterVerseRange = chapterVerseRange.toggleVerse(getChapterVerse(3, 3));
 		// there is a compromise in the code that prevents the first verse being deselected if multiple chapters in selection
 		assertThat(chapterVerseRange.getStart(), equalTo(getChapterVerse(3, 3)));
 		assertThat(chapterVerseRange.getEnd(), equalTo(getChapterVerse(4, 7)));
@@ -106,7 +99,7 @@ public class ChapterVerseRangeTest {
 	@Test
 	public void testReduceToZero() throws Exception {
 		chapterVerseRange = getChapterVerseRange(3, 3);
-		chapterVerseRange.alter(getChapterVerse(3));
+		chapterVerseRange = chapterVerseRange.toggleVerse(getChapterVerse(3));
 		assertThat(chapterVerseRange.isEmpty(), equalTo(true));
 		assertThat(chapterVerseRange.getStart(), equalTo(ChapterVerse.Companion.getNOT_SET()));
 		assertThat(chapterVerseRange.getEnd(), equalTo(ChapterVerse.Companion.getNOT_SET()));
