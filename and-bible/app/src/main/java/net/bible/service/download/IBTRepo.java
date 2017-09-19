@@ -8,7 +8,7 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookFilter;
 import org.crosswire.jsword.book.install.InstallException;
 
-/** some books need renaming after download due to problems with Xiphos module case
+/** Modules from the Institute of Bible Translation
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
@@ -16,7 +16,6 @@ import org.crosswire.jsword.book.install.InstallException;
  */
 public class IBTRepo extends RepoBase {
 
-	// see here for info ftp://ftp.xiphos.org/mods.d/
 	private static final String REPOSITORY = "IBT";
 	
 	private static BookFilter SUPPORTED_DOCUMENTS = new AcceptableBookTypeFilter();

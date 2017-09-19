@@ -9,7 +9,6 @@ import net.bible.service.common.CommonUtils;
 import net.bible.service.download.DownloadManager;
 import net.bible.service.download.RepoBase;
 import net.bible.service.download.RepoFactory;
-import net.bible.service.download.XiphosRepo;
 import net.bible.service.font.FontControl;
 import net.bible.service.sword.SwordDocumentFacade;
 
@@ -150,12 +149,6 @@ public class DownloadControl {
     	}
 
 		if (!downloadQueue.isInQueue(document)) {
-
-			//TODO delete Xiphos
-//			final XiphosRepo xiphosRepo = repoFactory.getXiphosRepo();
-//			if (xiphosRepo.needsPostDownloadAction(document)) {
-//				xiphosRepo.addHandler(document);
-//			}
 
 			// the download happens in another thread
 			RepoBase repo = repoFactory.getRepoForBook(document);
