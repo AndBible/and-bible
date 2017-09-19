@@ -141,6 +141,11 @@ public class VerseHandler implements OsisTagHandler {
 	}
 
 	private String getVerseId(int verseNo) {
-		return parameters.getChapter()+"."+verseNo;
+		Integer chapter = parameters.getChapter();
+		if (chapter!=null) {
+			return chapter + "." + verseNo;
+		} else {
+			return Integer.toString(verseNo);
+		}
 	}
 }
