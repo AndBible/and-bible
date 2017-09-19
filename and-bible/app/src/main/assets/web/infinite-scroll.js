@@ -1,3 +1,10 @@
+/**
+ * WebView js functions for continuous scrolling up and down between chapters
+ *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br></br>
+ * The copyright to this program is held by it's author.
+ */
 (function($) {
     $.fn.infiniScroll = function(fnLoadTextAtTop, fnLoadTextAtEnd, initialId, minId, maxId) {
         var TRIM = true;
