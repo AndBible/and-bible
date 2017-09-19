@@ -24,8 +24,6 @@ public class ChapterVerseRange {
 	private ChapterVerse start;
 	private ChapterVerse end;
 
-	private static final ChapterVerse NO_SELECTION = ChapterVerse.NO_VALUE;
-
 	public ChapterVerseRange(Versification v11n, BibleBook bibleBook, ChapterVerse start, ChapterVerse end) {
 		this.v11n = v11n;
 		this.bibleBook = bibleBook;
@@ -50,8 +48,8 @@ public class ChapterVerseRange {
 				end = verse;
 			}
 		} else if (verse.equals(start) && start.equals(end)) {
-			start = NO_SELECTION;
-			end = NO_SELECTION;
+			start = ChapterVerse.Companion.getNOT_SET();
+			end = ChapterVerse.Companion.getNOT_SET();
 		} else if (verse.equals(start)) {
 			// Inc/dec are tricky when we don't know how many verses in chapters.
 			// So there is a flaw in that the first verse cannot be deselected if selection spans multiple chapters
@@ -114,6 +112,6 @@ public class ChapterVerseRange {
 	}
 
 	public boolean isEmpty() {
-		return start.equals(ChapterVerse.NO_VALUE) || end.equals(ChapterVerse.NO_VALUE);
+		return !ChapterVerse.isSet(start) || !ChapterVerse.isSet(end);
 	}
 }

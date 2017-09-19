@@ -19,7 +19,7 @@ import org.crosswire.jsword.passage.Key;
 abstract public class UpdateTextTask extends AsyncTask<Window, Integer, String> {
 
 	private Window window;
-	private ChapterVerse chapterVerse = ChapterVerse.NO_VALUE;
+	private ChapterVerse chapterVerse = ChapterVerse.Companion.getNOT_SET();
 	private float yScreenOffsetRatio = SharedConstants.NO_VALUE;
 	
 	private static final String TAG = "UpdateTextTask";

@@ -51,7 +51,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 
 	private BibleJavascriptInterface bibleJavascriptInterface;
 
-	private ChapterVerse mJumpToChapterVerse = ChapterVerse.NO_VALUE;
+	private ChapterVerse mJumpToChapterVerse = ChapterVerse.Companion.getNOT_SET();
 	private float mJumpToYOffsetRatio = SharedConstants.NO_VALUE;
 
 	private boolean mIsVersePositionRecalcRequired = true;
@@ -68,7 +68,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 
 	private final LinkControl linkControl;
 
-	private ChapterVerse maintainMovingChapterVerse = ChapterVerse.NO_VALUE;
+	private ChapterVerse maintainMovingChapterVerse = ChapterVerse.Companion.getNOT_SET();
 
 	private boolean kitKatPlus = CommonUtils.isKitKatPlus();
 
@@ -263,7 +263,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	 * Trigger jump to correct offset
 	 */
 	private void invokeJumpToOffsetIfRequired(long delay) {
-		if (!mJumpToChapterVerse.equals(ChapterVerse.NO_VALUE) || mJumpToYOffsetRatio!=SharedConstants.NO_VALUE) {
+		if (ChapterVerse.isSet(mJumpToChapterVerse) || mJumpToYOffsetRatio!=SharedConstants.NO_VALUE) {
 			postDelayed(new Runnable() {
 				@Override
 				public void run() {
@@ -284,15 +284,15 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 
 			// screen is changing shape/size so constantly maintain the current verse position
 			// main difference from jumpToVerse is that this is not cleared after jump
-			if (!maintainMovingChapterVerse.equals(ChapterVerse.NO_VALUE)) {
+			if (ChapterVerse.isSet(maintainMovingChapterVerse)) {
 				scrollOrJumpToVerse(maintainMovingChapterVerse);
 			}
 
 			// go to any specified verse or offset
-			if (!mJumpToChapterVerse.equals(ChapterVerse.NO_VALUE)) {
+			if (ChapterVerse.isSet(mJumpToChapterVerse)) {
 			    // must clear mJumpToChapterVerse because setting location causes another onPageFinished
 				ChapterVerse jumpToChapterVerse = mJumpToChapterVerse;
-			    mJumpToChapterVerse = ChapterVerse.NO_VALUE;
+			    mJumpToChapterVerse = ChapterVerse.Companion.getNOT_SET();
 			    
 				scrollOrJumpToVerse(jumpToChapterVerse);
 				
@@ -502,7 +502,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 					@Override
 					public void run() {
 						// clear jump value if still set
-						BibleView.this.maintainMovingChapterVerse = ChapterVerse.NO_VALUE;
+						BibleView.this.maintainMovingChapterVerse = ChapterVerse.Companion.getNOT_SET();
 						
 						// ensure we are in the correct place after screen settles
 						scrollOrJumpToVerse(chapterVerse);
@@ -568,7 +568,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	 */
 	private void scrollOrJumpToVerse(final ChapterVerse chapterVerse) {
 		Log.d(TAG, "Scroll or jump to:" + chapterVerse);
-		if (!chapterVerse.equals(ChapterVerse.NO_VALUE)) {
+		if (ChapterVerse.isSet(chapterVerse)) {
 			// jump to correct verse
 			// but scrollTop does not work on Android 3.0-4.0 and changing document location does not work on latest WebView  
 			if (kitKatPlus) {
