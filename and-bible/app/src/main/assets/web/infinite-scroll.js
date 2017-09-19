@@ -6,7 +6,7 @@
  * The copyright to this program is held by it's author.
  */
 (function($) {
-    $.fn.infiniScroll = function(fnLoadTextAtTop, fnLoadTextAtEnd, initialId, minId, maxId) {
+    $.fn.infiniScroll = function(fnLoadTextAtTop, fnLoadTextAtEnd, initialId, minId, maxId, insertAfterAtTop, insertBeforeAtBottom) {
         var TRIM = true;
         var MAX_PAGES = 5;
         var MARGIN = 200;
@@ -28,7 +28,7 @@
             currentPos = scrollPosition();
         }
 
-		//TODO add start() and stop() methods
+		// Could add start() and stop() methods
 		$(window).scroll(scrollHandler);
 		//$(window).unbind("scroll", scrollHandler);
 
@@ -38,7 +38,7 @@
 				var textId = 'insertedText' + id;
 				// place marker for text which may take longer to load
 				var placeMarker = '<div id="' + textId + '" class="page_section"><p id="stillLoadingId">Loading...</p></div>'
-				$("#bottomOfBibleText").before(placeMarker);
+				$(insertBeforeAtBottom).before(placeMarker);
 
 				fnLoadTextAtEnd(id, textId);
 			}
@@ -50,7 +50,7 @@
 				var textId = 'insertedText' + id;
 				// place marker for text which may take longer to load
 				var placeMarker = '<div id="' + textId + '" class="page_section"><p id="stillLoadingId" style="height: 100px">&nbsp;</p></div>';
-				insertAtTop($("#topOfBibleText"), placeMarker);
+				insertAtTop($(insertAfterAtTop), placeMarker);
 
 				fnLoadTextAtTop(id, textId);
 			}
@@ -69,7 +69,7 @@
 $(document).ready(function() {
     var chapterInfo = JSON.parse(window.jsInterface.getChapterInfo());
     if (chapterInfo.infinite_scroll) {
-    	$.fn.infiniScroll(loadTextAtTop, loadTextAtEnd, chapterInfo.chapter, chapterInfo.first_chapter, chapterInfo.last_chapter);
+    	$.fn.infiniScroll(loadTextAtTop, loadTextAtEnd, chapterInfo.chapter, chapterInfo.first_chapter, chapterInfo.last_chapter, "#topOfBibleText", "#bottomOfBibleText");
     }
 });
 
