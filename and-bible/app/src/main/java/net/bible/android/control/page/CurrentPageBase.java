@@ -122,8 +122,7 @@ abstract class CurrentPageBase implements CurrentPage {
 			return htmlText;
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting bible text", e);
-			//TODO use resource
-			return HtmlMessageFormatter.format("Error getting bible text: " + e.getMessage());
+			return HtmlMessageFormatter.format(R.string.error_occurred, asFragment);
 		}
 	}
 

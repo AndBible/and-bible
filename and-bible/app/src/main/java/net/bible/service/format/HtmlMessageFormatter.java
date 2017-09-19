@@ -25,16 +25,26 @@ public class HtmlMessageFormatter {
 	/** wrap text with nightmode css if required
 	 */
 	public static String format(int msgId) {
-    	String errorMsg = BibleApplication.getApplication().getResources().getString(msgId);
-    	return format(errorMsg);
+    	return format(msgId, false);
 	}
-	
+
+	/** wrap text with nightmode css if required
+	 */
+	public static String format(int msgId, boolean simpleHtmlOnly) {
+		String errorMsg = BibleApplication.getApplication().getResources().getString(msgId);
+		if (simpleHtmlOnly) {
+			return errorMsg;
+		} else {
+			return format(errorMsg);
+		}
+	}
+
 	/** wrap text with nightmode css if required
 	 */
 	public static String format(String text) {
 		boolean isNightMode = ScreenSettings.isNightMode();
 		
-		String formattedText = "";
+		String formattedText;
 		
 		// only require special formatting for nightmode
 		if (!isNightMode) {

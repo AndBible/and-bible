@@ -105,7 +105,6 @@ public class GridChoosePassageBook extends CustomTitlebarActivityBase implements
     private void bookSelected(int bibleBookNo) {
     	Log.d(TAG, "Book selected:"+bibleBookNo);
     	try {
-    		//TODO av11n - this is done now
         	BibleBook book = BibleBook.values()[bibleBookNo];
         	Versification v11n = getVersification();
     		// if there is only 1 chapter then no need to select chapter, but may need to select verse still

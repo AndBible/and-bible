@@ -59,7 +59,8 @@ public class BibleJavascriptInterface {
 		// do not try to change verse while the page is changing - can cause all sorts of errors e.g. selected verse may not be valid in new chapter and cause chapter jumps
 		if (notificationsEnabled && !addingContentAtTop && !PassageChangeMediator.getInstance().isPageChanging() && !windowControl.isSeparatorMoving()) {
 			if (currentPageManager.isBibleShown()) {
-				//TODO use chapter and verse to change chapter if necessary
+				// All this does is change the current chapter/verse as if the user had just scrolled to another verse in the same chapter.
+				// I originally thought a PassageChangeEvent would need to be raised as well as CurrentVerseChangedEvent but it seems to work fine as is!
 				ChapterVerse currentChapterVerse = verseCalculator.calculateCurrentVerse(newYPos);
 				if (currentChapterVerse != prevCurrentChapterVerse) {
 					currentPageManager.getCurrentBible().setCurrentChapterVerse(currentChapterVerse);

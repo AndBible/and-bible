@@ -49,7 +49,6 @@ public class GridChoosePassageChapter extends CustomTitlebarActivityBase impleme
 
 		buildActivityComponent().inject(this);
         int bibleBookNo = getIntent().getIntExtra(GridChoosePassageBook.BOOK_NO, navigationControl.getDefaultBibleBookNo());
-        //TODO av11n - this is done now
         mBibleBook = BibleBook.values()[bibleBookNo];
                              
         // show chosen book in page title to confirm user choice

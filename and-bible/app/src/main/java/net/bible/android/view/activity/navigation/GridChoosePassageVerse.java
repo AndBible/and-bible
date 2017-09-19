@@ -49,14 +49,12 @@ public class GridChoosePassageVerse extends CustomTitlebarActivityBase implement
 		buildActivityComponent().inject(this);
 
         int bibleBookNo = getIntent().getIntExtra(GridChoosePassageBook.BOOK_NO, navigationControl.getDefaultBibleBookNo());
-        //TODO av11n - this is done now
         mBibleBook = BibleBook.values()[bibleBookNo];
 
         mBibleChapterNo = getIntent().getIntExtra(GridChoosePassageBook.CHAPTER_NO, navigationControl.getDefaultBibleChapterNo());
         
         // show chosen book in page title to confirm user choice
         try {
-            //TODO av11n - done
         	setTitle(navigationControl.getVersification().getLongName(mBibleBook)+" "+mBibleChapterNo);
         } catch (Exception nsve) {
         	Log.e(TAG, "Error in selected book no or chapter no", nsve);

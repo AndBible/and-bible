@@ -138,9 +138,6 @@ public class SwordDocumentFacade {
 	
 			repoBookDeduplicator.addAll(repoFactory.getCrosswireRepo().getRepoBooks(refresh));
 
-			//TODO delete Xiphos
-//			repoBookDeduplicator.addAll(repoFactory.getXiphosRepo().getRepoBooks(refresh));
-
 			repoBookDeduplicator.addAll(repoFactory.getEBibleRepo().getRepoBooks(refresh));
 
 			// beta repo must never override live books especially if later version so use addIfNotExists
