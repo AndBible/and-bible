@@ -16,6 +16,7 @@ import net.bible.service.font.FontControl;
 import net.bible.service.format.HtmlMessageFormatter;
 import net.bible.service.format.Note;
 import net.bible.service.format.OSISInputStream;
+import net.bible.service.format.SaxParserPool;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler;
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler;
@@ -33,18 +34,16 @@ import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.FeatureType;
 import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.NoSuchKeyException;
-import org.crosswire.jsword.passage.Passage;
 import org.xml.sax.ContentHandler;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 /** JSword facade
  * 
@@ -57,17 +56,18 @@ public class SwordContentFacade {
 
 	private DocumentParseMethod documentParseMethod = new DocumentParseMethod();
 
+	private SaxParserPool saxParserPool = new SaxParserPool();
+
 	private final BookmarkFormatSupport bookmarkFormatSupport;
 
 	private final MyNoteFormatSupport myNoteFormatSupport;
 
 	private CssControl cssControl = new CssControl();
-	
+
 	private static final String TAG = "SwordContentFacade";
-	private static SwordContentFacade singleton;
-	
+
 	// set to false for testing
-	public static boolean isAndroid = true; //CommonUtils.isAndroid();
+	private static boolean isAndroid = true; //CommonUtils.isAndroid();
 	
     private static final Logger log = new Logger(SwordContentFacade.class.getName());
 
@@ -87,12 +87,10 @@ public class SwordContentFacade {
 		} else if (Books.installed().getBook(book.getInitials())==null) {
 			Log.w(TAG, "Book may have been uninstalled:"+book);
 			String errorMsg = BibleApplication.getApplication().getString(R.string.document_not_installed, book.getInitials());
-			String htmlMsg = HtmlMessageFormatter.format(errorMsg);
-			retVal = htmlMsg;
+			retVal = HtmlMessageFormatter.format(errorMsg);
 		} else if (!bookContainsAnyOf(book, key)) {
 			Log.w(TAG, "KEY:"+key.getOsisID()+" not found in doc:"+book);
-			String htmlMsg = HtmlMessageFormatter.format(R.string.error_key_not_in_document);
-			retVal = htmlMsg;
+			retVal = HtmlMessageFormatter.format(R.string.error_key_not_in_document);
 		} else {
 
 			// we have a fast way of handling OSIS zText docs but some docs need the superior JSword error recovery for mismatching tags 
@@ -149,21 +147,24 @@ public class SwordContentFacade {
 	private String readHtmlTextOptimizedZTextOsis(Book book, Key key) throws ParseException
 	{
 		log.debug("Using fast method to fetch document data");
-		/**
-		 * When you supply an InputStream, the SAX implementation wraps the stream in an InputStreamReader; 
-		 * then SAX automatically detects the correct character encoding from the stream. You can then omit the setEncoding() step, 
-		 * reducing the method invocations once again. The result is an application that is faster, and always has the correct character encoding.
+		/*
+		  When you supply an InputStream, the SAX implementation wraps the stream in an InputStreamReader;
+		  then SAX automatically detects the correct character encoding from the stream. You can then omit the setEncoding() step,
+		  reducing the method invocations once again. The result is an application that is faster, and always has the correct character encoding.
 		 */
 		InputStream is = new OSISInputStream(book, key);
 
 		OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book, key);
-	
-		SAXParser parser = getSAXParser();
+
+		SAXParser parser = null;
 		try {
+			parser = saxParserPool.obtain();
 			parser.parse(is, osisToHtml);
 		} catch (Exception e) {
 			log.error("Parsing error", e);
 			throw new ParseException("Parsing error", e);
+		} finally {
+			saxParserPool.recycle(parser);
 		}
 		
 		return osisToHtml.toString();
@@ -192,38 +193,6 @@ public class SwordContentFacade {
 			log.error("Parsing error", e);
 			throw new ParseException("Parsing error", e);
 		}
-	}
-
-	/**
-	 * Obtain a SAX event provider for the OSIS document representation of one
-	 * or more book entries.
-	 * 
-	 * @param book
-	 *            the book to use
-	 * @param reference
-	 *            a reference, appropriate for the book, of one or more entries
-	 */
-	public SAXEventProvider getOSIS(Book book, String reference, int maxKeyCount)
-			throws BookException, NoSuchKeyException {
-		Key key;
-		if (BookCategory.BIBLE.equals(book.getBookCategory())) {
-			key = book.getKey(reference);
-			((Passage) key).trimVerses(maxKeyCount);
-		} else {
-			key = book.createEmptyKeyList();
-
-			Iterator<Key> iter = book.getKey(reference).iterator();
-			int count = 0;
-			while (iter.hasNext()) {
-				if (++count >= maxKeyCount) {
-					break;
-				}
-				key.addAll(iter.next());
-			}
-		}
-
-		BookData data = new BookData(book, key);
-		return data.getSAXEventProvider();
 	}
 
     /**
@@ -267,7 +236,6 @@ public class SwordContentFacade {
 			boolean sayReferences = BookCategory.GENERAL_BOOK.equals(book.getBookCategory());
 			ContentHandler osisHandler = new OsisToSpeakTextSaxHandler(sayReferences);
 			
-			
 			osissep.provideSAXEvents(osisHandler);
 		
 			return osisHandler.toString();
@@ -277,21 +245,6 @@ public class SwordContentFacade {
     	}
     }
 
-    private SAXParser saxParser;
-    private SAXParser getSAXParser() throws ParseException {
-    	try {
-	    	if (saxParser==null) {
-	    		SAXParserFactory spf = SAXParserFactory.newInstance();
-	    		spf.setValidating(false);
-	   			saxParser = spf.newSAXParser();
-	    	}
-		} catch (Exception e) {
-			log.error("SAX parser error", e);
-			throw new ParseException("SAX parser error", e);
-		}
-		return saxParser;
-    }
-    
     /**
      * Get just the canonical text of one or more book entries without any
      * markup.
@@ -301,12 +254,12 @@ public class SwordContentFacade {
      * @param reference
      *            a reference, appropriate for the book, of one or more entries
      */
-    public String getPlainText(Book book, String reference, int maxKeyCount) throws BookException, NoSuchKeyException {
+    public String getPlainText(Book book, String reference) throws BookException, NoSuchKeyException {
     	String plainText = "";
     	try {
     		if (book != null) {
 		        Key key = book.getKey(reference);
-		        plainText = getPlainText(book, key, maxKeyCount);
+		        plainText = getPlainText(book, key);
     		}
     	} catch (Exception e) {
     		Log.e(TAG, "Error getting plain text", e);
@@ -323,7 +276,7 @@ public class SwordContentFacade {
      * @param key
      *            a reference, appropriate for the book, of one or more entries
      */
-    public String getPlainText(Book book, Key key, int maxKeyCount) throws BookException, NoSuchKeyException {
+    public String getPlainText(Book book, Key key) throws BookException, NoSuchKeyException {
     	String plainText = "";
     	try {
     		if (book != null) {

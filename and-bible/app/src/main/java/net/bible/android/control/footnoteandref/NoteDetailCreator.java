@@ -37,7 +37,7 @@ public class NoteDetailCreator {
 			if (Note.NoteType.TYPE_REFERENCE.equals(note.getNoteType())) {
 				String verse = StringUtils.isNotEmpty(note.getOsisRef()) ? note.getOsisRef() : note.getNoteText();
 
-				retval = swordContentFacade.getPlainText(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getCurrentDocument(), verse, 1);
+				retval = swordContentFacade.getPlainText(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getCurrentDocument(), verse);
 				retval = CommonUtils.limitTextLength(retval);
 			}
 		} catch (Exception e) {
