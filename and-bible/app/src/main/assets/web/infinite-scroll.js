@@ -37,7 +37,7 @@
 				var id = ++endId
 				var textId = 'insertedText' + id;
 				// place marker for text which may take longer to load
-				var placeMarker = '<div id="' + textId + '" class="page_section"><p id="stillLoadingId">Loading...</p></div>'
+				var placeMarker = '<div id="' + textId + '" class="page_section"><p id="stillLoadingId">&nbsp;</p></div>'
 				$(insertBeforeAtBottom).before(placeMarker);
 
 				fnLoadTextAtEnd(id, textId);
