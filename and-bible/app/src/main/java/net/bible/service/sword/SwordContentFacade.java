@@ -323,9 +323,13 @@ public class SwordContentFacade {
 		if (BookCategory.BIBLE.equals(bookCategory) || BookCategory.COMMENTARY.equals(bookCategory)) {
 			osisToHtmlParameters.setBasisRef(key);
 			osisToHtmlParameters.setDocumentVersification(((AbstractPassageBook)book).getVersification());
+
+			// only show chapter divider in Bibles
+			osisToHtmlParameters.setShowChapterDivider(BookCategory.BIBLE.equals(bookCategory));
+			// but commentaries also have a verse tag which requires a chapter part
 			osisToHtmlParameters.setChapter(KeyUtil.getVerse(key).getChapter());
 		}
-		
+
 		if (isAndroid) {
 	    	// HunUj has an error in that refs are not wrapped so automatically add notes around refs
 	    	osisToHtmlParameters.setAutoWrapUnwrappedRefsInNote("HunUj".equals(book.getInitials()));

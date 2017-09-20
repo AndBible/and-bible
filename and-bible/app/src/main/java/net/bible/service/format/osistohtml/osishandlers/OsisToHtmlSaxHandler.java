@@ -10,7 +10,7 @@ import net.bible.service.format.osistohtml.preprocessor.TextPreprocessor;
 import net.bible.service.format.osistohtml.strongs.StrongsHandler;
 import net.bible.service.format.osistohtml.strongs.StrongsLinkCreator;
 import net.bible.service.format.osistohtml.taghandler.BookmarkMarker;
-import net.bible.service.format.osistohtml.taghandler.ChapterMarker;
+import net.bible.service.format.osistohtml.taghandler.ChapterDivider;
 import net.bible.service.format.osistohtml.taghandler.DivHandler;
 import net.bible.service.format.osistohtml.taghandler.DivineNameHandler;
 import net.bible.service.format.osistohtml.taghandler.FigureHandler;
@@ -90,7 +90,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	
 	private NoteHandler noteHandler;
 
-	private ChapterMarker chapterMarker;
+	private ChapterDivider chapterDivider;
 	
 	// processor for the tag content
 	private TextPreprocessor textPreprocessor;
@@ -119,7 +119,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		this.parameters = parameters;
 
 		// chapter marker is manually called at correct time
-		chapterMarker = new ChapterMarker(parameters, getWriter());
+		chapterDivider = new ChapterDivider(parameters, getWriter());
 
 		osisTagHandlers = new HashMap<>();
 		
@@ -200,7 +200,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 			write("<div id='topOfBibleText'></div>");
 		}
 
-		chapterMarker.start(null);
+		chapterDivider.start(null);
 	}
 
 	/*

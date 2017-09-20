@@ -5,6 +5,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -209,10 +210,10 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		// call this from here because some documents may require an adjusted font size e.g. those using Greek font
 		applyFontSize();
 
-		// scrollTo is used on kitkatplus but sometimes the later scrollTo was not working
+		// scrollTo was used on kitkatplus but sometimes the later scrollTo was not working
 		// If verse 1 then later code will jump to top of screen because it looks better than going to verse 1
 		if (kitKatPlus) {
-			html = html.replace("</body>", "<script>$(window).load(function() {scrollToVerse('" + chapterVerse.toHtmlId() + "');})</script></body>");
+			html = html.replace("</body>", "<script>$(window).load(function() {scrollToVerse('" + getIdToJumpTo(chapterVerse) + "');})</script></body>");
 		} else {
 			setJumpToVerse(chapterVerse);
 		}
@@ -572,13 +573,25 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		Log.d(TAG, "Scroll or jump to:" + chapterVerse);
 		if (ChapterVerse.isSet(chapterVerse)) {
 			// jump to correct verse
-			// but scrollTop does not work on Android 3.0-4.0 and changing document location does not work on latest WebView  
+			// but scrollTop does not work on Android 3.0-4.0 and changing document location does not work on latest WebView
 			if (kitKatPlus) {
 				// required format changed in 4.2 http://stackoverflow.com/questions/14771970/how-to-call-javascript-in-android-4-2
-				executeJavascript("scrollToVerse('" + chapterVerse.toHtmlId() + "')");
+				executeJavascript("scrollToVerse('" + getIdToJumpTo(chapterVerse) + "')");
 			} else {
-				executeJavascript("(function() { document.location = '#" + chapterVerse.toHtmlId() +"' })()");
+				executeJavascript("(function() { document.location = '#" + getIdToJumpTo(chapterVerse) +"' })()");
 			}
+		}
+	}
+
+	/**
+	 * if verse 1 then jump to just after chapter divider at top of screen
+	 */
+	@NonNull
+	private String getIdToJumpTo(ChapterVerse chapterVerse) {
+		if (chapterVerse.getVerse()>1) {
+			return chapterVerse.toHtmlId();
+		} else {
+			return chapterVerse.toChapterHtmlId();
 		}
 	}
 

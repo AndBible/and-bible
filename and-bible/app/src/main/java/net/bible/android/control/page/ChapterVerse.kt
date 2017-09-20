@@ -17,6 +17,7 @@ data class ChapterVerse(val chapter: Int, val verse: Int) {
      * The format used for ids in html
      */
     fun toHtmlId(): String = chapter.toString() + "." + verse
+    fun toChapterHtmlId(): String = chapter.toString()
 
     fun after(other: ChapterVerse): Boolean =
             chapter > other.chapter || (chapter == other.chapter && verse > other.verse)

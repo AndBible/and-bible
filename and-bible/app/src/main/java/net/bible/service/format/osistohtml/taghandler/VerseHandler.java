@@ -123,6 +123,17 @@ public class VerseHandler implements OsisTagHandler {
 		writer.write(verseHtml.toString());
 	}
 
+	private String getVerseId(int verseNo) {
+		Integer chapter = parameters.getChapter();
+		if (chapter!=null) {
+			return chapter + "." + verseNo;
+		} else {
+			// verse without chapter does not make sense
+			log.warn("No chapter specified for verse");
+			return "";
+		}
+	}
+
 	private void writeVerseEnd() {
 		writer.write("</span>");
 	}
@@ -138,14 +149,5 @@ public class VerseHandler implements OsisTagHandler {
 			verseNoSB.append("<span class='verseNo'>").append("&#x200b;").append("</span>");
 		}
 		return verseNoSB.toString();
-	}
-
-	private String getVerseId(int verseNo) {
-		Integer chapter = parameters.getChapter();
-		if (chapter!=null) {
-			return chapter + "." + verseNo;
-		} else {
-			return Integer.toString(verseNo);
-		}
 	}
 }
