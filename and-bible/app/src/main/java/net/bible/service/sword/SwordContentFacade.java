@@ -16,6 +16,7 @@ import net.bible.service.font.FontControl;
 import net.bible.service.format.HtmlMessageFormatter;
 import net.bible.service.format.Note;
 import net.bible.service.format.OSISInputStream;
+import net.bible.service.format.SaxParserPool;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler;
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler;
@@ -43,7 +44,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 
 /** JSword facade
  * 
@@ -56,18 +56,16 @@ public class SwordContentFacade {
 
 	private DocumentParseMethod documentParseMethod = new DocumentParseMethod();
 
+	private SaxParserPool saxParserPool = new SaxParserPool();
+
 	private final BookmarkFormatSupport bookmarkFormatSupport;
 
 	private final MyNoteFormatSupport myNoteFormatSupport;
 
 	private CssControl cssControl = new CssControl();
 
-	// lazily cached for performance
-	private SAXParser saxParser;
-
 	private static final String TAG = "SwordContentFacade";
-	private static SwordContentFacade singleton;
-	
+
 	// set to false for testing
 	private static boolean isAndroid = true; //CommonUtils.isAndroid();
 	
@@ -157,13 +155,16 @@ public class SwordContentFacade {
 		InputStream is = new OSISInputStream(book, key);
 
 		OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book, key, asFragment);
-	
-		SAXParser parser = getSAXParser();
+
+		SAXParser parser = null;
 		try {
+			parser = saxParserPool.obtain();
 			parser.parse(is, osisToHtml);
 		} catch (Exception e) {
 			log.error("Parsing error", e);
 			throw new ParseException("Parsing error", e);
+		} finally {
+			saxParserPool.recycle(parser);
 		}
 		
 		return osisToHtml.toString();
@@ -244,20 +245,6 @@ public class SwordContentFacade {
     	}
     }
 
-    private SAXParser getSAXParser() throws ParseException {
-    	try {
-	    	if (saxParser==null) {
-	    		SAXParserFactory spf = SAXParserFactory.newInstance();
-	    		spf.setValidating(false);
-	   			saxParser = spf.newSAXParser();
-	    	}
-		} catch (Exception e) {
-			log.error("SAX parser error", e);
-			throw new ParseException("SAX parser error", e);
-		}
-		return saxParser;
-    }
-    
     /**
      * Get just the canonical text of one or more book entries without any
      * markup.
