@@ -4,12 +4,14 @@ import net.bible.android.TestBibleApplication;
 import net.bible.android.activity.BuildConfig;
 import net.bible.service.format.usermarks.BookmarkFormatSupport;
 import net.bible.service.format.usermarks.MyNoteFormatSupport;
+import net.bible.test.DatabaseResetter;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.PassageKeyFactory;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -31,6 +33,11 @@ public class SwordContentFacadeTest {
 	@Before
 	public void setUp() throws Exception {
 		swordContentFacade = new SwordContentFacade(new BookmarkFormatSupport(), new MyNoteFormatSupport());
+	}
+
+	@After
+	public void finishComponentTesting() {
+		DatabaseResetter.resetDatabase();
 	}
 
 	@Ignore //TODO android.content.res.Resources$NotFoundException for R.integer.poetry_indent_chars

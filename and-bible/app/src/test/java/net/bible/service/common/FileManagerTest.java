@@ -18,7 +18,7 @@ import static junit.framework.Assert.assertTrue;
  */
 @RunWith(MyRobolectricTestRunner.class)
 public class FileManagerTest {
-	private final String folder = "app/src/test/resources/net/bible/service/common".replace("/", File.separator);
+	private final String folder = "src/test/resources/net/bible/service/common".replace("/", File.separator);
 
 	@Test
 	public void shouldCopyFile() throws Exception {

@@ -8,6 +8,7 @@ import net.bible.service.db.bookmark.LabelDto;
 import net.bible.service.format.usermarks.BookmarkFormatSupport;
 import net.bible.service.format.usermarks.MyNoteFormatSupport;
 import net.bible.service.sword.SwordContentFacade;
+import net.bible.test.DatabaseResetter;
 
 import org.crosswire.jsword.passage.NoSuchVerseException;
 import org.crosswire.jsword.passage.Verse;
@@ -79,6 +80,8 @@ public class BookmarkControlTest {
 		}
 		
 		bookmarkControl = null;
+
+		DatabaseResetter.resetDatabase();
 	}
 
 	@Test
