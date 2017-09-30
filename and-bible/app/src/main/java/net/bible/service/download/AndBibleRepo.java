@@ -10,7 +10,7 @@ import org.crosswire.jsword.book.install.InstallException;
 
 import java.util.List;
 
-/** some books need renaming after download due to problems with Xiphos module case
+/** AndBible repo is mainly used to override modules with temporary issues.  It also contains a few tweaked modules from the Xiphos repo.
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
@@ -18,7 +18,6 @@ import java.util.List;
  */
 public class AndBibleRepo extends RepoBase {
 
-	// see here for info ftp://ftp.xiphos.org/mods.d/
 	private static final String REPOSITORY = "AndBible";
 	
 	private static BookFilter SUPPORTED_DOCUMENTS = new AcceptableBookTypeFilter();

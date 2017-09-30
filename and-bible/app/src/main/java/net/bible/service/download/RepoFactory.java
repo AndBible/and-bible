@@ -15,8 +15,6 @@ import javax.inject.Inject;
 public class RepoFactory {
 	private CrosswireRepo crosswireRepo = new CrosswireRepo();
 	
-	private XiphosRepo xiphosRepo = new XiphosRepo();
-
 	private BetaRepo betaRepo = new BetaRepo();
 
 	private AndBibleRepo andBibleRepo = new AndBibleRepo();
@@ -37,8 +35,6 @@ public class RepoFactory {
 		RepoBase repoForBook;
 		if (crosswireRepo.getRepoName().equals(repoName)) {
 			repoForBook = crosswireRepo;
-		} else if (xiphosRepo.getRepoName().equals(repoName)) {
-			repoForBook = xiphosRepo;
 		} else if (andBibleRepo.getRepoName().equals(repoName)) {
 			repoForBook = andBibleRepo;
 		} else if (betaRepo.getRepoName().equals(repoName)) {
@@ -56,10 +52,6 @@ public class RepoFactory {
 	public CrosswireRepo getCrosswireRepo() {
 		return crosswireRepo;
 	}
-	//TODO delete Xiphos
-//	public XiphosRepo getXiphosRepo() {
-//		return xiphosRepo;
-//	}
 	public BetaRepo getBetaRepo() {
 		return betaRepo;
 	}
