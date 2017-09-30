@@ -13,7 +13,7 @@
   <string name="search">Табу</string>
   <string name="settings">Реттеу</string>
   <string name="history">Тарих</string>
-  <string name="speak">Сөйлеңіз</string>
+  <string name="speak">Дауыстап оқу</string>
   <string name="help">Көмек</string>
   <string name="verse">Аят</string>
   <string name="administration">Басқару</string>
@@ -121,14 +121,14 @@
   <string name="too_many_jobs">Тым көп тапсырма орындалуда. Кейбіреулері біткенше күтіңіз және жаңадан тырысып көріңіз. </string>
   <string name="document_not_installed">Жүктеңіз \'%s\'</string>
   <!--Install zip file-->
-  <string name="install_zip">Нығыздалған файлдан құжатты жүктеу</string>
+  <string name="install_zip">Zip файлдан жүктеу</string>
   <string name="install_zip_successfull">Модуль сәтті орнатылды</string>
   <string name="extracting_zip_file">Нығыздалған файл мұрағатталуда...</string>
   <string name="checking_zip_file">Осы файл тексерілу барысында...</string>
   <string name="invalid_module">Файлдың мазмұнында жарамды SWORD модулі жоқ</string>
   <string name="module_already_installed">Файлдың мазмұнында орнатылып қойылған модуль бар</string>
   <!--Daily Reading Plan-->
-  <string name="rdg_plan_title">Оқу Жоспары</string>
+  <string name="rdg_plan_title">Оқу жоспары</string>
   <string name="rdg_plan_selector_title">Оқу Жоспарын Таңдаңыз</string>
   <string name="rdg_plan_day">Күн %s</string>
   <string name="rdg_plan_set_start_jan1">Бастау Қантар 1</string>
@@ -154,13 +154,14 @@
   <string name="share_verse_subject">Киелі Кітап аяты Андроид бағдарламасы арқылы сізбен бөлісілді</string>
   <string name="compare_translations">Аудармаларды салыстыру</string>
   <!--Bookmarks-->
-  <string name="bookmarks">Кітап белгісі</string>
+  <string name="bookmarks">Бетбелгілер</string>
   <string name="add_bookmark">Кітап белгісін қосу</string>
   <string name="bookmark_added">Кітап белгісі қосылды</string>
   <string name="bookmark_exists">Кітап белгісі бұрыннан бар</string>
   <string name="bookmark_labels">Кітап белгісінің Таңбалары</string>
+  <string name="manage_labels">Бетбелгі сілтемелерін басқару</string>
   <string name="assign_labels">Таңбаларды белгілеу</string>
-  <string name="new_label">Жаңа Таңба</string>
+  <string name="new_label">Жаңа бетбелгі</string>
   <string name="label_name_prompt">Атауы</string>
   <string name="label_unlabelled">Таңбаланбаған</string>
   <string name="rename">Атын өзгерту</string>
@@ -197,7 +198,7 @@
   <string name="speak_queue">Кезек</string>
   <string name="speak_repeat">Қайталау</string>
   <!--User Notes-->
-  <string name="mynotes">Менің Жазбаларым</string>
+  <string name="mynotes">Ескертпелер</string>
   <string name="mynote">Менің Жазбам</string>
   <string name="mynote_add">Менің Жазбамды Қосу</string>
   <string name="mynote_view_edit">Менің Жазбам</string>
