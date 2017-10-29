@@ -611,7 +611,20 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 
 		} else {
 			// reset handling of long press
-			setOnLongClickListener(null);
+			setOnLongClickListener(
+					new OnLongClickListener() {
+						@Override
+						public boolean onLongClick(View v) {
+							HitTestResult result = ((BibleView) v).getHitTestResult();
+							if (result.getType() == HitTestResult.SRC_ANCHOR_TYPE) {
+								String target = result.getExtra();
+								linkControl.setLongClick(true);
+								linkControl.loadApplicationUrl(target);
+							}
+							return false;
+						}
+			}
+			);
 		}
 
 		return html;
