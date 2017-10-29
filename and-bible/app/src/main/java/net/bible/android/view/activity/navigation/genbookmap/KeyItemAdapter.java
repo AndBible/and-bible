@@ -46,7 +46,7 @@ public class KeyItemAdapter extends ArrayAdapter<Key> {
 
 		// Set value for the first text field
 		if (view != null) {
-			String key = item.getName();
+			String key = item.getOsisID();
 			// make all uppercase in Calvin's Institutes look nicer
 			if (ABStringUtils.isAllUpperCaseWherePossible(key)) {
 				key = WordUtils.capitalizeFully(key);
