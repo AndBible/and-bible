@@ -250,7 +250,7 @@ abstract class CurrentPageBase implements CurrentPage {
 			object.put("document", getCurrentDocument().getInitials());
 			
 			if (this.getKey()!=null) {
-				object.put("key", getKey().getName());
+				object.put("key", getKey().getOsisID());
 			}
 		}
 		return object;
