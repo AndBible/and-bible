@@ -29,6 +29,10 @@ span[id="0"].verseNo + h1:after {
 	white-space: pre; 
 }
 
+div.breakline {
+    height: 0.5em;
+}
+
 img.sword {
 	max-width: 100%;
 }
