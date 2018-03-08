@@ -55,11 +55,17 @@ public class LinkControl {
 
 	private static final String TAG = "LinkControl";
 
+	private static boolean longClick = false;
+
 	@Inject
 	public LinkControl(WindowControl windowControl, SearchControl searchControl, SwordDocumentFacade swordDocumentFacade) {
 		this.windowControl = windowControl;
 		this.searchControl = searchControl;
 		this.swordDocumentFacade = swordDocumentFacade;
+	}
+
+	public void setLongClick(boolean value) {
+		longClick = value;
 	}
 
 	/** Currently the only uris handled are for Strongs refs
@@ -284,7 +290,11 @@ public class LinkControl {
 	}
 	
 	private boolean openLinksInDedicatedWindow() {
-		return CommonUtils.getSharedPreferences().getBoolean("open_links_in_special_window_pref", true);
+		boolean pref = CommonUtils.getSharedPreferences().getBoolean("open_links_in_special_window_pref", true);
+		if(longClick)
+			pref = ! pref;
+		longClick = false;
+		return pref;
 	}
 
 	private CurrentPageManager getCurrentPageManager() {
