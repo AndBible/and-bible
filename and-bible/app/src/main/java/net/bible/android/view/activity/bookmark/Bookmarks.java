@@ -52,7 +52,8 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 
 	private ListActionModeHelper listActionModeHelper;
 
-	private static final int LIST_ITEM_TYPE = R.layout.list_item_2_highlighted;
+	//private static final int LIST_ITEM_TYPE = R.layout.list_item_2_highlighted;
+	private static final int LIST_ITEM_TYPE = R.layout.list_item_3_highlighted;
 	private static final String TAG = "Bookmarks";
 
     /** Called when the activity is first created. */
