@@ -55,7 +55,7 @@ public class DivHandlerTest {
 		divHandler.start(attrs2);
 		divHandler.end();
 
-		assertThat(htmlTextWriter.getHtml(), equalTo("Some text<br />"));
+		assertThat(htmlTextWriter.getHtml(), equalTo("Some text<div class='breakline'></div>"));
 	}
 
 	/**
@@ -74,7 +74,7 @@ public class DivHandlerTest {
 		
 		divHandler.end();
 
-		assertThat(htmlTextWriter.getHtml(), equalTo("Some text<br />"));
+		assertThat(htmlTextWriter.getHtml(), equalTo("Some text<div class='breakline'></div>"));
 	}
 
 	/**
@@ -100,7 +100,7 @@ public class DivHandlerTest {
 		divHandler.start(attrs2);
 		divHandler.end();
 
-		assertThat(htmlTextWriter.getHtml(), equalTo("Some text<br />"));
+		assertThat(htmlTextWriter.getHtml(), equalTo("Some text<div class='breakline'></div>"));
 	}
 	
 	/**
