@@ -29,7 +29,9 @@ public class OsisToHtmlParameters {
 	private BookmarkStyle defaultBookmarkStyle = BookmarkStyle.YELLOW_STAR;
     private boolean isShowNotes = false;
     private boolean isAutoWrapUnwrappedRefsInNote = false;
-    // used as a basis if a reference has only chapter and no book
+    private boolean isShowReferenceContent = true;
+
+	// used as a basis if a reference has only chapter and no book
     private Verse basisRef;
     private Versification documentVersification;
     private String font;
@@ -118,6 +120,12 @@ public class OsisToHtmlParameters {
 	public void setAutoWrapUnwrappedRefsInNote(boolean isAutoWrapUnwrappedRefsInNote) {
 		this.isAutoWrapUnwrappedRefsInNote = isAutoWrapUnwrappedRefsInNote;
 	}
+    public boolean isShowReferenceContent() {
+		return isShowReferenceContent;
+	}
+	public void setShowReferenceContent(boolean isShowReferenceContent) {
+		this.isShowReferenceContent = isShowReferenceContent;
+	}	
 	public boolean isShowStrongs() {
 		return isShowStrongs;
 	}
