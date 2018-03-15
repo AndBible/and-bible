@@ -66,7 +66,27 @@ public class ReferenceHandlerTest {
 		
 		assertThat(writer.getHtml(), equalTo("(<a href='bible:Exod.15.1'>Exodus 15:1-19</a>.)"));
 	}
-	
+
+	/**
+	 * When there is no osis ref the content is used if it is a valid reference
+	 */
+
+	@Test
+	public void testGenBookUrlWithSpace() {
+		writer.write("(");
+
+		AttributesImpl attrs = new AttributesImpl();
+		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_REF, null, "ESV Study Bible Articles:Book introductions");
+		referenceHandler.start(attrs);
+
+		writer.write("Some content");
+
+		referenceHandler.end();
+		writer.write(".)");
+
+		assertThat(writer.getHtml(), equalTo("(<a href='sword://ESV Study Bible Articles/Book introductions'>Some content</a>.)"));
+	}
+
 	/**
 	 * When there is no osis ref the content is used if it is a valid reference
 	 */
