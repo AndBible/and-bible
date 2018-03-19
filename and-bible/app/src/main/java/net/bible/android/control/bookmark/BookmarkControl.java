@@ -22,6 +22,8 @@ import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
 import net.bible.service.sword.SwordContentFacade;
 
+import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.Versification;
@@ -50,6 +52,7 @@ public class BookmarkControl {
 	private final LabelDto LABEL_UNLABELLED;
 
 	private static final String BOOKMARK_SORT_ORDER = "BookmarkSortOrder";
+	private static final String BOOKMARK_TRANS_MODE = "BookmarkTransMode";
 
 	private final SwordContentFacade swordContentFacade;
 
@@ -78,7 +81,8 @@ public class BookmarkControl {
 				} else {
 					Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
 				}
-			} else {
+			}
+			if ((bookmarkDto ==null)) { // || (menuItemId == R.id.add_bookmark)) {
 				// prepare new bookmark and add to db
 				bookmarkDto = new BookmarkDto();
 				bookmarkDto.setVerseRange(verseRange);
@@ -136,12 +140,47 @@ public class BookmarkControl {
 		return bookUsed;
 	}
 
-	public String getBookmarkVerseText(BookmarkDto bookmark) {
+	public Book getBookByAbbreviation(CurrentBiblePage currentBible, String bookUsed) {
+		Book book = currentBible.getSwordDocumentFacade().getDocumentByInitials(bookUsed);
+		if (book==null) {
+			// In this case match by abbreviation.
+			List<Book> books = currentBible.getSwordDocumentFacade().getBibles();
+			for (Book bk : books) {
+				if (bookUsed.equalsIgnoreCase(bk.getAbbreviation())) {
+					book = bk;
+					break;
+				}
+			}
+		}
+		return book;
+	}
+	public String getBookmarkVerseText(BookmarkDto bookmark, boolean isMultipleT) {
 		String verseText = "";
 		try {
 			CurrentBiblePage currentBible = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible();
 			Versification versification = currentBible.getVersification();
 			verseText = swordContentFacade.getPlainText(currentBible.getCurrentDocument(), bookmark.getVerseRange(versification));
+
+			String bookUsed = bookmark.getBookUsed();
+			if (isMultipleT && (bookUsed != null) && (!bookUsed.isEmpty()) && !bookUsed.equals(getCurrentBookUsed())) {
+				Book book = getBookByAbbreviation(currentBible,bookUsed);
+				if (book != null) {
+					verseText = swordContentFacade.getPlainText(book, bookmark.getConvertibleVerseRange().getVerseRange(((AbstractPassageBook) book).getVersification()));
+					// Below copied can be adapted to cater for font
+//					if (verseText.length() > 0) {
+//
+//						// does this book require a custom font to display it
+//						File fontFile = null;
+//						String fontForBook = fontControl.getFontForBook(book);
+//						if (StringUtils.isNotEmpty(fontForBook)) {
+//							fontFile = fontControl.getFontFile(fontForBook);
+//						}
+//
+//						// create DTO with all required info to display this Translation text
+//						retval.add(new TranslationDto(book, text, fontFile));
+//					}
+				}
+			}
 			verseText = CommonUtils.limitTextLength(verseText);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);
@@ -378,6 +417,33 @@ public class BookmarkControl {
 		}
 	}
 
+	public void changeBookmarkTranslationMode() {
+		if (getBookmarkTranslationMode().equals(BookmarkTranslationMode.MULTIPLE_TRANSLATIONS)) {
+			setBookmarkTranslationMode(BookmarkTranslationMode.SINGLE_TRANSLATION);
+		} else {
+			setBookmarkTranslationMode(BookmarkTranslationMode.MULTIPLE_TRANSLATIONS);
+		}
+	}
+
+	private BookmarkTranslationMode getBookmarkTranslationMode() {
+		String bookmarkTransStr = CommonUtils.getSharedPreference(BOOKMARK_TRANS_MODE,
+				BookmarkTranslationMode.SINGLE_TRANSLATION.toString());
+		return BookmarkTranslationMode.valueOf(bookmarkTransStr);
+	}
+	private void setBookmarkTranslationMode(BookmarkTranslationMode transMode) {
+		CommonUtils.saveSharedPreference(BOOKMARK_TRANS_MODE, transMode.toString());
+	}
+
+	public boolean isMultipleTranslations() {
+		return BookmarkTranslationMode.MULTIPLE_TRANSLATIONS.equals(getBookmarkTranslationMode());
+	}
+	public String getBookmarkTranslationDescription() {
+		if (isMultipleTranslations()) {
+			return CommonUtils.getResourceString(R.string.mult_translations);
+		} else {
+			return CommonUtils.getResourceString(R.string.single_translation);
+		}
+	}
 	private List<BookmarkDto> getSortedBookmarks(List<BookmarkDto> bookmarkList) {
 
 		Comparator<BookmarkDto> comparator;
@@ -409,7 +475,8 @@ public class BookmarkControl {
 	private String getCurrentBookUsed() {
 		CurrentPageManager currentPageControl = activeWindowPageManagerProvider.getActiveWindowPageManager();
 		if (currentPageControl.isBibleShown() || currentPageControl.isCommentaryShown()) {
-			return currentPageControl.getCurrentBible().getCurrentDocument().getAbbreviation();
+			String abbrev = currentPageControl.getCurrentBible().getCurrentDocument().getAbbreviation();
+			return abbrev;
 		} else
 			return "";
 	}

@@ -23,6 +23,8 @@ import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
 
+import org.crosswire.jsword.book.Book;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,15 +58,15 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 	private static final int LIST_ITEM_TYPE = R.layout.list_item_3_highlighted;
 	private static final String TAG = "Bookmarks";
 
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState, true);
-        setContentView(R.layout.bookmarks);
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState, true);
+		setContentView(R.layout.bookmarks);
 
 		buildActivityComponent().inject(this);
 
-        // if coming Back using History then the LabelNo will be in the intent allowing the correct label to be pre-selected
+		// if coming Back using History then the LabelNo will be in the intent allowing the correct label to be pre-selected
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			if (extras.containsKey(BookmarkControl.LABEL_NO_EXTRA)) {
@@ -74,11 +76,11 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 				}
 			}
 		}
-        
-       	initialiseView();
-    }
 
-    private void initialiseView() {
+		initialiseView();
+	}
+
+	private void initialiseView() {
 		listActionModeHelper =  new ListActionModeHelper(getListView(), R.menu.bookmark_context_menu);
 
 		getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -88,76 +90,76 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 			}
 		});
 
-    	//prepare the Label spinner
-    	loadLabelList();
-    	labelArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, labelList);
-    	labelArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    	labelSpinner = (Spinner)findViewById(R.id.labelSpinner);
-    	labelSpinner.setAdapter(labelArrayAdapter);
+		//prepare the Label spinner
+		loadLabelList();
+		labelArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, labelList);
+		labelArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+		labelSpinner = (Spinner)findViewById(R.id.labelSpinner);
+		labelSpinner.setAdapter(labelArrayAdapter);
 
-    	// check for pre-selected label e.g. when returning via History using Back button 
-    	if (selectedLabelNo>=0 && selectedLabelNo<labelList.size()) {
-    		labelSpinner.setSelection(selectedLabelNo);
-    	}
+		// check for pre-selected label e.g. when returning via History using Back button
+		if (selectedLabelNo>=0 && selectedLabelNo<labelList.size()) {
+			labelSpinner.setSelection(selectedLabelNo);
+		}
 
-    	labelSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
+		labelSpinner.setOnItemSelectedListener(new OnItemSelectedListener() {
 
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-		    	selectedLabelNo = position;
-		    	Bookmarks.this.loadBookmarkList();
+				selectedLabelNo = position;
+				Bookmarks.this.loadBookmarkList();
 			}
 
 			@Override
 			public void onNothingSelected(AdapterView<?> arg0) {
 			}
 		});
-    	
-    	loadBookmarkList();
-    	
-    	// prepare the document list view
+
+		loadBookmarkList();
+
+		// prepare the document list view
 		ArrayAdapter<BookmarkDto> bookmarkArrayAdapter = new BookmarkItemAdapter(this, LIST_ITEM_TYPE, bookmarkList, this, bookmarkControl);
-    	setListAdapter(bookmarkArrayAdapter);
+		setListAdapter(bookmarkArrayAdapter);
 	}
 
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-    	try {
+		try {
 			// check to see if Action Mode is in operation
 			if (!listActionModeHelper.isInActionMode()) {
 				bookmarkSelected(bookmarkList.get(position));
 			}
-    	} catch (Exception e) {
-    		Log.e(TAG, "document selection error", e);
-    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
-    	}
+		} catch (Exception e) {
+			Log.e(TAG, "document selection error", e);
+			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+		}
 	}
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.d(TAG, "Restoring state after return from label editing");
-    	// the bookmarkLabels activity may have added/deleted labels or changed the bookmarks with the current label
-    	LabelDto prevLabel = labelList.get(selectedLabelNo);
-    	
-    	// reload labels
-    	loadLabelList();
-    	
-    	int prevLabelPos = labelList.indexOf(prevLabel);
-    	if (prevLabelPos>=0) {
-    		selectedLabelNo = prevLabelPos;
-    	} else {
-    		// this should be 'All'
-    		selectedLabelNo = 0;
-    	}
-    	labelSpinner.setSelection(selectedLabelNo);
-    	
-    	// the label may have been renamed so cause the list to update it's text
-    	labelArrayAdapter.notifyDataSetChanged();
-    	
-    	loadBookmarkList();
-    }
+		// the bookmarkLabels activity may have added/deleted labels or changed the bookmarks with the current label
+		LabelDto prevLabel = labelList.get(selectedLabelNo);
 
-    /** allow activity to enhance intent to correctly restore state */
+		// reload labels
+		loadLabelList();
+
+		int prevLabelPos = labelList.indexOf(prevLabel);
+		if (prevLabelPos>=0) {
+			selectedLabelNo = prevLabelPos;
+		} else {
+			// this should be 'All'
+			selectedLabelNo = 0;
+		}
+		labelSpinner.setSelection(selectedLabelNo);
+
+		// the label may have been renamed so cause the list to update it's text
+		labelArrayAdapter.notifyDataSetChanged();
+
+		loadBookmarkList();
+	}
+
+	/** allow activity to enhance intent to correctly restore state */
 	public Intent getIntentForHistoryList() {
 		Log.d(TAG, "Saving label no in History Intent");
 		Intent intent = getIntent();
@@ -167,8 +169,8 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 		return intent;
 	}
 
-    
-    private void assignLabels(List<BookmarkDto> bookmarks) {
+
+	private void assignLabels(List<BookmarkDto> bookmarks) {
 		long[] bookmarkIds = new long[bookmarks.size()];
 		for (int i=0; i<bookmarks.size(); i++) {
 			bookmarkIds[i] = bookmarks.get(i).getId();
@@ -185,62 +187,83 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 		}
 		loadBookmarkList();
 	}
-    
+
 	private void loadLabelList() {
-    	labelList.clear();
-    	labelList.addAll(bookmarkControl.getAllLabels());
+		labelList.clear();
+		labelList.addAll(bookmarkControl.getAllLabels());
 	}
 
 	/** a spinner has changed so refilter the doc list
-     */
-    private void loadBookmarkList() {
-    	try {
-    		if (selectedLabelNo>-1 && selectedLabelNo<labelList.size()) {
-   	        	Log.i(TAG, "filtering bookmarks");
-   	        	LabelDto selectedLabel = labelList.get(selectedLabelNo);
-   	        	bookmarkList.clear();
-   	        	bookmarkList.addAll( bookmarkControl.getBookmarksWithLabel(selectedLabel) );
-   	        	
-        		notifyDataSetChanged();
+	 */
+	private void loadBookmarkList() {
+		try {
+			if (selectedLabelNo>-1 && selectedLabelNo<labelList.size()) {
+				Log.i(TAG, "filtering bookmarks");
+				LabelDto selectedLabel = labelList.get(selectedLabelNo);
+				bookmarkList.clear();
+				bookmarkList.addAll( bookmarkControl.getBookmarksWithLabel(selectedLabel) );
+
+				notifyDataSetChanged();
 
 				// if in action mode then must exit because the data has changed, invalidating selections
 				listActionModeHelper.exitActionMode();
-    		}
-    	} catch (Exception e) {
-    		Log.e(TAG, "Error initialising view", e);
-    		Toast.makeText(this, getString(R.string.error)+" "+e.getMessage(), Toast.LENGTH_SHORT).show();
-    	}
-    }
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "Error initialising view", e);
+			Toast.makeText(this, getString(R.string.error)+" "+e.getMessage(), Toast.LENGTH_SHORT).show();
+		}
+	}
 
-    private void bookmarkSelected(BookmarkDto bookmark) {
-    	Log.d(TAG, "Bookmark selected:"+bookmark.getVerseRange());
-    	try {
-        	if (bookmark!=null) {
+	private void bookmarkSelected(BookmarkDto bookmark) {
+		Log.d(TAG, "Bookmark selected:"+bookmark.getVerseRange());
+		try {
+			if (bookmark!=null) {
+				String bookUsed = bookmark.getBookUsed();
+
+				if ( bookmarkControl.isMultipleTranslations() && (bookUsed != null) && !bookUsed.isEmpty()
+						&& !bookUsed.equals(getPageControl().getCurrentPageManager().getCurrentPage().getCurrentDocument().getAbbreviation())) {
+					// Change to new book
+					Book book = bookmarkControl.getBookByAbbreviation(getPageControl().getCurrentPageManager().getCurrentBible(),bookUsed);
+					getPageControl().getCurrentPageManager().setCurrentDocumentAndKey(book, bookmark.getVerseRange().getStart());
+				}
 				getPageControl().getCurrentPageManager().getCurrentPage().setKey(bookmark.getVerseRange());
-        		doFinish();
-        	}
-    	} catch (Exception e) {
-    		Log.e(TAG, "Error on attempt to download", e);
-    		Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show();
-    	}
-    }
+				doFinish();
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "Error on attempt to download", e);
+			Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show();
+		}
+	}
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-    	super.onCreateOptionsMenu(menu);
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.bookmark_actionbar_menu, menu);
-        return true;
-    }
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		super.onCreateOptionsMenu(menu);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.bookmark_actionbar_menu, menu);
+		return true;
+	}
 
 	/** 
-     * on Click handlers
-     */
+	 * on Click handlers
+	 */
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		boolean isHandled = false;
 
 		switch (item.getItemId()) {
+			// Change display of translations
+			case (R.id.showTranslation):
+				isHandled = true;
+				try {
+					bookmarkControl.changeBookmarkTranslationMode();
+					String transDesc = bookmarkControl.getBookmarkTranslationDescription();
+					Toast.makeText(this, transDesc, Toast.LENGTH_SHORT).show();
+					loadBookmarkList();
+				} catch (Exception e) {
+					Log.e(TAG, "Error showing translations", e);
+					Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+				}
+				break;
 			// Change sort order
 			case (R.id.sortByToggle):
 				isHandled = true;
@@ -269,11 +292,11 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 		return isHandled;
 	}
 
-    private void doFinish() {
-    	Intent resultIntent = new Intent();
-    	setResult(Activity.RESULT_OK, resultIntent);
-    	finish();    
-    }
+	private void doFinish() {
+		Intent resultIntent = new Intent();
+		setResult(Activity.RESULT_OK, resultIntent);
+		finish();
+	}
 
 
 	@Override

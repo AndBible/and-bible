@@ -7,6 +7,10 @@
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:appcompat="http://schemas.android.com/apk/res-auto" >
+	<item android:id="@+id/showTranslation"
+		android:title="@string/mult_translations"
+		android:icon="@drawable/ic_collections_bookmark_24dp"
+		appcompat:showAsAction="always"/>
 	<item android:id="@+id/manageLabels"
 		  android:title="@string/manage_labels"
 		  android:icon="@drawable/ic_label_multiple_24dp"

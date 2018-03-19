@@ -213,6 +213,9 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="label_unlabelled">Unlabelled</string>
     <string name="rename">Rename</string>
     <string name="style">Style</string>
+    <string name="mult_translations">Multiple Translations</string>
+    <string name="single_translation">Current translation</string>
+
 
     <!--  Sort orders used for Bookmarks and MyNotes -->
     <string name="sort_by_date">Date order</string>

@@ -56,15 +56,18 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 		} else {
 			view = (TwoLine2TitleListItem) convertView;
 		}
-
+		boolean isMultipleTranslations = bookmarkControl.isMultipleTranslations();
 		// Set value for the first text field (verse location)
 		if (view.getText1() != null) {
 			String key = bookmarkControl.getBookmarkVerseKey(item);
 
-			// Add book here for now
-            String bookUsed = bookmarkControl.getBookmarkBookUsed(item);
-            if (!bookUsed.isEmpty())
-                key += " " + bookUsed;
+			if (isMultipleTranslations) {
+				// Add book here for now
+				String bookUsed = bookmarkControl.getBookmarkBookUsed(item);
+				if (bookUsed != null && !bookUsed.isEmpty()) {
+					key += " " + bookUsed;
+				}
+			}
 			view.getText1().setText(key);
 		}
 
@@ -74,10 +77,10 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 			view.getText3().setText(sDt);
 		}
 
-        // set value for the second text field (verse contents)
+		// set value for the second text field (verse contents)
 		if (view.getText2() != null) {
 			try {
-				String verseText = bookmarkControl.getBookmarkVerseText(item);
+				String verseText = bookmarkControl.getBookmarkVerseText(item, isMultipleTranslations);
 				view.getText2().setText(verseText);
 			} catch (Exception e) {
 				Log.e(TAG, "Error loading label verse text", e);
