@@ -69,13 +69,14 @@ public class BookmarkDBAdapter {
 		VerseRange key = bookmark.getVerseRange();
 		// must save a Key's versification along with the key!
 		String v11nName = key.getVersification().getName();
-
+		String bookUsed = bookmark.getBookUsed();
 		// Gets the current system time in milliseconds
         Long now = System.currentTimeMillis();
 
 		newValues.put(BookmarkColumn.KEY, key.getOsisRef());
 		newValues.put(BookmarkColumn.VERSIFICATION, v11nName);
 		newValues.put(BookmarkColumn.CREATED_ON, now);
+		newValues.put(BookmarkColumn.BOOK_USED, bookUsed);
 
 		long newId = db.insert(Table.BOOKMARK, null, newValues);
 		return getBookmarkDto(newId);
@@ -278,7 +279,8 @@ public class BookmarkDBAdapter {
 		Cursor c=null;
 		try {
 			// exact match
-			c = db.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn.KEY+"=?", new String[] {key}, null, null, null);
+			c = db.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn.KEY+"=?", new String[] {key},
+					    null, null, null);
 			if (!c.moveToFirst()) {
 				// start of verse range
 				c = db.query(BookmarkQuery.TABLE, BookmarkQuery.COLUMNS, BookmarkColumn.KEY + " LIKE ?", new String[]{key + "-%"}, null, null, null);
@@ -321,6 +323,10 @@ public class BookmarkDBAdapter {
 			//Created date
 			long created = c.getLong(BookmarkQuery.CREATED_ON);
 			dto.setCreatedOn(new Date(created));
+
+			// Book reference
+			String bookUsed = c.getString(BookmarkQuery.BOOK_USED);
+			dto.setBookUsed(bookUsed);
 		
 		} catch (NoSuchKeyException nke) {
 			Log.e(TAG, "Key error", nke);
@@ -364,12 +370,14 @@ public class BookmarkDBAdapter {
 	private interface BookmarkQuery {
         String TABLE = Table.BOOKMARK;
 
-		String[] COLUMNS = new String[] {BookmarkColumn._ID, BookmarkColumn.KEY, BookmarkColumn.VERSIFICATION, BookmarkColumn.CREATED_ON};
+		String[] COLUMNS = new String[] {BookmarkColumn._ID, BookmarkColumn.KEY, BookmarkColumn.VERSIFICATION,
+				                         BookmarkColumn.CREATED_ON, BookmarkColumn.BOOK_USED};
 
         int ID = 0;
         int KEY = 1;
         int VERSIFICATION = 2;
         int CREATED_ON = 3;
+		int BOOK_USED = 4;
     }
 	private interface LabelQuery {
         String TABLE = Table.LABEL;

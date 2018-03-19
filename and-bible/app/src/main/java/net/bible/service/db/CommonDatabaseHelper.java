@@ -70,6 +70,10 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
 				BookmarkDatabaseDefinition.getInstance().upgradeToVersion4(db);
 				oldVersion += 1;
 			}
+			if (oldVersion == 4) {
+				BookmarkDatabaseDefinition.getInstance().upgradeToVersion5(db);
+				oldVersion += 1;
+			}
 		} catch (SQLiteException e) {
 			Log.e(TAG, "onUpgrade: SQLiteException. " + e);
 //TODO allow complete recreation if error - too scared to do this!

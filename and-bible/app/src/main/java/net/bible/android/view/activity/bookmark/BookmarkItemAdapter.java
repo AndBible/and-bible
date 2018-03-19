@@ -57,9 +57,14 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 			view = (TwoLine2TitleListItem) convertView;
 		}
 
-		// Set value for the first text field
+		// Set value for the first text field (verse location)
 		if (view.getText1() != null) {
 			String key = bookmarkControl.getBookmarkVerseKey(item);
+
+			// Add book here for now
+            String bookUsed = bookmarkControl.getBookmarkBookUsed(item);
+            if (!bookUsed.isEmpty())
+                key += " " + bookUsed;
 			view.getText1().setText(key);
 		}
 
@@ -69,7 +74,7 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 			view.getText3().setText(sDt);
 		}
 
-		// set value for the second text field
+        // set value for the second text field (verse contents)
 		if (view.getText2() != null) {
 			try {
 				String verseText = bookmarkControl.getBookmarkVerseText(item);
