@@ -18,6 +18,8 @@ import net.bible.android.view.util.widget.TwoLineListItem;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.db.bookmark.BookmarkDto;
 
+import org.crosswire.jsword.book.Book;
+
 import java.util.List;
 
 /**
@@ -64,8 +66,9 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 
 			// Add book here for now
             String bookUsed = bookmarkControl.getBookmarkBookUsed(item);
-            if (!bookUsed.isEmpty())
+            if (!bookUsed.isEmpty()) {
                 key += " " + bookUsed;
+            }
 			view.getText1().setText(key);
 		}
 

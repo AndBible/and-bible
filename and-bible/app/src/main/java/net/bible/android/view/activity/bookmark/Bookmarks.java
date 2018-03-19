@@ -23,6 +23,8 @@ import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
 
+import org.crosswire.jsword.book.Book;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -216,6 +218,13 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
     	Log.d(TAG, "Bookmark selected:"+bookmark.getVerseRange());
     	try {
         	if (bookmark!=null) {
+				String bookUsed = bookmark.getBookUsed();
+
+        		if (!bookUsed.isEmpty() && !bookUsed.equals(getPageControl().getCurrentPageManager().getCurrentPage().getCurrentDocument().getAbbreviation())) {
+        			// Change to new book
+  				    Book book = getPageControl().getCurrentPageManager().getCurrentBible().getSwordDocumentFacade().getDocumentByInitials(bookUsed);
+					getPageControl().getCurrentPageManager().setCurrentDocumentAndKey(book, bookmark.getVerseRange().getStart());
+				}
 				getPageControl().getCurrentPageManager().getCurrentPage().setKey(bookmark.getVerseRange());
         		doFinish();
         	}

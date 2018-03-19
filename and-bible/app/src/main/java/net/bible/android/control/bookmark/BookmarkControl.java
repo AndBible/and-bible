@@ -12,6 +12,7 @@ import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
+import net.bible.android.control.versification.ConvertibleVerseRange;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.IntentHelper;
@@ -22,6 +23,8 @@ import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
 import net.bible.service.sword.SwordContentFacade;
 
+import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.Versification;
@@ -142,6 +145,28 @@ public class BookmarkControl {
 			CurrentBiblePage currentBible = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible();
 			Versification versification = currentBible.getVersification();
 			verseText = swordContentFacade.getPlainText(currentBible.getCurrentDocument(), bookmark.getVerseRange(versification));
+
+			String bookUsed = bookmark.getBookUsed();
+			if ((!bookUsed.isEmpty()) && !bookUsed.equals(getCurrentBookUsed())) {
+				//Book book = currentPageControl.getCurrentBible().getSwordDocumentFacade().getDocumentByInitials(abbrev);
+				Book book = currentBible.getSwordDocumentFacade().getDocumentByInitials(bookUsed);
+				if (book != null) {
+					verseText = swordContentFacade.getPlainText(book, bookmark.getConvertibleVerseRange().getVerseRange(((AbstractPassageBook) book).getVersification()));
+					// Below copied can be adapted to cater for font
+//					if (verseText.length() > 0) {
+//
+//						// does this book require a custom font to display it
+//						File fontFile = null;
+//						String fontForBook = fontControl.getFontForBook(book);
+//						if (StringUtils.isNotEmpty(fontForBook)) {
+//							fontFile = fontControl.getFontFile(fontForBook);
+//						}
+//
+//						// create DTO with all required info to display this Translation text
+//						retval.add(new TranslationDto(book, text, fontFile));
+//					}
+				}
+			}
 			verseText = CommonUtils.limitTextLength(verseText);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting verse text", e);
@@ -409,7 +434,8 @@ public class BookmarkControl {
 	private String getCurrentBookUsed() {
 		CurrentPageManager currentPageControl = activeWindowPageManagerProvider.getActiveWindowPageManager();
 		if (currentPageControl.isBibleShown() || currentPageControl.isCommentaryShown()) {
-			return currentPageControl.getCurrentBible().getCurrentDocument().getAbbreviation();
+			String abbrev = currentPageControl.getCurrentBible().getCurrentDocument().getAbbreviation();
+			return abbrev;
 		} else
 			return "";
 	}
