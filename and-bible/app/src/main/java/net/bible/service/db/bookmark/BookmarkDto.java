@@ -18,6 +18,8 @@ public class BookmarkDto implements ConvertibleVerseRangeUser {
 	private ConvertibleVerseRange convertibleVerseRange;
 	private Date createdOn;
 
+	private String bookUsed; // identify translation to use
+
 	public Long getId() {
 		return id;
 	}
@@ -39,6 +41,14 @@ public class BookmarkDto implements ConvertibleVerseRangeUser {
 	public void setCreatedOn(Date createdOn) {
 		this.createdOn = createdOn;
 	}
+	public String getBookUsed() {
+		return bookUsed;
+	}
+
+	public void setBookUsed(String bookUsed) {
+		this.bookUsed = bookUsed;
+	}
+
 
 	@Override
 	public ConvertibleVerseRange getConvertibleVerseRange() {

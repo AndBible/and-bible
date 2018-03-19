@@ -82,6 +82,7 @@ public class BookmarkControl {
 				// prepare new bookmark and add to db
 				bookmarkDto = new BookmarkDto();
 				bookmarkDto.setVerseRange(verseRange);
+				bookmarkDto.setBookUsed(getCurrentBookUsed());
 				final BookmarkDto newBookmark = addBookmark(bookmarkDto);
 
 				if (newBookmark!=null) {
@@ -123,6 +124,16 @@ public class BookmarkControl {
 			Log.e(TAG, "Error getting verse text", e);
 		}
 		return keyText;
+	}
+
+	public String getBookmarkBookUsed(BookmarkDto bookmark) {
+		String bookUsed = "";
+		try {
+			bookUsed = bookmark.getBookUsed();
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting book used", e);
+		}
+		return bookUsed;
 	}
 
 	public String getBookmarkVerseText(BookmarkDto bookmark) {
@@ -393,6 +404,14 @@ public class BookmarkControl {
 	private boolean isCurrentDocumentBookmarkable() {
 		CurrentPageManager currentPageControl = activeWindowPageManagerProvider.getActiveWindowPageManager();
 		return currentPageControl.isBibleShown() || currentPageControl.isCommentaryShown();
+	}
+
+	private String getCurrentBookUsed() {
+		CurrentPageManager currentPageControl = activeWindowPageManagerProvider.getActiveWindowPageManager();
+		if (currentPageControl.isBibleShown() || currentPageControl.isCommentaryShown()) {
+			return currentPageControl.getCurrentBible().getCurrentDocument().getAbbreviation();
+		} else
+			return "";
 	}
 
 	private void showBookmarkLabelsActivity(Activity currentActivity, BookmarkDto bookmarkDto) {

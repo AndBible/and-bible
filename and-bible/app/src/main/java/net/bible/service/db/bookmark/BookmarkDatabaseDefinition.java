@@ -41,6 +41,7 @@ public class BookmarkDatabaseDefinition {
 		String KEY = "key";
 		String VERSIFICATION = "versification";
 		String CREATED_ON = "created_on";
+		String BOOK_USED = "book_used";
 	}
 
 	public interface BookmarkLabelColumn {
@@ -71,6 +72,11 @@ public class BookmarkDatabaseDefinition {
 		bootstrapDB(db);
 	}
 
+	public void upgradeToVersion5(SQLiteDatabase db) {
+		Log.i(TAG, "Upgrading Bookmark db to version 5");
+		db.execSQL("ALTER TABLE " + Table.BOOKMARK + " ADD COLUMN " + BookmarkColumn.BOOK_USED + " TEXT;");
+	}
+
 	public void upgradeToVersion4(SQLiteDatabase db) {
 		Log.i(TAG, "Upgrading Bookmark db to version 4");
 		db.execSQL("ALTER TABLE " + Table.LABEL + " ADD COLUMN " + LabelColumn.BOOKMARK_STYLE + " TEXT;");
@@ -89,8 +95,9 @@ public class BookmarkDatabaseDefinition {
                 BookmarkColumn._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                 BookmarkColumn.KEY + " TEXT NOT NULL," +
                 BookmarkColumn.VERSIFICATION + " TEXT," +
-        		BookmarkColumn.CREATED_ON + " INTEGER DEFAULT 0" +
-        ");");
+        		BookmarkColumn.CREATED_ON + " INTEGER DEFAULT 0," +
+				BookmarkColumn.BOOK_USED + " TEXT" +
+				");");
 
         // Intersection table
         db.execSQL("CREATE TABLE " + Table.BOOKMARK_LABEL + " (" +
