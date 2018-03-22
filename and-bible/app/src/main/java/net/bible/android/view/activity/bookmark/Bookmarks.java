@@ -23,6 +23,8 @@ import net.bible.android.view.activity.base.ListActivityBase;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
 
+import org.crosswire.jsword.book.Book;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +47,7 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 	private Spinner labelSpinner;
 	private List<LabelDto> labelList = new ArrayList<>();
 	private int selectedLabelNo = 0;
+	private int lastSelectedPos = -1;
 	private ArrayAdapter<LabelDto> labelArrayAdapter; 
 	
 	// the document list
@@ -52,7 +55,8 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 
 	private ListActionModeHelper listActionModeHelper;
 
-	private static final int LIST_ITEM_TYPE = R.layout.list_item_2_highlighted;
+	//private static final int LIST_ITEM_TYPE = R.layout.list_item_2_highlighted;
+	private static final int LIST_ITEM_TYPE = R.layout.list_item_3_highlighted;
 	private static final String TAG = "Bookmarks";
 
     /** Called when the activity is first created. */
@@ -83,7 +87,26 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 		getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-			return listActionModeHelper.startActionMode(Bookmarks.this, position);
+				int lastPos = lastSelectedPos;
+				lastSelectedPos = position;
+				if (listActionModeHelper.isInActionMode()) {
+					// Set all from lastPos (long clicked) to currentPos to true
+					if (lastPos < 0)
+						return false; // do not consume so click event will work
+					else {
+						int iStart = lastPos < position ? lastPos : position;
+						int iEnd = lastPos < position ? position : lastPos;
+						for (int i = iStart; i <= iEnd; i++) {
+							getListView().setItemChecked(i,true);//isItemChecked(lastPos));
+						}
+						return true; // consume click
+					}
+
+				} else {
+					boolean res = listActionModeHelper.startActionMode(Bookmarks.this, position);
+					getListView().setLongClickable(true); // in this case we want to still support long click.
+					return res;
+				}
 			}
 		});
 
@@ -215,6 +238,13 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
     	Log.d(TAG, "Bookmark selected:"+bookmark.getVerseRange());
     	try {
         	if (bookmark!=null) {
+				String bookUsed = bookmark.getBookUsed();
+
+        		if ((bookUsed != null) && !bookUsed.isEmpty() && !bookUsed.equals(getPageControl().getCurrentPageManager().getCurrentPage().getCurrentDocument().getAbbreviation())) {
+        			// Change to new book
+  				    Book book = getPageControl().getCurrentPageManager().getCurrentBible().getSwordDocumentFacade().getDocumentByInitials(bookUsed);
+					getPageControl().getCurrentPageManager().setCurrentDocumentAndKey(book, bookmark.getVerseRange().getStart());
+				}
 				getPageControl().getCurrentPageManager().getCurrentPage().setKey(bookmark.getVerseRange());
         		doFinish();
         	}

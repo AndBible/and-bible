@@ -165,7 +165,7 @@ public class VerseActionModeMediator {
 			// if start verse already bookmarked then enable Delete Bookmark menu item else Add Bookmark
 			Verse startVerse = getStartVerse();
 			boolean isVerseBookmarked = startVerse!=null && bookmarkControl.isBookmarkForKey(startVerse);
-			menu.findItem(R.id.add_bookmark).setVisible(!isVerseBookmarked);
+			menu.findItem(R.id.add_bookmark).setVisible(true);//!isVerseBookmarked);
 			menu.findItem(R.id.delete_bookmark).setVisible(isVerseBookmarked);
 			menu.findItem(R.id.edit_bookmark_labels).setVisible(isVerseBookmarked);
 
