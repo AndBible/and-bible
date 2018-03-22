@@ -47,6 +47,7 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 	private Spinner labelSpinner;
 	private List<LabelDto> labelList = new ArrayList<>();
 	private int selectedLabelNo = 0;
+	private int lastSelectedPos = -1;
 	private ArrayAdapter<LabelDto> labelArrayAdapter; 
 	
 	// the document list
@@ -86,7 +87,26 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
 		getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
 			@Override
 			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-			return listActionModeHelper.startActionMode(Bookmarks.this, position);
+				int lastPos = lastSelectedPos;
+				lastSelectedPos = position;
+				if (listActionModeHelper.isInActionMode()) {
+					// Set all from lastPos (long clicked) to currentPos to true
+					if (lastPos < 0)
+						return false; // do not consume so click event will work
+					else {
+						int iStart = lastPos < position ? lastPos : position;
+						int iEnd = lastPos < position ? position : lastPos;
+						for (int i = iStart; i <= iEnd; i++) {
+							getListView().setItemChecked(i,true);//isItemChecked(lastPos));
+						}
+						return true; // consume click
+					}
+
+				} else {
+					boolean res = listActionModeHelper.startActionMode(Bookmarks.this, position);
+					getListView().setLongClickable(true); // in this case we want to still support long click.
+					return res;
+				}
 			}
 		});
 
