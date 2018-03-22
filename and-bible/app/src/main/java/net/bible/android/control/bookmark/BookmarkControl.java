@@ -65,7 +65,7 @@ public class BookmarkControl {
 		LABEL_UNLABELLED = new LabelDto(-998L, resourceProvider.getString(R.string.label_unlabelled), null);
 	}
 
-	public boolean toggleBookmarkForVerseRange(VerseRange verseRange) {
+	public boolean toggleBookmarkForVerseRange(int menuItemId, VerseRange verseRange) {
 		boolean bOk = false;
 		if (isCurrentDocumentBookmarkable()) {
 
@@ -78,7 +78,8 @@ public class BookmarkControl {
 				} else {
 					Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
 				}
-			} else {
+			}
+			if ((bookmarkDto ==null) || (menuItemId == R.id.add_bookmark)) {
 				// prepare new bookmark and add to db
 				bookmarkDto = new BookmarkDto();
 				bookmarkDto.setVerseRange(verseRange);
