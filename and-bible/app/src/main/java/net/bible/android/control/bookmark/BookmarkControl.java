@@ -148,7 +148,7 @@ public class BookmarkControl {
 			verseText = swordContentFacade.getPlainText(currentBible.getCurrentDocument(), bookmark.getVerseRange(versification));
 
 			String bookUsed = bookmark.getBookUsed();
-			if ((!bookUsed.isEmpty()) && !bookUsed.equals(getCurrentBookUsed())) {
+			if ((bookUsed != null) && (!bookUsed.isEmpty()) && !bookUsed.equals(getCurrentBookUsed())) {
 				//Book book = currentPageControl.getCurrentBible().getSwordDocumentFacade().getDocumentByInitials(abbrev);
 				Book book = currentBible.getSwordDocumentFacade().getDocumentByInitials(bookUsed);
 				if (book != null) {

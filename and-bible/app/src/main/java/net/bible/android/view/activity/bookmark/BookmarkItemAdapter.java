@@ -66,7 +66,7 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 
 			// Add book here for now
             String bookUsed = bookmarkControl.getBookmarkBookUsed(item);
-            if (!bookUsed.isEmpty()) {
+            if (bookUsed != null && !bookUsed.isEmpty()) {
                 key += " " + bookUsed;
             }
 			view.getText1().setText(key);

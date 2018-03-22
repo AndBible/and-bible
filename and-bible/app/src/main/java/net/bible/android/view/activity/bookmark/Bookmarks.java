@@ -240,7 +240,7 @@ public class Bookmarks extends ListActivityBase implements ListActionModeHelper.
         	if (bookmark!=null) {
 				String bookUsed = bookmark.getBookUsed();
 
-        		if (!bookUsed.isEmpty() && !bookUsed.equals(getPageControl().getCurrentPageManager().getCurrentPage().getCurrentDocument().getAbbreviation())) {
+        		if ((bookUsed != null) && !bookUsed.isEmpty() && !bookUsed.equals(getPageControl().getCurrentPageManager().getCurrentPage().getCurrentDocument().getAbbreviation())) {
         			// Change to new book
   				    Book book = getPageControl().getCurrentPageManager().getCurrentBible().getSwordDocumentFacade().getDocumentByInitials(bookUsed);
 					getPageControl().getCurrentPageManager().setCurrentDocumentAndKey(book, bookmark.getVerseRange().getStart());

@@ -69,7 +69,7 @@ public class BookmarkDBAdapter {
 		VerseRange key = bookmark.getVerseRange();
 		// must save a Key's versification along with the key!
 		String v11nName = key.getVersification().getName();
-		String bookUsed = bookmark.getBookUsed();
+		String bookUsed = bookmark.getBookUsed(); // can be null
 		// Gets the current system time in milliseconds
         Long now = System.currentTimeMillis();
 
