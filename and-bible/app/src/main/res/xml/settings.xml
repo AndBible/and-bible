@@ -81,6 +81,12 @@
 				android:title="@string/prefs_open_links_in_special_window_title"
 				android:summary="@string/prefs_open_links_in_special_window_summary"
 				android:defaultValue="true"/>
+	<ListPreference android:key="split_mode_pref"
+				android:title="Split mode"
+				android:summary="How to split multiple screens on the window layout?"
+				android:entries="@array/prefs_split_mode_descriptions"
+				android:entryValues="@array/prefs_split_mode_values"
+				android:defaultValue="automatic"/>
 	<ListPreference android:key="screen_timeout_pref"
 				android:title="@string/prefs_screen_timeout_title"
 				android:summary="@string/prefs_screen_timeout_summary"

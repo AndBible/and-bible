@@ -79,8 +79,14 @@ public class DocumentWebViewBuilder {
 	final private int WINDOW_BUTTON_BACKGROUND_COLOUR;
 	final private int BUTTON_SIZE_PX;
 
+	final static private String SPLIT_MODE_PREF = "split_mode_pref";
+	final static private String SPLIT_MODE_AUTOMATIC = "automatic";
+	final static private String SPLIT_MODE_VERTICAL = "vertical";
+	final static private String SPLIT_MODE_HORIZONTAL = "horizontal";
+
 	private LinearLayout previousParent;
-	
+	private boolean verticalSplit = true;
+
 	private static final String TAG="DocumentWebViewBuilder";
 
 	@Inject
@@ -123,13 +129,30 @@ public class DocumentWebViewBuilder {
 	
 	@SuppressLint("RtlHardcoded")
 	public void addWebView(LinearLayout parent) {
-    	boolean isPortrait = CommonUtils.isPortrait();
+
+		String pref = CommonUtils.getSharedPreference(SPLIT_MODE_PREF, SPLIT_MODE_AUTOMATIC);
+
+		boolean splitHorizontally;
+		switch(pref) {
+			case SPLIT_MODE_AUTOMATIC:
+				splitHorizontally = CommonUtils.isPortrait();
+				break;
+			case SPLIT_MODE_VERTICAL:
+				splitHorizontally = false;
+				break;
+			case SPLIT_MODE_HORIZONTAL:
+				splitHorizontally = true;
+				break;
+			default:
+				throw new RuntimeException("Illegal preference");
+		}
+
     	boolean isWebView = isWebViewShowing(parent);
     	parent.setTag(TAG);
 
     	if (!isWebView || 
     			isWindowConfigurationChanged ||
-    			isPortrait!=isLaidOutForPortrait) {
+    			splitHorizontally!=isLaidOutForPortrait) {
     		Log.d(TAG, "Layout web view");
     		
     		List<Window> windows = windowControl.getWindowRepository().getVisibleWindows();
@@ -137,7 +160,7 @@ public class DocumentWebViewBuilder {
     		// ensure we have a known starting point - could be none, 1, or 2 webviews present
     		removeChildViews(previousParent);
     		
-    		parent.setOrientation(isPortrait? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
+    		parent.setOrientation(splitHorizontally? LinearLayout.VERTICAL : LinearLayout.HORIZONTAL);
     		ViewGroup currentWindowFrameLayout = null;
     		Separator previousSeparator = null;
     		
@@ -154,7 +177,7 @@ public class DocumentWebViewBuilder {
         		bibleView.setVersePositionRecalcRequired(true);
 
     			float windowWeight = window.getWindowLayout().getWeight();
-    			LinearLayout.LayoutParams lp = isPortrait?	new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 0, windowWeight) :
+    			LinearLayout.LayoutParams lp = splitHorizontally?	new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, 0, windowWeight) :
     														new LinearLayout.LayoutParams(0, LayoutParams.MATCH_PARENT, windowWeight);
 
 	    		parent.addView(currentWindowFrameLayout, lp);
@@ -167,19 +190,19 @@ public class DocumentWebViewBuilder {
 					Separator separator = previousSeparator;
 					
 					// extend touch area of separator
-					addTopOrLeftSeparatorExtension(isPortrait, currentWindowFrameLayout, lp, separator);
+					addTopOrLeftSeparatorExtension(splitHorizontally, currentWindowFrameLayout, lp, separator);
 				}
 
 				// Add screen separator
 				if (windowNo<windows.size()-1) {
 					Window nextWindow = windows.get(windowNo+1);
-					Separator separator = createSeparator(parent, window, nextWindow, isPortrait, windows.size());
+					Separator separator = createSeparator(parent, window, nextWindow, splitHorizontally, windows.size());
 					
 					// extend touch area of separator
-					addBottomOrRightSeparatorExtension(isPortrait, currentWindowFrameLayout, lp, separator);
+					addBottomOrRightSeparatorExtension(splitHorizontally, currentWindowFrameLayout, lp, separator);
 
 					// Add actual separator line dividing two windows
-					parent.addView(separator, isPortrait ? 	new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, WINDOW_SEPARATOR_WIDTH_PX, 0) :
+					parent.addView(separator, splitHorizontally ? 	new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, WINDOW_SEPARATOR_WIDTH_PX, 0) :
 															new LinearLayout.LayoutParams(WINDOW_SEPARATOR_WIDTH_PX, LayoutParams.MATCH_PARENT, 0));
 					// allow extension to be added in next screen
 					previousSeparator = separator;
@@ -206,7 +229,7 @@ public class DocumentWebViewBuilder {
     		}    		
     		
     		previousParent = parent;
-    		isLaidOutForPortrait = isPortrait;
+    		isLaidOutForPortrait = splitHorizontally;
     		isWindowConfigurationChanged = false;
     	}
 	}
