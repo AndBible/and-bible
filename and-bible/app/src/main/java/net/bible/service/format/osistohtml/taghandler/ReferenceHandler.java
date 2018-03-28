@@ -150,10 +150,10 @@ public class ReferenceHandler implements OsisTagHandler {
     		} else {
 		        Passage ref = (Passage) PassageKeyFactory.instance().getKey(parameters.getDocumentVersification(), reference);
 		        boolean isSingleVerse = ref.countVerses()==1;
-		        boolean isSimpleContent = content.length()<3 && content.length()>0;
+		        boolean hasContent = content.length()>0;
 		        Iterator<VerseRange> it = ref.rangeIterator(RestrictionType.CHAPTER);
 		        
-		        if (isSingleVerse && isSimpleContent) {
+		        if (isSingleVerse && hasContent) {
 			        // simple verse no e.g. 1 or 2 preceding the actual verse in TSK
 					result.append("<a href='").append(Constants.BIBLE_PROTOCOL).append(":").append(it.next().getOsisRef()).append("'>");
 					result.append(content);

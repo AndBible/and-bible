@@ -105,6 +105,20 @@ public class ReferenceHandlerTest {
 		assertThat(writer.getHtml(), equalTo("(<a href='bible:Exod.15.1'>Exodus 15:1-19</a>.)"));
 	}
 
+	@Test
+	public void testReferenceContent() {
+		AttributesImpl attrs = new AttributesImpl();
+		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_REF, null, "Ps.121.2");
+		referenceHandler.start(attrs);
+
+		writer.write("121:2");
+
+		referenceHandler.end();
+
+		// note that just the first verse in each range is referenced - it might be better to reference the whole range although the final navigation when pressed would be ifentical
+		assertThat(writer.getHtml(), equalTo("<a href='bible:Ps.121.2'>121:2</a>"));
+	}
+
 	/**
 	 * Test long complex ref from TSk Psa 118:2
 	 * Ref:Ps.115.9-Ps.115.11 Ps.135.19-Ps.135.20 Ps.145.10 Ps.147.19-Ps.147.20 Gal.6.16 Heb.13.15 Content:115:9-11; 135:19,20; 145:10; 147:19,20; Ga 6:16; Heb 13:15 
@@ -157,7 +171,7 @@ public class ReferenceHandlerTest {
 		referenceHandler.start(attrs);
 		writer.write("2:9");
 		referenceHandler.end();
-		assertThat(writer.getHtml(), equalTo("<a href='bible:Gal.2.9'>Galatians 2:9</a>"));
+		assertThat(writer.getHtml(), equalTo("<a href='bible:Gal.2.9'>2:9</a>"));
 	}
 	
 	/**
@@ -209,23 +223,6 @@ public class ReferenceHandlerTest {
 		referenceHandler.end();
 		
 		assertThat(writer.getHtml(), equalTo("<a href='bible:Gal.1.6'>6</a>"));
-	}
-
-	/**
-	 * ref = single verse.  Content is complex e.g. 'Matt 1:2'.
-	 * I am not sure why this is handled differently to the single verse short content
-	 */
-	@Test
-	public void testSingleVerseLongContent() {
-		AttributesImpl attrs = new AttributesImpl();
-		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_REF, null, "Gal.1.6");		
-		referenceHandler.start(attrs);
-
-		writer.write("Galatians 1 verse 6");
-
-		referenceHandler.end();
-		
-		assertThat(writer.getHtml(), equalTo("<a href='bible:Gal.1.6'>Galatians 1:6</a>"));
 	}
 
 	/**
