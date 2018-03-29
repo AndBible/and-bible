@@ -7,11 +7,16 @@ import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.view.ActionMode;
 import android.util.Log;
+
+import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
+import android.view.View;
 
+import android.widget.AdapterView;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.BibleContentManager;
@@ -114,6 +119,23 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	protected void onDestroy() {
 		super.onDestroy();
 		EventBus.getDefault().unregister(this);
+	}
+
+	@Override
+	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+		super.onCreateContextMenu(menu, v, menuInfo);
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.link_context_menu, menu);
+	}
+
+	@Override
+	public boolean onContextItemSelected(MenuItem item) {
+		BibleView.BibleViewContextMenuInfo info = (BibleView.BibleViewContextMenuInfo) item.getMenuInfo();
+		if(info != null) {
+			info.activate(item.getItemId());
+			return true;
+		}
+		return false;
 	}
 
 	/**

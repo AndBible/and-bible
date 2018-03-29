@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+	<item android:id="@+id/open_link_in_this_window"
+		  android:title="@string/open_link_in_this_window"
+		  />
+	<item android:id="@+id/open_link_in_special_window"
+		  android:title="@string/open_link_in_special_window"
+		  />
+</menu>

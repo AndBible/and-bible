@@ -6,6 +6,8 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,6 +17,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import net.bible.android.SharedConstants;
+import net.bible.android.activity.R;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent;
@@ -47,6 +50,8 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	private final WindowControl windowControl;
 
 	private final BibleKeyHandler bibleKeyHandler;
+
+	private BibleViewContextMenuInfo contextMenuInfo = null;
 
 	private BibleJavascriptInterface bibleJavascriptInterface;
 
@@ -611,10 +616,53 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 
 		} else {
 			// reset handling of long press
-			setOnLongClickListener(null);
+			setOnLongClickListener(
+					new OnLongClickListener() {
+						@Override
+						public boolean onLongClick(View v) {
+							HitTestResult result = ((BibleView) v).getHitTestResult();
+							if (result.getType() == HitTestResult.SRC_ANCHOR_TYPE) {
+								setContextMenuInfo(result.getExtra());
+								return v.showContextMenu();
+							}
+							return false;
+						}
+					});
 		}
 
 		return html;
+	}
+
+	private void setContextMenuInfo(String target) {
+		this.contextMenuInfo = new BibleViewContextMenuInfo(this, target);
+	}
+
+	@Override
+	protected ContextMenuInfo getContextMenuInfo() {
+		return contextMenuInfo;
+	}
+
+	static class BibleViewContextMenuInfo implements ContextMenu.ContextMenuInfo {
+		BibleView targetView;
+		String targetLink;
+
+		BibleViewContextMenuInfo(View targetView, String targetLink) {
+			this.targetView = (BibleView) targetView;
+			this.targetLink = targetLink;
+		}
+
+		void activate(int itemId) {
+			switch (itemId) {
+				case R.id.open_link_in_special_window:
+					targetView.linkControl.setWindowMode(LinkControl.WINDOW_MODE_SPECIAL);
+					break;
+				case R.id.open_link_in_this_window:
+					targetView.linkControl.setWindowMode(LinkControl.WINDOW_MODE_THIS);
+					break;
+			}
+			targetView.linkControl.loadApplicationUrl(targetLink);
+			targetView.linkControl.setWindowMode(LinkControl.WINDOW_MODE_UNDEFINED);
+		}
 	}
 
 	@Override

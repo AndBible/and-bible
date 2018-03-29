@@ -55,12 +55,20 @@ public class LinkControl {
 
 	private static final String TAG = "LinkControl";
 
+	public static final String WINDOW_MODE_THIS = "this";
+	public static final String WINDOW_MODE_SPECIAL = "special";
+	public static final String WINDOW_MODE_UNDEFINED = "undefined";
+
+	private String windowMode = WINDOW_MODE_UNDEFINED;
+
 	@Inject
 	public LinkControl(WindowControl windowControl, SearchControl searchControl, SwordDocumentFacade swordDocumentFacade) {
 		this.windowControl = windowControl;
 		this.searchControl = searchControl;
 		this.swordDocumentFacade = swordDocumentFacade;
 	}
+
+
 
 	/** Currently the only uris handled are for Strongs refs
 	 * see OSISToHtmlSaxHandler.getStrongsUrl for format of uri
@@ -267,7 +275,7 @@ public class LinkControl {
 
 	private void showLink(Book document, Key key) {
 		// ask window controller to open link in dedicated Links window
-		if (openLinksInDedicatedWindow()) {
+		if (checkIfOpenLinksInDedicatedWindow()) {
 			if (document==null) {
 				windowControl.showLinkUsingDefaultBible(key);
 			} else {
@@ -283,11 +291,23 @@ public class LinkControl {
 		}
 	}
 	
-	private boolean openLinksInDedicatedWindow() {
-		return CommonUtils.getSharedPreferences().getBoolean("open_links_in_special_window_pref", true);
+	private boolean checkIfOpenLinksInDedicatedWindow() {
+		switch(windowMode) {
+			case WINDOW_MODE_SPECIAL:
+				return true;
+			case WINDOW_MODE_THIS:
+				return false;
+			case WINDOW_MODE_UNDEFINED:
+			default:
+				return CommonUtils.getSharedPreferences().getBoolean("open_links_in_special_window_pref", true);
+		}
 	}
 
 	private CurrentPageManager getCurrentPageManager() {
 		return windowControl.getActiveWindowPageManager();
+	}
+
+	public void setWindowMode(String windowMode) {
+		this.windowMode = windowMode;
 	}
 }
