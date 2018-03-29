@@ -8,6 +8,7 @@ import android.util.Log;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.search.SearchControl.SearchBibleSection;
@@ -57,6 +58,7 @@ public class LinkControl {
 
 	public static final String WINDOW_MODE_THIS = "this";
 	public static final String WINDOW_MODE_SPECIAL = "special";
+	public static final String WINDOW_MODE_NEW = "new";
 	public static final String WINDOW_MODE_UNDEFINED = "undefined";
 
 	private String windowMode = WINDOW_MODE_UNDEFINED;
@@ -274,8 +276,12 @@ public class LinkControl {
 	}
 
 	private void showLink(Book document, Key key) {
-		// ask window controller to open link in dedicated Links window
-		if (checkIfOpenLinksInDedicatedWindow()) {
+		// ask window controller to open link
+
+		if(windowMode.equals(WINDOW_MODE_NEW)) {
+			Window window = windowControl.addNewWindow(document, key);
+		}
+		else if (checkIfOpenLinksInDedicatedWindow()) {
 			if (document==null) {
 				windowControl.showLinkUsingDefaultBible(key);
 			} else {

@@ -141,7 +141,6 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 
 
 	public Window addNewWindow() {
-		//Window newScreen = 
 		Window window = windowRepository.addNewWindow();
 		
 		// default state to active window
@@ -160,6 +159,27 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 
 		return window;
 	}
+
+	public Window addNewWindow(Book document, Key key) {
+		Window window = windowRepository.addNewWindow();
+
+		CurrentPageManager pageManager = window.getPageManager();
+
+		window.setSynchronised(false);
+		if(document == null)
+			document = pageManager.getCurrentBible().getCurrentDocument();
+
+		pageManager.setCurrentDocumentAndKey(document, key);
+
+		windowSync.setResynchRequired(true);
+		windowSync.synchronizeScreens();
+
+		// redisplay the current page
+		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+
+		return window;
+	}
+
 
 	/**
 	 * Minimise window if possible

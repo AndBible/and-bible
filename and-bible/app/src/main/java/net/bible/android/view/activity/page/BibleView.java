@@ -656,6 +656,9 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 				case R.id.open_link_in_special_window:
 					targetView.linkControl.setWindowMode(LinkControl.WINDOW_MODE_SPECIAL);
 					break;
+				case R.id.open_link_in_new_window:
+					targetView.linkControl.setWindowMode(LinkControl.WINDOW_MODE_NEW);
+					break;
 				case R.id.open_link_in_this_window:
 					targetView.linkControl.setWindowMode(LinkControl.WINDOW_MODE_THIS);
 					break;
