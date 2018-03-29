@@ -5,8 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
+import de.greenrobot.event.EventBus;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowControl;
@@ -59,6 +61,7 @@ public class LinkControl {
 	public static final String WINDOW_MODE_THIS = "this";
 	public static final String WINDOW_MODE_SPECIAL = "special";
 	public static final String WINDOW_MODE_NEW = "new";
+	public static final String WINDOW_MODE_MAIN = "main";
 	public static final String WINDOW_MODE_UNDEFINED = "undefined";
 
 	private String windowMode = WINDOW_MODE_UNDEFINED;
@@ -276,10 +279,19 @@ public class LinkControl {
 	}
 
 	private void showLink(Book document, Key key) {
-		// ask window controller to open link
+		// ask window controller to open link in desired window
+		CurrentPageManager currentPageManager = getCurrentPageManager();
 
-		if(windowMode.equals(WINDOW_MODE_NEW)) {
-			Window window = windowControl.addNewWindow(document, key);
+		if(windowMode.equals(WINDOW_MODE_MAIN)) {
+			if (document==null)
+				document = currentPageManager.getCurrentBible().getCurrentDocument();
+
+			Window firstWindow = windowControl.getWindowRepository().getFirstWindow();
+			windowControl.setActiveWindow(firstWindow);
+			firstWindow.getPageManager().setCurrentDocumentAndKey(document, key);
+		}
+		else if(windowMode.equals(WINDOW_MODE_NEW)) {
+			windowControl.addNewWindow(document, key);
 		}
 		else if (checkIfOpenLinksInDedicatedWindow()) {
 			if (document==null) {
@@ -289,10 +301,9 @@ public class LinkControl {
 			}
 		} else {
 			// old style - open links in current window
-			CurrentPageManager currentPageManager = getCurrentPageManager();
-			if (document==null) {
+			if (document==null)
 				document = currentPageManager.getCurrentBible().getCurrentDocument();
-			}
+
 			currentPageManager.setCurrentDocumentAndKey(document, key);
 		}
 	}

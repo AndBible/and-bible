@@ -201,6 +201,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <!-- Link context menu -->
     <string name="open_link_in_this_window">Open link here</string>
     <string name="open_link_in_new_window">Open link in new window</string>
+    <string name="open_link_in_main_window">Open link in main window</string>
     <string name="open_link_in_special_window">Open link in special window</string>
 
     <!-- Bookmarks -->
