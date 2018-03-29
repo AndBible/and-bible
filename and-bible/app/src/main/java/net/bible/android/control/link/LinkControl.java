@@ -5,10 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-import de.greenrobot.event.EventBus;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
-import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowControl;
