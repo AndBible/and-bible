@@ -116,8 +116,8 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
         LinksWindow linksWindow = windowRepository.getDedicatedLinksWindow();
 
         // default either to links window bible or if closed then active window bible 
-		Book defaultBible = linksWindow.getDefaultBible(getActiveWindow());
-        
+		Book defaultBible = linksWindow.getPageManager().getCurrentBible().getCurrentDocument();
+
 		showLink(defaultBible, key);
 	}
 
