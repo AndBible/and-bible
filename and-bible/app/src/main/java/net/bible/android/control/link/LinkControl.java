@@ -279,16 +279,20 @@ public class LinkControl {
 	private void showLink(Book document, Key key) {
 		// ask window controller to open link in desired window
 		CurrentPageManager currentPageManager = getCurrentPageManager();
+		Window firstWindow = windowControl.getWindowRepository().getFirstWindow();
+		Book defaultDocument = currentPageManager.getCurrentBible().getCurrentDocument();
 
 		if(windowMode.equals(WINDOW_MODE_MAIN)) {
 			if (document==null)
-				document = currentPageManager.getCurrentBible().getCurrentDocument();
+				document = defaultDocument;
 
-			Window firstWindow = windowControl.getWindowRepository().getFirstWindow();
 			windowControl.setActiveWindow(firstWindow);
 			firstWindow.getPageManager().setCurrentDocumentAndKey(document, key);
 		}
 		else if(windowMode.equals(WINDOW_MODE_NEW)) {
+			if (document==null)
+				document = defaultDocument;
+
 			windowControl.addNewWindow(document, key);
 		}
 		else if (checkIfOpenLinksInDedicatedWindow()) {
@@ -300,7 +304,7 @@ public class LinkControl {
 		} else {
 			// old style - open links in current window
 			if (document==null)
-				document = currentPageManager.getCurrentBible().getCurrentDocument();
+				document = defaultDocument;
 
 			currentPageManager.setCurrentDocumentAndKey(document, key);
 		}

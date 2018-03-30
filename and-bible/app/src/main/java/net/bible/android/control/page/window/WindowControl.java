@@ -162,13 +162,8 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 
 	public Window addNewWindow(Book document, Key key) {
 		Window window = windowRepository.addNewWindow();
-
 		CurrentPageManager pageManager = window.getPageManager();
-
 		window.setSynchronised(false);
-		if(document == null)
-			document = pageManager.getCurrentBible().getCurrentDocument();
-
 		pageManager.setCurrentDocumentAndKey(document, key);
 
 		windowSync.setResynchRequired(true);
