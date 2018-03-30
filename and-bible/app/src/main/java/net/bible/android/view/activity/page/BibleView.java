@@ -597,18 +597,31 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		}
 	}
 
+	class BibleViewLongClickListener implements OnLongClickListener {
+		boolean defaultValue;
+
+		BibleViewLongClickListener(boolean defaultValue) {
+			this.defaultValue = defaultValue;
+		}
+
+		@Override
+		public boolean onLongClick(View v) {
+			HitTestResult result = getHitTestResult();
+			if (result.getType() == HitTestResult.SRC_ANCHOR_TYPE) {
+				setContextMenuInfo(result.getExtra());
+				return v.showContextMenu();
+			}
+			return defaultValue;
+		}
+	}
+
 	/**
 	 * 	Either enable verse selection or the default text selection
 	 */
 	private String enableSelection(String html) {
 		if (window.getPageManager().isBibleShown()) {
 			// handle long click ourselves and prevent webview showing text selection automatically
-			setOnLongClickListener(new OnLongClickListener() {
-				@Override
-				public boolean onLongClick(View v) {
-					return true;
-				}
-			});
+			setOnLongClickListener(new BibleViewLongClickListener(true));
 			setLongClickable(false);
 
 			// need to enable verse selection after page load, but not always so can't use onload
@@ -616,18 +629,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 
 		} else {
 			// reset handling of long press
-			setOnLongClickListener(
-					new OnLongClickListener() {
-						@Override
-						public boolean onLongClick(View v) {
-							HitTestResult result = ((BibleView) v).getHitTestResult();
-							if (result.getType() == HitTestResult.SRC_ANCHOR_TYPE) {
-								setContextMenuInfo(result.getExtra());
-								return v.showContextMenu();
-							}
-							return false;
-						}
-					});
+			setOnLongClickListener(new BibleViewLongClickListener(false));
 		}
 
 		return html;
@@ -642,7 +644,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		return contextMenuInfo;
 	}
 
-	static class BibleViewContextMenuInfo implements ContextMenu.ContextMenuInfo {
+	class BibleViewContextMenuInfo implements ContextMenu.ContextMenuInfo {
 		BibleView targetView;
 		String targetLink;
 
@@ -668,6 +670,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 			}
 			targetView.linkControl.loadApplicationUrl(targetLink);
 			targetView.linkControl.setWindowMode(LinkControl.WINDOW_MODE_UNDEFINED);
+			contextMenuInfo = null;
 		}
 	}
 
