@@ -29,26 +29,26 @@ Luke 21
 Luke 22
 Luke 23
 Luke 24
-Psalms 16-17
+Psalms 13-15
 Proverbs 3
 Acts 1
 Acts 2
 Acts 3
 Acts 4
 Acts 5
-Psalm 18
+Psalms 16-17
 Acts 6
 Acts 7
 Acts 8
-Psalms 19-20
+Psalm 18
 Acts 9
 Acts 10
 Acts 11
 Proverbs 4
 Acts 12
-Acts 19
-Acts 15
-Psalms 21-22
+Acts 13
+Acts 14
+Psalms 19-20
 Acts 15
 Acts 16
 Proverbs 5
@@ -56,11 +56,11 @@ Acts 17
 Acts 18
 Acts 19
 Acts 20
-Psalms 23-24
+Psalms 21-22
 Acts 21
 Acts 22
 Acts 23
-Psalms 13-15
+Psalms 23-24
 Acts 24
 Acts 25
 Acts 26
@@ -221,8 +221,8 @@ Psalm 78
 Matthew 26
 Matthew 27
 Matthew 28
-Psalm 79-80
-Psalm 81-83
+Psalms 79-80
+Psalms 81-83
 Romans 1
 Romans 2
 Romans 3
@@ -253,7 +253,7 @@ Psalms 99-102
 1 Corinthians 1
 1 Corinthians 2
 1 Corinthians 3
-Psalms 103
+Psalm 103
 1 Corinthians 4
 1 Corinthians 5
 Psalm 104
@@ -270,7 +270,7 @@ Psalm 105
 1 Corinthians 15
 1 Corinthians 16
 Proverbs 22
-Psalms 106-108
+Psalms 106-107
 2 Corinthians 1
 2 Corinthians 2
 2 Corinthians 3
