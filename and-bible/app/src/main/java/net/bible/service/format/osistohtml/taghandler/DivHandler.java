@@ -88,7 +88,7 @@ public class DivHandler implements OsisTagHandler {
 	public void end() {
 		DivType type = stack.pop();
 		if (DivType.PARAGRAPH.equals(type) && passageInfo.isAnyTextWritten) {
-			writer.write("<br />");
+			writer.write("<div class='breakline'></div>");
 		} else if (DivType.PREVERSE.equals(type)) {
 			writer.finishInserting();
 		}

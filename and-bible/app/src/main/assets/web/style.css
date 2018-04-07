@@ -4,8 +4,10 @@
 body {
 	line-height: 1.6em; /* repeat this in .verse ; also hard-coded in BibleView*/
 	font-size: 1.1em;
-	margin-left: 2vw; /* vw - Equal to 1% of the width of the initial containing block. */
-	margin-right: 2vw
+	margin: auto;
+	padding-left: 2vw;
+	padding-right: 2vw;
+	max-width: 15cm;
 }
 
 h1, .heading1 {
@@ -25,6 +27,10 @@ span[id="0"].verseNo + h1 {
 span[id="0"].verseNo + h1:after { 
 	content: "\A";
 	white-space: pre; 
+}
+
+div.breakline {
+    height: 0.5em;
 }
 
 img.sword {
