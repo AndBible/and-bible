@@ -64,7 +64,7 @@ public class ReferenceHandlerTest {
 		referenceHandler.end();
 		writer.write(".)");
 		
-		assertThat(writer.getHtml(), equalTo("(<a href='bible:Exod.15.1'>Exodus 15:1-19</a>.)"));
+		assertThat(writer.getHtml(), equalTo("(<a href='bible:Exod.15.1-Exod.15.19'>Ex. 15:1-19</a>.)"));
 	}
 
 	/**
@@ -106,7 +106,7 @@ public class ReferenceHandlerTest {
 	}
 
 	@Test
-	public void testReferenceContent() {
+	public void testReferenceContentSingleRef() {
 		AttributesImpl attrs = new AttributesImpl();
 		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_REF, null, "Ps.121.2");
 		referenceHandler.start(attrs);
@@ -117,6 +117,34 @@ public class ReferenceHandlerTest {
 
 		// note that just the first verse in each range is referenced - it might be better to reference the whole range although the final navigation when pressed would be ifentical
 		assertThat(writer.getHtml(), equalTo("<a href='bible:Ps.121.2'>121:2</a>"));
+	}
+
+	@Test
+	public void testReferenceContentWithSingleRange() {
+		AttributesImpl attrs = new AttributesImpl();
+		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_REF, null, "Gen.1.1-Gen.2.1");
+		referenceHandler.start(attrs);
+
+		writer.write("1:1-2:1");
+
+		referenceHandler.end();
+
+		// note that just the first verse in each range is referenced - it might be better to reference the whole range although the final navigation when pressed would be ifentical
+		assertThat(writer.getHtml(), equalTo("<a href='bible:Gen.1-Gen.2.1'>1:1-2:1</a>"));
+	}
+
+	@Test
+	public void testReferenceContentWithSingleRange2() {
+		AttributesImpl attrs = new AttributesImpl();
+		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_REF, null, "Gen.1.2-Gen.2.1");
+		referenceHandler.start(attrs);
+
+		writer.write("1:2-2:1");
+
+		referenceHandler.end();
+
+		// note that just the first verse in each range is referenced - it might be better to reference the whole range although the final navigation when pressed would be ifentical
+		assertThat(writer.getHtml(), equalTo("<a href='bible:Gen.1.2-Gen.2.1'>1:2-2:1</a>"));
 	}
 
 	/**
