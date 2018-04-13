@@ -150,16 +150,20 @@ public class ReferenceHandler implements OsisTagHandler {
     		} else {
 		        Passage ref = (Passage) PassageKeyFactory.instance().getKey(parameters.getDocumentVersification(), reference);
 		        boolean isSingleVerse = ref.countVerses()==1;
-		        boolean isSimpleContent = content.length()<3 && content.length()>0;
-		        Iterator<VerseRange> it = ref.rangeIterator(RestrictionType.CHAPTER);
-		        
-		        if (isSingleVerse && isSimpleContent) {
-			        // simple verse no e.g. 1 or 2 preceding the actual verse in TSK
+		        boolean hasContent = content.length()>0;
+				boolean hasSeparateRefs = reference.contains(" ");
+				boolean isSingleRange = !isSingleVerse && !hasSeparateRefs;
+
+
+		        if ((isSingleVerse || isSingleRange) && hasContent) {
+					// simple verse no e.g. 1 or 2 preceding the actual verse in TSK
+					Iterator<VerseRange> it = ref.rangeIterator(RestrictionType.NONE);
 					result.append("<a href='").append(Constants.BIBLE_PROTOCOL).append(":").append(it.next().getOsisRef()).append("'>");
 					result.append(content);
 					result.append("</a>");
-		        } else {
+				} else {
 		        	// multiple complex references
+					Iterator<VerseRange> it = ref.rangeIterator(RestrictionType.CHAPTER);
 		        	boolean isFirst = true;
 					while (it.hasNext()) {
 						Key key = it.next();
