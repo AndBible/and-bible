@@ -175,7 +175,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="checking_zip_file">Checking given file...</string>
     <string name="invalid_module">File does not contain a valid SWORD module</string>
     <string name="module_already_installed">File contains a module that is already installed</string>
-    
+    <string name="install_zip_title">Please wait. Loading Zip file.</string>
+
     <!-- Daily Reading Plan -->
     <string name="rdg_plan_title">Reading Plan</string>
     <string name="rdg_plan_selector_title">Choose a Reading Plan</string>
