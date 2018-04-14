@@ -204,7 +204,13 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="share_verse">Share …</string>
     <string name="share_verse_subject">A Bible verse has been shared with you using And Bible</string>
     <string name="compare_translations">Compare translations</string>
-    
+
+    <!-- Link context menu -->
+    <string name="open_link_in_this_window">Open link here</string>
+    <string name="open_link_in_new_window">Open link in new window</string>
+    <string name="open_link_in_main_window">Open link in main window</string>
+    <string name="open_link_in_special_window">Open link in special window</string>
+
     <!-- Bookmarks -->
     <string name="bookmarks">Bookmarks</string>
     <string name="add_bookmark">Add bookmark</string>

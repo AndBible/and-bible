@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.page.screen;
 
+import android.view.View;
 import android.widget.LinearLayout;
 
 import net.bible.android.activity.R;
@@ -14,6 +15,9 @@ import net.bible.android.view.activity.page.MainBibleActivity;
 import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
+
+import java.util.List;
+
 /**
  * Create Views for displaying documents
  * 
@@ -29,9 +33,11 @@ public class DocumentViewManager {
 	private LinearLayout parent;
 	
 	private WindowControl windowControl;
+	private MainBibleActivity mainBibleActivity;
 
 	@Inject
 	public DocumentViewManager(MainBibleActivity mainBibleActivity, DocumentWebViewBuilder documentWebViewBuilder, MyNoteViewBuilder myNoteViewBuilder, WindowControl windowControl) {
+		this.mainBibleActivity = mainBibleActivity;
 		this.documentWebViewBuilder = documentWebViewBuilder;
 		this.myNoteViewBuilder = myNoteViewBuilder;
 		this.parent = (LinearLayout)mainBibleActivity.findViewById(R.id.mainBibleView);
@@ -52,6 +58,10 @@ public class DocumentViewManager {
     		myNoteViewBuilder.removeMyNoteView(parent);
     		documentWebViewBuilder.addWebView(parent);
     	}
+		List<Window> windows = windowControl.getWindowRepository().getVisibleWindows();
+		for(Window window: windows) {
+			mainBibleActivity.registerForContextMenu((View) getDocumentView(window));
+		}
 	}
 
 	public DocumentView getDocumentView() {
