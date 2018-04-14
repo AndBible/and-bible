@@ -82,8 +82,8 @@
 				android:summary="@string/prefs_open_links_in_special_window_summary"
 				android:defaultValue="true"/>
 	<ListPreference android:key="split_mode_pref"
-				android:title="Split mode"
-				android:summary="How to split multiple screens on the window layout?"
+				android:title="@string/prefs_split_mode_title"
+				android:summary="@string/prefs_split_mode_summary"
 				android:entries="@array/prefs_split_mode_descriptions"
 				android:entryValues="@array/prefs_split_mode_values"
 				android:defaultValue="automatic"/>
