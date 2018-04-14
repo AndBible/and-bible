@@ -309,7 +309,7 @@ public class LinkControl {
 				document = defaultDocument;
 			}
 
-			czxurrentPageManager.setCurrentDocumentAndKey(document, key);
+			currentPageManager.setCurrentDocumentAndKey(document, key);
 		}
 	}
 	
