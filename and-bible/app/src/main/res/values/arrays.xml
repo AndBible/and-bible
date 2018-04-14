@@ -28,7 +28,7 @@
 		<item>automatic</item>
 	</string-array>
 
-	<!-- Screen colors: automatic night mode, day, night -->
+	<!-- Split mode: vertical, horizontal, automatic -->
 	<string-array name="prefs_split_mode_descriptions">
 		<item>@string/prefs_split_mode_vertical</item>
 		<item>@string/prefs_split_mode_horizontal</item>

@@ -66,7 +66,7 @@ public class DocumentWebViewBuilder {
 
 	private final WindowControl windowControl;
 
-	private boolean isLaidOutForPortrait;
+	private boolean isLaidOutWithHorizontalSplit;
 	private final MainBibleActivity mainBibleActivity;
 
 	private final BibleViewFactory bibleViewFactory;
@@ -85,7 +85,6 @@ public class DocumentWebViewBuilder {
 	final static private String SPLIT_MODE_HORIZONTAL = "horizontal";
 
 	private LinearLayout previousParent;
-	private boolean verticalSplit = true;
 
 	private static final String TAG="DocumentWebViewBuilder";
 
@@ -152,7 +151,7 @@ public class DocumentWebViewBuilder {
 
     	if (!isWebView || 
     			isWindowConfigurationChanged ||
-    			splitHorizontally!=isLaidOutForPortrait) {
+    			splitHorizontally!= isLaidOutWithHorizontalSplit) {
     		Log.d(TAG, "Layout web view");
     		
     		List<Window> windows = windowControl.getWindowRepository().getVisibleWindows();
@@ -229,7 +228,7 @@ public class DocumentWebViewBuilder {
     		}    		
     		
     		previousParent = parent;
-    		isLaidOutForPortrait = splitHorizontally;
+    		isLaidOutWithHorizontalSplit = splitHorizontally;
     		isWindowConfigurationChanged = false;
     	}
 	}
