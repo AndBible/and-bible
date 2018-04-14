@@ -283,15 +283,17 @@ public class LinkControl {
 		Book defaultDocument = currentPageManager.getCurrentBible().getCurrentDocument();
 
 		if(windowMode.equals(WINDOW_MODE_MAIN)) {
-			if (document==null)
+			if (document==null) {
 				document = defaultDocument;
+			}
 
 			windowControl.setActiveWindow(firstWindow);
 			firstWindow.getPageManager().setCurrentDocumentAndKey(document, key);
 		}
 		else if(windowMode.equals(WINDOW_MODE_NEW)) {
-			if (document==null)
+			if (document==null) {
 				document = defaultDocument;
+			}
 
 			windowControl.addNewWindow(document, key);
 		}
@@ -303,10 +305,11 @@ public class LinkControl {
 			}
 		} else {
 			// old style - open links in current window
-			if (document==null)
+			if (document==null) {
 				document = defaultDocument;
+			}
 
-			currentPageManager.setCurrentDocumentAndKey(document, key);
+			czxurrentPageManager.setCurrentDocumentAndKey(document, key);
 		}
 	}
 	
