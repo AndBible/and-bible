@@ -121,6 +121,13 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak_speed_normal">Normal</string>
     <string name="speak_speed_fast">Fast</string>
 
+    <string name="prefs_split_mode_vertical">Vertical</string>
+    <string name="prefs_split_mode_horizontal">Horizontal</string>
+    <string name="prefs_split_mode_automatic">Automatic</string>
+
+    <string name="prefs_split_mode_summary">How to split multiple screens on the window layout?</string>
+    <string name="prefs_split_mode_title">Split mode</string>
+
     <!-- Window -->
     <string name="window">Window</string>
     <string name="windowClose">Close</string>
