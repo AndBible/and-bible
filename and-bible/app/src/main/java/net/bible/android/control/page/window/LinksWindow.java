@@ -24,17 +24,6 @@ public class LinksWindow extends Window {
 	}
 
 	/**
-	 * If Links window is open then use its Bible else if closed then use Bible from active window
-	 */
-	protected Book getDefaultBible(Window activeWindow) {
-		if (!isClosed()) {
-    		return getPageManager().getCurrentBible().getCurrentDocument();
-        } else {
-    		return activeWindow.getPageManager().getCurrentBible().getCurrentDocument();
-        }
-	}
-
-	/**
 	 * Page state should reflect active window when links window is being used after being closed.  
 	 * Not enough to select default bible because another module type may be selected in link.
 	 */
