@@ -148,6 +148,9 @@ abstract class CurrentPageBase implements CurrentPage {
 		return currentDocument;
 	}
 
+	public boolean isCurrentDocumentSet() {
+		return currentDocument!=null;
+	}
 
 	/* Set new doc and if possible show new doc
 	 * @see net.bible.android.control.CurrentPage#setCurrentDocument(org.crosswire.jsword.book.Book)

@@ -11,6 +11,7 @@ import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.event.window.WindowSizeChangedEvent;
+import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.WindowLayout.WindowState;
@@ -115,8 +116,17 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 	public void showLinkUsingDefaultBible(Key key) {
         LinksWindow linksWindow = windowRepository.getDedicatedLinksWindow();
 
-        // default either to links window bible or if closed then active window bible 
-		Book defaultBible = linksWindow.getPageManager().getCurrentBible().getCurrentDocument();
+		CurrentBiblePage currentBiblePage = linksWindow.getPageManager().getCurrentBible();
+
+        Book defaultBible;
+
+		// default either to links window bible or if closed then active window bible
+        if(currentBiblePage.isCurrentDocumentSet()) {
+			defaultBible = currentBiblePage.getCurrentDocument();
+		}
+		else {
+			defaultBible = getWindowRepository().getFirstWindow().getPageManager().getCurrentBible().getCurrentDocument();
+		}
 
 		showLink(defaultBible, key);
 	}
