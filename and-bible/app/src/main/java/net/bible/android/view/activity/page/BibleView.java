@@ -6,6 +6,8 @@ import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
 import android.util.Log;
+import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,6 +17,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import net.bible.android.SharedConstants;
+import net.bible.android.activity.R;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent;
@@ -47,6 +50,8 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	private final WindowControl windowControl;
 
 	private final BibleKeyHandler bibleKeyHandler;
+
+	private BibleViewContextMenuInfo contextMenuInfo = null;
 
 	private BibleJavascriptInterface bibleJavascriptInterface;
 
@@ -593,18 +598,31 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		}
 	}
 
+	class BibleViewLongClickListener implements OnLongClickListener {
+		boolean defaultValue;
+
+		BibleViewLongClickListener(boolean defaultValue) {
+			this.defaultValue = defaultValue;
+		}
+
+		@Override
+		public boolean onLongClick(View v) {
+			HitTestResult result = getHitTestResult();
+			if (result.getType() == HitTestResult.SRC_ANCHOR_TYPE) {
+				setContextMenuInfo(result.getExtra());
+				return v.showContextMenu();
+			}
+			return defaultValue;
+		}
+	}
+
 	/**
 	 * 	Either enable verse selection or the default text selection
 	 */
 	private String enableSelection(String html) {
 		if (window.getPageManager().isBibleShown()) {
 			// handle long click ourselves and prevent webview showing text selection automatically
-			setOnLongClickListener(new OnLongClickListener() {
-				@Override
-				public boolean onLongClick(View v) {
-					return true;
-				}
-			});
+			setOnLongClickListener(new BibleViewLongClickListener(true));
 			setLongClickable(false);
 
 			// need to enable verse selection after page load, but not always so can't use onload
@@ -612,10 +630,49 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 
 		} else {
 			// reset handling of long press
-			setOnLongClickListener(null);
+			setOnLongClickListener(new BibleViewLongClickListener(false));
 		}
 
 		return html;
+	}
+
+	private void setContextMenuInfo(String target) {
+		this.contextMenuInfo = new BibleViewContextMenuInfo(this, target);
+	}
+
+	@Override
+	protected ContextMenuInfo getContextMenuInfo() {
+		return contextMenuInfo;
+	}
+
+	class BibleViewContextMenuInfo implements ContextMenu.ContextMenuInfo {
+		BibleView targetView;
+		String targetLink;
+
+		BibleViewContextMenuInfo(View targetView, String targetLink) {
+			this.targetView = (BibleView) targetView;
+			this.targetLink = targetLink;
+		}
+
+		void activate(int itemId) {
+			switch (itemId) {
+				case R.id.open_link_in_special_window:
+					targetView.linkControl.setWindowMode(LinkControl.WINDOW_MODE_SPECIAL);
+					break;
+				case R.id.open_link_in_new_window:
+					targetView.linkControl.setWindowMode(LinkControl.WINDOW_MODE_NEW);
+					break;
+				case R.id.open_link_in_main_window:
+					targetView.linkControl.setWindowMode(LinkControl.WINDOW_MODE_MAIN);
+					break;
+				case R.id.open_link_in_this_window:
+					targetView.linkControl.setWindowMode(LinkControl.WINDOW_MODE_THIS);
+					break;
+			}
+			targetView.linkControl.loadApplicationUrl(targetLink);
+			targetView.linkControl.setWindowMode(LinkControl.WINDOW_MODE_UNDEFINED);
+			contextMenuInfo = null;
+		}
 	}
 
 	@Override
