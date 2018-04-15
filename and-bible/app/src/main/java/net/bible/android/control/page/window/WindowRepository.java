@@ -206,7 +206,11 @@ public class WindowRepository {
 		}
 
 	}
-	
+
+	public Window getFirstWindow() {
+		return windowList.get(0);
+	}
+
 	public void moveWindowToPosition(Window window, int position) {
 		int originalWindowIndex = windowList.indexOf(window);
 		

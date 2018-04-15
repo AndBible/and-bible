@@ -8,6 +8,7 @@ import android.util.Log;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.control.search.SearchControl.SearchBibleSection;
@@ -55,12 +56,22 @@ public class LinkControl {
 
 	private static final String TAG = "LinkControl";
 
+	public static final String WINDOW_MODE_THIS = "this";
+	public static final String WINDOW_MODE_SPECIAL = "special";
+	public static final String WINDOW_MODE_NEW = "new";
+	public static final String WINDOW_MODE_MAIN = "main";
+	public static final String WINDOW_MODE_UNDEFINED = "undefined";
+
+	private String windowMode = WINDOW_MODE_UNDEFINED;
+
 	@Inject
 	public LinkControl(WindowControl windowControl, SearchControl searchControl, SwordDocumentFacade swordDocumentFacade) {
 		this.windowControl = windowControl;
 		this.searchControl = searchControl;
 		this.swordDocumentFacade = swordDocumentFacade;
 	}
+
+
 
 	/** Currently the only uris handled are for Strongs refs
 	 * see OSISToHtmlSaxHandler.getStrongsUrl for format of uri
@@ -266,8 +277,27 @@ public class LinkControl {
 	}
 
 	private void showLink(Book document, Key key) {
-		// ask window controller to open link in dedicated Links window
-		if (openLinksInDedicatedWindow()) {
+		// ask window controller to open link in desired window
+		CurrentPageManager currentPageManager = getCurrentPageManager();
+		Window firstWindow = windowControl.getWindowRepository().getFirstWindow();
+		Book defaultDocument = currentPageManager.getCurrentBible().getCurrentDocument();
+
+		if(windowMode.equals(WINDOW_MODE_MAIN)) {
+			if (document==null) {
+				document = defaultDocument;
+			}
+
+			windowControl.setActiveWindow(firstWindow);
+			firstWindow.getPageManager().setCurrentDocumentAndKey(document, key);
+		}
+		else if(windowMode.equals(WINDOW_MODE_NEW)) {
+			if (document==null) {
+				document = defaultDocument;
+			}
+
+			windowControl.addNewWindow(document, key);
+		}
+		else if (checkIfOpenLinksInDedicatedWindow()) {
 			if (document==null) {
 				windowControl.showLinkUsingDefaultBible(key);
 			} else {
@@ -275,19 +305,31 @@ public class LinkControl {
 			}
 		} else {
 			// old style - open links in current window
-			CurrentPageManager currentPageManager = getCurrentPageManager();
 			if (document==null) {
-				document = currentPageManager.getCurrentBible().getCurrentDocument();
+				document = defaultDocument;
 			}
+
 			currentPageManager.setCurrentDocumentAndKey(document, key);
 		}
 	}
 	
-	private boolean openLinksInDedicatedWindow() {
-		return CommonUtils.getSharedPreferences().getBoolean("open_links_in_special_window_pref", true);
+	private boolean checkIfOpenLinksInDedicatedWindow() {
+		switch(windowMode) {
+			case WINDOW_MODE_SPECIAL:
+				return true;
+			case WINDOW_MODE_THIS:
+				return false;
+			case WINDOW_MODE_UNDEFINED:
+			default:
+				return CommonUtils.getSharedPreferences().getBoolean("open_links_in_special_window_pref", true);
+		}
 	}
 
 	private CurrentPageManager getCurrentPageManager() {
 		return windowControl.getActiveWindowPageManager();
+	}
+
+	public void setWindowMode(String windowMode) {
+		this.windowMode = windowMode;
 	}
 }

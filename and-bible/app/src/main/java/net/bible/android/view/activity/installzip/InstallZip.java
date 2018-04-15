@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
+import android.widget.TextView;
 import net.bible.android.activity.R;
 import net.bible.android.view.activity.download.Download;
 
@@ -189,11 +190,11 @@ class ZipHandler extends AsyncTask<Void, Integer, Integer> {
 	@Override
 	protected void onProgressUpdate(Integer... values) {
 		if (values[0] == 1)
-			parent.setTitle(R.string.extracting_zip_file);
-		int progress_now = (int) Math
+			parent.title.setText(R.string.extracting_zip_file);
+		int progressNow = (int) Math
 				.round(((float) values[0] / (float) total_entries)
 						* parent.progressBar.getMax());
-		parent.progressBar.setProgress(progress_now);
+		parent.progressBar.setProgress(progressNow);
 	}
 }
 
@@ -202,6 +203,7 @@ public class InstallZip extends Activity {
 	static final String TAG = "InstallZip";
 	private static final int PICK_FILE = 1;
 	public ProgressBar progressBar;
+	public TextView title;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -209,6 +211,7 @@ public class InstallZip extends Activity {
 		Log.i(TAG, "Install from Zip starting");
 		setContentView(R.layout.activity_install_zip);
 		progressBar = (ProgressBar) findViewById(R.id.progressBar);
+		title = (TextView) findViewById(R.id.installZipLabel);
 		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
 		intent.setType("*/*");
 		startActivityForResult(intent, PICK_FILE);
@@ -220,7 +223,7 @@ public class InstallZip extends Activity {
 		case PICK_FILE:
 			if (resultCode == RESULT_OK) {
 				Uri uri = data.getData();
-				setTitle(R.string.checking_zip_file);
+				title.setText(R.string.checking_zip_file);
 				ZipHandler zh = new ZipHandler(uri, this);
 				zh.execute();
 			}

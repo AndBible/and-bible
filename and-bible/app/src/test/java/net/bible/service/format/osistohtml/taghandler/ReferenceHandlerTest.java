@@ -64,9 +64,29 @@ public class ReferenceHandlerTest {
 		referenceHandler.end();
 		writer.write(".)");
 		
-		assertThat(writer.getHtml(), equalTo("(<a href='bible:Exod.15.1'>Exodus 15:1-19</a>.)"));
+		assertThat(writer.getHtml(), equalTo("(<a href='bible:Exod.15.1-Exod.15.19'>Ex. 15:1-19</a>.)"));
 	}
-	
+
+	/**
+	 * When there is no osis ref the content is used if it is a valid reference
+	 */
+
+	@Test
+	public void testGenBookUrlWithSpace() {
+		writer.write("(");
+
+		AttributesImpl attrs = new AttributesImpl();
+		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_REF, null, "ESV Study Bible Articles:Book introductions");
+		referenceHandler.start(attrs);
+
+		writer.write("Some content");
+
+		referenceHandler.end();
+		writer.write(".)");
+
+		assertThat(writer.getHtml(), equalTo("(<a href='sword://ESV Study Bible Articles/Book introductions'>Some content</a>.)"));
+	}
+
 	/**
 	 * When there is no osis ref the content is used if it is a valid reference
 	 */
@@ -83,6 +103,48 @@ public class ReferenceHandlerTest {
 		writer.write(".)");
 		
 		assertThat(writer.getHtml(), equalTo("(<a href='bible:Exod.15.1'>Exodus 15:1-19</a>.)"));
+	}
+
+	@Test
+	public void testReferenceContentSingleRef() {
+		AttributesImpl attrs = new AttributesImpl();
+		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_REF, null, "Ps.121.2");
+		referenceHandler.start(attrs);
+
+		writer.write("121:2");
+
+		referenceHandler.end();
+
+		// note that just the first verse in each range is referenced - it might be better to reference the whole range although the final navigation when pressed would be ifentical
+		assertThat(writer.getHtml(), equalTo("<a href='bible:Ps.121.2'>121:2</a>"));
+	}
+
+	@Test
+	public void testReferenceContentWithSingleRange() {
+		AttributesImpl attrs = new AttributesImpl();
+		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_REF, null, "Gen.1.1-Gen.2.1");
+		referenceHandler.start(attrs);
+
+		writer.write("1:1-2:1");
+
+		referenceHandler.end();
+
+		// note that just the first verse in each range is referenced - it might be better to reference the whole range although the final navigation when pressed would be ifentical
+		assertThat(writer.getHtml(), equalTo("<a href='bible:Gen.1-Gen.2.1'>1:1-2:1</a>"));
+	}
+
+	@Test
+	public void testReferenceContentWithSingleRange2() {
+		AttributesImpl attrs = new AttributesImpl();
+		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_REF, null, "Gen.1.2-Gen.2.1");
+		referenceHandler.start(attrs);
+
+		writer.write("1:2-2:1");
+
+		referenceHandler.end();
+
+		// note that just the first verse in each range is referenced - it might be better to reference the whole range although the final navigation when pressed would be ifentical
+		assertThat(writer.getHtml(), equalTo("<a href='bible:Gen.1.2-Gen.2.1'>1:2-2:1</a>"));
 	}
 
 	/**
@@ -137,7 +199,7 @@ public class ReferenceHandlerTest {
 		referenceHandler.start(attrs);
 		writer.write("2:9");
 		referenceHandler.end();
-		assertThat(writer.getHtml(), equalTo("<a href='bible:Gal.2.9'>Galatians 2:9</a>"));
+		assertThat(writer.getHtml(), equalTo("<a href='bible:Gal.2.9'>2:9</a>"));
 	}
 	
 	/**
@@ -189,23 +251,6 @@ public class ReferenceHandlerTest {
 		referenceHandler.end();
 		
 		assertThat(writer.getHtml(), equalTo("<a href='bible:Gal.1.6'>6</a>"));
-	}
-
-	/**
-	 * ref = single verse.  Content is complex e.g. 'Matt 1:2'.
-	 * I am not sure why this is handled differently to the single verse short content
-	 */
-	@Test
-	public void testSingleVerseLongContent() {
-		AttributesImpl attrs = new AttributesImpl();
-		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_REF, null, "Gal.1.6");		
-		referenceHandler.start(attrs);
-
-		writer.write("Galatians 1 verse 6");
-
-		referenceHandler.end();
-		
-		assertThat(writer.getHtml(), equalTo("<a href='bible:Gal.1.6'>Galatians 1:6</a>"));
 	}
 
 	/**
