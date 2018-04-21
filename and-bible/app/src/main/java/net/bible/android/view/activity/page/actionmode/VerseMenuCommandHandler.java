@@ -64,8 +64,13 @@ public class VerseMenuCommandHandler {
 					isHandled = true;
 					break;
 				case R.id.add_bookmark:
+					bookmarkControl.addBookmarkForVerseRange(verseRange);
+					// refresh view to show new bookmark icon
+					PassageChangeMediator.getInstance().forcePageUpdate();
+					isHandled = true;
+					break;
 				case R.id.delete_bookmark:
-					bookmarkControl.toggleBookmarkForVerseRange(menuItemId, verseRange);
+					bookmarkControl.deleteBookmarkForVerseRange(verseRange);
 					// refresh view to show new bookmark icon
 					PassageChangeMediator.getInstance().forcePageUpdate();
 					isHandled = true;

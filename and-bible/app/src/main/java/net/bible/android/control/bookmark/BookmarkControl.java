@@ -65,7 +65,50 @@ public class BookmarkControl {
 		LABEL_UNLABELLED = new LabelDto(-998L, resourceProvider.getString(R.string.label_unlabelled), null);
 	}
 
-	public boolean toggleBookmarkForVerseRange(int menuItemId, VerseRange verseRange) {
+	public boolean addBookmarkForVerseRange(VerseRange verseRange) {
+		boolean bOk = false;
+		if (isCurrentDocumentBookmarkable()) {
+
+			BookmarkDto bookmarkDto = getBookmarkByKey(verseRange);
+			final Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
+			final View currentView = currentActivity.findViewById(android.R.id.content);
+			boolean success = false;
+			Integer message = null;
+			if (bookmarkDto == null)
+			{
+				// prepare new bookmark and add to db
+				bookmarkDto = new BookmarkDto();
+				bookmarkDto.setVerseRange(verseRange);
+				bookmarkDto = addBookmark(bookmarkDto);
+
+				success = bookmarkDto != null;
+				message = R.string.bookmark_added;
+			} else
+			{
+				bookmarkDto = refreshBookmarkDate(bookmarkDto);
+				success = bookmarkDto != null;
+				message = R.string.bookmark_date_updated;
+			}
+
+			final BookmarkDto affectedBookmark = bookmarkDto;
+			if (success) {
+				// success
+				int actionTextColor = CommonUtils.getResourceColor(R.color.snackbar_action_text);
+				Snackbar.make(currentView, message, Snackbar.LENGTH_LONG).setActionTextColor(actionTextColor).setAction(R.string.assign_labels, new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						showBookmarkLabelsActivity(currentActivity, affectedBookmark);
+					}
+				}).show();
+				bOk = true;
+			} else {
+				Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+			}
+		}
+		return bOk;
+	}
+
+	public boolean deleteBookmarkForVerseRange(VerseRange verseRange) {
 		boolean bOk = false;
 		if (isCurrentDocumentBookmarkable()) {
 
@@ -75,26 +118,6 @@ public class BookmarkControl {
 			if (bookmarkDto !=null) {
 				if (deleteBookmark(bookmarkDto)) {
 					Snackbar.make(currentView, R.string.bookmark_deleted, Snackbar.LENGTH_SHORT).show();
-				} else {
-					Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
-				}
-			}
-			if ((bookmarkDto ==null) || (menuItemId == R.id.add_bookmark)) {
-				// prepare new bookmark and add to db
-				bookmarkDto = new BookmarkDto();
-				bookmarkDto.setVerseRange(verseRange);
-				final BookmarkDto newBookmark = addBookmark(bookmarkDto);
-
-				if (newBookmark!=null) {
-					// success
-					int actionTextColor = CommonUtils.getResourceColor(R.color.snackbar_action_text);
-					Snackbar.make(currentView, R.string.bookmark_added, Snackbar.LENGTH_LONG).setActionTextColor(actionTextColor).setAction(R.string.assign_labels, new View.OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							showBookmarkLabelsActivity(currentActivity, newBookmark);
-						}
-					}).show();
-					bOk = true;
 				} else {
 					Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
 				}
@@ -167,6 +190,19 @@ public class BookmarkControl {
 			db.close();
 		}
 		return newBookmark;
+	}
+
+	/** update bookmark date */
+	public BookmarkDto refreshBookmarkDate(BookmarkDto bookmark) {
+		BookmarkDBAdapter db = new BookmarkDBAdapter();
+		BookmarkDto updatedBookmark = null;
+		try {
+			db.open();
+			updatedBookmark = db.updateBookmarkDate(bookmark);
+		} finally {
+			db.close();
+		}
+		return updatedBookmark;
 	}
 
 	/** get all bookmarks */

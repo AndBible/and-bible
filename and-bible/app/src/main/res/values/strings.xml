@@ -217,6 +217,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="add_bookmark">Add bookmark</string>
     <string name="delete_bookmark">Delete bookmark</string>
     <string name="bookmark_added">Bookmark added</string>
+    <string name="bookmark_date_updated">Bookmark date updated</string>
     <string name="bookmark_exists">Bookmark already exists</string>
     <string name="bookmark_deleted">Bookmark deleted</string>
     <string name="bookmark_labels">Bookmark Labels</string>

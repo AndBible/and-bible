@@ -86,6 +86,19 @@ public class BookmarkDBAdapter {
 		return db.delete(Table.BOOKMARK, BookmarkColumn._ID + "=" + bookmark.getId(), null) > 0;
 	}
 
+	public BookmarkDto updateBookmarkDate(BookmarkDto bookmark) {
+		// Create a new row of values to insert.
+		ContentValues newValues = new ContentValues();
+
+		// Gets the current system time in milliseconds
+		Long now = System.currentTimeMillis();
+		newValues.put(BookmarkColumn.CREATED_ON, now);
+
+		db.update(Table.BOOKMARK, newValues, BookmarkColumn._ID + "=" + bookmark.getId(), null);
+		return getBookmarkDto(bookmark.getId());
+	}
+
+
 	public boolean removeLabel(LabelDto label) {
 		Log.d(TAG, "Removing label:"+label.getName());
 		return db.delete(Table.LABEL, LabelColumn._ID + "=" + label.getId(), null) > 0;
