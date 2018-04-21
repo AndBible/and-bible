@@ -173,7 +173,9 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 		// update the height in ScreenSettings. Global screen height must be taken from parent view
 		// that contains all windows.
-		ScreenSettings.setContentViewHeightPx(((View) getParent().getParent()).getMeasuredHeight());
+		if (getParent()!=null && getParent().getParent()!=null) {
+			ScreenSettings.setContentViewHeightPx(((View) getParent().getParent()).getMeasuredHeight());
+		}
 	}
 
 	/** apply settings set by the user using Preferences
