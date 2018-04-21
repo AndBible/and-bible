@@ -44,7 +44,7 @@ public class VerseActionModeMediator {
 
 	private ActionMode actionMode;
 
-    private static final String TAG = "VerseActionModeMediator";
+	private static final String TAG = "VerseActionModeMediator";
 
 	public VerseActionModeMediator(ActionModeMenuDisplay mainBibleActivity, VerseHighlightControl bibleView, PageControl pageControl, VerseMenuCommandHandler verseMenuCommandHandler, BookmarkControl bookmarkControl) {
 		this.mainBibleActivity = mainBibleActivity;
@@ -58,9 +58,9 @@ public class VerseActionModeMediator {
 	}
 
 	public void verseLongPress(int verse) {
-        Log.d(TAG, "Verse selected event:"+verse);
-        startVerseActionMode(verse);
-    }
+		Log.d(TAG, "Verse selected event:"+verse);
+		startVerseActionMode(verse);
+	}
 
 	/**
 	 * Handle selection and deselection of extra verses after initial verse
@@ -107,7 +107,7 @@ public class VerseActionModeMediator {
 		this.verseNoRange = new VerseNoRange(verse);
 		mainBibleActivity.showVerseActionModeMenu(actionModeCallbackHandler);
 		bibleView.enableVerseTouchSelection();
-    }
+	}
 
 	/**
 	 * Ensure all state is left tidy
@@ -162,10 +162,10 @@ public class VerseActionModeMediator {
 
 		@Override
 		public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-			// if start verse already bookmarked then enable Delete Bookmark menu item else Add Bookmark
+			// if start verse already bookmarked then enable Delete and Labels Bookmark menu item
 			Verse startVerse = getStartVerse();
 			boolean isVerseBookmarked = startVerse!=null && bookmarkControl.isBookmarkForKey(startVerse);
-			menu.findItem(R.id.add_bookmark).setVisible(!isVerseBookmarked);
+			menu.findItem(R.id.add_bookmark).setVisible(true);
 			menu.findItem(R.id.delete_bookmark).setVisible(isVerseBookmarked);
 			menu.findItem(R.id.edit_bookmark_labels).setVisible(isVerseBookmarked);
 
