@@ -5,6 +5,7 @@ buildscript {
     ext.anko_version = '0.10.1'
     repositories {
         jcenter()
+        google()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.3'
