@@ -2,6 +2,7 @@ package net.bible.android.view.activity.navigation;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,6 +16,7 @@ import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo;
 import net.bible.android.view.util.buttongrid.OnButtonGridActionListener;
 import net.bible.service.common.CommonUtils;
 
+import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 
@@ -40,52 +42,60 @@ public class GridChoosePassageChapter extends CustomTitlebarActivityBase impleme
 
 	private static final String TAG = "GridChoosePassageChaptr";
 
-    /** Called when the activity is first created. */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-    	// background goes white in some circumstances if theme changes so prevent theme change
-    	setAllowThemeChange(false);
-        super.onCreate(savedInstanceState);
+	/** Called when the activity is first created. */
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		// background goes white in some circumstances if theme changes so prevent theme change
+		setAllowThemeChange(false);
+		super.onCreate(savedInstanceState);
 
 		buildActivityComponent().inject(this);
-        int bibleBookNo = getIntent().getIntExtra(GridChoosePassageBook.BOOK_NO, navigationControl.getDefaultBibleBookNo());
-        //TODO av11n - this is done now
-        mBibleBook = BibleBook.values()[bibleBookNo];
-                             
-        // show chosen book in page title to confirm user choice
-        try {
-            //TODO av11n - probably should use same v11n as used in GridChoosePassageBook
-        	setTitle(navigationControl.getVersification().getLongName(mBibleBook));
-        } catch (Exception nsve) {
-        	Log.e(TAG, "Error in selected book no", nsve);
-        }
-        
-        ButtonGrid grid = new ButtonGrid(this);
-        grid.setOnButtonGridActionListener(this);
-        
-        grid.addButtons(getBibleChaptersButtonInfo(mBibleBook));
-        setContentView(grid);
-    }
-    
-    private List<ButtonInfo> getBibleChaptersButtonInfo(BibleBook book) {
-    	int chapters;
-    	try {
-	    	chapters = navigationControl.getVersification().getLastChapter(book);
+		int bibleBookNo = getIntent().getIntExtra(GridChoosePassageBook.BOOK_NO, navigationControl.getDefaultBibleBookNo());
+		//TODO av11n - this is done now
+		mBibleBook = BibleBook.values()[bibleBookNo];
+
+		// show chosen book in page title to confirm user choice
+		try {
+			//TODO av11n - probably should use same v11n as used in GridChoosePassageBook
+			setTitle(navigationControl.getVersification().getLongName(mBibleBook));
+		} catch (Exception nsve) {
+			Log.e(TAG, "Error in selected book no", nsve);
+		}
+
+		ButtonGrid grid = new ButtonGrid(this);
+		grid.setOnButtonGridActionListener(this);
+
+		grid.addButtons(getBibleChaptersButtonInfo(mBibleBook));
+		setContentView(grid);
+	}
+
+	private List<ButtonInfo> getBibleChaptersButtonInfo(BibleBook book) {
+		int chapters;
+		BibleBook curBook = KeyUtil.getVerse(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getKey()).getBook();
+		int curChapter = KeyUtil.getVerse(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getKey()).getChapter();
+
+
+		try {
+			chapters = navigationControl.getVersification().getLastChapter(book);
 		} catch (Exception nsve) {
 			chapters = -1;
 		}
-    	
-    	List<ButtonInfo> keys = new ArrayList<>();
-    	for (int i=1; i<=chapters; i++) {
-    		ButtonInfo buttonInfo = new ButtonInfo();
+
+		List<ButtonInfo> keys = new ArrayList<>();
+		for (int i=1; i<=chapters; i++) {
+			ButtonInfo buttonInfo = new ButtonInfo();
 			// this is used for preview
 			buttonInfo.id = i;
-    		buttonInfo.name = Integer.toString(i);
-    		keys.add(buttonInfo);
-    	}
-    	return keys;
-    }
-    
+			buttonInfo.name = Integer.toString(i);
+			if (curBook == book && i == curChapter) {
+				buttonInfo.textColor = Color.YELLOW;
+				buttonInfo.highlight = true;
+			}
+			keys.add(buttonInfo);
+		}
+		return keys;
+	}
+
 	@Override
 	public void buttonPressed(ButtonInfo buttonInfo) {
 		int chapter = buttonInfo.id;
@@ -96,11 +106,11 @@ public class GridChoosePassageChapter extends CustomTitlebarActivityBase impleme
 				currentPageControl.getCurrentPage().setKey(new Verse(navigationControl.getVersification(), mBibleBook, chapter, 1));
 				onSave(null);
 			} else {
-    			// select verse
-	        	Intent myIntent = new Intent(this, GridChoosePassageVerse.class);
-	        	myIntent.putExtra(GridChoosePassageBook.BOOK_NO, mBibleBook.ordinal());
-	        	myIntent.putExtra(GridChoosePassageBook.CHAPTER_NO, chapter);
-	        	startActivityForResult(myIntent, chapter);
+				// select verse
+				Intent myIntent = new Intent(this, GridChoosePassageVerse.class);
+				myIntent.putExtra(GridChoosePassageBook.BOOK_NO, mBibleBook.ordinal());
+				myIntent.putExtra(GridChoosePassageBook.CHAPTER_NO, chapter);
+				startActivityForResult(myIntent, chapter);
 			}
 		} catch (Exception e) {
 			Log.e(TAG, "error on select of bible book", e);
@@ -111,19 +121,19 @@ public class GridChoosePassageChapter extends CustomTitlebarActivityBase impleme
 		return CommonUtils.getSharedPreferences().getBoolean("navigate_to_verse_pref", false);
 	}
 
-    public void onSave(View v) {
-    	Log.i(TAG, "CLICKED");
-    	Intent resultIntent = new Intent(this, GridChoosePassageBook.class);
-    	setResult(Activity.RESULT_OK, resultIntent);
-    	finish();    
-    }
+	public void onSave(View v) {
+		Log.i(TAG, "CLICKED");
+		Intent resultIntent = new Intent(this, GridChoosePassageBook.class);
+		setResult(Activity.RESULT_OK, resultIntent);
+		finish();
+	}
 
-    @Override 
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	if (resultCode==Activity.RESULT_OK) {
-    		returnToPreviousScreen();
-    	}
-    }
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (resultCode==Activity.RESULT_OK) {
+			returnToPreviousScreen();
+		}
+	}
 
 	@Inject
 	void setNavigationControl(NavigationControl navigationControl) {
