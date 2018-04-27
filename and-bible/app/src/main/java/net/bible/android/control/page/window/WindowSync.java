@@ -123,6 +123,10 @@ public class WindowSync {
 			}
 			
 			Verse currentVerse = null;
+			boolean isGeneralBook = BookCategory.GENERAL_BOOK.equals(inactivePage.getCurrentDocument().getBookCategory());
+			boolean isUnsynchronizedCommentary = !inactiveWindow.isSynchronised()
+					&& BookCategory.COMMENTARY.equals(inactivePage.getCurrentDocument().getBookCategory());
+
 			if (inactiveWindowKey!=null && inactiveWindowKey instanceof Verse) {
 				currentVerse = KeyUtil.getVerse(inactiveWindowKey);
 			}
@@ -132,7 +136,12 @@ public class WindowSync {
 					BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && 
 					currentVerse!=null && targetVerse!=null && targetV11n.isSameChapter(targetVerse, currentVerse)) {
 				EventBus.getDefault().post(new ScrollSecondaryWindowEvent(inactiveWindow, targetVerse.getVerse()));
-			} else {
+			}
+			else if(isGeneralBook || isUnsynchronizedCommentary)
+			{
+				// Do not update! Updating would reset page position.
+			}
+			else {
 				new UpdateInactiveScreenTextTask().execute(inactiveWindow);
 			}
 		}
