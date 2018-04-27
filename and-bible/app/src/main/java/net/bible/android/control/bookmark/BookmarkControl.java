@@ -6,9 +6,11 @@ import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 
+import de.greenrobot.event.EventBus;
 import net.bible.android.activity.R;
 import net.bible.android.common.resource.ResourceProvider;
 import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.event.passage.BookmarkChangedEvent;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
@@ -123,6 +125,7 @@ public class BookmarkControl {
 				}
 			}
 		}
+		EventBus.getDefault().post(new BookmarkChangedEvent());
 		return bOk;
 	}
 
