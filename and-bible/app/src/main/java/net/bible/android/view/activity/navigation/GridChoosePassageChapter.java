@@ -71,9 +71,9 @@ public class GridChoosePassageChapter extends CustomTitlebarActivityBase impleme
 
 	private List<ButtonInfo> getBibleChaptersButtonInfo(BibleBook book) {
 		int chapters;
-		BibleBook curBook = KeyUtil.getVerse(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getKey()).getBook();
-		int curChapter = KeyUtil.getVerse(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getKey()).getChapter();
-
+		Verse currentVerse = KeyUtil.getVerse(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getKey());
+		BibleBook currentBibleBook = currentVerse.getBook();
+		int currentBibleChapter = currentVerse.getChapter();
 
 		try {
 			chapters = navigationControl.getVersification().getLastChapter(book);
@@ -87,7 +87,7 @@ public class GridChoosePassageChapter extends CustomTitlebarActivityBase impleme
 			// this is used for preview
 			buttonInfo.id = i;
 			buttonInfo.name = Integer.toString(i);
-			if (curBook == book && i == curChapter) {
+			if (currentBibleBook == book && i == currentBibleChapter) {
 				buttonInfo.textColor = Color.YELLOW;
 				buttonInfo.highlight = true;
 			}
