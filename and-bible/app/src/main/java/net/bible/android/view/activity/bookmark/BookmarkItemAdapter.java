@@ -66,7 +66,7 @@ public class BookmarkItemAdapter extends ArrayAdapter<BookmarkDto> {
 		// Set value for the date text field
 		if (view.getText3() != null) {
 			if (item.getCreatedOn() != null) {
-				String sDt = DateFormat.format("yyyy-MM-dd hh:mm", item.getCreatedOn()).toString();
+				String sDt = DateFormat.format("yyyy-MM-dd HH:mm", item.getCreatedOn()).toString();
 				view.getText3().setText(sDt);
 			}
 		}
