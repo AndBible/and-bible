@@ -297,6 +297,13 @@ public class LinkControl {
 
 			windowControl.addNewWindow(document, key);
 		}
+		else if(windowMode.equals(WINDOW_MODE_THIS)) {
+			if (document==null) {
+				document = defaultDocument;
+			}
+			windowControl.getActiveWindow().setSynchronised(false);
+			currentPageManager.setCurrentDocumentAndKey(document, key);
+		}
 		else if (checkIfOpenLinksInDedicatedWindow()) {
 			if (document==null) {
 				windowControl.showLinkUsingDefaultBible(key);
@@ -317,8 +324,6 @@ public class LinkControl {
 		switch(windowMode) {
 			case WINDOW_MODE_SPECIAL:
 				return true;
-			case WINDOW_MODE_THIS:
-				return false;
 			case WINDOW_MODE_UNDEFINED:
 			default:
 				return CommonUtils.getSharedPreferences().getBoolean("open_links_in_special_window_pref", true);
