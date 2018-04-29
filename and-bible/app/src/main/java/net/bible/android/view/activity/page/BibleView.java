@@ -614,7 +614,10 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 				setContextMenuInfo(result.getExtra());
 				return v.showContextMenu();
 			}
-			return defaultValue;
+			else {
+				contextMenuInfo = null;
+				return defaultValue;
+			}
 		}
 	}
 
