@@ -14,6 +14,7 @@ import net.bible.android.control.event.passage.BookmarkChangedEvent;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
+import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.IntentHelper;
@@ -439,6 +440,6 @@ public class BookmarkControl {
 		// Show label view for new bookmark
 		final Intent intent = new Intent(currentActivity, BookmarkLabels.class);
 		intent.putExtra(BOOKMARK_IDS_EXTRA, new long[] {bookmarkDto.getId()});
-		currentActivity.startActivityForResult(intent, IntentHelper.REFRESH_DISPLAY_ON_FINISH);
+		currentActivity.startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE);
 	}
 }
