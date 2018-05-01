@@ -8,7 +8,7 @@ import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.event.EventManager;
-import net.bible.android.control.event.passage.BookmarkChangedEvent;
+import net.bible.android.control.event.passage.SynchronizeWindowsEvent;
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.event.window.WindowSizeChangedEvent;
@@ -300,7 +300,7 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 		windowSync.synchronizeScreens();
 	}
 
-	public void onEvent(BookmarkChangedEvent event) {
+	public void onEvent(SynchronizeWindowsEvent event) {
 		windowSync.setResynchRequired(true);
 		windowSync.synchronizeScreens();
 	}
