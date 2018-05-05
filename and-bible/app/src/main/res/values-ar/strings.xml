@@ -135,6 +135,7 @@ Press Speak to access a dialog to start or stop reading\n \n\n<b>My Note</b>\nNo
   <string name="share_verse">مشاركة</string>
   <string name="share_verse_subject">تم مشاركتك بآية من الكتاب المقدس من خلال آند بايبل</string>
   <string name="compare_translations">مقارنة الترجمات</string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">شارات الرجوع</string>
   <string name="add_bookmark">اضف شارة رجوع</string>

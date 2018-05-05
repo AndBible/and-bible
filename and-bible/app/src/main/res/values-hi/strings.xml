@@ -133,6 +133,7 @@
   <string name="notes">पाद टिप्पणी और संबंधित संदर्भ</string>
   <string name="share_verse_subject">एक पवित्र वाक्य आपके लिए, आन्ड बाइबिल (AndBible) के जरीए</string>
   <string name="compare_translations">अन्य अनुवादों से तुलना</string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">पुस्तक-चिन्ह</string>
   <string name="add_bookmark">पुस्तक-चिन्ह लगाओ</string>

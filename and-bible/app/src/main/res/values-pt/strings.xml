@@ -154,6 +154,7 @@
   <string name="share_verse">Compartilhar …</string>
   <string name="share_verse_subject">Um versículo da Bíblia foi enviado para você pelo And Bible</string>
   <string name="compare_translations">Compare as traduções</string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">Favoritos</string>
   <string name="add_bookmark">Adicionar favorito</string>

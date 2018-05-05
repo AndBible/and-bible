@@ -55,6 +55,10 @@
   <string name="prefs_show_verseno_summary">Покажи номерата на стиховете.</string>
   <string name="prefs_verse_per_line_title">По един стих на ред</string>
   <string name="prefs_verse_per_line_summary">Всеки стих да бъде написан на отделен ред</string>
+  <string name="prefs_show_bookmarks_title">Покажи отметките.</string>
+  <string name="prefs_show_bookmarks_summary">Скриване всички отметки</string>
+  <string name="prefs_default_bookmark_style_title">Стил на отметките (подразбиране)</string>
+  <string name="prefs_default_bookmark_style_summary">Подчертаване - цвят или иконка</string>
   <string name="prefs_show_mynotes_title">Покажи моите коментари</string>
   <string name="prefs_show_mynotes_summary">Покажи иконки в стихове с моите коментари</string>
   <string name="prefs_show_notes_title">Бележки и препратки</string>
@@ -85,6 +89,16 @@
   <string name="prefs_interface_locale_title">Език</string>
   <string name="prefs_interface_locale_summary">Избери езика на интерфейса</string>
   <string name="locale_change_warning">Приложението ще се рестартира за смяна на езика</string>
+  <string name="prefs_speak_speed_title">Скорост на говора</string>
+  <string name="prefs_speak_speed_summary">Изговаряне по-бързо или по-бавно</string>
+  <string name="speak_speed_slow">Бавно</string>
+  <string name="speak_speed_normal">Нормално</string>
+  <string name="speak_speed_fast">Бързо</string>
+  <string name="prefs_split_mode_vertical">Вертикално</string>
+  <string name="prefs_split_mode_horizontal">Хоризонтално</string>
+  <string name="prefs_split_mode_automatic">Автоматично</string>
+  <string name="prefs_split_mode_summary">В коя посока да бъде разделен екрана?</string>
+  <string name="prefs_split_mode_title">Разделен екран</string>
   <!--Window-->
   <string name="window">Прозорец</string>
   <string name="windowClose">Затвори</string>
@@ -128,6 +142,7 @@
   <string name="checking_zip_file">Проверка на файла...</string>
   <string name="invalid_module">Файлът не съдържа валиден SWORD модул</string>
   <string name="module_already_installed">Файлът съдържа вече инсталиран модул</string>
+  <string name="install_zip_title">Моля изчакайте. Зареждане на Zip файла.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">План за четене</string>
   <string name="rdg_plan_selector_title">Избери план за четене</string>
@@ -154,19 +169,27 @@
   <string name="share_verse">Сподели...</string>
   <string name="share_verse_subject">Стих от Библия споделян чрез приложение \"AndBible\"</string>
   <string name="compare_translations">Сравни преводи</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">Отваряй препратките тук</string>
+  <string name="open_link_in_new_window">Отваряй препратките в нов прозорец</string>
+  <string name="open_link_in_main_window">Отваряй препратките в основният прозорец</string>
+  <string name="open_link_in_special_window">Отваряй препратките в специален прозорец</string>
   <!--Bookmarks-->
-  <string name="bookmarks">Показалци</string>
-  <string name="add_bookmark">Добави показалец</string>
-  <string name="delete_bookmark">Премахни показалец</string>
-  <string name="bookmark_added">Показалецът е опреснен</string>
-  <string name="bookmark_exists">Вече има такъв показалец</string>
-  <string name="bookmark_deleted">Показалецът е премахнат</string>
-  <string name="bookmark_labels">Етикети</string>
+  <string name="bookmarks">Отметките</string>
+  <string name="add_bookmark">Добави отметка</string>
+  <string name="delete_bookmark">Изтрий отметката</string>
+  <string name="bookmark_added">Отметката е добавена</string>
+  <string name="bookmark_date_updated">Обновена дата за отметката</string>
+  <string name="bookmark_exists">Вече има такава отметка</string>
+  <string name="bookmark_deleted">Отметката изтрита</string>
+  <string name="bookmark_labels">Етикетите на отметките</string>
+  <string name="manage_labels">Редактиране на етикети</string>
   <string name="assign_labels">Задай етикет</string>
   <string name="new_label">Нов етикет</string>
   <string name="label_name_prompt">Име</string>
   <string name="label_unlabelled">Етикетът е махнат</string>
   <string name="rename">Преименуване</string>
+  <string name="style">Стил</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">По дата</string>
   <string name="sort_by_bible_book">Подредба</string>
@@ -207,10 +230,10 @@
   <string name="mynote_saved">Съхранено</string>
   <!--Backup and restore-->
   <string name="backup">Резервно копие</string>
-  <string name="backup_success">Бележките и показалците са съхранени в %s на SD картата</string>
+  <string name="backup_success">Бележките и отметките са съхранени в %s на SD картата</string>
   <string name="restore">Възстанови</string>
-  <string name="restore_confirmation">Презаписване на бележките и показалците?</string>
-  <string name="restore_success">Бележките и показалците са възстановени от %s на SD картата</string>
+  <string name="restore_confirmation">Презаписване на бележките и отметките?</string>
+  <string name="restore_success">Бележките и отметките са възстановени от %s на SD картата</string>
   <!--About-->
   <string name="about_copyright">Авторско право: %s</string>
   <string name="about_version">Версия:  %s</string>
@@ -238,6 +261,7 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Ново</string>
   <string name="close">Затвори</string>
+  <string name="edit">Редактирай</string>
   <!--Errors-->
   <string name="report_error">Изпрати отчет</string>
   <string name="error_occurred">Грешка</string>

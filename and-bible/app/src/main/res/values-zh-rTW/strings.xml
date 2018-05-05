@@ -83,11 +83,7 @@
   <string name="prefs_interface_locale_title">程式用戶界面語言</string>
   <string name="prefs_interface_locale_summary">選擇用戶界面語言</string>
   <string name="locale_change_warning">應用程序將重新啟動切換到新的界面語言</string>
-  <string name="prefs_split_screen_title">分屏佈局</string>
-  <string name="prefs_split_screen_summary">分屏&amp;鏈接</string>
-  <string name="prefs_split_screen_single">單屏佈局</string>
-  <string name="prefs_split_screen_linked">鏈接</string>
-  <string name="prefs_split_screen_not_linked">解除鏈接</string>
+  <!--Window-->
   <!--Notes screen-->
   <string name="no_chapter_notes">本章沒有備注</string>
   <string name="no_verse_notes">本節沒有備注</string>
@@ -112,11 +108,12 @@
   <string name="error_downloading">下載時發生錯誤。請檢查您的互聯網連接。</string>
   <string name="no_internet_connection">無法連接網絡</string>
   <string name="storage_space_warning">SD存儲卡存儲空間不足</string>
-  <string name="wait_for_bible">請等待下載完成。當下載完成，程序會轉到程式主頁面。您可以瀏覽至MENU菜單/MORE更多/下載文件，下載更多文檔。</string>
+  <string name="wait_for_bible">請等待下載完成。當下載完成，程序會轉到程式主頁面。您可以瀏覽至MENU菜單/下載文件，下載更多文檔。</string>
   <string name="wait_for_bible_not_yet">請等待，正在安裝已下載的聖經數據包</string>
   <string name="download_complete_no_bibles">沒有安裝聖經數據包。請后退，並再重新下載。</string>
   <string name="too_many_jobs">太多的任務同時執行中， 請等一些任務完成后再試。</string>
   <string name="document_not_installed">請下載 \"%s\"</string>
+  <!--Install zip file-->
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">閱讀計劃</string>
   <string name="rdg_plan_selector_title">請選擇閱讀計劃</string>
@@ -137,13 +134,12 @@
   <string name="delete_doc">刪除 %s</string>
   <string name="delete_search_index_doc">刪除 %s 的索引</string>
   <!--Verse context menu-->
-  <string name="select_text">選擇文本</string>
-  <string name="select_text_help">按住然后在屏幕上輕輕滑動來選擇文本，\n然后觸摸來復制已經選擇的文本。</string>
   <string name="notes">備注</string>
   <string name="copy">復制</string>
   <string name="share_verse">分享</string>
   <string name="share_verse_subject">您的朋友與您分享了如下的聖經</string>
   <string name="compare_translations">譯文比較</string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">書簽</string>
   <string name="add_bookmark">添加書簽</string>

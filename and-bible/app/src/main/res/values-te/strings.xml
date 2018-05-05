@@ -139,6 +139,7 @@
   <string name="share_verse">పంచుకోవడం …</string>
   <string name="share_verse_subject">ఆండ్ బైబిల్ ద్వారా మీతో ఈ బైబిల్ వచనం పంచుకొబడ్డది</string>
   <string name="compare_translations">తర్జుమాలతో పోల్చి చూడండి</string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">బుక్ మార్క్‌స్</string>
   <string name="add_bookmark">బుక్ మార్క్‌స్ చేర్చండి</string>

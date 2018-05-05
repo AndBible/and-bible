@@ -100,6 +100,11 @@
   <string name="speak_speed_slow">Langzaam</string>
   <string name="speak_speed_normal">Normaal</string>
   <string name="speak_speed_fast">Snel</string>
+  <string name="prefs_split_mode_vertical">Verticaal</string>
+  <string name="prefs_split_mode_horizontal">Horizontaal</string>
+  <string name="prefs_split_mode_automatic">Automatisch</string>
+  <string name="prefs_split_mode_summary">Hoe splits ik meerdere schermen in de vensterindeling?</string>
+  <string name="prefs_split_mode_title">Splitsmodus</string>
   <!--Window-->
   <string name="window">Venster</string>
   <string name="windowClose">Sluiten</string>
@@ -143,6 +148,7 @@
   <string name="checking_zip_file">Bezig met controleren van het opgegeven bestand...</string>
   <string name="invalid_module">Het bestand bevat geen geldige SWORD-module</string>
   <string name="module_already_installed">Het bestand bevat een module die reeds geïnstalleerd is</string>
+  <string name="install_zip_title">Bezig met laden van zip-bestand, even geduld...</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Leesplan</string>
   <string name="rdg_plan_selector_title">Kies een leesplan</string>
@@ -169,11 +175,17 @@
   <string name="share_verse">Delen ...</string>
   <string name="share_verse_subject">Er is een bijbelvers met u gedeeld vanuit And Bible</string>
   <string name="compare_translations">Vertalingen vergelijken</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">Link hier openen</string>
+  <string name="open_link_in_new_window">Link openen in nieuw venster</string>
+  <string name="open_link_in_main_window">Link openen in hoofdvenster</string>
+  <string name="open_link_in_special_window">Link openen in speciaal venster</string>
   <!--Bookmarks-->
   <string name="bookmarks">Bladwijzers</string>
   <string name="add_bookmark">Bladwijzer toevoegen</string>
   <string name="delete_bookmark">Bladwijzer verwijderen</string>
   <string name="bookmark_added">Bladwijzer toegevoegd</string>
+  <string name="bookmark_date_updated">Bladwijzerdatum bijgewerkt</string>
   <string name="bookmark_exists">Bladwijzer bestaat al</string>
   <string name="bookmark_deleted">Bladwijzer is verwijderd</string>
   <string name="bookmark_labels">Bladwijzerlabels</string>

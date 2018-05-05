@@ -162,6 +162,7 @@
   <string name="share_verse">שתף …</string>
   <string name="share_verse_subject">הפסוק הזה נשלח אליך באמצעות And Bible</string>
   <string name="compare_translations">השוואת תרגומים</string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">סימניות</string>
   <string name="add_bookmark">הוסף סימניה</string>

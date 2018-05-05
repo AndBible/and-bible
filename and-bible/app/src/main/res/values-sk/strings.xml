@@ -157,6 +157,7 @@
   <string name="share_verse">Zdieľať</string>
   <string name="share_verse_subject">Verš z Biblie (pomocou programu And Bible) je s vami zdieľaný...</string>
   <string name="compare_translations">Porovnať preklady</string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">Záložky</string>
   <string name="add_bookmark">Pridať záložku</string>

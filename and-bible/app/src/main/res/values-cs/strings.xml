@@ -54,6 +54,10 @@
   <string name="prefs_show_verseno_summary">Zobrazit čísla u veršů</string>
   <string name="prefs_verse_per_line_title">Jeden verš na řádku</string>
   <string name="prefs_verse_per_line_summary">Zobrazit každý verš na jiném řádku</string>
+  <string name="prefs_show_bookmarks_title">Zobrazit záložky</string>
+  <string name="prefs_show_bookmarks_summary">Zruš zaškrtnutí pro skrytí všech záložek</string>
+  <string name="prefs_default_bookmark_style_title">Výchozí vzhled záložek</string>
+  <string name="prefs_default_bookmark_style_summary">Zvýraznit barvu či ikonu</string>
   <string name="prefs_show_mynotes_title">Zobrazit ikony poznámek</string>
   <string name="prefs_show_mynotes_summary">Zobrazit ikony u veršů s poznámkami</string>
   <string name="prefs_show_notes_title">Poznámky a odkazy</string>
@@ -84,6 +88,11 @@
   <string name="prefs_interface_locale_title">Jazyk aplikace</string>
   <string name="prefs_interface_locale_summary">Vybrat jiný jazyk uživatelského rozhraní</string>
   <string name="locale_change_warning">Aplikace bude restartována, aby došlo ke změně jazyka</string>
+  <string name="prefs_speak_speed_title">Rychlost mluvení</string>
+  <string name="prefs_speak_speed_summary">Mluvení pomaleji či rychleji</string>
+  <string name="speak_speed_slow">Pomalu</string>
+  <string name="speak_speed_normal">Normálně</string>
+  <string name="speak_speed_fast">Rychle</string>
   <!--Window-->
   <string name="window">Okno</string>
   <string name="windowClose">Zavřít</string>
@@ -153,17 +162,22 @@
   <string name="share_verse">Sdílet …</string>
   <string name="share_verse_subject">Biblický verš zaslán z aplikace And Bible</string>
   <string name="compare_translations">Porovnat překlady</string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">Záložky</string>
   <string name="add_bookmark">Přidat záložku</string>
+  <string name="delete_bookmark">Smazat záložku</string>
   <string name="bookmark_added">Záložka přidána</string>
   <string name="bookmark_exists">Záložka už existuje</string>
+  <string name="bookmark_deleted">Záložka smazána</string>
   <string name="bookmark_labels">Popisky záložky</string>
+  <string name="manage_labels">Spravovat Popisky a Záložky</string>
   <string name="assign_labels">Přiřadit popisky</string>
   <string name="new_label">Nový popisek</string>
   <string name="label_name_prompt">Název</string>
   <string name="label_unlabelled">Neoznačený</string>
   <string name="rename">Přejmenovat</string>
+  <string name="style">Vzhled</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Řadit dle data</string>
   <string name="sort_by_bible_book">Biblické pořadí</string>
@@ -235,6 +249,7 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Nový</string>
   <string name="close">Zavřít</string>
+  <string name="edit">Upravit</string>
   <!--Errors-->
   <string name="report_error">Zaslat hlášení</string>
   <string name="error_occurred">Vznikla chyba</string>

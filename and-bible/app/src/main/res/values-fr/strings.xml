@@ -93,6 +93,11 @@
   <string name="speak_speed_slow">Ralenti</string>
   <string name="speak_speed_normal">Normal</string>
   <string name="speak_speed_fast">Rapide</string>
+  <string name="prefs_split_mode_vertical">Vertical</string>
+  <string name="prefs_split_mode_horizontal">Horizontal</string>
+  <string name="prefs_split_mode_automatic">Automatique</string>
+  <string name="prefs_split_mode_summary">Comment diviser l\'écran en plusieurs fenêtres?</string>
+  <string name="prefs_split_mode_title">Mode multi-fenêtres</string>
   <!--Window-->
   <string name="window">Fenêtres</string>
   <string name="windowClose">Fermer</string>
@@ -136,6 +141,7 @@
   <string name="checking_zip_file">Vérification du fichier...</string>
   <string name="invalid_module">Le fichier ne contient pas de module Sword valide</string>
   <string name="module_already_installed">Le fichier contient un module qui est déjà installé</string>
+  <string name="install_zip_title">Chargement du fichier Zip. Merci de patienter.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plan de lecture</string>
   <string name="rdg_plan_selector_title">Choix d\'un plan de lecture</string>
@@ -162,11 +168,17 @@
   <string name="share_verse">Partager ...</string>
   <string name="share_verse_subject">Un autre utilisateur de And Bible vous partage un verset de la Bible </string>
   <string name="compare_translations">Comparer les traductions</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">Ouvrir le lien ici</string>
+  <string name="open_link_in_new_window">Ouvrir le lien dans une nouvelle fenêtre</string>
+  <string name="open_link_in_main_window">Ouvrir le lien dans la fenêtre principale</string>
+  <string name="open_link_in_special_window">Ouvrir le lien dans une fenêtre spéciale</string>
   <!--Bookmarks-->
   <string name="bookmarks">Signets</string>
   <string name="add_bookmark">Ajouter un signet</string>
   <string name="delete_bookmark">Effacer le signet</string>
   <string name="bookmark_added">Signet ajouté</string>
+  <string name="bookmark_date_updated">Date du signet mise à jour</string>
   <string name="bookmark_exists">Ce signet existe déjà</string>
   <string name="bookmark_deleted">Signet effacé</string>
   <string name="bookmark_labels">Étiquettes des signets</string>

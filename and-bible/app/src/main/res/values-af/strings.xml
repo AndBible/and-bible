@@ -93,6 +93,11 @@
   <string name="speak_speed_slow">Stadig</string>
   <string name="speak_speed_normal">Normaal</string>
   <string name="speak_speed_fast">Vinnig</string>
+  <string name="prefs_split_mode_vertical">Vertikal</string>
+  <string name="prefs_split_mode_horizontal">Horisontal</string>
+  <string name="prefs_split_mode_automatic">Outomaties</string>
+  <string name="prefs_split_mode_summary">Hoe om verskeie skerms op die venster uitleg te verdeel?</string>
+  <string name="prefs_split_mode_title">Split modus</string>
   <!--Window-->
   <string name="window">Venster</string>
   <string name="windowClose">Maak Toe</string>
@@ -136,6 +141,7 @@
   <string name="checking_zip_file">Nagaan van gegewe lêer ...</string>
   <string name="invalid_module">Lêer nie \'n geldige SWORD module nie</string>
   <string name="module_already_installed">Lêer bevat \'n module wat reeds geïnstalleer is</string>
+  <string name="install_zip_title">Wag asseblief. Besig om zip-lêer te laai.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Lees Plan</string>
   <string name="rdg_plan_selector_title">Kies \'n lees plan</string>
@@ -162,11 +168,17 @@
   <string name="share_verse">Deel …</string>
   <string name="share_verse_subject">\'n Bybelvers is gedeel met jou met And Bible Program</string>
   <string name="compare_translations">Vergelyk vertalings</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">Maak skakel hier oop</string>
+  <string name="open_link_in_new_window">Maak skakel oop in \'n nuwe venster</string>
+  <string name="open_link_in_main_window">Maak skakel oop in hoof venster</string>
+  <string name="open_link_in_special_window">Maak skakel oop in spesiale venster</string>
   <!--Bookmarks-->
   <string name="bookmarks">Boekmerke</string>
   <string name="add_bookmark">Voeg boekmerk by</string>
   <string name="delete_bookmark">Verwyder Boekmerk</string>
   <string name="bookmark_added">Boekmerk bygevoeg</string>
+  <string name="bookmark_date_updated">Boekmerk date opgedateer</string>
   <string name="bookmark_exists">Boekmerk bestaan ​​alreeds</string>
   <string name="bookmark_deleted">Boekmerk is verwyder</string>
   <string name="bookmark_labels">Boekmerk etikette</string>

@@ -93,6 +93,11 @@
   <string name="speak_speed_slow">Langsam</string>
   <string name="speak_speed_normal">Normal</string>
   <string name="speak_speed_fast">Schnell</string>
+  <string name="prefs_split_mode_vertical"> Vertikal</string>
+  <string name="prefs_split_mode_horizontal">Horizontal</string>
+  <string name="prefs_split_mode_automatic">Automatisch</string>
+  <string name="prefs_split_mode_summary">Wie zeigt man mehrere Module auf dem Bildschirm an?</string>
+  <string name="prefs_split_mode_title">Geteilter Modus</string>
   <!--Window-->
   <string name="window">Fenster</string>
   <string name="windowClose">Schließen</string>
@@ -136,6 +141,7 @@
   <string name="checking_zip_file">Datei wird überprüft...</string>
   <string name="invalid_module">Datei enthält kein SWORD Modul</string>
   <string name="module_already_installed">Datei enthält ein bereits installiertes Modul</string>
+  <string name="install_zip_title">Bitte warten, Zip-Datei wird geladen.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Leseplan</string>
   <string name="rdg_plan_selector_title">Leseplan auswählen</string>
@@ -162,11 +168,17 @@
   <string name="share_verse">Teile...</string>
   <string name="share_verse_subject">Ein Bibelvers wurde dir mit Hilfe von AndBible geschickt</string>
   <string name="compare_translations">Vergleiche Übersetzungen</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">Verknüpfung hier öffnen</string>
+  <string name="open_link_in_new_window">Verknüpfung in neuem Fenster öffnen</string>
+  <string name="open_link_in_main_window">Verknüpfung im Hauptfenster öffnen</string>
+  <string name="open_link_in_special_window">Verknüpfung in temporären Fenster öffnen</string>
   <!--Bookmarks-->
   <string name="bookmarks">Lesezeichen</string>
   <string name="add_bookmark">Lesezeichen hinzufügen</string>
   <string name="delete_bookmark">Lösche Lesezeichen</string>
   <string name="bookmark_added">Lesezeichen hinzugefügt</string>
+  <string name="bookmark_date_updated">Datum des Lesezeichens wurde aktualisiert</string>
   <string name="bookmark_exists">Lesezeichen existiert schon!</string>
   <string name="bookmark_deleted">Lesezeichen gelöscht</string>
   <string name="bookmark_labels">Gruppen</string>

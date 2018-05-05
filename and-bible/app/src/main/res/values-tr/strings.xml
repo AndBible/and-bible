@@ -162,6 +162,7 @@
   <string name="share_verse">Paylaş ...</string>
   <string name="share_verse_subject">And Bible uygulamasını kullanarak sizinle Kutsal Kitap\'tan bir ayet paylaştım.</string>
   <string name="compare_translations">Çevirileri karşılaştır</string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">Yer İmleri</string>
   <string name="add_bookmark">Yer İmlerine ekle</string>

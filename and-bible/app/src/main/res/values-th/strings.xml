@@ -131,6 +131,7 @@
   <string name="notes">เชิงอรรถและข้ออ้างโยง</string>
   <string name="share_verse_subject">แบ่งปันข้อพระคัมภีร์จาก And Bible</string>
   <string name="compare_translations">เปรียบเทียบ</string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">ตัวคั่น</string>
   <string name="add_bookmark">เพิ่มตัวคั่น</string>

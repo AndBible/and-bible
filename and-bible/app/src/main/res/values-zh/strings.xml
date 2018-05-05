@@ -137,6 +137,7 @@
   <string name="share_verse">分享 …</string>
   <string name="share_verse_subject">您的朋友与您分享了如下的圣经</string>
   <string name="compare_translations">译文比较</string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">书签</string>
   <string name="add_bookmark">添加书签</string>

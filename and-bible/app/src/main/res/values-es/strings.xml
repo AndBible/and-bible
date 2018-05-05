@@ -93,6 +93,11 @@
   <string name="speak_speed_slow">Lenta</string>
   <string name="speak_speed_normal">Normal</string>
   <string name="speak_speed_fast">Rápida</string>
+  <string name="prefs_split_mode_vertical">Vertical</string>
+  <string name="prefs_split_mode_horizontal">Horizontal</string>
+  <string name="prefs_split_mode_automatic">Automático</string>
+  <string name="prefs_split_mode_summary">¿Cómo dividir múltiples pantallas en la disposición de ventanas?</string>
+  <string name="prefs_split_mode_title">Modo de división</string>
   <!--Window-->
   <string name="window">Ventana</string>
   <string name="windowClose">Cerrar</string>
@@ -136,6 +141,7 @@
   <string name="checking_zip_file">Comprobando el archivo...</string>
   <string name="invalid_module">El archivo no contiene un módulo SWORD válido</string>
   <string name="module_already_installed">El archivo contiene un módulo que ya está instalado</string>
+  <string name="install_zip_title">Por favor, espere. Cargando archivo Zip.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plan de lectura</string>
   <string name="rdg_plan_selector_title">Elige plan de lectura</string>
@@ -162,11 +168,17 @@
   <string name="share_verse">Compartir …</string>
   <string name="share_verse_subject">Un versículo de Biblia ha sido compartido contigo usando And Bible</string>
   <string name="compare_translations">Compara traducciones</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">Abrir enlace aquí</string>
+  <string name="open_link_in_new_window">Abrir enlace en nueva ventana</string>
+  <string name="open_link_in_main_window">Abrir enlace en la ventana principal</string>
+  <string name="open_link_in_special_window">Abrir enlace en una ventana especial</string>
   <!--Bookmarks-->
   <string name="bookmarks">Marcadores</string>
   <string name="add_bookmark">Añadir marcador</string>
   <string name="delete_bookmark">Eliminar marcador</string>
   <string name="bookmark_added">Marcador añadido</string>
+  <string name="bookmark_date_updated">Fecha del marcador actualizada</string>
   <string name="bookmark_exists">Ya existe el marcador</string>
   <string name="bookmark_deleted">Marcador eliminado</string>
   <string name="bookmark_labels">Etiquetas de marcador</string>

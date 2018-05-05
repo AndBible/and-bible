@@ -157,6 +157,7 @@
   <string name="share_verse">공유 …</string>
   <string name="share_verse_subject">성경 구절은 당신이 사용하고 And 성경을 공유했습니다</string>
   <string name="compare_translations">번역을 비교</string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">즐겨찾기</string>
   <string name="add_bookmark">즐겨찾기 추가</string>

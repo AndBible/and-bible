@@ -99,6 +99,7 @@
   <!--Verse context menu-->
   <string name="share_verse">現在の節を共有する</string>
   <string name="compare_translations">翻訳比較</string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">しおり\n</string>
   <string name="add_bookmark">しおりを加える\n</string>

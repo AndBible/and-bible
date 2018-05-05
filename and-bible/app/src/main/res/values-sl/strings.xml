@@ -163,6 +163,7 @@
   <string name="share_verse">Deli ...</string>
   <string name="share_verse_subject">Biblijska vrstica vam je bila poslana s pomočjo aplikacije And Bible</string>
   <string name="compare_translations">Primerjaj prevode</string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">Zaznamki</string>
   <string name="add_bookmark">Dodaj zaznamek</string>

@@ -162,6 +162,7 @@
   <string name="share_verse">Share</string>
   <string name="share_verse_subject">Sebuah ayat Alkitab telah dibagikan dengan anda menggunakan And Alkitab</string>
   <string name="compare_translations">Terjemahan bandingkan </string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">Bookmarks</string>
   <string name="add_bookmark">Tambahkan bookmark</string>

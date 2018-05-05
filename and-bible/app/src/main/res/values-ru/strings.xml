@@ -93,6 +93,11 @@
   <string name="speak_speed_slow">Медленно</string>
   <string name="speak_speed_normal">Обычно</string>
   <string name="speak_speed_fast">Быстро</string>
+  <string name="prefs_split_mode_vertical">Вертикально</string>
+  <string name="prefs_split_mode_horizontal">Горизонтально</string>
+  <string name="prefs_split_mode_automatic">Автоматически</string>
+  <string name="prefs_split_mode_summary">Как разделять несколько экранов при компоновке окна?</string>
+  <string name="prefs_split_mode_title">Разделенный режим</string>
   <!--Window-->
   <string name="window">Окно</string>
   <string name="windowClose">Закрыть</string>
@@ -136,6 +141,7 @@
   <string name="checking_zip_file">Проверка данного файл...</string>
   <string name="invalid_module">Файл не содержит правильный SWORD-модуль </string>
   <string name="module_already_installed">Файл содержит модуль, который уже установлен</string>
+  <string name="install_zip_title">Пожалуйста, подождите. Zip-файл загружается.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">План чтения</string>
   <string name="rdg_plan_selector_title">Выбрать план чтения</string>
@@ -162,11 +168,17 @@
   <string name="share_verse">Поделиться …</string>
   <string name="share_verse_subject">Стих отправлен для Вас от And Bible</string>
   <string name="compare_translations">Сравнить переводы</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">Открыть ссылку на месте</string>
+  <string name="open_link_in_new_window">Открыть ссылку в новом окне</string>
+  <string name="open_link_in_main_window">Открыть ссылку в главном окне</string>
+  <string name="open_link_in_special_window">Открыть ссылку в специальном окне</string>
   <!--Bookmarks-->
   <string name="bookmarks">Закладки</string>
   <string name="add_bookmark">Добавить закладку</string>
   <string name="delete_bookmark">Удалить закладку</string>
   <string name="bookmark_added">Закладка добавлена</string>
+  <string name="bookmark_date_updated">Дата закладки обновлена</string>
   <string name="bookmark_exists">Закладка уже существует</string>
   <string name="bookmark_deleted">Закладка удалена</string>
   <string name="bookmark_labels">Ярлыки</string>

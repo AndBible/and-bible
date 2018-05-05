@@ -153,6 +153,7 @@
   <string name="share_verse">Жөнөтүү …</string>
   <string name="share_verse_subject">AND BIBLE дан сиз үчүн маалымат.</string>
   <string name="compare_translations">Ар котормолордо</string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">Чөпкаттар</string>
   <string name="add_bookmark">Чөпкатты кошуу</string>

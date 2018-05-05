@@ -105,6 +105,11 @@
   <string name="speak_speed_slow">Malrapide</string>
   <string name="speak_speed_normal">Norme</string>
   <string name="speak_speed_fast">Rapide</string>
+  <string name="prefs_split_mode_vertical">Vertikale</string>
+  <string name="prefs_split_mode_horizontal">Horizontale</string>
+  <string name="prefs_split_mode_automatic">Aŭtomate</string>
+  <string name="prefs_split_mode_summary">Kiel dividi plurajn ekranojn en fenestra reĝimo?</string>
+  <string name="prefs_split_mode_title">Ekran-divido</string>
   <!--Window-->
   <string name="window">Fenestro</string>
   <string name="windowClose">Fermi</string>
@@ -146,6 +151,7 @@
   <string name="checking_zip_file">Kontrolado de dosiero…</string>
   <string name="invalid_module">Dosiero ne enhavas ĝustan SWORD-modulon</string>
   <string name="module_already_installed">Dosiero enhavas modulon, kiu estas jam instalita</string>
+  <string name="install_zip_title">Bonvolu atendi. Ŝargado de zip-dosiero.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Legplano</string>
   <string name="rdg_plan_selector_title">Elektu planon de legado</string>
@@ -172,11 +178,17 @@
   <string name="share_verse">Kunhavigi…</string>
   <string name="share_verse_subject">Biblia verso kunhavigita per And Biblio.</string>
   <string name="compare_translations">Kompari tradukojn</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">Malfermi ligilon tie ĉi</string>
+  <string name="open_link_in_new_window">Malfermi ligilon en nova fenestro</string>
+  <string name="open_link_in_main_window">Malfermi ligilon en ĉefa fenestro</string>
+  <string name="open_link_in_special_window">Malfermi ligilon en speciala fenestro</string>
   <!--Bookmarks-->
   <string name="bookmarks">Legosignoj</string>
   <string name="add_bookmark">Aldoni legosignon</string>
   <string name="delete_bookmark">Forigi legosignon</string>
   <string name="bookmark_added">Legosigno aldonita</string>
+  <string name="bookmark_date_updated">Dato de legosigno aktualigita</string>
   <string name="bookmark_exists">Legosigno jam ekzistas</string>
   <string name="bookmark_deleted">Legosigno forigita</string>
   <string name="bookmark_labels">Legosignaj etikedoj</string>

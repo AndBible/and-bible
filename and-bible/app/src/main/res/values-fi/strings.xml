@@ -93,6 +93,11 @@
   <string name="speak_speed_slow">Hidas</string>
   <string name="speak_speed_normal">Normaali</string>
   <string name="speak_speed_fast">Nopea</string>
+  <string name="prefs_split_mode_vertical">Vaakataso</string>
+  <string name="prefs_split_mode_horizontal">Pystytaso</string>
+  <string name="prefs_split_mode_automatic">Automaattinen</string>
+  <string name="prefs_split_mode_summary">Miten ikkunointi jakaa näytön useampaan osaan?</string>
+  <string name="prefs_split_mode_title">Jaettu tila</string>
   <!--Window-->
   <string name="window">Ikkuna</string>
   <string name="windowClose">Sulje</string>
@@ -136,6 +141,7 @@
   <string name="checking_zip_file">Tarkastetaan tiedostoa...</string>
   <string name="invalid_module">Tiedostossa ei ole kelvollista SWORD moduulia</string>
   <string name="module_already_installed">Tiedoston sisältämä moduuli on jo asennettu</string>
+  <string name="install_zip_title">Ole hyvä ja odota. Ladataan Zip tiedostoa.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Lukusuunnitelma</string>
   <string name="rdg_plan_selector_title">Valitse lukusuunnitelma</string>
@@ -162,11 +168,17 @@
   <string name="share_verse">Jaa ...</string>
   <string name="share_verse_subject">Raamatun jae on lähetetty And Bible -sovelluksella</string>
   <string name="compare_translations">Vertaile käännöksiä</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">Avaa linkki täältä.</string>
+  <string name="open_link_in_new_window">Avaa linkki uuteen ikkunaan</string>
+  <string name="open_link_in_main_window">Avaa linkki pääikkunaan</string>
+  <string name="open_link_in_special_window">Avaa linkki tiettyyn ikkunaan</string>
   <!--Bookmarks-->
   <string name="bookmarks">Kirjanmerkit</string>
   <string name="add_bookmark">Lisää kirjanmerkit</string>
   <string name="delete_bookmark">Poista kirjanmerkki</string>
   <string name="bookmark_added">Kirjanmerkki lisätty</string>
+  <string name="bookmark_date_updated">Kirjanmerkin päiväys on päivitetty</string>
   <string name="bookmark_exists">Kirjanmerkki on jo olemassa</string>
   <string name="bookmark_deleted">Kirjanmerkki poistettu</string>
   <string name="bookmark_labels">Kirjanmerkkiryhmät</string>

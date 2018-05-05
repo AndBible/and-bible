@@ -154,6 +154,7 @@
   <string name="share_verse">Dela  …</string>
   <string name="share_verse_subject">En bibelvers har delats med dig från And Bible</string>
   <string name="compare_translations">Jämför översättningar</string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">Bokmärken</string>
   <string name="add_bookmark">Lägg till bokmärke</string>

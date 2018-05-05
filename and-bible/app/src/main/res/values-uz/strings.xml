@@ -153,6 +153,7 @@
   <string name="copy">Nusxa</string>
   <string name="share_verse_subject">And Bible orqali Muqaddas Kitob oyatini siz bilan bo\'lishdi</string>
   <string name="compare_translations">Tarjimalarni taqqosla</string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">Xatcho\'plar</string>
   <string name="add_bookmark">Xatcho\'p qo\'y</string>

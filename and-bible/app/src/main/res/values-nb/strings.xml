@@ -162,6 +162,7 @@
   <string name="share_verse">Del...</string>
   <string name="share_verse_subject">Et bibelvers har blitt delt med deg via And Bible</string>
   <string name="compare_translations">Sammenlign oversettelser</string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">Bokmerker</string>
   <string name="add_bookmark">Legg til bokmerke</string>

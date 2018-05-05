@@ -93,6 +93,11 @@
   <string name="speak_speed_slow">Lėtai</string>
   <string name="speak_speed_normal">Normaliai</string>
   <string name="speak_speed_fast">Greitai</string>
+  <string name="prefs_split_mode_vertical">Vertikaliai</string>
+  <string name="prefs_split_mode_horizontal">Horizontaliai</string>
+  <string name="prefs_split_mode_automatic">Automatiškai</string>
+  <string name="prefs_split_mode_summary">Kaip padalinti kelis ekranus pagrindiniame lange?</string>
+  <string name="prefs_split_mode_title">Dalinimo būdas</string>
   <!--Window-->
   <string name="window">Langas</string>
   <string name="windowClose">Užverti</string>
@@ -136,6 +141,7 @@
   <string name="checking_zip_file">Tikrinamas pateiktas failas...</string>
   <string name="invalid_module">Faile nėra SWORD modulio</string>
   <string name="module_already_installed">Faile esantis SWORD modulis jau yra įdiegtas</string>
+  <string name="install_zip_title">Prašome palaukti. Įkeliamas Zip failas.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Skaitomas planas</string>
   <string name="rdg_plan_selector_title">Pasirinkite „Skaitomą planą“</string>
@@ -162,11 +168,17 @@
   <string name="share_verse">Dalintis</string>
   <string name="share_verse_subject">Su jumis pasidalinta Biblijos eilute per programą And Bible</string>
   <string name="compare_translations">Lyginti vertimus</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">Atverti nuorodą čia</string>
+  <string name="open_link_in_new_window">Atverti nuorodą naujame lange</string>
+  <string name="open_link_in_main_window">Atverti nuorodą pagrindiniame lange</string>
+  <string name="open_link_in_special_window">Atverti nuorodą specialiame lange</string>
   <!--Bookmarks-->
   <string name="bookmarks">Žymės</string>
   <string name="add_bookmark">Pridėti žymę</string>
   <string name="delete_bookmark">Pašalinti žymę</string>
   <string name="bookmark_added">Žymė pridėta</string>
+  <string name="bookmark_date_updated">Žymės data atnaujinta</string>
   <string name="bookmark_exists">Žymė jau egzistuoja</string>
   <string name="bookmark_deleted">Žymė pašalinta</string>
   <string name="bookmark_labels">Žymės kortelės</string>

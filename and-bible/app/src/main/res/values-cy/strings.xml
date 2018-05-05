@@ -94,6 +94,11 @@
   <string name="speak_speed_slow">Araf</string>
   <string name="speak_speed_normal">Normal</string>
   <string name="speak_speed_fast">Cyflym</string>
+  <string name="prefs_split_mode_vertical">Fertigol</string>
+  <string name="prefs_split_mode_horizontal">Llorweddol</string>
+  <string name="prefs_split_mode_automatic">Awtomatig</string>
+  <string name="prefs_split_mode_summary">Sut i rannu sgriniau lluosog ar gynllun y ffenestr?</string>
+  <string name="prefs_split_mode_title">Modd rhannu</string>
   <!--Window-->
   <string name="window">Ffenestr</string>
   <string name="windowClose">Cau</string>
@@ -137,6 +142,7 @@
   <string name="checking_zip_file">Gwiro\'r ffeil roddwyd...</string>
   <string name="invalid_module">Nid yw\'r ffeil yn cynnwys modiwl SWORD dilys</string>
   <string name="module_already_installed">Mae\'r ffeil yn cynnwys modiwl sydd wedi ei osod eisoes </string>
+  <string name="install_zip_title">Arhoswch. Llwytho ffeil Zip.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Cynllun Darllen</string>
   <string name="rdg_plan_selector_title">Dewiswch Gynllun Darllen</string>
@@ -163,11 +169,17 @@
   <string name="share_verse">Rhannu</string>
   <string name="share_verse_subject">Mae adnod o\'r Beibl wedi ei rhannu gyda chi drwy AndBible</string>
   <string name="compare_translations">Cymharu Cyfieithiadau</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">Agor dolen yma</string>
+  <string name="open_link_in_new_window">Agor dolen mewn ffenestr newydd</string>
+  <string name="open_link_in_main_window">Agor dolen yn y brif ffenestr</string>
+  <string name="open_link_in_special_window">Agor dolen mewn ffenestr arbennig</string>
   <!--Bookmarks-->
   <string name="bookmarks">Nodau Llyfr</string>
   <string name="add_bookmark">Gosod Nod Llyfr</string>
   <string name="delete_bookmark">Dileu Nod Llyfr</string>
   <string name="bookmark_added">Ychwanegwyd Nod Llyfr</string>
+  <string name="bookmark_date_updated">Dyddiad Nod Tudalen wedi ei ddiweddaru</string>
   <string name="bookmark_exists">Nod Llyfr yn bodoli eisoes</string>
   <string name="bookmark_deleted">Dilewyd y Nod Llyfr</string>
   <string name="bookmark_labels">Labeli Llyfrnodi</string>

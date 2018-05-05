@@ -93,6 +93,11 @@
   <string name="speak_speed_slow">Powoli</string>
   <string name="speak_speed_normal">Normalnie</string>
   <string name="speak_speed_fast">Szybko</string>
+  <string name="prefs_split_mode_vertical">Pionowo</string>
+  <string name="prefs_split_mode_horizontal">Poziomo</string>
+  <string name="prefs_split_mode_automatic">Automatycznie</string>
+  <string name="prefs_split_mode_summary">Jak rozdzielić wiele ekranów w trybie okienkowym?</string>
+  <string name="prefs_split_mode_title">Ułożenie okien</string>
   <!--Window-->
   <string name="window">Menu okna</string>
   <string name="windowClose">Zamknij</string>
@@ -136,6 +141,7 @@
   <string name="checking_zip_file">Sprawdzanie pliku…</string>
   <string name="invalid_module">Plik nie zawiera poprawnego modułu SWORD</string>
   <string name="module_already_installed">Plik zawiera moduł, który już został zainstalowany</string>
+  <string name="install_zip_title">Proszę czkać. Ładowanie pliku .zip.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plan czytania</string>
   <string name="rdg_plan_selector_title">Wybierz plan czytania</string>
@@ -162,11 +168,17 @@
   <string name="share_verse">Udostępnij …</string>
   <string name="share_verse_subject">Ten werset został przesłany z programu And Bible</string>
   <string name="compare_translations">Porównaj tłumaczenia</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">Otwórz odnośnik tutaj</string>
+  <string name="open_link_in_new_window">Otwórz odnośnik w nowym oknie</string>
+  <string name="open_link_in_main_window">Otwórz odnośnik w głównym oknie</string>
+  <string name="open_link_in_special_window">Otwórz odnośnik w oknie specjalnym</string>
   <!--Bookmarks-->
   <string name="bookmarks">Ulubione</string>
   <string name="add_bookmark">Dodaj do ulubionych</string>
   <string name="delete_bookmark">Usuń z ulubionych</string>
   <string name="bookmark_added">Dodano do ulubionych</string>
+  <string name="bookmark_date_updated">Odświeżono dane zakładek</string>
   <string name="bookmark_exists">Pozycja już istnieje w ulubionych</string>
   <string name="bookmark_deleted">Usunięto z ulubionych</string>
   <string name="bookmark_labels">Etykiety</string>

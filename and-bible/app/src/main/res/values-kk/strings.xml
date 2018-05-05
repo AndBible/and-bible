@@ -153,6 +153,7 @@
   <string name="share_verse">бөлісу …</string>
   <string name="share_verse_subject">Киелі Кітап аяты Андроид бағдарламасы арқылы сізбен бөлісілді</string>
   <string name="compare_translations">Аудармаларды салыстыру</string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">Бетбелгілер</string>
   <string name="add_bookmark">Кітап белгісін қосу</string>

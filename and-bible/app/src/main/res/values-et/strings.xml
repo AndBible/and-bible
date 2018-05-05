@@ -54,6 +54,10 @@
   <string name="prefs_show_verseno_summary">Näita salminumbreid</string>
   <string name="prefs_verse_per_line_title">Üks salm rea kohta</string>
   <string name="prefs_verse_per_line_summary">Näita igat salmi eraldi real</string>
+  <string name="prefs_show_bookmarks_title">Näita järjehoidjaid</string>
+  <string name="prefs_show_bookmarks_summary">Võta linnuke ära, et kõik järjehoidjad peita</string>
+  <string name="prefs_default_bookmark_style_title">Vaikimisi järjehoidjate stiil</string>
+  <string name="prefs_default_bookmark_style_summary">Esiletõstmise värv või ikoon</string>
   <string name="prefs_show_mynotes_title">Näita minu märkmete ikooni</string>
   <string name="prefs_show_mynotes_summary">Näita ikoone salmides, mille juures on märkmed</string>
   <string name="prefs_show_notes_title">Allmärkused ja ristviited</string>
@@ -84,6 +88,16 @@
   <string name="prefs_interface_locale_title">Rakenduse keel</string>
   <string name="prefs_interface_locale_summary">Vali rakenduse keel</string>
   <string name="locale_change_warning">Rakendus käivitatakse, et näidata uut kasutajaliidese keelt</string>
+  <string name="prefs_speak_speed_title">Rääkimise kiirus</string>
+  <string name="prefs_speak_speed_summary">Räägi aeglasemalt või kiiremini</string>
+  <string name="speak_speed_slow">Aeglane</string>
+  <string name="speak_speed_normal">Tavaline</string>
+  <string name="speak_speed_fast">Kiire</string>
+  <string name="prefs_split_mode_vertical">Vertikaalne</string>
+  <string name="prefs_split_mode_horizontal">Horisontaalne</string>
+  <string name="prefs_split_mode_automatic">Automaatne</string>
+  <string name="prefs_split_mode_summary">Kuidas jagada mitut ekraani akende paigutuses?</string>
+  <string name="prefs_split_mode_title">Jagatud akna režiim</string>
   <!--Window-->
   <string name="window">Aken</string>
   <string name="windowClose">Sulge</string>
@@ -127,6 +141,7 @@
   <string name="checking_zip_file">Faili kontrollimine...</string>
   <string name="invalid_module">Failis pole korrektset SWORD moodulit</string>
   <string name="module_already_installed">Failis on moodul, mis on juba paigaldatud</string>
+  <string name="install_zip_title">Palun oota. ZIP-faili laaditakse.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Lugemiskava</string>
   <string name="rdg_plan_selector_title">Vali lugemiskava</string>
@@ -153,17 +168,27 @@
   <string name="share_verse">Jaga …</string>
   <string name="share_verse_subject">Sinuga on jagatud piiblisalmi kasutades And Bible\'t</string>
   <string name="compare_translations">Võrdle tõlkeid</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">Ava link siin</string>
+  <string name="open_link_in_new_window">Ava link uues aknas</string>
+  <string name="open_link_in_main_window">Ava link peamises aknas</string>
+  <string name="open_link_in_special_window">Ava link eriaknas</string>
   <!--Bookmarks-->
   <string name="bookmarks">Järjehoidjad</string>
   <string name="add_bookmark">Lisa järjehoidja</string>
+  <string name="delete_bookmark">Kustuta järjehoidja</string>
   <string name="bookmark_added">Järjehoidja on lisatud</string>
+  <string name="bookmark_date_updated">Järjehoidja kuupäeva on uuendatud</string>
   <string name="bookmark_exists">Järjehoidja on juba olemas</string>
+  <string name="bookmark_deleted">Järjehoidja on kustutatud</string>
   <string name="bookmark_labels">Järjehoidja sildid</string>
+  <string name="manage_labels">Järjehoidjate siltide haldamine</string>
   <string name="assign_labels">Määra sildid</string>
   <string name="new_label">Uus silt</string>
   <string name="label_name_prompt">Nimi</string>
   <string name="label_unlabelled">Sildistamata</string>
   <string name="rename">Nimeta ümber</string>
+  <string name="style">Stiil</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Kuupäeva järgi</string>
   <string name="sort_by_bible_book">Piibli järjekord</string>
@@ -235,6 +260,7 @@
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Uus</string>
   <string name="close">Sulge</string>
+  <string name="edit">uuda</string>
   <!--Errors-->
   <string name="report_error">Saada veaaruanne</string>
   <string name="error_occurred">Tekkis viga</string>

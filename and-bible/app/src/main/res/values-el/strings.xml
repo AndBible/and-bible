@@ -134,6 +134,7 @@
   <string name="share_verse">Κοινή χρήση …</string>
   <string name="share_verse_subject">Ένας στίχος της αγία γραφής έχει μοιραστεί μαζί σας χρησιμοποιώντας και τη Βίβλο</string>
   <string name="compare_translations">Σύγκριση μεταφράσεων</string>
+  <!--Link context menu-->
   <!--Bookmarks-->
   <string name="bookmarks">Σελιδοδείκτες</string>
   <string name="add_bookmark">Προσθήκη σελιδοδείκτη</string>
