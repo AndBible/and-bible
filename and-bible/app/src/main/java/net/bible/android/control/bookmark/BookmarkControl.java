@@ -10,7 +10,7 @@ import de.greenrobot.event.EventBus;
 import net.bible.android.activity.R;
 import net.bible.android.common.resource.ResourceProvider;
 import net.bible.android.control.ApplicationScope;
-import net.bible.android.control.event.passage.BookmarkChangedEvent;
+import net.bible.android.control.event.passage.SynchronizeWindowsEvent;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
@@ -107,6 +107,7 @@ public class BookmarkControl {
 				Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
 			}
 		}
+		EventBus.getDefault().post(new SynchronizeWindowsEvent());
 		return bOk;
 	}
 
@@ -125,7 +126,7 @@ public class BookmarkControl {
 				}
 			}
 		}
-		EventBus.getDefault().post(new BookmarkChangedEvent());
+		EventBus.getDefault().post(new SynchronizeWindowsEvent());
 		return bOk;
 	}
 

@@ -22,6 +22,7 @@ import net.bible.android.control.BibleContentManager;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.backup.BackupControl;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
+import net.bible.android.control.event.passage.SynchronizeWindowsEvent;
 import net.bible.android.control.event.passage.PassageChangeStartedEvent;
 import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent;
@@ -242,6 +243,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 			// restart done in above
 		} else if (mainMenuCommandHandler.isDisplayRefreshRequired(requestCode)) {
 			preferenceSettingsChanged();
+			EventBus.getDefault().post(new SynchronizeWindowsEvent());
 		} else if (mainMenuCommandHandler.isDocumentChanged(requestCode)) {
 			updateActionBarButtons();
 		}
