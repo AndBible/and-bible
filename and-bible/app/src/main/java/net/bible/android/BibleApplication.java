@@ -36,7 +36,9 @@ public class BibleApplication extends Application{
 	private static final String TEXT_SIZE_PREF = "text_size_pref";
 	
 	private ScreenTimeoutSettings screenTimeoutSettings = new ScreenTimeoutSettings();
-	
+
+	private String localeOverrideAtStartup;
+
 	// this was moved from the MainBibleActivity and has always been called this
 	private static final String saveStateTag = "MainBibleActivity";
 
@@ -79,10 +81,17 @@ public class BibleApplication extends Application{
 		
 		// various initialisations required every time at app startup
 		getApplicationComponent().warmUp().warmUpSwordEventually();
+
+		localeOverrideAtStartup = LocaleHelper.getOverrideLanguage(this);
 	}
 
 	public ApplicationComponent getApplicationComponent() {
 		return applicationComponent;
+	}
+
+	public String getLocaleOverrideAtStartUp()
+	{
+		return localeOverrideAtStartup;
 	}
 
 	/**

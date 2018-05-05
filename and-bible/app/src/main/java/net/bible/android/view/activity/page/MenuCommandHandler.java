@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.util.Log;
 import android.view.MenuItem;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.activity.StartupActivity;
 import net.bible.android.control.backup.BackupControl;
@@ -30,6 +31,8 @@ import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;
 import net.bible.android.view.activity.settings.SettingsActivity;
 import net.bible.android.view.activity.speak.Speak;
 import net.bible.service.common.CommonUtils;
+
+import java.util.Objects;
 
 import javax.inject.Inject;
 
@@ -55,8 +58,6 @@ public class MenuCommandHandler {
 	private final WindowMenuCommandHandler windowMenuCommandHandler;
 
 	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
-
-	private String mPrevLocalePref = "";
 
 	private static final String TAG = "MainMenuCommandHandler";
 
@@ -88,8 +89,7 @@ public class MenuCommandHandler {
 		        case R.id.settingsButton:
 		        	handlerIntent = new Intent(callingActivity, SettingsActivity.class);
 		        	// force the bible view to be refreshed after returning from settings screen because notes, verses, etc. may be switched on or off
-		        	mPrevLocalePref = CommonUtils.getLocalePref();
-		        	requestCode = IntentHelper.RESTART_REQUIRED;
+		        	requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH;
 		        	break;
 		        case R.id.historyButton:
 		        	handlerIntent = new Intent(callingActivity, History.class);
@@ -152,9 +152,9 @@ public class MenuCommandHandler {
     }
     
     public boolean restartIfRequiredOnReturn(int requestCode) {
-    	if (requestCode == IntentHelper.RESTART_REQUIRED) {
+    	if (requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH) {
     		Log.i(TAG, "Refresh on finish");
-    		if (!CommonUtils.getLocalePref().equals(mPrevLocalePref)) {
+    		if (!Objects.equals(CommonUtils.getLocalePref(), BibleApplication.getApplication().getLocaleOverrideAtStartUp())) {
     			// must restart to change locale
     			PendingIntent pendingIntent;
     			if (CommonUtils.isIceCreamSandwichPlus()) {

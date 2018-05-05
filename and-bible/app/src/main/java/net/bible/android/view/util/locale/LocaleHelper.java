@@ -19,7 +19,7 @@ public class LocaleHelper {
 	private static final String SELECTED_LANGUAGE = "locale_pref";
 
 	public static void translateTitle(Activity activity) {
-		if (LocaleHelper.isLocaleOverridden(activity)) {
+		if (isLocaleOverridden(activity)) {
 			// http://stackoverflow.com/questions/22884068/troubles-with-activity-title-language
 			try {
 				int labelRes = activity.getPackageManager().getActivityInfo(activity.getComponentName(), 0).labelRes;
@@ -43,7 +43,7 @@ public class LocaleHelper {
 		return StringUtils.isNotEmpty(getOverrideLanguage(context));
 	}
 
-	private static String getOverrideLanguage(Context context) {
+	public static String getOverrideLanguage(Context context) {
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 		return preferences.getString(SELECTED_LANGUAGE, null);
 	}

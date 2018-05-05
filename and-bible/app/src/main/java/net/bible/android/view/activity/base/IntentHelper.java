@@ -26,8 +26,6 @@ public class IntentHelper {
 
 	public static final int UPDATE_SUGGESTED_DOCUMENTS_ON_FINISH = 3;
 
-	public static final int RESTART_REQUIRED = 4;
-
 	private static final String VERSE_RANGE = "net.bible.android.view.activity.comparetranslations.VerseRange";
 
 	private static final String TAG = "IntentHelper";
