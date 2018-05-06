@@ -104,4 +104,12 @@
 	    	    
 	</LinearLayout>
 
+	<TextView
+			android:text=""
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:id="@+id/currentLocation"
+			android:layout_below="@+id/leftPanel"
+			android:layout_alignParentStart="true"/>
+
 </RelativeLayout>
