@@ -94,6 +94,11 @@
   <string name="speak_speed_slow">Počasi</string>
   <string name="speak_speed_normal">Običajno</string>
   <string name="speak_speed_fast">Hitro</string>
+  <string name="prefs_split_mode_vertical">Navpično</string>
+  <string name="prefs_split_mode_horizontal">Vodoravno</string>
+  <string name="prefs_split_mode_automatic">Avtomatično</string>
+  <string name="prefs_split_mode_summary">Kako naj se na zaslonu razdeli več oken?</string>
+  <string name="prefs_split_mode_title">Način delitve</string>
   <!--Window-->
   <string name="window">Okno</string>
   <string name="windowClose">Zapri</string>
@@ -137,6 +142,7 @@
   <string name="checking_zip_file">Preverjanje datoteke...</string>
   <string name="invalid_module">Datoteka ne vsebuje veljavnega SWORD modula</string>
   <string name="module_already_installed">Datoteke vsebuje modul, ki je že nameščen</string>
+  <string name="install_zip_title">Prosim počakajte. Nalaga se ZIP datoteka.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Načrt branja</string>
   <string name="rdg_plan_selector_title">Izberite Načrt branja</string>
@@ -164,11 +170,16 @@
   <string name="share_verse_subject">Biblijska vrstica vam je bila poslana s pomočjo aplikacije And Bible</string>
   <string name="compare_translations">Primerjaj prevode</string>
   <!--Link context menu-->
+  <string name="open_link_in_this_window">Povezavo odpri tukaj</string>
+  <string name="open_link_in_new_window">Povezavo odpri v novem oknu</string>
+  <string name="open_link_in_main_window">Povezavo odpri v glavnem oknu</string>
+  <string name="open_link_in_special_window">Povezavo odpri v posebnem oknu</string>
   <!--Bookmarks-->
   <string name="bookmarks">Zaznamki</string>
   <string name="add_bookmark">Dodaj zaznamek</string>
   <string name="delete_bookmark">Zaznamek izbriši</string>
   <string name="bookmark_added">Zaznamek dodan</string>
+  <string name="bookmark_date_updated">Zaznamek osvežen</string>
   <string name="bookmark_exists">Zaznamek že obstaja</string>
   <string name="bookmark_deleted">Zaznamek pobrisan</string>
   <string name="bookmark_labels">Oznake zaznamkov</string>
