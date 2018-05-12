@@ -80,6 +80,15 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 		previousChapter();
 	}
 
+	/**
+	 * Get a fragment for specified chapter of Bible to be inserted at top of bottom of original text
+	 */
+	public String getFragmentForChapter(int chapter) {
+		Verse verseForFragment = new Verse(getVersification(), getVerseSelected().getBook(), chapter, 1);
+		Key wholeChapter = CommonUtils.getWholeChapter(verseForFragment);
+		return getPageContent(wholeChapter, true);
+	}
+
 	private void nextChapter() {
 		setKey( getKeyPlus(+1) );
 	}
@@ -91,7 +100,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 	/** add or subtract a number of pages from the current position and return Verse
 	 */
 	public Verse getKeyPlus(int num) {
-		Verse currVer = this.getCurrentBibleVerse().getVerseSelected(getVersification());
+		Verse currVer = getVerseSelected();
 
 		try {
 			Verse nextVer = currVer;
@@ -170,7 +179,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
     }
 
 	private Key doGetKey(boolean requireSingleKey) {
-		Verse verse = getCurrentBibleVerse().getVerseSelected(getVersification());
+		Verse verse = getVerseSelected();
 		if (verse!=null) {
 			Key key;
 			if (!requireSingleKey) {
@@ -187,16 +196,20 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 		}
     }
 
+	private Verse getVerseSelected() {
+		return getCurrentBibleVerse().getVerseSelected(getVersification());
+	}
+
 	@Override
 	public boolean isSingleKey() {
 		return false;
 	}
 	
-	public int getCurrentVerseNo() {
-		return getCurrentBibleVerse().getVerseNo();
+	public ChapterVerse getCurrentChapterVerse() {
+		return getCurrentBibleVerse().getChapterVerse();
 	}
-	public void setCurrentVerseNo(int verse) {
-		getCurrentBibleVerse().setVerseNo(verse);
+	public void setCurrentChapterVerse(ChapterVerse chapterVerse) {
+		getCurrentBibleVerse().setChapterVerse(chapterVerse);
 		onVerseChange();
 	}
 

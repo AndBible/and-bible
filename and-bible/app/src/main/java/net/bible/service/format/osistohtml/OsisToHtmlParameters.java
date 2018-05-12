@@ -19,32 +19,35 @@ import java.util.Map;
  *      The copyright to this program is held by it's author.
  */
 public class OsisToHtmlParameters {
-    private String languageCode = "en";
-    private boolean isLeftToRight = true;
-    private boolean isShowTitles = true;
-    private boolean isShowVerseNumbers = false;
-    private boolean isVersePerline = false;
-    private boolean isShowMyNotes = false;
-    private boolean isShowBookmarks = false;
+	private boolean showChapterDivider;
+	private Integer chapter = null;
+	private boolean asFragment = false;
+	private String languageCode = "en";
+	private boolean isLeftToRight = true;
+	private boolean isShowTitles = true;
+	private boolean isShowVerseNumbers = false;
+	private boolean isVersePerline = false;
+	private boolean isShowMyNotes = false;
+	private boolean isShowBookmarks = false;
 	private BookmarkStyle defaultBookmarkStyle = BookmarkStyle.YELLOW_STAR;
-    private boolean isShowNotes = false;
-    private boolean isAutoWrapUnwrappedRefsInNote = false;
-    // used as a basis if a reference has only chapter and no book
+	private boolean isShowNotes = false;
+	private boolean isAutoWrapUnwrappedRefsInNote = false;
+	// used as a basis if a reference has only chapter and no book
     private Verse basisRef;
-    private Versification documentVersification;
-    private String font;
-    private String cssClassForCustomFont;
+	private Versification documentVersification;
+	private String font;
 
-    private boolean isShowStrongs = false;
-    private boolean isShowMorphology = false;
-    private boolean isRedLetter = false;
-    private List<String> cssStylesheetList;
-    private String extraFooter;
-    private boolean convertStrongsRefsToLinks;
-    private List<Verse> versesWithNotes;
-    private Map<Integer, List<BookmarkStyle>> bookmarkStylesByBookmarkedVerse;
-    private URI moduleBasePath;
-    private int indentDepth = 2;
+    private String cssClassForCustomFont;
+	private boolean isShowStrongs = false;
+	private boolean isShowMorphology = false;
+	private boolean isRedLetter = false;
+	private List<String> cssStylesheetList;
+	private String extraFooter;
+	private boolean convertStrongsRefsToLinks;
+	private List<Verse> versesWithNotes;
+	private Map<Integer, List<BookmarkStyle>> bookmarkStylesByBookmarkedVerse;
+	private URI moduleBasePath;
+	private int indentDepth = 2;
 
 	public String getCssStylesheets() {
 		StringBuilder builder = new StringBuilder();
@@ -56,6 +59,24 @@ public class OsisToHtmlParameters {
 		return builder.toString();
 	}
 
+	public Integer getChapter() {
+		return chapter;
+	}
+	public void setChapter(Integer chapter) {
+		this.chapter = chapter;
+	}
+	public void setShowChapterDivider(boolean showChapterDivider) {
+		this.showChapterDivider = showChapterDivider;
+	}
+	public boolean isShowChapterDivider() {
+		return showChapterDivider;
+	}
+	public boolean isAsFragment() {
+		return asFragment;
+	}
+	public void setAsFragment(boolean asFragment) {
+		this.asFragment = asFragment;
+	}
 	public String getLanguageCode() {
 		return languageCode;
 	}

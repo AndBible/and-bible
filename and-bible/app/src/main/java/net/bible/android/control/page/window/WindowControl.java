@@ -12,6 +12,7 @@ import net.bible.android.control.event.passage.SynchronizeWindowsEvent;
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.event.window.WindowSizeChangedEvent;
+import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
@@ -146,7 +147,7 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 		// redisplay the current page
         if (!linksWindowWasVisible) {
         	linksWindow.getWindowLayout().setState(WindowState.SPLIT);
-        	eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+        	eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
         }
 	}
 
@@ -166,7 +167,7 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 		windowSync.synchronizeScreens();
 		
 		// redisplay the current page
-		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+		eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
 
 		return window;
 	}
@@ -181,7 +182,7 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 		windowSync.synchronizeScreens();
 
 		// redisplay the current page
-		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+		eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
 
 		return window;
 	}
@@ -198,7 +199,7 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 			windowRepository.minimise(window);
 	
 			// redisplay the current page
-			eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+			eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
 		}
 	}
 
@@ -217,14 +218,14 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 		}
 
 		// redisplay the current page
-		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+		eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
 	}
 	
 	public void unmaximiseWindow(Window window) {
 		window.setMaximised(false);
 
 		// redisplay the current page
-		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+		eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
 		
 		windowSync.setResynchRequired(true);
 		windowSync.synchronizeScreens();
@@ -240,7 +241,7 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 			windowRepository.close(window);
 	
 			// redisplay the current page
-			eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+			eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
 		}
 	}
 	
@@ -260,7 +261,7 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 		window.getWindowLayout().setState(WindowState.SPLIT);
 		
 		// causes BibleViews to be created and laid out
-		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+		eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
 		
 		windowSync.setResynchRequired(true);
 		windowSync.synchronizeScreens();
@@ -286,14 +287,14 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 		windowRepository.moveWindowToPosition(window, 0);
 	
 		// redisplay the current page
-		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+		eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
 	}
 
 
 	/** screen orientation has changed */
 	public void orientationChange() {
 		// causes BibleViews to be created and laid out
-		eventManager.post(new NumberOfWindowsChangedEvent(getWindowVerseMap()));
+		eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
 	}
 	
 	public void onEvent(CurrentVerseChangedEvent event) {
@@ -345,7 +346,7 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 			windowSync.setResynchRequired(true);
 		}
 		
-		eventManager.post(new WindowSizeChangedEvent(isMoveFinished, getWindowVerseMap()));
+		eventManager.post(new WindowSizeChangedEvent(isMoveFinished, getWindowChapterVerseMap()));
 	}
 
 	public WindowRepository getWindowRepository() {
@@ -353,19 +354,19 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 	}
 
 	/**
-	 * Get current verse for each window displaying a Bible
+	 * Get current chapter.verse for each window displaying a Bible
 	 * 
 	 * @return Map of window num to verse num
 	 */
-	private Map<Window, Integer> getWindowVerseMap() {
+	private Map<Window, ChapterVerse> getWindowChapterVerseMap() {
 		// get page offsets to maintain for each window
-		Map<Window,Integer> windowVerseMap = new HashMap<>();
+		Map<Window, ChapterVerse> windowVerseMap = new HashMap<>();
 		for (Window window : windowRepository.getWindows()) {
 			CurrentPage currentPage = window.getPageManager().getCurrentPage();
 			if (currentPage!=null &&
 				BookCategory.BIBLE == currentPage.getCurrentDocument().getBookCategory()) {
-				int verse = KeyUtil.getVerse(currentPage.getSingleKey()).getVerse();
-				windowVerseMap.put(window, verse);
+				ChapterVerse chapterVerse = ChapterVerse.fromVerse(KeyUtil.getVerse(currentPage.getSingleKey()));
+				windowVerseMap.put(window, chapterVerse);
 			}
 		}
 		return windowVerseMap;

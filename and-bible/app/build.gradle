@@ -1,6 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 25
@@ -58,6 +59,7 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'com.google.dagger:dagger:2.15'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.15'
+    kapt 'com.google.dagger:dagger-compiler:2.15'
 
     implementation 'de.greenrobot:eventbus:2.4.0'
     implementation 'org.jdom:jdom2:2.0.6'
@@ -65,6 +67,8 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.5'
     implementation 'org.apache.commons:commons-compress:1.12'
     implementation 'de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5'
+
+    compile "org.jetbrains.anko:anko-commons:$anko_version"
 
     implementation 'org.apache.lucene:lucene-core:3.0.3'
     implementation 'org.apache.lucene:lucene-snowball:3.0.3'

@@ -120,14 +120,7 @@ public class CurrentCommentaryPage extends VersePage implements CurrentPage {
 	public boolean isSingleKey() {
 		return true;
 	}
-	public int getCurrentVerse() {
-		return getCurrentBibleVerse().getVerseNo();
-	}
-	public void setCurrentVerse(int verse) {
-		getCurrentBibleVerse().setVerseNo(verse);
-		onVerseChange();
-	}
-	
+
 	/** can we enable the main menu search button 
 	 */
 	@Override

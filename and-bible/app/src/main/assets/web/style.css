@@ -50,6 +50,11 @@ h1 a, .heading2, .heading3, .heading4 {
 	font-variant: small-caps;
 }
 
+.chapterNo {
+	color: Gray;
+	font-size: 0.7em;
+	text-align: center;
+}
 .verseNo {
 	color: Gray;
 	vertical-align: top;

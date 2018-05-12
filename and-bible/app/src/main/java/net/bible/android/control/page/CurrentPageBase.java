@@ -107,21 +107,29 @@ abstract class CurrentPageBase implements CurrentPage {
 	}
 
 	@Override
-	public String getCurrentPageContent() throws ParseException {
-        String htmlText = swordContentFacade.readHtmlText(getCurrentDocument(), getKey());
-                
-        if (StringUtils.isEmpty(htmlText)) {
-        	htmlText = HtmlMessageFormatter.format(R.string.error_no_content);
-        }
-        
-        return htmlText;	
+	public String getCurrentPageContent() {
+		return getPageContent(getKey(), false);
 	}
-	
+
+	protected String getPageContent(Key key, boolean asFragment) {
+		try {
+			String htmlText = swordContentFacade.readHtmlText(getCurrentDocument(), key, asFragment);
+
+			if (StringUtils.isEmpty(htmlText)) {
+				htmlText = HtmlMessageFormatter.format(R.string.error_no_content);
+			}
+
+			return htmlText;
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting bible text", e);
+			return HtmlMessageFormatter.format(R.string.error_occurred, asFragment);
+		}
+	}
+
+
 	@Override
 	public List<Note> getCurrentPageFootnotesAndReferences() throws ParseException {
-        List<Note> footnotes = swordContentFacade.readFootnotesAndReferences(getCurrentDocument(), getKey());
-        
-        return footnotes;	
+		return swordContentFacade.readFootnotesAndReferences(getCurrentDocument(), getKey());
 	}
 
 

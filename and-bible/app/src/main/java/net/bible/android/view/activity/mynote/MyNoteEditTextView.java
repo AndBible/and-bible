@@ -11,6 +11,7 @@ import android.widget.LinearLayout;
 
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.mynote.MyNoteControl;
+import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.view.activity.base.DocumentView;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
@@ -71,7 +72,7 @@ public class MyNoteEditTextView extends EditText implements DocumentView {
 	}
 
 	@Override
-	public void show(String html, int jumpToVerse, float jumpToYOffsetRatio) {
+	public void show(String html, ChapterVerse chapterVerse, float jumpToYOffsetRatio) {
 		applyPreferenceSettings();
 		setText(html);
 	}

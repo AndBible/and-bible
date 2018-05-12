@@ -1,4 +1,11 @@
-$(window).load(
+/**
+ * WebView js functions for moving to verse, selecting verses
+ *
+ * @author Martin Denham [mjdenham at gmail dot com]
+ * @see gnu.lgpl.License for license details.<br></br>
+ * The copyright to this program is held by it's author.
+ */
+ $(window).load(
 	function() {
 		window.jsInterface.log("JS onload");
 		window.jsInterface.onLoad();
@@ -119,31 +126,31 @@ var touchHandler = function(event) {
 		$target = $closestToPoint
 	}
 
-	var verse = parseInt($target.attr('id'));
-	window.jsInterface.verseTouch(verse);
+	var chapterVerse = $target.attr('id');
+	window.jsInterface.verseTouch(chapterVerse);
 }
 
 
 function selected($elem) {
 	if ($elem.hasClass("verse")) {
-		var verse = parseInt($elem.attr('id'));
-		window.jsInterface.verseLongPress(verse);
+		var chapterVerse = $elem.attr('id');
+		window.jsInterface.verseLongPress(chapterVerse);
 	}
 }
 
 /**
  * Called by VerseActionModelMediator to highlight a verse
  */
-function highlightVerse(verseNo) {
-	var $verseSpan = $('#'+verseNo)
+function highlightVerse(chapterVerse) {
+	var $verseSpan = $('#'+escapeSelector(chapterVerse))
 	$verseSpan.addClass("selected")
 }
 
 /**
  * Called by VerseActionModelMediator to unhighlight a verse
  */
-function unhighlightVerse(verseNo) {
-	var $verseSpan = $('#'+verseNo)
+function unhighlightVerse(chapterVerse) {
+	var $verseSpan = $('#'+escapeSelector(chapterVerse))
 	$verseSpan.removeClass("selected")
 }
 
@@ -153,4 +160,8 @@ function unhighlightVerse(verseNo) {
 function clearVerseHighlight() {
 	var $verseSpan = $('.selected')
 	$verseSpan.removeClass("selected")
+}
+
+function escapeSelector(selectr) {
+    return (selectr+"").replace(".", "\\.")
 }

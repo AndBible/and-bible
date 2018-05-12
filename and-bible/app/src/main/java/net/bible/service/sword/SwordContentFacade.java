@@ -79,7 +79,7 @@ public class SwordContentFacade {
 	
 	/** top level method to fetch html from the raw document data
 	 */
-	public String readHtmlText(Book book, Key key) throws ParseException
+	public String readHtmlText(Book book, Key key, boolean asFragment) throws ParseException
 	{
 		String retVal = "";
 		if (book==null || key==null) {
@@ -100,7 +100,7 @@ public class SwordContentFacade {
 				"zText".equals(book.getBookMetaData().getProperty("ModDrv")) &&
 				documentParseMethod.isFastParseOkay(book, key)) {
 				try {
-					retVal = readHtmlTextOptimizedZTextOsis(book, key);
+					retVal = readHtmlTextOptimizedZTextOsis(book, key, asFragment);
 					isParsedOk = true;
 				} catch (ParseException pe) {
 					documentParseMethod.failedToParse(book, key);
@@ -109,7 +109,7 @@ public class SwordContentFacade {
 			
 			// fall back to slightly slower JSword method with JSword's fallback approach of removing all tags
 			if (!isParsedOk) {
-				retVal = readHtmlTextStandardJSwordMethod(book, key);
+				retVal = readHtmlTextStandardJSwordMethod(book, key, asFragment);
 			}
 		}
 		return retVal;
@@ -124,7 +124,7 @@ public class SwordContentFacade {
 			BookData data = new BookData(book, key);		
 			SAXEventProvider osissep = data.getSAXEventProvider();
 			if (osissep != null) {
-				OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book, key);
+				OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book, key, true);
 		
 				osissep.provideSAXEvents(osisToHtml);
 		
@@ -144,7 +144,7 @@ public class SwordContentFacade {
 	 * Use OSISInputStream which loads a single verse at a time as required.
 	 * This reduces memory requirements compared to standard JDom SaxEventProvider 
 	 */
-	private String readHtmlTextOptimizedZTextOsis(Book book, Key key) throws ParseException
+	private String readHtmlTextOptimizedZTextOsis(Book book, Key key, boolean asFragment) throws ParseException
 	{
 		log.debug("Using fast method to fetch document data");
 		/*
@@ -154,7 +154,7 @@ public class SwordContentFacade {
 		 */
 		InputStream is = new OSISInputStream(book, key);
 
-		OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book, key);
+		OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book, key, asFragment);
 
 		SAXParser parser = null;
 		try {
@@ -170,7 +170,7 @@ public class SwordContentFacade {
 		return osisToHtml.toString();
 	}
 
-	private String readHtmlTextStandardJSwordMethod(Book book, Key key) throws ParseException
+	private String readHtmlTextStandardJSwordMethod(Book book, Key key, boolean asFragment) throws ParseException
 	{
 		log.debug("Using standard JSword to fetch document data");
 		String retVal;
@@ -182,7 +182,7 @@ public class SwordContentFacade {
 				Log.e(TAG, "No osis SEP returned");
 				retVal = "Error fetching osis SEP";
 			} else {
-				OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book, key);
+				OsisToHtmlSaxHandler osisToHtml = getSaxHandler(book, key, asFragment);
 		
 				osissep.provideSAXEvents(osisToHtml);
 		
@@ -235,7 +235,7 @@ public class SwordContentFacade {
 		
 			boolean sayReferences = BookCategory.GENERAL_BOOK.equals(book.getBookCategory());
 			ContentHandler osisHandler = new OsisToSpeakTextSaxHandler(sayReferences);
-			
+
 			osissep.provideSAXEvents(osisHandler);
 		
 			return osisHandler.toString();
@@ -309,10 +309,12 @@ public class SwordContentFacade {
 
 	}
 
-	private OsisToHtmlSaxHandler getSaxHandler(Book book, Key key) {
+	private OsisToHtmlSaxHandler getSaxHandler(Book book, Key key, boolean asFragment) {
 		OsisToHtmlParameters osisToHtmlParameters = new OsisToHtmlParameters();
 		BookCategory bookCategory = book.getBookCategory();
 		BookMetaData bmd = book.getBookMetaData();
+
+		osisToHtmlParameters.setAsFragment(asFragment);
 		osisToHtmlParameters.setLeftToRight(bmd.isLeftToRight());
 		osisToHtmlParameters.setLanguageCode(book.getLanguage().getCode());
 		osisToHtmlParameters.setModuleBasePath(book.getBookMetaData().getLocation());
@@ -321,8 +323,13 @@ public class SwordContentFacade {
 		if (BookCategory.BIBLE.equals(bookCategory) || BookCategory.COMMENTARY.equals(bookCategory)) {
 			osisToHtmlParameters.setBasisRef(key);
 			osisToHtmlParameters.setDocumentVersification(((AbstractPassageBook)book).getVersification());
+
+			// only show chapter divider in Bibles
+			osisToHtmlParameters.setShowChapterDivider(BookCategory.BIBLE.equals(bookCategory));
+			// but commentaries also have a verse tag which requires a chapter part
+			osisToHtmlParameters.setChapter(KeyUtil.getVerse(key).getChapter());
 		}
-		
+
 		if (isAndroid) {
 	    	// HunUj has an error in that refs are not wrapped so automatically add notes around refs
 	    	osisToHtmlParameters.setAutoWrapUnwrappedRefsInNote("HunUj".equals(book.getInitials()));

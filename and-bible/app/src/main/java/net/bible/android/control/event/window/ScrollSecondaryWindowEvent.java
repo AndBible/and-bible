@@ -1,5 +1,6 @@
 package net.bible.android.control.event.window;
 
+import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.control.page.window.Window;
 
 /**
@@ -8,18 +9,18 @@ import net.bible.android.control.page.window.Window;
 public class ScrollSecondaryWindowEvent implements WindowEvent {
 
 	private final Window window;
-	private final int verseNo;
+	private final ChapterVerse chapterVerse;
 	
-	public ScrollSecondaryWindowEvent(Window window, int verseNo) {
+	public ScrollSecondaryWindowEvent(Window window, ChapterVerse chapterVerse) {
 		this.window = window;
-		this.verseNo = verseNo;
+		this.chapterVerse = chapterVerse;
 	}
 
 	public Window getWindow() {
 		return window;
 	}
 
-	public int getVerseNo() {
-		return verseNo;
+	public ChapterVerse getChapterVerse() {
+		return chapterVerse;
 	}
 }

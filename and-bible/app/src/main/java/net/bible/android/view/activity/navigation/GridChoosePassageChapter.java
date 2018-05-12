@@ -42,12 +42,12 @@ public class GridChoosePassageChapter extends CustomTitlebarActivityBase impleme
 
 	private static final String TAG = "GridChoosePassageChaptr";
 
-	/** Called when the activity is first created. */
-	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		// background goes white in some circumstances if theme changes so prevent theme change
-		setAllowThemeChange(false);
-		super.onCreate(savedInstanceState);
+    /** Called when the activity is first created. */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+    	// background goes white in some circumstances if theme changes so prevent theme change
+    	setAllowThemeChange(false);
+        super.onCreate(savedInstanceState);
 
 		buildActivityComponent().inject(this);
 		int bibleBookNo = getIntent().getIntExtra(GridChoosePassageBook.BOOK_NO, navigationControl.getDefaultBibleBookNo());
@@ -106,11 +106,11 @@ public class GridChoosePassageChapter extends CustomTitlebarActivityBase impleme
 				currentPageControl.getCurrentPage().setKey(new Verse(navigationControl.getVersification(), mBibleBook, chapter, 1));
 				onSave(null);
 			} else {
-				// select verse
-				Intent myIntent = new Intent(this, GridChoosePassageVerse.class);
-				myIntent.putExtra(GridChoosePassageBook.BOOK_NO, mBibleBook.ordinal());
-				myIntent.putExtra(GridChoosePassageBook.CHAPTER_NO, chapter);
-				startActivityForResult(myIntent, chapter);
+    			// select verse
+	        	Intent myIntent = new Intent(this, GridChoosePassageVerse.class);
+	        	myIntent.putExtra(GridChoosePassageBook.BOOK_NO, mBibleBook.ordinal());
+	        	myIntent.putExtra(GridChoosePassageBook.CHAPTER_NO, chapter);
+	        	startActivityForResult(myIntent, chapter);
 			}
 		} catch (Exception e) {
 			Log.e(TAG, "error on select of bible book", e);
@@ -121,19 +121,19 @@ public class GridChoosePassageChapter extends CustomTitlebarActivityBase impleme
 		return CommonUtils.getSharedPreferences().getBoolean("navigate_to_verse_pref", false);
 	}
 
-	public void onSave(View v) {
-		Log.i(TAG, "CLICKED");
-		Intent resultIntent = new Intent(this, GridChoosePassageBook.class);
-		setResult(Activity.RESULT_OK, resultIntent);
-		finish();
-	}
+    public void onSave(View v) {
+    	Log.i(TAG, "CLICKED");
+    	Intent resultIntent = new Intent(this, GridChoosePassageBook.class);
+    	setResult(Activity.RESULT_OK, resultIntent);
+    	finish();    
+    }
 
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (resultCode==Activity.RESULT_OK) {
-			returnToPreviousScreen();
-		}
-	}
+    @Override 
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    	if (resultCode==Activity.RESULT_OK) {
+    		returnToPreviousScreen();
+    	}
+    }
 
 	@Inject
 	void setNavigationControl(NavigationControl navigationControl) {

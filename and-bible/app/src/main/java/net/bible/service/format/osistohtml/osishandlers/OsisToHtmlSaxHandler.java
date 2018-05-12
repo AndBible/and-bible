@@ -10,6 +10,7 @@ import net.bible.service.format.osistohtml.preprocessor.TextPreprocessor;
 import net.bible.service.format.osistohtml.strongs.StrongsHandler;
 import net.bible.service.format.osistohtml.strongs.StrongsLinkCreator;
 import net.bible.service.format.osistohtml.taghandler.BookmarkMarker;
+import net.bible.service.format.osistohtml.taghandler.ChapterDivider;
 import net.bible.service.format.osistohtml.taghandler.DivHandler;
 import net.bible.service.format.osistohtml.taghandler.DivineNameHandler;
 import net.bible.service.format.osistohtml.taghandler.FigureHandler;
@@ -88,6 +89,8 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	private Map<String, OsisTagHandler> osisTagHandlers;
 	
 	private NoteHandler noteHandler;
+
+	private ChapterDivider chapterDivider;
 	
 	// processor for the tag content
 	private TextPreprocessor textPreprocessor;
@@ -114,7 +117,10 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 	public OsisToHtmlSaxHandler(OsisToHtmlParameters parameters) {
 		super();
 		this.parameters = parameters;
-		
+
+		// chapter marker is manually called at correct time
+		chapterDivider = new ChapterDivider(parameters, getWriter());
+
 		osisTagHandlers = new HashMap<>();
 		
 		BookmarkMarker bookmarkMarker = new BookmarkMarker(parameters, verseInfo);
@@ -163,27 +169,38 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 
 	@Override
 	public void startDocument()  {
-		String jQueryjs = "\n<script type='text/javascript' src='file:///android_asset/web/jquery-2.2.3.js'></script>\n"+
-				"<script type='text/javascript' src='file:///android_asset/web/jquery.longpress.js'></script>\n"+
-				"<script type='text/javascript' src='file:///android_asset/web/jquery.nearest.min.1.4.0.js'></script>\n";
-		String jsTag = "\n<script type='text/javascript' src='file:///android_asset/web/script.js'></script>\n";
-		String styleSheetTags = parameters.getCssStylesheets();
-		String customFontStyle = FontControl.getInstance().getHtmlFontStyle(parameters.getFont(), parameters.getCssClassForCustomFont());
-		write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"> "
-				+ "<html xmlns='http://www.w3.org/1999/xhtml' dir='" + getDirection() + "'><head>"
-				+ styleSheetTags+"\n"
-				+ customFontStyle
-				+ jQueryjs
-				+ jsTag
-				+ "<meta charset='utf-8'/>"
-				+ "</head>"
-				+ "<body onscroll='jsonscroll()' >");
+		// if not fragment then add head section
+		if (!parameters.isAsFragment()) {
+			String jQueryjs = "\n<script type='text/javascript' src='file:///android_asset/web/jquery-2.2.4.js'></script>\n" +
+					"<script type='text/javascript' src='file:///android_asset/web/jquery.longpress.js'></script>\n" +
+					"<script type='text/javascript' src='file:///android_asset/web/jquery.nearest.min.1.4.0.js'></script>\n";
+			String jsTag = "\n<script type='text/javascript' src='file:///android_asset/web/script.js'></script>\n" +
+					"<script type='text/javascript' src='file:///android_asset/web/infinite-scroll.js'></script>\n";
+			String styleSheetTags = parameters.getCssStylesheets();
+			String customFontStyle = FontControl.getInstance().getHtmlFontStyle(parameters.getFont(), parameters.getCssClassForCustomFont());
+			write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"> "
+					+ "<html xmlns='http://www.w3.org/1999/xhtml' dir='" + getDirection() + "'><head>"
+					+ styleSheetTags + "\n"
+					+ customFontStyle
+					+ jQueryjs
+					+ jsTag
+					+ "<meta charset='utf-8'/>"
+					+ "</head>"
+					+ "<body onscroll='jsonscroll()' >");
+		}
 
 		// force rtl for rtl languages - rtl support on Android is poor but
 		// forcing it seems to help occasionally
 		if (!parameters.isLeftToRight()) {
 			write("<span dir='rtl'>");
 		}
+
+		// only put top/bottom insert positions in main/non-fragment page
+		if (!parameters.isAsFragment()) {
+			write("<div id='topOfBibleText'></div>");
+		}
+
+		chapterDivider.start(null);
 	}
 
 	/*
@@ -208,9 +225,15 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		if (!parameters.isLeftToRight()) {
 			write("</span>");
 		}
-		// add padding at bottom to allow last verse to scroll to top of page
-		// and become current verse
-		write(getPaddingAtBottom() + "</body></html>");
+
+		// only put top/bottom insert positions in main/non-fragment page
+		if (!parameters.isAsFragment()) {
+			write("<div id='bottomOfBibleText'></div>");
+
+			// add padding at bottom to allow last verse to scroll to top of page
+			// and become current verse
+			write(getPaddingAtBottom() + "</body></html>");
+		}
 	}
 
 	/*
@@ -293,7 +316,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		// noop
 	}
 
-	public String getDirection() {
+	private String getDirection() {
 		return parameters.isLeftToRight() ? "ltr" : "rtl";
 	}
 
@@ -303,7 +326,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		// this is not very accurate.  Some books have a <br />s at the end making the padding too large
 		// also the user can toggle full screen after the last view height calculation
 		// 1.5 is a fudge factor to try to keep a little of the text on the screen for books that end in a <br /> 
-		int paddingHeightDips = (int)(ScreenSettings.getContentViewHeightDips()-(2*ScreenSettings.getLineHeightDips()));
+		int paddingHeightDips = ScreenSettings.getContentViewHeightDips()-(2*ScreenSettings.getLineHeightDips());
 		return "<img height='"+paddingHeightDips+"' width='1' border='0' vspace='0' style='display:block'/>"; 
 	}
 
