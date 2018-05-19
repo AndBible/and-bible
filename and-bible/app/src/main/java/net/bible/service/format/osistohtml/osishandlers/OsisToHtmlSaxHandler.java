@@ -119,7 +119,7 @@ public class OsisToHtmlSaxHandler extends OsisSaxHandler {
 		this.parameters = parameters;
 
 		// chapter marker is manually called at correct time
-		chapterDivider = new ChapterDivider(parameters, getWriter());
+		chapterDivider = new ChapterDivider(parameters, verseInfo, getWriter());
 
 		osisTagHandlers = new HashMap<>();
 		

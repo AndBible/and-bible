@@ -53,6 +53,8 @@ h1 a, .heading2, .heading3, .heading4 {
 .chapterNo {
 	color: Gray;
 	font-size: 0.7em;
+	margin-top: 1em;
+	margin-bottom: 0.5em;
 	text-align: center;
 }
 .verseNo {

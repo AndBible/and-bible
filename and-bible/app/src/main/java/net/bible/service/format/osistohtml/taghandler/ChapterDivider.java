@@ -2,6 +2,7 @@ package net.bible.service.format.osistohtml.taghandler;
 
 import net.bible.service.format.osistohtml.HtmlTextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
+import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.VerseInfo;
 
 import org.xml.sax.Attributes;
 
@@ -17,10 +18,13 @@ public class ChapterDivider implements OsisTagHandler {
 
 	private OsisToHtmlParameters parameters;
 
+	private VerseInfo verseInfo;
+
 	private HtmlTextWriter writer;
 
-	public ChapterDivider(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
+	public ChapterDivider(OsisToHtmlParameters parameters, VerseInfo verseInfo, HtmlTextWriter writer) {
 		this.parameters = parameters;
+		this.verseInfo = verseInfo;
 		this.writer = writer;
 	}
 
@@ -43,6 +47,8 @@ public class ChapterDivider implements OsisTagHandler {
 			}
 			// used to jump to the top of a chapter, but still allow up scroll
 			writer.write("<div id='" + chapter + "'></div>");
+
+			verseInfo.positionToInsertBeforeVerse = writer.getPosition();
 		}
 	}
 
