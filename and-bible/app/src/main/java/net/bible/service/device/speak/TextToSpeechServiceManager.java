@@ -131,10 +131,6 @@ public class TextToSpeechServiceManager {
 
 		// speak current chapter or stop speech if already speaking
 		Log.d(TAG, "Tell TTS to speak");
-		speak(localePreferenceList, textsToSpeak, queue);
-	}
-
-    private void speak(List<Locale> localePreferenceList, List<String> textToSpeak, boolean queue) {
     	Log.d(TAG, "speak strings"+(queue?" queued":""));
    		if (!queue) {
    			Log.d(TAG, "Queue is false so requesting stop");
@@ -144,7 +140,7 @@ public class TextToSpeechServiceManager {
    			clearTtsQueue();
    			isPaused = false;
    		}
-   		mSpeakTextProvider.addTextsToSpeak(textToSpeak);
+   		mSpeakTextProvider.addTextsToSpeak(textsToSpeak);
 
 		// currently can't change Locale until speech ends
     	this.localePreferenceList = localePreferenceList;
