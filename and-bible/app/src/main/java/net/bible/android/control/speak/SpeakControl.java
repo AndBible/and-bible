@@ -40,7 +40,6 @@ import dagger.Lazy;
 public class SpeakControl {
 
 	private Lazy<TextToSpeechServiceManager> textToSpeechServiceManager;
-	private final SwordContentFacade swordContentFacade;
 
 	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
@@ -69,9 +68,8 @@ public class SpeakControl {
 	private static final String TAG = "SpeakControl";
 
 	@Inject
-	public SpeakControl(Lazy<TextToSpeechServiceManager> textToSpeechServiceManager, SwordContentFacade swordContentFacade, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+	public SpeakControl(Lazy<TextToSpeechServiceManager> textToSpeechServiceManager, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
 		this.textToSpeechServiceManager = textToSpeechServiceManager;
-		this.swordContentFacade = swordContentFacade;
 		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 	}
 
@@ -191,48 +189,11 @@ public class SpeakControl {
 	}
 	
 	public void speakKeyList(Book book, List<Key> keyList, boolean queue, boolean repeat) {
-		Log.d(TAG, "Keys:"+keyList.size());
-		// build a string containing the text to be spoken
-		List<String> textToSpeak = new ArrayList<>();
-		
-    	// first concatenate the number of required chapters
-		try {
-			for (Key key : keyList) {
-				// intro
-				textToSpeak.add(key.getName()+". ");
-//				textToSpeak.add("\n");
-				
-				// content
-				textToSpeak.add( swordContentFacade.getTextToSpeak(book, key));
-
-				// add a pause at end to separate passages
-				textToSpeak.add("\n");
-			}
-		} catch (Exception e) {
-			Log.e(TAG, "Error getting chapters to speak", e);
-			throw new AndRuntimeException("Error preparing Speech", e);
-		}
-		
-		// if repeat was checked then concatenate with itself
-		if (repeat) {
-			textToSpeak.add("\n");
-			textToSpeak.addAll(textToSpeak);
-		}
-
-		speakStringList(textToSpeak, book, queue);
-	}
-	
-	/** prepare to speak
-	 */
-	private void speakStringList(List<String> textsToSpeak, Book fromBook, boolean queue) {
-		
-		List<Locale> localePreferenceList = calculateLocalePreferenceList(fromBook);
-
 		preSpeak();
-		
+
 		// speak current chapter or stop speech if already speaking
 		Log.d(TAG, "Tell TTS to speak");
-		textToSpeechServiceManager.get().speak(localePreferenceList, textsToSpeak, queue);
+		textToSpeechServiceManager.get().speak(book, keyList, queue, repeat);
 	}
 
 	public void rewind() {
@@ -285,45 +246,5 @@ public class SpeakControl {
         CurrentActivityHolder.getInstance().getCurrentActivity().setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
 	}
-	private List<Locale> calculateLocalePreferenceList(Book fromBook) {
-		//calculate preferred locales to use for speech
-        // Set preferred language to the same language as the book.
-        // Note that a language may not be available, and so we have a preference list
-    	String bookLanguageCode = fromBook.getLanguage().getCode();
-    	Log.d(TAG, "Book has language code:"+bookLanguageCode);
 
-    	List<Locale> localePreferenceList = new ArrayList<>();
-    	if (bookLanguageCode.equals(Locale.getDefault().getLanguage())) {
-    		// for people in UK the UK accent is preferable to the US accent
-    		localePreferenceList.add( Locale.getDefault() );
-    	}
-
-    	// try to get the native country for the lang
-		String countryCode = getDefaultCountryCode(bookLanguageCode);
-		if (countryCode!=null) {
-			localePreferenceList.add( new Locale(bookLanguageCode, countryCode));
-		}
-		
-		// finally just add the language of the book
-		localePreferenceList.add( new Locale(bookLanguageCode));
-		return localePreferenceList;
-	}
-	
-	private String getDefaultCountryCode(String language) {
-		if (language.equals("en")) return Locale.UK.getCountry();
-		if (language.equals("fr")) return Locale.FRANCE.getCountry();
-		if (language.equals("de")) return Locale.GERMANY.getCountry();
-		if (language.equals("zh")) return Locale.CHINA.getCountry();
-		if (language.equals("it")) return Locale.ITALY.getCountry();
-		if (language.equals("jp")) return Locale.JAPAN.getCountry();
-		if (language.equals("ko")) return Locale.KOREA.getCountry();
-		if (language.equals("hu")) return "HU";
-		if (language.equals("cs")) return "CZ";
-		if (language.equals("fi")) return "FI";
-		if (language.equals("pl")) return "PL";
-		if (language.equals("pt")) return "PT";
-		if (language.equals("ru")) return "RU";
-		if (language.equals("tr")) return "TR";
-		return null;
-	}
 }
