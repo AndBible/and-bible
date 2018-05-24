@@ -19,6 +19,7 @@ import net.bible.service.device.speak.event.SpeakEventManager;
 import net.bible.service.sword.SwordContentFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 
 import java.util.ArrayList;
@@ -60,7 +61,11 @@ public class TextToSpeechServiceManager {
     private Locale currentLocale = Locale.getDefault();
     private static String PERSIST_LOCALE_KEY = "SpeakLocale";
     
-    private SpeakBibleTextProvider mSpeakTextProvider;
+    private AbstractSpeakTextProvider mSpeakTextProvider;
+
+	private SpeakTextProvider speakTextProvider;
+	private SpeakBibleTextProvider speakBibleTextProvider;
+
     private SpeakTiming mSpeakTiming;
 
     private TTSLanguageSupport ttsLanguageSupport = new TTSLanguageSupport();
@@ -78,7 +83,11 @@ public class TextToSpeechServiceManager {
 	@Inject
     public TextToSpeechServiceManager(SwordContentFacade swordContentFacade) {
     	Log.d(TAG, "Creating TextToSpeechServiceManager");
-    	mSpeakTextProvider = new SpeakBibleTextProvider(swordContentFacade);
+		speakTextProvider = new SpeakTextProvider(swordContentFacade);
+		speakBibleTextProvider = new SpeakBibleTextProvider(swordContentFacade);
+
+    	mSpeakTextProvider = speakBibleTextProvider;
+
     	mSpeakTiming = new SpeakTiming();
 		ABEventBus.getDefault().safelyRegister(this);
     	restorePauseState();
@@ -89,6 +98,18 @@ public class TextToSpeechServiceManager {
     }
 
 	public synchronized void speak(Book book, List<Key> keyList, boolean queue, boolean repeat) {
+		AbstractSpeakTextProvider newProvider;
+		if(book.getBookCategory().equals(BookCategory.BIBLE)) {
+			newProvider = speakBibleTextProvider;
+		}
+		else {
+			newProvider = speakTextProvider;
+		}
+		if(newProvider != mSpeakTextProvider) {
+			mSpeakTextProvider.reset();
+			mSpeakTextProvider = newProvider;
+		}
+
 		mSpeakTextProvider.addTextsToSpeak(book, keyList, repeat);
    		if (!queue) {
    			Log.d(TAG, "Queue is false so requesting stop");
@@ -266,7 +287,7 @@ public class TextToSpeechServiceManager {
     public long getPausedCompletedSeconds() {
     	return mSpeakTiming.getSecsForChars(mSpeakTextProvider.getSpokenChars());
     }
-    
+
     private void startSpeaking() {
     	Log.d(TAG, "about to send all text to TTS");
         // ask TTs to say the text

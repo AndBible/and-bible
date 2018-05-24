@@ -3,7 +3,6 @@ package net.bible.service.device.speak;
 import android.util.Log;
 import android.util.Pair;
 import de.greenrobot.event.EventBus;
-import net.bible.android.control.event.EventManager;
 import net.bible.service.common.ParseException;
 import net.bible.service.device.speak.event.SpeakProggressEvent;
 import net.bible.service.sword.SwordContentFacade;
@@ -18,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class SpeakBibleTextProvider implements SpeakTextProviderInterface {
+public class SpeakBibleTextProvider extends AbstractSpeakTextProvider {
     private final SwordContentFacade swordContentFacade;
     private static final String TAG = "Speak";
 

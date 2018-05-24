@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class SpeakTextProvider implements SpeakTextProviderInterface {
+public class SpeakTextProvider extends AbstractSpeakTextProvider {
 
 	private final SwordContentFacade swordContentFacade;
     private List<String> mTextToSpeak = new ArrayList<String>();
