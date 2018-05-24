@@ -4,10 +4,11 @@ package net.bible.service.device.speak;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
+import java.util.HashMap;
 import java.util.List;
 
 public abstract class AbstractSpeakTextProvider {
-    abstract void addTextsToSpeak(Book book, List<Key> keyList, boolean repeat);
+    abstract void addTextsToSpeak(Book book, List<Key> keyList, HashMap<String, Boolean> settings);
     abstract boolean isMoreTextToSpeak();
     abstract String getNextTextToSpeak();
     abstract void pause(float fractionCompleted);

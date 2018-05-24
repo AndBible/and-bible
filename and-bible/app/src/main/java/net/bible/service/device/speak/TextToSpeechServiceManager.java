@@ -10,6 +10,7 @@ import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.phonecall.PhoneCallMonitor;
 import net.bible.android.control.event.phonecall.PhoneCallStarted;
+import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.speak.event.SpeakEvent;
@@ -17,6 +18,7 @@ import net.bible.service.device.speak.event.SpeakEvent.SpeakState;
 import net.bible.service.device.speak.event.SpeakEventManager;
 
 import net.bible.service.sword.SwordContentFacade;
+import net.bible.service.sword.SwordDocumentFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
@@ -81,10 +83,11 @@ public class TextToSpeechServiceManager {
     private boolean isPaused = false;
 
 	@Inject
-    public TextToSpeechServiceManager(SwordContentFacade swordContentFacade) {
+    public TextToSpeechServiceManager(SwordContentFacade swordContentFacade, BibleTraverser bibleTraverser,
+									  SwordDocumentFacade swordDocumentFacade) {
     	Log.d(TAG, "Creating TextToSpeechServiceManager");
 		speakTextProvider = new SpeakTextProvider(swordContentFacade);
-		speakBibleTextProvider = new SpeakBibleTextProvider(swordContentFacade);
+		speakBibleTextProvider = new SpeakBibleTextProvider(swordContentFacade, bibleTraverser, swordDocumentFacade);
 
     	mSpeakTextProvider = speakBibleTextProvider;
 
@@ -97,7 +100,7 @@ public class TextToSpeechServiceManager {
     	return ttsLanguageSupport.isLangKnownToBeSupported(langCode);
     }
 
-	public synchronized void speak(Book book, List<Key> keyList, boolean queue, boolean repeat) {
+	public synchronized void speak(Book book, List<Key> keyList, HashMap<String, Boolean> settings) {
 		AbstractSpeakTextProvider newProvider;
 		if(book.getBookCategory().equals(BookCategory.BIBLE)) {
 			newProvider = speakBibleTextProvider;
@@ -110,8 +113,8 @@ public class TextToSpeechServiceManager {
 			mSpeakTextProvider = newProvider;
 		}
 
-		mSpeakTextProvider.addTextsToSpeak(book, keyList, repeat);
-   		if (!queue) {
+		mSpeakTextProvider.addTextsToSpeak(book, keyList, settings);
+   		if (!settings.get("queue")) {
    			Log.d(TAG, "Queue is false so requesting stop");
    			clearTtsQueue();
    		} else if (isPaused()) {

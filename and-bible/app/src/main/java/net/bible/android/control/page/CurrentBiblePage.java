@@ -32,7 +32,7 @@ public class CurrentBiblePage extends VersePage implements CurrentPage {
 	private static final String TAG = "CurrentBiblePage";
 	
 	
-	/* default */ CurrentBiblePage(CurrentBibleVerse currentBibleVerse, BibleTraverser bibleTraverser, SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade) {
+	public CurrentBiblePage(CurrentBibleVerse currentBibleVerse, BibleTraverser bibleTraverser, SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade) {
 		super(true, currentBibleVerse, bibleTraverser, swordContentFacade, swordDocumentFacade);
 	}
 

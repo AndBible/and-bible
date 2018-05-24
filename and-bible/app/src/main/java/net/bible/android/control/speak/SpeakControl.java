@@ -13,7 +13,6 @@ import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.speak.TextToSpeechServiceManager;
-import net.bible.service.sword.SwordContentFacade;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
@@ -24,8 +23,8 @@ import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.Versification;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -160,7 +159,7 @@ public class SpeakControl {
 
 	/** prepare to speak
 	 */
-	public void speakPages(NumPagesToSpeakDefinition numPagesDefn, boolean queue, boolean repeat) {
+	public void speakPages(NumPagesToSpeakDefinition numPagesDefn, HashMap<String, Boolean> settings) {
 		Log.d(TAG, "Chapters:"+numPagesDefn.getNumPages());
 		// if a previous speak request is paused clear the cached text 
 		if (isPaused()) {
@@ -181,19 +180,30 @@ public class SpeakControl {
 				}
 			}
 			
-			speakKeyList(fromBook, keyList, queue, repeat);
+			speakKeyList(fromBook, keyList, settings);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting chapters to speak", e);
 			throw new AndRuntimeException("Error preparing Speech", e);
 		}
 	}
-	
+
+	public void speakKeyList(Book book, List<Key> keyList, HashMap<String, Boolean> settings) {
+		preSpeak();
+
+		// speak current chapter or stop speech if already speaking
+		Log.d(TAG, "Tell TTS to speak");
+		textToSpeechServiceManager.get().speak(book, keyList, settings);
+	}
+
 	public void speakKeyList(Book book, List<Key> keyList, boolean queue, boolean repeat) {
 		preSpeak();
 
 		// speak current chapter or stop speech if already speaking
 		Log.d(TAG, "Tell TTS to speak");
-		textToSpeechServiceManager.get().speak(book, keyList, queue, repeat);
+		HashMap<String, Boolean> settings = new HashMap<>();
+		settings.put("queue", queue);
+		settings.put("repeat", repeat);
+		textToSpeechServiceManager.get().speak(book, keyList, settings);
 	}
 
 	public void rewind() {

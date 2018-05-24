@@ -68,7 +68,8 @@ class Speak : CustomTitlebarActivityBase() {
                         speakControl.continueAfterPause()
 //                        currentLocation.setText("Test");
                     } else {
-                        speakControl.speakPages(selectedNumPagesToSpeak(), queue.isChecked, repeat.isChecked)
+                        val settings = hashMapOf("queue" to queue.isChecked, "repeat" to repeat.isChecked, "continuous" to continuous.isChecked);
+                        speakControl.speakPages(selectedNumPagesToSpeak(), settings);
                     }
                 forwardButton -> speakControl.forward()
             }

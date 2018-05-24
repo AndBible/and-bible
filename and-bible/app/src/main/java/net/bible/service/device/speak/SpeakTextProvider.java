@@ -14,6 +14,7 @@ import org.crosswire.jsword.passage.Key;
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -66,7 +67,7 @@ public class SpeakTextProvider extends AbstractSpeakTextProvider {
     	Log.d(TAG, "Total Num blocks in speak queue:"+mTextToSpeak.size());
 	}
 
-	public void addTextsToSpeak(Book book, List<Key> keyList, boolean repeat) {
+	public void addTextsToSpeak(Book book, List<Key> keyList, HashMap<String, Boolean> settings) {
 		Log.d(TAG, "Keys:"+keyList.size());
 		// build a string containing the text to be spoken
 		List<String> textToSpeak = new ArrayList<>();
@@ -90,7 +91,7 @@ public class SpeakTextProvider extends AbstractSpeakTextProvider {
 		}
 
 		// if repeat was checked then concatenate with itself
-		if (repeat) {
+		if (settings.get("repeat")) {
 			textToSpeak.add("\n");
 			textToSpeak.addAll(textToSpeak);
 		}
