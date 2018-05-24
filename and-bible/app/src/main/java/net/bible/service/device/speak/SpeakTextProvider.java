@@ -3,9 +3,13 @@ package net.bible.service.device.speak;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
 
+import net.bible.service.sword.SwordContentFacade;
 import org.apache.commons.lang3.StringUtils;
+import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.passage.Key;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;
@@ -20,8 +24,9 @@ import java.util.regex.Pattern;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class SpeakTextProvider {
+public class SpeakTextProvider implements SpeakTextProviderInterface {
 
+	private final SwordContentFacade swordContentFacade;
     private List<String> mTextToSpeak = new ArrayList<String>();
     private int nextTextToSpeak = 0;
     // this fraction supports pause/rew/ff; if o then speech occurs normally, if 0.5 then next speech chunk is half completed...
@@ -50,13 +55,53 @@ public class SpeakTextProvider {
 	
 	private static final String TAG = "Speak";
 
-	public void addTextsToSpeak(List<String> textsToSpeak) {
+	SpeakTextProvider(SwordContentFacade swordContentFacade) {
+		this.swordContentFacade = swordContentFacade;
+	}
+
+	private void addTextsToSpeak(List<String> textsToSpeak) {
 		for (String text : textsToSpeak) {
 	   		this.mTextToSpeak.addAll(breakUpText(text));
 		}
     	Log.d(TAG, "Total Num blocks in speak queue:"+mTextToSpeak.size());
 	}
-	
+
+	public void addTextsToSpeak(Book book, List<Key> keyList, boolean queue, boolean repeat) {
+		Log.d(TAG, "Keys:"+keyList.size());
+		// build a string containing the text to be spoken
+		List<String> textToSpeak = new ArrayList<>();
+
+		// first concatenate the number of required chapters
+		try {
+			for (Key key : keyList) {
+				// intro
+				textToSpeak.add(key.getName()+". ");
+//				textToSpeak.add("\n");
+
+				// content
+				textToSpeak.add( swordContentFacade.getTextToSpeak(book, key));
+
+				// add a pause at end to separate passages
+				textToSpeak.add("\n");
+			}
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting chapters to speak", e);
+			throw new AndRuntimeException("Error preparing Speech", e);
+		}
+
+		// if repeat was checked then concatenate with itself
+		if (repeat) {
+			textToSpeak.add("\n");
+			textToSpeak.addAll(textToSpeak);
+		}
+
+		// speak current chapter or stop speech if already speaking
+		Log.d(TAG, "Tell TTS to speak");
+    	Log.d(TAG, "speak strings"+(queue?" queued":""));
+
+   		addTextsToSpeak(textToSpeak);
+	}
+
 	public boolean isMoreTextToSpeak() {
 		//TODO: there seems to be an occasional problem when using ff/rew/pause in the last chunk
 		return nextTextToSpeak<mTextToSpeak.size();

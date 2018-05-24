@@ -62,7 +62,6 @@ public class TextToSpeechServiceManager {
     private static String PERSIST_LOCALE_KEY = "SpeakLocale";
     
     private SpeakTextProvider mSpeakTextProvider;
-	private final SwordContentFacade swordContentFacade;
     private SpeakTiming mSpeakTiming;
 
     private TTSLanguageSupport ttsLanguageSupport = new TTSLanguageSupport();
@@ -80,9 +79,8 @@ public class TextToSpeechServiceManager {
 	@Inject
     public TextToSpeechServiceManager(SwordContentFacade swordContentFacade) {
     	Log.d(TAG, "Creating TextToSpeechServiceManager");
-    	mSpeakTextProvider = new SpeakTextProvider();
+    	mSpeakTextProvider = new SpeakTextProvider(swordContentFacade);
     	mSpeakTiming = new SpeakTiming();
-		this.swordContentFacade = swordContentFacade;
 		ABEventBus.getDefault().safelyRegister(this);
     	restorePauseState();
     }
@@ -92,46 +90,7 @@ public class TextToSpeechServiceManager {
     }
 
 	public synchronized void speak(Book book, List<Key> keyList, boolean queue, boolean repeat) {
-		Log.d(TAG, "Keys:"+keyList.size());
-		// build a string containing the text to be spoken
-		List<String> textToSpeak = new ArrayList<>();
-
-		// first concatenate the number of required chapters
-		try {
-			for (Key key : keyList) {
-				// intro
-				textToSpeak.add(key.getName()+". ");
-//				textToSpeak.add("\n");
-
-				// content
-				textToSpeak.add( swordContentFacade.getTextToSpeak(book, key));
-
-				// add a pause at end to separate passages
-				textToSpeak.add("\n");
-			}
-		} catch (Exception e) {
-			Log.e(TAG, "Error getting chapters to speak", e);
-			throw new AndRuntimeException("Error preparing Speech", e);
-		}
-
-		// if repeat was checked then concatenate with itself
-		if (repeat) {
-			textToSpeak.add("\n");
-			textToSpeak.addAll(textToSpeak);
-		}
-
-		speakStringList(textToSpeak, book, queue);
-	}
-
-	/** prepare to speak
-	 */
-	private void speakStringList(List<String> textsToSpeak, Book fromBook, boolean queue) {
-
-		List<Locale> localePreferenceList = calculateLocalePreferenceList(fromBook);
-
-		// speak current chapter or stop speech if already speaking
-		Log.d(TAG, "Tell TTS to speak");
-    	Log.d(TAG, "speak strings"+(queue?" queued":""));
+		mSpeakTextProvider.addTextsToSpeak(book, keyList, queue, repeat);
    		if (!queue) {
    			Log.d(TAG, "Queue is false so requesting stop");
    			clearTtsQueue();
@@ -140,12 +99,11 @@ public class TextToSpeechServiceManager {
    			clearTtsQueue();
    			isPaused = false;
    		}
-   		mSpeakTextProvider.addTextsToSpeak(textsToSpeak);
 
 		// currently can't change Locale until speech ends
-    	this.localePreferenceList = localePreferenceList;
+		localePreferenceList = calculateLocalePreferenceList(book);
 
-    	startSpeakingInitingIfRequired();
+		startSpeakingInitingIfRequired();
     }
 
 	private List<Locale> calculateLocalePreferenceList(Book fromBook) {
