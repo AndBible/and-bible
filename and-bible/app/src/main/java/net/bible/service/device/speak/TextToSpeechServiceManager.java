@@ -89,7 +89,7 @@ public class TextToSpeechServiceManager {
     }
 
 	public synchronized void speak(Book book, List<Key> keyList, boolean queue, boolean repeat) {
-		mSpeakTextProvider.addTextsToSpeak(book, keyList, queue, repeat);
+		mSpeakTextProvider.addTextsToSpeak(book, keyList, repeat);
    		if (!queue) {
    			Log.d(TAG, "Queue is false so requesting stop");
    			clearTtsQueue();

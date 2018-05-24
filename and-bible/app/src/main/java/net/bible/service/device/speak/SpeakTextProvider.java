@@ -66,7 +66,7 @@ public class SpeakTextProvider implements SpeakTextProviderInterface {
     	Log.d(TAG, "Total Num blocks in speak queue:"+mTextToSpeak.size());
 	}
 
-	public void addTextsToSpeak(Book book, List<Key> keyList, boolean queue, boolean repeat) {
+	public void addTextsToSpeak(Book book, List<Key> keyList, boolean repeat) {
 		Log.d(TAG, "Keys:"+keyList.size());
 		// build a string containing the text to be spoken
 		List<String> textToSpeak = new ArrayList<>();
@@ -96,9 +96,6 @@ public class SpeakTextProvider implements SpeakTextProviderInterface {
 		}
 
 		// speak current chapter or stop speech if already speaking
-		Log.d(TAG, "Tell TTS to speak");
-    	Log.d(TAG, "speak strings"+(queue?" queued":""));
-
    		addTextsToSpeak(textToSpeak);
 	}
 

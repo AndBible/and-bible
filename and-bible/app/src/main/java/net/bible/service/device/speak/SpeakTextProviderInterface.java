@@ -7,7 +7,7 @@ import org.crosswire.jsword.passage.Key;
 import java.util.List;
 
 public interface SpeakTextProviderInterface {
-    void addTextsToSpeak(Book book, List<Key> keyList, boolean queue, boolean repeat);
+    void addTextsToSpeak(Book book, List<Key> keyList, boolean repeat);
     boolean isMoreTextToSpeak();
     String getNextTextToSpeak();
     void pause(float fractionCompleted);
