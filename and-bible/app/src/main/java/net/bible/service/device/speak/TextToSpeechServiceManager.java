@@ -11,7 +11,6 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.phonecall.PhoneCallMonitor;
 import net.bible.android.control.event.phonecall.PhoneCallStarted;
 import net.bible.android.view.activity.base.Dialogs;
-import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.speak.event.SpeakEvent;
 import net.bible.service.device.speak.event.SpeakEvent.SpeakState;
@@ -61,7 +60,7 @@ public class TextToSpeechServiceManager {
     private Locale currentLocale = Locale.getDefault();
     private static String PERSIST_LOCALE_KEY = "SpeakLocale";
     
-    private SpeakTextProvider mSpeakTextProvider;
+    private SpeakBibleTextProvider mSpeakTextProvider;
     private SpeakTiming mSpeakTiming;
 
     private TTSLanguageSupport ttsLanguageSupport = new TTSLanguageSupport();
@@ -79,7 +78,7 @@ public class TextToSpeechServiceManager {
 	@Inject
     public TextToSpeechServiceManager(SwordContentFacade swordContentFacade) {
     	Log.d(TAG, "Creating TextToSpeechServiceManager");
-    	mSpeakTextProvider = new SpeakTextProvider(swordContentFacade);
+    	mSpeakTextProvider = new SpeakBibleTextProvider(swordContentFacade);
     	mSpeakTiming = new SpeakTiming();
 		ABEventBus.getDefault().safelyRegister(this);
     	restorePauseState();
