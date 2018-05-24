@@ -256,7 +256,7 @@ public class ReadingPlanControl {
 		AbstractPassageBook bible = getCurrentPageManager().getCurrentBible().getCurrentPassageBook();
 		List<Key> keyList = convertReadingVersification(readingKey, bible);
 
-		speakControl.speak(bible, keyList, true, false);
+		speakControl.speakKeyList(bible, keyList, true, false);
 		
 		getReadingStatus(day).setRead(readingNo);
 	}
@@ -271,7 +271,7 @@ public class ReadingPlanControl {
 			List<Key> keyList = convertReadingVersification(key, bible);
 			allReadingsWithCorrectV11n.addAll(keyList);
 		}
-		speakControl.speak(bible, allReadingsWithCorrectV11n, true, false);
+		speakControl.speakKeyList(bible, allReadingsWithCorrectV11n, true, false);
 
 		// mark all readings as read
 		for (int i=0; i<allReadings.size(); i++) {

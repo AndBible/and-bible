@@ -130,7 +130,7 @@ public class SpeakControl {
 				List<Key> keyList = new ArrayList<>();
 				keyList.add(page.getKey());
 			
-				speak(fromBook, keyList, true, false);
+				speakKeyList(fromBook, keyList, true, false);
 
 				Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
 			} catch (Exception e) {
@@ -162,7 +162,7 @@ public class SpeakControl {
 
 	/** prepare to speak
 	 */
-	public void speak(NumPagesToSpeakDefinition numPagesDefn, boolean queue, boolean repeat) {
+	public void speakPages(NumPagesToSpeakDefinition numPagesDefn, boolean queue, boolean repeat) {
 		Log.d(TAG, "Chapters:"+numPagesDefn.getNumPages());
 		// if a previous speak request is paused clear the cached text 
 		if (isPaused()) {
@@ -183,14 +183,14 @@ public class SpeakControl {
 				}
 			}
 			
-			speak(fromBook, keyList, queue, repeat);
+			speakKeyList(fromBook, keyList, queue, repeat);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting chapters to speak", e);
 			throw new AndRuntimeException("Error preparing Speech", e);
 		}
 	}
 	
-	public void speak(Book book, List<Key> keyList, boolean queue, boolean repeat) {
+	public void speakKeyList(Book book, List<Key> keyList, boolean queue, boolean repeat) {
 		Log.d(TAG, "Keys:"+keyList.size());
 		// build a string containing the text to be spoken
 		List<String> textToSpeak = new ArrayList<>();
@@ -219,12 +219,12 @@ public class SpeakControl {
 			textToSpeak.addAll(textToSpeak);
 		}
 
-		speak(textToSpeak, book, queue);
+		speakStringList(textToSpeak, book, queue);
 	}
 	
 	/** prepare to speak
 	 */
-	private void speak(List<String> textsToSpeak, Book fromBook, boolean queue) {
+	private void speakStringList(List<String> textsToSpeak, Book fromBook, boolean queue) {
 		
 		List<Locale> localePreferenceList = calculateLocalePreferenceList(fromBook);
 

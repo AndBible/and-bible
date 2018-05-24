@@ -60,7 +60,7 @@ class Speak : CustomTitlebarActivityBase() {
                         speakControl.continueAfterPause()
 //                        currentLocation.setText("Test");
                     } else {
-                        speakControl.speak(selectedNumPagesToSpeak(), queue.isChecked, repeat.isChecked)
+                        speakControl.speakPages(selectedNumPagesToSpeak(), queue.isChecked, repeat.isChecked)
                     }
                 forwardButton -> speakControl.forward()
             }

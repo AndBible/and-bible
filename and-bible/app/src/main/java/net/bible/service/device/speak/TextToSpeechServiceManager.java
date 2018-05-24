@@ -25,7 +25,6 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
 
 /**
  * <p>text-to-speech (TTS). Please note the following steps:</p>
