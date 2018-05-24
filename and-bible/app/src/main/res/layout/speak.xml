@@ -112,4 +112,13 @@
 			android:layout_below="@+id/leftPanel"
 			android:layout_alignParentStart="true"/>
 
+	<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/leftPanel"
+			android:layout_alignParentStart="true"
+			android:id="@+id/statusText"
+			android:layout_alignBottom="@+id/currentLocation"
+			android:layout_alignParentEnd="true"/>
+
 </RelativeLayout>

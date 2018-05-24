@@ -4,12 +4,14 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.RadioButton
+import de.greenrobot.event.EventBus
 import kotlinx.android.synthetic.main.speak.*
 import net.bible.android.activity.R
 import net.bible.android.control.speak.NumPagesToSpeakDefinition
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.service.device.speak.event.SpeakProggressEvent
 import javax.inject.Inject
 
 /** Allow user to enter search criteria
@@ -33,6 +35,8 @@ class Speak : CustomTitlebarActivityBase() {
 
         super.buildActivityComponent().inject(this)
 
+        EventBus.getDefault().register(this);
+
         // set title of chapter/verse/page selection
         numPagesToSpeakDefinitions = speakControl.calculateNumPagesToSpeakDefinitions()
 
@@ -47,6 +51,10 @@ class Speak : CustomTitlebarActivityBase() {
         repeat.isChecked = false
 
         Log.d(TAG, "Finished displaying Speak view")
+    }
+
+    fun onEventMainThread(ev: SpeakProggressEvent) {
+        statusText.text = ev.key.name;
     }
 
     fun onButtonClick(button: View) {

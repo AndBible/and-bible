@@ -2,7 +2,10 @@ package net.bible.service.device.speak;
 
 import android.util.Log;
 import android.util.Pair;
+import de.greenrobot.event.EventBus;
+import net.bible.android.control.event.EventManager;
 import net.bible.service.common.ParseException;
+import net.bible.service.device.speak.event.SpeakProggressEvent;
 import net.bible.service.sword.SwordContentFacade;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookException;
@@ -61,6 +64,7 @@ public class SpeakBibleTextProvider implements SpeakTextProviderInterface {
             try {
                 String text = swordContentFacade.getTextToSpeak(currentItem.first, currentItem.second);
                 if(text.length() != 0) {
+                    EventBus.getDefault().post(new SpeakProggressEvent(currentItem.first, currentItem.second));
                     return text;
                 }
                 else {
