@@ -1,6 +1,7 @@
 package net.bible.service.device.speak;
 
 
+import net.bible.android.control.speak.SpeakSettings;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
 
@@ -8,7 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 
 public abstract class AbstractSpeakTextProvider {
-    abstract void addTextsToSpeak(Book book, List<Key> keyList, HashMap<String, Boolean> settings);
+    //abstract void setupReading(Book book, List<Key> keyList, SpeakSettings settings);
     abstract boolean isMoreTextToSpeak();
     abstract String getNextTextToSpeak();
     abstract void pause(float fractionCompleted);

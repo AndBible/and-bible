@@ -3,6 +3,7 @@ package net.bible.service.device.speak;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import net.bible.android.control.speak.SpeakSettings;
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
 
@@ -14,7 +15,6 @@ import org.crosswire.jsword.passage.Key;
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -60,14 +60,14 @@ public class SpeakTextProvider extends AbstractSpeakTextProvider {
 		this.swordContentFacade = swordContentFacade;
 	}
 
-	private void addTextsToSpeak(List<String> textsToSpeak) {
+	private void setupReading(List<String> textsToSpeak) {
 		for (String text : textsToSpeak) {
 	   		this.mTextToSpeak.addAll(breakUpText(text));
 		}
     	Log.d(TAG, "Total Num blocks in speak queue:"+mTextToSpeak.size());
 	}
 
-	public void addTextsToSpeak(Book book, List<Key> keyList, HashMap<String, Boolean> settings) {
+	void setupReading(Book book, List<Key> keyList, SpeakSettings settings) {
 		Log.d(TAG, "Keys:"+keyList.size());
 		// build a string containing the text to be spoken
 		List<String> textToSpeak = new ArrayList<>();
@@ -91,13 +91,13 @@ public class SpeakTextProvider extends AbstractSpeakTextProvider {
 		}
 
 		// if repeat was checked then concatenate with itself
-		if (settings.get("repeat")) {
+		if (settings.getRepeat()) {
 			textToSpeak.add("\n");
 			textToSpeak.addAll(textToSpeak);
 		}
 
 		// speak current chapter or stop speech if already speaking
-   		addTextsToSpeak(textToSpeak);
+   		setupReading(textToSpeak);
 	}
 
 	public boolean isMoreTextToSpeak() {

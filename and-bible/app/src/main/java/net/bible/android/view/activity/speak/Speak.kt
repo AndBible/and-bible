@@ -9,6 +9,7 @@ import kotlinx.android.synthetic.main.speak.*
 import net.bible.android.activity.R
 import net.bible.android.control.speak.NumPagesToSpeakDefinition
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.device.speak.event.SpeakProggressEvent
@@ -66,10 +67,10 @@ class Speak : CustomTitlebarActivityBase() {
                 speakButton ->
                     if (speakControl.isPaused) {
                         speakControl.continueAfterPause()
-//                        currentLocation.setText("Test");
                     } else {
-                        val settings = hashMapOf("queue" to queue.isChecked, "repeat" to repeat.isChecked, "continuous" to continuous.isChecked);
-                        speakControl.speakPages(selectedNumPagesToSpeak(), settings);
+                        val settings = SpeakSettings(repeat.isChecked, queue.isChecked, continuous.isChecked,
+                                selectedNumPagesToSpeak().numPages);
+                        speakControl.speakBible(settings);
                     }
                 forwardButton -> speakControl.forward()
             }

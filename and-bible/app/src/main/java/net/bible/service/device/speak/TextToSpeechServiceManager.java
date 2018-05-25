@@ -10,6 +10,7 @@ import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.phonecall.PhoneCallMonitor;
 import net.bible.android.control.event.phonecall.PhoneCallStarted;
+import net.bible.android.control.speak.SpeakSettings;
 import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
@@ -18,11 +19,10 @@ import net.bible.service.device.speak.event.SpeakEvent.SpeakState;
 import net.bible.service.device.speak.event.SpeakEventManager;
 
 import net.bible.service.sword.SwordContentFacade;
-import net.bible.service.sword.SwordDocumentFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
-import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.Verse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -83,11 +83,10 @@ public class TextToSpeechServiceManager {
     private boolean isPaused = false;
 
 	@Inject
-    public TextToSpeechServiceManager(SwordContentFacade swordContentFacade, BibleTraverser bibleTraverser,
-									  SwordDocumentFacade swordDocumentFacade) {
+    public TextToSpeechServiceManager(SwordContentFacade swordContentFacade, BibleTraverser bibleTraverser) {
     	Log.d(TAG, "Creating TextToSpeechServiceManager");
 		speakTextProvider = new SpeakTextProvider(swordContentFacade);
-		speakBibleTextProvider = new SpeakBibleTextProvider(swordContentFacade, bibleTraverser, swordDocumentFacade);
+		speakBibleTextProvider = new SpeakBibleTextProvider(swordContentFacade, bibleTraverser);
 
     	mSpeakTextProvider = speakBibleTextProvider;
 
@@ -100,21 +99,31 @@ public class TextToSpeechServiceManager {
     	return ttsLanguageSupport.isLangKnownToBeSupported(langCode);
     }
 
-	public synchronized void speak(Book book, List<Key> keyList, HashMap<String, Boolean> settings) {
-		AbstractSpeakTextProvider newProvider;
-		if(book.getBookCategory().equals(BookCategory.BIBLE)) {
-			newProvider = speakBibleTextProvider;
-		}
-		else {
-			newProvider = speakTextProvider;
-		}
+	public synchronized void speak(Book book, Verse verse, SpeakSettings settings) {
+		switchProvider(speakBibleTextProvider);
+		speakBibleTextProvider.setupReading(book, verse, settings);
+		handleQueue(settings.getQueue());
+		localePreferenceList = calculateLocalePreferenceList(book);
+		startSpeakingInitingIfRequired();
+	}
+
+	public synchronized void speak(Book book, List<Key> keyList, SpeakSettings settings) {
+		switchProvider(speakTextProvider);
+		speakTextProvider.setupReading(book, keyList, settings);
+		handleQueue(settings.getQueue());
+		localePreferenceList = calculateLocalePreferenceList(book);
+		startSpeakingInitingIfRequired();
+    }
+
+	private void switchProvider(AbstractSpeakTextProvider newProvider) {
 		if(newProvider != mSpeakTextProvider) {
 			mSpeakTextProvider.reset();
 			mSpeakTextProvider = newProvider;
 		}
+	}
 
-		mSpeakTextProvider.addTextsToSpeak(book, keyList, settings);
-   		if (!settings.get("queue")) {
+	private void handleQueue(boolean queue) {
+   		if (!queue) {
    			Log.d(TAG, "Queue is false so requesting stop");
    			clearTtsQueue();
    		} else if (isPaused()) {
@@ -122,12 +131,7 @@ public class TextToSpeechServiceManager {
    			clearTtsQueue();
    			isPaused = false;
    		}
-
-		// currently can't change Locale until speech ends
-		localePreferenceList = calculateLocalePreferenceList(book);
-
-		startSpeakingInitingIfRequired();
-    }
+	}
 
 	private List<Locale> calculateLocalePreferenceList(Book fromBook) {
 		//calculate preferred locales to use for speech

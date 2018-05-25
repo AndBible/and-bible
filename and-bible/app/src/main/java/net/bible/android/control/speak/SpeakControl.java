@@ -159,40 +159,39 @@ public class SpeakControl {
 
 	/** prepare to speak
 	 */
-	public void speakPages(NumPagesToSpeakDefinition numPagesDefn, HashMap<String, Boolean> settings) {
-		Log.d(TAG, "Chapters:"+numPagesDefn.getNumPages());
-		// if a previous speak request is paused clear the cached text 
+	public void speakBible(SpeakSettings settings) {
+		Log.d(TAG, "Chapters:"+settings.getAmount());
+		// if a previous speak request is paused clear the cached text
 		if (isPaused()) {
 			Log.d(TAG, "Clearing paused Speak text");
 			stop();
 		}
-		
+
+		preSpeak();
+
 		CurrentPage page = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
-		Book fromBook = page.getCurrentDocument()
-				;
-    	// first find keys to Speak
-		List<Key> keyList = new ArrayList<>();
+		Book fromBook = page.getCurrentDocument();
+		boolean isBible = page.getBookCategory().equals(BookCategory.BIBLE);
+
 		try {
-			for (int i=0; i<numPagesDefn.getNumPages(); i++) {
-				Key key = page.getPagePlus(i);
-				if (key!=null) {
-					keyList.add(key);
-				}
+			if(isBible) {
+				textToSpeechServiceManager.get().speak(fromBook, (Verse)page.getSingleKey(), settings);
 			}
-			
-			speakKeyList(fromBook, keyList, settings);
+			else {
+				// first find keys to Speak
+				List<Key> keyList = new ArrayList<>();
+				for (int i=0; i<settings.getAmount(); i++) {
+					Key key = page.getPagePlus(i);
+					if (key!=null) {
+						keyList.add(key);
+					}
+				}
+				textToSpeechServiceManager.get().speak(fromBook, keyList, settings);
+			}
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting chapters to speak", e);
 			throw new AndRuntimeException("Error preparing Speech", e);
 		}
-	}
-
-	public void speakKeyList(Book book, List<Key> keyList, HashMap<String, Boolean> settings) {
-		preSpeak();
-
-		// speak current chapter or stop speech if already speaking
-		Log.d(TAG, "Tell TTS to speak");
-		textToSpeechServiceManager.get().speak(book, keyList, settings);
 	}
 
 	public void speakKeyList(Book book, List<Key> keyList, boolean queue, boolean repeat) {
@@ -200,9 +199,7 @@ public class SpeakControl {
 
 		// speak current chapter or stop speech if already speaking
 		Log.d(TAG, "Tell TTS to speak");
-		HashMap<String, Boolean> settings = new HashMap<>();
-		settings.put("queue", queue);
-		settings.put("repeat", repeat);
+		SpeakSettings settings = new SpeakSettings(repeat, queue, false, 0);
 		textToSpeechServiceManager.get().speak(book, keyList, settings);
 	}
 
