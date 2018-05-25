@@ -23,7 +23,6 @@ import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.Versification;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import javax.inject.Inject;
