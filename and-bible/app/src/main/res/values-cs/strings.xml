@@ -93,6 +93,8 @@
   <string name="speak_speed_slow">Pomalu</string>
   <string name="speak_speed_normal">Normálně</string>
   <string name="speak_speed_fast">Rychle</string>
+  <string name="prefs_split_mode_vertical">Svisle</string>
+  <string name="prefs_split_mode_horizontal">Vodorovně</string>
   <!--Window-->
   <string name="window">Okno</string>
   <string name="windowClose">Zavřít</string>
