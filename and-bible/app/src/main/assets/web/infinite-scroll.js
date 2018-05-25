@@ -38,6 +38,7 @@
 		//$(window).unbind("scroll", scrollHandler);
     	 window.addEventListener('touchstart', touchstartListener, false);
          window.addEventListener('touchend', touchendListener, false);
+         window.addEventListener("touchcancel", touchendListener, false);
 
         function addMoreAtEnd() {
 			if (endId<maxId && !stillLoading) {
