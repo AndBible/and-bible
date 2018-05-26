@@ -9,7 +9,6 @@ import kotlinx.android.synthetic.main.speak.*
 import net.bible.android.activity.R
 import net.bible.android.control.speak.NumPagesToSpeakDefinition
 import net.bible.android.control.speak.SpeakControl
-import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.device.speak.event.SpeakProggressEvent
@@ -37,8 +36,6 @@ class Speak : CustomTitlebarActivityBase() {
 
         super.buildActivityComponent().inject(this)
 
-        EventBus.getDefault().register(this);
-
         // set title of chapter/verse/page selection
         numPagesToSpeakDefinitions = speakControl.calculateNumPagesToSpeakDefinitions()
 
@@ -55,10 +52,6 @@ class Speak : CustomTitlebarActivityBase() {
         Log.d(TAG, "Finished displaying Speak view")
     }
 
-    fun onEventMainThread(ev: SpeakProggressEvent) {
-        statusText.text = ev.key.name;
-    }
-
     fun onButtonClick(button: View) {
         try {
             when (button) {
@@ -69,9 +62,7 @@ class Speak : CustomTitlebarActivityBase() {
                     if (speakControl.isPaused) {
                         speakControl.continueAfterPause()
                     } else {
-                        val settings = SpeakSettings(repeat.isChecked, queue.isChecked, continuous.isChecked,
-                                selectedNumPagesToSpeak().numPages);
-                        speakControl.speakBible(settings);
+                        speakControl.speakText(selectedNumPagesToSpeak(), queue.isChecked, repeat.isChecked);
                     }
                 forwardButton -> speakControl.forward()
             }

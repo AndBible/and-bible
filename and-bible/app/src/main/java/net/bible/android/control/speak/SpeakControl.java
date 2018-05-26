@@ -158,6 +158,39 @@ public class SpeakControl {
 
 	/** prepare to speak
 	 */
+	public void speakText(NumPagesToSpeakDefinition numPagesDefn, boolean queue, boolean repeat) {
+		Log.d(TAG, "Chapters:"+numPagesDefn.getNumPages());
+		// if a previous speak request is paused clear the cached text
+		if (isPaused()) {
+			Log.d(TAG, "Clearing paused Speak text");
+			stop();
+		}
+
+		preSpeak();
+
+		CurrentPage page = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
+		Book fromBook = page.getCurrentDocument();
+
+		try {
+			// first find keys to Speak
+			List<Key> keyList = new ArrayList<>();
+			for (int i=0; i<numPagesDefn.getNumPages(); i++) {
+				Key key = page.getPagePlus(i);
+				if (key!=null) {
+					keyList.add(key);
+				}
+			}
+
+			textToSpeechServiceManager.get().speakText(fromBook, keyList, queue, repeat);
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting chapters to speak", e);
+			throw new AndRuntimeException("Error preparing Speech", e);
+		}
+	}
+
+
+	/** prepare to speak
+	 */
 	public void speakBible(SpeakSettings settings) {
 		Log.d(TAG, "Chapters:"+settings.getAmount());
 		// if a previous speak request is paused clear the cached text
@@ -170,23 +203,9 @@ public class SpeakControl {
 
 		CurrentPage page = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
 		Book fromBook = page.getCurrentDocument();
-		boolean isBible = page.getBookCategory().equals(BookCategory.BIBLE);
 
 		try {
-			if(isBible) {
-				textToSpeechServiceManager.get().speak(fromBook, (Verse)page.getSingleKey(), settings);
-			}
-			else {
-				// first find keys to Speak
-				List<Key> keyList = new ArrayList<>();
-				for (int i=0; i<settings.getAmount(); i++) {
-					Key key = page.getPagePlus(i);
-					if (key!=null) {
-						keyList.add(key);
-					}
-				}
-				textToSpeechServiceManager.get().speak(fromBook, keyList, settings);
-			}
+			textToSpeechServiceManager.get().speakBible(fromBook, (Verse)page.getSingleKey(), settings);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting chapters to speak", e);
 			throw new AndRuntimeException("Error preparing Speech", e);
@@ -199,7 +218,7 @@ public class SpeakControl {
 		// speak current chapter or stop speech if already speaking
 		Log.d(TAG, "Tell TTS to speak");
 		SpeakSettings settings = new SpeakSettings(repeat, queue, false, 0);
-		textToSpeechServiceManager.get().speak(book, keyList, settings);
+		textToSpeechServiceManager.get().speakText(book, keyList, queue, repeat);
 	}
 
 	public void rewind() {

@@ -67,7 +67,7 @@ public class SpeakTextProvider extends AbstractSpeakTextProvider {
     	Log.d(TAG, "Total Num blocks in speak queue:"+mTextToSpeak.size());
 	}
 
-	void setupReading(Book book, List<Key> keyList, SpeakSettings settings) {
+	void setupReading(Book book, List<Key> keyList, boolean repeat) {
 		Log.d(TAG, "Keys:"+keyList.size());
 		// build a string containing the text to be spoken
 		List<String> textToSpeak = new ArrayList<>();
@@ -91,7 +91,7 @@ public class SpeakTextProvider extends AbstractSpeakTextProvider {
 		}
 
 		// if repeat was checked then concatenate with itself
-		if (settings.getRepeat()) {
+		if (repeat) {
 			textToSpeak.add("\n");
 			textToSpeak.addAll(textToSpeak);
 		}
