@@ -123,11 +123,17 @@ public class SpeakControl {
 			try {
 				CurrentPage page = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
 				Book fromBook = page.getCurrentDocument();
-		    	// first find keys to Speak
-				List<Key> keyList = new ArrayList<>();
-				keyList.add(page.getKey());
-			
-				speakKeyList(fromBook, keyList, true, false);
+				if(fromBook.getBookCategory().equals(BookCategory.BIBLE))
+				{
+					speakBible();
+				}
+				else {
+					// first find keys to Speak
+					List<Key> keyList = new ArrayList<>();
+					keyList.add(page.getKey());
+
+					speakKeyList(fromBook, keyList, true, false);
+				}
 
 				Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
 			} catch (Exception e) {
