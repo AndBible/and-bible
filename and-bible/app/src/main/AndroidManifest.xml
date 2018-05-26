@@ -131,7 +131,11 @@
                   android:label="@string/speak"
                   android:configChanges="keyboardHidden|orientation|screenSize|locale">
         </activity>
-		<activity android:name="net.bible.android.view.activity.download.FirstDownload"
+        <activity android:name="net.bible.android.view.activity.speak.SpeakBible"
+                  android:label="@string/speak_bible"
+                  android:configChanges="keyboardHidden|orientation|screenSize|locale">
+        </activity>
+        <activity android:name="net.bible.android.view.activity.download.FirstDownload"
 				  android:label="@string/download"
 				  android:configChanges="keyboardHidden|orientation|screenSize|locale">
 		</activity>

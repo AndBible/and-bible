@@ -30,6 +30,7 @@ import net.bible.android.view.activity.readingplan.DailyReading;
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;
 import net.bible.android.view.activity.settings.SettingsActivity;
 import net.bible.android.view.activity.speak.Speak;
+import net.bible.android.view.activity.speak.SpeakBible;
 import net.bible.service.common.CommonUtils;
 
 import java.util.Objects;
@@ -105,6 +106,7 @@ public class MenuCommandHandler {
 		        	handlerIntent = new Intent(callingActivity, MyNotes.class);
 		        	break;
 				case R.id.speakButton:
+					// TODO: do we have bible or not?
 		        	handlerIntent = new Intent(callingActivity, Speak.class);
 		        	break;
 		        case R.id.dailyReadingPlanButton:

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Prepare criteria for a search
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+    
+    <LinearLayout android:id="@+id/leftPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+		android:padding="5dip"
+	    android:layout_alignParentTop="true">
+		<RadioGroup android:id="@+id/numChapters" 
+			android:layout_height="wrap_content"
+			android:layout_width="0dip" 
+			android:layout_weight="1"
+			android:padding="5dip">
+			<RadioButton android:id="@+id/numChapters1" 
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content"
+				android:checked="true"/>
+			<RadioButton android:id="@+id/numChapters2" 
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content"/>
+			<RadioButton android:id="@+id/numChapters3" 
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content"/>
+			<RadioButton android:id="@+id/numChapters4" 
+				android:layout_width="wrap_content" 
+				android:layout_height="wrap_content"/>
+		</RadioGroup>
+		
+		<LinearLayout android:id="@+id/rightPanel"
+			android:layout_height="wrap_content"
+			android:layout_width="0dip" 
+			android:layout_weight="1"
+	        android:orientation="vertical"
+			android:padding="5dip">
+		    <CheckBox android:id="@+id/queue"
+		    	android:text="@string/speak_queue"  
+		    	android:layout_width="wrap_content" 
+		    	android:layout_height="wrap_content"/>
+		    <CheckBox android:id="@+id/repeat"
+		    	android:text="@string/speak_repeat"  
+		    	android:layout_width="wrap_content" 
+		    	android:layout_height="wrap_content"/>
+			<CheckBox
+					android:id="@+id/continuous"
+					android:text="@string/speak_continuous"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"/>
+		</LinearLayout>
+	</LinearLayout>
+
+
+	<!-- Button bar with OK button -->
+	<LinearLayout android:id="@+id/button_panel"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+	    android:layout_alignParentBottom="true">
+
+	  	<ImageButton android:id="@+id/rewindButton"
+        	android:src="@android:drawable/ic_media_rew"
+        	android:contentDescription="@string/rewind"
+	        android:layout_width="0dip"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"
+			android:onClick="onButtonClick"/>
+	  	
+	    <ImageButton android:id="@+id/stopButton"
+	  	    android:src="@drawable/ic_media_stop"
+	        android:contentDescription="@string/stop"
+	        android:layout_width="0dip"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"
+			android:onClick="onButtonClick"/>
+	  	
+	    <ImageButton android:id="@+id/pauseButton"
+	  	    android:src="@android:drawable/ic_media_pause"
+	        android:contentDescription="@string/pause"
+	        android:layout_width="0dip"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"
+			android:onClick="onButtonClick"/>
+	    
+	    <ImageButton android:id="@+id/speakButton"
+	  	    android:src="@android:drawable/ic_media_play"
+	        android:contentDescription="@string/speak"
+	        android:layout_width="0dip"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"
+   			android:onClick="onButtonClick"/>
+
+	    <ImageButton android:id="@+id/forwardButton"
+	  	    android:src="@android:drawable/ic_media_ff"
+	        android:contentDescription="@string/forward"
+	        android:layout_width="0dip"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"
+   			android:onClick="onButtonClick"/>
+	    	    
+	</LinearLayout>
+
+	<TextView
+			android:text=""
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:id="@+id/currentLocation"
+			android:layout_below="@+id/leftPanel"
+			android:layout_alignParentStart="true"/>
+
+	<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/leftPanel"
+			android:layout_alignParentStart="true"
+			android:id="@+id/statusText"
+			android:layout_alignBottom="@+id/currentLocation"
+			android:layout_alignParentEnd="true"/>
+
+	<TextView
+			android:text="SpeakBible"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/currentLocation"
+			android:layout_alignParentStart="true"
+			android:id="@+id/textView"/>
+
+</RelativeLayout>
