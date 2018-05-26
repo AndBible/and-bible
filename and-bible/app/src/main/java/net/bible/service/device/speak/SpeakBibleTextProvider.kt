@@ -19,11 +19,9 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
                              private val bibleTraverser: BibleTraverser): AbstractSpeakTextProvider() {
 
     private var currentItem: Pair<Book, Verse>? = null
-    private var continuous: Boolean = false
     private var itemRead: Boolean = false
 
     fun setupReading(book: Book, verse: Verse, settings: SpeakSettings) {
-        continuous = settings.continuous
         currentItem = Pair(book,verse)
         itemRead = false
     }

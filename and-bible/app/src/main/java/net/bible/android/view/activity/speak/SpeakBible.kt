@@ -23,36 +23,18 @@ import javax.inject.Inject
  * The copyright to this program is held by it's author.
  */
 class SpeakBible : CustomTitlebarActivityBase() {
-
-    private lateinit var numPagesToSpeakDefinitions: Array<NumPagesToSpeakDefinition>
-
     private lateinit var speakControl: SpeakControl
 
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i(TAG, "Displaying Speak view")
+        Log.i(TAG, "Displaying SpeakBible view")
 
         setContentView(R.layout.speak_bible)
 
         super.buildActivityComponent().inject(this)
-
         EventBus.getDefault().register(this);
-
-        // set title of chapter/verse/page selection
-        numPagesToSpeakDefinitions = speakControl.calculateNumPagesToSpeakDefinitions()
-
-        // set a suitable prompt for the different numbers of chapters
-        numPagesToSpeakDefinitions.forEach {
-            val numChaptersCheckBox = findViewById(it.radioButtonId) as RadioButton
-            numChaptersCheckBox.text = it.getPrompt()
-        }
-
-        // set defaults for Queue and Repeat
-        queue.isChecked = true
-        repeat.isChecked = false
-
-        Log.d(TAG, "Finished displaying Speak view")
+        Log.d(TAG, "Finished displaying SpeakBible view")
     }
 
     fun onEventMainThread(ev: SpeakProggressEvent) {
@@ -69,9 +51,7 @@ class SpeakBible : CustomTitlebarActivityBase() {
                     if (speakControl.isPaused) {
                         speakControl.continueAfterPause()
                     } else {
-                        val settings = SpeakSettings(repeat.isChecked, queue.isChecked, continuous.isChecked,
-                                selectedNumPagesToSpeak().numPages);
-                        speakControl.speakBible(settings);
+                        speakControl.speakBible(SpeakSettings());
                     }
                 forwardButton -> speakControl.forward()
             }
@@ -79,8 +59,6 @@ class SpeakBible : CustomTitlebarActivityBase() {
             Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
         }
     }
-
-    fun selectedNumPagesToSpeak() = numPagesToSpeakDefinitions.first { numChapters.checkedRadioButtonId == it.radioButtonId }
 
     @Inject
     internal fun setSpeakControl(speakControl: SpeakControl) {

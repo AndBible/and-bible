@@ -192,10 +192,8 @@ public class SpeakControl {
 	/** prepare to speak
 	 */
 	public void speakBible(SpeakSettings settings) {
-		Log.d(TAG, "Chapters:"+settings.getAmount());
 		// if a previous speak request is paused clear the cached text
 		if (isPaused()) {
-			Log.d(TAG, "Clearing paused Speak text");
 			stop();
 		}
 
@@ -217,7 +215,6 @@ public class SpeakControl {
 
 		// speak current chapter or stop speech if already speaking
 		Log.d(TAG, "Tell TTS to speak");
-		SpeakSettings settings = new SpeakSettings(repeat, queue, false, 0);
 		textToSpeechServiceManager.get().speakText(book, keyList, queue, repeat);
 	}
 

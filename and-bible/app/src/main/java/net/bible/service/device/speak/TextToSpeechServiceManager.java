@@ -101,8 +101,8 @@ public class TextToSpeechServiceManager {
 
 	public synchronized void speakBible(Book book, Verse verse, SpeakSettings settings) {
 		switchProvider(speakBibleTextProvider);
+		clearTtsQueue();
 		speakBibleTextProvider.setupReading(book, verse, settings);
-		handleQueue(settings.getQueue());
 		localePreferenceList = calculateLocalePreferenceList(book);
 		startSpeakingInitingIfRequired();
 	}
