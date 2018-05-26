@@ -188,6 +188,9 @@ public class SpeakControl {
 		}
 	}
 
+	public String getStatusText() {
+		return textToSpeechServiceManager.get().getStatusText();
+	}
 
 	/** prepare to speak
 	 */

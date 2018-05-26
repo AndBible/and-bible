@@ -7,11 +7,12 @@ import android.widget.RadioButton
 import de.greenrobot.event.EventBus
 import kotlinx.android.synthetic.main.speak_bible.*
 import net.bible.android.activity.R
-import net.bible.android.control.speak.NumPagesToSpeakDefinition
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettings
+import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.service.device.speak.TextToSpeechServiceManager
 import net.bible.service.device.speak.event.SpeakProggressEvent
 import javax.inject.Inject
 
@@ -22,6 +23,7 @@ import javax.inject.Inject
  * @see gnu.lgpl.License for license details.<br></br>
  * The copyright to this program is held by it's author.
  */
+@ActivityScope
 class SpeakBible : CustomTitlebarActivityBase() {
     private lateinit var speakControl: SpeakControl
 
@@ -38,7 +40,7 @@ class SpeakBible : CustomTitlebarActivityBase() {
     }
 
     fun onEventMainThread(ev: SpeakProggressEvent) {
-        statusText.text = ev.key.name;
+        statusText.text = speakControl.statusText;
     }
 
     fun onButtonClick(button: View) {
@@ -63,6 +65,7 @@ class SpeakBible : CustomTitlebarActivityBase() {
     @Inject
     internal fun setSpeakControl(speakControl: SpeakControl) {
         this.speakControl = speakControl
+        statusText.text = speakControl.statusText;
     }
 
     companion object {

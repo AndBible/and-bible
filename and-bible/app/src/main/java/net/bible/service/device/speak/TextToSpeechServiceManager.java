@@ -115,6 +115,10 @@ public class TextToSpeechServiceManager {
 		startSpeakingInitingIfRequired();
     }
 
+	public String getStatusText() {
+		return mSpeakTextProvider.getStatusText();
+	}
+
 	private void switchProvider(AbstractSpeakTextProvider newProvider) {
 		if(newProvider != mSpeakTextProvider) {
 			mSpeakTextProvider.reset();

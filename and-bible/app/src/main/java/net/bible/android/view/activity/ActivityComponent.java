@@ -30,6 +30,7 @@ import net.bible.android.view.activity.speak.Speak;
 import net.bible.android.view.activity.speak.SpeakBible;
 
 import dagger.Component;
+import net.bible.service.device.speak.TextToSpeechServiceManager;
 
 /**
  * Dagger Component to allow injection of dependencies into activities.

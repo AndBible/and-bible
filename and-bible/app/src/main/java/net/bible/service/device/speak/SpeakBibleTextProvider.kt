@@ -43,6 +43,10 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         return text
     }
 
+    override fun getStatusText(): String {
+        return currentItem?.second?.name ?: "";
+    }
+
     private fun getTextForCurrentItem(): String {
         return swordContentFacade.getTextToSpeak(currentItem!!.first, currentItem!!.second)
 
@@ -52,13 +56,13 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun rewind() {
-        currentItem = Pair(currentItem!!.first, bibleTraverser.getPrevVerse(currentItem!!.first as AbstractPassageBook?,
+        currentItem = Pair(currentItem!!.first, bibleTraverser.getPrevVerse(currentItem!!.first as AbstractPassageBook,
                 currentItem!!.second))
         itemRead = false
     }
 
     override fun forward() {
-        currentItem = Pair(currentItem!!.first, bibleTraverser.getNextVerse(currentItem!!.first as AbstractPassageBook?,
+        currentItem = Pair(currentItem!!.first, bibleTraverser.getNextVerse(currentItem!!.first as AbstractPassageBook,
                 currentItem!!.second))
         itemRead = false
     }

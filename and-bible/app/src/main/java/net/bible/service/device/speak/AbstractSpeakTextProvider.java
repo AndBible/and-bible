@@ -22,4 +22,7 @@ public abstract class AbstractSpeakTextProvider {
     abstract void clearPersistedState();
     abstract long getTotalChars();
     abstract long getSpokenChars();
+    String getStatusText() {
+        return "";
+    }
 }
