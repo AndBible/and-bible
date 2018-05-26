@@ -33,7 +33,7 @@ class SpeakBible : CustomTitlebarActivityBase() {
     fun onSettingsChange(widget: View) = updateSettings()
 
     private fun updateSettings() {
-        textProvider.settings = SpeakSettings(synchronize.isChecked)
+        textProvider.settings = SpeakSettings(synchronize.isChecked, speak_chapter_changes.isChecked)
     }
 
     fun onButtonClick(button: View) {
@@ -62,5 +62,6 @@ class SpeakBible : CustomTitlebarActivityBase() {
         textProvider = speakControl.speakBibleTextProvider
         statusText.text = if (!speakControl.isSpeaking) "" else textProvider.getStatusText()
         synchronize.isChecked = textProvider.settings.synchronize
+        speak_chapter_changes.isChecked = textProvider.settings.chapterChanges
     }
 }

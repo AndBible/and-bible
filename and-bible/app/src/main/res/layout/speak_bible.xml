@@ -19,11 +19,19 @@
 	    android:layout_alignParentTop="true">
 
 		<CheckBox
-				android:text="@string/synchronize_first_window"
+				android:text="@string/conf_synchronize_first_window"
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:id="@+id/synchronize"
+                android:onClick="onSettingsChange"/>
+
+		<CheckBox
+				android:text="@string/conf_speak_chapter_changes"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:id="@+id/speak_chapter_changes"
                 android:onClick="onSettingsChange"/>
 
 		<LinearLayout android:id="@+id/rightPanel"

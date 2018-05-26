@@ -267,7 +267,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak_repeat">Repeat</string>
 
     <!-- Speak - Bible -->
-    <string name="synchronize_first_window">Synchronize first window</string>
+    <string name="conf_synchronize_first_window">Synchronize first window</string>
+    <string name="conf_speak_chapter_changes">Speak chapter changes</string>
     <string name="speak_book_changed">Book changed to </string>
     <string name="speak_chapter_changed">Chapter </string>
 

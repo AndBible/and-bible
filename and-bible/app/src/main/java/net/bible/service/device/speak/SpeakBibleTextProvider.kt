@@ -1,8 +1,7 @@
 package net.bible.service.device.speak
 
-import android.content.res.Resources
-import android.util.Range
 import de.greenrobot.event.EventBus
+import kotlinx.serialization.SerializationException
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.CommonUtils
@@ -15,6 +14,7 @@ import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import kotlinx.serialization.json.JSON
+import net.bible.android.BibleApplication
 import org.crosswire.jsword.versification.BibleNames
 
 private val PERSIST_BOOK = "SpeakBibleBook"
@@ -33,7 +33,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     private var itemRead: Boolean = false
-    var _settings: SpeakSettings? = null
+    private var _settings: SpeakSettings? = null
     var settings: SpeakSettings
         get() = _settings?: SpeakSettings()
         set(value) {
@@ -48,7 +48,11 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         val sharedPreferences = CommonUtils.getSharedPreferences()
         if(sharedPreferences.contains(PERSIST_SETTINGS)) {
             val settingsStr = sharedPreferences.getString(PERSIST_SETTINGS, "")
-            settings = JSON.parse(settingsStr)
+            settings = try {
+                JSON.parse(settingsStr)
+            } catch (ex: SerializationException) {
+                SpeakSettings()
+            }
         }
     }
 
@@ -58,10 +62,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun getNextTextToSpeak(): String {
-        var text = ""
-        if(currentItem == null) {
-            return text
-        }
+        var text: String
         val oldVerse = currentItem.second
         if (itemRead) {
             forward()
@@ -73,15 +74,14 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         }
         val currentVerse = currentItem.second
         val bookChanged = currentVerse.book != oldVerse.book
-        val system = Resources.getSystem()
-
-        if(bookChanged || currentVerse.chapter != oldVerse.chapter) {
-            text =  system.getString(R.string.speak_chapter_changed) + currentVerse.chapter + ". " + text
+        val app = BibleApplication.getApplication();
+        if(settings.chapterChanges && (bookChanged || currentVerse.chapter != oldVerse.chapter)) {
+            text =  app.getString(R.string.speak_chapter_changed) + currentVerse.chapter + ". " + text
         }
 
         if(bookChanged) {
             val bookName = BibleNames.instance().getPreferredName(currentVerse.book)
-            text = system.getString(R.string.speak_book_changed) + bookName + ". " + text
+            text = app.getString(R.string.speak_book_changed) + bookName + ". " + text
         }
 
         EventBus.getDefault().post(SpeakProggressEvent(currentItem.first, currentItem.second, settings.synchronize))
