@@ -53,7 +53,7 @@ class SpeakBible : CustomTitlebarActivityBase() {
                     if (speakControl.isPaused) {
                         speakControl.continueAfterPause()
                     } else {
-                        speakControl.speakBible(SpeakSettings());
+                        speakControl.speakBible(SpeakSettings(synchronize.isChecked));
                     }
                 forwardButton -> speakControl.forward()
             }

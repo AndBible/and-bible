@@ -20,10 +20,12 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
 
     private var currentItem: Pair<Book, Verse>? = null
     private var itemRead: Boolean = false
+    private var settings: SpeakSettings? = null
 
     fun setupReading(book: Book, verse: Verse, settings: SpeakSettings) {
         currentItem = Pair(book,verse)
         itemRead = false
+        this.settings = settings
     }
 
     override fun getNextTextToSpeak(): String {
@@ -39,7 +41,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
             forward()
             text = getTextForCurrentItem()
         }
-        EventBus.getDefault().post(SpeakProggressEvent(currentItem!!.first, currentItem!!.second))
+        EventBus.getDefault().post(SpeakProggressEvent(currentItem!!.first, currentItem!!.second, settings!!.synchronize))
         return text
     }
 
@@ -49,7 +51,6 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
 
     private fun getTextForCurrentItem(): String {
         return swordContentFacade.getTextToSpeak(currentItem!!.first, currentItem!!.second)
-
     }
 
     override fun pause(fractionCompleted: Float) {

@@ -17,19 +17,20 @@
         android:orientation="horizontal"
 		android:padding="5dip"
 	    android:layout_alignParentTop="true">
-		<RadioGroup android:id="@+id/numChapters"
-			android:layout_height="wrap_content"
-			android:layout_width="0dip"
-			android:layout_weight="1"
-			android:padding="5dip">
-		</RadioGroup>
+
+		<CheckBox
+				android:text="@string/synchronize_first_window"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:id="@+id/synchronize"/>
 
 		<LinearLayout android:id="@+id/rightPanel"
-			android:layout_height="wrap_content"
-			android:layout_width="0dip"
-			android:layout_weight="1"
-	        android:orientation="vertical"
-			android:padding="5dip">
+					  android:layout_height="wrap_content"
+					  android:layout_width="0dip"
+					  android:layout_weight="1"
+					  android:orientation="vertical"
+					  android:padding="5dip">
 
 		</LinearLayout>
 	</LinearLayout>
