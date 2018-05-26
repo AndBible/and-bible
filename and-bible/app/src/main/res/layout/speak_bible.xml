@@ -10,7 +10,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-    
+
     <LinearLayout android:id="@+id/leftPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -87,20 +87,21 @@
 	</LinearLayout>
 
 	<TextView
-			android:text=""
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:id="@+id/currentLocation"
-			android:layout_below="@+id/leftPanel"
-			android:layout_alignParentStart="true"/>
-
-	<TextView
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:layout_below="@+id/leftPanel"
 			android:layout_alignParentStart="true"
+			android:id="@+id/statusTextTitle"
+			android:layout_alignParentEnd="true"
+			android:text="Current"/>
+
+	<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/statusTextTitle"
+			android:layout_alignParentStart="true"
 			android:id="@+id/statusText"
-			android:layout_alignBottom="@+id/currentLocation"
-			android:layout_alignParentEnd="true"/>
+			android:layout_alignParentEnd="true"
+			android:text="*Gen.1.1*"/>
 
 </RelativeLayout>

@@ -1,26 +1,37 @@
 package net.bible.service.device.speak
 
+import android.content.res.Resources
+import android.util.Range
 import de.greenrobot.event.EventBus
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakProggressEvent
 import net.bible.service.sword.SwordContentFacade
+import net.bible.android.activity.R
 import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import kotlinx.serialization.json.JSON
+import org.crosswire.jsword.versification.BibleNames
 
 private val PERSIST_BOOK = "SpeakBibleBook"
 private val PERSIST_VERSE = "SpeakBibleVerse"
 private val PERSIST_SETTINGS = "SpeakBibleSettings"
 
 class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
-                             private val bibleTraverser: BibleTraverser): AbstractSpeakTextProvider() {
+                             private val bibleTraverser: BibleTraverser,
+                             initialBook: Book,
+                             initialVerse: Verse): AbstractSpeakTextProvider() {
 
-    private var currentItem: Pair<Book, Verse>? = null
+
+    private var currentItem: Pair<Book, Verse>
+    init {
+        currentItem = Pair(initialBook, initialVerse)
+    }
+
     private var itemRead: Boolean = false
     var _settings: SpeakSettings? = null
     var settings: SpeakSettings
@@ -51,6 +62,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         if(currentItem == null) {
             return text
         }
+        val oldVerse = currentItem.second
         if (itemRead) {
             forward()
         }
@@ -59,30 +71,44 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
             forward()
             text = getTextForCurrentItem()
         }
-        EventBus.getDefault().post(SpeakProggressEvent(currentItem!!.first, currentItem!!.second, settings.synchronize))
+        val currentVerse = currentItem.second
+        val bookChanged = currentVerse.book != oldVerse.book
+        val system = Resources.getSystem()
+
+        if(bookChanged || currentVerse.chapter != oldVerse.chapter) {
+            text =  system.getString(R.string.speak_chapter_changed) + currentVerse.chapter + ". " + text
+        }
+
+        if(bookChanged) {
+            val bookName = BibleNames.instance().getPreferredName(currentVerse.book)
+            text = system.getString(R.string.speak_book_changed) + bookName + ". " + text
+        }
+
+        EventBus.getDefault().post(SpeakProggressEvent(currentItem.first, currentItem.second, settings.synchronize))
         return text
     }
 
-    override fun getStatusText(): String {
-        return currentItem?.second?.name ?: "";
+    fun getStatusText(): String {
+        return currentItem.second.name
     }
 
     private fun getTextForCurrentItem(): String {
-        return swordContentFacade.getTextToSpeak(currentItem!!.first, currentItem!!.second)
+        return swordContentFacade.getTextToSpeak(currentItem.first, currentItem.second)
     }
 
     override fun pause(fractionCompleted: Float) {
+        itemRead = false
     }
 
     override fun rewind() {
-        currentItem = Pair(currentItem!!.first, bibleTraverser.getPrevVerse(currentItem!!.first as AbstractPassageBook,
-                currentItem!!.second))
+        currentItem = Pair(currentItem.first, bibleTraverser.getPrevVerse(currentItem.first as AbstractPassageBook,
+                currentItem.second))
         itemRead = false
     }
 
     override fun forward() {
-        currentItem = Pair(currentItem!!.first, bibleTraverser.getNextVerse(currentItem!!.first as AbstractPassageBook,
-                currentItem!!.second))
+        currentItem = Pair(currentItem.first, bibleTraverser.getNextVerse(currentItem.first as AbstractPassageBook,
+                currentItem.second))
         itemRead = false
     }
 
@@ -91,14 +117,13 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun reset() {
-        currentItem = null
         itemRead = false
     }
 
     override fun persistState() {
         CommonUtils.getSharedPreferences().edit()
-                .putString(PERSIST_BOOK, currentItem!!.first.name)
-                .putString(PERSIST_VERSE, currentItem!!.second.osisID)
+                .putString(PERSIST_BOOK, currentItem.first.name)
+                .putString(PERSIST_VERSE, currentItem.second.osisID)
                 .apply()
     }
 
@@ -129,6 +154,6 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun isMoreTextToSpeak(): Boolean {
-        return currentItem != null
+        return true
     }
 }

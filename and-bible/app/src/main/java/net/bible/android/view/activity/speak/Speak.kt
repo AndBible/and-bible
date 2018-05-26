@@ -14,7 +14,7 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.device.speak.event.SpeakProggressEvent
 import javax.inject.Inject
 
-/** Allow user to enter search criteria
+/** Allow user to listen to text via TTS
 
  * @author Martin Denham [mjdenham at gmail dot com]
  * *

@@ -12,6 +12,7 @@ import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
+import net.bible.service.device.speak.SpeakBibleTextProvider;
 import net.bible.service.device.speak.TextToSpeechServiceManager;
 
 import org.crosswire.jsword.book.Book;
@@ -188,10 +189,6 @@ public class SpeakControl {
 		}
 	}
 
-	public String getStatusText() {
-		return textToSpeechServiceManager.get().getStatusText();
-	}
-
 	/** prepare to speak
 	 */
 	public void speakBible() {
@@ -213,12 +210,8 @@ public class SpeakControl {
 		}
 	}
 
-	public void setSettings(SpeakSettings settings) {
-		textToSpeechServiceManager.get().setSettings(settings);
-	}
-
-	public SpeakSettings getSettings() {
-		return textToSpeechServiceManager.get().getSettings();
+	public SpeakBibleTextProvider getSpeakBibleTextProvider() {
+		return textToSpeechServiceManager.get().getSpeakBibleTextProvider();
 	}
 
 	public void speakKeyList(Book book, List<Key> keyList, boolean queue, boolean repeat) {

@@ -10,6 +10,7 @@ import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.phonecall.PhoneCallMonitor;
 import net.bible.android.control.event.phonecall.PhoneCallStarted;
+import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.control.speak.SpeakSettings;
 import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.base.Dialogs;
@@ -83,10 +84,13 @@ public class TextToSpeechServiceManager {
     private boolean isPaused = false;
 
 	@Inject
-    public TextToSpeechServiceManager(SwordContentFacade swordContentFacade, BibleTraverser bibleTraverser) {
+    public TextToSpeechServiceManager(SwordContentFacade swordContentFacade, BibleTraverser bibleTraverser, WindowControl windowControl) {
     	Log.d(TAG, "Creating TextToSpeechServiceManager");
 		speakTextProvider = new SpeakTextProvider(swordContentFacade);
-		speakBibleTextProvider = new SpeakBibleTextProvider(swordContentFacade, bibleTraverser);
+		Book book = windowControl.getActiveWindowPageManager().getCurrentBible().getCurrentDocument();
+		Verse verse = windowControl.getActiveWindowPageManager().getCurrentBible().getSingleKey();
+
+		speakBibleTextProvider = new SpeakBibleTextProvider(swordContentFacade, bibleTraverser, book, verse);
 
     	mSpeakTextProvider = speakBibleTextProvider;
 
@@ -94,6 +98,10 @@ public class TextToSpeechServiceManager {
 		ABEventBus.getDefault().safelyRegister(this);
     	restorePauseState();
     }
+
+	public SpeakBibleTextProvider getSpeakBibleTextProvider() {
+		return speakBibleTextProvider;
+	}
 
     public boolean isLanguageAvailable(String langCode) {
     	return ttsLanguageSupport.isLangKnownToBeSupported(langCode);
@@ -107,14 +115,6 @@ public class TextToSpeechServiceManager {
 		startSpeakingInitingIfRequired();
 	}
 
-	public void setSettings(SpeakSettings settings) {
-		speakBibleTextProvider.setSettings(settings);
-	}
-
-	public SpeakSettings getSettings() {
-		return speakBibleTextProvider.getSettings();
-	}
-
 	public synchronized void speakText(Book book, List<Key> keyList, boolean queue, boolean repeat) {
 		switchProvider(speakTextProvider);
 		speakTextProvider.setupReading(book, keyList, repeat);
@@ -122,10 +122,6 @@ public class TextToSpeechServiceManager {
 		localePreferenceList = calculateLocalePreferenceList(book);
 		startSpeakingInitingIfRequired();
     }
-
-	public String getStatusText() {
-		return mSpeakTextProvider.getStatusText();
-	}
 
 	private void switchProvider(AbstractSpeakTextProvider newProvider) {
 		if(newProvider != mSpeakTextProvider) {
