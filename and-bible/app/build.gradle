@@ -4,14 +4,14 @@ apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 27
     buildToolsVersion "27.0.3"
 
     /** these config values override those in AndroidManifest.xml.  Can also set versionCode and versionName */
     defaultConfig {
         applicationId "net.bible.android.activity"
         minSdkVersion 19
-        targetSdkVersion 19
+        targetSdkVersion 22
 		vectorDrawables.useSupportLibrary = true
     }
 
