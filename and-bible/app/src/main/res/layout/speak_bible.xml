@@ -23,7 +23,8 @@
 				android:layout_width="0dp"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
-				android:id="@+id/synchronize"/>
+				android:id="@+id/synchronize"
+                android:onClick="onSettingsChange"/>
 
 		<LinearLayout android:id="@+id/rightPanel"
 					  android:layout_height="wrap_content"

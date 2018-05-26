@@ -30,17 +30,19 @@ class SpeakBible : CustomTitlebarActivityBase() {
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i(TAG, "Displaying SpeakBible view")
-
         setContentView(R.layout.speak_bible)
-
         super.buildActivityComponent().inject(this)
-        EventBus.getDefault().register(this);
-        Log.d(TAG, "Finished displaying SpeakBible view")
+        EventBus.getDefault().register(this)
     }
 
     fun onEventMainThread(ev: SpeakProggressEvent) {
-        statusText.text = speakControl.statusText;
+        statusText.text = speakControl.statusText
+    }
+
+    fun onSettingsChange(widget: View) = updateSettings()
+
+    private fun updateSettings() {
+        speakControl.settings = SpeakSettings(synchronize.isChecked)
     }
 
     fun onButtonClick(button: View) {
@@ -53,7 +55,8 @@ class SpeakBible : CustomTitlebarActivityBase() {
                     if (speakControl.isPaused) {
                         speakControl.continueAfterPause()
                     } else {
-                        speakControl.speakBible(SpeakSettings(synchronize.isChecked));
+                        updateSettings()
+                        speakControl.speakBible()
                     }
                 forwardButton -> speakControl.forward()
             }
@@ -65,7 +68,11 @@ class SpeakBible : CustomTitlebarActivityBase() {
     @Inject
     internal fun setSpeakControl(speakControl: SpeakControl) {
         this.speakControl = speakControl
-        statusText.text = speakControl.statusText;
+        val settings = speakControl.settings
+        statusText.text = speakControl.statusText
+        if(settings != null) {
+            synchronize.isChecked = settings.synchronize
+        }
     }
 
     companion object {

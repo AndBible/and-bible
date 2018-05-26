@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
+apply plugin: 'kotlinx-serialization'
 
 android {
     compileSdkVersion 27
@@ -46,6 +47,7 @@ android {
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/main.kotlin_module'
     }
 }
 
@@ -60,6 +62,7 @@ dependencies {
     implementation 'com.google.dagger:dagger:2.15'
     annotationProcessor 'com.google.dagger:dagger-compiler:2.15'
     kapt 'com.google.dagger:dagger-compiler:2.15'
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
 
     implementation 'de.greenrobot:eventbus:2.4.0'
     implementation 'org.jdom:jdom2:2.0.6'
@@ -84,4 +87,5 @@ dependencies {
 }
 repositories {
 	mavenCentral()
+    maven { url "https://kotlin.bintray.com/kotlinx" }
 }

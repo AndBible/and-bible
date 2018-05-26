@@ -1,5 +1,5 @@
 package net.bible.android.control.speak
+import kotlinx.serialization.*
 
-data class SpeakSettings(val synchronize: Boolean = false
-                         )
-
+@Serializable
+data class SpeakSettings(val synchronize: Boolean = false)

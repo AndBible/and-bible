@@ -11,21 +11,39 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
+import kotlinx.serialization.json.JSON
 
 private val PERSIST_BOOK = "SpeakBibleBook"
 private val PERSIST_VERSE = "SpeakBibleVerse"
+private val PERSIST_SETTINGS = "SpeakBibleSettings"
 
 class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
                              private val bibleTraverser: BibleTraverser): AbstractSpeakTextProvider() {
 
     private var currentItem: Pair<Book, Verse>? = null
     private var itemRead: Boolean = false
-    private var settings: SpeakSettings? = null
+    var _settings: SpeakSettings? = null
+    var settings: SpeakSettings
+        get() = _settings?: SpeakSettings()
+        set(value) {
+            _settings = value
+            val strSettings = JSON.stringify(settings)
+            CommonUtils.getSharedPreferences().edit()
+                    .putString(PERSIST_SETTINGS, strSettings)
+                    .apply()
+        }
 
-    fun setupReading(book: Book, verse: Verse, settings: SpeakSettings) {
+    init {
+        val sharedPreferences = CommonUtils.getSharedPreferences()
+        if(sharedPreferences.contains(PERSIST_SETTINGS)) {
+            val settingsStr = sharedPreferences.getString(PERSIST_SETTINGS, "")
+            settings = JSON.parse(settingsStr)
+        }
+    }
+
+    fun setupReading(book: Book, verse: Verse) {
         currentItem = Pair(book,verse)
         itemRead = false
-        this.settings = settings
     }
 
     override fun getNextTextToSpeak(): String {
@@ -41,7 +59,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
             forward()
             text = getTextForCurrentItem()
         }
-        EventBus.getDefault().post(SpeakProggressEvent(currentItem!!.first, currentItem!!.second, settings!!.synchronize))
+        EventBus.getDefault().post(SpeakProggressEvent(currentItem!!.first, currentItem!!.second, settings.synchronize))
         return text
     }
 

@@ -99,12 +99,20 @@ public class TextToSpeechServiceManager {
     	return ttsLanguageSupport.isLangKnownToBeSupported(langCode);
     }
 
-	public synchronized void speakBible(Book book, Verse verse, SpeakSettings settings) {
+	public synchronized void speakBible(Book book, Verse verse) {
 		switchProvider(speakBibleTextProvider);
 		clearTtsQueue();
-		speakBibleTextProvider.setupReading(book, verse, settings);
+		speakBibleTextProvider.setupReading(book, verse);
 		localePreferenceList = calculateLocalePreferenceList(book);
 		startSpeakingInitingIfRequired();
+	}
+
+	public void setSettings(SpeakSettings settings) {
+		speakBibleTextProvider.setSettings(settings);
+	}
+
+	public SpeakSettings getSettings() {
+		return speakBibleTextProvider.getSettings();
 	}
 
 	public synchronized void speakText(Book book, List<Key> keyList, boolean queue, boolean repeat) {

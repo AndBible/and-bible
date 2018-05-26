@@ -194,7 +194,7 @@ public class SpeakControl {
 
 	/** prepare to speak
 	 */
-	public void speakBible(SpeakSettings settings) {
+	public void speakBible() {
 		// if a previous speak request is paused clear the cached text
 		if (isPaused()) {
 			stop();
@@ -206,11 +206,19 @@ public class SpeakControl {
 		Book fromBook = page.getCurrentDocument();
 
 		try {
-			textToSpeechServiceManager.get().speakBible(fromBook, (Verse)page.getSingleKey(), settings);
+			textToSpeechServiceManager.get().speakBible(fromBook, (Verse)page.getSingleKey());
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting chapters to speak", e);
 			throw new AndRuntimeException("Error preparing Speech", e);
 		}
+	}
+
+	public void setSettings(SpeakSettings settings) {
+		textToSpeechServiceManager.get().setSettings(settings);
+	}
+
+	public SpeakSettings getSettings() {
+		return textToSpeechServiceManager.get().getSettings();
 	}
 
 	public void speakKeyList(Book book, List<Key> keyList, boolean queue, boolean repeat) {
