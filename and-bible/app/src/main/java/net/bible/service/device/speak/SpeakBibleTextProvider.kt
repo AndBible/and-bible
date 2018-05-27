@@ -33,6 +33,8 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     private var book: Book
     private var currentVerse: Verse
     private var startVerse: Verse
+    private var numVersesToRead = 2
+
     init {
         book = initialBook
         currentVerse = initialVerse
@@ -40,7 +42,6 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     private var readList: ArrayList<String>
-    private var itemRead: Boolean = false
     private var _settings: SpeakSettings? = null
     var settings: SpeakSettings
         get() = _settings?: SpeakSettings()
@@ -97,18 +98,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         return text
     }
 
-    override fun getNextTextToSpeak(): String {
-        // If there's something left from splitted verse, then we'll speak that first.
-        if(readList.isNotEmpty()) {
-            startVerse = currentVerse
-            EventBus.getDefault().post(SpeakProggressEvent(book, startVerse, settings.synchronize))
-            return readList.removeAt(0)
-        }
-
-        startVerse = currentVerse
-        if (itemRead) {
-            currentVerse = getNextVerse()
-        }
+    private fun getNextVerseText(): String {
         var text = skipEmptyVerses()
 
         val bookChanged = currentVerse.book != startVerse.book
@@ -121,8 +111,22 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
             val bookName = BibleNames.instance().getPreferredName(currentVerse.book)
             text = app.getString(R.string.speak_book_changed) + " " + bookName + ". " + text
         }
-        startVerse = currentVerse
+        return text
+    }
 
+    override fun getNextTextToSpeak(): String {
+        // If there's something left from splitted verse, then we'll speak that first.
+        var text = ""
+        startVerse = currentVerse
+        if(readList.isNotEmpty()) {
+            text += readList.removeAt(0)
+            currentVerse = getNextVerse()
+        }
+
+        for(i in 0 until numVersesToRead) {
+            text += getNextVerseText()
+            currentVerse = getNextVerse()
+        }
         text = joinBreakingSentence(text)
 
         EventBus.getDefault().post(SpeakProggressEvent(book, startVerse, settings.synchronize))
@@ -135,7 +139,6 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
 
         val regex = Regex("(.*)([.?!]+[\'\"]?+)")
         if(!text.matches(regex)) {
-            currentVerse = getNextVerse()
             val nextText = getTextForCurrentItem()
             val parts = nextText.split('.', '?', '!')
             text += " " + parts[0] + "."
@@ -147,7 +150,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     fun getStatusText(): String {
-        return startVerse.name + if(startVerse != currentVerse) "+" else ""
+        return startVerse.name + if(startVerse != currentVerse) " - " +  currentVerse.name else ""
     }
 
     private fun getTextForCurrentItem(): String {
@@ -155,7 +158,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun pause(fractionCompleted: Float) {
-        itemRead = false
+        currentVerse = startVerse
     }
 
     private fun getNextVerse(): Verse = bibleTraverser.getNextVerse(book as AbstractPassageBook, currentVerse)
@@ -173,11 +176,9 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun finishedUtterance(utteranceId: String?) {
-        itemRead = true
     }
 
     override fun reset() {
-        itemRead = false
         currentVerse = startVerse
         readList.clear()
     }
