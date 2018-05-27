@@ -2,6 +2,7 @@ package net.bible.android.view.activity.speak
 
 import android.os.Bundle
 import android.view.View
+import android.widget.SeekBar
 import de.greenrobot.event.EventBus
 import kotlinx.android.synthetic.main.speak_bible.*
 import net.bible.android.activity.R
@@ -10,9 +11,12 @@ import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.SpeakBibleTextProvider
 import net.bible.service.device.speak.event.SpeakProggressEvent
 import javax.inject.Inject
+
+val speakSpeedPref = "speak_speed_percent_pref"
 
 @ActivityScope
 class SpeakBible : CustomTitlebarActivityBase() {
@@ -24,6 +28,17 @@ class SpeakBible : CustomTitlebarActivityBase() {
         setContentView(R.layout.speak_bible)
         super.buildActivityComponent().inject(this)
         EventBus.getDefault().register(this)
+        speakSpeed.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                speedStatus.text = progress.toString()
+                CommonUtils.getSharedPreferences().edit().putInt(speakSpeedPref, progress).apply()
+            }
+        })
+        val initialSpeed = CommonUtils.getSharedPreferences().getInt(speakSpeedPref, 100)
+        speakSpeed.progress = initialSpeed
+        speedStatus.text = initialSpeed.toString()
     }
 
     fun onEventMainThread(ev: SpeakProggressEvent) {
