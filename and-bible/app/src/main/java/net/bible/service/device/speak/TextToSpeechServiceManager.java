@@ -1,6 +1,14 @@
 package net.bible.service.device.speak;
 
+import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
 import net.bible.android.BibleApplication;
@@ -11,7 +19,6 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.phonecall.PhoneCallMonitor;
 import net.bible.android.control.event.phonecall.PhoneCallStarted;
 import net.bible.android.control.page.window.WindowControl;
-import net.bible.android.control.speak.SpeakSettings;
 import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
@@ -83,6 +90,32 @@ public class TextToSpeechServiceManager {
     
     private boolean isPaused = false;
 
+	private class NotificationBroadcastReceiver extends BroadcastReceiver {
+		public void onReceive(Context context, Intent intent) {
+			intent.getData();
+		}
+	}
+
+    private Notification createNotification() {
+    	Application app = BibleApplication.getApplication();
+    	Intent pauseIntent = new Intent(app, NotificationBroadcastReceiver.class);
+    	//pauseIntent.setAction()
+    	PendingIntent pausePendingIntent = PendingIntent.getBroadcast(app, 0, pauseIntent, 0);
+		Notification notification = new Notification.Builder(app)
+				.setSmallIcon(R.drawable.ic_stat_ichthys)
+				.setContentTitle("Something!")
+				.setContentText("Test")
+				.setPriority(Notification.PRIORITY_DEFAULT)
+				.setStyle(new Notification.MediaStyle())
+				.addAction(R.drawable.ic_stat_ichthys, "Pause", pausePendingIntent)
+				.build();
+		//NotificationManager(BibleApplication.getApplication())
+		NotificationManagerCompat manager = NotificationManagerCompat.from(BibleApplication.getApplication());
+		manager.notify(0x01, notification);
+    	return notification;
+    }
+
+
 	@Inject
     public TextToSpeechServiceManager(SwordContentFacade swordContentFacade, BibleTraverser bibleTraverser, WindowControl windowControl) {
     	Log.d(TAG, "Creating TextToSpeechServiceManager");
@@ -97,6 +130,7 @@ public class TextToSpeechServiceManager {
     	mSpeakTiming = new SpeakTiming();
 		ABEventBus.getDefault().safelyRegister(this);
     	restorePauseState();
+    	createNotification();
     }
 
 	public SpeakBibleTextProvider getSpeakBibleTextProvider() {
