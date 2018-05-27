@@ -33,7 +33,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     private var book: Book
     private var currentVerse: Verse
     private var startVerse: Verse
-    private var numVersesToRead = 2
+    private var numVersesToRead = 1
 
     init {
         book = initialBook
