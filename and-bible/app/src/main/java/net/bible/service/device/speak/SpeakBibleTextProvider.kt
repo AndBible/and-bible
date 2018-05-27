@@ -27,11 +27,16 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
                              initialVerse: Verse): AbstractSpeakTextProvider() {
 
 
-    private var currentItem: Pair<Book, Verse>
+    private var book: Book
+    private var currentVerse: Verse
+    private var startVerse: Verse
     init {
-        currentItem = Pair(initialBook, initialVerse)
+        book = initialBook
+        currentVerse = initialVerse
+        startVerse = initialVerse
     }
 
+    private var readList: ArrayList<String>
     private var itemRead: Boolean = false
     private var _settings: SpeakSettings? = null
     var settings: SpeakSettings
@@ -45,6 +50,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         }
 
     init {
+        readList = ArrayList()
         val sharedPreferences = CommonUtils.getSharedPreferences()
         if(sharedPreferences.contains(PERSIST_SETTINGS)) {
             val settingsStr = sharedPreferences.getString(PERSIST_SETTINGS, "")
@@ -57,25 +63,37 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     fun setupReading(book: Book, verse: Verse) {
-        currentItem = Pair(book,verse)
-        itemRead = false
+        this.book = book
+        currentVerse = verse
+        reset()
+    }
+
+    private fun skipEmptyVerses(): String {
+        var text = getTextForCurrentItem()
+        while(text.isEmpty()) {
+            currentVerse = getNextVerse()
+            text = getTextForCurrentItem()
+        }
+        return text
     }
 
     override fun getNextTextToSpeak(): String {
-        var text: String
-        val oldVerse = currentItem.second
+        // If there's something left from splitted verse, then we'll speak that first.
+        if(readList.isNotEmpty()) {
+            startVerse = currentVerse
+            EventBus.getDefault().post(SpeakProggressEvent(book, startVerse, settings.synchronize))
+            return readList.removeAt(0)
+        }
+
+        startVerse = currentVerse
         if (itemRead) {
-            forward()
+            currentVerse = getNextVerse()
         }
-        text = getTextForCurrentItem()
-        while(text.isEmpty()) {
-            forward()
-            text = getTextForCurrentItem()
-        }
-        val currentVerse = currentItem.second
-        val bookChanged = currentVerse.book != oldVerse.book
+        var text = skipEmptyVerses()
+
+        val bookChanged = currentVerse.book != startVerse.book
         val app = BibleApplication.getApplication();
-        if(settings.chapterChanges && (bookChanged || currentVerse.chapter != oldVerse.chapter)) {
+        if(settings.chapterChanges && (bookChanged || currentVerse.chapter != startVerse.chapter)) {
             text =  app.getString(R.string.speak_chapter_changed) + currentVerse.chapter + ". " + text
         }
 
@@ -83,33 +101,56 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
             val bookName = BibleNames.instance().getPreferredName(currentVerse.book)
             text = app.getString(R.string.speak_book_changed) + bookName + ". " + text
         }
+        startVerse = currentVerse
 
-        EventBus.getDefault().post(SpeakProggressEvent(currentItem.first, currentItem.second, settings.synchronize))
+        text = joinBreakingSentence(text)
+
+        EventBus.getDefault().post(SpeakProggressEvent(book, startVerse, settings.synchronize))
         return text
     }
 
+    private fun joinBreakingSentence(inText: String): String {
+        // If verse does not end in period, add the part before period to the current reading
+        var text = inText.trim()
+
+        val regex = Regex("(.*)([.?!]+)")
+        var parts: List<String>? = null
+        if(!text.matches(regex)) {
+            currentVerse = getNextVerse()
+            val nextText = getTextForCurrentItem()
+            parts = nextText.split('.', '?', '!')
+            text += " " + parts[0] + "."
+            val rest = parts.slice(1 until parts.count()).joinToString { it }
+            readList.add(rest)
+        }
+        return text
+
+    }
+
     fun getStatusText(): String {
-        return currentItem.second.name
+        return startVerse.name + if(startVerse != currentVerse) "+" else ""
     }
 
     private fun getTextForCurrentItem(): String {
-        return swordContentFacade.getTextToSpeak(currentItem.first, currentItem.second)
+        return swordContentFacade.getTextToSpeak(book, currentVerse)
     }
 
     override fun pause(fractionCompleted: Float) {
         itemRead = false
     }
 
+    private fun getNextVerse(): Verse = bibleTraverser.getNextVerse(book as AbstractPassageBook, currentVerse)
+
     override fun rewind() {
-        currentItem = Pair(currentItem.first, bibleTraverser.getPrevVerse(currentItem.first as AbstractPassageBook,
-                currentItem.second))
-        itemRead = false
+        currentVerse = bibleTraverser.getPrevVerse(book as AbstractPassageBook, currentVerse)
+        startVerse = currentVerse
+        reset()
     }
 
     override fun forward() {
-        currentItem = Pair(currentItem.first, bibleTraverser.getNextVerse(currentItem.first as AbstractPassageBook,
-                currentItem.second))
-        itemRead = false
+        currentVerse = getNextVerse()
+        startVerse = currentVerse
+        reset()
     }
 
     override fun finishedUtterance(utteranceId: String?) {
@@ -118,12 +159,14 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
 
     override fun reset() {
         itemRead = false
+        currentVerse = startVerse
+        readList.clear()
     }
 
     override fun persistState() {
         CommonUtils.getSharedPreferences().edit()
-                .putString(PERSIST_BOOK, currentItem.first.name)
-                .putString(PERSIST_VERSE, currentItem.second.osisID)
+                .putString(PERSIST_BOOK, book.name)
+                .putString(PERSIST_VERSE, currentVerse.osisID)
                 .apply()
     }
 
@@ -132,9 +175,9 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         if(sharedPreferences.contains(PERSIST_BOOK)) {
             val bookStr = sharedPreferences.getString(PERSIST_BOOK, "")
             val verseStr = sharedPreferences.getString(PERSIST_VERSE, "")
-            val book = Books.installed().getBook(bookStr)
-            val verse = book.getKey(verseStr)
-            currentItem = Pair(book, (verse as RangedPassage).getVerseAt(0))
+            book = Books.installed().getBook(bookStr)
+            val verse = book.getKey(verseStr) as RangedPassage
+            currentVerse = verse.getVerseAt(0)
             clearPersistedState()
             return true
         }
