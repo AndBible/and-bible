@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.app.NotificationManagerCompat;
 import android.util.Log;
 
@@ -541,7 +542,7 @@ public class TextToSpeechServiceManager {
 				} else {
 					// The TTS engine has been successfully initialized.
 					ttsLanguageSupport.addSupportedLocale(locale);
-					int ok = mTts.setOnUtteranceCompletedListener(onUtteranceCompletedListener);
+					int ok = mTts.setOnUtteranceProgressListener(onUtteranceCompletedListener);
 					if (ok == TextToSpeech.ERROR) {
 						Log.e(TAG, "Error registering onUtteranceCompletedListener");
 					} else {
@@ -566,9 +567,14 @@ public class TextToSpeechServiceManager {
 		}
 	};
 
-	private final TextToSpeech.OnUtteranceCompletedListener onUtteranceCompletedListener = new TextToSpeech.OnUtteranceCompletedListener() {
+	private final UtteranceProgressListener onUtteranceCompletedListener = new UtteranceProgressListener() {
 		@Override
-		public void onUtteranceCompleted(String utteranceId) {
+		public void onStart(String utteranceId) {
+
+		}
+
+		@Override
+		public void onDone(String utteranceId) {
 			Log.d(TAG, "onUtteranceCompleted:"+utteranceId);
 			// pause/rew/ff can sometimes allow old messages to complete so need to prevent move to next sentence if completed utterance is out of date
 			if ((!isPaused && isSpeaking) && StringUtils.startsWith(utteranceId, UTTERANCE_PREFIX)) {
@@ -588,6 +594,11 @@ public class TextToSpeechServiceManager {
 					}
 				}
 			}
+		}
+
+		@Override
+		public void onError(String utteranceId) {
+
 		}
 	};
 }
