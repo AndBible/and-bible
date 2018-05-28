@@ -101,9 +101,10 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     private fun getNextVerseText(): String {
         var text = skipEmptyVerses()
 
-        val bookChanged = currentVerse.book != startVerse.book
+        val prevVerse = getPrevVerse()
+        val bookChanged = currentVerse.book != prevVerse.book
         val app = getLocalizedResources()
-        if(settings.chapterChanges && (bookChanged || currentVerse.chapter != startVerse.chapter)) {
+        if(settings.chapterChanges && (bookChanged || currentVerse.chapter != prevVerse.chapter)) {
             text =  app.getString(R.string.speak_chapter_changed) + " " + currentVerse.chapter + ". " + text
         }
 
@@ -115,9 +116,11 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun getNextTextToSpeak(): String {
-        // If there's something left from splitted verse, then we'll speak that first.
         var text = ""
+
         startVerse = currentVerse
+
+        // If there's something left from splitted verse, then we'll speak that first.
         if(readList.isNotEmpty()) {
             text += readList.removeAt(0)
             currentVerse = getNextVerse()
@@ -161,10 +164,11 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         currentVerse = startVerse
     }
 
+    private fun getPrevVerse(): Verse = bibleTraverser.getPrevVerse(book as AbstractPassageBook, currentVerse)
     private fun getNextVerse(): Verse = bibleTraverser.getNextVerse(book as AbstractPassageBook, currentVerse)
 
     override fun rewind() {
-        currentVerse = bibleTraverser.getPrevVerse(book as AbstractPassageBook, currentVerse)
+        currentVerse = getPrevVerse()
         startVerse = currentVerse
         reset()
     }
