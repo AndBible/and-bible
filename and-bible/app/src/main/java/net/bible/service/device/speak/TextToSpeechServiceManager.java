@@ -7,6 +7,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.support.v4.app.NotificationManagerCompat;
@@ -364,18 +365,16 @@ public class TextToSpeechServiceManager {
 			Log.e(TAG, "Error: attempt to speak when tts is null.  Text:"+text);
 		} else {
 	    	// Always set the UtteranceId (or else OnUtteranceCompleted will not be called)
-	        HashMap<String, String> dummyTTSParams = new HashMap<>();
+	        Bundle ttsParams = new Bundle();
 	        String utteranceId = UTTERANCE_PREFIX+uniqueUtteranceNo++;
-	        dummyTTSParams.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId);
-	
+
 	    	Log.d(TAG, "do speak substring of length:"+text.length()+" utteranceId:"+utteranceId);
-	        mTts.speak(text,
-	                TextToSpeech.QUEUE_ADD, // handle flush by clearing text queue 
-	                dummyTTSParams);
-	        
-	        mSpeakTiming.started(utteranceId, text.length());
+			mTts.speak(text,
+					TextToSpeech.QUEUE_ADD, // handle flush by clearing text queue
+					ttsParams,
+					utteranceId);
+			mSpeakTiming.started(utteranceId, text.length());
 	        isSpeaking = true;
-//	        Log.d(TAG, "Speaking:"+text);
 		}
     }
 
