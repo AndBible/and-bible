@@ -59,12 +59,8 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     private fun getLocalizedResources(): Resources
     {
         if(_localizedResources == null || _language != book.language.code) {
-            val app = BibleApplication.getApplication()
-            val oldConf = app.resources.configuration
-            val newConf = Configuration(oldConf)
             _language = book.language.code
-            newConf.setLocale(Locale(_language))
-            _localizedResources = app.createConfigurationContext(newConf).resources
+            _localizedResources = BibleApplication.getApplication().getLocalizedResources(_language)
         }
         return _localizedResources!!
     }
@@ -103,19 +99,19 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
 
         val prevVerse = getPrevVerse()
         val bookChanged = currentVerse.book != prevVerse.book
-        val app = getLocalizedResources()
+        val res = getLocalizedResources()
         if(settings.chapterChanges && (bookChanged || currentVerse.chapter != prevVerse.chapter)) {
-            text =  app.getString(R.string.speak_chapter_changed) + " " + currentVerse.chapter + ". " + text
+            text =  res.getString(R.string.speak_chapter_changed) + " " + currentVerse.chapter + ". " + text
         }
 
         if(bookChanged) {
             val bookName = BibleNames.instance().getPreferredName(currentVerse.book)
-            text = app.getString(R.string.speak_book_changed) + " " + bookName + ". " + text
+            text = res.getString(R.string.speak_book_changed) + " " + bookName + ". " + text
         }
         return text
     }
 
-    override fun getNextTextToSpeak(): String {
+    public override fun getNextTextToSpeak(): String {
         var text = ""
 
         startVerse = currentVerse
@@ -130,10 +126,13 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
             text += getNextVerseText()
             currentVerse = getNextVerse()
         }
-        text = joinBreakingSentence(text)
+
+        if(settings.continueSentences) {
+            text = joinBreakingSentence(text)
+        }
 
         EventBus.getDefault().post(SpeakProggressEvent(book, startVerse, settings.synchronize))
-        return text
+        return text.trim();
     }
 
     private fun joinBreakingSentence(inText: String): String {
