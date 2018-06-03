@@ -34,6 +34,13 @@
 				android:id="@+id/speak_chapter_changes"
                 android:onClick="onSettingsChange"/>
 
+		<CheckBox
+				android:text="@string/conf_continue_sentences"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:id="@+id/continue_sentences"
+                android:onClick="onSettingsChange"/>
 		<LinearLayout android:id="@+id/rightPanel"
 					  android:layout_height="wrap_content"
 					  android:layout_width="0dip"

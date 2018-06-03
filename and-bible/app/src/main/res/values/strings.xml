@@ -271,6 +271,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="conf_speak_chapter_changes">Speak chapter changes</string>
     <string name="speak_book_changed">Book changed to</string>
     <string name="speak_chapter_changed">Chapter</string>
+    <string name="conf_continue_sentences">Continue sentences</string>
 
     <!-- User Notes -->
     <string name="mynotes">My Notes</string>
