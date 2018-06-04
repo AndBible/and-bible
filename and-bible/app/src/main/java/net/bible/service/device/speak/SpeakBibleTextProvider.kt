@@ -88,6 +88,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         currentVerse = verse
         startVerse = verse
         endVerse = verse
+        persistState()
         reset()
     }
 
@@ -200,6 +201,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     internal override fun pause(fractionCompleted: Float) {
         currentVerse = startVerse
         reset()
+        persistState()
     }
 
     private fun getPrevVerse(verse: Verse): Verse = bibleTraverser.getPrevVerse(book as AbstractPassageBook, verse)
@@ -227,12 +229,12 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
 
     override fun persistState() {
         CommonUtils.getSharedPreferences().edit()
-                .putString(PERSIST_BOOK, book.name)
-                .putString(PERSIST_VERSE, endVerse.osisID)
+                .putString(PERSIST_BOOK, book.abbreviation)
+                .putString(PERSIST_VERSE, startVerse.osisID)
                 .apply()
     }
 
-    override fun restoreState(): Boolean {
+    internal override fun restoreState(): Boolean {
         val sharedPreferences = CommonUtils.getSharedPreferences()
         if(sharedPreferences.contains(PERSIST_BOOK)) {
             val bookStr = sharedPreferences.getString(PERSIST_BOOK, "")
@@ -243,6 +245,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
             val verse = book.getKey(verseStr) as RangedPassage
             startVerse = verse.getVerseAt(0)
             endVerse = startVerse
+            currentVerse = startVerse
             return true
         }
         return false

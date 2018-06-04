@@ -5,6 +5,7 @@ import net.bible.android.activity.BuildConfig
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.service.common.CommonUtils
 import net.bible.service.format.usermarks.BookmarkFormatSupport
 import net.bible.service.format.usermarks.MyNoteFormatSupport
 import net.bible.service.sword.SwordContentFacade
@@ -34,7 +35,7 @@ open class AbstractSpeakTests {
     internal fun range(): String? {
         return provider.getVerseRange().osisRef
     }
- 
+
     companion object {
         val swordContentFacade = SwordContentFacade(BookmarkFormatSupport(), MyNoteFormatSupport())
         val documentBibleBooksFactory = DocumentBibleBooksFactory();
@@ -44,6 +45,57 @@ open class AbstractSpeakTests {
         val v11n: Versification = book.versification
     }
 }
+
+@RunWith(RobolectricTestRunner::class)
+class OtherSpeakTests: AbstractSpeakTests () {
+    @Before
+    fun setup() {
+        provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, book, getVerse("Ps.14.1"))
+        provider.settings = SpeakSettings(false, true, false)
+    }
+
+    @Test
+    fun storePersistence() {
+        provider.setupReading(book, getVerse("Ps.14.1"))
+        val sharedPreferences = CommonUtils.getSharedPreferences()
+        assertThat(sharedPreferences.getString("SpeakBibleVerse", ""), equalTo("Ps.14.1"))
+        assertThat(sharedPreferences.getString("SpeakBibleBook", ""), equalTo("FinRK"))
+        text = provider.getNextTextToSpeak()
+        text = provider.getNextTextToSpeak()
+        provider.pause(0.5f)
+        assertThat(sharedPreferences.getString("SpeakBibleVerse", ""), equalTo("Ps.14.2"))
+        provider.setupReading(book, getVerse("Rom.5.20"))
+        assertThat(range(), equalTo("Rom.5.20"))
+        assertThat(sharedPreferences.getString("SpeakBibleVerse", ""), equalTo("Rom.5.20"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Rom.5.20"))
+        assertThat(sharedPreferences.getString("SpeakBibleVerse", ""), equalTo("Rom.5.20"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Rom.5.21"))
+        assertThat(sharedPreferences.getString("SpeakBibleVerse", ""), equalTo("Rom.5.20"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Rom.6.1"))
+        assertThat(sharedPreferences.getString("SpeakBibleVerse", ""), equalTo("Rom.6.1"))
+        assertThat(sharedPreferences.getString("SpeakBibleBook", ""), equalTo("FinRK"))
+    }
+
+    @Test
+    fun readPersistence() {
+        val sharedPreferences = CommonUtils.getSharedPreferences()
+        sharedPreferences.edit().putString("SpeakBibleBook", "FinRK").apply()
+        sharedPreferences.edit().putString("SpeakBibleVerse", "Ps.14.1").apply()
+        provider.setupReading(book, getVerse("Ps.14.1"))
+        sharedPreferences.edit().putString("SpeakBibleBook", "FinRK").apply()
+        sharedPreferences.edit().putString("SpeakBibleVerse", "Rom.5.1").apply()
+        provider.restoreState()
+        assertThat(range(), equalTo("Rom.5.1"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Rom.5.1"))
+        assertThat(text, startsWith("Koska siis"))
+        assertThat(text, endsWith("Kristuksen kautta."))
+    }
+}
+
 
 @RunWith(RobolectricTestRunner::class)
 class SpeakWithoutContinueSentences: AbstractSpeakTests (){
