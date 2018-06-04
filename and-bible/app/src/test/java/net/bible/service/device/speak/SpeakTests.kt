@@ -121,6 +121,42 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
         }
         assertThat(text, startsWith("Luku 3"))
     }
+
+    @Test
+    fun pauseRewindForward() {
+        provider.setupReading(book, getVerse("Rom.5.20"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Rom.5.20"))
+        assertThat(text, startsWith("Laki kuitenkin"))
+        assertThat(text, endsWith("ylenpalttiseksi,"))
+
+        provider.pause(0.5F)
+        assertThat(range(), equalTo("Rom.5.20"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Rom.5.20"))
+        assertThat(text, startsWith("Laki kuitenkin"))
+        assertThat(text, endsWith("ylenpalttiseksi,"))
+
+        provider.rewind()
+        assertThat(range(), equalTo("Rom.5.19"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Rom.5.19"))
+        assertThat(text, startsWith("Niin kuin"))
+        assertThat(text, endsWith("vanhurskaiksi."))
+        provider.pause(0.5F)
+        assertThat(range(), equalTo("Rom.5.19"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Rom.5.19"))
+        assertThat(text, startsWith("Niin kuin"))
+        assertThat(text, endsWith("vanhurskaiksi."))
+
+        provider.forward()
+        assertThat(range(), equalTo("Rom.5.20"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Rom.5.20"))
+        assertThat(text, startsWith("Laki kuitenkin"))
+        assertThat(text, endsWith("ylenpalttiseksi,"))
+    }
 }
 
 @RunWith(RobolectricTestRunner::class)
@@ -188,5 +224,41 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text, startsWith("Luku 6. Mitä me"))
         assertThat(text, endsWith("tulisi suureksi?"))
 
+    }
+
+    @Test
+    fun pauseRewindForward() {
+        provider.setupReading(book, getVerse("Rom.5.20"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Rom.5.20-Rom.5.21"))
+        assertThat(text, startsWith("Laki kuitenkin"))
+        assertThat(text, endsWith("meidän Herramme, kautta."))
+
+        provider.pause(0.5F)
+        assertThat(range(), equalTo("Rom.5.20"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Rom.5.20-Rom.5.21"))
+        assertThat(text, startsWith("Laki kuitenkin"))
+        assertThat(text, endsWith("meidän Herramme, kautta."))
+
+        provider.rewind()
+        assertThat(range(), equalTo("Rom.5.19"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Rom.5.19"))
+        assertThat(text, startsWith("Niin kuin"))
+        assertThat(text, endsWith("vanhurskaiksi."))
+        provider.pause(0.5F)
+        assertThat(range(), equalTo("Rom.5.19"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Rom.5.19"))
+        assertThat(text, startsWith("Niin kuin"))
+        assertThat(text, endsWith("vanhurskaiksi."))
+
+        provider.forward()
+        assertThat(range(), equalTo("Rom.5.20"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Rom.5.20-Rom.5.21"))
+        assertThat(text, startsWith("Laki kuitenkin"))
+        assertThat(text, endsWith("meidän Herramme, kautta."))
     }
 }

@@ -197,26 +197,27 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         return swordContentFacade.getTextToSpeak(book, verse)
     }
 
-    override fun pause(fractionCompleted: Float) {
-        endVerse = startVerse
+    internal override fun pause(fractionCompleted: Float) {
+        currentVerse = startVerse
+        reset()
     }
 
     private fun getPrevVerse(verse: Verse): Verse = bibleTraverser.getPrevVerse(book as AbstractPassageBook, verse)
     private fun getNextVerse(verse: Verse): Verse = bibleTraverser.getNextVerse(book as AbstractPassageBook, verse)
 
-    override fun rewind() {
-        endVerse = getPrevVerse(endVerse)
-        startVerse = endVerse
+    internal override fun rewind() {
+        currentVerse = getPrevVerse(startVerse)
+        startVerse = currentVerse
         reset()
     }
 
-    override fun forward() {
-        endVerse = getNextVerse(endVerse)
-        startVerse = endVerse
+    internal override fun forward() {
+        currentVerse = getNextVerse(startVerse)
+        startVerse = currentVerse
         reset()
     }
 
-    override fun finishedUtterance(utteranceId: String?) {
+    internal override fun finishedUtterance(utteranceId: String?) {
     }
 
     override fun reset() {
