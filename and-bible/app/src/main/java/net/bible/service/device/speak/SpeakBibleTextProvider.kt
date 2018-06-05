@@ -1,5 +1,7 @@
 package net.bible.service.device.speak
 
+import android.content.res.Configuration
+import android.content.res.Resources
 import de.greenrobot.event.EventBus
 import kotlinx.serialization.SerializationException
 import net.bible.android.control.speak.SpeakSettings
@@ -16,6 +18,7 @@ import org.crosswire.jsword.passage.Verse
 import kotlinx.serialization.json.JSON
 import net.bible.android.BibleApplication
 import org.crosswire.jsword.versification.BibleNames
+import java.util.*
 
 private val PERSIST_BOOK = "SpeakBibleBook"
 private val PERSIST_VERSE = "SpeakBibleVerse"
@@ -49,6 +52,23 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
                     .apply()
         }
 
+    private var _localizedResources: Resources? = null
+    private var _language: String = "en"
+
+    private fun getLocalizedResources(): Resources
+    {
+        if(_localizedResources == null || _language != book.language.code) {
+            val app = BibleApplication.getApplication()
+            val oldConf = app.resources.configuration
+            val newConf = Configuration(oldConf)
+            _language = book.language.code
+            newConf.setLocale(Locale(_language))
+            _localizedResources = app.createConfigurationContext(newConf).resources
+        }
+        return _localizedResources!!
+    }
+
+
     init {
         readList = ArrayList()
         val sharedPreferences = CommonUtils.getSharedPreferences()
@@ -64,7 +84,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
 
     fun setupReading(book: Book, verse: Verse) {
         this.book = book
-        currentVerse = verse
+        startVerse = verse
         reset()
     }
 
@@ -92,14 +112,14 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         var text = skipEmptyVerses()
 
         val bookChanged = currentVerse.book != startVerse.book
-        val app = BibleApplication.getApplication();
+        val app = getLocalizedResources()
         if(settings.chapterChanges && (bookChanged || currentVerse.chapter != startVerse.chapter)) {
-            text =  app.getString(R.string.speak_chapter_changed) + currentVerse.chapter + ". " + text
+            text =  app.getString(R.string.speak_chapter_changed) + " " + currentVerse.chapter + ". " + text
         }
 
         if(bookChanged) {
             val bookName = BibleNames.instance().getPreferredName(currentVerse.book)
-            text = app.getString(R.string.speak_book_changed) + bookName + ". " + text
+            text = app.getString(R.string.speak_book_changed) + " " + bookName + ". " + text
         }
         startVerse = currentVerse
 
@@ -113,12 +133,11 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         // If verse does not end in period, add the part before period to the current reading
         var text = inText.trim()
 
-        val regex = Regex("(.*)([.?!]+)")
-        var parts: List<String>? = null
+        val regex = Regex("(.*)([.?!]+[\'\"]?+)")
         if(!text.matches(regex)) {
             currentVerse = getNextVerse()
             val nextText = getTextForCurrentItem()
-            parts = nextText.split('.', '?', '!')
+            val parts = nextText.split('.', '?', '!')
             text += " " + parts[0] + "."
             val rest = parts.slice(1 until parts.count()).joinToString { it }
             readList.add(rest)
