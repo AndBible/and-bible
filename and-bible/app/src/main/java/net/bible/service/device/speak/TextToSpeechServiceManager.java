@@ -330,14 +330,22 @@ public class TextToSpeechServiceManager {
 			Log.e(TAG, "Error: attempt to speak when tts is null.  Text:"+text);
 		} else {
 	    	// Always set the UtteranceId (or else OnUtteranceCompleted will not be called)
-	        Bundle ttsParams = new Bundle();
 	        String utteranceId = UTTERANCE_PREFIX+uniqueUtteranceNo++;
-
 	    	Log.d(TAG, "do speak substring of length:"+text.length()+" utteranceId:"+utteranceId);
-			mTts.speak(text,
-					TextToSpeech.QUEUE_ADD, // handle flush by clearing text queue
-					ttsParams,
-					utteranceId);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				Bundle ttsParams = new Bundle();
+				mTts.speak(text,
+						TextToSpeech.QUEUE_ADD, // handle flush by clearing text queue
+						ttsParams,
+						utteranceId);
+			}
+			else {
+				HashMap<String, String> dummyTTSParams = new HashMap<>();
+				dummyTTSParams.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId);
+				mTts.speak(text,
+						TextToSpeech.QUEUE_ADD, // handle flush by clearing text queue
+						dummyTTSParams);
+			}
 			mSpeakTiming.started(utteranceId, text.length());
 	        isSpeaking = true;
 		}
