@@ -18,6 +18,7 @@ import net.bible.service.format.Note;
 import net.bible.service.format.OSISInputStream;
 import net.bible.service.format.SaxParserPool;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
+import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak;
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler;
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler;
 import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler;
@@ -220,6 +221,19 @@ public class SwordContentFacade {
     	}
     }
 
+    public String getBibleTextToSpeak(Book book, Key key) {
+    	try {
+			BookData data = new BookData(book, key);
+			SAXEventProvider osissep = data.getSAXEventProvider();
+			ContentHandler osisHandler = new OsisToBibleSpeak();
+			osissep.provideSAXEvents(osisHandler);
+			return osisHandler.toString();
+    	} catch (Exception e) {
+    		Log.e(TAG, "Error getting text from book" , e);
+    		return BibleApplication.getApplication().getString(R.string.error_occurred);
+    	}
+    }
+
     /**
      * Get text to be spoken without any markup.
      * 
@@ -228,7 +242,7 @@ public class SwordContentFacade {
      * @param key
      *            a reference, appropriate for the book, of one or more entries
      */
-    public String getTextToSpeak(Book book, Key key) throws NoSuchKeyException, BookException, ParseException {
+    public String getTextToSpeak(Book book, Key key) {
     	try {
 			BookData data = new BookData(book, key);
 			SAXEventProvider osissep = data.getSAXEventProvider();

@@ -196,7 +196,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     private fun getRawTextForVerse(verse: Verse): String {
-        return swordContentFacade.getTextToSpeak(book, verse)
+        return swordContentFacade.getBibleTextToSpeak(book, verse)
     }
 
     internal override fun pause(fractionCompleted: Float) {
