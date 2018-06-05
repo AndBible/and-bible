@@ -1,5 +1,6 @@
 package net.bible.service.device.speak;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
@@ -457,7 +458,7 @@ public class TextToSpeechServiceManager {
 		CommonUtils.getSharedPreferences()
 					.edit()
 					.putString(PERSIST_LOCALE_KEY, currentLocale.toString())
-					.commit();
+					.apply();
 	}
 	
 	private void restorePauseState() {
@@ -475,7 +476,7 @@ public class TextToSpeechServiceManager {
 	private void clearPauseState() {
 		Log.d(TAG, "Clearing Persisted Pause state");
 		mSpeakTextProvider.clearPersistedState();
-		CommonUtils.getSharedPreferences().edit().remove(PERSIST_LOCALE_KEY).commit();
+		CommonUtils.getSharedPreferences().edit().remove(PERSIST_LOCALE_KEY).apply();
 	}
 
 	// Implements TextToSpeech.OnInitListener.
