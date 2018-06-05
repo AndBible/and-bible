@@ -255,6 +255,10 @@ public class SpeakControl {
 		}
 	}
 
+	public void setRate(float speechRate) {
+		textToSpeechServiceManager.get().setRate(speechRate);
+	}
+
 	public void continueAfterPause() {
 		Log.d(TAG, "Continue TTS speaking after pause");
 		preSpeak();

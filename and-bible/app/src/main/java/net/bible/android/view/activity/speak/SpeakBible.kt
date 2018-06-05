@@ -33,7 +33,7 @@ class SpeakBible : CustomTitlebarActivityBase() {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 speedStatus.text = progress.toString()
-                CommonUtils.getSharedPreferences().edit().putInt(speakSpeedPref, progress).apply()
+                speakControl.setRate(progress/100F)
             }
         })
         val initialSpeed = CommonUtils.getSharedPreferences().getInt(speakSpeedPref, 100)

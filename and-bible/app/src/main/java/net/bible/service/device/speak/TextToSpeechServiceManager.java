@@ -565,4 +565,11 @@ public class TextToSpeechServiceManager {
 
 		}
 	};
+
+    public void setRate(float speechRate) {
+		if(mTts != null) {
+			mTts.setSpeechRate(speechRate);
+		}
+		CommonUtils.getSharedPreferences().edit().putInt("speak_speed_percent_pref", Math.round(speechRate*100F)).apply();
+    }
 }
