@@ -1,7 +1,7 @@
 package net.bible.service.device.speak
 
-import android.content.res.Configuration
 import android.content.res.Resources
+import android.speech.tts.TextToSpeech
 import de.greenrobot.event.EventBus
 import kotlinx.serialization.SerializationException
 import net.bible.android.control.speak.SpeakSettings
@@ -17,28 +17,32 @@ import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import kotlinx.serialization.json.JSON
 import net.bible.android.BibleApplication
+import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleNames
 import java.util.*
 
-private val PERSIST_BOOK = "SpeakBibleBook"
-private val PERSIST_VERSE = "SpeakBibleVerse"
-private val PERSIST_SETTINGS = "SpeakBibleSettings"
 
 class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
                              private val bibleTraverser: BibleTraverser,
                              initialBook: Book,
                              initialVerse: Verse): AbstractSpeakTextProvider() {
 
+    companion object {
+        private val PERSIST_BOOK = "SpeakBibleBook"
+        private val PERSIST_VERSE = "SpeakBibleVerse"
+        private val PERSIST_SETTINGS = "SpeakBibleSettings"
+    }
 
     private var book: Book
-    private var currentVerse: Verse
     private var startVerse: Verse
-    private var numVersesToRead = 1
+    private var endVerse: Verse
+    private var currentVerse: Verse
 
     init {
         book = initialBook
-        currentVerse = initialVerse
         startVerse = initialVerse
+        endVerse = initialVerse
+        currentVerse = initialVerse
     }
 
     private var readList: ArrayList<String>
@@ -81,100 +85,134 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
 
     fun setupReading(book: Book, verse: Verse) {
         this.book = book
+        currentVerse = verse
         startVerse = verse
+        endVerse = verse
         reset()
     }
 
-    private fun skipEmptyVerses(): String {
-        var text = getTextForCurrentItem()
+    private fun skipEmptyVerses(verse: Verse): Verse {
+        var text = getRawTextForVerse(verse)
+        var result = verse
         while(text.isEmpty()) {
-            currentVerse = getNextVerse()
-            text = getTextForCurrentItem()
+            result = getNextVerse(result)
+            text = getRawTextForVerse(result)
         }
-        return text
+        return result
     }
 
-    private fun getNextVerseText(): String {
-        var text = skipEmptyVerses()
-
-        val prevVerse = getPrevVerse()
-        val bookChanged = currentVerse.book != prevVerse.book
+    private fun getTextForVerse(prevVerse: Verse, verse: Verse): String {
+        var text = getRawTextForVerse(verse)
+        val bookChanged = prevVerse.book != verse.book
         val res = getLocalizedResources()
-        if(settings.chapterChanges && (bookChanged || currentVerse.chapter != prevVerse.chapter)) {
-            text =  res.getString(R.string.speak_chapter_changed) + " " + currentVerse.chapter + ". " + text
+
+        if(bookChanged || prevVerse.chapter != verse.chapter) {
+            persistState()
+            if(settings.chapterChanges) {
+                text = res.getString(R.string.speak_chapter_changed) + " " + verse.chapter + ". " + text
+            }
         }
 
         if(bookChanged) {
-            val bookName = BibleNames.instance().getPreferredName(currentVerse.book)
+            val bookName = BibleNames.instance().getPreferredName(verse.book) // TODO: get bible name in bible's own locale!
             text = res.getString(R.string.speak_book_changed) + " " + bookName + ". " + text
         }
-        return text
+        return text.trim()
     }
 
     public override fun getNextTextToSpeak(): String {
         var text = ""
+        val maxLength = TextToSpeech.getMaxSpeechInputLength()
 
+        var verse = currentVerse
         startVerse = currentVerse
 
         // If there's something left from splitted verse, then we'll speak that first.
         if(readList.isNotEmpty()) {
             text += readList.removeAt(0)
-            currentVerse = getNextVerse()
+            verse = getNextVerse(verse)
         }
 
-        for(i in 0 until numVersesToRead) {
-            text += getNextVerseText()
-            currentVerse = getNextVerse()
-        }
+        verse = skipEmptyVerses(verse)
+
+        text += getTextForVerse(endVerse, verse)
 
         if(settings.continueSentences) {
-            text = joinBreakingSentence(text)
+            // If verse does not end in period, add the part before period to the current reading
+
+            val regex = Regex("(.*)([.?!]+\\W*)")
+            var rest = ""
+
+            while(!text.matches(regex)) {
+                val nextVerse = getNextVerse(verse)
+                val nextText = getTextForVerse(verse, nextVerse)
+                val newText: String
+
+                val parts = nextText.split('.', '?', '!')
+
+                if(parts.size > 1) {
+                    newText = text + " " + parts[0] + "."
+                    rest = parts.slice(1 until parts.count()).joinToString { it }
+                }
+                else {
+                    newText = text + " " + nextText
+                    rest = ""
+                }
+
+                if(newText.length > maxLength) {
+                    break
+                }
+                verse = nextVerse
+                text = newText
+
+            }
+            if(rest.length > 0) {
+                readList.add(rest)
+                currentVerse = verse
+            }
+            else {
+                currentVerse = getNextVerse(verse)
+            }
         }
+        else {
+            currentVerse = getNextVerse(verse)
+        }
+
+        endVerse = verse
 
         EventBus.getDefault().post(SpeakProggressEvent(book, startVerse, settings.synchronize))
         return text.trim();
     }
 
-    private fun joinBreakingSentence(inText: String): String {
-        // If verse does not end in period, add the part before period to the current reading
-        var text = inText.trim()
-
-        val regex = Regex("(.*)([.?!]+[\'\"]?+)")
-        if(!text.matches(regex)) {
-            val nextText = getTextForCurrentItem()
-            val parts = nextText.split('.', '?', '!')
-            text += " " + parts[0] + "."
-            val rest = parts.slice(1 until parts.count()).joinToString { it }
-            readList.add(rest)
-        }
-        return text
-
-    }
-
     fun getStatusText(): String {
-        return startVerse.name + if(startVerse != currentVerse) " - " +  currentVerse.name else ""
+        return startVerse.name + if(startVerse != endVerse) " - " +  endVerse.name else ""
     }
 
-    private fun getTextForCurrentItem(): String {
-        return swordContentFacade.getTextToSpeak(book, currentVerse)
+    fun getVerseRange(): VerseRange {
+        val v11n = startVerse.versification
+        return VerseRange(v11n, startVerse, endVerse)
+    }
+
+    private fun getRawTextForVerse(verse: Verse): String {
+        return swordContentFacade.getTextToSpeak(book, verse)
     }
 
     override fun pause(fractionCompleted: Float) {
-        currentVerse = startVerse
+        endVerse = startVerse
     }
 
-    private fun getPrevVerse(): Verse = bibleTraverser.getPrevVerse(book as AbstractPassageBook, currentVerse)
-    private fun getNextVerse(): Verse = bibleTraverser.getNextVerse(book as AbstractPassageBook, currentVerse)
+    private fun getPrevVerse(verse: Verse): Verse = bibleTraverser.getPrevVerse(book as AbstractPassageBook, verse)
+    private fun getNextVerse(verse: Verse): Verse = bibleTraverser.getNextVerse(book as AbstractPassageBook, verse)
 
     override fun rewind() {
-        currentVerse = getPrevVerse()
-        startVerse = currentVerse
+        endVerse = getPrevVerse(endVerse)
+        startVerse = endVerse
         reset()
     }
 
     override fun forward() {
-        currentVerse = getNextVerse()
-        startVerse = currentVerse
+        endVerse = getNextVerse(endVerse)
+        startVerse = endVerse
         reset()
     }
 
@@ -182,14 +220,14 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun reset() {
-        currentVerse = startVerse
+        endVerse = startVerse
         readList.clear()
     }
 
     override fun persistState() {
         CommonUtils.getSharedPreferences().edit()
                 .putString(PERSIST_BOOK, book.name)
-                .putString(PERSIST_VERSE, currentVerse.osisID)
+                .putString(PERSIST_VERSE, endVerse.osisID)
                 .apply()
     }
 
@@ -197,11 +235,13 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         val sharedPreferences = CommonUtils.getSharedPreferences()
         if(sharedPreferences.contains(PERSIST_BOOK)) {
             val bookStr = sharedPreferences.getString(PERSIST_BOOK, "")
-            val verseStr = sharedPreferences.getString(PERSIST_VERSE, "")
             book = Books.installed().getBook(bookStr)
+        }
+        if(sharedPreferences.contains(PERSIST_VERSE)) {
+            val verseStr = sharedPreferences.getString(PERSIST_VERSE, "")
             val verse = book.getKey(verseStr) as RangedPassage
-            currentVerse = verse.getVerseAt(0)
-            clearPersistedState()
+            startVerse = verse.getVerseAt(0)
+            endVerse = startVerse
             return true
         }
         return false
