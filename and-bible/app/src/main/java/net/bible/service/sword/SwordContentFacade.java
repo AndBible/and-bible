@@ -25,6 +25,7 @@ import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandle
 import net.bible.service.format.usermarks.BookmarkFormatSupport;
 import net.bible.service.format.usermarks.MyNoteFormatSupport;
 
+import org.crosswire.common.xml.JDOMSAXEventProvider;
 import org.crosswire.common.xml.SAXEventProvider;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
@@ -37,6 +38,8 @@ import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.NoSuchKeyException;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.xml.sax.ContentHandler;
 
 import java.io.InputStream;
@@ -224,7 +227,13 @@ public class SwordContentFacade {
     public String getBibleTextToSpeak(Book book, Key key) {
     	try {
 			BookData data = new BookData(book, key);
-			SAXEventProvider osissep = data.getSAXEventProvider();
+			Element frag = data.getOsisFragment(false);
+			Document doc = frag.getDocument();
+			if (doc == null) {
+				doc = new Document(frag);
+			}
+
+			SAXEventProvider osissep = new JDOMSAXEventProvider(doc);
 			ContentHandler osisHandler = new OsisToBibleSpeak();
 			osissep.provideSAXEvents(osisHandler);
 			return osisHandler.toString();
