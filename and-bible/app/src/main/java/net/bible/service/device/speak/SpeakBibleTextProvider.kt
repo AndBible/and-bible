@@ -88,7 +88,6 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         currentVerse = verse
         startVerse = verse
         endVerse = verse
-        persistState()
         reset()
     }
 
@@ -108,7 +107,6 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         val res = getLocalizedResources()
 
         if(bookChanged || prevVerse.chapter != verse.chapter) {
-            persistState()
             if(settings.chapterChanges) {
                 text = res.getString(R.string.speak_chapter_changed) + " " + verse.chapter + ". " + text
             }
@@ -200,7 +198,6 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     internal override fun pause(fractionCompleted: Float) {
         currentVerse = startVerse
         reset()
-        persistState()
     }
 
     private fun getPrevVerse(verse: Verse): Verse = bibleTraverser.getPrevVerse(book as AbstractPassageBook, verse)
