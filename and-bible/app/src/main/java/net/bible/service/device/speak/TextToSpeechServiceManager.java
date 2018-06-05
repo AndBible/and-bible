@@ -64,7 +64,8 @@ public class TextToSpeechServiceManager {
 
     private List<Locale> localePreferenceList;
     private Locale currentLocale = Locale.getDefault();
-    private static String PERSIST_LOCALE_KEY = "SpeakLocale";
+	private static String PERSIST_LOCALE_KEY = "SpeakLocale";
+    private static String PERSIST_BIBLE_PROVIDER = "SpeakBibleProvider";
     
     private AbstractSpeakTextProvider mSpeakTextProvider;
 
@@ -454,10 +455,13 @@ public class TextToSpeechServiceManager {
 	 */
 	private void persistPauseState() {
 		Log.d(TAG, "Persisting Pause state");
+		boolean isBible = mSpeakTextProvider == speakBibleTextProvider;
+
 		mSpeakTextProvider.persistState();
 		CommonUtils.getSharedPreferences()
 					.edit()
 					.putString(PERSIST_LOCALE_KEY, currentLocale.toString())
+					.putBoolean(PERSIST_BIBLE_PROVIDER, isBible)
 					.apply();
 	}
 	
@@ -465,6 +469,9 @@ public class TextToSpeechServiceManager {
 		// ensure no relevant current state is overwritten accidentally
 		if (!isSpeaking()  && !isPaused()) {
 			Log.d(TAG, "Attempting to restore any Persisted Pause state");
+			boolean isBible = CommonUtils.getSharedPreferences().getBoolean(PERSIST_BIBLE_PROVIDER, true);
+			switchProvider(isBible ? speakBibleTextProvider : speakTextProvider);
+
 			isPaused = mSpeakTextProvider.restoreState();
 			
 			// restore locale information so tts knows which voice to load when it initialises
