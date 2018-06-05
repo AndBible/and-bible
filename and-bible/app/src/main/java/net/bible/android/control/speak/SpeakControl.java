@@ -249,9 +249,17 @@ public class SpeakControl {
 			Log.d(TAG, "Pause TTS speaking");
 	    	TextToSpeechServiceManager tts = textToSpeechServiceManager.get();
 			tts.pause();
-			String pause = CommonUtils.getResourceString(R.string.pause);
-			String timeProgress = CommonUtils.getHoursMinsSecs(tts.getPausedCompletedSeconds())+"/"+CommonUtils.getHoursMinsSecs(tts.getPausedTotalSeconds());
-	    	Toast.makeText(BibleApplication.getApplication(), pause+"\n"+timeProgress, Toast.LENGTH_SHORT).show();
+			String pauseToastText = CommonUtils.getResourceString(R.string.pause);
+
+			long completedSeconds = tts.getPausedCompletedSeconds();
+			long totalSeconds = tts.getPausedTotalSeconds();
+
+			if(totalSeconds > 0) {
+				String timeProgress = CommonUtils.getHoursMinsSecs(completedSeconds) + "/" + CommonUtils.getHoursMinsSecs(totalSeconds);
+				pauseToastText += "\n" + timeProgress;
+			}
+
+	    	Toast.makeText(BibleApplication.getApplication(), pauseToastText, Toast.LENGTH_SHORT).show();
 		}
 	}
 
