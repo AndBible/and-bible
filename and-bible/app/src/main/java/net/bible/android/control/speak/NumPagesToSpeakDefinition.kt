@@ -10,8 +10,6 @@ import net.bible.android.BibleApplication
  * @see gnu.lgpl.License for license details.<br></br>
  * The copyright to this program is held by it's author.
  */
-
- // TODO remove?
 class NumPagesToSpeakDefinition(var numPages: Int, private val resourceId: Int, private val isPlural: Boolean, val radioButtonId: Int) {
 
     fun getPrompt() =
