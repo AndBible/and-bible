@@ -140,8 +140,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
 
         if(settings.continueSentences) {
             // If verse does not end in period, add the part before period to the current reading
-
-            val regex = Regex("(.*)([.?!]+\\W*)")
+            val regex = Regex("(.*)([.?!]+[`´”“\"']*\\W*)")
             var rest = ""
 
             while(!text.matches(regex)) {
