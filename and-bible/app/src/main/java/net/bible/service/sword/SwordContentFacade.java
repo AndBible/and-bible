@@ -18,10 +18,7 @@ import net.bible.service.format.Note;
 import net.bible.service.format.OSISInputStream;
 import net.bible.service.format.SaxParserPool;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
-import net.bible.service.format.osistohtml.osishandlers.OsisToBibleSpeak;
-import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler;
-import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler;
-import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler;
+import net.bible.service.format.osistohtml.osishandlers.*;
 import net.bible.service.format.usermarks.BookmarkFormatSupport;
 import net.bible.service.format.usermarks.MyNoteFormatSupport;
 
@@ -38,6 +35,7 @@ import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.NoSuchKeyException;
+import org.crosswire.jsword.passage.Verse;
 import org.jdom2.Document;
 import org.jdom2.Element;
 import org.xml.sax.ContentHandler;
@@ -224,7 +222,7 @@ public class SwordContentFacade {
     	}
     }
 
-    public String getBibleTextToSpeak(Book book, Key key) {
+    private ArrayList<SpeakCommand> getSpeakCommandsForVerse(Book book, Key key) {
     	try {
 			BookData data = new BookData(book, key);
 			Element frag = data.getOsisFragment(false);
@@ -236,11 +234,22 @@ public class SwordContentFacade {
 			SAXEventProvider osissep = new JDOMSAXEventProvider(doc);
 			ContentHandler osisHandler = new OsisToBibleSpeak();
 			osissep.provideSAXEvents(osisHandler);
-			return osisHandler.toString();
+			return ((OsisToBibleSpeak) osisHandler).getSpeakCommands();
     	} catch (Exception e) {
     		Log.e(TAG, "Error getting text from book" , e);
-    		return BibleApplication.getApplication().getString(R.string.error_occurred);
+    		return new ArrayList<>();
     	}
+    }
+
+    public ArrayList<SpeakCommand> getSpeakCommands(Book book, Verse verse) {
+		ArrayList<SpeakCommand> lst = new ArrayList<>();
+		if (verse.getVerse() == 1) {
+			lst.addAll(getSpeakCommandsForVerse(book,
+					new Verse(verse.getVersification(), verse.getBook(), verse.getChapter(), 0)));
+		}
+
+    	lst.addAll(getSpeakCommandsForVerse(book, verse));
+    	return lst;
     }
 
     /**

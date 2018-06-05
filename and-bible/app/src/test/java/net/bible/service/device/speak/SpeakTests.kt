@@ -10,6 +10,7 @@ import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.bookmark.LabelDto
+import net.bible.service.format.osistohtml.osishandlers.*
 import net.bible.service.format.usermarks.BookmarkFormatSupport
 import net.bible.service.format.usermarks.MyNoteFormatSupport
 import net.bible.service.sword.SwordContentFacade
@@ -18,7 +19,6 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
-import org.crosswire.jsword.versification.Versification
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -29,10 +29,17 @@ import org.junit.After
 import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 
+
 @Config(qualifiers="fi", constants = BuildConfig::class, application = TestBibleApplication::class)
 open class AbstractSpeakTests {
     lateinit var provider: SpeakBibleTextProvider
     internal var text: String = ""
+    lateinit var book: SwordBook
+
+    @Before
+    open fun setup() {
+        book = Books.installed().getBook("FinRK") as SwordBook // as AbstractPassageBook
+    }
 
     internal fun getVerse(verseStr: String): Verse {
         val verse = book.getKey(verseStr) as RangedPassage
@@ -49,16 +56,76 @@ open class AbstractSpeakTests {
         val bibleTraverser = BibleTraverser(documentBibleBooksFactory);
         val bookmarkControl = BookmarkControl(swordContentFacade, mock(WindowControl::class.java),
                 mock(AndroidResourceProvider::class.java));
+    }
+}
 
-        val book = Books.installed().getBook("FinRK") as SwordBook // as AbstractPassageBook
-        val v11n: Versification = book.versification
+@RunWith(RobolectricTestRunner::class)
+open class OsisToBibleSpeakTests: AbstractSpeakTests() {
+    @Test
+    fun testCommandsFinRK() {
+        val cmds = ArrayList<SpeakCommand>()
+        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.1")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.2")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.3")))
+        assertThat("Command is of correct type", cmds[0] is TitleCommand)
+        assertThat("Command is of correct type", cmds[1] is TextCommand)
+        assertThat("Command is of correct type", cmds[2] is TextCommand)
+        assertThat(cmds.size, equalTo( 4))
+        cmds.clear();
+        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.23")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.24")))
+        assertThat("Command is of correct type", cmds[0] is TextCommand)
+        assertThat("Command is of correct type", cmds[1] is ParagraphChange)
+        assertThat("Command is of correct type", cmds[2] is TextCommand)
+        assertThat(cmds.size, equalTo( 3))
+    }
+
+    @Test
+    fun testCommandsEsv() {
+        book = Books.installed().getBook("ESV2011") as SwordBook // as AbstractPassageBook
+        val cmds = ArrayList<SpeakCommand>()
+        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.1")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.2")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.3")))
+        assertThat("Command is of correct type", cmds[0] is TitleCommand)
+        assertThat("Command is of correct type", cmds[1] is TextCommand)
+        assertThat("Command is of correct type", cmds[2] is TextCommand)
+        assertThat(cmds.size, equalTo( 4))
+        cmds.clear();
+        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.23")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.24")))
+        assertThat("Command is of correct type", cmds[0] is TextCommand)
+        assertThat("Command is of correct type", cmds[1] is ParagraphChange)
+        assertThat("Command is of correct type", cmds[2] is TextCommand)
+        assertThat(cmds.size, equalTo( 3))
+    }
+
+    @Test
+    fun testCommandsSTLK() {
+        book = Books.installed().getBook("STLK2017") as SwordBook // as AbstractPassageBook
+        val cmds = ArrayList<SpeakCommand>()
+        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.1")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.2")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.3")))
+        assertThat("Command is of correct type", cmds[0] is TitleCommand)
+        assertThat("Command is of correct type", cmds[1] is TextCommand)
+        assertThat("Command is of correct type", cmds[2] is TextCommand)
+        assertThat(cmds.size, equalTo( 4))
+        cmds.clear();
+        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.25")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.26")))
+        assertThat("Command is of correct type", cmds[0] is TextCommand)
+        assertThat("Command is of correct type", cmds[1] is ParagraphChange)
+        assertThat("Command is of correct type", cmds[2] is TextCommand)
+        assertThat(cmds.size, equalTo( 3))
     }
 }
 
 @RunWith(RobolectricTestRunner::class)
 class OtherSpeakTests: AbstractSpeakTests () {
     @Before
-    fun setup() {
+    override fun setup() {
+        super.setup()
         provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 book, getVerse("Ps.14.1"))
         provider.settings = SpeakSettings(false, true, false)
@@ -92,7 +159,8 @@ class OtherSpeakTests: AbstractSpeakTests () {
 @RunWith(RobolectricTestRunner::class)
 class AutoBookmarkTests: AbstractSpeakTests () {
     @Before
-    fun setup() {
+    override fun setup() {
+        super.setup()
         provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 book, getVerse("Ps.14.1"))
         var label = LabelDto();
@@ -156,7 +224,8 @@ class AutoBookmarkTests: AbstractSpeakTests () {
 @RunWith(RobolectricTestRunner::class)
 class SpeakWithoutContinueSentences: AbstractSpeakTests (){
     @Before
-    fun setup() {
+    override fun setup() {
+        super.setup()
         provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 book, getVerse("Ps.14.1"))
         provider.settings = SpeakSettings(false, true, false)
@@ -269,7 +338,8 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
 @RunWith(RobolectricTestRunner::class)
 class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Before
-    fun setup() {
+    override fun setup() {
+        super.setup()
         provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 book, getVerse("Ps.14.1"))
         provider.settings = SpeakSettings(false, true, true)

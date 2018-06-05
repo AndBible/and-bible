@@ -1,141 +1,136 @@
 package net.bible.service.format.osistohtml.osishandlers
 
-
-import net.bible.service.common.Logger
-import net.bible.service.format.osistohtml.taghandler.TagHandlerHelper
-import org.apache.commons.lang3.StringUtils
+import net.bible.service.format.osistohtml.taghandler.DivHandler
 import org.crosswire.jsword.book.OSISUtil
 import org.xml.sax.Attributes
 
 import java.util.Stack
 
-class OsisToBibleSpeak : OsisSaxHandler() {
+abstract class SpeakCommand
 
-    private var currentVerseNo: Int = 0
-
-    private val writeContentStack = Stack<CONTENT_STATE>()
-
-    // Avoid space at the start and, extra space between words
-    private var spaceJustWritten = true
-
-    private enum class CONTENT_STATE {
-        WRITE, IGNORE
+class TextCommand(var text: String) : SpeakCommand() {
+    override fun toString(): String {
+        return text;
     }
+}
+class TitleCommand(val text: String): SpeakCommand() {
+    override fun toString(): String {
+        return text;
+    }
+}
+
+class ParagraphChange : SpeakCommand()
+
+class OsisToBibleSpeak : OsisSaxHandler() {
+    val speakCommands: ArrayList<SpeakCommand> = ArrayList()
+
+    private var anyTextWritten = false
+
+    private enum class TAG_TYPE {NORMAL, TITLE, PARAGRPAH}
+
+    private data class StackEntry(val visible: Boolean, val tagType: TAG_TYPE=TAG_TYPE.NORMAL)
+
+    private val elementStack = Stack<StackEntry>()
 
     override fun startDocument() {
         reset()
-        // default mode is to write
-        writeContentStack.push(CONTENT_STATE.WRITE)
+        elementStack.push(StackEntry(true))
     }
 
-    /*
-     *Called when the Parser Completes parsing the Current XML File.
-    */
     override fun endDocument() {
-        // pop initial value
-        writeContentStack.pop()
-
-        // assert
-        if (!writeContentStack.isEmpty()) {
-            log.warn("OsisToCanonicalTextSaxHandler context stack should now be empty")
-        }
+        elementStack.pop()
     }
 
-    /*
-     * Called when the starting of the Element is reached. For Example if we have Tag
-     * called <Title> ... </Title>, then this method is called when <Title> tag is
-     * Encountered while parsing the Current XML File. The AttributeList Parameter has
-     * the list of all Attributes declared for the Current Element in the XML File.
-    */
     override fun startElement(namespaceURI: String,
                               sName: String, // simple name
                               qName: String, // qualified name
                               attrs: Attributes?) {
         val name = getName(sName, qName) // element name
 
-        debug(name, attrs, true)
+        val peekVisible = elementStack.peek().visible
 
-        // if encountering either a verse tag or if the current tag is marked as being canonical then turn on writing
-        if (isAttrValue(attrs, "canonical", "true")) {
-            writeContentStack.push(CONTENT_STATE.WRITE)
-        } else if (name == OSISUtil.OSIS_ELEMENT_VERSE) {
-            if (attrs != null) {
-                currentVerseNo = TagHandlerHelper.osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID))
-            }
-            writeContentStack.push(CONTENT_STATE.WRITE)
+        if (name == OSISUtil.OSIS_ELEMENT_VERSE) {
+            anyTextWritten = false
+            elementStack.push(StackEntry(true))
         } else if (name == OSISUtil.OSIS_ELEMENT_NOTE) {
-            writeContentStack.push(CONTENT_STATE.IGNORE)
+            elementStack.push(StackEntry(false))
         } else if (name == OSISUtil.OSIS_ELEMENT_TITLE) {
-            writeContentStack.push(CONTENT_STATE.IGNORE)
+            elementStack.push(StackEntry(peekVisible, TAG_TYPE.TITLE))
+        } else if (name == OSISUtil.OSIS_ELEMENT_DIV) {
+            val type = attrs?.getValue("type") ?: ""
+            val isVerseBeginning = attrs?.getValue("sID") != null
+            val isParagraphType = DivHandler.PARAGRAPH_TYPE_LIST.contains(type)
+            if(isParagraphType && !isVerseBeginning) {
+                speakCommandsAdd(ParagraphChange())
+                elementStack.push(StackEntry(peekVisible, TAG_TYPE.PARAGRPAH))
+            }
+            else {
+                elementStack.push(StackEntry(peekVisible))
+            }
         } else if (name == OSISUtil.OSIS_ELEMENT_REFERENCE) {
-            // text content of top level references should be output but in notes it should not
-            writeContentStack.push(writeContentStack.peek())
-        } else if (name == OSISUtil.OSIS_ELEMENT_L ||
-                name == OSISUtil.OSIS_ELEMENT_LB ||
+            elementStack.push(StackEntry(peekVisible))
+        } else if (name == OSISUtil.OSIS_ELEMENT_L
+                || name == OSISUtil.OSIS_ELEMENT_LB ||
                 name == OSISUtil.OSIS_ELEMENT_P) {
-            // these occur in Psalms to separate different paragraphs.
-            // A space is needed for TTS not to be confused by punctuation with a missing space like 'toward us,and the'
-            write(" ")
-            //if writing then continue.  Also if ignoring then continue
-            writeContentStack.push(writeContentStack.peek())
+            if(anyTextWritten) {
+                speakCommandsAdd(ParagraphChange())
+            }
+            elementStack.push(StackEntry(peekVisible, TAG_TYPE.PARAGRPAH))
         } else {
-            // unknown tags rely on parent tag to determine if content is canonical e.g. the italic tag in the middle of canonical text
-            writeContentStack.push(writeContentStack.peek())
+            elementStack.push(StackEntry(peekVisible))
         }
     }
 
-    /*
-     * Called when the Ending of the current Element is reached. For example in the
-     * above explanation, this method is called when </Title> tag is reached
-    */
     override fun endElement(namespaceURI: String,
-                            sName: String, // simple name
-                            qName: String  // qualified name
+                            simplifiedName: String,
+                            qualifiedName: String
     ) {
-        val name = getName(sName, qName)
-        debug(name, null, false)
-        if (name == OSISUtil.OSIS_ELEMENT_VERSE) {
-            // A space is needed to separate one verse from the next, otherwise the 2 verses butt up against each other
-            // which looks bad and confuses TTS
-            write(" ")
-        }
+        val name = getName(simplifiedName, qualifiedName)
+        val state = elementStack.pop()
 
-        // now this tag has ended pop the write/ignore state for the parent tag
-        writeContentStack.pop()
+        if(state.tagType == TAG_TYPE.PARAGRPAH) {
+            if(anyTextWritten) {
+                anyTextWritten = false;
+            }
+        }
     }
 
     /*
      * Handle characters encountered in tags
     */
     override fun characters(buf: CharArray, offset: Int, len: Int) {
-        if (CONTENT_STATE.WRITE == writeContentStack.peek()) {
-            val s = String(buf, offset, len)
-            write(s)
+        val currentState = elementStack.peek()
+        val s = String(buf, offset, len)
+        if(currentState.visible) {
+            if(currentState.tagType == TAG_TYPE.TITLE) {
+                speakCommandsAdd(TitleCommand(s))
+            }
+            else {
+                speakCommandsAdd(TextCommand(s))
+            }
         }
     }
 
-    override fun write(s: String) {
-        // reduce amount of whitespace becasue a lot of space was occurring between verses in ESVS and several other books
-        if (!StringUtils.isWhitespace(s)) {
-            super.write(s)
-            spaceJustWritten = false
-        } else if (!spaceJustWritten) {
-            super.write(" ")
-            spaceJustWritten = true
+    fun speakCommandsAdd(v: TextCommand)
+    {
+        val lastCommand = try {speakCommands.last()} catch (e: NoSuchElementException) {null}
+        if(lastCommand is TextCommand) {
+            lastCommand.text = lastCommand.text.trim() + " " +  v.text.trim()
+        }
+        else {
+            if(v.text.trim().length > 0) {
+                speakCommands.add(v)
+            }
         }
     }
 
-    protected fun writeContent(writeContent: Boolean) {
-        if (writeContent) {
-            writeContentStack.push(CONTENT_STATE.WRITE)
-        } else {
-            writeContentStack.push(CONTENT_STATE.IGNORE)
-        }
+    fun speakCommandsAdd(v: TitleCommand) {
+        speakCommands.add(v)
     }
 
-    companion object {
-
-        private val log = Logger("OsisToBibleSpeak")
+    fun speakCommandsAdd(v: ParagraphChange)
+    {
+        speakCommands.add(v)
     }
 }
 

@@ -196,7 +196,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     private fun getRawTextForVerse(verse: Verse): String {
-        return swordContentFacade.getBibleTextToSpeak(book, verse)
+        return swordContentFacade.getTextToSpeak(book, verse)
     }
 
     internal override fun pause(fractionCompleted: Float) {
@@ -268,13 +268,17 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         }
         if(sharedPreferences.contains(PERSIST_VERSE)) {
             val verseStr = sharedPreferences.getString(PERSIST_VERSE, "")
-            val verse = book.getKey(verseStr) as RangedPassage
-            startVerse = verse.getVerseAt(0)
+            startVerse = osisIdToVerse(verseStr)
             endVerse = startVerse
             currentVerse = startVerse
             return true
         }
         return false
+    }
+
+    private fun osisIdToVerse(osisId: String): Verse {
+        val verse = book.getKey(osisId) as RangedPassage
+        return verse.getVerseAt(0)
     }
 
     override fun clearPersistedState() {
