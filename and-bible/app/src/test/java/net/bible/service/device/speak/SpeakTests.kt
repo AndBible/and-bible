@@ -58,24 +58,8 @@ class OtherSpeakTests: AbstractSpeakTests () {
     fun storePersistence() {
         provider.setupReading(book, getVerse("Ps.14.1"))
         val sharedPreferences = CommonUtils.getSharedPreferences()
+        provider.persistState()
         assertThat(sharedPreferences.getString("SpeakBibleVerse", ""), equalTo("Ps.14.1"))
-        assertThat(sharedPreferences.getString("SpeakBibleBook", ""), equalTo("FinRK"))
-        text = provider.getNextTextToSpeak()
-        text = provider.getNextTextToSpeak()
-        provider.pause(0.5f)
-        assertThat(sharedPreferences.getString("SpeakBibleVerse", ""), equalTo("Ps.14.2"))
-        provider.setupReading(book, getVerse("Rom.5.20"))
-        assertThat(range(), equalTo("Rom.5.20"))
-        assertThat(sharedPreferences.getString("SpeakBibleVerse", ""), equalTo("Rom.5.20"))
-        text = provider.getNextTextToSpeak()
-        assertThat(range(), equalTo("Rom.5.20"))
-        assertThat(sharedPreferences.getString("SpeakBibleVerse", ""), equalTo("Rom.5.20"))
-        text = provider.getNextTextToSpeak()
-        assertThat(range(), equalTo("Rom.5.21"))
-        assertThat(sharedPreferences.getString("SpeakBibleVerse", ""), equalTo("Rom.5.20"))
-        text = provider.getNextTextToSpeak()
-        assertThat(range(), equalTo("Rom.6.1"))
-        assertThat(sharedPreferences.getString("SpeakBibleVerse", ""), equalTo("Rom.6.1"))
         assertThat(sharedPreferences.getString("SpeakBibleBook", ""), equalTo("FinRK"))
     }
 
@@ -103,8 +87,6 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
     fun setup() {
         provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, book, getVerse("Ps.14.1"))
         provider.settings = SpeakSettings(false, true, false)
-        //val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(BibleApplication.getApplication())
-        //sharedPreferences.edit().putString("test", "12345").commit()
     }
 
 

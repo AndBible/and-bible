@@ -223,7 +223,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         readList.clear()
     }
 
-    override fun persistState() {
+    internal override fun persistState() {
         CommonUtils.getSharedPreferences().edit()
                 .putString(PERSIST_BOOK, book.abbreviation)
                 .putString(PERSIST_VERSE, startVerse.osisID)
