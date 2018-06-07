@@ -104,7 +104,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     private fun getTextForVerse(prevVerse: Verse, verse: Verse): String {
         var text = getRawTextForVerse(verse)
         val res = getLocalizedResources()
-        val bookName = BibleNames.instance().getPreferredName(verse.book) // TODO: get bible name in bible's own locale!
+        val bookName = BibleNames.instance().getPreferredNameInLocale(verse.book, Locale(_language))
 
         if(prevVerse.book != verse.book) {
             text = res.getString(R.string.speak_book_changed) + " " + bookName + " " +
