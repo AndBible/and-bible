@@ -1,6 +1,7 @@
 <ivy-module version="2.0">
   <info organisation="org.crosswire" module="jsword"/>
   <dependencies>
+    <dependency org="org.apache.commons"        name="commons-compress" rev="1.17"     conf="default->master,sources" />
     <dependency org="org.apache.httpcomponents" name="httpcore"         rev="4.3.2"     conf="default->master,sources" />
     <dependency org="org.apache.httpcomponents" name="httpclient"       rev="4.3.2"     conf="default->master,sources" />
     <dependency org="javatar"                   name="javatar"          rev="2.5"       conf="default->master,sources" />
