@@ -112,12 +112,12 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
 
         text = provider.getNextTextToSpeak()
         assertThat(range(), equalTo("Ps.14.1"))
-        assertThat(text, startsWith("Luku 14. Musiikinjohtajalle"))
+        assertThat(text, startsWith("Psalmit Luku 14. Musiikinjohtajalle"))
         assertThat(text, endsWith("tekee hyvää."))
     }
 
     private fun checkRomansBeginning() {
-        assertThat(text, startsWith("Kirja vaihtuu, uusi kirja: Roomalaiskirje. Luku 1. Paavali, "))
+        assertThat(text, startsWith("Kirja vaihtui. Roomalaiskirje Luku 1. Paavali, "))
         assertThat(text, endsWith("evankeliumia,"))
     }
     @Test
@@ -149,11 +149,11 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
         for(i in 1..32) {
             text = provider.getNextTextToSpeak()
         }
-        assertThat(text, startsWith("Luku 2"))
+        assertThat(text, startsWith("Roomalaiskirje Luku 2"))
         for(i in 1..29) {
             text = provider.getNextTextToSpeak()
         }
-        assertThat(text, startsWith("Luku 3"))
+        assertThat(text, startsWith("Roomalaiskirje Luku 3"))
     }
 
     @Test
@@ -202,7 +202,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     }
 
     private fun checkRomansBeginning() {
-        assertThat(text, startsWith("Kirja vaihtuu, uusi kirja: Roomalaiskirje. Luku 1. Paavali, "))
+        assertThat(text, startsWith("Kirja vaihtui. Roomalaiskirje Luku 1. Paavali, "))
         assertThat(text, endsWith("meidän Herrastamme."))
         assertThat(range(), equalTo("Rom.1.1-Rom.1.3"))
     }
@@ -255,7 +255,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(range(), equalTo("Rom.5.20-Rom.5.21"))
         text = provider.getNextTextToSpeak()
         assertThat(range(), equalTo("Rom.6.1"))
-        assertThat(text, startsWith("Luku 6. Mitä me"))
+        assertThat(text, startsWith("Roomalaiskirje Luku 6. Mitä me"))
         assertThat(text, endsWith("tulisi suureksi?"))
 
     }

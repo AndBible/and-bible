@@ -268,6 +268,6 @@
   <string name="error_page_too_large">Sivu on liian suuri ladattavaksi</string>
   <string name="error_key_not_in_document">Ei löytynyt teoksesta</string>
   <string name="empty_list">Ei näytettävää</string>
-  <string name="speak_book_changed">Kirja vaihtuu, uusi kirja: </string>
+  <string name="speak_book_changed">Kirja vaihtui. </string>
   <string name="speak_chapter_changed">Luku</string>
 </resources>

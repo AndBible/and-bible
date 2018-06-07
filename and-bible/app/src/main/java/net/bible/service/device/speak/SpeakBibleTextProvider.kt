@@ -103,19 +103,18 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
 
     private fun getTextForVerse(prevVerse: Verse, verse: Verse): String {
         var text = getRawTextForVerse(verse)
-        val bookChanged = prevVerse.book != verse.book
         val res = getLocalizedResources()
+        val bookName = BibleNames.instance().getPreferredName(verse.book) // TODO: get bible name in bible's own locale!
 
-        if(bookChanged || prevVerse.chapter != verse.chapter) {
-            if(settings.chapterChanges) {
-                text = res.getString(R.string.speak_chapter_changed) + " " + verse.chapter + ". " + text
-            }
+        if(prevVerse.book != verse.book) {
+            text = res.getString(R.string.speak_book_changed) + " " + bookName + " " +
+                    res.getString(R.string.speak_chapter_changed) + " " + verse.chapter + ". " + text
+        }
+        else if(settings.chapterChanges && prevVerse.chapter != verse.chapter) {
+            text = bookName + " " + res.getString(R.string.speak_chapter_changed) + " " + verse.chapter + ". " + text
         }
 
-        if(bookChanged) {
-            val bookName = BibleNames.instance().getPreferredName(verse.book) // TODO: get bible name in bible's own locale!
-            text = res.getString(R.string.speak_book_changed) + " " + bookName + ". " + text
-        }
+
         return text.trim()
     }
 
