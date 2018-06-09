@@ -173,9 +173,12 @@ public class WindowRepository {
 		}
 	}
 	
-	public List<Window> getWindowsToSynchronise() {
+	public List<Window> getWindowsToSynchronise(Window sourceWindow) {
 		List<Window> windows = getVisibleWindows();
-		windows.remove(getActiveWindow());
+		if(sourceWindow == null) {
+			sourceWindow = getActiveWindow();
+		}
+		windows.remove(sourceWindow);
 		
 		return windows;
 	}

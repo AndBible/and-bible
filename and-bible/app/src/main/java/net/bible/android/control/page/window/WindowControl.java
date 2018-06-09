@@ -298,7 +298,7 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 	}
 	
 	public void onEvent(CurrentVerseChangedEvent event) {
-		windowSync.synchronizeScreens();
+		windowSync.synchronizeScreens(event.getWindow());
 	}
 
 	public void onEvent(SynchronizeWindowsEvent event) {

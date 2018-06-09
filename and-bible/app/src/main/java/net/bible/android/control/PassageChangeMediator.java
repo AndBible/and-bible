@@ -49,6 +49,7 @@ public class PassageChangeMediator {
 		} else {
 			Log.w(TAG, "BibleContentManager not yet registered");
 		}
+		EventBus.getDefault().post(new CurrentVerseChangedEvent(window));
 	}
 
 	/** the document has changed so ask the view to refresh itself

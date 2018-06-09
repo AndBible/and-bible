@@ -56,19 +56,21 @@ public class WindowSync {
 
 	/** Synchronise the inactive key and inactive screen with the active key and screen if required
 	 */
-	public void synchronizeScreens() {
-		Window activeWindow = windowRepository.getActiveWindow();
-		CurrentPage activePage = activeWindow.getPageManager().getCurrentPage();
+	public void synchronizeScreens(Window sourceWindow) {
+		if(sourceWindow == null) {
+			sourceWindow = windowRepository.getActiveWindow();
+		}
+		CurrentPage activePage = sourceWindow.getPageManager().getCurrentPage();
 		Key targetActiveWindowKey = activePage.getSingleKey();
 
-		List<Window> inactiveWindowList = windowRepository.getWindowsToSynchronise();
+		List<Window> inactiveWindowList = windowRepository.getWindowsToSynchronise(sourceWindow);
 		for (Window inactiveWindow : inactiveWindowList) {
 			CurrentPage inactivePage = inactiveWindow.getPageManager().getCurrentPage();
 			Key inactiveWindowKey = inactivePage.getSingleKey();
 			boolean inactiveUpdated = false;
 			boolean isTotalRefreshRequired = isFirstTimeInit ||	lastSynchWasInNightMode!=ScreenSettings.isNightMode() || screenPreferencesChanged || resynchRequired;
 	
-			if (isSynchronizableVerseKey(activePage) && activeWindow.isSynchronised() && inactiveWindow.isSynchronised()) {
+			if (isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised() && inactiveWindow.isSynchronised()) {
 				// inactive screen may not be displayed (e.g. if viewing a dict) but if switched to the key must be correct
 				// Only Bible and cmtry are synch'd and they share a Verse key
 				updateInactiveBibleKey(inactiveWindow, targetActiveWindowKey);
@@ -103,7 +105,11 @@ public class WindowSync {
 		resynchRequired = false;
 		isFirstTimeInit = false;
 	}
-	
+
+	public void synchronizeScreens() {
+		synchronizeScreens(null);
+	}
+
 	/** Only call if screens are synchronised.  Update synch'd keys even if inactive page not shown so if it is shown then it is correct
 	 */
 	private void updateInactiveBibleKey(Window inactiveWindow, Key activeWindowKey) {
