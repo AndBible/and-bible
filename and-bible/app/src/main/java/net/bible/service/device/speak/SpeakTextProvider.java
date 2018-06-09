@@ -155,7 +155,11 @@ public class SpeakTextProvider extends AbstractSpeakTextProvider {
 
         backOneChunk();
 	}
-	
+
+	public void stop() {
+		reset();
+	}
+
 	public void rewind() {
 		// go back to start of current sentence
     	StartPos textFraction = getPrevTextStartPos(peekNextTextChunk(), fractionOfNextSentenceSpoken);

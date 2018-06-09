@@ -17,6 +17,9 @@ import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import kotlinx.serialization.json.JSON
 import net.bible.android.BibleApplication
+import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.service.db.bookmark.BookmarkDto
+import net.bible.service.db.bookmark.LabelDto
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleNames
 import java.util.*
@@ -24,6 +27,7 @@ import java.util.*
 
 class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
                              private val bibleTraverser: BibleTraverser,
+                             private val bookmarkControl: BookmarkControl,
                              initialBook: Book,
                              initialVerse: Verse): AbstractSpeakTextProvider() {
 
@@ -196,7 +200,24 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
 
     internal override fun pause(fractionCompleted: Float) {
         currentVerse = startVerse
+        saveBookmark()
         reset()
+    }
+
+    internal override fun stop() {
+        saveBookmark()
+        reset();
+    }
+
+    private fun saveBookmark(){
+        if(settings.autoBookmarkLabelId != null) {
+            var bookmarkDto = BookmarkDto()
+            bookmarkDto.verseRange = VerseRange(startVerse.versification, startVerse)
+            bookmarkDto = bookmarkControl.addBookmark(bookmarkDto)
+            val labelDto = LabelDto()
+            labelDto.id = settings.autoBookmarkLabelId
+            bookmarkControl.setBookmarkLabels(bookmarkDto, listOf(labelDto))
+        }
     }
 
     private fun getPrevVerse(verse: Verse): Verse = bibleTraverser.getPrevVerse(book as AbstractPassageBook, verse)

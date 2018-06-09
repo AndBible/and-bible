@@ -5,5 +5,5 @@ import kotlinx.serialization.*
 data class SpeakSettings(val synchronize: Boolean = false,
                          val chapterChanges: Boolean = false,
                          val continueSentences: Boolean = true,
-                         val autoBookmarkLabel: String? = null
+                         val autoBookmarkLabelId: Long? = null
                          )

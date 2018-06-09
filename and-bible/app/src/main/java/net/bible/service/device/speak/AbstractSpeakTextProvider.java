@@ -13,6 +13,7 @@ public abstract class AbstractSpeakTextProvider {
     abstract boolean isMoreTextToSpeak();
     abstract String getNextTextToSpeak();
     abstract void pause(float fractionCompleted);
+    abstract void stop();
     abstract void rewind();
     abstract void forward();
     abstract void finishedUtterance(String utteranceId);

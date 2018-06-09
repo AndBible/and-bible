@@ -9,6 +9,7 @@ import android.util.Log;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.phonecall.PhoneCallMonitor;
@@ -87,13 +88,15 @@ public class TextToSpeechServiceManager {
     private boolean isPaused = false;
 
 	@Inject
-    public TextToSpeechServiceManager(SwordContentFacade swordContentFacade, BibleTraverser bibleTraverser, WindowControl windowControl) {
+    public TextToSpeechServiceManager(SwordContentFacade swordContentFacade, BibleTraverser bibleTraverser,
+									  WindowControl windowControl, BookmarkControl bookmarkControl) {
     	Log.d(TAG, "Creating TextToSpeechServiceManager");
 		speakTextProvider = new SpeakTextProvider(swordContentFacade);
 		Book book = windowControl.getActiveWindowPageManager().getCurrentBible().getCurrentDocument();
 		Verse verse = windowControl.getActiveWindowPageManager().getCurrentBible().getSingleKey();
 
-		speakBibleTextProvider = new SpeakBibleTextProvider(swordContentFacade, bibleTraverser, book, verse);
+		speakBibleTextProvider = new SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
+				book, verse);
 
     	mSpeakTextProvider = speakBibleTextProvider;
 
@@ -381,8 +384,8 @@ public class TextToSpeechServiceManager {
         
         // tts.stop can trigger onUtteranceCompleted so set above flags first to avoid sending of a further text and setting isSpeaking to true
     	shutdownTtsEngine();
-        mSpeakTextProvider.reset();
-        
+    	mSpeakTextProvider.stop();
+
         fireStateChangeEvent();
     }
 

@@ -55,8 +55,8 @@ class SpeakBible : CustomTitlebarActivityBase() {
         bookmarkLabels = bookmarkControl.assignableLabels
         val adapter = ArrayAdapter<LabelDto>(this, android.R.layout.simple_spinner_dropdown_item, bookmarkLabels)
         bookmarkTag.adapter = adapter
-        if(initialSettings.autoBookmarkLabel != null) {
-            val labelDto = bookmarkLabels.find({ labelDto -> labelDto.name == initialSettings.autoBookmarkLabel })
+        if(initialSettings.autoBookmarkLabelId != null) {
+            val labelDto = bookmarkLabels.find({ labelDto -> labelDto.id == initialSettings.autoBookmarkLabelId })
             val itemId = bookmarkLabels.indexOf(labelDto)
 
             bookmarkTag.setSelection(itemId)
@@ -91,7 +91,7 @@ class SpeakBible : CustomTitlebarActivityBase() {
 
         textProvider.settings = SpeakSettings(synchronize.isChecked,
                 speak_chapter_changes.isChecked, continue_sentences.isChecked,
-                if (auto_bookmark.isChecked) label.name else null)
+                if (auto_bookmark.isChecked) label.id else null)
     }
 
     fun onButtonClick(button: View) {
