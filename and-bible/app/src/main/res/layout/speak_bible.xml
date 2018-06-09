@@ -33,7 +33,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
-				android:id="@+id/speak_chapter_changes"
+				android:id="@+id/speakChapterChanges"
 				android:onClick="onSettingsChange"/>
 
 		<CheckBox
@@ -41,7 +41,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
-				android:id="@+id/continue_sentences"
+				android:id="@+id/continueSentences"
 				android:onClick="onSettingsChange"/>
 
 		<CheckBox
@@ -49,19 +49,31 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
-				android:id="@+id/auto_bookmark"
+				android:id="@+id/autoBookmark"
 				android:onClick="onSettingsChange"/>
-		<Spinner
-				android:id="@+id/bookmarkTag"
+
+		<LinearLayout
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content">
+			<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="@string/conf_speak_auto_bookmark_label"/>
 
-		</Spinner>
+			<Space
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:layout_width="0dp"/>
+
+			<Spinner
+					android:id="@+id/bookmarkTag"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"/>
+		</LinearLayout>
 
 		<TextView
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:id="@+id/speakSpeedTitle"
 				android:text="@string/speak_speed_title"/>
 
 

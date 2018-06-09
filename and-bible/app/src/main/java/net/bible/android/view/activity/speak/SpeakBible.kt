@@ -38,8 +38,8 @@ class SpeakBible : CustomTitlebarActivityBase() {
         val initialSettings = textProvider.settings
         statusText.text = textProvider.getStatusText()
         synchronize.isChecked = initialSettings.synchronize
-        speak_chapter_changes.isChecked = initialSettings.chapterChanges
-        continue_sentences.isChecked = initialSettings.continueSentences
+        speakChapterChanges.isChecked = initialSettings.chapterChanges
+        continueSentences.isChecked = initialSettings.continueSentences
 
         speakSpeed.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -61,10 +61,10 @@ class SpeakBible : CustomTitlebarActivityBase() {
             val itemId = bookmarkLabels.indexOf(labelDto)
 
             bookmarkTag.setSelection(itemId)
-            auto_bookmark.isChecked = true
+            autoBookmark.isChecked = true
         }
         else {
-            auto_bookmark.isChecked = false
+            autoBookmark.isChecked = false
             bookmarkTag.setEnabled(false)
         }
 
@@ -87,15 +87,15 @@ class SpeakBible : CustomTitlebarActivityBase() {
     fun onSettingsChange(widget: View) = updateSettings()
 
     private fun updateSettings() {
-        bookmarkTag.setEnabled(auto_bookmark.isChecked)
+        bookmarkTag.setEnabled(autoBookmark.isChecked)
 
         val labelId = if (bookmarkTag.selectedItemPosition != INVALID_POSITION) {
             bookmarkLabels.get(bookmarkTag.selectedItemPosition).id
         } else SpeakSettings.INVALID_LABEL_ID
 
         textProvider.settings = SpeakSettings(synchronize.isChecked,
-                speak_chapter_changes.isChecked, continue_sentences.isChecked,
-                if (auto_bookmark.isChecked) labelId else null)
+                speakChapterChanges.isChecked, continueSentences.isChecked,
+                if (autoBookmark.isChecked) labelId else null)
     }
 
     fun onButtonClick(button: View) {
