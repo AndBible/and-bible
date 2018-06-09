@@ -36,7 +36,7 @@ class SpeakBible : CustomTitlebarActivityBase() {
 
         textProvider = speakControl.speakBibleTextProvider
         val initialSettings = textProvider.settings
-        statusText.text = if (!speakControl.isSpeaking) "" else textProvider.getStatusText()
+        statusText.text = textProvider.getStatusText()
         synchronize.isChecked = initialSettings.synchronize
         speak_chapter_changes.isChecked = initialSettings.chapterChanges
         continue_sentences.isChecked = initialSettings.continueSentences
@@ -116,6 +116,7 @@ class SpeakBible : CustomTitlebarActivityBase() {
         } catch (e: Exception) {
             Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
         }
+        statusText.text = textProvider.getStatusText()
     }
 
     @Inject
