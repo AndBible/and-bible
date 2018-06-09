@@ -9,9 +9,11 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.bookmark.LabelDto
 import net.bible.service.format.usermarks.BookmarkFormatSupport
 import net.bible.service.format.usermarks.MyNoteFormatSupport
 import net.bible.service.sword.SwordContentFacade
+import net.bible.test.DatabaseResetter
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.RangedPassage
@@ -23,6 +25,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.hamcrest.Matchers.*
 import org.hamcrest.MatcherAssert.*
+import org.junit.After
 import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 
@@ -86,7 +89,64 @@ class OtherSpeakTests: AbstractSpeakTests () {
         assertThat(text, endsWith("Kristuksen kautta."))
     }
 }
+@RunWith(RobolectricTestRunner::class)
+class AutoBookmarkTests: AbstractSpeakTests () {
+    @Before
+    fun setup() {
+        provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
+                book, getVerse("Ps.14.1"))
+        var label = LabelDto();
+		label.setName("tts");
+		label = bookmarkControl.saveOrUpdateLabel(label)
 
+        provider.settings = SpeakSettings(false, true, false, label.id)
+    }
+	@After
+	fun tearDown(){
+		val bookmarks = bookmarkControl.getAllBookmarks()
+		for (dto in bookmarks) {
+			bookmarkControl.deleteBookmark(dto)
+		}
+
+		val labels = bookmarkControl.getAllLabels()
+		for (dto in labels) {
+			bookmarkControl.deleteLabel(dto);
+		}
+
+		DatabaseResetter.resetDatabase();
+	}
+
+    @Test
+    fun autoBookmarkOnPause() {
+        provider.settings = SpeakSettings(false, true, false, null)
+        provider.setupReading(book, getVerse("Ps.14.1"))
+        text = provider.getNextTextToSpeak()
+        provider.pause(0.5f);
+        assertThat(bookmarkControl.allBookmarks.size, equalTo(0))
+    }
+
+    @Test
+    fun autoBookmarkDisabled() {
+        provider.setupReading(book, getVerse("Ps.14.1"))
+        text = provider.getNextTextToSpeak()
+        provider.pause(0.5f);
+        val labelDto = LabelDto()
+        labelDto.id = provider.settings.autoBookmarkLabelId
+        val bookmark = bookmarkControl.getBookmarksWithLabel(labelDto).get(0)
+        assertThat(bookmark.verseRange.start.osisID, equalTo("Ps.14.1"))
+    }
+
+    @Test
+    fun autoBookmarkOnStop() {
+        provider.setupReading(book, getVerse("Ps.14.2"))
+        text = provider.getNextTextToSpeak()
+        provider.stop();
+        val labelDto = LabelDto()
+        labelDto.id = provider.settings.autoBookmarkLabelId
+        val bookmark = bookmarkControl.getBookmarksWithLabel(labelDto).get(0)
+        assertThat(bookmark.verseRange.start.osisID, equalTo("Ps.14.2"))
+    }
+}
 
 @RunWith(RobolectricTestRunner::class)
 class SpeakWithoutContinueSentences: AbstractSpeakTests (){
