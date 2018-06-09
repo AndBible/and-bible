@@ -21,7 +21,7 @@
 			android:layout_alignParentTop="true">
 
 		<CheckBox
-				android:text="@string/conf_synchronize_first_window"
+				android:text="@string/conf_speak_synchronize_first_window"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
@@ -37,12 +37,26 @@
 				android:onClick="onSettingsChange"/>
 
 		<CheckBox
-				android:text="@string/conf_continue_sentences"
+				android:text="@string/conf_speak_continue_sentences"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:id="@+id/continue_sentences"
 				android:onClick="onSettingsChange"/>
+
+		<CheckBox
+				android:text="@string/conf_speak_auto_bookmark"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:id="@+id/auto_bookmark"
+				android:onClick="onSettingsChange"/>
+		<Spinner
+				android:id="@+id/bookmarkTag"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
+
+		</Spinner>
 
 		<TextView
 				android:layout_width="wrap_content"
@@ -137,5 +151,6 @@
 
 		</LinearLayout>
 	</LinearLayout>
+
 
 </RelativeLayout>
