@@ -3,6 +3,7 @@ package net.bible.android.view.activity.speak
 import android.os.Bundle
 import android.view.View
 import android.widget.*
+import android.widget.AdapterView.INVALID_POSITION
 import de.greenrobot.event.EventBus
 import kotlinx.android.synthetic.main.speak_bible.*
 import net.bible.android.activity.R
@@ -87,11 +88,14 @@ class SpeakBible : CustomTitlebarActivityBase() {
 
     private fun updateSettings() {
         bookmarkTag.setEnabled(auto_bookmark.isChecked)
-        val label = bookmarkLabels.get(bookmarkTag.selectedItemPosition)
+
+        val labelId = if (bookmarkTag.selectedItemPosition != INVALID_POSITION) {
+            bookmarkLabels.get(bookmarkTag.selectedItemPosition).id
+        } else SpeakSettings.INVALID_LABEL_ID
 
         textProvider.settings = SpeakSettings(synchronize.isChecked,
                 speak_chapter_changes.isChecked, continue_sentences.isChecked,
-                if (auto_bookmark.isChecked) label.id else null)
+                if (auto_bookmark.isChecked) labelId else null)
     }
 
     fun onButtonClick(button: View) {
