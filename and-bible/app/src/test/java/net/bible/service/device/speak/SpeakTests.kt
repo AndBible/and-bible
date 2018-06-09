@@ -117,7 +117,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
 	}
 
     @Test
-    fun autoBookmarkOnPause() {
+    fun autoBookmarkDisabled() {
         provider.settings = SpeakSettings(false, true, false, null)
         provider.setupReading(book, getVerse("Ps.14.1"))
         text = provider.getNextTextToSpeak()
@@ -126,7 +126,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
     }
 
     @Test
-    fun autoBookmarkDisabled() {
+    fun autoBookmarkOnPause() {
         provider.setupReading(book, getVerse("Ps.14.1"))
         text = provider.getNextTextToSpeak()
         provider.pause(0.5f);
@@ -134,6 +134,11 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         labelDto.id = provider.settings.autoBookmarkLabelId
         val bookmark = bookmarkControl.getBookmarksWithLabel(labelDto).get(0)
         assertThat(bookmark.verseRange.start.osisID, equalTo("Ps.14.1"))
+
+        assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
+        // test that it does not add another bookmark if there's already one with same key
+        provider.pause(0.5f);
+        assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
     }
 
     @Test

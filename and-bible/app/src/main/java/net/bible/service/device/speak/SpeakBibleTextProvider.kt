@@ -211,9 +211,15 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
 
     private fun saveBookmark(){
         if(settings.autoBookmarkLabelId != null) {
-            var bookmarkDto = BookmarkDto()
-            bookmarkDto.verseRange = VerseRange(startVerse.versification, startVerse)
-            bookmarkDto = bookmarkControl.addBookmark(bookmarkDto)
+            var bookmarkDto = bookmarkControl.getBookmarkByKey(startVerse)
+            if(bookmarkDto == null) {
+                bookmarkDto = BookmarkDto()
+                bookmarkDto.verseRange = VerseRange(startVerse.versification, startVerse)
+                bookmarkDto = bookmarkControl.addBookmark(bookmarkDto)
+            }
+            else {
+                bookmarkControl.refreshBookmarkDate(bookmarkDto)
+            }
             if(settings.autoBookmarkLabelId != SpeakSettings.INVALID_LABEL_ID) {
                 val labelDto = LabelDto()
                 labelDto.id = settings.autoBookmarkLabelId
