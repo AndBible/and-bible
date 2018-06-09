@@ -68,7 +68,7 @@ abstract class CurrentPageBase implements CurrentPage {
 	 */
 	protected void pageChange() {
 		if (!isInhibitChangeNotifications()) {
-			PassageChangeMediator.getInstance().onCurrentPageChanged();
+			PassageChangeMediator.getInstance().onCurrentPageChanged(null);
 		}
 	}
 

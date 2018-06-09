@@ -4,6 +4,7 @@ import android.util.Log;
 
 import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.control.page.CurrentPage;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.UpdateTextTask;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowControl;
@@ -43,12 +44,14 @@ public class BibleContentManager {
 		PassageChangeMediator.getInstance().setBibleContentManager(this);
 	}
 	
-    /* package */ void updateText() {
-    	updateText(false);
+    /* package */ void updateText(Window window) {
+    	updateText(false, window);
     }
     
-    /* package */ void updateText(boolean forceUpdate) {
-    	Window window = windowControl.getActiveWindow();
+    /* package */ void updateText(boolean forceUpdate, Window window) {
+    	if(window == null) {
+			window = windowControl.getActiveWindow();
+		}
     	CurrentPage currentPage = window.getPageManager().getCurrentPage();
 		Book document = currentPage.getCurrentDocument();
 		Key key = currentPage.getKey();
