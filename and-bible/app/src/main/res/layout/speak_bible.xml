@@ -6,139 +6,136 @@
       The copyright to this program is held by it's author.
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+				xmlns:tools="http://schemas.android.com/tools"
+				android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
 
-    <LinearLayout android:id="@+id/leftPanel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-		android:padding="5dip"
-	    android:layout_alignParentTop="true">
+	<LinearLayout
+			android:id="@+id/leftPanel"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			android:padding="5dip"
+			android:layout_alignParentTop="true">
 
 		<CheckBox
 				android:text="@string/conf_synchronize_first_window"
-				android:layout_width="0dp"
+				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:id="@+id/synchronize"
-                android:onClick="onSettingsChange"/>
+				android:onClick="onSettingsChange"/>
 
 		<CheckBox
 				android:text="@string/conf_speak_chapter_changes"
-				android:layout_width="0dp"
+				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:id="@+id/speak_chapter_changes"
-                android:onClick="onSettingsChange"/>
+				android:onClick="onSettingsChange"/>
 
 		<CheckBox
 				android:text="@string/conf_continue_sentences"
-				android:layout_width="0dp"
+				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:id="@+id/continue_sentences"
-                android:onClick="onSettingsChange"/>
-		<LinearLayout android:id="@+id/rightPanel"
-					  android:layout_height="wrap_content"
-					  android:layout_width="0dip"
-					  android:layout_weight="1"
-					  android:orientation="vertical"
-					  android:padding="5dip">
+				android:onClick="onSettingsChange"/>
+
+		<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:id="@+id/speakSpeedTitle"
+				android:text="@string/speak_speed_title"/>
+
+
+		<SeekBar
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:id="@+id/speakSpeed"
+				android:max="200"
+				android:progress="100"
+				/>
+
+		<TextView
+				android:text="SPEED"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:id="@+id/speedStatus"
+				/>
+
+	</LinearLayout>
+
+	<LinearLayout
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			android:layout_alignParentBottom="true"
+			>
+
+
+		<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:id="@+id/statusText"
+				android:text="*Gen.1.1*"/>
+
+		<!-- Button bar with OK button -->
+		<LinearLayout
+				android:id="@+id/button_panel"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal"
+				>
+
+			<ImageButton
+					android:id="@+id/rewindButton"
+					android:src="@android:drawable/ic_media_rew"
+					android:contentDescription="@string/rewind"
+					android:layout_width="0dip"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:onClick="onButtonClick"/>
+
+			<ImageButton
+					android:id="@+id/stopButton"
+					android:src="@drawable/ic_media_stop"
+					android:contentDescription="@string/stop"
+					android:layout_width="0dip"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:onClick="onButtonClick"/>
+
+			<ImageButton
+					android:id="@+id/pauseButton"
+					android:src="@android:drawable/ic_media_pause"
+					android:contentDescription="@string/pause"
+					android:layout_width="0dip"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:onClick="onButtonClick"/>
+
+			<ImageButton
+					android:id="@+id/speakButton"
+					android:src="@android:drawable/ic_media_play"
+					android:contentDescription="@string/speak"
+					android:layout_width="0dip"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:onClick="onButtonClick"/>
+
+			<ImageButton
+					android:id="@+id/forwardButton"
+					android:src="@android:drawable/ic_media_ff"
+					android:contentDescription="@string/forward"
+					android:layout_width="0dip"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:onClick="onButtonClick"/>
 
 		</LinearLayout>
-
 	</LinearLayout>
-
-
-	<!-- Button bar with OK button -->
-	<LinearLayout android:id="@+id/button_panel"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-	    android:layout_alignParentBottom="true">
-
-	  	<ImageButton android:id="@+id/rewindButton"
-        	android:src="@android:drawable/ic_media_rew"
-        	android:contentDescription="@string/rewind"
-	        android:layout_width="0dip"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="1"
-			android:onClick="onButtonClick"/>
-	  	
-	    <ImageButton android:id="@+id/stopButton"
-	  	    android:src="@drawable/ic_media_stop"
-	        android:contentDescription="@string/stop"
-	        android:layout_width="0dip"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="1"
-			android:onClick="onButtonClick"/>
-	  	
-	    <ImageButton android:id="@+id/pauseButton"
-	  	    android:src="@android:drawable/ic_media_pause"
-	        android:contentDescription="@string/pause"
-	        android:layout_width="0dip"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="1"
-			android:onClick="onButtonClick"/>
-	    
-	    <ImageButton android:id="@+id/speakButton"
-	  	    android:src="@android:drawable/ic_media_play"
-	        android:contentDescription="@string/speak"
-	        android:layout_width="0dip"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="1"
-   			android:onClick="onButtonClick"/>
-
-	    <ImageButton android:id="@+id/forwardButton"
-	  	    android:src="@android:drawable/ic_media_ff"
-	        android:contentDescription="@string/forward"
-	        android:layout_width="0dip"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="1"
-   			android:onClick="onButtonClick"/>
-	    	    
-	</LinearLayout>
-
-	<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_below="@+id/leftPanel"
-			android:layout_alignParentStart="true"
-			android:id="@+id/statusTextTitle"
-			android:layout_alignParentEnd="true"
-			android:text="Current"/>
-
-	<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_below="@+id/statusTextTitle"
-			android:layout_alignParentStart="true"
-			android:id="@+id/statusText"
-			android:layout_alignParentEnd="true"
-			android:text="*Gen.1.1*"/>
-
-	<SeekBar
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_below="@+id/statusText"
-			android:layout_alignParentStart="true"
-			android:id="@+id/speakSpeed"
-			android:layout_alignParentEnd="true"
-			android:max="200"
-			android:progress="100"
-			/>
-
-	<TextView
-			android:text="SPEED"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_below="@+id/speakSpeed"
-			android:layout_alignParentStart="true"
-			android:id="@+id/speedStatus"
-			android:layout_alignParentEnd="true"/>
-
 
 </RelativeLayout>

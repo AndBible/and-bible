@@ -36,7 +36,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="settings">Settings</string>
     <string name="history">History</string>
     <string name="speak">Speak</string>
-    <string name="speak_bible">Speak (Bible)</string>
+    <string name="speak_bible">Speak settings (Bibles)</string>
     <string name="help">Help</string>
     <string name="verse">Verse</string>
     <string name="administration">Administration</string>
@@ -272,6 +272,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak_book_changed">Book changed</string>
     <string name="speak_chapter_changed">Chapter</string>
     <string name="conf_continue_sentences">Continue sentences</string>
+    <string name="speak_speed_title">Speak speed</string>
 
     <!-- User Notes -->
     <string name="mynotes">My Notes</string>
