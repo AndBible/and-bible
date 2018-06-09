@@ -52,6 +52,10 @@ public class PassageChangeMediator {
 		EventBus.getDefault().post(new CurrentVerseChangedEvent(window));
 	}
 
+	public void onCurrentPageChanged() {
+		this.onCurrentPageChanged(null);
+	}
+
 	/** the document has changed so ask the view to refresh itself
 	 */
 	public void forcePageUpdate() {
