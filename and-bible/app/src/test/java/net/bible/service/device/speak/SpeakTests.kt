@@ -2,7 +2,10 @@ package net.bible.service.device.speak
 
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.BuildConfig
+import net.bible.android.common.resource.AndroidResourceProvider
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
+import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.CommonUtils
@@ -20,6 +23,7 @@ import org.junit.runner.RunWith
 import org.robolectric.annotation.Config
 import org.hamcrest.Matchers.*
 import org.hamcrest.MatcherAssert.*
+import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 
 @Config(qualifiers="fi", constants = BuildConfig::class, application = TestBibleApplication::class)
@@ -40,6 +44,8 @@ open class AbstractSpeakTests {
         val swordContentFacade = SwordContentFacade(BookmarkFormatSupport(), MyNoteFormatSupport())
         val documentBibleBooksFactory = DocumentBibleBooksFactory();
         val bibleTraverser = BibleTraverser(documentBibleBooksFactory);
+        val bookmarkControl = BookmarkControl(swordContentFacade, mock(WindowControl::class.java),
+                mock(AndroidResourceProvider::class.java));
 
         val book = Books.installed().getBook("FinRK") as SwordBook // as AbstractPassageBook
         val v11n: Versification = book.versification
@@ -50,7 +56,8 @@ open class AbstractSpeakTests {
 class OtherSpeakTests: AbstractSpeakTests () {
     @Before
     fun setup() {
-        provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, book, getVerse("Ps.14.1"))
+        provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
+                book, getVerse("Ps.14.1"))
         provider.settings = SpeakSettings(false, true, false)
     }
 
@@ -85,7 +92,8 @@ class OtherSpeakTests: AbstractSpeakTests () {
 class SpeakWithoutContinueSentences: AbstractSpeakTests (){
     @Before
     fun setup() {
-        provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, book, getVerse("Ps.14.1"))
+        provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
+                book, getVerse("Ps.14.1"))
         provider.settings = SpeakSettings(false, true, false)
     }
 
@@ -197,7 +205,8 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
 class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Before
     fun setup() {
-        provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, book, getVerse("Ps.14.1"))
+        provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
+                book, getVerse("Ps.14.1"))
         provider.settings = SpeakSettings(false, true, true)
     }
 
