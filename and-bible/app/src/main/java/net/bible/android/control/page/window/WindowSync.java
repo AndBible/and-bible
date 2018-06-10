@@ -54,6 +54,12 @@ public class WindowSync {
 		}
 	}
 
+	void synchronizeAllScreens() {
+		for (Window window : windowRepository.getVisibleWindows()) {
+			new UpdateInactiveScreenTextTask().execute(window);
+		}
+	}
+
 	/** Synchronise the inactive key and inactive screen with the active key and screen if required
 	 */
 	public void synchronizeScreens(Window sourceWindow) {

@@ -303,7 +303,12 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
 
 	public void onEvent(SynchronizeWindowsEvent event) {
 		windowSync.setResynchRequired(true);
-		windowSync.synchronizeScreens();
+		if(event.getSyncAll()) {
+			windowSync.synchronizeAllScreens();
+		}
+		else {
+			windowSync.synchronizeScreens();
+		}
 	}
 
 	public boolean isMultiWindow() {

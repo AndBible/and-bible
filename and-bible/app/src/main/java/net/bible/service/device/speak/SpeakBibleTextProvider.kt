@@ -18,6 +18,7 @@ import org.crosswire.jsword.passage.Verse
 import kotlinx.serialization.json.JSON
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
 import org.crosswire.jsword.passage.VerseRange
@@ -225,6 +226,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
                 labelDto.id = settings.autoBookmarkLabelId
                 bookmarkControl.setBookmarkLabels(bookmarkDto, listOf(labelDto))
             }
+            EventBus.getDefault().post(SynchronizeWindowsEvent(true))
         }
     }
 

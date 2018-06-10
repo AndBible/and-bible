@@ -175,14 +175,13 @@ public class WindowRepository {
 	
 	public List<Window> getWindowsToSynchronise(Window sourceWindow) {
 		List<Window> windows = getVisibleWindows();
-		if(sourceWindow == null) {
-			sourceWindow = getActiveWindow();
+		if(sourceWindow != null) {
+			windows.remove(sourceWindow);
 		}
-		windows.remove(sourceWindow);
-		
+
 		return windows;
 	}
-	
+
 	public void minimise(Window window) {
 		window.getWindowLayout().setState(WindowState.MINIMISED);
 
