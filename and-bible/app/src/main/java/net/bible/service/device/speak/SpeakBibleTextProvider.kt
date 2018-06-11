@@ -31,7 +31,6 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
                              private val bookmarkControl: BookmarkControl,
                              initialBook: Book,
                              initialVerse: Verse): AbstractSpeakTextProvider() {
-
     companion object {
         private val PERSIST_BOOK = "SpeakBibleBook"
         private val PERSIST_VERSE = "SpeakBibleVerse"
@@ -208,6 +207,24 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     internal override fun stop() {
         saveBookmark()
         reset();
+    }
+
+    internal override fun prepareForContinue() {
+        removeBookmark()
+    }
+
+    private fun removeBookmark() {
+        if(settings.autoBookmarkLabelId != null) {
+            val verse = currentVerse
+            val labelDto = LabelDto()
+            labelDto.id = settings.autoBookmarkLabelId
+            val bookmarkList = bookmarkControl.getBookmarksWithLabel(labelDto)
+            val bookmarkDto = bookmarkList.find { it.verseRange.start.equals(verse) && it.verseRange.end.equals(verse)}
+            if(bookmarkDto != null) {
+                bookmarkControl.deleteBookmark(bookmarkDto)
+                EventBus.getDefault().post(SynchronizeWindowsEvent(true))
+            }
+        }
     }
 
     private fun saveBookmark(){

@@ -139,6 +139,8 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         // test that it does not add another bookmark if there's already one with same key
         provider.pause(0.5f);
         assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
+        provider.prepareForContinue()
+        assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(0))
     }
 
     @Test
@@ -150,6 +152,10 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         labelDto.id = provider.settings.autoBookmarkLabelId
         val bookmark = bookmarkControl.getBookmarksWithLabel(labelDto).get(0)
         assertThat(bookmark.verseRange.start.osisID, equalTo("Ps.14.2"))
+        assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
+        provider.setupReading(book, getVerse("Ps.14.2"))
+        provider.prepareForContinue()
+        assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(0))
     }
 }
 

@@ -313,6 +313,7 @@ public class TextToSpeechServiceManager {
     	Log.d(TAG, "about to send all text to TTS");
         // ask TTs to say the text
     	if (!isSpeaking) {
+    		mSpeakTextProvider.prepareForContinue();
     		speakNextChunk();
     		isSpeaking = true;
     		isPaused = false;

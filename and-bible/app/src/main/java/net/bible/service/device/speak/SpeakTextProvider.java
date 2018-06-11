@@ -425,7 +425,12 @@ public class SpeakTextProvider extends AbstractSpeakTextProvider {
 		}		
 		return spokenChars;
 	}
-	
+
+	@Override
+	void prepareForContinue() {
+
+	}
+
 //	private List<String> nonREbreakUpText(String text) {
 //		List<String> chunks = new ArrayList<String>();
 //
