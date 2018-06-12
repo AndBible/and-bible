@@ -68,7 +68,7 @@ public class TextToSpeechServiceManager {
 	private static String PERSIST_LOCALE_KEY = "SpeakLocale";
     private static String PERSIST_BIBLE_PROVIDER = "SpeakBibleProvider";
     
-    private AbstractSpeakTextProvider mSpeakTextProvider;
+    private TextProviderInterface mSpeakTextProvider;
 
 	private SpeakTextProvider speakTextProvider;
 	private SpeakBibleTextProvider speakBibleTextProvider;
@@ -129,7 +129,7 @@ public class TextToSpeechServiceManager {
 		startSpeakingInitingIfRequired();
     }
 
-	private void switchProvider(AbstractSpeakTextProvider newProvider) {
+	private void switchProvider(TextProviderInterface newProvider) {
 		if(newProvider != mSpeakTextProvider) {
 			mSpeakTextProvider.reset();
 			mSpeakTextProvider = newProvider;

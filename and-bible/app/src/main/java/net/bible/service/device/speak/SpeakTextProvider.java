@@ -3,7 +3,6 @@ package net.bible.service.device.speak;
 import android.content.SharedPreferences;
 import android.util.Log;
 
-import net.bible.android.control.speak.SpeakSettings;
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
 
@@ -25,7 +24,7 @@ import java.util.regex.Pattern;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class SpeakTextProvider extends AbstractSpeakTextProvider {
+public class SpeakTextProvider implements TextProviderInterface {
 
 	private final SwordContentFacade swordContentFacade;
     private List<String> mTextToSpeak = new ArrayList<String>();
@@ -427,7 +426,7 @@ public class SpeakTextProvider extends AbstractSpeakTextProvider {
 	}
 
 	@Override
-	void prepareForContinue() {
+	public void prepareForContinue() {
 
 	}
 

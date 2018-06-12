@@ -30,7 +30,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
                              private val bibleTraverser: BibleTraverser,
                              private val bookmarkControl: BookmarkControl,
                              initialBook: Book,
-                             initialVerse: Verse): AbstractSpeakTextProvider() {
+                             initialVerse: Verse) : TextProviderInterface {
     companion object {
         private val PERSIST_BOOK = "SpeakBibleBook"
         private val PERSIST_VERSE = "SpeakBibleVerse"
@@ -122,7 +122,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         return text.trim()
     }
 
-    public override fun getNextTextToSpeak(): String {
+    override fun getNextTextToSpeak(): String {
         var text = ""
         val maxLength = TextToSpeech.getMaxSpeechInputLength()
 
@@ -198,18 +198,18 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         return swordContentFacade.getTextToSpeak(book, verse)
     }
 
-    internal override fun pause(fractionCompleted: Float) {
+    override fun pause(fractionCompleted: Float) {
         currentVerse = startVerse
         saveBookmark()
         reset()
     }
 
-    internal override fun stop() {
+    override fun stop() {
         saveBookmark()
         reset();
     }
 
-    internal override fun prepareForContinue() {
+    override fun prepareForContinue() {
         removeBookmark()
     }
 
@@ -250,19 +250,19 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     private fun getPrevVerse(verse: Verse): Verse = bibleTraverser.getPrevVerse(book as AbstractPassageBook, verse)
     private fun getNextVerse(verse: Verse): Verse = bibleTraverser.getNextVerse(book as AbstractPassageBook, verse)
 
-    internal override fun rewind() {
+    override fun rewind() {
         currentVerse = getPrevVerse(startVerse)
         startVerse = currentVerse
         reset()
     }
 
-    internal override fun forward() {
+    override fun forward() {
         currentVerse = getNextVerse(startVerse)
         startVerse = currentVerse
         reset()
     }
 
-    internal override fun finishedUtterance(utteranceId: String?) {
+    override fun finishedUtterance(utteranceId: String) {
     }
 
     override fun reset() {
@@ -270,14 +270,14 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         readList.clear()
     }
 
-    internal override fun persistState() {
+    override fun persistState() {
         CommonUtils.getSharedPreferences().edit()
                 .putString(PERSIST_BOOK, book.abbreviation)
                 .putString(PERSIST_VERSE, startVerse.osisID)
                 .apply()
     }
 
-    internal override fun restoreState(): Boolean {
+    override fun restoreState(): Boolean {
         val sharedPreferences = CommonUtils.getSharedPreferences()
         if(sharedPreferences.contains(PERSIST_BOOK)) {
             val bookStr = sharedPreferences.getString(PERSIST_BOOK, "")
