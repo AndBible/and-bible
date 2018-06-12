@@ -269,9 +269,9 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak_speed_title">Speak speed</string>
     <string name="conf_speak_synchronize_first_window">Synchronize first window</string>
     <string name="conf_speak_chapter_changes">Speak chapter changes</string>
-    <string name="conf_speak_continue_sentences">Continue sentences</string>
+    <string name="conf_speak_continue_sentences">Speak complete sentences rather than verses</string>
     <string name="conf_speak_auto_bookmark">Auto add bookmark on pause/stop and remove it when continuing</string>
-    <string name="conf_speak_auto_bookmark_label">Auto bookmark with label</string>
+    <string name="conf_speak_auto_bookmark_label">Label to be used with auto bookmarking</string>
 
     <string name="speak_book_changed">Book changed. </string>
     <string name="speak_chapter_changed">Chapter</string>
