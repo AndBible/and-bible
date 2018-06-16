@@ -275,6 +275,11 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
 
     <string name="speak_book_changed">Book changed. </string>
     <string name="speak_chapter_changed">Chapter</string>
+    <string name="speak_first">First</string>
+    <string name="speak_second">Second</string>
+    <string name="speak_third">Third</string>
+    <string name="speak_fourth">Fourth</string>
+    <string name="speak_fifth">Fifth</string>
 
     <!-- User Notes -->
     <string name="mynotes">My Notes</string>

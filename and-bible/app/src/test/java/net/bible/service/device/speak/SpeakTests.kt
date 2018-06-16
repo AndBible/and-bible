@@ -56,7 +56,7 @@ open class AbstractSpeakTests {
 }
 
 @RunWith(RobolectricTestRunner::class)
-class OtherSpeakTests: AbstractSpeakTests () {
+class TestPersistence: AbstractSpeakTests () {
     @Before
     fun setup() {
         provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
@@ -201,6 +201,16 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
     }
     @Test
     fun chapterChangeMessage() {
+        // Test that genesis follows revelations
+        provider.setupReading(book, getVerse("Rev.22.21"))
+        assertThat(range(), equalTo("Rev.22.21"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Rev.22.21"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Gen.1.1"))
+        // test that 1. is replaced with "Ensimmäinen" (first)
+        assertThat(text, startsWith("Kirja vaihtui. Ensimmäinen Mooseksen kirja Luku 1. Alussa"))
+
         provider.setupReading(book, getVerse("Rom.1.1"))
         text = provider.getNextTextToSpeak()
         assertThat(text, startsWith("Paavali, "))

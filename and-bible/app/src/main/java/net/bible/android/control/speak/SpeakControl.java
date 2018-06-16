@@ -209,7 +209,7 @@ public class SpeakControl {
 		Book fromBook = page.getCurrentDocument();
 
 		try {
-			textToSpeechServiceManager.get().speakBible(fromBook, (Verse)page.getSingleKey());
+			textToSpeechServiceManager.get().speakBible((SwordBook)fromBook, (Verse)page.getSingleKey());
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting chapters to speak", e);
 			throw new AndRuntimeException("Error preparing Speech", e);

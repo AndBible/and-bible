@@ -10,7 +10,6 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakProggressEvent
 import net.bible.service.sword.SwordContentFacade
 import net.bible.android.activity.R
-import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.RangedPassage
@@ -21,15 +20,17 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleNames
 import java.util.*
+import kotlin.collections.HashMap
 
 
 class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
                              private val bibleTraverser: BibleTraverser,
                              private val bookmarkControl: BookmarkControl,
-                             initialBook: Book,
+                             initialBook: SwordBook,
                              initialVerse: Verse) : TextProviderInterface {
     companion object {
         private val PERSIST_BOOK = "SpeakBibleBook"
@@ -37,13 +38,15 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         private val PERSIST_SETTINGS = "SpeakBibleSettings"
     }
 
-    private var book: Book
+    private var book: SwordBook
     private var startVerse: Verse
     private var endVerse: Verse
     private var currentVerse: Verse
+    private val bibleBooks = HashMap<String, String>()
 
     init {
         book = initialBook
+        setupBook(initialBook)
         startVerse = initialVerse
         endVerse = initialVerse
         currentVerse = initialVerse
@@ -61,18 +64,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
                     .apply()
         }
 
-    private var _localizedResources: Resources? = null
-    private var _language: String = "en"
-
-    private fun getLocalizedResources(): Resources
-    {
-        if(_localizedResources == null || _language != book.language.code) {
-            _language = book.language.code
-            _localizedResources = BibleApplication.getApplication().getLocalizedResources(_language)
-        }
-        return _localizedResources!!
-    }
-
+    private lateinit var localizedResources: Resources
 
     init {
         readList = ArrayList()
@@ -87,8 +79,35 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         }
     }
 
-    fun setupReading(book: Book, verse: Verse) {
+    fun setupBook(book: SwordBook) {
         this.book = book
+        localizedResources = BibleApplication.getApplication().getLocalizedResources(book.language.code)
+
+        val locale = Locale(book.language.code)
+        bibleBooks.clear()
+
+        for(bibleBook in book.versification.bookIterator) {
+            var bookName = BibleNames.instance().getPreferredNameInLocale(bibleBook, locale)
+
+            val first = localizedResources.getString(R.string.speak_first)
+            val second = localizedResources.getString(R.string.speak_second)
+            val third = localizedResources.getString(R.string.speak_third)
+            val fourth = localizedResources.getString(R.string.speak_fourth)
+            val fifth = localizedResources.getString(R.string.speak_fifth)
+
+            bookName = bookName.replace("1.", first)
+            bookName = bookName.replace("2.", second)
+            bookName = bookName.replace("3.", third)
+            bookName = bookName.replace("4.", fourth)
+            bookName = bookName.replace("5.", fifth)
+            bibleBooks[bibleBook.osis] = bookName
+        }
+    }
+
+    fun setupReading(book: SwordBook, verse: Verse) {
+        if(book != this.book) {
+            setupBook(book)
+        }
         currentVerse = verse
         startVerse = verse
         endVerse = verse
@@ -107,8 +126,8 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
 
     private fun getTextForVerse(prevVerse: Verse, verse: Verse): String {
         var text = getRawTextForVerse(verse)
-        val res = getLocalizedResources()
-        val bookName = BibleNames.instance().getPreferredNameInLocale(verse.book, Locale(_language))
+        val res = localizedResources
+        val bookName = bibleBooks[verse.book.osis]
 
         if(prevVerse.book != verse.book) {
             text = res.getString(R.string.speak_book_changed) + " " + bookName + " " +
@@ -281,7 +300,10 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         val sharedPreferences = CommonUtils.getSharedPreferences()
         if(sharedPreferences.contains(PERSIST_BOOK)) {
             val bookStr = sharedPreferences.getString(PERSIST_BOOK, "")
-            book = Books.installed().getBook(bookStr)
+            val book = Books.installed().getBook(bookStr)
+            if(book is SwordBook) {
+                this.book = book
+            }
         }
         if(sharedPreferences.contains(PERSIST_VERSE)) {
             val verseStr = sharedPreferences.getString(PERSIST_VERSE, "")

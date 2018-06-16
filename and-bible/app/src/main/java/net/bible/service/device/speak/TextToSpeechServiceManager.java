@@ -25,6 +25,7 @@ import net.bible.service.device.speak.event.SpeakEventManager;
 import net.bible.service.sword.SwordContentFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.Verse;
 
@@ -92,12 +93,10 @@ public class TextToSpeechServiceManager {
 									  WindowControl windowControl, BookmarkControl bookmarkControl) {
     	Log.d(TAG, "Creating TextToSpeechServiceManager");
 		speakTextProvider = new SpeakTextProvider(swordContentFacade);
-		Book book = windowControl.getActiveWindowPageManager().getCurrentBible().getCurrentDocument();
+		SwordBook book = (SwordBook) windowControl.getActiveWindowPageManager().getCurrentBible().getCurrentDocument();
 		Verse verse = windowControl.getActiveWindowPageManager().getCurrentBible().getSingleKey();
 
-		speakBibleTextProvider = new SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
-				book, verse);
-
+		speakBibleTextProvider = new SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl, book, verse);
     	mSpeakTextProvider = speakBibleTextProvider;
 
     	mSpeakTiming = new SpeakTiming();
@@ -113,7 +112,7 @@ public class TextToSpeechServiceManager {
     	return ttsLanguageSupport.isLangKnownToBeSupported(langCode);
     }
 
-	public synchronized void speakBible(Book book, Verse verse) {
+	public synchronized void speakBible(SwordBook book, Verse verse) {
 		switchProvider(speakBibleTextProvider);
 		clearTtsQueue();
 		speakBibleTextProvider.setupReading(book, verse);
