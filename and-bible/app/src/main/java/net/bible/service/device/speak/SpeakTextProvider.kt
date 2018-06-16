@@ -1,6 +1,6 @@
 package net.bible.service.device.speak
 
-interface TextProviderInterface {
+interface SpeakTextProvider {
     fun isMoreTextToSpeak(): Boolean
     fun getNextTextToSpeak(): String
     fun getTotalChars(): Long

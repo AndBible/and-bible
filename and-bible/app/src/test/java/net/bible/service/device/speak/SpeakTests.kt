@@ -31,7 +31,7 @@ import org.robolectric.RobolectricTestRunner
 
 @Config(qualifiers="fi", constants = BuildConfig::class, application = TestBibleApplication::class)
 open class AbstractSpeakTests {
-    lateinit var provider: SpeakBibleTextProvider
+    lateinit var provider: BibleSpeakTextProvider
     internal var text: String = ""
 
     internal fun getVerse(verseStr: String): Verse {
@@ -59,7 +59,7 @@ open class AbstractSpeakTests {
 class TestPersistence: AbstractSpeakTests () {
     @Before
     fun setup() {
-        provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
+        provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 book, getVerse("Ps.14.1"))
         provider.settings = SpeakSettings(false, true, false)
     }
@@ -93,7 +93,7 @@ class TestPersistence: AbstractSpeakTests () {
 class AutoBookmarkTests: AbstractSpeakTests () {
     @Before
     fun setup() {
-        provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
+        provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 book, getVerse("Ps.14.1"))
         var label = LabelDto();
 		label.setName("tts");
@@ -163,7 +163,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
 class SpeakWithoutContinueSentences: AbstractSpeakTests (){
     @Before
     fun setup() {
-        provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
+        provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 book, getVerse("Ps.14.1"))
         provider.settings = SpeakSettings(false, true, false)
     }
@@ -301,7 +301,7 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
 class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Before
     fun setup() {
-        provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
+        provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 book, getVerse("Ps.14.1"))
         provider.settings = SpeakSettings(false, true, true)
     }

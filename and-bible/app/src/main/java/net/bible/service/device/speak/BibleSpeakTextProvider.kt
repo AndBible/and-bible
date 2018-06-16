@@ -27,11 +27,11 @@ import java.util.*
 import kotlin.collections.HashMap
 
 
-class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
+class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                              private val bibleTraverser: BibleTraverser,
                              private val bookmarkControl: BookmarkControl,
                              initialBook: SwordBook,
-                             initialVerse: Verse) : TextProviderInterface {
+                             initialVerse: Verse) : SpeakTextProvider {
     companion object {
         private val PERSIST_BOOK = "SpeakBibleBook"
         private val PERSIST_VERSE = "SpeakBibleVerse"

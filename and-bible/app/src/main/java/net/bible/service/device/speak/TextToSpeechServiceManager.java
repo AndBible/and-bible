@@ -69,10 +69,10 @@ public class TextToSpeechServiceManager {
 	private static String PERSIST_LOCALE_KEY = "SpeakLocale";
     private static String PERSIST_BIBLE_PROVIDER = "SpeakBibleProvider";
     
-    private TextProviderInterface mSpeakTextProvider;
+    private SpeakTextProvider mSpeakTextProvider;
 
-	private SpeakTextProvider speakTextProvider;
-	private SpeakBibleTextProvider speakBibleTextProvider;
+	private GeneralSpeakTextProvider generalSpeakTextProvider;
+	private BibleSpeakTextProvider bibleSpeakTextProvider;
 
     private SpeakTiming mSpeakTiming;
 
@@ -92,20 +92,20 @@ public class TextToSpeechServiceManager {
     public TextToSpeechServiceManager(SwordContentFacade swordContentFacade, BibleTraverser bibleTraverser,
 									  WindowControl windowControl, BookmarkControl bookmarkControl) {
     	Log.d(TAG, "Creating TextToSpeechServiceManager");
-		speakTextProvider = new SpeakTextProvider(swordContentFacade);
+		generalSpeakTextProvider = new GeneralSpeakTextProvider(swordContentFacade);
 		SwordBook book = (SwordBook) windowControl.getActiveWindowPageManager().getCurrentBible().getCurrentDocument();
 		Verse verse = windowControl.getActiveWindowPageManager().getCurrentBible().getSingleKey();
 
-		speakBibleTextProvider = new SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl, book, verse);
-    	mSpeakTextProvider = speakBibleTextProvider;
+		bibleSpeakTextProvider = new BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl, book, verse);
+    	mSpeakTextProvider = bibleSpeakTextProvider;
 
     	mSpeakTiming = new SpeakTiming();
 		ABEventBus.getDefault().safelyRegister(this);
     	restorePauseState();
     }
 
-	public SpeakBibleTextProvider getSpeakBibleTextProvider() {
-		return speakBibleTextProvider;
+	public BibleSpeakTextProvider getBibleSpeakTextProvider() {
+		return bibleSpeakTextProvider;
 	}
 
     public boolean isLanguageAvailable(String langCode) {
@@ -113,22 +113,22 @@ public class TextToSpeechServiceManager {
     }
 
 	public synchronized void speakBible(SwordBook book, Verse verse) {
-		switchProvider(speakBibleTextProvider);
+		switchProvider(bibleSpeakTextProvider);
 		clearTtsQueue();
-		speakBibleTextProvider.setupReading(book, verse);
+		bibleSpeakTextProvider.setupReading(book, verse);
 		localePreferenceList = calculateLocalePreferenceList(book);
 		startSpeakingInitingIfRequired();
 	}
 
 	public synchronized void speakText(Book book, List<Key> keyList, boolean queue, boolean repeat) {
-		switchProvider(speakTextProvider);
-		speakTextProvider.setupReading(book, keyList, repeat);
+		switchProvider(generalSpeakTextProvider);
+		generalSpeakTextProvider.setupReading(book, keyList, repeat);
 		handleQueue(queue);
 		localePreferenceList = calculateLocalePreferenceList(book);
 		startSpeakingInitingIfRequired();
     }
 
-	private void switchProvider(TextProviderInterface newProvider) {
+	private void switchProvider(SpeakTextProvider newProvider) {
 		if(newProvider != mSpeakTextProvider) {
 			mSpeakTextProvider.reset();
 			mSpeakTextProvider = newProvider;
@@ -458,7 +458,7 @@ public class TextToSpeechServiceManager {
 	 */
 	private void persistPauseState() {
 		Log.d(TAG, "Persisting Pause state");
-		boolean isBible = mSpeakTextProvider == speakBibleTextProvider;
+		boolean isBible = mSpeakTextProvider == bibleSpeakTextProvider;
 
 		mSpeakTextProvider.persistState();
 		CommonUtils.getSharedPreferences()
@@ -473,7 +473,7 @@ public class TextToSpeechServiceManager {
 		if (!isSpeaking()  && !isPaused()) {
 			Log.d(TAG, "Attempting to restore any Persisted Pause state");
 			boolean isBible = CommonUtils.getSharedPreferences().getBoolean(PERSIST_BIBLE_PROVIDER, true);
-			switchProvider(isBible ? speakBibleTextProvider : speakTextProvider);
+			switchProvider(isBible ? bibleSpeakTextProvider : generalSpeakTextProvider);
 
 			isPaused = mSpeakTextProvider.restoreState();
 			
