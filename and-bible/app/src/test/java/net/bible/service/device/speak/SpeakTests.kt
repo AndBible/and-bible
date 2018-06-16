@@ -199,6 +199,7 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
         assertThat(text, startsWith("Kirja vaihtui. Roomalaiskirje Luku 1. Paavali, "))
         assertThat(text, endsWith("evankeliumia,"))
     }
+
     @Test
     fun chapterChangeMessage() {
         // Test that genesis follows revelations
@@ -243,6 +244,20 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
             text = provider.getNextTextToSpeak()
         }
         assertThat(text, startsWith("Roomalaiskirje Luku 3"))
+    }
+
+    @Test
+    fun testBookWithoutOldTestament() {
+        val book = Books.installed().getBook("ISV") as SwordBook
+
+        provider.setupReading(book, getVerse("Rev.22.21"))
+        assertThat(range(), equalTo("Rev.22.21"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Rev.22.21"))
+        assertThat(text, startsWith("May the grace of"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Gen-Matt.1.1"))
+        assertThat(text, containsString("The Gospel According"))
     }
 
     @Test
