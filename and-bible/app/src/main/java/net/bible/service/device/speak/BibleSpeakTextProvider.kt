@@ -10,7 +10,6 @@ import net.bible.service.common.CommonUtils
 import net.bible.service.device.speak.event.SpeakProggressEvent
 import net.bible.service.sword.SwordContentFacade
 import net.bible.android.activity.R
-import org.crosswire.jsword.book.Book
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.RangedPassage
@@ -21,30 +20,33 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
+import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleNames
 import java.util.*
+import kotlin.collections.HashMap
 
 
-class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
+class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                              private val bibleTraverser: BibleTraverser,
                              private val bookmarkControl: BookmarkControl,
-                             initialBook: Book,
-                             initialVerse: Verse): AbstractSpeakTextProvider() {
-
+                             initialBook: SwordBook,
+                             initialVerse: Verse) : SpeakTextProvider {
     companion object {
         private val PERSIST_BOOK = "SpeakBibleBook"
         private val PERSIST_VERSE = "SpeakBibleVerse"
         private val PERSIST_SETTINGS = "SpeakBibleSettings"
     }
 
-    private var book: Book
+    private var book: SwordBook
     private var startVerse: Verse
     private var endVerse: Verse
     private var currentVerse: Verse
+    private val bibleBooks = HashMap<String, String>()
 
     init {
         book = initialBook
+        setupBook(initialBook)
         startVerse = initialVerse
         endVerse = initialVerse
         currentVerse = initialVerse
@@ -62,18 +64,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
                     .apply()
         }
 
-    private var _localizedResources: Resources? = null
-    private var _language: String = "en"
-
-    private fun getLocalizedResources(): Resources
-    {
-        if(_localizedResources == null || _language != book.language.code) {
-            _language = book.language.code
-            _localizedResources = BibleApplication.getApplication().getLocalizedResources(_language)
-        }
-        return _localizedResources!!
-    }
-
+    private lateinit var localizedResources: Resources
 
     init {
         readList = ArrayList()
@@ -88,8 +79,35 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         }
     }
 
-    fun setupReading(book: Book, verse: Verse) {
+    fun setupBook(book: SwordBook) {
         this.book = book
+        localizedResources = BibleApplication.getApplication().getLocalizedResources(book.language.code)
+
+        val locale = Locale(book.language.code)
+        bibleBooks.clear()
+
+        for(bibleBook in book.versification.bookIterator) {
+            var bookName = BibleNames.instance().getPreferredNameInLocale(bibleBook, locale)
+
+            val first = localizedResources.getString(R.string.speak_first)
+            val second = localizedResources.getString(R.string.speak_second)
+            val third = localizedResources.getString(R.string.speak_third)
+            val fourth = localizedResources.getString(R.string.speak_fourth)
+            val fifth = localizedResources.getString(R.string.speak_fifth)
+
+            bookName = bookName.replace("1.", first)
+            bookName = bookName.replace("2.", second)
+            bookName = bookName.replace("3.", third)
+            bookName = bookName.replace("4.", fourth)
+            bookName = bookName.replace("5.", fifth)
+            bibleBooks[bibleBook.osis] = bookName
+        }
+    }
+
+    fun setupReading(book: SwordBook, verse: Verse) {
+        if(book != this.book) {
+            setupBook(book)
+        }
         currentVerse = verse
         startVerse = verse
         endVerse = verse
@@ -108,8 +126,8 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
 
     private fun getTextForVerse(prevVerse: Verse, verse: Verse): String {
         var text = getRawTextForVerse(verse)
-        val res = getLocalizedResources()
-        val bookName = BibleNames.instance().getPreferredNameInLocale(verse.book, Locale(_language))
+        val res = localizedResources
+        val bookName = bibleBooks[verse.book.osis]
 
         if(prevVerse.book != verse.book) {
             text = res.getString(R.string.speak_book_changed) + " " + bookName + " " +
@@ -123,7 +141,7 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         return text.trim()
     }
 
-    public override fun getNextTextToSpeak(): String {
+    override fun getNextTextToSpeak(): String {
         var text = ""
         val maxLength = TextToSpeech.getMaxSpeechInputLength()
 
@@ -199,15 +217,33 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         return swordContentFacade.getTextToSpeak(book, verse)
     }
 
-    internal override fun pause(fractionCompleted: Float) {
+    override fun pause(fractionCompleted: Float) {
         currentVerse = startVerse
         saveBookmark()
         reset()
     }
 
-    internal override fun stop() {
+    override fun stop() {
         saveBookmark()
         reset();
+    }
+
+    override fun prepareForContinue() {
+        removeBookmark()
+    }
+
+    private fun removeBookmark() {
+        if(settings.autoBookmarkLabelId != null) {
+            val verse = currentVerse
+            val labelDto = LabelDto()
+            labelDto.id = settings.autoBookmarkLabelId
+            val bookmarkList = bookmarkControl.getBookmarksWithLabel(labelDto)
+            val bookmarkDto = bookmarkList.find { it.verseRange.start.equals(verse) && it.verseRange.end.equals(verse)}
+            if(bookmarkDto != null) {
+                bookmarkControl.deleteBookmark(bookmarkDto)
+                EventBus.getDefault().post(SynchronizeWindowsEvent(true))
+            }
+        }
     }
 
     private fun saveBookmark(){
@@ -233,19 +269,19 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
     private fun getPrevVerse(verse: Verse): Verse = bibleTraverser.getPrevVerse(book as AbstractPassageBook, verse)
     private fun getNextVerse(verse: Verse): Verse = bibleTraverser.getNextVerse(book as AbstractPassageBook, verse)
 
-    internal override fun rewind() {
+    override fun rewind() {
         currentVerse = getPrevVerse(startVerse)
         startVerse = currentVerse
         reset()
     }
 
-    internal override fun forward() {
+    override fun forward() {
         currentVerse = getNextVerse(startVerse)
         startVerse = currentVerse
         reset()
     }
 
-    internal override fun finishedUtterance(utteranceId: String?) {
+    override fun finishedUtterance(utteranceId: String) {
     }
 
     override fun reset() {
@@ -253,18 +289,21 @@ class SpeakBibleTextProvider(private val swordContentFacade: SwordContentFacade,
         readList.clear()
     }
 
-    internal override fun persistState() {
+    override fun persistState() {
         CommonUtils.getSharedPreferences().edit()
                 .putString(PERSIST_BOOK, book.abbreviation)
                 .putString(PERSIST_VERSE, startVerse.osisID)
                 .apply()
     }
 
-    internal override fun restoreState(): Boolean {
+    override fun restoreState(): Boolean {
         val sharedPreferences = CommonUtils.getSharedPreferences()
         if(sharedPreferences.contains(PERSIST_BOOK)) {
             val bookStr = sharedPreferences.getString(PERSIST_BOOK, "")
-            book = Books.installed().getBook(bookStr)
+            val book = Books.installed().getBook(bookStr)
+            if(book is SwordBook) {
+                this.book = book
+            }
         }
         if(sharedPreferences.contains(PERSIST_VERSE)) {
             val verseStr = sharedPreferences.getString(PERSIST_VERSE, "")

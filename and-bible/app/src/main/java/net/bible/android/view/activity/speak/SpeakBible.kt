@@ -15,7 +15,7 @@ import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.bookmark.LabelDto
-import net.bible.service.device.speak.SpeakBibleTextProvider
+import net.bible.service.device.speak.BibleSpeakTextProvider
 import net.bible.service.device.speak.event.SpeakProggressEvent
 import javax.inject.Inject
 
@@ -25,7 +25,7 @@ val speakSpeedPref = "speak_speed_percent_pref"
 class SpeakBible : CustomTitlebarActivityBase() {
     private lateinit var speakControl: SpeakControl
     private lateinit var bookmarkControl: BookmarkControl
-    private lateinit var textProvider: SpeakBibleTextProvider
+    private lateinit var textProvider: BibleSpeakTextProvider
     private lateinit var bookmarkLabels: List<LabelDto>
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,7 +34,7 @@ class SpeakBible : CustomTitlebarActivityBase() {
         super.buildActivityComponent().inject(this)
         EventBus.getDefault().register(this)
 
-        textProvider = speakControl.speakBibleTextProvider
+        textProvider = speakControl.bibleSpeakTextProvider
         val initialSettings = textProvider.settings
         statusText.text = textProvider.getStatusText()
         synchronize.isChecked = initialSettings.synchronize

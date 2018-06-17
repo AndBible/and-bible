@@ -32,7 +32,7 @@ import org.robolectric.RobolectricTestRunner
 
 @Config(qualifiers="fi", constants = BuildConfig::class, application = TestBibleApplication::class)
 open class AbstractSpeakTests {
-    lateinit var provider: SpeakBibleTextProvider
+    lateinit var provider: BibleSpeakTextProvider
     internal var text: String = ""
     lateinit var book: SwordBook
 
@@ -122,11 +122,11 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
 }
 
 @RunWith(RobolectricTestRunner::class)
-class OtherSpeakTests: AbstractSpeakTests () {
+class TestPersistence: AbstractSpeakTests () {
     @Before
     override fun setup() {
         super.setup()
-        provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
+        provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 book, getVerse("Ps.14.1"))
         provider.settings = SpeakSettings(false, true, false)
     }
@@ -161,7 +161,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
     @Before
     override fun setup() {
         super.setup()
-        provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
+        provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 book, getVerse("Ps.14.1"))
         var label = LabelDto();
 		label.setName("tts");
@@ -207,6 +207,8 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         // test that it does not add another bookmark if there's already one with same key
         provider.pause(0.5f);
         assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
+        provider.prepareForContinue()
+        assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(0))
     }
 
     @Test
@@ -218,6 +220,10 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         labelDto.id = provider.settings.autoBookmarkLabelId
         val bookmark = bookmarkControl.getBookmarksWithLabel(labelDto).get(0)
         assertThat(bookmark.verseRange.start.osisID, equalTo("Ps.14.2"))
+        assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
+        provider.setupReading(book, getVerse("Ps.14.2"))
+        provider.prepareForContinue()
+        assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(0))
     }
 }
 
@@ -226,7 +232,7 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
     @Before
     override fun setup() {
         super.setup()
-        provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
+        provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 book, getVerse("Ps.14.1"))
         provider.settings = SpeakSettings(false, true, false)
     }
@@ -262,8 +268,19 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
         assertThat(text, startsWith("Kirja vaihtui. Roomalaiskirje Luku 1. Paavali, "))
         assertThat(text, endsWith("evankeliumia,"))
     }
+
     @Test
     fun chapterChangeMessage() {
+        // Test that genesis follows revelations
+        provider.setupReading(book, getVerse("Rev.22.21"))
+        assertThat(range(), equalTo("Rev.22.21"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Rev.22.21"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Gen.1.1"))
+        // test that 1. is replaced with "Ensimmäinen" (first)
+        assertThat(text, startsWith("Kirja vaihtui. Ensimmäinen Mooseksen kirja Luku 1. Alussa"))
+
         provider.setupReading(book, getVerse("Rom.1.1"))
         text = provider.getNextTextToSpeak()
         assertThat(text, startsWith("Paavali, "))
@@ -296,6 +313,20 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
             text = provider.getNextTextToSpeak()
         }
         assertThat(text, startsWith("Roomalaiskirje Luku 3"))
+    }
+
+    @Test
+    fun testBookWithoutOldTestament() {
+        val book = Books.installed().getBook("ISV") as SwordBook
+
+        provider.setupReading(book, getVerse("Rev.22.21"))
+        assertThat(range(), equalTo("Rev.22.21"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Rev.22.21"))
+        assertThat(text, startsWith("May the grace of"))
+        text = provider.getNextTextToSpeak()
+        assertThat(range(), equalTo("Gen-Matt.1.1"))
+        assertThat(text, containsString("The Gospel According"))
     }
 
     @Test
@@ -340,7 +371,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
-        provider = SpeakBibleTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
+        provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 book, getVerse("Ps.14.1"))
         provider.settings = SpeakSettings(false, true, true)
     }
