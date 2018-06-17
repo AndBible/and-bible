@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.util.Log;
 
 import net.bible.android.control.ApplicationComponent;
@@ -20,6 +22,7 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.bridge.BookIndexer;
 
 import java.util.List;
+import java.util.Locale;
 
 /** Main And Bible application singleton object
  * 
@@ -225,4 +228,12 @@ public class BibleApplication extends Application{
     public SharedPreferences getAppStateSharedPreferences() {
     	return getSharedPreferences(saveStateTag, 0);
     }
+
+	public Resources getLocalizedResources(String language) {
+		BibleApplication app = getApplication();
+		Configuration oldConf = app.getResources().getConfiguration();
+        Configuration newConf = new Configuration(oldConf);
+        newConf.setLocale(new Locale(language));
+        return app.createConfigurationContext(newConf).getResources();
+	}
 }

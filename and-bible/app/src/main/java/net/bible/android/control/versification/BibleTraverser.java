@@ -118,8 +118,12 @@ public class BibleTraverser {
 			// if there was a next book then go to it's first chapter
 			if (nextBook!=null) {
 				book = nextBook;
-				chapter=1;
 			}
+			else {
+				book = BibleBook.GEN;
+			}
+			chapter=1;
+
 		}
 		return new Verse(v11n, book, chapter, 1);
 	}

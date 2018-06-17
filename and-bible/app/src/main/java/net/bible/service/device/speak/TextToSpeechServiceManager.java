@@ -1,21 +1,33 @@
 package net.bible.service.device.speak;
 
+import android.os.Build;
+import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.event.ABEventBus;
+import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.phonecall.PhoneCallMonitor;
 import net.bible.android.control.event.phonecall.PhoneCallStarted;
+import net.bible.android.control.page.window.WindowControl;
+import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.speak.event.SpeakEvent;
 import net.bible.service.device.speak.event.SpeakEvent.SpeakState;
 import net.bible.service.device.speak.event.SpeakEventManager;
 
+import net.bible.service.sword.SwordContentFacade;
 import org.apache.commons.lang3.StringUtils;
+import org.crosswire.jsword.book.Book;
+import org.crosswire.jsword.book.sword.SwordBook;
+import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.Verse;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,7 +36,6 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
 
 /**
  * <p>text-to-speech (TTS). Please note the following steps:</p>
@@ -55,9 +66,14 @@ public class TextToSpeechServiceManager {
 
     private List<Locale> localePreferenceList;
     private Locale currentLocale = Locale.getDefault();
-    private static String PERSIST_LOCALE_KEY = "SpeakLocale";
+	private static String PERSIST_LOCALE_KEY = "SpeakLocale";
+    private static String PERSIST_BIBLE_PROVIDER = "SpeakBibleProvider";
     
     private SpeakTextProvider mSpeakTextProvider;
+
+	private GeneralSpeakTextProvider generalSpeakTextProvider;
+	private BibleSpeakTextProvider bibleSpeakTextProvider;
+
     private SpeakTiming mSpeakTiming;
 
     private TTSLanguageSupport ttsLanguageSupport = new TTSLanguageSupport();
@@ -73,19 +89,53 @@ public class TextToSpeechServiceManager {
     private boolean isPaused = false;
 
 	@Inject
-    public TextToSpeechServiceManager() {
+    public TextToSpeechServiceManager(SwordContentFacade swordContentFacade, BibleTraverser bibleTraverser,
+									  WindowControl windowControl, BookmarkControl bookmarkControl) {
     	Log.d(TAG, "Creating TextToSpeechServiceManager");
-    	mSpeakTextProvider = new SpeakTextProvider();
+		generalSpeakTextProvider = new GeneralSpeakTextProvider(swordContentFacade);
+		SwordBook book = (SwordBook) windowControl.getActiveWindowPageManager().getCurrentBible().getCurrentDocument();
+		Verse verse = windowControl.getActiveWindowPageManager().getCurrentBible().getSingleKey();
+
+		bibleSpeakTextProvider = new BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl, book, verse);
+    	mSpeakTextProvider = bibleSpeakTextProvider;
+
     	mSpeakTiming = new SpeakTiming();
+		ABEventBus.getDefault().safelyRegister(this);
     	restorePauseState();
     }
+
+	public BibleSpeakTextProvider getBibleSpeakTextProvider() {
+		return bibleSpeakTextProvider;
+	}
 
     public boolean isLanguageAvailable(String langCode) {
     	return ttsLanguageSupport.isLangKnownToBeSupported(langCode);
     }
 
-    public synchronized void speak(List<Locale> localePreferenceList, List<String> textToSpeak, boolean queue) {
-    	Log.d(TAG, "speak strings"+(queue?" queued":""));
+	public synchronized void speakBible(SwordBook book, Verse verse) {
+		switchProvider(bibleSpeakTextProvider);
+		clearTtsQueue();
+		bibleSpeakTextProvider.setupReading(book, verse);
+		localePreferenceList = calculateLocalePreferenceList(book);
+		startSpeakingInitingIfRequired();
+	}
+
+	public synchronized void speakText(Book book, List<Key> keyList, boolean queue, boolean repeat) {
+		switchProvider(generalSpeakTextProvider);
+		generalSpeakTextProvider.setupReading(book, keyList, repeat);
+		handleQueue(queue);
+		localePreferenceList = calculateLocalePreferenceList(book);
+		startSpeakingInitingIfRequired();
+    }
+
+	private void switchProvider(SpeakTextProvider newProvider) {
+		if(newProvider != mSpeakTextProvider) {
+			mSpeakTextProvider.reset();
+			mSpeakTextProvider = newProvider;
+		}
+	}
+
+	private void handleQueue(boolean queue) {
    		if (!queue) {
    			Log.d(TAG, "Queue is false so requesting stop");
    			clearTtsQueue();
@@ -94,13 +144,49 @@ public class TextToSpeechServiceManager {
    			clearTtsQueue();
    			isPaused = false;
    		}
-   		mSpeakTextProvider.addTextsToSpeak(textToSpeak);
+	}
 
-		// currently can't change Locale until speech ends
-    	this.localePreferenceList = localePreferenceList;
+	private List<Locale> calculateLocalePreferenceList(Book fromBook) {
+		//calculate preferred locales to use for speech
+		// Set preferred language to the same language as the book.
+		// Note that a language may not be available, and so we have a preference list
+		String bookLanguageCode = fromBook.getLanguage().getCode();
+		Log.d(TAG, "Book has language code:"+bookLanguageCode);
 
-    	startSpeakingInitingIfRequired();
-    }
+		List<Locale> localePreferenceList = new ArrayList<>();
+		if (bookLanguageCode.equals(Locale.getDefault().getLanguage())) {
+			// for people in UK the UK accent is preferable to the US accent
+			localePreferenceList.add( Locale.getDefault() );
+		}
+
+		// try to get the native country for the lang
+		String countryCode = getDefaultCountryCode(bookLanguageCode);
+		if (countryCode!=null) {
+			localePreferenceList.add( new Locale(bookLanguageCode, countryCode));
+		}
+
+		// finally just add the language of the book
+		localePreferenceList.add( new Locale(bookLanguageCode));
+		return localePreferenceList;
+	}
+
+	private String getDefaultCountryCode(String language) {
+		if (language.equals("en")) return Locale.UK.getCountry();
+		if (language.equals("fr")) return Locale.FRANCE.getCountry();
+		if (language.equals("de")) return Locale.GERMANY.getCountry();
+		if (language.equals("zh")) return Locale.CHINA.getCountry();
+		if (language.equals("it")) return Locale.ITALY.getCountry();
+		if (language.equals("jp")) return Locale.JAPAN.getCountry();
+		if (language.equals("ko")) return Locale.KOREA.getCountry();
+		if (language.equals("hu")) return "HU";
+		if (language.equals("cs")) return "CZ";
+		if (language.equals("fi")) return "FI";
+		if (language.equals("pl")) return "PL";
+		if (language.equals("pt")) return "PT";
+		if (language.equals("ru")) return "RU";
+		if (language.equals("tr")) return "TR";
+		return null;
+	}
 
 	private void startSpeakingInitingIfRequired() {
 		if (mTts==null) {
@@ -127,7 +213,6 @@ public class TextToSpeechServiceManager {
 		PhoneCallMonitor.ensureMonitoringStarted();
 		
 		// listen for phone call in order to pause speak
-		ABEventBus.getDefault().safelyRegister(this);
 	}
     
     public synchronized void rewind() {
@@ -222,11 +307,12 @@ public class TextToSpeechServiceManager {
     public long getPausedCompletedSeconds() {
     	return mSpeakTiming.getSecsForChars(mSpeakTextProvider.getSpokenChars());
     }
-    
+
     private void startSpeaking() {
     	Log.d(TAG, "about to send all text to TTS");
         // ask TTs to say the text
     	if (!isSpeaking) {
+    		mSpeakTextProvider.prepareForContinue();
     		speakNextChunk();
     		isSpeaking = true;
     		isPaused = false;
@@ -249,18 +335,24 @@ public class TextToSpeechServiceManager {
 			Log.e(TAG, "Error: attempt to speak when tts is null.  Text:"+text);
 		} else {
 	    	// Always set the UtteranceId (or else OnUtteranceCompleted will not be called)
-	        HashMap<String, String> dummyTTSParams = new HashMap<>();
 	        String utteranceId = UTTERANCE_PREFIX+uniqueUtteranceNo++;
-	        dummyTTSParams.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId);
-	
 	    	Log.d(TAG, "do speak substring of length:"+text.length()+" utteranceId:"+utteranceId);
-	        mTts.speak(text,
-	                TextToSpeech.QUEUE_ADD, // handle flush by clearing text queue 
-	                dummyTTSParams);
-	        
-	        mSpeakTiming.started(utteranceId, text.length());
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+				Bundle ttsParams = new Bundle();
+				mTts.speak(text,
+						TextToSpeech.QUEUE_ADD, // handle flush by clearing text queue
+						ttsParams,
+						utteranceId);
+			}
+			else {
+				HashMap<String, String> dummyTTSParams = new HashMap<>();
+				dummyTTSParams.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId);
+				mTts.speak(text,
+						TextToSpeech.QUEUE_ADD, // handle flush by clearing text queue
+						dummyTTSParams);
+			}
+			mSpeakTiming.started(utteranceId, text.length());
 	        isSpeaking = true;
-//	        Log.d(TAG, "Speaking:"+text);
 		}
     }
 
@@ -292,8 +384,8 @@ public class TextToSpeechServiceManager {
         
         // tts.stop can trigger onUtteranceCompleted so set above flags first to avoid sending of a further text and setting isSpeaking to true
     	shutdownTtsEngine();
-        mSpeakTextProvider.reset();
-        
+    	mSpeakTextProvider.stop();
+
         fireStateChangeEvent();
     }
 
@@ -308,9 +400,6 @@ public class TextToSpeechServiceManager {
 	        		Log.e(TAG, "Error stopping Tts engine", e);
 	        	}
 	            mTts.shutdown();
-	            
-	            // de-register from EventBus
-	            EventBus.getDefault().unregister(this);
 	        }
 		} catch (Exception e) {
 			Log.e(TAG, "Error shutting down Tts engine", e);
@@ -356,21 +445,36 @@ public class TextToSpeechServiceManager {
 		shutdownTtsEngine();
 	}
 
+	public void onEvent(AppToBackgroundEvent event) {
+		if (isPaused()) {
+			persistPauseState();
+		}
+		else {
+			clearPauseState();
+		}
+	}
+
 	/** persist and restore pause state to allow pauses to continue over an app exit
 	 */
 	private void persistPauseState() {
 		Log.d(TAG, "Persisting Pause state");
+		boolean isBible = mSpeakTextProvider == bibleSpeakTextProvider;
+
 		mSpeakTextProvider.persistState();
 		CommonUtils.getSharedPreferences()
 					.edit()
 					.putString(PERSIST_LOCALE_KEY, currentLocale.toString())
-					.commit();
+					.putBoolean(PERSIST_BIBLE_PROVIDER, isBible)
+					.apply();
 	}
 	
 	private void restorePauseState() {
 		// ensure no relevant current state is overwritten accidentally
 		if (!isSpeaking()  && !isPaused()) {
 			Log.d(TAG, "Attempting to restore any Persisted Pause state");
+			boolean isBible = CommonUtils.getSharedPreferences().getBoolean(PERSIST_BIBLE_PROVIDER, true);
+			switchProvider(isBible ? bibleSpeakTextProvider : generalSpeakTextProvider);
+
 			isPaused = mSpeakTextProvider.restoreState();
 			
 			// restore locale information so tts knows which voice to load when it initialises
@@ -382,7 +486,7 @@ public class TextToSpeechServiceManager {
 	private void clearPauseState() {
 		Log.d(TAG, "Clearing Persisted Pause state");
 		mSpeakTextProvider.clearPersistedState();
-		CommonUtils.getSharedPreferences().edit().remove(PERSIST_LOCALE_KEY).commit();
+		CommonUtils.getSharedPreferences().edit().remove(PERSIST_LOCALE_KEY).apply();
 	}
 
 	// Implements TextToSpeech.OnInitListener.
@@ -421,7 +525,7 @@ public class TextToSpeechServiceManager {
 				} else {
 					// The TTS engine has been successfully initialized.
 					ttsLanguageSupport.addSupportedLocale(locale);
-					int ok = mTts.setOnUtteranceCompletedListener(onUtteranceCompletedListener);
+					int ok = mTts.setOnUtteranceProgressListener(onUtteranceCompletedListener);
 					if (ok == TextToSpeech.ERROR) {
 						Log.e(TAG, "Error registering onUtteranceCompletedListener");
 					} else {
@@ -446,9 +550,14 @@ public class TextToSpeechServiceManager {
 		}
 	};
 
-	private final TextToSpeech.OnUtteranceCompletedListener onUtteranceCompletedListener = new TextToSpeech.OnUtteranceCompletedListener() {
+	private final UtteranceProgressListener onUtteranceCompletedListener = new UtteranceProgressListener() {
 		@Override
-		public void onUtteranceCompleted(String utteranceId) {
+		public void onStart(String utteranceId) {
+
+		}
+
+		@Override
+		public void onDone(String utteranceId) {
 			Log.d(TAG, "onUtteranceCompleted:"+utteranceId);
 			// pause/rew/ff can sometimes allow old messages to complete so need to prevent move to next sentence if completed utterance is out of date
 			if ((!isPaused && isSpeaking) && StringUtils.startsWith(utteranceId, UTTERANCE_PREFIX)) {
@@ -469,5 +578,17 @@ public class TextToSpeechServiceManager {
 				}
 			}
 		}
+
+		@Override
+		public void onError(String utteranceId) {
+
+		}
 	};
+
+    public void setRate(float speechRate) {
+		if(mTts != null) {
+			mTts.setSpeechRate(speechRate);
+		}
+		CommonUtils.getSharedPreferences().edit().putInt("speak_speed_percent_pref", Math.round(speechRate*100F)).apply();
+    }
 }

@@ -13,6 +13,7 @@ import net.bible.android.activity.StartupActivity;
 import net.bible.android.control.backup.BackupControl;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
+import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.control.readingplan.ReadingPlanControl;
 import net.bible.android.control.search.SearchControl;
 import net.bible.android.view.activity.MainBibleActivityScope;
@@ -30,7 +31,9 @@ import net.bible.android.view.activity.readingplan.DailyReading;
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;
 import net.bible.android.view.activity.settings.SettingsActivity;
 import net.bible.android.view.activity.speak.Speak;
+import net.bible.android.view.activity.speak.SpeakBible;
 import net.bible.service.common.CommonUtils;
+import org.crosswire.jsword.book.BookCategory;
 
 import java.util.Objects;
 
@@ -59,16 +62,23 @@ public class MenuCommandHandler {
 
 	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
+	private final WindowControl windowControl;
+
 	private static final String TAG = "MainMenuCommandHandler";
 
 	@Inject
-	public MenuCommandHandler(MainBibleActivity activity, ReadingPlanControl readingPlanControl, SearchControl searchControl, WindowMenuCommandHandler windowMenuCommandHandler, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+	public MenuCommandHandler(MainBibleActivity activity, ReadingPlanControl readingPlanControl,
+							  SearchControl searchControl, WindowMenuCommandHandler windowMenuCommandHandler,
+							  ActiveWindowPageManagerProvider activeWindowPageManagerProvider,
+							  WindowControl windowControl
+							  ) {
 		super();
 		this.callingActivity = activity;
 		this.readingPlanControl = readingPlanControl;
 		this.searchControl = searchControl;
 		this.windowMenuCommandHandler = windowMenuCommandHandler;
 		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
+		this.windowControl = windowControl;
 	}
 	
 	/**
@@ -105,7 +115,9 @@ public class MenuCommandHandler {
 		        	handlerIntent = new Intent(callingActivity, MyNotes.class);
 		        	break;
 				case R.id.speakButton:
-		        	handlerIntent = new Intent(callingActivity, Speak.class);
+					boolean isBible = windowControl.getActiveWindowPageManager().getCurrentPage()
+							.getBookCategory().equals(BookCategory.BIBLE);
+		        	handlerIntent = new Intent(callingActivity, isBible ? SpeakBible.class : Speak.class);
 		        	break;
 		        case R.id.dailyReadingPlanButton:
 		        	// show todays plan or allow plan selection
