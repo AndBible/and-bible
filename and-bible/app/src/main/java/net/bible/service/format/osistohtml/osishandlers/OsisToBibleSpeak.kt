@@ -7,13 +7,27 @@ import org.xml.sax.Attributes
 
 import java.util.Stack
 
-abstract class SpeakCommand
+abstract class SpeakCommand {
+    open fun copy(): SpeakCommand {
+        return this
+    }
+}
 
-class TextCommand(var text: String) : SpeakCommand() {
+class TextCommand(text: String) : SpeakCommand() {
+    var text: String = text.trim()
+        set(value) {
+            field = value.trim()
+        }
+
     override fun toString(): String {
         return text;
     }
+
+    override fun copy(): SpeakCommand {
+        return TextCommand(text)
+    }
 }
+
 class TitleCommand(val text: String): SpeakCommand() {
     override fun toString(): String {
         return text;
@@ -23,11 +37,41 @@ class TitleCommand(val text: String): SpeakCommand() {
 class ParagraphChange : SpeakCommand()
 
 class SpeakCommands: ArrayList<SpeakCommand>() {
+
+    fun copy(): SpeakCommands {
+        val cmds = SpeakCommands()
+        for(cmd in this) {
+            cmds.add(cmd.copy())
+        }
+        return cmds
+    }
+
+    override fun add(index: Int, element: SpeakCommand) {
+        if(element is TextCommand) {
+            val currentCmd =  this[index]
+            if (currentCmd is TextCommand) {
+                val newText = "${element.text} ${currentCmd.text}"
+                if (newText.length > TextToSpeech.getMaxSpeechInputLength())
+                    return super.add(index, element)
+                else {
+                    currentCmd.text = newText
+                    return
+                }
+            }
+            else {
+                return super.add(index, element)
+            }
+        }
+        else {
+            return super.add(index, element)
+        }
+    }
+
     override fun add(element: SpeakCommand): Boolean {
         if(element is TextCommand) {
             val lastCommand = try {this.last()} catch (e: NoSuchElementException) {null}
             if(lastCommand is TextCommand) {
-                val newText = "${lastCommand.text.trim()} ${element.text.trim()}"
+                val newText = "${lastCommand.text} ${element.text}"
                 if (newText.length > TextToSpeech.getMaxSpeechInputLength())
                     return super.add(element)
                 else {
@@ -36,7 +80,7 @@ class SpeakCommands: ArrayList<SpeakCommand>() {
                 }
             }
             else {
-                if(!element.text.trim().isEmpty()) {
+                if(!element.text.isEmpty()) {
                     return super.add(element)
                 }
                 else {
@@ -46,6 +90,22 @@ class SpeakCommands: ArrayList<SpeakCommand>() {
         }
         else {
             return super.add(element)
+        }
+    }
+
+    override fun toString(): String {
+        return this.joinToString(" ") { it.toString() }
+    }
+
+    override fun addAll(elements: Collection<SpeakCommand>): Boolean {
+        if(elements is SpeakCommands) {
+            for(e in elements) {
+                add(e)
+            }
+            return true
+        }
+        else {
+            return super.addAll(elements)
         }
     }
 }

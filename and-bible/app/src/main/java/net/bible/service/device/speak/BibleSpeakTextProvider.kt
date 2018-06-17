@@ -21,6 +21,8 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
+import net.bible.service.format.osistohtml.osishandlers.SpeakCommands
+import net.bible.service.format.osistohtml.osishandlers.TextCommand
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleNames
@@ -109,76 +111,79 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     private fun skipEmptyVerses(verse: Verse): Verse {
-        var text = getRawTextForVerse(verse)
+        var cmds = getSpeakCommandsForVerse(verse)
         var result = verse
-        while(text.isEmpty()) {
+        while(cmds.isEmpty()) {
             result = getNextVerse(result)
-            text = getRawTextForVerse(result)
+            cmds = getSpeakCommandsForVerse(result)
         }
         return result
     }
 
-    private fun getTextForVerse(prevVerse: Verse, verse: Verse): String {
-        var text = getRawTextForVerse(verse)
+    private fun getCommandsForVerse(prevVerse: Verse, verse: Verse): SpeakCommands {
+        val cmds = getSpeakCommandsForVerse(verse)
         val res = localizedResources
         val bookName = bibleBooks[verse.book.osis]
 
         if(prevVerse.book != verse.book) {
-            text = "${res.getString(R.string.speak_book_changed)} $bookName "+
-                    "${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. $text"
+            cmds.add(0, TextCommand("${res.getString(R.string.speak_book_changed)} $bookName "+
+                    "${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
+
         }
         else if(settings.chapterChanges && prevVerse.chapter != verse.chapter) {
-            text = "$bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. $text"
+            cmds.add(0, TextCommand("$bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
         }
-
-
-        return text.trim()
+        return cmds
     }
 
-    override fun getNextTextToSpeak(): String {
-        var text = ""
-        val maxLength = TextToSpeech.getMaxSpeechInputLength()
+    override fun getNextTextToSpeak(): SpeakCommands {
+        val cmds = SpeakCommands()
+        //val maxLength = TextToSpeech.getMaxSpeechInputLength()
 
         var verse = currentVerse
         startVerse = currentVerse
 
         // If there's something left from splitted verse, then we'll speak that first.
         if(readList.isNotEmpty()) {
-            text += readList.removeAt(0)
+            cmds.add(TextCommand(readList.removeAt(0)))
             verse = getNextVerse(verse)
         }
 
         verse = skipEmptyVerses(verse)
 
-        text += getTextForVerse(endVerse, verse)
+        cmds.addAll(getCommandsForVerse(endVerse, verse))
 
         if(settings.continueSentences) {
+
             // If verse does not end in period, add the part before period to the current reading
             val regex = Regex("(.*)([.?!]+[`´”“\"']*\\W*)")
             var rest = ""
+            val lastCommand = cmds.last()
+            if(lastCommand is TextCommand) {
+                val text = lastCommand.text
+                while (!text.matches(regex)) {
+                    val nextVerse = getNextVerse(verse)
+                    val nextCommands = getCommandsForVerse(verse, nextVerse)
+                    val newText: String
 
-            while(!text.matches(regex)) {
-                val nextVerse = getNextVerse(verse)
-                val nextText = getTextForVerse(verse, nextVerse)
-                val newText: String
 
-                val parts = nextText.split('.', '?', '!')
+                    val parts = nextText.split('.', '?', '!')
 
-                if(parts.size > 1) {
-                    newText = "$text ${parts[0]}."
-                    rest = parts.slice(1 until parts.count()).joinToString { it }
+                    if (parts.size > 1) {
+                        newText = "$cmds ${parts[0]}."
+                        rest = parts.slice(1 until parts.count()).joinToString { it }
+                    } else {
+                        newText = "$cmds $nextText"
+                        rest = ""
+                    }
+
+                    if (newText.length > maxLength) {
+                        break
+                    }
+                    verse = nextVerse
+                    cmds = newText
+
                 }
-                else {
-                    newText = "$text $nextText"
-                    rest = ""
-                }
-
-                if(newText.length > maxLength) {
-                    break
-                }
-                verse = nextVerse
-                text = newText
-
             }
             if(rest.isNotEmpty()) {
                 readList.add(rest)
@@ -195,7 +200,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         endVerse = verse
 
         EventBus.getDefault().post(SpeakProggressEvent(book, startVerse, settings.synchronize))
-        return text.trim();
+        return cmds;
     }
 
     fun getStatusText(): String {
@@ -207,15 +212,15 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         return VerseRange(v11n, startVerse, endVerse)
     }
 
-    private val lruCache = LruCache<Pair<SwordBook, Verse>, String>(100)
+    private val lruCache = LruCache<Pair<SwordBook, Verse>, SpeakCommands>(100)
 
-    private fun getRawTextForVerse(verse: Verse): String {
-        var text = lruCache.get(Pair(book, verse))
-        if(text == null) {
-            text = swordContentFacade.getTextToSpeak(book, verse)
-            lruCache.put(Pair(book, verse), text)
+    private fun getSpeakCommandsForVerse(verse: Verse): SpeakCommands {
+        var cmds = lruCache.get(Pair(book, verse))
+        if(cmds == null) {
+            cmds = swordContentFacade.getSpeakCommands(book, verse)
+            lruCache.put(Pair(book, verse), cmds)
         }
-        return text
+        return cmds.copy()
     }
 
     override fun pause(fractionCompleted: Float) {

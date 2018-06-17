@@ -41,13 +41,17 @@ open class AbstractSpeakTests {
         book = Books.installed().getBook("FinRK") as SwordBook // as AbstractPassageBook
     }
 
-    internal fun getVerse(verseStr: String): Verse {
+    protected fun getVerse(verseStr: String): Verse {
         val verse = book.getKey(verseStr) as RangedPassage
         return verse.getVerseAt(0)
     }
 
-    internal fun range(): String? {
+    protected fun range(): String? {
         return provider.getVerseRange().osisRef
+    }
+
+    protected fun nextText(): String {
+        return provider.getNextTextToSpeak().filter({it is TextCommand}).joinToString(" ") { it.toString() }
     }
 
     companion object {
@@ -66,11 +70,9 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         val cmds = SpeakCommands()
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.1")))
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.2")))
-        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.3")))
         assertThat("Command is of correct type", cmds[0] is TitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
-        assertThat("Command is of correct type", cmds[2] is TextCommand)
-        assertThat(cmds.size, equalTo( 4))
+        assertThat(cmds.size, equalTo( 2))
         cmds.clear();
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.23")))
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.24")))
@@ -86,11 +88,9 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         val cmds = SpeakCommands()
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.1")))
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.2")))
-        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.3")))
         assertThat("Command is of correct type", cmds[0] is TitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
-        assertThat("Command is of correct type", cmds[2] is TextCommand)
-        assertThat(cmds.size, equalTo( 4))
+        assertThat(cmds.size, equalTo( 2))
         cmds.clear();
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.23")))
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.24")))
@@ -106,11 +106,9 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         val cmds = SpeakCommands()
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.1")))
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.2")))
-        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.3")))
         assertThat("Command is of correct type", cmds[0] is TitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
-        assertThat("Command is of correct type", cmds[2] is TextCommand)
-        assertThat(cmds.size, equalTo( 4))
+        assertThat(cmds.size, equalTo( 2))
         cmds.clear();
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.25")))
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.26")))
@@ -150,7 +148,7 @@ class TestPersistence: AbstractSpeakTests () {
         sharedPreferences.edit().putString("SpeakBibleVerse", "Rom.5.1").apply()
         provider.restoreState()
         assertThat(range(), equalTo("Rom.5.1"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Rom.5.1"))
         assertThat(text, startsWith("Koska siis"))
         assertThat(text, endsWith("Kristuksen kautta."))
@@ -188,7 +186,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
     fun autoBookmarkDisabled() {
         provider.settings = SpeakSettings(false, true, false, null)
         provider.setupReading(book, getVerse("Ps.14.1"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         provider.pause(0.5f);
         assertThat(bookmarkControl.allBookmarks.size, equalTo(0))
     }
@@ -196,7 +194,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
     @Test
     fun autoBookmarkOnPause() {
         provider.setupReading(book, getVerse("Ps.14.1"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         provider.pause(0.5f);
         val labelDto = LabelDto()
         labelDto.id = provider.settings.autoBookmarkLabelId
@@ -214,7 +212,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
     @Test
     fun autoBookmarkOnStop() {
         provider.setupReading(book, getVerse("Ps.14.2"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         provider.stop();
         val labelDto = LabelDto()
         labelDto.id = provider.settings.autoBookmarkLabelId
@@ -242,23 +240,23 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
     fun textProgression() {
         provider.setupReading(book, getVerse("Ps.14.1"))
 
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Ps.14.1"))
         assertThat(text, startsWith("Musiikinjohtajalle"))
         assertThat(text, endsWith("tekee hyvää."))
 
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Ps.14.2"))
         assertThat(text, startsWith("Herra katsoo"))
         assertThat(text, endsWith("etsii Jumalaa."))
 
         provider.setupReading(book, getVerse("Ps.13.6"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Ps.13.6"))
         assertThat(text, startsWith("Mutta minä"))
         assertThat(text, endsWith("minulle hyvin."))
 
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Ps.14.1"))
         assertThat(text, startsWith("Psalmit Luku 14. Musiikinjohtajalle"))
         assertThat(text, endsWith("tekee hyvää."))
@@ -274,43 +272,43 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
         // Test that genesis follows revelations
         provider.setupReading(book, getVerse("Rev.22.21"))
         assertThat(range(), equalTo("Rev.22.21"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Rev.22.21"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Gen.1.1"))
         // test that 1. is replaced with "Ensimmäinen" (first)
         assertThat(text, startsWith("Kirja vaihtui. Ensimmäinen Mooseksen kirja Luku 1. Alussa"))
 
         provider.setupReading(book, getVerse("Rom.1.1"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(text, startsWith("Paavali, "))
         assertThat(text, endsWith("evankeliumia,"))
 
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(text, startsWith("jonka Jumala"))
         assertThat(text, endsWith("Kirjoituksissa,"))
 
         provider.setupReading(book, getVerse("Acts.28.31"))
-        text = provider.getNextTextToSpeak()
-        text = provider.getNextTextToSpeak()
+        text = nextText()
+        text = nextText()
         checkRomansBeginning()
         provider.setupReading(book, getVerse("Acts.28.30"))
-        text = provider.getNextTextToSpeak()
-        text = provider.getNextTextToSpeak()
-        text = provider.getNextTextToSpeak()
+        text = nextText()
+        text = nextText()
+        text = nextText()
         checkRomansBeginning()
         provider.setupReading(book, getVerse("Acts.28.29"))
-        text = provider.getNextTextToSpeak()
-        text = provider.getNextTextToSpeak()
-        text = provider.getNextTextToSpeak()
-        text = provider.getNextTextToSpeak()
+        text = nextText()
+        text = nextText()
+        text = nextText()
+        text = nextText()
         checkRomansBeginning()
         for(i in 1..32) {
-            text = provider.getNextTextToSpeak()
+            text = nextText()
         }
         assertThat(text, startsWith("Roomalaiskirje Luku 2"))
         for(i in 1..29) {
-            text = provider.getNextTextToSpeak()
+            text = nextText()
         }
         assertThat(text, startsWith("Roomalaiskirje Luku 3"))
     }
@@ -321,10 +319,10 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
 
         provider.setupReading(book, getVerse("Rev.22.21"))
         assertThat(range(), equalTo("Rev.22.21"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Rev.22.21"))
         assertThat(text, startsWith("May the grace of"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Gen-Matt.1.1"))
         assertThat(text, containsString("The Gospel According"))
     }
@@ -332,34 +330,34 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
     @Test
     fun pauseRewindForward() {
         provider.setupReading(book, getVerse("Rom.5.20"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Rom.5.20"))
         assertThat(text, startsWith("Laki kuitenkin"))
         assertThat(text, endsWith("ylenpalttiseksi,"))
 
         provider.pause(0.5F)
         assertThat(range(), equalTo("Rom.5.20"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Rom.5.20"))
         assertThat(text, startsWith("Laki kuitenkin"))
         assertThat(text, endsWith("ylenpalttiseksi,"))
 
         provider.rewind()
         assertThat(range(), equalTo("Rom.5.19"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Rom.5.19"))
         assertThat(text, startsWith("Niin kuin"))
         assertThat(text, endsWith("vanhurskaiksi."))
         provider.pause(0.5F)
         assertThat(range(), equalTo("Rom.5.19"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Rom.5.19"))
         assertThat(text, startsWith("Niin kuin"))
         assertThat(text, endsWith("vanhurskaiksi."))
 
         provider.forward()
         assertThat(range(), equalTo("Rom.5.20"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Rom.5.20"))
         assertThat(text, startsWith("Laki kuitenkin"))
         assertThat(text, endsWith("ylenpalttiseksi,"))
@@ -385,50 +383,50 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Test
     fun chapterChangeMessage() {
         provider.setupReading(book, getVerse("Rom.1.1"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Rom.1.1-Rom.1.3"))
         assertThat(text, startsWith("Paavali, "))
         assertThat(text, endsWith("meidän Herrastamme."))
 
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Rom.1.3-Rom.1.4"))
         assertThat(text, startsWith("Lihan puolesta"))
         assertThat(text, endsWith("Jumalan Pojaksi voimassa."))
 
         provider.setupReading(book, getVerse("Acts.28.31"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Acts.28.31"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         checkRomansBeginning()
         provider.setupReading(book, getVerse("Acts.28.30"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Acts.28.30"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Acts.28.31"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         checkRomansBeginning()
     }
 
     @Test
     fun verseEndingWithSpecialCharacter() {
         provider.setupReading(book, getVerse("Acts.28.29"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Acts.28.29"))
         assertThat(text, containsString("]"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Acts.28.30"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Acts.28.31"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         checkRomansBeginning()
     }
 
     @Test
     fun chapterChangeAfterJoinedSentences() {
         provider.setupReading(book, getVerse("Rom.5.20"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Rom.5.20-Rom.5.21"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Rom.6.1"))
         assertThat(text, startsWith("Roomalaiskirje Luku 6. Mitä me"))
         assertThat(text, endsWith("tulisi suureksi?"))
@@ -438,34 +436,34 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Test
     fun pauseRewindForward() {
         provider.setupReading(book, getVerse("Rom.5.20"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Rom.5.20-Rom.5.21"))
         assertThat(text, startsWith("Laki kuitenkin"))
         assertThat(text, endsWith("meidän Herramme, kautta."))
 
         provider.pause(0.5F)
         assertThat(range(), equalTo("Rom.5.20"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Rom.5.20-Rom.5.21"))
         assertThat(text, startsWith("Laki kuitenkin"))
         assertThat(text, endsWith("meidän Herramme, kautta."))
 
         provider.rewind()
         assertThat(range(), equalTo("Rom.5.19"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Rom.5.19"))
         assertThat(text, startsWith("Niin kuin"))
         assertThat(text, endsWith("vanhurskaiksi."))
         provider.pause(0.5F)
         assertThat(range(), equalTo("Rom.5.19"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Rom.5.19"))
         assertThat(text, startsWith("Niin kuin"))
         assertThat(text, endsWith("vanhurskaiksi."))
 
         provider.forward()
         assertThat(range(), equalTo("Rom.5.20"))
-        text = provider.getNextTextToSpeak()
+        text = nextText()
         assertThat(range(), equalTo("Rom.5.20-Rom.5.21"))
         assertThat(text, startsWith("Laki kuitenkin"))
         assertThat(text, endsWith("meidän Herramme, kautta."))
