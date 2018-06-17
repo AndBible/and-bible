@@ -89,18 +89,11 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
         for(bibleBook in book.versification.bookIterator) {
             var bookName = BibleNames.instance().getPreferredNameInLocale(bibleBook, locale)
-
-            val first = localizedResources.getString(R.string.speak_first)
-            val second = localizedResources.getString(R.string.speak_second)
-            val third = localizedResources.getString(R.string.speak_third)
-            val fourth = localizedResources.getString(R.string.speak_fourth)
-            val fifth = localizedResources.getString(R.string.speak_fifth)
-
-            bookName = bookName.replace("1.", first)
-            bookName = bookName.replace("2.", second)
-            bookName = bookName.replace("3.", third)
-            bookName = bookName.replace("4.", fourth)
-            bookName = bookName.replace("5.", fifth)
+            bookName = bookName.replace("1.", localizedResources.getString(R.string.speak_first))
+            bookName = bookName.replace("2.", localizedResources.getString(R.string.speak_second))
+            bookName = bookName.replace("3.", localizedResources.getString(R.string.speak_third))
+            bookName = bookName.replace("4.", localizedResources.getString(R.string.speak_fourth))
+            bookName = bookName.replace("5.", localizedResources.getString(R.string.speak_fifth))
             bibleBooks[bibleBook.osis] = bookName
         }
     }
@@ -131,11 +124,11 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         val bookName = bibleBooks[verse.book.osis]
 
         if(prevVerse.book != verse.book) {
-            text = res.getString(R.string.speak_book_changed) + " " + bookName + " " +
-                    res.getString(R.string.speak_chapter_changed) + " " + verse.chapter + ". " + text
+            text = "${res.getString(R.string.speak_book_changed)} $bookName "+
+                    "${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. $text"
         }
         else if(settings.chapterChanges && prevVerse.chapter != verse.chapter) {
-            text = bookName + " " + res.getString(R.string.speak_chapter_changed) + " " + verse.chapter + ". " + text
+            text = "$bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. $text"
         }
 
 
@@ -172,11 +165,11 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 val parts = nextText.split('.', '?', '!')
 
                 if(parts.size > 1) {
-                    newText = text + " " + parts[0] + "."
+                    newText = "$text ${parts[0]}."
                     rest = parts.slice(1 until parts.count()).joinToString { it }
                 }
                 else {
-                    newText = text + " " + nextText
+                    newText = "$text $nextText"
                     rest = ""
                 }
 
@@ -187,7 +180,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 text = newText
 
             }
-            if(rest.length > 0) {
+            if(rest.isNotEmpty()) {
                 readList.add(rest)
                 currentVerse = verse
             }
@@ -206,7 +199,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     fun getStatusText(): String {
-        return startVerse.name + if(startVerse != endVerse) " - " +  endVerse.name else ""
+        return "${startVerse.name}${if (startVerse != endVerse) " - " + endVerse.name else ""}"
     }
 
     fun getVerseRange(): VerseRange {
