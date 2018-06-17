@@ -63,7 +63,7 @@ open class AbstractSpeakTests {
 open class OsisToBibleSpeakTests: AbstractSpeakTests() {
     @Test
     fun testCommandsFinRK() {
-        val cmds = ArrayList<SpeakCommand>()
+        val cmds = SpeakCommands()
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.1")))
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.2")))
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.3")))
@@ -83,7 +83,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
     @Test
     fun testCommandsEsv() {
         book = Books.installed().getBook("ESV2011") as SwordBook // as AbstractPassageBook
-        val cmds = ArrayList<SpeakCommand>()
+        val cmds = SpeakCommands()
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.1")))
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.2")))
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.3")))
@@ -103,7 +103,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
     @Test
     fun testCommandsSTLK() {
         book = Books.installed().getBook("STLK2017") as SwordBook // as AbstractPassageBook
-        val cmds = ArrayList<SpeakCommand>()
+        val cmds = SpeakCommands()
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.1")))
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.2")))
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.3")))

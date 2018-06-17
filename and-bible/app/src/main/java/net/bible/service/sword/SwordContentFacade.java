@@ -241,8 +241,8 @@ public class SwordContentFacade {
     	}
     }
 
-    public ArrayList<SpeakCommand> getSpeakCommands(Book book, Verse verse) {
-		ArrayList<SpeakCommand> lst = new ArrayList<>();
+    public SpeakCommands getSpeakCommands(Book book, Verse verse) {
+		SpeakCommands lst = new SpeakCommands();
 		if (verse.getVerse() == 1) {
 			lst.addAll(getSpeakCommandsForVerse(book,
 					new Verse(verse.getVersification(), verse.getBook(), verse.getChapter(), 0)));

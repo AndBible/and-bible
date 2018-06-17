@@ -1,5 +1,6 @@
 package net.bible.service.format.osistohtml.osishandlers
 
+import android.speech.tts.TextToSpeech
 import net.bible.service.format.osistohtml.taghandler.DivHandler
 import org.crosswire.jsword.book.OSISUtil
 import org.xml.sax.Attributes
@@ -21,8 +22,36 @@ class TitleCommand(val text: String): SpeakCommand() {
 
 class ParagraphChange : SpeakCommand()
 
+class SpeakCommands: ArrayList<SpeakCommand>() {
+    override fun add(element: SpeakCommand): Boolean {
+        if(element is TextCommand) {
+            val lastCommand = try {this.last()} catch (e: NoSuchElementException) {null}
+            if(lastCommand is TextCommand) {
+                val newText = "${lastCommand.text.trim()} ${element.text.trim()}"
+                if (newText.length > TextToSpeech.getMaxSpeechInputLength())
+                    return super.add(element)
+                else {
+                    lastCommand.text = newText
+                    return true
+                }
+            }
+            else {
+                if(!element.text.trim().isEmpty()) {
+                    return super.add(element)
+                }
+                else {
+                    return false;
+                }
+            }
+        }
+        else {
+            return super.add(element)
+        }
+    }
+}
+
 class OsisToBibleSpeak : OsisSaxHandler() {
-    val speakCommands: ArrayList<SpeakCommand> = ArrayList()
+    val speakCommands = SpeakCommands()
 
     private var anyTextWritten = false
 
@@ -61,7 +90,7 @@ class OsisToBibleSpeak : OsisSaxHandler() {
             val isVerseBeginning = attrs?.getValue("sID") != null
             val isParagraphType = DivHandler.PARAGRAPH_TYPE_LIST.contains(type)
             if(isParagraphType && !isVerseBeginning) {
-                speakCommandsAdd(ParagraphChange())
+                speakCommands.add(ParagraphChange())
                 elementStack.push(StackEntry(peekVisible, TAG_TYPE.PARAGRPAH))
             }
             else {
@@ -73,7 +102,7 @@ class OsisToBibleSpeak : OsisSaxHandler() {
                 || name == OSISUtil.OSIS_ELEMENT_LB ||
                 name == OSISUtil.OSIS_ELEMENT_P) {
             if(anyTextWritten) {
-                speakCommandsAdd(ParagraphChange())
+                speakCommands.add(ParagraphChange())
             }
             elementStack.push(StackEntry(peekVisible, TAG_TYPE.PARAGRPAH))
         } else {
@@ -103,34 +132,12 @@ class OsisToBibleSpeak : OsisSaxHandler() {
         val s = String(buf, offset, len)
         if(currentState.visible) {
             if(currentState.tagType == TAG_TYPE.TITLE) {
-                speakCommandsAdd(TitleCommand(s))
+                speakCommands.add(TitleCommand(s))
             }
             else {
-                speakCommandsAdd(TextCommand(s))
+                speakCommands.add(TextCommand(s))
             }
         }
-    }
-
-    fun speakCommandsAdd(v: TextCommand)
-    {
-        val lastCommand = try {speakCommands.last()} catch (e: NoSuchElementException) {null}
-        if(lastCommand is TextCommand) {
-            lastCommand.text = lastCommand.text.trim() + " " +  v.text.trim()
-        }
-        else {
-            if(v.text.trim().length > 0) {
-                speakCommands.add(v)
-            }
-        }
-    }
-
-    fun speakCommandsAdd(v: TitleCommand) {
-        speakCommands.add(v)
-    }
-
-    fun speakCommandsAdd(v: ParagraphChange)
-    {
-        speakCommands.add(v)
     }
 }
 
