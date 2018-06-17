@@ -2,6 +2,7 @@ package net.bible.service.device.speak
 
 import android.content.res.Resources
 import android.speech.tts.TextToSpeech
+import android.util.LruCache
 import de.greenrobot.event.EventBus
 import kotlinx.serialization.SerializationException
 import net.bible.android.control.speak.SpeakSettings
@@ -213,8 +214,15 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         return VerseRange(v11n, startVerse, endVerse)
     }
 
+    private val lruCache = LruCache<Pair<SwordBook, Verse>, String>(100)
+
     private fun getRawTextForVerse(verse: Verse): String {
-        return swordContentFacade.getTextToSpeak(book, verse)
+        var text = lruCache.get(Pair(book, verse))
+        if(text == null) {
+            text = swordContentFacade.getTextToSpeak(book, verse)
+            lruCache.put(Pair(book, verse), text)
+        }
+        return text
     }
 
     override fun pause(fractionCompleted: Float) {
