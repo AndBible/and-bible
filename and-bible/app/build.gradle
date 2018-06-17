@@ -72,7 +72,7 @@ dependencies {
     implementation 'org.jdom:jdom2:2.0.6'
     implementation 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
     implementation 'org.apache.commons:commons-lang3:3.5'
-    implementation 'org.apache.commons:commons-compress:1.12'
+    implementation 'org.apache.commons:commons-compress:1.14'
     implementation 'de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5'
 
     implementation "org.jetbrains.anko:anko-commons:$anko_version"
