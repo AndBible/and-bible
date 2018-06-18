@@ -1,6 +1,7 @@
 package net.bible.service.device.speak
 
 import android.content.res.Resources
+import android.util.Log
 import android.util.LruCache
 import de.greenrobot.event.EventBus
 import kotlinx.serialization.SerializationException
@@ -42,6 +43,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         private val PERSIST_BOOK = "SpeakBibleBook"
         private val PERSIST_VERSE = "SpeakBibleVerse"
         private val PERSIST_SETTINGS = "SpeakBibleSettings"
+        private val TAG = "Speak"
     }
 
     override val numItemsToTts = 100
@@ -307,6 +309,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         utteranceStatus.remove(currentUtteranceId)
         currentUtteranceId = utteranceId
         if(state != null) {
+            Log.d(TAG, "startUtterance $utteranceId $state")
             EventBus.getDefault().post(SpeakProggressEvent(state.book, state.startVerse, settings.synchronize))
         }
     }

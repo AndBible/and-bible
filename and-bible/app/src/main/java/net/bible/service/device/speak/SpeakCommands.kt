@@ -56,6 +56,7 @@ class ParagraphChangeCommand(speakSettings: SpeakSettings) : SilenceCommand(spea
 class SpeakCommandArray: ArrayList<SpeakCommand>() {
     private val maxLength = TextToSpeech.getMaxSpeechInputLength()
     private val endsWithSentenceBreak = Regex("(.*)([.?!]+[`´”“\"']*\\W*)")
+    private val splitIntoTwoSentences = Regex("(.*)([.?!]+[`´”“\"']*\\W*)(.+)")
 
     fun copy(): SpeakCommandArray {
         val cmds = SpeakCommandArray()
@@ -142,7 +143,6 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
         return true
     }
 
-    private val splitIntoTwoSentences = Regex("(.*)([.?!]+[`´”“\"']*\\W*)(.+)")
 
     fun addUntilSentenceBreak(commands: ArrayList<SpeakCommand>, rest: ArrayList<SpeakCommand>) {
         var sentenceBreakFound = false
@@ -153,7 +153,7 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
             else if(cmd is TextCommand) {
                 val text = cmd.text
                 val match = splitIntoTwoSentences.matchEntire(text)
-                if(match != null) {
+                if(match != null && endsWithSentenceBreak.matchEntire(text) == null ) {
                     val (part1, delimiters, part2) = match.destructured
                     this.add(TextCommand("$part1$delimiters"))
                     rest.add(TextCommand(part2))
