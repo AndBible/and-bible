@@ -1,10 +1,10 @@
 package net.bible.service.device.speak
 
-import net.bible.service.format.osistohtml.osishandlers.SpeakCommands
+import net.bible.service.format.osistohtml.osishandlers.SpeakCommand
 
 interface SpeakTextProvider {
     fun isMoreTextToSpeak(): Boolean
-    fun getNextTextToSpeak(): SpeakCommands
+    fun getNextSpeakCommand(): SpeakCommand
     fun getTotalChars(): Long
     fun getSpokenChars(): Long
     fun pause(fractionCompleted: Float)

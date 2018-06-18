@@ -1,12 +1,13 @@
 package net.bible.service.device.speak;
 
 import android.content.SharedPreferences;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
 
-import net.bible.service.format.osistohtml.osishandlers.SpeakCommands;
+import net.bible.service.format.osistohtml.osishandlers.SpeakCommand;
 import net.bible.service.format.osistohtml.osishandlers.TextCommand;
 import net.bible.service.sword.SwordContentFacade;
 import org.apache.commons.lang3.StringUtils;
@@ -106,7 +107,8 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 		return nextTextToSpeak<mTextToSpeak.size();
 	}
 
-	public SpeakCommands getNextTextToSpeak() {
+	@NonNull
+	public SpeakCommand getNextSpeakCommand() {
         String text = getNextTextChunk();
         
         // if a pause occurred then skip the first part
@@ -124,9 +126,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
         		text = "";
         	}
         }
-        SpeakCommands result = new SpeakCommands();
-        result.add(new TextCommand(text));
-        return result;
+        return new TextCommand(text);
 	}
 
 	private String getNextTextChunk() {
@@ -144,7 +144,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	
 	/** fractionCompleted may be a fraction of a fraction of the current block if this is not the first pause in this block
 	 * 
-	 * @param fractionCompleted of last block of text returned by getNextTextToSpeak
+	 * @param fractionCompleted of last block of text returned by getNextSpeakCommand
 	 */
 	public void pause(float fractionCompleted) {
 		Log.d(TAG, "Pause CurrentSentence:"+nextTextToSpeak);

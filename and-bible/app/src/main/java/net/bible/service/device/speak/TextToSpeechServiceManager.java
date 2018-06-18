@@ -1,7 +1,5 @@
 package net.bible.service.device.speak;
 
-import android.os.Build;
-import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
@@ -22,7 +20,7 @@ import net.bible.service.device.speak.event.SpeakEvent;
 import net.bible.service.device.speak.event.SpeakEvent.SpeakState;
 import net.bible.service.device.speak.event.SpeakEventManager;
 
-import net.bible.service.format.osistohtml.osishandlers.SpeakCommands;
+import net.bible.service.format.osistohtml.osishandlers.SpeakCommand;
 import net.bible.service.sword.SwordContentFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
@@ -31,7 +29,6 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.Verse;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
@@ -69,7 +66,8 @@ public class TextToSpeechServiceManager {
     private Locale currentLocale = Locale.getDefault();
 	private static String PERSIST_LOCALE_KEY = "SpeakLocale";
     private static String PERSIST_BIBLE_PROVIDER = "SpeakBibleProvider";
-    
+	public static String EARCON_PRE_TITLE = "[pre-title]";
+
     private SpeakTextProvider mSpeakTextProvider;
 
 	private GeneralSpeakTextProvider generalSpeakTextProvider;
@@ -325,37 +323,19 @@ public class TextToSpeechServiceManager {
     }
 
 	private void speakNextChunk() {
-		String text = mSpeakTextProvider.getNextTextToSpeak().toString();
-		if (text.length()>0) {
-			speakString(text);
+		SpeakCommand cmd = mSpeakTextProvider.getNextSpeakCommand();
+		String utteranceId = UTTERANCE_PREFIX+uniqueUtteranceNo++;
+		try{
+			Log.d(TAG, "Playing " +  cmd);
+			cmd.speak(mTts, utteranceId);
+			mSpeakTiming.started(utteranceId, cmd.toString().length());
+			isSpeaking = true;
+		} catch (Exception e) {
+			Log.e(TAG, "Error: " + e + " Text:" + cmd);
 		}
 	}
 
-	private void speakString(String text) {
-		if (mTts==null) {
-			Log.e(TAG, "Error: attempt to speak when tts is null.  Text:"+text);
-		} else {
-	    	// Always set the UtteranceId (or else OnUtteranceCompleted will not be called)
-	        String utteranceId = UTTERANCE_PREFIX+uniqueUtteranceNo++;
-	    	Log.d(TAG, "do speak substring of length:"+text.length()+" utteranceId:"+utteranceId);
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-				Bundle ttsParams = new Bundle();
-				mTts.speak(text,
-						TextToSpeech.QUEUE_ADD, // handle flush by clearing text queue
-						ttsParams,
-						utteranceId);
-			}
-			else {
-				HashMap<String, String> dummyTTSParams = new HashMap<>();
-				dummyTTSParams.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId);
-				mTts.speak(text,
-						TextToSpeech.QUEUE_ADD, // handle flush by clearing text queue
-						dummyTTSParams);
-			}
-			mSpeakTiming.started(utteranceId, text.length());
-	        isSpeaking = true;
-		}
-    }
+
 
     /** flush cached text
      */
@@ -501,6 +481,10 @@ public class TextToSpeechServiceManager {
 			if (mTts != null && status == TextToSpeech.SUCCESS) {
 				Log.d(TAG, "Tts initialisation succeeded");
 
+				// Add earcons
+				int earConResult = mTts.addEarcon(EARCON_PRE_TITLE, BibleApplication.getApplication().getPackageName(), R.raw.pling);
+				Log.d(TAG, "Earcon result:"  + earConResult);
+
 				// set speech rate
                 int speakSpeedPercentPref = CommonUtils.getSharedPreferences().getInt("speak_speed_percent_pref", 100);
                 mTts.setSpeechRate(speakSpeedPercentPref/100F);
@@ -526,9 +510,9 @@ public class TextToSpeechServiceManager {
 				} else {
 					// The TTS engine has been successfully initialized.
 					ttsLanguageSupport.addSupportedLocale(locale);
-					int ok = mTts.setOnUtteranceProgressListener(onUtteranceCompletedListener);
+					int ok = mTts.setOnUtteranceProgressListener(utteranceProgressListener);
 					if (ok == TextToSpeech.ERROR) {
-						Log.e(TAG, "Error registering onUtteranceCompletedListener");
+						Log.e(TAG, "Error registering utteranceProgressListener");
 					} else {
 						// everything seems to have succeeded if we get here
 						isOk = true;
@@ -551,10 +535,10 @@ public class TextToSpeechServiceManager {
 		}
 	};
 
-	private final UtteranceProgressListener onUtteranceCompletedListener = new UtteranceProgressListener() {
+	private final UtteranceProgressListener utteranceProgressListener = new UtteranceProgressListener() {
 		@Override
 		public void onStart(String utteranceId) {
-
+			Log.d(TAG, "onStart " +  utteranceId);
 		}
 
 		@Override
@@ -583,6 +567,11 @@ public class TextToSpeechServiceManager {
 		@Override
 		public void onError(String utteranceId) {
 
+		}
+
+		@Override
+		public void onError(String utteranceId, int errorCode) {
+			Log.d(TAG, "onError " + utteranceId + " " + errorCode);
 		}
 	};
 

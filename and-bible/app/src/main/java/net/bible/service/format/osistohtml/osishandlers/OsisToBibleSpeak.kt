@@ -1,6 +1,15 @@
 package net.bible.service.format.osistohtml.osishandlers
 
+import android.os.Build
+import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID
+import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
+import android.support.annotation.RequiresApi
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.TtsSpan
+import net.bible.service.device.speak.TextToSpeechServiceManager.EARCON_PRE_TITLE
 import net.bible.service.format.osistohtml.taghandler.DivHandler
 import org.crosswire.jsword.book.OSISUtil
 import org.xml.sax.Attributes
@@ -11,16 +20,24 @@ abstract class SpeakCommand {
     open fun copy(): SpeakCommand {
         return this
     }
+
+    abstract fun speak(tts: TextToSpeech, utteranceId: String)
 }
 
 class TextCommand(text: String) : SpeakCommand() {
+    override fun speak(tts: TextToSpeech, utteranceId: String) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            tts.speak(text, TextToSpeech.QUEUE_ADD, null, utteranceId)
+        }
+    }
+
     var text: String = text.trim()
         set(value) {
             field = value.trim()
         }
 
     override fun toString(): String {
-        return text;
+        return "${super.toString()} $text";
     }
 
     override fun copy(): SpeakCommand {
@@ -28,13 +45,34 @@ class TextCommand(text: String) : SpeakCommand() {
     }
 }
 
+
 class TitleCommand(val text: String): SpeakCommand() {
+    override fun speak(tts: TextToSpeech, utteranceId: String) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            val eBundle = Bundle()
+            val tBundle = Bundle()
+            eBundle.putFloat(KEY_PARAM_VOLUME, 0.8f)
+            //tBundle.putString(KEY_PARAM_UTTERANCE_ID, utteranceId)
+
+            tts.playEarcon(EARCON_PRE_TITLE, TextToSpeech.QUEUE_ADD, eBundle, null)
+
+            tts.speak(text, TextToSpeech.QUEUE_ADD, tBundle, utteranceId)
+        }
+    }
+
     override fun toString(): String {
-        return text;
+        return "${super.toString()} $text";
     }
 }
 
-class ParagraphChange : SpeakCommand()
+
+class ParagraphChange : SpeakCommand() {
+    override fun speak(tts: TextToSpeech, utteranceId: String) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            tts.playSilentUtterance(1500, TextToSpeech.QUEUE_ADD, utteranceId)
+        }
+    }
+}
 
 class SpeakCommands: ArrayList<SpeakCommand>() {
 
@@ -45,13 +83,25 @@ class SpeakCommands: ArrayList<SpeakCommand>() {
         }
         return cmds
     }
+    private val maxLength = TextToSpeech.getMaxSpeechInputLength()
+    private val endsWithSentenceBreak = Regex("(.*)([.?!]+[`´”“\"']*\\W*)")
+    fun endsSentence(): Boolean {
+        val lastCommand = this.last()
+        if(lastCommand is TextCommand) {
+            return lastCommand.text.matches(endsWithSentenceBreak)
+        }
+        return true
+    }
 
     override fun add(index: Int, element: SpeakCommand) {
         if(element is TextCommand) {
+            if(element.text.isEmpty())
+                return
+
             val currentCmd =  this[index]
             if (currentCmd is TextCommand) {
                 val newText = "${element.text} ${currentCmd.text}"
-                if (newText.length > TextToSpeech.getMaxSpeechInputLength())
+                if (newText.length > maxLength)
                     return super.add(index, element)
                 else {
                     currentCmd.text = newText
@@ -69,10 +119,13 @@ class SpeakCommands: ArrayList<SpeakCommand>() {
 
     override fun add(element: SpeakCommand): Boolean {
         if(element is TextCommand) {
+            if(element.text.isEmpty())
+                return false
+
             val lastCommand = try {this.last()} catch (e: NoSuchElementException) {null}
             if(lastCommand is TextCommand) {
                 val newText = "${lastCommand.text} ${element.text}"
-                if (newText.length > TextToSpeech.getMaxSpeechInputLength())
+                if (newText.length > maxLength)
                     return super.add(element)
                 else {
                     lastCommand.text = newText
@@ -98,14 +151,36 @@ class SpeakCommands: ArrayList<SpeakCommand>() {
     }
 
     override fun addAll(elements: Collection<SpeakCommand>): Boolean {
-        if(elements is SpeakCommands) {
-            for(e in elements) {
-                add(e)
-            }
-            return true
+        for(e in elements) {
+            add(e)
         }
-        else {
-            return super.addAll(elements)
+        return true
+    }
+
+    private val splitIntoTwoSentences = Regex("(.*)([.?!]+[`´”“\"']*\\W*)(.+)")
+
+    fun addUntilSentenceBreak(commands: ArrayList<SpeakCommand>, rest: ArrayList<SpeakCommand>) {
+        var sentenceBreakFound = false
+        for(cmd in commands) {
+            if(sentenceBreakFound) {
+                rest.add(cmd)
+            }
+            else if(cmd is TextCommand) {
+                val text = cmd.text
+                val match = splitIntoTwoSentences.matchEntire(text)
+                if(match != null) {
+                    val (part1, delimiters, part2) = match.destructured
+                    this.add(TextCommand("$part1$delimiters"))
+                    rest.add(TextCommand(part2))
+                    sentenceBreakFound = true
+                }
+                else {
+                    this.add(cmd)
+                }
+            }
+            else {
+                this.add(cmd)
+            }
         }
     }
 }

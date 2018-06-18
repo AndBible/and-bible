@@ -1,7 +1,6 @@
 package net.bible.service.device.speak
 
 import android.content.res.Resources
-import android.speech.tts.TextToSpeech
 import android.util.LruCache
 import de.greenrobot.event.EventBus
 import kotlinx.serialization.SerializationException
@@ -21,6 +20,7 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
+import net.bible.service.format.osistohtml.osishandlers.SpeakCommand
 import net.bible.service.format.osistohtml.osishandlers.SpeakCommands
 import net.bible.service.format.osistohtml.osishandlers.TextCommand
 import org.crosswire.jsword.book.sword.SwordBook
@@ -55,7 +55,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         currentVerse = initialVerse
     }
 
-    private var readList: ArrayList<String>
+    private var readList = SpeakCommands()
     private var _settings: SpeakSettings? = null
     var settings: SpeakSettings
         get() = _settings?: SpeakSettings()
@@ -70,7 +70,6 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private lateinit var localizedResources: Resources
 
     init {
-        readList = ArrayList()
         val sharedPreferences = CommonUtils.getSharedPreferences()
         if(sharedPreferences.contains(PERSIST_SETTINGS)) {
             val settingsStr = sharedPreferences.getString(PERSIST_SETTINGS, "")
@@ -136,16 +135,24 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         return cmds
     }
 
-    override fun getNextTextToSpeak(): SpeakCommands {
+    private val currentCommands = SpeakCommands()
+    override fun getNextSpeakCommand(): SpeakCommand {
+        while(currentCommands.isEmpty()) {
+            currentCommands.addAll(getMoreSpeakCommands())
+        }
+        return currentCommands.removeAt(0)
+    }
+
+    fun getMoreSpeakCommands(): SpeakCommands {
         val cmds = SpeakCommands()
-        //val maxLength = TextToSpeech.getMaxSpeechInputLength()
 
         var verse = currentVerse
         startVerse = currentVerse
 
         // If there's something left from splitted verse, then we'll speak that first.
         if(readList.isNotEmpty()) {
-            cmds.add(TextCommand(readList.removeAt(0)))
+            cmds.addAll(readList)
+            readList.clear()
             verse = getNextVerse(verse)
         }
 
@@ -154,39 +161,19 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         cmds.addAll(getCommandsForVerse(endVerse, verse))
 
         if(settings.continueSentences) {
-
             // If verse does not end in period, add the part before period to the current reading
-            val regex = Regex("(.*)([.?!]+[`´”“\"']*\\W*)")
-            var rest = ""
-            val lastCommand = cmds.last()
-            if(lastCommand is TextCommand) {
-                val text = lastCommand.text
-                while (!text.matches(regex)) {
-                    val nextVerse = getNextVerse(verse)
-                    val nextCommands = getCommandsForVerse(verse, nextVerse)
-                    val newText: String
+            val rest = SpeakCommands()
 
+            while(!cmds.endsSentence()) {
+                val nextVerse = getNextVerse(verse)
+                val nextCommands = getCommandsForVerse(verse, nextVerse)
 
-                    val parts = nextText.split('.', '?', '!')
-
-                    if (parts.size > 1) {
-                        newText = "$cmds ${parts[0]}."
-                        rest = parts.slice(1 until parts.count()).joinToString { it }
-                    } else {
-                        newText = "$cmds $nextText"
-                        rest = ""
-                    }
-
-                    if (newText.length > maxLength) {
-                        break
-                    }
-                    verse = nextVerse
-                    cmds = newText
-
-                }
+                cmds.addUntilSentenceBreak(nextCommands, rest)
+                verse = nextVerse
             }
+
             if(rest.isNotEmpty()) {
-                readList.add(rest)
+                readList.addAll(rest)
                 currentVerse = verse
             }
             else {

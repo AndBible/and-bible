@@ -51,7 +51,13 @@ open class AbstractSpeakTests {
     }
 
     protected fun nextText(): String {
-        return provider.getNextTextToSpeak().filter({it is TextCommand}).joinToString(" ") { it.toString() }
+        var cmd: SpeakCommand
+        do {
+            cmd = provider.getNextSpeakCommand()
+        } while (!(cmd is TextCommand))
+
+        return cmd.text
+        //return provider.getNextSpeakCommand().filter({it is TextCommand}).joinToString(" ") { it.toString() }
     }
 
     companion object {
@@ -65,6 +71,57 @@ open class AbstractSpeakTests {
 
 @RunWith(RobolectricTestRunner::class)
 open class OsisToBibleSpeakTests: AbstractSpeakTests() {
+
+    @Test
+    fun testSentenceBreak() {
+        val cmds = SpeakCommands()
+        cmds.add(TextCommand("test 1 test 2"))
+        cmds.add(TextCommand("test 3. test 4"))
+        cmds.add(TextCommand("test 5"))
+        val cmds2 = SpeakCommands()
+        val rest = SpeakCommands()
+        cmds2.addUntilSentenceBreak(cmds, rest)
+        assertThat((cmds2[0] as TextCommand).text, equalTo("test 1 test 2 test 3."))
+        assertThat((rest[0] as TextCommand).text, equalTo("test 4 test 5"))
+        assertThat(rest.size, equalTo(1))
+        assertThat(cmds2.size, equalTo(1))
+        assertThat(cmds.size, equalTo(1))
+    }
+
+    @Test
+    fun testAdd() {
+        val cmds = SpeakCommands()
+        cmds.add(TextCommand("test 1"))
+        cmds.add(0, TextCommand("test 2"))
+        assertThat((cmds[0] as TextCommand).text, equalTo("test 2 test 1"))
+    }
+
+    @Test
+    fun testAddAll() {
+        val cmds = SpeakCommands()
+        val cmds2 = arrayListOf(TextCommand("test 1"), TextCommand("test 2"), TextCommand("test 3"))
+        cmds.addAll(cmds2)
+        assertThat((cmds[0] as TextCommand).text, equalTo("test 1 test 2 test 3"))
+    }
+
+    @Test
+    fun testSentenceBreak2() {
+        val cmds = ArrayList<SpeakCommand>()
+        cmds.add(TextCommand("test 1 test 2"))
+        cmds.add(TextCommand("test 3. test 4"))
+        cmds.add(TextCommand("test 5"))
+        val cmds2 = SpeakCommands()
+        val rest = ArrayList<SpeakCommand>()
+        cmds2.addUntilSentenceBreak(cmds, rest)
+        assertThat((cmds2[0] as TextCommand).text, equalTo("test 1 test 2 test 3."))
+        assertThat((rest[0] as TextCommand).text, equalTo("test 4"))
+        assertThat((rest[1] as TextCommand).text, equalTo("test 5"))
+        assertThat(rest.size, equalTo(2))
+        assertThat(cmds2.size, equalTo(1))
+        assertThat(cmds.size, equalTo(3))
+    }
+
+
     @Test
     fun testCommandsFinRK() {
         val cmds = SpeakCommands()
@@ -101,7 +158,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
     }
 
     @Test
-    fun testCommandsSTLK() {
+    fun testCommandsSTLK() { // TOOD: this is not yet released bible!
         book = Books.installed().getBook("STLK2017") as SwordBook // as AbstractPassageBook
         val cmds = SpeakCommands()
         cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.1")))
@@ -258,12 +315,17 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
 
         text = nextText()
         assertThat(range(), equalTo("Ps.14.1"))
-        assertThat(text, startsWith("Psalmit Luku 14. Musiikinjohtajalle"))
+        assertThat(text, equalTo("Psalmit Luku 14.")) // there's title after this
+        text = nextText()
+        assertThat(range(), equalTo("Ps.14.1"))
+        assertThat(text, startsWith("Musiikinjohtajalle"))
         assertThat(text, endsWith("tekee hyvää."))
     }
 
     private fun checkRomansBeginning() {
-        assertThat(text, startsWith("Kirja vaihtui. Roomalaiskirje Luku 1. Paavali, "))
+        assertThat(text, equalTo("Kirja vaihtui. Roomalaiskirje Luku 1."))
+        text = nextText()
+        assertThat(text, startsWith("Paavali, "))
         assertThat(text, endsWith("evankeliumia,"))
     }
 
@@ -277,7 +339,10 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
         text = nextText()
         assertThat(range(), equalTo("Gen.1.1"))
         // test that 1. is replaced with "Ensimmäinen" (first)
-        assertThat(text, startsWith("Kirja vaihtui. Ensimmäinen Mooseksen kirja Luku 1. Alussa"))
+        assertThat(text, equalTo("Kirja vaihtui. Ensimmäinen Mooseksen kirja Luku 1."))
+        text = nextText()
+        assertThat(range(), equalTo("Gen.1.1"))
+        assertThat(text, startsWith("Alussa"))
 
         provider.setupReading(book, getVerse("Rom.1.1"))
         text = nextText()
@@ -306,11 +371,11 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
         for(i in 1..32) {
             text = nextText()
         }
-        assertThat(text, startsWith("Roomalaiskirje Luku 2"))
-        for(i in 1..29) {
+        assertThat(text, equalTo("Roomalaiskirje Luku 2."))
+        for(i in 1..30) {
             text = nextText()
         }
-        assertThat(text, startsWith("Roomalaiskirje Luku 3"))
+        assertThat(text, equalTo("Roomalaiskirje Luku 3."))
     }
 
     @Test
@@ -375,7 +440,9 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     }
 
     private fun checkRomansBeginning() {
-        assertThat(text, startsWith("Kirja vaihtui. Roomalaiskirje Luku 1. Paavali, "))
+        assertThat(text, equalTo("Kirja vaihtui. Roomalaiskirje Luku 1."))
+        text = nextText();
+        assertThat(text, startsWith("Paavali, "))
         assertThat(text, endsWith("meidän Herrastamme."))
         assertThat(range(), equalTo("Rom.1.1-Rom.1.3"))
     }
@@ -428,7 +495,9 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(range(), equalTo("Rom.5.20-Rom.5.21"))
         text = nextText()
         assertThat(range(), equalTo("Rom.6.1"))
-        assertThat(text, startsWith("Roomalaiskirje Luku 6. Mitä me"))
+        assertThat(text, equalTo("Roomalaiskirje Luku 6."))
+        text = nextText()
+        assertThat(text, startsWith("Mitä me"))
         assertThat(text, endsWith("tulisi suureksi?"))
 
     }
