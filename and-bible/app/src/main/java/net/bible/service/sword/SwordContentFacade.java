@@ -13,6 +13,8 @@ import net.bible.service.common.Constants;
 import net.bible.service.common.Logger;
 import net.bible.service.common.ParseException;
 import net.bible.service.css.CssControl;
+import net.bible.service.device.speak.SpeakCommand;
+import net.bible.service.device.speak.SpeakCommands;
 import net.bible.service.font.FontControl;
 import net.bible.service.format.HtmlMessageFormatter;
 import net.bible.service.format.Note;

@@ -1,14 +1,11 @@
 package net.bible.service.device.speak;
 
 import android.content.SharedPreferences;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
 
-import net.bible.service.format.osistohtml.osishandlers.SpeakCommand;
-import net.bible.service.format.osistohtml.osishandlers.TextCommand;
 import net.bible.service.sword.SwordContentFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;

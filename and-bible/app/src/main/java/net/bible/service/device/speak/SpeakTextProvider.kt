@@ -1,7 +1,5 @@
 package net.bible.service.device.speak
 
-import net.bible.service.format.osistohtml.osishandlers.SpeakCommand
-
 interface SpeakTextProvider {
     val numItemsToTts: Int
     fun isMoreTextToSpeak(): Boolean

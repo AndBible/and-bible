@@ -20,7 +20,6 @@ import net.bible.service.device.speak.event.SpeakEvent;
 import net.bible.service.device.speak.event.SpeakEvent.SpeakState;
 import net.bible.service.device.speak.event.SpeakEventManager;
 
-import net.bible.service.format.osistohtml.osishandlers.SpeakCommand;
 import net.bible.service.sword.SwordContentFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;

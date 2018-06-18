@@ -21,7 +21,6 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
-import net.bible.service.format.osistohtml.osishandlers.*
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleNames
