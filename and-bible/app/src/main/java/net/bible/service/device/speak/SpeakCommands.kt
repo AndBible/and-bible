@@ -5,37 +5,25 @@ import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import net.bible.android.control.speak.SpeakSettings
 
-abstract class SpeakCommand {
-    open fun copy(): SpeakCommand {
-        return this
-    }
-
-    abstract fun speak(tts: TextToSpeech, utteranceId: String)
+interface SpeakCommand {
+    fun speak(tts: TextToSpeech, utteranceId: String)
 }
 
-// TODO: it might be better to make this immutable.
-class TextCommand(text: String) : SpeakCommand() {
+class TextCommand(text: String) : SpeakCommand {
+    val text: String = text.trim()
+
     override fun speak(tts: TextToSpeech, utteranceId: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             tts.speak(text, TextToSpeech.QUEUE_ADD, null, utteranceId)
         }
     }
 
-    var text: String = text.trim()
-        set(value) {
-            field = value.trim()
-        }
-
     override fun toString(): String {
         return "${super.toString()} $text";
     }
-
-    override fun copy(): SpeakCommand {
-        return TextCommand(text)
-    }
 }
 
-abstract class EarconCommand(val earcon: String, val speakSettings: SpeakSettings): SpeakCommand() {
+abstract class EarconCommand(val earcon: String, val speakSettings: SpeakSettings): SpeakCommand {
     override fun speak(tts: TextToSpeech, utteranceId: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val eBundle = Bundle()
@@ -55,7 +43,7 @@ class PreBookChangeCommand(speakSettings: SpeakSettings): EarconCommand(TextToSp
 class PreChapterChangeCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_CHAPTER_CHANGE, speakSettings)
 class PreTitleCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_TITLE, speakSettings)
 
-open class SilenceCommand(val enabled: Boolean=true) : SpeakCommand() {
+open class SilenceCommand(val enabled: Boolean=true) : SpeakCommand {
     override fun speak(tts: TextToSpeech, utteranceId: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             tts.playSilentUtterance(if (enabled) 500 else 0, TextToSpeech.QUEUE_ADD, utteranceId)
@@ -71,9 +59,7 @@ class SpeakCommands: ArrayList<SpeakCommand>() {
 
     fun copy(): SpeakCommands {
         val cmds = SpeakCommands()
-        for(cmd in this) {
-            cmds.add(cmd.copy())
-        }
+        cmds.addAll(this)
         return cmds
     }
 
@@ -87,7 +73,7 @@ class SpeakCommands: ArrayList<SpeakCommand>() {
         }
 
     override fun add(index: Int, element: SpeakCommand) {
-        val currentCmd =  try {this.get(index)} catch (e: IndexOutOfBoundsException) {null}
+        val currentCmd = try {this.get(index)} catch (e: IndexOutOfBoundsException) {null}
         if(element is TextCommand) {
             if(element.text.isEmpty())
                 return
@@ -97,7 +83,7 @@ class SpeakCommands: ArrayList<SpeakCommand>() {
                 if (newText.length > maxLength)
                     return super.add(index, element)
                 else {
-                    currentCmd.text = newText
+                    this[index] = TextCommand(newText)
                     return
                 }
             }
@@ -124,7 +110,7 @@ class SpeakCommands: ArrayList<SpeakCommand>() {
                 if (newText.length > maxLength)
                     return super.add(element)
                 else {
-                    lastCommand.text = newText
+                    this[this.size-1] = TextCommand(newText)
                     return true
                 }
             }
