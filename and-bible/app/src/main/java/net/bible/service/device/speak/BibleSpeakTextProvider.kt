@@ -132,11 +132,12 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         if(prevVerse.book != verse.book) {
             cmds.add(0, BookChangeCommand("${res.getString(R.string.speak_book_changed)} $bookName "+
                     "${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. ", settings))
-
+            cmds.add(1, SilenceCommand(settings))
         }
         else if(settings.chapterChanges && prevVerse.chapter != verse.chapter) {
             cmds.add(0, ChapterChangeCommand("$bookName " +
                     "${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. ", settings))
+            cmds.add(1, SilenceCommand(settings))
         }
         return cmds
     }

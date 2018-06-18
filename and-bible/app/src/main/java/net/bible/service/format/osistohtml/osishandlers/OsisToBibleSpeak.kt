@@ -66,7 +66,6 @@ abstract class EarconCommand(text: String, val speakSettings: SpeakSettings): Sp
             }
             tts.playSilentUtterance(500, TextToSpeech.QUEUE_ADD, null)
             tts.speak(text, TextToSpeech.QUEUE_ADD, tBundle, utteranceId)
-            tts.playSilentUtterance(500, TextToSpeech.QUEUE_ADD, null)
         }
     }
 }
@@ -83,17 +82,25 @@ class TitleCommand(text: String, speakSettings: SpeakSettings): EarconCommand(te
     override val earcon = EARCON_PRE_TITLE
 }
 
-class ParagraphChange(val speakSettings: SpeakSettings) : SpeakCommand() {
+open class SilenceCommand(val speakSettings: SpeakSettings) : SpeakCommand() {
     override fun speak(tts: TextToSpeech, utteranceId: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if(speakSettings.delayOnParagraphChanges) {
-                tts.playSilentUtterance(500, TextToSpeech.QUEUE_ADD, utteranceId)
-            }
+            tts.playSilentUtterance(500, TextToSpeech.QUEUE_ADD, utteranceId)
+        }
+    }
+}
+
+class ParagraphChangeCommand(speakSettings: SpeakSettings) : SilenceCommand(speakSettings) {
+    override fun speak(tts: TextToSpeech, utteranceId: String) {
+        if(speakSettings.delayOnParagraphChanges) {
+            super.speak(tts, utteranceId)
         }
     }
 }
 
 class SpeakCommands: ArrayList<SpeakCommand>() {
+    private val maxLength = TextToSpeech.getMaxSpeechInputLength()
+    private val endsWithSentenceBreak = Regex("(.*)([.?!]+[`´”“\"']*\\W*)")
 
     fun copy(): SpeakCommands {
         val cmds = SpeakCommands()
@@ -102,8 +109,7 @@ class SpeakCommands: ArrayList<SpeakCommand>() {
         }
         return cmds
     }
-    private val maxLength = TextToSpeech.getMaxSpeechInputLength()
-    private val endsWithSentenceBreak = Regex("(.*)([.?!]+[`´”“\"']*\\W*)")
+
     fun endsSentence(): Boolean {
         val lastCommand = this.last()
         if(lastCommand is TextCommand) {
@@ -113,11 +119,11 @@ class SpeakCommands: ArrayList<SpeakCommand>() {
     }
 
     override fun add(index: Int, element: SpeakCommand) {
+        val currentCmd =  try {this.get(index)} catch (e: IndexOutOfBoundsException) {null}
         if(element is TextCommand) {
             if(element.text.isEmpty())
                 return
 
-            val currentCmd =  this[index]
             if (currentCmd is TextCommand) {
                 val newText = "${element.text} ${currentCmd.text}"
                 if (newText.length > maxLength)
@@ -131,17 +137,20 @@ class SpeakCommands: ArrayList<SpeakCommand>() {
                 return super.add(index, element)
             }
         }
+        else if(element is SilenceCommand && currentCmd is SilenceCommand) {
+            return // Do not add another
+        }
         else {
             return super.add(index, element)
         }
     }
 
     override fun add(element: SpeakCommand): Boolean {
+        val lastCommand = try {this.last()} catch (e: NoSuchElementException) {null}
         if(element is TextCommand) {
             if(element.text.isEmpty())
                 return false
 
-            val lastCommand = try {this.last()} catch (e: NoSuchElementException) {null}
             if(lastCommand is TextCommand) {
                 val newText = "${lastCommand.text} ${element.text}"
                 if (newText.length > maxLength)
@@ -159,6 +168,9 @@ class SpeakCommands: ArrayList<SpeakCommand>() {
                     return false;
                 }
             }
+        }
+        else if(element is SilenceCommand && lastCommand is SilenceCommand) {
+            return false // Do not add another
         }
         else {
             return super.add(element)
@@ -255,7 +267,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
             val isVerseBeginning = attrs?.getValue("sID") != null
             val isParagraphType = DivHandler.PARAGRAPH_TYPE_LIST.contains(type)
             if(isParagraphType && !isVerseBeginning) {
-                speakCommands.add(ParagraphChange(speakSettings))
+                speakCommands.add(ParagraphChangeCommand(speakSettings))
                 elementStack.push(StackEntry(peekVisible, TAG_TYPE.PARAGRPAH))
             }
             else {
@@ -267,7 +279,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
                 || name == OSISUtil.OSIS_ELEMENT_LB ||
                 name == OSISUtil.OSIS_ELEMENT_P) {
             if(anyTextWritten) {
-                speakCommands.add(ParagraphChange(speakSettings))
+                speakCommands.add(ParagraphChangeCommand(speakSettings))
             }
             elementStack.push(StackEntry(peekVisible, TAG_TYPE.PARAGRPAH))
         } else {

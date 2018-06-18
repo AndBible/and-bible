@@ -135,7 +135,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.23")))
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.24")))
         assertThat("Command is of correct type", cmds[0] is TextCommand)
-        assertThat("Command is of correct type", cmds[1] is ParagraphChange)
+        assertThat("Command is of correct type", cmds[1] is ParagraphChangeCommand)
         assertThat("Command is of correct type", cmds[2] is TextCommand)
         assertThat(cmds.size, equalTo( 3))
     }
@@ -154,7 +154,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.23")))
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.24")))
         assertThat("Command is of correct type", cmds[0] is TextCommand)
-        assertThat("Command is of correct type", cmds[1] is ParagraphChange)
+        assertThat("Command is of correct type", cmds[1] is ParagraphChangeCommand)
         assertThat("Command is of correct type", cmds[2] is TextCommand)
         assertThat(cmds.size, equalTo( 3))
     }
@@ -173,7 +173,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.25")))
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.26")))
         assertThat("Command is of correct type", cmds[0] is TextCommand)
-        assertThat("Command is of correct type", cmds[1] is ParagraphChange)
+        assertThat("Command is of correct type", cmds[1] is ParagraphChangeCommand)
         assertThat("Command is of correct type", cmds[2] is TextCommand)
         assertThat(cmds.size, equalTo( 3))
     }
