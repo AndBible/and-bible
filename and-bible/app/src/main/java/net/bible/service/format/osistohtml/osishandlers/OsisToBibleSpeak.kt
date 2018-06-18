@@ -23,14 +23,18 @@ abstract class SpeakCommand {
     abstract fun speak(tts: TextToSpeech, utteranceId: String)
 }
 
-class TextCommand(text: String) : SpeakCommand() {
+interface WithTextCommand {
+    val text: String
+}
+
+class TextCommand(text: String) : SpeakCommand(), WithTextCommand {
     override fun speak(tts: TextToSpeech, utteranceId: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             tts.speak(text, TextToSpeech.QUEUE_ADD, null, utteranceId)
         }
     }
 
-    var text: String = text.trim()
+    override var text: String = text.trim()
         set(value) {
             field = value.trim()
         }
@@ -44,8 +48,9 @@ class TextCommand(text: String) : SpeakCommand() {
     }
 }
 
-abstract class EarconCommand(val text: String, val speakSettings: SpeakSettings): SpeakCommand() {
+abstract class EarconCommand(text: String, val speakSettings: SpeakSettings): SpeakCommand(), WithTextCommand {
     abstract val earcon: String
+    override val text = text.trim()
 
     override fun toString(): String {
         return "${super.toString()} $text";

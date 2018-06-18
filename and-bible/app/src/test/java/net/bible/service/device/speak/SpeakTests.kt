@@ -54,9 +54,9 @@ open class AbstractSpeakTests {
         var cmd: SpeakCommand
         do {
             cmd = provider.getNextSpeakCommand("id-1")
-        } while (!(cmd is TextCommand))
+        } while (!(cmd is TextCommand || cmd is ChapterChangeCommand || cmd is BookChangeCommand))
 
-        return cmd.text
+        return (cmd as WithTextCommand).text
         //return provider.getNextSpeakCommand().filter({it is TextCommand}).joinToString(" ") { it.toString() }
     }
 
@@ -382,6 +382,7 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
     }
 
     @Test
+    @Config(qualifiers="en")
     fun testBookWithoutOldTestament() {
         val book = Books.installed().getBook("ISV") as SwordBook
 
@@ -392,7 +393,9 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
         assertThat(text, startsWith("May the grace of"))
         text = nextText()
         assertThat(range(), equalTo("Gen-Matt.1.1"))
-        assertThat(text, containsString("The Gospel According"))
+        assertThat(text, equalTo("Book changed. Matthew Chapter 1."))
+        text = nextText()
+        assertThat(text, startsWith("The Gospel According"))
     }
 
     @Test
