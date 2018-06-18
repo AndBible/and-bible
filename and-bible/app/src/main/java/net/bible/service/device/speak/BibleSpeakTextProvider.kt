@@ -29,7 +29,8 @@ import org.crosswire.jsword.versification.BibleNames
 import java.util.*
 import kotlin.collections.HashMap
 
-data class Status(val book: SwordBook, val startVerse: Verse, val endVerse: Verse, val currentVerse: Verse)
+data class Status(val book: SwordBook, val startVerse: Verse, val endVerse: Verse, val currentVerse: Verse,
+                  val cmd: SpeakCommand? = null)
 
 class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                              private val bibleTraverser: BibleTraverser,
@@ -145,8 +146,9 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         while(currentCommands.isEmpty()) {
             currentCommands.addAll(getMoreSpeakCommands())
         }
-        utteranceStatus.set(utteranceId, Status(book, startVerse, endVerse, currentVerse))
-        return currentCommands.removeAt(0)
+        val cmd = currentCommands.removeAt(0)
+        utteranceStatus.set(utteranceId, Status(book, startVerse, endVerse, currentVerse, cmd))
+        return cmd
     }
 
     fun getMoreSpeakCommands(): SpeakCommands {
@@ -199,6 +201,11 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         val status = utteranceStatus.get(currentUtteranceId)?: Status(book, startVerse, endVerse, currentVerse)
 
         return "${status.startVerse.name}${if (status.startVerse != status.endVerse) " - " + status.endVerse.name else ""}"
+    }
+
+    override fun getText(utteranceId: String): String {
+        val status = utteranceStatus.get(utteranceId)
+        return status?.cmd.toString()
     }
 
     fun getVerseRange(): VerseRange {

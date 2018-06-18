@@ -53,7 +53,7 @@ open class AbstractSpeakTests {
     protected fun nextText(): String {
         var cmd: SpeakCommand
         do {
-            cmd = provider.getNextSpeakCommand()
+            cmd = provider.getNextSpeakCommand("id-1")
         } while (!(cmd is TextCommand))
 
         return cmd.text

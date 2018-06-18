@@ -539,7 +539,7 @@ public class TextToSpeechServiceManager {
 		public void onStart(String utteranceId) {
 			Log.d(TAG, "onStart " +  utteranceId);
 			mSpeakTextProvider.startUtterance(utteranceId);
-			//mSpeakTiming.started(utteranceId, cmd.toString().length()); // Move to onStart
+			mSpeakTiming.started(utteranceId, mSpeakTextProvider.getText(utteranceId).length());
 		}
 
 		@Override

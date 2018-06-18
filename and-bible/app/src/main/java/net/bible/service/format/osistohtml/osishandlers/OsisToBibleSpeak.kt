@@ -3,12 +3,7 @@ package net.bible.service.format.osistohtml.osishandlers
 import android.os.Build
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
-import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID
 import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
-import android.support.annotation.RequiresApi
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.TtsSpan
 import net.bible.service.device.speak.TextToSpeechServiceManager.EARCON_PRE_TITLE
 import net.bible.service.format.osistohtml.taghandler.DivHandler
 import org.crosswire.jsword.book.OSISUtil
@@ -56,7 +51,6 @@ class TitleCommand(val text: String): SpeakCommand() {
             tts.playEarcon(EARCON_PRE_TITLE, TextToSpeech.QUEUE_ADD, eBundle, null)
             tts.playSilentUtterance(500, TextToSpeech.QUEUE_ADD, null)
             tts.speak(text, TextToSpeech.QUEUE_ADD, tBundle, null)
-            tts.playEarcon(EARCON_PRE_TITLE, TextToSpeech.QUEUE_ADD, eBundle, null)
             tts.playSilentUtterance(500, TextToSpeech.QUEUE_ADD, utteranceId)
         }
     }
@@ -70,7 +64,7 @@ class TitleCommand(val text: String): SpeakCommand() {
 class ParagraphChange : SpeakCommand() {
     override fun speak(tts: TextToSpeech, utteranceId: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            tts.playSilentUtterance(1500, TextToSpeech.QUEUE_ADD, utteranceId)
+            tts.playSilentUtterance(700, TextToSpeech.QUEUE_ADD, utteranceId)
         }
     }
 }

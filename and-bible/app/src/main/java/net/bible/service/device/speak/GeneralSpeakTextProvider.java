@@ -35,6 +35,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
     private int nextTextToSpeak = 0;
     // this fraction supports pause/rew/ff; if o then speech occurs normally, if 0.5 then next speech chunk is half completed...
     private float fractionOfNextSentenceSpoken = 0;
+    private String currentText = "";
     
     // Before ICS Android would split up long text for you but since ICS this error occurs:
 	//    if (mText.length() >= MAX_SPEECH_ITEM_CHAR_LENGTH) {
@@ -137,8 +138,16 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
         		text = "";
         	}
         }
+        currentText = text;
         return new TextCommand(text);
 	}
+
+	@NotNull
+	@Override
+	public String getText(@NotNull String utteranceId) {
+		return currentText;
+	}
+
 
 	private String getNextTextChunk() {
 		String text = peekNextTextChunk();
