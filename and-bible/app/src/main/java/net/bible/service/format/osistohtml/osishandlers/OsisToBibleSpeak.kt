@@ -51,12 +51,13 @@ class TitleCommand(val text: String): SpeakCommand() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val eBundle = Bundle()
             val tBundle = Bundle()
-            eBundle.putFloat(KEY_PARAM_VOLUME, 0.8f)
-            //tBundle.putString(KEY_PARAM_UTTERANCE_ID, utteranceId)
+            eBundle.putFloat(KEY_PARAM_VOLUME, 0.1f)
 
             tts.playEarcon(EARCON_PRE_TITLE, TextToSpeech.QUEUE_ADD, eBundle, null)
-
-            tts.speak(text, TextToSpeech.QUEUE_ADD, tBundle, utteranceId)
+            tts.playSilentUtterance(500, TextToSpeech.QUEUE_ADD, null)
+            tts.speak(text, TextToSpeech.QUEUE_ADD, tBundle, null)
+            tts.playEarcon(EARCON_PRE_TITLE, TextToSpeech.QUEUE_ADD, eBundle, null)
+            tts.playSilentUtterance(500, TextToSpeech.QUEUE_ADD, utteranceId)
         }
     }
 

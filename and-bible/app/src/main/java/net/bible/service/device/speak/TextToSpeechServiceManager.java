@@ -323,16 +323,15 @@ public class TextToSpeechServiceManager {
     }
 
 	private void speakNextChunk() {
-		SpeakCommand cmd = mSpeakTextProvider.getNextSpeakCommand();
-		String utteranceId = UTTERANCE_PREFIX+uniqueUtteranceNo++;
-		try{
-			Log.d(TAG, "Playing " +  cmd);
+    	String utteranceId = "";
+    	for(int i=0; i<mSpeakTextProvider.getNumItemsToTts(); i++) {
+			utteranceId = UTTERANCE_PREFIX + uniqueUtteranceNo++;
+			SpeakCommand cmd = mSpeakTextProvider.getNextSpeakCommand(utteranceId);
+			Log.d(TAG, "Playing " + utteranceId + cmd);
 			cmd.speak(mTts, utteranceId);
-			mSpeakTiming.started(utteranceId, cmd.toString().length());
-			isSpeaking = true;
-		} catch (Exception e) {
-			Log.e(TAG, "Error: " + e + " Text:" + cmd);
 		}
+
+		isSpeaking = true;
 	}
 
 
@@ -539,19 +538,22 @@ public class TextToSpeechServiceManager {
 		@Override
 		public void onStart(String utteranceId) {
 			Log.d(TAG, "onStart " +  utteranceId);
+			mSpeakTextProvider.startUtterance(utteranceId);
+			//mSpeakTiming.started(utteranceId, cmd.toString().length()); // Move to onStart
 		}
 
 		@Override
 		public void onDone(String utteranceId) {
 			Log.d(TAG, "onUtteranceCompleted:"+utteranceId);
 			// pause/rew/ff can sometimes allow old messages to complete so need to prevent move to next sentence if completed utterance is out of date
+
+			// estimate cps
+			mSpeakTextProvider.finishedUtterance(utteranceId);
+			mSpeakTiming.finished(utteranceId);
+
 			if ((!isPaused && isSpeaking) && StringUtils.startsWith(utteranceId, UTTERANCE_PREFIX)) {
 				long utteranceNo = Long.valueOf(StringUtils.removeStart(utteranceId, UTTERANCE_PREFIX));
 				if (utteranceNo == uniqueUtteranceNo-1) {
-					mSpeakTextProvider.finishedUtterance(utteranceId);
-
-					// estimate cps
-					mSpeakTiming.finished(utteranceId);
 
 					// ask TTs to say the text
 					if (mSpeakTextProvider.isMoreTextToSpeak()) {

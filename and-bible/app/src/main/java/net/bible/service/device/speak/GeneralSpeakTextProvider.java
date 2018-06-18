@@ -13,6 +13,7 @@ import net.bible.service.sword.SwordContentFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.passage.Key;
+import org.jetbrains.annotations.NotNull;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;
@@ -42,7 +43,17 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
     
     // require DOTALL to allow . to match new lines which occur in books like JOChrist
 	private static Pattern BREAK_PATTERN = Pattern.compile(".{100,2000}[a-z]+[.?!][\\s]{1,}+", Pattern.DOTALL);
-	
+
+	@Override
+	public void startUtterance(@NotNull String utteranceId) {
+
+	}
+
+	@Override
+	public int getNumItemsToTts() {
+		return 1;
+	}
+
 	private static class StartPos {
 		boolean found = false;
 		private int startPosition = 0;
@@ -108,7 +119,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	}
 
 	@NonNull
-	public SpeakCommand getNextSpeakCommand() {
+	public SpeakCommand getNextSpeakCommand(String utteranceId) {
         String text = getNextTextChunk();
         
         // if a pause occurred then skip the first part

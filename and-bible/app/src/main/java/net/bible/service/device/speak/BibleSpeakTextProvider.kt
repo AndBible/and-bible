@@ -29,6 +29,7 @@ import org.crosswire.jsword.versification.BibleNames
 import java.util.*
 import kotlin.collections.HashMap
 
+data class Status(val book: SwordBook, val startVerse: Verse, val endVerse: Verse, val currentVerse: Verse)
 
 class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                              private val bibleTraverser: BibleTraverser,
@@ -41,10 +42,14 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         private val PERSIST_SETTINGS = "SpeakBibleSettings"
     }
 
+    override val numItemsToTts = 100
     private var book: SwordBook
     private var startVerse: Verse
     private var endVerse: Verse
     private var currentVerse: Verse
+    private val utteranceStatus = HashMap<String, Status>()
+    private var currentUtteranceId = ""
+
     private val bibleBooks = HashMap<String, String>()
 
     init {
@@ -136,10 +141,11 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     private val currentCommands = SpeakCommands()
-    override fun getNextSpeakCommand(): SpeakCommand {
+    override fun getNextSpeakCommand(utteranceId: String): SpeakCommand {
         while(currentCommands.isEmpty()) {
             currentCommands.addAll(getMoreSpeakCommands())
         }
+        utteranceStatus.set(utteranceId, Status(book, startVerse, endVerse, currentVerse))
         return currentCommands.removeAt(0)
     }
 
@@ -186,17 +192,18 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
         endVerse = verse
 
-        EventBus.getDefault().post(SpeakProggressEvent(book, startVerse, settings.synchronize))
         return cmds;
     }
 
     fun getStatusText(): String {
-        return "${startVerse.name}${if (startVerse != endVerse) " - " + endVerse.name else ""}"
+        val status = utteranceStatus.get(currentUtteranceId)?: Status(book, startVerse, endVerse, currentVerse)
+
+        return "${status.startVerse.name}${if (status.startVerse != status.endVerse) " - " + status.endVerse.name else ""}"
     }
 
     fun getVerseRange(): VerseRange {
-        val v11n = startVerse.versification
-        return VerseRange(v11n, startVerse, endVerse)
+        val status = utteranceStatus.get(currentUtteranceId)?: Status(book, startVerse, endVerse, currentVerse)
+        return VerseRange(status.book.versification, status.startVerse, status.endVerse)
     }
 
     private val lruCache = LruCache<Pair<SwordBook, Verse>, SpeakCommands>(100)
@@ -277,9 +284,25 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     override fun finishedUtterance(utteranceId: String) {
     }
 
+    override fun startUtterance(utteranceId: String) {
+        val status = utteranceStatus.get(utteranceId)
+        currentUtteranceId = utteranceId
+        if(status != null) {
+            EventBus.getDefault().post(SpeakProggressEvent(status.book, status.startVerse, settings.synchronize))
+        }
+    }
+
     override fun reset() {
+        val status = utteranceStatus.get(currentUtteranceId)
+        if(status != null) {
+            startVerse = status.startVerse
+            currentVerse = status.currentVerse
+            endVerse = status.endVerse
+            book = status.book
+        }
         endVerse = startVerse
         readList.clear()
+        utteranceStatus.clear()
     }
 
     override fun persistState() {

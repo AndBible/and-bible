@@ -3,8 +3,9 @@ package net.bible.service.device.speak
 import net.bible.service.format.osistohtml.osishandlers.SpeakCommand
 
 interface SpeakTextProvider {
+    val numItemsToTts: Int
     fun isMoreTextToSpeak(): Boolean
-    fun getNextSpeakCommand(): SpeakCommand
+    fun getNextSpeakCommand(utteranceId: String): SpeakCommand
     fun getTotalChars(): Long
     fun getSpokenChars(): Long
     fun pause(fractionCompleted: Float)
@@ -12,6 +13,7 @@ interface SpeakTextProvider {
     fun rewind()
     fun forward()
     fun finishedUtterance(utteranceId: String)
+    fun startUtterance(utteranceId: String)
     fun reset()
     fun persistState()
     fun restoreState(): Boolean
