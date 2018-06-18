@@ -356,7 +356,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun clearPersistedState() {
-        // We do not want to do this.
+        CommonUtils.getSharedPreferences().edit().remove(PERSIST_BOOK).remove(PERSIST_VERSE).apply()
     }
 
     override fun getTotalChars(): Long {
