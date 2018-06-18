@@ -13,6 +13,7 @@ abstract class SpeakCommand {
     abstract fun speak(tts: TextToSpeech, utteranceId: String)
 }
 
+// TODO: it might be better to make this immutable.
 class TextCommand(text: String) : SpeakCommand() {
     override fun speak(tts: TextToSpeech, utteranceId: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -54,8 +55,7 @@ class PreBookChangeCommand(speakSettings: SpeakSettings): EarconCommand(TextToSp
 class PreChapterChangeCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_CHAPTER_CHANGE, speakSettings)
 class PreTitleCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_TITLE, speakSettings)
 
-open class SilenceCommand : SpeakCommand() {
-    open val enabled = true
+open class SilenceCommand(val enabled: Boolean=true) : SpeakCommand() {
     override fun speak(tts: TextToSpeech, utteranceId: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             tts.playSilentUtterance(if (enabled) 500 else 0, TextToSpeech.QUEUE_ADD, utteranceId)
@@ -63,9 +63,7 @@ open class SilenceCommand : SpeakCommand() {
     }
 }
 
-class ParagraphChangeCommand(speakSettings: SpeakSettings) : SilenceCommand() {
-    override val enabled = speakSettings.delayOnParagraphChanges
-}
+class ParagraphChangeCommand(speakSettings: SpeakSettings) : SilenceCommand(speakSettings.delayOnParagraphChanges)
 
 class SpeakCommands: ArrayList<SpeakCommand>() {
     private val maxLength = TextToSpeech.getMaxSpeechInputLength()
@@ -79,13 +77,14 @@ class SpeakCommands: ArrayList<SpeakCommand>() {
         return cmds
     }
 
-    fun endsSentence(): Boolean {
-        val lastCommand = this.last()
-        if(lastCommand is TextCommand) {
-            return lastCommand.text.matches(endsWithSentenceBreak)
+    val endsSentence: Boolean
+        get() {
+            val lastCommand = try {this.last()} catch(e: NoSuchElementException) {null}
+            if (lastCommand is TextCommand) {
+                return lastCommand.text.matches(endsWithSentenceBreak)
+            }
+            return true
         }
-        return true
-    }
 
     override fun add(index: Int, element: SpeakCommand) {
         val currentCmd =  try {this.get(index)} catch (e: IndexOutOfBoundsException) {null}

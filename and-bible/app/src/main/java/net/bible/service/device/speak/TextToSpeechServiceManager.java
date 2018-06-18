@@ -572,12 +572,7 @@ public class TextToSpeechServiceManager {
 
 		@Override
 		public void onError(String utteranceId) {
-
-		}
-
-		@Override
-		public void onError(String utteranceId, int errorCode) {
-			Log.d(TAG, "onError " + utteranceId + " " + errorCode);
+			Log.d(TAG, "onError " + utteranceId);
 		}
 	};
 

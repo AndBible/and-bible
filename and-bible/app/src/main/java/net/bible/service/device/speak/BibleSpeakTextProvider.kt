@@ -184,7 +184,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             // If verse does not end in period, add the part before period to the current reading
             val rest = SpeakCommands()
 
-            while(!cmds.endsSentence()) {
+            while(!cmds.endsSentence) {
                 val nextVerse = getNextVerse(verse)
                 val nextCommands = getCommandsForVerse(verse, nextVerse)
 
