@@ -1,7 +1,6 @@
 package net.bible.service.device.speak
 
 import android.content.res.Resources
-import android.util.Log
 import android.util.LruCache
 import de.greenrobot.event.EventBus
 import kotlinx.serialization.SerializationException
@@ -37,7 +36,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                              val startVerse: Verse,
                              val endVerse: Verse,
                              val currentVerse: Verse,
-                             val cmd: SpeakCommand? = null)
+                             val command: SpeakCommand? = null)
 
     companion object {
         private val PERSIST_BOOK = "SpeakBibleBook"
@@ -54,6 +53,8 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private var currentUtteranceId = ""
 
     private val bibleBooks = HashMap<String, String>()
+    private val verseRenderLruCache = LruCache<Pair<SwordBook, Verse>, SpeakCommands>(100)
+    private lateinit var localizedResources: Resources
 
     init {
         book = initialBook
@@ -74,8 +75,6 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                     .putString(PERSIST_SETTINGS, strSettings)
                     .apply()
         }
-
-    private lateinit var localizedResources: Resources
 
     init {
         val sharedPreferences = CommonUtils.getSharedPreferences()
@@ -218,15 +217,13 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     override fun getText(utteranceId: String): String {
         val status = utteranceStatus.get(utteranceId)
-        return status?.cmd.toString()
+        return status?.command.toString()
     }
 
     fun getVerseRange(): VerseRange {
         val status = utteranceStatus.get(currentUtteranceId)?: State(book, startVerse, endVerse, currentVerse)
         return VerseRange(status.book.versification, status.startVerse, status.endVerse)
     }
-
-    private val verseRenderLruCache = LruCache<Pair<SwordBook, Verse>, SpeakCommands>(100)
 
     private fun getSpeakCommandsForVerse(verse: Verse): SpeakCommands {
         var cmds = verseRenderLruCache.get(Pair(book, verse))
@@ -305,7 +302,6 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     override fun startUtterance(utteranceId: String) {
         val status = utteranceStatus.get(utteranceId)
-        Log.d("Speak", "startUtterance "+utteranceId + status)
         utteranceStatus.remove(currentUtteranceId)
         currentUtteranceId = utteranceId
         if(status != null) {
