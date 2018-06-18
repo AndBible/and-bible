@@ -24,7 +24,7 @@ import net.bible.service.db.bookmark.LabelDto
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleNames
-import java.util.*
+import java.util.Locale
 import kotlin.collections.HashMap
 
 class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
@@ -301,12 +301,12 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         reset()
     }
 
-    override fun finishedUtterance(utteranceId: String) {
-    }
+    override fun finishedUtterance(utteranceId: String) {}
 
     override fun startUtterance(utteranceId: String) {
         val status = utteranceStatus.get(utteranceId)
         Log.d("Speak", "startUtterance "+utteranceId + status)
+        utteranceStatus.remove(currentUtteranceId)
         currentUtteranceId = utteranceId
         if(status != null) {
             EventBus.getDefault().post(SpeakProggressEvent(status.book, status.startVerse, settings.synchronize))
