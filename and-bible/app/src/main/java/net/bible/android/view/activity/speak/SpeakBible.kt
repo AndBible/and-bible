@@ -43,6 +43,7 @@ class SpeakBible : CustomTitlebarActivityBase() {
         speakTitles.isChecked = initialSettings.speakTitles
         playEarcons.isChecked = initialSettings.playEarCons
         replaceDivineName.isChecked = initialSettings.replaceDivineName
+        delayOnParagraphChanges.isChecked = initialSettings.delayOnParagraphChanges
 
         speakSpeed.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -103,7 +104,8 @@ class SpeakBible : CustomTitlebarActivityBase() {
                 if (autoBookmark.isChecked) labelId else null,
                 speakTitles.isChecked,
                 playEarcons.isChecked,
-                replaceDivineName.isChecked
+                replaceDivineName.isChecked,
+                delayOnParagraphChanges.isChecked
         )
     }
 

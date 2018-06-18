@@ -264,8 +264,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="tts_lang_not_available">Language is not available.</string>
     <string name="speak_queue">Queue</string>
     <string name="speak_repeat">Repeat</string>
-    <string name="divineNameOriginal">Lord</string>
-    <string name="divineNameReplace">Yahweh</string>
 
     <!-- Speak - Bible -->
     <string name="speak_speed_title">Speak speed</string>
@@ -278,6 +276,11 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="conf_speak_titles">Speak titles</string>
     <string name="conf_play_earcons">Play earcons (for titles, chapter/book changes)</string>
     <string name="conf_replace_divinename">Replace divine name with Yahweh</string>
+    <string name="conf_delay_on_paragraph_changes">Add delay on paragraph changes</string>
+
+
+    <string name="divineNameOriginal">Lord</string>
+    <string name="divineNameReplace">Yahweh</string>
 
     <string name="speak_book_changed">Book changed. </string>
     <string name="speak_chapter_changed">Chapter</string>

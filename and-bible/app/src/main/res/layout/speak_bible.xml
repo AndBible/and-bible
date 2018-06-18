@@ -64,7 +64,13 @@
 				android:layout_weight="1"
 				android:id="@+id/replaceDivineName"
 				android:onClick="onSettingsChange"/>
-
+		<CheckBox
+				android:text="@string/conf_delay_on_paragraph_changes"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:id="@+id/delayOnParagraphChanges"
+				android:onClick="onSettingsChange"/>
 		<CheckBox
 				android:text="@string/conf_speak_auto_bookmark"
 				android:layout_width="wrap_content"

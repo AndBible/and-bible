@@ -78,10 +78,12 @@ class TitleCommand(text: String, speakSettings: SpeakSettings): EarconCommand(te
     override val earcon = EARCON_PRE_TITLE
 }
 
-class ParagraphChange : SpeakCommand() {
+class ParagraphChange(val speakSettings: SpeakSettings) : SpeakCommand() {
     override fun speak(tts: TextToSpeech, utteranceId: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            tts.playSilentUtterance(700, TextToSpeech.QUEUE_ADD, utteranceId)
+            if(speakSettings.delayOnParagraphChanges) {
+                tts.playSilentUtterance(500, TextToSpeech.QUEUE_ADD, utteranceId)
+            }
         }
     }
 }
@@ -248,7 +250,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
             val isVerseBeginning = attrs?.getValue("sID") != null
             val isParagraphType = DivHandler.PARAGRAPH_TYPE_LIST.contains(type)
             if(isParagraphType && !isVerseBeginning) {
-                speakCommands.add(ParagraphChange())
+                speakCommands.add(ParagraphChange(speakSettings))
                 elementStack.push(StackEntry(peekVisible, TAG_TYPE.PARAGRPAH))
             }
             else {
@@ -260,7 +262,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
                 || name == OSISUtil.OSIS_ELEMENT_LB ||
                 name == OSISUtil.OSIS_ELEMENT_P) {
             if(anyTextWritten) {
-                speakCommands.add(ParagraphChange())
+                speakCommands.add(ParagraphChange(speakSettings))
             }
             elementStack.push(StackEntry(peekVisible, TAG_TYPE.PARAGRPAH))
         } else {
