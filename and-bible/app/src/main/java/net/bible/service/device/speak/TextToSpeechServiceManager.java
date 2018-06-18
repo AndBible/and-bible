@@ -484,7 +484,7 @@ public class TextToSpeechServiceManager {
 				Log.d(TAG, "Tts initialisation succeeded");
 
 				// Add earcons
-				mTts.addEarcon(EARCON_PRE_TITLE, BibleApplication.getApplication().getPackageName(), R.raw.short_pling);
+				mTts.addEarcon(EARCON_PRE_TITLE, BibleApplication.getApplication().getPackageName(), R.raw.pageflip);
 				mTts.addEarcon(EARCON_PRE_CHAPTER_CHANGE, BibleApplication.getApplication().getPackageName(), R.raw.medium_pling);
 				mTts.addEarcon(EARCON_PRE_BOOK_CHANGE, BibleApplication.getApplication().getPackageName(), R.raw.long_pling);
 
