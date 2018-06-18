@@ -124,15 +124,16 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
 
     @Test
     fun testCommandsFinRK() {
+        val s = SpeakSettings(false, true, false, speakTitles = true)
         val cmds = SpeakCommands()
-        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.1")))
-        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.2")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.2")))
         assertThat("Command is of correct type", cmds[0] is TitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
         assertThat(cmds.size, equalTo( 2))
         cmds.clear();
-        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.23")))
-        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.24")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.23")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.24")))
         assertThat("Command is of correct type", cmds[0] is TextCommand)
         assertThat("Command is of correct type", cmds[1] is ParagraphChange)
         assertThat("Command is of correct type", cmds[2] is TextCommand)
@@ -141,16 +142,17 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
 
     @Test
     fun testCommandsEsv() {
+        val s = SpeakSettings(false, true, false, speakTitles = true)
         book = Books.installed().getBook("ESV2011") as SwordBook // as AbstractPassageBook
         val cmds = SpeakCommands()
-        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.1")))
-        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.2")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.2")))
         assertThat("Command is of correct type", cmds[0] is TitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
         assertThat(cmds.size, equalTo( 2))
         cmds.clear();
-        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.23")))
-        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.24")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.23")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.24")))
         assertThat("Command is of correct type", cmds[0] is TextCommand)
         assertThat("Command is of correct type", cmds[1] is ParagraphChange)
         assertThat("Command is of correct type", cmds[2] is TextCommand)
@@ -159,16 +161,17 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
 
     @Test
     fun testCommandsSTLK() { // TOOD: this is not yet released bible!
+        val s = SpeakSettings(false, true, false, speakTitles = true)
         book = Books.installed().getBook("STLK2017") as SwordBook // as AbstractPassageBook
         val cmds = SpeakCommands()
-        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.1")))
-        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.2")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.2")))
         assertThat("Command is of correct type", cmds[0] is TitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
         assertThat(cmds.size, equalTo( 2))
         cmds.clear();
-        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.25")))
-        cmds.addAll(swordContentFacade.getSpeakCommands(book, getVerse("Rom.1.26")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.25")))
+        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.26")))
         assertThat("Command is of correct type", cmds[0] is TextCommand)
         assertThat("Command is of correct type", cmds[1] is ParagraphChange)
         assertThat("Command is of correct type", cmds[2] is TextCommand)

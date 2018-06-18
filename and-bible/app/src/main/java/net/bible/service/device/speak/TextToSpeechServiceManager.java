@@ -324,12 +324,13 @@ public class TextToSpeechServiceManager {
 
 	private void speakNextChunk() {
     	String utteranceId = "";
+		Log.d(TAG, "Adding items to TTS queue. first utterance id: " + uniqueUtteranceNo);
     	for(int i=0; i<mSpeakTextProvider.getNumItemsToTts(); i++) {
 			utteranceId = UTTERANCE_PREFIX + uniqueUtteranceNo++;
-			SpeakCommand cmd = mSpeakTextProvider.getNextSpeakCommand(utteranceId);
-			Log.d(TAG, "Playing " + utteranceId + cmd);
+			SpeakCommand cmd = mSpeakTextProvider.getNextSpeakCommand(utteranceId, i==0);
 			cmd.speak(mTts, utteranceId);
 		}
+		Log.d(TAG, "Added items to TTS queue. Last utterance id: " + utteranceId);
 
 		isSpeaking = true;
 	}

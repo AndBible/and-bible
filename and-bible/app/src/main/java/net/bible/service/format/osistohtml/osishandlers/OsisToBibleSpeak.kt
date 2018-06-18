@@ -4,6 +4,7 @@ import android.os.Build
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
+import net.bible.android.control.speak.SpeakSettings
 import net.bible.service.device.speak.TextToSpeechServiceManager.EARCON_PRE_TITLE
 import net.bible.service.format.osistohtml.taghandler.DivHandler
 import org.crosswire.jsword.book.OSISUtil
@@ -41,17 +42,18 @@ class TextCommand(text: String) : SpeakCommand() {
 }
 
 
-class TitleCommand(val text: String): SpeakCommand() {
+class TitleCommand(val text: String, val speakSettings: SpeakSettings): SpeakCommand() {
     override fun speak(tts: TextToSpeech, utteranceId: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val eBundle = Bundle()
             val tBundle = Bundle()
             eBundle.putFloat(KEY_PARAM_VOLUME, 0.1f)
-
-            tts.playEarcon(EARCON_PRE_TITLE, TextToSpeech.QUEUE_ADD, eBundle, null)
+            if(speakSettings.playEarCons) {
+                tts.playEarcon(EARCON_PRE_TITLE, TextToSpeech.QUEUE_ADD, eBundle, null)
+            }
             tts.playSilentUtterance(500, TextToSpeech.QUEUE_ADD, null)
-            tts.speak(text, TextToSpeech.QUEUE_ADD, tBundle, null)
-            tts.playSilentUtterance(500, TextToSpeech.QUEUE_ADD, utteranceId)
+            tts.speak(text, TextToSpeech.QUEUE_ADD, tBundle, utteranceId)
+            tts.playSilentUtterance(500, TextToSpeech.QUEUE_ADD, null)
         }
     }
 
@@ -180,7 +182,7 @@ class SpeakCommands: ArrayList<SpeakCommand>() {
     }
 }
 
-class OsisToBibleSpeak : OsisSaxHandler() {
+class OsisToBibleSpeak(val speakSettings: SpeakSettings) : OsisSaxHandler() {
     val speakCommands = SpeakCommands()
 
     private var anyTextWritten = false
@@ -244,7 +246,6 @@ class OsisToBibleSpeak : OsisSaxHandler() {
                             simplifiedName: String,
                             qualifiedName: String
     ) {
-        val name = getName(simplifiedName, qualifiedName)
         val state = elementStack.pop()
 
         if(state.tagType == TAG_TYPE.PARAGRPAH) {
@@ -262,7 +263,9 @@ class OsisToBibleSpeak : OsisSaxHandler() {
         val s = String(buf, offset, len)
         if(currentState.visible) {
             if(currentState.tagType == TAG_TYPE.TITLE) {
-                speakCommands.add(TitleCommand(s))
+                if(speakSettings.speakTitles) {
+                    speakCommands.add(TitleCommand(s, speakSettings))
+                }
             }
             else {
                 speakCommands.add(TextCommand(s))

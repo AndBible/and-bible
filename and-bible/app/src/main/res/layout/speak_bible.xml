@@ -43,6 +43,27 @@
 				android:layout_weight="1"
 				android:id="@+id/continueSentences"
 				android:onClick="onSettingsChange"/>
+		<CheckBox
+				android:text="@string/conf_speak_titles"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:id="@+id/speakTitles"
+				android:onClick="onSettingsChange"/>
+		<CheckBox
+				android:text="@string/conf_play_earcons"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:id="@+id/playEarcons"
+				android:onClick="onSettingsChange"/>
+		<CheckBox
+				android:text="@string/conf_replace_divinename"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:id="@+id/replaceDivineName"
+				android:onClick="onSettingsChange"/>
 
 		<CheckBox
 				android:text="@string/conf_speak_auto_bookmark"

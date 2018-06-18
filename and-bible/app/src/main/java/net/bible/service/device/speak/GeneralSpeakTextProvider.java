@@ -119,8 +119,9 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 		return nextTextToSpeak<mTextToSpeak.size();
 	}
 
-	@NonNull
-	public SpeakCommand getNextSpeakCommand(String utteranceId) {
+	@NotNull
+	@Override
+	public SpeakCommand getNextSpeakCommand(@NotNull String utteranceId, boolean isCurrent) {
         String text = getNextTextChunk();
         
         // if a pause occurred then skip the first part

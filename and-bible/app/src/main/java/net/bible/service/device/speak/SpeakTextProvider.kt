@@ -5,7 +5,7 @@ import net.bible.service.format.osistohtml.osishandlers.SpeakCommand
 interface SpeakTextProvider {
     val numItemsToTts: Int
     fun isMoreTextToSpeak(): Boolean
-    fun getNextSpeakCommand(utteranceId: String): SpeakCommand
+    fun getNextSpeakCommand(utteranceId: String, isCurrent: Boolean = false): SpeakCommand
     fun getTotalChars(): Long
     fun getSpokenChars(): Long
     fun pause(fractionCompleted: Float)

@@ -7,6 +7,7 @@ import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.bookmark.BookmarkStyle;
+import net.bible.android.control.speak.SpeakSettings;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Constants;
 import net.bible.service.common.Logger;
@@ -222,7 +223,7 @@ public class SwordContentFacade {
     	}
     }
 
-    private ArrayList<SpeakCommand> getSpeakCommandsForVerse(Book book, Key key) {
+    private ArrayList<SpeakCommand> getSpeakCommandsForVerse(SpeakSettings settings, Book book, Key key) {
     	try {
 			BookData data = new BookData(book, key);
 			Element frag = data.getOsisFragment(false);
@@ -232,7 +233,7 @@ public class SwordContentFacade {
 			}
 
 			SAXEventProvider osissep = new JDOMSAXEventProvider(doc);
-			ContentHandler osisHandler = new OsisToBibleSpeak();
+			ContentHandler osisHandler = new OsisToBibleSpeak(settings);
 			osissep.provideSAXEvents(osisHandler);
 			return ((OsisToBibleSpeak) osisHandler).getSpeakCommands();
     	} catch (Exception e) {
@@ -241,14 +242,14 @@ public class SwordContentFacade {
     	}
     }
 
-    public SpeakCommands getSpeakCommands(Book book, Verse verse) {
+    public SpeakCommands getSpeakCommands(SpeakSettings settings, Book book, Verse verse) {
 		SpeakCommands lst = new SpeakCommands();
 		if (verse.getVerse() == 1) {
-			lst.addAll(getSpeakCommandsForVerse(book,
+			lst.addAll(getSpeakCommandsForVerse(settings, book,
 					new Verse(verse.getVersification(), verse.getBook(), verse.getChapter(), 0)));
 		}
 
-    	lst.addAll(getSpeakCommandsForVerse(book, verse));
+    	lst.addAll(getSpeakCommandsForVerse(settings, book, verse));
     	return lst;
     }
 

@@ -40,6 +40,9 @@ class SpeakBible : CustomTitlebarActivityBase() {
         synchronize.isChecked = initialSettings.synchronize
         speakChapterChanges.isChecked = initialSettings.chapterChanges
         continueSentences.isChecked = initialSettings.continueSentences
+        speakTitles.isChecked = initialSettings.speakTitles
+        playEarcons.isChecked = initialSettings.playEarCons
+        replaceDivineName.isChecked = initialSettings.replaceDivineName
 
         speakSpeed.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -93,9 +96,15 @@ class SpeakBible : CustomTitlebarActivityBase() {
             bookmarkLabels.get(bookmarkTag.selectedItemPosition).id
         } else SpeakSettings.INVALID_LABEL_ID
 
-        textProvider.settings = SpeakSettings(synchronize.isChecked,
-                speakChapterChanges.isChecked, continueSentences.isChecked,
-                if (autoBookmark.isChecked) labelId else null)
+        textProvider.settings = SpeakSettings(
+                synchronize.isChecked,
+                speakChapterChanges.isChecked,
+                continueSentences.isChecked,
+                if (autoBookmark.isChecked) labelId else null,
+                speakTitles.isChecked,
+                playEarcons.isChecked,
+                replaceDivineName.isChecked
+        )
     }
 
     fun onButtonClick(button: View) {
