@@ -276,7 +276,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="conf_speak_auto_bookmark_label">Label to be used with auto bookmarking</string>
 
     <string name="conf_speak_titles">Speak titles</string>
-    <string name="conf_play_earcons">Play earcons (for titles)</string>
+    <string name="conf_play_earcons">Play earcons (for titles, chapter/book changes)</string>
     <string name="conf_replace_divinename">Replace divine name with Yahweh</string>
 
     <string name="speak_book_changed">Book changed. </string>

@@ -21,9 +21,7 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
-import net.bible.service.format.osistohtml.osishandlers.SpeakCommand
-import net.bible.service.format.osistohtml.osishandlers.SpeakCommands
-import net.bible.service.format.osistohtml.osishandlers.TextCommand
+import net.bible.service.format.osistohtml.osishandlers.*
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.VerseRange
 import org.crosswire.jsword.versification.BibleNames
@@ -132,12 +130,13 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         val bookName = bibleBooks[verse.book.osis]
 
         if(prevVerse.book != verse.book) {
-            cmds.add(0, TextCommand("${res.getString(R.string.speak_book_changed)} $bookName "+
-                    "${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
+            cmds.add(0, BookChangeCommand("${res.getString(R.string.speak_book_changed)} $bookName "+
+                    "${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. ", settings))
 
         }
         else if(settings.chapterChanges && prevVerse.chapter != verse.chapter) {
-            cmds.add(0, TextCommand("$bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
+            cmds.add(0, ChapterChangeCommand("$bookName " +
+                    "${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. ", settings))
         }
         return cmds
     }

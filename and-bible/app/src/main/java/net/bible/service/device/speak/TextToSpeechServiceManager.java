@@ -67,6 +67,8 @@ public class TextToSpeechServiceManager {
 	private static String PERSIST_LOCALE_KEY = "SpeakLocale";
     private static String PERSIST_BIBLE_PROVIDER = "SpeakBibleProvider";
 	public static String EARCON_PRE_TITLE = "[pre-title]";
+	public static String EARCON_PRE_CHAPTER_CHANGE = "[pre-chapter-change]";
+	public static String EARCON_PRE_BOOK_CHANGE = "[pre-book-change]";
 
     private SpeakTextProvider mSpeakTextProvider;
 
@@ -482,8 +484,9 @@ public class TextToSpeechServiceManager {
 				Log.d(TAG, "Tts initialisation succeeded");
 
 				// Add earcons
-				int earConResult = mTts.addEarcon(EARCON_PRE_TITLE, BibleApplication.getApplication().getPackageName(), R.raw.pling);
-				Log.d(TAG, "Earcon result:"  + earConResult);
+				mTts.addEarcon(EARCON_PRE_TITLE, BibleApplication.getApplication().getPackageName(), R.raw.short_pling);
+				mTts.addEarcon(EARCON_PRE_CHAPTER_CHANGE, BibleApplication.getApplication().getPackageName(), R.raw.medium_pling);
+				mTts.addEarcon(EARCON_PRE_BOOK_CHANGE, BibleApplication.getApplication().getPackageName(), R.raw.long_pling);
 
 				// set speech rate
                 int speakSpeedPercentPref = CommonUtils.getSharedPreferences().getInt("speak_speed_percent_pref", 100);

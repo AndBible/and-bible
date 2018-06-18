@@ -7,7 +7,7 @@ import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.speak.SpeakSettings
-import net.bible.service.device.speak.TextToSpeechServiceManager.EARCON_PRE_TITLE
+import net.bible.service.device.speak.TextToSpeechServiceManager.*
 import net.bible.service.format.osistohtml.OSISUtil2
 import net.bible.service.format.osistohtml.taghandler.DivHandler
 import org.crosswire.jsword.book.OSISUtil
@@ -44,27 +44,39 @@ class TextCommand(text: String) : SpeakCommand() {
     }
 }
 
+abstract class EarconCommand(val text: String, val speakSettings: SpeakSettings): SpeakCommand() {
+    abstract val earcon: String
 
-class TitleCommand(val text: String, val speakSettings: SpeakSettings): SpeakCommand() {
+    override fun toString(): String {
+        return "${super.toString()} $text";
+    }
+
     override fun speak(tts: TextToSpeech, utteranceId: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val eBundle = Bundle()
             val tBundle = Bundle()
             eBundle.putFloat(KEY_PARAM_VOLUME, 0.1f)
-            if(speakSettings.playEarCons) {
-                tts.playEarcon(EARCON_PRE_TITLE, TextToSpeech.QUEUE_ADD, eBundle, null)
+            if (speakSettings.playEarCons && !earcon.isEmpty()) {
+                tts.playEarcon(earcon, TextToSpeech.QUEUE_ADD, eBundle, null)
             }
             tts.playSilentUtterance(500, TextToSpeech.QUEUE_ADD, null)
             tts.speak(text, TextToSpeech.QUEUE_ADD, tBundle, utteranceId)
             tts.playSilentUtterance(500, TextToSpeech.QUEUE_ADD, null)
         }
     }
-
-    override fun toString(): String {
-        return "${super.toString()} $text";
-    }
 }
 
+class BookChangeCommand(text: String, speakSettings: SpeakSettings): EarconCommand(text, speakSettings) {
+    override val earcon = EARCON_PRE_BOOK_CHANGE
+}
+
+class ChapterChangeCommand(text: String , speakSettings: SpeakSettings): EarconCommand(text, speakSettings) {
+    override val earcon = EARCON_PRE_CHAPTER_CHANGE
+}
+
+class TitleCommand(text: String, speakSettings: SpeakSettings): EarconCommand(text, speakSettings) {
+    override val earcon = EARCON_PRE_TITLE
+}
 
 class ParagraphChange : SpeakCommand() {
     override fun speak(tts: TextToSpeech, utteranceId: String) {
