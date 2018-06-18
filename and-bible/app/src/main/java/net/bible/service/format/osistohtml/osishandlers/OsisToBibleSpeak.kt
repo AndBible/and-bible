@@ -62,7 +62,7 @@ abstract class EarconCommand(val earcon: String, val speakSettings: SpeakSetting
 }
 
 class PreBookChangeCommand(speakSettings: SpeakSettings): EarconCommand(EARCON_PRE_BOOK_CHANGE, speakSettings)
-class PreChapterChangeCommand(speakSettings: SpeakSettings): EarconCommand(EARCON_PRE_BOOK_CHANGE, speakSettings)
+class PreChapterChangeCommand(speakSettings: SpeakSettings): EarconCommand(EARCON_PRE_CHAPTER_CHANGE, speakSettings)
 class PreTitleCommand(speakSettings: SpeakSettings): EarconCommand(EARCON_PRE_TITLE, speakSettings)
 
 open class SilenceCommand : SpeakCommand() {
