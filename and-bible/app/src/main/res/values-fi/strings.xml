@@ -276,5 +276,6 @@
   <string name="speak_third">Kolmas</string>
   <string name="speak_fourth">Neljäs</string>
   <string name="speak_fifth">Viides</string>
-
+  <string name="divineNameOriginal">Herra</string>
+  <string name="divineNameReplace">Jahve</string>
 </resources>

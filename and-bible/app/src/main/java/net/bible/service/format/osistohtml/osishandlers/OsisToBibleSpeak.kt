@@ -4,8 +4,11 @@ import android.os.Build
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
 import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
+import net.bible.android.BibleApplication
+import net.bible.android.activity.R
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.service.device.speak.TextToSpeechServiceManager.EARCON_PRE_TITLE
+import net.bible.service.format.osistohtml.OSISUtil2
 import net.bible.service.format.osistohtml.taghandler.DivHandler
 import org.crosswire.jsword.book.OSISUtil
 import org.xml.sax.Attributes
@@ -182,16 +185,25 @@ class SpeakCommands: ArrayList<SpeakCommand>() {
     }
 }
 
-class OsisToBibleSpeak(val speakSettings: SpeakSettings) : OsisSaxHandler() {
+class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) : OsisSaxHandler() {
     val speakCommands = SpeakCommands()
 
     private var anyTextWritten = false
 
-    private enum class TAG_TYPE {NORMAL, TITLE, PARAGRPAH}
+    private enum class TAG_TYPE {NORMAL, TITLE, PARAGRPAH, DIVINE_NAME}
 
     private data class StackEntry(val visible: Boolean, val tagType: TAG_TYPE=TAG_TYPE.NORMAL)
 
     private val elementStack = Stack<StackEntry>()
+
+    private var divineNameOriginal: String
+    private var divineNameReplace: String
+
+    init {
+        val res = BibleApplication.getApplication().getLocalizedResources(language)
+        divineNameOriginal = res.getString(R.string.divineNameOriginal)
+        divineNameReplace = res.getString(R.string.divineNameReplace)
+    }
 
     override fun startDocument() {
         reset()
@@ -215,6 +227,8 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings) : OsisSaxHandler() {
             elementStack.push(StackEntry(true))
         } else if (name == OSISUtil.OSIS_ELEMENT_NOTE) {
             elementStack.push(StackEntry(false))
+        } else if (name == OSISUtil2.OSIS_ELEMENT_DIVINENAME) {
+            elementStack.push(StackEntry(peekVisible, TAG_TYPE.DIVINE_NAME))
         } else if (name == OSISUtil.OSIS_ELEMENT_TITLE) {
             elementStack.push(StackEntry(peekVisible, TAG_TYPE.TITLE))
         } else if (name == OSISUtil.OSIS_ELEMENT_DIV) {
@@ -265,6 +279,14 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings) : OsisSaxHandler() {
             if(currentState.tagType == TAG_TYPE.TITLE) {
                 if(speakSettings.speakTitles) {
                     speakCommands.add(TitleCommand(s, speakSettings))
+                }
+            }
+            else if(currentState.tagType == TAG_TYPE.DIVINE_NAME) {
+                if(speakSettings.replaceDivineName) {
+                    speakCommands.add(TextCommand(s.replace(divineNameOriginal, divineNameReplace, false)))
+                }
+                else {
+                    speakCommands.add(TextCommand(s))
                 }
             }
             else {

@@ -233,7 +233,7 @@ public class SwordContentFacade {
 			}
 
 			SAXEventProvider osissep = new JDOMSAXEventProvider(doc);
-			ContentHandler osisHandler = new OsisToBibleSpeak(settings);
+			ContentHandler osisHandler = new OsisToBibleSpeak(settings, book.getLanguage().getCode());
 			osissep.provideSAXEvents(osisHandler);
 			return ((OsisToBibleSpeak) osisHandler).getSpeakCommands();
     	} catch (Exception e) {
