@@ -51,10 +51,16 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private var currentVerse: Verse
     private val utteranceStatus = HashMap<String, State>()
     private var currentUtteranceId = ""
+    private val currentCommands = SpeakCommandArray()
 
     private val bibleBooks = HashMap<String, String>()
     private val verseRenderLruCache = LruCache<Pair<SwordBook, Verse>, SpeakCommandArray>(100)
     private lateinit var localizedResources: Resources
+
+    private val currentState: State
+        get() {
+            return utteranceStatus.get(currentUtteranceId) ?: State(book, startVerse, endVerse, currentVerse)
+        }
 
     init {
         book = initialBook
@@ -127,24 +133,24 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     private fun getCommandsForVerse(prevVerse: Verse, verse: Verse): SpeakCommandArray {
-        val cmds = getSpeakCommandsForVerse(verse)
+        val cmds = SpeakCommandArray()
         val res = localizedResources
         val bookName = bibleBooks[verse.book.osis]
 
         if(prevVerse.book != verse.book) {
-            cmds.add(0, SilenceCommand())
-            cmds.add(0, TextCommand("${res.getString(R.string.speak_book_changed)} $bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
-            cmds.add(0, PreBookChangeCommand(settings))
+            cmds.add(PreBookChangeCommand(settings))
+            cmds.add(TextCommand("${res.getString(R.string.speak_book_changed)} $bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
+            cmds.add(SilenceCommand())
         }
         else if(settings.chapterChanges && prevVerse.chapter != verse.chapter) {
-            cmds.add(0, SilenceCommand())
-            cmds.add(0, TextCommand("$bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
-            cmds.add(0, PreChapterChangeCommand(settings))
+            cmds.add(PreChapterChangeCommand(settings))
+            cmds.add(TextCommand("$bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
+            cmds.add(SilenceCommand())
         }
+        cmds.addAll(getSpeakCommandsForVerse(verse))
         return cmds
     }
 
-    private val currentCommands = SpeakCommandArray()
     override fun getNextSpeakCommand(utteranceId: String, isCurrent: Boolean): SpeakCommand {
         while(currentCommands.isEmpty()) {
             currentCommands.addAll(getMoreSpeakCommands())
@@ -210,19 +216,15 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     fun getStatusText(): String {
-        val status = utteranceStatus.get(currentUtteranceId)?: State(book, startVerse, endVerse, currentVerse)
-
-        return "${status.startVerse.name}${if (status.startVerse != status.endVerse) " - " + status.endVerse.name else ""}"
+        return "${currentState.startVerse.name}${if (currentState.startVerse != currentState.endVerse) " - " + currentState.endVerse.name else ""}"
     }
 
     override fun getText(utteranceId: String): String {
-        val status = utteranceStatus.get(utteranceId)
-        return status?.command.toString()
+        return currentState.command.toString()
     }
 
     fun getVerseRange(): VerseRange {
-        val status = utteranceStatus.get(currentUtteranceId)?: State(book, startVerse, endVerse, currentVerse)
-        return VerseRange(status.book.versification, status.startVerse, status.endVerse)
+        return VerseRange(currentState.book.versification, currentState.startVerse, currentState.endVerse)
     }
 
     private fun getSpeakCommandsForVerse(verse: Verse): SpeakCommandArray {
@@ -301,21 +303,21 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     override fun finishedUtterance(utteranceId: String) {}
 
     override fun startUtterance(utteranceId: String) {
-        val status = utteranceStatus.get(utteranceId)
+        val state = utteranceStatus.get(utteranceId)
         utteranceStatus.remove(currentUtteranceId)
         currentUtteranceId = utteranceId
-        if(status != null) {
-            EventBus.getDefault().post(SpeakProggressEvent(status.book, status.startVerse, settings.synchronize))
+        if(state != null) {
+            EventBus.getDefault().post(SpeakProggressEvent(state.book, state.startVerse, settings.synchronize))
         }
     }
 
     override fun reset() {
-        val status = utteranceStatus.get(currentUtteranceId)
-        if(status != null) {
-            startVerse = status.startVerse
-            currentVerse = status.currentVerse
-            endVerse = status.endVerse
-            book = status.book
+        val state = utteranceStatus.get(currentUtteranceId)
+        if(state != null) {
+            startVerse = state.startVerse
+            currentVerse = state.currentVerse
+            endVerse = state.endVerse
+            book = state.book
         }
         endVerse = startVerse
         readList.clear()
