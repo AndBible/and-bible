@@ -3,6 +3,7 @@ package net.bible.service.format.osistohtml.osishandlers
 import android.os.Build
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID
 import android.speech.tts.TextToSpeech.Engine.KEY_PARAM_VOLUME
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -23,18 +24,14 @@ abstract class SpeakCommand {
     abstract fun speak(tts: TextToSpeech, utteranceId: String)
 }
 
-interface WithTextCommand {
-    val text: String
-}
-
-class TextCommand(text: String) : SpeakCommand(), WithTextCommand {
+class TextCommand(text: String) : SpeakCommand() {
     override fun speak(tts: TextToSpeech, utteranceId: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             tts.speak(text, TextToSpeech.QUEUE_ADD, null, utteranceId)
         }
     }
 
-    override var text: String = text.trim()
+    var text: String = text.trim()
         set(value) {
             field = value.trim()
         }
@@ -48,39 +45,25 @@ class TextCommand(text: String) : SpeakCommand(), WithTextCommand {
     }
 }
 
-abstract class EarconCommand(text: String, val speakSettings: SpeakSettings): SpeakCommand(), WithTextCommand {
-    abstract val earcon: String
-    override val text = text.trim()
-
-    override fun toString(): String {
-        return "${super.toString()} $text";
-    }
-
+abstract class EarconCommand(val earcon: String, val speakSettings: SpeakSettings): SpeakCommand() {
     override fun speak(tts: TextToSpeech, utteranceId: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val eBundle = Bundle()
-            val tBundle = Bundle()
             eBundle.putFloat(KEY_PARAM_VOLUME, 0.1f)
+            eBundle.putString(KEY_PARAM_UTTERANCE_ID, utteranceId)
             if (speakSettings.playEarCons && !earcon.isEmpty()) {
-                tts.playEarcon(earcon, TextToSpeech.QUEUE_ADD, eBundle, null)
+                tts.playEarcon(earcon, TextToSpeech.QUEUE_ADD, eBundle, utteranceId)
             }
-            tts.playSilentUtterance(500, TextToSpeech.QUEUE_ADD, null)
-            tts.speak(text, TextToSpeech.QUEUE_ADD, tBundle, utteranceId)
+            else {
+                tts.playSilentUtterance(0, TextToSpeech.QUEUE_ADD, utteranceId)
+            }
         }
     }
 }
 
-class BookChangeCommand(text: String, speakSettings: SpeakSettings): EarconCommand(text, speakSettings) {
-    override val earcon = EARCON_PRE_BOOK_CHANGE
-}
-
-class ChapterChangeCommand(text: String , speakSettings: SpeakSettings): EarconCommand(text, speakSettings) {
-    override val earcon = EARCON_PRE_CHAPTER_CHANGE
-}
-
-class TitleCommand(text: String, speakSettings: SpeakSettings): EarconCommand(text, speakSettings) {
-    override val earcon = EARCON_PRE_TITLE
-}
+class PreBookChangeCommand(speakSettings: SpeakSettings): EarconCommand(EARCON_PRE_BOOK_CHANGE, speakSettings)
+class PreChapterChangeCommand(speakSettings: SpeakSettings): EarconCommand(EARCON_PRE_BOOK_CHANGE, speakSettings)
+class PreTitleCommand(speakSettings: SpeakSettings): EarconCommand(EARCON_PRE_TITLE, speakSettings)
 
 open class SilenceCommand : SpeakCommand() {
     open val enabled = true
@@ -295,6 +278,12 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
                 anyTextWritten = false;
             }
         }
+        else if(state.tagType == TAG_TYPE.TITLE) {
+            if(speakSettings.speakTitles) {
+                speakCommands.add(SilenceCommand())
+            }
+
+        }
     }
 
     /*
@@ -306,7 +295,8 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
         if(currentState.visible) {
             if(currentState.tagType == TAG_TYPE.TITLE) {
                 if(speakSettings.speakTitles) {
-                    speakCommands.add(TitleCommand(s, speakSettings))
+                    speakCommands.add(PreTitleCommand(speakSettings))
+                    speakCommands.add(TextCommand(s))
                 }
             }
             else if(currentState.tagType == TAG_TYPE.DIVINE_NAME) {

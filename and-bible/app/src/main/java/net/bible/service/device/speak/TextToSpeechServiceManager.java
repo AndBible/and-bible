@@ -286,7 +286,8 @@ public class TextToSpeechServiceManager {
     	try {
 	    	Log.d(TAG, "continue after pause");
             isPaused = false;
-            
+			clearPauseState();
+
 	        // ask TTs to say the text
 	    	startSpeakingInitingIfRequired();
     	} catch (Exception e) {
@@ -368,7 +369,7 @@ public class TextToSpeechServiceManager {
         // tts.stop can trigger onUtteranceCompleted so set above flags first to avoid sending of a further text and setting isSpeaking to true
     	shutdownTtsEngine();
     	mSpeakTextProvider.stop();
-
+		clearPauseState();
         fireStateChangeEvent();
     }
 

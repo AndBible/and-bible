@@ -54,9 +54,9 @@ open class AbstractSpeakTests {
         var cmd: SpeakCommand
         do {
             cmd = provider.getNextSpeakCommand("id-1")
-        } while (!(cmd is TextCommand || cmd is ChapterChangeCommand || cmd is BookChangeCommand))
+        } while (!(cmd is TextCommand))
 
-        return (cmd as WithTextCommand).text
+        return cmd.text
         //return provider.getNextSpeakCommand().filter({it is TextCommand}).joinToString(" ") { it.toString() }
     }
 
@@ -128,9 +128,11 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         val cmds = SpeakCommands()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.2")))
-        assertThat("Command is of correct type", cmds[0] is TitleCommand)
+        assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
-        assertThat(cmds.size, equalTo( 2))
+        assertThat("Command is of correct type", cmds[2] is SilenceCommand)
+        assertThat("Command is of correct type", cmds[3] is TextCommand)
+        assertThat(cmds.size, equalTo( 4))
         cmds.clear();
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.23")))
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.24")))
@@ -147,9 +149,11 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         val cmds = SpeakCommands()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.2")))
-        assertThat("Command is of correct type", cmds[0] is TitleCommand)
+        assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
-        assertThat(cmds.size, equalTo( 2))
+        assertThat("Command is of correct type", cmds[2] is SilenceCommand)
+        assertThat("Command is of correct type", cmds[3] is TextCommand)
+        assertThat(cmds.size, equalTo( 4))
         cmds.clear();
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.23")))
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.24")))
@@ -166,9 +170,11 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         val cmds = SpeakCommands()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.2")))
-        assertThat("Command is of correct type", cmds[0] is TitleCommand)
+        assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
-        assertThat(cmds.size, equalTo( 2))
+        assertThat("Command is of correct type", cmds[2] is SilenceCommand)
+        assertThat("Command is of correct type", cmds[3] is TextCommand)
+        assertThat(cmds.size, equalTo( 4))
         cmds.clear();
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.25")))
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.26")))
@@ -186,7 +192,7 @@ class TestPersistence: AbstractSpeakTests () {
         super.setup()
         provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 book, getVerse("Ps.14.1"))
-        provider.settings = SpeakSettings(false, true, false)
+        provider.settings = SpeakSettings(false, true, false, speakTitles = false)
     }
 
     @Test
@@ -292,7 +298,7 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
         super.setup()
         provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 book, getVerse("Ps.14.1"))
-        provider.settings = SpeakSettings(false, true, false)
+        provider.settings = SpeakSettings(false, true, false, speakTitles = false)
     }
 
 
@@ -442,7 +448,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         super.setup()
         provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 book, getVerse("Ps.14.1"))
-        provider.settings = SpeakSettings(false, true, true)
+        provider.settings = SpeakSettings(false, true, true, speakTitles = false)
     }
 
     private fun checkRomansBeginning() {
