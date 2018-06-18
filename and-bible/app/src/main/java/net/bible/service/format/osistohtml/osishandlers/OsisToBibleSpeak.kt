@@ -242,6 +242,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
             elementStack.push(StackEntry(peekVisible, TAG_TYPE.DIVINE_NAME))
         } else if (name == OSISUtil.OSIS_ELEMENT_TITLE) {
             elementStack.push(StackEntry(peekVisible, TAG_TYPE.TITLE))
+            speakCommands.add(PreTitleCommand(speakSettings))
         } else if (name == OSISUtil.OSIS_ELEMENT_DIV) {
             val type = attrs?.getValue("type") ?: ""
             val isVerseBeginning = attrs?.getValue("sID") != null
@@ -295,7 +296,6 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
         if(currentState.visible) {
             if(currentState.tagType == TAG_TYPE.TITLE) {
                 if(speakSettings.speakTitles) {
-                    speakCommands.add(PreTitleCommand(speakSettings))
                     speakCommands.add(TextCommand(s))
                 }
             }

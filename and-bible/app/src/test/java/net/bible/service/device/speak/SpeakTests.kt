@@ -183,6 +183,29 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         assertThat("Command is of correct type", cmds[2] is TextCommand)
         assertThat(cmds.size, equalTo( 3))
     }
+
+    @Test
+    fun testDivinenameInTitle() { // TOOD: this is not yet released bible!
+        val s = SpeakSettings(false, true, false, speakTitles = true, replaceDivineName = true)
+        book = Books.installed().getBook("STLK2017") as SwordBook // as AbstractPassageBook
+        val cmds = SpeakCommands()
+        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Exod.19.1")))
+        assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
+        assertThat("Command is of correct type", cmds[1] is TextCommand)
+        assertThat((cmds[1] as TextCommand).text, equalTo("Saapuminen Siinaille. Jahve ilmestyy"))
+        assertThat("Command is of correct type", cmds[2] is SilenceCommand)
+        assertThat("Command is of correct type", cmds[3] is TextCommand)
+    }
+
+    @Test
+    fun testDivinenameInText() { // TOOD: this is not yet released bible!
+        val s = SpeakSettings(false, true, false, speakTitles = true, replaceDivineName = true)
+        book = Books.installed().getBook("STLK2017") as SwordBook
+
+        val cmds = swordContentFacade.getSpeakCommands(s, book, getVerse("Exod.19.3"))
+        assertThat((cmds[0] as TextCommand).text, containsString("ja Jahve huusi"))
+    }
+
 }
 
 @RunWith(RobolectricTestRunner::class)
