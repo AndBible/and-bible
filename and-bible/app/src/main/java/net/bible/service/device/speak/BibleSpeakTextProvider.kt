@@ -53,7 +53,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private var currentUtteranceId = ""
 
     private val bibleBooks = HashMap<String, String>()
-    private val verseRenderLruCache = LruCache<Pair<SwordBook, Verse>, SpeakCommands>(100)
+    private val verseRenderLruCache = LruCache<Pair<SwordBook, Verse>, SpeakCommandArray>(100)
     private lateinit var localizedResources: Resources
 
     init {
@@ -64,7 +64,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         currentVerse = initialVerse
     }
 
-    private var readList = SpeakCommands()
+    private var readList = SpeakCommandArray()
     private var _settings: SpeakSettings? = null
     var settings: SpeakSettings
         get() = _settings?: SpeakSettings()
@@ -126,7 +126,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         return result
     }
 
-    private fun getCommandsForVerse(prevVerse: Verse, verse: Verse): SpeakCommands {
+    private fun getCommandsForVerse(prevVerse: Verse, verse: Verse): SpeakCommandArray {
         val cmds = getSpeakCommandsForVerse(verse)
         val res = localizedResources
         val bookName = bibleBooks[verse.book.osis]
@@ -144,7 +144,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         return cmds
     }
 
-    private val currentCommands = SpeakCommands()
+    private val currentCommands = SpeakCommandArray()
     override fun getNextSpeakCommand(utteranceId: String, isCurrent: Boolean): SpeakCommand {
         while(currentCommands.isEmpty()) {
             currentCommands.addAll(getMoreSpeakCommands())
@@ -157,8 +157,8 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         return cmd
     }
 
-    fun getMoreSpeakCommands(): SpeakCommands {
-        val cmds = SpeakCommands()
+    fun getMoreSpeakCommands(): SpeakCommandArray {
+        val cmds = SpeakCommandArray()
 
         var verse = currentVerse
 
@@ -182,7 +182,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
         if(settings.continueSentences) {
             // If verse does not end in period, add the part before period to the current reading
-            val rest = SpeakCommands()
+            val rest = SpeakCommandArray()
 
             while(!cmds.endsSentence) {
                 val nextVerse = getNextVerse(verse)
@@ -225,7 +225,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         return VerseRange(status.book.versification, status.startVerse, status.endVerse)
     }
 
-    private fun getSpeakCommandsForVerse(verse: Verse): SpeakCommands {
+    private fun getSpeakCommandsForVerse(verse: Verse): SpeakCommandArray {
         var cmds = verseRenderLruCache.get(Pair(book, verse))
         if(cmds == null) {
             cmds = swordContentFacade.getSpeakCommands(settings, book, verse)

@@ -14,7 +14,7 @@ import net.bible.service.common.Logger;
 import net.bible.service.common.ParseException;
 import net.bible.service.css.CssControl;
 import net.bible.service.device.speak.SpeakCommand;
-import net.bible.service.device.speak.SpeakCommands;
+import net.bible.service.device.speak.SpeakCommandArray;
 import net.bible.service.font.FontControl;
 import net.bible.service.format.HtmlMessageFormatter;
 import net.bible.service.format.Note;
@@ -244,8 +244,8 @@ public class SwordContentFacade {
     	}
     }
 
-    public SpeakCommands getSpeakCommands(SpeakSettings settings, Book book, Verse verse) {
-		SpeakCommands lst = new SpeakCommands();
+    public SpeakCommandArray getSpeakCommands(SpeakSettings settings, Book book, Verse verse) {
+		SpeakCommandArray lst = new SpeakCommandArray();
 		if (verse.getVerse() == 1) {
 			lst.addAll(getSpeakCommandsForVerse(settings, book,
 					new Verse(verse.getVersification(), verse.getBook(), verse.getChapter(), 0)));

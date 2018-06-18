@@ -13,7 +13,7 @@ import java.util.Stack
 
 
 class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) : OsisSaxHandler() {
-    val speakCommands = SpeakCommands()
+    val speakCommands = SpeakCommandArray()
 
     private var anyTextWritten = false
 

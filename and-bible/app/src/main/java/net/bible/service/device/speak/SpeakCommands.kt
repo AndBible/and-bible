@@ -53,12 +53,12 @@ open class SilenceCommand(val enabled: Boolean=true) : SpeakCommand {
 
 class ParagraphChangeCommand(speakSettings: SpeakSettings) : SilenceCommand(speakSettings.delayOnParagraphChanges)
 
-class SpeakCommands: ArrayList<SpeakCommand>() {
+class SpeakCommandArray: ArrayList<SpeakCommand>() {
     private val maxLength = TextToSpeech.getMaxSpeechInputLength()
     private val endsWithSentenceBreak = Regex("(.*)([.?!]+[`´”“\"']*\\W*)")
 
-    fun copy(): SpeakCommands {
-        val cmds = SpeakCommands()
+    fun copy(): SpeakCommandArray {
+        val cmds = SpeakCommandArray()
         cmds.addAll(this)
         return cmds
     }

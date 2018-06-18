@@ -10,7 +10,6 @@ import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.bookmark.LabelDto
-import net.bible.service.format.osistohtml.osishandlers.*
 import net.bible.service.format.usermarks.BookmarkFormatSupport
 import net.bible.service.format.usermarks.MyNoteFormatSupport
 import net.bible.service.sword.SwordContentFacade
@@ -74,12 +73,12 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
 
     @Test
     fun testSentenceBreak() {
-        val cmds = SpeakCommands()
+        val cmds = SpeakCommandArray()
         cmds.add(TextCommand("test 1 test 2"))
         cmds.add(TextCommand("test 3. test 4"))
         cmds.add(TextCommand("test 5"))
-        val cmds2 = SpeakCommands()
-        val rest = SpeakCommands()
+        val cmds2 = SpeakCommandArray()
+        val rest = SpeakCommandArray()
         cmds2.addUntilSentenceBreak(cmds, rest)
         assertThat((cmds2[0] as TextCommand).text, equalTo("test 1 test 2 test 3."))
         assertThat((rest[0] as TextCommand).text, equalTo("test 4 test 5"))
@@ -90,7 +89,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
 
     @Test
     fun testAdd() {
-        val cmds = SpeakCommands()
+        val cmds = SpeakCommandArray()
         cmds.add(TextCommand("test 1"))
         cmds.add(0, TextCommand("test 2"))
         assertThat((cmds[0] as TextCommand).text, equalTo("test 2 test 1"))
@@ -98,7 +97,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
 
     @Test
     fun testAddAll() {
-        val cmds = SpeakCommands()
+        val cmds = SpeakCommandArray()
         val cmds2 = arrayListOf(TextCommand("test 1"), TextCommand("test 2"), TextCommand("test 3"))
         cmds.addAll(cmds2)
         assertThat((cmds[0] as TextCommand).text, equalTo("test 1 test 2 test 3"))
@@ -110,7 +109,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         cmds.add(TextCommand("test 1 test 2"))
         cmds.add(TextCommand("test 3. test 4"))
         cmds.add(TextCommand("test 5"))
-        val cmds2 = SpeakCommands()
+        val cmds2 = SpeakCommandArray()
         val rest = ArrayList<SpeakCommand>()
         cmds2.addUntilSentenceBreak(cmds, rest)
         assertThat((cmds2[0] as TextCommand).text, equalTo("test 1 test 2 test 3."))
@@ -123,7 +122,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
     @Test
     fun testTitleFinRK() {
         val s = SpeakSettings(false, true, false, speakTitles = true)
-        val cmds = SpeakCommands()
+        val cmds = SpeakCommandArray()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.2")))
         assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
@@ -137,7 +136,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
     fun testTitleEsv() {
         val s = SpeakSettings(false, true, false, speakTitles = true)
         book = Books.installed().getBook("ESV2011") as SwordBook // as AbstractPassageBook
-        val cmds = SpeakCommands()
+        val cmds = SpeakCommandArray()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.2")))
         assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
@@ -151,7 +150,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
     fun testTitleTLK() { // TOOD: this is not yet released bible!
         val s = SpeakSettings(false, true, false, speakTitles = true)
         book = Books.installed().getBook("STLK2017") as SwordBook // as AbstractPassageBook
-        val cmds = SpeakCommands()
+        val cmds = SpeakCommandArray()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.2")))
         assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
@@ -164,7 +163,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
     @Test
     fun testParagraphChangeRK() {
         val s = SpeakSettings(false, true, false, speakTitles = true)
-        val cmds = SpeakCommands()
+        val cmds = SpeakCommandArray()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.23")))
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.24")))
         assertThat("Command is of correct type", cmds[0] is TextCommand)
@@ -177,7 +176,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
     fun testParagraphChangeESV() {
         val s = SpeakSettings(false, true, false, speakTitles = true)
         book = Books.installed().getBook("ESV2011") as SwordBook // as AbstractPassageBook
-        val cmds = SpeakCommands()
+        val cmds = SpeakCommandArray()
         cmds.clear();
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.23")))
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.24")))
@@ -191,7 +190,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
     fun testParagraphChangeSTLK() { // TOOD: this is not yet released bible!
         val s = SpeakSettings(false, true, false, speakTitles = true)
         book = Books.installed().getBook("STLK2017") as SwordBook // as AbstractPassageBook
-        val cmds = SpeakCommands()
+        val cmds = SpeakCommandArray()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.25")))
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.26")))
         assertThat("Command is of correct type", cmds[0] is TextCommand)
@@ -204,7 +203,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
     fun testDivinenameInTitle() { // TOOD: this is not yet released bible!
         val s = SpeakSettings(false, true, false, speakTitles = true, replaceDivineName = true)
         book = Books.installed().getBook("STLK2017") as SwordBook // as AbstractPassageBook
-        val cmds = SpeakCommands()
+        val cmds = SpeakCommandArray()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Exod.19.1")))
         assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
         assertThat("Command is of correct type", cmds[1] is TextCommand)
