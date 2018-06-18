@@ -158,6 +158,12 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         val cmds = SpeakCommands()
 
         var verse = currentVerse
+
+        // Skip verse 0, as we merge verse 0 to verse 1 in getSpeakCommands
+        if(currentVerse.verse == 0) {
+            verse = getNextVerse(verse)
+        }
+
         startVerse = currentVerse
 
         // If there's something left from splitted verse, then we'll speak that first.
