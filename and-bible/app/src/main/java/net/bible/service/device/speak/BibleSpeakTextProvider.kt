@@ -158,10 +158,12 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             currentCommands.addAll(getMoreSpeakCommands())
         }
         val cmd = currentCommands.removeAt(0)
-        utteranceStatus.set(utteranceId, State(book, startVerse, endVerse, currentVerse, cmd))
         if(isCurrent) {
             currentUtteranceId = utteranceId
+            utteranceStatus.clear()
+            Log.d(TAG, "Marked current utteranceID $utteranceId")
         }
+        utteranceStatus.set(utteranceId, State(book, startVerse, endVerse, currentVerse, cmd))
         return cmd
     }
 
@@ -306,7 +308,6 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     override fun startUtterance(utteranceId: String) {
         val state = utteranceStatus.get(utteranceId)
-        utteranceStatus.remove(currentUtteranceId)
         currentUtteranceId = utteranceId
         if(state != null) {
             Log.d(TAG, "startUtterance $utteranceId $state")
@@ -316,6 +317,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     override fun reset() {
         val state = utteranceStatus.get(currentUtteranceId)
+        Log.d(TAG, "Resetting. state: $currentUtteranceId $state")
         if(state != null) {
             startVerse = state.startVerse
             currentVerse = state.currentVerse
