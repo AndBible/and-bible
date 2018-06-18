@@ -82,20 +82,17 @@ class TitleCommand(text: String, speakSettings: SpeakSettings): EarconCommand(te
     override val earcon = EARCON_PRE_TITLE
 }
 
-open class SilenceCommand(val speakSettings: SpeakSettings) : SpeakCommand() {
+open class SilenceCommand : SpeakCommand() {
+    open val enabled = true
     override fun speak(tts: TextToSpeech, utteranceId: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            tts.playSilentUtterance(500, TextToSpeech.QUEUE_ADD, utteranceId)
+            tts.playSilentUtterance(if (enabled) 500 else 0, TextToSpeech.QUEUE_ADD, utteranceId)
         }
     }
 }
 
-class ParagraphChangeCommand(speakSettings: SpeakSettings) : SilenceCommand(speakSettings) {
-    override fun speak(tts: TextToSpeech, utteranceId: String) {
-        if(speakSettings.delayOnParagraphChanges) {
-            super.speak(tts, utteranceId)
-        }
-    }
+class ParagraphChangeCommand(speakSettings: SpeakSettings) : SilenceCommand() {
+    override val enabled = speakSettings.delayOnParagraphChanges
 }
 
 class SpeakCommands: ArrayList<SpeakCommand>() {
@@ -137,7 +134,7 @@ class SpeakCommands: ArrayList<SpeakCommand>() {
                 return super.add(index, element)
             }
         }
-        else if(element is SilenceCommand && currentCmd is SilenceCommand) {
+        else if(element is SilenceCommand && currentCmd is SilenceCommand && element.enabled && currentCmd.enabled) {
             return // Do not add another
         }
         else {
