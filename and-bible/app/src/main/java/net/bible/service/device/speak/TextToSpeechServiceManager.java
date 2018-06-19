@@ -228,7 +228,7 @@ public class TextToSpeechServiceManager {
         
         if (!wasPaused) {
 	        // ensure current position is saved which is done during pause
-	        mSpeakTextProvider.pause(mSpeakTiming.getFractionCompleted());
+	        mSpeakTextProvider.savePosition(mSpeakTiming.getFractionCompleted());
         }
 
         // move current position back a bit
@@ -253,7 +253,7 @@ public class TextToSpeechServiceManager {
         
         if (!wasPaused) {
 	        // ensure current position is saved which is done during pause
-        	mSpeakTextProvider.pause(mSpeakTiming.getFractionCompleted());
+        	mSpeakTextProvider.savePosition(mSpeakTiming.getFractionCompleted());
         }
 
         // move current position back a bit
@@ -271,8 +271,9 @@ public class TextToSpeechServiceManager {
         if (isSpeaking()) {
             isPaused = true;
 	        isSpeaking = false;
-	        
-	        mSpeakTextProvider.pause(mSpeakTiming.getFractionCompleted());
+
+			mSpeakTextProvider.savePosition(mSpeakTiming.getFractionCompleted());
+	        mSpeakTextProvider.pause();
 	        
 	        //kill the tts engine because it could be a long ime before restart and the engine may become corrupted or used elsewhere
 	        shutdownTtsEngine();

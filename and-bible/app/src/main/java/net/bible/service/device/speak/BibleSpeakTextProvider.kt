@@ -248,11 +248,13 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         return cmds.copy()
     }
 
-    override fun pause(fractionCompleted: Float) {
+    override fun pause() {
         reset()
         currentVerse = startVerse
         saveBookmark()
     }
+
+    override fun savePosition(fractionCompleted: Float) {}
 
     override fun stop() {
         reset();
@@ -301,15 +303,17 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private fun getNextVerse(verse: Verse): Verse = bibleTraverser.getNextVerse(book as AbstractPassageBook, verse)
 
     override fun rewind() {
+        reset()
         currentVerse = getPrevVerse(startVerse)
         startVerse = currentVerse
-        reset()
+        endVerse = currentVerse
     }
 
     override fun forward() {
+        reset()
         currentVerse = getNextVerse(startVerse)
         startVerse = currentVerse
-        reset()
+        endVerse = currentVerse
     }
 
     override fun finishedUtterance(utteranceId: String) {}

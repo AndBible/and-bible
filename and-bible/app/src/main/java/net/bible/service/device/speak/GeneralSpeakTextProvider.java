@@ -164,7 +164,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	 * 
 	 * @param fractionCompleted of last block of text returned by getNextSpeakCommand
 	 */
-	public void pause(float fractionCompleted) {
+	public void savePosition(float fractionCompleted) {
 		Log.d(TAG, "Pause CurrentSentence:"+nextTextToSpeak);
 
         // accumulate these fractions until we reach the end of a chunk of text
@@ -176,6 +176,8 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 
         backOneChunk();
 	}
+
+	public void pause() {}
 
 	public void stop() {
 		reset();

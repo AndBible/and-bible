@@ -6,7 +6,7 @@ interface SpeakTextProvider {
     fun getNextSpeakCommand(utteranceId: String, isCurrent: Boolean = false): SpeakCommand
     fun getTotalChars(): Long
     fun getSpokenChars(): Long
-    fun pause(fractionCompleted: Float)
+    fun pause()
     fun stop()
     fun rewind()
     fun forward()
@@ -18,4 +18,6 @@ interface SpeakTextProvider {
     fun restoreState(): Boolean
     fun clearPersistedState()
     fun prepareForContinue()
+    fun savePosition(fractionCompleted: Float) {
+    }
 }
