@@ -12,7 +12,6 @@ import net.bible.service.device.speak.event.SpeakProggressEvent
 import net.bible.service.sword.SwordContentFacade
 import net.bible.android.activity.R
 import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.basic.AbstractPassageBook
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import kotlinx.serialization.json.JSON
@@ -299,8 +298,8 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         }
     }
 
-    private fun getPrevVerse(verse: Verse): Verse = bibleTraverser.getPrevVerse(book as AbstractPassageBook, verse)
-    private fun getNextVerse(verse: Verse): Verse = bibleTraverser.getNextVerse(book as AbstractPassageBook, verse)
+    private fun getPrevVerse(verse: Verse): Verse = bibleTraverser.getPrevVerse(book, verse)
+    private fun getNextVerse(verse: Verse): Verse = bibleTraverser.getNextVerse(book, verse)
 
     override fun rewind() {
         reset()

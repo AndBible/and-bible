@@ -308,7 +308,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         provider.settings = SpeakSettings(synchronize = false, speakChapterChanges = true, continueSentences = false, autoBookmarkLabelId = null)
         provider.setupReading(book, getVerse("Ps.14.1"))
         text = nextText()
-        provider.pause(0.5f);
+        provider.pause();
         assertThat(bookmarkControl.allBookmarks.size, equalTo(0))
     }
 
@@ -316,7 +316,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
     fun autoBookmarkOnPause() {
         provider.setupReading(book, getVerse("Ps.14.1"))
         text = nextText()
-        provider.pause(0.5f);
+        provider.pause();
         val labelDto = LabelDto()
         labelDto.id = provider.settings.autoBookmarkLabelId
         val bookmark = bookmarkControl.getBookmarksWithLabel(labelDto).get(0)
@@ -324,7 +324,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
 
         assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
         // test that it does not add another bookmark if there's already one with same key
-        provider.pause(0.5f);
+        provider.pause();
         assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
         provider.prepareForContinue()
         assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(0))
@@ -467,7 +467,7 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
         assertThat(text, startsWith("Laki kuitenkin"))
         assertThat(text, endsWith("ylenpalttiseksi,"))
 
-        provider.pause(0.5F)
+        provider.pause()
         assertThat(range(), equalTo("Rom.5.20"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.20"))
@@ -480,7 +480,7 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
         assertThat(range(), equalTo("Rom.5.19"))
         assertThat(text, startsWith("Niin kuin"))
         assertThat(text, endsWith("vanhurskaiksi."))
-        provider.pause(0.5F)
+        provider.pause()
         assertThat(range(), equalTo("Rom.5.19"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.19"))
@@ -577,7 +577,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text, startsWith("Laki kuitenkin"))
         assertThat(text, endsWith("meidän Herramme, kautta."))
 
-        provider.pause(0.5F)
+        provider.pause()
         assertThat(range(), equalTo("Rom.5.20"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.20-Rom.5.21"))
@@ -590,7 +590,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(range(), equalTo("Rom.5.19"))
         assertThat(text, startsWith("Niin kuin"))
         assertThat(text, endsWith("vanhurskaiksi."))
-        provider.pause(0.5F)
+        provider.pause()
         assertThat(range(), equalTo("Rom.5.19"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.19"))
