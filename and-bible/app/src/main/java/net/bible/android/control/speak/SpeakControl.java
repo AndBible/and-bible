@@ -245,6 +245,10 @@ public class SpeakControl {
 	}
 
 	public void pause() {
+		pause(false);
+	}
+
+	public void pause(boolean noToast) {
 		if (isSpeaking() || isPaused()) {
 			Log.d(TAG, "Pause TTS speaking");
 	    	TextToSpeechServiceManager tts = textToSpeechServiceManager.get();
@@ -259,7 +263,9 @@ public class SpeakControl {
 				pauseToastText += "\n" + timeProgress;
 			}
 
-	    	Toast.makeText(BibleApplication.getApplication(), pauseToastText, Toast.LENGTH_SHORT).show();
+			if(!noToast) {
+				Toast.makeText(BibleApplication.getApplication(), pauseToastText, Toast.LENGTH_SHORT).show();
+			}
 		}
 	}
 
@@ -268,12 +274,18 @@ public class SpeakControl {
 	}
 
 	public void continueAfterPause() {
+		continueAfterPause(false);
+	}
+
+	public void continueAfterPause(boolean noToast) {
 		Log.d(TAG, "Continue TTS speaking after pause");
 		preSpeak();
 		textToSpeechServiceManager.get().continueAfterPause();
-    	Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
+		if(!noToast) {
+			Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
+		}
 	}
-	
+
 	public void stop() {
 		Log.d(TAG, "Stop TTS speaking");
 		doStop();
@@ -291,4 +303,10 @@ public class SpeakControl {
 
 	}
 
+    public void updateSettings() {
+        if (isSpeaking()) {
+        	pause(true);
+        	continueAfterPause(true);
+		}
+    }
 }

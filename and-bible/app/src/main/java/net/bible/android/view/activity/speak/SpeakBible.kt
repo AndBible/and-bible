@@ -56,6 +56,7 @@ class SpeakBible : CustomTitlebarActivityBase() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 speedStatus.text = progress.toString()
                 speakControl.setRate(progress/100F)
+                speakControl.updateSettings()
             }
         })
         val initialSpeed = CommonUtils.getSharedPreferences().getInt(speakSpeedPref, 100)
@@ -118,6 +119,7 @@ class SpeakBible : CustomTitlebarActivityBase() {
                 replaceDivineName = replaceDivineName.isChecked,
                 delayOnParagraphChanges = delayOnParagraphChanges.isChecked
         )
+        speakControl.updateSettings();
     }
 
     fun onButtonClick(button: View) {
