@@ -50,6 +50,10 @@ class SpeakBible : CustomTitlebarActivityBase() {
         continueSentences.isChecked = initialSettings.continueSentences
         replaceDivineName.isChecked = initialSettings.replaceDivineName
         delayOnParagraphChanges.isChecked = initialSettings.delayOnParagraphChanges
+        
+        val initialSpeed = CommonUtils.getSharedPreferences().getInt(speakSpeedPref, 100)
+        speakSpeed.progress = initialSpeed
+        speedStatus.text = initialSpeed.toString()
 
         speakSpeed.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
@@ -60,15 +64,12 @@ class SpeakBible : CustomTitlebarActivityBase() {
                 speakControl.updateSettings()
             }
         })
-        val initialSpeed = CommonUtils.getSharedPreferences().getInt(speakSpeedPref, 100)
-        speakSpeed.progress = initialSpeed
-        speedStatus.text = initialSpeed.toString()
 
         bookmarkLabels = bookmarkControl.assignableLabels
         val adapter = ArrayAdapter<LabelDto>(this, android.R.layout.simple_spinner_dropdown_item, bookmarkLabels)
         bookmarkTag.adapter = adapter
         if(initialSettings.autoBookmarkLabelId != null) {
-            val labelDto = bookmarkLabels.find({ labelDto -> labelDto.id == initialSettings.autoBookmarkLabelId })
+            val labelDto = bookmarkLabels.find { labelDto -> labelDto.id == initialSettings.autoBookmarkLabelId }
             val itemId = bookmarkLabels.indexOf(labelDto)
 
             bookmarkTag.setSelection(itemId)
@@ -81,11 +82,11 @@ class SpeakBible : CustomTitlebarActivityBase() {
 
         bookmarkTag.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                updateSettings()
+                updateSettings(restart = false)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                updateSettings()
+                updateSettings(restart = false)
             }
 
         }
@@ -97,7 +98,7 @@ class SpeakBible : CustomTitlebarActivityBase() {
 
     fun onSettingsChange(widget: View) = updateSettings()
 
-    private fun updateSettings() {
+    private fun updateSettings(restart: Boolean = true) {
         bookmarkTag.setEnabled(autoBookmark.isChecked)
 
         val labelId = if (bookmarkTag.selectedItemPosition != INVALID_POSITION) {
@@ -120,7 +121,9 @@ class SpeakBible : CustomTitlebarActivityBase() {
                 replaceDivineName = replaceDivineName.isChecked,
                 delayOnParagraphChanges = delayOnParagraphChanges.isChecked
         )
-        speakControl.updateSettings();
+        if(restart) {
+            speakControl.updateSettings()
+        }
     }
 
     fun onButtonClick(button: View) {
