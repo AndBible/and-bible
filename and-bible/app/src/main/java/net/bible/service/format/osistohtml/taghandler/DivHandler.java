@@ -39,7 +39,7 @@ public class DivHandler implements OsisTagHandler {
 
 	private Stack<DivType> stack = new Stack<>();
 
-	private static List<String> PARAGRAPH_TYPE_LIST = Arrays.asList("paragraph", "x-p", "x-end-paragraph");
+	public static List<String> PARAGRAPH_TYPE_LIST = Arrays.asList("paragraph", "x-p", "x-end-paragraph");
 
 	@SuppressWarnings("unused")
 	private static final Logger log = new Logger("DivHandler");

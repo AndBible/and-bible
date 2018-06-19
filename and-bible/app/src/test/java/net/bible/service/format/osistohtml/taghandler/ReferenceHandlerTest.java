@@ -1,5 +1,7 @@
 package net.bible.service.format.osistohtml.taghandler;
 
+import net.bible.android.TestBibleApplication;
+import net.bible.android.activity.BuildConfig;
 import net.bible.service.format.osistohtml.HtmlTextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.VerseInfo;
@@ -12,7 +14,10 @@ import org.crosswire.jsword.versification.system.SystemKJV;
 import org.crosswire.jsword.versification.system.Versifications;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.annotation.Config;
 import org.xml.sax.helpers.AttributesImpl;
+import robolectric.MyRobolectricTestRunner;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
@@ -24,6 +29,9 @@ import static org.junit.Assert.assertThat;
  * Since there is no level attribute on the milestone element, it is best to specify the marker attribute.
  * http://www.crosswire.org/wiki/OSIS_Bibles#Continuation_quotation_marks
  */
+
+@RunWith(MyRobolectricTestRunner.class)
+@Config(constants = BuildConfig.class, application = TestBibleApplication.class)
 public class ReferenceHandlerTest {
 
 	private OsisToHtmlParameters osisToHtmlParameters;

@@ -41,12 +41,12 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.isA;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 @RunWith(MyRobolectricTestRunner.class)
 @Config(constants = BuildConfig.class, application = TestBibleApplication.class)

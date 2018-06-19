@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Prepare criteria for a search
+ 
+ @author Martin Denham [mjdenham at gmail dot com]
+ @see gnu.lgpl.License for license details.<br>
+      The copyright to this program is held by it's author.
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+				xmlns:tools="http://schemas.android.com/tools"
+				android:orientation="vertical"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+
+	<LinearLayout
+			android:id="@+id/leftPanel"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			android:padding="5dip"
+			android:layout_alignParentTop="true">
+
+		<CheckBox
+				android:text="@string/conf_speak_synchronize_first_window"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:id="@+id/synchronize"
+				android:onClick="onSettingsChange"/>
+
+		<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/conf_speak"
+				/>
+		<LinearLayout
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
+			<CheckBox
+					android:text="@string/conf_change_book"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:id="@+id/speakBookChanges"
+					android:onClick="onSettingsChange"/>
+
+			<CheckBox
+					android:text="@string/conf_change_chapter"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:id="@+id/speakChapterChanges"
+					android:onClick="onSettingsChange"/>
+
+			<CheckBox
+					android:text="@string/conf_change_title"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:id="@+id/speakTitles"
+					android:onClick="onSettingsChange"/>
+		</LinearLayout>
+
+		<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/conf_play_earcons"/>
+		<LinearLayout
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
+			<CheckBox
+					android:text="@string/conf_change_book"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:id="@+id/playEarconBook"
+					android:onClick="onSettingsChange"/>
+
+			<CheckBox
+					android:text="@string/conf_change_chapter"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:id="@+id/playEarconChapter"
+					android:onClick="onSettingsChange"/>
+
+			<CheckBox
+					android:text="@string/conf_change_title"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:id="@+id/playEarconTitles"
+					android:onClick="onSettingsChange"/>
+		</LinearLayout>
+		<CheckBox
+				android:text="@string/conf_delay_on_paragraph_changes"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:id="@+id/delayOnParagraphChanges"
+				android:onClick="onSettingsChange"/>
+		<CheckBox
+				android:text="@string/conf_speak_continue_sentences"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:id="@+id/continueSentences"
+				android:onClick="onSettingsChange"/>
+		<CheckBox
+				android:text="@string/conf_replace_divinename"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:id="@+id/replaceDivineName"
+				android:onClick="onSettingsChange"/>
+
+		<CheckBox
+				android:text="@string/conf_speak_auto_bookmark"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_weight="1"
+				android:id="@+id/autoBookmark"
+				android:onClick="onSettingsChange"/>
+
+		<LinearLayout
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
+			<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:text="@string/conf_speak_auto_bookmark_label"/>
+
+			<Space
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:layout_width="0dp"/>
+
+			<Spinner
+					android:id="@+id/bookmarkTag"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"/>
+		</LinearLayout>
+
+		<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/speak_speed_title"/>
+
+
+		<SeekBar
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:id="@+id/speakSpeed"
+				android:max="300"
+				android:progress="100"
+				/>
+
+		<TextView
+				android:text="SPEED"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:id="@+id/speedStatus"
+				/>
+
+	</LinearLayout>
+
+	<LinearLayout
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			android:layout_alignParentBottom="true"
+			>
+
+
+		<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:id="@+id/statusText"
+				android:text="*Gen.1.1*"/>
+
+		<!-- Button bar with OK button -->
+		<LinearLayout
+				android:id="@+id/button_panel"
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal"
+				>
+
+			<ImageButton
+					android:id="@+id/rewindButton"
+					android:src="@android:drawable/ic_media_rew"
+					android:contentDescription="@string/rewind"
+					android:layout_width="0dip"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:onClick="onButtonClick"/>
+
+			<ImageButton
+					android:id="@+id/stopButton"
+					android:src="@drawable/ic_media_stop"
+					android:contentDescription="@string/stop"
+					android:layout_width="0dip"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:onClick="onButtonClick"/>
+
+			<ImageButton
+					android:id="@+id/pauseButton"
+					android:src="@android:drawable/ic_media_pause"
+					android:contentDescription="@string/pause"
+					android:layout_width="0dip"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:onClick="onButtonClick"/>
+
+			<ImageButton
+					android:id="@+id/speakButton"
+					android:src="@android:drawable/ic_media_play"
+					android:contentDescription="@string/speak"
+					android:layout_width="0dip"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:onClick="onButtonClick"/>
+
+			<ImageButton
+					android:id="@+id/forwardButton"
+					android:src="@android:drawable/ic_media_ff"
+					android:contentDescription="@string/forward"
+					android:layout_width="0dip"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:onClick="onButtonClick"/>
+
+		</LinearLayout>
+	</LinearLayout>
+
+
+</RelativeLayout>
