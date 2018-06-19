@@ -37,6 +37,7 @@ class TextToSpeechNotificationService: Service() {
     @Inject lateinit var speakControl: SpeakControl
 
     private var currentTitle = ""
+    private var currentText = ""
     lateinit var notificationManager: NotificationManager
 
     private val pauseAction: Notification.Action
@@ -55,6 +56,7 @@ class TextToSpeechNotificationService: Service() {
 
             SpeakEventManager.getInstance().addSpeakEventListener {
                 currentTitle = ""
+                currentText = ""
                 if(!it.isSpeaking) {
                     stopForeground(false)
                     buildNotification(playAction)
@@ -75,8 +77,13 @@ class TextToSpeechNotificationService: Service() {
     }
 
     fun onEventMainThread(ev: SpeakProggressEvent) {
-        if(ev.speakCommand is TextCommand && ev.speakCommand.type == TextCommand.TextType.TITLE) {
-            currentTitle = ev.speakCommand.text
+        if(ev.speakCommand is TextCommand) {
+            if(ev.speakCommand.type == TextCommand.TextType.TITLE) {
+                currentTitle = ev.speakCommand.text
+            }
+            else {
+                currentText = ev.speakCommand.text;
+            }
         }
         buildNotification(pauseAction)
     }
@@ -134,7 +141,9 @@ class TextToSpeechNotificationService: Service() {
 
         builder.setSmallIcon(R.drawable.ichthys_alpha)
                 .setContentTitle(title)
-                .setContentText(speakControl.getStatusText())
+                .setSubText(speakControl.statusText)
+                .setShowWhen(false)
+                .setContentText(currentText)
                 .setDeleteIntent(deletePendingIntent)
                 .setContentIntent(contentPendingIntent)
                 .setStyle(style)
