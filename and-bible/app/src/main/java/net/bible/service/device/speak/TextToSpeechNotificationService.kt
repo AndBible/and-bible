@@ -137,10 +137,11 @@ class TextToSpeechNotificationService: Service() {
                 .setStyle(style)
                 .addAction(generateAction(android.R.drawable.ic_media_rew, getString(R.string.rewind), ACTION_REWIND))
                 .addAction(action)
+                .addAction(generateAction(R.drawable.ic_media_stop, getString(R.string.stop), ACTION_STOP))
                 .addAction(generateAction(android.R.drawable.ic_media_ff, getString(R.string.forward), ACTION_FAST_FORWARD))
                 .setOnlyAlertOnce(true)
 
-        style.setShowActionsInCompactView(0, 1, 2)
+        style.setShowActionsInCompactView(0, 1, 3)
 
         val notification = builder.build()
         if(foreground) {
