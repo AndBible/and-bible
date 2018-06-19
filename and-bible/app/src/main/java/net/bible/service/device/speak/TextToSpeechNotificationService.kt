@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 import android.support.annotation.RequiresApi
 import de.greenrobot.event.EventBus
 import net.bible.android.BibleApplication
@@ -32,6 +33,7 @@ class TextToSpeechNotificationService: Service() {
 
         const val CHANNEL_ID="speak-notifications"
         const val NOTIFICATION_ID=1
+        const val WAKELOCK_TAG = "speak-wakelock"
     }
 
     @Inject lateinit var speakControl: SpeakControl
@@ -45,6 +47,8 @@ class TextToSpeechNotificationService: Service() {
 
     private val playAction: Notification.Action
         get() = generateAction(android.R.drawable.ic_media_play, getString(R.string.speak), ACTION_PLAY)
+
+    private lateinit var wakeLock: PowerManager.WakeLock
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         if(! ::speakControl.isInitialized) {
@@ -71,6 +75,9 @@ class TextToSpeechNotificationService: Service() {
                 channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
                 notificationManager.createNotificationChannel(channel)
             }
+
+            val powerManager = BibleApplication.getApplication().getSystemService(POWER_SERVICE) as PowerManager
+            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
         }
         handleIntent(intent)
         return super.onStartCommand(intent, flags, startId)
@@ -112,6 +119,9 @@ class TextToSpeechNotificationService: Service() {
 
     private fun removeNotification() {
         stopForeground(true)
+        if(wakeLock.isHeld) {
+            wakeLock.release()
+        }
     }
 
     private fun generateAction(icon: Int, title: String, intentAction: String): Notification.Action {
@@ -158,6 +168,9 @@ class TextToSpeechNotificationService: Service() {
         val notification = builder.build()
         if(foreground) {
             startForeground(NOTIFICATION_ID, notification)
+            if(!wakeLock.isHeld) {
+                wakeLock.acquire()
+            }
         }
         else {
             notificationManager.notify(NOTIFICATION_ID, notification)
