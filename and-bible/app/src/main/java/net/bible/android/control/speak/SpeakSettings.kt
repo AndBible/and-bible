@@ -3,11 +3,17 @@ import kotlinx.serialization.*
 
 @Serializable
 data class SpeakSettings(val synchronize: Boolean = true,
-                         val chapterChanges: Boolean = false,
+
+                         val speakBookChanges: Boolean = true,
+                         val speakChapterChanges: Boolean = true,
+                         val speakTitles: Boolean = true,
+
+                         val playEarconBook: Boolean = true,
+                         val playEarconChapter: Boolean = false,
+                         val playEarconTitles: Boolean = true,
+
                          val continueSentences: Boolean = true,
                          val autoBookmarkLabelId: Long? = null,
-                         val speakTitles: Boolean = true,
-                         val playEarCons: Boolean = true,
                          val replaceDivineName: Boolean = false,
                          val delayOnParagraphChanges: Boolean = true
                          ) {

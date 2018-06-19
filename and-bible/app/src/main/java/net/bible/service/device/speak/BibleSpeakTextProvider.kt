@@ -140,14 +140,22 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         val bookName = bibleBooks[verse.book.osis]
 
         if(prevVerse.book != verse.book) {
-            cmds.add(PreBookChangeCommand(settings))
-            cmds.add(TextCommand("${res.getString(R.string.speak_book_changed)} $bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
-            cmds.add(SilenceCommand())
+            if(settings.playEarconBook) {
+                cmds.add(PreBookChangeCommand(settings))
+            }
+            if(settings.speakBookChanges) {
+                cmds.add(TextCommand("${res.getString(R.string.speak_book_changed)} $bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
+                cmds.add(SilenceCommand())
+            }
         }
-        else if(settings.chapterChanges && prevVerse.chapter != verse.chapter) {
-            cmds.add(PreChapterChangeCommand(settings))
-            cmds.add(TextCommand("$bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
-            cmds.add(SilenceCommand())
+        else if(prevVerse.chapter != verse.chapter) {
+            if(settings.playEarconChapter) {
+                cmds.add(PreChapterChangeCommand(settings))
+            }
+            if(settings.speakChapterChanges) {
+                cmds.add(TextCommand("$bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
+                cmds.add(SilenceCommand())
+            }
         }
         cmds.addAll(getSpeakCommandsForVerse(verse))
         return cmds

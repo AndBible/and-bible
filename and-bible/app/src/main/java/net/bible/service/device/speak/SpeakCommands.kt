@@ -23,13 +23,13 @@ class TextCommand(text: String) : SpeakCommand {
     }
 }
 
-abstract class EarconCommand(val earcon: String, val speakSettings: SpeakSettings): SpeakCommand {
+abstract class EarconCommand(val earcon: String, val enabled: Boolean): SpeakCommand {
     override fun speak(tts: TextToSpeech, utteranceId: String) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             val eBundle = Bundle()
-            eBundle.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 0.1f)
+            eBundle.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 0.2f)
             eBundle.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
-            if (speakSettings.playEarCons && !earcon.isEmpty()) {
+            if (enabled && !earcon.isEmpty()) {
                 tts.playEarcon(earcon, TextToSpeech.QUEUE_ADD, eBundle, utteranceId)
             }
             else {
@@ -39,9 +39,9 @@ abstract class EarconCommand(val earcon: String, val speakSettings: SpeakSetting
     }
 }
 
-class PreBookChangeCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_BOOK_CHANGE, speakSettings)
-class PreChapterChangeCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_CHAPTER_CHANGE, speakSettings)
-class PreTitleCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_TITLE, speakSettings)
+class PreBookChangeCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_BOOK_CHANGE, speakSettings.playEarconBook)
+class PreChapterChangeCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_CHAPTER_CHANGE, speakSettings.playEarconChapter)
+class PreTitleCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_TITLE, speakSettings.playEarconTitles)
 
 open class SilenceCommand(val enabled: Boolean=true) : SpeakCommand {
     override fun speak(tts: TextToSpeech, utteranceId: String) {

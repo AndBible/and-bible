@@ -38,10 +38,15 @@ class SpeakBible : CustomTitlebarActivityBase() {
         val initialSettings = textProvider.settings
         statusText.text = textProvider.getStatusText()
         synchronize.isChecked = initialSettings.synchronize
-        speakChapterChanges.isChecked = initialSettings.chapterChanges
-        continueSentences.isChecked = initialSettings.continueSentences
+        speakBookChanges.isChecked = initialSettings.speakBookChanges
+        speakChapterChanges.isChecked = initialSettings.speakChapterChanges
         speakTitles.isChecked = initialSettings.speakTitles
-        playEarcons.isChecked = initialSettings.playEarCons
+
+        playEarconBook.isChecked = initialSettings.playEarconBook
+        playEarconChapter.isChecked = initialSettings.playEarconChapter
+        playEarconTitles.isChecked = initialSettings.playEarconTitles
+
+        continueSentences.isChecked = initialSettings.continueSentences
         replaceDivineName.isChecked = initialSettings.replaceDivineName
         delayOnParagraphChanges.isChecked = initialSettings.delayOnParagraphChanges
 
@@ -98,14 +103,20 @@ class SpeakBible : CustomTitlebarActivityBase() {
         } else SpeakSettings.INVALID_LABEL_ID
 
         textProvider.settings = SpeakSettings(
-                synchronize.isChecked,
-                speakChapterChanges.isChecked,
-                continueSentences.isChecked,
-                if (autoBookmark.isChecked) labelId else null,
-                speakTitles.isChecked,
-                playEarcons.isChecked,
-                replaceDivineName.isChecked,
-                delayOnParagraphChanges.isChecked
+                synchronize = synchronize.isChecked,
+
+                speakBookChanges = speakBookChanges.isChecked,
+                speakChapterChanges = speakChapterChanges.isChecked,
+                speakTitles = speakTitles.isChecked,
+
+                playEarconBook = playEarconBook.isChecked,
+                playEarconChapter = playEarconChapter.isChecked,
+                playEarconTitles = playEarconTitles.isChecked,
+
+                continueSentences = continueSentences.isChecked,
+                autoBookmarkLabelId = if (autoBookmark.isChecked) labelId else null,
+                replaceDivineName = replaceDivineName.isChecked,
+                delayOnParagraphChanges = delayOnParagraphChanges.isChecked
         )
     }
 

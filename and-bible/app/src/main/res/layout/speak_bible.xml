@@ -28,14 +28,77 @@
 				android:id="@+id/synchronize"
 				android:onClick="onSettingsChange"/>
 
+		<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/conf_speak"
+				/>
+		<LinearLayout
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
+			<CheckBox
+					android:text="@string/conf_change_book"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:id="@+id/speakBookChanges"
+					android:onClick="onSettingsChange"/>
+
+			<CheckBox
+					android:text="@string/conf_change_chapter"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:id="@+id/speakChapterChanges"
+					android:onClick="onSettingsChange"/>
+
+			<CheckBox
+					android:text="@string/conf_change_title"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:id="@+id/speakTitles"
+					android:onClick="onSettingsChange"/>
+		</LinearLayout>
+
+		<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/conf_play_earcons"/>
+		<LinearLayout
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content">
+			<CheckBox
+					android:text="@string/conf_change_book"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:id="@+id/playEarconBook"
+					android:onClick="onSettingsChange"/>
+
+			<CheckBox
+					android:text="@string/conf_change_chapter"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:id="@+id/playEarconChapter"
+					android:onClick="onSettingsChange"/>
+
+			<CheckBox
+					android:text="@string/conf_change_title"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:id="@+id/playEarconTitles"
+					android:onClick="onSettingsChange"/>
+		</LinearLayout>
 		<CheckBox
-				android:text="@string/conf_speak_chapter_changes"
+				android:text="@string/conf_delay_on_paragraph_changes"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
-				android:id="@+id/speakChapterChanges"
+				android:id="@+id/delayOnParagraphChanges"
 				android:onClick="onSettingsChange"/>
-
 		<CheckBox
 				android:text="@string/conf_speak_continue_sentences"
 				android:layout_width="wrap_content"
@@ -44,33 +107,13 @@
 				android:id="@+id/continueSentences"
 				android:onClick="onSettingsChange"/>
 		<CheckBox
-				android:text="@string/conf_speak_titles"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:id="@+id/speakTitles"
-				android:onClick="onSettingsChange"/>
-		<CheckBox
-				android:text="@string/conf_play_earcons"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:id="@+id/playEarcons"
-				android:onClick="onSettingsChange"/>
-		<CheckBox
 				android:text="@string/conf_replace_divinename"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:layout_weight="1"
 				android:id="@+id/replaceDivineName"
 				android:onClick="onSettingsChange"/>
-		<CheckBox
-				android:text="@string/conf_delay_on_paragraph_changes"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_weight="1"
-				android:id="@+id/delayOnParagraphChanges"
-				android:onClick="onSettingsChange"/>
+
 		<CheckBox
 				android:text="@string/conf_speak_auto_bookmark"
 				android:layout_width="wrap_content"
