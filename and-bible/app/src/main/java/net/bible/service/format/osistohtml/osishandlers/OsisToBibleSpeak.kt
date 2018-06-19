@@ -112,7 +112,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
         if(currentState.visible) {
             if(currentState.tagType == TAG_TYPE.TITLE) {
                 if(speakSettings.speakTitles) {
-                    speakCommands.add(TextCommand(s))
+                    speakCommands.add(TextCommand(s, type = TextCommand.TextType.TITLE))
                 }
             }
             else if(currentState.tagType == TAG_TYPE.DIVINE_NAME) {

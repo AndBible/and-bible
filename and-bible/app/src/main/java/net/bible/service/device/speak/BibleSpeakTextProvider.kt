@@ -322,7 +322,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         currentUtteranceId = utteranceId
         if(state != null) {
             Log.d(TAG, "startUtterance $utteranceId $state")
-            EventBus.getDefault().post(SpeakProggressEvent(state.book, state.startVerse, settings.synchronize))
+            EventBus.getDefault().post(SpeakProggressEvent(state.book, state.startVerse, settings.synchronize, state.command!!))
         }
     }
 

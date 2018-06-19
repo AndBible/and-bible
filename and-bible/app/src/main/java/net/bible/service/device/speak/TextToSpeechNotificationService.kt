@@ -3,7 +3,6 @@ package net.bible.service.device.speak
 import android.app.*
 import android.content.Context
 import android.content.Intent
-import android.media.session.MediaSession
 import android.os.Build
 import android.os.IBinder
 import android.support.annotation.RequiresApi
@@ -37,6 +36,7 @@ class TextToSpeechNotificationService: Service() {
 
     @Inject lateinit var speakControl: SpeakControl
 
+    private var currentTitle = ""
     lateinit var notificationManager: NotificationManager
 
     private val pauseAction: Notification.Action
@@ -54,6 +54,7 @@ class TextToSpeechNotificationService: Service() {
             notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
             SpeakEventManager.getInstance().addSpeakEventListener {
+                currentTitle = ""
                 if(!it.isSpeaking) {
                     stopForeground(false)
                     buildNotification(playAction)
@@ -67,8 +68,6 @@ class TextToSpeechNotificationService: Service() {
                 val channel = NotificationChannel(CHANNEL_ID, getString(R.string.tts_status), NotificationManager.IMPORTANCE_LOW)
                 channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
                 notificationManager.createNotificationChannel(channel)
-                val mediaSession = MediaSession(applicationContext, "speak-media")
-                mediaSession.isActive = true
             }
         }
         handleIntent(intent)
@@ -76,6 +75,9 @@ class TextToSpeechNotificationService: Service() {
     }
 
     fun onEventMainThread(ev: SpeakProggressEvent) {
+        if(ev.speakCommand is TextCommand && ev.speakCommand.type == TextCommand.TextType.TITLE) {
+            currentTitle = ev.speakCommand.text
+        }
         buildNotification(pauseAction)
     }
 
@@ -128,9 +130,10 @@ class TextToSpeechNotificationService: Service() {
         } else {
             Notification.Builder(this)
         }
+        val title = if(currentTitle.isEmpty()) getString(R.string.app_name) else currentTitle
 
         builder.setSmallIcon(R.drawable.ichthys_alpha)
-                .setContentTitle(getString(R.string.app_name))
+                .setContentTitle(title)
                 .setContentText(speakControl.getStatusText())
                 .setDeleteIntent(deletePendingIntent)
                 .setContentIntent(contentPendingIntent)

@@ -9,7 +9,8 @@ interface SpeakCommand {
     fun speak(tts: TextToSpeech, utteranceId: String)
 }
 
-class TextCommand(text: String) : SpeakCommand {
+class TextCommand(text: String, val type: TextType = TextType.NORMAL) : SpeakCommand {
+    enum class TextType {NORMAL, TITLE}
     val text: String = text.trim()
 
     override fun speak(tts: TextToSpeech, utteranceId: String) {
@@ -84,7 +85,7 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
                 if (newText.length > maxLength)
                     return super.add(index, element)
                 else {
-                    this[index] = TextCommand(newText)
+                    this[index] = TextCommand(newText, element.type)
                     return
                 }
             }
@@ -111,7 +112,7 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
                 if (newText.length > maxLength)
                     return super.add(element)
                 else {
-                    this[this.size-1] = TextCommand(newText)
+                    this[this.size-1] = TextCommand(newText, lastCommand.type)
                     return true
                 }
             }

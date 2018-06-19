@@ -143,7 +143,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
         	}
         }
         currentText = text;
-        return new TextCommand(text);
+        return new TextCommand(text, TextCommand.TextType.NORMAL);
 	}
 
 	@NotNull
