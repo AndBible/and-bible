@@ -313,6 +313,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         currentVerse = getPrevVerse(startVerse)
         startVerse = currentVerse
         endVerse = currentVerse
+        EventBus.getDefault().post(SpeakProggressEvent(book, startVerse, settings.synchronize, null))
     }
 
     override fun forward() {
@@ -320,6 +321,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         currentVerse = getNextVerse(startVerse)
         startVerse = currentVerse
         endVerse = currentVerse
+        EventBus.getDefault().post(SpeakProggressEvent(book, startVerse, settings.synchronize, null))
     }
 
     override fun finishedUtterance(utteranceId: String) {}

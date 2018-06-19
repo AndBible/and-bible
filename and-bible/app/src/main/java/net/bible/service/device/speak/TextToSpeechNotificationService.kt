@@ -93,7 +93,7 @@ class TextToSpeechNotificationService: Service() {
                 currentText = ev.speakCommand.text;
             }
         }
-        buildNotification(pauseAction)
+        buildNotification(if (speakControl.isSpeaking) pauseAction else playAction)
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
