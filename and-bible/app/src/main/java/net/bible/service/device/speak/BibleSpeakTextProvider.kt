@@ -182,6 +182,13 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         // Skip verse 0, as we merge verse 0 to verse 1 in getSpeakCommands
         if(currentVerse.verse == 0) {
             verse = getNextVerse(verse)
+            if(currentVerse == startVerse) {
+                startVerse = verse
+            }
+            if(endVerse == currentVerse) {
+                endVerse = verse
+            }
+            currentVerse = verse
         }
 
         startVerse = currentVerse
@@ -227,7 +234,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun getStatusText(): String {
-        return "${currentState.startVerse.name}${if (currentState.startVerse != currentState.endVerse) " - " + currentState.endVerse.name else ""}"
+        return getVerseRange().name
     }
 
     override fun getText(utteranceId: String): String {
