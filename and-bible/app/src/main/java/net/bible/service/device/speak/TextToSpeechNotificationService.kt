@@ -61,8 +61,6 @@ class TextToSpeechNotificationService: Service() {
             notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
             SpeakEventManager.getInstance().addSpeakEventListener {
-                currentTitle = ""
-                currentText = ""
                 if(!it.isSpeaking) {
                     stopForeground(false)
                     buildNotification(playAction)
@@ -122,6 +120,8 @@ class TextToSpeechNotificationService: Service() {
     }
 
     private fun removeNotification() {
+        currentTitle = ""
+        currentText = ""
         stopForeground(true)
         if(wakeLock.isHeld) {
             wakeLock.release()
