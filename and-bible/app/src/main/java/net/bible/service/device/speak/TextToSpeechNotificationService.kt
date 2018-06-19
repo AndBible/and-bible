@@ -1,5 +1,6 @@
 package net.bible.service.device.speak
 
+import android.annotation.SuppressLint
 import android.app.*
 import android.content.Context
 import android.content.Intent
@@ -18,7 +19,6 @@ import net.bible.service.device.speak.event.SpeakEventManager
 import net.bible.service.device.speak.event.SpeakProggressEvent
 import javax.inject.Inject
 
-@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 @ActivityScope
 class TextToSpeechNotificationService: Service() {
     companion object {
@@ -41,15 +41,17 @@ class TextToSpeechNotificationService: Service() {
     private var currentTitle = ""
     private var currentText = ""
     lateinit var notificationManager: NotificationManager
+    private lateinit var wakeLock: PowerManager.WakeLock
 
     private val pauseAction: Notification.Action
+        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         get() = generateAction(android.R.drawable.ic_media_pause, getString(R.string.pause), ACTION_PAUSE)
 
     private val playAction: Notification.Action
+        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         get() = generateAction(android.R.drawable.ic_media_play, getString(R.string.speak), ACTION_PLAY)
 
-    private lateinit var wakeLock: PowerManager.WakeLock
-
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
         if(! ::speakControl.isInitialized) {
             DaggerActivityComponent.builder()
@@ -83,6 +85,7 @@ class TextToSpeechNotificationService: Service() {
         return super.onStartCommand(intent, flags, startId)
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun onEventMainThread(ev: SpeakProggressEvent) {
         if(ev.speakCommand is TextCommand) {
             if(ev.speakCommand.type == TextCommand.TextType.TITLE) {
@@ -95,6 +98,7 @@ class TextToSpeechNotificationService: Service() {
         buildNotification(pauseAction)
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun handleIntent(intent: Intent?) {
         if(intent?.action == null) {
             return
@@ -124,6 +128,7 @@ class TextToSpeechNotificationService: Service() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun generateAction(icon: Int, title: String, intentAction: String): Notification.Action {
         val intent = Intent(applicationContext, this.javaClass)
         intent.setAction(intentAction)
@@ -131,6 +136,8 @@ class TextToSpeechNotificationService: Service() {
         return Notification.Action.Builder(icon, title, pendingIntent).build()
     }
 
+    @SuppressLint("WakelockTimeout")
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun buildNotification(action: Notification.Action, foreground: Boolean = false) {
         val style = Notification.MediaStyle()
 
@@ -163,7 +170,7 @@ class TextToSpeechNotificationService: Service() {
                 .addAction(generateAction(android.R.drawable.ic_media_ff, getString(R.string.forward), ACTION_FAST_FORWARD))
                 .setOnlyAlertOnce(true)
 
-        style.setShowActionsInCompactView(0, 1, 3)
+        style.setShowActionsInCompactView(1)
 
         val notification = builder.build()
         if(foreground) {
