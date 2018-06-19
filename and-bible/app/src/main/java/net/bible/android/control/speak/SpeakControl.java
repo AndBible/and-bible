@@ -49,7 +49,7 @@ import static net.bible.service.device.speak.TextToSpeechNotificationService.ACT
 public class SpeakControl {
 
 	private Lazy<TextToSpeechServiceManager> textToSpeechServiceManager;
-	PowerManager.WakeLock wakeLock = null;
+	private PowerManager.WakeLock wakeLock = null;
 
 	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
