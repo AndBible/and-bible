@@ -30,7 +30,7 @@ import net.bible.android.view.activity.speak.Speak;
 import net.bible.android.view.activity.speak.SpeakBible;
 
 import dagger.Component;
-import net.bible.service.device.speak.TextToSpeechServiceManager;
+import net.bible.service.device.speak.TextToSpeechNotificationService;
 
 /**
  * Dagger Component to allow injection of dependencies into activities.
@@ -75,6 +75,9 @@ public interface ActivityComponent {
 	void inject(MyNotes myNotes);
 	void inject(History history);
 	void inject(Help help);
+
+	// Services
+	void inject(TextToSpeechNotificationService ttsService);
 
 	// progress status screens
 	void inject(SearchIndexProgressStatus searchIndexProgressStatus);

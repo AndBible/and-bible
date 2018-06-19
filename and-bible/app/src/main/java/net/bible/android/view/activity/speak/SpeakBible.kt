@@ -23,8 +23,9 @@ val speakSpeedPref = "speak_speed_percent_pref"
 
 @ActivityScope
 class SpeakBible : CustomTitlebarActivityBase() {
-    private lateinit var speakControl: SpeakControl
-    private lateinit var bookmarkControl: BookmarkControl
+    @Inject lateinit var speakControl: SpeakControl
+    @Inject lateinit var bookmarkControl: BookmarkControl
+
     private lateinit var textProvider: BibleSpeakTextProvider
     private lateinit var bookmarkLabels: List<LabelDto>
 
@@ -132,7 +133,6 @@ class SpeakBible : CustomTitlebarActivityBase() {
                     if (speakControl.isPaused) {
                         speakControl.continueAfterPause()
                     } else {
-                        updateSettings()
                         speakControl.speakBible()
                     }
                 forwardButton -> speakControl.forward()
@@ -141,15 +141,5 @@ class SpeakBible : CustomTitlebarActivityBase() {
             Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
         }
         statusText.text = textProvider.getStatusText()
-    }
-
-    @Inject
-    internal fun setBookmarkControl(bookmarkControl: BookmarkControl) {
-        this.bookmarkControl = bookmarkControl
-    }
-
-    @Inject
-    internal fun setSpeakControl(speakControl: SpeakControl) {
-        this.speakControl = speakControl
     }
 }

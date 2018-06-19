@@ -1,6 +1,9 @@
 package net.bible.android.control.speak;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.media.AudioManager;
+import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -13,6 +16,7 @@ import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.speak.BibleSpeakTextProvider;
+import net.bible.service.device.speak.TextToSpeechNotificationService;
 import net.bible.service.device.speak.TextToSpeechServiceManager;
 
 import org.crosswire.jsword.book.Book;
@@ -29,6 +33,10 @@ import java.util.List;
 import javax.inject.Inject;
 
 import dagger.Lazy;
+import org.jetbrains.annotations.Nullable;
+
+import static net.bible.service.device.speak.TextToSpeechNotificationService.ACTION_REMOVE;
+import static net.bible.service.device.speak.TextToSpeechNotificationService.ACTION_START;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -142,7 +150,7 @@ public class SpeakControl {
 			}
 		}
 	}
-	
+
 	public boolean isCurrentDocSpeakAvailable() {
 		boolean isAvailable;
 		try {
@@ -294,13 +302,18 @@ public class SpeakControl {
 	
 	private void doStop() {
 		textToSpeechServiceManager.get().shutdown();
+		removeNotification();
 	}
 
 	private void preSpeak() {
 		// ensure volume controls adjust correct stream - not phone which is the default
 		// STREAM_TTS does not seem to be available but this article says use STREAM_MUSIC instead: http://stackoverflow.com/questions/7558650/how-to-set-volume-for-text-to-speech-speak-method
-        CurrentActivityHolder.getInstance().getCurrentActivity().setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
+        Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
+        if(activity != null) {
+			activity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
+		}
+        showNotification();
 	}
 
     public void updateSettings() {
@@ -309,4 +322,26 @@ public class SpeakControl {
         	continueAfterPause(true);
 		}
     }
+
+    private void showNotification() {
+		notificationAction(ACTION_START);
+	}
+
+	private void removeNotification() {
+		notificationAction(ACTION_REMOVE);
+	}
+
+	private void notificationAction(String actionName) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			BibleApplication app = BibleApplication.getApplication();
+			Intent intent = new Intent(app, TextToSpeechNotificationService.class);
+			intent.setAction(actionName);
+			app.startService(intent);
+		}
+	}
+
+	@Nullable
+	public CharSequence getStatusText() {
+		return textToSpeechServiceManager.get().getStatusText();
+	}
 }

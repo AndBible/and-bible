@@ -583,4 +583,8 @@ public class TextToSpeechServiceManager {
 		}
 		CommonUtils.getSharedPreferences().edit().putInt("speak_speed_percent_pref", Math.round(speechRate*100F)).apply();
     }
+
+    public CharSequence getStatusText() {
+    	return mSpeakTextProvider.getStatusText();
+    }
 }

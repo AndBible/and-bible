@@ -226,7 +226,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         return cmds;
     }
 
-    fun getStatusText(): String {
+    override fun getStatusText(): String {
         return "${currentState.startVerse.name}${if (currentState.startVerse != currentState.endVerse) " - " + currentState.endVerse.name else ""}"
     }
 
