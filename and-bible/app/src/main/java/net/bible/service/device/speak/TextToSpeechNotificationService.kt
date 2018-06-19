@@ -3,6 +3,7 @@ package net.bible.service.device.speak
 import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.media.session.MediaSession
 import android.os.Build
 import android.os.IBinder
 import android.support.annotation.RequiresApi
@@ -52,11 +53,22 @@ class TextToSpeechNotificationService: Service() {
             EventBus.getDefault().register(this)
             notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-            SpeakEventManager.getInstance().addSpeakEventListener { buildNotification(if(it.isSpeaking) pauseAction else playAction) }
+            SpeakEventManager.getInstance().addSpeakEventListener {
+                if(!it.isSpeaking) {
+                    stopForeground(false)
+                    buildNotification(playAction)
+                }
+                else {
+                    buildNotification(pauseAction, true)
+                }
+            }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val channel = NotificationChannel(CHANNEL_ID, getString(R.string.tts_status), NotificationManager.IMPORTANCE_DEFAULT)
+                val channel = NotificationChannel(CHANNEL_ID, getString(R.string.tts_status), NotificationManager.IMPORTANCE_LOW)
+                channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
                 notificationManager.createNotificationChannel(channel)
+                val mediaSession = MediaSession(applicationContext, "speak-media")
+                mediaSession.isActive = true
             }
         }
         handleIntent(intent)
@@ -75,11 +87,9 @@ class TextToSpeechNotificationService: Service() {
             ACTION_START -> buildNotification(pauseAction)
             ACTION_REMOVE -> removeNotification()
             ACTION_PLAY -> {
-                buildNotification(pauseAction)
                 speakControl.continueAfterPause()
             }
             ACTION_PAUSE -> {
-                buildNotification(playAction)
                 speakControl.pause()
             }
             ACTION_FAST_FORWARD -> speakControl.forward()
@@ -92,9 +102,7 @@ class TextToSpeechNotificationService: Service() {
     }
 
     private fun removeNotification() {
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.cancel(NOTIFICATION_ID)
-        stopService(Intent(applicationContext, this.javaClass))
+        stopForeground(true)
     }
 
     private fun generateAction(icon: Int, title: String, intentAction: String): Notification.Action {
@@ -104,7 +112,7 @@ class TextToSpeechNotificationService: Service() {
         return Notification.Action.Builder(icon, title, pendingIntent).build()
     }
 
-    private fun buildNotification(action: Notification.Action) {
+    private fun buildNotification(action: Notification.Action, foreground: Boolean = false) {
         val style = Notification.MediaStyle()
 
         val deleteIntent = Intent(applicationContext, this.javaClass)
@@ -133,7 +141,14 @@ class TextToSpeechNotificationService: Service() {
                 .setOnlyAlertOnce(true)
 
         style.setShowActionsInCompactView(0, 1, 2)
-        notificationManager.notify(NOTIFICATION_ID, builder.build())
+
+        val notification = builder.build()
+        if(foreground) {
+            startForeground(NOTIFICATION_ID, notification)
+        }
+        else {
+            notificationManager.notify(NOTIFICATION_ID, notification)
+        }
     }
 
     override fun onBind(intent: Intent?): IBinder? {
