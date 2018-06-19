@@ -50,7 +50,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private var startVerse: Verse
     private var endVerse: Verse
     private var currentVerse: Verse
-    private val utteranceStatus = HashMap<String, State>()
+    private val utteranceState = HashMap<String, State>()
     private var currentUtteranceId = ""
     private val currentCommands = SpeakCommandArray()
 
@@ -60,7 +60,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     private val currentState: State
         get() {
-            return utteranceStatus.get(currentUtteranceId) ?: State(book, startVerse, endVerse, currentVerse)
+            return utteranceState.get(currentUtteranceId) ?: State(book, startVerse, endVerse, currentVerse)
         }
 
     init {
@@ -167,10 +167,10 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         val cmd = currentCommands.removeAt(0)
         if(isCurrent) {
             currentUtteranceId = utteranceId
-            utteranceStatus.clear()
+            utteranceState.clear()
             Log.d(TAG, "Marked current utteranceID $utteranceId")
         }
-        utteranceStatus.set(utteranceId, State(book, startVerse, endVerse, currentVerse, cmd))
+        utteranceState.set(utteranceId, State(book, startVerse, endVerse, currentVerse, cmd))
         return cmd
     }
 
@@ -318,7 +318,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     override fun finishedUtterance(utteranceId: String) {}
 
     override fun startUtterance(utteranceId: String) {
-        val state = utteranceStatus.get(utteranceId)
+        val state = utteranceState.get(utteranceId)
         currentUtteranceId = utteranceId
         if(state != null) {
             Log.d(TAG, "startUtterance $utteranceId $state")
@@ -327,7 +327,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun reset() {
-        val state = utteranceStatus.get(currentUtteranceId)
+        val state = utteranceState.get(currentUtteranceId)
         Log.d(TAG, "Resetting. state: $currentUtteranceId $state")
         if(state != null) {
             startVerse = state.startVerse
@@ -337,7 +337,8 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         }
         endVerse = startVerse
         readList.clear()
-        utteranceStatus.clear()
+        currentCommands.clear()
+        utteranceState.clear()
         currentUtteranceId = ""
         verseRenderLruCache.evictAll()
     }
