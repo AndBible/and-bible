@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.os.Build;
+import android.os.PowerManager;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -35,6 +36,7 @@ import javax.inject.Inject;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
 
+import static android.content.Context.POWER_SERVICE;
 import static net.bible.service.device.speak.TextToSpeechNotificationService.ACTION_REMOVE;
 import static net.bible.service.device.speak.TextToSpeechNotificationService.ACTION_START;
 
@@ -47,6 +49,7 @@ import static net.bible.service.device.speak.TextToSpeechNotificationService.ACT
 public class SpeakControl {
 
 	private Lazy<TextToSpeechServiceManager> textToSpeechServiceManager;
+	PowerManager.WakeLock wakeLock = null;
 
 	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
@@ -274,6 +277,9 @@ public class SpeakControl {
 			if(!noToast) {
 				Toast.makeText(BibleApplication.getApplication(), pauseToastText, Toast.LENGTH_SHORT).show();
 			}
+			if(wakeLock.isHeld()) {
+				wakeLock.release();
+			}
 		}
 	}
 
@@ -302,12 +308,20 @@ public class SpeakControl {
 	
 	private void doStop() {
 		textToSpeechServiceManager.get().shutdown();
+		if(wakeLock.isHeld()) {
+			wakeLock.release();
+		}
 		removeNotification();
 	}
 
 	private void preSpeak() {
 		// ensure volume controls adjust correct stream - not phone which is the default
 		// STREAM_TTS does not seem to be available but this article says use STREAM_MUSIC instead: http://stackoverflow.com/questions/7558650/how-to-set-volume-for-text-to-speech-speak-method
+		if(wakeLock == null) {
+			PowerManager powerManager = (PowerManager) BibleApplication.getApplication().getSystemService(POWER_SERVICE);
+			wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "SpeakWakelock");
+		}
+		wakeLock.acquire();
 
         Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
         if(activity != null) {
