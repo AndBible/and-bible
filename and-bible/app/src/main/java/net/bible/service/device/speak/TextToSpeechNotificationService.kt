@@ -55,18 +55,6 @@ class TextToSpeechNotificationService: Service() {
         @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         get() = generateAction(android.R.drawable.ic_media_play, getString(R.string.speak), ACTION_PLAY)
 
-    private inner class HeadsetConnectionReceiver : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent) {
-            if (intent.getIntExtra("state", 0) == 0 && speakControl.isSpeaking) {
-                speakControl.pause()
-            } else if (intent.getIntExtra("state", 0) == 1 && speakControl.isPaused) {
-                speakControl.continueAfterPause()
-            }
-        }
-    }
-
-    private lateinit var headsetConnectionReceiver: TextToSpeechNotificationService.HeadsetConnectionReceiver
-
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if(! ::speakControl.isInitialized) {
@@ -87,8 +75,16 @@ class TextToSpeechNotificationService: Service() {
         val powerManager = BibleApplication.getApplication().getSystemService(POWER_SERVICE) as PowerManager
         wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
 
-        headsetConnectionReceiver = HeadsetConnectionReceiver()
-        registerReceiver(headsetConnectionReceiver, IntentFilter(Intent.ACTION_HEADSET_PLUG))
+        registerReceiver(
+                object: BroadcastReceiver() {
+                    override fun onReceive(context: Context?, intent: Intent?) {
+                        if (intent?.getIntExtra("state", 0) == 0 && speakControl.isSpeaking) {
+                            speakControl.pause()
+                        } else if (intent?.getIntExtra("state", 0) == 1 && speakControl.isPaused) {
+                            speakControl.continueAfterPause()
+                        }
+                    }
+                }, IntentFilter(Intent.ACTION_HEADSET_PLUG))
 
         EventBus.getDefault().register(this)
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -117,8 +113,7 @@ class TextToSpeechNotificationService: Service() {
     private fun shutdown() {
         currentTitle = ""
         currentText = ""
-        Log.d(TAG, "Shutdown)")
-        unregisterReceiver(headsetConnectionReceiver)
+        Log.d(TAG, "Shutdown")
         stopForeground(true)
         if(wakeLock.isHeld) {
             wakeLock.release()
