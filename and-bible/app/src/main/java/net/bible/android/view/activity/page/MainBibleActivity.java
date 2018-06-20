@@ -86,6 +86,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 
 	private static final String TAG = "MainBibleActivity";
 
+	private HeadsetConnectionReceiver headsetConnectionReceiver;
+
 	public MainBibleActivity() {
 		super(R.menu.main);
 	}
@@ -120,8 +122,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 
 		// force the screen to be populated
 		PassageChangeMediator.getInstance().forcePageUpdate();
-
-		registerReceiver(new HeadsetConnectionReceiver(), new IntentFilter(Intent.ACTION_HEADSET_PLUG));
+		headsetConnectionReceiver = new HeadsetConnectionReceiver();
+		registerReceiver(headsetConnectionReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
 	}
 
 	private class HeadsetConnectionReceiver extends BroadcastReceiver {
@@ -134,6 +136,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 
 	@Override
 	protected void onDestroy() {
+		unregisterReceiver(headsetConnectionReceiver);
+		speakControl.removeNotification();
 		super.onDestroy();
 		EventBus.getDefault().unregister(this);
 	}

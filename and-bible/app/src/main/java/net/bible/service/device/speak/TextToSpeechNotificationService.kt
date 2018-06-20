@@ -8,6 +8,7 @@ import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.support.annotation.RequiresApi
+import android.util.Log
 import de.greenrobot.event.EventBus
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -34,6 +35,7 @@ class TextToSpeechNotificationService: Service() {
         const val CHANNEL_ID="speak-notifications"
         const val NOTIFICATION_ID=1
         const val WAKELOCK_TAG = "speak-wakelock"
+        const val TAG = "Speak/TTSService"
     }
 
     @Inject lateinit var speakControl: SpeakControl
@@ -52,7 +54,7 @@ class TextToSpeechNotificationService: Service() {
         get() = generateAction(android.R.drawable.ic_media_play, getString(R.string.speak), ACTION_PLAY)
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if(! ::speakControl.isInitialized) {
             DaggerActivityComponent.builder()
 				.applicationComponent(BibleApplication.getApplication().getApplicationComponent())
@@ -62,7 +64,11 @@ class TextToSpeechNotificationService: Service() {
 
             SpeakEventManager.getInstance().addSpeakEventListener {
                 if(!it.isSpeaking) {
+                    Log.d(TAG, "Stop foreground (pause)")
                     stopForeground(false)
+                    if(wakeLock.isHeld) {
+                        wakeLock.release()
+                    }
                     buildNotification(playAction)
                 }
                 else {
@@ -93,6 +99,11 @@ class TextToSpeechNotificationService: Service() {
                 currentText = ev.speakCommand.text;
             }
         }
+        buildStartNotification()
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun buildStartNotification() {
         buildNotification(if (speakControl.isSpeaking) pauseAction else playAction)
     }
 
@@ -102,7 +113,7 @@ class TextToSpeechNotificationService: Service() {
             return
         }
         when(intent.action) {
-            ACTION_START -> buildNotification(pauseAction)
+            ACTION_START -> buildStartNotification()
             ACTION_REMOVE -> removeNotification()
             ACTION_PLAY -> {
                 speakControl.continueAfterPause()
@@ -122,10 +133,12 @@ class TextToSpeechNotificationService: Service() {
     private fun removeNotification() {
         currentTitle = ""
         currentText = ""
+        Log.d(TAG, "Stopping foreground (remove notification)")
         stopForeground(true)
         if(wakeLock.isHeld) {
             wakeLock.release()
         }
+        stopService(Intent(applicationContext, this.javaClass))
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -174,6 +187,7 @@ class TextToSpeechNotificationService: Service() {
 
         val notification = builder.build()
         if(foreground) {
+            Log.d(TAG, "Starting foreground")
             startForeground(NOTIFICATION_ID, notification)
             if(!wakeLock.isHeld) {
                 wakeLock.acquire()

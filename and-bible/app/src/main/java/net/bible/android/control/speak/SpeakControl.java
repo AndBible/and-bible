@@ -77,6 +77,9 @@ public class SpeakControl {
 	public SpeakControl(Lazy<TextToSpeechServiceManager> textToSpeechServiceManager, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
 		this.textToSpeechServiceManager = textToSpeechServiceManager;
 		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
+		if(isPaused()) {
+			showNotification();
+		}
 	}
 
 	/** return a list of prompt ids for the speak screen associated with the current document type
@@ -257,6 +260,7 @@ public class SpeakControl {
 
 	public void pause(boolean noToast) {
 		if (isSpeaking() || isPaused()) {
+			showNotification();
 			Log.d(TAG, "Pause TTS speaking");
 	    	TextToSpeechServiceManager tts = textToSpeechServiceManager.get();
 			tts.pause();
@@ -299,7 +303,7 @@ public class SpeakControl {
     	Toast.makeText(BibleApplication.getApplication(), R.string.stop, Toast.LENGTH_SHORT).show();
 	}
 	
-	private void doStop() {
+	public void doStop() {
 		textToSpeechServiceManager.get().shutdown();
 		removeNotification();
 	}
@@ -308,11 +312,11 @@ public class SpeakControl {
 		// ensure volume controls adjust correct stream - not phone which is the default
 		// STREAM_TTS does not seem to be available but this article says use STREAM_MUSIC instead: http://stackoverflow.com/questions/7558650/how-to-set-volume-for-text-to-speech-speak-method
 
+		showNotification();
         Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
         if(activity != null) {
 			activity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		}
-        showNotification();
 	}
 
     public void updateSettings() {
@@ -326,7 +330,7 @@ public class SpeakControl {
 		notificationAction(ACTION_START);
 	}
 
-	private void removeNotification() {
+	public void removeNotification() {
 		notificationAction(ACTION_REMOVE);
 	}
 
