@@ -303,7 +303,7 @@ public class SpeakControl {
     	Toast.makeText(BibleApplication.getApplication(), R.string.stop, Toast.LENGTH_SHORT).show();
 	}
 	
-	public void doStop() {
+	private void doStop() {
 		textToSpeechServiceManager.get().shutdown();
 		removeNotification();
 	}
@@ -331,6 +331,9 @@ public class SpeakControl {
 	}
 
 	public void removeNotification() {
+		if(isSpeaking()) {
+			pause();
+		}
 		notificationAction(ACTION_REMOVE);
 	}
 

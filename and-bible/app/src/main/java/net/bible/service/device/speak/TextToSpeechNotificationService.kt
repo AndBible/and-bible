@@ -2,8 +2,10 @@ package net.bible.service.device.speak
 
 import android.annotation.SuppressLint
 import android.app.*
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
@@ -53,40 +55,75 @@ class TextToSpeechNotificationService: Service() {
         @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         get() = generateAction(android.R.drawable.ic_media_play, getString(R.string.speak), ACTION_PLAY)
 
+    private inner class HeadsetConnectionReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.getIntExtra("state", 0) == 0 && speakControl.isSpeaking) {
+                speakControl.pause()
+            } else if (intent.getIntExtra("state", 0) == 1 && speakControl.isPaused) {
+                speakControl.continueAfterPause()
+            }
+        }
+    }
+
+    private lateinit var headsetConnectionReceiver: TextToSpeechNotificationService.HeadsetConnectionReceiver
+
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if(! ::speakControl.isInitialized) {
-            DaggerActivityComponent.builder()
-				.applicationComponent(BibleApplication.getApplication().getApplicationComponent())
-				.build().inject(this)
-            EventBus.getDefault().register(this)
-            notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-            SpeakEventManager.getInstance().addSpeakEventListener {
-                if(!it.isSpeaking) {
-                    Log.d(TAG, "Stop foreground (pause)")
-                    stopForeground(false)
-                    if(wakeLock.isHeld) {
-                        wakeLock.release()
-                    }
-                    buildNotification(playAction)
-                }
-                else {
-                    buildNotification(pauseAction, true)
-                }
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val channel = NotificationChannel(CHANNEL_ID, getString(R.string.tts_status), NotificationManager.IMPORTANCE_LOW)
-                channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
-                notificationManager.createNotificationChannel(channel)
-            }
-
-            val powerManager = BibleApplication.getApplication().getSystemService(POWER_SERVICE) as PowerManager
-            wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
+            initialize()
         }
+
         handleIntent(intent)
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun initialize() {
+        Log.d(TAG, "Initialize")
+        DaggerActivityComponent.builder()
+                .applicationComponent(BibleApplication.getApplication().getApplicationComponent())
+                .build().inject(this)
+
+        val powerManager = BibleApplication.getApplication().getSystemService(POWER_SERVICE) as PowerManager
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
+
+        headsetConnectionReceiver = HeadsetConnectionReceiver()
+        registerReceiver(headsetConnectionReceiver, IntentFilter(Intent.ACTION_HEADSET_PLUG))
+
+        EventBus.getDefault().register(this)
+        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        SpeakEventManager.getInstance().addSpeakEventListener {
+            if(!it.isSpeaking) {
+                Log.d(TAG, "Stop foreground (pause)")
+                stopForeground(false)
+                if(wakeLock.isHeld) {
+                    wakeLock.release()
+                }
+                buildNotification(playAction)
+            }
+            else {
+                buildNotification(pauseAction, true)
+            }
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(CHANNEL_ID, getString(R.string.tts_status), NotificationManager.IMPORTANCE_LOW)
+            channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun shutdown() {
+        currentTitle = ""
+        currentText = ""
+        Log.d(TAG, "Shutdown)")
+        unregisterReceiver(headsetConnectionReceiver)
+        stopForeground(true)
+        if(wakeLock.isHeld) {
+            wakeLock.release()
+        }
+        stopService(Intent(applicationContext, this.javaClass))
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -114,7 +151,7 @@ class TextToSpeechNotificationService: Service() {
         }
         when(intent.action) {
             ACTION_START -> buildStartNotification()
-            ACTION_REMOVE -> removeNotification()
+            ACTION_REMOVE -> shutdown()
             ACTION_PLAY -> {
                 speakControl.continueAfterPause()
             }
@@ -125,20 +162,9 @@ class TextToSpeechNotificationService: Service() {
             ACTION_REWIND -> speakControl.rewind()
             ACTION_STOP -> {
                 speakControl.stop()
-                removeNotification()
+                shutdown()
             }
         }
-    }
-
-    private fun removeNotification() {
-        currentTitle = ""
-        currentText = ""
-        Log.d(TAG, "Stopping foreground (remove notification)")
-        stopForeground(true)
-        if(wakeLock.isHeld) {
-            wakeLock.release()
-        }
-        stopService(Intent(applicationContext, this.javaClass))
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)

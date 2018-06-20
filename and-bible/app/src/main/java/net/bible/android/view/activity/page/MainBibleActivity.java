@@ -1,10 +1,7 @@
 package net.bible.android.view.activity.page;
 
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
@@ -86,8 +83,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 
 	private static final String TAG = "MainBibleActivity";
 
-	private HeadsetConnectionReceiver headsetConnectionReceiver;
-
 	public MainBibleActivity() {
 		super(R.menu.main);
 	}
@@ -122,26 +117,14 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 
 		// force the screen to be populated
 		PassageChangeMediator.getInstance().forcePageUpdate();
-		headsetConnectionReceiver = new HeadsetConnectionReceiver();
-		registerReceiver(headsetConnectionReceiver, new IntentFilter(Intent.ACTION_HEADSET_PLUG));
 	}
 
-	private class HeadsetConnectionReceiver extends BroadcastReceiver {
-		public void onReceive(Context context, Intent intent) {
-			if (intent.getIntExtra("state", 0) == 0 && speakControl.isSpeaking()) {
-				speakControl.pause();
-			}
-			else if(intent.getIntExtra("state", 0) == 1 && speakControl.isPaused()) {
-				speakControl.continueAfterPause();
-			}
-		}
-	}
+
 
 	@Override
 	protected void onDestroy() {
-		unregisterReceiver(headsetConnectionReceiver);
-		speakControl.removeNotification();
 		super.onDestroy();
+		speakControl.removeNotification();
 		EventBus.getDefault().unregister(this);
 	}
 
