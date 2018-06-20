@@ -162,7 +162,17 @@
         </activity>
 
         <service android:name="net.bible.service.device.speak.TextToSpeechNotificationService"/>
+        
+        <receiver android:name=".SpeakWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
 
+            <meta-data
+                    android:name="android.appwidget.provider"
+                    android:resource="@xml/speak_widget_info"/>
+        </receiver>
+        
         <!-- allow use with Samsung Note multi-window http://stackoverflow.com/questions/14111052/adding-multi-window-support-to-android-application -->
 		<uses-library android:required="false" android:name="com.sec.android.app.multiwindow" />
 		<meta-data android:name="com.sec.android.support.multiwindow" android:value="true" />

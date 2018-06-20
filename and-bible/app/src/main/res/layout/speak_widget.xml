@@ -1,0 +1,83 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+				xmlns:tools="http://schemas.android.com/tools"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:background="@color/widget_background"
+				android:padding="@dimen/widget_margin"
+		>
+	<LinearLayout
+			android:id="@+id/layout"
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			android:layout_alignParentBottom="true"
+			android:layout_centerHorizontal="true"
+			>
+
+		<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:id="@+id/titleText"
+				tools:textSize="14sp"
+				android:textStyle="bold"/>
+		<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:id="@+id/statusText"
+				/>
+
+		<LinearLayout
+				android:layout_width="fill_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal"
+				>
+
+			<ImageButton
+					android:id="@+id/rewindButton"
+					android:src="@android:drawable/ic_media_rew"
+					android:contentDescription="@string/rewind"
+					android:layout_width="0dip"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					/>
+
+			<ImageButton
+					android:id="@+id/stopButton"
+					android:src="@drawable/ic_media_stop"
+					android:contentDescription="@string/stop"
+					android:layout_width="0dip"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					/>
+
+			<ImageButton
+					android:id="@+id/pauseButton"
+					android:src="@android:drawable/ic_media_pause"
+					android:contentDescription="@string/pause"
+					android:layout_width="0dip"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					/>
+
+			<ImageButton
+					android:id="@+id/speakButton"
+					android:src="@android:drawable/ic_media_play"
+					android:contentDescription="@string/speak"
+					android:layout_width="0dip"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					/>
+
+			<ImageButton
+					android:id="@+id/forwardButton"
+					android:src="@android:drawable/ic_media_ff"
+					android:contentDescription="@string/forward"
+					android:layout_width="0dip"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					/>
+
+		</LinearLayout>
+	</LinearLayout>
+
+</RelativeLayout>

@@ -1,5 +1,6 @@
 package net.bible.android.view.activity;
 
+import net.bible.android.activity.SpeakWidget;
 import net.bible.android.control.ApplicationComponent;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.bookmark.BookmarkLabels;
@@ -78,6 +79,7 @@ public interface ActivityComponent {
 
 	// Services
 	void inject(TextToSpeechNotificationService ttsService);
+	void inject(SpeakWidget w);
 
 	// progress status screens
 	void inject(SearchIndexProgressStatus searchIndexProgressStatus);

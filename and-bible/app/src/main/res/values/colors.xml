@@ -20,6 +20,7 @@
 	
 	<color name="actionbar_text">#ffffffff</color>
 
+	<color name="widget_background">#6e000000</color>
 	<color name="accent_day">@color/blue_900</color>
 	<color name="accent_night">@color/blue_300</color>
 
