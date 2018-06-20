@@ -174,7 +174,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         return cmd
     }
 
-    fun getMoreSpeakCommands(): SpeakCommandArray {
+    private fun getMoreSpeakCommands(): SpeakCommandArray {
         val cmds = SpeakCommandArray()
 
         var verse = currentVerse
