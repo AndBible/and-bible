@@ -28,6 +28,7 @@ public class Window {
 		this.screenNo = screenNo;
 		this.windowLayout = new WindowLayout( windowState );
 		this.currentPageManager = currentPageManager;
+		currentPageManager.setWindow(this);
 	}
 
 	/**
@@ -36,6 +37,7 @@ public class Window {
 	public Window(CurrentPageManager currentPageManager) {
 		this.windowLayout = new WindowLayout(WindowState.SPLIT);
 		this.currentPageManager = currentPageManager;
+		currentPageManager.setWindow(this);
 	}
 
 	public CurrentPageManager getPageManager() {

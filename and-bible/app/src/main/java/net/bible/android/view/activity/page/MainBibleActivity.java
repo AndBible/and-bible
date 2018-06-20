@@ -30,6 +30,7 @@ import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.control.search.SearchControl;
+import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent;
 import net.bible.android.view.activity.MainBibleActivityModule;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
@@ -42,6 +43,7 @@ import net.bible.service.device.ScreenSettings;
 import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
+import net.bible.service.device.speak.event.SpeakProggressEvent;
 
 /** The main activity screen showing Bible text
  * 
@@ -76,6 +78,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	private BackupControl backupControl;
 
 	private SearchControl searchControl;
+
+	private SpeakControl speakControl;
 
 	private static final String TAG = "MainBibleActivity";
 
@@ -115,9 +119,12 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		PassageChangeMediator.getInstance().forcePageUpdate();
 	}
 
+
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		speakControl.removeNotification();
 		EventBus.getDefault().unregister(this);
 	}
 
@@ -160,6 +167,13 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	public void onEvent(AppToBackgroundEvent event) {
 		if (event.isMovedToBackground()) {
 			mWholeAppWasInBackground = true;
+		}
+	}
+
+	public void onEventMainThread(SpeakProggressEvent event) {
+		if(event.getSynchronize()) {
+			windowControl.getWindowRepository().getFirstWindow().getPageManager()
+					.setCurrentDocumentAndKey(event.getBook(), event.getKey());
 		}
 	}
 
@@ -397,6 +411,11 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 
 	protected BibleContentManager getBibleContentManager() {
 		return bibleContentManager;
+	}
+
+	@Inject
+	void setSpeakControl(SpeakControl speakControl) {
+		this.speakControl = speakControl;
 	}
 
 	@Inject

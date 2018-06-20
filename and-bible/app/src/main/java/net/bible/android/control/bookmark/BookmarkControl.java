@@ -233,7 +233,7 @@ public class BookmarkControl {
 	}
 
 	/** get bookmark with the same start verse as this key if it exists or return null */
-	private BookmarkDto getBookmarkByKey(Key key) {
+	public BookmarkDto getBookmarkByKey(Key key) {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		BookmarkDto bookmark = null;
 		try {

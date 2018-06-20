@@ -1,6 +1,9 @@
 package net.bible.android.control.speak;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.media.AudioManager;
+import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -12,8 +15,9 @@ import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
+import net.bible.service.device.speak.BibleSpeakTextProvider;
+import net.bible.service.device.speak.TextToSpeechNotificationService;
 import net.bible.service.device.speak.TextToSpeechServiceManager;
-import net.bible.service.sword.SwordContentFacade;
 
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
@@ -25,11 +29,14 @@ import org.crosswire.jsword.versification.Versification;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.inject.Inject;
 
 import dagger.Lazy;
+import org.jetbrains.annotations.Nullable;
+
+import static net.bible.service.device.speak.TextToSpeechNotificationService.ACTION_REMOVE;
+import static net.bible.service.device.speak.TextToSpeechNotificationService.ACTION_START;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -40,8 +47,6 @@ import dagger.Lazy;
 public class SpeakControl {
 
 	private Lazy<TextToSpeechServiceManager> textToSpeechServiceManager;
-	private final SwordContentFacade swordContentFacade;
-
 	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
 	private static final int NUM_LEFT_IDX = 3;
@@ -69,10 +74,12 @@ public class SpeakControl {
 	private static final String TAG = "SpeakControl";
 
 	@Inject
-	public SpeakControl(Lazy<TextToSpeechServiceManager> textToSpeechServiceManager, SwordContentFacade swordContentFacade, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+	public SpeakControl(Lazy<TextToSpeechServiceManager> textToSpeechServiceManager, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
 		this.textToSpeechServiceManager = textToSpeechServiceManager;
-		this.swordContentFacade = swordContentFacade;
 		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
+		if(isPaused()) {
+			showNotification();
+		}
 	}
 
 	/** return a list of prompt ids for the speak screen associated with the current document type
@@ -126,11 +133,17 @@ public class SpeakControl {
 			try {
 				CurrentPage page = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
 				Book fromBook = page.getCurrentDocument();
-		    	// first find keys to Speak
-				List<Key> keyList = new ArrayList<>();
-				keyList.add(page.getKey());
-			
-				speak(fromBook, keyList, true, false);
+				if(fromBook.getBookCategory().equals(BookCategory.BIBLE))
+				{
+					speakBible();
+				}
+				else {
+					// first find keys to Speak
+					List<Key> keyList = new ArrayList<>();
+					keyList.add(page.getKey());
+
+					speakKeyList(fromBook, keyList, true, false);
+				}
 
 				Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
 			} catch (Exception e) {
@@ -139,7 +152,7 @@ public class SpeakControl {
 			}
 		}
 	}
-	
+
 	public boolean isCurrentDocSpeakAvailable() {
 		boolean isAvailable;
 		try {
@@ -162,77 +175,67 @@ public class SpeakControl {
 
 	/** prepare to speak
 	 */
-	public void speak(NumPagesToSpeakDefinition numPagesDefn, boolean queue, boolean repeat) {
+	public void speakText(NumPagesToSpeakDefinition numPagesDefn, boolean queue, boolean repeat) {
 		Log.d(TAG, "Chapters:"+numPagesDefn.getNumPages());
-		// if a previous speak request is paused clear the cached text 
+		// if a previous speak request is paused clear the cached text
 		if (isPaused()) {
 			Log.d(TAG, "Clearing paused Speak text");
 			stop();
 		}
-		
+
+		preSpeak();
+
 		CurrentPage page = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
-		Book fromBook = page.getCurrentDocument()
-				;
-    	// first find keys to Speak
-		List<Key> keyList = new ArrayList<>();
+		Book fromBook = page.getCurrentDocument();
+
 		try {
+			// first find keys to Speak
+			List<Key> keyList = new ArrayList<>();
 			for (int i=0; i<numPagesDefn.getNumPages(); i++) {
 				Key key = page.getPagePlus(i);
 				if (key!=null) {
 					keyList.add(key);
 				}
 			}
-			
-			speak(fromBook, keyList, queue, repeat);
+
+			textToSpeechServiceManager.get().speakText(fromBook, keyList, queue, repeat);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting chapters to speak", e);
 			throw new AndRuntimeException("Error preparing Speech", e);
 		}
 	}
-	
-	public void speak(Book book, List<Key> keyList, boolean queue, boolean repeat) {
-		Log.d(TAG, "Keys:"+keyList.size());
-		// build a string containing the text to be spoken
-		List<String> textToSpeak = new ArrayList<>();
-		
-    	// first concatenate the number of required chapters
-		try {
-			for (Key key : keyList) {
-				// intro
-				textToSpeak.add(key.getName()+". ");
-//				textToSpeak.add("\n");
-				
-				// content
-				textToSpeak.add( swordContentFacade.getTextToSpeak(book, key));
 
-				// add a pause at end to separate passages
-				textToSpeak.add("\n");
-			}
-		} catch (Exception e) {
-			Log.e(TAG, "Error getting chapters to speak", e);
-			throw new AndRuntimeException("Error preparing Speech", e);
-		}
-		
-		// if repeat was checked then concatenate with itself
-		if (repeat) {
-			textToSpeak.add("\n");
-			textToSpeak.addAll(textToSpeak);
-		}
-
-		speak(textToSpeak, book, queue);
-	}
-	
 	/** prepare to speak
 	 */
-	private void speak(List<String> textsToSpeak, Book fromBook, boolean queue) {
-		
-		List<Locale> localePreferenceList = calculateLocalePreferenceList(fromBook);
+	public void speakBible() {
+		// if a previous speak request is paused clear the cached text
+		if (isPaused()) {
+			stop();
+		}
 
 		preSpeak();
-		
+
+		CurrentPage page = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
+		Book fromBook = page.getCurrentDocument();
+
+		try {
+			textToSpeechServiceManager.get().speakBible((SwordBook)fromBook, (Verse)page.getSingleKey());
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting chapters to speak", e);
+			throw new AndRuntimeException("Error preparing Speech", e);
+		}
+	}
+
+	public BibleSpeakTextProvider getBibleSpeakTextProvider() {
+		return textToSpeechServiceManager.get().getBibleSpeakTextProvider();
+	}
+
+	public void speakKeyList(Book book, List<Key> keyList, boolean queue, boolean repeat) {
+		preSpeak();
+
 		// speak current chapter or stop speech if already speaking
 		Log.d(TAG, "Tell TTS to speak");
-		textToSpeechServiceManager.get().speak(localePreferenceList, textsToSpeak, queue);
+		textToSpeechServiceManager.get().speakText(book, keyList, queue, repeat);
 	}
 
 	public void rewind() {
@@ -252,23 +255,48 @@ public class SpeakControl {
 	}
 
 	public void pause() {
+		pause(false);
+	}
+
+	public void pause(boolean noToast) {
 		if (isSpeaking() || isPaused()) {
+			showNotification();
 			Log.d(TAG, "Pause TTS speaking");
 	    	TextToSpeechServiceManager tts = textToSpeechServiceManager.get();
 			tts.pause();
-			String pause = CommonUtils.getResourceString(R.string.pause);
-			String timeProgress = CommonUtils.getHoursMinsSecs(tts.getPausedCompletedSeconds())+"/"+CommonUtils.getHoursMinsSecs(tts.getPausedTotalSeconds());
-	    	Toast.makeText(BibleApplication.getApplication(), pause+"\n"+timeProgress, Toast.LENGTH_SHORT).show();
+			String pauseToastText = CommonUtils.getResourceString(R.string.pause);
+
+			long completedSeconds = tts.getPausedCompletedSeconds();
+			long totalSeconds = tts.getPausedTotalSeconds();
+
+			if(totalSeconds > 0) {
+				String timeProgress = CommonUtils.getHoursMinsSecs(completedSeconds) + "/" + CommonUtils.getHoursMinsSecs(totalSeconds);
+				pauseToastText += "\n" + timeProgress;
+			}
+
+			if(!noToast) {
+				Toast.makeText(BibleApplication.getApplication(), pauseToastText, Toast.LENGTH_SHORT).show();
+			}
 		}
 	}
 
+	public void setRate(float speechRate) {
+		textToSpeechServiceManager.get().setRate(speechRate);
+	}
+
 	public void continueAfterPause() {
+		continueAfterPause(false);
+	}
+
+	public void continueAfterPause(boolean noToast) {
 		Log.d(TAG, "Continue TTS speaking after pause");
 		preSpeak();
 		textToSpeechServiceManager.get().continueAfterPause();
-    	Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
+		if(!noToast) {
+			Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
+		}
 	}
-	
+
 	public void stop() {
 		Log.d(TAG, "Stop TTS speaking");
 		doStop();
@@ -277,53 +305,49 @@ public class SpeakControl {
 	
 	private void doStop() {
 		textToSpeechServiceManager.get().shutdown();
+		removeNotification();
 	}
 
 	private void preSpeak() {
 		// ensure volume controls adjust correct stream - not phone which is the default
 		// STREAM_TTS does not seem to be available but this article says use STREAM_MUSIC instead: http://stackoverflow.com/questions/7558650/how-to-set-volume-for-text-to-speech-speak-method
-        CurrentActivityHolder.getInstance().getCurrentActivity().setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-	}
-	private List<Locale> calculateLocalePreferenceList(Book fromBook) {
-		//calculate preferred locales to use for speech
-        // Set preferred language to the same language as the book.
-        // Note that a language may not be available, and so we have a preference list
-    	String bookLanguageCode = fromBook.getLanguage().getCode();
-    	Log.d(TAG, "Book has language code:"+bookLanguageCode);
-
-    	List<Locale> localePreferenceList = new ArrayList<>();
-    	if (bookLanguageCode.equals(Locale.getDefault().getLanguage())) {
-    		// for people in UK the UK accent is preferable to the US accent
-    		localePreferenceList.add( Locale.getDefault() );
-    	}
-
-    	// try to get the native country for the lang
-		String countryCode = getDefaultCountryCode(bookLanguageCode);
-		if (countryCode!=null) {
-			localePreferenceList.add( new Locale(bookLanguageCode, countryCode));
+		showNotification();
+        Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
+        if(activity != null) {
+			activity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		}
-		
-		// finally just add the language of the book
-		localePreferenceList.add( new Locale(bookLanguageCode));
-		return localePreferenceList;
 	}
-	
-	private String getDefaultCountryCode(String language) {
-		if (language.equals("en")) return Locale.UK.getCountry();
-		if (language.equals("fr")) return Locale.FRANCE.getCountry();
-		if (language.equals("de")) return Locale.GERMANY.getCountry();
-		if (language.equals("zh")) return Locale.CHINA.getCountry();
-		if (language.equals("it")) return Locale.ITALY.getCountry();
-		if (language.equals("jp")) return Locale.JAPAN.getCountry();
-		if (language.equals("ko")) return Locale.KOREA.getCountry();
-		if (language.equals("hu")) return "HU";
-		if (language.equals("cs")) return "CZ";
-		if (language.equals("fi")) return "FI";
-		if (language.equals("pl")) return "PL";
-		if (language.equals("pt")) return "PT";
-		if (language.equals("ru")) return "RU";
-		if (language.equals("tr")) return "TR";
-		return null;
+
+    public void updateSettings() {
+        if (isSpeaking()) {
+        	pause(true);
+        	continueAfterPause(true);
+		}
+    }
+
+    private void showNotification() {
+		notificationAction(ACTION_START);
+	}
+
+	public void removeNotification() {
+		if(isSpeaking()) {
+			pause();
+		}
+		notificationAction(ACTION_REMOVE);
+	}
+
+	private void notificationAction(String actionName) {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+			BibleApplication app = BibleApplication.getApplication();
+			Intent intent = new Intent(app, TextToSpeechNotificationService.class);
+			intent.setAction(actionName);
+			app.startService(intent);
+		}
+	}
+
+	@Nullable
+	public CharSequence getStatusText() {
+		return textToSpeechServiceManager.get().getStatusText();
 	}
 }

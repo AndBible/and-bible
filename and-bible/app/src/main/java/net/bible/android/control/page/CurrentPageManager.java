@@ -6,6 +6,7 @@ import android.content.Intent;
 import net.bible.android.SharedConstants;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.mynote.MyNoteDAO;
+import net.bible.android.control.page.window.Window;
 import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.Logger;
@@ -37,6 +38,7 @@ public class CurrentPageManager {
 	private CurrentGeneralBookPage currentGeneralBookPage;
 	private CurrentMapPage currentMapPage;
 	private CurrentMyNotePage currentMyNotePage;
+	private Window window;
 	
 	private CurrentPage currentDisplayedPage;
 	
@@ -54,6 +56,10 @@ public class CurrentPageManager {
 		currentMapPage = new CurrentMapPage(swordContentFacade, swordDocumentFacade);
 		
 		currentDisplayedPage = currentBiblePage;
+	}
+
+	public void setWindow(Window window) {
+		this.window = window;
 	}
 	
 	public CurrentPage getCurrentPage() {
@@ -118,7 +124,7 @@ public class CurrentPageManager {
 			// page will change due to above
 			// if there is a valid share key or the doc (hence the key) in the next page is the same then show the page straight away
 			if (nextPage.getKey()!=null && (nextPage.isShareKeyBetweenDocs() || sameDoc || nextDocument.contains(nextPage.getKey()))) {
-				PassageChangeMediator.getInstance().onCurrentPageChanged();
+				PassageChangeMediator.getInstance().onCurrentPageChanged(this.window);
 			} else {
 				Context context = CurrentActivityHolder.getInstance().getCurrentActivity();
 				// pop up a key selection screen
@@ -160,7 +166,7 @@ public class CurrentPageManager {
 			}
 		}
 		// valid key has been set so do not need to show a key chooser therefore just update main view
-		PassageChangeMediator.getInstance().onCurrentPageChanged();
+		PassageChangeMediator.getInstance().onCurrentPageChanged(this.window);
 
 		return nextPage;
 	}
@@ -216,7 +222,7 @@ public class CurrentPageManager {
 	public void showBible() {
 		PassageChangeMediator.getInstance().onBeforeCurrentPageChanged();
 		currentDisplayedPage = currentBiblePage;
-		PassageChangeMediator.getInstance().onCurrentPageChanged();
+		PassageChangeMediator.getInstance().onCurrentPageChanged(this.window);
 	}
 
 	public JSONObject getStateJson() {

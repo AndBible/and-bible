@@ -7,8 +7,9 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.WRITE_SETTINGS"/>
-	<uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
 	<!-- allow use on Google TV -->
 	<uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
@@ -131,7 +132,11 @@
                   android:label="@string/speak"
                   android:configChanges="keyboardHidden|orientation|screenSize|locale">
         </activity>
-		<activity android:name="net.bible.android.view.activity.download.FirstDownload"
+        <activity android:name="net.bible.android.view.activity.speak.SpeakBible"
+                  android:label="@string/speak"
+                  android:configChanges="keyboardHidden|orientation|screenSize|locale">
+        </activity>
+        <activity android:name="net.bible.android.view.activity.download.FirstDownload"
 				  android:label="@string/download"
 				  android:configChanges="keyboardHidden|orientation|screenSize|locale">
 		</activity>
@@ -155,6 +160,8 @@
             android:name="net.bible.android.view.activity.installzip.InstallZip"
             android:label="@string/install_zip" >
         </activity>
+
+        <service android:name="net.bible.service.device.speak.TextToSpeechNotificationService"/>
 
         <!-- allow use with Samsung Note multi-window http://stackoverflow.com/questions/14111052/adding-multi-window-support-to-android-application -->
 		<uses-library android:required="false" android:name="com.sec.android.app.multiwindow" />

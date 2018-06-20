@@ -68,7 +68,7 @@
 	</target>
 
 	<target name="compile" depends="mergeCode">
-		<javac srcdir="${build.src}" destdir="${build.class}" classpathref="classpath" debug="true" source="1.6" target="1.6" createMissingPackageInfoClass="false"/>
+		<javac srcdir="${build.src}" destdir="${build.class}" classpathref="classpath" debug="true" source="1.8" target="1.8" createMissingPackageInfoClass="false"/>
 	</target>
 
 	<target name="jar" depends="compile">

@@ -5,6 +5,8 @@ import net.bible.android.control.event.passage.CurrentVerseChangedEvent;
 import net.bible.android.control.event.passage.PassageChangeStartedEvent;
 import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.passage.PreBeforeCurrentPageChangeEvent;
+import net.bible.android.control.page.CurrentPageManager;
+import net.bible.android.control.page.window.Window;
 import net.bible.service.device.ScreenSettings;
 import android.util.Log;
 import de.greenrobot.event.EventBus;
@@ -41,19 +43,24 @@ public class PassageChangeMediator {
 	
 	/** the document has changed so ask the view to refresh itself
 	 */
-	public void onCurrentPageChanged() {
+	public void onCurrentPageChanged(Window window) {
 		if (mBibleContentManager!=null) {
-			mBibleContentManager.updateText();
+			mBibleContentManager.updateText(window);
 		} else {
 			Log.w(TAG, "BibleContentManager not yet registered");
 		}
+		EventBus.getDefault().post(new CurrentVerseChangedEvent(window));
+	}
+
+	public void onCurrentPageChanged() {
+		this.onCurrentPageChanged(null);
 	}
 
 	/** the document has changed so ask the view to refresh itself
 	 */
 	public void forcePageUpdate() {
 		if (mBibleContentManager!=null) {
-			mBibleContentManager.updateText(true);
+			mBibleContentManager.updateText(true, null);
 		} else {
 			Log.w(TAG, "BibleContentManager not yet registered");
 		}

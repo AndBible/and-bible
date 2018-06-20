@@ -4,15 +4,17 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.RadioButton
+import de.greenrobot.event.EventBus
 import kotlinx.android.synthetic.main.speak.*
 import net.bible.android.activity.R
 import net.bible.android.control.speak.NumPagesToSpeakDefinition
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.service.device.speak.event.SpeakProggressEvent
 import javax.inject.Inject
 
-/** Allow user to enter search criteria
+/** Allow user to listen to text via TTS
 
  * @author Martin Denham [mjdenham at gmail dot com]
  * *
@@ -28,7 +30,8 @@ class Speak : CustomTitlebarActivityBase() {
     /** Called when the activity is first created.  */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Log.i(TAG, "Displaying Search view")
+        Log.i(TAG, "Displaying Speak view")
+
         setContentView(R.layout.speak)
 
         super.buildActivityComponent().inject(this)
@@ -59,7 +62,7 @@ class Speak : CustomTitlebarActivityBase() {
                     if (speakControl.isPaused) {
                         speakControl.continueAfterPause()
                     } else {
-                        speakControl.speak(selectedNumPagesToSpeak(), queue.isChecked, repeat.isChecked)
+                        speakControl.speakText(selectedNumPagesToSpeak(), queue.isChecked, repeat.isChecked);
                     }
                 forwardButton -> speakControl.forward()
             }
