@@ -234,7 +234,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun getStatusText(): String {
-        return getVerseRange().name
+        return "${getVerseRange().name} (${currentState.book.abbreviation})"
     }
 
     override fun getText(utteranceId: String): String {
