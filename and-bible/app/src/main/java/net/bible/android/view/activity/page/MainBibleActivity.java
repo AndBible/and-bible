@@ -131,6 +131,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 			if (intent.getIntExtra("state", 0) == 0 && speakControl.isSpeaking()) {
 				speakControl.pause();
 			}
+			else if(intent.getIntExtra("state", 0) == 1 && speakControl.isPaused()) {
+				speakControl.continueAfterPause();
+			}
 		}
 	}
 
