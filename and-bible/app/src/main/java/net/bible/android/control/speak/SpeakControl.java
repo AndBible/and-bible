@@ -7,6 +7,7 @@ import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
+import de.greenrobot.event.EventBus;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
@@ -80,6 +81,7 @@ public class SpeakControl {
 		if(isPaused()) {
 			showNotification();
 		}
+		EventBus.getDefault().register(this);
 	}
 
 	/** return a list of prompt ids for the speak screen associated with the current document type
@@ -317,6 +319,11 @@ public class SpeakControl {
         if(activity != null) {
 			activity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		}
+	}
+
+
+	public void onEvent(SpeakSettings ev) {
+		updateSettings();
 	}
 
     public void updateSettings() {

@@ -4,7 +4,6 @@ import android.content.res.Resources
 import android.util.Log
 import android.util.LruCache
 import de.greenrobot.event.EventBus
-import kotlinx.serialization.SerializationException
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.CommonUtils
@@ -14,7 +13,6 @@ import net.bible.android.activity.R
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
-import kotlinx.serialization.json.JSON
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
@@ -76,21 +74,15 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         get() = _settings?: SpeakSettings()
         set(value) {
             _settings = value
-            val strSettings = JSON.stringify(settings)
             CommonUtils.getSharedPreferences().edit()
-                    .putString(PERSIST_SETTINGS, strSettings)
+                    .putString(PERSIST_SETTINGS, settings.toJson())
                     .apply()
         }
 
     init {
         val sharedPreferences = CommonUtils.getSharedPreferences()
         if(sharedPreferences.contains(PERSIST_SETTINGS)) {
-            val settingsStr = sharedPreferences.getString(PERSIST_SETTINGS, "")
-            settings = try {
-                JSON.parse(settingsStr)
-            } catch (ex: SerializationException) {
-                SpeakSettings()
-            }
+            settings = SpeakSettings.fromJson(sharedPreferences.getString(PERSIST_SETTINGS, ""))
         }
     }
 
@@ -276,6 +268,10 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             val bookmarkList = bookmarkControl.getBookmarksWithLabel(labelDto)
             val bookmarkDto = bookmarkList.find { it.verseRange.start.equals(verse) && it.verseRange.end.equals(verse)}
             if(bookmarkDto != null) {
+                if(bookmarkDto.speakSettings != null) {
+                    settings = bookmarkDto.speakSettings
+                    EventBus.getDefault().post(settings)
+                }
                 bookmarkControl.deleteBookmark(bookmarkDto)
                 EventBus.getDefault().post(SynchronizeWindowsEvent(true))
             }
@@ -283,21 +279,28 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     private fun saveBookmark(){
+        val labelList = ArrayList<LabelDto>()
         if(settings.autoBookmarkLabelId != null) {
             var bookmarkDto = bookmarkControl.getBookmarkByKey(startVerse)
             if(bookmarkDto == null) {
                 bookmarkDto = BookmarkDto()
                 bookmarkDto.verseRange = VerseRange(startVerse.versification, startVerse)
+                bookmarkDto.speakSettings = settings
                 bookmarkDto = bookmarkControl.addBookmark(bookmarkDto)
             }
             else {
-                bookmarkControl.refreshBookmarkDate(bookmarkDto)
+                labelList.addAll(bookmarkControl.getBookmarkLabels(bookmarkDto))
+                bookmarkControl.deleteBookmark(bookmarkDto)
+                bookmarkDto.speakSettings = settings
+                bookmarkDto.id = null
+                bookmarkDto = bookmarkControl.addBookmark(bookmarkDto)
             }
             if(settings.autoBookmarkLabelId != SpeakSettings.INVALID_LABEL_ID) {
                 val labelDto = LabelDto()
                 labelDto.id = settings.autoBookmarkLabelId
-                bookmarkControl.setBookmarkLabels(bookmarkDto, listOf(labelDto))
+                labelList.add(labelDto)
             }
+            bookmarkControl.setBookmarkLabels(bookmarkDto, labelList)
             EventBus.getDefault().post(SynchronizeWindowsEvent(true))
         }
     }

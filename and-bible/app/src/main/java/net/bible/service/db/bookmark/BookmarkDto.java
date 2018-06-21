@@ -1,5 +1,6 @@
 package net.bible.service.db.bookmark;
 
+import net.bible.android.control.speak.SpeakSettings;
 import net.bible.android.control.versification.ConvertibleVerseRange;
 import net.bible.android.control.versification.sort.ConvertibleVerseRangeUser;
 
@@ -17,6 +18,7 @@ public class BookmarkDto implements ConvertibleVerseRangeUser {
 	private Long id;
 	private ConvertibleVerseRange convertibleVerseRange;
 	private Date createdOn;
+	private SpeakSettings speakSettings = null;
 
 	public Long getId() {
 		return id;
@@ -38,6 +40,14 @@ public class BookmarkDto implements ConvertibleVerseRangeUser {
 	}
 	public void setCreatedOn(Date createdOn) {
 		this.createdOn = createdOn;
+	}
+
+	public SpeakSettings getSpeakSettings(){
+		return speakSettings;
+	}
+
+	public void setSpeakSettings(SpeakSettings speakSettings) {
+		this.speakSettings = speakSettings;
 	}
 
 	@Override

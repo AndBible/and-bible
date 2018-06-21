@@ -38,7 +38,40 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
         EventBus.getDefault().register(this)
 
         textProvider = speakControl.bibleSpeakTextProvider
-        val initialSettings = textProvider.settings
+        bookmarkLabels = bookmarkControl.assignableLabels
+
+        resetView(textProvider.settings)
+
+        val initialSpeed = CommonUtils.getSharedPreferences().getInt(speakSpeedPref, 100)
+        speakSpeed.progress = initialSpeed
+        speedStatus.text = "$initialSpeed %"
+
+        speakSpeed.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                speedStatus.text = "$progress %"
+                speakControl.setRate(progress/100F)
+                speakControl.updateSettings()
+            }
+        })
+
+        val adapter = ArrayAdapter<LabelDto>(this, android.R.layout.simple_spinner_dropdown_item, bookmarkLabels)
+        bookmarkTag.adapter = adapter
+
+        bookmarkTag.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                updateSettings(restart = false)
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                updateSettings(restart = false)
+            }
+
+        }
+    }
+
+    private fun resetView(initialSettings: SpeakSettings) {
         statusText.text = textProvider.getStatusText()
         synchronize.isChecked = initialSettings.synchronize
         speakBookChanges.isChecked = initialSettings.speakBookChanges
@@ -67,23 +100,6 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
             SpeakSettings.RewindAmount.FULL_CHAPTER -> autoRewindFullChapter.isChecked = true
         }
 
-        val initialSpeed = CommonUtils.getSharedPreferences().getInt(speakSpeedPref, 100)
-        speakSpeed.progress = initialSpeed
-        speedStatus.text = "$initialSpeed %"
-
-        speakSpeed.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                speedStatus.text = "$progress %"
-                speakControl.setRate(progress/100F)
-                speakControl.updateSettings()
-            }
-        })
-
-        bookmarkLabels = bookmarkControl.assignableLabels
-        val adapter = ArrayAdapter<LabelDto>(this, android.R.layout.simple_spinner_dropdown_item, bookmarkLabels)
-        bookmarkTag.adapter = adapter
         if(initialSettings.autoBookmarkLabelId != null) {
             val labelDto = bookmarkLabels.find { labelDto -> labelDto.id == initialSettings.autoBookmarkLabelId }
             val itemId = bookmarkLabels.indexOf(labelDto)
@@ -95,21 +111,14 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
             autoBookmark.isChecked = false
             bookmarkTag.setEnabled(false)
         }
-
-        bookmarkTag.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                updateSettings(restart = false)
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                updateSettings(restart = false)
-            }
-
-        }
     }
 
     fun onEventMainThread(ev: SpeakProggressEvent) {
         statusText.text = textProvider.getStatusText()
+    }
+
+    fun onEventMainThread(ev: SpeakSettings) {
+        resetView(ev)
     }
 
     fun onSettingsChange(widget: View) = updateSettings()

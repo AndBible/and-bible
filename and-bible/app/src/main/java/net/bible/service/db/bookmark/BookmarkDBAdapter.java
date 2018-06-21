@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import net.bible.android.control.speak.SpeakSettings;
 import net.bible.service.db.CommonDatabaseHelper;
 import net.bible.service.db.SQLHelper;
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.BookmarkColumn;
@@ -76,6 +77,10 @@ public class BookmarkDBAdapter {
 		newValues.put(BookmarkColumn.KEY, key.getOsisRef());
 		newValues.put(BookmarkColumn.VERSIFICATION, v11nName);
 		newValues.put(BookmarkColumn.CREATED_ON, now);
+		SpeakSettings speakSettings = bookmark.getSpeakSettings();
+		if(speakSettings!= null) {
+			newValues.put(BookmarkColumn.SPEAK_SETTINGS, speakSettings.toJson());
+		}
 
 		long newId = db.insert(Table.BOOKMARK, null, newValues);
 		return getBookmarkDto(newId);
@@ -334,6 +339,11 @@ public class BookmarkDBAdapter {
 			//Created date
 			long created = c.getLong(BookmarkQuery.CREATED_ON);
 			dto.setCreatedOn(new Date(created));
+
+			String speakSettingsStr = c.getString(BookmarkQuery.SPEAK_SETTINGS);
+			if(speakSettingsStr != null) {
+				dto.setSpeakSettings(SpeakSettings.Companion.fromJson(speakSettingsStr));
+			}
 		
 		} catch (NoSuchKeyException nke) {
 			Log.e(TAG, "Key error", nke);
@@ -377,12 +387,13 @@ public class BookmarkDBAdapter {
 	private interface BookmarkQuery {
         String TABLE = Table.BOOKMARK;
 
-		String[] COLUMNS = new String[] {BookmarkColumn._ID, BookmarkColumn.KEY, BookmarkColumn.VERSIFICATION, BookmarkColumn.CREATED_ON};
+		String[] COLUMNS = new String[] {BookmarkColumn._ID, BookmarkColumn.KEY, BookmarkColumn.VERSIFICATION, BookmarkColumn.CREATED_ON, BookmarkColumn.SPEAK_SETTINGS};
 
         int ID = 0;
         int KEY = 1;
         int VERSIFICATION = 2;
-        int CREATED_ON = 3;
+		int CREATED_ON = 3;
+        int SPEAK_SETTINGS = 4;
     }
 	private interface LabelQuery {
         String TABLE = Table.LABEL;
