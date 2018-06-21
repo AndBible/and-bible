@@ -18,7 +18,7 @@ data class SpeakSettings(@Optional val synchronize: Boolean = true,
                          @Optional val delayOnParagraphChanges: Boolean = true,
                          @Optional val rewindAmount: RewindAmount = RewindAmount.ONE_VERSE,
                          @Optional val autoRewindAmount: RewindAmount = RewindAmount.NONE,
-                         @Optional val speed: Int = 100
+                         @Optional var speed: Int = 100
                          ) {
 
     enum class RewindAmount {NONE, ONE_VERSE, TEN_VERSES, FULL_CHAPTER}

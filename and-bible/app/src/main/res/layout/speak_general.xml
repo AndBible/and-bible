@@ -53,7 +53,34 @@
 		    	android:layout_height="wrap_content"/>
 		</LinearLayout>
 	</LinearLayout>
+	<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/leftPanel"
+			android:id="@+id/speedLayout"
+			>
 
+		<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/speak_speed_title"/>
+
+		<TextView
+				android:text="SPEED"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:id="@+id/speedStatus"
+				android:gravity="end"
+				/>
+	</LinearLayout>
+	<SeekBar
+			android:layout_below="@id/speedLayout"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:id="@+id/speakSpeed"
+			android:max="300"
+			android:progress="100"
+			/>
 
 	<!-- Button bar with OK button -->
 	<LinearLayout android:id="@+id/button_panel"
