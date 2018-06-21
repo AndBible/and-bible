@@ -40,6 +40,14 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
 
         resetView(SpeakSettings.fromSharedPreferences())
 
+        if(bookmarkLabels.isEmpty()) {
+            autoBookmark.isEnabled = false
+            if(autoBookmark.isChecked) {
+                autoBookmark.isChecked = false
+                updateSettings()
+            }
+        }
+
         speakSpeed.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
@@ -54,11 +62,11 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
 
         bookmarkTag.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                updateSettings(restart = false)
+                updateSettings()
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                updateSettings(restart = false)
+                updateSettings()
             }
         }
         restoreSettingsFromBookmarks.isChecked = CommonUtils.getSharedPreferences().getBoolean(RESTORE_SETTINGS_FROM_BOOKMARKS, false)
@@ -102,7 +110,7 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
         }
         else {
             autoBookmark.isChecked = false
-            bookmarkTag.setEnabled(false)
+            bookmarkTag.isEnabled = false
         }
         speakSpeed.progress = settings.speed
         speedStatus.text = "${settings.speed} %"
@@ -123,8 +131,8 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
         CommonUtils.getSharedPreferences().edit().putBoolean(RESTORE_SETTINGS_FROM_BOOKMARKS, restoreSettingsFromBookmarks.isChecked).apply()
     }
 
-    private fun updateSettings(restart: Boolean = true) { // TODO restart param
-        bookmarkTag.setEnabled(autoBookmark.isChecked)
+    private fun updateSettings() {
+        bookmarkTag.isEnabled = autoBookmark.isChecked
 
         val labelId = if (bookmarkTag.selectedItemPosition != INVALID_POSITION) {
             bookmarkLabels.get(bookmarkTag.selectedItemPosition).id

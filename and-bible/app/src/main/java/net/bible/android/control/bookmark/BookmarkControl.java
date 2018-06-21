@@ -10,10 +10,12 @@ import de.greenrobot.event.EventBus;
 import net.bible.android.activity.R;
 import net.bible.android.common.resource.ResourceProvider;
 import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
+import net.bible.android.control.speak.SpeakSettings;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.IntentHelper;
@@ -65,6 +67,24 @@ public class BookmarkControl {
 		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 		LABEL_ALL = new LabelDto(-999L, resourceProvider.getString(R.string.all), null);
 		LABEL_UNLABELLED = new LabelDto(-998L, resourceProvider.getString(R.string.label_unlabelled), null);
+		ABEventBus.getDefault().safelyRegister(this);
+	}
+
+	public void onEvent(SpeakSettings ev) {
+		// If we are currently above a bookmark that has been auto-saved, let's update settings there!
+		updateBookmarkSettings(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getKey(), ev);
+	}
+
+	public void updateBookmarkSettings(Key key, SpeakSettings settings) {
+		BookmarkDto bookmarkDto = getBookmarkByKey(key);
+		if(bookmarkDto.getSpeakSettings() != null) {
+			List<LabelDto> labels = getBookmarkLabels(bookmarkDto);
+			bookmarkDto.setSpeakSettings(settings);
+			deleteBookmark(bookmarkDto);
+			bookmarkDto.setId(null);
+			bookmarkDto = addBookmark(bookmarkDto);
+			setBookmarkLabels(bookmarkDto, labels);
+		}
 	}
 
 	public boolean addBookmarkForVerseRange(VerseRange verseRange) {

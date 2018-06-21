@@ -51,6 +51,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private val utteranceState = HashMap<String, State>()
     private var currentUtteranceId = ""
     private val currentCommands = SpeakCommandArray()
+    private var paused: Boolean = false
 
     private val bibleBooks = HashMap<String, String>()
     private val verseRenderLruCache = LruCache<Pair<SwordBook, Verse>, SpeakCommandArray>(100)
@@ -79,6 +80,9 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     fun onEvent(ev: SpeakSettings) {
         this.settings = ev
+        if(paused) {
+            bookmarkControl.updateBookmarkSettings(startVerse, ev)
+        }
     }
 
     fun setupBook(book: SwordBook) {
@@ -239,6 +243,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun pause() {
+        paused = true
         reset()
         currentVerse = startVerse
         saveBookmark()
@@ -252,6 +257,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun prepareForContinue() {
+        paused = false
         removeBookmark()
     }
 
