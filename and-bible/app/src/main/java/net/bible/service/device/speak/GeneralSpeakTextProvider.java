@@ -58,6 +58,11 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 		return "";
 	}
 
+	@Override
+	public void autoRewind() {
+
+	}
+
 	private static class StartPos {
 		boolean found = false;
 		private int startPosition = 0;

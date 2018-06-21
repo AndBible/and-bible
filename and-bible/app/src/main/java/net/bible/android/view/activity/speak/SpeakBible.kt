@@ -52,11 +52,19 @@ class SpeakBible : CustomTitlebarActivityBase() {
         delayOnParagraphChanges.isChecked = initialSettings.delayOnParagraphChanges
 
         when(initialSettings.rewindAmount) {
-            SpeakSettings.RewindAmount.ONE_VERSE -> oneVerse.isChecked = true
-            SpeakSettings.RewindAmount.TEN_VERSES -> tenVerses.isChecked = true
-            SpeakSettings.RewindAmount.FULL_CHAPTER -> fullChapter.isChecked = true
+            SpeakSettings.RewindAmount.ONE_VERSE -> rewindOneVerse.isChecked = true
+            SpeakSettings.RewindAmount.TEN_VERSES -> rewindTenVerses.isChecked = true
+            SpeakSettings.RewindAmount.FULL_CHAPTER -> rewindFullChapter.isChecked = true
+            SpeakSettings.RewindAmount.NONE -> {}
         }
-        
+
+        when(initialSettings.autoRewindAmount) {
+            SpeakSettings.RewindAmount.NONE -> autoRewindNone.isChecked = true
+            SpeakSettings.RewindAmount.ONE_VERSE -> autoRewindOneVerse.isChecked = true
+            SpeakSettings.RewindAmount.TEN_VERSES -> autoRewindTenVerses.isChecked = true
+            SpeakSettings.RewindAmount.FULL_CHAPTER -> autoRewindFullChapter.isChecked = true
+        }
+
         val initialSpeed = CommonUtils.getSharedPreferences().getInt(speakSpeedPref, 100)
         speakSpeed.progress = initialSpeed
         speedStatus.text = initialSpeed.toString()
@@ -127,13 +135,21 @@ class SpeakBible : CustomTitlebarActivityBase() {
                 replaceDivineName = replaceDivineName.isChecked,
                 delayOnParagraphChanges = delayOnParagraphChanges.isChecked,
 
-                rewindAmount =  if ( oneVerse.isChecked ) {
+                rewindAmount =  if ( rewindOneVerse.isChecked ) {
                     SpeakSettings.RewindAmount.ONE_VERSE }
-                else if (tenVerses.isChecked ) {
+                else if (rewindTenVerses.isChecked ) {
+                    SpeakSettings.RewindAmount.TEN_VERSES }
+                else {
+                    SpeakSettings.RewindAmount.FULL_CHAPTER},
+
+                autoRewindAmount =  if ( autoRewindOneVerse.isChecked ) {
+                    SpeakSettings.RewindAmount.ONE_VERSE }
+                else if (autoRewindNone.isChecked ) {
+                    SpeakSettings.RewindAmount.NONE }
+                else if (autoRewindTenVerses.isChecked ) {
                     SpeakSettings.RewindAmount.TEN_VERSES }
                 else {
                     SpeakSettings.RewindAmount.FULL_CHAPTER}
-                
         )
         if(restart) {
             speakControl.updateSettings()

@@ -31,7 +31,6 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                              private val bookmarkControl: BookmarkControl,
                              initialBook: SwordBook,
                              initialVerse: Verse) : SpeakTextProvider {
-
     private data class State(val book: SwordBook,
                              val startVerse: Verse,
                              val endVerse: Verse,
@@ -307,9 +306,8 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     private fun getNextVerse(verse: Verse): Verse = bibleTraverser.getNextVerse(book, verse)
 
-    override fun rewind() {
-        reset()
-        when(settings.rewindAmount) {
+    private fun rewind(amount: SpeakSettings.RewindAmount) {
+        when(amount) {
          SpeakSettings.RewindAmount.FULL_CHAPTER -> {
              if (startVerse.verse <= 1) {
                  currentVerse = bibleTraverser.getPrevChapter(book, startVerse)
@@ -329,7 +327,16 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         }
         startVerse = currentVerse
         endVerse = currentVerse
+    }
+
+    override fun rewind() {
+        reset()
+        rewind(settings.rewindAmount)
         EventBus.getDefault().post(SpeakProggressEvent(book, startVerse, settings.synchronize, null))
+    }
+
+    override fun autoRewind() {
+        rewind(settings.autoRewindAmount)
     }
 
     override fun forward() {

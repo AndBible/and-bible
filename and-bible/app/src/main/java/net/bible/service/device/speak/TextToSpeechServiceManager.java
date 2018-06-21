@@ -287,7 +287,7 @@ public class TextToSpeechServiceManager {
 	    	Log.d(TAG, "continue after pause");
             isPaused = false;
 			clearPauseState();
-
+			mSpeakTextProvider.autoRewind();
 	        // ask TTs to say the text
 	    	startSpeakingInitingIfRequired();
     	} catch (Exception e) {
