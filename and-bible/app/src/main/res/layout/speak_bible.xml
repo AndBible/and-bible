@@ -33,9 +33,11 @@
 				android:layout_height="wrap_content"
 				android:text="@string/conf_speak"
 				/>
+
 		<LinearLayout
-				android:layout_width="wrap_content"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content">
+
 			<CheckBox
 					android:text="@string/conf_change_book"
 					android:layout_width="wrap_content"
@@ -65,9 +67,11 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:text="@string/conf_play_earcons"/>
+
 		<LinearLayout
-				android:layout_width="wrap_content"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content">
+
 			<CheckBox
 					android:text="@string/conf_change_book"
 					android:layout_width="wrap_content"
@@ -92,6 +96,42 @@
 					android:id="@+id/playEarconTitles"
 					android:onClick="onSettingsChange"/>
 		</LinearLayout>
+
+		<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/conf_rewind_amount"/>
+
+		<RadioGroup
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:orientation="horizontal"
+				android:layout_weight="1">
+
+			<RadioButton
+					android:text="@string/conf_rewind_amount_one_verse"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:id="@+id/oneVerse"
+					android:onClick="onSettingsChange"/>
+
+			<RadioButton
+					android:text="@string/conf_rewind_amount_ten_verses"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:id="@+id/tenVerses"
+					android:onClick="onSettingsChange"/>
+
+			<RadioButton
+					android:text="@string/conf_rewind_amount_full_chapter"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:id="@+id/fullChapter"
+					android:onClick="onSettingsChange"/>
+		</RadioGroup>
 		<CheckBox
 				android:text="@string/conf_delay_on_paragraph_changes"
 				android:layout_width="wrap_content"
@@ -123,8 +163,9 @@
 				android:onClick="onSettingsChange"/>
 
 		<LinearLayout
-				android:layout_width="wrap_content"
+				android:layout_width="match_parent"
 				android:layout_height="wrap_content">
+
 			<TextView
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"

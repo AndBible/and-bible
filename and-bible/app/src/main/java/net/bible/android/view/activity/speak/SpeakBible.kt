@@ -50,6 +50,12 @@ class SpeakBible : CustomTitlebarActivityBase() {
         continueSentences.isChecked = initialSettings.continueSentences
         replaceDivineName.isChecked = initialSettings.replaceDivineName
         delayOnParagraphChanges.isChecked = initialSettings.delayOnParagraphChanges
+
+        when(initialSettings.rewindAmount) {
+            SpeakSettings.RewindAmount.ONE_VERSE -> oneVerse.isChecked = true
+            SpeakSettings.RewindAmount.TEN_VERSES -> tenVerses.isChecked = true
+            SpeakSettings.RewindAmount.FULL_CHAPTER -> fullChapter.isChecked = true
+        }
         
         val initialSpeed = CommonUtils.getSharedPreferences().getInt(speakSpeedPref, 100)
         speakSpeed.progress = initialSpeed
@@ -119,7 +125,15 @@ class SpeakBible : CustomTitlebarActivityBase() {
                 continueSentences = continueSentences.isChecked,
                 autoBookmarkLabelId = if (autoBookmark.isChecked) labelId else null,
                 replaceDivineName = replaceDivineName.isChecked,
-                delayOnParagraphChanges = delayOnParagraphChanges.isChecked
+                delayOnParagraphChanges = delayOnParagraphChanges.isChecked,
+
+                rewindAmount =  if ( oneVerse.isChecked ) {
+                    SpeakSettings.RewindAmount.ONE_VERSE }
+                else if (tenVerses.isChecked ) {
+                    SpeakSettings.RewindAmount.TEN_VERSES }
+                else {
+                    SpeakSettings.RewindAmount.FULL_CHAPTER}
+                
         )
         if(restart) {
             speakControl.updateSettings()
