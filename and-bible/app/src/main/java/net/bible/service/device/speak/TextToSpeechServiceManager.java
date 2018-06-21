@@ -13,6 +13,7 @@ import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.phonecall.PhoneCallMonitor;
 import net.bible.android.control.event.phonecall.PhoneCallStarted;
 import net.bible.android.control.page.window.WindowControl;
+import net.bible.android.control.speak.SpeakSettings;
 import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
@@ -488,8 +489,7 @@ public class TextToSpeechServiceManager {
 				mTts.addEarcon(EARCON_PRE_BOOK_CHANGE, BibleApplication.getApplication().getPackageName(), R.raw.long_pling);
 
 				// set speech rate
-                int speakSpeedPercentPref = CommonUtils.getSharedPreferences().getInt("speak_speed_percent_pref", 100);
-                mTts.setSpeechRate(speakSpeedPercentPref/100F);
+                setRate(SpeakSettings.Companion.fromSharedPreferences().getSpeed());
 
 				boolean localeOK = false;
 				Locale locale = null;
@@ -575,12 +575,15 @@ public class TextToSpeechServiceManager {
 		}
 	};
 
-    public void setRate(float speechRate) {
+    private void setRate(int speechRate) {
 		if(mTts != null) {
-			mTts.setSpeechRate(speechRate);
+			mTts.setSpeechRate(speechRate/100F);
 		}
-		CommonUtils.getSharedPreferences().edit().putInt("speak_speed_percent_pref", Math.round(speechRate*100F)).apply();
     }
+
+    void onEvent(SpeakSettings ev) {
+		setRate(ev.getSpeed());
+	}
 
     public CharSequence getStatusText() {
     	return mSpeakTextProvider.getStatusText();

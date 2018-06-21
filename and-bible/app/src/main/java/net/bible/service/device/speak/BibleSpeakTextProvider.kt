@@ -29,6 +29,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                              private val bookmarkControl: BookmarkControl,
                              initialBook: SwordBook,
                              initialVerse: Verse) : SpeakTextProvider {
+
     private data class State(val book: SwordBook,
                              val startVerse: Verse,
                              val endVerse: Verse,
@@ -38,7 +39,6 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     companion object {
         private val PERSIST_BOOK = "SpeakBibleBook"
         private val PERSIST_VERSE = "SpeakBibleVerse"
-        private val PERSIST_SETTINGS = "SpeakBibleSettings"
         private val TAG = "Speak"
     }
 
@@ -61,6 +61,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         }
 
     init {
+        EventBus.getDefault().register(this)
         book = initialBook
         setupBook(initialBook)
         startVerse = initialVerse
@@ -69,21 +70,14 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     private var readList = SpeakCommandArray()
-    private var _settings: SpeakSettings? = null
-    var settings: SpeakSettings
-        get() = _settings?: SpeakSettings()
-        set(value) {
-            _settings = value
-            CommonUtils.getSharedPreferences().edit()
-                    .putString(PERSIST_SETTINGS, settings.toJson())
-                    .apply()
-        }
+    internal var settings: SpeakSettings
 
     init {
-        val sharedPreferences = CommonUtils.getSharedPreferences()
-        if(sharedPreferences.contains(PERSIST_SETTINGS)) {
-            settings = SpeakSettings.fromJson(sharedPreferences.getString(PERSIST_SETTINGS, ""))
-        }
+        settings = SpeakSettings.fromSharedPreferences()
+    }
+
+    fun onEvent(ev: SpeakSettings) {
+        this.settings = ev
     }
 
     fun setupBook(book: SwordBook) {
@@ -270,6 +264,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             if(bookmarkDto != null) {
                 if(bookmarkDto.speakSettings != null) {
                     settings = bookmarkDto.speakSettings
+                    settings.saveSharedPreferences()
                     EventBus.getDefault().post(settings)
                 }
                 bookmarkControl.deleteBookmark(bookmarkDto)

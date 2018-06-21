@@ -282,10 +282,6 @@ public class SpeakControl {
 		}
 	}
 
-	public void setRate(float speechRate) {
-		textToSpeechServiceManager.get().setRate(speechRate);
-	}
-
 	public void continueAfterPause() {
 		continueAfterPause(false);
 	}
@@ -323,15 +319,11 @@ public class SpeakControl {
 
 
 	public void onEvent(SpeakSettings ev) {
-		updateSettings();
-	}
-
-    public void updateSettings() {
         if (isSpeaking()) {
         	pause(true);
         	continueAfterPause(true);
 		}
-    }
+	}
 
     private void showNotification() {
 		notificationAction(ACTION_START);
