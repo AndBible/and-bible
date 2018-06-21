@@ -5,6 +5,7 @@
 				android:background="@color/widget_background"
 				android:padding="@dimen/widget_margin"
 		>
+
 	<LinearLayout
 			android:id="@+id/layout"
 			android:layout_width="fill_parent"
@@ -21,6 +22,7 @@
 				android:text="@string/app_name"
 				tools:textSize="14sp"
 				android:textStyle="bold"/>
+
 		<TextView
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
