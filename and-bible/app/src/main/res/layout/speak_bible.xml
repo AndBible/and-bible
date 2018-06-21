@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
 				android:orientation="vertical"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
-
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+		>
+	<ScrollView
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_alignParentTop="true"
+			android:layout_above="@id/buttonsLayout"
+			>
 
 		<LinearLayout
 				android:id="@+id/panel"
@@ -126,6 +131,7 @@
 						android:id="@+id/rewindFullChapter"
 						android:onClick="onSettingsChange"/>
 			</RadioGroup>
+
 			<TextView
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
@@ -244,8 +250,10 @@
 					/>
 
 		</LinearLayout>
+	</ScrollView>
 
 	<LinearLayout
+			android:id="@+id/buttonsLayout"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:orientation="vertical"
@@ -311,9 +319,6 @@
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					android:onClick="onButtonClick"/>
-
 		</LinearLayout>
 	</LinearLayout>
-
-
 </RelativeLayout>
