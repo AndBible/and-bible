@@ -1,5 +1,6 @@
 package net.bible.android.view.activity.speak
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.View
 import android.widget.*
@@ -29,6 +30,7 @@ class SpeakBible : CustomTitlebarActivityBase() {
     private lateinit var textProvider: BibleSpeakTextProvider
     private lateinit var bookmarkLabels: List<LabelDto>
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.speak_bible)
@@ -67,13 +69,13 @@ class SpeakBible : CustomTitlebarActivityBase() {
 
         val initialSpeed = CommonUtils.getSharedPreferences().getInt(speakSpeedPref, 100)
         speakSpeed.progress = initialSpeed
-        speedStatus.text = initialSpeed.toString()
+        speedStatus.text = "$initialSpeed %"
 
         speakSpeed.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                speedStatus.text = progress.toString()
+                speedStatus.text = "$progress %"
                 speakControl.setRate(progress/100F)
                 speakControl.updateSettings()
             }
