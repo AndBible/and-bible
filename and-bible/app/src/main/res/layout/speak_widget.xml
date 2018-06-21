@@ -10,7 +10,7 @@
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:orientation="vertical"
-			android:layout_alignParentBottom="true"
+			android:layout_centerVertical="true"
 			android:layout_centerHorizontal="true"
 			>
 
@@ -18,6 +18,7 @@
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
 				android:id="@+id/titleText"
+				android:text="@string/app_name"
 				tools:textSize="14sp"
 				android:textStyle="bold"/>
 		<TextView
