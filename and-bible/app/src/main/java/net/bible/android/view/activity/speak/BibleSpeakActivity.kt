@@ -23,7 +23,7 @@ import javax.inject.Inject
 val speakSpeedPref = "speak_speed_percent_pref"
 
 @ActivityScope
-class SpeakBible : CustomTitlebarActivityBase() {
+class BibleSpeakActivity : CustomTitlebarActivityBase() {
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var bookmarkControl: BookmarkControl
 

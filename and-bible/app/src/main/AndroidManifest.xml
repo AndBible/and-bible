@@ -128,11 +128,11 @@
                   android:label="@string/history"
                   android:configChanges="keyboardHidden|orientation|screenSize|locale">
         </activity>
-        <activity android:name="net.bible.android.view.activity.speak.Speak"
+        <activity android:name="net.bible.android.view.activity.speak.GeneralSpeakActivity"
                   android:label="@string/speak"
                   android:configChanges="keyboardHidden|orientation|screenSize|locale">
         </activity>
-        <activity android:name="net.bible.android.view.activity.speak.SpeakBible"
+        <activity android:name="net.bible.android.view.activity.speak.BibleSpeakActivity"
                   android:label="@string/speak"
                   android:configChanges="keyboardHidden|orientation|screenSize|locale">
         </activity>

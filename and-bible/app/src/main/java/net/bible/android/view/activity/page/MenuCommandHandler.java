@@ -30,8 +30,8 @@ import net.bible.android.view.activity.page.screen.WindowMenuCommandHandler;
 import net.bible.android.view.activity.readingplan.DailyReading;
 import net.bible.android.view.activity.readingplan.ReadingPlanSelectorList;
 import net.bible.android.view.activity.settings.SettingsActivity;
-import net.bible.android.view.activity.speak.Speak;
-import net.bible.android.view.activity.speak.SpeakBible;
+import net.bible.android.view.activity.speak.GeneralSpeakActivity;
+import net.bible.android.view.activity.speak.BibleSpeakActivity;
 import net.bible.service.common.CommonUtils;
 import org.crosswire.jsword.book.BookCategory;
 
@@ -117,7 +117,7 @@ public class MenuCommandHandler {
 				case R.id.speakButton:
 					boolean isBible = windowControl.getActiveWindowPageManager().getCurrentPage()
 							.getBookCategory().equals(BookCategory.BIBLE);
-		        	handlerIntent = new Intent(callingActivity, isBible ? SpeakBible.class : Speak.class);
+		        	handlerIntent = new Intent(callingActivity, isBible ? BibleSpeakActivity.class : GeneralSpeakActivity.class);
 		        	break;
 		        case R.id.dailyReadingPlanButton:
 		        	// show todays plan or allow plan selection

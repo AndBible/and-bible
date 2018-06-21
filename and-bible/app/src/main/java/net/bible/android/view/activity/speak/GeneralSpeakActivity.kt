@@ -4,14 +4,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.RadioButton
-import de.greenrobot.event.EventBus
-import kotlinx.android.synthetic.main.speak.*
+import kotlinx.android.synthetic.main.speak_general.*
 import net.bible.android.activity.R
 import net.bible.android.control.speak.NumPagesToSpeakDefinition
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.device.speak.event.SpeakProggressEvent
 import javax.inject.Inject
 
 /** Allow user to listen to text via TTS
@@ -21,7 +19,7 @@ import javax.inject.Inject
  * @see gnu.lgpl.License for license details.<br></br>
  * The copyright to this program is held by it's author.
  */
-class Speak : CustomTitlebarActivityBase() {
+class GeneralSpeakActivity : CustomTitlebarActivityBase() {
 
     private lateinit var numPagesToSpeakDefinitions: Array<NumPagesToSpeakDefinition>
 
@@ -32,7 +30,7 @@ class Speak : CustomTitlebarActivityBase() {
         super.onCreate(savedInstanceState)
         Log.i(TAG, "Displaying Speak view")
 
-        setContentView(R.layout.speak)
+        setContentView(R.layout.speak_general)
 
         super.buildActivityComponent().inject(this)
 

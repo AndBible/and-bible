@@ -27,8 +27,8 @@ import net.bible.android.view.activity.search.Search;
 import net.bible.android.view.activity.search.SearchIndex;
 import net.bible.android.view.activity.search.SearchIndexProgressStatus;
 import net.bible.android.view.activity.search.SearchResults;
-import net.bible.android.view.activity.speak.Speak;
-import net.bible.android.view.activity.speak.SpeakBible;
+import net.bible.android.view.activity.speak.GeneralSpeakActivity;
+import net.bible.android.view.activity.speak.BibleSpeakActivity;
 
 import dagger.Component;
 import net.bible.service.device.speak.TextToSpeechNotificationService;
@@ -63,8 +63,8 @@ public interface ActivityComponent {
 	void inject(ChooseDocument chooseDocument);
 	void inject(Download download);
 
-	void inject(Speak speak);
-	void inject(SpeakBible speakBible);
+	void inject(GeneralSpeakActivity speak);
+	void inject(BibleSpeakActivity speakBible);
 	void inject(DailyReading dailyReading);
 	void inject(DailyReadingList dailyReadingList);
 	void inject(ReadingPlanSelectorList readingPlanSelectorList);
