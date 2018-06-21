@@ -6,6 +6,7 @@ import android.content.Context
 import android.util.Log
 import android.widget.RemoteViews
 import android.app.PendingIntent
+import android.content.ComponentName
 import android.content.Intent
 import net.bible.service.device.speak.TextToSpeechNotificationService
 import net.bible.android.BibleApplication
@@ -16,8 +17,7 @@ import javax.inject.Inject
 
 class SpeakWidget : AppWidgetProvider() {
     companion object {
-        const val ACTION_PLAY="action_play"
-        const val ACTION_PAUSE="action_pause"
+        const val ACTION_SPEAK="action_speak"
         const val ACTION_REWIND="action_rewind"
         const val ACTION_FAST_FORWARD="action_fast_forward"
         const val ACTION_STOP="action_stop"
@@ -49,20 +49,22 @@ class SpeakWidget : AppWidgetProvider() {
         super.onReceive(context, intent)
         Log.d(TAG, "onReceive" + context + intent?.action)
         when(intent?.action) {
-            ACTION_PLAY -> {
+            ACTION_SPEAK -> {
                 if(speakControl.isPaused) {
                     speakControl.continueAfterPause()
                 }
-                else {
+                else if (!speakControl.isSpeaking) {
                     speakControl.speakBible()
                 }
-            }
-            ACTION_PAUSE -> {
-                speakControl.pause()
+                else {
+                    speakControl.pause()
+                }
             }
             ACTION_FAST_FORWARD -> speakControl.forward()
             ACTION_REWIND -> speakControl.rewind()
-            ACTION_STOP -> speakControl.stop()
+            ACTION_STOP -> {
+                speakControl.stop()
+            }
         }
     }
 
@@ -85,9 +87,8 @@ class SpeakWidget : AppWidgetProvider() {
         val pendingIntent = PendingIntent.getActivity(context, 0, contentIntent, 0)
         views.setOnClickPendingIntent(R.id.layout, pendingIntent)
 
-        setupButton(ACTION_PLAY, R.id.speakButton)
+        setupButton(ACTION_SPEAK, R.id.speakButton)
         setupButton(ACTION_STOP, R.id.stopButton)
-        setupButton(ACTION_PAUSE, R.id.pauseButton)
         setupButton(ACTION_REWIND, R.id.rewindButton)
         setupButton(ACTION_FAST_FORWARD, R.id.forwardButton)
         appWidgetManager.updateAppWidget(appWidgetId, views)

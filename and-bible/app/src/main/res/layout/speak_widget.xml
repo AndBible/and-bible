@@ -51,15 +51,6 @@
 					/>
 
 			<ImageButton
-					android:id="@+id/pauseButton"
-					android:src="@android:drawable/ic_media_pause"
-					android:contentDescription="@string/pause"
-					android:layout_width="0dip"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					/>
-
-			<ImageButton
 					android:id="@+id/speakButton"
 					android:src="@android:drawable/ic_media_play"
 					android:contentDescription="@string/speak"

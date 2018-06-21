@@ -102,6 +102,7 @@ class TextToSpeechNotificationService: Service() {
             else {
                 buildNotification(pauseAction, true)
             }
+            updateWidgetSpeakButton(it.isSpeaking)
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -119,6 +120,7 @@ class TextToSpeechNotificationService: Service() {
     private fun shutdown() {
         currentTitle = getString(R.string.app_name)
         currentText = ""
+        updateWidgetTexts()
         Log.d(TAG, "Shutdown")
         stopForeground(true)
         if(wakeLock.isHeld) {
@@ -138,18 +140,32 @@ class TextToSpeechNotificationService: Service() {
             }
         }
         buildStartNotification()
-        updateWidgets()
+        updateWidgetTexts()
     }
 
-    private fun updateWidgets() {
+    private fun updateWidgetSpeakButton(speaking: Boolean) {
+        val app = BibleApplication.getApplication()
+        val views = RemoteViews(app.applicationContext.packageName, R.layout.speak_widget)
+        val resource = if(speaking) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play
+        views.setImageViewResource(R.id.speakButton, resource)
+        partialUpdateWidgets(views)
+    }
+
+
+    private fun updateWidgetTexts() {
         val views = RemoteViews(applicationContext.packageName, R.layout.speak_widget)
         views.setTextViewText(R.id.statusText, speakControl.statusText)
         views.setTextViewText(R.id.titleText, currentTitle)
+        partialUpdateWidgets(views)
+    }
+
+    private fun partialUpdateWidgets(views: RemoteViews) {
         val manager = AppWidgetManager.getInstance(applicationContext)
         for(id in manager.getAppWidgetIds(ComponentName(application, SpeakWidget::class.java))) {
             manager.partiallyUpdateAppWidget(id, views)
         }
     }
+
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun buildStartNotification() {

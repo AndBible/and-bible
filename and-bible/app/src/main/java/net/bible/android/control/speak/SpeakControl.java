@@ -288,7 +288,7 @@ public class SpeakControl {
 		continueAfterPause(false);
 	}
 
-	public void continueAfterPause(boolean noToast) {
+	private void continueAfterPause(boolean noToast) {
 		Log.d(TAG, "Continue TTS speaking after pause");
 		preSpeak();
 		textToSpeechServiceManager.get().continueAfterPause();

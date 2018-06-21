@@ -334,8 +334,6 @@ public class TextToSpeechServiceManager {
 			cmd.speak(mTts, utteranceId);
 		}
 		Log.d(TAG, "Added items to TTS queue. Last utterance id: " + utteranceId);
-
-		isSpeaking = true;
 	}
 
 
