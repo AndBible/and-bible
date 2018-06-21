@@ -6,7 +6,6 @@ import android.content.Context
 import android.util.Log
 import android.widget.RemoteViews
 import android.app.PendingIntent
-import android.content.ComponentName
 import android.content.Intent
 import net.bible.service.device.speak.TextToSpeechNotificationService
 import net.bible.android.BibleApplication
@@ -40,7 +39,7 @@ class SpeakWidget : AppWidgetProvider() {
         Log.d(TAG, "onUpdate")
         initialize()
         for (appWidgetId in appWidgetIds) {
-            updateAppWidget(context, appWidgetManager, appWidgetId)
+            setupWidget(context, appWidgetManager, appWidgetId)
         }
     }
 
@@ -68,8 +67,8 @@ class SpeakWidget : AppWidgetProvider() {
         }
     }
 
-    private fun updateAppWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-        Log.d(TAG, "updateAppWidget")
+    private fun setupWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
+        Log.d(TAG, "setupWidget")
 
         val views = RemoteViews(context.packageName, R.layout.speak_widget)
         views.setTextViewText(R.id.titleText, context.getString(R.string.app_name))
