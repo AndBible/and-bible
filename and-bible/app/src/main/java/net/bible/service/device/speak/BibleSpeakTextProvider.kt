@@ -113,9 +113,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     fun setupReading(book: SwordBook, verse: Verse) {
-        if(book != this.book) {
-            setupBook(book)
-        }
+        setupBook(book)
         currentVerse = verse
         startVerse = verse
         endVerse = verse
