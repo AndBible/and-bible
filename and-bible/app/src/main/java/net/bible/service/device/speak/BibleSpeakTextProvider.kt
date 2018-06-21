@@ -16,6 +16,7 @@ import org.crosswire.jsword.passage.Verse
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
+import net.bible.android.view.activity.speak.BibleSpeakActivity.Companion.RESTORE_SETTINGS_FROM_BOOKMARKS
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
 import org.crosswire.jsword.book.sword.SwordBook
@@ -262,7 +263,8 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             val bookmarkList = bookmarkControl.getBookmarksWithLabel(labelDto)
             val bookmarkDto = bookmarkList.find { it.verseRange.start.equals(verse) && it.verseRange.end.equals(verse)}
             if(bookmarkDto != null) {
-                if(bookmarkDto.speakSettings != null) {
+                if(bookmarkDto.speakSettings != null &&
+                        CommonUtils.getSharedPreferences().getBoolean(RESTORE_SETTINGS_FROM_BOOKMARKS, false)) {
                     settings = bookmarkDto.speakSettings
                     settings.saveSharedPreferences()
                     EventBus.getDefault().post(settings)
@@ -275,18 +277,23 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     private fun saveBookmark(){
         val labelList = ArrayList<LabelDto>()
+        val restoreSettings = CommonUtils.getSharedPreferences().getBoolean(RESTORE_SETTINGS_FROM_BOOKMARKS, false)
         if(settings.autoBookmarkLabelId != null) {
             var bookmarkDto = bookmarkControl.getBookmarkByKey(startVerse)
             if(bookmarkDto == null) {
                 bookmarkDto = BookmarkDto()
                 bookmarkDto.verseRange = VerseRange(startVerse.versification, startVerse)
-                bookmarkDto.speakSettings = settings
+                if(restoreSettings) {
+                    bookmarkDto.speakSettings = settings
+                }
                 bookmarkDto = bookmarkControl.addBookmark(bookmarkDto)
             }
             else {
                 labelList.addAll(bookmarkControl.getBookmarkLabels(bookmarkDto))
                 bookmarkControl.deleteBookmark(bookmarkDto)
-                bookmarkDto.speakSettings = settings
+                if(restoreSettings) {
+                    bookmarkDto.speakSettings = settings
+                }
                 bookmarkDto.id = null
                 bookmarkDto = bookmarkControl.addBookmark(bookmarkDto)
             }

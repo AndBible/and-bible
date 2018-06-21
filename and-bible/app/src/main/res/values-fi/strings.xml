@@ -298,4 +298,5 @@
   <string name="conf_auto_rewind">Kelaa automaattisesti jatkettaessa</string>
   <string name="add_widget">Lisää widget</string>
   <string name="conf_rewind_amount_none">Ei yhtään</string>
+    <string name="restore_settings_from_bookmarks">Tallenna / palauta puheasetukset automaattisesti tallennetuista kirjanmerkeistä</string>
 </resources>

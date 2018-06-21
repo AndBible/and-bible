@@ -14,6 +14,7 @@ import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.service.common.CommonUtils
 import net.bible.service.db.bookmark.LabelDto
 import net.bible.service.device.speak.event.SpeakProggressEvent
 import javax.inject.Inject
@@ -23,6 +24,10 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var bookmarkControl: BookmarkControl
     private lateinit var bookmarkLabels: List<LabelDto>
+
+    companion object {
+        const val RESTORE_SETTINGS_FROM_BOOKMARKS = "RestoreSettingFromBookmarks"
+    }
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,8 +60,8 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
             override fun onNothingSelected(parent: AdapterView<*>?) {
                 updateSettings(restart = false)
             }
-
         }
+        restoreSettingsFromBookmarks.isChecked = CommonUtils.getSharedPreferences().getBoolean(RESTORE_SETTINGS_FROM_BOOKMARKS, false)
     }
 
     private fun resetView(settings: SpeakSettings) {
@@ -113,6 +118,10 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
     }
 
     fun onSettingsChange(widget: View) = updateSettings()
+
+    fun restoreSettingsFromBookmarkClicked(widget: View) {
+        CommonUtils.getSharedPreferences().edit().putBoolean(RESTORE_SETTINGS_FROM_BOOKMARKS, restoreSettingsFromBookmarks.isChecked).apply()
+    }
 
     private fun updateSettings(restart: Boolean = true) { // TODO restart param
         bookmarkTag.setEnabled(autoBookmark.isChecked)

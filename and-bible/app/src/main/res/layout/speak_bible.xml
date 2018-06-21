@@ -18,6 +18,13 @@
 				android:orientation="vertical"
 				android:padding="5dip"
 				>
+			<CheckBox
+					android:text="@string/restore_settings_from_bookmarks"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:id="@+id/restoreSettingsFromBookmarks"
+					android:onClick="restoreSettingsFromBookmarkClicked"/>
 
 			<CheckBox
 					android:text="@string/conf_speak_synchronize_first_window"
