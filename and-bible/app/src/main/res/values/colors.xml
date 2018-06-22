@@ -90,5 +90,7 @@
 	<color name="yellow_A200">#ffff00</color>
 	<color name="yellow_A400">#ffea00</color>
 	<color name="yellow_A700">#ffd600</color>
+    <color name="speak_subtitle_color">@color/grey_800</color>
+	<color name="speak_title_color">@color/grey_800</color>
 
 </resources>

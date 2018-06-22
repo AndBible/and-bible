@@ -360,4 +360,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="add_widget">Add widget</string>
     <string name="conf_playback_settings">Playback settings</string>
     <string name="conf_speak_settings">General speak settings</string>
+    <string name="conf_advanced_settings">Advanced settings</string>
 </resources>

@@ -37,8 +37,12 @@
 	
 	<!-- Navigation Drawer -->
 	<dimen name="list_preferred_item_height_small">48dip</dimen>
-	
+	<integer name="action_button_max_chars">4</integer>
+
 	<dimen name="action_button_min_width">56dip</dimen>
-    <dimen name="speak_titles">20sp</dimen>
-    <integer name="action_button_max_chars">4</integer>
+    <dimen name="speak_titles_text_size">18sp</dimen>
+    <dimen name="speak_title_padding">10dip</dimen>
+	<dimen name="speak_subtitle_padding">5dip</dimen>
+	<dimen name="speak_row_padding">10dip</dimen>
+	<dimen name="row_divider_padding">10dip</dimen>
 </resources>
