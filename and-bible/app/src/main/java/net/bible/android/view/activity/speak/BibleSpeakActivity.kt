@@ -78,9 +78,7 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
         playEarconChapter.isChecked = settings.playbackSettings.playEarconChapter
         playEarconTitles.isChecked = settings.playbackSettings.playEarconTitles
 
-        continueSentences.isChecked = settings.continueSentences
         replaceDivineName.isChecked = settings.replaceDivineName
-        delayOnParagraphChanges.isChecked = settings.delayOnParagraphChanges
         restoreSettingsFromBookmarks.isChecked = settings.restoreSettingsFromBookmarks
 
         when(settings.rewindAmount) {
@@ -142,10 +140,8 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
                         playEarconTitles = playEarconTitles.isChecked,
                         speed = speakSpeed.progress
                         ),
-                continueSentences = continueSentences.isChecked,
                 autoBookmarkLabelId = if (autoBookmark.isChecked) labelId else null,
                 replaceDivineName = replaceDivineName.isChecked,
-                delayOnParagraphChanges = delayOnParagraphChanges.isChecked,
 
                 rewindAmount =  if ( rewindOneVerse.isChecked ) {
                     SpeakSettings.RewindAmount.ONE_VERSE }

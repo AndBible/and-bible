@@ -213,23 +213,6 @@
 						android:id="@+id/autoRewindFullChapter"
 						android:onClick="onSettingsChange"/>
 			</RadioGroup>
-
-			<CheckBox
-					android:text="@string/conf_delay_on_paragraph_changes"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:id="@+id/delayOnParagraphChanges"
-					android:onClick="onSettingsChange"/>
-
-			<CheckBox
-					android:text="@string/conf_speak_continue_sentences"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:id="@+id/continueSentences"
-					android:onClick="onSettingsChange"/>
-
 			<CheckBox
 					android:text="@string/conf_replace_divinename"
 					android:layout_width="wrap_content"
