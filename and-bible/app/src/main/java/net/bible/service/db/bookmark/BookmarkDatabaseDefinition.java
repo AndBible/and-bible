@@ -41,7 +41,7 @@ public class BookmarkDatabaseDefinition {
 		String KEY = "key";
 		String VERSIFICATION = "versification";
 		String CREATED_ON = "created_on";
-		String SPEAK_SETTINGS = "speak_settings";
+		String PLAYBACK_SETTINGS = "speak_settings";
 	}
 
 	public interface BookmarkLabelColumn {
@@ -74,7 +74,7 @@ public class BookmarkDatabaseDefinition {
 
 	public void upgradeToVersion5(SQLiteDatabase db) {
 		Log.i(TAG, "Upgrading Bookmark db to version 5");
-		db.execSQL("ALTER TABLE " + Table.BOOKMARK + " ADD COLUMN " + BookmarkColumn.SPEAK_SETTINGS + " TEXT DEFAULT null;");
+		db.execSQL("ALTER TABLE " + Table.BOOKMARK + " ADD COLUMN " + BookmarkColumn.PLAYBACK_SETTINGS + " TEXT DEFAULT null;");
 	}
 
 	public void upgradeToVersion4(SQLiteDatabase db) {
@@ -96,7 +96,7 @@ public class BookmarkDatabaseDefinition {
                 BookmarkColumn.KEY + " TEXT NOT NULL," +
                 BookmarkColumn.VERSIFICATION + " TEXT," +
 				BookmarkColumn.CREATED_ON + " INTEGER DEFAULT 0" +
-        		BookmarkColumn.SPEAK_SETTINGS + " TEXT DEFAULT NULL" +
+        		BookmarkColumn.PLAYBACK_SETTINGS + " TEXT DEFAULT NULL" +
         ");");
 
         // Intersection table

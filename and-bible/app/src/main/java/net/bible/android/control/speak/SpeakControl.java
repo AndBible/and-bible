@@ -317,9 +317,12 @@ public class SpeakControl {
 		}
 	}
 
+	private SpeakSettings speakSettings;
 
 	public void onEvent(SpeakSettings ev) {
-        if (isSpeaking()) {
+		boolean settingsChanged = speakSettings != null && !speakSettings.equals(ev);
+		speakSettings = ev;
+        if (isSpeaking() && settingsChanged) {
         	pause(true);
         	continueAfterPause(true);
 		}

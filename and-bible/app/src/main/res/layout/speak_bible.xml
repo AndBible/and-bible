@@ -10,7 +10,6 @@
 			android:layout_alignParentTop="true"
 			android:layout_above="@id/buttonsLayout"
 			>
-
 		<LinearLayout
 				android:id="@+id/panel"
 				android:layout_width="match_parent"
@@ -18,21 +17,13 @@
 				android:orientation="vertical"
 				android:padding="5dip"
 				>
-			<CheckBox
-					android:text="@string/restore_settings_from_bookmarks"
-					android:layout_width="wrap_content"
-					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:id="@+id/restoreSettingsFromBookmarks"
-					android:onClick="restoreSettingsFromBookmarkClicked"/>
 
-			<CheckBox
-					android:text="@string/conf_speak_synchronize_first_window"
+			<TextView
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					android:layout_weight="1"
-					android:id="@+id/synchronize"
-					android:onClick="onSettingsChange"/>
+					android:textSize="@dimen/speak_titles"
+					android:text="@string/conf_playback_settings"
+					/>
 
 			<TextView
 					android:layout_width="wrap_content"
@@ -102,6 +93,46 @@
 						android:id="@+id/playEarconTitles"
 						android:onClick="onSettingsChange"/>
 			</LinearLayout>
+			<LinearLayout
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					>
+
+				<TextView
+						android:layout_width="wrap_content"
+						android:layout_height="wrap_content"
+						android:text="@string/speak_speed_title"/>
+
+				<TextView
+						android:text="SPEED"
+						android:layout_width="match_parent"
+						android:layout_height="wrap_content"
+						android:id="@+id/speedStatus"
+						android:gravity="end"
+						/>
+			</LinearLayout>
+			<SeekBar
+					android:layout_width="match_parent"
+					android:layout_height="wrap_content"
+					android:id="@+id/speakSpeed"
+					android:max="300"
+					android:progress="100"
+					/>
+
+
+			<TextView
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:textSize="@dimen/speak_titles"
+					android:text="@string/conf_speak_settings"
+					/>
+			<CheckBox
+					android:text="@string/conf_speak_synchronize_first_window"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					android:id="@+id/synchronize"
+					android:onClick="onSettingsChange"/>
 
 			<TextView
 					android:layout_width="wrap_content"
@@ -234,33 +265,14 @@
 						android:layout_width="wrap_content"
 						android:layout_height="wrap_content"/>
 			</LinearLayout>
-
-
-			<LinearLayout
-					android:layout_width="match_parent"
+			<CheckBox
+					android:text="@string/restore_settings_from_bookmarks"
+					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
-					>
+					android:layout_weight="1"
+					android:id="@+id/restoreSettingsFromBookmarks"
+					android:onClick="onSettingsChange"/>
 
-				<TextView
-						android:layout_width="wrap_content"
-						android:layout_height="wrap_content"
-						android:text="@string/speak_speed_title"/>
-
-				<TextView
-						android:text="SPEED"
-						android:layout_width="match_parent"
-						android:layout_height="wrap_content"
-						android:id="@+id/speedStatus"
-						android:gravity="end"
-						/>
-			</LinearLayout>
-			<SeekBar
-					android:layout_width="match_parent"
-					android:layout_height="wrap_content"
-					android:id="@+id/speakSpeed"
-					android:max="300"
-					android:progress="100"
-					/>
 		</LinearLayout>
 	</ScrollView>
 

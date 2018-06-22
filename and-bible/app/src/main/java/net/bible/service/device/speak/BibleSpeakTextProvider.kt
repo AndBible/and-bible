@@ -16,7 +16,7 @@ import org.crosswire.jsword.passage.Verse
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
-import net.bible.android.view.activity.speak.BibleSpeakActivity.Companion.RESTORE_SETTINGS_FROM_BOOKMARKS
+import net.bible.android.control.speak.INVALID_LABEL_ID
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
 import org.crosswire.jsword.book.sword.SwordBook
@@ -38,9 +38,9 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                              val command: SpeakCommand? = null)
 
     companion object {
-        private val PERSIST_BOOK = "SpeakBibleBook"
-        private val PERSIST_VERSE = "SpeakBibleVerse"
-        private val TAG = "Speak"
+        private const val PERSIST_BOOK = "SpeakBibleBook"
+        private const val PERSIST_VERSE = "SpeakBibleVerse"
+        private const val TAG = "Speak"
     }
 
     override val numItemsToTts = 100
@@ -80,8 +80,9 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     fun onEvent(ev: SpeakSettings) {
         this.settings = ev
+        Log.d(TAG, "SpeakSettings updated: $ev")
         if(paused) {
-            bookmarkControl.updateBookmarkSettings(startVerse, ev)
+            bookmarkControl.updateBookmarkSettings(startVerse, ev.playbackSettings)
         }
     }
 
@@ -127,19 +128,19 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         val bookName = bibleBooks[verse.book.osis]
 
         if(prevVerse.book != verse.book) {
-            if(settings.playEarconBook) {
+            if(settings.playbackSettings.playEarconBook) {
                 cmds.add(PreBookChangeCommand(settings))
             }
-            if(settings.speakBookChanges) {
+            if(settings.playbackSettings.speakBookChanges) {
                 cmds.add(TextCommand("${res.getString(R.string.speak_book_changed)} $bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
                 cmds.add(SilenceCommand())
             }
         }
         else if(prevVerse.chapter != verse.chapter) {
-            if(settings.playEarconChapter) {
+            if(settings.playbackSettings.playEarconChapter) {
                 cmds.add(PreChapterChangeCommand(settings))
             }
-            if(settings.speakChapterChanges) {
+            if(settings.playbackSettings.speakChapterChanges) {
                 cmds.add(TextCommand("$bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
                 cmds.add(SilenceCommand())
             }
@@ -269,9 +270,8 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             val bookmarkList = bookmarkControl.getBookmarksWithLabel(labelDto)
             val bookmarkDto = bookmarkList.find { it.verseRange.start.equals(verse) && it.verseRange.end.equals(verse)}
             if(bookmarkDto != null) {
-                if(bookmarkDto.speakSettings != null &&
-                        CommonUtils.getSharedPreferences().getBoolean(RESTORE_SETTINGS_FROM_BOOKMARKS, false)) {
-                    settings = bookmarkDto.speakSettings
+                if(bookmarkDto.playbackSettings != null && settings.restoreSettingsFromBookmarks) {
+                    settings.playbackSettings = bookmarkDto.playbackSettings
                     settings.saveSharedPreferences()
                     EventBus.getDefault().post(settings)
                 }
@@ -283,27 +283,26 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     private fun saveBookmark(){
         val labelList = ArrayList<LabelDto>()
-        val restoreSettings = CommonUtils.getSharedPreferences().getBoolean(RESTORE_SETTINGS_FROM_BOOKMARKS, false)
         if(settings.autoBookmarkLabelId != null) {
             var bookmarkDto = bookmarkControl.getBookmarkByKey(startVerse)
             if(bookmarkDto == null) {
                 bookmarkDto = BookmarkDto()
                 bookmarkDto.verseRange = VerseRange(startVerse.versification, startVerse)
-                if(restoreSettings) {
-                    bookmarkDto.speakSettings = settings
+                if(settings.restoreSettingsFromBookmarks) {
+                    bookmarkDto.playbackSettings = settings.playbackSettings
                 }
                 bookmarkDto = bookmarkControl.addBookmark(bookmarkDto)
             }
             else {
                 labelList.addAll(bookmarkControl.getBookmarkLabels(bookmarkDto))
                 bookmarkControl.deleteBookmark(bookmarkDto)
-                if(restoreSettings) {
-                    bookmarkDto.speakSettings = settings
+                if(settings.restoreSettingsFromBookmarks) {
+                    bookmarkDto.playbackSettings = settings.playbackSettings
                 }
                 bookmarkDto.id = null
                 bookmarkDto = bookmarkControl.addBookmark(bookmarkDto)
             }
-            if(settings.autoBookmarkLabelId != SpeakSettings.INVALID_LABEL_ID) {
+            if(settings.autoBookmarkLabelId != INVALID_LABEL_ID) {
                 val labelDto = LabelDto()
                 labelDto.id = settings.autoBookmarkLabelId
                 labelList.add(labelDto)

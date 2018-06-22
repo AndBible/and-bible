@@ -40,9 +40,9 @@ abstract class EarconCommand(val earcon: String, val enabled: Boolean): SpeakCom
     }
 }
 
-class PreBookChangeCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_BOOK_CHANGE, speakSettings.playEarconBook)
-class PreChapterChangeCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_CHAPTER_CHANGE, speakSettings.playEarconChapter)
-class PreTitleCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_TITLE, speakSettings.playEarconTitles)
+class PreBookChangeCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_BOOK_CHANGE, speakSettings.playbackSettings.playEarconBook)
+class PreChapterChangeCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_CHAPTER_CHANGE, speakSettings.playbackSettings.playEarconChapter)
+class PreTitleCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_TITLE, speakSettings.playbackSettings.playEarconTitles)
 
 open class SilenceCommand(val enabled: Boolean=true) : SpeakCommand {
     override fun speak(tts: TextToSpeech, utteranceId: String) {

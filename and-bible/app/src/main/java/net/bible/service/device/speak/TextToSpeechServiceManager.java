@@ -489,7 +489,7 @@ public class TextToSpeechServiceManager {
 				mTts.addEarcon(EARCON_PRE_BOOK_CHANGE, BibleApplication.getApplication().getPackageName(), R.raw.long_pling);
 
 				// set speech rate
-                setRate(SpeakSettings.Companion.fromSharedPreferences().getSpeed());
+                setRate(SpeakSettings.Companion.fromSharedPreferences().getPlaybackSettings().getSpeed());
 
 				boolean localeOK = false;
 				Locale locale = null;
@@ -582,7 +582,7 @@ public class TextToSpeechServiceManager {
     }
 
     void onEvent(SpeakSettings ev) {
-		setRate(ev.getSpeed());
+		setRate(ev.getPlaybackSettings().getSpeed());
 	}
 
     public CharSequence getStatusText() {

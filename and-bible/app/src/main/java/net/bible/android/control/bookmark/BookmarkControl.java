@@ -15,6 +15,7 @@ import net.bible.android.control.event.passage.SynchronizeWindowsEvent;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
+import net.bible.android.control.speak.PlaybackSettings;
 import net.bible.android.control.speak.SpeakSettings;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
@@ -72,14 +73,14 @@ public class BookmarkControl {
 
 	public void onEvent(SpeakSettings ev) {
 		// If we are currently above a bookmark that has been auto-saved, let's update settings there!
-		updateBookmarkSettings(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getKey(), ev);
+		updateBookmarkSettings(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getSingleKey(), ev.getPlaybackSettings());
 	}
 
-	public void updateBookmarkSettings(Key key, SpeakSettings settings) {
+	public void updateBookmarkSettings(Key key, PlaybackSettings settings) {
 		BookmarkDto bookmarkDto = getBookmarkByKey(key);
-		if(bookmarkDto.getSpeakSettings() != null) {
+		if(bookmarkDto != null && bookmarkDto.getPlaybackSettings() != null) {
 			List<LabelDto> labels = getBookmarkLabels(bookmarkDto);
-			bookmarkDto.setSpeakSettings(settings);
+			bookmarkDto.setPlaybackSettings(settings);
 			deleteBookmark(bookmarkDto);
 			bookmarkDto.setId(null);
 			bookmarkDto = addBookmark(bookmarkDto);

@@ -6,6 +6,7 @@ import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.WindowControl
+import net.bible.android.control.speak.PlaybackSettings
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.CommonUtils
@@ -70,6 +71,12 @@ open class AbstractSpeakTests {
 
 @RunWith(RobolectricTestRunner::class)
 open class OsisToBibleSpeakTests: AbstractSpeakTests() {
+    private lateinit var s: SpeakSettings
+    @Before
+    override fun setup() {
+        super.setup()
+        s = SpeakSettings(synchronize = false, continueSentences = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true))
+    }
 
     @Test
     fun testSentenceBreak() {
@@ -121,7 +128,6 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
     }
     @Test
     fun testTitleFinRK() {
-        val s = SpeakSettings(synchronize = false, speakChapterChanges = true, continueSentences = false, speakTitles = true)
         val cmds = SpeakCommandArray()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.2")))
@@ -134,7 +140,6 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
 
     @Test
     fun testTitleEsv() {
-        val s = SpeakSettings(synchronize = false, speakChapterChanges = true, continueSentences = false, speakTitles = true)
         book = Books.installed().getBook("ESV2011") as SwordBook
         val cmds = SpeakCommandArray()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
@@ -148,7 +153,6 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
 
     @Test
     fun testTitleSTLK() { // TOOD: this is not yet released bible!
-        val s = SpeakSettings(synchronize = false, speakChapterChanges = true, continueSentences = false, speakTitles = true)
         book = Books.installed().getBook("STLK2017") as SwordBook
         val cmds = SpeakCommandArray()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
@@ -162,7 +166,6 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
 
     @Test
     fun testParagraphChangeRK() {
-        val s = SpeakSettings(synchronize = false, speakChapterChanges = true, continueSentences = false, speakTitles = true)
         val cmds = SpeakCommandArray()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.23")))
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.24")))
@@ -174,7 +177,6 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
 
     @Test
     fun testParagraphChangeESV() {
-        val s = SpeakSettings(synchronize = false, speakChapterChanges = true, continueSentences = false, speakTitles = true)
         book = Books.installed().getBook("ESV2011") as SwordBook
         val cmds = SpeakCommandArray()
         cmds.clear();
@@ -188,7 +190,6 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
 
     @Test
     fun testParagraphChangeSTLK() { // TOOD: this is not yet released bible!
-        val s = SpeakSettings(synchronize = false, speakChapterChanges = true, continueSentences = false, speakTitles = true)
         book = Books.installed().getBook("STLK2017") as SwordBook
         val cmds = SpeakCommandArray()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.25")))
@@ -218,7 +219,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
 
     @Test
     fun testDivinenameInTitle() { // TOOD: this is not yet released bible!
-        val s = SpeakSettings(synchronize = false, speakChapterChanges = true, continueSentences = false, speakTitles = true, replaceDivineName = true)
+        val s = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true,  speakTitles = true),continueSentences = false, replaceDivineName = true)
         book = Books.installed().getBook("STLK2017") as SwordBook
         val cmds = SpeakCommandArray()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Exod.19.1")))
@@ -231,7 +232,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
 
     @Test
     fun testDivinenameInText() { // TOOD: this is not yet released bible!
-        val s = SpeakSettings(synchronize = false, speakChapterChanges = true, continueSentences = false, speakTitles = true, replaceDivineName = true)
+        val s = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true,  speakTitles = true),continueSentences = false, replaceDivineName = true)
         book = Books.installed().getBook("STLK2017") as SwordBook
 
         val cmds = swordContentFacade.getSpeakCommands(s, book, getVerse("Exod.19.3"))
@@ -247,7 +248,7 @@ class TestPersistence: AbstractSpeakTests () {
         super.setup()
         provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 book, getVerse("Ps.14.1"))
-        provider.settings = SpeakSettings(synchronize = false, speakChapterChanges = true, continueSentences = false, speakTitles = false)
+        provider.settings = SpeakSettings(synchronize = false, continueSentences = false, playbackSettings = PlaybackSettings(speakChapterChanges = true,  speakTitles = false))
     }
 
     @Test
@@ -286,7 +287,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
 		label.setName("tts");
 		label = bookmarkControl.saveOrUpdateLabel(label)
 
-        provider.settings = SpeakSettings(synchronize = false, speakChapterChanges = true, continueSentences = false, autoBookmarkLabelId = label.id)
+        provider.settings = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true), continueSentences = false, autoBookmarkLabelId = label.id)
     }
 	@After
 	fun tearDown(){
@@ -305,7 +306,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
 
     @Test
     fun autoBookmarkDisabled() {
-        provider.settings = SpeakSettings(synchronize = false, speakChapterChanges = true, continueSentences = false, autoBookmarkLabelId = null)
+        provider.settings = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true), continueSentences = false, autoBookmarkLabelId = null)
         provider.setupReading(book, getVerse("Ps.14.1"))
         text = nextText()
         provider.pause();
@@ -353,7 +354,7 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
         super.setup()
         provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 book, getVerse("Ps.14.1"))
-        provider.settings = SpeakSettings(synchronize = false, speakChapterChanges = true, continueSentences = false, speakTitles = false)
+        provider.settings = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true,  speakTitles = false), continueSentences = false)
     }
 
 
@@ -503,7 +504,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         super.setup()
         provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 book, getVerse("Ps.14.1"))
-        provider.settings = SpeakSettings(synchronize = false, speakChapterChanges = true, continueSentences = true, speakTitles = false)
+        provider.settings = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = false), continueSentences = true)
     }
 
     private fun checkRomansBeginning() {

@@ -51,14 +51,14 @@ class GeneralSpeakActivity : CustomTitlebarActivityBase() {
         repeat.isChecked = false
 
         val settings = SpeakSettings.fromSharedPreferences()
-        speakSpeed.progress = settings.speed
-        speedStatus.text = "${settings.speed} %"
+        speakSpeed.progress = settings.playbackSettings.speed
+        speedStatus.text = "${settings.playbackSettings.speed} %"
         speakSpeed.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 speedStatus.text = "$progress %"
-                settings.speed = progress
+                settings.playbackSettings.speed = progress
                 settings.saveSharedPreferences()
                 EventBus.getDefault().post(settings)
             }

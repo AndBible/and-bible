@@ -271,7 +271,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="conf_speak_continue_sentences">Speak complete sentences rather than verses</string>
     <string name="conf_speak_auto_bookmark">Auto add bookmark on pause/stop and remove it when continuing</string>
     <string name="conf_speak_auto_bookmark_label">Label to be used with auto bookmarking</string>
-    <string name="restore_settings_from_bookmarks">Save / restore speak settings in auto-generated bookmarks</string>
+    <string name="restore_settings_from_bookmarks">Save / restore playback settings to/from auto-generated bookmarks</string>
 
     <string name="conf_speak">Speak</string>
     <string name="conf_play_earcons">Play earcons for</string>
@@ -358,4 +358,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="error_key_not_in_document">Not found in document</string>
     <string name="empty_list">No items to display</string>
     <string name="add_widget">Add widget</string>
+    <string name="conf_playback_settings">Playback settings</string>
+    <string name="conf_speak_settings">General speak settings</string>
 </resources>

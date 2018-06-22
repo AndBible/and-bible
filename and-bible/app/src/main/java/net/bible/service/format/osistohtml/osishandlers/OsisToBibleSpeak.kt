@@ -96,10 +96,9 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
             }
         }
         else if(state.tagType == TAG_TYPE.TITLE) {
-            if(speakSettings.speakTitles) {
+            if(speakSettings.playbackSettings.speakTitles) {
                 speakCommands.add(SilenceCommand())
             }
-
         }
     }
 
@@ -111,7 +110,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
         val s = String(buf, offset, len)
         if(currentState.visible) {
             if(currentState.tagType == TAG_TYPE.TITLE) {
-                if(speakSettings.speakTitles) {
+                if(speakSettings.playbackSettings.speakTitles) {
                     speakCommands.add(TextCommand(s, type = TextCommand.TextType.TITLE))
                 }
             }

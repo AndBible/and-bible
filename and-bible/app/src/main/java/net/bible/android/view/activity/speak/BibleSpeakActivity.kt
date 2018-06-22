@@ -9,12 +9,13 @@ import de.greenrobot.event.EventBus
 import kotlinx.android.synthetic.main.speak_bible.*
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.speak.INVALID_LABEL_ID
+import net.bible.android.control.speak.PlaybackSettings
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.common.CommonUtils
 import net.bible.service.db.bookmark.LabelDto
 import net.bible.service.device.speak.event.SpeakProggressEvent
 import javax.inject.Inject
@@ -24,10 +25,6 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var bookmarkControl: BookmarkControl
     private lateinit var bookmarkLabels: List<LabelDto>
-
-    companion object {
-        const val RESTORE_SETTINGS_FROM_BOOKMARKS = "RestoreSettingFromBookmarks"
-    }
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,23 +66,23 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
                 updateSettings()
             }
         }
-        restoreSettingsFromBookmarks.isChecked = CommonUtils.getSharedPreferences().getBoolean(RESTORE_SETTINGS_FROM_BOOKMARKS, false)
     }
 
     private fun resetView(settings: SpeakSettings) {
         statusText.text = speakControl.getStatusText()
         synchronize.isChecked = settings.synchronize
-        speakBookChanges.isChecked = settings.speakBookChanges
-        speakChapterChanges.isChecked = settings.speakChapterChanges
-        speakTitles.isChecked = settings.speakTitles
+        speakBookChanges.isChecked = settings.playbackSettings.speakBookChanges
+        speakChapterChanges.isChecked = settings.playbackSettings.speakChapterChanges
+        speakTitles.isChecked = settings.playbackSettings.speakTitles
 
-        playEarconBook.isChecked = settings.playEarconBook
-        playEarconChapter.isChecked = settings.playEarconChapter
-        playEarconTitles.isChecked = settings.playEarconTitles
+        playEarconBook.isChecked = settings.playbackSettings.playEarconBook
+        playEarconChapter.isChecked = settings.playbackSettings.playEarconChapter
+        playEarconTitles.isChecked = settings.playbackSettings.playEarconTitles
 
         continueSentences.isChecked = settings.continueSentences
         replaceDivineName.isChecked = settings.replaceDivineName
         delayOnParagraphChanges.isChecked = settings.delayOnParagraphChanges
+        restoreSettingsFromBookmarks.isChecked = settings.restoreSettingsFromBookmarks
 
         when(settings.rewindAmount) {
             SpeakSettings.RewindAmount.ONE_VERSE -> rewindOneVerse.isChecked = true
@@ -112,8 +109,8 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
             autoBookmark.isChecked = false
             bookmarkTag.isEnabled = false
         }
-        speakSpeed.progress = settings.speed
-        speedStatus.text = "${settings.speed} %"
+        speakSpeed.progress = settings.playbackSettings.speed
+        speedStatus.text = "${settings.playbackSettings.speed} %"
 
     }
 
@@ -127,28 +124,25 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
 
     fun onSettingsChange(widget: View) = updateSettings()
 
-    fun restoreSettingsFromBookmarkClicked(widget: View) {
-        CommonUtils.getSharedPreferences().edit().putBoolean(RESTORE_SETTINGS_FROM_BOOKMARKS, restoreSettingsFromBookmarks.isChecked).apply()
-    }
-
     private fun updateSettings() {
         bookmarkTag.isEnabled = autoBookmark.isChecked
 
         val labelId = if (bookmarkTag.selectedItemPosition != INVALID_POSITION) {
             bookmarkLabels.get(bookmarkTag.selectedItemPosition).id
-        } else SpeakSettings.INVALID_LABEL_ID
+        } else INVALID_LABEL_ID
 
         val settings = SpeakSettings(
                 synchronize = synchronize.isChecked,
+                playbackSettings = PlaybackSettings(
+                        speakBookChanges = speakBookChanges.isChecked,
+                        speakChapterChanges = speakChapterChanges.isChecked,
+                        speakTitles = speakTitles.isChecked,
 
-                speakBookChanges = speakBookChanges.isChecked,
-                speakChapterChanges = speakChapterChanges.isChecked,
-                speakTitles = speakTitles.isChecked,
-
-                playEarconBook = playEarconBook.isChecked,
-                playEarconChapter = playEarconChapter.isChecked,
-                playEarconTitles = playEarconTitles.isChecked,
-
+                        playEarconBook = playEarconBook.isChecked,
+                        playEarconChapter = playEarconChapter.isChecked,
+                        playEarconTitles = playEarconTitles.isChecked,
+                        speed = speakSpeed.progress
+                        ),
                 continueSentences = continueSentences.isChecked,
                 autoBookmarkLabelId = if (autoBookmark.isChecked) labelId else null,
                 replaceDivineName = replaceDivineName.isChecked,
@@ -169,7 +163,7 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
                     SpeakSettings.RewindAmount.TEN_VERSES }
                 else {
                     SpeakSettings.RewindAmount.FULL_CHAPTER},
-                speed = speakSpeed.progress
+                restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked
         )
         settings.saveSharedPreferences()
         EventBus.getDefault().post(settings)
