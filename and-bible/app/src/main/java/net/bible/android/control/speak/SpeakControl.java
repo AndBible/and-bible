@@ -11,6 +11,7 @@ import de.greenrobot.event.EventBus;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
@@ -73,6 +74,8 @@ public class SpeakControl {
 	};
 
 	private static final String TAG = "SpeakControl";
+
+	@Inject public BookmarkControl bookmarkControl;
 
 	@Inject
 	public SpeakControl(Lazy<TextToSpeechServiceManager> textToSpeechServiceManager, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
@@ -322,7 +325,10 @@ public class SpeakControl {
 	public void onEvent(SpeakSettings ev) {
 		boolean settingsChanged = speakSettings != null && !speakSettings.equals(ev);
 		speakSettings = ev;
-        if (isSpeaking() && settingsChanged) {
+		if(!isPaused() && !isSpeaking() && settingsChanged) {
+			bookmarkControl.updateBookmarkSettings(ev.getPlaybackSettings());
+		}
+        else if (isSpeaking() && settingsChanged) {
         	pause(true);
         	continueAfterPause(true);
 		}

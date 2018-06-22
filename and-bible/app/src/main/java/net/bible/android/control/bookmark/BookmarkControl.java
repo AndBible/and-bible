@@ -10,13 +10,11 @@ import de.greenrobot.event.EventBus;
 import net.bible.android.activity.R;
 import net.bible.android.common.resource.ResourceProvider;
 import net.bible.android.control.ApplicationScope;
-import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.control.speak.PlaybackSettings;
-import net.bible.android.control.speak.SpeakSettings;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.IntentHelper;
@@ -27,6 +25,7 @@ import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
 import net.bible.service.sword.SwordContentFacade;
 
+import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.Versification;
@@ -68,12 +67,12 @@ public class BookmarkControl {
 		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 		LABEL_ALL = new LabelDto(-999L, resourceProvider.getString(R.string.all), null);
 		LABEL_UNLABELLED = new LabelDto(-998L, resourceProvider.getString(R.string.label_unlabelled), null);
-		ABEventBus.getDefault().safelyRegister(this);
 	}
 
-	public void onEvent(SpeakSettings ev) {
-		// If we are currently above a bookmark that has been auto-saved, let's update settings there!
-		updateBookmarkSettings(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getSingleKey(), ev.getPlaybackSettings());
+	public void updateBookmarkSettings(PlaybackSettings settings) {
+		if(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().getBookCategory().equals(BookCategory.BIBLE)) {
+			updateBookmarkSettings(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getSingleKey(), settings);
+		}
 	}
 
 	public void updateBookmarkSettings(Key key, PlaybackSettings settings) {

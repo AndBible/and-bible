@@ -263,6 +263,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     private fun removeBookmark() {
+        // TODO if bookmark with multiple labels exists, do not remove whole bookmark but only label
         if(settings.autoBookmarkLabelId != null) {
             val verse = currentVerse
             val labelDto = LabelDto()

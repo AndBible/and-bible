@@ -35,8 +35,6 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
 
         bookmarkLabels = bookmarkControl.assignableLabels
 
-        resetView(SpeakSettings.fromSharedPreferences())
-
         if(bookmarkLabels.isEmpty()) {
             autoBookmark.isEnabled = false
             if(autoBookmark.isChecked) {
@@ -66,6 +64,7 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
                 updateSettings()
             }
         }
+        resetView(SpeakSettings.fromSharedPreferences())
     }
 
     private fun resetView(settings: SpeakSettings) {
