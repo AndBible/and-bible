@@ -164,7 +164,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="15dip"/>
             </LinearLayout>
-
             <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -198,6 +197,14 @@
                             android:layout_height="wrap_content"
                             android:id="@+id/synchronize"
                             android:onClick="onSettingsChange"/>
+                    <CheckBox
+                            android:layout_marginStart="@dimen/speak_row_padding"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/conf_sleep_timer"
+                            android:id="@+id/sleepTimer"
+                            android:onClick="setSleepTime"
+                            />
                 </LinearLayout>
                 <LinearLayout
                         android:layout_width="match_parent"

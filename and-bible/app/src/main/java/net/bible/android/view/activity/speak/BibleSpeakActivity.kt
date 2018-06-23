@@ -1,6 +1,7 @@
 package net.bible.android.view.activity.speak
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
 import android.os.Bundle
 import android.view.View
 import android.widget.*
@@ -25,6 +26,7 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var bookmarkControl: BookmarkControl
     private lateinit var bookmarkLabels: List<LabelDto>
+    private lateinit var currentSettings: SpeakSettings
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,6 +34,7 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
         setContentView(R.layout.speak_bible)
         super.buildActivityComponent().inject(this)
         EventBus.getDefault().register(this)
+        currentSettings = SpeakSettings.fromSharedPreferences()
 
         bookmarkLabels = bookmarkControl.assignableLabels
 
@@ -101,6 +104,8 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
         }
         speakSpeed.progress = settings.playbackSettings.speed
         speedStatus.text = "${settings.playbackSettings.speed} %"
+        sleepTimer.isChecked = settings.sleepTimer > 0
+        sleepTimer.text = if(settings.sleepTimer>0) getString(R.string.sleep_timer_timer_set, settings.sleepTimer) else getString(R.string.conf_sleep_timer)
 
     }
 
@@ -108,8 +113,38 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
         statusText.text = speakControl.getStatusText()
     }
 
+
     fun onEventMainThread(ev: SpeakSettings) {
+        currentSettings = ev;
         resetView(ev)
+    }
+
+    fun setSleepTime(widget: View) {
+        if (sleepTimer.isChecked) {
+            val picker = NumberPicker(this)
+            picker.minValue = 1
+            picker.maxValue = 120
+            picker.value = 10
+
+            val layout = FrameLayout(this)
+            layout.addView(picker)
+
+            AlertDialog.Builder(this)
+                    .setView(layout)
+                    .setTitle(R.string.sleep_timer_title)
+                    .setPositiveButton(android.R.string.ok) { _, _ ->
+                        currentSettings.sleepTimer = picker.value
+                        currentSettings.saveSharedPreferences()
+                        resetView(currentSettings)
+                    }
+                    .setNegativeButton(android.R.string.cancel, null)
+                    .show()
+        }
+        else {
+            currentSettings.sleepTimer = 0;
+            currentSettings.saveSharedPreferences();
+            resetView(currentSettings)
+        }
     }
 
     fun onSettingsChange(widget: View) = updateSettings()
@@ -142,7 +177,8 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
                     SpeakSettings.RewindAmount.TEN_VERSES }
                 else {
                     SpeakSettings.RewindAmount.SMART},
-                restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked
+                restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked,
+                sleepTimer = currentSettings.sleepTimer
         )
         settings.saveSharedPreferences()
     }

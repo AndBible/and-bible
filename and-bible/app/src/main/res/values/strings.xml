@@ -294,6 +294,11 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
 
     <string name="conf_auto_rewind">Auto rewind when resuming</string>
 
+    <string name="conf_sleep_timer">Set sleep time</string>
+    <string name="sleep_timer_title">Sleep time in minutes</string>
+    <string name="sleep_timer_timer_set">Set sleep time. Timer set: %d minutes</string>
+    <string name="sleep_timer_minutes">minutes</string>
+
     <string name="divineNameOriginal">Lord</string>
     <string name="divineNameReplace">Yahweh</string>
 
