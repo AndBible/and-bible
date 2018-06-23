@@ -1,5 +1,6 @@
 package net.bible.android.control.speak
 import android.util.Log
+import de.greenrobot.event.EventBus
 import kotlinx.serialization.*
 import kotlinx.serialization.json.JSON
 import net.bible.service.common.CommonUtils
@@ -54,11 +55,17 @@ data class SpeakSettings(@Optional val synchronize: Boolean = true,
     }
 
     fun saveSharedPreferences() {
-        CommonUtils.getSharedPreferences().edit().putString(PERSIST_SETTINGS, toJson()).apply()
-        Log.d(TAG, "SpeakSettings saved! $this")
+        if(currentSettings?.equals(this) != true) {
+            CommonUtils.getSharedPreferences().edit().putString(PERSIST_SETTINGS, toJson()).apply()
+            Log.d(TAG, "SpeakSettings saved! $this")
+            EventBus.getDefault().post(this)
+            currentSettings = this
+        }
     }
 
     companion object {
+        var currentSettings: SpeakSettings? = null
+
         fun fromJson(jsonString: String): SpeakSettings {
             return try {
                 JSON(nonstrict = true).parse(jsonString)

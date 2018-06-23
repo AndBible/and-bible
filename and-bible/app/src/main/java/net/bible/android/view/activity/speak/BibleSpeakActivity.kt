@@ -160,7 +160,6 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
                 restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked
         )
         settings.saveSharedPreferences()
-        EventBus.getDefault().post(settings)
     }
 
     fun onButtonClick(button: View) {

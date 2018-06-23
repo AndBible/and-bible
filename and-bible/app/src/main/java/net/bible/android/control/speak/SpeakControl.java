@@ -320,15 +320,12 @@ public class SpeakControl {
 		}
 	}
 
-	private SpeakSettings speakSettings;
 
 	public void onEvent(SpeakSettings ev) {
-		boolean settingsChanged = speakSettings != null && !speakSettings.equals(ev);
-		speakSettings = ev;
-		if(!isPaused() && !isSpeaking() && settingsChanged) {
+		if(!isPaused() && !isSpeaking()) {
 			bookmarkControl.updateBookmarkSettings(ev.getPlaybackSettings());
 		}
-        else if (isSpeaking() && settingsChanged) {
+        else if (isSpeaking()) {
         	pause(true);
         	continueAfterPause(true);
 		}

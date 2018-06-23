@@ -60,7 +60,6 @@ class GeneralSpeakActivity : CustomTitlebarActivityBase() {
                 speedStatus.text = "$progress %"
                 settings.playbackSettings.speed = progress
                 settings.saveSharedPreferences()
-                EventBus.getDefault().post(settings)
             }
         })
 
