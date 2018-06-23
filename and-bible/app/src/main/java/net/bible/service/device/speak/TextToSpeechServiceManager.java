@@ -216,7 +216,7 @@ public class TextToSpeechServiceManager {
 		// listen for phone call in order to pause speak
 	}
     
-    public synchronized void rewind() {
+    public synchronized void rewind(SpeakSettings.RewindAmount amount) {
     	Log.d(TAG, "Rewind TTS");
     	// prevent onUtteranceCompleted causing next text to be grabbed
     	uniqueUtteranceNo++;
@@ -233,7 +233,7 @@ public class TextToSpeechServiceManager {
         }
 
         // move current position back a bit
-        mSpeakTextProvider.rewind();
+        mSpeakTextProvider.rewind(amount);
 
         isPaused = wasPaused;
         if (!isPaused) {
@@ -241,7 +241,7 @@ public class TextToSpeechServiceManager {
         }
     }
 
-    public synchronized void forward() {
+    public synchronized void forward(SpeakSettings.RewindAmount amount) {
     	Log.d(TAG, "Forward TTS");
     	// prevent onUtteranceCompleted causing next text to be grabbed
     	uniqueUtteranceNo++;
@@ -258,7 +258,7 @@ public class TextToSpeechServiceManager {
         }
 
         // move current position back a bit
-        mSpeakTextProvider.forward();
+        mSpeakTextProvider.forward(amount);
 
         isPaused = wasPaused;
         if (!isPaused) {

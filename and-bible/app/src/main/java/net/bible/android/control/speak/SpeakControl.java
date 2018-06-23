@@ -244,17 +244,25 @@ public class SpeakControl {
 	}
 
 	public void rewind() {
+		rewind(null);
+	}
+
+	public void rewind(SpeakSettings.RewindAmount amount) {
 		if (isSpeaking() || isPaused()) {
 			Log.d(TAG, "Rewind TTS speaking");
-			textToSpeechServiceManager.get().rewind();
+			textToSpeechServiceManager.get().rewind(amount);
 	    	Toast.makeText(BibleApplication.getApplication(), R.string.rewind, Toast.LENGTH_SHORT).show();
 		}
 	}
-	
+
 	public void forward() {
+		forward(null);
+	}
+
+	public void forward(SpeakSettings.RewindAmount amount) {
 		if (isSpeaking() || isPaused()) {
 			Log.d(TAG, "Forward TTS speaking");
-			textToSpeechServiceManager.get().forward();
+			textToSpeechServiceManager.get().forward(amount);
 	    	Toast.makeText(BibleApplication.getApplication(), R.string.forward, Toast.LENGTH_SHORT).show();
 		}
 	}

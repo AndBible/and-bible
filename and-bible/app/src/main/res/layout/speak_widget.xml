@@ -38,16 +38,20 @@
 			<ImageButton
 					android:id="@+id/rewindButton"
 					android:src="@android:drawable/ic_media_rew"
-					android:contentDescription="@string/rewind"
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					/>
-
+			<ImageButton
+					android:id="@+id/prevButton"
+					android:src="@android:drawable/ic_media_previous"
+					android:layout_width="0dip"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					/>
 			<ImageButton
 					android:id="@+id/stopButton"
 					android:src="@drawable/ic_media_stop"
-					android:contentDescription="@string/stop"
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
@@ -56,16 +60,20 @@
 			<ImageButton
 					android:id="@+id/speakButton"
 					android:src="@android:drawable/ic_media_play"
-					android:contentDescription="@string/speak"
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					/>
-
+			<ImageButton
+					android:id="@+id/nextButton"
+					android:src="@android:drawable/ic_media_next"
+					android:layout_width="0dip"
+					android:layout_height="wrap_content"
+					android:layout_weight="1"
+					/>
 			<ImageButton
 					android:id="@+id/forwardButton"
 					android:src="@android:drawable/ic_media_ff"
-					android:contentDescription="@string/forward"
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"

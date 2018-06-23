@@ -315,8 +315,10 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     private fun getNextVerse(verse: Verse): Verse = bibleTraverser.getNextVerse(book, verse)
 
-    private fun rewind(amount: SpeakSettings.RewindAmount) {
-        when(amount) {
+    override fun rewind(amount: SpeakSettings.RewindAmount?) {
+        reset()
+        val rewindAmount = amount?: settings.rewindAmount
+        when(rewindAmount) {
          SpeakSettings.RewindAmount.SMART -> {
              if (startVerse.verse <= 1) {
                  currentVerse = bibleTraverser.getPrevChapter(book, startVerse)
@@ -339,6 +341,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         endVerse = currentVerse
 
         clearNotificationAndWidgetTitles();
+        EventBus.getDefault().post(SpeakProggressEvent(book, startVerse, settings.synchronize, null))
     }
 
     private fun clearNotificationAndWidgetTitles() {
@@ -349,19 +352,14 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 TextCommand("", type=TextCommand.TextType.NORMAL)))
     }
 
-    override fun rewind() {
-        reset()
-        rewind(settings.rewindAmount)
-        EventBus.getDefault().post(SpeakProggressEvent(book, startVerse, settings.synchronize, null))
-    }
-
     override fun autoRewind() {
         rewind(settings.autoRewindAmount)
     }
 
-    override fun forward() {
+    override fun forward(amount: SpeakSettings.RewindAmount?) {
         reset()
-        when(settings.rewindAmount) {
+        val rewindAmount = amount?: settings.rewindAmount
+        when(rewindAmount) {
             SpeakSettings.RewindAmount.SMART -> {
                 val lastTitle = this.lastTitle
                 if(lastTitle != null) {

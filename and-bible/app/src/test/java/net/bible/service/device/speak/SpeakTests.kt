@@ -475,7 +475,7 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
         assertThat(text, startsWith("Laki kuitenkin"))
         assertThat(text, endsWith("ylenpalttiseksi,"))
 
-        provider.rewind()
+        provider.rewind(null)
         assertThat(range(), equalTo("Rom.5.19"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.19"))
@@ -488,7 +488,7 @@ class SpeakWithoutContinueSentences: AbstractSpeakTests (){
         assertThat(text, startsWith("Niin kuin"))
         assertThat(text, endsWith("vanhurskaiksi."))
 
-        provider.forward()
+        provider.forward(null)
         assertThat(range(), equalTo("Rom.5.20"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.20"))
@@ -585,7 +585,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text, startsWith("Laki kuitenkin"))
         assertThat(text, endsWith("meidän Herramme, kautta."))
 
-        provider.rewind()
+        provider.rewind(null)
         assertThat(range(), equalTo("Rom.5.19"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.19"))
@@ -598,7 +598,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text, startsWith("Niin kuin"))
         assertThat(text, endsWith("vanhurskaiksi."))
 
-        provider.forward()
+        provider.forward(null)
         assertThat(range(), equalTo("Rom.5.20"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.20-Rom.5.21"))

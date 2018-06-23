@@ -15,6 +15,7 @@ import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.activity.SpeakWidget
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.page.MainBibleActivity
@@ -31,6 +32,8 @@ class TextToSpeechNotificationService: Service() {
         const val ACTION_PLAY="action_play"
         const val ACTION_PAUSE="action_pause"
         const val ACTION_REWIND="action_rewind"
+        const val ACTION_PREVIOUS="action_previous"
+        const val ACTION_NEXT="action_next"
         const val ACTION_FAST_FORWARD="action_fast_forward"
         const val ACTION_STOP="action_stop"
 
@@ -189,6 +192,8 @@ class TextToSpeechNotificationService: Service() {
             }
             ACTION_FAST_FORWARD -> speakControl.forward()
             ACTION_REWIND -> speakControl.rewind()
+            ACTION_PREVIOUS -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
+            ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
             ACTION_STOP -> {
                 speakControl.stop()
                 shutdown()
@@ -232,11 +237,13 @@ class TextToSpeechNotificationService: Service() {
                 .setContentIntent(contentPendingIntent)
                 .setStyle(style)
                 .addAction(generateAction(android.R.drawable.ic_media_rew, getString(R.string.rewind), ACTION_REWIND))
+                .addAction(generateAction(android.R.drawable.ic_media_previous, getString(R.string.rewind), ACTION_PREVIOUS))
                 .addAction(action)
+                .addAction(generateAction(android.R.drawable.ic_media_next, getString(R.string.forward), ACTION_NEXT))
                 .addAction(generateAction(android.R.drawable.ic_media_ff, getString(R.string.forward), ACTION_FAST_FORWARD))
                 .setOnlyAlertOnce(true)
 
-        style.setShowActionsInCompactView(1)
+        style.setShowActionsInCompactView(2)
 
         val notification = builder.build()
         if(foreground) {

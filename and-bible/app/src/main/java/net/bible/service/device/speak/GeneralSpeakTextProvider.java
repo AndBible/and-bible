@@ -3,6 +3,7 @@ package net.bible.service.device.speak;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import net.bible.android.control.speak.SpeakSettings;
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
 
@@ -194,7 +195,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 		reset();
 	}
 
-	public void rewind() {
+	public void rewind(SpeakSettings.RewindAmount amount) {
 		// go back to start of current sentence
     	StartPos textFraction = getPrevTextStartPos(peekNextTextChunk(), fractionOfNextSentenceSpoken);
 
@@ -220,7 +221,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
     	Log.d(TAG, "Rewind chunk length start position:"+fractionOfNextSentenceSpoken);
 	}
 
-	public void forward() {
+	public void forward(SpeakSettings.RewindAmount amount) {
 		Log.d(TAG, "Forward nextText:"+nextTextToSpeak);
 
 		// go back to start of current sentence

@@ -10,6 +10,7 @@ import android.content.Intent
 import net.bible.service.device.speak.TextToSpeechNotificationService
 import net.bible.android.BibleApplication
 import net.bible.android.control.speak.SpeakControl
+import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.page.MainBibleActivity
 import javax.inject.Inject
@@ -20,6 +21,8 @@ class SpeakWidget : AppWidgetProvider() {
         const val ACTION_REWIND="action_rewind"
         const val ACTION_FAST_FORWARD="action_fast_forward"
         const val ACTION_STOP="action_stop"
+        const val ACTION_NEXT="action_next"
+        const val ACTION_PREV="action_prev"
         const val TAG = "SpeakWidget"
     }
 
@@ -59,8 +62,10 @@ class SpeakWidget : AppWidgetProvider() {
                     speakControl.pause()
                 }
             }
-            ACTION_FAST_FORWARD -> speakControl.forward()
             ACTION_REWIND -> speakControl.rewind()
+            ACTION_FAST_FORWARD -> speakControl.forward()
+            ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
+            ACTION_PREV -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
             ACTION_STOP -> {
                 speakControl.stop()
             }
@@ -90,6 +95,8 @@ class SpeakWidget : AppWidgetProvider() {
         setupButton(ACTION_STOP, R.id.stopButton)
         setupButton(ACTION_REWIND, R.id.rewindButton)
         setupButton(ACTION_FAST_FORWARD, R.id.forwardButton)
+        setupButton(ACTION_NEXT, R.id.nextButton)
+        setupButton(ACTION_PREV, R.id.prevButton)
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 }
