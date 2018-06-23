@@ -59,7 +59,9 @@ data class SpeakSettings(@Optional val synchronize: Boolean = true,
             CommonUtils.getSharedPreferences().edit().putString(PERSIST_SETTINGS, toJson()).apply()
             Log.d(TAG, "SpeakSettings saved! $this")
             EventBus.getDefault().post(this)
-            currentSettings = this
+            val settings = this.copy()
+            settings.playbackSettings = playbackSettings.copy()
+            currentSettings = settings
         }
     }
 

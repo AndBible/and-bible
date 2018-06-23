@@ -3,6 +3,7 @@ package net.bible.android.view.activity.speak
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.*
 import android.widget.AdapterView.INVALID_POSITION
@@ -27,6 +28,10 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
     @Inject lateinit var bookmarkControl: BookmarkControl
     private lateinit var bookmarkLabels: List<LabelDto>
     private lateinit var currentSettings: SpeakSettings
+
+    companion object {
+        const val TAG = "BibleSpeakActivity"
+    }
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -199,6 +204,7 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
             }
         } catch (e: Exception) {
             Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
+            Log.e(TAG, "Error: ", e)
         }
         statusText.text = speakControl.getStatusText()
     }

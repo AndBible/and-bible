@@ -299,6 +299,11 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="sleep_timer_timer_set">Set sleep time. Timer set: %d minutes</string>
     <string name="sleep_timer_minutes">minutes</string>
 
+    <string name="conf_playback_settings">Playback settings</string>
+    <string name="conf_speak_settings">General speak settings</string>
+    <string name="conf_advanced_settings">Advanced settings</string>
+    <string name="sleep_timer_started">Sleep timer started, %d minutes</string>
+
     <string name="divineNameOriginal">Lord</string>
     <string name="divineNameReplace">Yahweh</string>
 
@@ -364,7 +369,4 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="error_key_not_in_document">Not found in document</string>
     <string name="empty_list">No items to display</string>
     <string name="add_widget">Add widget</string>
-    <string name="conf_playback_settings">Playback settings</string>
-    <string name="conf_speak_settings">General speak settings</string>
-    <string name="conf_advanced_settings">Advanced settings</string>
 </resources>

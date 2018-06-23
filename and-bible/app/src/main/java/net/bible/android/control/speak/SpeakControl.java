@@ -31,6 +31,8 @@ import org.crosswire.jsword.versification.Versification;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.inject.Inject;
 
@@ -76,6 +78,7 @@ public class SpeakControl {
 	private static final String TAG = "SpeakControl";
 
 	@Inject public BookmarkControl bookmarkControl;
+	private Timer sleepTimer = new Timer();
 
 	@Inject
 	public SpeakControl(Lazy<TextToSpeechServiceManager> textToSpeechServiceManager, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
@@ -150,7 +153,6 @@ public class SpeakControl {
 					speakKeyList(fromBook, keyList, true, false);
 				}
 
-				Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
 			} catch (Exception e) {
 				Log.e(TAG, "Error getting chapters to speak", e);
 				throw new AndRuntimeException("Error preparing Speech", e);
@@ -271,7 +273,11 @@ public class SpeakControl {
 		pause(false);
 	}
 
-	public void pause(boolean noToast) {
+	// automated: pause & continue triggered due to settings change event
+	public void pause(boolean automated) {
+		if(!automated) {
+			sleepTimer.cancel();
+		}
 		if (isSpeaking() || isPaused()) {
 			showNotification();
 			Log.d(TAG, "Pause TTS speaking");
@@ -287,7 +293,7 @@ public class SpeakControl {
 				pauseToastText += "\n" + timeProgress;
 			}
 
-			if(!noToast) {
+			if(!automated) {
 				Toast.makeText(BibleApplication.getApplication(), pauseToastText, Toast.LENGTH_SHORT).show();
 			}
 		}
@@ -299,37 +305,56 @@ public class SpeakControl {
 
 	private void continueAfterPause(boolean automated) {
 		Log.d(TAG, "Continue TTS speaking after pause");
-		preSpeak();
+		preSpeak(automated);
 		textToSpeechServiceManager.get().continueAfterPause(automated);
-		if(!automated) {
-			Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
-		}
 	}
 
 	public void stop() {
 		Log.d(TAG, "Stop TTS speaking");
 		doStop();
+		sleepTimer.cancel();
     	Toast.makeText(BibleApplication.getApplication(), R.string.stop, Toast.LENGTH_SHORT).show();
 	}
-	
+
 	private void doStop() {
 		textToSpeechServiceManager.get().shutdown();
 		removeNotification();
 	}
 
 	private void preSpeak() {
+		preSpeak(false);
+	}
+
+	// automated: pause & continue triggered due to settings change event
+	private void preSpeak(boolean automated) {
+		showNotification();
 		// ensure volume controls adjust correct stream - not phone which is the default
 		// STREAM_TTS does not seem to be available but this article says use STREAM_MUSIC instead: http://stackoverflow.com/questions/7558650/how-to-set-volume-for-text-to-speech-speak-method
-
-		showNotification();
         Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
         if(activity != null) {
 			activity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		}
+		if(!automated) {
+			int sleepTimerAmount = SpeakSettings.Companion.fromSharedPreferences().getSleepTimer();
+			sleepTimer.cancel();
+			if (sleepTimerAmount > 0) {
+				BibleApplication app = BibleApplication.getApplication();
+				Toast.makeText(app, app.getString(R.string.sleep_timer_started, sleepTimerAmount), Toast.LENGTH_SHORT).show();
+				sleepTimer = new Timer("TTS Sleep timer");
+				sleepTimer.schedule(new TimerTask() {
+					@Override
+					public void run() {
+						pause(true);
+					}
+				}, sleepTimerAmount * 60000);
+			} else {
+				Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
+			}
+		}
 	}
 
-
 	public void onEvent(SpeakSettings ev) {
+
 		if(!isPaused() && !isSpeaking()) {
 			bookmarkControl.updateBookmarkSettings(ev.getPlaybackSettings());
 		}
