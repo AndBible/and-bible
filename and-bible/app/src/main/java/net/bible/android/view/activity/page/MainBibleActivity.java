@@ -168,6 +168,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		if (event.isMovedToBackground()) {
 			mWholeAppWasInBackground = true;
 		}
+		else {
+			bibleActionBarManager.updateButtons();
+		}
 	}
 
 	public void onEventMainThread(SpeakProggressEvent event) {
