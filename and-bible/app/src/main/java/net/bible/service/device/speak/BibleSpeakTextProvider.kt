@@ -48,6 +48,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private var startVerse: Verse
     private var endVerse: Verse
     private var currentVerse: Verse
+    private var lastTitle: Verse? = null
     private val utteranceState = HashMap<String, State>()
     private var currentUtteranceId = ""
     private val currentCommands = SpeakCommandArray()
@@ -316,7 +317,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     private fun rewind(amount: SpeakSettings.RewindAmount) {
         when(amount) {
-         SpeakSettings.RewindAmount.FULL_CHAPTER -> {
+         SpeakSettings.RewindAmount.SMART -> {
              if (startVerse.verse <= 1) {
                  currentVerse = bibleTraverser.getPrevChapter(book, startVerse)
              } else {
@@ -361,8 +362,16 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     override fun forward() {
         reset()
         when(settings.rewindAmount) {
-            SpeakSettings.RewindAmount.FULL_CHAPTER ->
-                currentVerse = bibleTraverser.getNextChapter(book, startVerse)
+            SpeakSettings.RewindAmount.SMART -> {
+                val lastTitle = this.lastTitle
+                if(lastTitle != null) {
+                    currentVerse = lastTitle
+                    this.lastTitle = null;
+                }
+                else {
+                    currentVerse = bibleTraverser.getNextChapter(book, startVerse)
+                }
+            }
             SpeakSettings.RewindAmount.ONE_VERSE ->
                 currentVerse = bibleTraverser.getNextVerse(book, startVerse)
             SpeakSettings.RewindAmount.TEN_VERSES -> {
@@ -386,6 +395,9 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         currentUtteranceId = utteranceId
         if(state != null) {
             Log.d(TAG, "startUtterance $utteranceId $state")
+            if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
+                lastTitle = state.startVerse
+            }
             EventBus.getDefault().post(SpeakProggressEvent(state.book, state.startVerse, settings.synchronize, state.command!!))
         }
     }
@@ -399,6 +411,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             endVerse = state.endVerse
             book = state.book
         }
+        lastTitle = null
         endVerse = startVerse
         readList.clear()
         currentCommands.clear()

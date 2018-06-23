@@ -48,7 +48,7 @@ data class SpeakSettings(@Optional val synchronize: Boolean = true,
                          @Optional val restoreSettingsFromBookmarks: Boolean = false,
                          @Optional var playbackSettings: PlaybackSettings = PlaybackSettings()
                          ) {
-    enum class RewindAmount {NONE, ONE_VERSE, TEN_VERSES, FULL_CHAPTER}
+    enum class RewindAmount {NONE, ONE_VERSE, TEN_VERSES, SMART}
 
     fun toJson(): String {
         return JSON.stringify(this)

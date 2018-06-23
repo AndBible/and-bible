@@ -236,11 +236,11 @@
                                 android:onClick="onSettingsChange"/>
 
                         <RadioButton
-                                android:text="@string/conf_rewind_amount_full_chapter"
+                                android:text="@string/conf_rewind_amount_smart"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:id="@+id/rewindFullChapter"
+                                android:id="@+id/rewindSmart"
                                 android:onClick="onSettingsChange"/>
                     </RadioGroup>
                 </LinearLayout>
@@ -289,14 +289,20 @@
                                 android:onClick="onSettingsChange"/>
 
                         <RadioButton
-                                android:text="@string/conf_rewind_amount_full_chapter"
+                                android:text="@string/conf_rewind_amount_smart"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
-                                android:id="@+id/autoRewindFullChapter"
+                                android:id="@+id/autoRewindSmart"
                                 android:onClick="onSettingsChange"/>
                     </RadioGroup>
+                    <TextView
+                            android:layout_width="match_parent"
+                            android:padding="@dimen/speak_row_padding"
+                            android:layout_height="wrap_content"
+                            android:text="@string/conf_rewind_amount_smart_explanation"/>
                 </LinearLayout>
+
                 <CheckBox
                         android:text="@string/conf_replace_divinename"
                         android:layout_width="match_parent"

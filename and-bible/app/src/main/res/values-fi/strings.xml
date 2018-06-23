@@ -294,7 +294,7 @@
   <string name="conf_rewind_amount">Kelauksen määrä</string>
   <string name="conf_rewind_amount_one_verse">1 jae</string>
   <string name="conf_rewind_amount_ten_verses">10 jaetta</string>
-  <string name="conf_rewind_amount_full_chapter">1 luku</string>
+  <string name="conf_rewind_amount_smart">1 luku</string>
   <string name="conf_auto_rewind">Kelaa automaattisesti jatkettaessa</string>
   <string name="add_widget">Lisää widget</string>
   <string name="conf_rewind_amount_none">Ei yhtään</string>

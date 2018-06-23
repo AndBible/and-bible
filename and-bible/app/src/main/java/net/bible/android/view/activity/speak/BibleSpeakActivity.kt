@@ -84,7 +84,7 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
         when(settings.rewindAmount) {
             SpeakSettings.RewindAmount.ONE_VERSE -> rewindOneVerse.isChecked = true
             SpeakSettings.RewindAmount.TEN_VERSES -> rewindTenVerses.isChecked = true
-            SpeakSettings.RewindAmount.FULL_CHAPTER -> rewindFullChapter.isChecked = true
+            SpeakSettings.RewindAmount.SMART -> rewindSmart.isChecked = true
             SpeakSettings.RewindAmount.NONE -> {}
         }
 
@@ -92,7 +92,7 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
             SpeakSettings.RewindAmount.NONE -> autoRewindNone.isChecked = true
             SpeakSettings.RewindAmount.ONE_VERSE -> autoRewindOneVerse.isChecked = true
             SpeakSettings.RewindAmount.TEN_VERSES -> autoRewindTenVerses.isChecked = true
-            SpeakSettings.RewindAmount.FULL_CHAPTER -> autoRewindFullChapter.isChecked = true
+            SpeakSettings.RewindAmount.SMART -> autoRewindSmart.isChecked = true
         }
 
         if(settings.autoBookmarkLabelId != null) {
@@ -147,7 +147,7 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
                 else if (rewindTenVerses.isChecked ) {
                     SpeakSettings.RewindAmount.TEN_VERSES }
                 else {
-                    SpeakSettings.RewindAmount.FULL_CHAPTER},
+                    SpeakSettings.RewindAmount.SMART},
 
                 autoRewindAmount =  if ( autoRewindOneVerse.isChecked ) {
                     SpeakSettings.RewindAmount.ONE_VERSE }
@@ -156,7 +156,7 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
                 else if (autoRewindTenVerses.isChecked ) {
                     SpeakSettings.RewindAmount.TEN_VERSES }
                 else {
-                    SpeakSettings.RewindAmount.FULL_CHAPTER},
+                    SpeakSettings.RewindAmount.SMART},
                 restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked
         )
         settings.saveSharedPreferences()

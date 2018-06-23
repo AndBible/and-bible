@@ -289,7 +289,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="conf_rewind_amount_none">None</string>
     <string name="conf_rewind_amount_one_verse">One verse</string>
     <string name="conf_rewind_amount_ten_verses">Ten verses</string>
-    <string name="conf_rewind_amount_full_chapter">One chapter</string>
+    <string name="conf_rewind_amount_smart">Smart (*)</string>
+    <string name="conf_rewind_amount_smart_explanation">(*) Last spoken title if available or 1 chapter</string>
 
     <string name="conf_auto_rewind">Auto rewind when resuming</string>
 
