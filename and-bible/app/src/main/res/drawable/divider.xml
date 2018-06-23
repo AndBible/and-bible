@@ -3,6 +3,6 @@
 
     <size android:width="10dip" />
     <size android:height="2dip" />
-    <solid android:color="@color/accent_night" />
+    <solid android:color="@color/grey_600" />
 
 </shape>

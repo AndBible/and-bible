@@ -160,7 +160,11 @@
                             android:progress="100"
                             />
                 </LinearLayout>
+               <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="15dip"/>
             </LinearLayout>
+
             <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -168,6 +172,9 @@
                     android:dividerPadding="@dimen/row_divider_padding"
                     android:showDividers="middle"
                     >
+                               <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="15dip"/>
                 <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -186,7 +193,7 @@
 
                     <CheckBox
                             android:text="@string/conf_speak_synchronize_first_window"
-                            android:padding="@dimen/speak_row_padding"
+                            android:layout_marginStart="@dimen/speak_row_padding"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:id="@+id/synchronize"
@@ -255,7 +262,7 @@
                             android:padding="@dimen/speak_row_padding"
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
-                            android:layout_weight="1">
+                            >
 
                         <RadioButton
                                 android:text="@string/conf_rewind_amount_none"
@@ -294,35 +301,37 @@
                         android:text="@string/conf_replace_divinename"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:padding="@dimen/speak_row_padding"
+                        android:layout_marginStart="@dimen/speak_row_padding"
                         android:id="@+id/replaceDivineName"
                         android:onClick="onSettingsChange"/>
-
+                <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="15dip"/>
             </LinearLayout>
 
             <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
-                    android:divider="@color/accent_night"
-                    android:showDividers="middle"
-                    android:dividerPadding="@dimen/row_divider_padding"
                     >
+                <Space
+                        android:layout_width="match_parent"
+                        android:layout_height="15dip"/>
+
+                <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textSize="@dimen/speak_titles_text_size"
+                        android:textColor="@color/speak_title_color"
+                        android:padding="@dimen/speak_title_padding"
+                        android:textStyle="bold"
+                        android:text="@string/conf_advanced_settings"
+                        />
                 <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         >
-                    <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textSize="@dimen/speak_titles_text_size"
-                            android:textColor="@color/speak_title_color"
-                            android:padding="@dimen/speak_title_padding"
-                            android:textStyle="bold"
-                            android:text="@string/conf_advanced_settings"
-                            />
 
                 <LinearLayout
                         android:layout_width="match_parent"
@@ -338,6 +347,7 @@
                             android:onClick="onSettingsChange"/>
 
                     <LinearLayout
+                            android:id="@+id/bookmarkTagLayout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content">
 
@@ -357,14 +367,15 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"/>
                     </LinearLayout>
+
+                </LinearLayout>
                     <CheckBox
                             android:text="@string/restore_settings_from_bookmarks"
+                            android:layout_marginStart="@dimen/speak_row_padding"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:id="@+id/restoreSettingsFromBookmarks"
                             android:onClick="onSettingsChange"/>
-                </LinearLayout>
-
 
                 </LinearLayout>
             </LinearLayout>

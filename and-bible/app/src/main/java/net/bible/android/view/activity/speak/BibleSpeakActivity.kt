@@ -134,7 +134,6 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
                         speakBookChanges = speakBookChanges.isChecked,
                         speakChapterChanges = speakChapterChanges.isChecked,
                         speakTitles = speakTitles.isChecked,
-
                         playEarconBook = playEarconBook.isChecked,
                         playEarconChapter = playEarconChapter.isChecked,
                         playEarconTitles = playEarconTitles.isChecked,
