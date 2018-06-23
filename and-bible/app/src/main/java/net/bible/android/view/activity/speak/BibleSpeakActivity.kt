@@ -120,8 +120,6 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         resetView(ev)
     }
 
-
-
     fun onSettingsChange(widget: View) = updateSettings()
 
     private fun updateSettings() {

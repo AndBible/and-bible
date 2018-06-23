@@ -37,7 +37,7 @@ abstract class AbstractSpeakActivity: CustomTitlebarActivityBase() {
                         currentSettings.save()
                         resetView(currentSettings)
                     }
-                    .setNegativeButton(android.R.string.cancel, null)
+                    .setNegativeButton(android.R.string.cancel) { _, _ -> resetView(currentSettings) }
                     .show()
         }
         else {
