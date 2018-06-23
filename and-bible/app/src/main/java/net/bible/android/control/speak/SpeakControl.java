@@ -335,7 +335,7 @@ public class SpeakControl {
 			activity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		}
 		if(!automated) {
-			int sleepTimerAmount = SpeakSettings.Companion.fromSharedPreferences().getSleepTimer();
+			int sleepTimerAmount = SpeakSettings.Companion.load().getSleepTimer();
 			sleepTimer.cancel();
 			if (sleepTimerAmount > 0) {
 				BibleApplication app = BibleApplication.getApplication();

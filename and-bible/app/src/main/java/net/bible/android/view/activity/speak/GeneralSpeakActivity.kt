@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.View
 import android.widget.RadioButton
 import android.widget.SeekBar
-import de.greenrobot.event.EventBus
 import kotlinx.android.synthetic.main.speak_general.*
 import net.bible.android.activity.R
 import net.bible.android.control.speak.NumPagesToSpeakDefinition
@@ -50,7 +49,7 @@ class GeneralSpeakActivity : CustomTitlebarActivityBase() {
         queue.isChecked = true
         repeat.isChecked = false
 
-        val settings = SpeakSettings.fromSharedPreferences()
+        val settings = SpeakSettings.load()
         speakSpeed.progress = settings.playbackSettings.speed
         speedStatus.text = "${settings.playbackSettings.speed} %"
         speakSpeed.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
@@ -59,7 +58,7 @@ class GeneralSpeakActivity : CustomTitlebarActivityBase() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 speedStatus.text = "$progress %"
                 settings.playbackSettings.speed = progress
-                settings.saveSharedPreferences()
+                settings.save()
             }
         })
 

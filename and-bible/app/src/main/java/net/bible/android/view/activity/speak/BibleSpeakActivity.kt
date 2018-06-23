@@ -39,7 +39,7 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
         setContentView(R.layout.speak_bible)
         super.buildActivityComponent().inject(this)
         EventBus.getDefault().register(this)
-        currentSettings = SpeakSettings.fromSharedPreferences()
+        currentSettings = SpeakSettings.load()
 
         bookmarkLabels = bookmarkControl.assignableLabels
 
@@ -72,7 +72,7 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
                 updateSettings()
             }
         }
-        resetView(SpeakSettings.fromSharedPreferences())
+        resetView(SpeakSettings.load())
     }
 
     private fun resetView(settings: SpeakSettings) {
@@ -139,7 +139,7 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
                     .setTitle(R.string.sleep_timer_title)
                     .setPositiveButton(android.R.string.ok) { _, _ ->
                         currentSettings.sleepTimer = picker.value
-                        currentSettings.saveSharedPreferences()
+                        currentSettings.save()
                         resetView(currentSettings)
                     }
                     .setNegativeButton(android.R.string.cancel, null)
@@ -147,7 +147,7 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
         }
         else {
             currentSettings.sleepTimer = 0;
-            currentSettings.saveSharedPreferences();
+            currentSettings.save();
             resetView(currentSettings)
         }
     }
@@ -185,7 +185,7 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
                 restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked,
                 sleepTimer = currentSettings.sleepTimer
         )
-        settings.saveSharedPreferences()
+        settings.save()
     }
 
     fun onButtonClick(button: View) {

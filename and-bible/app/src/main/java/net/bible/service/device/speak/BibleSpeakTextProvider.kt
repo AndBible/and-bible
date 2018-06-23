@@ -76,7 +76,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     internal var settings: SpeakSettings
 
     init {
-        settings = SpeakSettings.fromSharedPreferences()
+        settings = SpeakSettings.load()
     }
 
     fun onEvent(ev: SpeakSettings) {
@@ -274,7 +274,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             if(bookmarkDto != null) {
                 if(bookmarkDto.playbackSettings != null && settings.restoreSettingsFromBookmarks) {
                     settings.playbackSettings = bookmarkDto.playbackSettings
-                    settings.saveSharedPreferences()
+                    settings.save()
                 }
                 bookmarkControl.deleteBookmark(bookmarkDto)
                 EventBus.getDefault().post(SynchronizeWindowsEvent(true))

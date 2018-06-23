@@ -50,11 +50,11 @@ data class SpeakSettings(@Optional val synchronize: Boolean = true,
                          ) {
     enum class RewindAmount {NONE, ONE_VERSE, TEN_VERSES, SMART}
 
-    fun toJson(): String {
+    private fun toJson(): String {
         return JSON.stringify(this)
     }
 
-    fun saveSharedPreferences() {
+    fun save() {
         if(currentSettings?.equals(this) != true) {
             CommonUtils.getSharedPreferences().edit().putString(PERSIST_SETTINGS, toJson()).apply()
             Log.d(TAG, "SpeakSettings saved! $this")
@@ -68,7 +68,7 @@ data class SpeakSettings(@Optional val synchronize: Boolean = true,
     companion object {
         var currentSettings: SpeakSettings? = null
 
-        fun fromJson(jsonString: String): SpeakSettings {
+        private fun fromJson(jsonString: String): SpeakSettings {
             return try {
                 JSON(nonstrict = true).parse(jsonString)
             } catch (ex: SerializationException) {
@@ -78,11 +78,13 @@ data class SpeakSettings(@Optional val synchronize: Boolean = true,
             }
         }
 
-        fun fromSharedPreferences(): SpeakSettings {
-            val sharedPreferences = CommonUtils.getSharedPreferences()
-            val settings = fromJson(sharedPreferences.getString(PERSIST_SETTINGS, ""))
-            Log.d(TAG, "SpeakSettings loaded! $settings")
-            return settings
+        fun load(): SpeakSettings {
+            val rv = currentSettings ?: {
+                val sharedPreferences = CommonUtils.getSharedPreferences()
+                val settings = fromJson(sharedPreferences.getString(PERSIST_SETTINGS, ""))
+                settings }()
+            Log.d(TAG, "SpeakSettings loaded! $rv")
+            return rv
         }
     }
 }
