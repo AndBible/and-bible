@@ -332,9 +332,20 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 currentVerse = bibleTraverser.getPrevVerse(book, currentVerse)
             }
          }
+         SpeakSettings.RewindAmount.NONE -> {}
         }
         startVerse = currentVerse
         endVerse = currentVerse
+
+        clearNotificationAndWidgetTitles();
+    }
+
+    private fun clearNotificationAndWidgetTitles() {
+        // Clear title and text from widget and notification.
+        EventBus.getDefault().post(SpeakProggressEvent(book, startVerse, false,
+                TextCommand("", type=TextCommand.TextType.TITLE)))
+        EventBus.getDefault().post(SpeakProggressEvent(book, startVerse, false,
+                TextCommand("", type=TextCommand.TextType.NORMAL)))
     }
 
     override fun rewind() {
@@ -360,9 +371,11 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                     currentVerse = bibleTraverser.getNextVerse(book, currentVerse)
                 }
             }
+            SpeakSettings.RewindAmount.NONE -> throw RuntimeException("Invalid settings")
         }
         startVerse = currentVerse
         endVerse = currentVerse
+        clearNotificationAndWidgetTitles();
         EventBus.getDefault().post(SpeakProggressEvent(book, startVerse, settings.synchronize, null))
     }
 

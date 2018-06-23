@@ -134,6 +134,9 @@ class TextToSpeechNotificationService: Service() {
         if(ev.speakCommand is TextCommand) {
             if(ev.speakCommand.type == TextCommand.TextType.TITLE) {
                 currentTitle = ev.speakCommand.text
+                if(currentTitle.isEmpty()) {
+                    currentTitle = getString(R.string.app_name)
+                }
             }
             else {
                 currentText = ev.speakCommand.text;
