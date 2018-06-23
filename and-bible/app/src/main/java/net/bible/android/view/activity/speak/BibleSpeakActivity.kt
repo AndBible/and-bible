@@ -1,7 +1,6 @@
 package net.bible.android.view.activity.speak
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -16,18 +15,16 @@ import net.bible.android.control.speak.PlaybackSettings
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
-import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.db.bookmark.LabelDto
 import net.bible.service.device.speak.event.SpeakProggressEvent
 import javax.inject.Inject
 
 @ActivityScope
-class BibleSpeakActivity : CustomTitlebarActivityBase() {
+class BibleSpeakActivity : AbstractSpeakActivity() {
     @Inject lateinit var speakControl: SpeakControl
     @Inject lateinit var bookmarkControl: BookmarkControl
     private lateinit var bookmarkLabels: List<LabelDto>
-    private lateinit var currentSettings: SpeakSettings
 
     companion object {
         const val TAG = "BibleSpeakActivity"
@@ -39,7 +36,6 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
         setContentView(R.layout.speak_bible)
         super.buildActivityComponent().inject(this)
         EventBus.getDefault().register(this)
-        currentSettings = SpeakSettings.load()
 
         bookmarkLabels = bookmarkControl.assignableLabels
 
@@ -75,7 +71,7 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
         resetView(SpeakSettings.load())
     }
 
-    private fun resetView(settings: SpeakSettings) {
+    override fun resetView(settings: SpeakSettings) {
         statusText.text = speakControl.getStatusText()
         synchronize.isChecked = settings.synchronize
         speakBookChanges.isChecked = settings.playbackSettings.speakBookChanges
@@ -124,33 +120,7 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
         resetView(ev)
     }
 
-    fun setSleepTime(widget: View) {
-        if (sleepTimer.isChecked) {
-            val picker = NumberPicker(this)
-            picker.minValue = 1
-            picker.maxValue = 120
-            picker.value = 10
 
-            val layout = FrameLayout(this)
-            layout.addView(picker)
-
-            AlertDialog.Builder(this)
-                    .setView(layout)
-                    .setTitle(R.string.sleep_timer_title)
-                    .setPositiveButton(android.R.string.ok) { _, _ ->
-                        currentSettings.sleepTimer = picker.value
-                        currentSettings.save()
-                        resetView(currentSettings)
-                    }
-                    .setNegativeButton(android.R.string.cancel, null)
-                    .show()
-        }
-        else {
-            currentSettings.sleepTimer = 0;
-            currentSettings.save();
-            resetView(currentSettings)
-        }
-    }
 
     fun onSettingsChange(widget: View) = updateSettings()
 

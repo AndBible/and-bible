@@ -10,7 +10,6 @@ import net.bible.android.activity.R
 import net.bible.android.control.speak.NumPagesToSpeakDefinition
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettings
-import net.bible.android.view.activity.base.CustomTitlebarActivityBase
 import net.bible.android.view.activity.base.Dialogs
 import javax.inject.Inject
 
@@ -21,9 +20,8 @@ import javax.inject.Inject
  * @see gnu.lgpl.License for license details.<br></br>
  * The copyright to this program is held by it's author.
  */
-class GeneralSpeakActivity : CustomTitlebarActivityBase() {
-
-    private lateinit var numPagesToSpeakDefinitions: Array<NumPagesToSpeakDefinition>
+class GeneralSpeakActivity : AbstractSpeakActivity() {
+   private lateinit var numPagesToSpeakDefinitions: Array<NumPagesToSpeakDefinition>
 
     private lateinit var speakControl: SpeakControl
 
@@ -48,20 +46,18 @@ class GeneralSpeakActivity : CustomTitlebarActivityBase() {
         // set defaults for Queue and Repeat
         queue.isChecked = true
         repeat.isChecked = false
-
-        val settings = SpeakSettings.load()
-        speakSpeed.progress = settings.playbackSettings.speed
-        speedStatus.text = "${settings.playbackSettings.speed} %"
+        speakSpeed.progress = currentSettings.playbackSettings.speed
+        speedStatus.text = "${currentSettings.playbackSettings.speed} %"
         speakSpeed.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 speedStatus.text = "$progress %"
-                settings.playbackSettings.speed = progress
-                settings.save()
+                currentSettings.playbackSettings.speed = progress
+                currentSettings.save()
             }
         })
-
+        resetView(this.currentSettings)
         Log.d(TAG, "Finished displaying Speak view")
     }
 
@@ -91,7 +87,12 @@ class GeneralSpeakActivity : CustomTitlebarActivityBase() {
         this.speakControl = speakControl
     }
 
+    override fun resetView(settings: SpeakSettings) {
+        sleepTimer.isChecked = settings.sleepTimer > 0
+        sleepTimer.text = if(settings.sleepTimer>0) getString(R.string.sleep_timer_timer_set, settings.sleepTimer) else getString(R.string.conf_sleep_timer)
+    }
+
     companion object {
-        private val TAG = "Speak"
+        private const val TAG = "Speak"
     }
 }

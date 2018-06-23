@@ -81,6 +81,14 @@
 			android:max="300"
 			android:progress="100"
 			/>
+	<CheckBox
+			android:layout_below="@id/speakSpeed"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/conf_sleep_timer"
+			android:id="@+id/sleepTimer"
+			android:onClick="setSleepTime"
+			/>
 
 	<!-- Button bar with OK button -->
 	<LinearLayout android:id="@+id/button_panel"
