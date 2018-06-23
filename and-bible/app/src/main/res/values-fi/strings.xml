@@ -294,9 +294,17 @@
   <string name="conf_rewind_amount">Kelauksen määrä</string>
   <string name="conf_rewind_amount_one_verse">1 jae</string>
   <string name="conf_rewind_amount_ten_verses">10 jaetta</string>
-  <string name="conf_rewind_amount_smart">1 luku</string>
+  <string name="conf_rewind_amount_smart">Älykäs (*)</string>
   <string name="conf_auto_rewind">Kelaa automaattisesti jatkettaessa</string>
   <string name="add_widget">Lisää widget</string>
   <string name="conf_rewind_amount_none">Ei yhtään</string>
     <string name="restore_settings_from_bookmarks">Tallenna / palauta puheasetukset automaattisesti tallennetuista kirjanmerkeistä</string>
+    <string name="conf_rewind_amount_smart_explanation">(*) Viimeksi puhuttu otsikko (jos mahdollista) tai 1 luku</string>
+  <string name="conf_sleep_timer">Aseta uniajastin</string>
+  <string name="sleep_timer_title">Uniajastimen aika minuuteissa</string>
+  <string name="sleep_timer_timer_set">Aseta uniajastin. Ajastin asetettu: %d minuuttia</string>
+  <string name="conf_playback_settings">Puheen asetukset</string>
+  <string name="conf_speak_settings">Yleiset puheen asetukset</string>
+  <string name="sleep_timer_started">Uniajastin aloitettu, %d minuuttia</string>
+  <string name="conf_speak_bookmarking_settings">Kirjanmerkkien asetukset</string>
 </resources>

@@ -274,7 +274,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="restore_settings_from_bookmarks">Save / restore playback settings to/from auto-generated bookmarks</string>
 
     <string name="conf_speak">Speak</string>
-    <string name="conf_play_earcons">Play earcons for</string>
+    <string name="conf_play_earcons">Play earcon sounds for</string>
     <string name="conf_replace_divinename">Replace divine name with Yahweh</string>
     <string name="conf_delay_on_paragraph_changes">Add delay on paragraph changes</string>
 
@@ -300,7 +300,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
 
     <string name="conf_playback_settings">Playback settings</string>
     <string name="conf_speak_settings">General speak settings</string>
-    <string name="conf_advanced_settings">Advanced settings</string>
+    <string name="conf_speak_bookmarking_settings">Bookmarking settings</string>
     <string name="sleep_timer_started">Sleep timer started, %d minutes</string>
 
     <string name="divineNameOriginal">Lord</string>

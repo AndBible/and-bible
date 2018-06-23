@@ -293,7 +293,7 @@
                         android:textColor="@color/speak_title_color"
                         android:padding="@dimen/speak_title_padding"
                         android:textStyle="bold"
-                        android:text="@string/conf_advanced_settings"
+                        android:text="@string/conf_speak_bookmarking_settings"
                         />
                 <LinearLayout
                         android:layout_width="match_parent"
