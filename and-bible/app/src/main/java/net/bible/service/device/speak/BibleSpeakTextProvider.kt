@@ -317,7 +317,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     override fun rewind(amount: SpeakSettings.RewindAmount?) {
         reset()
-        val rewindAmount = amount?: settings.rewindAmount
+        val rewindAmount = amount?: SpeakSettings.RewindAmount.SMART
         when(rewindAmount) {
          SpeakSettings.RewindAmount.SMART -> {
              if (startVerse.verse <= 1) {
@@ -358,7 +358,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     override fun forward(amount: SpeakSettings.RewindAmount?) {
         reset()
-        val rewindAmount = amount?: settings.rewindAmount
+        val rewindAmount = amount?: SpeakSettings.RewindAmount.SMART
         when(rewindAmount) {
             SpeakSettings.RewindAmount.SMART -> {
                 val lastTitle = this.lastTitle

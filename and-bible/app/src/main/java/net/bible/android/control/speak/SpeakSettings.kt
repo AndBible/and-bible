@@ -43,7 +43,6 @@ data class SpeakSettings(@Optional val synchronize: Boolean = true,
                          @Optional val autoBookmarkLabelId: Long? = null,
                          @Optional val replaceDivineName: Boolean = false,
                          @Optional val delayOnParagraphChanges: Boolean = true,
-                         @Optional val rewindAmount: RewindAmount = RewindAmount.ONE_VERSE,
                          @Optional val autoRewindAmount: RewindAmount = RewindAmount.NONE,
                          @Optional val restoreSettingsFromBookmarks: Boolean = false,
                          @Optional var playbackSettings: PlaybackSettings = PlaybackSettings()

@@ -81,13 +81,6 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
         replaceDivineName.isChecked = settings.replaceDivineName
         restoreSettingsFromBookmarks.isChecked = settings.restoreSettingsFromBookmarks
 
-        when(settings.rewindAmount) {
-            SpeakSettings.RewindAmount.ONE_VERSE -> rewindOneVerse.isChecked = true
-            SpeakSettings.RewindAmount.TEN_VERSES -> rewindTenVerses.isChecked = true
-            SpeakSettings.RewindAmount.SMART -> rewindSmart.isChecked = true
-            SpeakSettings.RewindAmount.NONE -> {}
-        }
-
         when(settings.autoRewindAmount) {
             SpeakSettings.RewindAmount.NONE -> autoRewindNone.isChecked = true
             SpeakSettings.RewindAmount.ONE_VERSE -> autoRewindOneVerse.isChecked = true
@@ -141,14 +134,6 @@ class BibleSpeakActivity : CustomTitlebarActivityBase() {
                         ),
                 autoBookmarkLabelId = if (autoBookmark.isChecked) labelId else null,
                 replaceDivineName = replaceDivineName.isChecked,
-
-                rewindAmount =  if ( rewindOneVerse.isChecked ) {
-                    SpeakSettings.RewindAmount.ONE_VERSE }
-                else if (rewindTenVerses.isChecked ) {
-                    SpeakSettings.RewindAmount.TEN_VERSES }
-                else {
-                    SpeakSettings.RewindAmount.SMART},
-
                 autoRewindAmount =  if ( autoRewindOneVerse.isChecked ) {
                     SpeakSettings.RewindAmount.ONE_VERSE }
                 else if (autoRewindNone.isChecked ) {
