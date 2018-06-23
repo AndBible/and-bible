@@ -130,7 +130,7 @@ class TextToSpeechNotificationService: Service() {
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    fun onEventMainThread(ev: SpeakProggressEvent) {
+    fun onEvent(ev: SpeakProggressEvent) {
         if(ev.speakCommand is TextCommand) {
             if(ev.speakCommand.type == TextCommand.TextType.TITLE) {
                 currentTitle = ev.speakCommand.text
@@ -151,7 +151,6 @@ class TextToSpeechNotificationService: Service() {
         partialUpdateWidgets(views)
     }
 
-
     private fun updateWidgetTexts() {
         val views = RemoteViews(applicationContext.packageName, R.layout.speak_widget)
         views.setTextViewText(R.id.statusText, speakControl.statusText)
@@ -165,7 +164,6 @@ class TextToSpeechNotificationService: Service() {
             manager.partiallyUpdateAppWidget(id, views)
         }
     }
-
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun buildStartNotification() {
