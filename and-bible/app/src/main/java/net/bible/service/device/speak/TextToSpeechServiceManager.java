@@ -283,12 +283,14 @@ public class TextToSpeechServiceManager {
         }
     }
 
-    public synchronized void continueAfterPause() {
+    public synchronized void continueAfterPause(boolean automated) {
     	try {
 	    	Log.d(TAG, "continue after pause");
             isPaused = false;
 			clearPauseState();
-			mSpeakTextProvider.autoRewind();
+			if(!automated) {
+				mSpeakTextProvider.autoRewind();
+			}
 	        // ask TTs to say the text
 	    	startSpeakingInitingIfRequired();
     	} catch (Exception e) {

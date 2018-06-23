@@ -289,11 +289,11 @@ public class SpeakControl {
 		continueAfterPause(false);
 	}
 
-	private void continueAfterPause(boolean noToast) {
+	private void continueAfterPause(boolean automated) {
 		Log.d(TAG, "Continue TTS speaking after pause");
 		preSpeak();
-		textToSpeechServiceManager.get().continueAfterPause();
-		if(!noToast) {
+		textToSpeechServiceManager.get().continueAfterPause(automated);
+		if(!automated) {
 			Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
 		}
 	}
