@@ -342,21 +342,7 @@ public class SpeakControl {
 			activity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		}
 		if(!automated) {
-			int sleepTimerAmount = SpeakSettings.Companion.load().getSleepTimer();
-			sleepTimer.cancel();
-			if (sleepTimerAmount > 0) {
-				BibleApplication app = BibleApplication.getApplication();
-				Toast.makeText(app, app.getString(R.string.sleep_timer_started, sleepTimerAmount), Toast.LENGTH_SHORT).show();
-				sleepTimer = new Timer("TTS Sleep timer");
-				sleepTimer.schedule(new TimerTask() {
-					@Override
-					public void run() {
-						pause(true);
-					}
-				}, sleepTimerAmount * 60000);
-			} else {
-				Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
-			}
+			enableSleepTimer(SpeakSettings.Companion.load().getSleepTimer());
 		}
 	}
 
@@ -394,5 +380,40 @@ public class SpeakControl {
 	@Nullable
 	public CharSequence getStatusText() {
 		return textToSpeechServiceManager.get().getStatusText();
+	}
+
+	private void enableSleepTimer(int sleepTimerAmount) {
+		sleepTimer.cancel();
+		if (sleepTimerAmount > 0) {
+			BibleApplication app = BibleApplication.getApplication();
+			Toast.makeText(app, app.getString(R.string.sleep_timer_started, sleepTimerAmount), Toast.LENGTH_SHORT).show();
+			sleepTimer = new Timer("TTS Sleep timer");
+			sleepTimer.schedule(new TimerTask() {
+				@Override
+				public void run() {
+					pause(true);
+				}
+			}, sleepTimerAmount * 60000);
+		} else {
+			Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
+		}
+	}
+
+	public void toggleSleepTimer() {
+		SpeakSettings settings = SpeakSettings.Companion.load();
+		if(settings.getSleepTimer() > 0) {
+			settings.setSleepTimer(0);
+			if(isSpeaking()) {
+				sleepTimer.cancel();
+			}
+			settings.save();
+		}
+		else {
+			settings.setSleepTimer(settings.getLastSleepTimer());
+			if(isSpeaking()) {
+				enableSleepTimer(settings.getSleepTimer());
+			}
+			settings.save();
+		}
 	}
 }

@@ -53,19 +53,23 @@ data class SpeakSettings(@Optional val synchronize: Boolean = true,
         return JSON.stringify(this)
     }
 
+    fun makeCopy(): SpeakSettings {
+        val s = this.copy()
+        s.playbackSettings = this.playbackSettings.copy()
+        return s
+    }
+
     fun save() {
         if(currentSettings?.equals(this) != true) {
             CommonUtils.getSharedPreferences().edit().putString(PERSIST_SETTINGS, toJson()).apply()
             Log.d(TAG, "SpeakSettings saved! $this")
+            currentSettings = this.makeCopy()
             EventBus.getDefault().post(this)
-            val settings = this.copy()
-            settings.playbackSettings = playbackSettings.copy()
-            currentSettings = settings
         }
     }
 
     companion object {
-        var currentSettings: SpeakSettings? = null
+        private var currentSettings: SpeakSettings? = null
 
         private fun fromJson(jsonString: String): SpeakSettings {
             return try {
@@ -78,7 +82,7 @@ data class SpeakSettings(@Optional val synchronize: Boolean = true,
         }
 
         fun load(): SpeakSettings {
-            val rv = currentSettings ?: {
+            val rv = currentSettings?.makeCopy()?: {
                 val sharedPreferences = CommonUtils.getSharedPreferences()
                 val settings = fromJson(sharedPreferences.getString(PERSIST_SETTINGS, ""))
                 settings }()

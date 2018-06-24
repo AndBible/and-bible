@@ -61,7 +61,8 @@ abstract class AbstractSpeakWidget: AppWidgetProvider() {
 
 abstract class AbstractButtonSpeakWidget: AbstractSpeakWidget() {
     protected abstract val buttons: List<String>
-    private val allButtons: List<String> = listOf(ACTION_FAST_FORWARD, ACTION_NEXT, ACTION_PREV, ACTION_REWIND, ACTION_SPEAK, ACTION_STOP)
+    private val allButtons: List<String> = listOf(ACTION_FAST_FORWARD, ACTION_NEXT, ACTION_PREV, ACTION_REWIND,
+            ACTION_SPEAK, ACTION_STOP, ACTION_SLEEP_TIMER)
 
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
@@ -90,8 +91,11 @@ abstract class AbstractButtonSpeakWidget: AbstractSpeakWidget() {
         updateWidgetSpeakButton(ev.isSpeaking)
     }
 
+    fun onEvent(ev: SpeakSettings) {
+        updateSleepTimerButtonIcon(ev)
+    }
+
     private fun updateWidgetSpeakButton(speaking: Boolean) {
-        val app = BibleApplication.getApplication()
         val views = RemoteViews(app.applicationContext.packageName, R.layout.speak_widget)
         val resource = if(speaking) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play
         views.setImageViewResource(R.id.speakButton, resource)
@@ -139,6 +143,7 @@ abstract class AbstractButtonSpeakWidget: AbstractSpeakWidget() {
             }
         }
         appWidgetManager.updateAppWidget(appWidgetId, views)
+        updateSleepTimerButtonIcon(SpeakSettings.load())
     }
 
     private fun buttonId(b: String): Int? {
@@ -149,6 +154,7 @@ abstract class AbstractButtonSpeakWidget: AbstractSpeakWidget() {
             ACTION_PREV -> R.id.prevButton
             ACTION_REWIND -> R.id.rewindButton
             ACTION_STOP -> R.id.stopButton
+            ACTION_SLEEP_TIMER -> R.id.sleepButton
             else -> null
         }
     }
@@ -173,10 +179,17 @@ abstract class AbstractButtonSpeakWidget: AbstractSpeakWidget() {
             ACTION_FAST_FORWARD -> speakControl.forward()
             ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
             ACTION_PREV -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
-            ACTION_STOP -> {
-                speakControl.stop()
-            }
+            ACTION_SLEEP_TIMER -> speakControl.toggleSleepTimer()
+            ACTION_STOP -> speakControl.stop()
         }
+    }
+
+    private fun updateSleepTimerButtonIcon(settings: SpeakSettings) {
+        val enabled = settings.sleepTimer > 0
+        val views = RemoteViews(app.applicationContext.packageName, R.layout.speak_widget)
+        val resource = if(enabled) R.drawable.alarm_enabled else R.drawable.alarm_disabled
+        views.setImageViewResource(R.id.sleepButton, resource)
+        partialUpdateWidgets(views)
     }
 
     companion object {
@@ -186,6 +199,7 @@ abstract class AbstractButtonSpeakWidget: AbstractSpeakWidget() {
         const val ACTION_STOP="action_stop"
         const val ACTION_NEXT="action_next"
         const val ACTION_PREV="action_prev"
+        const val ACTION_SLEEP_TIMER="action_sleep_timer"
     }
 }
 
@@ -252,11 +266,11 @@ class SpeakWidget1 : AbstractButtonSpeakWidget() {
 }
 
 class SpeakWidget2 : AbstractButtonSpeakWidget() {
-    override val buttons: List<String> = listOf(ACTION_FAST_FORWARD, ACTION_REWIND, ACTION_SPEAK, ACTION_STOP)
+    override val buttons: List<String> = listOf(ACTION_FAST_FORWARD, ACTION_REWIND, ACTION_SPEAK, ACTION_STOP, ACTION_SLEEP_TIMER)
 
 }
 
 class SpeakWidget3 : AbstractButtonSpeakWidget() {
-    override val buttons: List<String> = listOf(ACTION_FAST_FORWARD, ACTION_NEXT, ACTION_PREV, ACTION_REWIND, ACTION_SPEAK, ACTION_STOP)
+    override val buttons: List<String> = listOf(ACTION_FAST_FORWARD, ACTION_NEXT, ACTION_PREV, ACTION_REWIND, ACTION_SPEAK, ACTION_STOP, ACTION_SLEEP_TIMER)
 }
 
