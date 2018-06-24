@@ -2,26 +2,21 @@ package net.bible.service.device.speak
 
 import android.annotation.SuppressLint
 import android.app.*
-import android.appwidget.AppWidgetManager
 import android.content.*
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.support.annotation.RequiresApi
 import android.util.Log
-import android.widget.RemoteViews
 import de.greenrobot.event.EventBus
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
-import net.bible.android.activity.SpeakWidget1
-import net.bible.android.activity.SpeakWidget2
-import net.bible.android.activity.SpeakWidget3
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.page.MainBibleActivity
-import net.bible.service.device.speak.event.SpeakEventManager
+import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
 import javax.inject.Inject
 
@@ -95,21 +90,6 @@ class TextToSpeechNotificationService: Service() {
         EventBus.getDefault().register(this)
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-        SpeakEventManager.getInstance().addSpeakEventListener {
-            if(!it.isSpeaking) {
-                Log.d(TAG, "Stop foreground (pause)")
-                stopForeground(false)
-                if(wakeLock.isHeld) {
-                    wakeLock.release()
-                }
-                buildNotification(playAction)
-            }
-            else {
-                buildNotification(pauseAction, true)
-            }
-            updateWidgetSpeakButton(it.isSpeaking)
-        }
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(CHANNEL_ID, getString(R.string.tts_status), NotificationManager.IMPORTANCE_LOW)
             channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
@@ -125,13 +105,28 @@ class TextToSpeechNotificationService: Service() {
     private fun shutdown() {
         currentTitle = getString(R.string.app_name)
         currentText = ""
-        updateWidgetTexts()
+        //updateWidgetTexts()
         Log.d(TAG, "Shutdown")
         stopForeground(true)
         if(wakeLock.isHeld) {
             wakeLock.release()
         }
         stopService(Intent(applicationContext, this.javaClass))
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    fun onEvent(ev: SpeakEvent) {
+        if(!ev.isSpeaking) {
+            Log.d(TAG, "Stop foreground (pause)")
+            stopForeground(false)
+            if(wakeLock.isHeld) {
+                wakeLock.release()
+            }
+            buildNotification(playAction)
+        }
+        else {
+            buildNotification(pauseAction, true)
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -148,35 +143,6 @@ class TextToSpeechNotificationService: Service() {
             }
         }
         buildStartNotification()
-        updateWidgetTexts()
-    }
-
-    private fun updateWidgetSpeakButton(speaking: Boolean) {
-        val app = BibleApplication.getApplication()
-        val views = RemoteViews(app.applicationContext.packageName, R.layout.speak_widget)
-        val resource = if(speaking) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play
-        views.setImageViewResource(R.id.speakButton, resource)
-        partialUpdateWidgets(views)
-    }
-
-    private fun updateWidgetTexts() {
-        val views = RemoteViews(applicationContext.packageName, R.layout.speak_widget)
-        views.setTextViewText(R.id.statusText, speakControl.statusText)
-        views.setTextViewText(R.id.titleText, currentTitle)
-        partialUpdateWidgets(views)
-    }
-
-    private fun partialUpdateWidgets(views: RemoteViews) {
-        val manager = AppWidgetManager.getInstance(applicationContext)
-        for(id in manager.getAppWidgetIds(ComponentName(application, SpeakWidget1::class.java))) {
-            manager.partiallyUpdateAppWidget(id, views)
-        }
-        for(id in manager.getAppWidgetIds(ComponentName(application, SpeakWidget2::class.java))) {
-            manager.partiallyUpdateAppWidget(id, views)
-        }
-        for(id in manager.getAppWidgetIds(ComponentName(application, SpeakWidget3::class.java))) {
-            manager.partiallyUpdateAppWidget(id, views)
-        }
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)

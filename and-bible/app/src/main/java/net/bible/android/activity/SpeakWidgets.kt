@@ -3,18 +3,25 @@ package net.bible.android.activity
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
+import de.greenrobot.event.EventBus
+import de.greenrobot.event.EventBusException
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.db.bookmark.LabelDto
+import net.bible.service.device.speak.TextCommand
+import net.bible.service.device.speak.event.SpeakEvent
+import net.bible.service.device.speak.event.SpeakProgressEvent
 import javax.inject.Inject
 
 
@@ -25,6 +32,7 @@ abstract class AbstractSpeakWidget: AppWidgetProvider() {
     lateinit var bookmarkControl: BookmarkControl
     companion object {
         const val TAG = "SpeakWidget"
+        val app = BibleApplication.getApplication()
     }
 
     protected fun initialize() {
@@ -35,6 +43,9 @@ abstract class AbstractSpeakWidget: AppWidgetProvider() {
         DaggerActivityComponent.builder()
                 .applicationComponent(BibleApplication.getApplication().applicationComponent)
                 .build().inject(this)
+        try {
+            EventBus.getDefault().register(this)
+        } catch (e: EventBusException) {}
     }
 
     override fun onUpdate(context: Context, appWidgetManager: AppWidgetManager, appWidgetIds: IntArray) {
@@ -58,6 +69,46 @@ abstract class AbstractButtonSpeakWidget: AbstractSpeakWidget() {
         initialize()
         for (appWidgetId in appWidgetIds) {
             setupWidget(context, appWidgetManager, appWidgetId)
+        }
+    }
+
+    private var currentTitle: String = app.getString(R.string.app_name)
+
+    fun onEvent(ev: SpeakProgressEvent) {
+        if(ev.speakCommand is TextCommand) {
+            if(ev.speakCommand.type == TextCommand.TextType.TITLE) {
+                currentTitle = ev.speakCommand.text
+                if(currentTitle.isEmpty()) {
+                    currentTitle = app.getString(R.string.app_name)
+                }
+            }
+        }
+        updateWidgetTexts()
+    }
+
+    fun onEvent(ev: SpeakEvent) {
+        updateWidgetSpeakButton(ev.isSpeaking)
+    }
+
+    private fun updateWidgetSpeakButton(speaking: Boolean) {
+        val app = BibleApplication.getApplication()
+        val views = RemoteViews(app.applicationContext.packageName, R.layout.speak_widget)
+        val resource = if(speaking) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play
+        views.setImageViewResource(R.id.speakButton, resource)
+        partialUpdateWidgets(views)
+    }
+
+    private fun updateWidgetTexts() {
+        val views = RemoteViews(app.packageName, R.layout.speak_widget)
+        views.setTextViewText(R.id.statusText, speakControl.statusText)
+        views.setTextViewText(R.id.titleText, currentTitle)
+        partialUpdateWidgets(views)
+    }
+
+    private fun partialUpdateWidgets(views: RemoteViews) {
+        val manager = AppWidgetManager.getInstance(app.applicationContext)
+        for(id in manager.getAppWidgetIds(ComponentName(app, this::class.java))) {
+            manager.partiallyUpdateAppWidget(id, views)
         }
     }
 
@@ -153,10 +204,21 @@ class SpeakBookmarkWidget: AbstractSpeakWidget() {
         }
     }
 
+    fun onEvent(ev: SynchronizeWindowsEvent) {
+        if(ev.syncAll) {
+            val manager = AppWidgetManager.getInstance(app)
+            for(i in manager.getAppWidgetIds(ComponentName(app, this::class.java))) {
+                setupWidget(app, manager, i)
+            }
+        }
+    }
+
     override fun setupWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
         Log.d(TAG, "setupWidget")
 
         val views = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget)
+
+        views.removeAllViews(R.id.layout)
 
         fun addButton(name: String, osisRef: String) {
             val button = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget_button)
