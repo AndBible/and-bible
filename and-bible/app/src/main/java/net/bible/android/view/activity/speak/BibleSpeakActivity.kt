@@ -148,7 +148,8 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 else {
                     SpeakSettings.RewindAmount.SMART},
                 restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked,
-                sleepTimer = currentSettings.sleepTimer
+                sleepTimer = currentSettings.sleepTimer,
+                lastSleepTimer = currentSettings.lastSleepTimer
         )
         settings.save(updateBookmark = true)
     }
