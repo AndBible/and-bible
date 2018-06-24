@@ -24,7 +24,7 @@ abstract class AbstractSpeakActivity: CustomTitlebarActivityBase() {
             val picker = NumberPicker(this)
             picker.minValue = 1
             picker.maxValue = 120
-            picker.value = 10
+            picker.value = currentSettings.lastSleepTimer
 
             val layout = FrameLayout(this)
             layout.addView(picker)
@@ -34,6 +34,7 @@ abstract class AbstractSpeakActivity: CustomTitlebarActivityBase() {
                     .setTitle(R.string.sleep_timer_title)
                     .setPositiveButton(android.R.string.ok) { _, _ ->
                         currentSettings.sleepTimer = picker.value
+                        currentSettings.lastSleepTimer = picker.value
                         currentSettings.save()
                         resetView(currentSettings)
                     }

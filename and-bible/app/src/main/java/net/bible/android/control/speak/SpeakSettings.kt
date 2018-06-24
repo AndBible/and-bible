@@ -44,7 +44,8 @@ data class SpeakSettings(@Optional val synchronize: Boolean = true,
                          @Optional val autoRewindAmount: RewindAmount = RewindAmount.NONE,
                          @Optional val restoreSettingsFromBookmarks: Boolean = false,
                          @Optional var playbackSettings: PlaybackSettings = PlaybackSettings(),
-                         @Optional var sleepTimer: Int = 0
+                         @Optional var sleepTimer: Int = 0,
+                         @Optional var lastSleepTimer: Int = 10
                          ) {
     enum class RewindAmount {NONE, ONE_VERSE, TEN_VERSES, SMART}
 
