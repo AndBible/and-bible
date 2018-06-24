@@ -44,6 +44,10 @@ open class AbstractSpeakTests {
         book = Books.installed().getBook("FinRK") as SwordBook
     }
 
+	@After
+	fun tearDown(){
+		DatabaseResetter.resetDatabase();
+	}
     protected fun getVerse(verseStr: String): Verse {
         val verse = book.getKey(verseStr) as RangedPassage
         return verse.getVerseAt(0)
@@ -62,7 +66,6 @@ open class AbstractSpeakTests {
         } while (!(cmd is TextCommand))
 
         return cmd.text
-        //return provider.getNextSpeakCommand().filter({it is TextCommand}).joinToString(" ") { it.toString() }
     }
 
     companion object {
@@ -295,20 +298,6 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         val settings = SpeakSettings(autoBookmarkLabelId = label.id)
         settings.save()
     }
-	@After
-	fun tearDown(){
-		val bookmarks = bookmarkControl.getAllBookmarks()
-		for (dto in bookmarks) {
-			bookmarkControl.deleteBookmark(dto)
-		}
-
-		val labels = bookmarkControl.getAllLabels()
-		for (dto in labels) {
-			bookmarkControl.deleteLabel(dto);
-		}
-
-		DatabaseResetter.resetDatabase();
-	}
 
     @Test
     fun autoBookmarkDisabled() {
