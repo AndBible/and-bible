@@ -37,8 +37,7 @@ data class PlaybackSettings (
     }
 }
 
-
-data class SpeakSettingsChangedEvent(val speakSettings: SpeakSettings, val updateBookmarks: Boolean = false)
+data class SpeakSettingsChangedEvent(val speakSettings: SpeakSettings, val playbackSettingsChanged: Boolean = false)
 
 @Serializable
 data class SpeakSettings(@Optional val synchronize: Boolean = true,
@@ -62,12 +61,13 @@ data class SpeakSettings(@Optional val synchronize: Boolean = true,
         return s
     }
 
-    fun save(updateBookmarks: Boolean = false) {
+    fun save() {
         if(currentSettings?.equals(this) != true) {
             CommonUtils.getSharedPreferences().edit().putString(PERSIST_SETTINGS, toJson()).apply()
             Log.d(TAG, "SpeakSettings saved! $this")
             currentSettings = this.makeCopy()
-            EventBus.getDefault().post(SpeakSettingsChangedEvent(this, updateBookmarks))
+            EventBus.getDefault().post(SpeakSettingsChangedEvent(this,
+                    currentSettings?.playbackSettings?.equals(this.playbackSettings) != true))
         }
     }
 

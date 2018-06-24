@@ -150,7 +150,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked,
                 sleepTimer = currentSettings.sleepTimer
         )
-        settings.save(true)
+        settings.save()
     }
 
     fun onButtonClick(button: View) {

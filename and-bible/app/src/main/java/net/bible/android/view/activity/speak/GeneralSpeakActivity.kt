@@ -54,7 +54,7 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 speedStatus.text = "$progress %"
                 currentSettings.playbackSettings.speed = progress
-                currentSettings.save(true)
+                currentSettings.save()
             }
         })
         resetView(this.currentSettings)

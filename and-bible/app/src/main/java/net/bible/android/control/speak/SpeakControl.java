@@ -350,7 +350,7 @@ public class SpeakControl {
 
 		if(!isPaused() && !isSpeaking()) {
 		    // if playback is stopped, we want to update bookmark of the verse that we are currently reading
-		    if(ev.getUpdateBookmarks()) {
+		    if(ev.getPlaybackSettingsChanged()) {
 				bookmarkControl.updateBookmarkSettings(ev.getSpeakSettings().getPlaybackSettings());
 			}
 		}
@@ -409,14 +409,14 @@ public class SpeakControl {
 			if(isSpeaking()) {
 				sleepTimer.cancel();
 			}
-			settings.save(false);
+			settings.save();
 		}
 		else {
 			settings.setSleepTimer(settings.getLastSleepTimer());
 			if(isSpeaking()) {
 				enableSleepTimer(settings.getSleepTimer());
 			}
-			settings.save(false);
+			settings.save();
 		}
 	}
 }
