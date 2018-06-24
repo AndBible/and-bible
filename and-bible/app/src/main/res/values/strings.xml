@@ -302,6 +302,10 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="conf_speak_settings">General speak settings</string>
     <string name="conf_speak_bookmarking_settings">Bookmarking settings</string>
     <string name="sleep_timer_started">Sleep timer started, %d minutes</string>
+    
+    <string name="speak_next">Next</string>
+    <string name="speak_previous">Previous</string>
+    <string name="widget_toggle_sleep_timer">Toggle sleep timer</string>
 
     <string name="divinename_original">Lord</string>
     <string name="divinename_replace">Yahweh</string>
@@ -368,6 +372,4 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="error_key_not_in_document">Not found in document</string>
     <string name="empty_list">No items to display</string>
     <string name="add_widget">Add widget</string>
-    <string name="speak_next">Next</string>
-    <string name="speak_previous">Previous</string>
 </resources>
