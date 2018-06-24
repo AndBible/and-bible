@@ -80,6 +80,7 @@ public class BookmarkControl {
 		if(bookmarkDto != null && bookmarkDto.getPlaybackSettings() != null) {
 			bookmarkDto.setPlaybackSettings(settings);
 			addOrUpdateBookmark(bookmarkDto);
+			Log.d("SpeakBookmark", "Updated bookmark settings "+bookmarkDto + settings.getSpeed());
 		}
 	}
 

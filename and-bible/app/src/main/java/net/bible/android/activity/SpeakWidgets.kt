@@ -16,6 +16,7 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettings
+import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.db.bookmark.LabelDto
@@ -28,6 +29,7 @@ import javax.inject.Inject
 abstract class AbstractSpeakWidget: AppWidgetProvider() {
     @Inject
     lateinit var speakControl: SpeakControl
+    protected lateinit var currentTitle: String
     @Inject
     lateinit var bookmarkControl: BookmarkControl
     companion object {
@@ -39,6 +41,7 @@ abstract class AbstractSpeakWidget: AppWidgetProvider() {
         if (::speakControl.isInitialized) {
             return
         }
+        currentTitle = app.getString(R.string.app_name)
         Log.d(TAG, "Initialize")
         DaggerActivityComponent.builder()
                 .applicationComponent(BibleApplication.getApplication().applicationComponent)
@@ -73,8 +76,6 @@ abstract class AbstractButtonSpeakWidget: AbstractSpeakWidget() {
         }
     }
 
-    private var currentTitle: String = app.getString(R.string.app_name)
-
     fun onEvent(ev: SpeakProgressEvent) {
         if(ev.speakCommand is TextCommand) {
             if(ev.speakCommand.type == TextCommand.TextType.TITLE) {
@@ -91,8 +92,8 @@ abstract class AbstractButtonSpeakWidget: AbstractSpeakWidget() {
         updateWidgetSpeakButton(ev.isSpeaking)
     }
 
-    fun onEvent(ev: SpeakSettings) {
-        updateSleepTimerButtonIcon(ev)
+    fun onEvent(ev: SpeakSettingsChangedEvent) {
+        updateSleepTimerButtonIcon(ev.speakSettings)
     }
 
     private fun updateWidgetSpeakButton(speaking: Boolean) {

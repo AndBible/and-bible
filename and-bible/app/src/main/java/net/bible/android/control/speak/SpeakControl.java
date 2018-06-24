@@ -346,10 +346,13 @@ public class SpeakControl {
 		}
 	}
 
-	public void onEvent(SpeakSettings ev) {
+	public void onEvent(SpeakSettingsChangedEvent ev) {
 
 		if(!isPaused() && !isSpeaking()) {
-			bookmarkControl.updateBookmarkSettings(ev.getPlaybackSettings());
+		    // if playback is stopped, we want to update bookmark of the verse that we are currently reading
+		    if(ev.getUpdateBookmarks()) {
+				bookmarkControl.updateBookmarkSettings(ev.getSpeakSettings().getPlaybackSettings());
+			}
 		}
         else if (isSpeaking()) {
         	pause(true);
@@ -406,14 +409,14 @@ public class SpeakControl {
 			if(isSpeaking()) {
 				sleepTimer.cancel();
 			}
-			settings.save();
+			settings.save(false);
 		}
 		else {
 			settings.setSleepTimer(settings.getLastSleepTimer());
 			if(isSpeaking()) {
 				enableSleepTimer(settings.getSleepTimer());
 			}
-			settings.save();
+			settings.save(false);
 		}
 	}
 }

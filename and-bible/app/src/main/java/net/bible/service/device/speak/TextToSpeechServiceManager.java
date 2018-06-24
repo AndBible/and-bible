@@ -14,6 +14,7 @@ import net.bible.android.control.event.phonecall.PhoneCallMonitor;
 import net.bible.android.control.event.phonecall.PhoneCallStarted;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.control.speak.SpeakSettings;
+import net.bible.android.control.speak.SpeakSettingsChangedEvent;
 import net.bible.android.control.versification.BibleTraverser;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
@@ -583,8 +584,8 @@ public class TextToSpeechServiceManager {
 		}
     }
 
-    void onEvent(SpeakSettings ev) {
-		setRate(ev.getPlaybackSettings().getSpeed());
+    void onEvent(SpeakSettingsChangedEvent ev) {
+		setRate(ev.getSpeakSettings().getPlaybackSettings().getSpeed());
 	}
 
     public CharSequence getStatusText() {

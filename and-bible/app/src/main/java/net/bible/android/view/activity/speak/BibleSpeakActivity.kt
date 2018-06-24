@@ -10,10 +10,7 @@ import de.greenrobot.event.EventBus
 import kotlinx.android.synthetic.main.speak_bible.*
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.speak.INVALID_LABEL_ID
-import net.bible.android.control.speak.PlaybackSettings
-import net.bible.android.control.speak.SpeakControl
-import net.bible.android.control.speak.SpeakSettings
+import net.bible.android.control.speak.*
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.db.bookmark.LabelDto
@@ -115,9 +112,9 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     }
 
 
-    fun onEventMainThread(ev: SpeakSettings) {
-        currentSettings = ev;
-        resetView(ev)
+    fun onEventMainThread(ev: SpeakSettingsChangedEvent) {
+        currentSettings = ev.speakSettings;
+        resetView(ev.speakSettings)
     }
 
     fun onSettingsChange(widget: View) = updateSettings()
@@ -153,7 +150,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked,
                 sleepTimer = currentSettings.sleepTimer
         )
-        settings.save()
+        settings.save(true)
     }
 
     fun onButtonClick(button: View) {
