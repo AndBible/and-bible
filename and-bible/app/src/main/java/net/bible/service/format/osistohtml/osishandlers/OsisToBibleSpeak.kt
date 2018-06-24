@@ -28,8 +28,8 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
 
     init {
         val res = BibleApplication.getApplication().getLocalizedResources(language)
-        divineNameOriginal = res.getString(R.string.divineNameOriginal)
-        divineNameReplace = res.getString(R.string.divineNameReplace)
+        divineNameOriginal = res.getString(R.string.divinename_original)
+        divineNameReplace = res.getString(R.string.divinename_replace)
     }
 
     override fun startDocument() {
