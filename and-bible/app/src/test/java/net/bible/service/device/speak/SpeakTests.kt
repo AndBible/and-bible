@@ -667,6 +667,26 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(range(), equalTo("Rom.6.1"))
     }
 
+    @Test
+    fun autorewind() {
+        var settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), autoRewindAmount = SpeakSettings.RewindAmount.ONE_VERSE)
+        settings.save()
+        provider.setupReading(book, getVerse("Rom.5.11"))
+        provider.autoRewind()
+        assertThat(range(), equalTo("Rom.5.10"))
+
+        settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), autoRewindAmount = SpeakSettings.RewindAmount.TEN_VERSES)
+        settings.save()
+        provider.setupReading(book, getVerse("Rom.5.12"))
+        provider.autoRewind()
+        assertThat(range(), equalTo("Rom.5.2"))
+
+        settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), autoRewindAmount = SpeakSettings.RewindAmount.SMART)
+        settings.save()
+        provider.setupReading(book, getVerse("Rom.5.12"))
+        provider.autoRewind()
+        assertThat(range(), equalTo("Rom.5.1"))
+    }
 
     @Test
     fun forward() {
