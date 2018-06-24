@@ -13,7 +13,9 @@ import android.widget.RemoteViews
 import de.greenrobot.event.EventBus
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
-import net.bible.android.activity.SpeakWidget
+import net.bible.android.activity.SpeakWidget1
+import net.bible.android.activity.SpeakWidget2
+import net.bible.android.activity.SpeakWidget3
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
@@ -166,7 +168,13 @@ class TextToSpeechNotificationService: Service() {
 
     private fun partialUpdateWidgets(views: RemoteViews) {
         val manager = AppWidgetManager.getInstance(applicationContext)
-        for(id in manager.getAppWidgetIds(ComponentName(application, SpeakWidget::class.java))) {
+        for(id in manager.getAppWidgetIds(ComponentName(application, SpeakWidget1::class.java))) {
+            manager.partiallyUpdateAppWidget(id, views)
+        }
+        for(id in manager.getAppWidgetIds(ComponentName(application, SpeakWidget2::class.java))) {
+            manager.partiallyUpdateAppWidget(id, views)
+        }
+        for(id in manager.getAppWidgetIds(ComponentName(application, SpeakWidget3::class.java))) {
             manager.partiallyUpdateAppWidget(id, views)
         }
     }
