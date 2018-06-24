@@ -205,11 +205,9 @@ class SpeakBookmarkWidget: AbstractSpeakWidget() {
     }
 
     fun onEvent(ev: SynchronizeWindowsEvent) {
-        if(ev.syncAll) {
-            val manager = AppWidgetManager.getInstance(app)
-            for(i in manager.getAppWidgetIds(ComponentName(app, this::class.java))) {
-                setupWidget(app, manager, i)
-            }
+        val manager = AppWidgetManager.getInstance(app)
+        for(i in manager.getAppWidgetIds(ComponentName(app, this::class.java))) {
+            setupWidget(app, manager, i)
         }
     }
 
@@ -250,8 +248,7 @@ class SpeakBookmarkWidget: AbstractSpeakWidget() {
 }
 
 class SpeakWidget1 : AbstractButtonSpeakWidget() {
-    override val buttons: List<String> = listOf(ACTION_FAST_FORWARD, ACTION_NEXT, ACTION_PREV, ACTION_REWIND, ACTION_SPEAK, ACTION_STOP)
-
+    override val buttons: List<String> = listOf(ACTION_REWIND, ACTION_SPEAK)
 }
 
 class SpeakWidget2 : AbstractButtonSpeakWidget() {
@@ -260,6 +257,6 @@ class SpeakWidget2 : AbstractButtonSpeakWidget() {
 }
 
 class SpeakWidget3 : AbstractButtonSpeakWidget() {
-    override val buttons: List<String> = listOf(ACTION_REWIND, ACTION_SPEAK)
+    override val buttons: List<String> = listOf(ACTION_FAST_FORWARD, ACTION_NEXT, ACTION_PREV, ACTION_REWIND, ACTION_SPEAK, ACTION_STOP)
 }
 
