@@ -47,7 +47,20 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private var book: SwordBook
     private var startVerse: Verse
     private var endVerse: Verse
+
+    private var _currentVerse: Verse
     private var currentVerse: Verse
+        get() = _currentVerse
+        set(newValue) {
+            // Skip verse 0, as we merge verse 0 to verse 1 in getSpeakCommands
+            if(newValue.verse == 0) {
+                _currentVerse = getNextVerse(newValue)
+            }
+            else {
+                _currentVerse = newValue
+            }
+        }
+
     private var lastTitle: Verse? = null
     private val utteranceState = HashMap<String, State>()
     private var currentUtteranceId = ""
@@ -69,7 +82,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         setupBook(initialBook)
         startVerse = initialVerse
         endVerse = initialVerse
-        currentVerse = initialVerse
+        _currentVerse = initialVerse
     }
 
     private var readList = SpeakCommandArray()
@@ -168,19 +181,6 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         val cmds = SpeakCommandArray()
 
         var verse = currentVerse
-
-        // Skip verse 0, as we merge verse 0 to verse 1 in getSpeakCommands
-        if(currentVerse.verse == 0) {
-            verse = getNextVerse(verse)
-            if(currentVerse == startVerse) {
-                startVerse = verse
-            }
-            if(endVerse == currentVerse) {
-                endVerse = verse
-            }
-            currentVerse = verse
-        }
-
         startVerse = currentVerse
 
         // If there's something left from splitted verse, then we'll speak that first.
