@@ -1,7 +1,9 @@
 <Button
 		xmlns:android="http://schemas.android.com/apk/res/android"
+		xmlns:tools="http://schemas.android.com/tools"
 		android:id="@+id/button"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:text="@string/app_name"
-		/>
+		tools:theme="@android:style/Widget.Material.Light.Button"
+		android:textSize="10sp"/>

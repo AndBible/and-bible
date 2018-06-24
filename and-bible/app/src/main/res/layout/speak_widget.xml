@@ -14,12 +14,12 @@
 			android:layout_height="wrap_content"
 			/>
 	<LinearLayout
-			android:id="@+id/layout"
 			android:layout_width="fill_parent"
 			android:layout_height="wrap_content"
 			android:orientation="vertical"
 			android:layout_centerVertical="true"
 			android:layout_centerHorizontal="true"
+			android:layout_alignParentTop="true"
 			>
 
 		<TextView
@@ -35,6 +35,16 @@
 				android:layout_height="wrap_content"
 				android:id="@+id/statusText"
 				/>
+	</LinearLayout>
+	<LinearLayout
+			android:layout_width="fill_parent"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			android:layout_centerVertical="true"
+			android:layout_centerHorizontal="true"
+			android:layout_alignParentBottom="true"
+			>
+
 
 		<LinearLayout
 				android:layout_width="fill_parent"
@@ -42,21 +52,21 @@
 				android:orientation="horizontal"
 				>
 
-			<ImageButton
+			<ImageView
 					android:id="@+id/rewindButton"
 					android:src="@android:drawable/ic_media_rew"
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					/>
-			<ImageButton
+			<ImageView
 					android:id="@+id/prevButton"
 					android:src="@android:drawable/ic_media_previous"
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					/>
-			<ImageButton
+			<ImageView
 					android:id="@+id/stopButton"
 					android:src="@drawable/ic_media_stop"
 					android:layout_width="0dip"
@@ -64,21 +74,21 @@
 					android:layout_weight="1"
 					/>
 
-			<ImageButton
+			<ImageView
 					android:id="@+id/speakButton"
 					android:src="@android:drawable/ic_media_play"
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					/>
-			<ImageButton
+			<ImageView
 					android:id="@+id/nextButton"
 					android:src="@android:drawable/ic_media_next"
 					android:layout_width="0dip"
 					android:layout_height="wrap_content"
 					android:layout_weight="1"
 					/>
-			<ImageButton
+			<ImageView
 					android:id="@+id/forwardButton"
 					android:src="@android:drawable/ic_media_ff"
 					android:layout_width="0dip"
