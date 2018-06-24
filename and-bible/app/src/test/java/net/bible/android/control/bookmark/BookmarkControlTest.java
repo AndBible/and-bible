@@ -190,7 +190,7 @@ public class BookmarkControlTest {
 		final VerseRange verseRange = new VerseRange(KJV_VERSIFICATION, new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 2), new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 5));
 		newBookmarkDto.setVerseRange(verseRange);
 
-		BookmarkDto newDto = bookmarkControl.addBookmark(newBookmarkDto);
+		BookmarkDto newDto = bookmarkControl.addOrUpdateBookmark(newBookmarkDto);
 
 		assertThat(newDto.getVerseRange(), equalTo(verseRange));
 
@@ -203,7 +203,7 @@ public class BookmarkControlTest {
 		final VerseRange verseRange = new VerseRange(KJV_VERSIFICATION, new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10));
 		newBookmarkDto.setVerseRange(verseRange);
 
-		bookmarkControl.addBookmark(newBookmarkDto);
+		bookmarkControl.addOrUpdateBookmark(newBookmarkDto);
 
 		Verse startVerse = new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10);
 		assertThat(bookmarkControl.isBookmarkForKey(startVerse), equalTo(true));
@@ -255,7 +255,7 @@ public class BookmarkControlTest {
 	private BookmarkDto addBookmark(String verse) throws NoSuchVerseException {
 		BookmarkDto bookmark = new BookmarkDto();
 		bookmark.setVerseRange(VerseRangeFactory.fromString(KJV_VERSIFICATION, verse));
-		return bookmarkControl.addBookmark(bookmark);
+		return bookmarkControl.addOrUpdateBookmark(bookmark);
 	}
 
 	private LabelDto addTestLabel() {

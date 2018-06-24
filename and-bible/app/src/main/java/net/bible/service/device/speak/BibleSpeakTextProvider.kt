@@ -264,7 +264,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             val labelDto = LabelDto()
             labelDto.id = settings.autoBookmarkLabelId
             val bookmarkList = bookmarkControl.getBookmarksWithLabel(labelDto)
-            val bookmarkDto = bookmarkList.find { it.verseRange.start.equals(verse) && it.verseRange.end.equals(verse)}
+            var bookmarkDto = bookmarkList.find { it.verseRange.start.equals(verse) && it.verseRange.end.equals(verse)}
             if(bookmarkDto != null) {
                 if(bookmarkDto.playbackSettings != null && settings.restoreSettingsFromBookmarks) {
                     settings.playbackSettings = bookmarkDto.playbackSettings
@@ -273,6 +273,8 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 val labels = bookmarkControl.getBookmarkLabels(bookmarkDto)
                 if(labels.size > 1) {
                     labels.remove(labels.find { it.id == settings.autoBookmarkLabelId })
+                    bookmarkDto.playbackSettings = null
+                    bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto)
                     bookmarkControl.setBookmarkLabels(bookmarkDto, labels)
                 }
                 else {
@@ -293,16 +295,14 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 if(settings.restoreSettingsFromBookmarks) {
                     bookmarkDto.playbackSettings = settings.playbackSettings
                 }
-                bookmarkDto = bookmarkControl.addBookmark(bookmarkDto)
+                bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto)
             }
             else {
                 labelList.addAll(bookmarkControl.getBookmarkLabels(bookmarkDto))
-                bookmarkControl.deleteBookmark(bookmarkDto)
                 if(settings.restoreSettingsFromBookmarks) {
                     bookmarkDto.playbackSettings = settings.playbackSettings
                 }
-                bookmarkDto.id = null
-                bookmarkDto = bookmarkControl.addBookmark(bookmarkDto)
+                bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto)
             }
             if(settings.autoBookmarkLabelId != INVALID_LABEL_ID) {
                 val labelDto = LabelDto()

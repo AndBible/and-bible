@@ -78,12 +78,8 @@ public class BookmarkControl {
 	public void updateBookmarkSettings(Key key, PlaybackSettings settings) {
 		BookmarkDto bookmarkDto = getBookmarkByKey(key);
 		if(bookmarkDto != null && bookmarkDto.getPlaybackSettings() != null) {
-			List<LabelDto> labels = getBookmarkLabels(bookmarkDto);
 			bookmarkDto.setPlaybackSettings(settings);
-			deleteBookmark(bookmarkDto);
-			bookmarkDto.setId(null);
-			bookmarkDto = addBookmark(bookmarkDto);
-			setBookmarkLabels(bookmarkDto, labels);
+			addOrUpdateBookmark(bookmarkDto);
 		}
 	}
 
@@ -101,7 +97,7 @@ public class BookmarkControl {
 				// prepare new bookmark and add to db
 				bookmarkDto = new BookmarkDto();
 				bookmarkDto.setVerseRange(verseRange);
-				bookmarkDto = addBookmark(bookmarkDto);
+				bookmarkDto = addOrUpdateBookmark(bookmarkDto);
 
 				success = bookmarkDto != null;
 				message = R.string.bookmark_added;
@@ -204,12 +200,12 @@ public class BookmarkControl {
 	}
 
 	/** create a new bookmark */
-	public BookmarkDto addBookmark(BookmarkDto bookmark) {
+	public BookmarkDto addOrUpdateBookmark(BookmarkDto bookmark) {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		BookmarkDto newBookmark = null;
 		try {
 			db.open();
-			newBookmark = db.insertBookmark(bookmark);
+			newBookmark = db.insertOrUpdateBookmark(bookmark);
 		} finally {
 			db.close();
 		}

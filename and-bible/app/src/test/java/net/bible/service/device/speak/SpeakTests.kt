@@ -10,6 +10,7 @@ import net.bible.android.control.speak.PlaybackSettings
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.CommonUtils
+import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
 import net.bible.service.format.usermarks.BookmarkFormatSupport
 import net.bible.service.format.usermarks.MyNoteFormatSupport
@@ -19,6 +20,7 @@ import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.sword.SwordBook
 import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
+import org.crosswire.jsword.passage.VerseRange
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -287,10 +289,11 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 book, getVerse("Ps.14.1"))
         var label = LabelDto();
-		label.setName("tts");
+        label.name = "tts";
 		label = bookmarkControl.saveOrUpdateLabel(label)
 
-        provider.settings = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true), autoBookmarkLabelId = label.id)
+        val settings = SpeakSettings(autoBookmarkLabelId = label.id)
+        settings.save()
     }
 	@After
 	fun tearDown(){
@@ -309,7 +312,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
 
     @Test
     fun autoBookmarkDisabled() {
-        provider.settings = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true), autoBookmarkLabelId = null)
+        provider.settings = SpeakSettings(autoBookmarkLabelId = null)
         provider.setupReading(book, getVerse("Ps.14.1"))
         text = nextText()
         provider.pause();
@@ -317,13 +320,86 @@ class AutoBookmarkTests: AbstractSpeakTests () {
     }
 
     @Test
-    fun autoBookmarkOnPause() {
+    fun autoBookmarkOnPauseAddLabel() {
+        var dto = BookmarkDto()
+        val verse = getVerse("Ps.14.1")
+        dto.verseRange = VerseRange(verse.versification, verse)
+        dto = bookmarkControl.addOrUpdateBookmark(dto)
+        var labelDto= LabelDto()
+        labelDto.name = "Another"
+        labelDto = bookmarkControl.saveOrUpdateLabel(labelDto)
+        bookmarkControl.setBookmarkLabels(dto, listOf(labelDto))
+
+        provider.setupReading(book, verse)
+        text = nextText()
+        provider.pause();
+        labelDto.id = provider.settings.autoBookmarkLabelId
+        dto = bookmarkControl.getBookmarkByKey(verse)
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(2))
+        provider.pause()
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(2))
+        provider.prepareForContinue()
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+    }
+
+    @Test
+    fun autoBookmarkOnPauseAddLabelAndSettings() {
+        val settings = SpeakSettings(restoreSettingsFromBookmarks = true, autoBookmarkLabelId = SpeakSettings.load().autoBookmarkLabelId)
+        settings.save()
+        var dto = BookmarkDto()
+        val verse = getVerse("Ps.14.1")
+        dto.verseRange = VerseRange(verse.versification, verse)
+        dto = bookmarkControl.addOrUpdateBookmark(dto)
+        var labelDto= LabelDto()
+        labelDto.name = "Another"
+        labelDto = bookmarkControl.saveOrUpdateLabel(labelDto)
+        bookmarkControl.setBookmarkLabels(dto, listOf(labelDto))
+
+        provider.setupReading(book, verse)
+        text = nextText()
+        provider.pause();
+        labelDto.id = provider.settings.autoBookmarkLabelId
+        dto = bookmarkControl.getBookmarkByKey(verse)
+        assertThat(dto.playbackSettings, notNullValue())
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(2))
+        provider.pause()
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(2))
+        provider.prepareForContinue()
+        dto = bookmarkControl.getBookmarkByKey(verse)
+        assertThat(dto.playbackSettings, nullValue())
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+    }
+
+    @Test
+    fun autoBookmarkOnPauseCreateNewSaveSettings() {
+        val settings = SpeakSettings(restoreSettingsFromBookmarks = true, autoBookmarkLabelId = SpeakSettings.load().autoBookmarkLabelId)
+        settings.save()
         provider.setupReading(book, getVerse("Ps.14.1"))
         text = nextText()
         provider.pause();
         val labelDto = LabelDto()
         labelDto.id = provider.settings.autoBookmarkLabelId
         val bookmark = bookmarkControl.getBookmarksWithLabel(labelDto).get(0)
+        assertThat(bookmark.playbackSettings, notNullValue())
+        assertThat(bookmark.verseRange.start.osisID, equalTo("Ps.14.1"))
+
+        assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
+        // test that it does not add another bookmark if there's already one with same key
+        provider.pause();
+        assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
+        provider.prepareForContinue()
+        assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(0))
+    }
+
+    @Test
+    fun autoBookmarkOnPauseCreateNew() {
+        provider.setupReading(book, getVerse("Ps.14.1"))
+        text = nextText()
+        provider.pause();
+        val labelDto = LabelDto()
+        labelDto.id = provider.settings.autoBookmarkLabelId
+        val bookmark = bookmarkControl.getBookmarksWithLabel(labelDto).get(0)
+        //assertThat(bookmark.playbackSettings, notNullValue())
         assertThat(bookmark.verseRange.start.osisID, equalTo("Ps.14.1"))
 
         assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))

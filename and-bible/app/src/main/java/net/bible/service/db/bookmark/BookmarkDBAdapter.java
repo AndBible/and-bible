@@ -64,7 +64,7 @@ public class BookmarkDBAdapter {
 		// db.close();
 	}
 
-	public BookmarkDto insertBookmark(BookmarkDto bookmark) {
+	public BookmarkDto insertOrUpdateBookmark(BookmarkDto bookmark) {
 		// Create a new row of values to insert.
 		ContentValues newValues = new ContentValues();
 		VerseRange key = bookmark.getVerseRange();
@@ -81,9 +81,17 @@ public class BookmarkDBAdapter {
 		if(playbackSettings!= null) {
 			newValues.put(BookmarkColumn.PLAYBACK_SETTINGS, playbackSettings.toJson());
 		}
-
-		long newId = db.insert(Table.BOOKMARK, null, newValues);
-		return getBookmarkDto(newId);
+		else {
+			newValues.putNull(BookmarkColumn.PLAYBACK_SETTINGS);
+		}
+		if(bookmark.getId() != null) {
+			db.update(Table.BOOKMARK,  newValues, BookmarkColumn._ID + "=" + bookmark.getId(), null);
+			return bookmark;
+		}
+		else {
+			long newId = db.insert(Table.BOOKMARK, null, newValues);
+			return getBookmarkDto(newId);
+		}
 	}
 
 	public boolean removeBookmark(BookmarkDto bookmark) {
