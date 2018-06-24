@@ -106,11 +106,11 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     fun setupReading(book: SwordBook, verse: Verse) {
+        reset()
         setupBook(book)
         currentVerse = verse
         startVerse = verse
         endVerse = verse
-        reset()
     }
 
     private fun skipEmptyVerses(verse: Verse): Verse {
@@ -317,14 +317,20 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private fun getNextVerse(verse: Verse): Verse = bibleTraverser.getNextVerse(book, verse)
 
     override fun rewind(amount: SpeakSettings.RewindAmount?) {
+        val lastTitle = this.lastTitle
         reset()
         val rewindAmount = amount?: SpeakSettings.RewindAmount.SMART
         when(rewindAmount) {
          SpeakSettings.RewindAmount.SMART -> {
-             if (startVerse.verse <= 1) {
-                 currentVerse = bibleTraverser.getPrevChapter(book, startVerse)
-             } else {
-                 currentVerse = Verse(startVerse.versification, startVerse.book, startVerse.chapter, 1)
+             if(lastTitle != null && !lastTitle.equals(startVerse)) {
+                 currentVerse = lastTitle
+             }
+             else {
+                 if (startVerse.verse <= 1) {
+                     currentVerse = bibleTraverser.getPrevChapter(book, startVerse)
+                 } else {
+                     currentVerse = Verse(startVerse.versification, startVerse.book, startVerse.chapter, 1)
+                 }
              }
          }
          SpeakSettings.RewindAmount.ONE_VERSE -> {
@@ -362,14 +368,8 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         val rewindAmount = amount?: SpeakSettings.RewindAmount.SMART
         when(rewindAmount) {
             SpeakSettings.RewindAmount.SMART -> {
-                val lastTitle = this.lastTitle
-                if(lastTitle != null) {
-                    currentVerse = lastTitle
-                    this.lastTitle = null;
-                }
-                else {
-                    currentVerse = bibleTraverser.getNextChapter(book, startVerse)
-                }
+                currentVerse = bibleTraverser.getNextChapter(book, startVerse)
+
             }
             SpeakSettings.RewindAmount.ONE_VERSE ->
                 currentVerse = bibleTraverser.getNextVerse(book, startVerse)

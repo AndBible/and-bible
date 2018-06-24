@@ -29,6 +29,7 @@ import org.junit.After
 import org.mockito.Mockito.mock
 import org.robolectric.RobolectricTestRunner
 
+var idCount = 0;
 
 @Config(qualifiers="fi", constants = BuildConfig::class, application = TestBibleApplication::class)
 open class AbstractSpeakTests {
@@ -53,7 +54,9 @@ open class AbstractSpeakTests {
     protected fun nextText(): String {
         var cmd: SpeakCommand
         do {
-            cmd = provider.getNextSpeakCommand("id-1")
+            val utteranceId = "id-${idCount++}"
+            cmd = provider.getNextSpeakCommand(utteranceId)
+            provider.startUtterance(utteranceId)
         } while (!(cmd is TextCommand))
 
         return cmd.text
@@ -504,7 +507,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     }
 
     @Test
-    fun pauseRewindForward() {
+    fun pauseRewindForwardNormal() {
         provider.setupReading(book, getVerse("Rom.5.20"))
         text = nextText()
         assertThat(range(), equalTo("Rom.5.20-Rom.5.21"))
@@ -519,23 +522,86 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text, endsWith("meidän Herramme, kautta."))
 
         provider.rewind(null)
-        assertThat(range(), equalTo("Rom.5.19"))
+        assertThat(range(), equalTo("Rom.5.1"))
         text = nextText()
-        assertThat(range(), equalTo("Rom.5.19"))
-        assertThat(text, startsWith("Niin kuin"))
-        assertThat(text, endsWith("vanhurskaiksi."))
-        provider.pause()
-        assertThat(range(), equalTo("Rom.5.19"))
-        text = nextText()
-        assertThat(range(), equalTo("Rom.5.19"))
-        assertThat(text, startsWith("Niin kuin"))
-        assertThat(text, endsWith("vanhurskaiksi."))
+        assertThat(range(), equalTo("Rom.5.1"))
 
         provider.forward(null)
-        assertThat(range(), equalTo("Rom.5.20"))
+        assertThat(range(), equalTo("Rom.6.1"))
         text = nextText()
-        assertThat(range(), equalTo("Rom.5.20-Rom.5.21"))
-        assertThat(text, startsWith("Laki kuitenkin"))
-        assertThat(text, endsWith("meidän Herramme, kautta."))
+        assertThat(range(), equalTo("Rom.6.1"))
+    }
+
+    @Test
+    fun rewind() {
+        provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true))
+        provider.setupReading(book, getVerse("Rom.5.11"))
+        text = nextText()
+        assertThat(range(), equalTo("Rom.5.11"))
+        text = nextText()
+        assertThat(range(), equalTo("Rom.5.12"))
+        assertThat(text, equalTo("Aadam ja Kristus")) // title
+        text = nextText()
+        assertThat(range(), equalTo("Rom.5.12")) // verse text
+        text = nextText()
+        assertThat(range(), equalTo("Rom.5.13"))
+
+        provider.rewind(null)
+        assertThat(range(), equalTo("Rom.5.12"))
+        provider.rewind(null)
+        assertThat(range(), equalTo("Rom.5.1"))
+        provider.rewind(null)
+        assertThat(range(), equalTo("Rom.4.1"))
+
+        provider.forward(null)
+        assertThat(range(), equalTo("Rom.5.1"))
+        provider.forward(null)
+        assertThat(range(), equalTo("Rom.6.1"))
+    }
+
+    @Test
+    fun rewind2() {
+        provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true))
+        provider.setupReading(book, getVerse("Rom.5.11"))
+        text = nextText()
+        assertThat(range(), equalTo("Rom.5.11"))
+        text = nextText()
+        assertThat(range(), equalTo("Rom.5.12"))
+        assertThat(text, equalTo("Aadam ja Kristus")) // title
+        text = nextText()
+        assertThat(range(), equalTo("Rom.5.12")) // verse text
+        text = nextText()
+        assertThat(range(), equalTo("Rom.5.13"))
+
+        provider.rewind(null)
+        text = nextText()
+        assertThat(range(), equalTo("Rom.5.12"))
+        provider.rewind(null)
+        text = nextText()
+        assertThat(range(), equalTo("Rom.5.1"))
+        provider.rewind(null)
+        text = nextText()
+        assertThat(range(), equalTo("Rom.4.1"))
+
+        provider.forward(null)
+        text = nextText()
+        assertThat(range(), equalTo("Rom.5.1"))
+        provider.forward(null)
+        text = nextText()
+        assertThat(range(), equalTo("Rom.6.1"))
+    }
+
+
+    @Test
+    fun forward() {
+        provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true))
+
+        provider.setupReading(book, getVerse("Rom.5.11"))
+        text = nextText()
+        assertThat(range(), equalTo("Rom.5.11"))
+        provider.forward(null)
+        assertThat(range(), equalTo("Rom.6.1"))
+        provider.forward(null)
+        assertThat(range(), equalTo("Rom.7.1"))
     }
 }
