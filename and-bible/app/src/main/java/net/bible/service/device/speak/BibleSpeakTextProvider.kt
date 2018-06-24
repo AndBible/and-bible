@@ -264,7 +264,6 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     private fun removeBookmark() {
-        // TODO if bookmark with multiple labels exists, do not remove whole bookmark but only label
         if(settings.autoBookmarkLabelId != null) {
             val verse = currentVerse
             val labelDto = LabelDto()
@@ -276,7 +275,14 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                     settings.playbackSettings = bookmarkDto.playbackSettings
                     settings.save()
                 }
-                bookmarkControl.deleteBookmark(bookmarkDto)
+                val labels = bookmarkControl.getBookmarkLabels(bookmarkDto)
+                if(labels.size > 1) {
+                    labels.remove(labels.find { it.id == settings.autoBookmarkLabelId })
+                    bookmarkControl.setBookmarkLabels(bookmarkDto, labels)
+                }
+                else {
+                    bookmarkControl.deleteBookmark(bookmarkDto)
+                }
                 EventBus.getDefault().post(SynchronizeWindowsEvent(true))
             }
         }
