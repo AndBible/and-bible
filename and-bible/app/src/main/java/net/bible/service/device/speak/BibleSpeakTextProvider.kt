@@ -96,7 +96,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     fun onEvent(ev: SpeakSettingsChangedEvent) {
         this.settings = ev.speakSettings
         Log.d(TAG, "SpeakSettings updated: $ev")
-        if(paused && ev.playbackSettingsChanged) {
+        if(paused && ev.updateBookmark) {
             // If playback is paused, we need to update bookmark that is upon startVerse
             // (of which we will continue playback if unpaused)
             bookmarkControl.updateBookmarkSettings(startVerse, ev.speakSettings.playbackSettings)

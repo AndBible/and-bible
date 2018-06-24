@@ -85,11 +85,14 @@ abstract class AbstractButtonSpeakWidget: AbstractSpeakWidget() {
                     currentTitle = app.getString(R.string.app_name)
                 }
             }
+            updateWidgetTexts()
         }
-        updateWidgetTexts()
     }
 
     fun onEvent(ev: SpeakEvent) {
+        if(ev.isSpeaking) {
+            currentTitle = app.getString(R.string.app_name)
+        }
         updateWidgetSpeakButton(ev.isSpeaking)
     }
 

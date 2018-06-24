@@ -350,13 +350,18 @@ public class SpeakControl {
 
 		if(!isPaused() && !isSpeaking()) {
 		    // if playback is stopped, we want to update bookmark of the verse that we are currently reading
-		    if(ev.getPlaybackSettingsChanged()) {
+		    if(ev.getUpdateBookmark()) {
 				bookmarkControl.updateBookmarkSettings(ev.getSpeakSettings().getPlaybackSettings());
 			}
 		}
         else if (isSpeaking()) {
         	pause(true);
-        	continueAfterPause(true);
+        	if(ev.getSleepTimerChanged()){
+				continueAfterPause(false);
+			}
+			else {
+				continueAfterPause(true);
+			}
 		}
 	}
 
@@ -388,6 +393,7 @@ public class SpeakControl {
 	private void enableSleepTimer(int sleepTimerAmount) {
 		sleepTimer.cancel();
 		if (sleepTimerAmount > 0) {
+		    Log.d(TAG, "Activating sleep timer");
 			BibleApplication app = BibleApplication.getApplication();
 			Toast.makeText(app, app.getString(R.string.sleep_timer_started, sleepTimerAmount), Toast.LENGTH_SHORT).show();
 			sleepTimer = new Timer("TTS Sleep timer");

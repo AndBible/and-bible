@@ -27,6 +27,7 @@ import net.bible.service.sword.SwordContentFacade;
 
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.Versification;
 
@@ -76,7 +77,12 @@ public class BookmarkControl {
 	}
 
 	public void updateBookmarkSettings(Key key, PlaybackSettings settings) {
-		BookmarkDto bookmarkDto = getBookmarkByKey(key);
+		Verse v = (Verse) key;
+		if(v.getVerse() == 0) {
+			v = new Verse(v.getVersification(), v.getBook(), v.getChapter(), 1);
+		}
+		BookmarkDto bookmarkDto = getBookmarkByKey(v);
+
 		if(bookmarkDto != null && bookmarkDto.getPlaybackSettings() != null) {
 			bookmarkDto.setPlaybackSettings(settings);
 			addOrUpdateBookmark(bookmarkDto);
