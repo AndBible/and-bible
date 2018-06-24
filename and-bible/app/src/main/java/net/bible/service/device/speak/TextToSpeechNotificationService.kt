@@ -116,7 +116,7 @@ class TextToSpeechNotificationService: Service() {
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun onEvent(ev: SpeakEvent) {
-        if(!ev.isSpeaking) {
+        if(!ev.isSpeaking && ev.isPaused) {
             Log.d(TAG, "Stop foreground (pause)")
             stopForeground(false)
             if(wakeLock.isHeld) {
@@ -124,7 +124,7 @@ class TextToSpeechNotificationService: Service() {
             }
             buildNotification(playAction)
         }
-        else {
+        else if (ev.isSpeaking) {
             buildNotification(pauseAction, true)
         }
     }
