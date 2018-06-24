@@ -159,6 +159,8 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     fun onButtonClick(button: View) {
         try {
             when (button) {
+                prevButton -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
+                nextButton -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
                 rewindButton -> speakControl.rewind()
                 stopButton -> speakControl.stop()
                 pauseButton -> speakControl.pause()

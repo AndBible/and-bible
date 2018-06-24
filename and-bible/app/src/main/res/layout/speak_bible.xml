@@ -387,7 +387,15 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:onClick="onButtonClick"/>
-
+            <ImageButton
+                    android:id="@+id/prevButton"
+                    android:src="@android:drawable/ic_media_previous"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:onClick="onButtonClick"
+                    android:contentDescription="@string/speak_previous"
+                    />
             <ImageButton
                     android:id="@+id/stopButton"
                     android:src="@drawable/ic_media_stop"
@@ -414,7 +422,14 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:onClick="onButtonClick"/>
-
+            <ImageButton
+                    android:id="@+id/nextButton"
+                    android:src="@android:drawable/ic_media_next"
+                    android:layout_width="0dip"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:onClick="onButtonClick"
+                    android:contentDescription="@string/speak_next"/>
             <ImageButton
                     android:id="@+id/forwardButton"
                     android:src="@android:drawable/ic_media_ff"
