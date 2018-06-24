@@ -307,4 +307,7 @@
   <string name="conf_speak_settings">Yleiset puheen asetukset</string>
   <string name="sleep_timer_started">Uniajastin aloitettu, %d minuuttia</string>
   <string name="conf_speak_bookmarking_settings">Kirjanmerkkien asetukset</string>
+  <string name="speak_next">Seuraava</string>
+  <string name="speak_previous">Edellinen</string>
+  <string name="widget_toggle_sleep_timer">Kytke uniajastin</string>
 </resources>
