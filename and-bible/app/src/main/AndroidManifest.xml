@@ -170,7 +170,7 @@
 
             <meta-data
                     android:name="android.appwidget.provider"
-                    android:resource="@xml/speak_widget_info"/>
+                    android:resource="@xml/speak_widget1_info"/>
         </receiver>
 
         <receiver android:name=".SpeakWidget2">
@@ -180,7 +180,7 @@
 
             <meta-data
                     android:name="android.appwidget.provider"
-                    android:resource="@xml/speak_widget_info"/>
+                    android:resource="@xml/speak_widget2_info"/>
         </receiver>
 
         <receiver android:name=".SpeakWidget3">
@@ -190,7 +190,7 @@
 
             <meta-data
                     android:name="android.appwidget.provider"
-                    android:resource="@xml/speak_widget_info"/>
+                    android:resource="@xml/speak_widget3_info"/>
         </receiver>
         <receiver android:name=".SpeakBookmarkWidget">
             <intent-filter>
@@ -199,7 +199,7 @@
 
             <meta-data
                     android:name="android.appwidget.provider"
-                    android:resource="@xml/speak_widget_info"/>
+                    android:resource="@xml/speak_bookmark_widget_info"/>
         </receiver>
 
         <!-- allow use with Samsung Note multi-window http://stackoverflow.com/questions/14111052/adding-multi-window-support-to-android-application -->
