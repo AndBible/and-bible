@@ -194,25 +194,20 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
         cmds.addAll(getCommandsForVerse(endVerse, verse))
 
-        if(settings.continueSentences) {
-            // If verse does not end in period, add the part before period to the current reading
-            val rest = SpeakCommandArray()
+        // If verse does not end in period, add the part before period to the current reading
+        val rest = SpeakCommandArray()
 
-            while(!cmds.endsSentence) {
-                val nextVerse = getNextVerse(verse)
-                val nextCommands = getCommandsForVerse(verse, nextVerse)
+        while(!cmds.endsSentence) {
+            val nextVerse = getNextVerse(verse)
+            val nextCommands = getCommandsForVerse(verse, nextVerse)
 
-                cmds.addUntilSentenceBreak(nextCommands, rest)
-                verse = nextVerse
-            }
+            cmds.addUntilSentenceBreak(nextCommands, rest)
+            verse = nextVerse
+        }
 
-            if(rest.isNotEmpty()) {
-                readList.addAll(rest)
-                currentVerse = verse
-            }
-            else {
-                currentVerse = getNextVerse(verse)
-            }
+        if(rest.isNotEmpty()) {
+            readList.addAll(rest)
+            currentVerse = verse
         }
         else {
             currentVerse = getNextVerse(verse)

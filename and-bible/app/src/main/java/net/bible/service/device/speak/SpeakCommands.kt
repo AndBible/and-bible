@@ -52,7 +52,7 @@ open class SilenceCommand(val enabled: Boolean=true) : SpeakCommand {
     }
 }
 
-class ParagraphChangeCommand(speakSettings: SpeakSettings) : SilenceCommand(speakSettings.delayOnParagraphChanges)
+class ParagraphChangeCommand(speakSettings: SpeakSettings) : SilenceCommand(true)
 
 class SpeakCommandArray: ArrayList<SpeakCommand>() {
     private val maxLength = TextToSpeech.getMaxSpeechInputLength()

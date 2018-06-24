@@ -39,10 +39,8 @@ data class PlaybackSettings (
 
 @Serializable
 data class SpeakSettings(@Optional val synchronize: Boolean = true,
-                         @Optional val continueSentences: Boolean = true, // TODO: this is not configurable
                          @Optional val autoBookmarkLabelId: Long? = null,
                          @Optional val replaceDivineName: Boolean = false,
-                         @Optional val delayOnParagraphChanges: Boolean = true, // TODO: this is not configurable
                          @Optional val autoRewindAmount: RewindAmount = RewindAmount.NONE,
                          @Optional val restoreSettingsFromBookmarks: Boolean = false,
                          @Optional var playbackSettings: PlaybackSettings = PlaybackSettings(),
