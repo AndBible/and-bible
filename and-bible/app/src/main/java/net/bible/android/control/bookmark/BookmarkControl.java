@@ -250,11 +250,16 @@ public class BookmarkControl {
 
 	/** get bookmark with the same start verse as this key if it exists or return null */
 	public BookmarkDto getBookmarkByKey(Key key) {
+		return getBookmarkByOsisRef(key.getOsisRef());
+	}
+
+	/** get bookmark with the same start verse as this key if it exists or return null */
+	public BookmarkDto getBookmarkByOsisRef(String osisRef) {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		BookmarkDto bookmark = null;
 		try {
 			db.open();
-			bookmark = db.getBookmarkByStartKey(key.getOsisRef());
+			bookmark = db.getBookmarkByStartKey(osisRef);
 		} finally {
 			db.close();
 		}

@@ -212,9 +212,7 @@ public class SpeakControl {
 		}
 	}
 
-	/** prepare to speak
-	 */
-	public void speakBible() {
+	public void speakBible(SwordBook book, Verse verse) {
 		// if a previous speak request is paused clear the cached text
 		if (isPaused()) {
 			stop();
@@ -222,15 +220,24 @@ public class SpeakControl {
 
 		preSpeak();
 
-		CurrentPage page = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
-		Book fromBook = page.getCurrentDocument();
-
 		try {
-			textToSpeechServiceManager.get().speakBible((SwordBook)fromBook, (Verse)page.getSingleKey());
+			textToSpeechServiceManager.get().speakBible(book, verse);
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting chapters to speak", e);
 			throw new AndRuntimeException("Error preparing Speech", e);
 		}
+	}
+
+	public void speakBible() {
+		CurrentPage page = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
+		Book fromBook = page.getCurrentDocument();
+		speakBible((SwordBook) fromBook, (Verse) page.getSingleKey());
+	}
+
+	public void speakBible(Verse verse) {
+		CurrentPage page = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
+		Book fromBook = page.getCurrentDocument();
+		speakBible((SwordBook) fromBook, verse);
 	}
 
 	public BibleSpeakTextProvider getBibleSpeakTextProvider() {

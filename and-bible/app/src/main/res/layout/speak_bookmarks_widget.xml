@@ -1,0 +1,20 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:background="@color/widget_background"
+				android:padding="@dimen/widget_margin"
+		>
+
+	<LinearLayout
+			android:id="@+id/layout"
+			android:layout_width="match_parent"
+			android:layout_height="match_parent"
+			android:orientation="vertical"
+			android:layout_centerVertical="true"
+			android:layout_centerHorizontal="true"
+			>
+
+	</LinearLayout>
+
+
+</RelativeLayout>
