@@ -54,6 +54,8 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
             elementStack.push(StackEntry(true))
         } else if (name == OSISUtil.OSIS_ELEMENT_NOTE) {
             elementStack.push(StackEntry(false))
+        } else if (name == OSISUtil.OSIS_ELEMENT_REFERENCE) {
+            elementStack.push(StackEntry(false))
         } else if (name == OSISUtil2.OSIS_ELEMENT_DIVINENAME) {
             elementStack.push(StackEntry(peekVisible, TAG_TYPE.DIVINE_NAME))
         } else if (name == OSISUtil.OSIS_ELEMENT_TITLE) {
@@ -70,8 +72,6 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
             else {
                 elementStack.push(StackEntry(peekVisible))
             }
-        } else if (name == OSISUtil.OSIS_ELEMENT_REFERENCE) {
-            elementStack.push(StackEntry(peekVisible))
         } else if (name == OSISUtil.OSIS_ELEMENT_L
                 || name == OSISUtil.OSIS_ELEMENT_LB ||
                 name == OSISUtil.OSIS_ELEMENT_P) {
