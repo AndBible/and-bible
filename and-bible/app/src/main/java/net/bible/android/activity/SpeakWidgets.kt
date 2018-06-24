@@ -19,6 +19,7 @@ import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
 import net.bible.service.device.speak.TextCommand
 import net.bible.service.device.speak.event.SpeakEvent
@@ -248,7 +249,8 @@ class SpeakBookmarkWidget: AbstractSpeakWidget() {
         val labelDto = LabelDto()
         labelDto.id = settings.autoBookmarkLabelId
 
-        for(b in bookmarkControl.getBookmarksWithLabel(labelDto)) {
+        for(b in bookmarkControl.getBookmarksWithLabel(labelDto).sortedWith(
+                Comparator<BookmarkDto> { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
             addButton(b.verseRange.start.name, b.verseRange.start.osisRef)
             Log.d(TAG, "Added button for $b")
         }
@@ -268,7 +270,6 @@ class SpeakWidget1 : AbstractButtonSpeakWidget() {
 
 class SpeakWidget2 : AbstractButtonSpeakWidget() {
     override val buttons: List<String> = listOf(ACTION_FAST_FORWARD, ACTION_REWIND, ACTION_SPEAK, ACTION_STOP, ACTION_SLEEP_TIMER)
-
 }
 
 class SpeakWidget3 : AbstractButtonSpeakWidget() {
