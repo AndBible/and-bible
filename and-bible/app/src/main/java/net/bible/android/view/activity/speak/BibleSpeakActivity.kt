@@ -17,7 +17,7 @@ import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.db.bookmark.LabelDto
-import net.bible.service.device.speak.event.SpeakProggressEvent
+import net.bible.service.device.speak.event.SpeakProgressEvent
 import javax.inject.Inject
 
 @ActivityScope
@@ -110,7 +110,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
 
     }
 
-    fun onEventMainThread(ev: SpeakProggressEvent) {
+    fun onEventMainThread(ev: SpeakProgressEvent) {
         statusText.text = speakControl.getStatusText()
     }
 

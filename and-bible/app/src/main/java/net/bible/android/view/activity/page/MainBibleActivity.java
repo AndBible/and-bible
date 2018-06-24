@@ -43,7 +43,7 @@ import net.bible.service.device.ScreenSettings;
 import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
-import net.bible.service.device.speak.event.SpeakProggressEvent;
+import net.bible.service.device.speak.event.SpeakProgressEvent;
 
 /** The main activity screen showing Bible text
  * 
@@ -173,7 +173,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		}
 	}
 
-	public void onEventMainThread(SpeakProggressEvent event) {
+	public void onEventMainThread(SpeakProgressEvent event) {
 		if(event.getSynchronize()) {
 			windowControl.getWindowRepository().getFirstWindow().getPageManager()
 					.setCurrentDocumentAndKey(event.getBook(), event.getKey());

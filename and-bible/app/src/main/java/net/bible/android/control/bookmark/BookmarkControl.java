@@ -303,6 +303,10 @@ public class BookmarkControl {
 
 	/** get bookmarks associated labels */
 	public List<LabelDto> getBookmarkLabels(BookmarkDto bookmark) {
+		if(bookmark == null) {
+			return new ArrayList<>();
+		}
+
 		List<LabelDto> labels;
 
 		BookmarkDBAdapter db = new BookmarkDBAdapter();

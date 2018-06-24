@@ -7,7 +7,7 @@ import de.greenrobot.event.EventBus
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.CommonUtils
-import net.bible.service.device.speak.event.SpeakProggressEvent
+import net.bible.service.device.speak.event.SpeakProgressEvent
 import net.bible.service.sword.SwordContentFacade
 import net.bible.android.activity.R
 import org.crosswire.jsword.book.Books
@@ -249,7 +249,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     override fun savePosition(fractionCompleted: Float) {}
 
     override fun stop() {
-        reset();
+        reset()
         saveBookmark()
     }
 
@@ -261,21 +261,21 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private fun removeBookmark() {
         if(settings.autoBookmarkLabelId != null) {
             val verse = currentVerse
-            val labelDto = LabelDto()
-            labelDto.id = settings.autoBookmarkLabelId
-            val bookmarkList = bookmarkControl.getBookmarksWithLabel(labelDto)
-            var bookmarkDto = bookmarkList.find { it.verseRange.start.equals(verse) && it.verseRange.end.equals(verse)}
-            if(bookmarkDto != null) {
+
+            var bookmarkDto = bookmarkControl.getBookmarkByKey(verse)
+            val labelList = bookmarkControl.getBookmarkLabels(bookmarkDto)
+            val ttsLabel = labelList.find { it.id == settings.autoBookmarkLabelId }
+
+            if(ttsLabel != null) {
                 if(bookmarkDto.playbackSettings != null && settings.restoreSettingsFromBookmarks) {
                     settings.playbackSettings = bookmarkDto.playbackSettings
                     settings.save()
                 }
-                val labels = bookmarkControl.getBookmarkLabels(bookmarkDto)
-                if(labels.size > 1) {
-                    labels.remove(labels.find { it.id == settings.autoBookmarkLabelId })
+                if(labelList.size > 1) {
+                    labelList.remove(ttsLabel)
                     bookmarkDto.playbackSettings = null
                     bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto)
-                    bookmarkControl.setBookmarkLabels(bookmarkDto, labels)
+                    bookmarkControl.setBookmarkLabels(bookmarkDto, labelList)
                 }
                 else {
                     bookmarkControl.deleteBookmark(bookmarkDto)
@@ -348,14 +348,14 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         endVerse = currentVerse
 
         clearNotificationAndWidgetTitles();
-        EventBus.getDefault().post(SpeakProggressEvent(book, startVerse, settings.synchronize, null))
+        EventBus.getDefault().post(SpeakProgressEvent(book, startVerse, settings.synchronize, null))
     }
 
     private fun clearNotificationAndWidgetTitles() {
         // Clear title and text from widget and notification.
-        EventBus.getDefault().post(SpeakProggressEvent(book, startVerse, false,
+        EventBus.getDefault().post(SpeakProgressEvent(book, startVerse, false,
                 TextCommand("", type=TextCommand.TextType.TITLE)))
-        EventBus.getDefault().post(SpeakProggressEvent(book, startVerse, false,
+        EventBus.getDefault().post(SpeakProgressEvent(book, startVerse, false,
                 TextCommand("", type=TextCommand.TextType.NORMAL)))
     }
 
@@ -384,7 +384,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         startVerse = currentVerse
         endVerse = currentVerse
         clearNotificationAndWidgetTitles();
-        EventBus.getDefault().post(SpeakProggressEvent(book, startVerse, settings.synchronize, null))
+        EventBus.getDefault().post(SpeakProgressEvent(book, startVerse, settings.synchronize, null))
     }
 
     override fun finishedUtterance(utteranceId: String) {}
@@ -397,7 +397,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
                 lastTitle = state.startVerse
             }
-            EventBus.getDefault().post(SpeakProggressEvent(state.book, state.startVerse, settings.synchronize, state.command!!))
+            EventBus.getDefault().post(SpeakProgressEvent(state.book, state.startVerse, settings.synchronize, state.command!!))
         }
     }
 

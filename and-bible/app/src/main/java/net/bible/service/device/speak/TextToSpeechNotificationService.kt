@@ -20,7 +20,7 @@ import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.device.speak.event.SpeakEventManager
-import net.bible.service.device.speak.event.SpeakProggressEvent
+import net.bible.service.device.speak.event.SpeakProgressEvent
 import javax.inject.Inject
 
 @ActivityScope
@@ -133,7 +133,7 @@ class TextToSpeechNotificationService: Service() {
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    fun onEvent(ev: SpeakProggressEvent) {
+    fun onEvent(ev: SpeakProgressEvent) {
         if(ev.speakCommand is TextCommand) {
             if(ev.speakCommand.type == TextCommand.TextType.TITLE) {
                 currentTitle = ev.speakCommand.text
