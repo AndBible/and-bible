@@ -174,7 +174,7 @@ abstract class AbstractButtonSpeakWidget: AbstractSpeakWidget() {
                     speakControl.continueAfterPause()
                 }
                 else if (!speakControl.isSpeaking) {
-                    speakControl.speakBible()
+                    speakControl.speakBible() // TODO gen books
                 }
                 else {
                     speakControl.pause()

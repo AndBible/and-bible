@@ -23,6 +23,7 @@ import javax.inject.Inject
 @ActivityScope
 class TextToSpeechNotificationService: Service() {
     companion object {
+        const val ACTION_START_SERVICE="action_start_service"
         const val ACTION_START="action_start"
         const val ACTION_REMOVE="action_remove"
 
@@ -105,13 +106,12 @@ class TextToSpeechNotificationService: Service() {
     private fun shutdown() {
         currentTitle = getString(R.string.app_name)
         currentText = ""
-        //updateWidgetTexts()
         Log.d(TAG, "Shutdown")
         stopForeground(true)
         if(wakeLock.isHeld) {
             wakeLock.release()
         }
-        stopService(Intent(applicationContext, this.javaClass))
+        // stopService(Intent(applicationContext, this.javaClass))
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -126,6 +126,9 @@ class TextToSpeechNotificationService: Service() {
         }
         else if (ev.isSpeaking) {
             buildNotification(pauseAction, true)
+        }
+        else {
+            shutdown()
         }
     }
 
@@ -155,23 +158,22 @@ class TextToSpeechNotificationService: Service() {
         if(intent?.action == null) {
             return
         }
-        when(intent.action) {
+        doAction(intent.action)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private fun doAction(action: String) {
+        when(action) {
+            ACTION_START_SERVICE -> {}
             ACTION_START -> buildStartNotification()
             ACTION_REMOVE -> shutdown()
-            ACTION_PLAY -> {
-                speakControl.continueAfterPause()
-            }
-            ACTION_PAUSE -> {
-                speakControl.pause()
-            }
+            ACTION_PLAY -> speakControl.continueAfterPause()
+            ACTION_PAUSE -> speakControl.pause()
             ACTION_FAST_FORWARD -> speakControl.forward()
             ACTION_REWIND -> speakControl.rewind()
             ACTION_PREVIOUS -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
             ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
-            ACTION_STOP -> {
-                speakControl.stop()
-                shutdown()
-            }
+            ACTION_STOP -> speakControl.stop()
         }
     }
 

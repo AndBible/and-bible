@@ -84,9 +84,6 @@ public class SpeakControl {
 	public SpeakControl(Lazy<TextToSpeechServiceManager> textToSpeechServiceManager, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
 		this.textToSpeechServiceManager = textToSpeechServiceManager;
 		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
-		if(isPaused()) {
-			showNotification();
-		}
 		EventBus.getDefault().register(this);
 	}
 
@@ -286,7 +283,6 @@ public class SpeakControl {
 			sleepTimer.cancel();
 		}
 		if (isSpeaking() || isPaused()) {
-			showNotification();
 			Log.d(TAG, "Pause TTS speaking");
 	    	TextToSpeechServiceManager tts = textToSpeechServiceManager.get();
 			tts.pause();
@@ -325,7 +321,6 @@ public class SpeakControl {
 
 	private void doStop() {
 		textToSpeechServiceManager.get().shutdown();
-		removeNotification();
 	}
 
 	private void preSpeak() {
@@ -334,7 +329,6 @@ public class SpeakControl {
 
 	// automated: pause & continue triggered due to settings change event
 	private void preSpeak(boolean automated) {
-		showNotification();
 		// ensure volume controls adjust correct stream - not phone which is the default
 		// STREAM_TTS does not seem to be available but this article says use STREAM_MUSIC instead: http://stackoverflow.com/questions/7558650/how-to-set-volume-for-text-to-speech-speak-method
         Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
@@ -362,26 +356,6 @@ public class SpeakControl {
 			else {
 				continueAfterPause(true);
 			}
-		}
-	}
-
-    private void showNotification() {
-		notificationAction(ACTION_START);
-	}
-
-	public void removeNotification() {
-		if(isSpeaking()) {
-			pause();
-		}
-		notificationAction(ACTION_REMOVE);
-	}
-
-	private void notificationAction(String actionName) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			BibleApplication app = BibleApplication.getApplication();
-			Intent intent = new Intent(app, TextToSpeechNotificationService.class);
-			intent.setAction(actionName);
-			app.startService(intent);
 		}
 	}
 
