@@ -216,6 +216,7 @@ public class BookmarkControl {
 		} finally {
 			db.close();
 		}
+		EventBus.getDefault().post(new SynchronizeWindowsEvent());
 		return newBookmark;
 	}
 
@@ -286,6 +287,7 @@ public class BookmarkControl {
 				db.close();
 			}
 		}
+		EventBus.getDefault().post(new SynchronizeWindowsEvent());
 		return bOk;
 	}
 
