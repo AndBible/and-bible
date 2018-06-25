@@ -23,13 +23,13 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
 
     private val elementStack = Stack<StackEntry>()
 
-    private var divineNameOriginal: String
-    private var divineNameReplace: String
+    private var divineNameOriginal: Array<String>
+    private var divineNameReplace: Array<String>
 
     init {
         val res = BibleApplication.getApplication().getLocalizedResources(language)
-        divineNameOriginal = res.getString(R.string.divinename_original)
-        divineNameReplace = res.getString(R.string.divinename_replace)
+        divineNameOriginal = res.getStringArray(R.array.divinename_original)
+        divineNameReplace = res.getStringArray(R.array.divinename_replace)
     }
 
     override fun startDocument() {
@@ -107,7 +107,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
     */
     override fun characters(buf: CharArray, offset: Int, len: Int) {
         val currentState = elementStack.peek()
-        val s = String(buf, offset, len)
+        var s = String(buf, offset, len)
         if(currentState.visible) {
             if(currentState.tagType == TAG_TYPE.TITLE) {
                 if(speakSettings.playbackSettings.speakTitles) {
@@ -116,11 +116,13 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
             }
             else if(currentState.tagType == TAG_TYPE.DIVINE_NAME) {
                 if(speakSettings.replaceDivineName) {
-                    speakCommands.add(TextCommand(s.replace(divineNameOriginal, divineNameReplace, false)))
+                    for(i in 0 until divineNameOriginal.size) {
+                        if(divineNameOriginal[i].isNotEmpty()) {
+                            s = s.replace(divineNameOriginal[i], divineNameReplace[i], false)
+                        }
+                    }
                 }
-                else {
-                    speakCommands.add(TextCommand(s))
-                }
+                speakCommands.add(TextCommand(s))
             }
             else {
                 speakCommands.add(TextCommand(s))

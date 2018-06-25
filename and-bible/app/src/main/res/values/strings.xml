@@ -307,8 +307,20 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak_previous">Previous</string>
     <string name="widget_toggle_sleep_timer">Toggle sleep timer</string>
 
-    <string name="divinename_original">Lord</string>
-    <string name="divinename_replace">Yahweh</string>
+    <string-array name="divinename_original">
+        <item>Lord</item>
+        <item/>
+        <item/>
+        <item/>
+        <item/>
+    </string-array>
+    <string-array name="divinename_replace">
+        <item>Yahweh</item>
+        <item/>
+        <item/>
+        <item/>
+        <item/>
+    </string-array>
 
     <string name="speak_book_changed">Book changed. </string>
     <string name="speak_chapter_changed">Chapter</string>
