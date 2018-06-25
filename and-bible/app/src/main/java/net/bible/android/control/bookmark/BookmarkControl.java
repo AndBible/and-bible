@@ -361,6 +361,7 @@ public class BookmarkControl {
 		} finally {
 			db.close();
 		}
+		EventBus.getDefault().post(new SynchronizeWindowsEvent(true));
 	}
 
 	public LabelDto saveOrUpdateLabel(LabelDto label) {

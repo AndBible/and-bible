@@ -15,7 +15,6 @@ import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.speak.INVALID_LABEL_ID
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.service.db.bookmark.BookmarkDto
@@ -48,7 +47,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private var book: SwordBook
     private var startVerse: Verse
     private var endVerse: Verse
-
+    private var bookmarkDto : BookmarkDto? = null
     private var _currentVerse: Verse
     private var currentVerse: Verse
         get() = _currentVerse
@@ -66,7 +65,6 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private val utteranceState = HashMap<String, State>()
     private var currentUtteranceId = ""
     private val currentCommands = SpeakCommandArray()
-    private var paused: Boolean = false
 
     private val bibleBooks = HashMap<String, String>()
     private val verseRenderLruCache = LruCache<Pair<SwordBook, Verse>, SpeakCommandArray>(100)
@@ -96,10 +94,12 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     fun onEvent(ev: SpeakSettingsChangedEvent) {
         this.settings = ev.speakSettings
         Log.d(TAG, "SpeakSettings updated: $ev")
-        if(paused && ev.updateBookmark) {
-            // If playback is paused, we need to update bookmark that is upon startVerse
+        val bookmarkDto = bookmarkDto
+        if(ev.updateBookmark && bookmarkDto != null) {
+            // If playback is paused or we are speaking, we need to update bookmark that is upon startVerse
             // (of which we will continue playback if unpaused)
-            bookmarkControl.updateBookmarkSettings(startVerse, ev.speakSettings.playbackSettings)
+            bookmarkDto.playbackSettings = ev.speakSettings.playbackSettings
+            this.bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto)
         }
     }
 
@@ -243,9 +243,9 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun pause() {
-        paused = true
         reset()
         currentVerse = startVerse
+        removeBookmark()
         saveBookmark()
     }
 
@@ -253,19 +253,20 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     override fun stop() {
         reset()
+        removeBookmark()
         saveBookmark()
+        bookmarkDto = null
     }
 
     override fun prepareForContinue() {
-        paused = false
-        readAndRemoveBookmark()
+        readBookmark()
     }
 
-    private fun readAndRemoveBookmark() {
+    private fun readBookmark() {
         if(settings.autoBookmarkLabelId != null) {
             val verse = currentVerse
 
-            var bookmarkDto = bookmarkControl.getBookmarkByKey(verse)
+            val bookmarkDto = bookmarkControl.getBookmarkByKey(verse)
             val labelList = bookmarkControl.getBookmarkLabels(bookmarkDto)
             val ttsLabel = labelList.find { it.id == settings.autoBookmarkLabelId }
 
@@ -274,18 +275,31 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                     settings.playbackSettings = bookmarkDto.playbackSettings
                     settings.save()
                 }
-                if(labelList.size > 1) {
-                    labelList.remove(ttsLabel)
-                    bookmarkDto.playbackSettings = null
-                    bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto)
-                    bookmarkControl.setBookmarkLabels(bookmarkDto, labelList)
-                }
-                else {
-                    bookmarkControl.deleteBookmark(bookmarkDto)
-                }
                 Log.d("SpeakBookmark", "Loaded bookmark from $bookmarkDto ${settings.playbackSettings.speed}")
-                EventBus.getDefault().post(SynchronizeWindowsEvent(true))
+                this.bookmarkDto = bookmarkDto
             }
+        }
+    }
+
+    private fun removeBookmark() {
+        var bookmarkDto = this.bookmarkDto
+        if(bookmarkDto == null) return
+
+        val labelList = bookmarkControl.getBookmarkLabels(bookmarkDto)
+        val ttsLabel = labelList.find { it.id == settings.autoBookmarkLabelId }
+
+        if(ttsLabel != null) {
+            if(labelList.size > 1) {
+                labelList.remove(ttsLabel)
+                bookmarkDto.playbackSettings = null
+                bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto)
+                bookmarkControl.setBookmarkLabels(bookmarkDto, labelList)
+            }
+            else {
+                bookmarkControl.deleteBookmark(bookmarkDto)
+            }
+            Log.d("SpeakBookmark", "Removed bookmark from $bookmarkDto")
+            this.bookmarkDto = null
         }
     }
 
@@ -315,7 +329,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             }
             bookmarkControl.setBookmarkLabels(bookmarkDto, labelList)
             Log.d("SpeakBookmark", "Saved bookmark into $bookmarkDto, ${settings.playbackSettings.speed}")
-            EventBus.getDefault().post(SynchronizeWindowsEvent(true))
+            this.bookmarkDto = bookmarkDto
         }
     }
 

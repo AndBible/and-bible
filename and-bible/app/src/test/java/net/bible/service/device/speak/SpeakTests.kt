@@ -328,6 +328,13 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         provider.pause()
         assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(2))
         provider.prepareForContinue()
+        text = nextText()
+        text = nextText()
+        text = nextText()
+        text = nextText()
+        text = nextText()
+        text = nextText()
+        provider.stop()
         assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
     }
 
@@ -354,6 +361,13 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         provider.pause()
         assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(2))
         provider.prepareForContinue()
+        text = nextText()
+        text = nextText()
+        text = nextText()
+        text = nextText()
+        text = nextText()
+        text = nextText()
+        provider.stop()
         dto = bookmarkControl.getBookmarkByKey(verse)
         assertThat(dto.playbackSettings, nullValue())
         assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
@@ -377,7 +391,14 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         provider.pause();
         assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
         provider.prepareForContinue()
-        assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(0))
+        text = nextText()
+        text = nextText()
+        text = nextText()
+        text = nextText()
+        text = nextText()
+        text = nextText()
+        provider.stop()
+        assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1)) // new bookmark with same label has been created
     }
 
     @Test
@@ -396,7 +417,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         provider.pause();
         assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
         provider.prepareForContinue()
-        assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(0))
+        assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
     }
 
     @Test
@@ -411,7 +432,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
         provider.setupReading(book, getVerse("Ps.14.2"))
         provider.prepareForContinue()
-        assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(0))
+        assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
     }
 }
 
