@@ -24,8 +24,7 @@ import javax.inject.Inject
 class TextToSpeechNotificationService: Service() {
     companion object {
         const val ACTION_START_SERVICE="action_start_service"
-        const val ACTION_START="action_start"
-        const val ACTION_REMOVE="action_remove"
+        const val ACTION_STOP_SERVICE="action_stop_service"
 
         const val ACTION_PLAY="action_play"
         const val ACTION_PAUSE="action_pause"
@@ -165,8 +164,7 @@ class TextToSpeechNotificationService: Service() {
     private fun doAction(action: String) {
         when(action) {
             ACTION_START_SERVICE -> {}
-            ACTION_START -> buildStartNotification()
-            ACTION_REMOVE -> shutdown()
+            ACTION_STOP_SERVICE -> shutdown()
             ACTION_PLAY -> speakControl.continueAfterPause()
             ACTION_PAUSE -> speakControl.pause()
             ACTION_FAST_FORWARD -> speakControl.forward()

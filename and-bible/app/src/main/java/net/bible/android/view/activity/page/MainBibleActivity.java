@@ -3,7 +3,6 @@ package net.bible.android.view.activity.page;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.view.ActionMode;
@@ -44,10 +43,8 @@ import net.bible.service.device.ScreenSettings;
 import javax.inject.Inject;
 
 import de.greenrobot.event.EventBus;
-import net.bible.service.device.speak.TextToSpeechNotificationService;
 import net.bible.service.device.speak.event.SpeakProgressEvent;
 
-import static net.bible.service.device.speak.TextToSpeechNotificationService.ACTION_START_SERVICE;
 
 /** The main activity screen showing Bible text
  * 
@@ -121,13 +118,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 
 		// force the screen to be populated
 		PassageChangeMediator.getInstance().forcePageUpdate();
-
-		// Start TTS notification service
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			Intent intent = new Intent(getApplicationContext(), TextToSpeechNotificationService.class);
-			intent.setAction(ACTION_START_SERVICE);
-			startService(intent);
-		}
 	}
 
 

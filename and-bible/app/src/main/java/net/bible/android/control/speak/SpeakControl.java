@@ -39,9 +39,6 @@ import javax.inject.Inject;
 import dagger.Lazy;
 import org.jetbrains.annotations.Nullable;
 
-import static net.bible.service.device.speak.TextToSpeechNotificationService.ACTION_REMOVE;
-import static net.bible.service.device.speak.TextToSpeechNotificationService.ACTION_START;
-
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
  * @see gnu.lgpl.License for license details.<br>
