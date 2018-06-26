@@ -279,7 +279,7 @@
   <string name="speak_speed_title">Puhenopeus</string>
   <string name="conf_speak_synchronize_first_window">Synkronoi ensimmäinen ikkuna</string>
   <string name="conf_speak_continue_sentences">Puhu kokonaisia lauseita jakeiden sijaan</string>
-  <string name="conf_speak_auto_bookmark">Lisää kirjanmerkki keskeytettäessä ja poista se jatkettaessa</string>
+  <string name="conf_speak_auto_bookmark">Lisää kirjanmerkki keskeytettäessä. Jos puhe aloitetaan kirjanmerkistä (joka kuuluu oikeaan ryhmään), kyseinen kirjanmerkki siirretään uuteen paikkaan keskeyttäessä. </string>
   <string name="conf_speak_auto_bookmark_label">Lisää kirjanmerkki ryhmään</string>
   <string name="conf_speak">Puhu</string>
   <string name="conf_play_earcons">Soita äänimerkki</string>
