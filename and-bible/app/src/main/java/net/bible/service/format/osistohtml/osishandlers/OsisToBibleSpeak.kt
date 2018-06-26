@@ -108,6 +108,10 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
     override fun characters(buf: CharArray, offset: Int, len: Int) {
         val currentState = elementStack.peek()
         var s = String(buf, offset, len)
+        s = s.replace("”", "\"")
+        s = s.replace("“", "\"")
+        s = s.replace("`", "'")
+        s = s.replace("´", "'")
         if(currentState.visible) {
             if(currentState.tagType == TAG_TYPE.TITLE) {
                 if(speakSettings.playbackSettings.speakTitles) {
