@@ -108,6 +108,7 @@ class TextToSpeechNotificationService: Service() {
 
     override fun onDestroy() {
         unregisterReceiver(headsetReceiver)
+        shutdown()
         super.onDestroy()
     }
 
