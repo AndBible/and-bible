@@ -41,12 +41,12 @@ class TextToSpeechNotificationService: Service() {
     }
 
     @Inject lateinit var speakControl: SpeakControl
-
     private lateinit var currentTitle: String
-    private var currentText = ""
-    lateinit var notificationManager: NotificationManager
+    private lateinit var notificationManager: NotificationManager
     private lateinit var headsetReceiver: BroadcastReceiver
     private lateinit var wakeLock: PowerManager.WakeLock
+
+    private var currentText = ""
 
     private val pauseAction: Notification.Action
         @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -56,17 +56,26 @@ class TextToSpeechNotificationService: Service() {
         @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
         get() = generateAction(android.R.drawable.ic_media_play, getString(R.string.speak), ACTION_PLAY)
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if(! ::speakControl.isInitialized) {
             initialize()
         }
 
-        handleIntent(intent)
+        when(intent?.action) {
+            ACTION_START_SERVICE -> {}
+            ACTION_STOP_SERVICE -> shutdown()
+            ACTION_PLAY -> speakControl.continueAfterPause()
+            ACTION_PAUSE -> speakControl.pause()
+            ACTION_FAST_FORWARD -> speakControl.forward()
+            ACTION_REWIND -> speakControl.rewind()
+            ACTION_PREVIOUS -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
+            ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
+            ACTION_STOP -> speakControl.stop()
+        }
+
         return super.onStartCommand(intent, flags, startId)
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun initialize() {
         Log.d(TAG, "Initialize")
         currentTitle = getString(R.string.app_name)
@@ -110,10 +119,9 @@ class TextToSpeechNotificationService: Service() {
         if(wakeLock.isHeld) {
             wakeLock.release()
         }
-        // stopService(Intent(applicationContext, this.javaClass))
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    @SuppressLint("WakelockTimeout")
     fun onEvent(ev: SpeakEvent) {
         if(!ev.isSpeaking && ev.isPaused) {
             Log.d(TAG, "Stop foreground (pause)")
@@ -121,17 +129,24 @@ class TextToSpeechNotificationService: Service() {
             if(wakeLock.isHeld) {
                 wakeLock.release()
             }
-            buildNotification(playAction)
+
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                buildNotification(playAction)
+            }
         }
         else if (ev.isSpeaking) {
-            buildNotification(pauseAction, true)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                buildNotification(pauseAction, true)
+            }
+            if (!wakeLock.isHeld) {
+                wakeLock.acquire()
+            }
         }
         else {
             shutdown()
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     fun onEvent(ev: SpeakProgressEvent) {
         if(ev.speakCommand is TextCommand) {
             if(ev.speakCommand.type == TextCommand.TextType.TITLE) {
@@ -144,34 +159,8 @@ class TextToSpeechNotificationService: Service() {
                 currentText = ev.speakCommand.text;
             }
         }
-        buildStartNotification()
-    }
-
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun buildStartNotification() {
-        buildNotification(if (speakControl.isSpeaking) pauseAction else playAction)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun handleIntent(intent: Intent?) {
-        if(intent?.action == null) {
-            return
-        }
-        doAction(intent.action)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun doAction(action: String) {
-        when(action) {
-            ACTION_START_SERVICE -> {}
-            ACTION_STOP_SERVICE -> shutdown()
-            ACTION_PLAY -> speakControl.continueAfterPause()
-            ACTION_PAUSE -> speakControl.pause()
-            ACTION_FAST_FORWARD -> speakControl.forward()
-            ACTION_REWIND -> speakControl.rewind()
-            ACTION_PREVIOUS -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
-            ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
-            ACTION_STOP -> speakControl.stop()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            buildNotification(if (speakControl.isSpeaking) pauseAction else playAction)
         }
     }
 
@@ -183,7 +172,6 @@ class TextToSpeechNotificationService: Service() {
         return Notification.Action.Builder(icon, title, pendingIntent).build()
     }
 
-    @SuppressLint("WakelockTimeout")
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun buildNotification(action: Notification.Action, foreground: Boolean = false) {
         val style = Notification.MediaStyle()
@@ -223,9 +211,6 @@ class TextToSpeechNotificationService: Service() {
         if(foreground) {
             Log.d(TAG, "Starting foreground")
             startForeground(NOTIFICATION_ID, notification)
-            if(!wakeLock.isHeld) {
-                wakeLock.acquire()
-            }
         }
         else {
             notificationManager.notify(NOTIFICATION_ID, notification)

@@ -94,11 +94,9 @@ public class BibleApplication extends Application{
 		localeOverrideAtStartup = LocaleHelper.getOverrideLanguage(this);
 
 		// Start TTS notification service
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			Intent intent = new Intent(getApplicationContext(), TextToSpeechNotificationService.class);
-			intent.setAction(ACTION_START_SERVICE);
-			startService(intent);
-		}
+		Intent intent = new Intent(getApplicationContext(), TextToSpeechNotificationService.class);
+		intent.setAction(ACTION_START_SERVICE);
+		startService(intent);
 	}
 
 	public ApplicationComponent getApplicationComponent() {
