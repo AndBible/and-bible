@@ -3,7 +3,7 @@
                     android:minWidth="80dp"
                     android:minHeight="60dp"
                     android:updatePeriodMillis="86400000"
-                    android:previewImage="@drawable/ichthys"
+                    android:previewImage="@drawable/speakwidget2"
                     android:initialLayout="@layout/speak_widget"
                     android:resizeMode="horizontal|vertical"
                     android:widgetCategory="home_screen"
