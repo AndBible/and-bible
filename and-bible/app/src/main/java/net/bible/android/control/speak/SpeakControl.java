@@ -234,10 +234,6 @@ public class SpeakControl {
 		speakBible((SwordBook) fromBook, verse);
 	}
 
-	public BibleSpeakTextProvider getBibleSpeakTextProvider() {
-		return textToSpeechServiceManager.get().getBibleSpeakTextProvider();
-	}
-
 	public void speakKeyList(Book book, List<Key> keyList, boolean queue, boolean repeat) {
 		preSpeak();
 

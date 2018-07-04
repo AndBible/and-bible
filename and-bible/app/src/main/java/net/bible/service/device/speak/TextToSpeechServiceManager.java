@@ -106,10 +106,6 @@ public class TextToSpeechServiceManager {
     	restorePauseState();
     }
 
-	public BibleSpeakTextProvider getBibleSpeakTextProvider() {
-		return bibleSpeakTextProvider;
-	}
-
     public boolean isLanguageAvailable(String langCode) {
     	return ttsLanguageSupport.isLangKnownToBeSupported(langCode);
     }
