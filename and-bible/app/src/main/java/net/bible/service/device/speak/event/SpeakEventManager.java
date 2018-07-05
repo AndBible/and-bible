@@ -1,6 +1,6 @@
 package net.bible.service.device.speak.event;
 
-import de.greenrobot.event.EventBus;
+import net.bible.android.control.event.ABEventBus;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -45,7 +45,7 @@ public class SpeakEventManager {
 		}
 
 		// Add possibility to receive these via EventBus
-		EventBus.getDefault().post(speakEvent);
+		ABEventBus.getDefault().post(speakEvent);
 
 		lastEvent = speakEvent;
 	}

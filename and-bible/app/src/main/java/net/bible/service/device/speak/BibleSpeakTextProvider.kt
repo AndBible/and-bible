@@ -3,7 +3,6 @@ package net.bible.service.device.speak
 import android.content.res.Resources
 import android.util.Log
 import android.util.LruCache
-import de.greenrobot.event.EventBus
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.service.common.CommonUtils
@@ -15,6 +14,7 @@ import org.crosswire.jsword.passage.RangedPassage
 import org.crosswire.jsword.passage.Verse
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.INVALID_LABEL_ID
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.service.db.bookmark.BookmarkDto
@@ -76,7 +76,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         }
 
     init {
-        EventBus.getDefault().register(this)
+        ABEventBus.getDefault().register(this)
         book = initialBook
         setupBook(initialBook)
         startVerse = initialVerse
@@ -367,14 +367,14 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         endVerse = currentVerse
 
         clearNotificationAndWidgetTitles();
-        EventBus.getDefault().post(SpeakProgressEvent(book, startVerse, settings.synchronize, null))
+        ABEventBus.getDefault().post(SpeakProgressEvent(book, startVerse, settings.synchronize, null))
     }
 
     private fun clearNotificationAndWidgetTitles() {
         // Clear title and text from widget and notification.
-        EventBus.getDefault().post(SpeakProgressEvent(book, startVerse, false,
+        ABEventBus.getDefault().post(SpeakProgressEvent(book, startVerse, false,
                 TextCommand("", type=TextCommand.TextType.TITLE)))
-        EventBus.getDefault().post(SpeakProgressEvent(book, startVerse, false,
+        ABEventBus.getDefault().post(SpeakProgressEvent(book, startVerse, false,
                 TextCommand("", type=TextCommand.TextType.NORMAL)))
     }
 
@@ -403,7 +403,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         startVerse = currentVerse
         endVerse = currentVerse
         clearNotificationAndWidgetTitles();
-        EventBus.getDefault().post(SpeakProgressEvent(book, startVerse, settings.synchronize, null))
+        ABEventBus.getDefault().post(SpeakProgressEvent(book, startVerse, settings.synchronize, null))
     }
 
     override fun finishedUtterance(utteranceId: String) {}
@@ -416,7 +416,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
                 lastTitle = state.startVerse
             }
-            EventBus.getDefault().post(SpeakProgressEvent(state.book, state.startVerse, settings.synchronize, state.command!!))
+            ABEventBus.getDefault().post(SpeakProgressEvent(state.book, state.startVerse, settings.synchronize, state.command!!))
         }
     }
 

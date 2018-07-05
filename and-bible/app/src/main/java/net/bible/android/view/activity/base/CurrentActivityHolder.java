@@ -1,10 +1,10 @@
 package net.bible.android.view.activity.base;
 
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent.Position;
 import android.app.Activity;
 import android.util.Log;
-import de.greenrobot.event.EventBus;
 
 /** Allow operations form middle tier that require a reference to the current Activity
  * 
@@ -44,7 +44,7 @@ public class CurrentActivityHolder {
 			currentActivity = null;
 			if (appIsInForeground) {
 				appIsInForeground = false;
-				EventBus.getDefault().post(new AppToBackgroundEvent(Position.BACKGROUND));
+				ABEventBus.getDefault().post(new AppToBackgroundEvent(Position.BACKGROUND));
 			}
 		}
 	}
@@ -55,7 +55,7 @@ public class CurrentActivityHolder {
 		if (!appIsInForeground) {
 			Log.d(TAG, "AppIsInForeground firing event");
 			appIsInForeground = true;
-			EventBus.getDefault().post(new AppToBackgroundEvent(Position.FOREGROUND));
+			ABEventBus.getDefault().post(new AppToBackgroundEvent(Position.FOREGROUND));
 		}
 	}
 	

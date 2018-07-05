@@ -2,9 +2,9 @@ package net.bible.service.history;
 
 import android.util.Log;
 
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 
-import de.greenrobot.event.EventBus;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -33,7 +33,7 @@ public class HistoryTraversal {
      */
 	public void beforeStartActivity() {
 		if (integrateWithHistoryManager) {
-			EventBus.getDefault().post(new BeforeCurrentPageChangeEvent());
+			ABEventBus.getDefault().post(new BeforeCurrentPageChangeEvent());
 		}
 	}
 

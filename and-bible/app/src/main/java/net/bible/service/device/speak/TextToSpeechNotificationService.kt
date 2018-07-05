@@ -8,9 +8,9 @@ import android.os.IBinder
 import android.os.PowerManager
 import android.support.annotation.RequiresApi
 import android.util.Log
-import de.greenrobot.event.EventBus
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.view.activity.ActivityScope
@@ -96,7 +96,7 @@ class TextToSpeechNotificationService: Service() {
         }
         registerReceiver(headsetReceiver, IntentFilter(Intent.ACTION_HEADSET_PLUG))
 
-        EventBus.getDefault().register(this)
+        ABEventBus.getDefault().register(this)
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

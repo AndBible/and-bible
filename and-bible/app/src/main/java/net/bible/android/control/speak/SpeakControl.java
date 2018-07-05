@@ -5,11 +5,11 @@ import android.media.AudioManager;
 import android.util.Log;
 import android.widget.Toast;
 
-import de.greenrobot.event.EventBus;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.bookmark.BookmarkControl;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
@@ -78,7 +78,7 @@ public class SpeakControl {
 	public SpeakControl(Lazy<TextToSpeechServiceManager> textToSpeechServiceManager, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
 		this.textToSpeechServiceManager = textToSpeechServiceManager;
 		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
-		EventBus.getDefault().register(this);
+		ABEventBus.getDefault().register(this);
 	}
 
 	/** return a list of prompt ids for the speak screen associated with the current document type

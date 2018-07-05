@@ -8,6 +8,7 @@ import android.view.MenuItem;
 
 import net.bible.android.activity.R;
 import net.bible.android.control.bookmark.BookmarkControl;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.page.ChapterVerse;
@@ -19,8 +20,6 @@ import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.Versification;
 
 import java.util.Set;
-
-import de.greenrobot.event.EventBus;
 
 /**
  * Control the verse selection action mode
@@ -55,7 +54,7 @@ public class VerseActionModeMediator {
 		this.bookmarkControl = bookmarkControl;
 
 		// Be notified if the associated window loses focus
-		EventBus.getDefault().register(this);
+		ABEventBus.getDefault().register(this);
 	}
 
 	public void verseLongPress(ChapterVerse verse) {

@@ -37,6 +37,11 @@ public class ABEventBus implements EventManager {
 	}
 
 	@Override
+	public void unregister(Object subscriber) {
+		EventBus.getDefault().unregister(subscriber);
+	}
+
+	@Override
 	public void post(Object event) {
 		EventBus.getDefault().post(event);
 	}

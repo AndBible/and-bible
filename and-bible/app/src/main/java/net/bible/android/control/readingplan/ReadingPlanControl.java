@@ -5,6 +5,7 @@ import android.content.SharedPreferences.Editor;
 import android.util.Log;
 
 import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
@@ -26,7 +27,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
 
 /** Control status of reading plans
  * 
@@ -234,7 +234,7 @@ public class ReadingPlanControl {
     		// mark reading as 'read'
     		getReadingStatus(day).setRead(readingNo);
 
-    		EventBus.getDefault().post(new BeforeCurrentPageChangeEvent());
+    		ABEventBus.getDefault().post(new BeforeCurrentPageChangeEvent());
 
 			// show the current bible
 			final CurrentPageManager currentPageManager = getCurrentPageManager();

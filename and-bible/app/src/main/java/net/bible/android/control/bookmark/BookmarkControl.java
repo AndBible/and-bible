@@ -6,10 +6,10 @@ import android.support.design.widget.Snackbar;
 import android.util.Log;
 import android.view.View;
 
-import de.greenrobot.event.EventBus;
 import net.bible.android.activity.R;
 import net.bible.android.common.resource.ResourceProvider;
 import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
@@ -130,7 +130,7 @@ public class BookmarkControl {
 				Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
 			}
 		}
-		EventBus.getDefault().post(new SynchronizeWindowsEvent());
+		ABEventBus.getDefault().post(new SynchronizeWindowsEvent());
 		return bOk;
 	}
 
@@ -149,7 +149,7 @@ public class BookmarkControl {
 				}
 			}
 		}
-		EventBus.getDefault().post(new SynchronizeWindowsEvent());
+		ABEventBus.getDefault().post(new SynchronizeWindowsEvent());
 		return bOk;
 	}
 
@@ -216,7 +216,7 @@ public class BookmarkControl {
 		} finally {
 			db.close();
 		}
-		EventBus.getDefault().post(new SynchronizeWindowsEvent());
+		ABEventBus.getDefault().post(new SynchronizeWindowsEvent());
 		return newBookmark;
 	}
 
@@ -287,7 +287,7 @@ public class BookmarkControl {
 				db.close();
 			}
 		}
-		EventBus.getDefault().post(new SynchronizeWindowsEvent());
+		ABEventBus.getDefault().post(new SynchronizeWindowsEvent());
 		return bOk;
 	}
 
@@ -361,7 +361,7 @@ public class BookmarkControl {
 		} finally {
 			db.close();
 		}
-		EventBus.getDefault().post(new SynchronizeWindowsEvent(true));
+		ABEventBus.getDefault().post(new SynchronizeWindowsEvent(true));
 	}
 
 	public LabelDto saveOrUpdateLabel(LabelDto label) {

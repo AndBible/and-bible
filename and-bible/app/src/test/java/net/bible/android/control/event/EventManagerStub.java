@@ -21,6 +21,11 @@ public class EventManagerStub implements EventManager {
 	}
 
 	@Override
+	public void unregister(Object subscriber) {
+
+	}
+
+	@Override
 	public void post(Object event) {
 	}
 

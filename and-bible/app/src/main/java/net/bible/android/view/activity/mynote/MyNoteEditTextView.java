@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.mynote.MyNoteControl;
 import net.bible.android.control.page.ChapterVerse;
@@ -16,7 +17,6 @@ import net.bible.android.view.activity.base.DocumentView;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
 
-import de.greenrobot.event.EventBus;
 
 /**
  * Show a User Note and allow view/edit
@@ -49,7 +49,7 @@ public class MyNoteEditTextView extends EditText implements DocumentView {
 		super.onAttachedToWindow();
 
 		// register for passage change events
-        EventBus.getDefault().register(this);
+        ABEventBus.getDefault().register(this);
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class MyNoteEditTextView extends EditText implements DocumentView {
 		super.onDetachedFromWindow();
 
 		// register for passage change events
-        EventBus.getDefault().unregister(this);
+        ABEventBus.getDefault().unregister(this);
 	}
 
     /** allow current page to save any settings or data before being changed

@@ -22,8 +22,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-import de.greenrobot.event.EventBus;
-
 @ApplicationScope
 public class WindowRepository {
 
@@ -169,7 +167,7 @@ public class WindowRepository {
 	public void setActiveWindow(Window newActiveWindow) {
 		if (!newActiveWindow.equals(this.activeWindow)) {
 			this.activeWindow = newActiveWindow;
-			EventBus.getDefault().post(new CurrentWindowChangedEvent(activeWindow));
+			ABEventBus.getDefault().post(new CurrentWindowChangedEvent(activeWindow));
 		}
 	}
 	

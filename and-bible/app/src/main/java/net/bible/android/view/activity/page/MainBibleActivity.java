@@ -21,6 +21,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.BibleContentManager;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.backup.BackupControl;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent;
 import net.bible.android.control.event.passage.PassageChangeStartedEvent;
@@ -42,7 +43,6 @@ import net.bible.service.device.ScreenSettings;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
 import net.bible.service.device.speak.event.SpeakProgressEvent;
 
 
@@ -114,7 +114,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		documentViewManager.buildView();
 
 		// register for passage change and appToBackground events
-		EventBus.getDefault().register(this);
+		ABEventBus.getDefault().register(this);
 
 		// force the screen to be populated
 		PassageChangeMediator.getInstance().forcePageUpdate();
@@ -125,7 +125,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		EventBus.getDefault().unregister(this);
+		ABEventBus.getDefault().unregister(this);
 	}
 
 	@Override
@@ -260,7 +260,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 			// restart done in above
 		} else if (mainMenuCommandHandler.isDisplayRefreshRequired(requestCode)) {
 			preferenceSettingsChanged();
-			EventBus.getDefault().post(new SynchronizeWindowsEvent());
+			ABEventBus.getDefault().post(new SynchronizeWindowsEvent());
 		} else if (mainMenuCommandHandler.isDocumentChanged(requestCode)) {
 			updateActionBarButtons();
 		}

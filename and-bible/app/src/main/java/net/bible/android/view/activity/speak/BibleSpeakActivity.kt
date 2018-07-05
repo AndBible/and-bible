@@ -6,10 +6,10 @@ import android.util.Log
 import android.view.View
 import android.widget.*
 import android.widget.AdapterView.INVALID_POSITION
-import de.greenrobot.event.EventBus
 import kotlinx.android.synthetic.main.speak_bible.*
 import net.bible.android.activity.R
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.*
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.Dialogs
@@ -32,7 +32,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.speak_bible)
         super.buildActivityComponent().inject(this)
-        EventBus.getDefault().register(this)
+        ABEventBus.getDefault().register(this)
 
         bookmarkLabels = bookmarkControl.assignableLabels
 
@@ -73,7 +73,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     }
 
     override fun onDestroy() {
-        EventBus.getDefault().unregister(this)
+        ABEventBus.getDefault().unregister(this)
         super.onDestroy()
     }
 

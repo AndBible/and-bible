@@ -2,6 +2,7 @@ package net.bible.android.control.page.window;
 
 import java.util.List;
 
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent;
@@ -18,8 +19,6 @@ import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.Versification;
 
-import de.greenrobot.event.EventBus;
-
 public class WindowSync {
 
 	private boolean isFirstTimeInit = true;
@@ -35,7 +34,7 @@ public class WindowSync {
 		this.windowRepository = windowRepository;
 		
 		// register for passage change and fore/background events
-		EventBus.getDefault().register(this);
+		ABEventBus.getDefault().register(this);
 	}
 
 	public void onEvent(PassageChangedEvent event) {
@@ -148,7 +147,7 @@ public class WindowSync {
 			if (!forceRefresh && 
 					BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && 
 					currentVerse!=null && targetVerse!=null && targetV11n.isSameChapter(targetVerse, currentVerse)) {
-				EventBus.getDefault().post(new ScrollSecondaryWindowEvent(inactiveWindow, ChapterVerse.fromVerse(targetVerse)));
+				ABEventBus.getDefault().post(new ScrollSecondaryWindowEvent(inactiveWindow, ChapterVerse.fromVerse(targetVerse)));
 			} else if(isGeneralBook || isUnsynchronizedCommentary)
 			{
 				// Do not update! Updating would reset page position.
@@ -178,7 +177,7 @@ public class WindowSync {
         /** callback from base class when result is ready */
     	@Override
     	protected void showText(String text, Window window, ChapterVerse chapterVerse, float yOffsetRatio) {
-    		EventBus.getDefault().post(new UpdateSecondaryWindowEvent(window, text, chapterVerse));
+    		ABEventBus.getDefault().post(new UpdateSecondaryWindowEvent(window, text, chapterVerse));
         }
     }
 

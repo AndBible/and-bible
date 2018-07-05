@@ -1,11 +1,11 @@
 package net.bible.service.device.speak
 
-import de.greenrobot.event.EventBus
 import kotlinx.android.synthetic.main.speak_bible.*
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.BuildConfig
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.PlaybackSettings
@@ -58,11 +58,11 @@ class SPTest {
 
     @Test fun test1()
     {
-        EventBus.getDefault().post(SpeakSettingsChangedEvent(SpeakSettings.load()))
+        ABEventBus.getDefault().post(SpeakSettingsChangedEvent(SpeakSettings.load()))
     }
     @Test fun test2()
     {
-        EventBus.getDefault().post(SpeakSettingsChangedEvent(SpeakSettings.load()))
+        ABEventBus.getDefault().post(SpeakSettingsChangedEvent(SpeakSettings.load()))
     }
 }
 

@@ -19,6 +19,7 @@ import android.webkit.WebViewClient;
 
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent;
@@ -38,8 +39,6 @@ import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
 
 import org.apache.commons.lang3.StringUtils;
-
-import de.greenrobot.event.EventBus;
 
 /** The WebView component that shows the main bible and commentary text
  * 
@@ -157,7 +156,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		mPageTiltScroller.enableTiltScroll(true);
 
 		// if this webview becomes (in)active then must start/stop auto-scroll
-		EventBus.getDefault().register(this);
+		ABEventBus.getDefault().register(this);
 		
 		// initialise split state related code - always screen1 is selected first
 		onEvent(new CurrentWindowChangedEvent(windowControl.getActiveWindow()));

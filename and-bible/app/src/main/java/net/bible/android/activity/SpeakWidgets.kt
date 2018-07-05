@@ -9,10 +9,10 @@ import android.content.Intent
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
-import de.greenrobot.event.EventBus
 import de.greenrobot.event.EventBusException
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettings
@@ -48,7 +48,7 @@ abstract class AbstractSpeakWidget: AppWidgetProvider() {
                 .applicationComponent(BibleApplication.getApplication().applicationComponent)
                 .build().inject(this)
         try {
-            EventBus.getDefault().register(this)
+            ABEventBus.getDefault().register(this)
         } catch (e: EventBusException) {}
     }
 

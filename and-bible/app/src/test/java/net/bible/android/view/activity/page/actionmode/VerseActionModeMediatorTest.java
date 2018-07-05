@@ -6,6 +6,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import net.bible.android.activity.R;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.control.page.CurrentPageManager;
@@ -24,8 +25,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-
-import de.greenrobot.event.EventBus;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -102,7 +101,7 @@ public class VerseActionModeMediatorTest {
 		verseActionModeMediator.verseLongPress(TestData.SELECTED_CHAPTER_VERSE);
 
 		// publish window change event
-		EventBus.getDefault().post(new CurrentWindowChangedEvent(new Window(3, WindowLayout.WindowState.MAXIMISED, currentPageManager)));
+		ABEventBus.getDefault().post(new CurrentWindowChangedEvent(new Window(3, WindowLayout.WindowState.MAXIMISED, currentPageManager)));
 
 		assertThat(verseActionModeMediator.isActionMode(), is(false));
 	}

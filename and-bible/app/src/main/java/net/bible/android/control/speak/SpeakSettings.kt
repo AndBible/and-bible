@@ -1,8 +1,8 @@
 package net.bible.android.control.speak
 import android.util.Log
-import de.greenrobot.event.EventBus
 import kotlinx.serialization.*
 import kotlinx.serialization.json.JSON
+import net.bible.android.control.event.ABEventBus
 import net.bible.service.common.CommonUtils
 import java.lang.IllegalArgumentException
 
@@ -67,7 +67,7 @@ data class SpeakSettings(@Optional val synchronize: Boolean = true,
             Log.d(TAG, "SpeakSettings saved! $this")
             val oldSettings = currentSettings
             currentSettings = this.makeCopy()
-            EventBus.getDefault().post(SpeakSettingsChangedEvent(this,
+            ABEventBus.getDefault().post(SpeakSettingsChangedEvent(this,
                     updateBookmark && oldSettings?.playbackSettings?.equals(this.playbackSettings) != true,
                      oldSettings?.sleepTimer != this.sleepTimer))
         }

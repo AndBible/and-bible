@@ -21,6 +21,7 @@ import android.widget.LinearLayout;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.Window.WindowOperation;
@@ -35,7 +36,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
 
 /**
  * TEMP NOTE: http://stackoverflow.com/questions/961944/overlapping-views-in-android
@@ -104,7 +104,7 @@ public class DocumentWebViewBuilder {
         BUTTON_SIZE_PX = res.getDimensionPixelSize(R.dimen.minimise_restore_button_size);
         
 		// Be notified of any changes to window config
-		EventBus.getDefault().register(this);
+		ABEventBus.getDefault().register(this);
 	}
 	
 	/**
