@@ -71,7 +71,8 @@ public class SpeakControl {
 	private static final String TAG = "SpeakControl";
 
 	@Inject public BookmarkControl bookmarkControl;
-	private Timer sleepTimer = new Timer();
+	private Timer sleepTimer = new Timer("TTS sleep timer");
+	private TimerTask timerTask;
 
 	@Inject
 	public SpeakControl(Lazy<TextToSpeechServiceManager> textToSpeechServiceManager, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
@@ -273,7 +274,7 @@ public class SpeakControl {
 	// automated: pause & continue triggered due to settings change event
 	public void pause(boolean willContinueAfterThis) {
 		if(!willContinueAfterThis) {
-			sleepTimer.cancel();
+			stopTimer();
 		}
 		if (isSpeaking() || isPaused()) {
 			Log.d(TAG, "Pause TTS speaking");
@@ -310,7 +311,7 @@ public class SpeakControl {
 	public void stop() {
 		Log.d(TAG, "Stop TTS speaking");
 		textToSpeechServiceManager.get().shutdown();
-		sleepTimer.cancel();
+		stopTimer();
     	Toast.makeText(BibleApplication.getApplication(), R.string.stop, Toast.LENGTH_SHORT).show();
 	}
 
@@ -350,21 +351,32 @@ public class SpeakControl {
 	}
 
 	private void enableSleepTimer(int sleepTimerAmount) {
-		sleepTimer.cancel();
+		stopTimer();
 		if (sleepTimerAmount > 0) {
 		    Log.d(TAG, "Activating sleep timer");
 			BibleApplication app = BibleApplication.getApplication();
 			Toast.makeText(app, app.getString(R.string.sleep_timer_started, sleepTimerAmount), Toast.LENGTH_SHORT).show();
-			sleepTimer = new Timer("TTS Sleep timer");
-			sleepTimer.schedule(new TimerTask() {
+			timerTask = new TimerTask() {
 				@Override
 				public void run() {
 					pause(true);
 				}
-			}, sleepTimerAmount * 60000);
+			};
+			sleepTimer.schedule(timerTask, sleepTimerAmount * 60000);
 		} else {
 			Toast.makeText(BibleApplication.getApplication(), R.string.speak, Toast.LENGTH_SHORT).show();
 		}
+	}
+
+	private void stopTimer() {
+		if(timerTask != null) {
+			timerTask.cancel();
+		}
+		timerTask = null;
+	}
+
+	public boolean sleepTimerActive() {
+		return timerTask != null;
 	}
 
 	public void toggleSleepTimer() {
@@ -372,7 +384,7 @@ public class SpeakControl {
 		if(settings.getSleepTimer() > 0) {
 			settings.setSleepTimer(0);
 			if(isSpeaking()) {
-				sleepTimer.cancel();
+				stopTimer();
 			}
 			settings.save();
 		}

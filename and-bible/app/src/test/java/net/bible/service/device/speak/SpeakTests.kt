@@ -64,8 +64,10 @@ class SpeakIntegrationTests {
         labelDto = bookmarkControl.saveOrUpdateLabel(labelDto)
         val s = SpeakSettings(autoBookmarkLabelId = labelDto.id, restoreSettingsFromBookmarks = true)
         s.save()
-        book = Books.installed().getBook("FinRK") as SwordBook
 
+        book = Books.installed().getBook("FinRK") as SwordBook
+        bibleSpeakActivityController.create()
+        mainActivityController.create()
     }
 
     fun getVerse(verseStr: String): Verse {
@@ -73,16 +75,28 @@ class SpeakIntegrationTests {
         return verse.getVerseAt(0)
     }
 
+    @Test fun testSleeptimer() {
+        speakControl.speakBible(book, getVerse("Rom.1.1"))
+        assertThat(speakControl.sleepTimerActive(), equalTo(false))
+        setSleepTimer(5)
+        assertThat(speakControl.sleepTimerActive(), equalTo(true))
+        setSleepTimer(0)
+        assertThat(speakControl.sleepTimerActive(), equalTo(false))
+    }
+
     fun changeSpeed(speed: Int) {
         val settingsActivity = bibleSpeakActivityController.visible().get()
         settingsActivity.speakSpeed.setProgress(speed)
     }
 
+    fun setSleepTimer(time: Int) {
+        val s = SpeakSettings.load()
+        s.sleepTimer = time
+        s.save()
+    }
+
     @Test fun testAutobookmark() {
-        // needed as this listens to verse sync events and updates current verse
-        bibleSpeakActivityController.create()
-        mainActivityController.create()
-        speakControl.speakBible(book, getVerse("Rom.1.1")) // need to do twise due to TtsEngine failing in tests
+        speakControl.speakBible(book, getVerse("Rom.1.1"))
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.2
         speakControl.pause()
         assertThat(bookmarkControl.getBookmarkByKey(getVerse("Rom.1.2")), notNullValue())
