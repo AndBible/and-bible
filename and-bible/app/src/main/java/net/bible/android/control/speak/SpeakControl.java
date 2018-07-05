@@ -333,9 +333,9 @@ public class SpeakControl {
 				bookmarkControl.updateBookmarkSettings(ev.getSpeakSettings().getPlaybackSettings());
 			}
 		}
-        else if (isSpeaking()) {
-        	pause(true);
-        	if(ev.getSleepTimerChanged()){
+		else if (isSpeaking()) {
+			pause(true);
+			if(ev.getSleepTimerChanged()){
 				continueAfterPause();
 			}
 			else {

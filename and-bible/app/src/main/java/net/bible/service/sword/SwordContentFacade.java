@@ -225,8 +225,8 @@ public class SwordContentFacade {
     	}
     }
 
-    private ArrayList<SpeakCommand> getSpeakCommandsForVerse(SpeakSettings settings, Book book, Key key) {
-    	try {
+	private ArrayList<SpeakCommand> getSpeakCommandsForVerse(SpeakSettings settings, Book book, Key key) {
+		try {
 			BookData data = new BookData(book, key);
 			Element frag = data.getOsisFragment(false);
 			Document doc = frag.getDocument();
@@ -238,11 +238,11 @@ public class SwordContentFacade {
 			ContentHandler osisHandler = new OsisToBibleSpeak(settings, book.getLanguage().getCode());
 			osissep.provideSAXEvents(osisHandler);
 			return ((OsisToBibleSpeak) osisHandler).getSpeakCommands();
-    	} catch (Exception e) {
-    		Log.e(TAG, "Error getting text from book" , e);
-    		return new ArrayList<>();
-    	}
-    }
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting text from book" , e);
+			return new ArrayList<>();
+		}
+	}
 
     public SpeakCommandArray getSpeakCommands(SpeakSettings settings, Book book, Verse verse) {
 		SpeakCommandArray lst = new SpeakCommandArray();
@@ -251,8 +251,8 @@ public class SwordContentFacade {
 					new Verse(verse.getVersification(), verse.getBook(), verse.getChapter(), 0)));
 		}
 
-    	lst.addAll(getSpeakCommandsForVerse(settings, book, verse));
-    	return lst;
+		lst.addAll(getSpeakCommandsForVerse(settings, book, verse));
+		return lst;
     }
 
     /**
