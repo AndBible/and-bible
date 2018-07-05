@@ -63,15 +63,15 @@ public class TextToSpeechServiceManager {
 
     private TextToSpeech mTts;
 
-    private List<Locale> localePreferenceList;
-    private Locale currentLocale = Locale.getDefault();
+	private List<Locale> localePreferenceList;
+	private Locale currentLocale = Locale.getDefault();
 	private static String PERSIST_LOCALE_KEY = "SpeakLocale";
-    private static String PERSIST_BIBLE_PROVIDER = "SpeakBibleProvider";
+	private static String PERSIST_BIBLE_PROVIDER = "SpeakBibleProvider";
 	public static String EARCON_PRE_TITLE = "[pre-title]";
 	public static String EARCON_PRE_CHAPTER_CHANGE = "[pre-chapter-change]";
 	public static String EARCON_PRE_BOOK_CHANGE = "[pre-book-change]";
 
-    private SpeakTextProvider mSpeakTextProvider;
+	private SpeakTextProvider mSpeakTextProvider;
 
 	private GeneralSpeakTextProvider generalSpeakTextProvider;
 	private BibleSpeakTextProvider bibleSpeakTextProvider;
@@ -89,23 +89,23 @@ public class TextToSpeechServiceManager {
     private boolean isSpeaking = false;
     
     private boolean isPaused = false;
-	private boolean mockedTts = false;
+    private boolean mockedTts = false;
 
 	@Inject
-    public TextToSpeechServiceManager(SwordContentFacade swordContentFacade, BibleTraverser bibleTraverser,
+	public TextToSpeechServiceManager(SwordContentFacade swordContentFacade, BibleTraverser bibleTraverser,
 									  WindowControl windowControl, BookmarkControl bookmarkControl) {
-    	Log.d(TAG, "Creating TextToSpeechServiceManager");
+		Log.d(TAG, "Creating TextToSpeechServiceManager");
 		generalSpeakTextProvider = new GeneralSpeakTextProvider(swordContentFacade);
 		SwordBook book = (SwordBook) windowControl.getActiveWindowPageManager().getCurrentBible().getCurrentDocument();
 		Verse verse = windowControl.getActiveWindowPageManager().getCurrentBible().getSingleKey();
 
 		bibleSpeakTextProvider = new BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl, book, verse);
-    	mSpeakTextProvider = bibleSpeakTextProvider;
+		mSpeakTextProvider = bibleSpeakTextProvider;
 
-    	mSpeakTiming = new SpeakTiming();
+		mSpeakTiming = new SpeakTiming();
 		ABEventBus.getDefault().safelyRegister(this);
-    	restorePauseState();
-    }
+		restorePauseState();
+	}
 
     public boolean isLanguageAvailable(String langCode) {
     	return ttsLanguageSupport.isLangKnownToBeSupported(langCode);
@@ -188,8 +188,8 @@ public class TextToSpeechServiceManager {
 	}
 
 	public void setupMockedTts() {
-        // for tests
-        mockedTts = true;
+		// for tests
+		mockedTts = true;
 		onInitListener = new TextToSpeech.OnInitListener() {
 			public void onInit (int status){
 				mSpeakTextProvider.prepareForStartSpeaking();
@@ -268,77 +268,77 @@ public class TextToSpeechServiceManager {
 
         isPaused = wasPaused;
         if (!isPaused) {
-        	continueAfterPause(true);
+            continueAfterPause(true);
         }
     }
 
-    public synchronized void pause(boolean willContinueAfterThis) {
-    	Log.d(TAG, "Pause TTS");
+	public synchronized void pause(boolean willContinueAfterThis) {
+		Log.d(TAG, "Pause TTS");
 		
-        if (isSpeaking()) {
-            isPaused = true;
-	        isSpeaking = false;
+		if (isSpeaking()) {
+			isPaused = true;
+			isSpeaking = false;
 
 			mSpeakTextProvider.savePosition(mSpeakTiming.getFractionCompleted());
-	        mSpeakTextProvider.pause();
+			mSpeakTextProvider.pause();
 
-	        if(!willContinueAfterThis) {
+			if(!willContinueAfterThis) {
 				//kill the tts engine because it could be a long ime before restart and the engine may become corrupted or used elsewhere
 				shutdownTtsEngine();
 			}
 	        
-	        fireStateChangeEvent();
-        }
-    }
+			fireStateChangeEvent();
+		}
+	}
 
-    public synchronized void continueAfterPause(boolean automated) {
-    	try {
-	    	Log.d(TAG, "continue after pause");
-            isPaused = false;
+	public synchronized void continueAfterPause(boolean automated) {
+		try {
+			Log.d(TAG, "continue after pause");
+			isPaused = false;
 			clearPauseState();
 			if(!automated) {
 				mSpeakTextProvider.autoRewind();
 			}
-	        // ask TTs to say the text
-	    	initializeTtsOrStartSpeaking();
-    	} catch (Exception e) {
-    		Log.e(TAG, "TTS Error continuing after Pause", e);
-    		mSpeakTextProvider.reset();
-    		isSpeaking = false;
-    		shutdown();
-    	}
+			// ask TTs to say the text
+			initializeTtsOrStartSpeaking();
+		} catch (Exception e) {
+			Log.e(TAG, "TTS Error continuing after Pause", e);
+			mSpeakTextProvider.reset();
+			isSpeaking = false;
+			shutdown();
+		}
     	
-    	// should be able to clear this because we are now speaking
-    	isPaused = false;
-    }
+		// should be able to clear this because we are now speaking
+		isPaused = false;
+	}
 
     /** only check timing when paused to prevent concurrency problems
      */
-    public long getPausedTotalSeconds() {
-    	return mSpeakTiming.getSecsForChars(mSpeakTextProvider.getTotalChars());
-    }
+	public long getPausedTotalSeconds() {
+		return mSpeakTiming.getSecsForChars(mSpeakTextProvider.getTotalChars());
+	}
 
-    public long getPausedCompletedSeconds() {
-    	return mSpeakTiming.getSecsForChars(mSpeakTextProvider.getSpokenChars());
-    }
+	public long getPausedCompletedSeconds() {
+		return mSpeakTiming.getSecsForChars(mSpeakTextProvider.getSpokenChars());
+	}
 
-    private void startSpeaking() {
-    	Log.d(TAG, "about to send some text to TTS");
-    	if (!isSpeaking) {
-    		speakNextChunk();
-    		isSpeaking = true;
-    		isPaused = false;
-    		fireStateChangeEvent();
-    	}
-    	else {
+	private void startSpeaking() {
+		Log.d(TAG, "about to send some text to TTS");
+		if (!isSpeaking) {
+			speakNextChunk();
+			isSpeaking = true;
+			isPaused = false;
+			fireStateChangeEvent();
+		}
+		else {
 			isPaused = false;
 		}
-    }
+	}
 
 	private void speakNextChunk() {
-    	String utteranceId = "";
+		String utteranceId = "";
 		Log.d(TAG, "Adding items to TTS queue. first utterance id: " + uniqueUtteranceNo);
-    	for(int i=0; i<mSpeakTextProvider.getNumItemsToTts(); i++) {
+		for(int i=0; i<mSpeakTextProvider.getNumItemsToTts(); i++) {
 			utteranceId = UTTERANCE_PREFIX + uniqueUtteranceNo++;
 			SpeakCommand cmd = mSpeakTextProvider.getNextSpeakCommand(utteranceId, i==0);
 			if(!mockedTts) {
@@ -496,7 +496,7 @@ public class TextToSpeechServiceManager {
 				mTts.addEarcon(EARCON_PRE_BOOK_CHANGE, BibleApplication.getApplication().getPackageName(), R.raw.long_pling);
 
 				// set speech rate
-                setRate(SpeakSettings.Companion.load().getPlaybackSettings().getSpeed());
+				setRate(SpeakSettings.Companion.load().getPlaybackSettings().getSpeed());
 
 				boolean localeOK = false;
 				Locale locale = null;
@@ -578,17 +578,17 @@ public class TextToSpeechServiceManager {
 		}
 	};
 
-    private void setRate(int speechRate) {
+	private void setRate(int speechRate) {
 		if(mTts != null) {
 			mTts.setSpeechRate(speechRate/100F);
 		}
     }
 
-    void onEvent(SpeakSettingsChangedEvent ev) {
+	void onEvent(SpeakSettingsChangedEvent ev) {
 		setRate(ev.getSpeakSettings().getPlaybackSettings().getSpeed());
 	}
 
-    public CharSequence getStatusText() {
-    	return mSpeakTextProvider.getStatusText();
-    }
+	public CharSequence getStatusText() {
+		return mSpeakTextProvider.getStatusText();
+	}
 }

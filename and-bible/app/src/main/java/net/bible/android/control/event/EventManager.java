@@ -9,7 +9,7 @@ public interface EventManager {
 
 	void unregister(Object subscriber);
 
-    void unregisterAll();
+	void unregisterAll();
 
-    void post(Object event);
+	void post(Object event);
 }

@@ -394,13 +394,12 @@ public class BookmarkDBAdapter {
 	
 	private interface BookmarkQuery {
         String TABLE = Table.BOOKMARK;
-
-		String[] COLUMNS = new String[] {BookmarkColumn._ID, BookmarkColumn.KEY, BookmarkColumn.VERSIFICATION, BookmarkColumn.CREATED_ON, BookmarkColumn.PLAYBACK_SETTINGS};
+        String[] COLUMNS = new String[] {BookmarkColumn._ID, BookmarkColumn.KEY, BookmarkColumn.VERSIFICATION, BookmarkColumn.CREATED_ON, BookmarkColumn.PLAYBACK_SETTINGS};
 
         int ID = 0;
         int KEY = 1;
         int VERSIFICATION = 2;
-		int CREATED_ON = 3;
+        int CREATED_ON = 3;
         int PLAYBACK_SETTINGS = 4;
     }
 	private interface LabelQuery {

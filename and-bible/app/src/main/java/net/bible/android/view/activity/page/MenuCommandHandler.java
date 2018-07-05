@@ -117,8 +117,8 @@ public class MenuCommandHandler {
 				case R.id.speakButton:
 					boolean isBible = windowControl.getActiveWindowPageManager().getCurrentPage()
 							.getBookCategory().equals(BookCategory.BIBLE);
-		        	handlerIntent = new Intent(callingActivity, isBible ? BibleSpeakActivity.class : GeneralSpeakActivity.class);
-		        	break;
+					handlerIntent = new Intent(callingActivity, isBible ? BibleSpeakActivity.class : GeneralSpeakActivity.class);
+					break;
 		        case R.id.dailyReadingPlanButton:
 		        	// show todays plan or allow plan selection
 		        	if (readingPlanControl.isReadingPlanSelected()) {

@@ -60,9 +60,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	}
 
 	@Override
-	public void autoRewind() {
-
-	}
+	public void autoRewind() {}
 
 	private static class StartPos {
 		boolean found = false;
@@ -100,7 +98,6 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 			for (Key key : keyList) {
 				// intro
 				textToSpeak.add(key.getName()+". ");
-//				textToSpeak.add("\n");
 
 				// content
 				textToSpeak.add( swordContentFacade.getTextToSpeak(book, key));
@@ -462,9 +459,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	}
 
 	@Override
-	public void prepareForStartSpeaking() {
-
-	}
+	public void prepareForStartSpeaking() {}
 
 //	private List<String> nonREbreakUpText(String text) {
 //		List<String> chunks = new ArrayList<String>();

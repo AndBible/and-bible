@@ -28,11 +28,10 @@ import javax.inject.Inject
 
 
 abstract class AbstractSpeakWidget: AppWidgetProvider() {
-    @Inject
-    lateinit var speakControl: SpeakControl
+    @Inject lateinit var speakControl: SpeakControl
+    @Inject lateinit var bookmarkControl: BookmarkControl
     protected lateinit var currentTitle: String
-    @Inject
-    lateinit var bookmarkControl: BookmarkControl
+
     companion object {
         const val TAG = "SpeakWidget"
         val app = BibleApplication.getApplication()

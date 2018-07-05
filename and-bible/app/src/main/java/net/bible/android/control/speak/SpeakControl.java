@@ -247,7 +247,7 @@ public class SpeakControl {
 		if (isSpeaking() || isPaused()) {
 			Log.d(TAG, "Rewind TTS speaking");
 			textToSpeechServiceManager.get().rewind(amount);
-	    	Toast.makeText(BibleApplication.getApplication(), R.string.rewind, Toast.LENGTH_SHORT).show();
+			Toast.makeText(BibleApplication.getApplication(), R.string.rewind, Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -259,7 +259,7 @@ public class SpeakControl {
 		if (isSpeaking() || isPaused()) {
 			Log.d(TAG, "Forward TTS speaking");
 			textToSpeechServiceManager.get().forward(amount);
-	    	Toast.makeText(BibleApplication.getApplication(), R.string.forward, Toast.LENGTH_SHORT).show();
+			Toast.makeText(BibleApplication.getApplication(), R.string.forward, Toast.LENGTH_SHORT).show();
 		}
 	}
 
@@ -271,14 +271,13 @@ public class SpeakControl {
 		textToSpeechServiceManager.get().setupMockedTts();
 	}
 
-	// automated: pause & continue triggered due to settings change event
 	public void pause(boolean willContinueAfterThis) {
 		if(!willContinueAfterThis) {
 			stopTimer();
 		}
 		if (isSpeaking() || isPaused()) {
 			Log.d(TAG, "Pause TTS speaking");
-	    	TextToSpeechServiceManager tts = textToSpeechServiceManager.get();
+			TextToSpeechServiceManager tts = textToSpeechServiceManager.get();
 			tts.pause(willContinueAfterThis);
 			String pauseToastText = CommonUtils.getResourceString(R.string.pause);
 
@@ -312,15 +311,15 @@ public class SpeakControl {
 		Log.d(TAG, "Stop TTS speaking");
 		textToSpeechServiceManager.get().shutdown();
 		stopTimer();
-    	Toast.makeText(BibleApplication.getApplication(), R.string.stop, Toast.LENGTH_SHORT).show();
+		Toast.makeText(BibleApplication.getApplication(), R.string.stop, Toast.LENGTH_SHORT).show();
 	}
 
 	private void prepareForSpeaking() {
 		// ensure volume controls adjust correct stream - not phone which is the default
 		// STREAM_TTS does not seem to be available but this article says use STREAM_MUSIC instead:
 		// http://stackoverflow.com/questions/7558650/how-to-set-volume-for-text-to-speech-speak-method
-        Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
-        if(activity != null) {
+		Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
+		if(activity != null) {
 			activity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		}
 		enableSleepTimer(SpeakSettings.Companion.load().getSleepTimer());

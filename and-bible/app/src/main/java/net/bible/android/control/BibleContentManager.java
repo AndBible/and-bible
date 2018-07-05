@@ -44,15 +44,15 @@ public class BibleContentManager {
 		PassageChangeMediator.getInstance().setBibleContentManager(this);
 	}
 	
-    /* package */ void updateText(Window window) {
-    	updateText(false, window);
-    }
+	/* package */ void updateText(Window window) {
+		updateText(false, window);
+	}
     
-    /* package */ void updateText(boolean forceUpdate, Window window) {
-    	if(window == null) {
+	/* package */ void updateText(boolean forceUpdate, Window window) {
+		if(window == null) {
 			window = windowControl.getActiveWindow();
 		}
-    	CurrentPage currentPage = window.getPageManager().getCurrentPage();
+		CurrentPage currentPage = window.getPageManager().getCurrentPage();
 		Book document = currentPage.getCurrentDocument();
 		Key key = currentPage.getKey();
 

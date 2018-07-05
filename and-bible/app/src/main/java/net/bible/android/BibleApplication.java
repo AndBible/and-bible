@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.os.Build;
 import android.util.Log;
 
 import net.bible.android.control.ApplicationComponent;
@@ -101,10 +100,6 @@ public class BibleApplication extends Application{
 
 	public ApplicationComponent getApplicationComponent() {
 		return applicationComponent;
-	}
-
-	public void setApplicationComponent(ApplicationComponent component) {
-		this.applicationComponent = component;
 	}
 
 	public String getLocaleOverrideAtStartUp()
@@ -233,11 +228,9 @@ public class BibleApplication extends Application{
 	public void onTerminate() {
 		Log.i(TAG, "onTerminate");
 		// Stop TTS notification service
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-			Intent intent = new Intent(getApplicationContext(), TextToSpeechNotificationService.class);
-			intent.setAction(ACTION_STOP_SERVICE);
-			stopService(intent);
-		}
+		Intent intent = new Intent(getApplicationContext(), TextToSpeechNotificationService.class);
+		intent.setAction(ACTION_STOP_SERVICE);
+		stopService(intent);
 		super.onTerminate();
 	}
 	
@@ -253,8 +246,8 @@ public class BibleApplication extends Application{
 	public Resources getLocalizedResources(String language) {
 		BibleApplication app = getApplication();
 		Configuration oldConf = app.getResources().getConfiguration();
-        Configuration newConf = new Configuration(oldConf);
-        newConf.setLocale(new Locale(language));
-        return app.createConfigurationContext(newConf).getResources();
+		Configuration newConf = new Configuration(oldConf);
+		newConf.setLocale(new Locale(language));
+		return app.createConfigurationContext(newConf).getResources();
 	}
 }

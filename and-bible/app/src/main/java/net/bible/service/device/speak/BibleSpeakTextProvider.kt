@@ -61,7 +61,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             }
         }
 
-    private var lastTitle: Verse? = null
+    private var lastVerseWithTitle: Verse? = null
     private val utteranceState = HashMap<String, State>()
     private var currentUtteranceId = ""
     private val currentCommands = SpeakCommandArray()
@@ -336,7 +336,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private fun getNextVerse(verse: Verse): Verse = bibleTraverser.getNextVerse(book, verse)
 
     override fun rewind(amount: SpeakSettings.RewindAmount?) {
-        val lastTitle = this.lastTitle
+        val lastTitle = this.lastVerseWithTitle
         reset()
         val rewindAmount = amount?: SpeakSettings.RewindAmount.SMART
         when(rewindAmount) {
@@ -414,7 +414,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         if(state != null) {
             Log.d(TAG, "startUtterance $utteranceId $state")
             if(state.command is TextCommand && state.command.type == TextCommand.TextType.TITLE) {
-                lastTitle = state.startVerse
+                lastVerseWithTitle = state.startVerse
             }
             ABEventBus.getDefault().post(SpeakProgressEvent(state.book, state.startVerse, settings.synchronize, state.command!!))
         }
@@ -429,7 +429,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             endVerse = state.endVerse
             book = state.book
         }
-        lastTitle = null
+        lastVerseWithTitle = null
         endVerse = startVerse
         readList.clear()
         currentCommands.clear()

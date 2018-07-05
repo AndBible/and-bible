@@ -49,7 +49,7 @@ public class MyNoteEditTextView extends EditText implements DocumentView {
 		super.onAttachedToWindow();
 
 		// register for passage change events
-        ABEventBus.getDefault().register(this);
+		ABEventBus.getDefault().register(this);
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class MyNoteEditTextView extends EditText implements DocumentView {
 		super.onDetachedFromWindow();
 
 		// register for passage change events
-        ABEventBus.getDefault().unregister(this);
+		ABEventBus.getDefault().unregister(this);
 	}
 
     /** allow current page to save any settings or data before being changed
