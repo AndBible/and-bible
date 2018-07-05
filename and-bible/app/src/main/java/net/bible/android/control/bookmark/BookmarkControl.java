@@ -76,7 +76,7 @@ public class BookmarkControl {
 		}
 	}
 
-	public void updateBookmarkSettings(Key key, PlaybackSettings settings) {
+	private void updateBookmarkSettings(Key key, PlaybackSettings settings) {
 		Verse v = (Verse) key;
 		if(v.getVerse() == 0) {
 			v = new Verse(v.getVersification(), v.getBook(), v.getChapter(), 1);

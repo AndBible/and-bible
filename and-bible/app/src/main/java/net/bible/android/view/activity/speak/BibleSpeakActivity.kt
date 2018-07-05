@@ -49,7 +49,9 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 speedStatus.text = "$progress %"
-                updateSettings()
+                if(fromUser) {
+                    updateSettings()
+                }
             }
         })
 
@@ -58,7 +60,9 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
 
         bookmarkTag.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                updateSettings()
+                if(view != null) {
+                    updateSettings()
+                }
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
@@ -66,6 +70,11 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             }
         }
         resetView(SpeakSettings.load())
+    }
+
+    override fun onDestroy() {
+        EventBus.getDefault().unregister(this)
+        super.onDestroy()
     }
 
     override fun resetView(settings: SpeakSettings) {
@@ -119,7 +128,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
 
     fun onSettingsChange(widget: View) = updateSettings()
 
-    private fun updateSettings() {
+    fun updateSettings() {
         bookmarkTag.isEnabled = autoBookmark.isChecked
 
         val labelId = if (bookmarkTag.selectedItemPosition != INVALID_POSITION) {

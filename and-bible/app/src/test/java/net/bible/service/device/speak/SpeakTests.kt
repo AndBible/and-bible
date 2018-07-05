@@ -1,5 +1,6 @@
 package net.bible.service.device.speak
 
+import de.greenrobot.event.EventBus
 import kotlinx.android.synthetic.main.speak_bible.*
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.BuildConfig
@@ -10,6 +11,7 @@ import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.PlaybackSettings
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettings
+import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
@@ -37,6 +39,33 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
 
+
+@RunWith(RobolectricTestRunner::class)
+@Config(qualifiers="fi", constants = BuildConfig::class, application = TestBibleApplication::class)
+class SPTest {
+    lateinit var mainActivityController: ActivityController<MainBibleActivity>
+
+    @After
+    fun tearDown() {
+        DatabaseResetter.resetDatabase()
+    }
+
+    @Before
+    fun setup() {
+        mainActivityController = Robolectric.buildActivity(MainBibleActivity::class.java)
+        mainActivityController.create()
+    }
+
+    @Test fun test1()
+    {
+        EventBus.getDefault().post(SpeakSettingsChangedEvent(SpeakSettings.load()))
+    }
+    @Test fun test2()
+    {
+        EventBus.getDefault().post(SpeakSettingsChangedEvent(SpeakSettings.load()))
+    }
+}
+
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers="fi", constants = BuildConfig::class, application = TestBibleApplication::class)
 class SpeakIntegrationTests {
@@ -48,6 +77,11 @@ class SpeakIntegrationTests {
     lateinit var windowControl: WindowControl
     lateinit var mainActivityController: ActivityController<MainBibleActivity>
     lateinit var bibleSpeakActivityController: ActivityController<BibleSpeakActivity>
+
+	@After
+	fun tearDown() {
+        DatabaseResetter.resetDatabase()
+	}
 
     @Before
     fun setup() {
@@ -77,8 +111,10 @@ class SpeakIntegrationTests {
 
     @Test fun testSleeptimer() {
         speakControl.speakBible(book, getVerse("Rom.1.1"))
+        assertThat(bookmarkControl.getBookmarkByKey(getVerse("Rom.1.1")), nullValue())
         assertThat(speakControl.sleepTimerActive(), equalTo(false))
         setSleepTimer(5)
+        assertThat(bookmarkControl.getBookmarkByKey(getVerse("Rom.1.1")), notNullValue())
         assertThat(speakControl.sleepTimerActive(), equalTo(true))
         setSleepTimer(0)
         assertThat(speakControl.sleepTimerActive(), equalTo(false))
@@ -87,6 +123,7 @@ class SpeakIntegrationTests {
     fun changeSpeed(speed: Int) {
         val settingsActivity = bibleSpeakActivityController.visible().get()
         settingsActivity.speakSpeed.setProgress(speed)
+        settingsActivity.updateSettings()
     }
 
     fun setSleepTimer(time: Int) {
@@ -99,6 +136,7 @@ class SpeakIntegrationTests {
         speakControl.speakBible(book, getVerse("Rom.1.1"))
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.2
         speakControl.pause()
+        assertThat(bookmarkControl.getBookmarkByKey(getVerse("Rom.1.1")), nullValue())
         assertThat(bookmarkControl.getBookmarkByKey(getVerse("Rom.1.2")), notNullValue())
 
         speakControl.continueAfterPause()
@@ -125,8 +163,7 @@ class SpeakIntegrationTests {
 
 
         // Check that altering playback settigns are saved to bookmark when paused and we have moved away
-        windowControl.getWindowRepository().getFirstWindow().getPageManager()
-                .setCurrentDocumentAndKey(book, getVerse("Rom.2.1"))
+        windowControl.windowRepository.firstWindow.pageManager.setCurrentDocumentAndKey(book, getVerse("Rom.2.1"))
 
         changeSpeed(206)
         b = bookmarkControl.getBookmarkByKey((getVerse("Rom.1.4")))
@@ -146,8 +183,7 @@ class SpeakIntegrationTests {
         assertThat(b.playbackSettings.speed, equalTo(203))
 
         // Check that altering playback settigns are not saved to bookmark when stopped and we have moved away
-        windowControl.getWindowRepository().getFirstWindow().getPageManager()
-                .setCurrentDocumentAndKey(book, getVerse("Rom.2.1"))
+        windowControl.windowRepository.firstWindow.pageManager.setCurrentDocumentAndKey(book, getVerse("Rom.2.1"))
 
         changeSpeed(204)
         b = bookmarkControl.getBookmarkByKey((getVerse("Rom.1.5")))
@@ -169,7 +205,7 @@ open class AbstractSpeakTests {
 
 	@After
 	fun tearDown(){
-		DatabaseResetter.resetDatabase();
+		DatabaseResetter.resetDatabase()
 	}
     protected fun getVerse(verseStr: String): Verse {
         val verse = book.getKey(verseStr) as RangedPassage
@@ -433,6 +469,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         text = nextText()
         provider.pause();
         assertThat(bookmarkControl.allBookmarks.size, equalTo(0))
+        // stest
     }
 
     @Test
