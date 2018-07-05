@@ -39,33 +39,6 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
 
-
-@RunWith(RobolectricTestRunner::class)
-@Config(qualifiers="fi", constants = BuildConfig::class, application = TestBibleApplication::class)
-class SPTest {
-    lateinit var mainActivityController: ActivityController<MainBibleActivity>
-
-    @After
-    fun tearDown() {
-        DatabaseResetter.resetDatabase()
-    }
-
-    @Before
-    fun setup() {
-        mainActivityController = Robolectric.buildActivity(MainBibleActivity::class.java)
-        mainActivityController.create()
-    }
-
-    @Test fun test1()
-    {
-        ABEventBus.getDefault().post(SpeakSettingsChangedEvent(SpeakSettings.load()))
-    }
-    @Test fun test2()
-    {
-        ABEventBus.getDefault().post(SpeakSettingsChangedEvent(SpeakSettings.load()))
-    }
-}
-
 @RunWith(RobolectricTestRunner::class)
 @Config(qualifiers="fi", constants = BuildConfig::class, application = TestBibleApplication::class)
 class SpeakIntegrationTests {
@@ -81,6 +54,7 @@ class SpeakIntegrationTests {
 	@After
 	fun tearDown() {
         DatabaseResetter.resetDatabase()
+        ABEventBus.getDefault().unregisterAll();
 	}
 
     @Before
@@ -204,9 +178,11 @@ open class AbstractSpeakTests {
     }
 
 	@After
-	fun tearDown(){
-		DatabaseResetter.resetDatabase()
-	}
+	fun tearDown() {
+        DatabaseResetter.resetDatabase()
+        ABEventBus.getDefault().unregisterAll()
+    }
+
     protected fun getVerse(verseStr: String): Verse {
         val verse = book.getKey(verseStr) as RangedPassage
         return verse.getVerseAt(0)
@@ -469,7 +445,6 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         text = nextText()
         provider.pause();
         assertThat(bookmarkControl.allBookmarks.size, equalTo(0))
-        // stest
     }
 
     @Test

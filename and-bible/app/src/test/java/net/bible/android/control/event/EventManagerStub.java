@@ -26,6 +26,11 @@ public class EventManagerStub implements EventManager {
 	}
 
 	@Override
+	public void unregisterAll() {
+
+	}
+
+	@Override
 	public void post(Object event) {
 	}
 
