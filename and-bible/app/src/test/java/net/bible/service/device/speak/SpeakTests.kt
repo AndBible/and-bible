@@ -1,5 +1,6 @@
 package net.bible.service.device.speak
 
+import kotlinx.android.synthetic.main.speak_bible.*
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.BuildConfig
 import net.bible.android.common.resource.AndroidResourceProvider
@@ -7,8 +8,11 @@ import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.PlaybackSettings
+import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.control.versification.BibleTraverser
+import net.bible.android.view.activity.page.MainBibleActivity
+import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
@@ -29,9 +33,114 @@ import org.hamcrest.Matchers.*
 import org.hamcrest.MatcherAssert.*
 import org.junit.After
 import org.mockito.Mockito.mock
+import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.android.controller.ActivityController
 
-var idCount = 0;
+@RunWith(RobolectricTestRunner::class)
+@Config(qualifiers="fi", constants = BuildConfig::class, application = TestBibleApplication::class)
+class SpeakIntegrationTests {
+
+    lateinit var app: TestBibleApplication
+    lateinit var bookmarkControl: BookmarkControl
+    lateinit var speakControl: SpeakControl
+    lateinit var book: SwordBook
+    lateinit var windowControl: WindowControl
+    lateinit var mainActivityController: ActivityController<MainBibleActivity>
+    lateinit var bibleSpeakActivityController: ActivityController<BibleSpeakActivity>
+
+    @Before
+    fun setup() {
+        mainActivityController = Robolectric.buildActivity(MainBibleActivity::class.java)
+        bibleSpeakActivityController = Robolectric.buildActivity(BibleSpeakActivity::class.java)
+        app = TestBibleApplication.getApplication() as TestBibleApplication
+        val appComponent = app.applicationComponent
+        bookmarkControl = appComponent.bookmarkControl()
+        speakControl = appComponent.speakControl()
+        speakControl.setupMockedTts()
+        windowControl = appComponent.windowControl()
+        var labelDto = LabelDto()
+        labelDto.name = "tts"
+        labelDto = bookmarkControl.saveOrUpdateLabel(labelDto)
+        val s = SpeakSettings(autoBookmarkLabelId = labelDto.id, restoreSettingsFromBookmarks = true)
+        s.save()
+        book = Books.installed().getBook("FinRK") as SwordBook
+
+    }
+
+    fun getVerse(verseStr: String): Verse {
+        val verse = book.getKey(verseStr) as RangedPassage
+        return verse.getVerseAt(0)
+    }
+
+    fun changeSpeed(speed: Int) {
+        val settingsActivity = bibleSpeakActivityController.visible().get()
+        settingsActivity.speakSpeed.setProgress(speed)
+    }
+
+    @Test fun testAutobookmark() {
+        // needed as this listens to verse sync events and updates current verse
+        bibleSpeakActivityController.create()
+        mainActivityController.create()
+        speakControl.speakBible(book, getVerse("Rom.1.1")) // need to do twise due to TtsEngine failing in tests
+        speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.2
+        speakControl.pause()
+        assertThat(bookmarkControl.getBookmarkByKey(getVerse("Rom.1.2")), notNullValue())
+
+        speakControl.continueAfterPause()
+        speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.3
+        assertThat(bookmarkControl.getBookmarkByKey(getVerse("Rom.1.2")), notNullValue())
+        assertThat(bookmarkControl.getBookmarkByKey(getVerse("Rom.1.3")), nullValue())
+
+        // Check that altering playback settigns are saved also to bookmark (bookmark is also moved when saving)
+        changeSpeed(201)
+        assertThat(bookmarkControl.getBookmarkByKey(getVerse("Rom.1.2")), nullValue())
+        var b = bookmarkControl.getBookmarkByKey((getVerse("Rom.1.3")))
+        assertThat(b.playbackSettings.speed, equalTo(201))
+
+        // Test that bookmark is moved properly when paused / stopped
+        speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.4
+        speakControl.pause()
+        assertThat(bookmarkControl.getBookmarkByKey(getVerse("Rom.1.3")), nullValue())
+        assertThat(bookmarkControl.getBookmarkByKey(getVerse("Rom.1.4")), notNullValue())
+
+        // Check that altering playback settigns are saved to bookmark when paused
+        changeSpeed(202)
+        b = bookmarkControl.getBookmarkByKey((getVerse("Rom.1.4")))
+        assertThat(b.playbackSettings.speed, equalTo(202))
+
+
+        // Check that altering playback settigns are saved to bookmark when paused and we have moved away
+        windowControl.getWindowRepository().getFirstWindow().getPageManager()
+                .setCurrentDocumentAndKey(book, getVerse("Rom.2.1"))
+
+        changeSpeed(206)
+        b = bookmarkControl.getBookmarkByKey((getVerse("Rom.1.4")))
+        assertThat(b.playbackSettings.speed, equalTo(206))
+
+
+        // continue...
+        speakControl.continueAfterPause()
+        speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.5
+        speakControl.stop()
+        assertThat(bookmarkControl.getBookmarkByKey(getVerse("Rom.1.4")), nullValue())
+        assertThat(bookmarkControl.getBookmarkByKey(getVerse("Rom.1.5")), notNullValue())
+
+        // Check that altering playback settigns are saved to bookmark when stopped
+        changeSpeed(203)
+        b = bookmarkControl.getBookmarkByKey((getVerse("Rom.1.5")))
+        assertThat(b.playbackSettings.speed, equalTo(203))
+
+        // Check that altering playback settigns are not saved to bookmark when stopped and we have moved away
+        windowControl.getWindowRepository().getFirstWindow().getPageManager()
+                .setCurrentDocumentAndKey(book, getVerse("Rom.2.1"))
+
+        changeSpeed(204)
+        b = bookmarkControl.getBookmarkByKey((getVerse("Rom.1.5")))
+        assertThat(b.playbackSettings.speed, equalTo(203))
+    }
+}
+
 
 @Config(qualifiers="fi", constants = BuildConfig::class, application = TestBibleApplication::class)
 open class AbstractSpeakTests {
@@ -69,11 +178,15 @@ open class AbstractSpeakTests {
     }
 
     companion object {
+        var idCount = 0;
         val swordContentFacade = SwordContentFacade(BookmarkFormatSupport(), MyNoteFormatSupport())
-        val documentBibleBooksFactory = DocumentBibleBooksFactory();
-        val bibleTraverser = BibleTraverser(documentBibleBooksFactory);
-        val bookmarkControl = BookmarkControl(swordContentFacade, mock(WindowControl::class.java),
-                mock(AndroidResourceProvider::class.java));
+        val documentBibleBooksFactory = DocumentBibleBooksFactory()
+        val windowControl = mock(WindowControl::class.java)
+        val bibleTraverser = BibleTraverser(documentBibleBooksFactory)
+        val bookmarkControl = BookmarkControl(swordContentFacade, windowControl, mock(AndroidResourceProvider::class.java))
+        //val ttsManager = TextToSpeechServiceManager_Factory(SwordContentFacade_Factory(), bibleTraverser, windowControl, bookmarkControl)
+        //val activeWindowPageManagerProvider = mock(ActiveWindowPageManagerProvider::class.java)
+        //val speakControl = SpeakControl(TextToSpeechServiceManager_Factory(ttsManager), activeWindowPageManagerProvider)
     }
 }
 
@@ -327,7 +440,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(2))
         provider.pause()
         assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(2))
-        provider.prepareForContinue()
+        provider.prepareForStartSpeaking()
         text = nextText()
         text = nextText()
         text = nextText()
@@ -360,7 +473,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(2))
         provider.pause()
         assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(2))
-        provider.prepareForContinue()
+        provider.prepareForStartSpeaking()
         text = nextText()
         text = nextText()
         text = nextText()
@@ -390,7 +503,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         // test that it does not add another bookmark if there's already one with same key
         provider.pause();
         assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
-        provider.prepareForContinue()
+        provider.prepareForStartSpeaking()
         text = nextText()
         text = nextText()
         text = nextText()
@@ -416,7 +529,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         // test that it does not add another bookmark if there's already one with same key
         provider.pause();
         assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
-        provider.prepareForContinue()
+        provider.prepareForStartSpeaking()
         assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
     }
 
@@ -431,7 +544,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         assertThat(bookmark.verseRange.start.osisID, equalTo("Ps.14.2"))
         assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
         provider.setupReading(book, getVerse("Ps.14.2"))
-        provider.prepareForContinue()
+        provider.prepareForStartSpeaking()
         assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
     }
 }

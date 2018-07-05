@@ -1,9 +1,7 @@
 package net.bible.android.control.speak;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.media.AudioManager;
-import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -17,8 +15,6 @@ import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
-import net.bible.service.device.speak.BibleSpeakTextProvider;
-import net.bible.service.device.speak.TextToSpeechNotificationService;
 import net.bible.service.device.speak.TextToSpeechServiceManager;
 
 import org.crosswire.jsword.book.Book;
@@ -184,7 +180,7 @@ public class SpeakControl {
 			stop();
 		}
 
-		preSpeak();
+		prepareForSpeaking();
 
 		CurrentPage page = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
 		Book fromBook = page.getCurrentDocument();
@@ -212,7 +208,7 @@ public class SpeakControl {
 			stop();
 		}
 
-		preSpeak();
+		prepareForSpeaking();
 
 		try {
 			textToSpeechServiceManager.get().speakBible(book, verse);
@@ -235,7 +231,7 @@ public class SpeakControl {
 	}
 
 	public void speakKeyList(Book book, List<Key> keyList, boolean queue, boolean repeat) {
-		preSpeak();
+		prepareForSpeaking();
 
 		// speak current chapter or stop speech if already speaking
 		Log.d(TAG, "Tell TTS to speak");
@@ -270,15 +266,19 @@ public class SpeakControl {
 		pause(false);
 	}
 
+	public void setupMockedTts() {
+		textToSpeechServiceManager.get().setupMockedTts();
+	}
+
 	// automated: pause & continue triggered due to settings change event
-	public void pause(boolean automated) {
-		if(!automated) {
+	public void pause(boolean willContinueAfterThis) {
+		if(!willContinueAfterThis) {
 			sleepTimer.cancel();
 		}
 		if (isSpeaking() || isPaused()) {
 			Log.d(TAG, "Pause TTS speaking");
 	    	TextToSpeechServiceManager tts = textToSpeechServiceManager.get();
-			tts.pause();
+			tts.pause(willContinueAfterThis);
 			String pauseToastText = CommonUtils.getResourceString(R.string.pause);
 
 			long completedSeconds = tts.getPausedCompletedSeconds();
@@ -289,7 +289,7 @@ public class SpeakControl {
 				pauseToastText += "\n" + timeProgress;
 			}
 
-			if(!automated) {
+			if(!willContinueAfterThis) {
 				Toast.makeText(BibleApplication.getApplication(), pauseToastText, Toast.LENGTH_SHORT).show();
 			}
 		}
@@ -301,36 +301,28 @@ public class SpeakControl {
 
 	private void continueAfterPause(boolean automated) {
 		Log.d(TAG, "Continue TTS speaking after pause");
-		preSpeak(automated);
+		if(!automated) {
+			prepareForSpeaking();
+		}
 		textToSpeechServiceManager.get().continueAfterPause(automated);
 	}
 
 	public void stop() {
 		Log.d(TAG, "Stop TTS speaking");
-		doStop();
+		textToSpeechServiceManager.get().shutdown();
 		sleepTimer.cancel();
     	Toast.makeText(BibleApplication.getApplication(), R.string.stop, Toast.LENGTH_SHORT).show();
 	}
 
-	private void doStop() {
-		textToSpeechServiceManager.get().shutdown();
-	}
-
-	private void preSpeak() {
-		preSpeak(false);
-	}
-
-	// automated: pause & continue triggered due to settings change event
-	private void preSpeak(boolean automated) {
+	private void prepareForSpeaking() {
 		// ensure volume controls adjust correct stream - not phone which is the default
-		// STREAM_TTS does not seem to be available but this article says use STREAM_MUSIC instead: http://stackoverflow.com/questions/7558650/how-to-set-volume-for-text-to-speech-speak-method
+		// STREAM_TTS does not seem to be available but this article says use STREAM_MUSIC instead:
+		// http://stackoverflow.com/questions/7558650/how-to-set-volume-for-text-to-speech-speak-method
         Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
         if(activity != null) {
 			activity.setVolumeControlStream(AudioManager.STREAM_MUSIC);
 		}
-		if(!automated) {
-			enableSleepTimer(SpeakSettings.Companion.load().getSleepTimer());
-		}
+		enableSleepTimer(SpeakSettings.Companion.load().getSleepTimer());
 	}
 
 	public void onEvent(SpeakSettingsChangedEvent ev) {
@@ -344,7 +336,7 @@ public class SpeakControl {
         else if (isSpeaking()) {
         	pause(true);
         	if(ev.getSleepTimerChanged()){
-				continueAfterPause(false);
+				continueAfterPause();
 			}
 			else {
 				continueAfterPause(true);

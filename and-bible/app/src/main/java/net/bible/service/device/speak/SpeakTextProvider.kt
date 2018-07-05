@@ -20,7 +20,7 @@ interface SpeakTextProvider {
     fun persistState()
     fun restoreState(): Boolean
     fun clearPersistedState()
-    fun prepareForContinue()
+    fun prepareForStartSpeaking()
     fun savePosition(fractionCompleted: Float)
     fun autoRewind()
 }

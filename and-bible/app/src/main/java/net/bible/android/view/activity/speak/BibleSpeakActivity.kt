@@ -93,8 +93,8 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             val labelDto = bookmarkLabels.find { labelDto -> labelDto.id == settings.autoBookmarkLabelId }
             val itemId = bookmarkLabels.indexOf(labelDto)
 
-            bookmarkTag.setSelection(itemId)
             autoBookmark.isChecked = true
+            bookmarkTag.setSelection(itemId)
         }
         else {
             autoBookmark.isChecked = false

@@ -258,7 +258,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         bookmarkDto = null
     }
 
-    override fun prepareForContinue() {
+    override fun prepareForStartSpeaking() {
         readBookmark()
     }
 
@@ -274,8 +274,8 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 if(bookmarkDto.playbackSettings != null && settings.restoreSettingsFromBookmarks) {
                     settings.playbackSettings = bookmarkDto.playbackSettings
                     settings.save()
+                    Log.d("SpeakBookmark", "Loaded bookmark from $bookmarkDto ${settings.playbackSettings.speed}")
                 }
-                Log.d("SpeakBookmark", "Loaded bookmark from $bookmarkDto ${settings.playbackSettings.speed}")
                 this.bookmarkDto = bookmarkDto
             }
         }

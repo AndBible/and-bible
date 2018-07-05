@@ -103,6 +103,10 @@ public class BibleApplication extends Application{
 		return applicationComponent;
 	}
 
+	public void setApplicationComponent(ApplicationComponent component) {
+		this.applicationComponent = component;
+	}
+
 	public String getLocaleOverrideAtStartUp()
 	{
 		return localeOverrideAtStartup;

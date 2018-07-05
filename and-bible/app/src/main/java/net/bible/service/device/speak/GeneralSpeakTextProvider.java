@@ -462,7 +462,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	}
 
 	@Override
-	public void prepareForContinue() {
+	public void prepareForStartSpeaking() {
 
 	}
 
