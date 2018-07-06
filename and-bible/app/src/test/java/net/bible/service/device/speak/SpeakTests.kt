@@ -16,6 +16,7 @@ import net.bible.android.view.activity.speak.BibleSpeakActivity
 import net.bible.service.common.CommonUtils
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
+import net.bible.service.device.speak.AbstractSpeakTests.Companion.bookmarkControl
 import net.bible.service.format.usermarks.BookmarkFormatSupport
 import net.bible.service.format.usermarks.MyNoteFormatSupport
 import net.bible.service.sword.SwordContentFacade
@@ -37,40 +38,89 @@ import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
 
-@RunWith(RobolectricTestRunner::class)
-@Config(qualifiers="fi", constants = BuildConfig::class, application = TestBibleApplication::class)
-class SpeakIntegrationTests {
 
+@Config(qualifiers="fi", constants = BuildConfig::class, application = TestBibleApplication::class)
+open class SpeakIntegrationTestBase {
     lateinit var app: TestBibleApplication
     lateinit var bookmarkControl: BookmarkControl
     lateinit var speakControl: SpeakControl
     lateinit var book: SwordBook
     lateinit var windowControl: WindowControl
-    lateinit var mainActivityController: ActivityController<MainBibleActivity>
+
     lateinit var bibleSpeakActivityController: ActivityController<BibleSpeakActivity>
 
-	@After
-	fun tearDown() {
-        DatabaseResetter.resetDatabase()
-	}
-
     @Before
-    fun setup() {
-        mainActivityController = Robolectric.buildActivity(MainBibleActivity::class.java)
-        bibleSpeakActivityController = Robolectric.buildActivity(BibleSpeakActivity::class.java)
+    fun setUp() {
         app = TestBibleApplication.getApplication() as TestBibleApplication
         val appComponent = app.applicationComponent
         bookmarkControl = appComponent.bookmarkControl()
         speakControl = appComponent.speakControl()
         speakControl.setupMockedTts()
         windowControl = appComponent.windowControl()
+        book = Books.installed().getBook("FinRK") as SwordBook
+        bibleSpeakActivityController = Robolectric.buildActivity(BibleSpeakActivity::class.java)
+    }
+
+    @After
+    fun tearDown() {
+        DatabaseResetter.resetDatabase()
+    }
+
+}
+
+@RunWith(RobolectricTestRunner::class)
+class SpeakActivityTests: SpeakIntegrationTestBase() {
+
+    @Test fun testBookmarkTagSettingWhenNoLabels() {
+        var s = SpeakSettings(autoBookmarkLabelId = null)
+        s.save()
+
+        val settingsActivity = bibleSpeakActivityController.create().visible().get()
+
+        assertThat(settingsActivity.bookmarkTag.isEnabled, equalTo(false))
+        assertThat(settingsActivity.autoBookmark.isEnabled, equalTo(false))
+        s = SpeakSettings.load()
+        assertThat(s.autoBookmarkLabelId, nullValue())
+    }
+
+    @Test fun testSpeaActivityIsUpdatedWhenSettingsAreChanged() {
+        var s = SpeakSettings(synchronize = true)
+        s.save()
+        val settingsActivity = bibleSpeakActivityController.create().visible().get()
+        assertThat(settingsActivity.synchronize.isChecked, equalTo(true))
+        s = SpeakSettings(synchronize = false)
+        s.save()
+        assertThat(settingsActivity.synchronize.isChecked, equalTo(false))
+    }
+
+    @Test fun testSpeaActivityUpdatesSettings() {
+        var s = SpeakSettings(synchronize = true)
+        s.save()
+        val settingsActivity = bibleSpeakActivityController.create().visible().get()
+        assertThat(settingsActivity.synchronize.isChecked, equalTo(true))
+        settingsActivity.synchronize.performClick()
+
+        assertThat(settingsActivity.synchronize.isChecked, equalTo(false))
+        s = SpeakSettings.load()
+        assertThat(s.synchronize, equalTo(false))
+    }
+
+}
+
+@RunWith(RobolectricTestRunner::class)
+class SpeakIntegrationTests: SpeakIntegrationTestBase() {
+    lateinit var mainActivityController: ActivityController<MainBibleActivity>
+
+
+    @Before
+    fun setup() {
+        mainActivityController = Robolectric.buildActivity(MainBibleActivity::class.java)
         var labelDto = LabelDto()
         labelDto.name = "tts"
         labelDto = bookmarkControl.saveOrUpdateLabel(labelDto)
         val s = SpeakSettings(autoBookmarkLabelId = labelDto.id, restoreSettingsFromBookmarks = true)
         s.save()
 
-        book = Books.installed().getBook("FinRK") as SwordBook
         bibleSpeakActivityController.create()
         mainActivityController.create()
     }
@@ -78,6 +128,18 @@ class SpeakIntegrationTests {
     fun getVerse(verseStr: String): Verse {
         val verse = book.getKey(verseStr) as RangedPassage
         return verse.getVerseAt(0)
+    }
+
+
+    @Test fun testBookmarkTagSetting() {
+        var s = SpeakSettings(autoBookmarkLabelId = null)
+        s.save()
+        val settingsActivity = bibleSpeakActivityController.visible().get()
+        assertThat(settingsActivity.bookmarkTag.isEnabled, equalTo(false))
+        settingsActivity.autoBookmark.performClick()
+        assertThat(settingsActivity.bookmarkTag.isEnabled, equalTo(true))
+        s = SpeakSettings.load()
+        assertThat(s.autoBookmarkLabelId, equalTo(1L))
     }
 
     @Test fun testSleeptimer() {
@@ -206,9 +268,6 @@ open class AbstractSpeakTests {
         val windowControl = mock(WindowControl::class.java)
         val bibleTraverser = BibleTraverser(documentBibleBooksFactory)
         val bookmarkControl = BookmarkControl(swordContentFacade, windowControl, mock(AndroidResourceProvider::class.java))
-        //val ttsManager = TextToSpeechServiceManager_Factory(SwordContentFacade_Factory(), bibleTraverser, windowControl, bookmarkControl)
-        //val activeWindowPageManagerProvider = mock(ActiveWindowPageManagerProvider::class.java)
-        //val speakControl = SpeakControl(TextToSpeechServiceManager_Factory(ttsManager), activeWindowPageManagerProvider)
     }
 }
 

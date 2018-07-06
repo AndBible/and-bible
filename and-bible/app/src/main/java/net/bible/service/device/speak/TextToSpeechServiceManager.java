@@ -583,7 +583,7 @@ public class TextToSpeechServiceManager {
 		}
 	};
 
-	public void setRate(int speechRate) {
+	private void setRate(int speechRate) {
 		if(mTts != null) {
 			mTts.setSpeechRate(speechRate/100F);
 		}
