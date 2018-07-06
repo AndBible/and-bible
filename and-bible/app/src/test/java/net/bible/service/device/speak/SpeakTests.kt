@@ -33,6 +33,7 @@ import org.robolectric.annotation.Config
 import org.hamcrest.Matchers.*
 import org.hamcrest.MatcherAssert.*
 import org.junit.After
+import org.junit.Ignore
 import org.mockito.Mockito.mock
 import org.robolectric.Robolectric
 import org.robolectric.RobolectricTestRunner
@@ -353,8 +354,9 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         assertThat(cmds.size, equalTo( 4))
     }
 
+    @Ignore("This bible module is not yet released")
     @Test
-    fun testTitleSTLK() { // TOOD: this is not yet released bible!
+    fun testTitleSTLK() {
         book = Books.installed().getBook("STLK2017") as SwordBook
         val cmds = SpeakCommandArray()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
@@ -390,8 +392,9 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         assertThat(cmds.size, equalTo( 3))
     }
 
+    @Ignore("This bible module is not yet released")
     @Test
-    fun testParagraphChangeSTLK() { // TOOD: this is not yet released bible!
+    fun testParagraphChangeSTLK() {
         book = Books.installed().getBook("STLK2017") as SwordBook
         val cmds = SpeakCommandArray()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.25")))
@@ -402,8 +405,9 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         assertThat(cmds.size, equalTo( 3))
     }
 
+    @Ignore("This bible module is not yet released")
     @Test
-    fun testQuotationMarkAnomalySTLK() { // TOOD: this is not yet released bible!
+    fun testQuotationMarkAnomalySTLK() {
         book = Books.installed().getBook("STLK2017") as SwordBook
         provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl, book, getVerse("Ps.14.1"))
         provider.setupReading(book, getVerse("Exod.31.8"))
@@ -419,8 +423,9 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         assertThat(cmd2.text, endsWith("pyhitän teidät."))
     }
 
+    @Ignore("This bible module is not yet released")
     @Test
-    fun testDivinenameInTitle() { // TOOD: this is not yet released bible!
+    fun testDivinenameInTitle() {
         val s = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true,  speakTitles = true),replaceDivineName = true)
         book = Books.installed().getBook("STLK2017") as SwordBook
         val cmds = SpeakCommandArray()
@@ -432,8 +437,9 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         assertThat("Command is of correct type", cmds[3] is TextCommand)
     }
 
+    @Ignore("This bible module is not yet released")
     @Test
-    fun testDivinenameInText() { // TOOD: this is not yet released bible!
+    fun testDivinenameInText() {
         val s = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true,  speakTitles = true),replaceDivineName = true)
         book = Books.installed().getBook("STLK2017") as SwordBook
 
