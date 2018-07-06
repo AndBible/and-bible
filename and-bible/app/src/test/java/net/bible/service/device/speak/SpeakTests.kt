@@ -5,13 +5,11 @@ import net.bible.android.TestBibleApplication
 import net.bible.android.activity.BuildConfig
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
-import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
 import net.bible.android.control.page.window.WindowControl
 import net.bible.android.control.speak.PlaybackSettings
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettings
-import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.control.versification.BibleTraverser
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.android.view.activity.speak.BibleSpeakActivity
@@ -54,7 +52,6 @@ class SpeakIntegrationTests {
 	@After
 	fun tearDown() {
         DatabaseResetter.resetDatabase()
-        ABEventBus.getDefault().unregisterAll();
 	}
 
     @Before
@@ -177,10 +174,9 @@ open class AbstractSpeakTests {
         book = Books.installed().getBook("FinRK") as SwordBook
     }
 
-	@After
-	fun tearDown() {
+    @After
+    fun tearDown() {
         DatabaseResetter.resetDatabase()
-        ABEventBus.getDefault().unregisterAll()
     }
 
     protected fun getVerse(verseStr: String): Verse {

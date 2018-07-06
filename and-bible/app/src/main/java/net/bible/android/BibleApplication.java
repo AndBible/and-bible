@@ -11,6 +11,7 @@ import android.util.Log;
 
 import net.bible.android.control.ApplicationComponent;
 import net.bible.android.control.DaggerApplicationComponent;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.view.util.locale.LocaleHelper;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ProgressNotificationManager;
@@ -223,15 +224,18 @@ public class BibleApplication extends Application{
 //			return true;
 //		}
 //	}
-	
+
+	/**
+	 * This is never called in real system (only in tests). See parent documentation.
+	 */
 	@Override
 	public void onTerminate() {
 		Log.i(TAG, "onTerminate");
-		// Stop TTS notification service
 		Intent intent = new Intent(getApplicationContext(), TextToSpeechNotificationService.class);
 		intent.setAction(ACTION_STOP_SERVICE);
 		stopService(intent);
 		super.onTerminate();
+		ABEventBus.getDefault().unregisterAll();
 	}
 	
 	// difficult to show dialogs during Activity onCreate so save it until later
