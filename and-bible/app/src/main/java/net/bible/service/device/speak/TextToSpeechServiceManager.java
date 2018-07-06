@@ -282,11 +282,16 @@ public class TextToSpeechServiceManager {
 			mSpeakTextProvider.savePosition(mSpeakTiming.getFractionCompleted());
 			mSpeakTextProvider.pause();
 
-			if(!willContinueAfterThis) {
-				//kill the tts engine because it could be a long ime before restart and the engine may become corrupted or used elsewhere
+			if(willContinueAfterThis) {
+				clearTtsQueue();
+				mTts.stop();
+			}
+			else {
+				//kill the tts engine because it could be a long ime before restart and the engine may
+				// become corrupted or used elsewhere
 				shutdownTtsEngine();
 			}
-	        
+
 			fireStateChangeEvent();
 		}
 	}
@@ -307,7 +312,7 @@ public class TextToSpeechServiceManager {
 			isSpeaking = false;
 			shutdown();
 		}
-    	
+
 		// should be able to clear this because we are now speaking
 		isPaused = false;
 	}
@@ -578,15 +583,11 @@ public class TextToSpeechServiceManager {
 		}
 	};
 
-	private void setRate(int speechRate) {
+	public void setRate(int speechRate) {
 		if(mTts != null) {
 			mTts.setSpeechRate(speechRate/100F);
 		}
     }
-
-	void onEvent(SpeakSettingsChangedEvent ev) {
-		setRate(ev.getSpeakSettings().getPlaybackSettings().getSpeed());
-	}
 
 	public CharSequence getStatusText() {
 		return mSpeakTextProvider.getStatusText();

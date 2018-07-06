@@ -334,6 +334,7 @@ public class SpeakControl {
 			}
 		}
 		else if (isSpeaking()) {
+			textToSpeechServiceManager.get().setRate(ev.getSpeakSettings().getPlaybackSettings().getSpeed());
 			pause(true);
 			if(ev.getSleepTimerChanged()){
 				continueAfterPause();
