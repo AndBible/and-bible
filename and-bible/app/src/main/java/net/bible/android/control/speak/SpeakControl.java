@@ -118,7 +118,7 @@ public class SpeakControl {
 	
 	/** Toggle speech - prepare to speak single page OR if speaking then stop speaking
 	 */
-	public void speak() {
+	public void toggleSpeak() {
 		Log.d(TAG, "Speak toggle current page");
 
 		// Continue
@@ -338,11 +338,9 @@ public class SpeakControl {
 			textToSpeechServiceManager.get().setRate(ev.getSpeakSettings().getPlaybackSettings().getSpeed());
 			pause(true);
 			if(ev.getSleepTimerChanged()){
-				continueAfterPause();
+				enableSleepTimer(ev.getSpeakSettings().getSleepTimer());
 			}
-			else {
-				continueAfterPause(true);
-			}
+			continueAfterPause(true);
 		}
 	}
 
@@ -360,7 +358,7 @@ public class SpeakControl {
 			timerTask = new TimerTask() {
 				@Override
 				public void run() {
-					pause(true);
+					pause();
 				}
 			};
 			sleepTimer.schedule(timerTask, sleepTimerAmount * 60000);
@@ -378,23 +376,5 @@ public class SpeakControl {
 
 	public boolean sleepTimerActive() {
 		return timerTask != null;
-	}
-
-	public void toggleSleepTimer() {
-		SpeakSettings settings = SpeakSettings.Companion.load();
-		if(settings.getSleepTimer() > 0) {
-			settings.setSleepTimer(0);
-			if(isSpeaking()) {
-				stopTimer();
-			}
-			settings.save();
-		}
-		else {
-			settings.setSleepTimer(settings.getLastSleepTimer());
-			if(isSpeaking()) {
-				enableSleepTimer(settings.getSleepTimer());
-			}
-			settings.save();
-		}
 	}
 }

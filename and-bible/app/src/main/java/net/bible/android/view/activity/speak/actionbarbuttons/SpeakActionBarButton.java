@@ -35,7 +35,7 @@ public class SpeakActionBarButton extends SpeakActionBarButtonBase {
 	@Override
 	public boolean onMenuItemClick(MenuItem menuItem) {
 		try {
-			getSpeakControl().speak();
+			getSpeakControl().toggleSpeak();
 			
 			update(menuItem);
 		} catch (Exception e) {

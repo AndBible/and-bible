@@ -168,24 +168,25 @@ abstract class AbstractButtonSpeakWidget: AbstractSpeakWidget() {
         super.onReceive(context, intent)
         Log.d(TAG, "onReceive" + context + intent?.action)
         when(intent?.action) {
-            ACTION_SPEAK -> {
-                if(speakControl.isPaused) {
-                    speakControl.continueAfterPause()
-                }
-                else if (!speakControl.isSpeaking) {
-                    speakControl.speak()
-                }
-                else {
-                    speakControl.pause()
-                }
-            }
+            ACTION_SPEAK -> speakControl.toggleSpeak()
             ACTION_REWIND -> speakControl.rewind()
             ACTION_FAST_FORWARD -> speakControl.forward()
             ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
             ACTION_PREV -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
-            ACTION_SLEEP_TIMER -> speakControl.toggleSleepTimer()
+            ACTION_SLEEP_TIMER -> toggleSleepTimer()
             ACTION_STOP -> speakControl.stop()
         }
+    }
+
+    private fun toggleSleepTimer() {
+        val settings = SpeakSettings.load();
+        if(settings.sleepTimer > 0) {
+            settings.sleepTimer = 0
+        }
+        else {
+            settings.sleepTimer = settings.lastSleepTimer
+        }
+        settings.save();
     }
 
     private fun updateSleepTimerButtonIcon(settings: SpeakSettings) {
