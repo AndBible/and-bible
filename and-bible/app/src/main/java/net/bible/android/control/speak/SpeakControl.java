@@ -327,7 +327,7 @@ public class SpeakControl {
 	}
 
 	public void onEvent(SpeakSettingsChangedEvent ev) {
-
+		textToSpeechServiceManager.get().updateSettings(ev);
 		if(!isPaused() && !isSpeaking()) {
 		    // if playback is stopped, we want to update bookmark of the verse that we are currently reading (if any)
 		    if(ev.getUpdateBookmark()) {
@@ -335,7 +335,6 @@ public class SpeakControl {
 			}
 		}
 		else if (isSpeaking()) {
-			textToSpeechServiceManager.get().setRate(ev.getSpeakSettings().getPlaybackSettings().getSpeed());
 			pause(true);
 			if(ev.getSleepTimerChanged()){
 				enableSleepTimer(ev.getSpeakSettings().getSleepTimer());

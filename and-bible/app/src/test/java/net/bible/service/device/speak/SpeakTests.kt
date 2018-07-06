@@ -434,8 +434,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         label.name = "tts";
 		label = bookmarkControl.saveOrUpdateLabel(label)
 
-        val settings = SpeakSettings(autoBookmarkLabelId = label.id)
-        settings.save()
+        provider.settings = SpeakSettings(autoBookmarkLabelId = label.id)
     }
 
     @Test
@@ -479,8 +478,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
 
     @Test
     fun autoBookmarkOnPauseAddLabelAndSettings() {
-        val settings = SpeakSettings(restoreSettingsFromBookmarks = true, autoBookmarkLabelId = SpeakSettings.load().autoBookmarkLabelId)
-        settings.save()
+        provider.settings = SpeakSettings(restoreSettingsFromBookmarks = true, autoBookmarkLabelId = provider.settings.autoBookmarkLabelId)
         var dto = BookmarkDto()
         val verse = getVerse("Ps.14.1")
         dto.verseRange = VerseRange(verse.versification, verse)
@@ -514,8 +512,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
 
     @Test
     fun autoBookmarkOnPauseCreateNewSaveSettings() {
-        val settings = SpeakSettings(restoreSettingsFromBookmarks = true, autoBookmarkLabelId = SpeakSettings.load().autoBookmarkLabelId)
-        settings.save()
+        provider.settings = SpeakSettings(restoreSettingsFromBookmarks = true, autoBookmarkLabelId = provider.settings.autoBookmarkLabelId)
         provider.setupReading(book, getVerse("Ps.14.1"))
         text = nextText()
         provider.pause();
@@ -818,20 +815,17 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
 
     @Test
     fun autorewind() {
-        var settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), autoRewindAmount = SpeakSettings.RewindAmount.ONE_VERSE)
-        settings.save()
+        provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), autoRewindAmount = SpeakSettings.RewindAmount.ONE_VERSE)
         provider.setupReading(book, getVerse("Rom.5.11"))
         provider.autoRewind()
         assertThat(range(), equalTo("Rom.5.10"))
 
-        settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), autoRewindAmount = SpeakSettings.RewindAmount.TEN_VERSES)
-        settings.save()
+        provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), autoRewindAmount = SpeakSettings.RewindAmount.TEN_VERSES)
         provider.setupReading(book, getVerse("Rom.5.12"))
         provider.autoRewind()
         assertThat(range(), equalTo("Rom.5.2"))
 
-        settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), autoRewindAmount = SpeakSettings.RewindAmount.SMART)
-        settings.save()
+        provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), autoRewindAmount = SpeakSettings.RewindAmount.SMART)
         provider.setupReading(book, getVerse("Rom.5.12"))
         provider.autoRewind()
         assertThat(range(), equalTo("Rom.5.1"))

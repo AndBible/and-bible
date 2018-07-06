@@ -592,4 +592,10 @@ public class TextToSpeechServiceManager {
 	public CharSequence getStatusText() {
 		return mSpeakTextProvider.getStatusText();
 	}
+
+	public void updateSettings(SpeakSettingsChangedEvent ev) {
+		mSpeakTextProvider.updateSettings(ev);
+		setRate(ev.getSpeakSettings().getPlaybackSettings().getSpeed());
+
+	}
 }

@@ -77,7 +77,6 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         }
 
     init {
-        ABEventBus.getDefault().register(this)
         book = initialBook
         setupBook(initialBook)
         startVerse = initialVerse
@@ -92,14 +91,14 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         settings = SpeakSettings.load()
     }
 
-    fun onEvent(ev: SpeakSettingsChangedEvent) {
-        this.settings = ev.speakSettings
-        Log.d(TAG, "SpeakSettings updated: $ev")
+    override fun updateSettings(speakSettingsChangedEvent: SpeakSettingsChangedEvent) {
+        this.settings = speakSettingsChangedEvent.speakSettings
+        Log.d(TAG, "SpeakSettings updated: $speakSettingsChangedEvent")
         val bookmarkDto = bookmarkDto
-        if(ev.updateBookmark && bookmarkDto != null) {
+        if(speakSettingsChangedEvent.updateBookmark && bookmarkDto != null) {
             // If playback is paused or we are speaking, we need to update bookmark that is upon startVerse
             // (of which we will continue playback if unpaused)
-            bookmarkDto.playbackSettings = ev.speakSettings.playbackSettings
+            bookmarkDto.playbackSettings = speakSettingsChangedEvent.speakSettings.playbackSettings
             this.bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto)
         }
     }

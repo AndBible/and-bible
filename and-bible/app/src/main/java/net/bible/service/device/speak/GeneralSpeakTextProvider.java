@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import net.bible.android.control.speak.SpeakSettings;
+import net.bible.android.control.speak.SpeakSettingsChangedEvent;
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
 
@@ -61,6 +62,11 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 
 	@Override
 	public void autoRewind() {}
+
+	@Override
+	public void updateSettings(@NotNull SpeakSettingsChangedEvent speakSettingsChangedEvent) {
+
+	}
 
 	private static class StartPos {
 		boolean found = false;

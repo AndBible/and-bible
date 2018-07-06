@@ -1,6 +1,7 @@
 package net.bible.service.device.speak
 
 import net.bible.android.control.speak.SpeakSettings
+import net.bible.android.control.speak.SpeakSettingsChangedEvent
 
 interface SpeakTextProvider {
     val numItemsToTts: Int
@@ -23,4 +24,5 @@ interface SpeakTextProvider {
     fun prepareForStartSpeaking()
     fun savePosition(fractionCompleted: Float)
     fun autoRewind()
+    fun updateSettings(speakSettingsChangedEvent: SpeakSettingsChangedEvent) {}
 }
