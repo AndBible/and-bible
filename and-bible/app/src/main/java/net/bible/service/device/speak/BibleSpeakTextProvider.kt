@@ -62,6 +62,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         }
 
     private var lastVerseWithTitle: Verse? = null
+    private var lastVerseAutorewinded: Verse? = null
     private val utteranceState = HashMap<String, State>()
     private var currentUtteranceId = ""
     private val currentCommands = SpeakCommandArray()
@@ -124,6 +125,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     fun setupReading(book: SwordBook, verse: Verse) {
         reset()
         setupBook(book)
+        lastVerseAutorewinded = null
         currentVerse = verse
         startVerse = verse
         endVerse = verse
@@ -379,7 +381,10 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun autoRewind() {
-        rewind(settings.autoRewindAmount)
+        if(lastVerseAutorewinded?.equals(startVerse) != true) {
+            rewind(settings.autoRewindAmount)
+            lastVerseAutorewinded = startVerse
+        }
     }
 
     override fun forward(amount: SpeakSettings.RewindAmount?) {

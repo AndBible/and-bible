@@ -835,6 +835,12 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         provider.setupReading(book, getVerse("Rom.5.12"))
         provider.autoRewind()
         assertThat(range(), equalTo("Rom.5.1"))
+
+        // two or more autorewinds should not rewind any more
+        provider.setupReading(book, getVerse("Rom.5.12"))
+        provider.autoRewind()
+        provider.autoRewind()
+        assertThat(range(), equalTo("Rom.5.1"))
     }
 
     @Test
