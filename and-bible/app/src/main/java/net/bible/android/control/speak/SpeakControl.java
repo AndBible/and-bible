@@ -118,17 +118,18 @@ public class SpeakControl {
 	
 	/** Toggle speech - prepare to speak single page OR if speaking then stop speaking
 	 */
-	public void speakToggleCurrentPage() {
+	public void speak() {
 		Log.d(TAG, "Speak toggle current page");
 
 		// Continue
 		if (isPaused()) {
 			continueAfterPause();
-        //Pause
+		//Pause
 		} else if (isSpeaking()) {
 			pause();
-        // Start Speak
-		} else {
+		// Start Speak
+		} else
+		{
 			try {
 				CurrentPage page = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
 				Book fromBook = page.getCurrentDocument();
@@ -137,11 +138,7 @@ public class SpeakControl {
 					speakBible();
 				}
 				else {
-					// first find keys to Speak
-					List<Key> keyList = new ArrayList<>();
-					keyList.add(page.getKey());
-
-					speakKeyList(fromBook, keyList, true, false);
+					speakText();
 				}
 
 			} catch (Exception e) {
@@ -173,7 +170,11 @@ public class SpeakControl {
 
 	/** prepare to speak
 	 */
-	public void speakText(NumPagesToSpeakDefinition numPagesDefn, boolean queue, boolean repeat) {
+	public void speakText() {
+		SpeakSettings s = SpeakSettings.Companion.load();
+		NumPagesToSpeakDefinition numPagesDefn = calculateNumPagesToSpeakDefinitions()[s.getNumPagesToSpeakId()];
+
+		//, boolean queue, boolean repeat
 		Log.d(TAG, "Chapters:"+numPagesDefn.getNumPages());
 		// if a previous speak request is paused clear the cached text
 		if (isPaused()) {
@@ -196,7 +197,7 @@ public class SpeakControl {
 				}
 			}
 
-			textToSpeechServiceManager.get().speakText(fromBook, keyList, queue, repeat);
+			textToSpeechServiceManager.get().speakText(fromBook, keyList, s.getQueue(), s.getRepeat());
 		} catch (Exception e) {
 			Log.e(TAG, "Error getting chapters to speak", e);
 			throw new AndRuntimeException("Error preparing Speech", e);

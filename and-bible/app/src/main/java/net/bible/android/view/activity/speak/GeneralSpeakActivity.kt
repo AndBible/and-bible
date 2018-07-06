@@ -21,8 +21,7 @@ import javax.inject.Inject
  * The copyright to this program is held by it's author.
  */
 class GeneralSpeakActivity : AbstractSpeakActivity() {
-   private lateinit var numPagesToSpeakDefinitions: Array<NumPagesToSpeakDefinition>
-
+    private lateinit var numPagesToSpeakDefinitions: Array<NumPagesToSpeakDefinition>
     private lateinit var speakControl: SpeakControl
 
     /** Called when the activity is first created.  */
@@ -39,13 +38,19 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
 
         // set a suitable prompt for the different numbers of chapters
         numPagesToSpeakDefinitions.forEach {
-            val numChaptersCheckBox = findViewById(it.radioButtonId) as RadioButton
+            val numChaptersCheckBox = findViewById<RadioButton>(it.radioButtonId)
             numChaptersCheckBox.text = it.getPrompt()
         }
 
         // set defaults for Queue and Repeat
-        queue.isChecked = true
-        repeat.isChecked = false
+        when(currentSettings.numPagesToSpeakId) {
+            0 -> numChapters1.isChecked = true
+            1 -> numChapters2.isChecked = true
+            2 -> numChapters3.isChecked = true
+            3 -> numChapters4.isChecked = true
+        }
+        queue.isChecked = currentSettings.queue
+        repeat.isChecked = currentSettings.repeat
         speakSpeed.progress = currentSettings.playbackSettings.speed
         speedStatus.text = "${currentSettings.playbackSettings.speed} %"
         speakSpeed.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
@@ -61,6 +66,13 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
         Log.d(TAG, "Finished displaying Speak view")
     }
 
+    fun updateSettings(b: View) {
+        currentSettings.queue = queue.isChecked
+        currentSettings.repeat = repeat.isChecked
+        currentSettings.numPagesToSpeakId = if(numChapters1.isChecked) 0 else if (numChapters2.isChecked) 1 else if(numChapters3.isChecked) 2 else 3
+        currentSettings.save()
+    }
+
     fun onButtonClick(button: View) {
         try {
             when (button) {
@@ -71,7 +83,7 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
                     if (speakControl.isPaused) {
                         speakControl.continueAfterPause()
                     } else {
-                        speakControl.speakText(selectedNumPagesToSpeak(), queue.isChecked, repeat.isChecked);
+                        speakControl.speakText()
                     }
                 forwardButton -> speakControl.forward()
             }
@@ -79,8 +91,6 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
             Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
         }
     }
-
-    fun selectedNumPagesToSpeak() = numPagesToSpeakDefinitions.first { numChapters.checkedRadioButtonId == it.radioButtonId }
 
     @Inject
     internal fun setSpeakControl(speakControl: SpeakControl) {

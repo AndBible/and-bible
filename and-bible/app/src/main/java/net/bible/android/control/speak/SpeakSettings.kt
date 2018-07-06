@@ -47,7 +47,11 @@ data class SpeakSettings(@Optional val synchronize: Boolean = true,
                          @Optional val restoreSettingsFromBookmarks: Boolean = false,
                          @Optional var playbackSettings: PlaybackSettings = PlaybackSettings(),
                          @Optional var sleepTimer: Int = 0,
-                         @Optional var lastSleepTimer: Int = 10
+                         @Optional var lastSleepTimer: Int = 10,
+                         // General book speak settings
+                         @Optional var queue: Boolean = true,
+                         @Optional var repeat: Boolean = false,
+                         @Optional var numPagesToSpeakId: Int = 0
                          ) {
     enum class RewindAmount {NONE, ONE_VERSE, TEN_VERSES, SMART}
 

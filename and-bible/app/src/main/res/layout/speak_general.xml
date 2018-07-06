@@ -22,19 +22,23 @@
 			android:layout_width="0dip" 
 			android:layout_weight="1"
 			android:padding="5dip">
-			<RadioButton android:id="@+id/numChapters1" 
-				android:layout_width="wrap_content" 
-				android:layout_height="wrap_content"
-				android:checked="true"/>
-			<RadioButton android:id="@+id/numChapters2" 
-				android:layout_width="wrap_content" 
-				android:layout_height="wrap_content"/>
-			<RadioButton android:id="@+id/numChapters3" 
-				android:layout_width="wrap_content" 
-				android:layout_height="wrap_content"/>
-			<RadioButton android:id="@+id/numChapters4" 
-				android:layout_width="wrap_content" 
-				android:layout_height="wrap_content"/>
+			<RadioButton android:id="@+id/numChapters1"
+						 android:onClick="updateSettings"
+						 android:layout_width="wrap_content"
+						 android:layout_height="wrap_content"
+						 android:checked="true"/>
+			<RadioButton android:id="@+id/numChapters2"
+						 android:onClick="updateSettings"
+						 android:layout_width="wrap_content"
+						 android:layout_height="wrap_content"/>
+			<RadioButton android:id="@+id/numChapters3"
+						 android:onClick="updateSettings"
+						 android:layout_width="wrap_content"
+						 android:layout_height="wrap_content"/>
+			<RadioButton android:id="@+id/numChapters4"
+						 android:onClick="updateSettings"
+						 android:layout_width="wrap_content"
+						 android:layout_height="wrap_content"/>
 		</RadioGroup>
 		
 		<LinearLayout android:id="@+id/rightPanel"
@@ -46,11 +50,15 @@
 		    <CheckBox android:id="@+id/queue"
 		    	android:text="@string/speak_queue"  
 		    	android:layout_width="wrap_content" 
-		    	android:layout_height="wrap_content"/>
+		    	android:layout_height="wrap_content"
+		    	android:onClick="updateSettings"
+		    	/>
 		    <CheckBox android:id="@+id/repeat"
 		    	android:text="@string/speak_repeat"  
 		    	android:layout_width="wrap_content" 
-		    	android:layout_height="wrap_content"/>
+		    	android:layout_height="wrap_content"
+		    	android:onClick="updateSettings"
+		    	/>
 		</LinearLayout>
 	</LinearLayout>
 	<LinearLayout
