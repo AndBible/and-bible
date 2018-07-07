@@ -246,16 +246,24 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     override fun pause() {
         reset()
         currentVerse = startVerse
+        updateBookmark()
+    }
+
+    private fun updateBookmark() {
+        val bookmarkStart = bookmarkDto?.verseRange?.start
+        if(bookmarkStart != null && startVerse.ordinal < bookmarkStart.ordinal) {
+            return
+        }
         removeBookmark()
         saveBookmark()
     }
+
 
     override fun savePosition(fractionCompleted: Float) {}
 
     override fun stop() {
         reset()
-        removeBookmark()
-        saveBookmark()
+        updateBookmark()
         bookmarkDto = null
     }
 
