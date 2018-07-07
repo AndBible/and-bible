@@ -106,7 +106,6 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
         if(element is TextCommand) {
             if(element.text.isEmpty())
                 return false
-
             if(lastCommand is TextCommand) {
                 val newText = "${lastCommand.text} ${element.text}"
                 if (newText.length > maxLength)
@@ -116,13 +115,11 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
                     return true
                 }
             }
+            else if(lastCommand is PreTitleCommand) {
+                return super.add(TextCommand(element.text, TextCommand.TextType.TITLE))
+            }
             else {
-                if(!element.text.isEmpty()) {
-                    return super.add(element)
-                }
-                else {
-                    return false;
-                }
+                return super.add(element)
             }
         }
         else if(element is SilenceCommand && lastCommand is SilenceCommand) {

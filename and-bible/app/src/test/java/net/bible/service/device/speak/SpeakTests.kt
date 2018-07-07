@@ -356,6 +356,20 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
 
     @Ignore("This bible module is not yet released")
     @Test
+    fun testTitle2STLK() {
+        book = Books.installed().getBook("STLK2017") as SwordBook
+        val cmds = SpeakCommandArray()
+        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Jer.11.1")))
+        assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
+        assertThat("Command is of correct type", cmds[1] is TextCommand)
+        assertThat((cmds[1] as TextCommand).type, equalTo(TextCommand.TextType.TITLE))
+        assertThat("Command is of correct type", cmds[2] is SilenceCommand)
+        assertThat("Command is of correct type", cmds[3] is TextCommand)
+        assertThat(cmds.size, equalTo( 4))
+    }
+
+    @Ignore("This bible module is not yet released")
+    @Test
     fun testTitleSTLK() {
         book = Books.installed().getBook("STLK2017") as SwordBook
         val cmds = SpeakCommandArray()
