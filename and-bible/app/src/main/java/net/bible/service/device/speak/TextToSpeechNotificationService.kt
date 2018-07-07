@@ -57,12 +57,15 @@ class TextToSpeechNotificationService: Service() {
         get() = generateAction(android.R.drawable.ic_media_play, getString(R.string.speak), ACTION_PLAY)
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        Log.d(TAG, "onStartComand $intent $flags $startId")
         if(! ::speakControl.isInitialized) {
             initialize()
         }
 
         when(intent?.action) {
-            ACTION_START_SERVICE -> {}
+            // When launching application, there we are always in stopped mode. If application is terminated while on pause,
+            // app is restarted automatically and service is started, bringing the app with wrong notification.
+            ACTION_START_SERVICE -> shutdown()
             ACTION_STOP_SERVICE -> shutdown()
             ACTION_PLAY -> speakControl.continueAfterPause()
             ACTION_PAUSE -> speakControl.pause()
@@ -116,6 +119,7 @@ class TextToSpeechNotificationService: Service() {
         currentTitle = getString(R.string.app_name)
         currentText = ""
         Log.d(TAG, "Shutdown")
+        Log.d(TAG, "Stop foreground (shutdown)")
         stopForeground(true)
         if(wakeLock.isHeld) {
             wakeLock.release()
@@ -175,6 +179,7 @@ class TextToSpeechNotificationService: Service() {
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     private fun buildNotification(action: Notification.Action, foreground: Boolean = false) {
+        Log.d(TAG, "buildNotification: $action, $foreground")
         val style = Notification.MediaStyle()
 
         val deleteIntent = Intent(applicationContext, this.javaClass)
