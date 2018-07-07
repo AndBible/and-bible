@@ -12,10 +12,8 @@ const val TAG = "SpeakSettings"
 
 @Serializable
 data class PlaybackSettings (
-                         @Optional val speakBookChanges: Boolean = true,
                          @Optional val speakChapterChanges: Boolean = true,
                          @Optional val speakTitles: Boolean = true,
-                         @Optional val playEarconBook: Boolean = true,
                          @Optional val playEarconChapter: Boolean = false,
                          @Optional val playEarconTitles: Boolean = true,
                          @Optional var speed: Int = 100

@@ -146,13 +146,9 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         val bookName = bibleBooks[verse.book.osis]
 
         if(prevVerse.book != verse.book) {
-            if(settings.playbackSettings.playEarconBook) {
-                cmds.add(PreBookChangeCommand(settings))
-            }
-            if(settings.playbackSettings.speakBookChanges) {
-                cmds.add(TextCommand("${res.getString(R.string.speak_book_changed)} $bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
-                cmds.add(SilenceCommand())
-            }
+            cmds.add(PreBookChangeCommand())
+            cmds.add(TextCommand("${res.getString(R.string.speak_book_changed)} $bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
+            cmds.add(SilenceCommand())
         }
         else if(prevVerse.chapter != verse.chapter) {
             if(settings.playbackSettings.playEarconChapter) {

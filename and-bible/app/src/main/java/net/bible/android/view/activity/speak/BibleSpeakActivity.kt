@@ -80,11 +80,9 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     override fun resetView(settings: SpeakSettings) {
         statusText.text = speakControl.getStatusText()
         synchronize.isChecked = settings.synchronize
-        speakBookChanges.isChecked = settings.playbackSettings.speakBookChanges
         speakChapterChanges.isChecked = settings.playbackSettings.speakChapterChanges
         speakTitles.isChecked = settings.playbackSettings.speakTitles
 
-        playEarconBook.isChecked = settings.playbackSettings.playEarconBook
         playEarconChapter.isChecked = settings.playbackSettings.playEarconChapter
         playEarconTitles.isChecked = settings.playbackSettings.playEarconTitles
 
@@ -138,10 +136,8 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         val settings = SpeakSettings(
                 synchronize = synchronize.isChecked,
                 playbackSettings = PlaybackSettings(
-                        speakBookChanges = speakBookChanges.isChecked,
                         speakChapterChanges = speakChapterChanges.isChecked,
                         speakTitles = speakTitles.isChecked,
-                        playEarconBook = playEarconBook.isChecked,
                         playEarconChapter = playEarconChapter.isChecked,
                         playEarconTitles = playEarconTitles.isChecked,
                         speed = speakSpeed.progress

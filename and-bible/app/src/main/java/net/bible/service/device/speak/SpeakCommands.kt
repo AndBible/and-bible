@@ -40,7 +40,7 @@ abstract class EarconCommand(val earcon: String, val enabled: Boolean): SpeakCom
     }
 }
 
-class PreBookChangeCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_BOOK_CHANGE, speakSettings.playbackSettings.playEarconBook)
+class PreBookChangeCommand: EarconCommand(TextToSpeechServiceManager.EARCON_PRE_BOOK_CHANGE, true)
 class PreChapterChangeCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_CHAPTER_CHANGE, speakSettings.playbackSettings.playEarconChapter)
 class PreTitleCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_TITLE, speakSettings.playbackSettings.playEarconTitles)
 

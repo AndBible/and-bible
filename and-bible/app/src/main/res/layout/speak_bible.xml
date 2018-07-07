@@ -57,14 +57,6 @@
                             android:layout_height="wrap_content">
 
                         <CheckBox
-                                android:text="@string/conf_change_book"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:id="@+id/speakBookChanges"
-                                android:onClick="onSettingsChange"/>
-
-                        <CheckBox
                                 android:text="@string/conf_change_chapter"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -98,14 +90,6 @@
                             android:layout_width="match_parent"
                             android:padding="@dimen/speak_row_padding"
                             android:layout_height="wrap_content">
-
-                        <CheckBox
-                                android:text="@string/conf_change_book"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:id="@+id/playEarconBook"
-                                android:onClick="onSettingsChange"/>
 
                         <CheckBox
                                 android:text="@string/conf_change_chapter"
