@@ -380,6 +380,10 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun autoRewind() {
+        if(startVerse.verse == 1 && startVerse.chapter == 1) {
+            // We do not want to auto-rewind over the book boundaries
+            return
+        }
         if(lastVerseAutorewinded?.equals(startVerse) != true) {
             rewind(settings.autoRewindAmount)
             lastVerseAutorewinded = startVerse
