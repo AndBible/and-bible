@@ -15,16 +15,13 @@ import java.util.Stack
 class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) : OsisSaxHandler() {
     val speakCommands = SpeakCommandArray()
 
-    private var anyTextWritten = false
-
     private enum class TAG_TYPE {NORMAL, TITLE, PARAGRPAH, DIVINE_NAME}
-
     private data class StackEntry(val visible: Boolean, val tagType: TAG_TYPE=TAG_TYPE.NORMAL)
-
     private val elementStack = Stack<StackEntry>()
-
     private var divineNameOriginal: Array<String>
     private var divineNameReplace: Array<String>
+    private var titleLevel = 0
+    private var anyTextWritten = false
 
     init {
         val res = BibleApplication.getApplication().getLocalizedResources(language)
@@ -61,6 +58,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
         } else if (name == OSISUtil.OSIS_ELEMENT_TITLE) {
             elementStack.push(StackEntry(peekVisible, TAG_TYPE.TITLE))
             speakCommands.add(PreTitleCommand(speakSettings))
+            titleLevel++;
         } else if (name == OSISUtil.OSIS_ELEMENT_DIV) {
             val type = attrs?.getValue("type") ?: ""
             val isVerseBeginning = attrs?.getValue("sID") != null
@@ -99,6 +97,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
             if(speakSettings.playbackSettings.speakTitles) {
                 speakCommands.add(SilenceCommand())
             }
+            titleLevel--;
         }
     }
 
@@ -113,12 +112,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
         s = s.replace("`", "'")
         s = s.replace("´", "'")
         if(currentState.visible) {
-            if(currentState.tagType == TAG_TYPE.TITLE) {
-                if(speakSettings.playbackSettings.speakTitles) {
-                    speakCommands.add(TextCommand(s, type = TextCommand.TextType.TITLE))
-                }
-            }
-            else if(currentState.tagType == TAG_TYPE.DIVINE_NAME) {
+            if(currentState.tagType == TAG_TYPE.DIVINE_NAME) {
                 if(speakSettings.replaceDivineName) {
                     for(i in 0 until divineNameOriginal.size) {
                         if(divineNameOriginal[i].isNotEmpty()) {
@@ -126,7 +120,11 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
                         }
                     }
                 }
-                speakCommands.add(TextCommand(s))
+            }
+            if(titleLevel > 0) {
+                if(speakSettings.playbackSettings.speakTitles) {
+                    speakCommands.add(TextCommand(s, TextCommand.TextType.TITLE))
+                }
             }
             else {
                 speakCommands.add(TextCommand(s))

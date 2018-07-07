@@ -115,9 +115,6 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
                     return true
                 }
             }
-            else if(lastCommand is PreTitleCommand) {
-                return super.add(TextCommand(element.text, TextCommand.TextType.TITLE))
-            }
             else {
                 return super.add(element)
             }
