@@ -62,17 +62,19 @@ dependencies {
     kapt 'com.google.dagger:dagger-compiler:2.15'
 
     implementation 'de.greenrobot:eventbus:2.4.0'
-    implementation 'org.jdom:jdom2:2.0.6'
+
+    // JSword requirements (see ivy.xml in jsword-tweaks)
+    implementation 'org.apache.commons:commons-compress:1.12' // Note: versions > 1.12 will fail with Android Nougat and older.
     implementation 'org.apache.httpcomponents:httpclient-android:4.3.5.1'
-    implementation 'org.apache.commons:commons-lang3:3.5'
-    implementation 'org.apache.commons:commons-compress:1.12'
-    implementation 'de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5'
-
-    compile "org.jetbrains.anko:anko-commons:$anko_version"
-
+    implementation 'org.jdom:jdom2:2.0.6'
     implementation 'org.apache.lucene:lucene-core:3.0.3'
-    implementation 'org.apache.lucene:lucene-snowball:3.0.3'
     implementation 'org.apache.lucene:lucene-analyzers:3.0.3'
+    implementation 'org.apache.lucene:lucene-snowball:3.0.3'
+
+    implementation 'org.apache.commons:commons-lang3:3.5'
+
+    implementation 'de.psdev.slf4j-android-logger:slf4j-android-logger:1.0.5'
+    implementation "org.jetbrains.anko:anko-commons:$anko_version"
 
     // allow annotations like UIThread, StringRes see: https://developer.android.com/reference/android/support/annotation/package-summary.html
     implementation 'com.android.support:support-annotations:25.3.1'
