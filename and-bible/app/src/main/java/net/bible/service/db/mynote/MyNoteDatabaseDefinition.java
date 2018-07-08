@@ -16,7 +16,7 @@ import android.util.Log;
  * @author Martin Denham [mjdenham at gmail dot com]
  */
 public class MyNoteDatabaseDefinition {
-	private static final String TAG = "MyNoteDatabaseDefinition";
+	private static final String TAG = "MyNoteDatabaseDef";
 
 	public interface Table {
 		public static final String MYNOTE = "mynote";
