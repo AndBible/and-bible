@@ -51,6 +51,8 @@ import de.greenrobot.event.EventBus;
  */
 public class MainBibleActivity extends CustomTitlebarActivityBase implements VerseActionModeMediator.ActionModeMenuDisplay {
 
+	static final int BACKUP_REQUEST = 191;
+
 	private DocumentViewManager documentViewManager;
 
 	private BibleContentManager bibleContentManager;
@@ -246,6 +248,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 			EventBus.getDefault().post(new SynchronizeWindowsEvent());
 		} else if (mainMenuCommandHandler.isDocumentChanged(requestCode)) {
 			updateActionBarButtons();
+		}
+		else if(requestCode == BACKUP_REQUEST) {
+			backupControl.backupDatabase();
 		}
 	}
 
