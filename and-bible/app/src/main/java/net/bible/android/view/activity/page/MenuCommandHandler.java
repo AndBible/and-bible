@@ -134,13 +134,21 @@ public class MenuCommandHandler {
 		        	handlerIntent = new Intent(callingActivity, Help.class);
 		        	break;
 				case R.id.backup:
-					if(havePermission(BACKUP_SAVE_REQUEST)) {
+					if(ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+						ActivityCompat.requestPermissions(callingActivity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, BACKUP_SAVE_REQUEST);
+						return false;
+					}
+					else {
 						backupControl.backupDatabase();
 					}
 					isHandled = true;
 		        	break;
 		        case R.id.restore:
-					if(havePermission(BACKUP_RESTORE_REQUEST)) {
+					if(ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+						ActivityCompat.requestPermissions(callingActivity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, BACKUP_RESTORE_REQUEST);
+						return false;
+					}
+					else {
 						backupControl.restoreDatabase();
 					}
 					isHandled = true;
@@ -159,16 +167,6 @@ public class MenuCommandHandler {
 
         return isHandled;
     }
-
-	private boolean havePermission(int permission) {
-		if(ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-			ActivityCompat.requestPermissions(callingActivity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, permission);
-			return false;
-		}
-		else {
-			return true;
-		}
-	}
 
 	public boolean restartIfRequiredOnReturn(int requestCode) {
     	if (requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH) {
