@@ -248,6 +248,8 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private fun updateBookmark() {
         val bookmarkStart = bookmarkDto?.verseRange?.start
         if(bookmarkStart != null && startVerse.ordinal < bookmarkStart.ordinal) {
+            ABEventBus.getDefault().post(SpeakProgressEvent(book, bookmarkStart, settings.synchronize, null))
+            clearNotificationAndWidgetTitles()
             return
         }
         removeBookmark()
