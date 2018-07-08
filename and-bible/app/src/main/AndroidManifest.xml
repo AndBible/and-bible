@@ -8,9 +8,11 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.WRITE_SETTINGS"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    
+
+    <!-- Needed at least still in Kitkat but not in new Android versions -->
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
 	<!-- allow use on Google TV -->
 	<uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 
