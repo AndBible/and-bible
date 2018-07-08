@@ -1,11 +1,14 @@
 package net.bible.android.control.backup;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
@@ -80,6 +83,9 @@ public class BackupControl {
 	/** return true if a backup has been done and the file is on the sd card
 	 */
 	private boolean isBackupFile() {
+		if(ContextCompat.checkSelfPermission(BibleApplication.getApplication(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+			return true;
+		}
 		return new File(SharedConstants.BACKUP_DIR, CommonDatabaseHelper.DATABASE_NAME).exists();
 	}
 }

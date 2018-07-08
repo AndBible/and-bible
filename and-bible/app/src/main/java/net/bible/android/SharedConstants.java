@@ -2,6 +2,7 @@ package net.bible.android;
 
 import java.io.File;
 
+import android.content.Context;
 import android.os.Environment;
 
 /** Not used much yet but need to move the some of the more generic constants here
@@ -54,17 +55,7 @@ public class SharedConstants {
      * @return
      */
     static private File getModuleDir() {
-    	// see here: http://developer.android.com/guide/topics/data/data-storage.html#filesExternal
-    	// On api level >=8 this is Context.getExternalFilesDir(null)
-    	//
-    	// If you're using API Level 7 or lower, use getExternalStorageDirectory(), to open a File representing the root of the external storage. 
-    	// You should then write your data in the following directory:
-		File sdcard = Environment.getExternalStorageDirectory();
-    	File externalFilesDir = new File(sdcard, "/Android/data/"+PACKAGE_NAME+"/files/");
-//this throws an error - why?
-//    	File externalFilesDir = new File(sdcard, "/Android/data/"+BibleApplication.getApplication().getPackageName()+"/files"); 
-    	
-    	return externalFilesDir;
+		return BibleApplication.getApplication().getExternalFilesDir(null);
     }
     
     static private File getManualInstallDir() {
