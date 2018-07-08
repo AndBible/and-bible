@@ -11,7 +11,7 @@ android {
     defaultConfig {
         applicationId "net.bible.android.activity"
         minSdkVersion 19
-        targetSdkVersion 22
+        targetSdkVersion 27
 		vectorDrawables.useSupportLibrary = true
     }
 
