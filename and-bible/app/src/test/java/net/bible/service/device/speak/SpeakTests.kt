@@ -354,7 +354,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         assertThat(cmds.size, equalTo( 4))
     }
 
-    //@Ignore("This bible module is not yet released")
+    @Ignore("This bible module is not yet released")
     @Test
     fun testTitle2STLK() {
         book = Books.installed().getBook("STLK2017") as SwordBook
@@ -368,7 +368,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         assertThat(cmds.size, equalTo( 4))
     }
 
-    //@Ignore("This bible module is not yet released")
+    @Ignore("This bible module is not yet released")
     @Test
     fun testTitleSTLK() {
         book = Books.installed().getBook("STLK2017") as SwordBook
@@ -406,7 +406,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         assertThat(cmds.size, equalTo( 3))
     }
 
-    //@Ignore("This bible module is not yet released")
+    @Ignore("This bible module is not yet released")
     @Test
     fun testParagraphChangeSTLK() {
         book = Books.installed().getBook("STLK2017") as SwordBook
@@ -419,7 +419,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         assertThat(cmds.size, equalTo( 3))
     }
 
-    //@Ignore("This bible module is not yet released")
+    @Ignore("This bible module is not yet released")
     @Test
     fun testQuotationMarkAnomalySTLK() {
         book = Books.installed().getBook("STLK2017") as SwordBook
@@ -437,7 +437,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         assertThat(cmd2.text, endsWith("pyhitän teidät."))
     }
 
-    //@Ignore("This bible module is not yet released")
+    @Ignore("This bible module is not yet released")
     @Test
     fun testDivinenameInTitle() {
         val s = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true,  speakTitles = true),replaceDivineName = true)
@@ -451,7 +451,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         assertThat("Command is of correct type", cmds[3] is TextCommand)
     }
 
-    //@Ignore("This bible module is not yet released")
+    @Ignore("This bible module is not yet released")
     @Test
     fun testDivinenameInText() {
         val s = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true,  speakTitles = true),replaceDivineName = true)
@@ -895,10 +895,19 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         provider.autoRewind()
         assertThat(range(), equalTo("Rom.5.10"))
 
+        provider.setupReading(book, getVerse("Rom.1.1"))
+        provider.autoRewind()
+        assertThat(range(), equalTo("Rom.1.1"))
+
+
         provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), autoRewindAmount = SpeakSettings.RewindAmount.TEN_VERSES)
         provider.setupReading(book, getVerse("Rom.5.12"))
         provider.autoRewind()
         assertThat(range(), equalTo("Rom.5.2"))
+
+        provider.setupReading(book, getVerse("Rom.1.5"))
+        provider.autoRewind()
+        assertThat(range(), equalTo("Rom.1.1"))
 
         provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), autoRewindAmount = SpeakSettings.RewindAmount.SMART)
         provider.setupReading(book, getVerse("Rom.5.12"))

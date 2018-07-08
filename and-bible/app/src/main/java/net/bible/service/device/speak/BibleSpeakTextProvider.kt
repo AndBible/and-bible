@@ -341,9 +341,15 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private fun getNextVerse(verse: Verse): Verse = bibleTraverser.getNextVerse(book, verse)
 
     override fun rewind(amount: SpeakSettings.RewindAmount?) {
+        rewind(amount, false)
+    }
+
+    fun rewind(amount: SpeakSettings.RewindAmount?, autoRewind: Boolean) {
         val lastTitle = this.lastVerseWithTitle
         reset()
         val rewindAmount = amount?: SpeakSettings.RewindAmount.SMART
+        val minimumVerse = Verse(startVerse.versification, startVerse.book, 1, 1)
+
         when(rewindAmount) {
          SpeakSettings.RewindAmount.SMART -> {
              if(lastTitle != null && !lastTitle.equals(startVerse)) {
@@ -368,6 +374,11 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
          }
          SpeakSettings.RewindAmount.NONE -> {}
         }
+
+        if(autoRewind && currentVerse.ordinal < minimumVerse.ordinal) {
+            currentVerse = minimumVerse
+        }
+
         startVerse = currentVerse
         endVerse = currentVerse
 
@@ -384,12 +395,8 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun autoRewind() {
-        if(startVerse.verse == 1 && startVerse.chapter == 1) {
-            // We do not want to auto-rewind over the book boundaries
-            return
-        }
         if(lastVerseAutorewinded?.equals(startVerse) != true) {
-            rewind(settings.autoRewindAmount)
+            rewind(settings.autoRewindAmount, true)
             lastVerseAutorewinded = startVerse
         }
     }
