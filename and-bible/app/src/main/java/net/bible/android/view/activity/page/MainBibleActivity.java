@@ -53,8 +53,8 @@ import de.greenrobot.event.EventBus;
  *      The copyright to this program is held by it's author.
  */
 public class MainBibleActivity extends CustomTitlebarActivityBase implements VerseActionModeMediator.ActionModeMenuDisplay {
-
-	static final int BACKUP_REQUEST = 191;
+	static final int BACKUP_SAVE_REQUEST = 0;
+	static final int BACKUP_RESTORE_REQUEST = 1;
 
 	private DocumentViewManager documentViewManager;
 
@@ -257,15 +257,24 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		if(requestCode == BACKUP_REQUEST) {
-			if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-				backupControl.backupDatabase();
-			}
-			else {
-				Dialogs.getInstance().showMsg(R.string.error_occurred);
-			}
+		switch(requestCode) {
+			case BACKUP_SAVE_REQUEST:
+				if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					backupControl.backupDatabase();
+				}
+				else {
+					Dialogs.getInstance().showMsg(R.string.error_occurred);
+				}
+				break;
+			case BACKUP_RESTORE_REQUEST:
+				if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					backupControl.restoreDatabase();
+				}
+				else {
+					Dialogs.getInstance().showMsg(R.string.error_occurred);
+				}
+				break;
 		}
-
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 	}
 
