@@ -38,7 +38,8 @@ import net.bible.service.common.CommonUtils;
 import javax.inject.Inject;
 import java.util.Objects;
 
-import static net.bible.android.view.activity.page.MainBibleActivity.BACKUP_REQUEST;
+import static net.bible.android.view.activity.page.MainBibleActivity.BACKUP_RESTORE_REQUEST;
+import static net.bible.android.view.activity.page.MainBibleActivity.BACKUP_SAVE_REQUEST;
 
 /** Handle requests from the main menu
  * 
@@ -133,16 +134,15 @@ public class MenuCommandHandler {
 		        	handlerIntent = new Intent(callingActivity, Help.class);
 		        	break;
 				case R.id.backup:
-					if(ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-						ActivityCompat.requestPermissions(callingActivity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, BACKUP_REQUEST);
-					}
-					else{
+					if(havePermission(BACKUP_SAVE_REQUEST)) {
 						backupControl.backupDatabase();
 					}
 					isHandled = true;
 		        	break;
 		        case R.id.restore:
-					backupControl.restoreDatabase();
+					if(havePermission(BACKUP_RESTORE_REQUEST)) {
+						backupControl.restoreDatabase();
+					}
 					isHandled = true;
 		        	break;
 	        }
@@ -159,8 +159,18 @@ public class MenuCommandHandler {
 
         return isHandled;
     }
-    
-    public boolean restartIfRequiredOnReturn(int requestCode) {
+
+	private boolean havePermission(int permission) {
+		if(ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+			ActivityCompat.requestPermissions(callingActivity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, permission);
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+
+	public boolean restartIfRequiredOnReturn(int requestCode) {
     	if (requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH) {
     		Log.i(TAG, "Refresh on finish");
     		if (!Objects.equals(CommonUtils.getLocalePref(), BibleApplication.getApplication().getLocaleOverrideAtStartUp())) {
