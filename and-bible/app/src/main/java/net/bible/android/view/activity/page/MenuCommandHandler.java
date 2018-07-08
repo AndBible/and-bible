@@ -1,12 +1,15 @@
 package net.bible.android.view.activity.page;
 
+import android.Manifest;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.MenuItem;
-
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.activity.StartupActivity;
@@ -32,9 +35,10 @@ import net.bible.android.view.activity.settings.SettingsActivity;
 import net.bible.android.view.activity.speak.Speak;
 import net.bible.service.common.CommonUtils;
 
+import javax.inject.Inject;
 import java.util.Objects;
 
-import javax.inject.Inject;
+import static net.bible.android.view.activity.page.MainBibleActivity.BACKUP_REQUEST;
 
 /** Handle requests from the main menu
  * 
@@ -128,8 +132,13 @@ public class MenuCommandHandler {
 		        case R.id.helpButton:
 		        	handlerIntent = new Intent(callingActivity, Help.class);
 		        	break;
-		        case R.id.backup:
-					backupControl.backupDatabase();
+				case R.id.backup:
+					if(ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+						ActivityCompat.requestPermissions(callingActivity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, BACKUP_REQUEST);
+					}
+					else{
+						backupControl.backupDatabase();
+					}
 					isHandled = true;
 		        	break;
 		        case R.id.restore:
