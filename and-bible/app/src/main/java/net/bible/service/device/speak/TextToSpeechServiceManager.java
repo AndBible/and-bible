@@ -439,16 +439,6 @@ public class TextToSpeechServiceManager {
 			clearPauseState();
 		}
 	}
-
-	public void onEvent(AppToBackgroundEvent event) {
-		if (isPaused()) {
-			persistPauseState();
-		}
-		else {
-			clearPauseState();
-		}
-	}
-
 	/** persist and restore pause state to allow pauses to continue over an app exit
 	 */
 	private void persistPauseState() {
