@@ -31,7 +31,7 @@ import net.bible.android.view.activity.speak.GeneralSpeakActivity;
 import net.bible.android.view.activity.speak.BibleSpeakActivity;
 
 import dagger.Component;
-import net.bible.service.device.speak.TextToSpeechNotificationService;
+import net.bible.service.device.speak.TextToSpeechNotificationManager;
 
 /**
  * Dagger Component to allow injection of dependencies into activities.
@@ -78,7 +78,7 @@ public interface ActivityComponent {
 	void inject(Help help);
 
 	// Services
-	void inject(TextToSpeechNotificationService ttsService);
+	void inject(TextToSpeechNotificationManager m);
 	void inject(AbstractSpeakWidget w);
 
 	// progress status screens

@@ -161,7 +161,7 @@
             android:label="@string/install_zip" >
         </activity>
 
-        <service android:name="net.bible.service.device.speak.TextToSpeechNotificationService"/>
+        <service android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$ForegroundService"/>
 
         <receiver android:name=".SpeakWidget1">
             <intent-filter>

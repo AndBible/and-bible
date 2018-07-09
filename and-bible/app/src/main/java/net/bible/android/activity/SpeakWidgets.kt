@@ -148,6 +148,7 @@ abstract class AbstractButtonSpeakWidget: AbstractSpeakWidget() {
         }
         appWidgetManager.updateAppWidget(appWidgetId, views)
         updateSleepTimerButtonIcon(SpeakSettings.load())
+        updateWidgetSpeakButton(speakControl.isSpeaking)
     }
 
     private fun buttonId(b: String): Int? {
