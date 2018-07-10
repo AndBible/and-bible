@@ -75,7 +75,7 @@ public class BibleApplication extends Application{
 		upgradePersistentData();
 		
 		// initialise link to Android progress control display in Notification bar
-		ProgressNotificationManager.getInstance().initialise();
+		ProgressNotificationManager.Companion.getInstance().initialise();
 
 		screenTimeoutSettings.overrideScreenTimeout();
 		
