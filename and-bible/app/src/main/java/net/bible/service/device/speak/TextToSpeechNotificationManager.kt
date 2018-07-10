@@ -133,6 +133,7 @@ class TextToSpeechNotificationManager {
     init {
         Log.d(TAG, "Initialize")
         app = BibleApplication.getApplication()
+        notificationManager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         currentTitle = getString(R.string.app_name)
         DaggerActivityComponent.builder()
                 .applicationComponent(BibleApplication.getApplication().getApplicationComponent())
@@ -178,7 +179,6 @@ class TextToSpeechNotificationManager {
         app.registerReceiver(notificationReceiver, filter)
 
         ABEventBus.getDefault().register(this)
-        notificationManager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(SPEAK_NOTIFICATIONS_CHANNEL, getString(R.string.tts_status), NotificationManager.IMPORTANCE_DEFAULT)
@@ -206,14 +206,15 @@ class TextToSpeechNotificationManager {
         if(!ev.isSpeaking && ev.isPaused) {
             Log.d(TAG, "Stop foreground (pause)")
             stopForeground()
-            buildNotification(playAction)
+            buildNotification(false)
         }
         else if (ev.isSpeaking) {
-            buildNotification(pauseAction)
+            buildNotification(true)
             startForeground()
         }
         else {
             shutdown()
+            notificationManager.cancel(NOTIFICATION_ID)
         }
     }
 
@@ -229,8 +230,7 @@ class TextToSpeechNotificationManager {
                 currentText = ev.speakCommand.text;
             }
         }
-        // TODO SpeakProgressEvent when not speaking??
-        buildNotification(if (speakControl.isSpeaking) pauseAction else playAction)
+        buildNotification(speakControl.isSpeaking)
     }
 
     private fun generateAction(icon: Int, title: String, intentAction: String): NotificationCompat.Action {
@@ -239,21 +239,17 @@ class TextToSpeechNotificationManager {
         return NotificationCompat.Action.Builder(icon, title, pendingIntent).build()
     }
 
-    private fun buildNotification(action: NotificationCompat.Action) {
+    private fun buildNotification(isSpeaking: Boolean) {
         val deletePendingIntent = PendingIntent.getBroadcast(app, 0, Intent(ACTION_STOP), 0)
 
         val contentIntent = Intent(app, MainBibleActivity::class.java)
         contentIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         val contentPendingIntent = PendingIntent.getActivity(app, 0, contentIntent, 0)
 
-        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationCompat.Builder(app, SPEAK_NOTIFICATIONS_CHANNEL)
-        } else {
-            NotificationCompat.Builder(app)
-        }
-
         val style = MediaStyle()
         style.setShowActionsInCompactView(2)
+
+        val builder = NotificationCompat.Builder(app, SPEAK_NOTIFICATIONS_CHANNEL)
 
         builder.setSmallIcon(R.drawable.ichthys_alpha)
                 .setContentTitle(currentTitle)
@@ -264,12 +260,21 @@ class TextToSpeechNotificationManager {
                 .setContentIntent(contentPendingIntent)
                 .setStyle(style)
                 .addAction(generateAction(android.R.drawable.ic_media_rew, getString(R.string.rewind), ACTION_REWIND))
-                .addAction(generateAction(android.R.drawable.ic_media_previous, getString(R.string.rewind), ACTION_PREVIOUS))
-                .addAction(action)
-                .addAction(generateAction(android.R.drawable.ic_media_next, getString(R.string.forward), ACTION_NEXT))
-                .addAction(generateAction(android.R.drawable.ic_media_ff, getString(R.string.forward), ACTION_FAST_FORWARD))
+                .addAction(generateAction(android.R.drawable.ic_media_previous, getString(R.string.previous), ACTION_PREVIOUS))
+
+        builder.addAction(if(isSpeaking) pauseAction else playAction)
+
+        if(!isSpeaking) {
+            builder.addAction(generateAction(R.drawable.ic_media_stop, getString(R.string.stop), ACTION_STOP))
+        }
+        else {
+            builder.addAction(generateAction(android.R.drawable.ic_media_next, getString(R.string.next), ACTION_NEXT))
+        }
+
+        builder.addAction(generateAction(android.R.drawable.ic_media_ff, getString(R.string.forward), ACTION_FAST_FORWARD))
                 .setOnlyAlertOnce(true)
                 .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
+                .setOngoing(true)
 
         val notification = builder.build()
         Log.d(TAG, "Updating notification")
