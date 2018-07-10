@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
 import android.support.annotation.RequiresApi
+import android.support.v4.app.NotificationCompat
 import android.util.Log
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -34,7 +35,7 @@ class TextToSpeechNotificationService: Service() {
         const val ACTION_FAST_FORWARD="action_fast_forward"
         const val ACTION_STOP="action_stop"
 
-        const val CHANNEL_ID="speak-notifications"
+        const val SPEAK_NOTIFICATIONS_CHANNEL="speak-notifications"
         const val NOTIFICATION_ID=1
         const val WAKELOCK_TAG = "speak-wakelock"
         const val TAG = "Speak/TTSService"
@@ -48,12 +49,10 @@ class TextToSpeechNotificationService: Service() {
 
     private var currentText = ""
 
-    private val pauseAction: Notification.Action
-        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private val pauseAction: NotificationCompat.Action
         get() = generateAction(android.R.drawable.ic_media_pause, getString(R.string.pause), ACTION_PAUSE)
 
-    private val playAction: Notification.Action
-        @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private val playAction: NotificationCompat.Action
         get() = generateAction(android.R.drawable.ic_media_play, getString(R.string.speak), ACTION_PLAY)
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -103,7 +102,7 @@ class TextToSpeechNotificationService: Service() {
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(CHANNEL_ID, getString(R.string.tts_status), NotificationManager.IMPORTANCE_LOW)
+            val channel = NotificationChannel(SPEAK_NOTIFICATIONS_CHANNEL, getString(R.string.tts_status), NotificationManager.IMPORTANCE_LOW)
             channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             notificationManager.createNotificationChannel(channel)
         }
@@ -135,14 +134,10 @@ class TextToSpeechNotificationService: Service() {
                 wakeLock.release()
             }
 
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                buildNotification(playAction)
-            }
+            buildNotification(playAction)
         }
         else if (ev.isSpeaking) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                buildNotification(pauseAction, true)
-            }
+            buildNotification(pauseAction, true)
             if (!wakeLock.isHeld) {
                 wakeLock.acquire()
             }
@@ -164,23 +159,19 @@ class TextToSpeechNotificationService: Service() {
                 currentText = ev.speakCommand.text;
             }
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            buildNotification(if (speakControl.isSpeaking) pauseAction else playAction)
-        }
+        buildNotification(if (speakControl.isSpeaking) pauseAction else playAction)
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun generateAction(icon: Int, title: String, intentAction: String): Notification.Action {
+    private fun generateAction(icon: Int, title: String, intentAction: String): NotificationCompat.Action {
         val intent = Intent(applicationContext, this.javaClass)
         intent.setAction(intentAction)
         val pendingIntent = PendingIntent.getService(applicationContext, 1, intent, 0)
-        return Notification.Action.Builder(icon, title, pendingIntent).build()
+        return NotificationCompat.Action.Builder(icon, title, pendingIntent).build()
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    private fun buildNotification(action: Notification.Action, foreground: Boolean = false) {
+    private fun buildNotification(action: NotificationCompat.Action, foreground: Boolean = false) {
         Log.d(TAG, "buildNotification: $action, $foreground")
-        val style = Notification.MediaStyle()
+        val style = android.support.v4.media.app.NotificationCompat.MediaStyle()
 
         val deleteIntent = Intent(applicationContext, this.javaClass)
         deleteIntent.setAction(ACTION_STOP)
@@ -191,9 +182,9 @@ class TextToSpeechNotificationService: Service() {
         val contentPendingIntent = PendingIntent.getActivity(applicationContext, 1, contentIntent, 0)
 
         val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Notification.Builder(this, CHANNEL_ID)
+            NotificationCompat.Builder(this, SPEAK_NOTIFICATIONS_CHANNEL)
         } else {
-            Notification.Builder(this)
+            NotificationCompat.Builder(this)
         }
 
         builder.setSmallIcon(R.drawable.ichthys_alpha)

@@ -17,6 +17,11 @@ class TextCommand(text: String, val type: TextType = TextType.NORMAL) : SpeakCom
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             tts.speak(text, TextToSpeech.QUEUE_ADD, null, utteranceId)
         }
+        else {
+            val params = HashMap<String, String>()
+            params.set(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, utteranceId)
+            tts.speak(text, TextToSpeech.QUEUE_ADD, params);
+        }
     }
 
     override fun toString(): String {
