@@ -1,12 +1,10 @@
 package net.bible.service.device
 
-import android.app.Application
-import android.app.Notification
-import android.app.NotificationManager
-import android.app.PendingIntent
+import android.app.*
 import android.content.Intent
+import android.os.Build
+import android.support.v4.util.ArraySet
 import android.util.Log
-import android.widget.RemoteViews
 
 import net.bible.android.BibleApplication
 import net.bible.android.SharedConstants
@@ -19,8 +17,6 @@ import org.crosswire.common.progress.Progress
 import org.crosswire.common.progress.WorkEvent
 import org.crosswire.common.progress.WorkListener
 
-import java.util.HashMap
-
 /**Show all Progress status
  * see BibleDesktop JobsProgressBar for example use
  *
@@ -28,27 +24,35 @@ import java.util.HashMap
  * @see gnu.lgpl.License for license details.<br></br>
  * The copyright to this program is held by it's author.
  */
-class ProgressNotificationManager// only one instance initialised at startup to monitor for JSword Progress events and map them to Android Notifications
-private constructor() {
 
-    internal var progressMap: MutableMap<Progress, Notification> = HashMap()
+// only one instance initialised at startup to monitor for JSword Progress events and
+// map them to Android Notifications
 
+class ProgressNotificationManager {
+    internal var progs: MutableSet<Progress> = ArraySet()
     private var workListener: WorkListener? = null
 
-    private val androidNotificationManager = notificationManager
-
-    private// add it to the NotificationManager
-    val notificationManager: NotificationManager
-        get() = BibleApplication.getApplication().getSystemService(Application.NOTIFICATION_SERVICE) as NotificationManager
+    // add it to the NotificationManager
+    lateinit private var notificationManager: NotificationManager
 
     fun initialise() {
         Log.i(TAG, "Initializing")
+        notificationManager = BibleApplication.getApplication().getSystemService(Application.NOTIFICATION_SERVICE) as NotificationManager
+        val app = BibleApplication.getApplication()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(DOWNLOAD_NOTIFICATIONS_CHANNEL, app.getString(R.string.document_download_status), NotificationManager.IMPORTANCE_LOW)
+            channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            notificationManager.createNotificationChannel(channel)
+        }
+
 
         workListener = object : WorkListener {
 
             override fun workProgressed(ev: WorkEvent) {
                 val prog = ev.job
                 val done = prog.work
+                progs.add(prog)
 
                 // updating notifications is really slow so we only update the notification manager every 5%
                 if (prog.isFinished || done % 5 == 0) {
@@ -58,14 +62,7 @@ private constructor() {
                         status += prog.sectionName
                     }
 
-                    // update notification view
-                    val notification = findOrCreateNotification(prog)
-                    notification.contentView.setProgressBar(R.id.status_progress, 100, done, false)
-                    notification.contentView.setTextViewText(R.id.status_text, status)
-
-                    // this next line is REALLY slow and is the reason we only update the notification manager every 5%
-                    // inform the progress bar of updates in progress
-                    androidNotificationManager.notify(prog.hashCode(), notification)
+                    buildNotification(prog)
 
                     if (prog.isFinished) {
                         finished(prog)
@@ -85,15 +82,15 @@ private constructor() {
 
     private fun finished(prog: Progress) {
         Log.d(TAG, "Finished")
-        androidNotificationManager.cancel(prog.hashCode())
-        progressMap.remove(prog)
+        notificationManager.cancel(prog.hashCode())
+        progs.remove(prog)
     }
 
     fun close() {
         Log.i(TAG, "Clearing Notifications")
         try {
             // clear map and all Notification objects
-            for (prog in progressMap.keys) {
+            for (prog in progs) {
                 if (prog.isCancelable) {
                     Log.i(TAG, "Cancelling job")
                     prog.cancel()
@@ -109,38 +106,34 @@ private constructor() {
 
     }
 
-    /** find the Progress object in our map to the associated Notifications
-     *
-     * @param prog
-     * @return
-     */
-    private fun findOrCreateNotification(prog: Progress): Notification {
-        var notification: Notification? = progressMap[prog]
-        if (notification == null) {
-            Log.d(TAG, "Creating Notification for progress Hash:" + prog.hashCode())
-            // configure the intent
-            val intent = Intent(BibleApplication.getApplication(), ProgressStatus::class.java)
-            val pendingIntent = PendingIntent.getActivity(BibleApplication.getApplication(), 0, intent, 0)
-
-
-            notification = Notification(R.drawable.ichthys_alpha, prog.jobName, System.currentTimeMillis())
-            notification.flags = notification.flags or Notification.FLAG_ONGOING_EVENT or Notification.FLAG_AUTO_CANCEL
-            notification.contentView = RemoteViews(SharedConstants.PACKAGE_NAME, R.layout.progress_notification)
-            notification.contentIntent = pendingIntent
-            notification.contentView.setImageViewResource(R.id.status_icon, R.drawable.ichthys)
-            notification.contentView.setTextViewText(R.id.status_text, "")
-            notification.contentView.setProgressBar(R.id.status_progress, 100, prog.work, false)
-
-            progressMap[prog] = notification
-
-            androidNotificationManager.notify(prog.hashCode(), notification)
+    private fun buildNotification(prog: Progress) {
+        Log.d(TAG, "Creating Notification for progress Hash:" + prog.hashCode())
+        val app = BibleApplication.getApplication()
+        val intent = Intent(app, ProgressStatus::class.java)
+        val pendingIntent = PendingIntent.getActivity(app, 0, intent, 0)
+        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            Notification.Builder(app, DOWNLOAD_NOTIFICATIONS_CHANNEL)
+        } else {
+            Notification.Builder(app)
         }
 
-        return notification
+        builder.setSmallIcon(R.drawable.ichthys_alpha)
+                .setContentTitle(app.getString(R.string.download_documents))
+                .setContentTitle(prog.jobName)
+                .setShowWhen(true)
+                .setContentIntent(pendingIntent)
+                .setProgress(100, prog.work, false)
+
+        val notification = builder.build()
+
+        notification.flags = notification.flags or Notification.FLAG_ONGOING_EVENT or Notification.FLAG_AUTO_CANCEL
+        notificationManager.notify(prog.hashCode(), notification)
     }
 
     companion object {
         private val TAG = "ProgressNotificatnMngr"
+
+        const val DOWNLOAD_NOTIFICATIONS_CHANNEL="download-notifications"
 
         val instance = ProgressNotificationManager()
     }
