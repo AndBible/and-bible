@@ -3,6 +3,7 @@ package net.bible.service.device
 import android.app.*
 import android.content.Intent
 import android.os.Build
+import android.support.v4.app.NotificationCompat
 import android.support.v4.util.ArraySet
 import android.util.Log
 
@@ -41,7 +42,7 @@ class ProgressNotificationManager {
         val app = BibleApplication.getApplication()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(DOWNLOAD_NOTIFICATIONS_CHANNEL, app.getString(R.string.document_download_status), NotificationManager.IMPORTANCE_LOW)
+            val channel = NotificationChannel(DOWNLOAD_NOTIFICATIONS_CHANNEL, app.getString(R.string.document_download_status), NotificationManager.IMPORTANCE_DEFAULT)
             channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             notificationManager.createNotificationChannel(channel)
         }
@@ -111,11 +112,7 @@ class ProgressNotificationManager {
         val app = BibleApplication.getApplication()
         val intent = Intent(app, ProgressStatus::class.java)
         val pendingIntent = PendingIntent.getActivity(app, 0, intent, 0)
-        val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Notification.Builder(app, DOWNLOAD_NOTIFICATIONS_CHANNEL)
-        } else {
-            Notification.Builder(app)
-        }
+        val builder = NotificationCompat.Builder(app, DOWNLOAD_NOTIFICATIONS_CHANNEL)
 
         builder.setSmallIcon(R.drawable.ichthys_alpha)
                 .setContentTitle(app.getString(R.string.download_documents))
@@ -123,10 +120,11 @@ class ProgressNotificationManager {
                 .setShowWhen(true)
                 .setContentIntent(pendingIntent)
                 .setProgress(100, prog.work, false)
+                .setOngoing(true)
+                .setAutoCancel(true)
 
         val notification = builder.build()
 
-        notification.flags = notification.flags or Notification.FLAG_ONGOING_EVENT or Notification.FLAG_AUTO_CANCEL
         notificationManager.notify(prog.hashCode(), notification)
     }
 
