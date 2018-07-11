@@ -43,7 +43,7 @@ class ProgressNotificationManager {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(DOWNLOAD_NOTIFICATIONS_CHANNEL,
-                    app.getString(R.string.document_download_status), NotificationManager.IMPORTANCE_LOW).apply {
+                    app.getString(R.string.notification_channel_document_download_status), NotificationManager.IMPORTANCE_LOW).apply {
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }
             notificationManager.createNotificationChannel(channel)
