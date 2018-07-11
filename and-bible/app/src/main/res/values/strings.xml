@@ -282,7 +282,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="conf_change_chapter">Chapter changes</string>
     <string name="conf_change_title">Titles</string>
 
-    <string name="tts_status">Text to speech status</string>
+    <string name="notification_channel_tts_status">Text to speech</string>
 
     <string name="conf_rewind_amount">Rewind/Forward amount</string>
 

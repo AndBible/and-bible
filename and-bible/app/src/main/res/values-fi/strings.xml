@@ -288,7 +288,7 @@
   <string name="conf_change_book">Kirjan vaihtuminen</string>
   <string name="conf_change_chapter">Luvun vaihtuminen</string>
   <string name="conf_change_title">Otsikot</string>
-  <string name="tts_status">Puhesyntetisoinnin tila</string>
+  <string name="notification_channel_tts_status">Puhesyntetisoinnin tila</string>
   <string name="conf_rewind_amount">Kelauksen määrä</string>
   <string name="conf_rewind_amount_one_verse">1 jae</string>
   <string name="conf_rewind_amount_ten_verses">10 jaetta</string>

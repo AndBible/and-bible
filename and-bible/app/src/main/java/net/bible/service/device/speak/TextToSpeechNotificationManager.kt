@@ -181,7 +181,7 @@ class TextToSpeechNotificationManager {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(SPEAK_NOTIFICATIONS_CHANNEL,
-                    getString(R.string.tts_status), NotificationManager.IMPORTANCE_LOW).apply {
+                    getString(R.string.notification_channel_tts_status), NotificationManager.IMPORTANCE_LOW).apply {
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }
             notificationManager.createNotificationChannel(channel)
