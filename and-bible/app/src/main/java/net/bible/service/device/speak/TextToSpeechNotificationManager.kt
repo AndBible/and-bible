@@ -3,6 +3,7 @@ package net.bible.service.device.speak
 import android.annotation.SuppressLint
 import android.app.*
 import android.content.*
+import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
@@ -24,6 +25,7 @@ import javax.inject.Inject
 @ActivityScope
 class TextToSpeechNotificationManager {
     companion object {
+        private const val UPDATE_NOTIFICATION = "update_notification"
 
         private const val ACTION_PLAY="action_play"
         private const val ACTION_PAUSE="action_pause"
@@ -33,48 +35,35 @@ class TextToSpeechNotificationManager {
         private const val ACTION_FAST_FORWARD="action_fast_forward"
         private const val ACTION_STOP="action_stop"
 
-        private const val ACTION_START_SERVICE="action_start_service"
-        private const val ACTION_PAUSE_SERVICE="action_pause_service"
-        private const val ACTION_STOP_SERVICE="action_stop_service"
-
         private const val SPEAK_NOTIFICATIONS_CHANNEL="speak-notifications"
+
         private const val NOTIFICATION_ID=1
+
         private const val WAKELOCK_TAG = "speak-wakelock"
         private const val TAG = "Speak/TTSService"
         private lateinit var wakeLock: PowerManager.WakeLock
 
-        private var currentNotification: Notification? = null
+        private var foregroundNotification: Notification? = null
     }
 
     class ForegroundService: Service() {
+        companion object {
+            const val START_SERVICE="action_start_service"
+            const val STOP_FOREGROUND="action_stop_foreground"
+        }
+
         private var foreground = false
 
         override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
             when(intent?.action) {
-                ACTION_START_SERVICE -> {
-                    start()
-                }
-                ACTION_STOP_SERVICE -> {
-                    stop(true)
-                }
-                ACTION_PAUSE_SERVICE -> {
-                    stop(false)
+                START_SERVICE -> start()
+                STOP_FOREGROUND -> stop()
+                else -> {
+                    Log.e(TAG, "Unknown action ${intent?.action} in intent $intent")
                 }
             }
 
             return super.onStartCommand(intent, flags, startId)
-        }
-
-        private fun stop(removeNotification: Boolean) {
-            if(!foreground) {
-                return
-            }
-
-            Log.d(TAG, "STOP_SERVICE removeNotification: $removeNotification")
-
-            wakeLock.release()
-            stopForeground(removeNotification)
-            foreground = false
         }
 
         @SuppressLint("WakelockTimeout")
@@ -84,25 +73,33 @@ class TextToSpeechNotificationManager {
             }
 
             Log.d(TAG, "START_SERVICE")
-            startForeground(NOTIFICATION_ID, currentNotification)
+            startForeground(NOTIFICATION_ID, foregroundNotification!!)
             foreground = true
             wakeLock.acquire()
         }
 
-        override fun onTaskRemoved(rootIntent: Intent?) {
-            if(!foreground) {
-                shutDown()
-            }
-        }
-
         override fun onDestroy() {
-            shutDown()
+            // If application is in background (no activity is active) and this service is not foreground either,
+            // this service will be stopped by android some time (1 minute when I tested). App itself remains
+            // running until OOM killer stops it. Because notification is bound to this service, it will be
+            // removed. Thus we need to build notification again. This will be done
+            // TextToSpeechNotificationManager via this intent.
+
+            val intent = Intent(UPDATE_NOTIFICATION)
+            application.sendBroadcast(intent)
+            stop()
         }
 
-        private fun shutDown() {
-            val notificationManager = BibleApplication.getApplication().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.cancelAll()
-            stopSelf()
+        private fun stop() {
+            if(!foreground) {
+                return
+            }
+
+            Log.d(TAG, "STOP_SERVICE")
+            wakeLock.release()
+            stopForeground(false)
+            foregroundNotification = null;
+            foreground = false
         }
 
         override fun onBind(intent: Intent?): IBinder? {
@@ -119,15 +116,10 @@ class TextToSpeechNotificationManager {
 
     private var currentText = ""
 
-    private val pauseAction: NotificationCompat.Action
-        get() = generateAction(android.R.drawable.ic_media_pause, getString(R.string.pause), ACTION_PAUSE)
-
     private fun getString(id: Int): String {
         return BibleApplication.getApplication().getString(id)
     }
 
-    private val playAction: NotificationCompat.Action
-        get() = generateAction(android.R.drawable.ic_media_play, getString(R.string.speak), ACTION_PLAY)
 
 
     init {
@@ -163,6 +155,11 @@ class TextToSpeechNotificationManager {
                     ACTION_PREVIOUS -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
                     ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
                     ACTION_STOP -> speakControl.stop()
+                    UPDATE_NOTIFICATION -> {
+                        if(speakControl.isPaused) {
+                            buildNotification(false)
+                        }
+                    }
                 }
             }
         }
@@ -175,14 +172,17 @@ class TextToSpeechNotificationManager {
         filter.addAction(ACTION_NEXT)
         filter.addAction(ACTION_PREVIOUS)
         filter.addAction(ACTION_STOP)
+        filter.addAction(UPDATE_NOTIFICATION)
 
         app.registerReceiver(notificationReceiver, filter)
 
         ABEventBus.getDefault().register(this)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(SPEAK_NOTIFICATIONS_CHANNEL, getString(R.string.tts_status), NotificationManager.IMPORTANCE_DEFAULT)
-            channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            val channel = NotificationChannel(SPEAK_NOTIFICATIONS_CHANNEL,
+                    getString(R.string.tts_status), NotificationManager.IMPORTANCE_LOW).apply {
+                lockscreenVisibility = Notification.VISIBILITY_PUBLIC
+            }
             notificationManager.createNotificationChannel(channel)
         }
         notificationManager.cancelAll()
@@ -198,15 +198,15 @@ class TextToSpeechNotificationManager {
         Log.d(TAG, "Shutdown")
         currentTitle = getString(R.string.app_name)
         currentText = ""
-        stopForeground(true)
+        stopForeground()
     }
 
     fun onEvent(ev: SpeakEvent) {
         Log.d(TAG, "SpeakEvent $ev")
         if(!ev.isSpeaking && ev.isPaused) {
             Log.d(TAG, "Stop foreground (pause)")
-            stopForeground()
             buildNotification(false)
+            stopForeground()
         }
         else if (ev.isSpeaking) {
             buildNotification(true)
@@ -239,6 +239,14 @@ class TextToSpeechNotificationManager {
         return NotificationCompat.Action.Builder(icon, title, pendingIntent).build()
     }
 
+    private val rewindAction = generateAction(android.R.drawable.ic_media_rew, getString(R.string.rewind), ACTION_REWIND)
+    private val prevAction = generateAction(android.R.drawable.ic_media_previous, getString(R.string.previous), ACTION_PREVIOUS)
+    private val pauseAction = generateAction(android.R.drawable.ic_media_pause, getString(R.string.pause), ACTION_PAUSE)
+    private val playAction = generateAction(android.R.drawable.ic_media_play, getString(R.string.speak), ACTION_PLAY)
+    private val nextAction = generateAction(android.R.drawable.ic_media_next, getString(R.string.next), ACTION_NEXT)
+    private val forwardAction = generateAction(android.R.drawable.ic_media_ff, getString(R.string.forward), ACTION_FAST_FORWARD)
+    private val bibleBitmap = BitmapFactory.decodeResource(app.resources, R.drawable.bible)
+
     private fun buildNotification(isSpeaking: Boolean) {
         val deletePendingIntent = PendingIntent.getBroadcast(app, 0, Intent(ACTION_STOP), 0)
 
@@ -246,12 +254,12 @@ class TextToSpeechNotificationManager {
         contentIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         val contentPendingIntent = PendingIntent.getActivity(app, 0, contentIntent, 0)
 
-        val style = MediaStyle()
-        style.setShowActionsInCompactView(2)
+        val style = MediaStyle().setShowActionsInCompactView(2)
 
         val builder = NotificationCompat.Builder(app, SPEAK_NOTIFICATIONS_CHANNEL)
 
         builder.setSmallIcon(R.drawable.ichthys_alpha)
+                .setLargeIcon(bibleBitmap)
                 .setContentTitle(currentTitle)
                 .setSubText(speakControl.statusText)
                 .setShowWhen(false)
@@ -259,33 +267,25 @@ class TextToSpeechNotificationManager {
                 .setDeleteIntent(deletePendingIntent)
                 .setContentIntent(contentPendingIntent)
                 .setStyle(style)
-                .addAction(generateAction(android.R.drawable.ic_media_rew, getString(R.string.rewind), ACTION_REWIND))
-                .addAction(generateAction(android.R.drawable.ic_media_previous, getString(R.string.previous), ACTION_PREVIOUS))
-
-        builder.addAction(if(isSpeaking) pauseAction else playAction)
-
-        if(!isSpeaking) {
-            builder.addAction(generateAction(R.drawable.ic_media_stop, getString(R.string.stop), ACTION_STOP))
-        }
-        else {
-            builder.addAction(generateAction(android.R.drawable.ic_media_next, getString(R.string.next), ACTION_NEXT))
-        }
-
-        builder.addAction(generateAction(android.R.drawable.ic_media_ff, getString(R.string.forward), ACTION_FAST_FORWARD))
+                .addAction(rewindAction)
+                .addAction(prevAction)
+                .addAction(if(isSpeaking) pauseAction else playAction)
+                .addAction(nextAction)
+                .addAction(forwardAction)
                 .setOnlyAlertOnce(true)
-                .setCategory(NotificationCompat.CATEGORY_TRANSPORT)
-                .setOngoing(true)
 
         val notification = builder.build()
-        Log.d(TAG, "Updating notification")
+        Log.d(TAG, "Updating notification, isSpeaking: $isSpeaking")
+        if(isSpeaking) {
+            foregroundNotification = notification
+        }
         notificationManager.notify(NOTIFICATION_ID, notification)
-        currentNotification = notification
     }
 
     private fun startForeground()
     {
         val intent = Intent(app, ForegroundService::class.java)
-        intent.action = ACTION_START_SERVICE
+        intent.action = ForegroundService.START_SERVICE
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             app.startForegroundService(intent)
         }
@@ -294,10 +294,10 @@ class TextToSpeechNotificationManager {
         }
     }
 
-    private fun stopForeground(removeNotification: Boolean = false)
+    private fun stopForeground()
     {
-        val intent = Intent(app, ForegroundService::class.java)
-        intent.action = if(removeNotification) ACTION_STOP_SERVICE else ACTION_PAUSE_SERVICE
-        app.startService(intent)
+       val intent = Intent(app, ForegroundService::class.java)
+       intent.action = ForegroundService.STOP_FOREGROUND
+       app.startService(intent)
     }
 }

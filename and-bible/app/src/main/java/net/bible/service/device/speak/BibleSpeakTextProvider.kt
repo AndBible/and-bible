@@ -249,7 +249,6 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         val bookmarkStart = bookmarkDto?.verseRange?.start
         if(bookmarkStart != null && startVerse.ordinal < bookmarkStart.ordinal) {
             ABEventBus.getDefault().post(SpeakProgressEvent(book, bookmarkStart, settings.synchronize, null))
-            clearNotificationAndWidgetTitles()
             return
         }
         removeBookmark()
@@ -381,10 +380,13 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             currentVerse = minimumVerse
         }
 
+        if(lastTitle == null || currentVerse.ordinal < lastTitle.ordinal) {
+            clearNotificationAndWidgetTitles()
+        }
+
         startVerse = currentVerse
         endVerse = currentVerse
 
-        clearNotificationAndWidgetTitles();
         ABEventBus.getDefault().post(SpeakProgressEvent(book, startVerse, settings.synchronize, null))
     }
 
