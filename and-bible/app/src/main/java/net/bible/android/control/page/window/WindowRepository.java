@@ -11,6 +11,7 @@ import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.WindowLayout.WindowState;
 import net.bible.service.common.Logger;
 
+import net.bible.service.device.speak.event.SpeakProgressEvent;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -241,8 +242,13 @@ public class WindowRepository {
 		windowList.add(newScreen);
 		return newScreen;
 	}
-	
-	/** 
+
+	public void onEventMainThread(SpeakProgressEvent event) {
+		if(event.getSynchronize()) {
+			getFirstWindow().getPageManager().setCurrentDocumentAndKey(event.getBook(), event.getKey());
+		}
+	}
+	/**
 	 * If app moves to background then save current state to allow continuation after return
 	 * 
 	 * @param appToBackgroundEvent Event info

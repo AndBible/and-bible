@@ -171,13 +171,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		}
 	}
 
-	public void onEventMainThread(SpeakProgressEvent event) {
-		if(event.getSynchronize()) {
-			windowControl.getWindowRepository().getFirstWindow().getPageManager()
-					.setCurrentDocumentAndKey(event.getBook(), event.getKey());
-		}
-	}
-
 	@Override
 	protected void onScreenTurnedOff() {
 		super.onScreenTurnedOff();
