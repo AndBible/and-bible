@@ -188,7 +188,6 @@ class TextToSpeechNotificationManager {
             }
             notificationManager.createNotificationChannel(channel)
         }
-        notificationManager.cancelAll()
     }
 
     fun destroy() {
