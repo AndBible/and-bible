@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.*
 import android.content.*
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
@@ -29,11 +28,6 @@ class TextToSpeechNotificationManager {
     private object Holder { val INSTANCE = TextToSpeechNotificationManager() }
 
     companion object {
-        // Intent
-        const val NOTIFICATION_RECEIVER = "net.bible.service.device.speak.NOTIFICATION_RECEIVER"
-        // Intent Uri scheme
-        const val NOTIFICATION_RECEIVER_SCHEME = "notification-receiver"
-
         private const val ACTION_UPDATE_NOTIFICATION = "update_notification"
         private const val ACTION_PLAY="action_play"
         private const val ACTION_PAUSE="action_pause"
@@ -97,8 +91,7 @@ class TextToSpeechNotificationManager {
 
             Log.d(TAG, "onDestroy")
             val intent = Intent(application, NotificationReceiver::class.java).apply {
-                action = NOTIFICATION_RECEIVER
-                data = Uri.parse("$NOTIFICATION_RECEIVER_SCHEME://$ACTION_UPDATE_NOTIFICATION")
+                action = ACTION_UPDATE_NOTIFICATION
             }
             application.sendBroadcast(intent)
             stop()
@@ -124,10 +117,10 @@ class TextToSpeechNotificationManager {
     class NotificationReceiver: BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 val speakControl = instance.speakControl
-                val action = intent?.data?.host
+                val action = intent?.action
                 Log.d(TAG, "onReceive $intent $action")
                 when (action) {
-                    ACTION_PLAY -> speakControl.continueAfterPause()
+                    ACTION_PLAY -> speakControl.toggleSpeak()
                     ACTION_PAUSE -> speakControl.pause()
                     ACTION_FAST_FORWARD -> speakControl.forward()
                     ACTION_REWIND -> speakControl.rewind()
@@ -236,8 +229,7 @@ class TextToSpeechNotificationManager {
 
     private fun generateAction(icon: Int, title: String, command: String): NotificationCompat.Action {
         val intent = Intent(app, NotificationReceiver::class.java).apply {
-            action = NOTIFICATION_RECEIVER
-            data = Uri.parse("$NOTIFICATION_RECEIVER_SCHEME://$command")
+            action = command
          }
         val pendingIntent = PendingIntent.getBroadcast(app, 0, intent, 0)
         return NotificationCompat.Action.Builder(icon, title, pendingIntent).build()
@@ -254,8 +246,7 @@ class TextToSpeechNotificationManager {
     private fun buildNotification(isSpeaking: Boolean) {
         val deletePendingIntent = PendingIntent.getBroadcast(app, 0,
                 Intent(app, NotificationReceiver::class.java).apply {
-                    action = NOTIFICATION_RECEIVER
-                    data = Uri.parse("$NOTIFICATION_RECEIVER_SCHEME://$ACTION_STOP")
+                    action = ACTION_STOP
                 }, 0)
 
         val contentIntent = Intent(app, MainBibleActivity::class.java)

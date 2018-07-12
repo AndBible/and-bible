@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import android.view.View
 import android.widget.RemoteViews
@@ -210,12 +211,16 @@ abstract class AbstractButtonSpeakWidget: AbstractSpeakWidget() {
 }
 
 class SpeakBookmarkWidget: AbstractSpeakWidget() {
+    companion object {
+        const val ACTION_BOOKMARK = "action_bookmark"
+    }
     override fun onReceive(context: Context?, intent: Intent?) {
         initialize()
         super.onReceive(context, intent)
-        Log.d(TAG, "onReceive" + context + intent?.action)
-        if(intent?.action?.startsWith("ACTION_BOOKMARK_") == true) {
-            val osisRef = intent.action.substring(16..intent.action.length-1)
+        Log.d(TAG, "onReceive $context ${intent?.action}")
+        if(intent?.action == ACTION_BOOKMARK) {
+            val osisRef = intent.data.host
+            Log.d(TAG, "onReceive osisRef $osisRef")
             val dto = bookmarkControl.getBookmarkByOsisRef(osisRef)
             if(speakControl.isSpeaking || speakControl.isPaused) {
                 speakControl.stop()
@@ -242,8 +247,10 @@ class SpeakBookmarkWidget: AbstractSpeakWidget() {
             val button = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget_button)
             button.setTextViewText(R.id.button, name)
 
-            val intent = Intent(context, javaClass)
-            intent.action = "ACTION_BOOKMARK_$osisRef"
+            val intent = Intent(context, javaClass).apply {
+                action = ACTION_BOOKMARK
+                data = Uri.parse("bible://$osisRef")
+            }
             val bc = PendingIntent.getBroadcast(context, 0, intent, 0)
             button.setOnClickPendingIntent(R.id.button, bc)
             views.addView(R.id.layout, button)

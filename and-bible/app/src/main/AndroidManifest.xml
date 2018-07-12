@@ -163,12 +163,7 @@
 
         <service android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$ForegroundService"/>
 
-        <receiver android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$NotificationReceiver"
-                  android:exported="false">
-            <intent-filter>
-                <action android:name="net.bible.service.device.speak.NOTIFICATION_RECEIVER"/>
-            </intent-filter>
-        </receiver>
+        <receiver android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$NotificationReceiver" android:exported="false"/>
 
         <receiver android:name=".SpeakWidget1">
             <intent-filter>
