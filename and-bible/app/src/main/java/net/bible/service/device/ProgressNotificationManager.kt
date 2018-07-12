@@ -58,6 +58,7 @@ class ProgressNotificationManager {
                 progs.add(prog)
 
                 // updating notifications is really slow so we only update the notification manager every 5%
+                // TODO is it still slow or was it only back in the days?
                 if (prog.isFinished || done % 5 == 0) {
                     // compose a descriptive string showing job name and current section if relevant
                     var status = StringUtils.left(prog.jobName, 50) + SharedConstants.LINE_SEPARATOR
@@ -85,7 +86,7 @@ class ProgressNotificationManager {
 
     private fun finished(prog: Progress) {
         Log.d(TAG, "Finished")
-        notificationManager.cancel(prog.hashCode())
+        notificationManager.cancel(getNotificationId(prog.hashCode()))
         progs.remove(prog)
     }
 
@@ -128,7 +129,16 @@ class ProgressNotificationManager {
 
         val notification = builder.build()
 
-        notificationManager.notify(prog.hashCode(), notification)
+        notificationManager.notify(getNotificationId(prog.hashCode()), notification)
+    }
+
+    private fun getNotificationId(hashCode: Int): Int {
+        // Make some room for speak notification id (which is 1)
+        var code = hashCode
+        if(code > 0) {
+            code += 1
+        }
+        return code
     }
 
     companion object {
