@@ -424,12 +424,14 @@ public class TextToSpeechServiceManager {
 		return isPaused;
 	}
 
+	private boolean wasPaused = false;
 	/**
 	 * Pause speak if phone call starts
 	 */
 	public void onEvent(PhoneCallEvent event) {
 		if(event.getCallActivating()) {
 			if (isSpeaking()) {
+				wasPaused = true;
 				pause(false);
 			}
 			if (isPaused()) {
@@ -440,7 +442,8 @@ public class TextToSpeechServiceManager {
 			}
 		}
 		else {
-			if(isPaused) {
+			if(isPaused && wasPaused) {
+				wasPaused = false;
 				continueAfterPause(true);
 			}
 		}
