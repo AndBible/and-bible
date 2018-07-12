@@ -9,9 +9,8 @@ import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.event.ABEventBus;
-import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.phonecall.PhoneCallMonitor;
-import net.bible.android.control.event.phonecall.PhoneCallStarted;
+import net.bible.android.control.event.phonecall.PhoneCallEvent;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.control.speak.SpeakSettings;
 import net.bible.android.control.speak.SpeakSettingsChangedEvent;
@@ -428,15 +427,22 @@ public class TextToSpeechServiceManager {
 	/**
 	 * Pause speak if phone call starts
 	 */
-	public void onEvent(PhoneCallStarted event) {
-		if (isSpeaking()) {
-			pause(false);
+	public void onEvent(PhoneCallEvent event) {
+		if(event.getCallActivating()) {
+			if (isSpeaking()) {
+				pause(false);
+			}
+			if (isPaused()) {
+				persistPauseState();
+			} else {
+				// ensure a previous pause does not hang around and be restored incorrectly
+				clearPauseState();
+			}
 		}
-		if (isPaused()) {
-			persistPauseState();
-		} else {
-			// ensure a previous pause does not hang around and be restored incorrectly
-			clearPauseState();
+		else {
+			if(isPaused) {
+				continueAfterPause(true);
+			}
 		}
 	}
 	/** persist and restore pause state to allow pauses to continue over an app exit
