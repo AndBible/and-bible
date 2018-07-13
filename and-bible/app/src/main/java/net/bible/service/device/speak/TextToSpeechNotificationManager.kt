@@ -9,6 +9,7 @@ import android.os.IBinder
 import android.os.PowerManager
 import android.support.v4.app.NotificationCompat
 import android.support.v4.media.app.NotificationCompat.MediaStyle
+import android.support.v4.media.session.MediaSessionCompat
 import android.util.Log
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -241,6 +242,8 @@ class TextToSpeechNotificationManager {
     private val nextAction = generateAction(android.R.drawable.ic_media_next, getString(R.string.next), ACTION_NEXT)
     private val forwardAction = generateAction(android.R.drawable.ic_media_ff, getString(R.string.forward), ACTION_FAST_FORWARD)
     private val bibleBitmap = BitmapFactory.decodeResource(app.resources, R.drawable.bible)
+    // Needed only to provide colorized notification
+    private val mediaSession = MediaSessionCompat(app, "tts-session")
 
     private fun buildNotification(isSpeaking: Boolean) {
         val deletePendingIntent = PendingIntent.getBroadcast(app, 0,
@@ -252,7 +255,7 @@ class TextToSpeechNotificationManager {
         contentIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         val contentPendingIntent = PendingIntent.getActivity(app, 0, contentIntent, 0)
 
-        val style = MediaStyle().setShowActionsInCompactView(2)
+        val style = MediaStyle().setShowActionsInCompactView(2).setMediaSession(mediaSession.sessionToken)
 
         val builder = NotificationCompat.Builder(app, SPEAK_NOTIFICATIONS_CHANNEL)
 
