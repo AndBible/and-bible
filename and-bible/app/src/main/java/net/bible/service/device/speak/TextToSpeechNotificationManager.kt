@@ -105,7 +105,6 @@ class TextToSpeechNotificationManager {
             Log.d(TAG, "STOP_SERVICE")
             wakeLock.release()
             stopForeground(false)
-            foregroundNotification = null;
             foreground = false
         }
 
