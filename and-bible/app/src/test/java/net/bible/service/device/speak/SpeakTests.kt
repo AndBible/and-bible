@@ -36,6 +36,7 @@ import org.junit.Ignore
 import org.mockito.Mockito.mock
 import org.robolectric.Robolectric
 import org.robolectric.android.controller.ActivityController
+import org.robolectric.shadows.ShadowLog
 import robolectric.MyRobolectricTestRunner
 
 
@@ -51,6 +52,7 @@ open class SpeakIntegrationTestBase {
 
     @Before
     fun setUp() {
+        ShadowLog.stream = System.out
         app = TestBibleApplication.getApplication() as TestBibleApplication
         val appComponent = app.applicationComponent
         bookmarkControl = appComponent.bookmarkControl()
@@ -238,6 +240,7 @@ open class AbstractSpeakTests {
 
     @Before
     open fun setup() {
+        ShadowLog.stream = System.out
         book = Books.installed().getBook("FinRK") as SwordBook
     }
 

@@ -11,9 +11,11 @@ import net.bible.android.control.event.documentdownload.DocumentDownloadEvent;
 import net.bible.android.view.activity.download.DocumentDownloadListItem;
 import net.bible.service.download.FakeSwordBookFactory;
 
+import net.bible.test.DatabaseResetter;
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.progress.Progress;
 import org.crosswire.jsword.book.Book;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,6 +58,12 @@ public class DocumentDownloadProgressCacheTest {
 
 		Thread.sleep(10);
 		assertThat(eventReceiver.received, is(true));
+	}
+
+	@After
+	public void tearDown() {
+		ABEventBus.getDefault().unregisterAll();
+		DatabaseResetter.resetDatabase();
 	}
 
 	public static class EventReceiver {

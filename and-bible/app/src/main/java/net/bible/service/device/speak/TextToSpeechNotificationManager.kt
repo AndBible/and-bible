@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.*
 import android.content.*
 import android.graphics.BitmapFactory
+import android.media.session.MediaSession
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
@@ -148,6 +149,8 @@ class TextToSpeechNotificationManager {
         return BibleApplication.getApplication().getString(id)
     }
 
+    private var mediaSession: MediaSessionCompat?
+
     init {
         Log.d(TAG, "Initialize")
 
@@ -182,6 +185,9 @@ class TextToSpeechNotificationManager {
             }
             notificationManager.createNotificationChannel(channel)
         }
+
+        // Needed only to provide colorized notification
+        mediaSession = try { MediaSessionCompat(app, "tts-session")} catch (e: NullPointerException) { null }
     }
 
     fun destroy() {
@@ -243,10 +249,8 @@ class TextToSpeechNotificationManager {
     private val nextAction = generateAction(android.R.drawable.ic_media_next, getString(R.string.next), ACTION_NEXT)
     private val forwardAction = generateAction(android.R.drawable.ic_media_ff, getString(R.string.forward), ACTION_FAST_FORWARD)
     private val bibleBitmap = BitmapFactory.decodeResource(app.resources, R.drawable.bible)
-    // Needed only to provide colorized notification
 
     private fun buildNotification(isSpeaking: Boolean) {
-        val mediaSession = MediaSessionCompat(app, "tts-session")
         val deletePendingIntent = PendingIntent.getBroadcast(app, 0,
                 Intent(app, NotificationReceiver::class.java).apply {
                     action = ACTION_STOP
@@ -256,7 +260,13 @@ class TextToSpeechNotificationManager {
         contentIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         val contentPendingIntent = PendingIntent.getActivity(app, 0, contentIntent, 0)
 
-        val style = MediaStyle().setShowActionsInCompactView(2).setMediaSession(mediaSession.sessionToken)
+        val style = MediaStyle().setShowActionsInCompactView(2)
+
+        // mediaSession is null only in tests (Robolectric bug, see initialization).
+        val mediaSession = mediaSession
+        if(mediaSession != null) {
+            style.setMediaSession(mediaSession.sessionToken)
+        }
 
         val builder = NotificationCompat.Builder(app, SPEAK_NOTIFICATIONS_CHANNEL)
 
