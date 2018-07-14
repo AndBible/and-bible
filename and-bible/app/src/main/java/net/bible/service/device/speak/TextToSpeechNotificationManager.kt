@@ -25,9 +25,6 @@ import javax.inject.Inject
 
 @ActivityScope
 class TextToSpeechNotificationManager {
-
-    private object Holder { val INSTANCE = TextToSpeechNotificationManager() }
-
     companion object {
         private const val ACTION_UPDATE_NOTIFICATION = "update_notification"
         private const val ACTION_PLAY="action_play"
@@ -48,7 +45,7 @@ class TextToSpeechNotificationManager {
 
         private var foregroundNotification: Notification? = null
 
-        val instance: TextToSpeechNotificationManager by lazy { Holder.INSTANCE }
+        private var instance: TextToSpeechNotificationManager? = null
     }
 
     class ForegroundService: Service() {
@@ -118,7 +115,7 @@ class TextToSpeechNotificationManager {
 
     class NotificationReceiver: BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                val speakControl = instance.speakControl
+                val speakControl = instance!!.speakControl
                 val action = intent?.action
                 Log.d(TAG, "onReceive $intent $action")
                 when (action) {
@@ -131,7 +128,7 @@ class TextToSpeechNotificationManager {
                     ACTION_STOP -> speakControl.stop()
                     ACTION_UPDATE_NOTIFICATION -> {
                         if(speakControl.isPaused) {
-                            instance.buildNotification(false)
+                            instance!!.buildNotification(false)
                         }
                     }
                 }
@@ -154,6 +151,8 @@ class TextToSpeechNotificationManager {
     init {
         Log.d(TAG, "Initialize")
 
+        // Not: this is singleton!
+        instance = this
         app = BibleApplication.getApplication()
         notificationManager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         currentTitle = getString(R.string.app_name)
@@ -188,6 +187,7 @@ class TextToSpeechNotificationManager {
     fun destroy() {
         app.unregisterReceiver(headsetReceiver)
         shutdown()
+        instance = null
     }
 
     private fun shutdown() {
@@ -244,9 +244,9 @@ class TextToSpeechNotificationManager {
     private val forwardAction = generateAction(android.R.drawable.ic_media_ff, getString(R.string.forward), ACTION_FAST_FORWARD)
     private val bibleBitmap = BitmapFactory.decodeResource(app.resources, R.drawable.bible)
     // Needed only to provide colorized notification
-    private val mediaSession = MediaSessionCompat(app, "tts-session")
 
     private fun buildNotification(isSpeaking: Boolean) {
+        val mediaSession = MediaSessionCompat(app, "tts-session")
         val deletePendingIntent = PendingIntent.getBroadcast(app, 0,
                 Intent(app, NotificationReceiver::class.java).apply {
                     action = ACTION_STOP

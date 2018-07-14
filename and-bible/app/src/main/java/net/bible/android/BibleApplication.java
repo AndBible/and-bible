@@ -51,6 +51,7 @@ public class BibleApplication extends Application{
 	private static BibleApplication singleton;
 
 	private static final String TAG = "BibleApplication";
+	private TextToSpeechNotificationManager ttsNotificationManager;
 
 	@Override
 	public void onCreate() {
@@ -90,7 +91,7 @@ public class BibleApplication extends Application{
 
 		localeOverrideAtStartup = LocaleHelper.getOverrideLanguage(this);
 
-		TextToSpeechNotificationManager.Companion.getInstance();
+		ttsNotificationManager = new TextToSpeechNotificationManager();
 	}
 
 	public ApplicationComponent getApplicationComponent() {
@@ -225,7 +226,7 @@ public class BibleApplication extends Application{
 	@Override
 	public void onTerminate() {
 		Log.i(TAG, "onTerminate");
-		TextToSpeechNotificationManager.Companion.getInstance().destroy();
+		ttsNotificationManager.destroy();
 		super.onTerminate();
 		ABEventBus.getDefault().unregisterAll();
 	}

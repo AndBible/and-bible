@@ -81,6 +81,14 @@ public class SpeakControl {
 		ABEventBus.getDefault().register(this);
 	}
 
+	@Override
+	protected void finalize() {
+		// Allow timer threads to be stopped on GC (good for tests)
+		stopTimer();
+		sleepTimer.cancel();
+		sleepTimer = null;
+	}
+
 	/** return a list of prompt ids for the speak screen associated with the current document type
 	 */
 	public NumPagesToSpeakDefinition[] calculateNumPagesToSpeakDefinitions() {

@@ -35,8 +35,8 @@ import org.junit.After
 import org.junit.Ignore
 import org.mockito.Mockito.mock
 import org.robolectric.Robolectric
-import org.robolectric.RobolectricTestRunner
 import org.robolectric.android.controller.ActivityController
+import robolectric.MyRobolectricTestRunner
 
 
 @Config(qualifiers="fi", constants = BuildConfig::class, application = TestBibleApplication::class)
@@ -65,13 +65,13 @@ open class SpeakIntegrationTestBase {
     fun tearDown() {
         DatabaseResetter.resetDatabase()
     }
-
 }
 
-@RunWith(RobolectricTestRunner::class)
-class SpeakActivityTests: SpeakIntegrationTestBase() {
+@RunWith(MyRobolectricTestRunner::class)
+class SpeakActivityTests : SpeakIntegrationTestBase() {
 
-    @Test fun testBookmarkTagSettingWhenNoLabels() {
+    @Test
+    fun testBookmarkTagSettingWhenNoLabels() {
         var s = SpeakSettings(autoBookmarkLabelId = null)
         s.save()
 
@@ -83,7 +83,8 @@ class SpeakActivityTests: SpeakIntegrationTestBase() {
         assertThat(s.autoBookmarkLabelId, nullValue())
     }
 
-    @Test fun testSpeaActivityIsUpdatedWhenSettingsAreChanged() {
+    @Test
+    fun testSpeaActivityIsUpdatedWhenSettingsAreChanged() {
         var s = SpeakSettings(synchronize = true)
         s.save()
         val settingsActivity = bibleSpeakActivityController.create().visible().get()
@@ -93,7 +94,8 @@ class SpeakActivityTests: SpeakIntegrationTestBase() {
         assertThat(settingsActivity.synchronize.isChecked, equalTo(false))
     }
 
-    @Test fun testSpeaActivityUpdatesSettings() {
+    @Test
+    fun testSpeaActivityUpdatesSettings() {
         var s = SpeakSettings(synchronize = true)
         s.save()
         val settingsActivity = bibleSpeakActivityController.create().visible().get()
@@ -107,8 +109,8 @@ class SpeakActivityTests: SpeakIntegrationTestBase() {
 
 }
 
-@RunWith(RobolectricTestRunner::class)
-class SpeakIntegrationTests: SpeakIntegrationTestBase() {
+@RunWith(MyRobolectricTestRunner::class)
+class SpeakIntegrationTests : SpeakIntegrationTestBase() {
     lateinit var mainActivityController: ActivityController<MainBibleActivity>
 
 
@@ -131,7 +133,8 @@ class SpeakIntegrationTests: SpeakIntegrationTestBase() {
     }
 
 
-    @Test fun testBookmarkTagSetting() {
+    @Test
+    fun testBookmarkTagSetting() {
         var s = SpeakSettings(autoBookmarkLabelId = null)
         s.save()
         val settingsActivity = bibleSpeakActivityController.visible().get()
@@ -142,7 +145,8 @@ class SpeakIntegrationTests: SpeakIntegrationTestBase() {
         assertThat(s.autoBookmarkLabelId, equalTo(1L))
     }
 
-    @Test fun testSleeptimer() {
+    @Test
+    fun testSleeptimer() {
         speakControl.speakBible(book, getVerse("Rom.1.1"))
         assertThat(bookmarkControl.getBookmarkByKey(getVerse("Rom.1.1")), nullValue())
         assertThat(speakControl.sleepTimerActive(), equalTo(false))
@@ -165,7 +169,8 @@ class SpeakIntegrationTests: SpeakIntegrationTestBase() {
         s.save()
     }
 
-    @Test fun testAutobookmark() {
+    @Test
+    fun testAutobookmark() {
         speakControl.speakBible(book, getVerse("Rom.1.1"))
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.2
         speakControl.pause()
@@ -225,7 +230,7 @@ class SpeakIntegrationTests: SpeakIntegrationTestBase() {
 }
 
 
-@Config(qualifiers="fi", constants = BuildConfig::class, application = TestBibleApplication::class)
+@Config(qualifiers = "fi", constants = BuildConfig::class, application = TestBibleApplication::class)
 open class AbstractSpeakTests {
     lateinit var provider: BibleSpeakTextProvider
     internal var text: String = ""
@@ -271,8 +276,8 @@ open class AbstractSpeakTests {
     }
 }
 
-@RunWith(RobolectricTestRunner::class)
-open class OsisToBibleSpeakTests: AbstractSpeakTests() {
+@RunWith(MyRobolectricTestRunner::class)
+open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     private lateinit var s: SpeakSettings
     @Before
     override fun setup() {
@@ -328,6 +333,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         assertThat(cmds2.size, equalTo(1))
         assertThat(cmds.size, equalTo(3))
     }
+
     @Test
     fun testTitleFinRK() {
         val cmds = SpeakCommandArray()
@@ -337,7 +343,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         assertThat("Command is of correct type", cmds[1] is TextCommand)
         assertThat("Command is of correct type", cmds[2] is SilenceCommand)
         assertThat("Command is of correct type", cmds[3] is TextCommand)
-        assertThat(cmds.size, equalTo( 4))
+        assertThat(cmds.size, equalTo(4))
     }
 
     @Test
@@ -350,7 +356,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         assertThat("Command is of correct type", cmds[1] is TextCommand)
         assertThat("Command is of correct type", cmds[2] is SilenceCommand)
         assertThat("Command is of correct type", cmds[3] is TextCommand)
-        assertThat(cmds.size, equalTo( 4))
+        assertThat(cmds.size, equalTo(4))
     }
 
     @Ignore("This bible module is not yet released")
@@ -364,7 +370,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         assertThat((cmds[1] as TextCommand).type, equalTo(TextCommand.TextType.TITLE))
         assertThat("Command is of correct type", cmds[2] is SilenceCommand)
         assertThat("Command is of correct type", cmds[3] is TextCommand)
-        assertThat(cmds.size, equalTo( 4))
+        assertThat(cmds.size, equalTo(4))
     }
 
     @Ignore("This bible module is not yet released")
@@ -378,7 +384,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         assertThat("Command is of correct type", cmds[1] is TextCommand)
         assertThat("Command is of correct type", cmds[2] is SilenceCommand)
         assertThat("Command is of correct type", cmds[3] is TextCommand)
-        assertThat(cmds.size, equalTo( 4))
+        assertThat(cmds.size, equalTo(4))
     }
 
     @Test
@@ -389,7 +395,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         assertThat("Command is of correct type", cmds[0] is TextCommand)
         assertThat("Command is of correct type", cmds[1] is ParagraphChangeCommand)
         assertThat("Command is of correct type", cmds[2] is TextCommand)
-        assertThat(cmds.size, equalTo( 3))
+        assertThat(cmds.size, equalTo(3))
     }
 
     @Test
@@ -402,7 +408,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         assertThat("Command is of correct type", cmds[0] is TextCommand)
         assertThat("Command is of correct type", cmds[1] is ParagraphChangeCommand)
         assertThat("Command is of correct type", cmds[2] is TextCommand)
-        assertThat(cmds.size, equalTo( 3))
+        assertThat(cmds.size, equalTo(3))
     }
 
     @Ignore("This bible module is not yet released")
@@ -415,7 +421,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
         assertThat("Command is of correct type", cmds[0] is TextCommand)
         assertThat("Command is of correct type", cmds[1] is ParagraphChangeCommand)
         assertThat("Command is of correct type", cmds[2] is TextCommand)
-        assertThat(cmds.size, equalTo( 3))
+        assertThat(cmds.size, equalTo(3))
     }
 
     @Ignore("This bible module is not yet released")
@@ -439,7 +445,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
     @Ignore("This bible module is not yet released")
     @Test
     fun testDivinenameInTitle() {
-        val s = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true,  speakTitles = true),replaceDivineName = true)
+        val s = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), replaceDivineName = true)
         book = Books.installed().getBook("STLK2017") as SwordBook
         val cmds = SpeakCommandArray()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Exod.19.1")))
@@ -453,7 +459,7 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
     @Ignore("This bible module is not yet released")
     @Test
     fun testDivinenameInText() {
-        val s = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true,  speakTitles = true),replaceDivineName = true)
+        val s = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), replaceDivineName = true)
         book = Books.installed().getBook("STLK2017") as SwordBook
 
         val cmds = swordContentFacade.getSpeakCommands(s, book, getVerse("Exod.19.3"))
@@ -462,14 +468,14 @@ open class OsisToBibleSpeakTests: AbstractSpeakTests() {
 
 }
 
-@RunWith(RobolectricTestRunner::class)
-class TestPersistence: AbstractSpeakTests () {
+@RunWith(MyRobolectricTestRunner::class)
+class TestPersistence : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
         provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl,
                 book, getVerse("Ps.14.1"))
-        provider.settings = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true,  speakTitles = false))
+        provider.settings = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = false))
     }
 
     @Test
@@ -497,8 +503,9 @@ class TestPersistence: AbstractSpeakTests () {
         assertThat(text, endsWith("Kristuksen kautta."))
     }
 }
-@RunWith(RobolectricTestRunner::class)
-class AutoBookmarkTests: AbstractSpeakTests () {
+
+@RunWith(MyRobolectricTestRunner::class)
+class AutoBookmarkTests : AbstractSpeakTests() {
     @Before
     override fun setup() {
         super.setup()
@@ -506,9 +513,15 @@ class AutoBookmarkTests: AbstractSpeakTests () {
                 book, getVerse("Ps.14.1"))
         var label = LabelDto();
         label.name = "tts";
-		label = bookmarkControl.saveOrUpdateLabel(label)
+        label = bookmarkControl.saveOrUpdateLabel(label)
 
         provider.settings = SpeakSettings(autoBookmarkLabelId = label.id)
+    }
+
+    @After
+    fun resetDatabase() {
+        System.out.println("Database reset (1)!");
+        //DatabaseResetter.resetDatabase()
     }
 
     @Test
@@ -526,7 +539,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         val verse = getVerse("Ps.14.1")
         dto.verseRange = VerseRange(verse.versification, verse)
         dto = bookmarkControl.addOrUpdateBookmark(dto)
-        var labelDto= LabelDto()
+        var labelDto = LabelDto()
         labelDto.name = "Another"
         labelDto = bookmarkControl.saveOrUpdateLabel(labelDto)
         bookmarkControl.setBookmarkLabels(dto, listOf(labelDto))
@@ -557,7 +570,7 @@ class AutoBookmarkTests: AbstractSpeakTests () {
         val verse = getVerse("Ps.14.1")
         dto.verseRange = VerseRange(verse.versification, verse)
         dto = bookmarkControl.addOrUpdateBookmark(dto)
-        var labelDto= LabelDto()
+        var labelDto = LabelDto()
         labelDto.name = "Another"
         labelDto = bookmarkControl.saveOrUpdateLabel(labelDto)
         bookmarkControl.setBookmarkLabels(dto, listOf(labelDto))
@@ -646,7 +659,8 @@ class AutoBookmarkTests: AbstractSpeakTests () {
     }
 }
 
-@RunWith(RobolectricTestRunner::class)
+
+@RunWith(MyRobolectricTestRunner::class)
 class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Before
     override fun setup() {
@@ -694,7 +708,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     }
 
     @Test
-    @Config(qualifiers="en")
+    @Config(qualifiers = "en")
     fun testBookWithoutOldTestament() {
         val book = Books.installed().getBook("ISV") as SwordBook
 
@@ -710,7 +724,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text, startsWith("The Gospel According"))
     }
 
-    
+
     @Test
     fun chapterChangeMessage() {
         provider.setupReading(book, getVerse("Rom.1.1"))
