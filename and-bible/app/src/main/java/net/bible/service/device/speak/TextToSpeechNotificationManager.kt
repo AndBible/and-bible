@@ -55,6 +55,7 @@ class TextToSpeechNotificationManager {
         companion object {
             const val START_SERVICE="action_start_service"
             const val STOP_FOREGROUND="action_stop_foreground"
+            const val STOP_FOREGROUND_REMOVE_NOTIFICATION="action_stop_foreground_remove_notification"
         }
 
         private var foreground = false
@@ -63,6 +64,7 @@ class TextToSpeechNotificationManager {
             when(intent?.action) {
                 START_SERVICE -> start()
                 STOP_FOREGROUND -> stop()
+                STOP_FOREGROUND_REMOVE_NOTIFICATION -> stop(true)
                 else -> {
                     Log.e(TAG, "Unknown action ${intent?.action} in intent $intent")
                 }
@@ -98,14 +100,14 @@ class TextToSpeechNotificationManager {
             stop()
         }
 
-        private fun stop() {
+        private fun stop(removeNotification: Boolean = false) {
             if(!foreground) {
                 return
             }
 
             Log.d(TAG, "STOP_SERVICE")
             wakeLock.release()
-            stopForeground(false)
+            stopForeground(removeNotification)
             foreground = false
         }
 
@@ -192,7 +194,7 @@ class TextToSpeechNotificationManager {
         Log.d(TAG, "Shutdown")
         currentTitle = getString(R.string.app_name)
         currentText = ""
-        stopForeground()
+        stopForeground(true)
     }
 
     fun onEvent(ev: SpeakEvent) {
@@ -208,7 +210,6 @@ class TextToSpeechNotificationManager {
         }
         else {
             shutdown()
-            notificationManager.cancel(NOTIFICATION_ID)
         }
     }
 
@@ -295,10 +296,11 @@ class TextToSpeechNotificationManager {
         }
     }
 
-    private fun stopForeground()
+    private fun stopForeground(removeNotification: Boolean = false)
     {
        val intent = Intent(app, ForegroundService::class.java)
-       intent.action = ForegroundService.STOP_FOREGROUND
+       intent.action = if(removeNotification) ForegroundService.STOP_FOREGROUND_REMOVE_NOTIFICATION
+                       else ForegroundService.STOP_FOREGROUND
        app.startService(intent)
     }
 }
