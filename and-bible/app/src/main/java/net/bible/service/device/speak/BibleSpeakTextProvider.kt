@@ -219,7 +219,8 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun getStatusText(): String {
-        return "${getVerseRange().name} (${currentState.book.abbreviation})"
+        val percent = bibleTraverser.getPercentOfBook(currentState.startVerse)
+        return "${getVerseRange().name} - $percent% - ${currentState.book.abbreviation}"
     }
 
     override fun getText(utteranceId: String): String {
