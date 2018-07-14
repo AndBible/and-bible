@@ -197,7 +197,7 @@ class TextToSpeechNotificationManager {
         stopForeground(true)
     }
 
-    fun onEvent(ev: SpeakEvent) {
+    fun onEventMainThread(ev: SpeakEvent) {
         Log.d(TAG, "SpeakEvent $ev")
         if(!ev.isSpeaking && ev.isPaused) {
             Log.d(TAG, "Stop foreground (pause)")
@@ -213,7 +213,7 @@ class TextToSpeechNotificationManager {
         }
     }
 
-    fun onEvent(ev: SpeakProgressEvent) {
+    fun onEventMainThread(ev: SpeakProgressEvent) {
         if(ev.speakCommand is TextCommand) {
             if(ev.speakCommand.type == TextCommand.TextType.TITLE) {
                 currentTitle = ev.speakCommand.text
