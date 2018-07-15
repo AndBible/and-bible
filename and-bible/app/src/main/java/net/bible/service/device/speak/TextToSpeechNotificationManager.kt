@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.*
 import android.content.*
 import android.graphics.BitmapFactory
-import android.media.session.MediaSession
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
@@ -47,6 +46,7 @@ class TextToSpeechNotificationManager {
         private var foregroundNotification: Notification? = null
 
         private var instance: TextToSpeechNotificationManager? = null
+        private var foreground = false
     }
 
     class ForegroundService: Service() {
@@ -56,7 +56,6 @@ class TextToSpeechNotificationManager {
             const val STOP_FOREGROUND_REMOVE_NOTIFICATION="action_stop_foreground_remove_notification"
         }
 
-        private var foreground = false
 
         override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
             when(intent?.action) {
@@ -200,7 +199,13 @@ class TextToSpeechNotificationManager {
         Log.d(TAG, "Shutdown")
         currentTitle = getString(R.string.app_name)
         currentText = ""
-        stopForeground(true)
+        // In case service was no longer foreground, we need do this here.
+        if(foreground) {
+            stopForeground(true)
+        }
+        else {
+            notificationManager.cancel(NOTIFICATION_ID)
+        }
     }
 
     fun onEventMainThread(ev: SpeakEvent) {
