@@ -148,10 +148,19 @@ public class CurrentPageManager {
 	}
 
 	public CurrentPage setCurrentDocumentAndKey(Book currentBook, Key key) {
-		return setCurrentDocumentAndKeyAndOffset(currentBook, key, SharedConstants.NO_VALUE);
+		return setCurrentDocumentAndKey(currentBook, key, true);
 	}
+
+	public CurrentPage setCurrentDocumentAndKey(Book currentBook, Key key, boolean updateHistory) {
+		return setCurrentDocumentAndKeyAndOffset(currentBook, key, SharedConstants.NO_VALUE, updateHistory);
+	}
+
 	public CurrentPage setCurrentDocumentAndKeyAndOffset(Book currentBook, Key key, float yOffsetRatio) {
-		PassageChangeMediator.getInstance().onBeforeCurrentPageChanged();
+		return setCurrentDocumentAndKeyAndOffset(currentBook, key, yOffsetRatio, true);
+	}
+
+	public CurrentPage setCurrentDocumentAndKeyAndOffset(Book currentBook, Key key, float yOffsetRatio, boolean updateHistory) {
+		PassageChangeMediator.getInstance().onBeforeCurrentPageChanged(updateHistory);
 
 		CurrentPage nextPage = getBookPage(currentBook);
 		if (nextPage!=null) {

@@ -245,7 +245,7 @@ public class WindowRepository {
 
 	public void onEventMainThread(SpeakProgressEvent event) {
 		if(event.getSynchronize()) {
-			getFirstWindow().getPageManager().setCurrentDocumentAndKey(event.getBook(), event.getKey());
+			getFirstWindow().getPageManager().setCurrentDocumentAndKey(event.getBook(), event.getKey(), false);
 		}
 	}
 	/**

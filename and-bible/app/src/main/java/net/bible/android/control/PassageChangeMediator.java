@@ -31,13 +31,17 @@ public class PassageChangeMediator {
 		return singleton;
 	}
 
+	public void onBeforeCurrentPageChanged() {
+		onBeforeCurrentPageChanged(true);
+	}
+
 	/** first time we know a page or doc will imminently change
 	 */
-	public void onBeforeCurrentPageChanged() {
+	public void onBeforeCurrentPageChanged(boolean updateHistory) {
 		isPageChanging = true;
 
 		ABEventBus.getDefault().post(new PreBeforeCurrentPageChangeEvent());
-		ABEventBus.getDefault().post(new BeforeCurrentPageChangeEvent());
+		ABEventBus.getDefault().post(new BeforeCurrentPageChangeEvent(updateHistory));
 	}
 	
 	/** the document has changed so ask the view to refresh itself

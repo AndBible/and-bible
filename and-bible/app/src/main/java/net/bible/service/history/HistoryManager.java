@@ -58,7 +58,9 @@ public class HistoryManager {
     /** allow current page to save any settings or data before being changed
      */
     public void onEvent(BeforeCurrentPageChangeEvent event) {
-    	beforePageChange();
+    	if(event.getUpdateHistory()) {
+			addHistoryItem();
+		}
     }
 	
 	public boolean canGoBack() {
@@ -68,7 +70,7 @@ public class HistoryManager {
 	/**
 	 *  called when a verse is changed to allow current Activity to be saved in History list
 	 */
-	public void beforePageChange() {
+	public void addHistoryItem() {
 		// if we cause the change by requesting Back then ignore it
 		if (!isGoingBack) {
 			HistoryItem item = createHistoryItem();
