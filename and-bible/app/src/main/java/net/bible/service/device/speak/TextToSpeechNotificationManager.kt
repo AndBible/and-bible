@@ -113,6 +113,8 @@ class TextToSpeechNotificationManager {
         }
     }
 
+    @Inject lateinit var speakControl: SpeakControl
+
     class NotificationReceiver: BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 val speakControl = instance!!.speakControl
@@ -136,35 +138,10 @@ class TextToSpeechNotificationManager {
         }
 
 
-    private var app: BibleApplication
-    private var currentTitle: String
-    private var notificationManager: NotificationManager
-    private var headsetReceiver: BroadcastReceiver
-    @Inject lateinit var speakControl: SpeakControl
-
-    private var currentText = ""
-
-    private fun getString(id: Int): String {
-        return BibleApplication.getApplication().getString(id)
-    }
-
-    private var mediaSession: MediaSessionCompat?
-
-    init {
-        Log.d(TAG, "Initialize")
-
-        // Not: this is singleton!
-        instance = this
-        app = BibleApplication.getApplication()
-        notificationManager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        currentTitle = getString(R.string.app_name)
-        DaggerActivityComponent.builder()
-                .applicationComponent(BibleApplication.getApplication().getApplicationComponent())
-                .build().inject(this)
-
-        val powerManager = BibleApplication.getApplication().getSystemService(Context.POWER_SERVICE) as PowerManager
-        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
-        headsetReceiver = object: BroadcastReceiver() {
+    private var app = BibleApplication.getApplication()
+    private var currentTitle = getString(R.string.app_name)
+    private var notificationManager = app.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+    private var headsetReceiver  = object: BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 if (intent?.getIntExtra("state", 0) == 0 && speakControl.isSpeaking) {
                     speakControl.pause()
@@ -173,6 +150,28 @@ class TextToSpeechNotificationManager {
                 }
             }
         }
+
+    private var currentText = ""
+
+    private fun getString(id: Int): String {
+        return BibleApplication.getApplication().getString(id)
+    }
+
+    init {
+        Log.d(TAG, "Initialize")
+
+        if(instance != null) {
+            throw RuntimeException("This class is singleton!")
+        }
+
+        instance = this
+        DaggerActivityComponent.builder()
+                .applicationComponent(BibleApplication.getApplication().getApplicationComponent())
+                .build().inject(this)
+
+        val powerManager = BibleApplication.getApplication().getSystemService(Context.POWER_SERVICE) as PowerManager
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKELOCK_TAG)
+
         app.registerReceiver(headsetReceiver, IntentFilter(Intent.ACTION_HEADSET_PLUG))
 
         ABEventBus.getDefault().register(this)
@@ -185,8 +184,6 @@ class TextToSpeechNotificationManager {
             notificationManager.createNotificationChannel(channel)
         }
 
-        // Needed only to provide colorized notification
-        mediaSession = try { MediaSessionCompat(app, "tts-session")} catch (e: NullPointerException) { null }
     }
 
     fun destroy() {
@@ -255,6 +252,9 @@ class TextToSpeechNotificationManager {
     private val forwardAction = generateAction(android.R.drawable.ic_media_ff, getString(R.string.forward), ACTION_FAST_FORWARD)
     private val bibleBitmap = BitmapFactory.decodeResource(app.resources, R.drawable.bible)
 
+    // Needed only to provide colorized notification. MediaSession is null only in tests (Robolectric bug).
+    private var mediaSession = try { MediaSessionCompat(app, "tts-session")} catch (e: NullPointerException) { null }
+
     private fun buildNotification(isSpeaking: Boolean) {
         val deletePendingIntent = PendingIntent.getBroadcast(app, 0,
                 Intent(app, NotificationReceiver::class.java).apply {
@@ -265,13 +265,9 @@ class TextToSpeechNotificationManager {
         contentIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         val contentPendingIntent = PendingIntent.getActivity(app, 0, contentIntent, 0)
 
-        val style = MediaStyle().setShowActionsInCompactView(2)
-
-        // mediaSession is null only in tests (Robolectric bug, see initialization).
-        val mediaSession = mediaSession
-        if(mediaSession != null) {
-            style.setMediaSession(mediaSession.sessionToken)
-        }
+        val style = MediaStyle()
+            .setShowActionsInCompactView(2)
+            .setMediaSession(mediaSession?.sessionToken)
 
         val builder = NotificationCompat.Builder(app, SPEAK_NOTIFICATIONS_CHANNEL)
 

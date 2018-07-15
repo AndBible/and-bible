@@ -44,11 +44,11 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override val numItemsToTts = 100
-    private var book: SwordBook
-    private var startVerse: Verse
-    private var endVerse: Verse
+    private var book = initialBook
+    private var startVerse = initialVerse
+    private var endVerse = initialVerse
     private var bookmarkDto : BookmarkDto? = null
-    private var _currentVerse: Verse
+    private var _currentVerse = initialVerse
     private var currentVerse: Verse
         get() = _currentVerse
         set(newValue) {
@@ -70,25 +70,18 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     private val verseRenderLruCache = LruCache<Pair<SwordBook, Verse>, SpeakCommandArray>(100)
     private lateinit var localizedResources: Resources
 
+    init {
+        setupBook(initialBook)
+    }
+
+    private var readList = SpeakCommandArray()
+    internal var settings = SpeakSettings.load()
+
     private val currentState: State
         get() {
             return utteranceState.get(currentUtteranceId) ?: State(book, startVerse, endVerse, currentVerse)
         }
 
-    init {
-        book = initialBook
-        setupBook(initialBook)
-        startVerse = initialVerse
-        endVerse = initialVerse
-        _currentVerse = initialVerse
-    }
-
-    private var readList = SpeakCommandArray()
-    internal var settings: SpeakSettings
-
-    init {
-        settings = SpeakSettings.load()
-    }
 
     override fun updateSettings(speakSettingsChangedEvent: SpeakSettingsChangedEvent) {
         this.settings = speakSettingsChangedEvent.speakSettings
