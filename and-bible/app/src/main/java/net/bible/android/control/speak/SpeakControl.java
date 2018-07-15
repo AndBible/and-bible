@@ -318,7 +318,7 @@ public class SpeakControl {
 		if(!automated) {
 			prepareForSpeaking();
 		}
-		textToSpeechServiceManager.get().continueAfterPause(automated);
+		textToSpeechServiceManager.get().continueAfterPause();
 	}
 
 	public void stop() {

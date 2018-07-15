@@ -41,7 +41,6 @@ data class SpeakSettingsChangedEvent(val speakSettings: SpeakSettings, val updat
 data class SpeakSettings(@Optional val synchronize: Boolean = true,
                          @Optional val autoBookmarkLabelId: Long? = null,
                          @Optional val replaceDivineName: Boolean = false,
-                         @Optional val autoRewindAmount: RewindAmount = RewindAmount.NONE,
                          @Optional val restoreSettingsFromBookmarks: Boolean = false,
                          @Optional var playbackSettings: PlaybackSettings = PlaybackSettings(),
                          @Optional var sleepTimer: Int = 0,

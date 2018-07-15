@@ -905,39 +905,6 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     }
 
     @Test
-    fun autorewind() {
-        provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), autoRewindAmount = SpeakSettings.RewindAmount.ONE_VERSE)
-        provider.setupReading(book, getVerse("Rom.5.11"))
-        provider.autoRewind()
-        assertThat(range(), equalTo("Rom.5.10"))
-
-        provider.setupReading(book, getVerse("Rom.1.1"))
-        provider.autoRewind()
-        assertThat(range(), equalTo("Rom.1.1"))
-
-
-        provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), autoRewindAmount = SpeakSettings.RewindAmount.TEN_VERSES)
-        provider.setupReading(book, getVerse("Rom.5.12"))
-        provider.autoRewind()
-        assertThat(range(), equalTo("Rom.5.2"))
-
-        provider.setupReading(book, getVerse("Rom.1.5"))
-        provider.autoRewind()
-        assertThat(range(), equalTo("Rom.1.1"))
-
-        provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), autoRewindAmount = SpeakSettings.RewindAmount.SMART)
-        provider.setupReading(book, getVerse("Rom.5.12"))
-        provider.autoRewind()
-        assertThat(range(), equalTo("Rom.5.1"))
-
-        // two or more autorewinds should not rewind any more
-        provider.setupReading(book, getVerse("Rom.5.12"))
-        provider.autoRewind()
-        provider.autoRewind()
-        assertThat(range(), equalTo("Rom.5.1"))
-    }
-
-    @Test
     fun forward() {
         provider.settings = SpeakSettings(playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true))
 

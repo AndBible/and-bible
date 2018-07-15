@@ -190,65 +190,6 @@
                             android:onClick="setSleepTime"
                             />
                 </LinearLayout>
-                <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        >
-                    <TextView
-                            android:layout_width="match_parent"
-                            android:textStyle="bold"
-                            android:textColor="@color/speak_subtitle_color"
-                            android:padding="@dimen/speak_subtitle_padding"
-                            android:layout_height="wrap_content"
-                            android:text="@string/conf_auto_rewind"/>
-
-                    <RadioGroup
-                            android:layout_width="match_parent"
-                            android:padding="@dimen/speak_row_padding"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            >
-
-                        <RadioButton
-                                android:text="@string/conf_rewind_amount_none"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:id="@+id/autoRewindNone"
-                                android:onClick="onSettingsChange"/>
-
-                        <RadioButton
-                                android:text="@string/conf_rewind_amount_one_verse"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:id="@+id/autoRewindOneVerse"
-                                android:onClick="onSettingsChange"/>
-
-                        <RadioButton
-                                android:text="@string/conf_rewind_amount_ten_verses"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:id="@+id/autoRewindTenVerses"
-                                android:onClick="onSettingsChange"/>
-
-                        <RadioButton
-                                android:text="@string/conf_rewind_amount_smart"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:id="@+id/autoRewindSmart"
-                                android:onClick="onSettingsChange"/>
-                    </RadioGroup>
-                    <TextView
-                            android:layout_width="match_parent"
-                            android:padding="@dimen/speak_row_padding"
-                            android:layout_height="wrap_content"
-                            android:text="@string/conf_rewind_amount_smart_explanation"/>
-                </LinearLayout>
-
                 <CheckBox
                         android:text="@string/conf_replace_divinename"
                         android:layout_width="match_parent"

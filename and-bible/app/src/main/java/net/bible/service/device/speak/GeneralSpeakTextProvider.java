@@ -61,9 +61,6 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	}
 
 	@Override
-	public void autoRewind() {}
-
-	@Override
 	public void updateSettings(@NotNull SpeakSettingsChangedEvent speakSettingsChangedEvent) {
 
 	}

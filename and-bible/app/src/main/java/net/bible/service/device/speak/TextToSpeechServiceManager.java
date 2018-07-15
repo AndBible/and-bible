@@ -243,7 +243,7 @@ public class TextToSpeechServiceManager {
 
         isPaused = wasPaused;
         if (!isPaused) {
-        	continueAfterPause(true);
+        	continueAfterPause();
         }
     }
 
@@ -267,7 +267,7 @@ public class TextToSpeechServiceManager {
 
         isPaused = wasPaused;
         if (!isPaused) {
-            continueAfterPause(true);
+            continueAfterPause();
         }
     }
 
@@ -295,14 +295,11 @@ public class TextToSpeechServiceManager {
 		}
 	}
 
-	public synchronized void continueAfterPause(boolean automated) {
+	public synchronized void continueAfterPause() {
 		try {
 			Log.d(TAG, "continue after pause");
 			isPaused = false;
 			clearPauseState();
-			if(!automated) {
-				mSpeakTextProvider.autoRewind();
-			}
 			// ask TTs to say the text
 			initializeTtsOrStartSpeaking();
 		} catch (Exception e) {
@@ -444,7 +441,7 @@ public class TextToSpeechServiceManager {
 		else {
 			if(isPaused && wasPaused) {
 				wasPaused = false;
-				continueAfterPause(true);
+				continueAfterPause();
 			}
 		}
 	}

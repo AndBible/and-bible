@@ -89,13 +89,6 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         replaceDivineName.isChecked = settings.replaceDivineName
         restoreSettingsFromBookmarks.isChecked = settings.restoreSettingsFromBookmarks
 
-        when(settings.autoRewindAmount) {
-            SpeakSettings.RewindAmount.NONE -> autoRewindNone.isChecked = true
-            SpeakSettings.RewindAmount.ONE_VERSE -> autoRewindOneVerse.isChecked = true
-            SpeakSettings.RewindAmount.TEN_VERSES -> autoRewindTenVerses.isChecked = true
-            SpeakSettings.RewindAmount.SMART -> autoRewindSmart.isChecked = true
-        }
-
         if(settings.autoBookmarkLabelId != null) {
             val labelDto = bookmarkLabels.find { labelDto -> labelDto.id == settings.autoBookmarkLabelId }
             val itemId = bookmarkLabels.indexOf(labelDto)
@@ -144,14 +137,6 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                         ),
                 autoBookmarkLabelId = if (autoBookmark.isChecked) labelId else null,
                 replaceDivineName = replaceDivineName.isChecked,
-                autoRewindAmount =  if ( autoRewindOneVerse.isChecked ) {
-                    SpeakSettings.RewindAmount.ONE_VERSE }
-                else if (autoRewindNone.isChecked ) {
-                    SpeakSettings.RewindAmount.NONE }
-                else if (autoRewindTenVerses.isChecked ) {
-                    SpeakSettings.RewindAmount.TEN_VERSES }
-                else {
-                    SpeakSettings.RewindAmount.SMART},
                 restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked,
                 sleepTimer = currentSettings.sleepTimer,
                 lastSleepTimer = currentSettings.lastSleepTimer

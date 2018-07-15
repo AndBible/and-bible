@@ -23,6 +23,5 @@ interface SpeakTextProvider {
     fun clearPersistedState()
     fun prepareForStartSpeaking()
     fun savePosition(fractionCompleted: Float)
-    fun autoRewind()
     fun updateSettings(speakSettingsChangedEvent: SpeakSettingsChangedEvent) {}
 }
