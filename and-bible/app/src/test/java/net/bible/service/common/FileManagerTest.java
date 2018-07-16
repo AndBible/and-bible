@@ -1,12 +1,13 @@
 package net.bible.service.common;
 
+import net.bible.test.DatabaseResetter;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.shadows.ShadowStatFs;
+import robolectric.MyRobolectricTestRunner;
 
 import java.io.File;
-
-import robolectric.MyRobolectricTestRunner;
 
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
@@ -19,6 +20,11 @@ import static junit.framework.Assert.assertTrue;
 @RunWith(MyRobolectricTestRunner.class)
 public class FileManagerTest {
 	private final String folder = "src/test/resources/net/bible/service/common".replace("/", File.separator);
+
+	@After
+	public void tearDown(){
+		DatabaseResetter.resetDatabase();
+	}
 
 	@Test
 	public void shouldCopyFile() throws Exception {

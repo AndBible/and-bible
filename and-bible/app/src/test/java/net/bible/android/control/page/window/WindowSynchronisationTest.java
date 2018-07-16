@@ -8,6 +8,8 @@ import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.service.sword.SwordDocumentFacade;
 
+import net.bible.test.DatabaseResetter;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,6 +44,11 @@ public class WindowSynchronisationTest {
 		};
 		windowRepository = new WindowRepository(mockCurrentPageManagerProvider);
 		windowControl = new WindowControl(windowRepository, eventManager);
+	}
+
+	@After
+	public void tearDown() {
+		DatabaseResetter.resetDatabase();
 	}
 
 	@Test

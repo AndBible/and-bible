@@ -13,6 +13,7 @@ import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.WindowLayout.WindowState;
 import net.bible.service.sword.SwordDocumentFacade;
+import net.bible.test.DatabaseResetter;
 import net.bible.test.PassageTestData;
 
 import org.crosswire.jsword.book.Book;
@@ -21,6 +22,7 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.system.Versifications;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -73,6 +75,11 @@ public class WindowControlTest {
 		windowRepository = new WindowRepository(mockCurrentPageManagerProvider);
 		windowControl = new WindowControl(windowRepository, eventManager);
 		reset(eventManager);
+	}
+
+	@After
+	public void tearDown() {
+		DatabaseResetter.resetDatabase();
 	}
 
 	@Test

@@ -6,6 +6,7 @@ import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.WindowLayout.WindowState;
 import net.bible.service.sword.SwordDocumentFacade;
+import net.bible.test.DatabaseResetter;
 import net.bible.test.PassageTestData;
 
 import org.json.JSONObject;
@@ -30,6 +31,7 @@ public class WindowTest {
 
 	@After
 	public void tearDown() throws Exception {
+		DatabaseResetter.resetDatabase();
 	}
 
 	@Test

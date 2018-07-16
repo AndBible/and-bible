@@ -4,6 +4,8 @@ import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.EventManagerStub;
 import net.bible.android.control.page.CurrentPageManager;
 
+import net.bible.test.DatabaseResetter;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +35,11 @@ public class WindowRepositoryTest {
 		};
 
 		windowRepository = new WindowRepository(mockCurrentPageManagerProvider);
+	}
+
+	@After
+	public void tearDown() {
+		DatabaseResetter.resetDatabase();
 	}
 
 	@Test
