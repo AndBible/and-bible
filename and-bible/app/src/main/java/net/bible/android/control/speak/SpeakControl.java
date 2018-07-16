@@ -11,12 +11,14 @@ import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.bookmark.BookmarkControl;
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.page.CurrentPage;
+import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.speak.TextToSpeechServiceManager;
 
+import net.bible.service.device.speak.event.SpeakProgressEvent;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.book.sword.SwordBook;
@@ -73,6 +75,7 @@ public class SpeakControl {
 	@Inject public BookmarkControl bookmarkControl;
 	private Timer sleepTimer = new Timer("TTS sleep timer");
 	private TimerTask timerTask;
+	private CurrentPageManager speakPageManager;
 
 	@Inject
 	public SpeakControl(Lazy<TextToSpeechServiceManager> textToSpeechServiceManager, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
@@ -229,9 +232,19 @@ public class SpeakControl {
 	}
 
 	public void speakBible() {
-		CurrentPage page = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage();
+		speakPageManager = activeWindowPageManagerProvider.getActiveWindowPageManager();
+		CurrentPage page = speakPageManager.getCurrentPage();
 		Book fromBook = page.getCurrentDocument();
 		speakBible((SwordBook) fromBook, (Verse) page.getSingleKey());
+	}
+
+	public void onEventMainThread(SpeakProgressEvent event) {
+		if(event.getSynchronize()) {
+			if(speakPageManager == null) {
+				speakPageManager = activeWindowPageManagerProvider.getActiveWindowPageManager();
+			}
+			speakPageManager.setCurrentDocumentAndKey(event.getBook(), event.getKey(), false);
+		}
 	}
 
 	public void speakBible(Verse verse) {

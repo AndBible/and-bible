@@ -159,7 +159,7 @@ public class CurrentPageManager {
 		return setCurrentDocumentAndKeyAndOffset(currentBook, key, yOffsetRatio, true);
 	}
 
-	public CurrentPage setCurrentDocumentAndKeyAndOffset(Book currentBook, Key key, float yOffsetRatio, boolean updateHistory) {
+	private CurrentPage setCurrentDocumentAndKeyAndOffset(Book currentBook, Key key, float yOffsetRatio, boolean updateHistory) {
 		PassageChangeMediator.getInstance().onBeforeCurrentPageChanged(updateHistory);
 
 		CurrentPage nextPage = getBookPage(currentBook);
