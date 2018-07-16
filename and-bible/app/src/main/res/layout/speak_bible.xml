@@ -175,7 +175,7 @@
                             />
 
                     <CheckBox
-                            android:text="@string/conf_speak_synchronize_first_window"
+                            android:text="@string/conf_speak_synchronize"
                             android:layout_marginStart="@dimen/speak_row_padding"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"

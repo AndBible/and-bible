@@ -267,7 +267,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
 
     <!-- Speak - Bible -->
     <string name="speak_speed_title">Speak speed</string>
-    <string name="conf_speak_synchronize_first_window">Synchronize first window while speaking</string>
+    <string name="conf_speak_synchronize">Synchronize text with speech</string>
 
     <string name="conf_speak_auto_bookmark">Auto add bookmark on pause/stop. If starting on bookmark, will move bookmark (that has correct label) to new location when stopping. </string>
     <string name="conf_speak_auto_bookmark_label">Label to be used with auto bookmarking</string>
