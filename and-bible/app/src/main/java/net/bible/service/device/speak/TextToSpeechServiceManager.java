@@ -19,7 +19,6 @@ import net.bible.android.view.activity.base.Dialogs;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.speak.event.SpeakEvent;
 import net.bible.service.device.speak.event.SpeakEvent.SpeakState;
-import net.bible.service.device.speak.event.SpeakEventManager;
 
 import net.bible.service.sword.SwordContentFacade;
 import org.apache.commons.lang3.StringUtils;
@@ -78,8 +77,6 @@ public class TextToSpeechServiceManager {
     private SpeakTiming mSpeakTiming;
 
     private TTSLanguageSupport ttsLanguageSupport = new TTSLanguageSupport();
-    
-    private SpeakEventManager speakEventManager = SpeakEventManager.getInstance();
     
     private static final String UTTERANCE_PREFIX = "AND-BIBLE-";
     private long uniqueUtteranceNo = 0;
@@ -404,11 +401,11 @@ public class TextToSpeechServiceManager {
 
     private void fireStateChangeEvent() {
     	if (isPaused) {
-    		speakEventManager.speakStateChanged(new SpeakEvent(SpeakState.PAUSED));
+			ABEventBus.getDefault().post(new SpeakEvent(SpeakState.PAUSED));
     	} else if (isSpeaking) {
-    		speakEventManager.speakStateChanged(new SpeakEvent(SpeakState.SPEAKING));
+			ABEventBus.getDefault().post(new SpeakEvent(SpeakState.SPEAKING));
     	} else {
-    		speakEventManager.speakStateChanged(new SpeakEvent(SpeakState.SILENT));
+			ABEventBus.getDefault().post(new SpeakEvent(SpeakState.SILENT));
     	}
 
     }
