@@ -27,10 +27,7 @@ import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.Versification;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 import javax.inject.Inject;
 
@@ -397,6 +394,15 @@ public class SpeakControl {
 			timerTask.cancel();
 		}
 		timerTask = null;
+	}
+
+	public Date getSleepTimerActivationTime() {
+		if(timerTask == null) {
+			return null;
+		}
+		else {
+			return new Date(timerTask.scheduledExecutionTime());
+		}
 	}
 
 	public boolean sleepTimerActive() {
