@@ -238,7 +238,7 @@ class SpeakBookmarkWidget: AbstractSpeakWidget() {
 
     override fun setupWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
         Log.d(TAG, "setupWidget")
-
+        var bookmarksAdded = false
         val views = RemoteViews(context.packageName, R.layout.speak_bookmarks_widget)
 
         views.removeAllViews(R.id.layout)
@@ -254,6 +254,7 @@ class SpeakBookmarkWidget: AbstractSpeakWidget() {
             val bc = PendingIntent.getBroadcast(context, 0, intent, 0)
             button.setOnClickPendingIntent(R.id.button, bc)
             views.addView(R.id.layout, button)
+            bookmarksAdded = true
         }
 
         val settings = SpeakSettings.load()
@@ -267,12 +268,13 @@ class SpeakBookmarkWidget: AbstractSpeakWidget() {
                 Log.d(TAG, "Added button for $b")
             }
         }
+        views.setViewVisibility(R.id.helptext, if (bookmarksAdded) View.GONE else View.VISIBLE)
 
         val contentIntent = Intent(context, MainBibleActivity::class.java)
         contentIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
 
         val pendingIntent = PendingIntent.getActivity(context, 0, contentIntent, 0)
-        views.setOnClickPendingIntent(R.id.layout, pendingIntent)
+        views.setOnClickPendingIntent(R.id.root, pendingIntent)
         appWidgetManager.updateAppWidget(appWidgetId, views)
     }
 }
