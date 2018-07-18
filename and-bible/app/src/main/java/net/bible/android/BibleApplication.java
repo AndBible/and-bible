@@ -8,6 +8,7 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.util.Log;
 
+import net.bible.android.activity.SpeakWidgetManager;
 import net.bible.android.control.ApplicationComponent;
 import net.bible.android.control.DaggerApplicationComponent;
 import net.bible.android.control.event.ABEventBus;
@@ -52,6 +53,7 @@ public class BibleApplication extends Application{
 
 	private static final String TAG = "BibleApplication";
 	private TextToSpeechNotificationManager ttsNotificationManager;
+	private SpeakWidgetManager ttsWidgetManager;
 
 	@Override
 	public void onCreate() {
@@ -92,6 +94,7 @@ public class BibleApplication extends Application{
 		localeOverrideAtStartup = LocaleHelper.getOverrideLanguage(this);
 
 		ttsNotificationManager = new TextToSpeechNotificationManager();
+		ttsWidgetManager = new SpeakWidgetManager();
 	}
 
 	public ApplicationComponent getApplicationComponent() {
@@ -227,8 +230,10 @@ public class BibleApplication extends Application{
 	public void onTerminate() {
 		Log.i(TAG, "onTerminate");
 		ttsNotificationManager.destroy();
+		ttsWidgetManager.destroy();
 		super.onTerminate();
 		ABEventBus.getDefault().unregisterAll();
+		singleton = null;
 	}
 	
 	// difficult to show dialogs during Activity onCreate so save it until later

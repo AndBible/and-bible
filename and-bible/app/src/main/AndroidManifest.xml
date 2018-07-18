@@ -165,7 +165,7 @@
 
         <receiver android:name="net.bible.service.device.speak.TextToSpeechNotificationManager$NotificationReceiver" android:exported="false"/>
 
-        <receiver android:name=".SpeakWidget1">
+        <receiver android:name=".SpeakWidgetManager$SpeakWidget1">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>
@@ -175,7 +175,7 @@
                     android:resource="@xml/speak_widget1_info"/>
         </receiver>
 
-        <receiver android:name=".SpeakWidget2">
+        <receiver android:name=".SpeakWidgetManager$SpeakWidget2">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>
@@ -185,7 +185,7 @@
                     android:resource="@xml/speak_widget2_info"/>
         </receiver>
 
-        <receiver android:name=".SpeakWidget3">
+        <receiver android:name=".SpeakWidgetManager$SpeakWidget3">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>
@@ -194,7 +194,7 @@
                     android:name="android.appwidget.provider"
                     android:resource="@xml/speak_widget3_info"/>
         </receiver>
-        <receiver android:name=".SpeakBookmarkWidget">
+        <receiver android:name=".SpeakWidgetManager$SpeakBookmarkWidget">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
             </intent-filter>
