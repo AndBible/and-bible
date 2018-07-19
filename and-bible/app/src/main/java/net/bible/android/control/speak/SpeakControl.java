@@ -381,6 +381,9 @@ public class SpeakControl {
 				@Override
 				public void run() {
 					pause(false, false);
+					SpeakSettings s = SpeakSettings.Companion.load();
+					s.setSleepTimer(0);
+					s.save();
 				}
 			};
 			sleepTimer.schedule(timerTask, sleepTimerAmount * 60000);
