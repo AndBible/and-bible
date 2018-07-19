@@ -14,6 +14,7 @@ import net.bible.android.control.speak.*
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.db.bookmark.LabelDto
+import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakProgressEvent
 import javax.inject.Inject
 
@@ -78,7 +79,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     }
 
     override fun resetView(settings: SpeakSettings) {
-        statusText.text = speakControl.getStatusText()
+        statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
         synchronize.isChecked = settings.synchronize
         speakChapterChanges.isChecked = settings.playbackSettings.speakChapterChanges
         speakTitles.isChecked = settings.playbackSettings.speakTitles
@@ -108,7 +109,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     }
 
     fun onEventMainThread(ev: SpeakProgressEvent) {
-        statusText.text = speakControl.getStatusText()
+        statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
     }
 
 
@@ -164,6 +165,6 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e)
             Log.e(TAG, "Error: ", e)
         }
-        statusText.text = speakControl.getStatusText()
+        statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
     }
 }

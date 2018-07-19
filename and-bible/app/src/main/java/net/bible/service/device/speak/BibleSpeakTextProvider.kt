@@ -40,6 +40,9 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     companion object {
         private const val PERSIST_BOOK = "SpeakBibleBook"
         private const val PERSIST_VERSE = "SpeakBibleVerse"
+        const val FLAG_SHOW_PERCENT: Int = 0b1
+        const val FLAG_SHOW_BOOK: Int = 0b10
+        const val FLAG_SHOW_ALL = FLAG_SHOW_BOOK or FLAG_SHOW_PERCENT
         private const val TAG = "Speak"
     }
 
@@ -209,9 +212,16 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         return cmds;
     }
 
-    override fun getStatusText(): String {
+    override fun getStatusText(showFlag: Int): String {
         val percent = bibleTraverser.getPercentOfBook(currentState.startVerse)
-        return "${getVerseRange().name} - $percent% - ${currentState.book.abbreviation}"
+        var result = getVerseRange().name
+        if(showFlag and FLAG_SHOW_PERCENT != 0) {
+            result += " - $percent%"
+        }
+        if(showFlag and FLAG_SHOW_BOOK != 0) {
+            result += " - ${currentState.book.abbreviation}"
+        }
+        return result
     }
 
     override fun getText(utteranceId: String): String {

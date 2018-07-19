@@ -582,8 +582,8 @@ public class TextToSpeechServiceManager {
 		}
     }
 
-	public CharSequence getStatusText() {
-		return mSpeakTextProvider.getStatusText();
+	public String getStatusText(int showFlag) {
+		return mSpeakTextProvider.getStatusText(showFlag);
 	}
 
 	public void updateSettings(SpeakSettingsChangedEvent ev) {

@@ -21,6 +21,7 @@ import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
+import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.TextCommand
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
@@ -40,6 +41,7 @@ class SpeakWidgetManager {
     private val resetTitle = app.getString(R.string.app_name)
     private var currentTitle = resetTitle
     private var currentStatus = ""
+    private var currentSmallStatus = resetTitle
 
     init {
         if(instance != null) {
@@ -65,7 +67,8 @@ class SpeakWidgetManager {
                     currentTitle = resetTitle
                 }
             }
-            currentStatus = speakControl.statusText as String
+            currentStatus = speakControl.getStatusText(FLAG_SHOW_ALL)
+            currentSmallStatus = speakControl.getStatusText(0)
             updateWidgetTexts()
         }
     }
@@ -76,6 +79,7 @@ class SpeakWidgetManager {
         } else if (!ev.isSpeaking && !ev.isPaused) {
             currentTitle = resetTitle
             currentStatus = ""
+            currentSmallStatus = resetTitle
         }
         updateWidgetTexts()
         updateWidgetSpeakButton(ev.isSpeaking)
@@ -98,6 +102,7 @@ class SpeakWidgetManager {
         val views = RemoteViews(app.packageName, R.layout.speak_widget)
         Log.d(TAG, "updating status with $currentStatus")
         views.setTextViewText(R.id.statusText, currentStatus)
+        views.setTextViewText(R.id.smallStatusText, currentSmallStatus)
         views.setTextViewText(R.id.titleText, currentTitle)
         partialUpdateWidgets(views)
     }
@@ -192,6 +197,8 @@ class SpeakWidgetManager {
 
     abstract class AbstractButtonSpeakWidget : AbstractSpeakWidget() {
         protected abstract val buttons: List<String>
+        open val smallStatus = false
+        open val showTitle = true
         private val allButtons: List<String> = listOf(ACTION_FAST_FORWARD, ACTION_NEXT, ACTION_PREV, ACTION_REWIND,
                 ACTION_SPEAK, ACTION_STOP, ACTION_SLEEP_TIMER)
 
@@ -204,11 +211,12 @@ class SpeakWidgetManager {
         }
 
         override fun setupWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
-            Log.d(TAG, "setupBookmarkWidget")
+            Log.d(TAG, "setuWidget (speakWidget)")
 
             val views = RemoteViews(context.packageName, R.layout.speak_widget)
             views.setTextViewText(R.id.titleText, instance.currentTitle)
             views.setTextViewText(R.id.statusText, instance.currentStatus)
+            views.setTextViewText(R.id.smallStatusText, instance.currentSmallStatus)
 
             fun setupButton(action: String, button: Int, visible: Int) {
                 val intent = Intent(context, javaClass)
@@ -228,6 +236,10 @@ class SpeakWidgetManager {
                 if (buttonId != null) {
                     setupButton(b, buttonId, if (buttons.contains(b)) View.VISIBLE else View.GONE)
                 }
+            }
+            views.setViewVisibility(if (smallStatus) R.id.statusText else R.id.smallStatusText, View.GONE)
+            if(!showTitle) {
+                views.setViewVisibility(R.id.titleText, View.GONE)
             }
             appWidgetManager.updateAppWidget(appWidgetId, views)
             instance.updateSleepTimerButtonIcon(SpeakSettings.load())
@@ -310,10 +322,13 @@ class SpeakWidgetManager {
 
     class SpeakWidget1 : AbstractButtonSpeakWidget() {
         override val buttons: List<String> = listOf(ACTION_REWIND, ACTION_SPEAK)
+        override val smallStatus = true
+        override val showTitle = false
     }
 
     class SpeakWidget2 : AbstractButtonSpeakWidget() {
         override val buttons: List<String> = listOf(ACTION_FAST_FORWARD, ACTION_REWIND, ACTION_SPEAK, ACTION_STOP, ACTION_SLEEP_TIMER)
+        override val smallStatus = true
     }
 
     class SpeakWidget3 : AbstractButtonSpeakWidget() {

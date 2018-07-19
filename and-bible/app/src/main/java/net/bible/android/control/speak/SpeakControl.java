@@ -366,9 +366,8 @@ public class SpeakControl {
 		}
 	}
 
-	@Nullable
-	public CharSequence getStatusText() {
-		return textToSpeechServiceManager.get().getStatusText();
+	public String getStatusText(int showFlag) {
+		return textToSpeechServiceManager.get().getStatusText(showFlag);
 	}
 
 	private void enableSleepTimer(int sleepTimerAmount) {

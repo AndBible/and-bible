@@ -43,6 +43,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
     
     // require DOTALL to allow . to match new lines which occur in books like JOChrist
 	private static Pattern BREAK_PATTERN = Pattern.compile(".{100,2000}[a-z]+[.?!][\\s]{1,}+", Pattern.DOTALL);
+	private Book book = null;
 
 	@Override
 	public void startUtterance(@NotNull String utteranceId) {
@@ -56,8 +57,13 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 
 	@NotNull
 	@Override
-	public String getStatusText() {
-		return "";
+	public String getStatusText(int showFlag) {
+		if(this.book != null) {
+			return this.book.getName();
+		}
+		else {
+			return "";
+		}
 	}
 
 	@Override
@@ -85,6 +91,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	}
 
 	private void setupReading(List<String> textsToSpeak) {
+		book = null;
 		for (String text : textsToSpeak) {
 	   		this.mTextToSpeak.addAll(breakUpText(text));
 		}
@@ -92,6 +99,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	}
 
 	void setupReading(Book book, List<Key> keyList, boolean repeat) {
+		this.book = book;
 		Log.d(TAG, "Keys:"+keyList.size());
 		// build a string containing the text to be spoken
 		List<String> textToSpeak = new ArrayList<>();
