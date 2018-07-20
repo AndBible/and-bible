@@ -268,7 +268,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         if(settings.autoBookmarkLabelId != null) {
             val verse = currentVerse
 
-            val bookmarkDto = bookmarkControl.getBookmarkByKey(verse)
+            val bookmarkDto = bookmarkControl.getBookmarkByKey(verse)?: return
             val labelList = bookmarkControl.getBookmarkLabels(bookmarkDto)
             val ttsLabel = labelList.find { it.id == settings.autoBookmarkLabelId }
 
@@ -468,7 +468,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         }
         if(sharedPreferences.contains(PERSIST_VERSE)) {
             val verseStr = sharedPreferences.getString(PERSIST_VERSE, "")
-            startVerse = osisIdToVerse(verseStr)
+            startVerse = osisIdToVerse(verseStr)?: return false
             endVerse = startVerse
             currentVerse = startVerse
             return true
@@ -476,9 +476,9 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         return false
     }
 
-    private fun osisIdToVerse(osisId: String): Verse {
-        val verse = book.getKey(osisId) as RangedPassage
-        return verse.getVerseAt(0)
+    private fun osisIdToVerse(osisId: String): Verse? {
+        val verse = book.getKey(osisId) as RangedPassage?
+        return verse?.getVerseAt(0)
     }
 
     override fun clearPersistedState() {

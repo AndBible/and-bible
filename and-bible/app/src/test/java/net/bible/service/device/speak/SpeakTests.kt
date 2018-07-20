@@ -188,7 +188,7 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         changeSpeed(201)
         assertThat(bookmarkControl.getBookmarkByKey(getVerse("Rom.1.2")), nullValue())
         var b = bookmarkControl.getBookmarkByKey((getVerse("Rom.1.3")))
-        assertThat(b.playbackSettings!!.speed, equalTo(201))
+        assertThat(b!!.playbackSettings!!.speed, equalTo(201))
 
         // Test that bookmark is moved properly when paused / stopped
         speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE) // to Rom.1.4
@@ -199,7 +199,7 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         // Check that altering playback settigns are saved to bookmark when paused
         changeSpeed(202)
         b = bookmarkControl.getBookmarkByKey((getVerse("Rom.1.4")))
-        assertThat(b.playbackSettings!!.speed, equalTo(202))
+        assertThat(b!!.playbackSettings!!.speed, equalTo(202))
 
 
         // Check that altering playback settigns are saved to bookmark when paused and we have moved away
@@ -207,7 +207,7 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
 
         changeSpeed(206)
         b = bookmarkControl.getBookmarkByKey((getVerse("Rom.1.4")))
-        assertThat(b.playbackSettings!!.speed, equalTo(206))
+        assertThat(b!!.playbackSettings!!.speed, equalTo(206))
 
 
         // continue...
@@ -220,14 +220,14 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
         // Check that altering playback settigns are saved to bookmark when stopped
         changeSpeed(203)
         b = bookmarkControl.getBookmarkByKey((getVerse("Rom.1.5")))
-        assertThat(b.playbackSettings!!.speed, equalTo(203))
+        assertThat(b!!.playbackSettings!!.speed, equalTo(203))
 
         // Check that altering playback settigns are not saved to bookmark when stopped and we have moved away
         windowControl.windowRepository.firstWindow.pageManager.setCurrentDocumentAndKey(book, getVerse("Rom.2.1"))
 
         changeSpeed(204)
         b = bookmarkControl.getBookmarkByKey((getVerse("Rom.1.5")))
-        assertThat(b.playbackSettings!!.speed, equalTo(203))
+        assertThat(b!!.playbackSettings!!.speed, equalTo(203))
     }
 }
 
@@ -551,7 +551,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         text = nextText()
         provider.pause();
         labelDto.id = provider.settings.autoBookmarkLabelId
-        dto = bookmarkControl.getBookmarkByKey(verse)
+        dto = bookmarkControl.getBookmarkByKey(verse)!!
         assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(2))
         provider.pause()
         assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(2))
@@ -582,7 +582,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         text = nextText()
         provider.pause();
         labelDto.id = provider.settings.autoBookmarkLabelId
-        dto = bookmarkControl.getBookmarkByKey(verse)
+        dto = bookmarkControl.getBookmarkByKey(verse)!!
         assertThat(dto.playbackSettings, notNullValue())
         assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(2))
         provider.pause()
@@ -595,7 +595,7 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         text = nextText()
         text = nextText()
         provider.stop()
-        dto = bookmarkControl.getBookmarkByKey(verse)
+        dto = bookmarkControl.getBookmarkByKey(verse)!!
         assertThat(dto.playbackSettings, nullValue())
         assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
     }

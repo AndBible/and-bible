@@ -309,13 +309,12 @@ class SpeakWidgetManager {
             if (intent?.action == ACTION_BOOKMARK) {
                 val osisRef = intent.data.host
                 Log.d(TAG, "onReceive osisRef $osisRef")
-                val dto = bookmarkControl.getBookmarkByOsisRef(osisRef)
+                val dto = bookmarkControl.getBookmarkByOsisRef(osisRef) ?: return
                 if (speakControl.isSpeaking || speakControl.isPaused) {
                     speakControl.stop()
                 }
-                val playbackSettings = dto.playbackSettings
-                if(playbackSettings?.bookAbbreviation != null) {
-                    val book = Books.installed().getBook(playbackSettings.bookAbbreviation) as SwordBook
+                val book = Books.installed().getBook(dto.playbackSettings?.bookAbbreviation) as SwordBook?
+                if(book != null) {
                     speakControl.speakBible(book, dto.verseRange.start)
                 } else {
                     speakControl.speakBible(dto.verseRange.start)

@@ -30,6 +30,8 @@ import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.Versification;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -257,11 +259,13 @@ public class BookmarkControl {
 	}
 
 	/** get bookmark with the same start verse as this key if it exists or return null */
+	@Nullable
 	public BookmarkDto getBookmarkByKey(Key key) {
 		return getBookmarkByOsisRef(key.getOsisRef());
 	}
 
 	/** get bookmark with the same start verse as this key if it exists or return null */
+	@Nullable
 	public BookmarkDto getBookmarkByOsisRef(String osisRef) {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		BookmarkDto bookmark = null;
@@ -316,6 +320,7 @@ public class BookmarkControl {
 
 
 	/** get bookmarks associated labels */
+	@NotNull
 	public List<LabelDto> getBookmarkLabels(BookmarkDto bookmark) {
 		if(bookmark == null) {
 			return new ArrayList<>();
