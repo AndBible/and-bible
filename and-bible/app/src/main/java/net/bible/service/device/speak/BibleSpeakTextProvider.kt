@@ -309,18 +309,21 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         val labelList = ArrayList<LabelDto>()
         if(settings.autoBookmarkLabelId != null) {
             var bookmarkDto = bookmarkControl.getBookmarkByKey(startVerse)
+            val playbackSettings = settings.playbackSettings.copy()
+            playbackSettings.bookAbbreviation = book.abbreviation
+
             if(bookmarkDto == null) {
                 bookmarkDto = BookmarkDto()
                 bookmarkDto.verseRange = VerseRange(startVerse.versification, startVerse)
                 if(settings.restoreSettingsFromBookmarks) {
-                    bookmarkDto.playbackSettings = settings.playbackSettings
+                    bookmarkDto.playbackSettings = playbackSettings
                 }
                 bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto)
             }
             else {
                 labelList.addAll(bookmarkControl.getBookmarkLabels(bookmarkDto))
                 if(settings.restoreSettingsFromBookmarks) {
-                    bookmarkDto.playbackSettings = settings.playbackSettings
+                    bookmarkDto.playbackSettings = playbackSettings
                 }
                 bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto)
             }

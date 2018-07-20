@@ -16,7 +16,10 @@ data class PlaybackSettings (
                          @Optional val speakTitles: Boolean = true,
                          @Optional val playEarconChapter: Boolean = false,
                          @Optional val playEarconTitles: Boolean = true,
-                         @Optional var speed: Int = 100
+                         @Optional var speed: Int = 100,
+
+                         // Restoring bookmark from widget uses this.
+                         @Optional var bookAbbreviation: String? = null
 ) {
     companion object {
         fun fromJson(jsonString: String): PlaybackSettings {

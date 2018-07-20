@@ -25,6 +25,8 @@ import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW
 import net.bible.service.device.speak.TextCommand
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
 import javax.inject.Inject
 
 
@@ -310,10 +312,14 @@ class SpeakWidgetManager {
                 if (speakControl.isSpeaking || speakControl.isPaused) {
                     speakControl.stop()
                 }
-                speakControl.speakBible(dto.verseRange.start)
+                if(dto.playbackSettings.bookAbbreviation != null) {
+                    val book = Books.installed().getBook(dto.playbackSettings.bookAbbreviation) as SwordBook
+                    speakControl.speakBible(book, dto.verseRange.start)
+                } else {
+                    speakControl.speakBible(dto.verseRange.start)
+                }
             }
         }
-
 
         override fun setupWidget(context: Context, appWidgetManager: AppWidgetManager, appWidgetId: Int) {
             instance.setupBookmarkWidget(context, appWidgetManager, appWidgetId)
