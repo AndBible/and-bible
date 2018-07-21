@@ -61,8 +61,8 @@ class ParagraphChangeCommand : SilenceCommand(true)
 
 class SpeakCommandArray: ArrayList<SpeakCommand>() {
     private val maxLength = TextToSpeech.getMaxSpeechInputLength()
-    private val endsWithSentenceBreak = Regex("(.*)([.?!]+[`´”“\"']*\\W*)")
-    private val splitIntoTwoSentences = Regex("(.*)([.?!]+[`´”“\"']*\\W*)(.+)")
+    private val endsWithSentenceBreak = Regex(".*[.?!]+[\"']*\\W*")
+    private val splitIntoTwoSentences = Regex("(.*)([.?!]+[\"']*)(\\W*.+)")
 
     fun copy(): SpeakCommandArray {
         val cmds = SpeakCommandArray()

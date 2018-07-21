@@ -710,6 +710,23 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text, endsWith("tekee hyvää."))
     }
 
+    @Ignore("This bible module is not yet released")
+    @Test
+    fun textProgression2STLK() {
+        book = Books.installed().getBook("STLK2017") as SwordBook
+        provider.setupReading(book, getVerse("Ezra.4.8"))
+
+        val text1 = nextText()
+        val range1 = range()
+        val text2 = nextText()
+        val range2 = range()
+        assertThat(text1, startsWith("Käskynhaltija"))
+        assertThat(text1, endsWith("Silloin ja silloin."))
+        assertThat(range1, equalTo("Ezra.4.8-Ezra.4.9"))
+        assertThat(text2, startsWith("\"Käskynhaltija"))
+        assertThat(range2, equalTo("Ezra.4.9-Ezra.4.10"))
+    }
+
     @Test
     @Config(qualifiers = "en")
     fun testBookWithoutOldTestament() {
