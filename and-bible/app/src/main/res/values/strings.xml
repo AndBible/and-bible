@@ -308,6 +308,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="widget_toggle_sleep_timer">Toggle sleep timer</string>
     <string name="bookmarkwidget_helptext">Speak bookmarks shortcut buttons will appear here</string>
     <string name="sleep_timer_active_at">Sleep timer: %s minutes left.</string>
+    <string name="speak_status_stopped">- stopped - </string>
 
     <string-array name="divinename_original">
         <item>Lord</item>

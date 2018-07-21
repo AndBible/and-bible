@@ -367,7 +367,11 @@ public class SpeakControl {
 	}
 
 	public String getStatusText(int showFlag) {
-		return textToSpeechServiceManager.get().getStatusText(showFlag);
+		if(!isSpeaking() && !isPaused()) {
+			return BibleApplication.getApplication().getString(R.string.speak_status_stopped);
+		} else {
+			return textToSpeechServiceManager.get().getStatusText(showFlag);
+		}
 	}
 
 	private void enableSleepTimer(int sleepTimerAmount) {

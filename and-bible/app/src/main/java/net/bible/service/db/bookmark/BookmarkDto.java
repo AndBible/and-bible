@@ -7,6 +7,7 @@ import net.bible.android.control.versification.sort.ConvertibleVerseRangeUser;
 
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.Versification;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
 
@@ -43,6 +44,7 @@ public class BookmarkDto implements ConvertibleVerseRangeUser {
 		this.createdOn = createdOn;
 	}
 
+	@Nullable
 	public PlaybackSettings getPlaybackSettings(){
 		return playbackSettings;
 	}
