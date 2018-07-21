@@ -312,14 +312,14 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
 
     <string-array name="divinename_original">
         <item>Lord</item>
-        <item/>
+        <item>God</item>
         <item/>
         <item/>
         <item/>
     </string-array>
     <string-array name="divinename_replace">
         <item>Yahweh</item>
-        <item/>
+        <item>Yahweh</item>
         <item/>
         <item/>
         <item/>

@@ -1,5 +1,7 @@
 package net.bible.service.format.osistohtml.osishandlers
 
+import android.os.Build
+import android.text.Html
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
 import net.bible.android.control.speak.SpeakSettings
@@ -21,6 +23,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
     private var divineNameOriginal: Array<String>
     private var divineNameReplace: Array<String>
     private var titleLevel = 0
+    private var divineNameLevel = 0
     private var anyTextWritten = false
 
     init {
@@ -53,8 +56,9 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
             elementStack.push(StackEntry(false))
         } else if (name == OSISUtil.OSIS_ELEMENT_REFERENCE) {
             elementStack.push(StackEntry(false))
-        } else if (name == OSISUtil2.OSIS_ELEMENT_DIVINENAME) {
+        }  else if (name == OSISUtil2.OSIS_ELEMENT_DIVINENAME) {
             elementStack.push(StackEntry(peekVisible, TAG_TYPE.DIVINE_NAME))
+            divineNameLevel ++;
         } else if (name == OSISUtil.OSIS_ELEMENT_TITLE) {
             elementStack.push(StackEntry(peekVisible, TAG_TYPE.TITLE))
             speakCommands.add(PreTitleCommand(speakSettings))
@@ -94,10 +98,13 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
             }
         }
         else if(state.tagType == TAG_TYPE.TITLE) {
-            if(speakSettings.playbackSettings.speakTitles) {
+            if (speakSettings.playbackSettings.speakTitles) {
                 speakCommands.add(SilenceCommand())
             }
             titleLevel--;
+        }
+        else if(state.tagType == TAG_TYPE.DIVINE_NAME) {
+            divineNameLevel--;
         }
     }
 
@@ -105,14 +112,26 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
      * Handle characters encountered in tags
     */
     override fun characters(buf: CharArray, offset: Int, len: Int) {
+        addText(String(buf, offset, len))
+    }
+
+    private fun addText(text: String) {
         val currentState = elementStack.peek()
-        var s = String(buf, offset, len)
+        var s = text
         s = s.replace("”", "\"")
         s = s.replace("“", "\"")
         s = s.replace("`", "'")
         s = s.replace("´", "'")
+        s = s.replace("’", "'")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            s = Html.fromHtml(s, 0).toString()
+        }
+        else {
+            s = s.replace("&quot;", "\"")
+        }
+
         if(currentState.visible) {
-            if(currentState.tagType == TAG_TYPE.DIVINE_NAME) {
+            if(divineNameLevel > 0) {
                 if(speakSettings.replaceDivineName) {
                     for(i in 0 until divineNameOriginal.size) {
                         if(divineNameOriginal[i].isNotEmpty()) {

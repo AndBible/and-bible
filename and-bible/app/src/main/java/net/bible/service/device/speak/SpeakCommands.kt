@@ -63,6 +63,7 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
     private val maxLength = TextToSpeech.getMaxSpeechInputLength()
     private val endsWithSentenceBreak = Regex(".*[.?!]+[\"']*\\W*")
     private val splitIntoTwoSentences = Regex("(.*)([.?!]+[\"']*)(\\W*.+)")
+    private val startsWithDelimeter = Regex("([,.?!\"':;()]+|'s)( .*|)")
 
     fun copy(): SpeakCommandArray {
         val cmds = SpeakCommandArray()
@@ -112,7 +113,10 @@ class SpeakCommandArray: ArrayList<SpeakCommand>() {
             if(element.text.isEmpty())
                 return false
             if(lastCommand is TextCommand) {
-                val newText = "${lastCommand.text} ${element.text}"
+                val newText = if(startsWithDelimeter.matches(element.text))
+                    "${lastCommand.text}${element.text}"
+                else
+                    "${lastCommand.text} ${element.text}"
                 if (newText.length > maxLength)
                     return super.add(element)
                 else {

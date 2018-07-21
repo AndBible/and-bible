@@ -362,7 +362,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         assertThat(cmds.size, equalTo(4))
     }
 
-    @Ignore("This bible module is not yet released")
+    //@Ignore("This bible module is not yet released")
     @Test
     fun testTitle2STLK() {
         book = Books.installed().getBook("STLK2017") as SwordBook
@@ -376,7 +376,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         assertThat(cmds.size, equalTo(4))
     }
 
-    @Ignore("This bible module is not yet released")
+    //@Ignore("This bible module is not yet released")
     @Test
     fun testTitleSTLK() {
         book = Books.installed().getBook("STLK2017") as SwordBook
@@ -414,7 +414,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         assertThat(cmds.size, equalTo(3))
     }
 
-    @Ignore("This bible module is not yet released")
+    //@Ignore("This bible module is not yet released")
     @Test
     fun testParagraphChangeSTLK() {
         book = Books.installed().getBook("STLK2017") as SwordBook
@@ -427,7 +427,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         assertThat(cmds.size, equalTo(3))
     }
 
-    @Ignore("This bible module is not yet released")
+    //@Ignore("This bible module is not yet released")
     @Test
     fun testQuotationMarkAnomalySTLK() {
         book = Books.installed().getBook("STLK2017") as SwordBook
@@ -445,7 +445,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         assertThat(cmd2.text, endsWith("pyhitän teidät."))
     }
 
-    @Ignore("This bible module is not yet released")
+    //@Ignore("This bible module is not yet released")
     @Test
     fun testDivinenameInTitle() {
         val s = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), replaceDivineName = true)
@@ -459,7 +459,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         assertThat("Command is of correct type", cmds[3] is TextCommand)
     }
 
-    @Ignore("This bible module is not yet released")
+    //@Ignore("This bible module is not yet released")
     @Test
     fun testDivinenameInText() {
         val s = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), replaceDivineName = true)
@@ -710,7 +710,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text, endsWith("tekee hyvää."))
     }
 
-    @Ignore("This bible module is not yet released")
+    //@Ignore("This bible module is not yet released")
     @Test
     fun textProgression2STLK() {
         book = Books.installed().getBook("STLK2017") as SwordBook
@@ -725,6 +725,91 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(range1, equalTo("Ezra.4.8-Ezra.4.9"))
         assertThat(text2, startsWith("\"Käskynhaltija"))
         assertThat(range2, equalTo("Ezra.4.9-Ezra.4.10"))
+    }
+
+    //@Ignore("This bible module is not yet released")
+    @Test
+    fun textProgression3STLK() {
+        book = Books.installed().getBook("STLK2017") as SwordBook
+        provider.settings = SpeakSettings(replaceDivineName = true)
+        provider.setupReading(book, getVerse("Ezek.34.27"))
+
+        val text1 = nextText()
+        val range1 = range()
+        assertThat(text1, startsWith("Kedon puut kantavat"))
+        assertThat(text1, endsWith("orjuuttajiensa käsistä."))
+        assertThat(text1, containsString("minä olen Jahve, kun särjen"))
+        assertThat(range1, equalTo("Ezek.34.27"))
+    }
+
+    //@Ignore("This bible module is not yet released")
+    @Test
+    fun textProgression4STLK() {
+        book = Books.installed().getBook("STLK2017") as SwordBook
+        provider.settings = SpeakSettings(replaceDivineName = true)
+        provider.setupReading(book, getVerse("Ezek.35.1"))
+        nextText() // title
+        val text1 = nextText()
+        assertThat(text1, startsWith("Minulle tuli tämä Jahven sana, ja se kuului: \"Ihmislapsi, käännä"))
+        assertThat(text1, endsWith("autioksi ja hävitetyksi."))
+    }
+
+    //@Ignore("This bible module is not yet released")
+    @Test
+    fun textProgression5STLK() {
+        book = Books.installed().getBook("STLK2017") as SwordBook
+        provider.settings = SpeakSettings(replaceDivineName = true)
+        provider.setupReading(book, getVerse("Ezek.35.4"))
+        val text1 = nextText()
+        assertThat(text1, endsWith("Tulet tietämään, että minä olen Jahve."))
+    }
+
+
+    @Config(qualifiers="en")
+    @Test
+    fun textProgressionESV() {
+        book = Books.installed().getBook("ESV2011") as SwordBook
+        provider.settings = SpeakSettings(replaceDivineName = true)
+        provider.setupReading(book, getVerse("Ezek.34.27"))
+
+        val text1 = nextText()
+        val range1 = range()
+        assertThat(text1, startsWith("And the trees of the field shall yield their fruit, and"))
+        assertThat(text1, endsWith("who enslaved them."))
+        assertThat(text1, containsString("I am the Yahweh, when I break"))
+        assertThat(range1, equalTo("Ezek.34.27"))
+    }
+
+    @Config(qualifiers="en")
+    @Test
+    fun textProgression2ESV() {
+        book = Books.installed().getBook("ESV2011") as SwordBook
+        provider.settings = SpeakSettings(replaceDivineName = true)
+        provider.setupReading(book, getVerse("Ezek.36.2"))
+
+        val text1 = nextText()
+        assertThat(text1, startsWith("Thus says the Lord Yahweh: Because the enemy said of you, Aha! and, The ancient heights have become our possession,"))
+    }
+
+    @Config(qualifiers="en")
+    @Test
+    fun textProgression3ESV() {
+        book = Books.installed().getBook("ESV2011") as SwordBook
+        provider.settings = SpeakSettings(replaceDivineName = true)
+        provider.setupReading(book, getVerse("Ezek.36.16"))
+
+        val text1 = nextText()// Title
+        assertThat(text1, startsWith("The Yahweh's Concern for His Holy Name"))
+    }
+
+    @Test
+    fun textProgressionFinPR() {
+        book = Books.installed().getBook("FinPR") as SwordBook
+        provider.settings = SpeakSettings(replaceDivineName = true, playbackSettings = PlaybackSettings(speakChapterChanges = false, playEarconChapter = false))
+        provider.setupReading(book, getVerse("Ezek.36.38"))
+
+        val text1 = nextText()
+        assertThat(text1, endsWith("että minä olen Herra.\""))
     }
 
     @Test

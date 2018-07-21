@@ -311,14 +311,14 @@
   <string-array name="divinename_original">
     <item>Herraan</item>
     <item>Herra</item>
-    <item/>
+    <item>Jumala</item>
     <item/>
     <item/>
   </string-array>
   <string-array name="divinename_replace">
     <item>Jahveen</item>
     <item>Jahve</item>
-    <item/>
+    <item>Jahve</item>
     <item/>
     <item/>
   </string-array>

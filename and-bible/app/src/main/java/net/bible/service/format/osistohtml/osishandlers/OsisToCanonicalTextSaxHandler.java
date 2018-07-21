@@ -1,6 +1,8 @@
 package net.bible.service.format.osistohtml.osishandlers;
 
 
+import android.os.Build;
+import android.text.Html;
 import net.bible.service.common.Logger;
 import net.bible.service.format.osistohtml.taghandler.TagHandlerHelper;
 
@@ -128,7 +130,14 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
     public void characters (char buf[], int offset, int len) {
         if (CONTENT_STATE.WRITE.equals(writeContentStack.peek())) {
         	String s = new String(buf, offset, len);
-            write(s);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+				if(s.charAt(0) == ' ') {
+					// fromHtml strips leading whitespaces, which is not desirable
+					write(" ");
+				}
+				s = Html.fromHtml(s, 0).toString();
+			}
+			write(s);
         }
     }
 
