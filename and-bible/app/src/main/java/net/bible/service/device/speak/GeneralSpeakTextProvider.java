@@ -3,11 +3,13 @@ package net.bible.service.device.speak;
 import android.content.SharedPreferences;
 import android.util.Log;
 
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.speak.SpeakSettings;
 import net.bible.android.control.speak.SpeakSettingsChangedEvent;
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
 
+import net.bible.service.device.speak.event.SpeakProgressEvent;
 import net.bible.service.sword.SwordContentFacade;
 import org.apache.commons.lang3.StringUtils;
 import org.crosswire.jsword.book.Book;
@@ -44,10 +46,16 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
     // require DOTALL to allow . to match new lines which occur in books like JOChrist
 	private static Pattern BREAK_PATTERN = Pattern.compile(".{100,2000}[a-z]+[.?!][\\s]{1,}+", Pattern.DOTALL);
 	private Book book = null;
+	private List<Key> keyList = null;
 
 	@Override
 	public void startUtterance(@NotNull String utteranceId) {
-
+		if (keyList != null && keyList.size() > 0) {
+			ABEventBus.getDefault().post(new SpeakProgressEvent(book, keyList.get(0), false,
+					new TextCommand(currentText, TextCommand.TextType.NORMAL)));
+			ABEventBus.getDefault().post(new SpeakProgressEvent(book, keyList.get(0), false,
+					new TextCommand(book.getName(), TextCommand.TextType.TITLE)));
+		}
 	}
 
 	@Override
@@ -58,8 +66,8 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	@NotNull
 	@Override
 	public String getStatusText(int showFlag) {
-		if(this.book != null) {
-			return this.book.getName();
+		if(keyList != null && keyList.size() > 0) {
+			return keyList.get(0).getName();
 		}
 		else {
 			return "";
@@ -91,7 +99,6 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 	}
 
 	private void setupReading(List<String> textsToSpeak) {
-		book = null;
 		for (String text : textsToSpeak) {
 	   		this.mTextToSpeak.addAll(breakUpText(text));
 		}
@@ -103,7 +110,7 @@ public class GeneralSpeakTextProvider implements SpeakTextProvider {
 		Log.d(TAG, "Keys:"+keyList.size());
 		// build a string containing the text to be spoken
 		List<String> textToSpeak = new ArrayList<>();
-
+		this.keyList = keyList;
 		// first concatenate the number of required chapters
 		try {
 			for (Key key : keyList) {
