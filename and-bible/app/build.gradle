@@ -50,8 +50,8 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support:appcompat-v7:25.3.1'
-    implementation 'com.android.support:design:25.3.1'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:design:27.1.1'
 
     implementation files('libs/jsword.jar')
     implementation files('libs/mmseg4j-all-1.8.4.jar')
@@ -77,7 +77,7 @@ dependencies {
     implementation "org.jetbrains.anko:anko-commons:$anko_version"
 
     // allow annotations like UIThread, StringRes see: https://developer.android.com/reference/android/support/annotation/package-summary.html
-    implementation 'com.android.support:support-annotations:25.3.1'
+    implementation 'com.android.support:support-annotations:27.1.1'
 
     testImplementation 'org.apache.httpcomponents:httpclient:4.3.2'
 
