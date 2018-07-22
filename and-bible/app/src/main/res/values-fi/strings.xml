@@ -318,4 +318,7 @@
   <string name="add_widget">Lisää widget</string>
   <string name="download_documents">Ladataan dokumentteja</string>
   <string name="notification_channel_document_download_status">Dokumenttien lataus</string>
+  <string name="bookmarkwidget_helptext">Puheen kirjanmerkkien pikapainikkeet tulevat tähän</string>
+  <string name="sleep_timer_active_at">Uniajastin: %s minuuttia jäljellä.</string>
+  <string name="speak_status_stopped">- pysäytetty -</string>
 </resources>
