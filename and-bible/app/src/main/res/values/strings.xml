@@ -320,4 +320,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="empty_list">No items to display</string>
     <string name="add_widget">Add widget</string>
     <string name="download_documents">Downloading documents</string>
+    <string name="notification_channel_document_download_status">Document download</string>
 </resources>
