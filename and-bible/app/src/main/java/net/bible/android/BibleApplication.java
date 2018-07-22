@@ -16,7 +16,6 @@ import net.bible.android.view.util.locale.LocaleHelper;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ProgressNotificationManager;
 import net.bible.service.device.ScreenSettings;
-import net.bible.service.device.ScreenTimeoutSettings;
 import net.bible.service.device.speak.TextToSpeechNotificationManager;
 import net.bible.service.sword.SwordEnvironmentInitialisation;
 
@@ -42,8 +41,6 @@ public class BibleApplication extends Application{
 	
 	private static final String TEXT_SIZE_PREF = "text_size_pref";
 	
-	private ScreenTimeoutSettings screenTimeoutSettings = new ScreenTimeoutSettings();
-
 	private String localeOverrideAtStartup;
 
 	// this was moved from the MainBibleActivity and has always been called this
@@ -84,10 +81,8 @@ public class BibleApplication extends Application{
 		upgradePersistentData();
 		
 		// initialise link to Android progress control display in Notification bar
-		ProgressNotificationManager.getInstance().initialise();
+		ProgressNotificationManager.Companion.getInstance().initialise();
 
-		screenTimeoutSettings.overrideScreenTimeout();
-		
 		// various initialisations required every time at app startup
 		getApplicationComponent().warmUp().warmUpSwordEventually();
 
@@ -173,14 +168,6 @@ public class BibleApplication extends Application{
 					String pref2Val = prefs.getBoolean(ScreenSettings.NIGHT_MODE_PREF_NO_SENSOR, false) ? "true" : "false";
 					Log.d(TAG, "Setting new night mode pref list value:"+pref2Val);
 					editor.putString(ScreenSettings.NIGHT_MODE_PREF_WITH_SENSOR, pref2Val);
-				}
-			}
-
-			// add new  
-			if (prevInstalledVersion < 89) {
-				if (!prefs.contains(ScreenTimeoutSettings.SCREEN_TIMEOUT_PREF)) {
-					Log.d(TAG, "Adding default screen timeout setting");
-					editor.putString(ScreenTimeoutSettings.SCREEN_TIMEOUT_PREF, Integer.toString(ScreenTimeoutSettings.DEFAULT_VALUE));
 				}
 			}
 

@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
-import android.preference.Preference.OnPreferenceChangeListener;
 import android.preference.PreferenceActivity;
 import android.util.Log;
 
@@ -16,10 +15,8 @@ import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.util.UiUtils;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
-import net.bible.service.device.ScreenTimeoutSettings;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 
 /** show settings
  * 
@@ -72,8 +69,6 @@ public class SettingsActivity extends PreferenceActivity {
 		        }
 		    }
 			
-			addScreenTimeoutSettings();
-
 			// if locale is overridden then have to force title to be translated here
 			LocaleHelper.translateTitle(this);
 
@@ -91,31 +86,6 @@ public class SettingsActivity extends PreferenceActivity {
 		super.attachBaseContext(LocaleHelper.onAttach(newBase));
 	}
 
-	private void addScreenTimeoutSettings() {
-        ListPreference timeoutPref = (ListPreference)getPreferenceScreen().findPreference(ScreenTimeoutSettings.SCREEN_TIMEOUT_PREF);
-        
-        timeoutPref.setOnPreferenceChangeListener(new OnPreferenceChangeListener() {
-			
-			@Override
-			public boolean onPreferenceChange(Preference preference, Object newValue) {
-				// update screen timeout
-				try {
-					if (StringUtils.isNotEmpty((String)newValue)) {
-						ScreenTimeoutSettings.setScreenTimeout(Integer.parseInt((String)newValue));
-					}
-				} catch (Exception e) {
-					Log.e(TAG, "Error updating timeout set in preference screen", e);
-				}
-					
-				return true;
-			}
-		});
-
-        ScreenTimeoutSettings screenTimeoutSettings = new ScreenTimeoutSettings();
-        timeoutPref.setEntries(screenTimeoutSettings.getPreferenceEntries());
-        timeoutPref.setEntryValues(screenTimeoutSettings.getPreferenceEntryValues());
-	}
-	
 	@Override
 	protected void onStop() {
 		super.onStop();

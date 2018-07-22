@@ -1,5 +1,9 @@
 package net.bible.service.sword;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.support.v4.content.ContextCompat;
+import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.versification.VersificationMappingInitializer;
@@ -39,6 +43,7 @@ public class SwordEnvironmentInitialisation {
 		try {
 			if (CommonUtils.isAndroid() && !isSwordLoaded) {
 				// ensure required module directories exist and register them with jsword
+				// This folder we can always access freely without any extra permissions.
 				File moduleDir = SharedConstants.MODULE_DIR;
 
 				// main module dir
@@ -59,11 +64,13 @@ public class SwordEnvironmentInitialisation {
 				System.setProperty("jsword.home", moduleDir.getAbsolutePath());
 				CWProject.instance().setFrontendName("and-bible");
 
-				// the second value below is the one which is used in effectively all circumstances
-				CWProject.setHome("jsword.home", moduleDir.getAbsolutePath(), SharedConstants.MANUAL_INSTALL_DIR.getAbsolutePath());
-
-				// the following causes Sword to initialise itself and can take quite a few seconds
-				SwordBookPath.setAugmentPath(new File[] {SharedConstants.MANUAL_INSTALL_DIR});  // add manual install dir to this list
+				// TODO: request permission for these somehow.
+				if(ContextCompat.checkSelfPermission(BibleApplication.getApplication(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+					// the second value below is the one which is used in effectively all circumstances
+					CWProject.setHome("jsword.home", moduleDir.getAbsolutePath(), SharedConstants.MANUAL_INSTALL_DIR.getAbsolutePath());
+					// the following causes Sword to initialise itself and can take quite a few seconds
+					SwordBookPath.setAugmentPath(new File[] {SharedConstants.MANUAL_INSTALL_DIR});  // add manual install dir to this list
+				}
 
 				log.debug(("Main JSword path:"+CWProject.instance().getWritableProjectDir()));
 
