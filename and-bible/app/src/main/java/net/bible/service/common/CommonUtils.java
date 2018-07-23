@@ -276,7 +276,7 @@ public class CommonUtils {
     }
 
     public static String getLocalePref() {
-    	return getSharedPreferences().getString("locale_pref", "");
+    	return getSharedPreferences().getString("locale_pref", null);
     }
     
 	/** get preferences used by User Prefs screen
