@@ -151,10 +151,22 @@ h1 a, .heading2, .heading3, .heading4 {
 	background-color: rgba(128, 216, 255, 0.33);
 }
 
-.YELLOW_STAR>.verseNo:after {
-   content:url(file:///android_asset/images/GoldStar16x16.png);
-   vertical-align: 10%;
-   padding: 0 0 0 3px;
+.YELLOW_STAR>.bookmark1:after {
+   background-image:url(file:///android_asset/images/GoldStar16x16.png);
+   display: inline-block;
+   width: 1.0em;
+   height: 1.0em;
+   content: "";
+   background-size: 1.0em 1.0em;
+}
+
+.SPEAK>.bookmark2:after {
+   background-image:url(file:///android_asset/images/hearing.png);
+   display: inline-block;
+   width: 1.0em;
+   height: 1.0em;
+   content: "";
+   background-size: 1.0em 1.0em;
 }
 
 .selected {
