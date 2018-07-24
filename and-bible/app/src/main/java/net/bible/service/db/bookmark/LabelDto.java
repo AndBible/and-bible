@@ -3,6 +3,8 @@ package net.bible.service.db.bookmark;
 
 import android.support.annotation.NonNull;
 
+import net.bible.android.BibleApplication;
+import net.bible.android.activity.R;
 import net.bible.android.control.bookmark.BookmarkStyle;
 
 import org.apache.commons.lang3.StringUtils;
@@ -69,6 +71,9 @@ public class LabelDto implements Comparable<LabelDto> {
 		this.id = id;
 	}
 	public String getName() {
+		if(bookmarkStyle == BookmarkStyle.SPEAK) {
+			return BibleApplication.getApplication().getString(R.string.speak);
+		}
 		return name;
 	}
 	public void setName(String name) {

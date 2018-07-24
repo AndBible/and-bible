@@ -8,8 +8,6 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import net.bible.android.BibleApplication;
-import net.bible.android.activity.R;
 import net.bible.android.control.bookmark.BookmarkStyle;
 import net.bible.android.control.speak.PlaybackSettings;
 import net.bible.service.db.CommonDatabaseHelper;
@@ -412,7 +410,6 @@ public class BookmarkDBAdapter {
 		if(label == null) {
 			label = new LabelDto();
 			label.setBookmarkStyle(BookmarkStyle.SPEAK);
-			label.setName(BibleApplication.getApplication().getString(R.string.speak));
 			label = insertLabel(label);
 		}
 
