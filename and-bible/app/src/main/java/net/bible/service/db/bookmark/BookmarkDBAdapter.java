@@ -8,6 +8,9 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import net.bible.android.BibleApplication;
+import net.bible.android.activity.R;
+import net.bible.android.control.bookmark.BookmarkStyle;
 import net.bible.android.control.speak.PlaybackSettings;
 import net.bible.service.db.CommonDatabaseHelper;
 import net.bible.service.db.SQLHelper;
@@ -23,6 +26,7 @@ import org.crosswire.jsword.passage.VerseRangeFactory;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -391,7 +395,30 @@ public class BookmarkDBAdapter {
 
 		return dto;
 	}
-	
+
+	@NotNull
+	public LabelDto getOrCreateSpeakLabel() {
+		LabelDto label = null;
+		Cursor c = db.query(LabelQuery.TABLE, LabelQuery.COLUMNS, LabelColumn.BOOKMARK_STYLE + "=?",
+				new String[] {String.valueOf(BookmarkStyle.SPEAK)}, null, null, null);
+		try {
+			if (c.moveToFirst()) {
+				label = getLabelDto(c);
+			}
+		} finally {
+	        c.close();
+		}
+
+		if(label == null) {
+			label = new LabelDto();
+			label.setBookmarkStyle(BookmarkStyle.SPEAK);
+			label.setName(BibleApplication.getApplication().getString(R.string.speak));
+			label = insertLabel(label);
+		}
+
+		return label;
+	}
+
 	private interface BookmarkQuery {
         String TABLE = Table.BOOKMARK;
         String[] COLUMNS = new String[] {BookmarkColumn._ID, BookmarkColumn.KEY, BookmarkColumn.VERSIFICATION, BookmarkColumn.CREATED_ON, BookmarkColumn.PLAYBACK_SETTINGS};

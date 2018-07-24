@@ -5,15 +5,12 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.*
-import android.widget.AdapterView.INVALID_POSITION
 import kotlinx.android.synthetic.main.speak_bible.*
 import net.bible.android.activity.R
-import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.*
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.Dialogs
-import net.bible.service.db.bookmark.LabelDto
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakProgressEvent
 import javax.inject.Inject
@@ -21,8 +18,6 @@ import javax.inject.Inject
 @ActivityScope
 class BibleSpeakActivity : AbstractSpeakActivity() {
     @Inject lateinit var speakControl: SpeakControl
-    @Inject lateinit var bookmarkControl: BookmarkControl
-    private lateinit var bookmarkLabels: List<LabelDto>
 
     companion object {
         const val TAG = "BibleSpeakActivity"
@@ -35,16 +30,6 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         super.buildActivityComponent().inject(this)
         ABEventBus.getDefault().register(this)
 
-        bookmarkLabels = bookmarkControl.assignableLabels
-
-        if(bookmarkLabels.isEmpty()) {
-            autoBookmark.isEnabled = false
-            if(autoBookmark.isChecked) {
-                autoBookmark.isChecked = false
-                updateSettings()
-            }
-        }
-
         speakSpeed.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
@@ -56,20 +41,6 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             }
         })
 
-        val adapter = ArrayAdapter<LabelDto>(this, android.R.layout.simple_spinner_dropdown_item, bookmarkLabels)
-        bookmarkTag.adapter = adapter
-
-        bookmarkTag.onItemSelectedListener = object: AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                if(view != null) {
-                    updateSettings()
-                }
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-                updateSettings()
-            }
-        }
         resetView(SpeakSettings.load())
     }
 
@@ -90,17 +61,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         replaceDivineName.isChecked = settings.replaceDivineName
         restoreSettingsFromBookmarks.isChecked = settings.restoreSettingsFromBookmarks
 
-        if(settings.autoBookmarkLabelId != null) {
-            val labelDto = bookmarkLabels.find { labelDto -> labelDto.id == settings.autoBookmarkLabelId }
-            val itemId = bookmarkLabels.indexOf(labelDto)
-
-            autoBookmark.isChecked = true
-            bookmarkTag.setSelection(itemId)
-        }
-        else {
-            autoBookmark.isChecked = false
-            bookmarkTag.isEnabled = false
-        }
+        autoBookmark.isChecked = settings.autoBookmark
         speakSpeed.progress = settings.playbackSettings.speed
         speedStatus.text = "${settings.playbackSettings.speed} %"
         sleepTimer.isChecked = settings.sleepTimer > 0
@@ -121,12 +82,6 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     fun onSettingsChange(widget: View) = updateSettings()
 
     fun updateSettings() {
-        bookmarkTag.isEnabled = autoBookmark.isChecked
-
-        val labelId = if (bookmarkTag.selectedItemPosition != INVALID_POSITION) {
-            bookmarkLabels.get(bookmarkTag.selectedItemPosition).id
-        } else INVALID_LABEL_ID
-
         val settings = SpeakSettings(
                 synchronize = synchronize.isChecked,
                 playbackSettings = PlaybackSettings(
@@ -136,7 +91,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                         playEarconTitles = playEarconTitles.isChecked,
                         speed = speakSpeed.progress
                         ),
-                autoBookmarkLabelId = if (autoBookmark.isChecked) labelId else null,
+                autoBookmark = autoBookmark.isChecked,
                 replaceDivineName = replaceDivineName.isChecked,
                 restoreSettingsFromBookmarks = restoreSettingsFromBookmarks.isChecked,
                 sleepTimer = currentSettings.sleepTimer,

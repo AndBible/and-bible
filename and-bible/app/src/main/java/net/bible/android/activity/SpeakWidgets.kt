@@ -172,9 +172,8 @@ class SpeakWidgetManager {
         }
 
         val settings = SpeakSettings.load()
-        if (settings.autoBookmarkLabelId != null) {
-            val labelDto = LabelDto()
-            labelDto.id = settings.autoBookmarkLabelId
+        if (settings.autoBookmark) {
+            val labelDto = bookmarkControl.getOrCreateSpeakLabel()
 
             for (b in bookmarkControl.getBookmarksWithLabel(labelDto).sortedWith(
                     Comparator<BookmarkDto> { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {

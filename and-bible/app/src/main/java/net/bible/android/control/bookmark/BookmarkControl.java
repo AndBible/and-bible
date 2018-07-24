@@ -482,4 +482,18 @@ public class BookmarkControl {
 		intent.putExtra(BOOKMARK_IDS_EXTRA, new long[] {bookmarkDto.getId()});
 		currentActivity.startActivityForResult(intent, IntentHelper.REFRESH_DISPLAY_ON_FINISH);
 	}
+
+	@NotNull
+	public LabelDto getOrCreateSpeakLabel() {
+		BookmarkDBAdapter db = new BookmarkDBAdapter();
+		LabelDto label;
+		try {
+			db.open();
+			label = db.getOrCreateSpeakLabel();
+		} finally {
+			db.close();
+		}
+
+		return label;
+	}
 }

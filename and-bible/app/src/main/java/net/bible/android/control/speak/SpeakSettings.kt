@@ -42,8 +42,8 @@ data class SpeakSettingsChangedEvent(val speakSettings: SpeakSettings, val updat
 
 @Serializable
 data class SpeakSettings(@Optional val synchronize: Boolean = true,
-                         @Optional val autoBookmarkLabelId: Long? = null,
                          @Optional val replaceDivineName: Boolean = false,
+                         @Optional val autoBookmark: Boolean = false,
                          @Optional val restoreSettingsFromBookmarks: Boolean = false,
                          @Optional var playbackSettings: PlaybackSettings = PlaybackSettings(),
                          @Optional var sleepTimer: Int = 0,
