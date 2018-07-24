@@ -247,6 +247,7 @@ public class BookmarkDBAdapter {
         return allLabels;
 	}
 
+	@NotNull
 	public List<LabelDto> getBookmarkLabels(BookmarkDto bookmark) {
 		String sql = "SELECT label._id, label.name, label.bookmark_style "+
 					 "FROM label "+

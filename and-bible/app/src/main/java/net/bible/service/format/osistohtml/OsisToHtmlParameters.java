@@ -11,6 +11,7 @@ import org.crosswire.jsword.versification.system.Versifications;
 import java.net.URI;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**Parameters passed into the Osis to HTML converter
  * 
@@ -45,7 +46,7 @@ public class OsisToHtmlParameters {
 	private String extraFooter;
 	private boolean convertStrongsRefsToLinks;
 	private List<Verse> versesWithNotes;
-	private Map<Integer, List<BookmarkStyle>> bookmarkStylesByBookmarkedVerse;
+	private Map<Integer, Set<BookmarkStyle>> bookmarkStylesByBookmarkedVerse;
 	private URI moduleBasePath;
 	private int indentDepth = 2;
 
@@ -200,10 +201,10 @@ public class OsisToHtmlParameters {
 	public void setVersesWithNotes(List<Verse> versesWithNotes) {
 		this.versesWithNotes = versesWithNotes;
 	}
-	public Map<Integer, List<BookmarkStyle>> getBookmarkStylesByBookmarkedVerse() {
+	public Map<Integer, Set<BookmarkStyle>> getBookmarkStylesByBookmarkedVerse() {
 		return bookmarkStylesByBookmarkedVerse;
 	}
-	public void setBookmarkStylesByBookmarkedVerse(Map<Integer, List<BookmarkStyle>> bookmarkStylesByBookmarkedVerse) {
+	public void setBookmarkStylesByBookmarkedVerse(Map<Integer, Set<BookmarkStyle>> bookmarkStylesByBookmarkedVerse) {
 		this.bookmarkStylesByBookmarkedVerse = bookmarkStylesByBookmarkedVerse;
 	}
 	public URI getModuleBasePath() {

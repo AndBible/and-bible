@@ -2,6 +2,7 @@ package net.bible.service.format.usermarks;
 
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.bookmark.BookmarkStyle;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.db.bookmark.BookmarkDBAdapter;
 import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
@@ -36,7 +37,7 @@ public class BookmarkFormatSupport {
 	public BookmarkFormatSupport() {
 	}
 
-	public Map<Integer, List<BookmarkStyle>> getVerseBookmarkStylesInPassage(Key passage) {
+	public Map<Integer, Set<BookmarkStyle>> getVerseBookmarkStylesInPassage(Key passage) {
 		// assumes the passage only covers one book, which always happens to be the case here
 		Verse firstVerse = KeyUtil.getVerse(passage);
 		BibleBook book = firstVerse.getBook();
@@ -44,7 +45,9 @@ public class BookmarkFormatSupport {
 		// get all Bookmarks in containing book to include variations due to differing versifications
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		List<BookmarkDto> bookmarkList;
-		Map<Integer, List<BookmarkStyle>> bookmarkStylesByVerseNoInPassage = new HashMap<>();
+		BookmarkStyle defaultBookmarkStyle = BookmarkStyle.valueOf(CommonUtils.getSharedPreferences().getString(
+				"default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name()));
+		Map<Integer, Set<BookmarkStyle>> bookmarkStylesByVerseNoInPassage = new HashMap<>();
 		try {
 			db.open();
 			bookmarkList = db.getBookmarksInBook(book);
@@ -56,10 +59,21 @@ public class BookmarkFormatSupport {
 					VerseRange bookmarkVerseRange = bookmarkDto.getVerseRange(requiredVersification);
 					if (passage.contains(bookmarkVerseRange.getStart())) {
 						final List<LabelDto> bookmarkLabels = db.getBookmarkLabels(bookmarkDto);
+						if(bookmarkLabels.isEmpty()) {
+							bookmarkLabels.add(new LabelDto(null, null, defaultBookmarkStyle));
+						}
 						final List<BookmarkStyle> bookmarkStyles = getBookmarkStyles(bookmarkLabels);
 
 						for (Verse verse : bookmarkVerseRange.toVerseArray()) {
-							bookmarkStylesByVerseNoInPassage.put(verse.getVerse(), bookmarkStyles);
+							Set<BookmarkStyle> stylesSet = bookmarkStylesByVerseNoInPassage.get(verse.getVerse());
+							if(stylesSet != null) {
+								stylesSet.addAll(bookmarkStyles);
+							}
+							else {
+								stylesSet = new TreeSet<>(bookmarkStyles);
+								bookmarkStylesByVerseNoInPassage.put(verse.getVerse(), stylesSet);
+							}
+
 						}
 					}
 				}
