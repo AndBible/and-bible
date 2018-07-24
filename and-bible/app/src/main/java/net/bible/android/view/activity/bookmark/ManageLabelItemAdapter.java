@@ -79,6 +79,10 @@ public class ManageLabelItemAdapter extends ArrayAdapter<LabelDto> {
 			editButton.setVisibility(View.GONE);
 			deleteButton.setVisibility(View.GONE);
 		}
+		else {
+			editButton.setVisibility(View.VISIBLE);
+			deleteButton.setVisibility(View.VISIBLE);
+		}
 
 		if (ScreenSettings.isNightMode()) {
 			editButton.setImageResource(R.drawable.ic_pen_24dp);
