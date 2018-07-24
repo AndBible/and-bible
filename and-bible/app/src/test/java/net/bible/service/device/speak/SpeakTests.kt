@@ -71,18 +71,6 @@ open class SpeakIntegrationTestBase {
 
 @RunWith(MyRobolectricTestRunner::class)
 class SpeakActivityTests : SpeakIntegrationTestBase() {
-
-    @Test
-    fun testBookmarkTagSettingWhenNoLabels() {
-        var s = SpeakSettings(autoBookmark = false)
-        s.save()
-
-        val settingsActivity = bibleSpeakActivityController.create().visible().get()
-        assertThat(settingsActivity.autoBookmark.isEnabled, equalTo(false))
-        s = SpeakSettings.load()
-        assertThat(s.autoBookmark, equalTo(false))
-    }
-
     @Test
     fun testSpeaActivityIsUpdatedWhenSettingsAreChanged() {
         var s = SpeakSettings(synchronize = true)
@@ -106,7 +94,6 @@ class SpeakActivityTests : SpeakIntegrationTestBase() {
         s = SpeakSettings.load()
         assertThat(s.synchronize, equalTo(false))
     }
-
 }
 
 @RunWith(MyRobolectricTestRunner::class)
