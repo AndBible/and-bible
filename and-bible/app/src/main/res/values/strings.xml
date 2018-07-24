@@ -269,8 +269,10 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak_speed_title">Speak speed</string>
     <string name="conf_speak_synchronize">Synchronize text with speech</string>
 
-    <string name="conf_speak_auto_bookmark">Auto add bookmark on pause/stop. If starting on bookmark, will move bookmark (that has correct label) to new location when stopping. </string>
-    <string name="conf_speak_auto_bookmark_label">Label to be used with auto bookmarking</string>
+    <string name="conf_speak_auto_bookmark">Auto add bookmark on pause/stop.
+        If starting on bookmark, will move bookmark (if it has speak label) to new location when stopping.
+        If verse has bookmark with multiple labels, only speak label will be updated.
+        </string>
     <string name="restore_settings_from_bookmarks">Save / restore playback settings to/from auto-generated bookmarks</string>
 
     <string name="conf_speak">Speak</string>

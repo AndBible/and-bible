@@ -62,11 +62,17 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         restoreSettingsFromBookmarks.isChecked = settings.restoreSettingsFromBookmarks
 
         autoBookmark.isChecked = settings.autoBookmark
+        if(!autoBookmark.isChecked) {
+            restoreSettingsFromBookmarks.isChecked = false;
+            restoreSettingsFromBookmarks.isEnabled = false;
+        }
+        else {
+            restoreSettingsFromBookmarks.isEnabled = true;
+        }
         speakSpeed.progress = settings.playbackSettings.speed
         speedStatus.text = "${settings.playbackSettings.speed} %"
         sleepTimer.isChecked = settings.sleepTimer > 0
         sleepTimer.text = if(settings.sleepTimer>0) getString(R.string.sleep_timer_timer_set, settings.sleepTimer) else getString(R.string.conf_sleep_timer)
-
     }
 
     fun onEventMainThread(ev: SpeakProgressEvent) {
