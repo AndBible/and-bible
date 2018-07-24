@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import net.bible.android.activity.R;
+import net.bible.android.control.bookmark.BookmarkStyle;
 import net.bible.android.view.util.UiUtils;
 import net.bible.android.view.util.widget.BookmarkStyleAdapterHelper;
 import net.bible.service.db.bookmark.LabelDto;
@@ -73,6 +74,11 @@ public class ManageLabelItemAdapter extends ArrayAdapter<LabelDto> {
 				manageLabels.delete(labelDto);
 			}
 		});
+
+		if(labelDto.getBookmarkStyle() == BookmarkStyle.SPEAK) {
+			editButton.setVisibility(View.GONE);
+			deleteButton.setVisibility(View.GONE);
+		}
 
 		if (ScreenSettings.isNightMode()) {
 			editButton.setImageResource(R.drawable.ic_pen_24dp);
