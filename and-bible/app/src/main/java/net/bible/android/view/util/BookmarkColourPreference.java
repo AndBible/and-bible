@@ -30,7 +30,7 @@ public class BookmarkColourPreference extends ListPreference {
 	}
 
 	private void initialise() {
-		final int numValues = BookmarkStyle.values().length;
+		final int numValues = BookmarkStyle.values().length - 1; // Do not count Speak bookmark style
 		CharSequence[] styles = new CharSequence[numValues];
 		for (int i=0; i<numValues; i++) {
 			BookmarkStyle bookmarkStyle = BookmarkStyle.values()[i];
