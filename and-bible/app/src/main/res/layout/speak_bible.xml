@@ -210,16 +210,35 @@
                 <Space
                         android:layout_width="match_parent"
                         android:layout_height="15dip"/>
-
-                <TextView
+                <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textSize="@dimen/speak_titles_text_size"
-                        android:textColor="@color/speak_title_color"
-                        android:padding="@dimen/speak_title_padding"
-                        android:textStyle="bold"
-                        android:text="@string/conf_speak_bookmarking_settings"
-                        />
+                        android:orientation="horizontal"
+                        >
+
+                    <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="@dimen/speak_titles_text_size"
+                            android:textColor="@color/speak_title_color"
+                            android:padding="@dimen/speak_title_padding"
+                            android:layout_alignParentStart="true"
+                            android:textStyle="bold"
+                            android:text="@string/conf_speak_bookmarking_settings"
+                            />
+
+                    <ImageButton
+                            android:id="@+id/bookmarkHelpButton"
+                            android:src="@android:drawable/ic_menu_help"
+                            android:contentDescription="@string/speak_bookmark_help"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentBottom="true"
+                            android:onClick="onHelpButtonClick"
+                            style="@style/Widget.Design.FloatingActionButton"/>
+                </RelativeLayout>
+
                 <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_marginStart="@dimen/speak_row_padding"

@@ -279,15 +279,12 @@
   <string name="speak_fifth">Viides</string>
   <string name="speak_speed_title">Puhenopeus</string>
   <string name="conf_speak_synchronize">Synkronoi teksti puheen kanssa</string>
-  <string name="conf_speak_auto_bookmark">Lisää kirjanmerkki keskeytettäessä. Jos puhe aloitetaan kirjanmerkistä (joka kuuluu oikeaan ryhmään), kyseinen kirjanmerkki siirretään uuteen paikkaan keskeyttäessä. </string>
-  <string name="conf_speak_auto_bookmark_label">Lisää kirjanmerkki ryhmään</string>
   <string name="conf_speak">Puhu</string>
   <string name="conf_play_earcons">Soita äänimerkki</string>
   <string name="conf_replace_divinename">Korvaa tetragrammi (Herra) sanalla Jahve</string>
   <string name="conf_change_chapter">Luvun vaihtuminen</string>
   <string name="conf_change_title">Otsikot</string>
   <string name="notification_channel_tts_status">Puhesyntetisoinnin tila</string>
-    <string name="restore_settings_from_bookmarks">Tallenna / palauta puheasetukset automaattisesti tallennetuista kirjanmerkeistä</string>
   <string name="conf_sleep_timer">Aseta uniajastin</string>
   <string name="sleep_timer_title">Uniajastimen aika minuuteissa</string>
   <string name="sleep_timer_timer_set">Aseta uniajastin. Ajastin asetettu: %d minuuttia</string>

@@ -2,6 +2,7 @@ package net.bible.android.view.activity.speak
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.support.v7.app.AlertDialog
 import android.util.Log
 import android.view.View
 import android.widget.*
@@ -127,5 +128,12 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
             Log.e(TAG, "Error: ", e)
         }
         statusText.text = speakControl.getStatusText(FLAG_SHOW_ALL)
+    }
+
+    fun onHelpButtonClick(button: View) {
+        AlertDialog.Builder(this)
+                .setMessage(R.string.speak_bookmark_help_message)
+                .setPositiveButton(android.R.string.ok) { _, _ ->  }
+                .show()
     }
 }
