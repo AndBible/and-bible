@@ -533,6 +533,127 @@ class AutoBookmarkTests : AbstractSpeakTests() {
     }
 
     @Test
+    fun autoBookmarkWhenThereIsDefaultBookmark1() {
+        var dto = BookmarkDto()
+        val verse = getVerse("Ps.14.1")
+        dto.verseRange = VerseRange(verse.versification, verse)
+        dto = bookmarkControl.addOrUpdateBookmark(dto)
+
+        assertThat(bookmarkControl.getBookmarkByKey(verse)!!, notNullValue())
+        provider.setupReading(book, verse)
+        text = nextText()
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(0))
+        provider.pause();
+        dto = bookmarkControl.getBookmarkByKey(verse)!!
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        provider.pause()
+        provider.prepareForStartSpeaking()
+        provider.pause()
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        provider.pause() // does not remove bookmark as it was already there
+        provider.prepareForStartSpeaking()
+
+
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        provider.prepareForStartSpeaking()
+        text = nextText()
+        text = nextText()
+        text = nextText()
+        text = nextText()
+        text = nextText()
+        text = nextText()
+        provider.stop() // does not remove bookmark as it was already there
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(0))
+        assertThat(bookmarkControl.getBookmarkByKey(verse)!!, notNullValue())
+    }
+
+
+    @Test
+    fun autoBookmarkWhenThereIsDefaultBookmark2() {
+        val verse = getVerse("Ps.14.1")
+        var dto = BookmarkDto()
+        dto.verseRange = VerseRange(verse.versification, verse)
+        dto = bookmarkControl.addOrUpdateBookmark(dto)
+
+        assertThat(bookmarkControl.getBookmarkByKey(verse), notNullValue())
+
+        provider.setupReading(book, verse)
+        text = nextText()
+        assertThat(bookmarkControl.getBookmarkByKey(verse), notNullValue())
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(0))
+        provider.pause();
+        dto = bookmarkControl.getBookmarkByKey(verse)!!
+        assertThat(dto, notNullValue())
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        provider.pause()
+        dto = bookmarkControl.getBookmarkByKey(verse)!!
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(range(), equalTo("Ps.14.1"))
+        provider.prepareForStartSpeaking()
+
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        provider.pause()
+        dto = bookmarkControl.getBookmarkByKey(verse)!!
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(range(), equalTo("Ps.14.1"))
+        provider.prepareForStartSpeaking()
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+
+
+        text = nextText()
+        text = nextText()
+        text = nextText()
+        assertThat(range(), equalTo("Ps.14.2"))
+
+
+        provider.pause()
+        assertThat(range(), equalTo("Ps.14.2"))
+        assertThat(bookmarkControl.getBookmarkByKey(verse), notNullValue())
+        assertThat(bookmarkControl.getBookmarkLabels( bookmarkControl.getBookmarkByKey(verse)).size, equalTo(0))
+        assertThat(bookmarkControl.getBookmarkByKey(getVerse("Ps.14.2")), notNullValue())
+    }
+
+
+    @Test
+    fun autoBookmarkWhenThereIsNoBookmark() {
+        val verse = getVerse("Ps.14.1")
+        assertThat(bookmarkControl.getBookmarkByKey(verse), nullValue())
+
+        provider.setupReading(book, verse)
+        text = nextText()
+        assertThat(bookmarkControl.getBookmarkByKey(verse), nullValue())
+        provider.pause();
+        var dto = bookmarkControl.getBookmarkByKey(verse)
+        assertThat(dto, notNullValue())
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        provider.pause()
+        dto = bookmarkControl.getBookmarkByKey(verse)
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(range(), equalTo("Ps.14.1"))
+        provider.prepareForStartSpeaking()
+
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        provider.pause()
+        dto = bookmarkControl.getBookmarkByKey(verse)
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+        assertThat(range(), equalTo("Ps.14.1"))
+        provider.prepareForStartSpeaking()
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+
+
+        text = nextText()
+        text = nextText()
+        text = nextText()
+        assertThat(range(), equalTo("Ps.14.2"))
+
+
+        provider.pause()
+        assertThat(range(), equalTo("Ps.14.2"))
+        assertThat(bookmarkControl.getBookmarkByKey(verse), nullValue())
+        assertThat(bookmarkControl.getBookmarkByKey(getVerse("Ps.14.2")), notNullValue())
+    }
+
+    @Test
     fun autoBookmarkOnPauseAddLabelAndSettings() {
         provider.settings = SpeakSettings(restoreSettingsFromBookmarks = true, autoBookmark = true)
         var dto = BookmarkDto()

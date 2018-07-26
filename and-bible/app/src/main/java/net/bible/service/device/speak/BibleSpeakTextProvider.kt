@@ -274,8 +274,10 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             val ttsLabel = labelList.find { it.id == speakLabel.id }
 
             if(ttsLabel != null) {
-                val playbackSettings = bookmarkDto.playbackSettings
+                val playbackSettings = bookmarkDto.playbackSettings?.copy()
                 if(playbackSettings != null && settings.restoreSettingsFromBookmarks) {
+                    playbackSettings.bookmarkWasCreated = null
+                    playbackSettings.bookAbbreviation = null
                     settings.playbackSettings = playbackSettings
                     settings.save()
                     Log.d("SpeakBookmark", "Loaded bookmark from $bookmarkDto ${settings.playbackSettings.speed}")
@@ -294,16 +296,17 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         val ttsLabel = labelList.find { it.id == speakLabel.id }
 
         if(ttsLabel != null) {
-            if(labelList.size > 1) {
+            if(labelList.size > 1 || bookmarkDto.playbackSettings?.bookmarkWasCreated == false) {
                 labelList.remove(ttsLabel)
                 bookmarkDto.playbackSettings = null
                 bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto)
                 bookmarkControl.setBookmarkLabels(bookmarkDto, labelList)
+                Log.d("SpeakBookmark", "Removed speak label from bookmark $bookmarkDto")
             }
             else {
                 bookmarkControl.deleteBookmark(bookmarkDto)
+                Log.d("SpeakBookmark", "Removed bookmark from $bookmarkDto")
             }
-            Log.d("SpeakBookmark", "Removed bookmark from $bookmarkDto")
             this.bookmarkDto = null
         }
     }
@@ -316,12 +319,14 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             playbackSettings.bookAbbreviation = book.abbreviation
 
             if(bookmarkDto == null) {
+                playbackSettings.bookmarkWasCreated = true
                 bookmarkDto = BookmarkDto()
                 bookmarkDto.verseRange = VerseRange(startVerse.versification, startVerse)
                 bookmarkDto.playbackSettings = playbackSettings
                 bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto)
             }
             else {
+                playbackSettings.bookmarkWasCreated = false
                 labelList.addAll(bookmarkControl.getBookmarkLabels(bookmarkDto))
                 bookmarkDto.playbackSettings = playbackSettings
                 bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto)
