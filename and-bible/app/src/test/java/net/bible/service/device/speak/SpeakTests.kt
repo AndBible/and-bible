@@ -1,5 +1,6 @@
 package net.bible.service.device.speak
 
+import edu.emory.mathcs.backport.java.util.Collections
 import kotlinx.android.synthetic.main.speak_bible.*
 import net.bible.android.TestBibleApplication
 import net.bible.android.activity.BuildConfig
@@ -611,6 +612,59 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         assertThat(bookmarkControl.getBookmarkByKey(verse), notNullValue())
         assertThat(bookmarkControl.getBookmarkLabels( bookmarkControl.getBookmarkByKey(verse)).size, equalTo(0))
         assertThat(bookmarkControl.getBookmarkByKey(getVerse("Ps.14.2")), notNullValue())
+    }
+
+
+    @Test
+    fun autoBookmarkWhenThereIsAnotherSpeakBookmark() {
+        var dto = BookmarkDto()
+        val speakLabel = bookmarkControl.getOrCreateSpeakLabel()
+
+        dto.verseRange = VerseRange(book.versification, getVerse("Ps.14.2"))
+        dto.playbackSettings = PlaybackSettings(bookmarkWasCreated = true)
+        dto = bookmarkControl.addOrUpdateBookmark(dto)
+        bookmarkControl.setBookmarkLabels(dto, mutableListOf(speakLabel))
+
+        var verse = getVerse("Ps.14.1")
+
+        assertThat(bookmarkControl.getBookmarkByKey(verse), nullValue())
+
+        provider.setupReading(book, verse)
+        text = nextText()
+        provider.pause();
+
+        assertThat(bookmarkControl.getBookmarkByKey(verse)!!, notNullValue())
+        dto = bookmarkControl.getBookmarkByKey(verse)!!
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+
+        verse = getVerse("Ps.14.2")
+        provider.prepareForStartSpeaking()
+        text = nextText()
+        text = nextText()
+        text = nextText()
+        assertThat(range(), equalTo("Ps.14.2"))
+
+        // now we save speak bookmark above speak bookmark
+        provider.pause()
+        assertThat(bookmarkControl.getBookmarkByKey(verse)!!, notNullValue())
+        dto = bookmarkControl.getBookmarkByKey(verse)!!
+        assertThat(dto.playbackSettings!!.bookmarkWasCreated, equalTo(true))
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+
+        provider.prepareForStartSpeaking()
+        text = nextText()
+        text = nextText()
+        assertThat(range(), equalTo("Ps.14.3"))
+
+        provider.pause()
+
+        verse = getVerse("Ps.14.3")
+        assertThat(bookmarkControl.getBookmarkByKey(verse)!!, notNullValue())
+        dto = bookmarkControl.getBookmarkByKey(verse)!!
+        assertThat(bookmarkControl.getBookmarkLabels(dto).size, equalTo(1))
+
+        // now there should not be any more original speak bookmark
+        assertThat(bookmarkControl.getBookmarkByKey(getVerse("Ps.14.2")), nullValue())
     }
 
 

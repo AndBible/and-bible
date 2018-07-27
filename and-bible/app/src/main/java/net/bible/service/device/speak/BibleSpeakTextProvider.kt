@@ -326,7 +326,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
                 bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto)
             }
             else {
-                playbackSettings.bookmarkWasCreated = false
+                playbackSettings.bookmarkWasCreated = bookmarkDto.playbackSettings?.bookmarkWasCreated ?: false
                 labelList.addAll(bookmarkControl.getBookmarkLabels(bookmarkDto))
                 bookmarkDto.playbackSettings = playbackSettings
                 bookmarkDto = bookmarkControl.addOrUpdateBookmark(bookmarkDto)
