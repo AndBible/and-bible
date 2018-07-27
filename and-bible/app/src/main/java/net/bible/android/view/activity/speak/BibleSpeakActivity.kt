@@ -16,8 +16,6 @@ import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakProgressEvent
-import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.sword.SwordBook
 import javax.inject.Inject
 
 @ActivityScope
@@ -156,19 +154,8 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         val adapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, bookmarkTitles)
         AlertDialog.Builder(this)
                 .setTitle(R.string.speak_bookmarks_menu_title)
-                .setAdapter(adapter) { dialog, which ->
-                    val dto = bookmarkDtos[which]
-                    val book = Books.installed().getBook(dto.playbackSettings?.bookAbbreviation) as SwordBook?
-                    if (speakControl.isSpeaking || speakControl.isPaused) {
-                        speakControl.stop()
-                    }
-                    if(book != null) {
-                        speakControl.speakBible(book, dto.verseRange.start)
-                    } else {
-                        speakControl.speakBible(dto.verseRange.start)
-                    }
-                 }
-                .setNegativeButton(R.string.cancel) { dialog, which -> }
+                .setAdapter(adapter) { _, which -> speakControl.speakFromBookmark(bookmarkDtos[which]) }
+                .setNegativeButton(R.string.cancel, null)
                 .show()
         Log.d(TAG, "Showing! $bookmarkTitles");
     }

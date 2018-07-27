@@ -16,11 +16,13 @@ import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.service.common.AndRuntimeException;
 import net.bible.service.common.CommonUtils;
+import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.device.speak.TextToSpeechServiceManager;
 
 import net.bible.service.device.speak.event.SpeakProgressEvent;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
+import org.crosswire.jsword.book.Books;
 import org.crosswire.jsword.book.sword.SwordBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
@@ -32,7 +34,7 @@ import java.util.*;
 import javax.inject.Inject;
 
 import dagger.Lazy;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -413,5 +415,21 @@ public class SpeakControl {
 
 	public boolean sleepTimerActive() {
 		return timerTask != null;
+	}
+
+	public void speakFromBookmark(@NotNull BookmarkDto dto) {
+		SwordBook book = null;
+		PlaybackSettings playbackSettings = dto.getPlaybackSettings();
+		if(playbackSettings != null) {
+			book = (SwordBook) Books.installed().getBook(playbackSettings.getBookAbbreviation());
+		}
+		if (isSpeaking() || isPaused()) {
+			stop();
+		}
+		if(book != null) {
+			speakBible(book, dto.getVerseRange().getStart());
+		} else {
+			speakBible(dto.getVerseRange().getStart());
+		}
 	}
 }

@@ -20,14 +20,11 @@ import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.android.view.activity.DaggerActivityComponent
 import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.db.bookmark.BookmarkDto
-import net.bible.service.db.bookmark.LabelDto
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_PERCENT
 import net.bible.service.device.speak.TextCommand
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
-import org.crosswire.jsword.book.Books
-import org.crosswire.jsword.book.sword.SwordBook
 import javax.inject.Inject
 
 private data class WidgetOptions(val statusFlags: Int = FLAG_SHOW_ALL, val showTitle: Boolean = true, val showText: Boolean = false)
@@ -316,15 +313,7 @@ class SpeakWidgetManager {
                 val osisRef = intent.data.host
                 Log.d(TAG, "onReceive osisRef $osisRef")
                 val dto = bookmarkControl.getBookmarkByOsisRef(osisRef) ?: return
-                if (speakControl.isSpeaking || speakControl.isPaused) {
-                    speakControl.stop()
-                }
-                val book = Books.installed().getBook(dto.playbackSettings?.bookAbbreviation) as SwordBook?
-                if(book != null) {
-                    speakControl.speakBible(book, dto.verseRange.start)
-                } else {
-                    speakControl.speakBible(dto.verseRange.start)
-                }
+                speakControl.speakFromBookmark(dto);
             }
         }
 
