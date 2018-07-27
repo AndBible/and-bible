@@ -7,10 +7,12 @@ import android.widget.RadioButton
 import android.widget.SeekBar
 import kotlinx.android.synthetic.main.speak_general.*
 import net.bible.android.activity.R
+import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.NumPagesToSpeakDefinition
 import net.bible.android.control.speak.SpeakControl
 import net.bible.android.control.speak.SpeakSettings
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.service.device.speak.event.SpeakEvent
 import javax.inject.Inject
 
 /** Allow user to listen to text via TTS
@@ -63,7 +65,23 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
             }
         })
         resetView(this.currentSettings)
+        ABEventBus.getDefault().register(this)
+
         Log.d(TAG, "Finished displaying Speak view")
+    }
+
+    override fun onDestroy() {
+        ABEventBus.getDefault().unregister(this)
+        super.onDestroy()
+    }
+
+    fun onEventMainThread(ev: SpeakEvent) {
+        speakPauseButton.setImageResource(
+                if(ev.isSpeaking)
+                    android.R.drawable.ic_media_pause
+                else
+                android.R.drawable.ic_media_play
+        )
     }
 
     fun updateSettings(b: View) {
@@ -78,10 +96,11 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
             when (button) {
                 rewindButton -> speakControl.rewind()
                 stopButton -> speakControl.stop()
-                pauseButton -> speakControl.pause()
-                speakButton ->
+                speakPauseButton ->
                     if (speakControl.isPaused) {
                         speakControl.continueAfterPause()
+                    } else if (speakControl.isSpeaking) {
+                        speakControl.pause()
                     } else {
                         speakControl.speakText()
                     }
@@ -100,6 +119,12 @@ class GeneralSpeakActivity : AbstractSpeakActivity() {
     override fun resetView(settings: SpeakSettings) {
         sleepTimer.isChecked = settings.sleepTimer > 0
         sleepTimer.text = if(settings.sleepTimer>0) getString(R.string.sleep_timer_timer_set, settings.sleepTimer) else getString(R.string.conf_sleep_timer)
+        speakPauseButton.setImageResource(
+                if(speakControl.isSpeaking)
+                    android.R.drawable.ic_media_pause
+                else
+                android.R.drawable.ic_media_play
+        )
     }
 
     companion object {

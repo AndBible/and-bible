@@ -326,18 +326,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:onClick="onButtonClick"/>
-
             <ImageButton
-                    android:id="@+id/pauseButton"
-                    android:src="@android:drawable/ic_media_pause"
-                    android:contentDescription="@string/pause"
-                    android:layout_width="0dip"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:onClick="onButtonClick"/>
-
-            <ImageButton
-                    android:id="@+id/speakButton"
+                    android:id="@+id/speakPauseButton"
                     android:src="@android:drawable/ic_media_play"
                     android:contentDescription="@string/speak"
                     android:layout_width="0dip"

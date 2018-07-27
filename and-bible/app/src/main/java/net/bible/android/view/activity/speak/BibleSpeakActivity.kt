@@ -15,6 +15,7 @@ import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.Dialogs
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
+import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
 import javax.inject.Inject
 
@@ -77,6 +78,12 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         speedStatus.text = "${settings.playbackSettings.speed} %"
         sleepTimer.isChecked = settings.sleepTimer > 0
         sleepTimer.text = if(settings.sleepTimer>0) getString(R.string.sleep_timer_timer_set, settings.sleepTimer) else getString(R.string.conf_sleep_timer)
+        speakPauseButton.setImageResource(
+                if(speakControl.isSpeaking)
+                    android.R.drawable.ic_media_pause
+                else
+                android.R.drawable.ic_media_play
+        )
     }
 
     fun onEventMainThread(ev: SpeakProgressEvent) {
@@ -87,6 +94,15 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     fun onEventMainThread(ev: SpeakSettingsChangedEvent) {
         currentSettings = ev.speakSettings;
         resetView(ev.speakSettings)
+    }
+
+    fun onEventMainThread(ev: SpeakEvent) {
+        speakPauseButton.setImageResource(
+                if(ev.isSpeaking)
+                    android.R.drawable.ic_media_pause
+                else
+                android.R.drawable.ic_media_play
+        )
     }
 
     fun onSettingsChange(widget: View) = updateSettings()
@@ -117,10 +133,11 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 nextButton -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
                 rewindButton -> speakControl.rewind()
                 stopButton -> speakControl.stop()
-                pauseButton -> speakControl.pause()
-                speakButton ->
+                speakPauseButton ->
                     if (speakControl.isPaused) {
                         speakControl.continueAfterPause()
+                    } else if (speakControl.isSpeaking) {
+                        speakControl.pause()
                     } else {
                         speakControl.speakBible()
                     }
