@@ -313,6 +313,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
         Romans with speed 90% and you want to be notified when chapter changes. You can have
         independent playback settings for these books, when these settings are stored in bookmark.
     </string>
+    <string name="speak_bookmarks_menu_title">Speak from bookmark</string>
 
     <string-array name="divinename_original">
         <item>Lord</item>

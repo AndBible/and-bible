@@ -8,17 +8,22 @@ import android.view.View
 import android.widget.*
 import kotlinx.android.synthetic.main.speak_bible.*
 import net.bible.android.activity.R
+import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.*
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakProgressEvent
+import org.crosswire.jsword.book.Books
+import org.crosswire.jsword.book.sword.SwordBook
 import javax.inject.Inject
 
 @ActivityScope
 class BibleSpeakActivity : AbstractSpeakActivity() {
     @Inject lateinit var speakControl: SpeakControl
+    @Inject lateinit var bookmarkControl: BookmarkControl
 
     companion object {
         const val TAG = "BibleSpeakActivity"
@@ -135,5 +140,36 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 .setMessage(R.string.speak_bookmark_help_message)
                 .setPositiveButton(android.R.string.ok) { _, _ ->  }
                 .show()
+    }
+
+    fun onBookmarkButtonClick(button: View) {
+        val bookmarkTitles = ArrayList<String>()
+        val bookmarkDtos = ArrayList<BookmarkDto>()
+        val labelDto = bookmarkControl.getOrCreateSpeakLabel()
+        for (b in bookmarkControl.getBookmarksWithLabel(labelDto).sortedWith(
+                Comparator<BookmarkDto> { o1, o2 -> o1.verseRange.start.compareTo(o2.verseRange.start) })) {
+
+            bookmarkTitles.add("${b.verseRange.start.name} (${b.playbackSettings?.bookAbbreviation?:"?"})")
+            bookmarkDtos.add(b)
+        }
+
+        val adapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, bookmarkTitles)
+        AlertDialog.Builder(this)
+                .setTitle(R.string.speak_bookmarks_menu_title)
+                .setAdapter(adapter) { dialog, which ->
+                    val dto = bookmarkDtos[which]
+                    val book = Books.installed().getBook(dto.playbackSettings?.bookAbbreviation) as SwordBook?
+                    if (speakControl.isSpeaking || speakControl.isPaused) {
+                        speakControl.stop()
+                    }
+                    if(book != null) {
+                        speakControl.speakBible(book, dto.verseRange.start)
+                    } else {
+                        speakControl.speakBible(dto.verseRange.start)
+                    }
+                 }
+                .setNegativeButton(R.string.cancel) { dialog, which -> }
+                .show()
+        Log.d(TAG, "Showing! $bookmarkTitles");
     }
 }
