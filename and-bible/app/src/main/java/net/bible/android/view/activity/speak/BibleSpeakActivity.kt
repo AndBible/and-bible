@@ -1,6 +1,7 @@
 package net.bible.android.view.activity.speak
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.util.Log
@@ -13,6 +14,7 @@ import net.bible.android.control.event.ABEventBus
 import net.bible.android.control.speak.*
 import net.bible.android.view.activity.ActivityScope
 import net.bible.android.view.activity.base.Dialogs
+import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakEvent
@@ -171,7 +173,12 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         val adapter = ArrayAdapter<String>(this, android.R.layout.select_dialog_item, bookmarkTitles)
         AlertDialog.Builder(this)
                 .setTitle(R.string.speak_bookmarks_menu_title)
-                .setAdapter(adapter) { _, which -> speakControl.speakFromBookmark(bookmarkDtos[which]) }
+                .setAdapter(adapter) { _, which ->
+                    speakControl.speakFromBookmark(bookmarkDtos[which])
+                    if(currentSettings.synchronize) {
+                        startActivity(Intent(this, MainBibleActivity::class.java))
+                    }
+                }
                 .setNegativeButton(R.string.cancel, null)
                 .show()
         Log.d(TAG, "Showing! $bookmarkTitles");
