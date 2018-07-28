@@ -22,7 +22,6 @@ import net.bible.android.view.activity.page.MainBibleActivity
 import net.bible.service.device.speak.BibleSpeakTextProvider.Companion.FLAG_SHOW_ALL
 import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
-import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
 
@@ -59,7 +58,6 @@ class TextToSpeechNotificationManager {
             const val STOP_FOREGROUND_REMOVE_NOTIFICATION="action_stop_foreground_remove_notification"
         }
 
-
         override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
             when(intent?.action) {
                 START_SERVICE -> start()
@@ -78,7 +76,6 @@ class TextToSpeechNotificationManager {
             if(foreground) {
                 return
             }
-
             Log.d(TAG, "START_SERVICE")
             startForeground(NOTIFICATION_ID, foregroundNotification!!)
             foreground = true
@@ -93,11 +90,19 @@ class TextToSpeechNotificationManager {
             // TextToSpeechNotificationManager via this intent.
 
             Log.d(TAG, "onDestroy")
-            val intent = Intent(application, NotificationReceiver::class.java).apply {
+            val intent = Intent(this, NotificationReceiver::class.java).apply {
                 action = ACTION_UPDATE_NOTIFICATION
             }
-            application.sendBroadcast(intent)
+            sendBroadcast(intent)
             stop()
+        }
+
+        override fun onTaskRemoved(rootIntent: Intent?) {
+            Log.d(TAG, "Task removed")
+            if(!foreground) {
+                stopSelf()
+            }
+            super.onTaskRemoved(rootIntent)
         }
 
         private fun stop(removeNotification: Boolean = false) {
