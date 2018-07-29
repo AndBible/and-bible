@@ -334,6 +334,10 @@ public class SpeakControl {
 	}
 
 	public void stop() {
+		if (!isSpeaking() && !isPaused()) {
+			return;
+		}
+
 		Log.d(TAG, "Stop TTS speaking");
 		textToSpeechServiceManager.get().shutdown();
 		stopTimer();
