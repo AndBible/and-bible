@@ -29,8 +29,7 @@ import javax.inject.Inject
 class TextToSpeechNotificationManager {
     companion object {
         private const val ACTION_UPDATE_NOTIFICATION = "update_notification"
-        private const val ACTION_PLAY="action_play"
-        private const val ACTION_PAUSE="action_pause"
+        private const val ACTION_SPEAK_OR_PAUSE="action_speak_or_pause"
         private const val ACTION_REWIND="action_rewind"
         private const val ACTION_PREVIOUS="action_previous"
         private const val ACTION_NEXT="action_next"
@@ -129,8 +128,7 @@ class TextToSpeechNotificationManager {
                 val action = intent?.action
                 Log.d(TAG, "onReceive $intent $action")
                 when (action) {
-                    ACTION_PLAY -> speakControl.toggleSpeak()
-                    ACTION_PAUSE -> speakControl.pause()
+                    ACTION_SPEAK_OR_PAUSE -> speakControl.toggleSpeak()
                     ACTION_FAST_FORWARD -> speakControl.forward()
                     ACTION_REWIND -> speakControl.rewind()
                     ACTION_PREVIOUS -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
@@ -254,8 +252,8 @@ class TextToSpeechNotificationManager {
 
     private val rewindAction = generateAction(android.R.drawable.ic_media_rew, getString(R.string.rewind), ACTION_REWIND)
     private val prevAction = generateAction(android.R.drawable.ic_media_previous, getString(R.string.previous), ACTION_PREVIOUS)
-    private val pauseAction = generateAction(android.R.drawable.ic_media_pause, getString(R.string.pause), ACTION_PAUSE)
-    private val playAction = generateAction(android.R.drawable.ic_media_play, getString(R.string.speak), ACTION_PLAY)
+    private val pauseAction = generateAction(android.R.drawable.ic_media_pause, getString(R.string.pause), ACTION_SPEAK_OR_PAUSE)
+    private val playAction = generateAction(android.R.drawable.ic_media_play, getString(R.string.speak), ACTION_SPEAK_OR_PAUSE)
     private val nextAction = generateAction(android.R.drawable.ic_media_next, getString(R.string.next), ACTION_NEXT)
     private val forwardAction = generateAction(android.R.drawable.ic_media_ff, getString(R.string.forward), ACTION_FAST_FORWARD)
     private val bibleBitmap = BitmapFactory.decodeResource(app.resources, R.drawable.bible)
