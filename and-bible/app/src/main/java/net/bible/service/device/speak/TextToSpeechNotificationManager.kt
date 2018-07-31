@@ -123,25 +123,25 @@ class TextToSpeechNotificationManager {
     @Inject lateinit var speakControl: SpeakControl
 
     class NotificationReceiver: BroadcastReceiver() {
-            override fun onReceive(context: Context?, intent: Intent?) {
-                val speakControl = instance!!.speakControl
-                val action = intent?.action
-                Log.d(TAG, "onReceive $intent $action")
-                when (action) {
-                    ACTION_SPEAK_OR_PAUSE -> speakControl.toggleSpeak()
-                    ACTION_FAST_FORWARD -> speakControl.forward()
-                    ACTION_REWIND -> speakControl.rewind()
-                    ACTION_PREVIOUS -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
-                    ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
-                    ACTION_STOP -> speakControl.stop()
-                    ACTION_UPDATE_NOTIFICATION -> {
-                        if(speakControl.isPaused) {
-                            instance!!.buildNotification(false)
-                        }
+        val speakControl = instance!!.speakControl
+        override fun onReceive(context: Context?, intent: Intent?) {
+            val action = intent?.action
+            Log.d(TAG, "NotificationReceiver onnReceive $intent $action")
+            when (action) {
+                ACTION_SPEAK_OR_PAUSE -> speakControl.toggleSpeak()
+                ACTION_FAST_FORWARD -> speakControl.forward()
+                ACTION_REWIND -> speakControl.rewind()
+                ACTION_PREVIOUS -> speakControl.rewind(SpeakSettings.RewindAmount.ONE_VERSE)
+                ACTION_NEXT -> speakControl.forward(SpeakSettings.RewindAmount.ONE_VERSE)
+                ACTION_STOP -> speakControl.stop()
+                ACTION_UPDATE_NOTIFICATION -> {
+                    if(speakControl.isPaused) {
+                        instance!!.buildNotification(false)
                     }
                 }
             }
         }
+    }
 
 
     private var app = BibleApplication.getApplication()
