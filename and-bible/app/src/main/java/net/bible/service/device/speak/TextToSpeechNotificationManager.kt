@@ -123,7 +123,8 @@ class TextToSpeechNotificationManager {
     @Inject lateinit var speakControl: SpeakControl
 
     class NotificationReceiver: BroadcastReceiver() {
-        val speakControl = instance!!.speakControl
+        val speakControl: SpeakControl by lazy { instance!!.speakControl }
+        
         override fun onReceive(context: Context?, intent: Intent?) {
             val action = intent?.action
             Log.d(TAG, "NotificationReceiver onnReceive $intent $action")
