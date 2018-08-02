@@ -278,6 +278,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
 
     <string name="conf_change_chapter">Chapter changes</string>
     <string name="conf_change_title">Titles</string>
+    <string name="conf_speak_footnotes">Footnotes</string>
 
     <string name="conf_sleep_timer">Set sleep timer</string>
     <string name="sleep_timer_title">Sleep time in minutes</string>

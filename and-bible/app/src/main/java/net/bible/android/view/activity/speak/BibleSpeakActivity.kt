@@ -61,6 +61,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         synchronize.isChecked = settings.synchronize
         speakChapterChanges.isChecked = settings.playbackSettings.speakChapterChanges
         speakTitles.isChecked = settings.playbackSettings.speakTitles
+        speakFootnotes.isChecked = settings.playbackSettings.speakFootnotes
 
         playEarconChapter.isChecked = settings.playbackSettings.playEarconChapter
         playEarconTitles.isChecked = settings.playbackSettings.playEarconTitles
@@ -115,6 +116,7 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                 playbackSettings = PlaybackSettings(
                         speakChapterChanges = speakChapterChanges.isChecked,
                         speakTitles = speakTitles.isChecked,
+                        speakFootnotes = speakFootnotes.isChecked,
                         playEarconChapter = playEarconChapter.isChecked,
                         playEarconTitles = playEarconTitles.isChecked,
                         speed = speakSpeed.progress

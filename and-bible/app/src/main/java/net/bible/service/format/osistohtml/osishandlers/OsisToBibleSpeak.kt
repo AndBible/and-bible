@@ -17,7 +17,7 @@ import java.util.Stack
 class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) : OsisSaxHandler() {
     val speakCommands = SpeakCommandArray()
 
-    private enum class TAG_TYPE {NORMAL, TITLE, PARAGRPAH, DIVINE_NAME}
+    private enum class TAG_TYPE {NORMAL, TITLE, PARAGRPAH, DIVINE_NAME, FOOTNOTE}
     private data class StackEntry(val visible: Boolean, val tagType: TAG_TYPE=TAG_TYPE.NORMAL)
     private val elementStack = Stack<StackEntry>()
     private var divineNameOriginal: Array<String>
@@ -53,7 +53,13 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
             anyTextWritten = false
             elementStack.push(StackEntry(true))
         } else if (name == OSISUtil.OSIS_ELEMENT_NOTE) {
-            elementStack.push(StackEntry(false))
+            if((attrs?.getValue("type")?: "").equals("study") && speakSettings.playbackSettings.speakFootnotes) {
+                speakCommands.add(PreFootnoteCommand(speakSettings))
+                elementStack.push(StackEntry(true, TAG_TYPE.FOOTNOTE))
+            }
+            else {
+                elementStack.push(StackEntry(false))
+            }
         } else if (name == OSISUtil.OSIS_ELEMENT_REFERENCE) {
             elementStack.push(StackEntry(false))
         }  else if (name == OSISUtil2.OSIS_ELEMENT_DIVINENAME) {
@@ -105,6 +111,11 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
         }
         else if(state.tagType == TAG_TYPE.DIVINE_NAME) {
             divineNameLevel--;
+        }
+        else if(state.tagType == TAG_TYPE.FOOTNOTE) {
+            if(speakSettings.playbackSettings.speakFootnotes) {
+                speakCommands.add(PostFootnoteCommand(speakSettings))
+            }
         }
     }
 

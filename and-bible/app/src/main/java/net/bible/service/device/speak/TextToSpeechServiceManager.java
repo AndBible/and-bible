@@ -65,6 +65,8 @@ public class TextToSpeechServiceManager {
 	private Locale currentLocale = Locale.getDefault();
 	private static String PERSIST_LOCALE_KEY = "SpeakLocale";
 	private static String PERSIST_BIBLE_PROVIDER = "SpeakBibleProvider";
+	public static String EARCON_PRE_FOOTNOTE = "[pre-footnote]";
+	public static String EARCON_POST_FOOTNOTE = "[post-footnote]";
 	public static String EARCON_PRE_TITLE = "[pre-title]";
 	public static String EARCON_PRE_CHAPTER_CHANGE = "[pre-chapter-change]";
 	public static String EARCON_PRE_BOOK_CHANGE = "[pre-book-change]";
@@ -489,6 +491,9 @@ public class TextToSpeechServiceManager {
 				Log.d(TAG, "Tts initialisation succeeded");
 
 				// Add earcons
+				mTts.addEarcon(EARCON_PRE_FOOTNOTE, BibleApplication.getApplication().getPackageName(), R.raw.short_pling); // TODO: change
+				mTts.addEarcon(EARCON_POST_FOOTNOTE, BibleApplication.getApplication().getPackageName(), R.raw.short_pling);
+
 				mTts.addEarcon(EARCON_PRE_TITLE, BibleApplication.getApplication().getPackageName(), R.raw.pageflip);
 				mTts.addEarcon(EARCON_PRE_CHAPTER_CHANGE, BibleApplication.getApplication().getPackageName(), R.raw.medium_pling);
 				mTts.addEarcon(EARCON_PRE_BOOK_CHANGE, BibleApplication.getApplication().getPackageName(), R.raw.long_pling);

@@ -321,6 +321,26 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     }
 
     @Test
+    fun testFootnoteFinRK() {
+        val cmds = SpeakCommandArray()
+        val s = SpeakSettings(playbackSettings = PlaybackSettings(playEarconTitles = true, speakTitles = true, speakFootnotes = true))
+
+        cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Gen.1.1")))
+        assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
+        assertThat("Command is of correct type", cmds[1] is TextCommand)
+        assertThat("Command is of correct type", cmds[2] is SilenceCommand)
+        assertThat("Command is of correct type", cmds[3] is PreTitleCommand)
+        assertThat("Command is of correct type", cmds[4] is TextCommand)
+        assertThat("Command is of correct type", cmds[5] is SilenceCommand)
+        assertThat("Command is of correct type", cmds[6] is TextCommand)
+        assertThat("Command is of correct type", cmds[7] is PreFootnoteCommand)
+        assertThat("Command is of correct type", cmds[8] is TextCommand)
+        assertThat("Command is of correct type", cmds[9] is PostFootnoteCommand)
+        assertThat("Command is of correct type", cmds[10] is TextCommand)
+        assertThat(cmds.size, equalTo(11))
+    }
+
+    @Test
     fun testTitleEsv() {
         book = Books.installed().getBook("ESV2011") as SwordBook
         val cmds = SpeakCommandArray()

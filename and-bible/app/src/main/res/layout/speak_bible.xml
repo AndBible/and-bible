@@ -72,6 +72,14 @@
                                 android:layout_weight="1"
                                 android:id="@+id/speakTitles"
                                 android:onClick="onSettingsChange"/>
+
+                        <CheckBox
+                                android:text="@string/conf_speak_footnotes"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:id="@+id/speakFootnotes"
+                                android:onClick="onSettingsChange"/>
                     </LinearLayout>
                 </LinearLayout>
                 <LinearLayout

@@ -14,6 +14,7 @@ const val TAG = "SpeakSettings"
 data class PlaybackSettings (
                          @Optional val speakChapterChanges: Boolean = true,
                          @Optional val speakTitles: Boolean = true,
+                         @Optional val speakFootnotes: Boolean = false,
                          @Optional val playEarconChapter: Boolean = false,
                          @Optional val playEarconTitles: Boolean = true,
                          @Optional var speed: Int = 100,
