@@ -323,7 +323,7 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
     @Test
     fun testFootnoteFinRK() {
         val cmds = SpeakCommandArray()
-        val s = SpeakSettings(playbackSettings = PlaybackSettings(playEarconTitles = true, speakTitles = true, speakFootnotes = true))
+        val s = SpeakSettings(playbackSettings = PlaybackSettings(speakTitles = true, speakFootnotes = true))
 
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Gen.1.1")))
         assertThat("Command is of correct type", cmds[0] is PreTitleCommand)

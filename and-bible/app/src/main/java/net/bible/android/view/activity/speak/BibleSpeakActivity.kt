@@ -64,7 +64,6 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
         speakFootnotes.isChecked = settings.playbackSettings.speakFootnotes
 
         playEarconChapter.isChecked = settings.playbackSettings.playEarconChapter
-        playEarconTitles.isChecked = settings.playbackSettings.playEarconTitles
 
         replaceDivineName.isChecked = settings.replaceDivineName
         restoreSettingsFromBookmarks.isChecked = settings.restoreSettingsFromBookmarks
@@ -118,7 +117,6 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
                         speakTitles = speakTitles.isChecked,
                         speakFootnotes = speakFootnotes.isChecked,
                         playEarconChapter = playEarconChapter.isChecked,
-                        playEarconTitles = playEarconTitles.isChecked,
                         speed = speakSpeed.progress
                         ),
                 autoBookmark = autoBookmark.isChecked,
