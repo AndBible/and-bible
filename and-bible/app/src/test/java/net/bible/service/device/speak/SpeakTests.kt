@@ -802,11 +802,21 @@ class AutoBookmarkTests : AbstractSpeakTests() {
         assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
         provider.prepareForStartSpeaking()
         assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
+
+        // Test that if stopping when paused, bookmark is not created.
+        provider.pause()
+        assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(1))
+        val bmark = bookmarkControl.getBookmarksWithLabel(labelDto).first()
+        bookmarkControl.deleteBookmark(bmark);
+        assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(0))
+        provider.stop()
+        assertThat(bookmarkControl.getBookmarksWithLabel(labelDto).size, equalTo(0))
     }
 
     @Test
     fun autoBookmarkOnStop() {
         provider.setupReading(book, getVerse("Ps.14.2"))
+        provider.prepareForStartSpeaking()
         text = nextText()
         provider.stop();
         val labelDto = bookmarkControl.getOrCreateSpeakLabel()

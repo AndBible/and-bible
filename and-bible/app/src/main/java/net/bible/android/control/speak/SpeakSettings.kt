@@ -7,7 +7,6 @@ import net.bible.service.common.CommonUtils
 import java.lang.IllegalArgumentException
 
 const val PERSIST_SETTINGS = "SpeakSettings"
-const val INVALID_LABEL_ID: Long = -1
 const val TAG = "SpeakSettings"
 
 @Serializable

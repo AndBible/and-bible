@@ -15,7 +15,6 @@ import org.crosswire.jsword.passage.Verse
 import net.bible.android.BibleApplication
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.event.ABEventBus
-import net.bible.android.control.speak.INVALID_LABEL_ID
 import net.bible.android.control.speak.SpeakSettingsChangedEvent
 import net.bible.service.db.bookmark.BookmarkDto
 import net.bible.service.db.bookmark.LabelDto
@@ -245,6 +244,7 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
         reset()
         currentVerse = startVerse
         updateBookmark()
+        isSpeaking = false
     }
 
     private fun updateBookmark() {
@@ -254,14 +254,20 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
 
     override fun savePosition(fractionCompleted: Float) {}
 
+    private var isSpeaking: Boolean = false
+
     override fun stop() {
         reset()
-        updateBookmark()
+        if(isSpeaking) {
+            updateBookmark()
+        }
+        isSpeaking = false
         bookmarkDto = null
     }
 
     override fun prepareForStartSpeaking() {
         readBookmark()
+        isSpeaking = true
     }
 
     private fun readBookmark() {
