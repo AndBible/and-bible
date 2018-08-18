@@ -408,33 +408,28 @@ public class DocumentWebViewBuilder {
 
 		@Override
 		public boolean onLongClick(View v) {
-			// Android 2.3 has various errors around popup menus so just support this shortcut for the primary user base which is on Android 4.0+ 
-			if (CommonUtils.isIceCreamSandwichPlus()) {
-				// ensure actions affect the right window
-				windowControl.setActiveWindow(window);
+			// ensure actions affect the right window
+			windowControl.setActiveWindow(window);
 				
-			    PopupMenu popup = new PopupMenu(mainBibleActivity, v);
-			    popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			PopupMenu popup = new PopupMenu(mainBibleActivity, v);
+			popup.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 
-					@Override
-					public boolean onMenuItemClick(MenuItem menuItem) {
-						return windowMenuCommandHandler.handleMenuRequest(menuItem);
-					}
-				});
+				@Override
+				public boolean onMenuItemClick(MenuItem menuItem) {
+					return windowMenuCommandHandler.handleMenuRequest(menuItem);
+				}
+			});
 			    
-			    MenuInflater inflater = popup.getMenuInflater();
-			    inflater.inflate(R.menu.window_popup_menu, popup.getMenu());
+			MenuInflater inflater = popup.getMenuInflater();
+			inflater.inflate(R.menu.window_popup_menu, popup.getMenu());
 			    
-			    // enable/disable and set synchronised checkbox
-			    windowControl.updateOptionsMenu(popup.getMenu());
+			// enable/disable and set synchronised checkbox
+			windowControl.updateOptionsMenu(popup.getMenu());
 			    
-			    CommonUtils.forcePopupMenuToShowIcons(popup);
+			CommonUtils.forcePopupMenuToShowIcons(popup);
 			    
-			    popup.show();
-				return true;
-			} else {
-				return false;
-			}
+			popup.show();
+			return true;
 		}
 	}
 

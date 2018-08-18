@@ -382,7 +382,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="new_item">New</string>
     <string name="close">Close</string>
     <string name="edit">Edit</string>
-
+    <string name="sdcard_permission_query">If you want to use manually installed bibles from /sdcard/jsword, we need a permission. Do you need that permission? Normally this is not needed. </string>
     <!-- Errors -->
     <string name="report_error">Send Report</string>
     <string name="error_occurred">An error has occurred</string>

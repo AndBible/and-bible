@@ -77,8 +77,6 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 
 	private ChapterVerse maintainMovingChapterVerse = ChapterVerse.Companion.getNOT_SET();
 
-	private boolean kitKatPlus = CommonUtils.isKitKatPlus();
-
 	// struggling to ensure correct initial positioning of pages, giving the page a unique history url seemed to help - maybe it then is sure each page is unique so resets everything
 	private static int historyUrlUniquify = 1;
 
@@ -217,13 +215,8 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		// call this from here because some documents may require an adjusted font size e.g. those using Greek font
 		applyFontSize();
 
-		// scrollTo was used on kitkatplus but sometimes the later scrollTo was not working
 		// If verse 1 then later code will jump to top of screen because it looks better than going to verse 1
-		if (kitKatPlus) {
-			html = html.replace("</body>", "<script>$(window).load(function() {scrollToVerse('" + getIdToJumpTo(chapterVerse) + "');})</script></body>");
-		} else {
-			setJumpToVerse(chapterVerse);
-		}
+		html = html.replace("</body>", "<script>$(window).load(function() {scrollToVerse('" + getIdToJumpTo(chapterVerse) + "');})</script></body>");
 		mJumpToYOffsetRatio = jumpToYOffsetRatio;
 
 		// either enable verse selection or the default text selection
@@ -247,10 +240,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	protected void enableZoomForMap(boolean isMap) {
 		getSettings().setBuiltInZoomControls(true);
 		getSettings().setSupportZoom(isMap);
-		if (CommonUtils.isHoneycombPlus()) {
-			// Could not totally remove the zoom controls after returning to a Bible view so never display them
-			getSettings().setDisplayZoomControls(false);
-		}
+		getSettings().setDisplayZoomControls(false);
 		// http://stackoverflow.com/questions/3808532/how-to-set-the-initial-zoom-width-for-a-webview
 		getSettings().setLoadWithOverviewMode(isMap);
 		getSettings().setUseWideViewPort(isMap);
@@ -580,13 +570,8 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 		Log.d(TAG, "Scroll or jump to:" + chapterVerse);
 		if (ChapterVerse.isSet(chapterVerse)) {
 			// jump to correct verse
-			// but scrollTop does not work on Android 3.0-4.0 and changing document location does not work on latest WebView
-			if (kitKatPlus) {
-				// required format changed in 4.2 http://stackoverflow.com/questions/14771970/how-to-call-javascript-in-android-4-2
-				executeJavascript("scrollToVerse('" + getIdToJumpTo(chapterVerse) + "')");
-			} else {
-				executeJavascript("(function() { document.location = '#" + getIdToJumpTo(chapterVerse) +"' })()");
-			}
+			// required format changed in 4.2 http://stackoverflow.com/questions/14771970/how-to-call-javascript-in-android-4-2
+			executeJavascript("scrollToVerse('" + getIdToJumpTo(chapterVerse) + "')");
 		}
 	}
 
@@ -726,11 +711,7 @@ public class BibleView extends WebView implements DocumentView, VerseActionModeM
 	@TargetApi(Build.VERSION_CODES.KITKAT)
 	private void executeJavascript(String javascript) {
 		Log.d(TAG, "Executing JS:"+ StringUtils.abbreviate(javascript, 100));
-		if (kitKatPlus) {
-			evaluateJavascript(javascript+";", null);
-		} else {
-			loadUrl("javascript:"+javascript+";");
-		}
+		evaluateJavascript(javascript+";", null);
 	}
 
 	@Override

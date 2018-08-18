@@ -1,5 +1,10 @@
 package net.bible.service.common;
 
+import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -14,6 +19,7 @@ import android.util.Log;
 
 import net.bible.android.BibleApplication;
 
+import net.bible.android.view.activity.page.MainBibleActivity;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.crosswire.common.util.IOUtil;
@@ -94,22 +100,6 @@ public class CommonUtils {
         return versionNumber;
 	}
 	
-	public static boolean isFroyoPlus() {
-		return Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO;
-	}
-
-	public static boolean isHoneycombPlus() {
-		return Build.VERSION.SDK_INT >= 11;
-	}
-	public static boolean isIceCreamSandwichPlus() {
-		return Build.VERSION.SDK_INT >= 14;
-	}
-	public static boolean isJellyBeanPlus() {
-		return Build.VERSION.SDK_INT >= 16;
-	}
-	public static boolean isKitKatPlus() {
-		return Build.VERSION.SDK_INT >= 19;
-	}
 	public static boolean isNougatPlus() {
 		return Build.VERSION.SDK_INT >= 24;
 	}
@@ -458,5 +448,17 @@ public class CommonUtils {
 		} catch (Exception e) {
 		    e.printStackTrace();
 		}
+	}
+
+	public static void restartApp(Activity callingActivity) {
+		Intent intent = new Intent(callingActivity, MainBibleActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+		PendingIntent pendingIntent;
+		pendingIntent = PendingIntent.getActivity(callingActivity, 0, intent, 0);
+
+		AlarmManager mgr = (AlarmManager)callingActivity.getSystemService(Context.ALARM_SERVICE);
+		mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent);
+		System.exit(2);
 	}
 }
