@@ -286,8 +286,7 @@ public class PageTiltScrollControl {
 	/** return true if both a sensor and android support are available to sense device tilt
 	 */
 	public static boolean isTiltSensingPossible() {
-		return 	isOrientationSensor() &&
-				CommonUtils.isFroyoPlus();
+		return 	isOrientationSensor();
 	}
 	
     /**

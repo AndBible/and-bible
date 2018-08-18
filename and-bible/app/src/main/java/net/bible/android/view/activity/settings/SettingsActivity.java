@@ -56,19 +56,6 @@ public class SettingsActivity extends PreferenceActivity {
 				getPreferenceScreen().removePreference(tiltToScrollPreference);
 			}
 			
-			// only JellyBean supports Malayalam so remove ml for older versions of Android
-			if (!CommonUtils.isJellyBeanPlus()) {
-		        ListPreference localePref = (ListPreference)getPreferenceScreen().findPreference(LOCALE_PREF);
-		        CharSequence[] entries = localePref.getEntries();
-		        CharSequence[] entryValues = localePref.getEntryValues();
-		        int mlIndex = ArrayUtils.indexOf(entryValues, "ml");
-		        if (mlIndex!=-1) {
-		        	Log.d(TAG, "removing Malayalam from preference list");
-		        	localePref.setEntries( ArrayUtils.remove(entries, mlIndex));
-		        	localePref.setEntryValues( ArrayUtils.remove(entryValues, mlIndex));
-		        }
-		    }
-			
 			// if locale is overridden then have to force title to be translated here
 			LocaleHelper.translateTitle(this);
 

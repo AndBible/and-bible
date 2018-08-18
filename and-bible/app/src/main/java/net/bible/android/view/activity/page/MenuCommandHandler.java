@@ -172,22 +172,8 @@ public class MenuCommandHandler {
     	if (requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH) {
     		Log.i(TAG, "Refresh on finish");
     		if (!Objects.equals(CommonUtils.getLocalePref(), BibleApplication.getApplication().getLocaleOverrideAtStartUp())) {
-    			// must restart to change locale
-    			PendingIntent pendingIntent;
-    			if (CommonUtils.isIceCreamSandwichPlus()) {
-        			// works on 4.x but not on 2.1
-        			Intent startupIntent = new  Intent("net.bible.android.activity.StartupActivity.class");
-        			pendingIntent = PendingIntent.getActivity(callingActivity.getBaseContext(), 0, startupIntent, 0);
-    			} else {
-	    			//works on 2.1 but scroll errors on 4.x
-	    			Intent startupIntent = new  Intent(callingActivity.getBaseContext(), StartupActivity.class);
-					//noinspection ResourceType
-					pendingIntent = PendingIntent.getActivity(callingActivity.getBaseContext(), 0, startupIntent, callingActivity.getIntent().getFlags());
-    			}
-    			AlarmManager mgr = (AlarmManager)callingActivity.getSystemService(Context.ALARM_SERVICE);
-    			mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent);
-    			System.exit(2);
-    			return true;
+				// must restart to change locale
+    			CommonUtils.restartApp(callingActivity);
     		}
     	}
     	return false;
