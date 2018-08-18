@@ -157,7 +157,7 @@ public class ActivityBase extends AppCompatActivity implements AndBibleActivity 
 	
 	@SuppressLint("NewApi")
 	private void setLightsOutMode(boolean isLightsOut) {
-		if (CommonUtils.isHoneycombPlus() && mContentView!=null) {
+		if (mContentView!=null) {
 	    	if (isLightsOut) {
 				mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE);
 	    	} else {

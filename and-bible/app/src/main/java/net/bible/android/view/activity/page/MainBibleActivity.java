@@ -1,12 +1,17 @@
 package net.bible.android.view.activity.page;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GestureDetectorCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ActionMode;
 import android.util.Log;
 
@@ -68,10 +73,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	private BibleKeyHandler bibleKeyHandler;
 
 	private boolean mWholeAppWasInBackground = false;
-
-	// swipe fails on older versions of Android (2.2, 2.3, but not 3.0+) if event not passed to parent - don't know why
-	// scroll occurs on later versions after double-tap maximize
-	private boolean alwaysDispatchTouchEventToSuper = !CommonUtils.isHoneycombPlus();
 
 	private BackupControl backupControl;
 
@@ -199,9 +200,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 			documentViewManager.getDocumentView().changeBackgroundColour();
 			PassageChangeMediator.getInstance().forcePageUpdate();
 		}
-
 	}
-
 	/**
 	 * adding android:configChanges to manifest causes this method to be called on flip, etc instead of a new instance and onCreate, which would cause a new observer -> duplicated threads
 	 */
@@ -305,12 +304,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 
 	public void onEvent(CurrentWindowChangedEvent event) {
 		MainBibleActivity.this.updateActionBarButtons();
-
-		// onPrepareOptionsMenu only called once on Android 2.2, 2.3, 3.0: http://stackoverflow.com/questions/29925104/onprepareoptionsmenu-only-called-once-on-android-2-3
-		// so forcefully invalidate it on old versions
-		if (!CommonUtils.isIceCreamSandwichPlus()) {
-			supportInvalidateOptionsMenu();
-		}
 	}
 
 	/**
@@ -420,7 +413,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent motionEvent) {
 		// should only call super if below returns false
-		if (this.gestureDetector.onTouchEvent(motionEvent) && !alwaysDispatchTouchEventToSuper) {
+		if (this.gestureDetector.onTouchEvent(motionEvent)) {
 			return true;
 		} else {
 			return super.dispatchTouchEvent(motionEvent);
