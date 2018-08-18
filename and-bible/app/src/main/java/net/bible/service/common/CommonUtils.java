@@ -19,7 +19,7 @@ import android.util.Log;
 
 import net.bible.android.BibleApplication;
 
-import net.bible.android.view.activity.StartupActivity;
+import net.bible.android.view.activity.page.MainBibleActivity;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.crosswire.common.util.IOUtil;
@@ -451,9 +451,12 @@ public class CommonUtils {
 	}
 
 	public static void restartApp(Activity callingActivity) {
+		Intent intent = new Intent(callingActivity, MainBibleActivity.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
 		PendingIntent pendingIntent;
-		Intent startupIntent = new  Intent("net.bible.android.activity.StartupActivity.class");
-		pendingIntent = PendingIntent.getActivity(callingActivity, 0, startupIntent, 0);
+		pendingIntent = PendingIntent.getActivity(callingActivity, 0, intent, 0);
+
 		AlarmManager mgr = (AlarmManager)callingActivity.getSystemService(Context.ALARM_SERVICE);
 		mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent);
 		System.exit(2);

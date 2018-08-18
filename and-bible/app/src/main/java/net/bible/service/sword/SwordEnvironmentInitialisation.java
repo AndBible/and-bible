@@ -64,7 +64,7 @@ public class SwordEnvironmentInitialisation {
 				System.setProperty("jsword.home", moduleDir.getAbsolutePath());
 				CWProject.instance().setFrontendName("and-bible");
 
-				// TODO: request permission for these somehow.
+				// Permission is requested at MainBibleActivitiy.checkSdcardReadPermission and app is restarted if permission is granted.
 				if(ContextCompat.checkSelfPermission(BibleApplication.getApplication(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 					// the second value below is the one which is used in effectively all circumstances
 					CWProject.setHome("jsword.home", moduleDir.getAbsolutePath(), SharedConstants.MANUAL_INSTALL_DIR.getAbsolutePath());
