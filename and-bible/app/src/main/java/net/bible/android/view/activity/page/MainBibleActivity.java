@@ -54,8 +54,10 @@ import de.greenrobot.event.EventBus;
 public class MainBibleActivity extends CustomTitlebarActivityBase implements VerseActionModeMediator.ActionModeMenuDisplay {
 	static final int BACKUP_SAVE_REQUEST = 0;
 	static final int BACKUP_RESTORE_REQUEST = 1;
+	private static final int SDCARD_READ_REQUEST = 2;
 
 	private static final String SCREEN_KEEP_ON_PREF = "screen_keep_on_pref";
+	private static final String SDCARD_PERMISSON_ASKED = "sdcard_permission_asked_pref";
 	private DocumentViewManager documentViewManager;
 
 	private BibleContentManager bibleContentManager;
@@ -115,6 +117,30 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		// force the screen to be populated
 		PassageChangeMediator.getInstance().forcePageUpdate();
 		refreshScreenKeepOn();
+		checkSdcardReadPermission();
+	}
+
+	private void checkSdcardReadPermission() {
+		boolean sdcardPermissionAsked = CommonUtils.getSharedPreferences().getBoolean(SDCARD_PERMISSON_ASKED, false);
+		boolean permissionGranted = ContextCompat.checkSelfPermission(BibleApplication.getApplication(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+
+		if(!sdcardPermissionAsked && !permissionGranted) {
+			new AlertDialog.Builder(this)
+					.setMessage(R.string.sdcard_permission_query)
+					.setCancelable(false)
+					.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							ActivityCompat.requestPermissions(MainBibleActivity.this,
+									new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, SDCARD_READ_REQUEST);
+						}
+					})
+					.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int id) {
+							// Do not ask this any more
+							CommonUtils.getSharedPreferences().edit().putBoolean(SDCARD_PERMISSON_ASKED, true).apply();
+						}
+					}).create().show();
+		}
 	}
 
 	private void refreshScreenKeepOn() {
@@ -280,6 +306,11 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 					Dialogs.getInstance().showMsg(R.string.error_occurred);
 				}
 				break;
+			case SDCARD_READ_REQUEST:
+				if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					CommonUtils.restartApp(this);
+				}
+				break;
 		}
 		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 	}
@@ -303,7 +334,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	}
 
 	public void onEvent(CurrentWindowChangedEvent event) {
-		MainBibleActivity.this.updateActionBarButtons();
+		updateActionBarButtons();
 	}
 
 	/**
