@@ -109,8 +109,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_text_size_title">Text size</string>
     <string name="prefs_text_size_summary">See more or see more clearly</string>
     <string name="prefs_text_size_sample_text">Sample text</string>
-    <string name="prefs_screen_keep_on">Keep display on</string>
-    <string name="prefs_keep_on_summary">Do not allow screen to turn off</string>
+    <string name="prefs_screen_keep_on_title">Keep display on</string>
+    <string name="prefs_screen_keep_on_summary">Do not allow screen to turn off</string>
     <string name="x_minutes">%d minutes</string>
     <string name="prefs_interface_locale_title">Application language</string>
     <string name="prefs_interface_locale_summary">Select custom user interface language</string>
@@ -318,7 +318,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="error_page_too_large">Page is too large to be loaded</string>
     <string name="error_key_not_in_document">Not found in document</string>
     <string name="empty_list">No items to display</string>
-    <string name="add_widget">Add widget</string>
     <string name="download_documents">Downloading documents</string>
     <string name="notification_channel_document_download_status">Document download</string>
 </resources>
