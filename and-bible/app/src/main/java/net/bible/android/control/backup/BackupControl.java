@@ -80,7 +80,8 @@ public class BackupControl {
 		});
 	}
 	
-	/** return true if a backup has been done and the file is on the sd card
+	/** return true if a backup has been done and the file is on the sd card. Also return true if permission is not yet
+	* granted and we can't know if there is a file (it will be requested)
 	 */
 	private boolean isBackupEnabled() {
 		if(ContextCompat.checkSelfPermission(BibleApplication.getApplication(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
