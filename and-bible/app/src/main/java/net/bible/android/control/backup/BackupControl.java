@@ -43,7 +43,7 @@ public class BackupControl {
 	public void updateOptionsMenu(Menu menu) {
 		MenuItem restoreMenuItem = menu.findItem(R.id.restore);
 		if (restoreMenuItem!=null) {
-			restoreMenuItem.setEnabled(isBackupFile());
+			restoreMenuItem.setEnabled(isBackupEnabled());
 		}
 	}
 
@@ -82,7 +82,7 @@ public class BackupControl {
 	
 	/** return true if a backup has been done and the file is on the sd card
 	 */
-	private boolean isBackupFile() {
+	private boolean isBackupEnabled() {
 		if(ContextCompat.checkSelfPermission(BibleApplication.getApplication(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
 			return true;
 		}
