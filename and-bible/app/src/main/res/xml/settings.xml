@@ -88,8 +88,8 @@
 				android:entryValues="@array/prefs_split_mode_values"
 				android:defaultValue="automatic"/>
 	<CheckBoxPreference android:key="screen_keep_on_pref"
-				android:title="@string/prefs_screen_keep_on"
-				android:summary="@string/prefs_keep_on_summary"
+				android:title="@string/prefs_screen_keep_on_title"
+				android:summary="@string/prefs_screen_keep_on_summary"
 				android:defaultValue="false"/>
 	<ListPreference android:key="locale_pref"
 				android:title="@string/prefs_interface_locale_title"
