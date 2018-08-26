@@ -128,6 +128,9 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_split_mode_summary">How to split multiple screens on the window layout?</string>
     <string name="prefs_split_mode_title">Split mode</string>
 
+    <string name="prefs_request_sdcard_permission_title">Request permission to read external storage</string>
+    <string name="prefs_request_sdcard_permission_summary">If you manually installed Bibles to the jsword folder on your SD card you must grant permission to read the SD card. Other users can ignore.</string>
+
     <!-- Window -->
     <string name="window">Window</string>
     <string name="windowClose">Close</string>
@@ -310,7 +313,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="new_item">New</string>
     <string name="close">Close</string>
     <string name="edit">Edit</string>
-    <string name="sdcard_permission_query">If you want to use manually installed bibles from /sdcard/jsword, we need a permission. Do you need that permission? Normally this is not needed. </string>
     <!-- Errors -->
     <string name="report_error">Send Report</string>
     <string name="error_occurred">An error has occurred</string>

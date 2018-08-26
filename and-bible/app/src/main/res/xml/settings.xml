@@ -91,6 +91,10 @@
 				android:title="@string/prefs_screen_keep_on_title"
 				android:summary="@string/prefs_screen_keep_on_summary"
 				android:defaultValue="false"/>
+	<CheckBoxPreference android:key="request_sdcard_permission_pref"
+				android:title="@string/prefs_request_sdcard_permission_title"
+				android:summary="@string/prefs_request_sdcard_permission_summary"
+				android:defaultValue="false"/>
 	<ListPreference android:key="locale_pref"
 				android:title="@string/prefs_interface_locale_title"
 				android:summary="@string/prefs_interface_locale_summary"
