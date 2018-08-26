@@ -3,9 +3,10 @@
 buildscript {
     ext.kotlin_version = '1.2.51'
     ext.anko_version = '0.10.5'
-    ext.serialization_version = '0.6.1'
+    ext.serialization_version = '0.6.0'
 
     repositories {
+
         jcenter()
         google()
         maven { url "https://kotlin.bintray.com/kotlinx" }
