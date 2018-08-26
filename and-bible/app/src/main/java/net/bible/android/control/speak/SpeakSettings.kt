@@ -14,7 +14,6 @@ data class PlaybackSettings (
                          @Optional val speakChapterChanges: Boolean = true,
                          @Optional val speakTitles: Boolean = true,
                          @Optional val speakFootnotes: Boolean = false,
-                         @Optional val playEarconChapter: Boolean = false,
                          @Optional var speed: Int = 100,
 
                          // Bookmark related metadata.

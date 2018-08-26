@@ -87,34 +87,6 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
                         >
-                    <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/speak_subtitle_color"
-                            android:textStyle="bold"
-                            android:padding="@dimen/speak_subtitle_padding"
-                            android:text="@string/conf_play_earcons"/>
-
-                    <LinearLayout
-                            android:layout_width="match_parent"
-                            android:padding="@dimen/speak_row_padding"
-                            android:layout_height="wrap_content">
-
-                        <CheckBox
-                                android:text="@string/conf_change_chapter"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_weight="1"
-                                android:id="@+id/playEarconChapter"
-                                android:onClick="onSettingsChange"/>
-
-                    </LinearLayout>
-                </LinearLayout>
-                <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        >
                     <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"

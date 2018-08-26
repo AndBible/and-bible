@@ -972,7 +972,7 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
     @Test
     fun textProgressionFinPR() {
         book = Books.installed().getBook("FinPR") as SwordBook
-        provider.settings = SpeakSettings(replaceDivineName = true, playbackSettings = PlaybackSettings(speakChapterChanges = false, playEarconChapter = false))
+        provider.settings = SpeakSettings(replaceDivineName = true, playbackSettings = PlaybackSettings(speakChapterChanges = false))
         provider.setupReading(book, getVerse("Ezek.36.38"))
 
         val text1 = nextText()

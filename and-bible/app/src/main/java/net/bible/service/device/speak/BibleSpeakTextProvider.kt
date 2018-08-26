@@ -144,10 +144,8 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
             cmds.add(SilenceCommand())
         }
         else if(prevVerse.chapter != verse.chapter) {
-            if(settings.playbackSettings.playEarconChapter) {
-                cmds.add(PreChapterChangeCommand(settings))
-            }
             if(settings.playbackSettings.speakChapterChanges) {
+                cmds.add(PreChapterChangeCommand(settings))
                 cmds.add(TextCommand("$bookName ${res.getString(R.string.speak_chapter_changed)} ${verse.chapter}. "))
                 cmds.add(SilenceCommand())
             }

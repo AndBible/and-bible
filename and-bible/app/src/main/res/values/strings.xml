@@ -275,8 +275,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="conf_speak_auto_bookmark">Automatic bookmarking</string>
     <string name="restore_settings_from_bookmarks">Save playback settings to bookmarks</string>
 
-    <string name="conf_speak">Speak</string>
-    <string name="conf_play_earcons">Play earcon sounds for</string>
+    <string name="conf_speak">Speak and play earcon sounds for</string>
     <string name="conf_replace_divinename">Replace divine name with Yahweh</string>
 
     <string name="conf_change_chapter">Chapter changes</string>

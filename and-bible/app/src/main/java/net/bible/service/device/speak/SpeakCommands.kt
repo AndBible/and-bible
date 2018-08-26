@@ -46,10 +46,18 @@ abstract class EarconCommand(val earcon: String, val enabled: Boolean): SpeakCom
 }
 
 class PreBookChangeCommand: EarconCommand(TextToSpeechServiceManager.EARCON_PRE_BOOK_CHANGE, true)
-class PreChapterChangeCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_CHAPTER_CHANGE, speakSettings.playbackSettings.playEarconChapter)
-class PreTitleCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_TITLE, speakSettings.playbackSettings.speakTitles)
-class PreFootnoteCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_PRE_FOOTNOTE, speakSettings.playbackSettings.speakFootnotes)
-class PostFootnoteCommand(speakSettings: SpeakSettings): EarconCommand(TextToSpeechServiceManager.EARCON_POST_FOOTNOTE, speakSettings.playbackSettings.speakFootnotes)
+class PreChapterChangeCommand(speakSettings: SpeakSettings): EarconCommand(
+        TextToSpeechServiceManager.EARCON_PRE_CHAPTER_CHANGE,
+        speakSettings.playbackSettings.speakChapterChanges)
+class PreTitleCommand(speakSettings: SpeakSettings): EarconCommand(
+        TextToSpeechServiceManager.EARCON_PRE_TITLE,
+        speakSettings.playbackSettings.speakTitles)
+class PreFootnoteCommand(speakSettings: SpeakSettings): EarconCommand(
+        TextToSpeechServiceManager.EARCON_PRE_FOOTNOTE,
+        speakSettings.playbackSettings.speakFootnotes)
+class PostFootnoteCommand(speakSettings: SpeakSettings): EarconCommand(
+        TextToSpeechServiceManager.EARCON_POST_FOOTNOTE,
+        speakSettings.playbackSettings.speakFootnotes)
 
 open class SilenceCommand(val enabled: Boolean=true) : SpeakCommand {
     override fun speak(tts: TextToSpeech, utteranceId: String) {
