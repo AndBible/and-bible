@@ -2,16 +2,13 @@ package net.bible.android.view.activity.page;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GestureDetectorCompat;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.view.ActionMode;
 import android.util.Log;
 
@@ -60,7 +57,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	private static final int SDCARD_READ_REQUEST = 2;
 
 	private static final String SCREEN_KEEP_ON_PREF = "screen_keep_on_pref";
-	private static final String SDCARD_PERMISSON_ASKED = "sdcard_permission_asked_pref";
+	private static final String REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pref";
+
 	private DocumentViewManager documentViewManager;
 
 	private BibleContentManager bibleContentManager;
@@ -120,30 +118,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		// force the screen to be populated
 		PassageChangeMediator.getInstance().forcePageUpdate();
 		refreshScreenKeepOn();
-		checkSdcardReadPermission();
-	}
-
-	private void checkSdcardReadPermission() {
-		boolean sdcardPermissionAsked = CommonUtils.getSharedPreferences().getBoolean(SDCARD_PERMISSON_ASKED, false);
-		boolean permissionGranted = ContextCompat.checkSelfPermission(BibleApplication.getApplication(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
-
-		if(!sdcardPermissionAsked && !permissionGranted) {
-			new AlertDialog.Builder(this)
-					.setMessage(R.string.sdcard_permission_query)
-					.setCancelable(false)
-					.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							ActivityCompat.requestPermissions(MainBibleActivity.this,
-									new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, SDCARD_READ_REQUEST);
-						}
-					})
-					.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int id) {
-							// Do not ask this any more
-							CommonUtils.getSharedPreferences().edit().putBoolean(SDCARD_PERMISSON_ASKED, true).apply();
-						}
-					}).create().show();
-		}
+		requestSdcardPermission();
 	}
 
 	private void refreshScreenKeepOn() {
@@ -283,7 +258,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.d(TAG, "Activity result:" + resultCode);
 		super.onActivityResult(requestCode, resultCode, data);
-
 		if (mainMenuCommandHandler.restartIfRequiredOnReturn(requestCode)) {
 			// restart done in above
 		} else if (mainMenuCommandHandler.isDisplayRefreshRequired(requestCode)) {
@@ -327,6 +301,16 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	protected void preferenceSettingsChanged() {
 		documentViewManager.getDocumentView().applyPreferenceSettings();
 		PassageChangeMediator.getInstance().forcePageUpdate();
+		requestSdcardPermission();
+	}
+
+	private void requestSdcardPermission() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			boolean requestSdCardPermission = CommonUtils.getSharedPreferences().getBoolean(REQUEST_SDCARD_PERMISSION_PREF, false);
+			if(requestSdCardPermission && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+				requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, SDCARD_READ_REQUEST);
+			}
+		}
 	}
 
 	/**

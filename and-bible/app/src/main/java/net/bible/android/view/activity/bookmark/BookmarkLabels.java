@@ -184,7 +184,7 @@ public class BookmarkLabels extends ListActivityBase {
 			case (R.id.manageLabels):
 				isHandled = true;
 				Intent intent = new Intent(this, ManageLabels.class);
-				startActivityForResult(intent, IntentHelper.REFRESH_DISPLAY_ON_FINISH);
+				startActivityForResult(intent, IntentHelper.RETURN_FROM_SETTINGS_ACTIVITY);
 				break;
 		}
 
@@ -199,7 +199,7 @@ public class BookmarkLabels extends ListActivityBase {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.d(TAG, "Restoring state after return from label editing");
 
-		if (requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH) {
+		if (requestCode == IntentHelper.RETURN_FROM_SETTINGS_ACTIVITY) {
 			// find checked labels prior to refresh
 			List<LabelDto> selectedLabels = getCheckedLabels();
 

@@ -310,8 +310,9 @@
     <item/>
   </string-array>
 
-  <string name="prefs_screen_keep_on">Pidä näyttö päällä</string>
-  <string name="prefs_keep_on_summary">Älä anna näytön mennä pois päältä</string>
+  <string name="prefs_screen_keep_on_title">Pidä näyttö päällä</string>
+  <string name="prefs_screen_keep_on_summary">Älä anna näytön mennä pois päältä</string>
+
   <string name="add_widget">Lisää widget</string>
   <string name="download_documents">Ladataan dokumentteja</string>
   <string name="notification_channel_document_download_status">Dokumenttien lataus</string>
