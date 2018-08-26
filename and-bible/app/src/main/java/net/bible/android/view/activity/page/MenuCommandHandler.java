@@ -1,9 +1,6 @@
 package net.bible.android.view.activity.page;
 
 import android.Manifest;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.v4.app.ActivityCompat;
@@ -12,7 +9,6 @@ import android.util.Log;
 import android.view.MenuItem;
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
-import net.bible.android.activity.StartupActivity;
 import net.bible.android.control.backup.BackupControl;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
@@ -94,7 +90,7 @@ public class MenuCommandHandler {
 		        case R.id.settingsButton:
 		        	handlerIntent = new Intent(callingActivity, SettingsActivity.class);
 		        	// force the bible view to be refreshed after returning from settings screen because notes, verses, etc. may be switched on or off
-		        	requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH;
+		        	requestCode = IntentHelper.RETURN_FROM_SETTINGS_ACTIVITY;
 		        	break;
 		        case R.id.historyButton:
 		        	handlerIntent = new Intent(callingActivity, History.class);
@@ -104,7 +100,7 @@ public class MenuCommandHandler {
 		        	break;
 				case (R.id.manageLabels):
 					handlerIntent = new Intent(callingActivity, ManageLabels.class);
-					requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH;
+					requestCode = IntentHelper.RETURN_FROM_SETTINGS_ACTIVITY;
 					break;
 		        case R.id.mynotesButton:
 		        	handlerIntent = new Intent(callingActivity, MyNotes.class);
@@ -169,7 +165,7 @@ public class MenuCommandHandler {
     }
 
 	public boolean restartIfRequiredOnReturn(int requestCode) {
-    	if (requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH) {
+    	if (requestCode == IntentHelper.RETURN_FROM_SETTINGS_ACTIVITY) {
     		Log.i(TAG, "Refresh on finish");
     		if (!Objects.equals(CommonUtils.getLocalePref(), BibleApplication.getApplication().getLocaleOverrideAtStartUp())) {
 				// must restart to change locale
@@ -180,7 +176,7 @@ public class MenuCommandHandler {
     }
 
     public boolean isDisplayRefreshRequired(int requestCode) { 
-    	return requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH;
+    	return requestCode == IntentHelper.RETURN_FROM_SETTINGS_ACTIVITY;
 	}
     
     public boolean isDocumentChanged(int requestCode) { 

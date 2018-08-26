@@ -440,6 +440,6 @@ public class BookmarkControl {
 		// Show label view for new bookmark
 		final Intent intent = new Intent(currentActivity, BookmarkLabels.class);
 		intent.putExtra(BOOKMARK_IDS_EXTRA, new long[] {bookmarkDto.getId()});
-		currentActivity.startActivityForResult(intent, IntentHelper.REFRESH_DISPLAY_ON_FINISH);
+		currentActivity.startActivityForResult(intent, IntentHelper.RETURN_FROM_SETTINGS_ACTIVITY);
 	}
 }
