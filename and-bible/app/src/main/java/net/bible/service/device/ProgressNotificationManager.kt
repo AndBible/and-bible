@@ -118,7 +118,6 @@ class ProgressNotificationManager {
         val builder = NotificationCompat.Builder(app, DOWNLOAD_NOTIFICATIONS_CHANNEL)
 
         builder.setSmallIcon(R.drawable.ichthys_alpha)
-                .setContentTitle(app.getString(R.string.download_documents))
                 .setContentTitle(prog.jobName)
                 .setShowWhen(true)
                 .setContentIntent(pendingIntent)
