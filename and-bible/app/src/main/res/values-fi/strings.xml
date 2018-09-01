@@ -272,5 +272,5 @@
   <string name="prefs_screen_keep_on_summary">Älä anna näytön mennä pois päältä</string>
   <string name="add_widget">Lisää widget</string>
   <string name="download_documents">Ladataan dokumentteja</string>
-  <string name="notification_channel_document_download_status">Dokumenttien lataus</string>
+  <string name="notification_channel_progress_status">Dokumenttien lataus</string>
 </resources>

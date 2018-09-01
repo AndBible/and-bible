@@ -42,8 +42,8 @@ class ProgressNotificationManager {
         val app = BibleApplication.getApplication()
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(DOWNLOAD_NOTIFICATIONS_CHANNEL,
-                    app.getString(R.string.notification_channel_document_download_status), NotificationManager.IMPORTANCE_LOW).apply {
+            val channel = NotificationChannel(PROGRESS_NOTIFICATION_CHANNEL,
+                    app.getString(R.string.notification_channel_progress_status), NotificationManager.IMPORTANCE_LOW).apply {
                 lockscreenVisibility = Notification.VISIBILITY_PUBLIC
             }
             notificationManager.createNotificationChannel(channel)
@@ -115,7 +115,7 @@ class ProgressNotificationManager {
         val app = BibleApplication.getApplication()
         val intent = Intent(app, ProgressStatus::class.java)
         val pendingIntent = PendingIntent.getActivity(app, 0, intent, 0)
-        val builder = NotificationCompat.Builder(app, DOWNLOAD_NOTIFICATIONS_CHANNEL)
+        val builder = NotificationCompat.Builder(app, PROGRESS_NOTIFICATION_CHANNEL)
 
         builder.setSmallIcon(R.drawable.ichthys_alpha)
                 .setContentTitle(prog.jobName)
@@ -143,7 +143,7 @@ class ProgressNotificationManager {
     companion object {
         private val TAG = "ProgressNotificatnMngr"
 
-        const val DOWNLOAD_NOTIFICATIONS_CHANNEL="download-notifications"
+        const val PROGRESS_NOTIFICATION_CHANNEL="proggress-notifications"
 
         val instance = ProgressNotificationManager()
     }
