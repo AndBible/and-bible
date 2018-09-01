@@ -90,7 +90,7 @@ public class MenuCommandHandler {
 		        case R.id.settingsButton:
 		        	handlerIntent = new Intent(callingActivity, SettingsActivity.class);
 		        	// force the bible view to be refreshed after returning from settings screen because notes, verses, etc. may be switched on or off
-		        	requestCode = IntentHelper.RETURN_FROM_SETTINGS_ACTIVITY;
+		        	requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH;
 		        	break;
 		        case R.id.historyButton:
 		        	handlerIntent = new Intent(callingActivity, History.class);
@@ -100,7 +100,7 @@ public class MenuCommandHandler {
 		        	break;
 				case (R.id.manageLabels):
 					handlerIntent = new Intent(callingActivity, ManageLabels.class);
-					requestCode = IntentHelper.RETURN_FROM_SETTINGS_ACTIVITY;
+					requestCode = IntentHelper.REFRESH_DISPLAY_ON_FINISH;
 					break;
 		        case R.id.mynotesButton:
 		        	handlerIntent = new Intent(callingActivity, MyNotes.class);
@@ -165,7 +165,7 @@ public class MenuCommandHandler {
     }
 
 	public boolean restartIfRequiredOnReturn(int requestCode) {
-    	if (requestCode == IntentHelper.RETURN_FROM_SETTINGS_ACTIVITY) {
+    	if (requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH) {
     		Log.i(TAG, "Refresh on finish");
     		if (!Objects.equals(CommonUtils.getLocalePref(), BibleApplication.getApplication().getLocaleOverrideAtStartUp())) {
 				// must restart to change locale
@@ -176,7 +176,7 @@ public class MenuCommandHandler {
     }
 
     public boolean isDisplayRefreshRequired(int requestCode) { 
-    	return requestCode == IntentHelper.RETURN_FROM_SETTINGS_ACTIVITY;
+    	return requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH;
 	}
     
     public boolean isDocumentChanged(int requestCode) { 
