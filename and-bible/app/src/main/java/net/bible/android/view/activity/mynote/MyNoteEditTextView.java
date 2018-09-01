@@ -3,10 +3,10 @@ package net.bible.android.view.activity.mynote;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.support.v7.widget.AppCompatEditText;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.EditText;
 import android.widget.LinearLayout;
 
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
@@ -25,7 +25,7 @@ import de.greenrobot.event.EventBus;
  *      The copyright to this program is held by it's authors.
  * @author Martin Denham [mjdenham at gmail dot com]
  */
-public class MyNoteEditTextView extends EditText implements DocumentView {
+public class MyNoteEditTextView extends AppCompatEditText implements DocumentView {
 
 	private final MyNoteControl myNoteControl;
 

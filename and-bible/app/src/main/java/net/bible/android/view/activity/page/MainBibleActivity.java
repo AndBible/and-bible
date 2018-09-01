@@ -1,20 +1,18 @@
 package net.bible.android.view.activity.page;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v7.view.ActionMode;
 import android.util.Log;
 
-import android.view.ContextMenu;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
+import android.view.*;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
@@ -33,6 +31,7 @@ import net.bible.android.control.search.SearchControl;
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent;
 import net.bible.android.view.activity.MainBibleActivityModule;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
+import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.page.actionbar.BibleActionBarManager;
 import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator;
 import net.bible.android.view.activity.page.screen.DocumentViewManager;
@@ -50,6 +49,12 @@ import de.greenrobot.event.EventBus;
  *      The copyright to this program is held by it's author.
  */
 public class MainBibleActivity extends CustomTitlebarActivityBase implements VerseActionModeMediator.ActionModeMenuDisplay {
+	static final int BACKUP_SAVE_REQUEST = 0;
+	static final int BACKUP_RESTORE_REQUEST = 1;
+	private static final int SDCARD_READ_REQUEST = 2;
+
+	private static final String SCREEN_KEEP_ON_PREF = "screen_keep_on_pref";
+	private static final String REQUEST_SDCARD_PERMISSION_PREF = "request_sdcard_permission_pref";
 
 	private DocumentViewManager documentViewManager;
 
@@ -68,10 +73,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	private BibleKeyHandler bibleKeyHandler;
 
 	private boolean mWholeAppWasInBackground = false;
-
-	// swipe fails on older versions of Android (2.2, 2.3, but not 3.0+) if event not passed to parent - don't know why
-	// scroll occurs on later versions after double-tap maximize
-	private boolean alwaysDispatchTouchEventToSuper = !CommonUtils.isHoneycombPlus();
 
 	private BackupControl backupControl;
 
@@ -113,6 +114,19 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 
 		// force the screen to be populated
 		PassageChangeMediator.getInstance().forcePageUpdate();
+		refreshScreenKeepOn();
+		requestSdcardPermission();
+	}
+
+	private void refreshScreenKeepOn() {
+		boolean keepOn = CommonUtils.getSharedPreferences().getBoolean(SCREEN_KEEP_ON_PREF, false);
+		if(keepOn) {
+			getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+		}
+		else {
+			getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+		}
 	}
 
 	@Override
@@ -147,7 +161,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	@Override
 	protected void onRestart() {
 		super.onRestart();
-
+		refreshScreenKeepOn();
 		if (mWholeAppWasInBackground) {
 			mWholeAppWasInBackground = false;
 			refreshIfNightModeChange();
@@ -187,9 +201,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 			documentViewManager.getDocumentView().changeBackgroundColour();
 			PassageChangeMediator.getInstance().forcePageUpdate();
 		}
-
 	}
-
 	/**
 	 * adding android:configChanges to manifest causes this method to be called on flip, etc instead of a new instance and onCreate, which would cause a new observer -> duplicated threads
 	 */
@@ -238,7 +250,6 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.d(TAG, "Activity result:" + resultCode);
 		super.onActivityResult(requestCode, resultCode, data);
-
 		if (mainMenuCommandHandler.restartIfRequiredOnReturn(requestCode)) {
 			// restart done in above
 		} else if (mainMenuCommandHandler.isDisplayRefreshRequired(requestCode)) {
@@ -247,12 +258,51 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		} else if (mainMenuCommandHandler.isDocumentChanged(requestCode)) {
 			updateActionBarButtons();
 		}
+
+	}
+
+	@Override
+	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+		switch(requestCode) {
+			case BACKUP_SAVE_REQUEST:
+				if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					backupControl.backupDatabase();
+				}
+				else {
+					Dialogs.getInstance().showMsg(R.string.error_occurred);
+				}
+				break;
+			case BACKUP_RESTORE_REQUEST:
+				if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					backupControl.restoreDatabase();
+				}
+				else {
+					Dialogs.getInstance().showMsg(R.string.error_occurred);
+				}
+				break;
+			case SDCARD_READ_REQUEST:
+				if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+					CommonUtils.restartApp(this);
+				}
+				break;
+		}
+		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 	}
 
 	@Override
 	protected void preferenceSettingsChanged() {
 		documentViewManager.getDocumentView().applyPreferenceSettings();
 		PassageChangeMediator.getInstance().forcePageUpdate();
+		requestSdcardPermission();
+	}
+
+	private void requestSdcardPermission() {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+			boolean requestSdCardPermission = CommonUtils.getSharedPreferences().getBoolean(REQUEST_SDCARD_PERMISSION_PREF, false);
+			if(requestSdCardPermission && checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+				requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, SDCARD_READ_REQUEST);
+			}
+		}
 	}
 
 	/**
@@ -268,13 +318,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	}
 
 	public void onEvent(CurrentWindowChangedEvent event) {
-		MainBibleActivity.this.updateActionBarButtons();
-
-		// onPrepareOptionsMenu only called once on Android 2.2, 2.3, 3.0: http://stackoverflow.com/questions/29925104/onprepareoptionsmenu-only-called-once-on-android-2-3
-		// so forcefully invalidate it on old versions
-		if (!CommonUtils.isIceCreamSandwichPlus()) {
-			supportInvalidateOptionsMenu();
-		}
+		updateActionBarButtons();
 	}
 
 	/**
@@ -384,7 +428,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	@Override
 	public boolean dispatchTouchEvent(MotionEvent motionEvent) {
 		// should only call super if below returns false
-		if (this.gestureDetector.onTouchEvent(motionEvent) && !alwaysDispatchTouchEventToSuper) {
+		if (this.gestureDetector.onTouchEvent(motionEvent)) {
 			return true;
 		} else {
 			return super.dispatchTouchEvent(motionEvent);

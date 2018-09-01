@@ -268,4 +268,9 @@
   <string name="error_page_too_large">Sivu on liian suuri ladattavaksi</string>
   <string name="error_key_not_in_document">Ei löytynyt teoksesta</string>
   <string name="empty_list">Ei näytettävää</string>
+  <string name="prefs_screen_keep_on_title">Pidä näyttö päällä</string>
+  <string name="prefs_screen_keep_on_summary">Älä anna näytön mennä pois päältä</string>
+  <string name="add_widget">Lisää widget</string>
+  <string name="download_documents">Ladataan dokumentteja</string>
+  <string name="notification_channel_progress_status">Dokumenttien lataus</string>
 </resources>

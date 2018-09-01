@@ -1,15 +1,14 @@
 package net.bible.android.view.activity.page;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
-import android.content.Context;
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.MenuItem;
-
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
-import net.bible.android.activity.StartupActivity;
 import net.bible.android.control.backup.BackupControl;
 import net.bible.android.control.download.DownloadControl;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
@@ -32,9 +31,11 @@ import net.bible.android.view.activity.settings.SettingsActivity;
 import net.bible.android.view.activity.speak.Speak;
 import net.bible.service.common.CommonUtils;
 
+import javax.inject.Inject;
 import java.util.Objects;
 
-import javax.inject.Inject;
+import static net.bible.android.view.activity.page.MainBibleActivity.BACKUP_RESTORE_REQUEST;
+import static net.bible.android.view.activity.page.MainBibleActivity.BACKUP_SAVE_REQUEST;
 
 /** Handle requests from the main menu
  * 
@@ -128,12 +129,24 @@ public class MenuCommandHandler {
 		        case R.id.helpButton:
 		        	handlerIntent = new Intent(callingActivity, Help.class);
 		        	break;
-		        case R.id.backup:
-					backupControl.backupDatabase();
+				case R.id.backup:
+					if(ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+						ActivityCompat.requestPermissions(callingActivity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, BACKUP_SAVE_REQUEST);
+						return false;
+					}
+					else {
+						backupControl.backupDatabase();
+					}
 					isHandled = true;
 		        	break;
 		        case R.id.restore:
-					backupControl.restoreDatabase();
+					if(ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+						ActivityCompat.requestPermissions(callingActivity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, BACKUP_RESTORE_REQUEST);
+						return false;
+					}
+					else {
+						backupControl.restoreDatabase();
+					}
 					isHandled = true;
 		        	break;
 	        }
@@ -150,27 +163,13 @@ public class MenuCommandHandler {
 
         return isHandled;
     }
-    
-    public boolean restartIfRequiredOnReturn(int requestCode) {
+
+	public boolean restartIfRequiredOnReturn(int requestCode) {
     	if (requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH) {
     		Log.i(TAG, "Refresh on finish");
     		if (!Objects.equals(CommonUtils.getLocalePref(), BibleApplication.getApplication().getLocaleOverrideAtStartUp())) {
-    			// must restart to change locale
-    			PendingIntent pendingIntent;
-    			if (CommonUtils.isIceCreamSandwichPlus()) {
-        			// works on 4.x but not on 2.1
-        			Intent startupIntent = new  Intent("net.bible.android.activity.StartupActivity.class");
-        			pendingIntent = PendingIntent.getActivity(callingActivity.getBaseContext(), 0, startupIntent, 0);
-    			} else {
-	    			//works on 2.1 but scroll errors on 4.x
-	    			Intent startupIntent = new  Intent(callingActivity.getBaseContext(), StartupActivity.class);
-					//noinspection ResourceType
-					pendingIntent = PendingIntent.getActivity(callingActivity.getBaseContext(), 0, startupIntent, callingActivity.getIntent().getFlags());
-    			}
-    			AlarmManager mgr = (AlarmManager)callingActivity.getSystemService(Context.ALARM_SERVICE);
-    			mgr.set(AlarmManager.RTC, System.currentTimeMillis() + 1000, pendingIntent);
-    			System.exit(2);
-    			return true;
+				// must restart to change locale
+    			CommonUtils.restartApp(callingActivity);
     		}
     	}
     	return false;

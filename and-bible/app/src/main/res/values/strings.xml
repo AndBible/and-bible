@@ -109,8 +109,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_text_size_title">Text size</string>
     <string name="prefs_text_size_summary">See more or see more clearly</string>
     <string name="prefs_text_size_sample_text">Sample text</string>
-	<string name="prefs_screen_timeout_title">Sleep</string>
-    <string name="prefs_screen_timeout_summary">Idle time before screen turns off</string>
+    <string name="prefs_screen_keep_on_title">Keep display on</string>
+    <string name="prefs_screen_keep_on_summary">Do not allow screen to turn off</string>
     <string name="x_minutes">%d minutes</string>
     <string name="prefs_interface_locale_title">Application language</string>
     <string name="prefs_interface_locale_summary">Select custom user interface language</string>
@@ -127,6 +127,9 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
 
     <string name="prefs_split_mode_summary">How to split multiple screens on the window layout?</string>
     <string name="prefs_split_mode_title">Split mode</string>
+
+    <string name="prefs_request_sdcard_permission_title">Manually installed documents exist</string>
+    <string name="prefs_request_sdcard_permission_summary">Enable use of manually installed documents from the jsword folder on the SD card. </string>
 
     <!-- Window -->
     <string name="window">Window</string>
@@ -310,7 +313,6 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="new_item">New</string>
     <string name="close">Close</string>
     <string name="edit">Edit</string>
-
     <!-- Errors -->
     <string name="report_error">Send Report</string>
     <string name="error_occurred">An error has occurred</string>
@@ -318,4 +320,5 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="error_page_too_large">Page is too large to be loaded</string>
     <string name="error_key_not_in_document">Not found in document</string>
     <string name="empty_list">No items to display</string>
+    <string name="notification_channel_progress_status">Progress status notification for document downloads etc.</string>
 </resources>

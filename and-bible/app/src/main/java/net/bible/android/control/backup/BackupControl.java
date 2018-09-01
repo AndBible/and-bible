@@ -1,10 +1,14 @@
 package net.bible.android.control.backup;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Environment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
@@ -39,7 +43,7 @@ public class BackupControl {
 	public void updateOptionsMenu(Menu menu) {
 		MenuItem restoreMenuItem = menu.findItem(R.id.restore);
 		if (restoreMenuItem!=null) {
-			restoreMenuItem.setEnabled(isBackupFile());
+			restoreMenuItem.setEnabled(isBackupEnabled());
 		}
 	}
 
@@ -76,9 +80,13 @@ public class BackupControl {
 		});
 	}
 	
-	/** return true if a backup has been done and the file is on the sd card
+	/** return true if a backup has been done and the file is on the sd card. Also return true if permission is not yet
+	* granted and we can't know if there is a file (it will be requested)
 	 */
-	private boolean isBackupFile() {
+	private boolean isBackupEnabled() {
+		if(ContextCompat.checkSelfPermission(BibleApplication.getApplication(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+			return true;
+		}
 		return new File(SharedConstants.BACKUP_DIR, CommonDatabaseHelper.DATABASE_NAME).exists();
 	}
 }
