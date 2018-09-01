@@ -9,6 +9,7 @@ import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.control.versification.ConvertibleVerse;
 import net.bible.android.view.activity.base.Dialogs;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordDocumentFacade;
 import net.bible.service.sword.SwordEnvironmentInitialisation;
 
@@ -61,6 +62,10 @@ public class DocumentControl {
 		{
 			Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
 		}
+	}
+
+	public void turnOffManualInstallFolderSetting() {
+		CommonUtils.getSharedPreferences().edit().putBoolean("request_sdcard_permission_pref", false).commit();
 	}
 
 	/**

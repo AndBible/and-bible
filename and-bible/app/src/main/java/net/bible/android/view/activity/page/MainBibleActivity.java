@@ -292,8 +292,12 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 				}
 				break;
 			case SDCARD_READ_REQUEST:
-				if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-					documentControl.enableManualInstallFolder();
+				if(grantResults.length>0) {
+					if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+						documentControl.enableManualInstallFolder();
+					} else {
+						documentControl.turnOffManualInstallFolderSetting();
+					}
 				}
 				break;
 		}
