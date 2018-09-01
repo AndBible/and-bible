@@ -45,6 +45,6 @@ public class LocaleHelper {
 
 	public static String getOverrideLanguage(Context context) {
 		SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-		return preferences.getString(SELECTED_LANGUAGE, null);
+		return preferences.getString(SELECTED_LANGUAGE, "");
 	}
 }
