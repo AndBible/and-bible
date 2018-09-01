@@ -280,7 +280,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="backup_success">My Notes and Bookmarks saved in %s on the SD card</string>    
     <string name="restore">Restore</string>
     <string name="restore_confirmation">Overwrite My Notes and Bookmarks?</string>    
-    <string name="restore_success">My Notes and Bookmarks restored from %s on the SD card</string>    
+    <string name="restore_success">My Notes and Bookmarks restored from %s on the SD card</string>
+    <string name="error_no_backup_file">A backup file could not be found</string>
 
     <!-- About -->
     <string name="about_copyright">Copyright: %s</string>

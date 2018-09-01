@@ -132,9 +132,7 @@ public class MenuCommandHandler {
 				case R.id.backup:
 					if(ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
 						ActivityCompat.requestPermissions(callingActivity, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, BACKUP_SAVE_REQUEST);
-						return false;
-					}
-					else {
+					} else {
 						backupControl.backupDatabase();
 					}
 					isHandled = true;
@@ -142,9 +140,7 @@ public class MenuCommandHandler {
 		        case R.id.restore:
 					if(ContextCompat.checkSelfPermission(callingActivity, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
 						ActivityCompat.requestPermissions(callingActivity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, BACKUP_RESTORE_REQUEST);
-						return false;
-					}
-					else {
+					} else {
 						backupControl.restoreDatabase();
 					}
 					isHandled = true;

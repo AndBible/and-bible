@@ -278,16 +278,14 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 			case BACKUP_SAVE_REQUEST:
 				if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 					backupControl.backupDatabase();
-				}
-				else {
+				} else {
 					Dialogs.getInstance().showMsg(R.string.error_occurred);
 				}
 				break;
 			case BACKUP_RESTORE_REQUEST:
 				if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
 					backupControl.restoreDatabase();
-				}
-				else {
+				} else {
 					Dialogs.getInstance().showMsg(R.string.error_occurred);
 				}
 				break;
