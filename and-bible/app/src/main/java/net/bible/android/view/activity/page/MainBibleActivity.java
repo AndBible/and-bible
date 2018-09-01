@@ -15,10 +15,12 @@ import android.util.Log;
 import android.view.*;
 
 import net.bible.android.BibleApplication;
+import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.BibleContentManager;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.backup.BackupControl;
+import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent;
 import net.bible.android.control.event.passage.PassageChangeStartedEvent;
@@ -37,6 +39,13 @@ import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator;
 import net.bible.android.view.activity.page.screen.DocumentViewManager;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
+import net.bible.service.sword.SwordDocumentFacade;
+
+import org.crosswire.common.util.CWProject;
+import org.crosswire.jsword.book.BookException;
+import org.crosswire.jsword.book.sword.SwordBookPath;
+
+import java.io.File;
 
 import javax.inject.Inject;
 
@@ -77,6 +86,8 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	private BackupControl backupControl;
 
 	private SearchControl searchControl;
+
+	private DocumentControl documentControl;
 
 	private static final String TAG = "MainBibleActivity";
 
@@ -282,7 +293,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 				break;
 			case SDCARD_READ_REQUEST:
 				if(grantResults.length>0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-					CommonUtils.restartApp(this);
+					documentControl.enableManualInstallFolder();
 				}
 				break;
 		}
@@ -466,6 +477,11 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	@Inject
 	void setSearchControl(SearchControl searchControl) {
 		this.searchControl = searchControl;
+	}
+
+	@Inject
+	void setDocumentControl(DocumentControl documentControl) {
+		this.documentControl = documentControl;
 	}
 
 	@Inject
