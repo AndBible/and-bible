@@ -134,7 +134,7 @@ public class ChooseDictionaryWord extends ListActivityBase {
 				mMatchingKeyList.clear();
 				while (iter.hasNext()) {
 					Key key = iter.next();
-					if (key.getName().toLowerCase().startsWith(searchText)) {
+					if (key.getName().toLowerCase().contains(searchText)) {
 						mMatchingKeyList.add(key);
 					}
 				}
