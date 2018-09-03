@@ -15,7 +15,6 @@ import android.util.Log;
 import android.view.*;
 
 import net.bible.android.BibleApplication;
-import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.BibleContentManager;
 import net.bible.android.control.PassageChangeMediator;
@@ -31,7 +30,6 @@ import net.bible.android.control.event.window.CurrentWindowChangedEvent;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.window.WindowControl;
 import net.bible.android.control.search.SearchControl;
-import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.view.activity.DaggerMainBibleActivityComponent;
 import net.bible.android.view.activity.MainBibleActivityModule;
 import net.bible.android.view.activity.base.CustomTitlebarActivityBase;
@@ -41,17 +39,8 @@ import net.bible.android.view.activity.page.actionmode.VerseActionModeMediator;
 import net.bible.android.view.activity.page.screen.DocumentViewManager;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ScreenSettings;
-import net.bible.service.sword.SwordDocumentFacade;
-
-import org.crosswire.common.util.CWProject;
-import org.crosswire.jsword.book.BookException;
-import org.crosswire.jsword.book.sword.SwordBookPath;
-
-import java.io.File;
 
 import javax.inject.Inject;
-
-import net.bible.service.device.speak.event.SpeakProgressEvent;
 
 
 /** The main activity screen showing Bible text
