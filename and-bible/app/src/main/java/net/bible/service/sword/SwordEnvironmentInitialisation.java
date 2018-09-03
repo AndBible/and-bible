@@ -17,6 +17,7 @@ import org.crosswire.common.util.Reporter;
 import org.crosswire.common.util.ReporterEvent;
 import org.crosswire.common.util.ReporterListener;
 import org.crosswire.common.util.WebResource;
+import org.crosswire.jsword.book.BookException;
 import org.crosswire.jsword.book.sword.SwordBookPath;
 import org.crosswire.jsword.book.sword.SwordConstants;
 import org.crosswire.jsword.index.lucene.LuceneIndexManager;
@@ -66,10 +67,7 @@ public class SwordEnvironmentInitialisation {
 
 				// Permission is requested at MainBibleActivitiy.checkSdcardReadPermission and app is restarted if permission is granted.
 				if(ContextCompat.checkSelfPermission(BibleApplication.getApplication(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-					// the second value below is the one which is used in effectively all circumstances
-					CWProject.setHome("jsword.home", moduleDir.getAbsolutePath(), SharedConstants.MANUAL_INSTALL_DIR.getAbsolutePath());
-					// the following causes Sword to initialise itself and can take quite a few seconds
-					SwordBookPath.setAugmentPath(new File[] {SharedConstants.MANUAL_INSTALL_DIR});  // add manual install dir to this list
+					enableDefaultAndManualInstallFolder();
 				} else {
 					CWProject.setHome("jsword.home", moduleDir.getAbsolutePath(), null);
 				}
@@ -88,6 +86,14 @@ public class SwordEnvironmentInitialisation {
 		} catch (Exception e) {
 			log.error("Error initialising", e);
 		}
+	}
+
+	public static void enableDefaultAndManualInstallFolder() throws BookException
+	{
+		CWProject.setHome("jsword.home", SharedConstants.MODULE_DIR.getAbsolutePath(), SharedConstants.MANUAL_INSTALL_DIR.getAbsolutePath());
+		// the following causes Sword to initialise itself and can take quite a few seconds
+		// add manual install dir to this list
+		SwordBookPath.setAugmentPath(new File[] {SharedConstants.MANUAL_INSTALL_DIR});
 	}
 
 	/** JSword calls back to this listener in the event of some types of error

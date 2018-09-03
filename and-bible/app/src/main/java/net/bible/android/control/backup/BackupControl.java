@@ -1,14 +1,9 @@
 package net.bible.android.control.backup;
 
-import android.Manifest;
-import android.content.pm.PackageManager;
 import android.os.Environment;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuItem;
 
-import net.bible.android.BibleApplication;
 import net.bible.android.SharedConstants;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
@@ -41,10 +36,7 @@ public class BackupControl {
 	}
 
 	public void updateOptionsMenu(Menu menu) {
-		MenuItem restoreMenuItem = menu.findItem(R.id.restore);
-		if (restoreMenuItem!=null) {
-			restoreMenuItem.setEnabled(isBackupEnabled());
-		}
+		// always allow backup and restore to be attempted
 	}
 
 	/** backup database to sd card
@@ -64,29 +56,29 @@ public class BackupControl {
 	/** restore database from sd card
 	 */
 	public void restoreDatabase() {
-		Dialogs.getInstance().showMsg(R.string.restore_confirmation, true, new Callback() {
-			@Override
-			public void okay() {
-				boolean ok = FileManager.copyFile(CommonDatabaseHelper.DATABASE_NAME, SharedConstants.BACKUP_DIR, internalDbDir);
-		
-				if (ok) {
-					Log.d(TAG, "Copied database from SD card successfully");
-					Dialogs.getInstance().showMsg(R.string.restore_success, SharedConstants.BACKUP_DIR.getName());
-				} else {
-					Log.e(TAG, "Error copying database from SD card");
-					Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+		if (!isBackupFileExists()) {
+			Dialogs.getInstance().showErrorMsg(R.string.error_no_backup_file);
+		} else {
+			Dialogs.getInstance().showMsg(R.string.restore_confirmation, true, new Callback() {
+				@Override
+				public void okay() {
+					boolean ok = FileManager.copyFile(CommonDatabaseHelper.DATABASE_NAME, SharedConstants.BACKUP_DIR, internalDbDir);
+
+					if (ok) {
+						Log.d(TAG, "Copied database from SD card successfully");
+						Dialogs.getInstance().showMsg(R.string.restore_success, SharedConstants.BACKUP_DIR.getName());
+					} else {
+						Log.e(TAG, "Error copying database from SD card");
+						Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 	
-	/** return true if a backup has been done and the file is on the sd card. Also return true if permission is not yet
-	* granted and we can't know if there is a file (it will be requested)
+	/** return true if a backup has been done and the file is on the sd card.
 	 */
-	private boolean isBackupEnabled() {
-		if(ContextCompat.checkSelfPermission(BibleApplication.getApplication(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
-			return true;
-		}
+	private boolean isBackupFileExists() {
 		return new File(SharedConstants.BACKUP_DIR, CommonDatabaseHelper.DATABASE_NAME).exists();
 	}
 }

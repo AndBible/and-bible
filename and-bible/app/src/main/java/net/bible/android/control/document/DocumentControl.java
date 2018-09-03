@@ -2,12 +2,16 @@ package net.bible.android.control.document;
 
 import android.util.Log;
 
+import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.page.CurrentPage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
 import net.bible.android.control.versification.ConvertibleVerse;
+import net.bible.android.view.activity.base.Dialogs;
+import net.bible.service.common.CommonUtils;
 import net.bible.service.sword.SwordDocumentFacade;
+import net.bible.service.sword.SwordEnvironmentInitialisation;
 
 import org.crosswire.common.util.Filter;
 import org.crosswire.jsword.book.Book;
@@ -48,7 +52,22 @@ public class DocumentControl {
 	public void changeDocument(Book newDocument) {
 		activeWindowPageManagerProvider.getActiveWindowPageManager().setCurrentDocument( newDocument );
 	}
-	
+
+	public void enableManualInstallFolder()
+	{
+		try
+		{
+			SwordEnvironmentInitialisation.enableDefaultAndManualInstallFolder();
+		} catch (BookException e)
+		{
+			Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+		}
+	}
+
+	public void turnOffManualInstallFolderSetting() {
+		CommonUtils.getSharedPreferences().edit().putBoolean("request_sdcard_permission_pref", false).commit();
+	}
+
 	/**
 	 * Book is deletable according to the driver if it is in the download dir i.e. not sdcard\jsword
 	 * and according to And Bible if it is not currently selected
