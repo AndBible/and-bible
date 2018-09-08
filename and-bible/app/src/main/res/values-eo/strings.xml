@@ -8,7 +8,7 @@
 \nDuobla tuŝeto eniras/eliras plenekranon.
 \n\n<b>Menuo</b>
 \nTuŝetu la MENU-butonon por montri ĉefmenuon
-\n\nPor elŝuti pli da dokumentoj, iru al Menuo/Mastrumado/Elŝuti dokumentojn
+\n\nPor elŝuti pli da dokumentoj, iru al Menuo/Administri/Elŝuti dokumentojn
 \n\n<b>Parolo</b>\nPremu \'Paroli\' por montri butonojn por komenci/haltigi aŭskultadon
 \n\n<b>Miaj notoj</b>\nOni povas aldoni notojn per funkcio ‘Miaj notoj’ en kunteksta menuo de verso. La listo de ekzistaj notoj estas disponebla en ĉefmenuo.
 \n\n<b>Legosignoj</b>\nOni povas aldoni legosignojn en kunteksta menuo de verso. Legosigna mastrumilo estas disponebla en ĉefmenuo. Kunteksta menuo de legosigna mastrumilo ebligas grupigi legosignojn per etikedoj.
@@ -28,7 +28,7 @@
   <string name="speak">Paroli</string>
   <string name="help">Helpo</string>
   <string name="verse">Verso</string>
-  <string name="administration">Mastrumado</string>
+  <string name="administration">Administri</string>
   <!--Passage navigation-->
   <string name="choosePassageBookName">Elekti libron</string>
   <string name="choosePassageChapterName">Elekti ĉapitron</string>
@@ -139,7 +139,7 @@
   <string name="error_downloading">Eraro okazis dum elŝutado. Bonvolu kontroli vian retkonekton.</string>
   <string name="no_internet_connection">Ne povas konekti al la Interreto</string>
   <string name="storage_space_warning">Nesufiĉa spaco en loka konservejo.</string>
-  <string name="wait_for_bible">Bonvolu atendi ĝis la Biblio elŝutiĝos. Poste vi iros al la ĉefmenuo.\n\nElŝutu pli da dokumentoj poste per premo de Menu-butono/Mastrumado/Elŝuti dokumentojn.</string>
+  <string name="wait_for_bible">Bonvolu atendi ĝis la Biblio elŝutiĝos. Poste vi iros al la ĉefmenuo.\n\nElŝutu pli da dokumentoj poste per premo de Menu-butono/Administri/Elŝuti dokumentojn.</string>
   <string name="wait_for_bible_not_yet">Bonvolu atendi. Biblio ne estas jam instalita komplete.</string>
   <string name="download_complete_no_bibles">Neniu Biblio instalita. Bonvolu premu reen-butonon kaj reprovu.</string>
   <string name="too_many_jobs">Tro multe da taskoj estas lanĉataj. Bonvolu atendi ĝis iajn finiĝos kaj reprovu.</string>
