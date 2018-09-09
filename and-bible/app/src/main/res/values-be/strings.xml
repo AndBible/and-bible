@@ -95,8 +95,6 @@
   <string name="prefs_text_size_title">Памер тэксту</string>
   <string name="prefs_text_size_summary">Бачыць больш ці бачыць выразна</string>
   <string name="prefs_text_size_sample_text">Прыклад тэксту</string>
-  <string name="prefs_screen_timeout_title">Сон</string>
-  <string name="prefs_screen_timeout_summary">Час чаканьня перад выключэньнем дысплэя.</string>
   <string name="x_minutes">%d хвілінаў</string>
   <string name="prefs_interface_locale_title">Мова прыкладаньня</string>
   <string name="prefs_interface_locale_summary">Выбраць мову інтэрфэйса</string>

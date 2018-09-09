@@ -82,8 +82,8 @@
   <string name="prefs_text_size_title">Tamaño del texto</string>
   <string name="prefs_text_size_summary">Ver más o más claramente</string>
   <string name="prefs_text_size_sample_text">Texto de ejemplo</string>
-  <string name="prefs_screen_timeout_title">Dormir</string>
-  <string name="prefs_screen_timeout_summary">Tiempo de inactividad antes de apagar la pantalla</string>
+  <string name="prefs_screen_keep_on_title">Mantener encendida la pantalla</string>
+  <string name="prefs_screen_keep_on_summary">Evita que la pantalla se apague mientras se está usando esta aplicación</string>
   <string name="x_minutes">%d minutos</string>
   <string name="prefs_interface_locale_title">Idioma de la aplicación</string>
   <string name="prefs_interface_locale_summary">Selecciona lenguaje de interfaz personalizado</string>
@@ -98,6 +98,8 @@
   <string name="prefs_split_mode_automatic">Automático</string>
   <string name="prefs_split_mode_summary">¿Cómo dividir múltiples pantallas en la disposición de ventanas?</string>
   <string name="prefs_split_mode_title">Modo de división</string>
+  <string name="prefs_request_sdcard_permission_title">Existen documentos instalados manualmente</string>
+  <string name="prefs_request_sdcard_permission_summary">Habilitar el uso de documentos instalados manualmente desde la carpeta jsword en la tarjeta SD</string>
   <!--Window-->
   <string name="window">Ventana</string>
   <string name="windowClose">Cerrar</string>
@@ -233,6 +235,7 @@
   <string name="restore">Resturar</string>
   <string name="restore_confirmation">¿Sobreescribir Mis Notas y Marcadores?</string>
   <string name="restore_success">Se han restaurado Mis Notas y Marcadores desde %s en la tarjeta SD</string>
+  <string name="error_no_backup_file">No se pudo encontrar una copia de seguridad</string>
   <!--About-->
   <string name="about_copyright">Copyright: %s</string>
   <string name="about_version">Versión: %s</string>
@@ -268,4 +271,5 @@
   <string name="error_page_too_large">La página es muy grande como para ser cargada</string>
   <string name="error_key_not_in_document">No encontrado en el documento</string>
   <string name="empty_list">No hay ítems para mostrar</string>
+  <string name="notification_channel_progress_status">Notificación de estado de progreso para descarga de documentos etc.</string>
 </resources>

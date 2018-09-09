@@ -89,8 +89,8 @@
   <string name="prefs_text_size_title">Tekstgrootte</string>
   <string name="prefs_text_size_summary">Zie meer of zie beter</string>
   <string name="prefs_text_size_sample_text">Voorbeeldtekst</string>
-  <string name="prefs_screen_timeout_title">Slapen</string>
-  <string name="prefs_screen_timeout_summary">Tijd voordat het scherm wordt uitgeschakeld</string>
+  <string name="prefs_screen_keep_on_title">Scherm ingeschakeld houden</string>
+  <string name="prefs_screen_keep_on_summary">Voorkomen dat het scherm uitgaat tijdens het gebruiken van de app</string>
   <string name="x_minutes">%d minuten</string>
   <string name="prefs_interface_locale_title">Applicatietaal</string>
   <string name="prefs_interface_locale_summary">Selecteer een aangepaste taal voor deze app</string>
@@ -105,6 +105,8 @@
   <string name="prefs_split_mode_automatic">Automatisch</string>
   <string name="prefs_split_mode_summary">Hoe splits ik meerdere schermen in de vensterindeling?</string>
   <string name="prefs_split_mode_title">Splitsmodus</string>
+  <string name="prefs_request_sdcard_permission_title">Handmatige geïnstalleerde documenten</string>
+  <string name="prefs_request_sdcard_permission_summary">Het gebruik van handmatig geïnstalleerde documenten inschakelen uit de jsword-map op de SD-kaart</string>
   <!--Window-->
   <string name="window">Venster</string>
   <string name="windowClose">Sluiten</string>
@@ -240,6 +242,7 @@
   <string name="restore">Herstellen</string>
   <string name="restore_confirmation">Mijn Notities en Bladwijzers overschrijven?</string>
   <string name="restore_success">Mijn Notities en Bladwijzers zijn hersteld van %s op de SD-kaart</string>
+  <string name="error_no_backup_file">Er is geen back-upbestand aangetroffen</string>
   <!--About-->
   <string name="about_copyright">Copyright: %s</string>
   <string name="about_version">Versie: %s</string>
@@ -275,4 +278,5 @@
   <string name="error_page_too_large">De pagina is te groot om te worden geladen</string>
   <string name="error_key_not_in_document">Niet gevonden in het document</string>
   <string name="empty_list">Geen weer te geven items</string>
+  <string name="notification_channel_progress_status">Voortgangsmeldingen voor documentdownloads, etc.</string>
 </resources>

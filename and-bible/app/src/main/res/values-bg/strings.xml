@@ -83,8 +83,6 @@
   <string name="prefs_text_size_title">Размер шрифт</string>
   <string name="prefs_text_size_summary">Повече текст или по-голям текст</string>
   <string name="prefs_text_size_sample_text">Примерен текст</string>
-  <string name="prefs_screen_timeout_title">Заспиване</string>
-  <string name="prefs_screen_timeout_summary">Изчакване преди изключване на екрана</string>
   <string name="x_minutes">%d минути</string>
   <string name="prefs_interface_locale_title">Език</string>
   <string name="prefs_interface_locale_summary">Избери езика на интерфейса</string>

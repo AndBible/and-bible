@@ -82,8 +82,6 @@
   <string name="prefs_text_size_title">Skriftstørrelse</string>
   <string name="prefs_text_size_summary">Se mer eller se klarere</string>
   <string name="prefs_text_size_sample_text">Eksempeltekst</string>
-  <string name="prefs_screen_timeout_title">Dvale</string>
-  <string name="prefs_screen_timeout_summary">Tid før skjermen slår seg av</string>
   <string name="x_minutes">%d minutter</string>
   <string name="prefs_interface_locale_title">Språk</string>
   <string name="prefs_interface_locale_summary">Velg ønsket språk for brukergrensesnittet</string>

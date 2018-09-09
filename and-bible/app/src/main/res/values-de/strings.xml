@@ -82,8 +82,8 @@
   <string name="prefs_text_size_title">Zeichengröße</string>
   <string name="prefs_text_size_summary">Text größer/kleiner anzeigen</string>
   <string name="prefs_text_size_sample_text">Beispieltext</string>
-  <string name="prefs_screen_timeout_title">Ruhemodus</string>
-  <string name="prefs_screen_timeout_summary">Leerlaufzeit vor Bildschirmabschaltung</string>
+  <string name="prefs_screen_keep_on_title">Bildschirm nicht ausschalten</string>
+  <string name="prefs_screen_keep_on_summary">Ruhemodus während dem Gebrauch dieser Anwendung verhindern</string>
   <string name="x_minutes">%d Minuten</string>
   <string name="prefs_interface_locale_title">Sprache umschalten</string>
   <string name="prefs_interface_locale_summary">Umschalten der Sprache der Benutzerführung</string>
@@ -98,6 +98,8 @@
   <string name="prefs_split_mode_automatic">Automatisch</string>
   <string name="prefs_split_mode_summary">Wie zeigt man mehrere Module auf dem Bildschirm an?</string>
   <string name="prefs_split_mode_title">Geteilter Modus</string>
+  <string name="prefs_request_sdcard_permission_title">Es gibt händisch installierte Dokumente</string>
+  <string name="prefs_request_sdcard_permission_summary">Die Verwendung von eigenhändig im Ordner jsword auf der SD-Karte installierten Dokumenten  aktivieren</string>
   <!--Window-->
   <string name="window">Fenster</string>
   <string name="windowClose">Schließen</string>
@@ -233,6 +235,7 @@
   <string name="restore">Wiederherstellen</string>
   <string name="restore_confirmation">Notizen und Lesezeichen überschreiben?</string>
   <string name="restore_success">Notizen und Lesezeichen wurden von %s auf der SD-Karte wiederhergestellt</string>
+  <string name="error_no_backup_file">Eine Sicherungskopie konnte nicht gefunden werden</string>
   <!--About-->
   <string name="about_copyright">Copyright: %s</string>
   <string name="about_version">Version %s</string>
@@ -268,4 +271,5 @@
   <string name="error_page_too_large">Seite zu groß zum Laden</string>
   <string name="error_key_not_in_document">Nichts gefunden</string>
   <string name="empty_list">Nichts anzuzeigen</string>
+  <string name="notification_channel_progress_status">Fortschrittsanzeige für Dokumentendownload etc.</string>
 </resources>

@@ -82,8 +82,6 @@
   <string name="prefs_text_size_title">Teks grootte</string>
   <string name="prefs_text_size_summary">Wys meer of sien meer duidelik</string>
   <string name="prefs_text_size_sample_text">Teks voorbeeld</string>
-  <string name="prefs_screen_timeout_title">Rus</string>
-  <string name="prefs_screen_timeout_summary">Rustyd voor skerm af gaan</string>
   <string name="x_minutes">%d Minute</string>
   <string name="prefs_interface_locale_title">Applikasie taal</string>
   <string name="prefs_interface_locale_summary">Kies \'n persoonlike gebruikers taal</string>
