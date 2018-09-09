@@ -83,8 +83,6 @@
   <string name="prefs_text_size_title">Velikost besedila</string>
   <string name="prefs_text_size_summary">Vidi več ali vidi bolj jasno</string>
   <string name="prefs_text_size_sample_text">Primer besedila</string>
-  <string name="prefs_screen_timeout_title">Mirovanje</string>
-  <string name="prefs_screen_timeout_summary">Čas neaktivnosti preden se izklopi ekran</string>
   <string name="x_minutes">%d minut</string>
   <string name="prefs_interface_locale_title">Jezik aplikacije</string>
   <string name="prefs_interface_locale_summary">Izbira jezika uporabniškega vmesnika</string>

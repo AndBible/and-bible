@@ -37,7 +37,7 @@
   <string name="deuterocanonical">Dua-kanonaj libroj</string>
   <!--Search-->
   <string name="search_index">Serĉ-indekso</string>
-  <string name="index_creation_required">Indekso necesas por serĉi.\n\nIndeksojn oni povas elŝuti el la Interneto aŭ krei loke.\n\nElŝutado estas pli rapida kaj elŝutitaj indeksoj havas pli da serĉ-eblojn.\n\nInterreta konekto estas bezonata por elŝuti indeksojn.\n</string>
+  <string name="index_creation_required">Indekso necesas por serĉi.\n\nIndeksojn oni povas elŝuti el la interneto aŭ krei loke.\n\nElŝutado estas pli rapida kaj elŝutitaj indeksoj havas pli da serĉ-eblojn.\n\nInterreta konekto estas bezonata por elŝuti indeksojn.\n</string>
   <string name="indexing_wait_msg">Kiam indeksado finiĝos, vi iros al serĉa ekrano.</string>
   <string name="index">Indekso</string>
   <string name="index_download">Elŝuti</string>
@@ -94,8 +94,8 @@
   <string name="prefs_text_size_title">Teksta grando</string>
   <string name="prefs_text_size_summary">Vidi pli da teksto aŭ pli klare</string>
   <string name="prefs_text_size_sample_text">Ekzempla teksto</string>
-  <string name="prefs_screen_timeout_title">Dormeto</string>
-  <string name="prefs_screen_timeout_summary">Senokupa tempo antaŭ ekrano malaktiviĝos</string>
+  <string name="prefs_screen_keep_on_title">Teni ekranon enŝaltita</string>
+  <string name="prefs_screen_keep_on_summary">Ne permesi malŝalti ekranon dum uzi tiun ĉi aplikaĵon</string>
   <string name="x_minutes">%d minutoj</string>
   <string name="prefs_interface_locale_title">Programa lingvo</string>
   <string name="prefs_interface_locale_summary">Elekti propran fasadan lingvon</string>
@@ -110,6 +110,8 @@
   <string name="prefs_split_mode_automatic">Aŭtomate</string>
   <string name="prefs_split_mode_summary">Kiel dividi plurajn ekranojn en fenestra reĝimo?</string>
   <string name="prefs_split_mode_title">Ekran-divido</string>
+  <string name="prefs_request_sdcard_permission_title">Uzi permane kopiitajn dokumentojn</string>
+  <string name="prefs_request_sdcard_permission_summary">Uzi permane instalitajn dokumentojn en la dosierujo “jsword” en la SD-karto</string>
   <!--Window-->
   <string name="window">Fenestro</string>
   <string name="windowClose">Fermi</string>
@@ -131,13 +133,13 @@
   <string name="morph_robinson_not_installed">Bonvolu elŝuti vortaron ‘Morfologiaj analizaj kodoj de Robinson’</string>
   <!--Module download-->
   <string name="download">Elŝuti dokumentojn</string>
-  <string name="download_confirmation">Ĉu elŝuti Biblion el la Interreto?</string>
+  <string name="download_confirmation">Ĉu elŝuti Biblion el la interreto?</string>
   <string name="download_source_message">Dokumentoj estas elŝutataj el\nhttp://www.crosswire.org\n&amp; http://ibt.org.ru\n&amp; http://xiphos.org</string>
   <string name="download_document_confirm_prefix">Elŝuti</string>
   <string name="download_refreshing_book_list">Aktualigado de listo de disponeblaj dokumentoj</string>
   <string name="download_refresh_book_list_menu_item">Aktualigi</string>
   <string name="error_downloading">Eraro okazis dum elŝutado. Bonvolu kontroli vian retkonekton.</string>
-  <string name="no_internet_connection">Ne povas konekti al la Interreto</string>
+  <string name="no_internet_connection">Ne povis konekti al la interreto</string>
   <string name="storage_space_warning">Nesufiĉa spaco en loka konservejo.</string>
   <string name="wait_for_bible">Bonvolu atendi ĝis la Biblio elŝutiĝos. Poste vi iros al la ĉefmenuo.\n\nElŝutu pli da dokumentoj poste per premo de Menu-butono/Administri/Elŝuti dokumentojn.</string>
   <string name="wait_for_bible_not_yet">Bonvolu atendi. Biblio ne estas jam instalita komplete.</string>
@@ -243,6 +245,7 @@
   <string name="restore">Restarigi</string>
   <string name="restore_confirmation">Ĉu anstataŭigi miajn notojn kaj legosignojn?</string>
   <string name="restore_success">Miaj notoj kaj legosignoj restarigitaj el %s de SD-karto</string>
+  <string name="error_no_backup_file">Ne povis trovi dosieron de sekurkopio</string>
   <!--About-->
   <string name="about_copyright">Kopirajto: %s</string>
   <string name="about_version">Versio: %s</string>
@@ -278,4 +281,5 @@
   <string name="error_page_too_large">Paĝo estas tro granda por esti ŝargita</string>
   <string name="error_key_not_in_document">Ne trovita en dokumento</string>
   <string name="empty_list">Neniuj elementoj por montri</string>
+  <string name="notification_channel_progress_status">Montri progreson de elŝuti dokumentojn, ktp.</string>
 </resources>

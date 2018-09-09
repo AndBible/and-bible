@@ -79,8 +79,6 @@
   <string name="prefs_text_size_title">Textstorlek</string>
   <string name="prefs_text_size_summary">Se mer text eller tydligare</string>
   <string name="prefs_text_size_sample_text">Exempeltext</string>
-  <string name="prefs_screen_timeout_title">Vila</string>
-  <string name="prefs_screen_timeout_summary">Väntetid innan skärmen stängs av</string>
   <string name="x_minutes">%d minuter</string>
   <string name="prefs_interface_locale_title">Språk i appen</string>
   <string name="prefs_interface_locale_summary">Välj språk för användargränssnittet</string>

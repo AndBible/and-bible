@@ -80,8 +80,6 @@
   <string name="prefs_text_size_title">Tamanho do texto</string>
   <string name="prefs_text_size_summary">Para ver mais texto, ou enxergar com mais clareza</string>
   <string name="prefs_text_size_sample_text">Texto de exemplo</string>
-  <string name="prefs_screen_timeout_title">Hibernar</string>
-  <string name="prefs_screen_timeout_summary">Tempo em espera antes que a tela seja desligada</string>
   <string name="x_minutes">%d minutos</string>
   <string name="prefs_interface_locale_title">Idioma do aplicativo</string>
   <string name="prefs_interface_locale_summary">Selecione o idioma de preferencia para a interface do usuário</string>

@@ -82,8 +82,8 @@
   <string name="prefs_text_size_title">גודל הטקסט</string>
   <string name="prefs_text_size_summary">שינוי גודל האותיות</string>
   <string name="prefs_text_size_sample_text">טקסט לדוגמה</string>
-  <string name="prefs_screen_timeout_title">שינה</string>
-  <string name="prefs_screen_timeout_summary"> זמן המתנה ללא פעילות עד לכיבוי המסך</string>
+  <string name="prefs_screen_keep_on_title">השאר את המסך דולק</string>
+  <string name="prefs_screen_keep_on_summary">המנע מכיבוי המסך כשתוכנה פועלת</string>
   <string name="x_minutes">%d דקות</string>
   <string name="prefs_interface_locale_title">שפת התוכנה</string>
   <string name="prefs_interface_locale_summary">בחירת שפה עבור התוכנה</string>
@@ -93,6 +93,13 @@
   <string name="speak_speed_slow">לאט</string>
   <string name="speak_speed_normal">רגיל</string>
   <string name="speak_speed_fast">מהר</string>
+  <string name="prefs_split_mode_vertical">אנכי</string>
+  <string name="prefs_split_mode_horizontal">אופקי</string>
+  <string name="prefs_split_mode_automatic">אוטומטי</string>
+  <string name="prefs_split_mode_summary">איך לפצל את תצוגת החלון?</string>
+  <string name="prefs_split_mode_title">מצב מפוצל</string>
+  <string name="prefs_request_sdcard_permission_title">קיימים מסמכים שהותקנו ידנית</string>
+  <string name="prefs_request_sdcard_permission_summary">אפשר שימוש במסמכים שהותקנו ידנית בתיקיית jsword בכרטיס הזכרון</string>
   <!--Window-->
   <string name="window">חלון</string>
   <string name="windowClose">סגור</string>
@@ -136,6 +143,7 @@
   <string name="checking_zip_file">בודק את הקובץ...</string>
   <string name="invalid_module">הקובץ אינו מכיל מודול SWORD תקין</string>
   <string name="module_already_installed">הקובץ מכיל מודול שכבר מותקן</string>
+  <string name="install_zip_title">אנא המתן. קובץ ZIP בטעינה</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">תוכנית קריאה</string>
   <string name="rdg_plan_selector_title">בחר תוכנית קריאה</string>
@@ -163,11 +171,16 @@
   <string name="share_verse_subject">הפסוק הזה נשלח אליך באמצעות And Bible</string>
   <string name="compare_translations">השוואת תרגומים</string>
   <!--Link context menu-->
+  <string name="open_link_in_this_window">פתח קישור כאן</string>
+  <string name="open_link_in_new_window">פתח קישור בחלון חדש</string>
+  <string name="open_link_in_main_window">פתח קישור בחלון הראשי</string>
+  <string name="open_link_in_special_window">פתח קישור בחלון מיוחד</string>
   <!--Bookmarks-->
   <string name="bookmarks">סימניות</string>
   <string name="add_bookmark">הוסף סימניה</string>
   <string name="delete_bookmark">מחיקת סימניה</string>
   <string name="bookmark_added">הסימניה נוספה</string>
+  <string name="bookmark_date_updated">תאריך עדכון הסימניה</string>
   <string name="bookmark_exists">הסימניה כבר קיימת</string>
   <string name="bookmark_deleted">הסימניה נמחקה</string>
   <string name="bookmark_labels">תוויות לסימניות</string>
@@ -222,6 +235,7 @@
   <string name="restore">שחזור</string>
   <string name="restore_confirmation">האם להחליף את ההערות והסימניות הקיימות ?</string>
   <string name="restore_success">ההערות והסימניות שוחזרו מ %s בכרטיס הזכרון</string>
+  <string name="error_no_backup_file">לא ניתן למצוא קובץ גיבוי</string>
   <!--About-->
   <string name="about_copyright">זכויות יוצרים: %s</string>
   <string name="about_version">גרסה: %s</string>
@@ -257,4 +271,5 @@
   <string name="error_page_too_large">העמוד גדול מדי ולא ניתן לטעון אותו</string>
   <string name="error_key_not_in_document">לא נמצא</string>
   <string name="empty_list">אין פריטים</string>
+  <string name="notification_channel_progress_status">להציג התראות עבור תהליכים רצים, למשל הורדות</string>
 </resources>

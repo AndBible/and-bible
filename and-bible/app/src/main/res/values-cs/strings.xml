@@ -82,8 +82,6 @@
   <string name="prefs_text_size_title">Velikost textu</string>
   <string name="prefs_text_size_summary">Vidět více nebo vidět zřetelněji</string>
   <string name="prefs_text_size_sample_text">Příklad textu</string>
-  <string name="prefs_screen_timeout_title">Uspání</string>
-  <string name="prefs_screen_timeout_summary">Doba neaktivity před vypnutím displeje</string>
   <string name="x_minutes">%d minut</string>
   <string name="prefs_interface_locale_title">Jazyk aplikace</string>
   <string name="prefs_interface_locale_summary">Vybrat jiný jazyk uživatelského rozhraní</string>

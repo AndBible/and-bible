@@ -82,8 +82,6 @@
   <string name="prefs_text_size_title">텍스트 크기</string>
   <string name="prefs_text_size_summary">자세한 내용을 참조하거나 더 명확하게보기</string>
   <string name="prefs_text_size_sample_text">샘플 텍스트</string>
-  <string name="prefs_screen_timeout_title">절전</string>
-  <string name="prefs_screen_timeout_summary">화면 전에 유휴 시간이 꺼집니다</string>
   <string name="x_minutes">%d 분</string>
   <string name="prefs_interface_locale_title">어플리케이션 언어</string>
   <string name="prefs_interface_locale_summary">사용자 인터페이스 언어 설정</string>

@@ -73,8 +73,6 @@ Press Speak to access a dialog to start or stop reading\n \n\n<b>My Note</b>\nNo
   <string name="prefs_text_size_title">حجم الجط</string>
   <string name="prefs_text_size_summary">انظر المزيد او المزيد بشكل افضل</string>
   <string name="prefs_text_size_sample_text">نموذج من الكتابة</string>
-  <string name="prefs_screen_timeout_title">وضع الثبات</string>
-  <string name="prefs_screen_timeout_summary">وقت عدم الاستخدام قبل غلق الشاشة</string>
   <string name="x_minutes">%d دقيقة</string>
   <string name="prefs_interface_locale_title">لغة التطبيق (البرنامج)</string>
   <string name="prefs_interface_locale_summary">اختر اللغة لواجهة الاستخدام في البرنامج</string>

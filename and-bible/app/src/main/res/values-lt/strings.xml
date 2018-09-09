@@ -82,8 +82,6 @@
   <string name="prefs_text_size_title">Teksto dydis</string>
   <string name="prefs_text_size_summary">Matyk daugiau arba aiškiau</string>
   <string name="prefs_text_size_sample_text">Pavyzdys</string>
-  <string name="prefs_screen_timeout_title">Miegoti</string>
-  <string name="prefs_screen_timeout_summary">Laikas iki ekrano išsijungimo</string>
   <string name="x_minutes">%d minutės</string>
   <string name="prefs_interface_locale_title">Programos kalba</string>
   <string name="prefs_interface_locale_summary">Pasirinkite vartotojo sąsajos kalbą</string>
