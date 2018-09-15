@@ -82,8 +82,6 @@
   <string name="prefs_text_size_title">Velikost textu</string>
   <string name="prefs_text_size_summary">Vidět více nebo vidět zřetelněji</string>
   <string name="prefs_text_size_sample_text">Příklad textu</string>
-  <string name="prefs_screen_timeout_title">Uspání</string>
-  <string name="prefs_screen_timeout_summary">Doba neaktivity před vypnutím displeje</string>
   <string name="x_minutes">%d minut</string>
   <string name="prefs_interface_locale_title">Jazyk aplikace</string>
   <string name="prefs_interface_locale_summary">Vybrat jiný jazyk uživatelského rozhraní</string>
@@ -95,6 +93,9 @@
   <string name="speak_speed_fast">Rychle</string>
   <string name="prefs_split_mode_vertical">Svisle</string>
   <string name="prefs_split_mode_horizontal">Vodorovně</string>
+  <string name="prefs_split_mode_automatic">Automatický</string>
+  <string name="prefs_split_mode_summary">Jak rozdělit více oken na obrazovce?</string>
+  <string name="prefs_split_mode_title">Režim rozdělení okna</string>
   <!--Window-->
   <string name="window">Okno</string>
   <string name="windowClose">Zavřít</string>
@@ -138,6 +139,7 @@
   <string name="checking_zip_file">Ověřuji zadaný soubor...</string>
   <string name="invalid_module">Soubor neobsahuje platný modul SWORD</string>
   <string name="module_already_installed">Soubor obsahuje modul, který je již nainstalován</string>
+  <string name="install_zip_title">Čekejte prosím. Načítám Zip soubor.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plán čtení</string>
   <string name="rdg_plan_selector_title">Vybrat plán čtení</string>
@@ -165,11 +167,16 @@
   <string name="share_verse_subject">Biblický verš zaslán z aplikace And Bible</string>
   <string name="compare_translations">Porovnat překlady</string>
   <!--Link context menu-->
+  <string name="open_link_in_this_window">Otevřít odkaz zde</string>
+  <string name="open_link_in_new_window">Otevřít v novém okně</string>
+  <string name="open_link_in_main_window">Otevřít v hlavním okně</string>
+  <string name="open_link_in_special_window">Otevřít ve speciálním okně</string>
   <!--Bookmarks-->
   <string name="bookmarks">Záložky</string>
   <string name="add_bookmark">Přidat záložku</string>
   <string name="delete_bookmark">Smazat záložku</string>
   <string name="bookmark_added">Záložka přidána</string>
+  <string name="bookmark_date_updated">Datum záložky aktualizováno</string>
   <string name="bookmark_exists">Záložka už existuje</string>
   <string name="bookmark_deleted">Záložka smazána</string>
   <string name="bookmark_labels">Popisky záložky</string>

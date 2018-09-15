@@ -82,8 +82,8 @@
   <string name="prefs_text_size_title">Tekstin koko</string>
   <string name="prefs_text_size_summary">Näe enemmän tai näe selvemmin</string>
   <string name="prefs_text_size_sample_text">Esimerkkiteksti</string>
-  <string name="prefs_screen_timeout_title">Lepotila</string>
-  <string name="prefs_screen_timeout_summary">Joutoaika ennen kuin näyttö sammutetaan.</string>
+  <string name="prefs_screen_keep_on_title">Pidä näyttö päällä</string>
+  <string name="prefs_screen_keep_on_summary">Estä näyttöä menemästä pois päällä ohjelmaa käytettäessä</string>
   <string name="x_minutes">%d minuuttia</string>
   <string name="prefs_interface_locale_title">Sovelluksen kieli</string>
   <string name="prefs_interface_locale_summary">Valitse käyttöliittymän kieli</string>
@@ -98,6 +98,8 @@
   <string name="prefs_split_mode_automatic">Automaattinen</string>
   <string name="prefs_split_mode_summary">Miten ikkunointi jakaa näytön useampaan osaan?</string>
   <string name="prefs_split_mode_title">Jaettu tila</string>
+  <string name="prefs_request_sdcard_permission_title">Käytä manuaalisesti asennettuja dokumentteja</string>
+  <string name="prefs_request_sdcard_permission_summary">Ota käyttöön manuaalisesti asennetut dokumentit jsword-kansiossa SD-kortilla</string>
   <!--Window-->
   <string name="window">Ikkuna</string>
   <string name="windowClose">Sulje</string>
@@ -233,6 +235,7 @@
   <string name="restore">Palauta</string>
   <string name="restore_confirmation">Palauta muistiinpanot ja kirjanmerkit nykyisten päälle?</string>
   <string name="restore_success">Muistiinpanot ja kirjanmerkit on palautettu %s muistikortilta</string>
+  <string name="error_no_backup_file">Varmuuskopiotiedostoa ei löytynyt</string>
   <!--About-->
   <string name="about_copyright">Tekijäinoikeudet: %s</string>
   <string name="about_version">Käännös: %s</string>
@@ -310,14 +313,10 @@
     <item/>
   </string-array>
 
-  <string name="prefs_screen_keep_on_title">Pidä näyttö päällä</string>
-  <string name="prefs_screen_keep_on_summary">Älä anna näytön mennä pois päältä</string>
-
   <string name="add_widget">Lisää widget</string>
   <string name="download_documents">Ladataan dokumentteja</string>
   <string name="bookmarkwidget_helptext">Puheen kirjanmerkkien pikapainikkeet tulevat tähän</string>
   <string name="sleep_timer_active_at">Uniajastin: %s minuuttia jäljellä.</string>
   <string name="speak_status_stopped">- pysäytetty -</string>
-  <string name="notification_channel_progress_status">Dokumenttien lataus</string>
->>>>>>> development-ta-github
+  <string name="notification_channel_progress_status">Taustaprosessien tilan ilmoitukset dokumenttien latauksille jne.</string>
 </resources>

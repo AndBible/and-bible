@@ -109,8 +109,8 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_text_size_title">Text size</string>
     <string name="prefs_text_size_summary">See more or see more clearly</string>
     <string name="prefs_text_size_sample_text">Sample text</string>
-    <string name="prefs_screen_keep_on_title">Keep display on</string>
-    <string name="prefs_screen_keep_on_summary">Do not allow screen to turn off</string>
+    <string name="prefs_screen_keep_on_title">Keep screen on</string>
+    <string name="prefs_screen_keep_on_summary">Prevent screen sleeping while using this app</string>
     <string name="x_minutes">%d minutes</string>
     <string name="prefs_interface_locale_title">Application language</string>
     <string name="prefs_interface_locale_summary">Select custom user interface language</string>
@@ -129,7 +129,7 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="prefs_split_mode_title">Split mode</string>
 
     <string name="prefs_request_sdcard_permission_title">Manually installed documents exist</string>
-    <string name="prefs_request_sdcard_permission_summary">Enable use of manually installed documents from the jsword folder on the SD card. </string>
+    <string name="prefs_request_sdcard_permission_summary">Enable use of manually installed documents from the jsword folder on the SD card</string>
 
     <!-- Window -->
     <string name="window">Window</string>

@@ -82,8 +82,8 @@
   <string name="prefs_text_size_title">Teksto dydis</string>
   <string name="prefs_text_size_summary">Matyk daugiau arba aiškiau</string>
   <string name="prefs_text_size_sample_text">Pavyzdys</string>
-  <string name="prefs_screen_timeout_title">Miegoti</string>
-  <string name="prefs_screen_timeout_summary">Laikas iki ekrano išsijungimo</string>
+  <string name="prefs_screen_keep_on_title">Palaikyti įjungtą ekraną</string>
+  <string name="prefs_screen_keep_on_summary">Palaiko įjungtą ekraną kol naudojamasi šia programėle</string>
   <string name="x_minutes">%d minutės</string>
   <string name="prefs_interface_locale_title">Programos kalba</string>
   <string name="prefs_interface_locale_summary">Pasirinkite vartotojo sąsajos kalbą</string>
@@ -98,6 +98,8 @@
   <string name="prefs_split_mode_automatic">Automatiškai</string>
   <string name="prefs_split_mode_summary">Kaip padalinti kelis ekranus pagrindiniame lange?</string>
   <string name="prefs_split_mode_title">Dalinimo būdas</string>
+  <string name="prefs_request_sdcard_permission_title">Yra rankiniu būdu įdiegtų tekstų</string>
+  <string name="prefs_request_sdcard_permission_summary">Leidžia naudoti SD kortelės jsword kataloge rankiniu būdu įdiegtus dokumentus</string>
   <!--Window-->
   <string name="window">Langas</string>
   <string name="windowClose">Užverti</string>
@@ -233,6 +235,7 @@
   <string name="restore">Atstatyti</string>
   <string name="restore_confirmation">Perrašyti mano pastabas bei žymes?</string>
   <string name="restore_success">Mano pastabos ir žymės atstatytos iš %s SD kortelėje</string>
+  <string name="error_no_backup_file">Atsarginė kopija nerasta</string>
   <!--About-->
   <string name="about_copyright">Autorinės teisės: %s</string>
   <string name="about_version">Versija: %s</string>
@@ -268,4 +271,5 @@
   <string name="error_page_too_large">Puslapis per didelis, kad būtų įkeltas</string>
   <string name="error_key_not_in_document">Dokumente nerasta</string>
   <string name="empty_list">Nėra ko rodyti</string>
+  <string name="notification_channel_progress_status">Progreso būsenos pranešimas dėl dokumentų siuntimo ir t.t.</string>
 </resources>

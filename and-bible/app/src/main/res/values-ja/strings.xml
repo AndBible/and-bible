@@ -58,7 +58,6 @@
   <string name="prefs_navigate_to_verse_title">節に移動します</string>
   <string name="prefs_text_size_title">テキストサイズ</string>
   <string name="prefs_text_size_sample_text">サンプル</string>
-  <string name="prefs_screen_timeout_title">スリープモード</string>
   <string name="x_minutes">%d分</string>
   <string name="prefs_interface_locale_title">応用言語</string>
   <string name="prefs_interface_locale_summary">カスタム言語を選択</string>

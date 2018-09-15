@@ -82,8 +82,8 @@
   <string name="prefs_text_size_title">Taille du texte</string>
   <string name="prefs_text_size_summary">Sélectionne la taille du texte</string>
   <string name="prefs_text_size_sample_text">Exemple de texte</string>
-  <string name="prefs_screen_timeout_title">Veille</string>
-  <string name="prefs_screen_timeout_summary">Durée d\'inactivité avant la désactivation de l\'écran</string>
+  <string name="prefs_screen_keep_on_title">Maintenir allumé</string>
+  <string name="prefs_screen_keep_on_summary">Maintient l\'écran allumé</string>
   <string name="x_minutes">%d minutes</string>
   <string name="prefs_interface_locale_title">Langue de l\'application</string>
   <string name="prefs_interface_locale_summary">Sélection d\'une langue d\'interface utilisateur personnalisée </string>
@@ -98,13 +98,15 @@
   <string name="prefs_split_mode_automatic">Automatique</string>
   <string name="prefs_split_mode_summary">Comment diviser l\'écran en plusieurs fenêtres?</string>
   <string name="prefs_split_mode_title">Mode multi-fenêtres</string>
+  <string name="prefs_request_sdcard_permission_title">Documents à installer manuellement</string>
+  <string name="prefs_request_sdcard_permission_summary">Permet d\'installer manuellement des documents à partir du dossier jsword sur la carte SD</string>
   <!--Window-->
   <string name="window">Fenêtres</string>
   <string name="windowClose">Fermer</string>
   <string name="windowMaximise">Maximiser</string>
   <string name="windowMinimise">Minimiser</string>
   <string name="windowSynchronise">Synchroniser</string>
-  <string name="windowMoveFirst">Placer en premier</string>
+  <string name="windowMoveFirst">Mettre au premier plan</string>
   <!--Notes screen-->
   <string name="no_chapter_notes">Aucune note dans ce chapitre</string>
   <string name="no_verse_notes">Aucune note pour ce verset</string>
@@ -233,6 +235,7 @@
   <string name="restore">Restaurer</string>
   <string name="restore_confirmation">Écraser Mes Notes et Signets?</string>
   <string name="restore_success">Mes Notes et Signets ont été restaurés de la carte SD depuis %s</string>
+  <string name="error_no_backup_file">Aucun fichier de sauvegarde n\'a été trouvé</string>
   <!--About-->
   <string name="about_copyright">Droits d\'auteur: %s</string>
   <string name="about_version">Version: %s</string>
@@ -258,7 +261,7 @@
   <string name="please_wait">Attendez svp...</string>
   <string name="all">Tout</string>
   <string name="default_value">@string/lang_default</string>
-  <string name="new_item">Nouvelle</string>
+  <string name="new_item">Nouvelle fenêtre</string>
   <string name="close">Fermer</string>
   <string name="edit">Éditer</string>
   <!--Errors-->
@@ -268,4 +271,5 @@
   <string name="error_page_too_large">La page est trop lourde pour être chargée</string>
   <string name="error_key_not_in_document">Aucune correspondance dans le document</string>
   <string name="empty_list">Aucun élément à afficher</string>
+  <string name="notification_channel_progress_status">État d\'avancement de la notification de téléchargement des documents etc.</string>
 </resources>

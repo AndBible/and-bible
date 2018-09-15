@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<color name="ic_launcher_background">#373737</color>
+
 	<color name="bible_background_day">#ffffff</color>
 	<color name="bible_background_night">#000000</color>
 

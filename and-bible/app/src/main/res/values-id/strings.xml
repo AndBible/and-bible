@@ -82,8 +82,6 @@
   <string name="prefs_text_size_title">Ukuran huruf</string>
   <string name="prefs_text_size_summary">Lihat lebih lanjut atau lihat lebih jelas</string>
   <string name="prefs_text_size_sample_text">Contoh teks</string>
-  <string name="prefs_screen_timeout_title">Tidur</string>
-  <string name="prefs_screen_timeout_summary">waktu sebelum layar mati</string>
   <string name="x_minutes">%d minit</string>
   <string name="prefs_interface_locale_title">Aplikasi bahasa</string>
   <string name="prefs_interface_locale_summary">Pilih bahasa perantara pengguna </string>

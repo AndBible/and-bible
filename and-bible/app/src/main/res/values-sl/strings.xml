@@ -83,8 +83,8 @@
   <string name="prefs_text_size_title">Velikost besedila</string>
   <string name="prefs_text_size_summary">Vidi več ali vidi bolj jasno</string>
   <string name="prefs_text_size_sample_text">Primer besedila</string>
-  <string name="prefs_screen_timeout_title">Mirovanje</string>
-  <string name="prefs_screen_timeout_summary">Čas neaktivnosti preden se izklopi ekran</string>
+  <string name="prefs_screen_keep_on_title">Ohrani prižgan zaslon</string>
+  <string name="prefs_screen_keep_on_summary">Prepreči ugašanje ekrana med uporabo te aplikacije</string>
   <string name="x_minutes">%d minut</string>
   <string name="prefs_interface_locale_title">Jezik aplikacije</string>
   <string name="prefs_interface_locale_summary">Izbira jezika uporabniškega vmesnika</string>
@@ -99,6 +99,8 @@
   <string name="prefs_split_mode_automatic">Avtomatično</string>
   <string name="prefs_split_mode_summary">Kako naj se na zaslonu razdeli več oken?</string>
   <string name="prefs_split_mode_title">Način delitve</string>
+  <string name="prefs_request_sdcard_permission_title">Obstajajo ročno nameščeni dokumenti</string>
+  <string name="prefs_request_sdcard_permission_summary">Omogoči uporabo ročno nameščenih dokumentov iz jsword mape na SD kartici</string>
   <!--Window-->
   <string name="window">Okno</string>
   <string name="windowClose">Zapri</string>
@@ -234,6 +236,7 @@
   <string name="restore">Povrni iz arhiva</string>
   <string name="restore_confirmation">Prepišem Moje opombe in Zaznamke?</string>
   <string name="restore_success">Moje opombe in Zaznamki so povrnjeni iz %s na SD kartici</string>
+  <string name="error_no_backup_file">Arhivske datoteke ni mogoče najti</string>
   <!--About-->
   <string name="about_copyright">Avtorske pravice: %s</string>
   <string name="about_version">Verzija: %s</string>
@@ -269,4 +272,5 @@
   <string name="error_page_too_large">Stran je prevelika, da bi se prikazala</string>
   <string name="error_key_not_in_document">Ni najti v dokumentu</string>
   <string name="empty_list">Za prikaz ni nobenega predmeta</string>
+  <string name="notification_channel_progress_status">Obvestilo o stanju napredka nalaganja dokumentov itd.</string>
 </resources>

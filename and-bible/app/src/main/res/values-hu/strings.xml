@@ -94,8 +94,6 @@
   <string name="prefs_text_size_title">Szövegméret</string>
   <string name="prefs_text_size_summary">Több szöveg vagy szellősebb tagolás</string>
   <string name="prefs_text_size_sample_text">Mintaszöveg</string>
-  <string name="prefs_screen_timeout_title">Altatás</string>
-  <string name="prefs_screen_timeout_summary">Tétlen idő a képernyő kikapcsolása előtt</string>
   <string name="x_minutes">%d perc</string>
   <string name="prefs_interface_locale_title">Alkalmazás nyelve</string>
   <string name="prefs_interface_locale_summary">Felhasználói felület nyelvének kiválasztása</string>

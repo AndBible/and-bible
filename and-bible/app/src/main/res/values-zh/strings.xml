@@ -75,8 +75,6 @@
   <string name="prefs_text_size_title">字体大小</string>
   <string name="prefs_text_size_summary">调整字体</string>
   <string name="prefs_text_size_sample_text">示例文本</string>
-  <string name="prefs_screen_timeout_title">睡眠模式</string>
-  <string name="prefs_screen_timeout_summary">设置睡眠模式启动前的闲置时间</string>
   <string name="x_minutes">%d 分钟</string>
   <string name="prefs_interface_locale_title">程式用戶界面语言</string>
   <string name="prefs_interface_locale_summary">选择用户界面语言</string>

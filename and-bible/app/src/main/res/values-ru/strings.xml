@@ -82,8 +82,8 @@
   <string name="prefs_text_size_title">Размер текста</string>
   <string name="prefs_text_size_summary">Отображать текст крупными буквами</string>
   <string name="prefs_text_size_sample_text">Образец текста</string>
-  <string name="prefs_screen_timeout_title">Спящий режим</string>
-  <string name="prefs_screen_timeout_summary">Время ожидания перед выключением экрана</string>
+  <string name="prefs_screen_keep_on_title">Не выключать экран</string>
+  <string name="prefs_screen_keep_on_summary">Предотвращение засыпания экрана при использовании этого приложения</string>
   <string name="x_minutes">%d минут</string>
   <string name="prefs_interface_locale_title">Язык</string>
   <string name="prefs_interface_locale_summary">Выбрать язык интерфейса</string>
@@ -98,6 +98,8 @@
   <string name="prefs_split_mode_automatic">Автоматически</string>
   <string name="prefs_split_mode_summary">Как разделять несколько экранов при компоновке окна?</string>
   <string name="prefs_split_mode_title">Разделенный режим</string>
+  <string name="prefs_request_sdcard_permission_title">Модули, установленные вручную, существуют</string>
+  <string name="prefs_request_sdcard_permission_summary">Разрешить использование модулей, установленных вручную, из папки jsword на SD-карте</string>
   <!--Window-->
   <string name="window">Окно</string>
   <string name="windowClose">Закрыть</string>
@@ -233,6 +235,7 @@
   <string name="restore">Восстановить</string>
   <string name="restore_confirmation">Заменить заметки и закладки?</string>
   <string name="restore_success">Заметки и закладки восставлены из %s на SD карте</string>
+  <string name="error_no_backup_file">Файл резервной копии не найден</string>
   <!--About-->
   <string name="about_copyright">Авторское право: %s</string>
   <string name="about_version">Версия: %s</string>
@@ -268,4 +271,5 @@
   <string name="error_page_too_large">Слишком большая страница для загрузки</string>
   <string name="error_key_not_in_document">Не найдено в ресурсе</string>
   <string name="empty_list">Для отображения ничего нет</string>
+  <string name="notification_channel_progress_status">Уведомление о статусе выполнения загрузки модулей и т. п.</string>
 </resources>
