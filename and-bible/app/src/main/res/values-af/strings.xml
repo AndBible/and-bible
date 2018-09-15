@@ -82,6 +82,8 @@
   <string name="prefs_text_size_title">Teks grootte</string>
   <string name="prefs_text_size_summary">Wys meer of sien meer duidelik</string>
   <string name="prefs_text_size_sample_text">Teks voorbeeld</string>
+  <string name="prefs_screen_keep_on_title">Hou skerm aan</string>
+  <string name="prefs_screen_keep_on_summary">Voorkom dat skerm gaan slaap tydens die gebruik van hierdie program</string>
   <string name="x_minutes">%d Minute</string>
   <string name="prefs_interface_locale_title">Applikasie taal</string>
   <string name="prefs_interface_locale_summary">Kies \'n persoonlike gebruikers taal</string>
@@ -96,6 +98,8 @@
   <string name="prefs_split_mode_automatic">Outomaties</string>
   <string name="prefs_split_mode_summary">Hoe om verskeie skerms op die venster uitleg te verdeel?</string>
   <string name="prefs_split_mode_title">Split modus</string>
+  <string name="prefs_request_sdcard_permission_title">Handmatig geïnstalleerde dokumente bestaan</string>
+  <string name="prefs_request_sdcard_permission_summary">Aktiveer die gebruik van handmatig geïnstalleerde dokumente uit die jsword-lêergids op die SD-kaart</string>
   <!--Window-->
   <string name="window">Venster</string>
   <string name="windowClose">Maak Toe</string>
@@ -231,6 +235,7 @@
   <string name="restore">Herstel</string>
   <string name="restore_confirmation">Vervang My Notas en Boekmerke?</string>
   <string name="restore_success">My Notas en Boekmerke is herstel van %s op die SD-kaart</string>
+  <string name="error_no_backup_file">\'n Rugsteunlêer kon nie gevind word nie</string>
   <!--About-->
   <string name="about_copyright">Kopiereg : %s</string>
   <string name="about_version">Weergawe: %s</string>
@@ -266,4 +271,5 @@
   <string name="error_page_too_large">Bladsy te groot om gelaai te word</string>
   <string name="error_key_not_in_document">Nie gevind in dokument</string>
   <string name="empty_list">Geen items om te wys</string>
+  <string name="notification_channel_progress_status">Vordering status kennisgewing vir die aflaai van dokumente ens.</string>
 </resources>
