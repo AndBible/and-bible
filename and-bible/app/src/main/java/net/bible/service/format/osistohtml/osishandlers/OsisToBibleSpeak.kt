@@ -17,7 +17,7 @@ import java.util.Stack
 class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) : OsisSaxHandler() {
     val speakCommands = SpeakCommandArray()
 
-    private enum class TAG_TYPE {NORMAL, TITLE, PARAGRPAH, DIVINE_NAME, FOOTNOTE}
+    private enum class TAG_TYPE {NORMAL, TITLE, PARAGRAPH, DIVINE_NAME, FOOTNOTE}
     private data class StackEntry(val visible: Boolean, val tagType: TAG_TYPE=TAG_TYPE.NORMAL)
     private val elementStack = Stack<StackEntry>()
     private var divineNameOriginal: Array<String>
@@ -75,7 +75,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
             val isParagraphType = DivHandler.PARAGRAPH_TYPE_LIST.contains(type)
             if(isParagraphType && !isVerseBeginning) {
                 speakCommands.add(ParagraphChangeCommand())
-                elementStack.push(StackEntry(peekVisible, TAG_TYPE.PARAGRPAH))
+                elementStack.push(StackEntry(peekVisible, TAG_TYPE.PARAGRAPH))
             }
             else {
                 elementStack.push(StackEntry(peekVisible))
@@ -86,7 +86,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
             if(anyTextWritten) {
                 speakCommands.add(ParagraphChangeCommand())
             }
-            elementStack.push(StackEntry(peekVisible, TAG_TYPE.PARAGRPAH))
+            elementStack.push(StackEntry(peekVisible, TAG_TYPE.PARAGRAPH))
         } else {
             elementStack.push(StackEntry(peekVisible))
         }
@@ -98,7 +98,7 @@ class OsisToBibleSpeak(val speakSettings: SpeakSettings, val language: String) :
     ) {
         val state = elementStack.pop()
 
-        if(state.tagType == TAG_TYPE.PARAGRPAH) {
+        if(state.tagType == TAG_TYPE.PARAGRAPH) {
             if(anyTextWritten) {
                 anyTextWritten = false;
             }
