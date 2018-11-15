@@ -54,6 +54,12 @@
   <string name="prefs_show_verseno_summary">Аят нөмірлерін көрсет</string>
   <string name="prefs_verse_per_line_title">Әр жолға бір аят</string>
   <string name="prefs_verse_per_line_summary">Әр аятты басқа жолда көрсет</string>
+  <string name="prefs_show_bookmarks_title">Кітап белгілерін көрсету</string>
+  <string name="prefs_show_bookmarks_summary">Бар кітап белгілерін жасыру үшін таңдауларды алыңыз </string>
+  <string name="prefs_default_bookmark_style_title">Кітап белгісінің стандартты күйі
+Кітап белгісінің стандартты стилі</string>
+  <string name="prefs_default_bookmark_style_summary">Түсті ашық байқау не белгішесін
+Тус немесе белгішені анықтап бояу</string>
   <string name="prefs_show_mynotes_title">Менің Жазбаларым таңбасын көрсет</string>
   <string name="prefs_show_mynotes_summary">Аяттардағы таңбаны Менің Жазбаларымен бірге көрсет</string>
   <string name="prefs_show_notes_title">Ескертпелер мен айқасқан сілтемелер</string>
@@ -78,10 +84,24 @@
   <string name="prefs_text_size_title">Мәтін көлемі</string>
   <string name="prefs_text_size_summary">Тағыда көру немесе анықтап көру</string>
   <string name="prefs_text_size_sample_text">Мысалы мәтін</string>
+  <string name="prefs_screen_keep_on_title">Экранды өшірмеу</string>
+  <string name="prefs_screen_keep_on_summary">Осы қосымша құрал пайдаланып отырғанда, алдын ала терезені ұйқыдан сақтау. </string>
   <string name="x_minutes">%d минуталар</string>
   <string name="prefs_interface_locale_title">Қолдану тілі</string>
   <string name="prefs_interface_locale_summary">Пайдаланушы интерфейс тілін таңдау</string>
   <string name="locale_change_warning">Жаңа интерфейс тіліне ауысу үшін қолданылатын тапсырма қайта басталады</string>
+  <string name="prefs_speak_speed_title">Сөйлеу жылдамдығы</string>
+  <string name="prefs_speak_speed_summary">Жылдам не баяу сөйле</string>
+  <string name="speak_speed_slow">Баяу</string>
+  <string name="speak_speed_normal">Қалыпты</string>
+  <string name="speak_speed_fast">Дереу</string>
+  <string name="prefs_split_mode_vertical">Тік</string>
+  <string name="prefs_split_mode_horizontal">Көлденең</string>
+  <string name="prefs_split_mode_automatic">Автоматты</string>
+  <string name="prefs_split_mode_summary">Экран ішінде, бир неше кішігірім терезелерді қалай бөлу керек? </string>
+  <string name="prefs_split_mode_title">Бөлу әдісі</string>
+  <string name="prefs_request_sdcard_permission_title">Қолмен басқарлатын түрде орнатылған құжаттар бар</string>
+  <string name="prefs_request_sdcard_permission_summary">jsword қалтадан SD картаға қолмен басқарлатын құжаттарды пайдалануды қосыңыз </string>
   <!--Window-->
   <string name="window">Терезе</string>
   <string name="windowClose">Жабу</string>
@@ -125,6 +145,7 @@
   <string name="checking_zip_file">Осы файл тексерілу барысында...</string>
   <string name="invalid_module">Файлдың мазмұнында жарамды SWORD модулі жоқ</string>
   <string name="module_already_installed">Файлдың мазмұнында орнатылып қойылған модуль бар</string>
+  <string name="install_zip_title">Күте тұрыңыз. Zip файл жүктелуде.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Оқу жоспары</string>
   <string name="rdg_plan_selector_title">Оқу Жоспарын Таңдаңыз</string>
@@ -152,11 +173,18 @@
   <string name="share_verse_subject">Киелі Кітап аяты Андроид бағдарламасы арқылы сізбен бөлісілді</string>
   <string name="compare_translations">Аудармаларды салыстыру</string>
   <!--Link context menu-->
+  <string name="open_link_in_this_window">Осында линк ашу</string>
+  <string name="open_link_in_new_window">Жаңа терезеде линк ашу</string>
+  <string name="open_link_in_main_window">Негізгі терезеде линк ашу</string>
+  <string name="open_link_in_special_window">Арнайы терезеде линк ашу</string>
   <!--Bookmarks-->
   <string name="bookmarks">Бетбелгілер</string>
   <string name="add_bookmark">Кітап белгісін қосу</string>
+  <string name="delete_bookmark">Кітап белгісін жою</string>
   <string name="bookmark_added">Кітап белгісі қосылды</string>
+  <string name="bookmark_date_updated">Кітап белгісінің күні жаңартылған</string>
   <string name="bookmark_exists">Кітап белгісі бұрыннан бар</string>
+  <string name="bookmark_deleted">Кітап белгісі жойылған</string>
   <string name="bookmark_labels">Кітап белгісінің Таңбалары</string>
   <string name="manage_labels">Бетбелгі сілтемелерін басқару</string>
   <string name="assign_labels">Таңбаларды белгілеу</string>
@@ -164,6 +192,7 @@
   <string name="label_name_prompt">Атауы</string>
   <string name="label_unlabelled">Таңбаланбаған</string>
   <string name="rename">Атын өзгерту</string>
+  <string name="style">Бағыт стилі</string>
   <!--Sort orders used for Bookmarks and MyNotes-->
   <string name="sort_by_date">Күн реті</string>
   <string name="sort_by_bible_book">Киелі кітап реті</string>
@@ -208,6 +237,7 @@
   <string name="restore">Қалпына келтіру</string>
   <string name="restore_confirmation">Менің Жазбаларым мен Бетбелгілерін Үстінен Жазу?</string>
   <string name="restore_success">Менің Жазбаларым мен Бетбелгілерім %s дан бастап SD картада қалпына келтірілді</string>
+  <string name="error_no_backup_file">Қосымша резервтегі сақталған файл табылмай жатыр</string>
   <!--About-->
   <string name="about_copyright">Авторлық құқық: %s</string>
   <string name="about_version">Версия: %s</string>
@@ -230,15 +260,18 @@
   <string name="more">Көбірек</string>
   <string name="more_dotted">Көбірек...</string>
   <string name="retry">Қайтадан әрекет жасау</string>
-  <string name="please_wait">Кұте тұрыңыз...</string>
+  <string name="please_wait">Күте тұрыңыз...</string>
   <string name="all">Бәрі</string>
   <string name="default_value">@string/lang_default</string>
   <string name="new_item">Жаңа</string>
   <string name="close">Жабу</string>
+  <string name="edit">Редакциялау</string>
   <!--Errors-->
+  <string name="report_error">Есеп Жіберу</string>
   <string name="error_occurred">Қате пайда болды</string>
   <string name="error_no_content">Таңдалған аятқа мазмұн жоқ</string>
   <string name="error_page_too_large">Жүктеу үшін бет тым үлкен</string>
   <string name="error_key_not_in_document">Құжатта табылмаған</string>
   <string name="empty_list">Көрсету үшін еш элемент жоқ </string>
+  <string name="notification_channel_progress_status">Құжат жүктеуде және сол сияқты үшін хабарлама растауды дамыту</string>
 </resources>
