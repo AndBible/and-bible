@@ -31,7 +31,7 @@ import static org.junit.Assert.assertThat;
  */
 
 @RunWith(MyRobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, application = TestBibleApplication.class)
+@Config(application = TestBibleApplication.class)
 public class ReferenceHandlerTest {
 
 	private OsisToHtmlParameters osisToHtmlParameters;

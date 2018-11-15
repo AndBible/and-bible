@@ -1,6 +1,6 @@
 package net.bible.android.view.activity.page.actionbar;
 
-import android.support.v4.view.MenuItemCompat;
+import androidx.core.view.MenuItemCompat;
 import android.view.MenuItem;
 
 import net.bible.android.activity.R;

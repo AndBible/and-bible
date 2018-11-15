@@ -1,8 +1,8 @@
 package net.bible.android.view.activity.base.actionbar;
 
 import android.app.Activity;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;

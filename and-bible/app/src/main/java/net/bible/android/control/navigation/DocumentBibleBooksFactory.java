@@ -1,6 +1,6 @@
 package net.bible.android.control.navigation;
 
-import android.support.v4.util.LruCache;
+import androidx.collection.LruCache;
 
 import net.bible.android.control.ApplicationScope;
 import net.bible.service.common.Logger;

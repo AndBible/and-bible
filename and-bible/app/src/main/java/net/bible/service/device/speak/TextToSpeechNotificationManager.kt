@@ -7,7 +7,8 @@ import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
-import android.support.v4.app.NotificationCompat
+import androidx.core.app.NotificationCompat
+import androidx.media.app.NotificationCompat.MediaStyle
 import android.util.Log
 import net.bible.android.BibleApplication
 import net.bible.android.activity.R
@@ -269,7 +270,7 @@ class TextToSpeechNotificationManager {
         val contentIntent = Intent(app, MainBibleActivity::class.java)
         contentIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         val contentPendingIntent = PendingIntent.getActivity(app, 0, contentIntent, 0)
-        val style = NotificationCompat.MediaStyle()
+        val style = MediaStyle()
             .setShowActionsInCompactView(2)
             //.setMediaSession(mediaSession?.sessionToken)
 

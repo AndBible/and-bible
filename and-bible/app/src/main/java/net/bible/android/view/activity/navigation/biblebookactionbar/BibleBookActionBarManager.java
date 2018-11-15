@@ -1,7 +1,7 @@
 package net.bible.android.view.activity.navigation.biblebookactionbar;
 
 import android.app.Activity;
-import android.support.v7.app.ActionBar;
+import androidx.appcompat.app.ActionBar;
 import android.view.Menu;
 import android.view.View.OnClickListener;
 

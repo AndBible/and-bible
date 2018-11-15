@@ -1,6 +1,6 @@
 package net.bible.android.view.activity.page.actionmode;
 
-import android.support.v7.view.ActionMode;
+import androidx.appcompat.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;

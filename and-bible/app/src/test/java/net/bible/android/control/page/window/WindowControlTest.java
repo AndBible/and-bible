@@ -1,6 +1,6 @@
 package net.bible.android.control.page.window;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -51,7 +51,7 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.hamcrest.MockitoHamcrest.argThat;
 
 @RunWith(MyRobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, application = TestBibleApplication.class)
+@Config(application = TestBibleApplication.class)
 public class WindowControlTest {
 
 	private static final Book BOOK_KJV = Books.installed().getBook("KJV");

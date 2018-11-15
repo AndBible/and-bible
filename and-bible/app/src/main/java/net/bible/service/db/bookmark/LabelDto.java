@@ -1,7 +1,7 @@
 package net.bible.service.db.bookmark;
 
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;

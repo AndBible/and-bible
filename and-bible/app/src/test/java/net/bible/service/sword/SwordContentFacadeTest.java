@@ -25,7 +25,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MyRobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, application = TestBibleApplication.class)
+@Config(application = TestBibleApplication.class)
 public class SwordContentFacadeTest {
 
 	private SwordContentFacade swordContentFacade;

@@ -1,6 +1,6 @@
 package net.bible.service.format;
 
-import android.support.v4.util.Pools;
+import androidx.core.util.Pools;
 
 import net.bible.service.common.Logger;
 import net.bible.service.common.ParseException;

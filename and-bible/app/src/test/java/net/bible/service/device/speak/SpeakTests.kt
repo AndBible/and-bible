@@ -41,7 +41,7 @@ import org.robolectric.shadows.ShadowLog
 import robolectric.MyRobolectricTestRunner
 
 
-@Config(qualifiers="fi", constants = BuildConfig::class, application = TestBibleApplication::class)
+@Config(qualifiers="fi", application = TestBibleApplication::class)
 open class SpeakIntegrationTestBase {
     lateinit var app: TestBibleApplication
     lateinit var bookmarkControl: BookmarkControl
@@ -203,7 +203,7 @@ class SpeakIntegrationTests : SpeakIntegrationTestBase() {
 }
 
 
-@Config(qualifiers = "fi", constants = BuildConfig::class, application = TestBibleApplication::class)
+@Config(qualifiers = "fi", application = TestBibleApplication::class)
 open class AbstractSpeakTests {
     lateinit var provider: BibleSpeakTextProvider
     internal var text: String = ""

@@ -1,6 +1,6 @@
 package net.bible.android.control.bookmark;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import net.bible.service.db.bookmark.BookmarkDto;
 

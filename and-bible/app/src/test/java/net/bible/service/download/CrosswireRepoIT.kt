@@ -13,7 +13,7 @@ import org.robolectric.annotation.Config
 import robolectric.MyRobolectricTestRunner
 
 @RunWith(MyRobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, application = TestBibleApplication::class)
+@Config(application = TestBibleApplication::class)
 class CrosswireRepoIT {
 
     private lateinit var crosswireRepo: CrosswireRepo

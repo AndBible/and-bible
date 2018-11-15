@@ -3,7 +3,7 @@ package net.bible.android.view.activity.mynote;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.support.v7.widget.AppCompatEditText;
+import androidx.appcompat.widget.AppCompatEditText;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;

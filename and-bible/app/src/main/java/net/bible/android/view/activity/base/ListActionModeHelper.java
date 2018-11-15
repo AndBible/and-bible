@@ -1,6 +1,6 @@
 package net.bible.android.view.activity.base;
 
-import android.support.v7.view.ActionMode;
+import androidx.appcompat.view.ActionMode;
 import android.util.SparseBooleanArray;
 import android.view.Menu;
 import android.view.MenuInflater;

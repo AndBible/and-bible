@@ -18,7 +18,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 @RunWith(MyRobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ErrorReportControlTest {
 	@Mock
 	private EmailerStub emailer = new EmailerStub();
