@@ -460,10 +460,11 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun persistState() {
-        CommonUtils.getSharedPreferences().edit()
-                .putString(PERSIST_BOOK, book.abbreviation)
-                .putString(PERSIST_VERSE, startVerse.osisID)
-                .apply()
+        with (CommonUtils.getSharedPreferences().edit() ) {
+            putString(PERSIST_BOOK, book.abbreviation)
+            putString(PERSIST_VERSE, startVerse.osisID)
+            apply()
+        }
     }
 
     override fun restoreState(): Boolean {
@@ -491,7 +492,11 @@ class BibleSpeakTextProvider(private val swordContentFacade: SwordContentFacade,
     }
 
     override fun clearPersistedState() {
-        CommonUtils.getSharedPreferences().edit().remove(PERSIST_BOOK).remove(PERSIST_VERSE).apply()
+        with (CommonUtils.getSharedPreferences().edit() ) {
+            remove(PERSIST_BOOK)
+            remove(PERSIST_VERSE)
+            apply()
+        }
     }
 
     override fun getTotalChars(): Long {
