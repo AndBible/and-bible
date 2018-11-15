@@ -25,7 +25,7 @@ data class PlaybackSettings (
     companion object {
         fun fromJson(jsonString: String): PlaybackSettings {
             return try {
-                JSON(nonstrict = true).parse(jsonString)
+                JSON(strictMode = false).parse(PlaybackSettings.serializer(), jsonString)
             } catch (ex: SerializationException) {
                 PlaybackSettings()
             } catch (ex: IllegalArgumentException) {
@@ -35,7 +35,7 @@ data class PlaybackSettings (
     }
 
     fun toJson(): String {
-        return JSON.stringify(this)
+        return JSON.stringify(PlaybackSettings.serializer(), this)
     }
 }
 
@@ -57,7 +57,7 @@ data class SpeakSettings(@Optional val synchronize: Boolean = true,
     enum class RewindAmount {NONE, ONE_VERSE, TEN_VERSES, SMART}
 
     private fun toJson(): String {
-        return JSON.stringify(this)
+        return JSON.stringify(SpeakSettings.serializer(), this)
     }
 
     fun makeCopy(): SpeakSettings {
@@ -87,7 +87,7 @@ data class SpeakSettings(@Optional val synchronize: Boolean = true,
 
         private fun fromJson(jsonString: String): SpeakSettings {
             return try {
-                JSON(nonstrict = true).parse(jsonString)
+                JSON(strictMode = false).parse(SpeakSettings.serializer(), jsonString)
             } catch (ex: SerializationException) {
                 SpeakSettings()
             } catch (ex: IllegalArgumentException) {

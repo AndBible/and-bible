@@ -2,9 +2,7 @@
 <resources>
   <string name="app_name">E Bibbia</string>
   <!--Startup & Help-->
-  <string name="splash_top_text">\n\\'E Dio disse:\\"Sia luce!\\" e la luce comparve\\'\nGenesi 1:3</string>
   <string name="help_text">Clicca il tasto \'MENU\' per continuare\n\nUsa la \'track-ball\', \'D-pad\' o muovi il dito sullo schermo per andare al capitolo successivo o tornare a quello precedente</string>
-  <string name="help_text_long"><b>Navigazione</b>\nUsa la \\'track-ball\\', \\'D-pad\\' o muovi il dito sullo schermo per procedere al capitolo successivo o tornare a quello precedente\nClicca due volte per azionare o spegnere lo schermo intero. \n\n<b>Menu</b> \nClicca il tasto \\'MENU\\' per continuare \n\nPer scaricare altri documenti clicca il tasto MENU/ALTRO/SCARICA DOCUMENTI \n\n<b>Audio</b>\nClicca \\'AUDIO\\' per ascoltare un dialogo o iniziare/completare la lettura \n\n<b>I Miei Appunti</b>\nUsa il Menu \\'I Miei Appunti\\' per aggiungere appunti sui singoli versi. Puoi accedere alla lista degli appunti attraverso il menu principale. \n\n<b>Segnalibri</b>\nPuoi aggiungere dei segnalibri attraverso il menu dei versi. Puoi accedere al \\'Manager dei Segnalibri\\' attraverso il menu principale. Il menu del \\'Manager dei Segnalibri\\' permette di raggruppare i segnalibri con l\\'uso di etichette. \n\n<b>Ricerca</b>\nIl testo della Ricerca include caratteri come *, ?, E, O, NON (vedi \\"Apache Lucene - Query Parser Syntax\\" per ulteriori dettagli) \n\n<b>I Menu del Contenuto</b> \nPremi a lungo sullo schermo della Bibbia per aprire il menu del contesto per azioni che si riferiscono al verso in questione. \nPremi a lungo su un documento nella selezione dei documenti per cancellare o vedere informazioni. \nLong press the Back button to access the History list </string>
   <string name="version_text">Versione %s</string>
   <string name="no_sdcard_error">Inserisci una carta \'SD\' e inizia nuovamente E Bibbia.</string>
   <!--Main menu-->
@@ -21,7 +19,6 @@
   <string name="choosePassageVerseName">Scegli un Verso</string>
   <!--Search-->
   <string name="search_index">Indice di Ricerca</string>
-  <string name="index_creation_required">Usa l\\'indice per completare una ricerca.\n\nGli indici possono essere scaricati da Internet o creati localmente.\n\nLo scaricamento e\\' piu\\' veloce e gli indici scaricati hanno piu\\' elementi.\n\nE\\' necessaria la connessione ad Internet per scaricare gli indici.</string>
   <string name="indexing_wait_msg">Quando l\'indice e\' completo puoi passare alla schermata della ricerca.</string>
   <string name="index">Indice</string>
   <string name="index_download">Scarica</string>
