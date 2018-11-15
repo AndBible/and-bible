@@ -121,9 +121,6 @@ public class OsisToHtmlParameters {
 		this.isShowBookmarks = isShowBookmarks;
 	}
 
-	public BookmarkStyle getDefaultBookmarkStyle() {
-		return defaultBookmarkStyle;
-	}
 	public void setDefaultBookmarkStyle(BookmarkStyle defaultBookmarkStyle) {
 		this.defaultBookmarkStyle = defaultBookmarkStyle;
 	}
