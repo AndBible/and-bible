@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import net.bible.android.control.bookmark.BookmarkStyle;
+import net.bible.android.control.speak.PlaybackSettings;
 import net.bible.service.db.CommonDatabaseHelper;
 import net.bible.service.db.SQLHelper;
 import net.bible.service.db.bookmark.BookmarkDatabaseDefinition.BookmarkColumn;
@@ -22,6 +24,7 @@ import org.crosswire.jsword.passage.VerseRangeFactory;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
 import org.crosswire.jsword.versification.system.Versifications;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -63,7 +66,7 @@ public class BookmarkDBAdapter {
 		// db.close();
 	}
 
-	public BookmarkDto insertBookmark(BookmarkDto bookmark) {
+	public BookmarkDto insertOrUpdateBookmark(BookmarkDto bookmark) {
 		// Create a new row of values to insert.
 		ContentValues newValues = new ContentValues();
 		VerseRange key = bookmark.getVerseRange();
@@ -76,9 +79,21 @@ public class BookmarkDBAdapter {
 		newValues.put(BookmarkColumn.KEY, key.getOsisRef());
 		newValues.put(BookmarkColumn.VERSIFICATION, v11nName);
 		newValues.put(BookmarkColumn.CREATED_ON, now);
-
-		long newId = db.insert(Table.BOOKMARK, null, newValues);
-		return getBookmarkDto(newId);
+		PlaybackSettings playbackSettings = bookmark.getPlaybackSettings();
+		if(playbackSettings!= null) {
+			newValues.put(BookmarkColumn.PLAYBACK_SETTINGS, playbackSettings.toJson());
+		}
+		else {
+			newValues.putNull(BookmarkColumn.PLAYBACK_SETTINGS);
+		}
+		if(bookmark.getId() != null) {
+			db.update(Table.BOOKMARK,  newValues, BookmarkColumn._ID + "=" + bookmark.getId(), null);
+			return bookmark;
+		}
+		else {
+			long newId = db.insert(Table.BOOKMARK, null, newValues);
+			return getBookmarkDto(newId);
+		}
 	}
 
 	public boolean removeBookmark(BookmarkDto bookmark) {
@@ -232,6 +247,7 @@ public class BookmarkDBAdapter {
         return allLabels;
 	}
 
+	@NotNull
 	public List<LabelDto> getBookmarkLabels(BookmarkDto bookmark) {
 		String sql = "SELECT label._id, label.name, label.bookmark_style "+
 					 "FROM label "+
@@ -334,6 +350,11 @@ public class BookmarkDBAdapter {
 			//Created date
 			long created = c.getLong(BookmarkQuery.CREATED_ON);
 			dto.setCreatedOn(new Date(created));
+
+			String playbackSettingsStr = c.getString(BookmarkQuery.PLAYBACK_SETTINGS);
+			if(playbackSettingsStr != null) {
+				dto.setPlaybackSettings(PlaybackSettings.Companion.fromJson(playbackSettingsStr));
+			}
 		
 		} catch (NoSuchKeyException nke) {
 			Log.e(TAG, "Key error", nke);
@@ -373,16 +394,38 @@ public class BookmarkDBAdapter {
 
 		return dto;
 	}
-	
+
+	@NotNull
+	public LabelDto getOrCreateSpeakLabel() {
+		LabelDto label = null;
+		Cursor c = db.query(LabelQuery.TABLE, LabelQuery.COLUMNS, LabelColumn.BOOKMARK_STYLE + "=?",
+				new String[] {String.valueOf(BookmarkStyle.SPEAK)}, null, null, null);
+		try {
+			if (c.moveToFirst()) {
+				label = getLabelDto(c);
+			}
+		} finally {
+	        c.close();
+		}
+
+		if(label == null) {
+			label = new LabelDto();
+			label.setBookmarkStyle(BookmarkStyle.SPEAK);
+			label = insertLabel(label);
+		}
+
+		return label;
+	}
+
 	private interface BookmarkQuery {
         String TABLE = Table.BOOKMARK;
-
-		String[] COLUMNS = new String[] {BookmarkColumn._ID, BookmarkColumn.KEY, BookmarkColumn.VERSIFICATION, BookmarkColumn.CREATED_ON};
+        String[] COLUMNS = new String[] {BookmarkColumn._ID, BookmarkColumn.KEY, BookmarkColumn.VERSIFICATION, BookmarkColumn.CREATED_ON, BookmarkColumn.PLAYBACK_SETTINGS};
 
         int ID = 0;
         int KEY = 1;
         int VERSIFICATION = 2;
         int CREATED_ON = 3;
+        int PLAYBACK_SETTINGS = 4;
     }
 	private interface LabelQuery {
         String TABLE = Table.LABEL;

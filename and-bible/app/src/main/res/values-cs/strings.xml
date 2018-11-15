@@ -82,6 +82,8 @@
   <string name="prefs_text_size_title">Velikost textu</string>
   <string name="prefs_text_size_summary">Vidět více nebo vidět zřetelněji</string>
   <string name="prefs_text_size_sample_text">Příklad textu</string>
+  <string name="prefs_screen_keep_on_title">Nechat obrazovka zapnutou</string>
+  <string name="prefs_screen_keep_on_summary">Zamezí uspání displeje během používání aplikace</string>
   <string name="x_minutes">%d minut</string>
   <string name="prefs_interface_locale_title">Jazyk aplikace</string>
   <string name="prefs_interface_locale_summary">Vybrat jiný jazyk uživatelského rozhraní</string>
@@ -96,6 +98,8 @@
   <string name="prefs_split_mode_automatic">Automatický</string>
   <string name="prefs_split_mode_summary">Jak rozdělit více oken na obrazovce?</string>
   <string name="prefs_split_mode_title">Režim rozdělení okna</string>
+  <string name="prefs_request_sdcard_permission_title">Dostupné ručně instalované dokumenty</string>
+  <string name="prefs_request_sdcard_permission_summary">Zapne používání ručně instalovaných dokumentů ze složky jsword na SD kartě</string>
   <!--Window-->
   <string name="window">Okno</string>
   <string name="windowClose">Zavřít</string>
@@ -231,6 +235,7 @@
   <string name="restore">Obnovit</string>
   <string name="restore_confirmation">Přepsat poznámky a záložky?</string>
   <string name="restore_success">Poznámky a záložky obnoveny z SD karty ze souboru %s</string>
+  <string name="error_no_backup_file">Soubor zálohy se nepodařilo nalézt</string>
   <!--About-->
   <string name="about_copyright">Autorská práva: %s</string>
   <string name="about_version">Verze: %s</string>
@@ -266,4 +271,5 @@
   <string name="error_page_too_large">Strana je pro načtení příliš velká</string>
   <string name="error_key_not_in_document">V dokumentu nenalezeno</string>
   <string name="empty_list">Žádné položky k zobrazení</string>
+  <string name="notification_channel_progress_status">Upozornění o průběh stavu pro stahování dokumentu atd.</string>
 </resources>

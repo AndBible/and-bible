@@ -1,13 +1,11 @@
 package net.bible.android.control.report;
 
-import net.bible.android.activity.BuildConfig;
 import net.bible.android.common.resource.ResourceProvider;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.robolectric.annotation.Config;
 
 import robolectric.MyRobolectricTestRunner;
 
@@ -18,7 +16,6 @@ import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
 @RunWith(MyRobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class ErrorReportControlTest {
 	@Mock
 	private EmailerStub emailer = new EmailerStub();

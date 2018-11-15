@@ -70,6 +70,9 @@ public class BookmarkStyleAdapter extends ArrayAdapter<String> {
 		List<String> styles = new ArrayList<>();
 		styles.add(DEFAULT_TEXT);
 		for (BookmarkStyle style : BookmarkStyle.values()) {
+			if(style == BookmarkStyle.SPEAK) {
+				continue;
+			}
 			styles.add(style.name());
 		}
 		return styles;

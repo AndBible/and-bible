@@ -1,10 +1,11 @@
 package net.bible.android.control.event.phonecall;
 
+import android.util.Log;
 import net.bible.android.BibleApplication;
 import android.content.Context;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import de.greenrobot.event.EventBus;
+import net.bible.android.control.event.ABEventBus;
 
 /**
  * Monitor phone calls to stop speech, etc 
@@ -16,6 +17,9 @@ import de.greenrobot.event.EventBus;
 public class PhoneCallMonitor {
 	
 	private static boolean isMonitoring = false;
+	// We need to keep reference to phoneStateListener. See
+	// https://stackoverflow.com/questions/42213250/android-nougat-phonestatelistener-is-not-triggered
+	private static PhoneStateListener phoneStateListener;
 	
 	public static void ensureMonitoringStarted() {
 		if (!isMonitoring) {
@@ -24,19 +28,25 @@ public class PhoneCallMonitor {
 		}
 	}
 	
-	/** If phone rings then notify all appToBackground listeners.
-	 * This was attempted in CurrentActivityHolder but failed if device was on stand-by and speaking and Android 4.4 (I think it worked on earlier versions of Android)
+	/** If phone rings then notify all PhoneCallEvent listeners.
+	 * This was attempted in CurrentActivityHolder but failed if device was on
+	 * stand-by and speaking and Android 4.4 (I think it worked on earlier versions of Android)
 	 */
 	private void startMonitoring() {
-		getTelephonyManager().listen(new PhoneStateListener() {
+		Log.d("PhoneCallMonitor", "Starting monitoring");
+		phoneStateListener = new PhoneStateListener() {
 			@Override
 			public void onCallStateChanged(int state, String incomingNumber) {
-				if (state==TelephonyManager.CALL_STATE_RINGING || state==TelephonyManager.CALL_STATE_OFFHOOK) {
-					EventBus.getDefault().post(new PhoneCallStarted());
+				Log.d("PhoneCallMonitor", "State changed " + state);
+				if (state == TelephonyManager.CALL_STATE_RINGING || state == TelephonyManager.CALL_STATE_OFFHOOK) {
+					ABEventBus.getDefault().post(new PhoneCallEvent(true));
+				}
+				else if(state == TelephonyManager.CALL_STATE_IDLE) {
+					ABEventBus.getDefault().post(new PhoneCallEvent(false));
 				}
 			}
-			
-		}, PhoneStateListener.LISTEN_CALL_STATE);
+		};
+		getTelephonyManager().listen(phoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
 	}
 	
 	private TelephonyManager getTelephonyManager() {

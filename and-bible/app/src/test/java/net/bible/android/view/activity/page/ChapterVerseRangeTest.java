@@ -1,6 +1,6 @@
 package net.bible.android.view.activity.page;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import net.bible.android.control.page.ChapterVerse;
 

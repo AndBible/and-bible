@@ -22,8 +22,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Provider;
 
-import de.greenrobot.event.EventBus;
-
 @ApplicationScope
 public class WindowRepository {
 
@@ -169,17 +167,19 @@ public class WindowRepository {
 	public void setActiveWindow(Window newActiveWindow) {
 		if (!newActiveWindow.equals(this.activeWindow)) {
 			this.activeWindow = newActiveWindow;
-			EventBus.getDefault().post(new CurrentWindowChangedEvent(activeWindow));
+			ABEventBus.getDefault().post(new CurrentWindowChangedEvent(activeWindow));
 		}
 	}
 	
-	public List<Window> getWindowsToSynchronise() {
+	public List<Window> getWindowsToSynchronise(Window sourceWindow) {
 		List<Window> windows = getVisibleWindows();
-		windows.remove(getActiveWindow());
-		
+		if(sourceWindow != null) {
+			windows.remove(sourceWindow);
+		}
+
 		return windows;
 	}
-	
+
 	public void minimise(Window window) {
 		window.getWindowLayout().setState(WindowState.MINIMISED);
 
@@ -241,8 +241,7 @@ public class WindowRepository {
 		windowList.add(newScreen);
 		return newScreen;
 	}
-	
-	/** 
+	/**
 	 * If app moves to background then save current state to allow continuation after return
 	 * 
 	 * @param appToBackgroundEvent Event info

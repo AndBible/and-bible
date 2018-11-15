@@ -1,7 +1,6 @@
 package net.bible.service.download
 
 import net.bible.android.TestBibleApplication
-import net.bible.android.activity.BuildConfig
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.install.InstallException
 import org.hamcrest.Matchers.*
@@ -13,7 +12,7 @@ import org.robolectric.annotation.Config
 import robolectric.MyRobolectricTestRunner
 
 @RunWith(MyRobolectricTestRunner::class)
-@Config(constants = BuildConfig::class, application = TestBibleApplication::class)
+@Config(application = TestBibleApplication::class)
 class CrosswireRepoIT {
 
     private lateinit var crosswireRepo: CrosswireRepo
@@ -47,7 +46,7 @@ class CrosswireRepoIT {
 
     @Test
     fun downloadDocumentsRequiredForTests() {
-        val testBooks = arrayOf("KJV", "ISV", "ESV2011")
+        val testBooks = arrayOf("KJV", "ISV", "ESV2011", "FinRK", "FinPR", "FinSTLK2017")
         crosswireRepo.getRepoBooks(false)
                 .filter {testBooks.contains(it.initials)}
                 .filter {Books.installed().getBook(it.initials) == null}

@@ -1,10 +1,11 @@
 package net.bible.android.view.activity.page.actionbar;
 
 import android.app.Activity;
-import android.support.v7.app.ActionBar;
+import androidx.appcompat.app.ActionBar;
 import android.view.Menu;
 
 import net.bible.android.control.document.DocumentControl;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.view.activity.MainBibleActivityScope;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.actionbar.ActionBarManager;
@@ -12,8 +13,6 @@ import net.bible.android.view.activity.base.actionbar.DefaultActionBarManager;
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakActionBarButton;
 import net.bible.android.view.activity.speak.actionbarbuttons.SpeakStopActionBarButton;
 import net.bible.service.device.speak.event.SpeakEvent;
-import net.bible.service.device.speak.event.SpeakEventListener;
-import net.bible.service.device.speak.event.SpeakEventManager;
 
 import javax.inject.Inject;
 
@@ -45,13 +44,11 @@ public class BibleActionBarManager extends DefaultActionBarManager implements Ac
 		this.dictionaryActionBarButton = dictionaryActionBarButton;
 		this.strongsActionBarButton = strongsActionBarButton;
 
-		// the manager will also instantly fire a catch-up event to ensure state is current
-        SpeakEventManager.getInstance().addSpeakEventListener(new SpeakEventListener() {
-			@Override
-			public void speakStateChange(SpeakEvent e) {
-				updateButtons();
-			}
-		});
+		ABEventBus.getDefault().register(this);
+	}
+
+	public void onEvent(SpeakEvent e) {
+		updateButtons();
 	}
 
 	/* (non-Javadoc)

@@ -1,17 +1,22 @@
 package net.bible.android;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.util.Log;
 
+import androidx.multidex.MultiDexApplication;
+import net.bible.android.activity.SpeakWidgetManager;
 import net.bible.android.control.ApplicationComponent;
 import net.bible.android.control.DaggerApplicationComponent;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.view.util.locale.LocaleHelper;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.device.ProgressNotificationManager;
 import net.bible.service.device.ScreenSettings;
+import net.bible.service.device.speak.TextToSpeechNotificationManager;
 import net.bible.service.sword.SwordEnvironmentInitialisation;
 
 import org.crosswire.common.util.Language;
@@ -19,6 +24,8 @@ import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.bridge.BookIndexer;
 
 import java.util.List;
+import java.util.Locale;
+
 
 /** Main And Bible application singleton object
  * 
@@ -26,7 +33,7 @@ import java.util.List;
  * @see gnu.lgpl.License for license details.<br>
  *      The copyright to this program is held by it's author.
  */
-public class BibleApplication extends Application{
+public class BibleApplication extends MultiDexApplication {
 
 	private int errorDuringStartup = 0;
 
@@ -42,7 +49,9 @@ public class BibleApplication extends Application{
 	private static BibleApplication singleton;
 
 	private static final String TAG = "BibleApplication";
-	
+	private TextToSpeechNotificationManager ttsNotificationManager;
+	private SpeakWidgetManager ttsWidgetManager;
+
 	@Override
 	public void onCreate() {
 		super.onCreate();
@@ -78,6 +87,9 @@ public class BibleApplication extends Application{
 		getApplicationComponent().warmUp().warmUpSwordEventually();
 
 		localeOverrideAtStartup = LocaleHelper.getOverrideLanguage(this);
+
+		ttsNotificationManager = new TextToSpeechNotificationManager();
+		ttsWidgetManager = new SpeakWidgetManager();
 	}
 
 	public ApplicationComponent getApplicationComponent() {
@@ -197,11 +209,18 @@ public class BibleApplication extends Application{
 //			return true;
 //		}
 //	}
-	
+
+	/**
+	 * This is never called in real system (only in tests). See parent documentation.
+	 */
 	@Override
 	public void onTerminate() {
 		Log.i(TAG, "onTerminate");
+		ttsNotificationManager.destroy();
+		ttsWidgetManager.destroy();
 		super.onTerminate();
+		ABEventBus.getDefault().unregisterAll();
+		singleton = null;
 	}
 	
 	// difficult to show dialogs during Activity onCreate so save it until later
@@ -212,4 +231,12 @@ public class BibleApplication extends Application{
     public SharedPreferences getAppStateSharedPreferences() {
     	return getSharedPreferences(saveStateTag, 0);
     }
+
+	public Resources getLocalizedResources(String language) {
+		BibleApplication app = getApplication();
+		Configuration oldConf = app.getResources().getConfiguration();
+		Configuration newConf = new Configuration(oldConf);
+		newConf.setLocale(new Locale(language));
+		return app.createConfigurationContext(newConf).getResources();
+	}
 }

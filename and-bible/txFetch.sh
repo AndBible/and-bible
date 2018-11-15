@@ -6,3 +6,7 @@ tx pull
 echo Java uses some legacy language codes for Hebrew and Indonesian 
 cp app/src/main/res/values-he/strings.xml app/src/main/res/values-iw
 cp app/src/main/res/values-id/strings.xml app/src/main/res/values-in
+
+# Copy english trasnlations in place
+cp app/src/main/res/values-en_GB/strings.xml app/src/main/res/values-en
+

@@ -3,8 +3,7 @@ host = https://www.transifex.com
 
 [andbible.and-bible-stringsxml]
 file_filter = app/src/main/res/values-<lang>/strings.xml
-lang_map = az@latin: az
-lang_map = zh_TW: zh-rTW
+lang_map = az@latin: az, zh_TW: zh-rTW, en_GB: en
 source_file = app/src/main/res/values/strings.xml
 source_lang = en
 

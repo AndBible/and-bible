@@ -7,23 +7,25 @@ import net.bible.android.BibleApplication;
 import net.bible.android.activity.R;
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.bookmark.BookmarkStyle;
+import net.bible.android.control.speak.SpeakSettings;
 import net.bible.service.common.CommonUtils;
 import net.bible.service.common.Constants;
 import net.bible.service.common.Logger;
 import net.bible.service.common.ParseException;
 import net.bible.service.css.CssControl;
+import net.bible.service.device.speak.SpeakCommand;
+import net.bible.service.device.speak.SpeakCommandArray;
 import net.bible.service.font.FontControl;
 import net.bible.service.format.HtmlMessageFormatter;
 import net.bible.service.format.Note;
 import net.bible.service.format.OSISInputStream;
 import net.bible.service.format.SaxParserPool;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
-import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler;
-import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler;
-import net.bible.service.format.osistohtml.osishandlers.OsisToSpeakTextSaxHandler;
+import net.bible.service.format.osistohtml.osishandlers.*;
 import net.bible.service.format.usermarks.BookmarkFormatSupport;
 import net.bible.service.format.usermarks.MyNoteFormatSupport;
 
+import org.crosswire.common.xml.JDOMSAXEventProvider;
 import org.crosswire.common.xml.SAXEventProvider;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
@@ -36,6 +38,9 @@ import org.crosswire.jsword.book.basic.AbstractPassageBook;
 import org.crosswire.jsword.passage.Key;
 import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.NoSuchKeyException;
+import org.crosswire.jsword.passage.Verse;
+import org.jdom2.Document;
+import org.jdom2.Element;
 import org.xml.sax.ContentHandler;
 
 import java.io.InputStream;
@@ -220,6 +225,36 @@ public class SwordContentFacade {
     	}
     }
 
+	private ArrayList<SpeakCommand> getSpeakCommandsForVerse(SpeakSettings settings, Book book, Key key) {
+		try {
+			BookData data = new BookData(book, key);
+			Element frag = data.getOsisFragment(false);
+			Document doc = frag.getDocument();
+			if (doc == null) {
+				doc = new Document(frag);
+			}
+
+			SAXEventProvider osissep = new JDOMSAXEventProvider(doc);
+			ContentHandler osisHandler = new OsisToBibleSpeak(settings, book.getLanguage().getCode());
+			osissep.provideSAXEvents(osisHandler);
+			return ((OsisToBibleSpeak) osisHandler).getSpeakCommands();
+		} catch (Exception e) {
+			Log.e(TAG, "Error getting text from book" , e);
+			return new ArrayList<>();
+		}
+	}
+
+    public SpeakCommandArray getSpeakCommands(SpeakSettings settings, Book book, Verse verse) {
+		SpeakCommandArray lst = new SpeakCommandArray();
+		if (verse.getVerse() == 1) {
+			lst.addAll(getSpeakCommandsForVerse(settings, book,
+					new Verse(verse.getVersification(), verse.getBook(), verse.getChapter(), 0)));
+		}
+
+		lst.addAll(getSpeakCommandsForVerse(settings, book, verse));
+		return lst;
+    }
+
     /**
      * Get text to be spoken without any markup.
      * 
@@ -228,7 +263,7 @@ public class SwordContentFacade {
      * @param key
      *            a reference, appropriate for the book, of one or more entries
      */
-    public String getTextToSpeak(Book book, Key key) throws NoSuchKeyException, BookException, ParseException {
+    public String getTextToSpeak(Book book, Key key) {
     	try {
 			BookData data = new BookData(book, key);
 			SAXEventProvider osissep = data.getSAXEventProvider();

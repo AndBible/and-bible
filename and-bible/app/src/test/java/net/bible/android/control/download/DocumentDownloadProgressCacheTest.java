@@ -4,21 +4,21 @@ import android.app.Activity;
 import android.view.LayoutInflater;
 import android.widget.ProgressBar;
 
-import net.bible.android.activity.BuildConfig;
 import net.bible.android.activity.R;
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent;
 import net.bible.android.view.activity.download.DocumentDownloadListItem;
 import net.bible.service.download.FakeSwordBookFactory;
 
+import net.bible.test.DatabaseResetter;
 import org.crosswire.common.progress.JobManager;
 import org.crosswire.common.progress.Progress;
 import org.crosswire.jsword.book.Book;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
-import org.robolectric.annotation.Config;
 
 import robolectric.MyRobolectricTestRunner;
 
@@ -31,7 +31,6 @@ import static org.hamcrest.Matchers.is;
  * The copyright to this program is held by it's author.
  */
 @RunWith(MyRobolectricTestRunner.class)
-@Config(constants = BuildConfig.class)
 public class DocumentDownloadProgressCacheTest {
 
 	private DocumentDownloadProgressCache documentDownloadProgressCache;
@@ -56,6 +55,12 @@ public class DocumentDownloadProgressCacheTest {
 
 		Thread.sleep(10);
 		assertThat(eventReceiver.received, is(true));
+	}
+
+	@After
+	public void tearDown() {
+		ABEventBus.getDefault().unregisterAll();
+		DatabaseResetter.resetDatabase();
 	}
 
 	public static class EventReceiver {

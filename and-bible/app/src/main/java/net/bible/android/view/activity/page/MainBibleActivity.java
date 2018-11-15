@@ -7,9 +7,9 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v4.view.GestureDetectorCompat;
-import android.support.v7.view.ActionMode;
+import androidx.annotation.NonNull;
+import androidx.core.view.GestureDetectorCompat;
+import androidx.appcompat.view.ActionMode;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.KeyEvent;
@@ -25,6 +25,7 @@ import net.bible.android.activity.R;
 import net.bible.android.control.BibleContentManager;
 import net.bible.android.control.PassageChangeMediator;
 import net.bible.android.control.backup.BackupControl;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.document.DocumentControl;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.passage.PassageChangeStartedEvent;
@@ -47,7 +48,6 @@ import net.bible.service.device.ScreenSettings;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
 
 /** The main activity screen showing Bible text
  * 
@@ -119,7 +119,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		documentViewManager.buildView();
 
 		// register for passage change and appToBackground events
-		EventBus.getDefault().register(this);
+		ABEventBus.getDefault().register(this);
 
 		// force the screen to be populated
 		PassageChangeMediator.getInstance().forcePageUpdate();
@@ -138,10 +138,12 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 		}
 	}
 
+
+
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		EventBus.getDefault().unregister(this);
+		ABEventBus.getDefault().unregister(this);
 	}
 
 	@Override
@@ -183,6 +185,9 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 	public void onEvent(AppToBackgroundEvent event) {
 		if (event.isMovedToBackground()) {
 			mWholeAppWasInBackground = true;
+		}
+		else {
+			bibleActionBarManager.updateButtons();
 		}
 	}
 
@@ -263,7 +268,7 @@ public class MainBibleActivity extends CustomTitlebarActivityBase implements Ver
 			// restart done in above
 		} else if (mainMenuCommandHandler.isDisplayRefreshRequired(requestCode)) {
 			preferenceSettingsChanged();
-			EventBus.getDefault().post(new SynchronizeWindowsEvent());
+			ABEventBus.getDefault().post(new SynchronizeWindowsEvent());
 		} else if (mainMenuCommandHandler.isDocumentChanged(requestCode)) {
 			updateActionBarButtons();
 		}

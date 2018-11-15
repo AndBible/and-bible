@@ -14,8 +14,6 @@ import net.bible.android.view.util.widget.TwoLineListItem;
 
 import org.crosswire.jsword.book.Book;
 
-import de.greenrobot.event.EventBus;
-
 /** Add an image to the normal 2 line list item
  * 
  * @author Martin Denham [mjdenham at gmail dot com]
@@ -60,7 +58,7 @@ public class DocumentDownloadListItem extends TwoLineListItem {
 
 		// View is now detached, and about to be destroyed.
 		// de-register from EventBus
-		EventBus.getDefault().unregister(this);
+		ABEventBus.getDefault().unregister(this);
 	}
 
 	/**

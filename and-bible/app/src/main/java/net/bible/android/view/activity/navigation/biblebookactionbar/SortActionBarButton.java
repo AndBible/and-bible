@@ -1,6 +1,6 @@
 package net.bible.android.view.activity.navigation.biblebookactionbar;
 
-import android.support.v4.view.MenuItemCompat;
+import androidx.core.view.MenuItemCompat;
 
 import net.bible.android.control.ApplicationScope;
 import net.bible.android.control.navigation.NavigationControl;

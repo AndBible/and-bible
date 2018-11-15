@@ -120,6 +120,8 @@ public class VerseHandler implements OsisTagHandler {
 		// Do not show verse 0
 		StringBuilder verseHtml = new StringBuilder();
 		verseHtml.append(" <span class='").append(cssClasses).append("' id='").append(getVerseId(verseNo)).append("'>").append(getVerseNumberHtml(verseNo));
+		verseHtml.append("<span class='bookmark1'></span>");
+		verseHtml.append("<span class='bookmark2'></span>");
 		writer.write(verseHtml.toString());
 	}
 

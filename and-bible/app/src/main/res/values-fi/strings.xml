@@ -271,5 +271,52 @@
   <string name="error_page_too_large">Sivu on liian suuri ladattavaksi</string>
   <string name="error_key_not_in_document">Ei löytynyt teoksesta</string>
   <string name="empty_list">Ei näytettävää</string>
+
+  <string name="speak_book_changed">Kirja vaihtui. </string>
+  <string name="speak_chapter_changed">Luku</string>
+
+  <string name="speak_first">Ensimmäinen</string>
+  <string name="speak_second">Toinen</string>
+  <string name="speak_third">Kolmas</string>
+  <string name="speak_fourth">Neljäs</string>
+  <string name="speak_fifth">Viides</string>
+  <string name="speak_speed_title">Puhenopeus</string>
+  <string name="conf_speak_synchronize">Synkronoi teksti puheen kanssa</string>
+  <string name="conf_speak">Puhu</string>
+  <string name="conf_play_earcons">Soita äänimerkki</string>
+  <string name="conf_replace_divinename">Korvaa tetragrammi (Herra) sanalla Jahve</string>
+  <string name="conf_change_chapter">Luvun vaihtuminen</string>
+  <string name="conf_change_title">Otsikot</string>
+  <string name="notification_channel_tts_status">Puhesyntetisoinnin tila</string>
+  <string name="conf_sleep_timer">Aseta uniajastin</string>
+  <string name="sleep_timer_title">Uniajastimen aika minuuteissa</string>
+  <string name="sleep_timer_timer_set">Aseta uniajastin. Ajastin asetettu: %d minuuttia</string>
+  <string name="conf_playback_settings">Puheen asetukset</string>
+  <string name="conf_speak_settings">Yleiset puheen asetukset</string>
+  <string name="sleep_timer_started">Uniajastin aloitettu, %d minuuttia</string>
+  <string name="conf_speak_bookmarking_settings">Kirjanmerkkien asetukset</string>
+  <string name="speak_next">Seuraava</string>
+  <string name="speak_previous">Edellinen</string>
+  <string name="widget_toggle_sleep_timer">Kytke uniajastin</string>
+  <string-array name="divinename_original">
+    <item>Herraan</item>
+    <item>Herra</item>
+    <item>Jumala</item>
+    <item/>
+    <item/>
+  </string-array>
+  <string-array name="divinename_replace">
+    <item>Jahveen</item>
+    <item>Jahve</item>
+    <item>Jahve</item>
+    <item/>
+    <item/>
+  </string-array>
+
+  <string name="add_widget">Lisää widget</string>
+  <string name="download_documents">Ladataan dokumentteja</string>
+  <string name="bookmarkwidget_helptext">Puheen kirjanmerkkien pikapainikkeet tulevat tähän</string>
+  <string name="sleep_timer_active_at">Uniajastin: %s minuuttia jäljellä.</string>
+  <string name="speak_status_stopped">- pysäytetty -</string>
   <string name="notification_channel_progress_status">Taustaprosessien tilan ilmoitukset dokumenttien latauksille jne.</string>
 </resources>

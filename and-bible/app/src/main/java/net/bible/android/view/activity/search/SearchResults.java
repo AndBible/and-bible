@@ -138,7 +138,7 @@ public class SearchResults extends ListActivityBase {
     @Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
     	try {
-    		// no need to call HistoryManager.beforePageChange() here because PassageChangeMediator will tell HistoryManager a change is about to occur 
+    		// no need to call HistoryManager.addHistoryItem() here because PassageChangeMediator will tell HistoryManager a change is about to occur
     		
 	    	verseSelected(mCurrentlyDisplayedSearchResults.get(position));
 		} catch (Exception e) {

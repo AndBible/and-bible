@@ -2,6 +2,7 @@ package net.bible.android.control.page.window;
 
 import java.util.List;
 
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.apptobackground.AppToBackgroundEvent;
 import net.bible.android.control.event.passage.PassageChangedEvent;
 import net.bible.android.control.event.window.ScrollSecondaryWindowEvent;
@@ -18,8 +19,6 @@ import org.crosswire.jsword.passage.KeyUtil;
 import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.versification.Versification;
 
-import de.greenrobot.event.EventBus;
-
 public class WindowSync {
 
 	private boolean isFirstTimeInit = true;
@@ -35,7 +34,7 @@ public class WindowSync {
 		this.windowRepository = windowRepository;
 		
 		// register for passage change and fore/background events
-		EventBus.getDefault().register(this);
+		ABEventBus.getDefault().register(this);
 	}
 
 	public void onEvent(PassageChangedEvent event) {
@@ -54,21 +53,29 @@ public class WindowSync {
 		}
 	}
 
+	void synchronizeAllScreens() {
+		for (Window window : windowRepository.getVisibleWindows()) {
+			new UpdateInactiveScreenTextTask().execute(window);
+		}
+	}
+
 	/** Synchronise the inactive key and inactive screen with the active key and screen if required
 	 */
-	public void synchronizeScreens() {
-		Window activeWindow = windowRepository.getActiveWindow();
-		CurrentPage activePage = activeWindow.getPageManager().getCurrentPage();
+	public void synchronizeScreens(Window sourceWindow) {
+		if(sourceWindow == null) {
+			sourceWindow = windowRepository.getActiveWindow();
+		}
+		CurrentPage activePage = sourceWindow.getPageManager().getCurrentPage();
 		Key targetActiveWindowKey = activePage.getSingleKey();
 
-		List<Window> inactiveWindowList = windowRepository.getWindowsToSynchronise();
+		List<Window> inactiveWindowList = windowRepository.getWindowsToSynchronise(sourceWindow);
 		for (Window inactiveWindow : inactiveWindowList) {
 			CurrentPage inactivePage = inactiveWindow.getPageManager().getCurrentPage();
 			Key inactiveWindowKey = inactivePage.getSingleKey();
 			boolean inactiveUpdated = false;
 			boolean isTotalRefreshRequired = isFirstTimeInit ||	lastSynchWasInNightMode!=ScreenSettings.isNightMode() || screenPreferencesChanged || resynchRequired;
 	
-			if (isSynchronizableVerseKey(activePage) && activeWindow.isSynchronised() && inactiveWindow.isSynchronised()) {
+			if (isSynchronizableVerseKey(activePage) && sourceWindow.isSynchronised() && inactiveWindow.isSynchronised()) {
 				// inactive screen may not be displayed (e.g. if viewing a dict) but if switched to the key must be correct
 				// Only Bible and cmtry are synch'd and they share a Verse key
 				updateInactiveBibleKey(inactiveWindow, targetActiveWindowKey);
@@ -103,7 +110,11 @@ public class WindowSync {
 		resynchRequired = false;
 		isFirstTimeInit = false;
 	}
-	
+
+	public void synchronizeScreens() {
+		synchronizeScreens(null);
+	}
+
 	/** Only call if screens are synchronised.  Update synch'd keys even if inactive page not shown so if it is shown then it is correct
 	 */
 	private void updateInactiveBibleKey(Window inactiveWindow, Key activeWindowKey) {
@@ -136,7 +147,7 @@ public class WindowSync {
 			if (!forceRefresh && 
 					BookCategory.BIBLE.equals(inactivePage.getCurrentDocument().getBookCategory()) && 
 					currentVerse!=null && targetVerse!=null && targetV11n.isSameChapter(targetVerse, currentVerse)) {
-				EventBus.getDefault().post(new ScrollSecondaryWindowEvent(inactiveWindow, ChapterVerse.fromVerse(targetVerse)));
+				ABEventBus.getDefault().post(new ScrollSecondaryWindowEvent(inactiveWindow, ChapterVerse.fromVerse(targetVerse)));
 			} else if(isGeneralBook || isUnsynchronizedCommentary)
 			{
 				// Do not update! Updating would reset page position.
@@ -166,7 +177,7 @@ public class WindowSync {
         /** callback from base class when result is ready */
     	@Override
     	protected void showText(String text, Window window, ChapterVerse chapterVerse, float yOffsetRatio) {
-    		EventBus.getDefault().post(new UpdateSecondaryWindowEvent(window, text, chapterVerse));
+    		ABEventBus.getDefault().post(new UpdateSecondaryWindowEvent(window, text, chapterVerse));
         }
     }
 

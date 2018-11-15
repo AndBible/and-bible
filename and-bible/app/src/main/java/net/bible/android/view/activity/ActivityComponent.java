@@ -1,5 +1,6 @@
 package net.bible.android.view.activity;
 
+import net.bible.android.activity.SpeakWidgetManager;
 import net.bible.android.control.ApplicationComponent;
 import net.bible.android.view.activity.base.ActivityBase;
 import net.bible.android.view.activity.bookmark.BookmarkLabels;
@@ -26,9 +27,11 @@ import net.bible.android.view.activity.search.Search;
 import net.bible.android.view.activity.search.SearchIndex;
 import net.bible.android.view.activity.search.SearchIndexProgressStatus;
 import net.bible.android.view.activity.search.SearchResults;
-import net.bible.android.view.activity.speak.Speak;
+import net.bible.android.view.activity.speak.GeneralSpeakActivity;
+import net.bible.android.view.activity.speak.BibleSpeakActivity;
 
 import dagger.Component;
+import net.bible.service.device.speak.TextToSpeechNotificationManager;
 
 /**
  * Dagger Component to allow injection of dependencies into activities.
@@ -60,7 +63,8 @@ public interface ActivityComponent {
 	void inject(ChooseDocument chooseDocument);
 	void inject(Download download);
 
-	void inject(Speak speak);
+	void inject(GeneralSpeakActivity speak);
+	void inject(BibleSpeakActivity speakBible);
 	void inject(DailyReading dailyReading);
 	void inject(DailyReadingList dailyReadingList);
 	void inject(ReadingPlanSelectorList readingPlanSelectorList);
@@ -72,6 +76,10 @@ public interface ActivityComponent {
 	void inject(MyNotes myNotes);
 	void inject(History history);
 	void inject(Help help);
+
+	// Services
+	void inject(TextToSpeechNotificationManager m);
+	void inject(SpeakWidgetManager w);
 
 	// progress status screens
 	void inject(SearchIndexProgressStatus searchIndexProgressStatus);

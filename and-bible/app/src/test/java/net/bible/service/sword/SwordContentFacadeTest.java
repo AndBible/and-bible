@@ -1,7 +1,6 @@
 package net.bible.service.sword;
 
 import net.bible.android.TestBibleApplication;
-import net.bible.android.activity.BuildConfig;
 import net.bible.service.format.usermarks.BookmarkFormatSupport;
 import net.bible.service.format.usermarks.MyNoteFormatSupport;
 import net.bible.test.DatabaseResetter;
@@ -25,7 +24,7 @@ import static org.hamcrest.core.IsNot.not;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MyRobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, application = TestBibleApplication.class)
+@Config(application = TestBibleApplication.class)
 public class SwordContentFacadeTest {
 
 	private SwordContentFacade swordContentFacade;

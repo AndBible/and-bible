@@ -25,13 +25,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.annotation.Config;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import robolectric.MyRobolectricTestRunner;
 
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.collection.IsIterableContainingInOrder.contains;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertEquals;
@@ -190,7 +188,7 @@ public class BookmarkControlTest {
 		final VerseRange verseRange = new VerseRange(KJV_VERSIFICATION, new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 2), new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 5));
 		newBookmarkDto.setVerseRange(verseRange);
 
-		BookmarkDto newDto = bookmarkControl.addBookmark(newBookmarkDto);
+		BookmarkDto newDto = bookmarkControl.addOrUpdateBookmark(newBookmarkDto);
 
 		assertThat(newDto.getVerseRange(), equalTo(verseRange));
 
@@ -203,7 +201,7 @@ public class BookmarkControlTest {
 		final VerseRange verseRange = new VerseRange(KJV_VERSIFICATION, new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10));
 		newBookmarkDto.setVerseRange(verseRange);
 
-		bookmarkControl.addBookmark(newBookmarkDto);
+		bookmarkControl.addOrUpdateBookmark(newBookmarkDto);
 
 		Verse startVerse = new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10);
 		assertThat(bookmarkControl.isBookmarkForKey(startVerse), equalTo(true));
@@ -232,14 +230,102 @@ public class BookmarkControlTest {
 		addBookmark("ps.17.11");
 
 		// check only bookmark in range is returned
-		final Map<Integer, List<BookmarkStyle>> versesWithBookmarksInPassage = bookmarkFormatSupport.getVerseBookmarkStylesInPassage(passage);
+		final Map<Integer, Set<BookmarkStyle>> versesWithBookmarksInPassage = bookmarkFormatSupport.getVerseBookmarkStylesInPassage(passage);
 
 		MatcherAssert.assertThat(versesWithBookmarksInPassage.size(), equalTo(3));
 		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(1), contains(BookmarkStyle.GREEN_HIGHLIGHT));
 		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(2), contains(BookmarkStyle.GREEN_HIGHLIGHT));
-		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(10), Matchers.<BookmarkStyle>empty());
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(10), contains(BookmarkStyle.YELLOW_STAR)); // default bookmark style
 	}
 
+	@Test
+	public void testManyBookmarksInOneVerse() throws Exception {
+		final VerseRange passage = new VerseRange(KJV_VERSIFICATION, new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 1), new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10));
+
+		// add bookmark in range
+		final BookmarkDto bookmarkDto = addBookmark("ps.17.1-ps.17.2");
+		final BookmarkDto bookmarkDto2 = addBookmark("ps.17.2-ps.17.2");
+
+		LabelDto greenLabelDto = new LabelDto();
+		greenLabelDto.setName("G");
+		greenLabelDto.setBookmarkStyle(BookmarkStyle.GREEN_HIGHLIGHT);
+		greenLabelDto = bookmarkControl.saveOrUpdateLabel(greenLabelDto);
+
+		LabelDto stargLabelDto = new LabelDto();
+		stargLabelDto.setName("S");
+		stargLabelDto.setBookmarkStyle(BookmarkStyle.YELLOW_STAR);
+		stargLabelDto = bookmarkControl.saveOrUpdateLabel(stargLabelDto);
+
+		bookmarkControl.setBookmarkLabels(bookmarkDto, Collections.singletonList(greenLabelDto));
+		bookmarkControl.setBookmarkLabels(bookmarkDto2, Collections.singletonList(stargLabelDto));
+
+		// check only bookmark in range is returned
+		final Map<Integer, Set<BookmarkStyle>> versesWithBookmarksInPassage = bookmarkFormatSupport.getVerseBookmarkStylesInPassage(passage);
+
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.size(), equalTo(2));
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(1), hasItem(BookmarkStyle.GREEN_HIGHLIGHT));
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(1).size(), equalTo(1));
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(2), hasItem(BookmarkStyle.GREEN_HIGHLIGHT));
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(2), hasItem(BookmarkStyle.YELLOW_STAR));
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(2).size(), equalTo(2));
+	}
+	@Test
+	public void testManyBookmarksInOneVerse2() throws Exception {
+		final VerseRange passage = new VerseRange(KJV_VERSIFICATION, new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 1), new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10));
+
+		// add bookmark in range
+		final BookmarkDto bookmarkDto = addBookmark("ps.17.2-ps.17.2");
+		final BookmarkDto bookmarkDto2 = addBookmark("ps.17.1-ps.17.2");
+
+		LabelDto label1 = new LabelDto();
+		label1.setName("S");
+		label1.setBookmarkStyle(BookmarkStyle.YELLOW_STAR);
+		label1 = bookmarkControl.saveOrUpdateLabel(label1);
+
+		LabelDto label2 = new LabelDto();
+		label2.setName("G");
+		label2.setBookmarkStyle(BookmarkStyle.GREEN_HIGHLIGHT);
+		label2 = bookmarkControl.saveOrUpdateLabel(label2);
+
+		bookmarkControl.setBookmarkLabels(bookmarkDto, Collections.singletonList(label1));
+		bookmarkControl.setBookmarkLabels(bookmarkDto2, Collections.singletonList(label2));
+
+		// check only bookmark in range is returned
+		final Map<Integer, Set<BookmarkStyle>> versesWithBookmarksInPassage = bookmarkFormatSupport.getVerseBookmarkStylesInPassage(passage);
+
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.size(), equalTo(2));
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(1), hasItem(BookmarkStyle.GREEN_HIGHLIGHT));
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(1).size(), equalTo(1));
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(2), hasItem(BookmarkStyle.GREEN_HIGHLIGHT));
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(2), hasItem(BookmarkStyle.YELLOW_STAR));
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(2).size(), equalTo(2));
+	}
+
+	@Test
+	public void testManyBookmarksInOneVerse3() throws Exception {
+		final VerseRange passage = new VerseRange(KJV_VERSIFICATION, new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 1), new Verse(KJV_VERSIFICATION, BibleBook.PS, 17, 10));
+
+		// add bookmark in range
+		final BookmarkDto bookmarkDto = addBookmark("ps.17.2-ps.17.2");
+		final BookmarkDto bookmarkDto2 = addBookmark("ps.17.1-ps.17.2");
+
+		LabelDto label2 = new LabelDto();
+		label2.setName("G");
+		label2.setBookmarkStyle(BookmarkStyle.GREEN_HIGHLIGHT);
+		label2 = bookmarkControl.saveOrUpdateLabel(label2);
+
+		bookmarkControl.setBookmarkLabels(bookmarkDto2, Collections.singletonList(label2));
+
+		// check only bookmark in range is returned
+		final Map<Integer, Set<BookmarkStyle>> versesWithBookmarksInPassage = bookmarkFormatSupport.getVerseBookmarkStylesInPassage(passage);
+
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.size(), equalTo(2));
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(1), hasItem(BookmarkStyle.GREEN_HIGHLIGHT));
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(1).size(), equalTo(1));
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(2), hasItem(BookmarkStyle.GREEN_HIGHLIGHT));
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(2), hasItem(BookmarkStyle.YELLOW_STAR));
+		MatcherAssert.assertThat(versesWithBookmarksInPassage.get(2).size(), equalTo(2));
+	}
 
 	private BookmarkDto addTestVerse() {
 		try {
@@ -255,7 +341,7 @@ public class BookmarkControlTest {
 	private BookmarkDto addBookmark(String verse) throws NoSuchVerseException {
 		BookmarkDto bookmark = new BookmarkDto();
 		bookmark.setVerseRange(VerseRangeFactory.fromString(KJV_VERSIFICATION, verse));
-		return bookmarkControl.addBookmark(bookmark);
+		return bookmarkControl.addOrUpdateBookmark(bookmark);
 	}
 
 	private LabelDto addTestLabel() {

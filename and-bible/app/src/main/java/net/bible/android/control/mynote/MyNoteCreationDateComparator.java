@@ -1,6 +1,6 @@
 package net.bible.android.control.mynote;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import net.bible.service.db.mynote.MyNoteDto;
 

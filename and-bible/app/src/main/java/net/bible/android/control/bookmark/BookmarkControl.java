@@ -2,18 +2,19 @@ package net.bible.android.control.bookmark;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.design.widget.Snackbar;
+import com.google.android.material.snackbar.Snackbar;
 import android.util.Log;
 import android.view.View;
 
-import de.greenrobot.event.EventBus;
 import net.bible.android.activity.R;
 import net.bible.android.common.resource.ResourceProvider;
 import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.passage.SynchronizeWindowsEvent;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
+import net.bible.android.control.speak.PlaybackSettings;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.Dialogs;
 import net.bible.android.view.activity.base.IntentHelper;
@@ -24,9 +25,13 @@ import net.bible.service.db.bookmark.BookmarkDto;
 import net.bible.service.db.bookmark.LabelDto;
 import net.bible.service.sword.SwordContentFacade;
 
+import org.crosswire.jsword.book.BookCategory;
 import org.crosswire.jsword.passage.Key;
+import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.Versification;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -67,6 +72,26 @@ public class BookmarkControl {
 		LABEL_UNLABELLED = new LabelDto(-998L, resourceProvider.getString(R.string.label_unlabelled), null);
 	}
 
+	public void updateBookmarkSettings(PlaybackSettings settings) {
+		if(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().getBookCategory().equals(BookCategory.BIBLE)) {
+			updateBookmarkSettings(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getSingleKey(), settings);
+		}
+	}
+
+	private void updateBookmarkSettings(Key key, PlaybackSettings settings) {
+		Verse v = (Verse) key;
+		if(v.getVerse() == 0) {
+			v = new Verse(v.getVersification(), v.getBook(), v.getChapter(), 1);
+		}
+		BookmarkDto bookmarkDto = getBookmarkByKey(v);
+
+		if(bookmarkDto != null && bookmarkDto.getPlaybackSettings() != null) {
+			bookmarkDto.setPlaybackSettings(settings);
+			addOrUpdateBookmark(bookmarkDto);
+			Log.d("SpeakBookmark", "Updated bookmark settings "+bookmarkDto + settings.getSpeed());
+		}
+	}
+
 	public boolean addBookmarkForVerseRange(VerseRange verseRange) {
 		boolean bOk = false;
 		if (isCurrentDocumentBookmarkable()) {
@@ -81,7 +106,7 @@ public class BookmarkControl {
 				// prepare new bookmark and add to db
 				bookmarkDto = new BookmarkDto();
 				bookmarkDto.setVerseRange(verseRange);
-				bookmarkDto = addBookmark(bookmarkDto);
+				bookmarkDto = addOrUpdateBookmark(bookmarkDto);
 
 				success = bookmarkDto != null;
 				message = R.string.bookmark_added;
@@ -107,7 +132,7 @@ public class BookmarkControl {
 				Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
 			}
 		}
-		EventBus.getDefault().post(new SynchronizeWindowsEvent());
+		ABEventBus.getDefault().post(new SynchronizeWindowsEvent());
 		return bOk;
 	}
 
@@ -126,7 +151,7 @@ public class BookmarkControl {
 				}
 			}
 		}
-		EventBus.getDefault().post(new SynchronizeWindowsEvent());
+		ABEventBus.getDefault().post(new SynchronizeWindowsEvent());
 		return bOk;
 	}
 
@@ -184,15 +209,16 @@ public class BookmarkControl {
 	}
 
 	/** create a new bookmark */
-	public BookmarkDto addBookmark(BookmarkDto bookmark) {
+	public BookmarkDto addOrUpdateBookmark(BookmarkDto bookmark) {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		BookmarkDto newBookmark = null;
 		try {
 			db.open();
-			newBookmark = db.insertBookmark(bookmark);
+			newBookmark = db.insertOrUpdateBookmark(bookmark);
 		} finally {
 			db.close();
 		}
+		ABEventBus.getDefault().post(new SynchronizeWindowsEvent());
 		return newBookmark;
 	}
 
@@ -233,12 +259,19 @@ public class BookmarkControl {
 	}
 
 	/** get bookmark with the same start verse as this key if it exists or return null */
-	private BookmarkDto getBookmarkByKey(Key key) {
+	@Nullable
+	public BookmarkDto getBookmarkByKey(Key key) {
+		return getBookmarkByOsisRef(key.getOsisRef());
+	}
+
+	/** get bookmark with the same start verse as this key if it exists or return null */
+	@Nullable
+	public BookmarkDto getBookmarkByOsisRef(String osisRef) {
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
 		BookmarkDto bookmark = null;
 		try {
 			db.open();
-			bookmark = db.getBookmarkByStartKey(key.getOsisRef());
+			bookmark = db.getBookmarkByStartKey(osisRef);
 		} finally {
 			db.close();
 		}
@@ -258,6 +291,7 @@ public class BookmarkControl {
 				db.close();
 			}
 		}
+		ABEventBus.getDefault().post(new SynchronizeWindowsEvent());
 		return bOk;
 	}
 
@@ -286,7 +320,12 @@ public class BookmarkControl {
 
 
 	/** get bookmarks associated labels */
+	@NotNull
 	public List<LabelDto> getBookmarkLabels(BookmarkDto bookmark) {
+		if(bookmark == null) {
+			return new ArrayList<>();
+		}
+
 		List<LabelDto> labels;
 
 		BookmarkDBAdapter db = new BookmarkDBAdapter();
@@ -327,6 +366,7 @@ public class BookmarkControl {
 		} finally {
 			db.close();
 		}
+		ABEventBus.getDefault().post(new SynchronizeWindowsEvent(true));
 	}
 
 	public LabelDto saveOrUpdateLabel(LabelDto label) {
@@ -441,5 +481,19 @@ public class BookmarkControl {
 		final Intent intent = new Intent(currentActivity, BookmarkLabels.class);
 		intent.putExtra(BOOKMARK_IDS_EXTRA, new long[] {bookmarkDto.getId()});
 		currentActivity.startActivityForResult(intent, IntentHelper.REFRESH_DISPLAY_ON_FINISH);
+	}
+
+	@NotNull
+	public LabelDto getOrCreateSpeakLabel() {
+		BookmarkDBAdapter db = new BookmarkDBAdapter();
+		LabelDto label;
+		try {
+			db.open();
+			label = db.getOrCreateSpeakLabel();
+		} finally {
+			db.close();
+		}
+
+		return label;
 	}
 }

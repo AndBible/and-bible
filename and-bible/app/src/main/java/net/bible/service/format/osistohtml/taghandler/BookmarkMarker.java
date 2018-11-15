@@ -4,11 +4,7 @@ import net.bible.android.control.bookmark.BookmarkStyle;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.VerseInfo;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /** Display an img if the current verse has MyNote
  * 
@@ -18,7 +14,7 @@ import java.util.Map;
  */
 public class BookmarkMarker {
 
-	private Map<Integer, List<BookmarkStyle>> bookmarkStylesByBookmarkedVerse = new HashMap<>();
+	private Map<Integer, Set<BookmarkStyle>> bookmarkStylesByBookmarkedVerse = new HashMap<>();
 	
 	private OsisToHtmlParameters parameters;
 	
@@ -40,18 +36,14 @@ public class BookmarkMarker {
 	public List<String> getBookmarkClasses() {
 		if (bookmarkStylesByBookmarkedVerse !=null && parameters.isShowBookmarks()) {
 			if (bookmarkStylesByBookmarkedVerse.containsKey(verseInfo.currentVerseNo)) {
-				final List<BookmarkStyle> bookmarkStyles = bookmarkStylesByBookmarkedVerse.get(verseInfo.currentVerseNo);
-				if (bookmarkStyles==null || bookmarkStyles.isEmpty()) {
-					return Collections.singletonList(parameters.getDefaultBookmarkStyle().name());
-				} else {
-					return getStyleNames(bookmarkStyles);
-				}
+				final Set<BookmarkStyle> bookmarkStyles = bookmarkStylesByBookmarkedVerse.get(verseInfo.currentVerseNo);
+				return getStyleNames(bookmarkStyles);
 			}
 		}
 		return Collections.emptyList();
 	}
 
-	private List<String> getStyleNames(List<BookmarkStyle> bookmarkStyles) {
+	private List<String> getStyleNames(Set<BookmarkStyle> bookmarkStyles) {
 		List<String> styleNames = new ArrayList<>();
 		for (BookmarkStyle bookmarkStyle : bookmarkStyles) {
 			styleNames.add(bookmarkStyle.name());
