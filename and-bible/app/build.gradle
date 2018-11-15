@@ -78,7 +78,7 @@ dependencies {
     annotationProcessor 'com.google.dagger:dagger-compiler:2.16'
     kapt 'com.google.dagger:dagger-compiler:2.16'
 
-    implementation 'de.greenrobot:eventbus:2.4.0'
+    implementation 'de.greenrobot:eventbus:2.4.1'
 
     // JSword requirements (see ivy.xml in jsword-tweaks)
     implementation 'org.apache.commons:commons-compress:1.12' // Note: versions > 1.12 will fail with Android Nougat and older.
