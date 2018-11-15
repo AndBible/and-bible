@@ -1,7 +1,6 @@
 package net.bible.android.control.page.window;
 
 import net.bible.android.TestBibleApplication;
-import net.bible.android.activity.BuildConfig;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.WindowLayout.WindowState;

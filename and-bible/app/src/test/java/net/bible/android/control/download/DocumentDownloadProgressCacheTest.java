@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.view.LayoutInflater;
 import android.widget.ProgressBar;
 
-import net.bible.android.activity.BuildConfig;
 import net.bible.android.activity.R;
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.documentdownload.DocumentDownloadEvent;
@@ -20,7 +19,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.Robolectric;
-import org.robolectric.annotation.Config;
 
 import robolectric.MyRobolectricTestRunner;
 

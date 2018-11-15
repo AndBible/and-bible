@@ -5,7 +5,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import net.bible.android.TestBibleApplication;
-import net.bible.android.activity.BuildConfig;
 import net.bible.android.activity.R;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;

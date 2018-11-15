@@ -1,7 +1,6 @@
 package net.bible.service.sword;
 
 import net.bible.android.TestBibleApplication;
-import net.bible.android.activity.BuildConfig;
 import net.bible.service.download.FakeSwordBookFactory;
 
 import org.crosswire.jsword.book.Book;

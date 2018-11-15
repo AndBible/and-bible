@@ -1,7 +1,6 @@
 package net.bible.service.download
 
 import net.bible.android.TestBibleApplication
-import net.bible.android.activity.BuildConfig
 import org.crosswire.jsword.book.Books
 import org.crosswire.jsword.book.install.InstallException
 import org.hamcrest.Matchers.*

@@ -1,9 +1,7 @@
 package net.bible.service.device.speak
 
-import edu.emory.mathcs.backport.java.util.Collections
 import kotlinx.android.synthetic.main.speak_bible.*
 import net.bible.android.TestBibleApplication
-import net.bible.android.activity.BuildConfig
 import net.bible.android.common.resource.AndroidResourceProvider
 import net.bible.android.control.bookmark.BookmarkControl
 import net.bible.android.control.navigation.DocumentBibleBooksFactory
@@ -33,7 +31,6 @@ import org.robolectric.annotation.Config
 import org.hamcrest.Matchers.*
 import org.hamcrest.MatcherAssert.*
 import org.junit.After
-import org.junit.Ignore
 import org.mockito.Mockito.mock
 import org.robolectric.Robolectric
 import org.robolectric.android.controller.ActivityController
