@@ -298,18 +298,19 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="sleep_timer_active_at">Sleep timer: %s minutes left.</string>
     <string name="speak_status_stopped">- stopped - </string>
     <string name="speak_bookmark_help">Speak bookmark help</string>
-    <string name="speak_bookmark_help_message"><b>Automatic bookmarking</b>
-        \nAuto add bookmark when pausing and stopping. Automatically generated bookmarks are
+    <string name="speak_help_auto_bookmark">
+        Auto add bookmark when pausing and stopping. Automatically generated bookmarks are
         labelled with special Speak label. If you start on Speak-labeled bookmark, bookmark will
         be moved to the new verse location when you stop / pause next time. If there is Speak label
         and also other labels on bookmark, only Speak label will be removed and bookmark will stay.
-        \n
-        \n<b>Save playback settings to bookmarks</b>
-        \nThere are three <i>playback settings</i>: Speak (chapter changes / titles),
+    </string>
+    <string name="speak_help_playback_settings">
+        There are three playback settings: Speak (chapter changes / titles),
         Play earcon sounds for (chapter changes / titles) and Speak speed.
         If this option is enabled, those settings are saved to Speak bookmarks.
-        \n
-        \n<i>Usage example:</i> Let us say that you want to listen to Genesis and Romans. You want to listen to
+    </string>
+    <string name="speak_help_playback_settings_example">
+        Usage example: Let us say that you want to listen to Genesis and Romans. You want to listen to
         Genesis with speak speed 150%, and without interruptions between chapters, but when listening to
         Romans you want to have 90% speak speed and hear audible earcon sound when chapter changes. You can have
         independent playback settings for these books, when these settings are stored to bookmarks.

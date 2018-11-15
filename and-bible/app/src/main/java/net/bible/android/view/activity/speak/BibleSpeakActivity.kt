@@ -2,7 +2,9 @@ package net.bible.android.view.activity.speak
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.text.Html
 import androidx.appcompat.app.AlertDialog
 import android.util.Log
 import android.view.View
@@ -150,8 +152,22 @@ class BibleSpeakActivity : AbstractSpeakActivity() {
     }
 
     fun onHelpButtonClick(button: View) {
+        val htmlMessage = ("<b>${getString(R.string.conf_speak_auto_bookmark)}</b><br><br>"
+                + getString(R.string.speak_help_auto_bookmark)
+                + "<br><br><b>${getString(R.string.restore_settings_from_bookmarks)}</b><br><br>"
+                + getString(R.string.speak_help_playback_settings)
+                + "<br><br>"
+                + getString(R.string.speak_help_playback_settings_example)
+                )
+
+        val spanned = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Html.fromHtml(htmlMessage, Html.FROM_HTML_MODE_LEGACY)
+        } else {
+            Html.fromHtml(htmlMessage)
+        }
+
         AlertDialog.Builder(this)
-                .setMessage(R.string.speak_bookmark_help_message)
+                .setMessage(spanned)
                 .setPositiveButton(android.R.string.ok) { _, _ ->  }
                 .show()
     }
