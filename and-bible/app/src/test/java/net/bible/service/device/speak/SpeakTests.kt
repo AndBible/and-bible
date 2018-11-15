@@ -353,10 +353,9 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         assertThat(cmds.size, equalTo(4))
     }
 
-    @Ignore("This bible module is not yet released")
     @Test
     fun testTitle2STLK() {
-        book = Books.installed().getBook("FinSTLK") as SwordBook
+        book = Books.installed().getBook("FinSTLK2017") as SwordBook
         val cmds = SpeakCommandArray()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Jer.11.1")))
         assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
@@ -367,10 +366,9 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         assertThat(cmds.size, equalTo(4))
     }
 
-    @Ignore("This bible module is not yet released")
     @Test
     fun testTitleSTLK() {
-        book = Books.installed().getBook("FinSTLK") as SwordBook
+        book = Books.installed().getBook("FinSTLK2017") as SwordBook
         val cmds = SpeakCommandArray()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.1")))
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.2")))
@@ -405,10 +403,9 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         assertThat(cmds.size, equalTo(3))
     }
 
-    @Ignore("This bible module is not yet released")
     @Test
     fun testParagraphChangeSTLK() {
-        book = Books.installed().getBook("FinSTLK") as SwordBook
+        book = Books.installed().getBook("FinSTLK2017") as SwordBook
         val cmds = SpeakCommandArray()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.25")))
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Rom.1.26")))
@@ -418,10 +415,9 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         assertThat(cmds.size, equalTo(3))
     }
 
-    @Ignore("This bible module is not yet released")
     @Test
     fun testQuotationMarkAnomalySTLK() {
-        book = Books.installed().getBook("FinSTLK") as SwordBook
+        book = Books.installed().getBook("FinSTLK2017") as SwordBook
         provider = BibleSpeakTextProvider(swordContentFacade, bibleTraverser, bookmarkControl, book, getVerse("Ps.14.1"))
         provider.setupReading(book, getVerse("Exod.31.8"))
         val cmd = provider.getNextSpeakCommand("id-1") as TextCommand
@@ -436,11 +432,10 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         assertThat(cmd2.text, endsWith("pyhitän teidät."))
     }
 
-    @Ignore("This bible module is not yet released")
     @Test
     fun testDivinenameInTitle() {
         val s = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), replaceDivineName = true)
-        book = Books.installed().getBook("FinSTLK") as SwordBook
+        book = Books.installed().getBook("FinSTLK2017") as SwordBook
         val cmds = SpeakCommandArray()
         cmds.addAll(swordContentFacade.getSpeakCommands(s, book, getVerse("Exod.19.1")))
         assertThat("Command is of correct type", cmds[0] is PreTitleCommand)
@@ -450,11 +445,10 @@ open class OsisToBibleSpeakTests : AbstractSpeakTests() {
         assertThat("Command is of correct type", cmds[3] is TextCommand)
     }
 
-    @Ignore("This bible module is not yet released")
     @Test
     fun testDivinenameInText() {
         val s = SpeakSettings(synchronize = false, playbackSettings = PlaybackSettings(speakChapterChanges = true, speakTitles = true), replaceDivineName = true)
-        book = Books.installed().getBook("FinSTLK") as SwordBook
+        book = Books.installed().getBook("FinSTLK2017") as SwordBook
 
         val cmds = swordContentFacade.getSpeakCommands(s, book, getVerse("Exod.19.3"))
         assertThat((cmds[0] as TextCommand).text, containsString("ja Jahve huusi"))
@@ -877,10 +871,9 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text, endsWith("tekee hyvää."))
     }
 
-    @Ignore("This bible module is not yet released")
     @Test
     fun textProgression2STLK() {
-        book = Books.installed().getBook("FinSTLK") as SwordBook
+        book = Books.installed().getBook("FinSTLK2017") as SwordBook
         provider.setupReading(book, getVerse("Ezra.4.8"))
 
         val text1 = nextText()
@@ -894,10 +887,9 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(range2, equalTo("Ezra.4.9-Ezra.4.10"))
     }
 
-    @Ignore("This bible module is not yet released")
     @Test
     fun textProgression3STLK() {
-        book = Books.installed().getBook("FinSTLK") as SwordBook
+        book = Books.installed().getBook("FinSTLK2017") as SwordBook
         provider.settings = SpeakSettings(replaceDivineName = true)
         provider.setupReading(book, getVerse("Ezek.34.27"))
 
@@ -909,10 +901,9 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(range1, equalTo("Ezek.34.27"))
     }
 
-    @Ignore("This bible module is not yet released")
     @Test
     fun textProgression4STLK() {
-        book = Books.installed().getBook("FinSTLK") as SwordBook
+        book = Books.installed().getBook("FinSTLK2017") as SwordBook
         provider.settings = SpeakSettings(replaceDivineName = true)
         provider.setupReading(book, getVerse("Ezek.35.1"))
         nextText() // title
@@ -921,10 +912,9 @@ class SpeakWithContinueSentences : AbstractSpeakTests() {
         assertThat(text1, endsWith("autioksi ja hävitetyksi."))
     }
 
-    @Ignore("This bible module is not yet released")
     @Test
     fun textProgression5STLK() {
-        book = Books.installed().getBook("FinSTLK") as SwordBook
+        book = Books.installed().getBook("FinSTLK2017") as SwordBook
         provider.settings = SpeakSettings(replaceDivineName = true)
         provider.setupReading(book, getVerse("Ezek.35.4"))
         val text1 = nextText()

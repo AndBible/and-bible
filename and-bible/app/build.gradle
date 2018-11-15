@@ -96,6 +96,7 @@ dependencies {
     // allow annotations like UIThread, StringRes see: https://developer.android.com/reference/android/support/annotation/package-summary.html
     implementation 'androidx.annotation:annotation:1.0.0'
 
+    testImplementation "org.robolectric:shadows-multidex:4.0.2"
     testImplementation 'org.apache.httpcomponents:httpclient:4.3.2'
 
     testImplementation 'org.hamcrest:hamcrest-library:1.3'
