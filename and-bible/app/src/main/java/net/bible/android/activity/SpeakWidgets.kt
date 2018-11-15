@@ -27,18 +27,23 @@ import net.bible.service.device.speak.event.SpeakEvent
 import net.bible.service.device.speak.event.SpeakProgressEvent
 import javax.inject.Inject
 
-private data class WidgetOptions(val statusFlags: Int = FLAG_SHOW_ALL, val showTitle: Boolean = true, val showText: Boolean = false)
 
+/**
+ * This is singleton manager class which
+ * - takes care of updating widgets when they need to change (via EventBus)
+ * - receives events from widgets and acts accordingly
+ */
 class SpeakWidgetManager {
     companion object {
         var instance: SpeakWidgetManager? = null
         const val TAG = "SpeakWidget"
 
-        private val widgetOptions = mapOf(
-                SpeakWidget1::class to WidgetOptions(0, false),
-                SpeakWidget2::class to WidgetOptions(FLAG_SHOW_PERCENT, true),
-                SpeakWidget3::class to WidgetOptions(FLAG_SHOW_ALL, true),
-                SpeakWidget4::class to WidgetOptions(0, true, true))
+        private val widgetClasses = listOf(
+                SmallSpeakControlWidget::class,
+                MiddleSpeakControlWidget::class,
+                LargeSpeakControlWidget::class,
+                SpeakTextControlWidget::class
+        )
     }
 
     @Inject lateinit var speakControl: SpeakControl
@@ -110,7 +115,8 @@ class SpeakWidgetManager {
         views.setTextViewText(R.id.titleText, currentTitle)
 
         val manager = AppWidgetManager.getInstance(app.applicationContext)
-        for((cls, wOptions) in widgetOptions) {
+        for(cls in widgetClasses) {
+            val wOptions = cls.annotations.find { it is WidgetOptions } as WidgetOptions
             var statusText = speakControl.getStatusText(wOptions.statusFlags)
             if(wOptions.showText) {
                 statusText += ": $currentText"
@@ -132,7 +138,7 @@ class SpeakWidgetManager {
 
     private fun partialUpdateWidgets(views: RemoteViews) {
         val manager = AppWidgetManager.getInstance(app.applicationContext)
-        for((cls, widgetOptions) in widgetOptions) {
+        for(cls in widgetClasses) {
             for (id in manager.getAppWidgetIds(ComponentName(app, cls.java))) {
                 manager.partiallyUpdateAppWidget(id, views)
             }
@@ -254,7 +260,7 @@ class SpeakWidgetManager {
                     setupButton(b, buttonId, if (buttons.contains(b)) View.VISIBLE else View.GONE)
                 }
             }
-            val wOptions = widgetOptions.get(this::class) as WidgetOptions
+            val wOptions = this::class.annotations.find {it is WidgetOptions} as WidgetOptions
             if(!wOptions.showTitle) {
                 views.setViewVisibility(R.id.titleText, View.GONE)
             }
@@ -322,19 +328,26 @@ class SpeakWidgetManager {
         }
     }
 
-    class SpeakWidget1 : AbstractButtonSpeakWidget() {
+    @Target(AnnotationTarget.CLASS)
+    annotation class WidgetOptions(val statusFlags: Int = FLAG_SHOW_ALL, val showTitle: Boolean = true, val showText: Boolean = false)
+
+    @WidgetOptions(0, false)
+    class SmallSpeakControlWidget : AbstractButtonSpeakWidget() {
         override val buttons: List<String> = listOf(ACTION_REWIND, ACTION_SPEAK)
     }
 
-    class SpeakWidget2 : AbstractButtonSpeakWidget() {
+    @WidgetOptions(FLAG_SHOW_PERCENT, true)
+    class MiddleSpeakControlWidget : AbstractButtonSpeakWidget() {
         override val buttons: List<String> = listOf(ACTION_FAST_FORWARD, ACTION_REWIND, ACTION_SPEAK, ACTION_STOP, ACTION_SLEEP_TIMER)
     }
 
-    class SpeakWidget3 : AbstractButtonSpeakWidget() {
+    @WidgetOptions(FLAG_SHOW_ALL, true)
+    class LargeSpeakControlWidget : AbstractButtonSpeakWidget() {
         override val buttons: List<String> = listOf(ACTION_FAST_FORWARD, ACTION_NEXT, ACTION_PREV, ACTION_REWIND, ACTION_SPEAK, ACTION_STOP, ACTION_SLEEP_TIMER)
     }
 
-    class SpeakWidget4 : AbstractButtonSpeakWidget() {
+    @WidgetOptions(0, true, true)
+    class SpeakTextControlWidget : AbstractButtonSpeakWidget() {
         override val buttons: List<String> = listOf(ACTION_PREV, ACTION_NEXT, ACTION_SPEAK, ACTION_STOP)
     }
 }
