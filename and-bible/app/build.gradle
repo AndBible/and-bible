@@ -52,7 +52,6 @@ android {
     packagingOptions {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE.txt'
-        //exclude 'androidsupportmultidexversion.txt'
     }
 }
 
@@ -63,7 +62,6 @@ dependencies {
     implementation 'com.google.android.material:material:1.1.0-alpha01'
     
     // To support Android 4.4
-    //implementation 'com.android.support:multidex:1.0.3'
     implementation 'androidx.multidex:multidex:2.0.0'
     
     // We are using our custom-built jsword.jar (see jsword-tweaks folder)
