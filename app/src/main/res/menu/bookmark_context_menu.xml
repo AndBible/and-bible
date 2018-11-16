@@ -6,16 +6,16 @@
       The copyright to this program is held by it's author.
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-	  xmlns:appcompat="http://schemas.android.com/apk/res-auto">
+      xmlns:appcompat="http://schemas.android.com/apk/res-auto">
 
-	<item android:id="@+id/assign_labels" 
-		  android:title="@string/assign_labels"
-		  android:icon="@drawable/ic_label_24dp"
-		  appcompat:showAsAction="always"/>
+    <item android:id="@+id/assign_labels" 
+          android:title="@string/assign_labels"
+          android:icon="@drawable/ic_label_24dp"
+          appcompat:showAsAction="always"/>
 
-	<item android:id="@+id/delete" 
-		  android:title="@string/delete"
-		  android:icon="@drawable/ic_delete_24dp"/>
+    <item android:id="@+id/delete" 
+          android:title="@string/delete"
+          android:icon="@drawable/ic_delete_24dp"/>
 
 
 </menu>

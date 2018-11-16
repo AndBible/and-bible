@@ -17,8 +17,8 @@ import org.crosswire.jsword.passage.Verse;
  */
 public class OSISVerseTidy {
 
-	private Book book;
-	
+    private Book book;
+    
     private static final String VERSE_OPENING_TAG_START = "<"+OSISUtil.OSIS_ELEMENT_VERSE+" "+OSISUtil.OSIS_ATTR_OSISID+"='";
     private static final String VERSE_OPENING_TAG_END = "'>";
     // WEB has <l> tags that span verses so avoid errors by using empty verse tags
@@ -31,39 +31,39 @@ public class OSISVerseTidy {
      * @param book The currently selected book
      */
     public OSISVerseTidy(Book book) {
-    	this.book = book;
+        this.book = book;
     }
-	
     
-	/** add verse number and do basic validation/fix of verse text
-	 * @param key
-	 * @param verseText
-	 * @return
-	 */
-	public String tidy(Key key, String verseText) {
-		verseText = checkVerseText(key, verseText);
-		verseText = addVerseTag(key, verseText);
-		return verseText;
-	}
-	
-	/** This hack is based on a hack in JSword.  
-	 * I suspect we need to start at the beginning of a chapter instead of verse 1 to fix this 
-	 * because NET seems to have a <div> before the first verse and </div> at the end
-	 * 
-	 * @param key
-	 * @return
-	 */
-	private String checkVerseText(Key key, String verseText) {
+    
+    /** add verse number and do basic validation/fix of verse text
+     * @param key
+     * @param verseText
+     * @return
+     */
+    public String tidy(Key key, String verseText) {
+        verseText = checkVerseText(key, verseText);
+        verseText = addVerseTag(key, verseText);
+        return verseText;
+    }
+    
+    /** This hack is based on a hack in JSword.  
+     * I suspect we need to start at the beginning of a chapter instead of verse 1 to fix this 
+     * because NET seems to have a <div> before the first verse and </div> at the end
+     * 
+     * @param key
+     * @return
+     */
+    private String checkVerseText(Key key, String verseText) {
         // FIXME(dms): this is a major HACK handling a problem with a badly
         // encoded module.
-		
+        
         //TODO NET appears to open <div> before the verse start and the closing </div> is after the verse start - need to sort later 
         if (book.getAbbreviation().startsWith("NET") ) //$NON-NLS-1$ //$NON-NLS-2$
         {
-        	if (verseText.contains("</div>") && !(verseText.contains("<div ") || verseText.contains("<div>")) ) {
-        		log.debug("Fixing up NET div");
-        		verseText = verseText.replaceAll("</div>", "");
-        	}
+            if (verseText.contains("</div>") && !(verseText.contains("<div ") || verseText.contains("<div>")) ) {
+                log.debug("Fixing up NET div");
+                verseText = verseText.replaceAll("</div>", "");
+            }
 //            verseText =  verseText.substring(0, verseText.length() - 6);
         }
         //TODO WEB appears to open <l> before the verse start and the closing </l> is after the verse start - need to sort later
@@ -78,25 +78,25 @@ public class OSISVerseTidy {
 
         if (book.getAbbreviation().startsWith("WEB") && key instanceof Verse ) //$NON-NLS-1$ //$NON-NLS-2$
         {
-        	if (((Verse)key).getVerse()==1) {
-        		log.debug("start of WEB chapter");
-        		if (verseText.indexOf("</l>") < verseText.indexOf("<l type=\"x-primary\">")) {
-            		log.debug("adding <lg><l>");
-        			verseText = "<lg><l type=\"x-primary\">"+verseText;
-        		}
-        	}
-//        	if (StringUtils.countMatches(verseText, "<l>") < StringUtils.countMatches(verseText, "</l>") ) {
-//        		log.debug("Fixing up WEB <l>");
-//        		verseText = verseText.replaceFirst("</l>", "");
-//        	}
-//        	//TODO - really! how can a verse end with an opening tag
-//        	if (verseText.endsWith("<l type=\"x-primary\"> ")) {
-//        		verseText =  verseText.substring(0, verseText.length() - "<l type=\"x-primary\">".length());	
-//        	}
+            if (((Verse)key).getVerse()==1) {
+                log.debug("start of WEB chapter");
+                if (verseText.indexOf("</l>") < verseText.indexOf("<l type=\"x-primary\">")) {
+                    log.debug("adding <lg><l>");
+                    verseText = "<lg><l type=\"x-primary\">"+verseText;
+                }
+            }
+//            if (StringUtils.countMatches(verseText, "<l>") < StringUtils.countMatches(verseText, "</l>") ) {
+//                log.debug("Fixing up WEB <l>");
+//                verseText = verseText.replaceFirst("</l>", "");
+//            }
+//            //TODO - really! how can a verse end with an opening tag
+//            if (verseText.endsWith("<l type=\"x-primary\"> ")) {
+//                verseText =  verseText.substring(0, verseText.length() - "<l type=\"x-primary\">".length());    
+//            }
         }
         return verseText;
-	}
-	
+    }
+    
     /** Ensure each verse has the appropriate OSIS verse tag.
      * 
      * @param verse
@@ -104,13 +104,13 @@ public class OSISVerseTidy {
      * @return
      */
     private String addVerseTag(Key verse, String plain) {
-    	String ret = plain;
-    	if (!plain.contains("<"+OSISUtil.OSIS_ELEMENT_VERSE)) {
-    		StringBuilder bldr = new StringBuilder();
-    		bldr.append(VERSE_OPENING_TAG_START).append(verse.getOsisID()).append(VERSE_OPENING_TAG_END).append(plain).append(VERSE_CLOSING_TAG);
-    		ret = bldr.toString();
-    	}
-    	return ret;
+        String ret = plain;
+        if (!plain.contains("<"+OSISUtil.OSIS_ELEMENT_VERSE)) {
+            StringBuilder bldr = new StringBuilder();
+            bldr.append(VERSE_OPENING_TAG_START).append(verse.getOsisID()).append(VERSE_OPENING_TAG_END).append(plain).append(VERSE_CLOSING_TAG);
+            ret = bldr.toString();
+        }
+        return ret;
     }
 
 }

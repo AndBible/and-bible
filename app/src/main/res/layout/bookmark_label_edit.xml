@@ -1,36 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  android:orientation="vertical"
-			  android:layout_width="match_parent"
-			  android:layout_height="match_parent"
-			  android:background="?android:colorBackground"
-			  android:minHeight="@dimen/bookmark_label_style_dialog_min_height">
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="?android:colorBackground"
+              android:minHeight="@dimen/bookmark_label_style_dialog_min_height">
 
-	<LinearLayout android:orientation="vertical"
-				  android:layout_width="match_parent"
-				  android:layout_height="match_parent"
-				  android:padding="20dp">
+    <LinearLayout android:orientation="vertical"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:padding="20dp">
 
-		<EditText
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceMedium"
-			android:hint="@string/label_name_prompt"
-			android:id="@+id/labelName"/>
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:hint="@string/label_name_prompt"
+            android:id="@+id/labelName"/>
 
-		<TextView
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:textAppearance="?android:attr/textAppearanceSmall"
-			android:paddingTop="15dp"
-			android:text="@string/style"
-			android:layout_marginLeft="5dp"
-			android:id="@+id/labelStylePrompt"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:paddingTop="15dp"
+            android:text="@string/style"
+            android:layout_marginLeft="5dp"
+            android:id="@+id/labelStylePrompt"/>
 
-		<Spinner
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:id="@+id/labelStyle"/>
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/labelStyle"/>
 
-	</LinearLayout>
+    </LinearLayout>
 </LinearLayout>

@@ -4,10 +4,10 @@ import org.xml.sax.Attributes;
 
 public interface OsisTagHandler {
 
-	public abstract String getTagName();
+    public abstract String getTagName();
 
-	public abstract void start(Attributes attrs);
+    public abstract void start(Attributes attrs);
 
-	public abstract void end();
+    public abstract void end();
 
 }

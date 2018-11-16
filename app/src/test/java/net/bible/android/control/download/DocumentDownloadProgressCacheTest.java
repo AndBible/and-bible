@@ -33,65 +33,65 @@ import static org.hamcrest.Matchers.is;
 @RunWith(MyRobolectricTestRunner.class)
 public class DocumentDownloadProgressCacheTest {
 
-	private DocumentDownloadProgressCache documentDownloadProgressCache;
+    private DocumentDownloadProgressCache documentDownloadProgressCache;
 
-	private TestData testData;
+    private TestData testData;
 
-	@Before
-	public void setUp() throws Exception {
-		documentDownloadProgressCache = new DocumentDownloadProgressCache();
-		testData = new TestData();
-	}
+    @Before
+    public void setUp() throws Exception {
+        documentDownloadProgressCache = new DocumentDownloadProgressCache();
+        testData = new TestData();
+    }
 
-	@Test
-	public void sendEventOnProgress() throws Exception {
+    @Test
+    public void sendEventOnProgress() throws Exception {
 
-		EventReceiver eventReceiver = new EventReceiver();
-		ABEventBus.getDefault().register(eventReceiver);
+        EventReceiver eventReceiver = new EventReceiver();
+        ABEventBus.getDefault().register(eventReceiver);
 
-		documentDownloadProgressCache.startMonitoringDownloads();
+        documentDownloadProgressCache.startMonitoringDownloads();
 
-		testData.progress.setWorkDone(30);
+        testData.progress.setWorkDone(30);
 
-		Thread.sleep(10);
-		assertThat(eventReceiver.received, is(true));
-	}
+        Thread.sleep(10);
+        assertThat(eventReceiver.received, is(true));
+    }
 
-	@After
-	public void tearDown() {
-		ABEventBus.getDefault().unregisterAll();
-		DatabaseResetter.resetDatabase();
-	}
+    @After
+    public void tearDown() {
+        ABEventBus.getDefault().unregisterAll();
+        DatabaseResetter.resetDatabase();
+    }
 
-	public static class EventReceiver {
-		public boolean received = false;
+    public static class EventReceiver {
+        public boolean received = false;
 
-		public void onEvent(DocumentDownloadEvent event) {
-			received = true;
-		}
-	}
+        public void onEvent(DocumentDownloadEvent event) {
+            received = true;
+        }
+    }
 
-	private class TestData {
+    private class TestData {
 
-		String initials = "KJV";
-		Book document;
-		Progress progress = JobManager.createJob("INSTALL_BOOK-"+initials, "Installing King James Version", null);
-		DocumentDownloadListItem documentDownloadListItem;
-		ProgressBar progressBar;
+        String initials = "KJV";
+        Book document;
+        Progress progress = JobManager.createJob("INSTALL_BOOK-"+initials, "Installing King James Version", null);
+        DocumentDownloadListItem documentDownloadListItem;
+        ProgressBar progressBar;
 
-		{
-			try {
-				document = FakeSwordBookFactory.createFakeRepoBook(initials, "[KJV]\nDescription=My Test Book", "");
-				progress.setTotalWork(100);
-				progress.setWork(33);
+        {
+            try {
+                document = FakeSwordBookFactory.createFakeRepoBook(initials, "[KJV]\nDescription=My Test Book", "");
+                progress.setTotalWork(100);
+                progress.setWork(33);
 
-				Activity activity = Robolectric.buildActivity(Activity.class).create().get();
-				documentDownloadListItem = (DocumentDownloadListItem) LayoutInflater.from(activity).inflate(R.layout.document_download_list_item, null);
-				documentDownloadListItem.setDocument(document);
-				progressBar = documentDownloadListItem.getProgressBar();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
+                Activity activity = Robolectric.buildActivity(Activity.class).create().get();
+                documentDownloadListItem = (DocumentDownloadListItem) LayoutInflater.from(activity).inflate(R.layout.document_download_list_item, null);
+                documentDownloadListItem.setDocument(document);
+                progressBar = documentDownloadListItem.getProgressBar();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

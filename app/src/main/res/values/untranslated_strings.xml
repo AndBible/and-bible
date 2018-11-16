@@ -9,62 +9,62 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
 -->
 <resources>
     <!-- Languages -->
-	<string name="lang_afrikaans">af: Afrikaans</string>
-	<string name="lang_arabic">ar: العربية</string>
-	<string name="lang_azerbaijani">az: Azərbaycan</string>
-	<string name="lang_belarusian">be: беларуская</string>
-	<string name="lang_bulgarian">bg: български</string>
-	<string name="lang_czech">cs: Čeština</string>
-	<string name="lang_welsh">cy: Cymraeg</string>
-	<string name="lang_german">de: Deutsch</string>
-	<string name="lang_greek">el: Ελληνικά</string>
-	<string name="lang_english">en: English</string>
-	<string name="lang_esperanto">eo: Esperanto</string>
-	<string name="lang_spanish">es: Español</string>
-	<string name="lang_estonian">et: Eesti</string>
-	<string name="lang_finnish">fi: Suomi</string>
-	<string name="lang_faroese">fo: Føroyskt</string>
-	<string name="lang_french">fr: Français</string>
-	<string name="lang_hebrew">he: ‫עברית‬</string>
-	<string name="lang_hindi">hi: हिन्दी‬</string>
-	<string name="lang_croatian">hr: Hrvatski‬</string>
-	<string name="lang_hungarian">hu: Magyar</string>
-	<string name="lang_indonesian">in: Bahasa Indonesia</string>
-	<string name="lang_italian">it: Italiano</string>
-	<string name="lang_japanese">ja: 日本語</string>
-	<string name="lang_kazakh">kk: Қазақша</string>
-	<string name="lang_korean">ko: 한국어</string>
-	<string name="lang_kyrgyz">ky: Кыргызча</string>
-	<string name="lang_lithuanian">lt: Lietuvių</string>
-	<string name="lang_latvian">lv: Latviešu</string>
-	<string name="lang_malagasy">mg: Malagasy</string>
-	<string name="lang_malayalam">ml: മലയാളം</string>
-	<string name="lang_norwegian_bokmal">nb: Norsk bokmål</string>
-   	<string name="lang_dutch">nl: Nederlands</string>
-	<string name="lang_norwegian_nynorsk">nn: Norsk nynorsk</string>
+    <string name="lang_afrikaans">af: Afrikaans</string>
+    <string name="lang_arabic">ar: العربية</string>
+    <string name="lang_azerbaijani">az: Azərbaycan</string>
+    <string name="lang_belarusian">be: беларуская</string>
+    <string name="lang_bulgarian">bg: български</string>
+    <string name="lang_czech">cs: Čeština</string>
+    <string name="lang_welsh">cy: Cymraeg</string>
+    <string name="lang_german">de: Deutsch</string>
+    <string name="lang_greek">el: Ελληνικά</string>
+    <string name="lang_english">en: English</string>
+    <string name="lang_esperanto">eo: Esperanto</string>
+    <string name="lang_spanish">es: Español</string>
+    <string name="lang_estonian">et: Eesti</string>
+    <string name="lang_finnish">fi: Suomi</string>
+    <string name="lang_faroese">fo: Føroyskt</string>
+    <string name="lang_french">fr: Français</string>
+    <string name="lang_hebrew">he: ‫עברית‬</string>
+    <string name="lang_hindi">hi: हिन्दी‬</string>
+    <string name="lang_croatian">hr: Hrvatski‬</string>
+    <string name="lang_hungarian">hu: Magyar</string>
+    <string name="lang_indonesian">in: Bahasa Indonesia</string>
+    <string name="lang_italian">it: Italiano</string>
+    <string name="lang_japanese">ja: 日本語</string>
+    <string name="lang_kazakh">kk: Қазақша</string>
+    <string name="lang_korean">ko: 한국어</string>
+    <string name="lang_kyrgyz">ky: Кыргызча</string>
+    <string name="lang_lithuanian">lt: Lietuvių</string>
+    <string name="lang_latvian">lv: Latviešu</string>
+    <string name="lang_malagasy">mg: Malagasy</string>
+    <string name="lang_malayalam">ml: മലയാളം</string>
+    <string name="lang_norwegian_bokmal">nb: Norsk bokmål</string>
+       <string name="lang_dutch">nl: Nederlands</string>
+    <string name="lang_norwegian_nynorsk">nn: Norsk nynorsk</string>
     <string name="lang_polish">pl: Polski</string>
-	<string name="lang_portuguese">pt: Português</string>
-	<string name="lang_russian">ru: Русский</string>
-	<string name="lang_slovak">sk: Slovenčina</string>
-	<string name="lang_slovenian">sl: Slovenščina</string>
-	<string name="lang_swedish">sv: Svenska</string>
-	<string name="lang_telugu">te: తెలుగు</string>
-	<string name="lang_thai">th: ไทย</string>
-	<string name="lang_turkish">tr: Türkçe</string>
-	<string name="lang_ukrainian">uk: Українська</string>
-	<string name="lang_uzbek">uz: Oʻzbek</string>
-	<string name="lang_vietnamese">vi: Tiếng Việt</string>
-	<string name="lang_chinese">zh: 中文</string>
-	<!-- following 2 strings are currently unused, should be used in the future for Simplified/Traditional selection -->
-	<string name="lang_chinese_simplified">zh-CN: 中文 (简体)</string>
-	<string name="lang_chinese_traditional">zh-TW: 中文 (繁體)</string>
-		    	
+    <string name="lang_portuguese">pt: Português</string>
+    <string name="lang_russian">ru: Русский</string>
+    <string name="lang_slovak">sk: Slovenčina</string>
+    <string name="lang_slovenian">sl: Slovenščina</string>
+    <string name="lang_swedish">sv: Svenska</string>
+    <string name="lang_telugu">te: తెలుగు</string>
+    <string name="lang_thai">th: ไทย</string>
+    <string name="lang_turkish">tr: Türkçe</string>
+    <string name="lang_ukrainian">uk: Українська</string>
+    <string name="lang_uzbek">uz: Oʻzbek</string>
+    <string name="lang_vietnamese">vi: Tiếng Việt</string>
+    <string name="lang_chinese">zh: 中文</string>
+    <!-- following 2 strings are currently unused, should be used in the future for Simplified/Traditional selection -->
+    <string name="lang_chinese_simplified">zh-CN: 中文 (简体)</string>
+    <string name="lang_chinese_traditional">zh-TW: 中文 (繁體)</string>
+                
     <!-- Speak -->
     <plurals name="num_chapters">
         <item quantity="one">@string/one_chapter</item>
         <item quantity="other">@string/some_chapters</item>
     </plurals>
-	<plurals name="num_verses">
+    <plurals name="num_verses">
         <item quantity="one">@string/one_verse</item>
         <item quantity="other">@string/some_verses</item>
     </plurals>
@@ -72,5 +72,5 @@ Look here for language names and codes: http://en.fr.open-tran.eu/
         <item quantity="one">@string/one_page</item>
         <item quantity="other">@string/some_pages</item>
     </plurals>
-	
+    
 </resources>

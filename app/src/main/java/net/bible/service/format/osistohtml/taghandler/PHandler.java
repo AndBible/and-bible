@@ -15,31 +15,31 @@ import org.xml.sax.Attributes;
  */
 public class PHandler implements OsisTagHandler {
 
-	private HtmlTextWriter writer;
-	
-	@SuppressWarnings("unused")
-	private OsisToHtmlParameters parameters;
-	
-	@SuppressWarnings("unused")
-	private static final Logger log = new Logger("LHandler");
+    private HtmlTextWriter writer;
+    
+    @SuppressWarnings("unused")
+    private OsisToHtmlParameters parameters;
+    
+    @SuppressWarnings("unused")
+    private static final Logger log = new Logger("LHandler");
 
-	public PHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
-		this.parameters = parameters;
-		this.writer = writer;
-	}
-	
-	@Override
-	public String getTagName() {
+    public PHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
+        this.parameters = parameters;
+        this.writer = writer;
+    }
+    
+    @Override
+    public String getTagName() {
         return OSISUtil.OSIS_ELEMENT_P;
     }
 
-	@Override
-	public void start(Attributes attrs) {
-		writer.write("<p>");
-	}
+    @Override
+    public void start(Attributes attrs) {
+        writer.write("<p>");
+    }
 
-	@Override
-	public void end() {
-		writer.write("</p>");
-	}
+    @Override
+    public void end() {
+        writer.write("</p>");
+    }
 }

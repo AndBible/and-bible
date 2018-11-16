@@ -17,22 +17,22 @@ import org.crosswire.jsword.versification.system.Versifications;
  */
 public class Scripture {
 
-	private static final Versification SCRIPTURAL_V11N = Versifications.instance().getVersification("KJV");
-	
-	private final static List<BibleBook> INTROS = new ArrayList<BibleBook>();
-	static {
-		INTROS.add(BibleBook.INTRO_BIBLE);
-		INTROS.add(BibleBook.INTRO_OT);
-		INTROS.add(BibleBook.INTRO_NT);
-	}
-	
-	/** TODO: needs to be improved because some books contain extra chapters which are non-scriptural
-	 */
-	public static boolean isScripture(BibleBook bibleBook) {
-		return SCRIPTURAL_V11N.containsBook(bibleBook) && !INTROS.contains(bibleBook);
-	}
+    private static final Versification SCRIPTURAL_V11N = Versifications.instance().getVersification("KJV");
+    
+    private final static List<BibleBook> INTROS = new ArrayList<BibleBook>();
+    static {
+        INTROS.add(BibleBook.INTRO_BIBLE);
+        INTROS.add(BibleBook.INTRO_OT);
+        INTROS.add(BibleBook.INTRO_NT);
+    }
+    
+    /** TODO: needs to be improved because some books contain extra chapters which are non-scriptural
+     */
+    public static boolean isScripture(BibleBook bibleBook) {
+        return SCRIPTURAL_V11N.containsBook(bibleBook) && !INTROS.contains(bibleBook);
+    }
 
-	public static boolean isIntro(BibleBook bibleBook) {
-		return INTROS.contains(bibleBook);
-	}
+    public static boolean isIntro(BibleBook bibleBook) {
+        return INTROS.contains(bibleBook);
+    }
 }

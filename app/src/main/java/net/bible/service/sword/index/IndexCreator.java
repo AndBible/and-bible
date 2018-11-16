@@ -43,8 +43,8 @@ public class IndexCreator  {
     public void scheduleIndexCreation(final Book book) {
         Thread work = new Thread(new Runnable() {
             public void run() {
-            	IndexManager indexManager = IndexManagerFactory.getIndexManager();
-            	indexManager.setIndexPolicy(new AndroidIndexPolicy());
+                IndexManager indexManager = IndexManagerFactory.getIndexManager();
+                indexManager.setIndexPolicy(new AndroidIndexPolicy());
                 indexManager.scheduleIndexCreation(book);
             }
         });

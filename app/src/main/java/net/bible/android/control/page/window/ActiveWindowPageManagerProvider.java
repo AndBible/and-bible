@@ -8,5 +8,5 @@ import net.bible.android.control.page.CurrentPageManager;
  * The copyright to this program is held by it's author.
  */
 public interface ActiveWindowPageManagerProvider {
-	CurrentPageManager getActiveWindowPageManager();
+    CurrentPageManager getActiveWindowPageManager();
 }

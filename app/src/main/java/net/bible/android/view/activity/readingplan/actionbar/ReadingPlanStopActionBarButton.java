@@ -16,17 +16,17 @@ import javax.inject.Inject;
 @ApplicationScope
 public class ReadingPlanStopActionBarButton extends SpeakStopActionBarButton {
 
-	@Inject
-	public ReadingPlanStopActionBarButton(SpeakControl speakControl) {
-		super(speakControl);
-	}
+    @Inject
+    public ReadingPlanStopActionBarButton(SpeakControl speakControl) {
+        super(speakControl);
+    }
 
-	/**
-	 *  do not show if nothing is being said.  If speaking then allow pause and vice-versa
-	 */
-	@Override
-	public boolean canShow() {
-		return super.canShow() &&
-				isSpeakMode();
-	}
+    /**
+     *  do not show if nothing is being said.  If speaking then allow pause and vice-versa
+     */
+    @Override
+    public boolean canShow() {
+        return super.canShow() &&
+                isSpeakMode();
+    }
 }

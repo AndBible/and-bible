@@ -14,19 +14,19 @@ import org.xml.sax.Attributes;
  */
 public class NoopHandler implements OsisTagHandler {
 
-	public NoopHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
-	}
+    public NoopHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
+    }
 
-	@Override
-	public String getTagName() {
+    @Override
+    public String getTagName() {
         return "";
     }
 
-	@Override
-	public void start(Attributes attrs) {
-	}
+    @Override
+    public void start(Attributes attrs) {
+    }
 
-	@Override
-	public void end() {
-	}
+    @Override
+    public void end() {
+    }
 }

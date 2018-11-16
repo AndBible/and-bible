@@ -26,84 +26,84 @@ import java.util.List;
  */
 public class ManageLabelItemAdapter extends ArrayAdapter<LabelDto> {
 
-	private int resource;
-	private ManageLabels manageLabels;
+    private int resource;
+    private ManageLabels manageLabels;
 
-	private BookmarkStyleAdapterHelper bookmarkStyleAdapterHelper = new BookmarkStyleAdapterHelper();
+    private BookmarkStyleAdapterHelper bookmarkStyleAdapterHelper = new BookmarkStyleAdapterHelper();
 
-	private static final String TAG = "ManageLabelItemAdapter";
+    private static final String TAG = "ManageLabelItemAdapter";
 
-	public ManageLabelItemAdapter(Context context, int resource, List<LabelDto> items, ManageLabels manageLabels) {
-		super(context, resource, items);
-		this.resource = resource;
-		this.manageLabels = manageLabels;
-	}
+    public ManageLabelItemAdapter(Context context, int resource, List<LabelDto> items, ManageLabels manageLabels) {
+        super(context, resource, items);
+        this.resource = resource;
+        this.manageLabels = manageLabels;
+    }
 
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
 
-		final LabelDto labelDto = getItem(position);
+        final LabelDto labelDto = getItem(position);
 
-		View rowView;
-		if (convertView == null) {
-			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			rowView = inflater.inflate(resource, parent, false);
-		} else {
-			rowView = convertView;
-		}
-		TextView nameView = (TextView) rowView.findViewById(R.id.labelName);
-		nameView.setText(labelDto.getName());
-		if (labelDto.getBookmarkStyle()==null) {
-			nameView.setBackgroundColor(UiUtils.getThemeBackgroundColour(getContext()));
-		} else {
-			bookmarkStyleAdapterHelper.styleView(nameView, labelDto.getBookmarkStyle(), getContext(), false, false);
-		}
+        View rowView;
+        if (convertView == null) {
+            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            rowView = inflater.inflate(resource, parent, false);
+        } else {
+            rowView = convertView;
+        }
+        TextView nameView = (TextView) rowView.findViewById(R.id.labelName);
+        nameView.setText(labelDto.getName());
+        if (labelDto.getBookmarkStyle()==null) {
+            nameView.setBackgroundColor(UiUtils.getThemeBackgroundColour(getContext()));
+        } else {
+            bookmarkStyleAdapterHelper.styleView(nameView, labelDto.getBookmarkStyle(), getContext(), false, false);
+        }
 
-		ImageView editButton = (ImageView)rowView.findViewById(R.id.editLabel);
-		editButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				manageLabels.editLabel(labelDto);
-			}
-		});
+        ImageView editButton = (ImageView)rowView.findViewById(R.id.editLabel);
+        editButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                manageLabels.editLabel(labelDto);
+            }
+        });
 
-		ImageView deleteButton = (ImageView)rowView.findViewById(R.id.deleteLabel);
-		deleteButton.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				manageLabels.delete(labelDto);
-			}
-		});
+        ImageView deleteButton = (ImageView)rowView.findViewById(R.id.deleteLabel);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                manageLabels.delete(labelDto);
+            }
+        });
 
-		if(labelDto.getBookmarkStyle() == BookmarkStyle.SPEAK) {
-			editButton.setVisibility(View.GONE);
-			deleteButton.setVisibility(View.GONE);
-		}
-		else {
-			editButton.setVisibility(View.VISIBLE);
-			deleteButton.setVisibility(View.VISIBLE);
-		}
+        if(labelDto.getBookmarkStyle() == BookmarkStyle.SPEAK) {
+            editButton.setVisibility(View.GONE);
+            deleteButton.setVisibility(View.GONE);
+        }
+        else {
+            editButton.setVisibility(View.VISIBLE);
+            deleteButton.setVisibility(View.VISIBLE);
+        }
 
-		if (ScreenSettings.isNightMode()) {
-			editButton.setImageResource(R.drawable.ic_pen_24dp);
-			deleteButton.setImageResource(R.drawable.ic_delete_24dp);
-		} else {
-			editButton.setImageResource(R.drawable.ic_pen_24dp_black);
-			deleteButton.setImageResource(R.drawable.ic_delete_24dp_black);
-		}
+        if (ScreenSettings.isNightMode()) {
+            editButton.setImageResource(R.drawable.ic_pen_24dp);
+            deleteButton.setImageResource(R.drawable.ic_delete_24dp);
+        } else {
+            editButton.setImageResource(R.drawable.ic_pen_24dp_black);
+            deleteButton.setImageResource(R.drawable.ic_delete_24dp_black);
+        }
 
-		return rowView;
-	}
+        return rowView;
+    }
 
-	/**
-	 * Prevent list item rows being highlighted when pressing the delete or edit button
-	 */
-	@Override
-	public boolean areAllItemsEnabled() {
-		return false;
-	}
-	@Override
-	public boolean isEnabled(int position) {
-		return false;
-	}
+    /**
+     * Prevent list item rows being highlighted when pressing the delete or edit button
+     */
+    @Override
+    public boolean areAllItemsEnabled() {
+        return false;
+    }
+    @Override
+    public boolean isEnabled(int position) {
+        return false;
+    }
 }

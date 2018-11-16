@@ -9,24 +9,24 @@
     android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent">
-   	<Spinner
-		android:id="@+id/labelSpinner"
-   		android:layout_width="fill_parent"
-    	android:layout_height="wrap_content"
-	    android:padding="10dip"
-		android:paddingBottom="20dip"/>
-	<ListView
-		android:id="@android:id/list"
-		android:layout_width="fill_parent" 
-		android:layout_height="fill_parent"
-		android:choiceMode="singleChoice"
-		android:visibility="visible"/>
-	<TextView
-		android:id="@android:id/empty"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:textAppearance="?attr/textAppearanceListItem"
-		android:gravity="center_horizontal"
-		android:paddingTop="16dip"
-		android:text="@string/empty_list"/>
+       <Spinner
+        android:id="@+id/labelSpinner"
+           android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dip"
+        android:paddingBottom="20dip"/>
+    <ListView
+        android:id="@android:id/list"
+        android:layout_width="fill_parent" 
+        android:layout_height="fill_parent"
+        android:choiceMode="singleChoice"
+        android:visibility="visible"/>
+    <TextView
+        android:id="@android:id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textAppearance="?attr/textAppearanceListItem"
+        android:gravity="center_horizontal"
+        android:paddingTop="16dip"
+        android:text="@string/empty_list"/>
 </LinearLayout>

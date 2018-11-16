@@ -16,8 +16,8 @@ import dagger.Component;
 @Component(modules = MainBibleActivityModule.class, dependencies = ApplicationComponent.class)
 @MainBibleActivityScope
 public interface MainBibleActivityComponent {
-	// Activities that are permitted to be injected
+    // Activities that are permitted to be injected
 
-	void inject(MainBibleActivity activity);
-	void inject(MenuCommandHandler menuCommandHandler);
+    void inject(MainBibleActivity activity);
+    void inject(MenuCommandHandler menuCommandHandler);
 }

@@ -33,87 +33,87 @@ public class HtmlTextWriter {
     }
 
     public void write(String htmlText) {
-    	if (dontWriteRequestCount>0) {
-    		// ignore all text
-    	} else if (writeTempStoreRequestCount==0) {
-			writer.append(htmlText);
+        if (dontWriteRequestCount>0) {
+            // ignore all text
+        } else if (writeTempStoreRequestCount==0) {
+            writer.append(htmlText);
         } else {
-        	tempStore.append(htmlText); 
+            tempStore.append(htmlText); 
         }
     }
     
-	/** allow line breaks and titles to be moved before verse number
-	 */
-	public void writeOptionallyBeforeVerse(String s, VerseInfo verseInfo) {
-		boolean writeBeforeVerse = !verseInfo.isTextSinceVerse;
-		if (writeBeforeVerse) {
-			beginInsertAt(verseInfo.positionToInsertBeforeVerse);
-		}
-		write(s);
-		if (writeBeforeVerse) {
-			finishInserting();
-		}
-	}
+    /** allow line breaks and titles to be moved before verse number
+     */
+    public void writeOptionallyBeforeVerse(String s, VerseInfo verseInfo) {
+        boolean writeBeforeVerse = !verseInfo.isTextSinceVerse;
+        if (writeBeforeVerse) {
+            beginInsertAt(verseInfo.positionToInsertBeforeVerse);
+        }
+        write(s);
+        if (writeBeforeVerse) {
+            finishInserting();
+        }
+    }
     
     /** allow pre-verse headings
      */
     public void beginInsertAt(int insertOffset) {
-		insertionRequestCount++;
-    	if (insertionRequestCount==1) {
-	    	overwrittenString = writer.substring(insertOffset);
-	    	writer.delete(insertOffset, writer.length());
-    	}
+        insertionRequestCount++;
+        if (insertionRequestCount==1) {
+            overwrittenString = writer.substring(insertOffset);
+            writer.delete(insertOffset, writer.length());
+        }
     }
     /** finish inserting and restore overwritten tail of string
      */
     public void finishInserting() {
-    	if (insertionRequestCount==1) {
-	    	writer.append(overwrittenString);
-	    	overwrittenString = "";
-    	}
-    	insertionRequestCount--;
+        if (insertionRequestCount==1) {
+            writer.append(overwrittenString);
+            overwrittenString = "";
+        }
+        insertionRequestCount--;
     }
 
     public void abortAnyUnterminatedInsertion() {
-		if (insertionRequestCount > 0) {
-			// force insertion to finish in the case a closing pre-verse tag was missing
-			insertionRequestCount = 1;
-			finishInserting();
-		}
-	}
+        if (insertionRequestCount > 0) {
+            // force insertion to finish in the case a closing pre-verse tag was missing
+            insertionRequestCount = 1;
+            finishInserting();
+        }
+    }
 
     public int getPosition() {
-    	return writer.length();
+        return writer.length();
     }
 
     public void removeAfter(int position) {
-    	writer.delete(position, writer.length());
+        writer.delete(position, writer.length());
     }
     
-	public void reset() {
-		writer.setLength(0);
-	}
+    public void reset() {
+        writer.setLength(0);
+    }
     
     public void writeToTempStore() {
-    	writeTempStoreRequestCount++;
+        writeTempStoreRequestCount++;
     }
     public void finishWritingToTempStore() {
-    	writeTempStoreRequestCount--;
+        writeTempStoreRequestCount--;
     }
     public void clearTempStore() {
-    	tempStore.delete(0, tempStore.length());
+        tempStore.delete(0, tempStore.length());
     }
     public String getTempStoreString() {
-    	return tempStore.toString();
+        return tempStore.toString();
     }
     public String getHtml() {
-    	return writer.toString();
+        return writer.toString();
     }
     public void setDontWrite(boolean dontWrite) {
-    	if (dontWrite) {
-    		dontWriteRequestCount++;
-    	} else {
-    		dontWriteRequestCount--;
-    	}
+        if (dontWrite) {
+            dontWriteRequestCount++;
+        } else {
+            dontWriteRequestCount--;
+        }
     }
 }

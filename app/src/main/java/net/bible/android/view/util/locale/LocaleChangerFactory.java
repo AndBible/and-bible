@@ -11,17 +11,17 @@ import net.bible.service.common.CommonUtils;
  */
 
 public class LocaleChangerFactory {
-	private LocaleChanger localeChanger;
+    private LocaleChanger localeChanger;
 
-	public LocaleChangerFactory() {
-		if (CommonUtils.isNougatPlus()) {
-			localeChanger = new NougatPlusLocaleChanger();
-		} else {
-			localeChanger = new LegacyLocaleChanger();
-		}
-	}
+    public LocaleChangerFactory() {
+        if (CommonUtils.isNougatPlus()) {
+            localeChanger = new NougatPlusLocaleChanger();
+        } else {
+            localeChanger = new LegacyLocaleChanger();
+        }
+    }
 
-	public LocaleChanger getLocaleChanger() {
-		return localeChanger;
-	}
+    public LocaleChanger getLocaleChanger() {
+        return localeChanger;
+    }
 }

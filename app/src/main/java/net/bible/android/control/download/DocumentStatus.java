@@ -8,29 +8,29 @@ package net.bible.android.control.download;
 
 public class DocumentStatus {
 
-	public enum DocumentInstallStatus {INSTALLED, NOT_INSTALLED, BEING_INSTALLED, UPGRADE_AVAILABLE, ERROR_DOWNLOADING}
+    public enum DocumentInstallStatus {INSTALLED, NOT_INSTALLED, BEING_INSTALLED, UPGRADE_AVAILABLE, ERROR_DOWNLOADING}
 
-	private final String initials;
+    private final String initials;
 
-	private final DocumentInstallStatus documentInstallStatus;
+    private final DocumentInstallStatus documentInstallStatus;
 
-	private final int percentDownloaded;
+    private final int percentDownloaded;
 
-	public DocumentStatus(String initials, DocumentInstallStatus documentInstallStatus, int percentDownloaded) {
-		this.initials = initials;
-		this.documentInstallStatus = documentInstallStatus;
-		this.percentDownloaded = percentDownloaded;
-	}
+    public DocumentStatus(String initials, DocumentInstallStatus documentInstallStatus, int percentDownloaded) {
+        this.initials = initials;
+        this.documentInstallStatus = documentInstallStatus;
+        this.percentDownloaded = percentDownloaded;
+    }
 
-	public String getInitials() {
-		return initials;
-	}
+    public String getInitials() {
+        return initials;
+    }
 
-	public DocumentInstallStatus getDocumentInstallStatus() {
-		return documentInstallStatus;
-	}
+    public DocumentInstallStatus getDocumentInstallStatus() {
+        return documentInstallStatus;
+    }
 
-	public int getPercentDone() {
-		return percentDownloaded;
-	}
+    public int getPercentDone() {
+        return percentDownloaded;
+    }
 }

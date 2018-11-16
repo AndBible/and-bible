@@ -7,8 +7,8 @@
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:appcompat="http://schemas.android.com/apk/res-auto" >
-	<item android:id="@+id/refresh" 
-		  android:title="@string/download_refresh_book_list_menu_item"
-		  android:icon="@drawable/ic_action_refresh"
-		  appcompat:showAsAction="ifRoom"/>
+    <item android:id="@+id/refresh" 
+          android:title="@string/download_refresh_book_list_menu_item"
+          android:icon="@drawable/ic_action_refresh"
+          appcompat:showAsAction="ifRoom"/>
 </menu>

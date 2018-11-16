@@ -21,59 +21,59 @@ import javax.inject.Inject;
 @ApplicationScope
 public class ReadingPlanActionBarManager extends DefaultActionBarManager implements ActionBarManager {
 
-	private final ReadingPlanTitle readingPlanTitle;
-	private final ReadingPlanBibleActionBarButton bibleActionBarButton;
-	private final ReadingPlanCommentaryActionBarButton commentaryActionBarButton;
-	private final ReadingPlanDictionaryActionBarButton dictionaryActionBarButton;
+    private final ReadingPlanTitle readingPlanTitle;
+    private final ReadingPlanBibleActionBarButton bibleActionBarButton;
+    private final ReadingPlanCommentaryActionBarButton commentaryActionBarButton;
+    private final ReadingPlanDictionaryActionBarButton dictionaryActionBarButton;
 
-	private final ReadingPlanPauseActionBarButton pauseActionBarButton;
-	private final ReadingPlanStopActionBarButton stopActionBarButton;
+    private final ReadingPlanPauseActionBarButton pauseActionBarButton;
+    private final ReadingPlanStopActionBarButton stopActionBarButton;
 
-	@Inject
-	public ReadingPlanActionBarManager(ReadingPlanTitle readingPlanTitle, ReadingPlanPauseActionBarButton pauseActionBarButton, ReadingPlanStopActionBarButton stopActionBarButton, ReadingPlanBibleActionBarButton bibleActionBarButton, ReadingPlanCommentaryActionBarButton commentaryActionBarButton, ReadingPlanDictionaryActionBarButton dictionaryActionBarButton) {
-		this.readingPlanTitle = readingPlanTitle;
-		this.pauseActionBarButton = pauseActionBarButton;
-		this.stopActionBarButton = stopActionBarButton;
-		this.bibleActionBarButton = bibleActionBarButton;
-		this.commentaryActionBarButton = commentaryActionBarButton;
-		this.dictionaryActionBarButton = dictionaryActionBarButton;
+    @Inject
+    public ReadingPlanActionBarManager(ReadingPlanTitle readingPlanTitle, ReadingPlanPauseActionBarButton pauseActionBarButton, ReadingPlanStopActionBarButton stopActionBarButton, ReadingPlanBibleActionBarButton bibleActionBarButton, ReadingPlanCommentaryActionBarButton commentaryActionBarButton, ReadingPlanDictionaryActionBarButton dictionaryActionBarButton) {
+        this.readingPlanTitle = readingPlanTitle;
+        this.pauseActionBarButton = pauseActionBarButton;
+        this.stopActionBarButton = stopActionBarButton;
+        this.bibleActionBarButton = bibleActionBarButton;
+        this.commentaryActionBarButton = commentaryActionBarButton;
+        this.dictionaryActionBarButton = dictionaryActionBarButton;
 
-		ABEventBus.getDefault().register(this);
+        ABEventBus.getDefault().register(this);
     }
 
     public void onEvent(SpeakEvent e) {
-    	updateButtons();
-	}
+        updateButtons();
+    }
 
-	public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar) {
-		super.prepareOptionsMenu(activity, menu, actionBar);
-		
-		readingPlanTitle.addToBar(actionBar, activity);
+    public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar) {
+        super.prepareOptionsMenu(activity, menu, actionBar);
+        
+        readingPlanTitle.addToBar(actionBar, activity);
 
-		// order is important to keep bible, cmtry, ... in same place on right
-		stopActionBarButton.addToMenu(menu);
-		pauseActionBarButton.addToMenu(menu);
+        // order is important to keep bible, cmtry, ... in same place on right
+        stopActionBarButton.addToMenu(menu);
+        pauseActionBarButton.addToMenu(menu);
 
-		dictionaryActionBarButton.addToMenu(menu);
-		commentaryActionBarButton.addToMenu(menu);
-		bibleActionBarButton.addToMenu(menu);
-	}
-	
-	public void updateButtons() {
-		super.updateButtons();
-		
-		CurrentActivityHolder.getInstance().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				readingPlanTitle.update();
-				
-				bibleActionBarButton.update();
-				commentaryActionBarButton.update();
-				dictionaryActionBarButton.update();
-				
-				pauseActionBarButton.update();
-				stopActionBarButton.update();
-			}
-		});
-	}
+        dictionaryActionBarButton.addToMenu(menu);
+        commentaryActionBarButton.addToMenu(menu);
+        bibleActionBarButton.addToMenu(menu);
+    }
+    
+    public void updateButtons() {
+        super.updateButtons();
+        
+        CurrentActivityHolder.getInstance().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                readingPlanTitle.update();
+                
+                bibleActionBarButton.update();
+                commentaryActionBarButton.update();
+                dictionaryActionBarButton.update();
+                
+                pauseActionBarButton.update();
+                stopActionBarButton.update();
+            }
+        });
+    }
 }

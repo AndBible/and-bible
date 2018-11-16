@@ -8,30 +8,30 @@ package net.bible.android.control.readingplan;
  */
 public class HistoricReadingStatus extends ReadingStatus {
 
-	public HistoricReadingStatus(String planCode, int day, int numReadings) {
-		super(planCode, day, numReadings);
-	}
+    public HistoricReadingStatus(String planCode, int day, int numReadings) {
+        super(planCode, day, numReadings);
+    }
 
-	@Override
-	public void setRead(int readingNo) {
-		// do nothing - all readings are already read
-	}
+    @Override
+    public void setRead(int readingNo) {
+        // do nothing - all readings are already read
+    }
 
-	@Override
-	public boolean isRead(int readingNo) {
-		// all readings are already read
-		return true;
-	}
+    @Override
+    public boolean isRead(int readingNo) {
+        // all readings are already read
+        return true;
+    }
 
-	@Override
-	public void delete() {
-		// do nothing
-	}
+    @Override
+    public void delete() {
+        // do nothing
+    }
 
-	@Override
-	public void reloadStatus() {
-		// do nothing
-	}
-	
-	
+    @Override
+    public void reloadStatus() {
+        // do nothing
+    }
+    
+    
 }

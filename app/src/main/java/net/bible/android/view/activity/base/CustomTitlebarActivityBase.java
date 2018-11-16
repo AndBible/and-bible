@@ -18,33 +18,33 @@ import javax.inject.Inject;
  *      The copyright to this program is held by it's author.
  */
 public abstract class CustomTitlebarActivityBase extends ActivityBase {
-	
-	private ActionBarManager actionBarManager = new DefaultActionBarManager();
+    
+    private ActionBarManager actionBarManager = new DefaultActionBarManager();
 
-	private int optionsMenuId;
+    private int optionsMenuId;
 
-	protected static final int NO_OPTIONS_MENU = 0;
+    protected static final int NO_OPTIONS_MENU = 0;
 
-	private PageControl pageControl;
+    private PageControl pageControl;
 
-//TODO hourglass	private ProgressBar mProgressBarIndeterminate;
+//TODO hourglass    private ProgressBar mProgressBarIndeterminate;
 
-	private static final String TAG = "CustomTitlebrActvtyBase";
+    private static final String TAG = "CustomTitlebrActvtyBase";
 
-	public CustomTitlebarActivityBase() {
-		this(NO_OPTIONS_MENU);
-	}
+    public CustomTitlebarActivityBase() {
+        this(NO_OPTIONS_MENU);
+    }
 
-	public CustomTitlebarActivityBase(int optionsMenuId) {
-		this.optionsMenuId = optionsMenuId;
-	}
-	
-	/** custom title bar code to add the FEATURE_CUSTOM_TITLE just before setContentView
-	 * and set the new titlebar layout just after
-	 */
+    public CustomTitlebarActivityBase(int optionsMenuId) {
+        this.optionsMenuId = optionsMenuId;
+    }
+    
+    /** custom title bar code to add the FEATURE_CUSTOM_TITLE just before setContentView
+     * and set the new titlebar layout just after
+     */
     @Override
-	public void setContentView(int layoutResID) {
-		super.setContentView(layoutResID);
+    public void setContentView(int layoutResID) {
+        super.setContentView(layoutResID);
 
 //TODO hourglass        mProgressBarIndeterminate = (ProgressBar)findViewById(R.id.progressCircular);
     }
@@ -54,10 +54,10 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-    	if (optionsMenuId!=NO_OPTIONS_MENU) {
-	    	// Inflate the menu
-	        getMenuInflater().inflate(optionsMenuId, menu);
-    	}
+        if (optionsMenuId!=NO_OPTIONS_MENU) {
+            // Inflate the menu
+            getMenuInflater().inflate(optionsMenuId, menu);
+        }
         
         boolean showMenu = super.onCreateOptionsMenu(menu);
         
@@ -68,66 +68,66 @@ public abstract class CustomTitlebarActivityBase extends ActivityBase {
      * Allow some menu items to be hidden or otherwise altered
      */
     @Override
-	public boolean onPrepareOptionsMenu(Menu menu) {
-		super.onPrepareOptionsMenu(menu);
-		
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        super.onPrepareOptionsMenu(menu);
+        
         actionBarManager.prepareOptionsMenu(this, menu, getSupportActionBar());
-		
-		// must return true for menu to be displayed
-		return true;
-	}
+        
+        // must return true for menu to be displayed
+        return true;
+    }
 
     /** 
      * Hide/show the actionbar and call base class to hide/show everything else
      */
-	public void toggleFullScreen() {
-    	super.toggleFullScreen();
-    	
-    	if (!isFullScreen()) {
-    		Log.d(TAG, "Fullscreen off");
-    		getSupportActionBar().show();
-    	} else {
-    		Log.d(TAG, "Fullscreen on");
-    		getSupportActionBar().hide();
-    	}
+    public void toggleFullScreen() {
+        super.toggleFullScreen();
+        
+        if (!isFullScreen()) {
+            Log.d(TAG, "Fullscreen off");
+            getSupportActionBar().show();
+        } else {
+            Log.d(TAG, "Fullscreen on");
+            getSupportActionBar().hide();
+        }
 
-    	getContentView().requestLayout();
+        getContentView().requestLayout();
     }
 
-	/**
-	 *  Called whenever something like strong preferences have been changed by the user.  Should refresh the screen
-	 */
-	protected void preferenceSettingsChanged() {
-	}
+    /**
+     *  Called whenever something like strong preferences have been changed by the user.  Should refresh the screen
+     */
+    protected void preferenceSettingsChanged() {
+    }
 
     @Override
-	public void onConfigurationChanged(Configuration newConfig) {
-		super.onConfigurationChanged(newConfig);
-		
-		// the title bar has different widths depending on the orientation
-		updateActionBarButtons();
-	}
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        
+        // the title bar has different widths depending on the orientation
+        updateActionBarButtons();
+    }
 
-	/** update the quick links in the title bar
+    /** update the quick links in the title bar
      */
     public void updateActionBarButtons() {
         actionBarManager.updateButtons();
     }
 
-	public void setProgressBar(boolean on) {
-//TODO hourglass		mProgressBarIndeterminate.setVisibility(on ? View.VISIBLE : View.GONE);
-	}
+    public void setProgressBar(boolean on) {
+//TODO hourglass        mProgressBarIndeterminate.setVisibility(on ? View.VISIBLE : View.GONE);
+    }
 
-	protected void setActionBarManager(ActionBarManager actionBarManager) {
-		this.actionBarManager = actionBarManager;
-	}
+    protected void setActionBarManager(ActionBarManager actionBarManager) {
+        this.actionBarManager = actionBarManager;
+    }
 
-	public PageControl getPageControl() {
-		return pageControl;
-	}
+    public PageControl getPageControl() {
+        return pageControl;
+    }
 
-	@Inject
-	public void setPageControl(PageControl pageControl) {
-		this.pageControl = pageControl;
-	}
+    @Inject
+    public void setPageControl(PageControl pageControl) {
+        this.pageControl = pageControl;
+    }
 }

@@ -16,9 +16,9 @@ import java.util.Comparator;
 
 public class MyNoteCreationDateComparator implements Comparator<MyNoteDto> {
 
-	public int compare(@NonNull MyNoteDto myNote1, @NonNull MyNoteDto myNote2) {
-		// descending order
-		return myNote2.getCreatedOn().compareTo(myNote1.getCreatedOn());
-	}
+    public int compare(@NonNull MyNoteDto myNote1, @NonNull MyNoteDto myNote2) {
+        // descending order
+        return myNote2.getCreatedOn().compareTo(myNote1.getCreatedOn());
+    }
 
 }

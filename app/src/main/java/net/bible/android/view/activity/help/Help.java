@@ -16,7 +16,7 @@ import net.bible.service.common.CommonUtils;
  *      The copyright to this program is held by it's author.
  */
 public class Help extends CustomTitlebarActivityBase {
-	private static final String TAG = "Help";
+    private static final String TAG = "Help";
 
     /** Called when the activity is first created. */
     @Override

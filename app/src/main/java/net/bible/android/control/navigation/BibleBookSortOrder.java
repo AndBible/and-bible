@@ -8,6 +8,6 @@ package net.bible.android.control.navigation;
  *      The copyright to this program is held by it's author.
  */
 public enum BibleBookSortOrder {
-	BIBLE_BOOK,
-	ALPHABETICAL
+    BIBLE_BOOK,
+    ALPHABETICAL
 }

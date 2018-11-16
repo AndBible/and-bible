@@ -16,46 +16,46 @@ import net.bible.android.view.activity.base.CurrentActivityHolder;
  */
 public class IntentHistoryItem extends HistoryItemBase {
 
-	private CharSequence description;
-	private Intent intent;
-	
-	private static final String TAG = "IntentHistoryItem"; 
-	
-	public IntentHistoryItem(CharSequence description, Intent intent, Window window) {
-		super(window);
-		this.description = description;
-		this.intent = intent;
-		
-		// prevent re-add of intent to history if reverted to
-//		intent.putExtra(HISTORY_INTENT, true);
-	}
+    private CharSequence description;
+    private Intent intent;
+    
+    private static final String TAG = "IntentHistoryItem"; 
+    
+    public IntentHistoryItem(CharSequence description, Intent intent, Window window) {
+        super(window);
+        this.description = description;
+        this.intent = intent;
+        
+        // prevent re-add of intent to history if reverted to
+//        intent.putExtra(HISTORY_INTENT, true);
+    }
 
-	@Override
-	public boolean equals(Object o) {
-		if (o==null || !(o instanceof IntentHistoryItem)) {
-			return false;
-		}
-		if (o==this) {
-			return true;
-		}
-		
-		IntentHistoryItem oihs = (IntentHistoryItem)o;
-		// assumes intent exists
-		return intent.equals(oihs.intent);
-	}
+    @Override
+    public boolean equals(Object o) {
+        if (o==null || !(o instanceof IntentHistoryItem)) {
+            return false;
+        }
+        if (o==this) {
+            return true;
+        }
+        
+        IntentHistoryItem oihs = (IntentHistoryItem)o;
+        // assumes intent exists
+        return intent.equals(oihs.intent);
+    }
 
-	@Override
-	public CharSequence getDescription() {
-		return description;
-	}
+    @Override
+    public CharSequence getDescription() {
+        return description;
+    }
 
-	@Override
-	public void revertTo() {
-		Log.d(TAG, "Revert to history item:"+description);
-		// need to get current activity and call startActivity on that 
-		Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
+    @Override
+    public void revertTo() {
+        Log.d(TAG, "Revert to history item:"+description);
+        // need to get current activity and call startActivity on that 
+        Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
 
-		// start activity chosen from activity
-		currentActivity.startActivity(intent);
-	}
+        // start activity chosen from activity
+        currentActivity.startActivity(intent);
+    }
 }

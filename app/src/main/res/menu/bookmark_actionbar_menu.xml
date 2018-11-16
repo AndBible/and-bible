@@ -7,12 +7,12 @@
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:appcompat="http://schemas.android.com/apk/res-auto" >
-	<item android:id="@+id/manageLabels"
-		  android:title="@string/manage_labels"
-		  android:icon="@drawable/ic_label_multiple_24dp"
-		  appcompat:showAsAction="always"/>
-	<item android:id="@+id/sortByToggle"
-		  android:title="@string/sort_by_date"
-		  android:icon="@android:drawable/ic_menu_sort_by_size"
-		  appcompat:showAsAction="always"/>
+    <item android:id="@+id/manageLabels"
+          android:title="@string/manage_labels"
+          android:icon="@drawable/ic_label_multiple_24dp"
+          appcompat:showAsAction="always"/>
+    <item android:id="@+id/sortByToggle"
+          android:title="@string/sort_by_date"
+          android:icon="@android:drawable/ic_menu_sort_by_size"
+          appcompat:showAsAction="always"/>
 </menu>

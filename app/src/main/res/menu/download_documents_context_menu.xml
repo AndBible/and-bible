@@ -6,10 +6,10 @@
       The copyright to this program is held by it's author.
 -->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
-	  xmlns:appcompat="http://schemas.android.com/apk/res-auto">
+      xmlns:appcompat="http://schemas.android.com/apk/res-auto">
 
-	<item android:id="@+id/about" 
-		  android:title="@string/about"
-		  appcompat:showAsAction="always"/>
+    <item android:id="@+id/about" 
+          android:title="@string/about"
+          appcompat:showAsAction="always"/>
 
 </menu>

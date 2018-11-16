@@ -36,89 +36,89 @@ import javax.inject.Inject;
 @ApplicationScope
 public class CompareTranslationsControl {
 
-	private final BibleTraverser bibleTraverser;
+    private final BibleTraverser bibleTraverser;
 
-	private final SwordDocumentFacade swordDocumentFacade;
-	private final SwordContentFacade swordContentFacade;
+    private final SwordDocumentFacade swordDocumentFacade;
+    private final SwordContentFacade swordContentFacade;
 
-	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
+    private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
-	private static final String TAG = "CompareTranslationsCtrl";
+    private static final String TAG = "CompareTranslationsCtrl";
 
-	@Inject
-	public CompareTranslationsControl(BibleTraverser bibleTraverser, SwordDocumentFacade swordDocumentFacade, SwordContentFacade swordContentFacade, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
-		this.bibleTraverser = bibleTraverser;
-		this.swordDocumentFacade = swordDocumentFacade;
-		this.swordContentFacade = swordContentFacade;
-		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
-	}
+    @Inject
+    public CompareTranslationsControl(BibleTraverser bibleTraverser, SwordDocumentFacade swordDocumentFacade, SwordContentFacade swordContentFacade, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+        this.bibleTraverser = bibleTraverser;
+        this.swordDocumentFacade = swordDocumentFacade;
+        this.swordContentFacade = swordContentFacade;
+        this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
+    }
 
-	public String getTitle(VerseRange verseRange) {
-		StringBuilder stringBuilder = new StringBuilder();
-		boolean wasFullBookname = BookName.isFullBookName();
-		BookName.setFullBookName(false);
+    public String getTitle(VerseRange verseRange) {
+        StringBuilder stringBuilder = new StringBuilder();
+        boolean wasFullBookname = BookName.isFullBookName();
+        BookName.setFullBookName(false);
 
-		stringBuilder.append(BibleApplication.getApplication().getString(R.string.compare_translations))
-					 .append(": ")
-					 .append(CommonUtils.getKeyDescription(verseRange));
+        stringBuilder.append(BibleApplication.getApplication().getString(R.string.compare_translations))
+                     .append(": ")
+                     .append(CommonUtils.getKeyDescription(verseRange));
 
-		BookName.setFullBookName(wasFullBookname);
-		return stringBuilder.toString();
-	}
-	
-	public void setVerse(Verse verse) {
-		getCurrentPageManager().getCurrentBible().doSetKey(verse);
-	}
+        BookName.setFullBookName(wasFullBookname);
+        return stringBuilder.toString();
+    }
+    
+    public void setVerse(Verse verse) {
+        getCurrentPageManager().getCurrentBible().doSetKey(verse);
+    }
 
-	/** Calculate next verse
-	 */
-	public VerseRange getNextVerseRange(VerseRange verseRange) {
-		 return bibleTraverser.getNextVerseRange(getCurrentPageManager().getCurrentPassageDocument(), verseRange);
-	}
+    /** Calculate next verse
+     */
+    public VerseRange getNextVerseRange(VerseRange verseRange) {
+         return bibleTraverser.getNextVerseRange(getCurrentPageManager().getCurrentPassageDocument(), verseRange);
+    }
 
-	/** Calculate next verse
-	 */
-	public VerseRange getPreviousVerseRange(VerseRange verseRange) {
-		return bibleTraverser.getPreviousVerseRange(getCurrentPageManager().getCurrentPassageDocument(), verseRange);
-	}
+    /** Calculate next verse
+     */
+    public VerseRange getPreviousVerseRange(VerseRange verseRange) {
+        return bibleTraverser.getPreviousVerseRange(getCurrentPageManager().getCurrentPassageDocument(), verseRange);
+    }
 
-	/** return the list of verses to be displayed
-	 */
-	public List<TranslationDto> getAllTranslations(VerseRange verseRange) {
-		List<TranslationDto> retval = new ArrayList<>();
-		List<Book> books = swordDocumentFacade.getBibles();
-		FontControl fontControl = FontControl.getInstance();
-		
-		ConvertibleVerseRange convertibleVerseRange = new ConvertibleVerseRange(verseRange);
-		
-		for (Book book : books) {
-			try {
-				String text = swordContentFacade.getPlainText(book, convertibleVerseRange.getVerseRange(((AbstractPassageBook)book).getVersification()));
-				if (text.length()>0) {
+    /** return the list of verses to be displayed
+     */
+    public List<TranslationDto> getAllTranslations(VerseRange verseRange) {
+        List<TranslationDto> retval = new ArrayList<>();
+        List<Book> books = swordDocumentFacade.getBibles();
+        FontControl fontControl = FontControl.getInstance();
+        
+        ConvertibleVerseRange convertibleVerseRange = new ConvertibleVerseRange(verseRange);
+        
+        for (Book book : books) {
+            try {
+                String text = swordContentFacade.getPlainText(book, convertibleVerseRange.getVerseRange(((AbstractPassageBook)book).getVersification()));
+                if (text.length()>0) {
 
-					// does this book require a custom font to display it
-					File fontFile = null;
-					String fontForBook = fontControl.getFontForBook(book);
-					if (StringUtils.isNotEmpty(fontForBook)) {
-						fontFile = fontControl.getFontFile(fontForBook);
-					}
-					
-					// create DTO with all required info to display this Translation text
-					retval.add(new TranslationDto(book, text, fontFile));
-				}
-			} catch (Exception nske) {
-				Log.d(TAG, verseRange+" not in "+book);
-			}
-		}
+                    // does this book require a custom font to display it
+                    File fontFile = null;
+                    String fontForBook = fontControl.getFontForBook(book);
+                    if (StringUtils.isNotEmpty(fontForBook)) {
+                        fontFile = fontControl.getFontFile(fontForBook);
+                    }
+                    
+                    // create DTO with all required info to display this Translation text
+                    retval.add(new TranslationDto(book, text, fontFile));
+                }
+            } catch (Exception nske) {
+                Log.d(TAG, verseRange+" not in "+book);
+            }
+        }
 
-		return retval;		
-	}
-	
-	public void showTranslationForVerseRange(TranslationDto translationDto, VerseRange verseRange) {
-		getCurrentPageManager().setCurrentDocumentAndKey(translationDto.getBook(), verseRange.getStart());
-	}
+        return retval;        
+    }
+    
+    public void showTranslationForVerseRange(TranslationDto translationDto, VerseRange verseRange) {
+        getCurrentPageManager().setCurrentDocumentAndKey(translationDto.getBook(), verseRange.getStart());
+    }
 
-	public CurrentPageManager getCurrentPageManager() {
-		return activeWindowPageManagerProvider.getActiveWindowPageManager();
-	}
+    public CurrentPageManager getCurrentPageManager() {
+        return activeWindowPageManagerProvider.getActiveWindowPageManager();
+    }
 }

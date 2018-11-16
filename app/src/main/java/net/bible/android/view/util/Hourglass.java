@@ -14,51 +14,51 @@ import android.util.Log;
  *      The copyright to this program is held by it's author.
  */
 public class Hourglass {
-	
-	private ProgressDialog hourglass;
-	
-	private static final String TAG = "HourGlass";
-	
-	public Hourglass() {
-		super();
-	}
+    
+    private ProgressDialog hourglass;
+    
+    private static final String TAG = "HourGlass";
+    
+    public Hourglass() {
+        super();
+    }
 
-	public void show() {
-		final Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
-		if (activity!=null) {
-			activity.runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					hourglass = new ProgressDialog(activity);
-					hourglass.setMessage(BibleApplication.getApplication().getText(R.string.please_wait));
-					hourglass.setIndeterminate(true);
-					hourglass.setCancelable(false);
-					hourglass.show();
-				}
-			});
-		}
-	}
-	
-	public void dismiss() {
-		try {
-			if (hourglass!=null) {
-				final Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
-				if (activity!=null) {
-					activity.runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							hourglass.dismiss();
-							hourglass = null;
-						}
-					});
-				}
-			}
-		} catch (Exception e) {
-			Log.e(TAG, "Error dismissing hourglass", e);
-		}
-	}
+    public void show() {
+        final Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
+        if (activity!=null) {
+            activity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    hourglass = new ProgressDialog(activity);
+                    hourglass.setMessage(BibleApplication.getApplication().getText(R.string.please_wait));
+                    hourglass.setIndeterminate(true);
+                    hourglass.setCancelable(false);
+                    hourglass.show();
+                }
+            });
+        }
+    }
+    
+    public void dismiss() {
+        try {
+            if (hourglass!=null) {
+                final Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
+                if (activity!=null) {
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            hourglass.dismiss();
+                            hourglass = null;
+                        }
+                    });
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error dismissing hourglass", e);
+        }
+    }
 
-	public ProgressDialog getHourglass() {
-		return hourglass;
-	}
+    public ProgressDialog getHourglass() {
+        return hourglass;
+    }
 }

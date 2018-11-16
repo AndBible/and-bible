@@ -5,5 +5,5 @@ package net.bible.android.common.resource;
  */
 public interface ResourceProvider {
 
-	String getString(int resourceId);
+    String getString(int resourceId);
 }

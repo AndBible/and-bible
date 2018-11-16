@@ -24,49 +24,49 @@ import android.widget.TwoLineListItem;
  */
 public class ItemAdapter extends ArrayAdapter<TranslationDto> {
 
-	private int resource;
-	
-	public ItemAdapter(Context _context, int _resource, List<TranslationDto> _items) {
-		super(_context, _resource, _items);
-		resource = _resource;
-	}
+    private int resource;
+    
+    public ItemAdapter(Context _context, int _resource, List<TranslationDto> _items) {
+        super(_context, _resource, _items);
+        resource = _resource;
+    }
 
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
 
-		TranslationDto translationDto = getItem(position);
+        TranslationDto translationDto = getItem(position);
 
-		// Pick up the TwoLineListItem defined in the xml file
-		TwoLineListItem view;
-		if (convertView == null) {
-			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			view = (TwoLineListItem) inflater.inflate(resource, parent, false);
-		} else {
-			view = (TwoLineListItem) convertView;
-		}
+        // Pick up the TwoLineListItem defined in the xml file
+        TwoLineListItem view;
+        if (convertView == null) {
+            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            view = (TwoLineListItem) inflater.inflate(resource, parent, false);
+        } else {
+            view = (TwoLineListItem) convertView;
+        }
 
-		// Set value for the first text field
-		TextView textView1 = view.getText1();
-		if (textView1!=null) {
-			Book book = translationDto.getBook();
-			textView1.setText(book.getAbbreviation());
-		}
+        // Set value for the first text field
+        TextView textView1 = view.getText1();
+        if (textView1!=null) {
+            Book book = translationDto.getBook();
+            textView1.setText(book.getAbbreviation());
+        }
 
-		// set value for the second text field
-		TextView textView2 = view.getText2();
-		if (textView2!=null) {
-			// but first, this book may require a custom font to display it
-			if (translationDto.getCustomFontFile()!=null) {
-				Typeface typeFace = Typeface.createFromFile(translationDto.getCustomFontFile());
-				textView2.setTypeface(typeFace, Typeface.NORMAL);
-			} else {
-				// reset typeface in case this TwoLineListItemView is being reused
-				textView2.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
-			}
-			String verseText = translationDto.getText();
-			textView2.setText(verseText);
-		}
-		
-		return view;
-	}
+        // set value for the second text field
+        TextView textView2 = view.getText2();
+        if (textView2!=null) {
+            // but first, this book may require a custom font to display it
+            if (translationDto.getCustomFontFile()!=null) {
+                Typeface typeFace = Typeface.createFromFile(translationDto.getCustomFontFile());
+                textView2.setTypeface(typeFace, Typeface.NORMAL);
+            } else {
+                // reset typeface in case this TwoLineListItemView is being reused
+                textView2.setTypeface(Typeface.DEFAULT, Typeface.NORMAL);
+            }
+            String verseText = translationDto.getText();
+            textView2.setText(verseText);
+        }
+        
+        return view;
+    }
 }

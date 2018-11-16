@@ -41,99 +41,99 @@ import javax.inject.Inject;
 @ApplicationScope
 public class WindowControl implements ActiveWindowPageManagerProvider {
 
-	private boolean isSeparatorMoving = false;
-	private long stoppedMovingTime = 0;
+    private boolean isSeparatorMoving = false;
+    private long stoppedMovingTime = 0;
 
-	private WindowRepository windowRepository;
-	private WindowSync windowSync;
+    private WindowRepository windowRepository;
+    private WindowSync windowSync;
 
-	private EventManager eventManager;
+    private EventManager eventManager;
 
-	public static int SCREEN_SETTLE_TIME_MILLIS = 1000;
-	
-	private final Logger logger = new Logger(this.getClass().getName());
+    public static int SCREEN_SETTLE_TIME_MILLIS = 1000;
+    
+    private final Logger logger = new Logger(this.getClass().getName());
 
-	@Inject
-	public WindowControl(WindowRepository windowRepository, EventManager eventManager) {
-		this.windowRepository = windowRepository;
-		
-		windowSync = new WindowSync(windowRepository);
+    @Inject
+    public WindowControl(WindowRepository windowRepository, EventManager eventManager) {
+        this.windowRepository = windowRepository;
+        
+        windowSync = new WindowSync(windowRepository);
 
-		this.eventManager = eventManager;
-		eventManager.register(this);
-	}
+        this.eventManager = eventManager;
+        eventManager.register(this);
+    }
 
-	/**
-	 * Add the Window sub-menu resource which is not included in the main.xml for the main menu
-	 * Set the synchronised checkbox in the app menu before displayed
-	 * Disable various menu items if links window selected
-	 */
-	public void updateOptionsMenu(Menu menu) {
-		// when updating main menu rather than Window options menu
-		MenuItem windowSubmenuItemPosition = menu.findItem(R.id.windowSubMenu);
-		if (windowSubmenuItemPosition!=null) {
-			// check the Window sub-menu has been added
-			Menu subMenuToPopulate = windowSubmenuItemPosition.getSubMenu();
-			if (subMenuToPopulate.findItem(R.id.windowNew)==null) {
-				new MenuInflater(BibleApplication.getApplication()).inflate(R.menu.window_popup_menu, subMenuToPopulate);
-			}
-		}
-		
-		MenuItem synchronisedMenuItem = menu.findItem(R.id.windowSynchronise);
-		MenuItem moveFirstMenuItem = menu.findItem(R.id.windowMoveFirst);
-		MenuItem closeMenuItem = menu.findItem(R.id.windowClose);
-		MenuItem minimiseMenuItem = menu.findItem(R.id.windowMinimise);
-		MenuItem maximiseMenuItem = menu.findItem(R.id.windowMaximise);
-		Window window = getActiveWindow();
+    /**
+     * Add the Window sub-menu resource which is not included in the main.xml for the main menu
+     * Set the synchronised checkbox in the app menu before displayed
+     * Disable various menu items if links window selected
+     */
+    public void updateOptionsMenu(Menu menu) {
+        // when updating main menu rather than Window options menu
+        MenuItem windowSubmenuItemPosition = menu.findItem(R.id.windowSubMenu);
+        if (windowSubmenuItemPosition!=null) {
+            // check the Window sub-menu has been added
+            Menu subMenuToPopulate = windowSubmenuItemPosition.getSubMenu();
+            if (subMenuToPopulate.findItem(R.id.windowNew)==null) {
+                new MenuInflater(BibleApplication.getApplication()).inflate(R.menu.window_popup_menu, subMenuToPopulate);
+            }
+        }
+        
+        MenuItem synchronisedMenuItem = menu.findItem(R.id.windowSynchronise);
+        MenuItem moveFirstMenuItem = menu.findItem(R.id.windowMoveFirst);
+        MenuItem closeMenuItem = menu.findItem(R.id.windowClose);
+        MenuItem minimiseMenuItem = menu.findItem(R.id.windowMinimise);
+        MenuItem maximiseMenuItem = menu.findItem(R.id.windowMaximise);
+        Window window = getActiveWindow();
 
-		if (synchronisedMenuItem!=null && moveFirstMenuItem!=null) {
-			// set synchronised & maximised checkbox state
-			synchronisedMenuItem.setChecked(window.isSynchronised());
-			maximiseMenuItem.setChecked(window.isMaximised());
-			
-			// the dedicated links window cannot be treated as a normal window
-			boolean isDedicatedLinksWindowActive = isActiveWindow(windowRepository.getDedicatedLinksWindow());
-			synchronisedMenuItem.setEnabled(!isDedicatedLinksWindowActive);
-			moveFirstMenuItem.setEnabled(!isDedicatedLinksWindowActive);
-			
-			// cannot close last normal window
-			closeMenuItem.setEnabled(isWindowRemovable(window));
-			minimiseMenuItem.setEnabled(isWindowMinimisable(window));
+        if (synchronisedMenuItem!=null && moveFirstMenuItem!=null) {
+            // set synchronised & maximised checkbox state
+            synchronisedMenuItem.setChecked(window.isSynchronised());
+            maximiseMenuItem.setChecked(window.isMaximised());
+            
+            // the dedicated links window cannot be treated as a normal window
+            boolean isDedicatedLinksWindowActive = isActiveWindow(windowRepository.getDedicatedLinksWindow());
+            synchronisedMenuItem.setEnabled(!isDedicatedLinksWindowActive);
+            moveFirstMenuItem.setEnabled(!isDedicatedLinksWindowActive);
+            
+            // cannot close last normal window
+            closeMenuItem.setEnabled(isWindowRemovable(window));
+            minimiseMenuItem.setEnabled(isWindowMinimisable(window));
 
-			// if window is already first then cannot promote
-			List<Window> visibleWindows = windowRepository.getVisibleWindows();
-			if (visibleWindows.size()>0 && window.equals(visibleWindows.get(0))) {
-				moveFirstMenuItem.setEnabled(false);
-			}
-		}		
-	}
-	
-	public boolean isActiveWindow(Window window) {
-		return window.equals(windowRepository.getActiveWindow());
-	}
-	
-	/** 
-	 * Show link using whatever is the current Bible in the Links window
-	 */
-	public void showLinkUsingDefaultBible(Key key) {
+            // if window is already first then cannot promote
+            List<Window> visibleWindows = windowRepository.getVisibleWindows();
+            if (visibleWindows.size()>0 && window.equals(visibleWindows.get(0))) {
+                moveFirstMenuItem.setEnabled(false);
+            }
+        }        
+    }
+    
+    public boolean isActiveWindow(Window window) {
+        return window.equals(windowRepository.getActiveWindow());
+    }
+    
+    /** 
+     * Show link using whatever is the current Bible in the Links window
+     */
+    public void showLinkUsingDefaultBible(Key key) {
         LinksWindow linksWindow = windowRepository.getDedicatedLinksWindow();
 
-		CurrentBiblePage currentBiblePage = linksWindow.getPageManager().getCurrentBible();
+        CurrentBiblePage currentBiblePage = linksWindow.getPageManager().getCurrentBible();
 
         Book defaultBible;
 
-		// default either to links window bible or if closed then active window bible
+        // default either to links window bible or if closed then active window bible
         if(currentBiblePage.isCurrentDocumentSet()) {
-			defaultBible = currentBiblePage.getCurrentDocument();
-		}
-		else {
-			defaultBible = getWindowRepository().getFirstWindow().getPageManager().getCurrentBible().getCurrentDocument();
-		}
+            defaultBible = currentBiblePage.getCurrentDocument();
+        }
+        else {
+            defaultBible = getWindowRepository().getFirstWindow().getPageManager().getCurrentBible().getCurrentDocument();
+        }
 
-		showLink(defaultBible, key);
-	}
+        showLink(defaultBible, key);
+    }
 
-	public void showLink(Book document, Key key) {
+    public void showLink(Book document, Key key) {
         LinksWindow linksWindow = windowRepository.getDedicatedLinksWindow();
         boolean linksWindowWasVisible = linksWindow.isVisible();
 
@@ -144,236 +144,236 @@ public class WindowControl implements ActiveWindowPageManagerProvider {
         
         linksWindow.getPageManager().setCurrentDocumentAndKey(document, key);
         
-		// redisplay the current page
+        // redisplay the current page
         if (!linksWindowWasVisible) {
-        	linksWindow.getWindowLayout().setState(WindowState.SPLIT);
-        	eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
+            linksWindow.getWindowLayout().setState(WindowState.SPLIT);
+            eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
         }
-	}
+    }
 
 
-	public Window addNewWindow() {
-		Window window = windowRepository.addNewWindow();
-		
-		// default state to active window
-		if (!isActiveWindow(window)) {
-			Window activeWindow = getActiveWindow();
-			JSONObject activeWindowPageState = activeWindow.getPageManager().getStateJson();
-			window.getPageManager().restoreState(activeWindowPageState);
-			window.setSynchronised(activeWindow.isSynchronised());
-		}
+    public Window addNewWindow() {
+        Window window = windowRepository.addNewWindow();
+        
+        // default state to active window
+        if (!isActiveWindow(window)) {
+            Window activeWindow = getActiveWindow();
+            JSONObject activeWindowPageState = activeWindow.getPageManager().getStateJson();
+            window.getPageManager().restoreState(activeWindowPageState);
+            window.setSynchronised(activeWindow.isSynchronised());
+        }
 
-		windowSync.setResynchRequired(true);
-		windowSync.synchronizeScreens();
-		
-		// redisplay the current page
-		eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
+        windowSync.setResynchRequired(true);
+        windowSync.synchronizeScreens();
+        
+        // redisplay the current page
+        eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
 
-		return window;
-	}
+        return window;
+    }
 
-	public Window addNewWindow(Book document, Key key) {
-		Window window = windowRepository.addNewWindow();
-		CurrentPageManager pageManager = window.getPageManager();
-		window.setSynchronised(false);
-		pageManager.setCurrentDocumentAndKey(document, key);
+    public Window addNewWindow(Book document, Key key) {
+        Window window = windowRepository.addNewWindow();
+        CurrentPageManager pageManager = window.getPageManager();
+        window.setSynchronised(false);
+        pageManager.setCurrentDocumentAndKey(document, key);
 
-		windowSync.setResynchRequired(true);
-		windowSync.synchronizeScreens();
+        windowSync.setResynchRequired(true);
+        windowSync.synchronizeScreens();
 
-		// redisplay the current page
-		eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
+        // redisplay the current page
+        eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
 
-		return window;
-	}
-
-
-	/**
-	 * Minimise window if possible
-	 */
-	public void minimiseCurrentWindow() {
-		minimiseWindow(getActiveWindow());
-	}
-	public void minimiseWindow(Window window) {
-		if (isWindowMinimisable(window)) {
-			windowRepository.minimise(window);
-	
-			// redisplay the current page
-			eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
-		}
-	}
-
-	public void maximiseWindow(Window window) {
-		// there can only be one maximised window at a time so if there is another unmaximise it
-		for (Window w : windowRepository.getMaximisedScreens() ) {
-			w.setMaximised(false);
-		}
-		
-		window.setMaximised(true);
-		setActiveWindow(window);
-		
-		// also remove the links window because it may possibly displayed even though a window is maximised if a link is pressed
-		if (!window.isLinksWindow()) {
-			windowRepository.getDedicatedLinksWindow().getWindowLayout().setState(WindowState.CLOSED);
-		}
-
-		// redisplay the current page
-		eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
-	}
-	
-	public void unmaximiseWindow(Window window) {
-		window.setMaximised(false);
-
-		// redisplay the current page
-		eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
-		
-		windowSync.setResynchRequired(true);
-		windowSync.synchronizeScreens();
-	}
-	
-	public void closeCurrentWindow() {
-		closeWindow(getActiveWindow());
-	}
-	public void closeWindow(Window window) {
-		
-		if (isWindowRemovable(getActiveWindow())) {
-			logger.debug("Closing window "+window.getScreenNo());
-			windowRepository.close(window);
-	
-			// redisplay the current page
-			eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
-		}
-	}
-	
-	public boolean isWindowMinimisable(Window window) {
-		return isWindowRemovable(window) && !window.isLinksWindow();
-	}
-	public boolean isWindowRemovable(Window window) {
-		int normalWindows = windowRepository.getVisibleWindows().size();
-		if (windowRepository.getDedicatedLinksWindow().isVisible()) {
-			normalWindows--;
-		}
-		
-		return window.isLinksWindow() || normalWindows>1 || !window.isVisible();
-	}
-
-	public void restoreWindow(Window window) {
-		window.getWindowLayout().setState(WindowState.SPLIT);
-		
-		// causes BibleViews to be created and laid out
-		eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
-		
-		windowSync.setResynchRequired(true);
-		windowSync.synchronizeScreens();
-	}
-
-	public void synchroniseCurrentWindow() {
-		getActiveWindow().setSynchronised(true);
-
-		windowSync.setResynchRequired(true);
-		windowSync.synchronizeScreens();
-	}
-	
-	public void unsynchroniseCurrentWindow() {
-		getActiveWindow().setSynchronised(false);
-	}
-	
-	/*
-	 * Move the current window to first 
-	 */
-	public void moveCurrentWindowToFirst() {
-		Window window = getActiveWindow();
-
-		windowRepository.moveWindowToPosition(window, 0);
-	
-		// redisplay the current page
-		eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
-	}
+        return window;
+    }
 
 
-	/** screen orientation has changed */
-	public void orientationChange() {
-		// causes BibleViews to be created and laid out
-		eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
-	}
-	
-	public void onEvent(CurrentVerseChangedEvent event) {
-		windowSync.synchronizeScreens(event.getWindow());
-	}
+    /**
+     * Minimise window if possible
+     */
+    public void minimiseCurrentWindow() {
+        minimiseWindow(getActiveWindow());
+    }
+    public void minimiseWindow(Window window) {
+        if (isWindowMinimisable(window)) {
+            windowRepository.minimise(window);
+    
+            // redisplay the current page
+            eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
+        }
+    }
 
-	public void onEvent(SynchronizeWindowsEvent event) {
-		windowSync.setResynchRequired(true);
-		if(event.getSyncAll()) {
-			windowSync.synchronizeAllScreens();
-		}
-		else {
-			windowSync.synchronizeScreens();
-		}
-	}
+    public void maximiseWindow(Window window) {
+        // there can only be one maximised window at a time so if there is another unmaximise it
+        for (Window w : windowRepository.getMaximisedScreens() ) {
+            w.setMaximised(false);
+        }
+        
+        window.setMaximised(true);
+        setActiveWindow(window);
+        
+        // also remove the links window because it may possibly displayed even though a window is maximised if a link is pressed
+        if (!window.isLinksWindow()) {
+            windowRepository.getDedicatedLinksWindow().getWindowLayout().setState(WindowState.CLOSED);
+        }
 
-	public boolean isMultiWindow() {
-		return windowRepository.isMultiWindow();
-	}
+        // redisplay the current page
+        eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
+    }
+    
+    public void unmaximiseWindow(Window window) {
+        window.setMaximised(false);
 
-	@Override
-	public CurrentPageManager getActiveWindowPageManager() {
-		return getActiveWindow().getPageManager();
-	}
+        // redisplay the current page
+        eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
+        
+        windowSync.setResynchRequired(true);
+        windowSync.synchronizeScreens();
+    }
+    
+    public void closeCurrentWindow() {
+        closeWindow(getActiveWindow());
+    }
+    public void closeWindow(Window window) {
+        
+        if (isWindowRemovable(getActiveWindow())) {
+            logger.debug("Closing window "+window.getScreenNo());
+            windowRepository.close(window);
+    
+            // redisplay the current page
+            eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
+        }
+    }
+    
+    public boolean isWindowMinimisable(Window window) {
+        return isWindowRemovable(window) && !window.isLinksWindow();
+    }
+    public boolean isWindowRemovable(Window window) {
+        int normalWindows = windowRepository.getVisibleWindows().size();
+        if (windowRepository.getDedicatedLinksWindow().isVisible()) {
+            normalWindows--;
+        }
+        
+        return window.isLinksWindow() || normalWindows>1 || !window.isVisible();
+    }
 
-	public Window getActiveWindow() {
-		return windowRepository.getActiveWindow();
-	}
-	public void setActiveWindow(Window currentActiveWindow) {
-		windowRepository.setActiveWindow(currentActiveWindow);
-	}
+    public void restoreWindow(Window window) {
+        window.getWindowLayout().setState(WindowState.SPLIT);
+        
+        // causes BibleViews to be created and laid out
+        eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
+        
+        windowSync.setResynchRequired(true);
+        windowSync.synchronizeScreens();
+    }
 
-	public boolean isSeparatorMoving() {
-		// allow 1 sec for screen to settle after window separator drag
-		if (stoppedMovingTime>0) {
-			// allow a second after stopping for screen to settle
-			if (stoppedMovingTime+SCREEN_SETTLE_TIME_MILLIS>System.currentTimeMillis()) {
-				return true;
-			}
-			stoppedMovingTime = 0;
-		}
-		return isSeparatorMoving;
-	}
-	
-	public void setSeparatorMoving(boolean isSeparatorMoving) {
-		if (!isSeparatorMoving) {
-			// facilitate time for the screen to settle
-			this.stoppedMovingTime = System.currentTimeMillis();
-		}
-		this.isSeparatorMoving = isSeparatorMoving;
-		
-		boolean isMoveFinished = !isSeparatorMoving;
-		if (isMoveFinished) {
-			windowSync.setResynchRequired(true);
-		}
-		
-		eventManager.post(new WindowSizeChangedEvent(isMoveFinished, getWindowChapterVerseMap()));
-	}
+    public void synchroniseCurrentWindow() {
+        getActiveWindow().setSynchronised(true);
 
-	public WindowRepository getWindowRepository() {
-		return windowRepository;
-	}
+        windowSync.setResynchRequired(true);
+        windowSync.synchronizeScreens();
+    }
+    
+    public void unsynchroniseCurrentWindow() {
+        getActiveWindow().setSynchronised(false);
+    }
+    
+    /*
+     * Move the current window to first 
+     */
+    public void moveCurrentWindowToFirst() {
+        Window window = getActiveWindow();
 
-	/**
-	 * Get current chapter.verse for each window displaying a Bible
-	 * 
-	 * @return Map of window num to verse num
-	 */
-	private Map<Window, ChapterVerse> getWindowChapterVerseMap() {
-		// get page offsets to maintain for each window
-		Map<Window, ChapterVerse> windowVerseMap = new HashMap<>();
-		for (Window window : windowRepository.getWindows()) {
-			CurrentPage currentPage = window.getPageManager().getCurrentPage();
-			if (currentPage!=null &&
-				BookCategory.BIBLE == currentPage.getCurrentDocument().getBookCategory()) {
-				ChapterVerse chapterVerse = ChapterVerse.fromVerse(KeyUtil.getVerse(currentPage.getSingleKey()));
-				windowVerseMap.put(window, chapterVerse);
-			}
-		}
-		return windowVerseMap;
-	}
+        windowRepository.moveWindowToPosition(window, 0);
+    
+        // redisplay the current page
+        eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
+    }
+
+
+    /** screen orientation has changed */
+    public void orientationChange() {
+        // causes BibleViews to be created and laid out
+        eventManager.post(new NumberOfWindowsChangedEvent(getWindowChapterVerseMap()));
+    }
+    
+    public void onEvent(CurrentVerseChangedEvent event) {
+        windowSync.synchronizeScreens(event.getWindow());
+    }
+
+    public void onEvent(SynchronizeWindowsEvent event) {
+        windowSync.setResynchRequired(true);
+        if(event.getSyncAll()) {
+            windowSync.synchronizeAllScreens();
+        }
+        else {
+            windowSync.synchronizeScreens();
+        }
+    }
+
+    public boolean isMultiWindow() {
+        return windowRepository.isMultiWindow();
+    }
+
+    @Override
+    public CurrentPageManager getActiveWindowPageManager() {
+        return getActiveWindow().getPageManager();
+    }
+
+    public Window getActiveWindow() {
+        return windowRepository.getActiveWindow();
+    }
+    public void setActiveWindow(Window currentActiveWindow) {
+        windowRepository.setActiveWindow(currentActiveWindow);
+    }
+
+    public boolean isSeparatorMoving() {
+        // allow 1 sec for screen to settle after window separator drag
+        if (stoppedMovingTime>0) {
+            // allow a second after stopping for screen to settle
+            if (stoppedMovingTime+SCREEN_SETTLE_TIME_MILLIS>System.currentTimeMillis()) {
+                return true;
+            }
+            stoppedMovingTime = 0;
+        }
+        return isSeparatorMoving;
+    }
+    
+    public void setSeparatorMoving(boolean isSeparatorMoving) {
+        if (!isSeparatorMoving) {
+            // facilitate time for the screen to settle
+            this.stoppedMovingTime = System.currentTimeMillis();
+        }
+        this.isSeparatorMoving = isSeparatorMoving;
+        
+        boolean isMoveFinished = !isSeparatorMoving;
+        if (isMoveFinished) {
+            windowSync.setResynchRequired(true);
+        }
+        
+        eventManager.post(new WindowSizeChangedEvent(isMoveFinished, getWindowChapterVerseMap()));
+    }
+
+    public WindowRepository getWindowRepository() {
+        return windowRepository;
+    }
+
+    /**
+     * Get current chapter.verse for each window displaying a Bible
+     * 
+     * @return Map of window num to verse num
+     */
+    private Map<Window, ChapterVerse> getWindowChapterVerseMap() {
+        // get page offsets to maintain for each window
+        Map<Window, ChapterVerse> windowVerseMap = new HashMap<>();
+        for (Window window : windowRepository.getWindows()) {
+            CurrentPage currentPage = window.getPageManager().getCurrentPage();
+            if (currentPage!=null &&
+                BookCategory.BIBLE == currentPage.getCurrentDocument().getBookCategory()) {
+                ChapterVerse chapterVerse = ChapterVerse.fromVerse(KeyUtil.getVerse(currentPage.getSingleKey()));
+                windowVerseMap.put(window, chapterVerse);
+            }
+        }
+        return windowVerseMap;
+    }
 }

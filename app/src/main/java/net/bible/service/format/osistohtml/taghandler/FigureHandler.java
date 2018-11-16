@@ -16,34 +16,34 @@ import org.xml.sax.Attributes;
  */
 public class FigureHandler implements OsisTagHandler {
 
-	private HtmlTextWriter writer;
-	
-	private OsisToHtmlParameters parameters;
-	
-	@SuppressWarnings("unused")
-	private static final Logger log = new Logger("LHandler");
+    private HtmlTextWriter writer;
+    
+    private OsisToHtmlParameters parameters;
+    
+    @SuppressWarnings("unused")
+    private static final Logger log = new Logger("LHandler");
 
-	public FigureHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
-		this.parameters = parameters;
-		this.writer = writer;
-	}
-	
-	@Override
-	public String getTagName() {
+    public FigureHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
+        this.parameters = parameters;
+        this.writer = writer;
+    }
+    
+    @Override
+    public String getTagName() {
         return OSISUtil.OSIS_ELEMENT_FIGURE;
     }
 
-	@Override
-	public void start(Attributes attrs) {
-		// Refer to Gen 3:14 in ESV for example use of type=x-indent
-		String src = attrs.getValue(OSISUtil.ATTRIBUTE_FIGURE_SRC);
-		
-		if (StringUtils.isNotEmpty(src)) {
-			writer.write("<img class='sword' src='"+parameters.getModuleBasePath()+"/"+src+"'/>");
-		}
-	}
+    @Override
+    public void start(Attributes attrs) {
+        // Refer to Gen 3:14 in ESV for example use of type=x-indent
+        String src = attrs.getValue(OSISUtil.ATTRIBUTE_FIGURE_SRC);
+        
+        if (StringUtils.isNotEmpty(src)) {
+            writer.write("<img class='sword' src='"+parameters.getModuleBasePath()+"/"+src+"'/>");
+        }
+    }
 
-	@Override
-	public void end() {
-	}
+    @Override
+    public void end() {
+    }
 }

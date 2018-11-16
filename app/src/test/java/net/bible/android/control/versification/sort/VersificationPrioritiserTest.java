@@ -17,33 +17,33 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class VersificationPrioritiserTest {
 
-	@Test
-	public void prioritiseVersifications() {
-		final List<ConvertibleVerseRangeUser> convertibleVerseRangeUsers = Arrays.asList(
-				createConvertibleVerseRangeUserWith(TestData.KJV),
-				createConvertibleVerseRangeUserWith(TestData.NRSV),
-				createConvertibleVerseRangeUserWith(TestData.LXX),
-				createConvertibleVerseRangeUserWith(TestData.NRSV),
-				createConvertibleVerseRangeUserWith(TestData.KJV),
-				createConvertibleVerseRangeUserWith(TestData.NRSV),
-				createConvertibleVerseRangeUserWith(TestData.SEGOND)
-		);
+    @Test
+    public void prioritiseVersifications() {
+        final List<ConvertibleVerseRangeUser> convertibleVerseRangeUsers = Arrays.asList(
+                createConvertibleVerseRangeUserWith(TestData.KJV),
+                createConvertibleVerseRangeUserWith(TestData.NRSV),
+                createConvertibleVerseRangeUserWith(TestData.LXX),
+                createConvertibleVerseRangeUserWith(TestData.NRSV),
+                createConvertibleVerseRangeUserWith(TestData.KJV),
+                createConvertibleVerseRangeUserWith(TestData.NRSV),
+                createConvertibleVerseRangeUserWith(TestData.SEGOND)
+        );
 
-		VersificationPrioritiser versificationPrioritiser = new VersificationPrioritiser(convertibleVerseRangeUsers);
+        VersificationPrioritiser versificationPrioritiser = new VersificationPrioritiser(convertibleVerseRangeUsers);
 
-		final List<Versification> orderedVersifications = versificationPrioritiser.getPrioritisedVersifications();
+        final List<Versification> orderedVersifications = versificationPrioritiser.getPrioritisedVersifications();
 
-		assertThat(orderedVersifications.get(0), equalTo(TestData.NRSV));
-		assertThat(orderedVersifications.get(1), equalTo(TestData.KJV));
-		assertThat(orderedVersifications.size(), equalTo(4));
-	}
+        assertThat(orderedVersifications.get(0), equalTo(TestData.NRSV));
+        assertThat(orderedVersifications.get(1), equalTo(TestData.KJV));
+        assertThat(orderedVersifications.size(), equalTo(4));
+    }
 
-	private ConvertibleVerseRangeUser createConvertibleVerseRangeUserWith(final Versification v11n) {
-		return new ConvertibleVerseRangeUser() {
-			@Override
-			public ConvertibleVerseRange getConvertibleVerseRange() {
-				return new ConvertibleVerseRange(new VerseRange(v11n, new Verse(v11n, BibleBook.JOHN, 3, 16)));
-			}
-		};
-	}
+    private ConvertibleVerseRangeUser createConvertibleVerseRangeUserWith(final Versification v11n) {
+        return new ConvertibleVerseRangeUser() {
+            @Override
+            public ConvertibleVerseRange getConvertibleVerseRange() {
+                return new ConvertibleVerseRange(new VerseRange(v11n, new Verse(v11n, BibleBook.JOHN, 3, 16)));
+            }
+        };
+    }
 }

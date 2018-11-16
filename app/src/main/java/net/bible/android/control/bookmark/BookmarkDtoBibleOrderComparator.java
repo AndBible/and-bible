@@ -15,14 +15,14 @@ import java.util.List;
  */
 
 public class BookmarkDtoBibleOrderComparator implements Comparator<BookmarkDto> {
-	private final ConvertibleVerseRangeComparator convertibleVerseRangeComparator;
+    private final ConvertibleVerseRangeComparator convertibleVerseRangeComparator;
 
-	public BookmarkDtoBibleOrderComparator(List<BookmarkDto> bookmarkDtos) {
-		this.convertibleVerseRangeComparator = new ConvertibleVerseRangeComparator.Builder().withBookmarks(bookmarkDtos).build();
-	}
+    public BookmarkDtoBibleOrderComparator(List<BookmarkDto> bookmarkDtos) {
+        this.convertibleVerseRangeComparator = new ConvertibleVerseRangeComparator.Builder().withBookmarks(bookmarkDtos).build();
+    }
 
-	@Override
-	public int compare(BookmarkDto o1, BookmarkDto o2) {
-		return convertibleVerseRangeComparator.compare(o1, o2);
-	}
+    @Override
+    public int compare(BookmarkDto o1, BookmarkDto o2) {
+        return convertibleVerseRangeComparator.compare(o1, o2);
+    }
 }

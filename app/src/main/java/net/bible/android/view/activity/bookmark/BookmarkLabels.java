@@ -35,26 +35,26 @@ import javax.inject.Inject;
  */
 public class BookmarkLabels extends ListActivityBase {
 
-	private List<BookmarkDto> bookmarks;
+    private List<BookmarkDto> bookmarks;
 
-	private BookmarkControl bookmarkControl;
+    private BookmarkControl bookmarkControl;
 
-	private static final String TAG = "BookmarkLabels";
-	
-	private List<LabelDto> labels = new ArrayList<>();
+    private static final String TAG = "BookmarkLabels";
+    
+    private List<LabelDto> labels = new ArrayList<>();
 
-	private LabelDialogs labelDialogs;
+    private LabelDialogs labelDialogs;
 
-	// this resource returns a CheckedTextView which has setChecked(..), isChecked(), and toggle() methods
-	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_multiple_choice; 
-	
+    // this resource returns a CheckedTextView which has setChecked(..), isChecked(), and toggle() methods
+    private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_multiple_choice; 
+    
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState, false);
         setContentView(R.layout.bookmark_labels);
 
-		buildActivityComponent().inject(this);
+        buildActivityComponent().inject(this);
 
         long[] bookmarkIds = getIntent().getLongArrayExtra(BookmarkControl.BOOKMARK_IDS_EXTRA);
         bookmarks = bookmarkControl.getBookmarksById(bookmarkIds);
@@ -63,161 +63,161 @@ public class BookmarkLabels extends ListActivityBase {
     }
 
     private void initialiseView() {
-    	getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        getListView().setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
-    	loadLabelList();
+        loadLabelList();
 
-    	ArrayAdapter<LabelDto> listArrayAdapter = new BookmarkLabelItemAdapter(this, LIST_ITEM_TYPE, labels);
-    	setListAdapter(listArrayAdapter);
-    	
-		initialiseCheckedLabels(bookmarks);
+        ArrayAdapter<LabelDto> listArrayAdapter = new BookmarkLabelItemAdapter(this, LIST_ITEM_TYPE, labels);
+        setListAdapter(listArrayAdapter);
+        
+        initialiseCheckedLabels(bookmarks);
     }
 
     /** Finished selecting labels
      */
     public void onOkay(View v) {
-    	Log.i(TAG, "Okay clicked");
-    	// get the labels that are currently checked
-    	List<LabelDto> selectedLabels = getCheckedLabels();
+        Log.i(TAG, "Okay clicked");
+        // get the labels that are currently checked
+        List<LabelDto> selectedLabels = getCheckedLabels();
 
-    	//associate labels with bookmarks that were passed in
-		for (BookmarkDto bookmark : bookmarks) {
-			bookmarkControl.setBookmarkLabels(bookmark, selectedLabels);
-		}
-       	finish();
+        //associate labels with bookmarks that were passed in
+        for (BookmarkDto bookmark : bookmarks) {
+            bookmarkControl.setBookmarkLabels(bookmark, selectedLabels);
+        }
+           finish();
     }
 
-	/**
-	 * New Label requested
-	 */
-	public void onNewLabel(View v) {
-		Log.i(TAG, "New label clicked");
+    /**
+     * New Label requested
+     */
+    public void onNewLabel(View v) {
+        Log.i(TAG, "New label clicked");
 
-		LabelDto newLabel = new LabelDto();
-		labelDialogs.createLabel(this, newLabel, new Callback() {
-			@Override
-			public void okay() {
-				List<LabelDto> selectedLabels = getCheckedLabels();
-				Log.d(TAG, "Num labels checked pre reload:"+selectedLabels.size());
+        LabelDto newLabel = new LabelDto();
+        labelDialogs.createLabel(this, newLabel, new Callback() {
+            @Override
+            public void okay() {
+                List<LabelDto> selectedLabels = getCheckedLabels();
+                Log.d(TAG, "Num labels checked pre reload:"+selectedLabels.size());
 
-				loadLabelList();
+                loadLabelList();
 
-				setCheckedLabels(selectedLabels);
-				Log.d(TAG, "Num labels checked finally:"+selectedLabels.size());			}
-		});
-	}
+                setCheckedLabels(selectedLabels);
+                Log.d(TAG, "Num labels checked finally:"+selectedLabels.size());            }
+        });
+    }
 
-	/** load list of docs to display
-	 * 
-	 */
-	private void loadLabelList() {
-    	
-    	// get long book names to show in the select list
-		// must clear rather than create because the adapter is linked to this specific list
-    	labels.clear();
-		labels.addAll(bookmarkControl.getAssignableLabels());
+    /** load list of docs to display
+     * 
+     */
+    private void loadLabelList() {
+        
+        // get long book names to show in the select list
+        // must clear rather than create because the adapter is linked to this specific list
+        labels.clear();
+        labels.addAll(bookmarkControl.getAssignableLabels());
 
-    	// ensure ui is updated
-		notifyDataSetChanged();
-	}
+        // ensure ui is updated
+        notifyDataSetChanged();
+    }
 
-	/** check labels associated with the bookmark
-	 */
-	private void initialiseCheckedLabels(List<BookmarkDto> bookmarks) {
-		Set<LabelDto> allCheckedLabels = new HashSet<>();
-    	for (BookmarkDto bookmark : bookmarks) {
-			// pre-tick any labels currently associated with the bookmark
-			allCheckedLabels.addAll(bookmarkControl.getBookmarkLabels(bookmark));
-		}
-		setCheckedLabels(allCheckedLabels);
-	}
+    /** check labels associated with the bookmark
+     */
+    private void initialiseCheckedLabels(List<BookmarkDto> bookmarks) {
+        Set<LabelDto> allCheckedLabels = new HashSet<>();
+        for (BookmarkDto bookmark : bookmarks) {
+            // pre-tick any labels currently associated with the bookmark
+            allCheckedLabels.addAll(bookmarkControl.getBookmarkLabels(bookmark));
+        }
+        setCheckedLabels(allCheckedLabels);
+    }
 
-	/**
-	 * get checked status of all labels
-	 */
-	private List<LabelDto> getCheckedLabels() {
-		// get selected labels
-    	ListView listView = getListView();
-    	List<LabelDto> checkedLabels = new ArrayList<>();
-    	for (int i=0; i<labels.size(); i++) {
-    		if (listView.isItemChecked(i)) {
-    			LabelDto label = labels.get(i);
-    			checkedLabels.add(label);
-    			Log.d(TAG, "Selected "+label.getName());
-    		}
-    	}
-		return checkedLabels;
-	}
+    /**
+     * get checked status of all labels
+     */
+    private List<LabelDto> getCheckedLabels() {
+        // get selected labels
+        ListView listView = getListView();
+        List<LabelDto> checkedLabels = new ArrayList<>();
+        for (int i=0; i<labels.size(); i++) {
+            if (listView.isItemChecked(i)) {
+                LabelDto label = labels.get(i);
+                checkedLabels.add(label);
+                Log.d(TAG, "Selected "+label.getName());
+            }
+        }
+        return checkedLabels;
+    }
 
-	/**
-	 * set checked status of all labels
-	 */
-	private void setCheckedLabels(Collection<LabelDto> labelsToCheck) {
-		for (int i=0; i<labels.size(); i++) {
-    		if (labelsToCheck.contains(labels.get(i))) {
-    			getListView().setItemChecked(i, true);
-    		} else {
-    			getListView().setItemChecked(i, false);
-    		}
-    	}
+    /**
+     * set checked status of all labels
+     */
+    private void setCheckedLabels(Collection<LabelDto> labelsToCheck) {
+        for (int i=0; i<labels.size(); i++) {
+            if (labelsToCheck.contains(labels.get(i))) {
+                getListView().setItemChecked(i, true);
+            } else {
+                getListView().setItemChecked(i, false);
+            }
+        }
 
-    	// ensure ui is updated
-		notifyDataSetChanged();
-	}
+        // ensure ui is updated
+        notifyDataSetChanged();
+    }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		super.onCreateOptionsMenu(menu);
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.bookmark_labels_actionbar_menu, menu);
-		return true;
-	}
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.bookmark_labels_actionbar_menu, menu);
+        return true;
+    }
 
-	/**
-	 * on Click handlers
-	 */
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		boolean isHandled = false;
+    /**
+     * on Click handlers
+     */
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        boolean isHandled = false;
 
-		switch (item.getItemId()) {
-			case (R.id.manageLabels):
-				isHandled = true;
-				Intent intent = new Intent(this, ManageLabels.class);
-				startActivityForResult(intent, IntentHelper.REFRESH_DISPLAY_ON_FINISH);
-				break;
-		}
+        switch (item.getItemId()) {
+            case (R.id.manageLabels):
+                isHandled = true;
+                Intent intent = new Intent(this, ManageLabels.class);
+                startActivityForResult(intent, IntentHelper.REFRESH_DISPLAY_ON_FINISH);
+                break;
+        }
 
-		if (!isHandled) {
-			isHandled = super.onOptionsItemSelected(item);
-		}
+        if (!isHandled) {
+            isHandled = super.onOptionsItemSelected(item);
+        }
 
-		return isHandled;
-	}
+        return isHandled;
+    }
 
-	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Log.d(TAG, "Restoring state after return from label editing");
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.d(TAG, "Restoring state after return from label editing");
 
-		if (requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH) {
-			// find checked labels prior to refresh
-			List<LabelDto> selectedLabels = getCheckedLabels();
+        if (requestCode == IntentHelper.REFRESH_DISPLAY_ON_FINISH) {
+            // find checked labels prior to refresh
+            List<LabelDto> selectedLabels = getCheckedLabels();
 
-			// reload labels with new and/or amended labels
-			loadLabelList();
+            // reload labels with new and/or amended labels
+            loadLabelList();
 
-			// re-check labels as they were before leaving this screen
-			setCheckedLabels(selectedLabels);
-		}
-	}
+            // re-check labels as they were before leaving this screen
+            setCheckedLabels(selectedLabels);
+        }
+    }
 
-	@Inject
-	void setBookmarkControl(BookmarkControl bookmarkControl) {
-		this.bookmarkControl = bookmarkControl;
-	}
+    @Inject
+    void setBookmarkControl(BookmarkControl bookmarkControl) {
+        this.bookmarkControl = bookmarkControl;
+    }
 
-	@Inject
-	public void setLabelDialogs(LabelDialogs labelDialogs) {
-		this.labelDialogs = labelDialogs;
-	}
+    @Inject
+    public void setLabelDialogs(LabelDialogs labelDialogs) {
+        this.labelDialogs = labelDialogs;
+    }
 }

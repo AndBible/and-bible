@@ -8,54 +8,54 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     
     <!-- Application theme.
-    	ActionBar background colour also set in DefaultActionBarManager.java
-    	For basic override description see http://developer.android.com/training/material/theme.html#ColorPalette
+        ActionBar background colour also set in DefaultActionBarManager.java
+        For basic override description see http://developer.android.com/training/material/theme.html#ColorPalette
     -->
     <style name="AppThemeDay" parent="@style/Theme.AppCompat.Light.DarkActionBar">
-		<item name="actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
-		<item name="colorAccent">@color/accent_day</item>
-		<item name="actionButtonStyle">@style/MyActionButtonStyle</item>
-		<!-- Prevent sub menu items (e.g. Admin sub-menu) appearing as 'white on white' on Android 2.3 -->
-		<item name="actionBarWidgetTheme">@style/Theme.AppCompat.Light</item>
-	</style>
+        <item name="actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
+        <item name="colorAccent">@color/accent_day</item>
+        <item name="actionButtonStyle">@style/MyActionButtonStyle</item>
+        <!-- Prevent sub menu items (e.g. Admin sub-menu) appearing as 'white on white' on Android 2.3 -->
+        <item name="actionBarWidgetTheme">@style/Theme.AppCompat.Light</item>
+    </style>
 
-	<style name="AppThemeNight" parent="@style/Theme.AppCompat">
-		<item name="actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
-		<item name="colorAccent">@color/accent_night</item>
-		<item name="colorPrimary">@color/actionbar_background_night</item>
-		<item name="actionButtonStyle">@style/MyActionButtonStyle</item>
-	</style>
+    <style name="AppThemeNight" parent="@style/Theme.AppCompat">
+        <item name="actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
+        <item name="colorAccent">@color/accent_night</item>
+        <item name="colorPrimary">@color/actionbar_background_night</item>
+        <item name="actionButtonStyle">@style/MyActionButtonStyle</item>
+    </style>
 
-	<style name="MyMenuTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Menu">
-		<item name="textAllCaps">false</item>
-		<item name="android:textStyle">normal</item>
-		<item name="android:textSize">14sp</item>
-	</style>
+    <style name="MyMenuTextAppearance" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Menu">
+        <item name="textAllCaps">false</item>
+        <item name="android:textStyle">normal</item>
+        <item name="android:textSize">14sp</item>
+    </style>
 
-	<!-- Custom left title text -->
-	<style name="ActionBarTitle1" parent="ActionBarTitle">
-		<item name="android:gravity">center</item>
-	</style>
-	<style name="ActionBarTitle2" parent="ActionBarTitle">
-		<item name="android:gravity">center_horizontal|top</item>
-	</style>
-	<style name="ActionBarTitle">
-		<item name="android:layout_width">wrap_content</item>
-		<item name="android:layout_height">0dp</item>
-		<item name="android:layout_weight">1</item>
-		<item name="android:minWidth">@dimen/size_of_quick_buttons</item>
-		<item name="android:singleLine">true</item>
-		<item name="android:textColor">@android:color/white</item>
-		<item name="android:textSize">15sp</item>
-	</style>
+    <!-- Custom left title text -->
+    <style name="ActionBarTitle1" parent="ActionBarTitle">
+        <item name="android:gravity">center</item>
+    </style>
+    <style name="ActionBarTitle2" parent="ActionBarTitle">
+        <item name="android:gravity">center_horizontal|top</item>
+    </style>
+    <style name="ActionBarTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">0dp</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:minWidth">@dimen/size_of_quick_buttons</item>
+        <item name="android:singleLine">true</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:textSize">15sp</item>
+    </style>
 
-	<!-- Button -->
-	<style name="MyActionButtonStyle" parent="@style/Widget.AppCompat.ActionButton">
-		<item name="android:minWidth">@dimen/action_button_min_width</item> <!-- default is 56dip increasing to 64dip for values-sw600dp-->
-	</style>
+    <!-- Button -->
+    <style name="MyActionButtonStyle" parent="@style/Widget.AppCompat.ActionButton">
+        <item name="android:minWidth">@dimen/action_button_min_width</item> <!-- default is 56dip increasing to 64dip for values-sw600dp-->
+    </style>
 
-	<!--Make sure the passage chooser grids have a dark background -->
-	<style name="GridChoosePassageTheme" parent="AppThemeNight">
-	</style>
+    <!--Make sure the passage chooser grids have a dark background -->
+    <style name="GridChoosePassageTheme" parent="AppThemeNight">
+    </style>
 
 </resources>

@@ -10,13 +10,13 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-	<TextView android:id="@+id/warningText"
-		android:visibility="gone" 
-		android:layout_height="wrap_content" 
-		android:layout_width="wrap_content" 
-		/>
-	<ListView android:id="@android:id/list"
-		android:layout_height="fill_parent" 
-		android:layout_width="fill_parent"
-		/>
+    <TextView android:id="@+id/warningText"
+        android:visibility="gone" 
+        android:layout_height="wrap_content" 
+        android:layout_width="wrap_content" 
+        />
+    <ListView android:id="@android:id/list"
+        android:layout_height="fill_parent" 
+        android:layout_width="fill_parent"
+        />
 </LinearLayout>

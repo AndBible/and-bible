@@ -21,59 +21,59 @@ import javax.inject.Inject;
 @MainBibleActivityScope
 public class MyNoteViewBuilder {
 
-	private MyNoteEditTextView myNoteText;
-	private static final int MYNOTE_TEXT_ID = 992;
-	
-	private Activity mainActivity;
+    private MyNoteEditTextView myNoteText;
+    private static final int MYNOTE_TEXT_ID = 992;
+    
+    private Activity mainActivity;
 
-	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
+    private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
-	private static final String TAG = "MyNoteViewBuilder";
+    private static final String TAG = "MyNoteViewBuilder";
 
-	@Inject
-	public MyNoteViewBuilder(MainBibleActivity mainBibleActivity, MyNoteControl myNoteControl, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
-		this.mainActivity = mainBibleActivity;
-		
+    @Inject
+    public MyNoteViewBuilder(MainBibleActivity mainBibleActivity, MyNoteControl myNoteControl, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+        this.mainActivity = mainBibleActivity;
+        
         myNoteText = new MyNoteEditTextView(this.mainActivity, myNoteControl);
 
-		//noinspection ResourceType
-		myNoteText.setId(MYNOTE_TEXT_ID);
+        //noinspection ResourceType
+        myNoteText.setId(MYNOTE_TEXT_ID);
 
-		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
-	}
-	
-	/** return true if the current page should show a NyNote
-	 */
-	public boolean isMyNoteViewType() {
-		return activeWindowPageManagerProvider.getActiveWindowPageManager().isMyNoteShown();
-	}
-	
-	public void addMyNoteView(ViewGroup parent) {
-    	boolean isMynoteTextEdit = isMyNoteViewShowing(parent);
-    	parent.setTag(TAG);
+        this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
+    }
+    
+    /** return true if the current page should show a NyNote
+     */
+    public boolean isMyNoteViewType() {
+        return activeWindowPageManagerProvider.getActiveWindowPageManager().isMyNoteShown();
+    }
+    
+    public void addMyNoteView(ViewGroup parent) {
+        boolean isMynoteTextEdit = isMyNoteViewShowing(parent);
+        parent.setTag(TAG);
 
-    	if (!isMynoteTextEdit) {
-    		parent.addView(myNoteText);
-    		mainActivity.registerForContextMenu(myNoteText);
-    	}
-	}
+        if (!isMynoteTextEdit) {
+            parent.addView(myNoteText);
+            mainActivity.registerForContextMenu(myNoteText);
+        }
+    }
 
-	public void removeMyNoteView(ViewGroup parent) {
-    	boolean isMynoteTextEdit = isMyNoteViewShowing(parent);
-    	
-    	if (isMynoteTextEdit) {
-        	parent.setTag("");
-    		parent.removeView(myNoteText);
-    		mainActivity.unregisterForContextMenu(myNoteText);
-    	}
-	}
+    public void removeMyNoteView(ViewGroup parent) {
+        boolean isMynoteTextEdit = isMyNoteViewShowing(parent);
+        
+        if (isMynoteTextEdit) {
+            parent.setTag("");
+            parent.removeView(myNoteText);
+            mainActivity.unregisterForContextMenu(myNoteText);
+        }
+    }
 
-	public DocumentView getView() {
-		return myNoteText;
-	}
+    public DocumentView getView() {
+        return myNoteText;
+    }
 
-	private boolean isMyNoteViewShowing(ViewGroup parent) {
-		Object tag = parent.getTag();
-		return tag!=null && tag.equals(TAG);
-	}
+    private boolean isMyNoteViewShowing(ViewGroup parent) {
+        Object tag = parent.getTag();
+        return tag!=null && tag.equals(TAG);
+    }
 }

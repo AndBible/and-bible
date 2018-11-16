@@ -34,19 +34,19 @@ import javax.inject.Inject;
  */
 public class StartupActivity extends CustomTitlebarActivityBase {
 
-	private WarmUp warmUp;
+    private WarmUp warmUp;
 
-	private static final String TAG = "StartupActivity";
+    private static final String TAG = "StartupActivity";
 
-	private static final int DOWNLOAD_DOCUMENT_REQUEST = 2;
+    private static final int DOWNLOAD_DOCUMENT_REQUEST = 2;
 
-	/** Called when the activity is first created. */
+    /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.startup_view);
 
-		buildActivityComponent().inject(this);
+        buildActivityComponent().inject(this);
 
         // do not show an actionBar/title on the splash screen
         getSupportActionBar().hide();
@@ -61,141 +61,141 @@ public class StartupActivity extends CustomTitlebarActivityBase {
         // check for SD card 
         // it would be great to check in the Application but how to show dialog from Application?
         if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-        	abortErrorMsgId = R.string.no_sdcard_error;
+            abortErrorMsgId = R.string.no_sdcard_error;
         }
         
         // show fatal startup msg and close app
         if (abortErrorMsgId!=0) {
-        	Dialogs.getInstance().showErrorMsg(abortErrorMsgId, new Callback() {
-				@Override
-				public void okay() {
-					// this causes the blue splashscreen activity to finish and since it is the top the app closes
-					finish();					
-				}
-			});
-        	// this aborts further warmUp but leaves blue splashscreen activity
-        	return;
+            Dialogs.getInstance().showErrorMsg(abortErrorMsgId, new Callback() {
+                @Override
+                public void okay() {
+                    // this causes the blue splashscreen activity to finish and since it is the top the app closes
+                    finish();                    
+                }
+            });
+            // this aborts further warmUp but leaves blue splashscreen activity
+            return;
         }
     
         // allow call back and continuation in the ui thread after JSword has been initialised
         final Handler uiHandler = new Handler();
         final Runnable uiThreadRunnable = new Runnable() {
-			@Override
-			public void run() {
-			    postBasicInitialisationControl();
-			}
+            @Override
+            public void run() {
+                postBasicInitialisationControl();
+            }
         };
 
         // initialise JSword in another thread (takes a long time) then call main ui thread Handler to continue
         // this allows the splash screen to be displayed and an hourglass to run
         new Thread() {
-        	public void run() {
-        		try {
-        			// allow the splash screen to be displayed immediately
-        			CommonUtils.pauseMillis(1);
-        			
-	                // force Sword to initialise itself
-	                warmUp.warmUpSwordNow();
-        		} finally {
-        			// switch back to ui thread to continue
-        			uiHandler.post(uiThreadRunnable);
-        		}
-        	}
+            public void run() {
+                try {
+                    // allow the splash screen to be displayed immediately
+                    CommonUtils.pauseMillis(1);
+                    
+                    // force Sword to initialise itself
+                    warmUp.warmUpSwordNow();
+                } finally {
+                    // switch back to ui thread to continue
+                    uiHandler.post(uiThreadRunnable);
+                }
+            }
         }.start();
     }
     
     private void postBasicInitialisationControl() {
         if (getSwordDocumentFacade().getBibles().size()==0) {
-        	Log.i(TAG, "Invoking download activity because no bibles exist");
-        	askIfGotoDownloadActivity();
+            Log.i(TAG, "Invoking download activity because no bibles exist");
+            askIfGotoDownloadActivity();
         } else {
-        	Log.i(TAG, "Going to main bible view");
-        	gotoMainBibleActivity();
+            Log.i(TAG, "Going to main bible view");
+            gotoMainBibleActivity();
         }
     }
 
-	private void askIfGotoDownloadActivity() {
-		new AlertDialog.Builder(StartupActivity.this)
-				.setView(getLayoutInflater().inflate(R.layout.first_time_dialog, null))
-				.setInverseBackgroundForced(true) // prevents black text on black bkgnd on Android 2.3 (http://stackoverflow.com/questions/13266901/dark-text-on-dark-background-on-alertdialog-with-theme-sherlock-light)
-				.setCancelable(false)
-				.setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						doGotoDownloadActivity();
-					}
-				})
-				.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						StartupActivity.this.finish();
-						// ensure app exits to force Sword to reload or if a sdcard/jsword folder is created it may not be recognised
-						System.exit(2);
-					}
-				}).create().show();
-	}
+    private void askIfGotoDownloadActivity() {
+        new AlertDialog.Builder(StartupActivity.this)
+                .setView(getLayoutInflater().inflate(R.layout.first_time_dialog, null))
+                .setInverseBackgroundForced(true) // prevents black text on black bkgnd on Android 2.3 (http://stackoverflow.com/questions/13266901/dark-text-on-dark-background-on-alertdialog-with-theme-sherlock-light)
+                .setCancelable(false)
+                .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        doGotoDownloadActivity();
+                    }
+                })
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        StartupActivity.this.finish();
+                        // ensure app exits to force Sword to reload or if a sdcard/jsword folder is created it may not be recognised
+                        System.exit(2);
+                    }
+                }).create().show();
+    }
 
     private void doGotoDownloadActivity() {
-    	String errorMessage = null;
-    	if (!CommonUtils.isInternetAvailable()) {
-    		errorMessage = getString(R.string.no_internet_connection);
-    	} else if (CommonUtils.getSDCardMegsFree() < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
-    		errorMessage = getString(R.string.storage_space_warning);
-    	}
-    	
-    	if (StringUtils.isBlank(errorMessage)) {
-	       	Intent handlerIntent = new Intent(this, FirstDownload.class);
-	    	startActivityForResult(handlerIntent, DOWNLOAD_DOCUMENT_REQUEST);
-		} else {
-			Dialogs.getInstance().showErrorMsg(errorMessage, new Callback() {
-				@Override
-				public void okay() {
-		    		finish();
-				}
-			});
-		}
+        String errorMessage = null;
+        if (!CommonUtils.isInternetAvailable()) {
+            errorMessage = getString(R.string.no_internet_connection);
+        } else if (CommonUtils.getSDCardMegsFree() < SharedConstants.REQUIRED_MEGS_FOR_DOWNLOADS) {
+            errorMessage = getString(R.string.storage_space_warning);
+        }
+        
+        if (StringUtils.isBlank(errorMessage)) {
+               Intent handlerIntent = new Intent(this, FirstDownload.class);
+            startActivityForResult(handlerIntent, DOWNLOAD_DOCUMENT_REQUEST);
+        } else {
+            Dialogs.getInstance().showErrorMsg(errorMessage, new Callback() {
+                @Override
+                public void okay() {
+                    finish();
+                }
+            });
+        }
     }
 
-	/**
-	 * Load from Zip link on first_time_dialog has been clicked
-	 */
-	public void onLoadFromZip(View v) {
-		Log.i(TAG, "Load from Zip clicked");
+    /**
+     * Load from Zip link on first_time_dialog has been clicked
+     */
+    public void onLoadFromZip(View v) {
+        Log.i(TAG, "Load from Zip clicked");
 
-		Intent handlerIntent = new Intent(this, InstallZip.class);
-		startActivityForResult(handlerIntent, DOWNLOAD_DOCUMENT_REQUEST);
-	}
-
-	private void gotoMainBibleActivity() {
-		Log.i(TAG, "Going to MainBibleActivity");
-    	Intent handlerIntent = new Intent(this, MainBibleActivity.class);
-    	startActivity(handlerIntent);
-    	finish();
+        Intent handlerIntent = new Intent(this, InstallZip.class);
+        startActivityForResult(handlerIntent, DOWNLOAD_DOCUMENT_REQUEST);
     }
 
-	/** on return from download we may go to bible
+    private void gotoMainBibleActivity() {
+        Log.i(TAG, "Going to MainBibleActivity");
+        Intent handlerIntent = new Intent(this, MainBibleActivity.class);
+        startActivity(handlerIntent);
+        finish();
+    }
+
+    /** on return from download we may go to bible
      *  on return from bible just exit
      */
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) { 
-    	Log.d(TAG, "Activity result:"+resultCode);
-    	super.onActivityResult(requestCode, resultCode, data);
-    	
-    	if (requestCode == DOWNLOAD_DOCUMENT_REQUEST) {
-    		Log.i(TAG, "Returned from Download");
-    		if (getSwordDocumentFacade().getBibles().size()>0) {
-        		Log.i(TAG, "Bibles now exist so go to main bible view");
-				// select appropriate default verse e.g. John 3.16 if NT only
-				getPageControl().setFirstUseDefaultVerse();
+        Log.d(TAG, "Activity result:"+resultCode);
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        if (requestCode == DOWNLOAD_DOCUMENT_REQUEST) {
+            Log.i(TAG, "Returned from Download");
+            if (getSwordDocumentFacade().getBibles().size()>0) {
+                Log.i(TAG, "Bibles now exist so go to main bible view");
+                // select appropriate default verse e.g. John 3.16 if NT only
+                getPageControl().setFirstUseDefaultVerse();
 
-    			gotoMainBibleActivity();
-    		} else {
-        		Log.i(TAG, "No Bibles exist so exit");
-    			finish();
-    		}
-    	}
+                gotoMainBibleActivity();
+            } else {
+                Log.i(TAG, "No Bibles exist so exit");
+                finish();
+            }
+        }
     }
 
-	@Inject
-	void setWarmUp(WarmUp warmUp) {
-		this.warmUp = warmUp;
-	}
+    @Inject
+    void setWarmUp(WarmUp warmUp) {
+        this.warmUp = warmUp;
+    }
 }

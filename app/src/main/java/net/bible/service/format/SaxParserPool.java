@@ -19,34 +19,34 @@ import javax.xml.parsers.SAXParserFactory;
  */
 public class SaxParserPool {
 
-	private final Pools.SynchronizedPool<SAXParser> sPool = new Pools.SynchronizedPool<>(10);
+    private final Pools.SynchronizedPool<SAXParser> sPool = new Pools.SynchronizedPool<>(10);
 
-	private final Logger log = new Logger("SaxParserPool");
+    private final Logger log = new Logger("SaxParserPool");
 
-	public SAXParser obtain() throws ParseException {
-		SAXParser instance = sPool.acquire();
-		if (instance!=null) {
-			log.debug("Reusing SaxParser");
-		}
-		return (instance != null) ? instance : createSAXParser();
-	}
+    public SAXParser obtain() throws ParseException {
+        SAXParser instance = sPool.acquire();
+        if (instance!=null) {
+            log.debug("Reusing SaxParser");
+        }
+        return (instance != null) ? instance : createSAXParser();
+    }
 
-	public void recycle(SAXParser parser) {
-		if (parser!=null) {
-			log.debug("Returning SaxParser");
-			sPool.release(parser);
-		}
-	}
+    public void recycle(SAXParser parser) {
+        if (parser!=null) {
+            log.debug("Returning SaxParser");
+            sPool.release(parser);
+        }
+    }
 
-	private synchronized SAXParser createSAXParser() throws ParseException {
-		log.debug("Creating SaxParser");
-		try {
-			SAXParserFactory spf = SAXParserFactory.newInstance();
-			spf.setValidating(false);
-			return spf.newSAXParser();
-		} catch (Exception e) {
-			log.error("SAX parser error", e);
-			throw new ParseException("SAX parser error", e);
-		}
-	}
+    private synchronized SAXParser createSAXParser() throws ParseException {
+        log.debug("Creating SaxParser");
+        try {
+            SAXParserFactory spf = SAXParserFactory.newInstance();
+            spf.setValidating(false);
+            return spf.newSAXParser();
+        } catch (Exception e) {
+            log.error("SAX parser error", e);
+            throw new ParseException("SAX parser error", e);
+        }
+    }
 }

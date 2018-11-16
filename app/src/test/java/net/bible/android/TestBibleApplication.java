@@ -7,11 +7,11 @@ import android.content.res.Resources;
  */
 public class TestBibleApplication extends BibleApplication {
 
-	public TestBibleApplication() {
-		System.out.println("TestBibleApplication BibleApplication subclass being used.");
-	}
+    public TestBibleApplication() {
+        System.out.println("TestBibleApplication BibleApplication subclass being used.");
+    }
 
-	public Resources getLocalizedResources(String language) {
-		return getApplication().getResources();
-	}
+    public Resources getLocalizedResources(String language) {
+        return getApplication().getResources();
+    }
 }

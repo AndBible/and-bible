@@ -42,54 +42,54 @@ import org.xml.sax.Attributes;
  */
 public class MilestoneHandler implements OsisTagHandler {
 
-	private HtmlTextWriter writer;
+    private HtmlTextWriter writer;
 
-	@SuppressWarnings("unused")
-	private OsisToHtmlParameters parameters;
-	
-	private PassageInfo passageInfo;
-	private VerseInfo verseInfo;
-	
-	private static final String HTML_QUOTE_ENTITY = "&quot;";
-	
-	private static final Logger log = new Logger("OsisToHtmlSaxHandler");
+    @SuppressWarnings("unused")
+    private OsisToHtmlParameters parameters;
+    
+    private PassageInfo passageInfo;
+    private VerseInfo verseInfo;
+    
+    private static final String HTML_QUOTE_ENTITY = "&quot;";
+    
+    private static final Logger log = new Logger("OsisToHtmlSaxHandler");
 
-	public MilestoneHandler(OsisToHtmlParameters parameters, PassageInfo passageInfo, VerseInfo verseInfo, HtmlTextWriter writer) {
-		this.parameters = parameters;
-		this.passageInfo = passageInfo;
-		this.verseInfo = verseInfo;
-		this.writer = writer;
-	}
-	
-	@Override
-	public String getTagName() {
+    public MilestoneHandler(OsisToHtmlParameters parameters, PassageInfo passageInfo, VerseInfo verseInfo, HtmlTextWriter writer) {
+        this.parameters = parameters;
+        this.passageInfo = passageInfo;
+        this.verseInfo = verseInfo;
+        this.writer = writer;
+    }
+    
+    @Override
+    public String getTagName() {
         return OSISUtil2.OSIS_ELEMENT_MILESTONE;
     }
 
-	@Override
-	public void start(Attributes attrs) {
-		String type = attrs.getValue(OSISUtil.OSIS_ATTR_TYPE);
-		if (StringUtils.isNotEmpty(type)) {
-			switch (type) {
-				case "x-p":
-				case "line":
-					if (passageInfo.isAnyTextWritten) {
-						// if no verse text has yet been written then place the BR before the verse number
-						writer.writeOptionallyBeforeVerse(HTML.BR, verseInfo);
-					}
-					break;
-				case "cQuote":
-					String marker = TagHandlerHelper.getAttribute(OSISUtil2.OSIS_ATTR_MARKER, attrs, HTML_QUOTE_ENTITY);
-					writer.write(marker);
-					break;
-				default:
-					log.debug("Verse "+verseInfo.currentVerseNo+" unsupported milestone type:"+type);
-					break;
-			}
-		}
-	}
+    @Override
+    public void start(Attributes attrs) {
+        String type = attrs.getValue(OSISUtil.OSIS_ATTR_TYPE);
+        if (StringUtils.isNotEmpty(type)) {
+            switch (type) {
+                case "x-p":
+                case "line":
+                    if (passageInfo.isAnyTextWritten) {
+                        // if no verse text has yet been written then place the BR before the verse number
+                        writer.writeOptionallyBeforeVerse(HTML.BR, verseInfo);
+                    }
+                    break;
+                case "cQuote":
+                    String marker = TagHandlerHelper.getAttribute(OSISUtil2.OSIS_ATTR_MARKER, attrs, HTML_QUOTE_ENTITY);
+                    writer.write(marker);
+                    break;
+                default:
+                    log.debug("Verse "+verseInfo.currentVerseNo+" unsupported milestone type:"+type);
+                    break;
+            }
+        }
+    }
 
-	@Override
-	public void end() {
-	}
+    @Override
+    public void end() {
+    }
 }

@@ -25,10 +25,10 @@ import android.util.Log;
  *      The copyright to this program is held by it's author.
  */
 public class GenericFileDownloader {
-	
-	private static final String TAG = "GenericFileDownloader";
+    
+    private static final String TAG = "GenericFileDownloader";
 
-	public void downloadFileInBackground(final URI source, final File target, final String description) {
+    public void downloadFileInBackground(final URI source, final File target, final String description) {
 
         // So now we know what we want to install - all we need to do
         // is installer.install(name) however we are doing it in the
@@ -42,36 +42,36 @@ public class GenericFileDownloader {
              */
             /* @Override */
             public void run() {
-            	Log.i(TAG, "Starting generic download thread - file:"+target.getName());
-            	
-            	try {
-	                // Delete the file, if present
-	                if (target.exists()) {
-	                    Log.d(TAG, "deleting file");
-	                    target.delete();
-	                }
-	
-	                try {
-	                	downloadFile(source, target, description);
-	                    
-	                } catch (Exception e) {
-	            		Reporter.informUser(this, "IO Error creating index");
-	                    throw new RuntimeException("IO Error downloading index", e);
-	                }
-	            	Log.i(TAG, "Finished index download thread");
-            	} catch (Exception e) {
-            		Log.e(TAG, "Error downloading index", e);
-            		Reporter.informUser(this, "Error downloading index");
-            	}
+                Log.i(TAG, "Starting generic download thread - file:"+target.getName());
+                
+                try {
+                    // Delete the file, if present
+                    if (target.exists()) {
+                        Log.d(TAG, "deleting file");
+                        target.delete();
+                    }
+    
+                    try {
+                        downloadFile(source, target, description);
+                        
+                    } catch (Exception e) {
+                        Reporter.informUser(this, "IO Error creating index");
+                        throw new RuntimeException("IO Error downloading index", e);
+                    }
+                    Log.i(TAG, "Finished index download thread");
+                } catch (Exception e) {
+                    Log.e(TAG, "Error downloading index", e);
+                    Reporter.informUser(this, "Error downloading index");
+                }
             }
         };
 
         // this actually starts the thread off
         worker.setPriority(Thread.MIN_PRIORITY);
         worker.start();
-	}
-	
-	public void downloadFile(URI source, File target, String description) {
+    }
+    
+    public void downloadFile(URI source, File target, String description) {
         String jobName = JSMsg.gettext("Downloading : {0}", target.getName()+" "+ description);
         Progress job = JobManager.createJob(jobName);
 
@@ -93,9 +93,9 @@ public class GenericFileDownloader {
             // Once the download is complete, we need to continue
             job.setCancelable(false);
             if (!job.isFinished()) {
-            	File tempFile = NetUtil.getAsFile(temp);
+                File tempFile = NetUtil.getAsFile(temp);
                 if (!FileManager.copyFile(tempFile, target)) {
-                	Log.e(TAG, "Download Error renaming temp file "+tempFile+" to:"+target);
+                    Log.e(TAG, "Download Error renaming temp file "+tempFile+" to:"+target);
                     Reporter.informUser(this, CommonUtils.getResourceString(R.string.error_occurred));
                     job.cancel();
                 }
@@ -121,10 +121,10 @@ public class GenericFileDownloader {
             }
         }
 
-	}
-	
+    }
+    
     private void copy(Progress job, URI source, URI dest) throws InstallException {
-    	Log.d(TAG, "Downloading "+source+" to "+dest);
+        Log.d(TAG, "Downloading "+source+" to "+dest);
         if (job != null) {
             // TRANSLATOR: Progress label for downloading one or more files.
             job.setSectionName(JSMsg.gettext("Downloading files"));
@@ -133,12 +133,12 @@ public class GenericFileDownloader {
         // last 2 params are proxies which I hope we can ignore on Android
         WebResource wr = new WebResource(source, null, null);
         try {
-        	wr.copy(dest, job);
+            wr.copy(dest, job);
         } catch (LucidException le) {
             // TRANSLATOR: Common error condition: {0} is a placeholder for the URL of what could not be found.
             throw new InstallException(JSMsg.gettext("Unable to find: {0}", source.toString()), le);
         } finally {
-        	wr.shutdown();
+            wr.shutdown();
         }
     }
 }

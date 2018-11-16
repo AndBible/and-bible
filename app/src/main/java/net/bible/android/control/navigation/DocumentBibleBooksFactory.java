@@ -24,60 +24,60 @@ import javax.inject.Inject;
  */
 @ApplicationScope
 public class DocumentBibleBooksFactory {
-	
-	private LruCache<AbstractPassageBook, DocumentBibleBooks> cache; 
+    
+    private LruCache<AbstractPassageBook, DocumentBibleBooks> cache; 
 
-	private Logger log = new Logger(this.getClass().getName());
+    private Logger log = new Logger(this.getClass().getName());
 
-	private static final int CACHE_SIZE = 10;
+    private static final int CACHE_SIZE = 10;
 
-	@Inject
-	public DocumentBibleBooksFactory() {
-		// initialise the DocumentBibleBooks factory
-		cache = new LruCache<AbstractPassageBook, DocumentBibleBooks>(CACHE_SIZE) {
+    @Inject
+    public DocumentBibleBooksFactory() {
+        // initialise the DocumentBibleBooks factory
+        cache = new LruCache<AbstractPassageBook, DocumentBibleBooks>(CACHE_SIZE) {
 
-			/** If entry for this Book not found in cache then create one
-			 */
-			@Override
-			protected DocumentBibleBooks create(AbstractPassageBook document) {
-				return new DocumentBibleBooks(document);
-			}
-		};
+            /** If entry for this Book not found in cache then create one
+             */
+            @Override
+            protected DocumentBibleBooks create(AbstractPassageBook document) {
+                return new DocumentBibleBooks(document);
+            }
+        };
 
-		initialise();
-	}
-	
-	public void initialise() {
-		log.debug("Initialising DocumentBibleBooksFactory cache");
+        initialise();
+    }
+    
+    public void initialise() {
+        log.debug("Initialising DocumentBibleBooksFactory cache");
 
-		flushCacheIfBooksChange();
-	}
-	
-	public DocumentBibleBooks getDocumentBibleBooksFor(AbstractPassageBook document) {
-		return cache.get(document);
-	}
+        flushCacheIfBooksChange();
+    }
+    
+    public DocumentBibleBooks getDocumentBibleBooksFor(AbstractPassageBook document) {
+        return cache.get(document);
+    }
 
-	public List<BibleBook> getBooksFor(AbstractPassageBook document) {
-		return getDocumentBibleBooksFor(document).getBookList();
-	}
+    public List<BibleBook> getBooksFor(AbstractPassageBook document) {
+        return getDocumentBibleBooksFor(document).getBookList();
+    }
 
-	public int size() {
-		return cache.size();
-	}
+    public int size() {
+        return cache.size();
+    }
 
-	/**
-	 * Different versions of a Book may contain different Bible books so flush cache if a Book may have been updated
-	 */
-	private void flushCacheIfBooksChange() {
-		Books.installed().addBooksListener(new BooksListener() {
-			@Override
-			public void bookAdded(BooksEvent ev) {
-				cache.evictAll();
-			}
-			@Override
-			public void bookRemoved(BooksEvent ev) {
-				cache.evictAll();
-			}
-		});
-	}
+    /**
+     * Different versions of a Book may contain different Bible books so flush cache if a Book may have been updated
+     */
+    private void flushCacheIfBooksChange() {
+        Books.installed().addBooksListener(new BooksListener() {
+            @Override
+            public void bookAdded(BooksEvent ev) {
+                cache.evictAll();
+            }
+            @Override
+            public void bookRemoved(BooksEvent ev) {
+                cache.evictAll();
+            }
+        });
+    }
 }

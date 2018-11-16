@@ -22,51 +22,51 @@ import java.util.Map;
 
 public class DocumentDownloadProgressCache {
 
-	private Map<String, Integer> percentDoneByInitials = new HashMap<>();
+    private Map<String, Integer> percentDoneByInitials = new HashMap<>();
 
-	private WorkListener progressUpdater;
+    private WorkListener progressUpdater;
 
-	private static final String INSTALL_BOOK_JOB_NAME = "INSTALL_BOOK-";
+    private static final String INSTALL_BOOK_JOB_NAME = "INSTALL_BOOK-";
 
-	public DocumentDownloadProgressCache() {
-		progressUpdater = new WorkListener() {
-			@Override
-			public void workProgressed(WorkEvent ev) {
-				sendProgressEvent(ev.getJob());
-			}
+    public DocumentDownloadProgressCache() {
+        progressUpdater = new WorkListener() {
+            @Override
+            public void workProgressed(WorkEvent ev) {
+                sendProgressEvent(ev.getJob());
+            }
 
-			@Override
-			public void workStateChanged(WorkEvent ev) {
-				sendProgressEvent(ev.getJob());
-			}
-		};
-	}
+            @Override
+            public void workStateChanged(WorkEvent ev) {
+                sendProgressEvent(ev.getJob());
+            }
+        };
+    }
 
-	public void startMonitoringDownloads() {
-		JobManager.addWorkListener(progressUpdater);
-	}
+    public void startMonitoringDownloads() {
+        JobManager.addWorkListener(progressUpdater);
+    }
 
-	public void stopMonitoringDownloads() {
-		JobManager.removeWorkListener(progressUpdater);
-	}
+    public void stopMonitoringDownloads() {
+        JobManager.removeWorkListener(progressUpdater);
+    }
 
-	/**
-	 * Download has progressed and the ui needs updating if this file item is visible
-	 */
-	public void sendProgressEvent(Progress progress) {
-		final String jobID = progress.getJobID();
-		if (jobID.startsWith(INSTALL_BOOK_JOB_NAME)) {
-			String initials = jobID.substring(INSTALL_BOOK_JOB_NAME.length());
+    /**
+     * Download has progressed and the ui needs updating if this file item is visible
+     */
+    public void sendProgressEvent(Progress progress) {
+        final String jobID = progress.getJobID();
+        if (jobID.startsWith(INSTALL_BOOK_JOB_NAME)) {
+            String initials = jobID.substring(INSTALL_BOOK_JOB_NAME.length());
 
-			final int percentDone = progress.getWork();
-			percentDoneByInitials.put(initials, percentDone);
+            final int percentDone = progress.getWork();
+            percentDoneByInitials.put(initials, percentDone);
 
-			ABEventBus.getDefault().post(new DocumentDownloadEvent(initials, DocumentStatus.DocumentInstallStatus.BEING_INSTALLED, percentDone));
-		}
-	}
+            ABEventBus.getDefault().post(new DocumentDownloadEvent(initials, DocumentStatus.DocumentInstallStatus.BEING_INSTALLED, percentDone));
+        }
+    }
 
-	public int getPercentDone(Book document) {
-		Integer percentDone = percentDoneByInitials.get(document.getInitials());
-		return percentDone!=null ? percentDone : 0;
-	}
+    public int getPercentDone(Book document) {
+        Integer percentDone = percentDoneByInitials.get(document.getInitials());
+        return percentDone!=null ? percentDone : 0;
+    }
 }

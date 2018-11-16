@@ -8,6 +8,6 @@ import org.robolectric.RobolectricTestRunner;
  */
 public class MyRobolectricTestRunner extends RobolectricTestRunner {
     public MyRobolectricTestRunner(Class<?> klass) throws InitializationError {
-		super(klass);
+        super(klass);
     }
 }

@@ -21,24 +21,24 @@ import net.bible.service.common.CommonUtils;
  */
 class BookmarkColourListPrefWrapperAdapter extends ListPrefWrapperAdapter {
 
-	private Context context;
+    private Context context;
 
-	private String sampleText = CommonUtils.getResourceString(R.string.prefs_text_size_sample_text);
+    private String sampleText = CommonUtils.getResourceString(R.string.prefs_text_size_sample_text);
 
-	private BookmarkStyleAdapterHelper bookmarkStyleAdapterHelper;
+    private BookmarkStyleAdapterHelper bookmarkStyleAdapterHelper;
 
     public BookmarkColourListPrefWrapperAdapter(Context context, ListAdapter origAdapter) {
-		super(origAdapter);
-		this.context = context;
-		this.bookmarkStyleAdapterHelper = new BookmarkStyleAdapterHelper();
+        super(origAdapter);
+        this.context = context;
+        this.bookmarkStyleAdapterHelper = new BookmarkStyleAdapterHelper();
     }
 
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		TextView view = (TextView)super.getView(position, convertView, parent);
-		final BookmarkStyle bookmarkStyle = BookmarkStyle.values()[position];
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        TextView view = (TextView)super.getView(position, convertView, parent);
+        final BookmarkStyle bookmarkStyle = BookmarkStyle.values()[position];
 
-		bookmarkStyleAdapterHelper.styleView(view, bookmarkStyle, context, true, true);
-		return view;
-	}
+        bookmarkStyleAdapterHelper.styleView(view, bookmarkStyle, context, true, true);
+        return view;
+    }
 }

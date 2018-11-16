@@ -6,22 +6,22 @@
       The copyright to this program is held by it's author.
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-			  android:orientation="vertical"
-			  android:layout_width="fill_parent"
-			  android:layout_height="fill_parent"
-	>
-	<!-- Here is the list. Since we are using a ListActivity, we have to call it "@android:id/list" so ListActivity will find it -->
-	<ListView
-		android:id="@android:id/list"
-		android:layout_height="fill_parent"
-		android:layout_width="fill_parent"/>
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+    >
+    <!-- Here is the list. Since we are using a ListActivity, we have to call it "@android:id/list" so ListActivity will find it -->
+    <ListView
+        android:id="@android:id/list"
+        android:layout_height="fill_parent"
+        android:layout_width="fill_parent"/>
 
-	<TextView
-		android:id="@android:id/empty"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:textAppearance="?attr/textAppearanceListItem"
-		android:gravity="center_horizontal"
-		android:paddingTop="16dip"
-		android:text="@string/empty_list"/>
+    <TextView
+        android:id="@android:id/empty"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textAppearance="?attr/textAppearanceListItem"
+        android:gravity="center_horizontal"
+        android:paddingTop="16dip"
+        android:text="@string/empty_list"/>
 </LinearLayout>

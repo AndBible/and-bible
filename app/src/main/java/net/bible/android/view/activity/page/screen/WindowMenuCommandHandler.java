@@ -11,15 +11,15 @@ import javax.inject.Inject;
 
 @ApplicationScope
 public class WindowMenuCommandHandler {
-	
-	private final WindowControl windowControl;
+    
+    private final WindowControl windowControl;
 
-	@Inject
-	public WindowMenuCommandHandler(WindowControl windowControl) {
-		this.windowControl = windowControl;
-	}
-	
-	/** 
+    @Inject
+    public WindowMenuCommandHandler(WindowControl windowControl) {
+        this.windowControl = windowControl;
+    }
+    
+    /** 
      * on Click handlers
      */
     public boolean handleMenuRequest(MenuItem menuItem) {
@@ -27,45 +27,45 @@ public class WindowMenuCommandHandler {
         
         // Handle item selection
         Window activeWindow = windowControl.getActiveWindow();
-		switch (menuItem.getItemId()) {
-		case R.id.windowNew:
-			windowControl.addNewWindow();
-			isHandled = true;
-			break;
-		case R.id.windowMaximise:
-			if (activeWindow.isMaximised()) {
-				windowControl.unmaximiseWindow(activeWindow);
-				menuItem.setChecked(false);
-			} else {
-				windowControl.maximiseWindow(activeWindow);
-				menuItem.setChecked(true);
-			}
-			isHandled = true;
-			break;
-		case R.id.windowMinimise:
-			windowControl.minimiseCurrentWindow();
-			isHandled = true;
-			break;
-		case R.id.windowClose:
-			windowControl.closeCurrentWindow();
-			isHandled = true;
-			break;
-		case R.id.windowMoveFirst:
-			windowControl.moveCurrentWindowToFirst();
-			isHandled = true;
-			break;
-		case R.id.windowSynchronise:
-			if (activeWindow.isSynchronised()) {
-				windowControl.unsynchroniseCurrentWindow();
-				menuItem.setChecked(false);
-			} else {
-				windowControl.synchroniseCurrentWindow();
-				menuItem.setChecked(true);
-			}
-			isHandled = true;
-			break;
+        switch (menuItem.getItemId()) {
+        case R.id.windowNew:
+            windowControl.addNewWindow();
+            isHandled = true;
+            break;
+        case R.id.windowMaximise:
+            if (activeWindow.isMaximised()) {
+                windowControl.unmaximiseWindow(activeWindow);
+                menuItem.setChecked(false);
+            } else {
+                windowControl.maximiseWindow(activeWindow);
+                menuItem.setChecked(true);
+            }
+            isHandled = true;
+            break;
+        case R.id.windowMinimise:
+            windowControl.minimiseCurrentWindow();
+            isHandled = true;
+            break;
+        case R.id.windowClose:
+            windowControl.closeCurrentWindow();
+            isHandled = true;
+            break;
+        case R.id.windowMoveFirst:
+            windowControl.moveCurrentWindowToFirst();
+            isHandled = true;
+            break;
+        case R.id.windowSynchronise:
+            if (activeWindow.isSynchronised()) {
+                windowControl.unsynchroniseCurrentWindow();
+                menuItem.setChecked(false);
+            } else {
+                windowControl.synchroniseCurrentWindow();
+                menuItem.setChecked(true);
+            }
+            isHandled = true;
+            break;
         }
         
         return isHandled;
-	}
+    }
 }

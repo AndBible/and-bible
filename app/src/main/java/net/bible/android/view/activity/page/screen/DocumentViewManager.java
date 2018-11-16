@@ -27,51 +27,51 @@ import java.util.List;
 @MainBibleActivityScope
 public class DocumentViewManager {
 
-	private DocumentWebViewBuilder documentWebViewBuilder;
-	private MyNoteViewBuilder myNoteViewBuilder;
-	private LinearLayout parent;
-	
-	private WindowControl windowControl;
-	private MainBibleActivity mainBibleActivity;
+    private DocumentWebViewBuilder documentWebViewBuilder;
+    private MyNoteViewBuilder myNoteViewBuilder;
+    private LinearLayout parent;
+    
+    private WindowControl windowControl;
+    private MainBibleActivity mainBibleActivity;
 
-	@Inject
-	public DocumentViewManager(MainBibleActivity mainBibleActivity, DocumentWebViewBuilder documentWebViewBuilder, MyNoteViewBuilder myNoteViewBuilder, WindowControl windowControl) {
-		this.mainBibleActivity = mainBibleActivity;
-		this.documentWebViewBuilder = documentWebViewBuilder;
-		this.myNoteViewBuilder = myNoteViewBuilder;
-		this.parent = (LinearLayout)mainBibleActivity.findViewById(R.id.mainBibleView);
-		this.windowControl = windowControl;
+    @Inject
+    public DocumentViewManager(MainBibleActivity mainBibleActivity, DocumentWebViewBuilder documentWebViewBuilder, MyNoteViewBuilder myNoteViewBuilder, WindowControl windowControl) {
+        this.mainBibleActivity = mainBibleActivity;
+        this.documentWebViewBuilder = documentWebViewBuilder;
+        this.myNoteViewBuilder = myNoteViewBuilder;
+        this.parent = (LinearLayout)mainBibleActivity.findViewById(R.id.mainBibleView);
+        this.windowControl = windowControl;
 
-		ABEventBus.getDefault().register(this);
-	}
-	
-	public void onEvent(NumberOfWindowsChangedEvent event) {
-		buildView();
-	}
+        ABEventBus.getDefault().register(this);
+    }
+    
+    public void onEvent(NumberOfWindowsChangedEvent event) {
+        buildView();
+    }
 
-	public synchronized void buildView() {
-    	if (myNoteViewBuilder.isMyNoteViewType()) {
-    		documentWebViewBuilder.removeWebView(parent);
-    		myNoteViewBuilder.addMyNoteView(parent);
-    	} else {
-    		myNoteViewBuilder.removeMyNoteView(parent);
-    		documentWebViewBuilder.addWebView(parent);
-    	}
-		List<Window> windows = windowControl.getWindowRepository().getVisibleWindows();
-		for(Window window: windows) {
-			mainBibleActivity.registerForContextMenu((View) getDocumentView(window));
-		}
-	}
+    public synchronized void buildView() {
+        if (myNoteViewBuilder.isMyNoteViewType()) {
+            documentWebViewBuilder.removeWebView(parent);
+            myNoteViewBuilder.addMyNoteView(parent);
+        } else {
+            myNoteViewBuilder.removeMyNoteView(parent);
+            documentWebViewBuilder.addWebView(parent);
+        }
+        List<Window> windows = windowControl.getWindowRepository().getVisibleWindows();
+        for(Window window: windows) {
+            mainBibleActivity.registerForContextMenu((View) getDocumentView(window));
+        }
+    }
 
-	public DocumentView getDocumentView() {
-		return getDocumentView(windowControl.getActiveWindow());
-	}
-	public DocumentView getDocumentView(Window window) {
-		if (myNoteViewBuilder.isMyNoteViewType()) {
-			return myNoteViewBuilder.getView();
-		} else {
-			// a specific screen is specified to prevent content going to wrong screen if active screen is changed fast
-			return documentWebViewBuilder.getView(window);
-		}
-	}
+    public DocumentView getDocumentView() {
+        return getDocumentView(windowControl.getActiveWindow());
+    }
+    public DocumentView getDocumentView(Window window) {
+        if (myNoteViewBuilder.isMyNoteViewType()) {
+            return myNoteViewBuilder.getView();
+        } else {
+            // a specific screen is specified to prevent content going to wrong screen if active screen is changed fast
+            return documentWebViewBuilder.getView(window);
+        }
+    }
 }

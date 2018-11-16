@@ -43,46 +43,46 @@ import net.bible.service.device.speak.TextToSpeechNotificationManager;
 @ActivityScope
 @Component(dependencies = {ApplicationComponent.class} )
 public interface ActivityComponent {
-	// Activities that are permitted to be injected
+    // Activities that are permitted to be injected
 
-	// don't like this but inject is called from ActivityBase and the subclasses
-	void inject(ActivityBase activityBase);
+    // don't like this but inject is called from ActivityBase and the subclasses
+    void inject(ActivityBase activityBase);
 
-	void inject(StartupActivity startupActivity);
+    void inject(StartupActivity startupActivity);
 
-	void inject(Bookmarks bookmarks);
-	void inject(BookmarkLabels bookmarkLabels);
-	void inject(ManageLabels manageLabels);
+    void inject(Bookmarks bookmarks);
+    void inject(BookmarkLabels bookmarkLabels);
+    void inject(ManageLabels manageLabels);
 
-	void inject(GridChoosePassageBook gridChoosePassageBook);
-	void inject(GridChoosePassageChapter gridChoosePassageChapter);
-	void inject(GridChoosePassageVerse gridChoosePassageVerse);
-	void inject(ChooseDictionaryWord chooseDictionaryWord);
-	void inject(ChooseKeyBase chooseKeyBase);
+    void inject(GridChoosePassageBook gridChoosePassageBook);
+    void inject(GridChoosePassageChapter gridChoosePassageChapter);
+    void inject(GridChoosePassageVerse gridChoosePassageVerse);
+    void inject(ChooseDictionaryWord chooseDictionaryWord);
+    void inject(ChooseKeyBase chooseKeyBase);
 
-	void inject(ChooseDocument chooseDocument);
-	void inject(Download download);
+    void inject(ChooseDocument chooseDocument);
+    void inject(Download download);
 
-	void inject(GeneralSpeakActivity speak);
-	void inject(BibleSpeakActivity speakBible);
-	void inject(DailyReading dailyReading);
-	void inject(DailyReadingList dailyReadingList);
-	void inject(ReadingPlanSelectorList readingPlanSelectorList);
-	void inject(SearchIndex searchIndex);
-	void inject(Search search);
-	void inject(SearchResults searchResults);
-	void inject(CompareTranslations compareTranslations);
-	void inject(FootnoteAndRefActivity footnoteAndRefActivity);
-	void inject(MyNotes myNotes);
-	void inject(History history);
-	void inject(Help help);
+    void inject(GeneralSpeakActivity speak);
+    void inject(BibleSpeakActivity speakBible);
+    void inject(DailyReading dailyReading);
+    void inject(DailyReadingList dailyReadingList);
+    void inject(ReadingPlanSelectorList readingPlanSelectorList);
+    void inject(SearchIndex searchIndex);
+    void inject(Search search);
+    void inject(SearchResults searchResults);
+    void inject(CompareTranslations compareTranslations);
+    void inject(FootnoteAndRefActivity footnoteAndRefActivity);
+    void inject(MyNotes myNotes);
+    void inject(History history);
+    void inject(Help help);
 
-	// Services
-	void inject(TextToSpeechNotificationManager m);
-	void inject(SpeakWidgetManager w);
+    // Services
+    void inject(TextToSpeechNotificationManager m);
+    void inject(SpeakWidgetManager w);
 
-	// progress status screens
-	void inject(SearchIndexProgressStatus searchIndexProgressStatus);
-	void inject(DownloadStatus downloadStatus);
-	void inject(ProgressStatus progressStatus);
+    // progress status screens
+    void inject(SearchIndexProgressStatus searchIndexProgressStatus);
+    void inject(DownloadStatus downloadStatus);
+    void inject(ProgressStatus progressStatus);
 }

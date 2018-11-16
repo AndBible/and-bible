@@ -13,5 +13,5 @@ import net.bible.android.control.versification.ConvertibleVerseRange;
 
 public interface ConvertibleVerseRangeUser {
 
-	ConvertibleVerseRange getConvertibleVerseRange();
+    ConvertibleVerseRange getConvertibleVerseRange();
 }

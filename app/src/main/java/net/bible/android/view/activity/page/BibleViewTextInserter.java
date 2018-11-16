@@ -7,7 +7,7 @@ package net.bible.android.view.activity.page;
  */
 public interface BibleViewTextInserter {
 
-	void insertTextAtTop(String textId, String text);
+    void insertTextAtTop(String textId, String text);
 
-	void insertTextAtEnd(String textId, String text);
+    void insertTextAtEnd(String textId, String text);
 }

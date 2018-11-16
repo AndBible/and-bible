@@ -16,27 +16,27 @@ import javax.inject.Inject;
 @ApplicationScope
 public class DictionaryActionBarButton extends QuickDocumentChangeToolbarButton {
 
-	private final DocumentControl documentControl;
+    private final DocumentControl documentControl;
 
-	@Inject
-	public DictionaryActionBarButton(DocumentControl documentControl) {
-		this.documentControl = documentControl;
-	}
+    @Inject
+    public DictionaryActionBarButton(DocumentControl documentControl) {
+        this.documentControl = documentControl;
+    }
 
-	@Override
-	protected
-	Book getSuggestedDocument() {
-		return documentControl.getSuggestedDictionary();
-	}
+    @Override
+    protected
+    Book getSuggestedDocument() {
+        return documentControl.getSuggestedDictionary();
+    }
 
-	/**
-	 * Not important enough to show if limited space
-	 * (non-Javadoc)
-	 * @see net.bible.android.view.activity.base.actionbar.QuickDocumentChangeToolbarButton#canShow()
-	 */
-	@Override
-	protected boolean canShow() {
-		return super.canShow() &&
-				isWide();
-	}
+    /**
+     * Not important enough to show if limited space
+     * (non-Javadoc)
+     * @see net.bible.android.view.activity.base.actionbar.QuickDocumentChangeToolbarButton#canShow()
+     */
+    @Override
+    protected boolean canShow() {
+        return super.canShow() &&
+                isWide();
+    }
 }

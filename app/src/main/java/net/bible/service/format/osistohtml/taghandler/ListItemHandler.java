@@ -15,24 +15,24 @@ import org.xml.sax.Attributes;
  */
 public class ListItemHandler implements OsisTagHandler {
 
-	private HtmlTextWriter writer;
-	
-	public ListItemHandler(HtmlTextWriter writer) {
-		this.writer = writer;
-	}
-	
-	@Override
-	public String getTagName() {
+    private HtmlTextWriter writer;
+    
+    public ListItemHandler(HtmlTextWriter writer) {
+        this.writer = writer;
+    }
+    
+    @Override
+    public String getTagName() {
         return OSISUtil.OSIS_ELEMENT_ITEM;
     }
 
-	@Override
-	public void start(Attributes attrs) {
-		writer.write("<li>");
-	}
+    @Override
+    public void start(Attributes attrs) {
+        writer.write("<li>");
+    }
 
-	@Override
-	public void end() {
-		writer.write("</li>");
-	}
+    @Override
+    public void end() {
+        writer.write("</li>");
+    }
 }

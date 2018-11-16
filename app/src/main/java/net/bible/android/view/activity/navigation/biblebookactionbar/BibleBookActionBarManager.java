@@ -20,52 +20,52 @@ import javax.inject.Inject;
 @ApplicationScope
 public class BibleBookActionBarManager extends DefaultActionBarManager implements ActionBarManager {
 
-	private final ScriptureToggleActionBarButton scriptureToggleActionBarButton;
-	private final SortActionBarButton sortActionBarButton;
+    private final ScriptureToggleActionBarButton scriptureToggleActionBarButton;
+    private final SortActionBarButton sortActionBarButton;
 
-	@Inject
-	public BibleBookActionBarManager(ScriptureToggleActionBarButton scriptureToggleActionBarButton, SortActionBarButton sortActionBarButton) {
-		this.scriptureToggleActionBarButton = scriptureToggleActionBarButton;
-		this.sortActionBarButton = sortActionBarButton;
-	}
-	
-	public void registerScriptureToggleClickListener(OnClickListener scriptureToggleClickListener) {
-		scriptureToggleActionBarButton.registerClickListener(scriptureToggleClickListener);
-	}
-	
-	public void setScriptureShown(boolean isScripture) {
-		scriptureToggleActionBarButton.setOn(isScripture);
-	}
-	
-	public SortActionBarButton getSortButton() {
-		return sortActionBarButton;
-	}
+    @Inject
+    public BibleBookActionBarManager(ScriptureToggleActionBarButton scriptureToggleActionBarButton, SortActionBarButton sortActionBarButton) {
+        this.scriptureToggleActionBarButton = scriptureToggleActionBarButton;
+        this.sortActionBarButton = sortActionBarButton;
+    }
+    
+    public void registerScriptureToggleClickListener(OnClickListener scriptureToggleClickListener) {
+        scriptureToggleActionBarButton.registerClickListener(scriptureToggleClickListener);
+    }
+    
+    public void setScriptureShown(boolean isScripture) {
+        scriptureToggleActionBarButton.setOn(isScripture);
+    }
+    
+    public SortActionBarButton getSortButton() {
+        return sortActionBarButton;
+    }
 
-	/* (non-Javadoc)
-	 * @see net.bible.android.view.activity.page.actionbar.ActionBarManager#prepareOptionsMenu(android.app.Activity, android.view.Menu, android.support.v7.app.ActionBar, net.bible.android.view.activity.page.MenuCommandHandler)
-	 */
-	@Override
-	public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar) {
-		super.prepareOptionsMenu(activity, menu, actionBar);
-		
-		scriptureToggleActionBarButton.addToMenu(menu);
-		sortActionBarButton.addToMenu(menu);
-	}
-	
-	/* (non-Javadoc)
-	 * @see net.bible.android.view.activity.page.actionbar.ActionBarManager#updateButtons()
-	 */
-	@Override
-	public void updateButtons() {
-		super.updateButtons();
-		
-		// this can be called on end of speech in non-ui thread
-		CurrentActivityHolder.getInstance().runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				scriptureToggleActionBarButton.update();
-				sortActionBarButton.update();
-		    }
-		});
-	}
+    /* (non-Javadoc)
+     * @see net.bible.android.view.activity.page.actionbar.ActionBarManager#prepareOptionsMenu(android.app.Activity, android.view.Menu, android.support.v7.app.ActionBar, net.bible.android.view.activity.page.MenuCommandHandler)
+     */
+    @Override
+    public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar) {
+        super.prepareOptionsMenu(activity, menu, actionBar);
+        
+        scriptureToggleActionBarButton.addToMenu(menu);
+        sortActionBarButton.addToMenu(menu);
+    }
+    
+    /* (non-Javadoc)
+     * @see net.bible.android.view.activity.page.actionbar.ActionBarManager#updateButtons()
+     */
+    @Override
+    public void updateButtons() {
+        super.updateButtons();
+        
+        // this can be called on end of speech in non-ui thread
+        CurrentActivityHolder.getInstance().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                scriptureToggleActionBarButton.update();
+                sortActionBarButton.update();
+            }
+        });
+    }
 }

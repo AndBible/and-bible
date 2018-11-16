@@ -36,134 +36,134 @@ import javax.inject.Inject;
 @ApplicationScope
 public class HistoryManager {
 
-	private static int MAX_HISTORY = 80;
-	
-	private final Map<Window, Stack<HistoryItem>> screenHistoryStackMap = new HashMap<>();
+    private static int MAX_HISTORY = 80;
+    
+    private final Map<Window, Stack<HistoryItem>> screenHistoryStackMap = new HashMap<>();
 
-	private boolean isGoingBack = false;
-	
-	private final WindowControl windowControl;
-	
-	private static final String TAG = "HistoryManager";
-	
-	@Inject
-	public HistoryManager(WindowControl windowControl) {
-		this.windowControl = windowControl;
+    private boolean isGoingBack = false;
+    
+    private final WindowControl windowControl;
+    
+    private static final String TAG = "HistoryManager";
+    
+    @Inject
+    public HistoryManager(WindowControl windowControl) {
+        this.windowControl = windowControl;
 
-		// register for BeforePageChangeEvent
-		Log.i(TAG, "Registering HistoryManager with EventBus");
-		ABEventBus.getDefault().safelyRegister(this);
-	}
-	
+        // register for BeforePageChangeEvent
+        Log.i(TAG, "Registering HistoryManager with EventBus");
+        ABEventBus.getDefault().safelyRegister(this);
+    }
+    
     /** allow current page to save any settings or data before being changed
      */
     public void onEvent(BeforeCurrentPageChangeEvent event) {
-    	if(event.getUpdateHistory()) {
-			addHistoryItem();
-		}
+        if(event.getUpdateHistory()) {
+            addHistoryItem();
+        }
     }
-	
-	public boolean canGoBack() {
-		return getHistoryStack().size()>0;
-	}
-	
-	/**
-	 *  called when a verse is changed to allow current Activity to be saved in History list
-	 */
-	public void addHistoryItem() {
-		// if we cause the change by requesting Back then ignore it
-		if (!isGoingBack) {
-			HistoryItem item = createHistoryItem();
-			add(getHistoryStack(), item);
-		}
-	}
+    
+    public boolean canGoBack() {
+        return getHistoryStack().size()>0;
+    }
+    
+    /**
+     *  called when a verse is changed to allow current Activity to be saved in History list
+     */
+    public void addHistoryItem() {
+        // if we cause the change by requesting Back then ignore it
+        if (!isGoingBack) {
+            HistoryItem item = createHistoryItem();
+            add(getHistoryStack(), item);
+        }
+    }
 
-	private HistoryItem createHistoryItem() {
-		HistoryItem historyItem = null;
-		
-		Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
-		if (currentActivity instanceof MainBibleActivity) {
-			CurrentPage currentPage = windowControl.getActiveWindowPageManager().getCurrentPage();
-			Book doc = currentPage.getCurrentDocument();
-			if (currentPage.getKey()==null) {
-				return null;
-			}
-			
-			Key key = currentPage.getSingleKey();
-			float yOffsetRatio = currentPage.getCurrentYOffsetRatio();
-			historyItem = new KeyHistoryItem(doc, key, yOffsetRatio, windowControl.getActiveWindow());
-		} else if (currentActivity instanceof AndBibleActivity) {
-			AndBibleActivity andBibleActivity = (AndBibleActivity)currentActivity;
-			if (andBibleActivity.isIntegrateWithHistoryManager()) {
-				historyItem = new IntentHistoryItem(currentActivity.getTitle(), ((AndBibleActivity) currentActivity).getIntentForHistoryList(), windowControl.getActiveWindow());
-			}
-		}
-		return historyItem;
-	}
-	
-	public void goBack() {
-		if (getHistoryStack().size()>0) {
-			try {
-				Log.d(TAG, "History size:"+getHistoryStack().size());
-				isGoingBack = true;
-	
-				// pop the previous item
-				HistoryItem previousItem = getHistoryStack().pop();
-	
-				if (previousItem!=null) {
-					Log.d(TAG, "Going back to:"+previousItem);
-					previousItem.revertTo();
-					
-					// finish current activity if not the Main screen
-					Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
-					if (!(currentActivity instanceof MainBibleActivity)) {
-						currentActivity.finish();
-					}
-				}
-			} finally {
-				isGoingBack = false;
-			}
-		}
-	}
-	
-	public List<HistoryItem> getHistory() {
-		List<HistoryItem> allHistory = new ArrayList<>(getHistoryStack());
-		// reverse so most recent items are at top rather than end
-		Collections.reverse(allHistory);
-		return allHistory;
-	}
-	
-	/**
-	 * Add item and check size of stack
-	 */
-	private synchronized void add(Stack<HistoryItem> stack, HistoryItem item) {
-		if (item!=null) {
-			if (stack.isEmpty() || !item.equals(stack.peek())) {
-				Log.d(TAG, "Adding "+item+" to history");
-				Log.d(TAG, "Stack size:"+stack.size());
-				
-				stack.push(item);
-				
-				while (stack.size()>MAX_HISTORY) {
-					Log.d(TAG, "Shrinking large stack");
-					stack.remove(0);
-				}
-			}
-		}
-	}
-	
-	private Stack<HistoryItem> getHistoryStack() {
-		Window window = windowControl.getActiveWindow();
-		Stack<HistoryItem> historyStack = screenHistoryStackMap.get(window);
-		if (historyStack==null) {
-			synchronized(screenHistoryStackMap) {
-				historyStack = screenHistoryStackMap.get(window);
-				if (historyStack==null) {
-					historyStack = new Stack<>();
-					screenHistoryStackMap.put(window, historyStack);
-				}
-			}
-		}
-		return historyStack;
-	}
+    private HistoryItem createHistoryItem() {
+        HistoryItem historyItem = null;
+        
+        Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
+        if (currentActivity instanceof MainBibleActivity) {
+            CurrentPage currentPage = windowControl.getActiveWindowPageManager().getCurrentPage();
+            Book doc = currentPage.getCurrentDocument();
+            if (currentPage.getKey()==null) {
+                return null;
+            }
+            
+            Key key = currentPage.getSingleKey();
+            float yOffsetRatio = currentPage.getCurrentYOffsetRatio();
+            historyItem = new KeyHistoryItem(doc, key, yOffsetRatio, windowControl.getActiveWindow());
+        } else if (currentActivity instanceof AndBibleActivity) {
+            AndBibleActivity andBibleActivity = (AndBibleActivity)currentActivity;
+            if (andBibleActivity.isIntegrateWithHistoryManager()) {
+                historyItem = new IntentHistoryItem(currentActivity.getTitle(), ((AndBibleActivity) currentActivity).getIntentForHistoryList(), windowControl.getActiveWindow());
+            }
+        }
+        return historyItem;
+    }
+    
+    public void goBack() {
+        if (getHistoryStack().size()>0) {
+            try {
+                Log.d(TAG, "History size:"+getHistoryStack().size());
+                isGoingBack = true;
+    
+                // pop the previous item
+                HistoryItem previousItem = getHistoryStack().pop();
+    
+                if (previousItem!=null) {
+                    Log.d(TAG, "Going back to:"+previousItem);
+                    previousItem.revertTo();
+                    
+                    // finish current activity if not the Main screen
+                    Activity currentActivity = CurrentActivityHolder.getInstance().getCurrentActivity();
+                    if (!(currentActivity instanceof MainBibleActivity)) {
+                        currentActivity.finish();
+                    }
+                }
+            } finally {
+                isGoingBack = false;
+            }
+        }
+    }
+    
+    public List<HistoryItem> getHistory() {
+        List<HistoryItem> allHistory = new ArrayList<>(getHistoryStack());
+        // reverse so most recent items are at top rather than end
+        Collections.reverse(allHistory);
+        return allHistory;
+    }
+    
+    /**
+     * Add item and check size of stack
+     */
+    private synchronized void add(Stack<HistoryItem> stack, HistoryItem item) {
+        if (item!=null) {
+            if (stack.isEmpty() || !item.equals(stack.peek())) {
+                Log.d(TAG, "Adding "+item+" to history");
+                Log.d(TAG, "Stack size:"+stack.size());
+                
+                stack.push(item);
+                
+                while (stack.size()>MAX_HISTORY) {
+                    Log.d(TAG, "Shrinking large stack");
+                    stack.remove(0);
+                }
+            }
+        }
+    }
+    
+    private Stack<HistoryItem> getHistoryStack() {
+        Window window = windowControl.getActiveWindow();
+        Stack<HistoryItem> historyStack = screenHistoryStackMap.get(window);
+        if (historyStack==null) {
+            synchronized(screenHistoryStackMap) {
+                historyStack = screenHistoryStackMap.get(window);
+                if (historyStack==null) {
+                    historyStack = new Stack<>();
+                    screenHistoryStackMap.put(window, historyStack);
+                }
+            }
+        }
+        return historyStack;
+    }
 }

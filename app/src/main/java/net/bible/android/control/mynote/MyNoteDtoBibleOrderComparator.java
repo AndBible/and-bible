@@ -15,14 +15,14 @@ import java.util.List;
  */
 
 public class MyNoteDtoBibleOrderComparator implements Comparator<MyNoteDto> {
-	private final ConvertibleVerseRangeComparator convertibleVerseRangeComparator;
+    private final ConvertibleVerseRangeComparator convertibleVerseRangeComparator;
 
-	public MyNoteDtoBibleOrderComparator(List<MyNoteDto> myNoteDtos) {
-		this.convertibleVerseRangeComparator = new ConvertibleVerseRangeComparator.Builder().withMyNotes(myNoteDtos).build();
-	}
+    public MyNoteDtoBibleOrderComparator(List<MyNoteDto> myNoteDtos) {
+        this.convertibleVerseRangeComparator = new ConvertibleVerseRangeComparator.Builder().withMyNotes(myNoteDtos).build();
+    }
 
-	@Override
-	public int compare(MyNoteDto o1, MyNoteDto o2) {
-		return convertibleVerseRangeComparator.compare(o1, o2);
-	}
+    @Override
+    public int compare(MyNoteDto o1, MyNoteDto o2) {
+        return convertibleVerseRangeComparator.compare(o1, o2);
+    }
 }

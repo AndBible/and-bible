@@ -12,24 +12,24 @@ import net.bible.android.view.activity.base.actionbar.QuickActionButton;
  */
 public abstract class SpeakActionBarButtonBase extends QuickActionButton {
 
-	private SpeakControl speakControl;
-	
-	protected static final int SPEAK_START_PRIORITY = 10;
+    private SpeakControl speakControl;
+    
+    protected static final int SPEAK_START_PRIORITY = 10;
 
-	public SpeakActionBarButtonBase(SpeakControl speakControl) {
-		// overridden by canShow
-		super(MenuItemCompat.SHOW_AS_ACTION_ALWAYS);
-		this.speakControl = speakControl;
-	}
+    public SpeakActionBarButtonBase(SpeakControl speakControl) {
+        // overridden by canShow
+        super(MenuItemCompat.SHOW_AS_ACTION_ALWAYS);
+        this.speakControl = speakControl;
+    }
 
-	/**  return true if Speak button can be shown */
-	public boolean canSpeak() {
-		boolean canspeakDoc = speakControl.isCurrentDocSpeakAvailable();
-		return //isEnoughRoomInToolbar() && 
-				canspeakDoc;
-	}
-	
-	protected SpeakControl getSpeakControl() {
-		return speakControl;
-	}
+    /**  return true if Speak button can be shown */
+    public boolean canSpeak() {
+        boolean canspeakDoc = speakControl.isCurrentDocSpeakAvailable();
+        return //isEnoughRoomInToolbar() && 
+                canspeakDoc;
+    }
+    
+    protected SpeakControl getSpeakControl() {
+        return speakControl;
+    }
 }

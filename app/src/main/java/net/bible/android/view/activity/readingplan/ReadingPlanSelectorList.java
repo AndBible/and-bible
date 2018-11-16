@@ -29,14 +29,14 @@ import java.util.List;
  *      The copyright to this program is held by it's author.
  */
 public class ReadingPlanSelectorList extends ListActivityBase {
-	private static final String TAG = "ReadingPlanList";
-	
+    private static final String TAG = "ReadingPlanList";
+    
     private List<ReadingPlanInfoDto> mReadingPlanList;
     private ArrayAdapter<ReadingPlanInfoDto> mPlanArrayAdapter;
 
-	private ReadingPlanControl readingPlanControl;
+    private ReadingPlanControl readingPlanControl;
 
-	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
+    private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_2;
 
     /** Called when the activity is first created. */
     @Override
@@ -45,64 +45,64 @@ public class ReadingPlanSelectorList extends ListActivityBase {
         Log.i(TAG, "Displaying Reading Plan List");
         setContentView(R.layout.list);
 
-		buildActivityComponent().inject(this);
+        buildActivityComponent().inject(this);
         try {
-	        mReadingPlanList = readingPlanControl.getReadingPlanList();
-	
-	       	mPlanArrayAdapter = new ReadingPlanItemAdapter(this, LIST_ITEM_TYPE, mReadingPlanList);
-	        setListAdapter(mPlanArrayAdapter);
-	           
-	    	registerForContextMenu(getListView());
+            mReadingPlanList = readingPlanControl.getReadingPlanList();
+    
+               mPlanArrayAdapter = new ReadingPlanItemAdapter(this, LIST_ITEM_TYPE, mReadingPlanList);
+            setListAdapter(mPlanArrayAdapter);
+               
+            registerForContextMenu(getListView());
         } catch (Exception e) {
-        	Log.e(TAG, "Error occurred analysing reading lists", e);
-        	Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
-        	finish();
+            Log.e(TAG, "Error occurred analysing reading lists", e);
+            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+            finish();
         }
-    	Log.d(TAG, "Finished displaying Reading Plan list");
+        Log.d(TAG, "Finished displaying Reading Plan list");
     }
  
     /** if a plan is selected then ask confirmation, save plan, and go straight to first day
      */
     @Override
-	protected void onListItemClick(ListView l, View v, final int position, long id) {
-    	try {
-			readingPlanControl.startReadingPlan(mReadingPlanList.get(position));
-			
-			Intent intent = new Intent(ReadingPlanSelectorList.this, DailyReading.class);
-			startActivity(intent);
-			finish();
-		} catch (Exception e) {
-			Log.e(TAG, "Plan selection error", e);
-			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
-		}
-	}
+    protected void onListItemClick(ListView l, View v, final int position, long id) {
+        try {
+            readingPlanControl.startReadingPlan(mReadingPlanList.get(position));
+            
+            Intent intent = new Intent(ReadingPlanSelectorList.this, DailyReading.class);
+            startActivity(intent);
+            finish();
+        } catch (Exception e) {
+            Log.e(TAG, "Plan selection error", e);
+            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+        }
+    }
     
     @Override
-	public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-		super.onCreateContextMenu(menu, v, menuInfo);
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.reading_plan_list_context_menu, menu);
-	}
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.reading_plan_list_context_menu, menu);
+    }
 
 
-	@Override
-	public boolean onContextItemSelected(MenuItem item) {
-		super.onContextItemSelected(item);
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        super.onContextItemSelected(item);
         AdapterContextMenuInfo menuInfo = (AdapterContextMenuInfo) item.getMenuInfo();
-		ReadingPlanInfoDto plan = mReadingPlanList.get(menuInfo.position);
-		Log.d(TAG, "Selected "+plan.getCode());
-		if (plan!=null) {
-			switch (item.getItemId()) {
-			case (R.id.reset):
-				readingPlanControl.reset(plan);
-				return true;
-			}
-		}
-		return false; 
-	}
+        ReadingPlanInfoDto plan = mReadingPlanList.get(menuInfo.position);
+        Log.d(TAG, "Selected "+plan.getCode());
+        if (plan!=null) {
+            switch (item.getItemId()) {
+            case (R.id.reset):
+                readingPlanControl.reset(plan);
+                return true;
+            }
+        }
+        return false; 
+    }
 
-	@Inject
-	void setReadingPlanControl(ReadingPlanControl readingPlanControl) {
-		this.readingPlanControl = readingPlanControl;
-	}
+    @Inject
+    void setReadingPlanControl(ReadingPlanControl readingPlanControl) {
+        this.readingPlanControl = readingPlanControl;
+    }
 }

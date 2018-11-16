@@ -6,40 +6,40 @@
       The copyright to this program is held by it's author.
 -->
 <LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
-	android:layout_width="wrap_content"
-	android:layout_height="fill_parent"
-	android:orientation="vertical">
-	<include android:layout_width="match_parent"
-			 android:layout_height="match_parent"
-			 android:layout_weight="1"
-			 layout="@layout/document_selection"/>
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="fill_parent"
+    android:orientation="vertical">
+    <include android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:layout_weight="1"
+             layout="@layout/document_selection"/>
 
-	<!-- Button bar with OK button -->
-	<LinearLayout android:id="@+id/button_panel"
-	    android:layout_width="fill_parent"
-	    android:layout_height="wrap_content"
-		android:layout_weight="0"
-		android:background="@color/actionbar_background_day"
-	    android:orientation="horizontal">
-	    <!-- Left spacer -->
-	    <View
-	        android:layout_width="0dip"
-	        android:layout_height="fill_parent"
-	        android:layout_weight="1"/>
-	
-	 	<Button android:id="@+id/okayButton"
- 			android:text="@string/okay"
-	        android:layout_width="0dip"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="2"
-			android:onClick="onOkay"/>
+    <!-- Button bar with OK button -->
+    <LinearLayout android:id="@+id/button_panel"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:background="@color/actionbar_background_day"
+        android:orientation="horizontal">
+        <!-- Left spacer -->
+        <View
+            android:layout_width="0dip"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"/>
+    
+         <Button android:id="@+id/okayButton"
+             android:text="@string/okay"
+            android:layout_width="0dip"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:onClick="onOkay"/>
 
-	    <!-- Right spacer -->
-	    <View
-	        android:layout_width="0dip"
-	        android:layout_height="fill_parent"
-	        android:layout_weight="1"
-	    />
-	</LinearLayout>
+        <!-- Right spacer -->
+        <View
+            android:layout_width="0dip"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+        />
+    </LinearLayout>
 </LinearLayout>

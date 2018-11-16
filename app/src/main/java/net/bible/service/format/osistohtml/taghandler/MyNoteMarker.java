@@ -21,47 +21,47 @@ import org.xml.sax.Attributes;
  */
 public class MyNoteMarker implements OsisTagHandler {
 
-	private Set<Integer> myNoteVerses = new HashSet<Integer>();
-	
-	private OsisToHtmlParameters parameters;
-	
-	private VerseInfo verseInfo; 
-	
-	private HtmlTextWriter writer;
-	
-	@SuppressWarnings("unused")
-	private static final Logger log = new Logger("MyNoteMarker");
+    private Set<Integer> myNoteVerses = new HashSet<Integer>();
+    
+    private OsisToHtmlParameters parameters;
+    
+    private VerseInfo verseInfo; 
+    
+    private HtmlTextWriter writer;
+    
+    @SuppressWarnings("unused")
+    private static final Logger log = new Logger("MyNoteMarker");
 
-	public MyNoteMarker(OsisToHtmlParameters parameters, VerseInfo verseInfo, HtmlTextWriter writer) {
-		this.parameters = parameters;
-		this.verseInfo = verseInfo;
-		this.writer = writer;
-		
-		// create hashmap of verses to optimise verse note lookup
-		myNoteVerses.clear();
-		if (parameters.getVersesWithNotes()!=null) {
-			for (Key key : parameters.getVersesWithNotes()) {
-				Verse verse = KeyUtil.getVerse(key);
-				myNoteVerses.add(verse.getVerse());
-			}
-		}
-	}
-	
-	
-	public String getTagName() {
+    public MyNoteMarker(OsisToHtmlParameters parameters, VerseInfo verseInfo, HtmlTextWriter writer) {
+        this.parameters = parameters;
+        this.verseInfo = verseInfo;
+        this.writer = writer;
+        
+        // create hashmap of verses to optimise verse note lookup
+        myNoteVerses.clear();
+        if (parameters.getVersesWithNotes()!=null) {
+            for (Key key : parameters.getVersesWithNotes()) {
+                Verse verse = KeyUtil.getVerse(key);
+                myNoteVerses.add(verse.getVerse());
+            }
+        }
+    }
+    
+    
+    public String getTagName() {
         return "";
     }
 
-	/** just after verse start tag
-	 */
-	public void start(Attributes attr) {
-		if (myNoteVerses!=null && parameters.isShowMyNotes()) {
-			if (myNoteVerses.contains(verseInfo.currentVerseNo)) {
-				writer.write("<img src='file:///android_asset/images/pencil16x16.png' class='myNoteImg'/>");
-			}
-		}
-	}
+    /** just after verse start tag
+     */
+    public void start(Attributes attr) {
+        if (myNoteVerses!=null && parameters.isShowMyNotes()) {
+            if (myNoteVerses.contains(verseInfo.currentVerseNo)) {
+                writer.write("<img src='file:///android_asset/images/pencil16x16.png' class='myNoteImg'/>");
+            }
+        }
+    }
 
-	public void end() {
-	}
+    public void end() {
+    }
 }

@@ -44,7 +44,7 @@ public class NoteHandler implements OsisTagHandler {
 
     private HtmlTextWriter writer;
     
-	@SuppressWarnings("unused")
+    @SuppressWarnings("unused")
     private static final Logger log = new Logger("NoteHandler");
     
     public NoteHandler(OsisToHtmlParameters osisToHtmlParameters, VerseInfo verseInfo, HtmlTextWriter theWriter) {
@@ -53,56 +53,56 @@ public class NoteHandler implements OsisTagHandler {
         this.writer = theWriter;
     }
 
-	@Override
-	public String getTagName() {
-		return OSISUtil.OSIS_ELEMENT_NOTE;
-	}
+    @Override
+    public String getTagName() {
+        return OSISUtil.OSIS_ELEMENT_NOTE;
+    }
 
-	@Override
-	public void start(Attributes attrs) {
-		isInNote = true;
-		currentNoteRef = getNoteRef(attrs);
-		writeNoteRef(currentNoteRef);
+    @Override
+    public void start(Attributes attrs) {
+        isInNote = true;
+        currentNoteRef = getNoteRef(attrs);
+        writeNoteRef(currentNoteRef);
 
-		// prepare to fetch the actual note into the notes repo
-		writer.writeToTempStore();
+        // prepare to fetch the actual note into the notes repo
+        writer.writeToTempStore();
     }
 
     /*
      * Called when the Ending of the current Element is reached. For example in the
      * above explanation, this method is called when </Title> tag is reached
     */
-	@Override
+    @Override
     public void end() {
-		String noteText = writer.getTempStoreString();
-		if (noteText.length()>0) {
-			if (!StringUtils.containsOnly(noteText, "[];()., ")) {
-				Note note = new Note(verseInfo.currentVerseNo, currentNoteRef, noteText, NoteType.TYPE_GENERAL, null, null);
-				notesList.add(note);
-			}
-			// and clear the buffer
-			writer.clearTempStore();
-		}
-		isInNote = false;
-		writer.finishWritingToTempStore();
+        String noteText = writer.getTempStoreString();
+        if (noteText.length()>0) {
+            if (!StringUtils.containsOnly(noteText, "[];()., ")) {
+                Note note = new Note(verseInfo.currentVerseNo, currentNoteRef, noteText, NoteType.TYPE_GENERAL, null, null);
+                notesList.add(note);
+            }
+            // and clear the buffer
+            writer.clearTempStore();
+        }
+        isInNote = false;
+        writer.finishWritingToTempStore();
     }
 
     /** a reference is finished and now the note must be added
      */
     public void addNoteForReference(String refText, String osisRef) {
-    	// add teh html to show a note character in the (bible) text
-		// a few modules like HunUj have refs in the text but not surrounded by a Note tag (like esv) so need to add  Note here
-		// special code to cope with HunUj problem
-		if (parameters.isAutoWrapUnwrappedRefsInNote() && !isInNote() ) {
-			currentNoteRef = createNoteRef();
-			writeNoteRef(currentNoteRef);
-		}
+        // add teh html to show a note character in the (bible) text
+        // a few modules like HunUj have refs in the text but not surrounded by a Note tag (like esv) so need to add  Note here
+        // special code to cope with HunUj problem
+        if (parameters.isAutoWrapUnwrappedRefsInNote() && !isInNote() ) {
+            currentNoteRef = createNoteRef();
+            writeNoteRef(currentNoteRef);
+        }
 
-		// record the note information to show if user requests to see notes for this verse
-		if (isInNote || parameters.isAutoWrapUnwrappedRefsInNote()) {
-			Note note = new Note(verseInfo.currentVerseNo, currentNoteRef, refText, NoteType.TYPE_REFERENCE, osisRef, parameters.getDocumentVersification());
-			notesList.add(note);
-		}
+        // record the note information to show if user requests to see notes for this verse
+        if (isInNote || parameters.isAutoWrapUnwrappedRefsInNote()) {
+            Note note = new Note(verseInfo.currentVerseNo, currentNoteRef, refText, NoteType.TYPE_REFERENCE, osisRef, parameters.getDocumentVersification());
+            notesList.add(note);
+        }
     }
     
     /** either use the 'n' attribute for the note ref or just get the next character in a list a-z
@@ -110,38 +110,38 @@ public class NoteHandler implements OsisTagHandler {
      * @return a single char to use as a note ref
      */
     private String getNoteRef(Attributes attrs) {
-    	// if the ref is specified as an attribute then use that
-    	String noteRef = attrs.getValue("n");
-		if (StringUtils.isEmpty(noteRef)) {
-			noteRef = createNoteRef();
-		}
-    	return noteRef;
+        // if the ref is specified as an attribute then use that
+        String noteRef = attrs.getValue("n");
+        if (StringUtils.isEmpty(noteRef)) {
+            noteRef = createNoteRef();
+        }
+        return noteRef;
     }
     /** either use the character passed in or get the next character in a list a-z
      * 
      * @return a single char to use as a note ref
      */
-	private String createNoteRef() {
-		// else just get the next char
-    	int inta = (int)'a';
-    	char nextNoteChar = (char)(inta+(noteCount++ % 26));
-    	return String.valueOf(nextNoteChar);
-	}
+    private String createNoteRef() {
+        // else just get the next char
+        int inta = (int)'a';
+        char nextNoteChar = (char)(inta+(noteCount++ % 26));
+        return String.valueOf(nextNoteChar);
+    }
 
-	/** write noteref html to outputstream
-	 */
-	private void writeNoteRef(String noteRef) {
-		if (parameters.isShowNotes()) {
-			writer.write("<span class='noteRef'>" + noteRef + "</span> ");
-		}
-	}
+    /** write noteref html to outputstream
+     */
+    private void writeNoteRef(String noteRef) {
+        if (parameters.isShowNotes()) {
+            writer.write("<span class='noteRef'>" + noteRef + "</span> ");
+        }
+    }
 
-	public boolean isInNote() {
-		return isInNote;
-	}
+    public boolean isInNote() {
+        return isInNote;
+    }
 
-	public List<Note> getNotesList() {
-		return notesList;
-	}
+    public List<Note> getNotesList() {
+        return notesList;
+    }
 }
 

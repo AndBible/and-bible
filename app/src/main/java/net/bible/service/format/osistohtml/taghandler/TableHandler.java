@@ -23,24 +23,24 @@ import org.xml.sax.Attributes;
  */
 public class TableHandler implements OsisTagHandler {
 
-	private HtmlTextWriter writer;
-	
-	public TableHandler(HtmlTextWriter writer) {
-		this.writer = writer;
-	}
-	
-	@Override
-	public String getTagName() {
+    private HtmlTextWriter writer;
+    
+    public TableHandler(HtmlTextWriter writer) {
+        this.writer = writer;
+    }
+    
+    @Override
+    public String getTagName() {
         return OSISUtil.OSIS_ELEMENT_TABLE;
     }
 
-	@Override
-	public void start(Attributes attrs) {
-		writer.write("<table>");
-	}
+    @Override
+    public void start(Attributes attrs) {
+        writer.write("<table>");
+    }
 
-	@Override
-	public void end() {
-		writer.write("</table>");
-	}
+    @Override
+    public void end() {
+        writer.write("</table>");
+    }
 }

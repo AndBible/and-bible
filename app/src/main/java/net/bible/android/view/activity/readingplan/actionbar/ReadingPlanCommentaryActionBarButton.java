@@ -14,24 +14,24 @@ import javax.inject.Inject;
 @ApplicationScope
 public class ReadingPlanCommentaryActionBarButton extends ReadingPlanQuickDocumentChangeButton {
 
-	@Inject
-	public ReadingPlanCommentaryActionBarButton() {
-	}
+    @Inject
+    public ReadingPlanCommentaryActionBarButton() {
+    }
 
 
-	@Override
-	protected Book getSuggestedDocument() {
-		return getCurrentPageManager().getCurrentCommentary().getCurrentDocument();
-	}
+    @Override
+    protected Book getSuggestedDocument() {
+        return getCurrentPageManager().getCurrentCommentary().getCurrentDocument();
+    }
 
-	/**
-	 * Portrait actionbar is a bit squashed if speak controls are displayed so hide commentary 
-	 */
-	@Override
-	protected boolean canShow() {
-		return super.canShow() &&
-				(isWide() || !isSpeakMode());
-	}
-	
-	
+    /**
+     * Portrait actionbar is a bit squashed if speak controls are displayed so hide commentary 
+     */
+    @Override
+    protected boolean canShow() {
+        return super.canShow() &&
+                (isWide() || !isSpeakMode());
+    }
+    
+    
 }

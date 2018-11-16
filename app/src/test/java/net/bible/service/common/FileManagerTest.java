@@ -19,40 +19,40 @@ import static junit.framework.Assert.assertTrue;
  */
 @RunWith(MyRobolectricTestRunner.class)
 public class FileManagerTest {
-	private final String folder = "src/test/resources/net/bible/service/common".replace("/", File.separator);
+    private final String folder = "src/test/resources/net/bible/service/common".replace("/", File.separator);
 
-	@After
-	public void tearDown(){
-		DatabaseResetter.resetDatabase();
-	}
+    @After
+    public void tearDown(){
+        DatabaseResetter.resetDatabase();
+    }
 
-	@Test
-	public void shouldCopyFile() throws Exception {
-		// ensure Android thinks there is enough room
-		ShadowStatFs.registerStats(folder, 100, 20, 10);
+    @Test
+    public void shouldCopyFile() throws Exception {
+        // ensure Android thinks there is enough room
+        ShadowStatFs.registerStats(folder, 100, 20, 10);
 
-		File toCopy = new File(folder, "testFileToCopy");
-		File target = new File(folder, "copiedFile");
-		target.deleteOnExit();
+        File toCopy = new File(folder, "testFileToCopy");
+        File target = new File(folder, "copiedFile");
+        target.deleteOnExit();
 
-		assertTrue("copy failed", FileManager.copyFile(toCopy, target));
+        assertTrue("copy failed", FileManager.copyFile(toCopy, target));
 
-		assertTrue(target.exists());
-	}
+        assertTrue(target.exists());
+    }
 
-	@Test
-	public void shouldOverwriteOnCopyIfTargetFileExists() throws Exception {
-		// ensure Android thinks there is enough room
-		ShadowStatFs.registerStats(folder, 100, 20, 10);
+    @Test
+    public void shouldOverwriteOnCopyIfTargetFileExists() throws Exception {
+        // ensure Android thinks there is enough room
+        ShadowStatFs.registerStats(folder, 100, 20, 10);
 
-		File toCopy = new File(folder, "testFileToCopy");
-		File target = new File(folder, "copiedFile");
-		target.deleteOnExit();
+        File toCopy = new File(folder, "testFileToCopy");
+        File target = new File(folder, "copiedFile");
+        target.deleteOnExit();
 
-		assertTrue("initial copy failed", FileManager.copyFile(toCopy, target));
-		assertTrue("overwriting copy failed", FileManager.copyFile(toCopy, target));
-		assertEquals("copied file has different length", toCopy.length(),  target.length());
+        assertTrue("initial copy failed", FileManager.copyFile(toCopy, target));
+        assertTrue("overwriting copy failed", FileManager.copyFile(toCopy, target));
+        assertEquals("copied file has different length", toCopy.length(),  target.length());
 
-		assertTrue(target.exists());
-	}
+        assertTrue(target.exists());
+    }
 }

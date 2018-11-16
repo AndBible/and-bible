@@ -16,43 +16,43 @@ import org.xml.sax.Attributes;
  */
 public class ChapterDivider implements OsisTagHandler {
 
-	private OsisToHtmlParameters parameters;
+    private OsisToHtmlParameters parameters;
 
-	private VerseInfo verseInfo;
+    private VerseInfo verseInfo;
 
-	private HtmlTextWriter writer;
+    private HtmlTextWriter writer;
 
-	public ChapterDivider(OsisToHtmlParameters parameters, VerseInfo verseInfo, HtmlTextWriter writer) {
-		this.parameters = parameters;
-		this.verseInfo = verseInfo;
-		this.writer = writer;
-	}
+    public ChapterDivider(OsisToHtmlParameters parameters, VerseInfo verseInfo, HtmlTextWriter writer) {
+        this.parameters = parameters;
+        this.verseInfo = verseInfo;
+        this.writer = writer;
+    }
 
-	@Override
-	public String getTagName() {
-		return "NotLinkedToOsisChapterElement";
-	}
+    @Override
+    public String getTagName() {
+        return "NotLinkedToOsisChapterElement";
+    }
 
-	@Override
-	public void start(Attributes attrs) {
-		if (parameters.isShowChapterDivider() && parameters.getChapter()!=null) {
-			Integer chapter = parameters.getChapter();
-			if (chapter>1) {
-				if (parameters.isShowVerseNumbers()) {
-					writer.write("<div class='chapterNo'>&#8212; " + chapter + " &#8212;</div>");
-				} else {
-					// need some space to allow scrolling up to cause infinite-scroll to populate prior chapter
-					writer.write("<div class='chapterNo'>&nbsp;</div>");
-				}
-			}
-			// used to jump to the top of a chapter, but still allow up scroll
-			writer.write("<div id='" + chapter + "'></div>");
+    @Override
+    public void start(Attributes attrs) {
+        if (parameters.isShowChapterDivider() && parameters.getChapter()!=null) {
+            Integer chapter = parameters.getChapter();
+            if (chapter>1) {
+                if (parameters.isShowVerseNumbers()) {
+                    writer.write("<div class='chapterNo'>&#8212; " + chapter + " &#8212;</div>");
+                } else {
+                    // need some space to allow scrolling up to cause infinite-scroll to populate prior chapter
+                    writer.write("<div class='chapterNo'>&nbsp;</div>");
+                }
+            }
+            // used to jump to the top of a chapter, but still allow up scroll
+            writer.write("<div id='" + chapter + "'></div>");
 
-			verseInfo.positionToInsertBeforeVerse = writer.getPosition();
-		}
-	}
+            verseInfo.positionToInsertBeforeVerse = writer.getPosition();
+        }
+    }
 
-	@Override
-	public void end() {
-	}
+    @Override
+    public void end() {
+    }
 }

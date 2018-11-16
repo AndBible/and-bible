@@ -21,57 +21,57 @@ import java.util.List;
 
 public class ConvertibleVerseRangeComparator implements Comparator<ConvertibleVerseRangeUser> {
 
-	private final CompatibleVersificationChooser compatibleVersificationChooser;
+    private final CompatibleVersificationChooser compatibleVersificationChooser;
 
-	private ConvertibleVerseRangeComparator(CompatibleVersificationChooser compatibleVersificationChooser) {
-		this.compatibleVersificationChooser = compatibleVersificationChooser;
-	}
+    private ConvertibleVerseRangeComparator(CompatibleVersificationChooser compatibleVersificationChooser) {
+        this.compatibleVersificationChooser = compatibleVersificationChooser;
+    }
 
-	@Override
-	public int compare(ConvertibleVerseRangeUser a, ConvertibleVerseRangeUser b) {
-		if (a == null) {
-			if (b == null) {
-				return 0;
-			}
-			return -1;
-		} else if (b == null) {
-			return 1;
-		}
+    @Override
+    public int compare(ConvertibleVerseRangeUser a, ConvertibleVerseRangeUser b) {
+        if (a == null) {
+            if (b == null) {
+                return 0;
+            }
+            return -1;
+        } else if (b == null) {
+            return 1;
+        }
 
-		final ConvertibleVerseRange aCvr = a.getConvertibleVerseRange();
-		final ConvertibleVerseRange bCvr = b.getConvertibleVerseRange();
+        final ConvertibleVerseRange aCvr = a.getConvertibleVerseRange();
+        final ConvertibleVerseRange bCvr = b.getConvertibleVerseRange();
 
-		if (aCvr == null) {
-			if (bCvr == null) {
-				return 0;
-			}
-			return -1;
-		} else if (bCvr == null) {
-			return 1;
-		}
+        if (aCvr == null) {
+            if (bCvr == null) {
+                return 0;
+            }
+            return -1;
+        } else if (bCvr == null) {
+            return 1;
+        }
 
-		// must compare in the same (but opposite) order when comparing b,a and a,b so cannot just use a.v11n()
-		final Versification v11n = compatibleVersificationChooser.findPreferredCompatibleVersification(aCvr, bCvr);
+        // must compare in the same (but opposite) order when comparing b,a and a,b so cannot just use a.v11n()
+        final Versification v11n = compatibleVersificationChooser.findPreferredCompatibleVersification(aCvr, bCvr);
 
-		return aCvr.getVerseRange(v11n).compareTo(bCvr.getVerseRange(v11n));
-	}
+        return aCvr.getVerseRange(v11n).compareTo(bCvr.getVerseRange(v11n));
+    }
 
-	public static class Builder {
-		private List<Versification> prioritisedVersifications;
+    public static class Builder {
+        private List<Versification> prioritisedVersifications;
 
-		public Builder withBookmarks(List<BookmarkDto> bookmarks) {
-			prioritisedVersifications = new VersificationPrioritiser(bookmarks).getPrioritisedVersifications();
-			return this;
-		}
+        public Builder withBookmarks(List<BookmarkDto> bookmarks) {
+            prioritisedVersifications = new VersificationPrioritiser(bookmarks).getPrioritisedVersifications();
+            return this;
+        }
 
-		public Builder withMyNotes(List<MyNoteDto> myNoteDtos) {
-			prioritisedVersifications = new VersificationPrioritiser(myNoteDtos).getPrioritisedVersifications();
-			return this;
-		}
+        public Builder withMyNotes(List<MyNoteDto> myNoteDtos) {
+            prioritisedVersifications = new VersificationPrioritiser(myNoteDtos).getPrioritisedVersifications();
+            return this;
+        }
 
-		public ConvertibleVerseRangeComparator build() {
-			final CompatibleVersificationChooser compatibleVersificationChooser = new CompatibleVersificationChooser(prioritisedVersifications);
-			return new ConvertibleVerseRangeComparator(compatibleVersificationChooser);
-		}
-	}
+        public ConvertibleVerseRangeComparator build() {
+            final CompatibleVersificationChooser compatibleVersificationChooser = new CompatibleVersificationChooser(prioritisedVersifications);
+            return new ConvertibleVerseRangeComparator(compatibleVersificationChooser);
+        }
+    }
 }

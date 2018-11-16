@@ -16,29 +16,29 @@ import java.util.List;
  */
 public class ChooseMapKey extends ChooseKeyBase {
 
-	private static final String TAG = "ChooseMapKey";
-	
-	@Override
-	protected Key getCurrentKey() {
-		
-		return getCurrentMapPage().getKey();
-	}
-
-	@Override
-	protected List<Key> getKeyList() {
-		return getCurrentMapPage().getCachedGlobalKeyList();
-	}
-
-	@Override
-    protected void itemSelected(Key key) {
-    	try {
-    		getCurrentMapPage().setKey(key);
-    	} catch (Exception e) {
-    		Log.e(TAG, "error on select of gen book key", e);
-    	}
+    private static final String TAG = "ChooseMapKey";
+    
+    @Override
+    protected Key getCurrentKey() {
+        
+        return getCurrentMapPage().getKey();
     }
 
-	private CurrentMapPage getCurrentMapPage() {
-    	return getActiveWindowPageManagerProvider().getActiveWindowPageManager().getCurrentMap();
+    @Override
+    protected List<Key> getKeyList() {
+        return getCurrentMapPage().getCachedGlobalKeyList();
+    }
+
+    @Override
+    protected void itemSelected(Key key) {
+        try {
+            getCurrentMapPage().setKey(key);
+        } catch (Exception e) {
+            Log.e(TAG, "error on select of gen book key", e);
+        }
+    }
+
+    private CurrentMapPage getCurrentMapPage() {
+        return getActiveWindowPageManagerProvider().getActiveWindowPageManager().getCurrentMap();
     }
 }

@@ -15,14 +15,14 @@ import dagger.Provides;
 @Module
 public class MainBibleActivityModule {
 
-	private final MainBibleActivity mainBibleActivity;
+    private final MainBibleActivity mainBibleActivity;
 
-	public MainBibleActivityModule(MainBibleActivity mainBibleActivity) {
-		this.mainBibleActivity = mainBibleActivity;
-	}
+    public MainBibleActivityModule(MainBibleActivity mainBibleActivity) {
+        this.mainBibleActivity = mainBibleActivity;
+    }
 
-	@Provides @MainBibleActivityScope
-	MainBibleActivity provideMainBibleActivity() {
-		return mainBibleActivity;
-	}
+    @Provides @MainBibleActivityScope
+    MainBibleActivity provideMainBibleActivity() {
+        return mainBibleActivity;
+    }
 }

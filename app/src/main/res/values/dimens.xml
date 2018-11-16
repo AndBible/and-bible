@@ -19,30 +19,30 @@
 -->
 
 <resources>
-	<!-- dimen name="title_bar_title_width">130dip</dimen -->
-	<dimen name="title_bar_height">28dip</dimen>
-	
-	<!--  number and size of buttons varies depending on screen size and orientation -->
-	<integer name="number_of_quick_buttons">3</integer>
-	<dimen name="size_of_quick_buttons">60dip</dimen>
-	<dimen name="size_of_small_quick_buttons">45dip</dimen>
-		
-	<integer name="grid_cell_text_size_sp">15</integer>
-	
-	<integer name="poetry_indent_chars">2</integer>
-	
-	<dimen name="window_separator_width">4dip</dimen>
-	<dimen name="window_separator_touch_expansion_width">10dip</dimen>
-	<dimen name="minimise_restore_button_size">40dip</dimen>
-	
-	<!-- Navigation Drawer -->
-	<dimen name="list_preferred_item_height_small">48dip</dimen>
-	<integer name="action_button_max_chars">4</integer>
+    <!-- dimen name="title_bar_title_width">130dip</dimen -->
+    <dimen name="title_bar_height">28dip</dimen>
+    
+    <!--  number and size of buttons varies depending on screen size and orientation -->
+    <integer name="number_of_quick_buttons">3</integer>
+    <dimen name="size_of_quick_buttons">60dip</dimen>
+    <dimen name="size_of_small_quick_buttons">45dip</dimen>
+        
+    <integer name="grid_cell_text_size_sp">15</integer>
+    
+    <integer name="poetry_indent_chars">2</integer>
+    
+    <dimen name="window_separator_width">4dip</dimen>
+    <dimen name="window_separator_touch_expansion_width">10dip</dimen>
+    <dimen name="minimise_restore_button_size">40dip</dimen>
+    
+    <!-- Navigation Drawer -->
+    <dimen name="list_preferred_item_height_small">48dip</dimen>
+    <integer name="action_button_max_chars">4</integer>
 
-	<dimen name="action_button_min_width">56dip</dimen>
+    <dimen name="action_button_min_width">56dip</dimen>
     <dimen name="speak_titles_text_size">18sp</dimen>
     <dimen name="speak_title_padding">5dip</dimen>
-	<dimen name="speak_subtitle_padding">5dip</dimen>
-	<dimen name="speak_row_padding">10dip</dimen>
-	<dimen name="row_divider_padding">10dip</dimen>
+    <dimen name="speak_subtitle_padding">5dip</dimen>
+    <dimen name="speak_row_padding">10dip</dimen>
+    <dimen name="row_divider_padding">10dip</dimen>
 </resources>

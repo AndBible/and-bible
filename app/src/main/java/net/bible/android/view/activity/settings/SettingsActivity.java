@@ -26,59 +26,59 @@ import org.apache.commons.lang3.ArrayUtils;
  */
 public class SettingsActivity extends PreferenceActivity {
 
-	private static final String LOCALE_PREF = "locale_pref";
-	
-	private static final String TAG = "SettingsActivity";
-	
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		// change theme according to light sensor
-		UiUtils.applyTheme(this);
+    private static final String LOCALE_PREF = "locale_pref";
+    
+    private static final String TAG = "SettingsActivity";
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        // change theme according to light sensor
+        UiUtils.applyTheme(this);
 
-		super.onCreate(savedInstanceState);
+        super.onCreate(savedInstanceState);
 
-		// allow partial integration with And Bible framework - without this TTS stops
-		// putting this before the below ensures any error dialog will be displayed in front of the settings screen and not the previous screen
-		// see onStop for paired iAmNoLongerCurrent method call
-		CurrentActivityHolder.getInstance().setCurrentActivity(this);
-		
-		try {
-			addPreferencesFromResource(R.xml.settings);
-			
-		    //If no light sensor exists switch to old boolean check box
-			// see here for method: http://stackoverflow.com/questions/4081533/how-to-remove-android-preferences-from-the-screen
-			Preference unusedNightModePreference = getPreferenceScreen().findPreference(ScreenSettings.getUnusedNightModePreferenceKey());
-			getPreferenceScreen().removePreference(unusedNightModePreference);
-			
-			// if no tilt sensor then remove tilt-to-scroll setting
-			if (!PageTiltScrollControl.isTiltSensingPossible()) {
-				Preference tiltToScrollPreference = getPreferenceScreen().findPreference(PageTiltScrollControl.TILT_TO_SCROLL_PREFERENCE_KEY);
-				getPreferenceScreen().removePreference(tiltToScrollPreference);
-			}
-			
-			// if locale is overridden then have to force title to be translated here
-			LocaleHelper.translateTitle(this);
+        // allow partial integration with And Bible framework - without this TTS stops
+        // putting this before the below ensures any error dialog will be displayed in front of the settings screen and not the previous screen
+        // see onStop for paired iAmNoLongerCurrent method call
+        CurrentActivityHolder.getInstance().setCurrentActivity(this);
+        
+        try {
+            addPreferencesFromResource(R.xml.settings);
+            
+            //If no light sensor exists switch to old boolean check box
+            // see here for method: http://stackoverflow.com/questions/4081533/how-to-remove-android-preferences-from-the-screen
+            Preference unusedNightModePreference = getPreferenceScreen().findPreference(ScreenSettings.getUnusedNightModePreferenceKey());
+            getPreferenceScreen().removePreference(unusedNightModePreference);
+            
+            // if no tilt sensor then remove tilt-to-scroll setting
+            if (!PageTiltScrollControl.isTiltSensingPossible()) {
+                Preference tiltToScrollPreference = getPreferenceScreen().findPreference(PageTiltScrollControl.TILT_TO_SCROLL_PREFERENCE_KEY);
+                getPreferenceScreen().removePreference(tiltToScrollPreference);
+            }
+            
+            // if locale is overridden then have to force title to be translated here
+            LocaleHelper.translateTitle(this);
 
-		} catch (Exception e) {
-			Log.e(TAG, "Error preparing preference screen", e);
-			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
-		}
-	}
+        } catch (Exception e) {
+            Log.e(TAG, "Error preparing preference screen", e);
+            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+        }
+    }
 
-	/**
-	 * Override locale.  If user has selected a different ui language to the devices default language
-	 */
-	@Override
-	protected void attachBaseContext(Context newBase) {
-		super.attachBaseContext(LocaleHelper.onAttach(newBase));
-	}
+    /**
+     * Override locale.  If user has selected a different ui language to the devices default language
+     */
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.onAttach(newBase));
+    }
 
-	@Override
-	protected void onStop() {
-		super.onStop();
+    @Override
+    protected void onStop() {
+        super.onStop();
         Log.i(getLocalClassName(), "onStop");
         // call this onStop, although it is not guaranteed to be called, to ensure an overlap between dereg and reg of current activity, otherwise AppToBackground is fired mistakenly
         CurrentActivityHolder.getInstance().iAmNoLongerCurrent(this);
-	}
+    }
 
 }

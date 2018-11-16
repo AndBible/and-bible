@@ -21,7 +21,7 @@ public class OsisSaxHandler extends DefaultHandler {
     private HtmlTextWriter writer;
     
     @SuppressWarnings("unused")
-	private static final Logger log = new Logger("OsisSaxHandler");
+    private static final Logger log = new Logger("OsisSaxHandler");
     
     public OsisSaxHandler() {
         writer = new HtmlTextWriter();
@@ -45,9 +45,9 @@ public class OsisSaxHandler extends DefaultHandler {
         }
     }
     
-	protected void write(String s) {
-		writer.write(s);
-	}
+    protected void write(String s) {
+        writer.write(s);
+    }
 
     /** check the value of the specified attribute and return true if same as checkvalue
      * 
@@ -57,37 +57,37 @@ public class OsisSaxHandler extends DefaultHandler {
      * @return
      */
     protected boolean isAttrValue(Attributes attrs, String attrName, String checkValue) {
-    	if (attrs==null) {
-    		return false;
-    	}
-    	String value = attrs.getValue(attrName);
-    	return checkValue.equals(value);
+        if (attrs==null) {
+            return false;
+        }
+        String value = attrs.getValue(attrName);
+        return checkValue.equals(value);
     }
     
     protected void debug(String name, Attributes attrs, boolean isStartTag) {
-	    if (isDebugMode) {
-	        write("*"+name);
-	        if (attrs != null) {
-	          for (int i = 0; i < attrs.getLength(); i++) {
-	            String aName = attrs.getLocalName(i); // Attr name
-	            if ("".equals(aName)) aName = attrs.getQName(i);
-	            write(" ");
-	            write(aName+"=\""+attrs.getValue(i)+"\"");
-	          }
-	        }
-	        write("*\n");
-	    }
+        if (isDebugMode) {
+            write("*"+name);
+            if (attrs != null) {
+              for (int i = 0; i < attrs.getLength(); i++) {
+                String aName = attrs.getLocalName(i); // Attr name
+                if ("".equals(aName)) aName = attrs.getQName(i);
+                write(" ");
+                write(aName+"=\""+attrs.getValue(i)+"\"");
+              }
+            }
+            write("*\n");
+        }
     }    
 
-	public void setDebugMode(boolean isDebugMode) {
-		this.isDebugMode = isDebugMode;
-	}
-	protected void reset() {
-		writer.reset();
-	}
+    public void setDebugMode(boolean isDebugMode) {
+        this.isDebugMode = isDebugMode;
+    }
+    protected void reset() {
+        writer.reset();
+    }
 
-	public HtmlTextWriter getWriter() {
-		return writer;
-	}
+    public HtmlTextWriter getWriter() {
+        return writer;
+    }
 }
 

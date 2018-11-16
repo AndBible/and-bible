@@ -19,13 +19,13 @@ public class RefHandler extends ReferenceHandler {
     }
     
     @Override
-	public String getTagName() {
-		return TEIUtil.TEI_ELEMENT_REF;
-	}
+    public String getTagName() {
+        return TEIUtil.TEI_ELEMENT_REF;
+    }
 
     @Override
-	public void start(Attributes attrs) {
-		String target = attrs.getValue(TEIUtil.TEI_ATTR_TARGET);
-		start(target);
-	}
+    public void start(Attributes attrs) {
+        String target = attrs.getValue(TEIUtil.TEI_ATTR_TARGET);
+        start(target);
+    }
 }

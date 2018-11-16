@@ -22,49 +22,49 @@ import javax.inject.Inject;
 @ApplicationScope
 public class SpeakActionBarButton extends SpeakActionBarButtonBase {
 
-	private final DocumentControl documentControl;
+    private final DocumentControl documentControl;
 
-	private static final String TAG = "SpeakActionBarButtonBas";
+    private static final String TAG = "SpeakActionBarButtonBas";
 
-	@Inject
-	public SpeakActionBarButton(SpeakControl speakControl, DocumentControl documentControl) {
-		super(speakControl);
-		this.documentControl = documentControl;
-	}
+    @Inject
+    public SpeakActionBarButton(SpeakControl speakControl, DocumentControl documentControl) {
+        super(speakControl);
+        this.documentControl = documentControl;
+    }
 
-	@Override
-	public boolean onMenuItemClick(MenuItem menuItem) {
-		try {
-			getSpeakControl().toggleSpeak();
-			
-			update(menuItem);
-		} catch (Exception e) {
-			Log.e(TAG, "Error toggling speech", e);
-			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
-		}
-		return true;
-	}
+    @Override
+    public boolean onMenuItemClick(MenuItem menuItem) {
+        try {
+            getSpeakControl().toggleSpeak();
+            
+            update(menuItem);
+        } catch (Exception e) {
+            Log.e(TAG, "Error toggling speech", e);
+            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+        }
+        return true;
+    }
 
-	@Override
-	protected String getTitle() {
-		return CommonUtils.getResourceString(R.string.speak);
-	}
-	
-	@Override
-	protected int getIcon() {
-       	if (getSpeakControl().isSpeaking()) {
-			return android.R.drawable.ic_media_pause;
-		} else if (getSpeakControl().isPaused()) {
-			return android.R.drawable.ic_media_play;
-		} else {
-			return R.drawable.ic_hearing_24dp;
-		}
-	}
+    @Override
+    protected String getTitle() {
+        return CommonUtils.getResourceString(R.string.speak);
+    }
+    
+    @Override
+    protected int getIcon() {
+           if (getSpeakControl().isSpeaking()) {
+            return android.R.drawable.ic_media_pause;
+        } else if (getSpeakControl().isPaused()) {
+            return android.R.drawable.ic_media_play;
+        } else {
+            return R.drawable.ic_hearing_24dp;
+        }
+    }
 
-	@Override
-	protected boolean canShow() {
-		// show if speakable or already speaking (to pause), and only if plenty of room
-		return (super.canSpeak() || isSpeakMode()) &&
-				(isWide() || !documentControl.isStrongsInBook() || isSpeakMode());
-	}
+    @Override
+    protected boolean canShow() {
+        // show if speakable or already speaking (to pause), and only if plenty of room
+        return (super.canSpeak() || isSpeakMode()) &&
+                (isWide() || !documentControl.isStrongsInBook() || isSpeakMode());
+    }
 }

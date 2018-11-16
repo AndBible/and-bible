@@ -13,30 +13,30 @@ import android.os.Environment;
  */
 public class SharedConstants {
 
-	public static final String PACKAGE_NAME = "net.bible.android.activity";
+    public static final String PACKAGE_NAME = "net.bible.android.activity";
     /**
      * Forms storage path
      */
     public static final File MODULE_DIR = getModuleDir();
     public static final File MANUAL_INSTALL_DIR = getManualInstallDir();
-	private static final String MANUAL_INSTALL_SUBDIR = "jsword";
-	
+    private static final String MANUAL_INSTALL_SUBDIR = "jsword";
+    
     public static final String FRONTEND_NAME = "and-bible";
     public static final File FRONTEND_DATA_DIR = new File(MODULE_DIR, FRONTEND_NAME);
 
-	private static final String FONT_SUBDIR_NAME = "fonts";
+    private static final String FONT_SUBDIR_NAME = "fonts";
     public static final File FONT_DIR = new File(MODULE_DIR, FONT_SUBDIR_NAME);
     public static final File MANUAL_FONT_DIR = new File(MANUAL_INSTALL_DIR, FONT_SUBDIR_NAME);
 
     private static final String BACKUP_SUBDIR_NAME = "andbible_backup";
     public static final File BACKUP_DIR = getBackupDir();
 
-	public static final String READINGPLAN_DIR_NAME = "readingplan";
+    public static final String READINGPLAN_DIR_NAME = "readingplan";
     public static final File MANUAL_READINGPLAN_DIR = new File(MANUAL_INSTALL_DIR, READINGPLAN_DIR_NAME);
 
     public static final int APPLICATION_THEME =  android.R.style.Theme_Light;
-	public static final String DEFAULT_STYLESHEET = "style.css";
-	public static final String NIGHT_MODE_STYLESHEET = "night_mode.css";
+    public static final String DEFAULT_STYLESHEET = "style.css";
+    public static final String NIGHT_MODE_STYLESHEET = "night_mode.css";
     
     private static final String CSS_SUBDIR_NAME = "css";
     public static final File MANUAL_CSS_DIR = new File(MANUAL_INSTALL_DIR, CSS_SUBDIR_NAME);
@@ -55,16 +55,16 @@ public class SharedConstants {
      * @return
      */
     static private File getModuleDir() {
-		return BibleApplication.getApplication().getExternalFilesDir(null);
+        return BibleApplication.getApplication().getExternalFilesDir(null);
     }
     
     static private File getManualInstallDir() {
-		File sdcard = Environment.getExternalStorageDirectory();
-    	return new File(sdcard, MANUAL_INSTALL_SUBDIR);
+        File sdcard = Environment.getExternalStorageDirectory();
+        return new File(sdcard, MANUAL_INSTALL_SUBDIR);
     }
     
     static private File getBackupDir() {
-		File sdcard = Environment.getExternalStorageDirectory();
-    	return new File(sdcard, BACKUP_SUBDIR_NAME);
+        File sdcard = Environment.getExternalStorageDirectory();
+        return new File(sdcard, BACKUP_SUBDIR_NAME);
     }
 }

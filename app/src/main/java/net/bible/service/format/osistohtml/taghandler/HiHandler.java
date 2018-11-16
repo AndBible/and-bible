@@ -29,47 +29,47 @@ import org.xml.sax.Attributes;
  */
 public class HiHandler implements OsisTagHandler {
 
-	// possible values of type attribute
-	private static final List<String> HI_TYPE_LIST = Arrays.asList(new String[]{HI_ACROSTIC, HI_BOLD, HI_EMPHASIS, HI_ILLUMINATED, HI_ITALIC, HI_LINETHROUGH, HI_NORMAL, HI_SMALL_CAPS, HI_SUB, HI_SUPER, HI_UNDERLINE});
-	
-	private final static String DEFAULT = "bold";
+    // possible values of type attribute
+    private static final List<String> HI_TYPE_LIST = Arrays.asList(new String[]{HI_ACROSTIC, HI_BOLD, HI_EMPHASIS, HI_ILLUMINATED, HI_ITALIC, HI_LINETHROUGH, HI_NORMAL, HI_SMALL_CAPS, HI_SUB, HI_SUPER, HI_UNDERLINE});
+    
+    private final static String DEFAULT = "bold";
 
-	private HtmlTextWriter writer;
-	
-	public HiHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
-		this.writer = writer;
-	}
-	
-	@Override
-	public String getTagName() {
+    private HtmlTextWriter writer;
+    
+    public HiHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
+        this.writer = writer;
+    }
+    
+    @Override
+    public String getTagName() {
         return OSISUtil.OSIS_ELEMENT_HI;
     }
 
-	@Override
-	public void start(Attributes attrs) {
-		String type = attrs.getValue(OSISUtil.OSIS_ATTR_TYPE);
-		start(type, DEFAULT);
-	}
+    @Override
+    public void start(Attributes attrs) {
+        String type = attrs.getValue(OSISUtil.OSIS_ATTR_TYPE);
+        start(type, DEFAULT);
+    }
 
-	/**
-	 * Used by TEI handlers
-	 */
-	protected void start(String style, String defaultStyle) {
-		// if not a standard style or begins with 'x-' then use default style
-		if (style==null || 
-			!(HI_TYPE_LIST.contains(style) || style.startsWith("x-"))) {
-			style = defaultStyle;
-		}
+    /**
+     * Used by TEI handlers
+     */
+    protected void start(String style, String defaultStyle) {
+        // if not a standard style or begins with 'x-' then use default style
+        if (style==null || 
+            !(HI_TYPE_LIST.contains(style) || style.startsWith("x-"))) {
+            style = defaultStyle;
+        }
 
-		// add any styles that are relevant - the tag name and the style attribute
-		String cssClasses = getTagName()+" hi_"+style;
-		
-		// start span with CSS class of 'hi_*' e.g. hi_bold
-		writer.write("<span class=\'"+cssClasses+"\'>");
-	}
+        // add any styles that are relevant - the tag name and the style attribute
+        String cssClasses = getTagName()+" hi_"+style;
+        
+        // start span with CSS class of 'hi_*' e.g. hi_bold
+        writer.write("<span class=\'"+cssClasses+"\'>");
+    }
 
-	@Override
-	public void end() {
-		writer.write("</span>");
-	}
+    @Override
+    public void end() {
+        writer.write("</span>");
+    }
 }

@@ -8,25 +8,25 @@ import net.bible.android.control.page.window.Window;
  */
 public class UpdateSecondaryWindowEvent implements WindowEvent {
 
-	private final Window updateScreen;
-	private final String html;
-	private final ChapterVerse chapterVerse;
-	
-	public UpdateSecondaryWindowEvent(Window updateScreen, String html, ChapterVerse chapterVerse) {
-		this.updateScreen = updateScreen;
-		this.html = html;
-		this.chapterVerse = chapterVerse;
-	}
+    private final Window updateScreen;
+    private final String html;
+    private final ChapterVerse chapterVerse;
+    
+    public UpdateSecondaryWindowEvent(Window updateScreen, String html, ChapterVerse chapterVerse) {
+        this.updateScreen = updateScreen;
+        this.html = html;
+        this.chapterVerse = chapterVerse;
+    }
 
-	public Window getUpdateScreen() {
-		return updateScreen;
-	}
+    public Window getUpdateScreen() {
+        return updateScreen;
+    }
 
-	public String getHtml() {
-		return html;
-	}
+    public String getHtml() {
+        return html;
+    }
 
-	public ChapterVerse getChapterVerse() {
-		return chapterVerse;
-	}
+    public ChapterVerse getChapterVerse() {
+        return chapterVerse;
+    }
 }

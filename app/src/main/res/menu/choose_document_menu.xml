@@ -9,8 +9,8 @@
     xmlns:appcompat="http://schemas.android.com/apk/res-auto" >
     
     <item android:id="@+id/downloadButton"
-		  android:title="@string/download"
-		  android:icon="@drawable/ic_file_download_24dp"
-		  appcompat:showAsAction="always"/>
+          android:title="@string/download"
+          android:icon="@drawable/ic_file_download_24dp"
+          appcompat:showAsAction="always"/>
     
 </menu>

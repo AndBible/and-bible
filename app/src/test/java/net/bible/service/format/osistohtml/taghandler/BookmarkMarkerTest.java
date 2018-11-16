@@ -21,36 +21,36 @@ import static org.hamcrest.core.IsEqual.equalTo;
 public class BookmarkMarkerTest {
 
 
-	private OsisToHtmlParameters osisToHtmlParameters;
-	private OsisToHtmlSaxHandler.VerseInfo verseInfo;
-	private BookmarkMarker bookmarkMarker;
-	Map<Integer, Set<BookmarkStyle>> bookmarkStylesByBookmarkedVerse;
+    private OsisToHtmlParameters osisToHtmlParameters;
+    private OsisToHtmlSaxHandler.VerseInfo verseInfo;
+    private BookmarkMarker bookmarkMarker;
+    Map<Integer, Set<BookmarkStyle>> bookmarkStylesByBookmarkedVerse;
 
-	@Before
-	public void setup() {
-		osisToHtmlParameters = new OsisToHtmlParameters();
-		verseInfo = new OsisToHtmlSaxHandler.VerseInfo();
-		osisToHtmlParameters.setShowBookmarks(true);
+    @Before
+    public void setup() {
+        osisToHtmlParameters = new OsisToHtmlParameters();
+        verseInfo = new OsisToHtmlSaxHandler.VerseInfo();
+        osisToHtmlParameters.setShowBookmarks(true);
 
-		bookmarkStylesByBookmarkedVerse = new HashMap<>();
-		osisToHtmlParameters.setBookmarkStylesByBookmarkedVerse(bookmarkStylesByBookmarkedVerse);
-		osisToHtmlParameters.setDefaultBookmarkStyle(BookmarkStyle.GREEN_HIGHLIGHT);
-		bookmarkMarker = new BookmarkMarker(osisToHtmlParameters, verseInfo);
-	}
+        bookmarkStylesByBookmarkedVerse = new HashMap<>();
+        osisToHtmlParameters.setBookmarkStylesByBookmarkedVerse(bookmarkStylesByBookmarkedVerse);
+        osisToHtmlParameters.setDefaultBookmarkStyle(BookmarkStyle.GREEN_HIGHLIGHT);
+        bookmarkMarker = new BookmarkMarker(osisToHtmlParameters, verseInfo);
+    }
 
-	@Test
-	public void testGetCustomBookmarkClass() throws Exception {
-		bookmarkStylesByBookmarkedVerse.put(3, Collections.singleton(BookmarkStyle.RED_HIGHLIGHT));
-		this.verseInfo.currentVerseNo = 3;
-		List<String> bookmarkClasses = bookmarkMarker.getBookmarkClasses();
-		assertThat(bookmarkClasses, contains("RED_HIGHLIGHT"));
-	}
+    @Test
+    public void testGetCustomBookmarkClass() throws Exception {
+        bookmarkStylesByBookmarkedVerse.put(3, Collections.singleton(BookmarkStyle.RED_HIGHLIGHT));
+        this.verseInfo.currentVerseNo = 3;
+        List<String> bookmarkClasses = bookmarkMarker.getBookmarkClasses();
+        assertThat(bookmarkClasses, contains("RED_HIGHLIGHT"));
+    }
 
-	@Test
-	public void testGetNoBookmarkClass() throws Exception {
-		bookmarkStylesByBookmarkedVerse.put(3, Collections.singleton(BookmarkStyle.RED_HIGHLIGHT));
-		this.verseInfo.currentVerseNo = 4;
-		List<String> bookmarkClasses = bookmarkMarker.getBookmarkClasses();
-		assertThat(bookmarkClasses.size(), equalTo(0));
-	}
+    @Test
+    public void testGetNoBookmarkClass() throws Exception {
+        bookmarkStylesByBookmarkedVerse.put(3, Collections.singleton(BookmarkStyle.RED_HIGHLIGHT));
+        this.verseInfo.currentVerseNo = 4;
+        List<String> bookmarkClasses = bookmarkMarker.getBookmarkClasses();
+        assertThat(bookmarkClasses.size(), equalTo(0));
+    }
 }

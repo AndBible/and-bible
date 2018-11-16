@@ -11,18 +11,18 @@ import java.lang.reflect.Field;
  */
 public class DatabaseResetter {
 
-	public static void resetDatabase() {
-		resetSingleton(CommonDatabaseHelper.class, "sSingleton");
-	}
+    public static void resetDatabase() {
+        resetSingleton(CommonDatabaseHelper.class, "sSingleton");
+    }
 
-	private static void resetSingleton(Class clazz, String fieldName) {
-		Field instance;
-		try {
-			instance = clazz.getDeclaredField(fieldName);
-			instance.setAccessible(true);
-			instance.set(null, null);
-		} catch (Exception e) {
-			throw new RuntimeException();
-		}
-	}
+    private static void resetSingleton(Class clazz, String fieldName) {
+        Field instance;
+        try {
+            instance = clazz.getDeclaredField(fieldName);
+            instance.setAccessible(true);
+            instance.set(null, null);
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
+    }
 }

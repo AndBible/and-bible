@@ -18,33 +18,33 @@ import java.util.List;
  */
 public class AndBibleRepo extends RepoBase {
 
-	private static final String REPOSITORY = "AndBible";
-	
-	private static BookFilter SUPPORTED_DOCUMENTS = new AcceptableBookTypeFilter();
+    private static final String REPOSITORY = "AndBible";
+    
+    private static BookFilter SUPPORTED_DOCUMENTS = new AcceptableBookTypeFilter();
 
-	private Logger log = new Logger(this.getClass().getName());
+    private Logger log = new Logger(this.getClass().getName());
 
-	/** get a list of books that are available in AndBible repo
-	 */
-	public List<Book> getRepoBooks(boolean refresh) throws InstallException {
-		
+    /** get a list of books that are available in AndBible repo
+     */
+    public List<Book> getRepoBooks(boolean refresh) throws InstallException {
+        
         List<Book> bookList = getBookList(SUPPORTED_DOCUMENTS, refresh);
 
         storeRepoNameInMetaData(bookList);
         
-		return bookList;		
-	}
+        return bookList;        
+    }
 
-	/**
-	 * Download the index of the specified document
-	 */
-	public void downloadIndex(Book document) throws InstallException, BookException {
-		DownloadManager downloadManager = new DownloadManager();
-		downloadManager.installIndex(getRepoName(), document);
-	}
+    /**
+     * Download the index of the specified document
+     */
+    public void downloadIndex(Book document) throws InstallException, BookException {
+        DownloadManager downloadManager = new DownloadManager();
+        downloadManager.installIndex(getRepoName(), document);
+    }
 
-	@Override
-	public String getRepoName() {
-		return REPOSITORY;
-	}
+    @Override
+    public String getRepoName() {
+        return REPOSITORY;
+    }
 }

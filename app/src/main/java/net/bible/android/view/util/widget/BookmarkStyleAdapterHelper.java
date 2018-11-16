@@ -23,68 +23,68 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class BookmarkStyleAdapterHelper {
 
-	private String sampleText = CommonUtils.getResourceString(R.string.prefs_text_size_sample_text);
+    private String sampleText = CommonUtils.getResourceString(R.string.prefs_text_size_sample_text);
 
-	public void styleView(TextView view, BookmarkStyle bookmarkStyle, Context context, boolean overrideText, boolean centreText) {
+    public void styleView(TextView view, BookmarkStyle bookmarkStyle, Context context, boolean overrideText, boolean centreText) {
 
-		// prepare text to be shown
-		String baseText;
-		if (overrideText) {
-			baseText = sampleText;
-		} else {
-			baseText = view.getText().toString();
-			// avoid multiple *'s
-			if (baseText.startsWith("*")) {
-				StringUtils.strip(baseText, "*");
-			}
-		}
+        // prepare text to be shown
+        String baseText;
+        if (overrideText) {
+            baseText = sampleText;
+        } else {
+            baseText = view.getText().toString();
+            // avoid multiple *'s
+            if (baseText.startsWith("*")) {
+                StringUtils.strip(baseText, "*");
+            }
+        }
 
-		int backgroundColor = Color.WHITE;
-		CharSequence imgText;
-		switch (bookmarkStyle) {
-			case SPEAK:
-				backgroundColor = UiUtils.getThemeBackgroundColour(context);
-				view.setTextColor(UiUtils.getThemeTextColour(context));
-				imgText = addImageAtStart("* "+baseText, R.drawable.hearing, context);
-				view.setText(imgText, TextView.BufferType.SPANNABLE);
-				break;
-			case YELLOW_STAR:
-				backgroundColor = UiUtils.getThemeBackgroundColour(context);
-				view.setTextColor(UiUtils.getThemeTextColour(context));
-				imgText = addImageAtStart("* "+baseText, R.drawable.goldstar16x16, context);
-				view.setText(imgText, TextView.BufferType.SPANNABLE);
-				break;
-			case RED_HIGHLIGHT:
-				backgroundColor = BookmarkStyle.RED_HIGHLIGHT.getBackgroundColor();
-				view.setText(baseText);
-				break;
-			case YELLOW_HIGHLIGHT:
-				backgroundColor = BookmarkStyle.YELLOW_HIGHLIGHT.getBackgroundColor();
-				view.setText(baseText);
-				break;
-			case GREEN_HIGHLIGHT:
-				backgroundColor = BookmarkStyle.GREEN_HIGHLIGHT.getBackgroundColor();
-				view.setText(baseText);
-				break;
-			case BLUE_HIGHLIGHT:
-				backgroundColor = BookmarkStyle.BLUE_HIGHLIGHT.getBackgroundColor();
-				view.setText(baseText);
-				break;
-		}
-		view.setBackgroundColor(backgroundColor);
-		view.setHeight(CommonUtils.convertDipsToPx(30));
-		if (centreText) {
-			view.setGravity(Gravity.CENTER);
-		}
-	}
+        int backgroundColor = Color.WHITE;
+        CharSequence imgText;
+        switch (bookmarkStyle) {
+            case SPEAK:
+                backgroundColor = UiUtils.getThemeBackgroundColour(context);
+                view.setTextColor(UiUtils.getThemeTextColour(context));
+                imgText = addImageAtStart("* "+baseText, R.drawable.hearing, context);
+                view.setText(imgText, TextView.BufferType.SPANNABLE);
+                break;
+            case YELLOW_STAR:
+                backgroundColor = UiUtils.getThemeBackgroundColour(context);
+                view.setTextColor(UiUtils.getThemeTextColour(context));
+                imgText = addImageAtStart("* "+baseText, R.drawable.goldstar16x16, context);
+                view.setText(imgText, TextView.BufferType.SPANNABLE);
+                break;
+            case RED_HIGHLIGHT:
+                backgroundColor = BookmarkStyle.RED_HIGHLIGHT.getBackgroundColor();
+                view.setText(baseText);
+                break;
+            case YELLOW_HIGHLIGHT:
+                backgroundColor = BookmarkStyle.YELLOW_HIGHLIGHT.getBackgroundColor();
+                view.setText(baseText);
+                break;
+            case GREEN_HIGHLIGHT:
+                backgroundColor = BookmarkStyle.GREEN_HIGHLIGHT.getBackgroundColor();
+                view.setText(baseText);
+                break;
+            case BLUE_HIGHLIGHT:
+                backgroundColor = BookmarkStyle.BLUE_HIGHLIGHT.getBackgroundColor();
+                view.setText(baseText);
+                break;
+        }
+        view.setBackgroundColor(backgroundColor);
+        view.setHeight(CommonUtils.convertDipsToPx(30));
+        if (centreText) {
+            view.setGravity(Gravity.CENTER);
+        }
+    }
 
-	/**
-	 * Replace first character of text with image
-	 */
-	private CharSequence addImageAtStart(String text, int drawableImage, Context context) {
-		ImageSpan imageSpan = new ImageSpan(context, drawableImage, ImageSpan.ALIGN_BASELINE);
-		final SpannableString spannableString = new SpannableString(text);
-		spannableString.setSpan(imageSpan, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
-		return spannableString;
-	}
+    /**
+     * Replace first character of text with image
+     */
+    private CharSequence addImageAtStart(String text, int drawableImage, Context context) {
+        ImageSpan imageSpan = new ImageSpan(context, drawableImage, ImageSpan.ALIGN_BASELINE);
+        final SpannableString spannableString = new SpannableString(text);
+        spannableString.setSpan(imageSpan, 0, 1, SpannableString.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return spannableString;
+    }
 }

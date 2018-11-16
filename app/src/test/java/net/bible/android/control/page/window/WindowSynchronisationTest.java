@@ -26,57 +26,57 @@ import static org.junit.Assert.assertThat;
 @Config(application = TestBibleApplication.class)
 public class WindowSynchronisationTest {
 
-	private EventManager eventManager;
+    private EventManager eventManager;
 
-	private WindowRepository windowRepository;
-	
-	private WindowControl windowControl;
+    private WindowRepository windowRepository;
+    
+    private WindowControl windowControl;
 
-	@Before
-	public void setUp() throws Exception {
-		eventManager = ABEventBus.getDefault();
-		Provider<CurrentPageManager> mockCurrentPageManagerProvider = new Provider<CurrentPageManager>() {
-			@Override
-			public CurrentPageManager get() {
-				return new CurrentPageManager(null, new SwordDocumentFacade(null), null, null);
-			}
-		};
-		windowRepository = new WindowRepository(mockCurrentPageManagerProvider);
-		windowControl = new WindowControl(windowRepository, eventManager);
-	}
+    @Before
+    public void setUp() throws Exception {
+        eventManager = ABEventBus.getDefault();
+        Provider<CurrentPageManager> mockCurrentPageManagerProvider = new Provider<CurrentPageManager>() {
+            @Override
+            public CurrentPageManager get() {
+                return new CurrentPageManager(null, new SwordDocumentFacade(null), null, null);
+            }
+        };
+        windowRepository = new WindowRepository(mockCurrentPageManagerProvider);
+        windowControl = new WindowControl(windowRepository, eventManager);
+    }
 
-	@After
-	public void tearDown() {
-		DatabaseResetter.resetDatabase();
-	}
+    @After
+    public void tearDown() {
+        DatabaseResetter.resetDatabase();
+    }
 
-	@Test
-	public void testSynchronizeScreens_verseChange() throws Exception {
-		Window window2 = windowControl.addNewWindow();
-		ChapterVerse origChapterVerse = window2.getPageManager().getCurrentBible().getCurrentChapterVerse();
-		assertThat(origChapterVerse.getVerse(), not(equalTo(7)));
+    @Test
+    public void testSynchronizeScreens_verseChange() throws Exception {
+        Window window2 = windowControl.addNewWindow();
+        ChapterVerse origChapterVerse = window2.getPageManager().getCurrentBible().getCurrentChapterVerse();
+        assertThat(origChapterVerse.getVerse(), not(equalTo(7)));
 
-		Window mainWindow = windowControl.getActiveWindow();
-		ChapterVerse newChapterVerse = new ChapterVerse(origChapterVerse.getChapter(), 7);
-		mainWindow.getPageManager().getCurrentBible().setCurrentChapterVerse(newChapterVerse);
-		assertThat(mainWindow.getPageManager().getCurrentBible().getCurrentChapterVerse().getVerse(), equalTo(7));
+        Window mainWindow = windowControl.getActiveWindow();
+        ChapterVerse newChapterVerse = new ChapterVerse(origChapterVerse.getChapter(), 7);
+        mainWindow.getPageManager().getCurrentBible().setCurrentChapterVerse(newChapterVerse);
+        assertThat(mainWindow.getPageManager().getCurrentBible().getCurrentChapterVerse().getVerse(), equalTo(7));
 
-		Thread.sleep(500);
-		assertThat(window2.getPageManager().getCurrentBible().getCurrentChapterVerse(), equalTo(newChapterVerse));
-	}
+        Thread.sleep(500);
+        assertThat(window2.getPageManager().getCurrentBible().getCurrentChapterVerse(), equalTo(newChapterVerse));
+    }
 
-	@Test
-	public void testSynchronizeScreens_chapterChange() throws Exception {
-		Window window2 = windowControl.addNewWindow();
-		ChapterVerse origChapterVerse = window2.getPageManager().getCurrentBible().getCurrentChapterVerse();
-		assertThat(origChapterVerse.getChapter(), not(equalTo(3)));
+    @Test
+    public void testSynchronizeScreens_chapterChange() throws Exception {
+        Window window2 = windowControl.addNewWindow();
+        ChapterVerse origChapterVerse = window2.getPageManager().getCurrentBible().getCurrentChapterVerse();
+        assertThat(origChapterVerse.getChapter(), not(equalTo(3)));
 
-		ChapterVerse newChapterVerse = new ChapterVerse(3, 7);
-		Window mainWindow = windowControl.getActiveWindow();
-		mainWindow.getPageManager().getCurrentBible().setCurrentChapterVerse(newChapterVerse);
-		assertThat(mainWindow.getPageManager().getCurrentBible().getCurrentChapterVerse().getChapter(), equalTo(3));
+        ChapterVerse newChapterVerse = new ChapterVerse(3, 7);
+        Window mainWindow = windowControl.getActiveWindow();
+        mainWindow.getPageManager().getCurrentBible().setCurrentChapterVerse(newChapterVerse);
+        assertThat(mainWindow.getPageManager().getCurrentBible().getCurrentChapterVerse().getChapter(), equalTo(3));
 
-		Thread.sleep(500);
-		assertThat(window2.getPageManager().getCurrentBible().getCurrentChapterVerse(), equalTo(newChapterVerse));
-	}
+        Thread.sleep(500);
+        assertThat(window2.getPageManager().getCurrentBible().getCurrentChapterVerse(), equalTo(newChapterVerse));
+    }
 }

@@ -17,31 +17,31 @@ import static org.junit.Assert.*;
  */
 public class SaxParserPoolTest {
 
-	private SaxParserPool saxParserPool;
+    private SaxParserPool saxParserPool;
 
-	@Before
-	public void setup() {
-		saxParserPool = new SaxParserPool();
-	}
+    @Before
+    public void setup() {
+        saxParserPool = new SaxParserPool();
+    }
 
-	@Test
-	public void obtain() throws Exception {
-		SAXParser firstParser = saxParserPool.obtain();
-		assertThat(firstParser, not(nullValue()));
-	}
+    @Test
+    public void obtain() throws Exception {
+        SAXParser firstParser = saxParserPool.obtain();
+        assertThat(firstParser, not(nullValue()));
+    }
 
-	@Test
-	public void recycle() throws Exception {
-		SAXParser firstParser = saxParserPool.obtain();
-		saxParserPool.recycle(firstParser);
-		SAXParser secondParser = saxParserPool.obtain();
-		assertThat(secondParser, equalTo(firstParser));
-	}
+    @Test
+    public void recycle() throws Exception {
+        SAXParser firstParser = saxParserPool.obtain();
+        saxParserPool.recycle(firstParser);
+        SAXParser secondParser = saxParserPool.obtain();
+        assertThat(secondParser, equalTo(firstParser));
+    }
 
-	@Test
-	public void addMoreInstances() throws Exception {
-		SAXParser firstParser = saxParserPool.obtain();
-		SAXParser secondParser = saxParserPool.obtain();
-		assertThat(secondParser, not(equalTo(firstParser)));
-	}
+    @Test
+    public void addMoreInstances() throws Exception {
+        SAXParser firstParser = saxParserPool.obtain();
+        SAXParser secondParser = saxParserPool.obtain();
+        assertThat(secondParser, not(equalTo(firstParser)));
+    }
 }

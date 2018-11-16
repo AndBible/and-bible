@@ -9,5 +9,5 @@ import net.bible.android.view.util.buttongrid.ButtonGrid.ButtonInfo;
  *      The copyright to this program is held by it's author.
  */
 public interface OnButtonGridActionListener {
-	public void buttonPressed(ButtonInfo buttonInfo);
+    public void buttonPressed(ButtonInfo buttonInfo);
 }

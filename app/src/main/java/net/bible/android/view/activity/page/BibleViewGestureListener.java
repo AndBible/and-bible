@@ -16,21 +16,21 @@ import net.bible.service.common.CommonUtils;
  */
 public class BibleViewGestureListener extends SimpleOnGestureListener {
 
-	private BibleView bibleView;
+    private BibleView bibleView;
 
-	private static final String TAG = "BibleGestureListener";
+    private static final String TAG = "BibleGestureListener";
 
-	public BibleViewGestureListener(BibleView bibleView) {
-		super();
-		this.bibleView = bibleView;
-	}
+    public BibleViewGestureListener(BibleView bibleView) {
+        super();
+        this.bibleView = bibleView;
+    }
 
-//	/** WebView does not handle long presses automatically via onCreateContextMenu so do it here
-//	 */
-//	@Override
-//	public void onLongPress(MotionEvent e) {
-//		Log.d(TAG, "onLongPress");
+//    /** WebView does not handle long presses automatically via onCreateContextMenu so do it here
+//     */
+//    @Override
+//    public void onLongPress(MotionEvent e) {
+//        Log.d(TAG, "onLongPress");
 //
-//		bibleView.onLongPress(e.getX(), e.getY());
-//	}
+//        bibleView.onLongPress(e.getX(), e.getY());
+//    }
 }

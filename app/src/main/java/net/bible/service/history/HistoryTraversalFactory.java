@@ -14,14 +14,14 @@ import javax.inject.Inject;
 @ApplicationScope
 public class HistoryTraversalFactory {
 
-	private final HistoryManager historyManager;
+    private final HistoryManager historyManager;
 
-	@Inject
-	public HistoryTraversalFactory(HistoryManager historyManager) {
-		this.historyManager = historyManager;
-	}
+    @Inject
+    public HistoryTraversalFactory(HistoryManager historyManager) {
+        this.historyManager = historyManager;
+    }
 
-	public HistoryTraversal createHistoryTraversal(boolean integrateWithHistoryManager) {
-		return new HistoryTraversal(historyManager, integrateWithHistoryManager);
-	}
+    public HistoryTraversal createHistoryTraversal(boolean integrateWithHistoryManager) {
+        return new HistoryTraversal(historyManager, integrateWithHistoryManager);
+    }
 }

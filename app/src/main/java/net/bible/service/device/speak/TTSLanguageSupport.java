@@ -13,38 +13,38 @@ import net.bible.service.common.CommonUtils;
  */
 public class TTSLanguageSupport {
 
-	private static final String TTS_LANG_SUPPORTED_KEY = "TTS_LANG_SUPPORTED";
-	private static final String LANG_SEPERATOR = ",";
+    private static final String TTS_LANG_SUPPORTED_KEY = "TTS_LANG_SUPPORTED";
+    private static final String LANG_SEPERATOR = ",";
 
-	public void addSupportedLocale(Locale locale) {
-		
-		if (!isLangKnownToBeSupported(locale.getLanguage())) {
-			String langCode = locale.getLanguage();
-			String langList = getSupportedLangList();
-			CommonUtils.getSharedPreferences()
-						.edit()
-						.putString(TTS_LANG_SUPPORTED_KEY, langList+LANG_SEPERATOR+langCode)
-						.commit();
-		}
-	}
-	
-	public void addUnsupportedLocale(Locale locale) {
-		if (isLangKnownToBeSupported(locale.getLanguage())) {
-			String langCode = locale.getLanguage();
-			String langList = getSupportedLangList();
-			CommonUtils.getSharedPreferences()
-						.edit()
-						.putString(TTS_LANG_SUPPORTED_KEY, langList.replace(LANG_SEPERATOR+langCode, ""))
-						.commit();
-		}
-	}
-	
-	public boolean isLangKnownToBeSupported(String langCode) {
-		boolean isSupported = getSupportedLangList().contains(langCode);
-		return isSupported;
-	}
-	
-	private String getSupportedLangList() {
-		return CommonUtils.getSharedPreferences().getString(TTS_LANG_SUPPORTED_KEY, "");
-	}
+    public void addSupportedLocale(Locale locale) {
+        
+        if (!isLangKnownToBeSupported(locale.getLanguage())) {
+            String langCode = locale.getLanguage();
+            String langList = getSupportedLangList();
+            CommonUtils.getSharedPreferences()
+                        .edit()
+                        .putString(TTS_LANG_SUPPORTED_KEY, langList+LANG_SEPERATOR+langCode)
+                        .commit();
+        }
+    }
+    
+    public void addUnsupportedLocale(Locale locale) {
+        if (isLangKnownToBeSupported(locale.getLanguage())) {
+            String langCode = locale.getLanguage();
+            String langList = getSupportedLangList();
+            CommonUtils.getSharedPreferences()
+                        .edit()
+                        .putString(TTS_LANG_SUPPORTED_KEY, langList.replace(LANG_SEPERATOR+langCode, ""))
+                        .commit();
+        }
+    }
+    
+    public boolean isLangKnownToBeSupported(String langCode) {
+        boolean isSupported = getSupportedLangList().contains(langCode);
+        return isSupported;
+    }
+    
+    private String getSupportedLangList() {
+        return CommonUtils.getSharedPreferences().getString(TTS_LANG_SUPPORTED_KEY, "");
+    }
 }

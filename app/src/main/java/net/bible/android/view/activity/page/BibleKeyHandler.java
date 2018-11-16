@@ -17,37 +17,37 @@ import javax.inject.Inject;
  */
 @ApplicationScope
 public class BibleKeyHandler {
-	
-	// prevent too may scroll events causing multi-page changes
-	private long lastHandledDpadEventTime = 0;
+    
+    // prevent too may scroll events causing multi-page changes
+    private long lastHandledDpadEventTime = 0;
 
-	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
+    private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
-	private static final String TAG = "BibleKeyHandler";
+    private static final String TAG = "BibleKeyHandler";
 
-	@Inject
-	public BibleKeyHandler(ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
-		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
-	}
-	
-	/** handle DPAD keys
-	 */
-	public boolean onKeyUp(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-			Log.d(TAG, "D-Pad");
-			// prevent too may scroll events causing multi-page changes
-			if (event.getEventTime()-lastHandledDpadEventTime>1000) {
-				if (keyCode==KeyEvent.KEYCODE_DPAD_RIGHT) {
-					activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().next();
-				} else {
-					activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().previous();
-				}
-				lastHandledDpadEventTime = event.getEventTime();
-				return true;
-			}
-		}
-		return false;
-	}
+    @Inject
+    public BibleKeyHandler(ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+        this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
+    }
+    
+    /** handle DPAD keys
+     */
+    public boolean onKeyUp(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
+            Log.d(TAG, "D-Pad");
+            // prevent too may scroll events causing multi-page changes
+            if (event.getEventTime()-lastHandledDpadEventTime>1000) {
+                if (keyCode==KeyEvent.KEYCODE_DPAD_RIGHT) {
+                    activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().next();
+                } else {
+                    activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().previous();
+                }
+                lastHandledDpadEventTime = event.getEventTime();
+                return true;
+            }
+        }
+        return false;
+    }
 
 
 }

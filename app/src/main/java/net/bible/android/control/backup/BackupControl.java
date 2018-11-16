@@ -25,60 +25,60 @@ import javax.inject.Inject;
  */
 @ApplicationScope
 public class BackupControl {
-	
-	// this is now unused because And Bible databases are held on the SD card to facilitate easier backup by file copy
-	private static final File internalDbDir = new File(Environment.getDataDirectory(), "/data/"+SharedConstants.PACKAGE_NAME+"/databases/");
+    
+    // this is now unused because And Bible databases are held on the SD card to facilitate easier backup by file copy
+    private static final File internalDbDir = new File(Environment.getDataDirectory(), "/data/"+SharedConstants.PACKAGE_NAME+"/databases/");
 
-	private static final String TAG = "BackupControl";
+    private static final String TAG = "BackupControl";
 
-	@Inject
-	public BackupControl() {
-	}
+    @Inject
+    public BackupControl() {
+    }
 
-	public void updateOptionsMenu(Menu menu) {
-		// always allow backup and restore to be attempted
-	}
+    public void updateOptionsMenu(Menu menu) {
+        // always allow backup and restore to be attempted
+    }
 
-	/** backup database to sd card
-	 */
-	public void backupDatabase() {
-		boolean ok = FileManager.copyFile(CommonDatabaseHelper.DATABASE_NAME, internalDbDir, SharedConstants.BACKUP_DIR);
+    /** backup database to sd card
+     */
+    public void backupDatabase() {
+        boolean ok = FileManager.copyFile(CommonDatabaseHelper.DATABASE_NAME, internalDbDir, SharedConstants.BACKUP_DIR);
 
-		if (ok) {
-			Log.d(TAG, "Copied database to SD card successfully");
-			Dialogs.getInstance().showMsg(R.string.backup_success, SharedConstants.BACKUP_DIR.getName());
-		} else {
-			Log.e(TAG, "Error copying database to SD card");
-			Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
-		}
-	}
-	
-	/** restore database from sd card
-	 */
-	public void restoreDatabase() {
-		if (!isBackupFileExists()) {
-			Dialogs.getInstance().showErrorMsg(R.string.error_no_backup_file);
-		} else {
-			Dialogs.getInstance().showMsg(R.string.restore_confirmation, true, new Callback() {
-				@Override
-				public void okay() {
-					boolean ok = FileManager.copyFile(CommonDatabaseHelper.DATABASE_NAME, SharedConstants.BACKUP_DIR, internalDbDir);
+        if (ok) {
+            Log.d(TAG, "Copied database to SD card successfully");
+            Dialogs.getInstance().showMsg(R.string.backup_success, SharedConstants.BACKUP_DIR.getName());
+        } else {
+            Log.e(TAG, "Error copying database to SD card");
+            Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+        }
+    }
+    
+    /** restore database from sd card
+     */
+    public void restoreDatabase() {
+        if (!isBackupFileExists()) {
+            Dialogs.getInstance().showErrorMsg(R.string.error_no_backup_file);
+        } else {
+            Dialogs.getInstance().showMsg(R.string.restore_confirmation, true, new Callback() {
+                @Override
+                public void okay() {
+                    boolean ok = FileManager.copyFile(CommonDatabaseHelper.DATABASE_NAME, SharedConstants.BACKUP_DIR, internalDbDir);
 
-					if (ok) {
-						Log.d(TAG, "Copied database from SD card successfully");
-						Dialogs.getInstance().showMsg(R.string.restore_success, SharedConstants.BACKUP_DIR.getName());
-					} else {
-						Log.e(TAG, "Error copying database from SD card");
-						Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
-					}
-				}
-			});
-		}
-	}
-	
-	/** return true if a backup has been done and the file is on the sd card.
-	 */
-	private boolean isBackupFileExists() {
-		return new File(SharedConstants.BACKUP_DIR, CommonDatabaseHelper.DATABASE_NAME).exists();
-	}
+                    if (ok) {
+                        Log.d(TAG, "Copied database from SD card successfully");
+                        Dialogs.getInstance().showMsg(R.string.restore_success, SharedConstants.BACKUP_DIR.getName());
+                    } else {
+                        Log.e(TAG, "Error copying database from SD card");
+                        Dialogs.getInstance().showErrorMsg(R.string.error_occurred);
+                    }
+                }
+            });
+        }
+    }
+    
+    /** return true if a backup has been done and the file is on the sd card.
+     */
+    private boolean isBackupFileExists() {
+        return new File(SharedConstants.BACKUP_DIR, CommonDatabaseHelper.DATABASE_NAME).exists();
+    }
 }

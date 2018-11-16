@@ -11,56 +11,56 @@ import android.util.Log;
  */
 public class Logger {
 
-	private String name;
-	
-	private static final boolean isAndroid = TestUtils.isAndroid();
-	
-	public Logger(String name) {
-		this.name = name;
-	}
-	public void debug(String s) {
-		if (isAndroid) {
-			Log.d(name, s);
-		} else {
-			System.out.println(name+":"+s);
-		}
-	}
-	public void info(String s) {
-		if (isAndroid) {
-			Log.i(name, s);
-		} else {
-			System.out.println(name+":"+s);
-		}
-	}
-	public void warn(String s) {
-		if (isAndroid) {
-			Log.w(name, s);
-		} else {
-			System.out.println(name+":"+s);
-		}
-	}
-	public void warn(String s, Exception e) {
-		if (isAndroid) {
-			Log.e(name, s, e);
-		} else {
-			System.out.println(name+":"+s);
-			e.printStackTrace();
-		}
-	}
-	public void error(String s) {
-		if (isAndroid) {
-			Log.e(name, s);
-		} else {
-			System.out.println(name+":"+s);
-		}
-	}
+    private String name;
+    
+    private static final boolean isAndroid = TestUtils.isAndroid();
+    
+    public Logger(String name) {
+        this.name = name;
+    }
+    public void debug(String s) {
+        if (isAndroid) {
+            Log.d(name, s);
+        } else {
+            System.out.println(name+":"+s);
+        }
+    }
+    public void info(String s) {
+        if (isAndroid) {
+            Log.i(name, s);
+        } else {
+            System.out.println(name+":"+s);
+        }
+    }
+    public void warn(String s) {
+        if (isAndroid) {
+            Log.w(name, s);
+        } else {
+            System.out.println(name+":"+s);
+        }
+    }
+    public void warn(String s, Exception e) {
+        if (isAndroid) {
+            Log.e(name, s, e);
+        } else {
+            System.out.println(name+":"+s);
+            e.printStackTrace();
+        }
+    }
+    public void error(String s) {
+        if (isAndroid) {
+            Log.e(name, s);
+        } else {
+            System.out.println(name+":"+s);
+        }
+    }
 
-	public void error(String s, Exception e) {
-		if (isAndroid) {
-			Log.e(name, s, e);
-		} else {
-			System.out.println(name+":"+s);
-			e.printStackTrace();
-		}
-	}
+    public void error(String s, Exception e) {
+        if (isAndroid) {
+            Log.e(name, s, e);
+        } else {
+            System.out.println(name+":"+s);
+            e.printStackTrace();
+        }
+    }
 }

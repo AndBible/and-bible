@@ -19,15 +19,15 @@ public class AcceptableBookTypeFilter implements BookFilter {
      * .Book)
      */
     public boolean test(Book book) {
-    	BookCategory bookCategory = book.getBookCategory();
-    	if (book.isLocked()) {
-    		return false;
-    	} else {
-    		return bookCategory.equals(BookCategory.BIBLE) ||
-    		bookCategory.equals(BookCategory.COMMENTARY) ||
-    		bookCategory.equals(BookCategory.DICTIONARY) ||
-    		bookCategory.equals(BookCategory.GENERAL_BOOK) || 
-    		bookCategory.equals(BookCategory.MAPS);
-    	}
+        BookCategory bookCategory = book.getBookCategory();
+        if (book.isLocked()) {
+            return false;
+        } else {
+            return bookCategory.equals(BookCategory.BIBLE) ||
+            bookCategory.equals(BookCategory.COMMENTARY) ||
+            bookCategory.equals(BookCategory.DICTIONARY) ||
+            bookCategory.equals(BookCategory.GENERAL_BOOK) || 
+            bookCategory.equals(BookCategory.MAPS);
+        }
     }
 }

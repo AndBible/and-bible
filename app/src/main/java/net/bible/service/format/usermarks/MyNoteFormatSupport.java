@@ -26,44 +26,44 @@ import javax.inject.Inject;
 @ApplicationScope
 public class MyNoteFormatSupport {
 
-	@Inject
-	public MyNoteFormatSupport() {
-	}
+    @Inject
+    public MyNoteFormatSupport() {
+    }
 
-	public List<Verse> getVersesWithNotesInPassage(Key passage) {
-		// assumes the passage only covers one book, which always happens to be the case here
-		Verse firstVerse = KeyUtil.getVerse(passage);
-		BibleBook book = firstVerse.getBook();
+    public List<Verse> getVersesWithNotesInPassage(Key passage) {
+        // assumes the passage only covers one book, which always happens to be the case here
+        Verse firstVerse = KeyUtil.getVerse(passage);
+        BibleBook book = firstVerse.getBook();
 
-		MyNoteDBAdapter db = new MyNoteDBAdapter();
-		List<MyNoteDto> myNoteList = null;
-		try {
-			db.open();
-			myNoteList = db.getMyNotesInBook(book);
-		} finally {
-			db.close();
-		}
+        MyNoteDBAdapter db = new MyNoteDBAdapter();
+        List<MyNoteDto> myNoteList = null;
+        try {
+            db.open();
+            myNoteList = db.getMyNotesInBook(book);
+        } finally {
+            db.close();
+        }
 
-		// convert to required versification and check verse is in passage
-		List<Verse> versesInPassage = new ArrayList<>();
-		if (myNoteList!=null) {
-			boolean isVerseRange = passage instanceof VerseRange;
-			Versification requiredVersification = firstVerse.getVersification();
-			for (MyNoteDto myNoteDto : myNoteList) {
-				VerseRange verseRange = myNoteDto.getVerseRange(requiredVersification);
-				//TODO should not require VerseRange cast but bug in JSword
-				if (isVerseRange) {
-					if (((VerseRange)passage).contains(verseRange.getStart())) {
-						versesInPassage.add(verseRange.getStart());
-					}
-				} else {
-					if (passage.contains(verseRange)) {
-						versesInPassage.add(verseRange.getStart());
-					}
-				}
-			}
-		}
+        // convert to required versification and check verse is in passage
+        List<Verse> versesInPassage = new ArrayList<>();
+        if (myNoteList!=null) {
+            boolean isVerseRange = passage instanceof VerseRange;
+            Versification requiredVersification = firstVerse.getVersification();
+            for (MyNoteDto myNoteDto : myNoteList) {
+                VerseRange verseRange = myNoteDto.getVerseRange(requiredVersification);
+                //TODO should not require VerseRange cast but bug in JSword
+                if (isVerseRange) {
+                    if (((VerseRange)passage).contains(verseRange.getStart())) {
+                        versesInPassage.add(verseRange.getStart());
+                    }
+                } else {
+                    if (passage.contains(verseRange)) {
+                        versesInPassage.add(verseRange.getStart());
+                    }
+                }
+            }
+        }
 
-		return versesInPassage;
-	}
+        return versesInPassage;
+    }
 }

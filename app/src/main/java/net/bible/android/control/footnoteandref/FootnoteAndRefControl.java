@@ -27,71 +27,71 @@ import javax.inject.Inject;
 @ApplicationScope
 public class FootnoteAndRefControl {
 
-	private final BibleTraverser bibleTraverser;
+    private final BibleTraverser bibleTraverser;
 
-	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
+    private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
-	@SuppressWarnings("unused")
-	private static final String TAG = "FootnoteAndRefControl";
+    @SuppressWarnings("unused")
+    private static final String TAG = "FootnoteAndRefControl";
 
-	@Inject
-	public FootnoteAndRefControl(BibleTraverser bibleTraverser, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
-		this.bibleTraverser = bibleTraverser;
-		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
-	}
+    @Inject
+    public FootnoteAndRefControl(BibleTraverser bibleTraverser, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+        this.bibleTraverser = bibleTraverser;
+        this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
+    }
 
-	public List<Note> getCurrentPageFootnotesAndReferences() {
-		try {
-			return getCurrentPageManager().getCurrentPage().getCurrentPageFootnotesAndReferences();
-		} catch (Exception e) {
-			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
-			return new ArrayList<>();
-		}
-	}
-	
-	public String getTitle(VerseRange verseRange) {
-		StringBuilder stringBuilder = new StringBuilder();
-		boolean wasFullBookname = BookName.isFullBookName();
-		BookName.setFullBookName(false);
-		
-		stringBuilder.append(BibleApplication.getApplication().getString(R.string.notes))
-					 .append(": ")
-					 .append(verseRange.getName());
-		
-		BookName.setFullBookName(wasFullBookname);
-		return stringBuilder.toString();
-	}
-	
-	/** Shuffle verseRange forward but stay in same chapter because those are the only notes fetched
-	 */
-	public VerseRange next(VerseRange verseRange) {
-		return bibleTraverser.getNextVerseRange(getCurrentPageManager().getCurrentPassageDocument(), verseRange, false);
-	}
+    public List<Note> getCurrentPageFootnotesAndReferences() {
+        try {
+            return getCurrentPageManager().getCurrentPage().getCurrentPageFootnotesAndReferences();
+        } catch (Exception e) {
+            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+            return new ArrayList<>();
+        }
+    }
+    
+    public String getTitle(VerseRange verseRange) {
+        StringBuilder stringBuilder = new StringBuilder();
+        boolean wasFullBookname = BookName.isFullBookName();
+        BookName.setFullBookName(false);
+        
+        stringBuilder.append(BibleApplication.getApplication().getString(R.string.notes))
+                     .append(": ")
+                     .append(verseRange.getName());
+        
+        BookName.setFullBookName(wasFullBookname);
+        return stringBuilder.toString();
+    }
+    
+    /** Shuffle verseRange forward but stay in same chapter because those are the only notes fetched
+     */
+    public VerseRange next(VerseRange verseRange) {
+        return bibleTraverser.getNextVerseRange(getCurrentPageManager().getCurrentPassageDocument(), verseRange, false);
+    }
 
-	/** Shuffle verseRange backward but stay in same chapter because those are the only notes fetched
-	 */
-	public VerseRange previous(VerseRange verseRange) {
-		return bibleTraverser.getPreviousVerseRange(getCurrentPageManager().getCurrentPassageDocument(), verseRange, false);
-	}
-	
-	public CurrentPageManager getCurrentPageManager() {
-		return activeWindowPageManagerProvider.getActiveWindowPageManager();
-	}
+    /** Shuffle verseRange backward but stay in same chapter because those are the only notes fetched
+     */
+    public VerseRange previous(VerseRange verseRange) {
+        return bibleTraverser.getPreviousVerseRange(getCurrentPageManager().getCurrentPassageDocument(), verseRange, false);
+    }
+    
+    public CurrentPageManager getCurrentPageManager() {
+        return activeWindowPageManagerProvider.getActiveWindowPageManager();
+    }
 
-	/**
-	 * Jump to the verse in the ref
-	 * If the osisRef is available then use that because sometimes the noteText itself misses out the book of the bible
-	 */
-	public void navigateTo(Note note) {
-		String ref;
-		if (StringUtils.isNotEmpty(note.getOsisRef())) {
-			ref = note.getOsisRef();
-		} else {
-			ref = note.getNoteText();
-		}
+    /**
+     * Jump to the verse in the ref
+     * If the osisRef is available then use that because sometimes the noteText itself misses out the book of the bible
+     */
+    public void navigateTo(Note note) {
+        String ref;
+        if (StringUtils.isNotEmpty(note.getOsisRef())) {
+            ref = note.getOsisRef();
+        } else {
+            ref = note.getNoteText();
+        }
 
-		CurrentPageManager currentPageControl = activeWindowPageManagerProvider.getActiveWindowPageManager();
-		currentPageControl.getCurrentBible().setKey(ref);
-		currentPageControl.showBible();
-	}
+        CurrentPageManager currentPageControl = activeWindowPageManagerProvider.getActiveWindowPageManager();
+        currentPageControl.getCurrentBible().setKey(ref);
+        currentPageControl.showBible();
+    }
 }

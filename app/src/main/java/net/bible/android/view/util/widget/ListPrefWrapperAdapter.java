@@ -17,15 +17,15 @@ import net.bible.service.common.CommonUtils;
  * The copyright to this program is held by it's author.
  */
 public class ListPrefWrapperAdapter implements WrapperListAdapter {
-	private ListAdapter mOrigAdapter;
+    private ListAdapter mOrigAdapter;
 
-	private String sampleText = CommonUtils.getResourceString(R.string.prefs_text_size_sample_text);
+    private String sampleText = CommonUtils.getResourceString(R.string.prefs_text_size_sample_text);
 
     public ListPrefWrapperAdapter(ListAdapter origAdapter) {
-		mOrigAdapter = origAdapter;
+        mOrigAdapter = origAdapter;
     }
 
-	@Override
+    @Override
     public ListAdapter getWrappedAdapter() {
         return mOrigAdapter;
     }
@@ -55,12 +55,12 @@ public class ListPrefWrapperAdapter implements WrapperListAdapter {
         return getWrappedAdapter().getCount();
     }
 
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		return getWrappedAdapter().getView(position, convertView, parent);
-	}
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        return getWrappedAdapter().getView(position, convertView, parent);
+    }
 
-	@Override
+    @Override
     public Object getItem(int position) {
         return getWrappedAdapter().getItem(position);
     }

@@ -13,20 +13,20 @@ import net.bible.android.view.util.UiUtils;
  */
 public class DefaultActionBarManager implements ActionBarManager {
 
-	private ActionBar actionBar;
-	
-	@Override
-	public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar) {
-		this.actionBar = actionBar;
-		
-		UiUtils.setActionBarColor(actionBar);
+    private ActionBar actionBar;
+    
+    @Override
+    public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar) {
+        this.actionBar = actionBar;
+        
+        UiUtils.setActionBarColor(actionBar);
 
-		// remove space on left reserved for home and up icons
-		actionBar.setDisplayShowHomeEnabled(false);
-	}
+        // remove space on left reserved for home and up icons
+        actionBar.setDisplayShowHomeEnabled(false);
+    }
 
-	@Override
-	public void updateButtons() {
-		UiUtils.setActionBarColor(actionBar);
-	}
+    @Override
+    public void updateButtons() {
+        UiUtils.setActionBarColor(actionBar);
+    }
 }

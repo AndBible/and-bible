@@ -18,23 +18,23 @@ import javax.inject.Inject;
 @ApplicationScope
 public class PageTiltScrollControlFactory {
 
-	private final Map<Window, PageTiltScrollControl> screenPageTiltScrollControlMap = new HashMap<>();
+    private final Map<Window, PageTiltScrollControl> screenPageTiltScrollControlMap = new HashMap<>();
 
-	@Inject
-	public PageTiltScrollControlFactory() {
-	}
+    @Inject
+    public PageTiltScrollControlFactory() {
+    }
 
-	public PageTiltScrollControl getPageTiltScrollControl(Window window) {
-		PageTiltScrollControl pageTiltScrollControl = screenPageTiltScrollControlMap.get(window);
-		if (pageTiltScrollControl==null) {
-			synchronized(screenPageTiltScrollControlMap) {
-				pageTiltScrollControl = screenPageTiltScrollControlMap.get(window);
-				if (pageTiltScrollControl==null) {
-					pageTiltScrollControl = new PageTiltScrollControl();
-					screenPageTiltScrollControlMap.put(window, pageTiltScrollControl);
-				}
-			}
-		}
-		return pageTiltScrollControl;
-	}
+    public PageTiltScrollControl getPageTiltScrollControl(Window window) {
+        PageTiltScrollControl pageTiltScrollControl = screenPageTiltScrollControlMap.get(window);
+        if (pageTiltScrollControl==null) {
+            synchronized(screenPageTiltScrollControlMap) {
+                pageTiltScrollControl = screenPageTiltScrollControlMap.get(window);
+                if (pageTiltScrollControl==null) {
+                    pageTiltScrollControl = new PageTiltScrollControl();
+                    screenPageTiltScrollControlMap.put(window, pageTiltScrollControl);
+                }
+            }
+        }
+        return pageTiltScrollControl;
+    }
 }

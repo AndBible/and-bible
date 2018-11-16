@@ -15,38 +15,38 @@ import org.json.JSONObject;
  *      The copyright to this program is held by it's author.
  */
 public class CurrentBibleVerse {
-	
-	private ConvertibleVerse verseVersificationSelected = new ConvertibleVerse(Versifications.instance().getVersification(Versifications.DEFAULT_V11N), BibleBook.GEN, 1, 1);
+    
+    private ConvertibleVerse verseVersificationSelected = new ConvertibleVerse(Versifications.instance().getVersification(Versifications.DEFAULT_V11N), BibleBook.GEN, 1, 1);
 
-	public int getCurrentBibleBookNo() {
-		return verseVersificationSelected.getBook().ordinal();
-	}
+    public int getCurrentBibleBookNo() {
+        return verseVersificationSelected.getBook().ordinal();
+    }
 
-	public BibleBook getCurrentBibleBook() {
-		return verseVersificationSelected.getBook();
-	}
-	
-	public Verse getVerseSelected(Versification versification) {
-		return verseVersificationSelected.getVerse(versification);
-	}
-	public void setVerseSelected(Versification versification, Verse verseSelected) {
-		verseVersificationSelected.setVerse(versification, verseSelected);
-	}
-	public void setChapterVerse(ChapterVerse chapterVerse) {
-		verseVersificationSelected.setChapterVerse(chapterVerse);
-	}
-	public ChapterVerse getChapterVerse() {
-		return verseVersificationSelected.getChapterVerse();
-	}
-	public Versification getVersificationOfLastSelectedVerse() {
-		return verseVersificationSelected.getVerse().getVersification();
-	}
+    public BibleBook getCurrentBibleBook() {
+        return verseVersificationSelected.getBook();
+    }
+    
+    public Verse getVerseSelected(Versification versification) {
+        return verseVersificationSelected.getVerse(versification);
+    }
+    public void setVerseSelected(Versification versification, Verse verseSelected) {
+        verseVersificationSelected.setVerse(versification, verseSelected);
+    }
+    public void setChapterVerse(ChapterVerse chapterVerse) {
+        verseVersificationSelected.setChapterVerse(chapterVerse);
+    }
+    public ChapterVerse getChapterVerse() {
+        return verseVersificationSelected.getChapterVerse();
+    }
+    public Versification getVersificationOfLastSelectedVerse() {
+        return verseVersificationSelected.getVerse().getVersification();
+    }
 
-	public JSONObject getStateJson() throws JSONException {
-		return verseVersificationSelected.getStateJson();
-	}
-	
-	public void restoreState(JSONObject jsonObject) throws JSONException {
-		verseVersificationSelected.restoreState(jsonObject);
-	}
+    public JSONObject getStateJson() throws JSONException {
+        return verseVersificationSelected.getStateJson();
+    }
+    
+    public void restoreState(JSONObject jsonObject) throws JSONException {
+        verseVersificationSelected.restoreState(jsonObject);
+    }
 }

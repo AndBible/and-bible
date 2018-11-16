@@ -29,7 +29,7 @@ public class SeekBarPreference extends DialogPreference implements
     private int mMax, mMin, mValue = 0;
     
     @SuppressWarnings("unused")
-	private static final String TAG = "SeekBarPreference";
+    private static final String TAG = "SeekBarPreference";
 
     public SeekBarPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -114,7 +114,7 @@ public class SeekBarPreference extends DialogPreference implements
     }
 
     public void onProgressChanged(SeekBar seek, int value, boolean fromTouch) {
-    	int newValue = value + mMin;
+        int newValue = value + mMin;
        
         updateScreenValue(newValue);
     }
@@ -125,7 +125,7 @@ public class SeekBarPreference extends DialogPreference implements
     public void onStopTrackingTouch(SeekBar seek) {
     }
 
-	public TextView getDialogMessageView() {
-		return mDialogMessageView;
-	}
+    public TextView getDialogMessageView() {
+        return mDialogMessageView;
+    }
 }

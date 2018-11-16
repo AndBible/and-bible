@@ -10,22 +10,22 @@ import net.bible.android.control.download.DocumentStatus;
  */
 public class DocumentDownloadEvent {
 
-	private DocumentStatus documentStatus;
+    private DocumentStatus documentStatus;
 
-	public DocumentDownloadEvent(String initials, DocumentStatus.DocumentInstallStatus status, int percentDone) {
-		super();
-		documentStatus = new DocumentStatus(initials, status, percentDone);
-	}
+    public DocumentDownloadEvent(String initials, DocumentStatus.DocumentInstallStatus status, int percentDone) {
+        super();
+        documentStatus = new DocumentStatus(initials, status, percentDone);
+    }
 
-	public DocumentStatus getDocumentStatus() {
-		return documentStatus;
-	}
+    public DocumentStatus getDocumentStatus() {
+        return documentStatus;
+    }
 
-	public String getInitials() {
-		return documentStatus.getInitials();
-	}
+    public String getInitials() {
+        return documentStatus.getInitials();
+    }
 
-	public int getPercentDone() {
-		return documentStatus.getPercentDone();
-	}
+    public int getPercentDone() {
+        return documentStatus.getPercentDone();
+    }
 }

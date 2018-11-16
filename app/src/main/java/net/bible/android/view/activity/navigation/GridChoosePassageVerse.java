@@ -29,24 +29,24 @@ import javax.inject.Inject;
  *      The copyright to this program is held by it's author.
  */
 public class GridChoosePassageVerse extends CustomTitlebarActivityBase implements OnButtonGridActionListener {
-	
-	private BibleBook mBibleBook=BibleBook.GEN;
-	private int mBibleChapterNo=1;
+    
+    private BibleBook mBibleBook=BibleBook.GEN;
+    private int mBibleChapterNo=1;
 
-	private NavigationControl navigationControl;
+    private NavigationControl navigationControl;
 
-	private ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
+    private ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
-	private static final String TAG = "GridChoosePassageChaptr";
+    private static final String TAG = "GridChoosePassageChaptr";
 
-	/** Called when the activity is first created. */
+    /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
-    	// background goes white in some circumstances if theme changes so prevent theme change
-    	setAllowThemeChange(false);
+        // background goes white in some circumstances if theme changes so prevent theme change
+        setAllowThemeChange(false);
         super.onCreate(savedInstanceState);
 
-		buildActivityComponent().inject(this);
+        buildActivityComponent().inject(this);
 
         int bibleBookNo = getIntent().getIntExtra(GridChoosePassageBook.BOOK_NO, navigationControl.getDefaultBibleBookNo());
         mBibleBook = BibleBook.values()[bibleBookNo];
@@ -55,9 +55,9 @@ public class GridChoosePassageVerse extends CustomTitlebarActivityBase implement
         
         // show chosen book in page title to confirm user choice
         try {
-        	setTitle(navigationControl.getVersification().getLongName(mBibleBook)+" "+mBibleChapterNo);
+            setTitle(navigationControl.getVersification().getLongName(mBibleBook)+" "+mBibleChapterNo);
         } catch (Exception nsve) {
-        	Log.e(TAG, "Error in selected book no or chapter no", nsve);
+            Log.e(TAG, "Error in selected book no or chapter no", nsve);
         }
         
         ButtonGrid grid = new ButtonGrid(this);
@@ -68,52 +68,52 @@ public class GridChoosePassageVerse extends CustomTitlebarActivityBase implement
     }
     
     private List<ButtonInfo> getBibleVersesButtonInfo(BibleBook book, int chapterNo) {
-    	int verses;
-    	try {
-	    	verses = navigationControl.getVersification().getLastVerse(book, chapterNo);
-		} catch (Exception nsve) {
-			Log.e(TAG, "Error getting number of verses", nsve);
-			verses = -1;
-		}
-    	
-    	List<ButtonInfo> keys = new ArrayList<>();
-    	for (int i=1; i<=verses; i++) {
-    		ButtonInfo buttonInfo = new ButtonInfo();
-			// this is used for preview
-			buttonInfo.id = i;
-    		buttonInfo.name = Integer.toString(i);
-    		keys.add(buttonInfo);
-    	}
-    	return keys;
+        int verses;
+        try {
+            verses = navigationControl.getVersification().getLastVerse(book, chapterNo);
+        } catch (Exception nsve) {
+            Log.e(TAG, "Error getting number of verses", nsve);
+            verses = -1;
+        }
+        
+        List<ButtonInfo> keys = new ArrayList<>();
+        for (int i=1; i<=verses; i++) {
+            ButtonInfo buttonInfo = new ButtonInfo();
+            // this is used for preview
+            buttonInfo.id = i;
+            buttonInfo.name = Integer.toString(i);
+            keys.add(buttonInfo);
+        }
+        return keys;
     }
     
-	@Override
-	public void buttonPressed(ButtonInfo buttonInfo) {
-		int verse = buttonInfo.id;
-		Log.d(TAG, "Verse selected:"+verse);
-		try {
-			activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().setKey(new Verse(navigationControl.getVersification(), mBibleBook, mBibleChapterNo, verse));
-			onSave(null);
+    @Override
+    public void buttonPressed(ButtonInfo buttonInfo) {
+        int verse = buttonInfo.id;
+        Log.d(TAG, "Verse selected:"+verse);
+        try {
+            activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentPage().setKey(new Verse(navigationControl.getVersification(), mBibleBook, mBibleChapterNo, verse));
+            onSave(null);
 
-		} catch (Exception e) {
-			Log.e(TAG, "error on select of bible book", e);
-		}
-	}
-
-    public void onSave(View v) {
-    	Log.i(TAG, "CLICKED");
-    	Intent resultIntent = new Intent(this, GridChoosePassageBook.class);
-    	setResult(Activity.RESULT_OK, resultIntent);
-    	finish();    
+        } catch (Exception e) {
+            Log.e(TAG, "error on select of bible book", e);
+        }
     }
 
-	@Inject
-	void setNavigationControl(NavigationControl navigationControl) {
-		this.navigationControl = navigationControl;
-	}
+    public void onSave(View v) {
+        Log.i(TAG, "CLICKED");
+        Intent resultIntent = new Intent(this, GridChoosePassageBook.class);
+        setResult(Activity.RESULT_OK, resultIntent);
+        finish();    
+    }
 
-	@Inject
-	void setActiveWindowPageManagerProvider(ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
-		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
-	}
+    @Inject
+    void setNavigationControl(NavigationControl navigationControl) {
+        this.navigationControl = navigationControl;
+    }
+
+    @Inject
+    void setActiveWindowPageManagerProvider(ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+        this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
+    }
 }

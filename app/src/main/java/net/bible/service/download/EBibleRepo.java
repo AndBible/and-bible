@@ -16,27 +16,27 @@ import org.crosswire.jsword.book.install.InstallException;
  */
 public class EBibleRepo extends RepoBase {
 
-	private static final String REPOSITORY = "eBible";
-	
-	private static BookFilter SUPPORTED_DOCUMENTS = new AcceptableBookTypeFilter();
-	
-	@SuppressWarnings("unused")
-	private static final String TAG = "EBibleRepo";
-	
-	
-	/** get a list of books that are available in AndBible repo
-	 */
-	public List<Book> getRepoBooks(boolean refresh) throws InstallException {
-		
+    private static final String REPOSITORY = "eBible";
+    
+    private static BookFilter SUPPORTED_DOCUMENTS = new AcceptableBookTypeFilter();
+    
+    @SuppressWarnings("unused")
+    private static final String TAG = "EBibleRepo";
+    
+    
+    /** get a list of books that are available in AndBible repo
+     */
+    public List<Book> getRepoBooks(boolean refresh) throws InstallException {
+        
         List<Book> bookList = getBookList(SUPPORTED_DOCUMENTS, refresh);
 
         storeRepoNameInMetaData(bookList);
         
-		return bookList;
-	}
+        return bookList;
+    }
 
-	@Override
-	public String getRepoName() {
-		return REPOSITORY;
-	}
+    @Override
+    public String getRepoName() {
+        return REPOSITORY;
+    }
 }

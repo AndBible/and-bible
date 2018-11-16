@@ -10,15 +10,15 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-	<EditText android:id="@+id/searchText" 
-		android:layout_height="wrap_content" 
-		android:layout_width="fill_parent" 
-		android:padding="5dip"
-		android:hint="@string/search_dictionary_hint"/>
-		
-	<ListView android:id="@android:id/list"
-		android:layout_width="fill_parent" 
-		android:layout_height="fill_parent"
-		android:choiceMode="singleChoice"/>
+    <EditText android:id="@+id/searchText" 
+        android:layout_height="wrap_content" 
+        android:layout_width="fill_parent" 
+        android:padding="5dip"
+        android:hint="@string/search_dictionary_hint"/>
+        
+    <ListView android:id="@android:id/list"
+        android:layout_width="fill_parent" 
+        android:layout_height="fill_parent"
+        android:choiceMode="singleChoice"/>
 
 </LinearLayout>

@@ -8,19 +8,19 @@ import net.bible.android.control.page.window.Window;
  */
 public class ScrollSecondaryWindowEvent implements WindowEvent {
 
-	private final Window window;
-	private final ChapterVerse chapterVerse;
-	
-	public ScrollSecondaryWindowEvent(Window window, ChapterVerse chapterVerse) {
-		this.window = window;
-		this.chapterVerse = chapterVerse;
-	}
+    private final Window window;
+    private final ChapterVerse chapterVerse;
+    
+    public ScrollSecondaryWindowEvent(Window window, ChapterVerse chapterVerse) {
+        this.window = window;
+        this.chapterVerse = chapterVerse;
+    }
 
-	public Window getWindow() {
-		return window;
-	}
+    public Window getWindow() {
+        return window;
+    }
 
-	public ChapterVerse getChapterVerse() {
-		return chapterVerse;
-	}
+    public ChapterVerse getChapterVerse() {
+        return chapterVerse;
+    }
 }

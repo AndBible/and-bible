@@ -7,15 +7,15 @@ import static org.junit.Assert.assertThat;
 
 public class StrongsLinkCreatorTest {
 
-	StrongsLinkCreator strongsLinkCreator = new StrongsLinkCreator();
+    StrongsLinkCreator strongsLinkCreator = new StrongsLinkCreator();
 
-	@Test
-	public void testCorrectText() {
-		assertThat( strongsLinkCreator.process("see HEBREW for 12345"), equalTo("<a href='hdef:12345' class=''>see HEBREW for 12345</a>"));
-	}
+    @Test
+    public void testCorrectText() {
+        assertThat( strongsLinkCreator.process("see HEBREW for 12345"), equalTo("<a href='hdef:12345' class=''>see HEBREW for 12345</a>"));
+    }
 
-	@Test
-	public void testInvalidText() {
-		assertThat( strongsLinkCreator.process("123\n456  88 "), equalTo("123\n456  88 "));
-	}
+    @Test
+    public void testInvalidText() {
+        assertThat( strongsLinkCreator.process("123\n456  88 "), equalTo("123\n456  88 "));
+    }
 }

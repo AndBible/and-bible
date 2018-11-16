@@ -15,20 +15,20 @@ import javax.inject.Inject;
 @ApplicationScope
 public class ReadingPlanDictionaryActionBarButton extends ReadingPlanQuickDocumentChangeButton {
 
-	@Inject
-	public ReadingPlanDictionaryActionBarButton(ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
-	}
+    @Inject
+    public ReadingPlanDictionaryActionBarButton(ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+    }
 
-	@Override
-	protected
-	Book getSuggestedDocument() {
-		return getCurrentPageManager().getCurrentDictionary().getCurrentDocument();
-	}
-	
-	/** return true if Strongs are relevant to this doc & screen */
-	@Override
-	protected boolean canShow() {
-		return super.canShow() && 
-				isWide(); 
-	}
+    @Override
+    protected
+    Book getSuggestedDocument() {
+        return getCurrentPageManager().getCurrentDictionary().getCurrentDocument();
+    }
+    
+    /** return true if Strongs are relevant to this doc & screen */
+    @Override
+    protected boolean canShow() {
+        return super.canShow() && 
+                isWide(); 
+    }
 }

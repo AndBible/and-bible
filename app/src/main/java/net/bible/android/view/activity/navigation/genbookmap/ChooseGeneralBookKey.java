@@ -16,29 +16,29 @@ import java.util.List;
  */
 public class ChooseGeneralBookKey extends ChooseKeyBase {
 
-	private static final String TAG = "ChooseGeneralBookKey";
-	
-	@Override
-	protected Key getCurrentKey() {
-		
-		return getCurrentGeneralBookPage().getKey();
-	}
-
-	@Override
-	protected List<Key> getKeyList() {
-		return getCurrentGeneralBookPage().getCachedGlobalKeyList();
-	}
-
-	@Override
-    protected void itemSelected(Key key) {
-    	try {
-    		getCurrentGeneralBookPage().setKey(key);
-    	} catch (Exception e) {
-    		Log.e(TAG, "error on select of gen book key", e);
-    	}
+    private static final String TAG = "ChooseGeneralBookKey";
+    
+    @Override
+    protected Key getCurrentKey() {
+        
+        return getCurrentGeneralBookPage().getKey();
     }
 
-	private CurrentGeneralBookPage getCurrentGeneralBookPage() {
-    	return getActiveWindowPageManagerProvider().getActiveWindowPageManager().getCurrentGeneralBook();
+    @Override
+    protected List<Key> getKeyList() {
+        return getCurrentGeneralBookPage().getCachedGlobalKeyList();
+    }
+
+    @Override
+    protected void itemSelected(Key key) {
+        try {
+            getCurrentGeneralBookPage().setKey(key);
+        } catch (Exception e) {
+            Log.e(TAG, "error on select of gen book key", e);
+        }
+    }
+
+    private CurrentGeneralBookPage getCurrentGeneralBookPage() {
+        return getActiveWindowPageManagerProvider().getActiveWindowPageManager().getCurrentGeneralBook();
     }
 }

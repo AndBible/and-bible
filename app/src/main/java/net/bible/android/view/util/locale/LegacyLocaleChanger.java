@@ -18,23 +18,23 @@ import java.util.Locale;
 
 public class LegacyLocaleChanger implements LocaleChanger {
 
-	private final Logger logger = new Logger(this.getClass().getName());
+    private final Logger logger = new Logger(this.getClass().getName());
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public Context changeLocale(Context context, String language) {
-		logger.debug("Update resources legacy to:"+language);
-		Locale locale = new Locale(language);
-		Locale.setDefault(locale);
+    @SuppressWarnings("deprecation")
+    @Override
+    public Context changeLocale(Context context, String language) {
+        logger.debug("Update resources legacy to:"+language);
+        Locale locale = new Locale(language);
+        Locale.setDefault(locale);
 
-		Resources resources = context.getResources();
+        Resources resources = context.getResources();
 
-		Configuration configuration = resources.getConfiguration();
-		configuration.locale = locale;
+        Configuration configuration = resources.getConfiguration();
+        configuration.locale = locale;
 
-		resources.updateConfiguration(configuration, resources.getDisplayMetrics());
+        resources.updateConfiguration(configuration, resources.getDisplayMetrics());
 
-		return context;
+        return context;
 
-	}
+    }
 }

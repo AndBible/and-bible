@@ -24,46 +24,46 @@ import javax.inject.Inject;
 @MainBibleActivityScope
 public class HomeTitle extends Title {
 
-	private PageControl pageControl;
+    private PageControl pageControl;
 
-	@Inject
-	public HomeTitle(PageControl pageControl) {
-		this.pageControl = pageControl;
-	}
+    @Inject
+    public HomeTitle(PageControl pageControl) {
+        this.pageControl = pageControl;
+    }
 
-	public void addToBar(ActionBar actionBar, final Activity activity) {
-		super.addToBar(actionBar, activity);
+    public void addToBar(ActionBar actionBar, final Activity activity) {
+        super.addToBar(actionBar, activity);
 
-		// listen for verse change events
-		ABEventBus.getDefault().safelyRegister(this);
-	}
-	
-	/**
-	 * Receive verse change events
-	 */
-	public void onEvent(CurrentVerseChangedEvent passageEvent) {
-		update(false);
-	}
-	
-	@Override
-	protected String[] getDocumentTitleParts() {
-		return pageControl.getCurrentDocumentTitleParts();
-	}
+        // listen for verse change events
+        ABEventBus.getDefault().safelyRegister(this);
+    }
+    
+    /**
+     * Receive verse change events
+     */
+    public void onEvent(CurrentVerseChangedEvent passageEvent) {
+        update(false);
+    }
+    
+    @Override
+    protected String[] getDocumentTitleParts() {
+        return pageControl.getCurrentDocumentTitleParts();
+    }
 
-	@Override
-	protected String[] getPageTitleParts() {
-		return pageControl.getCurrentPageTitleParts();
-	}
+    @Override
+    protected String[] getPageTitleParts() {
+        return pageControl.getCurrentPageTitleParts();
+    }
 
-	@Override
-	protected void onDocumentTitleClick() {
-		Intent intent = new Intent(getActivity(), ChooseDocument.class);
-		getActivity().startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE);
-	}
+    @Override
+    protected void onDocumentTitleClick() {
+        Intent intent = new Intent(getActivity(), ChooseDocument.class);
+        getActivity().startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE);
+    }
 
-	@Override
-	protected void onPageTitleClick() {
-		Intent intent = new Intent(getActivity(), pageControl.getCurrentPageManager().getCurrentPage().getKeyChooserActivity());
-		getActivity().startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE);
-	}
+    @Override
+    protected void onPageTitleClick() {
+        Intent intent = new Intent(getActivity(), pageControl.getCurrentPageManager().getCurrentPage().getKeyChooserActivity());
+        getActivity().startActivityForResult(intent, ActivityBase.STD_REQUEST_CODE);
+    }
 }

@@ -8,8 +8,8 @@ package net.bible.android.view.util.swipe;
  */
 public interface SwipeGestureEventHandler {
 
-	public abstract void onPrevious();
+    public abstract void onPrevious();
 
-	public abstract void onNext();
+    public abstract void onNext();
 
 }

@@ -25,57 +25,57 @@ import javax.inject.Inject;
  */
 public class LabelDialogs {
 
-	private final BookmarkControl bookmarkControl;
+    private final BookmarkControl bookmarkControl;
 
-	private static final String TAG = "LabelDialogs";
+    private static final String TAG = "LabelDialogs";
 
-	@Inject
-	public LabelDialogs(BookmarkControl bookmarkControl) {
-		this.bookmarkControl = bookmarkControl;
-	}
+    @Inject
+    public LabelDialogs(BookmarkControl bookmarkControl) {
+        this.bookmarkControl = bookmarkControl;
+    }
 
-	public void createLabel(Context context, final LabelDto label, final Callback onCreateCallback) {
-		showDialog(context, R.string.new_label, label, onCreateCallback);
-	}
+    public void createLabel(Context context, final LabelDto label, final Callback onCreateCallback) {
+        showDialog(context, R.string.new_label, label, onCreateCallback);
+    }
 
-	public void editLabel(Context context, final LabelDto label, final Callback onCreateCallback) {
-		showDialog(context, R.string.edit, label, onCreateCallback);
-	}
+    public void editLabel(Context context, final LabelDto label, final Callback onCreateCallback) {
+        showDialog(context, R.string.edit, label, onCreateCallback);
+    }
 
-	private void showDialog(Context context, int titleId, final LabelDto label, final Callback onCreateCallback) {
-		Log.i(TAG, "Edit label clicked");
+    private void showDialog(Context context, int titleId, final LabelDto label, final Callback onCreateCallback) {
+        Log.i(TAG, "Edit label clicked");
 
-		LayoutInflater inflater = LayoutInflater.from(context);
-		View view = inflater.inflate(R.layout.bookmark_label_edit, null);
-		final EditText labelName = (EditText)view.findViewById(R.id.labelName);
-		labelName.setText(label.getName());
+        LayoutInflater inflater = LayoutInflater.from(context);
+        View view = inflater.inflate(R.layout.bookmark_label_edit, null);
+        final EditText labelName = (EditText)view.findViewById(R.id.labelName);
+        labelName.setText(label.getName());
 
-		final BookmarkStyleAdapter adp = new BookmarkStyleAdapter(context, android.R.layout.simple_spinner_item);
-		final Spinner labelStyle = (Spinner)view.findViewById(R.id.labelStyle);
-		labelStyle.setAdapter(adp);
-		labelStyle.setSelection(adp.getBookmarkStyleOffset(label.getBookmarkStyle()));
+        final BookmarkStyleAdapter adp = new BookmarkStyleAdapter(context, android.R.layout.simple_spinner_item);
+        final Spinner labelStyle = (Spinner)view.findViewById(R.id.labelStyle);
+        labelStyle.setAdapter(adp);
+        labelStyle.setSelection(adp.getBookmarkStyleOffset(label.getBookmarkStyle()));
 
-		AlertDialog.Builder alert = new AlertDialog.Builder(context)
-				.setTitle(titleId)
-				.setView(view);
+        AlertDialog.Builder alert = new AlertDialog.Builder(context)
+                .setTitle(titleId)
+                .setView(view);
 
-		alert.setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int whichButton) {
-				String name = labelName.getText().toString();
-				label.setName(name);
-				label.setBookmarkStyle(adp.getBookmarkStyleForOffset(labelStyle.getSelectedItemPosition()));
-				bookmarkControl.saveOrUpdateLabel(label);
+        alert.setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                String name = labelName.getText().toString();
+                label.setName(name);
+                label.setBookmarkStyle(adp.getBookmarkStyleForOffset(labelStyle.getSelectedItemPosition()));
+                bookmarkControl.saveOrUpdateLabel(label);
 
-				onCreateCallback.okay();
-			}
-		});
+                onCreateCallback.okay();
+            }
+        });
 
-		alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-			public void onClick(DialogInterface dialog, int whichButton) {
-				// Canceled.
-			}
-		});
+        alert.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int whichButton) {
+                // Canceled.
+            }
+        });
 
-		AlertDialog dialog = alert.show();
-	}
+        AlertDialog dialog = alert.show();
+    }
 }

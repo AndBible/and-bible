@@ -1,45 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
 <net.bible.android.view.activity.download.DocumentDownloadListItem xmlns:android="http://schemas.android.com/apk/res/android"
-																   android:paddingTop="2dip"
-																   android:paddingBottom="2dip"
-																   android:layout_width="match_parent"
-																   android:layout_height="wrap_content"
-																   android:minHeight="?android:attr/listPreferredItemHeight"
-																   android:mode="twoLine"
-																   android:paddingLeft="16dp"
-																   android:paddingRight="16dp"
-																   android:background="@drawable/selectable_background">
+                                                                   android:paddingTop="2dip"
+                                                                   android:paddingBottom="2dip"
+                                                                   android:layout_width="match_parent"
+                                                                   android:layout_height="wrap_content"
+                                                                   android:minHeight="?android:attr/listPreferredItemHeight"
+                                                                   android:mode="twoLine"
+                                                                   android:paddingLeft="16dp"
+                                                                   android:paddingRight="16dp"
+                                                                   android:background="@drawable/selectable_background">
     
     <ImageView android:id="@+id/icon"
-	    android:layout_width="24dp"
-	    android:layout_height="wrap_content"
-	    android:layout_gravity="center_vertical"
-	    android:layout_marginLeft="2dip"
+        android:layout_width="24dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="2dip"
         android:layout_alignParentLeft="true"
-	    android:duplicateParentState="true"
-		android:layout_centerVertical="true"/>
+        android:duplicateParentState="true"
+        android:layout_centerVertical="true"/>
     
     <TextView android:id="@+id/text1"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="6dip"
         android:layout_marginTop="6dip"
         android:layout_toRightOf="@+id/icon"
-		android:textAppearance="?attr/textAppearanceListItem"/>
-		
-	<TextView android:id="@+id/text2"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_below="@id/text1"
+        android:textAppearance="?attr/textAppearanceListItem"/>
+        
+    <TextView android:id="@+id/text2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/text1"
         android:layout_alignLeft="@id/text1"
         android:textAppearance="?android:textAppearanceSmall" />
 
-	<ProgressBar android:id="@+id/progressBar"
-		style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_alignParentLeft="true"
-		android:layout_below="@id/text2"
-		android:visibility="invisible"/>
+    <ProgressBar android:id="@+id/progressBar"
+        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/text2"
+        android:visibility="invisible"/>
 
 </net.bible.android.view.activity.download.DocumentDownloadListItem>

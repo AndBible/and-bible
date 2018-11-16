@@ -13,17 +13,17 @@ import android.view.View;
  *      The copyright to this program is held by it's author.
  */
 public class TouchDelegateView extends View {
-	private View delegate;
-	
-	public TouchDelegateView(Context context, View delegate) {
-		super(context);
-		this.delegate = delegate;
-		setBackgroundColor(Color.TRANSPARENT);
-	}
-	
-	@Override
-	public boolean onTouchEvent(MotionEvent event) {
-		return delegate.onTouchEvent(event);
-	}
+    private View delegate;
+    
+    public TouchDelegateView(Context context, View delegate) {
+        super(context);
+        this.delegate = delegate;
+        setBackgroundColor(Color.TRANSPARENT);
+    }
+    
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return delegate.onTouchEvent(event);
+    }
 }
 

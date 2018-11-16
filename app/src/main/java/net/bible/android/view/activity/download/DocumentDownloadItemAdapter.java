@@ -30,69 +30,69 @@ import java.util.List;
  */
 public class DocumentDownloadItemAdapter extends ArrayAdapter<Book> {
 
-	private int resource;
-	
-	private DownloadControl downloadControl;
+    private int resource;
+    
+    private DownloadControl downloadControl;
 
-	private final ListActionModeHelper.ActionModeActivity actionModeActivity;
+    private final ListActionModeHelper.ActionModeActivity actionModeActivity;
 
-	private static int ACTIVATED_COLOUR = CommonUtils.getResourceColor(R.color.list_item_activated);
+    private static int ACTIVATED_COLOUR = CommonUtils.getResourceColor(R.color.list_item_activated);
 
-	public DocumentDownloadItemAdapter(Context _context, DownloadControl downloadControl, int resource, List<Book> items, ListActionModeHelper.ActionModeActivity actionModeActivity) {
-		super(_context, resource, items);
-		this.downloadControl = downloadControl;
-		this.resource = resource;
-		this.actionModeActivity = actionModeActivity;
-	}
+    public DocumentDownloadItemAdapter(Context _context, DownloadControl downloadControl, int resource, List<Book> items, ListActionModeHelper.ActionModeActivity actionModeActivity) {
+        super(_context, resource, items);
+        this.downloadControl = downloadControl;
+        this.resource = resource;
+        this.actionModeActivity = actionModeActivity;
+    }
 
-	@Override
-	public @NonNull View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+    @Override
+    public @NonNull View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
 
-		Book document = getItem(position);
+        Book document = getItem(position);
 
-		// Pick up the TwoLineListItem defined in the xml file
-		DocumentDownloadListItem view;
-		if (convertView == null) {
-			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			view = (DocumentDownloadListItem) inflater.inflate(resource, parent, false);
-		} else {
-			view = (DocumentDownloadListItem) convertView;
-		}
+        // Pick up the TwoLineListItem defined in the xml file
+        DocumentDownloadListItem view;
+        if (convertView == null) {
+            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            view = (DocumentDownloadListItem) inflater.inflate(resource, parent, false);
+        } else {
+            view = (DocumentDownloadListItem) convertView;
+        }
 
-		// remember which item is being shown
-		view.setDocument(document);
+        // remember which item is being shown
+        view.setDocument(document);
 
-		view.updateControlState(downloadControl.getDocumentStatus(document));
+        view.updateControlState(downloadControl.getDocumentStatus(document));
 
-		// Set value for the first text field
-		if (view.getText1() != null) {
-			// eBible repo uses abbreviation for initials and initials now contains the repo name!!!
-			// but helpfully JSword uses initials if abbreviation does not exist, as will be the case for all other repos.
-			String initials = document.getAbbreviation();
-			view.getText1().setText(initials);
-		}
+        // Set value for the first text field
+        if (view.getText1() != null) {
+            // eBible repo uses abbreviation for initials and initials now contains the repo name!!!
+            // but helpfully JSword uses initials if abbreviation does not exist, as will be the case for all other repos.
+            String initials = document.getAbbreviation();
+            view.getText1().setText(initials);
+        }
 
-		// set value for the second text field
-		if (view.getText2() != null) {
-			String name = document.getName();
-			if (document instanceof AbstractPassageBook) {
-				final AbstractPassageBook bible = (AbstractPassageBook)document;
-				// display v11n name if not KJV
-				if (!SystemKJV.V11N_NAME.equals(bible.getVersification().getName())) {
-					name += " ("+bible.getVersification().getName()+")";
-				}
-			}
-			view.getText2().setText(name);
-		}
+        // set value for the second text field
+        if (view.getText2() != null) {
+            String name = document.getName();
+            if (document instanceof AbstractPassageBook) {
+                final AbstractPassageBook bible = (AbstractPassageBook)document;
+                // display v11n name if not KJV
+                if (!SystemKJV.V11N_NAME.equals(bible.getVersification().getName())) {
+                    name += " ("+bible.getVersification().getName()+")";
+                }
+            }
+            view.getText2().setText(name);
+        }
 
-		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-			if (actionModeActivity.isItemChecked(position)) {
-				view.setBackgroundColor(ACTIVATED_COLOUR);
-			} else {
-				view.setBackgroundColor(Color.TRANSPARENT);
-			}
-		}
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            if (actionModeActivity.isItemChecked(position)) {
+                view.setBackgroundColor(ACTIVATED_COLOUR);
+            } else {
+                view.setBackgroundColor(Color.TRANSPARENT);
+            }
+        }
 
-		return view;
-	}
+        return view;
+    }
 }

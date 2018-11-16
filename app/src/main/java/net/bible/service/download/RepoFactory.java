@@ -13,55 +13,55 @@ import javax.inject.Inject;
  */
 @ApplicationScope
 public class RepoFactory {
-	private CrosswireRepo crosswireRepo = new CrosswireRepo();
-	
-	private BetaRepo betaRepo = new BetaRepo();
+    private CrosswireRepo crosswireRepo = new CrosswireRepo();
+    
+    private BetaRepo betaRepo = new BetaRepo();
 
-	private AndBibleRepo andBibleRepo = new AndBibleRepo();
+    private AndBibleRepo andBibleRepo = new AndBibleRepo();
 
-	private IBTRepo ibtRepo = new IBTRepo();
-	
-	private EBibleRepo eBibleRepo = new EBibleRepo();
+    private IBTRepo ibtRepo = new IBTRepo();
+    
+    private EBibleRepo eBibleRepo = new EBibleRepo();
 
-	@Inject
-	public RepoFactory() {}
+    @Inject
+    public RepoFactory() {}
 
-	public RepoBase getRepoForBook(Book document) {
-		return getRepo(document.getProperty(DownloadManager.REPOSITORY_KEY));
-	}
+    public RepoBase getRepoForBook(Book document) {
+        return getRepo(document.getProperty(DownloadManager.REPOSITORY_KEY));
+    }
 
-	private RepoBase getRepo(String repoName) {
+    private RepoBase getRepo(String repoName) {
 
-		RepoBase repoForBook;
-		if (crosswireRepo.getRepoName().equals(repoName)) {
-			repoForBook = crosswireRepo;
-		} else if (andBibleRepo.getRepoName().equals(repoName)) {
-			repoForBook = andBibleRepo;
-		} else if (betaRepo.getRepoName().equals(repoName)) {
-			repoForBook = betaRepo;
-		} else if (ibtRepo.getRepoName().equals(repoName)) {
-			repoForBook = ibtRepo;
-		} else if (eBibleRepo.getRepoName().equals(repoName)) {
-			repoForBook = eBibleRepo;
-		} else {
-			repoForBook = crosswireRepo;
-		}
-		return repoForBook;
-	}
+        RepoBase repoForBook;
+        if (crosswireRepo.getRepoName().equals(repoName)) {
+            repoForBook = crosswireRepo;
+        } else if (andBibleRepo.getRepoName().equals(repoName)) {
+            repoForBook = andBibleRepo;
+        } else if (betaRepo.getRepoName().equals(repoName)) {
+            repoForBook = betaRepo;
+        } else if (ibtRepo.getRepoName().equals(repoName)) {
+            repoForBook = ibtRepo;
+        } else if (eBibleRepo.getRepoName().equals(repoName)) {
+            repoForBook = eBibleRepo;
+        } else {
+            repoForBook = crosswireRepo;
+        }
+        return repoForBook;
+    }
 
-	public CrosswireRepo getCrosswireRepo() {
-		return crosswireRepo;
-	}
-	public BetaRepo getBetaRepo() {
-		return betaRepo;
-	}
-	public AndBibleRepo getAndBibleRepo() {
-		return andBibleRepo;
-	}
-	public IBTRepo getIBTRepo() {
-		return ibtRepo;
-	}
-	public EBibleRepo getEBibleRepo() {
-		return eBibleRepo;
-	}
+    public CrosswireRepo getCrosswireRepo() {
+        return crosswireRepo;
+    }
+    public BetaRepo getBetaRepo() {
+        return betaRepo;
+    }
+    public AndBibleRepo getAndBibleRepo() {
+        return andBibleRepo;
+    }
+    public IBTRepo getIBTRepo() {
+        return ibtRepo;
+    }
+    public EBibleRepo getEBibleRepo() {
+        return eBibleRepo;
+    }
 }

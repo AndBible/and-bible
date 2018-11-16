@@ -18,22 +18,22 @@ import java.util.List;
 
 class CompatibleVersificationChooser {
 
-	private final List<Versification> versificationsInOrderOfPreference;
+    private final List<Versification> versificationsInOrderOfPreference;
 
-	private final Logger log = new Logger(this.getClass().getName());
+    private final Logger log = new Logger(this.getClass().getName());
 
-	CompatibleVersificationChooser(List<Versification> versificationsInOrderOfPreference) {
-		this.versificationsInOrderOfPreference = versificationsInOrderOfPreference;
-	}
+    CompatibleVersificationChooser(List<Versification> versificationsInOrderOfPreference) {
+        this.versificationsInOrderOfPreference = versificationsInOrderOfPreference;
+    }
 
-	Versification findPreferredCompatibleVersification(ConvertibleVerseRange convertibleVerseRange1, ConvertibleVerseRange convertibleVerseRange2) {
-		for (Versification v11n : versificationsInOrderOfPreference) {
-			if (convertibleVerseRange1.isConvertibleTo(v11n) && convertibleVerseRange2.isConvertibleTo(v11n)) {
-				return v11n;
-			}
-		}
+    Versification findPreferredCompatibleVersification(ConvertibleVerseRange convertibleVerseRange1, ConvertibleVerseRange convertibleVerseRange2) {
+        for (Versification v11n : versificationsInOrderOfPreference) {
+            if (convertibleVerseRange1.isConvertibleTo(v11n) && convertibleVerseRange2.isConvertibleTo(v11n)) {
+                return v11n;
+            }
+        }
 
-		log.error("Cannot find compatible versification for "+convertibleVerseRange1+" and "+convertibleVerseRange2+".  Returning KJVA.");
-		return Versifications.instance().getVersification("KJVA");
-	}
+        log.error("Cannot find compatible versification for "+convertibleVerseRange1+" and "+convertibleVerseRange2+".  Returning KJVA.");
+        return Versifications.instance().getVersification("KJVA");
+    }
 }

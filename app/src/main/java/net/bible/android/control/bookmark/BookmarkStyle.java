@@ -10,23 +10,23 @@ import android.graphics.Color;
  * The copyright to this program is held by it's author.
  */
 public enum BookmarkStyle {
-	YELLOW_STAR(Color.argb(0, 255, 255, 255)),
-	RED_HIGHLIGHT(Color.argb((int)(255*0.28), 213, 0, 0)),
-	YELLOW_HIGHLIGHT(Color.argb((int)(255*0.33), 255, 255, 0)),
-	GREEN_HIGHLIGHT(Color.argb((int)(255*0.33), 0, 255, 0)),
-	BLUE_HIGHLIGHT(Color.argb((int)(255*0.33), 145, 167, 255)),
+    YELLOW_STAR(Color.argb(0, 255, 255, 255)),
+    RED_HIGHLIGHT(Color.argb((int)(255*0.28), 213, 0, 0)),
+    YELLOW_HIGHLIGHT(Color.argb((int)(255*0.33), 255, 255, 0)),
+    GREEN_HIGHLIGHT(Color.argb((int)(255*0.33), 0, 255, 0)),
+    BLUE_HIGHLIGHT(Color.argb((int)(255*0.33), 145, 167, 255)),
 
-	// Special hard-coded style for Speak bookmarks. This must be last one here.
-	// This is removed from the style lists.
-	SPEAK(Color.argb(0, 255, 255, 255));
+    // Special hard-coded style for Speak bookmarks. This must be last one here.
+    // This is removed from the style lists.
+    SPEAK(Color.argb(0, 255, 255, 255));
 
-	private final int backgroundColor;
+    private final int backgroundColor;
 
-	BookmarkStyle(int backgroundColor) {
-		this.backgroundColor = backgroundColor;
-	}
+    BookmarkStyle(int backgroundColor) {
+        this.backgroundColor = backgroundColor;
+    }
 
-	public int getBackgroundColor() {
-		return backgroundColor;
-	}
+    public int getBackgroundColor() {
+        return backgroundColor;
+    }
 }

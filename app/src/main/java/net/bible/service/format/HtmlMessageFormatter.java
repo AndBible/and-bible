@@ -12,46 +12,46 @@ import net.bible.service.device.ScreenSettings;
  */
 public class HtmlMessageFormatter {
 
-	private static final String NIGHT_STYLESHEET = "<link href='file:///android_asset/web/"
-			+ SharedConstants.NIGHT_MODE_STYLESHEET
-			+ "' rel='stylesheet' type='text/css'/>";
-	
-	private static final String NIGHT_HEADER = "<html><head>"+NIGHT_STYLESHEET+"</head><body>";
-	private static final String NIGHT_FOOTER = "</body></html>";
-	
-	@SuppressWarnings("unused")
-	private static final String TAG = "HtmlmessageFormatter";
-	
-	/** wrap text with nightmode css if required
-	 */
-	public static String format(int msgId) {
-    	return format(msgId, false);
-	}
+    private static final String NIGHT_STYLESHEET = "<link href='file:///android_asset/web/"
+            + SharedConstants.NIGHT_MODE_STYLESHEET
+            + "' rel='stylesheet' type='text/css'/>";
+    
+    private static final String NIGHT_HEADER = "<html><head>"+NIGHT_STYLESHEET+"</head><body>";
+    private static final String NIGHT_FOOTER = "</body></html>";
+    
+    @SuppressWarnings("unused")
+    private static final String TAG = "HtmlmessageFormatter";
+    
+    /** wrap text with nightmode css if required
+     */
+    public static String format(int msgId) {
+        return format(msgId, false);
+    }
 
-	/** wrap text with nightmode css if required
-	 */
-	public static String format(int msgId, boolean simpleHtmlOnly) {
-		String errorMsg = BibleApplication.getApplication().getResources().getString(msgId);
-		if (simpleHtmlOnly) {
-			return errorMsg;
-		} else {
-			return format(errorMsg);
-		}
-	}
+    /** wrap text with nightmode css if required
+     */
+    public static String format(int msgId, boolean simpleHtmlOnly) {
+        String errorMsg = BibleApplication.getApplication().getResources().getString(msgId);
+        if (simpleHtmlOnly) {
+            return errorMsg;
+        } else {
+            return format(errorMsg);
+        }
+    }
 
-	/** wrap text with nightmode css if required
-	 */
-	public static String format(String text) {
-		boolean isNightMode = ScreenSettings.isNightMode();
-		
-		String formattedText;
-		
-		// only require special formatting for nightmode
-		if (!isNightMode) {
-			formattedText = text;
-		} else {
-			formattedText = NIGHT_HEADER+text+NIGHT_FOOTER;
-		}
-		return formattedText;
-	}
+    /** wrap text with nightmode css if required
+     */
+    public static String format(String text) {
+        boolean isNightMode = ScreenSettings.isNightMode();
+        
+        String formattedText;
+        
+        // only require special formatting for nightmode
+        if (!isNightMode) {
+            formattedText = text;
+        } else {
+            formattedText = NIGHT_HEADER+text+NIGHT_FOOTER;
+        }
+        return formattedText;
+    }
 }

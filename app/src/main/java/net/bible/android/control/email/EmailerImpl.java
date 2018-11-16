@@ -17,28 +17,28 @@ import javax.inject.Inject;
 @ApplicationScope
 public class EmailerImpl implements Emailer {
 
-	@Inject
-	public EmailerImpl() {
-	}
+    @Inject
+    public EmailerImpl() {
+    }
 
-	/* (non-Javadoc)
-		 * @see net.bible.android.control.report.Email#send(java.lang.String, java.lang.String, java.lang.String)
-		 */
-	@Override
-	public void send(String emailDialogTitle, String subject, String text) {
-		send(emailDialogTitle, null, subject, text);
-	}
-	
-	/* (non-Javadoc)
-	 * @see net.bible.android.control.report.Email#send(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
-	 */
-	@Override
-	public void send(String emailDialogTitle, String recipient, String subject, String body) {
+    /* (non-Javadoc)
+         * @see net.bible.android.control.report.Email#send(java.lang.String, java.lang.String, java.lang.String)
+         */
+    @Override
+    public void send(String emailDialogTitle, String subject, String text) {
+        send(emailDialogTitle, null, subject, text);
+    }
+    
+    /* (non-Javadoc)
+     * @see net.bible.android.control.report.Email#send(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
+     */
+    @Override
+    public void send(String emailDialogTitle, String recipient, String subject, String body) {
 
         final Intent emailIntent = new Intent(android.content.Intent.ACTION_SENDTO);
-		if (StringUtils.isNotBlank(recipient)) {
-	        emailIntent.setData(Uri.fromParts("mailto", recipient, null));
-		}
+        if (StringUtils.isNotBlank(recipient)) {
+            emailIntent.setData(Uri.fromParts("mailto", recipient, null));
+        }
 
         emailIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, subject);
@@ -46,5 +46,5 @@ public class EmailerImpl implements Emailer {
 
         Activity activity = CurrentActivityHolder.getInstance().getCurrentActivity();
         activity.startActivity(emailIntent);
-	}
+    }
 }

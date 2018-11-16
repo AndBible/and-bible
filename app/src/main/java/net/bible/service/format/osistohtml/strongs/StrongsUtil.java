@@ -11,48 +11,48 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class StrongsUtil {
 
-	private static final String DEFAULT_CSS_CLASS = "strongs";
-	
-	/**
-	 * create an html link for teh passed in strongs number and protocol
-	 * @param protocol = G or H
-	 * @param strongsNumber
-	 * @return
-	 */
-	public static String createStrongsLink(String protocol, String strongsNumber) {
-		return createStrongsLink(protocol, strongsNumber, strongsNumber, DEFAULT_CSS_CLASS);
-	}
-	
-	public static String createStrongsLink(String protocol, String strongsNumber, String content, String cssClass) {
-		// pad with leading zeros to 5 characters
-		String paddedRef = StringUtils.leftPad(strongsNumber, 5, "0");
+    private static final String DEFAULT_CSS_CLASS = "strongs";
+    
+    /**
+     * create an html link for teh passed in strongs number and protocol
+     * @param protocol = G or H
+     * @param strongsNumber
+     * @return
+     */
+    public static String createStrongsLink(String protocol, String strongsNumber) {
+        return createStrongsLink(protocol, strongsNumber, strongsNumber, DEFAULT_CSS_CLASS);
+    }
+    
+    public static String createStrongsLink(String protocol, String strongsNumber, String content, String cssClass) {
+        // pad with leading zeros to 5 characters
+        String paddedRef = StringUtils.leftPad(strongsNumber, 5, "0");
 
-		StringBuilder tag = new StringBuilder();
-		// create opening tag for Strong's link
-		tag.append("<a href='");
+        StringBuilder tag = new StringBuilder();
+        // create opening tag for Strong's link
+        tag.append("<a href='");
 
-		// calculate uri e.g. H:01234
-		tag.append(protocol).append(":").append(paddedRef);
+        // calculate uri e.g. H:01234
+        tag.append(protocol).append(":").append(paddedRef);
 
-		// set css class
-		tag.append("' class='"+cssClass+"'>");
+        // set css class
+        tag.append("' class='"+cssClass+"'>");
 
-		// descriptive string
-		tag.append(content);
+        // descriptive string
+        tag.append(content);
 
-		// link closing tag
-		tag.append("</a>");
-		
-		String strTag = tag.toString();
-		return strTag;
-	}
+        // link closing tag
+        tag.append("</a>");
+        
+        String strTag = tag.toString();
+        return strTag;
+    }
 
-	public static String getStrongsProtocol(String ref) {
-		if (ref.startsWith("H")) {
-			return Constants.HEBREW_DEF_PROTOCOL;
-		} else if (ref.startsWith("G")) {
-			return Constants.GREEK_DEF_PROTOCOL;
-		}
-		return null;
-	}
+    public static String getStrongsProtocol(String ref) {
+        if (ref.startsWith("H")) {
+            return Constants.HEBREW_DEF_PROTOCOL;
+        } else if (ref.startsWith("G")) {
+            return Constants.GREEK_DEF_PROTOCOL;
+        }
+        return null;
+    }
 }

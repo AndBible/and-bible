@@ -22,37 +22,37 @@ import java.util.List;
  */
 public class BookmarkLabelItemAdapter extends ArrayAdapter<LabelDto> {
 
-	private int resource;
+    private int resource;
 
-	private BookmarkStyleAdapterHelper bookmarkStyleAdapterHelper = new BookmarkStyleAdapterHelper();
+    private BookmarkStyleAdapterHelper bookmarkStyleAdapterHelper = new BookmarkStyleAdapterHelper();
 
-	private static final String TAG = "BookmarkLabelItemAdapter";
+    private static final String TAG = "BookmarkLabelItemAdapter";
 
-	public BookmarkLabelItemAdapter(Context context, int resource, List<LabelDto> items) {
-		super(context, resource, items);
-		this.resource = resource;
-	}
+    public BookmarkLabelItemAdapter(Context context, int resource, List<LabelDto> items) {
+        super(context, resource, items);
+        this.resource = resource;
+    }
 
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
 
-		final LabelDto labelDto = getItem(position);
+        final LabelDto labelDto = getItem(position);
 
-		View rowView;
-		if (convertView == null) {
-			LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-			rowView = inflater.inflate(resource, parent, false);
-		} else {
-			rowView = convertView;
-		}
-		CheckedTextView nameView = (CheckedTextView) rowView;
-		nameView.setText(labelDto.getName());
-		if (labelDto.getBookmarkStyle()==null) {
-			nameView.setBackgroundColor(UiUtils.getThemeBackgroundColour(getContext()));
-		} else {
-			bookmarkStyleAdapterHelper.styleView(nameView, labelDto.getBookmarkStyle(), getContext(), false, false);
-		}
+        View rowView;
+        if (convertView == null) {
+            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            rowView = inflater.inflate(resource, parent, false);
+        } else {
+            rowView = convertView;
+        }
+        CheckedTextView nameView = (CheckedTextView) rowView;
+        nameView.setText(labelDto.getName());
+        if (labelDto.getBookmarkStyle()==null) {
+            nameView.setBackgroundColor(UiUtils.getThemeBackgroundColour(getContext()));
+        } else {
+            bookmarkStyleAdapterHelper.styleView(nameView, labelDto.getBookmarkStyle(), getContext(), false, false);
+        }
 
-		return rowView;
-	}
+        return rowView;
+    }
 }

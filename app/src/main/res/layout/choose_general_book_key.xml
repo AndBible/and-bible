@@ -10,10 +10,10 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-	<ListView android:id="@android:id/list" 
-		android:layout_width="fill_parent" 
-		android:layout_height="fill_parent"
-		android:choiceMode="singleChoice"
-		android:visibility="visible"
-		/>
+    <ListView android:id="@android:id/list" 
+        android:layout_width="fill_parent" 
+        android:layout_height="fill_parent"
+        android:choiceMode="singleChoice"
+        android:visibility="visible"
+        />
 </LinearLayout>

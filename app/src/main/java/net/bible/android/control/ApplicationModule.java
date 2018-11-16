@@ -29,33 +29,33 @@ import dagger.Provides;
 @Module
 public class ApplicationModule {
 
-	@Provides
-	@ApplicationScope
-	public DownloadControl provideDownloadControl(SwordDocumentFacade swordDocumentFacade, RepoFactory repoFactory) {
-		return new DownloadControl(new DownloadQueue(Executors.newSingleThreadExecutor(), repoFactory), repoFactory, FontControl.getInstance(), swordDocumentFacade);
-	}
+    @Provides
+    @ApplicationScope
+    public DownloadControl provideDownloadControl(SwordDocumentFacade swordDocumentFacade, RepoFactory repoFactory) {
+        return new DownloadControl(new DownloadQueue(Executors.newSingleThreadExecutor(), repoFactory), repoFactory, FontControl.getInstance(), swordDocumentFacade);
+    }
 
-	@Provides
-	@ApplicationScope
-	public ActiveWindowPageManagerProvider provideActiveWindowPageManagerProvider(WindowControl windowControl) {
-		return windowControl;
-	}
+    @Provides
+    @ApplicationScope
+    public ActiveWindowPageManagerProvider provideActiveWindowPageManagerProvider(WindowControl windowControl) {
+        return windowControl;
+    }
 
-	@Provides
-	@ApplicationScope
-	public ResourceProvider provideResourceProvider(AndroidResourceProvider androidResourceProvider) {
-		return androidResourceProvider;
-	}
+    @Provides
+    @ApplicationScope
+    public ResourceProvider provideResourceProvider(AndroidResourceProvider androidResourceProvider) {
+        return androidResourceProvider;
+    }
 
-	@Provides
-	@ApplicationScope
-	public EventManager eventManagerProvider() {
-		return ABEventBus.getDefault();
-	}
+    @Provides
+    @ApplicationScope
+    public EventManager eventManagerProvider() {
+        return ABEventBus.getDefault();
+    }
 
-	@Provides
-	@ApplicationScope
-	public Emailer emailer(EmailerImpl emailerImpl) {
-		return emailerImpl;
-	}
+    @Provides
+    @ApplicationScope
+    public Emailer emailer(EmailerImpl emailerImpl) {
+        return emailerImpl;
+    }
 }

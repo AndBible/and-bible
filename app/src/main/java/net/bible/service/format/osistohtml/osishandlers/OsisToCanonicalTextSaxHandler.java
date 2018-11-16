@@ -21,15 +21,15 @@ import java.util.Stack;
 public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
     
     @SuppressWarnings("unused")
-	private int currentVerseNo;
+    private int currentVerseNo;
 
     private Stack<CONTENT_STATE> writeContentStack = new Stack<>();
-	private enum CONTENT_STATE {WRITE, IGNORE}
+    private enum CONTENT_STATE {WRITE, IGNORE}
 
-	// Avoid space at the start and, extra space between words
-	private boolean spaceJustWritten = true;
+    // Avoid space at the start and, extra space between words
+    private boolean spaceJustWritten = true;
     
-	private static final Logger log = new Logger("OsisToCanonicalTextSaxHandler");
+    private static final Logger log = new Logger("OsisToCanonicalTextSaxHandler");
     
     public OsisToCanonicalTextSaxHandler() {
         super();
@@ -37,9 +37,9 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
 
     @Override
     public void startDocument () {
-    	reset();
-    	// default mode is to write
-    	writeContentStack.push(CONTENT_STATE.WRITE);
+        reset();
+        // default mode is to write
+        writeContentStack.push(CONTENT_STATE.WRITE);
     }
 
     /*
@@ -47,13 +47,13 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
     */
     @Override
     public void endDocument() {
-    	// pop initial value
-    	writeContentStack.pop();
-    	
-    	// assert
-    	if (!writeContentStack.isEmpty()) {
-    		log.warn("OsisToCanonicalTextSaxHandler context stack should now be empty");
-    	}
+        // pop initial value
+        writeContentStack.pop();
+        
+        // assert
+        if (!writeContentStack.isEmpty()) {
+            log.warn("OsisToCanonicalTextSaxHandler context stack should now be empty");
+        }
     }
 
     /*
@@ -68,38 +68,38 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
             String qName, // qualified name
             Attributes attrs)
     {
-		String name = getName(sName, qName); // element name
+        String name = getName(sName, qName); // element name
 
-		debug(name, attrs, true);
+        debug(name, attrs, true);
 
-		// if encountering either a verse tag or if the current tag is marked as being canonical then turn on writing
-		if (isAttrValue(attrs, "canonical", "true")) {
-			writeContentStack.push(CONTENT_STATE.WRITE);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
-			if (attrs!=null) {
-				currentVerseNo = TagHandlerHelper.osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID));
-			}
-			writeContentStack.push(CONTENT_STATE.WRITE);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {
-			writeContentStack.push(CONTENT_STATE.IGNORE);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_TITLE)) {
-			writeContentStack.push(CONTENT_STATE.IGNORE);
-		} else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
-			// text content of top level references should be output but in notes it should not
-			writeContentStack.push(writeContentStack.peek());
-		} else if (	name.equals(OSISUtil.OSIS_ELEMENT_L) ||
-					name.equals(OSISUtil.OSIS_ELEMENT_LB) ||
-					name.equals(OSISUtil.OSIS_ELEMENT_P) ) {
-			// these occur in Psalms to separate different paragraphs.  
-			// A space is needed for TTS not to be confused by punctuation with a missing space like 'toward us,and the'
-			write(" ");
-			//if writing then continue.  Also if ignoring then continue
-			writeContentStack.push(writeContentStack.peek());
-		} else {
-			// unknown tags rely on parent tag to determine if content is canonical e.g. the italic tag in the middle of canonical text
-			writeContentStack.push(writeContentStack.peek());
-		}
-	}
+        // if encountering either a verse tag or if the current tag is marked as being canonical then turn on writing
+        if (isAttrValue(attrs, "canonical", "true")) {
+            writeContentStack.push(CONTENT_STATE.WRITE);
+        } else if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
+            if (attrs!=null) {
+                currentVerseNo = TagHandlerHelper.osisIdToVerseNum(attrs.getValue("", OSISUtil.OSIS_ATTR_OSISID));
+            }
+            writeContentStack.push(CONTENT_STATE.WRITE);
+        } else if (name.equals(OSISUtil.OSIS_ELEMENT_NOTE)) {
+            writeContentStack.push(CONTENT_STATE.IGNORE);
+        } else if (name.equals(OSISUtil.OSIS_ELEMENT_TITLE)) {
+            writeContentStack.push(CONTENT_STATE.IGNORE);
+        } else if (name.equals(OSISUtil.OSIS_ELEMENT_REFERENCE)) {
+            // text content of top level references should be output but in notes it should not
+            writeContentStack.push(writeContentStack.peek());
+        } else if (    name.equals(OSISUtil.OSIS_ELEMENT_L) ||
+                    name.equals(OSISUtil.OSIS_ELEMENT_LB) ||
+                    name.equals(OSISUtil.OSIS_ELEMENT_P) ) {
+            // these occur in Psalms to separate different paragraphs.  
+            // A space is needed for TTS not to be confused by punctuation with a missing space like 'toward us,and the'
+            write(" ");
+            //if writing then continue.  Also if ignoring then continue
+            writeContentStack.push(writeContentStack.peek());
+        } else {
+            // unknown tags rely on parent tag to determine if content is canonical e.g. the italic tag in the middle of canonical text
+            writeContentStack.push(writeContentStack.peek());
+        }
+    }
     
     /*
      * Called when the Ending of the current Element is reached. For example in the
@@ -111,17 +111,17 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
             String qName  // qualified name
             )
     {
-		String name = getName(sName, qName);
-		debug(name, null, false);
-		if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
-			// A space is needed to separate one verse from the next, otherwise the 2 verses butt up against each other
-			// which looks bad and confuses TTS
-			write(" ");
-		}
-		
-		// now this tag has ended pop the write/ignore state for the parent tag
-		writeContentStack.pop();
-	}
+        String name = getName(sName, qName);
+        debug(name, null, false);
+        if (name.equals(OSISUtil.OSIS_ELEMENT_VERSE)) {
+            // A space is needed to separate one verse from the next, otherwise the 2 verses butt up against each other
+            // which looks bad and confuses TTS
+            write(" ");
+        }
+        
+        // now this tag has ended pop the write/ignore state for the parent tag
+        writeContentStack.pop();
+    }
     
     /*
      * Handle characters encountered in tags
@@ -129,36 +129,36 @@ public class OsisToCanonicalTextSaxHandler extends OsisSaxHandler {
     @Override
     public void characters (char buf[], int offset, int len) {
         if (CONTENT_STATE.WRITE.equals(writeContentStack.peek())) {
-        	String s = new String(buf, offset, len);
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-				if(s.charAt(0) == ' ') {
-					// fromHtml strips leading whitespaces, which is not desirable
-					write(" ");
-				}
-				s = Html.fromHtml(s, 0).toString();
-			}
-			write(s);
+            String s = new String(buf, offset, len);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                if(s.charAt(0) == ' ') {
+                    // fromHtml strips leading whitespaces, which is not desirable
+                    write(" ");
+                }
+                s = Html.fromHtml(s, 0).toString();
+            }
+            write(s);
         }
     }
 
-	@Override
-	protected void write(String s) {
-		// reduce amount of whitespace becasue a lot of space was occurring between verses in ESVS and several other books
-		if (!StringUtils.isWhitespace(s)) {
-			super.write(s);
-			spaceJustWritten = false;
-		} else if (!spaceJustWritten) {
-			super.write(" ");
-			spaceJustWritten = true;
-		}
-	}
+    @Override
+    protected void write(String s) {
+        // reduce amount of whitespace becasue a lot of space was occurring between verses in ESVS and several other books
+        if (!StringUtils.isWhitespace(s)) {
+            super.write(s);
+            spaceJustWritten = false;
+        } else if (!spaceJustWritten) {
+            super.write(" ");
+            spaceJustWritten = true;
+        }
+    }
 
-	protected void writeContent(boolean writeContent) {
-    	if (writeContent) {
-    		writeContentStack.push(CONTENT_STATE.WRITE);    		
-    	} else {
-    		writeContentStack.push(CONTENT_STATE.IGNORE);
-    	}
+    protected void writeContent(boolean writeContent) {
+        if (writeContent) {
+            writeContentStack.push(CONTENT_STATE.WRITE);            
+        } else {
+            writeContentStack.push(CONTENT_STATE.IGNORE);
+        }
     }
 }
 

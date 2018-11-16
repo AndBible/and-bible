@@ -30,184 +30,184 @@ import java.util.Set;
  */
 public class VerseActionModeMediator {
 
-	private final ActionModeMenuDisplay mainBibleActivity;
+    private final ActionModeMenuDisplay mainBibleActivity;
 
-	private final VerseHighlightControl bibleView;
+    private final VerseHighlightControl bibleView;
 
-	private final PageControl pageControl;
+    private final PageControl pageControl;
 
-	private final VerseMenuCommandHandler verseMenuCommandHandler;
+    private final VerseMenuCommandHandler verseMenuCommandHandler;
 
-	private final BookmarkControl bookmarkControl;
+    private final BookmarkControl bookmarkControl;
 
-	private ChapterVerseRange chapterVerseRange;
+    private ChapterVerseRange chapterVerseRange;
 
-	private ActionMode actionMode;
+    private ActionMode actionMode;
 
-	private static final String TAG = "VerseActionModeMediator";
+    private static final String TAG = "VerseActionModeMediator";
 
-	public VerseActionModeMediator(ActionModeMenuDisplay mainBibleActivity, VerseHighlightControl bibleView, PageControl pageControl, VerseMenuCommandHandler verseMenuCommandHandler, BookmarkControl bookmarkControl) {
-		this.mainBibleActivity = mainBibleActivity;
-		this.bibleView = bibleView;
-		this.pageControl = pageControl;
-		this.verseMenuCommandHandler = verseMenuCommandHandler;
-		this.bookmarkControl = bookmarkControl;
+    public VerseActionModeMediator(ActionModeMenuDisplay mainBibleActivity, VerseHighlightControl bibleView, PageControl pageControl, VerseMenuCommandHandler verseMenuCommandHandler, BookmarkControl bookmarkControl) {
+        this.mainBibleActivity = mainBibleActivity;
+        this.bibleView = bibleView;
+        this.pageControl = pageControl;
+        this.verseMenuCommandHandler = verseMenuCommandHandler;
+        this.bookmarkControl = bookmarkControl;
 
-		// Be notified if the associated window loses focus
-		ABEventBus.getDefault().register(this);
-	}
+        // Be notified if the associated window loses focus
+        ABEventBus.getDefault().register(this);
+    }
 
-	public void verseLongPress(ChapterVerse verse) {
+    public void verseLongPress(ChapterVerse verse) {
         Log.d(TAG, "Verse selected event:"+verse);
         startVerseActionMode(verse);
     }
 
-	/**
-	 * Handle selection and deselection of extra verses after initial verse
-	 */
-	public void verseTouch(ChapterVerse verse) {
-		Log.d(TAG, "Verse touched event:"+verse);
-		ChapterVerseRange origRange = chapterVerseRange;
-		chapterVerseRange = chapterVerseRange.toggleVerse(verse);
+    /**
+     * Handle selection and deselection of extra verses after initial verse
+     */
+    public void verseTouch(ChapterVerse verse) {
+        Log.d(TAG, "Verse touched event:"+verse);
+        ChapterVerseRange origRange = chapterVerseRange;
+        chapterVerseRange = chapterVerseRange.toggleVerse(verse);
 
-		if (chapterVerseRange.isEmpty()) {
-			endVerseActionMode();
-		} else {
-			Set<ChapterVerse> toSelect = origRange.getExtrasIn(chapterVerseRange);
-			Set<ChapterVerse> toDeselect = chapterVerseRange.getExtrasIn(origRange);
+        if (chapterVerseRange.isEmpty()) {
+            endVerseActionMode();
+        } else {
+            Set<ChapterVerse> toSelect = origRange.getExtrasIn(chapterVerseRange);
+            Set<ChapterVerse> toDeselect = chapterVerseRange.getExtrasIn(origRange);
 
-			for (ChapterVerse verseNo : toSelect) {
-				bibleView.highlightVerse(verseNo);
-			}
-			for (ChapterVerse verseNo : toDeselect) {
-				bibleView.unhighlightVerse(verseNo);
-			}
-		}
-	}
-
-	public void onEvent(CurrentWindowChangedEvent event) {
-		endVerseActionMode();
-	}
-	public void onEvent(PassageChangedEvent event) {
-		endVerseActionMode();
-	}
-
-	public boolean isActionMode() {
-		return actionMode!=null;
-	}
-
-	private void startVerseActionMode(ChapterVerse startChapterVerse) {
-		if (actionMode!=null) {
-			Log.i(TAG, "Action mode already started so ignoring restart.");
-			return;
-		}
-
-		Log.i(TAG, "Start verse action mode. verse no:"+startChapterVerse);
-		bibleView.highlightVerse(startChapterVerse);
-
-		Verse currentVerse = pageControl.getCurrentBibleVerse();
-		this.chapterVerseRange = new ChapterVerseRange(currentVerse.getVersification(), currentVerse.getBook(), startChapterVerse, startChapterVerse);
-
-		mainBibleActivity.showVerseActionModeMenu(actionModeCallbackHandler);
-		bibleView.enableVerseTouchSelection();
+            for (ChapterVerse verseNo : toSelect) {
+                bibleView.highlightVerse(verseNo);
+            }
+            for (ChapterVerse verseNo : toDeselect) {
+                bibleView.unhighlightVerse(verseNo);
+            }
+        }
     }
 
-	/**
-	 * Ensure all state is left tidy
-	 */
-	private void endVerseActionMode() {
-		// prevent endless loop by onDestroyActionMode calling this calling onDestroyActionMode etc.
-		if (actionMode != null) {
-			ActionMode finishingActionMode = this.actionMode;
-			actionMode = null;
+    public void onEvent(CurrentWindowChangedEvent event) {
+        endVerseActionMode();
+    }
+    public void onEvent(PassageChangedEvent event) {
+        endVerseActionMode();
+    }
 
-			bibleView.clearVerseHighlight();
-			bibleView.disableVerseTouchSelection();
-			chapterVerseRange = null;
+    public boolean isActionMode() {
+        return actionMode!=null;
+    }
 
-			mainBibleActivity.clearVerseActionMode(finishingActionMode);
-		}
-	}
+    private void startVerseActionMode(ChapterVerse startChapterVerse) {
+        if (actionMode!=null) {
+            Log.i(TAG, "Action mode already started so ignoring restart.");
+            return;
+        }
 
-	private Verse getStartVerse() {
-		if (chapterVerseRange ==null) {
-			return null;
-		} else {
-			Verse mainVerse = pageControl.getCurrentBibleVerse();
-			ChapterVerse start = chapterVerseRange.getStart();
-			return new Verse(mainVerse.getVersification(), mainVerse.getBook(), start.getChapter(), start.getVerse());
-		}
-	}
+        Log.i(TAG, "Start verse action mode. verse no:"+startChapterVerse);
+        bibleView.highlightVerse(startChapterVerse);
 
-	private VerseRange getVerseRange() {
-		Verse startVerse = getStartVerse();
-		if (startVerse==null) {
-			return null;
-		} else {
-			Versification v11n = startVerse.getVersification();
-			ChapterVerse end = chapterVerseRange.getEnd();
-			Verse endVerse = new Verse(v11n, startVerse.getBook(), end.getChapter(), end.getVerse());
-			return new VerseRange(v11n, startVerse, endVerse);
-		}
-	}
+        Verse currentVerse = pageControl.getCurrentBibleVerse();
+        this.chapterVerseRange = new ChapterVerseRange(currentVerse.getVersification(), currentVerse.getBook(), startChapterVerse, startChapterVerse);
 
-	private ActionMode.Callback actionModeCallbackHandler = new ActionMode.Callback() {
-		@Override
-		public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
-			VerseActionModeMediator.this.actionMode = actionMode;
+        mainBibleActivity.showVerseActionModeMenu(actionModeCallbackHandler);
+        bibleView.enableVerseTouchSelection();
+    }
 
-			// Inflate our menu from a resource file
-			actionMode.getMenuInflater().inflate(R.menu.verse_action_mode_menu, menu);
+    /**
+     * Ensure all state is left tidy
+     */
+    private void endVerseActionMode() {
+        // prevent endless loop by onDestroyActionMode calling this calling onDestroyActionMode etc.
+        if (actionMode != null) {
+            ActionMode finishingActionMode = this.actionMode;
+            actionMode = null;
 
-			// Return true so that the action mode is shown
-			return true;
-		}
+            bibleView.clearVerseHighlight();
+            bibleView.disableVerseTouchSelection();
+            chapterVerseRange = null;
 
-		@Override
-		public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
-			// if start verse already bookmarked then enable Delete and Labels Bookmark menu item
-			Verse startVerse = getStartVerse();
-			boolean isVerseBookmarked = startVerse!=null && bookmarkControl.isBookmarkForKey(startVerse);
-			menu.findItem(R.id.add_bookmark).setVisible(true);
-			menu.findItem(R.id.delete_bookmark).setVisible(isVerseBookmarked);
-			menu.findItem(R.id.edit_bookmark_labels).setVisible(isVerseBookmarked);
+            mainBibleActivity.clearVerseActionMode(finishingActionMode);
+        }
+    }
 
-			// must return true if menu changed
-			return true;
-		}
+    private Verse getStartVerse() {
+        if (chapterVerseRange ==null) {
+            return null;
+        } else {
+            Verse mainVerse = pageControl.getCurrentBibleVerse();
+            ChapterVerse start = chapterVerseRange.getStart();
+            return new Verse(mainVerse.getVersification(), mainVerse.getBook(), start.getChapter(), start.getVerse());
+        }
+    }
 
-		@Override
-		public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
-			Log.i(TAG, "Action menu item clicked: " + menuItem);
+    private VerseRange getVerseRange() {
+        Verse startVerse = getStartVerse();
+        if (startVerse==null) {
+            return null;
+        } else {
+            Versification v11n = startVerse.getVersification();
+            ChapterVerse end = chapterVerseRange.getEnd();
+            Verse endVerse = new Verse(v11n, startVerse.getBook(), end.getChapter(), end.getVerse());
+            return new VerseRange(v11n, startVerse, endVerse);
+        }
+    }
 
-			// Similar to menu handling in Activity.onOptionsItemSelected()
-			verseMenuCommandHandler.handleMenuRequest(menuItem.getItemId(), getVerseRange());
+    private ActionMode.Callback actionModeCallbackHandler = new ActionMode.Callback() {
+        @Override
+        public boolean onCreateActionMode(ActionMode actionMode, Menu menu) {
+            VerseActionModeMediator.this.actionMode = actionMode;
 
-			endVerseActionMode();
+            // Inflate our menu from a resource file
+            actionMode.getMenuInflater().inflate(R.menu.verse_action_mode_menu, menu);
 
-			// handle all
-			return true;
-		}
+            // Return true so that the action mode is shown
+            return true;
+        }
 
-		@Override
-		public void onDestroyActionMode(ActionMode actionMode) {
-			Log.i(TAG, "On destroy action mode");
-			endVerseActionMode();
-		}
-	};
+        @Override
+        public boolean onPrepareActionMode(ActionMode actionMode, Menu menu) {
+            // if start verse already bookmarked then enable Delete and Labels Bookmark menu item
+            Verse startVerse = getStartVerse();
+            boolean isVerseBookmarked = startVerse!=null && bookmarkControl.isBookmarkForKey(startVerse);
+            menu.findItem(R.id.add_bookmark).setVisible(true);
+            menu.findItem(R.id.delete_bookmark).setVisible(isVerseBookmarked);
+            menu.findItem(R.id.edit_bookmark_labels).setVisible(isVerseBookmarked);
 
-	public interface ActionModeMenuDisplay {
-		void showVerseActionModeMenu(ActionMode.Callback actionModeCallbackHandler);
-		void clearVerseActionMode(ActionMode actionMode);
+            // must return true if menu changed
+            return true;
+        }
 
-		void startActivityForResult(Intent intent, int requestCode);
-	}
+        @Override
+        public boolean onActionItemClicked(ActionMode actionMode, MenuItem menuItem) {
+            Log.i(TAG, "Action menu item clicked: " + menuItem);
 
-	public interface VerseHighlightControl {
-		void enableVerseTouchSelection();
-		void disableVerseTouchSelection();
-		void highlightVerse(ChapterVerse chapterVerse);
-		void unhighlightVerse(ChapterVerse chapterVerse);
-		void clearVerseHighlight();
-	}
+            // Similar to menu handling in Activity.onOptionsItemSelected()
+            verseMenuCommandHandler.handleMenuRequest(menuItem.getItemId(), getVerseRange());
+
+            endVerseActionMode();
+
+            // handle all
+            return true;
+        }
+
+        @Override
+        public void onDestroyActionMode(ActionMode actionMode) {
+            Log.i(TAG, "On destroy action mode");
+            endVerseActionMode();
+        }
+    };
+
+    public interface ActionModeMenuDisplay {
+        void showVerseActionModeMenu(ActionMode.Callback actionModeCallbackHandler);
+        void clearVerseActionMode(ActionMode actionMode);
+
+        void startActivityForResult(Intent intent, int requestCode);
+    }
+
+    public interface VerseHighlightControl {
+        void enableVerseTouchSelection();
+        void disableVerseTouchSelection();
+        void highlightVerse(ChapterVerse chapterVerse);
+        void unhighlightVerse(ChapterVerse chapterVerse);
+        void clearVerseHighlight();
+    }
 }

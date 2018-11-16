@@ -10,12 +10,12 @@ import static org.junit.Assert.assertThat;
 
 public class DocumentBibleBooksTest {
 
-	@Test
-	public void testContains() {
-		AbstractPassageBook esv = (AbstractPassageBook)Books.installed().getBook("ESV2011");
-		DocumentBibleBooks esvBibleBooks = new DocumentBibleBooks(esv);
-		assertThat(true, is(esvBibleBooks.contains(BibleBook.GEN)));
-		assertThat(true, is(esvBibleBooks.contains(BibleBook.OBAD)));
-		assertThat(false, is(esvBibleBooks.contains(BibleBook.PR_AZAR)));
-	}
+    @Test
+    public void testContains() {
+        AbstractPassageBook esv = (AbstractPassageBook)Books.installed().getBook("ESV2011");
+        DocumentBibleBooks esvBibleBooks = new DocumentBibleBooks(esv);
+        assertThat(true, is(esvBibleBooks.contains(BibleBook.GEN)));
+        assertThat(true, is(esvBibleBooks.contains(BibleBook.OBAD)));
+        assertThat(false, is(esvBibleBooks.contains(BibleBook.PR_AZAR)));
+    }
 }

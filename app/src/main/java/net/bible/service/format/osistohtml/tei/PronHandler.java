@@ -17,20 +17,20 @@ import org.xml.sax.Attributes;
  */
 public class PronHandler extends HiHandler {
 
-	private final static String DEFAULT = "italic";
+    private final static String DEFAULT = "italic";
 
-	public PronHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
-		super(parameters, writer);
-	}
-	
-	@Override
-	public String getTagName() {
+    public PronHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
+        super(parameters, writer);
+    }
+    
+    @Override
+    public String getTagName() {
         return TEIUtil.TEI_ELEMENT_PRON;
     }
 
-	@Override
-	public void start(Attributes attrs) {
-		String rend = attrs.getValue(TEIUtil.TEI_ATTR_REND);
-		start(rend, DEFAULT);
-	}
+    @Override
+    public void start(Attributes attrs) {
+        String rend = attrs.getValue(TEIUtil.TEI_ATTR_REND);
+        start(rend, DEFAULT);
+    }
 }

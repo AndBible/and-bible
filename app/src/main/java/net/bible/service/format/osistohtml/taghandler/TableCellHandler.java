@@ -15,24 +15,24 @@ import org.xml.sax.Attributes;
  */
 public class TableCellHandler implements OsisTagHandler {
 
-	private HtmlTextWriter writer;
-	
-	public TableCellHandler(HtmlTextWriter writer) {
-		this.writer = writer;
-	}
-	
-	@Override
-	public String getTagName() {
+    private HtmlTextWriter writer;
+    
+    public TableCellHandler(HtmlTextWriter writer) {
+        this.writer = writer;
+    }
+    
+    @Override
+    public String getTagName() {
         return OSISUtil.OSIS_ELEMENT_CELL;
     }
 
-	@Override
-	public void start(Attributes attrs) {
-		writer.write("<td>");
-	}
+    @Override
+    public void start(Attributes attrs) {
+        writer.write("<td>");
+    }
 
-	@Override
-	public void end() {
-		writer.write("</td>");
-	}
+    @Override
+    public void end() {
+        writer.write("</td>");
+    }
 }

@@ -10,23 +10,23 @@ import net.bible.android.control.page.window.Window;
  */
 public class WindowSizeChangedEvent implements WindowEvent {
 
-	private boolean isFinished;
-	private Map<Window, ChapterVerse> screenChapterVerseMap;
-	
-	public WindowSizeChangedEvent(boolean isFinished, Map<Window, ChapterVerse> screenChapterVerseMap) {
-		this.isFinished = isFinished;
-		this.screenChapterVerseMap = screenChapterVerseMap;
-	}
+    private boolean isFinished;
+    private Map<Window, ChapterVerse> screenChapterVerseMap;
+    
+    public WindowSizeChangedEvent(boolean isFinished, Map<Window, ChapterVerse> screenChapterVerseMap) {
+        this.isFinished = isFinished;
+        this.screenChapterVerseMap = screenChapterVerseMap;
+    }
 
-	public boolean isFinished() {
-		return isFinished;
-	}
+    public boolean isFinished() {
+        return isFinished;
+    }
 
-	public boolean isVerseNoSet(Window window) {
-		return screenChapterVerseMap.containsKey(window);
-	}
+    public boolean isVerseNoSet(Window window) {
+        return screenChapterVerseMap.containsKey(window);
+    }
 
-	public ChapterVerse getChapterVerse(Window window) {
-		return screenChapterVerseMap.get(window);
-	}
+    public ChapterVerse getChapterVerse(Window window) {
+        return screenChapterVerseMap.get(window);
+    }
 }

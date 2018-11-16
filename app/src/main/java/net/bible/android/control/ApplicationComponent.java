@@ -51,47 +51,47 @@ import dagger.Component;
 @Component(modules=ApplicationModule.class)
 public interface ApplicationComponent {
 
-	//Exposed to sub-graphs.
-	WarmUp warmUp();
-	ErrorReportControl errorReportControl();
+    //Exposed to sub-graphs.
+    WarmUp warmUp();
+    ErrorReportControl errorReportControl();
 
-	SwordDocumentFacade swordDocumentFacade();
-	SwordContentFacade swordContentFacade();
-	BibleTraverser bibleTraverser();
-	NavigationControl navigationControl();
-	DocumentBibleBooksFactory documentBibleBooksFactory();
-	WindowControl windowControl();
-	ActiveWindowPageManagerProvider activeWindowPageManagerProvider();
-	LinkControl linkControl();
-	PageTiltScrollControlFactory pageTiltScrollControlFactory();
-	HistoryManager historyManager();
-	HistoryTraversalFactory historyTraversalFactory();
-	BibleKeyHandler bibleKeyHandler();
+    SwordDocumentFacade swordDocumentFacade();
+    SwordContentFacade swordContentFacade();
+    BibleTraverser bibleTraverser();
+    NavigationControl navigationControl();
+    DocumentBibleBooksFactory documentBibleBooksFactory();
+    WindowControl windowControl();
+    ActiveWindowPageManagerProvider activeWindowPageManagerProvider();
+    LinkControl linkControl();
+    PageTiltScrollControlFactory pageTiltScrollControlFactory();
+    HistoryManager historyManager();
+    HistoryTraversalFactory historyTraversalFactory();
+    BibleKeyHandler bibleKeyHandler();
 
-	DocumentControl documentControl();
-	BackupControl backupControl();
-	BookmarkControl bookmarkControl();
-	MyNoteControl myNoteControl();
-	NoteDetailCreator noteDetailCreator();
-	DownloadControl downloadControl();
-	PageControl pageControl();
-	ReadingPlanControl readingPlanControl();
-	SearchControl searchControl();
-	CompareTranslationsControl compareTranslationsControl();
-	FootnoteAndRefControl footnoteAndRefControl();
+    DocumentControl documentControl();
+    BackupControl backupControl();
+    BookmarkControl bookmarkControl();
+    MyNoteControl myNoteControl();
+    NoteDetailCreator noteDetailCreator();
+    DownloadControl downloadControl();
+    PageControl pageControl();
+    ReadingPlanControl readingPlanControl();
+    SearchControl searchControl();
+    CompareTranslationsControl compareTranslationsControl();
+    FootnoteAndRefControl footnoteAndRefControl();
 
-	SpeakControl speakControl();
+    SpeakControl speakControl();
 
-	BibleActionBarButton bibleActionBarButton();
-	CommentaryActionBarButton commentaryActionBarButton();
-	DictionaryActionBarButton dictionaryActionBarButton();
-	StrongsActionBarButton strongsActionBarButton();
-	SortActionBarButton sortActionBarButton();
-	SpeakActionBarButton speakActionBarButton();
-	SpeakStopActionBarButton speakStopActionBarButton();
-	ScriptureToggleActionBarButton scriptureToggleActionBarButton();
-	ReadingPlanActionBarManager readingPlanActionBarManager();
-	SearchResultsActionBarManager searchResultsActionBarManager();
-	BibleBookActionBarManager bibleBookActionBarManager();
-	WindowMenuCommandHandler windowMenuCommandHandler();
+    BibleActionBarButton bibleActionBarButton();
+    CommentaryActionBarButton commentaryActionBarButton();
+    DictionaryActionBarButton dictionaryActionBarButton();
+    StrongsActionBarButton strongsActionBarButton();
+    SortActionBarButton sortActionBarButton();
+    SpeakActionBarButton speakActionBarButton();
+    SpeakStopActionBarButton speakStopActionBarButton();
+    ScriptureToggleActionBarButton scriptureToggleActionBarButton();
+    ReadingPlanActionBarManager readingPlanActionBarManager();
+    SearchResultsActionBarManager searchResultsActionBarManager();
+    BibleBookActionBarManager bibleBookActionBarManager();
+    WindowMenuCommandHandler windowMenuCommandHandler();
 }

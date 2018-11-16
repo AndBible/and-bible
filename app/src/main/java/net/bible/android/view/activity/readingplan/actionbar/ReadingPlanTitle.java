@@ -22,44 +22,44 @@ import javax.inject.Inject;
 @ApplicationScope
 public class ReadingPlanTitle extends Title {
 
-	private final ReadingPlanControl readingPlanControl;
+    private final ReadingPlanControl readingPlanControl;
 
-	@Inject
-	public ReadingPlanTitle(ReadingPlanControl readingPlanControl) {
-		this.readingPlanControl = readingPlanControl;
-	}
+    @Inject
+    public ReadingPlanTitle(ReadingPlanControl readingPlanControl) {
+        this.readingPlanControl = readingPlanControl;
+    }
 
-	public void addToBar(ActionBar actionBar, final Activity activity) {
-		super.addToBar(actionBar, activity);
+    public void addToBar(ActionBar actionBar, final Activity activity) {
+        super.addToBar(actionBar, activity);
 
-	}
+    }
 
-	@Override
-	protected String[] getDocumentTitleParts() {
-		String title = readingPlanControl.getShortTitle();
-		return getTwoTitleParts(title, false);
-	}
+    @Override
+    protected String[] getDocumentTitleParts() {
+        String title = readingPlanControl.getShortTitle();
+        return getTwoTitleParts(title, false);
+    }
 
-	@Override
-	protected String[] getPageTitleParts() {
-		String planDayDesc = readingPlanControl.getCurrentDayDescription();
-		return getTwoTitleParts(planDayDesc, true);
-	}
+    @Override
+    protected String[] getPageTitleParts() {
+        String planDayDesc = readingPlanControl.getCurrentDayDescription();
+        return getTwoTitleParts(planDayDesc, true);
+    }
 
-	@Override
-	protected void onDocumentTitleClick() {
-		Activity readingPlanActivity = getActivity();
-		Intent docHandlerIntent = new Intent(readingPlanActivity, ReadingPlanSelectorList.class);
-    	readingPlanActivity.startActivityForResult(docHandlerIntent, 1);
-    	readingPlanActivity.finish();
-	}
+    @Override
+    protected void onDocumentTitleClick() {
+        Activity readingPlanActivity = getActivity();
+        Intent docHandlerIntent = new Intent(readingPlanActivity, ReadingPlanSelectorList.class);
+        readingPlanActivity.startActivityForResult(docHandlerIntent, 1);
+        readingPlanActivity.finish();
+    }
 
-	@Override
-	protected void onPageTitleClick() {
-		Activity currentActivity = getActivity();
-		Intent pageHandlerIntent = new Intent(currentActivity, DailyReadingList.class);
-		currentActivity.startActivityForResult(pageHandlerIntent, 1);
-		currentActivity.finish();
-	}
-	
+    @Override
+    protected void onPageTitleClick() {
+        Activity currentActivity = getActivity();
+        Intent pageHandlerIntent = new Intent(currentActivity, DailyReadingList.class);
+        currentActivity.startActivityForResult(pageHandlerIntent, 1);
+        currentActivity.finish();
+    }
+    
 }

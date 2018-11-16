@@ -22,10 +22,10 @@ import javax.inject.Inject;
  */
 public class SearchIndex extends CustomTitlebarActivityBase {
 
-	private SearchControl searchControl;
+    private SearchControl searchControl;
 
-	private static final String TAG = "SearchIndex";
-	
+    private static final String TAG = "SearchIndex";
+    
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,7 +33,7 @@ public class SearchIndex extends CustomTitlebarActivityBase {
         Log.i(TAG, "Displaying SearchIndex view");
         setContentView(R.layout.search_index);
 
-		buildActivityComponent().inject(this);
+        buildActivityComponent().inject(this);
     
         Log.d(TAG, "Finished displaying Search Index view");
     }
@@ -43,12 +43,12 @@ public class SearchIndex extends CustomTitlebarActivityBase {
      * @param v
      */
     public void onDownload(View v) {
-    	Log.i(TAG, "CLICKED");
-    	boolean bOk = searchControl.downloadIndex(getDocumentToIndex());
+        Log.i(TAG, "CLICKED");
+        boolean bOk = searchControl.downloadIndex(getDocumentToIndex());
 
-    	if (bOk) {
-        	monitorProgress();
-    	}
+        if (bOk) {
+            monitorProgress();
+        }
     }
 
     /** Indexing is very slow
@@ -56,57 +56,57 @@ public class SearchIndex extends CustomTitlebarActivityBase {
      * @param v
      */
     public void onIndex(View v) {
-    	Log.i(TAG, "CLICKED");
-    	try {
-    		// start background thread to create index
-        	boolean bOk = searchControl.createIndex(getDocumentToIndex());
+        Log.i(TAG, "CLICKED");
+        try {
+            // start background thread to create index
+            boolean bOk = searchControl.createIndex(getDocumentToIndex());
 
-        	if (bOk) {
-	        	monitorProgress();
-        	}
-    	} catch (Exception e) {
-    		Log.e(TAG, "error indexing:"+e.getMessage());
-    		e.printStackTrace();
-    	}
+            if (bOk) {
+                monitorProgress();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "error indexing:"+e.getMessage());
+            e.printStackTrace();
+        }
     }
     
     private Book getDocumentToIndex() {
-    	String documentInitials = getIntent().getStringExtra(SearchControl.SEARCH_DOCUMENT);
+        String documentInitials = getIntent().getStringExtra(SearchControl.SEARCH_DOCUMENT);
 
-    	Book documentToIndex;
+        Book documentToIndex;
         if (StringUtils.isNotEmpty(documentInitials)) {
-        	documentToIndex = getSwordDocumentFacade().getDocumentByInitials(documentInitials);
+            documentToIndex = getSwordDocumentFacade().getDocumentByInitials(documentInitials);
         } else {
-        	documentToIndex = getPageControl().getCurrentPageManager().getCurrentPage().getCurrentDocument();
+            documentToIndex = getPageControl().getCurrentPageManager().getCurrentPage().getCurrentDocument();
         }
 
         return documentToIndex;
     }
 
     /**
-	 * Show progress monitor screen
-	 */
-	private void monitorProgress() {
-		// monitor the progress
-		Intent intent = new Intent(this, SearchIndexProgressStatus.class);
-		
-		// a search may be pre-defined, if so then pass the pre-defined search through so it can be executed directly
-		if (getIntent().getExtras()!=null) {
-			intent.putExtras(getIntent().getExtras());
-		}
-		
-		// always need to specify which document is being indexed
-		if (StringUtils.isEmpty(intent.getStringExtra(SearchControl.SEARCH_DOCUMENT))) {
-			// must tell the progress status screen which doc is being downloaded because it checks it downloaded successfully
-			intent.putExtra(SearchControl.SEARCH_DOCUMENT, getDocumentToIndex().getInitials());
-		}
-		
-		startActivity(intent);
-		finish();
-	}
+     * Show progress monitor screen
+     */
+    private void monitorProgress() {
+        // monitor the progress
+        Intent intent = new Intent(this, SearchIndexProgressStatus.class);
+        
+        // a search may be pre-defined, if so then pass the pre-defined search through so it can be executed directly
+        if (getIntent().getExtras()!=null) {
+            intent.putExtras(getIntent().getExtras());
+        }
+        
+        // always need to specify which document is being indexed
+        if (StringUtils.isEmpty(intent.getStringExtra(SearchControl.SEARCH_DOCUMENT))) {
+            // must tell the progress status screen which doc is being downloaded because it checks it downloaded successfully
+            intent.putExtra(SearchControl.SEARCH_DOCUMENT, getDocumentToIndex().getInitials());
+        }
+        
+        startActivity(intent);
+        finish();
+    }
 
-	@Inject
-	void setSearchControl(SearchControl searchControl) {
-		this.searchControl = searchControl;
-	}
+    @Inject
+    void setSearchControl(SearchControl searchControl) {
+        this.searchControl = searchControl;
+    }
 }

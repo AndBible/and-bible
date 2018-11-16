@@ -33,70 +33,70 @@ import javax.inject.Inject;
 @ApplicationScope
 public class BookmarkFormatSupport {
 
-	@Inject
-	public BookmarkFormatSupport() {
-	}
+    @Inject
+    public BookmarkFormatSupport() {
+    }
 
-	public Map<Integer, Set<BookmarkStyle>> getVerseBookmarkStylesInPassage(Key passage) {
-		// assumes the passage only covers one book, which always happens to be the case here
-		Verse firstVerse = KeyUtil.getVerse(passage);
-		BibleBook book = firstVerse.getBook();
+    public Map<Integer, Set<BookmarkStyle>> getVerseBookmarkStylesInPassage(Key passage) {
+        // assumes the passage only covers one book, which always happens to be the case here
+        Verse firstVerse = KeyUtil.getVerse(passage);
+        BibleBook book = firstVerse.getBook();
 
-		// get all Bookmarks in containing book to include variations due to differing versifications
-		BookmarkDBAdapter db = new BookmarkDBAdapter();
-		List<BookmarkDto> bookmarkList;
-		BookmarkStyle defaultBookmarkStyle = BookmarkStyle.valueOf(CommonUtils.getSharedPreferences().getString(
-				"default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name()));
-		Map<Integer, Set<BookmarkStyle>> bookmarkStylesByVerseNoInPassage = new HashMap<>();
-		try {
-			db.open();
-			bookmarkList = db.getBookmarksInBook(book);
+        // get all Bookmarks in containing book to include variations due to differing versifications
+        BookmarkDBAdapter db = new BookmarkDBAdapter();
+        List<BookmarkDto> bookmarkList;
+        BookmarkStyle defaultBookmarkStyle = BookmarkStyle.valueOf(CommonUtils.getSharedPreferences().getString(
+                "default_bookmark_style_pref", BookmarkStyle.YELLOW_STAR.name()));
+        Map<Integer, Set<BookmarkStyle>> bookmarkStylesByVerseNoInPassage = new HashMap<>();
+        try {
+            db.open();
+            bookmarkList = db.getBookmarksInBook(book);
 
-			// convert to required versification and check verse is in passage
-			if (bookmarkList!=null) {
-				Versification requiredVersification = firstVerse.getVersification();
-				for (BookmarkDto bookmarkDto : bookmarkList) {
-					VerseRange bookmarkVerseRange = bookmarkDto.getVerseRange(requiredVersification);
-					if (passage.contains(bookmarkVerseRange.getStart())) {
-						final List<LabelDto> bookmarkLabels = db.getBookmarkLabels(bookmarkDto);
-						if(bookmarkLabels.isEmpty()) {
-							bookmarkLabels.add(new LabelDto(null, null, defaultBookmarkStyle));
-						}
-						final List<BookmarkStyle> bookmarkStyles = getBookmarkStyles(bookmarkLabels);
+            // convert to required versification and check verse is in passage
+            if (bookmarkList!=null) {
+                Versification requiredVersification = firstVerse.getVersification();
+                for (BookmarkDto bookmarkDto : bookmarkList) {
+                    VerseRange bookmarkVerseRange = bookmarkDto.getVerseRange(requiredVersification);
+                    if (passage.contains(bookmarkVerseRange.getStart())) {
+                        final List<LabelDto> bookmarkLabels = db.getBookmarkLabels(bookmarkDto);
+                        if(bookmarkLabels.isEmpty()) {
+                            bookmarkLabels.add(new LabelDto(null, null, defaultBookmarkStyle));
+                        }
+                        final List<BookmarkStyle> bookmarkStyles = getBookmarkStyles(bookmarkLabels);
 
-						for (Verse verse : bookmarkVerseRange.toVerseArray()) {
-							Set<BookmarkStyle> stylesSet = bookmarkStylesByVerseNoInPassage.get(verse.getVerse());
-							if(stylesSet != null) {
-								stylesSet.addAll(bookmarkStyles);
-							}
-							else {
-								stylesSet = new TreeSet<>(bookmarkStyles);
-								bookmarkStylesByVerseNoInPassage.put(verse.getVerse(), stylesSet);
-							}
+                        for (Verse verse : bookmarkVerseRange.toVerseArray()) {
+                            Set<BookmarkStyle> stylesSet = bookmarkStylesByVerseNoInPassage.get(verse.getVerse());
+                            if(stylesSet != null) {
+                                stylesSet.addAll(bookmarkStyles);
+                            }
+                            else {
+                                stylesSet = new TreeSet<>(bookmarkStyles);
+                                bookmarkStylesByVerseNoInPassage.put(verse.getVerse(), stylesSet);
+                            }
 
-						}
-					}
-				}
-			}
+                        }
+                    }
+                }
+            }
 
-		} finally {
-			db.close();
-		}
-		return bookmarkStylesByVerseNoInPassage;
-	}
+        } finally {
+            db.close();
+        }
+        return bookmarkStylesByVerseNoInPassage;
+    }
 
-	/**
-	 * Get distinct styles in enum order
-	 */
-	private List<BookmarkStyle> getBookmarkStyles(List<LabelDto> bookmarkLabels) {
-		Set<BookmarkStyle> bookmarkStyles = new TreeSet<>();
-		for (LabelDto label : bookmarkLabels) {
-			BookmarkStyle style = label.getBookmarkStyle();
+    /**
+     * Get distinct styles in enum order
+     */
+    private List<BookmarkStyle> getBookmarkStyles(List<LabelDto> bookmarkLabels) {
+        Set<BookmarkStyle> bookmarkStyles = new TreeSet<>();
+        for (LabelDto label : bookmarkLabels) {
+            BookmarkStyle style = label.getBookmarkStyle();
 
-			if (style!=null) {
-				bookmarkStyles.add(style);
-			}
-		}
-		return new ArrayList<>(bookmarkStyles);
-	}
+            if (style!=null) {
+                bookmarkStyles.add(style);
+            }
+        }
+        return new ArrayList<>(bookmarkStyles);
+    }
 }

@@ -16,9 +16,9 @@ import java.util.Comparator;
 
 public class BookmarkCreationDateComparator implements Comparator<BookmarkDto> {
 
-	public int compare(@NonNull BookmarkDto bookmark1, @NonNull BookmarkDto bookmark2) {
-		// descending order
-		return bookmark2.getCreatedOn().compareTo(bookmark1.getCreatedOn());
-	}
+    public int compare(@NonNull BookmarkDto bookmark1, @NonNull BookmarkDto bookmark2) {
+        // descending order
+        return bookmark2.getCreatedOn().compareTo(bookmark1.getCreatedOn());
+    }
 
 }

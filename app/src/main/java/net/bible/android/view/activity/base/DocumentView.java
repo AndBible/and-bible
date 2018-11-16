@@ -13,26 +13,26 @@ import net.bible.android.control.page.ChapterVerse;
  */
 public interface DocumentView {
 
-	void show(String html, ChapterVerse chapterVerse, float jumpToYOffsetRatio);
+    void show(String html, ChapterVerse chapterVerse, float jumpToYOffsetRatio);
 
-	void applyPreferenceSettings();
+    void applyPreferenceSettings();
 
-	/** may need updating depending on environmental brightness
-	 */
-	boolean changeBackgroundColour();
-	
-	// allow stop/start of autoscroll
-	void onScreenTurnedOn();
-	void onScreenTurnedOff();
-	
-	boolean pageDown(boolean toBottom);
-	
-	/** prevent swipe right if the user is scrolling the page right */
-	boolean isPageNextOkay();
-	
-	/** prevent swipe left if the user is scrolling the page left */
-	boolean isPagePreviousOkay();
-	
+    /** may need updating depending on environmental brightness
+     */
+    boolean changeBackgroundColour();
+    
+    // allow stop/start of autoscroll
+    void onScreenTurnedOn();
+    void onScreenTurnedOff();
+    
+    boolean pageDown(boolean toBottom);
+    
+    /** prevent swipe right if the user is scrolling the page right */
+    boolean isPageNextOkay();
+    
+    /** prevent swipe left if the user is scrolling the page left */
+    boolean isPagePreviousOkay();
+    
     float getCurrentPosition();
     
     /** same as this but of type View */

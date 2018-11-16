@@ -19,30 +19,30 @@ import javax.inject.Inject;
 @ApplicationScope
 public class SpeakStopActionBarButton extends SpeakActionBarButtonBase {
 
-	@Inject
-	public SpeakStopActionBarButton(SpeakControl speakControl) {
-		super(speakControl);
-	}
+    @Inject
+    public SpeakStopActionBarButton(SpeakControl speakControl) {
+        super(speakControl);
+    }
 
-	@Override
-	public boolean onMenuItemClick(MenuItem menuItem) {
-		getSpeakControl().stop();
+    @Override
+    public boolean onMenuItemClick(MenuItem menuItem) {
+        getSpeakControl().stop();
 
-		return true;
-	}
+        return true;
+    }
 
-	@Override
-	protected String getTitle() {
-		return CommonUtils.getResourceString(R.string.stop);
-	}
-	
-	@Override
-	protected int getIcon() {
-		return R.drawable.ic_media_stop;
-	}
+    @Override
+    protected String getTitle() {
+        return CommonUtils.getResourceString(R.string.stop);
+    }
+    
+    @Override
+    protected int getIcon() {
+        return R.drawable.ic_media_stop;
+    }
 
-	@Override
-	protected boolean canShow() {
-		return isSpeakMode();
-	}
+    @Override
+    protected boolean canShow() {
+        return isSpeakMode();
+    }
 }

@@ -15,12 +15,12 @@ import javax.inject.Inject;
 @ApplicationScope
 public class ReadingPlanBibleActionBarButton extends ReadingPlanQuickDocumentChangeButton {
 
-	@Inject
-	public ReadingPlanBibleActionBarButton() {
-	}
+    @Inject
+    public ReadingPlanBibleActionBarButton() {
+    }
 
-	@Override
-	protected Book getSuggestedDocument() {
-		return getCurrentPageManager().getCurrentBible().getCurrentDocument();
-	}
+    @Override
+    protected Book getSuggestedDocument() {
+        return getCurrentPageManager().getCurrentBible().getCurrentDocument();
+    }
 }

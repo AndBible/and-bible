@@ -38,59 +38,59 @@ import javax.inject.Inject;
  */
 public class Download extends DocumentSelectionBase {
 
-	private DocumentDownloadItemAdapter documentDownloadItemAdapter;
+    private DocumentDownloadItemAdapter documentDownloadItemAdapter;
 
-	private static final int LIST_ITEM_TYPE = R.layout.document_download_list_item;
+    private static final int LIST_ITEM_TYPE = R.layout.document_download_list_item;
 
-	private DownloadControl downloadControl;
+    private DownloadControl downloadControl;
 
-	private static final String REPO_REFRESH_DATE = "repoRefreshDate";
-	private static final long REPO_LIST_STALE_AFTER_DAYS = 10;
-	private static final long MILLISECS_IN_DAY = 1000*60*60*24;
-	
-	public static final int DOWNLOAD_FINISH = 1;
-	private boolean downloadConfirmationShown = false;
+    private static final String REPO_REFRESH_DATE = "repoRefreshDate";
+    private static final long REPO_LIST_STALE_AFTER_DAYS = 10;
+    private static final long MILLISECS_IN_DAY = 1000*60*60*24;
+    
+    public static final int DOWNLOAD_FINISH = 1;
+    private boolean downloadConfirmationShown = false;
 
-	private static final String TAG = "Download";
+    private static final String TAG = "Download";
 
-	public Download() {
-		super(NO_OPTIONS_MENU, R.menu.download_documents_context_menu);
-	}
+    public Download() {
+        super(NO_OPTIONS_MENU, R.menu.download_documents_context_menu);
+    }
 
-	/** Called when the activity is first created. */
+    /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-		buildActivityComponent().inject(this);
+        buildActivityComponent().inject(this);
 
-		initialiseView();
+        initialiseView();
 
-		documentDownloadItemAdapter = new DocumentDownloadItemAdapter(this, downloadControl, LIST_ITEM_TYPE, getDisplayedDocuments(), this);
-		setListAdapter(documentDownloadItemAdapter);
+        documentDownloadItemAdapter = new DocumentDownloadItemAdapter(this, downloadControl, LIST_ITEM_TYPE, getDisplayedDocuments(), this);
+        setListAdapter(documentDownloadItemAdapter);
 
-    	// in the basic flow we force the user to download a bible
-    	getDocumentTypeSpinner().setEnabled(true);
+        // in the basic flow we force the user to download a bible
+        getDocumentTypeSpinner().setEnabled(true);
 
-		boolean firstTime = getSwordDocumentFacade().getBibles().size()==0;
-       	// if first time
-       	if (firstTime) {
-        	// prepare the document list view - done in another thread
-        	populateMasterDocumentList(false);
-        	updateLastRepoRefreshDate();
-       	} else if (isRepoBookListOld()) {
-       		// normal user downloading but need to refresh the document list
-       		Toast.makeText(this, R.string.download_refreshing_book_list, Toast.LENGTH_LONG).show();
-       		
-    		// prepare the document list view - done in another thread
-    		populateMasterDocumentList(true);
+        boolean firstTime = getSwordDocumentFacade().getBibles().size()==0;
+           // if first time
+           if (firstTime) {
+            // prepare the document list view - done in another thread
+            populateMasterDocumentList(false);
+            updateLastRepoRefreshDate();
+           } else if (isRepoBookListOld()) {
+               // normal user downloading but need to refresh the document list
+               Toast.makeText(this, R.string.download_refreshing_book_list, Toast.LENGTH_LONG).show();
+               
+            // prepare the document list view - done in another thread
+            populateMasterDocumentList(true);
 
-    		// restart refresh timeout
-    		updateLastRepoRefreshDate();
-       	} else {
-       		// normal user downloading with recent doc list
-        	populateMasterDocumentList(false);
-       	}
+            // restart refresh timeout
+            updateLastRepoRefreshDate();
+           } else {
+               // normal user downloading with recent doc list
+            populateMasterDocumentList(false);
+           }
     }
 
     /** if repo list not refreshed in last 30 days then it is old
@@ -98,49 +98,49 @@ public class Download extends DocumentSelectionBase {
      * @return
      */
     private boolean isRepoBookListOld() {
-    	long repoRefreshDate = CommonUtils.getSharedPreferences().getLong(REPO_REFRESH_DATE, 0);
-    	Date today = new Date();
-    	return (today.getTime()-repoRefreshDate)/MILLISECS_IN_DAY > REPO_LIST_STALE_AFTER_DAYS;
+        long repoRefreshDate = CommonUtils.getSharedPreferences().getLong(REPO_REFRESH_DATE, 0);
+        Date today = new Date();
+        return (today.getTime()-repoRefreshDate)/MILLISECS_IN_DAY > REPO_LIST_STALE_AFTER_DAYS;
     }
     
     private void updateLastRepoRefreshDate() {
-	 	Date today = new Date();
-		CommonUtils.getSharedPreferences().edit().putLong(REPO_REFRESH_DATE, today.getTime()).commit();
+         Date today = new Date();
+        CommonUtils.getSharedPreferences().edit().putLong(REPO_REFRESH_DATE, today.getTime()).commit();
     }
     
     @Override
     protected void showPreLoadMessage() {
-       	Toast.makeText(this, R.string.download_source_message, Toast.LENGTH_LONG).show();
+           Toast.makeText(this, R.string.download_source_message, Toast.LENGTH_LONG).show();
     }
     
     @Override
     protected List<Book> getDocumentsFromSource(boolean refresh) {
-    	return downloadControl.getDownloadableDocuments(refresh);
+        return downloadControl.getDownloadableDocuments(refresh);
     }
 
 
 
-	@Override
-	protected void onStart() {
-		super.onStart();
+    @Override
+    protected void onStart() {
+        super.onStart();
 
-		downloadControl.startMonitoringDownloads();
-	}
+        downloadControl.startMonitoringDownloads();
+    }
 
-	@Override
-	protected void onStop() {
-		super.onStop();
+    @Override
+    protected void onStop() {
+        super.onStop();
 
-		downloadControl.stopMonitoringDownloads();
-	}
+        downloadControl.stopMonitoringDownloads();
+    }
 
     /** 
      * Get normally sorted list of languages for the language selection spinner 
      */
     @Override
-	protected List<Language> sortLanguages(Collection<Language> languages) {
-    	return downloadControl.sortLanguages(languages);
-	}
+    protected List<Language> sortLanguages(Collection<Language> languages) {
+        return downloadControl.sortLanguages(languages);
+    }
     
     /** user selected a document so download it
      * 
@@ -148,76 +148,76 @@ public class Download extends DocumentSelectionBase {
      */
     @Override
     protected void handleDocumentSelection(Book document) {
-    	Log.d(TAG, "Document selected:"+document.getInitials());
-    	try {
-   			manageDownload(document);
-    	} catch (Exception e) {
-    		Log.e(TAG, "Error on attempt to download", e);
-    		Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show();
-    	}
+        Log.d(TAG, "Document selected:"+document.getInitials());
+        try {
+               manageDownload(document);
+        } catch (Exception e) {
+            Log.e(TAG, "Error on attempt to download", e);
+            Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show();
+        }
     }
 
-	private void showTooManyJobsDialog() {
-		Log.i(TAG, "Too many jobs:"+JobManager.getJobCount());
-		Dialogs.getInstance().showErrorMsg(R.string.too_many_jobs);
-	}
+    private void showTooManyJobsDialog() {
+        Log.i(TAG, "Too many jobs:"+JobManager.getJobCount());
+        Dialogs.getInstance().showErrorMsg(R.string.too_many_jobs);
+    }
 
     protected void manageDownload(final Book documentToDownload) {
-    	if (documentToDownload!=null) {
-			if (downloadConfirmationShown) {
-				doDownload(documentToDownload);
-			} else {
-				new AlertDialog.Builder(this)
-						.setMessage(getText(R.string.download_document_confirm_prefix) + " " + documentToDownload.getName())
-						.setCancelable(false)
-						.setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-								downloadConfirmationShown = true;
-								doDownload(documentToDownload);
-							}
-						})
-						.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int id) {
-							}
-						}).create().show();
-			}
-    	}
+        if (documentToDownload!=null) {
+            if (downloadConfirmationShown) {
+                doDownload(documentToDownload);
+            } else {
+                new AlertDialog.Builder(this)
+                        .setMessage(getText(R.string.download_document_confirm_prefix) + " " + documentToDownload.getName())
+                        .setCancelable(false)
+                        .setPositiveButton(R.string.okay, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                                downloadConfirmationShown = true;
+                                doDownload(documentToDownload);
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int id) {
+                            }
+                        }).create().show();
+            }
+        }
     }
 
-	private void doDownload(Book document) {
-    	try {
-			// the download happens in another thread
-			downloadControl.downloadDocument(document);
+    private void doDownload(Book document) {
+        try {
+            // the download happens in another thread
+            downloadControl.downloadDocument(document);
 
-			// update screen so the icon to the left of the book changes
-			notifyDataSetChanged();
+            // update screen so the icon to the left of the book changes
+            notifyDataSetChanged();
 
-    	} catch (Exception e) {
-    		Log.e(TAG, "Error on attempt to download", e);
-    		Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show();
-    	}
+        } catch (Exception e) {
+            Log.e(TAG, "Error on attempt to download", e);
+            Toast.makeText(this, R.string.error_downloading, Toast.LENGTH_SHORT).show();
+        }
 
     }
     
     @Override 
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-    	Log.d(TAG, "onActivityResult:"+resultCode);
-    	if (resultCode==DOWNLOAD_FINISH) {
-    		returnToPreviousScreen();
-    	} else {
-    		//result code == DOWNLOAD_MORE_RESULT redisplay this download screen
-    	}
+        Log.d(TAG, "onActivityResult:"+resultCode);
+        if (resultCode==DOWNLOAD_FINISH) {
+            returnToPreviousScreen();
+        } else {
+            //result code == DOWNLOAD_MORE_RESULT redisplay this download screen
+        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-    	super.onCreateOptionsMenu(menu);
+        super.onCreateOptionsMenu(menu);
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.download_documents, menu);
         return true;
     }
 
-	/** 
+    /** 
      * on Click handlers
      */
     @Override
@@ -225,32 +225,32 @@ public class Download extends DocumentSelectionBase {
         boolean isHandled = false;
         
         switch (item.getItemId()) {
-		case (R.id.refresh):
-       		// normal user downloading but need to refresh the document list
-       		Toast.makeText(this, R.string.download_refreshing_book_list, Toast.LENGTH_LONG).show();
-       		
-    		// prepare the document list view - done in another thread
-    		populateMasterDocumentList(true);
+        case (R.id.refresh):
+               // normal user downloading but need to refresh the document list
+               Toast.makeText(this, R.string.download_refreshing_book_list, Toast.LENGTH_LONG).show();
+               
+            // prepare the document list view - done in another thread
+            populateMasterDocumentList(true);
 
-    		// restart refresh timeout
-    		updateLastRepoRefreshDate();
-    		
-    		// update screen
-    		notifyDataSetChanged();
-    		
-			isHandled = true;
-			break;
+            // restart refresh timeout
+            updateLastRepoRefreshDate();
+            
+            // update screen
+            notifyDataSetChanged();
+            
+            isHandled = true;
+            break;
         }
         
-		if (!isHandled) {
+        if (!isHandled) {
             isHandled = super.onOptionsItemSelected(item);
         }
         
-     	return isHandled;
+         return isHandled;
     }
 
-	@Inject
-	void setDownloadControl(DownloadControl downloadControl) {
-		this.downloadControl = downloadControl;
-	}
+    @Inject
+    void setDownloadControl(DownloadControl downloadControl) {
+        this.downloadControl = downloadControl;
+    }
 }

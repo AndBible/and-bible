@@ -20,43 +20,43 @@ import static org.junit.Assert.assertThat;
  */
 public class DocumentBibleBooksFactoryTest {
 
-	private DocumentBibleBooksFactory documentBibleBooksFactory;
-	private AbstractPassageBook esv;
+    private DocumentBibleBooksFactory documentBibleBooksFactory;
+    private AbstractPassageBook esv;
 
-	@Before
-	public void setup() {
-		documentBibleBooksFactory = new DocumentBibleBooksFactory();
-		esv = (AbstractPassageBook) Books.installed().getBook("ESV2011");
-	}
+    @Before
+    public void setup() {
+        documentBibleBooksFactory = new DocumentBibleBooksFactory();
+        esv = (AbstractPassageBook) Books.installed().getBook("ESV2011");
+    }
 
-	@After
-	public void tearDown() {
-		// ensure it is in the list after removal by some tests
-		Books.installed().addBook(esv);
-	}
+    @After
+    public void tearDown() {
+        // ensure it is in the list after removal by some tests
+        Books.installed().addBook(esv);
+    }
 
-	@Test
-	public void initialise_shouldInstallBookChangeListenersToResetCache() throws Exception {
-		documentBibleBooksFactory.initialise();
-		assertThat(documentBibleBooksFactory.size(), equalTo(0));
+    @Test
+    public void initialise_shouldInstallBookChangeListenersToResetCache() throws Exception {
+        documentBibleBooksFactory.initialise();
+        assertThat(documentBibleBooksFactory.size(), equalTo(0));
 
-		documentBibleBooksFactory.getBooksFor(esv);
-		assertThat(documentBibleBooksFactory.size(), equalTo(1));
+        documentBibleBooksFactory.getBooksFor(esv);
+        assertThat(documentBibleBooksFactory.size(), equalTo(1));
 
-		Books.installed().removeBook(esv);
-		assertThat(documentBibleBooksFactory.size(), equalTo(0));
-	}
+        Books.installed().removeBook(esv);
+        assertThat(documentBibleBooksFactory.size(), equalTo(0));
+    }
 
-	@Test
-	public void getDocumentBibleBooksFor() throws Exception {
-		final List<BibleBook> esvBibleBooks = documentBibleBooksFactory.getBooksFor(esv);
-		assertThat(documentBibleBooksFactory.size(), equalTo(1));
-		assertThat(true, is(esvBibleBooks.contains(BibleBook.GEN)));
-	}
+    @Test
+    public void getDocumentBibleBooksFor() throws Exception {
+        final List<BibleBook> esvBibleBooks = documentBibleBooksFactory.getBooksFor(esv);
+        assertThat(documentBibleBooksFactory.size(), equalTo(1));
+        assertThat(true, is(esvBibleBooks.contains(BibleBook.GEN)));
+    }
 
-	@Test
-	public void getBooksFor() throws Exception {
-		final List<BibleBook> esvBibleBooks = documentBibleBooksFactory.getBooksFor(esv);
-		assertThat(true, is(esvBibleBooks.contains(BibleBook.GEN)));
-	}
+    @Test
+    public void getBooksFor() throws Exception {
+        final List<BibleBook> esvBibleBooks = documentBibleBooksFactory.getBooksFor(esv);
+        assertThat(true, is(esvBibleBooks.contains(BibleBook.GEN)));
+    }
 }

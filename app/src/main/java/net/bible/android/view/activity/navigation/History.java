@@ -27,22 +27,22 @@ import javax.inject.Inject;
  *      The copyright to this program is held by it's author.
  */
 public class History extends ListActivityBase {
-	private static final String TAG = "History";
-	
-	private List<HistoryItem> mHistoryItemList;
+    private static final String TAG = "History";
+    
+    private List<HistoryItem> mHistoryItemList;
 
-	private HistoryManager historyManager;
-	
-	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1;
+    private HistoryManager historyManager;
+    
+    private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1;
 
-	/** Called when the activity is first created. */
+    /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.i(TAG, "Displaying History view");
         setContentView(R.layout.history);
 
-		buildActivityComponent().inject(this);
+        buildActivityComponent().inject(this);
 
         setListAdapter(createAdapter());
         
@@ -55,41 +55,41 @@ public class History extends ListActivityBase {
      */
     protected ListAdapter createAdapter()
     {
-    	mHistoryItemList = historyManager.getHistory();
-    	List<CharSequence> historyTextList = new ArrayList<>();
-    	for (HistoryItem item : mHistoryItemList) {
-    		historyTextList.add(item.getDescription());
-    	}
-    	
-    	return new ArrayAdapter<>(this,
-    	        LIST_ITEM_TYPE,
-    	        historyTextList);
+        mHistoryItemList = historyManager.getHistory();
+        List<CharSequence> historyTextList = new ArrayList<>();
+        for (HistoryItem item : mHistoryItemList) {
+            historyTextList.add(item.getDescription());
+        }
+        
+        return new ArrayAdapter<>(this,
+                LIST_ITEM_TYPE,
+                historyTextList);
     }
     
     @Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-    	try {
-    		historyItemSelected(mHistoryItemList.get(position));
-		} catch (Exception e) {
-			Log.e(TAG, "Selection error", e);
-			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
-		}
-	}
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+        try {
+            historyItemSelected(mHistoryItemList.get(position));
+        } catch (Exception e) {
+            Log.e(TAG, "Selection error", e);
+            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+        }
+    }
     
     private void historyItemSelected(HistoryItem historyItem) {
-    	Log.i(TAG, "chose:"+historyItem);
-    	historyItem.revertTo();
-    	doFinish();
+        Log.i(TAG, "chose:"+historyItem);
+        historyItem.revertTo();
+        doFinish();
     }
 
     private void doFinish() {
-    	Intent resultIntent = new Intent();
-    	setResult(Activity.RESULT_OK, resultIntent);
-    	finish();    
+        Intent resultIntent = new Intent();
+        setResult(Activity.RESULT_OK, resultIntent);
+        finish();    
     }
 
-	@Inject
-	void setHistoryManager(HistoryManager historyManager) {
-		this.historyManager = historyManager;
-	}
+    @Inject
+    void setHistoryManager(HistoryManager historyManager) {
+        this.historyManager = historyManager;
+    }
 }

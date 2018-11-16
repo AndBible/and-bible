@@ -6,5 +6,5 @@ package net.bible.android.view.activity.base;
  *      The copyright to this program is held by it's author.
  */
 public interface Callback {
-	void okay();
+    void okay();
 }

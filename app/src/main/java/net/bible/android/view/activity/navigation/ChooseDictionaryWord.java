@@ -34,14 +34,14 @@ import javax.inject.Inject;
  */
 public class ChooseDictionaryWord extends ListActivityBase {
 
-	private List<Key> mDictionaryGlobalList;
-	private List<Key> mMatchingKeyList;
+    private List<Key> mDictionaryGlobalList;
+    private List<Key> mMatchingKeyList;
 
-	private ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
+    private ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
-	private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1;
+    private static final int LIST_ITEM_TYPE = android.R.layout.simple_list_item_1;
 
-	private static final String TAG = "ChooseDictionaryWord";
+    private static final String TAG = "ChooseDictionaryWord";
 
     /** Called when the activity is first created. */
     @Override
@@ -49,30 +49,30 @@ public class ChooseDictionaryWord extends ListActivityBase {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.choose_dictionary_page);
 
-		buildActivityComponent().inject(this);
+        buildActivityComponent().inject(this);
 
         // ensure there is actually a dictionary
         if (activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentDictionary().getCurrentDocument()==null) {
-        	Log.e(TAG, "No Dictionary");
-        	finish();
-        	return;
+            Log.e(TAG, "No Dictionary");
+            finish();
+            return;
         }
         
         initialise();
         
         EditText searcheditText = (EditText)findViewById(R.id.searchText);
         searcheditText.addTextChangedListener(new TextWatcher() {
-			@Override
-			public void onTextChanged(CharSequence searchText, int arg1, int arg2, int arg3) {
-				showPossibleDictionaryKeys(searchText.toString());
-			}
+            @Override
+            public void onTextChanged(CharSequence searchText, int arg1, int arg2, int arg3) {
+                showPossibleDictionaryKeys(searchText.toString());
+            }
 
-			@Override
-			public void afterTextChanged(Editable searchText) {
-			}
-			@Override
-			public void beforeTextChanged(CharSequence arg0, int arg1,	int arg2, int arg3) {
-			}
+            @Override
+            public void afterTextChanged(Editable searchText) {
+            }
+            @Override
+            public void beforeTextChanged(CharSequence arg0, int arg1,    int arg2, int arg3) {
+            }
         });
         searcheditText.requestFocus();
     }
@@ -83,100 +83,100 @@ public class ChooseDictionaryWord extends ListActivityBase {
      */
     protected void initialise()
     {
-    	Log.d(TAG, "Initialising");
-    	// setting up an initially empty list of matches
-    	mMatchingKeyList = new ArrayList<Key>();
+        Log.d(TAG, "Initialising");
+        // setting up an initially empty list of matches
+        mMatchingKeyList = new ArrayList<Key>();
         setListAdapter(new ArrayAdapter<Key>(ChooseDictionaryWord.this,
-    	        LIST_ITEM_TYPE,
-    	        mMatchingKeyList));
-    	
-    	final Handler uiHandler = new Handler();
-    	Dialogs.getInstance().showHourglass();
-    	
-    	new Thread( new Runnable() {
+                LIST_ITEM_TYPE,
+                mMatchingKeyList));
+        
+        final Handler uiHandler = new Handler();
+        Dialogs.getInstance().showHourglass();
+        
+        new Thread( new Runnable() {
 
-			@Override
-			public void run() {
-				try {
-					// getting all dictionary keys is slow so do in another thread in order to show hourglass
-					//TODO need to optimise this using binary search of globalkeylist without caching
-					
-			    	//already checked a dictionary exists
-			    	mDictionaryGlobalList = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentDictionary().getCachedGlobalKeyList();
-			    	
-			    	Log.d(TAG, "Finished Initialising");
-				} catch (Exception e) {
-					Log.e(TAG, "Error creating dictionary key list");
-					Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
-				} finally {
-			    	// must dismiss hourglass in ui thread
-			    	uiHandler.post(new Runnable() {
-						@Override
-						public void run() {
-							dismissHourglass();
-						}
-			    	});
-				}
-			}
-    	}).start();
+            @Override
+            public void run() {
+                try {
+                    // getting all dictionary keys is slow so do in another thread in order to show hourglass
+                    //TODO need to optimise this using binary search of globalkeylist without caching
+                    
+                    //already checked a dictionary exists
+                    mDictionaryGlobalList = activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentDictionary().getCachedGlobalKeyList();
+                    
+                    Log.d(TAG, "Finished Initialising");
+                } catch (Exception e) {
+                    Log.e(TAG, "Error creating dictionary key list");
+                    Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+                } finally {
+                    // must dismiss hourglass in ui thread
+                    uiHandler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            dismissHourglass();
+                        }
+                    });
+                }
+            }
+        }).start();
     }
     
     /** user has typed something so show keys starting with user's text
      * @param searchText
      */
     private void showPossibleDictionaryKeys(String searchText) {
-		Log.d(TAG, "Search for:"+searchText);
-		try {
-			if (mDictionaryGlobalList!=null) {
-				searchText = searchText.toLowerCase();
-		
-				Iterator<Key> iter = mDictionaryGlobalList.iterator();
-				mMatchingKeyList.clear();
-				while (iter.hasNext()) {
-					Key key = iter.next();
-					if (key.getName().toLowerCase().startsWith(searchText)) {
-						mMatchingKeyList.add(key);
-					}
-				}
-				Log.d(TAG, "matches found:"+mMatchingKeyList.size());
-		
-		    	notifyDataSetChanged();
-				Log.d(TAG, "Finished searching for:"+searchText);
-			} else {
-				Log.d(TAG, "Cached global key list is null");
-			}
-		} catch (Exception e) {
-			Log.e(TAG, "Error finding matching keys", e);
-			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
-		}
+        Log.d(TAG, "Search for:"+searchText);
+        try {
+            if (mDictionaryGlobalList!=null) {
+                searchText = searchText.toLowerCase();
+        
+                Iterator<Key> iter = mDictionaryGlobalList.iterator();
+                mMatchingKeyList.clear();
+                while (iter.hasNext()) {
+                    Key key = iter.next();
+                    if (key.getName().toLowerCase().startsWith(searchText)) {
+                        mMatchingKeyList.add(key);
+                    }
+                }
+                Log.d(TAG, "matches found:"+mMatchingKeyList.size());
+        
+                notifyDataSetChanged();
+                Log.d(TAG, "Finished searching for:"+searchText);
+            } else {
+                Log.d(TAG, "Cached global key list is null");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error finding matching keys", e);
+            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+        }
     }
     
     @Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-    	itemSelected(mMatchingKeyList.get(position));
-	}
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+        itemSelected(mMatchingKeyList.get(position));
+    }
 
     private void itemSelected(Key selectedKey) {
-    	try {
-    		if (selectedKey!=null) {
-		    	Log.i(TAG, "chose:"+selectedKey);
-		    	activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentDictionary().setKey(selectedKey);
-		    	doFinish();
-    		}
-    	} catch (Exception e) {
-    		Log.e(TAG, "Key not found", e);
-    		Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
-    	}
+        try {
+            if (selectedKey!=null) {
+                Log.i(TAG, "chose:"+selectedKey);
+                activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentDictionary().setKey(selectedKey);
+                doFinish();
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Key not found", e);
+            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+        }
     }
 
     private void doFinish() {
-    	Intent resultIntent = new Intent();
-    	setResult(Activity.RESULT_OK, resultIntent);
-    	finish();    
+        Intent resultIntent = new Intent();
+        setResult(Activity.RESULT_OK, resultIntent);
+        finish();    
     }
 
-	@Inject
-	void setActiveWindowPageManagerProvider(ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
-		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
-	}
+    @Inject
+    void setActiveWindowPageManagerProvider(ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+        this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
+    }
 }

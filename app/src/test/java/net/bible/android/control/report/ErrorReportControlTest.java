@@ -17,22 +17,22 @@ import static org.mockito.Mockito.mock;
 
 @RunWith(MyRobolectricTestRunner.class)
 public class ErrorReportControlTest {
-	@Mock
-	private EmailerStub emailer = new EmailerStub();
+    @Mock
+    private EmailerStub emailer = new EmailerStub();
 
-	private ErrorReportControl errorReportControl;
+    private ErrorReportControl errorReportControl;
 
-	@Before
-	public void createErrorReportControl() throws Exception {
-		errorReportControl = new ErrorReportControl(emailer, mock(ResourceProvider.class));
-	}
+    @Before
+    public void createErrorReportControl() throws Exception {
+        errorReportControl = new ErrorReportControl(emailer, mock(ResourceProvider.class));
+    }
 
-	@Test
-	public void testSendErrorReportEmail() throws Exception {
-		errorReportControl.sendErrorReportEmail(new Exception("Something happened"));
-		assertThat(emailer.getSubject(), startsWith("Something happened:net.bible.android.control.report.ErrorReportControlTest.testSendErrorReportEmail:"));
-		System.out.println(emailer.getText());
-		assertThat(emailer.getText(), containsString("Something happened"));
-		assertThat(emailer.getRecipient(), equalTo("errors.andbible@gmail.com"));
-	}
+    @Test
+    public void testSendErrorReportEmail() throws Exception {
+        errorReportControl.sendErrorReportEmail(new Exception("Something happened"));
+        assertThat(emailer.getSubject(), startsWith("Something happened:net.bible.android.control.report.ErrorReportControlTest.testSendErrorReportEmail:"));
+        System.out.println(emailer.getText());
+        assertThat(emailer.getText(), containsString("Something happened"));
+        assertThat(emailer.getRecipient(), equalTo("errors.andbible@gmail.com"));
+    }
 }

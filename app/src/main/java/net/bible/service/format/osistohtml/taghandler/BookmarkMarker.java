@@ -14,40 +14,40 @@ import java.util.*;
  */
 public class BookmarkMarker {
 
-	private Map<Integer, Set<BookmarkStyle>> bookmarkStylesByBookmarkedVerse = new HashMap<>();
-	
-	private OsisToHtmlParameters parameters;
-	
-	private VerseInfo verseInfo;
+    private Map<Integer, Set<BookmarkStyle>> bookmarkStylesByBookmarkedVerse = new HashMap<>();
+    
+    private OsisToHtmlParameters parameters;
+    
+    private VerseInfo verseInfo;
 
-	public BookmarkMarker(OsisToHtmlParameters parameters, VerseInfo verseInfo) {
-		this.parameters = parameters;
-		this.verseInfo = verseInfo;
+    public BookmarkMarker(OsisToHtmlParameters parameters, VerseInfo verseInfo) {
+        this.parameters = parameters;
+        this.verseInfo = verseInfo;
 
-		// create hashset of verses to optimise verse note lookup
-		bookmarkStylesByBookmarkedVerse.clear();
-		if (parameters.getBookmarkStylesByBookmarkedVerse()!=null) {
-			bookmarkStylesByBookmarkedVerse = parameters.getBookmarkStylesByBookmarkedVerse();
-		}
-	}
-	
-	/** Get any bookmark classes for current verse
-	 */
-	public List<String> getBookmarkClasses() {
-		if (bookmarkStylesByBookmarkedVerse !=null && parameters.isShowBookmarks()) {
-			if (bookmarkStylesByBookmarkedVerse.containsKey(verseInfo.currentVerseNo)) {
-				final Set<BookmarkStyle> bookmarkStyles = bookmarkStylesByBookmarkedVerse.get(verseInfo.currentVerseNo);
-				return getStyleNames(bookmarkStyles);
-			}
-		}
-		return Collections.emptyList();
-	}
+        // create hashset of verses to optimise verse note lookup
+        bookmarkStylesByBookmarkedVerse.clear();
+        if (parameters.getBookmarkStylesByBookmarkedVerse()!=null) {
+            bookmarkStylesByBookmarkedVerse = parameters.getBookmarkStylesByBookmarkedVerse();
+        }
+    }
+    
+    /** Get any bookmark classes for current verse
+     */
+    public List<String> getBookmarkClasses() {
+        if (bookmarkStylesByBookmarkedVerse !=null && parameters.isShowBookmarks()) {
+            if (bookmarkStylesByBookmarkedVerse.containsKey(verseInfo.currentVerseNo)) {
+                final Set<BookmarkStyle> bookmarkStyles = bookmarkStylesByBookmarkedVerse.get(verseInfo.currentVerseNo);
+                return getStyleNames(bookmarkStyles);
+            }
+        }
+        return Collections.emptyList();
+    }
 
-	private List<String> getStyleNames(Set<BookmarkStyle> bookmarkStyles) {
-		List<String> styleNames = new ArrayList<>();
-		for (BookmarkStyle bookmarkStyle : bookmarkStyles) {
-			styleNames.add(bookmarkStyle.name());
-		}
-		return styleNames;
-	}
+    private List<String> getStyleNames(Set<BookmarkStyle> bookmarkStyles) {
+        List<String> styleNames = new ArrayList<>();
+        for (BookmarkStyle bookmarkStyle : bookmarkStyles) {
+            styleNames.add(bookmarkStyle.name());
+        }
+        return styleNames;
+    }
 }

@@ -17,26 +17,26 @@ import javax.inject.Inject;
 @ApplicationScope
 public class ScriptureToggleActionBarButton extends ToggleActionBarButton {
 
-	private final NavigationControl navigationControl;
+    private final NavigationControl navigationControl;
 
-	@Inject
-	public ScriptureToggleActionBarButton(NavigationControl navigationControl) {
-		super(R.drawable.ic_action_new, R.drawable.ic_action_undo);
+    @Inject
+    public ScriptureToggleActionBarButton(NavigationControl navigationControl) {
+        super(R.drawable.ic_action_new, R.drawable.ic_action_undo);
 
-		this.navigationControl = navigationControl;
-	}
+        this.navigationControl = navigationControl;
+    }
 
-	@Override
-	protected String getTitle() {
-		if (isOn()) {
-			return CommonUtils.getResourceString(R.string.deuterocanonical); 
-		} else {
-			return CommonUtils.getResourceString(R.string.bible); 
-		}
-	}
+    @Override
+    protected String getTitle() {
+        if (isOn()) {
+            return CommonUtils.getResourceString(R.string.deuterocanonical); 
+        } else {
+            return CommonUtils.getResourceString(R.string.bible); 
+        }
+    }
 
-	@Override
-	protected boolean canShow() {
-		return navigationControl.getBibleBooks(false).size()>0;
-	}
+    @Override
+    protected boolean canShow() {
+        return navigationControl.getBibleBooks(false).size()>0;
+    }
 }

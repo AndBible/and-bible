@@ -19,69 +19,69 @@ import org.crosswire.jsword.passage.Key;
  *      The copyright to this program is held by it's author.
  */
 public class CurrentDictionaryPage extends CachedKeyPage implements CurrentPage {
-	
-	private Key key;
+    
+    private Key key;
 
-	@SuppressWarnings("unused")
-	private static final String TAG = "CurrentDictionaryPage";
-	
-	/* default */ CurrentDictionaryPage(SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade) {
-		super(false, swordContentFacade, swordDocumentFacade);
-	}
-	
-	public BookCategory getBookCategory() {
-		return BookCategory.DICTIONARY;
-	}
+    @SuppressWarnings("unused")
+    private static final String TAG = "CurrentDictionaryPage";
+    
+    /* default */ CurrentDictionaryPage(SwordContentFacade swordContentFacade, SwordDocumentFacade swordDocumentFacade) {
+        super(false, swordContentFacade, swordDocumentFacade);
+    }
+    
+    public BookCategory getBookCategory() {
+        return BookCategory.DICTIONARY;
+    }
 
-	public Class<? extends Activity> getKeyChooserActivity() {
-		return ChooseDictionaryWord.class;
-	}
-	
-	/** set key without notification
-	 * 
-	 * @param key
-	 */
-	public void doSetKey(Key key) {
-		this.key = key;
-	}
+    public Class<? extends Activity> getKeyChooserActivity() {
+        return ChooseDictionaryWord.class;
+    }
+    
+    /** set key without notification
+     * 
+     * @param key
+     */
+    public void doSetKey(Key key) {
+        this.key = key;
+    }
 
-	/* (non-Javadoc)
-	 * @see net.bible.android.control.CurrentPage#getKey()
-	 */
-	@Override
-	public Key getKey() {
+    /* (non-Javadoc)
+     * @see net.bible.android.control.CurrentPage#getKey()
+     */
+    @Override
+    public Key getKey() {
         return key;
     }
 
-	@Override
-	public void next() {
-		setKey(getKeyPlus(1));
-	}
+    @Override
+    public void next() {
+        setKey(getKeyPlus(1));
+    }
 
-	@Override
-	public void previous() {
-		setKey(getKeyPlus(-1));
-	}
+    @Override
+    public void previous() {
+        setKey(getKeyPlus(-1));
+    }
 
-	@Override
-	public void updateOptionsMenu(Menu menu) {
-		super.updateOptionsMenu(menu);
+    @Override
+    public void updateOptionsMenu(Menu menu) {
+        super.updateOptionsMenu(menu);
 
-		MenuItem menuItem = menu.findItem(R.id.bookmarksButton);
-		if (menuItem!=null) {
-			menuItem.setEnabled(false);
-		}
-	}
-	
-	@Override
-	public boolean isSingleKey() {
-		return true;
-	}
+        MenuItem menuItem = menu.findItem(R.id.bookmarksButton);
+        if (menuItem!=null) {
+            menuItem.setEnabled(false);
+        }
+    }
+    
+    @Override
+    public boolean isSingleKey() {
+        return true;
+    }
 
-	/** can we enable the main menu search button 
-	 */
-	@Override
-	public boolean isSearchable() {
-		return false;
-	}
+    /** can we enable the main menu search button 
+     */
+    @Override
+    public boolean isSearchable() {
+        return false;
+    }
 }

@@ -18,20 +18,20 @@ import static org.hamcrest.core.IsEqual.equalTo;
 @Config(application = TestBibleApplication.class)
 public class SwordDocumentFacadeTest {
 
-	private SwordDocumentFacade swordDocumentFacade;
+    private SwordDocumentFacade swordDocumentFacade;
 
-	@Before
-	public void setUp() throws Exception {
-		swordDocumentFacade = new SwordDocumentFacade(null);
-	}
+    @Before
+    public void setUp() throws Exception {
+        swordDocumentFacade = new SwordDocumentFacade(null);
+    }
 
-	@Test
-	public void testIsIndexDownloadAvailable() throws Exception {
-		Book fakeBook = FakeSwordBookFactory.createFakeRepoBook("My Book", TestData.ESVS_CONF+"Version=1.0.1", "");
-		assertThat(swordDocumentFacade.isIndexDownloadAvailable(fakeBook), equalTo(true));
-	}
+    @Test
+    public void testIsIndexDownloadAvailable() throws Exception {
+        Book fakeBook = FakeSwordBookFactory.createFakeRepoBook("My Book", TestData.ESVS_CONF+"Version=1.0.1", "");
+        assertThat(swordDocumentFacade.isIndexDownloadAvailable(fakeBook), equalTo(true));
+    }
 
-	interface TestData {
-		String ESVS_CONF = "[ESVS]\nDescription=My Test Book\nCategory=BIBLE\nModDrv=zCom\nBlockType=CHAPTER\nLang=en\nEncoding=UTF-8\nLCSH=Bible--Commentaries.\nDataPath=./modules/comments/zcom/mytestbook/\n";
-	}
+    interface TestData {
+        String ESVS_CONF = "[ESVS]\nDescription=My Test Book\nCategory=BIBLE\nModDrv=zCom\nBlockType=CHAPTER\nLang=en\nEncoding=UTF-8\nLCSH=Bible--Commentaries.\nDataPath=./modules/comments/zcom/mytestbook/\n";
+    }
 }

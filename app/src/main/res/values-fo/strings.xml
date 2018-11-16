@@ -42,13 +42,13 @@
     
     <string name="sdcard_error">Tíverri, tú hevur ikki nakað SD-kort!</string>
     <string name="directory_error">Tíverri, tað er ikki møguligt at koma inn á fíluskránna %s</string> 
-	<string name="progress_status">Í gongd</string>
-	<string name="task_kill_warning">Uppgávur sum taka tíð kunnu verða støðgar, um tú skiftir til annað smáforrit áðrenn tað er liðugt.</string>
-	<string name="no_tasks_running">Í løtuni verða ongar uppgávur útførdar.</string>
-	<string name="delete_doc">Strika %s?</string>
+    <string name="progress_status">Í gongd</string>
+    <string name="task_kill_warning">Uppgávur sum taka tíð kunnu verða støðgar, um tú skiftir til annað smáforrit áðrenn tað er liðugt.</string>
+    <string name="no_tasks_running">Í løtuni verða ongar uppgávur útførdar.</string>
+    <string name="delete_doc">Strika %s?</string>
 
-	<!-- Search -->
-	<string name="search_words_group_prompt">Finn vers</string>
+    <!-- Search -->
+    <string name="search_words_group_prompt">Finn vers</string>
     <string name="search_all_words">Øll orð</string>
     <string name="search_any_word">Eitthvørt orð</string>
     <string name="search_phrase">Setningur</string>
@@ -61,7 +61,7 @@
     <string name="search_current_book">Verandi bók</string>
     <string name="error_executing_search">Ógildugt leitiorð</string>
 
-	<!-- Preferences -->
+    <!-- Preferences -->
     <string name="prefs_show_verseno_title">Vers nummar</string>
     <string name="prefs_show_verseno_summary">Vís vers nummør</string>
     <string name="prefs_show_notes_title">Notur</string>
@@ -73,17 +73,17 @@
     <string name="prefs_text_size_title">Tekststødd</string>
     <string name="prefs_text_size_summary">Síggj meiri ella síggj klárari</string>
 
-	<!-- Notes screen -->
+    <!-- Notes screen -->
     <string name="no_chapter_notes">Ongar notur eru til henda kapittulin</string>
     <string name="no_verse_notes">Ongar notur eru til hetta versið</string>
     <string name="previous">Undanfarna</string>
     <string name="next">Næsta</string>
 
-	<!--  Strongs -->
+    <!--  Strongs -->
     <string name="strongs">Strong\'s Dictinonary (orðabók)</string>
     <string name="strongs_not_installed">Tak niður Strong\'s hebraisku og grisku orðabøkur</string>
 
-	<!-- Module download -->
+    <!-- Module download -->
     <string name="download">Tak niður skjøl</string>
     <string name="download_confirmation">Tak niður skjøl frá internetinum?</string>
     <string name="download_source_message">Skjøl kunnu takast niður frá\nhttp://www.crosswire.org</string>
@@ -91,20 +91,20 @@
     <string name="error_downloading">Ein feilur er íkomin meðan tikið var niður.  Kanna tygara netsamband.</string>
     <string name="no_internet_connection">Fekk ikki samband við netið</string>
     <string name="wait_for_bible">Bíða til liðugt er at taka niður.  Síðani verður tú førdur aftur til høvuðsvalmyndina.</string>
-	<string name="wait_for_bible_not_yet">Bíðja við.  Tað er ikki liðugt enn at leggja inn.</string>
-	<string name="download_complete_no_bibles">Ongin Bíblia bleiv løgd inn.  Vel aftur og royn síðani umaftur.</string>
-	<string name="too_many_jobs">Óv nógvar uppgávur í gongd.  Bíða meðan onkra gerast lidnar og roynd aftur.</string>
+    <string name="wait_for_bible_not_yet">Bíðja við.  Tað er ikki liðugt enn at leggja inn.</string>
+    <string name="download_complete_no_bibles">Ongin Bíblia bleiv løgd inn.  Vel aftur og royn síðani umaftur.</string>
+    <string name="too_many_jobs">Óv nógvar uppgávur í gongd.  Bíða meðan onkra gerast lidnar og roynd aftur.</string>
 
-	<!-- Document context menu -->
+    <!-- Document context menu -->
     <string name="delete">Strika</string>
     <string name="about">Um</string>
     
-	<!-- Verse context menu -->
+    <!-- Verse context menu -->
     <string name="notes">Fótnotur og tilvísingar</string>
     <string name="copy">Kopierað hetta versið</string>
     <string name="send_sms">Send verið við SMS-boðum</string>
 
-	<!-- Bookmarks -->
+    <!-- Bookmarks -->
     <string name="bookmarks">Bókamerki</string>
     <string name="add_bookmark">Set bókamerki</string>
     <string name="bookmark_added">Bókamerkið innsett</string>
@@ -113,17 +113,17 @@
     <string name="assign_labels">Ásett lepa</string>
     <string name="new_label">Nýggjur lepiN</string>
     <string name="new_label_prompt">Navn</string>
-	
-	<!-- Dictionary -->
+    
+    <!-- Dictionary -->
     <string name="dictionary">Orðabók</string>
     <string name="search_dictionary_hint">Leita í orðabók</string>
     <string name="dictionary_contents">Innihald</string>
-	
-	<!-- Document types -->    
-	<string name="doc_type_bible">Bíbliur</string>
-	<string name="doc_type_commentary">Kommentarir</string>
-	<string name="doc_type_dictionary">Orðabøkur</string>
-	
+    
+    <!-- Document types -->    
+    <string name="doc_type_bible">Bíbliur</string>
+    <string name="doc_type_commentary">Kommentarir</string>
+    <string name="doc_type_dictionary">Orðabøkur</string>
+    
     <string name="error_occurred">Ein feilur er íkomin</string>
     <string name="okay">OK</string>
     <string name="cancel">Avbrót</string>

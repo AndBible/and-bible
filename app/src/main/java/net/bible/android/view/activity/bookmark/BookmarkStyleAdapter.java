@@ -25,72 +25,72 @@ import java.util.List;
  */
 public class BookmarkStyleAdapter extends ArrayAdapter<String> {
 
-	private BookmarkStyleAdapterHelper bookmarkStyleAdapterHelper = new BookmarkStyleAdapterHelper();
+    private BookmarkStyleAdapterHelper bookmarkStyleAdapterHelper = new BookmarkStyleAdapterHelper();
 
-	private Context context;
+    private Context context;
 
-	private static final String DEFAULT_TEXT = CommonUtils.getResourceString(R.string.default_value);
+    private static final String DEFAULT_TEXT = CommonUtils.getResourceString(R.string.default_value);
 
-	private static final String TAG = "BookmarkItemAdapter";
+    private static final String TAG = "BookmarkItemAdapter";
 
-	public BookmarkStyleAdapter(Context context, int resource) {
-		super(context, resource, getBookmarkStylesList());
-		this.context = context;
-	}
+    public BookmarkStyleAdapter(Context context, int resource) {
+        super(context, resource, getBookmarkStylesList());
+        this.context = context;
+    }
 
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		TextView view = (TextView) super.getView(position, convertView, parent);
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        TextView view = (TextView) super.getView(position, convertView, parent);
 
-		return styleView(position, view);
-	}
+        return styleView(position, view);
+    }
 
-	@Override
-	public View getDropDownView(int position, View convertView, ViewGroup parent) {
-		TextView view = (TextView) super.getDropDownView(position, convertView, parent);
+    @Override
+    public View getDropDownView(int position, View convertView, ViewGroup parent) {
+        TextView view = (TextView) super.getDropDownView(position, convertView, parent);
 
-		return styleView(position, view);
-	}
+        return styleView(position, view);
+    }
 
-	private View styleView(int position, TextView view) {
-		// textAppearanceMedium represents 18sp
-		view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+    private View styleView(int position, TextView view) {
+        // textAppearanceMedium represents 18sp
+        view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
 
-		if (position == 0) {
-			view.setText(DEFAULT_TEXT);
-		} else {
-			final BookmarkStyle bookmarkStyle = BookmarkStyle.values()[position - 1];
-			bookmarkStyleAdapterHelper.styleView(view, bookmarkStyle, context, true, false);
-		}
+        if (position == 0) {
+            view.setText(DEFAULT_TEXT);
+        } else {
+            final BookmarkStyle bookmarkStyle = BookmarkStyle.values()[position - 1];
+            bookmarkStyleAdapterHelper.styleView(view, bookmarkStyle, context, true, false);
+        }
 
-		return view;
-	}
+        return view;
+    }
 
-	private static List<String> getBookmarkStylesList() {
-		List<String> styles = new ArrayList<>();
-		styles.add(DEFAULT_TEXT);
-		for (BookmarkStyle style : BookmarkStyle.values()) {
-			if(style == BookmarkStyle.SPEAK) {
-				continue;
-			}
-			styles.add(style.name());
-		}
-		return styles;
-	}
+    private static List<String> getBookmarkStylesList() {
+        List<String> styles = new ArrayList<>();
+        styles.add(DEFAULT_TEXT);
+        for (BookmarkStyle style : BookmarkStyle.values()) {
+            if(style == BookmarkStyle.SPEAK) {
+                continue;
+            }
+            styles.add(style.name());
+        }
+        return styles;
+    }
 
-	public int getBookmarkStyleOffset(BookmarkStyle style) {
-		if (style == null) {
-			return 0;
-		}
+    public int getBookmarkStyleOffset(BookmarkStyle style) {
+        if (style == null) {
+            return 0;
+        }
 
-		return style.ordinal() + 1;
-	}
+        return style.ordinal() + 1;
+    }
 
-	public BookmarkStyle getBookmarkStyleForOffset(int offset) {
-		if (offset == 0) {
-			return null;
-		}
+    public BookmarkStyle getBookmarkStyleForOffset(int offset) {
+        if (offset == 0) {
+            return null;
+        }
 
-		return BookmarkStyle.values()[offset - 1];
-	}
+        return BookmarkStyle.values()[offset - 1];
+    }
 }

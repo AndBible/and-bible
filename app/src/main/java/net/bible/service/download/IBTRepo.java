@@ -16,22 +16,22 @@ import org.crosswire.jsword.book.install.InstallException;
  */
 public class IBTRepo extends RepoBase {
 
-	private static final String REPOSITORY = "IBT";
-	
-	private static BookFilter SUPPORTED_DOCUMENTS = new AcceptableBookTypeFilter();
-	
-	/** get a list of books that are available in default repo and seem to work in And Bible
-	 */
-	public List<Book> getRepoBooks(boolean refresh) throws InstallException {
+    private static final String REPOSITORY = "IBT";
+    
+    private static BookFilter SUPPORTED_DOCUMENTS = new AcceptableBookTypeFilter();
+    
+    /** get a list of books that are available in default repo and seem to work in And Bible
+     */
+    public List<Book> getRepoBooks(boolean refresh) throws InstallException {
 
-		List<Book> books = getBookList(SUPPORTED_DOCUMENTS, refresh);
-		storeRepoNameInMetaData(books);
-		
-		return books;
-	}
-	
-	@Override
-	public String getRepoName() {
-		return REPOSITORY;
-	}
+        List<Book> books = getBookList(SUPPORTED_DOCUMENTS, refresh);
+        storeRepoNameInMetaData(books);
+        
+        return books;
+    }
+    
+    @Override
+    public String getRepoName() {
+        return REPOSITORY;
+    }
 }

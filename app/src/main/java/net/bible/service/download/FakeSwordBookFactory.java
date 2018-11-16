@@ -18,23 +18,23 @@ import java.io.IOException;
  */
 public class FakeSwordBookFactory {
 
-	/** create dummy Book object for file available for download from repo
-	 */
-	public static SwordBook createFakeRepoBook(String module, String conf, String repo) throws IOException, BookException {
-		SwordBookMetaData sbmd = createRepoSBMD(module, conf);
-		if (StringUtils.isNotEmpty(repo)) {
-			sbmd.setProperty(DownloadManager.REPOSITORY_KEY, repo);
-		}
-		SwordBook extraBook = new SwordBook(sbmd, new NullBackend());
-		return extraBook;
-	}
+    /** create dummy Book object for file available for download from repo
+     */
+    public static SwordBook createFakeRepoBook(String module, String conf, String repo) throws IOException, BookException {
+        SwordBookMetaData sbmd = createRepoSBMD(module, conf);
+        if (StringUtils.isNotEmpty(repo)) {
+            sbmd.setProperty(DownloadManager.REPOSITORY_KEY, repo);
+        }
+        SwordBook extraBook = new SwordBook(sbmd, new NullBackend());
+        return extraBook;
+    }
 
-	/** create sbmd for file available for download from repo
-	 */
-	public static SwordBookMetaData createRepoSBMD(String module, String conf) throws IOException, BookException {
-		SwordBookMetaData sbmd = new SwordBookMetaData(conf.getBytes(), module);
-		BookDriver fake = SwordBookDriver.instance();
-		sbmd.setDriver(fake);
-		return sbmd;
-	}
+    /** create sbmd for file available for download from repo
+     */
+    public static SwordBookMetaData createRepoSBMD(String module, String conf) throws IOException, BookException {
+        SwordBookMetaData sbmd = new SwordBookMetaData(conf.getBytes(), module);
+        BookDriver fake = SwordBookDriver.instance();
+        sbmd.setDriver(fake);
+        return sbmd;
+    }
 }

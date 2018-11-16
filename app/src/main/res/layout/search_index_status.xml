@@ -10,25 +10,25 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-   	<TextView android:id="@+id/progressStatusMessage"
-		android:text="@string/task_kill_warning"
-		style="@style/InfoText"
-		android:layout_height="wrap_content" 
-		android:layout_width="wrap_content"
-		android:layout_alignParentTop="true"/>
-   	<TextView android:id="@+id/noTasksRunning"
-		android:text="@string/no_tasks_running"
-		style="@style/InfoText"
-		android:layout_height="wrap_content" 
-		android:layout_width="wrap_content"
-		android:visibility="invisible"
-		android:layout_below="@id/progressStatusMessage"/>
-	<LinearLayout android:id="@+id/progressControlContainer"
-    	android:orientation="vertical"
-	    android:layout_width="fill_parent"
-    	android:layout_height="fill_parent"
-    	android:layout_margin="10dip"
-		android:layout_below="@id/noTasksRunning">
+       <TextView android:id="@+id/progressStatusMessage"
+        android:text="@string/task_kill_warning"
+        style="@style/InfoText"
+        android:layout_height="wrap_content" 
+        android:layout_width="wrap_content"
+        android:layout_alignParentTop="true"/>
+       <TextView android:id="@+id/noTasksRunning"
+        android:text="@string/no_tasks_running"
+        style="@style/InfoText"
+        android:layout_height="wrap_content" 
+        android:layout_width="wrap_content"
+        android:visibility="invisible"
+        android:layout_below="@id/progressStatusMessage"/>
+    <LinearLayout android:id="@+id/progressControlContainer"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_margin="10dip"
+        android:layout_below="@id/noTasksRunning">
     </LinearLayout>
         
 </RelativeLayout>

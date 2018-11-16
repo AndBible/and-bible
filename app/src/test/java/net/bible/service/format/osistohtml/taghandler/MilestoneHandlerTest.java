@@ -23,122 +23,122 @@ import static org.junit.Assert.assertThat;
  */
 public class MilestoneHandlerTest {
 
-	private OsisToHtmlParameters osisToHtmlParameters;
-	private PassageInfo passageInfo;
-	private VerseInfo verseInfo;
-	private HtmlTextWriter writer;
-	
-	private MilestoneHandler milestoneHandler;
-	
-	@Before
-	public void setUp() throws Exception {
-		osisToHtmlParameters = new OsisToHtmlParameters();
-		passageInfo = new PassageInfo();
-		verseInfo = new VerseInfo();
-		writer = new HtmlTextWriter();
-		
-		milestoneHandler = new MilestoneHandler(osisToHtmlParameters, passageInfo, verseInfo, writer);
-	}
+    private OsisToHtmlParameters osisToHtmlParameters;
+    private PassageInfo passageInfo;
+    private VerseInfo verseInfo;
+    private HtmlTextWriter writer;
+    
+    private MilestoneHandler milestoneHandler;
+    
+    @Before
+    public void setUp() throws Exception {
+        osisToHtmlParameters = new OsisToHtmlParameters();
+        passageInfo = new PassageInfo();
+        verseInfo = new VerseInfo();
+        writer = new HtmlTextWriter();
+        
+        milestoneHandler = new MilestoneHandler(osisToHtmlParameters, passageInfo, verseInfo, writer);
+    }
 
-	/**
-	 * milestone marker='"' at start of verse
-	 * diatheke -b ESV -f OSIS -k Jn 3:16
-	 * 
-	 * John 3:16: 
-	 * <q marker=""><milestone marker="“" type="cQuote"/>For God ... eternal life.</q>
-	 */
-	@Test
-	public void testQuote() {
-		AttributesImpl attrs = new AttributesImpl();
-		attrs.addAttribute(null, null, OSISUtil2.OSIS_ATTR_MARKER, null, "“");
-		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "cQuote");		
-		milestoneHandler.start(attrs);
-		milestoneHandler.end();
+    /**
+     * milestone marker='"' at start of verse
+     * diatheke -b ESV -f OSIS -k Jn 3:16
+     * 
+     * John 3:16: 
+     * <q marker=""><milestone marker="“" type="cQuote"/>For God ... eternal life.</q>
+     */
+    @Test
+    public void testQuote() {
+        AttributesImpl attrs = new AttributesImpl();
+        attrs.addAttribute(null, null, OSISUtil2.OSIS_ATTR_MARKER, null, "“");
+        attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "cQuote");        
+        milestoneHandler.start(attrs);
+        milestoneHandler.end();
 
-		writer.write("For God ... eternal life.");
-		passageInfo.isAnyTextWritten = true;
-		
-		assertThat(writer.getHtml(), equalTo("“For God ... eternal life."));
-	}
+        writer.write("For God ... eternal life.");
+        passageInfo.isAnyTextWritten = true;
+        
+        assertThat(writer.getHtml(), equalTo("“For God ... eternal life."));
+    }
 
-	/**
-	 * milestone marker='"' at start of verse
-	 * diatheke -b ESV -f OSIS -k Jn 3:16
-	 * 
-	 * John 3:16: 
-	 * <q marker=""><milestone marker="“" type="cQuote"/>For God ... eternal life.</q>
-	 */
-	@Test
-	public void testDefaultQuote() {
-		AttributesImpl attrs = new AttributesImpl();
-		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "cQuote");		
-		milestoneHandler.start(attrs);
-		milestoneHandler.end();
-		writer.write("For God ... eternal life.");
-		
-		assertThat(writer.getHtml(), equalTo("&quot;For God ... eternal life."));
-	}
+    /**
+     * milestone marker='"' at start of verse
+     * diatheke -b ESV -f OSIS -k Jn 3:16
+     * 
+     * John 3:16: 
+     * <q marker=""><milestone marker="“" type="cQuote"/>For God ... eternal life.</q>
+     */
+    @Test
+    public void testDefaultQuote() {
+        AttributesImpl attrs = new AttributesImpl();
+        attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "cQuote");        
+        milestoneHandler.start(attrs);
+        milestoneHandler.end();
+        writer.write("For God ... eternal life.");
+        
+        assertThat(writer.getHtml(), equalTo("&quot;For God ... eternal life."));
+    }
 
-	/**
-	 * KJV Gen 1:6
-	 * <milestone marker="¶" type="x-p" /><w lemma="strong:H0430">And God</w>
-	 */
-	@Test
-	public void testNewLine() {
-		writer.write("passage start");
-		passageInfo.isAnyTextWritten = true;
-		verseInfo.positionToInsertBeforeVerse = writer.getPosition();
-		verseInfo.isTextSinceVerse = true;
-		
-		AttributesImpl attrs = new AttributesImpl();
-		attrs.addAttribute(null, null, OSISUtil2.OSIS_ATTR_MARKER, null, "¶");
-		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "line");		
-		milestoneHandler.start(attrs);
-		milestoneHandler.end();
-		writer.write("And God");
-		
-		assertThat(writer.getHtml(), equalTo("passage start<br />And God"));
-	}
+    /**
+     * KJV Gen 1:6
+     * <milestone marker="¶" type="x-p" /><w lemma="strong:H0430">And God</w>
+     */
+    @Test
+    public void testNewLine() {
+        writer.write("passage start");
+        passageInfo.isAnyTextWritten = true;
+        verseInfo.positionToInsertBeforeVerse = writer.getPosition();
+        verseInfo.isTextSinceVerse = true;
+        
+        AttributesImpl attrs = new AttributesImpl();
+        attrs.addAttribute(null, null, OSISUtil2.OSIS_ATTR_MARKER, null, "¶");
+        attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "line");        
+        milestoneHandler.start(attrs);
+        milestoneHandler.end();
+        writer.write("And God");
+        
+        assertThat(writer.getHtml(), equalTo("passage start<br />And God"));
+    }
 
-	/**
-	 * KJV Gen 1:6
-	 * <milestone marker="¶" type="x-p" /><w lemma="strong:H0430">And God</w>
-	 */
-	@Test
-	public void testNewLineXP() {
-		writer.write("passage start");
-		passageInfo.isAnyTextWritten = true;
-		verseInfo.positionToInsertBeforeVerse = writer.getPosition();
-		verseInfo.isTextSinceVerse = true;
-		
-		AttributesImpl attrs = new AttributesImpl();
-		attrs.addAttribute(null, null, OSISUtil2.OSIS_ATTR_MARKER, null, "¶");
-		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "x-p");		
-		milestoneHandler.start(attrs);
-		milestoneHandler.end();
-		writer.write("And God");
-		
-		assertThat(writer.getHtml(), equalTo("passage start<br />And God"));
-	}
+    /**
+     * KJV Gen 1:6
+     * <milestone marker="¶" type="x-p" /><w lemma="strong:H0430">And God</w>
+     */
+    @Test
+    public void testNewLineXP() {
+        writer.write("passage start");
+        passageInfo.isAnyTextWritten = true;
+        verseInfo.positionToInsertBeforeVerse = writer.getPosition();
+        verseInfo.isTextSinceVerse = true;
+        
+        AttributesImpl attrs = new AttributesImpl();
+        attrs.addAttribute(null, null, OSISUtil2.OSIS_ATTR_MARKER, null, "¶");
+        attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "x-p");        
+        milestoneHandler.start(attrs);
+        milestoneHandler.end();
+        writer.write("And God");
+        
+        assertThat(writer.getHtml(), equalTo("passage start<br />And God"));
+    }
 
-	/**
-	 * If verse marker has just been written then move BR to just before verse marker.
-	 */
-	@Test
-	public void testNewLineMovedBeforeVerseNo() {
-		writer.write("passage start");
-		passageInfo.isAnyTextWritten = true;
-		verseInfo.positionToInsertBeforeVerse = writer.getPosition();
-		writer.write("<span class='verseNo' id='1'>1</span>");
-		verseInfo.isTextSinceVerse = false;
-		
-		AttributesImpl attrs = new AttributesImpl();
-		attrs.addAttribute(null, null, OSISUtil2.OSIS_ATTR_MARKER, null, "¶");
-		attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "x-p");		
-		milestoneHandler.start(attrs);
-		milestoneHandler.end();
-		writer.write("And God");
-		
-		assertThat(writer.getHtml(), equalTo("passage start<br /><span class='verseNo' id='1'>1</span>And God"));
-	}
+    /**
+     * If verse marker has just been written then move BR to just before verse marker.
+     */
+    @Test
+    public void testNewLineMovedBeforeVerseNo() {
+        writer.write("passage start");
+        passageInfo.isAnyTextWritten = true;
+        verseInfo.positionToInsertBeforeVerse = writer.getPosition();
+        writer.write("<span class='verseNo' id='1'>1</span>");
+        verseInfo.isTextSinceVerse = false;
+        
+        AttributesImpl attrs = new AttributesImpl();
+        attrs.addAttribute(null, null, OSISUtil2.OSIS_ATTR_MARKER, null, "¶");
+        attrs.addAttribute(null, null, OSISUtil.OSIS_ATTR_TYPE, null, "x-p");        
+        milestoneHandler.start(attrs);
+        milestoneHandler.end();
+        writer.write("And God");
+        
+        assertThat(writer.getHtml(), equalTo("passage start<br /><span class='verseNo' id='1'>1</span>And God"));
+    }
 }

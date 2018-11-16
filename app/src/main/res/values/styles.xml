@@ -20,7 +20,7 @@
     <style name="InfoText" parent="@android:style/TextAppearance.Medium">
         <item name="android:layout_margin">10dip</item>
     </style>
-    		
+            
     <style name="SplashTitleFont" parent="@android:style/TextAppearance.Large">
         <item name="android:textColor">@color/yellow_500</item>
         <item name="android:textSize">20sp</item>

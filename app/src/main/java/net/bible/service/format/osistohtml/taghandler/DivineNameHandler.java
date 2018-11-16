@@ -16,24 +16,24 @@ import org.xml.sax.Attributes;
  */
 public class DivineNameHandler implements OsisTagHandler {
 
-	private HtmlTextWriter writer;
-	
-	public DivineNameHandler(HtmlTextWriter writer) {
-		this.writer = writer;
-	}
-	
-	@Override
-	public String getTagName() {
+    private HtmlTextWriter writer;
+    
+    public DivineNameHandler(HtmlTextWriter writer) {
+        this.writer = writer;
+    }
+    
+    @Override
+    public String getTagName() {
         return OSISUtil2.OSIS_ELEMENT_DIVINENAME;
     }
 
-	@Override
-	public void start(Attributes attrs) {
-		// start span with CSS class
-		writer.write("<span class='divineName'>");	}
+    @Override
+    public void start(Attributes attrs) {
+        // start span with CSS class
+        writer.write("<span class='divineName'>");    }
 
-	@Override
-	public void end() {
-		writer.write("</span>");
-	}
+    @Override
+    public void end() {
+        writer.write("</span>");
+    }
 }

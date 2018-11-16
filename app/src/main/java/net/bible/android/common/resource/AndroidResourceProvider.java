@@ -8,13 +8,13 @@ import javax.inject.Inject;
 @ApplicationScope
 public class AndroidResourceProvider implements ResourceProvider {
 
-	@Inject
-	public AndroidResourceProvider() {
-	}
+    @Inject
+    public AndroidResourceProvider() {
+    }
 
-	@Override
-	public String getString(int resourceId) {
-		return BibleApplication.getApplication().getString(resourceId);
-	}
+    @Override
+    public String getString(int resourceId) {
+        return BibleApplication.getApplication().getString(resourceId);
+    }
 
 }

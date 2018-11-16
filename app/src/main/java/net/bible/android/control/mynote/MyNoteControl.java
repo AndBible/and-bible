@@ -35,161 +35,161 @@ import javax.inject.Inject;
 @ApplicationScope
 public class MyNoteControl {
 
-	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
+    private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
-	private static final String MYNOTE_SORT_ORDER = "MyNoteSortOrder";
+    private static final String MYNOTE_SORT_ORDER = "MyNoteSortOrder";
 
-	private final MyNoteDAO myNoteDAO;
+    private final MyNoteDAO myNoteDAO;
 
-	private static final String TAG = "MyNoteControl";
+    private static final String TAG = "MyNoteControl";
 
-	@Inject
-	public MyNoteControl(ActiveWindowPageManagerProvider activeWindowPageManagerProvider, MyNoteDAO myNoteDAO) {
-		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
-		this.myNoteDAO = myNoteDAO;
-	}
+    @Inject
+    public MyNoteControl(ActiveWindowPageManagerProvider activeWindowPageManagerProvider, MyNoteDAO myNoteDAO) {
+        this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
+        this.myNoteDAO = myNoteDAO;
+    }
 
-	/**
-	 * Start chain of actions to switch to MyNote view
-	 * @param verseRange
-	 */
-	public void showMyNote(VerseRange verseRange) {
-		// if existing MyNote exists with same start verse then adjust range to match the note that will be edited
-		final MyNoteDto existingMyNoteWithSameStartVerse = myNoteDAO.getMyNoteByStartVerse(verseRange);
-		if (existingMyNoteWithSameStartVerse!=null) {
-			verseRange = existingMyNoteWithSameStartVerse.getVerseRange(verseRange.getVersification());
-		}
+    /**
+     * Start chain of actions to switch to MyNote view
+     * @param verseRange
+     */
+    public void showMyNote(VerseRange verseRange) {
+        // if existing MyNote exists with same start verse then adjust range to match the note that will be edited
+        final MyNoteDto existingMyNoteWithSameStartVerse = myNoteDAO.getMyNoteByStartVerse(verseRange);
+        if (existingMyNoteWithSameStartVerse!=null) {
+            verseRange = existingMyNoteWithSameStartVerse.getVerseRange(verseRange.getVersification());
+        }
 
-		getCurrentPageManager().showMyNote(verseRange);
-	}
+        getCurrentPageManager().showMyNote(verseRange);
+    }
 
-	public void showNoteView(MyNoteDto noteDto) {
-		getCurrentPageManager().showMyNote(noteDto.getVerseRange());
-	}
+    public void showNoteView(MyNoteDto noteDto) {
+        getCurrentPageManager().showMyNote(noteDto.getVerseRange());
+    }
 
-	public String getMyNoteVerseKey(MyNoteDto myNote) {
-		String keyText = "";
-		try {
-			Versification versification = getCurrentPageManager().getCurrentBible().getVersification();
-			keyText = myNote.getVerseRange(versification).getName();
-		} catch (Exception e) {
-			Log.e(TAG, "Error getting verse text", e);
-		}
-		return keyText;
-	}
+    public String getMyNoteVerseKey(MyNoteDto myNote) {
+        String keyText = "";
+        try {
+            Versification versification = getCurrentPageManager().getCurrentBible().getVersification();
+            keyText = myNote.getVerseRange(versification).getName();
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting verse text", e);
+        }
+        return keyText;
+    }
 
-	public boolean saveMyNoteText(String myNote) {
-		MyNoteDto dto = getCurrentMyNoteDto();
-		dto.setNoteText(myNote);
-		return saveMyNote(dto);
-	}
+    public boolean saveMyNoteText(String myNote) {
+        MyNoteDto dto = getCurrentMyNoteDto();
+        dto.setNoteText(myNote);
+        return saveMyNote(dto);
+    }
 
-	public MyNoteDto getCurrentMyNoteDto() {
-		//
-		Key key = getCurrentPageManager().getCurrentMyNotePage().getKey();
-		VerseRange verseRange;
-		// The key should be a VerseRange
-		if (key instanceof VerseRange) {
-			verseRange = (VerseRange)key;
-		} else {
-			Verse verse = KeyUtil.getVerse(key);
-			verseRange = new VerseRange(verse.getVersification(), verse);
-		}
-		
-		// get a dto
-		MyNoteDto myNote = myNoteDAO.getMyNoteByStartVerse(verseRange);
-		
-		// return an empty note dto
-		if (myNote==null) {
-			myNote = new MyNoteDto();
-			myNote.setVerseRange(verseRange);
-		}
+    public MyNoteDto getCurrentMyNoteDto() {
+        //
+        Key key = getCurrentPageManager().getCurrentMyNotePage().getKey();
+        VerseRange verseRange;
+        // The key should be a VerseRange
+        if (key instanceof VerseRange) {
+            verseRange = (VerseRange)key;
+        } else {
+            Verse verse = KeyUtil.getVerse(key);
+            verseRange = new VerseRange(verse.getVersification(), verse);
+        }
+        
+        // get a dto
+        MyNoteDto myNote = myNoteDAO.getMyNoteByStartVerse(verseRange);
+        
+        // return an empty note dto
+        if (myNote==null) {
+            myNote = new MyNoteDto();
+            myNote.setVerseRange(verseRange);
+        }
 
-		return myNote;
-	}
+        return myNote;
+    }
 
-	/** save the note to the database if it is new or has been updated
-	 */
-	public boolean saveMyNote(MyNoteDto myNoteDto) {
-		Log.d(TAG, "saveMyNote started...");
-		boolean isSaved = false;
-		
-		if (myNoteDto.isNew()) {
-			if (!myNoteDto.isEmpty()) {
-				myNoteDAO.addMyNote(myNoteDto);
-				isSaved = true;
-			}
-		} else {
-			MyNoteDto oldNote = myNoteDAO.getMyNoteByStartVerse(myNoteDto.getVerseRange());
-			// delete empty notes
-			if (myNoteDto.isEmpty()) {
-				myNoteDAO.deleteMyNote(myNoteDto);
-			} else if (!myNoteDto.equals(oldNote)) {
-				// update changed notes
-				myNoteDAO.updateMyNote(myNoteDto);
-				isSaved = true;
-			}
-		}
-		if (isSaved) {
-			Toast.makeText(BibleApplication.getApplication().getApplicationContext(), R.string.mynote_saved, Toast.LENGTH_SHORT).show();
-		}
-		return isSaved;
-	}
+    /** save the note to the database if it is new or has been updated
+     */
+    public boolean saveMyNote(MyNoteDto myNoteDto) {
+        Log.d(TAG, "saveMyNote started...");
+        boolean isSaved = false;
+        
+        if (myNoteDto.isNew()) {
+            if (!myNoteDto.isEmpty()) {
+                myNoteDAO.addMyNote(myNoteDto);
+                isSaved = true;
+            }
+        } else {
+            MyNoteDto oldNote = myNoteDAO.getMyNoteByStartVerse(myNoteDto.getVerseRange());
+            // delete empty notes
+            if (myNoteDto.isEmpty()) {
+                myNoteDAO.deleteMyNote(myNoteDto);
+            } else if (!myNoteDto.equals(oldNote)) {
+                // update changed notes
+                myNoteDAO.updateMyNote(myNoteDto);
+                isSaved = true;
+            }
+        }
+        if (isSaved) {
+            Toast.makeText(BibleApplication.getApplication().getApplicationContext(), R.string.mynote_saved, Toast.LENGTH_SHORT).show();
+        }
+        return isSaved;
+    }
 
-	public String getMyNoteText(MyNoteDto myNote, boolean abbreviated) {
-		String text = "";
-		try {
-			text = myNote.getNoteText();
-			if (abbreviated) {
-				//TODO allow longer lines if portrait or tablet
-				boolean singleLine = true;
-				text = CommonUtils.limitTextLength(text, 40, singleLine);
-			}
-		} catch (Exception e) {
-			Log.e(TAG, "Error getting user note text", e);
-		}
-		return text;
-	}
+    public String getMyNoteText(MyNoteDto myNote, boolean abbreviated) {
+        String text = "";
+        try {
+            text = myNote.getNoteText();
+            if (abbreviated) {
+                //TODO allow longer lines if portrait or tablet
+                boolean singleLine = true;
+                text = CommonUtils.limitTextLength(text, 40, singleLine);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error getting user note text", e);
+        }
+        return text;
+    }
 
-	// pure myNote methods
+    // pure myNote methods
 
-	/** get all myNotes */
-	public List<MyNoteDto> getAllMyNotes() {
+    /** get all myNotes */
+    public List<MyNoteDto> getAllMyNotes() {
 
-		return myNoteDAO.getAllMyNotes(getSortOrder());
-	}
+        return myNoteDAO.getAllMyNotes(getSortOrder());
+    }
 
-	/** delete this user note (and any links to labels) */
-	public boolean deleteMyNote(MyNoteDto myNote) {
-		return myNoteDAO.deleteMyNote(myNote);
-	}
+    /** delete this user note (and any links to labels) */
+    public boolean deleteMyNote(MyNoteDto myNote) {
+        return myNoteDAO.deleteMyNote(myNote);
+    }
 
-	public void changeSortOrder() {
-		if (getSortOrder().equals(MyNoteSortOrder.BIBLE_BOOK)) {
-			setSortOrder(MyNoteSortOrder.DATE_CREATED);
-		} else {
-			setSortOrder(MyNoteSortOrder.BIBLE_BOOK);
-		}
-	}
-	
-	public MyNoteSortOrder getSortOrder() {
-		String sortOrderStr = CommonUtils.getSharedPreference(MYNOTE_SORT_ORDER, MyNoteSortOrder.BIBLE_BOOK.toString());
-		return MyNoteSortOrder.valueOf(sortOrderStr);
-	}
-	
-	private void setSortOrder(MyNoteSortOrder sortOrder) {
-		CommonUtils.saveSharedPreference(MYNOTE_SORT_ORDER, sortOrder.toString());
-	}
+    public void changeSortOrder() {
+        if (getSortOrder().equals(MyNoteSortOrder.BIBLE_BOOK)) {
+            setSortOrder(MyNoteSortOrder.DATE_CREATED);
+        } else {
+            setSortOrder(MyNoteSortOrder.BIBLE_BOOK);
+        }
+    }
+    
+    public MyNoteSortOrder getSortOrder() {
+        String sortOrderStr = CommonUtils.getSharedPreference(MYNOTE_SORT_ORDER, MyNoteSortOrder.BIBLE_BOOK.toString());
+        return MyNoteSortOrder.valueOf(sortOrderStr);
+    }
+    
+    private void setSortOrder(MyNoteSortOrder sortOrder) {
+        CommonUtils.saveSharedPreference(MYNOTE_SORT_ORDER, sortOrder.toString());
+    }
 
-	public String getSortOrderDescription() {
-		if (MyNoteSortOrder.BIBLE_BOOK.equals(getSortOrder())) {
-			return CommonUtils.getResourceString(R.string.sort_by_bible_book);
-		} else {
-			return CommonUtils.getResourceString(R.string.sort_by_date);
-		}
-	}
+    public String getSortOrderDescription() {
+        if (MyNoteSortOrder.BIBLE_BOOK.equals(getSortOrder())) {
+            return CommonUtils.getResourceString(R.string.sort_by_bible_book);
+        } else {
+            return CommonUtils.getResourceString(R.string.sort_by_date);
+        }
+    }
 
-	public CurrentPageManager getCurrentPageManager() {
-		return activeWindowPageManagerProvider.getActiveWindowPageManager();
-	}
+    public CurrentPageManager getCurrentPageManager() {
+        return activeWindowPageManagerProvider.getActiveWindowPageManager();
+    }
 }

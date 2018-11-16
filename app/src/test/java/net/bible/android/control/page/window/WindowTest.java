@@ -24,45 +24,45 @@ import static org.junit.Assert.assertThat;
 @Config(application = TestBibleApplication.class)
 public class WindowTest {
 
-	@Before
-	public void setUp() throws Exception {
-	}
+    @Before
+    public void setUp() throws Exception {
+    }
 
-	@After
-	public void tearDown() throws Exception {
-		DatabaseResetter.resetDatabase();
-	}
+    @After
+    public void tearDown() throws Exception {
+        DatabaseResetter.resetDatabase();
+    }
 
-	@Test
-	public void testGetRestoreStateJson() throws Exception {
-		CurrentPageManager mockCurrentPageManager = new CurrentPageManager(null, new SwordDocumentFacade(null), null, null);
+    @Test
+    public void testGetRestoreStateJson() throws Exception {
+        CurrentPageManager mockCurrentPageManager = new CurrentPageManager(null, new SwordDocumentFacade(null), null, null);
 
-		// initialise Window
-		Window window = new Window(2, WindowState.MINIMISED, mockCurrentPageManager);
-		WindowLayout layout = window.getWindowLayout();
-		window.setSynchronised(true);
-		layout.setWeight(1.23456f);
-		
-		CurrentPageManager pageManager = window.getPageManager();
-		CurrentBiblePage biblePage = pageManager.getCurrentBible();
-		biblePage.setCurrentDocumentAndKey(PassageTestData.ESV, PassageTestData.PS_139_2);
-		
-		// serialize state
-		JSONObject json = window.getStateJson();
-		System.out.println(json);
-		
-		// recreate window from saved state
-		window = new Window(mockCurrentPageManager);
-		window.restoreState(json);
-		layout = window.getWindowLayout();
-		assertThat(window.getScreenNo(), equalTo(2));
-		assertThat(layout.getState(), equalTo(WindowState.MINIMISED));
-		assertThat(window.isSynchronised(), equalTo(true));
-		assertThat(layout.getWeight(), equalTo(1.23456f));
+        // initialise Window
+        Window window = new Window(2, WindowState.MINIMISED, mockCurrentPageManager);
+        WindowLayout layout = window.getWindowLayout();
+        window.setSynchronised(true);
+        layout.setWeight(1.23456f);
+        
+        CurrentPageManager pageManager = window.getPageManager();
+        CurrentBiblePage biblePage = pageManager.getCurrentBible();
+        biblePage.setCurrentDocumentAndKey(PassageTestData.ESV, PassageTestData.PS_139_2);
+        
+        // serialize state
+        JSONObject json = window.getStateJson();
+        System.out.println(json);
+        
+        // recreate window from saved state
+        window = new Window(mockCurrentPageManager);
+        window.restoreState(json);
+        layout = window.getWindowLayout();
+        assertThat(window.getScreenNo(), equalTo(2));
+        assertThat(layout.getState(), equalTo(WindowState.MINIMISED));
+        assertThat(window.isSynchronised(), equalTo(true));
+        assertThat(layout.getWeight(), equalTo(1.23456f));
 
-		pageManager = window.getPageManager();
-		biblePage = pageManager.getCurrentBible();
-		assertThat(biblePage.getCurrentDocument(), equalTo(PassageTestData.ESV));
-		assertThat(biblePage.getSingleKey().getName(), equalTo(PassageTestData.PS_139_2.getName()));
-	}
+        pageManager = window.getPageManager();
+        biblePage = pageManager.getCurrentBible();
+        assertThat(biblePage.getCurrentDocument(), equalTo(PassageTestData.ESV));
+        assertThat(biblePage.getSingleKey().getName(), equalTo(PassageTestData.PS_139_2.getName()));
+    }
 }

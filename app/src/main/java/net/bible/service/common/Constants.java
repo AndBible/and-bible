@@ -21,8 +21,8 @@ public class Constants {
     public static final String COMMENTARY_PROTOCOL = "comment"; //$NON-NLS-1$
 
     public static class HTML {
-    	public static final String NBSP = "&#160;";
-    	public static final String SPACE = " ";
-    	public static final String BR = "<br />";
+        public static final String NBSP = "&#160;";
+        public static final String SPACE = " ";
+        public static final String BR = "<br />";
     }  
 }

@@ -11,5 +11,5 @@ import android.content.Context;
  */
 
 public interface LocaleChanger {
-	Context changeLocale(Context context, String language);
+    Context changeLocale(Context context, String language);
 }

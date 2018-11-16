@@ -17,20 +17,20 @@ import org.xml.sax.Attributes;
  */
 public class OrthHandler extends HiHandler {
 
-	private final static String DEFAULT = "bold";
+    private final static String DEFAULT = "bold";
 
-	public OrthHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
-		super(parameters, writer);
-	}
-	
-	@Override
-	public String getTagName() {
+    public OrthHandler(OsisToHtmlParameters parameters, HtmlTextWriter writer) {
+        super(parameters, writer);
+    }
+    
+    @Override
+    public String getTagName() {
         return TEIUtil.TEI_ELEMENT_ORTH;
     }
 
-	@Override
-	public void start(Attributes attrs) {
-		String rend = attrs.getValue(TEIUtil.TEI_ATTR_REND);
-		start(rend, DEFAULT);
-	}
+    @Override
+    public void start(Attributes attrs) {
+        String rend = attrs.getValue(TEIUtil.TEI_ATTR_REND);
+        start(rend, DEFAULT);
+    }
 }

@@ -19,19 +19,19 @@ import java.util.Locale;
 
 public class NougatPlusLocaleChanger implements LocaleChanger {
 
-	private final Logger logger = new Logger(this.getClass().getName());
+    private final Logger logger = new Logger(this.getClass().getName());
 
-	@TargetApi(Build.VERSION_CODES.N)
-	@Override
-	public Context changeLocale(Context context, String language) {
-		logger.debug("Update resources N plus");
+    @TargetApi(Build.VERSION_CODES.N)
+    @Override
+    public Context changeLocale(Context context, String language) {
+        logger.debug("Update resources N plus");
 
-		Locale locale = new Locale(language);
-		Locale.setDefault(locale);
+        Locale locale = new Locale(language);
+        Locale.setDefault(locale);
 
-		Configuration configuration = context.getResources().getConfiguration();
-		configuration.setLocale(locale);
+        Configuration configuration = context.getResources().getConfiguration();
+        configuration.setLocale(locale);
 
-		return context.createConfigurationContext(configuration);
-	}
+        return context.createConfigurationContext(configuration);
+    }
 }

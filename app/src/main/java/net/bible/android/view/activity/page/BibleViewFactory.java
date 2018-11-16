@@ -28,61 +28,61 @@ import javax.inject.Inject;
 @MainBibleActivityScope
 public class BibleViewFactory {
 
-	private final MainBibleActivity mainBibleActivity;
+    private final MainBibleActivity mainBibleActivity;
 
-	private final PageControl pageControl;
+    private final PageControl pageControl;
 
-	private final PageTiltScrollControlFactory pageTiltScrollControlFactory;
+    private final PageTiltScrollControlFactory pageTiltScrollControlFactory;
 
-	private final WindowControl windowControl;
+    private final WindowControl windowControl;
 
-	private final BibleKeyHandler bibleKeyHandler;
+    private final BibleKeyHandler bibleKeyHandler;
 
-	private final LinkControl linkControl;
+    private final LinkControl linkControl;
 
-	private final BookmarkControl bookmarkControl;
+    private final BookmarkControl bookmarkControl;
 
-	private final MyNoteControl myNoteControl;
+    private final MyNoteControl myNoteControl;
 
-	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
+    private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
-	private Map<Window, BibleView> screenBibleViewMap;
+    private Map<Window, BibleView> screenBibleViewMap;
 
-	private static final int BIBLE_WEB_VIEW_ID_BASE = 990;
+    private static final int BIBLE_WEB_VIEW_ID_BASE = 990;
 
-	@Inject
-	public BibleViewFactory(MainBibleActivity mainBibleActivity, PageControl pageControl, PageTiltScrollControlFactory pageTiltScrollControlFactory, WindowControl windowControl, BibleKeyHandler bibleKeyHandler, LinkControl linkControl, BookmarkControl bookmarkControl, MyNoteControl myNoteControl, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
-		this.mainBibleActivity = mainBibleActivity;
-		this.pageControl = pageControl;
-		this.pageTiltScrollControlFactory = pageTiltScrollControlFactory;
-		this.windowControl = windowControl;
-		this.bibleKeyHandler = bibleKeyHandler;
-		this.linkControl = linkControl;
-		this.bookmarkControl = bookmarkControl;
-		this.myNoteControl = myNoteControl;
-		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
+    @Inject
+    public BibleViewFactory(MainBibleActivity mainBibleActivity, PageControl pageControl, PageTiltScrollControlFactory pageTiltScrollControlFactory, WindowControl windowControl, BibleKeyHandler bibleKeyHandler, LinkControl linkControl, BookmarkControl bookmarkControl, MyNoteControl myNoteControl, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+        this.mainBibleActivity = mainBibleActivity;
+        this.pageControl = pageControl;
+        this.pageTiltScrollControlFactory = pageTiltScrollControlFactory;
+        this.windowControl = windowControl;
+        this.bibleKeyHandler = bibleKeyHandler;
+        this.linkControl = linkControl;
+        this.bookmarkControl = bookmarkControl;
+        this.myNoteControl = myNoteControl;
+        this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
 
-		screenBibleViewMap = new WeakHashMap<>();
-	}
+        screenBibleViewMap = new WeakHashMap<>();
+    }
 
-	public BibleView createBibleView(Window window) {
-		BibleView bibleView = screenBibleViewMap.get(window);
-		if (bibleView==null) {
-			final PageTiltScrollControl pageTiltScrollControl = pageTiltScrollControlFactory.getPageTiltScrollControl(window);
-			bibleView = new BibleView(this.mainBibleActivity, window, windowControl, bibleKeyHandler, pageControl, pageTiltScrollControl, linkControl);
+    public BibleView createBibleView(Window window) {
+        BibleView bibleView = screenBibleViewMap.get(window);
+        if (bibleView==null) {
+            final PageTiltScrollControl pageTiltScrollControl = pageTiltScrollControlFactory.getPageTiltScrollControl(window);
+            bibleView = new BibleView(this.mainBibleActivity, window, windowControl, bibleKeyHandler, pageControl, pageTiltScrollControl, linkControl);
 
-			VerseActionModeMediator bibleViewVerseActionModeMediator = new VerseActionModeMediator(mainBibleActivity, bibleView, pageControl, new VerseMenuCommandHandler(mainBibleActivity, pageControl, bookmarkControl, myNoteControl), bookmarkControl);
+            VerseActionModeMediator bibleViewVerseActionModeMediator = new VerseActionModeMediator(mainBibleActivity, bibleView, pageControl, new VerseMenuCommandHandler(mainBibleActivity, pageControl, bookmarkControl, myNoteControl), bookmarkControl);
 
-			BibleInfiniteScrollPopulator bibleInfiniteScrollPopulator = new BibleInfiniteScrollPopulator(bibleView, window.getPageManager());
+            BibleInfiniteScrollPopulator bibleInfiniteScrollPopulator = new BibleInfiniteScrollPopulator(bibleView, window.getPageManager());
 
-			VerseCalculator verseCalculator = new VerseCalculator();
-			BibleJavascriptInterface bibleJavascriptInterface = new BibleJavascriptInterface(bibleViewVerseActionModeMediator, windowControl, verseCalculator, window.getPageManager(), bibleInfiniteScrollPopulator);
-			bibleView.setBibleJavascriptInterface(bibleJavascriptInterface);
-			bibleView.setId(BIBLE_WEB_VIEW_ID_BASE+window.getScreenNo());
-			bibleView.initialise();
+            VerseCalculator verseCalculator = new VerseCalculator();
+            BibleJavascriptInterface bibleJavascriptInterface = new BibleJavascriptInterface(bibleViewVerseActionModeMediator, windowControl, verseCalculator, window.getPageManager(), bibleInfiniteScrollPopulator);
+            bibleView.setBibleJavascriptInterface(bibleJavascriptInterface);
+            bibleView.setId(BIBLE_WEB_VIEW_ID_BASE+window.getScreenNo());
+            bibleView.initialise();
 
-			screenBibleViewMap.put(window, bibleView);
-		}
-		return bibleView;
-	}
+            screenBibleViewMap.put(window, bibleView);
+        }
+        return bibleView;
+    }
 }

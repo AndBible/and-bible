@@ -26,69 +26,69 @@ import javax.inject.Inject;
 @MainBibleActivityScope
 public class BibleContentManager {
 
-	private final DocumentViewManager documentViewManager;
+    private final DocumentViewManager documentViewManager;
 
-	private final WindowControl windowControl;
-	
-	// previous document and verse (currently displayed on the screen)
-	private Book previousDocument;
-	private Key previousVerse;
-	
-	private static final String TAG = "BibleContentManager";
-
-	@Inject
-	public BibleContentManager(DocumentViewManager documentViewManager, WindowControl windowControl) {
-		this.documentViewManager = documentViewManager;
-		this.windowControl = windowControl;
-
-		PassageChangeMediator.getInstance().setBibleContentManager(this);
-	}
-	
-	/* package */ void updateText(Window window) {
-		updateText(false, window);
-	}
+    private final WindowControl windowControl;
     
-	/* package */ void updateText(boolean forceUpdate, Window window) {
-		if(window == null) {
-			window = windowControl.getActiveWindow();
-		}
-		CurrentPage currentPage = window.getPageManager().getCurrentPage();
-		Book document = currentPage.getCurrentDocument();
-		Key key = currentPage.getKey();
+    // previous document and verse (currently displayed on the screen)
+    private Book previousDocument;
+    private Key previousVerse;
+    
+    private static final String TAG = "BibleContentManager";
 
-		// check for duplicate screen update requests
-		if (!forceUpdate && 
-				document!=null && document.equals(previousDocument) && 
-				key!=null && key.equals(previousVerse)) {
-			Log.w(TAG, "Duplicated screen update. Doc:"+document.getInitials()+" Key:"+key.getOsisID());
-		} else {
-			previousDocument = document;
-			previousVerse = key;
-		}
-		new UpdateMainTextTask().execute(window);
+    @Inject
+    public BibleContentManager(DocumentViewManager documentViewManager, WindowControl windowControl) {
+        this.documentViewManager = documentViewManager;
+        this.windowControl = windowControl;
+
+        PassageChangeMediator.getInstance().setBibleContentManager(this);
+    }
+    
+    /* package */ void updateText(Window window) {
+        updateText(false, window);
+    }
+    
+    /* package */ void updateText(boolean forceUpdate, Window window) {
+        if(window == null) {
+            window = windowControl.getActiveWindow();
+        }
+        CurrentPage currentPage = window.getPageManager().getCurrentPage();
+        Book document = currentPage.getCurrentDocument();
+        Key key = currentPage.getKey();
+
+        // check for duplicate screen update requests
+        if (!forceUpdate && 
+                document!=null && document.equals(previousDocument) && 
+                key!=null && key.equals(previousVerse)) {
+            Log.w(TAG, "Duplicated screen update. Doc:"+document.getInitials()+" Key:"+key.getOsisID());
+        } else {
+            previousDocument = document;
+            previousVerse = key;
+        }
+        new UpdateMainTextTask().execute(window);
     }
 
     private class UpdateMainTextTask extends UpdateTextTask {
-    	@Override
-    	protected void onPreExecute() {
-    		super.onPreExecute();
-    		PassageChangeMediator.getInstance().contentChangeStarted();
-    	}
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            PassageChangeMediator.getInstance().contentChangeStarted();
+        }
 
         protected void onPostExecute(String htmlFromDoInBackground) {
-        	super.onPostExecute(htmlFromDoInBackground);
-    		PassageChangeMediator.getInstance().contentChangeFinished();
+            super.onPostExecute(htmlFromDoInBackground);
+            PassageChangeMediator.getInstance().contentChangeFinished();
         }
 
         /** callback from base class when result is ready */
-    	@Override
-    	protected void showText(String text, Window window, ChapterVerse chapterVerse, float yOffsetRatio) {
-    		if (documentViewManager!=null) {
-    			DocumentView view = documentViewManager.getDocumentView(window);
-    			view.show(text, chapterVerse, yOffsetRatio);
-    		} else {
-    			Log.w(TAG, "Document view not yet registered");
-    		}
+        @Override
+        protected void showText(String text, Window window, ChapterVerse chapterVerse, float yOffsetRatio) {
+            if (documentViewManager!=null) {
+                DocumentView view = documentViewManager.getDocumentView(window);
+                view.show(text, chapterVerse, yOffsetRatio);
+            } else {
+                Log.w(TAG, "Document view not yet registered");
+            }
         }
     }
 }

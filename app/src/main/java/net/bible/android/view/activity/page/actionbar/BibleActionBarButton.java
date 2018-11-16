@@ -17,15 +17,15 @@ import javax.inject.Inject;
 @ApplicationScope
 public class BibleActionBarButton extends QuickDocumentChangeToolbarButton {
 
-	private final DocumentControl documentControl;
+    private final DocumentControl documentControl;
 
-	@Inject
-	public BibleActionBarButton(DocumentControl documentControl) {
-		this.documentControl = documentControl;
-	}
+    @Inject
+    public BibleActionBarButton(DocumentControl documentControl) {
+        this.documentControl = documentControl;
+    }
 
-	@Override
-	protected Book getSuggestedDocument() {
-		return documentControl.getSuggestedBible();
-	}
+    @Override
+    protected Book getSuggestedDocument() {
+        return documentControl.getSuggestedBible();
+    }
 }

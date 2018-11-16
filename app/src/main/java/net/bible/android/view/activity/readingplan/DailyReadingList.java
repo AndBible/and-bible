@@ -25,11 +25,11 @@ import javax.inject.Inject;
  */
 public class DailyReadingList extends ListActivityBase {
 
-	private static final String TAG = "DailyReadingList";
-	
-	private ReadingPlanControl readingPlanControl;
-	
-	private List<OneDaysReadingsDto> readingsList;
+    private static final String TAG = "DailyReadingList";
+    
+    private ReadingPlanControl readingPlanControl;
+    
+    private List<OneDaysReadingsDto> readingsList;
     private ArrayAdapter<OneDaysReadingsDto> adapter;
 
     /** Called when the activity is first created. */
@@ -39,7 +39,7 @@ public class DailyReadingList extends ListActivityBase {
         Log.i(TAG, "Displaying General Book Key chooser");
         setContentView(R.layout.list);
 
-		buildActivityComponent().inject(this);
+        buildActivityComponent().inject(this);
 
         prepareList();
 
@@ -57,34 +57,34 @@ public class DailyReadingList extends ListActivityBase {
      */
     protected void prepareList()
     {
-    	Log.d(TAG, "Readingss");
-    	readingsList = readingPlanControl.getCurrentPlansReadingList();
+        Log.d(TAG, "Readingss");
+        readingsList = readingPlanControl.getCurrentPlansReadingList();
     }
     
     @Override
-	protected void onListItemClick(ListView l, View v, int position, long id) {
-    	try {
-    		itemSelected(readingsList.get(position));
-		} catch (Exception e) {
-			Log.e(TAG, "Selection error", e);
-			Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
-		}
-	}
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+        try {
+            itemSelected(readingsList.get(position));
+        } catch (Exception e) {
+            Log.e(TAG, "Selection error", e);
+            Dialogs.getInstance().showErrorMsg(R.string.error_occurred, e);
+        }
+    }
     
     private void itemSelected(OneDaysReadingsDto oneDaysReadingsDto) {
-    	Log.d(TAG, "Day selected:"+oneDaysReadingsDto);
-    	try {
-			Intent intent = new Intent(this, DailyReading.class);
-			intent.putExtra(DailyReading.DAY, oneDaysReadingsDto.getDay());
-			startActivity(intent);
-			finish();
-    	} catch (Exception e) {
-    		Log.e(TAG, "error on select of gen book key", e);
-    	}
+        Log.d(TAG, "Day selected:"+oneDaysReadingsDto);
+        try {
+            Intent intent = new Intent(this, DailyReading.class);
+            intent.putExtra(DailyReading.DAY, oneDaysReadingsDto.getDay());
+            startActivity(intent);
+            finish();
+        } catch (Exception e) {
+            Log.e(TAG, "error on select of gen book key", e);
+        }
     }
 
-	@Inject
-	void setReadingPlanControl(ReadingPlanControl readingPlanControl) {
-		this.readingPlanControl = readingPlanControl;
-	}
+    @Inject
+    void setReadingPlanControl(ReadingPlanControl readingPlanControl) {
+        this.readingPlanControl = readingPlanControl;
+    }
 }

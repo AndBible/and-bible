@@ -9,19 +9,19 @@
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     >
-  	<ImageView android:id="@+id/tick" 
-  	    android:src="@drawable/btn_check_buttonless_off"
-  	    android:contentDescription="Tick"
-  	    android:layout_marginRight="5dip"/>
-  	
-  	<TextView android:id="@+id/passage"
-		android:textAppearance="?android:attr/textAppearanceMedium"/>
+      <ImageView android:id="@+id/tick" 
+          android:src="@drawable/btn_check_buttonless_off"
+          android:contentDescription="Tick"
+          android:layout_marginRight="5dip"/>
+      
+      <TextView android:id="@+id/passage"
+        android:textAppearance="?android:attr/textAppearanceMedium"/>
     
-  	<Button android:id="@+id/readButton"
- 		android:text="@string/selectPassage"/>
-  	
-  	<Button android:id="@+id/speakButton"
- 		android:text="@string/speak"/>
-  			
+      <Button android:id="@+id/readButton"
+         android:text="@string/selectPassage"/>
+      
+      <Button android:id="@+id/speakButton"
+         android:text="@string/speak"/>
+              
 </TableRow>
 

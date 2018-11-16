@@ -25,24 +25,24 @@ import org.xml.sax.Attributes;
  */
 public class ListHandler implements OsisTagHandler {
 
-	private HtmlTextWriter writer;
-	
-	public ListHandler(HtmlTextWriter writer) {
-		this.writer = writer;
-	}
-	
-	@Override
-	public String getTagName() {
+    private HtmlTextWriter writer;
+    
+    public ListHandler(HtmlTextWriter writer) {
+        this.writer = writer;
+    }
+    
+    @Override
+    public String getTagName() {
         return OSISUtil.OSIS_ELEMENT_LIST;
     }
 
-	@Override
-	public void start(Attributes attrs) {
-		writer.write("<ul>");
-	}
+    @Override
+    public void start(Attributes attrs) {
+        writer.write("<ul>");
+    }
 
-	@Override
-	public void end() {
-		writer.write("</ul>");
-	}
+    @Override
+    public void end() {
+        writer.write("</ul>");
+    }
 }

@@ -17,35 +17,35 @@ import org.xml.sax.Attributes;
  */
 public class LbHandler implements OsisTagHandler {
 
-	private PassageInfo passageInfo;
-	
-	private HtmlTextWriter writer;
-	
-	@SuppressWarnings("unused")
-	private OsisToHtmlParameters parameters;
-	
-	@SuppressWarnings("unused")
-	private static final Logger log = new Logger("LHandler");
+    private PassageInfo passageInfo;
+    
+    private HtmlTextWriter writer;
+    
+    @SuppressWarnings("unused")
+    private OsisToHtmlParameters parameters;
+    
+    @SuppressWarnings("unused")
+    private static final Logger log = new Logger("LHandler");
 
-	public LbHandler(OsisToHtmlParameters parameters, PassageInfo passageInfo, HtmlTextWriter writer) {
-		this.parameters = parameters;
-		this.passageInfo = passageInfo;
-		this.writer = writer;
-	}
-	
-	@Override
-	public String getTagName() {
+    public LbHandler(OsisToHtmlParameters parameters, PassageInfo passageInfo, HtmlTextWriter writer) {
+        this.parameters = parameters;
+        this.passageInfo = passageInfo;
+        this.writer = writer;
+    }
+    
+    @Override
+    public String getTagName() {
         return OSISUtil.OSIS_ELEMENT_LB;
     }
 
-	@Override
-	public void start(Attributes attrs) {
-		if (passageInfo.isAnyTextWritten) {
-			writer.write(HTML.BR);
-		}
-	}
+    @Override
+    public void start(Attributes attrs) {
+        if (passageInfo.isAnyTextWritten) {
+            writer.write(HTML.BR);
+        }
+    }
 
-	@Override
-	public void end() {
-	}
+    @Override
+    public void end() {
+    }
 }

@@ -13,7 +13,7 @@ import android.os.Looper;
 
 public class Threadutils {
 
-	public static void runOnUiThread(Runnable runnable) {
-		new Handler(Looper.getMainLooper()).post(runnable);
-	}
+    public static void runOnUiThread(Runnable runnable) {
+        new Handler(Looper.getMainLooper()).post(runnable);
+    }
 }

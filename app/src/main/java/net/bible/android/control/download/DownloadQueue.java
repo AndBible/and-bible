@@ -27,69 +27,69 @@ import java.util.concurrent.ExecutorService;
  */
 public class DownloadQueue {
 
-	private final ExecutorService executorService;
-	private final RepoFactory repoFactory;
+    private final ExecutorService executorService;
+    private final RepoFactory repoFactory;
 
-	private Set<String> beingQueued = Collections.synchronizedSet(new HashSet<String>());
+    private Set<String> beingQueued = Collections.synchronizedSet(new HashSet<String>());
 
-	private Set<String> downloadError = Collections.synchronizedSet(new HashSet<String>());
+    private Set<String> downloadError = Collections.synchronizedSet(new HashSet<String>());
 
-	private Logger log = new Logger(this.getClass().getSimpleName());
+    private Logger log = new Logger(this.getClass().getSimpleName());
 
-	public DownloadQueue(ExecutorService executorService, RepoFactory repoFactory) {
-		this.executorService = executorService;
-		this.repoFactory = repoFactory;
-	}
+    public DownloadQueue(ExecutorService executorService, RepoFactory repoFactory) {
+        this.executorService = executorService;
+        this.repoFactory = repoFactory;
+    }
 
-	public void addDocumentToDownloadQueue(final Book document, final RepoBase repo) {
-		if (!beingQueued.contains(document.getInitials())) {
-			beingQueued.add(document.getInitials());
-			downloadError.remove(document.getInitials());
+    public void addDocumentToDownloadQueue(final Book document, final RepoBase repo) {
+        if (!beingQueued.contains(document.getInitials())) {
+            beingQueued.add(document.getInitials());
+            downloadError.remove(document.getInitials());
 
-			executorService.submit(new Runnable() {
-				@Override
-				public void run() {
-					log.info("Downloading " + document.getInitials() + " from repo " + repo.getRepoName());
-					try {
-						repo.downloadDocument(document);
-						ABEventBus.getDefault().post(new DocumentDownloadEvent(document.getInitials(), DocumentStatus.DocumentInstallStatus.INSTALLED, 100));
-					} catch (Exception e) {
-						log.error("Error downloading "+document, e);
-						handleDownloadError(document);
-					} finally {
-						beingQueued.remove(document.getInitials());
-					}
-				}
-			});
-		}
-	}
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    log.info("Downloading " + document.getInitials() + " from repo " + repo.getRepoName());
+                    try {
+                        repo.downloadDocument(document);
+                        ABEventBus.getDefault().post(new DocumentDownloadEvent(document.getInitials(), DocumentStatus.DocumentInstallStatus.INSTALLED, 100));
+                    } catch (Exception e) {
+                        log.error("Error downloading "+document, e);
+                        handleDownloadError(document);
+                    } finally {
+                        beingQueued.remove(document.getInitials());
+                    }
+                }
+            });
+        }
+    }
 
-	private void handleDownloadError(Book document) {
-		ABEventBus.getDefault().post(new DocumentDownloadEvent(document.getInitials(), DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0));
-		downloadError.add(document.getInitials());
-		Dialogs.getInstance().showErrorMsg(R.string.error_downloading);
-	}
+    private void handleDownloadError(Book document) {
+        ABEventBus.getDefault().post(new DocumentDownloadEvent(document.getInitials(), DocumentStatus.DocumentInstallStatus.ERROR_DOWNLOADING, 0));
+        downloadError.add(document.getInitials());
+        Dialogs.getInstance().showErrorMsg(R.string.error_downloading);
+    }
 
-	public void addDocumentIndexToDownloadQueue(final Book document) {
-		executorService.submit(new Runnable() {
-			@Override
-			public void run() {
-				log.info("Downloading index of " + document.getInitials() + " from AndBible repo");
-				try {
-					final AndBibleRepo andBibleRepo = repoFactory.getAndBibleRepo();
-					andBibleRepo.downloadIndex(document);
-				} catch (InstallException | BookException e) {
-					Dialogs.getInstance().showErrorMsg(R.string.error_downloading);
-				}
-			}
-		});
-	}
+    public void addDocumentIndexToDownloadQueue(final Book document) {
+        executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                log.info("Downloading index of " + document.getInitials() + " from AndBible repo");
+                try {
+                    final AndBibleRepo andBibleRepo = repoFactory.getAndBibleRepo();
+                    andBibleRepo.downloadIndex(document);
+                } catch (InstallException | BookException e) {
+                    Dialogs.getInstance().showErrorMsg(R.string.error_downloading);
+                }
+            }
+        });
+    }
 
-	public boolean isInQueue(Book document) {
-		return beingQueued.contains(document.getInitials());
-	}
+    public boolean isInQueue(Book document) {
+        return beingQueued.contains(document.getInitials());
+    }
 
-	public boolean isErrorDownloading(Book document) {
-		return downloadError.contains(document.getInitials());
-	}
+    public boolean isErrorDownloading(Book document) {
+        return downloadError.contains(document.getInitials());
+    }
 }

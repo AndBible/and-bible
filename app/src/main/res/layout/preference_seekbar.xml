@@ -21,7 +21,7 @@
             android:gravity="bottom" 
             android:textAppearance="@style/SmallGreyText"
             android:maxLines="2" />
-		<SeekBar android:id="@+id/myBar"
+        <SeekBar android:id="@+id/myBar"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/dialogMessage"

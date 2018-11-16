@@ -19,30 +19,30 @@ import javax.inject.Inject;
 @ApplicationScope
 public class NoteDetailCreator {
 
-	private final SwordContentFacade swordContentFacade;
+    private final SwordContentFacade swordContentFacade;
 
-	private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
+    private final ActiveWindowPageManagerProvider activeWindowPageManagerProvider;
 
-	private final Logger log = new Logger(this.getClass().getName());
+    private final Logger log = new Logger(this.getClass().getName());
 
-	@Inject
-	public NoteDetailCreator(SwordContentFacade swordContentFacade, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
-		this.swordContentFacade = swordContentFacade;
-		this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
-	}
+    @Inject
+    public NoteDetailCreator(SwordContentFacade swordContentFacade, ActiveWindowPageManagerProvider activeWindowPageManagerProvider) {
+        this.swordContentFacade = swordContentFacade;
+        this.activeWindowPageManagerProvider = activeWindowPageManagerProvider;
+    }
 
-	public String getDetail(Note note) {
-		String retval = "";
-		try {
-			if (Note.NoteType.TYPE_REFERENCE.equals(note.getNoteType())) {
-				String verse = StringUtils.isNotEmpty(note.getOsisRef()) ? note.getOsisRef() : note.getNoteText();
+    public String getDetail(Note note) {
+        String retval = "";
+        try {
+            if (Note.NoteType.TYPE_REFERENCE.equals(note.getNoteType())) {
+                String verse = StringUtils.isNotEmpty(note.getOsisRef()) ? note.getOsisRef() : note.getNoteText();
 
-				retval = swordContentFacade.getPlainText(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getCurrentDocument(), verse);
-				retval = CommonUtils.limitTextLength(retval);
-			}
-		} catch (Exception e) {
-			log.error("Error getting note detail for osisRef "+note.getOsisRef(), e);
-		}
-		return retval;
-	}
+                retval = swordContentFacade.getPlainText(activeWindowPageManagerProvider.getActiveWindowPageManager().getCurrentBible().getCurrentDocument(), verse);
+                retval = CommonUtils.limitTextLength(retval);
+            }
+        } catch (Exception e) {
+            log.error("Error getting note detail for osisRef "+note.getOsisRef(), e);
+        }
+        return retval;
+    }
 }

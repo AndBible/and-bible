@@ -19,85 +19,85 @@ import android.util.Log;
  */
 public class PassageChangeMediator {
 
-	private BibleContentManager mBibleContentManager;
+    private BibleContentManager mBibleContentManager;
 
-	private boolean isPageChanging = false;
+    private boolean isPageChanging = false;
 
-	private static final String TAG = "PassageChangeMediator";
-	
-	private static final PassageChangeMediator singleton = new PassageChangeMediator();
-	
-	public static final PassageChangeMediator getInstance() {
-		return singleton;
-	}
+    private static final String TAG = "PassageChangeMediator";
+    
+    private static final PassageChangeMediator singleton = new PassageChangeMediator();
+    
+    public static final PassageChangeMediator getInstance() {
+        return singleton;
+    }
 
-	public void onBeforeCurrentPageChanged() {
-		onBeforeCurrentPageChanged(true);
-	}
+    public void onBeforeCurrentPageChanged() {
+        onBeforeCurrentPageChanged(true);
+    }
 
-	/** first time we know a page or doc will imminently change
-	 */
-	public void onBeforeCurrentPageChanged(boolean updateHistory) {
-		isPageChanging = true;
+    /** first time we know a page or doc will imminently change
+     */
+    public void onBeforeCurrentPageChanged(boolean updateHistory) {
+        isPageChanging = true;
 
-		ABEventBus.getDefault().post(new PreBeforeCurrentPageChangeEvent());
-		ABEventBus.getDefault().post(new BeforeCurrentPageChangeEvent(updateHistory));
-	}
-	
-	/** the document has changed so ask the view to refresh itself
-	 */
-	public void onCurrentPageChanged(Window window) {
-		if (mBibleContentManager!=null) {
-			mBibleContentManager.updateText(window);
-		} else {
-			Log.w(TAG, "BibleContentManager not yet registered");
-		}
-		ABEventBus.getDefault().post(new CurrentVerseChangedEvent(window));
-	}
+        ABEventBus.getDefault().post(new PreBeforeCurrentPageChangeEvent());
+        ABEventBus.getDefault().post(new BeforeCurrentPageChangeEvent(updateHistory));
+    }
+    
+    /** the document has changed so ask the view to refresh itself
+     */
+    public void onCurrentPageChanged(Window window) {
+        if (mBibleContentManager!=null) {
+            mBibleContentManager.updateText(window);
+        } else {
+            Log.w(TAG, "BibleContentManager not yet registered");
+        }
+        ABEventBus.getDefault().post(new CurrentVerseChangedEvent(window));
+    }
 
-	public void onCurrentPageChanged() {
-		this.onCurrentPageChanged(null);
-	}
+    public void onCurrentPageChanged() {
+        this.onCurrentPageChanged(null);
+    }
 
-	/** the document has changed so ask the view to refresh itself
-	 */
-	public void forcePageUpdate() {
-		if (mBibleContentManager!=null) {
-			mBibleContentManager.updateText(true, null);
-		} else {
-			Log.w(TAG, "BibleContentManager not yet registered");
-		}
-	}
+    /** the document has changed so ask the view to refresh itself
+     */
+    public void forcePageUpdate() {
+        if (mBibleContentManager!=null) {
+            mBibleContentManager.updateText(true, null);
+        } else {
+            Log.w(TAG, "BibleContentManager not yet registered");
+        }
+    }
 
-	/** this is triggered on scroll
-	 */
-	public void onCurrentVerseChanged() {
-		ABEventBus.getDefault().post(new CurrentVerseChangedEvent());
-	}
+    /** this is triggered on scroll
+     */
+    public void onCurrentVerseChanged() {
+        ABEventBus.getDefault().post(new CurrentVerseChangedEvent());
+    }
 
-	/** The thread which fetches the new page html has started
-	 */
-	public void contentChangeStarted() {
-		isPageChanging = true;
+    /** The thread which fetches the new page html has started
+     */
+    public void contentChangeStarted() {
+        isPageChanging = true;
 
-		// only update occasionally otherwise black-on-black or w-on-w may occur in variable light conditions
-		ScreenSettings.isNightModeChanged();
+        // only update occasionally otherwise black-on-black or w-on-w may occur in variable light conditions
+        ScreenSettings.isNightModeChanged();
 
-		ABEventBus.getDefault().post(new PassageChangeStartedEvent());
-	}
-	/** finished fetching html so should hide hourglass
-	 */
-	public void contentChangeFinished() {
-		ABEventBus.getDefault().post(new PassageChangedEvent());
+        ABEventBus.getDefault().post(new PassageChangeStartedEvent());
+    }
+    /** finished fetching html so should hide hourglass
+     */
+    public void contentChangeFinished() {
+        ABEventBus.getDefault().post(new PassageChangedEvent());
 
-		isPageChanging = false;
-	}
-	
-	public boolean isPageChanging() {
-		return isPageChanging;
-	}
+        isPageChanging = false;
+    }
+    
+    public boolean isPageChanging() {
+        return isPageChanging;
+    }
 
-	public void setBibleContentManager(BibleContentManager bibleContentManager) {
-		this.mBibleContentManager = bibleContentManager;
-	}
+    public void setBibleContentManager(BibleContentManager bibleContentManager) {
+        this.mBibleContentManager = bibleContentManager;
+    }
 }
