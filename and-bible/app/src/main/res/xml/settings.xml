@@ -101,10 +101,4 @@
 				android:entries="@array/prefs_interface_locale_descriptions"
 				android:entryValues="@array/prefs_interface_locale_values"
 				android:defaultValue=""/>
-	<net.bible.android.view.util.SpeakSpeedPreference android:key="speak_speed_percent_pref"
-													android:title="@string/prefs_speak_speed_title"
-													android:summary="@string/prefs_speak_speed_summary"
-													android:text="%"
-													android:defaultValue="100"
-													android:max="200"/>
 </PreferenceScreen>

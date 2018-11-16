@@ -14,7 +14,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.StatFs;
 import android.preference.PreferenceManager;
-import android.support.v7.widget.PopupMenu;
+import androidx.appcompat.widget.PopupMenu;
 import android.util.Log;
 
 import net.bible.android.BibleApplication;
@@ -153,7 +153,7 @@ public class CommonUtils {
 	}
 	
     public static boolean isInternetAvailable() {
-    	String testUrl = "http://www.crosswire.org/ftpmirror/pub/sword/packages/rawzip/";
+    	String testUrl = "https://www.crosswire.org/ftpmirror/pub/sword/packages/";
     	return CommonUtils.isHttpUrlAvailable(testUrl);
     }
 
@@ -266,7 +266,7 @@ public class CommonUtils {
     }
 
     public static String getLocalePref() {
-    	return getSharedPreferences().getString("locale_pref", "");
+    	return getSharedPreferences().getString("locale_pref", null);
     }
     
 	/** get preferences used by User Prefs screen

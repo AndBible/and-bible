@@ -268,6 +268,78 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="speak_queue">Queue</string>
     <string name="speak_repeat">Repeat</string>
 
+    <!-- Speak - Bible -->
+    <string name="speak_speed_title">Speak speed</string>
+    <string name="conf_speak_synchronize">Synchronize text with speech</string>
+
+    <string name="conf_speak_auto_bookmark">Automatic bookmarking</string>
+    <string name="restore_settings_from_bookmarks">Save playback settings to bookmarks</string>
+
+    <string name="conf_speak">Speak and play earcon sounds for</string>
+    <string name="conf_replace_divinename">Replace divine name with Yahweh</string>
+
+    <string name="conf_change_chapter">Chapter changes</string>
+    <string name="conf_change_title">Titles</string>
+    <string name="conf_speak_footnotes">Footnotes</string>
+
+    <string name="conf_sleep_timer">Set sleep timer</string>
+    <string name="sleep_timer_title">Sleep time in minutes</string>
+    <string name="sleep_timer_timer_set">Set sleep timer. Timer set: %d minutes</string>
+
+    <string name="conf_playback_settings">Playback settings</string>
+    <string name="conf_speak_settings">General speak settings</string>
+    <string name="conf_speak_bookmarking_settings">Bookmarking settings</string>
+    <string name="sleep_timer_started">Sleep timer started, %d minutes</string>
+
+    <string name="speak_next">Next</string>
+    <string name="speak_previous">Previous</string>
+    <string name="widget_toggle_sleep_timer">Toggle sleep timer</string>
+    <string name="bookmarkwidget_helptext">Speak bookmarks shortcut buttons will appear here</string>
+    <string name="sleep_timer_active_at">Sleep timer: %s minutes left.</string>
+    <string name="speak_status_stopped">- stopped - </string>
+    <string name="speak_bookmark_help">Speak bookmark help</string>
+    <string name="speak_help_auto_bookmark">
+        Auto add bookmark when pausing and stopping. Automatically generated bookmarks are
+        labelled with special Speak label. If you start on Speak-labeled bookmark, bookmark will
+        be moved to the new verse location when you stop / pause next time. If there is Speak label
+        and also other labels on bookmark, only Speak label will be removed and bookmark will stay.
+    </string>
+    <string name="speak_help_playback_settings">
+        There are three playback settings: Speak (chapter changes / titles),
+        Play earcon sounds for (chapter changes / titles) and Speak speed.
+        If this option is enabled, those settings are saved to Speak bookmarks.
+    </string>
+    <string name="speak_help_playback_settings_example">
+        Usage example: Let us say that you want to listen to Genesis and Romans. You want to listen to
+        Genesis with speak speed 150%, and without interruptions between chapters, but when listening to
+        Romans you want to have 90% speak speed and hear audible earcon sound when chapter changes. You can have
+        independent playback settings for these books, when these settings are stored to bookmarks.
+    </string>
+    <string name="speak_bookmarks_menu_title">Speak from bookmark</string>
+
+    <string-array name="divinename_original">
+        <item>Lord</item>
+        <item>God</item>
+        <item/>
+        <item/>
+        <item/>
+    </string-array>
+    <string-array name="divinename_replace">
+        <item>Yahweh</item>
+        <item>Yahweh</item>
+        <item/>
+        <item/>
+        <item/>
+    </string-array>
+
+    <string name="speak_book_changed">Book changed. </string>
+    <string name="speak_chapter_changed">Chapter</string>
+    <string name="speak_first">First</string>
+    <string name="speak_second">Second</string>
+    <string name="speak_third">Third</string>
+    <string name="speak_fourth">Fourth</string>
+    <string name="speak_fifth">Fifth</string>
+
     <!-- User Notes -->
     <string name="mynotes">My Notes</string>
     <string name="mynote">My Note</string>
@@ -321,5 +393,10 @@ TODO: error and download_document_confirm_prefix need to be parameterized rather
     <string name="error_page_too_large">Page is too large to be loaded</string>
     <string name="error_key_not_in_document">Not found in document</string>
     <string name="empty_list">No items to display</string>
+    <string name="add_widget">Add widget</string>
+
+    <!-- Notifications -->
+    <string name="download_documents">Downloading documents</string>
+    <string name="notification_channel_tts_status">Text to speech</string>
     <string name="notification_channel_progress_status">Progress status notification for document downloads etc.</string>
 </resources>

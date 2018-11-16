@@ -4,6 +4,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 
 import net.bible.android.activity.R;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.window.NumberOfWindowsChangedEvent;
 import net.bible.android.control.page.window.Window;
 import net.bible.android.control.page.window.WindowControl;
@@ -13,8 +14,6 @@ import net.bible.android.view.activity.mynote.MyNoteViewBuilder;
 import net.bible.android.view.activity.page.MainBibleActivity;
 
 import javax.inject.Inject;
-
-import de.greenrobot.event.EventBus;
 
 import java.util.List;
 
@@ -43,7 +42,7 @@ public class DocumentViewManager {
 		this.parent = (LinearLayout)mainBibleActivity.findViewById(R.id.mainBibleView);
 		this.windowControl = windowControl;
 
-		EventBus.getDefault().register(this);
+		ABEventBus.getDefault().register(this);
 	}
 	
 	public void onEvent(NumberOfWindowsChangedEvent event) {

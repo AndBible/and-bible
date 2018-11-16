@@ -1,13 +1,14 @@
 package net.bible.android.control.page.window;
 
 import net.bible.android.TestBibleApplication;
-import net.bible.android.activity.BuildConfig;
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.EventManager;
 import net.bible.android.control.page.ChapterVerse;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.service.sword.SwordDocumentFacade;
 
+import net.bible.test.DatabaseResetter;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,7 +23,7 @@ import static org.hamcrest.CoreMatchers.not;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MyRobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, application = TestBibleApplication.class)
+@Config(application = TestBibleApplication.class)
 public class WindowSynchronisationTest {
 
 	private EventManager eventManager;
@@ -42,6 +43,11 @@ public class WindowSynchronisationTest {
 		};
 		windowRepository = new WindowRepository(mockCurrentPageManagerProvider);
 		windowControl = new WindowControl(windowRepository, eventManager);
+	}
+
+	@After
+	public void tearDown() {
+		DatabaseResetter.resetDatabase();
 	}
 
 	@Test

@@ -22,19 +22,23 @@
 			android:layout_width="0dip" 
 			android:layout_weight="1"
 			android:padding="5dip">
-			<RadioButton android:id="@+id/numChapters1" 
-				android:layout_width="wrap_content" 
-				android:layout_height="wrap_content"
-				android:checked="true"/>
-			<RadioButton android:id="@+id/numChapters2" 
-				android:layout_width="wrap_content" 
-				android:layout_height="wrap_content"/>
-			<RadioButton android:id="@+id/numChapters3" 
-				android:layout_width="wrap_content" 
-				android:layout_height="wrap_content"/>
-			<RadioButton android:id="@+id/numChapters4" 
-				android:layout_width="wrap_content" 
-				android:layout_height="wrap_content"/>
+			<RadioButton android:id="@+id/numChapters1"
+						 android:onClick="updateSettings"
+						 android:layout_width="wrap_content"
+						 android:layout_height="wrap_content"
+						 android:checked="true"/>
+			<RadioButton android:id="@+id/numChapters2"
+						 android:onClick="updateSettings"
+						 android:layout_width="wrap_content"
+						 android:layout_height="wrap_content"/>
+			<RadioButton android:id="@+id/numChapters3"
+						 android:onClick="updateSettings"
+						 android:layout_width="wrap_content"
+						 android:layout_height="wrap_content"/>
+			<RadioButton android:id="@+id/numChapters4"
+						 android:onClick="updateSettings"
+						 android:layout_width="wrap_content"
+						 android:layout_height="wrap_content"/>
 		</RadioGroup>
 		
 		<LinearLayout android:id="@+id/rightPanel"
@@ -46,14 +50,53 @@
 		    <CheckBox android:id="@+id/queue"
 		    	android:text="@string/speak_queue"  
 		    	android:layout_width="wrap_content" 
-		    	android:layout_height="wrap_content"/>
+		    	android:layout_height="wrap_content"
+		    	android:onClick="updateSettings"
+		    	/>
 		    <CheckBox android:id="@+id/repeat"
 		    	android:text="@string/speak_repeat"  
 		    	android:layout_width="wrap_content" 
-		    	android:layout_height="wrap_content"/>
+		    	android:layout_height="wrap_content"
+		    	android:onClick="updateSettings"
+		    	/>
 		</LinearLayout>
 	</LinearLayout>
+	<LinearLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_below="@id/leftPanel"
+			android:id="@+id/speedLayout"
+			>
 
+		<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:text="@string/speak_speed_title"/>
+
+		<TextView
+				android:text="SPEED"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:id="@+id/speedStatus"
+				android:gravity="end"
+				/>
+	</LinearLayout>
+	<SeekBar
+			android:layout_below="@id/speedLayout"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:id="@+id/speakSpeed"
+			android:max="300"
+			android:progress="100"
+			/>
+	<CheckBox
+			android:layout_below="@id/speakSpeed"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:text="@string/conf_sleep_timer"
+			android:id="@+id/sleepTimer"
+			android:onClick="setSleepTime"
+			/>
 
 	<!-- Button bar with OK button -->
 	<LinearLayout android:id="@+id/button_panel"
@@ -77,16 +120,8 @@
 	        android:layout_height="wrap_content"
 	        android:layout_weight="1"
 			android:onClick="onButtonClick"/>
-	  	
-	    <ImageButton android:id="@+id/pauseButton"
-	  	    android:src="@android:drawable/ic_media_pause"
-	        android:contentDescription="@string/pause"
-	        android:layout_width="0dip"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="1"
-			android:onClick="onButtonClick"/>
-	    
-	    <ImageButton android:id="@+id/speakButton"
+
+	    <ImageButton android:id="@+id/speakPauseButton"
 	  	    android:src="@android:drawable/ic_media_play"
 	        android:contentDescription="@string/speak"
 	        android:layout_width="0dip"
@@ -103,5 +138,22 @@
    			android:onClick="onButtonClick"/>
 	    	    
 	</LinearLayout>
+
+	<TextView
+			android:text=""
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:id="@+id/currentLocation"
+			android:layout_below="@+id/leftPanel"
+			android:layout_alignParentStart="true"/>
+
+	<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_below="@+id/leftPanel"
+			android:layout_alignParentStart="true"
+			android:id="@+id/statusText"
+			android:layout_alignBottom="@+id/currentLocation"
+			android:layout_alignParentEnd="true"/>
 
 </RelativeLayout>

@@ -82,10 +82,24 @@
   <string name="prefs_text_size_title">Veľkosť textu</string>
   <string name="prefs_text_size_summary">Videť viac  alebo vidieť zreteľnejšie</string>
   <string name="prefs_text_size_sample_text">Príklad textu</string>
+  <string name="prefs_screen_keep_on_title">Nechaj obrazovku zapnutú</string>
+  <string name="prefs_screen_keep_on_summary">Zabrániť vypnutiu obrazovky počas používania programu</string>
   <string name="x_minutes">%d minút</string>
   <string name="prefs_interface_locale_title">Jazyk programu</string>
   <string name="prefs_interface_locale_summary">Vybrať jazyk prostredia programu a názvov kníh</string>
   <string name="locale_change_warning">Program sa reštartne pre prepnutie jazyka</string>
+  <string name="prefs_speak_speed_title">Rýchlosť reči</string>
+  <string name="prefs_speak_speed_summary">Hovoriť pomalšie alebo rýchlejšie</string>
+  <string name="speak_speed_slow">Pomaly</string>
+  <string name="speak_speed_normal">Normálne</string>
+  <string name="speak_speed_fast">Rýchlo</string>
+  <string name="prefs_split_mode_vertical">Zvislo</string>
+  <string name="prefs_split_mode_horizontal">Vodorovne</string>
+  <string name="prefs_split_mode_automatic">Automaticky</string>
+  <string name="prefs_split_mode_summary">Ako rozdeliť viacero okien?</string>
+  <string name="prefs_split_mode_title">Spôsob rozdelenia</string>
+  <string name="prefs_request_sdcard_permission_title">Už existujú ručne nainštalované dokumenty</string>
+  <string name="prefs_request_sdcard_permission_summary">Povoliť ručnú inštaláciu dokumentov z adresára jsword na SD karte</string>
   <!--Window-->
   <string name="window">Okno</string>
   <string name="windowClose">Zatvor</string>
@@ -129,6 +143,7 @@
   <string name="checking_zip_file">Prebieha kontrola súboru...</string>
   <string name="invalid_module">Súbor neobsahuje platný SWORD modul</string>
   <string name="module_already_installed">Súbor obsahuje modul, ktorý je už nainštalovaný</string>
+  <string name="install_zip_title">Čakajte prosím. Nahrávam Zip súbor.</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Plán čítania</string>
   <string name="rdg_plan_selector_title">Vybrať plán čitania</string>
@@ -156,11 +171,16 @@
   <string name="share_verse_subject">Verš z Biblie (pomocou programu And Bible) je s vami zdieľaný...</string>
   <string name="compare_translations">Porovnať preklady</string>
   <!--Link context menu-->
+  <string name="open_link_in_this_window">Otvoriť odkaz tu</string>
+  <string name="open_link_in_new_window">Otvoriť odkaz v novom okne</string>
+  <string name="open_link_in_main_window">Otvoriť odkaz v hlavnom okne</string>
+  <string name="open_link_in_special_window">Otvoriť odkaz v špeciálnom okne</string>
   <!--Bookmarks-->
   <string name="bookmarks">Záložky</string>
   <string name="add_bookmark">Pridať záložku</string>
   <string name="delete_bookmark">Zmaž záložku</string>
   <string name="bookmark_added">Záložka pridaná</string>
+  <string name="bookmark_date_updated">Obnovený dátum záložky</string>
   <string name="bookmark_exists">Záložka už existuje</string>
   <string name="bookmark_deleted">Záložka zmazaná</string>
   <string name="bookmark_labels">Názvy záložiek</string>
@@ -215,6 +235,7 @@
   <string name="restore">Obnoviť</string>
   <string name="restore_confirmation">Prepísať aktuálne poznámky a záložky</string>
   <string name="restore_success">Vaše poznámky a záložky boli úspešne nahrané z %s na SD karte</string>
+  <string name="error_no_backup_file">Súbor zálohy nenájdený</string>
   <!--About-->
   <string name="about_copyright">Copyright: %s</string>
   <string name="about_version">Verzia: %s</string>
@@ -250,4 +271,5 @@
   <string name="error_page_too_large">Stránka je príliš veľká</string>
   <string name="error_key_not_in_document">V dokumente sa také čosi nenašlo :)</string>
   <string name="empty_list">Niet čo ukázať</string>
+  <string name="notification_channel_progress_status">Informácia o stave sťahovania dokumentov, atď</string>
 </resources>

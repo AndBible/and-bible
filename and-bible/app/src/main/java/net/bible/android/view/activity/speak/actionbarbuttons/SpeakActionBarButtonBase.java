@@ -1,6 +1,6 @@
 package net.bible.android.view.activity.speak.actionbarbuttons;
 
-import android.support.v4.view.MenuItemCompat;
+import androidx.core.view.MenuItemCompat;
 
 import net.bible.android.control.speak.SpeakControl;
 import net.bible.android.view.activity.base.actionbar.QuickActionButton;

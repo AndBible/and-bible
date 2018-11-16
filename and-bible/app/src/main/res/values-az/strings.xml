@@ -93,12 +93,24 @@ Yüklənmiş indeksinin quraşdırılması daha sürətli olur. Və yüklənmiş
   <string name="prefs_text_size_title">Mətin boyu</string>
   <string name="prefs_text_size_summary">Hərflər böyüsün, göstərilən mətn çoxalsın</string>
   <string name="prefs_text_size_sample_text">Mətn nümunəsi</string>
-  <string name="prefs_screen_timeout_title">Yuxu</string>
-  <string name="prefs_screen_timeout_summary">Ekran əməliyyat aparılmayana kimi bu vəziyyətdə qalacaq</string>
+  <string name="prefs_screen_keep_on_title">Ekran açıq qalsın</string>
+  <string name="prefs_screen_keep_on_summary">İstifadə edərkən ekran açıq qalsın</string>
   <string name="x_minutes">%d dəqiqə</string>
   <string name="prefs_interface_locale_title">Proqram dili</string>
   <string name="prefs_interface_locale_summary">Fərqli bir proqram dilini seç</string>
   <string name="locale_change_warning">İnterfeysi təzə dildə istifadə edə bilmək üçün əməliyyat yenidən başladılacaq</string>
+  <string name="prefs_speak_speed_title">Nitqin sürəti</string>
+  <string name="prefs_speak_speed_summary">Daha yavaş danış</string>
+  <string name="speak_speed_slow">Yavaş</string>
+  <string name="speak_speed_normal">Normal</string>
+  <string name="speak_speed_fast">Sürətli</string>
+  <string name="prefs_split_mode_vertical">Şaquli</string>
+  <string name="prefs_split_mode_horizontal">Üfüqi</string>
+  <string name="prefs_split_mode_automatic">Avtomatik</string>
+  <string name="prefs_split_mode_summary">Ekranın bölüşməsi - daha çox pəncərə olanda</string>
+  <string name="prefs_split_mode_title">Bölüşmə rejimi</string>
+  <string name="prefs_request_sdcard_permission_title">Əllə quraşdırılmış sənədlər var</string>
+  <string name="prefs_request_sdcard_permission_summary">Əl ilə quraşdırılmış sənədləri SD kartdakı jsword qovluğundan istifadə et</string>
   <!--Window-->
   <string name="window">Pəncərə</string>
   <string name="windowClose">Bağla</string>
@@ -145,6 +157,7 @@ səhifələrdən yüklənilir</string>
   <string name="checking_zip_file">Yoxlayıram sənədi...</string>
   <string name="invalid_module">Faylda həqiqi SWORD-sənədi yoxdur</string>
   <string name="module_already_installed">Arxivdə olan sənəd artıq var</string>
+  <string name="install_zip_title">Zəhmət olmasa, gözləyin. Zip faylı açılır...</string>
   <!--Daily Reading Plan-->
   <string name="rdg_plan_title">Oxumaq planı</string>
   <string name="rdg_plan_selector_title">Oxumaq planını seçin</string>
@@ -171,11 +184,17 @@ səhifələrdən yüklənilir</string>
   <string name="share_verse">Paylaş …</string>
   <string name="share_verse_subject">And Bible tətbiq edəndə sizinlə Müqəddəs Kitabdan bir ayə paylaşdım</string>
   <string name="compare_translations">Tərcümələri qarşılaşdır</string>
+  <!--Link context menu-->
+  <string name="open_link_in_this_window">Linki burada aç</string>
+  <string name="open_link_in_new_window">Linki təzə pəncərədə aç</string>
+  <string name="open_link_in_main_window">Linki əsas pəncərədə aç</string>
+  <string name="open_link_in_special_window">Linki xüsusi pəncərədə aç</string>
   <!--Bookmarks-->
   <string name="bookmarks">Nişanlı yerlər (Əlfəcinlər)</string>
   <string name="add_bookmark">Seçilmiş ayəni nişanla (əlfəcin)</string>
   <string name="delete_bookmark">əlfəcini sil</string>
   <string name="bookmark_added">Əlfəcini yükləndi</string>
+  <string name="bookmark_date_updated">Nişanlı yerlərin - Əlfəcinlərin tarixi yeniləndi</string>
   <string name="bookmark_exists">Əlfəcini artıq var</string>
   <string name="bookmark_deleted">əlfəcin silinib</string>
   <string name="bookmark_labels">Əlfəcinlərin etiketləri</string>
@@ -230,6 +249,7 @@ səhifələrdən yüklənilir</string>
   <string name="restore">Kopyadan geri yüklə</string>
   <string name="restore_confirmation">Mövcud olan Qeyd və Əlfəcinlərin üzərinə yazılsın?</string>
   <string name="restore_success">Qeydlər və Əlfəcinlər yaddaş kartından (%s) ger yükləndi.</string>
+  <string name="error_no_backup_file">Backup faylı tapılmadı</string>
   <!--About-->
   <string name="about_copyright">Copyright %s</string>
   <string name="about_version">Versiya: %s</string>
@@ -265,4 +285,5 @@ səhifələrdən yüklənilir</string>
   <string name="error_page_too_large">Səhifə yükləmək üçün çox böyükdür</string>
   <string name="error_key_not_in_document">Sənətdə tapılmadı</string>
   <string name="empty_list">Elemenet tapılmadı</string>
+  <string name="notification_channel_progress_status">Sənəd yükləmələri üçün tərəqqi statusu bildirişi.</string>
 </resources>

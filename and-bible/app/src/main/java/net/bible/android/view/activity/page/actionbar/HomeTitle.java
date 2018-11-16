@@ -2,7 +2,7 @@ package net.bible.android.view.activity.page.actionbar;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.ActionBar;
+import androidx.appcompat.app.ActionBar;
 
 import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.passage.CurrentVerseChangedEvent;

@@ -70,3 +70,8 @@
 -keep class * implements org.apache.lucene.**Attribute
 # required for non-English searches
 -keep class * extends org.tartarus.snowball.SnowballProgram
+
+-keepattributes *Annotation*
+
+-keep class kotlin.** { *; }
+-keep class org.jetbrains.** { *; }

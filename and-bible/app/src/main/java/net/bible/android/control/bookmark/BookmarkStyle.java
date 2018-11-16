@@ -14,7 +14,11 @@ public enum BookmarkStyle {
 	RED_HIGHLIGHT(Color.argb((int)(255*0.28), 213, 0, 0)),
 	YELLOW_HIGHLIGHT(Color.argb((int)(255*0.33), 255, 255, 0)),
 	GREEN_HIGHLIGHT(Color.argb((int)(255*0.33), 0, 255, 0)),
-	BLUE_HIGHLIGHT(Color.argb((int)(255*0.33), 145, 167, 255));
+	BLUE_HIGHLIGHT(Color.argb((int)(255*0.33), 145, 167, 255)),
+
+	// Special hard-coded style for Speak bookmarks. This must be last one here.
+	// This is removed from the style lists.
+	SPEAK(Color.argb(0, 255, 255, 255));
 
 	private final int backgroundColor;
 

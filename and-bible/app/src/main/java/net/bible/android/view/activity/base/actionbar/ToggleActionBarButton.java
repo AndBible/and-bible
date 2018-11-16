@@ -1,6 +1,6 @@
 package net.bible.android.view.activity.base.actionbar;
 
-import android.support.v4.view.MenuItemCompat;
+import androidx.core.view.MenuItemCompat;
 
 /** Two state actionbar button
  * 

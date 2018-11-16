@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:minWidth="160dp"
+                    android:minHeight="60dp"
+                    android:updatePeriodMillis="86400000"
+                    android:previewImage="@drawable/large_speak_control_widget"
+                    android:initialLayout="@layout/speak_widget"
+                    android:resizeMode="horizontal|vertical"
+                    android:widgetCategory="home_screen"
+                    >
+</appwidget-provider>

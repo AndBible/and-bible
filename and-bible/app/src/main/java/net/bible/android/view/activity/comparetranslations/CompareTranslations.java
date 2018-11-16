@@ -105,7 +105,7 @@ public class CompareTranslations extends ListActivityBase implements SwipeGestur
     @Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
     	try {
-    		// no need to call HistoryManager.beforePageChange() here because PassageChangeMediator will tell HistoryManager a change is about to occur 
+    		// no need to call HistoryManager.addHistoryItem() here because PassageChangeMediator will tell HistoryManager a change is about to occur
     		
 	    	translationSelected(mTranslations.get(position));
 		} catch (Exception e) {

@@ -2,6 +2,7 @@ package net.bible.android.control.download;
 
 import net.bible.service.download.FakeSwordBookFactory;
 
+import net.bible.test.DatabaseResetter;
 import org.crosswire.common.util.Language;
 import org.crosswire.jsword.book.Book;
 import org.junit.After;
@@ -35,6 +36,7 @@ public class RelevantLanguageSorterTest {
 	public void tearDown() throws Exception {
 		// the test changes the Locale so ensure the correct default locale is restored
 		Locale.setDefault(originalLocale);
+		DatabaseResetter.resetDatabase();
 	}
 
 	@Test

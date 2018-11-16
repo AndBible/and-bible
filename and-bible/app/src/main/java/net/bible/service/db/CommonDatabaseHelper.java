@@ -20,7 +20,7 @@ import net.bible.service.db.mynote.MyNoteDatabaseDefinition;
  */
 public class CommonDatabaseHelper extends SQLiteOpenHelper {
 	private static final String TAG = "CommonDatabaseHelper";
-	static final int DATABASE_VERSION = 4;
+	static final int DATABASE_VERSION = 5;
 	public static final String DATABASE_NAME = "andBibleDatabase.db";
 
 	private static CommonDatabaseHelper sSingleton = null;
@@ -68,6 +68,10 @@ public class CommonDatabaseHelper extends SQLiteOpenHelper {
 			}
 			if (oldVersion == 3) {
 				BookmarkDatabaseDefinition.getInstance().upgradeToVersion4(db);
+				oldVersion += 1;
+			}
+			if (oldVersion == 4) {
+				BookmarkDatabaseDefinition.getInstance().upgradeToVersion5(db);
 				oldVersion += 1;
 			}
 		} catch (SQLiteException e) {

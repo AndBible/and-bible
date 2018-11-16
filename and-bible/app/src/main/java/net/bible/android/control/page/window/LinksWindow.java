@@ -16,6 +16,7 @@ public class LinksWindow extends Window {
 	public LinksWindow(WindowState windowState, CurrentPageManager currentPageManager) {
 		super(DEDICATED_LINK_WINDOW_SCREEN_NO, windowState, currentPageManager);
 		setSynchronised(false);
+		currentPageManager.setWindow(this);
 	}
 
 	@Override

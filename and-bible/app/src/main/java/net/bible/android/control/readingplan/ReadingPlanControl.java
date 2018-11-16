@@ -5,6 +5,7 @@ import android.content.SharedPreferences.Editor;
 import android.util.Log;
 
 import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.control.event.passage.BeforeCurrentPageChangeEvent;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.ActiveWindowPageManagerProvider;
@@ -26,7 +27,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import de.greenrobot.event.EventBus;
 
 /** Control status of reading plans
  * 
@@ -234,7 +234,7 @@ public class ReadingPlanControl {
     		// mark reading as 'read'
     		getReadingStatus(day).setRead(readingNo);
 
-    		EventBus.getDefault().post(new BeforeCurrentPageChangeEvent());
+    		ABEventBus.getDefault().post(new BeforeCurrentPageChangeEvent());
 
 			// show the current bible
 			final CurrentPageManager currentPageManager = getCurrentPageManager();
@@ -256,7 +256,7 @@ public class ReadingPlanControl {
 		AbstractPassageBook bible = getCurrentPageManager().getCurrentBible().getCurrentPassageBook();
 		List<Key> keyList = convertReadingVersification(readingKey, bible);
 
-		speakControl.speak(bible, keyList, true, false);
+		speakControl.speakKeyList(bible, keyList, true, false);
 		
 		getReadingStatus(day).setRead(readingNo);
 	}
@@ -271,7 +271,7 @@ public class ReadingPlanControl {
 			List<Key> keyList = convertReadingVersification(key, bible);
 			allReadingsWithCorrectV11n.addAll(keyList);
 		}
-		speakControl.speak(bible, allReadingsWithCorrectV11n, true, false);
+		speakControl.speakKeyList(bible, allReadingsWithCorrectV11n, true, false);
 
 		// mark all readings as read
 		for (int i=0; i<allReadings.size(); i++) {

@@ -5,9 +5,14 @@ import net.bible.service.format.osistohtml.HtmlTextWriter;
 import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler.VerseInfo;
 
+import net.bible.test.DatabaseResetter;
 import org.crosswire.jsword.book.OSISUtil;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.xml.sax.helpers.AttributesImpl;
 
 import java.util.List;
@@ -15,6 +20,8 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
+@RunWith(RobolectricTestRunner.class)
+@Config(qualifiers="en")
 public class NoteHandlerTest {
 
 	private OsisToHtmlParameters osisToHtmlParameters;
@@ -26,7 +33,7 @@ public class NoteHandlerTest {
 	private ReferenceHandler referenceHandler;
 
 	private NoteHandler noteHandler;
-	
+
 	@Before
 	public void setUp() throws Exception {
 		osisToHtmlParameters = new OsisToHtmlParameters();
@@ -36,6 +43,11 @@ public class NoteHandlerTest {
 
 		noteHandler = new NoteHandler(osisToHtmlParameters, verseInfo, writer);
 		referenceHandler = new ReferenceHandler(osisToHtmlParameters, noteHandler, writer);
+	}
+
+	@After
+	public void tearDown() {
+		DatabaseResetter.resetDatabase();
 	}
 
 	/**

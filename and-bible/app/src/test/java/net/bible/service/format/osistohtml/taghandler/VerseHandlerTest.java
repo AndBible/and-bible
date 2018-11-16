@@ -52,7 +52,7 @@ public class VerseHandlerTest {
 		verseInfo.isTextSinceVerse = true;
 		verseHandler.end();
 		
-		assertThat(htmlTextWriter.getHtml(), equalTo(" <span class='verse' id='3.5'><span class='verseNo'>5</span>&#160;The Creation</span>"));
+		assertThat(htmlTextWriter.getHtml(), equalTo(" <span class='verse' id='3.5'><span class='verseNo'>5</span>&#160;<span class='bookmark1'></span><span class='bookmark2'></span>The Creation</span>"));
 	}
 
 	/**
@@ -72,7 +72,7 @@ public class VerseHandlerTest {
 		verseInfo.isTextSinceVerse = true;
 		verseHandler.end();
 
-		assertThat(htmlTextWriter.getHtml(), equalTo(" <span class='verse bookmarkClass' id='3.5'><span class='verseNo'>5</span>&#160;The Creation</span>"));
+		assertThat(htmlTextWriter.getHtml(), equalTo(" <span class='verse bookmarkClass' id='3.5'><span class='verseNo'>5</span>&#160;<span class='bookmark1'></span><span class='bookmark2'></span>The Creation</span>"));
 	}
 
 	/**
@@ -90,7 +90,7 @@ public class VerseHandlerTest {
 		verseInfo.isTextSinceVerse = true;
 		verseHandler.end();
 
-		assertThat(htmlTextWriter.getHtml(), equalTo(" <span class='verse' id='3.5'><span class='verseNo'>&#x200b;</span>The Creation</span>"));
+		assertThat(htmlTextWriter.getHtml(), equalTo(" <span class='verse' id='3.5'><span class='verseNo'>&#x200b;</span><span class='bookmark1'></span><span class='bookmark2'></span>The Creation</span>"));
 	}
 
 	/**
@@ -110,6 +110,6 @@ public class VerseHandlerTest {
 		verseInfo.isTextSinceVerse = true;
 		verseHandler.end();
 
-		assertThat(htmlTextWriter.getHtml(), equalTo(" <span class='verse bookmarkClass' id='3.5'><span class='verseNo'>&#x200b;</span>The Creation</span>"));
+		assertThat(htmlTextWriter.getHtml(), equalTo(" <span class='verse bookmarkClass' id='3.5'><span class='verseNo'>&#x200b;</span><span class='bookmark1'></span><span class='bookmark2'></span>The Creation</span>"));
 	}
 }

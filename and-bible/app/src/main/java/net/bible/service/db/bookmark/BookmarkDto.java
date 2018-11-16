@@ -1,10 +1,13 @@
 package net.bible.service.db.bookmark;
 
+import net.bible.android.control.speak.PlaybackSettings;
+import net.bible.android.control.speak.SpeakSettings;
 import net.bible.android.control.versification.ConvertibleVerseRange;
 import net.bible.android.control.versification.sort.ConvertibleVerseRangeUser;
 
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.Versification;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Date;
 
@@ -17,6 +20,7 @@ public class BookmarkDto implements ConvertibleVerseRangeUser {
 	private Long id;
 	private ConvertibleVerseRange convertibleVerseRange;
 	private Date createdOn;
+	private PlaybackSettings playbackSettings = null;
 
 	public Long getId() {
 		return id;
@@ -38,6 +42,15 @@ public class BookmarkDto implements ConvertibleVerseRangeUser {
 	}
 	public void setCreatedOn(Date createdOn) {
 		this.createdOn = createdOn;
+	}
+
+	@Nullable
+	public PlaybackSettings getPlaybackSettings(){
+		return playbackSettings;
+	}
+
+	public void setPlaybackSettings(PlaybackSettings playbackSettings) {
+		this.playbackSettings = playbackSettings;
 	}
 
 	@Override

@@ -1,11 +1,11 @@
 package net.bible.android.control.page.window;
 
 import net.bible.android.TestBibleApplication;
-import net.bible.android.activity.BuildConfig;
 import net.bible.android.control.page.CurrentBiblePage;
 import net.bible.android.control.page.CurrentPageManager;
 import net.bible.android.control.page.window.WindowLayout.WindowState;
 import net.bible.service.sword.SwordDocumentFacade;
+import net.bible.test.DatabaseResetter;
 import net.bible.test.PassageTestData;
 
 import org.json.JSONObject;
@@ -21,7 +21,7 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertThat;
 
 @RunWith(MyRobolectricTestRunner.class)
-@Config(constants = BuildConfig.class, application = TestBibleApplication.class)
+@Config(application = TestBibleApplication.class)
 public class WindowTest {
 
 	@Before
@@ -30,6 +30,7 @@ public class WindowTest {
 
 	@After
 	public void tearDown() throws Exception {
+		DatabaseResetter.resetDatabase();
 	}
 
 	@Test

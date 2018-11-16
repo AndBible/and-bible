@@ -9,6 +9,7 @@ import org.crosswire.jsword.passage.Verse;
 import org.crosswire.jsword.passage.VerseRange;
 import org.crosswire.jsword.versification.BibleBook;
 import org.crosswire.jsword.versification.Versification;
+import org.jetbrains.annotations.NotNull;
 
 import javax.inject.Inject;
 
@@ -118,8 +119,12 @@ public class BibleTraverser {
 			// if there was a next book then go to it's first chapter
 			if (nextBook!=null) {
 				book = nextBook;
-				chapter=1;
 			}
+			else {
+				book = BibleBook.GEN;
+			}
+			chapter=1;
+
 		}
 		return new Verse(v11n, book, chapter, 1);
 	}
@@ -174,5 +179,18 @@ public class BibleTraverser {
 				)
 			);
 		return prevBook;
+	}
+
+	/**
+	* Get percentage value of reading progress of the verse within its biblebook.
+	 */
+	public int getPercentOfBook(@NotNull Verse verse) {
+		Versification v11n = verse.getVersification();
+		BibleBook bibleBook = verse.getBook();
+		int lastChapterNumber = v11n.getLastChapter(bibleBook);
+		int lastVerseNumber = v11n.getLastVerse(bibleBook, lastChapterNumber);
+		Verse lastVerse = new Verse(v11n, bibleBook, lastChapterNumber, lastVerseNumber);
+		Verse firstVerse = new Verse(v11n, bibleBook, 1, 1);
+		return (int)((((double)(verse.getOrdinal() - firstVerse.getOrdinal())) / (lastVerse.getOrdinal() - firstVerse.getOrdinal())) * 100.0);
 	}
 }

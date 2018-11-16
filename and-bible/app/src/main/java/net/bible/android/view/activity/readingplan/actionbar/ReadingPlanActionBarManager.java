@@ -1,16 +1,15 @@
 package net.bible.android.view.activity.readingplan.actionbar;
 
 import android.app.Activity;
-import android.support.v7.app.ActionBar;
+import androidx.appcompat.app.ActionBar;
 import android.view.Menu;
 
 import net.bible.android.control.ApplicationScope;
+import net.bible.android.control.event.ABEventBus;
 import net.bible.android.view.activity.base.CurrentActivityHolder;
 import net.bible.android.view.activity.base.actionbar.ActionBarManager;
 import net.bible.android.view.activity.base.actionbar.DefaultActionBarManager;
 import net.bible.service.device.speak.event.SpeakEvent;
-import net.bible.service.device.speak.event.SpeakEventListener;
-import net.bible.service.device.speak.event.SpeakEventManager;
 
 import javax.inject.Inject;
 
@@ -39,14 +38,12 @@ public class ReadingPlanActionBarManager extends DefaultActionBarManager impleme
 		this.commentaryActionBarButton = commentaryActionBarButton;
 		this.dictionaryActionBarButton = dictionaryActionBarButton;
 
-		// the manager will also instantly fire a catch-up event to ensure state is current
-        SpeakEventManager.getInstance().addSpeakEventListener(new SpeakEventListener() {
-			@Override
-			public void speakStateChange(SpeakEvent e) {
-				updateButtons();
-			}
-		});
+		ABEventBus.getDefault().register(this);
     }
+
+    public void onEvent(SpeakEvent e) {
+    	updateButtons();
+	}
 
 	public void prepareOptionsMenu(Activity activity, Menu menu, ActionBar actionBar) {
 		super.prepareOptionsMenu(activity, menu, actionBar);

@@ -9,6 +9,7 @@ import net.bible.service.format.osistohtml.OsisToHtmlParameters;
 import net.bible.service.format.osistohtml.osishandlers.OsisToCanonicalTextSaxHandler;
 import net.bible.service.format.osistohtml.osishandlers.OsisToHtmlSaxHandler;
 
+import net.bible.test.DatabaseResetter;
 import org.crosswire.common.xml.SAXEventProvider;
 import org.crosswire.jsword.book.Book;
 import org.crosswire.jsword.book.BookCategory;
@@ -76,6 +77,11 @@ public class OSISInputStreamTest {
 			}
 //			System.out.println(book.getOsisID());
 		}
+	}
+
+	@After
+	public void tearDown(){
+		DatabaseResetter.resetDatabase();
 	}
 
 	
